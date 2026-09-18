@@ -1,8 +1,74 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-18 (session 7: resolved GitHub issues #7–#10, oldest
-first)._ Keep this current: whoever picks the project up next, human or AI,
-should be able to continue from here without re-deriving decisions._
+_Last updated 2026-09-18 (session 8: resolved GitHub issue #12, reordering
+the Icelandic course's opening module)._ Keep this current: whoever picks
+the project up next, human or AI, should be able to continue from here
+without re-deriving decisions._
+
+## Session 8: issue #12 — the first lessons were only single-word greetings
+
+> "in the first few lessons, it needs more full sentences in target
+> language. just listing greetings is simply a game of memorizing. it is
+> not only difficult but also boring."
+
+Checked this empirically before touching anything: lesson 1 introduces at
+most 8 new items (pace 6 + the "short first lesson" +2 cap, `test_first_
+lesson_at_default_pace_is_short_not_padded`), and `curricula/is-en/01-
+greetings.toml`'s first 8 items — before this session — were `Góðan
+daginn.`, `Gott kvöld.`, `Góða nótt.`, `Hæ.`, `Halló.`, `Bless.`, `Takk.`,
+`Takk kærlega.`: one to two words each. The owner's complaint is a direct,
+deterministic consequence of file order, since `Item.order` isn't an
+authored field — `content.py` just assigns it by each item's position in
+the TOML list (`curriculum_from_dict`'s `enumerate(raw.get("items", []))`).
+The planner then walks new items in that order by default (topic
+interleaving is opt-in via `--topics`), so "the first few lessons" really
+does mean "however the module happened to be typed out."
+
+Considered three approaches (asked the owner, who picked this one over
+turning on topic-interleaving by default or writing new lesson-1-only
+content): **reorder `01-greetings.toml` itself.** No code change — this
+confirmed it's purely a content/ordering problem, not a planner bug — and
+it reuses sentences that were already written and already exercised by the
+test suite, so it doesn't add new Icelandic content to get wrong (see
+issue #10's guideline, three sessions ago).
+
+- Checked every item for `prereqs` before moving anything: all of module
+  1 is prereq-free except `allt_gott` (`prereqs = ["takk"]`) and
+  `sjaumst_seinna` (`prereqs = ["sjaumst"]`) — both easy to satisfy by
+  keeping their prereq a few slots earlier in the new order, which the
+  planner needs anyway (it silently skips an item whose prereqs aren't
+  learned yet and moves on, so getting this slightly wrong wouldn't have
+  broken anything, just deferred an item further than intended).
+- New order for the first 10 items: `Góðan daginn.` → `Takk.` → `Hvað
+  segirðu gott?` (How are you?) → `En þú?` (And you?) → `Hæ.` → `Halló.` →
+  `Allt gott, takk.` (All good, thanks.) → `Hvernig hefurðu það?` (How are
+  you doing?) → `Ég hef það gott.` (I'm doing well.) → `Gaman að sjá þig.`
+  (Nice to see you.). Four of the first eight are now full sentences
+  instead of zero, and lesson 2 (items 8–15ish) is *mostly* full sentences.
+  The rest of the module keeps its original relative order — this is a
+  targeted interleave, not a full reshuffle, to keep the diff reviewable
+  and the remaining sequencing decisions (already presumably considered)
+  untouched.
+- The rest of the curriculum is unaffected: `order` for every item in
+  module 2 onward is still just "how many items came before it," and
+  module 1 still has exactly 38 items, so nothing downstream shifts except
+  which id sits at which of module 1's own 38 slots.
+- One test needed a matching content change of its own to catch a
+  regression, not a code fix: `test_pronunciation_notes_reach_the_
+  transcript` builds a 30-minute lesson 1 and expects `hallo`'s note in
+  the transcript. An earlier draft of this reorder put `Halló.` at
+  position 9, one slot past the 8-item introduction cap for that test's
+  exact config — moved it to position 5 instead. That failure is a useful
+  sanity check in itself: it confirms the reorder is real and observable,
+  not just index bookkeeping.
+
+Added `test_early_icelandic_lessons_mix_full_sentences_with_greetings` in
+`tests/test_audiolesson.py::CurriculumTests` so a future edit can't quietly
+slide this module back to all-single-word without a test catching it.
+
+`audiolesson validate curricula/is-en` and the full suite (63 tests) both
+still pass — same 993 items, same ids, same dialogue requirements, just a
+different order for 38 of them.
 
 ## Session 7: working through the open GitHub issues, oldest first
 

@@ -81,6 +81,16 @@ class CurriculumTests(unittest.TestCase):
         with self.assertRaises(CurriculumError):
             curriculum_from_dict(raw)
 
+    def test_early_icelandic_lessons_mix_full_sentences_with_greetings(self):
+        """Issue #12: the first few lessons were nothing but one- and two-word greetings to
+        memorize. Guard against sliding back to that: among the first 10 items introduced,
+        several should be genuine multi-word sentences, not just single words."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        first_ten = [it for it in cur.items if it.order < 10]
+        self.assertEqual(len(first_ten), 10)
+        full_sentences = [it for it in first_ten if it.word_count >= 3]
+        self.assertGreaterEqual(len(full_sentences), 3, first_ten)
+
     def test_directory_curriculum_loads_and_is_large(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         self.assertGreater(len(cur.items), 900)
