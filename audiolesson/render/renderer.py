@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sys
 import tomllib
 from concurrent.futures import ThreadPoolExecutor
@@ -44,6 +45,26 @@ RESPELL_FOR_SPEECH: dict[str, list[tuple[str, str]]] = {
 def _respell(text: str, lang: str) -> str:
     for find, replace in RESPELL_FOR_SPEECH.get(lang.split("-")[0].lower(), ()):
         text = text.replace(find, replace)
+    return text
+
+
+# Curriculum authors write "A / B" (and its Japanese fullwidth twin "A／B") to show two
+# acceptable phrasings at a glance. Read aloud literally, a TTS voice says the character's
+# name ("slash") instead of the word it stands for, which is what it's meant to mean in
+# running speech. Fixed at the same render layer as RESPELL_FOR_SPEECH, for the same
+# reason: the written curriculum, transcript and cues.json should still show the "/", only
+# the audio should say the word.
+NARRATION_SLASH_AS_SPOKEN: dict[str, tuple[re.Pattern[str], str]] = {
+    "en": (re.compile(r"\s*/\s*"), " or "),
+    "ja": (re.compile(r"／"), "または"),
+}
+
+
+def _speak_slashes(text: str, lang: str) -> str:
+    fix = NARRATION_SLASH_AS_SPOKEN.get(lang.split("-")[0].lower())
+    if fix:
+        pattern, replacement = fix
+        text = pattern.sub(replacement, text)
     return text
 
 
@@ -133,7 +154,7 @@ def render_script(
     def request_for(seg) -> tuple[str, str, str, float]:
         lang = seg.lang or (script.known_lang if seg.speaker == "instructor" else script.target_lang)
         sv = profile.voice_for(seg.speaker or "native_a", lang, provider, _DEFAULT_INDEX.get(seg.speaker or "", 0))
-        return (_respell(seg.text or "", lang), lang, sv.voice, seg.rate * sv.rate)
+        return (_speak_slashes(_respell(seg.text or "", lang), lang), lang, sv.voice, seg.rate * sv.rate)
 
     # warm the cache in parallel for providers that talk to a network
     unique = {request_for(seg) for seg in script.segments if seg.type != "pause"}

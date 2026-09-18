@@ -1,9 +1,54 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-18 (session 6, corrected: halló's greeting sense has no
-click — see "Correction" below, which supersedes the phonology claim in
-session 5)._ Keep this current: whoever picks the project up next, human or
-AI, should be able to continue from here without re-deriving decisions._
+_Last updated 2026-09-18 (session 7: working through the repo's open GitHub
+issues one at a time, oldest first)._ Keep this current: whoever picks the
+project up next, human or AI, should be able to continue from here without
+re-deriving decisions._
+
+## Session 7: working through the open GitHub issues, oldest first
+
+The owner filed four issues (#7–#10, all with self-explanatory titles and no
+body) and asked for them to be resolved one at a time, in order. This session
+did #7; #8–#10 are next.
+
+### Issue #7 — "/" is read aloud as "slash" instead of "or"
+
+Curriculum authors write `"A / B"` (and, in the Japanese glosses, the
+fullwidth twin `"A／B"`) to show two acceptable phrasings at a glance — e.g.
+`meaning = "Excuse me. / Sorry."` or `meaning_ja = "もしもし。／ハロー。"`. Read
+aloud literally by the TTS voice, that character is pronounced as its own
+name ("slash"), which is not what it's there to mean.
+
+Grepped every `curricula/is-en/*.toml` for `/` and `／` first, to make sure
+the fix could be scoped safely: the character only ever shows up in narrated
+known-language fields (`meaning`, `meaning_ja`, and their kin) as this
+alternative-phrasing convention, or inside `#`-comments. No `target =` field
+(the actual Icelandic speech text) contains one, so there is no risk of the
+fix reaching into target-language audio.
+
+Fixed at the same render layer as session 6's `RESPELL_FOR_SPEECH` — the
+right layer for anything that should change what the TTS hears but not what
+the transcript/cues.json/curriculum record: `audiolesson/render/renderer.py`
+now also has `NARRATION_SLASH_AS_SPOKEN`, a small per-language regex table
+(`"en": "/" → " or "`, `"ja": "／" → "または"`), applied in `request_for()`
+right after `_respell()`. English uses a whitespace-flexible regex so both
+`"A / B"` (spaced) and `"yes/no"` (bare) come out right; the Japanese fullwidth
+slash needs no such flexibility since it's never surrounded by ASCII spaces
+in this curriculum.
+
+Deliberately not a curriculum-content change: rewriting every `meaning`
+field to spell out "or" would touch dozens of lines across many files for a
+purely cosmetic fix, and the written "/" is genuinely useful there (a reader
+scans it faster than a written-out "or"). The render layer is the one place
+that already exists specifically to make audio and record diverge on
+purpose (see session 6) — reusing it here is the smaller change.
+
+Tests added in `tests/test_audiolesson.py::RenderTests`:
+`test_narration_slash_is_spoken_as_a_word_not_read_as_slash` (unit-tests the
+regex table directly, English and Japanese, plus the guard that it doesn't
+touch `is`) and `test_narration_slash_reaches_the_tts_but_the_record_keeps_the_slash`
+(end-to-end: renders a script, spies on what the stub provider actually
+receives, confirms the transcript and cues.json still show the "/").
 
 ## Session 6: owner overrode session 5's "leave it, it's correct" call
 

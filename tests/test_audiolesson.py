@@ -645,6 +645,46 @@ class RenderTests(unittest.TestCase):
         self.assertEqual(cues["segments"][0]["text"], "Halló.")  # cues.json keeps the real word
         self.assertIn("Halló.", sc.transcript())  # transcript is built from the Segment, untouched by rendering
 
+    def test_narration_slash_is_spoken_as_a_word_not_read_as_slash(self):
+        from audiolesson.render.renderer import _speak_slashes
+
+        self.assertEqual(_speak_slashes("Excuse me / Sorry.", "en"), "Excuse me or Sorry.")
+        self.assertEqual(_speak_slashes("yes/no", "en"), "yes or no")
+        self.assertEqual(_speak_slashes("もしもし。／ハロー。", "ja"), "もしもし。またはハロー。")
+        self.assertEqual(_speak_slashes("地図／カード", "ja"), "地図またはカード")
+        self.assertEqual(_speak_slashes("no slash here", "en"), "no slash here")
+        self.assertEqual(_speak_slashes("A / B", "is"), "A / B")  # only known-language narration is fixed
+
+    def test_narration_slash_reaches_the_tts_but_the_record_keeps_the_slash(self):
+        """The written meaning keeps the '/' for a reader; only the spoken audio says 'or'."""
+        from audiolesson.script import Segment
+        from audiolesson.render.tts import StubProvider
+
+        sc = Script(1, "Lesson 1", "is", "en")
+        ex = sc.new_exercise("intro", "intro", ["hallo"], "new: Halló.")
+        sc.add(Segment("speak", "instructor", "Excuse me / Sorry.", "en", 1.0, 1.0, None, ex.index))
+
+        heard: list[str] = []
+        original = StubProvider.synthesize
+
+        def spy(self, text, lang, voice, rate=1.0):
+            heard.append(text)
+            return original(self, text, lang, voice, rate)
+
+        StubProvider.synthesize = spy
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                prof = load_profile(None, "stub")
+                prof.mp3 = False
+                cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
+        finally:
+            StubProvider.synthesize = original
+
+        self.assertIn("Excuse me or Sorry.", heard)
+        self.assertNotIn("Excuse me / Sorry.", heard)
+        self.assertEqual(cues["segments"][0]["text"], "Excuse me / Sorry.")
+        self.assertIn("Excuse me / Sorry.", sc.transcript())
+
 
 class CliTests(unittest.TestCase):
     def test_generate_report_status(self):
