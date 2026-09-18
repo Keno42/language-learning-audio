@@ -608,6 +608,48 @@ class CliTests(unittest.TestCase):
             self.assertEqual(rc, 0)
             self.assertTrue((Path(td) / "lesson-002.wav").exists())
 
+    def test_user_wrapper_remembers_settings_across_calls(self):
+        """--user NAME is a thin wrapper: files land under <root>/NAME/, and the curriculum,
+        --known, --minutes etc. from the first call don't need repeating on later ones."""
+        from audiolesson.cli import main
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "out"
+            rc = main(["generate", "-u", "yuki", "--root", str(root), "-c", str(CURRICULUM), "-m", "3", "--no-audio", "--date", "2026-09-18"])
+            self.assertEqual(rc, 0)
+            user_dir = root / "yuki"
+            self.assertTrue((user_dir / "lesson-001.script.json").exists())
+            self.assertTrue((user_dir / "learner.json").exists())
+            saved = json.loads((user_dir / "settings.json").read_text())
+            self.assertEqual(saved["curriculum"], str(CURRICULUM))
+            self.assertEqual(saved["minutes"], 3.0)
+
+            # second call: only -u, everything else remembered; lesson numbering continues
+            rc = main(["generate", "-u", "yuki", "--root", str(root), "--no-audio", "--date", "2026-09-19"])
+            self.assertEqual(rc, 0)
+            self.assertTrue((user_dir / "lesson-002.script.json").exists())
+
+            self.assertEqual(main(["status", "-u", "yuki", "--root", str(root)]), 0)
+            self.assertEqual(main(["report", "-u", "yuki", "--root", str(root)]), 0)
+
+    def test_user_wrapper_rejects_path_like_names_and_conflicting_flags(self):
+        from audiolesson.cli import main
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "out"
+            self.assertEqual(main(["generate", "-u", "../escape", "--root", str(root), "-c", str(CURRICULUM), "-m", "3", "--no-audio"]), 1)
+            self.assertEqual(main(["generate", "-u", "a/b", "--root", str(root), "-c", str(CURRICULUM), "-m", "3", "--no-audio"]), 1)
+            # --user together with --learner or --out is a conflict, not a silent override
+            self.assertEqual(main(["generate", "-u", "a", "--root", str(root), "-c", str(CURRICULUM), "-m", "3", "-l", str(root / "x.json"), "--no-audio"]), 1)
+            self.assertEqual(main(["generate", "-u", "a", "--root", str(root), "-c", str(CURRICULUM), "-m", "3", "-o", str(root / "x"), "--no-audio"]), 1)
+
+    def test_without_user_or_learner_still_errors_clearly(self):
+        from audiolesson.cli import main
+
+        self.assertEqual(main(["generate", "-c", str(CURRICULUM), "-m", "3", "--no-audio"]), 1)
+        self.assertEqual(main(["status"]), 1)
+        self.assertEqual(main(["report"]), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
