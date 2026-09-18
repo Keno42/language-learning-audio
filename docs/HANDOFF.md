@@ -1,6 +1,6 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-18 (session 3: auto mode, fixed length)._ Keep this current: whoever picks the
+_Last updated 2026-09-18 (session 4: --user/--root wrapper)._ Keep this current: whoever picks the
 project up next, human or AI, should be able to continue from here without
 re-deriving decisions._
 
@@ -8,7 +8,7 @@ re-deriving decisions._
 
 `audiolesson generate` plans a lesson from a curriculum + learner state,
 writes a timed script/plan/transcript, renders audio through a pluggable TTS
-layer, and updates the learner model. 45 unit tests pass
+layer, and updates the learner model. 55 unit tests pass
 (`python -m unittest`). A 10-lesson simulated course on the sample French
 curriculum behaves as intended (new items reactivated at expanding gaps,
 reviews interleaved, dialogues and recombination appear once material is
@@ -20,6 +20,35 @@ Verified in this session:
   refused the websocket (HTTP 403). Test it first thing on a normal network:
   `pip install edge-tts && audiolesson generate ... -p profiles/edge-fr-en.toml -m 3`.
 - `openai` and `say` providers are straightforward but also untested here.
+
+## Session 4 additions: --user/--root wrapper
+
+- `generate/report/status --user NAME` (`-u`; `--root`, default `out/` or
+  `$AUDIOLESSON_ROOT`): resolves `--learner`/`--out` to `<root>/NAME/` and,
+  for `generate`, reads/writes `<root>/NAME/settings.json` for whichever of
+  `--curriculum`/`--known`/`--profile`/`--provider`/`--minutes`/`--level`
+  were not passed this time — so after the first call, only `-u NAME` is
+  needed. Implemented as pure request rewriting in `cli._apply_user`, called
+  once at the top of `main()`; the command functions never see `--user`
+  directly, only the resolved `--learner`/`--out`/etc., so this is a wrapper
+  in the literal sense, not a parallel code path.
+- Deliberately **not** duplicated in settings.json: feedback mode (auto vs.
+  manual) and pace. Those already persist in `learner.json`
+  (`LearnerState.feedback_mode`/`.pace`, since session 2); an earlier draft
+  shadowed them in settings.json too and that redundancy was removed rather
+  than kept "for symmetry" — one place to track a fact beats two.
+- `--user` together with `--learner` or `--out` is a refused conflict, not a
+  silent override — the two ways of pointing at a learner should not both be
+  live at once. `--user` also rejects path-like names (`a/b`, `..`) since it
+  becomes a directory component verbatim.
+- `tools/daily.sh` grew an `AUDIOLESSON_USER` env var that delegates to
+  `-u`/`--root` (named that, not `USER`, to avoid the shell's own login-name
+  variable); the original `CURRICULUM=…/LEARNER=…/OUT=…` interface is
+  untouched when it is unset.
+- Not done: `fr-ja-a1.toml` still needs `-l`/`-c` spelled out explicitly
+  every time even with `--user`, same as any other curriculum — no gap
+  there, just noting the wrapper is curriculum-agnostic and was exercised
+  mainly against `fr-en-a1.toml` and `curricula/is-en`.
 
 ## Session 3 additions (continued): Japanese instructor for the Icelandic course
 

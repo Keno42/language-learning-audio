@@ -31,31 +31,50 @@ Python 3.11+ and no required packages. For real voices you need **one** of:
 ```sh
 pip install -e ".[edge]"          # or just run `python -m audiolesson.cli`
 
-# lesson 1: French for English speakers, 15 minutes, neural voices
-audiolesson generate -c curricula/fr-en-a1.toml -l my-learner.json -m 15 -p profiles/edge-fr-en.toml
+# lesson 1: French for English speakers, 15 minutes, neural voices.
+# --user names the learner; everything for them lands under out/yuki/ from now on.
+audiolesson generate -u yuki -c curricula/fr-en-a1.toml -m 15 -p profiles/edge-fr-en.toml
 
-# listen to out/lesson-001.mp3 … then, if some things would not come out:
-audiolesson report -l my-learner.json --lesson 1 --failed sil_vous_plait,au_revoir
+# listen to out/yuki/lesson-001.mp3 … then, if some things would not come out:
+audiolesson report -u yuki --lesson 1 --failed sil_vous_plait,au_revoir
 
-# next day: lesson 2 is planned from what is due
-audiolesson generate -c curricula/fr-en-a1.toml -l my-learner.json -m 15 -p profiles/edge-fr-en.toml
-audiolesson status -l my-learner.json -c curricula/fr-en-a1.toml
+# next day: lesson 2 is planned from what is due. -c/-p/-m are remembered, so
+# only -u is needed from here on.
+audiolesson generate -u yuki
+audiolesson status -u yuki
 ```
 
-Each `generate` writes into `out/`:
+Each `generate` writes into `out/yuki/` (or wherever `-o` points, if `--user`
+is not used):
 
 - `lesson-NNN.script.json` — the timed, machine-readable script (every segment, every pause)
 - `lesson-NNN.plan.json` — what was introduced/reviewed, per-item exposures, exercise index
 - `lesson-NNN.transcript.md` — readable transcript (supplementary)
 - `lesson-NNN.wav` / `.mp3` and `lesson-NNN.cues.json` (timestamps per exercise)
+- `learner.json` — the persistent learner state, and (with `--user`) `settings.json`
 
-and updates the learner state file.
+**Several learners.** `--user NAME` (`-u`) is a thin wrapper: it points
+`--learner`/`--out` at `<root>/NAME/` (root defaults to `out/`, or
+`$AUDIOLESSON_ROOT`) and remembers whatever `--curriculum`, `--known`,
+`--profile`, `--provider`, `--minutes` and `--level` you passed the first
+time in `<root>/NAME/settings.json`, so later calls need only `-u NAME`.
+Feedback mode and pace are not duplicated there — they live in `learner.json`
+as before. `--user` together with `--learner`/`--out` is refused rather than
+silently overridden; the original flags work exactly as before when `--user`
+is omitted, so nothing here is required.
+
+```sh
+audiolesson generate -u yuki -c curricula/fr-en-a1.toml -m 15 -p profiles/edge-fr-en.toml
+audiolesson generate -u sota -c curricula/is-en --known ja -m 30 -p profiles/edge-is-ja.toml
+audiolesson generate -u yuki       # tomorrow: French, 15 min, same profile — remembered
+audiolesson generate -u sota       # tomorrow: Icelandic in Japanese, 30 min — remembered
+```
 
 Re-render the same lesson with other voices, speeds or pause lengths without
 re-planning it:
 
 ```sh
-audiolesson render out/lesson-001.script.json -p profiles/openai.toml --pause-multiplier 1.3
+audiolesson render out/yuki/lesson-001.script.json -p profiles/openai.toml --pause-multiplier 1.3
 ```
 
 Useful flags for `generate`: `-t cafe,directions` (prefer topics), `--new 4`
@@ -68,14 +87,20 @@ Useful flags for `generate`: `-t cafe,directions` (prefer topics), `--new 4`
 One command a day; the tool decides how many new items to introduce.
 
 ```sh
-CURRICULUM=curricula/is-en LEARNER=learner-is.json PROFILE=profiles/edge-is-en.toml \
-MINUTES=30 OUT=lessons/is AUTO=1 tools/daily.sh   # → lessons/is/lesson-NNN.mp3
+AUDIOLESSON_USER=is-yuki CURRICULUM=curricula/is-en PROFILE=profiles/edge-is-en.toml \
+MINUTES=30 AUTO=1 tools/daily.sh                  # → out/is-yuki/lesson-NNN.mp3
+AUDIOLESSON_USER=is-yuki tools/daily.sh           # every day after: nothing else to pass
 
 # after listening — optional in auto mode (AUTO=1), required for the pace to rise otherwise:
-audiolesson report -l learner-is.json                       # everything came out
-audiolesson report -l learner-is.json --failed takk,bless   # ids are in lesson-NNN.plan.json
-audiolesson status -l learner-is.json -c curricula/is-en
+audiolesson report -u is-yuki                       # everything came out
+audiolesson report -u is-yuki --failed takk,bless   # ids are in lesson-NNN.plan.json
+audiolesson status -u is-yuki
 ```
+
+(`AUDIOLESSON_USER` just sets `-u`/`--user` for `tools/daily.sh`; it is named
+that way, not `USER`, to avoid the shell's own login-name variable. The
+original `CURRICULUM=… LEARNER=… OUT=…` form still works unchanged — see
+`tools/daily.sh` for both.)
 
 **Pacing rules** (`LearnerState.suggest_pace`), based on what spaced-retrieval
 research and the established audio courses of the prompt–pause–answer type
@@ -221,7 +246,7 @@ audiolesson/
   planner.py    what to practise when; interleaving; closing block; learner update
   script.py     the intermediate timed script + transcript
   render/       audio.py (PCM/ffmpeg), tts.py (providers), renderer.py (script → file)
-  cli.py
+  cli.py        commands, incl. the --user/--root wrapper (out/<user>/, settings.json)
 curricula/      learning material: fr-en, fr-ja (files), is-en/ (26 modules)
 tools/          daily.sh (one day of the routine), derive_fr_ja.py (keeps fr-ja in sync with fr-en)
 profiles/       voice profiles (provider + voice per speaker)
