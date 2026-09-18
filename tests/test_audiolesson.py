@@ -16,7 +16,7 @@ from audiolesson.prompts import Prompts
 from audiolesson.render import load_profile, render_script
 from audiolesson.render.audio import read_wav
 from audiolesson.script import Script
-from audiolesson.stages import ladder_for
+from audiolesson.stages import ladder_for, stage_index
 from audiolesson.timing import Timing
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -29,6 +29,18 @@ def build(learner: LearnerState, minutes: float = 15, today: date = TODAY, **cfg
     prompts = Prompts.load(cur.known_lang)
     planner = Planner(cur, learner, prompts, Timing(level="A1"), PlanConfig(minutes=minutes, seed=1, **cfg), today=today)
     return planner.build()
+
+
+_LADDERS: dict[str, list[str]] = {}
+
+
+def learner_ladder(item_id: str) -> list[str]:
+    """Ladder of an item in the sample curriculum, as the planner computes it."""
+    if not _LADDERS:
+        cur = load_curriculum(CURRICULUM)
+        planner = Planner(cur, fresh(), Prompts.load("en"), Timing(), PlanConfig(), today=TODAY)
+        _LADDERS.update({i.id: planner.ladder(i) for i in cur.items})
+    return _LADDERS[item_id]
 
 
 def fresh() -> LearnerState:
@@ -219,6 +231,15 @@ class CourseTests(unittest.TestCase):
         cur = load_curriculum(CURRICULUM)
         on_topic = [i for i in sc.meta["new_items"] if "directions" in cur.item(i).topics]
         self.assertGreaterEqual(len(on_topic), len(sc.meta["new_items"]) // 2)
+
+    def test_review_never_lowers_a_stage(self):
+        learner, _ = course(8)
+        for item_id, st in learner.items.items():
+            top_seen = max(
+                (stage_index(l, s) for h in st.history for s in h["stages"] for l in [learner_ladder(item_id)] if s in l),
+                default=0,
+            )
+            self.assertEqual(stage_index(learner_ladder(item_id), st.stage), top_seen, item_id)
 
     def test_learner_state_roundtrip(self):
         learner, _ = course(2)

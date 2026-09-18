@@ -111,8 +111,9 @@ class LearnerState:
             if climbed:
                 ladder = ladders.get(item_id)
                 if ladder:
-                    ranked = sorted(climbed, key=lambda s: stage_index(ladder, s))
-                    st.stage = ranked[-1]
+                    # never lower a stage: a fallback exercise (e.g. no dialogue fitted) is not a demotion
+                    candidates = climbed + ([st.stage] if st.stage in ladder else [])
+                    st.stage = max(candidates, key=lambda s: stage_index(ladder, s))
                 else:
                     st.stage = climbed[-1]
             if presume_success:

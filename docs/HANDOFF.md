@@ -1,6 +1,6 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-18 (session 1, third commit). Keep this current: whoever picks the
+_Last updated 2026-09-18 (end of session 1). Keep this current: whoever picks the
 project up next, human or AI, should be able to continue from here without
 re-deriving decisions._
 
@@ -8,7 +8,7 @@ re-deriving decisions._
 
 `audiolesson generate` plans a lesson from a curriculum + learner state,
 writes a timed script/plan/transcript, renders audio through a pluggable TTS
-layer, and updates the learner model. 31 unit tests pass
+layer, and updates the learner model. 32 unit tests pass
 (`python -m unittest`). A 10-lesson simulated course on the sample French
 curriculum behaves as intended (new items reactivated at expanding gaps,
 reviews interleaved, dialogues and recombination appear once material is
