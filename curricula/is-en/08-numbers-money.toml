@@ -1,0 +1,473 @@
+# 08 — numbers, money, quantities (5–12, 20–50 are introduced in modules 05/06)
+
+[[items]]
+id = "einn"
+kind = "vocab"
+target = "einn"
+meaning = "one"
+difficulty = 1
+tags = ["number"]
+topics = ["numbers"]
+pronunciation_notes = "counting form (masculine); 'eitt' before neuter nouns and for the clock"
+
+[[items]]
+id = "tveir"
+kind = "vocab"
+target = "tveir"
+meaning = "two"
+difficulty = 1
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "thrir"
+kind = "vocab"
+target = "þrír"
+meaning = "three"
+difficulty = 1
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "fjorir"
+kind = "vocab"
+target = "fjórir"
+meaning = "four"
+difficulty = 1
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "threttan"
+kind = "vocab"
+target = "þrettán"
+meaning = "thirteen"
+difficulty = 2
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "fjortan"
+kind = "vocab"
+target = "fjórtán"
+meaning = "fourteen"
+difficulty = 2
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "fimmtan"
+kind = "vocab"
+target = "fimmtán"
+meaning = "fifteen"
+difficulty = 2
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "sextan"
+kind = "vocab"
+target = "sextán"
+meaning = "sixteen"
+difficulty = 2
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "sautjan"
+kind = "vocab"
+target = "sautján"
+meaning = "seventeen"
+difficulty = 2
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "atjan"
+kind = "vocab"
+target = "átján"
+meaning = "eighteen"
+difficulty = 2
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "nitjan"
+kind = "vocab"
+target = "nítján"
+meaning = "nineteen"
+difficulty = 2
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "tuttugu_og_einn"
+kind = "vocab"
+target = "tuttugu og einn"
+meaning = "twenty-one"
+difficulty = 2
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "tuttugu_og_fimm"
+kind = "vocab"
+target = "tuttugu og fimm"
+meaning = "twenty-five"
+difficulty = 2
+tags = ["number", "age"]
+topics = ["numbers"]
+
+[[items]]
+id = "sextiu"
+kind = "vocab"
+target = "sextíu"
+meaning = "sixty"
+difficulty = 1
+tags = ["number", "age"]
+topics = ["numbers"]
+
+[[items]]
+id = "sjotiu"
+kind = "vocab"
+target = "sjötíu"
+meaning = "seventy"
+difficulty = 1
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "attatiu"
+kind = "vocab"
+target = "áttatíu"
+meaning = "eighty"
+difficulty = 1
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "niutiu"
+kind = "vocab"
+target = "níutíu"
+meaning = "ninety"
+difficulty = 1
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "hundrad"
+kind = "vocab"
+target = "hundrað"
+meaning = "a hundred"
+difficulty = 1
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "thusund"
+kind = "vocab"
+target = "þúsund"
+meaning = "a thousand"
+difficulty = 1
+tags = ["number"]
+topics = ["numbers"]
+
+[[items]]
+id = "fimm_hundrud_kronur"
+kind = "vocab"
+target = "fimm hundruð krónur"
+meaning = "five hundred krónur"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "thusund_kronur"
+kind = "vocab"
+target = "þúsund krónur"
+meaning = "a thousand krónur"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "fimmtan_hundrud_kronur"
+kind = "vocab"
+target = "fimmtán hundruð krónur"
+meaning = "fifteen hundred krónur"
+difficulty = 3
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "tvo_thusund_kronur"
+kind = "vocab"
+target = "tvö þúsund krónur"
+meaning = "two thousand krónur"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "thrju_thusund_kronur"
+kind = "vocab"
+target = "þrjú þúsund krónur"
+meaning = "three thousand krónur"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "fimm_thusund_kronur"
+kind = "vocab"
+target = "fimm þúsund krónur"
+meaning = "five thousand krónur"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "tiu_thusund_kronur"
+kind = "vocab"
+target = "tíu þúsund krónur"
+meaning = "ten thousand krónur"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "thad_kostar"
+kind = "construction"
+target = "Það kostar {price}."
+meaning = "It costs {price}."
+difficulty = 2
+topics = ["money", "shopping"]
+slots = { price = "price" }
+example = { price = "thusund_kronur" }
+prereqs = ["thusund_kronur", "hvad_kostar_thetta"]
+
+[[items]]
+id = "thetta_er_dyrt"
+kind = "phrase"
+target = "Þetta er dýrt."
+meaning = "This is expensive."
+difficulty = 2
+topics = ["money", "shopping"]
+situation = "The sweater costs thirty thousand krónur. Say it's expensive."
+
+[[items]]
+id = "thetta_er_odyrt"
+kind = "phrase"
+target = "Þetta er ódýrt."
+meaning = "This is cheap."
+difficulty = 2
+topics = ["money", "shopping"]
+situation = "The skyr is on sale. Say it's cheap."
+
+[[items]]
+id = "tekurdu_kort"
+kind = "phrase"
+target = "Tekurðu kort?"
+meaning = "Do you take cards?"
+difficulty = 2
+topics = ["money", "shopping"]
+situation = "At a small market stall. Ask whether they take cards."
+
+[[items]]
+id = "eg_er_ekki_med_reidufe"
+kind = "phrase"
+target = "Ég er ekki með reiðufé."
+meaning = "I don't have cash."
+difficulty = 3
+topics = ["money"]
+chunks = ["reiðufé", "með reiðufé", "ekki með reiðufé", "Ég er ekki með reiðufé."]
+situation = "The stall only takes cash. Say you don't have cash."
+
+[[items]]
+id = "hvar_er_naesti_hradbanki"
+kind = "phrase"
+target = "Hvar er næsti hraðbanki?"
+meaning = "Where is the nearest ATM?"
+difficulty = 3
+topics = ["money", "directions"]
+prereqs = ["hradbankinn"]
+situation = "You need cash for the stall. Ask where the nearest ATM is."
+
+[[items]]
+id = "get_eg_fengid_kvittun"
+kind = "phrase"
+target = "Get ég fengið kvittun?"
+meaning = "Can I have a receipt?"
+difficulty = 3
+topics = ["money", "shopping"]
+prereqs = ["get_eg_fengid", "kvittun"]
+situation = "You need the receipt for expenses. Ask for one."
+
+[[items]]
+id = "eigdu_afganginn"
+kind = "phrase"
+target = "Eigðu afganginn."
+meaning = "Keep the change."
+difficulty = 3
+topics = ["money"]
+situation = "You pay the taxi driver in cash. Tell him to keep the change."
+
+[[items]]
+id = "thad_er_of_dyrt"
+kind = "phrase"
+target = "Það er of dýrt."
+meaning = "That's too expensive."
+difficulty = 2
+topics = ["money", "shopping"]
+prereqs = ["thetta_er_dyrt"]
+situation = "The tour costs fifty thousand krónur. Say it's too expensive."
+
+[[items]]
+id = "er_afslattur"
+kind = "phrase"
+target = "Er afsláttur?"
+meaning = "Is there a discount?"
+difficulty = 2
+topics = ["money", "shopping"]
+situation = "You're buying three sweaters. Ask if there's a discount."
+
+[[items]]
+id = "hvad_er_thetta_mikid_samtals"
+kind = "phrase"
+target = "Hvað er þetta mikið samtals?"
+meaning = "How much is it altogether?"
+difficulty = 4
+topics = ["money", "shopping"]
+chunks = ["samtals", "mikið samtals", "þetta mikið samtals", "Hvað er þetta mikið samtals?"]
+situation = "You've put five things on the counter. Ask how much it is altogether."
+
+[[items]]
+id = "einn_tvo_thrjar"
+kind = "phrase"
+target = "Tvær krónur."
+meaning = "Two krónur. (feminine 'two')"
+difficulty = 3
+topics = ["numbers", "money"]
+pronunciation_notes = "króna is feminine: ein króna, tvær krónur, þrjár krónur, fjórar krónur"
+situation = "A toy coin game with a child: say 'two krónur'."
+
+[[items]]
+id = "tvo_kaffi"
+kind = "phrase"
+target = "Tvo kaffi, takk."
+meaning = "Two coffees, please."
+difficulty = 2
+topics = ["cafe", "numbers"]
+prereqs = ["kaffi"]
+situation = "You're ordering for yourself and a friend. Ask for two coffees."
+
+[[items]]
+id = "thrja_mida"
+kind = "phrase"
+target = "Þrjá miða, takk."
+meaning = "Three tickets, please."
+difficulty = 3
+topics = ["transport", "numbers"]
+situation = "You're at the ticket window with two friends. Ask for three tickets."
+
+[[items]]
+id = "hversu_margir"
+kind = "phrase"
+target = "Hversu margir?"
+meaning = "How many (people)?"
+difficulty = 2
+topics = ["numbers"]
+situation = "A friend says a group is coming to dinner. Ask how many."
+
+[[items]]
+id = "vid_erum_fjogur"
+kind = "phrase"
+target = "Við erum fjögur."
+meaning = "There are four of us."
+difficulty = 2
+topics = ["numbers", "cafe"]
+situation = "The host asks how many you are. Say four."
+
+[[items]]
+id = "halfur"
+kind = "vocab"
+target = "hálfur"
+meaning = "half"
+difficulty = 1
+topics = ["numbers"]
+
+[[items]]
+id = "mikid"
+kind = "vocab"
+target = "mikið"
+meaning = "much / a lot"
+difficulty = 1
+topics = ["numbers"]
+
+[[items]]
+id = "litid"
+kind = "vocab"
+target = "lítið"
+meaning = "little / small"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["numbers", "adjectives"]
+
+[[items]]
+id = "adeins"
+kind = "vocab"
+target = "aðeins"
+meaning = "a bit / only"
+difficulty = 2
+topics = ["numbers", "discourse"]
+
+[[items]]
+id = "numbers_price_transform"
+kind = "transform"
+target = "hvað kostar → það kostar"
+meaning = "answering a price question"
+difficulty = 2
+topics = ["grammar", "money"]
+instruction = "Answer: it costs a thousand krónur."
+prereqs = ["thad_kostar", "hvad_kostar"]
+examples = [
+  { source = "Hvað kostar kaffi?", source_meaning = "How much is a coffee?", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur." },
+  { source = "Hvað kostar te?", source_meaning = "How much is a tea?", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur." },
+  { source = "Hvað kostar þetta?", source_meaning = "How much is this?", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur." },
+  { source = "Hvað kostar bjór?", source_meaning = "How much is a beer?", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur." },
+]
+
+[[dialogues]]
+id = "markadur"
+setting = "At the flea market. You've found a wool sweater."
+topics = ["money", "shopping"]
+requires = ["hvad_kostar_thetta", "thad_er_of_dyrt", "tekurdu_kort", "eg_er_ekki_med_reidufe", "hvar_er_naesti_hradbanki", "takk"]
+
+  [[dialogues.turns]]
+  cue = "Ask how much this is."
+  expect = "hvad_kostar_thetta"
+  partner = "Tuttugu þúsund krónur."
+  partner_meaning = "Twenty thousand krónur."
+
+  [[dialogues.turns]]
+  cue = "Say that's too expensive."
+  expect = "thad_er_of_dyrt"
+  partner = "Fyrir þig: fimmtán þúsund."
+  partner_meaning = "For you: fifteen thousand."
+
+  [[dialogues.turns]]
+  cue = "Ask if he takes cards."
+  expect = "tekurdu_kort"
+  partner = "Nei, bara reiðufé."
+  partner_meaning = "No, cash only."
+
+  [[dialogues.turns]]
+  cue = "Say you don't have cash, and ask where the nearest ATM is."
+  expect_text = "Ég er ekki með reiðufé. Hvar er næsti hraðbanki?"
+  expect_meaning = "I don't have cash. Where is the nearest ATM?"
+  partner = "Hinum megin við götuna. Ég geymi peysuna fyrir þig."
+  partner_meaning = "Across the street. I'll keep the sweater for you."
+
+  [[dialogues.turns]]
+  cue = "Thank him."
+  expect = "takk"

@@ -1,0 +1,365 @@
+# 15 — likes, dislikes, hobbies ("gaman af" + dative, "gaman að" + infinitive)
+
+[[items]]
+id = "tonlist"
+kind = "vocab"
+target = "tónlist"
+meaning = "music"
+difficulty = 1
+tags = ["dat_hobby"]
+topics = ["hobbies"]
+
+[[items]]
+id = "eg_hef_gaman_af"
+kind = "construction"
+target = "Ég hef gaman af {hobby}."
+meaning = "I enjoy {hobby}."
+difficulty = 3
+topics = ["hobbies"]
+slots = { hobby = "dat_hobby" }
+example = { hobby = "tonlist" }
+prereqs = ["tonlist"]
+pronunciation_notes = "af + dative"
+
+[[items]]
+id = "fotbolta"
+kind = "vocab"
+target = "fótbolta"
+meaning = "football"
+difficulty = 2
+tags = ["dat_hobby"]
+topics = ["hobbies"]
+pronunciation_notes = "dative of fótbolti"
+
+[[items]]
+id = "lestri"
+kind = "vocab"
+target = "lestri"
+meaning = "reading"
+difficulty = 2
+tags = ["dat_hobby"]
+topics = ["hobbies"]
+pronunciation_notes = "dative of lestur"
+
+[[items]]
+id = "sundi"
+kind = "vocab"
+target = "sundi"
+meaning = "swimming"
+difficulty = 1
+tags = ["dat_hobby"]
+topics = ["hobbies"]
+
+[[items]]
+id = "matreidslu"
+kind = "vocab"
+target = "matreiðslu"
+meaning = "cooking"
+difficulty = 3
+tags = ["dat_hobby"]
+topics = ["hobbies", "food"]
+
+[[items]]
+id = "ferdalogum"
+kind = "vocab"
+target = "ferðalögum"
+meaning = "travelling"
+difficulty = 3
+tags = ["dat_hobby"]
+topics = ["hobbies"]
+
+[[items]]
+id = "kvikmyndum"
+kind = "vocab"
+target = "kvikmyndum"
+meaning = "films"
+difficulty = 3
+tags = ["dat_hobby"]
+topics = ["hobbies"]
+
+[[items]]
+id = "ljosmyndun"
+kind = "vocab"
+target = "ljósmyndun"
+meaning = "photography"
+difficulty = 3
+tags = ["dat_hobby"]
+topics = ["hobbies"]
+
+[[items]]
+id = "tolvuleikjum"
+kind = "vocab"
+target = "tölvuleikjum"
+meaning = "video games"
+difficulty = 3
+tags = ["dat_hobby"]
+topics = ["hobbies"]
+
+[[items]]
+id = "gonguferdum"
+kind = "vocab"
+target = "gönguferðum"
+meaning = "hiking"
+difficulty = 3
+tags = ["dat_hobby"]
+topics = ["hobbies", "nature"]
+
+[[items]]
+id = "bokum"
+kind = "vocab"
+target = "bókum"
+meaning = "books"
+difficulty = 2
+tags = ["dat_hobby"]
+topics = ["hobbies"]
+
+[[items]]
+id = "dansi"
+kind = "vocab"
+target = "dansi"
+meaning = "dancing"
+difficulty = 1
+tags = ["dat_hobby"]
+topics = ["hobbies"]
+
+[[items]]
+id = "skidum"
+kind = "vocab"
+target = "skíðum"
+meaning = "skiing"
+difficulty = 2
+tags = ["dat_hobby"]
+topics = ["hobbies"]
+
+[[items]]
+id = "prjoni"
+kind = "vocab"
+target = "prjóni"
+meaning = "knitting"
+difficulty = 2
+tags = ["dat_hobby"]
+topics = ["hobbies"]
+
+[[items]]
+id = "hefur_thu_gaman_af"
+kind = "construction"
+target = "Hefur þú gaman af {hobby}?"
+meaning = "Do you enjoy {hobby}?"
+difficulty = 3
+topics = ["hobbies"]
+slots = { hobby = "dat_hobby" }
+example = { hobby = "sundi" }
+prereqs = ["eg_hef_gaman_af"]
+
+[[items]]
+id = "mer_finnst_gaman_ad"
+kind = "construction"
+target = "Mér finnst gaman að {inf}."
+meaning = "I like to {inf}."
+difficulty = 3
+topics = ["hobbies"]
+slots = { inf = "inf" }
+example = { inf = "fara_i_sund" }
+prereqs = ["fara_i_sund"]
+
+[[items]]
+id = "mer_finnst_leidinlegt_ad"
+kind = "construction"
+target = "Mér finnst leiðinlegt að {inf}."
+meaning = "I find it boring to {inf}."
+difficulty = 3
+topics = ["hobbies"]
+slots = { inf = "inf" }
+example = { inf = "versla" }
+prereqs = ["mer_finnst_gaman_ad", "versla"]
+
+[[items]]
+id = "hvad_finnst_ther_skemmtilegt"
+kind = "phrase"
+target = "Hvað finnst þér skemmtilegt?"
+meaning = "What do you find fun?"
+difficulty = 4
+topics = ["hobbies"]
+chunks = ["skemmtilegt", "þér skemmtilegt", "Hvað finnst þér skemmtilegt?"]
+situation = "Ask your new friend what she finds fun."
+
+[[items]]
+id = "mer_likar_thad"
+kind = "phrase"
+target = "Mér líkar það."
+meaning = "I like it."
+difficulty = 2
+topics = ["hobbies", "feelings"]
+situation = "Anna plays you a song and asks what you think. Say you like it."
+
+[[items]]
+id = "mer_likar_thad_ekki"
+kind = "phrase"
+target = "Mér líkar það ekki."
+meaning = "I don't like it."
+difficulty = 2
+topics = ["hobbies", "feelings"]
+prereqs = ["mer_likar_thad"]
+situation = "She asks about the fermented shark. Say you don't like it."
+
+[[items]]
+id = "eg_elska_island"
+kind = "phrase"
+target = "Ég elska Ísland."
+meaning = "I love Iceland."
+difficulty = 2
+topics = ["hobbies", "feelings"]
+situation = "Someone asks why you keep coming back. Say you love Iceland."
+
+[[items]]
+id = "eg_hata_rok"
+kind = "phrase"
+target = "Ég hata rok."
+meaning = "I hate wind."
+difficulty = 2
+topics = ["hobbies", "weather"]
+prereqs = ["rok"]
+situation = "Another gale. Say you hate wind."
+
+[[items]]
+id = "hvad_er_uppahaldsmaturinn_thinn"
+kind = "phrase"
+target = "Hvað er uppáhaldsmaturinn þinn?"
+meaning = "What's your favourite food?"
+difficulty = 4
+topics = ["hobbies", "food"]
+chunks = ["þinn", "maturinn þinn", "uppáhaldsmaturinn þinn", "Hvað er uppáhaldsmaturinn þinn?"]
+situation = "You're planning to cook for Anna. Ask what her favourite food is."
+
+[[items]]
+id = "uppahaldsmaturinn_minn_er_fiskur"
+kind = "phrase"
+target = "Uppáhaldsmaturinn minn er fiskur."
+meaning = "My favourite food is fish."
+difficulty = 4
+topics = ["hobbies", "food"]
+prereqs = ["hvad_er_uppahaldsmaturinn_thinn"]
+chunks = ["fiskur", "er fiskur", "minn er fiskur", "Uppáhaldsmaturinn minn er fiskur."]
+situation = "Anna asks your favourite food. Say it's fish."
+
+[[items]]
+id = "eg_spila_fotbolta"
+kind = "phrase"
+target = "Ég spila fótbolta."
+meaning = "I play football."
+difficulty = 2
+topics = ["hobbies"]
+situation = "Anna asks if you do any sport. Say you play football."
+
+[[items]]
+id = "eg_spila_a_gitar"
+kind = "phrase"
+target = "Ég spila á gítar."
+meaning = "I play the guitar."
+difficulty = 2
+topics = ["hobbies"]
+situation = "Someone spots the guitar case. Say you play the guitar."
+
+[[items]]
+id = "eg_syng"
+kind = "phrase"
+target = "Ég syng."
+meaning = "I sing."
+difficulty = 1
+topics = ["hobbies"]
+situation = "Someone asks if you're in the choir. Say you sing."
+
+[[items]]
+id = "eg_er_ad_lesa_goda_bok"
+kind = "phrase"
+target = "Ég er að lesa góða bók."
+meaning = "I'm reading a good book."
+difficulty = 3
+topics = ["hobbies"]
+situation = "Anna asks what you're up to. Say you're reading a good book."
+
+[[items]]
+id = "hvad_ertu_ad_gera"
+kind = "phrase"
+target = "Hvað ertu að gera?"
+meaning = "What are you doing?"
+difficulty = 2
+topics = ["hobbies", "daily"]
+situation = "You call a friend on Saturday afternoon. Ask what she's doing."
+
+[[items]]
+id = "ekkert_serstakt"
+kind = "phrase"
+target = "Ekkert sérstakt."
+meaning = "Nothing special."
+difficulty = 2
+topics = ["hobbies", "discourse"]
+situation = "She asks what you're doing. Say nothing special."
+
+[[items]]
+id = "thad_er_skemmtilegt"
+kind = "phrase"
+target = "Þetta er skemmtilegt."
+meaning = "This is fun."
+difficulty = 2
+topics = ["hobbies", "feelings"]
+situation = "You're on a boat watching whales. Say this is fun."
+
+[[items]]
+id = "thad_er_leidinlegt"
+kind = "phrase"
+target = "Þetta er leiðinlegt."
+meaning = "This is boring."
+difficulty = 2
+topics = ["hobbies", "feelings"]
+prereqs = ["thad_er_skemmtilegt"]
+situation = "The lecture has gone on for two hours. Whisper that this is boring."
+
+[[items]]
+id = "eg_vil_frekar_te"
+kind = "phrase"
+target = "Ég vil frekar te."
+meaning = "I'd rather have tea."
+difficulty = 2
+topics = ["hobbies", "cafe"]
+prereqs = ["te"]
+situation = "Anna offers coffee. Say you'd rather have tea."
+
+[[items]]
+id = "mer_er_alveg_sama"
+kind = "phrase"
+target = "Mér er alveg sama."
+meaning = "I don't mind (either way)."
+difficulty = 3
+topics = ["hobbies", "discourse"]
+chunks = ["sama", "alveg sama", "Mér er alveg sama."]
+situation = "She asks: fish or lamb? You don't mind. Say so."
+
+[[dialogues]]
+id = "ahugamal"
+setting = "A rainy evening indoors. Anna asks about your hobbies."
+topics = ["hobbies"]
+requires = ["eg_hef_gaman_af", "sundi", "gonguferdum", "hefur_thu_gaman_af", "mer_finnst_gaman_ad", "fara_i_sund", "mer_likar_thad"]
+
+  [[dialogues.turns]]
+  opener = "Hvað finnst þér skemmtilegt að gera?"
+  opener_meaning = "What do you enjoy doing?"
+  cue = "Say you enjoy swimming and hiking."
+  expect_text = "Ég hef gaman af sundi og gönguferðum."
+  expect_meaning = "I enjoy swimming and hiking."
+  partner = "Ég líka! Ég fer í sund á hverjum morgni."
+  partner_meaning = "Me too! I go swimming every morning."
+
+  [[dialogues.turns]]
+  cue = "Ask if she enjoys films."
+  expect_text = "Hefur þú gaman af kvikmyndum?"
+  expect_meaning = "Do you enjoy films?"
+  partner = "Já, sérstaklega íslenskum myndum. Viltu horfa á eina?"
+  partner_meaning = "Yes, especially Icelandic films. Do you want to watch one?"
+
+  [[dialogues.turns]]
+  cue = "Say you like it — no: say yes, you'd like that."
+  expect_text = "Já, mér líkar það."
+  expect_meaning = "Yes, I like that."
+  partner = "Frábært, ég geri popp."
+  partner_meaning = "Great, I'll make popcorn."

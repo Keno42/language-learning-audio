@@ -34,6 +34,7 @@ class PlanConfig:
     intro_gap: int = 3  # min exercises between two introductions
     dialogue_every: int = 7  # try a dialogue roughly every N exercises
     dialogue_first_turns: int = 2  # turns played the first time; one more each later encounter
+    max_dialogues: int | None = None  # per lesson (default: one per 10 minutes, at least 2)
     max_review_passes: int = 2  # when material runs out, review what was reviewed once more (harder)
     closing_share: float = 0.12  # fraction of time reserved for the final review block
     max_new_items: int | None = None  # hard cap even when there is nothing to review (default: scales with minutes)
@@ -173,6 +174,9 @@ class Planner:
         return ladder[-1] if ladder else "meaning"
 
     def eligible_dialogue(self, prefer_item: Item | None = None) -> Dialogue | None:
+        limit = self.cfg.max_dialogues if self.cfg.max_dialogues is not None else max(2, int(self.cfg.minutes // 10))
+        if len(self.dialogues_played) >= limit:
+            return None
         cands = []
         for d in self.cur.dialogues:
             if d.id in self.dialogues_played:

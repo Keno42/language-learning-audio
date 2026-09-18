@@ -1,0 +1,464 @@
+# 05 — about yourself: name, origin, home, job, age
+
+[[items]]
+id = "eg_heiti"
+kind = "phrase"
+target = "Ég heiti Yuki."
+meaning = "My name is Yuki."
+difficulty = 2
+topics = ["social"]
+situation = "Someone asks your name. Say your name is Yuki."
+
+[[items]]
+id = "hvad_heitir_thu"
+kind = "phrase"
+target = "Hvað heitir þú?"
+meaning = "What's your name?"
+difficulty = 2
+topics = ["social"]
+situation = "You've introduced yourself. Ask his name."
+
+[[items]]
+id = "eg_er_fra_japan"
+kind = "phrase"
+target = "Ég er frá Japan."
+meaning = "I'm from Japan."
+difficulty = 2
+topics = ["social"]
+situation = "Someone asks where you're from. Tell them you're from Japan."
+
+[[items]]
+id = "hvadan_ert_thu"
+kind = "phrase"
+target = "Hvaðan ert þú?"
+meaning = "Where are you from?"
+alternatives = ["Hvaðan ertu?"]
+difficulty = 3
+topics = ["social"]
+situation = "You've said you're from Japan. Ask where she is from."
+
+[[items]]
+id = "eg_er_i_frii"
+kind = "phrase"
+target = "Ég er í fríi."
+meaning = "I'm on holiday."
+difficulty = 3
+topics = ["social"]
+chunks = ["fríi", "í fríi", "Ég er í fríi."]
+situation = "She asks if you're here for work. Tell her you're on holiday."
+
+[[items]]
+id = "gaman_ad_kynnast_ther"
+kind = "phrase"
+target = "Gaman að kynnast þér."
+meaning = "Nice to meet you."
+difficulty = 4
+topics = ["social"]
+chunks = ["þér", "kynnast þér", "að kynnast þér", "Gaman að kynnast þér."]
+situation = "Your friend introduces you to Anna. Say nice to meet you."
+
+[[items]]
+id = "reykjavik_dat"
+kind = "vocab"
+target = "Reykjavík"
+meaning = "Reykjavík"
+difficulty = 1
+tags = ["dat_town"]
+topics = ["social"]
+
+[[items]]
+id = "tokyo_dat"
+kind = "vocab"
+target = "Tókýó"
+meaning = "Tokyo"
+difficulty = 1
+tags = ["dat_town"]
+topics = ["social"]
+
+[[items]]
+id = "akureyri_dat"
+kind = "vocab"
+target = "Akureyri"
+meaning = "Akureyri"
+difficulty = 2
+tags = ["dat_town"]
+topics = ["social"]
+
+[[items]]
+id = "kopavogi"
+kind = "vocab"
+target = "Kópavogi"
+meaning = "Kópavogur (after 'in')"
+difficulty = 2
+tags = ["dat_town"]
+topics = ["social"]
+pronunciation_notes = "dative of Kópavogur"
+
+[[items]]
+id = "osaka_dat"
+kind = "vocab"
+target = "Ósaka"
+meaning = "Osaka"
+difficulty = 1
+tags = ["dat_town"]
+topics = ["social"]
+
+[[items]]
+id = "eg_by_i"
+kind = "construction"
+target = "Ég bý í {town}."
+meaning = "I live in {town}."
+difficulty = 3
+topics = ["social"]
+slots = { town = "dat_town" }
+example = { town = "tokyo_dat" }
+prereqs = ["tokyo_dat"]
+pronunciation_notes = "bý: BEE"
+
+[[items]]
+id = "hvar_byrd_thu"
+kind = "phrase"
+target = "Hvar býrð þú?"
+meaning = "Where do you live?"
+difficulty = 3
+topics = ["social"]
+prereqs = ["eg_by_i"]
+situation = "You've told her you live in Tokyo. Ask where she lives."
+
+[[items]]
+id = "eg_er_japonsk"
+kind = "phrase"
+target = "Ég er japönsk."
+meaning = "I'm Japanese."
+difficulty = 2
+topics = ["social"]
+pronunciation_notes = "feminine; masculine: Ég er japanskur."
+situation = "The man guesses you're Chinese. Tell him you're Japanese."
+
+[[items]]
+id = "ert_thu_islensk"
+kind = "phrase"
+target = "Ert þú íslensk?"
+meaning = "Are you Icelandic? (to a woman)"
+difficulty = 2
+topics = ["social"]
+pronunciation_notes = "to a man: Ert þú íslenskur?"
+situation = "The woman next to you speaks perfect Icelandic. Ask if she's Icelandic."
+
+[[items]]
+id = "kennari"
+kind = "vocab"
+target = "kennari"
+meaning = "a teacher"
+difficulty = 1
+tags = ["job"]
+topics = ["work"]
+
+[[items]]
+id = "laeknir"
+kind = "vocab"
+target = "læknir"
+meaning = "a doctor"
+difficulty = 2
+tags = ["job"]
+topics = ["work", "health"]
+
+[[items]]
+id = "nemandi"
+kind = "vocab"
+target = "nemandi"
+meaning = "a student"
+difficulty = 2
+tags = ["job"]
+topics = ["work"]
+
+[[items]]
+id = "forritari"
+kind = "vocab"
+target = "forritari"
+meaning = "a programmer"
+difficulty = 2
+tags = ["job"]
+topics = ["work"]
+
+[[items]]
+id = "hjukrunarfraedingur"
+kind = "vocab"
+target = "hjúkrunarfræðingur"
+meaning = "a nurse"
+difficulty = 4
+tags = ["job"]
+topics = ["work", "health"]
+
+[[items]]
+id = "verkfraedingur"
+kind = "vocab"
+target = "verkfræðingur"
+meaning = "an engineer"
+difficulty = 3
+tags = ["job"]
+topics = ["work"]
+
+[[items]]
+id = "kokkur"
+kind = "vocab"
+target = "kokkur"
+meaning = "a cook"
+difficulty = 1
+tags = ["job"]
+topics = ["work"]
+
+[[items]]
+id = "listamadur"
+kind = "vocab"
+target = "listamaður"
+meaning = "an artist"
+difficulty = 2
+tags = ["job"]
+topics = ["work"]
+
+[[items]]
+id = "ferdamadur"
+kind = "vocab"
+target = "ferðamaður"
+meaning = "a tourist"
+difficulty = 2
+tags = ["job"]
+topics = ["social"]
+
+[[items]]
+id = "eg_er_job"
+kind = "construction"
+target = "Ég er {job}."
+meaning = "I'm {job}."
+difficulty = 2
+topics = ["work", "social"]
+slots = { job = "job" }
+example = { job = "forritari" }
+prereqs = ["forritari"]
+
+[[items]]
+id = "hvad_gerir_thu"
+kind = "phrase"
+target = "Hvað gerir þú?"
+meaning = "What do you do (for a living)?"
+difficulty = 2
+topics = ["work", "social"]
+situation = "You've said you're a programmer. Ask what she does."
+
+[[items]]
+id = "eg_vinn_hja"
+kind = "phrase"
+target = "Ég vinn hjá litlu fyrirtæki."
+meaning = "I work at a small company."
+difficulty = 4
+topics = ["work"]
+chunks = ["fyrirtæki", "litlu fyrirtæki", "hjá litlu fyrirtæki", "Ég vinn hjá litlu fyrirtæki."]
+situation = "She asks where you work. Say you work at a small company."
+
+[[items]]
+id = "eg_er_i_vinnuferd"
+kind = "phrase"
+target = "Ég er í vinnuferð."
+meaning = "I'm on a business trip."
+difficulty = 3
+topics = ["work", "social"]
+situation = "The receptionist asks if you're on holiday. Say you're on a business trip."
+
+[[items]]
+id = "tuttugu_ara"
+kind = "vocab"
+target = "tuttugu"
+meaning = "twenty"
+difficulty = 1
+tags = ["age", "number"]
+topics = ["numbers"]
+
+[[items]]
+id = "thrjatiu"
+kind = "vocab"
+target = "þrjátíu"
+meaning = "thirty"
+difficulty = 1
+tags = ["age", "number"]
+topics = ["numbers"]
+
+[[items]]
+id = "fjorutiu"
+kind = "vocab"
+target = "fjörutíu"
+meaning = "forty"
+difficulty = 1
+tags = ["age", "number"]
+topics = ["numbers"]
+
+[[items]]
+id = "fimmtiu"
+kind = "vocab"
+target = "fimmtíu"
+meaning = "fifty"
+difficulty = 1
+tags = ["age", "number"]
+topics = ["numbers"]
+
+[[items]]
+id = "eg_er_ara"
+kind = "construction"
+target = "Ég er {age} ára."
+meaning = "I'm {age} years old."
+difficulty = 2
+topics = ["social"]
+slots = { age = "age" }
+example = { age = "thrjatiu" }
+prereqs = ["thrjatiu"]
+
+[[items]]
+id = "hvad_ertu_gomul"
+kind = "phrase"
+target = "Hvað ertu gömul?"
+meaning = "How old are you? (to a woman)"
+difficulty = 3
+topics = ["social"]
+pronunciation_notes = "to a man: Hvað ertu gamall?"
+situation = "Your new friend has told you her age. Ask hers back — no, ask her age."
+
+[[items]]
+id = "eg_er_gift"
+kind = "phrase"
+target = "Ég er gift."
+meaning = "I'm married."
+difficulty = 2
+topics = ["social", "family"]
+pronunciation_notes = "feminine; masculine: Ég er giftur."
+situation = "She asks if you're here with your family. Say you're married."
+
+[[items]]
+id = "eg_er_einhleyp"
+kind = "phrase"
+target = "Ég er einhleyp."
+meaning = "I'm single."
+difficulty = 3
+topics = ["social", "family"]
+pronunciation_notes = "feminine; masculine: Ég er einhleypur."
+situation = "Someone asks about your partner. Say you're single."
+
+[[items]]
+id = "eg_a_tvo_born"
+kind = "phrase"
+target = "Ég á tvö börn."
+meaning = "I have two children."
+difficulty = 3
+topics = ["social", "family"]
+situation = "She asks if you have children. Say you have two."
+
+[[items]]
+id = "eg_er_her_i_fyrsta_sinn"
+kind = "phrase"
+target = "Ég er hér í fyrsta sinn."
+meaning = "I'm here for the first time."
+difficulty = 4
+topics = ["social"]
+chunks = ["sinn", "fyrsta sinn", "í fyrsta sinn", "Ég er hér í fyrsta sinn."]
+situation = "The taxi driver asks if you've been to Iceland before. Say it's your first time."
+
+[[items]]
+id = "eg_er_her_i_viku"
+kind = "phrase"
+target = "Ég er hér í viku."
+meaning = "I'm here for a week."
+difficulty = 3
+topics = ["social"]
+situation = "He asks how long you're staying. Say a week."
+
+[[items]]
+id = "mer_finnst_island_fallegt"
+kind = "phrase"
+target = "Mér finnst Ísland fallegt."
+meaning = "I think Iceland is beautiful."
+difficulty = 4
+topics = ["social"]
+chunks = ["fallegt", "Ísland fallegt", "Mér finnst Ísland fallegt."]
+situation = "The driver asks how you like Iceland. Say you think it's beautiful."
+
+[[items]]
+id = "kynning_transform_hann_hun"
+kind = "transform"
+target = "Ég … → Hún …"
+meaning = "talking about her instead of yourself"
+difficulty = 3
+topics = ["grammar"]
+instruction = "Say it about her:"
+prereqs = ["eg_by_i", "eg_er_job", "eg_er_fra_japan"]
+examples = [
+  { source = "Ég er frá Japan.", source_meaning = "I'm from Japan.", result = "Hún er frá Japan.", result_meaning = "She's from Japan." },
+  { source = "Ég bý í Reykjavík.", source_meaning = "I live in Reykjavík.", result = "Hún býr í Reykjavík.", result_meaning = "She lives in Reykjavík." },
+  { source = "Ég tala íslensku.", source_meaning = "I speak Icelandic.", result = "Hún talar íslensku.", result_meaning = "She speaks Icelandic." },
+  { source = "Ég er kennari.", source_meaning = "I'm a teacher.", result = "Hún er kennari.", result_meaning = "She's a teacher." },
+  { source = "Ég heiti Yuki.", source_meaning = "My name is Yuki.", result = "Hún heitir Yuki.", result_meaning = "Her name is Yuki." },
+  { source = "Ég vinn hjá litlu fyrirtæki.", source_meaning = "I work at a small company.", result = "Hún vinnur hjá litlu fyrirtæki.", result_meaning = "She works at a small company." },
+]
+
+[[dialogues]]
+id = "kynning"
+setting = "At a friend's kitchen table you're introduced to Anna."
+topics = ["social"]
+requires = ["eg_heiti", "eg_er_fra_japan", "en_thu", "ja", "eg_er_i_frii", "takk"]
+
+  [[dialogues.turns]]
+  opener = "Hæ! Hvað heitir þú?"
+  opener_meaning = "Hi! What's your name?"
+  cue = "Say your name is Yuki."
+  expect = "eg_heiti"
+  partner = "Gaman að kynnast þér. Hvaðan ert þú?"
+  partner_meaning = "Nice to meet you. Where are you from?"
+
+  [[dialogues.turns]]
+  cue = "Say you're from Japan, then ask: and you?"
+  expect_text = "Ég er frá Japan. En þú?"
+  expect_meaning = "I'm from Japan. And you?"
+  partner = "Ég er frá Akureyri. Ertu í fríi?"
+  partner_meaning = "I'm from Akureyri. Are you on holiday?"
+
+  [[dialogues.turns]]
+  cue = "Say yes, you're on holiday."
+  expect_text = "Já, ég er í fríi."
+  expect_meaning = "Yes, I'm on holiday."
+  partner = "Velkomin til Íslands!"
+  partner_meaning = "Welcome to Iceland!"
+
+  [[dialogues.turns]]
+  cue = "Thank her."
+  expect = "takk"
+
+[[dialogues]]
+id = "leigubill"
+setting = "In a taxi from the airport. The driver makes conversation."
+topics = ["social", "transport"]
+requires = ["eg_er_her_i_fyrsta_sinn", "eg_er_her_i_viku", "eg_er_job", "forritari", "mer_finnst_island_fallegt", "eg_by_i", "tokyo_dat"]
+
+  [[dialogues.turns]]
+  opener = "Hefurðu komið til Íslands áður?"
+  opener_meaning = "Have you been to Iceland before?"
+  cue = "Say you're here for the first time."
+  expect = "eg_er_her_i_fyrsta_sinn"
+  partner = "Og hvað ertu lengi?"
+  partner_meaning = "And how long are you staying?"
+
+  [[dialogues.turns]]
+  cue = "Say you're here for a week."
+  expect = "eg_er_her_i_viku"
+  partner = "Fínt. Hvað gerir þú?"
+  partner_meaning = "Nice. What do you do?"
+
+  [[dialogues.turns]]
+  cue = "Say you're a programmer and you live in Tokyo."
+  expect_text = "Ég er forritari. Ég bý í Tókýó."
+  expect_meaning = "I'm a programmer. I live in Tokyo."
+  partner = "Tókýó! Og hvernig líst þér á Ísland?"
+  partner_meaning = "Tokyo! And how do you like Iceland?"
+
+  [[dialogues.turns]]
+  cue = "Say you think Iceland is beautiful."
+  expect = "mer_finnst_island_fallegt"
+  partner = "Takk fyrir það!"
+  partner_meaning = "Thanks for that!"

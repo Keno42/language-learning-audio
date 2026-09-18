@@ -1,0 +1,397 @@
+# 10 — getting around: bus, taxi, airport, car
+
+[[items]]
+id = "leigubil"
+kind = "vocab"
+target = "leigubíl"
+meaning = "a taxi"
+difficulty = 2
+tags = ["acc_thing"]
+topics = ["transport"]
+pronunciation_notes = "accusative of leigubíll"
+
+[[items]]
+id = "strætómiða"
+kind = "vocab"
+target = "strætómiða"
+meaning = "a bus ticket"
+difficulty = 3
+tags = ["acc_thing"]
+topics = ["transport"]
+
+[[items]]
+id = "hvenaer_fer_straeto"
+kind = "phrase"
+target = "Hvenær fer strætó?"
+meaning = "When does the bus leave?"
+difficulty = 2
+topics = ["transport", "time"]
+prereqs = ["hvenaer", "strætó"]
+situation = "You're at the bus stop with no timetable. Ask when the bus leaves."
+
+[[items]]
+id = "hvenaer_kemur_straeto"
+kind = "phrase"
+target = "Hvenær kemur strætó?"
+meaning = "When does the bus come?"
+difficulty = 2
+topics = ["transport", "time"]
+prereqs = ["hvenaer_fer_straeto"]
+situation = "You've been waiting ten minutes. Ask when the bus comes."
+
+[[items]]
+id = "fer_thessi_straeto_i_midbaeinn"
+kind = "phrase"
+target = "Fer þessi strætó í miðbæinn?"
+meaning = "Does this bus go to the town centre?"
+difficulty = 4
+topics = ["transport"]
+chunks = ["miðbæinn", "í miðbæinn", "strætó í miðbæinn", "Fer þessi strætó í miðbæinn?"]
+situation = "A bus pulls up. Ask the driver whether it goes to the centre."
+
+[[items]]
+id = "fer_thessi_straeto_a_flugvollinn"
+kind = "phrase"
+target = "Fer þessi strætó á flugvöllinn?"
+meaning = "Does this bus go to the airport?"
+difficulty = 4
+topics = ["transport"]
+prereqs = ["fer_thessi_straeto_i_midbaeinn"]
+chunks = ["flugvöllinn", "á flugvöllinn", "Fer þessi strætó á flugvöllinn?"]
+situation = "You're at the terminal with your suitcase. Ask if this bus goes to the airport."
+
+[[items]]
+id = "hvar_a_eg_ad_fara_ut"
+kind = "phrase"
+target = "Hvar á ég að fara út?"
+meaning = "Where should I get off?"
+difficulty = 3
+topics = ["transport"]
+chunks = ["út", "fara út", "á ég að fara út", "Hvar á ég að fara út?"]
+situation = "You're on the bus to the pool but don't know the stop. Ask where to get off."
+
+[[items]]
+id = "naesta_stopp"
+kind = "phrase"
+target = "Næsta stopp, takk."
+meaning = "Next stop, please."
+difficulty = 2
+topics = ["transport"]
+situation = "You recognise your street. Tell the driver: next stop, please."
+
+[[items]]
+id = "einn_mida_takk"
+kind = "phrase"
+target = "Einn miða, takk."
+meaning = "One ticket, please."
+difficulty = 2
+topics = ["transport"]
+prereqs = ["mida"]
+situation = "You step onto the bus. Ask for one ticket."
+
+[[items]]
+id = "hvad_kostar_i_straeto"
+kind = "phrase"
+target = "Hvað kostar í strætó?"
+meaning = "How much is the bus fare?"
+difficulty = 3
+topics = ["transport", "money"]
+prereqs = ["hvad_kostar_thetta", "strætó"]
+situation = "Before boarding, ask how much the bus costs."
+
+[[items]]
+id = "get_eg_fengid_leigubil"
+kind = "phrase"
+target = "Get ég fengið leigubíl?"
+meaning = "Can I get a taxi?"
+difficulty = 3
+topics = ["transport"]
+prereqs = ["get_eg_fengid", "leigubil"]
+situation = "It's late and the buses have stopped. Ask the receptionist for a taxi."
+
+[[items]]
+id = "a_flugvollinn_takk"
+kind = "phrase"
+target = "Á flugvöllinn, takk."
+meaning = "To the airport, please."
+difficulty = 2
+topics = ["transport"]
+situation = "You get into the taxi. Tell the driver: to the airport, please."
+
+[[items]]
+id = "a_thetta_hotel_takk"
+kind = "phrase"
+target = "Á þetta hótel, takk."
+meaning = "To this hotel, please. (showing the address)"
+difficulty = 2
+topics = ["transport", "accommodation"]
+situation = "You show the driver the booking on your phone. Say: to this hotel, please."
+
+[[items]]
+id = "hvad_tekur_thetta_langan_tima"
+kind = "phrase"
+target = "Hvað tekur þetta langan tíma?"
+meaning = "How long does it take?"
+difficulty = 4
+topics = ["transport", "time"]
+chunks = ["tíma", "langan tíma", "þetta langan tíma", "Hvað tekur þetta langan tíma?"]
+situation = "You're in a hurry. Ask the driver how long it takes."
+
+[[items]]
+id = "geturdu_stoppad_herna"
+kind = "phrase"
+target = "Geturðu stoppað hérna?"
+meaning = "Can you stop here?"
+difficulty = 3
+topics = ["transport"]
+prereqs = ["herna"]
+situation = "You see your friend's house. Ask the driver to stop here."
+
+[[items]]
+id = "flugid"
+kind = "vocab"
+target = "flugið"
+meaning = "the flight"
+difficulty = 2
+tags = ["nom_event"]
+topics = ["transport"]
+
+[[items]]
+id = "hvenaer_fer_flugid"
+kind = "phrase"
+target = "Hvenær fer flugið?"
+meaning = "When does the flight leave?"
+difficulty = 2
+topics = ["transport", "time"]
+prereqs = ["flugid", "hvenaer"]
+situation = "You want to confirm the departure. Ask when the flight leaves."
+
+[[items]]
+id = "flugid_er_seinkad"
+kind = "phrase"
+target = "Fluginu er seinkað."
+meaning = "The flight is delayed."
+difficulty = 3
+topics = ["transport"]
+prereqs = ["flugid"]
+situation = "You read the board. Tell your friend the flight is delayed."
+
+[[items]]
+id = "hvar_er_hlidid"
+kind = "phrase"
+target = "Hvar er hliðið?"
+meaning = "Where is the gate?"
+difficulty = 2
+topics = ["transport"]
+situation = "You've got your boarding pass. Ask where the gate is."
+
+[[items]]
+id = "eg_er_med_eina_tosku"
+kind = "phrase"
+target = "Ég er með eina tösku."
+meaning = "I have one bag."
+difficulty = 3
+topics = ["transport"]
+situation = "At check-in you're asked about luggage. Say you have one bag."
+
+[[items]]
+id = "eg_a_bokun"
+kind = "phrase"
+target = "Ég á bókun."
+meaning = "I have a booking."
+difficulty = 2
+topics = ["transport", "accommodation"]
+situation = "At the car rental desk. Say you have a booking."
+
+[[items]]
+id = "eg_er_a_bil"
+kind = "phrase"
+target = "Ég er á bíl."
+meaning = "I'm driving. (I have the car)"
+difficulty = 2
+topics = ["transport"]
+situation = "Someone offers you a beer. Explain you're driving."
+
+[[items]]
+id = "eg_vil_leigja_bil"
+kind = "phrase"
+target = "Ég vil leigja bíl."
+meaning = "I want to rent a car."
+difficulty = 3
+topics = ["transport"]
+situation = "You walk up to the rental counter. Say you want to rent a car."
+
+[[items]]
+id = "hvar_er_bensinstodin"
+kind = "phrase"
+target = "Hvar er bensínstöðin?"
+meaning = "Where is the petrol station?"
+difficulty = 3
+topics = ["transport", "directions"]
+chunks = ["stöðin", "bensínstöðin", "Hvar er bensínstöðin?"]
+situation = "The fuel light is on. Ask where the petrol station is."
+
+[[items]]
+id = "er_vegurinn_opinn"
+kind = "phrase"
+target = "Er vegurinn opinn?"
+meaning = "Is the road open?"
+difficulty = 3
+topics = ["transport", "weather"]
+situation = "It snowed all night. Ask at reception whether the road is open."
+
+[[items]]
+id = "vegurinn_er_lokadur"
+kind = "phrase"
+target = "Vegurinn er lokaður."
+meaning = "The road is closed."
+difficulty = 3
+topics = ["transport", "weather"]
+prereqs = ["er_vegurinn_opinn"]
+situation = "You checked the website. Tell your friend the road is closed."
+
+[[items]]
+id = "vid_forum_med_straeto"
+kind = "phrase"
+target = "Við förum með strætó."
+meaning = "We'll go by bus."
+difficulty = 3
+topics = ["transport"]
+prereqs = ["strætó"]
+situation = "Your friend suggests a taxi. Say you'll go by bus instead."
+
+[[items]]
+id = "eg_geng"
+kind = "phrase"
+target = "Ég geng."
+meaning = "I'll walk."
+difficulty = 1
+topics = ["transport"]
+situation = "It's only ten minutes. Say you'll walk."
+
+[[items]]
+id = "eg_er_a_hjoli"
+kind = "phrase"
+target = "Ég er á hjóli."
+meaning = "I'm on a bike."
+difficulty = 2
+topics = ["transport"]
+situation = "Your friend asks how you got here. Say you're on a bike."
+
+[[items]]
+id = "hvar_er_strætóstöðin"
+kind = "phrase"
+target = "Hvar er strætóstöðin?"
+meaning = "Where is the bus station?"
+difficulty = 3
+topics = ["transport", "directions"]
+prereqs = ["hvar_er"]
+situation = "You need the long-distance bus. Ask where the bus station is."
+
+[[items]]
+id = "ferjan"
+kind = "vocab"
+target = "ferjan"
+meaning = "the ferry"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["transport"]
+
+[[items]]
+id = "hvenaer_fer_ferjan"
+kind = "phrase"
+target = "Hvenær fer ferjan?"
+meaning = "When does the ferry leave?"
+difficulty = 2
+topics = ["transport", "time"]
+prereqs = ["ferjan", "hvenaer"]
+situation = "You want to go to the Westman Islands. Ask when the ferry leaves."
+
+[[items]]
+id = "eg_missti_af_straeto"
+kind = "phrase"
+target = "Ég missti af strætó."
+meaning = "I missed the bus."
+difficulty = 3
+topics = ["transport"]
+prereqs = ["strætó"]
+chunks = ["strætó", "af strætó", "missti af strætó", "Ég missti af strætó."]
+situation = "You arrive at work late. Explain you missed the bus."
+
+[[items]]
+id = "transform_question_inversion"
+kind = "transform"
+target = "verb – subject?"
+meaning = "turning a statement into a yes/no question"
+difficulty = 3
+topics = ["grammar"]
+instruction = "Make it a question:"
+prereqs = ["talar_thu", "er_thad_langt"]
+examples = [
+  { source = "Þú talar ensku.", source_meaning = "You speak English.", result = "Talar þú ensku?", result_meaning = "Do you speak English?" },
+  { source = "Það er langt.", source_meaning = "It's far.", result = "Er það langt?", result_meaning = "Is it far?" },
+  { source = "Þú ert frá Japan.", source_meaning = "You're from Japan.", result = "Ert þú frá Japan?", result_meaning = "Are you from Japan?" },
+  { source = "Þetta sæti er laust.", source_meaning = "This seat is free.", result = "Er þetta sæti laust?", result_meaning = "Is this seat free?" },
+  { source = "Strætó fer klukkan níu.", source_meaning = "The bus leaves at nine.", result = "Fer strætó klukkan níu?", result_meaning = "Does the bus leave at nine?" },
+  { source = "Vegurinn er opinn.", source_meaning = "The road is open.", result = "Er vegurinn opinn?", result_meaning = "Is the road open?" },
+]
+
+[[dialogues]]
+id = "straeto"
+setting = "A bus pulls up at the stop. You step up to the driver."
+topics = ["transport"]
+requires = ["fer_thessi_straeto_i_midbaeinn", "einn_mida_takk", "hvar_a_eg_ad_fara_ut", "takk"]
+
+  [[dialogues.turns]]
+  cue = "Ask whether this bus goes to the town centre."
+  expect = "fer_thessi_straeto_i_midbaeinn"
+  partner = "Já, þessi fer í miðbæinn."
+  partner_meaning = "Yes, this one goes to the centre."
+
+  [[dialogues.turns]]
+  cue = "Ask for one ticket."
+  expect = "einn_mida_takk"
+  partner = "Gjörðu svo vel."
+  partner_meaning = "Here you are."
+
+  [[dialogues.turns]]
+  cue = "Ask where you should get off."
+  expect = "hvar_a_eg_ad_fara_ut"
+  partner = "Á Hlemmi. Ég læt þig vita."
+  partner_meaning = "At Hlemmur. I'll let you know."
+
+  [[dialogues.turns]]
+  cue = "Thank him."
+  expect = "takk"
+
+[[dialogues]]
+id = "flugvollur"
+setting = "At the check-in desk at Keflavík airport."
+topics = ["transport"]
+requires = ["eg_a_bokun", "eg_er_med_eina_tosku", "hvar_er_hlidid", "hvenaer_fer_flugid", "takk"]
+
+  [[dialogues.turns]]
+  opener = "Góðan daginn. Vegabréf, takk."
+  opener_meaning = "Good day. Passport, please."
+  cue = "Hand it over and say you have a booking."
+  expect = "eg_a_bokun"
+  partner = "Takk. Ertu með farangur?"
+  partner_meaning = "Thanks. Do you have luggage?"
+
+  [[dialogues.turns]]
+  cue = "Say you have one bag."
+  expect = "eg_er_med_eina_tosku"
+  partner = "Settu hana hérna. Gjörðu svo vel, brottfararspjaldið."
+  partner_meaning = "Put it here. Here you are, the boarding pass."
+
+  [[dialogues.turns]]
+  cue = "Ask where the gate is."
+  expect = "hvar_er_hlidid"
+  partner = "Hlið tólf, beint áfram."
+  partner_meaning = "Gate twelve, straight ahead."
+
+  [[dialogues.turns]]
+  cue = "Ask when the flight leaves."
+  expect = "hvenaer_fer_flugid"
+  partner = "Klukkan hálf þrjú. Góða ferð!"
+  partner_meaning = "At half past two. Have a good trip!"

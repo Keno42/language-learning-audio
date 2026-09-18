@@ -1,0 +1,332 @@
+# 02 — clarifying, languages, asking for help
+
+[[items]]
+id = "islensku"
+kind = "vocab"
+target = "íslensku"
+meaning = "Icelandic (the language)"
+difficulty = 2
+tags = ["acc_language"]
+topics = ["clarifying"]
+pronunciation_notes = "accusative of íslenska"
+
+[[items]]
+id = "ensku"
+kind = "vocab"
+target = "ensku"
+meaning = "English (the language)"
+difficulty = 1
+tags = ["acc_language"]
+topics = ["clarifying"]
+
+[[items]]
+id = "japonsku"
+kind = "vocab"
+target = "japönsku"
+meaning = "Japanese (the language)"
+difficulty = 2
+tags = ["acc_language"]
+topics = ["clarifying"]
+
+[[items]]
+id = "thysku"
+kind = "vocab"
+target = "þýsku"
+meaning = "German (the language)"
+difficulty = 2
+tags = ["acc_language"]
+topics = ["clarifying"]
+
+[[items]]
+id = "fronsku"
+kind = "vocab"
+target = "frönsku"
+meaning = "French (the language)"
+difficulty = 2
+tags = ["acc_language"]
+topics = ["clarifying"]
+
+[[items]]
+id = "donsku"
+kind = "vocab"
+target = "dönsku"
+meaning = "Danish (the language)"
+difficulty = 2
+tags = ["acc_language"]
+topics = ["clarifying"]
+
+[[items]]
+id = "spaensku"
+kind = "vocab"
+target = "spænsku"
+meaning = "Spanish (the language)"
+difficulty = 2
+tags = ["acc_language"]
+topics = ["clarifying"]
+
+[[items]]
+id = "talar_thu"
+kind = "construction"
+target = "Talar þú {language}?"
+meaning = "Do you speak {language}?"
+difficulty = 3
+topics = ["clarifying"]
+slots = { language = "acc_language" }
+example = { language = "ensku" }
+components = ["ensku"]
+prereqs = ["ensku"]
+situation = "You're not sure the receptionist understands you. Ask if she speaks English."
+
+[[items]]
+id = "eg_tala"
+kind = "construction"
+target = "Ég tala {language}."
+meaning = "I speak {language}."
+difficulty = 2
+topics = ["clarifying", "social"]
+slots = { language = "acc_language" }
+example = { language = "japonsku" }
+components = ["japonsku"]
+prereqs = ["japonsku"]
+
+[[items]]
+id = "eg_tala_sma_islensku"
+kind = "phrase"
+target = "Ég tala smá íslensku."
+meaning = "I speak a little Icelandic."
+difficulty = 3
+topics = ["clarifying", "social"]
+prereqs = ["eg_tala", "islensku"]
+chunks = ["íslensku", "smá íslensku", "Ég tala smá íslensku."]
+situation = "She switches to English. Tell her you speak a little Icelandic."
+
+[[items]]
+id = "eg_tala_ekki_islensku"
+kind = "phrase"
+target = "Ég tala ekki íslensku."
+meaning = "I don't speak Icelandic."
+difficulty = 2
+topics = ["clarifying"]
+prereqs = ["eg_tala", "islensku"]
+situation = "A man starts a long story in Icelandic. Tell him you don't speak Icelandic."
+
+[[items]]
+id = "eg_er_ad_laera"
+kind = "construction"
+target = "Ég er að læra {language}."
+meaning = "I'm learning {language}."
+difficulty = 3
+topics = ["clarifying", "social"]
+slots = { language = "acc_language" }
+example = { language = "islensku" }
+components = ["islensku"]
+prereqs = ["islensku"]
+pronunciation_notes = "læra: LAI-ra"
+
+[[items]]
+id = "gaetirdu_talad_haegar"
+kind = "phrase"
+target = "Gætirðu talað hægar?"
+meaning = "Could you speak more slowly?"
+difficulty = 4
+topics = ["clarifying"]
+chunks = ["hægar", "talað hægar", "Gætirðu talað hægar?"]
+situation = "The barista is speaking far too fast. Ask her to speak more slowly."
+
+[[items]]
+id = "gaetirdu_endurtekid_thetta"
+kind = "phrase"
+target = "Gætirðu endurtekið þetta?"
+meaning = "Could you repeat that?"
+difficulty = 4
+topics = ["clarifying"]
+chunks = ["þetta", "endurtekið þetta", "Gætirðu endurtekið þetta?"]
+situation = "You missed the room number she said. Ask her to repeat it."
+
+[[items]]
+id = "hvad_thydir_thetta"
+kind = "phrase"
+target = "Hvað þýðir þetta?"
+meaning = "What does this mean?"
+difficulty = 3
+topics = ["clarifying"]
+situation = "There's a word on the sign you don't know. Ask what it means."
+
+[[items]]
+id = "hvad_heitir_thetta_a_islensku"
+kind = "phrase"
+target = "Hvað heitir þetta á íslensku?"
+meaning = "What is this called in Icelandic?"
+difficulty = 4
+topics = ["clarifying"]
+chunks = ["íslensku", "á íslensku", "þetta á íslensku", "Hvað heitir þetta á íslensku?"]
+situation = "You point at a strange fish on the menu. Ask what it's called in Icelandic."
+
+[[items]]
+id = "hvernig_segir_madur_thetta"
+kind = "phrase"
+target = "Hvernig segir maður þetta á íslensku?"
+meaning = "How do you say this in Icelandic?"
+difficulty = 4
+topics = ["clarifying"]
+chunks = ["íslensku", "þetta á íslensku", "segir maður þetta á íslensku", "Hvernig segir maður þetta á íslensku?"]
+situation = "You want to know how to say 'cheers' properly. Ask how one says it in Icelandic."
+
+[[items]]
+id = "geturdu_skrifad_thad"
+kind = "phrase"
+target = "Geturðu skrifað það?"
+meaning = "Can you write it down?"
+difficulty = 3
+topics = ["clarifying"]
+situation = "The address is too hard to catch by ear. Ask her to write it."
+
+[[items]]
+id = "eg_veit_ekki"
+kind = "phrase"
+target = "Ég veit ekki."
+meaning = "I don't know."
+alternatives = ["Ég veit það ekki."]
+difficulty = 2
+topics = ["clarifying", "discourse"]
+situation = "Someone asks you where the nearest bank is. You have no idea."
+
+[[items]]
+id = "eg_er_ekki_viss"
+kind = "phrase"
+target = "Ég er ekki viss."
+meaning = "I'm not sure."
+difficulty = 2
+topics = ["clarifying", "discourse"]
+situation = "Your friend asks if the museum is open on Mondays. You're not sure."
+
+[[items]]
+id = "augnablik"
+kind = "phrase"
+target = "Augnablik."
+meaning = "One moment."
+difficulty = 2
+topics = ["clarifying"]
+situation = "The phone rings while you're paying. Ask the cashier for a moment."
+
+[[items]]
+id = "biddu"
+kind = "phrase"
+target = "Bíddu."
+meaning = "Wait. / Hang on."
+difficulty = 1
+topics = ["clarifying"]
+situation = "Your friend is walking off while you tie your shoe. Tell him to hang on."
+
+[[items]]
+id = "skilurdu"
+kind = "phrase"
+target = "Skilurðu?"
+meaning = "Do you understand?"
+difficulty = 2
+topics = ["clarifying"]
+situation = "You've explained the way to the pool in slow Icelandic. Check she understood."
+
+[[items]]
+id = "hvad_sagdirdu"
+kind = "phrase"
+target = "Hvað sagðirðu?"
+meaning = "What did you say?"
+difficulty = 3
+topics = ["clarifying"]
+situation = "The bus driver said something over the engine noise. Ask what he said."
+
+[[items]]
+id = "geturdu_hjalpad_mer"
+kind = "phrase"
+target = "Geturðu hjálpað mér?"
+meaning = "Can you help me?"
+difficulty = 3
+topics = ["clarifying", "emergencies"]
+chunks = ["mér", "hjálpað mér", "Geturðu hjálpað mér?"]
+situation = "The ticket machine won't take your card. Ask the person behind you for help."
+
+[[items]]
+id = "eg_tharf_hjalp"
+kind = "phrase"
+target = "Ég þarf hjálp."
+meaning = "I need help."
+difficulty = 2
+topics = ["clarifying", "emergencies"]
+situation = "You're at the information desk with a problem. Say you need help."
+
+[[items]]
+id = "hvad_er_thetta"
+kind = "phrase"
+target = "Hvað er þetta?"
+meaning = "What is this?"
+difficulty = 2
+topics = ["clarifying"]
+situation = "There's a grey paste on your plate. Ask what it is."
+
+[[items]]
+id = "er_thetta_rett"
+kind = "phrase"
+target = "Er þetta rétt?"
+meaning = "Is this right?"
+difficulty = 2
+topics = ["clarifying"]
+situation = "You've filled in the form. Ask the clerk whether it's right."
+
+[[items]]
+id = "eg_er_utlendingur"
+kind = "phrase"
+target = "Ég er útlendingur."
+meaning = "I'm a foreigner."
+difficulty = 3
+topics = ["clarifying", "social"]
+situation = "The clerk assumes you know the system. Explain you're a foreigner."
+
+[[items]]
+id = "politeness_get_eg_fengid"
+kind = "transform"
+target = "Ég ætla að fá … → Get ég fengið …?"
+meaning = "asking for the same thing more politely"
+difficulty = 3
+topics = ["grammar", "cafe"]
+instruction = "Say it more politely, as a question:"
+prereqs = ["eg_aetla_ad_fa", "get_eg_fengid_reikninginn"]
+examples = [
+  { source = "Ég ætla að fá kaffi.", source_meaning = "I'll have a coffee.", result = "Get ég fengið kaffi?", result_meaning = "Could I have a coffee?" },
+  { source = "Ég ætla að fá te.", source_meaning = "I'll have a tea.", result = "Get ég fengið te?", result_meaning = "Could I have a tea?" },
+  { source = "Ég ætla að fá vatn.", source_meaning = "I'll have water.", result = "Get ég fengið vatn?", result_meaning = "Could I have water?" },
+  { source = "Ég ætla að fá matseðilinn.", source_meaning = "I'll have the menu.", result = "Get ég fengið matseðilinn?", result_meaning = "Could I have the menu?" },
+  { source = "Ég ætla að fá súpu.", source_meaning = "I'll have soup.", result = "Get ég fengið súpu?", result_meaning = "Could I have soup?" },
+]
+
+[[dialogues]]
+id = "tungumal"
+setting = "At the tourist information desk. The woman behind it speaks quickly."
+topics = ["clarifying"]
+requires = ["talar_thu", "ensku", "eg_tala_sma_islensku", "gaetirdu_talad_haegar", "takk"]
+
+  [[dialogues.turns]]
+  opener = "Góðan daginn, hvað get ég gert fyrir þig?"
+  opener_meaning = "Good day, what can I do for you?"
+  cue = "Ask if she speaks English."
+  expect_text = "Talar þú ensku?"
+  expect_meaning = "Do you speak English?"
+  partner = "Já, smá. En þú talar íslensku?"
+  partner_meaning = "Yes, a little. But you speak Icelandic?"
+
+  [[dialogues.turns]]
+  cue = "Say you speak a little Icelandic."
+  expect = "eg_tala_sma_islensku"
+  partner = "Frábært! Þá tölum við bara íslensku. Sundlaugin er beint áfram og svo til vinstri, rétt hjá bankanum."
+  partner_meaning = "Great! Then we'll just speak Icelandic. The pool is straight ahead and then left, right by the bank."
+
+  [[dialogues.turns]]
+  cue = "That was too fast. Ask her to speak more slowly."
+  expect = "gaetirdu_talad_haegar"
+  partner = "Fyrirgefðu. Beint áfram… og svo til vinstri."
+  partner_meaning = "Sorry. Straight ahead… and then to the left."
+
+  [[dialogues.turns]]
+  cue = "Say you understand, and thank her."
+  expect_text = "Ég skil. Takk."
+  expect_meaning = "I understand. Thanks."

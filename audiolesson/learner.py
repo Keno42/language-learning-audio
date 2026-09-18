@@ -119,6 +119,10 @@ class LearnerState:
         if fail_rate is not None and fail_rate > 0.2:
             new_pace -= 1
             reasons.append(f"{fb[0]}/{fb[1]} new items failed last lesson")
+        last = self.lessons[-1] if self.lessons else None
+        if last and new_pace == pace and last.get("due_at_start", 0) >= 8 and last.get("due_not_fitted", 0) > 0.25 * last["due_at_start"]:
+            new_pace -= 1
+            reasons.append(f"{last['due_not_fitted']} of {last['due_at_start']} due reviews did not fit last lesson")
         if new_pace == pace and fail_rate is not None and fail_rate <= 0.1 and backlog_ratio < 0.5:
             if not auto_assumed:
                 new_pace += 1

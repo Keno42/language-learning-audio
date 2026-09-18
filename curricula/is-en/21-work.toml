@@ -1,0 +1,333 @@
+# 21 — work and study
+
+[[items]]
+id = "eg_vinn_a_skrifstofu"
+kind = "phrase"
+target = "Ég vinn á skrifstofu."
+meaning = "I work in an office."
+difficulty = 3
+topics = ["work"]
+prereqs = ["eg_vinn"]
+situation = "Anna asks where you work. Say you work in an office."
+
+[[items]]
+id = "eg_vinn_heima"
+kind = "phrase"
+target = "Ég vinn heima."
+meaning = "I work from home."
+difficulty = 2
+topics = ["work"]
+prereqs = ["eg_vinn"]
+situation = "Say you work from home."
+
+[[items]]
+id = "eg_er_i_skola"
+kind = "phrase"
+target = "Ég er í skóla."
+meaning = "I'm at school (a student)."
+difficulty = 2
+topics = ["work"]
+situation = "Someone asks what you do. Say you're a student — at school."
+
+[[items]]
+id = "eg_er_i_haskola"
+kind = "phrase"
+target = "Ég er í háskóla."
+meaning = "I'm at university."
+difficulty = 2
+topics = ["work"]
+prereqs = ["eg_er_i_skola"]
+situation = "Say you're at university."
+
+[[items]]
+id = "hvad_ertu_ad_laera"
+kind = "phrase"
+target = "Hvað ertu að læra?"
+meaning = "What are you studying?"
+difficulty = 3
+topics = ["work"]
+prereqs = ["eg_er_i_haskola"]
+situation = "Anna says she's at university. Ask what she's studying."
+
+[[items]]
+id = "eg_er_ad_laera_tolvunarfraedi"
+kind = "phrase"
+target = "Ég er að læra tölvunarfræði."
+meaning = "I'm studying computer science."
+difficulty = 4
+topics = ["work"]
+chunks = ["fræði", "tölvunarfræði", "að læra tölvunarfræði", "Ég er að læra tölvunarfræði."]
+situation = "Say you're studying computer science."
+
+[[items]]
+id = "eg_er_i_vinnunni"
+kind = "phrase"
+target = "Ég er í vinnunni."
+meaning = "I'm at work."
+difficulty = 2
+topics = ["work"]
+situation = "A friend calls in the afternoon. Say you're at work."
+
+[[items]]
+id = "eg_er_i_frii_a_morgun"
+kind = "phrase"
+target = "Ég er í fríi á morgun."
+meaning = "I'm off tomorrow."
+difficulty = 3
+topics = ["work", "arrangements"]
+prereqs = ["eg_er_i_frii", "a_morgun"]
+situation = "Anna asks if you can meet tomorrow. Say you're off tomorrow."
+
+[[items]]
+id = "eg_er_ad_vinna"
+kind = "phrase"
+target = "Ég er að vinna."
+meaning = "I'm working (right now)."
+difficulty = 2
+topics = ["work"]
+situation = "Someone asks if you can chat. Say you're working."
+
+[[items]]
+id = "eg_hef_fund"
+kind = "phrase"
+target = "Ég er á fundi."
+meaning = "I'm in a meeting."
+difficulty = 2
+topics = ["work"]
+situation = "Text back: you're in a meeting."
+
+[[items]]
+id = "fundurinn_er_klukkan_tiu"
+kind = "phrase"
+target = "Fundurinn er klukkan tíu."
+meaning = "The meeting is at ten."
+difficulty = 3
+topics = ["work", "time"]
+prereqs = ["klukkan_time", "tiu"]
+situation = "A colleague asks when the meeting is. Say it's at ten."
+
+[[items]]
+id = "get_eg_fengid_fri"
+kind = "phrase"
+target = "Get ég fengið frí á föstudaginn?"
+meaning = "Can I have Friday off?"
+difficulty = 4
+topics = ["work"]
+prereqs = ["get_eg_fengid", "a_fostudaginn"]
+chunks = ["föstudaginn", "á föstudaginn", "frí á föstudaginn", "Get ég fengið frí á föstudaginn?"]
+situation = "Ask your boss if you can have Friday off."
+
+[[items]]
+id = "eg_er_med_frest"
+kind = "phrase"
+target = "Ég er með skilafrest á morgun."
+meaning = "I have a deadline tomorrow."
+difficulty = 4
+topics = ["work"]
+chunks = ["morgun", "á morgun", "skilafrest á morgun", "Ég er með skilafrest á morgun."]
+situation = "Explain why you can't come out: you have a deadline tomorrow."
+
+[[items]]
+id = "eg_er_i_pasu"
+kind = "phrase"
+target = "Ég er í pásu."
+meaning = "I'm on a break."
+difficulty = 2
+topics = ["work"]
+situation = "A colleague asks if you're free to talk. Say you're on a break."
+
+[[items]]
+id = "eg_er_ad_senda_tolvupost"
+kind = "phrase"
+target = "Ég er að senda tölvupóst."
+meaning = "I'm sending an email."
+difficulty = 3
+topics = ["work", "practical"]
+chunks = ["póst", "tölvupóst", "senda tölvupóst", "Ég er að senda tölvupóst."]
+situation = "Say you're sending an email."
+
+[[items]]
+id = "geturdu_sent_mer_thetta"
+kind = "phrase"
+target = "Geturðu sent mér þetta?"
+meaning = "Can you send me this?"
+difficulty = 3
+topics = ["work", "practical"]
+situation = "A colleague shows you a document. Ask her to send it to you."
+
+[[items]]
+id = "eg_skil_thetta_ekki"
+kind = "phrase"
+target = "Ég skil þetta ekki."
+meaning = "I don't understand this."
+difficulty = 2
+topics = ["work", "clarifying"]
+prereqs = ["eg_skil_ekki"]
+situation = "You're looking at a confusing form. Say you don't understand this."
+
+[[items]]
+id = "geturdu_utskyrt_thetta"
+kind = "phrase"
+target = "Geturðu útskýrt þetta?"
+meaning = "Can you explain this?"
+difficulty = 3
+topics = ["work", "clarifying"]
+situation = "Ask a colleague to explain the form."
+
+[[items]]
+id = "eg_er_buin_med_verkefnid"
+kind = "phrase"
+target = "Ég er búin með verkefnið."
+meaning = "I've finished the task."
+difficulty = 3
+topics = ["work"]
+pronunciation_notes = "feminine; masculine: Ég er búinn með verkefnið."
+prereqs = ["eg_er_buin"]
+situation = "Tell your boss you've finished the task."
+
+[[items]]
+id = "gott_starf"
+kind = "phrase"
+target = "Vel gert!"
+meaning = "Well done!"
+difficulty = 1
+topics = ["work", "social"]
+situation = "A colleague finished a hard task. Say well done."
+
+[[items]]
+id = "hvad_er_kaupid"
+kind = "phrase"
+target = "Hvað eru launin?"
+meaning = "What's the salary?"
+difficulty = 3
+topics = ["work", "money"]
+situation = "At the end of a job interview, ask about the salary."
+
+[[items]]
+id = "eg_er_atvinnulaus"
+kind = "phrase"
+target = "Ég er atvinnulaus."
+meaning = "I'm unemployed."
+difficulty = 3
+topics = ["work"]
+situation = "Someone asks about your job. Say you're unemployed."
+
+[[items]]
+id = "eg_er_ad_leita_ad_vinnu"
+kind = "phrase"
+target = "Ég er að leita að vinnu."
+meaning = "I'm looking for a job."
+difficulty = 3
+topics = ["work"]
+prereqs = ["eg_er_ad_leita_ad"]
+situation = "Say you're looking for a job."
+
+[[items]]
+id = "eg_er_a_eftirlaunum"
+kind = "phrase"
+target = "Ég er á eftirlaunum."
+meaning = "I'm retired."
+difficulty = 3
+topics = ["work"]
+situation = "Someone asks what you do. Say you're retired."
+
+[[items]]
+id = "skolinn"
+kind = "vocab"
+target = "skólinn"
+meaning = "the school"
+difficulty = 1
+tags = ["nom_place"]
+topics = ["work"]
+
+[[items]]
+id = "haskolinn"
+kind = "vocab"
+target = "háskólinn"
+meaning = "the university"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["work"]
+
+[[items]]
+id = "skrifstofan"
+kind = "vocab"
+target = "skrifstofan"
+meaning = "the office"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["work"]
+
+[[items]]
+id = "fundur"
+kind = "vocab"
+target = "fundur"
+meaning = "a meeting"
+difficulty = 1
+topics = ["work"]
+
+[[items]]
+id = "verkefni"
+kind = "vocab"
+target = "verkefni"
+meaning = "a task / project"
+difficulty = 2
+topics = ["work"]
+
+[[items]]
+id = "yfirmadur"
+kind = "vocab"
+target = "yfirmaður"
+meaning = "a boss"
+difficulty = 2
+topics = ["work"]
+
+[[items]]
+id = "vinna_verb"
+kind = "vocab"
+target = "vinna"
+meaning = "work (to work)"
+difficulty = 1
+tags = ["inf"]
+topics = ["work"]
+
+[[items]]
+id = "laera"
+kind = "vocab"
+target = "læra"
+meaning = "study / learn"
+difficulty = 1
+tags = ["inf"]
+topics = ["work"]
+
+[[dialogues]]
+id = "vidtal"
+setting = "A casual job interview at a café in Reykjavík."
+topics = ["work"]
+requires = ["eg_er_job", "forritari", "eg_vinn_hja", "eg_er_ad_laera", "islensku", "hvad_er_kaupid", "takk_kaerlega"]
+
+  [[dialogues.turns]]
+  opener = "Segðu mér aðeins frá þér."
+  opener_meaning = "Tell me a bit about yourself."
+  cue = "Say you're a programmer and you work at a small company."
+  expect_text = "Ég er forritari. Ég vinn hjá litlu fyrirtæki."
+  expect_meaning = "I'm a programmer. I work at a small company."
+  partner = "Og þú talar íslensku?"
+  partner_meaning = "And you speak Icelandic?"
+
+  [[dialogues.turns]]
+  cue = "Say you're learning Icelandic."
+  expect_text = "Ég er að læra íslensku."
+  expect_meaning = "I'm learning Icelandic."
+  partner = "Það heyrist. Hefurðu einhverjar spurningar?"
+  partner_meaning = "One can hear that. Do you have any questions?"
+
+  [[dialogues.turns]]
+  cue = "Ask what the salary is."
+  expect = "hvad_er_kaupid"
+  partner = "Við ræðum það í næsta viðtali. Takk fyrir að koma!"
+  partner_meaning = "We'll discuss that in the next interview. Thanks for coming!"
+
+  [[dialogues.turns]]
+  cue = "Thank her warmly."
+  expect = "takk_kaerlega"

@@ -1,7 +1,11 @@
 # Curriculum file format
 
-A curriculum is one TOML file: metadata, an ordered list of `[[items]]`, and
-optional `[[dialogues]]`. `audiolesson validate file.toml` checks it.
+A curriculum is one TOML file — or a directory of them, merged in filename
+order, which is how the large Icelandic course is organised
+(`curricula/is-en/00-curriculum.toml` carries the metadata, `01-…` to `26-…`
+carry the modules). It holds metadata, an ordered list of `[[items]]`, and
+optional `[[dialogues]]`. `audiolesson validate <file-or-dir>` checks it,
+including duplicate ids and duplicate targets across modules.
 
 ```toml
 [curriculum]

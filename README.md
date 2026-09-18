@@ -68,13 +68,13 @@ Useful flags for `generate`: `-t cafe,directions` (prefer topics), `--new 4`
 One command a day; the tool decides how many new items to introduce.
 
 ```sh
-CURRICULUM=curricula/is-en-a1.toml LEARNER=learner-is.json PROFILE=profiles/edge-is-en.toml \
-MINUTES=30 OUT=lessons/is tools/daily.sh          # → lessons/is/lesson-NNN.mp3
+CURRICULUM=curricula/is-en LEARNER=learner-is.json PROFILE=profiles/edge-is-en.toml \
+MINUTES=30 OUT=lessons/is AUTO=1 tools/daily.sh   # → lessons/is/lesson-NNN.mp3
 
 # after listening — optional in auto mode (AUTO=1), required for the pace to rise otherwise:
 audiolesson report -l learner-is.json                       # everything came out
 audiolesson report -l learner-is.json --failed takk,bless   # ids are in lesson-NNN.plan.json
-audiolesson status -l learner-is.json -c curricula/is-en-a1.toml
+audiolesson status -l learner-is.json -c curricula/is-en
 ```
 
 **Pacing rules** (`LearnerState.suggest_pace`), based on what spaced-retrieval
@@ -158,10 +158,18 @@ See `docs/CURRICULUM.md`. Three curricula ship:
   small talk; 47 items, 4 dialogues.
 - `curricula/fr-ja-a1.toml` — the same material for Japanese speakers
   (日本語の指示でフランス語を学ぶ), derived by `tools/derive_fr_ja.py`.
-- `curricula/is-en-a1.toml` — Icelandic for English speakers, starter set:
-  61 items, 4 dialogues, nouns tagged by the case each construction needs.
-  About 8–10 days at the default pace; extend it before month one ends
-  (roughly 5–6 new items per day ≈ 450–500 items for three months).
+- `curricula/is-en/` — Icelandic for English speakers, **993 items and 31
+  dialogues in 26 topic modules** (greetings, café, directions, self, time,
+  weather, numbers/money, shopping, transport, accommodation, health, family,
+  daily routine, hobbies, home, food, adjectives, question words, verb forms,
+  work, practical life, nature, discourse, travel, feelings). Nouns are tagged
+  by the case each construction needs. About five months at the default pace.
+  Written by an AI and not yet reviewed by a native speaker.
+- `curricula/is-en-a1.toml` — the 61-item starter the module set grew out of
+  (kept for quick tests).
+
+A curriculum can be one file or a directory of modules merged in filename
+order (`audiolesson validate curricula/is-en`).
 
 The instructor's own phrasing lives in `audiolesson/phrasing/<known_lang>.toml`
 (English and Japanese provided), so teaching to speakers of another language
@@ -186,7 +194,7 @@ audiolesson/
   script.py     the intermediate timed script + transcript
   render/       audio.py (PCM/ffmpeg), tts.py (providers), renderer.py (script → file)
   cli.py
-curricula/      *.toml learning material (fr-en, fr-ja, is-en)
+curricula/      learning material: fr-en, fr-ja (files), is-en/ (26 modules)
 tools/          daily.sh (one day of the routine), derive_fr_ja.py (keeps fr-ja in sync with fr-en)
 profiles/       voice profiles (provider + voice per speaker)
 tests/          python -m unittest

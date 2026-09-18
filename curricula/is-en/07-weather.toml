@@ -1,0 +1,333 @@
+# 07 — weather and small talk (Iceland's favourite subject)
+
+[[items]]
+id = "kalt"
+kind = "vocab"
+target = "kalt"
+meaning = "cold"
+difficulty = 1
+tags = ["weather", "adj_neut"]
+topics = ["weather"]
+
+[[items]]
+id = "thad_er_weather"
+kind = "construction"
+target = "Það er {weather}."
+meaning = "It's {weather}."
+difficulty = 2
+topics = ["weather"]
+slots = { weather = "weather" }
+example = { weather = "kalt" }
+components = ["kalt"]
+prereqs = ["kalt"]
+
+[[items]]
+id = "rok"
+kind = "vocab"
+target = "rok"
+meaning = "windy (a gale)"
+difficulty = 1
+tags = ["weather"]
+topics = ["weather"]
+
+[[items]]
+id = "rigning"
+kind = "vocab"
+target = "rigning"
+meaning = "raining"
+difficulty = 2
+tags = ["weather"]
+topics = ["weather"]
+
+[[items]]
+id = "hlytt"
+kind = "vocab"
+target = "hlýtt"
+meaning = "warm (mild)"
+difficulty = 2
+tags = ["weather", "adj_neut"]
+topics = ["weather"]
+
+[[items]]
+id = "heitt"
+kind = "vocab"
+target = "heitt"
+meaning = "hot"
+difficulty = 1
+tags = ["weather", "adj_neut"]
+topics = ["weather"]
+
+[[items]]
+id = "sol"
+kind = "vocab"
+target = "sól"
+meaning = "sunny (sun)"
+difficulty = 1
+tags = ["weather"]
+topics = ["weather"]
+
+[[items]]
+id = "thoka"
+kind = "vocab"
+target = "þoka"
+meaning = "foggy (fog)"
+difficulty = 2
+tags = ["weather"]
+topics = ["weather"]
+
+[[items]]
+id = "snjor"
+kind = "vocab"
+target = "snjór"
+meaning = "snow (there's snow)"
+difficulty = 2
+tags = ["weather"]
+topics = ["weather"]
+
+[[items]]
+id = "skyjad"
+kind = "vocab"
+target = "skýjað"
+meaning = "cloudy"
+difficulty = 2
+tags = ["weather"]
+topics = ["weather"]
+
+[[items]]
+id = "halka"
+kind = "vocab"
+target = "hálka"
+meaning = "icy (slippery ice)"
+difficulty = 2
+tags = ["weather"]
+topics = ["weather"]
+
+[[items]]
+id = "gott_vedur"
+kind = "vocab"
+target = "gott veður"
+meaning = "good weather"
+difficulty = 2
+tags = ["weather"]
+topics = ["weather"]
+
+[[items]]
+id = "vont_vedur"
+kind = "vocab"
+target = "vont veður"
+meaning = "bad weather"
+difficulty = 2
+tags = ["weather"]
+topics = ["weather"]
+
+[[items]]
+id = "thad_snjoar"
+kind = "phrase"
+target = "Það snjóar."
+meaning = "It's snowing."
+difficulty = 2
+topics = ["weather"]
+situation = "You look out of the window: flakes. Tell your friend it's snowing."
+
+[[items]]
+id = "thad_rignir"
+kind = "phrase"
+target = "Það rignir."
+meaning = "It's raining."
+difficulty = 2
+topics = ["weather"]
+situation = "Your friend is about to go out without a coat. Tell her it's raining."
+
+[[items]]
+id = "hvernig_er_vedrid"
+kind = "phrase"
+target = "Hvernig er veðrið?"
+meaning = "How's the weather?"
+difficulty = 2
+topics = ["weather"]
+situation = "Your friend just came in from outside. Ask how the weather is."
+
+[[items]]
+id = "hvernig_verdur_vedrid_a_morgun"
+kind = "phrase"
+target = "Hvernig verður veðrið á morgun?"
+meaning = "What will the weather be like tomorrow?"
+difficulty = 4
+topics = ["weather"]
+prereqs = ["hvernig_er_vedrid", "a_morgun"]
+chunks = ["á morgun", "veðrið á morgun", "verður veðrið á morgun", "Hvernig verður veðrið á morgun?"]
+situation = "You're planning a hike. Ask what the weather will be tomorrow."
+
+[[items]]
+id = "thad_er_svo_kalt"
+kind = "phrase"
+target = "Það er svo kalt!"
+meaning = "It's so cold!"
+difficulty = 2
+topics = ["weather"]
+prereqs = ["thad_er_weather"]
+situation = "You step out into a freezing wind. Complain that it's so cold."
+
+[[items]]
+id = "mer_er_kalt"
+kind = "phrase"
+target = "Mér er kalt."
+meaning = "I'm cold."
+difficulty = 2
+topics = ["weather", "feelings"]
+pronunciation_notes = "literally 'to me is cold' — not 'ég er kalt'"
+situation = "You've been waiting at the bus stop for a while. Say you're cold."
+
+[[items]]
+id = "mer_er_heitt"
+kind = "phrase"
+target = "Mér er heitt."
+meaning = "I'm hot."
+difficulty = 2
+topics = ["weather", "feelings"]
+situation = "The hot tub is very hot. Say you're hot."
+
+[[items]]
+id = "thad_er_bjart_uti"
+kind = "phrase"
+target = "Það er bjart úti."
+meaning = "It's bright outside."
+difficulty = 3
+topics = ["weather"]
+situation = "It's midnight in June and still light. Remark that it's bright outside."
+
+[[items]]
+id = "thad_er_dimmt_uti"
+kind = "phrase"
+target = "Það er dimmt úti."
+meaning = "It's dark outside."
+difficulty = 2
+topics = ["weather"]
+situation = "It's four in the afternoon in December. Remark that it's dark outside."
+
+[[items]]
+id = "eg_tholi_ekki_rokid"
+kind = "phrase"
+target = "Ég þoli ekki rokið."
+meaning = "I can't stand the wind."
+difficulty = 4
+topics = ["weather", "feelings"]
+chunks = ["rokið", "ekki rokið", "þoli ekki rokið", "Ég þoli ekki rokið."]
+situation = "The wind has knocked your hat off for the third time. Say you can't stand the wind."
+
+[[items]]
+id = "mer_finnst_snjorinn_fallegur"
+kind = "phrase"
+target = "Mér finnst snjórinn fallegur."
+meaning = "I think the snow is beautiful."
+difficulty = 4
+topics = ["weather"]
+chunks = ["fallegur", "snjórinn fallegur", "Mér finnst snjórinn fallegur."]
+situation = "Your neighbour complains about the snow. Say you think it's beautiful."
+
+[[items]]
+id = "thad_er_bara_svona"
+kind = "phrase"
+target = "Þetta er bara svona."
+meaning = "That's just how it is."
+difficulty = 3
+topics = ["weather", "discourse"]
+situation = "Someone apologises for the weather as if it were their fault. Say that's just how it is."
+
+[[items]]
+id = "thetta_reddast"
+kind = "phrase"
+target = "Þetta reddast."
+meaning = "It'll work out. (the national motto)"
+difficulty = 3
+topics = ["discourse"]
+situation = "Your friend worries the road will be closed by snow. Reassure her it'll work out."
+
+[[items]]
+id = "vedrid_er_gott_i_dag"
+kind = "phrase"
+target = "Veðrið er gott í dag."
+meaning = "The weather is good today."
+difficulty = 3
+topics = ["weather"]
+prereqs = ["i_dag"]
+situation = "Sun and no wind, a rare day. Say the weather is good today."
+
+[[items]]
+id = "eg_tharf_ulpu"
+kind = "phrase"
+target = "Ég þarf úlpu."
+meaning = "I need a parka."
+difficulty = 2
+topics = ["weather", "shopping"]
+situation = "Your jacket is useless in this wind. Say you need a parka."
+
+[[items]]
+id = "ertu_med_regnhlif"
+kind = "phrase"
+target = "Ertu með regnhlíf?"
+meaning = "Do you have an umbrella?"
+difficulty = 3
+topics = ["weather"]
+situation = "It starts to pour. Ask your friend if she has an umbrella."
+
+[[items]]
+id = "nordurljosin"
+kind = "phrase"
+target = "Sérðu norðurljósin?"
+meaning = "Can you see the northern lights?"
+difficulty = 4
+topics = ["weather", "nature"]
+chunks = ["norðurljósin", "Sérðu norðurljósin?"]
+situation = "A green glow appears over the mountains. Ask your friend if she can see the northern lights."
+
+[[dialogues]]
+id = "vedur"
+setting = "You meet your neighbour outside. It's blowing a gale."
+topics = ["weather", "arrangements"]
+requires = ["ja", "thad_er_weather", "kalt", "allt_i_lagi", "sjaumst_time", "a_morgun"]
+
+  [[dialogues.turns]]
+  opener = "Það er rok í dag!"
+  opener_meaning = "It's windy today!"
+  cue = "Agree: yes, it's cold."
+  expect_text = "Já, það er kalt."
+  expect_meaning = "Yes, it's cold."
+  partner = "Sjáumst á morgun?"
+  partner_meaning = "See you tomorrow?"
+
+  [[dialogues.turns]]
+  cue = "Say OK, see you tomorrow."
+  expect_text = "Allt í lagi. Sjáumst á morgun!"
+  expect_meaning = "OK. See you tomorrow!"
+
+[[dialogues]]
+id = "gonguferd"
+setting = "You're planning a hike with a friend from the hostel."
+topics = ["weather", "arrangements"]
+requires = ["hvernig_verdur_vedrid_a_morgun", "thetta_reddast", "eg_tharf_ulpu", "hittumst_klukkan", "niu"]
+
+  [[dialogues.turns]]
+  cue = "Ask what the weather will be like tomorrow."
+  expect = "hvernig_verdur_vedrid_a_morgun"
+  partner = "Rigning og rok, held ég."
+  partner_meaning = "Rain and wind, I think."
+
+  [[dialogues.turns]]
+  cue = "Say it'll work out."
+  expect = "thetta_reddast"
+  partner = "Já, en þú þarft betri jakka."
+  partner_meaning = "Yes, but you need a better jacket."
+
+  [[dialogues.turns]]
+  cue = "Say you need a parka."
+  expect = "eg_tharf_ulpu"
+  partner = "Ég get lánað þér eina. Klukkan hvað leggjum við af stað?"
+  partner_meaning = "I can lend you one. What time do we set off?"
+
+  [[dialogues.turns]]
+  cue = "Say: let's meet at nine."
+  expect_text = "Hittumst klukkan níu."
+  expect_meaning = "Let's meet at nine."
+  partner = "Fínt. Góða nótt!"
+  partner_meaning = "Fine. Good night!"

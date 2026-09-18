@@ -1,0 +1,462 @@
+# 09 — shopping: clothes, sizes, colours, "do you have…" (accusative after "eiga" / "þurfa")
+
+[[items]]
+id = "peysu"
+kind = "vocab"
+target = "peysu"
+meaning = "a sweater"
+difficulty = 2
+tags = ["acc_thing", "acc_clothes"]
+topics = ["shopping"]
+pronunciation_notes = "accusative of peysa — the lopapeysa is the Icelandic wool sweater"
+
+[[items]]
+id = "ulpu"
+kind = "vocab"
+target = "úlpu"
+meaning = "a parka"
+difficulty = 2
+tags = ["acc_thing", "acc_clothes"]
+topics = ["shopping", "weather"]
+pronunciation_notes = "accusative of úlpa"
+
+[[items]]
+id = "husfu"
+kind = "vocab"
+target = "húfu"
+meaning = "a hat (beanie)"
+difficulty = 2
+tags = ["acc_thing", "acc_clothes"]
+topics = ["shopping"]
+pronunciation_notes = "accusative of húfa"
+
+[[items]]
+id = "vettlinga"
+kind = "vocab"
+target = "vettlinga"
+meaning = "mittens"
+difficulty = 3
+tags = ["acc_thing", "acc_clothes"]
+topics = ["shopping"]
+
+[[items]]
+id = "trefil"
+kind = "vocab"
+target = "trefil"
+meaning = "a scarf"
+difficulty = 2
+tags = ["acc_thing", "acc_clothes"]
+topics = ["shopping"]
+pronunciation_notes = "accusative of trefill"
+
+[[items]]
+id = "sko"
+kind = "vocab"
+target = "skó"
+meaning = "shoes"
+difficulty = 1
+tags = ["acc_thing", "acc_clothes"]
+topics = ["shopping"]
+
+[[items]]
+id = "buxur"
+kind = "vocab"
+target = "buxur"
+meaning = "trousers"
+difficulty = 2
+tags = ["acc_thing", "acc_clothes"]
+topics = ["shopping"]
+
+[[items]]
+id = "bol"
+kind = "vocab"
+target = "bol"
+meaning = "a T-shirt"
+difficulty = 1
+tags = ["acc_thing", "acc_clothes"]
+topics = ["shopping"]
+pronunciation_notes = "accusative of bolur"
+
+[[items]]
+id = "jakka"
+kind = "vocab"
+target = "jakka"
+meaning = "a jacket"
+difficulty = 2
+tags = ["acc_thing", "acc_clothes"]
+topics = ["shopping"]
+pronunciation_notes = "accusative of jakki"
+
+[[items]]
+id = "sundfot"
+kind = "vocab"
+target = "sundföt"
+meaning = "a swimsuit"
+difficulty = 2
+tags = ["acc_thing", "acc_clothes"]
+topics = ["shopping"]
+
+[[items]]
+id = "regnhlif"
+kind = "vocab"
+target = "regnhlíf"
+meaning = "an umbrella"
+difficulty = 2
+tags = ["acc_thing"]
+topics = ["shopping", "weather"]
+
+[[items]]
+id = "kort_map"
+kind = "vocab"
+target = "kort"
+meaning = "a map / a card"
+difficulty = 1
+tags = ["acc_thing", "acc_have"]
+topics = ["shopping", "directions"]
+
+[[items]]
+id = "lykil"
+kind = "vocab"
+target = "lykil"
+meaning = "a key"
+difficulty = 2
+tags = ["acc_thing"]
+topics = ["accommodation"]
+pronunciation_notes = "accusative of lykill"
+
+[[items]]
+id = "sima"
+kind = "vocab"
+target = "síma"
+meaning = "a phone"
+difficulty = 1
+tags = ["acc_thing", "acc_have"]
+topics = ["practical"]
+pronunciation_notes = "accusative of sími"
+
+[[items]]
+id = "hledslutaeki"
+kind = "vocab"
+target = "hleðslutæki"
+meaning = "a charger"
+difficulty = 3
+tags = ["acc_thing"]
+topics = ["practical"]
+
+[[items]]
+id = "mida"
+kind = "vocab"
+target = "miða"
+meaning = "a ticket"
+difficulty = 2
+tags = ["acc_thing", "acc_have"]
+topics = ["transport"]
+pronunciation_notes = "accusative of miði"
+
+[[items]]
+id = "vatnsflosku"
+kind = "vocab"
+target = "vatnsflösku"
+meaning = "a water bottle"
+difficulty = 3
+tags = ["acc_thing"]
+topics = ["shopping"]
+
+[[items]]
+id = "attu"
+kind = "construction"
+target = "Áttu {thing}?"
+meaning = "Do you have {thing}?"
+difficulty = 2
+topics = ["shopping"]
+slots = { thing = "acc_thing" }
+example = { thing = "peysu" }
+prereqs = ["peysu"]
+pronunciation_notes = "átt þú → áttu"
+
+[[items]]
+id = "eg_tharf"
+kind = "construction"
+target = "Ég þarf {thing}."
+meaning = "I need {thing}."
+difficulty = 2
+topics = ["shopping"]
+slots = { thing = "acc_thing" }
+example = { thing = "ulpu" }
+prereqs = ["ulpu"]
+
+[[items]]
+id = "eg_er_ad_leita_ad_thing"
+kind = "phrase"
+target = "Ég er bara að skoða."
+meaning = "I'm just looking."
+difficulty = 3
+topics = ["shopping"]
+situation = "A shop assistant asks if she can help. Say you're just looking."
+
+[[items]]
+id = "ma_eg_mata_thetta"
+kind = "phrase"
+target = "Má ég máta þetta?"
+meaning = "May I try this on?"
+difficulty = 3
+topics = ["shopping"]
+situation = "You've found a sweater you like. Ask if you may try it on."
+
+[[items]]
+id = "hvar_er_matunarklefinn"
+kind = "phrase"
+target = "Hvar er mátunarklefinn?"
+meaning = "Where is the fitting room?"
+difficulty = 4
+topics = ["shopping"]
+chunks = ["klefinn", "mátunarklefinn", "Hvar er mátunarklefinn?"]
+situation = "You have the sweater in your hands. Ask where the fitting room is."
+
+[[items]]
+id = "thetta_er_of_stort"
+kind = "phrase"
+target = "Þetta er of stórt."
+meaning = "This is too big."
+difficulty = 2
+topics = ["shopping"]
+situation = "The sweater hangs off your shoulders. Say it's too big."
+
+[[items]]
+id = "thetta_er_of_litid"
+kind = "phrase"
+target = "Þetta er of lítið."
+meaning = "This is too small."
+difficulty = 2
+topics = ["shopping"]
+situation = "You can't get the sweater over your head. Say it's too small."
+
+[[items]]
+id = "attu_thetta_i_staerra"
+kind = "phrase"
+target = "Áttu þetta í stærra?"
+meaning = "Do you have this in a bigger size?"
+difficulty = 3
+topics = ["shopping"]
+situation = "The medium is too tight. Ask for a bigger size."
+
+[[items]]
+id = "attu_thetta_i_minna"
+kind = "phrase"
+target = "Áttu þetta í minna?"
+meaning = "Do you have this in a smaller size?"
+difficulty = 3
+topics = ["shopping"]
+situation = "The large is too loose. Ask for a smaller size."
+
+[[items]]
+id = "attu_thetta_i_odrum_lit"
+kind = "phrase"
+target = "Áttu þetta í öðrum lit?"
+meaning = "Do you have this in another colour?"
+difficulty = 4
+topics = ["shopping"]
+chunks = ["lit", "öðrum lit", "í öðrum lit", "Áttu þetta í öðrum lit?"]
+situation = "You like the cut but not the orange. Ask for another colour."
+
+[[items]]
+id = "raudur"
+kind = "vocab"
+target = "rauður"
+meaning = "red"
+difficulty = 1
+tags = ["colour"]
+topics = ["shopping"]
+
+[[items]]
+id = "blar"
+kind = "vocab"
+target = "blár"
+meaning = "blue"
+difficulty = 1
+tags = ["colour"]
+topics = ["shopping"]
+
+[[items]]
+id = "graenn"
+kind = "vocab"
+target = "grænn"
+meaning = "green"
+difficulty = 1
+tags = ["colour"]
+topics = ["shopping"]
+
+[[items]]
+id = "gulur"
+kind = "vocab"
+target = "gulur"
+meaning = "yellow"
+difficulty = 1
+tags = ["colour"]
+topics = ["shopping"]
+
+[[items]]
+id = "svartur"
+kind = "vocab"
+target = "svartur"
+meaning = "black"
+difficulty = 1
+tags = ["colour"]
+topics = ["shopping"]
+
+[[items]]
+id = "hvitur"
+kind = "vocab"
+target = "hvítur"
+meaning = "white"
+difficulty = 1
+tags = ["colour"]
+topics = ["shopping"]
+
+[[items]]
+id = "grar"
+kind = "vocab"
+target = "grár"
+meaning = "grey"
+difficulty = 1
+tags = ["colour"]
+topics = ["shopping"]
+
+[[items]]
+id = "brunn"
+kind = "vocab"
+target = "brúnn"
+meaning = "brown"
+difficulty = 1
+tags = ["colour"]
+topics = ["shopping"]
+
+[[items]]
+id = "eg_vil_thann_lit"
+kind = "construction"
+target = "Ég vil {colour}."
+meaning = "I want the {colour} one."
+difficulty = 2
+topics = ["shopping"]
+slots = { colour = "colour" }
+example = { colour = "blar" }
+prereqs = ["blar"]
+pronunciation_notes = "colour in masculine form, as when pointing at 'þennan' (this one)"
+
+[[items]]
+id = "eg_aetla_ad_taka_thetta"
+kind = "phrase"
+target = "Ég ætla að taka þetta."
+meaning = "I'll take this."
+difficulty = 3
+topics = ["shopping"]
+situation = "The sweater fits. Tell the assistant you'll take it."
+
+[[items]]
+id = "eg_aetla_ad_hugsa_malid"
+kind = "phrase"
+target = "Ég ætla að hugsa málið."
+meaning = "I'll think about it."
+difficulty = 3
+topics = ["shopping"]
+chunks = ["málið", "hugsa málið", "Ég ætla að hugsa málið."]
+situation = "It's lovely but expensive. Tell the assistant you'll think about it."
+
+[[items]]
+id = "get_eg_skilad_thessu"
+kind = "phrase"
+target = "Get ég skilað þessu?"
+meaning = "Can I return this?"
+difficulty = 3
+topics = ["shopping"]
+situation = "You want to know the return policy before buying. Ask if you can return it."
+
+[[items]]
+id = "thetta_passar"
+kind = "phrase"
+target = "Þetta passar."
+meaning = "It fits."
+difficulty = 2
+topics = ["shopping"]
+situation = "You come out of the fitting room. Say it fits."
+
+[[items]]
+id = "thetta_passar_ekki"
+kind = "phrase"
+target = "Þetta passar ekki."
+meaning = "It doesn't fit."
+difficulty = 2
+topics = ["shopping"]
+prereqs = ["thetta_passar"]
+situation = "You come out of the fitting room shaking your head. Say it doesn't fit."
+
+[[items]]
+id = "hvar_er_kassinn"
+kind = "phrase"
+target = "Hvar er kassinn?"
+meaning = "Where is the till?"
+difficulty = 2
+topics = ["shopping"]
+situation = "You're ready to pay but can't see the till. Ask where it is."
+
+[[items]]
+id = "er_thetta_ull"
+kind = "phrase"
+target = "Er þetta ull?"
+meaning = "Is this wool?"
+difficulty = 2
+topics = ["shopping"]
+situation = "The sweater feels synthetic. Ask if it's wool."
+
+[[items]]
+id = "er_thetta_islenskt"
+kind = "phrase"
+target = "Er þetta íslenskt?"
+meaning = "Is this Icelandic (made)?"
+difficulty = 2
+topics = ["shopping"]
+situation = "You want a genuine lopapeysa. Ask whether it's Icelandic."
+
+[[items]]
+id = "eg_er_i_stærd_medium"
+kind = "phrase"
+target = "Ég nota medium."
+meaning = "I wear a medium."
+difficulty = 2
+topics = ["shopping"]
+situation = "The assistant asks your size. Say you wear a medium."
+
+[[dialogues]]
+id = "peysubud"
+setting = "In a wool shop. A shop assistant approaches."
+topics = ["shopping"]
+requires = ["eg_er_ad_leita_ad_thing", "attu", "peysu", "ma_eg_mata_thetta", "thetta_er_of_litid", "attu_thetta_i_staerra", "thetta_passar", "eg_aetla_ad_taka_thetta"]
+
+  [[dialogues.turns]]
+  opener = "Get ég aðstoðað?"
+  opener_meaning = "Can I help you?"
+  cue = "Ask if she has a sweater."
+  expect_text = "Áttu peysu?"
+  expect_meaning = "Do you have a sweater?"
+  partner = "Já, hérna eru lopapeysur. Þessi er falleg."
+  partner_meaning = "Yes, here are the wool sweaters. This one is beautiful."
+
+  [[dialogues.turns]]
+  cue = "Ask if you may try it on."
+  expect = "ma_eg_mata_thetta"
+  partner = "Auðvitað. Mátunarklefinn er þarna."
+  partner_meaning = "Of course. The fitting room is over there."
+
+  [[dialogues.turns]]
+  cue = "Come out and say it's too small, and ask for a bigger size."
+  expect_text = "Þetta er of lítið. Áttu þetta í stærra?"
+  expect_meaning = "This is too small. Do you have it in a bigger size?"
+  partner = "Já, hérna er large."
+  partner_meaning = "Yes, here is a large."
+
+  [[dialogues.turns]]
+  cue = "Say it fits and you'll take it."
+  expect_text = "Þetta passar. Ég ætla að taka þetta."
+  expect_meaning = "It fits. I'll take it."
+  partner = "Frábært. Kassinn er hérna."
+  partner_meaning = "Great. The till is here."

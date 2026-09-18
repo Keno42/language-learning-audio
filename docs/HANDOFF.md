@@ -21,6 +21,26 @@ Verified in this session:
   `pip install edge-tts && audiolesson generate ... -p profiles/edge-fr-en.toml -m 3`.
 - `openai` and `say` providers are straightforward but also untested here.
 
+## Session 3 additions (continued): Icelandic course, 993 items
+
+- `curricula/is-en/` — 26 modules, 993 items, 31 dialogues, directory
+  loading added to `content.load_curriculum` (one `[curriculum]`, items and
+  dialogues concatenated; duplicate ids/targets rejected across files).
+- **Needs a native read-through.** Highest-risk areas, in order: (1) case
+  forms in vocab meant for slots — accusatives in 03/09/12/17, datives in
+  04/05/15, `dat_town` in 05; (2) feminine predicate forms in 26 and the
+  `Ég er …` phrases (masculine given in `pronunciation_notes`); (3) idioms in
+  24 (discourse) and 07 (weather); (4) the transform examples in 20 (past
+  tense, plural). Grammar patterns chosen are conservative: `Ég ætla að fá`
+  + acc, `Hvar er` + nom, `Hvernig kemst ég að` + dat, `Ég er með` + acc,
+  `gaman af` + dat, `Ég vil` + bare infinitive, `Ég ætla að` + infinitive.
+- Planner: at most one dialogue per 10 minutes (`max_dialogues`); pacing
+  slows when >25% of due reviews did not fit the last lesson.
+- 90-day auto-mode simulation over the full set: 30 ± 1 min from lesson 5,
+  3 dialogues/lesson, 40–70 reviews/lesson, 641 of 993 items met by day 90.
+- Not done: a Japanese-instructor twin (`is-ja`) — same recipe as
+  `tools/derive_fr_ja.py`, but ~1200 strings to translate.
+
 ## Session 3 additions
 
 - **Auto feedback mode** (`generate --auto`, persisted): unreported lessons

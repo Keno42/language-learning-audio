@@ -173,7 +173,30 @@ class CurriculumError(ValueError):
 
 
 def load_curriculum(path: str | Path) -> Curriculum:
+    """Load one .toml file, or a directory of them (merged in sorted filename order).
+
+    In a directory, exactly one file carries ``[curriculum]``; ``[[items]]`` and
+    ``[[dialogues]]`` from every file are concatenated, so a course can be split
+    into topic modules (``01-greetings.toml``, ``02-cafe.toml`` …).
+    """
     path = Path(path)
+    if path.is_dir():
+        files = sorted(path.glob("*.toml"))
+        if not files:
+            raise CurriculumError(f"{path}: no .toml files")
+        merged: dict = {"items": [], "dialogues": []}
+        for f in files:
+            with f.open("rb") as fh:
+                raw = tomllib.load(fh)
+            if "curriculum" in raw:
+                if "curriculum" in merged:
+                    raise CurriculumError(f"{f}: [curriculum] is already defined in another file")
+                merged["curriculum"] = raw["curriculum"]
+            merged["items"] += raw.get("items", [])
+            merged["dialogues"] += raw.get("dialogues", [])
+        if "curriculum" not in merged:
+            raise CurriculumError(f"{path}: no file defines [curriculum]")
+        return curriculum_from_dict(merged, source=str(path))
     with path.open("rb") as fh:
         raw = tomllib.load(fh)
     return curriculum_from_dict(raw, source=str(path))
@@ -231,10 +254,18 @@ def _item_from_dict(entry: dict, order: int) -> Item:
 
 def validate(cur: Curriculum) -> None:
     ids = set()
+    targets: dict[str, str] = {}
     for it in cur.items:
         if it.id in ids:
             raise CurriculumError(f"duplicate item id {it.id!r}")
         ids.add(it.id)
+        key = it.target.strip().lower()
+        if key in targets:
+            raise CurriculumError(f"items {targets[key]!r} and {it.id!r} have the same target {it.target!r}")
+        targets[key] = it.id
+    for d in cur.dialogues:
+        if d.id in {x.id for x in cur.dialogues if x is not d}:
+            raise CurriculumError(f"duplicate dialogue id {d.id!r}")
     for it in cur.items:
         for ref in it.components + it.prereqs:
             if ref not in ids:

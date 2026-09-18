@@ -1,0 +1,422 @@
+# 17 — food vocabulary (accusative, for "Ég elska / Ég borða ekki / Ég vil …")
+
+[[items]]
+id = "kjot"
+kind = "vocab"
+target = "kjöt"
+meaning = "meat"
+difficulty = 1
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "eg_elska"
+kind = "construction"
+target = "Ég elska {food}."
+meaning = "I love {food}."
+difficulty = 2
+topics = ["food"]
+slots = { food = "acc_food" }
+example = { food = "fisk" }
+prereqs = ["fisk"]
+
+[[items]]
+id = "eg_borda_ekki"
+kind = "construction"
+target = "Ég borða ekki {food}."
+meaning = "I don't eat {food}."
+difficulty = 2
+topics = ["food"]
+slots = { food = "acc_food" }
+example = { food = "kjot" }
+prereqs = ["kjot", "eg_elska"]
+
+[[items]]
+id = "ost"
+kind = "vocab"
+target = "ost"
+meaning = "cheese"
+difficulty = 1
+tags = ["acc_food"]
+topics = ["food"]
+pronunciation_notes = "accusative of ostur"
+
+[[items]]
+id = "egg"
+kind = "vocab"
+target = "egg"
+meaning = "eggs"
+difficulty = 1
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "smjor"
+kind = "vocab"
+target = "smjör"
+meaning = "butter"
+difficulty = 1
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "mjolk"
+kind = "vocab"
+target = "mjólk"
+meaning = "milk"
+difficulty = 1
+tags = ["acc_food", "acc_drink"]
+topics = ["food"]
+
+[[items]]
+id = "epli"
+kind = "vocab"
+target = "epli"
+meaning = "apples"
+difficulty = 1
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "banana"
+kind = "vocab"
+target = "banana"
+meaning = "bananas"
+difficulty = 1
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "kartoflur"
+kind = "vocab"
+target = "kartöflur"
+meaning = "potatoes"
+difficulty = 2
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "graenmeti"
+kind = "vocab"
+target = "grænmeti"
+meaning = "vegetables"
+difficulty = 2
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "avexti"
+kind = "vocab"
+target = "ávexti"
+meaning = "fruit"
+difficulty = 2
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "sukkuladi"
+kind = "vocab"
+target = "súkkulaði"
+meaning = "chocolate"
+difficulty = 2
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "hakarl"
+kind = "vocab"
+target = "hákarl"
+meaning = "fermented shark"
+difficulty = 2
+tags = ["acc_food"]
+topics = ["food"]
+pronunciation_notes = "the infamous one"
+
+[[items]]
+id = "hardfisk"
+kind = "vocab"
+target = "harðfisk"
+meaning = "dried fish"
+difficulty = 2
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "kleinur"
+kind = "vocab"
+target = "kleinur"
+meaning = "kleinur (twisted doughnuts)"
+difficulty = 2
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "flatkokur"
+kind = "vocab"
+target = "flatkökur"
+meaning = "flatbread (flatkökur)"
+difficulty = 2
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "rugbraud"
+kind = "vocab"
+target = "rúgbrauð"
+meaning = "rye bread"
+difficulty = 2
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "plokkfisk"
+kind = "vocab"
+target = "plokkfisk"
+meaning = "plokkfiskur (fish stew)"
+difficulty = 3
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "kjotsupu"
+kind = "vocab"
+target = "kjötsúpu"
+meaning = "lamb soup"
+difficulty = 3
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "humar"
+kind = "vocab"
+target = "humar"
+meaning = "langoustine"
+difficulty = 2
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "lax"
+kind = "vocab"
+target = "lax"
+meaning = "salmon"
+difficulty = 1
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "thorsk"
+kind = "vocab"
+target = "þorsk"
+meaning = "cod"
+difficulty = 2
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "sushi"
+kind = "vocab"
+target = "sushi"
+meaning = "sushi"
+difficulty = 1
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "pitsu"
+kind = "vocab"
+target = "pítsu"
+meaning = "pizza"
+difficulty = 1
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "hamborgara"
+kind = "vocab"
+target = "hamborgara"
+meaning = "a hamburger"
+difficulty = 2
+tags = ["acc_food", "acc_orderable"]
+topics = ["food"]
+
+[[items]]
+id = "franskar"
+kind = "vocab"
+target = "franskar"
+meaning = "chips (fries)"
+difficulty = 1
+tags = ["acc_food", "acc_orderable"]
+topics = ["food"]
+
+[[items]]
+id = "hrisgrjon"
+kind = "vocab"
+target = "hrísgrjón"
+meaning = "rice"
+difficulty = 2
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "pasta"
+kind = "vocab"
+target = "pasta"
+meaning = "pasta"
+difficulty = 1
+tags = ["acc_food"]
+topics = ["food"]
+
+[[items]]
+id = "hefurdu_smakkad_hakarl"
+kind = "phrase"
+target = "Hefurðu smakkað hákarl?"
+meaning = "Have you tried fermented shark?"
+difficulty = 4
+topics = ["food"]
+prereqs = ["hakarl"]
+chunks = ["hákarl", "smakkað hákarl", "Hefurðu smakkað hákarl?"]
+situation = "Ask a fellow traveller whether he's tried the fermented shark."
+
+[[items]]
+id = "eg_vil_smakka"
+kind = "phrase"
+target = "Ég vil smakka."
+meaning = "I want to taste it."
+difficulty = 2
+topics = ["food"]
+situation = "Someone offers you a bite of something strange. Say you want to taste it."
+
+[[items]]
+id = "thetta_er_vont"
+kind = "phrase"
+target = "Þetta er vont."
+meaning = "This tastes bad."
+difficulty = 2
+topics = ["food"]
+situation = "The shark is as bad as they say. Say it tastes bad."
+
+[[items]]
+id = "thetta_er_salt"
+kind = "phrase"
+target = "Þetta er salt."
+meaning = "This is salty."
+difficulty = 1
+topics = ["food"]
+situation = "The dried fish is very salty. Say so."
+
+[[items]]
+id = "thetta_er_saett"
+kind = "phrase"
+target = "Þetta er sætt."
+meaning = "This is sweet."
+difficulty = 2
+topics = ["food"]
+situation = "The kleina is sweet. Say so."
+
+[[items]]
+id = "eg_er_ad_elda"
+kind = "phrase"
+target = "Ég er að elda."
+meaning = "I'm cooking."
+difficulty = 2
+topics = ["food", "daily"]
+situation = "A friend calls at dinner time. Say you're cooking."
+
+[[items]]
+id = "maturinn_er_tilbuinn"
+kind = "phrase"
+target = "Maturinn er tilbúinn."
+meaning = "Dinner is ready."
+difficulty = 3
+topics = ["food", "home"]
+situation = "Call everyone to the table: dinner is ready."
+
+[[items]]
+id = "viltu_meira"
+kind = "phrase"
+target = "Viltu meira?"
+meaning = "Do you want more?"
+difficulty = 1
+topics = ["food", "home"]
+situation = "Your guest's plate is empty. Offer more."
+
+[[items]]
+id = "ma_eg_fa_meira"
+kind = "phrase"
+target = "Má ég fá meira?"
+meaning = "May I have more?"
+difficulty = 2
+topics = ["food", "home"]
+situation = "The soup was wonderful. Ask for more."
+
+[[items]]
+id = "takk_fyrir_matinn"
+kind = "phrase"
+target = "Takk fyrir matinn."
+meaning = "Thank you for the meal."
+difficulty = 2
+topics = ["food", "greetings"]
+pronunciation_notes = "said after every meal, like gochisousama"
+situation = "You've finished dinner at Anna's. Thank her for the meal."
+
+[[items]]
+id = "hvad_er_i_thessu"
+kind = "phrase"
+target = "Hvað er í þessu?"
+meaning = "What's in this?"
+difficulty = 2
+topics = ["food"]
+situation = "You're not sure the soup is vegetarian. Ask what's in it."
+
+[[items]]
+id = "er_kjot_i_thessu"
+kind = "phrase"
+target = "Er kjöt í þessu?"
+meaning = "Is there meat in this?"
+difficulty = 2
+topics = ["food"]
+prereqs = ["kjot", "hvad_er_i_thessu"]
+situation = "Ask directly whether there's meat in it."
+
+[[items]]
+id = "eg_er_med_matarofnaemi"
+kind = "phrase"
+target = "Ég er með mjólkuróþol."
+meaning = "I'm lactose intolerant."
+difficulty = 4
+topics = ["food", "health"]
+chunks = ["óþol", "mjólkuróþol", "Ég er með mjólkuróþol."]
+situation = "The waiter suggests skyr. Say you're lactose intolerant."
+
+[[dialogues]]
+id = "kvoldmatur"
+setting = "Dinner at Anna's. She's made lamb soup."
+topics = ["food", "home"]
+requires = ["hvad_er_i_thessu", "thetta_er_ljuffengt", "ma_eg_fa_meira", "takk_fyrir_matinn", "verdi_ther_ad_godu"]
+
+  [[dialogues.turns]]
+  opener = "Gjörðu svo vel, kjötsúpa!"
+  opener_meaning = "Here you are, lamb soup!"
+  cue = "Ask what's in it."
+  expect = "hvad_er_i_thessu"
+  partner = "Lambakjöt, kartöflur og gulrætur."
+  partner_meaning = "Lamb, potatoes and carrots."
+
+  [[dialogues.turns]]
+  cue = "Taste it and say it's delicious."
+  expect = "thetta_er_ljuffengt"
+  partner = "Takk! Viltu meira?"
+  partner_meaning = "Thanks! Do you want more?"
+
+  [[dialogues.turns]]
+  cue = "Ask if you may have more."
+  expect = "ma_eg_fa_meira"
+  partner = "Auðvitað."
+  partner_meaning = "Of course."
+
+  [[dialogues.turns]]
+  cue = "After the meal: thank her for the meal."
+  expect = "takk_fyrir_matinn"
+  partner = "Verði þér að góðu."
+  partner_meaning = "You're welcome (enjoy)."

@@ -1,0 +1,397 @@
+# 13 — family, people, relationships ("Þetta er …" + nominative)
+
+[[items]]
+id = "mamma_min"
+kind = "vocab"
+target = "mamma mín"
+meaning = "my mum"
+difficulty = 1
+tags = ["person"]
+topics = ["family"]
+
+[[items]]
+id = "thetta_er_person"
+kind = "construction"
+target = "Þetta er {person}."
+meaning = "This is {person}."
+difficulty = 2
+topics = ["family", "social"]
+slots = { person = "person" }
+example = { person = "mamma_min" }
+prereqs = ["mamma_min"]
+
+[[items]]
+id = "pabbi_minn"
+kind = "vocab"
+target = "pabbi minn"
+meaning = "my dad"
+difficulty = 1
+tags = ["person"]
+topics = ["family"]
+
+[[items]]
+id = "brodir_minn"
+kind = "vocab"
+target = "bróðir minn"
+meaning = "my brother"
+difficulty = 2
+tags = ["person"]
+topics = ["family"]
+
+[[items]]
+id = "systir_min"
+kind = "vocab"
+target = "systir mín"
+meaning = "my sister"
+difficulty = 2
+tags = ["person"]
+topics = ["family"]
+
+[[items]]
+id = "madurinn_minn"
+kind = "vocab"
+target = "maðurinn minn"
+meaning = "my husband"
+difficulty = 2
+tags = ["person"]
+topics = ["family"]
+
+[[items]]
+id = "konan_min"
+kind = "vocab"
+target = "konan mín"
+meaning = "my wife"
+difficulty = 2
+tags = ["person"]
+topics = ["family"]
+
+[[items]]
+id = "kaerastinn_minn"
+kind = "vocab"
+target = "kærastinn minn"
+meaning = "my boyfriend"
+difficulty = 3
+tags = ["person"]
+topics = ["family"]
+
+[[items]]
+id = "kaerastan_min"
+kind = "vocab"
+target = "kærastan mín"
+meaning = "my girlfriend"
+difficulty = 3
+tags = ["person"]
+topics = ["family"]
+
+[[items]]
+id = "sonur_minn"
+kind = "vocab"
+target = "sonur minn"
+meaning = "my son"
+difficulty = 2
+tags = ["person"]
+topics = ["family"]
+
+[[items]]
+id = "dottir_min"
+kind = "vocab"
+target = "dóttir mín"
+meaning = "my daughter"
+difficulty = 2
+tags = ["person"]
+topics = ["family"]
+
+[[items]]
+id = "amma_min"
+kind = "vocab"
+target = "amma mín"
+meaning = "my grandmother"
+difficulty = 1
+tags = ["person"]
+topics = ["family"]
+
+[[items]]
+id = "afi_minn"
+kind = "vocab"
+target = "afi minn"
+meaning = "my grandfather"
+difficulty = 1
+tags = ["person"]
+topics = ["family"]
+
+[[items]]
+id = "vinur_minn"
+kind = "vocab"
+target = "vinur minn"
+meaning = "my friend (male)"
+difficulty = 2
+tags = ["person"]
+topics = ["family", "social"]
+
+[[items]]
+id = "vinkona_min"
+kind = "vocab"
+target = "vinkona mín"
+meaning = "my friend (female)"
+difficulty = 2
+tags = ["person"]
+topics = ["family", "social"]
+
+[[items]]
+id = "samstarfsmadur_minn"
+kind = "vocab"
+target = "samstarfsmaður minn"
+meaning = "my colleague"
+difficulty = 4
+tags = ["person"]
+topics = ["family", "work"]
+
+[[items]]
+id = "nagranni_minn"
+kind = "vocab"
+target = "nágranni minn"
+meaning = "my neighbour"
+difficulty = 3
+tags = ["person"]
+topics = ["family", "social"]
+
+[[items]]
+id = "fjolskyldan_min"
+kind = "vocab"
+target = "fjölskyldan mín"
+meaning = "my family"
+difficulty = 3
+tags = ["person"]
+topics = ["family"]
+
+[[items]]
+id = "attu_systkini"
+kind = "phrase"
+target = "Áttu systkini?"
+meaning = "Do you have siblings?"
+difficulty = 3
+topics = ["family"]
+prereqs = ["attu"]
+situation = "You're getting to know Anna. Ask if she has siblings."
+
+[[items]]
+id = "eg_a_einn_brodur"
+kind = "phrase"
+target = "Ég á einn bróður."
+meaning = "I have one brother."
+difficulty = 3
+topics = ["family"]
+prereqs = ["brodir_minn"]
+situation = "Anna asked about siblings. Say you have one brother."
+
+[[items]]
+id = "eg_a_tvaer_systur"
+kind = "phrase"
+target = "Ég á tvær systur."
+meaning = "I have two sisters."
+difficulty = 3
+topics = ["family"]
+prereqs = ["systir_min"]
+situation = "Say you have two sisters."
+
+[[items]]
+id = "eg_a_engin_born"
+kind = "phrase"
+target = "Ég á engin börn."
+meaning = "I have no children."
+difficulty = 3
+topics = ["family"]
+prereqs = ["eg_a_tvo_born"]
+situation = "Someone asks about your children. Say you have none."
+
+[[items]]
+id = "attu_born"
+kind = "phrase"
+target = "Áttu börn?"
+meaning = "Do you have children?"
+difficulty = 2
+topics = ["family"]
+prereqs = ["attu"]
+situation = "Ask your new friend whether she has children."
+
+[[items]]
+id = "hvad_heitir_hun"
+kind = "phrase"
+target = "Hvað heitir hún?"
+meaning = "What's her name?"
+difficulty = 2
+topics = ["family", "social"]
+prereqs = ["hvad_heitir_thu"]
+situation = "Anna mentions her daughter. Ask what her name is."
+
+[[items]]
+id = "hvad_heitir_hann"
+kind = "phrase"
+target = "Hvað heitir hann?"
+meaning = "What's his name?"
+difficulty = 2
+topics = ["family", "social"]
+prereqs = ["hvad_heitir_hun"]
+situation = "Anna's brother waves from across the room. Ask what his name is."
+
+[[items]]
+id = "hvad_er_hun_gomul"
+kind = "phrase"
+target = "Hvað er hún gömul?"
+meaning = "How old is she?"
+difficulty = 3
+topics = ["family"]
+prereqs = ["hvad_ertu_gomul"]
+situation = "Anna shows you a photo of her daughter. Ask how old she is."
+
+[[items]]
+id = "hun_er_fimm_ara"
+kind = "phrase"
+target = "Hún er fimm ára."
+meaning = "She's five years old."
+difficulty = 2
+topics = ["family"]
+prereqs = ["fimm"]
+situation = "Someone asks how old your daughter is. Say she's five."
+
+[[items]]
+id = "hann_byr_i_japan"
+kind = "phrase"
+target = "Hann býr í Japan."
+meaning = "He lives in Japan."
+difficulty = 2
+topics = ["family"]
+prereqs = ["eg_by_i"]
+situation = "Anna asks where your brother lives. Say he lives in Japan."
+
+[[items]]
+id = "vid_erum_gift"
+kind = "phrase"
+target = "Við erum gift."
+meaning = "We're married."
+difficulty = 2
+topics = ["family"]
+prereqs = ["eg_er_gift"]
+situation = "Someone asks if you two are a couple. Say you're married."
+
+[[items]]
+id = "hun_er_kaerastan_min"
+kind = "phrase"
+target = "Hún er kærastan mín."
+meaning = "She's my girlfriend."
+difficulty = 3
+topics = ["family"]
+prereqs = ["kaerastan_min"]
+situation = "Someone asks who the woman with you is. Say she's your girlfriend."
+
+[[items]]
+id = "eg_sakna_fjolskyldunnar"
+kind = "phrase"
+target = "Ég sakna fjölskyldunnar."
+meaning = "I miss my family."
+difficulty = 4
+topics = ["family", "feelings"]
+chunks = ["fjölskyldunnar", "sakna fjölskyldunnar", "Ég sakna fjölskyldunnar."]
+situation = "It's your second month abroad. Tell your friend you miss your family."
+
+[[items]]
+id = "eg_bý_ein"
+kind = "phrase"
+target = "Ég bý ein."
+meaning = "I live alone."
+difficulty = 2
+topics = ["family"]
+pronunciation_notes = "feminine; masculine: Ég bý einn."
+situation = "Anna asks who you live with. Say you live alone."
+
+[[items]]
+id = "eg_by_med_kaerastanum"
+kind = "phrase"
+target = "Ég bý með kærastanum mínum."
+meaning = "I live with my boyfriend."
+difficulty = 4
+topics = ["family"]
+chunks = ["mínum", "kærastanum mínum", "með kærastanum mínum", "Ég bý með kærastanum mínum."]
+situation = "Say you live with your boyfriend."
+
+[[items]]
+id = "madur"
+kind = "vocab"
+target = "maður"
+meaning = "a man / a person"
+difficulty = 1
+topics = ["family", "social"]
+
+[[items]]
+id = "kona"
+kind = "vocab"
+target = "kona"
+meaning = "a woman"
+difficulty = 1
+topics = ["family", "social"]
+
+[[items]]
+id = "barn"
+kind = "vocab"
+target = "barn"
+meaning = "a child"
+difficulty = 1
+topics = ["family"]
+
+[[items]]
+id = "strakur"
+kind = "vocab"
+target = "strákur"
+meaning = "a boy"
+difficulty = 1
+topics = ["family"]
+
+[[items]]
+id = "stelpa"
+kind = "vocab"
+target = "stelpa"
+meaning = "a girl"
+difficulty = 1
+topics = ["family"]
+
+[[items]]
+id = "folk"
+kind = "vocab"
+target = "fólk"
+meaning = "people"
+difficulty = 1
+topics = ["social"]
+
+[[dialogues]]
+id = "myndir"
+setting = "Anna shows you photos on her phone."
+topics = ["family"]
+requires = ["hvad_heitir_hun", "hvad_er_hun_gomul", "thetta_er_person", "brodir_minn", "hann_byr_i_japan", "attu_systkini"]
+
+  [[dialogues.turns]]
+  opener = "Sjáðu, þetta er dóttir mín."
+  opener_meaning = "Look, this is my daughter."
+  cue = "Ask what her name is."
+  expect = "hvad_heitir_hun"
+  partner = "Hún heitir Sóley."
+  partner_meaning = "Her name is Sóley."
+
+  [[dialogues.turns]]
+  cue = "Ask how old she is."
+  expect = "hvad_er_hun_gomul"
+  partner = "Hún er fjögurra ára. Áttu börn?"
+  partner_meaning = "She's four. Do you have children?"
+
+  [[dialogues.turns]]
+  cue = "Say no, and show a photo: this is my brother."
+  expect_text = "Nei. Þetta er bróðir minn."
+  expect_meaning = "No. This is my brother."
+  partner = "Býr hann líka í Tókýó?"
+  partner_meaning = "Does he also live in Tokyo?"
+
+  [[dialogues.turns]]
+  cue = "Say he lives in Japan — no: say yes, he lives in Japan."
+  expect_text = "Já, hann býr í Japan."
+  expect_meaning = "Yes, he lives in Japan."
+  partner = "Gaman að sjá þetta!"
+  partner_meaning = "Nice to see these!"

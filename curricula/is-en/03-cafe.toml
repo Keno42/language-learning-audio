@@ -1,0 +1,571 @@
+# 03 — café and restaurant: ordering (accusative after "fá"), paying
+
+[[items]]
+id = "kaffi"
+kind = "vocab"
+target = "kaffi"
+meaning = "coffee"
+difficulty = 1
+tags = ["acc_orderable", "acc_drink", "nom_item"]
+topics = ["cafe"]
+
+[[items]]
+id = "eg_aetla_ad_fa"
+kind = "construction"
+target = "Ég ætla að fá {thing}."
+meaning = "I'll have {thing}."
+difficulty = 3
+topics = ["cafe"]
+slots = { thing = "acc_orderable" }
+example = { thing = "kaffi" }
+components = ["kaffi"]
+prereqs = ["kaffi"]
+pronunciation_notes = "ætla: AI-tla. The standard way to order."
+
+[[items]]
+id = "te"
+kind = "vocab"
+target = "te"
+meaning = "tea"
+difficulty = 1
+tags = ["acc_orderable", "acc_drink", "nom_item"]
+topics = ["cafe"]
+
+[[items]]
+id = "vatn"
+kind = "vocab"
+target = "vatn"
+meaning = "water"
+difficulty = 1
+tags = ["acc_orderable", "nom_item"]
+topics = ["cafe"]
+
+[[items]]
+id = "bjor"
+kind = "vocab"
+target = "bjór"
+meaning = "a beer"
+difficulty = 1
+tags = ["acc_orderable", "nom_item"]
+topics = ["cafe"]
+
+[[items]]
+id = "supu"
+kind = "vocab"
+target = "súpu"
+meaning = "soup"
+difficulty = 2
+tags = ["acc_orderable", "acc_food"]
+topics = ["cafe"]
+pronunciation_notes = "accusative of súpa"
+
+[[items]]
+id = "samloku"
+kind = "vocab"
+target = "samloku"
+meaning = "a sandwich"
+difficulty = 2
+tags = ["acc_orderable", "acc_food"]
+topics = ["cafe"]
+pronunciation_notes = "accusative of samloka"
+
+[[items]]
+id = "koku"
+kind = "vocab"
+target = "köku"
+meaning = "a piece of cake"
+difficulty = 2
+tags = ["acc_orderable", "acc_food"]
+topics = ["cafe"]
+pronunciation_notes = "accusative of kaka"
+
+[[items]]
+id = "pylsu"
+kind = "vocab"
+target = "pylsu"
+meaning = "a hot dog"
+difficulty = 2
+tags = ["acc_orderable", "acc_food"]
+topics = ["cafe", "food"]
+pronunciation_notes = "accusative of pylsa — the Icelandic street food"
+
+[[items]]
+id = "skyr"
+kind = "vocab"
+target = "skyr"
+meaning = "skyr (Icelandic yoghurt-like dairy)"
+difficulty = 1
+tags = ["acc_orderable", "nom_item", "acc_food"]
+topics = ["cafe", "food"]
+
+[[items]]
+id = "braud"
+kind = "vocab"
+target = "brauð"
+meaning = "bread"
+difficulty = 1
+tags = ["acc_orderable", "nom_item", "acc_food"]
+topics = ["cafe", "food"]
+
+[[items]]
+id = "salat"
+kind = "vocab"
+target = "salat"
+meaning = "a salad"
+difficulty = 1
+tags = ["acc_orderable", "nom_item", "acc_food"]
+topics = ["cafe", "food"]
+
+[[items]]
+id = "fisk"
+kind = "vocab"
+target = "fisk"
+meaning = "fish"
+difficulty = 1
+tags = ["acc_orderable", "acc_food"]
+topics = ["cafe", "food"]
+pronunciation_notes = "accusative of fiskur"
+
+[[items]]
+id = "kjukling"
+kind = "vocab"
+target = "kjúkling"
+meaning = "chicken"
+difficulty = 2
+tags = ["acc_orderable", "acc_food"]
+topics = ["cafe", "food"]
+pronunciation_notes = "accusative of kjúklingur"
+
+[[items]]
+id = "lambakjot"
+kind = "vocab"
+target = "lambakjöt"
+meaning = "lamb"
+difficulty = 2
+tags = ["acc_orderable", "nom_item", "acc_food"]
+topics = ["cafe", "food"]
+
+[[items]]
+id = "is_ice_cream"
+kind = "vocab"
+target = "ís"
+meaning = "an ice cream"
+difficulty = 1
+tags = ["acc_orderable", "nom_item", "acc_food"]
+topics = ["cafe", "food"]
+
+[[items]]
+id = "gos"
+kind = "vocab"
+target = "gos"
+meaning = "a soda"
+difficulty = 1
+tags = ["acc_orderable", "acc_drink", "nom_item"]
+topics = ["cafe"]
+
+[[items]]
+id = "raudvin"
+kind = "vocab"
+target = "rauðvín"
+meaning = "red wine"
+difficulty = 2
+tags = ["acc_orderable", "nom_item"]
+topics = ["cafe"]
+
+[[items]]
+id = "hvitvin"
+kind = "vocab"
+target = "hvítvín"
+meaning = "white wine"
+difficulty = 2
+tags = ["acc_orderable", "nom_item"]
+topics = ["cafe"]
+
+[[items]]
+id = "kako"
+kind = "vocab"
+target = "kakó"
+meaning = "hot chocolate"
+difficulty = 1
+tags = ["acc_orderable", "acc_drink", "nom_item"]
+topics = ["cafe"]
+
+[[items]]
+id = "latte"
+kind = "vocab"
+target = "latte"
+meaning = "a latte"
+difficulty = 1
+tags = ["acc_orderable", "acc_drink", "nom_item"]
+topics = ["cafe"]
+
+[[items]]
+id = "med_mjolk"
+kind = "vocab"
+target = "með mjólk"
+meaning = "with milk"
+difficulty = 2
+tags = ["addon"]
+topics = ["cafe"]
+
+[[items]]
+id = "an_sykurs"
+kind = "vocab"
+target = "án sykurs"
+meaning = "without sugar"
+difficulty = 2
+tags = ["addon"]
+topics = ["cafe"]
+pronunciation_notes = "án + genitive"
+
+[[items]]
+id = "med_sykri"
+kind = "vocab"
+target = "með sykri"
+meaning = "with sugar"
+difficulty = 2
+tags = ["addon"]
+topics = ["cafe"]
+pronunciation_notes = "með + dative"
+
+[[items]]
+id = "an_mjolkur"
+kind = "vocab"
+target = "án mjólkur"
+meaning = "without milk"
+difficulty = 2
+tags = ["addon"]
+topics = ["cafe"]
+
+[[items]]
+id = "eg_aetla_ad_fa_addon"
+kind = "construction"
+target = "Ég ætla að fá {thing} {addon}."
+meaning = "I'll have {thing} {addon}."
+difficulty = 3
+topics = ["cafe"]
+slots = { thing = "acc_drink", addon = "addon" }
+example = { thing = "kaffi", addon = "med_mjolk" }
+components = ["eg_aetla_ad_fa", "kaffi", "med_mjolk"]
+prereqs = ["eg_aetla_ad_fa", "med_mjolk"]
+
+[[items]]
+id = "eina_pylsu_med_ollu"
+kind = "phrase"
+target = "Eina pylsu með öllu."
+meaning = "One hot dog with everything."
+difficulty = 3
+topics = ["cafe", "food"]
+prereqs = ["pylsu"]
+chunks = ["öllu", "með öllu", "pylsu með öllu", "Eina pylsu með öllu."]
+situation = "You're at the famous hot dog stand. Order one with everything."
+
+[[items]]
+id = "mig_langar_i"
+kind = "construction"
+target = "Mig langar í {thing}."
+meaning = "I feel like {thing}."
+difficulty = 3
+topics = ["cafe", "food"]
+slots = { thing = "acc_orderable" }
+example = { thing = "is_ice_cream" }
+prereqs = ["eg_aetla_ad_fa"]
+pronunciation_notes = "literally 'me longs for'"
+
+[[items]]
+id = "matsedilinn"
+kind = "vocab"
+target = "matseðilinn"
+meaning = "the menu"
+difficulty = 2
+tags = ["acc_request"]
+topics = ["cafe"]
+
+[[items]]
+id = "reikninginn"
+kind = "vocab"
+target = "reikninginn"
+meaning = "the bill"
+difficulty = 3
+tags = ["acc_request"]
+topics = ["cafe"]
+
+[[items]]
+id = "vatnsglas"
+kind = "vocab"
+target = "vatnsglas"
+meaning = "a glass of water"
+difficulty = 2
+tags = ["acc_request"]
+topics = ["cafe"]
+
+[[items]]
+id = "kvittun"
+kind = "vocab"
+target = "kvittun"
+meaning = "a receipt"
+difficulty = 2
+tags = ["acc_request"]
+topics = ["cafe", "shopping"]
+
+[[items]]
+id = "poka"
+kind = "vocab"
+target = "poka"
+meaning = "a bag"
+difficulty = 1
+tags = ["acc_request", "acc_thing"]
+topics = ["shopping"]
+pronunciation_notes = "accusative of poki"
+
+[[items]]
+id = "get_eg_fengid"
+kind = "construction"
+target = "Get ég fengið {thing}?"
+meaning = "Could I have {thing}?"
+difficulty = 3
+topics = ["cafe"]
+slots = { thing = "acc_request" }
+example = { thing = "matsedilinn" }
+prereqs = ["matsedilinn"]
+
+[[items]]
+id = "get_eg_fengid_reikninginn"
+kind = "phrase"
+target = "Get ég fengið reikninginn?"
+meaning = "Can I have the bill?"
+difficulty = 4
+topics = ["cafe"]
+prereqs = ["get_eg_fengid", "reikninginn"]
+chunks = ["reikninginn", "fengið reikninginn", "Get ég fengið reikninginn?"]
+situation = "You've finished eating. Ask for the bill."
+
+[[items]]
+id = "hvad_kostar_thetta"
+kind = "phrase"
+target = "Hvað kostar þetta?"
+meaning = "How much is this?"
+difficulty = 2
+topics = ["cafe", "shopping"]
+situation = "You want to know the price of the sandwich."
+
+[[items]]
+id = "hvad_kostar"
+kind = "construction"
+target = "Hvað kostar {item}?"
+meaning = "How much is {item}?"
+difficulty = 2
+topics = ["cafe", "shopping"]
+slots = { item = "nom_item" }
+example = { item = "kaffi" }
+prereqs = ["hvad_kostar_thetta"]
+
+[[items]]
+id = "er_thetta_saeti_laust"
+kind = "phrase"
+target = "Er þetta sæti laust?"
+meaning = "Is this seat free?"
+difficulty = 3
+topics = ["cafe", "social"]
+chunks = ["laust", "sæti laust", "Er þetta sæti laust?"]
+situation = "The café is full. Ask a woman whether the seat next to her is free."
+
+[[items]]
+id = "bord_fyrir_tvo"
+kind = "phrase"
+target = "Borð fyrir tvo, takk."
+meaning = "A table for two, please."
+difficulty = 3
+topics = ["cafe"]
+situation = "You walk into a restaurant with a friend. Ask for a table for two."
+
+[[items]]
+id = "eg_er_graenmetisaeta"
+kind = "phrase"
+target = "Ég er grænmetisæta."
+meaning = "I'm a vegetarian."
+difficulty = 3
+topics = ["cafe", "food"]
+chunks = ["æta", "grænmetisæta", "Ég er grænmetisæta."]
+situation = "The waiter recommends the lamb. Tell him you're a vegetarian."
+
+[[items]]
+id = "eg_er_med_ofnaemi_fyrir_hnetum"
+kind = "phrase"
+target = "Ég er með ofnæmi fyrir hnetum."
+meaning = "I'm allergic to nuts."
+difficulty = 4
+topics = ["cafe", "health"]
+chunks = ["hnetum", "fyrir hnetum", "ofnæmi fyrir hnetum", "Ég er með ofnæmi fyrir hnetum."]
+situation = "Before ordering dessert, tell the waiter you're allergic to nuts."
+
+[[items]]
+id = "thetta_var_gott"
+kind = "phrase"
+target = "Þetta var gott."
+meaning = "That was good."
+difficulty = 2
+topics = ["cafe"]
+situation = "The waiter clears your empty plate. Tell him it was good."
+
+[[items]]
+id = "thetta_er_ljuffengt"
+kind = "phrase"
+target = "Þetta er ljúffengt."
+meaning = "This is delicious."
+difficulty = 3
+topics = ["cafe", "food"]
+situation = "Your host asks how the fish is. Tell her it's delicious."
+
+[[items]]
+id = "ma_eg_borga_med_korti"
+kind = "phrase"
+target = "Má ég borga með korti?"
+meaning = "May I pay by card?"
+difficulty = 3
+topics = ["cafe", "shopping", "money"]
+chunks = ["korti", "með korti", "borga með korti", "Má ég borga með korti?"]
+situation = "You have no cash. Ask if you may pay by card."
+
+[[items]]
+id = "eg_er_svong"
+kind = "phrase"
+target = "Ég er svöng."
+meaning = "I'm hungry."
+difficulty = 2
+topics = ["cafe", "feelings"]
+pronunciation_notes = "feminine; masculine: Ég er svangur."
+situation = "It's one o'clock and you haven't eaten. Tell your friend you're hungry."
+
+[[items]]
+id = "eg_er_thyrst"
+kind = "phrase"
+target = "Ég er þyrst."
+meaning = "I'm thirsty."
+difficulty = 2
+topics = ["cafe", "feelings"]
+pronunciation_notes = "feminine; masculine: Ég er þyrstur."
+situation = "After the hike you need a drink. Say you're thirsty."
+
+[[items]]
+id = "eg_er_sodd"
+kind = "phrase"
+target = "Ég er södd."
+meaning = "I'm full."
+difficulty = 2
+topics = ["cafe", "feelings"]
+pronunciation_notes = "feminine; masculine: Ég er saddur."
+situation = "Your host offers a third helping. Say you're full."
+
+[[items]]
+id = "meira_kaffi_takk"
+kind = "phrase"
+target = "Meira kaffi, takk."
+meaning = "More coffee, please."
+difficulty = 2
+topics = ["cafe"]
+prereqs = ["kaffi"]
+situation = "The waiter comes round with the pot. Ask for more coffee."
+
+[[items]]
+id = "annan_bjor_takk"
+kind = "phrase"
+target = "Annan bjór, takk."
+meaning = "Another beer, please."
+difficulty = 2
+topics = ["cafe"]
+prereqs = ["bjor"]
+situation = "Your glass is empty. Ask the bartender for another beer."
+
+[[items]]
+id = "thetta_er_allt"
+kind = "phrase"
+target = "Þetta er allt."
+meaning = "That's all."
+difficulty = 2
+topics = ["cafe", "shopping"]
+situation = "The waiter asks if you'd like anything else. Say that's all."
+
+[[items]]
+id = "ekkert_meira_takk"
+kind = "phrase"
+target = "Ekkert meira, takk."
+meaning = "Nothing more, thanks."
+difficulty = 2
+topics = ["cafe", "shopping"]
+situation = "The cashier asks if there's anything else. Say nothing more, thanks."
+
+[[dialogues]]
+id = "kaffihus"
+setting = "You're at a café counter in Reykjavík. The barista looks up."
+topics = ["cafe", "clarifying"]
+requires = ["godan_daginn", "eg_aetla_ad_fa", "kaffi", "nei", "takk", "gaetirdu_talad_haegar"]
+
+  [[dialogues.turns]]
+  opener = "Góðan daginn. Hvað má bjóða þér?"
+  opener_meaning = "Good day. What can I get you?"
+  cue = "Greet her and say you'll have a coffee."
+  expect_text = "Góðan daginn. Ég ætla að fá kaffi."
+  expect_meaning = "Good day. I'll have a coffee."
+  partner = "Með mjólk?"
+  partner_meaning = "With milk?"
+
+  [[dialogues.turns]]
+  cue = "Say: no, thanks."
+  expect_text = "Nei, takk."
+  expect_meaning = "No, thanks."
+  partner = "Það kostar sex hundruð krónur."
+  partner_meaning = "That's six hundred krónur."
+
+  [[dialogues.turns]]
+  cue = "You didn't catch that. Ask her to speak more slowly."
+  expect = "gaetirdu_talad_haegar"
+  partner = "Sex hundruð krónur."
+  partner_meaning = "Six hundred krónur."
+
+  [[dialogues.turns]]
+  cue = "Thank her."
+  expect = "takk"
+  partner = "Gjörðu svo vel."
+  partner_meaning = "Here you are."
+
+[[dialogues]]
+id = "veitingastadur"
+setting = "A restaurant on Laugavegur. A waiter comes to your table."
+topics = ["cafe", "food"]
+requires = ["bord_fyrir_tvo", "eg_aetla_ad_fa", "fisk", "vatn", "get_eg_fengid_reikninginn", "ma_eg_borga_med_korti", "thetta_var_gott"]
+
+  [[dialogues.turns]]
+  opener = "Gott kvöld. Eruð þið tvö?"
+  opener_meaning = "Good evening. Are there two of you?"
+  cue = "Ask for a table for two, please."
+  expect = "bord_fyrir_tvo"
+  partner = "Gjörið svo vel. Hérna er matseðillinn. Hvað má bjóða ykkur að drekka?"
+  partner_meaning = "Please, this way. Here's the menu. What can I get you to drink?"
+
+  [[dialogues.turns]]
+  cue = "Say you'll have water."
+  expect_text = "Ég ætla að fá vatn."
+  expect_meaning = "I'll have water."
+  partner = "Og að borða?"
+  partner_meaning = "And to eat?"
+
+  [[dialogues.turns]]
+  cue = "Say you'll have the fish."
+  expect_text = "Ég ætla að fá fisk."
+  expect_meaning = "I'll have fish."
+  partner = "Góður kostur. Verði ykkur að góðu!"
+  partner_meaning = "Good choice. Enjoy your meal!"
+
+  [[dialogues.turns]]
+  cue = "Later. Say that was good, and ask for the bill."
+  expect_text = "Þetta var gott. Get ég fengið reikninginn?"
+  expect_meaning = "That was good. Can I have the bill?"
+  partner = "Auðvitað. Fjögur þúsund og fimm hundruð krónur."
+  partner_meaning = "Of course. Four thousand five hundred krónur."
+
+  [[dialogues.turns]]
+  cue = "Ask if you may pay by card."
+  expect = "ma_eg_borga_med_korti"
+  partner = "Já, ekkert mál."
+  partner_meaning = "Yes, no problem."

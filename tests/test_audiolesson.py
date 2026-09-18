@@ -81,6 +81,31 @@ class CurriculumTests(unittest.TestCase):
         with self.assertRaises(CurriculumError):
             curriculum_from_dict(raw)
 
+    def test_directory_curriculum_loads_and_is_large(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertGreater(len(cur.items), 900)
+        self.assertGreater(len(cur.dialogues), 25)
+        # every construction has at least two possible fills, so recombination is always possible
+        for c in cur.items:
+            if c.kind == "construction":
+                for slot, tag in c.slots.items():
+                    self.assertGreaterEqual(len(cur.items_with_tag(tag)), 2, f"{c.id}.{slot}")
+
+    def test_full_course_over_the_icelandic_set(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        learner.feedback_mode = "auto"
+        day = TODAY
+        for _ in range(30):
+            pace, _why = learner.suggest_pace(30, day)
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=pace, seed=1), today=day).build()
+            apply_to_learner(sc, learner, day)
+            learner.pace = pace
+            day += timedelta(days=1)
+        self.assertGreaterEqual(sc.total_duration / 60, 27)
+        self.assertLessEqual(len(sc.meta["dialogues"]), 3)
+        self.assertGreater(len(learner.items), 150)
+
     def test_backward_chunks_grow_from_the_end(self):
         cur = load_curriculum(CURRICULUM)
         it = cur.item("je_ne_comprends_pas")

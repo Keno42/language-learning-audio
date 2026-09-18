@@ -1,0 +1,426 @@
+# 18 — describing things: neuter adjectives after "Þetta er …" / "Mér finnst þetta …"
+
+[[items]]
+id = "gott"
+kind = "vocab"
+target = "gott"
+meaning = "good"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "thetta_er_adj"
+kind = "construction"
+target = "Þetta er {adj}."
+meaning = "This is {adj}."
+difficulty = 2
+topics = ["adjectives"]
+slots = { adj = "adj_neut" }
+example = { adj = "gott" }
+prereqs = ["gott"]
+
+[[items]]
+id = "mer_finnst_thetta"
+kind = "construction"
+target = "Mér finnst þetta {adj}."
+meaning = "I think this is {adj}."
+difficulty = 3
+topics = ["adjectives", "feelings"]
+slots = { adj = "adj_neut" }
+example = { adj = "gott" }
+prereqs = ["thetta_er_adj"]
+
+[[items]]
+id = "vont"
+kind = "vocab"
+target = "vont"
+meaning = "bad"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "dyrt"
+kind = "vocab"
+target = "dýrt"
+meaning = "expensive"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives", "money"]
+
+[[items]]
+id = "odyrt"
+kind = "vocab"
+target = "ódýrt"
+meaning = "cheap"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives", "money"]
+
+[[items]]
+id = "fallegt"
+kind = "vocab"
+target = "fallegt"
+meaning = "beautiful"
+difficulty = 2
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "ljott"
+kind = "vocab"
+target = "ljótt"
+meaning = "ugly"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "stort"
+kind = "vocab"
+target = "stórt"
+meaning = "big"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "erfitt"
+kind = "vocab"
+target = "erfitt"
+meaning = "difficult"
+difficulty = 2
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "audvelt"
+kind = "vocab"
+target = "auðvelt"
+meaning = "easy"
+difficulty = 2
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "skemmtilegt"
+kind = "vocab"
+target = "skemmtilegt"
+meaning = "fun"
+difficulty = 2
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "leidinlegt"
+kind = "vocab"
+target = "leiðinlegt"
+meaning = "boring"
+difficulty = 2
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "gamalt"
+kind = "vocab"
+target = "gamalt"
+meaning = "old"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "nytt"
+kind = "vocab"
+target = "nýtt"
+meaning = "new"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "langt"
+kind = "vocab"
+target = "langt"
+meaning = "long / far"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "stutt"
+kind = "vocab"
+target = "stutt"
+meaning = "short"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "hratt"
+kind = "vocab"
+target = "hratt"
+meaning = "fast"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "haegt"
+kind = "vocab"
+target = "hægt"
+meaning = "slow"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "hreint"
+kind = "vocab"
+target = "hreint"
+meaning = "clean"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "skitugt"
+kind = "vocab"
+target = "skítugt"
+meaning = "dirty"
+difficulty = 2
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "rett"
+kind = "vocab"
+target = "rétt"
+meaning = "right / correct"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "rangt"
+kind = "vocab"
+target = "rangt"
+meaning = "wrong"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "mikilvaegt"
+kind = "vocab"
+target = "mikilvægt"
+meaning = "important"
+difficulty = 3
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "ahugavert"
+kind = "vocab"
+target = "áhugavert"
+meaning = "interesting"
+difficulty = 3
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "frabaert"
+kind = "vocab"
+target = "frábært"
+meaning = "great"
+difficulty = 2
+tags = ["adj_neut"]
+topics = ["adjectives", "discourse"]
+situation = "Anna says the road is open. Say: great!"
+
+[[items]]
+id = "hraedilegt"
+kind = "vocab"
+target = "hræðilegt"
+meaning = "terrible"
+difficulty = 3
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "fyndid"
+kind = "vocab"
+target = "fyndið"
+meaning = "funny"
+difficulty = 2
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "skrytid"
+kind = "vocab"
+target = "skrýtið"
+meaning = "strange"
+difficulty = 2
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "fullt"
+kind = "vocab"
+target = "fullt"
+meaning = "full"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "tomt"
+kind = "vocab"
+target = "tómt"
+meaning = "empty"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "opid"
+kind = "vocab"
+target = "opið"
+meaning = "open"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "lokad"
+kind = "vocab"
+target = "lokað"
+meaning = "closed"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "haett"
+kind = "vocab"
+target = "hættulegt"
+meaning = "dangerous"
+difficulty = 3
+tags = ["adj_neut"]
+topics = ["adjectives", "emergencies"]
+
+[[items]]
+id = "oruggt"
+kind = "vocab"
+target = "öruggt"
+meaning = "safe"
+difficulty = 2
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "thetta_er_mjog_gott"
+kind = "phrase"
+target = "Þetta er mjög gott."
+meaning = "This is very good."
+difficulty = 2
+topics = ["adjectives"]
+prereqs = ["thetta_er_adj"]
+situation = "The coffee is excellent. Say it's very good."
+
+[[items]]
+id = "thetta_er_alveg_frabaert"
+kind = "phrase"
+target = "Þetta er alveg frábært."
+meaning = "This is absolutely great."
+difficulty = 3
+topics = ["adjectives", "feelings"]
+prereqs = ["frabaert"]
+situation = "You're standing in front of a waterfall. Say this is absolutely great."
+
+[[items]]
+id = "thetta_er_ekki_svo_slaemt"
+kind = "phrase"
+target = "Þetta er ekki svo slæmt."
+meaning = "It's not so bad."
+difficulty = 3
+topics = ["adjectives", "discourse"]
+chunks = ["slæmt", "svo slæmt", "ekki svo slæmt", "Þetta er ekki svo slæmt."]
+situation = "Your friend dreads the shark. After tasting, say it's not so bad."
+
+[[items]]
+id = "hvernig_er_maturinn"
+kind = "phrase"
+target = "Hvernig er maturinn?"
+meaning = "How's the food?"
+difficulty = 2
+topics = ["adjectives", "food"]
+situation = "Your friend has tried the restaurant. Ask how the food is."
+
+[[items]]
+id = "hvernig_er_hotelid"
+kind = "phrase"
+target = "Hvernig er hótelið?"
+meaning = "How's the hotel?"
+difficulty = 2
+topics = ["adjectives", "accommodation"]
+prereqs = ["hvernig_er_maturinn"]
+situation = "Ask a fellow traveller how the hotel is."
+
+[[items]]
+id = "thad_er_i_lagi"
+kind = "phrase"
+target = "Það er í lagi."
+meaning = "It's alright."
+difficulty = 2
+topics = ["adjectives", "discourse"]
+situation = "Someone asks how the hotel is. It's neither good nor bad. Say it's alright."
+
+[[items]]
+id = "betra"
+kind = "vocab"
+target = "betra"
+meaning = "better"
+difficulty = 2
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "verra"
+kind = "vocab"
+target = "verra"
+meaning = "worse"
+difficulty = 2
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+[[items]]
+id = "thetta_er_betra"
+kind = "phrase"
+target = "Þetta er betra."
+meaning = "This is better."
+difficulty = 2
+topics = ["adjectives"]
+prereqs = ["betra"]
+situation = "You try the second sweater. Say this one is better."
+
+[[items]]
+id = "adjective_opposites"
+kind = "transform"
+target = "gott → vont"
+meaning = "saying the opposite"
+difficulty = 2
+topics = ["grammar", "adjectives"]
+instruction = "Say the opposite:"
+prereqs = ["thetta_er_adj", "vont"]
+examples = [
+  { source = "Þetta er gott.", source_meaning = "This is good.", result = "Þetta er vont.", result_meaning = "This is bad." },
+  { source = "Þetta er dýrt.", source_meaning = "This is expensive.", result = "Þetta er ódýrt.", result_meaning = "This is cheap." },
+  { source = "Þetta er stórt.", source_meaning = "This is big.", result = "Þetta er lítið.", result_meaning = "This is small." },
+  { source = "Þetta er erfitt.", source_meaning = "This is difficult.", result = "Þetta er auðvelt.", result_meaning = "This is easy." },
+  { source = "Þetta er nýtt.", source_meaning = "This is new.", result = "Þetta er gamalt.", result_meaning = "This is old." },
+  { source = "Þetta er skemmtilegt.", source_meaning = "This is fun.", result = "Þetta er leiðinlegt.", result_meaning = "This is boring." },
+  { source = "Það er opið.", source_meaning = "It's open.", result = "Það er lokað.", result_meaning = "It's closed." },
+]

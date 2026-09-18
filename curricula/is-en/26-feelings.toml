@@ -1,0 +1,346 @@
+# 26 — feelings and states ("Ég er …" feminine forms; masculine in notes)
+
+[[items]]
+id = "glod"
+kind = "vocab"
+target = "glöð"
+meaning = "happy"
+difficulty = 1
+tags = ["state_f"]
+topics = ["feelings"]
+pronunciation_notes = "masculine: glaður"
+
+[[items]]
+id = "eg_er_state"
+kind = "construction"
+target = "Ég er {state}."
+meaning = "I'm {state}."
+difficulty = 2
+topics = ["feelings"]
+slots = { state = "state_f" }
+example = { state = "glod" }
+prereqs = ["glod"]
+pronunciation_notes = "adjectives agree with the speaker: these are the feminine forms"
+
+[[items]]
+id = "threytt_state"
+kind = "vocab"
+target = "þreytt"
+meaning = "tired"
+difficulty = 1
+tags = ["state_f"]
+topics = ["feelings"]
+pronunciation_notes = "masculine: þreyttur"
+
+[[items]]
+id = "svong_state"
+kind = "vocab"
+target = "svöng"
+meaning = "hungry"
+difficulty = 1
+tags = ["state_f"]
+topics = ["feelings", "food"]
+pronunciation_notes = "masculine: svangur"
+
+[[items]]
+id = "leid"
+kind = "vocab"
+target = "leið"
+meaning = "sad"
+difficulty = 1
+tags = ["state_f"]
+topics = ["feelings"]
+pronunciation_notes = "masculine: leiður"
+
+[[items]]
+id = "reid"
+kind = "vocab"
+target = "reið"
+meaning = "angry"
+difficulty = 1
+tags = ["state_f"]
+topics = ["feelings"]
+pronunciation_notes = "masculine: reiður"
+
+[[items]]
+id = "stressud"
+kind = "vocab"
+target = "stressuð"
+meaning = "stressed"
+difficulty = 2
+tags = ["state_f"]
+topics = ["feelings"]
+pronunciation_notes = "masculine: stressaður"
+
+[[items]]
+id = "spennt"
+kind = "vocab"
+target = "spennt"
+meaning = "excited"
+difficulty = 2
+tags = ["state_f"]
+topics = ["feelings"]
+pronunciation_notes = "masculine: spenntur"
+
+[[items]]
+id = "tilbuin"
+kind = "vocab"
+target = "tilbúin"
+meaning = "ready"
+difficulty = 2
+tags = ["state_f"]
+topics = ["feelings"]
+pronunciation_notes = "masculine: tilbúinn"
+
+[[items]]
+id = "veik_state"
+kind = "vocab"
+target = "veik"
+meaning = "ill"
+difficulty = 1
+tags = ["state_f"]
+topics = ["feelings", "health"]
+pronunciation_notes = "masculine: veikur"
+
+[[items]]
+id = "aningju"
+kind = "vocab"
+target = "ánægð"
+meaning = "pleased / content"
+difficulty = 2
+tags = ["state_f"]
+topics = ["feelings"]
+pronunciation_notes = "masculine: ánægður"
+
+[[items]]
+id = "hraedd_state"
+kind = "vocab"
+target = "hrædd"
+meaning = "scared"
+difficulty = 1
+tags = ["state_f"]
+topics = ["feelings"]
+pronunciation_notes = "masculine: hræddur"
+
+[[items]]
+id = "einmana"
+kind = "vocab"
+target = "einmana"
+meaning = "lonely"
+difficulty = 2
+tags = ["state_f"]
+topics = ["feelings"]
+pronunciation_notes = "same form for all genders"
+
+[[items]]
+id = "rugluð"
+kind = "vocab"
+target = "rugluð"
+meaning = "confused"
+difficulty = 2
+tags = ["state_f"]
+topics = ["feelings"]
+pronunciation_notes = "masculine: ruglaður"
+
+[[items]]
+id = "ertu_state"
+kind = "construction"
+target = "Ertu {state}?"
+meaning = "Are you {state}? (to a woman)"
+difficulty = 2
+topics = ["feelings"]
+slots = { state = "state_f" }
+example = { state = "threytt_state" }
+prereqs = ["eg_er_state"]
+
+[[items]]
+id = "hvernig_lidur_ther"
+kind = "phrase"
+target = "Hvernig líður þér?"
+meaning = "How do you feel?"
+difficulty = 3
+topics = ["feelings", "health"]
+situation = "Your friend was ill yesterday. Ask how she feels."
+
+[[items]]
+id = "mer_lidur_agaetlega"
+kind = "phrase"
+target = "Mér líður ágætlega."
+meaning = "I feel alright."
+difficulty = 3
+topics = ["feelings"]
+prereqs = ["hvernig_lidur_ther"]
+situation = "Someone asks how you feel. Say alright."
+
+[[items]]
+id = "eg_er_i_godu_skapi"
+kind = "phrase"
+target = "Ég er í góðu skapi."
+meaning = "I'm in a good mood."
+difficulty = 3
+topics = ["feelings"]
+chunks = ["skapi", "góðu skapi", "í góðu skapi", "Ég er í góðu skapi."]
+situation = "The sun is out. Say you're in a good mood."
+
+[[items]]
+id = "eg_er_i_vondu_skapi"
+kind = "phrase"
+target = "Ég er í vondu skapi."
+meaning = "I'm in a bad mood."
+difficulty = 3
+topics = ["feelings"]
+prereqs = ["eg_er_i_godu_skapi"]
+situation = "You missed the bus and it's raining. Say you're in a bad mood."
+
+[[items]]
+id = "eg_hlakka_til"
+kind = "phrase"
+target = "Ég hlakka til."
+meaning = "I'm looking forward to it."
+difficulty = 2
+topics = ["feelings"]
+situation = "Anna confirms the weekend hike. Say you're looking forward to it."
+
+[[items]]
+id = "eg_hlakka_til_ad_sja_thig"
+kind = "phrase"
+target = "Ég hlakka til að sjá þig."
+meaning = "I'm looking forward to seeing you."
+difficulty = 4
+topics = ["feelings", "social"]
+prereqs = ["eg_hlakka_til"]
+chunks = ["þig", "sjá þig", "að sjá þig", "Ég hlakka til að sjá þig."]
+situation = "End a phone call with a friend you'll see next week."
+
+[[items]]
+id = "eg_sakna_thin"
+kind = "phrase"
+target = "Ég sakna þín."
+meaning = "I miss you."
+difficulty = 2
+topics = ["feelings", "social"]
+situation = "On the phone with someone at home. Say you miss them."
+
+[[items]]
+id = "eg_elska_thig"
+kind = "phrase"
+target = "Ég elska þig."
+meaning = "I love you."
+difficulty = 2
+topics = ["feelings", "social"]
+situation = "Say I love you."
+
+[[items]]
+id = "mer_leidist"
+kind = "phrase"
+target = "Mér leiðist."
+meaning = "I'm bored."
+difficulty = 2
+topics = ["feelings"]
+situation = "It's been raining for three days. Say you're bored."
+
+[[items]]
+id = "eg_er_ahyggjufull"
+kind = "phrase"
+target = "Ég hef áhyggjur."
+meaning = "I'm worried."
+difficulty = 3
+topics = ["feelings"]
+situation = "The storm warning is for tonight. Say you're worried."
+
+[[items]]
+id = "ekki_hafa_ahyggjur"
+kind = "phrase"
+target = "Ekki hafa áhyggjur."
+meaning = "Don't worry."
+difficulty = 3
+topics = ["feelings", "discourse"]
+prereqs = ["eg_er_ahyggjufull"]
+situation = "Your friend worries about the storm. Tell her not to worry."
+
+[[items]]
+id = "eg_er_stolt"
+kind = "phrase"
+target = "Ég er stolt af þér."
+meaning = "I'm proud of you."
+difficulty = 3
+topics = ["feelings", "social"]
+pronunciation_notes = "feminine; masculine: Ég er stoltur af þér."
+situation = "Your friend just finished her first 10 km run. Say you're proud of her."
+
+[[items]]
+id = "thad_var_gaman"
+kind = "phrase"
+target = "Það var gaman."
+meaning = "That was fun."
+difficulty = 2
+topics = ["feelings"]
+situation = "The evening is over. Say that was fun."
+
+[[items]]
+id = "takk_fyrir_kvoldid"
+kind = "phrase"
+target = "Takk fyrir kvöldið."
+meaning = "Thanks for the evening."
+difficulty = 2
+topics = ["feelings", "greetings"]
+situation = "You're leaving Anna's dinner party. Thank her for the evening."
+
+[[items]]
+id = "takk_fyrir_sidast"
+kind = "phrase"
+target = "Takk fyrir síðast."
+meaning = "Thanks for last time. (said when you next meet)"
+difficulty = 3
+topics = ["feelings", "greetings"]
+pronunciation_notes = "a very Icelandic greeting"
+situation = "You meet Anna a week after her party. Greet her with 'thanks for last time'."
+
+[[items]]
+id = "mer_thykir_thad_leitt"
+kind = "phrase"
+target = "Mér þykir það leitt."
+meaning = "I'm sorry (to hear that)."
+difficulty = 3
+topics = ["feelings", "discourse"]
+chunks = ["leitt", "það leitt", "Mér þykir það leitt."]
+situation = "Anna tells you her cat died. Say you're sorry to hear it."
+
+[[items]]
+id = "transform_feelings_hun"
+kind = "transform"
+target = "Ég er glöð → Hún er glöð"
+meaning = "talking about how she feels"
+difficulty = 2
+topics = ["grammar", "feelings"]
+instruction = "Say it about her:"
+prereqs = ["eg_er_state"]
+examples = [
+  { source = "Ég er glöð.", source_meaning = "I'm happy.", result = "Hún er glöð.", result_meaning = "She's happy." },
+  { source = "Ég er þreytt.", source_meaning = "I'm tired.", result = "Hún er þreytt.", result_meaning = "She's tired." },
+  { source = "Ég er svöng.", source_meaning = "I'm hungry.", result = "Hún er svöng.", result_meaning = "She's hungry." },
+  { source = "Ég er stressuð.", source_meaning = "I'm stressed.", result = "Hún er stressuð.", result_meaning = "She's stressed." },
+  { source = "Ég er tilbúin.", source_meaning = "I'm ready.", result = "Hún er tilbúin.", result_meaning = "She's ready." },
+]
+
+[[dialogues]]
+id = "kvedja"
+setting = "The end of your stay. Anna drives you to the airport bus."
+topics = ["feelings", "greetings"]
+requires = ["thad_var_gaman", "takk_fyrir_kvoldid", "eg_sakna_thin", "eg_mun_koma_aftur", "goda_ferd"]
+
+  [[dialogues.turns]]
+  opener = "Jæja, þá er komið að því."
+  opener_meaning = "Well, this is it."
+  cue = "Say that was fun, and thank her for everything."
+  expect_text = "Það var gaman. Takk fyrir allt."
+  expect_meaning = "That was fun. Thanks for everything."
+  partner = "Ekkert að þakka. Ég á eftir að sakna þín."
+  partner_meaning = "You're welcome. I'm going to miss you."
+
+  [[dialogues.turns]]
+  cue = "Say you'll miss her too, and you'll come back."
+  expect_text = "Ég sakna þín líka. Ég kem aftur."
+  expect_meaning = "I'll miss you too. I'll come back."
+  partner = "Góða ferð! Sjáumst!"
+  partner_meaning = "Have a good trip! See you!"
