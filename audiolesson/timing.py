@@ -46,6 +46,7 @@ class Timing:
     difficulty_step: float = 0.08  # per difficulty point above 2
     slow_rate: float = 0.72  # TTS rate for slow pronunciation
     global_pause_multiplier: float = 1.0  # one knob for "everything a bit longer/shorter"
+    speech_ratio: dict[str, float] = field(default_factory=dict)  # lang → measured / estimated, from past renders
 
     def with_overrides(self, **kw) -> "Timing":
         kw = {k: v for k, v in kw.items() if v is not None}
@@ -99,6 +100,7 @@ class Timing:
             wps = WORDS_PER_SECOND.get(lang2, WORDS_PER_SECOND["default"])
             secs = max(1, word_count(text)) / wps
         secs = secs / max(0.3, rate) + 0.35  # + leading/trailing breath
+        secs *= self.speech_ratio.get(lang2, 1.0)
         return round(secs, 2)
 
 

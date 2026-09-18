@@ -28,6 +28,8 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--minutes", "-m", type=float, default=15.0)
     g.add_argument("--new", type=int, default=None, help="new items to introduce this lesson (default: the learner's pace, see README 'Pacing')")
     g.add_argument("--pace", type=int, default=None, help="set the learner's ongoing pace (new items per lesson) before planning")
+    g.add_argument("--auto", action="store_true", help="auto mode (persists): pace rises on its own every few lessons; `report --failed` still slows it")
+    g.add_argument("--manual", action="store_true", help="back to manual mode (persists): pace rises only after `report`")
     g.add_argument("--topics", "-t", default="", help="comma-separated topics to prefer")
     g.add_argument("--level", default=None, help="learner level for pause lengths: A0 A1 A2 B1 B2 (default: from learner state)")
     g.add_argument("--seed", type=int, default=None)
@@ -37,6 +39,8 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--profile", "-p", default=None, help="voice profile .toml (see profiles/)")
     g.add_argument("--provider", default=None, help="TTS provider: stub, espeak, edge, openai, say (overrides profile)")
     g.add_argument("--no-audio", action="store_true", help="only write the script and transcript")
+    g.add_argument("--no-fit", action="store_true", help="don't scale pauses to land on --minutes")
+    g.add_argument("--fit-tolerance", type=float, default=None, help="seconds of slack before pauses are scaled (default 60)")
     g.add_argument("--dry-run", action="store_true", help="don't update the learner state")
     g.set_defaults(func=cmd_generate)
 
@@ -47,6 +51,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--provider", default=None)
     r.add_argument("--pause-multiplier", type=float, default=None)
     r.add_argument("--cache", default=None, help="TTS cache directory")
+    r.add_argument("--minutes", "-m", type=float, default=None, help="fit the audio to this length (default: the script's)")
+    r.add_argument("--no-fit", action="store_true")
+    r.add_argument("--fit-tolerance", type=float, default=None)
     r.set_defaults(func=cmd_render)
 
     rp = sub.add_parser("report", help="after listening: tell the model which items you could not recall")
@@ -92,10 +99,15 @@ def cmd_generate(args) -> int:
     learner = LearnerState.load_or_create(args.learner, cur.target_lang, cur.known_lang, cur.level)
     level = args.level or learner.level or cur.level
     today = parse_date(args.date)
-    timing = Timing(level=level).with_overrides(global_pause_multiplier=args.pause_multiplier)
+    timing = Timing(level=level, speech_ratio=dict(learner.speech_calibration)).with_overrides(global_pause_multiplier=args.pause_multiplier)
     prompts = Prompts.load(cur.known_lang)
+    if args.auto:
+        learner.feedback_mode = "auto"
+    if args.manual:
+        learner.feedback_mode = "manual"
     if args.pace is not None:
         learner.pace = args.pace
+        learner.pace_changed_at = learner.lessons_completed
     if args.new is not None:
         new_items, why = args.new, f"--new {args.new}"
     else:
@@ -129,7 +141,8 @@ def cmd_generate(args) -> int:
     print(f"  new: {', '.join(script.meta['new_items']) or '(none — curriculum exhausted, review only)'}")
     carried = len(script.meta.get("due_not_fitted", []))
     print(f"  reviewed: {len(script.meta['reviewed_items'])} items ({script.meta.get('due_at_start', 0)} were due"
-          + (f", {carried} carried over" if carried else "") + f"), dialogues: {', '.join(script.meta['dialogues']) or '-'}")
+          + (f", {carried} carried over" if carried else "") + f"), dialogues: {', '.join(script.meta['dialogues']) or '-'}"
+          + (f", asides: {', '.join(script.meta['notes'])}" if script.meta.get("notes") else ""))
     print(f"  wrote {stem}.script.json, .transcript.md, .plan.json")
 
     if not args.no_audio:
@@ -137,9 +150,19 @@ def cmd_generate(args) -> int:
         from .render.renderer import save_cues
 
         profile = load_profile(args.profile, args.provider)
+        if args.no_fit:
+            profile.fit = False
+        if args.fit_tolerance is not None:
+            profile.fit_tolerance = args.fit_tolerance
         cues = render_script(script, profile, f"{stem}.wav", cache_dir=out / "cache" / profile.provider)
         save_cues(cues, f"{stem}.cues.json")
-        print(f"  audio: {cues['mp3'] or cues['wav']} ({cues['duration_s']/60:.1f} min, provider {cues['provider']})")
+        print(f"  audio: {cues['mp3'] or cues['wav']} ({_mmss(cues['duration_s'])}, provider {cues['provider']}"
+              + (f", pauses ×{cues['fit_scale']:.2f}" if profile.fit and abs(cues['fit_scale'] - 1) > 0.005 else "") + ")")
+        if abs(cues["duration_s"] - args.minutes * 60) > 60:
+            print(f"  note: {abs(cues['duration_s'] - args.minutes * 60)/60:.1f} min off target — "
+                  + ("not enough material yet" if cues["duration_s"] < args.minutes * 60 else "speech ran long") + "; calibration will tighten the next plan")
+        if not args.dry_run:
+            learner.calibrate(cues.get("calibration", {}))
 
     if args.dry_run:
         print("  (dry run: learner state not updated)")
@@ -187,10 +210,19 @@ def cmd_render(args) -> int:
     src = Path(args.script)
     out = Path(args.out) if args.out else src.with_name(src.name.replace(".script.json", "") + ".wav")
     cache = Path(args.cache) if args.cache else out.parent / "cache" / profile.provider
-    cues = render_script(script, profile, out, cache_dir=cache)
+    if args.no_fit:
+        profile.fit = False
+    if args.fit_tolerance is not None:
+        profile.fit_tolerance = args.fit_tolerance
+    cues = render_script(script, profile, out, cache_dir=cache, target_seconds=args.minutes * 60 if args.minutes else None)
     save_cues(cues, out.with_suffix(".cues.json"))
-    print(f"audio: {cues['mp3'] or cues['wav']} ({cues['duration_s']/60:.1f} min, provider {cues['provider']})")
+    print(f"audio: {cues['mp3'] or cues['wav']} ({_mmss(cues['duration_s'])}, provider {cues['provider']}, pauses ×{cues['fit_scale']:.2f})")
     return 0
+
+
+def _mmss(seconds: float) -> str:
+    m, s = divmod(int(round(seconds)), 60)
+    return f"{m}:{s:02d}"
 
 
 def cmd_report(args) -> int:
@@ -232,9 +264,9 @@ def cmd_status(args) -> int:
     if learner.lessons:
         trend = " ".join(str(l.get("due_at_start", "?")) for l in learner.lessons[-8:])
         carried = " ".join(str(l.get("due_not_fitted", "?")) for l in learner.lessons[-8:])
-        print(f"pace: {learner.pace or 'default'} new items/lesson; due at start of last lessons: {trend}; not fitted: {carried}")
+        print(f"pace: {learner.pace or 'default'} new items/lesson ({learner.feedback_mode} mode); due at start of last lessons: {trend}; not fitted: {carried}")
         unreported = [l["number"] for l in learner.lessons[-3:] if l["number"] not in learner.reported]
-        if unreported:
+        if unreported and learner.feedback_mode != "auto":
             print(f"no feedback yet for lesson(s) {unreported}: run `audiolesson report -l {args.learner} [--failed ids]`")
     return 0
 
@@ -244,7 +276,7 @@ def cmd_validate(args) -> int:
     kinds = {}
     for i in cur.items:
         kinds[i.kind] = kinds.get(i.kind, 0) + 1
-    print(f"ok: {cur.name} ({cur.target_lang} for {cur.known_lang} speakers): {len(cur.items)} items {kinds}, {len(cur.dialogues)} dialogues, topics {cur.topics()}")
+    print(f"ok: {cur.name} ({cur.target_lang} for {cur.known_lang} speakers): {len(cur.items)} items {kinds}, {len(cur.dialogues)} dialogues, {len(cur.notes)} notes, topics {cur.topics()}")
     return 0
 
 

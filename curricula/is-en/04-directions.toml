@@ -1,0 +1,580 @@
+# 04 — directions and places (nominative after "Hvar er", dative after "að" / "leita að")
+
+[[items]]
+id = "sundlaugin"
+kind = "vocab"
+target = "sundlaugin"
+meaning = "the swimming pool"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["directions"]
+
+[[items]]
+id = "hvar_er"
+kind = "construction"
+target = "Hvar er {place}?"
+meaning = "Where is {place}?"
+difficulty = 2
+topics = ["directions"]
+slots = { place = "nom_place" }
+example = { place = "sundlaugin" }
+components = ["sundlaugin"]
+prereqs = ["sundlaugin"]
+
+[[items]]
+id = "klosettid"
+kind = "vocab"
+target = "klósettið"
+meaning = "the toilet"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["directions"]
+
+[[items]]
+id = "hotelid"
+kind = "vocab"
+target = "hótelið"
+meaning = "the hotel"
+difficulty = 1
+tags = ["nom_place"]
+topics = ["directions", "accommodation"]
+
+[[items]]
+id = "apotekid"
+kind = "vocab"
+target = "apótekið"
+meaning = "the pharmacy"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["directions", "health"]
+
+[[items]]
+id = "bankinn"
+kind = "vocab"
+target = "bankinn"
+meaning = "the bank"
+difficulty = 1
+tags = ["nom_place"]
+topics = ["directions", "money"]
+
+[[items]]
+id = "stoppistodin"
+kind = "vocab"
+target = "stoppistöðin"
+meaning = "the bus stop"
+difficulty = 3
+tags = ["nom_place"]
+topics = ["directions", "transport"]
+
+[[items]]
+id = "flugvollurinn"
+kind = "vocab"
+target = "flugvöllurinn"
+meaning = "the airport"
+difficulty = 3
+tags = ["nom_place"]
+topics = ["directions", "transport"]
+
+[[items]]
+id = "hofnin"
+kind = "vocab"
+target = "höfnin"
+meaning = "the harbour"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["directions"]
+
+[[items]]
+id = "midbaerinn"
+kind = "vocab"
+target = "miðbærinn"
+meaning = "the town centre"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["directions"]
+
+[[items]]
+id = "safnid"
+kind = "vocab"
+target = "safnið"
+meaning = "the museum"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["directions"]
+
+[[items]]
+id = "kirkjan"
+kind = "vocab"
+target = "kirkjan"
+meaning = "the church"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["directions"]
+
+[[items]]
+id = "budin"
+kind = "vocab"
+target = "búðin"
+meaning = "the shop"
+difficulty = 1
+tags = ["nom_place"]
+topics = ["directions", "shopping"]
+
+[[items]]
+id = "matvorubudin"
+kind = "vocab"
+target = "matvörubúðin"
+meaning = "the grocery store"
+difficulty = 3
+tags = ["nom_place"]
+topics = ["directions", "shopping"]
+
+[[items]]
+id = "veitingastadurinn"
+kind = "vocab"
+target = "veitingastaðurinn"
+meaning = "the restaurant"
+difficulty = 3
+tags = ["nom_place"]
+topics = ["directions", "cafe"]
+
+[[items]]
+id = "kaffihusid"
+kind = "vocab"
+target = "kaffihúsið"
+meaning = "the café"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["directions", "cafe"]
+
+[[items]]
+id = "sjukrahusid"
+kind = "vocab"
+target = "sjúkrahúsið"
+meaning = "the hospital"
+difficulty = 3
+tags = ["nom_place"]
+topics = ["directions", "health"]
+
+[[items]]
+id = "logreglustodin"
+kind = "vocab"
+target = "lögreglustöðin"
+meaning = "the police station"
+difficulty = 3
+tags = ["nom_place"]
+topics = ["directions", "emergencies"]
+
+[[items]]
+id = "bokasafnid"
+kind = "vocab"
+target = "bókasafnið"
+meaning = "the library"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["directions"]
+
+[[items]]
+id = "posthusid"
+kind = "vocab"
+target = "pósthúsið"
+meaning = "the post office"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["directions"]
+
+[[items]]
+id = "hradbankinn"
+kind = "vocab"
+target = "hraðbankinn"
+meaning = "the ATM"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["directions", "money"]
+
+[[items]]
+id = "bilastaedid"
+kind = "vocab"
+target = "bílastæðið"
+meaning = "the car park"
+difficulty = 3
+tags = ["nom_place"]
+topics = ["directions", "transport"]
+
+[[items]]
+id = "strætó"
+kind = "vocab"
+target = "strætó"
+meaning = "the bus"
+difficulty = 1
+tags = ["nom_place"]
+topics = ["transport"]
+
+[[items]]
+id = "til_vinstri"
+kind = "vocab"
+target = "til vinstri"
+meaning = "to the left"
+difficulty = 1
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "til_haegri"
+kind = "vocab"
+target = "til hægri"
+meaning = "to the right"
+difficulty = 1
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "beint_afram"
+kind = "vocab"
+target = "beint áfram"
+meaning = "straight ahead"
+difficulty = 2
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "herna"
+kind = "vocab"
+target = "hérna"
+meaning = "here"
+difficulty = 1
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "tharna"
+kind = "vocab"
+target = "þarna"
+meaning = "over there"
+difficulty = 1
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "naelagt"
+kind = "vocab"
+target = "nálægt"
+meaning = "nearby"
+difficulty = 2
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "langt_i_burtu"
+kind = "vocab"
+target = "langt í burtu"
+meaning = "far away"
+difficulty = 2
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "a_horninu"
+kind = "vocab"
+target = "á horninu"
+meaning = "on the corner"
+difficulty = 2
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "hinum_megin_vid_gotuna"
+kind = "vocab"
+target = "hinum megin við götuna"
+meaning = "across the street"
+difficulty = 4
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "vid_hlidina_a_bankanum"
+kind = "vocab"
+target = "við hliðina á bankanum"
+meaning = "next to the bank"
+difficulty = 4
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "fyrir_framan_hotelid"
+kind = "vocab"
+target = "fyrir framan hótelið"
+meaning = "in front of the hotel"
+difficulty = 3
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "fyrir_aftan_kirkjuna"
+kind = "vocab"
+target = "fyrir aftan kirkjuna"
+meaning = "behind the church"
+difficulty = 3
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "thad_er_direction"
+kind = "construction"
+target = "Það er {direction}."
+meaning = "It's {direction}."
+difficulty = 2
+topics = ["directions"]
+slots = { direction = "direction" }
+example = { direction = "til_vinstri" }
+components = ["til_vinstri"]
+prereqs = ["til_vinstri", "til_haegri"]
+
+[[items]]
+id = "er_thad_langt"
+kind = "phrase"
+target = "Er það langt?"
+meaning = "Is it far?"
+difficulty = 2
+topics = ["directions"]
+situation = "He pointed you down the street. Ask whether it's far."
+
+[[items]]
+id = "hvad_er_langt_thangad"
+kind = "phrase"
+target = "Hvað er langt þangað?"
+meaning = "How far is it?"
+difficulty = 3
+topics = ["directions"]
+chunks = ["þangað", "langt þangað", "Hvað er langt þangað?"]
+situation = "The receptionist says the pool is walkable. Ask how far it is."
+
+[[items]]
+id = "hotelinu"
+kind = "vocab"
+target = "hótelinu"
+meaning = "the hotel (after 'to' / 'for')"
+difficulty = 2
+tags = ["dat_place"]
+topics = ["directions", "accommodation"]
+pronunciation_notes = "dative of hótelið"
+
+[[items]]
+id = "flugvellinum"
+kind = "vocab"
+target = "flugvellinum"
+meaning = "the airport (after 'to' / 'for')"
+difficulty = 3
+tags = ["dat_place"]
+topics = ["directions", "transport"]
+pronunciation_notes = "dative of flugvöllurinn"
+
+[[items]]
+id = "sundlauginni"
+kind = "vocab"
+target = "sundlauginni"
+meaning = "the swimming pool (after 'to' / 'for')"
+difficulty = 3
+tags = ["dat_place"]
+topics = ["directions"]
+pronunciation_notes = "dative of sundlaugin"
+
+[[items]]
+id = "safninu"
+kind = "vocab"
+target = "safninu"
+meaning = "the museum (after 'to' / 'for')"
+difficulty = 2
+tags = ["dat_place"]
+topics = ["directions"]
+pronunciation_notes = "dative of safnið"
+
+[[items]]
+id = "bankanum"
+kind = "vocab"
+target = "bankanum"
+meaning = "the bank (after 'to' / 'for')"
+difficulty = 2
+tags = ["dat_place"]
+topics = ["directions", "money"]
+pronunciation_notes = "dative of bankinn"
+
+[[items]]
+id = "stoppistodinni"
+kind = "vocab"
+target = "stoppistöðinni"
+meaning = "the bus stop (after 'to' / 'for')"
+difficulty = 3
+tags = ["dat_place"]
+topics = ["directions", "transport"]
+pronunciation_notes = "dative of stoppistöðin"
+
+[[items]]
+id = "hvernig_kemst_eg_ad"
+kind = "construction"
+target = "Hvernig kemst ég að {place}?"
+meaning = "How do I get to {place}?"
+difficulty = 3
+topics = ["directions"]
+slots = { place = "dat_place" }
+example = { place = "hotelinu" }
+prereqs = ["hotelinu", "hvar_er"]
+
+[[items]]
+id = "eg_er_ad_leita_ad"
+kind = "construction"
+target = "Ég er að leita að {place}."
+meaning = "I'm looking for {place}."
+difficulty = 3
+topics = ["directions"]
+slots = { place = "dat_place" }
+example = { place = "bankanum" }
+prereqs = ["bankanum"]
+
+[[items]]
+id = "eg_er_tynd"
+kind = "phrase"
+target = "Ég er týnd."
+meaning = "I'm lost."
+difficulty = 2
+topics = ["directions"]
+pronunciation_notes = "feminine; masculine: Ég er týndur."
+situation = "You've taken a wrong turn twice. Tell a passer-by you're lost."
+
+[[items]]
+id = "geturdu_synt_mer_a_kortinu"
+kind = "phrase"
+target = "Geturðu sýnt mér á kortinu?"
+meaning = "Can you show me on the map?"
+difficulty = 4
+topics = ["directions"]
+chunks = ["kortinu", "á kortinu", "sýnt mér á kortinu", "Geturðu sýnt mér á kortinu?"]
+situation = "The directions are getting long. Hand over your map and ask him to show you."
+
+[[items]]
+id = "fimm_minutur"
+kind = "vocab"
+target = "fimm mínútur"
+meaning = "five minutes"
+difficulty = 1
+tags = ["duration"]
+topics = ["directions", "time"]
+
+[[items]]
+id = "tiu_minutur"
+kind = "vocab"
+target = "tíu mínútur"
+meaning = "ten minutes"
+difficulty = 1
+tags = ["duration"]
+topics = ["directions", "time"]
+
+[[items]]
+id = "korter"
+kind = "vocab"
+target = "korter"
+meaning = "a quarter of an hour"
+difficulty = 2
+tags = ["duration"]
+topics = ["directions", "time"]
+
+[[items]]
+id = "halftima"
+kind = "vocab"
+target = "hálftíma"
+meaning = "half an hour"
+difficulty = 2
+tags = ["duration"]
+topics = ["directions", "time"]
+
+[[items]]
+id = "klukkutima"
+kind = "vocab"
+target = "klukkutíma"
+meaning = "an hour"
+difficulty = 2
+tags = ["duration"]
+topics = ["directions", "time"]
+
+[[items]]
+id = "thad_tekur"
+kind = "construction"
+target = "Það tekur {duration}."
+meaning = "It takes {duration}."
+difficulty = 2
+topics = ["directions", "time"]
+slots = { duration = "duration" }
+example = { duration = "fimm_minutur" }
+prereqs = ["fimm_minutur"]
+
+[[items]]
+id = "er_haegt_ad_ganga_thangad"
+kind = "phrase"
+target = "Er hægt að ganga þangað?"
+meaning = "Can one walk there?"
+difficulty = 4
+topics = ["directions"]
+chunks = ["þangað", "ganga þangað", "að ganga þangað", "Er hægt að ganga þangað?"]
+situation = "The museum is on the other side of town. Ask whether one can walk there."
+
+[[dialogues]]
+id = "sundlaug"
+setting = "You want to go swimming. You stop a man in the street."
+topics = ["directions"]
+requires = ["afsakid", "hvar_er", "sundlaugin", "er_thad_langt", "takk", "bless"]
+
+  [[dialogues.turns]]
+  cue = "Get his attention and ask where the swimming pool is."
+  expect_text = "Afsakið, hvar er sundlaugin?"
+  expect_meaning = "Excuse me, where is the swimming pool?"
+  partner = "Sundlaugin? Beint áfram og svo til hægri."
+  partner_meaning = "The pool? Straight ahead and then to the right."
+
+  [[dialogues.turns]]
+  cue = "Ask if it's far."
+  expect = "er_thad_langt"
+  partner = "Nei, fimm mínútur."
+  partner_meaning = "No, five minutes."
+
+  [[dialogues.turns]]
+  cue = "Thank him and say bye."
+  expect_text = "Takk. Bless."
+  expect_meaning = "Thanks. Bye."
+
+[[dialogues]]
+id = "tynd"
+setting = "You are lost near the harbour with a paper map. A woman is waiting at a crossing."
+topics = ["directions"]
+requires = ["afsakid", "eg_er_tynd", "eg_er_ad_leita_ad", "hotelinu", "geturdu_synt_mer_a_kortinu", "hvad_er_langt_thangad", "takk_kaerlega"]
+
+  [[dialogues.turns]]
+  cue = "Excuse yourself and say you're lost."
+  expect_text = "Afsakið, ég er týnd."
+  expect_meaning = "Excuse me, I'm lost."
+  partner = "Ekkert mál. Hvert ertu að fara?"
+  partner_meaning = "No problem. Where are you going?"
+
+  [[dialogues.turns]]
+  cue = "Say you're looking for the hotel."
+  expect_text = "Ég er að leita að hótelinu."
+  expect_meaning = "I'm looking for the hotel."
+  partner = "Hótelið er hinum megin við götuna, við hliðina á bankanum."
+  partner_meaning = "The hotel is across the street, next to the bank."
+
+  [[dialogues.turns]]
+  cue = "Ask her to show you on the map."
+  expect = "geturdu_synt_mer_a_kortinu"
+  partner = "Já, sjáðu: við erum hérna, og hótelið er þarna."
+  partner_meaning = "Yes, look: we are here, and the hotel is there."
+
+  [[dialogues.turns]]
+  cue = "Ask how far it is."
+  expect = "hvad_er_langt_thangad"
+  partner = "Bara tvær mínútur."
+  partner_meaning = "Just two minutes."
+
+  [[dialogues.turns]]
+  cue = "Thank her warmly."
+  expect = "takk_kaerlega"
+  partner = "Ekkert að þakka. Gangi þér vel!"
+  partner_meaning = "You're welcome. Good luck!"

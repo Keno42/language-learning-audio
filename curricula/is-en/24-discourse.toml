@@ -1,0 +1,329 @@
+# 24 — discourse: reacting, agreeing, hedging, keeping a conversation going
+
+[[items]]
+id = "einmitt"
+kind = "phrase"
+target = "Einmitt."
+meaning = "Exactly."
+difficulty = 1
+topics = ["discourse"]
+situation = "Anna says the wind is the worst part of winter. Agree: exactly."
+
+[[items]]
+id = "nakvaemlega"
+kind = "phrase"
+target = "Nákvæmlega."
+meaning = "Precisely."
+difficulty = 2
+topics = ["discourse"]
+situation = "Someone sums up your opinion perfectly. Say precisely."
+
+[[items]]
+id = "eg_er_sammala"
+kind = "phrase"
+target = "Ég er sammála."
+meaning = "I agree."
+difficulty = 2
+topics = ["discourse"]
+situation = "A colleague proposes moving the meeting. Say you agree."
+
+[[items]]
+id = "eg_er_ekki_sammala"
+kind = "phrase"
+target = "Ég er ekki sammála."
+meaning = "I disagree."
+difficulty = 2
+topics = ["discourse"]
+prereqs = ["eg_er_sammala"]
+situation = "Someone says the shark is delicious. Say you disagree."
+
+[[items]]
+id = "eg_held_thad"
+kind = "phrase"
+target = "Ég held það."
+meaning = "I think so."
+difficulty = 2
+topics = ["discourse"]
+situation = "Anna asks if the shop is open on Sundays. You think so. Say it."
+
+[[items]]
+id = "eg_held_ekki"
+kind = "phrase"
+target = "Ég held ekki."
+meaning = "I don't think so."
+difficulty = 2
+topics = ["discourse"]
+prereqs = ["eg_held_thad"]
+situation = "She asks if it'll rain. Say you don't think so."
+
+[[items]]
+id = "eg_vona_thad"
+kind = "phrase"
+target = "Ég vona það."
+meaning = "I hope so."
+difficulty = 2
+topics = ["discourse"]
+situation = "Anna asks if the northern lights will show tonight. Say you hope so."
+
+[[items]]
+id = "vonandi"
+kind = "phrase"
+target = "Vonandi."
+meaning = "Hopefully."
+difficulty = 1
+topics = ["discourse"]
+situation = "Someone says the road might open tomorrow. Say hopefully."
+
+[[items]]
+id = "thad_skiptir_ekki_mali"
+kind = "phrase"
+target = "Það skiptir ekki máli."
+meaning = "It doesn't matter."
+difficulty = 3
+topics = ["discourse"]
+chunks = ["máli", "ekki máli", "skiptir ekki máli", "Það skiptir ekki máli."]
+situation = "Anna apologises for forgetting the tickets. Say it doesn't matter."
+
+[[items]]
+id = "thad_er_satt"
+kind = "phrase"
+target = "Það er satt."
+meaning = "That's true."
+difficulty = 2
+topics = ["discourse"]
+situation = "Someone points out it's cheaper to swim than to go to a café. Say that's true."
+
+[[items]]
+id = "er_thad"
+kind = "phrase"
+target = "Er það?"
+meaning = "Is that so? / Really?"
+difficulty = 1
+topics = ["discourse"]
+situation = "Anna says she's met Björk. React: really?"
+
+[[items]]
+id = "vaa"
+kind = "phrase"
+target = "Vá!"
+meaning = "Wow!"
+difficulty = 1
+topics = ["discourse"]
+situation = "The glacier comes into view. Say wow."
+
+[[items]]
+id = "otrulegt"
+kind = "phrase"
+target = "Ótrúlegt!"
+meaning = "Incredible!"
+difficulty = 2
+topics = ["discourse"]
+situation = "She tells you she swims in the sea every morning. Say incredible."
+
+[[items]]
+id = "thad_er_synd"
+kind = "phrase"
+target = "Það er synd."
+meaning = "That's a pity."
+difficulty = 2
+topics = ["discourse"]
+situation = "The museum is closed today. Say that's a pity."
+
+[[items]]
+id = "eg_er_hissa"
+kind = "phrase"
+target = "Ég er hissa."
+meaning = "I'm surprised."
+difficulty = 2
+topics = ["discourse", "feelings"]
+situation = "The shop is open on Christmas Day. Say you're surprised."
+
+[[items]]
+id = "eg_meina"
+kind = "phrase"
+target = "Ég meina…"
+meaning = "I mean…"
+difficulty = 1
+topics = ["discourse"]
+situation = "You've said the wrong word. Start again with 'I mean…'."
+
+[[items]]
+id = "sem_sagt"
+kind = "phrase"
+target = "Sem sagt…"
+meaning = "In other words… / So…"
+difficulty = 2
+topics = ["discourse"]
+situation = "Summarise what she just explained. Start with 'so…'."
+
+[[items]]
+id = "til_daemis"
+kind = "phrase"
+target = "Til dæmis…"
+meaning = "For example…"
+difficulty = 2
+topics = ["discourse"]
+situation = "Anna asks what Icelandic food you've tried. Start with 'for example…'."
+
+[[items]]
+id = "reyndar"
+kind = "phrase"
+target = "Reyndar…"
+meaning = "Actually…"
+difficulty = 2
+topics = ["discourse"]
+situation = "She assumes you're a tourist. Correct her, starting with 'actually…'."
+
+[[items]]
+id = "thad_er_rett"
+kind = "phrase"
+target = "Það er rétt."
+meaning = "That's right."
+difficulty = 1
+topics = ["discourse"]
+prereqs = ["rett"]
+situation = "Anna guesses you're from Tokyo. Confirm: that's right."
+
+[[items]]
+id = "nei_thad_er_ekki_rett"
+kind = "phrase"
+target = "Nei, það er ekki rétt."
+meaning = "No, that's not right."
+difficulty = 2
+topics = ["discourse"]
+prereqs = ["thad_er_rett"]
+situation = "The bill has an extra item. Say no, that's not right."
+
+[[items]]
+id = "eg_er_ad_grinast"
+kind = "phrase"
+target = "Ég er að grínast."
+meaning = "I'm joking."
+difficulty = 2
+topics = ["discourse"]
+situation = "Anna looks shocked at your claim that you ate ten hot dogs. Say you're joking."
+
+[[items]]
+id = "i_alvoru"
+kind = "phrase"
+target = "Í alvöru?"
+meaning = "Seriously?"
+difficulty = 2
+topics = ["discourse"]
+situation = "She says the pool is open until ten at night. Ask: seriously?"
+
+[[items]]
+id = "eg_er_ekki_viss_um_thad"
+kind = "phrase"
+target = "Ég er ekki viss um það."
+meaning = "I'm not sure about that."
+difficulty = 3
+topics = ["discourse"]
+prereqs = ["eg_er_ekki_viss"]
+situation = "Someone claims the bus runs on Sundays. Say you're not sure about that."
+
+[[items]]
+id = "vid_sjaum_til"
+kind = "phrase"
+target = "Við sjáum til."
+meaning = "We'll see."
+difficulty = 2
+topics = ["discourse", "arrangements"]
+situation = "Anna asks if you'll go hiking Sunday. Say we'll see."
+
+[[items]]
+id = "hvad_finnst_ther"
+kind = "phrase"
+target = "Hvað finnst þér?"
+meaning = "What do you think?"
+difficulty = 2
+topics = ["discourse"]
+situation = "You've shown Anna two sweaters. Ask what she thinks."
+
+[[items]]
+id = "mer_finnst_thad_gott"
+kind = "phrase"
+target = "Mér finnst það gott."
+meaning = "I think that's good."
+difficulty = 2
+topics = ["discourse"]
+prereqs = ["hvad_finnst_ther"]
+situation = "She asks what you think of the plan. Say you think it's good."
+
+[[items]]
+id = "segdu_mer_meira"
+kind = "phrase"
+target = "Segðu mér meira."
+meaning = "Tell me more."
+difficulty = 2
+topics = ["discourse"]
+situation = "Anna mentions her trip to Greenland. Ask her to tell you more."
+
+[[items]]
+id = "thad_er_god_hugmynd"
+kind = "phrase"
+target = "Það er góð hugmynd."
+meaning = "That's a good idea."
+difficulty = 2
+topics = ["discourse"]
+situation = "Anna suggests the hot tub before dinner. Say that's a good idea."
+
+[[items]]
+id = "gott_ad_heyra"
+kind = "phrase"
+target = "Gott að heyra."
+meaning = "Good to hear."
+difficulty = 2
+topics = ["discourse"]
+situation = "A friend says she's feeling better. Say good to hear."
+
+[[items]]
+id = "thvi_midur_ekki"
+kind = "phrase"
+target = "Því miður ekki."
+meaning = "Unfortunately not."
+difficulty = 2
+topics = ["discourse"]
+prereqs = ["thvi_midur"]
+situation = "Someone asks if you saw the northern lights. You didn't. Say unfortunately not."
+
+[[items]]
+id = "ekki_malid"
+kind = "phrase"
+target = "Ekki málið."
+meaning = "Not a problem. / Don't mention it."
+difficulty = 2
+topics = ["discourse"]
+prereqs = ["ekkert_mal"]
+situation = "Someone thanks you for the lift. Say don't mention it."
+
+[[dialogues]]
+id = "spjall"
+setting = "Chatting with Anna over a second coffee."
+topics = ["discourse"]
+requires = ["er_thad", "eg_er_sammala", "thad_er_synd", "vid_sjaum_til", "thad_er_god_hugmynd"]
+
+  [[dialogues.turns]]
+  opener = "Ég synti í sjónum í morgun."
+  opener_meaning = "I swam in the sea this morning."
+  cue = "React: really?"
+  expect = "er_thad"
+  partner = "Já! Það er kalt en það er svo gott á eftir."
+  partner_meaning = "Yes! It's cold but it feels so good afterwards."
+
+  [[dialogues.turns]]
+  cue = "Say you agree."
+  expect = "eg_er_sammala"
+  partner = "Komdu með á morgun! Nei, bíddu, á morgun er ég að vinna."
+  partner_meaning = "Come along tomorrow! No, wait, tomorrow I'm working."
+
+  [[dialogues.turns]]
+  cue = "Say that's a pity."
+  expect = "thad_er_synd"
+  partner = "Kannski um helgina?"
+  partner_meaning = "Maybe at the weekend?"
+
+  [[dialogues.turns]]
+  cue = "Say that's a good idea — we'll see."
+  expect_text = "Það er góð hugmynd. Við sjáum til."
+  expect_meaning = "That's a good idea. We'll see."

@@ -1,0 +1,554 @@
+# 06 — time and arrangements: days, hours, when
+
+[[items]]
+id = "a_morgun"
+kind = "vocab"
+target = "á morgun"
+meaning = "tomorrow"
+difficulty = 1
+tags = ["time"]
+topics = ["arrangements", "time"]
+
+[[items]]
+id = "i_kvold"
+kind = "vocab"
+target = "í kvöld"
+meaning = "this evening"
+difficulty = 1
+tags = ["time"]
+topics = ["arrangements", "time"]
+
+[[items]]
+id = "i_dag"
+kind = "vocab"
+target = "í dag"
+meaning = "today"
+difficulty = 1
+tags = ["time"]
+topics = ["arrangements", "time"]
+
+[[items]]
+id = "i_gaer"
+kind = "vocab"
+target = "í gær"
+meaning = "yesterday"
+difficulty = 1
+tags = ["past_time"]
+topics = ["time"]
+
+[[items]]
+id = "i_fyrramalid"
+kind = "vocab"
+target = "í fyrramálið"
+meaning = "tomorrow morning"
+difficulty = 3
+tags = ["time"]
+topics = ["arrangements", "time"]
+
+[[items]]
+id = "um_helgina"
+kind = "vocab"
+target = "um helgina"
+meaning = "at the weekend"
+difficulty = 2
+tags = ["time"]
+topics = ["arrangements", "time"]
+
+[[items]]
+id = "i_naestu_viku"
+kind = "vocab"
+target = "í næstu viku"
+meaning = "next week"
+difficulty = 3
+tags = ["time"]
+topics = ["arrangements", "time"]
+
+[[items]]
+id = "a_manudaginn"
+kind = "vocab"
+target = "á mánudaginn"
+meaning = "on Monday"
+difficulty = 2
+tags = ["time", "day"]
+topics = ["time"]
+
+[[items]]
+id = "a_thridjudaginn"
+kind = "vocab"
+target = "á þriðjudaginn"
+meaning = "on Tuesday"
+difficulty = 3
+tags = ["time", "day"]
+topics = ["time"]
+
+[[items]]
+id = "a_midvikudaginn"
+kind = "vocab"
+target = "á miðvikudaginn"
+meaning = "on Wednesday"
+difficulty = 3
+tags = ["time", "day"]
+topics = ["time"]
+
+[[items]]
+id = "a_fimmtudaginn"
+kind = "vocab"
+target = "á fimmtudaginn"
+meaning = "on Thursday"
+difficulty = 3
+tags = ["time", "day"]
+topics = ["time"]
+
+[[items]]
+id = "a_fostudaginn"
+kind = "vocab"
+target = "á föstudaginn"
+meaning = "on Friday"
+difficulty = 3
+tags = ["time", "day"]
+topics = ["time"]
+
+[[items]]
+id = "a_laugardaginn"
+kind = "vocab"
+target = "á laugardaginn"
+meaning = "on Saturday"
+difficulty = 3
+tags = ["time", "day"]
+topics = ["time"]
+
+[[items]]
+id = "a_sunnudaginn"
+kind = "vocab"
+target = "á sunnudaginn"
+meaning = "on Sunday"
+difficulty = 3
+tags = ["time", "day"]
+topics = ["time"]
+
+[[items]]
+id = "eg_fer"
+kind = "construction"
+target = "Ég fer {time}."
+meaning = "I'm leaving {time}."
+difficulty = 2
+topics = ["arrangements"]
+slots = { time = "time" }
+example = { time = "a_morgun" }
+components = ["a_morgun"]
+prereqs = ["a_morgun"]
+
+[[items]]
+id = "eg_kem"
+kind = "construction"
+target = "Ég kem {time}."
+meaning = "I'm coming {time}."
+difficulty = 2
+topics = ["arrangements"]
+slots = { time = "time" }
+example = { time = "i_kvold" }
+prereqs = ["i_kvold", "eg_fer"]
+
+[[items]]
+id = "sjaumst_time"
+kind = "construction"
+target = "Sjáumst {time}!"
+meaning = "See you {time}!"
+difficulty = 2
+topics = ["arrangements"]
+slots = { time = "time" }
+example = { time = "a_morgun" }
+prereqs = ["sjaumst", "a_morgun"]
+
+[[items]]
+id = "klukkan_hvad"
+kind = "phrase"
+target = "Klukkan hvað?"
+meaning = "At what time?"
+difficulty = 2
+topics = ["arrangements"]
+situation = "Anna suggests meeting for dinner. Ask at what time."
+
+[[items]]
+id = "hvad_er_klukkan"
+kind = "phrase"
+target = "Hvað er klukkan?"
+meaning = "What time is it?"
+difficulty = 2
+topics = ["time"]
+situation = "Your phone is dead. Ask a passer-by what time it is."
+
+[[items]]
+id = "eitt"
+kind = "vocab"
+target = "eitt"
+meaning = "one (o'clock)"
+difficulty = 1
+tags = ["hour"]
+topics = ["time", "numbers"]
+
+[[items]]
+id = "tvo"
+kind = "vocab"
+target = "tvö"
+meaning = "two (o'clock)"
+difficulty = 1
+tags = ["hour"]
+topics = ["time", "numbers"]
+
+[[items]]
+id = "thrju"
+kind = "vocab"
+target = "þrjú"
+meaning = "three (o'clock)"
+difficulty = 1
+tags = ["hour"]
+topics = ["time", "numbers"]
+
+[[items]]
+id = "fjogur"
+kind = "vocab"
+target = "fjögur"
+meaning = "four (o'clock)"
+difficulty = 2
+tags = ["hour"]
+topics = ["time", "numbers"]
+
+[[items]]
+id = "fimm"
+kind = "vocab"
+target = "fimm"
+meaning = "five"
+difficulty = 1
+tags = ["hour", "number"]
+topics = ["time", "numbers"]
+
+[[items]]
+id = "sex"
+kind = "vocab"
+target = "sex"
+meaning = "six"
+difficulty = 1
+tags = ["hour", "number"]
+topics = ["time", "numbers"]
+
+[[items]]
+id = "sjo"
+kind = "vocab"
+target = "sjö"
+meaning = "seven"
+difficulty = 1
+tags = ["hour", "number"]
+topics = ["time", "numbers"]
+
+[[items]]
+id = "atta"
+kind = "vocab"
+target = "átta"
+meaning = "eight"
+difficulty = 1
+tags = ["hour", "number"]
+topics = ["time", "numbers"]
+
+[[items]]
+id = "niu"
+kind = "vocab"
+target = "níu"
+meaning = "nine"
+difficulty = 1
+tags = ["hour", "number"]
+topics = ["time", "numbers"]
+
+[[items]]
+id = "tiu"
+kind = "vocab"
+target = "tíu"
+meaning = "ten"
+difficulty = 1
+tags = ["hour", "number"]
+topics = ["time", "numbers"]
+
+[[items]]
+id = "ellefu"
+kind = "vocab"
+target = "ellefu"
+meaning = "eleven"
+difficulty = 1
+tags = ["hour", "number"]
+topics = ["time", "numbers"]
+
+[[items]]
+id = "tolf"
+kind = "vocab"
+target = "tólf"
+meaning = "twelve"
+difficulty = 1
+tags = ["hour", "number"]
+topics = ["time", "numbers"]
+
+[[items]]
+id = "klukkan_er"
+kind = "construction"
+target = "Klukkan er {hour}."
+meaning = "It's {hour} o'clock."
+difficulty = 2
+topics = ["time"]
+slots = { hour = "hour" }
+example = { hour = "thrju" }
+prereqs = ["thrju", "hvad_er_klukkan"]
+
+[[items]]
+id = "klukkan_time"
+kind = "construction"
+target = "klukkan {hour}"
+meaning = "at {hour} o'clock"
+difficulty = 2
+topics = ["time", "arrangements"]
+slots = { hour = "hour" }
+example = { hour = "atta" }
+prereqs = ["klukkan_er"]
+
+[[items]]
+id = "half_atta"
+kind = "phrase"
+target = "hálf átta"
+meaning = "half past seven"
+difficulty = 3
+topics = ["time"]
+prereqs = ["klukkan_er"]
+pronunciation_notes = "literally 'half eight' = 7:30, the Germanic way"
+situation = "Your friend asks when the film starts. It's at half past seven."
+
+[[items]]
+id = "korter_yfir_niu"
+kind = "phrase"
+target = "korter yfir níu"
+meaning = "a quarter past nine"
+difficulty = 3
+topics = ["time"]
+prereqs = ["klukkan_er"]
+situation = "The bus leaves at a quarter past nine. Say the time."
+
+[[items]]
+id = "korter_i_tiu"
+kind = "phrase"
+target = "korter í tíu"
+meaning = "a quarter to ten"
+difficulty = 3
+topics = ["time"]
+prereqs = ["klukkan_er"]
+situation = "It's a quarter to ten. Say the time."
+
+[[items]]
+id = "hittumst_klukkan"
+kind = "construction"
+target = "Hittumst klukkan {hour}."
+meaning = "Let's meet at {hour}."
+difficulty = 3
+topics = ["arrangements"]
+slots = { hour = "hour" }
+example = { hour = "sjo" }
+prereqs = ["klukkan_time"]
+
+[[items]]
+id = "hentar_thad"
+kind = "phrase"
+target = "Hentar það?"
+meaning = "Does that suit you?"
+difficulty = 2
+topics = ["arrangements"]
+situation = "You've suggested meeting at seven. Ask if that suits her."
+
+[[items]]
+id = "thad_hentar_vel"
+kind = "phrase"
+target = "Það hentar vel."
+meaning = "That suits me well."
+difficulty = 2
+topics = ["arrangements"]
+situation = "She suggests Friday evening. Say that suits you well."
+
+[[items]]
+id = "eg_get_ekki_a_morgun"
+kind = "phrase"
+target = "Ég get ekki á morgun."
+meaning = "I can't tomorrow."
+difficulty = 3
+topics = ["arrangements"]
+prereqs = ["a_morgun"]
+situation = "He suggests tomorrow, but you have plans. Say you can't tomorrow."
+
+[[items]]
+id = "hvenaer"
+kind = "vocab"
+target = "hvenær"
+meaning = "when"
+difficulty = 1
+topics = ["time", "questions"]
+
+[[items]]
+id = "hvenaer_opnar"
+kind = "construction"
+target = "Hvenær opnar {place}?"
+meaning = "When does {place} open?"
+difficulty = 3
+topics = ["time", "directions"]
+slots = { place = "nom_place" }
+example = { place = "sundlaugin" }
+prereqs = ["hvenaer", "sundlaugin"]
+
+[[items]]
+id = "hvenaer_lokar"
+kind = "construction"
+target = "Hvenær lokar {place}?"
+meaning = "When does {place} close?"
+difficulty = 3
+topics = ["time", "directions"]
+slots = { place = "nom_place" }
+example = { place = "safnid" }
+prereqs = ["hvenaer_opnar", "safnid"]
+
+[[items]]
+id = "er_opid"
+kind = "phrase"
+target = "Er opið?"
+meaning = "Is it open?"
+difficulty = 1
+topics = ["time", "shopping"]
+situation = "The shop looks dark inside. Ask whether it's open."
+
+[[items]]
+id = "thad_er_lokad"
+kind = "phrase"
+target = "Það er lokað."
+meaning = "It's closed."
+difficulty = 2
+topics = ["time", "shopping"]
+situation = "Your friend wants to go to the museum, but you saw the sign. Say it's closed."
+
+[[items]]
+id = "eg_er_sein"
+kind = "phrase"
+target = "Ég er sein."
+meaning = "I'm late."
+difficulty = 2
+topics = ["arrangements", "time"]
+pronunciation_notes = "feminine; masculine: Ég er seinn."
+situation = "You call your friend from the bus. Tell her you're late."
+
+[[items]]
+id = "eg_kem_eftir_tiu_minutur"
+kind = "phrase"
+target = "Ég kem eftir tíu mínútur."
+meaning = "I'll be there in ten minutes."
+difficulty = 3
+topics = ["arrangements", "time"]
+prereqs = ["tiu_minutur"]
+situation = "You're late and ten minutes away. Say you'll come in ten minutes."
+
+[[items]]
+id = "nuna"
+kind = "vocab"
+target = "núna"
+meaning = "now"
+difficulty = 1
+tags = ["time"]
+topics = ["time"]
+
+[[items]]
+id = "seinna"
+kind = "vocab"
+target = "seinna"
+meaning = "later"
+difficulty = 1
+tags = ["time"]
+topics = ["time"]
+
+[[items]]
+id = "brádum"
+kind = "vocab"
+target = "bráðum"
+meaning = "soon"
+difficulty = 2
+tags = ["time"]
+topics = ["time"]
+
+[[items]]
+id = "alltaf"
+kind = "vocab"
+target = "alltaf"
+meaning = "always"
+difficulty = 1
+tags = ["frequency"]
+topics = ["time"]
+
+[[items]]
+id = "stundum"
+kind = "vocab"
+target = "stundum"
+meaning = "sometimes"
+difficulty = 1
+tags = ["frequency"]
+topics = ["time"]
+
+[[items]]
+id = "aldrei"
+kind = "vocab"
+target = "aldrei"
+meaning = "never"
+difficulty = 1
+tags = ["frequency"]
+topics = ["time"]
+
+[[items]]
+id = "oft"
+kind = "vocab"
+target = "oft"
+meaning = "often"
+difficulty = 1
+tags = ["frequency"]
+topics = ["time"]
+
+[[items]]
+id = "eg_fer_frequency_i_sund"
+kind = "construction"
+target = "Ég fer {frequency} í sund."
+meaning = "I {frequency} go swimming."
+difficulty = 3
+topics = ["time", "hobbies"]
+slots = { frequency = "frequency" }
+example = { frequency = "oft" }
+prereqs = ["oft", "eg_fer"]
+
+[[dialogues]]
+id = "stefnumot"
+setting = "Anna wants to meet up. You're on the phone."
+topics = ["arrangements"]
+requires = ["eg_get_ekki_a_morgun", "klukkan_hvad", "thad_hentar_vel", "sjaumst_time", "a_fostudaginn", "hittumst_klukkan", "sjo"]
+
+  [[dialogues.turns]]
+  opener = "Eigum við að hittast á morgun?"
+  opener_meaning = "Shall we meet tomorrow?"
+  cue = "Say you can't tomorrow."
+  expect = "eg_get_ekki_a_morgun"
+  partner = "Allt í lagi. Á föstudaginn þá?"
+  partner_meaning = "OK. On Friday then?"
+
+  [[dialogues.turns]]
+  cue = "Ask at what time."
+  expect = "klukkan_hvad"
+  partner = "Klukkan sjö, á kaffihúsinu?"
+  partner_meaning = "At seven, at the café?"
+
+  [[dialogues.turns]]
+  cue = "Say that suits you well."
+  expect = "thad_hentar_vel"
+  partner = "Frábært."
+  partner_meaning = "Great."
+
+  [[dialogues.turns]]
+  cue = "Say: see you on Friday!"
+  expect_text = "Sjáumst á föstudaginn!"
+  expect_meaning = "See you on Friday!"
+  partner = "Sjáumst!"
+  partner_meaning = "See you!"

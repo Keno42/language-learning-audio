@@ -81,6 +81,51 @@ class CurriculumTests(unittest.TestCase):
         with self.assertRaises(CurriculumError):
             curriculum_from_dict(raw)
 
+    def test_directory_curriculum_loads_and_is_large(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertGreater(len(cur.items), 900)
+        self.assertGreater(len(cur.dialogues), 25)
+        # every construction has at least two possible fills, so recombination is always possible
+        for c in cur.items:
+            if c.kind == "construction":
+                for slot, tag in c.slots.items():
+                    self.assertGreaterEqual(len(cur.items_with_tag(tag)), 2, f"{c.id}.{slot}")
+
+    def test_notes_follow_related_items_and_are_rationed(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertGreaterEqual(len(cur.notes), 40)
+        learner = LearnerState("is", "en", "A1")
+        learner.feedback_mode = "auto"
+        day = TODAY
+        heard: list[str] = []
+        for _ in range(12):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=2), today=day).build()
+            notes = [e for e in sc.exercises if e.kind == "note"]
+            self.assertLessEqual(len(notes), 2)
+            for e in notes:
+                note = cur.note_by_id[e.label.split(": ")[1]]
+                self.assertNotIn(note.id, heard, "no note repeats while unheard notes remain")
+                heard.append(note.id)
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        self.assertGreater(len(heard), 4)
+        self.assertEqual(sum(learner.notes_heard.values()), len(heard))
+
+    def test_full_course_over_the_icelandic_set(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        learner.feedback_mode = "auto"
+        day = TODAY
+        for _ in range(30):
+            pace, _why = learner.suggest_pace(30, day)
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=pace, seed=1), today=day).build()
+            apply_to_learner(sc, learner, day)
+            learner.pace = pace
+            day += timedelta(days=1)
+        self.assertGreaterEqual(sc.total_duration / 60, 27)
+        self.assertLessEqual(len(sc.meta["dialogues"]), 3)
+        self.assertGreater(len(learner.items), 150)
+
     def test_backward_chunks_grow_from_the_end(self):
         cur = load_curriculum(CURRICULUM)
         it = cur.item("je_ne_comprends_pas")
@@ -350,6 +395,35 @@ class PacingTests(unittest.TestCase):
         first = learner.lessons[0]["new_items"][0]
         self.assertGreaterEqual(learner.items[first].interval_days, 7)
 
+    def test_auto_mode_steps_up_every_few_lessons_without_reports(self):
+        learner = fresh()
+        learner.feedback_mode = "auto"
+        day = TODAY
+        paces = []
+        for _ in range(8):
+            pace, why = learner.suggest_pace(30, day)
+            paces.append(pace)
+            sc = build(learner, 30, today=day, new_items=pace)
+            apply_to_learner(sc, learner, day)
+            learner.pace = pace
+            day += timedelta(days=1)
+        self.assertEqual(paces[:3], [6, 6, 6], paces)  # first step only after 3 completed lessons
+        self.assertEqual(paces[3], 7, paces)
+        self.assertEqual(paces[6], 8, paces)
+
+    def test_auto_mode_still_slows_on_reported_failures(self):
+        learner = fresh()
+        learner.feedback_mode = "auto"
+        day = TODAY
+        pace, _ = learner.suggest_pace(30, day)
+        sc = build(learner, 30, today=day, new_items=pace)
+        apply_to_learner(sc, learner, day)
+        learner.pace = pace
+        new = sc.meta["new_items"]
+        learner.report(new[: len(new) // 2], [], day)
+        pace2, why = learner.suggest_pace(30, day + timedelta(days=1))
+        self.assertEqual(pace2, 5, why)
+
     def test_report_defaults_to_latest_lesson(self):
         learner, scripts = course(2)
         changed = learner.report([], [], TODAY)
@@ -374,10 +448,11 @@ class TimingTests(unittest.TestCase):
 
 class RenderTests(unittest.TestCase):
     def test_stub_render_matches_script_pauses_exactly(self):
-        sc = build(fresh(), minutes=2)
+        sc = build(fresh(), minutes=5)
         with tempfile.TemporaryDirectory() as td:
             prof = load_profile(None, "stub")
             prof.mp3 = False
+            prof.fit = False
             cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
             clip = read_wav(Path(td) / "l.wav")
             self.assertAlmostEqual(clip.seconds, cues["duration_s"], delta=0.2)
@@ -386,15 +461,60 @@ class RenderTests(unittest.TestCase):
             self.assertEqual([p["dur"] for p in pauses], [round(x, 2) for x in script_pauses])
 
     def test_pause_multiplier_scales_only_learner_pauses(self):
-        sc = build(fresh(), minutes=2)
+        sc = build(fresh(), minutes=5)
         with tempfile.TemporaryDirectory() as td:
             prof = load_profile(None, "stub")
             prof.mp3 = False
+            prof.fit = False
             prof.pause_multiplier = 2.0
             cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
             answers = [c["dur"] for c in cues["segments"] if c["type"] == "pause" and c["role"] == "answer"]
             expected = [round(s.duration * 2, 2) for s in sc.segments if s.type == "pause" and s.role == "answer"]
             self.assertEqual(answers, expected)
+
+    def test_fit_lands_on_the_requested_length(self):
+        learner, scripts = course(6, minutes=15)  # by now there is enough material for a full lesson
+        sc = scripts[-1]
+        self.assertGreater(len([s for s in sc.segments if s.type == "pause" and s.role == "answer"]), 20)
+        with tempfile.TemporaryDirectory() as td:
+            prof = load_profile(None, "stub")
+            prof.mp3 = False
+            prof.fit_tolerance = 0.0
+            cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
+            self.assertEqual(cues["target_s"], 900)
+            self.assertAlmostEqual(cues["duration_s"], 900, delta=1.0, msg=cues["fit_scale"])
+            self.assertTrue(0.85 <= cues["fit_scale"] <= 1.25)
+            # speech untouched, every pause scaled by the same factor
+            answers = [c["dur"] for c in cues["segments"] if c["type"] == "pause" and c["role"] == "answer"]
+            expected = [round(s.duration * cues["fit_scale"], 2) for s in sc.segments if s.type == "pause" and s.role == "answer"]
+            for a, e in zip(answers, expected):
+                self.assertAlmostEqual(a, e, delta=0.02)
+
+    def test_fit_tolerance_leaves_pauses_alone_when_close(self):
+        learner, scripts = course(6, minutes=15)
+        sc = scripts[-1]
+        with tempfile.TemporaryDirectory() as td:
+            prof = load_profile(None, "stub")
+            prof.mp3 = False
+            prof.fit_tolerance = 600.0  # anything within ten minutes counts as on target
+            cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
+            self.assertEqual(cues["fit_scale"], 1.0)
+            prof.fit_tolerance = 30.0
+            cues2 = render_script(sc, prof, Path(td) / "m.wav", cache_dir=Path(td) / "c", progress=False)
+            self.assertLessEqual(abs(cues2["duration_s"] - 900), 31.0, cues2["fit_scale"])
+
+    def test_calibration_feeds_back_into_estimates(self):
+        learner = fresh()
+        learner.calibrate({"fr": 0.8, "en": 1.2})
+        self.assertAlmostEqual(learner.speech_calibration["fr"], 0.86)  # 1 - 0.7 + 0.7 × 0.8
+        learner.calibrate({"fr": 1.0})  # a spot-on render changes nothing
+        self.assertAlmostEqual(learner.speech_calibration["fr"], 0.86)
+        t = Timing(speech_ratio=learner.speech_calibration)
+        self.assertAlmostEqual(t.speech_estimate("Bonjour.", "fr"), Timing().speech_estimate("Bonjour.", "fr") * 0.86, places=1)
+
+    def test_short_lessons_still_introduce_something(self):
+        sc = build(fresh(), minutes=2)
+        self.assertGreaterEqual(len(sc.meta["new_items"]), 1)
 
     def test_parallel_warmup_gives_identical_output(self):
         from audiolesson.render.tts import StubProvider
@@ -403,6 +523,7 @@ class RenderTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             prof = load_profile(None, "stub")
             prof.mp3 = False
+            prof.fit = False
             seq = render_script(sc, prof, Path(td) / "a.wav", cache_dir=Path(td) / "ca", progress=False)
             StubProvider.parallel = True
             try:

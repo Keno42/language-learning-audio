@@ -1,0 +1,15 @@
+# Icelandic for English speakers — a three-month A1/A2 course in topic modules.
+# The loader merges every *.toml in this directory in filename order.
+#
+# Conventions (see docs/CURRICULUM.md "Languages with cases"):
+#   tags name the case a slot needs:  acc_*  nom_*  dat_*
+#   predicate adjectives for "Ég er …" are feminine (the learner voice is female);
+#   the masculine form is given in pronunciation_notes.
+#   Items marked with `difficulty = 4` get the backward build-up on introduction.
+# Written by an AI, not yet reviewed by a native speaker — see docs/HANDOFF.md.
+
+[curriculum]
+name = "Íslenska A1–A2 — 26 modules"
+target_lang = "is"
+known_lang = "en"
+level = "A1"

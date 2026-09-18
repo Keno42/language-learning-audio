@@ -1,0 +1,347 @@
+# 16 — home and living: rooms, things, house rules
+
+[[items]]
+id = "eldhusid"
+kind = "vocab"
+target = "eldhúsið"
+meaning = "the kitchen"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["home"]
+
+[[items]]
+id = "stofan"
+kind = "vocab"
+target = "stofan"
+meaning = "the living room"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["home"]
+
+[[items]]
+id = "badherbergid"
+kind = "vocab"
+target = "baðherbergið"
+meaning = "the bathroom"
+difficulty = 3
+tags = ["nom_place"]
+topics = ["home"]
+
+[[items]]
+id = "svefnherbergid"
+kind = "vocab"
+target = "svefnherbergið"
+meaning = "the bedroom"
+difficulty = 3
+tags = ["nom_place"]
+topics = ["home"]
+
+[[items]]
+id = "isskapurinn"
+kind = "vocab"
+target = "ísskápurinn"
+meaning = "the fridge"
+difficulty = 3
+tags = ["nom_place"]
+topics = ["home"]
+
+[[items]]
+id = "thvottavelin"
+kind = "vocab"
+target = "þvottavélin"
+meaning = "the washing machine"
+difficulty = 3
+tags = ["nom_place"]
+topics = ["home"]
+
+[[items]]
+id = "ruslid"
+kind = "vocab"
+target = "ruslið"
+meaning = "the rubbish (bin)"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["home"]
+
+[[items]]
+id = "lykillinn"
+kind = "vocab"
+target = "lykillinn"
+meaning = "the key"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["home", "accommodation"]
+
+[[items]]
+id = "rofinn"
+kind = "vocab"
+target = "rofinn"
+meaning = "the light switch"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["home"]
+
+[[items]]
+id = "ibud"
+kind = "vocab"
+target = "íbúð"
+meaning = "a flat"
+difficulty = 1
+topics = ["home"]
+
+[[items]]
+id = "hus"
+kind = "vocab"
+target = "hús"
+meaning = "a house"
+difficulty = 1
+topics = ["home"]
+
+[[items]]
+id = "rum"
+kind = "vocab"
+target = "rúm"
+meaning = "a bed"
+difficulty = 1
+topics = ["home"]
+
+[[items]]
+id = "bord"
+kind = "vocab"
+target = "borð"
+meaning = "a table"
+difficulty = 1
+topics = ["home"]
+
+[[items]]
+id = "stoll"
+kind = "vocab"
+target = "stóll"
+meaning = "a chair"
+difficulty = 1
+topics = ["home"]
+
+[[items]]
+id = "gluggi"
+kind = "vocab"
+target = "gluggi"
+meaning = "a window"
+difficulty = 1
+topics = ["home"]
+
+[[items]]
+id = "hurd"
+kind = "vocab"
+target = "hurð"
+meaning = "a door"
+difficulty = 1
+topics = ["home"]
+
+[[items]]
+id = "eg_by_i_ibud"
+kind = "phrase"
+target = "Ég bý í íbúð."
+meaning = "I live in a flat."
+difficulty = 2
+topics = ["home"]
+prereqs = ["ibud"]
+situation = "Anna asks whether you have a house. Say you live in a flat."
+
+[[items]]
+id = "ibudin_er_litil"
+kind = "phrase"
+target = "Íbúðin er lítil."
+meaning = "The flat is small."
+difficulty = 2
+topics = ["home"]
+prereqs = ["eg_by_i_ibud"]
+situation = "She asks how big it is. Say the flat is small."
+
+[[items]]
+id = "eg_leigi_ibud"
+kind = "phrase"
+target = "Ég leigi íbúð."
+meaning = "I rent a flat."
+difficulty = 2
+topics = ["home"]
+prereqs = ["ibud"]
+situation = "She asks if you own your place. Say you rent a flat."
+
+[[items]]
+id = "hvad_er_leigan_ha"
+kind = "phrase"
+target = "Hvað er leigan há?"
+meaning = "How high is the rent?"
+difficulty = 3
+topics = ["home", "money"]
+situation = "You're looking at a flat to rent. Ask how high the rent is."
+
+[[items]]
+id = "ma_eg_opna_gluggann"
+kind = "phrase"
+target = "Má ég opna gluggann?"
+meaning = "May I open the window?"
+difficulty = 3
+topics = ["home"]
+prereqs = ["gluggi"]
+situation = "The room is stuffy. Ask if you may open the window."
+
+[[items]]
+id = "ma_eg_loka_hurdinni"
+kind = "phrase"
+target = "Má ég loka hurðinni?"
+meaning = "May I close the door?"
+difficulty = 3
+topics = ["home"]
+prereqs = ["hurd"]
+situation = "There's a draught. Ask if you may close the door."
+
+[[items]]
+id = "ljosid_virkar_ekki"
+kind = "phrase"
+target = "Ljósið virkar ekki."
+meaning = "The light doesn't work."
+difficulty = 2
+topics = ["home"]
+situation = "You flip the switch and nothing happens. Tell your landlord."
+
+[[items]]
+id = "eg_er_heima"
+kind = "phrase"
+target = "Ég er heima."
+meaning = "I'm at home."
+difficulty = 1
+topics = ["home"]
+situation = "A friend texts asking where you are. Say you're at home."
+
+[[items]]
+id = "komdu_inn"
+kind = "phrase"
+target = "Komdu inn."
+meaning = "Come in."
+difficulty = 1
+topics = ["home"]
+situation = "A friend knocks. Tell her to come in."
+
+[[items]]
+id = "fardu_ur_skonum"
+kind = "phrase"
+target = "Farðu úr skónum."
+meaning = "Take your shoes off."
+difficulty = 3
+topics = ["home"]
+pronunciation_notes = "shoes off indoors is the rule in Icelandic homes, as in Japan"
+situation = "Your guest walks in with muddy boots. Tell him to take his shoes off."
+
+[[items]]
+id = "gerdu_thig_heimakomna"
+kind = "phrase"
+target = "Gerðu þig heimakomna."
+meaning = "Make yourself at home. (to a woman)"
+difficulty = 4
+topics = ["home"]
+pronunciation_notes = "to a man: Gerðu þig heimakominn."
+chunks = ["heimakomna", "þig heimakomna", "Gerðu þig heimakomna."]
+situation = "Anna has come to stay. Tell her to make herself at home."
+
+[[items]]
+id = "viltu_kaffi"
+kind = "phrase"
+target = "Viltu kaffi?"
+meaning = "Do you want coffee?"
+difficulty = 1
+topics = ["home", "cafe"]
+prereqs = ["kaffi"]
+situation = "Your guest sits down. Offer coffee."
+
+[[items]]
+id = "ja_takk"
+kind = "phrase"
+target = "Já, takk."
+meaning = "Yes, please."
+difficulty = 1
+topics = ["home", "cafe"]
+prereqs = ["ja", "takk"]
+situation = "You're offered coffee. Accept."
+
+[[items]]
+id = "nei_takk"
+kind = "phrase"
+target = "Nei, takk."
+meaning = "No, thanks."
+difficulty = 1
+topics = ["home", "cafe"]
+prereqs = ["nei", "takk"]
+situation = "You're offered a second slice of cake. Decline politely."
+
+[[items]]
+id = "hvar_er_klosettid_home"
+kind = "phrase"
+target = "Hvar er klósettið?"
+meaning = "Where is the toilet?"
+difficulty = 2
+topics = ["home", "directions"]
+prereqs = ["hvar_er", "klosettid"]
+situation = "You're at Anna's place for the first time. Ask where the toilet is."
+
+[[items]]
+id = "thad_er_i_isskapnum"
+kind = "phrase"
+target = "Það er í ísskápnum."
+meaning = "It's in the fridge."
+difficulty = 3
+topics = ["home"]
+prereqs = ["isskapurinn"]
+situation = "Your guest asks where the milk is. Say it's in the fridge."
+
+[[items]]
+id = "eg_tharf_ad_thrifa"
+kind = "phrase"
+target = "Ég þarf að þrífa."
+meaning = "I need to clean."
+difficulty = 2
+topics = ["home", "daily"]
+situation = "Guests are coming tomorrow. Say you need to clean."
+
+[[items]]
+id = "hvar_er_ruslid"
+kind = "phrase"
+target = "Hvar á ruslið að fara?"
+meaning = "Where does the rubbish go?"
+difficulty = 4
+topics = ["home"]
+prereqs = ["ruslid"]
+chunks = ["fara", "að fara", "ruslið að fara", "Hvar á ruslið að fara?"]
+situation = "You're staying at a friend's. Ask where the rubbish goes."
+
+[[items]]
+id = "heitt_vatn_er_okeypis"
+kind = "phrase"
+target = "Heita vatnið er næstum ókeypis."
+meaning = "The hot water is almost free."
+difficulty = 4
+topics = ["home", "nature"]
+chunks = ["ókeypis", "næstum ókeypis", "vatnið er næstum ókeypis", "Heita vatnið er næstum ókeypis."]
+situation = "Your visitor is amazed by the long showers. Explain the hot water is almost free."
+
+[[dialogues]]
+id = "heimsokn"
+setting = "You visit Anna's flat for the first time."
+topics = ["home"]
+requires = ["hae", "fardu_ur_skonum", "viltu_kaffi", "ja_takk", "hvar_er_klosettid_home", "thetta_er_person"]
+
+  [[dialogues.turns]]
+  opener = "Hæ, komdu inn!"
+  opener_meaning = "Hi, come in!"
+  cue = "Say hi. Then she says 'farðu úr skónum' — repeat what she'd say when you keep your shoes on."
+  expect_text = "Hæ! Farðu úr skónum."
+  expect_meaning = "Hi! Take your shoes off."
+  partner = "Nákvæmlega. Viltu kaffi?"
+  partner_meaning = "Exactly. Do you want coffee?"
+
+  [[dialogues.turns]]
+  cue = "Say yes, please, and ask where the toilet is."
+  expect_text = "Já, takk. Hvar er klósettið?"
+  expect_meaning = "Yes, please. Where is the toilet?"
+  partner = "Fyrsta hurð til vinstri."
+  partner_meaning = "First door on the left."

@@ -1,0 +1,330 @@
+# 22 — practical life: phone, internet, post, appointments, bureaucracy
+
+[[items]]
+id = "hvad_er_simanumerid_thitt"
+kind = "phrase"
+target = "Hvað er símanúmerið þitt?"
+meaning = "What's your phone number?"
+difficulty = 4
+topics = ["practical", "social"]
+chunks = ["þitt", "númerið þitt", "símanúmerið þitt", "Hvað er símanúmerið þitt?"]
+situation = "You want to stay in touch with Anna. Ask for her phone number."
+
+[[items]]
+id = "simanumerid_mitt_er"
+kind = "phrase"
+target = "Símanúmerið mitt er…"
+meaning = "My phone number is…"
+difficulty = 3
+topics = ["practical"]
+prereqs = ["hvad_er_simanumerid_thitt"]
+situation = "Give your number: start with 'my phone number is'."
+
+[[items]]
+id = "ma_eg_hringja"
+kind = "phrase"
+target = "Má ég hringja?"
+meaning = "May I make a call?"
+difficulty = 2
+topics = ["practical"]
+situation = "Your phone is dead. Ask the receptionist if you may make a call."
+
+[[items]]
+id = "eg_hringi_seinna"
+kind = "phrase"
+target = "Ég hringi seinna."
+meaning = "I'll call later."
+difficulty = 2
+topics = ["practical", "arrangements"]
+prereqs = ["seinna"]
+situation = "She's busy. Say you'll call later."
+
+[[items]]
+id = "geturdu_hringt_i_mig"
+kind = "phrase"
+target = "Geturðu hringt í mig?"
+meaning = "Can you call me?"
+difficulty = 3
+topics = ["practical"]
+situation = "You need to talk properly, not by text. Ask her to call you."
+
+[[items]]
+id = "eg_sendi_ther_skilabod"
+kind = "phrase"
+target = "Ég sendi þér skilaboð."
+meaning = "I'll send you a message."
+difficulty = 3
+topics = ["practical"]
+chunks = ["skilaboð", "þér skilaboð", "Ég sendi þér skilaboð."]
+situation = "You'll confirm the time later. Say you'll send a message."
+
+[[items]]
+id = "siminn_minn_er_daudur"
+kind = "phrase"
+target = "Síminn minn er dauður."
+meaning = "My phone is dead."
+difficulty = 3
+topics = ["practical"]
+situation = "Explain why you didn't answer: your phone is dead."
+
+[[items]]
+id = "attu_hledslutaeki"
+kind = "phrase"
+target = "Áttu hleðslutæki?"
+meaning = "Do you have a charger?"
+difficulty = 3
+topics = ["practical"]
+prereqs = ["attu", "hledslutaeki"]
+situation = "Ask the café staff if they have a charger."
+
+[[items]]
+id = "hvar_get_eg_hladid_simann"
+kind = "phrase"
+target = "Hvar get ég hlaðið símann?"
+meaning = "Where can I charge my phone?"
+difficulty = 4
+topics = ["practical"]
+chunks = ["símann", "hlaðið símann", "get ég hlaðið símann", "Hvar get ég hlaðið símann?"]
+situation = "Ask where you can charge your phone."
+
+[[items]]
+id = "netid_virkar_ekki"
+kind = "phrase"
+target = "Netið virkar ekki."
+meaning = "The internet doesn't work."
+difficulty = 2
+topics = ["practical"]
+situation = "Tell reception the internet doesn't work."
+
+[[items]]
+id = "hvad_er_netfangid_thitt"
+kind = "phrase"
+target = "Hvað er netfangið þitt?"
+meaning = "What's your email address?"
+difficulty = 3
+topics = ["practical"]
+chunks = ["þitt", "netfangið þitt", "Hvað er netfangið þitt?"]
+situation = "Ask a new contact for their email address."
+
+[[items]]
+id = "eg_tharf_simkort"
+kind = "phrase"
+target = "Ég þarf símkort."
+meaning = "I need a SIM card."
+difficulty = 2
+topics = ["practical", "shopping"]
+prereqs = ["eg_tharf"]
+situation = "At the phone shop. Say you need a SIM card."
+
+[[items]]
+id = "eg_vil_senda_thetta_til_japans"
+kind = "phrase"
+target = "Ég vil senda þetta til Japans."
+meaning = "I want to send this to Japan."
+difficulty = 4
+topics = ["practical"]
+chunks = ["Japans", "til Japans", "þetta til Japans", "Ég vil senda þetta til Japans."]
+situation = "At the post office with a parcel. Say you want to send it to Japan."
+
+[[items]]
+id = "hvad_kostar_ad_senda_thetta"
+kind = "phrase"
+target = "Hvað kostar að senda þetta?"
+meaning = "How much does it cost to send this?"
+difficulty = 3
+topics = ["practical", "money"]
+prereqs = ["hvad_kostar_thetta"]
+situation = "Ask how much it costs to send the parcel."
+
+[[items]]
+id = "eg_tharf_frimerki"
+kind = "phrase"
+target = "Ég þarf frímerki."
+meaning = "I need stamps."
+difficulty = 2
+topics = ["practical"]
+prereqs = ["eg_tharf"]
+situation = "You've written postcards. Say you need stamps."
+
+[[items]]
+id = "eg_a_tima_klukkan_tvo"
+kind = "phrase"
+target = "Ég á tíma klukkan tvö."
+meaning = "I have an appointment at two."
+difficulty = 3
+topics = ["practical", "time"]
+prereqs = ["klukkan_time", "tvo"]
+situation = "At the clinic reception. Say you have an appointment at two."
+
+[[items]]
+id = "get_eg_pantad_tima"
+kind = "phrase"
+target = "Get ég pantað tíma?"
+meaning = "Can I book an appointment?"
+difficulty = 3
+topics = ["practical"]
+situation = "Call the dentist. Ask if you can book an appointment."
+
+[[items]]
+id = "eg_tharf_ad_afpanta"
+kind = "phrase"
+target = "Ég þarf að afpanta."
+meaning = "I need to cancel."
+difficulty = 3
+topics = ["practical"]
+situation = "You can't make the appointment. Say you need to cancel."
+
+[[items]]
+id = "hvar_er_thjodskra"
+kind = "phrase"
+target = "Hvar fæ ég kennitölu?"
+meaning = "Where do I get an ID number (kennitala)?"
+difficulty = 4
+topics = ["practical"]
+chunks = ["kennitölu", "fæ ég kennitölu", "Hvar fæ ég kennitölu?"]
+situation = "Everything in Iceland needs a kennitala. Ask where you get one."
+
+[[items]]
+id = "hvad_er_kennitalan_thin"
+kind = "phrase"
+target = "Hvað er kennitalan þín?"
+meaning = "What's your ID number?"
+difficulty = 3
+topics = ["practical"]
+prereqs = ["hvar_er_thjodskra"]
+situation = "The clerk needs your number. Repeat the question she'd ask you."
+
+[[items]]
+id = "eg_er_ekki_med_kennitolu"
+kind = "phrase"
+target = "Ég er ekki með kennitölu."
+meaning = "I don't have an ID number."
+difficulty = 3
+topics = ["practical"]
+prereqs = ["hvar_er_thjodskra"]
+situation = "Tell the clerk you don't have a kennitala."
+
+[[items]]
+id = "hvar_skrifa_eg_undir"
+kind = "phrase"
+target = "Hvar skrifa ég undir?"
+meaning = "Where do I sign?"
+difficulty = 3
+topics = ["practical"]
+situation = "The contract is in front of you. Ask where you sign."
+
+[[items]]
+id = "eg_tharf_ad_fylla_ut_eydublad"
+kind = "phrase"
+target = "Ég þarf að fylla út eyðublað."
+meaning = "I need to fill in a form."
+difficulty = 4
+topics = ["practical"]
+chunks = ["eyðublað", "út eyðublað", "fylla út eyðublað", "Ég þarf að fylla út eyðublað."]
+situation = "Explain to your friend why you're at the office: you need to fill in a form."
+
+[[items]]
+id = "er_thetta_a_ensku"
+kind = "phrase"
+target = "Er þetta til á ensku?"
+meaning = "Is this available in English?"
+difficulty = 3
+topics = ["practical", "clarifying"]
+prereqs = ["ensku"]
+situation = "The form is only in Icelandic. Ask if it exists in English."
+
+[[items]]
+id = "hvar_er_bidrodin"
+kind = "phrase"
+target = "Hvar er röðin?"
+meaning = "Where is the queue?"
+difficulty = 2
+topics = ["practical"]
+situation = "Nobody seems to be queueing. Ask where the queue is."
+
+[[items]]
+id = "eg_er_naest"
+kind = "phrase"
+target = "Ég er næst."
+meaning = "I'm next."
+difficulty = 2
+topics = ["practical"]
+pronunciation_notes = "feminine; masculine: Ég er næstur."
+situation = "Someone tries to go before you. Say you're next."
+
+[[items]]
+id = "taktu_numer"
+kind = "phrase"
+target = "Taktu númer."
+meaning = "Take a number."
+difficulty = 2
+topics = ["practical"]
+situation = "A tourist walks straight to the counter. Tell him to take a number."
+
+[[items]]
+id = "hvad_er_klukkan_opnunartimi"
+kind = "phrase"
+target = "Hvað er opið lengi?"
+meaning = "How late is it open?"
+difficulty = 3
+topics = ["practical", "time"]
+prereqs = ["er_opid"]
+situation = "Ask how late the shop is open."
+
+[[items]]
+id = "siminn"
+kind = "vocab"
+target = "síminn"
+meaning = "the phone"
+difficulty = 1
+tags = ["nom_place"]
+topics = ["practical"]
+
+[[items]]
+id = "tolvan"
+kind = "vocab"
+target = "tölvan"
+meaning = "the computer"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["practical"]
+
+[[items]]
+id = "lykilordid"
+kind = "vocab"
+target = "lykilorðið"
+meaning = "the password"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["practical"]
+
+[[dialogues]]
+id = "simabud"
+setting = "At a phone shop."
+topics = ["practical"]
+requires = ["eg_tharf_simkort", "hvad_kostar_thetta", "eg_er_ekki_med_kennitolu", "allt_i_lagi", "takk"]
+
+  [[dialogues.turns]]
+  opener = "Hæ, get ég aðstoðað?"
+  opener_meaning = "Hi, can I help?"
+  cue = "Say you need a SIM card."
+  expect = "eg_tharf_simkort"
+  partner = "Ertu með kennitölu?"
+  partner_meaning = "Do you have a kennitala?"
+
+  [[dialogues.turns]]
+  cue = "Say you don't have a kennitala."
+  expect = "eg_er_ekki_med_kennitolu"
+  partner = "Ekkert mál, þá tekurðu frelsiskort. Vegabréf, takk."
+  partner_meaning = "No problem, then you take a prepaid card. Passport, please."
+
+  [[dialogues.turns]]
+  cue = "Ask how much it is."
+  expect = "hvad_kostar_thetta"
+  partner = "Tvö þúsund krónur með tíu gígabætum."
+  partner_meaning = "Two thousand krónur with ten gigabytes."
+
+  [[dialogues.turns]]
+  cue = "Say OK, and thank him."
+  expect_text = "Allt í lagi. Takk."
+  expect_meaning = "OK. Thanks."

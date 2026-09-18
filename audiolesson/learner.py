@@ -22,6 +22,7 @@ from .stages import ladder_for, next_stage, stage_index
 
 STATE_FORMAT = "audiolesson-learner/1"
 MAX_INTERVAL_DAYS = 180
+AUTO_STEP_EVERY = 3  # auto mode: lessons between pace increases
 
 
 @dataclass
@@ -54,6 +55,10 @@ class LearnerState:
     lessons: list[dict] = field(default_factory=list)  # lesson log
     pace: int | None = None  # new items per lesson, adjusted from feedback (None = default for the length)
     reported: list[int] = field(default_factory=list)  # lesson numbers the learner gave feedback on
+    feedback_mode: str = "manual"  # manual: pace rises only on `report`; auto: rises on its own every few lessons
+    pace_changed_at: int = 0  # lesson number of the last pace change (auto mode steps slowly)
+    speech_calibration: dict[str, float] = field(default_factory=dict)  # lang → measured/estimated TTS length
+    notes_heard: dict[str, int] = field(default_factory=dict)  # note id → times played
 
     # ---- queries ---------------------------------------------------------
 
@@ -92,6 +97,8 @@ class LearnerState:
         - the review backlog must fit: if items due exceed ~80% of the review slots, slow down
         - if the last reported lesson had >20% of its new items fail, slow down
         - speed up only on evidence: last lesson reported with ≤10% failures and a small backlog
+        - auto mode: an unreported lesson counts as "all good", but the pace steps up at most
+          once every AUTO_STEP_EVERY lessons; `report --failed` still slows it down
         """
         default = int(min(10, max(3, round(minutes / 5))))
         pace = self.pace or default
@@ -101,6 +108,10 @@ class LearnerState:
         review_slots = max(0, int(minutes * 60 / 16) - pace * 6)
         backlog_ratio = due / review_slots if review_slots else 1.0
         fb = self.last_lesson_failures()
+        auto_assumed = False
+        if fb is None and self.feedback_mode == "auto" and self.lessons:
+            fb = (0, len(self.lessons[-1].get("new_items", [])))
+            auto_assumed = True
         fail_rate = (fb[0] / fb[1]) if fb and fb[1] else None
         new_pace = pace
         if backlog_ratio > 0.8:
@@ -109,15 +120,28 @@ class LearnerState:
         if fail_rate is not None and fail_rate > 0.2:
             new_pace -= 1
             reasons.append(f"{fb[0]}/{fb[1]} new items failed last lesson")
+        last = self.lessons[-1] if self.lessons else None
+        if last and new_pace == pace and last.get("due_at_start", 0) >= 8 and last.get("due_not_fitted", 0) > 0.25 * last["due_at_start"]:
+            new_pace -= 1
+            reasons.append(f"{last['due_not_fitted']} of {last['due_at_start']} due reviews did not fit last lesson")
         if new_pace == pace and fail_rate is not None and fail_rate <= 0.1 and backlog_ratio < 0.5:
-            new_pace += 1
-            reasons.append(f"last lesson reported easy ({fb[0]}/{fb[1]} failed), backlog small")
-        if self.lessons and self.lessons[-1]["number"] not in self.reported:
-            reasons.append("no feedback for the last lesson (run `audiolesson report`) — not speeding up")
-        elif fb is not None and fb[1] == 0:
+            if not auto_assumed:
+                new_pace += 1
+                reasons.append(f"last lesson reported easy ({fb[0]}/{fb[1]} failed), backlog small")
+            elif self.lessons_completed - self.pace_changed_at >= AUTO_STEP_EVERY:
+                new_pace += 1
+                reasons.append(f"auto: {AUTO_STEP_EVERY} lessons without reported failures, backlog small")
+            else:
+                reasons.append(f"auto: next step after lesson {self.pace_changed_at + AUTO_STEP_EVERY}")
+        if auto_assumed and fb[1] == 0:
+            reasons.append("last lesson was review only")
+        elif self.feedback_mode != "auto" and self.lessons and self.lessons[-1]["number"] not in self.reported:
+            reasons.append("no feedback for the last lesson (run `audiolesson report`, or use --auto) — not speeding up")
+        elif fb is not None and fb[1] == 0 and not auto_assumed:
             reasons.append("last lesson was review only")
         new_pace = int(min(10, max(3, new_pace)))
         if new_pace != pace:
+            self.pace_changed_at = self.lessons_completed
             reasons.insert(0, f"pace {pace} → {new_pace}")
         else:
             reasons.insert(0, f"pace {pace}")
@@ -236,6 +260,17 @@ class LearnerState:
             changed["easy"].append(item_id)
         return changed
 
+    def calibrate(self, measured: dict[str, float], weight: float = 0.7) -> None:
+        """Fold a render's measured/planned speech ratios into the stored calibration.
+
+        The planned lengths already included the current calibration, so the measured
+        ratio is a *correction* to it: 1.0 means the plan was spot on.
+        """
+        for lang, ratio in measured.items():
+            old = self.speech_calibration.get(lang, 1.0)
+            new = old * ((1 - weight) + weight * ratio)
+            self.speech_calibration[lang] = round(min(3.0, max(0.3, new)), 3)
+
     # ---- I/O -------------------------------------------------------------
 
     def to_dict(self) -> dict:
@@ -250,6 +285,10 @@ class LearnerState:
             "lessons": self.lessons,
             "pace": self.pace,
             "reported": self.reported,
+            "feedback_mode": self.feedback_mode,
+            "pace_changed_at": self.pace_changed_at,
+            "speech_calibration": self.speech_calibration,
+            "notes_heard": self.notes_heard,
         }
 
     def save(self, path: str | Path) -> None:
@@ -269,6 +308,10 @@ class LearnerState:
             lessons=raw.get("lessons", []),
             pace=raw.get("pace"),
             reported=list(raw.get("reported", [])),
+            feedback_mode=raw.get("feedback_mode", "manual"),
+            pace_changed_at=int(raw.get("pace_changed_at", 0)),
+            speech_calibration=dict(raw.get("speech_calibration", {})),
+            notes_heard=dict(raw.get("notes_heard", {})),
         )
         ls.items = {k: ItemState(**v) for k, v in raw.get("items", {}).items()}
         return ls

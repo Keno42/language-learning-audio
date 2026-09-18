@@ -1,0 +1,357 @@
+# 11 — hotel, guesthouse, hostel
+
+[[items]]
+id = "eg_er_med_bokun"
+kind = "phrase"
+target = "Ég er með bókun."
+meaning = "I have a reservation."
+difficulty = 2
+topics = ["accommodation"]
+situation = "You arrive at the hotel reception. Say you have a reservation."
+
+[[items]]
+id = "a_nafninu_yuki"
+kind = "phrase"
+target = "Á nafninu Yuki."
+meaning = "Under the name Yuki."
+difficulty = 3
+topics = ["accommodation"]
+situation = "The receptionist asks what name the booking is under. Say: under the name Yuki."
+
+[[items]]
+id = "eg_a_pantad_herbergi"
+kind = "phrase"
+target = "Ég á pantað herbergi."
+meaning = "I have a room booked."
+difficulty = 3
+topics = ["accommodation"]
+chunks = ["herbergi", "pantað herbergi", "Ég á pantað herbergi."]
+situation = "The receptionist looks puzzled. Repeat that you have a room booked."
+
+[[items]]
+id = "hafid_thid_laust_herbergi"
+kind = "phrase"
+target = "Hafið þið laust herbergi?"
+meaning = "Do you have a room available?"
+difficulty = 4
+topics = ["accommodation"]
+chunks = ["herbergi", "laust herbergi", "þið laust herbergi", "Hafið þið laust herbergi?"]
+situation = "You walk into a guesthouse without a booking. Ask if they have a room."
+
+[[items]]
+id = "fyrir_eina_nott"
+kind = "vocab"
+target = "fyrir eina nótt"
+meaning = "for one night"
+difficulty = 2
+tags = ["stay"]
+topics = ["accommodation"]
+
+[[items]]
+id = "fyrir_tvaer_naetur"
+kind = "vocab"
+target = "fyrir tvær nætur"
+meaning = "for two nights"
+difficulty = 3
+tags = ["stay"]
+topics = ["accommodation"]
+
+[[items]]
+id = "fyrir_viku"
+kind = "vocab"
+target = "fyrir viku"
+meaning = "for a week"
+difficulty = 2
+tags = ["stay"]
+topics = ["accommodation"]
+
+[[items]]
+id = "eg_vil_herbergi"
+kind = "construction"
+target = "Ég vil herbergi {stay}."
+meaning = "I'd like a room {stay}."
+difficulty = 3
+topics = ["accommodation"]
+slots = { stay = "stay" }
+example = { stay = "fyrir_eina_nott" }
+prereqs = ["fyrir_eina_nott"]
+
+[[items]]
+id = "hvad_kostar_nottin"
+kind = "phrase"
+target = "Hvað kostar nóttin?"
+meaning = "How much is it per night?"
+difficulty = 3
+topics = ["accommodation", "money"]
+prereqs = ["hvad_kostar_thetta"]
+situation = "They have a room. Ask how much a night costs."
+
+[[items]]
+id = "er_morgunmatur_innifalinn"
+kind = "phrase"
+target = "Er morgunmatur innifalinn?"
+meaning = "Is breakfast included?"
+difficulty = 4
+topics = ["accommodation"]
+chunks = ["innifalinn", "morgunmatur innifalinn", "Er morgunmatur innifalinn?"]
+situation = "The price seems high. Ask if breakfast is included."
+
+[[items]]
+id = "hvenaer_er_morgunmatur"
+kind = "phrase"
+target = "Hvenær er morgunmatur?"
+meaning = "When is breakfast?"
+difficulty = 2
+topics = ["accommodation", "time"]
+prereqs = ["hvenaer"]
+situation = "You're checking in late. Ask when breakfast is."
+
+[[items]]
+id = "hvar_er_morgunmaturinn"
+kind = "phrase"
+target = "Hvar er morgunmaturinn?"
+meaning = "Where is breakfast served?"
+difficulty = 3
+topics = ["accommodation"]
+situation = "It's eight in the morning and you smell coffee. Ask where breakfast is."
+
+[[items]]
+id = "hvad_er_herbergisnumerid"
+kind = "phrase"
+target = "Hvað er herbergisnúmerið?"
+meaning = "What's the room number?"
+difficulty = 4
+topics = ["accommodation"]
+chunks = ["númerið", "herbergisnúmerið", "Hvað er herbergisnúmerið?"]
+situation = "You've been handed a key without a tag. Ask what the room number is."
+
+[[items]]
+id = "herbergi_numer_tolf"
+kind = "phrase"
+target = "Herbergi númer tólf."
+meaning = "Room number twelve."
+difficulty = 2
+topics = ["accommodation"]
+prereqs = ["tolf"]
+situation = "You call reception from your room. Say: room number twelve."
+
+[[items]]
+id = "get_eg_fengid_lykilinn"
+kind = "phrase"
+target = "Get ég fengið lykilinn?"
+meaning = "Can I have the key?"
+difficulty = 3
+topics = ["accommodation"]
+prereqs = ["get_eg_fengid"]
+situation = "You come back from dinner. Ask for the key."
+
+[[items]]
+id = "eg_tyndi_lyklinum"
+kind = "phrase"
+target = "Ég týndi lyklinum."
+meaning = "I lost the key."
+difficulty = 4
+topics = ["accommodation"]
+chunks = ["lyklinum", "týndi lyklinum", "Ég týndi lyklinum."]
+situation = "Your pockets are empty. Tell reception you lost the key."
+
+[[items]]
+id = "hvad_er_lykilordid"
+kind = "phrase"
+target = "Hvað er lykilorðið?"
+meaning = "What's the password?"
+difficulty = 3
+topics = ["accommodation", "practical"]
+chunks = ["orðið", "lykilorðið", "Hvað er lykilorðið?"]
+situation = "You want to connect to the Wi-Fi. Ask for the password."
+
+[[items]]
+id = "er_thradlaust_net"
+kind = "phrase"
+target = "Er þráðlaust net hérna?"
+meaning = "Is there Wi-Fi here?"
+difficulty = 4
+topics = ["accommodation", "practical"]
+chunks = ["hérna", "net hérna", "þráðlaust net hérna", "Er þráðlaust net hérna?"]
+situation = "You need to check your email. Ask if there's Wi-Fi."
+
+[[items]]
+id = "sturtan_virkar_ekki"
+kind = "phrase"
+target = "Sturtan virkar ekki."
+meaning = "The shower doesn't work."
+difficulty = 3
+topics = ["accommodation"]
+situation = "Only cold water comes out. Tell reception the shower doesn't work."
+
+[[items]]
+id = "thad_er_ekkert_heitt_vatn"
+kind = "phrase"
+target = "Það er ekkert heitt vatn."
+meaning = "There's no hot water."
+difficulty = 3
+topics = ["accommodation"]
+situation = "Ironic, in Iceland. Tell reception there's no hot water."
+
+[[items]]
+id = "thad_er_kalt_i_herberginu"
+kind = "phrase"
+target = "Það er kalt í herberginu."
+meaning = "It's cold in the room."
+difficulty = 3
+topics = ["accommodation"]
+prereqs = ["kalt"]
+situation = "The radiator is off. Tell reception it's cold in the room."
+
+[[items]]
+id = "get_eg_fengid_annad_handklaedi"
+kind = "phrase"
+target = "Get ég fengið annað handklæði?"
+meaning = "Can I have another towel?"
+difficulty = 4
+topics = ["accommodation"]
+prereqs = ["get_eg_fengid"]
+chunks = ["handklæði", "annað handklæði", "Get ég fengið annað handklæði?"]
+situation = "There's only one towel and you're two. Ask for another."
+
+[[items]]
+id = "hvenaer_er_utritun"
+kind = "phrase"
+target = "Hvenær er útritun?"
+meaning = "When is check-out?"
+difficulty = 3
+topics = ["accommodation", "time"]
+prereqs = ["hvenaer"]
+situation = "You're leaving tomorrow. Ask when check-out is."
+
+[[items]]
+id = "get_eg_geymt_toskuna_herna"
+kind = "phrase"
+target = "Get ég geymt töskuna hérna?"
+meaning = "Can I leave my bag here?"
+difficulty = 4
+topics = ["accommodation"]
+chunks = ["hérna", "töskuna hérna", "geymt töskuna hérna", "Get ég geymt töskuna hérna?"]
+situation = "You've checked out but your flight is at night. Ask if you can leave your bag."
+
+[[items]]
+id = "eg_er_ad_fara"
+kind = "phrase"
+target = "Ég er að fara."
+meaning = "I'm leaving."
+difficulty = 2
+topics = ["accommodation"]
+situation = "You put the key on the counter. Say you're leaving."
+
+[[items]]
+id = "takk_fyrir_dvolina"
+kind = "phrase"
+target = "Takk fyrir dvölina."
+meaning = "Thank you for the stay."
+difficulty = 3
+topics = ["accommodation"]
+chunks = ["dvölina", "fyrir dvölina", "Takk fyrir dvölina."]
+situation = "You're checking out of a lovely guesthouse. Thank them for the stay."
+
+[[items]]
+id = "herbergid"
+kind = "vocab"
+target = "herbergið"
+meaning = "the room"
+difficulty = 2
+tags = ["nom_item"]
+topics = ["accommodation"]
+
+[[items]]
+id = "lyftan"
+kind = "vocab"
+target = "lyftan"
+meaning = "the lift"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["accommodation"]
+
+[[items]]
+id = "morgunmaturinn"
+kind = "vocab"
+target = "morgunmaturinn"
+meaning = "breakfast (the)"
+difficulty = 3
+tags = ["nom_place"]
+topics = ["accommodation"]
+
+[[items]]
+id = "heiti_potturinn"
+kind = "vocab"
+target = "heiti potturinn"
+meaning = "the hot tub"
+difficulty = 3
+tags = ["nom_place"]
+topics = ["accommodation", "nature"]
+
+[[items]]
+id = "er_heitur_pottur_herna"
+kind = "phrase"
+target = "Er heitur pottur hérna?"
+meaning = "Is there a hot tub here?"
+difficulty = 3
+topics = ["accommodation"]
+situation = "It's a guesthouse in the countryside. Ask if there's a hot tub."
+
+[[dialogues]]
+id = "innritun"
+setting = "Evening, at the hotel reception. The receptionist looks up."
+topics = ["accommodation", "clarifying"]
+requires = ["talar_thu", "ensku", "eg_er_med_bokun", "a_nafninu_yuki", "er_morgunmatur_innifalinn", "hvad_er_lykilordid", "takk"]
+
+  [[dialogues.turns]]
+  opener = "Gott kvöld."
+  opener_meaning = "Good evening."
+  cue = "Say you have a reservation, under the name Yuki."
+  expect_text = "Ég er með bókun. Á nafninu Yuki."
+  expect_meaning = "I have a reservation. Under the name Yuki."
+  partner = "Já, hér er það. Tvær nætur, herbergi tólf."
+  partner_meaning = "Yes, here it is. Two nights, room twelve."
+
+  [[dialogues.turns]]
+  cue = "Ask if breakfast is included."
+  expect = "er_morgunmatur_innifalinn"
+  partner = "Já, frá sjö til tíu."
+  partner_meaning = "Yes, from seven to ten."
+
+  [[dialogues.turns]]
+  cue = "Ask what the Wi-Fi password is."
+  expect = "hvad_er_lykilordid"
+  partner = "Það stendur á lyklinum. Gjörðu svo vel."
+  partner_meaning = "It's written on the key. Here you are."
+
+  [[dialogues.turns]]
+  cue = "Thank her."
+  expect = "takk"
+  partner = "Góða nótt!"
+  partner_meaning = "Good night!"
+
+[[dialogues]]
+id = "vandamal"
+setting = "Next morning. You call reception from your room."
+topics = ["accommodation"]
+requires = ["herbergi_numer_tolf", "thad_er_ekkert_heitt_vatn", "get_eg_fengid_annad_handklaedi", "takk_kaerlega"]
+
+  [[dialogues.turns]]
+  opener = "Móttaka, góðan daginn."
+  opener_meaning = "Reception, good day."
+  cue = "Say: room number twelve. There's no hot water."
+  expect_text = "Herbergi númer tólf. Það er ekkert heitt vatn."
+  expect_meaning = "Room number twelve. There's no hot water."
+  partner = "Fyrirgefðu! Ég sendi einhvern strax."
+  partner_meaning = "Sorry! I'll send someone right away."
+
+  [[dialogues.turns]]
+  cue = "Also ask for another towel."
+  expect = "get_eg_fengid_annad_handklaedi"
+  partner = "Auðvitað, ekkert mál."
+  partner_meaning = "Of course, no problem."
+
+  [[dialogues.turns]]
+  cue = "Thank her warmly."
+  expect = "takk_kaerlega"

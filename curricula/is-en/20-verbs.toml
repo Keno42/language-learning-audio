@@ -1,0 +1,303 @@
+# 20 — verb forms: we / they / past tense, and the most useful verbs in context
+
+[[items]]
+id = "vid_erum"
+kind = "phrase"
+target = "Við erum frá Japan."
+meaning = "We're from Japan."
+difficulty = 2
+topics = ["grammar", "social"]
+prereqs = ["eg_er_fra_japan"]
+situation = "You're travelling with your sister. Say you're both from Japan."
+
+[[items]]
+id = "vid_tolum"
+kind = "phrase"
+target = "Við tölum japönsku."
+meaning = "We speak Japanese."
+difficulty = 2
+topics = ["grammar", "social"]
+prereqs = ["eg_tala", "japonsku"]
+situation = "Someone asks what language you two are speaking. Say you speak Japanese."
+
+[[items]]
+id = "vid_forum_a_morgun"
+kind = "phrase"
+target = "Við förum á morgun."
+meaning = "We're leaving tomorrow."
+difficulty = 2
+topics = ["grammar", "arrangements"]
+prereqs = ["eg_fer"]
+situation = "The host asks how long you're staying. Say you're leaving tomorrow."
+
+[[items]]
+id = "vid_viljum_bord"
+kind = "phrase"
+target = "Við viljum borð fyrir tvo."
+meaning = "We'd like a table for two."
+difficulty = 3
+topics = ["grammar", "cafe"]
+prereqs = ["bord_fyrir_tvo"]
+situation = "Say you two would like a table for two."
+
+[[items]]
+id = "thau_eru_vinir_minir"
+kind = "phrase"
+target = "Þau eru vinir mínir."
+meaning = "They are my friends."
+difficulty = 3
+topics = ["grammar", "social"]
+prereqs = ["vinur_minn"]
+situation = "Two people wave at you. Explain they're your friends."
+
+[[items]]
+id = "hun_talar_ensku"
+kind = "phrase"
+target = "Hún talar ensku."
+meaning = "She speaks English."
+difficulty = 2
+topics = ["grammar"]
+prereqs = ["eg_tala", "ensku"]
+situation = "The clerk doesn't understand you. Point at your friend: she speaks English."
+
+[[items]]
+id = "hann_kemur_seinna"
+kind = "phrase"
+target = "Hann kemur seinna."
+meaning = "He's coming later."
+difficulty = 2
+topics = ["grammar", "arrangements"]
+prereqs = ["seinna"]
+situation = "The host asks about your husband. Say he's coming later."
+
+[[items]]
+id = "transform_vid_form"
+kind = "transform"
+target = "Ég … → Við …"
+meaning = "saying it about 'we'"
+difficulty = 3
+topics = ["grammar"]
+instruction = "Say it about us: we…"
+prereqs = ["transform_thu_form"]
+examples = [
+  { source = "Ég fer á morgun.", source_meaning = "I'm leaving tomorrow.", result = "Við förum á morgun.", result_meaning = "We're leaving tomorrow." },
+  { source = "Ég er frá Japan.", source_meaning = "I'm from Japan.", result = "Við erum frá Japan.", result_meaning = "We're from Japan." },
+  { source = "Ég tala íslensku.", source_meaning = "I speak Icelandic.", result = "Við tölum íslensku.", result_meaning = "We speak Icelandic." },
+  { source = "Ég bý í Tókýó.", source_meaning = "I live in Tokyo.", result = "Við búum í Tókýó.", result_meaning = "We live in Tokyo." },
+  { source = "Ég vil kaffi.", source_meaning = "I want coffee.", result = "Við viljum kaffi.", result_meaning = "We want coffee." },
+  { source = "Ég skil.", source_meaning = "I understand.", result = "Við skiljum.", result_meaning = "We understand." },
+  { source = "Ég á bíl.", source_meaning = "I have a car.", result = "Við eigum bíl.", result_meaning = "We have a car." },
+]
+
+[[items]]
+id = "transform_past"
+kind = "transform"
+target = "present → past"
+meaning = "saying it happened yesterday"
+difficulty = 4
+topics = ["grammar"]
+instruction = "Say it in the past — yesterday:"
+prereqs = ["i_gaer", "transform_thu_form"]
+examples = [
+  { source = "Ég fer í sund.", source_meaning = "I go swimming.", result = "Ég fór í sund í gær.", result_meaning = "I went swimming yesterday." },
+  { source = "Ég er þreytt.", source_meaning = "I'm tired.", result = "Ég var þreytt í gær.", result_meaning = "I was tired yesterday." },
+  { source = "Ég borða fisk.", source_meaning = "I eat fish.", result = "Ég borðaði fisk í gær.", result_meaning = "I ate fish yesterday." },
+  { source = "Ég tala við Önnu.", source_meaning = "I talk to Anna.", result = "Ég talaði við Önnu í gær.", result_meaning = "I talked to Anna yesterday." },
+  { source = "Ég kem heim.", source_meaning = "I come home.", result = "Ég kom heim í gær.", result_meaning = "I came home yesterday." },
+  { source = "Ég sé norðurljósin.", source_meaning = "I see the northern lights.", result = "Ég sá norðurljósin í gær.", result_meaning = "I saw the northern lights yesterday." },
+  { source = "Ég kaupi peysu.", source_meaning = "I buy a sweater.", result = "Ég keypti peysu í gær.", result_meaning = "I bought a sweater yesterday." },
+  { source = "Ég vinn.", source_meaning = "I work.", result = "Ég vann í gær.", result_meaning = "I worked yesterday." },
+]
+
+[[items]]
+id = "eg_var_i_reykjavik_i_gaer"
+kind = "phrase"
+target = "Ég var í Reykjavík í gær."
+meaning = "I was in Reykjavík yesterday."
+difficulty = 3
+topics = ["grammar", "time"]
+prereqs = ["i_gaer"]
+situation = "Anna asks where you were yesterday. Say you were in Reykjavík."
+
+[[items]]
+id = "eg_for_i_sund_i_morgun"
+kind = "phrase"
+target = "Ég fór í sund í morgun."
+meaning = "I went swimming this morning."
+difficulty = 3
+topics = ["grammar", "daily"]
+prereqs = ["eg_fer_i_sund"]
+chunks = ["morgun", "í morgun", "sund í morgun", "Ég fór í sund í morgun."]
+situation = "Your hair is wet. Explain you went swimming this morning."
+
+[[items]]
+id = "eg_sa_norðurljósin"
+kind = "phrase"
+target = "Ég sá norðurljósin!"
+meaning = "I saw the northern lights!"
+difficulty = 3
+topics = ["grammar", "nature"]
+situation = "You burst in the next morning. Say you saw the northern lights."
+
+[[items]]
+id = "eg_keypti_peysu"
+kind = "phrase"
+target = "Ég keypti peysu."
+meaning = "I bought a sweater."
+difficulty = 2
+topics = ["grammar", "shopping"]
+prereqs = ["peysu"]
+situation = "You come back with a bag. Say you bought a sweater."
+
+[[items]]
+id = "eg_gleymdi"
+kind = "phrase"
+target = "Ég gleymdi."
+meaning = "I forgot."
+difficulty = 2
+topics = ["grammar"]
+situation = "You were supposed to bring the tickets. Admit you forgot."
+
+[[items]]
+id = "eg_gleymdi_lyklinum"
+kind = "phrase"
+target = "Ég gleymdi lyklinum."
+meaning = "I forgot the key."
+difficulty = 3
+topics = ["grammar", "accommodation"]
+prereqs = ["eg_gleymdi"]
+situation = "You're locked out. Tell reception you forgot the key."
+
+[[items]]
+id = "eg_mun_koma_aftur"
+kind = "phrase"
+target = "Ég kem aftur."
+meaning = "I'll come back."
+difficulty = 2
+topics = ["grammar", "social"]
+situation = "Leaving the guesthouse you loved. Say you'll come back."
+
+[[items]]
+id = "eg_hef_verid_her_adur"
+kind = "phrase"
+target = "Ég hef verið hér áður."
+meaning = "I have been here before."
+difficulty = 4
+topics = ["grammar", "social"]
+chunks = ["áður", "hér áður", "verið hér áður", "Ég hef verið hér áður."]
+situation = "The driver asks if it's your first time. Say you've been here before."
+
+[[items]]
+id = "eg_hef_aldrei_smakkad_thetta"
+kind = "phrase"
+target = "Ég hef aldrei smakkað þetta."
+meaning = "I've never tasted this."
+difficulty = 4
+topics = ["grammar", "food"]
+prereqs = ["aldrei"]
+chunks = ["þetta", "smakkað þetta", "aldrei smakkað þetta", "Ég hef aldrei smakkað þetta."]
+situation = "A plate of something unknown arrives. Say you've never tasted it."
+
+[[items]]
+id = "eg_get_thad"
+kind = "phrase"
+target = "Ég get það."
+meaning = "I can do that."
+difficulty = 1
+topics = ["grammar"]
+situation = "Someone asks if you can drive in the snow. Say you can."
+
+[[items]]
+id = "eg_get_thad_ekki"
+kind = "phrase"
+target = "Ég get það ekki."
+meaning = "I can't."
+difficulty = 2
+topics = ["grammar"]
+prereqs = ["eg_get_thad"]
+situation = "Someone asks you to sing. Say you can't."
+
+[[items]]
+id = "eg_verd_ad_fara"
+kind = "phrase"
+target = "Ég verð að fara."
+meaning = "I have to go."
+difficulty = 2
+topics = ["grammar", "greetings"]
+situation = "The conversation is nice but the bus is coming. Say you have to go."
+
+[[items]]
+id = "eg_a_ad_vinna"
+kind = "phrase"
+target = "Ég á að vinna á morgun."
+meaning = "I'm supposed to work tomorrow."
+difficulty = 3
+topics = ["grammar", "work"]
+prereqs = ["a_morgun"]
+situation = "Anna suggests a late night. Say you have to work tomorrow."
+
+[[items]]
+id = "eg_maetti_thad"
+kind = "phrase"
+target = "Má ég?"
+meaning = "May I?"
+difficulty = 1
+topics = ["grammar"]
+situation = "There's one kleina left. Ask if you may."
+
+[[items]]
+id = "thu_matt_thad"
+kind = "phrase"
+target = "Þú mátt það."
+meaning = "You may."
+difficulty = 2
+topics = ["grammar"]
+prereqs = ["eg_maetti_thad"]
+situation = "Your guest asks if he may open the window. Say he may."
+
+[[items]]
+id = "eg_er_ad_koma"
+kind = "phrase"
+target = "Ég er að koma!"
+meaning = "I'm coming!"
+difficulty = 1
+topics = ["grammar"]
+situation = "Someone calls you from the next room. Shout that you're coming."
+
+[[items]]
+id = "eg_er_ad_hugsa"
+kind = "phrase"
+target = "Ég er að hugsa."
+meaning = "I'm thinking."
+difficulty = 2
+topics = ["grammar"]
+situation = "The waiter waits for your order. Say you're thinking."
+
+[[items]]
+id = "eg_var_ad_borda"
+kind = "phrase"
+target = "Ég var að borða."
+meaning = "I was just eating. / I've just eaten."
+difficulty = 3
+topics = ["grammar", "food"]
+situation = "Anna offers lunch but you've just had some. Say you were just eating."
+
+[[items]]
+id = "eg_er_buin"
+kind = "phrase"
+target = "Ég er búin."
+meaning = "I'm done."
+difficulty = 2
+topics = ["grammar"]
+pronunciation_notes = "feminine; masculine: Ég er búinn."
+situation = "You've finished the form. Tell the clerk you're done."
+
+[[items]]
+id = "ertu_buin"
+kind = "phrase"
+target = "Ertu búin?"
+meaning = "Are you done? (to a woman)"
+difficulty = 2
+topics = ["grammar"]
+prereqs = ["eg_er_buin"]
+situation = "Your friend has been in the changing room a while. Ask if she's done."

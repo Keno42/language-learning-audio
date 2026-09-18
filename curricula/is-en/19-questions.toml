@@ -1,0 +1,358 @@
+# 19 — question words and small function words
+
+[[items]]
+id = "hvad"
+kind = "vocab"
+target = "hvað"
+meaning = "what"
+difficulty = 1
+topics = ["questions"]
+
+[[items]]
+id = "hver"
+kind = "vocab"
+target = "hver"
+meaning = "who"
+difficulty = 1
+topics = ["questions"]
+
+[[items]]
+id = "hvar"
+kind = "vocab"
+target = "hvar"
+meaning = "where"
+difficulty = 1
+topics = ["questions"]
+
+[[items]]
+id = "hvert"
+kind = "vocab"
+target = "hvert"
+meaning = "where to"
+difficulty = 2
+topics = ["questions"]
+
+[[items]]
+id = "hvernig"
+kind = "vocab"
+target = "hvernig"
+meaning = "how"
+difficulty = 1
+topics = ["questions"]
+
+[[items]]
+id = "af_hverju"
+kind = "vocab"
+target = "af hverju"
+meaning = "why"
+difficulty = 2
+topics = ["questions"]
+
+[[items]]
+id = "hvada"
+kind = "vocab"
+target = "hvaða"
+meaning = "which"
+difficulty = 2
+topics = ["questions"]
+
+[[items]]
+id = "hversu_mikid"
+kind = "vocab"
+target = "hversu mikið"
+meaning = "how much"
+difficulty = 2
+topics = ["questions"]
+
+[[items]]
+id = "hver_er_thetta"
+kind = "phrase"
+target = "Hver er þetta?"
+meaning = "Who is this?"
+difficulty = 2
+topics = ["questions"]
+prereqs = ["hver"]
+situation = "A stranger waves at your friend. Ask who that is."
+
+[[items]]
+id = "hver_ert_thu"
+kind = "phrase"
+target = "Hver ert þú?"
+meaning = "Who are you?"
+difficulty = 2
+topics = ["questions"]
+prereqs = ["hver"]
+situation = "Someone lets themselves into the shared flat. Ask who they are."
+
+[[items]]
+id = "hvert_ertu_ad_fara"
+kind = "phrase"
+target = "Hvert ertu að fara?"
+meaning = "Where are you going?"
+difficulty = 3
+topics = ["questions", "transport"]
+prereqs = ["hvert"]
+situation = "Your friend grabs her coat. Ask where she's going."
+
+[[items]]
+id = "hvert_fer_thessi_straeto"
+kind = "phrase"
+target = "Hvert fer þessi strætó?"
+meaning = "Where does this bus go?"
+difficulty = 3
+topics = ["questions", "transport"]
+prereqs = ["hvert", "strætó"]
+situation = "A bus without a sign stops. Ask where it goes."
+
+[[items]]
+id = "af_hverju_ekki"
+kind = "phrase"
+target = "Af hverju ekki?"
+meaning = "Why not?"
+difficulty = 2
+topics = ["questions", "discourse"]
+prereqs = ["af_hverju"]
+situation = "Your friend says she won't come to the pool. Ask why not."
+
+[[items]]
+id = "af_hverju_er_lokad"
+kind = "phrase"
+target = "Af hverju er lokað?"
+meaning = "Why is it closed?"
+difficulty = 3
+topics = ["questions"]
+prereqs = ["af_hverju", "thad_er_lokad"]
+situation = "The museum is closed on a Tuesday. Ask why."
+
+[[items]]
+id = "hvernig_virkar_thetta"
+kind = "phrase"
+target = "Hvernig virkar þetta?"
+meaning = "How does this work?"
+difficulty = 3
+topics = ["questions", "practical"]
+prereqs = ["hvernig"]
+situation = "The ticket machine has no English. Ask how it works."
+
+[[items]]
+id = "hvada_straeto_fer_i_midbaeinn"
+kind = "phrase"
+target = "Hvaða strætó fer í miðbæinn?"
+meaning = "Which bus goes to the centre?"
+difficulty = 4
+topics = ["questions", "transport"]
+prereqs = ["hvada", "fer_thessi_straeto_i_midbaeinn"]
+chunks = ["miðbæinn", "í miðbæinn", "fer í miðbæinn", "Hvaða strætó fer í miðbæinn?"]
+situation = "Several buses stop here. Ask which one goes to the centre."
+
+[[items]]
+id = "hvers_vegna"
+kind = "phrase"
+target = "Hvers vegna?"
+meaning = "Why? (formal)"
+difficulty = 2
+topics = ["questions"]
+prereqs = ["af_hverju"]
+situation = "The clerk refuses the form. Ask why, formally."
+
+[[items]]
+id = "hvad_er_ad"
+kind = "phrase"
+target = "Hvað er að?"
+meaning = "What's wrong?"
+difficulty = 2
+topics = ["questions", "feelings"]
+prereqs = ["hvad"]
+situation = "Your friend looks upset. Ask what's wrong."
+
+[[items]]
+id = "hvad_er_ad_frett"
+kind = "phrase"
+target = "Hvað er að frétta?"
+meaning = "What's new?"
+difficulty = 3
+topics = ["questions", "greetings"]
+prereqs = ["hvad_er_ad"]
+situation = "You meet a friend after two weeks. Ask what's new."
+
+[[items]]
+id = "ekkert_ad_fretta"
+kind = "phrase"
+target = "Ekkert að frétta."
+meaning = "Nothing new."
+difficulty = 2
+topics = ["questions", "greetings"]
+prereqs = ["hvad_er_ad_frett"]
+situation = "Someone asks what's new. Say nothing new."
+
+[[items]]
+id = "og"
+kind = "vocab"
+target = "og"
+meaning = "and"
+difficulty = 1
+topics = ["discourse"]
+
+[[items]]
+id = "en"
+kind = "vocab"
+target = "en"
+meaning = "but"
+difficulty = 1
+topics = ["discourse"]
+
+[[items]]
+id = "eda"
+kind = "vocab"
+target = "eða"
+meaning = "or"
+difficulty = 1
+topics = ["discourse"]
+
+[[items]]
+id = "af_thvi_ad"
+kind = "vocab"
+target = "af því að"
+meaning = "because"
+difficulty = 2
+topics = ["discourse"]
+
+[[items]]
+id = "lika"
+kind = "vocab"
+target = "líka"
+meaning = "also"
+difficulty = 1
+topics = ["discourse"]
+
+[[items]]
+id = "ekki"
+kind = "vocab"
+target = "ekki"
+meaning = "not"
+difficulty = 1
+topics = ["discourse", "grammar"]
+
+[[items]]
+id = "kannski"
+kind = "vocab"
+target = "kannski"
+meaning = "maybe"
+difficulty = 1
+topics = ["discourse"]
+
+[[items]]
+id = "bara"
+kind = "vocab"
+target = "bara"
+meaning = "just / only"
+difficulty = 1
+topics = ["discourse"]
+
+[[items]]
+id = "mjog"
+kind = "vocab"
+target = "mjög"
+meaning = "very"
+difficulty = 1
+topics = ["discourse"]
+
+[[items]]
+id = "svolitid"
+kind = "vocab"
+target = "svolítið"
+meaning = "a little"
+difficulty = 2
+topics = ["discourse"]
+
+[[items]]
+id = "of"
+kind = "vocab"
+target = "of"
+meaning = "too (excessively)"
+difficulty = 1
+topics = ["discourse"]
+
+[[items]]
+id = "med"
+kind = "vocab"
+target = "með"
+meaning = "with"
+difficulty = 1
+topics = ["discourse"]
+
+[[items]]
+id = "an"
+kind = "vocab"
+target = "án"
+meaning = "without"
+difficulty = 1
+topics = ["discourse"]
+
+[[items]]
+id = "kaffi_eda_te"
+kind = "phrase"
+target = "Kaffi eða te?"
+meaning = "Coffee or tea?"
+difficulty = 1
+topics = ["questions", "cafe"]
+prereqs = ["eda", "kaffi", "te"]
+situation = "Your guest sits down. Ask: coffee or tea?"
+
+[[items]]
+id = "eg_lika"
+kind = "phrase"
+target = "Ég líka."
+meaning = "Me too."
+difficulty = 1
+topics = ["discourse"]
+prereqs = ["lika"]
+situation = "Anna says she loves the pool. Say: me too."
+
+[[items]]
+id = "eg_ekki"
+kind = "phrase"
+target = "Ég ekki."
+meaning = "Not me."
+difficulty = 1
+topics = ["discourse"]
+prereqs = ["ekki"]
+situation = "Anna says she likes the shark. Say: not me."
+
+[[items]]
+id = "kannski_seinna"
+kind = "phrase"
+target = "Kannski seinna."
+meaning = "Maybe later."
+difficulty = 1
+topics = ["discourse", "arrangements"]
+prereqs = ["kannski", "seinna"]
+situation = "Someone suggests a swim now. Say maybe later."
+
+[[dialogues]]
+id = "spurningar"
+setting = "A child at the table asks you lots of questions."
+topics = ["questions", "social"]
+requires = ["eg_er_fra_japan", "eg_er_job", "forritari", "af_thvi_ad", "mer_finnst_island_fallegt", "eg_lika"]
+
+  [[dialogues.turns]]
+  opener = "Hvaðan ert þú?"
+  opener_meaning = "Where are you from?"
+  cue = "Say you're from Japan."
+  expect = "eg_er_fra_japan"
+  partner = "Hvað gerir þú?"
+  partner_meaning = "What do you do?"
+
+  [[dialogues.turns]]
+  cue = "Say you're a programmer."
+  expect_text = "Ég er forritari."
+  expect_meaning = "I'm a programmer."
+  partner = "Af hverju ertu á Íslandi?"
+  partner_meaning = "Why are you in Iceland?"
+
+  [[dialogues.turns]]
+  cue = "Say: because you think Iceland is beautiful."
+  expect_text = "Af því að mér finnst Ísland fallegt."
+  expect_meaning = "Because I think Iceland is beautiful."
+  partner = "Mér líka!"
+  partner_meaning = "Me too!"

@@ -1,0 +1,378 @@
+# 01 — greetings and politeness
+
+[[items]]
+id = "godan_daginn"
+kind = "phrase"
+target = "Góðan daginn."
+meaning = "Good day."
+difficulty = 2
+topics = ["greetings"]
+situation = "You walk into a bakery in the morning. Greet the person behind the counter."
+
+[[items]]
+id = "gott_kvold"
+kind = "phrase"
+target = "Gott kvöld."
+meaning = "Good evening."
+difficulty = 2
+topics = ["greetings"]
+situation = "You arrive at a restaurant at eight in the evening. Greet the host."
+
+[[items]]
+id = "goda_nott"
+kind = "phrase"
+target = "Góða nótt."
+meaning = "Good night."
+difficulty = 2
+topics = ["greetings"]
+situation = "You're going to bed at your host family's. Say good night."
+
+[[items]]
+id = "hae"
+kind = "phrase"
+target = "Hæ."
+meaning = "Hi."
+difficulty = 1
+topics = ["greetings"]
+situation = "A friend waves at you across the street. Greet them casually."
+
+[[items]]
+id = "hallo"
+kind = "phrase"
+target = "Halló."
+meaning = "Hello."
+difficulty = 1
+topics = ["greetings"]
+situation = "You answer the phone."
+
+[[items]]
+id = "bless"
+kind = "phrase"
+target = "Bless."
+meaning = "Bye."
+alternatives = ["Bless bless."]
+difficulty = 1
+topics = ["greetings"]
+situation = "You're leaving the shop. Say bye."
+
+[[items]]
+id = "takk"
+kind = "phrase"
+target = "Takk."
+meaning = "Thanks."
+alternatives = ["Takk fyrir."]
+difficulty = 1
+topics = ["greetings"]
+situation = "The barista hands you your coffee. Thank her."
+
+[[items]]
+id = "takk_kaerlega"
+kind = "phrase"
+target = "Takk kærlega."
+meaning = "Thanks a lot."
+difficulty = 2
+topics = ["greetings"]
+situation = "A stranger walked you all the way to the bus stop. Thank him warmly."
+
+[[items]]
+id = "ekkert_ad_thakka"
+kind = "phrase"
+target = "Ekkert að þakka."
+meaning = "You're welcome."
+difficulty = 2
+topics = ["greetings"]
+situation = "Someone thanks you for holding the door. Say you're welcome."
+
+[[items]]
+id = "ja"
+kind = "vocab"
+target = "Já."
+meaning = "Yes."
+difficulty = 1
+topics = ["greetings"]
+
+[[items]]
+id = "nei"
+kind = "vocab"
+target = "Nei."
+meaning = "No."
+difficulty = 1
+topics = ["greetings"]
+
+[[items]]
+id = "jaeja"
+kind = "phrase"
+target = "Jæja."
+meaning = "Well then. (the all-purpose Icelandic word)"
+difficulty = 1
+topics = ["greetings", "discourse"]
+situation = "The conversation has run its course and you want to signal it's time to go."
+
+[[items]]
+id = "afsakid"
+kind = "phrase"
+target = "Afsakið."
+meaning = "Excuse me."
+difficulty = 2
+topics = ["greetings", "directions"]
+situation = "You need to get a stranger's attention in the street."
+
+[[items]]
+id = "fyrirgefdu"
+kind = "phrase"
+target = "Fyrirgefðu."
+meaning = "Sorry."
+difficulty = 2
+topics = ["greetings"]
+situation = "You bumped into someone in the queue. Apologise."
+
+[[items]]
+id = "thvi_midur"
+kind = "phrase"
+target = "Því miður."
+meaning = "Unfortunately not. / I'm afraid so."
+difficulty = 2
+topics = ["greetings", "discourse"]
+situation = "Someone asks if you have change. You don't. Say so regretfully."
+
+[[items]]
+id = "hvad_segirdu_gott"
+kind = "phrase"
+target = "Hvað segirðu gott?"
+meaning = "How are you?"
+difficulty = 3
+topics = ["greetings", "social"]
+chunks = ["gott", "segirðu gott", "Hvað segirðu gott?"]
+situation = "You bump into your neighbour. Ask how she is."
+
+[[items]]
+id = "allt_gott"
+kind = "phrase"
+target = "Allt gott, takk."
+meaning = "All good, thanks."
+difficulty = 2
+topics = ["greetings", "social"]
+prereqs = ["takk"]
+situation = "Your neighbour asked how you are. Answer that all is good."
+
+[[items]]
+id = "en_thu"
+kind = "phrase"
+target = "En þú?"
+meaning = "And you?"
+difficulty = 1
+topics = ["social"]
+situation = "You've answered her question. Return it to her."
+
+[[items]]
+id = "hvernig_hefurdu_thad"
+kind = "phrase"
+target = "Hvernig hefurðu það?"
+meaning = "How are you doing?"
+difficulty = 3
+topics = ["greetings", "social"]
+chunks = ["það", "hefurðu það", "Hvernig hefurðu það?"]
+situation = "You meet a colleague you haven't seen for a week. Ask how she's doing."
+
+[[items]]
+id = "eg_hef_thad_gott"
+kind = "phrase"
+target = "Ég hef það gott."
+meaning = "I'm doing well."
+difficulty = 2
+topics = ["greetings", "social"]
+situation = "A colleague asks how you're doing. Say you're doing well."
+
+[[items]]
+id = "gaman_ad_sja_thig"
+kind = "phrase"
+target = "Gaman að sjá þig."
+meaning = "Nice to see you."
+difficulty = 3
+topics = ["greetings", "social"]
+situation = "An old acquaintance walks in. Say it's nice to see them."
+
+[[items]]
+id = "sjaumst"
+kind = "phrase"
+target = "Sjáumst!"
+meaning = "See you!"
+difficulty = 2
+topics = ["arrangements", "greetings"]
+situation = "You're parting with a friend you'll see again soon."
+
+[[items]]
+id = "sjaumst_seinna"
+kind = "phrase"
+target = "Sjáumst seinna!"
+meaning = "See you later!"
+difficulty = 2
+topics = ["greetings"]
+prereqs = ["sjaumst"]
+situation = "You're leaving the office for lunch and will be back."
+
+[[items]]
+id = "velkomin"
+kind = "phrase"
+target = "Velkomin."
+meaning = "Welcome."
+difficulty = 2
+topics = ["greetings"]
+situation = "Friends arrive at your door. Welcome them in."
+
+[[items]]
+id = "gjordu_svo_vel"
+kind = "phrase"
+target = "Gjörðu svo vel."
+meaning = "Here you are. / Go ahead."
+difficulty = 3
+topics = ["greetings", "cafe"]
+chunks = ["vel", "svo vel", "Gjörðu svo vel."]
+situation = "You hand your friend the salt she asked for."
+
+[[items]]
+id = "verdi_ther_ad_godu"
+kind = "phrase"
+target = "Verði þér að góðu."
+meaning = "Enjoy your meal. (also the reply to thanks for food)"
+difficulty = 4
+topics = ["greetings", "cafe"]
+chunks = ["góðu", "að góðu", "þér að góðu", "Verði þér að góðu."]
+situation = "You've served your guest a plate of food. Wish her a good meal."
+
+[[items]]
+id = "til_hamingju"
+kind = "phrase"
+target = "Til hamingju!"
+meaning = "Congratulations!"
+difficulty = 2
+topics = ["greetings", "social"]
+situation = "Your colleague just told you it's her birthday. Congratulate her."
+
+[[items]]
+id = "gangi_ther_vel"
+kind = "phrase"
+target = "Gangi þér vel!"
+meaning = "Good luck!"
+difficulty = 3
+topics = ["greetings", "social"]
+situation = "Your friend is off to a job interview. Wish him luck."
+
+[[items]]
+id = "eigdu_godan_dag"
+kind = "phrase"
+target = "Eigðu góðan dag."
+meaning = "Have a good day."
+difficulty = 3
+topics = ["greetings"]
+chunks = ["dag", "góðan dag", "Eigðu góðan dag."]
+situation = "You're leaving the shop after paying. Wish the cashier a good day."
+
+[[items]]
+id = "somuleidis"
+kind = "phrase"
+target = "Sömuleiðis."
+meaning = "Likewise. / Same to you."
+difficulty = 2
+topics = ["greetings"]
+situation = "The cashier wished you a good day. Wish her the same."
+
+[[items]]
+id = "skal"
+kind = "phrase"
+target = "Skál!"
+meaning = "Cheers!"
+difficulty = 1
+topics = ["greetings", "social"]
+situation = "Everyone raises their glass. Say cheers."
+
+[[items]]
+id = "allt_i_lagi"
+kind = "phrase"
+target = "Allt í lagi."
+meaning = "OK, fine."
+alternatives = ["Í lagi."]
+difficulty = 2
+topics = ["arrangements", "discourse"]
+situation = "She suggests seven o'clock. Agree."
+
+[[items]]
+id = "ekkert_mal"
+kind = "phrase"
+target = "Ekkert mál."
+meaning = "No problem."
+difficulty = 2
+topics = ["greetings", "discourse"]
+situation = "Someone apologises for being five minutes late. Tell them it's no problem."
+
+[[items]]
+id = "ha"
+kind = "phrase"
+target = "Ha?"
+meaning = "Sorry? (what did you say?)"
+difficulty = 1
+topics = ["clarifying"]
+situation = "Someone spoke too fast. Ask them to say it again, casually."
+
+[[items]]
+id = "eg_skil"
+kind = "phrase"
+target = "Ég skil."
+meaning = "I understand."
+difficulty = 1
+topics = ["clarifying"]
+situation = "The receptionist explained where breakfast is. Tell her you understand."
+
+[[items]]
+id = "eg_skil_ekki"
+kind = "phrase"
+target = "Ég skil ekki."
+meaning = "I don't understand."
+difficulty = 2
+topics = ["clarifying"]
+prereqs = ["eg_skil"]
+situation = "The man explained something quickly and you got lost. Tell him you don't understand."
+
+[[items]]
+id = "endilega"
+kind = "phrase"
+target = "Endilega."
+meaning = "Please do. / By all means."
+difficulty = 2
+topics = ["discourse"]
+situation = "Someone asks if they may sit at your table. Tell them by all means."
+
+[[items]]
+id = "audvitad"
+kind = "phrase"
+target = "Auðvitað."
+meaning = "Of course."
+difficulty = 2
+topics = ["discourse"]
+situation = "A friend asks if she can borrow your umbrella. Say of course."
+
+[[dialogues]]
+id = "nagranni"
+setting = "You meet your neighbour on the stairs in the morning."
+topics = ["greetings", "social"]
+requires = ["godan_daginn", "hvad_segirdu_gott", "allt_gott", "en_thu", "sjaumst"]
+
+  [[dialogues.turns]]
+  cue = "Greet her with good day and ask how she is."
+  expect_text = "Góðan daginn. Hvað segirðu gott?"
+  expect_meaning = "Good day. How are you?"
+  partner = "Allt fínt, takk. En þú?"
+  partner_meaning = "All fine, thanks. And you?"
+
+  [[dialogues.turns]]
+  cue = "Say all good, thanks."
+  expect = "allt_gott"
+  partner = "Gott að heyra. Jæja, ég verð að fara."
+  partner_meaning = "Good to hear. Well, I have to go."
+
+  [[dialogues.turns]]
+  cue = "Say OK, see you!"
+  expect_text = "Allt í lagi. Sjáumst!"
+  expect_meaning = "OK. See you!"
+  partner = "Sjáumst!"
+  partner_meaning = "See you!"

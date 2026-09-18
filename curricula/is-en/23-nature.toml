@@ -1,0 +1,375 @@
+# 23 — nature and Iceland: landscape, animals, the outdoors
+
+[[items]]
+id = "fjall"
+kind = "vocab"
+target = "fjall"
+meaning = "a mountain"
+difficulty = 1
+tags = ["nature_nom"]
+topics = ["nature"]
+
+[[items]]
+id = "jokull"
+kind = "vocab"
+target = "jökull"
+meaning = "a glacier"
+difficulty = 2
+tags = ["nature_nom"]
+topics = ["nature"]
+
+[[items]]
+id = "foss"
+kind = "vocab"
+target = "foss"
+meaning = "a waterfall"
+difficulty = 1
+tags = ["nature_nom"]
+topics = ["nature"]
+
+[[items]]
+id = "hver_spring"
+kind = "vocab"
+target = "heitur hver"
+meaning = "a hot spring"
+difficulty = 2
+tags = ["nature_nom"]
+topics = ["nature"]
+pronunciation_notes = "hver = hot spring; also the word for 'who'"
+
+[[items]]
+id = "eldfjall"
+kind = "vocab"
+target = "eldfjall"
+meaning = "a volcano"
+difficulty = 2
+tags = ["nature_nom"]
+topics = ["nature"]
+
+[[items]]
+id = "hraun"
+kind = "vocab"
+target = "hraun"
+meaning = "a lava field"
+difficulty = 1
+tags = ["nature_nom"]
+topics = ["nature"]
+
+[[items]]
+id = "strond"
+kind = "vocab"
+target = "strönd"
+meaning = "a beach"
+difficulty = 2
+tags = ["nature_nom"]
+topics = ["nature"]
+
+[[items]]
+id = "sjor"
+kind = "vocab"
+target = "sjór"
+meaning = "the sea"
+difficulty = 1
+tags = ["nature_nom"]
+topics = ["nature"]
+
+[[items]]
+id = "vatn_lake"
+kind = "vocab"
+target = "stöðuvatn"
+meaning = "a lake"
+difficulty = 3
+tags = ["nature_nom"]
+topics = ["nature"]
+
+[[items]]
+id = "a_river"
+kind = "vocab"
+target = "á"
+meaning = "a river"
+difficulty = 1
+tags = ["nature_nom"]
+topics = ["nature"]
+
+[[items]]
+id = "eyja"
+kind = "vocab"
+target = "eyja"
+meaning = "an island"
+difficulty = 1
+tags = ["nature_nom"]
+topics = ["nature"]
+
+[[items]]
+id = "nordurljos"
+kind = "vocab"
+target = "norðurljós"
+meaning = "northern lights"
+difficulty = 2
+tags = ["nature_nom"]
+topics = ["nature"]
+
+[[items]]
+id = "midnætursol"
+kind = "vocab"
+target = "miðnætursól"
+meaning = "midnight sun"
+difficulty = 3
+tags = ["nature_nom"]
+topics = ["nature"]
+
+[[items]]
+id = "lundi"
+kind = "vocab"
+target = "lundi"
+meaning = "a puffin"
+difficulty = 1
+tags = ["animal"]
+topics = ["nature"]
+
+[[items]]
+id = "hvalur"
+kind = "vocab"
+target = "hvalur"
+meaning = "a whale"
+difficulty = 1
+tags = ["animal"]
+topics = ["nature"]
+
+[[items]]
+id = "selur"
+kind = "vocab"
+target = "selur"
+meaning = "a seal"
+difficulty = 1
+tags = ["animal"]
+topics = ["nature"]
+
+[[items]]
+id = "hestur"
+kind = "vocab"
+target = "hestur"
+meaning = "a horse"
+difficulty = 1
+tags = ["animal"]
+topics = ["nature"]
+
+[[items]]
+id = "kind"
+kind = "vocab"
+target = "kind"
+meaning = "a sheep"
+difficulty = 1
+tags = ["animal"]
+topics = ["nature"]
+
+[[items]]
+id = "refur"
+kind = "vocab"
+target = "refur"
+meaning = "an arctic fox"
+difficulty = 2
+tags = ["animal"]
+topics = ["nature"]
+
+[[items]]
+id = "hundur"
+kind = "vocab"
+target = "hundur"
+meaning = "a dog"
+difficulty = 1
+tags = ["animal"]
+topics = ["nature"]
+
+[[items]]
+id = "kottur"
+kind = "vocab"
+target = "köttur"
+meaning = "a cat"
+difficulty = 1
+tags = ["animal"]
+topics = ["nature"]
+
+[[items]]
+id = "hvad_er_thetta_fjall"
+kind = "phrase"
+target = "Hvað heitir þetta fjall?"
+meaning = "What's this mountain called?"
+difficulty = 3
+topics = ["nature"]
+prereqs = ["fjall"]
+situation = "A perfect cone rises across the bay. Ask what the mountain is called."
+
+[[items]]
+id = "sjadu_hvalinn"
+kind = "phrase"
+target = "Sjáðu, hvalur!"
+meaning = "Look, a whale!"
+difficulty = 2
+topics = ["nature"]
+prereqs = ["hvalur"]
+situation = "A fin breaks the surface. Shout: look, a whale!"
+
+[[items]]
+id = "eg_vil_sja_lunda"
+kind = "phrase"
+target = "Ég vil sjá lunda."
+meaning = "I want to see puffins."
+difficulty = 2
+topics = ["nature"]
+prereqs = ["lundi"]
+situation = "The guide asks what you'd like to see. Say you want to see puffins."
+
+[[items]]
+id = "eg_vil_sja_nordurljosin"
+kind = "phrase"
+target = "Ég vil sjá norðurljósin."
+meaning = "I want to see the northern lights."
+difficulty = 3
+topics = ["nature"]
+prereqs = ["nordurljos"]
+situation = "Say you want to see the northern lights."
+
+[[items]]
+id = "er_haegt_ad_synda_herna"
+kind = "phrase"
+target = "Er hægt að synda hérna?"
+meaning = "Can one swim here?"
+difficulty = 3
+topics = ["nature"]
+prereqs = ["herna"]
+situation = "A steaming pool in the middle of nowhere. Ask if one can swim here."
+
+[[items]]
+id = "vatnid_er_heitt"
+kind = "phrase"
+target = "Vatnið er heitt."
+meaning = "The water is hot."
+difficulty = 2
+topics = ["nature"]
+prereqs = ["heitt"]
+situation = "You dip a toe in the spring. Say the water is hot."
+
+[[items]]
+id = "vatnid_er_iskalt"
+kind = "phrase"
+target = "Vatnið er ískalt."
+meaning = "The water is ice cold."
+difficulty = 2
+topics = ["nature"]
+prereqs = ["vatnid_er_heitt"]
+situation = "You dip a toe in the sea. Say the water is ice cold."
+
+[[items]]
+id = "hvad_er_langt_a_toppinn"
+kind = "phrase"
+target = "Hvað er langt á toppinn?"
+meaning = "How far is it to the top?"
+difficulty = 3
+topics = ["nature"]
+prereqs = ["hvad_er_langt_thangad"]
+situation = "Halfway up the mountain. Ask how far it is to the top."
+
+[[items]]
+id = "vid_gongum_upp"
+kind = "phrase"
+target = "Við göngum upp."
+meaning = "We'll walk up."
+difficulty = 2
+topics = ["nature"]
+situation = "Your friend eyes the chairlift. Say you'll walk up."
+
+[[items]]
+id = "utsynid_er_fallegt"
+kind = "phrase"
+target = "Útsýnið er fallegt."
+meaning = "The view is beautiful."
+difficulty = 3
+topics = ["nature"]
+prereqs = ["fallegt"]
+situation = "At the top, say the view is beautiful."
+
+[[items]]
+id = "farid_varlega_a_isnum"
+kind = "phrase"
+target = "Farið varlega á ísnum."
+meaning = "Be careful on the ice. (to several people)"
+difficulty = 4
+topics = ["nature", "emergencies"]
+chunks = ["ísnum", "á ísnum", "varlega á ísnum", "Farið varlega á ísnum."]
+situation = "You're leading a group onto the glacier. Tell them to be careful on the ice."
+
+[[items]]
+id = "ekki_fara_ut_af_stignum"
+kind = "phrase"
+target = "Ekki fara út af stígnum."
+meaning = "Don't leave the path."
+difficulty = 4
+topics = ["nature"]
+chunks = ["stígnum", "af stígnum", "út af stígnum", "Ekki fara út af stígnum."]
+situation = "Moss takes decades to regrow. Tell your friend not to leave the path."
+
+[[items]]
+id = "er_thetta_haettulegt"
+kind = "phrase"
+target = "Er þetta hættulegt?"
+meaning = "Is this dangerous?"
+difficulty = 3
+topics = ["nature", "emergencies"]
+prereqs = ["haett"]
+situation = "Waves are crashing over the black beach. Ask the guide if this is dangerous."
+
+[[items]]
+id = "eg_er_hraedd"
+kind = "phrase"
+target = "Ég er hrædd."
+meaning = "I'm scared."
+difficulty = 2
+topics = ["nature", "feelings"]
+pronunciation_notes = "feminine; masculine: Ég er hræddur."
+situation = "The bridge sways over the gorge. Admit you're scared."
+
+[[items]]
+id = "thad_er_gos"
+kind = "phrase"
+target = "Það er eldgos!"
+meaning = "There's an eruption!"
+difficulty = 3
+topics = ["nature"]
+situation = "The news shows a red glow on the peninsula. Say there's an eruption."
+
+[[items]]
+id = "eg_a_islenskan_hest"
+kind = "phrase"
+target = "Ég fór á hestbak."
+meaning = "I went horse riding."
+difficulty = 3
+topics = ["nature", "hobbies"]
+situation = "Anna asks what you did today. Say you went horse riding."
+
+[[dialogues]]
+id = "hvalaskodun"
+setting = "On a whale-watching boat. The guide walks past."
+topics = ["nature"]
+requires = ["hvad_er_langt_thangad", "eg_vil_sja_lunda", "sjadu_hvalinn", "thetta_er_alveg_frabaert", "mer_er_kalt"]
+
+  [[dialogues.turns]]
+  opener = "Velkomin um borð! Við siglum í tvo tíma."
+  opener_meaning = "Welcome aboard! We sail for two hours."
+  cue = "Say you want to see puffins."
+  expect = "eg_vil_sja_lunda"
+  partner = "Lundarnir eru á eyjunni þarna. Og sjáðu…"
+  partner_meaning = "The puffins are on the island there. And look…"
+
+  [[dialogues.turns]]
+  cue = "Shout: look, a whale!"
+  expect = "sjadu_hvalinn"
+  partner = "Hnúfubakur! Hvernig líst þér á?"
+  partner_meaning = "A humpback! What do you think?"
+
+  [[dialogues.turns]]
+  cue = "Say this is absolutely great — and that you're cold."
+  expect_text = "Þetta er alveg frábært. Mér er kalt."
+  expect_meaning = "This is absolutely great. I'm cold."
+  partner = "Hérna er teppi og heitt kakó."
+  partner_meaning = "Here's a blanket and hot chocolate."

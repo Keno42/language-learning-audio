@@ -68,29 +68,56 @@ Useful flags for `generate`: `-t cafe,directions` (prefer topics), `--new 4`
 One command a day; the tool decides how many new items to introduce.
 
 ```sh
-CURRICULUM=curricula/is-en-a1.toml LEARNER=learner-is.json PROFILE=profiles/edge-is-en.toml \
-MINUTES=30 OUT=lessons/is tools/daily.sh          # → lessons/is/lesson-NNN.mp3
+CURRICULUM=curricula/is-en LEARNER=learner-is.json PROFILE=profiles/edge-is-en.toml \
+MINUTES=30 OUT=lessons/is AUTO=1 tools/daily.sh   # → lessons/is/lesson-NNN.mp3
 
-# after listening (this is what allows the pace to go up):
+# after listening — optional in auto mode (AUTO=1), required for the pace to rise otherwise:
 audiolesson report -l learner-is.json                       # everything came out
 audiolesson report -l learner-is.json --failed takk,bless   # ids are in lesson-NNN.plan.json
-audiolesson status -l learner-is.json -c curricula/is-en-a1.toml
+audiolesson status -l learner-is.json -c curricula/is-en
 ```
 
 **Pacing rules** (`LearnerState.suggest_pace`), based on what spaced-retrieval
-research and Pimsleur-style courses converge on: about 6–10 productive items
-per 30 minutes, retrieval success around 80–85%.
+research and the established audio courses of the prompt–pause–answer type
+converge on: about 6–10 productive items per 30 minutes, retrieval success
+around 80–85%.
 
 - Start at one new item per 5 minutes (30 min → 6), clamped to 3–10.
 - If the last *reported* lesson had more than 20% of its new items fail, pace − 1.
 - If the items due for review exceed ~80% of the lesson's review slots, pace − 1.
 - Pace + 1 only on evidence: the last lesson was reported with ≤ 10% failures
-  and the backlog is small. Without `report`, the pace never rises.
+  and the backlog is small. In manual mode, without `report` the pace never rises.
+- **Auto mode** (`--auto`, persists; `AUTO=1` for `tools/daily.sh`): an unreported
+  lesson counts as "all good", and the pace steps up once every 3 lessons while
+  the backlog stays small. `report --failed …` still slows it down whenever you
+  bother to file one. `--manual` switches back.
 - `--new N` overrides one lesson; `--pace N` resets the ongoing pace.
 
-The first lessons are shorter than requested (there is nothing to review yet);
-`generate` says so. Review-only lessons, once a curriculum is exhausted, are
-shorter too rather than drilling everything twice.
+**Fixed length.** A lesson lands on the requested minutes (30:00 for `-m 30`)
+by three mechanisms, all automatic:
+
+1. *Calibration* — after every render the measured speech length per language
+   is folded into the learner state, so the next plan's time estimates match
+   the actual voices (espeak, edge and OpenAI all speak at different rates).
+2. *Second review pass* — if the material runs out before the time does, items
+   reviewed earlier in the lesson come back once more, one stage harder,
+   most urgent first.
+3. *Fit at render* — if the file would still miss the target by more than a
+   minute (`fit_tolerance`, default 60 s), every pause is scaled by one
+   factor within 0.85–1.25 (`fit`, `fit_min`, `fit_max` in the profile;
+   `--no-fit`, `--fit-tolerance`). Inside the tolerance, pauses stay exactly
+   as the timing model set them. Speech is never altered.
+
+**Cultural asides.** A curriculum can carry `[[notes]]`: short remarks in
+the learner's language (for the Icelandic course, written for someone from
+Japan — hot dogs and onigiri, pools and sentō, first names and -san). The
+planner plays one right after an exercise on a related item, at most one
+per 12 minutes, and uses them to fill a gap when there is nothing due; each
+note is heard at most once per lesson and least-heard first across lessons.
+
+The first few lessons still come out short: with nothing to review yet there
+is simply not 30 minutes of honest work, and `generate` says so rather than
+padding. From roughly lesson 5 on, the length is exact.
 
 ## How a lesson is built
 
@@ -141,10 +168,18 @@ See `docs/CURRICULUM.md`. Three curricula ship:
   small talk; 47 items, 4 dialogues.
 - `curricula/fr-ja-a1.toml` — the same material for Japanese speakers
   (日本語の指示でフランス語を学ぶ), derived by `tools/derive_fr_ja.py`.
-- `curricula/is-en-a1.toml` — Icelandic for English speakers, starter set:
-  61 items, 4 dialogues, nouns tagged by the case each construction needs.
-  About 8–10 days at the default pace; extend it before month one ends
-  (roughly 5–6 new items per day ≈ 450–500 items for three months).
+- `curricula/is-en/` — Icelandic for English speakers, **993 items, 31
+  dialogues and 45 cultural asides in 26 topic modules** (greetings, café, directions, self, time,
+  weather, numbers/money, shopping, transport, accommodation, health, family,
+  daily routine, hobbies, home, food, adjectives, question words, verb forms,
+  work, practical life, nature, discourse, travel, feelings). Nouns are tagged
+  by the case each construction needs. About five months at the default pace.
+  Written by an AI and not yet reviewed by a native speaker.
+- `curricula/is-en-a1.toml` — the 61-item starter the module set grew out of
+  (kept for quick tests).
+
+A curriculum can be one file or a directory of modules merged in filename
+order (`audiolesson validate curricula/is-en`).
 
 The instructor's own phrasing lives in `audiolesson/phrasing/<known_lang>.toml`
 (English and Japanese provided), so teaching to speakers of another language
@@ -169,7 +204,7 @@ audiolesson/
   script.py     the intermediate timed script + transcript
   render/       audio.py (PCM/ffmpeg), tts.py (providers), renderer.py (script → file)
   cli.py
-curricula/      *.toml learning material (fr-en, fr-ja, is-en)
+curricula/      learning material: fr-en, fr-ja (files), is-en/ (26 modules)
 tools/          daily.sh (one day of the routine), derive_fr_ja.py (keeps fr-ja in sync with fr-en)
 profiles/       voice profiles (provider + voice per speaker)
 tests/          python -m unittest
