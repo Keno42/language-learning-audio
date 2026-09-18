@@ -1,14 +1,60 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-18 (session 4: --user/--root wrapper)._ Keep this current: whoever picks the
-project up next, human or AI, should be able to continue from here without
-re-deriving decisions._
+_Last updated 2026-09-18 (session 5: halló pronunciation, pronunciation_notes wired to transcript)._
+Keep this current: whoever picks the project up next, human or AI, should be
+able to continue from here without re-deriving decisions._
+
+## Session 5: "halló" sounds like [hatlo] on edge-tts — is that wrong?
+
+The owner reported edge-tts's `is-IS-*` voices rendering "halló" with what
+sounded like a "t" in the middle. **Could not verify by ear in this sandbox**
+(the proxy still 403s the edge-tts websocket, same as every earlier session)
+— this is reasoned from Icelandic phonology and a cross-check, not confirmed
+by listening. Judgement call, not certainty:
+
+- Icelandic geminate `ll`/`nn` after a short stressed vowel is regularly
+  **pre-aspirated**: a brief voiceless click before the `l`/`n`. This is one
+  of the most-cited "gotchas" for learners precisely because spellings like
+  "halló" look identical to a word the learner already knows. It applies to
+  native words (fjall, gull, kalla) and, as far as I can tell, to this
+  fully-nativized loan interjection too.
+- Cross-checked with `espeak-ng -v is -x`: it renders `allt`, `fjall`, `gull`
+  as `…tl#` (the same "t + l" shape the owner heard), which matches the rule
+  — but it renders `halló` itself as plain `h'alloU`, *not* pre-aspirated.
+  That's the one data point against my read; I judged it more likely an
+  espeak-ng Icelandic-module gap (it is one of the thinner language modules)
+  than evidence that this specific word is an exception, but I could be
+  wrong, and said so rather than picking a side silently.
+- Consequence: **did not** try to force a different pronunciation. edge-tts's
+  public `Communicate(text=…)` API XML-escapes the input before building
+  SSML anyway (checked `edge_tts.communicate` source), so an SSML
+  `<phoneme>` hint isn't reachable through it without depending on
+  undocumented internals — and even if it were, overriding a *correct*
+  native pronunciation to match a learner's mistaken expectation would be
+  the wrong fix for a course whose whole point is training the ear.
+- What was actually fixed: `pronunciation_notes` was a documented-but-dead
+  field — `docs/CURRICULUM.md` said "for the transcript" but no code ever
+  rendered it (checked: zero references outside `content.py`'s own
+  definition). `Script.transcript()` now takes an optional
+  `{item_id: note}` dict (kept as a plain dict, not a `Curriculum`
+  reference, so `script.py` stays independent of `content.py`) and prints
+  each note once, under the first exercise that touches that item;
+  `cmd_generate` passes it. Added the note itself to `hallo`, and a spoken
+  `[[notes]]` aside (`tvo_l`, English+Japanese) tied to `hallo`/`fjall`/
+  `eldfjall`/`jokull` explaining the rule in plain terms, framed as "not a
+  bug" — that note is probabilistic like every other aside (may not fire in
+  a given lesson), so the transcript note is the reliable copy.
+- If a native speaker ever confirms "halló" is *not* pre-aspirated in
+  practice: delete the `pronunciation_notes` line on `hallo` and the `tvo_l`
+  note's mention of it (keep the note for fjall/gull/allt, which are not in
+  question), and consider whether the espeak-ng data point was right after
+  all.
 
 ## Status: working end to end
 
 `audiolesson generate` plans a lesson from a curriculum + learner state,
 writes a timed script/plan/transcript, renders audio through a pluggable TTS
-layer, and updates the learner model. 55 unit tests pass
+layer, and updates the learner model. 56 unit tests pass
 (`python -m unittest`). A 10-lesson simulated course on the sample French
 curriculum behaves as intended (new items reactivated at expanding gaps,
 reviews interleaved, dialogues and recombination appear once material is
