@@ -27,6 +27,7 @@ recombine = [
   "自分で組み立ててください。「{meaning}」。",
 ]
 recombine_vocab = "文の中で使ってください。「{meaning}」。"
+also = "こうも言えます。"
 
 construction_intro = "便利なパターンです。「{meaning}」。"
 construction_slot = "同じ場所に、ほかの言葉を入れることができます。"

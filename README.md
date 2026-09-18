@@ -105,11 +105,21 @@ difficulty, plus a bonus for generative prompts. Everything is a field of
 
 ## Writing a curriculum
 
-See `docs/CURRICULUM.md`. The sample `curricula/fr-en-a1.toml` covers café,
-street, hotel and small talk with 47 items and 4 dialogues. The instructor's
-own phrasing lives in `audiolesson/phrasing/<known_lang>.toml` (English and Japanese
-provided) so the same curriculum can be taught to speakers of another
-language by translating the `meaning`/`situation`/`cue` strings.
+See `docs/CURRICULUM.md`. Two curricula ship:
+
+- `curricula/fr-en-a1.toml` — French for English speakers: café, street, hotel,
+  small talk; 47 items, 4 dialogues.
+- `curricula/fr-ja-a1.toml` — the same material for Japanese speakers
+  (日本語の指示でフランス語を学ぶ), derived by `tools/derive_fr_ja.py`.
+
+The instructor's own phrasing lives in `audiolesson/phrasing/<known_lang>.toml`
+(English and Japanese provided), so teaching to speakers of another language
+means translating that one file plus the `meaning`/`situation`/`cue` strings
+of a curriculum.
+
+```sh
+audiolesson generate -c curricula/fr-ja-a1.toml -l watashi.json -m 15 -p profiles/edge-fr-ja.toml
+```
 
 ## Layout
 
@@ -125,7 +135,8 @@ audiolesson/
   script.py     the intermediate timed script + transcript
   render/       audio.py (PCM/ffmpeg), tts.py (providers), renderer.py (script → file)
   cli.py
-curricula/      *.toml learning material
+curricula/      *.toml learning material (fr-en, fr-ja)
+tools/          derive_fr_ja.py — keeps the Japanese curriculum in sync with the English one
 profiles/       voice profiles (provider + voice per speaker)
 tests/          python -m unittest
 docs/           HANDOFF.md (status + next steps), CURRICULUM.md (format)

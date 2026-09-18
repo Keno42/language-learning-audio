@@ -60,7 +60,9 @@ class Builder:
     def _m(self, meaning: str) -> str:
         """Meaning text ready to drop into a template: ends with punctuation."""
         meaning = meaning.strip()
-        if self.kl.split("-")[0] in ("ja", "zh", "ko") or meaning[-1:] in ".?!…":
+        if self.kl.split("-")[0] in ("ja", "zh", "ko"):
+            return meaning.rstrip("。")  # the phrasing templates wrap it in 「」
+        if meaning[-1:] in ".?!…":
             return meaning
         return meaning + "."
 
@@ -248,8 +250,21 @@ class Builder:
         if stage in ("cloze", "hinted") or item.difficulty >= 4:
             self._repeat_pause(sc, ex, target)
             self._answer(sc, ex, target)
+        self._maybe_alternative(sc, ex, item, stage)
         self._gap(sc, ex)
         return ex
+
+    def _maybe_alternative(self, sc: Script, ex: Exercise, item: Item, stage: str) -> None:
+        """Once an item is past the hint stages, sometimes mention another acceptable answer."""
+        if not item.alternatives or stage in ("intro", "cloze", "hinted"):
+            return
+        key = item.id + ":alt"
+        if key in self.used_examples or self.rng.random() > 0.5:
+            return
+        self.used_examples.add(key)
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("also"))
+        self._speak(sc, ex, self.rng.choice(item.alternatives), role="alternative")
 
     def _recall_construction(self, sc: Script, item: Item, stage: str) -> Exercise:
         """Recall of a construction always goes through a filled example."""

@@ -214,6 +214,29 @@ class CourseTests(unittest.TestCase):
             self.assertEqual(back.to_dict(), learner.to_dict())
 
 
+class JapaneseInstructorTests(unittest.TestCase):
+    def test_fr_ja_curriculum_builds_a_lesson_in_japanese(self):
+        cur = load_curriculum(ROOT / "curricula" / "fr-ja-a1.toml")
+        en = load_curriculum(CURRICULUM)
+        self.assertEqual([i.id for i in cur.items], [i.id for i in en.items], "derived curriculum must keep ids in sync")
+        learner = LearnerState("fr", "ja", "A1")
+        sc = Planner(cur, learner, Prompts.load("ja"), Timing(level="A1"), PlanConfig(minutes=5, seed=1), today=TODAY).build()
+        narr = [s.text for s in sc.segments if s.type == "narrate"]
+        self.assertTrue(all(any(ord(ch) > 0x3000 for ch in n) for n in narr), "every instructor line should be Japanese")
+        self.assertNotIn("。」", "".join(narr))
+        answers = [s.text for s in sc.segments if s.type == "answer"]
+        self.assertTrue(answers and all(ord(a[0]) < 0x3000 for a in answers), "answers stay in French")
+
+    def test_alternatives_are_sometimes_spoken(self):
+        learner, scripts = course(8)
+        alts = [s for sc in scripts for s in sc.segments if s.role == "alternative"]
+        self.assertTrue(alts, "an alternative answer should be spoken at least once over a course")
+        for sc in scripts:
+            for i, s in enumerate(sc.segments):
+                if s.role == "alternative":
+                    self.assertEqual(sc.segments[i - 1].type, "narrate")
+
+
 class TimingTests(unittest.TestCase):
     def test_pause_grows_with_length_and_level(self):
         t = Timing(level="A2")

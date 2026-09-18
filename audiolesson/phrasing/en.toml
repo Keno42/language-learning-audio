@@ -28,6 +28,7 @@ recombine = [
   "Put it together yourself. Say: {meaning}",
 ]
 recombine_vocab = "Use it in a sentence. Say: {meaning}"
+also = "You could also say:"
 
 construction_intro = "Here is a useful pattern. {meaning}"
 construction_slot = "You can put other words in the same place."
