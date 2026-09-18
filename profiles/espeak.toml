@@ -1,0 +1,10 @@
+# Offline check profile: robotic but needs nothing but espeak-ng.
+provider = "espeak"
+pause_multiplier = 1.0
+mp3 = true
+# Voices are espeak-ng voice names; "+f3" / "+m3" pick a female/male variant.
+# Omit a speaker to let the provider choose a default for the language.
+[speakers]
+instructor = { voice = "en-us" }
+native_a = { voice = "fr-fr+f3" }
+native_b = { voice = "fr-fr+m3" }

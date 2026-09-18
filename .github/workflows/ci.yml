@@ -1,0 +1,16 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: sudo apt-get update && sudo apt-get install -y -qq espeak-ng ffmpeg
+      - run: python -m unittest -v
+      - name: smoke lesson with espeak
+        run: |
+          python -m audiolesson.cli generate -c curricula/fr-en-a1.toml -l /tmp/l.json -m 3 --profile profiles/espeak.toml --date 2026-01-01
+          python -m audiolesson.cli generate -c curricula/fr-ja-a1.toml -l /tmp/j.json -m 3 --provider espeak --date 2026-01-01

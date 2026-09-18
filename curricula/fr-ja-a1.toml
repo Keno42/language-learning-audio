@@ -1,0 +1,594 @@
+# French for Japanese speakers — derived from fr-en-a1.toml (same ids, same structure).
+# Regenerate with: python tools/derive_fr_ja.py
+
+[curriculum]
+name = "フランス語 A1 — カフェ・道・ホテル"
+target_lang = "fr"
+known_lang = "ja"
+level = "A1"
+
+[[items]]
+id = "bonjour"
+kind = "phrase"
+target = "Bonjour."
+meaning = "こんにちは。"
+difficulty = 1
+topics = ["greetings"]
+situation = "朝、パン屋に入ります。店員にあいさつしてください。"
+
+[[items]]
+id = "merci"
+kind = "phrase"
+target = "Merci."
+meaning = "ありがとう。"
+difficulty = 1
+topics = ["greetings"]
+situation = "ウェイターがコーヒーを持ってきました。お礼を言ってください。"
+
+[[items]]
+id = "sil_vous_plait"
+kind = "phrase"
+target = "S'il vous plaît."
+meaning = "お願いします。"
+difficulty = 3
+topics = ["greetings", "cafe"]
+chunks = ["plaît", "vous plaît", "S'il vous plaît."]
+
+[[items]]
+id = "au_revoir"
+kind = "phrase"
+target = "Au revoir."
+meaning = "さようなら。"
+difficulty = 2
+topics = ["greetings"]
+situation = "お店を出ます。別れのあいさつをしてください。"
+
+[[items]]
+id = "oui"
+kind = "vocab"
+target = "Oui."
+meaning = "はい。"
+difficulty = 1
+topics = ["greetings"]
+
+[[items]]
+id = "non"
+kind = "vocab"
+target = "Non."
+meaning = "いいえ。"
+difficulty = 1
+topics = ["greetings"]
+
+[[items]]
+id = "excusez_moi"
+kind = "phrase"
+target = "Excusez-moi."
+meaning = "すみません。"
+difficulty = 2
+topics = ["greetings", "directions"]
+situation = "道で知らない人に声をかけたいです。"
+
+[[items]]
+id = "un_cafe"
+kind = "vocab"
+target = "un café"
+meaning = "コーヒー"
+difficulty = 1
+tags = ["orderable", "drink"]
+topics = ["cafe"]
+
+[[items]]
+id = "je_voudrais"
+kind = "construction"
+target = "Je voudrais {thing}."
+meaning = "{thing}をください。"
+difficulty = 2
+topics = ["cafe"]
+prereqs = ["un_cafe"]
+components = ["un_cafe"]
+slots = { thing = "orderable" }
+example = { thing = "un_cafe" }
+
+[[items]]
+id = "un_the"
+kind = "vocab"
+target = "un thé"
+meaning = "紅茶"
+difficulty = 1
+tags = ["orderable", "drink"]
+topics = ["cafe"]
+
+[[items]]
+id = "de_l_eau"
+kind = "vocab"
+target = "de l'eau"
+meaning = "お水"
+difficulty = 2
+tags = ["orderable"]
+topics = ["cafe"]
+
+[[items]]
+id = "un_croissant"
+kind = "vocab"
+target = "un croissant"
+meaning = "クロワッサン"
+difficulty = 1
+tags = ["orderable"]
+topics = ["cafe"]
+
+[[items]]
+id = "une_biere"
+kind = "vocab"
+target = "une bière"
+meaning = "ビール"
+difficulty = 1
+tags = ["orderable"]
+topics = ["cafe"]
+
+[[items]]
+id = "avec_du_lait"
+kind = "vocab"
+target = "avec du lait"
+meaning = "ミルク入り"
+difficulty = 2
+tags = ["addon"]
+topics = ["cafe"]
+
+[[items]]
+id = "sans_sucre"
+kind = "vocab"
+target = "sans sucre"
+meaning = "砂糖なし"
+difficulty = 2
+tags = ["addon"]
+topics = ["cafe"]
+
+[[items]]
+id = "je_voudrais_addon"
+kind = "construction"
+target = "Je voudrais {thing} {addon}."
+meaning = "{thing}を{addon}でください。"
+difficulty = 3
+topics = ["cafe"]
+prereqs = ["je_voudrais", "avec_du_lait"]
+components = ["je_voudrais", "un_cafe", "avec_du_lait"]
+slots = { thing = "drink", addon = "addon" }
+example = { thing = "un_cafe", addon = "avec_du_lait" }
+
+[[items]]
+id = "c_est_combien"
+kind = "phrase"
+target = "C'est combien ?"
+meaning = "いくらですか？"
+difficulty = 2
+topics = ["cafe"]
+situation = "クロワッサンの値段を知りたいです。"
+
+[[items]]
+id = "l_addition"
+kind = "phrase"
+target = "L'addition, s'il vous plaît."
+meaning = "お会計をお願いします。"
+difficulty = 3
+topics = ["cafe"]
+prereqs = ["sil_vous_plait"]
+components = ["sil_vous_plait"]
+chunks = ["s'il vous plaît", "L'addition, s'il vous plaît."]
+situation = "食事が終わりました。お会計を頼んでください。"
+
+[[items]]
+id = "cette_place_est_libre"
+kind = "phrase"
+target = "Cette place est libre ?"
+meaning = "この席、空いていますか？"
+difficulty = 3
+topics = ["cafe", "social"]
+chunks = ["libre", "est libre", "place est libre", "Cette place est libre ?"]
+situation = "カフェで誰かに会いました。この席が空いているか聞いてください。"
+
+[[items]]
+id = "pardon"
+kind = "phrase"
+target = "Pardon ?"
+meaning = "えっ、何ですか？"
+difficulty = 1
+topics = ["clarifying"]
+situation = "相手が早口で聞き取れませんでした。聞き返してください。"
+alternatives = ["Comment ?"]
+
+[[items]]
+id = "parlez_vous_anglais"
+kind = "phrase"
+target = "Parlez-vous anglais ?"
+meaning = "英語を話せますか？"
+difficulty = 3
+topics = ["clarifying"]
+chunks = ["anglais", "vous anglais", "Parlez-vous anglais ?"]
+situation = "受付の人に通じているか不安です。英語を話せるか聞いてください。"
+
+[[items]]
+id = "je_ne_comprends_pas"
+kind = "phrase"
+target = "Je ne comprends pas."
+meaning = "わかりません。"
+difficulty = 3
+topics = ["clarifying"]
+chunks = ["pas", "comprends pas", "ne comprends pas", "Je ne comprends pas."]
+situation = "ウェイターがメニューを説明しましたが、わかりませんでした。そう伝えてください。"
+
+[[items]]
+id = "plus_lentement"
+kind = "phrase"
+target = "Plus lentement, s'il vous plaît."
+meaning = "もっとゆっくりお願いします。"
+difficulty = 3
+topics = ["clarifying"]
+prereqs = ["sil_vous_plait"]
+components = ["sil_vous_plait"]
+chunks = ["s'il vous plaît", "lentement, s'il vous plaît", "Plus lentement, s'il vous plaît."]
+situation = "男性の道案内が速すぎます。もっとゆっくり話すよう頼んでください。"
+
+[[items]]
+id = "la_gare"
+kind = "vocab"
+target = "la gare"
+meaning = "駅"
+difficulty = 1
+tags = ["place"]
+topics = ["directions"]
+
+[[items]]
+id = "ou_est"
+kind = "construction"
+target = "Où est {place} ?"
+meaning = "{place}はどこですか？"
+difficulty = 2
+topics = ["directions"]
+prereqs = ["la_gare"]
+components = ["la_gare"]
+slots = { place = "place" }
+example = { place = "la_gare" }
+
+[[items]]
+id = "le_metro"
+kind = "vocab"
+target = "le métro"
+meaning = "地下鉄"
+difficulty = 1
+tags = ["place"]
+topics = ["directions"]
+
+[[items]]
+id = "ou_sont_les_toilettes"
+kind = "phrase"
+target = "Où sont les toilettes ?"
+meaning = "トイレはどこですか？"
+difficulty = 2
+topics = ["directions"]
+prereqs = ["ou_est"]
+situation = "レストランでトイレに行きたいです。場所を聞いてください。"
+
+[[items]]
+id = "l_hotel"
+kind = "vocab"
+target = "l'hôtel"
+meaning = "ホテル"
+difficulty = 1
+tags = ["place"]
+topics = ["directions", "hotel"]
+
+[[items]]
+id = "la_pharmacie"
+kind = "vocab"
+target = "la pharmacie"
+meaning = "薬局"
+difficulty = 2
+tags = ["place"]
+topics = ["directions"]
+
+[[items]]
+id = "a_gauche"
+kind = "vocab"
+target = "à gauche"
+meaning = "左"
+difficulty = 1
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "a_droite"
+kind = "vocab"
+target = "à droite"
+meaning = "右"
+difficulty = 1
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "tout_droit"
+kind = "vocab"
+target = "tout droit"
+meaning = "まっすぐ"
+difficulty = 2
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "c_est_direction"
+kind = "construction"
+target = "C'est {direction}."
+meaning = "{direction}です。"
+difficulty = 2
+topics = ["directions"]
+prereqs = ["a_gauche", "a_droite"]
+components = ["a_gauche"]
+slots = { direction = "direction" }
+example = { direction = "a_gauche" }
+
+[[items]]
+id = "c_est_loin"
+kind = "phrase"
+target = "C'est loin ?"
+meaning = "遠いですか？"
+difficulty = 2
+topics = ["directions"]
+situation = "受付の人が道を教えてくれました。遠いか聞いてください。"
+
+[[items]]
+id = "je_viens_du_japon"
+kind = "phrase"
+target = "Je viens du Japon."
+meaning = "日本から来ました。"
+difficulty = 3
+topics = ["social"]
+chunks = ["Japon", "du Japon", "viens du Japon", "Je viens du Japon."]
+situation = "どこから来たか聞かれました。日本から来たと答えてください。"
+
+[[items]]
+id = "je_suis_en_vacances"
+kind = "phrase"
+target = "Je suis en vacances."
+meaning = "休暇中です。"
+difficulty = 3
+topics = ["social"]
+chunks = ["vacances", "en vacances", "Je suis en vacances."]
+situation = "仕事で来たのか聞かれました。休暇中だと答えてください。"
+
+[[items]]
+id = "enchante"
+kind = "phrase"
+target = "Enchanté."
+meaning = "はじめまして。"
+difficulty = 2
+topics = ["social"]
+situation = "ホストが友人を紹介してくれました。はじめましてと言ってください。"
+
+[[items]]
+id = "vous_etes_d_ou"
+kind = "phrase"
+target = "Vous êtes d'où ?"
+meaning = "どちらから来ましたか？"
+difficulty = 3
+topics = ["social"]
+chunks = ["d'où", "êtes d'où", "Vous êtes d'où ?"]
+situation = "日本から来たと伝えました。相手にどこから来たか聞いてください。"
+
+[[items]]
+id = "et_vous"
+kind = "phrase"
+target = "Et vous ?"
+meaning = "あなたは？"
+difficulty = 1
+topics = ["social"]
+situation = "質問に答えました。同じ質問を返してください。"
+
+[[items]]
+id = "demain"
+kind = "vocab"
+target = "demain"
+meaning = "明日"
+difficulty = 1
+tags = ["time"]
+topics = ["arrangements"]
+
+[[items]]
+id = "ce_soir"
+kind = "vocab"
+target = "ce soir"
+meaning = "今晩"
+difficulty = 1
+tags = ["time"]
+topics = ["arrangements"]
+
+[[items]]
+id = "aujourd_hui"
+kind = "vocab"
+target = "aujourd'hui"
+meaning = "今日"
+difficulty = 2
+tags = ["time"]
+topics = ["arrangements"]
+
+[[items]]
+id = "je_pars"
+kind = "construction"
+target = "Je pars {time}."
+meaning = "{time}出発します。"
+difficulty = 2
+topics = ["arrangements", "hotel"]
+prereqs = ["demain"]
+components = ["demain"]
+slots = { time = "time" }
+example = { time = "demain" }
+
+[[items]]
+id = "a_quelle_heure"
+kind = "phrase"
+target = "À quelle heure ?"
+meaning = "何時に？"
+difficulty = 2
+topics = ["arrangements"]
+situation = "夕食に誘われました。何時か聞いてください。"
+
+[[items]]
+id = "d_accord"
+kind = "phrase"
+target = "D'accord."
+meaning = "わかりました。"
+difficulty = 1
+topics = ["arrangements"]
+situation = "8時を提案されました。承諾してください。"
+alternatives = ["Très bien."]
+
+[[items]]
+id = "a_demain"
+kind = "phrase"
+target = "À demain !"
+meaning = "また明日！"
+difficulty = 1
+topics = ["arrangements"]
+prereqs = ["demain"]
+components = ["demain"]
+situation = "明日会う約束をして、別れるところです。"
+
+[[items]]
+id = "negation"
+kind = "transform"
+target = "ne … pas"
+meaning = "否定文にする"
+difficulty = 3
+topics = ["grammar"]
+prereqs = ["je_ne_comprends_pas", "c_est_loin"]
+instruction = "否定文にしてください。"
+examples = [
+  { source = "Je comprends.", source_meaning = "わかります。", result = "Je ne comprends pas.", result_meaning = "わかりません。" },
+  { source = "Je parle anglais.", source_meaning = "英語を話します。", result = "Je ne parle pas anglais.", result_meaning = "英語を話しません。" },
+  { source = "C'est loin.", source_meaning = "遠いです。", result = "Ce n'est pas loin.", result_meaning = "遠くないです。" },
+  { source = "Je suis en vacances.", source_meaning = "休暇中です。", result = "Je ne suis pas en vacances.", result_meaning = "休暇中ではありません。" },
+  { source = "Je pars demain.", source_meaning = "明日出発します。", result = "Je ne pars pas demain.", result_meaning = "明日は出発しません。" },
+]
+
+[[dialogues]]
+id = "cafe_seat"
+setting = "カフェにいます。女性が座っているテーブルに、空いている椅子が一つあります。"
+topics = ["cafe", "social"]
+requires = ["je_suis_en_vacances", "oui"]
+
+  [[dialogues.turns]]
+  cue = "この席が空いているか聞いてください。"
+  expect = "cette_place_est_libre"
+  partner = "Oui, bien sûr. Vous êtes d'où ?"
+  partner_meaning = "はい、どうぞ。どちらから来ましたか？"
+
+  [[dialogues.turns]]
+  cue = "日本から来たと伝えてください。"
+  expect = "je_viens_du_japon"
+  partner = "Ah, le Japon ! Vous êtes en vacances ?"
+  partner_meaning = "ああ、日本！休暇ですか？"
+
+  [[dialogues.turns]]
+  cue = "はい、休暇中だと答えてください。"
+  expect_text = "Oui, je suis en vacances."
+  expect_meaning = "はい、休暇中です。"
+  partner = "Bienvenue à Paris !"
+  partner_meaning = "パリへようこそ！"
+
+  [[dialogues.turns]]
+  cue = "お礼を言ってください。"
+  expect = "merci"
+
+[[dialogues]]
+id = "cafe_order"
+setting = "ウェイターがテーブルに来ました。"
+topics = ["cafe"]
+requires = ["bonjour", "je_voudrais", "un_cafe", "sil_vous_plait", "non", "merci", "au_revoir"]
+
+  [[dialogues.turns]]
+  opener = "Bonjour. Vous désirez ?"
+  opener_meaning = "こんにちは。ご注文は？"
+  cue = "あいさつして、コーヒーを注文してください。"
+  expect_text = "Bonjour. Je voudrais un café, s'il vous plaît."
+  expect_meaning = "こんにちは。コーヒーをください。"
+  partner = "Avec du lait ?"
+  partner_meaning = "ミルクは入れますか？"
+
+  [[dialogues.turns]]
+  cue = "「いいえ、結構です」と言ってください。"
+  expect_text = "Non, merci."
+  expect_meaning = "いいえ、結構です。"
+  partner = "Très bien."
+  partner_meaning = "かしこまりました。"
+
+  [[dialogues.turns]]
+  cue = "しばらくして。お会計を頼んでください。"
+  expect = "l_addition"
+  partner = "Voilà. Quatre euros."
+  partner_meaning = "どうぞ。4ユーロです。"
+
+  [[dialogues.turns]]
+  cue = "お礼を言って、別れのあいさつをしてください。"
+  expect_text = "Merci. Au revoir."
+  expect_meaning = "ありがとう。さようなら。"
+
+[[dialogues]]
+id = "street_directions"
+setting = "道に迷いました。男性が通りかかります。"
+topics = ["directions", "clarifying"]
+requires = ["excusez_moi", "ou_est", "le_metro"]
+
+  [[dialogues.turns]]
+  cue = "声をかけて、地下鉄はどこか聞いてください。"
+  expect_text = "Excusez-moi, où est le métro ?"
+  expect_meaning = "すみません、地下鉄はどこですか？"
+  partner = "Le métro ? C'est tout droit, puis à gauche."
+  partner_meaning = "地下鉄？まっすぐ行って、それから左です。"
+
+  [[dialogues.turns]]
+  cue = "聞き取れませんでした。もっとゆっくり話すよう頼んでください。"
+  expect = "plus_lentement"
+  partner = "Tout droit… puis à gauche."
+  partner_meaning = "まっすぐ…それから左。"
+
+  [[dialogues.turns]]
+  cue = "遠いか聞いてください。"
+  expect = "c_est_loin"
+  partner = "Non, cinq minutes."
+  partner_meaning = "いいえ、5分です。"
+
+  [[dialogues.turns]]
+  cue = "お礼を言ってください。"
+  expect = "merci"
+
+[[dialogues]]
+id = "hotel_reception"
+setting = "夜、ホテルの受付です。受付の人が顔を上げます。"
+topics = ["hotel", "arrangements", "clarifying"]
+requires = ["je_pars", "demain", "merci", "au_revoir"]
+
+  [[dialogues.turns]]
+  opener = "Bonsoir."
+  opener_meaning = "こんばんは。"
+  cue = "英語を話せるか聞いてください。"
+  expect = "parlez_vous_anglais"
+  partner = "Un peu. Vous partez quand ?"
+  partner_meaning = "少し。いつ出発しますか？"
+
+  [[dialogues.turns]]
+  cue = "明日出発すると言ってください。"
+  expect_text = "Je pars demain."
+  expect_meaning = "明日出発します。"
+  partner = "D'accord. Le taxi est à huit heures, ça va ?"
+  partner_meaning = "わかりました。タクシーは8時ですが、いいですか？"
+
+  [[dialogues.turns]]
+  cue = "わからないと言ってください。"
+  expect = "je_ne_comprends_pas"
+  partner = "Le taxi… demain… huit heures."
+  partner_meaning = "タクシー…明日…8時。"
+
+  [[dialogues.turns]]
+  cue = "わかりましたと言って、お礼を言ってください。"
+  expect_text = "D'accord. Merci."
+  expect_meaning = "わかりました。ありがとう。"
+  partner = "Bonne soirée !"
+  partner_meaning = "良い夜を！"
