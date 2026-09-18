@@ -350,6 +350,35 @@ class PacingTests(unittest.TestCase):
         first = learner.lessons[0]["new_items"][0]
         self.assertGreaterEqual(learner.items[first].interval_days, 7)
 
+    def test_auto_mode_steps_up_every_few_lessons_without_reports(self):
+        learner = fresh()
+        learner.feedback_mode = "auto"
+        day = TODAY
+        paces = []
+        for _ in range(8):
+            pace, why = learner.suggest_pace(30, day)
+            paces.append(pace)
+            sc = build(learner, 30, today=day, new_items=pace)
+            apply_to_learner(sc, learner, day)
+            learner.pace = pace
+            day += timedelta(days=1)
+        self.assertEqual(paces[:3], [6, 6, 6], paces)  # first step only after 3 completed lessons
+        self.assertEqual(paces[3], 7, paces)
+        self.assertEqual(paces[6], 8, paces)
+
+    def test_auto_mode_still_slows_on_reported_failures(self):
+        learner = fresh()
+        learner.feedback_mode = "auto"
+        day = TODAY
+        pace, _ = learner.suggest_pace(30, day)
+        sc = build(learner, 30, today=day, new_items=pace)
+        apply_to_learner(sc, learner, day)
+        learner.pace = pace
+        new = sc.meta["new_items"]
+        learner.report(new[: len(new) // 2], [], day)
+        pace2, why = learner.suggest_pace(30, day + timedelta(days=1))
+        self.assertEqual(pace2, 5, why)
+
     def test_report_defaults_to_latest_lesson(self):
         learner, scripts = course(2)
         changed = learner.report([], [], TODAY)

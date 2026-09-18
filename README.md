@@ -71,7 +71,7 @@ One command a day; the tool decides how many new items to introduce.
 CURRICULUM=curricula/is-en-a1.toml LEARNER=learner-is.json PROFILE=profiles/edge-is-en.toml \
 MINUTES=30 OUT=lessons/is tools/daily.sh          # → lessons/is/lesson-NNN.mp3
 
-# after listening (this is what allows the pace to go up):
+# after listening — optional in auto mode (AUTO=1), required for the pace to rise otherwise:
 audiolesson report -l learner-is.json                       # everything came out
 audiolesson report -l learner-is.json --failed takk,bless   # ids are in lesson-NNN.plan.json
 audiolesson status -l learner-is.json -c curricula/is-en-a1.toml
@@ -85,7 +85,11 @@ per 30 minutes, retrieval success around 80–85%.
 - If the last *reported* lesson had more than 20% of its new items fail, pace − 1.
 - If the items due for review exceed ~80% of the lesson's review slots, pace − 1.
 - Pace + 1 only on evidence: the last lesson was reported with ≤ 10% failures
-  and the backlog is small. Without `report`, the pace never rises.
+  and the backlog is small. In manual mode, without `report` the pace never rises.
+- **Auto mode** (`--auto`, persists; `AUTO=1` for `tools/daily.sh`): an unreported
+  lesson counts as "all good", and the pace steps up once every 3 lessons while
+  the backlog stays small. `report --failed …` still slows it down whenever you
+  bother to file one. `--manual` switches back.
 - `--new N` overrides one lesson; `--pace N` resets the ongoing pace.
 
 The first lessons are shorter than requested (there is nothing to review yet);

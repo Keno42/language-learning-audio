@@ -28,6 +28,8 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--minutes", "-m", type=float, default=15.0)
     g.add_argument("--new", type=int, default=None, help="new items to introduce this lesson (default: the learner's pace, see README 'Pacing')")
     g.add_argument("--pace", type=int, default=None, help="set the learner's ongoing pace (new items per lesson) before planning")
+    g.add_argument("--auto", action="store_true", help="auto mode (persists): pace rises on its own every few lessons; `report --failed` still slows it")
+    g.add_argument("--manual", action="store_true", help="back to manual mode (persists): pace rises only after `report`")
     g.add_argument("--topics", "-t", default="", help="comma-separated topics to prefer")
     g.add_argument("--level", default=None, help="learner level for pause lengths: A0 A1 A2 B1 B2 (default: from learner state)")
     g.add_argument("--seed", type=int, default=None)
@@ -94,8 +96,13 @@ def cmd_generate(args) -> int:
     today = parse_date(args.date)
     timing = Timing(level=level).with_overrides(global_pause_multiplier=args.pause_multiplier)
     prompts = Prompts.load(cur.known_lang)
+    if args.auto:
+        learner.feedback_mode = "auto"
+    if args.manual:
+        learner.feedback_mode = "manual"
     if args.pace is not None:
         learner.pace = args.pace
+        learner.pace_changed_at = learner.lessons_completed
     if args.new is not None:
         new_items, why = args.new, f"--new {args.new}"
     else:
@@ -232,9 +239,9 @@ def cmd_status(args) -> int:
     if learner.lessons:
         trend = " ".join(str(l.get("due_at_start", "?")) for l in learner.lessons[-8:])
         carried = " ".join(str(l.get("due_not_fitted", "?")) for l in learner.lessons[-8:])
-        print(f"pace: {learner.pace or 'default'} new items/lesson; due at start of last lessons: {trend}; not fitted: {carried}")
+        print(f"pace: {learner.pace or 'default'} new items/lesson ({learner.feedback_mode} mode); due at start of last lessons: {trend}; not fitted: {carried}")
         unreported = [l["number"] for l in learner.lessons[-3:] if l["number"] not in learner.reported]
-        if unreported:
+        if unreported and learner.feedback_mode != "auto":
             print(f"no feedback yet for lesson(s) {unreported}: run `audiolesson report -l {args.learner} [--failed ids]`")
     return 0
 

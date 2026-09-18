@@ -4,7 +4,7 @@
 # remind you how to report. Run it every day; nothing else is needed.
 #
 #   CURRICULUM=curricula/is-en-a1.toml LEARNER=learner-is.json PROFILE=profiles/edge-is-en.toml \
-#   MINUTES=30 OUT=lessons/is tools/daily.sh
+#   MINUTES=30 OUT=lessons/is AUTO=1 tools/daily.sh      # AUTO=1: no daily report needed
 #
 # After listening, record how it went (this is what lets the pace go *up*):
 #   audiolesson report -l learner-is.json                     # everything came out
@@ -15,6 +15,6 @@ LEARNER=${LEARNER:-learner.json}
 PROFILE=${PROFILE:-profiles/edge-is-en.toml}
 MINUTES=${MINUTES:-30}
 OUT=${OUT:-lessons}
-python3 -m audiolesson.cli generate -c "$CURRICULUM" -l "$LEARNER" -o "$OUT" -m "$MINUTES" -p "$PROFILE" "$@"
+python3 -m audiolesson.cli generate -c "$CURRICULUM" -l "$LEARNER" -o "$OUT" -m "$MINUTES" -p "$PROFILE" ${AUTO:+--auto} "$@"
 echo
 echo "After listening: python3 -m audiolesson.cli report -l $LEARNER [--failed id,id]"
