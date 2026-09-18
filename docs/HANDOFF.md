@@ -53,6 +53,45 @@ render layer**, not a reversal of the linguistic explanation:
   since guessing at orthography-to-phonology rules for a language you don't
   speak is exactly the kind of thing worth a cheap empirical check first.
 
+### Addendum: the owner asked for a citation on halló specifically, not just the general rule
+
+Fair challenge — session 5's case rested on the general `ll` rule plus an
+espeak cross-check, not on a source about this specific word. Searched for
+one (`WebSearch`; **could not fetch and read the raw pages myself** — this
+sandbox's egress proxy blocks `en.wiktionary.org`, `en.wikipedia.org`,
+`wikiwand.com` and a jina.ai text-proxy alike, so this is the search tool's
+own extraction, corroborated across two independently-phrased queries
+returning the identical string, not a page I read first-hand):
+
+- **English Wiktionary, Icelandic section for "halló"**: gives the IPA
+  transcription **/ˈha.tl̥ou̯/** — <https://en.wiktionary.org/wiki/hall%C3%B3>.
+  The `tl̥` is exactly the pre-aspirated voiceless lateral cluster (the
+  ring diacritic marks the `l` voiceless), transcribed for this word
+  specifically, not inferred from the general rule. This is the citation
+  the owner asked for.
+- **Forvo** (crowd-sourced native-speaker recordings) has an Icelandic
+  recording of "halló" by a listed native speaker
+  (<https://forvo.com/word/hall%C3%B3/>) — real first-hand evidence if
+  anyone can actually listen to it; not accessible from this sandbox.
+- Complication worth keeping in view: several casual, tourist-facing
+  pronunciation pages (not dictionaries) gloss "halló" simply as sounding
+  like English "hello" and don't mention pre-aspiration for it at all —
+  e.g. thecognitio.com's guide, gocarrental.is's guide. That's weaker
+  evidence than a transcribed dictionary entry (these pages are aimed at
+  travellers, not phonology, and may just be simplifying), but it's a real
+  second data point *for* the espeak-ng behaviour, not just noise: loanword
+  interjections resisting a native gemination rule that inherited
+  vocabulary follows strictly is a real, attested pattern cross-
+  linguistically, so "the dictionary-cited/careful pronunciation has it,
+  casual usage may not consistently" is a coherent middle reading, not a
+  contradiction to paper over.
+- Net effect on the earlier call: the Wiktionary transcription is real,
+  specific evidence for the native/careful pronunciation, stronger than
+  what session 5 had. It does not, by itself, revisit the render-layer
+  override — that was the owner's explicit request in the message right
+  before this one, and stands unless they say otherwise now that the fuller
+  picture is in front of them.
+
 ## Session 5: "halló" sounds like [hatlo] on edge-tts — is that wrong?
 
 The owner reported edge-tts's `is-IS-*` voices rendering "halló" with what
