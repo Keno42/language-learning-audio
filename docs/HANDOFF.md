@@ -1,6 +1,6 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-18 (session 2: pacing + Icelandic)._ Keep this current: whoever picks the
+_Last updated 2026-09-18 (session 3: auto mode, fixed length)._ Keep this current: whoever picks the
 project up next, human or AI, should be able to continue from here without
 re-deriving decisions._
 
@@ -8,7 +8,7 @@ re-deriving decisions._
 
 `audiolesson generate` plans a lesson from a curriculum + learner state,
 writes a timed script/plan/transcript, renders audio through a pluggable TTS
-layer, and updates the learner model. 40 unit tests pass
+layer, and updates the learner model. 45 unit tests pass
 (`python -m unittest`). A 10-lesson simulated course on the sample French
 curriculum behaves as intended (new items reactivated at expanding gaps,
 reviews interleaved, dialogues and recombination appear once material is
@@ -20,6 +20,24 @@ Verified in this session:
   refused the websocket (HTTP 403). Test it first thing on a normal network:
   `pip install edge-tts && audiolesson generate ... -p profiles/edge-fr-en.toml -m 3`.
 - `openai` and `say` providers are straightforward but also untested here.
+
+## Session 3 additions
+
+- **Auto feedback mode** (`generate --auto`, persisted): unreported lessons
+  count as "all good"; pace steps up once every 3 lessons (`AUTO_STEP_EVERY`)
+  while the backlog is small; `report --failed` still slows it.
+- **Fixed lesson length**: (1) `LearnerState.speech_calibration` — per-language
+  measured/planned ratio, multiplicative update with weight 0.7, fed into
+  `Timing.speech_ratio`; (2) planner second review pass
+  (`PlanConfig.max_review_passes`) when material runs out; (3) renderer
+  `fit`: one pause scale factor clamped to 0.85–1.25 to hit `target_seconds`.
+  Verified with espeak: 30:00 exactly from lesson 5, pause scale ≈ 1.00 once
+  calibrated. Lessons 1–4 are content-bound and short by design.
+- The closing reserve is now `8 + 14 s × new items` instead of 12% of the
+  budget, and short lessons (< 5 min) can still introduce an item.
+- Planner-side estimates are only as good as the last calibration; switching
+  provider or voices means one or two lessons of re-calibration (the fit
+  factor absorbs most of it, so the file length is still right).
 
 ## Session 2 additions
 

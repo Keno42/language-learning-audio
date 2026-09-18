@@ -403,10 +403,11 @@ class TimingTests(unittest.TestCase):
 
 class RenderTests(unittest.TestCase):
     def test_stub_render_matches_script_pauses_exactly(self):
-        sc = build(fresh(), minutes=2)
+        sc = build(fresh(), minutes=5)
         with tempfile.TemporaryDirectory() as td:
             prof = load_profile(None, "stub")
             prof.mp3 = False
+            prof.fit = False
             cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
             clip = read_wav(Path(td) / "l.wav")
             self.assertAlmostEqual(clip.seconds, cues["duration_s"], delta=0.2)
@@ -415,15 +416,46 @@ class RenderTests(unittest.TestCase):
             self.assertEqual([p["dur"] for p in pauses], [round(x, 2) for x in script_pauses])
 
     def test_pause_multiplier_scales_only_learner_pauses(self):
-        sc = build(fresh(), minutes=2)
+        sc = build(fresh(), minutes=5)
         with tempfile.TemporaryDirectory() as td:
             prof = load_profile(None, "stub")
             prof.mp3 = False
+            prof.fit = False
             prof.pause_multiplier = 2.0
             cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
             answers = [c["dur"] for c in cues["segments"] if c["type"] == "pause" and c["role"] == "answer"]
             expected = [round(s.duration * 2, 2) for s in sc.segments if s.type == "pause" and s.role == "answer"]
             self.assertEqual(answers, expected)
+
+    def test_fit_lands_on_the_requested_length(self):
+        learner, scripts = course(6, minutes=15)  # by now there is enough material for a full lesson
+        sc = scripts[-1]
+        self.assertGreater(len([s for s in sc.segments if s.type == "pause" and s.role == "answer"]), 20)
+        with tempfile.TemporaryDirectory() as td:
+            prof = load_profile(None, "stub")
+            prof.mp3 = False
+            cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
+            self.assertEqual(cues["target_s"], 900)
+            self.assertAlmostEqual(cues["duration_s"], 900, delta=1.0, msg=cues["fit_scale"])
+            self.assertTrue(0.85 <= cues["fit_scale"] <= 1.25)
+            # speech untouched, every pause scaled by the same factor
+            answers = [c["dur"] for c in cues["segments"] if c["type"] == "pause" and c["role"] == "answer"]
+            expected = [round(s.duration * cues["fit_scale"], 2) for s in sc.segments if s.type == "pause" and s.role == "answer"]
+            for a, e in zip(answers, expected):
+                self.assertAlmostEqual(a, e, delta=0.02)
+
+    def test_calibration_feeds_back_into_estimates(self):
+        learner = fresh()
+        learner.calibrate({"fr": 0.8, "en": 1.2})
+        self.assertAlmostEqual(learner.speech_calibration["fr"], 0.86)  # 1 - 0.7 + 0.7 × 0.8
+        learner.calibrate({"fr": 1.0})  # a spot-on render changes nothing
+        self.assertAlmostEqual(learner.speech_calibration["fr"], 0.86)
+        t = Timing(speech_ratio=learner.speech_calibration)
+        self.assertAlmostEqual(t.speech_estimate("Bonjour.", "fr"), Timing().speech_estimate("Bonjour.", "fr") * 0.86, places=1)
+
+    def test_short_lessons_still_introduce_something(self):
+        sc = build(fresh(), minutes=2)
+        self.assertGreaterEqual(len(sc.meta["new_items"]), 1)
 
     def test_parallel_warmup_gives_identical_output(self):
         from audiolesson.render.tts import StubProvider
@@ -432,6 +464,7 @@ class RenderTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             prof = load_profile(None, "stub")
             prof.mp3 = False
+            prof.fit = False
             seq = render_script(sc, prof, Path(td) / "a.wav", cache_dir=Path(td) / "ca", progress=False)
             StubProvider.parallel = True
             try:

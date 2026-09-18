@@ -92,9 +92,22 @@ per 30 minutes, retrieval success around 80–85%.
   bother to file one. `--manual` switches back.
 - `--new N` overrides one lesson; `--pace N` resets the ongoing pace.
 
-The first lessons are shorter than requested (there is nothing to review yet);
-`generate` says so. Review-only lessons, once a curriculum is exhausted, are
-shorter too rather than drilling everything twice.
+**Fixed length.** A lesson lands on the requested minutes (30:00 for `-m 30`)
+by three mechanisms, all automatic:
+
+1. *Calibration* — after every render the measured speech length per language
+   is folded into the learner state, so the next plan's time estimates match
+   the actual voices (espeak, edge and OpenAI all speak at different rates).
+2. *Second review pass* — if the material runs out before the time does, items
+   reviewed earlier in the lesson come back once more, one stage harder,
+   most urgent first.
+3. *Fit at render* — the remaining difference is absorbed by scaling every
+   pause by one factor within 0.85–1.25 (`fit`, `fit_min`, `fit_max` in the
+   profile; `--no-fit` to disable). Speech is never altered.
+
+The first few lessons still come out short: with nothing to review yet there
+is simply not 30 minutes of honest work, and `generate` says so rather than
+padding. From roughly lesson 5 on, the length is exact.
 
 ## How a lesson is built
 

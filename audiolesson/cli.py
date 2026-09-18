@@ -39,6 +39,7 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--profile", "-p", default=None, help="voice profile .toml (see profiles/)")
     g.add_argument("--provider", default=None, help="TTS provider: stub, espeak, edge, openai, say (overrides profile)")
     g.add_argument("--no-audio", action="store_true", help="only write the script and transcript")
+    g.add_argument("--no-fit", action="store_true", help="don't scale pauses to land exactly on --minutes")
     g.add_argument("--dry-run", action="store_true", help="don't update the learner state")
     g.set_defaults(func=cmd_generate)
 
@@ -49,6 +50,8 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--provider", default=None)
     r.add_argument("--pause-multiplier", type=float, default=None)
     r.add_argument("--cache", default=None, help="TTS cache directory")
+    r.add_argument("--minutes", "-m", type=float, default=None, help="fit the audio to this length (default: the script's)")
+    r.add_argument("--no-fit", action="store_true")
     r.set_defaults(func=cmd_render)
 
     rp = sub.add_parser("report", help="after listening: tell the model which items you could not recall")
@@ -94,7 +97,7 @@ def cmd_generate(args) -> int:
     learner = LearnerState.load_or_create(args.learner, cur.target_lang, cur.known_lang, cur.level)
     level = args.level or learner.level or cur.level
     today = parse_date(args.date)
-    timing = Timing(level=level).with_overrides(global_pause_multiplier=args.pause_multiplier)
+    timing = Timing(level=level, speech_ratio=dict(learner.speech_calibration)).with_overrides(global_pause_multiplier=args.pause_multiplier)
     prompts = Prompts.load(cur.known_lang)
     if args.auto:
         learner.feedback_mode = "auto"
@@ -144,9 +147,17 @@ def cmd_generate(args) -> int:
         from .render.renderer import save_cues
 
         profile = load_profile(args.profile, args.provider)
+        if args.no_fit:
+            profile.fit = False
         cues = render_script(script, profile, f"{stem}.wav", cache_dir=out / "cache" / profile.provider)
         save_cues(cues, f"{stem}.cues.json")
-        print(f"  audio: {cues['mp3'] or cues['wav']} ({cues['duration_s']/60:.1f} min, provider {cues['provider']})")
+        print(f"  audio: {cues['mp3'] or cues['wav']} ({_mmss(cues['duration_s'])}, provider {cues['provider']}"
+              + (f", pauses ×{cues['fit_scale']:.2f} to fit {args.minutes:g} min" if profile.fit else "") + ")")
+        if abs(cues["duration_s"] - args.minutes * 60) > 60:
+            print(f"  note: {abs(cues['duration_s'] - args.minutes * 60)/60:.1f} min off target — "
+                  + ("not enough material yet" if cues["duration_s"] < args.minutes * 60 else "speech ran long") + "; calibration will tighten the next plan")
+        if not args.dry_run:
+            learner.calibrate(cues.get("calibration", {}))
 
     if args.dry_run:
         print("  (dry run: learner state not updated)")
@@ -194,10 +205,17 @@ def cmd_render(args) -> int:
     src = Path(args.script)
     out = Path(args.out) if args.out else src.with_name(src.name.replace(".script.json", "") + ".wav")
     cache = Path(args.cache) if args.cache else out.parent / "cache" / profile.provider
-    cues = render_script(script, profile, out, cache_dir=cache)
+    if args.no_fit:
+        profile.fit = False
+    cues = render_script(script, profile, out, cache_dir=cache, target_seconds=args.minutes * 60 if args.minutes else None)
     save_cues(cues, out.with_suffix(".cues.json"))
-    print(f"audio: {cues['mp3'] or cues['wav']} ({cues['duration_s']/60:.1f} min, provider {cues['provider']})")
+    print(f"audio: {cues['mp3'] or cues['wav']} ({_mmss(cues['duration_s'])}, provider {cues['provider']}, pauses ×{cues['fit_scale']:.2f})")
     return 0
+
+
+def _mmss(seconds: float) -> str:
+    m, s = divmod(int(round(seconds)), 60)
+    return f"{m}:{s:02d}"
 
 
 def cmd_report(args) -> int:

@@ -35,6 +35,9 @@ class VoiceProfile:
     mp3: bool = True
     trim: bool = True
     workers: int = 4  # parallel synthesis requests for network providers
+    fit: bool = True  # stretch/shrink pauses a little so the file lands on the requested length
+    fit_min: float = 0.85  # bounds on the pause scale used for fitting
+    fit_max: float = 1.25
 
     def voice_for(self, speaker: str, lang: str, provider: Provider, idx_hint: int) -> SpeakerVoice:
         sv = self.speakers.get(speaker)
@@ -57,6 +60,9 @@ def load_profile(path: str | Path | None, provider: str | None = None) -> VoiceP
         prof.mp3 = bool(raw.get("mp3", True))
         prof.trim = bool(raw.get("trim", True))
         prof.workers = int(raw.get("workers", 4))
+        prof.fit = bool(raw.get("fit", True))
+        prof.fit_min = float(raw.get("fit_min", 0.85))
+        prof.fit_max = float(raw.get("fit_max", 1.25))
         for name, spec in raw.get("speakers", {}).items():
             if isinstance(spec, str):
                 prof.speakers[name] = SpeakerVoice(voice=spec)
@@ -78,8 +84,16 @@ def render_script(
     cache_dir: str | Path | None = None,
     *,
     progress: bool = True,
+    target_seconds: float | None = None,
 ) -> dict:
-    """Write ``out_path`` (.wav) and, if possible, an .mp3 beside it. Returns cue metadata."""
+    """Write ``out_path`` (.wav) and, if possible, an .mp3 beside it. Returns cue metadata.
+
+    ``target_seconds`` (default: the script's requested minutes) makes the file land on
+    that length by scaling the learner pauses within ``profile.fit_min..fit_max``.
+    """
+    if target_seconds is None:
+        minutes = (script.meta.get("config") or {}).get("minutes")
+        target_seconds = float(minutes) * 60 if minutes else None
     out_path = Path(out_path)
     provider = get_provider(profile.provider)
     problem = provider.check()
@@ -102,30 +116,53 @@ def render_script(
                 if progress and (i % 10 == 0 or i == len(todo)):
                     print(f"  synthesized {i}/{len(todo)} new lines", file=sys.stderr, end="\r")
 
-    clips: list[AudioClip] = []
-    cues: list[dict] = []
-    t = 0.0
+    # 1. speech clips (pauses are placeholders until we know the speech length)
+    clips: list[AudioClip | None] = []
     total = sum(1 for s in script.segments if s.type != "pause")
     done = 0
-    ex_start: dict[int, float] = {}
+    est: dict[str, float] = {}
+    meas: dict[str, float] = {}
     for seg in script.segments:
         if seg.type == "pause":
-            secs = seg.duration * (profile.pause_multiplier if seg.role in ("answer", "repeat") else 1.0)
-            clip = silence(secs)
-        else:
-            clip = _cached(provider, cache, *request_for(seg), profile.trim)
-            done += 1
-            if progress and not todo and (done % 10 == 0 or done == total):
-                print(f"  synthesized {done}/{total}", file=sys.stderr, end="\r")
+            clips.append(None)
+            continue
+        clip = _cached(provider, cache, *request_for(seg), profile.trim)
+        clips.append(clip)
+        lang = request_for(seg)[1].split("-")[0].lower()
+        est[lang] = est.get(lang, 0.0) + seg.duration
+        meas[lang] = meas.get(lang, 0.0) + clip.seconds
+        done += 1
+        if progress and not todo and (done % 10 == 0 or done == total):
+            print(f"  synthesized {done}/{total}", file=sys.stderr, end="\r")
+    if progress:
+        print(file=sys.stderr)
+    calibration = {lang: round(meas[lang] / est[lang], 3) for lang in est if est[lang] > 0}
+
+    # 2. pauses: the script's lengths × profile multiplier, then a small uniform scale to hit the target
+    speech_total = sum(c.seconds for c in clips if c is not None)
+    pause_base = []
+    for seg in script.segments:
+        if seg.type == "pause":
+            pause_base.append(seg.duration * (profile.pause_multiplier if seg.role in ("answer", "repeat") else 1.0))
+    pause_total = sum(pause_base)
+    fit_scale = 1.0
+    if profile.fit and target_seconds and pause_total > 0:
+        fit_scale = max(profile.fit_min, min(profile.fit_max, (target_seconds - speech_total) / pause_total))
+    fitted = iter(pause_base)
+    cues: list[dict] = []
+    final: list[AudioClip] = []
+    t = 0.0
+    ex_start: dict[int, float] = {}
+    for seg, clip in zip(script.segments, clips):
+        if clip is None:
+            clip = silence(next(fitted) * fit_scale)
         if seg.exercise is not None and seg.exercise not in ex_start:
             ex_start[seg.exercise] = t
         cues.append({"t": round(t, 2), "type": seg.type, "speaker": seg.speaker, "text": seg.text, "role": seg.role, "dur": round(clip.seconds, 2)})
-        clips.append(clip)
+        final.append(clip)
         t += clip.seconds
-    if progress:
-        print(file=sys.stderr)
 
-    mix = concat(clips)
+    mix = concat(final)
     write_wav(mix, out_path)
     mp3_path = None
     if profile.mp3:
@@ -137,6 +174,10 @@ def render_script(
         "mp3": mp3_path,
         "duration_s": round(mix.seconds, 1),
         "provider": provider.name,
+        "target_s": target_seconds,
+        "fit_scale": round(fit_scale, 3),
+        "speech_s": round(speech_total, 1),
+        "calibration": calibration,
         "exercises": [
             {"index": ex.index, "label": ex.label, "kind": ex.kind, "start": round(ex_start.get(ex.index, 0.0), 2)}
             for ex in script.exercises

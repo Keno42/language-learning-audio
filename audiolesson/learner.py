@@ -57,6 +57,7 @@ class LearnerState:
     reported: list[int] = field(default_factory=list)  # lesson numbers the learner gave feedback on
     feedback_mode: str = "manual"  # manual: pace rises only on `report`; auto: rises on its own every few lessons
     pace_changed_at: int = 0  # lesson number of the last pace change (auto mode steps slowly)
+    speech_calibration: dict[str, float] = field(default_factory=dict)  # lang → measured/estimated TTS length
 
     # ---- queries ---------------------------------------------------------
 
@@ -254,6 +255,17 @@ class LearnerState:
             changed["easy"].append(item_id)
         return changed
 
+    def calibrate(self, measured: dict[str, float], weight: float = 0.7) -> None:
+        """Fold a render's measured/planned speech ratios into the stored calibration.
+
+        The planned lengths already included the current calibration, so the measured
+        ratio is a *correction* to it: 1.0 means the plan was spot on.
+        """
+        for lang, ratio in measured.items():
+            old = self.speech_calibration.get(lang, 1.0)
+            new = old * ((1 - weight) + weight * ratio)
+            self.speech_calibration[lang] = round(min(3.0, max(0.3, new)), 3)
+
     # ---- I/O -------------------------------------------------------------
 
     def to_dict(self) -> dict:
@@ -270,6 +282,7 @@ class LearnerState:
             "reported": self.reported,
             "feedback_mode": self.feedback_mode,
             "pace_changed_at": self.pace_changed_at,
+            "speech_calibration": self.speech_calibration,
         }
 
     def save(self, path: str | Path) -> None:
@@ -291,6 +304,7 @@ class LearnerState:
             reported=list(raw.get("reported", [])),
             feedback_mode=raw.get("feedback_mode", "manual"),
             pace_changed_at=int(raw.get("pace_changed_at", 0)),
+            speech_calibration=dict(raw.get("speech_calibration", {})),
         )
         ls.items = {k: ItemState(**v) for k, v in raw.get("items", {}).items()}
         return ls
