@@ -1,0 +1,89 @@
+# Handoff note — audiolesson
+
+_Last updated 2026-09-18 (session 1). Keep this current: whoever picks the
+project up next, human or AI, should be able to continue from here without
+re-deriving decisions._
+
+## Status: working end to end
+
+`audiolesson generate` plans a lesson from a curriculum + learner state,
+writes a timed script/plan/transcript, renders audio through a pluggable TTS
+layer, and updates the learner model. 27 unit tests pass
+(`python -m unittest`). A 10-lesson simulated course on the sample French
+curriculum behaves as intended (new items reactivated at expanding gaps,
+reviews interleaved, dialogues and recombination appear once material is
+known, lesson ends on today's items).
+
+Verified in this session:
+- `stub` and `espeak` providers, WAV + MP3 output (ffmpeg), exact pauses.
+- `edge` provider code is complete but **untested**: the sandbox proxy
+  refused the websocket (HTTP 403). Test it first thing on a normal network:
+  `pip install edge-tts && audiolesson generate ... -p profiles/edge-fr-en.toml -m 3`.
+- `openai` and `say` providers are straightforward but also untested here.
+
+## Decisions (and why)
+
+- **Python 3.11+, zero required deps.** Curricula in TOML via stdlib
+  `tomllib`; audio via `wave`; ffmpeg only for mp3/decoding non-WAV TTS.
+- **Three-stage pipeline with a serialized script in the middle**
+  (`script.json`) so voices/pauses/providers can change without re-planning.
+- **Presumed success.** Audio can't hear the learner; every retrieval counts
+  as a success, `report --failed` corrects afterwards. Simplest honest model.
+- **Ladder per item kind** (`stages.py`) rather than one global ladder; stages
+  an item can't support are skipped, not faked.
+- **Slot fills are verbatim vocab `target`s.** No morphology engine. Tag
+  discipline in the curriculum keeps generated sentences grammatical
+  (that is why `les toilettes` became a phrase, not a `place` vocab).
+- **Instructor phrasing in `prompts/<lang>.toml`**, not in code, so a
+  Japanese-speaking learner gets a Japanese instructor by translating one
+  file (ja provided).
+
+## Known gaps / next steps, in priority order
+
+1. **Test `edge` provider on a real network** (see above). If edge-tts's
+   `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
+2. **Listen to a real lesson and tune timing.** Numbers in `Timing` are
+   reasoned defaults, not listened-to ones. Likely tweaks: `between_exercises`,
+   `repeat_factor`, the A1 multiplier.
+3. **`alternatives` are stored but never spoken.** Idea: after the model
+   answer, occasionally "You could also say: …".
+4. **Lesson-1 intro bunching.** With nothing to review, the first lesson opens
+   with 2–3 introductions in a row (nothing else exists yet). Acceptable but a
+   short "listen to this conversation" opener (like Pimsleur) would be nicer.
+5. **Dialogue partner translation** is always narrated (`--no-translate` to
+   disable). Could become level-dependent (off from A2).
+6. **Curricula.** Only `fr-en-a1.toml` exists. A Japanese-known-language
+   variant needs `meaning`/`situation`/`cue` translated (audiolesson/phrasing/ja.toml is
+   already there). Numbers/plurals are deliberately absent (no morphology).
+7. **Cross-lesson dialogue difficulty.** Spec asks for progressively longer
+   multi-turn dialogues in later lessons; currently dialogues are fixed
+   length and just recur. A `min_lesson` or tiered `requires` would do it.
+8. **Parallel TTS** for edge/openai (currently sequential; a 15-min lesson is
+   ~150 requests). Cache makes re-renders cheap already.
+
+## Where things are
+
+See README "Layout". The planner loop is `Planner.build` in
+`audiolesson/planner.py` (branches 1–5 are commented). Exercise shapes are in
+`audiolesson/exercises.py`. Pause math is `Timing.answer_pause`.
+
+## How to check your change
+
+```sh
+python -m unittest -v
+python - <<'EOF2'
+# ten-lesson simulation: one line per lesson, letters = exercise kinds
+# o opening, i intro, r recall, g generative, d dialogue, c closing
+from datetime import date, timedelta
+from audiolesson.content import load_curriculum
+from audiolesson.learner import LearnerState
+from audiolesson.prompts import Prompts
+from audiolesson.timing import Timing
+from audiolesson.planner import Planner, PlanConfig, apply_to_learner
+cur = load_curriculum("curricula/fr-en-a1.toml"); ls = LearnerState("fr", "en"); d = date.today()
+for _ in range(10):
+    sc = Planner(cur, ls, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15), today=d).build()
+    apply_to_learner(sc, ls, d); s = sc.summary(); d += timedelta(days=2)
+    print(f"L{sc.lesson_number}: {s['duration_s']/60:.1f}min active={s['active_ratio']} new={len(sc.meta['new_items'])} rev={len(sc.meta['reviewed_items'])} " + "".join(e.kind[0] for e in sc.exercises))
+EOF2
+```

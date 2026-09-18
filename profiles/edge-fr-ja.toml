@@ -1,0 +1,6 @@
+# Japanese instructor, French target, edge-tts voices.
+provider = "edge"
+[speakers]
+instructor = { voice = "ja-JP-NanamiNeural" }
+native_a = { voice = "fr-FR-DeniseNeural" }
+native_b = { voice = "fr-FR-HenriNeural" }

@@ -1,0 +1,51 @@
+# 学習者の既知言語が日本語のときのインストラクターの言い回し。
+
+lesson_open = "レッスン{n}。"
+lesson_intro = "無音の間に、声に出して答えてください。間違えても大丈夫です。"
+lesson_close = "レッスン{n}はこれで終わりです。お疲れさまでした。"
+final_block = "最後に、今日の新しい表現をもう一度確認しましょう。"
+
+intro_new = "新しい表現です。「{meaning}」。"
+listen = "聞いてください。"
+listen_again = "もう一度聞いてください。"
+repeat = "繰り返してください。"
+once_more = "もう一度。"
+build_up = "後ろから組み立てましょう。それぞれ繰り返してください。"
+slowly = "ゆっくり。"
+natural = "自然な速さで。"
+
+cloze = "文を完成させてください。"
+hinted = "「{meaning}」と言ってください。最初は…"
+meaning = [
+  "「{meaning}」は、何と言いますか？",
+  "「{meaning}」と言ってください。",
+  "{language}で。「{meaning}」。",
+]
+situation_ask = "何と言いますか？"
+recombine = [
+  "まだ聞いたことのない文です。「{meaning}」と言ってください。",
+  "自分で組み立ててください。「{meaning}」。",
+]
+recombine_vocab = "文の中で使ってください。「{meaning}」。"
+
+construction_intro = "便利なパターンです。「{meaning}」。"
+construction_slot = "同じ場所に、ほかの言葉を入れることができます。"
+slot_word = "なにか"
+
+transform_intro = "文がどう変わるか、聞いてください。"
+transform_becomes = "こうなります。"
+transform_try = "では、やってみましょう。"
+
+dialogue_partner_said = "「{meaning}」"
+dialogue_replay = "では、会話全体を通して聞きましょう。"
+
+[language_names]
+fr = "フランス語"
+es = "スペイン語"
+de = "ドイツ語"
+it = "イタリア語"
+pt = "ポルトガル語"
+en = "英語"
+zh = "中国語"
+ko = "韓国語"
+nl = "オランダ語"

@@ -1,0 +1,6 @@
+# OpenAI speech (paid; export OPENAI_API_KEY). Voices are multilingual.
+provider = "openai"
+[speakers]
+instructor = { voice = "nova" }
+native_a = { voice = "shimmer" }
+native_b = { voice = "onyx" }

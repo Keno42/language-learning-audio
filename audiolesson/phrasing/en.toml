@@ -1,0 +1,53 @@
+# Instructor phrasing when the learner's known language is English.
+# {placeholders} are filled by audiolesson/exercises.py. Lists = random variety.
+
+lesson_open = "Lesson {n}."
+lesson_intro = "Speak your answers out loud during the silences. Don't worry about mistakes."
+lesson_close = "That's the end of lesson {n}. Well done."
+final_block = "To finish, let's go back over today's new material."
+
+intro_new = "Something new. {meaning}"
+listen = "Listen."
+listen_again = "Listen again."
+repeat = "Repeat."
+once_more = "Once more."
+build_up = "Let's build it up from the end. Repeat each part."
+slowly = "Slowly."
+natural = "And at natural speed."
+
+cloze = "Complete the sentence."
+hinted = "Say: {meaning} It starts with:"
+meaning = [
+  "How do you say: {meaning}",
+  "Say: {meaning}",
+  "In {language}: {meaning}",
+]
+situation_ask = "What do you say?"
+recombine = [
+  "Now something you haven't heard yet. Say: {meaning}",
+  "Put it together yourself. Say: {meaning}",
+]
+recombine_vocab = "Use it in a sentence. Say: {meaning}"
+
+construction_intro = "Here is a useful pattern. {meaning}"
+construction_slot = "You can put other words in the same place."
+slot_word = "something"
+
+transform_intro = "Listen to how the sentence changes."
+transform_becomes = "becomes"
+transform_try = "Now you try."
+
+dialogue_partner_said = "{meaning}"
+dialogue_replay = "Now the whole conversation, without pauses."
+
+[language_names]
+fr = "French"
+es = "Spanish"
+de = "German"
+it = "Italian"
+pt = "Portuguese"
+ja = "Japanese"
+zh = "Chinese"
+ko = "Korean"
+en = "English"
+nl = "Dutch"

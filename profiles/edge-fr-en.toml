@@ -1,0 +1,8 @@
+# Free neural voices via edge-tts (pip install edge-tts). Needs network.
+provider = "edge"
+pause_multiplier = 1.0
+mp3 = true
+[speakers]
+instructor = { voice = "en-US-AriaNeural", rate = 1.0 }
+native_a = { voice = "fr-FR-DeniseNeural" }
+native_b = { voice = "fr-FR-HenriNeural" }

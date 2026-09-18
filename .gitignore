@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+build/
+dist/
+*.egg-info/
+# generated lessons and TTS cache (regenerable)
+out/
+cache/
+*.wav
+*.mp3

@@ -1,0 +1,611 @@
+# French for English speakers — survival A1.
+# Items are listed in the default order of introduction. The planner may reorder
+# to respect prereqs and topic filters. See docs/CURRICULUM.md for the format.
+
+[curriculum]
+name = "French A1 — café, street, hotel"
+target_lang = "fr"
+known_lang = "en"
+level = "A1"
+
+# ---------------------------------------------------------------- greetings
+
+[[items]]
+id = "bonjour"
+kind = "phrase"
+target = "Bonjour."
+meaning = "Hello."
+difficulty = 1
+topics = ["greetings"]
+situation = "You walk into a bakery in the morning. Greet the baker."
+
+[[items]]
+id = "merci"
+kind = "phrase"
+target = "Merci."
+meaning = "Thank you."
+difficulty = 1
+topics = ["greetings"]
+situation = "The waiter brings your coffee. Thank him."
+
+[[items]]
+id = "sil_vous_plait"
+kind = "phrase"
+target = "S'il vous plaît."
+meaning = "Please."
+difficulty = 3
+topics = ["greetings", "cafe"]
+chunks = ["plaît", "vous plaît", "S'il vous plaît."]
+pronunciation_notes = "The 't' at the end is silent: seel-voo-PLEH."
+
+[[items]]
+id = "au_revoir"
+kind = "phrase"
+target = "Au revoir."
+meaning = "Goodbye."
+difficulty = 2
+topics = ["greetings"]
+situation = "You are leaving the shop. Say goodbye."
+
+[[items]]
+id = "oui"
+kind = "vocab"
+target = "Oui."
+meaning = "Yes."
+difficulty = 1
+topics = ["greetings"]
+
+[[items]]
+id = "non"
+kind = "vocab"
+target = "Non."
+meaning = "No."
+difficulty = 1
+topics = ["greetings"]
+
+[[items]]
+id = "excusez_moi"
+kind = "phrase"
+target = "Excusez-moi."
+meaning = "Excuse me."
+difficulty = 2
+topics = ["greetings", "directions"]
+situation = "You need to get a stranger's attention in the street."
+
+# ---------------------------------------------------------------- café
+
+[[items]]
+id = "un_cafe"
+kind = "vocab"
+target = "un café"
+meaning = "a coffee"
+difficulty = 1
+tags = ["orderable", "drink"]
+topics = ["cafe"]
+
+[[items]]
+id = "je_voudrais"
+kind = "construction"
+target = "Je voudrais {thing}."
+meaning = "I would like {thing}."
+difficulty = 2
+topics = ["cafe"]
+slots = { thing = "orderable" }
+example = { thing = "un_cafe" }
+components = ["un_cafe"]
+prereqs = ["un_cafe"]
+pronunciation_notes = "voudrais: voo-DREH."
+
+[[items]]
+id = "un_the"
+kind = "vocab"
+target = "un thé"
+meaning = "a tea"
+difficulty = 1
+tags = ["orderable", "drink"]
+topics = ["cafe"]
+
+[[items]]
+id = "de_l_eau"
+kind = "vocab"
+target = "de l'eau"
+meaning = "some water"
+difficulty = 2
+tags = ["orderable"]
+topics = ["cafe"]
+
+[[items]]
+id = "un_croissant"
+kind = "vocab"
+target = "un croissant"
+meaning = "a croissant"
+difficulty = 1
+tags = ["orderable"]
+topics = ["cafe"]
+
+[[items]]
+id = "une_biere"
+kind = "vocab"
+target = "une bière"
+meaning = "a beer"
+difficulty = 1
+tags = ["orderable"]
+topics = ["cafe"]
+
+[[items]]
+id = "avec_du_lait"
+kind = "vocab"
+target = "avec du lait"
+meaning = "with milk"
+difficulty = 2
+tags = ["addon"]
+topics = ["cafe"]
+
+[[items]]
+id = "sans_sucre"
+kind = "vocab"
+target = "sans sucre"
+meaning = "without sugar"
+difficulty = 2
+tags = ["addon"]
+topics = ["cafe"]
+
+[[items]]
+id = "je_voudrais_addon"
+kind = "construction"
+target = "Je voudrais {thing} {addon}."
+meaning = "I would like {thing} {addon}."
+difficulty = 3
+topics = ["cafe"]
+slots = { thing = "drink", addon = "addon" }
+example = { thing = "un_cafe", addon = "avec_du_lait" }
+components = ["je_voudrais", "un_cafe", "avec_du_lait"]
+prereqs = ["je_voudrais", "avec_du_lait"]
+
+[[items]]
+id = "c_est_combien"
+kind = "phrase"
+target = "C'est combien ?"
+meaning = "How much is it?"
+difficulty = 2
+topics = ["cafe"]
+situation = "You want to know the price of the croissant."
+
+[[items]]
+id = "l_addition"
+kind = "phrase"
+target = "L'addition, s'il vous plaît."
+meaning = "The bill, please."
+difficulty = 3
+topics = ["cafe"]
+components = ["sil_vous_plait"]
+prereqs = ["sil_vous_plait"]
+chunks = ["s'il vous plaît", "L'addition, s'il vous plaît."]
+situation = "You've finished your meal. Ask for the bill."
+
+[[items]]
+id = "cette_place_est_libre"
+kind = "phrase"
+target = "Cette place est libre ?"
+meaning = "Is this seat free?"
+difficulty = 3
+topics = ["cafe", "social"]
+chunks = ["libre", "est libre", "place est libre", "Cette place est libre ?"]
+situation = "You meet someone at a café. Ask whether this seat is free."
+
+# ---------------------------------------------------------------- clarifying
+
+[[items]]
+id = "pardon"
+kind = "phrase"
+target = "Pardon ?"
+meaning = "Sorry? (I didn't catch that)"
+difficulty = 1
+topics = ["clarifying"]
+situation = "Someone spoke too fast. Ask them to say it again."
+
+[[items]]
+id = "parlez_vous_anglais"
+kind = "phrase"
+target = "Parlez-vous anglais ?"
+meaning = "Do you speak English?"
+difficulty = 3
+topics = ["clarifying"]
+chunks = ["anglais", "vous anglais", "Parlez-vous anglais ?"]
+situation = "You're not sure the receptionist understands you. Ask if she speaks English."
+
+[[items]]
+id = "je_ne_comprends_pas"
+kind = "phrase"
+target = "Je ne comprends pas."
+meaning = "I don't understand."
+difficulty = 3
+topics = ["clarifying"]
+chunks = ["pas", "comprends pas", "ne comprends pas", "Je ne comprends pas."]
+situation = "The waiter explained the menu but you got lost. Tell him you don't understand."
+
+[[items]]
+id = "plus_lentement"
+kind = "phrase"
+target = "Plus lentement, s'il vous plaît."
+meaning = "More slowly, please."
+difficulty = 3
+topics = ["clarifying"]
+components = ["sil_vous_plait"]
+prereqs = ["sil_vous_plait"]
+chunks = ["s'il vous plaît", "lentement, s'il vous plaît", "Plus lentement, s'il vous plaît."]
+situation = "The man is giving directions far too fast. Ask him to speak more slowly."
+
+# ---------------------------------------------------------------- directions
+
+[[items]]
+id = "la_gare"
+kind = "vocab"
+target = "la gare"
+meaning = "the station"
+difficulty = 1
+tags = ["place"]
+topics = ["directions"]
+
+[[items]]
+id = "ou_est"
+kind = "construction"
+target = "Où est {place} ?"
+meaning = "Where is {place}?"
+difficulty = 2
+topics = ["directions"]
+slots = { place = "place" }
+example = { place = "la_gare" }
+components = ["la_gare"]
+prereqs = ["la_gare"]
+
+[[items]]
+id = "le_metro"
+kind = "vocab"
+target = "le métro"
+meaning = "the metro"
+difficulty = 1
+tags = ["place"]
+topics = ["directions"]
+
+[[items]]
+id = "ou_sont_les_toilettes"
+kind = "phrase"
+target = "Où sont les toilettes ?"
+meaning = "Where are the toilets?"
+difficulty = 2
+topics = ["directions"]
+prereqs = ["ou_est"]
+situation = "You're in a restaurant and need the toilets. Ask where they are."
+
+[[items]]
+id = "l_hotel"
+kind = "vocab"
+target = "l'hôtel"
+meaning = "the hotel"
+difficulty = 1
+tags = ["place"]
+topics = ["directions", "hotel"]
+
+[[items]]
+id = "la_pharmacie"
+kind = "vocab"
+target = "la pharmacie"
+meaning = "the pharmacy"
+difficulty = 2
+tags = ["place"]
+topics = ["directions"]
+
+[[items]]
+id = "a_gauche"
+kind = "vocab"
+target = "à gauche"
+meaning = "on the left"
+difficulty = 1
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "a_droite"
+kind = "vocab"
+target = "à droite"
+meaning = "on the right"
+difficulty = 1
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "tout_droit"
+kind = "vocab"
+target = "tout droit"
+meaning = "straight ahead"
+difficulty = 2
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "c_est_direction"
+kind = "construction"
+target = "C'est {direction}."
+meaning = "It's {direction}."
+difficulty = 2
+topics = ["directions"]
+slots = { direction = "direction" }
+example = { direction = "a_gauche" }
+components = ["a_gauche"]
+prereqs = ["a_gauche", "a_droite"]
+
+[[items]]
+id = "c_est_loin"
+kind = "phrase"
+target = "C'est loin ?"
+meaning = "Is it far?"
+difficulty = 2
+topics = ["directions"]
+situation = "The receptionist gave you directions. Ask whether it's far."
+
+# ---------------------------------------------------------------- about yourself
+
+[[items]]
+id = "je_viens_du_japon"
+kind = "phrase"
+target = "Je viens du Japon."
+meaning = "I come from Japan."
+difficulty = 3
+topics = ["social"]
+chunks = ["Japon", "du Japon", "viens du Japon", "Je viens du Japon."]
+situation = "Someone asks where you're from. Tell them you come from Japan."
+
+[[items]]
+id = "je_suis_en_vacances"
+kind = "phrase"
+target = "Je suis en vacances."
+meaning = "I'm on holiday."
+difficulty = 3
+topics = ["social"]
+chunks = ["vacances", "en vacances", "Je suis en vacances."]
+situation = "The woman asks if you're here for work. Tell her you're on holiday."
+
+[[items]]
+id = "enchante"
+kind = "phrase"
+target = "Enchanté."
+meaning = "Nice to meet you."
+difficulty = 2
+topics = ["social"]
+situation = "Your host introduces you to her friend. Say nice to meet you."
+
+[[items]]
+id = "vous_etes_d_ou"
+kind = "phrase"
+target = "Vous êtes d'où ?"
+meaning = "Where are you from?"
+difficulty = 3
+topics = ["social"]
+chunks = ["d'où", "êtes d'où", "Vous êtes d'où ?"]
+situation = "You've just told the man you're from Japan. Ask where he is from."
+
+[[items]]
+id = "et_vous"
+kind = "phrase"
+target = "Et vous ?"
+meaning = "And you?"
+difficulty = 1
+topics = ["social"]
+situation = "You've answered her question. Return it to her."
+
+# ---------------------------------------------------------------- arrangements
+
+[[items]]
+id = "demain"
+kind = "vocab"
+target = "demain"
+meaning = "tomorrow"
+difficulty = 1
+tags = ["time"]
+topics = ["arrangements"]
+
+[[items]]
+id = "ce_soir"
+kind = "vocab"
+target = "ce soir"
+meaning = "this evening"
+difficulty = 1
+tags = ["time"]
+topics = ["arrangements"]
+
+[[items]]
+id = "aujourd_hui"
+kind = "vocab"
+target = "aujourd'hui"
+meaning = "today"
+difficulty = 2
+tags = ["time"]
+topics = ["arrangements"]
+
+[[items]]
+id = "je_pars"
+kind = "construction"
+target = "Je pars {time}."
+meaning = "I'm leaving {time}."
+difficulty = 2
+topics = ["arrangements", "hotel"]
+slots = { time = "time" }
+example = { time = "demain" }
+components = ["demain"]
+prereqs = ["demain"]
+
+[[items]]
+id = "a_quelle_heure"
+kind = "phrase"
+target = "À quelle heure ?"
+meaning = "At what time?"
+difficulty = 2
+topics = ["arrangements"]
+situation = "He suggested meeting for dinner. Ask at what time."
+
+[[items]]
+id = "d_accord"
+kind = "phrase"
+target = "D'accord."
+meaning = "OK, agreed."
+difficulty = 1
+topics = ["arrangements"]
+situation = "She suggests eight o'clock. Agree."
+
+[[items]]
+id = "a_demain"
+kind = "phrase"
+target = "À demain !"
+meaning = "See you tomorrow!"
+difficulty = 1
+topics = ["arrangements"]
+components = ["demain"]
+prereqs = ["demain"]
+situation = "You're parting after arranging to meet tomorrow."
+
+# ---------------------------------------------------------------- grammar
+
+[[items]]
+id = "negation"
+kind = "transform"
+target = "ne … pas"
+meaning = "making a sentence negative"
+difficulty = 3
+topics = ["grammar"]
+instruction = "Make it negative:"
+prereqs = ["je_ne_comprends_pas", "c_est_loin"]
+examples = [
+  { source = "Je comprends.", source_meaning = "I understand.", result = "Je ne comprends pas.", result_meaning = "I don't understand." },
+  { source = "Je parle anglais.", source_meaning = "I speak English.", result = "Je ne parle pas anglais.", result_meaning = "I don't speak English." },
+  { source = "C'est loin.", source_meaning = "It's far.", result = "Ce n'est pas loin.", result_meaning = "It's not far." },
+  { source = "Je suis en vacances.", source_meaning = "I'm on holiday.", result = "Je ne suis pas en vacances.", result_meaning = "I'm not on holiday." },
+  { source = "Je pars demain.", source_meaning = "I'm leaving tomorrow.", result = "Je ne pars pas demain.", result_meaning = "I'm not leaving tomorrow." },
+]
+
+# ---------------------------------------------------------------- dialogues
+
+[[dialogues]]
+id = "cafe_seat"
+setting = "You are in a café. There is one free chair at a table where a woman is sitting."
+topics = ["cafe", "social"]
+requires = ["je_suis_en_vacances", "oui"]
+
+  [[dialogues.turns]]
+  cue = "Ask whether this seat is free."
+  expect = "cette_place_est_libre"
+  partner = "Oui, bien sûr. Vous êtes d'où ?"
+  partner_meaning = "Yes, of course. Where are you from?"
+
+  [[dialogues.turns]]
+  cue = "Tell her that you come from Japan."
+  expect = "je_viens_du_japon"
+  partner = "Ah, le Japon ! Vous êtes en vacances ?"
+  partner_meaning = "Ah, Japan! Are you on holiday?"
+
+  [[dialogues.turns]]
+  cue = "Say yes, you're on holiday."
+  expect_text = "Oui, je suis en vacances."
+  expect_meaning = "Yes, I'm on holiday."
+  partner = "Bienvenue à Paris !"
+  partner_meaning = "Welcome to Paris!"
+
+  [[dialogues.turns]]
+  cue = "Thank her."
+  expect = "merci"
+
+[[dialogues]]
+id = "cafe_order"
+setting = "A waiter comes to your table."
+topics = ["cafe"]
+requires = ["bonjour", "je_voudrais", "un_cafe", "sil_vous_plait", "non", "merci", "au_revoir"]
+
+  [[dialogues.turns]]
+  opener = "Bonjour. Vous désirez ?"
+  opener_meaning = "Hello. What would you like?"
+  cue = "Greet him and order a coffee, please."
+  expect_text = "Bonjour. Je voudrais un café, s'il vous plaît."
+  expect_meaning = "Hello. I would like a coffee, please."
+  partner = "Avec du lait ?"
+  partner_meaning = "With milk?"
+
+  [[dialogues.turns]]
+  cue = "Say: no, thank you."
+  expect_text = "Non, merci."
+  expect_meaning = "No, thank you."
+  partner = "Très bien."
+  partner_meaning = "Very well."
+
+  [[dialogues.turns]]
+  cue = "Later. Ask for the bill."
+  expect = "l_addition"
+  partner = "Voilà. Quatre euros."
+  partner_meaning = "Here you are. Four euros."
+
+  [[dialogues.turns]]
+  cue = "Thank him and say goodbye."
+  expect_text = "Merci. Au revoir."
+  expect_meaning = "Thank you. Goodbye."
+
+[[dialogues]]
+id = "street_directions"
+setting = "You are lost in the street. A man walks by."
+topics = ["directions", "clarifying"]
+requires = ["excusez_moi", "ou_est", "le_metro"]
+
+  [[dialogues.turns]]
+  cue = "Get his attention and ask where the metro is."
+  expect_text = "Excusez-moi, où est le métro ?"
+  expect_meaning = "Excuse me, where is the metro?"
+  partner = "Le métro ? C'est tout droit, puis à gauche."
+  partner_meaning = "The metro? It's straight ahead, then on the left."
+
+  [[dialogues.turns]]
+  cue = "You didn't catch that. Ask him to speak more slowly."
+  expect = "plus_lentement"
+  partner = "Tout droit… puis à gauche."
+  partner_meaning = "Straight ahead… then on the left."
+
+  [[dialogues.turns]]
+  cue = "Ask if it's far."
+  expect = "c_est_loin"
+  partner = "Non, cinq minutes."
+  partner_meaning = "No, five minutes."
+
+  [[dialogues.turns]]
+  cue = "Thank him."
+  expect = "merci"
+
+[[dialogues]]
+id = "hotel_reception"
+setting = "Evening, at the hotel reception. The receptionist looks up."
+topics = ["hotel", "arrangements", "clarifying"]
+requires = ["je_pars", "demain", "merci", "au_revoir"]
+
+  [[dialogues.turns]]
+  opener = "Bonsoir."
+  opener_meaning = "Good evening."
+  cue = "Ask if she speaks English."
+  expect = "parlez_vous_anglais"
+  partner = "Un peu. Vous partez quand ?"
+  partner_meaning = "A little. When are you leaving?"
+
+  [[dialogues.turns]]
+  cue = "Say you're leaving tomorrow."
+  expect_text = "Je pars demain."
+  expect_meaning = "I'm leaving tomorrow."
+  partner = "D'accord. Le taxi est à huit heures, ça va ?"
+  partner_meaning = "OK. The taxi is at eight, is that alright?"
+
+  [[dialogues.turns]]
+  cue = "Say you don't understand."
+  expect = "je_ne_comprends_pas"
+  partner = "Le taxi… demain… huit heures."
+  partner_meaning = "The taxi… tomorrow… eight o'clock."
+
+  [[dialogues.turns]]
+  cue = "Say OK, and thank her."
+  expect_text = "D'accord. Merci."
+  expect_meaning = "OK. Thank you."
+  partner = "Bonne soirée !"
+  partner_meaning = "Have a good evening!"

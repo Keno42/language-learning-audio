@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "audiolesson"
+version = "0.1.0"
+description = "Generate audio-first, recall-driven language lessons (prompt → silence → answer) with spaced reactivation across lessons."
+requires-python = ">=3.11"
+readme = "README.md"
+license = { text = "MIT" }
+dependencies = []
+
+[project.optional-dependencies]
+edge = ["edge-tts>=7"]
+dev = ["pytest"]
+
+[project.scripts]
+audiolesson = "audiolesson.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["audiolesson*"]
+
+[tool.setuptools.package-data]
+audiolesson = ["phrasing/*.toml"]
