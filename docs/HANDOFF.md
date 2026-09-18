@@ -1,15 +1,13 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-18 (session 7: working through the repo's open GitHub
-issues one at a time, oldest first)._ Keep this current: whoever picks the
-project up next, human or AI, should be able to continue from here without
-re-deriving decisions._
+_Last updated 2026-09-18 (session 7: resolved GitHub issues #7–#10, oldest
+first)._ Keep this current: whoever picks the project up next, human or AI,
+should be able to continue from here without re-deriving decisions._
 
 ## Session 7: working through the open GitHub issues, oldest first
 
 The owner filed four issues (#7–#10, all with self-explanatory titles and no
-body) and asked for them to be resolved one at a time, in order. This session
-did #7; #8–#10 are next.
+body) and asked for them to be resolved one at a time, in order.
 
 ### Issue #7 — "/" is read aloud as "slash" instead of "or"
 
@@ -127,6 +125,36 @@ Test added in `tests/test_audiolesson.py::CurriculumTests`:
 `test_long_single_word_is_hard_and_builds_backward_by_syllable` — a short
 two-syllable word stays "easy," a long compound is flagged hard and its
 chunks are genuine, space-free tails of the word that reassemble into it.
+
+### Issue #10 — watch for homographs like "bolli"/"galli" the way "halló" needed
+
+Neither "bolli" nor "galli" is in any curriculum yet, so there is no live
+bug here — this issue is the owner asking, in the direct aftermath of the
+"halló" citation mistake earlier in this session (see the "Correction"
+under session 6), for future curriculum work to actually watch for that
+failure mode instead of repeating it. That's a process gap, not a code one,
+so the fix is a documented guideline rather than a change to any word.
+
+Added to `docs/CURRICULUM.md`'s "Guidelines that make lessons good": before
+writing `pronunciation_notes` or a `RESPELL_FOR_SPEECH` override, read the
+whole dictionary entry for the specific word being taught, not just the
+first result that confirms an existing hypothesis — a spelling can be a
+homograph with an unrelated etymology and a different pronunciation, and
+citing the general rule for a language isn't the same as citing the
+specific word. Named "bolli" and "galli" explicitly, since the owner raised
+them, as words worth that check if/when they're added.
+
+Also fixed two lines in `docs/CURRICULUM.md`'s field table left stale by
+session 7's own issue #9 fix: `difficulty`'s row didn't mention that a
+single long word now also triggers backward build, and `chunks`'s row said
+it only applied to `phrase`-kind items when `vocab` items use it too (the
+Icelandic vocabulary words this session added syllable chunking for are all
+`kind = "vocab"`).
+
+No test to add — this is documentation only. Ran the full suite anyway to
+confirm the doc-only change didn't touch anything.
+
+This closes out issues #7–#10, in the order they were filed.
 
 ## Session 6: owner overrode session 5's "leave it, it's correct" call
 
