@@ -78,6 +78,56 @@ directly (bypassing the planner) on the sample curriculum's first plain
 item and asserts a `pause` segment sits on both sides of the narrate/speak
 boundary.
 
+### Issue #9 — long words are hard to hold in memory; break them down
+
+The existing "hard phrase" build-up (`Item.is_hard()` /
+`Item.backward_chunks()`, used by `Builder.intro()`) already grows a
+multi-word phrase backward from the end, one word at a time. It never
+applied to a single long word, though, because `word_count` is 1 regardless
+of how many syllables that one word has — so something like Icelandic
+"flugvöllurinn" (airport, the) or "hjúkrunarfræðingur" (nurse) got no
+build-up at all, which is exactly the case the issue describes.
+
+Considered hand-authoring `chunks =` overrides on the specific long words
+already flagged as hard elsewhere in this repo's own notes — that's the
+existing, already-correct escape hatch, and costs zero new code — but it
+only fixes the handful of words someone remembers to tag, and the
+Icelandic course alone has ~370 single-word vocabulary items (of which
+about 108 are long enough to want this). Went with a general fix instead:
+
+- `audiolesson/content.py` adds `_syllable_pieces()`: split a word at the
+  boundary before each vowel-run's onset, leaving one consonant with the
+  following syllable when more than one precedes it. **This is a mechanical,
+  vowel-anchored heuristic, not a phonological syllabifier** — say so
+  explicitly in the code comment, because after session 6's mis-cited "halló"
+  claim, this file is not going to assert linguistic authority it doesn't
+  have again. Icelandic in particular allows onset clusters the heuristic
+  doesn't know about (`verkfræðingur` splits as `verkf-ræð-in-gur` here, where
+  a real syllabification keeps `fr` together: `verk-fræð-ing-ur`). What it
+  reliably does is land next to a vowel, so every piece is still something a
+  learner can say as one unit and the pieces still concatenate back to the
+  exact word — good enough for "build it up gradually," not offered as a
+  pronunciation authority.
+- `Item.is_hard()` now also returns `True` for a single word with 3+ vowel
+  runs (an approximate syllable count) — the same threshold used to size the
+  build-up, not a separate guess.
+- `Item.backward_chunks()` routes a single word through `_syllable_pieces()`
+  and joins the growing tail with no separator (`""` instead of `" "`),
+  since there's no space to rejoin on within one word; multi-word phrases
+  are unaffected.
+
+Checked the blast radius before committing to this being "general, not
+sprawling": across the Icelandic course's 993 items, 108 single-word items
+(~11%) newly qualify for build-up; the French sample curriculum flags one
+(`Enchanté.`, genuinely three syllables). Full test suite (`test_full_course_
+over_the_icelandic_set` et al.) still passes, so the extra build-up doesn't
+blow the lesson-length budget.
+
+Test added in `tests/test_audiolesson.py::CurriculumTests`:
+`test_long_single_word_is_hard_and_builds_backward_by_syllable` — a short
+two-syllable word stays "easy," a long compound is flagged hard and its
+chunks are genuine, space-free tails of the word that reassemble into it.
+
 ## Session 6: owner overrode session 5's "leave it, it's correct" call
 
 Session 5 (below) judged the `[hatlo]`-ish sound *very likely* correct

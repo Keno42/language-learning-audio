@@ -17,6 +17,28 @@ KINDS = ("vocab", "phrase", "construction", "transform")
 _SLOT_RE = re.compile(r"\{(\w+)\}")
 _WORD_RE = re.compile(r"\w+", re.UNICODE)
 
+# Vowel letters used by this project's target languages (French, Icelandic), including
+# accented forms. A maximal run of these is treated as one syllable nucleus below — not a
+# claim about real syllable boundaries (Icelandic in particular allows onset clusters this
+# doesn't know about, e.g. "fræð-" keeps both consonants), just a mechanical, vowel-anchored
+# split that reliably lands somewhere a learner can pronounce as one piece.
+_VOWEL_RUN_RE = re.compile(r"[aáàâäæeéèêëiíîïoóôöœuúùûüyýÿ]+", re.IGNORECASE)
+
+
+def _syllable_pieces(word: str) -> list[str]:
+    runs = list(_VOWEL_RUN_RE.finditer(word))
+    if len(runs) < 2:
+        return [word]
+    pieces = []
+    start = 0
+    for prev, cur in zip(runs, runs[1:]):
+        gap = cur.start() - prev.end()
+        boundary = cur.start() - 1 if gap > 1 else cur.start()  # leave one consonant as the onset
+        pieces.append(word[start:boundary])
+        start = boundary
+    pieces.append(word[start:])
+    return pieces
+
 
 @dataclass
 class TransformExample:
@@ -61,24 +83,36 @@ class Item:
 
     def is_hard(self) -> bool:
         """Should the introduction use backward construction?"""
-        return bool(self.chunks) or self.difficulty >= 4 or self.word_count >= 5
+        if self.chunks or self.difficulty >= 4 or self.word_count >= 5:
+            return True
+        # a single long word (3+ syllable-ish vowel runs) is just as hard to hold in memory
+        # as a multi-word phrase, even though word_count alone can't see that
+        return self.word_count == 1 and len(_VOWEL_RUN_RE.findall(self.target)) >= 3
 
     def backward_chunks(self) -> list[str]:
         """Progressively longer tails of the phrase, shortest first.
 
-        Authors can override with ``chunks``; otherwise we split on words and
-        grow from the end, skipping single trailing punctuation.
+        Authors can override with ``chunks``; otherwise multi-word phrases split on
+        words, and a single long word splits into syllable-shaped pieces (see
+        ``_syllable_pieces``) — either way we grow from the end.
         """
         if self.chunks:
             return list(self.chunks)
         words = self.target.split()
-        if len(words) <= 2:
+        if len(words) == 1:
+            pieces = _syllable_pieces(words[0])
+        elif len(words) <= 2:
+            return [self.target]
+        else:
+            pieces = words
+        if len(pieces) < 2:
             return [self.target]
         out = []
-        # 1 word, 2 words, ... but cap at 4 partial steps before the full phrase
-        steps = min(len(words) - 1, 4)
+        sep = "" if len(words) == 1 else " "
+        # 1 piece, 2 pieces, ... but cap at 4 partial steps before the full phrase
+        steps = min(len(pieces) - 1, 4)
         for n in range(1, steps + 1):
-            out.append(" ".join(words[-n:]))
+            out.append(sep.join(pieces[-n:]))
         out.append(self.target)
         return out
 

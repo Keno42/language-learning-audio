@@ -196,6 +196,22 @@ class CurriculumTests(unittest.TestCase):
         for a, b in zip(chunks, chunks[1:]):
             self.assertTrue(b.rstrip(".?! ").endswith(a.rstrip(".?! ")), (a, b))
 
+    def test_long_single_word_is_hard_and_builds_backward_by_syllable(self):
+        """A long word is just as hard to hold in memory as a long phrase, even though it's
+        one 'word' — it should get the same backward build-up, chunked without spaces."""
+        from audiolesson.content import Item
+
+        easy = Item(id="x", kind="vocab", target="strætó", meaning="bus")
+        hard = Item(id="y", kind="vocab", target="flugvöllurinn", meaning="the airport")
+        self.assertFalse(easy.is_hard())  # short, two-syllable word: no build-up needed
+        self.assertTrue(hard.is_hard())
+        chunks = hard.backward_chunks()
+        self.assertEqual(chunks[-1], hard.target)
+        self.assertGreater(len(chunks), 1)
+        for c in chunks[:-1]:
+            self.assertNotIn(" ", c)  # syllable pieces of one word, not word-split
+            self.assertTrue(hard.target.endswith(c))  # each is a genuine tail of the word
+
 
 class LessonStructureTests(unittest.TestCase):
     def setUp(self):
