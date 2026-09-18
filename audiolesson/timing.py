@@ -21,7 +21,7 @@ LEVEL_MULTIPLIER = {"A0": 1.4, "A1": 1.2, "A2": 1.0, "B1": 0.85, "B2": 0.75}
 
 # Rough speaking rates used to *estimate* speech duration before TTS runs.
 # Real durations come from the renderer; these only steer lesson length.
-WORDS_PER_SECOND = {"default": 2.3, "en": 2.5, "fr": 2.2, "es": 2.4, "de": 2.1, "it": 2.3, "pt": 2.3}
+WORDS_PER_SECOND = {"default": 2.3, "en": 2.5, "fr": 2.2, "es": 2.4, "de": 2.1, "it": 2.3, "pt": 2.3, "is": 2.0}
 CHARS_PER_SECOND = {"ja": 5.5, "zh": 4.5, "ko": 5.0, "th": 5.0}  # languages without spaces
 
 

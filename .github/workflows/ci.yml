@@ -14,3 +14,4 @@ jobs:
         run: |
           python -m audiolesson.cli generate -c curricula/fr-en-a1.toml -l /tmp/l.json -m 3 --profile profiles/espeak.toml --date 2026-01-01
           python -m audiolesson.cli generate -c curricula/fr-ja-a1.toml -l /tmp/j.json -m 3 --provider espeak --date 2026-01-01
+          python -m audiolesson.cli generate -c curricula/is-en-a1.toml -l /tmp/i.json -m 3 --provider espeak --date 2026-01-01

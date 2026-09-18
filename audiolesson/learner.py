@@ -21,6 +21,7 @@ from pathlib import Path
 from .stages import ladder_for, next_stage, stage_index
 
 STATE_FORMAT = "audiolesson-learner/1"
+MAX_INTERVAL_DAYS = 180
 
 
 @dataclass
@@ -51,6 +52,8 @@ class LearnerState:
     items: dict[str, ItemState] = field(default_factory=dict)
     dialogues_done: dict[str, int] = field(default_factory=dict)  # id -> times practised
     lessons: list[dict] = field(default_factory=list)  # lesson log
+    pace: int | None = None  # new items per lesson, adjusted from feedback (None = default for the length)
+    reported: list[int] = field(default_factory=list)  # lesson numbers the learner gave feedback on
 
     # ---- queries ---------------------------------------------------------
 
@@ -63,6 +66,62 @@ class LearnerState:
 
     def next_lesson_number(self) -> int:
         return self.lessons_completed + 1
+
+    def due_count(self, today: date) -> int:
+        return sum(1 for i in self.items if self.review_priority(i, today) >= 1.0)
+
+    def last_lesson_failures(self) -> tuple[int, int] | None:
+        """(failed new items, new items) of the last lesson, or None if it was not reported."""
+        if not self.lessons:
+            return None
+        last = self.lessons[-1]
+        if last["number"] not in self.reported:
+            return None
+        failed = 0
+        for item_id in last.get("new_items", []):
+            st = self.items.get(item_id)
+            if st and st.history and st.history[-1].get("lesson") == last["number"] and not st.history[-1].get("ok", True):
+                failed += 1
+        return failed, len(last.get("new_items", []))
+
+    def suggest_pace(self, minutes: float, today: date) -> tuple[int, str]:
+        """Decide how many new items the next lesson should introduce, and say why.
+
+        Rules (see README "Pacing"):
+        - start at about one new item per 5 minutes (30 min → 6), never below 3 or above 10
+        - the review backlog must fit: if items due exceed ~80% of the review slots, slow down
+        - if the last reported lesson had >20% of its new items fail, slow down
+        - speed up only on evidence: last lesson reported with ≤10% failures and a small backlog
+        """
+        default = int(min(10, max(3, round(minutes / 5))))
+        pace = self.pace or default
+        reasons: list[str] = []
+        due = self.due_count(today)
+        # rough capacity: one exercise ≈ 16 s; a new item costs ≈ 6 exercises
+        review_slots = max(0, int(minutes * 60 / 16) - pace * 6)
+        backlog_ratio = due / review_slots if review_slots else 1.0
+        fb = self.last_lesson_failures()
+        fail_rate = (fb[0] / fb[1]) if fb and fb[1] else None
+        new_pace = pace
+        if backlog_ratio > 0.8:
+            new_pace -= 1
+            reasons.append(f"{due} items due vs ~{review_slots} review slots")
+        if fail_rate is not None and fail_rate > 0.2:
+            new_pace -= 1
+            reasons.append(f"{fb[0]}/{fb[1]} new items failed last lesson")
+        if new_pace == pace and fail_rate is not None and fail_rate <= 0.1 and backlog_ratio < 0.5:
+            new_pace += 1
+            reasons.append(f"last lesson reported easy ({fb[0]}/{fb[1]} failed), backlog small")
+        if self.lessons and self.lessons[-1]["number"] not in self.reported:
+            reasons.append("no feedback for the last lesson (run `audiolesson report`) — not speeding up")
+        elif fb is not None and fb[1] == 0:
+            reasons.append("last lesson was review only")
+        new_pace = int(min(10, max(3, new_pace)))
+        if new_pace != pace:
+            reasons.insert(0, f"pace {pace} → {new_pace}")
+        else:
+            reasons.insert(0, f"pace {pace}")
+        return new_pace, "; ".join(reasons)
 
     def review_priority(self, item_id: str, today: date) -> float:
         """Higher = more urgent. 0 if not due yet."""
@@ -124,18 +183,33 @@ class LearnerState:
         self.lessons_completed = max(self.lessons_completed, lesson_number)
 
     def _schedule_success(self, st: ItemState, today: date, new: bool) -> None:
+        """SM-2 flavoured. Only a review *at or after* its due date earns a longer interval;
+        an item that merely filled a gap in a lesson keeps its schedule, so intervals grow
+        with real elapsed time, not with the number of lessons."""
+        due = date.fromisoformat(st.due) if st.due else today
         if new or st.interval_days < 1:
             st.interval_days = 1
+        elif today < due:
+            return  # early: no new evidence about long-term retention, schedule unchanged
         elif st.interval_days < 3:
             st.interval_days = 3
         else:
-            st.interval_days = round(st.interval_days * st.ease, 1)
+            elapsed = (today - (due - timedelta(days=int(st.interval_days)))).days  # since the interval was set
+            st.interval_days = round(min(MAX_INTERVAL_DAYS, max(st.interval_days, elapsed) * st.ease), 1)
         st.ease = min(3.0, st.ease + 0.05)
         st.due = (today + timedelta(days=int(st.interval_days))).isoformat()
 
     def report(self, failed: list[str], easy: list[str], today: date, lesson_number: int | None = None) -> dict:
-        """Learner feedback after listening. Returns a summary of what changed."""
-        changed = {"failed": [], "easy": [], "unknown": []}
+        """Learner feedback after listening. Returns a summary of what changed.
+
+        Without ``lesson_number`` the feedback refers to the latest lesson. Calling it with
+        no failed/easy items is meaningful too: it records "I listened, everything came out".
+        """
+        if lesson_number is None:
+            lesson_number = self.lessons_completed
+        if lesson_number and lesson_number not in self.reported:
+            self.reported.append(lesson_number)
+        changed = {"failed": [], "easy": [], "unknown": [], "lesson": lesson_number}
         for item_id in failed:
             st = self.items.get(item_id)
             if not st:
@@ -157,7 +231,7 @@ class LearnerState:
                 changed["unknown"].append(item_id)
                 continue
             st.ease = min(3.0, st.ease + 0.15)
-            st.interval_days = max(st.interval_days, 1) * 1.5
+            st.interval_days = min(MAX_INTERVAL_DAYS, max(st.interval_days, 1) * 1.5)
             st.due = (today + timedelta(days=int(st.interval_days))).isoformat()
             changed["easy"].append(item_id)
         return changed
@@ -174,6 +248,8 @@ class LearnerState:
             "items": {k: asdict(v) for k, v in self.items.items()},
             "dialogues_done": self.dialogues_done,
             "lessons": self.lessons,
+            "pace": self.pace,
+            "reported": self.reported,
         }
 
     def save(self, path: str | Path) -> None:
@@ -191,6 +267,8 @@ class LearnerState:
             lessons_completed=raw.get("lessons_completed", 0),
             dialogues_done=raw.get("dialogues_done", {}),
             lessons=raw.get("lessons", []),
+            pace=raw.get("pace"),
+            reported=list(raw.get("reported", [])),
         )
         ls.items = {k: ItemState(**v) for k, v in raw.get("items", {}).items()}
         return ls

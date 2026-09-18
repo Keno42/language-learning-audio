@@ -98,7 +98,7 @@ class EspeakProvider(Provider):
 
     def default_voices(self, lang: str) -> list[str]:
         base = lang.split("-")[0].lower()
-        table = {"en": ["en-us", "en-gb", "en-us+f3"], "fr": ["fr-fr", "fr-fr+f3", "fr-be"], "ja": ["ja", "ja+f3"]}
+        table = {"en": ["en-us", "en-gb", "en-us+f3"], "fr": ["fr-fr", "fr-fr+f3", "fr-be"], "ja": ["ja", "ja+f3"], "is": ["is", "is+f3", "is+m3"]}
         return table.get(base, [base, base + "+f3", base + "+m3"])
 
 
@@ -123,6 +123,11 @@ class EdgeProvider(Provider):
         "zh": ["zh-CN-XiaoxiaoNeural", "zh-CN-YunxiNeural", "zh-CN-XiaoyiNeural"],
         "ko": ["ko-KR-SunHiNeural", "ko-KR-InJoonNeural"],
         "nl": ["nl-NL-ColetteNeural", "nl-NL-MaartenNeural"],
+        "is": ["is-IS-GudrunNeural", "is-IS-GunnarNeural"],
+        "sv": ["sv-SE-SofieNeural", "sv-SE-MattiasNeural"],
+        "no": ["nb-NO-PernilleNeural", "nb-NO-FinnNeural"],
+        "da": ["da-DK-ChristelNeural", "da-DK-JeppeNeural"],
+        "fi": ["fi-FI-NooraNeural", "fi-FI-HarriNeural"],
     }
 
     def check(self) -> str | None:

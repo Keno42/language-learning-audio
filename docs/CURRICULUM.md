@@ -76,6 +76,15 @@ A dialogue is eligible once every `expect` item and every `requires` item is
 learned. It is replayed without pauses the second time it is practised. Items
 that appear in a dialogue gain the *dialogue* stage at the top of their ladder.
 
+## Languages with cases (Icelandic, German, Russian…)
+
+Slot fills are inserted verbatim, so give each noun in the form the
+construction needs and encode the case in the tag: `acc_orderable` for what
+follows *Ég ætla að fá …*, `nom_place` for what follows *Hvar er …?*. A noun
+that is needed in two cases is two vocab items (`supu` / `supa`) — or, if
+the second use is rare, a phrase. Never tag a dictionary form into a slot that
+takes an oblique case. See `curricula/is-en-a1.toml` for the pattern.
+
 ## Guidelines that make lessons good
 
 - Introduce a construction right after (or together with) two things that fit
