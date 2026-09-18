@@ -5,257 +5,310 @@ id = "eg_vil_boka_ferd"
 kind = "phrase"
 target = "Ég vil bóka ferð."
 meaning = "I want to book a tour."
+meaning_ja = "ツアーを予約したいです。"
 difficulty = 2
 topics = ["travel"]
 situation = "At the tour desk. Say you want to book a tour."
+situation_ja = "ツアーデスクです。ツアーを予約したいと言ってください。"
 
 [[items]]
 id = "hvad_kostar_ferdin"
 kind = "phrase"
 target = "Hvað kostar ferðin?"
 meaning = "How much is the tour?"
+meaning_ja = "ツアーはいくらですか？"
 difficulty = 2
 topics = ["travel", "money"]
 prereqs = ["hvad_kostar_thetta"]
 situation = "Ask how much the tour costs."
+situation_ja = "ツアーの料金を聞いてください。"
 
 [[items]]
 id = "hvenaer_leggjum_vid_af_stad"
 kind = "phrase"
 target = "Hvenær leggjum við af stað?"
 meaning = "When do we set off?"
+meaning_ja = "出発は何時ですか？"
 difficulty = 4
 topics = ["travel", "time"]
 chunks = ["stað", "af stað", "leggjum við af stað", "Hvenær leggjum við af stað?"]
 situation = "You've booked the glacier tour. Ask when you set off."
+situation_ja = "氷河ツアーを予約しました。出発は何時か聞いてください。"
 
 [[items]]
 id = "hvad_tekur_ferdin_langan_tima"
 kind = "phrase"
 target = "Hvað tekur ferðin langan tíma?"
 meaning = "How long does the tour take?"
+meaning_ja = "ツアーはどのくらいかかりますか？"
 difficulty = 4
 topics = ["travel", "time"]
 prereqs = ["hvad_tekur_thetta_langan_tima"]
 situation = "Ask how long the tour takes."
+situation_ja = "ツアーがどのくらいかかるか聞いてください。"
 
 [[items]]
 id = "er_matur_innifalinn"
 kind = "phrase"
 target = "Er matur innifalinn?"
 meaning = "Is food included?"
+meaning_ja = "食事は含まれていますか？"
 difficulty = 3
 topics = ["travel", "food"]
 prereqs = ["er_morgunmatur_innifalinn"]
 situation = "It's a full-day tour. Ask if food is included."
+situation_ja = "一日ツアーです。食事が含まれているか聞いてください。"
 
 [[items]]
 id = "hvar_er_saekt"
 kind = "phrase"
 target = "Hvar er sótt?"
 meaning = "Where is the pick-up?"
+meaning_ja = "送迎の集合場所はどこですか？"
 difficulty = 3
 topics = ["travel"]
 situation = "The tour includes hotel pick-up. Ask where you're picked up."
+situation_ja = "ホテル送迎付きのツアーです。どこで迎えに来るか聞いてください。"
 
 [[items]]
 id = "eg_vil_fara_i_blaa_lonid"
 kind = "phrase"
 target = "Ég vil fara í Bláa lónið."
 meaning = "I want to go to the Blue Lagoon."
+meaning_ja = "ブルーラグーンに行きたいです。"
 difficulty = 3
 topics = ["travel"]
 chunks = ["lónið", "Bláa lónið", "í Bláa lónið", "Ég vil fara í Bláa lónið."]
 situation = "The receptionist asks about your plans. Say you want to go to the Blue Lagoon."
+situation_ja = "受付に予定を聞かれました。ブルーラグーンに行きたいと言ってください。"
 
 [[items]]
 id = "eg_vil_fara_gullna_hringinn"
 kind = "phrase"
 target = "Ég vil fara Gullna hringinn."
 meaning = "I want to do the Golden Circle."
+meaning_ja = "ゴールデンサークルを回りたいです。"
 difficulty = 3
 topics = ["travel"]
 chunks = ["hringinn", "Gullna hringinn", "Ég vil fara Gullna hringinn."]
 situation = "Say you want to do the Golden Circle."
+situation_ja = "ゴールデンサークルを回りたいと言ってください。"
 
 [[items]]
 id = "eg_vil_fara_a_jokul"
 kind = "phrase"
 target = "Ég vil fara á jökul."
 meaning = "I want to go on a glacier."
+meaning_ja = "氷河に登りたいです。"
 difficulty = 2
 topics = ["travel", "nature"]
 prereqs = ["jokull"]
 situation = "Say you want to go on a glacier."
+situation_ja = "氷河に登りたいと言ってください。"
 
 [[items]]
 id = "eg_vil_fara_i_hvalaskodun"
 kind = "phrase"
 target = "Ég vil fara í hvalaskoðun."
 meaning = "I want to go whale watching."
+meaning_ja = "ホエールウォッチングに行きたいです。"
 difficulty = 4
 topics = ["travel", "nature"]
 chunks = ["skoðun", "hvalaskoðun", "í hvalaskoðun", "Ég vil fara í hvalaskoðun."]
 situation = "Say you want to go whale watching."
+situation_ja = "ホエールウォッチングに行きたいと言ってください。"
 
 [[items]]
 id = "hvar_er_thetta"
 kind = "phrase"
 target = "Hvar er þetta?"
 meaning = "Where is this? (showing a picture)"
+meaning_ja = "これはどこですか？（写真を見せながら）"
 difficulty = 1
 topics = ["travel", "directions"]
 situation = "You show a photo of a waterfall. Ask where it is."
+situation_ja = "滝の写真を見せます。どこか聞いてください。"
 
 [[items]]
 id = "er_thetta_thess_virdi"
 kind = "phrase"
 target = "Er þetta þess virði?"
 meaning = "Is it worth it?"
+meaning_ja = "行く価値はありますか？"
 difficulty = 4
 topics = ["travel"]
 chunks = ["virði", "þess virði", "Er þetta þess virði?"]
 situation = "The tour is expensive. Ask a local if it's worth it."
+situation_ja = "ツアーが高いです。地元の人に行く価値があるか聞いてください。"
 
 [[items]]
 id = "hvad_maelir_thu_med"
 kind = "phrase"
 target = "Hverju mælir þú með?"
 meaning = "What do you recommend?"
+meaning_ja = "おすすめは何ですか？"
 difficulty = 4
 topics = ["travel", "cafe"]
 chunks = ["með", "mælir þú með", "Hverju mælir þú með?"]
 situation = "Too many tours to choose from. Ask what she recommends."
+situation_ja = "ツアーが多すぎて選べません。おすすめを聞いてください。"
 
 [[items]]
 id = "eg_maeli_med_thessu"
 kind = "phrase"
 target = "Ég mæli með þessu."
 meaning = "I recommend this."
+meaning_ja = "これはおすすめです。"
 difficulty = 3
 topics = ["travel"]
 prereqs = ["hvad_maelir_thu_med"]
 situation = "A fellow traveller asks about the lagoon you visited. Say you recommend it."
+situation_ja = "旅仲間があなたが行った温泉について聞きました。おすすめだと言ってください。"
 
 [[items]]
 id = "ma_eg_taka_mynd"
 kind = "phrase"
 target = "Má ég taka mynd?"
 meaning = "May I take a photo?"
+meaning_ja = "写真を撮ってもいいですか？"
 difficulty = 2
 topics = ["travel"]
 situation = "The horses are close to the fence. Ask the farmer if you may take a photo."
+situation_ja = "馬が柵の近くにいます。農家の人に写真を撮っていいか聞いてください。"
 
 [[items]]
 id = "geturdu_tekid_mynd_af_okkur"
 kind = "phrase"
 target = "Geturðu tekið mynd af okkur?"
 meaning = "Can you take a photo of us?"
+meaning_ja = "私たちの写真を撮ってもらえますか？"
 difficulty = 4
 topics = ["travel"]
 chunks = ["okkur", "af okkur", "mynd af okkur", "tekið mynd af okkur", "Geturðu tekið mynd af okkur?"]
 situation = "Ask a passer-by to take a photo of you and your friend."
+situation_ja = "通行人にあなたと友達の写真を撮ってもらうよう頼んでください。"
 
 [[items]]
 id = "hvar_er_gott_ad_borda"
 kind = "phrase"
 target = "Hvar er gott að borða?"
 meaning = "Where is a good place to eat?"
+meaning_ja = "おいしいお店はどこですか？"
 difficulty = 3
 topics = ["travel", "food"]
 situation = "Ask the receptionist where's a good place to eat."
+situation_ja = "受付の人においしいお店はどこか聞いてください。"
 
 [[items]]
 id = "er_thetta_langt_ad_keyra"
 kind = "phrase"
 target = "Er þetta langt að keyra?"
 meaning = "Is it a long drive?"
+meaning_ja = "車で遠いですか？"
 difficulty = 3
 topics = ["travel", "transport"]
 prereqs = ["er_thad_langt"]
 situation = "You're thinking of driving to Akureyri. Ask if it's a long drive."
+situation_ja = "アークレイリまで車で行こうか考えています。遠いか聞いてください。"
 
 [[items]]
 id = "thad_eru_fimm_timar"
 kind = "phrase"
 target = "Það eru fimm tímar."
 meaning = "It's five hours."
+meaning_ja = "5時間です。"
 difficulty = 2
 topics = ["travel", "time"]
 prereqs = ["fimm"]
 situation = "Someone asks how long the drive north is. Say five hours."
+situation_ja = "北へのドライブはどのくらいか聞かれました。5時間と答えてください。"
 
 [[items]]
 id = "eg_thurfti_ad_stoppa"
 kind = "phrase"
 target = "Getum við stoppað hérna?"
 meaning = "Can we stop here?"
+meaning_ja = "ここで止まれますか？"
 difficulty = 3
 topics = ["travel", "transport"]
 prereqs = ["geturdu_stoppad_herna"]
 situation = "A gorgeous view appears. Ask the driver if you can stop here."
+situation_ja = "すばらしい景色が現れました。運転手にここで止まれるか聞いてください。"
 
 [[items]]
 id = "eg_vil_gista_her"
 kind = "phrase"
 target = "Ég vil gista hér."
 meaning = "I want to stay here overnight."
+meaning_ja = "ここに泊まりたいです。"
 difficulty = 2
 topics = ["travel", "accommodation"]
 situation = "You've fallen in love with the village. Say you want to stay the night."
+situation_ja = "この村が気に入りました。ここに泊まりたいと言ってください。"
 
 [[items]]
 id = "hvar_er_tjaldstaedid"
 kind = "phrase"
 target = "Hvar er tjaldstæðið?"
 meaning = "Where is the campsite?"
+meaning_ja = "キャンプ場はどこですか？"
 difficulty = 3
 topics = ["travel", "directions"]
 chunks = ["stæðið", "tjaldstæðið", "Hvar er tjaldstæðið?"]
 situation = "You arrive with a tent. Ask where the campsite is."
+situation_ja = "テントを持って着きました。キャンプ場はどこか聞いてください。"
 
 [[items]]
 id = "ferdin_var_frabaer"
 kind = "phrase"
 target = "Ferðin var frábær."
 meaning = "The trip was great."
+meaning_ja = "ツアーはすばらしかったです。"
 difficulty = 2
 topics = ["travel"]
 situation = "Back at the hostel, someone asks about the tour. Say it was great."
+situation_ja = "ホステルに戻ると、ツアーについて聞かれました。すばらしかったと言ってください。"
 
 [[items]]
 id = "eg_er_a_leidinni"
 kind = "phrase"
 target = "Ég er á leiðinni."
 meaning = "I'm on my way."
+meaning_ja = "今向かっています。"
 difficulty = 2
 topics = ["travel", "arrangements"]
 situation = "Anna texts asking where you are. Say you're on your way."
+situation_ja = "アンナからどこにいるかメッセージです。今向かっていると答えてください。"
 
 [[items]]
 id = "eg_kem_til_baka_a_morgun"
 kind = "phrase"
 target = "Ég kem til baka á morgun."
 meaning = "I'm coming back tomorrow."
+meaning_ja = "明日戻ってきます。"
 difficulty = 3
 topics = ["travel", "arrangements"]
 prereqs = ["a_morgun"]
 situation = "You're leaving for a night in the countryside. Tell the receptionist you'll be back tomorrow."
+situation_ja = "田舎に一泊しに出かけます。受付に明日戻ると伝えてください。"
 
 [[items]]
 id = "goda_ferd"
 kind = "phrase"
 target = "Góða ferð!"
 meaning = "Have a good trip!"
+meaning_ja = "良い旅を！"
 difficulty = 1
 topics = ["travel", "greetings"]
 situation = "Your friend leaves for the airport. Wish her a good trip."
+situation_ja = "友達が空港へ向かいます。良い旅をと言ってください。"
 
 [[items]]
 id = "vegabref"
 kind = "vocab"
 target = "vegabréf"
 meaning = "a passport"
+meaning_ja = "パスポート"
 difficulty = 2
 tags = ["acc_have", "acc_thing"]
 topics = ["travel"]
@@ -265,6 +318,7 @@ id = "farangur"
 kind = "vocab"
 target = "farangur"
 meaning = "luggage"
+meaning_ja = "荷物"
 difficulty = 2
 tags = ["acc_have"]
 topics = ["travel"]
@@ -274,6 +328,7 @@ id = "bokun"
 kind = "vocab"
 target = "bókun"
 meaning = "a booking"
+meaning_ja = "予約"
 difficulty = 2
 tags = ["acc_have"]
 topics = ["travel"]
@@ -283,6 +338,7 @@ id = "bil"
 kind = "vocab"
 target = "bíl"
 meaning = "a car"
+meaning_ja = "車"
 difficulty = 1
 tags = ["acc_have", "acc_thing"]
 topics = ["travel", "transport"]
@@ -293,6 +349,7 @@ id = "eg_er_med_have"
 kind = "construction"
 target = "Ég er með {thing}."
 meaning = "I have {thing} (with me)."
+meaning_ja = "{thing}を持っています。"
 difficulty = 2
 topics = ["travel"]
 slots = { thing = "acc_have" }
@@ -304,6 +361,7 @@ id = "ertu_med"
 kind = "construction"
 target = "Ertu með {thing}?"
 meaning = "Do you have {thing} (with you)?"
+meaning_ja = "{thing}を持っていますか？"
 difficulty = 2
 topics = ["travel"]
 slots = { thing = "acc_have" }
@@ -313,32 +371,43 @@ prereqs = ["eg_er_med_have"]
 [[dialogues]]
 id = "ferdaskrifstofa"
 setting = "At a tour desk in the town centre."
+setting_ja = "町の中心のツアーデスクです。"
 topics = ["travel"]
 requires = ["eg_vil_fara_i_hvalaskodun", "hvad_kostar_ferdin", "hvenaer_leggjum_vid_af_stad", "hvar_er_saekt", "eg_aetla_ad_taka_thetta"]
 
   [[dialogues.turns]]
   opener = "Hæ! Hvað get ég gert fyrir þig?"
   opener_meaning = "Hi! What can I do for you?"
+  opener_meaning_ja = "こんにちは！ご用件は？"
   cue = "Say you want to go whale watching."
+  cue_ja = "ホエールウォッチングに行きたいと言ってください。"
   expect = "eg_vil_fara_i_hvalaskodun"
   partner = "Frábært, það er ferð á morgun."
   partner_meaning = "Great, there's a tour tomorrow."
+  partner_meaning_ja = "いいですね、明日ツアーがありますよ。"
 
   [[dialogues.turns]]
   cue = "Ask how much the tour costs."
+  cue_ja = "ツアーはいくらか聞いてください。"
   expect = "hvad_kostar_ferdin"
   partner = "Tólf þúsund krónur."
   partner_meaning = "Twelve thousand krónur."
+  partner_meaning_ja = "1万2千クローナです。"
 
   [[dialogues.turns]]
   cue = "Ask when you set off, and where the pick-up is."
+  cue_ja = "出発は何時か、集合場所はどこか聞いてください。"
   expect_text = "Hvenær leggjum við af stað? Hvar er sótt?"
   expect_meaning = "When do we set off? Where is the pick-up?"
+  expect_meaning_ja = "出発は何時ですか？送迎の集合場所はどこですか？"
   partner = "Klukkan níu, við höfnina."
   partner_meaning = "At nine, at the harbour."
+  partner_meaning_ja = "9時、港でです。"
 
   [[dialogues.turns]]
   cue = "Say you'll take it."
+  cue_ja = "これにすると言ってください。"
   expect = "eg_aetla_ad_taka_thetta"
   partner = "Góða ferð á morgun!"
   partner_meaning = "Have a good trip tomorrow!"
+  partner_meaning_ja = "明日は良い旅を！"

@@ -181,6 +181,24 @@ See `docs/CURRICULUM.md`. Three curricula ship:
 A curriculum can be one file or a directory of modules merged in filename
 order (`audiolesson validate curricula/is-en`).
 
+**Japanese instructor for the Icelandic course.** The same files carry
+Japanese glosses next to the English ones (`meaning_ja`, `situation_ja`,
+`cue_ja`, `text_ja` …), written from the Icelandic directly rather than
+translated from the English, so e.g. *Takk fyrir síðast* is 「先日はどうも」
+and *Verði þér að góðu* is 「どうぞ召し上がれ」. Select them with `--known ja`:
+
+```sh
+audiolesson generate -c curricula/is-en --known ja -l watashi.json -m 30 -p profiles/edge-is-ja.toml
+KNOWN=ja PROFILE=profiles/edge-is-ja.toml tools/daily.sh
+audiolesson validate curricula/is-en            # reports gloss coverage per language
+```
+
+Generation refuses to mix languages: if a gloss is missing in the chosen
+language it stops and names the entries (`--allow-fallback` overrides).
+Adding another learner language means adding `<field>_<lang>` lines
+(`tools/gloss.py` inserts them from a JSON map) and a
+`audiolesson/phrasing/<lang>.toml`.
+
 The instructor's own phrasing lives in `audiolesson/phrasing/<known_lang>.toml`
 (English and Japanese provided), so teaching to speakers of another language
 means translating that one file plus the `meaning`/`situation`/`cue` strings

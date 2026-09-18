@@ -5,264 +5,319 @@ id = "eg_vakna"
 kind = "phrase"
 target = "Ég vakna klukkan sjö."
 meaning = "I wake up at seven."
+meaning_ja = "7時に目が覚めます。"
 difficulty = 3
 topics = ["daily"]
 prereqs = ["klukkan_time", "sjo"]
 situation = "Anna asks when you get up. Say you wake up at seven."
+situation_ja = "アンナに何時に起きるか聞かれました。7時に目が覚めると答えてください。"
 
 [[items]]
 id = "eg_fer_a_faetur"
 kind = "phrase"
 target = "Ég fer á fætur."
 meaning = "I get up."
+meaning_ja = "起きます。"
 difficulty = 3
 topics = ["daily"]
 situation = "Describe your morning: say you get up."
+situation_ja = "朝の様子を話します。起きる、と言ってください。"
 
 [[items]]
 id = "eg_borda_morgunmat"
 kind = "phrase"
 target = "Ég borða morgunmat."
 meaning = "I eat breakfast."
+meaning_ja = "朝食を食べます。"
 difficulty = 2
 topics = ["daily", "food"]
 situation = "Say you eat breakfast."
+situation_ja = "朝食を食べると言ってください。"
 
 [[items]]
 id = "eg_drekk_kaffi"
 kind = "phrase"
 target = "Ég drekk kaffi."
 meaning = "I drink coffee."
+meaning_ja = "コーヒーを飲みます。"
 difficulty = 2
 topics = ["daily", "cafe"]
 prereqs = ["kaffi"]
 situation = "Anna asks if you're a tea person. Say you drink coffee."
+situation_ja = "アンナに紅茶派か聞かれました。コーヒーを飲むと答えてください。"
 
 [[items]]
 id = "eg_fer_i_sturtu"
 kind = "phrase"
 target = "Ég fer í sturtu."
 meaning = "I take a shower."
+meaning_ja = "シャワーを浴びます。"
 difficulty = 2
 topics = ["daily"]
 situation = "Say you take a shower."
+situation_ja = "シャワーを浴びると言ってください。"
 
 [[items]]
 id = "eg_fer_i_vinnuna"
 kind = "phrase"
 target = "Ég fer í vinnuna."
 meaning = "I go to work."
+meaning_ja = "仕事に行きます。"
 difficulty = 2
 topics = ["daily", "work"]
 situation = "Say you go to work."
+situation_ja = "仕事に行くと言ってください。"
 
 [[items]]
 id = "eg_vinn"
 kind = "phrase"
 target = "Ég vinn."
 meaning = "I work."
+meaning_ja = "働きます。"
 difficulty = 1
 topics = ["daily", "work"]
 situation = "Someone asks what you do all day. Say you work."
+situation_ja = "一日中何をしているか聞かれました。働くと答えてください。"
 
 [[items]]
 id = "eg_borda_hadegismat"
 kind = "phrase"
 target = "Ég borða hádegismat klukkan tólf."
 meaning = "I eat lunch at twelve."
+meaning_ja = "12時に昼食を食べます。"
 difficulty = 3
 topics = ["daily", "food"]
 prereqs = ["klukkan_time", "tolf"]
 chunks = ["tólf", "klukkan tólf", "hádegismat klukkan tólf", "Ég borða hádegismat klukkan tólf."]
 situation = "Say you eat lunch at twelve."
+situation_ja = "12時に昼食を食べると言ってください。"
 
 [[items]]
 id = "eg_kem_heim"
 kind = "phrase"
 target = "Ég kem heim klukkan sex."
 meaning = "I come home at six."
+meaning_ja = "6時に帰宅します。"
 difficulty = 3
 topics = ["daily"]
 prereqs = ["klukkan_time", "sex"]
 situation = "Say you come home at six."
+situation_ja = "6時に帰宅すると言ってください。"
 
 [[items]]
 id = "eg_elda_kvoldmat"
 kind = "phrase"
 target = "Ég elda kvöldmat."
 meaning = "I cook dinner."
+meaning_ja = "夕食を作ります。"
 difficulty = 2
 topics = ["daily", "food"]
 situation = "Anna asks if you eat out a lot. Say you cook dinner."
+situation_ja = "アンナに外食が多いか聞かれました。夕食を作ると答えてください。"
 
 [[items]]
 id = "eg_horfi_a_sjonvarpid"
 kind = "phrase"
 target = "Ég horfi á sjónvarpið."
 meaning = "I watch TV."
+meaning_ja = "テレビを見ます。"
 difficulty = 3
 topics = ["daily", "hobbies"]
 chunks = ["sjónvarpið", "á sjónvarpið", "Ég horfi á sjónvarpið."]
 situation = "Say you watch TV in the evening."
+situation_ja = "夜はテレビを見ると言ってください。"
 
 [[items]]
 id = "eg_les"
 kind = "phrase"
 target = "Ég les."
 meaning = "I read."
+meaning_ja = "本を読みます。"
 difficulty = 1
 topics = ["daily", "hobbies"]
 situation = "Say you read."
+situation_ja = "本を読むと言ってください。"
 
 [[items]]
 id = "eg_fer_ad_sofa"
 kind = "phrase"
 target = "Ég fer að sofa klukkan ellefu."
 meaning = "I go to bed at eleven."
+meaning_ja = "11時に寝ます。"
 difficulty = 3
 topics = ["daily"]
 prereqs = ["klukkan_time", "ellefu"]
 chunks = ["ellefu", "klukkan ellefu", "að sofa klukkan ellefu", "Ég fer að sofa klukkan ellefu."]
 situation = "Say you go to bed at eleven."
+situation_ja = "11時に寝ると言ってください。"
 
 [[items]]
 id = "eg_sef"
 kind = "phrase"
 target = "Ég sef."
 meaning = "I sleep."
+meaning_ja = "眠ります。"
 difficulty = 1
 topics = ["daily"]
 situation = "Say you sleep."
+situation_ja = "眠る、と言ってください。"
 
 [[items]]
 id = "eg_sef_illa"
 kind = "phrase"
 target = "Ég sef illa."
 meaning = "I sleep badly."
+meaning_ja = "よく眠れません。"
 difficulty = 2
 topics = ["daily", "health"]
 prereqs = ["eg_sef"]
 situation = "It's bright all night in June. Say you sleep badly."
+situation_ja = "6月は一晩中明るいです。よく眠れないと言ってください。"
 
 [[items]]
 id = "eg_fer_i_sund"
 kind = "phrase"
 target = "Ég fer í sund."
 meaning = "I go swimming."
+meaning_ja = "泳ぎに行きます。"
 difficulty = 2
 topics = ["daily", "hobbies"]
 situation = "Anna asks what you do after work. Say you go swimming."
+situation_ja = "アンナに仕事の後は何をするか聞かれました。泳ぎに行くと答えてください。"
 
 [[items]]
 id = "eg_fer_i_raektina"
 kind = "phrase"
 target = "Ég fer í ræktina."
 meaning = "I go to the gym."
+meaning_ja = "ジムに行きます。"
 difficulty = 3
 topics = ["daily", "hobbies"]
 situation = "Say you go to the gym."
+situation_ja = "ジムに行くと言ってください。"
 
 [[items]]
 id = "eg_fer_ut_ad_ganga"
 kind = "phrase"
 target = "Ég fer út að ganga."
 meaning = "I go for a walk."
+meaning_ja = "散歩に出かけます。"
 difficulty = 3
 topics = ["daily", "hobbies"]
 chunks = ["ganga", "að ganga", "út að ganga", "Ég fer út að ganga."]
 situation = "Say you go for a walk."
+situation_ja = "散歩に出かけると言ってください。"
 
 [[items]]
 id = "eg_versla"
 kind = "phrase"
 target = "Ég versla."
 meaning = "I do the shopping."
+meaning_ja = "買い物をします。"
 difficulty = 2
 topics = ["daily", "shopping"]
 situation = "Say you do the shopping."
+situation_ja = "買い物をすると言ってください。"
 
 [[items]]
 id = "eg_thvae_thvott"
 kind = "phrase"
 target = "Ég þvæ þvott."
 meaning = "I do the laundry."
+meaning_ja = "洗濯をします。"
 difficulty = 3
 topics = ["daily"]
 situation = "Say you do the laundry."
+situation_ja = "洗濯をすると言ってください。"
 
 [[items]]
 id = "eg_laeri_islensku"
 kind = "phrase"
 target = "Ég læri íslensku á hverjum degi."
 meaning = "I study Icelandic every day."
+meaning_ja = "毎日アイスランド語を勉強しています。"
 difficulty = 4
 topics = ["daily", "clarifying"]
 prereqs = ["islensku"]
 chunks = ["degi", "hverjum degi", "á hverjum degi", "íslensku á hverjum degi", "Ég læri íslensku á hverjum degi."]
 situation = "Anna is impressed by your Icelandic. Say you study every day."
+situation_ja = "アンナがあなたのアイスランド語に感心しています。毎日勉強していると言ってください。"
 
 [[items]]
 id = "eg_hlusta_a_tonlist"
 kind = "phrase"
 target = "Ég hlusta á tónlist."
 meaning = "I listen to music."
+meaning_ja = "音楽を聴きます。"
 difficulty = 3
 topics = ["daily", "hobbies"]
 situation = "Say you listen to music."
+situation_ja = "音楽を聴くと言ってください。"
 
 [[items]]
 id = "eg_hringi_i_mommu"
 kind = "phrase"
 target = "Ég hringi í mömmu."
 meaning = "I call my mum."
+meaning_ja = "母に電話します。"
 difficulty = 3
 topics = ["daily", "family"]
 situation = "It's Sunday. Say you call your mum."
+situation_ja = "日曜日です。母に電話すると言ってください。"
 
 [[items]]
 id = "eg_er_upptekin"
 kind = "phrase"
 target = "Ég er upptekin."
 meaning = "I'm busy."
+meaning_ja = "忙しいです。"
 difficulty = 3
 topics = ["daily", "work"]
 pronunciation_notes = "feminine; masculine: Ég er upptekinn."
 situation = "A friend wants to talk but you're in the middle of work. Say you're busy."
+situation_ja = "友達が話したがっていますが仕事の最中です。忙しいと言ってください。"
 
 [[items]]
 id = "eg_er_laus"
 kind = "phrase"
 target = "Ég er laus."
 meaning = "I'm free (available)."
+meaning_ja = "空いています。"
 difficulty = 2
 topics = ["daily", "arrangements"]
 situation = "Anna asks if you can meet on Friday. Say you're free."
+situation_ja = "アンナに金曜日に会えるか聞かれました。空いていると答えてください。"
 
 [[items]]
 id = "hvad_gerir_thu_a_daginn"
 kind = "phrase"
 target = "Hvað gerir þú á daginn?"
 meaning = "What do you do during the day?"
+meaning_ja = "昼間は何をしていますか？"
 difficulty = 3
 topics = ["daily"]
 prereqs = ["hvad_gerir_thu"]
 situation = "Anna is between jobs. Ask what she does during the day."
+situation_ja = "アンナは仕事の合間です。昼間は何をしているか聞いてください。"
 
 [[items]]
 id = "hvad_gerir_thu_um_helgar"
 kind = "phrase"
 target = "Hvað gerir þú um helgar?"
 meaning = "What do you do at weekends?"
+meaning_ja = "週末は何をしていますか？"
 difficulty = 3
 topics = ["daily", "hobbies"]
 prereqs = ["hvad_gerir_thu"]
 situation = "Ask Anna what she does at weekends."
+situation_ja = "アンナに週末は何をしているか聞いてください。"
 
 [[items]]
 id = "fara_heim"
 kind = "vocab"
 target = "fara heim"
 meaning = "go home"
+meaning_ja = "家に帰る"
 difficulty = 1
 tags = ["inf"]
 topics = ["daily"]
@@ -272,6 +327,7 @@ id = "sofa"
 kind = "vocab"
 target = "sofa"
 meaning = "sleep"
+meaning_ja = "寝る"
 difficulty = 1
 tags = ["inf"]
 topics = ["daily"]
@@ -281,6 +337,7 @@ id = "borda"
 kind = "vocab"
 target = "borða"
 meaning = "eat"
+meaning_ja = "食べる"
 difficulty = 1
 tags = ["inf"]
 topics = ["daily", "food"]
@@ -290,6 +347,7 @@ id = "fara_i_sund"
 kind = "vocab"
 target = "fara í sund"
 meaning = "go swimming"
+meaning_ja = "泳ぎに行く"
 difficulty = 2
 tags = ["inf"]
 topics = ["daily", "hobbies"]
@@ -299,6 +357,7 @@ id = "fara_ut"
 kind = "vocab"
 target = "fara út"
 meaning = "go out"
+meaning_ja = "外に出る"
 difficulty = 1
 tags = ["inf"]
 topics = ["daily"]
@@ -308,6 +367,7 @@ id = "hvila_mig"
 kind = "vocab"
 target = "hvíla mig"
 meaning = "rest"
+meaning_ja = "休む"
 difficulty = 2
 tags = ["inf"]
 topics = ["daily"]
@@ -317,6 +377,7 @@ id = "versla"
 kind = "vocab"
 target = "versla"
 meaning = "go shopping"
+meaning_ja = "買い物する"
 difficulty = 2
 tags = ["inf"]
 topics = ["daily", "shopping"]
@@ -326,6 +387,7 @@ id = "kaupa_mida"
 kind = "vocab"
 target = "kaupa miða"
 meaning = "buy a ticket"
+meaning_ja = "切符を買う"
 difficulty = 2
 tags = ["inf"]
 topics = ["daily", "transport"]
@@ -335,6 +397,7 @@ id = "hringja_heim"
 kind = "vocab"
 target = "hringja heim"
 meaning = "call home"
+meaning_ja = "家に電話する"
 difficulty = 2
 tags = ["inf"]
 topics = ["daily"]
@@ -344,6 +407,7 @@ id = "fara_a_safnid"
 kind = "vocab"
 target = "fara á safnið"
 meaning = "go to the museum"
+meaning_ja = "博物館に行く"
 difficulty = 2
 tags = ["inf"]
 topics = ["daily"]
@@ -353,6 +417,7 @@ id = "drekka_kaffi"
 kind = "vocab"
 target = "drekka kaffi"
 meaning = "drink coffee"
+meaning_ja = "コーヒーを飲む"
 difficulty = 1
 tags = ["inf"]
 topics = ["daily", "cafe"]
@@ -362,6 +427,7 @@ id = "eg_vil"
 kind = "construction"
 target = "Ég vil {inf}."
 meaning = "I want to {inf}."
+meaning_ja = "{inf}のがいいです。"
 difficulty = 2
 topics = ["daily"]
 slots = { inf = "inf" }
@@ -374,6 +440,7 @@ id = "eg_aetla_ad"
 kind = "construction"
 target = "Ég ætla að {inf}."
 meaning = "I'm going to {inf}."
+meaning_ja = "{inf}つもりです。"
 difficulty = 2
 topics = ["daily"]
 slots = { inf = "inf" }
@@ -385,6 +452,7 @@ id = "viltu"
 kind = "construction"
 target = "Viltu {inf}?"
 meaning = "Do you want to {inf}?"
+meaning_ja = "{inf}のはどうですか？"
 difficulty = 2
 topics = ["daily", "arrangements"]
 slots = { inf = "inf" }
@@ -396,6 +464,7 @@ id = "eg_nenni_ekki"
 kind = "construction"
 target = "Ég nenni ekki að {inf}."
 meaning = "I can't be bothered to {inf}."
+meaning_ja = "{inf}のが面倒です。"
 difficulty = 3
 topics = ["daily", "feelings"]
 slots = { inf = "inf" }
@@ -408,45 +477,58 @@ id = "transform_thu_form"
 kind = "transform"
 target = "Ég … → Þú …"
 meaning = "saying it about the listener"
+meaning_ja = "相手のこととして言う"
 difficulty = 3
 topics = ["grammar"]
 instruction = "Say it about the other person: you…"
+instruction_ja = "相手のこととして言ってください：あなたは…"
 prereqs = ["eg_by_i", "eg_vinn"]
 examples = [
-  { source = "Ég tala íslensku.", source_meaning = "I speak Icelandic.", result = "Þú talar íslensku.", result_meaning = "You speak Icelandic." },
-  { source = "Ég bý í Reykjavík.", source_meaning = "I live in Reykjavík.", result = "Þú býrð í Reykjavík.", result_meaning = "You live in Reykjavík." },
-  { source = "Ég vinn.", source_meaning = "I work.", result = "Þú vinnur.", result_meaning = "You work." },
-  { source = "Ég fer á morgun.", source_meaning = "I'm leaving tomorrow.", result = "Þú ferð á morgun.", result_meaning = "You're leaving tomorrow." },
-  { source = "Ég er þreytt.", source_meaning = "I'm tired.", result = "Þú ert þreytt.", result_meaning = "You're tired." },
-  { source = "Ég skil.", source_meaning = "I understand.", result = "Þú skilur.", result_meaning = "You understand." },
-  { source = "Ég vil kaffi.", source_meaning = "I want coffee.", result = "Þú vilt kaffi.", result_meaning = "You want coffee." },
+  { source = "Ég tala íslensku.", source_meaning = "I speak Icelandic.", source_meaning_ja = "アイスランド語を話します。", result = "Þú talar íslensku.", result_meaning = "You speak Icelandic.", result_meaning_ja = "あなたはアイスランド語を話します。" },
+  { source = "Ég bý í Reykjavík.", source_meaning = "I live in Reykjavík.", source_meaning_ja = "レイキャビクに住んでいます。", result = "Þú býrð í Reykjavík.", result_meaning = "You live in Reykjavík.", result_meaning_ja = "あなたはレイキャビクに住んでいます。" },
+  { source = "Ég vinn.", source_meaning = "I work.", source_meaning_ja = "働きます。", result = "Þú vinnur.", result_meaning = "You work.", result_meaning_ja = "あなたは働きます。" },
+  { source = "Ég fer á morgun.", source_meaning = "I'm leaving tomorrow.", source_meaning_ja = "明日出発します。", result = "Þú ferð á morgun.", result_meaning = "You're leaving tomorrow.", result_meaning_ja = "あなたは明日出発します。" },
+  { source = "Ég er þreytt.", source_meaning = "I'm tired.", source_meaning_ja = "疲れました。", result = "Þú ert þreytt.", result_meaning = "You're tired.", result_meaning_ja = "あなたは疲れています。" },
+  { source = "Ég skil.", source_meaning = "I understand.", source_meaning_ja = "わかります。", result = "Þú skilur.", result_meaning = "You understand.", result_meaning_ja = "あなたはわかっています。" },
+  { source = "Ég vil kaffi.", source_meaning = "I want coffee.", source_meaning_ja = "コーヒーが欲しいです。", result = "Þú vilt kaffi.", result_meaning = "You want coffee.", result_meaning_ja = "あなたはコーヒーが欲しいです。" },
 ]
 
 [[dialogues]]
 id = "dagurinn"
 setting = "Anna asks about your day over coffee."
+setting_ja = "コーヒーを飲みながら、アンナがあなたの一日について聞きます。"
 topics = ["daily"]
 requires = ["eg_vakna", "eg_fer_i_vinnuna", "eg_fer_i_sund", "eg_elda_kvoldmat", "eg_fer_ad_sofa", "hvad_gerir_thu_um_helgar"]
 
   [[dialogues.turns]]
   opener = "Hvenær vaknar þú?"
   opener_meaning = "When do you wake up?"
+  opener_meaning_ja = "何時に起きるの？"
   cue = "Say you wake up at seven and go to work."
+  cue_ja = "7時に目が覚めて、仕事に行くと言ってください。"
   expect_text = "Ég vakna klukkan sjö. Ég fer í vinnuna."
   expect_meaning = "I wake up at seven. I go to work."
+  expect_meaning_ja = "7時に目が覚めます。仕事に行きます。"
   partner = "Og eftir vinnu?"
   partner_meaning = "And after work?"
+  partner_meaning_ja = "仕事の後は？"
 
   [[dialogues.turns]]
   cue = "Say you go swimming and cook dinner."
+  cue_ja = "泳ぎに行って、夕食を作ると言ってください。"
   expect_text = "Ég fer í sund. Ég elda kvöldmat."
   expect_meaning = "I go swimming. I cook dinner."
+  expect_meaning_ja = "泳ぎに行きます。夕食を作ります。"
   partner = "Hvenær ferðu að sofa?"
   partner_meaning = "When do you go to bed?"
+  partner_meaning_ja = "何時に寝るの？"
 
   [[dialogues.turns]]
   cue = "Say you go to bed at eleven, then ask what she does at weekends."
+  cue_ja = "11時に寝ると言って、週末は何をしているか聞いてください。"
   expect_text = "Ég fer að sofa klukkan ellefu. Hvað gerir þú um helgar?"
   expect_meaning = "I go to bed at eleven. What do you do at weekends?"
+  expect_meaning_ja = "11時に寝ます。週末は何をしていますか？"
   partner = "Ég fer út að ganga með hundinn."
   partner_meaning = "I go for a walk with the dog."
+  partner_meaning_ja = "犬と散歩に出かけるの。"

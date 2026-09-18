@@ -22,7 +22,9 @@ def main(argv: list[str] | None = None) -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     g = sub.add_parser("generate", help="plan the next lesson, write script + transcript (+ audio), update the learner model")
-    g.add_argument("--curriculum", "-c", required=True, help="curriculum .toml")
+    g.add_argument("--curriculum", "-c", required=True, help="curriculum .toml or directory of modules")
+    g.add_argument("--known", default=None, help="learner's language when the curriculum carries several glosses (e.g. ja)")
+    g.add_argument("--allow-fallback", action="store_true", help="use the primary-language text where a gloss in --known is missing")
     g.add_argument("--learner", "-l", required=True, help="learner state .json (created if missing)")
     g.add_argument("--out", "-o", default="out", help="output directory (default: out/)")
     g.add_argument("--minutes", "-m", type=float, default=15.0)
@@ -67,11 +69,13 @@ def main(argv: list[str] | None = None) -> int:
     st = sub.add_parser("status", help="show learner progress and what is due")
     st.add_argument("--learner", "-l", required=True)
     st.add_argument("--curriculum", "-c", default=None)
+    st.add_argument("--known", default=None)
     st.add_argument("--date", default=None)
     st.set_defaults(func=cmd_status)
 
-    v = sub.add_parser("validate", help="check a curriculum file")
+    v = sub.add_parser("validate", help="check a curriculum file or directory, and its gloss coverage per language")
     v.add_argument("curriculum")
+    v.add_argument("--known", default=None, help="report what is missing for this learner language")
     v.set_defaults(func=cmd_validate)
 
     vo = sub.add_parser("voices", help="list default voices a provider offers for a language")
@@ -94,8 +98,20 @@ def _split(s: str) -> list[str]:
     return [x.strip() for x in s.split(",") if x.strip()]
 
 
+def _load(path: str, known: str | None, allow_fallback: bool = False):
+    cur = load_curriculum(path, known_lang=known)
+    if known and cur.missing_glosses and not allow_fallback:
+        sample = ", ".join(cur.missing_glosses[:8])
+        raise CurriculumError(
+            f"{len(cur.missing_glosses)} strings have no {known!r} gloss (e.g. {sample}); add them or pass --allow-fallback"
+        )
+    if known and cur.missing_glosses:
+        print(f"warning: {len(cur.missing_glosses)} strings fall back to {cur.known_langs[0]!r}", file=sys.stderr)
+    return cur
+
+
 def cmd_generate(args) -> int:
-    cur = load_curriculum(args.curriculum)
+    cur = _load(args.curriculum, args.known, args.allow_fallback)
     learner = LearnerState.load_or_create(args.learner, cur.target_lang, cur.known_lang, cur.level)
     level = args.level or learner.level or cur.level
     today = parse_date(args.date)
@@ -244,7 +260,7 @@ def cmd_report(args) -> int:
 def cmd_status(args) -> int:
     learner = LearnerState.load(args.learner)
     today = parse_date(args.date)
-    cur = load_curriculum(args.curriculum) if args.curriculum else None
+    cur = load_curriculum(args.curriculum, known_lang=args.known) if args.curriculum else None
     print(f"{learner.target_lang} for {learner.known_lang} speakers, level {learner.level}, {learner.lessons_completed} lessons, {len(learner.items)} items met")
     if cur:
         unmet = [i.id for i in cur.items if i.id not in learner.items]
@@ -272,11 +288,24 @@ def cmd_status(args) -> int:
 
 
 def cmd_validate(args) -> int:
-    cur = load_curriculum(args.curriculum)
+    cur = load_curriculum(args.curriculum, known_lang=args.known)
     kinds = {}
     for i in cur.items:
         kinds[i.kind] = kinds.get(i.kind, 0) + 1
     print(f"ok: {cur.name} ({cur.target_lang} for {cur.known_lang} speakers): {len(cur.items)} items {kinds}, {len(cur.dialogues)} dialogues, {len(cur.notes)} notes, topics {cur.topics()}")
+    others = [l for l in cur.known_langs if l != cur.known_langs[0]]
+    if others:
+        print(f"glosses also available for: {', '.join(others)}")
+    for lang in others if not args.known else [args.known]:
+        c = load_curriculum(args.curriculum, known_lang=lang)
+        total = len(load_curriculum(args.curriculum, known_lang="zz").missing_glosses)  # every glossable string
+        if c.missing_glosses:
+            by_item: dict[str, int] = {}
+            for m in c.missing_glosses:
+                by_item[m.split(".")[0]] = by_item.get(m.split(".")[0], 0) + 1
+            print(f"{lang}: {total - len(c.missing_glosses)}/{total} strings glossed; missing in {len(by_item)} entries, e.g. {', '.join(list(by_item)[:10])}")
+        else:
+            print(f"{lang}: complete ({total} strings)")
     return 0
 
 

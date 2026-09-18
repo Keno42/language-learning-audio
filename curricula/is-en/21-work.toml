@@ -5,237 +5,286 @@ id = "eg_vinn_a_skrifstofu"
 kind = "phrase"
 target = "Ég vinn á skrifstofu."
 meaning = "I work in an office."
+meaning_ja = "オフィスで働いています。"
 difficulty = 3
 topics = ["work"]
 prereqs = ["eg_vinn"]
 situation = "Anna asks where you work. Say you work in an office."
+situation_ja = "アンナにどこで働いているか聞かれました。オフィスだと答えてください。"
 
 [[items]]
 id = "eg_vinn_heima"
 kind = "phrase"
 target = "Ég vinn heima."
 meaning = "I work from home."
+meaning_ja = "在宅で働いています。"
 difficulty = 2
 topics = ["work"]
 prereqs = ["eg_vinn"]
 situation = "Say you work from home."
+situation_ja = "在宅で働いていると言ってください。"
 
 [[items]]
 id = "eg_er_i_skola"
 kind = "phrase"
 target = "Ég er í skóla."
 meaning = "I'm at school (a student)."
+meaning_ja = "学校に通っています。"
 difficulty = 2
 topics = ["work"]
 situation = "Someone asks what you do. Say you're a student — at school."
+situation_ja = "何をしているか聞かれました。学生で、学校に通っていると答えてください。"
 
 [[items]]
 id = "eg_er_i_haskola"
 kind = "phrase"
 target = "Ég er í háskóla."
 meaning = "I'm at university."
+meaning_ja = "大学に通っています。"
 difficulty = 2
 topics = ["work"]
 prereqs = ["eg_er_i_skola"]
 situation = "Say you're at university."
+situation_ja = "大学に通っていると言ってください。"
 
 [[items]]
 id = "hvad_ertu_ad_laera"
 kind = "phrase"
 target = "Hvað ertu að læra?"
 meaning = "What are you studying?"
+meaning_ja = "何を勉強しているの？"
 difficulty = 3
 topics = ["work"]
 prereqs = ["eg_er_i_haskola"]
 situation = "Anna says she's at university. Ask what she's studying."
+situation_ja = "アンナが大学生だと言いました。何を勉強しているか聞いてください。"
 
 [[items]]
 id = "eg_er_ad_laera_tolvunarfraedi"
 kind = "phrase"
 target = "Ég er að læra tölvunarfræði."
 meaning = "I'm studying computer science."
+meaning_ja = "コンピューターサイエンスを勉強しています。"
 difficulty = 4
 topics = ["work"]
 chunks = ["fræði", "tölvunarfræði", "að læra tölvunarfræði", "Ég er að læra tölvunarfræði."]
 situation = "Say you're studying computer science."
+situation_ja = "コンピューターサイエンスを勉強していると言ってください。"
 
 [[items]]
 id = "eg_er_i_vinnunni"
 kind = "phrase"
 target = "Ég er í vinnunni."
 meaning = "I'm at work."
+meaning_ja = "職場にいます。"
 difficulty = 2
 topics = ["work"]
 situation = "A friend calls in the afternoon. Say you're at work."
+situation_ja = "午後に友達から電話です。職場にいると言ってください。"
 
 [[items]]
 id = "eg_er_i_frii_a_morgun"
 kind = "phrase"
 target = "Ég er í fríi á morgun."
 meaning = "I'm off tomorrow."
+meaning_ja = "明日は休みです。"
 difficulty = 3
 topics = ["work", "arrangements"]
 prereqs = ["eg_er_i_frii", "a_morgun"]
 situation = "Anna asks if you can meet tomorrow. Say you're off tomorrow."
+situation_ja = "アンナに明日会えるか聞かれました。明日は休みだと答えてください。"
 
 [[items]]
 id = "eg_er_ad_vinna"
 kind = "phrase"
 target = "Ég er að vinna."
 meaning = "I'm working (right now)."
+meaning_ja = "仕事中です。"
 difficulty = 2
 topics = ["work"]
 situation = "Someone asks if you can chat. Say you're working."
+situation_ja = "話せるか聞かれました。仕事中だと言ってください。"
 
 [[items]]
 id = "eg_hef_fund"
 kind = "phrase"
 target = "Ég er á fundi."
 meaning = "I'm in a meeting."
+meaning_ja = "会議中です。"
 difficulty = 2
 topics = ["work"]
 situation = "Text back: you're in a meeting."
+situation_ja = "返信してください：会議中です。"
 
 [[items]]
 id = "fundurinn_er_klukkan_tiu"
 kind = "phrase"
 target = "Fundurinn er klukkan tíu."
 meaning = "The meeting is at ten."
+meaning_ja = "会議は10時です。"
 difficulty = 3
 topics = ["work", "time"]
 prereqs = ["klukkan_time", "tiu"]
 situation = "A colleague asks when the meeting is. Say it's at ten."
+situation_ja = "同僚に会議は何時か聞かれました。10時だと答えてください。"
 
 [[items]]
 id = "get_eg_fengid_fri"
 kind = "phrase"
 target = "Get ég fengið frí á föstudaginn?"
 meaning = "Can I have Friday off?"
+meaning_ja = "金曜日に休みをもらえますか？"
 difficulty = 4
 topics = ["work"]
 prereqs = ["get_eg_fengid", "a_fostudaginn"]
 chunks = ["föstudaginn", "á föstudaginn", "frí á föstudaginn", "Get ég fengið frí á föstudaginn?"]
 situation = "Ask your boss if you can have Friday off."
+situation_ja = "上司に金曜日に休めるか聞いてください。"
 
 [[items]]
 id = "eg_er_med_frest"
 kind = "phrase"
 target = "Ég er með skilafrest á morgun."
 meaning = "I have a deadline tomorrow."
+meaning_ja = "明日が締め切りです。"
 difficulty = 4
 topics = ["work"]
 chunks = ["morgun", "á morgun", "skilafrest á morgun", "Ég er með skilafrest á morgun."]
 situation = "Explain why you can't come out: you have a deadline tomorrow."
+situation_ja = "出かけられない理由を説明してください：明日が締め切りです。"
 
 [[items]]
 id = "eg_er_i_pasu"
 kind = "phrase"
 target = "Ég er í pásu."
 meaning = "I'm on a break."
+meaning_ja = "休憩中です。"
 difficulty = 2
 topics = ["work"]
 situation = "A colleague asks if you're free to talk. Say you're on a break."
+situation_ja = "同僚に話せるか聞かれました。休憩中だと答えてください。"
 
 [[items]]
 id = "eg_er_ad_senda_tolvupost"
 kind = "phrase"
 target = "Ég er að senda tölvupóst."
 meaning = "I'm sending an email."
+meaning_ja = "メールを送っています。"
 difficulty = 3
 topics = ["work", "practical"]
 chunks = ["póst", "tölvupóst", "senda tölvupóst", "Ég er að senda tölvupóst."]
 situation = "Say you're sending an email."
+situation_ja = "メールを送っていると言ってください。"
 
 [[items]]
 id = "geturdu_sent_mer_thetta"
 kind = "phrase"
 target = "Geturðu sent mér þetta?"
 meaning = "Can you send me this?"
+meaning_ja = "これを送ってもらえますか？"
 difficulty = 3
 topics = ["work", "practical"]
 situation = "A colleague shows you a document. Ask her to send it to you."
+situation_ja = "同僚が書類を見せてくれました。送ってもらうよう頼んでください。"
 
 [[items]]
 id = "eg_skil_thetta_ekki"
 kind = "phrase"
 target = "Ég skil þetta ekki."
 meaning = "I don't understand this."
+meaning_ja = "これがわかりません。"
 difficulty = 2
 topics = ["work", "clarifying"]
 prereqs = ["eg_skil_ekki"]
 situation = "You're looking at a confusing form. Say you don't understand this."
+situation_ja = "わかりにくい書類を見ています。これがわからないと言ってください。"
 
 [[items]]
 id = "geturdu_utskyrt_thetta"
 kind = "phrase"
 target = "Geturðu útskýrt þetta?"
 meaning = "Can you explain this?"
+meaning_ja = "これを説明してもらえますか？"
 difficulty = 3
 topics = ["work", "clarifying"]
 situation = "Ask a colleague to explain the form."
+situation_ja = "同僚に書類の説明を頼んでください。"
 
 [[items]]
 id = "eg_er_buin_med_verkefnid"
 kind = "phrase"
 target = "Ég er búin með verkefnið."
 meaning = "I've finished the task."
+meaning_ja = "作業が終わりました。"
 difficulty = 3
 topics = ["work"]
 pronunciation_notes = "feminine; masculine: Ég er búinn með verkefnið."
 prereqs = ["eg_er_buin"]
 situation = "Tell your boss you've finished the task."
+situation_ja = "上司に作業が終わったと伝えてください。"
 
 [[items]]
 id = "gott_starf"
 kind = "phrase"
 target = "Vel gert!"
 meaning = "Well done!"
+meaning_ja = "よくやった！"
 difficulty = 1
 topics = ["work", "social"]
 situation = "A colleague finished a hard task. Say well done."
+situation_ja = "同僚が難しい仕事を終えました。よくやったと言ってください。"
 
 [[items]]
 id = "hvad_er_kaupid"
 kind = "phrase"
 target = "Hvað eru launin?"
 meaning = "What's the salary?"
+meaning_ja = "給料はいくらですか？"
 difficulty = 3
 topics = ["work", "money"]
 situation = "At the end of a job interview, ask about the salary."
+situation_ja = "面接の終わりに、給料について聞いてください。"
 
 [[items]]
 id = "eg_er_atvinnulaus"
 kind = "phrase"
 target = "Ég er atvinnulaus."
 meaning = "I'm unemployed."
+meaning_ja = "失業中です。"
 difficulty = 3
 topics = ["work"]
 situation = "Someone asks about your job. Say you're unemployed."
+situation_ja = "仕事について聞かれました。失業中だと答えてください。"
 
 [[items]]
 id = "eg_er_ad_leita_ad_vinnu"
 kind = "phrase"
 target = "Ég er að leita að vinnu."
 meaning = "I'm looking for a job."
+meaning_ja = "仕事を探しています。"
 difficulty = 3
 topics = ["work"]
 prereqs = ["eg_er_ad_leita_ad"]
 situation = "Say you're looking for a job."
+situation_ja = "仕事を探していると言ってください。"
 
 [[items]]
 id = "eg_er_a_eftirlaunum"
 kind = "phrase"
 target = "Ég er á eftirlaunum."
 meaning = "I'm retired."
+meaning_ja = "退職しています。"
 difficulty = 3
 topics = ["work"]
 situation = "Someone asks what you do. Say you're retired."
+situation_ja = "何をしているか聞かれました。退職していると答えてください。"
 
 [[items]]
 id = "skolinn"
 kind = "vocab"
 target = "skólinn"
 meaning = "the school"
+meaning_ja = "学校"
 difficulty = 1
 tags = ["nom_place"]
 topics = ["work"]
@@ -245,6 +294,7 @@ id = "haskolinn"
 kind = "vocab"
 target = "háskólinn"
 meaning = "the university"
+meaning_ja = "大学"
 difficulty = 2
 tags = ["nom_place"]
 topics = ["work"]
@@ -254,6 +304,7 @@ id = "skrifstofan"
 kind = "vocab"
 target = "skrifstofan"
 meaning = "the office"
+meaning_ja = "オフィス"
 difficulty = 2
 tags = ["nom_place"]
 topics = ["work"]
@@ -263,6 +314,7 @@ id = "fundur"
 kind = "vocab"
 target = "fundur"
 meaning = "a meeting"
+meaning_ja = "会議"
 difficulty = 1
 topics = ["work"]
 
@@ -271,6 +323,7 @@ id = "verkefni"
 kind = "vocab"
 target = "verkefni"
 meaning = "a task / project"
+meaning_ja = "作業／プロジェクト"
 difficulty = 2
 topics = ["work"]
 
@@ -279,6 +332,7 @@ id = "yfirmadur"
 kind = "vocab"
 target = "yfirmaður"
 meaning = "a boss"
+meaning_ja = "上司"
 difficulty = 2
 topics = ["work"]
 
@@ -287,6 +341,7 @@ id = "vinna_verb"
 kind = "vocab"
 target = "vinna"
 meaning = "work (to work)"
+meaning_ja = "働く"
 difficulty = 1
 tags = ["inf"]
 topics = ["work"]
@@ -296,6 +351,7 @@ id = "laera"
 kind = "vocab"
 target = "læra"
 meaning = "study / learn"
+meaning_ja = "勉強する"
 difficulty = 1
 tags = ["inf"]
 topics = ["work"]
@@ -303,31 +359,42 @@ topics = ["work"]
 [[dialogues]]
 id = "vidtal"
 setting = "A casual job interview at a café in Reykjavík."
+setting_ja = "レイキャビクのカフェで、くだけた面接です。"
 topics = ["work"]
 requires = ["eg_er_job", "forritari", "eg_vinn_hja", "eg_er_ad_laera", "islensku", "hvad_er_kaupid", "takk_kaerlega"]
 
   [[dialogues.turns]]
   opener = "Segðu mér aðeins frá þér."
   opener_meaning = "Tell me a bit about yourself."
+  opener_meaning_ja = "自己紹介をお願いします。"
   cue = "Say you're a programmer and you work at a small company."
+  cue_ja = "プログラマーで、小さな会社で働いていると言ってください。"
   expect_text = "Ég er forritari. Ég vinn hjá litlu fyrirtæki."
   expect_meaning = "I'm a programmer. I work at a small company."
+  expect_meaning_ja = "プログラマーです。小さな会社で働いています。"
   partner = "Og þú talar íslensku?"
   partner_meaning = "And you speak Icelandic?"
+  partner_meaning_ja = "それで、アイスランド語を話すんですね？"
 
   [[dialogues.turns]]
   cue = "Say you're learning Icelandic."
+  cue_ja = "アイスランド語を勉強していると言ってください。"
   expect_text = "Ég er að læra íslensku."
   expect_meaning = "I'm learning Icelandic."
+  expect_meaning_ja = "アイスランド語を勉強しています。"
   partner = "Það heyrist. Hefurðu einhverjar spurningar?"
   partner_meaning = "One can hear that. Do you have any questions?"
+  partner_meaning_ja = "聞けばわかります。何か質問はありますか？"
 
   [[dialogues.turns]]
   cue = "Ask what the salary is."
+  cue_ja = "給料はいくらか聞いてください。"
   expect = "hvad_er_kaupid"
   partner = "Við ræðum það í næsta viðtali. Takk fyrir að koma!"
   partner_meaning = "We'll discuss that in the next interview. Thanks for coming!"
+  partner_meaning_ja = "それは次の面接で話しましょう。来てくれてありがとう！"
 
   [[dialogues.turns]]
   cue = "Thank her warmly."
+  cue_ja = "心からお礼を言ってください。"
   expect = "takk_kaerlega"

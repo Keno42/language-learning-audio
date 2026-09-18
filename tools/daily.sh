@@ -5,6 +5,7 @@
 #
 #   CURRICULUM=curricula/is-en LEARNER=learner-is.json PROFILE=profiles/edge-is-en.toml \
 #   MINUTES=30 OUT=lessons/is AUTO=1 tools/daily.sh      # AUTO=1: no daily report needed
+#   KNOWN=ja PROFILE=profiles/edge-is-ja.toml … tools/daily.sh   # Japanese instructions
 #
 # After listening, record how it went (this is what lets the pace go *up*):
 #   audiolesson report -l learner-is.json                     # everything came out
@@ -15,6 +16,7 @@ LEARNER=${LEARNER:-learner.json}
 PROFILE=${PROFILE:-profiles/edge-is-en.toml}
 MINUTES=${MINUTES:-30}
 OUT=${OUT:-lessons}
-python3 -m audiolesson.cli generate -c "$CURRICULUM" -l "$LEARNER" -o "$OUT" -m "$MINUTES" -p "$PROFILE" ${AUTO:+--auto} "$@"
+KNOWN=${KNOWN:-}          # e.g. ja for Japanese instructions (curriculum must carry *_ja glosses)
+python3 -m audiolesson.cli generate -c "$CURRICULUM" -l "$LEARNER" -o "$OUT" -m "$MINUTES" -p "$PROFILE" ${AUTO:+--auto} ${KNOWN:+--known "$KNOWN"} "$@"
 echo
 echo "After listening: python3 -m audiolesson.cli report -l $LEARNER [--failed id,id]"

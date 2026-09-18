@@ -5,325 +5,399 @@ id = "einmitt"
 kind = "phrase"
 target = "Einmitt."
 meaning = "Exactly."
+meaning_ja = "まさに。"
 difficulty = 1
 topics = ["discourse"]
 situation = "Anna says the wind is the worst part of winter. Agree: exactly."
+situation_ja = "アンナが冬で一番嫌なのは風だと言いました。まさに、と同意してください。"
 
 [[items]]
 id = "nakvaemlega"
 kind = "phrase"
 target = "Nákvæmlega."
 meaning = "Precisely."
+meaning_ja = "そのとおり。"
 difficulty = 2
 topics = ["discourse"]
 situation = "Someone sums up your opinion perfectly. Say precisely."
+situation_ja = "誰かがあなたの意見を完璧にまとめました。そのとおりと言ってください。"
 
 [[items]]
 id = "eg_er_sammala"
 kind = "phrase"
 target = "Ég er sammála."
 meaning = "I agree."
+meaning_ja = "賛成です。"
 difficulty = 2
 topics = ["discourse"]
 situation = "A colleague proposes moving the meeting. Say you agree."
+situation_ja = "同僚が会議の時間変更を提案しました。賛成だと言ってください。"
 
 [[items]]
 id = "eg_er_ekki_sammala"
 kind = "phrase"
 target = "Ég er ekki sammála."
 meaning = "I disagree."
+meaning_ja = "反対です。"
 difficulty = 2
 topics = ["discourse"]
 prereqs = ["eg_er_sammala"]
 situation = "Someone says the shark is delicious. Say you disagree."
+situation_ja = "誰かがサメはおいしいと言いました。反対だと言ってください。"
 
 [[items]]
 id = "eg_held_thad"
 kind = "phrase"
 target = "Ég held það."
 meaning = "I think so."
+meaning_ja = "そう思います。"
 difficulty = 2
 topics = ["discourse"]
 situation = "Anna asks if the shop is open on Sundays. You think so. Say it."
+situation_ja = "アンナに店は日曜も開いているか聞かれました。そう思うと言ってください。"
 
 [[items]]
 id = "eg_held_ekki"
 kind = "phrase"
 target = "Ég held ekki."
 meaning = "I don't think so."
+meaning_ja = "そうは思いません。"
 difficulty = 2
 topics = ["discourse"]
 prereqs = ["eg_held_thad"]
 situation = "She asks if it'll rain. Say you don't think so."
+situation_ja = "雨が降るか聞かれました。そうは思わないと言ってください。"
 
 [[items]]
 id = "eg_vona_thad"
 kind = "phrase"
 target = "Ég vona það."
 meaning = "I hope so."
+meaning_ja = "そう願います。"
 difficulty = 2
 topics = ["discourse"]
 situation = "Anna asks if the northern lights will show tonight. Say you hope so."
+situation_ja = "アンナが今夜オーロラは出るか聞きました。そう願うと言ってください。"
 
 [[items]]
 id = "vonandi"
 kind = "phrase"
 target = "Vonandi."
 meaning = "Hopefully."
+meaning_ja = "そうだといいね。"
 difficulty = 1
 topics = ["discourse"]
 situation = "Someone says the road might open tomorrow. Say hopefully."
+situation_ja = "明日は道路が開くかもと言われました。そうだといいねと言ってください。"
 
 [[items]]
 id = "thad_skiptir_ekki_mali"
 kind = "phrase"
 target = "Það skiptir ekki máli."
 meaning = "It doesn't matter."
+meaning_ja = "気にしないで。"
 difficulty = 3
 topics = ["discourse"]
 chunks = ["máli", "ekki máli", "skiptir ekki máli", "Það skiptir ekki máli."]
 situation = "Anna apologises for forgetting the tickets. Say it doesn't matter."
+situation_ja = "アンナが切符を忘れたと謝ります。気にしないでと言ってください。"
 
 [[items]]
 id = "thad_er_satt"
 kind = "phrase"
 target = "Það er satt."
 meaning = "That's true."
+meaning_ja = "確かに。"
 difficulty = 2
 topics = ["discourse"]
 situation = "Someone points out it's cheaper to swim than to go to a café. Say that's true."
+situation_ja = "カフェよりプールのほうが安いと指摘されました。確かにと言ってください。"
 
 [[items]]
 id = "er_thad"
 kind = "phrase"
 target = "Er það?"
 meaning = "Is that so? / Really?"
+meaning_ja = "そうなの？"
 difficulty = 1
 topics = ["discourse"]
 situation = "Anna says she's met Björk. React: really?"
+situation_ja = "アンナがビョークに会ったことがあると言いました。そうなの？と反応してください。"
 
 [[items]]
 id = "vaa"
 kind = "phrase"
 target = "Vá!"
 meaning = "Wow!"
+meaning_ja = "わあ！"
 difficulty = 1
 topics = ["discourse"]
 situation = "The glacier comes into view. Say wow."
+situation_ja = "氷河が見えてきました。わあ、と言ってください。"
 
 [[items]]
 id = "otrulegt"
 kind = "phrase"
 target = "Ótrúlegt!"
 meaning = "Incredible!"
+meaning_ja = "信じられない！"
 difficulty = 2
 topics = ["discourse"]
 situation = "She tells you she swims in the sea every morning. Say incredible."
+situation_ja = "毎朝海で泳ぐと言われました。信じられないと言ってください。"
 
 [[items]]
 id = "thad_er_synd"
 kind = "phrase"
 target = "Það er synd."
 meaning = "That's a pity."
+meaning_ja = "残念です。"
 difficulty = 2
 topics = ["discourse"]
 situation = "The museum is closed today. Say that's a pity."
+situation_ja = "博物館が今日は休みです。残念だと言ってください。"
 
 [[items]]
 id = "eg_er_hissa"
 kind = "phrase"
 target = "Ég er hissa."
 meaning = "I'm surprised."
+meaning_ja = "驚きました。"
 difficulty = 2
 topics = ["discourse", "feelings"]
 situation = "The shop is open on Christmas Day. Say you're surprised."
+situation_ja = "クリスマスの日に店が開いています。驚いたと言ってください。"
 
 [[items]]
 id = "eg_meina"
 kind = "phrase"
 target = "Ég meina…"
 meaning = "I mean…"
+meaning_ja = "つまり…"
 difficulty = 1
 topics = ["discourse"]
 situation = "You've said the wrong word. Start again with 'I mean…'."
+situation_ja = "言葉を間違えました。「つまり…」と言い直してください。"
 
 [[items]]
 id = "sem_sagt"
 kind = "phrase"
 target = "Sem sagt…"
 meaning = "In other words… / So…"
+meaning_ja = "要するに…"
 difficulty = 2
 topics = ["discourse"]
 situation = "Summarise what she just explained. Start with 'so…'."
+situation_ja = "説明されたことを要約します。「要するに」から始めてください。"
 
 [[items]]
 id = "til_daemis"
 kind = "phrase"
 target = "Til dæmis…"
 meaning = "For example…"
+meaning_ja = "たとえば…"
 difficulty = 2
 topics = ["discourse"]
 situation = "Anna asks what Icelandic food you've tried. Start with 'for example…'."
+situation_ja = "アンナにどんなアイスランド料理を食べたか聞かれました。「たとえば」から始めてください。"
 
 [[items]]
 id = "reyndar"
 kind = "phrase"
 target = "Reyndar…"
 meaning = "Actually…"
+meaning_ja = "実は…"
 difficulty = 2
 topics = ["discourse"]
 situation = "She assumes you're a tourist. Correct her, starting with 'actually…'."
+situation_ja = "観光客だと思われました。「実は」と訂正してください。"
 
 [[items]]
 id = "thad_er_rett"
 kind = "phrase"
 target = "Það er rétt."
 meaning = "That's right."
+meaning_ja = "そのとおりです。"
 difficulty = 1
 topics = ["discourse"]
 prereqs = ["rett"]
 situation = "Anna guesses you're from Tokyo. Confirm: that's right."
+situation_ja = "アンナが東京出身だと当てました。そのとおりと答えてください。"
 
 [[items]]
 id = "nei_thad_er_ekki_rett"
 kind = "phrase"
 target = "Nei, það er ekki rétt."
 meaning = "No, that's not right."
+meaning_ja = "いいえ、違います。"
 difficulty = 2
 topics = ["discourse"]
 prereqs = ["thad_er_rett"]
 situation = "The bill has an extra item. Say no, that's not right."
+situation_ja = "会計に余計な品が入っています。いいえ、違いますと言ってください。"
 
 [[items]]
 id = "eg_er_ad_grinast"
 kind = "phrase"
 target = "Ég er að grínast."
 meaning = "I'm joking."
+meaning_ja = "冗談です。"
 difficulty = 2
 topics = ["discourse"]
 situation = "Anna looks shocked at your claim that you ate ten hot dogs. Say you're joking."
+situation_ja = "ホットドッグを10本食べたと言ったらアンナが驚いています。冗談だと言ってください。"
 
 [[items]]
 id = "i_alvoru"
 kind = "phrase"
 target = "Í alvöru?"
 meaning = "Seriously?"
+meaning_ja = "本当に？"
 difficulty = 2
 topics = ["discourse"]
 situation = "She says the pool is open until ten at night. Ask: seriously?"
+situation_ja = "プールは夜10時まで開いていると言われました。本当に？と聞いてください。"
 
 [[items]]
 id = "eg_er_ekki_viss_um_thad"
 kind = "phrase"
 target = "Ég er ekki viss um það."
 meaning = "I'm not sure about that."
+meaning_ja = "それはどうでしょう。"
 difficulty = 3
 topics = ["discourse"]
 prereqs = ["eg_er_ekki_viss"]
 situation = "Someone claims the bus runs on Sundays. Say you're not sure about that."
+situation_ja = "バスは日曜も走っていると誰かが言います。それはどうでしょうと言ってください。"
 
 [[items]]
 id = "vid_sjaum_til"
 kind = "phrase"
 target = "Við sjáum til."
 meaning = "We'll see."
+meaning_ja = "様子を見ましょう。"
 difficulty = 2
 topics = ["discourse", "arrangements"]
 situation = "Anna asks if you'll go hiking Sunday. Say we'll see."
+situation_ja = "アンナに日曜のハイキングに行くか聞かれました。様子を見ようと言ってください。"
 
 [[items]]
 id = "hvad_finnst_ther"
 kind = "phrase"
 target = "Hvað finnst þér?"
 meaning = "What do you think?"
+meaning_ja = "どう思う？"
 difficulty = 2
 topics = ["discourse"]
 situation = "You've shown Anna two sweaters. Ask what she thinks."
+situation_ja = "アンナにセーターを二枚見せました。どう思うか聞いてください。"
 
 [[items]]
 id = "mer_finnst_thad_gott"
 kind = "phrase"
 target = "Mér finnst það gott."
 meaning = "I think that's good."
+meaning_ja = "いいと思います。"
 difficulty = 2
 topics = ["discourse"]
 prereqs = ["hvad_finnst_ther"]
 situation = "She asks what you think of the plan. Say you think it's good."
+situation_ja = "計画についてどう思うか聞かれました。いいと思うと答えてください。"
 
 [[items]]
 id = "segdu_mer_meira"
 kind = "phrase"
 target = "Segðu mér meira."
 meaning = "Tell me more."
+meaning_ja = "もっと聞かせて。"
 difficulty = 2
 topics = ["discourse"]
 situation = "Anna mentions her trip to Greenland. Ask her to tell you more."
+situation_ja = "アンナがグリーンランド旅行の話をしました。もっと聞かせてと言ってください。"
 
 [[items]]
 id = "thad_er_god_hugmynd"
 kind = "phrase"
 target = "Það er góð hugmynd."
 meaning = "That's a good idea."
+meaning_ja = "いい考えですね。"
 difficulty = 2
 topics = ["discourse"]
 situation = "Anna suggests the hot tub before dinner. Say that's a good idea."
+situation_ja = "アンナが夕食の前に温泉をと提案しました。いい考えだと言ってください。"
 
 [[items]]
 id = "gott_ad_heyra"
 kind = "phrase"
 target = "Gott að heyra."
 meaning = "Good to hear."
+meaning_ja = "それはよかった。"
 difficulty = 2
 topics = ["discourse"]
 situation = "A friend says she's feeling better. Say good to hear."
+situation_ja = "友達が体調が良くなったと言いました。よかったと言ってください。"
 
 [[items]]
 id = "thvi_midur_ekki"
 kind = "phrase"
 target = "Því miður ekki."
 meaning = "Unfortunately not."
+meaning_ja = "残念ながら、いいえ。"
 difficulty = 2
 topics = ["discourse"]
 prereqs = ["thvi_midur"]
 situation = "Someone asks if you saw the northern lights. You didn't. Say unfortunately not."
+situation_ja = "オーロラを見たか聞かれましたが、見ていません。残念ながらと答えてください。"
 
 [[items]]
 id = "ekki_malid"
 kind = "phrase"
 target = "Ekki málið."
 meaning = "Not a problem. / Don't mention it."
+meaning_ja = "どういたしまして。"
 difficulty = 2
 topics = ["discourse"]
 prereqs = ["ekkert_mal"]
 situation = "Someone thanks you for the lift. Say don't mention it."
+situation_ja = "送ってくれてありがとうと言われました。どういたしましてと言ってください。"
 
 [[dialogues]]
 id = "spjall"
 setting = "Chatting with Anna over a second coffee."
+setting_ja = "二杯目のコーヒーを飲みながらアンナとおしゃべり。"
 topics = ["discourse"]
 requires = ["er_thad", "eg_er_sammala", "thad_er_synd", "vid_sjaum_til", "thad_er_god_hugmynd"]
 
   [[dialogues.turns]]
   opener = "Ég synti í sjónum í morgun."
   opener_meaning = "I swam in the sea this morning."
+  opener_meaning_ja = "今朝、海で泳いだの。"
   cue = "React: really?"
+  cue_ja = "そうなの？と反応してください。"
   expect = "er_thad"
   partner = "Já! Það er kalt en það er svo gott á eftir."
   partner_meaning = "Yes! It's cold but it feels so good afterwards."
+  partner_meaning_ja = "うん！冷たいけど、後がすごく気持ちいいの。"
 
   [[dialogues.turns]]
   cue = "Say you agree."
+  cue_ja = "賛成だと言ってください。"
   expect = "eg_er_sammala"
   partner = "Komdu með á morgun! Nei, bíddu, á morgun er ég að vinna."
   partner_meaning = "Come along tomorrow! No, wait, tomorrow I'm working."
+  partner_meaning_ja = "明日一緒に来て！あ、待って、明日は仕事だ。"
 
   [[dialogues.turns]]
   cue = "Say that's a pity."
+  cue_ja = "残念だと言ってください。"
   expect = "thad_er_synd"
   partner = "Kannski um helgina?"
   partner_meaning = "Maybe at the weekend?"
+  partner_meaning_ja = "週末はどう？"
 
   [[dialogues.turns]]
   cue = "Say that's a good idea — we'll see."
+  cue_ja = "いい考えですね、様子を見ましょう、と言ってください。"
   expect_text = "Það er góð hugmynd. Við sjáum til."
   expect_meaning = "That's a good idea. We'll see."
+  expect_meaning_ja = "いい考えですね。様子を見ましょう。"

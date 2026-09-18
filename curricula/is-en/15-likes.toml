@@ -5,6 +5,7 @@ id = "tonlist"
 kind = "vocab"
 target = "tónlist"
 meaning = "music"
+meaning_ja = "音楽"
 difficulty = 1
 tags = ["dat_hobby"]
 topics = ["hobbies"]
@@ -14,6 +15,7 @@ id = "eg_hef_gaman_af"
 kind = "construction"
 target = "Ég hef gaman af {hobby}."
 meaning = "I enjoy {hobby}."
+meaning_ja = "{hobby}が好きです。"
 difficulty = 3
 topics = ["hobbies"]
 slots = { hobby = "dat_hobby" }
@@ -26,6 +28,7 @@ id = "fotbolta"
 kind = "vocab"
 target = "fótbolta"
 meaning = "football"
+meaning_ja = "サッカー"
 difficulty = 2
 tags = ["dat_hobby"]
 topics = ["hobbies"]
@@ -36,6 +39,7 @@ id = "lestri"
 kind = "vocab"
 target = "lestri"
 meaning = "reading"
+meaning_ja = "読書"
 difficulty = 2
 tags = ["dat_hobby"]
 topics = ["hobbies"]
@@ -46,6 +50,7 @@ id = "sundi"
 kind = "vocab"
 target = "sundi"
 meaning = "swimming"
+meaning_ja = "水泳"
 difficulty = 1
 tags = ["dat_hobby"]
 topics = ["hobbies"]
@@ -55,6 +60,7 @@ id = "matreidslu"
 kind = "vocab"
 target = "matreiðslu"
 meaning = "cooking"
+meaning_ja = "料理"
 difficulty = 3
 tags = ["dat_hobby"]
 topics = ["hobbies", "food"]
@@ -64,6 +70,7 @@ id = "ferdalogum"
 kind = "vocab"
 target = "ferðalögum"
 meaning = "travelling"
+meaning_ja = "旅行"
 difficulty = 3
 tags = ["dat_hobby"]
 topics = ["hobbies"]
@@ -73,6 +80,7 @@ id = "kvikmyndum"
 kind = "vocab"
 target = "kvikmyndum"
 meaning = "films"
+meaning_ja = "映画"
 difficulty = 3
 tags = ["dat_hobby"]
 topics = ["hobbies"]
@@ -82,6 +90,7 @@ id = "ljosmyndun"
 kind = "vocab"
 target = "ljósmyndun"
 meaning = "photography"
+meaning_ja = "写真"
 difficulty = 3
 tags = ["dat_hobby"]
 topics = ["hobbies"]
@@ -91,6 +100,7 @@ id = "tolvuleikjum"
 kind = "vocab"
 target = "tölvuleikjum"
 meaning = "video games"
+meaning_ja = "テレビゲーム"
 difficulty = 3
 tags = ["dat_hobby"]
 topics = ["hobbies"]
@@ -100,6 +110,7 @@ id = "gonguferdum"
 kind = "vocab"
 target = "gönguferðum"
 meaning = "hiking"
+meaning_ja = "ハイキング"
 difficulty = 3
 tags = ["dat_hobby"]
 topics = ["hobbies", "nature"]
@@ -109,6 +120,7 @@ id = "bokum"
 kind = "vocab"
 target = "bókum"
 meaning = "books"
+meaning_ja = "本"
 difficulty = 2
 tags = ["dat_hobby"]
 topics = ["hobbies"]
@@ -118,6 +130,7 @@ id = "dansi"
 kind = "vocab"
 target = "dansi"
 meaning = "dancing"
+meaning_ja = "ダンス"
 difficulty = 1
 tags = ["dat_hobby"]
 topics = ["hobbies"]
@@ -127,6 +140,7 @@ id = "skidum"
 kind = "vocab"
 target = "skíðum"
 meaning = "skiing"
+meaning_ja = "スキー"
 difficulty = 2
 tags = ["dat_hobby"]
 topics = ["hobbies"]
@@ -136,6 +150,7 @@ id = "prjoni"
 kind = "vocab"
 target = "prjóni"
 meaning = "knitting"
+meaning_ja = "編み物"
 difficulty = 2
 tags = ["dat_hobby"]
 topics = ["hobbies"]
@@ -145,6 +160,7 @@ id = "hefur_thu_gaman_af"
 kind = "construction"
 target = "Hefur þú gaman af {hobby}?"
 meaning = "Do you enjoy {hobby}?"
+meaning_ja = "{hobby}は好きですか？"
 difficulty = 3
 topics = ["hobbies"]
 slots = { hobby = "dat_hobby" }
@@ -156,6 +172,7 @@ id = "mer_finnst_gaman_ad"
 kind = "construction"
 target = "Mér finnst gaman að {inf}."
 meaning = "I like to {inf}."
+meaning_ja = "{inf}のが好きです。"
 difficulty = 3
 topics = ["hobbies"]
 slots = { inf = "inf" }
@@ -167,6 +184,7 @@ id = "mer_finnst_leidinlegt_ad"
 kind = "construction"
 target = "Mér finnst leiðinlegt að {inf}."
 meaning = "I find it boring to {inf}."
+meaning_ja = "{inf}のは退屈です。"
 difficulty = 3
 topics = ["hobbies"]
 slots = { inf = "inf" }
@@ -178,188 +196,233 @@ id = "hvad_finnst_ther_skemmtilegt"
 kind = "phrase"
 target = "Hvað finnst þér skemmtilegt?"
 meaning = "What do you find fun?"
+meaning_ja = "何をするのが楽しいですか？"
 difficulty = 4
 topics = ["hobbies"]
 chunks = ["skemmtilegt", "þér skemmtilegt", "Hvað finnst þér skemmtilegt?"]
 situation = "Ask your new friend what she finds fun."
+situation_ja = "新しい友達に何が楽しいか聞いてください。"
 
 [[items]]
 id = "mer_likar_thad"
 kind = "phrase"
 target = "Mér líkar það."
 meaning = "I like it."
+meaning_ja = "気に入りました。"
 difficulty = 2
 topics = ["hobbies", "feelings"]
 situation = "Anna plays you a song and asks what you think. Say you like it."
+situation_ja = "アンナが曲を聴かせて感想を聞きました。気に入ったと言ってください。"
 
 [[items]]
 id = "mer_likar_thad_ekki"
 kind = "phrase"
 target = "Mér líkar það ekki."
 meaning = "I don't like it."
+meaning_ja = "好きではありません。"
 difficulty = 2
 topics = ["hobbies", "feelings"]
 prereqs = ["mer_likar_thad"]
 situation = "She asks about the fermented shark. Say you don't like it."
+situation_ja = "発酵させたサメについて聞かれました。好きではないと言ってください。"
 
 [[items]]
 id = "eg_elska_island"
 kind = "phrase"
 target = "Ég elska Ísland."
 meaning = "I love Iceland."
+meaning_ja = "アイスランドが大好きです。"
 difficulty = 2
 topics = ["hobbies", "feelings"]
 situation = "Someone asks why you keep coming back. Say you love Iceland."
+situation_ja = "なぜ何度も来るのか聞かれました。アイスランドが大好きだと言ってください。"
 
 [[items]]
 id = "eg_hata_rok"
 kind = "phrase"
 target = "Ég hata rok."
 meaning = "I hate wind."
+meaning_ja = "風は大嫌いです。"
 difficulty = 2
 topics = ["hobbies", "weather"]
 prereqs = ["rok"]
 situation = "Another gale. Say you hate wind."
+situation_ja = "また強風です。風は大嫌いだと言ってください。"
 
 [[items]]
 id = "hvad_er_uppahaldsmaturinn_thinn"
 kind = "phrase"
 target = "Hvað er uppáhaldsmaturinn þinn?"
 meaning = "What's your favourite food?"
+meaning_ja = "一番好きな食べ物は何ですか？"
 difficulty = 4
 topics = ["hobbies", "food"]
 chunks = ["þinn", "maturinn þinn", "uppáhaldsmaturinn þinn", "Hvað er uppáhaldsmaturinn þinn?"]
 situation = "You're planning to cook for Anna. Ask what her favourite food is."
+situation_ja = "アンナに料理を作る予定です。一番好きな食べ物を聞いてください。"
 
 [[items]]
 id = "uppahaldsmaturinn_minn_er_fiskur"
 kind = "phrase"
 target = "Uppáhaldsmaturinn minn er fiskur."
 meaning = "My favourite food is fish."
+meaning_ja = "一番好きな食べ物は魚です。"
 difficulty = 4
 topics = ["hobbies", "food"]
 prereqs = ["hvad_er_uppahaldsmaturinn_thinn"]
 chunks = ["fiskur", "er fiskur", "minn er fiskur", "Uppáhaldsmaturinn minn er fiskur."]
 situation = "Anna asks your favourite food. Say it's fish."
+situation_ja = "アンナに一番好きな食べ物を聞かれました。魚だと答えてください。"
 
 [[items]]
 id = "eg_spila_fotbolta"
 kind = "phrase"
 target = "Ég spila fótbolta."
 meaning = "I play football."
+meaning_ja = "サッカーをします。"
 difficulty = 2
 topics = ["hobbies"]
 situation = "Anna asks if you do any sport. Say you play football."
+situation_ja = "アンナにスポーツをするか聞かれました。サッカーをすると答えてください。"
 
 [[items]]
 id = "eg_spila_a_gitar"
 kind = "phrase"
 target = "Ég spila á gítar."
 meaning = "I play the guitar."
+meaning_ja = "ギターを弾きます。"
 difficulty = 2
 topics = ["hobbies"]
 situation = "Someone spots the guitar case. Say you play the guitar."
+situation_ja = "誰かがギターケースに気づきました。ギターを弾くと言ってください。"
 
 [[items]]
 id = "eg_syng"
 kind = "phrase"
 target = "Ég syng."
 meaning = "I sing."
+meaning_ja = "歌います。"
 difficulty = 1
 topics = ["hobbies"]
 situation = "Someone asks if you're in the choir. Say you sing."
+situation_ja = "合唱団にいるのか聞かれました。歌うと答えてください。"
 
 [[items]]
 id = "eg_er_ad_lesa_goda_bok"
 kind = "phrase"
 target = "Ég er að lesa góða bók."
 meaning = "I'm reading a good book."
+meaning_ja = "いい本を読んでいます。"
 difficulty = 3
 topics = ["hobbies"]
 situation = "Anna asks what you're up to. Say you're reading a good book."
+situation_ja = "アンナに何をしているか聞かれました。いい本を読んでいると答えてください。"
 
 [[items]]
 id = "hvad_ertu_ad_gera"
 kind = "phrase"
 target = "Hvað ertu að gera?"
 meaning = "What are you doing?"
+meaning_ja = "何をしているの？"
 difficulty = 2
 topics = ["hobbies", "daily"]
 situation = "You call a friend on Saturday afternoon. Ask what she's doing."
+situation_ja = "土曜の午後に友達に電話します。何をしているか聞いてください。"
 
 [[items]]
 id = "ekkert_serstakt"
 kind = "phrase"
 target = "Ekkert sérstakt."
 meaning = "Nothing special."
+meaning_ja = "特に何も。"
 difficulty = 2
 topics = ["hobbies", "discourse"]
 situation = "She asks what you're doing. Say nothing special."
+situation_ja = "何をしているか聞かれました。特に何もと答えてください。"
 
 [[items]]
 id = "thad_er_skemmtilegt"
 kind = "phrase"
 target = "Þetta er skemmtilegt."
 meaning = "This is fun."
+meaning_ja = "これは楽しいです。"
 difficulty = 2
 topics = ["hobbies", "feelings"]
 situation = "You're on a boat watching whales. Say this is fun."
+situation_ja = "船でクジラを見ています。楽しいと言ってください。"
 
 [[items]]
 id = "thad_er_leidinlegt"
 kind = "phrase"
 target = "Þetta er leiðinlegt."
 meaning = "This is boring."
+meaning_ja = "これは退屈です。"
 difficulty = 2
 topics = ["hobbies", "feelings"]
 prereqs = ["thad_er_skemmtilegt"]
 situation = "The lecture has gone on for two hours. Whisper that this is boring."
+situation_ja = "講義が二時間続いています。退屈だとささやいてください。"
 
 [[items]]
 id = "eg_vil_frekar_te"
 kind = "phrase"
 target = "Ég vil frekar te."
 meaning = "I'd rather have tea."
+meaning_ja = "紅茶のほうがいいです。"
 difficulty = 2
 topics = ["hobbies", "cafe"]
 prereqs = ["te"]
 situation = "Anna offers coffee. Say you'd rather have tea."
+situation_ja = "アンナがコーヒーをすすめます。紅茶のほうがいいと言ってください。"
 
 [[items]]
 id = "mer_er_alveg_sama"
 kind = "phrase"
 target = "Mér er alveg sama."
 meaning = "I don't mind (either way)."
+meaning_ja = "どちらでもいいです。"
 difficulty = 3
 topics = ["hobbies", "discourse"]
 chunks = ["sama", "alveg sama", "Mér er alveg sama."]
 situation = "She asks: fish or lamb? You don't mind. Say so."
+situation_ja = "魚かラムかと聞かれました。どちらでもいいので、そう言ってください。"
 
 [[dialogues]]
 id = "ahugamal"
 setting = "A rainy evening indoors. Anna asks about your hobbies."
+setting_ja = "雨の夜、家の中で。アンナが趣味について聞きます。"
 topics = ["hobbies"]
 requires = ["eg_hef_gaman_af", "sundi", "gonguferdum", "hefur_thu_gaman_af", "mer_finnst_gaman_ad", "fara_i_sund", "mer_likar_thad"]
 
   [[dialogues.turns]]
   opener = "Hvað finnst þér skemmtilegt að gera?"
   opener_meaning = "What do you enjoy doing?"
+  opener_meaning_ja = "何をするのが好き？"
   cue = "Say you enjoy swimming and hiking."
+  cue_ja = "水泳とハイキングが好きだと言ってください。"
   expect_text = "Ég hef gaman af sundi og gönguferðum."
   expect_meaning = "I enjoy swimming and hiking."
+  expect_meaning_ja = "水泳とハイキングが好きです。"
   partner = "Ég líka! Ég fer í sund á hverjum morgni."
   partner_meaning = "Me too! I go swimming every morning."
+  partner_meaning_ja = "私も！毎朝泳ぎに行くの。"
 
   [[dialogues.turns]]
   cue = "Ask if she enjoys films."
+  cue_ja = "映画は好きか聞いてください。"
   expect_text = "Hefur þú gaman af kvikmyndum?"
   expect_meaning = "Do you enjoy films?"
+  expect_meaning_ja = "映画は好きですか？"
   partner = "Já, sérstaklega íslenskum myndum. Viltu horfa á eina?"
   partner_meaning = "Yes, especially Icelandic films. Do you want to watch one?"
+  partner_meaning_ja = "うん、特にアイスランド映画。一本見る？"
 
   [[dialogues.turns]]
   cue = "Say you like it — no: say yes, you'd like that."
+  cue_ja = "はい、いいですね、と言ってください。"
   expect_text = "Já, mér líkar það."
   expect_meaning = "Yes, I like that."
+  expect_meaning_ja = "はい、いいですね。"
   partner = "Frábært, ég geri popp."
   partner_meaning = "Great, I'll make popcorn."
+  partner_meaning_ja = "よかった、ポップコーン作るね。"

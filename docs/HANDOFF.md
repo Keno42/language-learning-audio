@@ -21,6 +21,25 @@ Verified in this session:
   `pip install edge-tts && audiolesson generate ... -p profiles/edge-fr-en.toml -m 3`.
 - `openai` and `say` providers are straightforward but also untested here.
 
+## Session 3 additions (continued): Japanese instructor for the Icelandic course
+
+- Design: per-language gloss fields side by side in the same curriculum
+  (`meaning_ja` …), promoted at load time by `known_lang`; not a derived
+  copy (as fr-ja was), so ids/structure never drift and the Japanese is
+  written from the Icelandic, not from the English gloss. Missing glosses
+  are an error at `generate` unless `--allow-fallback`.
+- 1,999 Japanese strings written for `curricula/is-en` (all 993 items,
+  31 dialogues, 45 asides rewritten natively for Japanese readers).
+  Written by an AI: natural to a native reader in my judgement, but a
+  Japanese speaker should skim the situations for tone, and the
+  construction glosses with slots (`{inf}のがいいです` for *Ég vil …*,
+  `泳ぎに行く頻度：{frequency}` for the frequency pattern) are the
+  compromises worth a second look — Japanese cannot inflect a slot.
+- `tools/gloss.py` inserts glosses from JSON keyed by id; the `_<lang>`
+  suffix rule is "2–3 letters after an underscore on a glossable field".
+- `fr-ja-a1.toml` still uses the older derived-copy approach; migrating it
+  to side-by-side glosses would let `fr-en-a1.toml` be the single source.
+
 ## Session 3 additions (continued): cultural asides, fit tolerance
 
 - `[[notes]]` in a curriculum (`content.Note`): instructor-only asides.

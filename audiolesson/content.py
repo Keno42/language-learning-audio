@@ -137,6 +137,8 @@ class Curriculum:
     level: str = "A1"
     source: str = ""
     notes: list[Note] = field(default_factory=list)
+    known_langs: list[str] = field(default_factory=list)  # languages the file carries glosses for
+    missing_glosses: list[str] = field(default_factory=list)  # ids without a gloss in the requested known_lang
 
     def __post_init__(self) -> None:
         self.by_id: dict[str, Item] = {i.id: i for i in self.items}
@@ -188,12 +190,17 @@ class CurriculumError(ValueError):
 # ---------------------------------------------------------------------------
 
 
-def load_curriculum(path: str | Path) -> Curriculum:
+def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curriculum:
     """Load one .toml file, or a directory of them (merged in sorted filename order).
 
     In a directory, exactly one file carries ``[curriculum]``; ``[[items]]`` and
     ``[[dialogues]]`` from every file are concatenated, so a course can be split
     into topic modules (``01-greetings.toml``, ``02-cafe.toml`` …).
+
+    ``known_lang`` selects the learner's language when a file carries glosses for
+    several (``meaning_ja``, ``situation_ja``, ``cue_ja`` … next to the primary
+    ``meaning``). Items without a gloss in that language are listed in
+    ``Curriculum.missing_glosses`` and fall back to the primary text.
     """
     path = Path(path)
     if path.is_dir():
@@ -213,25 +220,62 @@ def load_curriculum(path: str | Path) -> Curriculum:
             merged["notes"] += raw.get("notes", [])
         if "curriculum" not in merged:
             raise CurriculumError(f"{path}: no file defines [curriculum]")
-        return curriculum_from_dict(merged, source=str(path))
+        return curriculum_from_dict(merged, source=str(path), known_lang=known_lang)
     with path.open("rb") as fh:
         raw = tomllib.load(fh)
-    return curriculum_from_dict(raw, source=str(path))
+    return curriculum_from_dict(raw, source=str(path), known_lang=known_lang)
 
 
-def curriculum_from_dict(raw: dict, source: str = "") -> Curriculum:
+# fields that may carry per-language glosses (``<field>_<lang>``)
+_GLOSSED_ITEM = ("meaning", "situation", "instruction")
+_GLOSSED_EXAMPLE = ("source_meaning", "result_meaning")
+_GLOSSED_TURN = ("cue", "opener_meaning", "partner_meaning", "expect_meaning")
+_GLOSSED_DIALOGUE = ("setting",)
+_GLOSSED_NOTE = ("text",)
+_GLOSSED_META = ("name",)
+
+
+def _pick_gloss(entry: dict, fields: tuple[str, ...], lang: str | None, langs: list[str], missing: list[str], label: str) -> dict:
+    """Return a copy of ``entry`` with ``<field>_<lang>`` promoted to ``<field>`` and all other
+    ``<field>_<xx>`` keys dropped. Records which languages appear and what is missing."""
+    out = dict(entry)
+    for f in fields:
+        for key in list(out):
+            if key.startswith(f + "_") and key[len(f) + 1 :].isalpha() and len(key) - len(f) - 1 <= 3:
+                lang_code = key[len(f) + 1 :]
+                if lang_code not in langs:
+                    langs.append(lang_code)
+                val = out.pop(key)
+                if lang and lang_code == lang:
+                    out[f] = val
+        if lang and f in entry and (f + "_" + lang) not in entry:
+            missing.append(f"{label}.{f}")
+    return out
+
+
+def curriculum_from_dict(raw: dict, source: str = "", known_lang: str | None = None) -> Curriculum:
     meta = raw.get("curriculum", {})
     for key in ("name", "target_lang", "known_lang"):
         if key not in meta:
             raise CurriculumError(f"[curriculum] is missing {key!r}")
+    lang = None if known_lang in (None, meta["known_lang"]) else known_lang
+    langs: list[str] = [meta["known_lang"]]
+    missing: list[str] = []
+    meta = _pick_gloss(meta, _GLOSSED_META, lang, langs, missing, "curriculum")
 
     items: list[Item] = []
     for order, entry in enumerate(raw.get("items", [])):
+        label = entry.get("id", f"item#{order}")
+        entry = _pick_gloss(entry, _GLOSSED_ITEM, lang, langs, missing, label)
+        if "examples" in entry:
+            entry["examples"] = [_pick_gloss(e, _GLOSSED_EXAMPLE, lang, langs, missing, f"{label}.examples") for e in entry["examples"]]
         items.append(_item_from_dict(entry, order))
 
     dialogues: list[Dialogue] = []
     for entry in raw.get("dialogues", []):
-        turns = [DialogueTurn(**t) for t in entry.get("turns", [])]
+        label = entry.get("id", "dialogue")
+        entry = _pick_gloss(entry, _GLOSSED_DIALOGUE, lang, langs, missing, label)
+        turns = [DialogueTurn(**_pick_gloss(t, _GLOSSED_TURN, lang, langs, missing, f"{label}.turn")) for t in entry.get("turns", [])]
         dialogues.append(
             Dialogue(
                 id=entry["id"],
@@ -243,17 +287,19 @@ def curriculum_from_dict(raw: dict, source: str = "") -> Curriculum:
             )
         )
 
-    notes = [Note(**n) for n in raw.get("notes", [])]
+    notes = [Note(**_pick_gloss(n, _GLOSSED_NOTE, lang, langs, missing, n.get("id", "note"))) for n in raw.get("notes", [])]
 
     cur = Curriculum(
         name=meta["name"],
         target_lang=meta["target_lang"],
-        known_lang=meta["known_lang"],
+        known_lang=known_lang or meta["known_lang"],
         level=meta.get("level", "A1"),
         items=items,
         dialogues=dialogues,
         source=source,
         notes=notes,
+        known_langs=langs,
+        missing_glosses=missing,
     )
     validate(cur)
     return cur

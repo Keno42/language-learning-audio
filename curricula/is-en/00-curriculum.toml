@@ -10,6 +10,7 @@
 
 [curriculum]
 name = "Íslenska A1–A2 — 26 modules"
+name_ja = "アイスランド語 A1–A2 — 26モジュール"
 target_lang = "is"
 known_lang = "en"
 level = "A1"

@@ -111,6 +111,53 @@ class CurriculumTests(unittest.TestCase):
         self.assertGreater(len(heard), 4)
         self.assertEqual(sum(learner.notes_heard.values()), len(heard))
 
+    def test_icelandic_course_has_complete_japanese_glosses(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
+        self.assertEqual(cur.known_lang, "ja")
+        self.assertEqual(cur.missing_glosses, [])
+        self.assertIn("ja", cur.known_langs)
+        # every gloss the Japanese learner hears is Japanese (digits and "ATM" are Japanese usage too)
+        def ja(text: str) -> bool:
+            return any(ord(ch) > 0x3000 for ch in text) or text.strip("0123456789 ") in ("", "ATM")
+
+        for it in cur.items:
+            self.assertTrue(ja(it.meaning), f"{it.id}: {it.meaning!r}")
+            if it.situation:
+                self.assertTrue(any(ord(ch) > 0x3000 for ch in it.situation), it.id)
+            if it.kind == "construction":
+                for slot in it.slot_names:
+                    self.assertIn("{" + slot + "}", it.meaning, f"{it.id}: slot missing from Japanese meaning")
+        for d in cur.dialogues:
+            self.assertTrue(any(ord(ch) > 0x3000 for ch in d.setting), d.id)
+            for turn in d.turns:
+                self.assertTrue(any(ord(ch) > 0x3000 for ch in turn.cue), d.id)
+                if turn.expect_text:
+                    self.assertTrue(turn.expect_meaning and any(ord(ch) > 0x3000 for ch in turn.expect_meaning), d.id)
+        for n in cur.notes:
+            self.assertTrue(any(ord(ch) > 0x3000 for ch in n.text), n.id)
+        en = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertEqual([i.id for i in en.items], [i.id for i in cur.items])
+        self.assertEqual([i.target for i in en.items], [i.target for i in cur.items])
+
+    def test_unknown_gloss_language_reports_everything_missing(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="zz")
+        self.assertGreater(len(cur.missing_glosses), 1900)
+        self.assertEqual(cur.items[0].meaning, load_curriculum(ROOT / "curricula" / "is-en").items[0].meaning)  # fallback
+
+    def test_japanese_instructor_lesson_from_the_icelandic_course(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
+        learner = LearnerState("is", "ja", "A1")
+        learner.feedback_mode = "auto"
+        day = TODAY
+        for _ in range(5):
+            sc = Planner(cur, learner, Prompts.load("ja"), Timing(level="A1"), PlanConfig(minutes=30, seed=3), today=day).build()
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        narr = [s.text for s in sc.segments if s.type == "narrate"]
+        self.assertTrue(narr and all(any(ord(ch) > 0x3000 for ch in n) for n in narr), [n for n in narr if not any(ord(ch) > 0x3000 for ch in n)][:3])
+        answers = [s.text for s in sc.segments if s.type == "answer"]
+        self.assertTrue(answers and all(ord(a[0]) < 0x3000 for a in answers))
+
     def test_full_course_over_the_icelandic_set(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         learner = LearnerState("is", "en", "A1")

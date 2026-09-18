@@ -5,6 +5,7 @@ id = "kaffi"
 kind = "vocab"
 target = "kaffi"
 meaning = "coffee"
+meaning_ja = "コーヒー"
 difficulty = 1
 tags = ["acc_orderable", "acc_drink", "nom_item"]
 topics = ["cafe"]
@@ -14,6 +15,7 @@ id = "eg_aetla_ad_fa"
 kind = "construction"
 target = "Ég ætla að fá {thing}."
 meaning = "I'll have {thing}."
+meaning_ja = "{thing}をください。"
 difficulty = 3
 topics = ["cafe"]
 slots = { thing = "acc_orderable" }
@@ -27,6 +29,7 @@ id = "te"
 kind = "vocab"
 target = "te"
 meaning = "tea"
+meaning_ja = "紅茶"
 difficulty = 1
 tags = ["acc_orderable", "acc_drink", "nom_item"]
 topics = ["cafe"]
@@ -36,6 +39,7 @@ id = "vatn"
 kind = "vocab"
 target = "vatn"
 meaning = "water"
+meaning_ja = "水"
 difficulty = 1
 tags = ["acc_orderable", "nom_item"]
 topics = ["cafe"]
@@ -45,6 +49,7 @@ id = "bjor"
 kind = "vocab"
 target = "bjór"
 meaning = "a beer"
+meaning_ja = "ビール"
 difficulty = 1
 tags = ["acc_orderable", "nom_item"]
 topics = ["cafe"]
@@ -54,6 +59,7 @@ id = "supu"
 kind = "vocab"
 target = "súpu"
 meaning = "soup"
+meaning_ja = "スープ"
 difficulty = 2
 tags = ["acc_orderable", "acc_food"]
 topics = ["cafe"]
@@ -64,6 +70,7 @@ id = "samloku"
 kind = "vocab"
 target = "samloku"
 meaning = "a sandwich"
+meaning_ja = "サンドイッチ"
 difficulty = 2
 tags = ["acc_orderable", "acc_food"]
 topics = ["cafe"]
@@ -74,6 +81,7 @@ id = "koku"
 kind = "vocab"
 target = "köku"
 meaning = "a piece of cake"
+meaning_ja = "ケーキ"
 difficulty = 2
 tags = ["acc_orderable", "acc_food"]
 topics = ["cafe"]
@@ -84,6 +92,7 @@ id = "pylsu"
 kind = "vocab"
 target = "pylsu"
 meaning = "a hot dog"
+meaning_ja = "ホットドッグ"
 difficulty = 2
 tags = ["acc_orderable", "acc_food"]
 topics = ["cafe", "food"]
@@ -94,6 +103,7 @@ id = "skyr"
 kind = "vocab"
 target = "skyr"
 meaning = "skyr (Icelandic yoghurt-like dairy)"
+meaning_ja = "スキール（アイスランドの乳製品）"
 difficulty = 1
 tags = ["acc_orderable", "nom_item", "acc_food"]
 topics = ["cafe", "food"]
@@ -103,6 +113,7 @@ id = "braud"
 kind = "vocab"
 target = "brauð"
 meaning = "bread"
+meaning_ja = "パン"
 difficulty = 1
 tags = ["acc_orderable", "nom_item", "acc_food"]
 topics = ["cafe", "food"]
@@ -112,6 +123,7 @@ id = "salat"
 kind = "vocab"
 target = "salat"
 meaning = "a salad"
+meaning_ja = "サラダ"
 difficulty = 1
 tags = ["acc_orderable", "nom_item", "acc_food"]
 topics = ["cafe", "food"]
@@ -121,6 +133,7 @@ id = "fisk"
 kind = "vocab"
 target = "fisk"
 meaning = "fish"
+meaning_ja = "魚"
 difficulty = 1
 tags = ["acc_orderable", "acc_food"]
 topics = ["cafe", "food"]
@@ -131,6 +144,7 @@ id = "kjukling"
 kind = "vocab"
 target = "kjúkling"
 meaning = "chicken"
+meaning_ja = "チキン"
 difficulty = 2
 tags = ["acc_orderable", "acc_food"]
 topics = ["cafe", "food"]
@@ -141,6 +155,7 @@ id = "lambakjot"
 kind = "vocab"
 target = "lambakjöt"
 meaning = "lamb"
+meaning_ja = "ラム肉"
 difficulty = 2
 tags = ["acc_orderable", "nom_item", "acc_food"]
 topics = ["cafe", "food"]
@@ -150,6 +165,7 @@ id = "is_ice_cream"
 kind = "vocab"
 target = "ís"
 meaning = "an ice cream"
+meaning_ja = "アイスクリーム"
 difficulty = 1
 tags = ["acc_orderable", "nom_item", "acc_food"]
 topics = ["cafe", "food"]
@@ -159,6 +175,7 @@ id = "gos"
 kind = "vocab"
 target = "gos"
 meaning = "a soda"
+meaning_ja = "炭酸飲料"
 difficulty = 1
 tags = ["acc_orderable", "acc_drink", "nom_item"]
 topics = ["cafe"]
@@ -168,6 +185,7 @@ id = "raudvin"
 kind = "vocab"
 target = "rauðvín"
 meaning = "red wine"
+meaning_ja = "赤ワイン"
 difficulty = 2
 tags = ["acc_orderable", "nom_item"]
 topics = ["cafe"]
@@ -177,6 +195,7 @@ id = "hvitvin"
 kind = "vocab"
 target = "hvítvín"
 meaning = "white wine"
+meaning_ja = "白ワイン"
 difficulty = 2
 tags = ["acc_orderable", "nom_item"]
 topics = ["cafe"]
@@ -186,6 +205,7 @@ id = "kako"
 kind = "vocab"
 target = "kakó"
 meaning = "hot chocolate"
+meaning_ja = "ココア"
 difficulty = 1
 tags = ["acc_orderable", "acc_drink", "nom_item"]
 topics = ["cafe"]
@@ -195,6 +215,7 @@ id = "latte"
 kind = "vocab"
 target = "latte"
 meaning = "a latte"
+meaning_ja = "ラテ"
 difficulty = 1
 tags = ["acc_orderable", "acc_drink", "nom_item"]
 topics = ["cafe"]
@@ -204,6 +225,7 @@ id = "med_mjolk"
 kind = "vocab"
 target = "með mjólk"
 meaning = "with milk"
+meaning_ja = "ミルク入り"
 difficulty = 2
 tags = ["addon"]
 topics = ["cafe"]
@@ -213,6 +235,7 @@ id = "an_sykurs"
 kind = "vocab"
 target = "án sykurs"
 meaning = "without sugar"
+meaning_ja = "砂糖なし"
 difficulty = 2
 tags = ["addon"]
 topics = ["cafe"]
@@ -223,6 +246,7 @@ id = "med_sykri"
 kind = "vocab"
 target = "með sykri"
 meaning = "with sugar"
+meaning_ja = "砂糖入り"
 difficulty = 2
 tags = ["addon"]
 topics = ["cafe"]
@@ -233,6 +257,7 @@ id = "an_mjolkur"
 kind = "vocab"
 target = "án mjólkur"
 meaning = "without milk"
+meaning_ja = "ミルクなし"
 difficulty = 2
 tags = ["addon"]
 topics = ["cafe"]
@@ -242,6 +267,7 @@ id = "eg_aetla_ad_fa_addon"
 kind = "construction"
 target = "Ég ætla að fá {thing} {addon}."
 meaning = "I'll have {thing} {addon}."
+meaning_ja = "{thing}を{addon}でください。"
 difficulty = 3
 topics = ["cafe"]
 slots = { thing = "acc_drink", addon = "addon" }
@@ -254,17 +280,20 @@ id = "eina_pylsu_med_ollu"
 kind = "phrase"
 target = "Eina pylsu með öllu."
 meaning = "One hot dog with everything."
+meaning_ja = "ホットドッグを一つ、全部乗せで。"
 difficulty = 3
 topics = ["cafe", "food"]
 prereqs = ["pylsu"]
 chunks = ["öllu", "með öllu", "pylsu með öllu", "Eina pylsu með öllu."]
 situation = "You're at the famous hot dog stand. Order one with everything."
+situation_ja = "有名なホットドッグ屋台にいます。全部乗せを一つ注文してください。"
 
 [[items]]
 id = "mig_langar_i"
 kind = "construction"
 target = "Mig langar í {thing}."
 meaning = "I feel like {thing}."
+meaning_ja = "{thing}が食べたいです。"
 difficulty = 3
 topics = ["cafe", "food"]
 slots = { thing = "acc_orderable" }
@@ -277,6 +306,7 @@ id = "matsedilinn"
 kind = "vocab"
 target = "matseðilinn"
 meaning = "the menu"
+meaning_ja = "メニュー"
 difficulty = 2
 tags = ["acc_request"]
 topics = ["cafe"]
@@ -286,6 +316,7 @@ id = "reikninginn"
 kind = "vocab"
 target = "reikninginn"
 meaning = "the bill"
+meaning_ja = "お会計"
 difficulty = 3
 tags = ["acc_request"]
 topics = ["cafe"]
@@ -295,6 +326,7 @@ id = "vatnsglas"
 kind = "vocab"
 target = "vatnsglas"
 meaning = "a glass of water"
+meaning_ja = "水を一杯"
 difficulty = 2
 tags = ["acc_request"]
 topics = ["cafe"]
@@ -304,6 +336,7 @@ id = "kvittun"
 kind = "vocab"
 target = "kvittun"
 meaning = "a receipt"
+meaning_ja = "レシート"
 difficulty = 2
 tags = ["acc_request"]
 topics = ["cafe", "shopping"]
@@ -313,6 +346,7 @@ id = "poka"
 kind = "vocab"
 target = "poka"
 meaning = "a bag"
+meaning_ja = "袋"
 difficulty = 1
 tags = ["acc_request", "acc_thing"]
 topics = ["shopping"]
@@ -323,6 +357,7 @@ id = "get_eg_fengid"
 kind = "construction"
 target = "Get ég fengið {thing}?"
 meaning = "Could I have {thing}?"
+meaning_ja = "{thing}をいただけますか？"
 difficulty = 3
 topics = ["cafe"]
 slots = { thing = "acc_request" }
@@ -334,26 +369,31 @@ id = "get_eg_fengid_reikninginn"
 kind = "phrase"
 target = "Get ég fengið reikninginn?"
 meaning = "Can I have the bill?"
+meaning_ja = "お会計をお願いできますか？"
 difficulty = 4
 topics = ["cafe"]
 prereqs = ["get_eg_fengid", "reikninginn"]
 chunks = ["reikninginn", "fengið reikninginn", "Get ég fengið reikninginn?"]
 situation = "You've finished eating. Ask for the bill."
+situation_ja = "食事が終わりました。お会計を頼んでください。"
 
 [[items]]
 id = "hvad_kostar_thetta"
 kind = "phrase"
 target = "Hvað kostar þetta?"
 meaning = "How much is this?"
+meaning_ja = "これはいくらですか？"
 difficulty = 2
 topics = ["cafe", "shopping"]
 situation = "You want to know the price of the sandwich."
+situation_ja = "サンドイッチの値段を知りたいです。"
 
 [[items]]
 id = "hvad_kostar"
 kind = "construction"
 target = "Hvað kostar {item}?"
 meaning = "How much is {item}?"
+meaning_ja = "{item}はいくらですか？"
 difficulty = 2
 topics = ["cafe", "shopping"]
 slots = { item = "nom_item" }
@@ -365,207 +405,262 @@ id = "er_thetta_saeti_laust"
 kind = "phrase"
 target = "Er þetta sæti laust?"
 meaning = "Is this seat free?"
+meaning_ja = "この席、空いていますか？"
 difficulty = 3
 topics = ["cafe", "social"]
 chunks = ["laust", "sæti laust", "Er þetta sæti laust?"]
 situation = "The café is full. Ask a woman whether the seat next to her is free."
+situation_ja = "カフェが満席です。女性の隣の席が空いているか聞いてください。"
 
 [[items]]
 id = "bord_fyrir_tvo"
 kind = "phrase"
 target = "Borð fyrir tvo, takk."
 meaning = "A table for two, please."
+meaning_ja = "二人用の席をお願いします。"
 difficulty = 3
 topics = ["cafe"]
 situation = "You walk into a restaurant with a friend. Ask for a table for two."
+situation_ja = "友達とレストランに入りました。二人用の席を頼んでください。"
 
 [[items]]
 id = "eg_er_graenmetisaeta"
 kind = "phrase"
 target = "Ég er grænmetisæta."
 meaning = "I'm a vegetarian."
+meaning_ja = "私はベジタリアンです。"
 difficulty = 3
 topics = ["cafe", "food"]
 chunks = ["æta", "grænmetisæta", "Ég er grænmetisæta."]
 situation = "The waiter recommends the lamb. Tell him you're a vegetarian."
+situation_ja = "ウェイターがラム肉をすすめます。ベジタリアンだと伝えてください。"
 
 [[items]]
 id = "eg_er_med_ofnaemi_fyrir_hnetum"
 kind = "phrase"
 target = "Ég er með ofnæmi fyrir hnetum."
 meaning = "I'm allergic to nuts."
+meaning_ja = "ナッツアレルギーがあります。"
 difficulty = 4
 topics = ["cafe", "health"]
 chunks = ["hnetum", "fyrir hnetum", "ofnæmi fyrir hnetum", "Ég er með ofnæmi fyrir hnetum."]
 situation = "Before ordering dessert, tell the waiter you're allergic to nuts."
+situation_ja = "デザートを頼む前に、ナッツアレルギーがあるとウェイターに伝えてください。"
 
 [[items]]
 id = "thetta_var_gott"
 kind = "phrase"
 target = "Þetta var gott."
 meaning = "That was good."
+meaning_ja = "おいしかったです。"
 difficulty = 2
 topics = ["cafe"]
 situation = "The waiter clears your empty plate. Tell him it was good."
+situation_ja = "ウェイターが空いた皿を下げます。おいしかったと伝えてください。"
 
 [[items]]
 id = "thetta_er_ljuffengt"
 kind = "phrase"
 target = "Þetta er ljúffengt."
 meaning = "This is delicious."
+meaning_ja = "これ、とてもおいしいです。"
 difficulty = 3
 topics = ["cafe", "food"]
 situation = "Your host asks how the fish is. Tell her it's delicious."
+situation_ja = "ホストが魚の味を聞きました。とてもおいしいと言ってください。"
 
 [[items]]
 id = "ma_eg_borga_med_korti"
 kind = "phrase"
 target = "Má ég borga með korti?"
 meaning = "May I pay by card?"
+meaning_ja = "カードで払えますか？"
 difficulty = 3
 topics = ["cafe", "shopping", "money"]
 chunks = ["korti", "með korti", "borga með korti", "Má ég borga með korti?"]
 situation = "You have no cash. Ask if you may pay by card."
+situation_ja = "現金がありません。カードで払えるか聞いてください。"
 
 [[items]]
 id = "eg_er_svong"
 kind = "phrase"
 target = "Ég er svöng."
 meaning = "I'm hungry."
+meaning_ja = "お腹が空きました。"
 difficulty = 2
 topics = ["cafe", "feelings"]
 pronunciation_notes = "feminine; masculine: Ég er svangur."
 situation = "It's one o'clock and you haven't eaten. Tell your friend you're hungry."
+situation_ja = "1時になりましたが何も食べていません。友達にお腹が空いたと言ってください。"
 
 [[items]]
 id = "eg_er_thyrst"
 kind = "phrase"
 target = "Ég er þyrst."
 meaning = "I'm thirsty."
+meaning_ja = "喉が渇きました。"
 difficulty = 2
 topics = ["cafe", "feelings"]
 pronunciation_notes = "feminine; masculine: Ég er þyrstur."
 situation = "After the hike you need a drink. Say you're thirsty."
+situation_ja = "ハイキングの後で飲み物が欲しいです。喉が渇いたと言ってください。"
 
 [[items]]
 id = "eg_er_sodd"
 kind = "phrase"
 target = "Ég er södd."
 meaning = "I'm full."
+meaning_ja = "お腹いっぱいです。"
 difficulty = 2
 topics = ["cafe", "feelings"]
 pronunciation_notes = "feminine; masculine: Ég er saddur."
 situation = "Your host offers a third helping. Say you're full."
+situation_ja = "ホストが三杯目をすすめます。お腹いっぱいだと言ってください。"
 
 [[items]]
 id = "meira_kaffi_takk"
 kind = "phrase"
 target = "Meira kaffi, takk."
 meaning = "More coffee, please."
+meaning_ja = "コーヒーのおかわりをお願いします。"
 difficulty = 2
 topics = ["cafe"]
 prereqs = ["kaffi"]
 situation = "The waiter comes round with the pot. Ask for more coffee."
+situation_ja = "ウェイターがポットを持って回ってきました。コーヒーのおかわりを頼んでください。"
 
 [[items]]
 id = "annan_bjor_takk"
 kind = "phrase"
 target = "Annan bjór, takk."
 meaning = "Another beer, please."
+meaning_ja = "ビールをもう一杯お願いします。"
 difficulty = 2
 topics = ["cafe"]
 prereqs = ["bjor"]
 situation = "Your glass is empty. Ask the bartender for another beer."
+situation_ja = "グラスが空です。バーテンダーにもう一杯頼んでください。"
 
 [[items]]
 id = "thetta_er_allt"
 kind = "phrase"
 target = "Þetta er allt."
 meaning = "That's all."
+meaning_ja = "以上です。"
 difficulty = 2
 topics = ["cafe", "shopping"]
 situation = "The waiter asks if you'd like anything else. Say that's all."
+situation_ja = "ウェイターが他に何かいるか聞きました。以上ですと答えてください。"
 
 [[items]]
 id = "ekkert_meira_takk"
 kind = "phrase"
 target = "Ekkert meira, takk."
 meaning = "Nothing more, thanks."
+meaning_ja = "もう結構です、ありがとう。"
 difficulty = 2
 topics = ["cafe", "shopping"]
 situation = "The cashier asks if there's anything else. Say nothing more, thanks."
+situation_ja = "レジの人が他に何かあるか聞きました。もう結構ですと答えてください。"
 
 [[dialogues]]
 id = "kaffihus"
 setting = "You're at a café counter in Reykjavík. The barista looks up."
+setting_ja = "レイキャビクのカフェのカウンターにいます。バリスタが顔を上げます。"
 topics = ["cafe", "clarifying"]
 requires = ["godan_daginn", "eg_aetla_ad_fa", "kaffi", "nei", "takk", "gaetirdu_talad_haegar"]
 
   [[dialogues.turns]]
   opener = "Góðan daginn. Hvað má bjóða þér?"
   opener_meaning = "Good day. What can I get you?"
+  opener_meaning_ja = "こんにちは。ご注文は？"
   cue = "Greet her and say you'll have a coffee."
+  cue_ja = "あいさつして、コーヒーをくださいと言ってください。"
   expect_text = "Góðan daginn. Ég ætla að fá kaffi."
   expect_meaning = "Good day. I'll have a coffee."
+  expect_meaning_ja = "こんにちは。コーヒーをください。"
   partner = "Með mjólk?"
   partner_meaning = "With milk?"
+  partner_meaning_ja = "ミルクは入れますか？"
 
   [[dialogues.turns]]
   cue = "Say: no, thanks."
+  cue_ja = "いいえ、結構です、と言ってください。"
   expect_text = "Nei, takk."
   expect_meaning = "No, thanks."
+  expect_meaning_ja = "いいえ、結構です。"
   partner = "Það kostar sex hundruð krónur."
   partner_meaning = "That's six hundred krónur."
+  partner_meaning_ja = "600クローナです。"
 
   [[dialogues.turns]]
   cue = "You didn't catch that. Ask her to speak more slowly."
+  cue_ja = "聞き取れませんでした。もっとゆっくり話すよう頼んでください。"
   expect = "gaetirdu_talad_haegar"
   partner = "Sex hundruð krónur."
   partner_meaning = "Six hundred krónur."
+  partner_meaning_ja = "600クローナです。"
 
   [[dialogues.turns]]
   cue = "Thank her."
+  cue_ja = "お礼を言ってください。"
   expect = "takk"
   partner = "Gjörðu svo vel."
   partner_meaning = "Here you are."
+  partner_meaning_ja = "どうぞ。"
 
 [[dialogues]]
 id = "veitingastadur"
 setting = "A restaurant on Laugavegur. A waiter comes to your table."
+setting_ja = "ロイガヴェーグル通りのレストラン。ウェイターがテーブルに来ます。"
 topics = ["cafe", "food"]
 requires = ["bord_fyrir_tvo", "eg_aetla_ad_fa", "fisk", "vatn", "get_eg_fengid_reikninginn", "ma_eg_borga_med_korti", "thetta_var_gott"]
 
   [[dialogues.turns]]
   opener = "Gott kvöld. Eruð þið tvö?"
   opener_meaning = "Good evening. Are there two of you?"
+  opener_meaning_ja = "こんばんは。お二人ですか？"
   cue = "Ask for a table for two, please."
+  cue_ja = "二人用の席をお願いしてください。"
   expect = "bord_fyrir_tvo"
   partner = "Gjörið svo vel. Hérna er matseðillinn. Hvað má bjóða ykkur að drekka?"
   partner_meaning = "Please, this way. Here's the menu. What can I get you to drink?"
+  partner_meaning_ja = "こちらへどうぞ。メニューです。お飲み物は何にしますか？"
 
   [[dialogues.turns]]
   cue = "Say you'll have water."
+  cue_ja = "水をくださいと言ってください。"
   expect_text = "Ég ætla að fá vatn."
   expect_meaning = "I'll have water."
+  expect_meaning_ja = "水をください。"
   partner = "Og að borða?"
   partner_meaning = "And to eat?"
+  partner_meaning_ja = "お食事は？"
 
   [[dialogues.turns]]
   cue = "Say you'll have the fish."
+  cue_ja = "魚をくださいと言ってください。"
   expect_text = "Ég ætla að fá fisk."
   expect_meaning = "I'll have fish."
+  expect_meaning_ja = "魚をください。"
   partner = "Góður kostur. Verði ykkur að góðu!"
   partner_meaning = "Good choice. Enjoy your meal!"
+  partner_meaning_ja = "いい選択ですね。どうぞ召し上がれ！"
 
   [[dialogues.turns]]
   cue = "Later. Say that was good, and ask for the bill."
+  cue_ja = "しばらくして。おいしかったと言い、お会計を頼んでください。"
   expect_text = "Þetta var gott. Get ég fengið reikninginn?"
   expect_meaning = "That was good. Can I have the bill?"
+  expect_meaning_ja = "おいしかったです。お会計をお願いできますか？"
   partner = "Auðvitað. Fjögur þúsund og fimm hundruð krónur."
   partner_meaning = "Of course. Four thousand five hundred krónur."
+  partner_meaning_ja = "もちろん。4,500クローナです。"
 
   [[dialogues.turns]]
   cue = "Ask if you may pay by card."
+  cue_ja = "カードで払えるか聞いてください。"
   expect = "ma_eg_borga_med_korti"
   partner = "Já, ekkert mál."
   partner_meaning = "Yes, no problem."
+  partner_meaning_ja = "はい、問題ありません。"
