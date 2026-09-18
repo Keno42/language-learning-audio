@@ -25,14 +25,17 @@ from .tts import Provider, get_provider
 # language). The curriculum, transcript, cues.json and answer-matching all keep the
 # correct native spelling; only the synthesized audio hears the substitute.
 #
-# Icelandic geminate 'll'/'nn' is pre-aspirated (a brief voiceless click before the
-# l/n) — correct native pronunciation, but for "halló" specifically the owner asked
-# for the plain, more English-like reading instead. Spelling it with a single 'l'
-# sidesteps the gemination rule (confirmed with `espeak-ng -v is -x`: 'Halló' -> a
-# pre-aspirated 'tl', 'Haló' -> a plain long 'l', no click) without touching anything
-# else that word triggers elsewhere (fjall, gull, allt, … keep their normal, correct
-# pronunciation). See docs/HANDOFF.md session 5/6 for the fuller reasoning; this list
-# is the override, not the explanation.
+# Icelandic geminate 'll'/'nn' in native words is pre-aspirated (a brief voiceless
+# click before the l/n: fjall, gull, allt). "Halló" the greeting is a different case:
+# it is a Danish loanword and, per its dictionary entry, does not take that click at
+# all (IPA [ˈhal(ː)ou], plain l) — a same-spelled but unrelated slang adjective does
+# ([ˈhatlou], from a native compound), which is what misled an earlier pass at this.
+# Edge-tts's clicked rendering of the greeting was very likely a genuine mispronun-
+# ciation, not correct Icelandic; spelling it with a single 'l' for the TTS (checked
+# with `espeak-ng -v is -x`) removes it without touching anything else that word
+# triggers elsewhere. See docs/HANDOFF.md session 6 (and its addendum, which corrects
+# an earlier over-confident citation) for the full story; this list is the override,
+# not the explanation.
 RESPELL_FOR_SPEECH: dict[str, list[tuple[str, str]]] = {
     "is": [("Halló", "Haló")],
 }

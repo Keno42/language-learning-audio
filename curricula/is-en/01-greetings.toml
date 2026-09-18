@@ -54,7 +54,7 @@ difficulty = 1
 topics = ["greetings"]
 situation = "You answer the phone."
 situation_ja = "電話に出ます。"
-pronunciation_notes = "This course reads 'halló' close to the familiar 'hello', without the click some Icelandic speakers put before the double 'll'. That click (pre-aspiration) is a real feature of the language — you'll hear this course apply it properly wherever it is not optional, e.g. 'fjall' (mountain), 'jökull' (glacier)."
+pronunciation_notes = "'Halló' is a Danish loanword (in use since the 1600s) and is pronounced with a plain 'l', close to the familiar 'hello' — not the pre-aspirated click that native double-'l' words get (e.g. 'fjall', mountain; 'jökull', glacier), which this course pronounces properly wherever it genuinely occurs."
 
 [[items]]
 id = "bless"

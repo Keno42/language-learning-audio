@@ -1,8 +1,9 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-18 (session 6: halló respelled for the TTS, on request)._
-Keep this current: whoever picks the project up next, human or AI, should be
-able to continue from here without re-deriving decisions._
+_Last updated 2026-09-18 (session 6, corrected: halló's greeting sense has no
+click — see "Correction" below, which supersedes the phonology claim in
+session 5)._ Keep this current: whoever picks the project up next, human or
+AI, should be able to continue from here without re-deriving decisions._
 
 ## Session 6: owner overrode session 5's "leave it, it's correct" call
 
@@ -53,46 +54,69 @@ render layer**, not a reversal of the linguistic explanation:
   since guessing at orthography-to-phonology rules for a language you don't
   speak is exactly the kind of thing worth a cheap empirical check first.
 
-### Addendum: the owner asked for a citation on halló specifically, not just the general rule
+### Correction: the earlier citation was for the wrong word, and it flipped the answer
 
-Fair challenge — session 5's case rested on the general `ll` rule plus an
-espeak cross-check, not on a source about this specific word. Searched for
-one (`WebSearch`; **could not fetch and read the raw pages myself** — this
-sandbox's egress proxy blocks `en.wiktionary.org`, `en.wikipedia.org`,
-`wikiwand.com` and a jina.ai text-proxy alike, so this is the search tool's
-own extraction, corroborated across two independently-phrased queries
-returning the identical string, not a page I read first-hand):
+The owner asked for a citation on halló specifically. `WebSearch` (still
+could not fetch the raw Wiktionary page myself — egress-blocked, same as
+`en.wikipedia.org`, `wikiwand.com`, a jina.ai text-proxy) returned an IPA
+string, **/ˈha.tl̥ou̯/**, which I reported as confirming the clicked
+pronunciation for the greeting. **That was wrong, and it was wrong in the
+specific way the owner called out: I read a result that matched what I
+already believed and did not check whether it was even about the same
+word.** Wiktionary's "halló" page (owner pasted the actual entry) has two
+unrelated etymologies under one spelling:
 
-- **English Wiktionary, Icelandic section for "halló"**: gives the IPA
-  transcription **/ˈha.tl̥ou̯/** — <https://en.wiktionary.org/wiki/hall%C3%B3>.
-  The `tl̥` is exactly the pre-aspirated voiceless lateral cluster (the
-  ring diacritic marks the `l` voiceless), transcribed for this word
-  specifically, not inferred from the general rule. This is the citation
-  the owner asked for.
-- **Forvo** (crowd-sourced native-speaker recordings) has an Icelandic
-  recording of "halló" by a listed native speaker
-  (<https://forvo.com/word/hall%C3%B3/>) — real first-hand evidence if
-  anyone can actually listen to it; not accessible from this sandbox.
-- Complication worth keeping in view: several casual, tourist-facing
-  pronunciation pages (not dictionaries) gloss "halló" simply as sounding
-  like English "hello" and don't mention pre-aspiration for it at all —
-  e.g. thecognitio.com's guide, gocarrental.is's guide. That's weaker
-  evidence than a transcribed dictionary entry (these pages are aimed at
-  travellers, not phonology, and may just be simplifying), but it's a real
-  second data point *for* the espeak-ng behaviour, not just noise: loanword
-  interjections resisting a native gemination rule that inherited
-  vocabulary follows strictly is a real, attested pattern cross-
-  linguistically, so "the dictionary-cited/careful pronunciation has it,
-  casual usage may not consistently" is a coherent middle reading, not a
-  contradiction to paper over.
-- Net effect on the earlier call: the Wiktionary transcription is real,
-  specific evidence for the native/careful pronunciation, stronger than
-  what session 5 had. It does not, by itself, revisit the render-layer
-  override — that was the owner's explicit request in the message right
-  before this one, and stands unless they say otherwise now that the fuller
-  picture is in front of them.
+```
+Etymology 1 — Interjection, borrowed from Danish "hallo" (in use since the 1600s)
+  IPA(key): [ˈhal(ː)ou]        ← the greeting; the "(ː)" is an optional plain-l length, no t
+  "hello, good day; ... hello, a greeting used when answering the telephone"
+
+Etymology 2 — Adjective, clipping of "hallærislegur" + "-ó" (slang: cheesy, uncool)
+  IPA(key): [ˈhatlou]          ← the click is here, on an unrelated word
+```
+
+The click belongs to the slang adjective (which inherits it honestly from
+the native compound *hallæri* it's clipped from); the greeting — a direct
+Danish loan, the word this curriculum item and every prior session's
+argument was actually about — is documented as a **plain `l`, no
+pre-aspiration**. This matches both the casual pronunciation pages ("sounds
+like hello") and espeak-ng's own output, which two sessions in a row I'd
+been treating as the anomaly to explain away rather than the correct
+signal. It does not match my session-5 prediction from the general native
+`ll` rule, because that rule is about inherited vocabulary; a Danish loan
+interjection has no reason to follow it, and per the dictionary, doesn't.
+
+**Consequence for the code:** `RESPELL_FOR_SPEECH`'s `("Halló", "Haló")`
+entry stays, but its justification changes. It was written as "the owner's
+preference against a likely-correct native pronunciation." It is now
+better understood as "correcting edge-tts toward the greeting's actual
+documented pronunciation" — the original bug report was very likely right
+on the merits, not merely accommodated. Reworded the code comment and
+`hallo`'s `pronunciation_notes` (it used to say some Icelandic speakers
+click on *this word*; they don't — that click is on the unrelated slang
+adjective) to stop asserting the opposite of what the dictionary says.
+`tvo_l`'s examples (fjall/eldfjall/jökull, genuine native `ll` words) were
+already correct and untouched.
+
+**For the next session, human or AI: this is a two-strikes pattern, not a
+one-off.** Two sessions in a row, evidence that contradicted a
+confidently-held phonological prediction (espeak's plain-l output, then
+casual pronunciation guides) got explained away as "probably a gap in the
+weaker source" instead of updating the prediction. Read a cited source in
+full before extracting the one fact that confirms what you already expect
+to find, especially under a homograph-prone spelling — the failure mode
+here was not "no citation," it was "picked the citation that agreed with
+me out of one that, read whole, didn't."
 
 ## Session 5: "halló" sounds like [hatlo] on edge-tts — is that wrong?
+
+**Superseded — kept for the record, not as current guidance.** Session 6's
+"Correction" section (above) found the greeting sense of "halló" has no
+pre-aspiration at all (it's a Danish loan, IPA `[ˈhal(ː)ou]`); the
+"very likely correct Icelandic" conclusion below turned out to be wrong,
+built on the general native `ll` rule applied to a word that, per its own
+dictionary entry, doesn't follow it. Read this section for how a plausible-
+looking chain of reasoning went wrong, not for the answer.
 
 The owner reported edge-tts's `is-IS-*` voices rendering "halló" with what
 sounded like a "t" in the middle. **Could not verify by ear in this sandbox**
