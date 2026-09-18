@@ -236,6 +236,22 @@ class LessonStructureTests(unittest.TestCase):
         self.assertLessEqual(len(sc.meta["new_items"]), 5)
         self.assertLess(sc.total_duration / 60, 12)
 
+    def test_intro_pauses_between_meaning_and_target_word(self):
+        """First exposure to a new word: a beat separates the known-language meaning from the
+        target-language word, so a listener doesn't hear them run together as one clip."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        item = next(i for i in cur.items if i.kind not in ("construction", "transform"))
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.intro(sc, item)
+        narrate_idx = next(i for i, s in enumerate(sc.segments) if s.type == "narrate")
+        speak_idx = next(i for i, s in enumerate(sc.segments) if s.type == "speak")
+        self.assertEqual(sc.segments[narrate_idx + 1].type, "pause")
+        self.assertEqual(sc.segments[speak_idx - 1].type, "pause")
+
     def test_later_lessons_fill_the_requested_time(self):
         _, scripts = course(8, minutes=30)
         minutes = [round(sc.total_duration / 60, 1) for sc in scripts]

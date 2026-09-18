@@ -50,6 +50,34 @@ touch `is`) and `test_narration_slash_reaches_the_tts_but_the_record_keeps_the_s
 (end-to-end: renders a script, spies on what the stub provider actually
 receives, confirms the transcript and cues.json still show the "/").
 
+### Issue #8 — no breathing room between the meaning and the new word
+
+On a brand-new item's first exposure, `Builder.intro()` narrated the
+known-language meaning (e.g. "Something new. Hello.") and then spoke the
+target-language word immediately after, with no pause segment between them
+— unlike every other join point in that same method, which already has a
+`_beat()`. The two clips ran together as one, making it hard to tell where
+the known language ends and the target language starts on the one exposure
+where that boundary matters most.
+
+Fix: one `self._beat(sc, ex)` call each in `Builder.intro()` (before the
+first `item.target` speak) and `Builder._intro_construction()` (same spot,
+for a new sentence pattern). `_beat` is already the same 0.8s gap used
+between every other segment pair in this file (`timing.py`'s `beat`), so
+this isn't a new timing concept — just one missing insertion of an existing
+one, at the one place a first-time listener needs it most.
+
+Left `_intro_transform()` untouched: its first narration is generic
+instructions ("Here's how this works"), not the item's meaning, so it isn't
+the same "known-language words butting up against target-language words"
+case the issue describes.
+
+Test added in `tests/test_audiolesson.py::LessonStructureTests`:
+`test_intro_pauses_between_meaning_and_target_word`, which drives `Builder`
+directly (bypassing the planner) on the sample curriculum's first plain
+item and asserts a `pause` segment sits on both sides of the narrate/speak
+boundary.
+
 ## Session 6: owner overrode session 5's "leave it, it's correct" call
 
 Session 5 (below) judged the `[hatlo]`-ish sound *very likely* correct
