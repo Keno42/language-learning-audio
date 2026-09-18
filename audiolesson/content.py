@@ -114,6 +114,20 @@ class Dialogue:
 
 
 @dataclass
+class Note:
+    """A short cultural aside in the learner's language, spoken by the instructor.
+
+    Notes are passive content, so the planner rations them (a couple per lesson)
+    and prefers to place one right after an exercise on one of its ``items``.
+    """
+
+    id: str
+    text: str
+    items: list[str] = field(default_factory=list)  # related item ids
+    topics: list[str] = field(default_factory=list)
+
+
+@dataclass
 class Curriculum:
     name: str
     target_lang: str
@@ -122,10 +136,12 @@ class Curriculum:
     dialogues: list[Dialogue]
     level: str = "A1"
     source: str = ""
+    notes: list[Note] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         self.by_id: dict[str, Item] = {i.id: i for i in self.items}
         self.dialogue_by_id: dict[str, Dialogue] = {d.id: d for d in self.dialogues}
+        self.note_by_id: dict[str, Note] = {n.id: n for n in self.notes}
 
     def item(self, item_id: str) -> Item:
         return self.by_id[item_id]
@@ -184,7 +200,7 @@ def load_curriculum(path: str | Path) -> Curriculum:
         files = sorted(path.glob("*.toml"))
         if not files:
             raise CurriculumError(f"{path}: no .toml files")
-        merged: dict = {"items": [], "dialogues": []}
+        merged: dict = {"items": [], "dialogues": [], "notes": []}
         for f in files:
             with f.open("rb") as fh:
                 raw = tomllib.load(fh)
@@ -194,6 +210,7 @@ def load_curriculum(path: str | Path) -> Curriculum:
                 merged["curriculum"] = raw["curriculum"]
             merged["items"] += raw.get("items", [])
             merged["dialogues"] += raw.get("dialogues", [])
+            merged["notes"] += raw.get("notes", [])
         if "curriculum" not in merged:
             raise CurriculumError(f"{path}: no file defines [curriculum]")
         return curriculum_from_dict(merged, source=str(path))
@@ -226,6 +243,8 @@ def curriculum_from_dict(raw: dict, source: str = "") -> Curriculum:
             )
         )
 
+    notes = [Note(**n) for n in raw.get("notes", [])]
+
     cur = Curriculum(
         name=meta["name"],
         target_lang=meta["target_lang"],
@@ -234,6 +253,7 @@ def curriculum_from_dict(raw: dict, source: str = "") -> Curriculum:
         items=items,
         dialogues=dialogues,
         source=source,
+        notes=notes,
     )
     validate(cur)
     return cur
@@ -266,6 +286,14 @@ def validate(cur: Curriculum) -> None:
     for d in cur.dialogues:
         if d.id in {x.id for x in cur.dialogues if x is not d}:
             raise CurriculumError(f"duplicate dialogue id {d.id!r}")
+    seen_notes: set[str] = set()
+    for n in cur.notes:
+        if n.id in seen_notes:
+            raise CurriculumError(f"duplicate note id {n.id!r}")
+        seen_notes.add(n.id)
+        for ref in n.items:
+            if ref not in ids:
+                raise CurriculumError(f"note {n.id!r} references unknown item {ref!r}")
     for it in cur.items:
         for ref in it.components + it.prereqs:
             if ref not in ids:

@@ -78,8 +78,9 @@ audiolesson status -l learner-is.json -c curricula/is-en
 ```
 
 **Pacing rules** (`LearnerState.suggest_pace`), based on what spaced-retrieval
-research and Pimsleur-style courses converge on: about 6–10 productive items
-per 30 minutes, retrieval success around 80–85%.
+research and the established audio courses of the prompt–pause–answer type
+converge on: about 6–10 productive items per 30 minutes, retrieval success
+around 80–85%.
 
 - Start at one new item per 5 minutes (30 min → 6), clamped to 3–10.
 - If the last *reported* lesson had more than 20% of its new items fail, pace − 1.
@@ -101,9 +102,18 @@ by three mechanisms, all automatic:
 2. *Second review pass* — if the material runs out before the time does, items
    reviewed earlier in the lesson come back once more, one stage harder,
    most urgent first.
-3. *Fit at render* — the remaining difference is absorbed by scaling every
-   pause by one factor within 0.85–1.25 (`fit`, `fit_min`, `fit_max` in the
-   profile; `--no-fit` to disable). Speech is never altered.
+3. *Fit at render* — if the file would still miss the target by more than a
+   minute (`fit_tolerance`, default 60 s), every pause is scaled by one
+   factor within 0.85–1.25 (`fit`, `fit_min`, `fit_max` in the profile;
+   `--no-fit`, `--fit-tolerance`). Inside the tolerance, pauses stay exactly
+   as the timing model set them. Speech is never altered.
+
+**Cultural asides.** A curriculum can carry `[[notes]]`: short remarks in
+the learner's language (for the Icelandic course, written for someone from
+Japan — hot dogs and onigiri, pools and sentō, first names and -san). The
+planner plays one right after an exercise on a related item, at most one
+per 12 minutes, and uses them to fill a gap when there is nothing due; each
+note is heard at most once per lesson and least-heard first across lessons.
 
 The first few lessons still come out short: with nothing to review yet there
 is simply not 30 minutes of honest work, and `generate` says so rather than
@@ -158,8 +168,8 @@ See `docs/CURRICULUM.md`. Three curricula ship:
   small talk; 47 items, 4 dialogues.
 - `curricula/fr-ja-a1.toml` — the same material for Japanese speakers
   (日本語の指示でフランス語を学ぶ), derived by `tools/derive_fr_ja.py`.
-- `curricula/is-en/` — Icelandic for English speakers, **993 items and 31
-  dialogues in 26 topic modules** (greetings, café, directions, self, time,
+- `curricula/is-en/` — Icelandic for English speakers, **993 items, 31
+  dialogues and 45 cultural asides in 26 topic modules** (greetings, café, directions, self, time,
   weather, numbers/money, shopping, transport, accommodation, health, family,
   daily routine, hobbies, home, food, adjectives, question words, verb forms,
   work, practical life, nature, discourse, travel, feelings). Nouns are tagged

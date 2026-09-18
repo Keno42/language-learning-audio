@@ -39,7 +39,8 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--profile", "-p", default=None, help="voice profile .toml (see profiles/)")
     g.add_argument("--provider", default=None, help="TTS provider: stub, espeak, edge, openai, say (overrides profile)")
     g.add_argument("--no-audio", action="store_true", help="only write the script and transcript")
-    g.add_argument("--no-fit", action="store_true", help="don't scale pauses to land exactly on --minutes")
+    g.add_argument("--no-fit", action="store_true", help="don't scale pauses to land on --minutes")
+    g.add_argument("--fit-tolerance", type=float, default=None, help="seconds of slack before pauses are scaled (default 60)")
     g.add_argument("--dry-run", action="store_true", help="don't update the learner state")
     g.set_defaults(func=cmd_generate)
 
@@ -52,6 +53,7 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--cache", default=None, help="TTS cache directory")
     r.add_argument("--minutes", "-m", type=float, default=None, help="fit the audio to this length (default: the script's)")
     r.add_argument("--no-fit", action="store_true")
+    r.add_argument("--fit-tolerance", type=float, default=None)
     r.set_defaults(func=cmd_render)
 
     rp = sub.add_parser("report", help="after listening: tell the model which items you could not recall")
@@ -139,7 +141,8 @@ def cmd_generate(args) -> int:
     print(f"  new: {', '.join(script.meta['new_items']) or '(none — curriculum exhausted, review only)'}")
     carried = len(script.meta.get("due_not_fitted", []))
     print(f"  reviewed: {len(script.meta['reviewed_items'])} items ({script.meta.get('due_at_start', 0)} were due"
-          + (f", {carried} carried over" if carried else "") + f"), dialogues: {', '.join(script.meta['dialogues']) or '-'}")
+          + (f", {carried} carried over" if carried else "") + f"), dialogues: {', '.join(script.meta['dialogues']) or '-'}"
+          + (f", asides: {', '.join(script.meta['notes'])}" if script.meta.get("notes") else ""))
     print(f"  wrote {stem}.script.json, .transcript.md, .plan.json")
 
     if not args.no_audio:
@@ -149,10 +152,12 @@ def cmd_generate(args) -> int:
         profile = load_profile(args.profile, args.provider)
         if args.no_fit:
             profile.fit = False
+        if args.fit_tolerance is not None:
+            profile.fit_tolerance = args.fit_tolerance
         cues = render_script(script, profile, f"{stem}.wav", cache_dir=out / "cache" / profile.provider)
         save_cues(cues, f"{stem}.cues.json")
         print(f"  audio: {cues['mp3'] or cues['wav']} ({_mmss(cues['duration_s'])}, provider {cues['provider']}"
-              + (f", pauses ×{cues['fit_scale']:.2f} to fit {args.minutes:g} min" if profile.fit else "") + ")")
+              + (f", pauses ×{cues['fit_scale']:.2f}" if profile.fit and abs(cues['fit_scale'] - 1) > 0.005 else "") + ")")
         if abs(cues["duration_s"] - args.minutes * 60) > 60:
             print(f"  note: {abs(cues['duration_s'] - args.minutes * 60)/60:.1f} min off target — "
                   + ("not enough material yet" if cues["duration_s"] < args.minutes * 60 else "speech ran long") + "; calibration will tighten the next plan")
@@ -207,6 +212,8 @@ def cmd_render(args) -> int:
     cache = Path(args.cache) if args.cache else out.parent / "cache" / profile.provider
     if args.no_fit:
         profile.fit = False
+    if args.fit_tolerance is not None:
+        profile.fit_tolerance = args.fit_tolerance
     cues = render_script(script, profile, out, cache_dir=cache, target_seconds=args.minutes * 60 if args.minutes else None)
     save_cues(cues, out.with_suffix(".cues.json"))
     print(f"audio: {cues['mp3'] or cues['wav']} ({_mmss(cues['duration_s'])}, provider {cues['provider']}, pauses ×{cues['fit_scale']:.2f})")
@@ -269,7 +276,7 @@ def cmd_validate(args) -> int:
     kinds = {}
     for i in cur.items:
         kinds[i.kind] = kinds.get(i.kind, 0) + 1
-    print(f"ok: {cur.name} ({cur.target_lang} for {cur.known_lang} speakers): {len(cur.items)} items {kinds}, {len(cur.dialogues)} dialogues, topics {cur.topics()}")
+    print(f"ok: {cur.name} ({cur.target_lang} for {cur.known_lang} speakers): {len(cur.items)} items {kinds}, {len(cur.dialogues)} dialogues, {len(cur.notes)} notes, topics {cur.topics()}")
     return 0
 
 

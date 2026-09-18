@@ -10,7 +10,7 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass, field
 
-from .content import Curriculum, Dialogue, Item, TransformExample
+from .content import Curriculum, Dialogue, Item, Note, TransformExample
 from .learner import LearnerState
 from .prompts import Prompts
 from .script import Exercise, Script, Segment
@@ -393,6 +393,16 @@ class Builder:
         for s in slots:
             out = [{**d, s: it} for d in out for it in options[s]]
         return out
+
+    # ------------------------------------------------------------------ note
+
+    def note(self, sc: Script, note: Note) -> Exercise:
+        """A short cultural aside: instructor only, no retrieval."""
+        ex = sc.new_exercise("note", None, list(note.items), f"note: {note.id}")
+        self._narr(sc, ex, self.prompts.get("aside"))
+        self._narr(sc, ex, note.text)
+        self._gap(sc, ex)
+        return ex
 
     # -------------------------------------------------------------- dialogue
 

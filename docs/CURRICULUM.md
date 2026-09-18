@@ -80,6 +80,22 @@ A dialogue is eligible once every `expect` item and every `requires` item is
 learned. It is replayed without pauses the second time it is practised. Items
 that appear in a dialogue gain the *dialogue* stage at the top of their ladder.
 
+## Cultural asides
+
+```toml
+[[notes]]
+id = "pylsa"
+items = ["pylsu", "eina_pylsu_med_ollu"]   # play right after one of these
+topics = ["food"]
+text = "The Icelandic hot dog is mostly lamb, and 'með öllu' means …"
+```
+
+Notes are spoken by the instructor in the learner's language, never
+required for the lesson, and rationed (about one per 12 minutes). Keep them
+to two or three sentences, roughly 15–20 seconds of speech; the best ones
+contrast the target culture with the learner's own. Notes with no `items`
+are only used as filler.
+
 ## Languages with cases (Icelandic, German, Russian…)
 
 Slot fills are inserted verbatim, so give each noun in the form the

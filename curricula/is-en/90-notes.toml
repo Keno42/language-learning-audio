@@ -1,0 +1,272 @@
+# 90 — cultural asides, spoken by the instructor (English), written for a learner from Japan.
+# Each note is tied to items; the planner plays one right after one of them, at most a couple per lesson.
+
+[[notes]]
+id = "pylsa"
+items = ["pylsu", "eina_pylsu_med_ollu"]
+topics = ["food"]
+text = "The Icelandic hot dog is mostly lamb, and 'með öllu' means ketchup, sweet mustard, remoulade, raw onions and crispy onions. It is the national fast food, the way a convenience-store onigiri is in Japan: cheap, everywhere, and eaten standing up."
+
+[[notes]]
+id = "skor"
+items = ["fardu_ur_skonum", "komdu_inn"]
+topics = ["home"]
+text = "Shoes come off at the door in Iceland too, so this will feel familiar. Unlike in Japan there is no genkan step and nobody offers slippers; you just walk around in socks."
+
+[[notes]]
+id = "heitt_vatn"
+items = ["heitt_vatn_er_okeypis", "eg_fer_i_sturtu", "thad_er_ekkert_heitt_vatn"]
+topics = ["home", "nature"]
+text = "Hot water in Reykjavík comes straight from geothermal springs, which is why the shower smells faintly of sulphur. Long showers are not a luxury here: the water is nearly free, and houses are heated with it."
+
+[[notes]]
+id = "sundlaug"
+items = ["sundlaugin", "eg_fer_i_sund", "fara_i_sund", "sundi"]
+topics = ["daily"]
+text = "The public pool is Iceland's version of the sentō: cheap, in every town, and where people meet. The rule is to wash thoroughly without a swimsuit before entering, and the signs show exactly which body parts; attendants do check. Treat it like a Japanese bath and you will be fine."
+
+[[notes]]
+id = "heiti_potturinn"
+items = ["heiti_potturinn", "er_heitur_pottur_herna"]
+topics = ["daily"]
+text = "The hot tub at the pool is where the news gets discussed, like a village square. Conversations between strangers are normal there, and it is fine to just sit and listen."
+
+[[notes]]
+id = "vedur_smalltalk"
+items = ["hvernig_er_vedrid", "thad_er_svo_kalt", "rok"]
+topics = ["weather"]
+text = "Weather is the safe topic here, as in Japan, but with more drama. 'Rok' means a gale, and Icelanders say it the way you would say 'atsui desu ne': a greeting more than a complaint."
+
+[[notes]]
+id = "thetta_reddast"
+items = ["thetta_reddast"]
+topics = ["discourse"]
+text = "'Þetta reddast', it will work out, is the national attitude. It is roughly the opposite of Japanese advance planning: people commit first and sort out the details later, and things usually do work out."
+
+[[notes]]
+id = "jaeja"
+items = ["jaeja"]
+topics = ["discourse"]
+text = "'Jæja' does the work of several Japanese words at once: 'sate', 'yare yare' and 'sō ka'. Said with a rising tone it opens a topic; said falling, it politely ends a visit."
+
+[[notes]]
+id = "nofn"
+items = ["eg_heiti", "hvad_heitir_thu", "hae"]
+topics = ["social"]
+text = "Icelanders go by first names, even with the prime minister or a doctor. Surnames are patronymics: Jónsdóttir is 'Jón's daughter', so the phone book is sorted by first name. Don't reach for '-san'; the first name alone is polite."
+
+[[notes]]
+id = "konur_nofn"
+items = ["konan_min", "eg_er_gift", "vid_erum_gift"]
+topics = ["family"]
+text = "Icelandic women keep their own names when they marry, since surnames are patronymics anyway. Brother and sister from the same parents have different surnames: Jónsson and Jónsdóttir."
+
+[[notes]]
+id = "takk_fyrir_sidast"
+items = ["takk_fyrir_sidast", "takk_fyrir_kvoldid"]
+topics = ["greetings"]
+text = "'Takk fyrir síðast', thanks for last time, is said when you next meet someone you spent an evening with. It is close to 'senjitsu wa arigatō gozaimashita', and just as expected."
+
+[[notes]]
+id = "takk_fyrir_matinn"
+items = ["takk_fyrir_matinn", "verdi_ther_ad_godu"]
+topics = ["food"]
+text = "'Takk fyrir matinn' after every meal works like 'gochisōsama'. Children learn it early, and the cook answers 'verði þér að góðu'."
+
+[[notes]]
+id = "thjorfe"
+items = ["eigdu_afganginn", "get_eg_fengid_reikninginn"]
+topics = ["money"]
+text = "There is no tipping in Iceland, just like in Japan. Service is in the price, and rounding up a taxi fare is the most anyone does."
+
+[[notes]]
+id = "kort"
+items = ["tekurdu_kort", "eg_er_ekki_med_reidufe", "ma_eg_borga_med_korti"]
+topics = ["money"]
+text = "Iceland is nearly cashless. Even the hot dog stand takes cards, and many Icelanders have not touched a coin in years. It is the opposite of Japan, where cash still rules in small places."
+
+[[notes]]
+id = "kennitala"
+items = ["hvar_er_thjodskra", "eg_er_ekki_med_kennitolu"]
+topics = ["practical"]
+text = "The kennitala is a ten-digit number, your birth date plus four digits, used for everything from the pharmacy to the gym. It is like My Number in Japan, except that people give it out freely."
+
+[[notes]]
+id = "kaffi"
+items = ["viltu_kaffi", "kaffi", "eg_drekk_kaffi"]
+topics = ["cafe"]
+text = "Coffee is offered the moment you step into an Icelandic home, and refusing takes effort. Icelanders are among the world's heaviest coffee drinkers, and refills are free in most cafés."
+
+[[notes]]
+id = "bjor"
+items = ["bjor", "annan_bjor_takk"]
+topics = ["cafe"]
+text = "Beer was illegal in Iceland until the first of March 1989, and the date is still celebrated as Beer Day. Anything stronger than light beer is sold only in the state shop, Vínbúðin, so don't look for it at the supermarket."
+
+[[notes]]
+id = "blaa_lonid"
+items = ["eg_vil_fara_i_blaa_lonid"]
+topics = ["travel"]
+text = "The Blue Lagoon's milky water is run-off from a geothermal power plant, and it costs many times more than a public pool. Locals mostly go to their town pool instead."
+
+[[notes]]
+id = "nordurljos"
+items = ["nordurljosin", "eg_vil_sja_nordurljosin", "nordurljos"]
+topics = ["nature"]
+text = "Northern lights need a dark, clear sky, so the season runs from September to April. Reykjavík's street lights wash them out; locals drive twenty minutes out of town and check the forecast first."
+
+[[notes]]
+id = "midnætursol"
+items = ["thad_er_bjart_uti", "thad_er_dimmt_uti", "eg_sef_illa"]
+topics = ["nature"]
+text = "In June the sun barely sets and people mow their lawns at midnight; blackout curtains are standard. In December it is up for about four hours, and that is when the coffee habit makes sense."
+
+[[notes]]
+id = "straeto"
+items = ["strætó", "hvenaer_fer_straeto", "einn_mida_takk"]
+topics = ["transport"]
+text = "There is no train anywhere in Iceland, and the buses are called strætó. You pay with the app or with exact change, because the driver gives none back. The Tokyo habit of trusting the timetable to the minute will be tested."
+
+[[notes]]
+id = "vegir"
+items = ["er_vegurinn_opinn", "vegurinn_er_lokadur"]
+topics = ["transport"]
+text = "Ring Road 1 circles the island in about 1,300 kilometres. Roads close in winter storms, and checking the road-conditions site before a drive is as normal as checking train delays in Tokyo."
+
+[[notes]]
+id = "hestar"
+items = ["hestur", "eg_a_islenskan_hest"]
+topics = ["nature"]
+text = "Icelandic horses have a fifth gait, the tölt, and no other horse may enter the country; one that leaves may never return. Never call them ponies."
+
+[[notes]]
+id = "kindur"
+items = ["kind", "lambakjot"]
+topics = ["nature", "food"]
+text = "Sheep outnumber people two to one and roam free all summer. In September farmers gather them from the highlands in the réttir, a communal round-up that ends with singing and a great deal of lamb soup."
+
+[[notes]]
+id = "hakarl"
+items = ["hakarl", "hefurdu_smakkad_hakarl"]
+topics = ["food"]
+text = "Hákarl is Greenland shark, fermented for months because fresh it is poisonous. It is eaten in tiny cubes with a shot of brennivín, mostly at the midwinter feast Þorrablót. Think of it as Iceland's nattō, only stronger."
+
+[[notes]]
+id = "skyr"
+items = ["skyr"]
+topics = ["food"]
+text = "Skyr looks like yoghurt but is technically a cheese, and Icelanders have eaten it for a thousand years. It is high in protein and low in fat, eaten with milk and sugar or berries."
+
+[[notes]]
+id = "fiskur"
+items = ["fisk", "plokkfisk", "thorsk"]
+topics = ["food"]
+text = "Fish built Iceland's economy, and the 'cod wars' with Britain in the 1970s were fought over fishing limits. Plokkfiskur, fish and potatoes mashed in a white sauce, is the nation's Tuesday dinner."
+
+[[notes]]
+id = "islenska"
+items = ["islensku", "eg_er_ad_laera"]
+topics = ["clarifying"]
+text = "Icelandic has changed so little that schoolchildren read thousand-year-old sagas. The letters þ and ð are the two 'th' sounds of English 'thin' and 'this'. Like Japanese, it prefers to coin its own words: a computer is 'tölva', from 'tala', number, and 'völva', prophetess."
+
+[[notes]]
+id = "enska"
+items = ["talar_thu", "eg_tala_sma_islensku"]
+topics = ["clarifying"]
+text = "Almost everyone under sixty speaks English well, and many switch the moment they hear an accent. Saying 'ég er að læra íslensku' usually makes them switch back: people are pleased that anyone tries."
+
+[[notes]]
+id = "tolur"
+items = ["einn", "tveir", "klukkan_er"]
+topics = ["numbers"]
+text = "The numbers one to four change with the gender of what you count: einn, ein, eitt for 'one'. Icelanders understand any form, so say the one you remember and move on. For the clock, use the neuter: eitt, tvö, þrjú, fjögur."
+
+[[notes]]
+id = "sumarfri"
+items = ["eg_er_i_frii", "um_helgina", "eg_er_i_frii_a_morgun"]
+topics = ["work"]
+text = "Summer holidays are sacred: most people take three or four weeks in July and offices go quiet. Many work a 36-hour week, and leaving on time is normal, not a sign of low commitment."
+
+[[notes]]
+id = "jolasveinar"
+items = ["barn", "strakur", "stelpa"]
+topics = ["family"]
+text = "Icelandic children are visited by thirteen Yule Lads, one each night before Christmas. Each leaves a small gift in a shoe on the windowsill, or a potato if the child misbehaved."
+
+[[notes]]
+id = "kurteisi"
+items = ["hae", "nagranni_minn", "gjordu_svo_vel"]
+topics = ["greetings"]
+text = "Greetings are informal: 'hæ' works with a shop assistant, a professor or a stranger, and there is no honorific language like keigo. Politeness comes from tone, from 'gjörðu svo vel', and from saying takk a lot."
+
+[[notes]]
+id = "rod"
+items = ["taktu_numer", "hvar_er_bidrodin"]
+topics = ["practical"]
+text = "Icelanders queue loosely and take a number at the bank or pharmacy. In a crowd you will see less of the neat line you know from Tokyo, but nobody pushes."
+
+[[notes]]
+id = "eldgos"
+items = ["thad_er_gos", "eldfjall", "hraun"]
+topics = ["nature"]
+text = "Iceland sits on the split between the American and Eurasian plates, so it has volcanoes and earthquakes for the same reason Japan does. The eruptions on the Reykjanes peninsula since 2021 became weekend outings, until the lava reached a town."
+
+[[notes]]
+id = "vedurspa"
+items = ["hvernig_verdur_vedrid_a_morgun", "ertu_med_regnhlif"]
+topics = ["weather"]
+text = "The forecast site vedur.is is on every phone, and the joke is that if you don't like the weather, wait five minutes. Layers, not umbrellas: the wind turns umbrellas inside out within a block."
+
+[[notes]]
+id = "huldufolk"
+items = ["fjall", "utsynid_er_fallegt"]
+topics = ["nature"]
+text = "Some road plans have been altered around rocks said to house the hidden people, the huldufólk. Few Icelanders will say they believe in them, and few will say they don't. It is not far from the feeling around a shrine in a Japanese forest."
+
+[[notes]]
+id = "jolabokaflod"
+items = ["bokum", "eg_er_ad_lesa_goda_bok", "eg_les"]
+topics = ["hobbies"]
+text = "Most books are published in November for the jólabókaflóð, the Christmas book flood. The traditional gift on Christmas Eve is a book, read that same night in bed, ideally with chocolate."
+
+[[notes]]
+id = "timi"
+items = ["eg_er_sein", "klukkan_hvad", "eg_kem_eftir_tiu_minutur"]
+topics = ["arrangements"]
+text = "Icelanders are relaxed about time compared with Japan: ten minutes late to a friend's house is nothing, and a party at eight starts at nine. Buses and flights, though, leave on the minute."
+
+[[notes]]
+id = "afmaeli"
+items = ["til_hamingju"]
+topics = ["social"]
+text = "Birthdays are celebrated with a sweet-and-savoury table at home, and it is the birthday person who bakes for colleagues. The logic is the same as bringing omiyage back to the office."
+
+[[notes]]
+id = "kvoldmatur"
+items = ["eg_borda_hadegismat", "eg_elda_kvoldmat", "maturinn_er_tilbuinn"]
+topics = ["daily"]
+text = "Dinner is early, around six or seven, and the working day ends in time for it. The big meal of the week is Sunday lunch, often roast lamb, with the whole family."
+
+[[notes]]
+id = "laeknir"
+items = ["eg_tharf_laekni", "hvar_er_naesta_apotek"]
+topics = ["health"]
+text = "Healthcare is public and mostly cheap, but you see a general doctor at a health centre first, not a specialist. Pharmacies sell few medicines without a prescription, so bring your usual ones from Japan."
+
+[[notes]]
+id = "ull"
+items = ["peysu", "er_thetta_ull", "er_thetta_islenskt"]
+topics = ["shopping"]
+text = "The lopapeysa, the patterned wool sweater, dates only from the 1950s but is worn as if ancient. Real ones are hand-knitted from unwashed Icelandic wool, which is why they shrug off rain and cost a month's coffee budget."
+
+[[notes]]
+id = "fjolskylda"
+items = ["eg_a_tvo_born", "attu_born", "fjolskyldan_min"]
+topics = ["family"]
+text = "Icelandic families are large by Japanese standards and children arrive early, often before marriage, which raises no eyebrows. Grandparents nearby do a lot of the childcare, and a baby at a café is unremarkable."
+
+[[notes]]
+id = "fyrsta_nafn_kennari"
+items = ["kennari", "skolinn", "eg_er_i_skola"]
+topics = ["work"]
+text = "Pupils call teachers by their first names, and school starts at six with no uniforms and no entrance exams until university. Swimming lessons are compulsory, which is why every Icelander can swim."

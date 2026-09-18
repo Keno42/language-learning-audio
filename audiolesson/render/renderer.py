@@ -38,6 +38,7 @@ class VoiceProfile:
     fit: bool = True  # stretch/shrink pauses a little so the file lands on the requested length
     fit_min: float = 0.85  # bounds on the pause scale used for fitting
     fit_max: float = 1.25
+    fit_tolerance: float = 60.0  # seconds: within this of the target, pauses are left exactly as planned
 
     def voice_for(self, speaker: str, lang: str, provider: Provider, idx_hint: int) -> SpeakerVoice:
         sv = self.speakers.get(speaker)
@@ -63,6 +64,7 @@ def load_profile(path: str | Path | None, provider: str | None = None) -> VoiceP
         prof.fit = bool(raw.get("fit", True))
         prof.fit_min = float(raw.get("fit_min", 0.85))
         prof.fit_max = float(raw.get("fit_max", 1.25))
+        prof.fit_tolerance = float(raw.get("fit_tolerance", 60.0))
         for name, spec in raw.get("speakers", {}).items():
             if isinstance(spec, str):
                 prof.speakers[name] = SpeakerVoice(voice=spec)
@@ -147,7 +149,12 @@ def render_script(
     pause_total = sum(pause_base)
     fit_scale = 1.0
     if profile.fit and target_seconds and pause_total > 0:
-        fit_scale = max(profile.fit_min, min(profile.fit_max, (target_seconds - speech_total) / pause_total))
+        delta = target_seconds - (speech_total + pause_total)
+        if abs(delta) > profile.fit_tolerance:
+            # aim for the nearest edge of the tolerance band, not the exact target: pauses stay
+            # as close as possible to what the timing model asked for
+            aim = target_seconds - profile.fit_tolerance if delta > 0 else target_seconds + profile.fit_tolerance
+            fit_scale = max(profile.fit_min, min(profile.fit_max, (aim - speech_total) / pause_total))
     fitted = iter(pause_base)
     cues: list[dict] = []
     final: list[AudioClip] = []

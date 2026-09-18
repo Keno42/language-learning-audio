@@ -39,6 +39,7 @@ transform_becomes = "becomes"
 transform_try = "Now you try."
 
 dialogue_partner_said = "{meaning}"
+aside = "A quick aside."
 dialogue_replay = "Now the whole conversation, without pauses."
 
 [language_names]

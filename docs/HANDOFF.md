@@ -21,6 +21,19 @@ Verified in this session:
   `pip install edge-tts && audiolesson generate ... -p profiles/edge-fr-en.toml -m 3`.
 - `openai` and `say` providers are straightforward but also untested here.
 
+## Session 3 additions (continued): cultural asides, fit tolerance
+
+- `[[notes]]` in a curriculum (`content.Note`): instructor-only asides.
+  Planner: after each exercise, 70% chance to play an unplayed note tied to
+  that exercise's items; also used as filler before the second review pass;
+  budget one per 12 minutes; `learner.notes_heard` keeps them rotating.
+  45 notes for Icelandic in `curricula/is-en/90-notes.toml`, written for a
+  Japanese learner (contrasts with Japan). Facts are from general knowledge;
+  a quick check of dates and numbers by a local would not hurt.
+- Renderer `fit_tolerance` (60 s default): within it, pauses are untouched;
+  beyond it, scaled only to the nearer edge of the band.
+- Trademark hygiene: no commercial course names in docs or CLI output.
+
 ## Session 3 additions (continued): Icelandic course, 993 items
 
 - `curricula/is-en/` — 26 modules, 993 items, 31 dialogues, directory
@@ -112,7 +125,8 @@ Verified in this session:
    lesson per item, 50% chance: "You could also say:" + alternative.
 4. **Lesson-1 intro bunching.** With nothing to review, the first lesson opens
    with 2–3 introductions in a row (nothing else exists yet). Acceptable but a
-   short "listen to this conversation" opener (like Pimsleur) would be nicer.
+   short "listen to this conversation" opener, as some audio courses do,
+   would be nicer.
 5. **Dialogue partner translation** is always narrated (`--no-translate` to
    disable). Could become level-dependent (off from A2).
 6. **Curricula.** `fr-en-a1.toml` and its Japanese-instructor twin

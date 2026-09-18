@@ -58,6 +58,7 @@ class LearnerState:
     feedback_mode: str = "manual"  # manual: pace rises only on `report`; auto: rises on its own every few lessons
     pace_changed_at: int = 0  # lesson number of the last pace change (auto mode steps slowly)
     speech_calibration: dict[str, float] = field(default_factory=dict)  # lang → measured/estimated TTS length
+    notes_heard: dict[str, int] = field(default_factory=dict)  # note id → times played
 
     # ---- queries ---------------------------------------------------------
 
@@ -287,6 +288,7 @@ class LearnerState:
             "feedback_mode": self.feedback_mode,
             "pace_changed_at": self.pace_changed_at,
             "speech_calibration": self.speech_calibration,
+            "notes_heard": self.notes_heard,
         }
 
     def save(self, path: str | Path) -> None:
@@ -309,6 +311,7 @@ class LearnerState:
             feedback_mode=raw.get("feedback_mode", "manual"),
             pace_changed_at=int(raw.get("pace_changed_at", 0)),
             speech_calibration=dict(raw.get("speech_calibration", {})),
+            notes_heard=dict(raw.get("notes_heard", {})),
         )
         ls.items = {k: ItemState(**v) for k, v in raw.get("items", {}).items()}
         return ls

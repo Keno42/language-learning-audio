@@ -91,6 +91,26 @@ class CurriculumTests(unittest.TestCase):
                 for slot, tag in c.slots.items():
                     self.assertGreaterEqual(len(cur.items_with_tag(tag)), 2, f"{c.id}.{slot}")
 
+    def test_notes_follow_related_items_and_are_rationed(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertGreaterEqual(len(cur.notes), 40)
+        learner = LearnerState("is", "en", "A1")
+        learner.feedback_mode = "auto"
+        day = TODAY
+        heard: list[str] = []
+        for _ in range(12):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=2), today=day).build()
+            notes = [e for e in sc.exercises if e.kind == "note"]
+            self.assertLessEqual(len(notes), 2)
+            for e in notes:
+                note = cur.note_by_id[e.label.split(": ")[1]]
+                self.assertNotIn(note.id, heard, "no note repeats while unheard notes remain")
+                heard.append(note.id)
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        self.assertGreater(len(heard), 4)
+        self.assertEqual(sum(learner.notes_heard.values()), len(heard))
+
     def test_full_course_over_the_icelandic_set(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         learner = LearnerState("is", "en", "A1")
@@ -459,6 +479,7 @@ class RenderTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             prof = load_profile(None, "stub")
             prof.mp3 = False
+            prof.fit_tolerance = 0.0
             cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
             self.assertEqual(cues["target_s"], 900)
             self.assertAlmostEqual(cues["duration_s"], 900, delta=1.0, msg=cues["fit_scale"])
@@ -468,6 +489,19 @@ class RenderTests(unittest.TestCase):
             expected = [round(s.duration * cues["fit_scale"], 2) for s in sc.segments if s.type == "pause" and s.role == "answer"]
             for a, e in zip(answers, expected):
                 self.assertAlmostEqual(a, e, delta=0.02)
+
+    def test_fit_tolerance_leaves_pauses_alone_when_close(self):
+        learner, scripts = course(6, minutes=15)
+        sc = scripts[-1]
+        with tempfile.TemporaryDirectory() as td:
+            prof = load_profile(None, "stub")
+            prof.mp3 = False
+            prof.fit_tolerance = 600.0  # anything within ten minutes counts as on target
+            cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
+            self.assertEqual(cues["fit_scale"], 1.0)
+            prof.fit_tolerance = 30.0
+            cues2 = render_script(sc, prof, Path(td) / "m.wav", cache_dir=Path(td) / "c", progress=False)
+            self.assertLessEqual(abs(cues2["duration_s"] - 900), 31.0, cues2["fit_scale"])
 
     def test_calibration_feeds_back_into_estimates(self):
         learner = fresh()

@@ -35,6 +35,8 @@ class PlanConfig:
     dialogue_every: int = 7  # try a dialogue roughly every N exercises
     dialogue_first_turns: int = 2  # turns played the first time; one more each later encounter
     max_dialogues: int | None = None  # per lesson (default: one per 10 minutes, at least 2)
+    max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
+    note_chance: float = 0.7  # chance to play a related note right after its item
     max_review_passes: int = 2  # when material runs out, review what was reviewed once more (harder)
     closing_share: float = 0.12  # fraction of time reserved for the final review block
     max_new_items: int | None = None  # hard cap even when there is nothing to review (default: scales with minutes)
@@ -81,7 +83,12 @@ class Planner:
         self.exposures: dict[str, list[str]] = {}
         self.support: dict[str, int] = {}
         self.dialogues_played: list[str] = []
+        self.notes_played: list[str] = []
         self._in_dialogue = {i for d in cur.dialogues for i in d.required_items}
+        self._notes_by_item: dict[str, list] = {}
+        for n in cur.notes:
+            for i in n.items:
+                self._notes_by_item.setdefault(i, []).append(n)
 
     # ------------------------------------------------------------------ ladder
 
@@ -167,6 +174,37 @@ class Planner:
         done = [s for s in self.exposures.get(item.id, []) if s != "intro"]
         top = max((stage_index(ladder, s) for s in done), default=0)
         return ladder[min(top + 1, len(ladder) - 1)]
+
+    # ------------------------------------------------------------------ notes
+
+    def _note_budget_left(self) -> bool:
+        limit = self.cfg.max_notes if self.cfg.max_notes is not None else max(1, int(self.cfg.minutes // 12))
+        return len(self.notes_played) < limit
+
+    def _pick_note(self, related: list[str] | None) -> object | None:
+        """Least-heard unplayed note, related to ``related`` items if given, else any."""
+        if related:
+            pool = [n for i in related for n in self._notes_by_item.get(i, [])]
+        else:
+            pool = list(self.cur.notes)
+        pool = [n for n in pool if n.id not in self.notes_played]
+        heard = self.learner.notes_heard
+        if any(heard.get(n.id, 0) == 0 for n in self.cur.notes):
+            pool = [n for n in pool if heard.get(n.id, 0) == 0]  # never repeat while unheard notes remain
+        if not pool:
+            return None
+        least = min(heard.get(n.id, 0) for n in pool)
+        pool = [n for n in pool if heard.get(n.id, 0) == least]
+        return self.rng.choice(pool)
+
+    def _maybe_note(self, sc: Script, related: list[str], remaining: float) -> None:
+        if not self._note_budget_left() or remaining < 40 or self.rng.random() > self.cfg.note_chance:
+            return
+        note = self._pick_note(related)
+        if note is None:
+            return
+        self.builder.note(sc, note)
+        self.notes_played.append(note.id)
 
     def below_dialogue(self, item: Item) -> str:
         """The hardest non-dialogue stage for an item (used when no dialogue fits right now)."""
@@ -335,6 +373,10 @@ class Planner:
                 elif pending and sorted(pending)[0].item.id != (recent[-1] if recent else None):
                     p = heapq.heappop(pending)  # a repeat, but not of the very last exercise
                     do_recall(p.item, p.stage)
+                elif self._note_budget_left() and remaining >= 40 and self._pick_note(None) is not None:
+                    note = self._pick_note(None)
+                    b.note(sc, note)  # nothing to practise right now: a cultural aside
+                    self.notes_played.append(note.id)
                 elif passes < cfg.max_review_passes and reviews_used:
                     # material ran out before the time did: a second pass over what was reviewed,
                     # most urgent first, each one step harder than earlier in this lesson
@@ -347,6 +389,15 @@ class Planner:
                     break  # only immediate repeats are left: end the lesson a little short
             idx += 1
             since_dialogue += 1
+            if sc.exercises and sc.exercises[-1].kind not in ("note", "opening"):
+                self._maybe_note(sc, sc.exercises[-1].item_ids, budget - closing_reserve - sc.total_duration)
+
+        # at least one aside per lesson while unheard ones remain (a few seconds over target is fine)
+        if not self.notes_played and self._note_budget_left():
+            note = self._pick_note(None)
+            if note is not None:
+                b.note(sc, note)
+                self.notes_played.append(note.id)
 
         # ---- closing block: end on success with today's new material -----
         if introduced:
@@ -380,6 +431,7 @@ class Planner:
             "due_at_start": self.learner.due_count(self.today),
             "due_not_fitted": [i.id for i in reviews if self.learner.review_priority(i.id, self.today) >= 1.0],
             "dialogues": list(self.dialogues_played),
+            "notes": list(self.notes_played),
             "exposures": self.exposures,
             "support_exposures": self.support,
             "ladders": {i: self.ladder(self.cur.by_id[i]) for i in self.exposures if i in self.cur.by_id},
@@ -409,6 +461,8 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
     )
     for d in sc.meta.get("dialogues", []):
         learner.dialogues_done[d] = learner.dialogues_done.get(d, 0) + 1
+    for n in sc.meta.get("notes", []):
+        learner.notes_heard[n] = learner.notes_heard.get(n, 0) + 1
     learner.lessons.append(
         {
             "number": sc.lesson_number,
