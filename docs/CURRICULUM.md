@@ -34,7 +34,7 @@ skips anything whose `prereqs` the learner does not know yet.
 | `situation` | phrase, construction | known-language cue for the *situation* stage: "You walk into a bakery. Greet the baker." The instructor adds "What do you say?" |
 | `chunks` | phrase | explicit backward-build pieces, shortest first, last = full target |
 | `alternatives` | all | other acceptable answers (stored in metadata, not yet spoken) |
-| `pronunciation_notes` | all | for the transcript |
+| `pronunciation_notes` | all | printed once in the transcript, under the first exercise on that item; not spoken, and not per-language glossed (always shown as written, regardless of `--known`) |
 | `slots` | construction | `{ slot = "tag" }`; `target` and `meaning` must contain `{slot}` |
 | `example` | construction | `{ slot = "item_id" }` fill used when the pattern is introduced |
 | `instruction` | transform | known-language prompt, e.g. `"Make it negative:"` |

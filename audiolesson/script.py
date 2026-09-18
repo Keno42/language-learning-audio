@@ -146,8 +146,16 @@ class Script:
         sc.segments = [Segment(**s) for s in raw["segments"]]
         return sc
 
-    def transcript(self) -> str:
-        """Human-readable transcript (supplementary material, never required)."""
+    def transcript(self, pronunciation_notes: dict[str, str] | None = None) -> str:
+        """Human-readable transcript (supplementary material, never required).
+
+        ``pronunciation_notes`` optionally maps item id -> a short note (typically
+        ``Item.pronunciation_notes``) printed once, under the first exercise that
+        touches that item. Kept as a plain dict rather than a Curriculum reference
+        so this module stays independent of ``content.py``.
+        """
+        notes = pronunciation_notes or {}
+        shown: set[str] = set()
         lines = [f"# {self.title}", ""]
         current = None
         for s in self.segments:
@@ -156,6 +164,11 @@ class Script:
                 ex = self.exercises[current]
                 lines.append("")
                 lines.append(f"## {ex.index + 1}. {ex.label or ex.kind}  ({_fmt_time(ex.start)})")
+                for item_id in ex.item_ids:
+                    note = notes.get(item_id)
+                    if note and item_id not in shown:
+                        lines.append(f"*Pronunciation ({item_id}): {note}*")
+                        shown.add(item_id)
                 lines.append("")
             if s.type == "pause":
                 lines.append(f"    … {s.duration:.1f}s {s.role or ''}".rstrip())

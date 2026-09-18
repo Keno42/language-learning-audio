@@ -54,6 +54,7 @@ difficulty = 1
 topics = ["greetings"]
 situation = "You answer the phone."
 situation_ja = "電話に出ます。"
+pronunciation_notes = "Looks just like 'hello', but the double 'll' is pre-aspirated: a brief voiceless 't'-like sound before the 'l', roughly 'hat-lo'. Not a TTS glitch — this happens throughout Icelandic wherever you see 'll' or 'nn' (fjall, allt, gull…)."
 
 [[items]]
 id = "bless"
