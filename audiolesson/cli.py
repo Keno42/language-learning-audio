@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -21,13 +22,18 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--version", action="version", version=__version__)
     sub = ap.add_subparsers(dest="cmd", required=True)
 
+    def add_user_args(parser):
+        parser.add_argument("--user", "-u", default=None, help="learner name: everything lives under <root>/<user>/ and settings are remembered there")
+        parser.add_argument("--root", default=os.environ.get("AUDIOLESSON_ROOT", "out"), help="root for --user directories (default: out/, or $AUDIOLESSON_ROOT)")
+
     g = sub.add_parser("generate", help="plan the next lesson, write script + transcript (+ audio), update the learner model")
-    g.add_argument("--curriculum", "-c", required=True, help="curriculum .toml or directory of modules")
+    add_user_args(g)
+    g.add_argument("--curriculum", "-c", default=None, help="curriculum .toml or directory of modules (remembered per --user)")
     g.add_argument("--known", default=None, help="learner's language when the curriculum carries several glosses (e.g. ja)")
     g.add_argument("--allow-fallback", action="store_true", help="use the primary-language text where a gloss in --known is missing")
-    g.add_argument("--learner", "-l", required=True, help="learner state .json (created if missing)")
-    g.add_argument("--out", "-o", default="out", help="output directory (default: out/)")
-    g.add_argument("--minutes", "-m", type=float, default=15.0)
+    g.add_argument("--learner", "-l", default=None, help="learner state .json (created if missing); implied by --user")
+    g.add_argument("--out", "-o", default=None, help="output directory (default: out/, or <root>/<user>/ with --user)")
+    g.add_argument("--minutes", "-m", type=float, default=None, help="lesson length (default 15, remembered per --user)")
     g.add_argument("--new", type=int, default=None, help="new items to introduce this lesson (default: the learner's pace, see README 'Pacing')")
     g.add_argument("--pace", type=int, default=None, help="set the learner's ongoing pace (new items per lesson) before planning")
     g.add_argument("--auto", action="store_true", help="auto mode (persists): pace rises on its own every few lessons; `report --failed` still slows it")
@@ -59,7 +65,8 @@ def main(argv: list[str] | None = None) -> int:
     r.set_defaults(func=cmd_render)
 
     rp = sub.add_parser("report", help="after listening: tell the model which items you could not recall")
-    rp.add_argument("--learner", "-l", required=True)
+    add_user_args(rp)
+    rp.add_argument("--learner", "-l", default=None)
     rp.add_argument("--lesson", type=int, default=None, help="lesson number the feedback refers to")
     rp.add_argument("--failed", default="", help="comma-separated item ids you failed to produce")
     rp.add_argument("--easy", default="", help="comma-separated item ids that felt too easy")
@@ -67,7 +74,8 @@ def main(argv: list[str] | None = None) -> int:
     rp.set_defaults(func=cmd_report)
 
     st = sub.add_parser("status", help="show learner progress and what is due")
-    st.add_argument("--learner", "-l", required=True)
+    add_user_args(st)
+    st.add_argument("--learner", "-l", default=None)
     st.add_argument("--curriculum", "-c", default=None)
     st.add_argument("--known", default=None)
     st.add_argument("--date", default=None)
@@ -85,6 +93,7 @@ def main(argv: list[str] | None = None) -> int:
 
     args = ap.parse_args(argv)
     try:
+        _apply_user(args)
         return args.func(args) or 0
     except (CurriculumError, FileNotFoundError, ValueError, RuntimeError) as exc:
         print(f"error: {exc}", file=sys.stderr)
@@ -92,6 +101,72 @@ def main(argv: list[str] | None = None) -> int:
 
 
 # ----------------------------------------------------------------------------
+
+
+USER_SETTINGS = ("curriculum", "known", "profile", "provider", "minutes", "level")
+
+
+def _user_dir(args) -> Path | None:
+    user = getattr(args, "user", None)
+    if not user:
+        return None
+    if "/" in user or user in (".", ".."):
+        raise ValueError(f"--user must be a plain name, not a path: {user!r}")
+    return Path(args.root) / user
+
+
+def _apply_user(args) -> None:
+    """Resolve --user into learner/out paths and remembered settings; validate explicit mode otherwise."""
+    base = _user_dir(args)
+    if base is None:
+        if hasattr(args, "learner") and not args.learner:
+            raise ValueError("pass --user NAME (everything under out/NAME/) or --learner FILE")
+        if args.cmd == "generate" and not args.curriculum:
+            raise ValueError("pass --curriculum (or --user with a curriculum remembered in its settings)")
+        if hasattr(args, "minutes") and args.minutes is None and args.cmd == "generate":
+            args.minutes = 15.0
+        if hasattr(args, "out") and args.out is None and args.cmd == "generate":
+            args.out = "out"
+        return
+    # --user picks the paths; --learner/--out would silently conflict with that, so refuse rather than override
+    if getattr(args, "learner", None):
+        raise ValueError(f"--user {args.user!r} already implies --learner {str(base / 'learner.json')!r}; pass one or the other")
+    if args.cmd == "generate" and args.out:
+        raise ValueError(f"--user {args.user!r} already implies --out {str(base)!r}; pass one or the other")
+    base.mkdir(parents=True, exist_ok=True)
+    settings_path = base / "settings.json"
+    saved = json.loads(settings_path.read_text(encoding="utf-8")) if settings_path.exists() else {}
+    for key in USER_SETTINGS:
+        if hasattr(args, key) and getattr(args, key) is None and key in saved:
+            setattr(args, key, saved[key])
+    if args.cmd == "generate":
+        if args.minutes is None:
+            args.minutes = 15.0
+        if not args.curriculum:
+            raise ValueError(f"first lesson for {args.user!r}: pass --curriculum (it is remembered in {settings_path})")
+        args.out = str(base)
+    args.learner = str(base / "learner.json")
+    args.user_settings_path = settings_path
+
+
+def _learner_hint(args, extra: str = "") -> str:
+    """How to point another audiolesson command at this same learner, for messages."""
+    base = f"audiolesson report -u {args.user}" if getattr(args, "user", None) else f"audiolesson report -l {args.learner}"
+    return base + extra
+
+
+def _save_user_settings(args) -> None:
+    """Remember what --curriculum/--known/--profile/--provider/--minutes/--level were used, keyed by --user.
+
+    Feedback mode (auto/manual) and pace are not duplicated here: they already live in
+    the learner state file (learner.feedback_mode, learner.pace), which is the one
+    place that tracks them.
+    """
+    path = getattr(args, "user_settings_path", None)
+    if not path:
+        return
+    data = {k: getattr(args, k) for k in USER_SETTINGS if getattr(args, k, None) is not None}
+    Path(path).write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
 def _split(s: str) -> list[str]:
@@ -170,7 +245,8 @@ def cmd_generate(args) -> int:
             profile.fit = False
         if args.fit_tolerance is not None:
             profile.fit_tolerance = args.fit_tolerance
-        cues = render_script(script, profile, f"{stem}.wav", cache_dir=out / "cache" / profile.provider)
+        cache_root = Path(args.root) if getattr(args, "user", None) else out
+        cues = render_script(script, profile, f"{stem}.wav", cache_dir=cache_root / "cache" / profile.provider)
         save_cues(cues, f"{stem}.cues.json")
         print(f"  audio: {cues['mp3'] or cues['wav']} ({_mmss(cues['duration_s'])}, provider {cues['provider']}"
               + (f", pauses ×{cues['fit_scale']:.2f}" if profile.fit and abs(cues['fit_scale'] - 1) > 0.005 else "") + ")")
@@ -188,7 +264,8 @@ def cmd_generate(args) -> int:
         if args.new is None:
             learner.pace = new_items
         learner.save(args.learner)
-        print(f"  learner state updated: {args.learner} (use `audiolesson report` after listening if some items failed)")
+        _save_user_settings(args)
+        print(f"  learner state updated: {args.learner} (use `{_learner_hint(args, ' --failed id,id')}` after listening if some items failed)")
     return 0
 
 
@@ -283,7 +360,7 @@ def cmd_status(args) -> int:
         print(f"pace: {learner.pace or 'default'} new items/lesson ({learner.feedback_mode} mode); due at start of last lessons: {trend}; not fitted: {carried}")
         unreported = [l["number"] for l in learner.lessons[-3:] if l["number"] not in learner.reported]
         if unreported and learner.feedback_mode != "auto":
-            print(f"no feedback yet for lesson(s) {unreported}: run `audiolesson report -l {args.learner} [--failed ids]`")
+            print(f"no feedback yet for lesson(s) {unreported}: run `{_learner_hint(args, ' [--failed ids]')}`")
     return 0
 
 
