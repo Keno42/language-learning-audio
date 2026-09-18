@@ -20,6 +20,29 @@ from ..script import Script
 from .audio import AudioClip, concat, read_wav, silence, to_mp3, write_wav
 from .tts import Provider, get_provider
 
+# Deliberate spelling substitutions applied only to the text sent to the TTS engine,
+# keyed by target language (never to instructor narration, which uses a different
+# language). The curriculum, transcript, cues.json and answer-matching all keep the
+# correct native spelling; only the synthesized audio hears the substitute.
+#
+# Icelandic geminate 'll'/'nn' is pre-aspirated (a brief voiceless click before the
+# l/n) — correct native pronunciation, but for "halló" specifically the owner asked
+# for the plain, more English-like reading instead. Spelling it with a single 'l'
+# sidesteps the gemination rule (confirmed with `espeak-ng -v is -x`: 'Halló' -> a
+# pre-aspirated 'tl', 'Haló' -> a plain long 'l', no click) without touching anything
+# else that word triggers elsewhere (fjall, gull, allt, … keep their normal, correct
+# pronunciation). See docs/HANDOFF.md session 5/6 for the fuller reasoning; this list
+# is the override, not the explanation.
+RESPELL_FOR_SPEECH: dict[str, list[tuple[str, str]]] = {
+    "is": [("Halló", "Haló")],
+}
+
+
+def _respell(text: str, lang: str) -> str:
+    for find, replace in RESPELL_FOR_SPEECH.get(lang.split("-")[0].lower(), ()):
+        text = text.replace(find, replace)
+    return text
+
 
 @dataclass
 class SpeakerVoice:
@@ -107,7 +130,7 @@ def render_script(
     def request_for(seg) -> tuple[str, str, str, float]:
         lang = seg.lang or (script.known_lang if seg.speaker == "instructor" else script.target_lang)
         sv = profile.voice_for(seg.speaker or "native_a", lang, provider, _DEFAULT_INDEX.get(seg.speaker or "", 0))
-        return (seg.text or "", lang, sv.voice, seg.rate * sv.rate)
+        return (_respell(seg.text or "", lang), lang, sv.voice, seg.rate * sv.rate)
 
     # warm the cache in parallel for providers that talk to a network
     unique = {request_for(seg) for seg in script.segments if seg.type != "pause"}
