@@ -396,14 +396,17 @@ class Builder:
 
     # -------------------------------------------------------------- dialogue
 
-    def dialogue(self, sc: Script, dlg: Dialogue, *, replay: bool = False) -> Exercise:
-        ids = dlg.required_items
-        ex = sc.new_exercise("dialogue", "dialogue", ids, f"dialogue: {dlg.id}")
+    def dialogue(self, sc: Script, dlg: Dialogue, *, replay: bool = False, max_turns: int | None = None) -> Exercise:
+        """Play a dialogue; ``max_turns`` lets early encounters stop after a few turns."""
+        turns = dlg.turns if max_turns is None else dlg.turns[: max(1, max_turns)]
+        ids = [t.expect for t in turns if t.expect] + [r for r in dlg.requires if r not in {t.expect for t in turns}]
+        label = f"dialogue: {dlg.id}" + ("" if len(turns) == len(dlg.turns) else f" ({len(turns)}/{len(dlg.turns)} turns)")
+        ex = sc.new_exercise("dialogue", "dialogue", ids, label)
         partner = dlg.partner_speaker
         self._narr(sc, ex, dlg.setting)
         self._beat(sc, ex)
         lines: list[tuple[str, str]] = []
-        for turn in dlg.turns:
+        for turn in turns:
             if turn.opener:
                 self._speak(sc, ex, turn.opener, speaker=partner)
                 lines.append((partner, turn.opener))

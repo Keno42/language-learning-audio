@@ -76,7 +76,8 @@ Useful flags for `generate`: `-t cafe,directions` (prefer topics), `--new 4`
    scheduled after 3, 5, 8 and 13 intervening exercises, each at a harder stage.
    Reviews of older items fill the gaps, avoiding the same item or topic twice
    in a row. Every few exercises a dialogue is played if the learner knows all
-   its lines; constructions are recombined with known vocabulary into
+   its lines — two turns the first time, one more turn on each later
+   encounter; constructions are recombined with known vocabulary into
    sentences never heard verbatim.
 3. **Closing.** The lesson ends by retrieving today's new items once more,
    hardest first so the last thing you do is succeed.

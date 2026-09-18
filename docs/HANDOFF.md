@@ -1,6 +1,6 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-18 (session 1, second commit). Keep this current: whoever picks the
+_Last updated 2026-09-18 (session 1, third commit). Keep this current: whoever picks the
 project up next, human or AI, should be able to continue from here without
 re-deriving decisions._
 
@@ -8,7 +8,7 @@ re-deriving decisions._
 
 `audiolesson generate` plans a lesson from a curriculum + learner state,
 writes a timed script/plan/transcript, renders audio through a pluggable TTS
-layer, and updates the learner model. 27 unit tests pass
+layer, and updates the learner model. 31 unit tests pass
 (`python -m unittest`). A 10-lesson simulated course on the sample French
 curriculum behaves as intended (new items reactivated at expanding gaps,
 reviews interleaved, dialogues and recombination appear once material is
@@ -58,11 +58,13 @@ Verified in this session:
    written by an AI, not reviewed by a native speaker — read them once.
    Numbers/plurals are deliberately absent (no morphology). Other target
    languages need a new curriculum file; no code changes.
-7. **Cross-lesson dialogue difficulty.** Spec asks for progressively longer
-   multi-turn dialogues in later lessons; currently dialogues are fixed
-   length and just recur. A `min_lesson` or tiered `requires` would do it.
-8. **Parallel TTS** for edge/openai (currently sequential; a 15-min lesson is
-   ~150 requests). Cache makes re-renders cheap already.
+7. ~~Cross-lesson dialogue difficulty~~ — done: a dialogue plays
+   `dialogue_first_turns` (2) turns on first encounter and one more turn each
+   later time, replayed without pauses once it is complete.
+8. ~~Parallel TTS~~ — done: providers flagged `parallel` (edge, openai) are
+   warmed into the cache with `workers` threads (profile key, default 4).
+   Untested against a real network, like the providers themselves.
+9. **Wheel install** verified to include `audiolesson/phrasing/*.toml`.
 
 ## Where things are
 

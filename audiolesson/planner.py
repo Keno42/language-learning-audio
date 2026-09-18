@@ -33,6 +33,7 @@ class PlanConfig:
     reactivation_gaps: list[int] = field(default_factory=lambda: [3, 5, 8, 13])  # exercises between recalls
     intro_gap: int = 3  # min exercises between two introductions
     dialogue_every: int = 7  # try a dialogue roughly every N exercises
+    dialogue_first_turns: int = 2  # turns played the first time; one more each later encounter
     closing_share: float = 0.12  # fraction of time reserved for the final review block
     max_new_items: int | None = None  # hard cap even when there is nothing to review (default: scales with minutes)
     min_time_for_new_item: float = 120.0  # seconds of budget needed to still introduce one
@@ -355,9 +356,12 @@ class Planner:
         return sc
 
     def _play_dialogue(self, sc: Script, dlg: Dialogue) -> None:
-        replay = self.learner.dialogues_done.get(dlg.id, 0) > 0
-        ex = self.builder.dialogue(sc, dlg, replay=replay)
-        primary = [t.expect for t in dlg.turns if t.expect]
+        """Dialogues grow: the first encounter plays a couple of turns, each later one adds a turn."""
+        times = self.learner.dialogues_done.get(dlg.id, 0)
+        max_turns = min(len(dlg.turns), self.cfg.dialogue_first_turns + times)
+        full = max_turns >= len(dlg.turns)
+        ex = self.builder.dialogue(sc, dlg, replay=(times > 0 and full), max_turns=max_turns)
+        primary = [t.expect for t in dlg.turns[:max_turns] if t.expect]
         self._record(primary, "dialogue", ex.item_ids)
         self.dialogues_played.append(dlg.id)
 

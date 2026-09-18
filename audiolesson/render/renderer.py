@@ -12,6 +12,7 @@ import hashlib
 import json
 import sys
 import tomllib
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -33,6 +34,7 @@ class VoiceProfile:
     pause_multiplier: float = 1.0  # scale every learner pause at render time
     mp3: bool = True
     trim: bool = True
+    workers: int = 4  # parallel synthesis requests for network providers
 
     def voice_for(self, speaker: str, lang: str, provider: Provider, idx_hint: int) -> SpeakerVoice:
         sv = self.speakers.get(speaker)
@@ -54,6 +56,7 @@ def load_profile(path: str | Path | None, provider: str | None = None) -> VoiceP
         prof.pause_multiplier = float(raw.get("pause_multiplier", 1.0))
         prof.mp3 = bool(raw.get("mp3", True))
         prof.trim = bool(raw.get("trim", True))
+        prof.workers = int(raw.get("workers", 4))
         for name, spec in raw.get("speakers", {}).items():
             if isinstance(spec, str):
                 prof.speakers[name] = SpeakerVoice(voice=spec)
@@ -85,6 +88,20 @@ def render_script(
     cache = Path(cache_dir) if cache_dir else out_path.parent / "cache" / provider.name
     cache.mkdir(parents=True, exist_ok=True)
 
+    def request_for(seg) -> tuple[str, str, str, float]:
+        lang = seg.lang or (script.known_lang if seg.speaker == "instructor" else script.target_lang)
+        sv = profile.voice_for(seg.speaker or "native_a", lang, provider, _DEFAULT_INDEX.get(seg.speaker or "", 0))
+        return (seg.text or "", lang, sv.voice, seg.rate * sv.rate)
+
+    # warm the cache in parallel for providers that talk to a network
+    unique = {request_for(seg) for seg in script.segments if seg.type != "pause"}
+    todo = [r for r in unique if not _cache_path(provider, cache, *r, profile.trim).exists()]
+    if todo and provider.parallel and profile.workers > 1:
+        with ThreadPoolExecutor(max_workers=profile.workers) as pool:
+            for i, _ in enumerate(pool.map(lambda r: _cached(provider, cache, *r, profile.trim), todo), 1):
+                if progress and (i % 10 == 0 or i == len(todo)):
+                    print(f"  synthesized {i}/{len(todo)} new lines", file=sys.stderr, end="\r")
+
     clips: list[AudioClip] = []
     cues: list[dict] = []
     t = 0.0
@@ -96,12 +113,9 @@ def render_script(
             secs = seg.duration * (profile.pause_multiplier if seg.role in ("answer", "repeat") else 1.0)
             clip = silence(secs)
         else:
-            lang = seg.lang or (script.known_lang if seg.speaker == "instructor" else script.target_lang)
-            sv = profile.voice_for(seg.speaker or "native_a", lang, provider, _DEFAULT_INDEX.get(seg.speaker or "", 0))
-            rate = seg.rate * sv.rate
-            clip = _cached(provider, cache, seg.text or "", lang, sv.voice, rate, profile.trim)
+            clip = _cached(provider, cache, *request_for(seg), profile.trim)
             done += 1
-            if progress and (done % 10 == 0 or done == total):
+            if progress and not todo and (done % 10 == 0 or done == total):
                 print(f"  synthesized {done}/{total}", file=sys.stderr, end="\r")
         if seg.exercise is not None and seg.exercise not in ex_start:
             ex_start[seg.exercise] = t
@@ -131,9 +145,13 @@ def render_script(
     }
 
 
-def _cached(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool) -> AudioClip:
+def _cache_path(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool) -> Path:
     key = hashlib.sha1(f"{provider.name}|{voice}|{rate:.3f}|{lang}|{trim}|{text}".encode()).hexdigest()
-    path = cache / f"{key}.wav"
+    return cache / f"{key}.wav"
+
+
+def _cached(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool) -> AudioClip:
+    path = _cache_path(provider, cache, text, lang, voice, rate, trim)
     if path.exists():
         return read_wav(path)
     clip = provider.synthesize(text, lang, voice, rate)

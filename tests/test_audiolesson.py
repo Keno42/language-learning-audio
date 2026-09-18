@@ -171,6 +171,21 @@ class CourseTests(unittest.TestCase):
         self.assertGreater(len(later.meta["reviewed_items"]), 3)
         self.assertTrue(any(sc.meta["dialogues"] for sc in scripts[2:]), "dialogues should appear once material is known")
 
+    def test_dialogues_get_longer_each_time(self):
+        _, scripts = course(10)
+        seen: dict[str, list[int]] = {}
+        for sc in scripts:
+            for e in sc.exercises:
+                if e.kind == "dialogue":
+                    dlg_id = e.label.split(":")[1].split("(")[0].strip()
+                    n_turns = sum(1 for s in sc.segments if s.exercise == e.index and s.type == "pause" and s.role == "answer")
+                    seen.setdefault(dlg_id, []).append(n_turns)
+        self.assertTrue(seen)
+        for dlg_id, lengths in seen.items():
+            self.assertEqual(lengths, sorted(lengths), f"{dlg_id}: {lengths}")
+            if len(lengths) >= 3:
+                self.assertGreater(lengths[-1], lengths[0], f"{dlg_id}: {lengths}")
+
     def test_generative_recombination_appears(self):
         _, scripts = course(4)
         kinds = {e.kind for sc in scripts for e in sc.exercises}
@@ -275,6 +290,22 @@ class RenderTests(unittest.TestCase):
             answers = [c["dur"] for c in cues["segments"] if c["type"] == "pause" and c["role"] == "answer"]
             expected = [round(s.duration * 2, 2) for s in sc.segments if s.type == "pause" and s.role == "answer"]
             self.assertEqual(answers, expected)
+
+    def test_parallel_warmup_gives_identical_output(self):
+        from audiolesson.render.tts import StubProvider
+
+        sc = build(fresh(), minutes=2)
+        with tempfile.TemporaryDirectory() as td:
+            prof = load_profile(None, "stub")
+            prof.mp3 = False
+            seq = render_script(sc, prof, Path(td) / "a.wav", cache_dir=Path(td) / "ca", progress=False)
+            StubProvider.parallel = True
+            try:
+                par = render_script(sc, prof, Path(td) / "b.wav", cache_dir=Path(td) / "cb", progress=False)
+            finally:
+                StubProvider.parallel = False
+            self.assertEqual(seq["duration_s"], par["duration_s"])
+            self.assertEqual(read_wav(Path(td) / "a.wav").pcm, read_wav(Path(td) / "b.wav").pcm)
 
     @unittest.skipUnless(os.system("espeak-ng --version >/dev/null 2>&1") == 0, "espeak-ng not installed")
     def test_espeak_render(self):

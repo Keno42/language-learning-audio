@@ -25,6 +25,7 @@ from .audio import DEFAULT_RATE, AudioClip, silence, to_pcm, wav_bytes_to_clip
 class Provider:
     name = "base"
     output_format = "wav"  # what synthesize_raw returns
+    parallel = False  # safe and worthwhile to call synthesize() from several threads
 
     def synthesize(self, text: str, lang: str, voice: str, rate: float = 1.0) -> AudioClip:
         raise NotImplementedError
@@ -109,6 +110,7 @@ class EdgeProvider(Provider):
 
     name = "edge"
     output_format = "mp3"
+    parallel = True
 
     VOICES = {
         "en": ["en-US-AriaNeural", "en-US-GuyNeural", "en-GB-SoniaNeural"],
@@ -160,6 +162,7 @@ class OpenAIProvider(Provider):
     """OpenAI speech API (paid). Needs OPENAI_API_KEY. Uses plain urllib, no SDK."""
 
     name = "openai"
+    parallel = True
     MODEL = os.environ.get("AUDIOLESSON_OPENAI_TTS_MODEL", "gpt-4o-mini-tts")
 
     def check(self) -> str | None:
