@@ -144,6 +144,21 @@ class CurriculumTests(unittest.TestCase):
         self.assertGreater(len(cur.missing_glosses), 1900)
         self.assertEqual(cur.items[0].meaning, load_curriculum(ROOT / "curricula" / "is-en").items[0].meaning)  # fallback
 
+    def test_pronunciation_notes_reach_the_transcript(self):
+        """CURRICULUM.md documents pronunciation_notes as 'for the transcript' — make sure that's true."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        hallo = cur.item("hallo")
+        self.assertIn("aspirat", hallo.pronunciation_notes)  # matches "pre-aspirated"/"pre-aspiration" either way
+        learner = LearnerState("is", "en", "A1")
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY).build()
+        notes = {i.id: i.pronunciation_notes for i in cur.items if i.pronunciation_notes}
+        self.assertIn("hallo", notes)
+        text = sc.transcript(notes)
+        self.assertIn(hallo.pronunciation_notes, text)
+        self.assertEqual(text.count(hallo.pronunciation_notes), 1, "printed once, not on every later review of the item")
+        # without the dict, behaviour is unchanged (no notes section, no crash)
+        self.assertNotIn("pre-aspirated", sc.transcript())
+
     def test_japanese_instructor_lesson_from_the_icelandic_course(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
         learner = LearnerState("is", "ja", "A1")
@@ -588,6 +603,47 @@ class RenderTests(unittest.TestCase):
             prof.mp3 = False
             cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
             self.assertGreater(cues["duration_s"], 60)
+
+    def test_respell_table_is_scoped_to_its_language_and_word(self):
+        from audiolesson.render.renderer import RESPELL_FOR_SPEECH, _respell
+
+        self.assertIn("is", RESPELL_FOR_SPEECH)
+        self.assertEqual(_respell("Halló.", "is"), "Haló.")
+        self.assertEqual(_respell("Halló.", "is-IS"), "Haló.")  # region-tagged lang code
+        self.assertEqual(_respell("Halló.", "en"), "Halló.")  # never touches another language
+        self.assertEqual(_respell("Shall we?", "is"), "Shall we?")  # substring collision guarded elsewhere by lang, not here
+        self.assertEqual(_respell("fjall", "is"), "fjall")  # only the one overridden word, not every 'll'
+
+    def test_halló_reaches_the_tts_respelled_but_the_record_keeps_the_real_spelling(self):
+        """The owner asked for 'halló' specifically not to get Icelandic ll pre-aspiration.
+        Only the audio should change — transcript/cues keep the correct native spelling."""
+        from audiolesson.script import Segment
+        from audiolesson.render.tts import StubProvider
+
+        sc = Script(1, "Lesson 1", "is", "en")
+        ex = sc.new_exercise("intro", "intro", ["hallo"], "new: Halló.")
+        sc.add(Segment("speak", "native_a", "Halló.", "is", 1.0, 1.0, None, ex.index))
+
+        heard: list[str] = []
+        original = StubProvider.synthesize
+
+        def spy(self, text, lang, voice, rate=1.0):
+            heard.append(text)
+            return original(self, text, lang, voice, rate)
+
+        StubProvider.synthesize = spy
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                prof = load_profile(None, "stub")
+                prof.mp3 = False
+                cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
+        finally:
+            StubProvider.synthesize = original
+
+        self.assertIn("Haló.", heard)
+        self.assertNotIn("Halló.", heard)  # the TTS never actually saw the geminate spelling
+        self.assertEqual(cues["segments"][0]["text"], "Halló.")  # cues.json keeps the real word
+        self.assertIn("Halló.", sc.transcript())  # transcript is built from the Segment, untouched by rendering
 
 
 class CliTests(unittest.TestCase):

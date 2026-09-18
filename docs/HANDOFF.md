@@ -1,14 +1,172 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-18 (session 4: --user/--root wrapper)._ Keep this current: whoever picks the
-project up next, human or AI, should be able to continue from here without
-re-deriving decisions._
+_Last updated 2026-09-18 (session 6, corrected: halló's greeting sense has no
+click — see "Correction" below, which supersedes the phonology claim in
+session 5)._ Keep this current: whoever picks the project up next, human or
+AI, should be able to continue from here without re-deriving decisions._
+
+## Session 6: owner overrode session 5's "leave it, it's correct" call
+
+Session 5 (below) judged the `[hatlo]`-ish sound *very likely* correct
+Icelandic and recommended explaining it rather than changing it. The owner
+heard the reasoning and asked anyway for `halló` specifically not to have
+that sound — a legitimate product call once the tradeoff is on the table,
+and theirs to make. Implemented as a **narrowly scoped respelling at the
+render layer**, not a reversal of the linguistic explanation:
+
+- `audiolesson/render/renderer.py`: `RESPELL_FOR_SPEECH = {"is": [("Halló",
+  "Haló")]}`, applied inside `request_for()` — the one place that decides
+  what string actually reaches `provider.synthesize()`. Single 'l' sidesteps
+  Icelandic's gemination rule entirely (re-checked with `espeak-ng -v is -x`:
+  `Halló` → pre-aspirated `h'alloU`→`…tl#`-shaped when geminated elsewhere,
+  `Haló` → plain long-vowel `h'a:loU`, no click), rather than trying to hand
+  the TTS an IPA/phoneme override.
+- Deliberately **not** threaded through `Item`/`Segment`/the planner. A
+  string substitution at the exact point where text becomes TTS input covers
+  every code path that ever speaks "Halló" (intro, the single-word hinted-
+  stage hint, any future dialogue or review reuse) with about 20 lines,
+  because it doesn't care which stage produced the string — confirmed with a
+  real `generate --provider espeak` run: espeak received both `"Haló."` (the
+  intro line) and `"Haló"` (the hinted-stage hint, `target.split()[0]`)
+  without either being special-cased. Threading an `Item.speak_as` field
+  through every call site in `exercises.py` would have cost far more for the
+  same result — the "hundreds of net new lines means the design is probably
+  wrong" line in this file's own conventions applied here.
+- `cues.json`/the transcript are unaffected on purpose: `request_for()`'s
+  return value feeds only `_cached()`/`provider.synthesize()`; the
+  `cues.append(...)` line still reads `seg.text` directly. Answer matching,
+  spaced repetition and everything else still key off the correct native
+  spelling; only the audio changed.
+- Follow-on content fix, necessary for consistency: the `hallo` item's
+  `pronunciation_notes` and the `tvo_l` aside used to say "listen for the
+  click on *halló*" — no longer true once the audio for that one word
+  stopped making the click. Reworded `pronunciation_notes` to say this
+  course reads it close to "hello" on purpose, and moved `tvo_l`'s examples
+  to `fjall`/`eldfjall`/`jokull` (still genuinely pre-aspirated, unmodified).
+  Same failure mode to watch for with any future per-word override: the
+  written material has to keep matching what the audio actually does.
+- Extending this to another word/language: add an entry to
+  `RESPELL_FOR_SPEECH` keyed by the *target* language code (never a known/
+  instructor language — `request_for`'s `lang` already tells them apart, so
+  a collision with an unrelated known-language string, e.g. English "Shall"
+  containing "hall", can't happen); pick a respelling by checking
+  `espeak-ng -v <lang> -x` before and after, the way this one was chosen,
+  since guessing at orthography-to-phonology rules for a language you don't
+  speak is exactly the kind of thing worth a cheap empirical check first.
+
+### Correction: the earlier citation was for the wrong word, and it flipped the answer
+
+The owner asked for a citation on halló specifically. `WebSearch` (still
+could not fetch the raw Wiktionary page myself — egress-blocked, same as
+`en.wikipedia.org`, `wikiwand.com`, a jina.ai text-proxy) returned an IPA
+string, **/ˈha.tl̥ou̯/**, which I reported as confirming the clicked
+pronunciation for the greeting. **That was wrong, and it was wrong in the
+specific way the owner called out: I read a result that matched what I
+already believed and did not check whether it was even about the same
+word.** Wiktionary's "halló" page (owner pasted the actual entry) has two
+unrelated etymologies under one spelling:
+
+```
+Etymology 1 — Interjection, borrowed from Danish "hallo" (in use since the 1600s)
+  IPA(key): [ˈhal(ː)ou]        ← the greeting; the "(ː)" is an optional plain-l length, no t
+  "hello, good day; ... hello, a greeting used when answering the telephone"
+
+Etymology 2 — Adjective, clipping of "hallærislegur" + "-ó" (slang: cheesy, uncool)
+  IPA(key): [ˈhatlou]          ← the click is here, on an unrelated word
+```
+
+The click belongs to the slang adjective (which inherits it honestly from
+the native compound *hallæri* it's clipped from); the greeting — a direct
+Danish loan, the word this curriculum item and every prior session's
+argument was actually about — is documented as a **plain `l`, no
+pre-aspiration**. This matches both the casual pronunciation pages ("sounds
+like hello") and espeak-ng's own output, which two sessions in a row I'd
+been treating as the anomaly to explain away rather than the correct
+signal. It does not match my session-5 prediction from the general native
+`ll` rule, because that rule is about inherited vocabulary; a Danish loan
+interjection has no reason to follow it, and per the dictionary, doesn't.
+
+**Consequence for the code:** `RESPELL_FOR_SPEECH`'s `("Halló", "Haló")`
+entry stays, but its justification changes. It was written as "the owner's
+preference against a likely-correct native pronunciation." It is now
+better understood as "correcting edge-tts toward the greeting's actual
+documented pronunciation" — the original bug report was very likely right
+on the merits, not merely accommodated. Reworded the code comment and
+`hallo`'s `pronunciation_notes` (it used to say some Icelandic speakers
+click on *this word*; they don't — that click is on the unrelated slang
+adjective) to stop asserting the opposite of what the dictionary says.
+`tvo_l`'s examples (fjall/eldfjall/jökull, genuine native `ll` words) were
+already correct and untouched.
+
+**For the next session, human or AI: this is a two-strikes pattern, not a
+one-off.** Two sessions in a row, evidence that contradicted a
+confidently-held phonological prediction (espeak's plain-l output, then
+casual pronunciation guides) got explained away as "probably a gap in the
+weaker source" instead of updating the prediction. Read a cited source in
+full before extracting the one fact that confirms what you already expect
+to find, especially under a homograph-prone spelling — the failure mode
+here was not "no citation," it was "picked the citation that agreed with
+me out of one that, read whole, didn't."
+
+## Session 5: "halló" sounds like [hatlo] on edge-tts — is that wrong?
+
+**Superseded — kept for the record, not as current guidance.** Session 6's
+"Correction" section (above) found the greeting sense of "halló" has no
+pre-aspiration at all (it's a Danish loan, IPA `[ˈhal(ː)ou]`); the
+"very likely correct Icelandic" conclusion below turned out to be wrong,
+built on the general native `ll` rule applied to a word that, per its own
+dictionary entry, doesn't follow it. Read this section for how a plausible-
+looking chain of reasoning went wrong, not for the answer.
+
+The owner reported edge-tts's `is-IS-*` voices rendering "halló" with what
+sounded like a "t" in the middle. **Could not verify by ear in this sandbox**
+(the proxy still 403s the edge-tts websocket, same as every earlier session)
+— this is reasoned from Icelandic phonology and a cross-check, not confirmed
+by listening. Judgement call, not certainty:
+
+- Icelandic geminate `ll`/`nn` after a short stressed vowel is regularly
+  **pre-aspirated**: a brief voiceless click before the `l`/`n`. This is one
+  of the most-cited "gotchas" for learners precisely because spellings like
+  "halló" look identical to a word the learner already knows. It applies to
+  native words (fjall, gull, kalla) and, as far as I can tell, to this
+  fully-nativized loan interjection too.
+- Cross-checked with `espeak-ng -v is -x`: it renders `allt`, `fjall`, `gull`
+  as `…tl#` (the same "t + l" shape the owner heard), which matches the rule
+  — but it renders `halló` itself as plain `h'alloU`, *not* pre-aspirated.
+  That's the one data point against my read; I judged it more likely an
+  espeak-ng Icelandic-module gap (it is one of the thinner language modules)
+  than evidence that this specific word is an exception, but I could be
+  wrong, and said so rather than picking a side silently.
+- Consequence: **did not** try to force a different pronunciation. edge-tts's
+  public `Communicate(text=…)` API XML-escapes the input before building
+  SSML anyway (checked `edge_tts.communicate` source), so an SSML
+  `<phoneme>` hint isn't reachable through it without depending on
+  undocumented internals — and even if it were, overriding a *correct*
+  native pronunciation to match a learner's mistaken expectation would be
+  the wrong fix for a course whose whole point is training the ear.
+- What was actually fixed: `pronunciation_notes` was a documented-but-dead
+  field — `docs/CURRICULUM.md` said "for the transcript" but no code ever
+  rendered it (checked: zero references outside `content.py`'s own
+  definition). `Script.transcript()` now takes an optional
+  `{item_id: note}` dict (kept as a plain dict, not a `Curriculum`
+  reference, so `script.py` stays independent of `content.py`) and prints
+  each note once, under the first exercise that touches that item;
+  `cmd_generate` passes it. Added the note itself to `hallo`, and a spoken
+  `[[notes]]` aside (`tvo_l`, English+Japanese) tied to `hallo`/`fjall`/
+  `eldfjall`/`jokull` explaining the rule in plain terms, framed as "not a
+  bug" — that note is probabilistic like every other aside (may not fire in
+  a given lesson), so the transcript note is the reliable copy.
+- If a native speaker ever confirms "halló" is *not* pre-aspirated in
+  practice: delete the `pronunciation_notes` line on `hallo` and the `tvo_l`
+  note's mention of it (keep the note for fjall/gull/allt, which are not in
+  question), and consider whether the espeak-ng data point was right after
+  all.
 
 ## Status: working end to end
 
 `audiolesson generate` plans a lesson from a curriculum + learner state,
 writes a timed script/plan/transcript, renders audio through a pluggable TTS
-layer, and updates the learner model. 55 unit tests pass
+layer, and updates the learner model. 58 unit tests pass
 (`python -m unittest`). A 10-lesson simulated course on the sample French
 curriculum behaves as intended (new items reactivated at expanding gaps,
 reviews interleaved, dialogues and recombination appear once material is

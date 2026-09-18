@@ -220,7 +220,8 @@ def cmd_generate(args) -> int:
     out.mkdir(parents=True, exist_ok=True)
     stem = out / f"lesson-{n:03d}"
     script.save(f"{stem}.script.json")
-    Path(f"{stem}.transcript.md").write_text(script.transcript(), encoding="utf-8")
+    pronunciation_notes = {i.id: i.pronunciation_notes for i in cur.items if i.pronunciation_notes}
+    Path(f"{stem}.transcript.md").write_text(script.transcript(pronunciation_notes), encoding="utf-8")
     Path(f"{stem}.plan.json").write_text(json.dumps(_plan(script, cur), ensure_ascii=False, indent=1), encoding="utf-8")
 
     s = script.summary()

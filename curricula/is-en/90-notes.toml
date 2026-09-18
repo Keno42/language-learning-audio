@@ -2,6 +2,13 @@
 # Each note is tied to items; the planner plays one right after one of them, at most a couple per lesson.
 
 [[notes]]
+id = "tvo_l"
+items = ["fjall", "eldfjall", "jokull"]
+topics = ["clarifying", "nature"]
+text = "That 't'-like click you'll start noticing before some 'l' sounds is not a synthesis error: double 'll' in Icelandic is pre-aspirated, so a short voiceless sound lands just before the 'l'. It happens throughout the language wherever you see 'll' or 'nn' — 'fjall' (mountain), 'gull' (gold), 'allt' (everything) — so the more it surprises you, the more Icelandic you are learning to hear."
+text_ja = "これから「l」の前に聞こえてくる「t」のような音は、合成音声の不具合ではありません。アイスランド語の二重子音「ll」には前気音化という現象があり、「l」の直前に軽い無声の音が入るのが標準的な発音です。「fjall」（山）や「gull」（金）、「allt」（すべて）でも同じことが起こります。「ll」や「nn」が出てくるたびに聞こえてくるので、驚くほど、それはアイスランド語の耳が育っている証です。"
+
+[[notes]]
 id = "pylsa"
 items = ["pylsu", "eina_pylsu_med_ollu"]
 topics = ["food"]

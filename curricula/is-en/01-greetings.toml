@@ -54,6 +54,7 @@ difficulty = 1
 topics = ["greetings"]
 situation = "You answer the phone."
 situation_ja = "電話に出ます。"
+pronunciation_notes = "'Halló' is a Danish loanword (in use since the 1600s) and is pronounced with a plain 'l', close to the familiar 'hello' — not the pre-aspirated click that native double-'l' words get (e.g. 'fjall', mountain; 'jökull', glacier), which this course pronounces properly wherever it genuinely occurs."
 
 [[items]]
 id = "bless"
