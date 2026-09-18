@@ -5,6 +5,7 @@ id = "eldhusid"
 kind = "vocab"
 target = "eldhúsið"
 meaning = "the kitchen"
+meaning_ja = "台所"
 difficulty = 2
 tags = ["nom_place"]
 topics = ["home"]
@@ -14,6 +15,7 @@ id = "stofan"
 kind = "vocab"
 target = "stofan"
 meaning = "the living room"
+meaning_ja = "居間"
 difficulty = 2
 tags = ["nom_place"]
 topics = ["home"]
@@ -23,6 +25,7 @@ id = "badherbergid"
 kind = "vocab"
 target = "baðherbergið"
 meaning = "the bathroom"
+meaning_ja = "浴室"
 difficulty = 3
 tags = ["nom_place"]
 topics = ["home"]
@@ -32,6 +35,7 @@ id = "svefnherbergid"
 kind = "vocab"
 target = "svefnherbergið"
 meaning = "the bedroom"
+meaning_ja = "寝室"
 difficulty = 3
 tags = ["nom_place"]
 topics = ["home"]
@@ -41,6 +45,7 @@ id = "isskapurinn"
 kind = "vocab"
 target = "ísskápurinn"
 meaning = "the fridge"
+meaning_ja = "冷蔵庫"
 difficulty = 3
 tags = ["nom_place"]
 topics = ["home"]
@@ -50,6 +55,7 @@ id = "thvottavelin"
 kind = "vocab"
 target = "þvottavélin"
 meaning = "the washing machine"
+meaning_ja = "洗濯機"
 difficulty = 3
 tags = ["nom_place"]
 topics = ["home"]
@@ -59,6 +65,7 @@ id = "ruslid"
 kind = "vocab"
 target = "ruslið"
 meaning = "the rubbish (bin)"
+meaning_ja = "ごみ箱"
 difficulty = 2
 tags = ["nom_place"]
 topics = ["home"]
@@ -68,6 +75,7 @@ id = "lykillinn"
 kind = "vocab"
 target = "lykillinn"
 meaning = "the key"
+meaning_ja = "鍵"
 difficulty = 2
 tags = ["nom_place"]
 topics = ["home", "accommodation"]
@@ -77,6 +85,7 @@ id = "rofinn"
 kind = "vocab"
 target = "rofinn"
 meaning = "the light switch"
+meaning_ja = "電気のスイッチ"
 difficulty = 2
 tags = ["nom_place"]
 topics = ["home"]
@@ -86,6 +95,7 @@ id = "ibud"
 kind = "vocab"
 target = "íbúð"
 meaning = "a flat"
+meaning_ja = "アパート"
 difficulty = 1
 topics = ["home"]
 
@@ -94,6 +104,7 @@ id = "hus"
 kind = "vocab"
 target = "hús"
 meaning = "a house"
+meaning_ja = "家"
 difficulty = 1
 topics = ["home"]
 
@@ -102,6 +113,7 @@ id = "rum"
 kind = "vocab"
 target = "rúm"
 meaning = "a bed"
+meaning_ja = "ベッド"
 difficulty = 1
 topics = ["home"]
 
@@ -110,6 +122,7 @@ id = "bord"
 kind = "vocab"
 target = "borð"
 meaning = "a table"
+meaning_ja = "テーブル"
 difficulty = 1
 topics = ["home"]
 
@@ -118,6 +131,7 @@ id = "stoll"
 kind = "vocab"
 target = "stóll"
 meaning = "a chair"
+meaning_ja = "椅子"
 difficulty = 1
 topics = ["home"]
 
@@ -126,6 +140,7 @@ id = "gluggi"
 kind = "vocab"
 target = "gluggi"
 meaning = "a window"
+meaning_ja = "窓"
 difficulty = 1
 topics = ["home"]
 
@@ -134,6 +149,7 @@ id = "hurd"
 kind = "vocab"
 target = "hurð"
 meaning = "a door"
+meaning_ja = "ドア"
 difficulty = 1
 topics = ["home"]
 
@@ -142,206 +158,252 @@ id = "eg_by_i_ibud"
 kind = "phrase"
 target = "Ég bý í íbúð."
 meaning = "I live in a flat."
+meaning_ja = "アパートに住んでいます。"
 difficulty = 2
 topics = ["home"]
 prereqs = ["ibud"]
 situation = "Anna asks whether you have a house. Say you live in a flat."
+situation_ja = "アンナに一軒家かと聞かれました。アパートに住んでいると答えてください。"
 
 [[items]]
 id = "ibudin_er_litil"
 kind = "phrase"
 target = "Íbúðin er lítil."
 meaning = "The flat is small."
+meaning_ja = "アパートは小さいです。"
 difficulty = 2
 topics = ["home"]
 prereqs = ["eg_by_i_ibud"]
 situation = "She asks how big it is. Say the flat is small."
+situation_ja = "広さを聞かれました。小さいと答えてください。"
 
 [[items]]
 id = "eg_leigi_ibud"
 kind = "phrase"
 target = "Ég leigi íbúð."
 meaning = "I rent a flat."
+meaning_ja = "アパートを借りています。"
 difficulty = 2
 topics = ["home"]
 prereqs = ["ibud"]
 situation = "She asks if you own your place. Say you rent a flat."
+situation_ja = "持ち家かと聞かれました。借りていると答えてください。"
 
 [[items]]
 id = "hvad_er_leigan_ha"
 kind = "phrase"
 target = "Hvað er leigan há?"
 meaning = "How high is the rent?"
+meaning_ja = "家賃はいくらですか？"
 difficulty = 3
 topics = ["home", "money"]
 situation = "You're looking at a flat to rent. Ask how high the rent is."
+situation_ja = "借りるアパートを見ています。家賃を聞いてください。"
 
 [[items]]
 id = "ma_eg_opna_gluggann"
 kind = "phrase"
 target = "Má ég opna gluggann?"
 meaning = "May I open the window?"
+meaning_ja = "窓を開けてもいいですか？"
 difficulty = 3
 topics = ["home"]
 prereqs = ["gluggi"]
 situation = "The room is stuffy. Ask if you may open the window."
+situation_ja = "部屋がむっとしています。窓を開けていいか聞いてください。"
 
 [[items]]
 id = "ma_eg_loka_hurdinni"
 kind = "phrase"
 target = "Má ég loka hurðinni?"
 meaning = "May I close the door?"
+meaning_ja = "ドアを閉めてもいいですか？"
 difficulty = 3
 topics = ["home"]
 prereqs = ["hurd"]
 situation = "There's a draught. Ask if you may close the door."
+situation_ja = "すきま風が入ります。ドアを閉めていいか聞いてください。"
 
 [[items]]
 id = "ljosid_virkar_ekki"
 kind = "phrase"
 target = "Ljósið virkar ekki."
 meaning = "The light doesn't work."
+meaning_ja = "電気がつきません。"
 difficulty = 2
 topics = ["home"]
 situation = "You flip the switch and nothing happens. Tell your landlord."
+situation_ja = "スイッチを押しても何も起きません。大家に伝えてください。"
 
 [[items]]
 id = "eg_er_heima"
 kind = "phrase"
 target = "Ég er heima."
 meaning = "I'm at home."
+meaning_ja = "家にいます。"
 difficulty = 1
 topics = ["home"]
 situation = "A friend texts asking where you are. Say you're at home."
+situation_ja = "友達からどこにいるかメッセージが来ました。家にいると答えてください。"
 
 [[items]]
 id = "komdu_inn"
 kind = "phrase"
 target = "Komdu inn."
 meaning = "Come in."
+meaning_ja = "入って。"
 difficulty = 1
 topics = ["home"]
 situation = "A friend knocks. Tell her to come in."
+situation_ja = "友達がノックしました。入るように言ってください。"
 
 [[items]]
 id = "fardu_ur_skonum"
 kind = "phrase"
 target = "Farðu úr skónum."
 meaning = "Take your shoes off."
+meaning_ja = "靴を脱いで。"
 difficulty = 3
 topics = ["home"]
 pronunciation_notes = "shoes off indoors is the rule in Icelandic homes, as in Japan"
 situation = "Your guest walks in with muddy boots. Tell him to take his shoes off."
+situation_ja = "お客さんが泥だらけのブーツで入ってきました。靴を脱ぐよう言ってください。"
 
 [[items]]
 id = "gerdu_thig_heimakomna"
 kind = "phrase"
 target = "Gerðu þig heimakomna."
 meaning = "Make yourself at home. (to a woman)"
+meaning_ja = "くつろいでね。（女性に）"
 difficulty = 4
 topics = ["home"]
 pronunciation_notes = "to a man: Gerðu þig heimakominn."
 chunks = ["heimakomna", "þig heimakomna", "Gerðu þig heimakomna."]
 situation = "Anna has come to stay. Tell her to make herself at home."
+situation_ja = "アンナが泊まりに来ました。くつろぐよう言ってください。"
 
 [[items]]
 id = "viltu_kaffi"
 kind = "phrase"
 target = "Viltu kaffi?"
 meaning = "Do you want coffee?"
+meaning_ja = "コーヒー飲む？"
 difficulty = 1
 topics = ["home", "cafe"]
 prereqs = ["kaffi"]
 situation = "Your guest sits down. Offer coffee."
+situation_ja = "お客さんが座りました。コーヒーをすすめてください。"
 
 [[items]]
 id = "ja_takk"
 kind = "phrase"
 target = "Já, takk."
 meaning = "Yes, please."
+meaning_ja = "はい、お願いします。"
 difficulty = 1
 topics = ["home", "cafe"]
 prereqs = ["ja", "takk"]
 situation = "You're offered coffee. Accept."
+situation_ja = "コーヒーをすすめられました。受けてください。"
 
 [[items]]
 id = "nei_takk"
 kind = "phrase"
 target = "Nei, takk."
 meaning = "No, thanks."
+meaning_ja = "いいえ、結構です。"
 difficulty = 1
 topics = ["home", "cafe"]
 prereqs = ["nei", "takk"]
 situation = "You're offered a second slice of cake. Decline politely."
+situation_ja = "ケーキの二切れ目をすすめられました。丁寧に断ってください。"
 
 [[items]]
 id = "hvar_er_klosettid_home"
 kind = "phrase"
 target = "Hvar er klósettið?"
 meaning = "Where is the toilet?"
+meaning_ja = "トイレはどこですか？"
 difficulty = 2
 topics = ["home", "directions"]
 prereqs = ["hvar_er", "klosettid"]
 situation = "You're at Anna's place for the first time. Ask where the toilet is."
+situation_ja = "アンナの家に初めて来ました。トイレはどこか聞いてください。"
 
 [[items]]
 id = "thad_er_i_isskapnum"
 kind = "phrase"
 target = "Það er í ísskápnum."
 meaning = "It's in the fridge."
+meaning_ja = "冷蔵庫の中です。"
 difficulty = 3
 topics = ["home"]
 prereqs = ["isskapurinn"]
 situation = "Your guest asks where the milk is. Say it's in the fridge."
+situation_ja = "お客さんに牛乳はどこか聞かれました。冷蔵庫の中だと言ってください。"
 
 [[items]]
 id = "eg_tharf_ad_thrifa"
 kind = "phrase"
 target = "Ég þarf að þrífa."
 meaning = "I need to clean."
+meaning_ja = "掃除しないといけません。"
 difficulty = 2
 topics = ["home", "daily"]
 situation = "Guests are coming tomorrow. Say you need to clean."
+situation_ja = "明日お客さんが来ます。掃除しないといけないと言ってください。"
 
 [[items]]
 id = "hvar_er_ruslid"
 kind = "phrase"
 target = "Hvar á ruslið að fara?"
 meaning = "Where does the rubbish go?"
+meaning_ja = "ごみはどこに捨てればいいですか？"
 difficulty = 4
 topics = ["home"]
 prereqs = ["ruslid"]
 chunks = ["fara", "að fara", "ruslið að fara", "Hvar á ruslið að fara?"]
 situation = "You're staying at a friend's. Ask where the rubbish goes."
+situation_ja = "友達の家に泊まっています。ごみはどこに捨てるか聞いてください。"
 
 [[items]]
 id = "heitt_vatn_er_okeypis"
 kind = "phrase"
 target = "Heita vatnið er næstum ókeypis."
 meaning = "The hot water is almost free."
+meaning_ja = "お湯はほとんど無料です。"
 difficulty = 4
 topics = ["home", "nature"]
 chunks = ["ókeypis", "næstum ókeypis", "vatnið er næstum ókeypis", "Heita vatnið er næstum ókeypis."]
 situation = "Your visitor is amazed by the long showers. Explain the hot water is almost free."
+situation_ja = "来客が長いシャワーに驚いています。お湯はほとんど無料だと説明してください。"
 
 [[dialogues]]
 id = "heimsokn"
 setting = "You visit Anna's flat for the first time."
+setting_ja = "初めてアンナのアパートを訪ねます。"
 topics = ["home"]
 requires = ["hae", "fardu_ur_skonum", "viltu_kaffi", "ja_takk", "hvar_er_klosettid_home", "thetta_er_person"]
 
   [[dialogues.turns]]
   opener = "Hæ, komdu inn!"
   opener_meaning = "Hi, come in!"
+  opener_meaning_ja = "やあ、入って！"
   cue = "Say hi. Then she says 'farðu úr skónum' — repeat what she'd say when you keep your shoes on."
+  cue_ja = "やあと言ってください。そして、靴を履いたままのときに彼女が言う「靴を脱いで」を繰り返してください。"
   expect_text = "Hæ! Farðu úr skónum."
   expect_meaning = "Hi! Take your shoes off."
+  expect_meaning_ja = "やあ！靴を脱いで。"
   partner = "Nákvæmlega. Viltu kaffi?"
   partner_meaning = "Exactly. Do you want coffee?"
+  partner_meaning_ja = "そのとおり。コーヒー飲む？"
 
   [[dialogues.turns]]
   cue = "Say yes, please, and ask where the toilet is."
+  cue_ja = "はい、お願いしますと言って、トイレはどこか聞いてください。"
   expect_text = "Já, takk. Hvar er klósettið?"
   expect_meaning = "Yes, please. Where is the toilet?"
+  expect_meaning_ja = "はい、お願いします。トイレはどこですか？"
   partner = "Fyrsta hurð til vinstri."
   partner_meaning = "First door on the left."
+  partner_meaning_ja = "左の最初のドアよ。"

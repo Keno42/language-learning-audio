@@ -5,6 +5,7 @@ id = "mamma_min"
 kind = "vocab"
 target = "mamma mín"
 meaning = "my mum"
+meaning_ja = "私の母"
 difficulty = 1
 tags = ["person"]
 topics = ["family"]
@@ -14,6 +15,7 @@ id = "thetta_er_person"
 kind = "construction"
 target = "Þetta er {person}."
 meaning = "This is {person}."
+meaning_ja = "こちらは{person}です。"
 difficulty = 2
 topics = ["family", "social"]
 slots = { person = "person" }
@@ -25,6 +27,7 @@ id = "pabbi_minn"
 kind = "vocab"
 target = "pabbi minn"
 meaning = "my dad"
+meaning_ja = "私の父"
 difficulty = 1
 tags = ["person"]
 topics = ["family"]
@@ -34,6 +37,7 @@ id = "brodir_minn"
 kind = "vocab"
 target = "bróðir minn"
 meaning = "my brother"
+meaning_ja = "私の兄（弟）"
 difficulty = 2
 tags = ["person"]
 topics = ["family"]
@@ -43,6 +47,7 @@ id = "systir_min"
 kind = "vocab"
 target = "systir mín"
 meaning = "my sister"
+meaning_ja = "私の姉（妹）"
 difficulty = 2
 tags = ["person"]
 topics = ["family"]
@@ -52,6 +57,7 @@ id = "madurinn_minn"
 kind = "vocab"
 target = "maðurinn minn"
 meaning = "my husband"
+meaning_ja = "私の夫"
 difficulty = 2
 tags = ["person"]
 topics = ["family"]
@@ -61,6 +67,7 @@ id = "konan_min"
 kind = "vocab"
 target = "konan mín"
 meaning = "my wife"
+meaning_ja = "私の妻"
 difficulty = 2
 tags = ["person"]
 topics = ["family"]
@@ -70,6 +77,7 @@ id = "kaerastinn_minn"
 kind = "vocab"
 target = "kærastinn minn"
 meaning = "my boyfriend"
+meaning_ja = "私の彼氏"
 difficulty = 3
 tags = ["person"]
 topics = ["family"]
@@ -79,6 +87,7 @@ id = "kaerastan_min"
 kind = "vocab"
 target = "kærastan mín"
 meaning = "my girlfriend"
+meaning_ja = "私の彼女"
 difficulty = 3
 tags = ["person"]
 topics = ["family"]
@@ -88,6 +97,7 @@ id = "sonur_minn"
 kind = "vocab"
 target = "sonur minn"
 meaning = "my son"
+meaning_ja = "私の息子"
 difficulty = 2
 tags = ["person"]
 topics = ["family"]
@@ -97,6 +107,7 @@ id = "dottir_min"
 kind = "vocab"
 target = "dóttir mín"
 meaning = "my daughter"
+meaning_ja = "私の娘"
 difficulty = 2
 tags = ["person"]
 topics = ["family"]
@@ -106,6 +117,7 @@ id = "amma_min"
 kind = "vocab"
 target = "amma mín"
 meaning = "my grandmother"
+meaning_ja = "私の祖母"
 difficulty = 1
 tags = ["person"]
 topics = ["family"]
@@ -115,6 +127,7 @@ id = "afi_minn"
 kind = "vocab"
 target = "afi minn"
 meaning = "my grandfather"
+meaning_ja = "私の祖父"
 difficulty = 1
 tags = ["person"]
 topics = ["family"]
@@ -124,6 +137,7 @@ id = "vinur_minn"
 kind = "vocab"
 target = "vinur minn"
 meaning = "my friend (male)"
+meaning_ja = "私の友人（男性）"
 difficulty = 2
 tags = ["person"]
 topics = ["family", "social"]
@@ -133,6 +147,7 @@ id = "vinkona_min"
 kind = "vocab"
 target = "vinkona mín"
 meaning = "my friend (female)"
+meaning_ja = "私の友人（女性）"
 difficulty = 2
 tags = ["person"]
 topics = ["family", "social"]
@@ -142,6 +157,7 @@ id = "samstarfsmadur_minn"
 kind = "vocab"
 target = "samstarfsmaður minn"
 meaning = "my colleague"
+meaning_ja = "私の同僚"
 difficulty = 4
 tags = ["person"]
 topics = ["family", "work"]
@@ -151,6 +167,7 @@ id = "nagranni_minn"
 kind = "vocab"
 target = "nágranni minn"
 meaning = "my neighbour"
+meaning_ja = "私の隣人"
 difficulty = 3
 tags = ["person"]
 topics = ["family", "social"]
@@ -160,6 +177,7 @@ id = "fjolskyldan_min"
 kind = "vocab"
 target = "fjölskyldan mín"
 meaning = "my family"
+meaning_ja = "私の家族"
 difficulty = 3
 tags = ["person"]
 topics = ["family"]
@@ -169,156 +187,187 @@ id = "attu_systkini"
 kind = "phrase"
 target = "Áttu systkini?"
 meaning = "Do you have siblings?"
+meaning_ja = "きょうだいはいますか？"
 difficulty = 3
 topics = ["family"]
 prereqs = ["attu"]
 situation = "You're getting to know Anna. Ask if she has siblings."
+situation_ja = "アンナと親しくなってきました。きょうだいがいるか聞いてください。"
 
 [[items]]
 id = "eg_a_einn_brodur"
 kind = "phrase"
 target = "Ég á einn bróður."
 meaning = "I have one brother."
+meaning_ja = "兄が一人います。"
 difficulty = 3
 topics = ["family"]
 prereqs = ["brodir_minn"]
 situation = "Anna asked about siblings. Say you have one brother."
+situation_ja = "アンナにきょうだいについて聞かれました。兄が一人いると答えてください。"
 
 [[items]]
 id = "eg_a_tvaer_systur"
 kind = "phrase"
 target = "Ég á tvær systur."
 meaning = "I have two sisters."
+meaning_ja = "姉が二人います。"
 difficulty = 3
 topics = ["family"]
 prereqs = ["systir_min"]
 situation = "Say you have two sisters."
+situation_ja = "姉が二人いると言ってください。"
 
 [[items]]
 id = "eg_a_engin_born"
 kind = "phrase"
 target = "Ég á engin börn."
 meaning = "I have no children."
+meaning_ja = "子どもはいません。"
 difficulty = 3
 topics = ["family"]
 prereqs = ["eg_a_tvo_born"]
 situation = "Someone asks about your children. Say you have none."
+situation_ja = "子どもについて聞かれました。いないと答えてください。"
 
 [[items]]
 id = "attu_born"
 kind = "phrase"
 target = "Áttu börn?"
 meaning = "Do you have children?"
+meaning_ja = "子どもはいますか？"
 difficulty = 2
 topics = ["family"]
 prereqs = ["attu"]
 situation = "Ask your new friend whether she has children."
+situation_ja = "新しい友達に子どもがいるか聞いてください。"
 
 [[items]]
 id = "hvad_heitir_hun"
 kind = "phrase"
 target = "Hvað heitir hún?"
 meaning = "What's her name?"
+meaning_ja = "彼女の名前は？"
 difficulty = 2
 topics = ["family", "social"]
 prereqs = ["hvad_heitir_thu"]
 situation = "Anna mentions her daughter. Ask what her name is."
+situation_ja = "アンナが娘の話をしました。名前を聞いてください。"
 
 [[items]]
 id = "hvad_heitir_hann"
 kind = "phrase"
 target = "Hvað heitir hann?"
 meaning = "What's his name?"
+meaning_ja = "彼の名前は？"
 difficulty = 2
 topics = ["family", "social"]
 prereqs = ["hvad_heitir_hun"]
 situation = "Anna's brother waves from across the room. Ask what his name is."
+situation_ja = "アンナの兄が部屋の向こうで手を振っています。名前を聞いてください。"
 
 [[items]]
 id = "hvad_er_hun_gomul"
 kind = "phrase"
 target = "Hvað er hún gömul?"
 meaning = "How old is she?"
+meaning_ja = "彼女は何歳ですか？"
 difficulty = 3
 topics = ["family"]
 prereqs = ["hvad_ertu_gomul"]
 situation = "Anna shows you a photo of her daughter. Ask how old she is."
+situation_ja = "アンナが娘の写真を見せてくれました。何歳か聞いてください。"
 
 [[items]]
 id = "hun_er_fimm_ara"
 kind = "phrase"
 target = "Hún er fimm ára."
 meaning = "She's five years old."
+meaning_ja = "彼女は5歳です。"
 difficulty = 2
 topics = ["family"]
 prereqs = ["fimm"]
 situation = "Someone asks how old your daughter is. Say she's five."
+situation_ja = "娘は何歳か聞かれました。5歳だと答えてください。"
 
 [[items]]
 id = "hann_byr_i_japan"
 kind = "phrase"
 target = "Hann býr í Japan."
 meaning = "He lives in Japan."
+meaning_ja = "彼は日本に住んでいます。"
 difficulty = 2
 topics = ["family"]
 prereqs = ["eg_by_i"]
 situation = "Anna asks where your brother lives. Say he lives in Japan."
+situation_ja = "アンナに兄はどこに住んでいるか聞かれました。日本だと答えてください。"
 
 [[items]]
 id = "vid_erum_gift"
 kind = "phrase"
 target = "Við erum gift."
 meaning = "We're married."
+meaning_ja = "私たちは結婚しています。"
 difficulty = 2
 topics = ["family"]
 prereqs = ["eg_er_gift"]
 situation = "Someone asks if you two are a couple. Say you're married."
+situation_ja = "二人は恋人同士かと聞かれました。結婚していると答えてください。"
 
 [[items]]
 id = "hun_er_kaerastan_min"
 kind = "phrase"
 target = "Hún er kærastan mín."
 meaning = "She's my girlfriend."
+meaning_ja = "彼女は私の恋人です。"
 difficulty = 3
 topics = ["family"]
 prereqs = ["kaerastan_min"]
 situation = "Someone asks who the woman with you is. Say she's your girlfriend."
+situation_ja = "一緒にいる女性は誰かと聞かれました。恋人だと答えてください。"
 
 [[items]]
 id = "eg_sakna_fjolskyldunnar"
 kind = "phrase"
 target = "Ég sakna fjölskyldunnar."
 meaning = "I miss my family."
+meaning_ja = "家族が恋しいです。"
 difficulty = 4
 topics = ["family", "feelings"]
 chunks = ["fjölskyldunnar", "sakna fjölskyldunnar", "Ég sakna fjölskyldunnar."]
 situation = "It's your second month abroad. Tell your friend you miss your family."
+situation_ja = "海外生活二か月目です。友達に家族が恋しいと言ってください。"
 
 [[items]]
 id = "eg_bý_ein"
 kind = "phrase"
 target = "Ég bý ein."
 meaning = "I live alone."
+meaning_ja = "一人暮らしです。"
 difficulty = 2
 topics = ["family"]
 pronunciation_notes = "feminine; masculine: Ég bý einn."
 situation = "Anna asks who you live with. Say you live alone."
+situation_ja = "アンナに誰と住んでいるか聞かれました。一人暮らしだと答えてください。"
 
 [[items]]
 id = "eg_by_med_kaerastanum"
 kind = "phrase"
 target = "Ég bý með kærastanum mínum."
 meaning = "I live with my boyfriend."
+meaning_ja = "彼氏と住んでいます。"
 difficulty = 4
 topics = ["family"]
 chunks = ["mínum", "kærastanum mínum", "með kærastanum mínum", "Ég bý með kærastanum mínum."]
 situation = "Say you live with your boyfriend."
+situation_ja = "彼氏と住んでいると言ってください。"
 
 [[items]]
 id = "madur"
 kind = "vocab"
 target = "maður"
 meaning = "a man / a person"
+meaning_ja = "男の人／人"
 difficulty = 1
 topics = ["family", "social"]
 
@@ -327,6 +376,7 @@ id = "kona"
 kind = "vocab"
 target = "kona"
 meaning = "a woman"
+meaning_ja = "女の人"
 difficulty = 1
 topics = ["family", "social"]
 
@@ -335,6 +385,7 @@ id = "barn"
 kind = "vocab"
 target = "barn"
 meaning = "a child"
+meaning_ja = "子ども"
 difficulty = 1
 topics = ["family"]
 
@@ -343,6 +394,7 @@ id = "strakur"
 kind = "vocab"
 target = "strákur"
 meaning = "a boy"
+meaning_ja = "男の子"
 difficulty = 1
 topics = ["family"]
 
@@ -351,6 +403,7 @@ id = "stelpa"
 kind = "vocab"
 target = "stelpa"
 meaning = "a girl"
+meaning_ja = "女の子"
 difficulty = 1
 topics = ["family"]
 
@@ -359,39 +412,52 @@ id = "folk"
 kind = "vocab"
 target = "fólk"
 meaning = "people"
+meaning_ja = "人々"
 difficulty = 1
 topics = ["social"]
 
 [[dialogues]]
 id = "myndir"
 setting = "Anna shows you photos on her phone."
+setting_ja = "アンナが携帯の写真を見せてくれます。"
 topics = ["family"]
 requires = ["hvad_heitir_hun", "hvad_er_hun_gomul", "thetta_er_person", "brodir_minn", "hann_byr_i_japan", "attu_systkini"]
 
   [[dialogues.turns]]
   opener = "Sjáðu, þetta er dóttir mín."
   opener_meaning = "Look, this is my daughter."
+  opener_meaning_ja = "見て、これが私の娘。"
   cue = "Ask what her name is."
+  cue_ja = "彼女の名前を聞いてください。"
   expect = "hvad_heitir_hun"
   partner = "Hún heitir Sóley."
   partner_meaning = "Her name is Sóley."
+  partner_meaning_ja = "ソウレイっていうの。"
 
   [[dialogues.turns]]
   cue = "Ask how old she is."
+  cue_ja = "何歳か聞いてください。"
   expect = "hvad_er_hun_gomul"
   partner = "Hún er fjögurra ára. Áttu börn?"
   partner_meaning = "She's four. Do you have children?"
+  partner_meaning_ja = "4歳。あなたは子どもいる？"
 
   [[dialogues.turns]]
   cue = "Say no, and show a photo: this is my brother."
+  cue_ja = "いいえと言って、写真を見せながら、こちらは兄です、と言ってください。"
   expect_text = "Nei. Þetta er bróðir minn."
   expect_meaning = "No. This is my brother."
+  expect_meaning_ja = "いいえ。こちらは私の兄です。"
   partner = "Býr hann líka í Tókýó?"
   partner_meaning = "Does he also live in Tokyo?"
+  partner_meaning_ja = "彼も東京に住んでるの？"
 
   [[dialogues.turns]]
   cue = "Say he lives in Japan — no: say yes, he lives in Japan."
+  cue_ja = "はい、彼は日本に住んでいます、と言ってください。"
   expect_text = "Já, hann býr í Japan."
   expect_meaning = "Yes, he lives in Japan."
+  expect_meaning_ja = "はい、彼は日本に住んでいます。"
   partner = "Gaman að sjá þetta!"
   partner_meaning = "Nice to see these!"
+  partner_meaning_ja = "見せてくれてうれしい！"

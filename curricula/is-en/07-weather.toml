@@ -5,6 +5,7 @@ id = "kalt"
 kind = "vocab"
 target = "kalt"
 meaning = "cold"
+meaning_ja = "寒い"
 difficulty = 1
 tags = ["weather", "adj_neut"]
 topics = ["weather"]
@@ -14,6 +15,7 @@ id = "thad_er_weather"
 kind = "construction"
 target = "Það er {weather}."
 meaning = "It's {weather}."
+meaning_ja = "{weather}です。"
 difficulty = 2
 topics = ["weather"]
 slots = { weather = "weather" }
@@ -26,6 +28,7 @@ id = "rok"
 kind = "vocab"
 target = "rok"
 meaning = "windy (a gale)"
+meaning_ja = "強風"
 difficulty = 1
 tags = ["weather"]
 topics = ["weather"]
@@ -35,6 +38,7 @@ id = "rigning"
 kind = "vocab"
 target = "rigning"
 meaning = "raining"
+meaning_ja = "雨"
 difficulty = 2
 tags = ["weather"]
 topics = ["weather"]
@@ -44,6 +48,7 @@ id = "hlytt"
 kind = "vocab"
 target = "hlýtt"
 meaning = "warm (mild)"
+meaning_ja = "暖かい"
 difficulty = 2
 tags = ["weather", "adj_neut"]
 topics = ["weather"]
@@ -53,6 +58,7 @@ id = "heitt"
 kind = "vocab"
 target = "heitt"
 meaning = "hot"
+meaning_ja = "暑い"
 difficulty = 1
 tags = ["weather", "adj_neut"]
 topics = ["weather"]
@@ -62,6 +68,7 @@ id = "sol"
 kind = "vocab"
 target = "sól"
 meaning = "sunny (sun)"
+meaning_ja = "晴れ"
 difficulty = 1
 tags = ["weather"]
 topics = ["weather"]
@@ -71,6 +78,7 @@ id = "thoka"
 kind = "vocab"
 target = "þoka"
 meaning = "foggy (fog)"
+meaning_ja = "霧"
 difficulty = 2
 tags = ["weather"]
 topics = ["weather"]
@@ -80,6 +88,7 @@ id = "snjor"
 kind = "vocab"
 target = "snjór"
 meaning = "snow (there's snow)"
+meaning_ja = "雪"
 difficulty = 2
 tags = ["weather"]
 topics = ["weather"]
@@ -89,6 +98,7 @@ id = "skyjad"
 kind = "vocab"
 target = "skýjað"
 meaning = "cloudy"
+meaning_ja = "曇り"
 difficulty = 2
 tags = ["weather"]
 topics = ["weather"]
@@ -98,6 +108,7 @@ id = "halka"
 kind = "vocab"
 target = "hálka"
 meaning = "icy (slippery ice)"
+meaning_ja = "路面が凍結"
 difficulty = 2
 tags = ["weather"]
 topics = ["weather"]
@@ -107,6 +118,7 @@ id = "gott_vedur"
 kind = "vocab"
 target = "gott veður"
 meaning = "good weather"
+meaning_ja = "いい天気"
 difficulty = 2
 tags = ["weather"]
 topics = ["weather"]
@@ -116,6 +128,7 @@ id = "vont_vedur"
 kind = "vocab"
 target = "vont veður"
 meaning = "bad weather"
+meaning_ja = "悪い天気"
 difficulty = 2
 tags = ["weather"]
 topics = ["weather"]
@@ -125,209 +138,260 @@ id = "thad_snjoar"
 kind = "phrase"
 target = "Það snjóar."
 meaning = "It's snowing."
+meaning_ja = "雪が降っています。"
 difficulty = 2
 topics = ["weather"]
 situation = "You look out of the window: flakes. Tell your friend it's snowing."
+situation_ja = "窓の外を見ると雪です。友達に雪が降っていると言ってください。"
 
 [[items]]
 id = "thad_rignir"
 kind = "phrase"
 target = "Það rignir."
 meaning = "It's raining."
+meaning_ja = "雨が降っています。"
 difficulty = 2
 topics = ["weather"]
 situation = "Your friend is about to go out without a coat. Tell her it's raining."
+situation_ja = "友達がコートなしで出かけようとしています。雨が降っていると言ってください。"
 
 [[items]]
 id = "hvernig_er_vedrid"
 kind = "phrase"
 target = "Hvernig er veðrið?"
 meaning = "How's the weather?"
+meaning_ja = "天気はどうですか？"
 difficulty = 2
 topics = ["weather"]
 situation = "Your friend just came in from outside. Ask how the weather is."
+situation_ja = "友達が外から戻ってきました。天気を聞いてください。"
 
 [[items]]
 id = "hvernig_verdur_vedrid_a_morgun"
 kind = "phrase"
 target = "Hvernig verður veðrið á morgun?"
 meaning = "What will the weather be like tomorrow?"
+meaning_ja = "明日の天気はどうなりますか？"
 difficulty = 4
 topics = ["weather"]
 prereqs = ["hvernig_er_vedrid", "a_morgun"]
 chunks = ["á morgun", "veðrið á morgun", "verður veðrið á morgun", "Hvernig verður veðrið á morgun?"]
 situation = "You're planning a hike. Ask what the weather will be tomorrow."
+situation_ja = "ハイキングを計画しています。明日の天気を聞いてください。"
 
 [[items]]
 id = "thad_er_svo_kalt"
 kind = "phrase"
 target = "Það er svo kalt!"
 meaning = "It's so cold!"
+meaning_ja = "すごく寒い！"
 difficulty = 2
 topics = ["weather"]
 prereqs = ["thad_er_weather"]
 situation = "You step out into a freezing wind. Complain that it's so cold."
+situation_ja = "凍えるような風の中に出ました。すごく寒いと嘆いてください。"
 
 [[items]]
 id = "mer_er_kalt"
 kind = "phrase"
 target = "Mér er kalt."
 meaning = "I'm cold."
+meaning_ja = "寒いです。"
 difficulty = 2
 topics = ["weather", "feelings"]
 pronunciation_notes = "literally 'to me is cold' — not 'ég er kalt'"
 situation = "You've been waiting at the bus stop for a while. Say you're cold."
+situation_ja = "バス停でしばらく待っています。寒いと言ってください。"
 
 [[items]]
 id = "mer_er_heitt"
 kind = "phrase"
 target = "Mér er heitt."
 meaning = "I'm hot."
+meaning_ja = "暑いです。"
 difficulty = 2
 topics = ["weather", "feelings"]
 situation = "The hot tub is very hot. Say you're hot."
+situation_ja = "露天の湯がとても熱いです。暑いと言ってください。"
 
 [[items]]
 id = "thad_er_bjart_uti"
 kind = "phrase"
 target = "Það er bjart úti."
 meaning = "It's bright outside."
+meaning_ja = "外は明るいです。"
 difficulty = 3
 topics = ["weather"]
 situation = "It's midnight in June and still light. Remark that it's bright outside."
+situation_ja = "6月の真夜中なのにまだ明るいです。外が明るいと言ってください。"
 
 [[items]]
 id = "thad_er_dimmt_uti"
 kind = "phrase"
 target = "Það er dimmt úti."
 meaning = "It's dark outside."
+meaning_ja = "外は暗いです。"
 difficulty = 2
 topics = ["weather"]
 situation = "It's four in the afternoon in December. Remark that it's dark outside."
+situation_ja = "12月の午後4時です。外が暗いと言ってください。"
 
 [[items]]
 id = "eg_tholi_ekki_rokid"
 kind = "phrase"
 target = "Ég þoli ekki rokið."
 meaning = "I can't stand the wind."
+meaning_ja = "この風には耐えられません。"
 difficulty = 4
 topics = ["weather", "feelings"]
 chunks = ["rokið", "ekki rokið", "þoli ekki rokið", "Ég þoli ekki rokið."]
 situation = "The wind has knocked your hat off for the third time. Say you can't stand the wind."
+situation_ja = "帽子が三度も飛ばされました。風には耐えられないと言ってください。"
 
 [[items]]
 id = "mer_finnst_snjorinn_fallegur"
 kind = "phrase"
 target = "Mér finnst snjórinn fallegur."
 meaning = "I think the snow is beautiful."
+meaning_ja = "雪はきれいだと思います。"
 difficulty = 4
 topics = ["weather"]
 chunks = ["fallegur", "snjórinn fallegur", "Mér finnst snjórinn fallegur."]
 situation = "Your neighbour complains about the snow. Say you think it's beautiful."
+situation_ja = "近所の人が雪に文句を言っています。雪はきれいだと思うと言ってください。"
 
 [[items]]
 id = "thad_er_bara_svona"
 kind = "phrase"
 target = "Þetta er bara svona."
 meaning = "That's just how it is."
+meaning_ja = "そういうものです。"
 difficulty = 3
 topics = ["weather", "discourse"]
 situation = "Someone apologises for the weather as if it were their fault. Say that's just how it is."
+situation_ja = "天気のことを自分のせいのように謝られました。そういうものだと言ってください。"
 
 [[items]]
 id = "thetta_reddast"
 kind = "phrase"
 target = "Þetta reddast."
 meaning = "It'll work out. (the national motto)"
+meaning_ja = "なんとかなるさ。"
 difficulty = 3
 topics = ["discourse"]
 situation = "Your friend worries the road will be closed by snow. Reassure her it'll work out."
+situation_ja = "友達が雪で道路が閉まるのを心配しています。なんとかなると励ましてください。"
 
 [[items]]
 id = "vedrid_er_gott_i_dag"
 kind = "phrase"
 target = "Veðrið er gott í dag."
 meaning = "The weather is good today."
+meaning_ja = "今日はいい天気です。"
 difficulty = 3
 topics = ["weather"]
 prereqs = ["i_dag"]
 situation = "Sun and no wind, a rare day. Say the weather is good today."
+situation_ja = "晴れて風もない、珍しい日です。今日はいい天気だと言ってください。"
 
 [[items]]
 id = "eg_tharf_ulpu"
 kind = "phrase"
 target = "Ég þarf úlpu."
 meaning = "I need a parka."
+meaning_ja = "防寒コートが必要です。"
 difficulty = 2
 topics = ["weather", "shopping"]
 situation = "Your jacket is useless in this wind. Say you need a parka."
+situation_ja = "この風では上着が役に立ちません。防寒コートが必要だと言ってください。"
 
 [[items]]
 id = "ertu_med_regnhlif"
 kind = "phrase"
 target = "Ertu með regnhlíf?"
 meaning = "Do you have an umbrella?"
+meaning_ja = "傘を持っていますか？"
 difficulty = 3
 topics = ["weather"]
 situation = "It starts to pour. Ask your friend if she has an umbrella."
+situation_ja = "土砂降りになりました。友達に傘を持っているか聞いてください。"
 
 [[items]]
 id = "nordurljosin"
 kind = "phrase"
 target = "Sérðu norðurljósin?"
 meaning = "Can you see the northern lights?"
+meaning_ja = "オーロラが見えますか？"
 difficulty = 4
 topics = ["weather", "nature"]
 chunks = ["norðurljósin", "Sérðu norðurljósin?"]
 situation = "A green glow appears over the mountains. Ask your friend if she can see the northern lights."
+situation_ja = "山の上に緑の光が現れました。友達にオーロラが見えるか聞いてください。"
 
 [[dialogues]]
 id = "vedur"
 setting = "You meet your neighbour outside. It's blowing a gale."
+setting_ja = "外で近所の人に会いました。強風が吹いています。"
 topics = ["weather", "arrangements"]
 requires = ["ja", "thad_er_weather", "kalt", "allt_i_lagi", "sjaumst_time", "a_morgun"]
 
   [[dialogues.turns]]
   opener = "Það er rok í dag!"
   opener_meaning = "It's windy today!"
+  opener_meaning_ja = "今日は風が強いね！"
   cue = "Agree: yes, it's cold."
+  cue_ja = "同意して、ええ、寒いですね、と言ってください。"
   expect_text = "Já, það er kalt."
   expect_meaning = "Yes, it's cold."
+  expect_meaning_ja = "ええ、寒いです。"
   partner = "Sjáumst á morgun?"
   partner_meaning = "See you tomorrow?"
+  partner_meaning_ja = "明日また会う？"
 
   [[dialogues.turns]]
   cue = "Say OK, see you tomorrow."
+  cue_ja = "わかりました、明日また、と言ってください。"
   expect_text = "Allt í lagi. Sjáumst á morgun!"
   expect_meaning = "OK. See you tomorrow!"
+  expect_meaning_ja = "わかりました。明日また！"
 
 [[dialogues]]
 id = "gonguferd"
 setting = "You're planning a hike with a friend from the hostel."
+setting_ja = "ホステルの友達とハイキングを計画しています。"
 topics = ["weather", "arrangements"]
 requires = ["hvernig_verdur_vedrid_a_morgun", "thetta_reddast", "eg_tharf_ulpu", "hittumst_klukkan", "niu"]
 
   [[dialogues.turns]]
   cue = "Ask what the weather will be like tomorrow."
+  cue_ja = "明日の天気はどうなるか聞いてください。"
   expect = "hvernig_verdur_vedrid_a_morgun"
   partner = "Rigning og rok, held ég."
   partner_meaning = "Rain and wind, I think."
+  partner_meaning_ja = "雨と風だと思う。"
 
   [[dialogues.turns]]
   cue = "Say it'll work out."
+  cue_ja = "なんとかなると言ってください。"
   expect = "thetta_reddast"
   partner = "Já, en þú þarft betri jakka."
   partner_meaning = "Yes, but you need a better jacket."
+  partner_meaning_ja = "うん、でももっといい上着が要るよ。"
 
   [[dialogues.turns]]
   cue = "Say you need a parka."
+  cue_ja = "防寒コートが必要だと言ってください。"
   expect = "eg_tharf_ulpu"
   partner = "Ég get lánað þér eina. Klukkan hvað leggjum við af stað?"
   partner_meaning = "I can lend you one. What time do we set off?"
+  partner_meaning_ja = "一着貸せるよ。何時に出発する？"
 
   [[dialogues.turns]]
   cue = "Say: let's meet at nine."
+  cue_ja = "9時に会いましょう、と言ってください。"
   expect_text = "Hittumst klukkan níu."
   expect_meaning = "Let's meet at nine."
+  expect_meaning_ja = "9時に会いましょう。"
   partner = "Fínt. Góða nótt!"
   partner_meaning = "Fine. Good night!"
+  partner_meaning_ja = "いいね。おやすみ！"

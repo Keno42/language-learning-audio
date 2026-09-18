@@ -80,6 +80,19 @@ A dialogue is eligible once every `expect` item and every `requires` item is
 learned. It is replayed without pauses the second time it is practised. Items
 that appear in a dialogue gain the *dialogue* stage at the top of their ladder.
 
+## Several learner languages in one file
+
+Any glossed field can carry per-language variants: `meaning_ja`,
+`situation_ja`, `instruction_ja`, `source_meaning_ja` / `result_meaning_ja`
+inside transform examples, `setting_ja`, `cue_ja`, `opener_meaning_ja`,
+`partner_meaning_ja`, `expect_meaning_ja` on dialogues, `text_ja` on notes,
+`name_ja` on the curriculum. `load_curriculum(path, known_lang="ja")` promotes
+them; `audiolesson validate` reports coverage per language. Write the gloss
+from the target-language text, not from the primary gloss — the point of
+keeping them side by side is that each language gets the closest natural
+rendering. `tools/gloss.py` inserts glosses from a JSON map keyed by id, so the
+files stay reviewable line by line.
+
 ## Cultural asides
 
 ```toml

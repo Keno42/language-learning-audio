@@ -5,6 +5,7 @@ id = "hofudverk"
 kind = "vocab"
 target = "höfuðverk"
 meaning = "a headache"
+meaning_ja = "頭痛"
 difficulty = 3
 tags = ["acc_condition"]
 topics = ["health"]
@@ -15,6 +16,7 @@ id = "eg_er_med"
 kind = "construction"
 target = "Ég er með {condition}."
 meaning = "I have {condition}."
+meaning_ja = "{condition}があります。"
 difficulty = 2
 topics = ["health"]
 slots = { condition = "acc_condition" }
@@ -27,6 +29,7 @@ id = "hita"
 kind = "vocab"
 target = "hita"
 meaning = "a fever"
+meaning_ja = "熱"
 difficulty = 1
 tags = ["acc_condition"]
 topics = ["health"]
@@ -37,6 +40,7 @@ id = "kvef"
 kind = "vocab"
 target = "kvef"
 meaning = "a cold"
+meaning_ja = "風邪"
 difficulty = 1
 tags = ["acc_condition"]
 topics = ["health"]
@@ -46,6 +50,7 @@ id = "flensu"
 kind = "vocab"
 target = "flensu"
 meaning = "the flu"
+meaning_ja = "インフルエンザ"
 difficulty = 2
 tags = ["acc_condition"]
 topics = ["health"]
@@ -55,6 +60,7 @@ id = "magaverk"
 kind = "vocab"
 target = "magaverk"
 meaning = "a stomach ache"
+meaning_ja = "腹痛"
 difficulty = 2
 tags = ["acc_condition"]
 topics = ["health"]
@@ -64,6 +70,7 @@ id = "bakverk"
 kind = "vocab"
 target = "bakverk"
 meaning = "back pain"
+meaning_ja = "腰痛"
 difficulty = 2
 tags = ["acc_condition"]
 topics = ["health"]
@@ -73,6 +80,7 @@ id = "halsbolgu"
 kind = "vocab"
 target = "hálsbólgu"
 meaning = "a sore throat"
+meaning_ja = "喉の痛み"
 difficulty = 3
 tags = ["acc_condition"]
 topics = ["health"]
@@ -82,6 +90,7 @@ id = "tannpinu"
 kind = "vocab"
 target = "tannpínu"
 meaning = "a toothache"
+meaning_ja = "歯痛"
 difficulty = 3
 tags = ["acc_condition"]
 topics = ["health"]
@@ -91,6 +100,7 @@ id = "ofnaemi"
 kind = "vocab"
 target = "ofnæmi"
 meaning = "an allergy"
+meaning_ja = "アレルギー"
 difficulty = 2
 tags = ["acc_condition"]
 topics = ["health"]
@@ -100,301 +110,373 @@ id = "eg_er_veik"
 kind = "phrase"
 target = "Ég er veik."
 meaning = "I'm ill."
+meaning_ja = "病気です。"
 difficulty = 2
 topics = ["health"]
 pronunciation_notes = "feminine; masculine: Ég er veikur."
 situation = "You can't come to the meeting. Say you're ill."
+situation_ja = "会議に行けません。病気だと言ってください。"
 
 [[items]]
 id = "eg_er_threytt"
 kind = "phrase"
 target = "Ég er þreytt."
 meaning = "I'm tired."
+meaning_ja = "疲れました。"
 difficulty = 2
 topics = ["health", "feelings"]
 pronunciation_notes = "feminine; masculine: Ég er þreyttur."
 situation = "It's midnight after a long hike. Say you're tired."
+situation_ja = "長いハイキングの後の真夜中です。疲れたと言ってください。"
 
 [[items]]
 id = "mer_lidur_illa"
 kind = "phrase"
 target = "Mér líður illa."
 meaning = "I feel unwell."
+meaning_ja = "気分が悪いです。"
 difficulty = 3
 topics = ["health"]
 situation = "You've gone pale at the table. Tell your friend you feel unwell."
+situation_ja = "食卓で顔色が悪くなりました。友達に気分が悪いと伝えてください。"
 
 [[items]]
 id = "mer_lidur_betur"
 kind = "phrase"
 target = "Mér líður betur."
 meaning = "I feel better."
+meaning_ja = "だいぶ良くなりました。"
 difficulty = 3
 topics = ["health"]
 prereqs = ["mer_lidur_illa"]
 situation = "After a nap your friend checks on you. Say you feel better."
+situation_ja = "昼寝の後、友達が様子を見に来ました。良くなったと言ってください。"
 
 [[items]]
 id = "mer_lidur_vel"
 kind = "phrase"
 target = "Mér líður vel."
 meaning = "I feel good."
+meaning_ja = "気分がいいです。"
 difficulty = 2
 topics = ["health", "feelings"]
 situation = "After the hot spring you feel wonderful. Say you feel good."
+situation_ja = "温泉の後で最高の気分です。気分がいいと言ってください。"
 
 [[items]]
 id = "eg_tharf_laekni"
 kind = "phrase"
 target = "Ég þarf lækni."
 meaning = "I need a doctor."
+meaning_ja = "医者が必要です。"
 difficulty = 3
 topics = ["health", "emergencies"]
 prereqs = ["eg_tharf"]
 situation = "The fever won't go down. Tell reception you need a doctor."
+situation_ja = "熱が下がりません。受付に医者が必要だと伝えてください。"
 
 [[items]]
 id = "hvar_er_naesta_apotek"
 kind = "phrase"
 target = "Hvar er næsta apótek?"
 meaning = "Where is the nearest pharmacy?"
+meaning_ja = "一番近い薬局はどこですか？"
 difficulty = 3
 topics = ["health", "directions"]
 prereqs = ["apotekid"]
 situation = "You need painkillers. Ask where the nearest pharmacy is."
+situation_ja = "鎮痛剤が必要です。一番近い薬局はどこか聞いてください。"
 
 [[items]]
 id = "attu_eitthvad_vid_hofudverk"
 kind = "phrase"
 target = "Áttu eitthvað við höfuðverk?"
 meaning = "Do you have something for a headache?"
+meaning_ja = "頭痛に効くものはありますか？"
 difficulty = 4
 topics = ["health"]
 prereqs = ["attu", "hofudverk"]
 chunks = ["höfuðverk", "við höfuðverk", "eitthvað við höfuðverk", "Áttu eitthvað við höfuðverk?"]
 situation = "At the pharmacy counter. Ask if they have something for a headache."
+situation_ja = "薬局のカウンターです。頭痛に効くものがあるか聞いてください。"
 
 [[items]]
 id = "eg_tek_lyf"
 kind = "phrase"
 target = "Ég tek lyf."
 meaning = "I take medication."
+meaning_ja = "薬を飲んでいます。"
 difficulty = 2
 topics = ["health"]
 situation = "The doctor asks about medication. Say you take some."
+situation_ja = "医者に薬について聞かれました。飲んでいると答えてください。"
 
 [[items]]
 id = "thad_er_sart_herna"
 kind = "phrase"
 target = "Það er sárt hérna."
 meaning = "It hurts here."
+meaning_ja = "ここが痛いです。"
 difficulty = 3
 topics = ["health"]
 prereqs = ["herna"]
 situation = "The doctor asks where it hurts. Point and say it hurts here."
+situation_ja = "医者にどこが痛いか聞かれました。指さして、ここが痛いと言ってください。"
 
 [[items]]
 id = "eg_datt"
 kind = "phrase"
 target = "Ég datt."
 meaning = "I fell."
+meaning_ja = "転びました。"
 difficulty = 1
 topics = ["health", "emergencies"]
 situation = "You slipped on the ice. Tell the nurse you fell."
+situation_ja = "氷で滑りました。看護師に転んだと伝えてください。"
 
 [[items]]
 id = "eg_er_olett"
 kind = "phrase"
 target = "Ég er ólétt."
 meaning = "I'm pregnant."
+meaning_ja = "妊娠しています。"
 difficulty = 2
 topics = ["health"]
 situation = "The doctor asks before prescribing. Say you're pregnant."
+situation_ja = "医者が処方の前に聞きます。妊娠していると答えてください。"
 
 [[items]]
 id = "hjalp"
 kind = "phrase"
 target = "Hjálp!"
 meaning = "Help!"
+meaning_ja = "助けて！"
 difficulty = 1
 topics = ["emergencies"]
 situation = "Someone has collapsed on the pavement. Shout for help."
+situation_ja = "歩道で人が倒れました。助けを叫んでください。"
 
 [[items]]
 id = "hringdu_a_sjukrabil"
 kind = "phrase"
 target = "Hringdu á sjúkrabíl!"
 meaning = "Call an ambulance!"
+meaning_ja = "救急車を呼んで！"
 difficulty = 4
 topics = ["emergencies"]
 chunks = ["sjúkrabíl", "á sjúkrabíl", "Hringdu á sjúkrabíl!"]
 situation = "A man is unconscious. Tell the bystander to call an ambulance."
+situation_ja = "男性が意識を失っています。そばの人に救急車を呼ぶよう言ってください。"
 
 [[items]]
 id = "hringdu_a_logregluna"
 kind = "phrase"
 target = "Hringdu á lögregluna!"
 meaning = "Call the police!"
+meaning_ja = "警察を呼んで！"
 difficulty = 4
 topics = ["emergencies"]
 prereqs = ["hringdu_a_sjukrabil"]
 situation = "You witness a theft. Tell someone to call the police."
+situation_ja = "盗難を目撃しました。誰かに警察を呼ぶよう言ってください。"
 
 [[items]]
 id = "thad_er_neydartilfelli"
 kind = "phrase"
 target = "Það er neyðartilfelli."
 meaning = "It's an emergency."
+meaning_ja = "緊急事態です。"
 difficulty = 4
 topics = ["emergencies"]
 chunks = ["tilfelli", "neyðartilfelli", "Það er neyðartilfelli."]
 situation = "You're on the phone with 112. Say it's an emergency."
+situation_ja = "112に電話中です。緊急事態だと言ってください。"
 
 [[items]]
 id = "einn_einn_tveir"
 kind = "phrase"
 target = "einn einn tveir"
 meaning = "one one two (the emergency number)"
+meaning_ja = "1、1、2（緊急番号）"
 difficulty = 1
 topics = ["emergencies", "numbers"]
 situation = "Your friend asks what the emergency number is. Say it."
+situation_ja = "友達に緊急番号は何か聞かれました。言ってください。"
 
 [[items]]
 id = "eg_var_raend"
 kind = "phrase"
 target = "Ég var rænd."
 meaning = "I was robbed."
+meaning_ja = "強盗にあいました。"
 difficulty = 3
 topics = ["emergencies"]
 pronunciation_notes = "feminine; masculine: Ég var rændur."
 situation = "Your wallet is gone. Tell the police officer you were robbed."
+situation_ja = "財布がなくなっています。警察官に強盗にあったと伝えてください。"
 
 [[items]]
 id = "eg_tyndi_vegabrefinu"
 kind = "phrase"
 target = "Ég týndi vegabréfinu."
 meaning = "I lost my passport."
+meaning_ja = "パスポートをなくしました。"
 difficulty = 4
 topics = ["emergencies"]
 chunks = ["vegabréfinu", "týndi vegabréfinu", "Ég týndi vegabréfinu."]
 situation = "At the police station. Say you lost your passport."
+situation_ja = "警察署で、パスポートをなくしたと言ってください。"
 
 [[items]]
 id = "hvar_er_sendiradid"
 kind = "phrase"
 target = "Hvar er sendiráðið?"
 meaning = "Where is the embassy?"
+meaning_ja = "大使館はどこですか？"
 difficulty = 3
 topics = ["emergencies", "directions"]
 situation = "You need a new passport. Ask where the embassy is."
+situation_ja = "新しいパスポートが必要です。大使館はどこか聞いてください。"
 
 [[items]]
 id = "er_allt_i_lagi"
 kind = "phrase"
 target = "Er allt í lagi?"
 meaning = "Is everything OK?"
+meaning_ja = "大丈夫ですか？"
 difficulty = 2
 topics = ["emergencies", "social"]
 prereqs = ["allt_i_lagi"]
 situation = "A woman has stumbled next to you. Ask if everything is OK."
+situation_ja = "隣で女性がつまずきました。大丈夫か聞いてください。"
 
 [[items]]
 id = "eg_er_i_lagi"
 kind = "phrase"
 target = "Ég er í lagi."
 meaning = "I'm OK."
+meaning_ja = "大丈夫です。"
 difficulty = 2
 topics = ["emergencies", "health"]
 prereqs = ["er_allt_i_lagi"]
 situation = "You slipped but nothing's broken. Tell the worried passer-by you're OK."
+situation_ja = "滑りましたが、けがはありません。心配する通行人に大丈夫だと言ってください。"
 
 [[items]]
 id = "varlega"
 kind = "phrase"
 target = "Varlega!"
 meaning = "Careful!"
+meaning_ja = "気をつけて！"
 difficulty = 1
 topics = ["emergencies"]
 situation = "Your friend is about to step onto black ice. Warn her."
+situation_ja = "友達が凍った路面に足を踏み出そうとしています。注意してください。"
 
 [[items]]
 id = "thad_er_halka"
 kind = "phrase"
 target = "Það er hálka."
 meaning = "It's icy (slippery)."
+meaning_ja = "凍っていて滑ります。"
 difficulty = 2
 topics = ["emergencies", "weather"]
 prereqs = ["halka"]
 situation = "You warn your friend about the pavement. Say it's slippery."
+situation_ja = "友達に歩道について注意します。滑ると言ってください。"
 
 [[items]]
 id = "eg_er_med_sjukratryggingu"
 kind = "phrase"
 target = "Ég er með sjúkratryggingu."
 meaning = "I have health insurance."
+meaning_ja = "健康保険に入っています。"
 difficulty = 4
 topics = ["health"]
 chunks = ["tryggingu", "sjúkratryggingu", "Ég er með sjúkratryggingu."]
 situation = "The clinic asks about payment. Say you have health insurance."
+situation_ja = "診療所で支払いについて聞かれました。健康保険に入っていると言ってください。"
 
 [[dialogues]]
 id = "apotek"
 setting = "At the pharmacy. The pharmacist greets you."
+setting_ja = "薬局です。薬剤師があいさつします。"
 topics = ["health"]
 requires = ["eg_er_med", "hofudverk", "attu_eitthvad_vid_hofudverk", "hvad_kostar_thetta", "takk"]
 
   [[dialogues.turns]]
   opener = "Góðan daginn, get ég aðstoðað?"
   opener_meaning = "Good day, can I help?"
+  opener_meaning_ja = "こんにちは、どうされましたか？"
   cue = "Say you have a headache."
+  cue_ja = "頭痛があると言ってください。"
   expect_text = "Ég er með höfuðverk."
   expect_meaning = "I have a headache."
+  expect_meaning_ja = "頭痛があります。"
   partner = "Ertu líka með hita?"
   partner_meaning = "Do you also have a fever?"
+  partner_meaning_ja = "熱もありますか？"
 
   [[dialogues.turns]]
   cue = "Say no, and ask if she has something for a headache."
+  cue_ja = "いいえと言って、頭痛に効くものがあるか聞いてください。"
   expect_text = "Nei. Áttu eitthvað við höfuðverk?"
   expect_meaning = "No. Do you have something for a headache?"
+  expect_meaning_ja = "いいえ。頭痛に効くものはありますか？"
   partner = "Já, þetta hérna. Ein tafla, tvisvar á dag."
   partner_meaning = "Yes, this one here. One tablet, twice a day."
+  partner_meaning_ja = "はい、こちらです。一錠を一日二回。"
 
   [[dialogues.turns]]
   cue = "Ask how much it is."
+  cue_ja = "いくらか聞いてください。"
   expect = "hvad_kostar_thetta"
   partner = "Níu hundruð krónur."
   partner_meaning = "Nine hundred krónur."
+  partner_meaning_ja = "900クローナです。"
 
   [[dialogues.turns]]
   cue = "Thank her."
+  cue_ja = "お礼を言ってください。"
   expect = "takk"
   partner = "Góðan bata!"
   partner_meaning = "Get well soon!"
+  partner_meaning_ja = "お大事に！"
 
 [[dialogues]]
 id = "laeknir"
 setting = "At the health centre. The doctor comes in."
+setting_ja = "保健センターです。医者が入ってきます。"
 topics = ["health"]
 requires = ["mer_lidur_illa", "eg_er_med", "hita", "halsbolgu", "thad_er_sart_herna", "eg_er_med_sjukratryggingu"]
 
   [[dialogues.turns]]
   opener = "Góðan daginn. Hvað er að?"
   opener_meaning = "Good day. What's wrong?"
+  opener_meaning_ja = "こんにちは。どうしましたか？"
   cue = "Say you feel unwell and you have a fever."
+  cue_ja = "気分が悪く、熱があると言ってください。"
   expect_text = "Mér líður illa. Ég er með hita."
   expect_meaning = "I feel unwell. I have a fever."
+  expect_meaning_ja = "気分が悪いです。熱があります。"
   partner = "Ertu með hálsbólgu?"
   partner_meaning = "Do you have a sore throat?"
+  partner_meaning_ja = "喉は痛みますか？"
 
   [[dialogues.turns]]
   cue = "Say yes, and say it hurts here."
+  cue_ja = "はいと言って、ここが痛いと言ってください。"
   expect_text = "Já. Það er sárt hérna."
   expect_meaning = "Yes. It hurts here."
+  expect_meaning_ja = "はい。ここが痛いです。"
   partner = "Ég skil. Þetta er flensa. Hvíldu þig og drekktu mikið vatn."
   partner_meaning = "I see. It's the flu. Rest and drink a lot of water."
+  partner_meaning_ja = "なるほど。インフルエンザですね。休んで、水をたくさん飲んでください。"
 
   [[dialogues.turns]]
   cue = "Say you have health insurance."
+  cue_ja = "健康保険に入っていると言ってください。"
   expect = "eg_er_med_sjukratryggingu"
   partner = "Gott. Góðan bata!"
   partner_meaning = "Good. Get well soon!"
+  partner_meaning_ja = "結構です。お大事に！"

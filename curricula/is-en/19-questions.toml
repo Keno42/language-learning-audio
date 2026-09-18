@@ -5,6 +5,7 @@ id = "hvad"
 kind = "vocab"
 target = "hvað"
 meaning = "what"
+meaning_ja = "何"
 difficulty = 1
 topics = ["questions"]
 
@@ -13,6 +14,7 @@ id = "hver"
 kind = "vocab"
 target = "hver"
 meaning = "who"
+meaning_ja = "誰"
 difficulty = 1
 topics = ["questions"]
 
@@ -21,6 +23,7 @@ id = "hvar"
 kind = "vocab"
 target = "hvar"
 meaning = "where"
+meaning_ja = "どこ"
 difficulty = 1
 topics = ["questions"]
 
@@ -29,6 +32,7 @@ id = "hvert"
 kind = "vocab"
 target = "hvert"
 meaning = "where to"
+meaning_ja = "どこへ"
 difficulty = 2
 topics = ["questions"]
 
@@ -37,6 +41,7 @@ id = "hvernig"
 kind = "vocab"
 target = "hvernig"
 meaning = "how"
+meaning_ja = "どのように"
 difficulty = 1
 topics = ["questions"]
 
@@ -45,6 +50,7 @@ id = "af_hverju"
 kind = "vocab"
 target = "af hverju"
 meaning = "why"
+meaning_ja = "なぜ"
 difficulty = 2
 topics = ["questions"]
 
@@ -53,6 +59,7 @@ id = "hvada"
 kind = "vocab"
 target = "hvaða"
 meaning = "which"
+meaning_ja = "どの"
 difficulty = 2
 topics = ["questions"]
 
@@ -61,6 +68,7 @@ id = "hversu_mikid"
 kind = "vocab"
 target = "hversu mikið"
 meaning = "how much"
+meaning_ja = "どのくらい"
 difficulty = 2
 topics = ["questions"]
 
@@ -69,127 +77,152 @@ id = "hver_er_thetta"
 kind = "phrase"
 target = "Hver er þetta?"
 meaning = "Who is this?"
+meaning_ja = "この人は誰ですか？"
 difficulty = 2
 topics = ["questions"]
 prereqs = ["hver"]
 situation = "A stranger waves at your friend. Ask who that is."
+situation_ja = "知らない人が友達に手を振っています。誰か聞いてください。"
 
 [[items]]
 id = "hver_ert_thu"
 kind = "phrase"
 target = "Hver ert þú?"
 meaning = "Who are you?"
+meaning_ja = "あなたは誰ですか？"
 difficulty = 2
 topics = ["questions"]
 prereqs = ["hver"]
 situation = "Someone lets themselves into the shared flat. Ask who they are."
+situation_ja = "誰かが勝手にシェアハウスに入ってきました。誰か聞いてください。"
 
 [[items]]
 id = "hvert_ertu_ad_fara"
 kind = "phrase"
 target = "Hvert ertu að fara?"
 meaning = "Where are you going?"
+meaning_ja = "どこへ行くの？"
 difficulty = 3
 topics = ["questions", "transport"]
 prereqs = ["hvert"]
 situation = "Your friend grabs her coat. Ask where she's going."
+situation_ja = "友達がコートを手に取りました。どこへ行くか聞いてください。"
 
 [[items]]
 id = "hvert_fer_thessi_straeto"
 kind = "phrase"
 target = "Hvert fer þessi strætó?"
 meaning = "Where does this bus go?"
+meaning_ja = "このバスはどこへ行きますか？"
 difficulty = 3
 topics = ["questions", "transport"]
 prereqs = ["hvert", "strætó"]
 situation = "A bus without a sign stops. Ask where it goes."
+situation_ja = "行き先表示のないバスが止まりました。どこへ行くか聞いてください。"
 
 [[items]]
 id = "af_hverju_ekki"
 kind = "phrase"
 target = "Af hverju ekki?"
 meaning = "Why not?"
+meaning_ja = "どうして？（なぜだめ？）"
 difficulty = 2
 topics = ["questions", "discourse"]
 prereqs = ["af_hverju"]
 situation = "Your friend says she won't come to the pool. Ask why not."
+situation_ja = "友達がプールには来ないと言います。どうしてか聞いてください。"
 
 [[items]]
 id = "af_hverju_er_lokad"
 kind = "phrase"
 target = "Af hverju er lokað?"
 meaning = "Why is it closed?"
+meaning_ja = "なぜ閉まっているのですか？"
 difficulty = 3
 topics = ["questions"]
 prereqs = ["af_hverju", "thad_er_lokad"]
 situation = "The museum is closed on a Tuesday. Ask why."
+situation_ja = "火曜日なのに博物館が閉まっています。なぜか聞いてください。"
 
 [[items]]
 id = "hvernig_virkar_thetta"
 kind = "phrase"
 target = "Hvernig virkar þetta?"
 meaning = "How does this work?"
+meaning_ja = "これはどう使うのですか？"
 difficulty = 3
 topics = ["questions", "practical"]
 prereqs = ["hvernig"]
 situation = "The ticket machine has no English. Ask how it works."
+situation_ja = "券売機に英語表示がありません。使い方を聞いてください。"
 
 [[items]]
 id = "hvada_straeto_fer_i_midbaeinn"
 kind = "phrase"
 target = "Hvaða strætó fer í miðbæinn?"
 meaning = "Which bus goes to the centre?"
+meaning_ja = "どのバスが町の中心に行きますか？"
 difficulty = 4
 topics = ["questions", "transport"]
 prereqs = ["hvada", "fer_thessi_straeto_i_midbaeinn"]
 chunks = ["miðbæinn", "í miðbæinn", "fer í miðbæinn", "Hvaða strætó fer í miðbæinn?"]
 situation = "Several buses stop here. Ask which one goes to the centre."
+situation_ja = "何本もバスが止まります。どれが中心街に行くか聞いてください。"
 
 [[items]]
 id = "hvers_vegna"
 kind = "phrase"
 target = "Hvers vegna?"
 meaning = "Why? (formal)"
+meaning_ja = "なぜですか？（改まった言い方）"
 difficulty = 2
 topics = ["questions"]
 prereqs = ["af_hverju"]
 situation = "The clerk refuses the form. Ask why, formally."
+situation_ja = "係の人が書類を受け付けません。改まった言い方でなぜか聞いてください。"
 
 [[items]]
 id = "hvad_er_ad"
 kind = "phrase"
 target = "Hvað er að?"
 meaning = "What's wrong?"
+meaning_ja = "どうしたの？"
 difficulty = 2
 topics = ["questions", "feelings"]
 prereqs = ["hvad"]
 situation = "Your friend looks upset. Ask what's wrong."
+situation_ja = "友達が落ち込んでいるようです。どうしたのか聞いてください。"
 
 [[items]]
 id = "hvad_er_ad_frett"
 kind = "phrase"
 target = "Hvað er að frétta?"
 meaning = "What's new?"
+meaning_ja = "最近どう？"
 difficulty = 3
 topics = ["questions", "greetings"]
 prereqs = ["hvad_er_ad"]
 situation = "You meet a friend after two weeks. Ask what's new."
+situation_ja = "二週間ぶりに友達に会いました。最近どうか聞いてください。"
 
 [[items]]
 id = "ekkert_ad_fretta"
 kind = "phrase"
 target = "Ekkert að frétta."
 meaning = "Nothing new."
+meaning_ja = "特に変わりないよ。"
 difficulty = 2
 topics = ["questions", "greetings"]
 prereqs = ["hvad_er_ad_frett"]
 situation = "Someone asks what's new. Say nothing new."
+situation_ja = "最近どうか聞かれました。特に変わりないと答えてください。"
 
 [[items]]
 id = "og"
 kind = "vocab"
 target = "og"
 meaning = "and"
+meaning_ja = "そして"
 difficulty = 1
 topics = ["discourse"]
 
@@ -198,6 +231,7 @@ id = "en"
 kind = "vocab"
 target = "en"
 meaning = "but"
+meaning_ja = "でも"
 difficulty = 1
 topics = ["discourse"]
 
@@ -206,6 +240,7 @@ id = "eda"
 kind = "vocab"
 target = "eða"
 meaning = "or"
+meaning_ja = "それとも"
 difficulty = 1
 topics = ["discourse"]
 
@@ -214,6 +249,7 @@ id = "af_thvi_ad"
 kind = "vocab"
 target = "af því að"
 meaning = "because"
+meaning_ja = "〜だから"
 difficulty = 2
 topics = ["discourse"]
 
@@ -222,6 +258,7 @@ id = "lika"
 kind = "vocab"
 target = "líka"
 meaning = "also"
+meaning_ja = "〜も"
 difficulty = 1
 topics = ["discourse"]
 
@@ -230,6 +267,7 @@ id = "ekki"
 kind = "vocab"
 target = "ekki"
 meaning = "not"
+meaning_ja = "〜ない"
 difficulty = 1
 topics = ["discourse", "grammar"]
 
@@ -238,6 +276,7 @@ id = "kannski"
 kind = "vocab"
 target = "kannski"
 meaning = "maybe"
+meaning_ja = "たぶん"
 difficulty = 1
 topics = ["discourse"]
 
@@ -246,6 +285,7 @@ id = "bara"
 kind = "vocab"
 target = "bara"
 meaning = "just / only"
+meaning_ja = "ただ／〜だけ"
 difficulty = 1
 topics = ["discourse"]
 
@@ -254,6 +294,7 @@ id = "mjog"
 kind = "vocab"
 target = "mjög"
 meaning = "very"
+meaning_ja = "とても"
 difficulty = 1
 topics = ["discourse"]
 
@@ -262,6 +303,7 @@ id = "svolitid"
 kind = "vocab"
 target = "svolítið"
 meaning = "a little"
+meaning_ja = "少し"
 difficulty = 2
 topics = ["discourse"]
 
@@ -270,6 +312,7 @@ id = "of"
 kind = "vocab"
 target = "of"
 meaning = "too (excessively)"
+meaning_ja = "〜すぎる"
 difficulty = 1
 topics = ["discourse"]
 
@@ -278,6 +321,7 @@ id = "med"
 kind = "vocab"
 target = "með"
 meaning = "with"
+meaning_ja = "〜と一緒に／〜付き"
 difficulty = 1
 topics = ["discourse"]
 
@@ -286,6 +330,7 @@ id = "an"
 kind = "vocab"
 target = "án"
 meaning = "without"
+meaning_ja = "〜なしで"
 difficulty = 1
 topics = ["discourse"]
 
@@ -294,65 +339,83 @@ id = "kaffi_eda_te"
 kind = "phrase"
 target = "Kaffi eða te?"
 meaning = "Coffee or tea?"
+meaning_ja = "コーヒー、それとも紅茶？"
 difficulty = 1
 topics = ["questions", "cafe"]
 prereqs = ["eda", "kaffi", "te"]
 situation = "Your guest sits down. Ask: coffee or tea?"
+situation_ja = "お客さんが座りました。コーヒーか紅茶か聞いてください。"
 
 [[items]]
 id = "eg_lika"
 kind = "phrase"
 target = "Ég líka."
 meaning = "Me too."
+meaning_ja = "私も。"
 difficulty = 1
 topics = ["discourse"]
 prereqs = ["lika"]
 situation = "Anna says she loves the pool. Say: me too."
+situation_ja = "アンナがプールが大好きだと言いました。私も、と言ってください。"
 
 [[items]]
 id = "eg_ekki"
 kind = "phrase"
 target = "Ég ekki."
 meaning = "Not me."
+meaning_ja = "私は違う。"
 difficulty = 1
 topics = ["discourse"]
 prereqs = ["ekki"]
 situation = "Anna says she likes the shark. Say: not me."
+situation_ja = "アンナがサメが好きだと言いました。私は違う、と言ってください。"
 
 [[items]]
 id = "kannski_seinna"
 kind = "phrase"
 target = "Kannski seinna."
 meaning = "Maybe later."
+meaning_ja = "たぶん後で。"
 difficulty = 1
 topics = ["discourse", "arrangements"]
 prereqs = ["kannski", "seinna"]
 situation = "Someone suggests a swim now. Say maybe later."
+situation_ja = "今すぐ泳ごうと誘われました。たぶん後で、と言ってください。"
 
 [[dialogues]]
 id = "spurningar"
 setting = "A child at the table asks you lots of questions."
+setting_ja = "食卓で子どもが次々に質問してきます。"
 topics = ["questions", "social"]
 requires = ["eg_er_fra_japan", "eg_er_job", "forritari", "af_thvi_ad", "mer_finnst_island_fallegt", "eg_lika"]
 
   [[dialogues.turns]]
   opener = "Hvaðan ert þú?"
   opener_meaning = "Where are you from?"
+  opener_meaning_ja = "どこから来たの？"
   cue = "Say you're from Japan."
+  cue_ja = "日本から来たと言ってください。"
   expect = "eg_er_fra_japan"
   partner = "Hvað gerir þú?"
   partner_meaning = "What do you do?"
+  partner_meaning_ja = "お仕事は何？"
 
   [[dialogues.turns]]
   cue = "Say you're a programmer."
+  cue_ja = "プログラマーだと言ってください。"
   expect_text = "Ég er forritari."
   expect_meaning = "I'm a programmer."
+  expect_meaning_ja = "プログラマーです。"
   partner = "Af hverju ertu á Íslandi?"
   partner_meaning = "Why are you in Iceland?"
+  partner_meaning_ja = "どうしてアイスランドにいるの？"
 
   [[dialogues.turns]]
   cue = "Say: because you think Iceland is beautiful."
+  cue_ja = "アイスランドは美しいと思うから、と言ってください。"
   expect_text = "Af því að mér finnst Ísland fallegt."
   expect_meaning = "Because I think Iceland is beautiful."
+  expect_meaning_ja = "アイスランドは美しいと思うからです。"
   partner = "Mér líka!"
   partner_meaning = "Me too!"
+  partner_meaning_ja = "私も！"

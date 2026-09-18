@@ -5,6 +5,7 @@ id = "einn"
 kind = "vocab"
 target = "einn"
 meaning = "one"
+meaning_ja = "1"
 difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
@@ -15,6 +16,7 @@ id = "tveir"
 kind = "vocab"
 target = "tveir"
 meaning = "two"
+meaning_ja = "2"
 difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
@@ -24,6 +26,7 @@ id = "thrir"
 kind = "vocab"
 target = "þrír"
 meaning = "three"
+meaning_ja = "3"
 difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
@@ -33,6 +36,7 @@ id = "fjorir"
 kind = "vocab"
 target = "fjórir"
 meaning = "four"
+meaning_ja = "4"
 difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
@@ -42,6 +46,7 @@ id = "threttan"
 kind = "vocab"
 target = "þrettán"
 meaning = "thirteen"
+meaning_ja = "13"
 difficulty = 2
 tags = ["number"]
 topics = ["numbers"]
@@ -51,6 +56,7 @@ id = "fjortan"
 kind = "vocab"
 target = "fjórtán"
 meaning = "fourteen"
+meaning_ja = "14"
 difficulty = 2
 tags = ["number"]
 topics = ["numbers"]
@@ -60,6 +66,7 @@ id = "fimmtan"
 kind = "vocab"
 target = "fimmtán"
 meaning = "fifteen"
+meaning_ja = "15"
 difficulty = 2
 tags = ["number"]
 topics = ["numbers"]
@@ -69,6 +76,7 @@ id = "sextan"
 kind = "vocab"
 target = "sextán"
 meaning = "sixteen"
+meaning_ja = "16"
 difficulty = 2
 tags = ["number"]
 topics = ["numbers"]
@@ -78,6 +86,7 @@ id = "sautjan"
 kind = "vocab"
 target = "sautján"
 meaning = "seventeen"
+meaning_ja = "17"
 difficulty = 2
 tags = ["number"]
 topics = ["numbers"]
@@ -87,6 +96,7 @@ id = "atjan"
 kind = "vocab"
 target = "átján"
 meaning = "eighteen"
+meaning_ja = "18"
 difficulty = 2
 tags = ["number"]
 topics = ["numbers"]
@@ -96,6 +106,7 @@ id = "nitjan"
 kind = "vocab"
 target = "nítján"
 meaning = "nineteen"
+meaning_ja = "19"
 difficulty = 2
 tags = ["number"]
 topics = ["numbers"]
@@ -105,6 +116,7 @@ id = "tuttugu_og_einn"
 kind = "vocab"
 target = "tuttugu og einn"
 meaning = "twenty-one"
+meaning_ja = "21"
 difficulty = 2
 tags = ["number"]
 topics = ["numbers"]
@@ -114,6 +126,7 @@ id = "tuttugu_og_fimm"
 kind = "vocab"
 target = "tuttugu og fimm"
 meaning = "twenty-five"
+meaning_ja = "25"
 difficulty = 2
 tags = ["number", "age"]
 topics = ["numbers"]
@@ -123,6 +136,7 @@ id = "sextiu"
 kind = "vocab"
 target = "sextíu"
 meaning = "sixty"
+meaning_ja = "60"
 difficulty = 1
 tags = ["number", "age"]
 topics = ["numbers"]
@@ -132,6 +146,7 @@ id = "sjotiu"
 kind = "vocab"
 target = "sjötíu"
 meaning = "seventy"
+meaning_ja = "70"
 difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
@@ -141,6 +156,7 @@ id = "attatiu"
 kind = "vocab"
 target = "áttatíu"
 meaning = "eighty"
+meaning_ja = "80"
 difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
@@ -150,6 +166,7 @@ id = "niutiu"
 kind = "vocab"
 target = "níutíu"
 meaning = "ninety"
+meaning_ja = "90"
 difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
@@ -159,6 +176,7 @@ id = "hundrad"
 kind = "vocab"
 target = "hundrað"
 meaning = "a hundred"
+meaning_ja = "100"
 difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
@@ -168,6 +186,7 @@ id = "thusund"
 kind = "vocab"
 target = "þúsund"
 meaning = "a thousand"
+meaning_ja = "1000"
 difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
@@ -177,6 +196,7 @@ id = "fimm_hundrud_kronur"
 kind = "vocab"
 target = "fimm hundruð krónur"
 meaning = "five hundred krónur"
+meaning_ja = "500クローナ"
 difficulty = 2
 tags = ["price"]
 topics = ["money"]
@@ -186,6 +206,7 @@ id = "thusund_kronur"
 kind = "vocab"
 target = "þúsund krónur"
 meaning = "a thousand krónur"
+meaning_ja = "1000クローナ"
 difficulty = 2
 tags = ["price"]
 topics = ["money"]
@@ -195,6 +216,7 @@ id = "fimmtan_hundrud_kronur"
 kind = "vocab"
 target = "fimmtán hundruð krónur"
 meaning = "fifteen hundred krónur"
+meaning_ja = "1500クローナ"
 difficulty = 3
 tags = ["price"]
 topics = ["money"]
@@ -204,6 +226,7 @@ id = "tvo_thusund_kronur"
 kind = "vocab"
 target = "tvö þúsund krónur"
 meaning = "two thousand krónur"
+meaning_ja = "2000クローナ"
 difficulty = 2
 tags = ["price"]
 topics = ["money"]
@@ -213,6 +236,7 @@ id = "thrju_thusund_kronur"
 kind = "vocab"
 target = "þrjú þúsund krónur"
 meaning = "three thousand krónur"
+meaning_ja = "3000クローナ"
 difficulty = 2
 tags = ["price"]
 topics = ["money"]
@@ -222,6 +246,7 @@ id = "fimm_thusund_kronur"
 kind = "vocab"
 target = "fimm þúsund krónur"
 meaning = "five thousand krónur"
+meaning_ja = "5000クローナ"
 difficulty = 2
 tags = ["price"]
 topics = ["money"]
@@ -231,6 +256,7 @@ id = "tiu_thusund_kronur"
 kind = "vocab"
 target = "tíu þúsund krónur"
 meaning = "ten thousand krónur"
+meaning_ja = "1万クローナ"
 difficulty = 2
 tags = ["price"]
 topics = ["money"]
@@ -240,6 +266,7 @@ id = "thad_kostar"
 kind = "construction"
 target = "Það kostar {price}."
 meaning = "It costs {price}."
+meaning_ja = "{price}です。"
 difficulty = 2
 topics = ["money", "shopping"]
 slots = { price = "price" }
@@ -251,148 +278,179 @@ id = "thetta_er_dyrt"
 kind = "phrase"
 target = "Þetta er dýrt."
 meaning = "This is expensive."
+meaning_ja = "これは高いです。"
 difficulty = 2
 topics = ["money", "shopping"]
 situation = "The sweater costs thirty thousand krónur. Say it's expensive."
+situation_ja = "セーターが3万クローナします。高いと言ってください。"
 
 [[items]]
 id = "thetta_er_odyrt"
 kind = "phrase"
 target = "Þetta er ódýrt."
 meaning = "This is cheap."
+meaning_ja = "これは安いです。"
 difficulty = 2
 topics = ["money", "shopping"]
 situation = "The skyr is on sale. Say it's cheap."
+situation_ja = "スキールが特売です。安いと言ってください。"
 
 [[items]]
 id = "tekurdu_kort"
 kind = "phrase"
 target = "Tekurðu kort?"
 meaning = "Do you take cards?"
+meaning_ja = "カードは使えますか？"
 difficulty = 2
 topics = ["money", "shopping"]
 situation = "At a small market stall. Ask whether they take cards."
+situation_ja = "小さな市場の屋台です。カードが使えるか聞いてください。"
 
 [[items]]
 id = "eg_er_ekki_med_reidufe"
 kind = "phrase"
 target = "Ég er ekki með reiðufé."
 meaning = "I don't have cash."
+meaning_ja = "現金を持っていません。"
 difficulty = 3
 topics = ["money"]
 chunks = ["reiðufé", "með reiðufé", "ekki með reiðufé", "Ég er ekki með reiðufé."]
 situation = "The stall only takes cash. Say you don't have cash."
+situation_ja = "屋台は現金のみです。現金がないと言ってください。"
 
 [[items]]
 id = "hvar_er_naesti_hradbanki"
 kind = "phrase"
 target = "Hvar er næsti hraðbanki?"
 meaning = "Where is the nearest ATM?"
+meaning_ja = "一番近いATMはどこですか？"
 difficulty = 3
 topics = ["money", "directions"]
 prereqs = ["hradbankinn"]
 situation = "You need cash for the stall. Ask where the nearest ATM is."
+situation_ja = "屋台のために現金が必要です。一番近いATMはどこか聞いてください。"
 
 [[items]]
 id = "get_eg_fengid_kvittun"
 kind = "phrase"
 target = "Get ég fengið kvittun?"
 meaning = "Can I have a receipt?"
+meaning_ja = "レシートをもらえますか？"
 difficulty = 3
 topics = ["money", "shopping"]
 prereqs = ["get_eg_fengid", "kvittun"]
 situation = "You need the receipt for expenses. Ask for one."
+situation_ja = "経費精算にレシートが必要です。レシートを頼んでください。"
 
 [[items]]
 id = "eigdu_afganginn"
 kind = "phrase"
 target = "Eigðu afganginn."
 meaning = "Keep the change."
+meaning_ja = "おつりは取っておいてください。"
 difficulty = 3
 topics = ["money"]
 situation = "You pay the taxi driver in cash. Tell him to keep the change."
+situation_ja = "タクシー代を現金で払います。おつりは取っておくよう言ってください。"
 
 [[items]]
 id = "thad_er_of_dyrt"
 kind = "phrase"
 target = "Það er of dýrt."
 meaning = "That's too expensive."
+meaning_ja = "高すぎます。"
 difficulty = 2
 topics = ["money", "shopping"]
 prereqs = ["thetta_er_dyrt"]
 situation = "The tour costs fifty thousand krónur. Say it's too expensive."
+situation_ja = "ツアーが5万クローナです。高すぎると言ってください。"
 
 [[items]]
 id = "er_afslattur"
 kind = "phrase"
 target = "Er afsláttur?"
 meaning = "Is there a discount?"
+meaning_ja = "割引はありますか？"
 difficulty = 2
 topics = ["money", "shopping"]
 situation = "You're buying three sweaters. Ask if there's a discount."
+situation_ja = "セーターを三枚買います。割引があるか聞いてください。"
 
 [[items]]
 id = "hvad_er_thetta_mikid_samtals"
 kind = "phrase"
 target = "Hvað er þetta mikið samtals?"
 meaning = "How much is it altogether?"
+meaning_ja = "全部でいくらですか？"
 difficulty = 4
 topics = ["money", "shopping"]
 chunks = ["samtals", "mikið samtals", "þetta mikið samtals", "Hvað er þetta mikið samtals?"]
 situation = "You've put five things on the counter. Ask how much it is altogether."
+situation_ja = "カウンターに5つ品物を置きました。全部でいくらか聞いてください。"
 
 [[items]]
 id = "einn_tvo_thrjar"
 kind = "phrase"
 target = "Tvær krónur."
 meaning = "Two krónur. (feminine 'two')"
+meaning_ja = "2クローナ。（女性形の「2」）"
 difficulty = 3
 topics = ["numbers", "money"]
 pronunciation_notes = "króna is feminine: ein króna, tvær krónur, þrjár krónur, fjórar krónur"
 situation = "A toy coin game with a child: say 'two krónur'."
+situation_ja = "子どもとおもちゃのコイン遊びをしています。「2クローナ」と言ってください。"
 
 [[items]]
 id = "tvo_kaffi"
 kind = "phrase"
 target = "Tvo kaffi, takk."
 meaning = "Two coffees, please."
+meaning_ja = "コーヒーを二つお願いします。"
 difficulty = 2
 topics = ["cafe", "numbers"]
 prereqs = ["kaffi"]
 situation = "You're ordering for yourself and a friend. Ask for two coffees."
+situation_ja = "自分と友達の分を注文します。コーヒーを二つ頼んでください。"
 
 [[items]]
 id = "thrja_mida"
 kind = "phrase"
 target = "Þrjá miða, takk."
 meaning = "Three tickets, please."
+meaning_ja = "切符を三枚お願いします。"
 difficulty = 3
 topics = ["transport", "numbers"]
 situation = "You're at the ticket window with two friends. Ask for three tickets."
+situation_ja = "友達二人と窓口にいます。切符を三枚頼んでください。"
 
 [[items]]
 id = "hversu_margir"
 kind = "phrase"
 target = "Hversu margir?"
 meaning = "How many (people)?"
+meaning_ja = "何人ですか？"
 difficulty = 2
 topics = ["numbers"]
 situation = "A friend says a group is coming to dinner. Ask how many."
+situation_ja = "友達が夕食にグループが来ると言いました。何人か聞いてください。"
 
 [[items]]
 id = "vid_erum_fjogur"
 kind = "phrase"
 target = "Við erum fjögur."
 meaning = "There are four of us."
+meaning_ja = "四人です。"
 difficulty = 2
 topics = ["numbers", "cafe"]
 situation = "The host asks how many you are. Say four."
+situation_ja = "案内係に何名か聞かれました。四人と答えてください。"
 
 [[items]]
 id = "halfur"
 kind = "vocab"
 target = "hálfur"
 meaning = "half"
+meaning_ja = "半分"
 difficulty = 1
 topics = ["numbers"]
 
@@ -401,6 +459,7 @@ id = "mikid"
 kind = "vocab"
 target = "mikið"
 meaning = "much / a lot"
+meaning_ja = "たくさん"
 difficulty = 1
 topics = ["numbers"]
 
@@ -409,6 +468,7 @@ id = "litid"
 kind = "vocab"
 target = "lítið"
 meaning = "little / small"
+meaning_ja = "少し／小さい"
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["numbers", "adjectives"]
@@ -418,6 +478,7 @@ id = "adeins"
 kind = "vocab"
 target = "aðeins"
 meaning = "a bit / only"
+meaning_ja = "ちょっと／〜だけ"
 difficulty = 2
 topics = ["numbers", "discourse"]
 
@@ -426,48 +487,61 @@ id = "numbers_price_transform"
 kind = "transform"
 target = "hvað kostar → það kostar"
 meaning = "answering a price question"
+meaning_ja = "値段の質問に答える"
 difficulty = 2
 topics = ["grammar", "money"]
 instruction = "Answer: it costs a thousand krónur."
+instruction_ja = "答えてください：1000クローナです。"
 prereqs = ["thad_kostar", "hvad_kostar"]
 examples = [
-  { source = "Hvað kostar kaffi?", source_meaning = "How much is a coffee?", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur." },
-  { source = "Hvað kostar te?", source_meaning = "How much is a tea?", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur." },
-  { source = "Hvað kostar þetta?", source_meaning = "How much is this?", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur." },
-  { source = "Hvað kostar bjór?", source_meaning = "How much is a beer?", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur." },
+  { source = "Hvað kostar kaffi?", source_meaning = "How much is a coffee?", source_meaning_ja = "コーヒーはいくらですか？", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur.", result_meaning_ja = "1000クローナです。" },
+  { source = "Hvað kostar te?", source_meaning = "How much is a tea?", source_meaning_ja = "紅茶はいくらですか？", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur.", result_meaning_ja = "1000クローナです。" },
+  { source = "Hvað kostar þetta?", source_meaning = "How much is this?", source_meaning_ja = "これはいくらですか？", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur.", result_meaning_ja = "1000クローナです。" },
+  { source = "Hvað kostar bjór?", source_meaning = "How much is a beer?", source_meaning_ja = "ビールはいくらですか？", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur.", result_meaning_ja = "1000クローナです。" },
 ]
 
 [[dialogues]]
 id = "markadur"
 setting = "At the flea market. You've found a wool sweater."
+setting_ja = "フリーマーケットで、ウールのセーターを見つけました。"
 topics = ["money", "shopping"]
 requires = ["hvad_kostar_thetta", "thad_er_of_dyrt", "tekurdu_kort", "eg_er_ekki_med_reidufe", "hvar_er_naesti_hradbanki", "takk"]
 
   [[dialogues.turns]]
   cue = "Ask how much this is."
+  cue_ja = "これはいくらか聞いてください。"
   expect = "hvad_kostar_thetta"
   partner = "Tuttugu þúsund krónur."
   partner_meaning = "Twenty thousand krónur."
+  partner_meaning_ja = "2万クローナです。"
 
   [[dialogues.turns]]
   cue = "Say that's too expensive."
+  cue_ja = "高すぎると言ってください。"
   expect = "thad_er_of_dyrt"
   partner = "Fyrir þig: fimmtán þúsund."
   partner_meaning = "For you: fifteen thousand."
+  partner_meaning_ja = "あなたには、1万5千で。"
 
   [[dialogues.turns]]
   cue = "Ask if he takes cards."
+  cue_ja = "カードが使えるか聞いてください。"
   expect = "tekurdu_kort"
   partner = "Nei, bara reiðufé."
   partner_meaning = "No, cash only."
+  partner_meaning_ja = "いいえ、現金だけです。"
 
   [[dialogues.turns]]
   cue = "Say you don't have cash, and ask where the nearest ATM is."
+  cue_ja = "現金がないと言って、一番近いATMはどこか聞いてください。"
   expect_text = "Ég er ekki með reiðufé. Hvar er næsti hraðbanki?"
   expect_meaning = "I don't have cash. Where is the nearest ATM?"
+  expect_meaning_ja = "現金を持っていません。一番近いATMはどこですか？"
   partner = "Hinum megin við götuna. Ég geymi peysuna fyrir þig."
   partner_meaning = "Across the street. I'll keep the sweater for you."
+  partner_meaning_ja = "通りの向かいです。セーターは取っておきますよ。"
 
   [[dialogues.turns]]
   cue = "Thank him."
+  cue_ja = "お礼を言ってください。"
   expect = "takk"

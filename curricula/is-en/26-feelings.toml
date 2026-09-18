@@ -5,6 +5,7 @@ id = "glod"
 kind = "vocab"
 target = "glöð"
 meaning = "happy"
+meaning_ja = "うれしい"
 difficulty = 1
 tags = ["state_f"]
 topics = ["feelings"]
@@ -15,6 +16,7 @@ id = "eg_er_state"
 kind = "construction"
 target = "Ég er {state}."
 meaning = "I'm {state}."
+meaning_ja = "私は{state}です。"
 difficulty = 2
 topics = ["feelings"]
 slots = { state = "state_f" }
@@ -27,6 +29,7 @@ id = "threytt_state"
 kind = "vocab"
 target = "þreytt"
 meaning = "tired"
+meaning_ja = "疲れている"
 difficulty = 1
 tags = ["state_f"]
 topics = ["feelings"]
@@ -37,6 +40,7 @@ id = "svong_state"
 kind = "vocab"
 target = "svöng"
 meaning = "hungry"
+meaning_ja = "お腹が空いている"
 difficulty = 1
 tags = ["state_f"]
 topics = ["feelings", "food"]
@@ -47,6 +51,7 @@ id = "leid"
 kind = "vocab"
 target = "leið"
 meaning = "sad"
+meaning_ja = "悲しい"
 difficulty = 1
 tags = ["state_f"]
 topics = ["feelings"]
@@ -57,6 +62,7 @@ id = "reid"
 kind = "vocab"
 target = "reið"
 meaning = "angry"
+meaning_ja = "怒っている"
 difficulty = 1
 tags = ["state_f"]
 topics = ["feelings"]
@@ -67,6 +73,7 @@ id = "stressud"
 kind = "vocab"
 target = "stressuð"
 meaning = "stressed"
+meaning_ja = "ストレスがたまっている"
 difficulty = 2
 tags = ["state_f"]
 topics = ["feelings"]
@@ -77,6 +84,7 @@ id = "spennt"
 kind = "vocab"
 target = "spennt"
 meaning = "excited"
+meaning_ja = "わくわくしている"
 difficulty = 2
 tags = ["state_f"]
 topics = ["feelings"]
@@ -87,6 +95,7 @@ id = "tilbuin"
 kind = "vocab"
 target = "tilbúin"
 meaning = "ready"
+meaning_ja = "準備ができている"
 difficulty = 2
 tags = ["state_f"]
 topics = ["feelings"]
@@ -97,6 +106,7 @@ id = "veik_state"
 kind = "vocab"
 target = "veik"
 meaning = "ill"
+meaning_ja = "病気"
 difficulty = 1
 tags = ["state_f"]
 topics = ["feelings", "health"]
@@ -107,6 +117,7 @@ id = "aningju"
 kind = "vocab"
 target = "ánægð"
 meaning = "pleased / content"
+meaning_ja = "満足している"
 difficulty = 2
 tags = ["state_f"]
 topics = ["feelings"]
@@ -117,6 +128,7 @@ id = "hraedd_state"
 kind = "vocab"
 target = "hrædd"
 meaning = "scared"
+meaning_ja = "怖がっている"
 difficulty = 1
 tags = ["state_f"]
 topics = ["feelings"]
@@ -127,6 +139,7 @@ id = "einmana"
 kind = "vocab"
 target = "einmana"
 meaning = "lonely"
+meaning_ja = "寂しい"
 difficulty = 2
 tags = ["state_f"]
 topics = ["feelings"]
@@ -137,6 +150,7 @@ id = "rugluð"
 kind = "vocab"
 target = "rugluð"
 meaning = "confused"
+meaning_ja = "混乱している"
 difficulty = 2
 tags = ["state_f"]
 topics = ["feelings"]
@@ -147,6 +161,7 @@ id = "ertu_state"
 kind = "construction"
 target = "Ertu {state}?"
 meaning = "Are you {state}? (to a woman)"
+meaning_ja = "あなたは{state}ですか？（女性に）"
 difficulty = 2
 topics = ["feelings"]
 slots = { state = "state_f" }
@@ -158,189 +173,231 @@ id = "hvernig_lidur_ther"
 kind = "phrase"
 target = "Hvernig líður þér?"
 meaning = "How do you feel?"
+meaning_ja = "気分はどうですか？"
 difficulty = 3
 topics = ["feelings", "health"]
 situation = "Your friend was ill yesterday. Ask how she feels."
+situation_ja = "友達が昨日病気でした。気分はどうか聞いてください。"
 
 [[items]]
 id = "mer_lidur_agaetlega"
 kind = "phrase"
 target = "Mér líður ágætlega."
 meaning = "I feel alright."
+meaning_ja = "まあまあです。"
 difficulty = 3
 topics = ["feelings"]
 prereqs = ["hvernig_lidur_ther"]
 situation = "Someone asks how you feel. Say alright."
+situation_ja = "気分はどうか聞かれました。まあまあだと答えてください。"
 
 [[items]]
 id = "eg_er_i_godu_skapi"
 kind = "phrase"
 target = "Ég er í góðu skapi."
 meaning = "I'm in a good mood."
+meaning_ja = "機嫌がいいです。"
 difficulty = 3
 topics = ["feelings"]
 chunks = ["skapi", "góðu skapi", "í góðu skapi", "Ég er í góðu skapi."]
 situation = "The sun is out. Say you're in a good mood."
+situation_ja = "太陽が出ています。機嫌がいいと言ってください。"
 
 [[items]]
 id = "eg_er_i_vondu_skapi"
 kind = "phrase"
 target = "Ég er í vondu skapi."
 meaning = "I'm in a bad mood."
+meaning_ja = "機嫌が悪いです。"
 difficulty = 3
 topics = ["feelings"]
 prereqs = ["eg_er_i_godu_skapi"]
 situation = "You missed the bus and it's raining. Say you're in a bad mood."
+situation_ja = "バスに乗り遅れて雨も降っています。機嫌が悪いと言ってください。"
 
 [[items]]
 id = "eg_hlakka_til"
 kind = "phrase"
 target = "Ég hlakka til."
 meaning = "I'm looking forward to it."
+meaning_ja = "楽しみにしています。"
 difficulty = 2
 topics = ["feelings"]
 situation = "Anna confirms the weekend hike. Say you're looking forward to it."
+situation_ja = "アンナが週末のハイキングを確定しました。楽しみだと言ってください。"
 
 [[items]]
 id = "eg_hlakka_til_ad_sja_thig"
 kind = "phrase"
 target = "Ég hlakka til að sjá þig."
 meaning = "I'm looking forward to seeing you."
+meaning_ja = "会えるのを楽しみにしています。"
 difficulty = 4
 topics = ["feelings", "social"]
 prereqs = ["eg_hlakka_til"]
 chunks = ["þig", "sjá þig", "að sjá þig", "Ég hlakka til að sjá þig."]
 situation = "End a phone call with a friend you'll see next week."
+situation_ja = "来週会う友達との電話を締めくくってください。"
 
 [[items]]
 id = "eg_sakna_thin"
 kind = "phrase"
 target = "Ég sakna þín."
 meaning = "I miss you."
+meaning_ja = "会いたいです。（あなたが恋しい）"
 difficulty = 2
 topics = ["feelings", "social"]
 situation = "On the phone with someone at home. Say you miss them."
+situation_ja = "故郷の人と電話中です。会いたいと言ってください。"
 
 [[items]]
 id = "eg_elska_thig"
 kind = "phrase"
 target = "Ég elska þig."
 meaning = "I love you."
+meaning_ja = "愛しています。"
 difficulty = 2
 topics = ["feelings", "social"]
 situation = "Say I love you."
+situation_ja = "愛していると言ってください。"
 
 [[items]]
 id = "mer_leidist"
 kind = "phrase"
 target = "Mér leiðist."
 meaning = "I'm bored."
+meaning_ja = "退屈です。"
 difficulty = 2
 topics = ["feelings"]
 situation = "It's been raining for three days. Say you're bored."
+situation_ja = "三日間雨です。退屈だと言ってください。"
 
 [[items]]
 id = "eg_er_ahyggjufull"
 kind = "phrase"
 target = "Ég hef áhyggjur."
 meaning = "I'm worried."
+meaning_ja = "心配です。"
 difficulty = 3
 topics = ["feelings"]
 situation = "The storm warning is for tonight. Say you're worried."
+situation_ja = "今夜は嵐の警報です。心配だと言ってください。"
 
 [[items]]
 id = "ekki_hafa_ahyggjur"
 kind = "phrase"
 target = "Ekki hafa áhyggjur."
 meaning = "Don't worry."
+meaning_ja = "心配しないで。"
 difficulty = 3
 topics = ["feelings", "discourse"]
 prereqs = ["eg_er_ahyggjufull"]
 situation = "Your friend worries about the storm. Tell her not to worry."
+situation_ja = "友達が嵐を心配しています。心配しないでと言ってください。"
 
 [[items]]
 id = "eg_er_stolt"
 kind = "phrase"
 target = "Ég er stolt af þér."
 meaning = "I'm proud of you."
+meaning_ja = "あなたを誇りに思います。"
 difficulty = 3
 topics = ["feelings", "social"]
 pronunciation_notes = "feminine; masculine: Ég er stoltur af þér."
 situation = "Your friend just finished her first 10 km run. Say you're proud of her."
+situation_ja = "友達が初めて10キロ走り切りました。誇りに思うと言ってください。"
 
 [[items]]
 id = "thad_var_gaman"
 kind = "phrase"
 target = "Það var gaman."
 meaning = "That was fun."
+meaning_ja = "楽しかったです。"
 difficulty = 2
 topics = ["feelings"]
 situation = "The evening is over. Say that was fun."
+situation_ja = "夜が終わりました。楽しかったと言ってください。"
 
 [[items]]
 id = "takk_fyrir_kvoldid"
 kind = "phrase"
 target = "Takk fyrir kvöldið."
 meaning = "Thanks for the evening."
+meaning_ja = "今夜はありがとう。"
 difficulty = 2
 topics = ["feelings", "greetings"]
 situation = "You're leaving Anna's dinner party. Thank her for the evening."
+situation_ja = "アンナの夕食会を後にします。今夜のお礼を言ってください。"
 
 [[items]]
 id = "takk_fyrir_sidast"
 kind = "phrase"
 target = "Takk fyrir síðast."
 meaning = "Thanks for last time. (said when you next meet)"
+meaning_ja = "先日はどうも。"
 difficulty = 3
 topics = ["feelings", "greetings"]
 pronunciation_notes = "a very Icelandic greeting"
 situation = "You meet Anna a week after her party. Greet her with 'thanks for last time'."
+situation_ja = "パーティーの一週間後にアンナに会いました。「先日はどうも」とあいさつしてください。"
 
 [[items]]
 id = "mer_thykir_thad_leitt"
 kind = "phrase"
 target = "Mér þykir það leitt."
 meaning = "I'm sorry (to hear that)."
+meaning_ja = "お気の毒に。"
 difficulty = 3
 topics = ["feelings", "discourse"]
 chunks = ["leitt", "það leitt", "Mér þykir það leitt."]
 situation = "Anna tells you her cat died. Say you're sorry to hear it."
+situation_ja = "アンナが猫が死んだと言いました。お気の毒にと言ってください。"
 
 [[items]]
 id = "transform_feelings_hun"
 kind = "transform"
 target = "Ég er glöð → Hún er glöð"
 meaning = "talking about how she feels"
+meaning_ja = "彼女の気持ちとして言う"
 difficulty = 2
 topics = ["grammar", "feelings"]
 instruction = "Say it about her:"
+instruction_ja = "彼女のこととして言ってください。"
 prereqs = ["eg_er_state"]
 examples = [
-  { source = "Ég er glöð.", source_meaning = "I'm happy.", result = "Hún er glöð.", result_meaning = "She's happy." },
-  { source = "Ég er þreytt.", source_meaning = "I'm tired.", result = "Hún er þreytt.", result_meaning = "She's tired." },
-  { source = "Ég er svöng.", source_meaning = "I'm hungry.", result = "Hún er svöng.", result_meaning = "She's hungry." },
-  { source = "Ég er stressuð.", source_meaning = "I'm stressed.", result = "Hún er stressuð.", result_meaning = "She's stressed." },
-  { source = "Ég er tilbúin.", source_meaning = "I'm ready.", result = "Hún er tilbúin.", result_meaning = "She's ready." },
+  { source = "Ég er glöð.", source_meaning = "I'm happy.", source_meaning_ja = "私はうれしいです。", result = "Hún er glöð.", result_meaning = "She's happy.", result_meaning_ja = "彼女はうれしいです。" },
+  { source = "Ég er þreytt.", source_meaning = "I'm tired.", source_meaning_ja = "私は疲れています。", result = "Hún er þreytt.", result_meaning = "She's tired.", result_meaning_ja = "彼女は疲れています。" },
+  { source = "Ég er svöng.", source_meaning = "I'm hungry.", source_meaning_ja = "私はお腹が空いています。", result = "Hún er svöng.", result_meaning = "She's hungry.", result_meaning_ja = "彼女はお腹が空いています。" },
+  { source = "Ég er stressuð.", source_meaning = "I'm stressed.", source_meaning_ja = "私はストレスがたまっています。", result = "Hún er stressuð.", result_meaning = "She's stressed.", result_meaning_ja = "彼女はストレスがたまっています。" },
+  { source = "Ég er tilbúin.", source_meaning = "I'm ready.", source_meaning_ja = "私は準備ができています。", result = "Hún er tilbúin.", result_meaning = "She's ready.", result_meaning_ja = "彼女は準備ができています。" },
 ]
 
 [[dialogues]]
 id = "kvedja"
 setting = "The end of your stay. Anna drives you to the airport bus."
+setting_ja = "滞在の最終日。アンナが空港バスまで送ってくれます。"
 topics = ["feelings", "greetings"]
 requires = ["thad_var_gaman", "takk_fyrir_kvoldid", "eg_sakna_thin", "eg_mun_koma_aftur", "goda_ferd"]
 
   [[dialogues.turns]]
   opener = "Jæja, þá er komið að því."
   opener_meaning = "Well, this is it."
+  opener_meaning_ja = "さて、いよいよね。"
   cue = "Say that was fun, and thank her for everything."
+  cue_ja = "楽しかったと言って、いろいろありがとうと伝えてください。"
   expect_text = "Það var gaman. Takk fyrir allt."
   expect_meaning = "That was fun. Thanks for everything."
+  expect_meaning_ja = "楽しかったです。いろいろありがとう。"
   partner = "Ekkert að þakka. Ég á eftir að sakna þín."
   partner_meaning = "You're welcome. I'm going to miss you."
+  partner_meaning_ja = "どういたしまして。寂しくなるな。"
 
   [[dialogues.turns]]
   cue = "Say you'll miss her too, and you'll come back."
+  cue_ja = "自分も寂しくなる、また来る、と言ってください。"
   expect_text = "Ég sakna þín líka. Ég kem aftur."
   expect_meaning = "I'll miss you too. I'll come back."
+  expect_meaning_ja = "私も寂しいです。また来ます。"
   partner = "Góða ferð! Sjáumst!"
   partner_meaning = "Have a good trip! See you!"
+  partner_meaning_ja = "良い旅を！またね！"

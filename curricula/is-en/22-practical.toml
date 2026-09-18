@@ -5,277 +5,334 @@ id = "hvad_er_simanumerid_thitt"
 kind = "phrase"
 target = "Hvað er símanúmerið þitt?"
 meaning = "What's your phone number?"
+meaning_ja = "電話番号は何番ですか？"
 difficulty = 4
 topics = ["practical", "social"]
 chunks = ["þitt", "númerið þitt", "símanúmerið þitt", "Hvað er símanúmerið þitt?"]
 situation = "You want to stay in touch with Anna. Ask for her phone number."
+situation_ja = "アンナと連絡を取り合いたいです。電話番号を聞いてください。"
 
 [[items]]
 id = "simanumerid_mitt_er"
 kind = "phrase"
 target = "Símanúmerið mitt er…"
 meaning = "My phone number is…"
+meaning_ja = "私の電話番号は…"
 difficulty = 3
 topics = ["practical"]
 prereqs = ["hvad_er_simanumerid_thitt"]
 situation = "Give your number: start with 'my phone number is'."
+situation_ja = "番号を伝えます。「私の電話番号は」から始めてください。"
 
 [[items]]
 id = "ma_eg_hringja"
 kind = "phrase"
 target = "Má ég hringja?"
 meaning = "May I make a call?"
+meaning_ja = "電話を借りてもいいですか？"
 difficulty = 2
 topics = ["practical"]
 situation = "Your phone is dead. Ask the receptionist if you may make a call."
+situation_ja = "携帯の電池が切れました。受付に電話を使っていいか聞いてください。"
 
 [[items]]
 id = "eg_hringi_seinna"
 kind = "phrase"
 target = "Ég hringi seinna."
 meaning = "I'll call later."
+meaning_ja = "後で電話します。"
 difficulty = 2
 topics = ["practical", "arrangements"]
 prereqs = ["seinna"]
 situation = "She's busy. Say you'll call later."
+situation_ja = "相手が忙しそうです。後で電話すると言ってください。"
 
 [[items]]
 id = "geturdu_hringt_i_mig"
 kind = "phrase"
 target = "Geturðu hringt í mig?"
 meaning = "Can you call me?"
+meaning_ja = "電話してもらえますか？"
 difficulty = 3
 topics = ["practical"]
 situation = "You need to talk properly, not by text. Ask her to call you."
+situation_ja = "メッセージではなくきちんと話したいです。電話してもらうよう頼んでください。"
 
 [[items]]
 id = "eg_sendi_ther_skilabod"
 kind = "phrase"
 target = "Ég sendi þér skilaboð."
 meaning = "I'll send you a message."
+meaning_ja = "メッセージを送ります。"
 difficulty = 3
 topics = ["practical"]
 chunks = ["skilaboð", "þér skilaboð", "Ég sendi þér skilaboð."]
 situation = "You'll confirm the time later. Say you'll send a message."
+situation_ja = "時間は後で確認します。メッセージを送ると言ってください。"
 
 [[items]]
 id = "siminn_minn_er_daudur"
 kind = "phrase"
 target = "Síminn minn er dauður."
 meaning = "My phone is dead."
+meaning_ja = "携帯の電池が切れています。"
 difficulty = 3
 topics = ["practical"]
 situation = "Explain why you didn't answer: your phone is dead."
+situation_ja = "電話に出なかった理由を説明してください：携帯の電池が切れています。"
 
 [[items]]
 id = "attu_hledslutaeki"
 kind = "phrase"
 target = "Áttu hleðslutæki?"
 meaning = "Do you have a charger?"
+meaning_ja = "充電器はありますか？"
 difficulty = 3
 topics = ["practical"]
 prereqs = ["attu", "hledslutaeki"]
 situation = "Ask the café staff if they have a charger."
+situation_ja = "カフェの店員に充電器があるか聞いてください。"
 
 [[items]]
 id = "hvar_get_eg_hladid_simann"
 kind = "phrase"
 target = "Hvar get ég hlaðið símann?"
 meaning = "Where can I charge my phone?"
+meaning_ja = "どこで携帯を充電できますか？"
 difficulty = 4
 topics = ["practical"]
 chunks = ["símann", "hlaðið símann", "get ég hlaðið símann", "Hvar get ég hlaðið símann?"]
 situation = "Ask where you can charge your phone."
+situation_ja = "携帯をどこで充電できるか聞いてください。"
 
 [[items]]
 id = "netid_virkar_ekki"
 kind = "phrase"
 target = "Netið virkar ekki."
 meaning = "The internet doesn't work."
+meaning_ja = "インターネットがつながりません。"
 difficulty = 2
 topics = ["practical"]
 situation = "Tell reception the internet doesn't work."
+situation_ja = "受付にインターネットがつながらないと伝えてください。"
 
 [[items]]
 id = "hvad_er_netfangid_thitt"
 kind = "phrase"
 target = "Hvað er netfangið þitt?"
 meaning = "What's your email address?"
+meaning_ja = "メールアドレスは何ですか？"
 difficulty = 3
 topics = ["practical"]
 chunks = ["þitt", "netfangið þitt", "Hvað er netfangið þitt?"]
 situation = "Ask a new contact for their email address."
+situation_ja = "新しい知り合いにメールアドレスを聞いてください。"
 
 [[items]]
 id = "eg_tharf_simkort"
 kind = "phrase"
 target = "Ég þarf símkort."
 meaning = "I need a SIM card."
+meaning_ja = "SIMカードが必要です。"
 difficulty = 2
 topics = ["practical", "shopping"]
 prereqs = ["eg_tharf"]
 situation = "At the phone shop. Say you need a SIM card."
+situation_ja = "携帯ショップです。SIMカードが必要だと言ってください。"
 
 [[items]]
 id = "eg_vil_senda_thetta_til_japans"
 kind = "phrase"
 target = "Ég vil senda þetta til Japans."
 meaning = "I want to send this to Japan."
+meaning_ja = "これを日本に送りたいです。"
 difficulty = 4
 topics = ["practical"]
 chunks = ["Japans", "til Japans", "þetta til Japans", "Ég vil senda þetta til Japans."]
 situation = "At the post office with a parcel. Say you want to send it to Japan."
+situation_ja = "小包を持って郵便局にいます。日本に送りたいと言ってください。"
 
 [[items]]
 id = "hvad_kostar_ad_senda_thetta"
 kind = "phrase"
 target = "Hvað kostar að senda þetta?"
 meaning = "How much does it cost to send this?"
+meaning_ja = "これを送るといくらですか？"
 difficulty = 3
 topics = ["practical", "money"]
 prereqs = ["hvad_kostar_thetta"]
 situation = "Ask how much it costs to send the parcel."
+situation_ja = "小包を送るといくらか聞いてください。"
 
 [[items]]
 id = "eg_tharf_frimerki"
 kind = "phrase"
 target = "Ég þarf frímerki."
 meaning = "I need stamps."
+meaning_ja = "切手が必要です。"
 difficulty = 2
 topics = ["practical"]
 prereqs = ["eg_tharf"]
 situation = "You've written postcards. Say you need stamps."
+situation_ja = "絵はがきを書きました。切手が必要だと言ってください。"
 
 [[items]]
 id = "eg_a_tima_klukkan_tvo"
 kind = "phrase"
 target = "Ég á tíma klukkan tvö."
 meaning = "I have an appointment at two."
+meaning_ja = "2時に予約があります。"
 difficulty = 3
 topics = ["practical", "time"]
 prereqs = ["klukkan_time", "tvo"]
 situation = "At the clinic reception. Say you have an appointment at two."
+situation_ja = "診療所の受付です。2時に予約があると言ってください。"
 
 [[items]]
 id = "get_eg_pantad_tima"
 kind = "phrase"
 target = "Get ég pantað tíma?"
 meaning = "Can I book an appointment?"
+meaning_ja = "予約を取れますか？"
 difficulty = 3
 topics = ["practical"]
 situation = "Call the dentist. Ask if you can book an appointment."
+situation_ja = "歯医者に電話します。予約を取れるか聞いてください。"
 
 [[items]]
 id = "eg_tharf_ad_afpanta"
 kind = "phrase"
 target = "Ég þarf að afpanta."
 meaning = "I need to cancel."
+meaning_ja = "キャンセルしたいのですが。"
 difficulty = 3
 topics = ["practical"]
 situation = "You can't make the appointment. Say you need to cancel."
+situation_ja = "予約に行けなくなりました。キャンセルしたいと言ってください。"
 
 [[items]]
 id = "hvar_er_thjodskra"
 kind = "phrase"
 target = "Hvar fæ ég kennitölu?"
 meaning = "Where do I get an ID number (kennitala)?"
+meaning_ja = "個人番号（kennitala）はどこでもらえますか？"
 difficulty = 4
 topics = ["practical"]
 chunks = ["kennitölu", "fæ ég kennitölu", "Hvar fæ ég kennitölu?"]
 situation = "Everything in Iceland needs a kennitala. Ask where you get one."
+situation_ja = "アイスランドでは何をするにも kennitala が要ります。どこでもらえるか聞いてください。"
 
 [[items]]
 id = "hvad_er_kennitalan_thin"
 kind = "phrase"
 target = "Hvað er kennitalan þín?"
 meaning = "What's your ID number?"
+meaning_ja = "あなたの個人番号は？"
 difficulty = 3
 topics = ["practical"]
 prereqs = ["hvar_er_thjodskra"]
 situation = "The clerk needs your number. Repeat the question she'd ask you."
+situation_ja = "係の人があなたの番号を必要としています。係の人が言うであろう質問を繰り返してください。"
 
 [[items]]
 id = "eg_er_ekki_med_kennitolu"
 kind = "phrase"
 target = "Ég er ekki með kennitölu."
 meaning = "I don't have an ID number."
+meaning_ja = "個人番号を持っていません。"
 difficulty = 3
 topics = ["practical"]
 prereqs = ["hvar_er_thjodskra"]
 situation = "Tell the clerk you don't have a kennitala."
+situation_ja = "係の人に kennitala を持っていないと伝えてください。"
 
 [[items]]
 id = "hvar_skrifa_eg_undir"
 kind = "phrase"
 target = "Hvar skrifa ég undir?"
 meaning = "Where do I sign?"
+meaning_ja = "どこにサインしますか？"
 difficulty = 3
 topics = ["practical"]
 situation = "The contract is in front of you. Ask where you sign."
+situation_ja = "契約書が目の前にあります。どこにサインするか聞いてください。"
 
 [[items]]
 id = "eg_tharf_ad_fylla_ut_eydublad"
 kind = "phrase"
 target = "Ég þarf að fylla út eyðublað."
 meaning = "I need to fill in a form."
+meaning_ja = "書類に記入しないといけません。"
 difficulty = 4
 topics = ["practical"]
 chunks = ["eyðublað", "út eyðublað", "fylla út eyðublað", "Ég þarf að fylla út eyðublað."]
 situation = "Explain to your friend why you're at the office: you need to fill in a form."
+situation_ja = "役所にいる理由を友達に説明してください：書類に記入しないといけません。"
 
 [[items]]
 id = "er_thetta_a_ensku"
 kind = "phrase"
 target = "Er þetta til á ensku?"
 meaning = "Is this available in English?"
+meaning_ja = "これは英語版がありますか？"
 difficulty = 3
 topics = ["practical", "clarifying"]
 prereqs = ["ensku"]
 situation = "The form is only in Icelandic. Ask if it exists in English."
+situation_ja = "書類がアイスランド語だけです。英語版があるか聞いてください。"
 
 [[items]]
 id = "hvar_er_bidrodin"
 kind = "phrase"
 target = "Hvar er röðin?"
 meaning = "Where is the queue?"
+meaning_ja = "列はどこですか？"
 difficulty = 2
 topics = ["practical"]
 situation = "Nobody seems to be queueing. Ask where the queue is."
+situation_ja = "誰も並んでいないように見えます。列はどこか聞いてください。"
 
 [[items]]
 id = "eg_er_naest"
 kind = "phrase"
 target = "Ég er næst."
 meaning = "I'm next."
+meaning_ja = "次は私です。"
 difficulty = 2
 topics = ["practical"]
 pronunciation_notes = "feminine; masculine: Ég er næstur."
 situation = "Someone tries to go before you. Say you're next."
+situation_ja = "誰かが先に行こうとしています。次は自分だと言ってください。"
 
 [[items]]
 id = "taktu_numer"
 kind = "phrase"
 target = "Taktu númer."
 meaning = "Take a number."
+meaning_ja = "番号札を取ってください。"
 difficulty = 2
 topics = ["practical"]
 situation = "A tourist walks straight to the counter. Tell him to take a number."
+situation_ja = "観光客がまっすぐカウンターへ行きます。番号札を取るよう言ってください。"
 
 [[items]]
 id = "hvad_er_klukkan_opnunartimi"
 kind = "phrase"
 target = "Hvað er opið lengi?"
 meaning = "How late is it open?"
+meaning_ja = "何時まで開いていますか？"
 difficulty = 3
 topics = ["practical", "time"]
 prereqs = ["er_opid"]
 situation = "Ask how late the shop is open."
+situation_ja = "お店は何時まで開いているか聞いてください。"
 
 [[items]]
 id = "siminn"
 kind = "vocab"
 target = "síminn"
 meaning = "the phone"
+meaning_ja = "電話"
 difficulty = 1
 tags = ["nom_place"]
 topics = ["practical"]
@@ -285,6 +342,7 @@ id = "tolvan"
 kind = "vocab"
 target = "tölvan"
 meaning = "the computer"
+meaning_ja = "コンピューター"
 difficulty = 2
 tags = ["nom_place"]
 topics = ["practical"]
@@ -294,6 +352,7 @@ id = "lykilordid"
 kind = "vocab"
 target = "lykilorðið"
 meaning = "the password"
+meaning_ja = "パスワード"
 difficulty = 2
 tags = ["nom_place"]
 topics = ["practical"]
@@ -301,30 +360,40 @@ topics = ["practical"]
 [[dialogues]]
 id = "simabud"
 setting = "At a phone shop."
+setting_ja = "携帯ショップです。"
 topics = ["practical"]
 requires = ["eg_tharf_simkort", "hvad_kostar_thetta", "eg_er_ekki_med_kennitolu", "allt_i_lagi", "takk"]
 
   [[dialogues.turns]]
   opener = "Hæ, get ég aðstoðað?"
   opener_meaning = "Hi, can I help?"
+  opener_meaning_ja = "いらっしゃいませ、何かお探しですか？"
   cue = "Say you need a SIM card."
+  cue_ja = "SIMカードが必要だと言ってください。"
   expect = "eg_tharf_simkort"
   partner = "Ertu með kennitölu?"
   partner_meaning = "Do you have a kennitala?"
+  partner_meaning_ja = "個人番号（kennitala）はお持ちですか？"
 
   [[dialogues.turns]]
   cue = "Say you don't have a kennitala."
+  cue_ja = "kennitala を持っていないと言ってください。"
   expect = "eg_er_ekki_med_kennitolu"
   partner = "Ekkert mál, þá tekurðu frelsiskort. Vegabréf, takk."
   partner_meaning = "No problem, then you take a prepaid card. Passport, please."
+  partner_meaning_ja = "大丈夫です、ではプリペイドカードですね。パスポートをお願いします。"
 
   [[dialogues.turns]]
   cue = "Ask how much it is."
+  cue_ja = "いくらか聞いてください。"
   expect = "hvad_kostar_thetta"
   partner = "Tvö þúsund krónur með tíu gígabætum."
   partner_meaning = "Two thousand krónur with ten gigabytes."
+  partner_meaning_ja = "10ギガ付きで2000クローナです。"
 
   [[dialogues.turns]]
   cue = "Say OK, and thank him."
+  cue_ja = "わかりましたと言って、お礼を言ってください。"
   expect_text = "Allt í lagi. Takk."
   expect_meaning = "OK. Thanks."
+  expect_meaning_ja = "わかりました。ありがとう。"

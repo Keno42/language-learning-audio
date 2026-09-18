@@ -5,63 +5,76 @@ id = "eg_heiti"
 kind = "phrase"
 target = "Ég heiti Yuki."
 meaning = "My name is Yuki."
+meaning_ja = "私の名前はユキです。"
 difficulty = 2
 topics = ["social"]
 situation = "Someone asks your name. Say your name is Yuki."
+situation_ja = "名前を聞かれました。ユキだと答えてください。"
 
 [[items]]
 id = "hvad_heitir_thu"
 kind = "phrase"
 target = "Hvað heitir þú?"
 meaning = "What's your name?"
+meaning_ja = "お名前は？"
 difficulty = 2
 topics = ["social"]
 situation = "You've introduced yourself. Ask his name."
+situation_ja = "自己紹介をしました。相手の名前を聞いてください。"
 
 [[items]]
 id = "eg_er_fra_japan"
 kind = "phrase"
 target = "Ég er frá Japan."
 meaning = "I'm from Japan."
+meaning_ja = "日本から来ました。"
 difficulty = 2
 topics = ["social"]
 situation = "Someone asks where you're from. Tell them you're from Japan."
+situation_ja = "どこから来たか聞かれました。日本から来たと答えてください。"
 
 [[items]]
 id = "hvadan_ert_thu"
 kind = "phrase"
 target = "Hvaðan ert þú?"
 meaning = "Where are you from?"
+meaning_ja = "どちらのご出身ですか？"
 alternatives = ["Hvaðan ertu?"]
 difficulty = 3
 topics = ["social"]
 situation = "You've said you're from Japan. Ask where she is from."
+situation_ja = "日本から来たと言いました。相手の出身を聞いてください。"
 
 [[items]]
 id = "eg_er_i_frii"
 kind = "phrase"
 target = "Ég er í fríi."
 meaning = "I'm on holiday."
+meaning_ja = "休暇中です。"
 difficulty = 3
 topics = ["social"]
 chunks = ["fríi", "í fríi", "Ég er í fríi."]
 situation = "She asks if you're here for work. Tell her you're on holiday."
+situation_ja = "仕事で来たのか聞かれました。休暇中だと答えてください。"
 
 [[items]]
 id = "gaman_ad_kynnast_ther"
 kind = "phrase"
 target = "Gaman að kynnast þér."
 meaning = "Nice to meet you."
+meaning_ja = "はじめまして。"
 difficulty = 4
 topics = ["social"]
 chunks = ["þér", "kynnast þér", "að kynnast þér", "Gaman að kynnast þér."]
 situation = "Your friend introduces you to Anna. Say nice to meet you."
+situation_ja = "友達がアンナを紹介してくれました。はじめましてと言ってください。"
 
 [[items]]
 id = "reykjavik_dat"
 kind = "vocab"
 target = "Reykjavík"
 meaning = "Reykjavík"
+meaning_ja = "レイキャビク"
 difficulty = 1
 tags = ["dat_town"]
 topics = ["social"]
@@ -71,6 +84,7 @@ id = "tokyo_dat"
 kind = "vocab"
 target = "Tókýó"
 meaning = "Tokyo"
+meaning_ja = "東京"
 difficulty = 1
 tags = ["dat_town"]
 topics = ["social"]
@@ -80,6 +94,7 @@ id = "akureyri_dat"
 kind = "vocab"
 target = "Akureyri"
 meaning = "Akureyri"
+meaning_ja = "アークレイリ"
 difficulty = 2
 tags = ["dat_town"]
 topics = ["social"]
@@ -89,6 +104,7 @@ id = "kopavogi"
 kind = "vocab"
 target = "Kópavogi"
 meaning = "Kópavogur (after 'in')"
+meaning_ja = "コーパヴォグル"
 difficulty = 2
 tags = ["dat_town"]
 topics = ["social"]
@@ -99,6 +115,7 @@ id = "osaka_dat"
 kind = "vocab"
 target = "Ósaka"
 meaning = "Osaka"
+meaning_ja = "大阪"
 difficulty = 1
 tags = ["dat_town"]
 topics = ["social"]
@@ -108,6 +125,7 @@ id = "eg_by_i"
 kind = "construction"
 target = "Ég bý í {town}."
 meaning = "I live in {town}."
+meaning_ja = "{town}に住んでいます。"
 difficulty = 3
 topics = ["social"]
 slots = { town = "dat_town" }
@@ -120,36 +138,43 @@ id = "hvar_byrd_thu"
 kind = "phrase"
 target = "Hvar býrð þú?"
 meaning = "Where do you live?"
+meaning_ja = "どこに住んでいますか？"
 difficulty = 3
 topics = ["social"]
 prereqs = ["eg_by_i"]
 situation = "You've told her you live in Tokyo. Ask where she lives."
+situation_ja = "東京に住んでいると伝えました。相手はどこに住んでいるか聞いてください。"
 
 [[items]]
 id = "eg_er_japonsk"
 kind = "phrase"
 target = "Ég er japönsk."
 meaning = "I'm Japanese."
+meaning_ja = "私は日本人です。"
 difficulty = 2
 topics = ["social"]
 pronunciation_notes = "feminine; masculine: Ég er japanskur."
 situation = "The man guesses you're Chinese. Tell him you're Japanese."
+situation_ja = "中国人だと思われました。日本人だと伝えてください。"
 
 [[items]]
 id = "ert_thu_islensk"
 kind = "phrase"
 target = "Ert þú íslensk?"
 meaning = "Are you Icelandic? (to a woman)"
+meaning_ja = "アイスランド人ですか？（女性に）"
 difficulty = 2
 topics = ["social"]
 pronunciation_notes = "to a man: Ert þú íslenskur?"
 situation = "The woman next to you speaks perfect Icelandic. Ask if she's Icelandic."
+situation_ja = "隣の女性が完璧なアイスランド語を話しています。アイスランド人か聞いてください。"
 
 [[items]]
 id = "kennari"
 kind = "vocab"
 target = "kennari"
 meaning = "a teacher"
+meaning_ja = "教師"
 difficulty = 1
 tags = ["job"]
 topics = ["work"]
@@ -159,6 +184,7 @@ id = "laeknir"
 kind = "vocab"
 target = "læknir"
 meaning = "a doctor"
+meaning_ja = "医者"
 difficulty = 2
 tags = ["job"]
 topics = ["work", "health"]
@@ -168,6 +194,7 @@ id = "nemandi"
 kind = "vocab"
 target = "nemandi"
 meaning = "a student"
+meaning_ja = "学生"
 difficulty = 2
 tags = ["job"]
 topics = ["work"]
@@ -177,6 +204,7 @@ id = "forritari"
 kind = "vocab"
 target = "forritari"
 meaning = "a programmer"
+meaning_ja = "プログラマー"
 difficulty = 2
 tags = ["job"]
 topics = ["work"]
@@ -186,6 +214,7 @@ id = "hjukrunarfraedingur"
 kind = "vocab"
 target = "hjúkrunarfræðingur"
 meaning = "a nurse"
+meaning_ja = "看護師"
 difficulty = 4
 tags = ["job"]
 topics = ["work", "health"]
@@ -195,6 +224,7 @@ id = "verkfraedingur"
 kind = "vocab"
 target = "verkfræðingur"
 meaning = "an engineer"
+meaning_ja = "エンジニア"
 difficulty = 3
 tags = ["job"]
 topics = ["work"]
@@ -204,6 +234,7 @@ id = "kokkur"
 kind = "vocab"
 target = "kokkur"
 meaning = "a cook"
+meaning_ja = "料理人"
 difficulty = 1
 tags = ["job"]
 topics = ["work"]
@@ -213,6 +244,7 @@ id = "listamadur"
 kind = "vocab"
 target = "listamaður"
 meaning = "an artist"
+meaning_ja = "芸術家"
 difficulty = 2
 tags = ["job"]
 topics = ["work"]
@@ -222,6 +254,7 @@ id = "ferdamadur"
 kind = "vocab"
 target = "ferðamaður"
 meaning = "a tourist"
+meaning_ja = "観光客"
 difficulty = 2
 tags = ["job"]
 topics = ["social"]
@@ -231,6 +264,7 @@ id = "eg_er_job"
 kind = "construction"
 target = "Ég er {job}."
 meaning = "I'm {job}."
+meaning_ja = "私は{job}です。"
 difficulty = 2
 topics = ["work", "social"]
 slots = { job = "job" }
@@ -242,34 +276,41 @@ id = "hvad_gerir_thu"
 kind = "phrase"
 target = "Hvað gerir þú?"
 meaning = "What do you do (for a living)?"
+meaning_ja = "お仕事は何ですか？"
 difficulty = 2
 topics = ["work", "social"]
 situation = "You've said you're a programmer. Ask what she does."
+situation_ja = "プログラマーだと言いました。相手の仕事を聞いてください。"
 
 [[items]]
 id = "eg_vinn_hja"
 kind = "phrase"
 target = "Ég vinn hjá litlu fyrirtæki."
 meaning = "I work at a small company."
+meaning_ja = "小さな会社で働いています。"
 difficulty = 4
 topics = ["work"]
 chunks = ["fyrirtæki", "litlu fyrirtæki", "hjá litlu fyrirtæki", "Ég vinn hjá litlu fyrirtæki."]
 situation = "She asks where you work. Say you work at a small company."
+situation_ja = "どこで働いているか聞かれました。小さな会社だと答えてください。"
 
 [[items]]
 id = "eg_er_i_vinnuferd"
 kind = "phrase"
 target = "Ég er í vinnuferð."
 meaning = "I'm on a business trip."
+meaning_ja = "出張中です。"
 difficulty = 3
 topics = ["work", "social"]
 situation = "The receptionist asks if you're on holiday. Say you're on a business trip."
+situation_ja = "受付の人に休暇かと聞かれました。出張だと答えてください。"
 
 [[items]]
 id = "tuttugu_ara"
 kind = "vocab"
 target = "tuttugu"
 meaning = "twenty"
+meaning_ja = "20"
 difficulty = 1
 tags = ["age", "number"]
 topics = ["numbers"]
@@ -279,6 +320,7 @@ id = "thrjatiu"
 kind = "vocab"
 target = "þrjátíu"
 meaning = "thirty"
+meaning_ja = "30"
 difficulty = 1
 tags = ["age", "number"]
 topics = ["numbers"]
@@ -288,6 +330,7 @@ id = "fjorutiu"
 kind = "vocab"
 target = "fjörutíu"
 meaning = "forty"
+meaning_ja = "40"
 difficulty = 1
 tags = ["age", "number"]
 topics = ["numbers"]
@@ -297,6 +340,7 @@ id = "fimmtiu"
 kind = "vocab"
 target = "fimmtíu"
 meaning = "fifty"
+meaning_ja = "50"
 difficulty = 1
 tags = ["age", "number"]
 topics = ["numbers"]
@@ -306,6 +350,7 @@ id = "eg_er_ara"
 kind = "construction"
 target = "Ég er {age} ára."
 meaning = "I'm {age} years old."
+meaning_ja = "私は{age}歳です。"
 difficulty = 2
 topics = ["social"]
 slots = { age = "age" }
@@ -317,148 +362,186 @@ id = "hvad_ertu_gomul"
 kind = "phrase"
 target = "Hvað ertu gömul?"
 meaning = "How old are you? (to a woman)"
+meaning_ja = "何歳ですか？（女性に）"
 difficulty = 3
 topics = ["social"]
 pronunciation_notes = "to a man: Hvað ertu gamall?"
 situation = "Your new friend has told you her age. Ask hers back — no, ask her age."
+situation_ja = "新しい友達に年齢を聞いてください。"
 
 [[items]]
 id = "eg_er_gift"
 kind = "phrase"
 target = "Ég er gift."
 meaning = "I'm married."
+meaning_ja = "結婚しています。"
 difficulty = 2
 topics = ["social", "family"]
 pronunciation_notes = "feminine; masculine: Ég er giftur."
 situation = "She asks if you're here with your family. Say you're married."
+situation_ja = "家族と来ているのか聞かれました。結婚していると答えてください。"
 
 [[items]]
 id = "eg_er_einhleyp"
 kind = "phrase"
 target = "Ég er einhleyp."
 meaning = "I'm single."
+meaning_ja = "独身です。"
 difficulty = 3
 topics = ["social", "family"]
 pronunciation_notes = "feminine; masculine: Ég er einhleypur."
 situation = "Someone asks about your partner. Say you're single."
+situation_ja = "パートナーについて聞かれました。独身だと答えてください。"
 
 [[items]]
 id = "eg_a_tvo_born"
 kind = "phrase"
 target = "Ég á tvö börn."
 meaning = "I have two children."
+meaning_ja = "子どもが二人います。"
 difficulty = 3
 topics = ["social", "family"]
 situation = "She asks if you have children. Say you have two."
+situation_ja = "子どもがいるか聞かれました。二人いると答えてください。"
 
 [[items]]
 id = "eg_er_her_i_fyrsta_sinn"
 kind = "phrase"
 target = "Ég er hér í fyrsta sinn."
 meaning = "I'm here for the first time."
+meaning_ja = "ここに来るのは初めてです。"
 difficulty = 4
 topics = ["social"]
 chunks = ["sinn", "fyrsta sinn", "í fyrsta sinn", "Ég er hér í fyrsta sinn."]
 situation = "The taxi driver asks if you've been to Iceland before. Say it's your first time."
+situation_ja = "タクシーの運転手にアイスランドは初めてか聞かれました。初めてだと答えてください。"
 
 [[items]]
 id = "eg_er_her_i_viku"
 kind = "phrase"
 target = "Ég er hér í viku."
 meaning = "I'm here for a week."
+meaning_ja = "一週間滞在します。"
 difficulty = 3
 topics = ["social"]
 situation = "He asks how long you're staying. Say a week."
+situation_ja = "どのくらい滞在するか聞かれました。一週間と答えてください。"
 
 [[items]]
 id = "mer_finnst_island_fallegt"
 kind = "phrase"
 target = "Mér finnst Ísland fallegt."
 meaning = "I think Iceland is beautiful."
+meaning_ja = "アイスランドは美しいと思います。"
 difficulty = 4
 topics = ["social"]
 chunks = ["fallegt", "Ísland fallegt", "Mér finnst Ísland fallegt."]
 situation = "The driver asks how you like Iceland. Say you think it's beautiful."
+situation_ja = "運転手にアイスランドはどうかと聞かれました。美しいと思うと答えてください。"
 
 [[items]]
 id = "kynning_transform_hann_hun"
 kind = "transform"
 target = "Ég … → Hún …"
 meaning = "talking about her instead of yourself"
+meaning_ja = "自分のことではなく彼女のことを言う"
 difficulty = 3
 topics = ["grammar"]
 instruction = "Say it about her:"
+instruction_ja = "彼女のこととして言ってください。"
 prereqs = ["eg_by_i", "eg_er_job", "eg_er_fra_japan"]
 examples = [
-  { source = "Ég er frá Japan.", source_meaning = "I'm from Japan.", result = "Hún er frá Japan.", result_meaning = "She's from Japan." },
-  { source = "Ég bý í Reykjavík.", source_meaning = "I live in Reykjavík.", result = "Hún býr í Reykjavík.", result_meaning = "She lives in Reykjavík." },
-  { source = "Ég tala íslensku.", source_meaning = "I speak Icelandic.", result = "Hún talar íslensku.", result_meaning = "She speaks Icelandic." },
-  { source = "Ég er kennari.", source_meaning = "I'm a teacher.", result = "Hún er kennari.", result_meaning = "She's a teacher." },
-  { source = "Ég heiti Yuki.", source_meaning = "My name is Yuki.", result = "Hún heitir Yuki.", result_meaning = "Her name is Yuki." },
-  { source = "Ég vinn hjá litlu fyrirtæki.", source_meaning = "I work at a small company.", result = "Hún vinnur hjá litlu fyrirtæki.", result_meaning = "She works at a small company." },
+  { source = "Ég er frá Japan.", source_meaning = "I'm from Japan.", source_meaning_ja = "日本から来ました。", result = "Hún er frá Japan.", result_meaning = "She's from Japan.", result_meaning_ja = "彼女は日本から来ました。" },
+  { source = "Ég bý í Reykjavík.", source_meaning = "I live in Reykjavík.", source_meaning_ja = "レイキャビクに住んでいます。", result = "Hún býr í Reykjavík.", result_meaning = "She lives in Reykjavík.", result_meaning_ja = "彼女はレイキャビクに住んでいます。" },
+  { source = "Ég tala íslensku.", source_meaning = "I speak Icelandic.", source_meaning_ja = "アイスランド語を話します。", result = "Hún talar íslensku.", result_meaning = "She speaks Icelandic.", result_meaning_ja = "彼女はアイスランド語を話します。" },
+  { source = "Ég er kennari.", source_meaning = "I'm a teacher.", source_meaning_ja = "私は教師です。", result = "Hún er kennari.", result_meaning = "She's a teacher.", result_meaning_ja = "彼女は教師です。" },
+  { source = "Ég heiti Yuki.", source_meaning = "My name is Yuki.", source_meaning_ja = "私の名前はユキです。", result = "Hún heitir Yuki.", result_meaning = "Her name is Yuki.", result_meaning_ja = "彼女の名前はユキです。" },
+  { source = "Ég vinn hjá litlu fyrirtæki.", source_meaning = "I work at a small company.", source_meaning_ja = "小さな会社で働いています。", result = "Hún vinnur hjá litlu fyrirtæki.", result_meaning = "She works at a small company.", result_meaning_ja = "彼女は小さな会社で働いています。" },
 ]
 
 [[dialogues]]
 id = "kynning"
 setting = "At a friend's kitchen table you're introduced to Anna."
+setting_ja = "友達の家の食卓で、アンナを紹介されました。"
 topics = ["social"]
 requires = ["eg_heiti", "eg_er_fra_japan", "en_thu", "ja", "eg_er_i_frii", "takk"]
 
   [[dialogues.turns]]
   opener = "Hæ! Hvað heitir þú?"
   opener_meaning = "Hi! What's your name?"
+  opener_meaning_ja = "やあ！お名前は？"
   cue = "Say your name is Yuki."
+  cue_ja = "名前はユキだと言ってください。"
   expect = "eg_heiti"
   partner = "Gaman að kynnast þér. Hvaðan ert þú?"
   partner_meaning = "Nice to meet you. Where are you from?"
+  partner_meaning_ja = "はじめまして。どちらのご出身？"
 
   [[dialogues.turns]]
   cue = "Say you're from Japan, then ask: and you?"
+  cue_ja = "日本から来たと言って、あなたは？と聞き返してください。"
   expect_text = "Ég er frá Japan. En þú?"
   expect_meaning = "I'm from Japan. And you?"
+  expect_meaning_ja = "日本から来ました。あなたは？"
   partner = "Ég er frá Akureyri. Ertu í fríi?"
   partner_meaning = "I'm from Akureyri. Are you on holiday?"
+  partner_meaning_ja = "私はアークレイリ出身です。休暇ですか？"
 
   [[dialogues.turns]]
   cue = "Say yes, you're on holiday."
+  cue_ja = "はい、休暇中だと答えてください。"
   expect_text = "Já, ég er í fríi."
   expect_meaning = "Yes, I'm on holiday."
+  expect_meaning_ja = "はい、休暇中です。"
   partner = "Velkomin til Íslands!"
   partner_meaning = "Welcome to Iceland!"
+  partner_meaning_ja = "アイスランドへようこそ！"
 
   [[dialogues.turns]]
   cue = "Thank her."
+  cue_ja = "お礼を言ってください。"
   expect = "takk"
 
 [[dialogues]]
 id = "leigubill"
 setting = "In a taxi from the airport. The driver makes conversation."
+setting_ja = "空港からのタクシーの中。運転手が話しかけてきます。"
 topics = ["social", "transport"]
 requires = ["eg_er_her_i_fyrsta_sinn", "eg_er_her_i_viku", "eg_er_job", "forritari", "mer_finnst_island_fallegt", "eg_by_i", "tokyo_dat"]
 
   [[dialogues.turns]]
   opener = "Hefurðu komið til Íslands áður?"
   opener_meaning = "Have you been to Iceland before?"
+  opener_meaning_ja = "アイスランドに来たことはありますか？"
   cue = "Say you're here for the first time."
+  cue_ja = "初めてだと言ってください。"
   expect = "eg_er_her_i_fyrsta_sinn"
   partner = "Og hvað ertu lengi?"
   partner_meaning = "And how long are you staying?"
+  partner_meaning_ja = "どのくらい滞在するんですか？"
 
   [[dialogues.turns]]
   cue = "Say you're here for a week."
+  cue_ja = "一週間滞在すると言ってください。"
   expect = "eg_er_her_i_viku"
   partner = "Fínt. Hvað gerir þú?"
   partner_meaning = "Nice. What do you do?"
+  partner_meaning_ja = "いいですね。お仕事は？"
 
   [[dialogues.turns]]
   cue = "Say you're a programmer and you live in Tokyo."
+  cue_ja = "プログラマーで、東京に住んでいると言ってください。"
   expect_text = "Ég er forritari. Ég bý í Tókýó."
   expect_meaning = "I'm a programmer. I live in Tokyo."
+  expect_meaning_ja = "プログラマーです。東京に住んでいます。"
   partner = "Tókýó! Og hvernig líst þér á Ísland?"
   partner_meaning = "Tokyo! And how do you like Iceland?"
+  partner_meaning_ja = "東京！アイスランドはどうですか？"
 
   [[dialogues.turns]]
   cue = "Say you think Iceland is beautiful."
+  cue_ja = "アイスランドは美しいと思うと言ってください。"
   expect = "mer_finnst_island_fallegt"
   partner = "Takk fyrir það!"
   partner_meaning = "Thanks for that!"
+  partner_meaning_ja = "そう言ってもらえてうれしいです！"

@@ -5,89 +5,108 @@ id = "godan_daginn"
 kind = "phrase"
 target = "Góðan daginn."
 meaning = "Good day."
+meaning_ja = "こんにちは。"
 difficulty = 2
 topics = ["greetings"]
 situation = "You walk into a bakery in the morning. Greet the person behind the counter."
+situation_ja = "朝、パン屋に入ります。店の人にあいさつしてください。"
 
 [[items]]
 id = "gott_kvold"
 kind = "phrase"
 target = "Gott kvöld."
 meaning = "Good evening."
+meaning_ja = "こんばんは。"
 difficulty = 2
 topics = ["greetings"]
 situation = "You arrive at a restaurant at eight in the evening. Greet the host."
+situation_ja = "夜8時にレストランに着きました。案内係にあいさつしてください。"
 
 [[items]]
 id = "goda_nott"
 kind = "phrase"
 target = "Góða nótt."
 meaning = "Good night."
+meaning_ja = "おやすみなさい。"
 difficulty = 2
 topics = ["greetings"]
 situation = "You're going to bed at your host family's. Say good night."
+situation_ja = "ホストファミリーの家で寝る前です。おやすみと言ってください。"
 
 [[items]]
 id = "hae"
 kind = "phrase"
 target = "Hæ."
 meaning = "Hi."
+meaning_ja = "やあ。"
 difficulty = 1
 topics = ["greetings"]
 situation = "A friend waves at you across the street. Greet them casually."
+situation_ja = "通りの向こうから友達が手を振っています。くだけたあいさつをしてください。"
 
 [[items]]
 id = "hallo"
 kind = "phrase"
 target = "Halló."
 meaning = "Hello."
+meaning_ja = "もしもし。／ハロー。"
 difficulty = 1
 topics = ["greetings"]
 situation = "You answer the phone."
+situation_ja = "電話に出ます。"
 
 [[items]]
 id = "bless"
 kind = "phrase"
 target = "Bless."
 meaning = "Bye."
+meaning_ja = "じゃあね。"
 alternatives = ["Bless bless."]
 difficulty = 1
 topics = ["greetings"]
 situation = "You're leaving the shop. Say bye."
+situation_ja = "お店を出ます。別れのあいさつをしてください。"
 
 [[items]]
 id = "takk"
 kind = "phrase"
 target = "Takk."
 meaning = "Thanks."
+meaning_ja = "ありがとう。"
 alternatives = ["Takk fyrir."]
 difficulty = 1
 topics = ["greetings"]
 situation = "The barista hands you your coffee. Thank her."
+situation_ja = "バリスタがコーヒーを渡してくれました。お礼を言ってください。"
 
 [[items]]
 id = "takk_kaerlega"
 kind = "phrase"
 target = "Takk kærlega."
 meaning = "Thanks a lot."
+meaning_ja = "本当にありがとう。"
 difficulty = 2
 topics = ["greetings"]
 situation = "A stranger walked you all the way to the bus stop. Thank him warmly."
+situation_ja = "知らない人がバス停まで一緒に歩いてくれました。心からお礼を言ってください。"
 
 [[items]]
 id = "ekkert_ad_thakka"
 kind = "phrase"
 target = "Ekkert að þakka."
 meaning = "You're welcome."
+meaning_ja = "どういたしまして。"
 difficulty = 2
 topics = ["greetings"]
 situation = "Someone thanks you for holding the door. Say you're welcome."
+situation_ja = "ドアを押さえていたら、お礼を言われました。どういたしまして、と答えてください。"
 
 [[items]]
 id = "ja"
 kind = "vocab"
 target = "Já."
 meaning = "Yes."
+meaning_ja = "はい"
 difficulty = 1
 topics = ["greetings"]
 
@@ -96,6 +115,7 @@ id = "nei"
 kind = "vocab"
 target = "Nei."
 meaning = "No."
+meaning_ja = "いいえ"
 difficulty = 1
 topics = ["greetings"]
 
@@ -104,275 +124,338 @@ id = "jaeja"
 kind = "phrase"
 target = "Jæja."
 meaning = "Well then. (the all-purpose Icelandic word)"
+meaning_ja = "さて。／やれやれ。"
 difficulty = 1
 topics = ["greetings", "discourse"]
 situation = "The conversation has run its course and you want to signal it's time to go."
+situation_ja = "話が一段落して、そろそろ帰る合図を出したいです。"
 
 [[items]]
 id = "afsakid"
 kind = "phrase"
 target = "Afsakið."
 meaning = "Excuse me."
+meaning_ja = "すみません。"
 difficulty = 2
 topics = ["greetings", "directions"]
 situation = "You need to get a stranger's attention in the street."
+situation_ja = "道で知らない人に声をかけたいです。"
 
 [[items]]
 id = "fyrirgefdu"
 kind = "phrase"
 target = "Fyrirgefðu."
 meaning = "Sorry."
+meaning_ja = "ごめんなさい。"
 difficulty = 2
 topics = ["greetings"]
 situation = "You bumped into someone in the queue. Apologise."
+situation_ja = "列で人にぶつかってしまいました。謝ってください。"
 
 [[items]]
 id = "thvi_midur"
 kind = "phrase"
 target = "Því miður."
 meaning = "Unfortunately not. / I'm afraid so."
+meaning_ja = "あいにくですが。"
 difficulty = 2
 topics = ["greetings", "discourse"]
 situation = "Someone asks if you have change. You don't. Say so regretfully."
+situation_ja = "小銭があるか聞かれましたが、ありません。残念そうに答えてください。"
 
 [[items]]
 id = "hvad_segirdu_gott"
 kind = "phrase"
 target = "Hvað segirðu gott?"
 meaning = "How are you?"
+meaning_ja = "元気？"
 difficulty = 3
 topics = ["greetings", "social"]
 chunks = ["gott", "segirðu gott", "Hvað segirðu gott?"]
 situation = "You bump into your neighbour. Ask how she is."
+situation_ja = "近所の人にばったり会いました。元気か聞いてください。"
 
 [[items]]
 id = "allt_gott"
 kind = "phrase"
 target = "Allt gott, takk."
 meaning = "All good, thanks."
+meaning_ja = "元気です、ありがとう。"
 difficulty = 2
 topics = ["greetings", "social"]
 prereqs = ["takk"]
 situation = "Your neighbour asked how you are. Answer that all is good."
+situation_ja = "近所の人に元気か聞かれました。元気だと答えてください。"
 
 [[items]]
 id = "en_thu"
 kind = "phrase"
 target = "En þú?"
 meaning = "And you?"
+meaning_ja = "あなたは？"
 difficulty = 1
 topics = ["social"]
 situation = "You've answered her question. Return it to her."
+situation_ja = "質問に答えました。同じ質問を返してください。"
 
 [[items]]
 id = "hvernig_hefurdu_thad"
 kind = "phrase"
 target = "Hvernig hefurðu það?"
 meaning = "How are you doing?"
+meaning_ja = "調子はどう？"
 difficulty = 3
 topics = ["greetings", "social"]
 chunks = ["það", "hefurðu það", "Hvernig hefurðu það?"]
 situation = "You meet a colleague you haven't seen for a week. Ask how she's doing."
+situation_ja = "一週間ぶりに同僚に会いました。調子を聞いてください。"
 
 [[items]]
 id = "eg_hef_thad_gott"
 kind = "phrase"
 target = "Ég hef það gott."
 meaning = "I'm doing well."
+meaning_ja = "元気にしています。"
 difficulty = 2
 topics = ["greetings", "social"]
 situation = "A colleague asks how you're doing. Say you're doing well."
+situation_ja = "同僚に調子を聞かれました。元気だと答えてください。"
 
 [[items]]
 id = "gaman_ad_sja_thig"
 kind = "phrase"
 target = "Gaman að sjá þig."
 meaning = "Nice to see you."
+meaning_ja = "会えてうれしい。"
 difficulty = 3
 topics = ["greetings", "social"]
 situation = "An old acquaintance walks in. Say it's nice to see them."
+situation_ja = "昔の知り合いが入ってきました。会えてうれしいと言ってください。"
 
 [[items]]
 id = "sjaumst"
 kind = "phrase"
 target = "Sjáumst!"
 meaning = "See you!"
+meaning_ja = "またね！"
 difficulty = 2
 topics = ["arrangements", "greetings"]
 situation = "You're parting with a friend you'll see again soon."
+situation_ja = "近いうちにまた会う友達と別れます。"
 
 [[items]]
 id = "sjaumst_seinna"
 kind = "phrase"
 target = "Sjáumst seinna!"
 meaning = "See you later!"
+meaning_ja = "また後で！"
 difficulty = 2
 topics = ["greetings"]
 prereqs = ["sjaumst"]
 situation = "You're leaving the office for lunch and will be back."
+situation_ja = "昼食に出かけますが、オフィスに戻ってきます。"
 
 [[items]]
 id = "velkomin"
 kind = "phrase"
 target = "Velkomin."
 meaning = "Welcome."
+meaning_ja = "ようこそ。"
 difficulty = 2
 topics = ["greetings"]
 situation = "Friends arrive at your door. Welcome them in."
+situation_ja = "友人たちが玄関に着きました。家に迎え入れてください。"
 
 [[items]]
 id = "gjordu_svo_vel"
 kind = "phrase"
 target = "Gjörðu svo vel."
 meaning = "Here you are. / Go ahead."
+meaning_ja = "どうぞ。"
 difficulty = 3
 topics = ["greetings", "cafe"]
 chunks = ["vel", "svo vel", "Gjörðu svo vel."]
 situation = "You hand your friend the salt she asked for."
+situation_ja = "友達に頼まれた塩を渡します。"
 
 [[items]]
 id = "verdi_ther_ad_godu"
 kind = "phrase"
 target = "Verði þér að góðu."
 meaning = "Enjoy your meal. (also the reply to thanks for food)"
+meaning_ja = "どうぞ召し上がれ。"
 difficulty = 4
 topics = ["greetings", "cafe"]
 chunks = ["góðu", "að góðu", "þér að góðu", "Verði þér að góðu."]
 situation = "You've served your guest a plate of food. Wish her a good meal."
+situation_ja = "お客さんに料理を出しました。召し上がれと言ってください。"
 
 [[items]]
 id = "til_hamingju"
 kind = "phrase"
 target = "Til hamingju!"
 meaning = "Congratulations!"
+meaning_ja = "おめでとう！"
 difficulty = 2
 topics = ["greetings", "social"]
 situation = "Your colleague just told you it's her birthday. Congratulate her."
+situation_ja = "同僚が今日は誕生日だと言いました。お祝いを言ってください。"
 
 [[items]]
 id = "gangi_ther_vel"
 kind = "phrase"
 target = "Gangi þér vel!"
 meaning = "Good luck!"
+meaning_ja = "がんばって！"
 difficulty = 3
 topics = ["greetings", "social"]
 situation = "Your friend is off to a job interview. Wish him luck."
+situation_ja = "友達が面接に向かいます。健闘を祈ってください。"
 
 [[items]]
 id = "eigdu_godan_dag"
 kind = "phrase"
 target = "Eigðu góðan dag."
 meaning = "Have a good day."
+meaning_ja = "良い一日を。"
 difficulty = 3
 topics = ["greetings"]
 chunks = ["dag", "góðan dag", "Eigðu góðan dag."]
 situation = "You're leaving the shop after paying. Wish the cashier a good day."
+situation_ja = "会計を終えてお店を出ます。レジの人に良い一日をと言ってください。"
 
 [[items]]
 id = "somuleidis"
 kind = "phrase"
 target = "Sömuleiðis."
 meaning = "Likewise. / Same to you."
+meaning_ja = "そちらこそ。"
 difficulty = 2
 topics = ["greetings"]
 situation = "The cashier wished you a good day. Wish her the same."
+situation_ja = "レジの人に良い一日をと言われました。同じ言葉を返してください。"
 
 [[items]]
 id = "skal"
 kind = "phrase"
 target = "Skál!"
 meaning = "Cheers!"
+meaning_ja = "乾杯！"
 difficulty = 1
 topics = ["greetings", "social"]
 situation = "Everyone raises their glass. Say cheers."
+situation_ja = "みんなグラスを掲げています。乾杯と言ってください。"
 
 [[items]]
 id = "allt_i_lagi"
 kind = "phrase"
 target = "Allt í lagi."
 meaning = "OK, fine."
+meaning_ja = "わかりました。"
 alternatives = ["Í lagi."]
 difficulty = 2
 topics = ["arrangements", "discourse"]
 situation = "She suggests seven o'clock. Agree."
+situation_ja = "7時を提案されました。承諾してください。"
 
 [[items]]
 id = "ekkert_mal"
 kind = "phrase"
 target = "Ekkert mál."
 meaning = "No problem."
+meaning_ja = "問題ないよ。"
 difficulty = 2
 topics = ["greetings", "discourse"]
 situation = "Someone apologises for being five minutes late. Tell them it's no problem."
+situation_ja = "5分遅れたと謝られました。問題ないと言ってください。"
 
 [[items]]
 id = "ha"
 kind = "phrase"
 target = "Ha?"
 meaning = "Sorry? (what did you say?)"
+meaning_ja = "え？"
 difficulty = 1
 topics = ["clarifying"]
 situation = "Someone spoke too fast. Ask them to say it again, casually."
+situation_ja = "相手が早口で聞き取れませんでした。くだけた調子で聞き返してください。"
 
 [[items]]
 id = "eg_skil"
 kind = "phrase"
 target = "Ég skil."
 meaning = "I understand."
+meaning_ja = "わかりました。"
 difficulty = 1
 topics = ["clarifying"]
 situation = "The receptionist explained where breakfast is. Tell her you understand."
+situation_ja = "受付の人が朝食の場所を説明してくれました。わかったと伝えてください。"
 
 [[items]]
 id = "eg_skil_ekki"
 kind = "phrase"
 target = "Ég skil ekki."
 meaning = "I don't understand."
+meaning_ja = "わかりません。"
 difficulty = 2
 topics = ["clarifying"]
 prereqs = ["eg_skil"]
 situation = "The man explained something quickly and you got lost. Tell him you don't understand."
+situation_ja = "男性が早口で説明して、ついていけませんでした。わからないと伝えてください。"
 
 [[items]]
 id = "endilega"
 kind = "phrase"
 target = "Endilega."
 meaning = "Please do. / By all means."
+meaning_ja = "ぜひどうぞ。"
 difficulty = 2
 topics = ["discourse"]
 situation = "Someone asks if they may sit at your table. Tell them by all means."
+situation_ja = "相席してもいいか聞かれました。ぜひどうぞと言ってください。"
 
 [[items]]
 id = "audvitad"
 kind = "phrase"
 target = "Auðvitað."
 meaning = "Of course."
+meaning_ja = "もちろん。"
 difficulty = 2
 topics = ["discourse"]
 situation = "A friend asks if she can borrow your umbrella. Say of course."
+situation_ja = "友達が傘を借りてもいいか聞きました。もちろんと言ってください。"
 
 [[dialogues]]
 id = "nagranni"
 setting = "You meet your neighbour on the stairs in the morning."
+setting_ja = "朝、階段で近所の人に会いました。"
 topics = ["greetings", "social"]
 requires = ["godan_daginn", "hvad_segirdu_gott", "allt_gott", "en_thu", "sjaumst"]
 
   [[dialogues.turns]]
   cue = "Greet her with good day and ask how she is."
+  cue_ja = "こんにちはとあいさつして、元気か聞いてください。"
   expect_text = "Góðan daginn. Hvað segirðu gott?"
   expect_meaning = "Good day. How are you?"
+  expect_meaning_ja = "こんにちは。元気？"
   partner = "Allt fínt, takk. En þú?"
   partner_meaning = "All fine, thanks. And you?"
+  partner_meaning_ja = "元気だよ、ありがとう。あなたは？"
 
   [[dialogues.turns]]
   cue = "Say all good, thanks."
+  cue_ja = "元気です、ありがとうと言ってください。"
   expect = "allt_gott"
   partner = "Gott að heyra. Jæja, ég verð að fara."
   partner_meaning = "Good to hear. Well, I have to go."
+  partner_meaning_ja = "よかった。じゃあ、もう行かないと。"
 
   [[dialogues.turns]]
   cue = "Say OK, see you!"
+  cue_ja = "わかりました、またね、と言ってください。"
   expect_text = "Allt í lagi. Sjáumst!"
   expect_meaning = "OK. See you!"
+  expect_meaning_ja = "わかりました。またね！"
   partner = "Sjáumst!"
   partner_meaning = "See you!"
+  partner_meaning_ja = "またね！"

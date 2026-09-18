@@ -5,6 +5,7 @@ id = "islensku"
 kind = "vocab"
 target = "íslensku"
 meaning = "Icelandic (the language)"
+meaning_ja = "アイスランド語"
 difficulty = 2
 tags = ["acc_language"]
 topics = ["clarifying"]
@@ -15,6 +16,7 @@ id = "ensku"
 kind = "vocab"
 target = "ensku"
 meaning = "English (the language)"
+meaning_ja = "英語"
 difficulty = 1
 tags = ["acc_language"]
 topics = ["clarifying"]
@@ -24,6 +26,7 @@ id = "japonsku"
 kind = "vocab"
 target = "japönsku"
 meaning = "Japanese (the language)"
+meaning_ja = "日本語"
 difficulty = 2
 tags = ["acc_language"]
 topics = ["clarifying"]
@@ -33,6 +36,7 @@ id = "thysku"
 kind = "vocab"
 target = "þýsku"
 meaning = "German (the language)"
+meaning_ja = "ドイツ語"
 difficulty = 2
 tags = ["acc_language"]
 topics = ["clarifying"]
@@ -42,6 +46,7 @@ id = "fronsku"
 kind = "vocab"
 target = "frönsku"
 meaning = "French (the language)"
+meaning_ja = "フランス語"
 difficulty = 2
 tags = ["acc_language"]
 topics = ["clarifying"]
@@ -51,6 +56,7 @@ id = "donsku"
 kind = "vocab"
 target = "dönsku"
 meaning = "Danish (the language)"
+meaning_ja = "デンマーク語"
 difficulty = 2
 tags = ["acc_language"]
 topics = ["clarifying"]
@@ -60,6 +66,7 @@ id = "spaensku"
 kind = "vocab"
 target = "spænsku"
 meaning = "Spanish (the language)"
+meaning_ja = "スペイン語"
 difficulty = 2
 tags = ["acc_language"]
 topics = ["clarifying"]
@@ -69,6 +76,7 @@ id = "talar_thu"
 kind = "construction"
 target = "Talar þú {language}?"
 meaning = "Do you speak {language}?"
+meaning_ja = "{language}を話しますか？"
 difficulty = 3
 topics = ["clarifying"]
 slots = { language = "acc_language" }
@@ -76,12 +84,14 @@ example = { language = "ensku" }
 components = ["ensku"]
 prereqs = ["ensku"]
 situation = "You're not sure the receptionist understands you. Ask if she speaks English."
+situation_ja = "受付の人に通じているか不安です。英語を話せるか聞いてください。"
 
 [[items]]
 id = "eg_tala"
 kind = "construction"
 target = "Ég tala {language}."
 meaning = "I speak {language}."
+meaning_ja = "{language}を話します。"
 difficulty = 2
 topics = ["clarifying", "social"]
 slots = { language = "acc_language" }
@@ -94,27 +104,32 @@ id = "eg_tala_sma_islensku"
 kind = "phrase"
 target = "Ég tala smá íslensku."
 meaning = "I speak a little Icelandic."
+meaning_ja = "アイスランド語を少し話します。"
 difficulty = 3
 topics = ["clarifying", "social"]
 prereqs = ["eg_tala", "islensku"]
 chunks = ["íslensku", "smá íslensku", "Ég tala smá íslensku."]
 situation = "She switches to English. Tell her you speak a little Icelandic."
+situation_ja = "相手が英語に切り替えました。アイスランド語を少し話すと伝えてください。"
 
 [[items]]
 id = "eg_tala_ekki_islensku"
 kind = "phrase"
 target = "Ég tala ekki íslensku."
 meaning = "I don't speak Icelandic."
+meaning_ja = "アイスランド語は話せません。"
 difficulty = 2
 topics = ["clarifying"]
 prereqs = ["eg_tala", "islensku"]
 situation = "A man starts a long story in Icelandic. Tell him you don't speak Icelandic."
+situation_ja = "男性がアイスランド語で長い話を始めました。アイスランド語は話せないと伝えてください。"
 
 [[items]]
 id = "eg_er_ad_laera"
 kind = "construction"
 target = "Ég er að læra {language}."
 meaning = "I'm learning {language}."
+meaning_ja = "{language}を勉強しています。"
 difficulty = 3
 topics = ["clarifying", "social"]
 slots = { language = "acc_language" }
@@ -128,205 +143,252 @@ id = "gaetirdu_talad_haegar"
 kind = "phrase"
 target = "Gætirðu talað hægar?"
 meaning = "Could you speak more slowly?"
+meaning_ja = "もっとゆっくり話してもらえますか？"
 difficulty = 4
 topics = ["clarifying"]
 chunks = ["hægar", "talað hægar", "Gætirðu talað hægar?"]
 situation = "The barista is speaking far too fast. Ask her to speak more slowly."
+situation_ja = "バリスタの話が速すぎます。もっとゆっくり話すよう頼んでください。"
 
 [[items]]
 id = "gaetirdu_endurtekid_thetta"
 kind = "phrase"
 target = "Gætirðu endurtekið þetta?"
 meaning = "Could you repeat that?"
+meaning_ja = "もう一度言ってもらえますか？"
 difficulty = 4
 topics = ["clarifying"]
 chunks = ["þetta", "endurtekið þetta", "Gætirðu endurtekið þetta?"]
 situation = "You missed the room number she said. Ask her to repeat it."
+situation_ja = "部屋番号を聞き逃しました。もう一度言うよう頼んでください。"
 
 [[items]]
 id = "hvad_thydir_thetta"
 kind = "phrase"
 target = "Hvað þýðir þetta?"
 meaning = "What does this mean?"
+meaning_ja = "これはどういう意味ですか？"
 difficulty = 3
 topics = ["clarifying"]
 situation = "There's a word on the sign you don't know. Ask what it means."
+situation_ja = "看板に知らない単語があります。意味を聞いてください。"
 
 [[items]]
 id = "hvad_heitir_thetta_a_islensku"
 kind = "phrase"
 target = "Hvað heitir þetta á íslensku?"
 meaning = "What is this called in Icelandic?"
+meaning_ja = "これはアイスランド語で何と言いますか？"
 difficulty = 4
 topics = ["clarifying"]
 chunks = ["íslensku", "á íslensku", "þetta á íslensku", "Hvað heitir þetta á íslensku?"]
 situation = "You point at a strange fish on the menu. Ask what it's called in Icelandic."
+situation_ja = "メニューの見慣れない魚を指さして、アイスランド語で何と言うか聞いてください。"
 
 [[items]]
 id = "hvernig_segir_madur_thetta"
 kind = "phrase"
 target = "Hvernig segir maður þetta á íslensku?"
 meaning = "How do you say this in Icelandic?"
+meaning_ja = "これはアイスランド語でどう言いますか？"
 difficulty = 4
 topics = ["clarifying"]
 chunks = ["íslensku", "þetta á íslensku", "segir maður þetta á íslensku", "Hvernig segir maður þetta á íslensku?"]
 situation = "You want to know how to say 'cheers' properly. Ask how one says it in Icelandic."
+situation_ja = "「乾杯」を正しく言いたいです。アイスランド語でどう言うか聞いてください。"
 
 [[items]]
 id = "geturdu_skrifad_thad"
 kind = "phrase"
 target = "Geturðu skrifað það?"
 meaning = "Can you write it down?"
+meaning_ja = "書いてもらえますか？"
 difficulty = 3
 topics = ["clarifying"]
 situation = "The address is too hard to catch by ear. Ask her to write it."
+situation_ja = "住所が耳では聞き取れません。書いてもらうよう頼んでください。"
 
 [[items]]
 id = "eg_veit_ekki"
 kind = "phrase"
 target = "Ég veit ekki."
 meaning = "I don't know."
+meaning_ja = "知りません。"
 alternatives = ["Ég veit það ekki."]
 difficulty = 2
 topics = ["clarifying", "discourse"]
 situation = "Someone asks you where the nearest bank is. You have no idea."
+situation_ja = "一番近い銀行はどこかと聞かれました。見当がつきません。"
 
 [[items]]
 id = "eg_er_ekki_viss"
 kind = "phrase"
 target = "Ég er ekki viss."
 meaning = "I'm not sure."
+meaning_ja = "よくわかりません。"
 difficulty = 2
 topics = ["clarifying", "discourse"]
 situation = "Your friend asks if the museum is open on Mondays. You're not sure."
+situation_ja = "友達が博物館は月曜も開いているか聞きました。確信がありません。"
 
 [[items]]
 id = "augnablik"
 kind = "phrase"
 target = "Augnablik."
 meaning = "One moment."
+meaning_ja = "ちょっと待ってください。"
 difficulty = 2
 topics = ["clarifying"]
 situation = "The phone rings while you're paying. Ask the cashier for a moment."
+situation_ja = "会計中に電話が鳴りました。レジの人に少し待ってもらってください。"
 
 [[items]]
 id = "biddu"
 kind = "phrase"
 target = "Bíddu."
 meaning = "Wait. / Hang on."
+meaning_ja = "待って。"
 difficulty = 1
 topics = ["clarifying"]
 situation = "Your friend is walking off while you tie your shoe. Tell him to hang on."
+situation_ja = "靴ひもを結んでいる間に友達が歩いていきます。待つよう言ってください。"
 
 [[items]]
 id = "skilurdu"
 kind = "phrase"
 target = "Skilurðu?"
 meaning = "Do you understand?"
+meaning_ja = "わかりますか？"
 difficulty = 2
 topics = ["clarifying"]
 situation = "You've explained the way to the pool in slow Icelandic. Check she understood."
+situation_ja = "プールへの道をゆっくりしたアイスランド語で説明しました。通じたか確かめてください。"
 
 [[items]]
 id = "hvad_sagdirdu"
 kind = "phrase"
 target = "Hvað sagðirðu?"
 meaning = "What did you say?"
+meaning_ja = "何と言いましたか？"
 difficulty = 3
 topics = ["clarifying"]
 situation = "The bus driver said something over the engine noise. Ask what he said."
+situation_ja = "エンジン音の中でバスの運転手が何か言いました。何と言ったか聞いてください。"
 
 [[items]]
 id = "geturdu_hjalpad_mer"
 kind = "phrase"
 target = "Geturðu hjálpað mér?"
 meaning = "Can you help me?"
+meaning_ja = "手伝ってもらえますか？"
 difficulty = 3
 topics = ["clarifying", "emergencies"]
 chunks = ["mér", "hjálpað mér", "Geturðu hjálpað mér?"]
 situation = "The ticket machine won't take your card. Ask the person behind you for help."
+situation_ja = "券売機がカードを受け付けません。後ろの人に助けを求めてください。"
 
 [[items]]
 id = "eg_tharf_hjalp"
 kind = "phrase"
 target = "Ég þarf hjálp."
 meaning = "I need help."
+meaning_ja = "助けが必要です。"
 difficulty = 2
 topics = ["clarifying", "emergencies"]
 situation = "You're at the information desk with a problem. Say you need help."
+situation_ja = "案内カウンターで困っています。助けが必要だと言ってください。"
 
 [[items]]
 id = "hvad_er_thetta"
 kind = "phrase"
 target = "Hvað er þetta?"
 meaning = "What is this?"
+meaning_ja = "これは何ですか？"
 difficulty = 2
 topics = ["clarifying"]
 situation = "There's a grey paste on your plate. Ask what it is."
+situation_ja = "皿に灰色のペーストがあります。何か聞いてください。"
 
 [[items]]
 id = "er_thetta_rett"
 kind = "phrase"
 target = "Er þetta rétt?"
 meaning = "Is this right?"
+meaning_ja = "これで合っていますか？"
 difficulty = 2
 topics = ["clarifying"]
 situation = "You've filled in the form. Ask the clerk whether it's right."
+situation_ja = "書類に記入しました。係の人に合っているか聞いてください。"
 
 [[items]]
 id = "eg_er_utlendingur"
 kind = "phrase"
 target = "Ég er útlendingur."
 meaning = "I'm a foreigner."
+meaning_ja = "私は外国人です。"
 difficulty = 3
 topics = ["clarifying", "social"]
 situation = "The clerk assumes you know the system. Explain you're a foreigner."
+situation_ja = "係の人が仕組みを知っている前提で話します。外国人だと説明してください。"
 
 [[items]]
 id = "politeness_get_eg_fengid"
 kind = "transform"
 target = "Ég ætla að fá … → Get ég fengið …?"
 meaning = "asking for the same thing more politely"
+meaning_ja = "同じ注文をより丁寧に言う"
 difficulty = 3
 topics = ["grammar", "cafe"]
 instruction = "Say it more politely, as a question:"
+instruction_ja = "疑問文にして、もっと丁寧に言ってください。"
 prereqs = ["eg_aetla_ad_fa", "get_eg_fengid_reikninginn"]
 examples = [
-  { source = "Ég ætla að fá kaffi.", source_meaning = "I'll have a coffee.", result = "Get ég fengið kaffi?", result_meaning = "Could I have a coffee?" },
-  { source = "Ég ætla að fá te.", source_meaning = "I'll have a tea.", result = "Get ég fengið te?", result_meaning = "Could I have a tea?" },
-  { source = "Ég ætla að fá vatn.", source_meaning = "I'll have water.", result = "Get ég fengið vatn?", result_meaning = "Could I have water?" },
-  { source = "Ég ætla að fá matseðilinn.", source_meaning = "I'll have the menu.", result = "Get ég fengið matseðilinn?", result_meaning = "Could I have the menu?" },
-  { source = "Ég ætla að fá súpu.", source_meaning = "I'll have soup.", result = "Get ég fengið súpu?", result_meaning = "Could I have soup?" },
+  { source = "Ég ætla að fá kaffi.", source_meaning = "I'll have a coffee.", source_meaning_ja = "コーヒーをください。", result = "Get ég fengið kaffi?", result_meaning = "Could I have a coffee?", result_meaning_ja = "コーヒーをいただけますか？" },
+  { source = "Ég ætla að fá te.", source_meaning = "I'll have a tea.", source_meaning_ja = "紅茶をください。", result = "Get ég fengið te?", result_meaning = "Could I have a tea?", result_meaning_ja = "紅茶をいただけますか？" },
+  { source = "Ég ætla að fá vatn.", source_meaning = "I'll have water.", source_meaning_ja = "水をください。", result = "Get ég fengið vatn?", result_meaning = "Could I have water?", result_meaning_ja = "水をいただけますか？" },
+  { source = "Ég ætla að fá matseðilinn.", source_meaning = "I'll have the menu.", source_meaning_ja = "メニューをください。", result = "Get ég fengið matseðilinn?", result_meaning = "Could I have the menu?", result_meaning_ja = "メニューをいただけますか？" },
+  { source = "Ég ætla að fá súpu.", source_meaning = "I'll have soup.", source_meaning_ja = "スープをください。", result = "Get ég fengið súpu?", result_meaning = "Could I have soup?", result_meaning_ja = "スープをいただけますか？" },
 ]
 
 [[dialogues]]
 id = "tungumal"
 setting = "At the tourist information desk. The woman behind it speaks quickly."
+setting_ja = "観光案内所のカウンター。係の女性は早口です。"
 topics = ["clarifying"]
 requires = ["talar_thu", "ensku", "eg_tala_sma_islensku", "gaetirdu_talad_haegar", "takk"]
 
   [[dialogues.turns]]
   opener = "Góðan daginn, hvað get ég gert fyrir þig?"
   opener_meaning = "Good day, what can I do for you?"
+  opener_meaning_ja = "こんにちは、どのようなご用件ですか？"
   cue = "Ask if she speaks English."
+  cue_ja = "英語を話すか聞いてください。"
   expect_text = "Talar þú ensku?"
   expect_meaning = "Do you speak English?"
+  expect_meaning_ja = "英語を話しますか？"
   partner = "Já, smá. En þú talar íslensku?"
   partner_meaning = "Yes, a little. But you speak Icelandic?"
+  partner_meaning_ja = "ええ、少し。でもあなたはアイスランド語を話すんですね？"
 
   [[dialogues.turns]]
   cue = "Say you speak a little Icelandic."
+  cue_ja = "アイスランド語を少し話すと言ってください。"
   expect = "eg_tala_sma_islensku"
   partner = "Frábært! Þá tölum við bara íslensku. Sundlaugin er beint áfram og svo til vinstri, rétt hjá bankanum."
   partner_meaning = "Great! Then we'll just speak Icelandic. The pool is straight ahead and then left, right by the bank."
+  partner_meaning_ja = "すばらしい！じゃあアイスランド語で話しましょう。プールはまっすぐ行って左、銀行のすぐそばです。"
 
   [[dialogues.turns]]
   cue = "That was too fast. Ask her to speak more slowly."
+  cue_ja = "速すぎました。もっとゆっくり話すよう頼んでください。"
   expect = "gaetirdu_talad_haegar"
   partner = "Fyrirgefðu. Beint áfram… og svo til vinstri."
   partner_meaning = "Sorry. Straight ahead… and then to the left."
+  partner_meaning_ja = "ごめんなさい。まっすぐ…それから左です。"
 
   [[dialogues.turns]]
   cue = "Say you understand, and thank her."
+  cue_ja = "わかったと言って、お礼を言ってください。"
   expect_text = "Ég skil. Takk."
   expect_meaning = "I understand. Thanks."
+  expect_meaning_ja = "わかりました。ありがとう。"
