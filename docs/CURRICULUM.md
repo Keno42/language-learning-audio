@@ -26,13 +26,13 @@ skips anything whose `prereqs` the learner does not know yet.
 | `kind` | all | `vocab`, `phrase`, `construction`, `transform` |
 | `target` | all | the target-language text spoken by the native voice |
 | `meaning` | all | known-language gloss the instructor reads out |
-| `difficulty` | all | 1–5; ≥4 (or ≥5 words, or `chunks`) triggers backward build; lengthens pauses |
+| `difficulty` | all | 1–5; ≥4 (or ≥5 words, or `chunks`, or a single word with 3+ syllables) triggers backward build; lengthens pauses |
 | `topics` | all | free tags for `--topics`; first topic is used for interleaving |
 | `tags` | vocab | which construction slots accept this item (e.g. `orderable`, `place`) |
 | `prereqs` | all | ids that must be *learned* (≥2 successful recalls) first |
 | `components` | all | ids this item is built from (documentation for now) |
 | `situation` | phrase, construction | known-language cue for the *situation* stage: "You walk into a bakery. Greet the baker." The instructor adds "What do you say?" |
-| `chunks` | phrase | explicit backward-build pieces, shortest first, last = full target |
+| `chunks` | vocab, phrase | explicit backward-build pieces, shortest first, last = full target — overrides the automatic word- or syllable-split |
 | `alternatives` | all | other acceptable answers (stored in metadata, not yet spoken) |
 | `pronunciation_notes` | all | printed once in the transcript, under the first exercise on that item; not spoken, and not per-language glossed (always shown as written, regardless of `--known`) |
 | `slots` | construction | `{ slot = "tag" }`; `target` and `meaning` must contain `{slot}` |
@@ -127,4 +127,13 @@ takes an oblique case. See `curricula/is-en-a1.toml` for the pattern.
 - Keep `meaning` short and natural; it is read aloud as the prompt.
 - Add `chunks` by hand for phrases with liaison or elision where a naive
   word split would sound wrong.
+- Before writing `pronunciation_notes` or a `RESPELL_FOR_SPEECH` override
+  (`audiolesson/render/renderer.py`), read the *whole* dictionary entry for
+  the word, not just the first result that matches what you already expect.
+  A spelling can be a homograph with an unrelated etymology and a different
+  pronunciation (Icelandic "halló" the Danish-loan greeting vs. an unrelated
+  slang adjective spelled the same way — see `docs/HANDOFF.md` session 6).
+  Citing the general spelling rule isn't the same as citing the specific
+  word; if in doubt, check other words with the same risk (e.g. "bolli",
+  "galli") before asserting how any of them sound.
 - No real personal data. Names in examples are fictional.

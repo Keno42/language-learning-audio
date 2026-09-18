@@ -1,9 +1,160 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-18 (session 6, corrected: halló's greeting sense has no
-click — see "Correction" below, which supersedes the phonology claim in
-session 5)._ Keep this current: whoever picks the project up next, human or
-AI, should be able to continue from here without re-deriving decisions._
+_Last updated 2026-09-18 (session 7: resolved GitHub issues #7–#10, oldest
+first)._ Keep this current: whoever picks the project up next, human or AI,
+should be able to continue from here without re-deriving decisions._
+
+## Session 7: working through the open GitHub issues, oldest first
+
+The owner filed four issues (#7–#10, all with self-explanatory titles and no
+body) and asked for them to be resolved one at a time, in order.
+
+### Issue #7 — "/" is read aloud as "slash" instead of "or"
+
+Curriculum authors write `"A / B"` (and, in the Japanese glosses, the
+fullwidth twin `"A／B"`) to show two acceptable phrasings at a glance — e.g.
+`meaning = "Excuse me. / Sorry."` or `meaning_ja = "もしもし。／ハロー。"`. Read
+aloud literally by the TTS voice, that character is pronounced as its own
+name ("slash"), which is not what it's there to mean.
+
+Grepped every `curricula/is-en/*.toml` for `/` and `／` first, to make sure
+the fix could be scoped safely: the character only ever shows up in narrated
+known-language fields (`meaning`, `meaning_ja`, and their kin) as this
+alternative-phrasing convention, or inside `#`-comments. No `target =` field
+(the actual Icelandic speech text) contains one, so there is no risk of the
+fix reaching into target-language audio.
+
+Fixed at the same render layer as session 6's `RESPELL_FOR_SPEECH` — the
+right layer for anything that should change what the TTS hears but not what
+the transcript/cues.json/curriculum record: `audiolesson/render/renderer.py`
+now also has `NARRATION_SLASH_AS_SPOKEN`, a small per-language regex table
+(`"en": "/" → " or "`, `"ja": "／" → "または"`), applied in `request_for()`
+right after `_respell()`. English uses a whitespace-flexible regex so both
+`"A / B"` (spaced) and `"yes/no"` (bare) come out right; the Japanese fullwidth
+slash needs no such flexibility since it's never surrounded by ASCII spaces
+in this curriculum.
+
+Deliberately not a curriculum-content change: rewriting every `meaning`
+field to spell out "or" would touch dozens of lines across many files for a
+purely cosmetic fix, and the written "/" is genuinely useful there (a reader
+scans it faster than a written-out "or"). The render layer is the one place
+that already exists specifically to make audio and record diverge on
+purpose (see session 6) — reusing it here is the smaller change.
+
+Tests added in `tests/test_audiolesson.py::RenderTests`:
+`test_narration_slash_is_spoken_as_a_word_not_read_as_slash` (unit-tests the
+regex table directly, English and Japanese, plus the guard that it doesn't
+touch `is`) and `test_narration_slash_reaches_the_tts_but_the_record_keeps_the_slash`
+(end-to-end: renders a script, spies on what the stub provider actually
+receives, confirms the transcript and cues.json still show the "/").
+
+### Issue #8 — no breathing room between the meaning and the new word
+
+On a brand-new item's first exposure, `Builder.intro()` narrated the
+known-language meaning (e.g. "Something new. Hello.") and then spoke the
+target-language word immediately after, with no pause segment between them
+— unlike every other join point in that same method, which already has a
+`_beat()`. The two clips ran together as one, making it hard to tell where
+the known language ends and the target language starts on the one exposure
+where that boundary matters most.
+
+Fix: one `self._beat(sc, ex)` call each in `Builder.intro()` (before the
+first `item.target` speak) and `Builder._intro_construction()` (same spot,
+for a new sentence pattern). `_beat` is already the same 0.8s gap used
+between every other segment pair in this file (`timing.py`'s `beat`), so
+this isn't a new timing concept — just one missing insertion of an existing
+one, at the one place a first-time listener needs it most.
+
+Left `_intro_transform()` untouched: its first narration is generic
+instructions ("Here's how this works"), not the item's meaning, so it isn't
+the same "known-language words butting up against target-language words"
+case the issue describes.
+
+Test added in `tests/test_audiolesson.py::LessonStructureTests`:
+`test_intro_pauses_between_meaning_and_target_word`, which drives `Builder`
+directly (bypassing the planner) on the sample curriculum's first plain
+item and asserts a `pause` segment sits on both sides of the narrate/speak
+boundary.
+
+### Issue #9 — long words are hard to hold in memory; break them down
+
+The existing "hard phrase" build-up (`Item.is_hard()` /
+`Item.backward_chunks()`, used by `Builder.intro()`) already grows a
+multi-word phrase backward from the end, one word at a time. It never
+applied to a single long word, though, because `word_count` is 1 regardless
+of how many syllables that one word has — so something like Icelandic
+"flugvöllurinn" (airport, the) or "hjúkrunarfræðingur" (nurse) got no
+build-up at all, which is exactly the case the issue describes.
+
+Considered hand-authoring `chunks =` overrides on the specific long words
+already flagged as hard elsewhere in this repo's own notes — that's the
+existing, already-correct escape hatch, and costs zero new code — but it
+only fixes the handful of words someone remembers to tag, and the
+Icelandic course alone has ~370 single-word vocabulary items (of which
+about 108 are long enough to want this). Went with a general fix instead:
+
+- `audiolesson/content.py` adds `_syllable_pieces()`: split a word at the
+  boundary before each vowel-run's onset, leaving one consonant with the
+  following syllable when more than one precedes it. **This is a mechanical,
+  vowel-anchored heuristic, not a phonological syllabifier** — say so
+  explicitly in the code comment, because after session 6's mis-cited "halló"
+  claim, this file is not going to assert linguistic authority it doesn't
+  have again. Icelandic in particular allows onset clusters the heuristic
+  doesn't know about (`verkfræðingur` splits as `verkf-ræð-in-gur` here, where
+  a real syllabification keeps `fr` together: `verk-fræð-ing-ur`). What it
+  reliably does is land next to a vowel, so every piece is still something a
+  learner can say as one unit and the pieces still concatenate back to the
+  exact word — good enough for "build it up gradually," not offered as a
+  pronunciation authority.
+- `Item.is_hard()` now also returns `True` for a single word with 3+ vowel
+  runs (an approximate syllable count) — the same threshold used to size the
+  build-up, not a separate guess.
+- `Item.backward_chunks()` routes a single word through `_syllable_pieces()`
+  and joins the growing tail with no separator (`""` instead of `" "`),
+  since there's no space to rejoin on within one word; multi-word phrases
+  are unaffected.
+
+Checked the blast radius before committing to this being "general, not
+sprawling": across the Icelandic course's 993 items, 108 single-word items
+(~11%) newly qualify for build-up; the French sample curriculum flags one
+(`Enchanté.`, genuinely three syllables). Full test suite (`test_full_course_
+over_the_icelandic_set` et al.) still passes, so the extra build-up doesn't
+blow the lesson-length budget.
+
+Test added in `tests/test_audiolesson.py::CurriculumTests`:
+`test_long_single_word_is_hard_and_builds_backward_by_syllable` — a short
+two-syllable word stays "easy," a long compound is flagged hard and its
+chunks are genuine, space-free tails of the word that reassemble into it.
+
+### Issue #10 — watch for homographs like "bolli"/"galli" the way "halló" needed
+
+Neither "bolli" nor "galli" is in any curriculum yet, so there is no live
+bug here — this issue is the owner asking, in the direct aftermath of the
+"halló" citation mistake earlier in this session (see the "Correction"
+under session 6), for future curriculum work to actually watch for that
+failure mode instead of repeating it. That's a process gap, not a code one,
+so the fix is a documented guideline rather than a change to any word.
+
+Added to `docs/CURRICULUM.md`'s "Guidelines that make lessons good": before
+writing `pronunciation_notes` or a `RESPELL_FOR_SPEECH` override, read the
+whole dictionary entry for the specific word being taught, not just the
+first result that confirms an existing hypothesis — a spelling can be a
+homograph with an unrelated etymology and a different pronunciation, and
+citing the general rule for a language isn't the same as citing the
+specific word. Named "bolli" and "galli" explicitly, since the owner raised
+them, as words worth that check if/when they're added.
+
+Also fixed two lines in `docs/CURRICULUM.md`'s field table left stale by
+session 7's own issue #9 fix: `difficulty`'s row didn't mention that a
+single long word now also triggers backward build, and `chunks`'s row said
+it only applied to `phrase`-kind items when `vocab` items use it too (the
+Icelandic vocabulary words this session added syllable chunking for are all
+`kind = "vocab"`).
+
+No test to add — this is documentation only. Ran the full suite anyway to
+confirm the doc-only change didn't touch anything.
+
+This closes out issues #7–#10, in the order they were filed.
 
 ## Session 6: owner overrode session 5's "leave it, it's correct" call
 

@@ -196,6 +196,22 @@ class CurriculumTests(unittest.TestCase):
         for a, b in zip(chunks, chunks[1:]):
             self.assertTrue(b.rstrip(".?! ").endswith(a.rstrip(".?! ")), (a, b))
 
+    def test_long_single_word_is_hard_and_builds_backward_by_syllable(self):
+        """A long word is just as hard to hold in memory as a long phrase, even though it's
+        one 'word' — it should get the same backward build-up, chunked without spaces."""
+        from audiolesson.content import Item
+
+        easy = Item(id="x", kind="vocab", target="strætó", meaning="bus")
+        hard = Item(id="y", kind="vocab", target="flugvöllurinn", meaning="the airport")
+        self.assertFalse(easy.is_hard())  # short, two-syllable word: no build-up needed
+        self.assertTrue(hard.is_hard())
+        chunks = hard.backward_chunks()
+        self.assertEqual(chunks[-1], hard.target)
+        self.assertGreater(len(chunks), 1)
+        for c in chunks[:-1]:
+            self.assertNotIn(" ", c)  # syllable pieces of one word, not word-split
+            self.assertTrue(hard.target.endswith(c))  # each is a genuine tail of the word
+
 
 class LessonStructureTests(unittest.TestCase):
     def setUp(self):
@@ -235,6 +251,22 @@ class LessonStructureTests(unittest.TestCase):
         sc = build(fresh())  # 15 min, pace 3: at most 5 new items, nothing to review → ends early
         self.assertLessEqual(len(sc.meta["new_items"]), 5)
         self.assertLess(sc.total_duration / 60, 12)
+
+    def test_intro_pauses_between_meaning_and_target_word(self):
+        """First exposure to a new word: a beat separates the known-language meaning from the
+        target-language word, so a listener doesn't hear them run together as one clip."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        item = next(i for i in cur.items if i.kind not in ("construction", "transform"))
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.intro(sc, item)
+        narrate_idx = next(i for i, s in enumerate(sc.segments) if s.type == "narrate")
+        speak_idx = next(i for i, s in enumerate(sc.segments) if s.type == "speak")
+        self.assertEqual(sc.segments[narrate_idx + 1].type, "pause")
+        self.assertEqual(sc.segments[speak_idx - 1].type, "pause")
 
     def test_later_lessons_fill_the_requested_time(self):
         _, scripts = course(8, minutes=30)
@@ -644,6 +676,46 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("Halló.", heard)  # the TTS never actually saw the geminate spelling
         self.assertEqual(cues["segments"][0]["text"], "Halló.")  # cues.json keeps the real word
         self.assertIn("Halló.", sc.transcript())  # transcript is built from the Segment, untouched by rendering
+
+    def test_narration_slash_is_spoken_as_a_word_not_read_as_slash(self):
+        from audiolesson.render.renderer import _speak_slashes
+
+        self.assertEqual(_speak_slashes("Excuse me / Sorry.", "en"), "Excuse me or Sorry.")
+        self.assertEqual(_speak_slashes("yes/no", "en"), "yes or no")
+        self.assertEqual(_speak_slashes("もしもし。／ハロー。", "ja"), "もしもし。またはハロー。")
+        self.assertEqual(_speak_slashes("地図／カード", "ja"), "地図またはカード")
+        self.assertEqual(_speak_slashes("no slash here", "en"), "no slash here")
+        self.assertEqual(_speak_slashes("A / B", "is"), "A / B")  # only known-language narration is fixed
+
+    def test_narration_slash_reaches_the_tts_but_the_record_keeps_the_slash(self):
+        """The written meaning keeps the '/' for a reader; only the spoken audio says 'or'."""
+        from audiolesson.script import Segment
+        from audiolesson.render.tts import StubProvider
+
+        sc = Script(1, "Lesson 1", "is", "en")
+        ex = sc.new_exercise("intro", "intro", ["hallo"], "new: Halló.")
+        sc.add(Segment("speak", "instructor", "Excuse me / Sorry.", "en", 1.0, 1.0, None, ex.index))
+
+        heard: list[str] = []
+        original = StubProvider.synthesize
+
+        def spy(self, text, lang, voice, rate=1.0):
+            heard.append(text)
+            return original(self, text, lang, voice, rate)
+
+        StubProvider.synthesize = spy
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                prof = load_profile(None, "stub")
+                prof.mp3 = False
+                cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
+        finally:
+            StubProvider.synthesize = original
+
+        self.assertIn("Excuse me or Sorry.", heard)
+        self.assertNotIn("Excuse me / Sorry.", heard)
+        self.assertEqual(cues["segments"][0]["text"], "Excuse me / Sorry.")
+        self.assertIn("Excuse me / Sorry.", sc.transcript())
 
 
 class CliTests(unittest.TestCase):

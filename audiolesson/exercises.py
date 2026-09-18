@@ -131,6 +131,7 @@ class Builder:
             return self._intro_transform(sc, item)
         ex = sc.new_exercise("intro", "intro", [item.id], f"new: {item.target}")
         self._narr(sc, ex, self.prompts.get("intro_new", meaning=self._m(item.meaning)))
+        self._beat(sc, ex)
         self._speak(sc, ex, item.target)
         self._beat(sc, ex)
         if item.is_hard():
@@ -165,6 +166,7 @@ class Builder:
         target, meaning = self.cur.resolve_slots(item, fills)
         ex.item_ids += [f.id for f in fills.values() if f.id not in ex.item_ids]
         self._narr(sc, ex, self.prompts.get("construction_intro", meaning=self._m(meaning)))
+        self._beat(sc, ex)
         self._speak(sc, ex, target)
         self._beat(sc, ex)
         self._narr(sc, ex, self.prompts.get("repeat"))
