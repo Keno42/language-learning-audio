@@ -1,8 +1,57 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-18 (session 5: halló pronunciation, pronunciation_notes wired to transcript)._
+_Last updated 2026-09-18 (session 6: halló respelled for the TTS, on request)._
 Keep this current: whoever picks the project up next, human or AI, should be
 able to continue from here without re-deriving decisions._
+
+## Session 6: owner overrode session 5's "leave it, it's correct" call
+
+Session 5 (below) judged the `[hatlo]`-ish sound *very likely* correct
+Icelandic and recommended explaining it rather than changing it. The owner
+heard the reasoning and asked anyway for `halló` specifically not to have
+that sound — a legitimate product call once the tradeoff is on the table,
+and theirs to make. Implemented as a **narrowly scoped respelling at the
+render layer**, not a reversal of the linguistic explanation:
+
+- `audiolesson/render/renderer.py`: `RESPELL_FOR_SPEECH = {"is": [("Halló",
+  "Haló")]}`, applied inside `request_for()` — the one place that decides
+  what string actually reaches `provider.synthesize()`. Single 'l' sidesteps
+  Icelandic's gemination rule entirely (re-checked with `espeak-ng -v is -x`:
+  `Halló` → pre-aspirated `h'alloU`→`…tl#`-shaped when geminated elsewhere,
+  `Haló` → plain long-vowel `h'a:loU`, no click), rather than trying to hand
+  the TTS an IPA/phoneme override.
+- Deliberately **not** threaded through `Item`/`Segment`/the planner. A
+  string substitution at the exact point where text becomes TTS input covers
+  every code path that ever speaks "Halló" (intro, the single-word hinted-
+  stage hint, any future dialogue or review reuse) with about 20 lines,
+  because it doesn't care which stage produced the string — confirmed with a
+  real `generate --provider espeak` run: espeak received both `"Haló."` (the
+  intro line) and `"Haló"` (the hinted-stage hint, `target.split()[0]`)
+  without either being special-cased. Threading an `Item.speak_as` field
+  through every call site in `exercises.py` would have cost far more for the
+  same result — the "hundreds of net new lines means the design is probably
+  wrong" line in this file's own conventions applied here.
+- `cues.json`/the transcript are unaffected on purpose: `request_for()`'s
+  return value feeds only `_cached()`/`provider.synthesize()`; the
+  `cues.append(...)` line still reads `seg.text` directly. Answer matching,
+  spaced repetition and everything else still key off the correct native
+  spelling; only the audio changed.
+- Follow-on content fix, necessary for consistency: the `hallo` item's
+  `pronunciation_notes` and the `tvo_l` aside used to say "listen for the
+  click on *halló*" — no longer true once the audio for that one word
+  stopped making the click. Reworded `pronunciation_notes` to say this
+  course reads it close to "hello" on purpose, and moved `tvo_l`'s examples
+  to `fjall`/`eldfjall`/`jokull` (still genuinely pre-aspirated, unmodified).
+  Same failure mode to watch for with any future per-word override: the
+  written material has to keep matching what the audio actually does.
+- Extending this to another word/language: add an entry to
+  `RESPELL_FOR_SPEECH` keyed by the *target* language code (never a known/
+  instructor language — `request_for`'s `lang` already tells them apart, so
+  a collision with an unrelated known-language string, e.g. English "Shall"
+  containing "hall", can't happen); pick a respelling by checking
+  `espeak-ng -v <lang> -x` before and after, the way this one was chosen,
+  since guessing at orthography-to-phonology rules for a language you don't
+  speak is exactly the kind of thing worth a cheap empirical check first.
 
 ## Session 5: "halló" sounds like [hatlo] on edge-tts — is that wrong?
 
@@ -54,7 +103,7 @@ by listening. Judgement call, not certainty:
 
 `audiolesson generate` plans a lesson from a curriculum + learner state,
 writes a timed script/plan/transcript, renders audio through a pluggable TTS
-layer, and updates the learner model. 56 unit tests pass
+layer, and updates the learner model. 58 unit tests pass
 (`python -m unittest`). A 10-lesson simulated course on the sample French
 curriculum behaves as intended (new items reactivated at expanding gaps,
 reviews interleaved, dialogues and recombination appear once material is
