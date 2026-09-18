@@ -36,19 +36,21 @@ class PlanConfig:
     dialogue_first_turns: int = 2  # turns played the first time; one more each later encounter
     closing_share: float = 0.12  # fraction of time reserved for the final review block
     max_new_items: int | None = None  # hard cap even when there is nothing to review (default: scales with minutes)
-    min_time_for_new_item: float = 120.0  # seconds of budget needed to still introduce one
+    min_time_for_new_item: float = 180.0  # seconds of budget needed to still introduce one
     presume_success: bool = True
     translate_partner: bool = True
 
     def resolved_max_new_items(self) -> int:
+        """Extra new items may fill a lesson that has nothing to review (the first ones),
+        but only a little beyond the pace — a short first lesson beats a 12-item dump."""
         if self.max_new_items is not None:
             return self.max_new_items
-        return int(max(10, round(self.minutes / 2.5)))
+        return self.resolved_new_items() + 2
 
     def resolved_new_items(self) -> int:
         if self.new_items is not None:
             return max(0, self.new_items)
-        return int(max(2, min(8, round(self.minutes / 3))))
+        return int(max(3, min(10, round(self.minutes / 5))))
 
 
 @dataclass
@@ -347,6 +349,8 @@ class Planner:
             "curriculum": self.cur.name,
             "new_items": [i.id for i in introduced],
             "reviewed_items": reviews_used,
+            "due_at_start": self.learner.due_count(self.today),
+            "due_not_fitted": [i.id for i in reviews if self.learner.review_priority(i.id, self.today) >= 1.0],
             "dialogues": list(self.dialogues_played),
             "exposures": self.exposures,
             "support_exposures": self.support,
@@ -385,5 +389,8 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
             "reviewed_items": sc.meta.get("reviewed_items", []),
             "dialogues": sc.meta.get("dialogues", []),
             "duration_s": round(sc.total_duration, 1),
+            "due_at_start": sc.meta.get("due_at_start", 0),
+            "due_not_fitted": len(sc.meta.get("due_not_fitted", [])),
+            "pace": sc.meta.get("config", {}).get("new_items"),
         }
     )

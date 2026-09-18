@@ -92,7 +92,7 @@ class CurriculumTests(unittest.TestCase):
 
 class LessonStructureTests(unittest.TestCase):
     def setUp(self):
-        self.script = build(fresh())
+        self.script = build(fresh(), new_items=8)  # a full first lesson (the default pace would make it short)
 
     def test_every_answer_pause_precedes_its_answer(self):
         """Recall before answer: after each answer-pause the next spoken thing is the model answer."""
@@ -123,6 +123,19 @@ class LessonStructureTests(unittest.TestCase):
 
     def test_length_close_to_requested(self):
         self.assertAlmostEqual(self.script.total_duration / 60, 15, delta=2.5)
+
+    def test_first_lesson_at_default_pace_is_short_not_padded(self):
+        sc = build(fresh())  # 15 min, pace 3: at most 5 new items, nothing to review → ends early
+        self.assertLessEqual(len(sc.meta["new_items"]), 5)
+        self.assertLess(sc.total_duration / 60, 12)
+
+    def test_later_lessons_fill_the_requested_time(self):
+        _, scripts = course(8, minutes=30)
+        minutes = [round(sc.total_duration / 60, 1) for sc in scripts]
+        # once there is enough material the requested length is reached; the sample curriculum
+        # (47 items) is exhausted around lesson 7, after which review-only lessons end early
+        self.assertGreaterEqual(max(minutes), 24, minutes)
+        self.assertLess(minutes[0], minutes[4], minutes)
 
     def test_new_items_are_reactivated_at_expanding_gaps(self):
         exposures = self.script.meta["exposures"]
@@ -271,6 +284,77 @@ class JapaneseInstructorTests(unittest.TestCase):
             for i, s in enumerate(sc.segments):
                 if s.role == "alternative":
                     self.assertEqual(sc.segments[i - 1].type, "narrate")
+
+
+class PacingTests(unittest.TestCase):
+    def test_default_pace_is_about_one_per_five_minutes(self):
+        learner = fresh()
+        self.assertEqual(learner.suggest_pace(30, TODAY)[0], 6)
+        self.assertEqual(learner.suggest_pace(15, TODAY)[0], 3)
+        self.assertEqual(learner.suggest_pace(90, TODAY)[0], 10)
+
+    def test_pace_never_rises_without_feedback(self):
+        learner = fresh()
+        day = TODAY
+        for _ in range(6):
+            pace, _why = learner.suggest_pace(30, day)
+            sc = build(learner, 30, today=day, new_items=pace)
+            apply_to_learner(sc, learner, day)
+            learner.pace = pace
+            day += timedelta(days=1)
+        self.assertEqual(learner.pace, 6)
+        self.assertIn("no feedback", learner.suggest_pace(30, day)[1])
+
+    def test_pace_rises_on_clean_reports_and_falls_on_failures(self):
+        learner = fresh()
+        day = TODAY
+        pace, _ = learner.suggest_pace(30, day)
+        sc = build(learner, 30, today=day, new_items=pace)
+        apply_to_learner(sc, learner, day)
+        learner.pace = pace
+        learner.report([], [], day)  # listened, all good
+        day += timedelta(days=1)
+        up, why = learner.suggest_pace(30, day)
+        self.assertEqual(up, 7, why)
+        sc = build(learner, 30, today=day, new_items=up)
+        apply_to_learner(sc, learner, day)
+        learner.pace = up
+        new = sc.meta["new_items"]
+        learner.report(new[: max(2, len(new) // 2)], [], day)  # half of them failed
+        day += timedelta(days=1)
+        down, why = learner.suggest_pace(30, day)
+        self.assertEqual(down, 6, why)
+
+    def test_backlog_slows_the_pace(self):
+        learner, _ = course(6, minutes=30)
+        # pretend a long break: everything is overdue
+        late = TODAY + timedelta(days=60)
+        learner.pace = 6
+        pace, why = learner.suggest_pace(15, late)  # a short lesson cannot absorb the backlog
+        self.assertEqual(pace, 5, why)
+        self.assertIn("due", why)
+        pace, why = learner.suggest_pace(60, late)  # a long one can
+        self.assertEqual(pace, 6, why)
+
+    def test_intervals_grow_with_elapsed_time_not_lesson_count(self):
+        learner = fresh()
+        day = TODAY
+        for _ in range(40):  # daily lessons for 40 days on a small curriculum: everything gets reviewed constantly
+            sc = build(learner, 30, today=day)
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        for item_id, st in learner.items.items():
+            self.assertLessEqual(st.interval_days, 40 * 3, item_id)
+            self.assertLessEqual(date.fromisoformat(st.due), day + timedelta(days=200), item_id)
+        # something learned in the first lessons should by now be on a multi-week interval
+        first = learner.lessons[0]["new_items"][0]
+        self.assertGreaterEqual(learner.items[first].interval_days, 7)
+
+    def test_report_defaults_to_latest_lesson(self):
+        learner, scripts = course(2)
+        changed = learner.report([], [], TODAY)
+        self.assertEqual(changed["lesson"], 2)
+        self.assertEqual(learner.reported, [2])
 
 
 class TimingTests(unittest.TestCase):

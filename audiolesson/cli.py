@@ -26,7 +26,8 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--learner", "-l", required=True, help="learner state .json (created if missing)")
     g.add_argument("--out", "-o", default="out", help="output directory (default: out/)")
     g.add_argument("--minutes", "-m", type=float, default=15.0)
-    g.add_argument("--new", type=int, default=None, help="how many new items to introduce (default: about one per 3 minutes)")
+    g.add_argument("--new", type=int, default=None, help="new items to introduce this lesson (default: the learner's pace, see README 'Pacing')")
+    g.add_argument("--pace", type=int, default=None, help="set the learner's ongoing pace (new items per lesson) before planning")
     g.add_argument("--topics", "-t", default="", help="comma-separated topics to prefer")
     g.add_argument("--level", default=None, help="learner level for pause lengths: A0 A1 A2 B1 B2 (default: from learner state)")
     g.add_argument("--seed", type=int, default=None)
@@ -93,9 +94,15 @@ def cmd_generate(args) -> int:
     today = parse_date(args.date)
     timing = Timing(level=level).with_overrides(global_pause_multiplier=args.pause_multiplier)
     prompts = Prompts.load(cur.known_lang)
+    if args.pace is not None:
+        learner.pace = args.pace
+    if args.new is not None:
+        new_items, why = args.new, f"--new {args.new}"
+    else:
+        new_items, why = learner.suggest_pace(args.minutes, today)
     cfg = PlanConfig(
         minutes=args.minutes,
-        new_items=args.new,
+        new_items=new_items,
         topics=_split(args.topics),
         seed=args.seed,
         translate_partner=not args.no_translate,
@@ -116,8 +123,13 @@ def cmd_generate(args) -> int:
     s = script.summary()
     print(f"Lesson {n}: {s['duration_s']/60:.1f} min planned, {s['prompts']} spoken responses, "
           f"{int(s['active_ratio']*100)}% of the time is yours to speak")
+    if s["duration_s"] < args.minutes * 60 * 0.8:
+        print(f"  (shorter than {args.minutes:g} min: nothing more to review yet — normal for the first lessons)")
+    print(f"  pace: {why}")
     print(f"  new: {', '.join(script.meta['new_items']) or '(none — curriculum exhausted, review only)'}")
-    print(f"  reviewed: {len(script.meta['reviewed_items'])} items, dialogues: {', '.join(script.meta['dialogues']) or '-'}")
+    carried = len(script.meta.get("due_not_fitted", []))
+    print(f"  reviewed: {len(script.meta['reviewed_items'])} items ({script.meta.get('due_at_start', 0)} were due"
+          + (f", {carried} carried over" if carried else "") + f"), dialogues: {', '.join(script.meta['dialogues']) or '-'}")
     print(f"  wrote {stem}.script.json, .transcript.md, .plan.json")
 
     if not args.no_audio:
@@ -134,6 +146,8 @@ def cmd_generate(args) -> int:
     else:
         apply_to_learner(script, learner, today, presume_success=cfg.presume_success)
         learner.level = level
+        if args.new is None:
+            learner.pace = new_items
         learner.save(args.learner)
         print(f"  learner state updated: {args.learner} (use `audiolesson report` after listening if some items failed)")
     return 0
@@ -191,7 +205,7 @@ def cmd_report(args) -> int:
     if changed["unknown"]:
         print(f"warning: not in learner state: {', '.join(changed['unknown'])}", file=sys.stderr)
     if not (changed["failed"] or changed["easy"]):
-        print("nothing to report; pass --failed and/or --easy item ids (see the lesson's .plan.json)")
+        print(f"lesson {changed['lesson']} recorded as all good (pass --failed/--easy item ids from the lesson's .plan.json otherwise)")
     return 0
 
 
@@ -215,6 +229,13 @@ def cmd_status(args) -> int:
         print(f"… and {len(rows) - 40} more")
     due = sum(1 for prio, _, _ in rows if prio >= 1.0)
     print(f"{due} items due for review today ({today.isoformat()}); * = due")
+    if learner.lessons:
+        trend = " ".join(str(l.get("due_at_start", "?")) for l in learner.lessons[-8:])
+        carried = " ".join(str(l.get("due_not_fitted", "?")) for l in learner.lessons[-8:])
+        print(f"pace: {learner.pace or 'default'} new items/lesson; due at start of last lessons: {trend}; not fitted: {carried}")
+        unreported = [l["number"] for l in learner.lessons[-3:] if l["number"] not in learner.reported]
+        if unreported:
+            print(f"no feedback yet for lesson(s) {unreported}: run `audiolesson report -l {args.learner} [--failed ids]`")
     return 0
 
 

@@ -1,6 +1,6 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-18 (end of session 1). Keep this current: whoever picks the
+_Last updated 2026-09-18 (session 2: pacing + Icelandic)._ Keep this current: whoever picks the
 project up next, human or AI, should be able to continue from here without
 re-deriving decisions._
 
@@ -8,7 +8,7 @@ re-deriving decisions._
 
 `audiolesson generate` plans a lesson from a curriculum + learner state,
 writes a timed script/plan/transcript, renders audio through a pluggable TTS
-layer, and updates the learner model. 32 unit tests pass
+layer, and updates the learner model. 40 unit tests pass
 (`python -m unittest`). A 10-lesson simulated course on the sample French
 curriculum behaves as intended (new items reactivated at expanding gaps,
 reviews interleaved, dialogues and recombination appear once material is
@@ -20,6 +20,31 @@ Verified in this session:
   refused the websocket (HTTP 403). Test it first thing on a normal network:
   `pip install edge-tts && audiolesson generate ... -p profiles/edge-fr-en.toml -m 3`.
 - `openai` and `say` providers are straightforward but also untested here.
+
+## Session 2 additions
+
+- **Adaptive pace** (`LearnerState.suggest_pace`): new items per lesson move
+  within 3–10 from the learner's `report` feedback and the due backlog; it
+  never rises without feedback. Rules and rationale are in README "Daily
+  routine and pacing". `report` with no ids means "all good" and defaults to
+  the latest lesson.
+- **Scheduler bug fixed**: intervals used to multiply on every touch, so a
+  daily learner hit 100 000-day intervals in two weeks (found by simulating
+  the routine, `tools/daily.sh` × 40 days). Now only a review at/after its
+  due date grows the interval, capped at 180 days.
+- **First lessons are short on purpose**: extra new items beyond the pace are
+  limited to +2; the CLI prints a note. Review-only lessons (curriculum
+  exhausted) also end early rather than drilling twice.
+- **Icelandic starter curriculum** `curricula/is-en-a1.toml` (61 items):
+  written by an AI with care for case forms after *fá* (accusative) and
+  *Hvar er* (nominative), **not reviewed by a native speaker**. Have someone
+  read it before relying on it, especially `súpu`/`samloku`, `án sykurs`,
+  `Gætirðu talað hægar?`, `stoppistöðin`. edge-tts voices:
+  is-IS-GudrunNeural / is-IS-GunnarNeural (`profiles/edge-is-en.toml`).
+- **Content is now the bottleneck.** At pace 6 the 61 items last ~9 days. A
+  three-month course needs ~450–500 items; the planner and pacing need no
+  change for that, only more `[[items]]` and dialogues in the same style
+  (see docs/CURRICULUM.md "Languages with cases").
 
 ## Decisions (and why)
 

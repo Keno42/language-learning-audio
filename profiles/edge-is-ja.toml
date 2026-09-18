@@ -1,0 +1,6 @@
+# Icelandic target, Japanese instructor (needs a curriculum with known_lang = "ja").
+provider = "edge"
+[speakers]
+instructor = { voice = "ja-JP-NanamiNeural" }
+native_a = { voice = "is-IS-GudrunNeural" }
+native_b = { voice = "is-IS-GunnarNeural" }

@@ -1,0 +1,739 @@
+# Icelandic for English speakers — survival A1 (café, street, meeting people, weather).
+# Starter set. Nouns in construction slots are given in the case the construction needs:
+#   acc_*  after "Ég ætla að fá …"      nom_*  after "Hvar er …?"
+# Extend it in the same style; run `audiolesson validate` after editing.
+# Not yet reviewed by a native speaker — see docs/HANDOFF.md.
+
+[curriculum]
+name = "Icelandic A1 — kaffihús, gata, fólk, veður"
+target_lang = "is"
+known_lang = "en"
+level = "A1"
+
+# ---------------------------------------------------------------- greetings
+
+[[items]]
+id = "godan_daginn"
+kind = "phrase"
+target = "Góðan daginn."
+meaning = "Good day."
+difficulty = 2
+topics = ["greetings"]
+situation = "You walk into a bakery in the morning. Greet the person behind the counter."
+
+[[items]]
+id = "takk"
+kind = "phrase"
+target = "Takk."
+meaning = "Thanks."
+alternatives = ["Takk fyrir."]
+difficulty = 1
+topics = ["greetings"]
+situation = "The barista hands you your coffee. Thank her."
+
+[[items]]
+id = "bless"
+kind = "phrase"
+target = "Bless."
+meaning = "Bye."
+alternatives = ["Bless bless."]
+difficulty = 1
+topics = ["greetings"]
+situation = "You're leaving the shop. Say bye."
+
+[[items]]
+id = "ja"
+kind = "vocab"
+target = "Já."
+meaning = "Yes."
+difficulty = 1
+topics = ["greetings"]
+
+[[items]]
+id = "nei"
+kind = "vocab"
+target = "Nei."
+meaning = "No."
+difficulty = 1
+topics = ["greetings"]
+
+[[items]]
+id = "afsakid"
+kind = "phrase"
+target = "Afsakið."
+meaning = "Excuse me."
+difficulty = 2
+topics = ["greetings", "directions"]
+situation = "You need to get a stranger's attention in the street."
+
+[[items]]
+id = "hvad_segirdu_gott"
+kind = "phrase"
+target = "Hvað segirðu gott?"
+meaning = "How are you?"
+difficulty = 3
+topics = ["greetings", "social"]
+chunks = ["gott", "segirðu gott", "Hvað segirðu gott?"]
+situation = "You bump into your neighbour. Ask how she is."
+
+[[items]]
+id = "allt_gott"
+kind = "phrase"
+target = "Allt gott, takk."
+meaning = "All good, thanks."
+difficulty = 2
+topics = ["greetings", "social"]
+prereqs = ["takk"]
+situation = "Your neighbour asked how you are. Answer that all is good."
+
+[[items]]
+id = "en_thu"
+kind = "phrase"
+target = "En þú?"
+meaning = "And you?"
+difficulty = 1
+topics = ["social"]
+situation = "You've answered her question. Return it to her."
+
+# ---------------------------------------------------------------- clarifying
+
+[[items]]
+id = "talar_thu_ensku"
+kind = "phrase"
+target = "Talar þú ensku?"
+meaning = "Do you speak English?"
+alternatives = ["Talarðu ensku?"]
+difficulty = 3
+topics = ["clarifying"]
+chunks = ["ensku", "þú ensku", "Talar þú ensku?"]
+situation = "You're not sure the receptionist understands you. Ask if she speaks English."
+
+[[items]]
+id = "eg_skil_ekki"
+kind = "phrase"
+target = "Ég skil ekki."
+meaning = "I don't understand."
+difficulty = 2
+topics = ["clarifying"]
+situation = "The man explained something quickly and you got lost. Tell him you don't understand."
+
+[[items]]
+id = "ha"
+kind = "phrase"
+target = "Ha?"
+meaning = "Sorry? (what did you say?)"
+difficulty = 1
+topics = ["clarifying"]
+situation = "Someone spoke too fast. Ask them to say it again, casually."
+
+[[items]]
+id = "gaetirdu_talad_haegar"
+kind = "phrase"
+target = "Gætirðu talað hægar?"
+meaning = "Could you speak more slowly?"
+difficulty = 4
+topics = ["clarifying"]
+chunks = ["hægar", "talað hægar", "Gætirðu talað hægar?"]
+situation = "The barista is speaking far too fast. Ask her to speak more slowly."
+
+[[items]]
+id = "eg_tala_sma_islensku"
+kind = "phrase"
+target = "Ég tala smá íslensku."
+meaning = "I speak a little Icelandic."
+difficulty = 3
+topics = ["clarifying", "social"]
+chunks = ["íslensku", "smá íslensku", "Ég tala smá íslensku."]
+situation = "She switches to English. Tell her you speak a little Icelandic."
+
+# ---------------------------------------------------------------- café
+
+[[items]]
+id = "kaffi"
+kind = "vocab"
+target = "kaffi"
+meaning = "coffee"
+difficulty = 1
+tags = ["acc_orderable", "acc_drink"]
+topics = ["cafe"]
+
+[[items]]
+id = "eg_aetla_ad_fa"
+kind = "construction"
+target = "Ég ætla að fá {thing}."
+meaning = "I'll have {thing}."
+difficulty = 3
+topics = ["cafe"]
+slots = { thing = "acc_orderable" }
+example = { thing = "kaffi" }
+components = ["kaffi"]
+prereqs = ["kaffi"]
+pronunciation_notes = "ætla: AI-tla. The standard way to order."
+
+[[items]]
+id = "te"
+kind = "vocab"
+target = "te"
+meaning = "tea"
+difficulty = 1
+tags = ["acc_orderable", "acc_drink"]
+topics = ["cafe"]
+
+[[items]]
+id = "vatn"
+kind = "vocab"
+target = "vatn"
+meaning = "water"
+difficulty = 1
+tags = ["acc_orderable"]
+topics = ["cafe"]
+
+[[items]]
+id = "bjor"
+kind = "vocab"
+target = "bjór"
+meaning = "a beer"
+difficulty = 1
+tags = ["acc_orderable"]
+topics = ["cafe"]
+
+[[items]]
+id = "supu"
+kind = "vocab"
+target = "súpu"
+meaning = "soup"
+difficulty = 2
+tags = ["acc_orderable"]
+topics = ["cafe"]
+pronunciation_notes = "accusative of súpa"
+
+[[items]]
+id = "samloku"
+kind = "vocab"
+target = "samloku"
+meaning = "a sandwich"
+difficulty = 2
+tags = ["acc_orderable"]
+topics = ["cafe"]
+pronunciation_notes = "accusative of samloka"
+
+[[items]]
+id = "med_mjolk"
+kind = "vocab"
+target = "með mjólk"
+meaning = "with milk"
+difficulty = 2
+tags = ["addon"]
+topics = ["cafe"]
+
+[[items]]
+id = "an_sykurs"
+kind = "vocab"
+target = "án sykurs"
+meaning = "without sugar"
+difficulty = 2
+tags = ["addon"]
+topics = ["cafe"]
+
+[[items]]
+id = "eg_aetla_ad_fa_addon"
+kind = "construction"
+target = "Ég ætla að fá {thing} {addon}."
+meaning = "I'll have {thing} {addon}."
+difficulty = 3
+topics = ["cafe"]
+slots = { thing = "acc_drink", addon = "addon" }
+example = { thing = "kaffi", addon = "med_mjolk" }
+components = ["eg_aetla_ad_fa", "kaffi", "med_mjolk"]
+prereqs = ["eg_aetla_ad_fa", "med_mjolk"]
+
+[[items]]
+id = "hvad_kostar_thetta"
+kind = "phrase"
+target = "Hvað kostar þetta?"
+meaning = "How much is this?"
+difficulty = 2
+topics = ["cafe"]
+situation = "You want to know the price of the sandwich."
+
+[[items]]
+id = "get_eg_fengid_reikninginn"
+kind = "phrase"
+target = "Get ég fengið reikninginn?"
+meaning = "Can I have the bill?"
+difficulty = 4
+topics = ["cafe"]
+chunks = ["reikninginn", "fengið reikninginn", "Get ég fengið reikninginn?"]
+situation = "You've finished eating. Ask for the bill."
+
+[[items]]
+id = "er_thetta_saeti_laust"
+kind = "phrase"
+target = "Er þetta sæti laust?"
+meaning = "Is this seat free?"
+difficulty = 3
+topics = ["cafe", "social"]
+chunks = ["laust", "sæti laust", "Er þetta sæti laust?"]
+situation = "The café is full. Ask a woman whether the seat next to her is free."
+
+# ---------------------------------------------------------------- directions
+
+[[items]]
+id = "sundlaugin"
+kind = "vocab"
+target = "sundlaugin"
+meaning = "the swimming pool"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["directions"]
+
+[[items]]
+id = "hvar_er"
+kind = "construction"
+target = "Hvar er {place}?"
+meaning = "Where is {place}?"
+difficulty = 2
+topics = ["directions"]
+slots = { place = "nom_place" }
+example = { place = "sundlaugin" }
+components = ["sundlaugin"]
+prereqs = ["sundlaugin"]
+
+[[items]]
+id = "klosettid"
+kind = "vocab"
+target = "klósettið"
+meaning = "the toilet"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["directions"]
+
+[[items]]
+id = "hotelid"
+kind = "vocab"
+target = "hótelið"
+meaning = "the hotel"
+difficulty = 1
+tags = ["nom_place"]
+topics = ["directions"]
+
+[[items]]
+id = "apotekid"
+kind = "vocab"
+target = "apótekið"
+meaning = "the pharmacy"
+difficulty = 2
+tags = ["nom_place"]
+topics = ["directions"]
+
+[[items]]
+id = "bankinn"
+kind = "vocab"
+target = "bankinn"
+meaning = "the bank"
+difficulty = 1
+tags = ["nom_place"]
+topics = ["directions"]
+
+[[items]]
+id = "stoppistodin"
+kind = "vocab"
+target = "stoppistöðin"
+meaning = "the bus stop"
+difficulty = 3
+tags = ["nom_place"]
+topics = ["directions"]
+
+[[items]]
+id = "til_vinstri"
+kind = "vocab"
+target = "til vinstri"
+meaning = "to the left"
+difficulty = 1
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "til_haegri"
+kind = "vocab"
+target = "til hægri"
+meaning = "to the right"
+difficulty = 1
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "beint_afram"
+kind = "vocab"
+target = "beint áfram"
+meaning = "straight ahead"
+difficulty = 2
+tags = ["direction"]
+topics = ["directions"]
+
+[[items]]
+id = "thad_er_direction"
+kind = "construction"
+target = "Það er {direction}."
+meaning = "It's {direction}."
+difficulty = 2
+topics = ["directions"]
+slots = { direction = "direction" }
+example = { direction = "til_vinstri" }
+components = ["til_vinstri"]
+prereqs = ["til_vinstri", "til_haegri"]
+
+[[items]]
+id = "er_thad_langt"
+kind = "phrase"
+target = "Er það langt?"
+meaning = "Is it far?"
+difficulty = 2
+topics = ["directions"]
+situation = "He pointed you down the street. Ask whether it's far."
+
+# ---------------------------------------------------------------- about yourself
+
+[[items]]
+id = "eg_heiti"
+kind = "phrase"
+target = "Ég heiti Yuki."
+meaning = "My name is Yuki."
+difficulty = 2
+topics = ["social"]
+situation = "Someone asks your name. Say your name is Yuki."
+
+[[items]]
+id = "hvad_heitir_thu"
+kind = "phrase"
+target = "Hvað heitir þú?"
+meaning = "What's your name?"
+difficulty = 2
+topics = ["social"]
+situation = "You've introduced yourself. Ask his name."
+
+[[items]]
+id = "eg_er_fra_japan"
+kind = "phrase"
+target = "Ég er frá Japan."
+meaning = "I'm from Japan."
+difficulty = 2
+topics = ["social"]
+situation = "Someone asks where you're from. Tell them you're from Japan."
+
+[[items]]
+id = "hvadan_ert_thu"
+kind = "phrase"
+target = "Hvaðan ert þú?"
+meaning = "Where are you from?"
+alternatives = ["Hvaðan ertu?"]
+difficulty = 3
+topics = ["social"]
+situation = "You've said you're from Japan. Ask where she is from."
+
+[[items]]
+id = "eg_er_i_frii"
+kind = "phrase"
+target = "Ég er í fríi."
+meaning = "I'm on holiday."
+difficulty = 3
+topics = ["social"]
+chunks = ["fríi", "í fríi", "Ég er í fríi."]
+situation = "She asks if you're here for work. Tell her you're on holiday."
+
+[[items]]
+id = "gaman_ad_kynnast_ther"
+kind = "phrase"
+target = "Gaman að kynnast þér."
+meaning = "Nice to meet you."
+difficulty = 4
+topics = ["social"]
+chunks = ["þér", "kynnast þér", "að kynnast þér", "Gaman að kynnast þér."]
+situation = "Your friend introduces you to Anna. Say nice to meet you."
+
+[[items]]
+id = "eg_by_i_tokyo"
+kind = "phrase"
+target = "Ég bý í Tókýó."
+meaning = "I live in Tokyo."
+difficulty = 3
+topics = ["social"]
+situation = "Anna asks where in Japan you live. Tell her you live in Tokyo."
+
+# ---------------------------------------------------------------- arrangements
+
+[[items]]
+id = "a_morgun"
+kind = "vocab"
+target = "á morgun"
+meaning = "tomorrow"
+difficulty = 1
+tags = ["time"]
+topics = ["arrangements"]
+
+[[items]]
+id = "i_kvold"
+kind = "vocab"
+target = "í kvöld"
+meaning = "this evening"
+difficulty = 1
+tags = ["time"]
+topics = ["arrangements"]
+
+[[items]]
+id = "i_dag"
+kind = "vocab"
+target = "í dag"
+meaning = "today"
+difficulty = 1
+tags = ["time"]
+topics = ["arrangements"]
+
+[[items]]
+id = "eg_fer"
+kind = "construction"
+target = "Ég fer {time}."
+meaning = "I'm leaving {time}."
+difficulty = 2
+topics = ["arrangements"]
+slots = { time = "time" }
+example = { time = "a_morgun" }
+components = ["a_morgun"]
+prereqs = ["a_morgun"]
+
+[[items]]
+id = "klukkan_hvad"
+kind = "phrase"
+target = "Klukkan hvað?"
+meaning = "At what time?"
+difficulty = 2
+topics = ["arrangements"]
+situation = "Anna suggests meeting for dinner. Ask at what time."
+
+[[items]]
+id = "allt_i_lagi"
+kind = "phrase"
+target = "Allt í lagi."
+meaning = "OK, fine."
+alternatives = ["Í lagi."]
+difficulty = 2
+topics = ["arrangements"]
+situation = "She suggests seven o'clock. Agree."
+
+[[items]]
+id = "sjaumst"
+kind = "phrase"
+target = "Sjáumst!"
+meaning = "See you!"
+difficulty = 2
+topics = ["arrangements", "greetings"]
+situation = "You're parting with a friend you'll see again soon."
+
+[[items]]
+id = "sjaumst_a_morgun"
+kind = "phrase"
+target = "Sjáumst á morgun!"
+meaning = "See you tomorrow!"
+difficulty = 2
+topics = ["arrangements"]
+components = ["sjaumst", "a_morgun"]
+prereqs = ["sjaumst", "a_morgun"]
+situation = "You've arranged to meet tomorrow and are parting now."
+
+# ---------------------------------------------------------------- weather
+
+[[items]]
+id = "kalt"
+kind = "vocab"
+target = "kalt"
+meaning = "cold"
+difficulty = 1
+tags = ["weather"]
+topics = ["weather"]
+
+[[items]]
+id = "thad_er_weather"
+kind = "construction"
+target = "Það er {weather}."
+meaning = "It's {weather}."
+difficulty = 2
+topics = ["weather"]
+slots = { weather = "weather" }
+example = { weather = "kalt" }
+components = ["kalt"]
+prereqs = ["kalt"]
+
+[[items]]
+id = "rok"
+kind = "vocab"
+target = "rok"
+meaning = "windy"
+difficulty = 1
+tags = ["weather"]
+topics = ["weather"]
+
+[[items]]
+id = "rigning"
+kind = "vocab"
+target = "rigning"
+meaning = "raining"
+difficulty = 2
+tags = ["weather"]
+topics = ["weather"]
+
+[[items]]
+id = "hlytt"
+kind = "vocab"
+target = "hlýtt"
+meaning = "warm"
+difficulty = 2
+tags = ["weather"]
+topics = ["weather"]
+
+# ---------------------------------------------------------------- grammar
+
+[[items]]
+id = "negation_ekki"
+kind = "transform"
+target = "… ekki"
+meaning = "making a sentence negative"
+difficulty = 3
+topics = ["grammar"]
+instruction = "Make it negative:"
+prereqs = ["eg_skil_ekki", "er_thad_langt"]
+examples = [
+  { source = "Ég skil.", source_meaning = "I understand.", result = "Ég skil ekki.", result_meaning = "I don't understand." },
+  { source = "Ég tala íslensku.", source_meaning = "I speak Icelandic.", result = "Ég tala ekki íslensku.", result_meaning = "I don't speak Icelandic." },
+  { source = "Það er langt.", source_meaning = "It's far.", result = "Það er ekki langt.", result_meaning = "It's not far." },
+  { source = "Ég er í fríi.", source_meaning = "I'm on holiday.", result = "Ég er ekki í fríi.", result_meaning = "I'm not on holiday." },
+  { source = "Ég fer á morgun.", source_meaning = "I'm leaving tomorrow.", result = "Ég fer ekki á morgun.", result_meaning = "I'm not leaving tomorrow." },
+]
+
+[[items]]
+id = "question_inversion"
+kind = "transform"
+target = "verb – subject?"
+meaning = "turning a statement into a yes/no question"
+difficulty = 3
+topics = ["grammar"]
+instruction = "Make it a question:"
+prereqs = ["talar_thu_ensku", "er_thad_langt"]
+examples = [
+  { source = "Þú talar ensku.", source_meaning = "You speak English.", result = "Talar þú ensku?", result_meaning = "Do you speak English?" },
+  { source = "Það er langt.", source_meaning = "It's far.", result = "Er það langt?", result_meaning = "Is it far?" },
+  { source = "Þú ert frá Japan.", source_meaning = "You're from Japan.", result = "Ert þú frá Japan?", result_meaning = "Are you from Japan?" },
+  { source = "Þetta sæti er laust.", source_meaning = "This seat is free.", result = "Er þetta sæti laust?", result_meaning = "Is this seat free?" },
+  { source = "Þú ert í fríi.", source_meaning = "You're on holiday.", result = "Ert þú í fríi?", result_meaning = "Are you on holiday?" },
+]
+
+# ---------------------------------------------------------------- dialogues
+
+[[dialogues]]
+id = "kaffihus"
+setting = "You're at a café counter in Reykjavík. The barista looks up."
+topics = ["cafe", "clarifying"]
+requires = ["godan_daginn", "eg_aetla_ad_fa", "kaffi", "nei", "takk"]
+
+  [[dialogues.turns]]
+  opener = "Góðan daginn. Hvað má bjóða þér?"
+  opener_meaning = "Good day. What can I get you?"
+  cue = "Greet her and say you'll have a coffee."
+  expect_text = "Góðan daginn. Ég ætla að fá kaffi."
+  expect_meaning = "Good day. I'll have a coffee."
+  partner = "Með mjólk?"
+  partner_meaning = "With milk?"
+
+  [[dialogues.turns]]
+  cue = "Say: no, thanks."
+  expect_text = "Nei, takk."
+  expect_meaning = "No, thanks."
+  partner = "Það kostar sex hundruð krónur."
+  partner_meaning = "That's six hundred krónur."
+
+  [[dialogues.turns]]
+  cue = "You didn't catch that. Ask her to speak more slowly."
+  expect = "gaetirdu_talad_haegar"
+  partner = "Sex hundruð krónur."
+  partner_meaning = "Six hundred krónur."
+
+  [[dialogues.turns]]
+  cue = "Thank her."
+  expect = "takk"
+  partner = "Gjörðu svo vel."
+  partner_meaning = "Here you are."
+
+[[dialogues]]
+id = "sundlaug"
+setting = "You want to go swimming. You stop a man in the street."
+topics = ["directions"]
+requires = ["afsakid", "hvar_er", "sundlaugin", "takk", "bless"]
+
+  [[dialogues.turns]]
+  cue = "Get his attention and ask where the swimming pool is."
+  expect_text = "Afsakið, hvar er sundlaugin?"
+  expect_meaning = "Excuse me, where is the swimming pool?"
+  partner = "Sundlaugin? Beint áfram og svo til hægri."
+  partner_meaning = "The pool? Straight ahead and then to the right."
+
+  [[dialogues.turns]]
+  cue = "Ask if it's far."
+  expect = "er_thad_langt"
+  partner = "Nei, fimm mínútur."
+  partner_meaning = "No, five minutes."
+
+  [[dialogues.turns]]
+  cue = "Thank him and say bye."
+  expect_text = "Takk. Bless."
+  expect_meaning = "Thanks. Bye."
+
+[[dialogues]]
+id = "kynning"
+setting = "At a friend's kitchen table you're introduced to Anna."
+topics = ["social"]
+requires = ["eg_er_fra_japan", "en_thu", "ja", "eg_er_i_frii", "takk"]
+
+  [[dialogues.turns]]
+  opener = "Hæ! Hvað heitir þú?"
+  opener_meaning = "Hi! What's your name?"
+  cue = "Say your name is Yuki."
+  expect = "eg_heiti"
+  partner = "Gaman að kynnast þér. Hvaðan ert þú?"
+  partner_meaning = "Nice to meet you. Where are you from?"
+
+  [[dialogues.turns]]
+  cue = "Say you're from Japan, then ask: and you?"
+  expect_text = "Ég er frá Japan. En þú?"
+  expect_meaning = "I'm from Japan. And you?"
+  partner = "Ég er frá Akureyri. Ertu í fríi?"
+  partner_meaning = "I'm from Akureyri. Are you on holiday?"
+
+  [[dialogues.turns]]
+  cue = "Say yes, you're on holiday."
+  expect_text = "Já, ég er í fríi."
+  expect_meaning = "Yes, I'm on holiday."
+  partner = "Velkomin til Íslands!"
+  partner_meaning = "Welcome to Iceland!"
+
+  [[dialogues.turns]]
+  cue = "Thank her."
+  expect = "takk"
+
+[[dialogues]]
+id = "vedur"
+setting = "You meet your neighbour outside. It's blowing a gale."
+topics = ["weather", "arrangements"]
+requires = ["ja", "thad_er_weather", "kalt", "allt_i_lagi", "sjaumst_a_morgun"]
+
+  [[dialogues.turns]]
+  opener = "Það er rok í dag!"
+  opener_meaning = "It's windy today!"
+  cue = "Agree: yes, it's cold."
+  expect_text = "Já, það er kalt."
+  expect_meaning = "Yes, it's cold."
+  partner = "Sjáumst á morgun?"
+  partner_meaning = "See you tomorrow?"
+
+  [[dialogues.turns]]
+  cue = "Say OK, see you tomorrow."
+  expect_text = "Allt í lagi. Sjáumst á morgun!"
+  expect_meaning = "OK. See you tomorrow!"
