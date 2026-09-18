@@ -12,26 +12,39 @@ situation = "You walk into a bakery in the morning. Greet the person behind the 
 situation_ja = "朝、パン屋に入ります。店の人にあいさつしてください。"
 
 [[items]]
-id = "gott_kvold"
+id = "takk"
 kind = "phrase"
-target = "Gott kvöld."
-meaning = "Good evening."
-meaning_ja = "こんばんは。"
-difficulty = 2
+target = "Takk."
+meaning = "Thanks."
+meaning_ja = "ありがとう。"
+alternatives = ["Takk fyrir."]
+difficulty = 1
 topics = ["greetings"]
-situation = "You arrive at a restaurant at eight in the evening. Greet the host."
-situation_ja = "夜8時にレストランに着きました。案内係にあいさつしてください。"
+situation = "The barista hands you your coffee. Thank her."
+situation_ja = "バリスタがコーヒーを渡してくれました。お礼を言ってください。"
 
 [[items]]
-id = "goda_nott"
+id = "hvad_segirdu_gott"
 kind = "phrase"
-target = "Góða nótt."
-meaning = "Good night."
-meaning_ja = "おやすみなさい。"
-difficulty = 2
-topics = ["greetings"]
-situation = "You're going to bed at your host family's. Say good night."
-situation_ja = "ホストファミリーの家で寝る前です。おやすみと言ってください。"
+target = "Hvað segirðu gott?"
+meaning = "How are you?"
+meaning_ja = "元気？"
+difficulty = 3
+topics = ["greetings", "social"]
+chunks = ["gott", "segirðu gott", "Hvað segirðu gott?"]
+situation = "You bump into your neighbour. Ask how she is."
+situation_ja = "近所の人にばったり会いました。元気か聞いてください。"
+
+[[items]]
+id = "en_thu"
+kind = "phrase"
+target = "En þú?"
+meaning = "And you?"
+meaning_ja = "あなたは？"
+difficulty = 1
+topics = ["social"]
+situation = "You've answered her question. Return it to her."
+situation_ja = "質問に答えました。同じ質問を返してください。"
 
 [[items]]
 id = "hae"
@@ -57,6 +70,52 @@ situation_ja = "電話に出ます。"
 pronunciation_notes = "'Halló' is a Danish loanword (in use since the 1600s) and is pronounced with a plain 'l', close to the familiar 'hello' — not the pre-aspirated click that native double-'l' words get (e.g. 'fjall', mountain; 'jökull', glacier), which this course pronounces properly wherever it genuinely occurs."
 
 [[items]]
+id = "allt_gott"
+kind = "phrase"
+target = "Allt gott, takk."
+meaning = "All good, thanks."
+meaning_ja = "元気です、ありがとう。"
+difficulty = 2
+topics = ["greetings", "social"]
+prereqs = ["takk"]
+situation = "Your neighbour asked how you are. Answer that all is good."
+situation_ja = "近所の人に元気か聞かれました。元気だと答えてください。"
+
+[[items]]
+id = "hvernig_hefurdu_thad"
+kind = "phrase"
+target = "Hvernig hefurðu það?"
+meaning = "How are you doing?"
+meaning_ja = "調子はどう？"
+difficulty = 3
+topics = ["greetings", "social"]
+chunks = ["það", "hefurðu það", "Hvernig hefurðu það?"]
+situation = "You meet a colleague you haven't seen for a week. Ask how she's doing."
+situation_ja = "一週間ぶりに同僚に会いました。調子を聞いてください。"
+
+[[items]]
+id = "eg_hef_thad_gott"
+kind = "phrase"
+target = "Ég hef það gott."
+meaning = "I'm doing well."
+meaning_ja = "元気にしています。"
+difficulty = 2
+topics = ["greetings", "social"]
+situation = "A colleague asks how you're doing. Say you're doing well."
+situation_ja = "同僚に調子を聞かれました。元気だと答えてください。"
+
+[[items]]
+id = "gaman_ad_sja_thig"
+kind = "phrase"
+target = "Gaman að sjá þig."
+meaning = "Nice to see you."
+meaning_ja = "会えてうれしい。"
+difficulty = 3
+topics = ["greetings", "social"]
+situation = "An old acquaintance walks in. Say it's nice to see them."
+situation_ja = "昔の知り合いが入ってきました。会えてうれしいと言ってください。"
+
+[[items]]
 id = "bless"
 kind = "phrase"
 target = "Bless."
@@ -69,16 +128,15 @@ situation = "You're leaving the shop. Say bye."
 situation_ja = "お店を出ます。別れのあいさつをしてください。"
 
 [[items]]
-id = "takk"
+id = "sjaumst"
 kind = "phrase"
-target = "Takk."
-meaning = "Thanks."
-meaning_ja = "ありがとう。"
-alternatives = ["Takk fyrir."]
-difficulty = 1
-topics = ["greetings"]
-situation = "The barista hands you your coffee. Thank her."
-situation_ja = "バリスタがコーヒーを渡してくれました。お礼を言ってください。"
+target = "Sjáumst!"
+meaning = "See you!"
+meaning_ja = "またね！"
+difficulty = 2
+topics = ["arrangements", "greetings"]
+situation = "You're parting with a friend you'll see again soon."
+situation_ja = "近いうちにまた会う友達と別れます。"
 
 [[items]]
 id = "takk_kaerlega"
@@ -119,6 +177,28 @@ meaning = "No."
 meaning_ja = "いいえ"
 difficulty = 1
 topics = ["greetings"]
+
+[[items]]
+id = "goda_nott"
+kind = "phrase"
+target = "Góða nótt."
+meaning = "Good night."
+meaning_ja = "おやすみなさい。"
+difficulty = 2
+topics = ["greetings"]
+situation = "You're going to bed at your host family's. Say good night."
+situation_ja = "ホストファミリーの家で寝る前です。おやすみと言ってください。"
+
+[[items]]
+id = "gott_kvold"
+kind = "phrase"
+target = "Gott kvöld."
+meaning = "Good evening."
+meaning_ja = "こんばんは。"
+difficulty = 2
+topics = ["greetings"]
+situation = "You arrive at a restaurant at eight in the evening. Greet the host."
+situation_ja = "夜8時にレストランに着きました。案内係にあいさつしてください。"
 
 [[items]]
 id = "jaeja"
@@ -163,86 +243,6 @@ difficulty = 2
 topics = ["greetings", "discourse"]
 situation = "Someone asks if you have change. You don't. Say so regretfully."
 situation_ja = "小銭があるか聞かれましたが、ありません。残念そうに答えてください。"
-
-[[items]]
-id = "hvad_segirdu_gott"
-kind = "phrase"
-target = "Hvað segirðu gott?"
-meaning = "How are you?"
-meaning_ja = "元気？"
-difficulty = 3
-topics = ["greetings", "social"]
-chunks = ["gott", "segirðu gott", "Hvað segirðu gott?"]
-situation = "You bump into your neighbour. Ask how she is."
-situation_ja = "近所の人にばったり会いました。元気か聞いてください。"
-
-[[items]]
-id = "allt_gott"
-kind = "phrase"
-target = "Allt gott, takk."
-meaning = "All good, thanks."
-meaning_ja = "元気です、ありがとう。"
-difficulty = 2
-topics = ["greetings", "social"]
-prereqs = ["takk"]
-situation = "Your neighbour asked how you are. Answer that all is good."
-situation_ja = "近所の人に元気か聞かれました。元気だと答えてください。"
-
-[[items]]
-id = "en_thu"
-kind = "phrase"
-target = "En þú?"
-meaning = "And you?"
-meaning_ja = "あなたは？"
-difficulty = 1
-topics = ["social"]
-situation = "You've answered her question. Return it to her."
-situation_ja = "質問に答えました。同じ質問を返してください。"
-
-[[items]]
-id = "hvernig_hefurdu_thad"
-kind = "phrase"
-target = "Hvernig hefurðu það?"
-meaning = "How are you doing?"
-meaning_ja = "調子はどう？"
-difficulty = 3
-topics = ["greetings", "social"]
-chunks = ["það", "hefurðu það", "Hvernig hefurðu það?"]
-situation = "You meet a colleague you haven't seen for a week. Ask how she's doing."
-situation_ja = "一週間ぶりに同僚に会いました。調子を聞いてください。"
-
-[[items]]
-id = "eg_hef_thad_gott"
-kind = "phrase"
-target = "Ég hef það gott."
-meaning = "I'm doing well."
-meaning_ja = "元気にしています。"
-difficulty = 2
-topics = ["greetings", "social"]
-situation = "A colleague asks how you're doing. Say you're doing well."
-situation_ja = "同僚に調子を聞かれました。元気だと答えてください。"
-
-[[items]]
-id = "gaman_ad_sja_thig"
-kind = "phrase"
-target = "Gaman að sjá þig."
-meaning = "Nice to see you."
-meaning_ja = "会えてうれしい。"
-difficulty = 3
-topics = ["greetings", "social"]
-situation = "An old acquaintance walks in. Say it's nice to see them."
-situation_ja = "昔の知り合いが入ってきました。会えてうれしいと言ってください。"
-
-[[items]]
-id = "sjaumst"
-kind = "phrase"
-target = "Sjáumst!"
-meaning = "See you!"
-meaning_ja = "またね！"
-difficulty = 2
-topics = ["arrangements", "greetings"]
-situation = "You're parting with a friend you'll see again soon."
-situation_ja = "近いうちにまた会う友達と別れます。"
 
 [[items]]
 id = "sjaumst_seinna"
