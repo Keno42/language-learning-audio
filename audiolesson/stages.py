@@ -37,6 +37,8 @@ def ladder_for(kind: str, *, has_situation: bool, in_dialogue: bool, recombinabl
             continue
         if st == "cloze" and word_count < 3:
             continue  # nothing to complete
+        if st == "hinted" and word_count < 2:
+            continue  # the first word of a one-word item is the whole answer
         out.append(st)
     return out
 
