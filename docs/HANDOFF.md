@@ -1,9 +1,40 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-18 (session 8: resolved GitHub issue #12, reordering
-the Icelandic course's opening module)._ Keep this current: whoever picks
-the project up next, human or AI, should be able to continue from here
-without re-deriving decisions._
+_Last updated 2026-09-19 (session 9: resolved GitHub issue #14, the
+"hinted" stage giving away one-word answers)._ Keep this current: whoever
+picks the project up next, human or AI, should be able to continue from
+here without re-deriving decisions._
+
+## Session 9: issue #14 — "it starts with takk" is the answer, not a hint
+
+> "It says 'it starts with takk' as a hint when asking for guessing 'takk'
+> from 'thanks'" — "that is not a hint but an answer!"
+
+Real bug, not a design question this time. The `hinted` stage
+(`Builder.recall()` in `exercises.py`) always speaks `target.split()[0]` as
+the hint — the item's first word. For a multi-word phrase that's a genuine
+partial hint ("Allt" for "Allt gott, takk."); for a **one-word** item like
+`takk` (`kind = "phrase"`, target `"Takk."`), the first word *is* the whole
+target. The stage was unconditionally giving the answer away.
+
+`audiolesson/stages.py`'s `ladder_for()` already had exactly this shape of
+guard for `cloze` (`word_count < 3: continue`, since there's nothing left
+to complete after removing the last word of a 1–2 word phrase) — added the
+same kind of guard for `hinted`: `word_count < 2: continue`. `vocab`-kind
+items were never affected (their ladder doesn't include `hinted` at all);
+this only ever hit `phrase`/`construction`/`transform` items with exactly
+one word, where `hinted` was reachable unconditionally. In the Icelandic
+course, 25 single-word `phrase` items (e.g. `takk`, `bless`, `hae`, `ja`,
+`nei`) had this stage silently spoiling the exercise.
+
+No content or renderer change needed — this lives entirely in the ladder
+that decides which stages an item climbs, which every recall path already
+goes through (`Planner.ladder()` → `ladder_for()`), so fixing it in one
+place fixes every code path that reaches "hinted" for a one-word item.
+
+Test added: `test_hinted_stage_skipped_for_one_word_items` in
+`tests/test_audiolesson.py`, next to the existing `cloze`/word-count test
+it mirrors.
 
 ## Session 8: issue #12 — the first lessons were only single-word greetings
 

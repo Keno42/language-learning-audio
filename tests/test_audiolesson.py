@@ -549,6 +549,12 @@ class TimingTests(unittest.TestCase):
         self.assertNotIn("situation", ladder_for("phrase", has_situation=False, in_dialogue=False, recombinable=False, word_count=3))
         self.assertNotIn("cloze", ladder_for("phrase", has_situation=True, in_dialogue=False, recombinable=False, word_count=1))
 
+    def test_hinted_stage_skipped_for_one_word_items(self):
+        """Issue #14: 'it starts with takk' as a hint for guessing 'takk' isn't a hint, it's the
+        answer. The first word of a one-word item is the whole item."""
+        self.assertNotIn("hinted", ladder_for("phrase", has_situation=False, in_dialogue=False, recombinable=False, word_count=1))
+        self.assertIn("hinted", ladder_for("phrase", has_situation=False, in_dialogue=False, recombinable=False, word_count=2))
+
 
 class RenderTests(unittest.TestCase):
     def test_stub_render_matches_script_pauses_exactly(self):
