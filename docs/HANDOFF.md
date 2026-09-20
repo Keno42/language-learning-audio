@@ -13,8 +13,11 @@ of its own items' already-existing `situation`s, so the learner
 switches between forms right after noticing the pattern), and pilot 4
 (a second milestone note contrasting Afsakið/Fyrirgefðu/Því miður by
 function, after verifying `Því miður`'s gloss against a dictionary and
-fixing a budget-accounting bug the second milestone exposed) — see
-"Session 16" below and item #1a in "Known gaps" for the rest)._ Keep
+fixing a budget-accounting bug the second milestone exposed), and
+pilot 5 (items can now carry several `situations` the planner rotates
+on repeat retrieval, instead of replaying the identical prompt every
+spaced review — retrofitted onto `velkomin`) — see "Session 16" below
+and item #1a in "Known gaps" for the rest)._ Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
 
@@ -273,17 +276,36 @@ and how much design judgment each needs before touching code:
 
    81 tests (was 80 — the new direct unit test), all passing; validate
    unchanged.
-5. **Situation-prompt variation for repeated retrieval (#34 point 4).**
-   Needs a schema decision before any code: either (a) items gain a
-   `situations: list[str]` of alternative phrasings and the planner
-   rotates through them least-recently-used-first, or (b) the planner
-   synthesizes variation on the fly (higher risk — auto-generated
-   prompts reading naturally is a much harder bar than picking from
-   author-written ones). Recommend (a): keeps every learner-facing
-   sentence author-reviewed, matches how `alternatives` already works
-   for answers. Moderate scope: schema + planner change + retrofitting
-   variants onto the highest-repeat items (`velkomin` is the issue's
-   own example).
+5. **Situation-prompt variation for repeated retrieval (#34 point 4).
+   Done.** Went with option (a) from the plan: `Item` gained
+   `situations: list[str]` (glossed the same way as every other field —
+   `situations_ja`, just added to `_GLOSSED_ITEM` — so per-language
+   promotion at load time needed no special-casing for the list type).
+   `Item.situation_for(exposures)` rotates round-robin through
+   `situations` by the item's total exposures so far
+   (`ItemState.exposures`, already tracked for other reasons — no new
+   persisted state); falls back to the old singular `situation` when
+   `situations` is empty, so every existing item needed zero changes.
+   `Item.has_situation` replaces the old `bool(item.situation)` checks
+   in three call sites (`exercises.py`'s `recall()`/`_recall_construction()`,
+   `planner.py`'s `ladder()` and `do_discriminate()`) so both forms are
+   recognized as "this item has a situation stage."
+
+   Retrofitted the issue's own example, `velkomin` — "Friends arrive at
+   your door. Welcome them in." repeated verbatim on every spaced
+   review — with two more situations conveying the same welcoming
+   function ("A guest has just arrived at your home...", "Someone is
+   visiting you for the first time...").
+
+   Added three tests: `situation_for`'s rotation and singular-fallback
+   behavior directly (synthetic `Item`s, no curriculum needed), and a
+   real 25-simulated-lesson integration test confirming `velkomin`'s
+   narrated situation text actually varies across repeats, not just
+   that it theoretically could. 81 → 84 tests, all passing; validate:
+   993 items unchanged, ja gloss still complete (2002 strings — the
+   coverage counter counts one glossable string per *field*, not per
+   list element, so swapping `velkomin`'s `situation`/`situation_ja`
+   for a 3-entry `situations`/`situations_ja` doesn't change the total).
 6. **Lesson shape: no long isolated-drill runs, prefer connected
    dialogue as vocab grows, allow ending early (#34 points 5–6).**
    Grouped together — they're the same underlying planner rebalancing
@@ -1739,12 +1761,16 @@ Verified in this session:
       (`three_kinds_of_sorry`) reusing the same mechanism. Two
       milestones existing at once surfaced a real budget-accounting bug
       (fixed) — see "Pilot 4" above for both.
+   5. situation-prompt variation for repeated retrieval. `Item` gained
+      `situations: list[str]`, glossed like any other field
+      (`situations_ja`); `Item.situation_for(exposures)` rotates
+      round-robin using `ItemState.exposures`, already tracked, so no
+      new persisted state. Falls back to the old singular `situation`
+      when absent, so no existing item needed migration. Retrofitted
+      `velkomin` (the issue's own repeated-cue example) with two more
+      situations.
 
    **Not started:**
-   5. situation-prompt variation for repeated retrieval (moderate;
-      needs a schema decision — recommended: an author-written
-      `situations: list[str]` the planner rotates, not synthesized
-      variation)
    6. lesson-shape rebalancing: no long isolated-drill runs, prefer
       dialogue as vocab grows, allow ending early (**highest blast
       radius** — touches `planner.py`'s `build()` fallback ladder that

@@ -66,6 +66,13 @@ class Builder:
             return meaning
         return meaning + "."
 
+    def _situation(self, item: Item) -> str | None:
+        """The situation cue to narrate now, rotated across an item's ``situations`` (issue
+        #34 point 4) by how many times it's been exercised in past lessons — 0 for an item
+        with no recorded state yet, which is fine: that's its first exposure."""
+        exposures = self.learner.items[item.id].exposures if item.id in self.learner.items else 0
+        return item.situation_for(exposures)
+
     def _successes(self, item: Item) -> int:
         st = self.learner.items.get(item.id)
         return st.successes if st else 0
@@ -222,7 +229,7 @@ class Builder:
             if gen_ex is not None:
                 return gen_ex
             stage = "meaning"
-        if stage == "situation" and not item.situation:
+        if stage == "situation" and not item.has_situation:
             stage = "meaning"
         if stage == "cloze" and item.word_count < 3:
             stage = "hinted"
@@ -242,7 +249,7 @@ class Builder:
             self._speak(sc, ex, target.split()[0].rstrip(".,?!"), role="hint")
             self._answer_pause(sc, ex, target, item, generative=False)
         elif stage == "situation":
-            self._narr(sc, ex, item.situation)  # type: ignore[arg-type]
+            self._narr(sc, ex, self._situation(item))  # type: ignore[arg-type]
             self._answer_pause(sc, ex, target, item, generative=True)
         else:  # meaning (also the fallback for 'dialogue' when no dialogue fits)
             self._narr(sc, ex, self.prompts.get("meaning", meaning=self._m(item.meaning), language=self.prompts.language_name(self.tl)))
@@ -279,8 +286,8 @@ class Builder:
         if stage == "hinted":
             self._narr(sc, ex, self.prompts.get("hinted", meaning=self._m(gen.meaning)))
             self._speak(sc, ex, gen.target.split()[0].rstrip(".,?!"), role="hint")
-        elif stage == "situation" and item.situation:
-            self._narr(sc, ex, item.situation)
+        elif stage == "situation" and item.has_situation:
+            self._narr(sc, ex, self._situation(item))
         else:
             self._narr(sc, ex, self.prompts.get("meaning", meaning=self._m(gen.meaning), language=self.prompts.language_name(self.tl)))
         self._answer_pause(sc, ex, gen.target, item, generative=is_generative(stage))

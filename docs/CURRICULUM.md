@@ -32,6 +32,7 @@ skips anything whose `prereqs` the learner does not know yet.
 | `prereqs` | all | ids that must be *learned* (≥2 successful recalls) first |
 | `components` | all | ids this item is built from (documentation for now) |
 | `situation` | phrase, construction | known-language cue for the *situation* stage, spoken as-is with nothing appended — end it with the actual instruction ("You walk into a bakery. Greet the baker."), not just a scene, so the prompt is complete on its own |
+| `situations` | phrase, construction | alternative `situation` cues for the same target, glossed per-language the same way (`situations_ja`, …); when given, the planner rotates through them round-robin on the item's total exposures so far, so a high-repeat item's spaced reviews don't all replay the identical wording — overrides `situation` when non-empty |
 | `chunks` | vocab, phrase | explicit backward-build pieces, shortest first, last = full target — overrides the automatic word- or syllable-split |
 | `alternatives` | all | other acceptable answers (stored in metadata, not yet spoken) |
 | `pronunciation_notes` | all | printed once in the transcript, under the first exercise on that item; not spoken, and not per-language glossed (always shown as written, regardless of `--known`) |

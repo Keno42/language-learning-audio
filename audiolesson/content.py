@@ -62,6 +62,9 @@ class Item:
     tags: list[str] = field(default_factory=list)
     topics: list[str] = field(default_factory=list)
     situation: str | None = None  # known-language cue for situational recall
+    situations: list[str] = field(default_factory=list)  # alternative cues for the same target,
+    # rotated on repeat retrieval (issue #34 point 4) so spaced review doesn't always replay the
+    # identical wording; overrides `situation` when non-empty (see `situation_for`)
     alternatives: list[str] = field(default_factory=list)
     pronunciation_notes: str = ""
     chunks: list[str] | None = None  # backward-build chunks, shortest first
@@ -80,6 +83,19 @@ class Item:
     @property
     def word_count(self) -> int:
         return len(_WORD_RE.findall(self.target))
+
+    @property
+    def has_situation(self) -> bool:
+        return bool(self.situations or self.situation)
+
+    def situation_for(self, exposures: int) -> str | None:
+        """The situation cue to narrate for this exercise. Rotates round-robin through
+        ``situations`` (if authored) on total exposures so far, so retrieving the same item
+        again — the normal course of spaced review — doesn't always replay the identical
+        wording; falls back to the single ``situation`` string otherwise."""
+        if self.situations:
+            return self.situations[exposures % len(self.situations)]
+        return self.situation
 
     def is_hard(self) -> bool:
         """Should the introduction use backward construction?"""
@@ -268,7 +284,7 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
 
 
 # fields that may carry per-language glosses (``<field>_<lang>``)
-_GLOSSED_ITEM = ("meaning", "situation", "instruction")
+_GLOSSED_ITEM = ("meaning", "situation", "situations", "instruction")
 _GLOSSED_EXAMPLE = ("source_meaning", "result_meaning")
 _GLOSSED_TURN = ("cue", "opener_meaning", "partner_meaning", "expect_meaning")
 _GLOSSED_DIALOGUE = ("setting",)

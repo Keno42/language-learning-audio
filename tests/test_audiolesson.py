@@ -412,6 +412,53 @@ class CurriculumTests(unittest.TestCase):
             self.assertNotIn(" ", c)  # syllable pieces of one word, not word-split
             self.assertTrue(hard.target.endswith(c))  # each is a genuine tail of the word
 
+    def test_situation_for_rotates_round_robin_on_exposures(self):
+        """Issue #34 point 4: an item with several ``situations`` should rotate through them
+        by exposure count, not always narrate the same one."""
+        from audiolesson.content import Item
+
+        item = Item(id="x", kind="phrase", target="T.", meaning="M.", situations=["A", "B", "C"])
+        self.assertTrue(item.has_situation)
+        self.assertEqual([item.situation_for(n) for n in range(5)], ["A", "B", "C", "A", "B"])
+
+    def test_situation_for_falls_back_to_singular_situation(self):
+        """An item authored the old way (a single ``situation``, no ``situations``) keeps
+        narrating that one string regardless of exposure count; an item with neither has no
+        situation stage at all."""
+        from audiolesson.content import Item
+
+        one = Item(id="x", kind="phrase", target="T.", meaning="M.", situation="only one")
+        self.assertTrue(one.has_situation)
+        self.assertEqual(one.situation_for(0), "only one")
+        self.assertEqual(one.situation_for(5), "only one")
+        none = Item(id="y", kind="phrase", target="T.", meaning="M.")
+        self.assertFalse(none.has_situation)
+        self.assertIsNone(none.situation_for(0))
+
+    def test_situations_rotate_across_repeated_retrieval_of_the_same_item(self):
+        """Issue #34 point 4's own example: ``velkomin``'s situation-stage narration used to
+        replay "Friends arrive at your door. Welcome them in." on every spaced review. Now
+        that it has several ``situations``, real simulated lessons should actually vary the
+        wording across repeats, not just accept that they theoretically could."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        item = cur.by_id["velkomin"]
+        self.assertGreaterEqual(len(item.situations), 2)
+        learner = LearnerState("is", "en", "A1")
+        learner.feedback_mode = "auto"
+        day = TODAY
+        seen: list[str] = []
+        for _ in range(25):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=7), today=day).build()
+            for i, ex in enumerate(sc.exercises):
+                if ex.kind == "recall" and ex.stage == "situation" and ex.item_ids == ["velkomin"]:
+                    text = next(s.text for s in sc.segments if s.exercise == i and s.type == "narrate")
+                    seen.append(text)
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        self.assertGreaterEqual(len(seen), 2, "velkomin's situation stage never recurred across 25 simulated lessons")
+        self.assertGreater(len(set(seen)), 1, "situation wording never varied across repeats")
+        self.assertTrue(all(t in item.situations for t in seen))
+
 
 class LessonStructureTests(unittest.TestCase):
     def setUp(self):

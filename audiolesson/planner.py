@@ -99,7 +99,7 @@ class Planner:
         )
         return ladder_for(
             item.kind,
-            has_situation=bool(item.situation),
+            has_situation=item.has_situation,
             in_dialogue=item.id in self._in_dialogue,
             recombinable=recombinable,
             word_count=item.word_count,
@@ -377,7 +377,7 @@ class Planner:
             nonlocal idx, since_dialogue
             just_touched = recent[-1] if recent else None
             others = [i for i in note.items if i != just_touched]
-            candidates = [self.cur.by_id[i] for i in others if i in self.cur.by_id and self.cur.by_id[i].situation]
+            candidates = [self.cur.by_id[i] for i in others if i in self.cur.by_id and self.cur.by_id[i].has_situation]
             for item in candidates[:2]:
                 do_recall(item, "situation")
                 idx += 1
