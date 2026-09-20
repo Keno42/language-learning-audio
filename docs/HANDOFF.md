@@ -1,9 +1,9 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-20 (session 14: resolved issue #27, durable vs.
-same-lesson learning — first of three interdependent issues #25–#27, done
-in dependency order #27 → #25 → #26 per the owner)._ Keep this current:
-whoever picks the project up next, human or AI, should be able to
+_Last updated 2026-09-20 (session 14: issues #25–#27, done in dependency
+order #27 → #25 → #26 per the owner — #27 and #26 resolved, #25 is
+investigated and blocked on an owner decision, see below)._ Keep this
+current: whoever picks the project up next, human or AI, should be able to
 continue from here without re-deriving decisions._
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
@@ -72,6 +72,72 @@ reactivation, a genuine due-date review, and a reported failure.
 **Next:** issue #25 (dialogue eligibility keyed on comprehension of the
 partner's actual lines, via a per-dialogue `comprehension_requires` list)
 now has a meaningful "already known" to build on.
+
+### Issue #25 — investigated, blocked on a scope decision
+
+Chose the schema (one `comprehension_requires` list per dialogue, sibling
+to the existing `requires`) before writing any code, and checked what it
+would actually contain by computing it: for every dialogue, tokenize its
+`opener`/`partner` lines and, for each word, find the earliest-`order`
+item anywhere in the curriculum whose `target` contains that exact word
+form — the same word-matching #22's audit already used, just resolving to
+a specific item instead of "does one exist at all."
+
+Every word resolved to *some* item (proper names aside), but "earliest"
+is sometimes nowhere near the dialogue. `nagranni` — the very first
+dialogue in the curriculum, today gated on 5 basic items — has a partner
+line, "Gott að heyra. Jæja, ég verð að fara." ("Good to hear. Well, I have
+to go."), where `heyra`/`verð`/`fara` don't have an early item at all:
+the earliest is #926, #788, and #398 of 993. Those three words are only
+ever taught as parts of fixed idiomatic phrases much later in the
+curriculum, not as freestanding vocabulary, so there's no early item to
+point at — literal word-level gating would push `nagranni`'s eligibility
+from "5 basic items" to "essentially the whole curriculum." Checked a few
+other dialogues too; this is the general pattern, not one bad case.
+
+Posted this finding as a comment on #25 rather than guessing at scope or
+picking between "content-words-only" and "hand-curated per dialogue"
+unilaterally — both are real options with different costs (the former
+needs a judgment call about what counts as a content word; the latter is
+a bigger authoring pass than #22's, which only needed *a* replacement
+wording, not a decision about what's prerequisite-worthy). No code
+changes for #25 this session; `Dialogue.requires` is unchanged.
+
+### Issue #26 — scaffolding now fades on repeat encounters
+
+`Builder.dialogue()` always narrated a translation of every partner line
+(`dialogue_partner_said`, when `translate_partner`) and an explicit "say
+X" cue (`turn.cue`) for every turn — so answering correctly never
+actually required understanding the partner's target-language line. The
+existing `dialogues_done` repetition counter (already used to grow how
+many turns a dialogue plays, and to add a natural, narrator-free replay
+pass once a dialogue is fully learned) turned out to be exactly the
+"encounter count" signal issue #26 asked for — no new state needed.
+
+- `Builder.dialogue()` gained `assisted: bool = True`. Translation now
+  only narrates when `assisted`. The per-turn cue now narrates when
+  `assisted` **or** the learner hasn't heard the partner say anything yet
+  this dialogue (`heard_partner`, true once any opener or partner line
+  has been spoken) — a turn that opens the dialogue with no `opener` has
+  nothing to react to, so it always keeps its cue regardless of
+  `assisted`, rather than leaving the learner with zero information.
+- `Planner._play_dialogue()` passes `assisted=(times == 0)`: full
+  scaffolding on the first encounter, comprehension-driven from the
+  second encounter on. The existing fully-natural replay pass (once a
+  dialogue is complete and has been played before) is untouched — it
+  already matched the issue's "stage 3."
+- Deliberately binary, not the full three-tier gradient the issue
+  sketched (assisted / responsive / natural): `times == 0` vs. `times >
+  0`, plus the pre-existing replay-once-complete pass as the natural
+  stage. A finer gradient (e.g. keeping the cue but dropping only the
+  translation for one encounter in between) is possible later if this
+  turns out too abrupt in practice — nothing here forecloses it, `times`
+  is still the only signal read.
+
+Test added: `test_dialogue_scaffolding_fades_on_later_encounters` in
+`tests/test_audiolesson.py::LessonStructureTests`, checking both the
+assisted and unassisted narration sets directly, including the
+no-opener-turn-keeps-its-cue exception.
 
 ## Session 13: issue #22, the content half — dialogues used untaught words
 
@@ -891,18 +957,24 @@ Verified in this session:
    with 2–3 introductions in a row (nothing else exists yet). Acceptable but a
    short "listen to this conversation" opener, as some audio courses do,
    would be nicer.
-5. **Dialogue partner translation** is always narrated (`--no-translate` to
-   disable). Issue #22 (session 12) raised two concrete asks here, neither
-   decided yet: (a) the translation should ideally be *unnecessary*
-   because a dialogue's partner lines stay within vocabulary the lesson
-   already covers or will cover soon — that's a content-authoring
-   constraint on `curricula/is-en/*.toml`'s `[[dialogues]]`, not a code
-   change, and would need auditing all 31 existing dialogues; (b) the
-   learner should be told a dialogue is starting (a different voice is
-   about to speak) before the first partner line, not just given the
-   scene-setting `dlg.setting` narration. Both need a decision from the
-   project owner on scope before implementing — the margin bug in the
-   same issue is already fixed (session 12).
+5. ~~Dialogue partner translation always narrated~~ — done for the
+   scaffolding-fade half (issue #26, session 14): translation and the
+   explicit "say X" cue are now only there on the *first* encounter
+   (`Builder.dialogue(..., assisted=...)`, driven by the same
+   `dialogues_done` repetition count that already grows how many turns
+   play). `--no-translate` still disables translation outright regardless
+   of encounter count, for whoever wants that. Two asks from issue #22
+   (session 12) are still open and undecided: (a) dialogue vocabulary
+   should ideally need no translation at all because it stays within
+   what the lesson covers — this is issue #25 now, in progress but
+   blocked: word-level gating turned out to pull in items from deep in
+   the curriculum for words that are only ever taught embedded in fixed
+   phrases (see the comment on #25 from session 14 — e.g. the first
+   dialogue, `nagranni`, would need item #926 of 993 for one word in one
+   line); (b) the learner should be told a dialogue is starting (a
+   different voice is about to speak) before the first partner line, not
+   just given the scene-setting `dlg.setting` narration — nobody has
+   picked this back up yet.
 6. **Curricula.** `fr-en-a1.toml` and its Japanese-instructor twin
    `fr-ja-a1.toml` (generated by `tools/derive_fr_ja.py` from a translation
    table; a test asserts the ids stay in sync). The Japanese strings were

@@ -343,6 +343,38 @@ class LessonStructureTests(unittest.TestCase):
         opener_idx = next(i for i, s in enumerate(sc.segments) if s.type == "speak" and s.text == "Bonjour !")
         self.assertEqual(sc.segments[opener_idx + 1].type, "pause")
 
+    def test_dialogue_scaffolding_fades_on_later_encounters(self):
+        """Issue #26: a translation of the partner's line plus an explicit "say X" cue meant
+        the learner never had to understand the partner to answer correctly. On a later
+        encounter (assisted=False) both should drop once there's a partner line to react to —
+        but a turn with nothing said yet (no opener, nothing before it) must keep its cue,
+        since there would otherwise be no way to know what to say."""
+        from audiolesson.content import Dialogue, DialogueTurn
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        turns = [
+            DialogueTurn(cue="Ask how much.", expect_text="Combien ?", opener=None, partner="Avec lait ?", partner_meaning="With milk?"),
+            DialogueTurn(cue="Say no thanks.", expect_text="Non, merci."),
+        ]
+        dlg = Dialogue(id="d", setting="A scene.", turns=turns)
+
+        assisted = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.dialogue(assisted, dlg, assisted=True)
+        narrations = [s.text for s in assisted.segments if s.type == "narrate"]
+        self.assertIn("Ask how much.", narrations)
+        self.assertIn("Say no thanks.", narrations)
+        self.assertTrue(any("With milk?" in n for n in narrations))
+
+        later = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.dialogue(later, dlg, assisted=False)
+        narrations = [s.text for s in later.segments if s.type == "narrate"]
+        self.assertIn("Ask how much.", narrations)  # turn 1: nothing said yet, cue stays
+        self.assertNotIn("Say no thanks.", narrations)  # turn 2: partner just spoke, cue drops
+        self.assertFalse(any("With milk?" in n for n in narrations))  # translation drops too
+
     def test_later_lessons_fill_the_requested_time(self):
         _, scripts = course(8, minutes=30)
         minutes = [round(sc.total_duration / 60, 1) for sc in scripts]

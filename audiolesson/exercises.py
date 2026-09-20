@@ -409,8 +409,15 @@ class Builder:
 
     # -------------------------------------------------------------- dialogue
 
-    def dialogue(self, sc: Script, dlg: Dialogue, *, replay: bool = False, max_turns: int | None = None) -> Exercise:
-        """Play a dialogue; ``max_turns`` lets early encounters stop after a few turns."""
+    def dialogue(self, sc: Script, dlg: Dialogue, *, replay: bool = False, max_turns: int | None = None, assisted: bool = True) -> Exercise:
+        """Play a dialogue; ``max_turns`` lets early encounters stop after a few turns.
+
+        ``assisted`` (issue #26): the first encounter narrates a translation of every partner
+        line and an explicit "say X" cue for every turn, so producing the right answer never
+        depends on having understood the partner. From the second encounter on, both drop once
+        there is an actual partner line to react to — the partner's own utterance becomes the
+        retrieval cue. A turn with nothing said yet to react to (the very first turn, when it
+        has no ``opener``) always keeps its cue: there would otherwise be nothing to go on."""
         turns = dlg.turns if max_turns is None else dlg.turns[: max(1, max_turns)]
         ids = [t.expect for t in turns if t.expect] + [r for r in dlg.requires if r not in {t.expect for t in turns}]
         label = f"dialogue: {dlg.id}" + ("" if len(turns) == len(dlg.turns) else f" ({len(turns)}/{len(dlg.turns)} turns)")
@@ -419,11 +426,13 @@ class Builder:
         self._narr(sc, ex, dlg.setting)
         self._beat(sc, ex)
         lines: list[tuple[str, str]] = []
+        heard_partner = False
         for turn in turns:
             if turn.opener:
                 self._speak(sc, ex, turn.opener, speaker=partner)
                 lines.append((partner, turn.opener))
-                if self.translate_partner and turn.opener_meaning:
+                heard_partner = True
+                if assisted and self.translate_partner and turn.opener_meaning:
                     self._beat(sc, ex)
                     self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=turn.opener_meaning))
             if turn.expect:
@@ -432,7 +441,8 @@ class Builder:
             else:
                 item = None
                 expected = turn.expect_text or ""
-            self._narr(sc, ex, turn.cue)
+            if assisted or not heard_partner:
+                self._narr(sc, ex, turn.cue)
             self._answer_pause(sc, ex, expected, item, generative=True)
             self._answer(sc, ex, expected)
             lines.append(("native_a", expected))
@@ -440,7 +450,8 @@ class Builder:
                 self._beat(sc, ex)
                 self._speak(sc, ex, turn.partner, speaker=partner)
                 lines.append((partner, turn.partner))
-                if self.translate_partner and turn.partner_meaning:
+                heard_partner = True
+                if assisted and self.translate_partner and turn.partner_meaning:
                     self._beat(sc, ex)
                     self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=turn.partner_meaning))
         if replay:
