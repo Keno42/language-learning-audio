@@ -1,9 +1,73 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-19 (session 9: resolved GitHub issue #14, the
-"hinted" stage giving away one-word answers)._ Keep this current: whoever
-picks the project up next, human or AI, should be able to continue from
-here without re-deriving decisions._
+_Last updated 2026-09-20 (session 10: resolved GitHub issue #16, answer
+pauses were much longer than needed)._ Keep this current: whoever picks
+the project up next, human or AI, should be able to continue from here
+without re-deriving decisions._
+
+## Session 10: issue #16 — pauses waited for perfect recall, not just recall
+
+> "It waits too long after asking for saying the word." — "to wait long
+> likely increases the chance to remember, however, it is not necessary to
+> let the learner to remember words 100% correctly. probably 1 sec to
+> remember and enough time to pronounce the word or the phrase is enough."
+
+This is the gap "Known gaps / next steps" #2 (below) already flagged:
+*"Numbers in Timing are reasoned defaults, not listened-to ones."* The
+owner listened and confirmed it: too long.
+
+The old `answer_pause` picked a base from a hand-tuned bucket table
+(`word`/`short_phrase`/`sentence`/`long_sentence`: 2.5–8.5s by word count)
+that had **no connection at all** to `speech_estimate()` — the method
+right below it that already computes, from the actual per-language
+speaking rate, how long the exact answer text takes to say. The bucket
+values were sized to comfortably outlast that real speaking time by a wide
+margin (e.g. a 1-word Icelandic answer takes ≈0.85s to say; the old bucket
+gave it 2.5s *before* the ×1.2 A1 multiplier), which is exactly the
+"waiting for confident recall" the issue says isn't the point.
+
+Rewrote both pause methods around the issue's own formula — a moment to
+recall (fixed) *plus* however long the answer actually takes to say
+(computed from the real text via `speech_estimate`, not guessed from a
+bucket):
+
+- `answer_pause` = `think_time` (new field, default 1.0s — "1 sec to
+  remember") × the existing level/familiarity/difficulty multipliers, +
+  `speech_estimate(answer_text, lang)`. The multipliers still scale *only*
+  the recall side — a beginner or an unfamiliar item needs more time to
+  decide what to say, not more time to say it once decided.
+- `repeat_pause` = `repeat_delay` (new field, 0.5s — no recall needed, just
+  a reaction beat) + `speech_estimate(...)`. Previously `repeat_factor`
+  (0.7) multiplied the same oversized bucket base, which happened to still
+  clear real speaking time only because the base was already inflated;
+  with pauses now grounded in the real estimate, multiplying it down would
+  have cut a long answer off mid-sentence, so this is additive, not
+  multiplicative.
+- Removed the now-dead `word`/`short_phrase`/`sentence`/`long_sentence`/
+  `repeat_factor` fields and the `_base_for`/`_units` helpers — net fewer
+  moving parts, and one less place for the pause math and the speech-time
+  math to silently disagree.
+
+Sample pauses after the change (`Timing(level="A1")`): a 1-word Icelandic
+answer ≈2.2s on first exposure, tightening to ≈1.9s once familiar; "Allt
+gott, takk." ≈3.2s; a genuinely long sentence ≈5.8s; repeats track speaking
+time closely (≈1.5s / ≈4.8s for the same two). Down from roughly 3–10s+
+before, without ever landing below the time the phrase actually takes to
+say.
+
+One test needed updating, not because of a logic bug but because it was
+tuned against the old (inflated) pause sizes: `LessonStructureTests`'
+shared fixture forced `new_items=8` to get "a full first lesson" long
+enough to test various invariants against; with shorter, more realistic
+pauses, 8 new items for a from-scratch learner no longer summed to ~15
+minutes on their own (nothing to review yet, so the planner's fill-to-
+budget loop had nothing left to add). Raised it to `new_items=12`, which
+lands the fixture back at ≈15.5 minutes — still "a full first lesson," just
+under the corrected timing model. This is the same kind of expected
+side-effect as session 8's `hallo`-position test fix: a test result moving
+because the change it's guarding against is real and observable.
+
+Marked the "Known gaps" item below as done.
 
 ## Session 9: issue #14 — "it starts with takk" is the answer, not a hint
 
@@ -572,9 +636,11 @@ Verified in this session:
 
 1. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
-2. **Listen to a real lesson and tune timing.** Numbers in `Timing` are
-   reasoned defaults, not listened-to ones. Likely tweaks: `between_exercises`,
-   `repeat_factor`, the A1 multiplier.
+2. ~~Listen to a real lesson and tune timing~~ — partially done (session
+   10): `answer_pause`/`repeat_pause` were rewritten around real
+   per-language speech estimates instead of a hand-tuned bucket table, on
+   the owner's direct feedback that pauses ran long. `between_exercises`
+   and `beat` haven't been listened-to yet.
 3. ~~`alternatives` never spoken~~ — done: at meaning+ stages, once per
    lesson per item, 50% chance: "You could also say:" + alternative.
 4. **Lesson-1 intro bunching.** With nothing to review, the first lesson opens
