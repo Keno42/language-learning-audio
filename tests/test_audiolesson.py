@@ -808,6 +808,16 @@ class PromptsTests(unittest.TestCase):
             for v in variants:
                 self.assertIn(marker, v.lower() if lang == "en" else v, v)
 
+    def test_meaning_prompt_never_doubles_up_terminal_punctuation(self):
+        """Issue #34 point 8: 'Say: Well then. in Icelandic.' — exercises.py's _m() guarantees
+        every English meaning ends in its own terminal punctuation, so no variant of the
+        'meaning' prompt may put more template text directly after {meaning}: it would always
+        collide with that punctuation. (Japanese sidesteps this differently — _m() strips the
+        meaning's trailing '。' for ja/zh/ko before it's embedded mid-sentence, which is exactly
+        why that language's templates are allowed to continue after {meaning}.)"""
+        for v in Prompts.load("en").data["meaning"]:
+            self.assertTrue(v.endswith("{meaning}"), v)
+
 
 class TimingTests(unittest.TestCase):
     def test_pause_grows_with_length_and_level(self):

@@ -20,7 +20,7 @@ hinted = "Say: {meaning} It starts with:"
 meaning = [
   "How do you say: {meaning}",
   "Say: {meaning}",
-  "Say: {meaning} in {language}.",
+  "In {language}, say: {meaning}",
 ]
 recombine = [
   "Now something you haven't heard yet. Say: {meaning}",
