@@ -374,8 +374,8 @@ requires = ["talar_thu", "ensku", "eg_tala_sma_islensku", "gaetirdu_talad_haegar
   cue = "Say you speak a little Icelandic."
   cue_ja = "アイスランド語を少し話すと言ってください。"
   expect = "eg_tala_sma_islensku"
-  partner = "Frábært! Þá tölum við bara íslensku. Sundlaugin er beint áfram og svo til vinstri, rétt hjá bankanum."
-  partner_meaning = "Great! Then we'll just speak Icelandic. The pool is straight ahead and then left, right by the bank."
+  partner = "Frábært! Tölum við bara íslensku. Sundlaugin er beint áfram og svo til vinstri, rétt hjá bankanum."
+  partner_meaning = "Great! We'll just speak Icelandic. The pool is straight ahead and then left, right by the bank."
   partner_meaning_ja = "すばらしい！じゃあアイスランド語で話しましょう。プールはまっすぐ行って左、銀行のすぐそばです。"
 
   [[dialogues.turns]]

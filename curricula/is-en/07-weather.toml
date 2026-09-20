@@ -374,17 +374,17 @@ requires = ["hvernig_verdur_vedrid_a_morgun", "thetta_reddast", "eg_tharf_ulpu",
   cue = "Say it'll work out."
   cue_ja = "なんとかなると言ってください。"
   expect = "thetta_reddast"
-  partner = "Já, en þú þarft betri jakka."
-  partner_meaning = "Yes, but you need a better jacket."
-  partner_meaning_ja = "うん、でももっといい上着が要るよ。"
+  partner = "Já, en það er kalt."
+  partner_meaning = "Yes, but it's cold."
+  partner_meaning_ja = "うん、でも寒いよ。"
 
   [[dialogues.turns]]
   cue = "Say you need a parka."
   cue_ja = "防寒コートが必要だと言ってください。"
   expect = "eg_tharf_ulpu"
-  partner = "Ég get lánað þér eina. Klukkan hvað leggjum við af stað?"
-  partner_meaning = "I can lend you one. What time do we set off?"
-  partner_meaning_ja = "一着貸せるよ。何時に出発する？"
+  partner = "Ég er með peysu fyrir þig. Klukkan hvað leggjum við af stað?"
+  partner_meaning = "I have a sweater for you. What time do we set off?"
+  partner_meaning_ja = "セーターを持ってるよ。何時に出発する？"
 
   [[dialogues.turns]]
   cue = "Say: let's meet at nine."
@@ -392,6 +392,6 @@ requires = ["hvernig_verdur_vedrid_a_morgun", "thetta_reddast", "eg_tharf_ulpu",
   expect_text = "Hittumst klukkan níu."
   expect_meaning = "Let's meet at nine."
   expect_meaning_ja = "9時に会いましょう。"
-  partner = "Fínt. Góða nótt!"
-  partner_meaning = "Fine. Good night!"
+  partner = "Gott. Góða nótt!"
+  partner_meaning = "Good. Good night!"
   partner_meaning_ja = "いいね。おやすみ！"

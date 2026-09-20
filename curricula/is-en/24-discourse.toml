@@ -369,8 +369,8 @@ topics = ["discourse"]
 requires = ["er_thad", "eg_er_sammala", "thad_er_synd", "vid_sjaum_til", "thad_er_god_hugmynd"]
 
   [[dialogues.turns]]
-  opener = "Ég synti í sjónum í morgun."
-  opener_meaning = "I swam in the sea this morning."
+  opener = "Ég fór í sund í morgun."
+  opener_meaning = "I went swimming this morning."
   opener_meaning_ja = "今朝、海で泳いだの。"
   cue = "React: really?"
   cue_ja = "そうなの？と反応してください。"

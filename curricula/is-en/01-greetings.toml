@@ -439,8 +439,8 @@ requires = ["godan_daginn", "hvad_segirdu_gott", "allt_gott", "en_thu", "sjaumst
   expect_text = "Góðan daginn. Hvað segirðu gott?"
   expect_meaning = "Good day. How are you?"
   expect_meaning_ja = "こんにちは。元気？"
-  partner = "Allt fínt, takk. En þú?"
-  partner_meaning = "All fine, thanks. And you?"
+  partner = "Allt gott, takk. En þú?"
+  partner_meaning = "All good, thanks. And you?"
   partner_meaning_ja = "元気だよ、ありがとう。あなたは？"
 
   [[dialogues.turns]]

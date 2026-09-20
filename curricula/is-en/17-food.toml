@@ -452,15 +452,15 @@ topics = ["food", "home"]
 requires = ["hvad_er_i_thessu", "thetta_er_ljuffengt", "ma_eg_fa_meira", "takk_fyrir_matinn", "verdi_ther_ad_godu"]
 
   [[dialogues.turns]]
-  opener = "Gjörðu svo vel, kjötsúpa!"
-  opener_meaning = "Here you are, lamb soup!"
+  opener = "Gjörðu svo vel, ég er með kjötsúpu!"
+  opener_meaning = "Here you are, I have lamb soup!"
   opener_meaning_ja = "どうぞ、ラムのスープよ！"
   cue = "Ask what's in it."
   cue_ja = "何が入っているか聞いてください。"
   expect = "hvad_er_i_thessu"
-  partner = "Lambakjöt, kartöflur og gulrætur."
-  partner_meaning = "Lamb, potatoes and carrots."
-  partner_meaning_ja = "ラム肉と、じゃがいもと、にんじん。"
+  partner = "Lambakjöt, kartöflur og hrísgrjón."
+  partner_meaning = "Lamb, potatoes and rice."
+  partner_meaning_ja = "ラム肉と、じゃがいもと、ごはん。"
 
   [[dialogues.turns]]
   cue = "Taste it and say it's delicious."

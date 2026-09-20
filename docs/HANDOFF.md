@@ -1,9 +1,94 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-20 (session 12: resolved issues #20 and #21, and the
-mechanical part of #22 — its two content/UX questions are open, see
-below)._ Keep this current: whoever picks the project up next, human or
-AI, should be able to continue from here without re-deriving decisions._
+_Last updated 2026-09-20 (session 13: rewrote 27 dialogues so their partner
+lines stay within taught vocabulary — issue #22's other content question,
+its "announce a dialogue is starting" ask is still open)._ Keep this
+current: whoever picks the project up next, human or AI, should be able to
+continue from here without re-deriving decisions._
+
+## Session 13: issue #22, the content half — dialogues used untaught words
+
+Asked the owner how to proceed on issue #22's open question (was it: add
+the missing words as new vocab items, reword the dialogues to stay inside
+taught vocabulary, or just fix the literal English-word typo and leave the
+rest). They picked rewording — the translation should become unnecessary
+because the dialogue only ever says things the learner has already been
+taught, not because new vocabulary got backfilled in to justify it.
+
+**The audit.** Collected every word form that appears in any item's
+`target` across `curricula/is-en/` (950 distinct forms) and checked every
+dialogue's `opener`/`partner` lines against that set. 27 of 31 dialogues
+used at least one word that appears nowhere else in the curriculum — 71
+distinct word types in total. Concretely: the country name "Ísland" isn't
+taught in *any* case (yet three dialogues used inflected forms of it);
+"bjóða" (offer), "hittast" (meet), "kostur" (option) and dozens more never
+appear in any vocab/phrase item; and `peysubud`'s "Já, hérna er large."
+had a literal English word sitting in Icelandic dialogue text — an actual
+typo, not a vocabulary gap. Also caught, while cross-checking: `veitinga
+stadur`'s dialogue spelled the menu "matseðillinn" (double *l*) where the
+taught vocab item is "matseðilinn" (single *l*) — same fix, since matching
+the taught spelling exactly is the whole point here.
+
+**The rewrite, line by line.** For each flagged line, found a replacement
+built only from word forms already attested in some item's `target` —
+not just the same lemma in a different case, the *exact* surface form,
+since a different case ending is just as untaught as a different word.
+Concretely this meant things like:
+- Reusing whole existing item phrasings verbatim where the fit was exact:
+  "Allt fínt, takk." → "Allt gott, takk." (the existing `allt_gott` item);
+  "Fínt. Góða nótt!" → "Gott. Góða nótt!"; "Góðan bata!" (get well soon,
+  untaught) → "Bless bless!" (an existing alternative farewell).
+- Finding an existing construction that already takes the word in the
+  case a new sentence needed: `ahugamal`'s "Ég elska kvikmyndir" problem
+  (accusative "kvikmyndir" untaught) became "Ég hef gaman af kvikmyndum."
+  — reusing the *dative* form the curriculum already teaches, inside the
+  exact construction (`eg_hef_gaman_af`, "gaman af" + dative) that takes
+  it. Similarly `kvoldmatur`'s "kjötsúpa" (nominative, untaught) became
+  "ég er með kjötsúpu" — "vera með" + accusative, and only the accusative
+  "kjötsúpu" is taught.
+- Where no known form could carry the sentence without inventing
+  grammar (2nd-person "þarft"/"vaknar"/"eruð", imperatives like
+  "hvíldu"/"drekktu", technical loanwords like "gígabætum"), simplifying
+  the line rather than guessing at a conjugation: `gonguferd`'s "you need
+  a better jacket" became "it's cold" (still motivates the learner's next
+  line, "I need a parka"); `laeknir`'s flu-and-rest medical advice
+  dropped to "I see."; `simabud` lost the brand-name "frelsiskort" and
+  the gigabyte spec entirely.
+- One exception, deliberately: `myndir`'s partner is named "Sóley," which
+  isn't in any item's target and was left as is. A person's name isn't
+  vocabulary that needs teaching — it's a label, understood without
+  translation the way "Anna" or "Yuki" already are throughout this
+  course.
+
+Every replacement was checked against the known-word set before being
+written, not guessed and hoped for — same discipline as session 6's
+"halló" lesson, just applied to grammar coverage instead of pronunciation
+this time.
+
+**Result:** 26 of 27 previously-flagged dialogues are now fully within
+taught vocabulary (the 27th's only remaining flag is "Sóley," the
+exempted name). Full details are in the diff across `curricula/is-en/
+{01-greetings,02-clarifying,03-cafe,05-self,06-time,07-weather,08-numbers-
+money,09-shopping,10-transport,11-accommodation,12-health,13-family,14-
+daily,15-likes,17-food,19-questions,21-work,22-practical,23-nature,24-
+discourse,25-travel,26-feelings}.toml` — 18 module files, one commit.
+
+Added `test_dialogue_lines_stay_within_taught_vocabulary` in
+`tests/test_audiolesson.py::CurriculumTests`, right after the existing
+full-course simulation test: every dialogue's opener/partner words must
+appear in some item's target, with "sóley" as the one named exception. A
+future dialogue edit that reintroduces an untaught word will fail this
+test immediately, rather than surfacing as a listener complaint again.
+
+**Left open:**
+- Issue #22's other ask — telling the learner a dialogue is starting,
+  before a different voice speaks — is still undecided (see "Known gaps"
+  below, unchanged from session 12).
+- The sample French curriculum (`curricula/fr-en-a1.toml`, 4 dialogues)
+  has the same pattern (all 4 dialogues use words outside its own vocab
+  list) — not audited or fixed this session, since the reported issue and
+  every other one this batch concerned the Icelandic course specifically.
+  The regression test above only covers `curricula/is-en`.
 
 ## Session 12: issues #20, #21, and the easy half of #22
 

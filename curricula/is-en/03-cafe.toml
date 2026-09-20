@@ -571,8 +571,8 @@ topics = ["cafe", "clarifying"]
 requires = ["godan_daginn", "eg_aetla_ad_fa", "kaffi", "nei", "takk", "gaetirdu_talad_haegar"]
 
   [[dialogues.turns]]
-  opener = "Góðan daginn. Hvað má bjóða þér?"
-  opener_meaning = "Good day. What can I get you?"
+  opener = "Góðan daginn. Hvað viltu?"
+  opener_meaning = "Good day. What do you want?"
   opener_meaning_ja = "こんにちは。ご注文は？"
   cue = "Greet her and say you'll have a coffee."
   cue_ja = "あいさつして、コーヒーをくださいと言ってください。"
@@ -617,14 +617,14 @@ topics = ["cafe", "food"]
 requires = ["bord_fyrir_tvo", "eg_aetla_ad_fa", "fisk", "vatn", "get_eg_fengid_reikninginn", "ma_eg_borga_med_korti", "thetta_var_gott"]
 
   [[dialogues.turns]]
-  opener = "Gott kvöld. Eruð þið tvö?"
-  opener_meaning = "Good evening. Are there two of you?"
-  opener_meaning_ja = "こんばんは。お二人ですか？"
+  opener = "Gott kvöld. Velkomin!"
+  opener_meaning = "Good evening. Welcome!"
+  opener_meaning_ja = "こんばんは。いらっしゃいませ！"
   cue = "Ask for a table for two, please."
   cue_ja = "二人用の席をお願いしてください。"
   expect = "bord_fyrir_tvo"
-  partner = "Gjörið svo vel. Hérna er matseðillinn. Hvað má bjóða ykkur að drekka?"
-  partner_meaning = "Please, this way. Here's the menu. What can I get you to drink?"
+  partner = "Gjörðu svo vel. Hérna er matseðilinn. Hvað viltu drekka?"
+  partner_meaning = "Here you are. Here's the menu. What do you want to drink?"
   partner_meaning_ja = "こちらへどうぞ。メニューです。お飲み物は何にしますか？"
 
   [[dialogues.turns]]
@@ -643,9 +643,9 @@ requires = ["bord_fyrir_tvo", "eg_aetla_ad_fa", "fisk", "vatn", "get_eg_fengid_r
   expect_text = "Ég ætla að fá fisk."
   expect_meaning = "I'll have fish."
   expect_meaning_ja = "魚をください。"
-  partner = "Góður kostur. Verði ykkur að góðu!"
-  partner_meaning = "Good choice. Enjoy your meal!"
-  partner_meaning_ja = "いい選択ですね。どうぞ召し上がれ！"
+  partner = "Gott. Verði þér að góðu!"
+  partner_meaning = "Good. Enjoy your meal!"
+  partner_meaning_ja = "いいですね。どうぞ召し上がれ！"
 
   [[dialogues.turns]]
   cue = "Later. Say that was good, and ask for the bill."

@@ -537,9 +537,9 @@ requires = ["hvad_kostar_thetta", "thad_er_of_dyrt", "tekurdu_kort", "eg_er_ekki
   expect_text = "Ég er ekki með reiðufé. Hvar er næsti hraðbanki?"
   expect_meaning = "I don't have cash. Where is the nearest ATM?"
   expect_meaning_ja = "現金を持っていません。一番近いATMはどこですか？"
-  partner = "Hinum megin við götuna. Ég geymi peysuna fyrir þig."
-  partner_meaning = "Across the street. I'll keep the sweater for you."
-  partner_meaning_ja = "通りの向かいです。セーターは取っておきますよ。"
+  partner = "Hinum megin við götuna. Ég er með peysu fyrir þig."
+  partner_meaning = "Across the street. I have a sweater for you."
+  partner_meaning_ja = "通りの向かいです。セーターを持っていますよ。"
 
   [[dialogues.turns]]
   cue = "Thank him."

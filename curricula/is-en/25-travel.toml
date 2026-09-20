@@ -400,9 +400,9 @@ requires = ["eg_vil_fara_i_hvalaskodun", "hvad_kostar_ferdin", "hvenaer_leggjum_
   expect_text = "Hvenær leggjum við af stað? Hvar er sótt?"
   expect_meaning = "When do we set off? Where is the pick-up?"
   expect_meaning_ja = "出発は何時ですか？送迎の集合場所はどこですか？"
-  partner = "Klukkan níu, við höfnina."
-  partner_meaning = "At nine, at the harbour."
-  partner_meaning_ja = "9時、港でです。"
+  partner = "Klukkan níu, hérna."
+  partner_meaning = "At nine, here."
+  partner_meaning_ja = "9時、ここでです。"
 
   [[dialogues.turns]]
   cue = "Say you'll take it."

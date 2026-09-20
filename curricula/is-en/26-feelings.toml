@@ -380,9 +380,9 @@ topics = ["feelings", "greetings"]
 requires = ["thad_var_gaman", "takk_fyrir_kvoldid", "eg_sakna_thin", "eg_mun_koma_aftur", "goda_ferd"]
 
   [[dialogues.turns]]
-  opener = "Jæja, þá er komið að því."
-  opener_meaning = "Well, this is it."
-  opener_meaning_ja = "さて、いよいよね。"
+  opener = "Jæja."
+  opener_meaning = "Well."
+  opener_meaning_ja = "さて。"
   cue = "Say that was fun, and thank her for everything."
   cue_ja = "楽しかったと言って、いろいろありがとうと伝えてください。"
   expect_text = "Það var gaman. Takk fyrir allt."

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import tempfile
 import unittest
 from datetime import date, timedelta
@@ -22,6 +23,7 @@ from audiolesson.timing import Timing
 ROOT = Path(__file__).resolve().parent.parent
 CURRICULUM = ROOT / "curricula" / "fr-en-a1.toml"
 TODAY = date(2026, 9, 18)
+_WORD_RE = re.compile(r"[^\W\d]+", re.UNICODE)
 
 
 def build(learner: LearnerState, minutes: float = 15, today: date = TODAY, **cfg) -> Script:
@@ -197,6 +199,22 @@ class CurriculumTests(unittest.TestCase):
         self.assertGreaterEqual(sc.total_duration / 60, 27)
         self.assertLessEqual(len(sc.meta["dialogues"]), 3)
         self.assertGreater(len(learner.items), 150)
+
+    def test_dialogue_lines_stay_within_taught_vocabulary(self):
+        """Issue #22: dialogue partner lines used words the curriculum never otherwise teaches,
+        which is exactly what made the spoken translation feel necessary rather than optional.
+        Every word a partner/opener line speaks should appear somewhere in an item's target —
+        proper names are the one thing this can't (and shouldn't) require."""
+        proper_names = {"sóley"}
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        known: set[str] = set()
+        for it in cur.items:
+            known |= set(w.lower() for w in _WORD_RE.findall(it.target))
+        for d in cur.dialogues:
+            lines = [t.opener for t in d.turns if t.opener] + [t.partner for t in d.turns if t.partner]
+            used = set(w.lower() for w in _WORD_RE.findall(" ".join(lines)))
+            missing = used - known - proper_names
+            self.assertFalse(missing, f"{d.id}: {sorted(missing)}")
 
     def test_backward_chunks_grow_from_the_end(self):
         cur = load_curriculum(CURRICULUM)

@@ -438,9 +438,9 @@ requires = ["hvad_heitir_hun", "hvad_er_hun_gomul", "thetta_er_person", "brodir_
   cue = "Ask how old she is."
   cue_ja = "何歳か聞いてください。"
   expect = "hvad_er_hun_gomul"
-  partner = "Hún er fjögurra ára. Áttu börn?"
-  partner_meaning = "She's four. Do you have children?"
-  partner_meaning_ja = "4歳。あなたは子どもいる？"
+  partner = "Hún er lítil. Áttu börn?"
+  partner_meaning = "She's little. Do you have children?"
+  partner_meaning_ja = "まだ小さいの。あなたは子どもいる？"
 
   [[dialogues.turns]]
   cue = "Say no, and show a photo: this is my brother."

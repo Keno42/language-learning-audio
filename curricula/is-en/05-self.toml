@@ -493,9 +493,9 @@ requires = ["eg_heiti", "eg_er_fra_japan", "en_thu", "ja", "eg_er_i_frii", "takk
   expect_text = "Já, ég er í fríi."
   expect_meaning = "Yes, I'm on holiday."
   expect_meaning_ja = "はい、休暇中です。"
-  partner = "Velkomin til Íslands!"
-  partner_meaning = "Welcome to Iceland!"
-  partner_meaning_ja = "アイスランドへようこそ！"
+  partner = "Velkomin!"
+  partner_meaning = "Welcome!"
+  partner_meaning_ja = "ようこそ！"
 
   [[dialogues.turns]]
   cue = "Thank her."
@@ -510,8 +510,8 @@ topics = ["social", "transport"]
 requires = ["eg_er_her_i_fyrsta_sinn", "eg_er_her_i_viku", "eg_er_job", "forritari", "mer_finnst_island_fallegt", "eg_by_i", "tokyo_dat"]
 
   [[dialogues.turns]]
-  opener = "Hefurðu komið til Íslands áður?"
-  opener_meaning = "Have you been to Iceland before?"
+  opener = "Hefurðu verið hér áður?"
+  opener_meaning = "Have you been here before?"
   opener_meaning_ja = "アイスランドに来たことはありますか？"
   cue = "Say you're here for the first time."
   cue_ja = "初めてだと言ってください。"
@@ -524,8 +524,8 @@ requires = ["eg_er_her_i_fyrsta_sinn", "eg_er_her_i_viku", "eg_er_job", "forrita
   cue = "Say you're here for a week."
   cue_ja = "一週間滞在すると言ってください。"
   expect = "eg_er_her_i_viku"
-  partner = "Fínt. Hvað gerir þú?"
-  partner_meaning = "Nice. What do you do?"
+  partner = "Gott. Hvað gerir þú?"
+  partner_meaning = "Good. What do you do?"
   partner_meaning_ja = "いいですね。お仕事は？"
 
   [[dialogues.turns]]
@@ -534,8 +534,8 @@ requires = ["eg_er_her_i_fyrsta_sinn", "eg_er_her_i_viku", "eg_er_job", "forrita
   expect_text = "Ég er forritari. Ég bý í Tókýó."
   expect_meaning = "I'm a programmer. I live in Tokyo."
   expect_meaning_ja = "プログラマーです。東京に住んでいます。"
-  partner = "Tókýó! Og hvernig líst þér á Ísland?"
-  partner_meaning = "Tokyo! And how do you like Iceland?"
+  partner = "Tókýó! Og hvað finnst þér um Ísland?"
+  partner_meaning = "Tokyo! And what do you think of Iceland?"
   partner_meaning_ja = "東京！アイスランドはどうですか？"
 
   [[dialogues.turns]]

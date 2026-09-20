@@ -403,9 +403,9 @@ requires = ["eg_hef_gaman_af", "sundi", "gonguferdum", "hefur_thu_gaman_af", "me
   expect_text = "Ég hef gaman af sundi og gönguferðum."
   expect_meaning = "I enjoy swimming and hiking."
   expect_meaning_ja = "水泳とハイキングが好きです。"
-  partner = "Ég líka! Ég fer í sund á hverjum morgni."
-  partner_meaning = "Me too! I go swimming every morning."
-  partner_meaning_ja = "私も！毎朝泳ぎに行くの。"
+  partner = "Ég líka! Ég fer í sund á hverjum degi."
+  partner_meaning = "Me too! I go swimming every day."
+  partner_meaning_ja = "私も！毎日泳ぎに行くの。"
 
   [[dialogues.turns]]
   cue = "Ask if she enjoys films."
@@ -413,9 +413,9 @@ requires = ["eg_hef_gaman_af", "sundi", "gonguferdum", "hefur_thu_gaman_af", "me
   expect_text = "Hefur þú gaman af kvikmyndum?"
   expect_meaning = "Do you enjoy films?"
   expect_meaning_ja = "映画は好きですか？"
-  partner = "Já, sérstaklega íslenskum myndum. Viltu horfa á eina?"
-  partner_meaning = "Yes, especially Icelandic films. Do you want to watch one?"
-  partner_meaning_ja = "うん、特にアイスランド映画。一本見る？"
+  partner = "Já, ég hef gaman af kvikmyndum. Viltu sjá eina?"
+  partner_meaning = "Yes, I enjoy movies. Do you want to see one?"
+  partner_meaning_ja = "うん、映画が好き。一本見る？"
 
   [[dialogues.turns]]
   cue = "Say you like it — no: say yes, you'd like that."
@@ -423,6 +423,6 @@ requires = ["eg_hef_gaman_af", "sundi", "gonguferdum", "hefur_thu_gaman_af", "me
   expect_text = "Já, mér líkar það."
   expect_meaning = "Yes, I like that."
   expect_meaning_ja = "はい、いいですね。"
-  partner = "Frábært, ég geri popp."
-  partner_meaning = "Great, I'll make popcorn."
-  partner_meaning_ja = "よかった、ポップコーン作るね。"
+  partner = "Frábært."
+  partner_meaning = "Great."
+  partner_meaning_ja = "よかった。"
