@@ -27,13 +27,9 @@ CHARS_PER_SECOND = {"ja": 5.5, "zh": 4.5, "ko": 5.0, "th": 5.0}  # languages wit
 
 @dataclass
 class Timing:
-    # base answer windows in seconds, by expected response size
-    word: float = 2.5
-    short_phrase: float = 4.0
-    sentence: float = 6.5
-    long_sentence: float = 8.5
+    think_time: float = 1.0  # a moment to recall the answer, before saying it (scaled below)
     generative_bonus: float = 1.5  # extra thinking time for novel combinations / situations
-    repeat_factor: float = 0.7  # "now repeat" pauses relative to an answer pause
+    repeat_delay: float = 0.5  # reaction time before repeating something just heard (not recalled)
     beat: float = 0.8  # tiny gap between speech segments
     between_exercises: float = 1.2
     min_pause: float = 1.5
@@ -63,9 +59,8 @@ class Timing:
         successes: int = 0,
         generative: bool = False,
     ) -> float:
-        base = self._base_for(answer_text, lang)
-        if generative:
-            base += self.generative_bonus
+        """A moment to recall the answer, plus however long it actually takes to say it."""
+        think = self.think_time + (self.generative_bonus if generative else 0.0)
         mult = self.level_multiplier.get(self.level, 1.0)
         if successes < 2:
             mult *= self.unfamiliar_multiplier
@@ -73,21 +68,14 @@ class Timing:
             mult *= self.familiar_multiplier
         mult *= 1.0 + self.difficulty_step * max(0, difficulty - 2)
         mult *= self.global_pause_multiplier
-        return round(min(self.max_pause, max(self.min_pause, base * mult)), 1)
+        speak = self.speech_estimate(answer_text, lang)
+        return round(min(self.max_pause, max(self.min_pause, think * mult + speak)), 1)
 
     def repeat_pause(self, answer_text: str, lang: str) -> float:
-        base = self._base_for(answer_text, lang) * self.repeat_factor * self.global_pause_multiplier
-        return round(min(self.max_pause, max(self.min_pause, base)), 1)
-
-    def _base_for(self, text: str, lang: str) -> float:
-        n = _units(text, lang)
-        if n <= 1:
-            return self.word
-        if n <= 4:
-            return self.short_phrase
-        if n <= 9:
-            return self.sentence
-        return self.long_sentence
+        """Repeating something just heard needs no recall — just enough time to say it."""
+        speak = self.speech_estimate(answer_text, lang)
+        total = (self.repeat_delay + speak) * self.global_pause_multiplier
+        return round(min(self.max_pause, max(self.min_pause, total)), 1)
 
     # ---- speech estimates --------------------------------------------------
 
@@ -102,11 +90,3 @@ class Timing:
         secs = secs / max(0.3, rate) + 0.35  # + leading/trailing breath
         secs *= self.speech_ratio.get(lang2, 1.0)
         return round(secs, 2)
-
-
-def _units(text: str, lang: str) -> int:
-    lang2 = lang.split("-")[0].lower()
-    if lang2 in CHARS_PER_SECOND:
-        # ~3 chars ≈ one "word" of effort
-        return max(1, len(text.replace(" ", "")) // 3)
-    return word_count(text)

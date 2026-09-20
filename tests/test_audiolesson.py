@@ -225,7 +225,7 @@ class CurriculumTests(unittest.TestCase):
 
 class LessonStructureTests(unittest.TestCase):
     def setUp(self):
-        self.script = build(fresh(), new_items=8)  # a full first lesson (the default pace would make it short)
+        self.script = build(fresh(), new_items=12)  # a full first lesson (the default pace would make it short)
 
     def test_every_answer_pause_precedes_its_answer(self):
         """Recall before answer: after each answer-pause the next spoken thing is the model answer."""
