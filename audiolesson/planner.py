@@ -176,6 +176,21 @@ class Planner:
         top = max((stage_index(ladder, s) for s in done), default=0)
         return ladder[min(top + 1, len(ladder) - 1)]
 
+    def _trailing_drill_streak(self, sc: Script) -> int:
+        """Length of the run of consecutive ``"recall"`` exercises at the end of the
+        transcript so far (issue #34 points 5-6). Recomputed from the actual sequence each
+        time, not carried forward by one increment per ``build()`` loop iteration: a single
+        iteration can append several exercises (a milestone note plus its discrimination
+        recalls, via ``_maybe_note``/``do_discriminate``), and a note or dialogue partway
+        through that sequence breaks the streak even though the iteration's *last* exercise
+        is still a recall (owner review on #40)."""
+        streak = 0
+        for ex in reversed(sc.exercises):
+            if ex.kind != "recall":
+                break
+            streak += 1
+        return streak
+
     # ------------------------------------------------------------------ notes
 
     def _aside_played(self) -> bool:
@@ -414,7 +429,6 @@ class Planner:
                 if dlg is not None:
                     self._play_dialogue(sc, dlg)
                     since_dialogue = 0
-                    drill_streak = 0
                     acted = True
 
             # 4. review older material, interleaving topics
@@ -480,10 +494,7 @@ class Planner:
                 milestone = self._maybe_note(sc, sc.exercises[-1].item_ids, budget - closing_reserve - sc.total_duration)
                 if milestone is not None:
                     do_discriminate(milestone)
-            # streak of consecutive isolated recalls, no dialogue/note/intro to break it up —
-            # reflects whatever exercise actually ended up last this iteration, including one
-            # added by _maybe_note/do_discriminate above (issue #34 points 5-6)
-            drill_streak = drill_streak + 1 if sc.exercises and sc.exercises[-1].kind == "recall" else 0
+            drill_streak = self._trailing_drill_streak(sc)
 
         # at least one aside per lesson while unheard ones remain (a few seconds over target is fine)
         if not self._aside_played() and self._note_budget_left():

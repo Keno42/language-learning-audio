@@ -111,6 +111,20 @@ class CurriculumTests(unittest.TestCase):
         self.assertEqual(kinds[:4], ["recall"] * 4, kinds)
         self.assertEqual(kinds[4], "dialogue", kinds)
 
+    def test_trailing_drill_streak_resets_across_a_multi_exercise_iteration(self):
+        """Owner review follow-up on #40: a single ``build()`` loop iteration can append
+        several exercises at once — a milestone note plus its discrimination recalls, via
+        ``_maybe_note``/``do_discriminate`` — so the trailing drill streak must reflect the
+        actual exercise sequence, not the previous streak plus one just because the
+        iteration's *last* exercise happens to be a recall. Five recalls, then a note, then
+        two more recalls: the note resets the streak, so the trailing count is 2, not 6."""
+        cur = load_curriculum(CURRICULUM)
+        planner = Planner(cur, LearnerState("fr", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1))
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        for kind in ("recall", "recall", "recall", "recall", "recall", "note", "recall", "recall"):
+            sc.new_exercise(kind, None, [], kind)
+        self.assertEqual(planner._trailing_drill_streak(sc), 2)
+
     def test_early_icelandic_lessons_mix_full_sentences_with_greetings(self):
         """Issue #12: the first few lessons were nothing but one- and two-word greetings to
         memorize. Guard against sliding back to that: among the first 10 items introduced,

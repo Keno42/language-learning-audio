@@ -366,23 +366,41 @@ and how much design judgment each needs before touching code:
    pacing tests, rather than one rewrite.
 
    Shipped the first: a `drill_streak` counter (`PlanConfig.drill_streak_limit`,
-   default 5) tracking consecutive "recall"-kind exercises with nothing
-   else in between. Step 3 of `build()`'s fallback ladder — the periodic
-   `since_dialogue >= dialogue_every` dialogue check — now also fires
-   once `drill_streak` reaches the limit, pulling an eligible dialogue
-   forward ahead of its usual schedule instead of waiting through
-   however many more isolated recalls the periodic schedule would have
-   allowed first. The streak resets on any non-`"recall"` exercise
-   (dialogue, note, intro) and is computed once per loop iteration from
-   whatever exercise actually ended up last (including one added by
-   `_maybe_note`/`do_discriminate`), not tracked separately per code
-   path. All existing pacing tests passed unchanged — the fixture
-   curricula apparently don't hit long enough drill runs for this to
-   move their numbers — so verified the mechanism itself with a
-   dedicated synthetic-curriculum test (`curriculum_from_dict`, 10 known
-   review items, one eligible dialogue, `dialogue_every` set
-   unreachably high so only the streak could pull it forward): exactly
-   4 isolated recalls, then the dialogue. 86 → 87 tests, all passing;
+   default 5) tracking the length of the trailing run of consecutive
+   `"recall"`-kind exercises with nothing else in between. Step 3 of
+   `build()`'s fallback ladder — the periodic `since_dialogue >=
+   dialogue_every` dialogue check — now also fires once `drill_streak`
+   reaches the limit, pulling an eligible dialogue forward ahead of its
+   usual schedule instead of waiting through however many more isolated
+   recalls the periodic schedule would have allowed first. All existing
+   pacing tests passed unchanged — the fixture curricula apparently
+   don't hit long enough drill runs for this to move their numbers — so
+   verified the mechanism itself with a dedicated synthetic-curriculum
+   test (`curriculum_from_dict`, 10 known review items, one eligible
+   dialogue, `dialogue_every` set unreachably high so only the streak
+   could pull it forward): exactly 4 isolated recalls, then the
+   dialogue.
+
+   **Owner review on #40: the streak was counting loop iterations, not
+   the actual exercise sequence.** The first cut incremented
+   `drill_streak` by one whenever the loop iteration's *last* exercise
+   was a recall, which is wrong whenever one iteration appends more
+   than one exercise — the clearest case being a milestone note plus
+   its two discrimination recalls (`_maybe_note`/`do_discriminate`):
+   five recalls, then a note, then two more recalls has a true trailing
+   streak of 2 (the note resets it), but the old code saw only that the
+   iteration's last exercise was a recall and incremented the
+   *previous* streak to 6 — able to pull a dialogue forward on stale
+   evidence of monotony that the note had already broken. Fixed by
+   extracting `Planner._trailing_drill_streak(sc)`, which recomputes the
+   run length from the actual tail of `sc.exercises` every time rather
+   than incrementing a carried-forward counter — exactly the owner's
+   suggested fix, and now directly unit-testable. Added
+   `test_trailing_drill_streak_resets_across_a_multi_exercise_iteration`,
+   constructing the five-recalls/note/two-recalls sequence directly and
+   asserting the trailing count is 2. Also removed a now-redundant
+   manual `drill_streak = 0` after a dialogue plays — the recompute
+   already gets that case right on its own. 87 → 88 tests, all passing;
    validate unchanged.
 
    **Not done, still open:** "the planner may finish below the nominal
@@ -1885,11 +1903,16 @@ Verified in this session:
       at the owner's request — **highest blast radius**, so taken last):
       a `drill_streak` counter now pulls an eligible dialogue forward
       once too many isolated recalls have run in a row, instead of
-      waiting for the periodic `dialogue_every` schedule. **Not done,
-      still open:** ending a lesson early rather than padding with
-      low-value repeats, and mini-situations/listening-comprehension as
-      alternatives to another isolated drill — separate design threads,
-      deliberately not bundled into this same change.
+      waiting for the periodic `dialogue_every` schedule. Recomputed
+      from the actual trailing exercise sequence
+      (`Planner._trailing_drill_streak`), not incremented per loop
+      iteration — the first cut got this wrong for a milestone-note
+      iteration (adds several exercises at once), fixed on review.
+      **Not done, still open:** ending a lesson early rather than
+      padding with low-value repeats, and mini-situations/listening-
+      comprehension as alternatives to another isolated drill —
+      separate design threads, deliberately not bundled into this same
+      change.
 
    **Not started:** none — all 7 pilots have at least a first concrete
    step done. What's left is scoped above, per pilot.
