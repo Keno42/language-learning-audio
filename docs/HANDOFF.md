@@ -10,14 +10,18 @@ redundant meaning-field parenthetical), pilot 2 (shortened
 `godur_gender`'s text and gave milestone notes their own, non-"aside"
 closing line), pilot 3 (a milestone note now immediately replays two
 of its own items' already-existing `situation`s, so the learner
-switches between forms right after noticing the pattern), and pilot 4
-(a second milestone note contrasting Afsakið/Fyrirgefðu/Því miður by
+switches between forms right after noticing the pattern), pilot 4 (a
+second milestone note contrasting Afsakið/Fyrirgefðu/Því miður by
 function, after verifying `Því miður`'s gloss against a dictionary and
-fixing a budget-accounting bug the second milestone exposed), and
-pilot 5 (items can now carry several `situations` the planner rotates
-on repeat retrieval, instead of replaying the identical prompt every
-spaced review — retrofitted onto `velkomin`) — see "Session 16" below
-and item #1a in "Known gaps" for the rest)._ Keep
+fixing a budget-accounting bug the second milestone exposed), pilot 5
+(items can now carry several `situations` the planner rotates on
+repeat retrieval, instead of replaying the identical prompt every
+spaced review — retrofitted onto `velkomin`), and, out of order at the
+owner's request, pilot 7 (removed the vowel-run guesswork that cut long
+single words into mispronounceable fragments — 108 items now get slow
+whole-word repetition instead, no content changes needed) — see
+"Session 16" below and item #1a in "Known gaps" for the rest, including
+pilot 6, still open)._ Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
 
@@ -359,25 +363,57 @@ and how much design judgment each needs before touching code:
    preferred once enough required items are known) rather than one
    rewrite, each checked against the existing pacing tests before the
    next.
-7. **Linguistically-meaningful backward-build chunking (#34 point 7).**
-   Confirmed the current algorithm is exactly what the issue describes:
-   `Item.backward_chunks()`/`_syllable_pieces()` (`content.py`) splits a
-   long single word on vowel-run boundaries only — a crude heuristic
-   with no knowledge of Icelandic consonant clusters, gemination
-   (pre-aspiration before doubled `ll`/`nn` — the exact phenomenon
-   `docs/CURRICULUM.md`'s `tvo_l` note already teaches the learner to
-   notice, session-6-era caution applies here too), or morpheme
-   boundaries. Confirmed the issue's own examples reproduce exactly:
-   `Fyrirgefðu` → `ðu, gefðu, irgefðu, Fyrirgefðu` and `Afsakið` → `ið,
-   sakið, Afsakið`. **Highest linguistic risk of the seven** — the same
-   risk class as the "halló" mistake, but systemic instead of one word:
-   any fix needs either a real Icelandic syllabification/morphology
-   reference (not a guess dressed up as a heuristic) or, more cheaply,
-   falling back to "no chunking, just slow whole-word repetition" for
-   words where no verified boundary exists — which the issue explicitly
-   offers as an acceptable fallback. Do not ship a new heuristic that's
-   merely *less obviously wrong* without checking it the way `bolli`/
-   `galli` already get checked.
+7. **Linguistically-meaningful backward-build chunking (#34 point 7).
+   Done — the cheaper of the two options in the original plan.**
+   Confirmed the pre-existing algorithm reproduced the issue's own
+   examples exactly (`Fyrirgefðu` → `ðu, gefðu, irgefðu, Fyrirgefðu`;
+   `Afsakið` → `ið, sakið, Afsakið`) before touching anything. Considered
+   the other option — a real Icelandic syllabification/morphology
+   reference to produce *correct* sub-word chunks — and rejected it for
+   this pilot: even a linguistically correct split doesn't fully solve
+   the problem, since the issue's actual concern is partly independent
+   of correctness — "a standalone orthographic suffix may not have the
+   same pronunciation it has inside the complete word" is about TTS
+   synthesizing a fragment with no context that it's part of a longer
+   word, which a better syllable boundary alone doesn't fix. Went with
+   the issue's own explicitly-sanctioned fallback instead: no chunking,
+   slow whole-word repetition.
+
+   Removed `_syllable_pieces()` (`content.py`) entirely — `_VOWEL_RUN_RE`
+   stays, since `is_hard()`'s use of it (counting vowel runs to gauge
+   whether a single word is long enough to deserve extra practice) is a
+   much smaller, safer claim than using the same boundaries to cut a
+   word into chunks, and nothing else depended on the removed function.
+   `Item.backward_chunks()` now returns just `[self.target]` for a
+   single word with no author-supplied `chunks` (word-splitting for
+   3+-word phrases — a real, pronounceable unit, the issue's own
+   `"vel"/"svo vel"/"Gjörðu svo vel"` counter-example — is untouched).
+   `Builder.intro()` (`exercises.py`) now checks `len(backward_chunks())
+   > 1` rather than just `is_hard()` to decide whether to frame practice
+   as "build it up from the end": a hard single word with no real split
+   falls through to the same slow-then-natural whole-word repetition an
+   easy multi-word phrase already gets, instead of either a fabricated
+   split or silently skipping the extra practice `is_hard()` is there to
+   provide.
+
+   Zero curriculum content changes needed: 108 single-word items across
+   the Icelandic course trigger `is_hard()`, none had author `chunks`,
+   so all 108 (including the issue's own `afsakid`/`fyrirgefdu`) pick up
+   the fix automatically. Author `chunks` remain fully supported for a
+   word whose boundaries are genuinely verified — nothing here removes
+   that escape hatch, only the automatic guess.
+
+   Updated `test_long_single_word_is_hard_and_builds_backward_by_syllable`
+   (renamed to `..._gets_no_synthetic_sub_word_chunks`) for the new
+   behavior, and added a `Builder.intro()`-level test confirming a hard
+   single word's narration includes "slowly"/"natural" but not
+   "build_up". This shortened intros for those 108 items enough to
+   drop `test_later_lessons_fill_the_requested_time`'s peak-lesson
+   threshold from 24 to 23 minutes on the fr-en-a1.toml fixture (a real,
+   expected side effect — less speech per hard-word intro than the
+   removed synthetic build-up produced), which needed the threshold
+   recalibrated rather than the fix reconsidered. 85 → 86 tests, all
+   passing; validate unchanged.
 
 No code or curriculum content changed this session — this is the same
 "docs first" move session 15 made for #29, for the same reason: #34 is
@@ -1805,17 +1841,22 @@ Verified in this session:
       when absent, so no existing item needed migration. Retrofitted
       `velkomin` (the issue's own repeated-cue example) with two more
       situations.
+   7. linguistically-meaningful backward-build chunking. Took the
+      cheaper of the plan's two options: removed the confirmed
+      vowel-run-only `_syllable_pieces()` heuristic entirely rather than
+      replacing it with a "verified" one, since even a linguistically
+      correct split doesn't solve the issue's real concern (TTS
+      mis-synthesizing an isolated fragment with no context it's part
+      of a longer word). A hard single word with no author `chunks` now
+      gets slow whole-word repetition instead of a fabricated split —
+      zero curriculum edits needed, all 108 affected items (incl. the
+      issue's own `afsakid`/`fyrirgefdu`) pick it up automatically.
 
    **Not started:**
    6. lesson-shape rebalancing: no long isolated-drill runs, prefer
       dialogue as vocab grows, allow ending early (**highest blast
       radius** — touches `planner.py`'s `build()` fallback ladder that
       several existing pacing tests pin down)
-   7. linguistically-meaningful backward-build chunking, replacing the
-      confirmed vowel-run-only heuristic in `content.py`'s
-      `_syllable_pieces()` (**highest linguistic risk** — same class as
-      the "halló" mistake; a verified reference or "no chunking,
-      slower whole word" beats a fancier guess)
 2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
 3. ~~Listen to a real lesson and tune timing~~ — partially done (session

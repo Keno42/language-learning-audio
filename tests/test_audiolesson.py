@@ -396,21 +396,27 @@ class CurriculumTests(unittest.TestCase):
         for a, b in zip(chunks, chunks[1:]):
             self.assertTrue(b.rstrip(".?! ").endswith(a.rstrip(".?! ")), (a, b))
 
-    def test_long_single_word_is_hard_and_builds_backward_by_syllable(self):
-        """A long word is just as hard to hold in memory as a long phrase, even though it's
-        one 'word' — it should get the same backward build-up, chunked without spaces."""
+    def test_long_single_word_is_hard_but_gets_no_synthetic_sub_word_chunks(self):
+        """Issue #34 point 7: a long word is just as hard to hold in memory as a long phrase
+        — ``is_hard()`` still flags it — but it no longer gets an automatic backward-build
+        split. The previous vowel-run heuristic guessed syllable boundaries from spelling
+        alone with no knowledge of Icelandic consonant clusters or gemination, and even a
+        correct split can come out mispronounced when TTS synthesizes the fragment in
+        isolation, with no context that it's part of a longer word — the system should prefer
+        no chunking over a guess. Author-supplied ``chunks`` are still honored, for a word
+        whose boundaries are actually verified."""
         from audiolesson.content import Item
 
         easy = Item(id="x", kind="vocab", target="strætó", meaning="bus")
         hard = Item(id="y", kind="vocab", target="flugvöllurinn", meaning="the airport")
         self.assertFalse(easy.is_hard())  # short, two-syllable word: no build-up needed
         self.assertTrue(hard.is_hard())
-        chunks = hard.backward_chunks()
-        self.assertEqual(chunks[-1], hard.target)
-        self.assertGreater(len(chunks), 1)
-        for c in chunks[:-1]:
-            self.assertNotIn(" ", c)  # syllable pieces of one word, not word-split
-            self.assertTrue(hard.target.endswith(c))  # each is a genuine tail of the word
+        self.assertEqual(hard.backward_chunks(), [hard.target])  # no automatic sub-word split
+        verified = Item(
+            id="z", kind="vocab", target="flugvöllurinn", meaning="the airport",
+            chunks=["-inn", "-urinn", "flugvöllurinn"],
+        )
+        self.assertEqual(verified.backward_chunks(), ["-inn", "-urinn", "flugvöllurinn"])
 
     def test_situation_for_rotates_round_robin_on_exposures(self):
         """Issue #34 point 4: an item with several ``situations`` should rotate through them
@@ -596,6 +602,28 @@ class LessonStructureTests(unittest.TestCase):
         self.assertNotEqual(prompts.get("milestone_intro"), prompts.get("aside"))
         self.assertNotEqual(prompts.get("milestone_end"), prompts.get("aside_end"))
 
+    def test_hard_single_word_gets_slow_repetition_not_a_synthetic_backward_split(self):
+        """Issue #34 point 7: a long single word has no verified sub-word boundary to build
+        backward from (``backward_chunks()`` now returns just the one, unsplit word for it),
+        so its intro must not be framed as "build it up from the end" — it should fall back
+        to the same slow-then-natural whole-word repetition an easy multi-word phrase already
+        gets, not silently skip extra practice for being hard."""
+        from audiolesson.content import Item
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        item = Item(id="long_word", kind="vocab", target="flugvöllurinn", meaning="the airport", difficulty=3)
+        self.assertTrue(item.is_hard())
+        self.assertEqual(item.backward_chunks(), [item.target])
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.intro(sc, item)
+        narrations = [s.text for s in sc.segments if s.type == "narrate"]
+        self.assertNotIn(prompts.get("build_up"), narrations)
+        self.assertIn(prompts.get("slowly"), narrations)
+        self.assertIn(prompts.get("natural"), narrations)
+
     def test_dialogue_partner_line_and_its_translation_have_a_beat_between(self):
         """Issue #22: a native line and its known-language translation ran together with no
         margin, which is confusing since they're two different voices/languages back to back."""
@@ -646,9 +674,11 @@ class LessonStructureTests(unittest.TestCase):
     def test_later_lessons_fill_the_requested_time(self):
         _, scripts = course(8, minutes=30)
         minutes = [round(sc.total_duration / 60, 1) for sc in scripts]
-        # once there is enough material the requested length is reached; the sample curriculum
-        # (47 items) is exhausted around lesson 7, after which review-only lessons end early
-        self.assertGreaterEqual(max(minutes), 24, minutes)
+        # once there is enough material the requested length is approached; the sample
+        # curriculum (47 items) is exhausted around lesson 7, after which review-only lessons
+        # end early. Threshold lowered from 24 (issue #34 point 7): hard single words no
+        # longer speak a synthetic backward-build split, which shortens their intro slightly.
+        self.assertGreaterEqual(max(minutes), 23, minutes)
         self.assertLess(minutes[0], minutes[4], minutes)
 
     def test_new_items_are_reactivated_at_expanding_gaps(self):
