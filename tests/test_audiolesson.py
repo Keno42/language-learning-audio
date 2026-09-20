@@ -104,6 +104,11 @@ class CurriculumTests(unittest.TestCase):
                     self.assertGreaterEqual(len(cur.items_with_tag(tag)), 2, f"{c.id}.{slot}")
 
     def test_notes_follow_related_items_and_are_rationed(self):
+        """Ordinary cultural asides are rationed to ~1 per 12 minutes; milestones (issue #34
+        point 3 added a second: ``three_kinds_of_sorry`` alongside ``godur_gender``) are
+        curriculum events, not filler, so they neither draw on that ration nor shrink it for
+        the asides that do — a lesson where both happen to fire can rack up more than 2 notes
+        total without that being a rationing failure."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         self.assertGreaterEqual(len(cur.notes), 40)
         learner = LearnerState("is", "en", "A1")
@@ -113,10 +118,12 @@ class CurriculumTests(unittest.TestCase):
         for _ in range(12):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=2), today=day).build()
             notes = [e for e in sc.exercises if e.kind == "note"]
-            self.assertLessEqual(len(notes), 2)
+            asides = [e for e in notes if not cur.note_by_id[e.label.split(": ")[1]].milestone]
+            self.assertLessEqual(len(asides), 2)
             for e in notes:
                 note = cur.note_by_id[e.label.split(": ")[1]]
-                self.assertNotIn(note.id, heard, "no note repeats while unheard notes remain")
+                if not note.milestone:
+                    self.assertNotIn(note.id, heard, "no aside repeats while unheard asides remain")
                 heard.append(note.id)
             apply_to_learner(sc, learner, day)
             day += timedelta(days=1)
@@ -124,32 +131,65 @@ class CurriculumTests(unittest.TestCase):
         self.assertEqual(sum(learner.notes_heard.values()), len(heard))
 
     def test_milestone_note_never_fires_before_all_its_items_are_known(self):
-        """The góðan/góða/gott gender-agreement note (issue #29 pilot 2) is a milestone note:
-        it must never appear before every one of Góðan daginn/Góða nótt/Gott kvöld has at
-        least been exercised, unlike an ordinary cultural aside which only needs one related
-        item to have just been practised. ``has_met`` alone lags a lesson behind (a newly
-        introduced item isn't persisted to ``LearnerState`` until ``apply_to_learner()`` runs
-        after the whole lesson is built), so the check here is against the state *after*
-        applying the same lesson the note appeared in — which must already know all three."""
+        """Every milestone note (issue #29 pilot 2's góðan/góða/gott gender-agreement note,
+        and issue #34 point 3's afsakið/fyrirgefðu/því miður contrast note) must never appear
+        before every one of its own items has at least been exercised, unlike an ordinary
+        cultural aside which only needs one related item to have just been practised.
+        ``has_met`` alone lags a lesson behind (a newly introduced item isn't persisted to
+        ``LearnerState`` until ``apply_to_learner()`` runs after the whole lesson is built), so
+        the check here is against the state *after* applying the same lesson the note appeared
+        in — which must already know all of that note's items."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
-        gate_ids = cur.note_by_id["godur_gender"].items
-        self.assertEqual(set(gate_ids), {"godan_daginn", "goda_nott", "gott_kvold"})
+        milestones = {n.id: n.items for n in cur.notes if n.milestone}
+        self.assertGreaterEqual(len(milestones), 2)
         learner = LearnerState("is", "en", "A1")
         learner.feedback_mode = "auto"
         day = TODAY
-        fired = False
-        for _ in range(15):
+        fired: set[str] = set()
+        for _ in range(20):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=3), today=day).build()
-            has_note = any(e.kind == "note" and e.label == "note: godur_gender" for e in sc.exercises)
+            played = {e.label.split(": ")[1] for e in sc.exercises if e.kind == "note" and e.label.split(": ")[1] in milestones}
             apply_to_learner(sc, learner, day)
             day += timedelta(days=1)
-            if has_note:
+            for note_id in played:
                 self.assertTrue(
-                    all(learner.has_met(i) for i in gate_ids),
-                    "milestone note fired in a lesson that didn't end up knowing all its items",
+                    all(learner.has_met(i) for i in milestones[note_id]),
+                    f"{note_id} fired in a lesson that didn't end up knowing all its items",
                 )
-                fired = True
-        self.assertTrue(fired, "milestone note never fired across 15 simulated lessons")
+                fired.add(note_id)
+        self.assertEqual(fired, set(milestones), "not every milestone note fired across 20 simulated lessons")
+
+    def test_milestone_note_is_followed_by_contrastive_discrimination(self):
+        """Issue #34 point 2: right after a milestone plays, the lesson must immediately
+        switch between two *different* of its own already-known examples ("notice, name,
+        discriminate") — reusing each item's own ``situation`` (all of both milestones' items
+        have one) — never just one recall (that would be retrieval, not discrimination) and
+        never zero (owner review on #38: a milestone that fires must complete its
+        discrimination block even if the lesson runs slightly over its nominal time target).
+        Checked for every milestone note in the curriculum, not just ``godur_gender``."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        milestones = {n.id: set(n.items) for n in cur.notes if n.milestone}
+        self.assertGreaterEqual(len(milestones), 2)
+        learner = LearnerState("is", "en", "A1")
+        learner.feedback_mode = "auto"
+        day = TODAY
+        checked: set[str] = set()
+        for _ in range(20):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=3), today=day).build()
+            note_positions = [(i, e.label.split(": ")[1]) for i, e in enumerate(sc.exercises) if e.kind == "note" and e.label.split(": ")[1] in milestones]
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+            for note_idx, note_id in note_positions:
+                gate_ids = milestones[note_id]
+                self.assertGreater(len(sc.exercises), note_idx + 2, f"{note_id} wasn't followed by two discrimination exercises")
+                first, second = sc.exercises[note_idx + 1], sc.exercises[note_idx + 2]
+                for ex in (first, second):
+                    self.assertEqual((ex.kind, ex.stage), ("recall", "situation"))
+                    self.assertEqual(len(ex.item_ids), 1)
+                    self.assertIn(ex.item_ids[0], gate_ids)
+                self.assertNotEqual(first.item_ids[0], second.item_ids[0])
+                checked.add(note_id)
+        self.assertEqual(checked, set(milestones), "not every milestone note fired across 20 simulated lessons")
 
     def test_milestone_eligible_as_soon_as_its_last_item_is_exercised_this_lesson(self):
         """Owner review follow-up on #32: a milestone must not wait an extra lesson just
@@ -184,6 +224,24 @@ class CurriculumTests(unittest.TestCase):
         sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
         planner._maybe_note(sc, [note.items[-1]], remaining=100)
         self.assertEqual([e.label for e in sc.exercises], ["note: godur_gender"])
+
+    def test_milestone_does_not_suppress_the_end_of_lesson_aside_fallback(self):
+        """Owner review follow-up on #38 (pilot 4): the "at least one aside per lesson"
+        fallback checked whether ``self.notes_played`` was empty, but that list includes
+        milestones too — so a lesson where a milestone fired but no ordinary aside had played
+        would wrongly skip the fallback, letting a milestone indirectly crowd out cultural
+        asides. Unit-tests the extracted ``_aside_played()`` check directly (a full-lesson
+        simulation isn't reliable here: the "nothing else fits" mid-lesson filler can also
+        supply an aside independent of this fallback, which masked the bug in an earlier draft
+        of this test that only asserted on simulated lesson output)."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1), today=TODAY)
+        self.assertFalse(planner._aside_played())
+        planner.notes_played = ["godur_gender"]  # a milestone fired; no ordinary aside has
+        self.assertFalse(planner._aside_played(), "a milestone alone must not count as an aside having played")
+        planner.notes_played.append("tvo_l")  # an ordinary aside now has too
+        self.assertTrue(planner._aside_played())
 
     def test_milestone_note_is_never_picked_as_unrelated_filler(self):
         """Unlike a cultural aside, a milestone note must not be handed out by ``_pick_note``

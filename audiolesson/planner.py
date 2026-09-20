@@ -177,9 +177,21 @@ class Planner:
 
     # ------------------------------------------------------------------ notes
 
+    def _aside_played(self) -> bool:
+        """Whether any *ordinary* (non-milestone) note has played this lesson. Milestones
+        don't count — a milestone firing must not, by itself, satisfy "an aside already
+        played" and suppress the end-of-lesson aside fallback below."""
+        return any(not self.cur.note_by_id[nid].milestone for nid in self.notes_played)
+
     def _note_budget_left(self) -> bool:
+        """Rations ordinary asides only. Milestones are curriculum events, not filler — they
+        neither draw on this budget (``_maybe_note`` never calls this for one) nor shrink it
+        for the asides that do, so however many milestones happen to fire in one lesson (there
+        are two now: ``godur_gender`` and ``three_kinds_of_sorry``) never crowds out the
+        cultural asides this budget exists to pace."""
         limit = self.cfg.max_notes if self.cfg.max_notes is not None else max(1, int(self.cfg.minutes // 12))
-        return len(self.notes_played) < limit
+        played_asides = sum(1 for nid in self.notes_played if not self.cur.note_by_id[nid].milestone)
+        return played_asides < limit
 
     def _eligible_milestone(self, related: list[str]) -> object | None:
         """A milestone note whose ``items`` have all been met, triggered by one of them
@@ -226,7 +238,10 @@ class Planner:
         pool = [n for n in pool if heard.get(n.id, 0) == least]
         return self.rng.choice(pool)
 
-    def _maybe_note(self, sc: Script, related: list[str], remaining: float) -> None:
+    def _maybe_note(self, sc: Script, related: list[str], remaining: float) -> object | None:
+        """Returns the milestone note if one just played, so ``build()`` can immediately
+        follow it with contrastive discrimination practice (issue #34 point 2) — never for an
+        ordinary aside, which isn't a curriculum event to build on."""
         # A due milestone is a curriculum event, not an optional aside: it takes priority
         # over the ordinary note budget/rationing (``_note_budget_left()``) and the
         # ``note_chance`` roll, both checked below only for the non-milestone path. It still
@@ -236,16 +251,17 @@ class Planner:
             if milestone is not None:
                 self.builder.note(sc, milestone)
                 self.notes_played.append(milestone.id)
-                return
+                return milestone
         if not self._note_budget_left() or remaining < 40:
-            return
+            return None
         if self.rng.random() > self.cfg.note_chance:
-            return
+            return None
         note = self._pick_note(related)
         if note is None:
-            return
+            return None
         self.builder.note(sc, note)
         self.notes_played.append(note.id)
+        return None
 
     def below_dialogue(self, item: Item) -> str:
         """The hardest non-dialogue stage for an item (used when no dialogue fits right now)."""
@@ -342,6 +358,31 @@ class Planner:
             self._record([item.id], ex.stage or stage, ex.item_ids)
             touch(item)
 
+        def do_discriminate(note) -> None:
+            """Right after a milestone names a pattern, switch between two of its own
+            already-known examples in quick succession — "notice, name, discriminate"
+            (issue #34 point 2) — reusing each item's own ``situation`` rather than writing
+            new contrastive content: the three phrases behind ``godur_gender`` already have
+            distinct situations (bakery morning / bedtime / evening restaurant), so replaying
+            two of them back to back *is* the discrimination exercise.
+
+            Excludes only the single item just exercised (whatever triggered the milestone),
+            not the whole ``recent`` de-dup deque used elsewhere — with three items, that still
+            guarantees two *different* ones to switch between, which is the actual "discriminate"
+            requirement; excluding all of ``recent`` could leave only one. And once a milestone
+            has committed to firing (already past its own ``remaining >= 40`` check), the
+            discrimination block is treated as part of that same instructional unit and always
+            completes — a lesson running a little over its nominal target is preferable to a
+            milestone with no follow-up practice at all."""
+            nonlocal idx, since_dialogue
+            just_touched = recent[-1] if recent else None
+            others = [i for i in note.items if i != just_touched]
+            candidates = [self.cur.by_id[i] for i in others if i in self.cur.by_id and self.cur.by_id[i].situation]
+            for item in candidates[:2]:
+                do_recall(item, "situation")
+                idx += 1
+                since_dialogue += 1
+
         while sc.total_duration < budget - closing_reserve:
             remaining = budget - closing_reserve - sc.total_duration
             due = [p for p in pending if p.due <= idx]
@@ -431,10 +472,12 @@ class Planner:
             idx += 1
             since_dialogue += 1
             if sc.exercises and sc.exercises[-1].kind not in ("note", "opening"):
-                self._maybe_note(sc, sc.exercises[-1].item_ids, budget - closing_reserve - sc.total_duration)
+                milestone = self._maybe_note(sc, sc.exercises[-1].item_ids, budget - closing_reserve - sc.total_duration)
+                if milestone is not None:
+                    do_discriminate(milestone)
 
         # at least one aside per lesson while unheard ones remain (a few seconds over target is fine)
-        if not self.notes_played and self._note_budget_left():
+        if not self._aside_played() and self._note_budget_left():
             note = self._pick_note(None)
             if note is not None:
                 b.note(sc, note)
