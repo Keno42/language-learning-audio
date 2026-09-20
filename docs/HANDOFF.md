@@ -10,14 +10,21 @@ redundant meaning-field parenthetical), pilot 2 (shortened
 `godur_gender`'s text and gave milestone notes their own, non-"aside"
 closing line), pilot 3 (a milestone note now immediately replays two
 of its own items' already-existing `situation`s, so the learner
-switches between forms right after noticing the pattern), and pilot 4
-(a second milestone note contrasting Afsakið/Fyrirgefðu/Því miður by
+switches between forms right after noticing the pattern), pilot 4 (a
+second milestone note contrasting Afsakið/Fyrirgefðu/Því miður by
 function, after verifying `Því miður`'s gloss against a dictionary and
-fixing a budget-accounting bug the second milestone exposed), and
-pilot 5 (items can now carry several `situations` the planner rotates
-on repeat retrieval, instead of replaying the identical prompt every
-spaced review — retrofitted onto `velkomin`) — see "Session 16" below
-and item #1a in "Known gaps" for the rest)._ Keep
+fixing a budget-accounting bug the second milestone exposed), pilot 5
+(items can now carry several `situations` the planner rotates on
+repeat retrieval, instead of replaying the identical prompt every
+spaced review — retrofitted onto `velkomin`), and, out of order at the
+owner's request, pilot 7 then pilot 6 (removed the vowel-run guesswork
+that cut long single words into mispronounceable fragments — 108 items
+now get slow whole-word repetition instead, no content changes needed
+— then gave the planner a `drill_streak` counter that pulls an eligible
+dialogue forward once too many isolated recalls run in a row) — all 7
+pilots now have at least a first concrete step done; see "Session 16"
+below and item #1a in "Known gaps" for what's still open per pilot)._
+Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
 
@@ -343,41 +350,118 @@ and how much design judgment each needs before touching code:
    mechanism needs more precision later. Left as `exposures` for now.
    84 → 85 tests, all passing; validate unchanged.
 6. **Lesson shape: no long isolated-drill runs, prefer connected
-   dialogue as vocab grows, allow ending early (#34 points 5–6).**
-   Grouped together — they're the same underlying planner rebalancing
-   (how `build()`'s fallback ladder in `planner.py` decides what to do
-   when nothing specific is due) seen from three angles. **Highest
-   blast radius of the seven:** `build()`'s existing fallback order
-   (recall due → intro new → pull a reactivation forward → extra new
-   item → repeat → note → second review pass → stop short) is exactly
-   what several current tests pin down (`test_length_close_to_requested`,
-   `test_later_lessons_fill_the_requested_time`,
+   dialogue as vocab grows, allow ending early (#34 points 5–6). First
+   of several small changes, done — done after pilot 7 at the owner's
+   request.** Grouped together in the original plan — they're the same
+   underlying planner rebalancing (how `build()`'s fallback ladder in
+   `planner.py` decides what to do when nothing specific is due) seen
+   from three angles. **Highest blast radius of the seven:** `build()`'s
+   existing fallback order (recall due → intro new → pull a reactivation
+   forward → extra new item → repeat → note → second review pass → stop
+   short) is exactly what several current tests pin down
+   (`test_length_close_to_requested`, `test_later_lessons_fill_the_requested_time`,
    `test_first_lesson_at_default_pace_is_short_not_padded`,
-   `test_no_item_twice_in_a_row`), so this needs its own design pass —
-   probably several small changes (a repeat-drill counter that biases
-   toward a dialogue/note/early-stop once it climbs, dialogues explicitly
-   preferred once enough required items are known) rather than one
-   rewrite, each checked against the existing pacing tests before the
-   next.
-7. **Linguistically-meaningful backward-build chunking (#34 point 7).**
-   Confirmed the current algorithm is exactly what the issue describes:
-   `Item.backward_chunks()`/`_syllable_pieces()` (`content.py`) splits a
-   long single word on vowel-run boundaries only — a crude heuristic
-   with no knowledge of Icelandic consonant clusters, gemination
-   (pre-aspiration before doubled `ll`/`nn` — the exact phenomenon
-   `docs/CURRICULUM.md`'s `tvo_l` note already teaches the learner to
-   notice, session-6-era caution applies here too), or morpheme
-   boundaries. Confirmed the issue's own examples reproduce exactly:
-   `Fyrirgefðu` → `ðu, gefðu, irgefðu, Fyrirgefðu` and `Afsakið` → `ið,
-   sakið, Afsakið`. **Highest linguistic risk of the seven** — the same
-   risk class as the "halló" mistake, but systemic instead of one word:
-   any fix needs either a real Icelandic syllabification/morphology
-   reference (not a guess dressed up as a heuristic) or, more cheaply,
-   falling back to "no chunking, just slow whole-word repetition" for
-   words where no verified boundary exists — which the issue explicitly
-   offers as an acceptable fallback. Do not ship a new heuristic that's
-   merely *less obviously wrong* without checking it the way `bolli`/
-   `galli` already get checked.
+   `test_no_item_twice_in_a_row`), so per the plan's own guidance this
+   proceeded as several small changes, each checked against the existing
+   pacing tests, rather than one rewrite.
+
+   Shipped the first: a `drill_streak` counter (`PlanConfig.drill_streak_limit`,
+   default 5) tracking the length of the trailing run of consecutive
+   `"recall"`-kind exercises with nothing else in between. Step 3 of
+   `build()`'s fallback ladder — the periodic `since_dialogue >=
+   dialogue_every` dialogue check — now also fires once `drill_streak`
+   reaches the limit, pulling an eligible dialogue forward ahead of its
+   usual schedule instead of waiting through however many more isolated
+   recalls the periodic schedule would have allowed first. All existing
+   pacing tests passed unchanged — the fixture curricula apparently
+   don't hit long enough drill runs for this to move their numbers — so
+   verified the mechanism itself with a dedicated synthetic-curriculum
+   test (`curriculum_from_dict`, 10 known review items, one eligible
+   dialogue, `dialogue_every` set unreachably high so only the streak
+   could pull it forward): exactly 4 isolated recalls, then the
+   dialogue.
+
+   **Owner review on #40: the streak was counting loop iterations, not
+   the actual exercise sequence.** The first cut incremented
+   `drill_streak` by one whenever the loop iteration's *last* exercise
+   was a recall, which is wrong whenever one iteration appends more
+   than one exercise — the clearest case being a milestone note plus
+   its two discrimination recalls (`_maybe_note`/`do_discriminate`):
+   five recalls, then a note, then two more recalls has a true trailing
+   streak of 2 (the note resets it), but the old code saw only that the
+   iteration's last exercise was a recall and incremented the
+   *previous* streak to 6 — able to pull a dialogue forward on stale
+   evidence of monotony that the note had already broken. Fixed by
+   extracting `Planner._trailing_drill_streak(sc)`, which recomputes the
+   run length from the actual tail of `sc.exercises` every time rather
+   than incrementing a carried-forward counter — exactly the owner's
+   suggested fix, and now directly unit-testable. Added
+   `test_trailing_drill_streak_resets_across_a_multi_exercise_iteration`,
+   constructing the five-recalls/note/two-recalls sequence directly and
+   asserting the trailing count is 2. Also removed a now-redundant
+   manual `drill_streak = 0` after a dialogue plays — the recompute
+   already gets that case right on its own. 87 → 88 tests, all passing;
+   validate unchanged.
+
+   **Not done, still open:** "the planner may finish below the nominal
+   time target rather than adding low-value filler repetitions" (the
+   other half of point 5) and "combine known items into mini-situation"/
+   listening-comprehension alternatives (point 6's other suggested
+   alternatives to another isolated drill) — these are separate design
+   threads from the dialogue-preference change above, deliberately not
+   bundled into the same pilot per the "several small changes, not one
+   rewrite" guidance.
+7. **Linguistically-meaningful backward-build chunking (#34 point 7).
+   Done — the cheaper of the two options in the original plan.**
+   Confirmed the pre-existing algorithm reproduced the issue's own
+   examples exactly (`Fyrirgefðu` → `ðu, gefðu, irgefðu, Fyrirgefðu`;
+   `Afsakið` → `ið, sakið, Afsakið`) before touching anything. Considered
+   the other option — a real Icelandic syllabification/morphology
+   reference to produce *correct* sub-word chunks — and rejected it for
+   this pilot: even a linguistically correct split doesn't fully solve
+   the problem, since the issue's actual concern is partly independent
+   of correctness — "a standalone orthographic suffix may not have the
+   same pronunciation it has inside the complete word" is about TTS
+   synthesizing a fragment with no context that it's part of a longer
+   word, which a better syllable boundary alone doesn't fix. Went with
+   the issue's own explicitly-sanctioned fallback instead: no chunking,
+   slow whole-word repetition.
+
+   Removed `_syllable_pieces()` (`content.py`) entirely — `_VOWEL_RUN_RE`
+   stays, since `is_hard()`'s use of it (counting vowel runs to gauge
+   whether a single word is long enough to deserve extra practice) is a
+   much smaller, safer claim than using the same boundaries to cut a
+   word into chunks, and nothing else depended on the removed function.
+   `Item.backward_chunks()` now returns just `[self.target]` for a
+   single word with no author-supplied `chunks` (word-splitting for
+   3+-word phrases — a real, pronounceable unit, the issue's own
+   `"vel"/"svo vel"/"Gjörðu svo vel"` counter-example — is untouched).
+   `Builder.intro()` (`exercises.py`) now checks `len(backward_chunks())
+   > 1` rather than just `is_hard()` to decide whether to frame practice
+   as "build it up from the end": a hard single word with no real split
+   falls through to the same slow-then-natural whole-word repetition an
+   easy multi-word phrase already gets, instead of either a fabricated
+   split or silently skipping the extra practice `is_hard()` is there to
+   provide.
+
+   Zero curriculum content changes needed: 108 single-word items across
+   the Icelandic course trigger `is_hard()`, none had author `chunks`,
+   so all 108 (including the issue's own `afsakid`/`fyrirgefdu`) pick up
+   the fix automatically. Author `chunks` remain fully supported for a
+   word whose boundaries are genuinely verified — nothing here removes
+   that escape hatch, only the automatic guess.
+
+   Updated `test_long_single_word_is_hard_and_builds_backward_by_syllable`
+   (renamed to `..._gets_no_synthetic_sub_word_chunks`) for the new
+   behavior, and added a `Builder.intro()`-level test confirming a hard
+   single word's narration includes "slowly"/"natural" but not
+   "build_up". This shortened intros for those 108 items enough to
+   drop `test_later_lessons_fill_the_requested_time`'s peak-lesson
+   threshold from 24 to 23 minutes on the fr-en-a1.toml fixture (a real,
+   expected side effect — less speech per hard-word intro than the
+   removed synthetic build-up produced), which needed the threshold
+   recalibrated rather than the fix reconsidered. 85 → 86 tests, all
+   passing; validate unchanged.
 
 No code or curriculum content changed this session — this is the same
 "docs first" move session 15 made for #29, for the same reason: #34 is
@@ -1805,17 +1889,33 @@ Verified in this session:
       when absent, so no existing item needed migration. Retrofitted
       `velkomin` (the issue's own repeated-cue example) with two more
       situations.
+   7. linguistically-meaningful backward-build chunking. Took the
+      cheaper of the plan's two options: removed the confirmed
+      vowel-run-only `_syllable_pieces()` heuristic entirely rather than
+      replacing it with a "verified" one, since even a linguistically
+      correct split doesn't solve the issue's real concern (TTS
+      mis-synthesizing an isolated fragment with no context it's part
+      of a longer word). A hard single word with no author `chunks` now
+      gets slow whole-word repetition instead of a fabricated split —
+      zero curriculum edits needed, all 108 affected items (incl. the
+      issue's own `afsakid`/`fyrirgefdu`) pick it up automatically.
+   6. lesson shape, first of several small changes (done after pilot 7,
+      at the owner's request — **highest blast radius**, so taken last):
+      a `drill_streak` counter now pulls an eligible dialogue forward
+      once too many isolated recalls have run in a row, instead of
+      waiting for the periodic `dialogue_every` schedule. Recomputed
+      from the actual trailing exercise sequence
+      (`Planner._trailing_drill_streak`), not incremented per loop
+      iteration — the first cut got this wrong for a milestone-note
+      iteration (adds several exercises at once), fixed on review.
+      **Not done, still open:** ending a lesson early rather than
+      padding with low-value repeats, and mini-situations/listening-
+      comprehension as alternatives to another isolated drill —
+      separate design threads, deliberately not bundled into this same
+      change.
 
-   **Not started:**
-   6. lesson-shape rebalancing: no long isolated-drill runs, prefer
-      dialogue as vocab grows, allow ending early (**highest blast
-      radius** — touches `planner.py`'s `build()` fallback ladder that
-      several existing pacing tests pin down)
-   7. linguistically-meaningful backward-build chunking, replacing the
-      confirmed vowel-run-only heuristic in `content.py`'s
-      `_syllable_pieces()` (**highest linguistic risk** — same class as
-      the "halló" mistake; a verified reference or "no chunking,
-      slower whole word" beats a fancier guess)
+   **Not started:** none — all 7 pilots have at least a first concrete
+   step done. What's left is scoped above, per pilot.
 2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
 3. ~~Listen to a real lesson and tune timing~~ — partially done (session

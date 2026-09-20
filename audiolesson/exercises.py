@@ -150,11 +150,21 @@ class Builder:
         self._beat(sc, ex)
         self._speak(sc, ex, item.target)
         self._beat(sc, ex)
-        if item.is_hard():
+        chunks = item.backward_chunks() if item.is_hard() else []
+        if len(chunks) > 1:
             self._narr(sc, ex, self.prompts.get("build_up"))
-            for chunk in item.backward_chunks():
+            for chunk in chunks:
                 self._speak(sc, ex, chunk)
                 self._repeat_pause(sc, ex, chunk)
+            self._narr(sc, ex, self.prompts.get("natural"))
+            self._speak(sc, ex, item.target)
+            self._repeat_pause(sc, ex, item.target)
+        elif item.is_hard():
+            # a long single word with no verified sub-word boundary (issue #34 point 7):
+            # slow whole-word repetition instead of a guessed, possibly mis-synthesized split
+            self._narr(sc, ex, self.prompts.get("slowly"))
+            self._speak(sc, ex, item.target, rate=self.timing.slow_rate)
+            self._repeat_pause(sc, ex, item.target)
             self._narr(sc, ex, self.prompts.get("natural"))
             self._speak(sc, ex, item.target)
             self._repeat_pause(sc, ex, item.target)

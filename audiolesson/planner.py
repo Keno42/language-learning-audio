@@ -33,6 +33,7 @@ class PlanConfig:
     reactivation_gaps: list[int] = field(default_factory=lambda: [3, 5, 8, 13])  # exercises between recalls
     intro_gap: int = 3  # min exercises between two introductions
     dialogue_every: int = 7  # try a dialogue roughly every N exercises
+    drill_streak_limit: int = 5  # consecutive isolated recalls before a dialogue is pulled forward
     dialogue_first_turns: int = 2  # turns played the first time; one more each later encounter
     max_dialogues: int | None = None  # per lesson (default: one per 10 minutes, at least 2)
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
@@ -174,6 +175,21 @@ class Planner:
         done = [s for s in self.exposures.get(item.id, []) if s != "intro"]
         top = max((stage_index(ladder, s) for s in done), default=0)
         return ladder[min(top + 1, len(ladder) - 1)]
+
+    def _trailing_drill_streak(self, sc: Script) -> int:
+        """Length of the run of consecutive ``"recall"`` exercises at the end of the
+        transcript so far (issue #34 points 5-6). Recomputed from the actual sequence each
+        time, not carried forward by one increment per ``build()`` loop iteration: a single
+        iteration can append several exercises (a milestone note plus its discrimination
+        recalls, via ``_maybe_note``/``do_discriminate``), and a note or dialogue partway
+        through that sequence breaks the streak even though the iteration's *last* exercise
+        is still a recall (owner review on #40)."""
+        streak = 0
+        for ex in reversed(sc.exercises):
+            if ex.kind != "recall":
+                break
+            streak += 1
+        return streak
 
     # ------------------------------------------------------------------ notes
 
@@ -317,6 +333,7 @@ class Planner:
         idx = 0
         last_intro = -cfg.intro_gap
         since_dialogue = 0
+        drill_streak = 0  # consecutive isolated recalls, no dialogue/note/intro in between
         # time kept for the closing block: one recall per new item (~14 s) plus the announcement
         closing_reserve = min(budget * cfg.closing_share, 8 + 14 * len(new_queue))
         need_for_new = min(cfg.min_time_for_new_item, budget * 0.6)  # short lessons still get something new
@@ -404,8 +421,10 @@ class Planner:
                 do_intro(new_queue.popleft())
                 acted = True
 
-            # 3. a dialogue, now and then, when the learner knows enough
-            if not acted and since_dialogue >= cfg.dialogue_every:
+            # 3. a dialogue, now and then, when the learner knows enough — pulled forward,
+            #    ahead of its usual schedule, once too many isolated recalls have run in a row
+            #    (issue #34 points 5-6: prefer connected use over another flashcard drill)
+            if not acted and (since_dialogue >= cfg.dialogue_every or drill_streak >= cfg.drill_streak_limit):
                 dlg = self.eligible_dialogue()
                 if dlg is not None:
                     self._play_dialogue(sc, dlg)
@@ -475,6 +494,7 @@ class Planner:
                 milestone = self._maybe_note(sc, sc.exercises[-1].item_ids, budget - closing_reserve - sc.total_duration)
                 if milestone is not None:
                     do_discriminate(milestone)
+            drill_streak = self._trailing_drill_streak(sc)
 
         # at least one aside per lesson while unheard ones remain (a few seconds over target is fine)
         if not self._aside_played() and self._note_budget_left():

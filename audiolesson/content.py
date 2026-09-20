@@ -18,26 +18,15 @@ _SLOT_RE = re.compile(r"\{(\w+)\}")
 _WORD_RE = re.compile(r"\w+", re.UNICODE)
 
 # Vowel letters used by this project's target languages (French, Icelandic), including
-# accented forms. A maximal run of these is treated as one syllable nucleus below — not a
-# claim about real syllable boundaries (Icelandic in particular allows onset clusters this
-# doesn't know about, e.g. "fræð-" keeps both consonants), just a mechanical, vowel-anchored
-# split that reliably lands somewhere a learner can pronounce as one piece.
+# accented forms. A maximal run of these approximates one syllable nucleus, used only to
+# gauge whether a single word is long enough to deserve extra practice (see `is_hard`) — not
+# to decide where to split it. issue #34 point 7: a former version of this file used the same
+# vowel-run boundaries to actually cut a word into sub-word chunks for backward build-up
+# (e.g. "Fyrirgefðu" -> "ðu"/"gefðu"/"irgefðu"), with no knowledge of Icelandic consonant
+# clusters or gemination — and even a linguistically correct split can still be mispronounced
+# by TTS synthesizing the fragment in isolation, with no context that it's part of a longer
+# word. `Item.backward_chunks` no longer does this for single words; see its docstring.
 _VOWEL_RUN_RE = re.compile(r"[aáàâäæeéèêëiíîïoóôöœuúùûüyýÿ]+", re.IGNORECASE)
-
-
-def _syllable_pieces(word: str) -> list[str]:
-    runs = list(_VOWEL_RUN_RE.finditer(word))
-    if len(runs) < 2:
-        return [word]
-    pieces = []
-    start = 0
-    for prev, cur in zip(runs, runs[1:]):
-        gap = cur.start() - prev.end()
-        boundary = cur.start() - 1 if gap > 1 else cur.start()  # leave one consonant as the onset
-        pieces.append(word[start:boundary])
-        start = boundary
-    pieces.append(word[start:])
-    return pieces
 
 
 @dataclass
@@ -106,29 +95,27 @@ class Item:
         return self.word_count == 1 and len(_VOWEL_RUN_RE.findall(self.target)) >= 3
 
     def backward_chunks(self) -> list[str]:
-        """Progressively longer tails of the phrase, shortest first.
+        """Progressively longer tails of the phrase, shortest first, growing from the end.
 
-        Authors can override with ``chunks``; otherwise multi-word phrases split on
-        words, and a single long word splits into syllable-shaped pieces (see
-        ``_syllable_pieces``) — either way we grow from the end.
+        Authors can override with ``chunks`` for a word whose boundaries are actually
+        verified. Otherwise, multi-word phrases split on words — a real, pronounceable unit
+        ("vel" / "svo vel" / "Gjörðu svo vel") — but a single long word gets no automatic
+        sub-word split (issue #34 point 7): guessing a syllable boundary from spelling alone
+        risks both an outright wrong boundary (Icelandic has consonant clusters and gemination
+        this project has no verified way to reason about) and a correct boundary still coming
+        out mispronounced, since a fragment spoken by TTS in isolation has no context that
+        it's part of a longer word. ``is_hard()`` still flags a long single word for extra
+        practice; ``Builder.intro()`` gives it slow whole-word repetition instead of a
+        backward build when this returns just the one, unsplit chunk.
         """
         if self.chunks:
             return list(self.chunks)
         words = self.target.split()
-        if len(words) == 1:
-            pieces = _syllable_pieces(words[0])
-        elif len(words) <= 2:
+        if len(words) <= 2:
             return [self.target]
-        else:
-            pieces = words
-        if len(pieces) < 2:
-            return [self.target]
-        out = []
-        sep = "" if len(words) == 1 else " "
-        # 1 piece, 2 pieces, ... but cap at 4 partial steps before the full phrase
-        steps = min(len(pieces) - 1, 4)
-        for n in range(1, steps + 1):
-            out.append(sep.join(pieces[-n:]))
+        # 1 word, 2 words, ... but cap at 4 partial steps before the full phrase
+        steps = min(len(words) - 1, 4)
+        out = [" ".join(words[-n:]) for n in range(1, steps + 1)]
         out.append(self.target)
         return out
 
