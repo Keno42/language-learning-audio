@@ -4,12 +4,13 @@ _Last updated 2026-09-20 (session 15: the owner closed #23 and #25,
 folding both into #29 — one consolidated top-priority issue for
 designing curriculum sequencing from learner capabilities outward,
 covering both reusable vocabulary and grammatical dimensions. Docs
-updated to point at #29, then two concrete pilots: the `fara`/"want to,
-going to" construction cluster moved from module 14 to module 2, and
+updated to point at #29, then three concrete pilots: the `fara`/"want
+to, going to" construction cluster moved from module 14 to module 2,
 the `góðan`/`góða`/`gott` gender-agreement pattern named in a new
-grammar note — see item #1 in "Known gaps" for what's still open)._
-Keep this current: whoever picks the project up next, human or AI,
-should be able to continue from here without re-deriving decisions._
+grammar note, and `frábært` moved from module 18 to module 1 — see item
+#1 in "Known gaps" for what's still open)._ Keep this current: whoever
+picks the project up next, human or AI, should be able to continue from
+here without re-deriving decisions._
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 
@@ -88,6 +89,15 @@ collisions — "Ég fer {time}." and "Ég fer {frequency} í sund." in
 `06-time.toml` — outside the 4-construction/inf-vocab cluster this pilot
 touched. Left alone; worth a look in a later #29 pass but not part of
 this one's scope.
+
+**Follow-up (session 15, pilot 3 below): investigated, no action
+needed.** Both are `eg_fer`/`fer` present-tense-plus-slot patterns
+("I'm leaving {time}" / "I {frequency} go swimming"), grammatically
+unrelated to pilot 1's "bare infinitive + vil/ætla að/viltu/nenni ekki
+að" cluster despite the shared verb — not duplicates, not something
+pilot 1 should have absorbed. They already live in module 6 of 26,
+which isn't a sequencing gap on the scale `dialogue_sequencing_report()`
+flags. Closing this out rather than leaving it as an open thread.
 
 ### Pilot 2 — naming the góðan/góða/gott gender-agreement pattern
 
@@ -251,6 +261,45 @@ design (that's exactly the gap point 1 fixed) — it now checks `has_met`
 played the note must end up knowing all three," which the old,
 one-lesson-later behavior also happened to satisfy but for the wrong
 reason. 75 → 78 tests, all passing; validate unchanged.
+
+### Pilot 3 — `frábært` was the report's own top repeat offender
+
+PR #32 (pilot 2) merged; picking the next pilot directly from
+`dialogue_sequencing_report()`'s own output rather than the issue's
+worked examples this time. Its "words repeating across dialogues"
+list had `frábært` first: a partner says "Frábært!" (great!) as an
+early reaction in **seven** dialogues — `tungumal` (module 2, the
+curriculum's second dialogue overall), then modules 6, 9, 15, 21, 23,
+25 — but the word itself wasn't taught as a vocab item until module 18.
+Textbook case for the pattern pilot 1 and pilot 2 both established:
+find it, don't invent it, just move it earlier.
+
+Relocated the existing `frabaert` vocab item (`kind = "vocab"`, `tags =
+["adj_neut"]`, unedited) from `curricula/is-en/18-adjectives.toml` to
+the end of `01-greetings.toml`, right before that module's own dialogue
+— the same "before dialogues" placement pilot 1 used in module 2.
+Checked first that nothing in module 18 depends on its *former*
+position: the only other reference is `prereqs = ["frabaert"]` on a
+later phrase in the same file, which only gets easier to satisfy by
+moving the prerequisite earlier; and `adj_neut` has dozens of other
+tagged items, so no construction's "at least two fills" invariant
+depends on this one.
+
+Chose module 1 over module 2 (where the first dialogue needing it
+actually is) because `01-greetings.toml` already ends with two other
+single-word discourse-reaction phrases (`endilega` "Please do.",
+`audvitad` "Of course.") right before its own dialogue — `frábært` is
+the same kind of item, so it fits the existing shape there rather than
+starting a new "promoted items" pile in module 2 on top of pilot 1's.
+
+Effect: `dialogue_sequencing_report()`'s advisory pair count dropped
+from 53 to 49, and `frábært` no longer appears in the "words repeating
+across dialogues" list (now: `og, líka, sjáðu, vegabréf, góð, ferð,
+bara, hundruð, krónur`). Validate: 993 items unchanged; full test suite
+(78 tests) unchanged. Also closed out the "two other `fara`-shaped
+constructions in `06-time.toml`" open thread from pilot 1 — see the
+note added to pilot 1's writeup above; they turned out to be a
+different grammatical pattern, already early, not a sequencing gap.
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
@@ -1296,12 +1345,21 @@ Verified in this session:
    grammatical concept once the learner has enough examples to notice
    it" — `milestone` notes cover the "notice, name" half for this one
    case, but nothing yet generalizes it into a reusable content kind for
-   future grammatical-dimension pilots. **Not started:** the generative
-   half of pilot 2 (practising the gender-agreement pattern on a *new*
-   noun — deferred for lack of a verified noun-declension reference, see
-   "Pilot 2" above), the two other `fara`-shaped constructions in
-   `06-time.toml` noticed but out of scope for pilot 1, and the broader
-   curriculum-wide audit.
+   future grammatical-dimension pilots. Pilot 3 — `frábært` (dialogue
+   partner reaction word in 7 dialogues starting with module 2, untaught
+   until module 18, and `dialogue_sequencing_report()`'s own top
+   repeat-offender) — moved to module 1; the report's advisory pair
+   count dropped 53 → 49. The "two other `fara`-shaped constructions in
+   `06-time.toml`" thread from pilot 1 is closed: investigated, and
+   they're a different grammatical pattern, already early — not a
+   sequencing gap, no action needed (see pilot 1's writeup above for
+   the follow-up note). **Not started:** the generative half of pilot 2
+   (practising the gender-agreement pattern on a *new* noun — deferred
+   for lack of a verified noun-declension reference, see "Pilot 2"
+   above), the rest of `dialogue_sequencing_report()`'s current list
+   (`og, líka, sjáðu, vegabréf, góð, ferð, bara, hundruð, krónur` — each
+   a candidate pilot 3-style pass), and the broader curriculum-wide
+   audit.
 2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
 3. ~~Listen to a real lesson and tune timing~~ — partially done (session
