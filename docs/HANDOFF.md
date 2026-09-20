@@ -1,16 +1,150 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-20 (session 15: the owner closed #23 and #25,
-folding both into #29 — one consolidated top-priority issue for
-designing curriculum sequencing from learner capabilities outward,
-covering both reusable vocabulary and grammatical dimensions. Docs
-updated to point at #29, then three concrete pilots: the `fara`/"want
-to, going to" construction cluster moved from module 14 to module 2,
-the `góðan`/`góða`/`gott` gender-agreement pattern named in a new
-grammar note, and `frábært` moved from module 18 to module 1 — see item
-#1 in "Known gaps" for what's still open)._ Keep this current: whoever
-picks the project up next, human or AI, should be able to continue from
-here without re-deriving decisions._
+_Last updated 2026-09-20 (session 16: the owner opened #34, "Improve
+lesson orchestration and learner experience," reviewing a real Lesson 3
+transcript and finding 8 related problems — including a direct
+critique of the `godur_gender` milestone note session 15 just shipped.
+Docs-only this session: broke #34 into 7 pilots ordered by risk, no
+code changed yet — see "Session 16" below and item #1a in "Known gaps"
+for the breakdown)._ Keep this current: whoever picks the project up
+next, human or AI, should be able to continue from here without
+re-deriving decisions._
+
+## Session 16: issue #34 opened — lesson orchestration and learner experience
+
+The owner reviewed a real generated Lesson 3 transcript (Icelandic
+course) and opened #34 with 8 related findings. It reads as a sequel to
+#29: where #29 is about *what* gets taught and *when*, #34 is about
+*how a lesson built from correctly-sequenced material still feels* —
+several of its examples are drawn straight from #29's own output,
+including a direct critique of the `godur_gender` milestone note
+(pilots 2/3, PR #32/#33): too many grammar terms delivered at once
+(accusative, singular, masculine/feminine/neuter, plus a forward
+reference to case/number) for a spoken explanation, and it shouldn't
+close with "Back to the lesson." — "this *is* the lesson."
+
+Like #29, this isn't one fix. Broke it into 7 pilots, ordered by risk
+and how much design judgment each needs before touching code:
+
+1. **Instructor-prompt template artifacts (#34 point 8).** Confirmed
+   mechanically: `audiolesson/phrasing/en.toml`'s `meaning` prompt list
+   includes `"Say: {meaning} in {language}."`, and at least one item's
+   `meaning` already carries its own sentence punctuation —
+   `curricula/is-en/01-greetings.toml`'s `jaeja`: `meaning = "Well
+   then. (the all-purpose Icelandic word)"` — so the template renders
+   "Say: Well then. (the all-purpose Icelandic word). in Icelandic."
+   Two independent causes, both fixable without any design decision:
+   the template naively concatenates a already-punctuated `meaning`
+   into a sentence frame that adds its own trailing period, and some
+   `meaning` fields carry a parenthetical aside that reads fine as a
+   gloss but not pasted into "Say: X in Icelandic." Fix is mechanical:
+   stop appending a trailing "in {language}." after a `meaning` that
+   already ends in terminal punctuation (or drop that template variant
+   for such items), and move `jaeja`'s parenthetical out of `meaning`
+   (into `pronunciation_notes`, which is exactly what that field is
+   for). Lowest risk here — no behavior to weigh, just a string-
+   assembly bug plus one misplaced field.
+2. **Shorten the `godur_gender` milestone note; retire the aside
+   framing for milestones specifically (#34 point 1, half of it).**
+   Rewrite the note to lead with the concrete claim ("you've heard
+   three forms of the same word") before naming gender as the
+   dimension, and demote case/number to one brief forward-reference
+   sentence instead of listing every dimension up front. Separately,
+   `Builder.note()` (`exercises.py`) currently closes every note,
+   milestone or not, with the same `aside_end` ("Back to the lesson.")
+   — give milestone notes their own closing (or none) since, per the
+   owner, they're not a detour from the lesson. Low risk: touches only
+   the one note's text and the `milestone`-vs-`aside` branch already
+   built in pilots 2/3.
+
+   **Deferred, not part of this pilot:** "target-language examples
+   inside explanations should be spoken by a target-language voice
+   where practical" (#34 point 1, other half). `Note.text` today is one
+   instructor-language string with the Icelandic phrases embedded as
+   text inside it — making `Góðan daginn` etc. actually spoken by the
+   target voice mid-explanation needs the note to carry structured
+   segments (narration / target-language speech / narration …), which
+   `Builder.note()` doesn't support at all yet. That's a real
+   mechanism change, not a content edit — worth its own design pass
+   once pilot 2 above is in, not bundled with it.
+3. **Contrastive discrimination right after a milestone (#34 point
+   2).** "notice → name → discriminate," using only the three already-
+   verified phrases (no new Icelandic needed) — e.g. narrate a new
+   situation ("it's evening now") and ask which of the three known
+   forms fits. Moderate: this is a new follow-up step for
+   `Planner._eligible_milestone()`'s note (immediately after it plays,
+   not a separate scheduling event), and there's no existing exercise
+   shape that does "pick which known phrase fits this situation" — the
+   closest thing (`situation` stage) always targets one specific item's
+   own recall, not a choice among several. Depends on pilot 2 landing
+   first (same note, shorter now).
+4. **Explicitly contrast near-synonyms: Afsakið / Fyrirgefðu / Því
+   miður (#34 point 3).** Same "notice → name" shape as the gender
+   milestone, but for communicative function instead of grammar —
+   generalizing `Note.milestone` (or adding a sibling flag) rather than
+   building a second parallel mechanism, per the architectural gap the
+   #32 review already flagged (see session 15, "Known gaps" #1a below).
+   **Needs verification before any text is written:** the issue itself
+   flags `Því miður`'s current gloss ("Unfortunately not. / I'm afraid
+   so.") as presenting opposite polarities and asks for something like
+   "Unfortunately / I'm afraid…" instead — this is exactly the kind of
+   specific-word grammar/usage claim the "halló" mistake (session 6)
+   says never to assert from a general impression; check a dictionary
+   entry for `því miður` specifically before rewriting its gloss, the
+   same way `pronunciation_notes` already gets checked.
+5. **Situation-prompt variation for repeated retrieval (#34 point 4).**
+   Needs a schema decision before any code: either (a) items gain a
+   `situations: list[str]` of alternative phrasings and the planner
+   rotates through them least-recently-used-first, or (b) the planner
+   synthesizes variation on the fly (higher risk — auto-generated
+   prompts reading naturally is a much harder bar than picking from
+   author-written ones). Recommend (a): keeps every learner-facing
+   sentence author-reviewed, matches how `alternatives` already works
+   for answers. Moderate scope: schema + planner change + retrofitting
+   variants onto the highest-repeat items (`velkomin` is the issue's
+   own example).
+6. **Lesson shape: no long isolated-drill runs, prefer connected
+   dialogue as vocab grows, allow ending early (#34 points 5–6).**
+   Grouped together — they're the same underlying planner rebalancing
+   (how `build()`'s fallback ladder in `planner.py` decides what to do
+   when nothing specific is due) seen from three angles. **Highest
+   blast radius of the seven:** `build()`'s existing fallback order
+   (recall due → intro new → pull a reactivation forward → extra new
+   item → repeat → note → second review pass → stop short) is exactly
+   what several current tests pin down (`test_length_close_to_requested`,
+   `test_later_lessons_fill_the_requested_time`,
+   `test_first_lesson_at_default_pace_is_short_not_padded`,
+   `test_no_item_twice_in_a_row`), so this needs its own design pass —
+   probably several small changes (a repeat-drill counter that biases
+   toward a dialogue/note/early-stop once it climbs, dialogues explicitly
+   preferred once enough required items are known) rather than one
+   rewrite, each checked against the existing pacing tests before the
+   next.
+7. **Linguistically-meaningful backward-build chunking (#34 point 7).**
+   Confirmed the current algorithm is exactly what the issue describes:
+   `Item.backward_chunks()`/`_syllable_pieces()` (`content.py`) splits a
+   long single word on vowel-run boundaries only — a crude heuristic
+   with no knowledge of Icelandic consonant clusters, gemination
+   (pre-aspiration before doubled `ll`/`nn` — the exact phenomenon
+   `docs/CURRICULUM.md`'s `tvo_l` note already teaches the learner to
+   notice, session-6-era caution applies here too), or morpheme
+   boundaries. Confirmed the issue's own examples reproduce exactly:
+   `Fyrirgefðu` → `ðu, gefðu, irgefðu, Fyrirgefðu` and `Afsakið` → `ið,
+   sakið, Afsakið`. **Highest linguistic risk of the seven** — the same
+   risk class as the "halló" mistake, but systemic instead of one word:
+   any fix needs either a real Icelandic syllabification/morphology
+   reference (not a guess dressed up as a heuristic) or, more cheaply,
+   falling back to "no chunking, just slow whole-word repetition" for
+   words where no verified boundary exists — which the issue explicitly
+   offers as an acceptable fallback. Do not ship a new heuristic that's
+   merely *less obviously wrong* without checking it the way `bolli`/
+   `galli` already get checked.
+
+No code or curriculum content changed this session — this is the same
+"docs first" move session 15 made for #29, for the same reason: #34 is
+a design-and-authoring/algorithm project touching several different
+subsystems (content schema, note rendering, planner pacing, backward-
+build) at different risk levels, not a single PR.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 
@@ -1360,6 +1494,42 @@ Verified in this session:
    (`og, líka, sjáðu, vegabréf, góð, ferð, bara, hundruð, krónur` — each
    a candidate pilot 3-style pass), and the broader curriculum-wide
    audit.
+1a. **Improve lesson orchestration and learner experience** (issue #34,
+   session 16 — a sequel to #29: where #29 decides *what* gets taught
+   and *when*, #34 is about how a lesson built from correctly-sequenced
+   material still *feels*). Genesis: the owner reviewed a real
+   generated Lesson 3 transcript and found 8 related problems,
+   including a direct critique of the `godur_gender` milestone note
+   pilots 2/3 just shipped (too many grammar terms delivered at once;
+   shouldn't close with "Back to the lesson." — "this *is* the
+   lesson"). See "Session 16" above for the full write-up. Broken into
+   7 pilots, ordered by risk/design-judgment needed, **none started
+   yet:**
+   1. instructor-prompt template artifacts (mechanical string-assembly
+      bug plus one misplaced `meaning` field — lowest risk)
+   2. shorten `godur_gender`'s text, retire the "aside" closing framing
+      for milestone notes specifically (low risk; target-language
+      speech *inside* a note's narration is explicitly deferred out of
+      this one — `Note` has no structured-segments mechanism yet)
+   3. a contrastive discrimination exercise right after a milestone
+      note (moderate; needs a new exercise shape, depends on pilot 2)
+   4. explicitly contrast near-synonyms `Afsakið`/`Fyrirgefðu`/`Því
+      miður` (moderate; **needs a verified dictionary check on `því
+      miður`'s gloss before writing anything** — same discipline as the
+      "halló" mistake, session 6)
+   5. situation-prompt variation for repeated retrieval (moderate;
+      needs a schema decision — recommended: an author-written
+      `situations: list[str]` the planner rotates, not synthesized
+      variation)
+   6. lesson-shape rebalancing: no long isolated-drill runs, prefer
+      dialogue as vocab grows, allow ending early (**highest blast
+      radius** — touches `planner.py`'s `build()` fallback ladder that
+      several existing pacing tests pin down)
+   7. linguistically-meaningful backward-build chunking, replacing the
+      confirmed vowel-run-only heuristic in `content.py`'s
+      `_syllable_pieces()` (**highest linguistic risk** — same class as
+      the "halló" mistake; a verified reference or "no chunking,
+      slower whole word" beats a fancier guess)
 2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
 3. ~~Listen to a real lesson and tune timing~~ — partially done (session
