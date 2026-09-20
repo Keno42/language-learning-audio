@@ -46,6 +46,7 @@ class Builder:
     translate_partner: bool = True  # narrate the meaning of partner lines in dialogues
     used_combos: set[str] = field(default_factory=set)
     used_examples: set[str] = field(default_factory=set)
+    _situation_uses: dict[str, int] = field(default_factory=dict)  # per-item count, this lesson
 
     # ------------------------------------------------------------------ utils
 
@@ -65,6 +66,21 @@ class Builder:
         if meaning[-1:] in ".?!…":
             return meaning
         return meaning + "."
+
+    def _situation(self, item: Item) -> str | None:
+        """The situation cue to narrate now, rotated across an item's ``situations`` (issue
+        #34 point 4) — starting from how many times it's been exercised in *past* lessons
+        (0 for an item with no recorded state yet, i.e. its first exposure), then advanced by
+        ``_situation_uses`` for every situation narrated so far *within this lesson*.
+        ``ItemState.exposures`` only updates once the whole lesson is applied afterwards
+        (``record_lesson()``), so it alone can't distinguish a second situation recall in the
+        same lesson from the first — without this lesson-local counter, an item recalled at
+        the situation stage more than once in one lesson would repeat the same cue each time,
+        the exact within-lesson repetition this pilot exists to fix (owner review on #39)."""
+        base = self.learner.items[item.id].exposures if item.id in self.learner.items else 0
+        offset = self._situation_uses.get(item.id, 0)
+        self._situation_uses[item.id] = offset + 1
+        return item.situation_for(base + offset)
 
     def _successes(self, item: Item) -> int:
         st = self.learner.items.get(item.id)
@@ -222,7 +238,7 @@ class Builder:
             if gen_ex is not None:
                 return gen_ex
             stage = "meaning"
-        if stage == "situation" and not item.situation:
+        if stage == "situation" and not item.has_situation:
             stage = "meaning"
         if stage == "cloze" and item.word_count < 3:
             stage = "hinted"
@@ -242,7 +258,7 @@ class Builder:
             self._speak(sc, ex, target.split()[0].rstrip(".,?!"), role="hint")
             self._answer_pause(sc, ex, target, item, generative=False)
         elif stage == "situation":
-            self._narr(sc, ex, item.situation)  # type: ignore[arg-type]
+            self._narr(sc, ex, self._situation(item))  # type: ignore[arg-type]
             self._answer_pause(sc, ex, target, item, generative=True)
         else:  # meaning (also the fallback for 'dialogue' when no dialogue fits)
             self._narr(sc, ex, self.prompts.get("meaning", meaning=self._m(item.meaning), language=self.prompts.language_name(self.tl)))
@@ -279,8 +295,8 @@ class Builder:
         if stage == "hinted":
             self._narr(sc, ex, self.prompts.get("hinted", meaning=self._m(gen.meaning)))
             self._speak(sc, ex, gen.target.split()[0].rstrip(".,?!"), role="hint")
-        elif stage == "situation" and item.situation:
-            self._narr(sc, ex, item.situation)
+        elif stage == "situation" and item.has_situation:
+            self._narr(sc, ex, self._situation(item))
         else:
             self._narr(sc, ex, self.prompts.get("meaning", meaning=self._m(gen.meaning), language=self.prompts.language_name(self.tl)))
         self._answer_pause(sc, ex, gen.target, item, generative=is_generative(stage))

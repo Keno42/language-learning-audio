@@ -264,8 +264,16 @@ meaning = "Welcome."
 meaning_ja = "ようこそ。"
 difficulty = 2
 topics = ["greetings"]
-situation = "Friends arrive at your door. Welcome them in."
-situation_ja = "友人たちが玄関に着きました。家に迎え入れてください。"
+situations = [
+  "Friends arrive at your door. Welcome them in.",
+  "A guest has just arrived at your home. Welcome her.",
+  "Someone is visiting you for the first time. Welcome them.",
+]
+situations_ja = [
+  "友人たちが玄関に着きました。家に迎え入れてください。",
+  "お客さんがちょうど家に着きました。迎え入れてください。",
+  "誰かが初めて訪ねてきました。迎え入れてください。",
+]
 
 [[items]]
 id = "gjordu_svo_vel"

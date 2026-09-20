@@ -412,6 +412,83 @@ class CurriculumTests(unittest.TestCase):
             self.assertNotIn(" ", c)  # syllable pieces of one word, not word-split
             self.assertTrue(hard.target.endswith(c))  # each is a genuine tail of the word
 
+    def test_situation_for_rotates_round_robin_on_exposures(self):
+        """Issue #34 point 4: an item with several ``situations`` should rotate through them
+        by exposure count, not always narrate the same one."""
+        from audiolesson.content import Item
+
+        item = Item(id="x", kind="phrase", target="T.", meaning="M.", situations=["A", "B", "C"])
+        self.assertTrue(item.has_situation)
+        self.assertEqual([item.situation_for(n) for n in range(5)], ["A", "B", "C", "A", "B"])
+
+    def test_situation_for_falls_back_to_singular_situation(self):
+        """An item authored the old way (a single ``situation``, no ``situations``) keeps
+        narrating that one string regardless of exposure count; an item with neither has no
+        situation stage at all."""
+        from audiolesson.content import Item
+
+        one = Item(id="x", kind="phrase", target="T.", meaning="M.", situation="only one")
+        self.assertTrue(one.has_situation)
+        self.assertEqual(one.situation_for(0), "only one")
+        self.assertEqual(one.situation_for(5), "only one")
+        none = Item(id="y", kind="phrase", target="T.", meaning="M.")
+        self.assertFalse(none.has_situation)
+        self.assertIsNone(none.situation_for(0))
+
+    def test_situations_rotate_across_repeated_retrieval_of_the_same_item(self):
+        """Issue #34 point 4's own example: ``velkomin``'s situation-stage narration used to
+        replay "Friends arrive at your door. Welcome them in." on every spaced review. Now
+        that it has several ``situations``, real simulated lessons should actually vary the
+        wording across repeats, not just accept that they theoretically could — including
+        when the *same* lesson recalls it more than once (owner review on #39: rotating only
+        between lessons, via ``ItemState.exposures``, still replayed the identical cue for a
+        second same-lesson recall, since ``exposures`` doesn't update until the lesson ends)."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        item = cur.by_id["velkomin"]
+        self.assertGreaterEqual(len(item.situations), 2)
+        learner = LearnerState("is", "en", "A1")
+        learner.feedback_mode = "auto"
+        day = TODAY
+        seen: list[str] = []
+        within_lesson_repeat_checked = False
+        for _ in range(25):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=7), today=day).build()
+            this_lesson: list[str] = []
+            for i, ex in enumerate(sc.exercises):
+                if ex.kind == "recall" and ex.stage == "situation" and ex.item_ids == ["velkomin"]:
+                    text = next(s.text for s in sc.segments if s.exercise == i and s.type == "narrate")
+                    this_lesson.append(text)
+            for a, b in zip(this_lesson, this_lesson[1:]):
+                self.assertNotEqual(a, b, "same lesson repeated the identical situation cue")
+                within_lesson_repeat_checked = True
+            seen.extend(this_lesson)
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        self.assertGreaterEqual(len(seen), 2, "velkomin's situation stage never recurred across 25 simulated lessons")
+        self.assertGreater(len(set(seen)), 1, "situation wording never varied across repeats")
+        self.assertTrue(all(t in item.situations for t in seen))
+        self.assertTrue(within_lesson_repeat_checked, "velkomin's situation stage never recurred within a single lesson")
+
+    def test_situation_varies_across_repeated_retrieval_within_one_lesson(self):
+        """Owner review follow-up on #39: ``ItemState.exposures`` only updates once a whole
+        lesson is applied (``record_lesson()``), so it alone can't distinguish a second
+        situation recall in the same, still-being-built lesson from the first. Directly
+        exercises ``Builder._situation()`` (via ``recall()``) three times in a row on the same
+        ``Builder`` instance — simulating three situation recalls of one item within a single
+        lesson build — and requires none of them to repeat, even before any lesson is applied."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        item = cur.by_id["velkomin"]
+        self.assertGreaterEqual(len(item.situations), 3)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        seen = []
+        for _ in range(3):
+            sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+            ex = b.recall(sc, item, "situation")
+            seen.append(next(s.text for s in sc.segments if s.exercise == ex.index and s.type == "narrate"))
+        self.assertEqual(len(seen), len(set(seen)), seen)
+
 
 class LessonStructureTests(unittest.TestCase):
     def setUp(self):

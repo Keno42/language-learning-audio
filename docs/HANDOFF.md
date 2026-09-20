@@ -13,8 +13,11 @@ of its own items' already-existing `situation`s, so the learner
 switches between forms right after noticing the pattern), and pilot 4
 (a second milestone note contrasting Afsakið/Fyrirgefðu/Því miður by
 function, after verifying `Því miður`'s gloss against a dictionary and
-fixing a budget-accounting bug the second milestone exposed) — see
-"Session 16" below and item #1a in "Known gaps" for the rest)._ Keep
+fixing a budget-accounting bug the second milestone exposed), and
+pilot 5 (items can now carry several `situations` the planner rotates
+on repeat retrieval, instead of replaying the identical prompt every
+spaced review — retrofitted onto `velkomin`) — see "Session 16" below
+and item #1a in "Known gaps" for the rest)._ Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
 
@@ -131,9 +134,16 @@ and how much design judgment each needs before touching code:
    plays each one's `situation` stage via the existing `do_recall`,
    consuming its own slice of the lesson's time budget like any other
    exercise. Two, not more, and only from items with a `situation` —
-   both already true of all three `godur_gender` items, so this reads
-   as "written for `godur_gender`" but generalizes to any future
-   milestone note whose items are phrases with situations.
+   both already true of all three `godur_gender` items. **Correction
+   (owner, after #38 merged):** the mechanism only actually generalizes
+   to a milestone with *at least three* suitable items (`situation` +
+   not the trigger) — with exactly two, excluding the trigger leaves
+   only one candidate, and "note → two discrimination recalls" can't
+   hold. Both current milestones have three, so this was never a
+   blocker, but the "generalizes to any future milestone note" framing
+   above overstated it; see the Known-gaps note this correction adds
+   for what a 2-item milestone would need before this mechanism could
+   honestly claim to cover it.
 
    Depended on pilot 2 landing first only in the sense of building on
    the same `milestone`/`_eligible_milestone` mechanism, not on its
@@ -266,17 +276,72 @@ and how much design judgment each needs before touching code:
 
    81 tests (was 80 — the new direct unit test), all passing; validate
    unchanged.
-5. **Situation-prompt variation for repeated retrieval (#34 point 4).**
-   Needs a schema decision before any code: either (a) items gain a
-   `situations: list[str]` of alternative phrasings and the planner
-   rotates through them least-recently-used-first, or (b) the planner
-   synthesizes variation on the fly (higher risk — auto-generated
-   prompts reading naturally is a much harder bar than picking from
-   author-written ones). Recommend (a): keeps every learner-facing
-   sentence author-reviewed, matches how `alternatives` already works
-   for answers. Moderate scope: schema + planner change + retrofitting
-   variants onto the highest-repeat items (`velkomin` is the issue's
-   own example).
+5. **Situation-prompt variation for repeated retrieval (#34 point 4).
+   Done.** Went with option (a) from the plan: `Item` gained
+   `situations: list[str]` (glossed the same way as every other field —
+   `situations_ja`, just added to `_GLOSSED_ITEM` — so per-language
+   promotion at load time needed no special-casing for the list type).
+   `Item.situation_for(exposures)` rotates round-robin through
+   `situations` by the item's total exposures so far
+   (`ItemState.exposures`, already tracked for other reasons — no new
+   persisted state); falls back to the old singular `situation` when
+   `situations` is empty, so every existing item needed zero changes.
+   `Item.has_situation` replaces the old `bool(item.situation)` checks
+   in three call sites (`exercises.py`'s `recall()`/`_recall_construction()`,
+   `planner.py`'s `ladder()` and `do_discriminate()`) so both forms are
+   recognized as "this item has a situation stage."
+
+   Retrofitted the issue's own example, `velkomin` — "Friends arrive at
+   your door. Welcome them in." repeated verbatim on every spaced
+   review — with two more situations conveying the same welcoming
+   function ("A guest has just arrived at your home...", "Someone is
+   visiting you for the first time...").
+
+   Added three tests: `situation_for`'s rotation and singular-fallback
+   behavior directly (synthetic `Item`s, no curriculum needed), and a
+   real 25-simulated-lesson integration test confirming `velkomin`'s
+   narrated situation text actually varies across repeats, not just
+   that it theoretically could. 81 → 84 tests, all passing; validate:
+   993 items unchanged, ja gloss still complete (2002 strings — the
+   coverage counter counts one glossable string per *field*, not per
+   list element, so swapping `velkomin`'s `situation`/`situation_ja`
+   for a 3-entry `situations`/`situations_ja` doesn't change the total).
+
+   **Owner review on #39: the rotation only worked *between* lessons,
+   not within one.** `ItemState.exposures` — the rotation index —
+   updates only once a whole lesson is applied (`record_lesson()`), so
+   every situation-stage recall of the same item *while a lesson is
+   still being built* saw the same `exposures` value and picked the
+   same variant. If a lesson's own reactivation ladder or a review pass
+   recalled `velkomin` at the situation stage twice in one lesson, both
+   would replay the identical cue — the exact within-lesson repetition
+   from the issue's own example that this pilot exists to fix. The
+   25-lesson integration test didn't catch this: it only required
+   variety across the pooled total, which a lesson-internal
+   `A, A, A` / next lesson `B, B` pattern would still satisfy.
+
+   Fixed by giving `Builder` its own lesson-scoped counter,
+   `_situation_uses: dict[str, int]` (reset fresh per lesson, since a
+   new `Builder` is constructed per `Planner.build()` call): `_situation()`
+   now starts from the persisted `exposures` base and adds this
+   lesson's own use-count for that item before indexing into
+   `situations`, then increments the counter. Strengthened the existing
+   integration test to also assert no two *consecutive* narrations of
+   `velkomin`'s situation stage within a single lesson are identical,
+   and added a direct test that calls `Builder.recall(..., "situation")`
+   three times in a row on one `Builder` instance (simulating three
+   same-lesson recalls before any lesson is ever applied) and requires
+   all three to differ.
+
+   Noted but not acted on, per the owner's own "not necessarily a
+   blocker for this pilot": `ItemState.exposures` counts *every*
+   exercise stage for an item (`intro`, `meaning`, `hinted`, …), not
+   just situation recalls, so which variant comes up next across
+   lessons depends somewhat incidentally on what other stages that item
+   happened to be exercised at — a dedicated `situation_uses` counter
+   on `ItemState` would be the cleaner long-term signal if this
+   mechanism needs more precision later. Left as `exposures` for now.
+   84 → 85 tests, all passing; validate unchanged.
 6. **Lesson shape: no long isolated-drill runs, prefer connected
    dialogue as vocab grows, allow ending early (#34 points 5–6).**
    Grouped together — they're the same underlying planner rebalancing
@@ -1710,6 +1775,21 @@ Verified in this session:
       `Planner._maybe_note()` now returns the milestone it played and
       `build()` immediately replays up to two of the other items'
       `situation` stages via a new `do_discriminate()` closure.
+      **Known limitation, not a blocker today (owner, post-merge):**
+      `do_discriminate()` guarantees two discrimination recalls only
+      when a milestone has *at least three* items with a `situation`
+      (excluding the trigger still leaves ≥2 candidates); a future
+      2-item milestone would silently fall back to one recall, quietly
+      breaking "notice → name → discriminate" rather than erroring.
+      Both current milestones (`godur_gender`, `three_kinds_of_sorry`)
+      have three, so nothing to fix now — but before adding a milestone
+      note with fewer than three suitable items, either (a) enforce a
+      "≥3 contrast items" invariant on milestone notes in
+      `curriculum_from_dict`'s validation, or (b) give `Note` an
+      explicit discrimination strategy/count instead of `do_discriminate()`
+      silently assuming three. Whichever is picked should come with a
+      test that actually constructs a 2-item milestone and checks the
+      chosen behavior, not just the 3-item cases that exist today.
    4. explicitly contrast near-synonyms `Afsakið`/`Fyrirgefðu`/`Því
       miður`. Verified `því miður` against dict.cc/Glosbe first (general
       regret marker, not negative-specific) before fixing its
@@ -1717,12 +1797,16 @@ Verified in this session:
       (`three_kinds_of_sorry`) reusing the same mechanism. Two
       milestones existing at once surfaced a real budget-accounting bug
       (fixed) — see "Pilot 4" above for both.
+   5. situation-prompt variation for repeated retrieval. `Item` gained
+      `situations: list[str]`, glossed like any other field
+      (`situations_ja`); `Item.situation_for(exposures)` rotates
+      round-robin using `ItemState.exposures`, already tracked, so no
+      new persisted state. Falls back to the old singular `situation`
+      when absent, so no existing item needed migration. Retrofitted
+      `velkomin` (the issue's own repeated-cue example) with two more
+      situations.
 
    **Not started:**
-   5. situation-prompt variation for repeated retrieval (moderate;
-      needs a schema decision — recommended: an author-written
-      `situations: list[str]` the planner rotates, not synthesized
-      variation)
    6. lesson-shape rebalancing: no long isolated-drill runs, prefer
       dialogue as vocab grows, allow ending early (**highest blast
       radius** — touches `planner.py`'s `build()` fallback ladder that
