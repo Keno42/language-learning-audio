@@ -150,6 +150,33 @@ and how much design judgment each needs before touching code:
    by asserting only what's actually guaranteed: at least one follows,
    and any second one differs from the first.) 79 → 80 tests, all
    passing; validate unchanged.
+
+   **Owner review on #38: relaxing the test hid a real gap instead of
+   closing it.** Two findings:
+   1. Excluding everything in `recent` (not just the trigger item) can
+      leave only one fresh candidate when the milestone fires with two
+      of its three items already in `recent` — one recall is retrieval,
+      not discrimination between forms, so the *implementation* should
+      guarantee two, not have the test relaxed to tolerate one.
+   2. A milestone only needs `remaining >= 40` to fire at all, but
+      `do_discriminate()` separately re-checked the same 40-second floor
+      before *each* recall — so a milestone could fire and then produce
+      zero discrimination exercises if time ran out right after the
+      note itself.
+
+   Fixed both in code, per the owner's own suggested rule, rather than
+   softening the test back down: `do_discriminate()` now excludes only
+   `recent[-1]` (whatever was just exercised, i.e. the milestone's
+   trigger) instead of the whole `recent` deque — with exactly three
+   items per current milestone, that always leaves two distinct
+   candidates. And the per-recall time check is gone entirely: once a
+   milestone has committed to firing, its discrimination block is
+   treated as one instructional unit and always completes, even if the
+   lesson runs a little over its nominal target — preferable to a
+   milestone with no follow-up practice. Tightened
+   `test_milestone_note_is_followed_by_contrastive_discrimination` back
+   to require exactly two different items every time (across all
+   milestones, all 20 simulated lessons), not "at least one."
 4. **Explicitly contrast near-synonyms: Afsakið / Fyrirgefðu / Því
    miður (#34 point 3). Done.** Verified before writing anything, per
    the "halló" mistake's discipline (session 6): searched dict.cc and

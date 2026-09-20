@@ -160,11 +160,13 @@ class CurriculumTests(unittest.TestCase):
         self.assertEqual(fired, set(milestones), "not every milestone note fired across 20 simulated lessons")
 
     def test_milestone_note_is_followed_by_contrastive_discrimination(self):
-        """Issue #34 point 2: right after a milestone plays, the lesson should immediately
-        switch between two of its own already-known examples ("notice, name, discriminate")
-        rather than moving straight on to unrelated material — reusing each item's own
-        ``situation`` (all of both milestones' items have one). Checked for every milestone
-        note in the curriculum, not just ``godur_gender``."""
+        """Issue #34 point 2: right after a milestone plays, the lesson must immediately
+        switch between two *different* of its own already-known examples ("notice, name,
+        discriminate") — reusing each item's own ``situation`` (all of both milestones' items
+        have one) — never just one recall (that would be retrieval, not discrimination) and
+        never zero (owner review on #38: a milestone that fires must complete its
+        discrimination block even if the lesson runs slightly over its nominal time target).
+        Checked for every milestone note in the curriculum, not just ``godur_gender``."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         milestones = {n.id: set(n.items) for n in cur.notes if n.milestone}
         self.assertGreaterEqual(len(milestones), 2)
@@ -179,17 +181,13 @@ class CurriculumTests(unittest.TestCase):
             day += timedelta(days=1)
             for note_idx, note_id in note_positions:
                 gate_ids = milestones[note_id]
-                self.assertGreater(len(sc.exercises), note_idx + 1, f"{note_id} wasn't followed by anything")
-                first = sc.exercises[note_idx + 1]
-                self.assertEqual((first.kind, first.stage), ("recall", "situation"))
-                self.assertEqual(len(first.item_ids), 1)
-                self.assertIn(first.item_ids[0], gate_ids)
-                # a second discrimination exercise isn't guaranteed (candidates depend on
-                # which two items were most recently touched before the note fired), but if
-                # one immediately follows too, it must switch to a *different* gate item.
-                second = sc.exercises[note_idx + 2] if note_idx + 2 < len(sc.exercises) else None
-                if second is not None and (second.kind, second.stage) == ("recall", "situation") and second.item_ids and second.item_ids[0] in gate_ids:
-                    self.assertNotEqual(second.item_ids[0], first.item_ids[0])
+                self.assertGreater(len(sc.exercises), note_idx + 2, f"{note_id} wasn't followed by two discrimination exercises")
+                first, second = sc.exercises[note_idx + 1], sc.exercises[note_idx + 2]
+                for ex in (first, second):
+                    self.assertEqual((ex.kind, ex.stage), ("recall", "situation"))
+                    self.assertEqual(len(ex.item_ids), 1)
+                    self.assertIn(ex.item_ids[0], gate_ids)
+                self.assertNotEqual(first.item_ids[0], second.item_ids[0])
                 checked.add(note_id)
         self.assertEqual(checked, set(milestones), "not every milestone note fired across 20 simulated lessons")
 

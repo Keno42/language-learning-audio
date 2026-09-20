@@ -358,13 +358,21 @@ class Planner:
             (issue #34 point 2) — reusing each item's own ``situation`` rather than writing
             new contrastive content: the three phrases behind ``godur_gender`` already have
             distinct situations (bakery morning / bedtime / evening restaurant), so replaying
-            two of them back to back *is* the discrimination exercise."""
+            two of them back to back *is* the discrimination exercise.
+
+            Excludes only the single item just exercised (whatever triggered the milestone),
+            not the whole ``recent`` de-dup deque used elsewhere — with three items, that still
+            guarantees two *different* ones to switch between, which is the actual "discriminate"
+            requirement; excluding all of ``recent`` could leave only one. And once a milestone
+            has committed to firing (already past its own ``remaining >= 40`` check), the
+            discrimination block is treated as part of that same instructional unit and always
+            completes — a lesson running a little over its nominal target is preferable to a
+            milestone with no follow-up practice at all."""
             nonlocal idx, since_dialogue
-            others = [i for i in note.items if i not in recent]
+            just_touched = recent[-1] if recent else None
+            others = [i for i in note.items if i != just_touched]
             candidates = [self.cur.by_id[i] for i in others if i in self.cur.by_id and self.cur.by_id[i].situation]
             for item in candidates[:2]:
-                if budget - closing_reserve - sc.total_duration < 40:
-                    break
                 do_recall(item, "situation")
                 idx += 1
                 since_dialogue += 1
