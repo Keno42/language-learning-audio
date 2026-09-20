@@ -243,7 +243,6 @@ class Builder:
             self._answer_pause(sc, ex, target, item, generative=False)
         elif stage == "situation":
             self._narr(sc, ex, item.situation)  # type: ignore[arg-type]
-            self._narr(sc, ex, self.prompts.get("situation_ask"))
             self._answer_pause(sc, ex, target, item, generative=True)
         else:  # meaning (also the fallback for 'dialogue' when no dialogue fits)
             self._narr(sc, ex, self.prompts.get("meaning", meaning=self._m(item.meaning), language=self.prompts.language_name(self.tl)))
@@ -282,7 +281,6 @@ class Builder:
             self._speak(sc, ex, gen.target.split()[0].rstrip(".,?!"), role="hint")
         elif stage == "situation" and item.situation:
             self._narr(sc, ex, item.situation)
-            self._narr(sc, ex, self.prompts.get("situation_ask"))
         else:
             self._narr(sc, ex, self.prompts.get("meaning", meaning=self._m(gen.meaning), language=self.prompts.language_name(self.tl)))
         self._answer_pause(sc, ex, gen.target, item, generative=is_generative(stage))
