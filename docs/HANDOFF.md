@@ -1229,13 +1229,26 @@ Verified in this session:
    `dialogue_sequencing_report()` no longer flags `fara`/`viltu`. Pilot
    2 — named the `góðan`/`góða`/`gott` gender-agreement pattern with a
    new grammar note (`godur_gender` in `90-notes.toml`) after the third
-   of the three already-early greeting phrases; see "Pilot 1"/"Pilot 2"
-   above for both. **Not started:** the generative half of pilot 2
-   (practising the gender-agreement pattern on a *new* noun — deferred
-   for lack of a verified noun-declension reference, see "Pilot 2"
-   above), the two other `fara`-shaped constructions in `06-time.toml`
-   noticed but out of scope for pilot 1, and the broader curriculum-wide
-   audit.
+   of the three already-early greeting phrases. On review (PR #32) the
+   owner found a plain `Note` didn't actually guarantee that moment (it
+   could surface as generic filler before all three phrases were known,
+   or get skipped by the same random `note_chance` roll a cultural aside
+   uses) and read as an optional aside rather than deliberate
+   instruction; fixed by adding `Note.milestone` and a dedicated,
+   deterministic `Planner._eligible_milestone()` path — see "Pilot 2"
+   above for the mechanism and the review response subsection right
+   after it. **Architectural finding from that review, not yet acted
+   on:** there's a real gap between the curriculum's existing units
+   (vocab, phrase, construction, transform, note) and "introduce a
+   grammatical concept once the learner has enough examples to notice
+   it" — `milestone` notes cover the "notice, name" half for this one
+   case, but nothing yet generalizes it into a reusable content kind for
+   future grammatical-dimension pilots. **Not started:** the generative
+   half of pilot 2 (practising the gender-agreement pattern on a *new*
+   noun — deferred for lack of a verified noun-declension reference, see
+   "Pilot 2" above), the two other `fara`-shaped constructions in
+   `06-time.toml` noticed but out of scope for pilot 1, and the broader
+   curriculum-wide audit.
 2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
 3. ~~Listen to a real lesson and tune timing~~ — partially done (session
