@@ -849,21 +849,28 @@ Verified in this session:
    warmed into the cache with `workers` threads (profile key, default 4).
    Untested against a real network, like the providers themselves.
 9. **Wheel install** verified to include `audiolesson/phrasing/*.toml`.
-10. **Minimal-pair tips** (issue #23, session 12, not started). The owner
-    wants a tip when a later item is a near-homograph/near-homophone of
-    one already learned (e.g. Icelandic "goðan"/"goða", differing only in
-    case ending) so the learner notices what actually distinguishes them,
-    rather than being left to guess. No mechanism for this exists yet
-    (no cross-item "this is easily confused with that" link in `Item`,
-    no phrasing for the tip itself). Given this session's "halló" history
-    of a mis-cited pronunciation claim (see session 6), any such tip
-    needs each pair's actual distinguishing fact checked, not guessed —
-    likely means it has to be authored per-pair in the curriculum (a new
-    optional field, e.g. `confusable_with`/`confusable_tip`), not
-    generated automatically from spelling similarity, which would risk
-    flagging pairs that aren't actually confusable and missing ones that
-    are. Scope (which pairs, curriculum-authored vs. some automatic
-    detection) needs a decision before writing any code.
+10. **Minimal-pair tips, reframed as a planning problem** (issue #23,
+    session 13, not started — deliberately). The owner's original report
+    (a tip when a later item is a near-homograph of one already learned,
+    e.g. Icelandic "goðan"/"goða") is real, but when this session proposed
+    a quick fix — an optional `confusable_with`/`confusable_tip` field
+    authored per-pair — the owner pushed back on the approach, not just
+    the scope: *"語彙をランダムに並べてあとからそういうことを考える代わりに、
+    最初から教育プランとして組み込まれているべきだと思う。学習者がどこまで学
+    んでいて、どこをきっかけにして性、時制、その他その言語特有の水平方向のマ
+    インドセットを拡張していくのか、プランニングが優先で、このヒント機能対応
+    はその場しのぎすぎて未来がない"* — a bolt-on hint is a stopgap; the
+    real fix is that curriculum sequencing itself should deliberately
+    introduce a grammatical dimension (case, gender, tense, …) at the
+    point the learner is ready to "expand horizontally" into it, with the
+    contrast *taught*, not stumbled into and then explained away. That's
+    a planning/curriculum-architecture question — how `Item.order` and
+    the planner decide what comes next — not a per-item field. No design
+    exists yet for what "ready to expand into a grammatical dimension"
+    would even mean computationally (a new kind of prereq? a tag on the
+    dimension itself, distinct from `topics`?). Needs that design
+    conversation before any code, and probably before the next occurrence
+    of this issue gets treated as a one-off again.
 
 ## Where things are
 
