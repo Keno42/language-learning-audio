@@ -8,9 +8,12 @@ Broke #34 into 7 pilots ordered by risk, then did pilot 1 (fixed the
 "Say: X. in Icelandic." template collision and normalized `jaeja`'s
 redundant meaning-field parenthetical), pilot 2 (shortened
 `godur_gender`'s text and gave milestone notes their own, non-"aside"
-closing line), and pilot 3 (a milestone note now immediately replays
-two of its own items' already-existing `situation`s, so the learner
-switches between forms right after noticing the pattern) — see
+closing line), pilot 3 (a milestone note now immediately replays two
+of its own items' already-existing `situation`s, so the learner
+switches between forms right after noticing the pattern), and pilot 4
+(a second milestone note contrasting Afsakið/Fyrirgefðu/Því miður by
+function, after verifying `Því miður`'s gloss against a dictionary and
+fixing a budget-accounting bug the second milestone exposed) — see
 "Session 16" below and item #1a in "Known gaps" for the rest)._ Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -148,19 +151,57 @@ and how much design judgment each needs before touching code:
    and any second one differs from the first.) 79 → 80 tests, all
    passing; validate unchanged.
 4. **Explicitly contrast near-synonyms: Afsakið / Fyrirgefðu / Því
-   miður (#34 point 3).** Same "notice → name" shape as the gender
-   milestone, but for communicative function instead of grammar —
-   generalizing `Note.milestone` (or adding a sibling flag) rather than
-   building a second parallel mechanism, per the architectural gap the
-   #32 review already flagged (see session 15, "Known gaps" #1a below).
-   **Needs verification before any text is written:** the issue itself
-   flags `Því miður`'s current gloss ("Unfortunately not. / I'm afraid
-   so.") as presenting opposite polarities and asks for something like
-   "Unfortunately / I'm afraid…" instead — this is exactly the kind of
-   specific-word grammar/usage claim the "halló" mistake (session 6)
-   says never to assert from a general impression; check a dictionary
-   entry for `því miður` specifically before rewriting its gloss, the
-   same way `pronunciation_notes` already gets checked.
+   miður (#34 point 3). Done.** Verified before writing anything, per
+   the "halló" mistake's discipline (session 6): searched dict.cc and
+   Glosbe for `því miður` — "unfortunately / alas / sadly," a general
+   regret marker, not itself negative-specific — and for
+   `afsakið`/`fyrirgefðu`, confirming the curriculum's existing glosses
+   ("Excuse me." / attention-getting; "Sorry." / apology for something
+   you did) were already right, so only `Því miður`'s gloss needed a
+   fix. The curriculum's own `thvi_midur_ekki` (module 24, "Því miður
+   ekki." = "Unfortunately not.") independently corroborates this: it
+   exists specifically to *add* "ekki" (not) for the negative sense,
+   which only makes sense if the bare phrase isn't already negative on
+   its own. Fixed `thvi_midur`'s `meaning` from "Unfortunately not. /
+   I'm afraid so." (the only opposite-polarity `/`-joined meaning in
+   the whole curriculum — every other one, checked by grep, pairs true
+   synonyms like "Wait. / Hang on.") to "Unfortunately. / I'm afraid
+   so." — same-polarity, matching the verified sense and the
+   established convention.
+
+   Same "notice → name" shape as the gender milestone, but for
+   communicative function instead of grammar: added `three_kinds_of_sorry`
+   (`90-notes.toml`), reusing `Note.milestone` directly rather than
+   adding a sibling flag — the mechanism (`_eligible_milestone`, never
+   filler, priority over budget) is generic on `items`, not specific to
+   grammar, so a second milestone note needed no new abstraction. Also
+   confirms pilot 3's own "generalizes to any future milestone note
+   whose items are phrases with situations" claim: `afsakid`/
+   `fyrirgefdu`/`thvi_midur` already each have a `situation`, so the
+   contrastive-discrimination follow-up (pilot 3) fires for this note
+   too, for free.
+
+   **Two milestones existing at once surfaced a real budget bug,
+   caught by the existing rationing test going red:** `_note_budget_left()`
+   counted milestones toward the ~1-per-12-minutes aside cap, but
+   milestones bypass that cap when *deciding whether to fire* — so one
+   milestone firing could let a regular aside "spend" a budget slot
+   that a second, later milestone would then push past the intended
+   total (observed: 3 notes in one lesson against a cap of 2). Fixed by
+   excluding milestones from what `_note_budget_left()` counts
+   entirely: ordinary asides stay capped at the budget regardless of
+   how many milestones also fire, and milestones stay uncapped
+   regardless of how many asides already have. Updated
+   `test_notes_follow_related_items_and_are_rationed` to check the
+   corrected invariant (asides ≤ budget; milestones separate), and
+   generalized the two milestone-behavior tests
+   (`test_milestone_note_never_fires_before_all_its_items_are_known`,
+   `test_milestone_note_is_followed_by_contrastive_discrimination`) to
+   loop over every milestone note in the curriculum instead of
+   hardcoding `godur_gender`, so they'll keep covering future ones too.
+   80 tests, all passing (same count — existing tests generalized, not
+   duplicated); validate: 993 items unchanged, 48 notes (was 47), ja
+   gloss complete (2002 strings).
 5. **Situation-prompt variation for repeated retrieval (#34 point 4).**
    Needs a schema decision before any code: either (a) items gain a
    `situations: list[str]` of alternative phrasings and the planner
@@ -1605,12 +1646,15 @@ Verified in this session:
       `Planner._maybe_note()` now returns the milestone it played and
       `build()` immediately replays up to two of the other items'
       `situation` stages via a new `do_discriminate()` closure.
+   4. explicitly contrast near-synonyms `Afsakið`/`Fyrirgefðu`/`Því
+      miður`. Verified `því miður` against dict.cc/Glosbe first (general
+      regret marker, not negative-specific) before fixing its
+      opposite-polarity gloss and adding a second milestone note
+      (`three_kinds_of_sorry`) reusing the same mechanism. Two
+      milestones existing at once surfaced a real budget-accounting bug
+      (fixed) — see "Pilot 4" above for both.
 
    **Not started:**
-   4. explicitly contrast near-synonyms `Afsakið`/`Fyrirgefðu`/`Því
-      miður` (moderate; **needs a verified dictionary check on `því
-      miður`'s gloss before writing anything** — same discipline as the
-      "halló" mistake, session 6)
    5. situation-prompt variation for repeated retrieval (moderate;
       needs a schema decision — recommended: an author-written
       `situations: list[str]` the planner rotates, not synthesized

@@ -178,8 +178,14 @@ class Planner:
     # ------------------------------------------------------------------ notes
 
     def _note_budget_left(self) -> bool:
+        """Rations ordinary asides only. Milestones are curriculum events, not filler — they
+        neither draw on this budget (``_maybe_note`` never calls this for one) nor shrink it
+        for the asides that do, so however many milestones happen to fire in one lesson (there
+        are two now: ``godur_gender`` and ``three_kinds_of_sorry``) never crowds out the
+        cultural asides this budget exists to pace."""
         limit = self.cfg.max_notes if self.cfg.max_notes is not None else max(1, int(self.cfg.minutes // 12))
-        return len(self.notes_played) < limit
+        played_asides = sum(1 for nid in self.notes_played if not self.cur.note_by_id[nid].milestone)
+        return played_asides < limit
 
     def _eligible_milestone(self, related: list[str]) -> object | None:
         """A milestone note whose ``items`` have all been met, triggered by one of them

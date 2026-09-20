@@ -14,6 +14,14 @@ text = "In Góðan daginn, Góða nótt, and Gott kvöld, góðan, góða, and g
 text_ja = "Góðan daginn、Góða nótt、Gott kvöld に出てくる góðan、góða、gott は、どれも「良い」という同じ形容詞の形です。ここでは名詞の文法上の性に合わせて語尾が変わります。dagur は男性名詞、nótt は女性名詞、kvöld は中性名詞です。形容詞は格や数によっても変わりますが、それはまた別の機会に。"
 
 [[notes]]
+id = "three_kinds_of_sorry"
+milestone = true
+items = ["afsakid", "fyrirgefdu", "thvi_midur"]
+topics = ["discourse", "greetings"]
+text = "Afsakið, Fyrirgefðu, and Því miður can all sound like 'sorry' in English, but they're not interchangeable. Afsakið gets someone's attention. Fyrirgefðu apologizes for something you did. Því miður isn't an apology at all — it's what you say right before news you wish were better."
+text_ja = "Afsakið、Fyrirgefðu、Því miður は英語ではどれも「すみません」に聞こえますが、使い分けが必要です。Afsakið は人の注意を引くときの言葉です。Fyrirgefðu は自分がしたことを謝るときに使います。Því miður は謝罪ではありません — 残念な知らせを伝える前に言う言葉です。"
+
+[[notes]]
 id = "tvo_l"
 items = ["fjall", "eldfjall", "jokull"]
 topics = ["clarifying", "nature"]
