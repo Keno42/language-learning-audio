@@ -1,10 +1,12 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-20 (session 14: issues #25–#27, done in dependency
-order #27 → #25 → #26 per the owner — #27 and #26 resolved, #25 is
-investigated and blocked on an owner decision, see below)._ Keep this
-current: whoever picks the project up next, human or AI, should be able to
-continue from here without re-deriving decisions._
+_Last updated 2026-09-20 (session 14: issues #25–#27. #27 and #26 done;
+#25 was reframed by the owner from "gate dialogues on comprehension" to
+"sequence the curriculum's vocabulary deliberately," now the project's
+top priority — an advisory validate report ships, the actual
+re-sequencing doesn't yet)._ Keep this current: whoever picks the project
+up next, human or AI, should be able to continue from here without
+re-deriving decisions._
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
@@ -102,6 +104,53 @@ needs a judgment call about what counts as a content word; the latter is
 a bigger authoring pass than #22's, which only needed *a* replacement
 wording, not a decision about what's prerequisite-worthy). No code
 changes for #25 this session; `Dialogue.requires` is unchanged.
+
+### Issue #25, reframed by the owner: this was never a gating problem
+
+The owner's reply rejected the whole premise, not just the two options
+above: *treating dialogue dependencies as something to fix by adding
+prerequisites was the wrong abstraction from the start.* Their point,
+condensed — a dialogue needing `nagranni`'s three words isn't evidence
+that those words need a prerequisite gate; it's evidence the curriculum
+never gave `fara` (to go) the dedicated, early, reusable item its actual
+generativity (combines with destinations, intentions, obligations, plans,
+transport, leave-taking) deserves. Fix the *sequencing*, and the
+dependency problem mostly dissolves on its own. They also drew the line
+between this issue and #26 explicitly: **#25 is what the learner should
+have been taught and when; #26 is how scaffolding fades once that
+knowledge genuinely exists** — #26's fade (done, see above) only pays off
+once #25's sequencing is actually fixed, not before.
+
+Asked directly what to do next; got two answers:
+
+1. Ship the diagnostic now. Done: `dialogue_sequencing_report()` in
+   `content.py`, wired into `audiolesson validate`. It's advisory, not
+   gating — confirmed by `test_dialogue_sequencing_report_is_advisory_
+   not_gating` explicitly asserting the flagged item never enters
+   `Dialogue.required_items`. It reports, per dialogue, the word whose
+   earliest teaching item sits furthest past what the dialogue already
+   requires, plus which words repeat across multiple dialogues — that
+   repetition is the real signal (a word several *different* dialogues
+   independently need is a strong "this should have been an early,
+   reusable item" candidate, not a coincidence). Current top repeaters
+   in the Icelandic course: `frábært`, `og`, `viltu`, `líka`, `sjáðu`,
+   `fara` — `fara` among them, matching the owner's own example exactly.
+2. Elevate this to the project's actual top priority, not a bounded
+   pilot fix: *"そもそも会話に出てくる&使えるべき高価値語を教え込む、のはこの
+   アプリ全体の最優先事項にして欲しい"* ("teaching high-value words that
+   show up in conversation and should be usable — I want that to be this
+   app's overall top priority"). Recorded as item **#1** in "Known gaps"
+   below (previously items were only reordered within their own issue's
+   scope; this is the first time an item has been placed ahead of
+   everything else project-wide) and as the first guideline in
+   `docs/CURRICULUM.md`'s "Guidelines that make lessons good."
+
+**Not done this session:** the actual re-sequencing — moving/adding early
+items for `frábært`/`viltu`/`fara`/etc. and rewiring the dialogues that
+depend on them. The report finds the gaps; closing them is real
+curriculum-authoring work, sized more like #22's 27-dialogue rewrite than
+anything smaller. That's the next concrete step whenever this is picked
+back up, guided by the report's repeat-word list.
 
 ### Issue #26 — scaffolding now fades on repeat encounters
 
@@ -944,20 +993,48 @@ Verified in this session:
 
 ## Known gaps / next steps, in priority order
 
-1. **Test `edge` provider on a real network** (see above). If edge-tts's
+1. **Teach high-value reusable vocabulary early, as its own item — top
+   priority, per the owner directly** (issue #25, session 14, reframed;
+   see `docs/CURRICULUM.md`'s "Guidelines that make lessons good" for the
+   authoring rule this now sets). What's *not* the fix: gating dialogue
+   eligibility on comprehension of whatever words happen to be in a
+   partner line — tried computing that, and it breaks down (the first
+   dialogue in the course, `nagranni`, would need item #926 of 993 for
+   one word in one line, because that word is only ever taught embedded
+   in a fixed phrase far later, never as its own reusable item). What
+   *is* the fix, per the owner: decide communicative goals first,
+   introduce high-value/generative/reusable concepts early and
+   deliberately, and write dialogues from what's already been taught —
+   using a dialogue's need for an untaught word as a signal that the
+   *curriculum* is missing something, not that the dialogue needs a
+   patch. Concretely shipped this session: `audiolesson validate`'s new
+   advisory (non-blocking) report, `dialogue_sequencing_report()` in
+   `content.py`, surfaces exactly this signal — words in dialogue lines
+   whose earliest teaching item sits far past what the dialogue
+   otherwise needs, and which words repeat across dialogues (the
+   strongest "promote this to an early item" candidates: `frábært`,
+   `viltu`, `fara`, `og`, `líka`, from the Icelandic course as it stands).
+   **Not yet done:** actually moving/adding early items for those
+   candidates and rewriting the dialogues that depend on them — the
+   report finds the gaps, it doesn't close them. This is the same
+   underlying principle as #10 below (issue #23) applied to vocabulary
+   instead of grammatical case/gender/tense — both are really "curriculum
+   sequencing should be deliberate," and probably deserve being thought
+   through together rather than as two separate issues.
+2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
-2. ~~Listen to a real lesson and tune timing~~ — partially done (session
+3. ~~Listen to a real lesson and tune timing~~ — partially done (session
    10): `answer_pause`/`repeat_pause` were rewritten around real
    per-language speech estimates instead of a hand-tuned bucket table, on
    the owner's direct feedback that pauses ran long. `between_exercises`
    and `beat` haven't been listened-to yet.
-3. ~~`alternatives` never spoken~~ — done: at meaning+ stages, once per
+4. ~~`alternatives` never spoken~~ — done: at meaning+ stages, once per
    lesson per item, 50% chance: "You could also say:" + alternative.
-4. **Lesson-1 intro bunching.** With nothing to review, the first lesson opens
+5. **Lesson-1 intro bunching.** With nothing to review, the first lesson opens
    with 2–3 introductions in a row (nothing else exists yet). Acceptable but a
    short "listen to this conversation" opener, as some audio courses do,
    would be nicer.
-5. ~~Dialogue partner translation always narrated~~ — done for the
+6. ~~Dialogue partner translation always narrated~~ — done for the
    scaffolding-fade half (issue #26, session 14): translation and the
    explicit "say X" cue are now only there on the *first* encounter
    (`Builder.dialogue(..., assisted=...)`, driven by the same
@@ -975,20 +1052,20 @@ Verified in this session:
    different voice is about to speak) before the first partner line, not
    just given the scene-setting `dlg.setting` narration — nobody has
    picked this back up yet.
-6. **Curricula.** `fr-en-a1.toml` and its Japanese-instructor twin
+7. **Curricula.** `fr-en-a1.toml` and its Japanese-instructor twin
    `fr-ja-a1.toml` (generated by `tools/derive_fr_ja.py` from a translation
    table; a test asserts the ids stay in sync). The Japanese strings were
    written by an AI, not reviewed by a native speaker — read them once.
    Numbers/plurals are deliberately absent (no morphology). Other target
    languages need a new curriculum file; no code changes.
-7. ~~Cross-lesson dialogue difficulty~~ — done: a dialogue plays
+8. ~~Cross-lesson dialogue difficulty~~ — done: a dialogue plays
    `dialogue_first_turns` (2) turns on first encounter and one more turn each
    later time, replayed without pauses once it is complete.
-8. ~~Parallel TTS~~ — done: providers flagged `parallel` (edge, openai) are
+9. ~~Parallel TTS~~ — done: providers flagged `parallel` (edge, openai) are
    warmed into the cache with `workers` threads (profile key, default 4).
    Untested against a real network, like the providers themselves.
-9. **Wheel install** verified to include `audiolesson/phrasing/*.toml`.
-10. **Minimal-pair tips, reframed as a planning problem** (issue #23,
+10. **Wheel install** verified to include `audiolesson/phrasing/*.toml`.
+11. **Minimal-pair tips, reframed as a planning problem** (issue #23,
     session 13, not started — deliberately). The owner's original report
     (a tip when a later item is a near-homograph of one already learned,
     e.g. Icelandic "goðan"/"goða") is real, but when this session proposed

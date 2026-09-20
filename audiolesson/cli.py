@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from .content import CurriculumError, load_curriculum
+from .content import CurriculumError, dialogue_sequencing_report, load_curriculum
 from .learner import LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -384,6 +384,20 @@ def cmd_validate(args) -> int:
             print(f"{lang}: {total - len(c.missing_glosses)}/{total} strings glossed; missing in {len(by_item)} entries, e.g. {', '.join(list(by_item)[:10])}")
         else:
             print(f"{lang}: complete ({total} strings)")
+    findings = dialogue_sequencing_report(cur)
+    if findings:
+        words: dict[str, int] = {}
+        for f in findings:
+            words[f["word"]] = words.get(f["word"], 0) + 1
+        repeats = sorted((w for w, n in words.items() if n > 1), key=lambda w: -words[w])
+        print(
+            f"advisory (issue #25, not a failure): {len(findings)} dialogue/word pairs where the "
+            f"earliest teaching item sits >100 items past the dialogue's own requirements — a "
+            f"sequencing signal, not a gate. Worst: {findings[0]['dialogue']!r} needs {findings[0]['word']!r} "
+            f"from {findings[0]['item']!r} (#{findings[0]['item_order']}), {findings[0]['gap']} items past its own base."
+        )
+        if repeats:
+            print(f"  words repeating across dialogues (candidates to introduce earlier, as reusable items): {', '.join(repeats[:10])}")
     return 0
 
 

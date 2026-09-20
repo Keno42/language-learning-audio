@@ -216,6 +216,24 @@ class CurriculumTests(unittest.TestCase):
             missing = used - known - proper_names
             self.assertFalse(missing, f"{d.id}: {sorted(missing)}")
 
+    def test_dialogue_sequencing_report_is_advisory_not_gating(self):
+        """Issue #25 (reframed): a dialogue can use a word taught very late without that word
+        ever blocking eligibility -- the report only flags it as a sequencing signal for a
+        human to act on, same as the owner's own worked example (a real dialogue in the
+        Icelandic course needing a word from item #926 of 993)."""
+        from audiolesson.content import dialogue_sequencing_report
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        findings = dialogue_sequencing_report(cur)
+        self.assertTrue(findings)
+        worst = findings[0]
+        self.assertEqual(worst["dialogue"], "nagranni")
+        self.assertEqual(worst["word"], "heyra")
+        self.assertGreater(worst["gap"], 900)
+        # never gates: the flagged item isn't part of what actually decides eligibility
+        dlg = cur.dialogue_by_id["nagranni"]
+        self.assertNotIn(worst["item"], dlg.required_items)
+
     def test_backward_chunks_grow_from_the_end(self):
         cur = load_curriculum(CURRICULUM)
         it = cur.item("je_ne_comprends_pas")
