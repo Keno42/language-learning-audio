@@ -128,7 +128,9 @@ takes an oblique case. See `curricula/is-en-a1.toml` for the pattern.
   around. This applies at more than one level:
   - **Vocabulary/constructions**: a word or pattern that shows up
     constantly in real exchanges (`frábært`, `viltu`, `fara`, `og`,
-    `líka`, …) is worth a dedicated early item — or, where the reusable
+    `líka`, … — the first three already moved earlier, see
+    `docs/HANDOFF.md` session 15's pilots 1–3) is worth a dedicated
+    early item — or, where the reusable
     unit is really a pattern rather than one word, a construction (e.g.
     "need/have to + infinitive") — precisely because it's generative: it
     combines into many later sentences, not just the one phrase that

@@ -426,6 +426,22 @@ topics = ["discourse"]
 situation = "A friend asks if she can borrow your umbrella. Say of course."
 situation_ja = "友達が傘を借りてもいいか聞きました。もちろんと言ってください。"
 
+# Promoted from module 18 (issue #29 pilot 3): dialogue_sequencing_report()'s top
+# repeat-offender word. A partner says "Frábært!" as an early reaction in seven
+# dialogues starting with module 2's own first one, but the word wasn't taught until
+# module 18 — see docs/HANDOFF.md.
+[[items]]
+id = "frabaert"
+kind = "vocab"
+target = "frábært"
+meaning = "great"
+meaning_ja = "すばらしい"
+difficulty = 2
+tags = ["adj_neut"]
+topics = ["adjectives", "discourse"]
+situation = "Anna says the road is open. Say: great!"
+situation_ja = "アンナが道路が開通したと言いました。「すばらしい！」と言ってください。"
+
 [[dialogues]]
 id = "nagranni"
 setting = "You meet your neighbour on the stairs in the morning."

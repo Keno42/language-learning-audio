@@ -255,18 +255,6 @@ tags = ["adj_neut"]
 topics = ["adjectives"]
 
 [[items]]
-id = "frabaert"
-kind = "vocab"
-target = "frábært"
-meaning = "great"
-meaning_ja = "すばらしい"
-difficulty = 2
-tags = ["adj_neut"]
-topics = ["adjectives", "discourse"]
-situation = "Anna says the road is open. Say: great!"
-situation_ja = "アンナが道路が開通したと言いました。「すばらしい！」と言ってください。"
-
-[[items]]
 id = "hraedilegt"
 kind = "vocab"
 target = "hræðilegt"
