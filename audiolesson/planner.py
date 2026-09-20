@@ -177,6 +177,12 @@ class Planner:
 
     # ------------------------------------------------------------------ notes
 
+    def _aside_played(self) -> bool:
+        """Whether any *ordinary* (non-milestone) note has played this lesson. Milestones
+        don't count — a milestone firing must not, by itself, satisfy "an aside already
+        played" and suppress the end-of-lesson aside fallback below."""
+        return any(not self.cur.note_by_id[nid].milestone for nid in self.notes_played)
+
     def _note_budget_left(self) -> bool:
         """Rations ordinary asides only. Milestones are curriculum events, not filler — they
         neither draw on this budget (``_maybe_note`` never calls this for one) nor shrink it
@@ -471,7 +477,7 @@ class Planner:
                     do_discriminate(milestone)
 
         # at least one aside per lesson while unheard ones remain (a few seconds over target is fine)
-        if not self.notes_played and self._note_budget_left():
+        if not self._aside_played() and self._note_budget_left():
             note = self._pick_note(None)
             if note is not None:
                 b.note(sc, note)

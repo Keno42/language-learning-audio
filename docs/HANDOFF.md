@@ -229,6 +229,43 @@ and how much design judgment each needs before touching code:
    80 tests, all passing (same count — existing tests generalized, not
    duplicated); validate: 993 items unchanged, 48 notes (was 47), ja
    gloss complete (2002 strings).
+
+   **Owner review on #38 (pilot 4 landed on the same PR): two more
+   fixes, plus housekeeping.**
+   1. The budget-separation fix above was incomplete: the end-of-lesson
+      "at least one aside per lesson" fallback still checked
+      `if not self.notes_played`, and `notes_played` includes milestone
+      ids too — so a lesson where a milestone fired but no *ordinary*
+      aside had played would skip the fallback anyway, indirectly
+      letting a milestone crowd out cultural asides through this second
+      path. Extracted a `_aside_played()` helper (`planner.py`, next to
+      `_note_budget_left()`) that only counts non-milestone notes, and
+      switched the fallback to check it. Added a direct unit test
+      (`test_milestone_does_not_suppress_the_end_of_lesson_aside_fallback`)
+      against `_aside_played()` itself rather than simulated lesson
+      output — a first draft tried asserting on `Planner.build()`
+      output with `note_chance=0` forced, and it passed even with the
+      bug still in place, because the loop's separate "nothing else
+      fits" filler branch can independently supply an aside and masked
+      the missing fix. Lesson: when a fix is one boolean expression
+      buried inside a large method, test that expression directly
+      rather than trusting a full-simulation assertion to isolate it.
+   2. `three_kinds_of_sorry`'s text drew too sharp a line between
+      `Afsakið` and `Fyrirgefðu` ("Afsakið gets someone's attention.
+      Fyrirgefðu apologizes for something you did.") — reads as mutually
+      exclusive, but `Fyrirgefðu` can also mean "excuse me." Rewrote
+      using the owner's own suggested wording almost verbatim: `Afsakið`
+      as the common "excuse me"/attention-getter, `Fyrirgefðu` as also
+      meaning "excuse me" but especially suited to apologizing, `Því
+      miður` framed as categorically different (regret about a
+      situation, not an apology) rather than a third parallel case.
+   3. Housekeeping: the PR title/body still described pilot 3's
+      pre-fix behavior ("excludes `recent`" / "at least one follows").
+      Updated to match what's actually in the PR now (both pilots 3 and
+      4, with pilot 3's guarantee of exactly two discrimination recalls).
+
+   81 tests (was 80 — the new direct unit test), all passing; validate
+   unchanged.
 5. **Situation-prompt variation for repeated retrieval (#34 point 4).**
    Needs a schema decision before any code: either (a) items gain a
    `situations: list[str]` of alternative phrasings and the planner

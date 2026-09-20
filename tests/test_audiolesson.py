@@ -225,6 +225,24 @@ class CurriculumTests(unittest.TestCase):
         planner._maybe_note(sc, [note.items[-1]], remaining=100)
         self.assertEqual([e.label for e in sc.exercises], ["note: godur_gender"])
 
+    def test_milestone_does_not_suppress_the_end_of_lesson_aside_fallback(self):
+        """Owner review follow-up on #38 (pilot 4): the "at least one aside per lesson"
+        fallback checked whether ``self.notes_played`` was empty, but that list includes
+        milestones too — so a lesson where a milestone fired but no ordinary aside had played
+        would wrongly skip the fallback, letting a milestone indirectly crowd out cultural
+        asides. Unit-tests the extracted ``_aside_played()`` check directly (a full-lesson
+        simulation isn't reliable here: the "nothing else fits" mid-lesson filler can also
+        supply an aside independent of this fallback, which masked the bug in an earlier draft
+        of this test that only asserted on simulated lesson output)."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1), today=TODAY)
+        self.assertFalse(planner._aside_played())
+        planner.notes_played = ["godur_gender"]  # a milestone fired; no ordinary aside has
+        self.assertFalse(planner._aside_played(), "a milestone alone must not count as an aside having played")
+        planner.notes_played.append("tvo_l")  # an ordinary aside now has too
+        self.assertTrue(planner._aside_played())
+
     def test_milestone_note_is_never_picked_as_unrelated_filler(self):
         """Unlike a cultural aside, a milestone note must not be handed out by ``_pick_note``
         as generic lesson filler — it only ever fires via ``_eligible_milestone``, right after

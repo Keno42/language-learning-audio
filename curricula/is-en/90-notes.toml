@@ -18,8 +18,8 @@ id = "three_kinds_of_sorry"
 milestone = true
 items = ["afsakid", "fyrirgefdu", "thvi_midur"]
 topics = ["discourse", "greetings"]
-text = "Afsakið, Fyrirgefðu, and Því miður can all sound like 'sorry' in English, but they're not interchangeable. Afsakið gets someone's attention. Fyrirgefðu apologizes for something you did. Því miður isn't an apology at all — it's what you say right before news you wish were better."
-text_ja = "Afsakið、Fyrirgefðu、Því miður は英語ではどれも「すみません」に聞こえますが、使い分けが必要です。Afsakið は人の注意を引くときの言葉です。Fyrirgefðu は自分がしたことを謝るときに使います。Því miður は謝罪ではありません — 残念な知らせを伝える前に言う言葉です。"
+text = "Afsakið is a common way to get someone's attention or say 'excuse me.' Fyrirgefðu can also mean 'excuse me,' but is especially useful when apologizing or asking forgiveness. Því miður is different: it means 'unfortunately,' expressing regret about a situation rather than apologizing for something you did."
+text_ja = "Afsakið は人の注意を引いたり、「すみません」と言うときによく使われます。Fyrirgefðu も「すみません」の意味で使えますが、特に何かを謝ったり許しを求めたりするときに向いています。Því miður は違います。「残念ながら」という意味で、自分がしたことを謝るのではなく、状況について残念な気持ちを表します。"
 
 [[notes]]
 id = "tvo_l"
