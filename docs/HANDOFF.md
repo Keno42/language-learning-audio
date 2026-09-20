@@ -131,9 +131,16 @@ and how much design judgment each needs before touching code:
    plays each one's `situation` stage via the existing `do_recall`,
    consuming its own slice of the lesson's time budget like any other
    exercise. Two, not more, and only from items with a `situation` —
-   both already true of all three `godur_gender` items, so this reads
-   as "written for `godur_gender`" but generalizes to any future
-   milestone note whose items are phrases with situations.
+   both already true of all three `godur_gender` items. **Correction
+   (owner, after #38 merged):** the mechanism only actually generalizes
+   to a milestone with *at least three* suitable items (`situation` +
+   not the trigger) — with exactly two, excluding the trigger leaves
+   only one candidate, and "note → two discrimination recalls" can't
+   hold. Both current milestones have three, so this was never a
+   blocker, but the "generalizes to any future milestone note" framing
+   above overstated it; see the Known-gaps note this correction adds
+   for what a 2-item milestone would need before this mechanism could
+   honestly claim to cover it.
 
    Depended on pilot 2 landing first only in the sense of building on
    the same `milestone`/`_eligible_milestone` mechanism, not on its
@@ -1710,6 +1717,21 @@ Verified in this session:
       `Planner._maybe_note()` now returns the milestone it played and
       `build()` immediately replays up to two of the other items'
       `situation` stages via a new `do_discriminate()` closure.
+      **Known limitation, not a blocker today (owner, post-merge):**
+      `do_discriminate()` guarantees two discrimination recalls only
+      when a milestone has *at least three* items with a `situation`
+      (excluding the trigger still leaves ≥2 candidates); a future
+      2-item milestone would silently fall back to one recall, quietly
+      breaking "notice → name → discriminate" rather than erroring.
+      Both current milestones (`godur_gender`, `three_kinds_of_sorry`)
+      have three, so nothing to fix now — but before adding a milestone
+      note with fewer than three suitable items, either (a) enforce a
+      "≥3 contrast items" invariant on milestone notes in
+      `curriculum_from_dict`'s validation, or (b) give `Note` an
+      explicit discrimination strategy/count instead of `do_discriminate()`
+      silently assuming three. Whichever is picked should come with a
+      test that actually constructs a 2-item milestone and checks the
+      chosen behavior, not just the 3-item cases that exist today.
    4. explicitly contrast near-synonyms `Afsakið`/`Fyrirgefðu`/`Því
       miður`. Verified `því miður` against dict.cc/Glosbe first (general
       regret marker, not negative-specific) before fixing its
