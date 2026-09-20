@@ -226,7 +226,10 @@ class Planner:
         pool = [n for n in pool if heard.get(n.id, 0) == least]
         return self.rng.choice(pool)
 
-    def _maybe_note(self, sc: Script, related: list[str], remaining: float) -> None:
+    def _maybe_note(self, sc: Script, related: list[str], remaining: float) -> object | None:
+        """Returns the milestone note if one just played, so ``build()`` can immediately
+        follow it with contrastive discrimination practice (issue #34 point 2) — never for an
+        ordinary aside, which isn't a curriculum event to build on."""
         # A due milestone is a curriculum event, not an optional aside: it takes priority
         # over the ordinary note budget/rationing (``_note_budget_left()``) and the
         # ``note_chance`` roll, both checked below only for the non-milestone path. It still
@@ -236,16 +239,17 @@ class Planner:
             if milestone is not None:
                 self.builder.note(sc, milestone)
                 self.notes_played.append(milestone.id)
-                return
+                return milestone
         if not self._note_budget_left() or remaining < 40:
-            return
+            return None
         if self.rng.random() > self.cfg.note_chance:
-            return
+            return None
         note = self._pick_note(related)
         if note is None:
-            return
+            return None
         self.builder.note(sc, note)
         self.notes_played.append(note.id)
+        return None
 
     def below_dialogue(self, item: Item) -> str:
         """The hardest non-dialogue stage for an item (used when no dialogue fits right now)."""
@@ -342,6 +346,23 @@ class Planner:
             self._record([item.id], ex.stage or stage, ex.item_ids)
             touch(item)
 
+        def do_discriminate(note) -> None:
+            """Right after a milestone names a pattern, switch between two of its own
+            already-known examples in quick succession — "notice, name, discriminate"
+            (issue #34 point 2) — reusing each item's own ``situation`` rather than writing
+            new contrastive content: the three phrases behind ``godur_gender`` already have
+            distinct situations (bakery morning / bedtime / evening restaurant), so replaying
+            two of them back to back *is* the discrimination exercise."""
+            nonlocal idx, since_dialogue
+            others = [i for i in note.items if i not in recent]
+            candidates = [self.cur.by_id[i] for i in others if i in self.cur.by_id and self.cur.by_id[i].situation]
+            for item in candidates[:2]:
+                if budget - closing_reserve - sc.total_duration < 40:
+                    break
+                do_recall(item, "situation")
+                idx += 1
+                since_dialogue += 1
+
         while sc.total_duration < budget - closing_reserve:
             remaining = budget - closing_reserve - sc.total_duration
             due = [p for p in pending if p.due <= idx]
@@ -431,7 +452,9 @@ class Planner:
             idx += 1
             since_dialogue += 1
             if sc.exercises and sc.exercises[-1].kind not in ("note", "opening"):
-                self._maybe_note(sc, sc.exercises[-1].item_ids, budget - closing_reserve - sc.total_duration)
+                milestone = self._maybe_note(sc, sc.exercises[-1].item_ids, budget - closing_reserve - sc.total_duration)
+                if milestone is not None:
+                    do_discriminate(milestone)
 
         # at least one aside per lesson while unheard ones remain (a few seconds over target is fine)
         if not self.notes_played and self._note_budget_left():

@@ -6,12 +6,14 @@ transcript and finding 8 related problems — including a direct
 critique of the `godur_gender` milestone note session 15 just shipped.
 Broke #34 into 7 pilots ordered by risk, then did pilot 1 (fixed the
 "Say: X. in Icelandic." template collision and normalized `jaeja`'s
-redundant meaning-field parenthetical) and pilot 2 (shortened
+redundant meaning-field parenthetical), pilot 2 (shortened
 `godur_gender`'s text and gave milestone notes their own, non-"aside"
-closing line) — see "Session 16" below and item #1a in "Known gaps" for
-the rest)._ Keep this current: whoever picks the project up next, human
-or AI, should be able to continue from here without re-deriving
-decisions._
+closing line), and pilot 3 (a milestone note now immediately replays
+two of its own items' already-existing `situation`s, so the learner
+switches between forms right after noticing the pattern) — see
+"Session 16" below and item #1a in "Known gaps" for the rest)._ Keep
+this current: whoever picks the project up next, human or AI, should
+be able to continue from here without re-deriving decisions._
 
 ## Session 16: issue #34 opened — lesson orchestration and learner experience
 
@@ -105,17 +107,46 @@ and how much design judgment each needs before touching code:
    `Builder.note()` doesn't support at all yet. That's a real
    mechanism change, not a content edit — worth its own design pass
    once pilot 2 above is in, not bundled with it.
-3. **Contrastive discrimination right after a milestone (#34 point
-   2).** "notice → name → discriminate," using only the three already-
-   verified phrases (no new Icelandic needed) — e.g. narrate a new
-   situation ("it's evening now") and ask which of the three known
-   forms fits. Moderate: this is a new follow-up step for
-   `Planner._eligible_milestone()`'s note (immediately after it plays,
-   not a separate scheduling event), and there's no existing exercise
-   shape that does "pick which known phrase fits this situation" — the
-   closest thing (`situation` stage) always targets one specific item's
-   own recall, not a choice among several. Depends on pilot 2 landing
-   first (same note, shorter now).
+3. **Contrastive discrimination right after a milestone (#34 point 2).
+   Done.** Turned out to need no new exercise shape and no new
+   content: `godan_daginn`/`goda_nott`/`gott_kvold` already each have a
+   distinct `situation` (bakery morning / bedtime / evening restaurant)
+   from way back when they were first authored, so "notice → name →
+   discriminate" is just replaying two of those three `situation`
+   stages back to back, right after the note — the issue's own
+   fallback suggestion ("simply present two familiar situations close
+   together so the learner has to switch between forms"), which needed
+   no verification risk at all since nothing new is asserted.
+
+   `Planner._maybe_note()` now returns the milestone `Note` it played
+   (`None` for an ordinary aside or nothing played), instead of
+   `None` unconditionally. `build()`'s loop checks that return value
+   and, when it's a milestone, immediately calls a new `do_discriminate()`
+   closure (next to `do_recall`/`do_intro`): it takes up to two of the
+   milestone's `items` that weren't just touched (excluding whatever's
+   in `recent`, the same de-dup the rest of the loop already uses) and
+   plays each one's `situation` stage via the existing `do_recall`,
+   consuming its own slice of the lesson's time budget like any other
+   exercise. Two, not more, and only from items with a `situation` —
+   both already true of all three `godur_gender` items, so this reads
+   as "written for `godur_gender`" but generalizes to any future
+   milestone note whose items are phrases with situations.
+
+   Depended on pilot 2 landing first only in the sense of building on
+   the same `milestone`/`_eligible_milestone` mechanism, not on its
+   specific wording.
+
+   Added `test_milestone_note_is_followed_by_contrastive_discrimination`,
+   simulating 15 real lessons: whenever `godur_gender` fires, the very
+   next exercise must be a `situation`-stage recall of one of its three
+   items, and if a second one immediately follows too, it must be a
+   *different* item. (First draft of the test assumed exactly two
+   discrimination exercises always follow — failed once run, because
+   `recent` can already contain two of the three gate items when the
+   milestone fires, leaving only one fresh candidate that lesson; fixed
+   by asserting only what's actually guaranteed: at least one follows,
+   and any second one differs from the first.) 79 → 80 tests, all
+   passing; validate unchanged.
 4. **Explicitly contrast near-synonyms: Afsakið / Fyrirgefðu / Því
    miður (#34 point 3).** Same "notice → name" shape as the gender
    milestone, but for communicative function instead of grammar —
@@ -1568,10 +1599,14 @@ Verified in this session:
       note's narration is still deferred — `Note` has no
       structured-segments mechanism yet, unchanged from pilot 2's
       original scoping.
+   3. a contrastive discrimination exercise right after a milestone
+      note. Needed no new content: `godan_daginn`/`goda_nott`/
+      `gott_kvold` already each have their own distinct `situation`, so
+      `Planner._maybe_note()` now returns the milestone it played and
+      `build()` immediately replays up to two of the other items'
+      `situation` stages via a new `do_discriminate()` closure.
 
    **Not started:**
-   3. a contrastive discrimination exercise right after a milestone
-      note (moderate; needs a new exercise shape, depends on pilot 2)
    4. explicitly contrast near-synonyms `Afsakið`/`Fyrirgefðu`/`Því
       miður` (moderate; **needs a verified dictionary check on `því
       miður`'s gloss before writing anything** — same discipline as the

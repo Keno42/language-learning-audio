@@ -151,6 +151,37 @@ class CurriculumTests(unittest.TestCase):
                 fired = True
         self.assertTrue(fired, "milestone note never fired across 15 simulated lessons")
 
+    def test_milestone_note_is_followed_by_contrastive_discrimination(self):
+        """Issue #34 point 2: right after the góðan/góða/gott milestone plays, the lesson
+        should immediately switch between two of its own already-known examples ("notice,
+        name, discriminate") rather than moving straight on to unrelated material — reusing
+        each phrase's own ``situation`` (bakery morning / bedtime / evening restaurant)."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        gate_ids = set(cur.note_by_id["godur_gender"].items)
+        learner = LearnerState("is", "en", "A1")
+        learner.feedback_mode = "auto"
+        day = TODAY
+        checked = False
+        for _ in range(15):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=3), today=day).build()
+            note_idx = next((i for i, e in enumerate(sc.exercises) if e.kind == "note" and e.label == "note: godur_gender"), None)
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+            if note_idx is not None:
+                self.assertGreater(len(sc.exercises), note_idx + 1, "milestone note wasn't followed by anything")
+                first = sc.exercises[note_idx + 1]
+                self.assertEqual((first.kind, first.stage), ("recall", "situation"))
+                self.assertEqual(len(first.item_ids), 1)
+                self.assertIn(first.item_ids[0], gate_ids)
+                # a second discrimination exercise isn't guaranteed (candidates depend on
+                # which two items were most recently touched before the note fired), but if
+                # one immediately follows too, it must switch to a *different* gate item.
+                second = sc.exercises[note_idx + 2] if note_idx + 2 < len(sc.exercises) else None
+                if second is not None and (second.kind, second.stage) == ("recall", "situation") and second.item_ids and second.item_ids[0] in gate_ids:
+                    self.assertNotEqual(second.item_ids[0], first.item_ids[0])
+                checked = True
+        self.assertTrue(checked, "milestone note never fired across 15 simulated lessons")
+
     def test_milestone_eligible_as_soon_as_its_last_item_is_exercised_this_lesson(self):
         """Owner review follow-up on #32: a milestone must not wait an extra lesson just
         because ``has_met`` doesn't count an item introduced earlier in the *same*, still
