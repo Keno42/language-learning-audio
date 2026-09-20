@@ -397,10 +397,13 @@ class Builder:
     # ------------------------------------------------------------------ note
 
     def note(self, sc: Script, note: Note) -> Exercise:
-        """A short cultural aside: instructor only, no retrieval."""
+        """A short cultural aside: instructor only, no retrieval. Bookended so it's never
+        mistaken for the start of the next (unrelated) exercise."""
         ex = sc.new_exercise("note", None, list(note.items), f"note: {note.id}")
         self._narr(sc, ex, self.prompts.get("aside"))
         self._narr(sc, ex, note.text)
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("aside_end"))
         self._gap(sc, ex)
         return ex
 
@@ -421,6 +424,7 @@ class Builder:
                 self._speak(sc, ex, turn.opener, speaker=partner)
                 lines.append((partner, turn.opener))
                 if self.translate_partner and turn.opener_meaning:
+                    self._beat(sc, ex)
                     self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=turn.opener_meaning))
             if turn.expect:
                 item = self.cur.item(turn.expect)
@@ -437,6 +441,7 @@ class Builder:
                 self._speak(sc, ex, turn.partner, speaker=partner)
                 lines.append((partner, turn.partner))
                 if self.translate_partner and turn.partner_meaning:
+                    self._beat(sc, ex)
                     self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=turn.partner_meaning))
         if replay:
             self._gap(sc, ex)

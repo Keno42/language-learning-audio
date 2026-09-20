@@ -293,6 +293,38 @@ class LessonStructureTests(unittest.TestCase):
         narrations = [s.text for s in sc.segments if s.type == "narrate"]
         self.assertEqual(narrations, [item.situation])
 
+    def test_note_is_bookended_so_the_next_exercise_is_not_confused_for_part_of_it(self):
+        """Issue #21: a cultural aside followed straight by an unrelated question read as if
+        the aside was itself part of the exercise. It already announces its start ("A quick
+        aside."); it must also announce its end."""
+        from audiolesson.content import Note
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.note(sc, Note(id="n", text="Some cultural fact.", items=[]))
+        narrations = [s.text for s in sc.segments if s.type == "narrate"]
+        self.assertEqual(narrations, [prompts.get("aside"), "Some cultural fact.", prompts.get("aside_end")])
+        end_idx = next(i for i, s in enumerate(sc.segments) if s.text == "Some cultural fact.")
+        self.assertEqual(sc.segments[end_idx + 1].type, "pause")  # a beat before the "back to it" line
+
+    def test_dialogue_partner_line_and_its_translation_have_a_beat_between(self):
+        """Issue #22: a native line and its known-language translation ran together with no
+        margin, which is confusing since they're two different voices/languages back to back."""
+        from audiolesson.content import Dialogue, DialogueTurn
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        turn = DialogueTurn(cue="Say hello.", expect_text="Bonjour.", opener="Bonjour !", opener_meaning="Hello!")
+        b.dialogue(sc, Dialogue(id="d", setting="A scene.", turns=[turn]))
+        opener_idx = next(i for i, s in enumerate(sc.segments) if s.type == "speak" and s.text == "Bonjour !")
+        self.assertEqual(sc.segments[opener_idx + 1].type, "pause")
+
     def test_later_lessons_fill_the_requested_time(self):
         _, scripts = course(8, minutes=30)
         minutes = [round(sc.total_duration / 60, 1) for sc in scripts]
@@ -548,6 +580,16 @@ class PacingTests(unittest.TestCase):
         changed = learner.report([], [], TODAY)
         self.assertEqual(changed["lesson"], 2)
         self.assertEqual(learner.reported, [2])
+
+
+class PromptsTests(unittest.TestCase):
+    def test_meaning_prompt_is_always_an_explicit_request_to_speak(self):
+        """Issue #20: 'In Icelandic: Halló.' reads as a label, not an instruction. Every variant
+        of the 'meaning' prompt must explicitly ask the learner to say something."""
+        for lang, marker in (("en", "say"), ("ja", "言")):
+            variants = Prompts.load(lang).data["meaning"]
+            for v in variants:
+                self.assertIn(marker, v.lower() if lang == "en" else v, v)
 
 
 class TimingTests(unittest.TestCase):
