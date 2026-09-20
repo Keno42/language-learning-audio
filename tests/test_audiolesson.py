@@ -399,8 +399,10 @@ class LessonStructureTests(unittest.TestCase):
 
 class CourseTests(unittest.TestCase):
     def test_lessons_form_a_sequence(self):
-        learner, scripts = course(6)
-        self.assertEqual(learner.lessons_completed, 6)
+        # long enough that items reach durable_successes>=2 (a review on/after its own due
+        # date, not just intra-lesson practice) before a dialogue needs them known
+        learner, scripts = course(10)
+        self.assertEqual(learner.lessons_completed, 10)
         seen = set()
         for sc in scripts:
             for i in sc.meta["new_items"]:
@@ -501,6 +503,41 @@ class JapaneseInstructorTests(unittest.TestCase):
 
 
 class PacingTests(unittest.TestCase):
+    def test_durable_successes_need_a_review_on_or_after_its_due_date(self):
+        """Issue #27: several recalls minutes apart in one lesson (the intra-lesson
+        reactivation ladder) are good practice but not evidence of retention across time.
+        is_learned must not fire on same-lesson repeats alone."""
+        learner = fresh()
+        day = TODAY
+        # intro + two same-lesson reactivations: successes go up, but nothing durable yet
+        learner.record_lesson(1, {"x": ["intro", "hinted", "meaning"]}, day)
+        st = learner.items["x"]
+        self.assertEqual(st.successes, 2)
+        self.assertEqual(st.durable_successes, 0)
+        self.assertFalse(st.is_learned)
+
+        # reactivated again before its due date: still no durable evidence
+        early = date.fromisoformat(st.due) - timedelta(days=1)
+        if early > day:
+            learner.record_lesson(2, {"x": ["meaning"]}, early)
+            self.assertEqual(learner.items["x"].durable_successes, 0)
+
+        # a real review on/after the due date: this is durable evidence
+        due = date.fromisoformat(st.due)
+        learner.record_lesson(3, {"x": ["meaning"]}, due)
+        self.assertEqual(learner.items["x"].durable_successes, 1)
+        self.assertFalse(learner.items["x"].is_learned)  # one is not enough yet
+
+        due2 = date.fromisoformat(learner.items["x"].due)
+        learner.record_lesson(4, {"x": ["meaning"]}, due2)
+        self.assertEqual(learner.items["x"].durable_successes, 2)
+        self.assertTrue(learner.items["x"].is_learned)
+
+        # explicit failure feedback demotes durable standing, not just the raw count
+        learner.report(["x"], [], due2)
+        self.assertEqual(learner.items["x"].durable_successes, 1)
+        self.assertFalse(learner.items["x"].is_learned)
+
     def test_default_pace_is_about_one_per_five_minutes(self):
         learner = fresh()
         self.assertEqual(learner.suggest_pace(30, TODAY)[0], 6)

@@ -34,14 +34,20 @@ class ItemState:
     last_practiced: str = ""  # ISO date
     introduced_lesson: int = 0
     successes: int = 0
+    durable_successes: int = 0  # successes on/after their due date only — see is_learned
     failures: int = 0
     exposures: int = 0
     history: list[dict] = field(default_factory=list)  # [{lesson, stages, ok}] compact log
 
     @property
     def is_learned(self) -> bool:
-        """Solid enough to build on (used as a component / prerequisite)."""
-        return self.successes >= 2 and self.stage != "intro"
+        """Solid enough to build on (used as a component / prerequisite).
+
+        Deliberately keyed on ``durable_successes``, not ``successes``: several correct
+        recalls minutes apart in the same lesson (the intra-lesson reactivation ladder) are
+        good practice but not evidence of retention across time, so they don't count here —
+        only a recall on or after the item's scheduled due date does (see record_lesson)."""
+        return self.durable_successes >= 2 and self.stage != "intro"
 
 
 @dataclass
@@ -201,10 +207,22 @@ class LearnerState:
                     st.stage = climbed[-1]
             if presume_success:
                 st.successes += len(climbed)
+                if climbed and self._is_durable_review(st, today, new):
+                    st.durable_successes += 1
                 self._schedule_success(st, today, new)
             st.last_practiced = today.isoformat()
             st.history.append({"lesson": lesson_number, "stages": stages, "ok": presume_success})
         self.lessons_completed = max(self.lessons_completed, lesson_number)
+
+    def _is_durable_review(self, st: ItemState, today: date, new: bool) -> bool:
+        """True for a genuine spaced review: not the item's first (intro) lesson, and not an
+        early reactivation before its due date. Call before ``_schedule_success`` mutates
+        ``st.due``/``st.interval_days`` — same "was this early" question that function asks,
+        for the same reason: an early recall is good practice but no evidence of retention."""
+        if new or st.interval_days < 1:
+            return False
+        due = date.fromisoformat(st.due) if st.due else today
+        return today >= due
 
     def _schedule_success(self, st: ItemState, today: date, new: bool) -> None:
         """SM-2 flavoured. Only a review *at or after* its due date earns a longer interval;
@@ -241,6 +259,7 @@ class LearnerState:
                 continue
             st.failures += 1
             st.successes = max(0, st.successes - 1)
+            st.durable_successes = max(0, st.durable_successes - 1)
             st.ease = max(1.3, st.ease - 0.2)
             st.interval_days = 1
             st.due = (today + timedelta(days=1)).isoformat()

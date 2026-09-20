@@ -1,10 +1,77 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-20 (session 13: rewrote 27 dialogues so their partner
-lines stay within taught vocabulary — issue #22's other content question,
-its "announce a dialogue is starting" ask is still open)._ Keep this
-current: whoever picks the project up next, human or AI, should be able to
+_Last updated 2026-09-20 (session 14: resolved issue #27, durable vs.
+same-lesson learning — first of three interdependent issues #25–#27, done
+in dependency order #27 → #25 → #26 per the owner)._ Keep this current:
+whoever picks the project up next, human or AI, should be able to
 continue from here without re-deriving decisions._
+
+## Session 14: issues #25–#27, starting with #27 (durable learning)
+
+Three new issues arrived together, all written by the owner as substantial
+design proposals with explicit acceptance criteria but a deliberately open
+implementation schema — a different scale from the one-line bugs earlier in
+this batch. Reported all three, flagged that #27 underlies #25 (dialogue
+"already known" gating is only meaningful if "known" means durably known,
+not same-lesson presumed success) and arguably #26 too, and got a decision:
+implement in dependency order #27 → #25 → #26, and for #25, one
+dialogue-level list rather than a per-turn field. This entry covers #27.
+
+### Issue #27 — same-lesson recalls were counted as durable learning
+
+`ItemState.is_learned` (`successes >= 2`) gates everything downstream:
+`LearnerState.knows()`, which gates prereqs (`planner.py`'s `all(...)`
+checks), construction-slot fills (`exercises.py`), and dialogue eligibility.
+`successes` was incremented by `len(climbed)` — every non-intro stage
+reached *that lesson* — so an item introduced this lesson, reactivated
+twice more at expanding gaps in the same sitting (a real, intentional
+feature — see the ladder in `stages.py`), already had `successes == 2` and
+counted as "learned" before the lesson even ended. Presumed-success mode
+(the default) never distinguishes "recalled five minutes apart" from
+"recalled after an actual multi-day gap."
+
+The fix reuses machinery that already existed for exactly this
+distinction: `_schedule_success()`'s interval math already refuses to grow
+an item's spacing interval on an early review — "no new evidence about
+long-term retention" is a comment already in that function, one paragraph
+above where this bug lived.
+
+- Added `ItemState.durable_successes`, a second counter alongside
+  `successes`. `is_learned` now checks `durable_successes >= 2`, not
+  `successes >= 2` — `successes` is untouched and keeps its other jobs
+  (the `unfamiliar_multiplier`/`familiar_multiplier` split in `Timing`,
+  `review_priority`'s scoring, `review_stage`'s climb-or-repeat call —
+  none of those are about cross-item unlocking, so none of them needed to
+  change).
+- `record_lesson()` now calls a new `_is_durable_review()` (factored out of
+  `_schedule_success`'s own early/fresh check, called *before*
+  `_schedule_success` mutates `due`/`interval_days`) and increments
+  `durable_successes` by exactly 1 — once per lesson, however many stages
+  were climbed that lesson — only when this review is neither the item's
+  first (intro) lesson nor early against its due date.
+- `report()`'s failure path now demotes `durable_successes` alongside
+  `successes`, so explicit "I got this wrong" feedback can revoke durable
+  status, not just lower the raw count.
+- `cli.py status` gained a `dur` column next to `ok` so the two counters
+  are both visible when debugging pacing/eligibility.
+
+**Consequence, expected and real:** items now take genuinely longer to
+become usable as prereqs/construction fills/dialogue dependencies — around
+two real spaced reviews after intro, not one lesson. `test_lessons_form_a_
+sequence` needed its `course(6)` bumped to `course(10)`: the first dialogue
+in the sample French curriculum now appears at lesson 9 rather than
+somewhere in lessons 3–6, which is the intended behavior change working,
+not a regression to paper over (same category as the `hallo`-position and
+`new_items` fixture updates in earlier sessions).
+
+Test added: `test_durable_successes_need_a_review_on_or_after_its_due_date`
+in `tests/test_audiolesson.py::PacingTests`, driving `LearnerState.
+record_lesson()`/`report()` directly through same-lesson repeats, an early
+reactivation, a genuine due-date review, and a reported failure.
+
+**Next:** issue #25 (dialogue eligibility keyed on comprehension of the
+partner's actual lines, via a per-dialogue `comprehension_requires` list)
+now has a meaningful "already known" to build on.
 
 ## Session 13: issue #22, the content half — dialogues used untaught words
 

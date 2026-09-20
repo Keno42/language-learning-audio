@@ -347,10 +347,10 @@ def cmd_status(args) -> int:
     for item_id, st in learner.items.items():
         rows.append((learner.review_priority(item_id, today), item_id, st))
     rows.sort(key=lambda r: -r[0])
-    print(f"{'item':28} {'stage':10} {'due':10} {'ok':>3} {'fail':>4} {'ivl':>5}")
+    print(f"{'item':28} {'stage':10} {'due':10} {'ok':>3} {'dur':>3} {'fail':>4} {'ivl':>5}")
     for prio, item_id, st in rows[:40]:
         flag = "*" if prio >= 1.0 else " "
-        print(f"{flag}{item_id:27} {st.stage:10} {st.due:10} {st.successes:3d} {st.failures:4d} {st.interval_days:5.1f}")
+        print(f"{flag}{item_id:27} {st.stage:10} {st.due:10} {st.successes:3d} {st.durable_successes:3d} {st.failures:4d} {st.interval_days:5.1f}")
     if len(rows) > 40:
         print(f"… and {len(rows) - 40} more")
     due = sum(1 for prio, _, _ in rows if prio >= 1.0)
