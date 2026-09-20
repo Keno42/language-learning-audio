@@ -306,6 +306,42 @@ and how much design judgment each needs before touching code:
    coverage counter counts one glossable string per *field*, not per
    list element, so swapping `velkomin`'s `situation`/`situation_ja`
    for a 3-entry `situations`/`situations_ja` doesn't change the total).
+
+   **Owner review on #39: the rotation only worked *between* lessons,
+   not within one.** `ItemState.exposures` — the rotation index —
+   updates only once a whole lesson is applied (`record_lesson()`), so
+   every situation-stage recall of the same item *while a lesson is
+   still being built* saw the same `exposures` value and picked the
+   same variant. If a lesson's own reactivation ladder or a review pass
+   recalled `velkomin` at the situation stage twice in one lesson, both
+   would replay the identical cue — the exact within-lesson repetition
+   from the issue's own example that this pilot exists to fix. The
+   25-lesson integration test didn't catch this: it only required
+   variety across the pooled total, which a lesson-internal
+   `A, A, A` / next lesson `B, B` pattern would still satisfy.
+
+   Fixed by giving `Builder` its own lesson-scoped counter,
+   `_situation_uses: dict[str, int]` (reset fresh per lesson, since a
+   new `Builder` is constructed per `Planner.build()` call): `_situation()`
+   now starts from the persisted `exposures` base and adds this
+   lesson's own use-count for that item before indexing into
+   `situations`, then increments the counter. Strengthened the existing
+   integration test to also assert no two *consecutive* narrations of
+   `velkomin`'s situation stage within a single lesson are identical,
+   and added a direct test that calls `Builder.recall(..., "situation")`
+   three times in a row on one `Builder` instance (simulating three
+   same-lesson recalls before any lesson is ever applied) and requires
+   all three to differ.
+
+   Noted but not acted on, per the owner's own "not necessarily a
+   blocker for this pilot": `ItemState.exposures` counts *every*
+   exercise stage for an item (`intro`, `meaning`, `hinted`, …), not
+   just situation recalls, so which variant comes up next across
+   lessons depends somewhat incidentally on what other stages that item
+   happened to be exercised at — a dedicated `situation_uses` counter
+   on `ItemState` would be the cleaner long-term signal if this
+   mechanism needs more precision later. Left as `exposures` for now.
+   84 → 85 tests, all passing; validate unchanged.
 6. **Lesson shape: no long isolated-drill runs, prefer connected
    dialogue as vocab grows, allow ending early (#34 points 5–6).**
    Grouped together — they're the same underlying planner rebalancing

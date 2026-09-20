@@ -46,6 +46,7 @@ class Builder:
     translate_partner: bool = True  # narrate the meaning of partner lines in dialogues
     used_combos: set[str] = field(default_factory=set)
     used_examples: set[str] = field(default_factory=set)
+    _situation_uses: dict[str, int] = field(default_factory=dict)  # per-item count, this lesson
 
     # ------------------------------------------------------------------ utils
 
@@ -68,10 +69,18 @@ class Builder:
 
     def _situation(self, item: Item) -> str | None:
         """The situation cue to narrate now, rotated across an item's ``situations`` (issue
-        #34 point 4) by how many times it's been exercised in past lessons — 0 for an item
-        with no recorded state yet, which is fine: that's its first exposure."""
-        exposures = self.learner.items[item.id].exposures if item.id in self.learner.items else 0
-        return item.situation_for(exposures)
+        #34 point 4) — starting from how many times it's been exercised in *past* lessons
+        (0 for an item with no recorded state yet, i.e. its first exposure), then advanced by
+        ``_situation_uses`` for every situation narrated so far *within this lesson*.
+        ``ItemState.exposures`` only updates once the whole lesson is applied afterwards
+        (``record_lesson()``), so it alone can't distinguish a second situation recall in the
+        same lesson from the first — without this lesson-local counter, an item recalled at
+        the situation stage more than once in one lesson would repeat the same cue each time,
+        the exact within-lesson repetition this pilot exists to fix (owner review on #39)."""
+        base = self.learner.items[item.id].exposures if item.id in self.learner.items else 0
+        offset = self._situation_uses.get(item.id, 0)
+        self._situation_uses[item.id] = offset + 1
+        return item.situation_for(base + offset)
 
     def _successes(self, item: Item) -> int:
         st = self.learner.items.get(item.id)
