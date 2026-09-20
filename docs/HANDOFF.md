@@ -1,9 +1,46 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-20 (session 10: resolved GitHub issue #16, answer
-pauses were much longer than needed)._ Keep this current: whoever picks
-the project up next, human or AI, should be able to continue from here
-without re-deriving decisions._
+_Last updated 2026-09-20 (session 11: resolved GitHub issue #17, the
+situation stage asking a question it had already answered)._ Keep this
+current: whoever picks the project up next, human or AI, should be able to
+continue from here without re-deriving decisions._
+
+## Session 11: issue #17 — "Say bye. What do you say?"
+
+> "It sometimes says '... say . what do you say?' which is obviously
+> redundant."
+
+The `situation` recall stage narrated `item.situation` (the curriculum
+author's scene, e.g. "You're leaving the shop. Say bye.") and then
+*always* followed it with a fixed `situation_ask` line, "What do you
+say?" — telling the learner what to say and then asking them what to say,
+back to back.
+
+Checked whether this was only sometimes redundant (i.e. only for
+situations that happen to end in their own "Say X" instruction) before
+touching anything: grepped every `situation =` line in `curricula/is-en/`
+and `curricula/*.toml`. Every single one already ends with its own
+complete instruction — "Say X.", "Tell her Y.", "Ask Z.", "React: really?",
+"Shout for help.", "Decline politely." — there is no situation in this
+curriculum that is scene-only and actually needs a generic "what do you
+say?" to know it's the learner's turn. So this isn't a per-item wording
+problem to fix in content; the generic follow-up prompt was unconditionally
+redundant, and every other recall stage (`meaning`, `hinted`, `cloze`)
+already gets away with exactly one instructor line before the pause — the
+`situation` stage was the only one doing two.
+
+Fix: removed the `situation_ask` narration from both places that had it
+(`Builder.recall()` and `Builder._recall_construction()` in
+`exercises.py`), and deleted the now-unused `situation_ask` key from
+`audiolesson/phrasing/en.toml` and `ja.toml`. No curriculum content
+changed — `item.situation` is now the entire prompt, same shape as every
+other stage. Updated `docs/CURRICULUM.md`'s `situation` field row to say
+so explicitly, since it's now an authoring requirement (already true of
+every existing situation) rather than a nice-to-have.
+
+Test added: `test_situation_stage_does_not_ask_twice` in
+`tests/test_audiolesson.py`, asserting the situation stage narrates
+exactly one thing — `item.situation` itself, nothing appended.
 
 ## Session 10: issue #16 — pauses waited for perfect recall, not just recall
 

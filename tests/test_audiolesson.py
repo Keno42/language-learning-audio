@@ -278,6 +278,21 @@ class LessonStructureTests(unittest.TestCase):
         self.assertEqual(sc.segments[narrate_idx + 1].type, "pause")
         self.assertEqual(sc.segments[speak_idx - 1].type, "pause")
 
+    def test_situation_stage_does_not_ask_twice(self):
+        """Issue #17: 'Say bye. What do you say?' told the learner what to say and then asked
+        them what to say, back to back. situation is a self-contained instruction on its own
+        (every one in this curriculum already ends with one), so nothing should follow it."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        item = next(i for i in cur.items if i.situation and i.kind not in ("construction", "transform"))
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.recall(sc, item, "situation")
+        narrations = [s.text for s in sc.segments if s.type == "narrate"]
+        self.assertEqual(narrations, [item.situation])
+
     def test_later_lessons_fill_the_requested_time(self):
         _, scripts = course(8, minutes=30)
         minutes = [round(sc.total_duration / 60, 1) for sc in scripts]

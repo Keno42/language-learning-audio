@@ -21,7 +21,6 @@ meaning = [
   "「{meaning}」と言ってください。",
   "{language}で。「{meaning}」。",
 ]
-situation_ask = "何と言いますか？"
 recombine = [
   "まだ聞いたことのない文です。「{meaning}」と言ってください。",
   "自分で組み立ててください。「{meaning}」。",

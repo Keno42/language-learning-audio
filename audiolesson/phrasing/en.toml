@@ -22,7 +22,6 @@ meaning = [
   "Say: {meaning}",
   "In {language}: {meaning}",
 ]
-situation_ask = "What do you say?"
 recombine = [
   "Now something you haven't heard yet. Say: {meaning}",
   "Put it together yourself. Say: {meaning}",
