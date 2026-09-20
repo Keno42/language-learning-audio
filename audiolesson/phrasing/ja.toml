@@ -39,6 +39,7 @@ transform_try = "では、やってみましょう。"
 dialogue_partner_said = "「{meaning}」"
 aside = "ちょっとした話です。"
 aside_end = "では、レッスンに戻りましょう。"
+milestone_intro = "気づいてほしいパターンがあります。"
 dialogue_replay = "では、会話全体を通して聞きましょう。"
 
 [language_names]

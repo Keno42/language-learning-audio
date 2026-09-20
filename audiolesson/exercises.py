@@ -397,10 +397,12 @@ class Builder:
     # ------------------------------------------------------------------ note
 
     def note(self, sc: Script, note: Note) -> Exercise:
-        """A short cultural aside: instructor only, no retrieval. Bookended so it's never
-        mistaken for the start of the next (unrelated) exercise."""
+        """An aside: instructor only, no retrieval. Bookended so it's never mistaken for the
+        start of the next (unrelated) exercise. A milestone note names a grammatical pattern
+        now that its items are known, so it gets its own intro line instead of being framed
+        as optional cultural trivia."""
         ex = sc.new_exercise("note", None, list(note.items), f"note: {note.id}")
-        self._narr(sc, ex, self.prompts.get("aside"))
+        self._narr(sc, ex, self.prompts.get("milestone_intro" if note.milestone else "aside"))
         self._narr(sc, ex, note.text)
         self._beat(sc, ex)
         self._narr(sc, ex, self.prompts.get("aside_end"))

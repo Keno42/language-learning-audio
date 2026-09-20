@@ -149,16 +149,23 @@ class Dialogue:
 
 @dataclass
 class Note:
-    """A short cultural aside in the learner's language, spoken by the instructor.
+    """A short aside in the learner's language, spoken by the instructor.
 
     Notes are passive content, so the planner rations them (a couple per lesson)
     and prefers to place one right after an exercise on one of its ``items``.
+
+    ``milestone`` marks an instructional note that names a grammatical pattern
+    once the learner has met all of ``items`` — as opposed to an optional
+    cultural aside. The planner never offers a milestone note as generic
+    filler and never skips it once its items are all met (see
+    ``Planner._eligible_milestone``); a plain aside can be either.
     """
 
     id: str
     text: str
     items: list[str] = field(default_factory=list)  # related item ids
     topics: list[str] = field(default_factory=list)
+    milestone: bool = False
 
 
 @dataclass

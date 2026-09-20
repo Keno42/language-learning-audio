@@ -148,10 +148,15 @@ takes an oblique case. See `curricula/is-en-a1.toml` for the pattern.
     leaving the learner to notice it unassisted or explaining it away
     per-pair. Worked example from the issue: `Góðan daginn` / `Góða
     nótt` / `Gott kvöld` are all already-taught items whose differing
-    adjective endings are a systematic gender-agreement pattern — worth
-    a deliberate "notice → name → practice → apply to new words" moment
-    at the point enough of these examples exist, not three unrelated
-    fixed phrases forever.
+    adjective endings are a systematic gender-agreement pattern. A
+    `[[notes]]` entry now names it right after the third phrase is
+    introduced (`godur_gender` in `90-notes.toml`) — the "notice → name"
+    half. The "practice → apply to new words" half is deliberately not
+    done yet: it would mean asserting a *new* noun's case form with
+    nothing existing to check it against, which is exactly the risk the
+    "halló" note below warns about — do that only with a way to verify
+    the new noun's declension, not by pattern-matching the three known
+    ones.
 
   See `docs/HANDOFF.md` sessions 14–15 for how this was found (via
   gating dialogue eligibility on comprehension, which broke down
