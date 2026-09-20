@@ -382,17 +382,17 @@ requires = ["eg_er_job", "forritari", "eg_vinn_hja", "eg_er_ad_laera", "islensku
   expect_text = "Ég er að læra íslensku."
   expect_meaning = "I'm learning Icelandic."
   expect_meaning_ja = "アイスランド語を勉強しています。"
-  partner = "Það heyrist. Hefurðu einhverjar spurningar?"
-  partner_meaning = "One can hear that. Do you have any questions?"
-  partner_meaning_ja = "聞けばわかります。何か質問はありますか？"
+  partner = "Frábært. Allt í lagi?"
+  partner_meaning = "Great. All good?"
+  partner_meaning_ja = "それはいいですね。大丈夫ですか？"
 
   [[dialogues.turns]]
   cue = "Ask what the salary is."
   cue_ja = "給料はいくらか聞いてください。"
   expect = "hvad_er_kaupid"
-  partner = "Við ræðum það í næsta viðtali. Takk fyrir að koma!"
-  partner_meaning = "We'll discuss that in the next interview. Thanks for coming!"
-  partner_meaning_ja = "それは次の面接で話しましょう。来てくれてありがとう！"
+  partner = "Launin eru góð. Takk fyrir að koma!"
+  partner_meaning = "The salary is good. Thanks for coming!"
+  partner_meaning_ja = "給料はいいですよ。来てくれてありがとう！"
 
   [[dialogues.turns]]
   cue = "Thank her warmly."

@@ -20,7 +20,7 @@ hinted = "Say: {meaning} It starts with:"
 meaning = [
   "How do you say: {meaning}",
   "Say: {meaning}",
-  "In {language}: {meaning}",
+  "Say: {meaning} in {language}.",
 ]
 recombine = [
   "Now something you haven't heard yet. Say: {meaning}",
@@ -39,6 +39,7 @@ transform_try = "Now you try."
 
 dialogue_partner_said = "{meaning}"
 aside = "A quick aside."
+aside_end = "Back to the lesson."
 dialogue_replay = "Now the whole conversation, without pauses."
 
 [language_names]

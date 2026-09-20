@@ -365,7 +365,7 @@ topics = ["practical"]
 requires = ["eg_tharf_simkort", "hvad_kostar_thetta", "eg_er_ekki_med_kennitolu", "allt_i_lagi", "takk"]
 
   [[dialogues.turns]]
-  opener = "Hæ, get ég aðstoðað?"
+  opener = "Hæ, get ég hjálpað?"
   opener_meaning = "Hi, can I help?"
   opener_meaning_ja = "いらっしゃいませ、何かお探しですか？"
   cue = "Say you need a SIM card."
@@ -379,17 +379,17 @@ requires = ["eg_tharf_simkort", "hvad_kostar_thetta", "eg_er_ekki_med_kennitolu"
   cue = "Say you don't have a kennitala."
   cue_ja = "kennitala を持っていないと言ってください。"
   expect = "eg_er_ekki_med_kennitolu"
-  partner = "Ekkert mál, þá tekurðu frelsiskort. Vegabréf, takk."
-  partner_meaning = "No problem, then you take a prepaid card. Passport, please."
-  partner_meaning_ja = "大丈夫です、ではプリペイドカードですね。パスポートをお願いします。"
+  partner = "Ekkert mál. Vegabréf, takk."
+  partner_meaning = "No problem. Passport, please."
+  partner_meaning_ja = "大丈夫です。パスポートをお願いします。"
 
   [[dialogues.turns]]
   cue = "Ask how much it is."
   cue_ja = "いくらか聞いてください。"
   expect = "hvad_kostar_thetta"
-  partner = "Tvö þúsund krónur með tíu gígabætum."
-  partner_meaning = "Two thousand krónur with ten gigabytes."
-  partner_meaning_ja = "10ギガ付きで2000クローナです。"
+  partner = "Tvö þúsund krónur."
+  partner_meaning = "Two thousand krónur."
+  partner_meaning_ja = "2000クローナです。"
 
   [[dialogues.turns]]
   cue = "Say OK, and thank him."

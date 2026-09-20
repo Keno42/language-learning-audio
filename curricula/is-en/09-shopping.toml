@@ -496,7 +496,7 @@ topics = ["shopping"]
 requires = ["eg_er_ad_leita_ad_thing", "attu", "peysu", "ma_eg_mata_thetta", "thetta_er_of_litid", "attu_thetta_i_staerra", "thetta_passar", "eg_aetla_ad_taka_thetta"]
 
   [[dialogues.turns]]
-  opener = "Get ég aðstoðað?"
+  opener = "Get ég hjálpað?"
   opener_meaning = "Can I help you?"
   opener_meaning_ja = "何かお探しですか？"
   cue = "Ask if she has a sweater."
@@ -504,9 +504,9 @@ requires = ["eg_er_ad_leita_ad_thing", "attu", "peysu", "ma_eg_mata_thetta", "th
   expect_text = "Áttu peysu?"
   expect_meaning = "Do you have a sweater?"
   expect_meaning_ja = "セーターはありますか？"
-  partner = "Já, hérna eru lopapeysur. Þessi er falleg."
-  partner_meaning = "Yes, here are the wool sweaters. This one is beautiful."
-  partner_meaning_ja = "はい、こちらがロパペイサです。これはきれいですよ。"
+  partner = "Já, þessi er góð."
+  partner_meaning = "Yes, this one is good."
+  partner_meaning_ja = "はい、これはいいですよ。"
 
   [[dialogues.turns]]
   cue = "Ask if you may try it on."
@@ -522,9 +522,9 @@ requires = ["eg_er_ad_leita_ad_thing", "attu", "peysu", "ma_eg_mata_thetta", "th
   expect_text = "Þetta er of lítið. Áttu þetta í stærra?"
   expect_meaning = "This is too small. Do you have it in a bigger size?"
   expect_meaning_ja = "これは小さすぎます。これの大きいサイズはありますか？"
-  partner = "Já, hérna er large."
-  partner_meaning = "Yes, here is a large."
-  partner_meaning_ja = "はい、こちらがLです。"
+  partner = "Já, gjörðu svo vel."
+  partner_meaning = "Yes, here you are."
+  partner_meaning_ja = "はい、どうぞ。"
 
   [[dialogues.turns]]
   cue = "Say it fits and you'll take it."

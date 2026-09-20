@@ -405,7 +405,7 @@ topics = ["health"]
 requires = ["eg_er_med", "hofudverk", "attu_eitthvad_vid_hofudverk", "hvad_kostar_thetta", "takk"]
 
   [[dialogues.turns]]
-  opener = "Góðan daginn, get ég aðstoðað?"
+  opener = "Góðan daginn, get ég hjálpað?"
   opener_meaning = "Good day, can I help?"
   opener_meaning_ja = "こんにちは、どうされましたか？"
   cue = "Say you have a headache."
@@ -423,9 +423,9 @@ requires = ["eg_er_med", "hofudverk", "attu_eitthvad_vid_hofudverk", "hvad_kosta
   expect_text = "Nei. Áttu eitthvað við höfuðverk?"
   expect_meaning = "No. Do you have something for a headache?"
   expect_meaning_ja = "いいえ。頭痛に効くものはありますか？"
-  partner = "Já, þetta hérna. Ein tafla, tvisvar á dag."
-  partner_meaning = "Yes, this one here. One tablet, twice a day."
-  partner_meaning_ja = "はい、こちらです。一錠を一日二回。"
+  partner = "Já, þetta hérna."
+  partner_meaning = "Yes, this one here."
+  partner_meaning_ja = "はい、こちらです。"
 
   [[dialogues.turns]]
   cue = "Ask how much it is."
@@ -439,9 +439,9 @@ requires = ["eg_er_med", "hofudverk", "attu_eitthvad_vid_hofudverk", "hvad_kosta
   cue = "Thank her."
   cue_ja = "お礼を言ってください。"
   expect = "takk"
-  partner = "Góðan bata!"
-  partner_meaning = "Get well soon!"
-  partner_meaning_ja = "お大事に！"
+  partner = "Bless bless!"
+  partner_meaning = "Bye bye!"
+  partner_meaning_ja = "またね！"
 
 [[dialogues]]
 id = "laeknir"
@@ -469,14 +469,14 @@ requires = ["mer_lidur_illa", "eg_er_med", "hita", "halsbolgu", "thad_er_sart_he
   expect_text = "Já. Það er sárt hérna."
   expect_meaning = "Yes. It hurts here."
   expect_meaning_ja = "はい。ここが痛いです。"
-  partner = "Ég skil. Þetta er flensa. Hvíldu þig og drekktu mikið vatn."
-  partner_meaning = "I see. It's the flu. Rest and drink a lot of water."
-  partner_meaning_ja = "なるほど。インフルエンザですね。休んで、水をたくさん飲んでください。"
+  partner = "Ég skil."
+  partner_meaning = "I see."
+  partner_meaning_ja = "なるほど。"
 
   [[dialogues.turns]]
   cue = "Say you have health insurance."
   cue_ja = "健康保険に入っていると言ってください。"
   expect = "eg_er_med_sjukratryggingu"
-  partner = "Gott. Góðan bata!"
-  partner_meaning = "Good. Get well soon!"
-  partner_meaning_ja = "結構です。お大事に！"
+  partner = "Gott. Bless bless!"
+  partner_meaning = "Good. Bye bye!"
+  partner_meaning_ja = "結構です。またね！"

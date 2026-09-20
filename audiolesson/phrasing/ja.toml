@@ -19,7 +19,7 @@ hinted = "「{meaning}」と言ってください。最初は…"
 meaning = [
   "「{meaning}」は、何と言いますか？",
   "「{meaning}」と言ってください。",
-  "{language}で。「{meaning}」。",
+  "{language}で「{meaning}」と言ってください。",
 ]
 recombine = [
   "まだ聞いたことのない文です。「{meaning}」と言ってください。",
@@ -38,6 +38,7 @@ transform_try = "では、やってみましょう。"
 
 dialogue_partner_said = "「{meaning}」"
 aside = "ちょっとした話です。"
+aside_end = "では、レッスンに戻りましょう。"
 dialogue_replay = "では、会話全体を通して聞きましょう。"
 
 [language_names]

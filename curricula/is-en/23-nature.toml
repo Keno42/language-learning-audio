@@ -408,23 +408,23 @@ topics = ["nature"]
 requires = ["hvad_er_langt_thangad", "eg_vil_sja_lunda", "sjadu_hvalinn", "thetta_er_alveg_frabaert", "mer_er_kalt"]
 
   [[dialogues.turns]]
-  opener = "Velkomin um borð! Við siglum í tvo tíma."
-  opener_meaning = "Welcome aboard! We sail for two hours."
-  opener_meaning_ja = "ようこそ！2時間の航海です。"
+  opener = "Velkomin um borð!"
+  opener_meaning = "Welcome aboard!"
+  opener_meaning_ja = "ようこそ！"
   cue = "Say you want to see puffins."
   cue_ja = "パフィンが見たいと言ってください。"
   expect = "eg_vil_sja_lunda"
-  partner = "Lundarnir eru á eyjunni þarna. Og sjáðu…"
-  partner_meaning = "The puffins are on the island there. And look…"
-  partner_meaning_ja = "パフィンはあそこの島にいますよ。それと、見て…"
+  partner = "Sjáðu! Þarna er lundi."
+  partner_meaning = "Look! There's a puffin."
+  partner_meaning_ja = "見て！そこにパフィンがいる。"
 
   [[dialogues.turns]]
   cue = "Shout: look, a whale!"
   cue_ja = "見て、クジラ！と叫んでください。"
   expect = "sjadu_hvalinn"
-  partner = "Hnúfubakur! Hvernig líst þér á?"
-  partner_meaning = "A humpback! What do you think?"
-  partner_meaning_ja = "ザトウクジラだ！どうですか？"
+  partner = "Hvalur! Hvað finnst þér?"
+  partner_meaning = "A whale! What do you think?"
+  partner_meaning_ja = "クジラだ！どうですか？"
 
   [[dialogues.turns]]
   cue = "Say this is absolutely great — and that you're cold."
@@ -432,6 +432,6 @@ requires = ["hvad_er_langt_thangad", "eg_vil_sja_lunda", "sjadu_hvalinn", "thett
   expect_text = "Þetta er alveg frábært. Mér er kalt."
   expect_meaning = "This is absolutely great. I'm cold."
   expect_meaning_ja = "これは本当にすばらしいです。寒いです。"
-  partner = "Hérna er teppi og heitt kakó."
-  partner_meaning = "Here's a blanket and hot chocolate."
-  partner_meaning_ja = "毛布と熱いココアをどうぞ。"
+  partner = "Hérna er heitt kakó."
+  partner_meaning = "Here's hot chocolate."
+  partner_meaning_ja = "熱いココアをどうぞ。"

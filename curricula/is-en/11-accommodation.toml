@@ -384,8 +384,8 @@ requires = ["talar_thu", "ensku", "eg_er_med_bokun", "a_nafninu_yuki", "er_morgu
   cue = "Ask what the Wi-Fi password is."
   cue_ja = "Wi-Fiのパスワードを聞いてください。"
   expect = "hvad_er_lykilordid"
-  partner = "Það stendur á lyklinum. Gjörðu svo vel."
-  partner_meaning = "It's written on the key. Here you are."
+  partner = "Það er á lyklinum. Gjörðu svo vel."
+  partner_meaning = "It's on the key. Here you are."
   partner_meaning_ja = "鍵に書いてあります。どうぞ。"
 
   [[dialogues.turns]]
@@ -404,17 +404,17 @@ topics = ["accommodation"]
 requires = ["herbergi_numer_tolf", "thad_er_ekkert_heitt_vatn", "get_eg_fengid_annad_handklaedi", "takk_kaerlega"]
 
   [[dialogues.turns]]
-  opener = "Móttaka, góðan daginn."
-  opener_meaning = "Reception, good day."
+  opener = "Góðan daginn."
+  opener_meaning = "Good day."
   opener_meaning_ja = "受付です、こんにちは。"
   cue = "Say: room number twelve. There's no hot water."
   cue_ja = "12号室です、お湯が出ません、と言ってください。"
   expect_text = "Herbergi númer tólf. Það er ekkert heitt vatn."
   expect_meaning = "Room number twelve. There's no hot water."
   expect_meaning_ja = "12号室です。お湯が出ません。"
-  partner = "Fyrirgefðu! Ég sendi einhvern strax."
-  partner_meaning = "Sorry! I'll send someone right away."
-  partner_meaning_ja = "申し訳ありません！すぐに人を行かせます。"
+  partner = "Fyrirgefðu! Ég kem núna."
+  partner_meaning = "Sorry! I'm coming now."
+  partner_meaning_ja = "申し訳ありません！今すぐ行きます。"
 
   [[dialogues.turns]]
   cue = "Also ask for another towel."

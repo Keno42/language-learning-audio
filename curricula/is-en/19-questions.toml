@@ -406,8 +406,8 @@ requires = ["eg_er_fra_japan", "eg_er_job", "forritari", "af_thvi_ad", "mer_finn
   expect_text = "Ég er forritari."
   expect_meaning = "I'm a programmer."
   expect_meaning_ja = "プログラマーです。"
-  partner = "Af hverju ertu á Íslandi?"
-  partner_meaning = "Why are you in Iceland?"
+  partner = "Af hverju ertu hér?"
+  partner_meaning = "Why are you here?"
   partner_meaning_ja = "どうしてアイスランドにいるの？"
 
   [[dialogues.turns]]

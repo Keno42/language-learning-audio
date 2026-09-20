@@ -427,9 +427,9 @@ requires = ["fer_thessi_straeto_i_midbaeinn", "einn_mida_takk", "hvar_a_eg_ad_fa
   cue = "Ask where you should get off."
   cue_ja = "どこで降りればいいか聞いてください。"
   expect = "hvar_a_eg_ad_fara_ut"
-  partner = "Á Hlemmi. Ég læt þig vita."
-  partner_meaning = "At Hlemmur. I'll let you know."
-  partner_meaning_ja = "フレンムルで。声をかけますよ。"
+  partner = "Allt í lagi."
+  partner_meaning = "OK."
+  partner_meaning_ja = "わかりました。"
 
   [[dialogues.turns]]
   cue = "Thank him."
@@ -458,16 +458,16 @@ requires = ["eg_a_bokun", "eg_er_med_eina_tosku", "hvar_er_hlidid", "hvenaer_fer
   cue = "Say you have one bag."
   cue_ja = "荷物は一つだと言ってください。"
   expect = "eg_er_med_eina_tosku"
-  partner = "Settu hana hérna. Gjörðu svo vel, brottfararspjaldið."
-  partner_meaning = "Put it here. Here you are, the boarding pass."
-  partner_meaning_ja = "ここに置いてください。どうぞ、搭乗券です。"
+  partner = "Gjörðu svo vel."
+  partner_meaning = "Here you are."
+  partner_meaning_ja = "どうぞ。"
 
   [[dialogues.turns]]
   cue = "Ask where the gate is."
   cue_ja = "搭乗口はどこか聞いてください。"
   expect = "hvar_er_hlidid"
-  partner = "Hlið tólf, beint áfram."
-  partner_meaning = "Gate twelve, straight ahead."
+  partner = "Hliðið er tólf. Beint áfram."
+  partner_meaning = "The gate is twelve. Straight ahead."
   partner_meaning_ja = "12番ゲート、まっすぐです。"
 
   [[dialogues.turns]]

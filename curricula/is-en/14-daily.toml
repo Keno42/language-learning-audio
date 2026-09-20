@@ -501,8 +501,8 @@ topics = ["daily"]
 requires = ["eg_vakna", "eg_fer_i_vinnuna", "eg_fer_i_sund", "eg_elda_kvoldmat", "eg_fer_ad_sofa", "hvad_gerir_thu_um_helgar"]
 
   [[dialogues.turns]]
-  opener = "Hvenær vaknar þú?"
-  opener_meaning = "When do you wake up?"
+  opener = "Hvenær ferð þú á fætur?"
+  opener_meaning = "When do you get up?"
   opener_meaning_ja = "何時に起きるの？"
   cue = "Say you wake up at seven and go to work."
   cue_ja = "7時に目が覚めて、仕事に行くと言ってください。"
@@ -519,7 +519,7 @@ requires = ["eg_vakna", "eg_fer_i_vinnuna", "eg_fer_i_sund", "eg_elda_kvoldmat",
   expect_text = "Ég fer í sund. Ég elda kvöldmat."
   expect_meaning = "I go swimming. I cook dinner."
   expect_meaning_ja = "泳ぎに行きます。夕食を作ります。"
-  partner = "Hvenær ferðu að sofa?"
+  partner = "Hvenær ferð þú að sofa?"
   partner_meaning = "When do you go to bed?"
   partner_meaning_ja = "何時に寝るの？"
 
@@ -529,6 +529,6 @@ requires = ["eg_vakna", "eg_fer_i_vinnuna", "eg_fer_i_sund", "eg_elda_kvoldmat",
   expect_text = "Ég fer að sofa klukkan ellefu. Hvað gerir þú um helgar?"
   expect_meaning = "I go to bed at eleven. What do you do at weekends?"
   expect_meaning_ja = "11時に寝ます。週末は何をしていますか？"
-  partner = "Ég fer út að ganga með hundinn."
-  partner_meaning = "I go for a walk with the dog."
-  partner_meaning_ja = "犬と散歩に出かけるの。"
+  partner = "Ég fer út að ganga."
+  partner_meaning = "I go for a walk."
+  partner_meaning_ja = "散歩に出かけるの。"

@@ -595,23 +595,23 @@ topics = ["arrangements"]
 requires = ["eg_get_ekki_a_morgun", "klukkan_hvad", "thad_hentar_vel", "sjaumst_time", "a_fostudaginn", "hittumst_klukkan", "sjo"]
 
   [[dialogues.turns]]
-  opener = "Eigum við að hittast á morgun?"
-  opener_meaning = "Shall we meet tomorrow?"
+  opener = "Viltu koma á morgun?"
+  opener_meaning = "Do you want to come tomorrow?"
   opener_meaning_ja = "明日会わない？"
   cue = "Say you can't tomorrow."
   cue_ja = "明日は無理だと言ってください。"
   expect = "eg_get_ekki_a_morgun"
-  partner = "Allt í lagi. Á föstudaginn þá?"
-  partner_meaning = "OK. On Friday then?"
+  partner = "Allt í lagi. Á föstudaginn?"
+  partner_meaning = "OK. On Friday?"
   partner_meaning_ja = "わかった。じゃあ金曜日は？"
 
   [[dialogues.turns]]
   cue = "Ask at what time."
   cue_ja = "何時か聞いてください。"
   expect = "klukkan_hvad"
-  partner = "Klukkan sjö, á kaffihúsinu?"
-  partner_meaning = "At seven, at the café?"
-  partner_meaning_ja = "7時に、カフェで？"
+  partner = "Klukkan sjö?"
+  partner_meaning = "At seven?"
+  partner_meaning_ja = "7時に？"
 
   [[dialogues.turns]]
   cue = "Say that suits you well."

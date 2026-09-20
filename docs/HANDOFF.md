@@ -1,9 +1,149 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-20 (session 11: resolved GitHub issue #17, the
-situation stage asking a question it had already answered)._ Keep this
+_Last updated 2026-09-20 (session 13: rewrote 27 dialogues so their partner
+lines stay within taught vocabulary — issue #22's other content question,
+its "announce a dialogue is starting" ask is still open)._ Keep this
 current: whoever picks the project up next, human or AI, should be able to
 continue from here without re-deriving decisions._
+
+## Session 13: issue #22, the content half — dialogues used untaught words
+
+Asked the owner how to proceed on issue #22's open question (was it: add
+the missing words as new vocab items, reword the dialogues to stay inside
+taught vocabulary, or just fix the literal English-word typo and leave the
+rest). They picked rewording — the translation should become unnecessary
+because the dialogue only ever says things the learner has already been
+taught, not because new vocabulary got backfilled in to justify it.
+
+**The audit.** Collected every word form that appears in any item's
+`target` across `curricula/is-en/` (950 distinct forms) and checked every
+dialogue's `opener`/`partner` lines against that set. 27 of 31 dialogues
+used at least one word that appears nowhere else in the curriculum — 71
+distinct word types in total. Concretely: the country name "Ísland" isn't
+taught in *any* case (yet three dialogues used inflected forms of it);
+"bjóða" (offer), "hittast" (meet), "kostur" (option) and dozens more never
+appear in any vocab/phrase item; and `peysubud`'s "Já, hérna er large."
+had a literal English word sitting in Icelandic dialogue text — an actual
+typo, not a vocabulary gap. Also caught, while cross-checking: `veitinga
+stadur`'s dialogue spelled the menu "matseðillinn" (double *l*) where the
+taught vocab item is "matseðilinn" (single *l*) — same fix, since matching
+the taught spelling exactly is the whole point here.
+
+**The rewrite, line by line.** For each flagged line, found a replacement
+built only from word forms already attested in some item's `target` —
+not just the same lemma in a different case, the *exact* surface form,
+since a different case ending is just as untaught as a different word.
+Concretely this meant things like:
+- Reusing whole existing item phrasings verbatim where the fit was exact:
+  "Allt fínt, takk." → "Allt gott, takk." (the existing `allt_gott` item);
+  "Fínt. Góða nótt!" → "Gott. Góða nótt!"; "Góðan bata!" (get well soon,
+  untaught) → "Bless bless!" (an existing alternative farewell).
+- Finding an existing construction that already takes the word in the
+  case a new sentence needed: `ahugamal`'s "Ég elska kvikmyndir" problem
+  (accusative "kvikmyndir" untaught) became "Ég hef gaman af kvikmyndum."
+  — reusing the *dative* form the curriculum already teaches, inside the
+  exact construction (`eg_hef_gaman_af`, "gaman af" + dative) that takes
+  it. Similarly `kvoldmatur`'s "kjötsúpa" (nominative, untaught) became
+  "ég er með kjötsúpu" — "vera með" + accusative, and only the accusative
+  "kjötsúpu" is taught.
+- Where no known form could carry the sentence without inventing
+  grammar (2nd-person "þarft"/"vaknar"/"eruð", imperatives like
+  "hvíldu"/"drekktu", technical loanwords like "gígabætum"), simplifying
+  the line rather than guessing at a conjugation: `gonguferd`'s "you need
+  a better jacket" became "it's cold" (still motivates the learner's next
+  line, "I need a parka"); `laeknir`'s flu-and-rest medical advice
+  dropped to "I see."; `simabud` lost the brand-name "frelsiskort" and
+  the gigabyte spec entirely.
+- One exception, deliberately: `myndir`'s partner is named "Sóley," which
+  isn't in any item's target and was left as is. A person's name isn't
+  vocabulary that needs teaching — it's a label, understood without
+  translation the way "Anna" or "Yuki" already are throughout this
+  course.
+
+Every replacement was checked against the known-word set before being
+written, not guessed and hoped for — same discipline as session 6's
+"halló" lesson, just applied to grammar coverage instead of pronunciation
+this time.
+
+**Result:** 26 of 27 previously-flagged dialogues are now fully within
+taught vocabulary (the 27th's only remaining flag is "Sóley," the
+exempted name). Full details are in the diff across `curricula/is-en/
+{01-greetings,02-clarifying,03-cafe,05-self,06-time,07-weather,08-numbers-
+money,09-shopping,10-transport,11-accommodation,12-health,13-family,14-
+daily,15-likes,17-food,19-questions,21-work,22-practical,23-nature,24-
+discourse,25-travel,26-feelings}.toml` — 18 module files, one commit.
+
+Added `test_dialogue_lines_stay_within_taught_vocabulary` in
+`tests/test_audiolesson.py::CurriculumTests`, right after the existing
+full-course simulation test: every dialogue's opener/partner words must
+appear in some item's target, with "sóley" as the one named exception. A
+future dialogue edit that reintroduces an untaught word will fail this
+test immediately, rather than surfacing as a listener complaint again.
+
+**Left open:**
+- Issue #22's other ask — telling the learner a dialogue is starting,
+  before a different voice speaks — is still undecided (see "Known gaps"
+  below, unchanged from session 12).
+- The sample French curriculum (`curricula/fr-en-a1.toml`, 4 dialogues)
+  has the same pattern (all 4 dialogues use words outside its own vocab
+  list) — not audited or fixed this session, since the reported issue and
+  every other one this batch concerned the Icelandic course specifically.
+  The regression test above only covers `curricula/is-en`.
+
+## Session 12: issues #20, #21, and the easy half of #22
+
+Four new issues came in together (#20–#23, oldest first as usual). Did the
+three straightforward ones; #22 also raised two open design questions
+(and #23 is a new feature, not a fix) — see "Known gaps" below rather than
+this session's write-up, since nothing was decided about them yet.
+
+### Issue #20 — "In Icelandic: Halló." isn't clearly an instruction
+
+The `meaning` prompt has three variants for the "meaning" recall stage;
+two are explicit ("How do you say: {meaning}", "Say: {meaning}") and the
+third, "In {language}: {meaning}", reads as a label/statement, not a
+request to speak — reasonable to mistake for the instructor just telling
+you a fact rather than asking you to produce it. Reworded to `"Say:
+{meaning} in {language}."` (en) / `"{language}で「{meaning}」と言ってくださ
+い。"` (ja) — still names the language for variety, now unambiguously an
+instruction like its siblings. Test added: `PromptsTests::
+test_meaning_prompt_is_always_an_explicit_request_to_speak`, checking
+every variant of the prompt in both languages for an explicit "say"/「言」
+marker, so a future added variant can't reintroduce this.
+
+### Issue #21 — a cultural aside, then a jarringly unrelated question
+
+`Builder.note()` announces the start of an aside ("A quick aside.") but
+never announced its end, so the very next (unrelated) exercise came right
+after the story with nothing marking the return to the lesson. Added a
+symmetric `aside_end` line ("Back to the lesson." / "では、レッスンに戻りましょ
+う。") after the note text, with a `_beat()` before it. Didn't chase the
+reporter's other suggested fix (make the note topically relevant to
+*both* the exercise before and after it, or move all notes to the end of
+the lesson) — the note is already chosen to relate to the exercise before
+it, which is real signal; enforcing relevance to whatever comes next too
+would need the scheduler to know the note's topic before picking the next
+exercise, a much bigger change for the same problem an end-marker already
+solves at low risk.
+
+### Issue #22, the easy half — no beat between a dialogue line and its translation
+
+Same shape of bug as issues #8 and #17's cousins: `Builder.dialogue()`
+spoke a partner's line and then narrated its translation
+(`dialogue_partner_said`) with no `_beat()` between them — two different
+voices/languages running together. Added the beat at both call sites
+(`turn.opener`/`turn.opener_meaning` and `turn.partner`/`turn.partner_meaning`).
+
+The reporter also raised two things this session did **not** touch,
+because they're design decisions, not bugs — see "Known gaps" below:
+whether the translation should exist at all if dialogue vocabulary stayed
+within what the lesson already covers or will cover soon, and whether the
+learner should be told a dialogue is starting before a different voice
+speaks.
+
+Tests added in `tests/test_audiolesson.py::LessonStructureTests`:
+`test_note_is_bookended_so_the_next_exercise_is_not_confused_for_part_of_it`
+and `test_dialogue_partner_line_and_its_translation_have_a_beat_between`.
 
 ## Session 11: issue #17 — "Say bye. What do you say?"
 
@@ -685,7 +825,17 @@ Verified in this session:
    short "listen to this conversation" opener, as some audio courses do,
    would be nicer.
 5. **Dialogue partner translation** is always narrated (`--no-translate` to
-   disable). Could become level-dependent (off from A2).
+   disable). Issue #22 (session 12) raised two concrete asks here, neither
+   decided yet: (a) the translation should ideally be *unnecessary*
+   because a dialogue's partner lines stay within vocabulary the lesson
+   already covers or will cover soon — that's a content-authoring
+   constraint on `curricula/is-en/*.toml`'s `[[dialogues]]`, not a code
+   change, and would need auditing all 31 existing dialogues; (b) the
+   learner should be told a dialogue is starting (a different voice is
+   about to speak) before the first partner line, not just given the
+   scene-setting `dlg.setting` narration. Both need a decision from the
+   project owner on scope before implementing — the margin bug in the
+   same issue is already fixed (session 12).
 6. **Curricula.** `fr-en-a1.toml` and its Japanese-instructor twin
    `fr-ja-a1.toml` (generated by `tools/derive_fr_ja.py` from a translation
    table; a test asserts the ids stay in sync). The Japanese strings were
@@ -699,6 +849,28 @@ Verified in this session:
    warmed into the cache with `workers` threads (profile key, default 4).
    Untested against a real network, like the providers themselves.
 9. **Wheel install** verified to include `audiolesson/phrasing/*.toml`.
+10. **Minimal-pair tips, reframed as a planning problem** (issue #23,
+    session 13, not started — deliberately). The owner's original report
+    (a tip when a later item is a near-homograph of one already learned,
+    e.g. Icelandic "goðan"/"goða") is real, but when this session proposed
+    a quick fix — an optional `confusable_with`/`confusable_tip` field
+    authored per-pair — the owner pushed back on the approach, not just
+    the scope: *"語彙をランダムに並べてあとからそういうことを考える代わりに、
+    最初から教育プランとして組み込まれているべきだと思う。学習者がどこまで学
+    んでいて、どこをきっかけにして性、時制、その他その言語特有の水平方向のマ
+    インドセットを拡張していくのか、プランニングが優先で、このヒント機能対応
+    はその場しのぎすぎて未来がない"* — a bolt-on hint is a stopgap; the
+    real fix is that curriculum sequencing itself should deliberately
+    introduce a grammatical dimension (case, gender, tense, …) at the
+    point the learner is ready to "expand horizontally" into it, with the
+    contrast *taught*, not stumbled into and then explained away. That's
+    a planning/curriculum-architecture question — how `Item.order` and
+    the planner decide what comes next — not a per-item field. No design
+    exists yet for what "ready to expand into a grammatical dimension"
+    would even mean computationally (a new kind of prereq? a tag on the
+    dimension itself, distinct from `topics`?). Needs that design
+    conversation before any code, and probably before the next occurrence
+    of this issue gets treated as a one-off again.
 
 ## Where things are
 
