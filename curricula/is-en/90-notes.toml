@@ -10,16 +10,16 @@ id = "godur_gender"
 milestone = true
 items = ["godan_daginn", "goda_nott", "gott_kvold"]
 topics = ["grammar", "greetings"]
-text = "In Góðan daginn, Góða nótt, and Gott kvöld, góðan, góða, and gott are forms of the same adjective, meaning 'good.' Here the ending changes with the noun's grammatical gender: dagur is masculine, nótt feminine, and kvöld neuter. Icelandic adjectives also change for case and number; we'll get to those later."
-text_ja = "Góðan daginn、Góða nótt、Gott kvöld に出てくる góðan、góða、gott は、どれも「良い」という同じ形容詞の形です。ここでは名詞の文法上の性に合わせて語尾が変わります。dagur は男性名詞、nótt は女性名詞、kvöld は中性名詞です。形容詞は格や数によっても変わりますが、それはまた別の機会に。"
+text = "In «Góðan daginn», «Góða nótt», and «Gott kvöld», «góðan», «góða», and «gott» are forms of the same adjective, meaning 'good.' Here the ending changes with the noun's grammatical gender: «dagur» is masculine, «nótt» feminine, and «kvöld» neuter. Icelandic adjectives also change for case and number; we'll get to those later."
+text_ja = "«Góðan daginn»、«Góða nótt»、«Gott kvöld» に出てくる «góðan»、«góða»、«gott» は、どれも「良い」という同じ形容詞の形です。ここでは名詞の文法上の性に合わせて語尾が変わります。«dagur» は男性名詞、«nótt» は女性名詞、«kvöld» は中性名詞です。形容詞は格や数によっても変わりますが、それはまた別の機会に。"
 
 [[notes]]
 id = "three_kinds_of_sorry"
 milestone = true
 items = ["afsakid", "fyrirgefdu", "thvi_midur"]
 topics = ["discourse", "greetings"]
-text = "Afsakið is a common way to get someone's attention or say 'excuse me.' Fyrirgefðu can also mean 'excuse me,' but is especially useful when apologizing or asking forgiveness. Því miður is different: it means 'unfortunately,' expressing regret about a situation rather than apologizing for something you did."
-text_ja = "Afsakið は人の注意を引いたり、「すみません」と言うときによく使われます。Fyrirgefðu も「すみません」の意味で使えますが、特に何かを謝ったり許しを求めたりするときに向いています。Því miður は違います。「残念ながら」という意味で、自分がしたことを謝るのではなく、状況について残念な気持ちを表します。"
+text = "«Afsakið» is a common way to get someone's attention or say 'excuse me.' «Fyrirgefðu» can also mean 'excuse me,' but is especially useful when apologizing or asking forgiveness. «Því miður» is different: it means 'unfortunately,' expressing regret about a situation rather than apologizing for something you did."
+text_ja = "«Afsakið» は人の注意を引いたり、「すみません」と言うときによく使われます。«Fyrirgefðu» も「すみません」の意味で使えますが、特に何かを謝ったり許しを求めたりするときに向いています。«Því miður» は違います。「残念ながら」という意味で、自分がしたことを謝るのではなく、状況について残念な気持ちを表します。"
 
 [[notes]]
 id = "tvo_l"

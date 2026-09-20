@@ -8,6 +8,7 @@ sounds. Keep those three concerns apart.
 from __future__ import annotations
 
 import random
+import re
 from dataclasses import dataclass, field
 
 from .content import Curriculum, Dialogue, Item, Note, TransformExample
@@ -16,6 +17,10 @@ from .prompts import Prompts
 from .script import Exercise, Script, Segment
 from .stages import is_generative
 from .timing import Timing
+
+# «...» inside a Note's text marks a target-language phrase that should be spoken by the
+# native voice instead of read aloud by the instructor (issue #34 point 1, deferred at pilot 2).
+_NOTE_TARGET_RE = re.compile(r"«([^»]+)»")
 
 
 @dataclass
@@ -422,6 +427,20 @@ class Builder:
 
     # ------------------------------------------------------------------ note
 
+    def _speak_note_text(self, sc: Script, ex: Exercise, text: str) -> None:
+        """Narrate ``text`` in the instructor voice, except «...»-marked phrases, which go to
+        the target-language voice instead — so a note that names e.g. Góðan daginn actually
+        hears it said, rather than the instructor reading it as instructor-language text
+        (issue #34 point 1, deferred at pilot 2 for lack of this mechanism)."""
+        for i, part in enumerate(_NOTE_TARGET_RE.split(text)):
+            part = part.strip()
+            if not part:
+                continue
+            if i % 2:
+                self._speak(sc, ex, part)
+            else:
+                self._narr(sc, ex, part)
+
     def note(self, sc: Script, note: Note) -> Exercise:
         """An aside: instructor only, no retrieval. Bookended so it's never mistaken for the
         start of the next (unrelated) exercise. A milestone note names a grammatical pattern
@@ -430,7 +449,7 @@ class Builder:
         *is* the lesson")."""
         ex = sc.new_exercise("note", None, list(note.items), f"note: {note.id}")
         self._narr(sc, ex, self.prompts.get("milestone_intro" if note.milestone else "aside"))
-        self._narr(sc, ex, note.text)
+        self._speak_note_text(sc, ex, note.text)
         self._beat(sc, ex)
         self._narr(sc, ex, self.prompts.get("milestone_end" if note.milestone else "aside_end"))
         self._gap(sc, ex)

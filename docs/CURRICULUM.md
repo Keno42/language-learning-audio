@@ -110,6 +110,16 @@ to two or three sentences, roughly 15–20 seconds of speech; the best ones
 contrast the target culture with the learner's own. Notes with no `items`
 are only used as filler.
 
+Wrap any target-language word or phrase mentioned inside `text`/`text_ja` in
+`«...»` so it is actually spoken by the target-language voice instead of
+read aloud by the instructor: `In «Góðan daginn», «góðan» is…`. Validation
+rejects a note whose `«`/`»` count doesn't match.
+
+`milestone = true` marks an instructional note that names a grammatical
+pattern rather than an optional aside: it never fires until the learner has
+met every id in `items`, and once it can, the planner offers it before any
+plain aside and never hands it out as generic filler.
+
 ## Languages with cases (Icelandic, German, Russian…)
 
 Slot fills are inserted verbatim, so give each noun in the form the

@@ -23,7 +23,13 @@ now get slow whole-word repetition instead, no content changes needed
 — then gave the planner a `drill_streak` counter that pulls an eligible
 dialogue forward once too many isolated recalls run in a row) — all 7
 pilots now have at least a first concrete step done; see "Session 16"
-below and item #1a in "Known gaps" for what's still open per pilot)._
+below and item #1a in "Known gaps" for what's still open per pilot).
+Session 17 then did pilot 8: `«...»` markup inside a note's `text` now
+makes a marked Icelandic phrase actually spoken by the target-language
+voice instead of read as instructor-language narration, applied to both
+existing milestone notes; still open per #1a: ending a lesson early
+instead of padding with filler, and a fallback for a high `drill_streak`
+with no eligible dialogue._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -468,6 +474,53 @@ No code or curriculum content changed this session — this is the same
 a design-and-authoring/algorithm project touching several different
 subsystems (content schema, note rendering, planner pacing, backward-
 build) at different risk levels, not a single PR.
+
+## Session 17: issue #34 pilot 8 — target-language speech inside notes
+
+Picked up the "other half" of #34 point 1, deferred at pilot 2 above for
+lack of a mechanism (`Note.text` was one instructor-language string with
+Icelandic phrases embedded as plain text; making them actually spoken by
+the target-language voice needed the note to carry structured segments,
+which `Builder.note()` didn't support at all).
+
+**Done.** Rather than restructure `Note`'s schema into arrays of typed
+segments — a bigger schema change than the problem needs — marked
+target-language phrases inline with `«...»` inside the existing single
+`text`/`text_ja` strings: `In «Góðan daginn», «góðan» is…`. Added
+`_NOTE_TARGET_RE` and `Builder._speak_note_text()` (`exercises.py`),
+which splits a note's text on the marker and alternates `_narr` (the
+surrounding prose, instructor voice/language) with `_speak` (each marked
+phrase, target voice/language) — exactly the two existing primitives
+every other exercise already uses to interleave instructor commentary
+with native-voiced target speech, just newly wired into `note()` instead
+of a single `_narr(note.text)` call. A note with no `«»` in its text
+behaves exactly as before (one `_narr` call for the whole string), so
+none of the other ~46 notes needed touching for the mechanism itself to
+be safe.
+
+Added a validation check (`content.py`, alongside the existing note
+checks) rejecting a note whose `«`/`»` counts don't match, so a stray or
+missing marker fails `audiolesson validate` instead of silently
+mis-splitting at build time. Applied the markup to both existing
+milestone notes — `godur_gender` (`Góðan daginn`/`Góða nótt`/`Gott
+kvöld`, `góðan`/`góða`/`gott`, `dagur`/`nótt`/`kvöld`) and
+`three_kinds_of_sorry` (`Afsakið`/`Fyrirgefðu`/`Því miður`) — in both
+`text` and `text_ja`; no wording changed, only markup added around
+already-verified Icelandic words, so no new pronunciation/usage claims
+to verify. Documented the convention in `docs/CURRICULUM.md` alongside
+the pre-existing (but previously undocumented) `milestone` flag.
+
+The other ~46 cultural-aside notes also name Icelandic words inline and
+could get the same markup, but that's now purely a content-authoring
+task with no mechanism blocking it — left for a future pass rather than
+bundled in here, per the same "small changes, not one rewrite" guidance
+sessions 15–16 have been following.
+
+91 tests (88 → 91: one for the split/alternation behavior on a
+synthetic note, one confirming an unmarked note still narrates as a
+single piece, one for the new validation error); `audiolesson validate
+curricula/is-en` unchanged apart from the two notes' text (993 items, 48
+notes, ja gloss still complete).
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 
@@ -1850,9 +1903,9 @@ Verified in this session:
       longer says "Back to the lesson." — `Builder.note()` now picks
       `milestone_end` vs `aside_end` the same way it already picked
       `milestone_intro` vs `aside`. Target-language speech *inside* a
-      note's narration is still deferred — `Note` has no
-      structured-segments mechanism yet, unchanged from pilot 2's
-      original scoping.
+      note's narration was deferred here — see pilot 8 below, done in
+      session 17 via `«...»` markup rather than a structured-segments
+      schema change.
    3. a contrastive discrimination exercise right after a milestone
       note. Needed no new content: `godan_daginn`/`goda_nott`/
       `gott_kvold` already each have their own distinct `situation`, so
@@ -1913,9 +1966,21 @@ Verified in this session:
       comprehension as alternatives to another isolated drill —
       separate design threads, deliberately not bundled into this same
       change.
+   8. target-language speech inside a note's narration (#34 point 1,
+      other half; session 17). `«...»` inside a note's `text`/`text_ja`
+      now marks a phrase that `Builder.note()` hands to the
+      target-language voice instead of narrating it as instructor-
+      language text (see "Session 17" above). Applied to both existing
+      milestone notes. The other ~46 cultural asides also name Icelandic
+      words inline and could use the same markup, but that's now just
+      content authoring with no mechanism gap left — not done here.
 
-   **Not started:** none — all 7 pilots have at least a first concrete
-   step done. What's left is scoped above, per pilot.
+   **Not started:** none — all 7 original pilots plus pilot 8 have at
+   least a first concrete step done. What's left is scoped above, per
+   pilot: ending a lesson early instead of padding with low-value
+   filler (pilot 6), an alternative-activity-or-stop fallback for a high
+   `drill_streak` when no dialogue is eligible (pilot 6), and marking up
+   the remaining cultural-aside notes (pilot 8).
 2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
 3. ~~Listen to a real lesson and tune timing~~ — partially done (session

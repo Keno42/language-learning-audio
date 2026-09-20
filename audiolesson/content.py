@@ -384,6 +384,8 @@ def validate(cur: Curriculum) -> None:
         for ref in n.items:
             if ref not in ids:
                 raise CurriculumError(f"note {n.id!r} references unknown item {ref!r}")
+        if n.text.count("«") != n.text.count("»"):
+            raise CurriculumError(f"note {n.id!r} has unbalanced «» markers")
     for it in cur.items:
         for ref in it.components + it.prereqs:
             if ref not in ids:

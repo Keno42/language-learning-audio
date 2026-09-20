@@ -83,6 +83,16 @@ class CurriculumTests(unittest.TestCase):
         with self.assertRaises(CurriculumError):
             curriculum_from_dict(raw)
 
+    def test_note_with_unbalanced_guillemets_is_rejected(self):
+        """A stray or missing «»  in a note is an authoring mistake — catch it at validation
+        rather than have it silently mis-split at build time (issue #34 point 1)."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "notes": [{"id": "n", "text": "Say «halló to greet someone."}],
+        }
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
+
     def test_a_long_drill_streak_pulls_an_eligible_dialogue_forward(self):
         """Issue #34 points 5-6: a long uninterrupted run of isolated recall exercises should
         pull an eligible dialogue forward rather than waiting for its usual periodic schedule
@@ -643,6 +653,45 @@ class LessonStructureTests(unittest.TestCase):
         self.assertEqual(narrations, [prompts.get("milestone_intro"), "A grammar pattern.", prompts.get("milestone_end")])
         self.assertNotEqual(prompts.get("milestone_intro"), prompts.get("aside"))
         self.assertNotEqual(prompts.get("milestone_end"), prompts.get("aside_end"))
+
+    def test_note_text_speaks_guillemet_marked_phrases_in_the_target_voice(self):
+        """Issue #34 point 1, deferred at pilot 2: a target-language phrase named inside a
+        note should be heard spoken by the target-language voice, not read as instructor-
+        language text. «...» inside ``Note.text`` marks that phrase; ``Builder.note()`` must
+        split on it and hand the marked parts to ``_speak`` (target language) while the
+        surrounding prose stays with ``_narr`` (instructor language)."""
+        from audiolesson.content import Note
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.note(sc, Note(id="n", text="Say «halló» to greet someone, and «bless» to say goodbye.", items=[]))
+        speaks = [s for s in sc.segments if s.type == "speak"]
+        self.assertEqual([s.text for s in speaks], ["halló", "bless"])
+        self.assertTrue(all(s.lang == cur.target_lang for s in speaks))
+        narrations = [s.text for s in sc.segments if s.type == "narrate"]
+        self.assertEqual(
+            narrations,
+            [prompts.get("aside"), "Say", "to greet someone, and", "to say goodbye.", prompts.get("aside_end")],
+        )
+        self.assertTrue(all(s.lang == cur.known_lang for s in sc.segments if s.type == "narrate"))
+
+    def test_note_text_with_no_guillemets_is_narrated_as_one_piece(self):
+        """A note with no «...» markup keeps behaving exactly as before this mechanism existed
+        — one narrate segment for the whole text, not split into fragments."""
+        from audiolesson.content import Note
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.note(sc, Note(id="n", text="Some cultural fact.", items=[]))
+        narrations = [s.text for s in sc.segments if s.type == "narrate"]
+        self.assertEqual(narrations, [prompts.get("aside"), "Some cultural fact.", prompts.get("aside_end")])
+        self.assertFalse(any(s.type == "speak" for s in sc.segments))
 
     def test_hard_single_word_gets_slow_repetition_not_a_synthetic_backward_split(self):
         """Issue #34 point 7: a long single word has no verified sub-word boundary to build
