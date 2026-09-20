@@ -2,6 +2,13 @@
 # Each note is tied to items; the planner plays one right after one of them, at most a couple per lesson.
 
 [[notes]]
+id = "godur_gender"
+items = ["gott_kvold"]
+topics = ["grammar", "greetings"]
+text = "You already know three ways to say 'good' before a time of day — Góðan daginn, Góða nótt, Gott kvöld — and the ending isn't random. 'Dagur' (day) is masculine, so 'good' becomes 'góðan'; 'nótt' (night) is feminine, so it's 'góða'; 'kvöld' (evening) is neuter, so it stays 'gott'. Icelandic adjectives always change to match the gender of the noun they describe, and you'll keep seeing this same three-way pattern from here on."
+text_ja = "「良い」を時間帯につけて言う言い方を、もう3つ知っています — Góðan daginn、Góða nótt、Gott kvöld。この語尾の違いはでたらめではありません。'dagur'（昼）は男性名詞なので「良い」は'góðan'に、'nótt'（夜）は女性名詞なので'góða'に、'kvöld'（晩）は中性名詞なので'gott'のままです。アイスランド語の形容詞は修飾する名詞の性に合わせて語尾を変えるので、この3パターンはこれからも何度も出てきます。"
+
+[[notes]]
 id = "tvo_l"
 items = ["fjall", "eldfjall", "jokull"]
 topics = ["clarifying", "nature"]

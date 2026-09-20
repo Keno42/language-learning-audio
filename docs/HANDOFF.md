@@ -4,11 +4,12 @@ _Last updated 2026-09-20 (session 15: the owner closed #23 and #25,
 folding both into #29 — one consolidated top-priority issue for
 designing curriculum sequencing from learner capabilities outward,
 covering both reusable vocabulary and grammatical dimensions. Docs
-updated to point at #29, then a first concrete pilot: the `fara`/"want
-to, going to" construction cluster moved from module 14 to module 2 —
-see item #1 in "Known gaps" for what's still open)._ Keep this current:
-whoever picks the project up next, human or AI, should be able to
-continue from here without re-deriving decisions._
+updated to point at #29, then two concrete pilots: the `fara`/"want to,
+going to" construction cluster moved from module 14 to module 2, and
+the `góðan`/`góða`/`gott` gender-agreement pattern named in a new
+grammar note — see item #1 in "Known gaps" for what's still open)._
+Keep this current: whoever picks the project up next, human or AI,
+should be able to continue from here without re-deriving decisions._
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 
@@ -87,6 +88,50 @@ collisions — "Ég fer {time}." and "Ég fer {frequency} í sund." in
 `06-time.toml` — outside the 4-construction/inf-vocab cluster this pilot
 touched. Left alone; worth a look in a later #29 pass but not part of
 this one's scope.
+
+### Pilot 2 — naming the góðan/góða/gott gender-agreement pattern
+
+The issue's second worked example. `godan_daginn`, `goda_nott`, and
+`gott_kvold` were already all early items in module 1 (introduced within
+the first ~20 items of 993) — so, unlike pilot 1, there was no
+sequencing gap to fix, only the "notice → name" moment itself, which
+didn't exist: three fixed phrases sat there with no one ever pointing
+out that `góðan`/`góða`/`gott` is the same adjective (`góður`, "good")
+taking a different accusative ending for each noun's grammatical gender
+(`dagur` masc. → `góðan`, `nótt` fem. → `góða`, `kvöld` neut. → `gott`).
+
+Added a `[[notes]]` entry (`godur_gender`, `curricula/is-en/90-notes.toml`)
+rather than a `kind = "transform"` item. `transform` fits an operation
+practised on new material — the planner's transform intro shows two
+worked examples then asks the learner to produce a third from the
+`examples` pool (`exercises.py`'s `_intro_transform`/`_recall_transform`),
+which means every pair in `examples` has to itself be a correct,
+independently-verified Icelandic phrase. There are only three verified
+nouns here (all three already exist solely as fixed accusative forms
+inside these greetings — no bare nominative `dagur`/`nótt`/`kvöld` vocab
+item exists anywhere in the curriculum to check against), and Icelandic
+noun case morphology varies enough by declension class that inventing a
+fourth noun+greeting pair to reach `transform`'s usual 3+ examples would
+mean asserting new grammar without the way to verify it against an
+existing item — precisely the risk `docs/CURRICULUM.md` already warns
+about (the "halló" homograph mistake, session 6). A note only speaks
+English/Japanese explanation over phrases the learner already knows are
+correct, so it teaches "notice, name" safely; it doesn't attempt
+"practice, apply to new words." Attached to `items = ["gott_kvold"]`
+specifically (not all three) because the planner plays a note right
+after *any* related item is exercised (`planner.py`'s `_pick_note`), and
+`gott_kvold` is the last of the three introduced in file order — so by
+the time it fires, the other two have already been seen.
+
+**Left undone on purpose:** the generative "apply the pattern to a new
+noun" half of the issue's ask. That needs either a native-speaker check
+or a verified noun-declension reference before adding new Icelandic
+content, which this pass didn't have — flagged in "Known gaps" #1 below
+rather than guessed at.
+
+Validate: 993 items unchanged, 47 notes (was 46), ja gloss coverage
+still complete (2001 strings, +1 for the new note). Full test suite (72
+tests) unchanged.
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
@@ -1112,13 +1157,19 @@ Verified in this session:
    This is a design-and-authoring project scoped to the whole 993-item,
    26-module curriculum, not a single fixable bug, so it's proceeding as
    a sequence of focused pilots rather than one PR. **Done (session
-   15):** the `fara`/"want to, going to" cluster — an already-built
-   `tags = ["inf"]` vocab set plus 4 generative constructions — moved
-   from module 14 to module 2; `dialogue_sequencing_report()` no longer
-   flags `fara`/`viltu` (see "Pilot 1" above). **Not started:** the
-   `góðan`/`góða`/`gott` gender-agreement teaching moment, the two other
-   `fara`-shaped constructions in `06-time.toml` noticed but out of
-   scope for pilot 1, and the broader curriculum-wide audit.
+   15):** pilot 1 — the `fara`/"want to, going to" cluster — an
+   already-built `tags = ["inf"]` vocab set plus 4 generative
+   constructions — moved from module 14 to module 2;
+   `dialogue_sequencing_report()` no longer flags `fara`/`viltu`. Pilot
+   2 — named the `góðan`/`góða`/`gott` gender-agreement pattern with a
+   new grammar note (`godur_gender` in `90-notes.toml`) after the third
+   of the three already-early greeting phrases; see "Pilot 1"/"Pilot 2"
+   above for both. **Not started:** the generative half of pilot 2
+   (practising the gender-agreement pattern on a *new* noun — deferred
+   for lack of a verified noun-declension reference, see "Pilot 2"
+   above), the two other `fara`-shaped constructions in `06-time.toml`
+   noticed but out of scope for pilot 1, and the broader curriculum-wide
+   audit.
 2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
 3. ~~Listen to a real lesson and tune timing~~ — partially done (session
