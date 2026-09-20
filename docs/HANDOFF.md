@@ -1551,14 +1551,16 @@ Verified in this session:
       plan: it's semantic/pragmatic, and `jaeja` already has a
       dedicated note covering it).
    2. shortened `godur_gender`'s text and retired the "aside" closing
-      framing for milestone notes. Text now leads with the concrete
-      claim ("aren't three separate words — all forms of the same
-      word") before naming gender as the current dimension, and
-      demotes case/number to one trailing clause instead of listing
-      "accusative"/"singular" up front too — dropped those two labels
-      entirely, since #34 only asked the *current* dimension (gender)
-      to be named, not every dimension the examples happen to also
-      hold constant. Added a `milestone_end` prompt ("Let's continue."
+      framing for milestone notes. Text now directly identifies
+      góðan/góða/gott as forms of the same adjective before naming
+      gender as the current dimension, and demotes case/number to one
+      trailing clause instead of listing "accusative"/"singular" up
+      front too — dropped those two labels entirely, since #34 only
+      asked the *current* dimension (gender) to be named, not every
+      dimension the examples happen to also hold constant. (An earlier
+      draft opened "aren't three separate words," which the owner
+      caught as a subject/predicate mismatch — see "Pilot 2" above.)
+      Added a `milestone_end` prompt ("Let's continue."
       / 「では、続けましょう。」) so a milestone note's closing line no
       longer says "Back to the lesson." — `Builder.note()` now picks
       `milestone_end` vs `aside_end` the same way it already picked
