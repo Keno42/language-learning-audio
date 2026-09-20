@@ -399,13 +399,14 @@ class Builder:
     def note(self, sc: Script, note: Note) -> Exercise:
         """An aside: instructor only, no retrieval. Bookended so it's never mistaken for the
         start of the next (unrelated) exercise. A milestone note names a grammatical pattern
-        now that its items are known, so it gets its own intro line instead of being framed
-        as optional cultural trivia."""
+        now that its items are known, so it gets its own intro and closing lines instead of
+        being framed as optional cultural trivia the lesson is a detour from (issue #34: "this
+        *is* the lesson")."""
         ex = sc.new_exercise("note", None, list(note.items), f"note: {note.id}")
         self._narr(sc, ex, self.prompts.get("milestone_intro" if note.milestone else "aside"))
         self._narr(sc, ex, note.text)
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("aside_end"))
+        self._narr(sc, ex, self.prompts.get("milestone_end" if note.milestone else "aside_end"))
         self._gap(sc, ex)
         return ex
 

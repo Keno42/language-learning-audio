@@ -4,13 +4,14 @@ _Last updated 2026-09-20 (session 16: the owner opened #34, "Improve
 lesson orchestration and learner experience," reviewing a real Lesson 3
 transcript and finding 8 related problems — including a direct
 critique of the `godur_gender` milestone note session 15 just shipped.
-Broke #34 into 7 pilots ordered by risk, then did pilot 1: fixed the
+Broke #34 into 7 pilots ordered by risk, then did pilot 1 (fixed the
 "Say: X. in Icelandic." template collision and normalized `jaeja`'s
-redundant meaning-field parenthetical — see "Session 16" below and item
-#1a in "Known gaps" for the rest)._ Keep this current: whoever picks
-the project up next, human or AI, should be able to continue from here
-without
-re-deriving decisions._
+redundant meaning-field parenthetical) and pilot 2 (shortened
+`godur_gender`'s text and gave milestone notes their own, non-"aside"
+closing line) — see "Session 16" below and item #1a in "Known gaps" for
+the rest)._ Keep this current: whoever picks the project up next, human
+or AI, should be able to continue from here without re-deriving
+decisions._
 
 ## Session 16: issue #34 opened — lesson orchestration and learner experience
 
@@ -63,17 +64,23 @@ and how much design judgment each needs before touching code:
    clean up. `jaeja` was only worth fixing because it duplicated a
    dedicated note; the general convention stays.
 2. **Shorten the `godur_gender` milestone note; retire the aside
-   framing for milestones specifically (#34 point 1, half of it).**
-   Rewrite the note to lead with the concrete claim ("you've heard
-   three forms of the same word") before naming gender as the
-   dimension, and demote case/number to one brief forward-reference
-   sentence instead of listing every dimension up front. Separately,
-   `Builder.note()` (`exercises.py`) currently closes every note,
-   milestone or not, with the same `aside_end` ("Back to the lesson.")
-   — give milestone notes their own closing (or none) since, per the
-   owner, they're not a detour from the lesson. Low risk: touches only
-   the one note's text and the `milestone`-vs-`aside` branch already
-   built in pilots 2/3.
+   framing for milestones specifically (#34 point 1, half of it). Done.**
+   Rewrote the note to lead with the concrete claim ("aren't three
+   separate words — all forms of the same word") before naming gender
+   as the dimension, and demoted case/number to one trailing clause.
+   Dropped "accusative"/"singular" entirely rather than just
+   de-emphasizing them — #34 only asked for the *current* dimension to
+   be named, not every dimension the three examples happen to also
+   hold constant, so those two labels were extra weight the rewrite
+   didn't need to carry at all. Added a `milestone_end` prompt ("Let's
+   continue." / 「では、続けましょう。」, `audiolesson/phrasing/{en,ja}.toml`)
+   so `Builder.note()` (`exercises.py`) now picks `milestone_end` vs
+   `aside_end` for the closing line the same way it already picked
+   `milestone_intro` vs `aside` for the opening — a milestone note no
+   longer says "Back to the lesson." Updated
+   `test_milestone_note_is_not_framed_as_a_cultural_aside` to check
+   both ends. 79 tests, all passing; validate unchanged (993 items, 47
+   notes, ja gloss still complete).
 
    **Deferred, not part of this pilot:** "target-language examples
    inside explanations should be spoken by a target-language voice
@@ -1530,12 +1537,24 @@ Verified in this session:
       `pronunciation_notes` — the owner corrected that part of the
       plan: it's semantic/pragmatic, and `jaeja` already has a
       dedicated note covering it).
+   2. shortened `godur_gender`'s text and retired the "aside" closing
+      framing for milestone notes. Text now leads with the concrete
+      claim ("aren't three separate words — all forms of the same
+      word") before naming gender as the current dimension, and
+      demotes case/number to one trailing clause instead of listing
+      "accusative"/"singular" up front too — dropped those two labels
+      entirely, since #34 only asked the *current* dimension (gender)
+      to be named, not every dimension the examples happen to also
+      hold constant. Added a `milestone_end` prompt ("Let's continue."
+      / 「では、続けましょう。」) so a milestone note's closing line no
+      longer says "Back to the lesson." — `Builder.note()` now picks
+      `milestone_end` vs `aside_end` the same way it already picked
+      `milestone_intro` vs `aside`. Target-language speech *inside* a
+      note's narration is still deferred — `Note` has no
+      structured-segments mechanism yet, unchanged from pilot 2's
+      original scoping.
 
    **Not started:**
-   2. shorten `godur_gender`'s text, retire the "aside" closing framing
-      for milestone notes specifically (low risk; target-language
-      speech *inside* a note's narration is explicitly deferred out of
-      this one — `Note` has no structured-segments mechanism yet)
    3. a contrastive discrimination exercise right after a milestone
       note (moderate; needs a new exercise shape, depends on pilot 2)
    4. explicitly contrast near-synonyms `Afsakið`/`Fyrirgefðu`/`Því
