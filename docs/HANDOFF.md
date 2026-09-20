@@ -4,10 +4,12 @@ _Last updated 2026-09-20 (session 16: the owner opened #34, "Improve
 lesson orchestration and learner experience," reviewing a real Lesson 3
 transcript and finding 8 related problems — including a direct
 critique of the `godur_gender` milestone note session 15 just shipped.
-Docs-only this session: broke #34 into 7 pilots ordered by risk, no
-code changed yet — see "Session 16" below and item #1a in "Known gaps"
-for the breakdown)._ Keep this current: whoever picks the project up
-next, human or AI, should be able to continue from here without
+Broke #34 into 7 pilots ordered by risk, then did pilot 1: fixed the
+"Say: X. in Icelandic." template collision and normalized `jaeja`'s
+redundant meaning-field parenthetical — see "Session 16" below and item
+#1a in "Known gaps" for the rest)._ Keep this current: whoever picks
+the project up next, human or AI, should be able to continue from here
+without
 re-deriving decisions._
 
 ## Session 16: issue #34 opened — lesson orchestration and learner experience
@@ -26,24 +28,40 @@ close with "Back to the lesson." — "this *is* the lesson."
 Like #29, this isn't one fix. Broke it into 7 pilots, ordered by risk
 and how much design judgment each needs before touching code:
 
-1. **Instructor-prompt template artifacts (#34 point 8).** Confirmed
-   mechanically: `audiolesson/phrasing/en.toml`'s `meaning` prompt list
-   includes `"Say: {meaning} in {language}."`, and at least one item's
-   `meaning` already carries its own sentence punctuation —
-   `curricula/is-en/01-greetings.toml`'s `jaeja`: `meaning = "Well
-   then. (the all-purpose Icelandic word)"` — so the template renders
-   "Say: Well then. (the all-purpose Icelandic word). in Icelandic."
-   Two independent causes, both fixable without any design decision:
-   the template naively concatenates a already-punctuated `meaning`
-   into a sentence frame that adds its own trailing period, and some
-   `meaning` fields carry a parenthetical aside that reads fine as a
-   gloss but not pasted into "Say: X in Icelandic." Fix is mechanical:
-   stop appending a trailing "in {language}." after a `meaning` that
-   already ends in terminal punctuation (or drop that template variant
-   for such items), and move `jaeja`'s parenthetical out of `meaning`
-   (into `pronunciation_notes`, which is exactly what that field is
-   for). Lowest risk here — no behavior to weigh, just a string-
-   assembly bug plus one misplaced field.
+1. **Instructor-prompt template artifacts (#34 point 8). Done.** Two
+   independent causes, both mechanical: `audiolesson/phrasing/en.toml`'s
+   `meaning` prompt list had `"Say: {meaning} in {language}."`, which
+   collides with `exercises.py`'s `_m()` — it guarantees every English
+   `meaning` already ends in terminal punctuation, so anything the
+   template appends right after `{meaning}` doubles up ("Say: Well
+   then. in Icelandic."). Fixed by reordering rather than stripping
+   anything: `"In {language}, say: {meaning}"` puts the language name
+   *before* `{meaning}`, so `meaning`'s own punctuation is free to end
+   the sentence — the same word order the Japanese template already
+   used (`"{language}で「{meaning}」と言ってください。"`), just not yet
+   ported to English. Added
+   `test_meaning_prompt_never_doubles_up_terminal_punctuation`
+   (`PromptsTests`) asserting every English `meaning` variant ends with
+   `{meaning}` itself, so nothing can be appended after it again.
+
+   Second cause was specific to one item: `curricula/is-en/01-greetings.toml`'s
+   `jaeja` had `meaning = "Well then. (the all-purpose Icelandic
+   word)"`. **Correction from the owner on the original plan:** the
+   parenthetical is semantic/pragmatic information, not pronunciation —
+   `pronunciation_notes` was the wrong destination. `jaeja` already has
+   a dedicated `[[notes]]` entry (`90-notes.toml`) explaining exactly
+   this ("does the work of several Japanese words at once... rising
+   tone... falling..."), so the fix is simply to normalize `meaning`
+   down to `"Well then"` and let that existing note carry the nuance,
+   rather than duplicating it in two places. `meaning_ja` was already
+   clean (`"さて。／やれやれ。"`, no parenthetical) and untouched.
+
+   **Scope check, not touched:** a grep found dozens of other items
+   with parenthetical asides in `meaning` (`"(to a woman)"`, `"(the
+   language)"`, `"(o'clock)"`, …) — an established, intentional
+   disambiguation convention in this curriculum, not a mistake to
+   clean up. `jaeja` was only worth fixing because it duplicated a
+   dedicated note; the general convention stays.
 2. **Shorten the `godur_gender` milestone note; retire the aside
    framing for milestones specifically (#34 point 1, half of it).**
    Rewrite the note to lead with the concrete claim ("you've heard
@@ -1503,10 +1521,17 @@ Verified in this session:
    pilots 2/3 just shipped (too many grammar terms delivered at once;
    shouldn't close with "Back to the lesson." — "this *is* the
    lesson"). See "Session 16" above for the full write-up. Broken into
-   7 pilots, ordered by risk/design-judgment needed, **none started
-   yet:**
-   1. instructor-prompt template artifacts (mechanical string-assembly
-      bug plus one misplaced `meaning` field — lowest risk)
+   7 pilots, ordered by risk/design-judgment needed. **Done:**
+   1. instructor-prompt template artifacts — the English `meaning`
+      prompt's "in {language}" variant now puts the language name
+      *before* `{meaning}` instead of after, so it can't collide with
+      `meaning`'s own terminal punctuation; and `jaeja`'s redundant
+      parenthetical was normalized out of `meaning` (not moved to
+      `pronunciation_notes` — the owner corrected that part of the
+      plan: it's semantic/pragmatic, and `jaeja` already has a
+      dedicated note covering it).
+
+   **Not started:**
    2. shorten `godur_gender`'s text, retire the "aside" closing framing
       for milestone notes specifically (low risk; target-language
       speech *inside* a note's narration is explicitly deferred out of
