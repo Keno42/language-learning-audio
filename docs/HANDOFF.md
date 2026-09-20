@@ -4,10 +4,11 @@ _Last updated 2026-09-20 (session 15: the owner closed #23 and #25,
 folding both into #29 — one consolidated top-priority issue for
 designing curriculum sequencing from learner capabilities outward,
 covering both reusable vocabulary and grammatical dimensions. Docs
-updated to point at #29; no code/content changes yet — see item #1 in
-"Known gaps" for the actual scope)._ Keep this current: whoever picks
-the project up next, human or AI, should be able to continue from here
-without re-deriving decisions._
+updated to point at #29, then a first concrete pilot: the `fara`/"want
+to, going to" construction cluster moved from module 14 to module 2 —
+see item #1 in "Known gaps" for what's still open)._ Keep this current:
+whoever picks the project up next, human or AI, should be able to
+continue from here without re-deriving decisions._
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 
@@ -32,15 +33,60 @@ a gender-agreement pattern nobody has ever pointed out as such. That
 last point is #23's original ask, reframed: teach the dimension, not a
 per-pair hint.
 
-This session only updated docs (`docs/HANDOFF.md`'s "Known gaps" #1,
+This session updated docs (`docs/HANDOFF.md`'s "Known gaps" #1,
 `docs/CURRICULUM.md`'s top guideline) to point at #29 instead of the now-
 closed #23/#25, and folded #23's old "Known gaps" entry into #1 rather
-than leaving a stale line item for a closed issue. No code or curriculum
-content changed this session — #29 is a design-and-audit project scoped
-to the whole 993-item curriculum, not a single fix; picking a first
-concrete pilot (the issue's own two worked examples — the `fara`/leave-
-taking capability cluster, or the `góðan`/`góða`/`gott` gender-agreement
-teaching moment — are the natural starting points) is next.
+than leaving a stale line item for a closed issue. #29 is a design-and-
+audit project scoped to the whole 993-item curriculum, not a single fix,
+so it needs its own sequence of focused pilots rather than one PR — this
+session then did the first of them.
+
+### Pilot 1 — the `fara`/"want to, going to" cluster was already built, just mis-sequenced
+
+Looked for a piece of #29 concrete enough to execute in one pass, matching
+both the issue's own worked example (`fara`) and `dialogue_sequencing_report()`'s
+empirical top findings (`viltu`, `fara` flagged as high-repeat, large-gap
+words). Found that the reusable construction infrastructure the issue is
+asking for already existed, in `curricula/is-en/14-daily.toml` — a `tags =
+["inf"]` bare-infinitive vocab cluster (`fara_heim`, `sofa`, `borða`,
+`fara_i_sund`, `fara_ut`, `hvíla mig`, `versla`, `kaupa_mida`,
+`hringja_heim`, `fara_a_safnid`, `drekka_kaffi`) feeding four generative
+constructions (`eg_vil` "Ég vil {inf}.", `eg_aetla_ad` "Ég ætla að
+{inf}.", `viltu` "Viltu {inf}?", `eg_nenni_ekki` "Ég nenni ekki að
+{inf}.") — it was simply sequenced at module 14 of 26, item order ~400 of
+993, far later than its everyday-conversation value justifies. No design
+work was needed, only relocation: this is exactly the "recombination
+engine" #29 asks for, already correctly shaped.
+
+Moved the whole cluster (all 11 vocab items and all 4 constructions,
+unedited) from the end of `14-daily.toml` to the end of
+`02-clarifying.toml` (module 2 of 26), just before that file's own
+`[[dialogues]]` — with a comment explaining the mismatch between the
+items' `topics = ["daily", …]` tags and the file's "clarifying" theme:
+sequencing value outweighed topic-file purity here, and `topics` (not the
+filename) is what actually drives `--topics` filtering, so nothing about
+that split is lost. Checked first that none of the 11 vocab items'
+`target` text collides with an existing item elsewhere (`grep` across
+`curricula/is-en/`) and that nothing outside module 14 depends on the
+constructions' *old* position — module 15 already reuses `fara_i_sund`
+and `versla` as fills for its own "inf"-tagged constructions, and moving
+the definitions earlier only helps that (module 15 still merges after
+module 2).
+
+Effect on `dialogue_sequencing_report()`'s advisory output: before this
+pilot, `fara` and `viltu` were both in the top repeat-offender list;
+after, neither appears — `audiolesson validate curricula/is-en` now
+reports only `frábært, og, líka, sjáðu, vegabréf, góð, ferð, bara,
+krónur, hundruð` as words repeating across dialogues whose earliest
+teaching item sits far past what those dialogues otherwise need. Full
+validate output unchanged otherwise (993 items, no new errors); full test
+suite (72 tests) still green.
+
+Two more `fara`-shaped constructions turned up during the grep for
+collisions — "Ég fer {time}." and "Ég fer {frequency} í sund." in
+`06-time.toml` — outside the 4-construction/inf-vocab cluster this pilot
+touched. Left alone; worth a look in a later #29 pass but not part of
+this one's scope.
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
@@ -1063,13 +1109,16 @@ Verified in this session:
      still in `audiolesson validate`) is *one input* to this, not the
      mechanism — token occurrence is a signal, not equivalent to concept
      mastery, and the report should stay advisory.
-   **Not started:** the actual audit and re-sequencing. This is a
-   design-and-authoring project scoped to the whole 993-item, 26-module
-   curriculum, not a single fixable bug — expect it to need its own
-   sequence of focused passes (e.g. one worked pilot per acceptance
-   criterion: the `fara`/leave-taking capability cluster, the
-   `góðan`/`góða`/`gott` gender-agreement teaching moment, then a broader
-   audit), not one PR.
+   This is a design-and-authoring project scoped to the whole 993-item,
+   26-module curriculum, not a single fixable bug, so it's proceeding as
+   a sequence of focused pilots rather than one PR. **Done (session
+   15):** the `fara`/"want to, going to" cluster — an already-built
+   `tags = ["inf"]` vocab set plus 4 generative constructions — moved
+   from module 14 to module 2; `dialogue_sequencing_report()` no longer
+   flags `fara`/`viltu` (see "Pilot 1" above). **Not started:** the
+   `góðan`/`góða`/`gott` gender-agreement teaching moment, the two other
+   `fara`-shaped constructions in `06-time.toml` noticed but out of
+   scope for pilot 1, and the broader curriculum-wide audit.
 2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
 3. ~~Listen to a real lesson and tune timing~~ — partially done (session

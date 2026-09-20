@@ -350,6 +350,173 @@ examples = [
   { source = "Ég ætla að fá súpu.", source_meaning = "I'll have soup.", source_meaning_ja = "スープをください。", result = "Get ég fengið súpu?", result_meaning = "Could I have soup?", result_meaning_ja = "スープをいただけますか？" },
 ]
 
+# Promoted from module 14 (issue #29 pilot): "want to / going to / do you
+# want to / can't be bothered to" is a generative construction that recombines
+# with any bare infinitive, and "fara" (go) is one of the highest-repeat,
+# largest-sequencing-gap words the dialogue_sequencing_report() diagnostic
+# flags — see docs/HANDOFF.md. Sequencing value here outweighs topic fit;
+# `topics` still says what these items are about, not this file's name.
+
+[[items]]
+id = "fara_heim"
+kind = "vocab"
+target = "fara heim"
+meaning = "go home"
+meaning_ja = "家に帰る"
+difficulty = 1
+tags = ["inf"]
+topics = ["daily"]
+
+[[items]]
+id = "sofa"
+kind = "vocab"
+target = "sofa"
+meaning = "sleep"
+meaning_ja = "寝る"
+difficulty = 1
+tags = ["inf"]
+topics = ["daily"]
+
+[[items]]
+id = "borda"
+kind = "vocab"
+target = "borða"
+meaning = "eat"
+meaning_ja = "食べる"
+difficulty = 1
+tags = ["inf"]
+topics = ["daily", "food"]
+
+[[items]]
+id = "fara_i_sund"
+kind = "vocab"
+target = "fara í sund"
+meaning = "go swimming"
+meaning_ja = "泳ぎに行く"
+difficulty = 2
+tags = ["inf"]
+topics = ["daily", "hobbies"]
+
+[[items]]
+id = "fara_ut"
+kind = "vocab"
+target = "fara út"
+meaning = "go out"
+meaning_ja = "外に出る"
+difficulty = 1
+tags = ["inf"]
+topics = ["daily"]
+
+[[items]]
+id = "hvila_mig"
+kind = "vocab"
+target = "hvíla mig"
+meaning = "rest"
+meaning_ja = "休む"
+difficulty = 2
+tags = ["inf"]
+topics = ["daily"]
+
+[[items]]
+id = "versla"
+kind = "vocab"
+target = "versla"
+meaning = "go shopping"
+meaning_ja = "買い物する"
+difficulty = 2
+tags = ["inf"]
+topics = ["daily", "shopping"]
+
+[[items]]
+id = "kaupa_mida"
+kind = "vocab"
+target = "kaupa miða"
+meaning = "buy a ticket"
+meaning_ja = "切符を買う"
+difficulty = 2
+tags = ["inf"]
+topics = ["daily", "transport"]
+
+[[items]]
+id = "hringja_heim"
+kind = "vocab"
+target = "hringja heim"
+meaning = "call home"
+meaning_ja = "家に電話する"
+difficulty = 2
+tags = ["inf"]
+topics = ["daily"]
+
+[[items]]
+id = "fara_a_safnid"
+kind = "vocab"
+target = "fara á safnið"
+meaning = "go to the museum"
+meaning_ja = "博物館に行く"
+difficulty = 2
+tags = ["inf"]
+topics = ["daily"]
+
+[[items]]
+id = "drekka_kaffi"
+kind = "vocab"
+target = "drekka kaffi"
+meaning = "drink coffee"
+meaning_ja = "コーヒーを飲む"
+difficulty = 1
+tags = ["inf"]
+topics = ["daily", "cafe"]
+
+[[items]]
+id = "eg_vil"
+kind = "construction"
+target = "Ég vil {inf}."
+meaning = "I want to {inf}."
+meaning_ja = "{inf}のがいいです。"
+difficulty = 2
+topics = ["daily"]
+slots = { inf = "inf" }
+example = { inf = "fara_heim" }
+prereqs = ["fara_heim"]
+pronunciation_notes = "vilja takes the bare infinitive, no 'að'"
+
+[[items]]
+id = "eg_aetla_ad"
+kind = "construction"
+target = "Ég ætla að {inf}."
+meaning = "I'm going to {inf}."
+meaning_ja = "{inf}つもりです。"
+difficulty = 2
+topics = ["daily"]
+slots = { inf = "inf" }
+example = { inf = "fara_i_sund" }
+prereqs = ["fara_i_sund", "eg_vil"]
+
+[[items]]
+id = "viltu"
+kind = "construction"
+target = "Viltu {inf}?"
+meaning = "Do you want to {inf}?"
+meaning_ja = "{inf}のはどうですか？"
+difficulty = 2
+topics = ["daily", "arrangements"]
+slots = { inf = "inf" }
+example = { inf = "fara_ut" }
+prereqs = ["fara_ut", "eg_vil"]
+
+[[items]]
+id = "eg_nenni_ekki"
+kind = "construction"
+target = "Ég nenni ekki að {inf}."
+meaning = "I can't be bothered to {inf}."
+meaning_ja = "{inf}のが面倒です。"
+difficulty = 3
+topics = ["daily", "feelings"]
+slots = { inf = "inf" }
+example = { inf = "versla" }
+prereqs = ["versla", "eg_aetla_ad"]
+pronunciation_notes = "nenna — a very Icelandic verb"
+
 [[dialogues]]
 id = "tungumal"
 setting = "At the tourist information desk. The woman behind it speaks quickly."
