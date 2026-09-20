@@ -443,9 +443,11 @@ class LessonStructureTests(unittest.TestCase):
         self.assertEqual(sc.segments[end_idx + 1].type, "pause")  # a beat before the "back to it" line
 
     def test_milestone_note_is_not_framed_as_a_cultural_aside(self):
-        """Issue #29 pilot 2 review: an instructional milestone note names a pattern the
-        learner is ready for, so it must not open with the "quick aside" framing an optional
-        cultural note uses."""
+        """Issue #29 pilot 2 review, extended by issue #34 point 1: an instructional milestone
+        note names a pattern the learner is ready for, so it must not open OR close with the
+        "quick aside" framing an optional cultural note uses — #34 explicitly calls out "Back
+        to the lesson." as wrong here, since a milestone isn't a detour: "this *is* the
+        lesson"."""
         from audiolesson.content import Note
         from audiolesson.exercises import Builder
 
@@ -455,8 +457,9 @@ class LessonStructureTests(unittest.TestCase):
         sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
         b.note(sc, Note(id="n", text="A grammar pattern.", items=[], milestone=True))
         narrations = [s.text for s in sc.segments if s.type == "narrate"]
-        self.assertEqual(narrations, [prompts.get("milestone_intro"), "A grammar pattern.", prompts.get("aside_end")])
+        self.assertEqual(narrations, [prompts.get("milestone_intro"), "A grammar pattern.", prompts.get("milestone_end")])
         self.assertNotEqual(prompts.get("milestone_intro"), prompts.get("aside"))
+        self.assertNotEqual(prompts.get("milestone_end"), prompts.get("aside_end"))
 
     def test_dialogue_partner_line_and_its_translation_have_a_beat_between(self):
         """Issue #22: a native line and its known-language translation ran together with no

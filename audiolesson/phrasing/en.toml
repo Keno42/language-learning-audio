@@ -41,6 +41,7 @@ dialogue_partner_said = "{meaning}"
 aside = "A quick aside."
 aside_end = "Back to the lesson."
 milestone_intro = "Here's a pattern worth noticing."
+milestone_end = "Let's continue."
 dialogue_replay = "Now the whole conversation, without pauses."
 
 [language_names]
