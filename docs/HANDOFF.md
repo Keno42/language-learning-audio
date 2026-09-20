@@ -117,11 +117,7 @@ existing item — precisely the risk `docs/CURRICULUM.md` already warns
 about (the "halló" homograph mistake, session 6). A note only speaks
 English/Japanese explanation over phrases the learner already knows are
 correct, so it teaches "notice, name" safely; it doesn't attempt
-"practice, apply to new words." Attached to `items = ["gott_kvold"]`
-specifically (not all three) because the planner plays a note right
-after *any* related item is exercised (`planner.py`'s `_pick_note`), and
-`gott_kvold` is the last of the three introduced in file order — so by
-the time it fires, the other two have already been seen.
+"practice, apply to new words."
 
 **Left undone on purpose:** the generative "apply the pattern to a new
 noun" half of the issue's ask. That needs either a native-speaker check
@@ -132,6 +128,76 @@ rather than guessed at.
 Validate: 993 items unchanged, 47 notes (was 46), ja gloss coverage
 still complete (2001 strings, +1 for the new note). Full test suite (72
 tests) unchanged.
+
+#### Owner review on #32: a plain note doesn't guarantee the moment it's for
+
+The owner reviewed the PR before merging and found the first cut relied
+on coincidence in three places, plus one overclaim in the text:
+
+1. Attaching the note to `gott_kvold` alone and reasoning from file
+   order doesn't actually gate anything — `_pick_note(None)`'s generic
+   filler path (used when nothing else fits, or when a lesson would
+   otherwise end without any note played) can hand out *any* unheard
+   note regardless of `items`, so `godur_gender` could fire before the
+   learner had reached `gott_kvold` at all. And even when triggered via
+   the "related to what was just exercised" path, `_maybe_note()` still
+   subjected it to the same `note_chance` coin flip as a cultural aside,
+   so reaching the right item was no guarantee of actually hearing the
+   explanation there.
+2. Modeling it as an ordinary `Note` conflated an optional cultural
+   aside ("A quick aside. … Back to the lesson.") with a deliberate
+   instructional moment — exactly the framing #23 originally objected
+   to, recreated one level down.
+3. The note's English/Japanese text overclaimed: "Icelandic adjectives
+   always change to match the gender of the noun" is true here but
+   omits that case and number matter too, and that these three phrases
+   are a clean example precisely *because* they hold case (accusative)
+   and number (singular) constant while only gender varies.
+
+Fixed all three rather than replying that the scope was intentionally
+small — the owner's own suggested fix (a `milestone` flag on the
+existing `Note`, not a new abstraction) was the right-sized answer, and
+implementing it was no larger than the review comment itself:
+
+- `Note` gained a `milestone: bool` field (`audiolesson/content.py`).
+  `Planner._eligible_milestone()` (`planner.py`) is a new, separate path
+  from `_pick_note()`: a milestone note fires only when *every* id in
+  its `items` has been met (`learner.has_met`, checked fresh each time —
+  no reliance on introduction order) and it has never been heard before
+  (`learner.notes_heard`); `_maybe_note()` checks this first and, when it
+  finds one, plays it unconditionally — no `note_chance` roll. `_pick_note()`
+  (both the related-item and the generic-filler call sites) now excludes
+  every milestone note from its pool unconditionally, so one can never be
+  handed out as an unrelated aside. `godur_gender`'s `items` now lists
+  all three phrases, not just the last one — the gate no longer depends
+  on which order they were taught in.
+- Fixing the ordinary-`_pick_note` exclusion above surfaced a second,
+  latent bug during testing: without it, nothing stopped
+  `_eligible_milestone` itself from firing the *same* milestone note
+  again in a later lesson every time one of its items came up for
+  review — caught by the existing `test_notes_follow_related_items_and_are_rationed`
+  test going red once the new tests below were added. Fixed by also
+  checking `learner.notes_heard` inside `_eligible_milestone`, the same
+  "never repeat" guard `_pick_note` already had.
+- `Builder.note()` (`exercises.py`) now opens a milestone note with a
+  new `milestone_intro` prompt ("Here's a pattern worth noticing." /
+  「気づいてほしいパターンがあります。」, added to both
+  `audiolesson/phrasing/en.toml` and `ja.toml`) instead of "A quick
+  aside." — the closing line is unchanged; only the framing that matters
+  ("this is optional trivia" vs. "you're ready for this") changed.
+- Rewrote `godur_gender`'s text to name case and number as held
+  constant and flag that they, too, affect adjective endings and will
+  come later — the owner's own suggested wording, adapted to keep the
+  concrete dagur/nótt/kvöld → góðan/góða/gott mapping.
+- Added three tests (`tests/test_audiolesson.py`): the milestone note
+  never fires before all three phrases are known (run across 15
+  simulated lessons on the real curriculum — this is what would have
+  caught problem 1 directly), it's never handed out by `_pick_note(None)`
+  as filler, and `Builder.note()` uses the new intro line for a
+  milestone note.
+
+Validate and full test suite unchanged in outcome (993 items, 47 notes,
+ja complete); test count rose from 72 to 75.
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 

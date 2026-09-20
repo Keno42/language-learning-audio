@@ -11,7 +11,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 from audiolesson.content import CurriculumError, curriculum_from_dict, load_curriculum
-from audiolesson.learner import LearnerState
+from audiolesson.learner import ItemState, LearnerState
 from audiolesson.planner import PlanConfig, Planner, apply_to_learner
 from audiolesson.prompts import Prompts
 from audiolesson.render import load_profile, render_script
@@ -122,6 +122,43 @@ class CurriculumTests(unittest.TestCase):
             day += timedelta(days=1)
         self.assertGreater(len(heard), 4)
         self.assertEqual(sum(learner.notes_heard.values()), len(heard))
+
+    def test_milestone_note_never_fires_before_all_its_items_are_known(self):
+        """The góðan/góða/gott gender-agreement note (issue #29 pilot 2) is a milestone note:
+        it must never appear before the learner has met every one of Góðan daginn/Góða
+        nótt/Gott kvöld, unlike an ordinary cultural aside which only needs one related item
+        to have just been practised."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        gate_ids = cur.note_by_id["godur_gender"].items
+        self.assertEqual(set(gate_ids), {"godan_daginn", "goda_nott", "gott_kvold"})
+        learner = LearnerState("is", "en", "A1")
+        learner.feedback_mode = "auto"
+        day = TODAY
+        fired = False
+        for _ in range(15):
+            met_before = all(learner.has_met(i) for i in gate_ids)
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=3), today=day).build()
+            if any(e.kind == "note" and e.label == "note: godur_gender" for e in sc.exercises):
+                self.assertTrue(met_before, "milestone note fired before all its items were known")
+                fired = True
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        self.assertTrue(fired, "milestone note never fired across 15 simulated lessons")
+
+    def test_milestone_note_is_never_picked_as_unrelated_filler(self):
+        """Unlike a cultural aside, a milestone note must not be handed out by ``_pick_note``
+        as generic lesson filler — it only ever fires via ``_eligible_milestone``, right after
+        one of its items was just exercised."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        note = cur.note_by_id["godur_gender"]
+        learner = LearnerState("is", "en", "A1")
+        for item_id in note.items:
+            learner.items[item_id] = ItemState(due=TODAY.isoformat())
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=4), today=TODAY)
+        for _ in range(200):
+            picked = planner._pick_note(None)
+            if picked is not None:
+                self.assertNotEqual(picked.id, "godur_gender")
 
     def test_icelandic_course_has_complete_japanese_glosses(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
@@ -345,6 +382,22 @@ class LessonStructureTests(unittest.TestCase):
         self.assertEqual(narrations, [prompts.get("aside"), "Some cultural fact.", prompts.get("aside_end")])
         end_idx = next(i for i, s in enumerate(sc.segments) if s.text == "Some cultural fact.")
         self.assertEqual(sc.segments[end_idx + 1].type, "pause")  # a beat before the "back to it" line
+
+    def test_milestone_note_is_not_framed_as_a_cultural_aside(self):
+        """Issue #29 pilot 2 review: an instructional milestone note names a pattern the
+        learner is ready for, so it must not open with the "quick aside" framing an optional
+        cultural note uses."""
+        from audiolesson.content import Note
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.note(sc, Note(id="n", text="A grammar pattern.", items=[], milestone=True))
+        narrations = [s.text for s in sc.segments if s.type == "narrate"]
+        self.assertEqual(narrations, [prompts.get("milestone_intro"), "A grammar pattern.", prompts.get("aside_end")])
+        self.assertNotEqual(prompts.get("milestone_intro"), prompts.get("aside"))
 
     def test_dialogue_partner_line_and_its_translation_have_a_beat_between(self):
         """Issue #22: a native line and its known-language translation ran together with no

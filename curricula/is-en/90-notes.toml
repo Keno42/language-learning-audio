@@ -1,12 +1,17 @@
-# 90 — cultural asides, spoken by the instructor (English), written for a learner from Japan.
-# Each note is tied to items; the planner plays one right after one of them, at most a couple per lesson.
+# 90 — asides spoken by the instructor (English), written for a learner from Japan.
+# Each note is tied to items; the planner plays one right after one of them, at most a couple
+# per lesson. Most are optional cultural trivia. `milestone = true` marks an instructional note
+# instead: it never fires until the learner has met every id in `items`, and once it can fire,
+# it does (see audiolesson/planner.py's `_eligible_milestone`) — it is never picked as filler for
+# an unrelated exercise, unlike the cultural ones.
 
 [[notes]]
 id = "godur_gender"
-items = ["gott_kvold"]
+milestone = true
+items = ["godan_daginn", "goda_nott", "gott_kvold"]
 topics = ["grammar", "greetings"]
-text = "You already know three ways to say 'good' before a time of day — Góðan daginn, Góða nótt, Gott kvöld — and the ending isn't random. 'Dagur' (day) is masculine, so 'good' becomes 'góðan'; 'nótt' (night) is feminine, so it's 'góða'; 'kvöld' (evening) is neuter, so it stays 'gott'. Icelandic adjectives always change to match the gender of the noun they describe, and you'll keep seeing this same three-way pattern from here on."
-text_ja = "「良い」を時間帯につけて言う言い方を、もう3つ知っています — Góðan daginn、Góða nótt、Gott kvöld。この語尾の違いはでたらめではありません。'dagur'（昼）は男性名詞なので「良い」は'góðan'に、'nótt'（夜）は女性名詞なので'góða'に、'kvöld'（晩）は中性名詞なので'gott'のままです。アイスランド語の形容詞は修飾する名詞の性に合わせて語尾を変えるので、この3パターンはこれからも何度も出てきます。"
+text = "You already know three ways to say 'good' before a time of day — Góðan daginn, Góða nótt, Gott kvöld. All three are the same case (accusative) and number (singular); only the noun's gender changes, and that's why the adjective's ending changes with it: 'dagur' (day) is masculine, so 'good' becomes 'góðan'; 'nótt' (night) is feminine, so it's 'góða'; 'kvöld' (evening) is neuter, so it stays 'gott'. Icelandic adjectives also change for case and number, not just gender — you'll meet those later — but for now this is a clean look at gender agreement on its own."
+text_ja = "「良い」を時間帯につけて言う言い方を、もう3つ知っています — Góðan daginn、Góða nótt、Gott kvöld。この3つは格（対格）と数（単数）が同じで、違うのは名詞の性だけです。だから形容詞の語尾も名詞の性に合わせて変わります：'dagur'（昼）は男性名詞なので'góðan'、'nótt'（夜）は女性名詞なので'góða'、'kvöld'（晩）は中性名詞なので'gott'のままです。アイスランド語の形容詞は性だけでなく格や数によっても変わりますが、それはまた別の機会に。ここでは性による変化だけに注目してください。"
 
 [[notes]]
 id = "tvo_l"

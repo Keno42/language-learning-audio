@@ -181,12 +181,31 @@ class Planner:
         limit = self.cfg.max_notes if self.cfg.max_notes is not None else max(1, int(self.cfg.minutes // 12))
         return len(self.notes_played) < limit
 
+    def _eligible_milestone(self, related: list[str]) -> object | None:
+        """A milestone note whose ``items`` have all been met, triggered by one of them
+        having just been exercised. Never offered as generic filler (unlike ``_pick_note``,
+        this only ever looks at ``related``) and never subject to ``note_chance`` — once its
+        items are all met, it is due, not a coin flip."""
+        for i in related:
+            for n in self._notes_by_item.get(i, []):
+                if (
+                    n.milestone
+                    and n.id not in self.notes_played
+                    and self.learner.notes_heard.get(n.id, 0) == 0
+                    and all(self.learner.has_met(x) for x in n.items)
+                ):
+                    return n
+        return None
+
     def _pick_note(self, related: list[str] | None) -> object | None:
-        """Least-heard unplayed note, related to ``related`` items if given, else any."""
+        """Least-heard unplayed non-milestone note, related to ``related`` items if given,
+        else any. Milestone notes are never picked here — they only fire once eligible,
+        via ``_eligible_milestone``."""
         if related:
             pool = [n for i in related for n in self._notes_by_item.get(i, [])]
         else:
             pool = list(self.cur.notes)
+        pool = [n for n in pool if not n.milestone]
         pool = [n for n in pool if n.id not in self.notes_played]
         heard = self.learner.notes_heard
         if any(heard.get(n.id, 0) == 0 for n in self.cur.notes):
@@ -198,7 +217,14 @@ class Planner:
         return self.rng.choice(pool)
 
     def _maybe_note(self, sc: Script, related: list[str], remaining: float) -> None:
-        if not self._note_budget_left() or remaining < 40 or self.rng.random() > self.cfg.note_chance:
+        if not self._note_budget_left() or remaining < 40:
+            return
+        milestone = self._eligible_milestone(related)
+        if milestone is not None:
+            self.builder.note(sc, milestone)
+            self.notes_played.append(milestone.id)
+            return
+        if self.rng.random() > self.cfg.note_chance:
             return
         note = self._pick_note(related)
         if note is None:
