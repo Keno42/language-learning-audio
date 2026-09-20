@@ -17,11 +17,14 @@ fixing a budget-accounting bug the second milestone exposed), pilot 5
 (items can now carry several `situations` the planner rotates on
 repeat retrieval, instead of replaying the identical prompt every
 spaced review — retrofitted onto `velkomin`), and, out of order at the
-owner's request, pilot 7 (removed the vowel-run guesswork that cut long
-single words into mispronounceable fragments — 108 items now get slow
-whole-word repetition instead, no content changes needed) — see
-"Session 16" below and item #1a in "Known gaps" for the rest, including
-pilot 6, still open)._ Keep
+owner's request, pilot 7 then pilot 6 (removed the vowel-run guesswork
+that cut long single words into mispronounceable fragments — 108 items
+now get slow whole-word repetition instead, no content changes needed
+— then gave the planner a `drill_streak` counter that pulls an eligible
+dialogue forward once too many isolated recalls run in a row) — all 7
+pilots now have at least a first concrete step done; see "Session 16"
+below and item #1a in "Known gaps" for what's still open per pilot)._
+Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
 
@@ -347,22 +350,49 @@ and how much design judgment each needs before touching code:
    mechanism needs more precision later. Left as `exposures` for now.
    84 → 85 tests, all passing; validate unchanged.
 6. **Lesson shape: no long isolated-drill runs, prefer connected
-   dialogue as vocab grows, allow ending early (#34 points 5–6).**
-   Grouped together — they're the same underlying planner rebalancing
-   (how `build()`'s fallback ladder in `planner.py` decides what to do
-   when nothing specific is due) seen from three angles. **Highest
-   blast radius of the seven:** `build()`'s existing fallback order
-   (recall due → intro new → pull a reactivation forward → extra new
-   item → repeat → note → second review pass → stop short) is exactly
-   what several current tests pin down (`test_length_close_to_requested`,
-   `test_later_lessons_fill_the_requested_time`,
+   dialogue as vocab grows, allow ending early (#34 points 5–6). First
+   of several small changes, done — done after pilot 7 at the owner's
+   request.** Grouped together in the original plan — they're the same
+   underlying planner rebalancing (how `build()`'s fallback ladder in
+   `planner.py` decides what to do when nothing specific is due) seen
+   from three angles. **Highest blast radius of the seven:** `build()`'s
+   existing fallback order (recall due → intro new → pull a reactivation
+   forward → extra new item → repeat → note → second review pass → stop
+   short) is exactly what several current tests pin down
+   (`test_length_close_to_requested`, `test_later_lessons_fill_the_requested_time`,
    `test_first_lesson_at_default_pace_is_short_not_padded`,
-   `test_no_item_twice_in_a_row`), so this needs its own design pass —
-   probably several small changes (a repeat-drill counter that biases
-   toward a dialogue/note/early-stop once it climbs, dialogues explicitly
-   preferred once enough required items are known) rather than one
-   rewrite, each checked against the existing pacing tests before the
-   next.
+   `test_no_item_twice_in_a_row`), so per the plan's own guidance this
+   proceeded as several small changes, each checked against the existing
+   pacing tests, rather than one rewrite.
+
+   Shipped the first: a `drill_streak` counter (`PlanConfig.drill_streak_limit`,
+   default 5) tracking consecutive "recall"-kind exercises with nothing
+   else in between. Step 3 of `build()`'s fallback ladder — the periodic
+   `since_dialogue >= dialogue_every` dialogue check — now also fires
+   once `drill_streak` reaches the limit, pulling an eligible dialogue
+   forward ahead of its usual schedule instead of waiting through
+   however many more isolated recalls the periodic schedule would have
+   allowed first. The streak resets on any non-`"recall"` exercise
+   (dialogue, note, intro) and is computed once per loop iteration from
+   whatever exercise actually ended up last (including one added by
+   `_maybe_note`/`do_discriminate`), not tracked separately per code
+   path. All existing pacing tests passed unchanged — the fixture
+   curricula apparently don't hit long enough drill runs for this to
+   move their numbers — so verified the mechanism itself with a
+   dedicated synthetic-curriculum test (`curriculum_from_dict`, 10 known
+   review items, one eligible dialogue, `dialogue_every` set
+   unreachably high so only the streak could pull it forward): exactly
+   4 isolated recalls, then the dialogue. 86 → 87 tests, all passing;
+   validate unchanged.
+
+   **Not done, still open:** "the planner may finish below the nominal
+   time target rather than adding low-value filler repetitions" (the
+   other half of point 5) and "combine known items into mini-situation"/
+   listening-comprehension alternatives (point 6's other suggested
+   alternatives to another isolated drill) — these are separate design
+   threads from the dialogue-preference change above, deliberately not
+   bundled into the same pilot per the "several small changes, not one
+   rewrite" guidance.
 7. **Linguistically-meaningful backward-build chunking (#34 point 7).
    Done — the cheaper of the two options in the original plan.**
    Confirmed the pre-existing algorithm reproduced the issue's own
@@ -1851,12 +1881,18 @@ Verified in this session:
       gets slow whole-word repetition instead of a fabricated split —
       zero curriculum edits needed, all 108 affected items (incl. the
       issue's own `afsakid`/`fyrirgefdu`) pick it up automatically.
+   6. lesson shape, first of several small changes (done after pilot 7,
+      at the owner's request — **highest blast radius**, so taken last):
+      a `drill_streak` counter now pulls an eligible dialogue forward
+      once too many isolated recalls have run in a row, instead of
+      waiting for the periodic `dialogue_every` schedule. **Not done,
+      still open:** ending a lesson early rather than padding with
+      low-value repeats, and mini-situations/listening-comprehension as
+      alternatives to another isolated drill — separate design threads,
+      deliberately not bundled into this same change.
 
-   **Not started:**
-   6. lesson-shape rebalancing: no long isolated-drill runs, prefer
-      dialogue as vocab grows, allow ending early (**highest blast
-      radius** — touches `planner.py`'s `build()` fallback ladder that
-      several existing pacing tests pin down)
+   **Not started:** none — all 7 pilots have at least a first concrete
+   step done. What's left is scoped above, per pilot.
 2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
 3. ~~Listen to a real lesson and tune timing~~ — partially done (session

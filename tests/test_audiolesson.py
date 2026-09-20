@@ -83,6 +83,34 @@ class CurriculumTests(unittest.TestCase):
         with self.assertRaises(CurriculumError):
             curriculum_from_dict(raw)
 
+    def test_a_long_drill_streak_pulls_an_eligible_dialogue_forward(self):
+        """Issue #34 points 5-6: a long uninterrupted run of isolated recall exercises should
+        pull an eligible dialogue forward rather than waiting for its usual periodic schedule
+        (``dialogue_every``) — otherwise a well-stocked review lesson can run many consecutive
+        "situation -> pause -> answer" drills before ever reaching a connected dialogue."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(10)],
+            "dialogues": [
+                {
+                    "id": "d1",
+                    "setting": "A test setting.",
+                    "requires": ["w0", "w1"],
+                    "turns": [{"cue": "Say word 0.", "expect": "w0"}],
+                }
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(10):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        # dialogue_every set far out of reach so only drill_streak_limit can pull d1 forward
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, dialogue_every=1000, drill_streak_limit=4), today=TODAY)
+        sc = planner.build()
+        kinds = [ex.kind for ex in sc.exercises if ex.kind != "opening"]
+        self.assertEqual(kinds[:4], ["recall"] * 4, kinds)
+        self.assertEqual(kinds[4], "dialogue", kinds)
+
     def test_early_icelandic_lessons_mix_full_sentences_with_greetings(self):
         """Issue #12: the first few lessons were nothing but one- and two-word greetings to
         memorize. Guard against sliding back to that: among the first 10 items introduced,
