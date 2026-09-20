@@ -407,3 +407,48 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"dialogue {d.id!r}: each turn needs expect or expect_text")
             if t.expect_text and not t.expect_meaning:
                 raise CurriculumError(f"dialogue {d.id!r}: expect_text needs expect_meaning")
+
+
+# Proper names spoken in dialogues that don't need a teaching item — see
+# dialogue_sequencing_report and its hard-gating cousin, the
+# test_dialogue_lines_stay_within_taught_vocabulary test.
+_DIALOGUE_PROPER_NAMES = {"sóley"}
+_DIALOGUE_WORD_RE = re.compile(r"[^\W\d]+", re.UNICODE)
+
+
+def dialogue_sequencing_report(cur: Curriculum, gap_threshold: int = 100) -> list[dict]:
+    """Diagnostic only (issue #25) — this never gates dialogue eligibility, unlike
+    ``Dialogue.required_items``. It flags words spoken in a dialogue's ``opener``/``partner``
+    lines whose earliest teaching item sits far past the items the dialogue already requires:
+    a signal the curriculum may be sequencing that concept too late, or never introducing it as
+    reusable standalone vocabulary at all (buried inside a one-off fixed phrase instead), not
+    something to patch by tacking on more prerequisites. A repeat offender across many dialogues
+    is exactly the "high-value concept, introduced too late" case worth fixing at the source.
+
+    Returns one finding per (dialogue, word) pair whose gap exceeds ``gap_threshold``, sorted
+    worst-first. An empty list is not a guarantee every word is well-sequenced — only that
+    none crossed the threshold.
+    """
+    word_to_items: dict[str, list[tuple[int, str]]] = {}
+    for it in cur.items:
+        for w in _DIALOGUE_WORD_RE.findall(it.target):
+            word_to_items.setdefault(w.lower(), []).append((it.order, it.id))
+    for lst in word_to_items.values():
+        lst.sort()
+
+    findings = []
+    for d in cur.dialogues:
+        req_orders = [cur.by_id[i].order for i in d.required_items if i in cur.by_id]
+        base = max(req_orders) if req_orders else 0
+        lines = [t.opener for t in d.turns if t.opener] + [t.partner for t in d.turns if t.partner]
+        used = {w.lower() for w in _DIALOGUE_WORD_RE.findall(" ".join(lines))} - _DIALOGUE_PROPER_NAMES
+        for w in used:
+            cands = word_to_items.get(w)
+            if not cands:
+                continue  # taught nowhere at all -- test_dialogue_lines_stay_within_taught_vocabulary catches this
+            order, item_id = cands[0]
+            gap = order - base
+            if gap > gap_threshold:
+                findings.append({"dialogue": d.id, "word": w, "item": item_id, "item_order": order, "dialogue_base": base, "gap": gap})
+    findings.sort(key=lambda f: -f["gap"])
+    return findings

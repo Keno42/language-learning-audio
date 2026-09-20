@@ -120,6 +120,23 @@ takes an oblique case. See `curricula/is-en-a1.toml` for the pattern.
 
 ## Guidelines that make lessons good
 
+- **Top priority (issue #25, session 14): teach high-value reusable words
+  early, as their own item — don't let them stay buried inside one-off
+  fixed phrases.** A word that shows up constantly in real exchanges
+  (`frábært`, `viltu`, `fara`, `og`, `líka`, …) is worth a dedicated early
+  item precisely because it's generative: it combines into many later
+  sentences, not just the one phrase that happened to introduce it.
+  Writing a dialogue is a good test of this — if a natural partner line
+  needs a word the curriculum hasn't deliberately taught yet, that's a
+  sequencing gap to fix (move the concept earlier, or give it its own
+  item), not something to patch by adding the dialogue as a late
+  prerequisite or leaving the translation on forever. `audiolesson
+  validate <dir>` prints an advisory (not blocking) report of exactly
+  this — words in dialogue lines whose earliest teaching item sits far
+  past what the dialogue otherwise needs; a word repeating across several
+  dialogues in that report is a strong candidate to promote. See
+  `docs/HANDOFF.md` session 14 for how this was found and why gating
+  dialogue eligibility on comprehension turned out to be the wrong fix.
 - Introduce a construction right after (or together with) two things that fit
   its slot; the planner pulls one extra fill along automatically.
 - Give every phrase a `situation` — it is the stage that makes recall

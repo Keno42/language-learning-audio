@@ -1,10 +1,192 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-20 (session 13: rewrote 27 dialogues so their partner
-lines stay within taught vocabulary — issue #22's other content question,
-its "announce a dialogue is starting" ask is still open)._ Keep this
-current: whoever picks the project up next, human or AI, should be able to
-continue from here without re-deriving decisions._
+_Last updated 2026-09-20 (session 14: issues #25–#27. #27 and #26 done;
+#25 was reframed by the owner from "gate dialogues on comprehension" to
+"sequence the curriculum's vocabulary deliberately," now the project's
+top priority — an advisory validate report ships, the actual
+re-sequencing doesn't yet)._ Keep this current: whoever picks the project
+up next, human or AI, should be able to continue from here without
+re-deriving decisions._
+
+## Session 14: issues #25–#27, starting with #27 (durable learning)
+
+Three new issues arrived together, all written by the owner as substantial
+design proposals with explicit acceptance criteria but a deliberately open
+implementation schema — a different scale from the one-line bugs earlier in
+this batch. Reported all three, flagged that #27 underlies #25 (dialogue
+"already known" gating is only meaningful if "known" means durably known,
+not same-lesson presumed success) and arguably #26 too, and got a decision:
+implement in dependency order #27 → #25 → #26, and for #25, one
+dialogue-level list rather than a per-turn field. This entry covers #27.
+
+### Issue #27 — same-lesson recalls were counted as durable learning
+
+`ItemState.is_learned` (`successes >= 2`) gates everything downstream:
+`LearnerState.knows()`, which gates prereqs (`planner.py`'s `all(...)`
+checks), construction-slot fills (`exercises.py`), and dialogue eligibility.
+`successes` was incremented by `len(climbed)` — every non-intro stage
+reached *that lesson* — so an item introduced this lesson, reactivated
+twice more at expanding gaps in the same sitting (a real, intentional
+feature — see the ladder in `stages.py`), already had `successes == 2` and
+counted as "learned" before the lesson even ended. Presumed-success mode
+(the default) never distinguishes "recalled five minutes apart" from
+"recalled after an actual multi-day gap."
+
+The fix reuses machinery that already existed for exactly this
+distinction: `_schedule_success()`'s interval math already refuses to grow
+an item's spacing interval on an early review — "no new evidence about
+long-term retention" is a comment already in that function, one paragraph
+above where this bug lived.
+
+- Added `ItemState.durable_successes`, a second counter alongside
+  `successes`. `is_learned` now checks `durable_successes >= 2`, not
+  `successes >= 2` — `successes` is untouched and keeps its other jobs
+  (the `unfamiliar_multiplier`/`familiar_multiplier` split in `Timing`,
+  `review_priority`'s scoring, `review_stage`'s climb-or-repeat call —
+  none of those are about cross-item unlocking, so none of them needed to
+  change).
+- `record_lesson()` now calls a new `_is_durable_review()` (factored out of
+  `_schedule_success`'s own early/fresh check, called *before*
+  `_schedule_success` mutates `due`/`interval_days`) and increments
+  `durable_successes` by exactly 1 — once per lesson, however many stages
+  were climbed that lesson — only when this review is neither the item's
+  first (intro) lesson nor early against its due date.
+- `report()`'s failure path now demotes `durable_successes` alongside
+  `successes`, so explicit "I got this wrong" feedback can revoke durable
+  status, not just lower the raw count.
+- `cli.py status` gained a `dur` column next to `ok` so the two counters
+  are both visible when debugging pacing/eligibility.
+
+**Consequence, expected and real:** items now take genuinely longer to
+become usable as prereqs/construction fills/dialogue dependencies — around
+two real spaced reviews after intro, not one lesson. `test_lessons_form_a_
+sequence` needed its `course(6)` bumped to `course(10)`: the first dialogue
+in the sample French curriculum now appears at lesson 9 rather than
+somewhere in lessons 3–6, which is the intended behavior change working,
+not a regression to paper over (same category as the `hallo`-position and
+`new_items` fixture updates in earlier sessions).
+
+Test added: `test_durable_successes_need_a_review_on_or_after_its_due_date`
+in `tests/test_audiolesson.py::PacingTests`, driving `LearnerState.
+record_lesson()`/`report()` directly through same-lesson repeats, an early
+reactivation, a genuine due-date review, and a reported failure.
+
+**Next:** issue #25 (dialogue eligibility keyed on comprehension of the
+partner's actual lines, via a per-dialogue `comprehension_requires` list)
+now has a meaningful "already known" to build on.
+
+### Issue #25 — investigated, blocked on a scope decision
+
+Chose the schema (one `comprehension_requires` list per dialogue, sibling
+to the existing `requires`) before writing any code, and checked what it
+would actually contain by computing it: for every dialogue, tokenize its
+`opener`/`partner` lines and, for each word, find the earliest-`order`
+item anywhere in the curriculum whose `target` contains that exact word
+form — the same word-matching #22's audit already used, just resolving to
+a specific item instead of "does one exist at all."
+
+Every word resolved to *some* item (proper names aside), but "earliest"
+is sometimes nowhere near the dialogue. `nagranni` — the very first
+dialogue in the curriculum, today gated on 5 basic items — has a partner
+line, "Gott að heyra. Jæja, ég verð að fara." ("Good to hear. Well, I have
+to go."), where `heyra`/`verð`/`fara` don't have an early item at all:
+the earliest is #926, #788, and #398 of 993. Those three words are only
+ever taught as parts of fixed idiomatic phrases much later in the
+curriculum, not as freestanding vocabulary, so there's no early item to
+point at — literal word-level gating would push `nagranni`'s eligibility
+from "5 basic items" to "essentially the whole curriculum." Checked a few
+other dialogues too; this is the general pattern, not one bad case.
+
+Posted this finding as a comment on #25 rather than guessing at scope or
+picking between "content-words-only" and "hand-curated per dialogue"
+unilaterally — both are real options with different costs (the former
+needs a judgment call about what counts as a content word; the latter is
+a bigger authoring pass than #22's, which only needed *a* replacement
+wording, not a decision about what's prerequisite-worthy). No code
+changes for #25 this session; `Dialogue.requires` is unchanged.
+
+### Issue #25, reframed by the owner: this was never a gating problem
+
+The owner's reply rejected the whole premise, not just the two options
+above: *treating dialogue dependencies as something to fix by adding
+prerequisites was the wrong abstraction from the start.* Their point,
+condensed — a dialogue needing `nagranni`'s three words isn't evidence
+that those words need a prerequisite gate; it's evidence the curriculum
+never gave `fara` (to go) the dedicated, early, reusable item its actual
+generativity (combines with destinations, intentions, obligations, plans,
+transport, leave-taking) deserves. Fix the *sequencing*, and the
+dependency problem mostly dissolves on its own. They also drew the line
+between this issue and #26 explicitly: **#25 is what the learner should
+have been taught and when; #26 is how scaffolding fades once that
+knowledge genuinely exists** — #26's fade (done, see above) only pays off
+once #25's sequencing is actually fixed, not before.
+
+Asked directly what to do next; got two answers:
+
+1. Ship the diagnostic now. Done: `dialogue_sequencing_report()` in
+   `content.py`, wired into `audiolesson validate`. It's advisory, not
+   gating — confirmed by `test_dialogue_sequencing_report_is_advisory_
+   not_gating` explicitly asserting the flagged item never enters
+   `Dialogue.required_items`. It reports, per dialogue, the word whose
+   earliest teaching item sits furthest past what the dialogue already
+   requires, plus which words repeat across multiple dialogues — that
+   repetition is the real signal (a word several *different* dialogues
+   independently need is a strong "this should have been an early,
+   reusable item" candidate, not a coincidence). Current top repeaters
+   in the Icelandic course: `frábært`, `og`, `viltu`, `líka`, `sjáðu`,
+   `fara` — `fara` among them, matching the owner's own example exactly.
+2. Elevate this to the project's actual top priority, not a bounded
+   pilot fix: *"そもそも会話に出てくる&使えるべき高価値語を教え込む、のはこの
+   アプリ全体の最優先事項にして欲しい"* ("teaching high-value words that
+   show up in conversation and should be usable — I want that to be this
+   app's overall top priority"). Recorded as item **#1** in "Known gaps"
+   below (previously items were only reordered within their own issue's
+   scope; this is the first time an item has been placed ahead of
+   everything else project-wide) and as the first guideline in
+   `docs/CURRICULUM.md`'s "Guidelines that make lessons good."
+
+**Not done this session:** the actual re-sequencing — moving/adding early
+items for `frábært`/`viltu`/`fara`/etc. and rewiring the dialogues that
+depend on them. The report finds the gaps; closing them is real
+curriculum-authoring work, sized more like #22's 27-dialogue rewrite than
+anything smaller. That's the next concrete step whenever this is picked
+back up, guided by the report's repeat-word list.
+
+### Issue #26 — scaffolding now fades on repeat encounters
+
+`Builder.dialogue()` always narrated a translation of every partner line
+(`dialogue_partner_said`, when `translate_partner`) and an explicit "say
+X" cue (`turn.cue`) for every turn — so answering correctly never
+actually required understanding the partner's target-language line. The
+existing `dialogues_done` repetition counter (already used to grow how
+many turns a dialogue plays, and to add a natural, narrator-free replay
+pass once a dialogue is fully learned) turned out to be exactly the
+"encounter count" signal issue #26 asked for — no new state needed.
+
+- `Builder.dialogue()` gained `assisted: bool = True`. Translation now
+  only narrates when `assisted`. The per-turn cue now narrates when
+  `assisted` **or** the learner hasn't heard the partner say anything yet
+  this dialogue (`heard_partner`, true once any opener or partner line
+  has been spoken) — a turn that opens the dialogue with no `opener` has
+  nothing to react to, so it always keeps its cue regardless of
+  `assisted`, rather than leaving the learner with zero information.
+- `Planner._play_dialogue()` passes `assisted=(times == 0)`: full
+  scaffolding on the first encounter, comprehension-driven from the
+  second encounter on. The existing fully-natural replay pass (once a
+  dialogue is complete and has been played before) is untouched — it
+  already matched the issue's "stage 3."
+- Deliberately binary, not the full three-tier gradient the issue
+  sketched (assisted / responsive / natural): `times == 0` vs. `times >
+  0`, plus the pre-existing replay-once-complete pass as the natural
+  stage. A finer gradient (e.g. keeping the cue but dropping only the
+  translation for one encounter in between) is possible later if this
+  turns out too abrupt in practice — nothing here forecloses it, `times`
+  is still the only signal read.
+
+Test added: `test_dialogue_scaffolding_fades_on_later_encounters` in
+`tests/test_audiolesson.py::LessonStructureTests`, checking both the
+assisted and unassisted narration sets directly, including the
+no-opener-turn-keeps-its-cue exception.
 
 ## Session 13: issue #22, the content half — dialogues used untaught words
 
@@ -811,45 +993,79 @@ Verified in this session:
 
 ## Known gaps / next steps, in priority order
 
-1. **Test `edge` provider on a real network** (see above). If edge-tts's
+1. **Teach high-value reusable vocabulary early, as its own item — top
+   priority, per the owner directly** (issue #25, session 14, reframed;
+   see `docs/CURRICULUM.md`'s "Guidelines that make lessons good" for the
+   authoring rule this now sets). What's *not* the fix: gating dialogue
+   eligibility on comprehension of whatever words happen to be in a
+   partner line — tried computing that, and it breaks down (the first
+   dialogue in the course, `nagranni`, would need item #926 of 993 for
+   one word in one line, because that word is only ever taught embedded
+   in a fixed phrase far later, never as its own reusable item). What
+   *is* the fix, per the owner: decide communicative goals first,
+   introduce high-value/generative/reusable concepts early and
+   deliberately, and write dialogues from what's already been taught —
+   using a dialogue's need for an untaught word as a signal that the
+   *curriculum* is missing something, not that the dialogue needs a
+   patch. Concretely shipped this session: `audiolesson validate`'s new
+   advisory (non-blocking) report, `dialogue_sequencing_report()` in
+   `content.py`, surfaces exactly this signal — words in dialogue lines
+   whose earliest teaching item sits far past what the dialogue
+   otherwise needs, and which words repeat across dialogues (the
+   strongest "promote this to an early item" candidates: `frábært`,
+   `viltu`, `fara`, `og`, `líka`, from the Icelandic course as it stands).
+   **Not yet done:** actually moving/adding early items for those
+   candidates and rewriting the dialogues that depend on them — the
+   report finds the gaps, it doesn't close them. This is the same
+   underlying principle as #10 below (issue #23) applied to vocabulary
+   instead of grammatical case/gender/tense — both are really "curriculum
+   sequencing should be deliberate," and probably deserve being thought
+   through together rather than as two separate issues.
+2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
-2. ~~Listen to a real lesson and tune timing~~ — partially done (session
+3. ~~Listen to a real lesson and tune timing~~ — partially done (session
    10): `answer_pause`/`repeat_pause` were rewritten around real
    per-language speech estimates instead of a hand-tuned bucket table, on
    the owner's direct feedback that pauses ran long. `between_exercises`
    and `beat` haven't been listened-to yet.
-3. ~~`alternatives` never spoken~~ — done: at meaning+ stages, once per
+4. ~~`alternatives` never spoken~~ — done: at meaning+ stages, once per
    lesson per item, 50% chance: "You could also say:" + alternative.
-4. **Lesson-1 intro bunching.** With nothing to review, the first lesson opens
+5. **Lesson-1 intro bunching.** With nothing to review, the first lesson opens
    with 2–3 introductions in a row (nothing else exists yet). Acceptable but a
    short "listen to this conversation" opener, as some audio courses do,
    would be nicer.
-5. **Dialogue partner translation** is always narrated (`--no-translate` to
-   disable). Issue #22 (session 12) raised two concrete asks here, neither
-   decided yet: (a) the translation should ideally be *unnecessary*
-   because a dialogue's partner lines stay within vocabulary the lesson
-   already covers or will cover soon — that's a content-authoring
-   constraint on `curricula/is-en/*.toml`'s `[[dialogues]]`, not a code
-   change, and would need auditing all 31 existing dialogues; (b) the
-   learner should be told a dialogue is starting (a different voice is
-   about to speak) before the first partner line, not just given the
-   scene-setting `dlg.setting` narration. Both need a decision from the
-   project owner on scope before implementing — the margin bug in the
-   same issue is already fixed (session 12).
-6. **Curricula.** `fr-en-a1.toml` and its Japanese-instructor twin
+6. ~~Dialogue partner translation always narrated~~ — done for the
+   scaffolding-fade half (issue #26, session 14): translation and the
+   explicit "say X" cue are now only there on the *first* encounter
+   (`Builder.dialogue(..., assisted=...)`, driven by the same
+   `dialogues_done` repetition count that already grows how many turns
+   play). `--no-translate` still disables translation outright regardless
+   of encounter count, for whoever wants that. Two asks from issue #22
+   (session 12) are still open and undecided: (a) dialogue vocabulary
+   should ideally need no translation at all because it stays within
+   what the lesson covers — this is issue #25 now, in progress but
+   blocked: word-level gating turned out to pull in items from deep in
+   the curriculum for words that are only ever taught embedded in fixed
+   phrases (see the comment on #25 from session 14 — e.g. the first
+   dialogue, `nagranni`, would need item #926 of 993 for one word in one
+   line); (b) the learner should be told a dialogue is starting (a
+   different voice is about to speak) before the first partner line, not
+   just given the scene-setting `dlg.setting` narration — nobody has
+   picked this back up yet.
+7. **Curricula.** `fr-en-a1.toml` and its Japanese-instructor twin
    `fr-ja-a1.toml` (generated by `tools/derive_fr_ja.py` from a translation
    table; a test asserts the ids stay in sync). The Japanese strings were
    written by an AI, not reviewed by a native speaker — read them once.
    Numbers/plurals are deliberately absent (no morphology). Other target
    languages need a new curriculum file; no code changes.
-7. ~~Cross-lesson dialogue difficulty~~ — done: a dialogue plays
+8. ~~Cross-lesson dialogue difficulty~~ — done: a dialogue plays
    `dialogue_first_turns` (2) turns on first encounter and one more turn each
    later time, replayed without pauses once it is complete.
-8. ~~Parallel TTS~~ — done: providers flagged `parallel` (edge, openai) are
+9. ~~Parallel TTS~~ — done: providers flagged `parallel` (edge, openai) are
    warmed into the cache with `workers` threads (profile key, default 4).
    Untested against a real network, like the providers themselves.
-9. **Wheel install** verified to include `audiolesson/phrasing/*.toml`.
-10. **Minimal-pair tips, reframed as a planning problem** (issue #23,
+10. **Wheel install** verified to include `audiolesson/phrasing/*.toml`.
+11. **Minimal-pair tips, reframed as a planning problem** (issue #23,
     session 13, not started — deliberately). The owner's original report
     (a tip when a later item is a near-homograph of one already learned,
     e.g. Icelandic "goðan"/"goða") is real, but when this session proposed

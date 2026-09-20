@@ -216,6 +216,24 @@ class CurriculumTests(unittest.TestCase):
             missing = used - known - proper_names
             self.assertFalse(missing, f"{d.id}: {sorted(missing)}")
 
+    def test_dialogue_sequencing_report_is_advisory_not_gating(self):
+        """Issue #25 (reframed): a dialogue can use a word taught very late without that word
+        ever blocking eligibility -- the report only flags it as a sequencing signal for a
+        human to act on, same as the owner's own worked example (a real dialogue in the
+        Icelandic course needing a word from item #926 of 993)."""
+        from audiolesson.content import dialogue_sequencing_report
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        findings = dialogue_sequencing_report(cur)
+        self.assertTrue(findings)
+        worst = findings[0]
+        self.assertEqual(worst["dialogue"], "nagranni")
+        self.assertEqual(worst["word"], "heyra")
+        self.assertGreater(worst["gap"], 900)
+        # never gates: the flagged item isn't part of what actually decides eligibility
+        dlg = cur.dialogue_by_id["nagranni"]
+        self.assertNotIn(worst["item"], dlg.required_items)
+
     def test_backward_chunks_grow_from_the_end(self):
         cur = load_curriculum(CURRICULUM)
         it = cur.item("je_ne_comprends_pas")
@@ -343,6 +361,38 @@ class LessonStructureTests(unittest.TestCase):
         opener_idx = next(i for i, s in enumerate(sc.segments) if s.type == "speak" and s.text == "Bonjour !")
         self.assertEqual(sc.segments[opener_idx + 1].type, "pause")
 
+    def test_dialogue_scaffolding_fades_on_later_encounters(self):
+        """Issue #26: a translation of the partner's line plus an explicit "say X" cue meant
+        the learner never had to understand the partner to answer correctly. On a later
+        encounter (assisted=False) both should drop once there's a partner line to react to —
+        but a turn with nothing said yet (no opener, nothing before it) must keep its cue,
+        since there would otherwise be no way to know what to say."""
+        from audiolesson.content import Dialogue, DialogueTurn
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        turns = [
+            DialogueTurn(cue="Ask how much.", expect_text="Combien ?", opener=None, partner="Avec lait ?", partner_meaning="With milk?"),
+            DialogueTurn(cue="Say no thanks.", expect_text="Non, merci."),
+        ]
+        dlg = Dialogue(id="d", setting="A scene.", turns=turns)
+
+        assisted = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.dialogue(assisted, dlg, assisted=True)
+        narrations = [s.text for s in assisted.segments if s.type == "narrate"]
+        self.assertIn("Ask how much.", narrations)
+        self.assertIn("Say no thanks.", narrations)
+        self.assertTrue(any("With milk?" in n for n in narrations))
+
+        later = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.dialogue(later, dlg, assisted=False)
+        narrations = [s.text for s in later.segments if s.type == "narrate"]
+        self.assertIn("Ask how much.", narrations)  # turn 1: nothing said yet, cue stays
+        self.assertNotIn("Say no thanks.", narrations)  # turn 2: partner just spoke, cue drops
+        self.assertFalse(any("With milk?" in n for n in narrations))  # translation drops too
+
     def test_later_lessons_fill_the_requested_time(self):
         _, scripts = course(8, minutes=30)
         minutes = [round(sc.total_duration / 60, 1) for sc in scripts]
@@ -399,8 +449,10 @@ class LessonStructureTests(unittest.TestCase):
 
 class CourseTests(unittest.TestCase):
     def test_lessons_form_a_sequence(self):
-        learner, scripts = course(6)
-        self.assertEqual(learner.lessons_completed, 6)
+        # long enough that items reach durable_successes>=2 (a review on/after its own due
+        # date, not just intra-lesson practice) before a dialogue needs them known
+        learner, scripts = course(10)
+        self.assertEqual(learner.lessons_completed, 10)
         seen = set()
         for sc in scripts:
             for i in sc.meta["new_items"]:
@@ -501,6 +553,41 @@ class JapaneseInstructorTests(unittest.TestCase):
 
 
 class PacingTests(unittest.TestCase):
+    def test_durable_successes_need_a_review_on_or_after_its_due_date(self):
+        """Issue #27: several recalls minutes apart in one lesson (the intra-lesson
+        reactivation ladder) are good practice but not evidence of retention across time.
+        is_learned must not fire on same-lesson repeats alone."""
+        learner = fresh()
+        day = TODAY
+        # intro + two same-lesson reactivations: successes go up, but nothing durable yet
+        learner.record_lesson(1, {"x": ["intro", "hinted", "meaning"]}, day)
+        st = learner.items["x"]
+        self.assertEqual(st.successes, 2)
+        self.assertEqual(st.durable_successes, 0)
+        self.assertFalse(st.is_learned)
+
+        # reactivated again before its due date: still no durable evidence
+        early = date.fromisoformat(st.due) - timedelta(days=1)
+        if early > day:
+            learner.record_lesson(2, {"x": ["meaning"]}, early)
+            self.assertEqual(learner.items["x"].durable_successes, 0)
+
+        # a real review on/after the due date: this is durable evidence
+        due = date.fromisoformat(st.due)
+        learner.record_lesson(3, {"x": ["meaning"]}, due)
+        self.assertEqual(learner.items["x"].durable_successes, 1)
+        self.assertFalse(learner.items["x"].is_learned)  # one is not enough yet
+
+        due2 = date.fromisoformat(learner.items["x"].due)
+        learner.record_lesson(4, {"x": ["meaning"]}, due2)
+        self.assertEqual(learner.items["x"].durable_successes, 2)
+        self.assertTrue(learner.items["x"].is_learned)
+
+        # explicit failure feedback demotes durable standing, not just the raw count
+        learner.report(["x"], [], due2)
+        self.assertEqual(learner.items["x"].durable_successes, 1)
+        self.assertFalse(learner.items["x"].is_learned)
+
     def test_default_pace_is_about_one_per_five_minutes(self):
         learner = fresh()
         self.assertEqual(learner.suggest_pace(30, TODAY)[0], 6)

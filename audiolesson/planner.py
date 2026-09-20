@@ -440,11 +440,14 @@ class Planner:
         return sc
 
     def _play_dialogue(self, sc: Script, dlg: Dialogue) -> None:
-        """Dialogues grow: the first encounter plays a couple of turns, each later one adds a turn."""
+        """Dialogues grow: the first encounter plays a couple of turns, each later one adds a
+        turn. Scaffolding fades on the same schedule (issue #26): translations and response
+        cues are only there the first time, so later encounters ask for comprehension of the
+        partner's actual line, not just recall of a cue."""
         times = self.learner.dialogues_done.get(dlg.id, 0)
         max_turns = min(len(dlg.turns), self.cfg.dialogue_first_turns + times)
         full = max_turns >= len(dlg.turns)
-        ex = self.builder.dialogue(sc, dlg, replay=(times > 0 and full), max_turns=max_turns)
+        ex = self.builder.dialogue(sc, dlg, replay=(times > 0 and full), max_turns=max_turns, assisted=(times == 0))
         primary = [t.expect for t in dlg.turns[:max_turns] if t.expect]
         self._record(primary, "dialogue", ex.item_ids)
         self.dialogues_played.append(dlg.id)

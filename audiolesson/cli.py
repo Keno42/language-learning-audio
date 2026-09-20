@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from .content import CurriculumError, load_curriculum
+from .content import CurriculumError, dialogue_sequencing_report, load_curriculum
 from .learner import LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -347,10 +347,10 @@ def cmd_status(args) -> int:
     for item_id, st in learner.items.items():
         rows.append((learner.review_priority(item_id, today), item_id, st))
     rows.sort(key=lambda r: -r[0])
-    print(f"{'item':28} {'stage':10} {'due':10} {'ok':>3} {'fail':>4} {'ivl':>5}")
+    print(f"{'item':28} {'stage':10} {'due':10} {'ok':>3} {'dur':>3} {'fail':>4} {'ivl':>5}")
     for prio, item_id, st in rows[:40]:
         flag = "*" if prio >= 1.0 else " "
-        print(f"{flag}{item_id:27} {st.stage:10} {st.due:10} {st.successes:3d} {st.failures:4d} {st.interval_days:5.1f}")
+        print(f"{flag}{item_id:27} {st.stage:10} {st.due:10} {st.successes:3d} {st.durable_successes:3d} {st.failures:4d} {st.interval_days:5.1f}")
     if len(rows) > 40:
         print(f"… and {len(rows) - 40} more")
     due = sum(1 for prio, _, _ in rows if prio >= 1.0)
@@ -384,6 +384,20 @@ def cmd_validate(args) -> int:
             print(f"{lang}: {total - len(c.missing_glosses)}/{total} strings glossed; missing in {len(by_item)} entries, e.g. {', '.join(list(by_item)[:10])}")
         else:
             print(f"{lang}: complete ({total} strings)")
+    findings = dialogue_sequencing_report(cur)
+    if findings:
+        words: dict[str, int] = {}
+        for f in findings:
+            words[f["word"]] = words.get(f["word"], 0) + 1
+        repeats = sorted((w for w, n in words.items() if n > 1), key=lambda w: -words[w])
+        print(
+            f"advisory (issue #25, not a failure): {len(findings)} dialogue/word pairs where the "
+            f"earliest teaching item sits >100 items past the dialogue's own requirements — a "
+            f"sequencing signal, not a gate. Worst: {findings[0]['dialogue']!r} needs {findings[0]['word']!r} "
+            f"from {findings[0]['item']!r} (#{findings[0]['item_order']}), {findings[0]['gap']} items past its own base."
+        )
+        if repeats:
+            print(f"  words repeating across dialogues (candidates to introduce earlier, as reusable items): {', '.join(repeats[:10])}")
     return 0
 
 
