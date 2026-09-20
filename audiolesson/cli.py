@@ -391,7 +391,7 @@ def cmd_validate(args) -> int:
             words[f["word"]] = words.get(f["word"], 0) + 1
         repeats = sorted((w for w, n in words.items() if n > 1), key=lambda w: -words[w])
         print(
-            f"advisory (issue #25, not a failure): {len(findings)} dialogue/word pairs where the "
+            f"advisory (issue #29, not a failure): {len(findings)} dialogue/word pairs where the "
             f"earliest teaching item sits >100 items past the dialogue's own requirements — a "
             f"sequencing signal, not a gate. Worst: {findings[0]['dialogue']!r} needs {findings[0]['word']!r} "
             f"from {findings[0]['item']!r} (#{findings[0]['item_order']}), {findings[0]['gap']} items past its own base."

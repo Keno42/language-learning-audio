@@ -417,8 +417,9 @@ _DIALOGUE_WORD_RE = re.compile(r"[^\W\d]+", re.UNICODE)
 
 
 def dialogue_sequencing_report(cur: Curriculum, gap_threshold: int = 100) -> list[dict]:
-    """Diagnostic only (issue #25) — this never gates dialogue eligibility, unlike
-    ``Dialogue.required_items``. It flags words spoken in a dialogue's ``opener``/``partner``
+    """Diagnostic only (born from issue #25, now tracked under #29) — this never gates
+    dialogue eligibility, unlike ``Dialogue.required_items``. It flags words spoken in a
+    dialogue's ``opener``/``partner``
     lines whose earliest teaching item sits far past the items the dialogue already requires:
     a signal the curriculum may be sequencing that concept too late, or never introducing it as
     reusable standalone vocabulary at all (buried inside a one-off fixed phrase instead), not

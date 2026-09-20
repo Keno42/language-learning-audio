@@ -1,12 +1,46 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-20 (session 14: issues #25–#27. #27 and #26 done;
-#25 was reframed by the owner from "gate dialogues on comprehension" to
-"sequence the curriculum's vocabulary deliberately," now the project's
-top priority — an advisory validate report ships, the actual
-re-sequencing doesn't yet)._ Keep this current: whoever picks the project
-up next, human or AI, should be able to continue from here without
-re-deriving decisions._
+_Last updated 2026-09-20 (session 15: the owner closed #23 and #25,
+folding both into #29 — one consolidated top-priority issue for
+designing curriculum sequencing from learner capabilities outward,
+covering both reusable vocabulary and grammatical dimensions. Docs
+updated to point at #29; no code/content changes yet — see item #1 in
+"Known gaps" for the actual scope)._ Keep this current: whoever picks
+the project up next, human or AI, should be able to continue from here
+without re-deriving decisions._
+
+## Session 15: #23 and #25 closed, consolidated into #29
+
+The owner reorganized the open issues right after session 14: closed #23
+("minimal-pair tips") and #25 ("dialogue eligibility should depend on
+vocabulary already learned"), and opened #29, "Design curriculum around
+reusable concepts and communicative capabilities," as one issue covering
+both. This isn't a new problem — it's the same "curriculum sequencing
+should be deliberate" thread session 14 already found running through
+both issues, now written up as its own top-level design document instead
+of living as an aside inside two separate ones.
+
+#29 generalizes what #25 was reaching for (reusable vocabulary,
+introduced early and deliberately) to the whole curriculum: choosing the
+right teaching unit (word, construction, grammatical distinction, or
+discourse pattern) for a high-value concept, and introducing grammatical
+dimensions (case, gender, number, tense, person, mood, modality,
+agreement) deliberately once familiar examples make a contrast visible —
+its own worked example is `Góðan daginn`/`Góða nótt`/`Gott kvöld`, three
+items every learner already knows, whose differing adjective endings are
+a gender-agreement pattern nobody has ever pointed out as such. That
+last point is #23's original ask, reframed: teach the dimension, not a
+per-pair hint.
+
+This session only updated docs (`docs/HANDOFF.md`'s "Known gaps" #1,
+`docs/CURRICULUM.md`'s top guideline) to point at #29 instead of the now-
+closed #23/#25, and folded #23's old "Known gaps" entry into #1 rather
+than leaving a stale line item for a closed issue. No code or curriculum
+content changed this session — #29 is a design-and-audit project scoped
+to the whole 993-item curriculum, not a single fix; picking a first
+concrete pilot (the issue's own two worked examples — the `fara`/leave-
+taking capability cluster, or the `góðan`/`góða`/`gott` gender-agreement
+teaching moment — are the natural starting points) is next.
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
@@ -993,34 +1027,49 @@ Verified in this session:
 
 ## Known gaps / next steps, in priority order
 
-1. **Teach high-value reusable vocabulary early, as its own item — top
-   priority, per the owner directly** (issue #25, session 14, reframed;
-   see `docs/CURRICULUM.md`'s "Guidelines that make lessons good" for the
-   authoring rule this now sets). What's *not* the fix: gating dialogue
-   eligibility on comprehension of whatever words happen to be in a
-   partner line — tried computing that, and it breaks down (the first
-   dialogue in the course, `nagranni`, would need item #926 of 993 for
-   one word in one line, because that word is only ever taught embedded
-   in a fixed phrase far later, never as its own reusable item). What
-   *is* the fix, per the owner: decide communicative goals first,
-   introduce high-value/generative/reusable concepts early and
-   deliberately, and write dialogues from what's already been taught —
-   using a dialogue's need for an untaught word as a signal that the
-   *curriculum* is missing something, not that the dialogue needs a
-   patch. Concretely shipped this session: `audiolesson validate`'s new
-   advisory (non-blocking) report, `dialogue_sequencing_report()` in
-   `content.py`, surfaces exactly this signal — words in dialogue lines
-   whose earliest teaching item sits far past what the dialogue
-   otherwise needs, and which words repeat across dialogues (the
-   strongest "promote this to an early item" candidates: `frábært`,
-   `viltu`, `fara`, `og`, `líka`, from the Icelandic course as it stands).
-   **Not yet done:** actually moving/adding early items for those
-   candidates and rewriting the dialogues that depend on them — the
-   report finds the gaps, it doesn't close them. This is the same
-   underlying principle as #10 below (issue #23) applied to vocabulary
-   instead of grammatical case/gender/tense — both are really "curriculum
-   sequencing should be deliberate," and probably deserve being thought
-   through together rather than as two separate issues.
+1. **Design curriculum sequencing from learner capabilities outward — top
+   priority, per the owner directly** (issue #29, session 15; supersedes
+   and consolidates #23 "grammatical dimensions" and #25 "reusable
+   vocabulary," both closed into this one issue — see `docs/CURRICULUM.md`'s
+   "Guidelines that make lessons good" for the authoring rule this sets).
+   Genesis: session 14 tried to fix "dialogues sometimes use untaught
+   words" by gating dialogue eligibility on comprehension prerequisites.
+   That broke down mechanically (the first dialogue in the course,
+   `nagranni`, would need item #926 of 993 for one word in one line) —
+   and the owner rejected the *category* of fix, not just that schema:
+   a dialogue needing an untaught word is a curriculum-sequencing bug,
+   not a dialogue bug, so the fix belongs in how material is ordered and
+   chosen, not in a prerequisite gate bolted onto dialogues afterward.
+   Issue #29 generalizes this beyond vocabulary to the whole curriculum:
+   - Sequencing should weigh **frequency, communicative utility,
+     generativity, dependency value (how much it unlocks), and
+     cross-context reuse** together — not just "does this word occur a
+     lot."
+   - The curriculum should pick the **right teaching unit** for a
+     high-value concept — a reusable verb (`fara`), a construction
+     ("need/have to + infinitive"), a grammatical distinction, or a
+     discourse pattern — rather than defaulting every useful surface word
+     to its own standalone vocab item.
+   - **Grammatical dimensions** (case, gender, number, tense, person,
+     mood, modality, agreement) should be introduced *deliberately* once
+     enough familiar examples exist to make a contrast visible — the
+     issue's own worked example: `Góðan daginn` / `Góða nótt` / `Gott
+     kvöld` are all already-known items whose differing adjective endings
+     (`góðan`/`góða`/`gott`) are a systematic gender-agreement pattern
+     nobody has ever pointed out as such. This is exactly the "goðan
+     after goða" tip #23 originally asked for, reframed as "teach the
+     dimension," not "patch each pair with a hint."
+   - The `dialogue_sequencing_report()` diagnostic (issue #25, session 14,
+     still in `audiolesson validate`) is *one input* to this, not the
+     mechanism — token occurrence is a signal, not equivalent to concept
+     mastery, and the report should stay advisory.
+   **Not started:** the actual audit and re-sequencing. This is a
+   design-and-authoring project scoped to the whole 993-item, 26-module
+   curriculum, not a single fixable bug — expect it to need its own
+   sequence of focused passes (e.g. one worked pilot per acceptance
+   criterion: the `fara`/leave-taking capability cluster, the
+   `góðan`/`góða`/`gott` gender-agreement teaching moment, then a broader
+   audit), not one PR.
 2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
 3. ~~Listen to a real lesson and tune timing~~ — partially done (session
@@ -1043,14 +1092,12 @@ Verified in this session:
    of encounter count, for whoever wants that. Two asks from issue #22
    (session 12) are still open and undecided: (a) dialogue vocabulary
    should ideally need no translation at all because it stays within
-   what the lesson covers — this is issue #25 now, in progress but
-   blocked: word-level gating turned out to pull in items from deep in
-   the curriculum for words that are only ever taught embedded in fixed
-   phrases (see the comment on #25 from session 14 — e.g. the first
-   dialogue, `nagranni`, would need item #926 of 993 for one word in one
-   line); (b) the learner should be told a dialogue is starting (a
-   different voice is about to speak) before the first partner line, not
-   just given the scene-setting `dlg.setting` narration — nobody has
+   what the lesson covers — this is item #1 above now (issue #29,
+   session 15; the #25 gating approach it grew out of was closed once
+   the owner reframed it as a curriculum-sequencing problem, not a
+   dialogue one); (b) the learner should be told a dialogue is starting
+   (a different voice is about to speak) before the first partner line,
+   not just given the scene-setting `dlg.setting` narration — nobody has
    picked this back up yet.
 7. **Curricula.** `fr-en-a1.toml` and its Japanese-instructor twin
    `fr-ja-a1.toml` (generated by `tools/derive_fr_ja.py` from a translation
@@ -1065,28 +1112,11 @@ Verified in this session:
    warmed into the cache with `workers` threads (profile key, default 4).
    Untested against a real network, like the providers themselves.
 10. **Wheel install** verified to include `audiolesson/phrasing/*.toml`.
-11. **Minimal-pair tips, reframed as a planning problem** (issue #23,
-    session 13, not started — deliberately). The owner's original report
-    (a tip when a later item is a near-homograph of one already learned,
-    e.g. Icelandic "goðan"/"goða") is real, but when this session proposed
-    a quick fix — an optional `confusable_with`/`confusable_tip` field
-    authored per-pair — the owner pushed back on the approach, not just
-    the scope: *"語彙をランダムに並べてあとからそういうことを考える代わりに、
-    最初から教育プランとして組み込まれているべきだと思う。学習者がどこまで学
-    んでいて、どこをきっかけにして性、時制、その他その言語特有の水平方向のマ
-    インドセットを拡張していくのか、プランニングが優先で、このヒント機能対応
-    はその場しのぎすぎて未来がない"* — a bolt-on hint is a stopgap; the
-    real fix is that curriculum sequencing itself should deliberately
-    introduce a grammatical dimension (case, gender, tense, …) at the
-    point the learner is ready to "expand horizontally" into it, with the
-    contrast *taught*, not stumbled into and then explained away. That's
-    a planning/curriculum-architecture question — how `Item.order` and
-    the planner decide what comes next — not a per-item field. No design
-    exists yet for what "ready to expand into a grammatical dimension"
-    would even mean computationally (a new kind of prereq? a tag on the
-    dimension itself, distinct from `topics`?). Needs that design
-    conversation before any code, and probably before the next occurrence
-    of this issue gets treated as a one-off again.
+
+(Issue #23's "minimal-pair tip" ask is folded into item #1 above — issue
+#29 reframes it as "introduce the grammatical dimension deliberately,"
+not a per-pair hint. #23 is closed; don't re-open a separate line item
+for it.)
 
 ## Where things are
 
