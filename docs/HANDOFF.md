@@ -199,6 +199,59 @@ implementing it was no larger than the review comment itself:
 Validate and full test suite unchanged in outcome (993 items, 47 notes,
 ja complete); test count rose from 72 to 75.
 
+#### Second round: milestone eligibility still had two timing gaps
+
+The owner re-reviewed the fix above and found the "guarantee" from
+point 1 was still incomplete, plus a smaller side effect:
+
+1. `_eligible_milestone()` checked `learner.has_met(x)`, but a newly
+   introduced item isn't written into `LearnerState` until
+   `apply_to_learner()` runs after the *entire* lesson script is built —
+   so a lesson that introduces the third of the three phrases wouldn't
+   count it as met yet, and the note would only fire one lesson later
+   than intended, on some future incidental review of one of the three.
+2. `_maybe_note()` checked `_note_budget_left()` before even looking for
+   an eligible milestone, so an earlier cultural aside using up that
+   lesson's note budget (or a `max_notes` of 0) could silently suppress
+   a milestone that was actually due.
+3. Smaller: `_pick_note()`'s "are there any unheard notes?" scan
+   (`any(heard.get(n.id, 0) == 0 for n in self.cur.notes)`) still
+   iterated over milestone notes too. An ineligible milestone is
+   permanently "unheard" from `_pick_note`'s point of view since it
+   never picks one anyway, so counting it could wrongly force the "only
+   offer unheard notes" restriction and block repeats of ordinary notes
+   that had all genuinely been heard.
+
+Fixed all three (`planner.py`):
+
+- `_eligible_milestone()`'s gate is now `learner.has_met(x) or x in
+  self.exposures` — `Planner.exposures` (already existed, used for the
+  reactivation ladder) tracks every item touched so far in the
+  *current*, still-being-built lesson, so the milestone becomes eligible
+  the moment its last item is exercised, same lesson, not the next one
+  that happens to touch one of the three again.
+- `_maybe_note()` now checks `_eligible_milestone()` first, gated only
+  on there being enough time left to fit a note (`remaining >= 40`) —
+  the ordinary `_note_budget_left()`/`note_chance` checks now only apply
+  to the non-milestone path below it. A due milestone can no longer be
+  crowded out by an earlier aside or a tight budget.
+- The "any unheard notes?" scan in `_pick_note()` now excludes milestone
+  notes (`if not n.milestone`), so an ineligible one no longer
+  suppresses repeats of ordinary notes that are all actually heard.
+
+Added three more tests: `_eligible_milestone` becomes eligible via
+`planner.exposures` alone (without touching `LearnerState`), a milestone
+fires even with `max_notes=0`, and `_pick_note` still returns an
+already-fully-heard ordinary note when the only unheard note is an
+ineligible milestone. Also had to rewrite the first round's "never fires
+before all items are known" test: it was asserting `has_met` *before*
+`Planner.build()`, which is now provably too early a checkpoint by
+design (that's exactly the gap point 1 fixed) — it now checks `has_met`
+*after* `apply_to_learner()` for the same lesson, i.e. "a lesson that
+played the note must end up knowing all three," which the old,
+one-lesson-later behavior also happened to satisfy but for the wrong
+reason. 75 → 78 tests, all passing; validate unchanged.
+
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
 Three new issues arrived together, all written by the owner as substantial

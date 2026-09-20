@@ -185,14 +185,21 @@ class Planner:
         """A milestone note whose ``items`` have all been met, triggered by one of them
         having just been exercised. Never offered as generic filler (unlike ``_pick_note``,
         this only ever looks at ``related``) and never subject to ``note_chance`` — once its
-        items are all met, it is due, not a coin flip."""
+        items are all met, it is due, not a coin flip.
+
+        ``learner.has_met`` alone lags a lesson behind: a newly introduced item isn't
+        persisted to ``LearnerState`` until ``apply_to_learner()`` runs after the whole
+        lesson is built, so the lesson that teaches the final item of the three would
+        otherwise not count it yet. ``self.exposures`` already tracks every item touched so
+        far *this* lesson, so a met-or-exposed check makes the milestone fire on the very
+        lesson its last example is introduced, not one lesson later."""
         for i in related:
             for n in self._notes_by_item.get(i, []):
                 if (
                     n.milestone
                     and n.id not in self.notes_played
                     and self.learner.notes_heard.get(n.id, 0) == 0
-                    and all(self.learner.has_met(x) for x in n.items)
+                    and all(self.learner.has_met(x) or x in self.exposures for x in n.items)
                 ):
                     return n
         return None
@@ -208,7 +215,10 @@ class Planner:
         pool = [n for n in pool if not n.milestone]
         pool = [n for n in pool if n.id not in self.notes_played]
         heard = self.learner.notes_heard
-        if any(heard.get(n.id, 0) == 0 for n in self.cur.notes):
+        # "unheard" only counts non-milestone notes here: an ineligible milestone note is
+        # permanently unheard from this function's point of view (it never picks one), so
+        # counting it would needlessly block repeats of ordinary notes that have all been heard.
+        if any(heard.get(n.id, 0) == 0 for n in self.cur.notes if not n.milestone):
             pool = [n for n in pool if heard.get(n.id, 0) == 0]  # never repeat while unheard notes remain
         if not pool:
             return None
@@ -217,12 +227,17 @@ class Planner:
         return self.rng.choice(pool)
 
     def _maybe_note(self, sc: Script, related: list[str], remaining: float) -> None:
+        # A due milestone is a curriculum event, not an optional aside: it takes priority
+        # over the ordinary note budget/rationing (``_note_budget_left()``) and the
+        # ``note_chance`` roll, both checked below only for the non-milestone path. It still
+        # needs the same minimum time left in the lesson to actually fit.
+        if remaining >= 40:
+            milestone = self._eligible_milestone(related)
+            if milestone is not None:
+                self.builder.note(sc, milestone)
+                self.notes_played.append(milestone.id)
+                return
         if not self._note_budget_left() or remaining < 40:
-            return
-        milestone = self._eligible_milestone(related)
-        if milestone is not None:
-            self.builder.note(sc, milestone)
-            self.notes_played.append(milestone.id)
             return
         if self.rng.random() > self.cfg.note_chance:
             return
