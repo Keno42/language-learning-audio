@@ -65,22 +65,35 @@ and how much design judgment each needs before touching code:
    dedicated note; the general convention stays.
 2. **Shorten the `godur_gender` milestone note; retire the aside
    framing for milestones specifically (#34 point 1, half of it). Done.**
-   Rewrote the note to lead with the concrete claim ("aren't three
-   separate words — all forms of the same word") before naming gender
-   as the dimension, and demoted case/number to one trailing clause.
-   Dropped "accusative"/"singular" entirely rather than just
-   de-emphasizing them — #34 only asked for the *current* dimension to
-   be named, not every dimension the three examples happen to also
-   hold constant, so those two labels were extra weight the rewrite
-   didn't need to carry at all. Added a `milestone_end` prompt ("Let's
-   continue." / 「では、続けましょう。」, `audiolesson/phrasing/{en,ja}.toml`)
-   so `Builder.note()` (`exercises.py`) now picks `milestone_end` vs
-   `aside_end` for the closing line the same way it already picked
-   `milestone_intro` vs `aside` for the opening — a milestone note no
-   longer says "Back to the lesson." Updated
-   `test_milestone_note_is_not_framed_as_a_cultural_aside` to check
-   both ends. 79 tests, all passing; validate unchanged (993 items, 47
-   notes, ja gloss still complete).
+   Rewrote the note to name gender as the dimension up front and
+   demote case/number to one trailing clause, dropping "accusative"/
+   "singular" entirely rather than just de-emphasizing them — #34 only
+   asked for the *current* dimension to be named, not every dimension
+   the three examples happen to also hold constant. Added a
+   `milestone_end` prompt ("Let's continue." / 「では、続けましょう。」,
+   `audiolesson/phrasing/{en,ja}.toml`) so `Builder.note()`
+   (`exercises.py`) now picks `milestone_end` vs `aside_end` for the
+   closing line the same way it already picked `milestone_intro` vs
+   `aside` for the opening — a milestone note no longer says "Back to
+   the lesson." Updated `test_milestone_note_is_not_framed_as_a_cultural_aside`
+   to check both ends.
+
+   **Correction from the owner on the first wording (PR #37):** the
+   first draft opened "Góðan daginn, Góða nótt, and Gott kvöld aren't
+   three separate words" — grammatically odd, since the subject of
+   "aren't ... words" is three *phrases*, not the words being taught.
+   What actually needs saying is narrower: it's `góðan`/`góða`/`gott`
+   specifically that are forms of one adjective, not the phrases
+   themselves. Rewrote to put that claim in the main clause directly:
+   "In Góðan daginn, Góða nótt, and Gott kvöld, góðan, góða, and gott
+   are forms of the same adjective, meaning 'good.'" — same content,
+   sounder sentence structure, and matched in `text_ja`. (Also
+   raised, but left as-is by choice, not fixed: `milestone_end` could
+   arguably be dropped entirely rather than reworded, since `_gap()`
+   alone may be enough separation for a note that's already part of
+   the lesson proper — noted as a matter of preference, not acted on.)
+   79 tests, all passing; validate unchanged (993 items, 47 notes, ja
+   gloss still complete).
 
    **Deferred, not part of this pilot:** "target-language examples
    inside explanations should be spoken by a target-language voice
