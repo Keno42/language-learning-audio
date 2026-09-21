@@ -461,6 +461,21 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    # ---------------------------------------------------------------- connect
+
+    def connect(self, sc: Script, item_ids: list[str]) -> Exercise:
+        """A brief connective frame, then a switch between two already-known items (issue #44):
+        the fallback for "connected use" when no authored dialogue requires them, and a genuine
+        third option for a drill streak with nowhere else to go — not another isolated recall,
+        and not a passive aside either. Its own exercise kind (not folded into the ``recall``
+        exercises it introduces) so it's identifiable as a deliberate recombination moment,
+        the same way ``note()`` is bookended rather than left to blend into whatever comes
+        next."""
+        ex = sc.new_exercise("connect", None, item_ids, f"connect: {'+'.join(item_ids)}")
+        self._narr(sc, ex, self.prompts.get("connect_intro"))
+        self._beat(sc, ex)
+        return ex
+
     # -------------------------------------------------------------- dialogue
 
     def dialogue(self, sc: Script, dlg: Dialogue, *, replay: bool = False, max_turns: int | None = None, assisted: bool = True) -> Exercise:

@@ -1,7 +1,7 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-21 (session 19: issue #44 resolved — see below;
-session 18 close-out follows). **Issue #34** ("Improve
+_Last updated 2026-09-21 (session 20: issue #44's own review round —
+see below; session 19 and 18 close-outs follow). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -26,11 +26,18 @@ failure mode again on future long-running issues: a "pilots done" tally
 is not the same claim as "the issue's own acceptance criteria hold,"
 and this file should track the latter.
 
-**Issue #44** (the two residuals split out of #34) is **done** —
-session 19, see "Session 19" below for both fixes, their real-lesson
-verification, and the rejected first attempt at point 1 (an
-unconditional budget bypass that measured 19 asides in one lesson
-before being replaced with a small bounded allowance). 100 tests, all
+**Issue #44** (the two residuals split out of #34) is **done** — but
+took two rounds. Session 19's first fix (PR #46) was reviewed by the
+owner and judged **request-changes equivalent**: each of its two points
+stopped one step short of #44's actual acceptance criteria — the note
+fallback could still, rarely, fall through to plain recall once both its
+budgets were spent, and the dialogue-stage fix only reached items wired
+into an authored dialogue, not "dialogue or recombination" as #44 itself
+asks for. Session 20 kept everything from session 19 (the owner said so
+explicitly) and added the missing piece: a dialogue-independent
+recombination fallback (`do_connect()`) plus a real deliberate stop as
+the cascade's last resort. See "Session 20" and "Session 19" below for
+the full history, both blockers, and their verification. 102 tests, all
 passing.
 
 **Next up, per the owner's priority order:** issue #29 ("Design
@@ -1011,6 +1018,87 @@ dialogue at all — a content gap, not a planner gap, and one #29's
 curriculum-wide audit may surface incidentally.
 
 100 tests (98 → 100), all passing; `audiolesson validate` unchanged.
+
+## Session 20: issue #44, round 2 — owner rejected PR #46 as "one step short" on both points
+
+The owner reviewed PR #46 (session 19's fix, above) and called it
+**request-changes equivalent**, not because either fix was wrong, but
+because each stopped one step before #44's own acceptance criteria —
+explicitly saying the good parts (the bounded relief-note allowance, the
+fresh-item dialogue-stage bypass, both existing regression tests) should
+be **kept, not discarded**, with one more finishing pass on top.
+
+**Blocker 1 — the relief-note allowance still had a silent fallthrough.**
+Session 19's own writeup admitted it: "once both [the ordinary ration and
+the relief budget] are spent, an occasional longer run can still occur."
+That is exactly the fallthrough #44 rules out, just rarer. The owner
+specified the required cascade explicitly: dialogue → note → a genuine
+connected mini-activity → and only if *that's* also impossible, a
+deliberate stop, never one more isolated recall.
+
+**Blocker 2 — the dialogue-stage fix only reaches items wired into some
+dialogue's `requires`.** Session 19's own "scoping note" called this "a
+content gap, not a planner gap" and punted it to #29's curriculum audit.
+The owner rejected that reclassification: #44's acceptance criteria
+explicitly ask for "dialogue **or recombination**," and its acceptance
+test is specifically "an arc whose material never gets a connected-use
+moment" — an authored-dialogue-shaped fix can never close that gap by
+construction, however #29's audit turns out. This needed a mechanism
+that doesn't depend on dialogue content existing at all.
+
+**Also flagged:** PR #46's branch had drifted from `main` again
+(`ahead_by: 2, behind_by: 1`, same pattern as #45) — rebased onto latest
+`main` (`bb5d008`) before starting this round's work.
+
+### Fix: a dialogue-independent recombination fallback, plus a real stop
+
+Added `do_connect()` / `Builder.connect()` (new exercise kind
+`"connect"`), modeled directly on the existing `do_discriminate()`
+(session 16 pilot 2): frame two already-known items with a brief
+connective narration, then recall each by its `situation` cue in
+succession. Candidate selection prefers this lesson's own `introduced`
+items first (falling back to any other known item with a situation cue),
+so an arc gets its own material recombined rather than two unrelated
+review items — and it needs no `Dialogue.required_items` wiring at all,
+closing blocker 2 directly.
+
+Step 0's streak-triggered cascade is now a real three-tier fallback
+ending in a deliberate stop, not a two-tier `if/elif`:
+
+```
+dialogue → note (ration, then bounded relief) → do_connect() → break
+```
+
+Each tier only runs if the previous one didn't act (`if not acted:
+...`); if all three fail — no eligible dialogue, no note budget left at
+all, and fewer than two known items with a situation cue — the lesson
+stops there rather than emitting one more isolated recall. This is rare
+in practice (it needs all three to fail at once) but is now a real
+branch, not a theoretical one addressed only in a docstring.
+
+**Regression caught before it shipped:** the first cut of `do_connect()`
+had the new `"connect"` frame exercise list its two item ids in the same
+order they were about to be recalled, so the frame's own `item_ids[0]`
+equalled the very next exercise's item — tripping
+`test_no_item_twice_in_a_row` even though the learner never actually
+repeated an item back to back. Fixed by listing the frame's item ids in
+the reverse of recall order.
+
+Added the two regression tests the owner specified verbatim, each
+confirmed to reproduce the bug on the pre-fix code before passing on the
+fix:
+- `test_streak_with_no_dialogue_and_no_notes_does_not_fall_through_to_more_recall`
+  — no dialogues, no notes, `note_chance=0`, plenty of known
+  situation-capable items: pre-fix, the streak just kept emitting
+  `"recall"` past the limit; post-fix, exercise 4 is `"connect"`.
+- `test_connected_use_reaches_an_arc_whose_items_are_wired_into_no_dialogue`
+  — a curriculum with **no dialogues at all**, a fresh two-item arc plus
+  unrelated review material: pre-fix, no `"connect"` exercise ever fired;
+  post-fix, one does, and it covers the arc's own items specifically
+  (not just any known item), confirming the "prefer this lesson's own
+  material" ordering, not only that *something* fired.
+
+102 tests (100 → 102), all passing; `audiolesson validate` unchanged.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 

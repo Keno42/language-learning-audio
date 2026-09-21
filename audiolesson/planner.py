@@ -419,19 +419,61 @@ class Planner:
                 idx += 1
                 since_dialogue += 1
 
+        def do_connect() -> bool:
+            """Recombine two already-known items into a brief connected moment (issue #44):
+            the fallback for "connected use" when no authored dialogue exists for the
+            current material, and a real third option for a drill streak with nowhere else
+            to go — not another isolated recall. Prefers this lesson's own newly introduced
+            items (the current arc's own material) first, falling back to any other
+            already-known item with a situation cue; `introduced` and `self.learner.items`
+            are always disjoint (an item introduced this lesson isn't persisted to learner
+            state until after the whole lesson is built), so no de-dup is needed between
+            them. Excludes only the single most-recently-touched item, the same as
+            ``do_discriminate`` — not the whole ``recent`` de-dup deque — so a coincidental
+            exclusion doesn't spuriously starve this of the two *different* candidates it
+            needs. Returns ``False`` if fewer than two eligible items exist at all."""
+            nonlocal idx, since_dialogue
+            just_touched = recent[-1] if recent else None
+            pool = list(introduced) + [self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id]
+            seen: set[str] = set()
+            candidates: list[Item] = []
+            for it in pool:
+                if it.id in seen or it.id == just_touched or not it.has_situation:
+                    continue
+                seen.add(it.id)
+                candidates.append(it)
+                if len(candidates) >= 2:
+                    break
+            if len(candidates) < 2:
+                return False
+            # Listed reversed from recall order: the connect frame's own item_ids[0] must
+            # not equal the very next exercise's item (the first recall below), or the
+            # "no item twice in a row" invariant trips on the frame itself even though the
+            # learner never actually repeats an item back to back.
+            b.connect(sc, [i.id for i in reversed(candidates)])
+            idx += 1
+            for item in candidates:
+                do_recall(item, "situation")
+                idx += 1
+                since_dialogue += 1
+            return True
+
         while sc.total_duration < budget - closing_reserve:
             remaining = budget - closing_reserve - sc.total_duration
             due = [p for p in pending if p.due <= idx]
             due.sort()
             acted = False
 
-            # 0. drill streak too high: break up the run with a dialogue, or else a note,
-            #    before any branch below that would emit another isolated recall — including
-            #    step 1's due reactivation, which does not by itself break the streak the way
-            #    an intro or dialogue does. This must come first: a due reactivation is still
-            #    an isolated recall, so running it ahead of this check let the streak continue
-            #    uninterrupted through step 1 every time one happened to be due (owner review
-            #    on #41 — issue #34 point 6).
+            # 0. drill streak too high: break up the run with a dialogue, else a note, else a
+            #    recombination of known items, before any branch below that would emit another
+            #    isolated recall — including step 1's due reactivation, which does not by
+            #    itself break the streak the way an intro or dialogue does. This must come
+            #    first: a due reactivation is still an isolated recall, so running it ahead of
+            #    this check let the streak continue uninterrupted through step 1 every time one
+            #    happened to be due (owner review on #41 — issue #34 point 6). If nothing on
+            #    this whole ladder works, stop the lesson rather than let the streak continue
+            #    unbounded (owner review on #46 — issue #44's own acceptance criteria: this
+            #    must never silently fall through to "one more isolated recall").
             streak_triggered = drill_streak >= cfg.drill_streak_limit
             if streak_triggered:
                 dlg = self.eligible_dialogue()
@@ -439,7 +481,7 @@ class Planner:
                     self._play_dialogue(sc, dlg)
                     since_dialogue = 0
                     acted = True
-                elif remaining >= 40:
+                if not acted and remaining >= 40:
                     # no dialogue fits either: a note is a varied activity, not another
                     # flashcard drill. `_note_budget_left()` alone isn't enough of a gate here
                     # (issue #44 point 1): that budget exists to ration *optional* asides, at as
@@ -465,10 +507,24 @@ class Planner:
                             acted = True
                             if not ration_left:
                                 streak_relief_notes_used += 1
-                    # If no note is available either (ration and relief allowance both spent, or
-                    # every note already played this lesson), the streak's "or stop" fallback
-                    # needs no new code here: step 5's own cascade below already ends the lesson
-                    # once genuinely nothing — due, new, review, or note — is left.
+                if not acted and remaining >= 40:
+                    # no dialogue and no note either: recombine two already-known items
+                    # instead (issue #44 point 2 — this is also the fallback when a whole arc's
+                    # items were never wired into any authored dialogue at all, so a plain
+                    # eligible_dialogue() check could never have found anything to play for
+                    # them in the first place; recombination doesn't depend on authored
+                    # dialogue content existing).
+                    acted = do_connect()
+                if not acted:
+                    # Dialogue, note (ration and relief), and recombination all failed — there
+                    # is genuinely nothing left but another isolated recall. Stop the lesson
+                    # here rather than let the streak continue unbounded: issue #44's
+                    # acceptance criteria explicitly rule out silent fallthrough to "continued
+                    # isolated recall" as the outcome of a maxed-out drill streak. This is rare
+                    # in practice (it needs no eligible dialogue, an exhausted or absent note
+                    # supply, and fewer than two already-known items with a situation cue,
+                    # all at once) but must be a real option, not just a theoretical one.
+                    break
 
             # 1. a scheduled reactivation that is due (but never the item we just did)
             if not acted:

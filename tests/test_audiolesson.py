@@ -308,6 +308,87 @@ class CurriculumTests(unittest.TestCase):
         sc = planner.build()
         self.assertEqual(len(sc.meta["notes"]), 1 + cfg.max_streak_relief_notes, sc.meta["notes"])
 
+    def test_streak_with_no_dialogue_and_no_notes_does_not_fall_through_to_more_recall(self):
+        """Owner review on #46 (issue #44's own acceptance criteria): bounding the relief-note
+        allowance (previous test) still left a silent fallthrough once *both* the ordinary
+        note ration and the relief allowance ran out — the old code just fell back to another
+        isolated recall, exactly what #44 rules out. With no dialogues and no notes in the
+        curriculum at all, there is nothing on the note/dialogue side to rescue the streak, so
+        the very next exercise after the streak trips must be something other than another
+        isolated "recall" — here, the new recombination fallback (``do_connect``, kind
+        "connect"), since plenty of already-known items with a situation cue exist."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}.", "situation": f"Situation {i}."}
+                for i in range(10)
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(10):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        planner = Planner(
+            cur,
+            learner,
+            Prompts.load("en"),
+            Timing(level="A1"),
+            PlanConfig(minutes=30, seed=1, dialogue_every=1000, drill_streak_limit=3, note_chance=0.0),
+            today=TODAY,
+        )
+        sc = planner.build()
+        kinds = [ex.kind for ex in sc.exercises if ex.kind != "opening"]
+        self.assertEqual(kinds[:3], ["recall"] * 3, kinds)
+        self.assertNotEqual(kinds[3], "recall", f"{kinds}: silently fell through to another isolated recall")
+        self.assertEqual(kinds[3], "connect", kinds)
+
+    def test_connected_use_reaches_an_arc_whose_items_are_wired_into_no_dialogue(self):
+        """Issue #44 point 2, owner review on #46: the earlier fix (previous test class,
+        ``test_a_freshly_introduced_items_own_dialogue_stage_is_not_skipped``) only reaches an
+        item's own "dialogue" ladder stage when that item is referenced by some authored
+        dialogue's ``requires`` — an item never wired into any dialogue never gets a "dialogue"
+        ladder stage at all, so that fix could never fire for it. Here the curriculum has *no*
+        dialogues whatsoever, so a whole freshly introduced arc (``a0``, ``a1``) can never get
+        connected use through the dialogue system, no matter how its reactivation schedule
+        plays out. Plenty of other already-known review material exists too. The new
+        recombination fallback (``do_connect``) doesn't depend on authored dialogue content —
+        it must still give the arc's own material a connected-use moment, preferring it over
+        the unrelated review items, once the drill streak trips."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": (
+                [
+                    {"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}.", "situation": f"Situation {i}."}
+                    for i in range(10)
+                ]
+                + [
+                    {"id": "a0", "kind": "phrase", "target": "Boga 0.", "meaning": "Arc 0.", "situation": "Arc situation 0."},
+                    {"id": "a1", "kind": "phrase", "target": "Boga 1.", "meaning": "Arc 1.", "situation": "Arc situation 1."},
+                ]
+            ),
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(10):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        planner = Planner(
+            cur,
+            learner,
+            Prompts.load("en"),
+            Timing(level="A1"),
+            PlanConfig(minutes=30, seed=1, new_items=2, dialogue_every=1000, drill_streak_limit=3, note_chance=0.0),
+            today=TODAY,
+        )
+        sc = planner.build()
+        self.assertNotIn("dialogue", [ex.kind for ex in sc.exercises], "no dialogue exists in this curriculum at all")
+        connect_exercises = [ex for ex in sc.exercises if ex.kind == "connect"]
+        self.assertTrue(connect_exercises, "no connected-use activity ever fired for the wired-nowhere arc")
+        connected_items = {i for ex in connect_exercises for i in ex.item_ids}
+        self.assertTrue(
+            connected_items & {"a0", "a1"},
+            f"connected-use activity never covered the arc's own items: {connected_items}",
+        )
+
     def test_high_drill_streak_wins_over_a_due_reactivation_too(self):
         """Owner review on #41: the streak breaker used to run *after* step 1 (a due
         scheduled reactivation), guarded by ``if not acted``, so a due reactivation could
