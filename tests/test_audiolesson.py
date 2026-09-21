@@ -862,19 +862,18 @@ class CurriculumTests(unittest.TestCase):
     def test_dialogue_sequencing_report_is_advisory_not_gating(self):
         """Issue #25 (reframed): a dialogue can use a word taught very late without that word
         ever blocking eligibility -- the report only flags it as a sequencing signal for a
-        human to act on, same as the owner's own worked example (a real dialogue in the
-        Icelandic course needing a word from item #926 of 993)."""
+        human to act on. The worst offender moves as issue #29's ongoing audit fixes each one
+        in turn (this used to be "nagranni"/"heyra", resequenced in the #29 triage's second
+        pass); what matters here is the mechanism, not which dialogue currently tops the list."""
         from audiolesson.content import dialogue_sequencing_report
 
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         findings = dialogue_sequencing_report(cur)
         self.assertTrue(findings)
         worst = findings[0]
-        self.assertEqual(worst["dialogue"], "nagranni")
-        self.assertEqual(worst["word"], "heyra")
-        self.assertGreater(worst["gap"], 900)
+        self.assertGreater(worst["gap"], 700)
         # never gates: the flagged item isn't part of what actually decides eligibility
-        dlg = cur.dialogue_by_id["nagranni"]
+        dlg = cur.dialogue_by_id[worst["dialogue"]]
         self.assertNotIn(worst["item"], dlg.required_items)
 
     def test_backward_chunks_grow_from_the_end(self):

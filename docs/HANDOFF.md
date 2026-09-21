@@ -1,7 +1,7 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-21 (session 22: issue #44's fourth and final review
-round — see below; sessions 21, 20, 19 and 18 close-outs follow). **Issue #34** ("Improve
+_Last updated 2026-09-21 (session 23: issue #29, acting on the triage —
+see below; session 22 closes out issue #44). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -47,16 +47,22 @@ had actually climbed its own ladder, silently skipping stages it never
 practised. See "Session 22" through "Session 19" below for the full
 history. 104 tests, all passing.
 
-**Next up, per the owner's priority order:** issue #29 ("Design
+**In progress, per the owner's priority order:** issue #29 ("Design
 curriculum around reusable concepts and communicative capabilities") —
 (1) triage all `dialogue_sequencing_report()` findings (9 repeat
 offenders plus large single-item gaps like `heyra`) — **done**, posted
-as a comment on #29, not yet acted on; (2) a curriculum-wide dependency
-audit across all 26 modules for reusable concepts and late-introduced
-high-value concepts — not started; (3) a pilot testing whether the
-`godur_gender` gender-agreement pattern generalizes to case/tense/
-modality — not started. #29 stays open until the curriculum-wide audit
-completes a full pass._
+as a comment on #29; session 23 acted on the two lowest-risk items from
+it (a one-dialogue content bug, and `nagranni`'s two big gaps —
+`gott_ad_heyra` relocated, `verð að + infinitive` turned into a real
+construction reusing module 2's existing slot-fill scaffolding) — 49 →
+41 advisory findings, see "Session 23"; the rest of clusters A/B/C are
+still open, cluster A (numbers/money) flagged as needing its own
+dedicated pass over Icelandic's gendered number forms, not a quick
+relocation; (2) a curriculum-wide dependency audit across all 26 modules
+for reusable concepts and late-introduced high-value concepts — not
+started; (3) a pilot testing whether the `godur_gender` gender-agreement
+pattern generalizes to case/tense/modality — not started. #29 stays open
+until the curriculum-wide audit completes a full pass._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -1271,6 +1277,86 @@ only checks the sequence doesn't go backward, not that it doesn't jump
 ahead.
 
 104 tests (103 → 104), all passing; `audiolesson validate` unchanged.
+
+## Session 23: issue #29 — acting on the triage, second pass
+
+With #44 merged, back to #29's own priority order: item 1 (triage of all
+`dialogue_sequencing_report()` findings) was posted as a comment in
+session 21 (see that comment on #29 for the full cluster breakdown —
+A: numbers/money, B: reusable verbs/constructions embedded in fixed
+phrases, C: general repeat-offender vocabulary, D: a one-dialogue
+content bug). This session acted on the two lowest-risk, highest-value
+items from that triage: cluster D (a content bug, one dialogue) and the
+`nagranni` half of cluster B (the issue's own worked example, resolved
+properly rather than patched). 49 → 41 advisory findings.
+
+**Cluster D — `tungumal`'s partner line reached into an unrelated
+module's vocabulary.** The dialogue's actual purpose is asking someone
+to slow down; its second line volunteered full walking directions to a
+pool ("Sundlaugin er beint áfram og svo til vinstri, rétt hjá
+bankanum"), pulling in `beint`/`áfram`/`vinstri`/`bankanum`/`og` from a
+directions module the learner hasn't reached yet. Not a sequencing
+problem — a content mismatch. Trimmed both the line and its "repeat
+that more slowly" callback down to the dialogue's own actual sentence
+("Tölum við bara íslensku."), matching the plain-repeat style
+`kaffihus`'s own "speak more slowly" turn already uses elsewhere in the
+curriculum. Left `gert`/`tölum`/`bara`/`við` alone — those are the
+dialogue's genuine on-topic content, not a detour, and resequencing them
+is a broader question for the ongoing audit (item 2), not a one-line fix.
+
+**Cluster B, `nagranni`'s two words — the issue's own worked example,
+for real.** `nagranni` (module 1, order ~11) has a neighbour say "Gott
+að heyra. Jæja, ég verð að fara." (Good to hear. Well, I have to go.) as
+a natural leave-taking line — and #29's own issue body names `Ég verð
+að fara` explicitly as the example of what *not* to do: turning one
+dialogue's sentence into a special-cased prerequisite. It hadn't become
+a prerequisite; it just sat unresequenced 777 items later (`heyra` was
+worse still, 915 items later, as its own separate fixed phrase).
+
+- `gott_ad_heyra` ("Good to hear.") is a short, complete, prereq-free,
+  nothing-depends-on-it phrase — safe to relocate outright. Moved from
+  module 24 to module 1, right before `nagranni`, following the same
+  pattern session 16 already used for `frábært` (see the comment there).
+- `verð að + infinitive` is exactly the "reusable construction embedded
+  in a fixed phrase" case #29 asks to fix at the source. Module 2
+  already has the machinery for this: an `"inf"`-tagged slot-fill
+  vocabulary (`fara_heim`, `sofa`, `borða`, ...) built for `eg_vil`/
+  `eg_aetla_ad`/`viltu`/`eg_nenni_ekki` — the same shape of construction,
+  already scaffolded. Added `eg_verd_ad` ("Ég verð að {inf}.") to that
+  same chain (`prereqs = ["fara_heim", "eg_aetla_ad"]`), reusing existing
+  vocabulary rather than authoring new content. Verified by building a
+  real lesson out to the point it's introduced: it recombines correctly
+  with every `"inf"` item in later recalls ("Ég verð að borða.", "...fara
+  í sund.", "...sofa.", "...hringja heim.", ...), and both English and
+  Japanese slot substitution resolve correctly (`resolve_slots()` on
+  both `meaning`/`meaning_ja`). Left the original `eg_verd_ad_fara`
+  fixed phrase (module 20) in place rather than deleting it — nothing
+  depends on it and it's still a legitimate review item, just a
+  redundant one now; not worth the risk of an unrequested content
+  deletion in the same pass.
+
+**Test:** `test_dialogue_sequencing_report_is_advisory_not_gating`
+hardcoded `nagranni`/`heyra` as the report's worst finding — now stale
+by construction, since the whole point of the ongoing audit is to keep
+moving that worst finding elsewhere. Generalized the test to check the
+*mechanism* (advisory, never gates eligibility, gap stays large) rather
+than which dialogue currently tops the list, so it won't need a
+one-line update every time the audit fixes another finding.
+
+**Scope note.** Cluster A (numbers/money — money amounts are taught as
+whole fixed phrases like "fimm hundruð krónur" rather than a
+number+currency construction, and the base digits 5–12 are taught
+inside the *time* module, after cafe dialogues already need them for
+prices) and the rest of cluster B/C are real, higher-effort next steps
+— cluster A in particular touches Icelandic's gendered number forms
+(`fjórir`/`fjögur`, `tveir`/`tvær`/`tvö`, ...) and deserves the same
+"construction, not more fixed phrases" treatment `godur_gender` already
+modeled, not a quick relocation. Left for a dedicated follow-up rather
+than rushed in this pass. #29 stays open; items 2 (curriculum-wide
+audit) and 3 (case/tense/modality pilot) are still not started.
+
+104 tests (still 104 — one updated, none added), all passing;
+`audiolesson validate` 49 → 41 advisory findings.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 

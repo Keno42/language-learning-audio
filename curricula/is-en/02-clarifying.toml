@@ -517,6 +517,27 @@ example = { inf = "versla" }
 prereqs = ["versla", "eg_aetla_ad"]
 pronunciation_notes = "nenna — a very Icelandic verb"
 
+# Issue #29 triage (cluster B): "verð að + infinitive" was previously only a single
+# fixed phrase ("eg_verd_ad_fara", module 20) — but the "nagranni" dialogue (module 1,
+# order ~11) already has a partner say "ég verð að fara" verbatim as a natural
+# leave-taking line, 777 items before that phrase was taught. #29's own body names
+# this exact sentence as the example of what *not* to do: don't make one dialogue's
+# sentence a special-cased prerequisite. A real construction, reusing this module's
+# existing "inf" slot-fill vocabulary, generalizes it the way #29 asks for instead —
+# see docs/HANDOFF.md.
+[[items]]
+id = "eg_verd_ad"
+kind = "construction"
+target = "Ég verð að {inf}."
+meaning = "I have to {inf}."
+meaning_ja = "{inf}必要があります。"
+difficulty = 2
+topics = ["daily", "greetings"]
+slots = { inf = "inf" }
+example = { inf = "fara_heim" }
+prereqs = ["fara_heim", "eg_aetla_ad"]
+pronunciation_notes = "verða að — literally \"become to\"; the standard way to say need/have to"
+
 [[dialogues]]
 id = "tungumal"
 setting = "At the tourist information desk. The woman behind it speaks quickly."
@@ -541,17 +562,17 @@ requires = ["talar_thu", "ensku", "eg_tala_sma_islensku", "gaetirdu_talad_haegar
   cue = "Say you speak a little Icelandic."
   cue_ja = "アイスランド語を少し話すと言ってください。"
   expect = "eg_tala_sma_islensku"
-  partner = "Frábært! Tölum við bara íslensku. Sundlaugin er beint áfram og svo til vinstri, rétt hjá bankanum."
-  partner_meaning = "Great! We'll just speak Icelandic. The pool is straight ahead and then left, right by the bank."
-  partner_meaning_ja = "すばらしい！じゃあアイスランド語で話しましょう。プールはまっすぐ行って左、銀行のすぐそばです。"
+  partner = "Frábært! Tölum við bara íslensku."
+  partner_meaning = "Great! We'll just speak Icelandic."
+  partner_meaning_ja = "すばらしい！じゃあアイスランド語で話しましょう。"
 
   [[dialogues.turns]]
   cue = "That was too fast. Ask her to speak more slowly."
   cue_ja = "速すぎました。もっとゆっくり話すよう頼んでください。"
   expect = "gaetirdu_talad_haegar"
-  partner = "Fyrirgefðu. Beint áfram… og svo til vinstri."
-  partner_meaning = "Sorry. Straight ahead… and then to the left."
-  partner_meaning_ja = "ごめんなさい。まっすぐ…それから左です。"
+  partner = "Fyrirgefðu. Tölum við bara íslensku."
+  partner_meaning = "Sorry. We'll just speak Icelandic."
+  partner_meaning_ja = "ごめんなさい。アイスランド語で話しましょう。"
 
   [[dialogues.turns]]
   cue = "Say you understand, and thank her."

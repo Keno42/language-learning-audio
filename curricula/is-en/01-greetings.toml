@@ -450,6 +450,20 @@ topics = ["adjectives", "discourse"]
 situation = "Anna says the road is open. Say: great!"
 situation_ja = "アンナが道路が開通したと言いました。「すばらしい！」と言ってください。"
 
+# Promoted from module 24 (issue #29 triage): the "nagranni" dialogue right below
+# uses this verbatim as its partner's reaction line, at order ~11 — 915 items before
+# it was otherwise taught. See docs/HANDOFF.md.
+[[items]]
+id = "gott_ad_heyra"
+kind = "phrase"
+target = "Gott að heyra."
+meaning = "Good to hear."
+meaning_ja = "それはよかった。"
+difficulty = 2
+topics = ["discourse"]
+situation = "A friend says she's feeling better. Say good to hear."
+situation_ja = "友達が体調が良くなったと言いました。よかったと言ってください。"
+
 [[dialogues]]
 id = "nagranni"
 setting = "You meet your neighbour on the stairs in the morning."
