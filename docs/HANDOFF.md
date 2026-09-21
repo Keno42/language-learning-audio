@@ -1474,6 +1474,73 @@ isolation for four phrases.
 by this pass (transfer material is content depth, not a sequencing gap
 the report measures).
 
+**Fourth pass, same PR: the transfer trio was correct gender, wrong case
+too — blocker.** The owner's review of the third pass caught a real
+Icelandic grammar error: `godur_gender`'s own three examples (`Góðan
+daginn`, `Góða nótt`, `Gott kvöld`) are all **accusative** case, but the
+transfer trio wired into `transfer_items` (`Góður matur`, `Það er góð
+hugmynd`, `Gott veður`) are all **nominative**. Masculine and feminine
+adjective endings differ by case as well as gender (BÍN: `góður`
+masc. nom., `góðan` masc. acc.; `góð` fem. nom., `góða` fem. acc.) — only
+neuter happens to look identical in both. Silently pairing them as if
+gender were the only thing varying directly contradicted the note's own
+text ("the ending changes with the noun's grammatical gender," said of
+three examples that all share one case) and would have taught the
+learner an incorrect paradigm: `masc: góðan → góður` reads as if that
+were a gender change, when it's actually gender *and* case at once.
+
+**Fix.** Removed `transfer_items` from `godur_gender` entirely — pairing
+examples across cases isn't a same-case gender transfer, so it doesn't
+belong there. Split the nominative trio into its own milestone,
+`godur_gender_nominative`, explicit in its own text about which case
+these are (nominative) and how the endings differ from `godur_gender`'s
+accusative ones — not silently folded in as if it were the same
+paradigm slot with only gender varying. Being its own milestone (gated
+on all three of `godur_matur`/`thad_er_god_hugmynd`/`gott_vedur`) also
+resolves the owner's non-blocking second point from the third pass more
+thoroughly than `transfer_items` on its own could: an ordinary milestone
+is *guaranteed* to fire once its items are known (same mechanism every
+other milestone in the curriculum already relies on), where
+`transfer_items` only helped if the material *happened* to already be
+known at firing time.
+
+The `Note.transfer_items` mechanism itself stays — the owner's review
+was explicit that the concept (separating a milestone's gating examples
+from material it can reach for once known, without letting the latter
+delay the former) fits #29 well; the problem was this specific content
+pairing, not the mechanism. Rewrote the two mechanism tests
+(`test_milestone_fires_without_any_of_its_transfer_items_being_known`,
+`test_discrimination_prefers_a_known_transfer_item_over_replaying_the_same_examples`)
+against a small synthetic curriculum instead of the real
+`godur_gender`, so their validity no longer depends on a specific
+curriculum-content decision that turned out to need correcting — a
+better test design independent of this fix. Added
+`test_godur_gender_nominative_is_explicit_about_case_not_just_gender`,
+checking directly that `godur_gender` carries no `transfer_items` and
+that the new note's own text names both cases.
+
+**Knock-on fix:** the new milestone's gating items are deeper in the
+curriculum (`godur_matur` at item order ~688) than any existing
+milestone, so the two broad "every milestone must fire" tests — which
+simulated 20 lessons at `auto`-pace, reaching only item order ~72 —
+needed a faster, fixed-pace config (`new_items=10`, 30-minute lessons,
+early-exit once satisfied) to actually reach it in a reasonable test
+runtime; auto-pace escalation was never the point of either test, just
+a convenient way to run several lessons.
+
+**Also addressed (non-blocking):** the owner questioned whether
+`godur_matur` — a new fixed phrase authored specifically to have a
+masculine transfer example — runs against #29's own "reusable capability
+over more fixed phrases" thrust. Left as-is for now (it's grammatically
+safe, harmless content), but noted for the curriculum-wide audit: a
+generative adjective-agreement construction (a noun slot tagged by
+gender, resolving the correct `góður`/`góð`/`gott` ending automatically)
+would fit #29's spirit better than one more fixed phrase, and is a
+bigger feature than this fix's scope.
+
+107 tests (106 → 107), all passing; `audiolesson validate` unchanged
+by this pass.
+
 ## Session 15: #23 and #25 closed, consolidated into #29
 
 The owner reorganized the open issues right after session 14: closed #23

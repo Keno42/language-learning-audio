@@ -9,17 +9,26 @@
 id = "godur_gender"
 milestone = true
 items = ["godan_daginn", "goda_nott", "gott_kvold"]
-# Owner review on #29: noticing this contrast among its own three examples isn't the
-# same as being able to apply it to a noun the learner hasn't seen it with before.
-# `transfer_items` never gates when the milestone fires (it still fires as soon as the
-# three greetings above are known) -- they're extra discrimination material Planner.
-# do_discriminate reaches for once known, one example per gender, distinct from
-# `items`' own dagur/nótt/kvöld: `thad_er_god_hugmynd` (feminine, "hugmynd"),
-# `gott_vedur` (neuter, "veður"), `godur_matur` (masculine, "matur", new for this).
-transfer_items = ["thad_er_god_hugmynd", "gott_vedur", "godur_matur"]
 topics = ["grammar", "greetings"]
 text = "In «Góðan daginn», «Góða nótt», and «Gott kvöld», «góðan», «góða», and «gott» are forms of the same adjective, meaning 'good.' Here the ending changes with the noun's grammatical gender: «dagur» is masculine, «nótt» feminine, and «kvöld» neuter. Icelandic adjectives also change for case and number; we'll get to those later."
 text_ja = "«Góðan daginn»、«Góða nótt»、«Gott kvöld» に出てくる «góðan»、«góða»、«gott» は、どれも「良い」という同じ形容詞の形です。ここでは名詞の文法上の性に合わせて語尾が変わります。«dagur» は男性名詞、«nótt» は女性名詞、«kvöld» は中性名詞です。形容詞は格や数によっても変わりますが、それはまた別の機会に。"
+
+# Owner review round 2 on #29 (blocker): the first cut wired góður/góð/gott (nominative)
+# into godur_gender's own transfer_items alongside góðan/góða/gott (accusative) as if
+# they were the same paradigm slot with only gender varying -- but masculine/feminine
+# adjective endings also change with case (BÍN: góður masc. nom., góðan masc. acc.), so
+# that pairing silently taught case and gender as one undifferentiated change, directly
+# contradicting this very note's own "the ending changes with the noun's grammatical
+# gender" (case held constant in its own three examples). Split into its own milestone
+# instead, explicit about which case these forms are in and how it differs from
+# godur_gender's — see docs/HANDOFF.md.
+[[notes]]
+id = "godur_gender_nominative"
+milestone = true
+items = ["godur_matur", "thad_er_god_hugmynd", "gott_vedur"]
+topics = ["grammar"]
+text = "«Góður matur», «góð hugmynd», and «gott veður» show the same adjective as «Góðan daginn» — but in a different case: nominative, not accusative. The ending still changes with the noun's gender the same way — «matur» is masculine, «hugmynd» feminine, «veður» neuter — but nominative and accusative endings differ for masculine and feminine («góðan» becomes «góður», «góða» becomes «góð»); neuter happens to look the same in both."
+text_ja = "«Góður matur»、«góð hugmynd»、«gott veður» に出てくるのは «Góðan daginn» と同じ形容詞ですが、格が違います：対格ではなく主格です。語尾は名詞の性に合わせて変わる点は同じです。«matur» は男性名詞、«hugmynd» は女性名詞、«veður» は中性名詞です。ただし主格と対格では男性・女性の語尾が異なります（«góðan» は «góður» に、«góða» は «góð» になります）。中性はたまたま両方の格で同じ形になります。"
 
 [[notes]]
 id = "three_kinds_of_sorry"

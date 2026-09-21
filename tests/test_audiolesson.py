@@ -632,11 +632,14 @@ class CurriculumTests(unittest.TestCase):
         milestones = {n.id: n.items for n in cur.notes if n.milestone}
         self.assertGreaterEqual(len(milestones), 2)
         learner = LearnerState("is", "en", "A1")
-        learner.feedback_mode = "auto"
         day = TODAY
         fired: set[str] = set()
-        for _ in range(20):
-            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=3), today=day).build()
+        # A fixed, fast pace (not auto-escalation, which stays too slow to reach a milestone
+        # whose items sit as deep as order ~700 within a reasonable number of simulated
+        # lessons — issue #29 owner review added "godur_gender_nominative", gated on items
+        # spread across modules 1/7/17).
+        for _ in range(80):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=10, seed=3), today=day).build()
             played = {e.label.split(": ")[1] for e in sc.exercises if e.kind == "note" and e.label.split(": ")[1] in milestones}
             apply_to_learner(sc, learner, day)
             day += timedelta(days=1)
@@ -646,7 +649,9 @@ class CurriculumTests(unittest.TestCase):
                     f"{note_id} fired in a lesson that didn't end up knowing all its items",
                 )
                 fired.add(note_id)
-        self.assertEqual(fired, set(milestones), "not every milestone note fired across 20 simulated lessons")
+            if fired == set(milestones):
+                break
+        self.assertEqual(fired, set(milestones), "not every milestone note fired across simulated lessons")
 
     def test_milestone_note_is_followed_by_contrastive_discrimination(self):
         """Issue #34 point 2: right after a milestone plays, the lesson must immediately
@@ -664,11 +669,12 @@ class CurriculumTests(unittest.TestCase):
         milestones = {n.id: set(n.items) | set(n.transfer_items) for n in cur.notes if n.milestone}
         self.assertGreaterEqual(len(milestones), 2)
         learner = LearnerState("is", "en", "A1")
-        learner.feedback_mode = "auto"
         day = TODAY
         checked: set[str] = set()
-        for _ in range(20):
-            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=3), today=day).build()
+        # Fixed, fast pace, not auto-escalation -- see test_milestone_note_never_fires_...
+        # above for why (a milestone's items can sit as deep as order ~700).
+        for _ in range(80):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=10, seed=3), today=day).build()
             note_positions = [(i, e.label.split(": ")[1]) for i, e in enumerate(sc.exercises) if e.kind == "note" and e.label.split(": ")[1] in milestones]
             apply_to_learner(sc, learner, day)
             day += timedelta(days=1)
@@ -682,51 +688,88 @@ class CurriculumTests(unittest.TestCase):
                     self.assertIn(ex.item_ids[0], gate_ids)
                 self.assertNotEqual(first.item_ids[0], second.item_ids[0])
                 checked.add(note_id)
-        self.assertEqual(checked, set(milestones), "not every milestone note fired across 20 simulated lessons")
+            if checked == set(milestones):
+                break
+        self.assertEqual(checked, set(milestones), "not every milestone note fired across simulated lessons")
+
+    def _transfer_curriculum(self):
+        """A synthetic milestone with transfer_items, isolated from any real-curriculum
+        content decision (issue #29, owner review round 2: the first cut of this test used
+        the real ``godur_gender`` note, which coupled the test's validity to a specific
+        curriculum-content choice that turned out to need correcting — see
+        ``test_...nominative`` below and docs/HANDOFF.md). This tests the *mechanism* only:
+        whether ``transfer_items`` gates milestone firing, and whether ``do_discriminate``
+        reaches for a known one."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "a", "kind": "phrase", "target": "A.", "meaning": "A.", "situation": "Situation A."},
+                {"id": "b", "kind": "phrase", "target": "B.", "meaning": "B.", "situation": "Situation B."},
+                {"id": "c", "kind": "phrase", "target": "C.", "meaning": "C.", "situation": "Situation C."},
+                {"id": "t", "kind": "phrase", "target": "T.", "meaning": "T.", "situation": "Situation T."},
+            ],
+            "notes": [
+                {
+                    "id": "milestone_with_transfer",
+                    "milestone": True,
+                    "items": ["a", "b", "c"],
+                    "transfer_items": ["t"],
+                    "text": "A milestone note.",
+                }
+            ],
+        }
+        return curriculum_from_dict(raw)
 
     def test_milestone_fires_without_any_of_its_transfer_items_being_known(self):
         """Issue #29, owner review: a milestone's ``transfer_items`` (extra discrimination
-        material demonstrating the pattern applies to new vocabulary, not just its own three
-        gating examples) must never delay the milestone itself — it exists specifically to
-        introduce that transfer material, so requiring it known first would be circular.
-        ``godur_gender`` has three ``transfer_items``; none are met or exposed here, and the
-        milestone must still fire as soon as its actual gating ``items`` are."""
-        cur = load_curriculum(ROOT / "curricula" / "is-en")
-        note = cur.note_by_id["godur_gender"]
-        self.assertTrue(note.transfer_items, "godur_gender should have transfer_items for this test to mean anything")
-        a, b, c = note.items
+        material demonstrating the pattern applies to new vocabulary, not just its own gating
+        examples) must never delay the milestone itself — it exists specifically to introduce
+        that transfer material, so requiring it known first would be circular."""
+        cur = self._transfer_curriculum()
         learner = LearnerState("is", "en", "A1")
-        learner.items[a] = ItemState(due=TODAY.isoformat())
-        learner.items[b] = ItemState(due=TODAY.isoformat())
-        learner.items[c] = ItemState(due=TODAY.isoformat())
+        learner.items["a"] = ItemState(due=TODAY.isoformat())
+        learner.items["b"] = ItemState(due=TODAY.isoformat())
+        learner.items["c"] = ItemState(due=TODAY.isoformat())
         planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=5), today=TODAY)
-        for t in note.transfer_items:
-            self.assertFalse(learner.has_met(t) or t in planner.exposures, f"{t} shouldn't be known in this test")
-        found = planner._eligible_milestone([a])
+        self.assertFalse(learner.has_met("t") or "t" in planner.exposures, "t shouldn't be known in this test")
+        found = planner._eligible_milestone(["a"])
         self.assertIsNotNone(found)
-        self.assertEqual(found.id, "godur_gender")
+        self.assertEqual(found.id, "milestone_with_transfer")
 
     def test_discrimination_prefers_a_known_transfer_item_over_replaying_the_same_examples(self):
         """Issue #29, owner review: once a milestone's transfer material is already known,
         the discrimination step that follows it should reach for that — applying the pattern
-        to new vocabulary — rather than only ever switching between the milestone's own three
-        founding examples forever. Here `thad_er_god_hugmynd` (feminine "hugmynd") is known
-        alongside the three gating greetings; the discrimination recall right after the
-        milestone note must include it."""
-        cur = load_curriculum(ROOT / "curricula" / "is-en")
-        note = cur.note_by_id["godur_gender"]
+        to new vocabulary — rather than only ever switching between the milestone's own
+        founding examples forever."""
+        cur = self._transfer_curriculum()
         learner = LearnerState("is", "en", "A1")
-        for iid in list(note.items) + ["thad_er_god_hugmynd"]:
+        for iid in ("a", "b", "c", "t"):
             learner.items[iid] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="situation")
         sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY).build()
-        note_idx = next(i for i, ex in enumerate(sc.exercises) if ex.kind == "note" and ex.label == "note: godur_gender")
+        note_idx = next(i for i, ex in enumerate(sc.exercises) if ex.kind == "note" and ex.label == "note: milestone_with_transfer")
         first, second = sc.exercises[note_idx + 1], sc.exercises[note_idx + 2]
         discriminated = {first.item_ids[0], second.item_ids[0]}
-        self.assertIn(
-            "thad_er_god_hugmynd",
-            discriminated,
-            f"discrimination after godur_gender ignored a known transfer item: {discriminated}",
-        )
+        self.assertIn("t", discriminated, f"discrimination ignored a known transfer item: {discriminated}")
+
+    def test_godur_gender_nominative_is_explicit_about_case_not_just_gender(self):
+        """Issue #29, owner review round 2 (blocker): the first cut of a gender-transfer
+        milestone paired «góður»/«góð»/«gott» (nominative) with «godur_gender»'s own
+        «góðan»/«góða»/«gott» (accusative) as if only gender had changed — but Icelandic
+        adjectives inflect for case too, and masculine/feminine forms differ between the two
+        (BÍN: góður masc. nom., góðan masc. acc.; góð fem. nom., góða fem. acc.). Silently
+        mixing them taught case and gender as one undifferentiated change, contradicting
+        godur_gender's own "changes with the noun's grammatical gender" (said of examples
+        that all share one case). Fixed by giving the nominative trio (matur masculine,
+        hugmynd feminine, veður neuter) its own milestone, explicit that it's a different
+        case from godur_gender's — not silently folded in as if it were the same paradigm
+        slot with only gender varying."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        godur_gender = cur.note_by_id["godur_gender"]
+        self.assertFalse(godur_gender.transfer_items, "godur_gender must not pair accusative examples with nominative ones")
+        nominative = cur.note_by_id["godur_gender_nominative"]
+        self.assertEqual(set(nominative.items), {"godur_matur", "thad_er_god_hugmynd", "gott_vedur"})
+        self.assertIn("nominative", nominative.text.lower())
+        self.assertIn("accusative", nominative.text.lower())
 
     def test_milestone_eligible_as_soon_as_its_last_item_is_exercised_this_lesson(self):
         """Owner review follow-up on #32: a milestone must not wait an extra lesson just
