@@ -1,6 +1,7 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-21 (session 18 close-out). **Issue #34** ("Improve
+_Last updated 2026-09-21 (session 19: issue #44 resolved — see below;
+session 18 close-out follows). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -25,16 +26,23 @@ failure mode again on future long-running issues: a "pilots done" tally
 is not the same claim as "the issue's own acceptance criteria hold,"
 and this file should track the latter.
 
+**Issue #44** (the two residuals split out of #34) is **done** —
+session 19, see "Session 19" below for both fixes, their real-lesson
+verification, and the rejected first attempt at point 1 (an
+unconditional budget bypass that measured 19 asides in one lesson
+before being replaced with a small bounded allowance). 100 tests, all
+passing.
+
 **Next up, per the owner's priority order:** issue #29 ("Design
 curriculum around reusable concepts and communicative capabilities") —
 (1) triage all `dialogue_sequencing_report()` findings (9 repeat
-offenders plus large single-item gaps like `heyra`), (2) a
-curriculum-wide dependency audit across all 26 modules for reusable
-concepts and late-introduced high-value concepts, (3) a pilot testing
-whether the `godur_gender` gender-agreement pattern generalizes to
-case/tense/modality. #29 stays open until the curriculum-wide audit
-completes a full pass. #44's two residuals are next after that, or
-whenever the owner prioritizes them._
+offenders plus large single-item gaps like `heyra`) — **done**, posted
+as a comment on #29, not yet acted on; (2) a curriculum-wide dependency
+audit across all 26 modules for reusable concepts and late-introduced
+high-value concepts — not started; (3) a pilot testing whether the
+`godur_gender` gender-agreement pattern generalizes to case/tense/
+modality — not started. #29 stays open until the curriculum-wide audit
+completes a full pass._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -898,6 +906,111 @@ while never exceeding one arc's cap without cause) with a small, safe
 diff, but a "real" multi-arc redesign — explicit arc boundaries, a
 connected-use moment per arc, per-arc dialogue preference — is a
 bigger, separate design thread if the owner wants to take it further.
+
+## Session 19: issue #44 — both residual gaps from #34's closure
+
+The owner shared a real Lesson 2 transcript showing exactly the two
+patterns #44 was opened for: eight consecutive `meaning: Já`/`meaning:
+Nei` recalls back to back (11:03–11:49), and another eight consecutive
+`situation` recalls right before "final review" (13:19–14:14) — neither
+interrupted by a dialogue or a note.
+
+### Point 1: a high drill streak with no dialogue/note available fell through to plain recall
+
+**Root cause, verified before touching code.** Reproduced the
+transcript's pacing (`new_items=8`, ~16-minute lesson) against the real
+curriculum and instrumented step 0's note branch directly. Confirmed
+`drill_streak` climbing unbroken from 5 to 15 while every single check
+showed `dlg=None, note_budget_left=False` — the lesson's *one* allowed
+ordinary aside (`max(1, minutes // 12)` — just 1 for a 16-minute lesson)
+had already been spent by the ordinary per-exercise aside roll long
+before the streak ever needed it, so `_note_budget_left()` stayed
+`False` for the rest of the lesson and pilot 9's dialogue-or-note
+fallback (session 17) became a permanent no-op.
+
+**First cut, rejected by its own numbers:** simply not gating the
+streak-triggered note branch by `_note_budget_left()` at all (mirroring
+how a due milestone already bypasses it). Fixed the reproduction case,
+but a 12-lesson `auto`-mode simulation on the real curriculum showed it
+measured as high as **19 asides in one 30-minute lesson** — an
+unconditional bypass doesn't just rescue the streak, it turns rationing
+off entirely and recreates issue #21's original "asides feel like
+non-sequiturs" complaint from the other direction.
+
+**Done, with a bounded allowance instead.** Added
+`PlanConfig.max_streak_relief_notes` (default 2): once the ordinary
+ration (`_note_budget_left()`) is exhausted, up to this many *more*
+notes may fire specifically to break a drill streak with no eligible
+dialogue — not unlimited, a small separate budget spent only when the
+streak genuinely needs it. Re-ran the 12-lesson simulation: consistently
+2–4 asides per lesson (ration + relief), never runaway. Re-ran the
+16-minute reproduction: longest unbroken recall run in the main
+scheduling loop (excluding the deliberate end-of-lesson closing recap,
+which isn't part of this problem) dropped from 15 to exactly
+`drill_streak_limit` (5) for the portion covered by the ration+relief
+budget; once both are spent, an occasional longer run can still occur
+in a genuinely thin, packed lesson — a real resource limit, not a
+regression, and the streak's "or stop" fallback still applies via step
+5's existing cascade once nothing (due, new, review, or note) is left.
+
+Updated `test_notes_follow_related_items_and_are_rationed`'s ceiling
+from `2` (the bare ordinary ration) to `2 + max_streak_relief_notes`,
+with its docstring explaining the new exemption alongside the existing
+milestone one. Added
+`test_streak_relief_notes_are_bounded_not_unlimited`: a synthetic
+12-minute lesson (ration forced to exactly 1) with 30 review items and
+no dialogues, confirming exactly `1 + max_streak_relief_notes` = 3
+notes fire — not fewer (the relief mechanism must engage) and not more
+(it must stay bounded even though the streak keeps retriggering and 7
+more notes remain available).
+
+### Point 2: no learning arc was guaranteed a connected-use moment
+
+**Root cause.** `do_recall()`'s per-item dialogue-stage handling
+(`stage == "dialogue"`, always an item's *last* ladder stage) only
+attempted `eligible_dialogue(prefer_item=item)` when `since_dialogue >=
+dialogue_every // 2` — a frequency-spacing gate meant to stop dialogues
+clustering when several long-known review items happen to cycle back to
+"dialogue" stage close together. Applied unconditionally, it also
+silently skipped a *freshly introduced* item's own first (and only,
+since "dialogue" is the ladder's last stage) attempt at connected use
+whenever that item's own reactivation schedule reached "dialogue" before
+`since_dialogue` had built back up — which is common, since a new item's
+four reactivation gaps (`[3, 5, 8, 13]`) climb the ladder quickly.
+Confirmed directly: a minimal synthetic scenario (one new item wired to
+one dialogue, `dialogue_every` unreachably high, drill-streak disabled
+to isolate this from pilot 9's mechanism) produced `dialogues: []` on
+the pre-fix code — the dialogue never played at all, despite the item
+being fully practiced and the dialogue being trivially eligible the
+whole time.
+
+**Done.** The spacing gate now applies only to items *not* introduced
+this lesson (older material cycling back through ordinary review);
+an item that's part of this lesson's `introduced` list always gets its
+dialogue-stage attempt — that reactivation *is* its arc's connected-use
+moment, and since "dialogue" never recurs later in the same lesson for
+that item, skipping it meant losing the only chance entirely, not
+just delaying it. Re-ran the same synthetic scenario post-fix:
+`dialogues: ['d1']` fires reliably. A 15-lesson simulation against the
+real curriculum shows dialogues now accumulate steadily as vocabulary
+grows (`nagranni` from lesson 6, `tungumal` from lesson 9, `kaffihus`
+from lesson 12) rather than being left entirely to the periodic
+schedule's luck.
+
+Added `test_a_freshly_introduced_items_own_dialogue_stage_is_not_skipped`,
+confirmed against the pre-fix code to reproduce `dialogues: []` before
+passing on the fix.
+
+**Scoping note:** like pilot 12, this reuses existing per-item
+machinery rather than modeling arcs explicitly — "this lesson's
+`introduced` list" stands in for "the current arc." It guarantees a
+connected-use *attempt* for any item that's part of *some* dialogue's
+`required_items`; it does not (and cannot, without new curriculum
+content) do anything for an arc whose items aren't wired into any
+dialogue at all — a content gap, not a planner gap, and one #29's
+curriculum-wide audit may surface incidentally.
+
+100 tests (98 → 100), all passing; `audiolesson validate` unchanged.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 

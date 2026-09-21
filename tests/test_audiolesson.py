@@ -190,6 +190,37 @@ class CurriculumTests(unittest.TestCase):
             if a in order and b in order:
                 self.assertLess(order[a], order[b], f"{b} introduced before its prereq {a}")
 
+    def test_a_freshly_introduced_items_own_dialogue_stage_is_not_skipped(self):
+        """Issue #44 point 2: once an item's own reactivation schedule reaches its ladder's
+        final "dialogue" stage, the old code only attempted it when ``since_dialogue >=
+        dialogue_every // 2`` — a frequency-spacing gate meant to keep dialogues from
+        clustering when several long-known review items cycle back to "dialogue" close
+        together, not something that should apply to a freshly introduced item's own first
+        (and only, since "dialogue" is always the ladder's last stage) attempt at connected
+        use. With ``dialogue_every`` set unreachably high and ``drill_streak_limit`` disabled
+        (isolating this from the streak-triggered dialogue pick, a different mechanism), the
+        item's own schedule must still reach a real "dialogue" exercise rather than silently
+        falling back to ``below_dialogue()`` forever — confirmed against the pre-fix code that
+        this exact scenario produced no dialogue at all (``dialogues: []``)."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": (
+                [{"id": "w0", "kind": "phrase", "target": "Orð eitt tvö.", "meaning": "Word one two."}]
+                + [{"id": f"r{i}", "kind": "phrase", "target": f"Rifja {i}.", "meaning": f"Review {i}."} for i in range(10)]
+            ),
+            "dialogues": [
+                {"id": "d1", "setting": "A test setting.", "requires": ["w0"], "turns": [{"cue": "Say it.", "expect": "w0"}]}
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(10):
+            learner.items[f"r{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        cfg = PlanConfig(minutes=30, seed=1, new_items=1, dialogue_every=1000, drill_streak_limit=1000)
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY)
+        sc = planner.build()
+        self.assertIn("d1", sc.meta["dialogues"])
+
     def test_a_long_drill_streak_pulls_an_eligible_dialogue_forward(self):
         """Issue #34 points 5-6: a long uninterrupted run of isolated recall exercises should
         pull an eligible dialogue forward rather than waiting for its usual periodic schedule
@@ -246,6 +277,36 @@ class CurriculumTests(unittest.TestCase):
         kinds = [ex.kind for ex in sc.exercises if ex.kind != "opening"]
         self.assertEqual(kinds[:3], ["recall"] * 3, kinds)
         self.assertEqual(kinds[3], "note", kinds)
+
+    def test_streak_relief_notes_are_bounded_not_unlimited(self):
+        """Issue #44 point 1: a real generated lesson showed the streak-triggered note fallback
+        (previous test) was itself gated by ``_note_budget_left()``, the ordinary per-lesson
+        aside ration — as little as 1 note for a short lesson, easily spent by the very first
+        unrelated aside roll long before the streak ever needed it, after which the streak kept
+        climbing (confirmed to 15 unbroken recalls on the real curriculum) with no rescue at
+        all. The fix must not simply remove that gate either — an unconditional bypass measured
+        as high as 19 asides in one 30-minute lesson during `auto` pace escalation, turning
+        rationing off entirely. `max_streak_relief_notes` is the middle ground: a small, bounded
+        allowance spent only once the ordinary ration is exhausted.
+
+        This curriculum forces the ordinary ration to exactly 1 (a 12-minute lesson) and gives
+        the streak plenty of opportunities to retrigger (no dialogues, `drill_streak_limit=3`,
+        30 review items). Exactly ration (1) + `max_streak_relief_notes` (2) = 3 notes should
+        fire — not fewer (the relief mechanism must actually engage), and not more (it must stay
+        bounded even though the streak keeps retriggering and more notes remain available)."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(30)],
+            "notes": [{"id": f"n{i}", "text": f"Note {i}."} for i in range(10)],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(30):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        cfg = PlanConfig(minutes=12, seed=1, dialogue_every=1000, drill_streak_limit=3, max_streak_relief_notes=2)
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY)
+        sc = planner.build()
+        self.assertEqual(len(sc.meta["notes"]), 1 + cfg.max_streak_relief_notes, sc.meta["notes"])
 
     def test_high_drill_streak_wins_over_a_due_reactivation_too(self):
         """Owner review on #41: the streak breaker used to run *after* step 1 (a due
@@ -323,18 +384,23 @@ class CurriculumTests(unittest.TestCase):
         point 3 added a second: ``three_kinds_of_sorry`` alongside ``godur_gender``) are
         curriculum events, not filler, so they neither draw on that ration nor shrink it for
         the asides that do — a lesson where both happen to fire can rack up more than 2 notes
-        total without that being a rationing failure."""
+        total without that being a rationing failure. Issue #44 point 1 added a third, small
+        exemption: once the ordinary ration is spent, up to ``max_streak_relief_notes`` (2 by
+        default) more asides may fire specifically to break up a drill streak with no eligible
+        dialogue — bounded, not unlimited, so the ceiling here is the ration plus that
+        allowance, not the ration alone."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         self.assertGreaterEqual(len(cur.notes), 40)
         learner = LearnerState("is", "en", "A1")
         learner.feedback_mode = "auto"
         day = TODAY
         heard: list[str] = []
+        cfg_for_ceiling = PlanConfig(minutes=30)
         for _ in range(12):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=2), today=day).build()
             notes = [e for e in sc.exercises if e.kind == "note"]
             asides = [e for e in notes if not cur.note_by_id[e.label.split(": ")[1]].milestone]
-            self.assertLessEqual(len(asides), 2)
+            self.assertLessEqual(len(asides), 2 + cfg_for_ceiling.max_streak_relief_notes)
             for e in notes:
                 note = cur.note_by_id[e.label.split(": ")[1]]
                 if not note.milestone:

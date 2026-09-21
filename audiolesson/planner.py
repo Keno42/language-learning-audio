@@ -37,6 +37,9 @@ class PlanConfig:
     dialogue_first_turns: int = 2  # turns played the first time; one more each later encounter
     max_dialogues: int | None = None  # per lesson (default: one per 10 minutes, at least 2)
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
+    max_streak_relief_notes: int = 2  # extra notes beyond max_notes, only to break a drill streak
+    # when no dialogue fits either (issue #44 point 1) — a small, separate, bounded allowance,
+    # not an unlimited bypass of the ordinary ration
     note_chance: float = 0.7  # chance to play a related note right after its item
     max_review_passes: int = 2  # when material runs out, review what was reviewed once more (harder).
     # Set to 1 to end the lesson short instead (issue #34 point 5, other half) — see docs/HANDOFF.md
@@ -342,6 +345,7 @@ class Planner:
         need_for_new = min(cfg.min_time_for_new_item, budget * 0.6)  # short lessons still get something new
         reviews_used: list[str] = []
         passes = 1
+        streak_relief_notes_used = 0
 
         def touch(item: Item) -> None:
             recent.append(item.id)
@@ -367,7 +371,19 @@ class Planner:
         def do_recall(item: Item, stage: str) -> None:
             nonlocal since_dialogue
             if stage == "dialogue":
-                dlg = self.eligible_dialogue(prefer_item=item) if since_dialogue >= cfg.dialogue_every // 2 else None
+                # An item introduced earlier *this lesson* reaching its own dialogue-stage
+                # reactivation is that arc's connected-use moment (issue #44 point 2) — always
+                # attempt it, not gated by since_dialogue's frequency spacing. That gate exists
+                # to keep dialogues from clustering when several long-known review items happen
+                # to cycle back to "dialogue" stage close together, not to skip a fresh arc's
+                # one chance at connected use within its own reactivation schedule — without
+                # this, an item whose schedule reached "dialogue" before since_dialogue had
+                # built back up silently fell back to below_dialogue() and, since "dialogue"
+                # is always the last ladder stage, never got a connected-use attempt at all
+                # this lesson. An older item cycling back via ordinary review keeps the
+                # existing spacing gate.
+                fresh_arc_item = any(i.id == item.id for i in introduced)
+                dlg = self.eligible_dialogue(prefer_item=item) if (fresh_arc_item or since_dialogue >= cfg.dialogue_every // 2) else None
                 if dlg is not None:
                     self._play_dialogue(sc, dlg)
                     since_dialogue = 0
@@ -423,16 +439,36 @@ class Planner:
                     self._play_dialogue(sc, dlg)
                     since_dialogue = 0
                     acted = True
-                elif self._note_budget_left() and remaining >= 40:
+                elif remaining >= 40:
                     # no dialogue fits either: a note is a varied activity, not another
-                    # flashcard drill. The streak's "or stop" fallback needs no new code
-                    # here, since step 5's own cascade below already ends the lesson once
-                    # genuinely nothing — due, new, review, or note — is left.
-                    note = self._pick_note(None)
-                    if note is not None:
-                        b.note(sc, note)
-                        self.notes_played.append(note.id)
-                        acted = True
+                    # flashcard drill. `_note_budget_left()` alone isn't enough of a gate here
+                    # (issue #44 point 1): that budget exists to ration *optional* asides, at as
+                    # little as 1 per lesson for a short lesson (`max(1, minutes // 12)`) —
+                    # easily spent by the very first ordinary aside roll, long before the streak
+                    # ever needs it. A real generated lesson hit exactly this: the streak
+                    # trigger fired repeatedly (climbing to 15 unbroken recalls) while
+                    # `_note_budget_left()` stayed `False` the entire time, because the lesson's
+                    # one allowed aside had already played early on. But an unconditional bypass
+                    # overcorrects — measured as high as 19 asides in one 30-minute lesson during
+                    # `auto` pace escalation, turning rationing off entirely and recreating
+                    # issue #21's original "asides feel like non-sequiturs" complaint from the
+                    # other direction. `max_streak_relief_notes` (default 2) is a small, separate
+                    # allowance spent only once the ordinary ration is already exhausted — not
+                    # unlimited, but enough to break up a couple of real monotony episodes in one
+                    # lesson without turning it into a string of asides.
+                    ration_left = self._note_budget_left()
+                    if ration_left or streak_relief_notes_used < cfg.max_streak_relief_notes:
+                        note = self._pick_note(None)
+                        if note is not None:
+                            b.note(sc, note)
+                            self.notes_played.append(note.id)
+                            acted = True
+                            if not ration_left:
+                                streak_relief_notes_used += 1
+                    # If no note is available either (ration and relief allowance both spent, or
+                    # every note already played this lesson), the streak's "or stop" fallback
+                    # needs no new code here: step 5's own cascade below already ends the lesson
+                    # once genuinely nothing — due, new, review, or note — is left.
 
             # 1. a scheduled reactivation that is due (but never the item we just did)
             if not acted:
