@@ -1,7 +1,7 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-21 (session 21: issue #44's third review round —
-see below; sessions 20, 19 and 18 close-outs follow). **Issue #34** ("Improve
+_Last updated 2026-09-21 (session 22: issue #44's fourth and final review
+round — see below; sessions 21, 20, 19 and 18 close-outs follow). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -26,24 +26,26 @@ failure mode again on future long-running issues: a "pilots done" tally
 is not the same claim as "the issue's own acceptance criteria hold,"
 and this file should track the latter.
 
-**Issue #44** (the two residuals split out of #34) is **done** — but
-took three rounds on the same PR (#46). Session 19's first fix was
-judged **request-changes equivalent**: each of its two points stopped
-one step short of #44's acceptance criteria (note fallback could still
-rarely fall through to plain recall; dialogue-stage fix only reached
-items wired into an authored dialogue). Session 20 added a
-dialogue-independent recombination fallback (`do_connect()`) and a real
-deliberate stop as the cascade's last resort — the owner confirmed that
-shape was right, but session 20's `connect()` itself was still just two
-independent flashcard recalls under a shared header (no real connection
-between them), was only ever reached as a side effect of the drill-streak
-breaker (not guaranteed per arc), and could pull material from the wrong
-arc. Session 21 rebuilt `connect()` as one exercise with an explicit
-bridging line, added a real per-arc guarantee independent of the streak
-breaker, and fixed the arc-scoping and an `idx` off-by-one along the way
-— plus a rotation-vs-connect interaction bug caught by an existing test
-along the way. See "Session 21", "Session 20", and "Session 19" below
-for the full history. 103 tests, all passing.
+**Issue #44** (the two residuals split out of #34) is **done** — four
+review rounds on the same PR (#46), each one closing exactly what the
+previous round left open. Session 19's first fix was judged
+**request-changes equivalent**: each of its two points stopped one step
+short of #44's acceptance criteria (note fallback could still rarely
+fall through to plain recall; dialogue-stage fix only reached items
+wired into an authored dialogue). Session 20 added a dialogue-independent
+recombination fallback (`do_connect()`) and a real deliberate stop as the
+cascade's last resort — the owner confirmed that shape was right, but
+session 20's `connect()` itself was still just two independent flashcard
+recalls under a shared header, was only ever reached as a side effect of
+the drill-streak breaker (not guaranteed per arc), and could pull
+material from the wrong arc. Session 21 rebuilt `connect()` as one
+exercise with an explicit bridging line, added a real per-arc guarantee
+independent of the streak breaker, and fixed the arc-scoping and an
+`idx` off-by-one. Session 22 closed the last gap: `connect()` could
+record a multi-word item at `"situation"` stage regardless of how far it
+had actually climbed its own ladder, silently skipping stages it never
+practised. See "Session 22" through "Session 19" below for the full
+history. 104 tests, all passing.
 
 **Next up, per the owner's priority order:** issue #29 ("Design
 curriculum around reusable concepts and communicative capabilities") —
@@ -1227,6 +1229,48 @@ don't exclude" design above).
 
 103 tests (102 → 103; `test_connected_use_reaches_an_arc_whose_items_are_wired_into_no_dialogue`
 strengthened, not counted as new), all passing; `audiolesson validate` unchanged.
+
+## Session 22: issue #44, round 4 — connect() could skip a multi-word item's own stage progression
+
+The owner's last blocker: `do_connect()` recorded *any* has-situation
+candidate at stage `"situation"` regardless of how far it had actually
+climbed its own ladder — harmless for a short item, whose ladder goes
+straight from `meaning` to `situation`, but a multi-word item's ladder
+also has `cloze`/`hinted` in between. Since `LearnerState.record_lesson()`
+never lowers a stage once raised (`st.stage = max(candidates, key=...
+stage_index)`), sweeping such an item into a connect() exercise could
+jump its persisted stage straight to `situation`, permanently skipping
+stages it had never actually practised.
+
+**Fix.** Added `_ready_for_situation(item)`: true only if the item's
+*current* stage (its persisted `ItemState.stage` for already-known
+material, or this lesson's own `exposures` for something introduced
+today) is already at `situation` or one step short of it — i.e.
+recording a `situation` exposure now continues its natural climb rather
+than skipping stages. `_connect_pair()`'s candidate filter now requires
+this alongside `has_situation`. Also had to tighten the per-arc
+readiness check (step 0b, session 21) to use the same per-item gate,
+not just "some post-intro touch" — otherwise an arc could be judged
+"ready" before any of its own items individually were, and its
+guaranteed connect() attempt would find nothing eligible in its own
+material and silently fall back to unrelated review items instead
+(caught by `test_each_arc_gets_its_own_connected_use_moment_...`
+regressing when the per-item gate was added without this).
+
+**Test.** `test_connect_never_skips_a_multi_word_items_own_stage_progression`:
+a known multi-word item stuck at `hinted` (several stages short of
+`situation`) alongside plenty of fully-progressed short items, so every
+connect() this lesson has an alternative pairing that doesn't need it.
+Confirmed against the pre-fix code that the multi-word item got swept
+into a connect() exercise anyway. The test's second half is the general
+guarantee the owner asked for ("monotonic-stage regression test"): for
+every item exposed this lesson, its recorded stage sequence — starting
+from wherever it stood *before* the lesson — never skips a ladder stage.
+Stronger than the existing `test_stages_get_harder_within_lesson`, which
+only checks the sequence doesn't go backward, not that it doesn't jump
+ahead.
+
+104 tests (103 → 104), all passing; `audiolesson validate` unchanged.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 

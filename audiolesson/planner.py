@@ -444,8 +444,32 @@ class Planner:
                 idx += 1
                 since_dialogue += 1
 
+        def _ready_for_situation(it: Item) -> bool:
+            """True if recording ``it`` at ``"situation"`` stage right now continues its own
+            natural climb up the ladder rather than skipping stages it hasn't earned yet
+            (owner review round 3 on #46): ``do_connect()`` used to record *any* has-situation
+            candidate at stage ``"situation"`` regardless of how far it had actually climbed —
+            fine for a short item whose ladder goes straight from ``meaning`` to ``situation``,
+            but a multi-word item's ladder also has ``cloze``/``hinted`` in between, and
+            ``record_lesson()`` never lowers a stage, only raises it (``max(candidates, key=...
+            stage_index)``), so one connect() exercise could jump such an item straight to
+            ``situation``, permanently skipping stages it never actually practised. Allows the
+            item at its current stage or one step short of ``situation`` (so the *next* natural
+            step reaches it) — not further back than that."""
+            ladder = self.ladder(it)
+            if "situation" not in ladder:
+                return False
+            situation_idx = stage_index(ladder, "situation")
+            if it.id in self.learner.items:
+                st = self.learner.items[it.id]
+                cur = st.stage if st.stage in ladder else ladder[0]
+            else:
+                done = [s for s in self.exposures.get(it.id, []) if s != "intro"]
+                cur = done[-1] if done and done[-1] in ladder else ladder[0]
+            return stage_index(ladder, cur) >= situation_idx - 1
+
         def _connect_pair(pool: list[Item], last_touched_id: str | None) -> list[Item] | None:
-            """The two distinct, situation-capable items in ``pool`` to recombine together,
+            """The two distinct, situation-ready items in ``pool`` to recombine together,
             preferring a pair that shares a topic — so the connected moment reads as one
             coherent scene rather than two items that merely happen to both be known (owner
             review round 2 on #46: a "leaving a shop" situation paired with a "raising a
@@ -464,7 +488,7 @@ class Planner:
             seen: set[str] = set()
             valid: list[Item] = []
             for it in pool:
-                if it.id in seen or not it.has_situation:
+                if it.id in seen or not it.has_situation or not _ready_for_situation(it):
                     continue
                 seen.add(it.id)
                 valid.append(it)
@@ -580,17 +604,20 @@ class Planner:
             #     reached ``do_connect()`` when a streak had already run past its limit, so an
             #     arc practiced at a normal pace — never triggering the streak breaker — could
             #     finish, and the lesson could move on to another arc or end, with no connected-
-            #     use attempt at all). Once every item introduced in an arc has had at least one
-            #     touch beyond its own intro (so this doesn't spring immediately on top of the
-            #     intro itself, before there's anything to "connect" yet), that arc gets one
-            #     deliberate attempt — scoped to its own ``arc_items`` specifically, not
-            #     ``introduced`` as a whole, so a later arc's guarantee can't be quietly satisfied
-            #     by an earlier arc's material (an earlier version of this fix pulled from whatever
-            #     had been introduced so far, in intro order, so a later arc's connected use could
-            #     end up reusing an earlier arc's items instead of its own). Marked "attempted"
-            #     whether or not it actually finds two eligible items, so a genuinely thin arc
-            #     (fewer than two situation-capable items and nothing else known to pair with)
-            #     isn't retried forever.
+            #     use attempt at all). Once every item introduced in an arc is itself individually
+            #     ready for a "situation" exposure — ``_ready_for_situation()``, not merely "has
+            #     had some touch beyond intro" (owner review round 3: an item still climbing
+            #     cloze/hinted isn't ready yet, and the arc's own readiness check used to be
+            #     looser than the per-item gate ``_connect_pair`` now enforces, so an arc could be
+            #     judged "ready" before any of its items actually were, and its guaranteed
+            #     connect() attempt would simply find nothing eligible in its own material) —
+            #     that arc gets one deliberate attempt — scoped to its own ``arc_items``
+            #     specifically, not ``introduced`` as a whole, so a later arc's guarantee can't be
+            #     quietly satisfied by an earlier arc's material (an earlier version of this fix
+            #     pulled from whatever had been introduced so far, in intro order, so a later
+            #     arc's connected use could end up reusing an earlier arc's items instead of its
+            #     own). Marked "attempted" whether or not it actually finds two eligible items, so
+            #     a genuinely thin arc isn't retried forever.
             if not acted and remaining >= 40:
                 ready_arc = next(
                     (
@@ -598,7 +625,7 @@ class Planner:
                         for aid in arc_order
                         if aid not in arc_connect_attempted
                         and len(arc_items[aid]) >= arc_target.get(aid, 0)
-                        and all(len(self.exposures.get(it.id, [])) >= 2 for it in arc_items[aid])
+                        and all(_ready_for_situation(it) for it in arc_items[aid])
                     ),
                     None,
                 )

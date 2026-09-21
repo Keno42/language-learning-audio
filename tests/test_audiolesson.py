@@ -451,6 +451,71 @@ class CurriculumTests(unittest.TestCase):
         self.assertEqual(set(arc1.item_ids), {"a0", "a1"}, f"arc 1's connected use pulled in material outside the arc: {arc1.item_ids}")
         self.assertEqual(set(arc2.item_ids), {"b0", "b1"}, f"arc 2's connected use pulled in material outside the arc: {arc2.item_ids}")
 
+    def test_connect_never_skips_a_multi_word_items_own_stage_progression(self):
+        """Owner review round 3 on #46: ``do_connect()`` recorded *any* has-situation candidate
+        at stage ``"situation"`` regardless of how far it had actually climbed its own ladder —
+        harmless for a short item, whose ladder goes straight from ``meaning`` to ``situation``,
+        but a multi-word item's ladder also has ``cloze``/``hinted`` in between. Since
+        ``record_lesson()`` never lowers a stage once raised (only ``max()``s across what a
+        lesson recorded), sweeping such an item into a connect() exercise could jump its
+        persisted stage straight to ``situation``, permanently skipping stages it never
+        actually practised.
+
+        ``hard0`` is a known multi-word item stuck at ``hinted`` — several stages short of
+        ``situation`` — alongside plenty of fully-progressed short items, so every connect()
+        this lesson has an alternative pairing that doesn't need ``hard0`` at all. Confirmed
+        against the pre-fix code that ``hard0`` got swept into a connect() exercise (and its
+        stage jumped straight to ``situation``) despite never having done ``cloze``/``meaning``
+        in this lesson or any before it.
+
+        The second half checks the general guarantee, not just this one item: no item's
+        recorded stage sequence this lesson, starting from wherever it stood before the
+        lesson, ever skips a ladder stage — stronger than the existing
+        ``test_stages_get_harder_within_lesson``, which only checks the sequence doesn't go
+        *backward*, not that it doesn't jump *ahead*."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": (
+                [
+                    {
+                        "id": "hard0",
+                        "kind": "phrase",
+                        "target": "Þetta er erfitt orð.",
+                        "meaning": "This is a hard word.",
+                        "situation": "A hard-word situation.",
+                    }
+                ]
+                + [
+                    {"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}.", "situation": f"Situation {i}."}
+                    for i in range(10)
+                ]
+            ),
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        learner.items["hard0"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="hinted")
+        for i in range(10):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="situation")
+        planner = Planner(
+            cur,
+            learner,
+            Prompts.load("en"),
+            Timing(level="A1"),
+            PlanConfig(minutes=30, seed=1, dialogue_every=1000, drill_streak_limit=3, note_chance=0.0),
+            today=TODAY,
+        )
+        sc = planner.build()
+        connect_items = {i for ex in sc.exercises if ex.kind == "connect" for i in ex.item_ids}
+        self.assertNotIn("hard0", connect_items, "a not-yet-ready multi-word item was swept into a connect() exercise")
+
+        ladders = sc.meta["ladders"]
+        for item_id, stages in sc.meta["exposures"].items():
+            ladder = ladders[item_id]
+            pre_stage = learner.items[item_id].stage if item_id in learner.items and learner.items[item_id].stage in ladder else ladder[0]
+            seq = [stage_index(ladder, pre_stage)] + [ladder.index(s) for s in stages if s in ladder]
+            gaps = [b - a for a, b in zip(seq, seq[1:])]
+            self.assertTrue(all(g <= 1 for g in gaps), f"{item_id}: stage sequence skipped a ladder stage: {seq} ({ladder})")
+
     def test_high_drill_streak_wins_over_a_due_reactivation_too(self):
         """Owner review on #41: the streak breaker used to run *after* step 1 (a due
         scheduled reactivation), guarded by ``if not acted``, so a due reactivation could
