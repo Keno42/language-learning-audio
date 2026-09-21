@@ -42,9 +42,14 @@ break; and `_speak_note_text()` could narrate a bare "," left over
 between two «...»-marked phrases as its own meaningless TTS call — now a
 beat instead. Also tightened the «» validation to actually run the
 matching regex instead of just comparing counts. PR #41 merged; pilot 11
-then marked up the remaining 46 cultural-aside notes with `«...»` — every
-note in the curriculum that names a real Icelandic word now speaks it
-with the native voice. Only pilot 10's open question is left on #34._
+then marked up the remaining 46 cultural-aside notes with `«...»`.
+Owner review on PR #42 caught that pilot 11's first cut left `text_ja`
+fields with only a katakana transliteration unmarked (7 notes), so the
+Japanese track never actually spoke those terms in the native voice —
+fixed by keeping the katakana as a parenthetical gloss and adding the
+real spelling in `«...»` alongside it. Every note in the curriculum that
+names a real Icelandic word now speaks it with the native voice, in both
+instructor languages. Only pilot 10's open question is left on #34._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -729,21 +734,10 @@ real spoken vocabulary or would mis-render:
   ka'`. These are the *known* language's own vocabulary, not the target
   language; marking them would hand Japanese text to the Icelandic
   voice.
-- **`text_ja` fields that only carry a katakana transliteration** of the
-  Icelandic term (e.g. `hestar`'s 「トルト」for `tölt`, `hakarl`'s
-  ハウカルトル for `Hákarl`, `skyr`'s スキール, `fiskur`'s
-  プロックフィスクル, `huldufolk`'s フルドゥフォルク, `jolabokaflod`'s
-  ヨウラボウカフロウズ, `ull`'s 「ロパペイサ」): wrapping a katakana
-  transliteration in `«...»` would feed the *Icelandic* voice Japanese
-  characters and mispronounce it — actually fixing this would mean
-  swapping the katakana for the real Icelandic spelling, a content
-  change bigger than adding markup, so left as-is. Where `text_ja`
-  already carried the literal Icelandic spelling instead of a
-  transliteration (`kindur`'s `«réttir»`, `hakarl`'s `«Þorrablót»`,
-  `islenska`'s `«tölva»`/`«tala»`/`«völva»`, `enska`'s full phrase,
-  `tolur`'s numbers, `kurteisi`'s three terms), that one *is* marked —
-  the English/Japanese asymmetry within a single note is intentional,
-  not an oversight.
+- **`text_ja` fields that only carried a katakana transliteration** of
+  the Icelandic term, rather than its actual spelling — see the owner
+  review right below, which corrected the first cut's call to leave
+  these as-is.
 
 No wording changed anywhere, no new content or claims — every marked
 term already existed in already-reviewed text; this pass only added
@@ -755,6 +749,34 @@ passes unchanged. No new tests: the mechanism itself
 (splitting/alternating voices, punctuation handling, validation) is
 already covered by pilot 8/9's tests against synthetic notes — this
 pass is pure content, not a mechanism change.
+
+**Owner review on PR #42: the katakana-only exclusion left the Japanese
+track incomplete, contradicting the pilot's own claim.** The first cut
+above reasoned that fixing `hestar`/`hakarl`/`skyr`/`fiskur`/
+`huldufolk`/`jolabokaflod`/`ull`'s `text_ja` would mean "swapping the
+katakana for the real Icelandic spelling, a content change bigger than
+adding markup" and left them unmarked — but that directly contradicted
+the top-of-file claim this same session wrote, "every note in the
+curriculum that names a real Icelandic word now speaks it with the
+native voice": true for `text`, not yet for `text_ja` on these seven.
+For a Japanese-background learner, `skyr`'s note said only "スキール"
+(the katakana approximation) and never actually heard "Skyr" from the
+Icelandic voice — the whole point of pilot 8.
+
+Fixed by keeping the katakana as a parenthetical reading gloss (so the
+familiar approximation stays in the transcript) while adding the real
+Icelandic spelling in `«...»` right before it, e.g. `スキール` →
+`«Skyr»（スキール）`. Same pattern for all seven:
+`hestar` → `«tölt»（トルト）`, `hakarl` → `«Hákarl»（ハウカルトル）` and
+`«brennivín»（ブレニヴィン）` (`Þorrablót` was already marked),
+`fiskur` → `«Plokkfiskur»（プロックフィスクル）`, `huldufolk` →
+`«huldufólk»（フルドゥフォルク）`, `jolabokaflod` →
+`«jólabókaflóð»（ヨウラボウカフロウズ）`, `ull` →
+`«lopapeysa»（ロパペイサ）`. Casing matches each note's own `text`
+field exactly. `audiolesson validate` and all 95 tests still pass
+unchanged (pure content, no mechanism touched) — every note in the
+curriculum that names a real Icelandic word now genuinely speaks it
+with the native voice, in both instructor languages.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 
@@ -2238,10 +2260,14 @@ Verified in this session:
        possible, intentionally not defaulted."
    11. marked up the remaining 46 cultural-aside notes with `«...»`
        (pilot 8's remainder; session 17). **Done.** See "Pilot 11" above
-       for the full note-by-note list and the three deliberate
-       exclusions (bare letters discussed as sounds, Japanese reference
-       words, and `text_ja` fields that only carry a katakana
-       transliteration rather than the Icelandic spelling itself).
+       for the full note-by-note list and the two deliberate exclusions
+       that stand (bare letters discussed as sounds, Japanese reference
+       words). Owner review on PR #42 caught that the first cut also
+       excluded `text_ja` fields carrying only a katakana
+       transliteration, leaving the Japanese track without native-voice
+       speech for 7 notes' Icelandic terms — fixed by keeping the
+       katakana as a parenthetical gloss and adding the real spelling in
+       `«...»` alongside it (e.g. `«Skyr»（スキール）`).
 
    **Not started:** none — all 7 original pilots plus pilots 8–9 and 11
    have a concrete step done; pilot 10 was investigated and intentionally

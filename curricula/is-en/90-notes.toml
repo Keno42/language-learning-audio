@@ -187,7 +187,7 @@ id = "hestar"
 items = ["hestur", "eg_a_islenskan_hest"]
 topics = ["nature"]
 text = "Icelandic horses have a fifth gait, the «tölt», and no other horse may enter the country; one that leaves may never return. Never call them ponies."
-text_ja = "アイスランドの馬には「トルト」という五つ目の歩法があり、外国の馬は一頭も持ち込めず、一度島を出た馬は二度と戻れません。決して「ポニー」と呼ばないでください。"
+text_ja = "アイスランドの馬には«tölt»（トルト）という五つ目の歩法があり、外国の馬は一頭も持ち込めず、一度島を出た馬は二度と戻れません。決して「ポニー」と呼ばないでください。"
 
 [[notes]]
 id = "kindur"
@@ -201,21 +201,21 @@ id = "hakarl"
 items = ["hakarl", "hefurdu_smakkad_hakarl"]
 topics = ["food"]
 text = "«Hákarl» is Greenland shark, fermented for months because fresh it is poisonous. It is eaten in tiny cubes with a shot of «brennivín», mostly at the midwinter feast «Þorrablót». Think of it as Iceland's nattō, only stronger."
-text_ja = "ハウカルトルはニシオンデンザメを数か月発酵させたもので、生では毒があります。小さなさいの目にして蒸留酒ブレニヴィンと一緒に、主に真冬の祭り «Þorrablót» で食べます。アイスランドの納豆だと思ってください。ただし、もっと強烈です。"
+text_ja = "«Hákarl»（ハウカルトル）はニシオンデンザメを数か月発酵させたもので、生では毒があります。小さなさいの目にして蒸留酒«brennivín»（ブレニヴィン）と一緒に、主に真冬の祭り «Þorrablót» で食べます。アイスランドの納豆だと思ってください。ただし、もっと強烈です。"
 
 [[notes]]
 id = "skyr"
 items = ["skyr"]
 topics = ["food"]
 text = "«Skyr» looks like yoghurt but is technically a cheese, and Icelanders have eaten it for a thousand years. It is high in protein and low in fat, eaten with milk and sugar or berries."
-text_ja = "スキールはヨーグルトに見えますが分類上はチーズで、アイスランド人は千年前から食べています。高タンパクで低脂肪、牛乳と砂糖、あるいはベリーをかけて食べます。"
+text_ja = "«Skyr»（スキール）はヨーグルトに見えますが分類上はチーズで、アイスランド人は千年前から食べています。高タンパクで低脂肪、牛乳と砂糖、あるいはベリーをかけて食べます。"
 
 [[notes]]
 id = "fiskur"
 items = ["fisk", "plokkfisk", "thorsk"]
 topics = ["food"]
 text = "Fish built Iceland's economy, and the 'cod wars' with Britain in the 1970s were fought over fishing limits. «Plokkfiskur», fish and potatoes mashed in a white sauce, is the nation's Tuesday dinner."
-text_ja = "魚がアイスランド経済を築きました。1970年代の英国との「タラ戦争」は漁業水域をめぐる争いです。魚とじゃがいもをホワイトソースで和えたプロックフィスクルは、この国の火曜日の定番の夕食です。"
+text_ja = "魚がアイスランド経済を築きました。1970年代の英国との「タラ戦争」は漁業水域をめぐる争いです。魚とじゃがいもをホワイトソースで和えた«Plokkfiskur»（プロックフィスクル）は、この国の火曜日の定番の夕食です。"
 
 [[notes]]
 id = "islenska"
@@ -285,14 +285,14 @@ id = "huldufolk"
 items = ["fjall", "utsynid_er_fallegt"]
 topics = ["nature"]
 text = "Some road plans have been altered around rocks said to house the hidden people, the «huldufólk». Few Icelanders will say they believe in them, and few will say they don't. It is not far from the feeling around a shrine in a Japanese forest."
-text_ja = "「隠れた人々」フルドゥフォルクが住むとされる岩を避けて、道路計画が変更されたことがあります。信じると言い切るアイスランド人は少ないですが、信じないと言い切る人も少ないです。日本の森の神社のあたりで感じる気配に近いものです。"
+text_ja = "「隠れた人々」«huldufólk»（フルドゥフォルク）が住むとされる岩を避けて、道路計画が変更されたことがあります。信じると言い切るアイスランド人は少ないですが、信じないと言い切る人も少ないです。日本の森の神社のあたりで感じる気配に近いものです。"
 
 [[notes]]
 id = "jolabokaflod"
 items = ["bokum", "eg_er_ad_lesa_goda_bok", "eg_les"]
 topics = ["hobbies"]
 text = "Most books are published in November for the «jólabókaflóð», the Christmas book flood. The traditional gift on Christmas Eve is a book, read that same night in bed, ideally with chocolate."
-text_ja = "本の多くは11月に出版され、「クリスマスの本の洪水」ヨウラボウカフロウズと呼ばれます。クリスマスイブの定番の贈り物は本で、その夜のうちにベッドで、できればチョコレートと一緒に読みます。"
+text_ja = "本の多くは11月に出版され、「クリスマスの本の洪水」«jólabókaflóð»（ヨウラボウカフロウズ）と呼ばれます。クリスマスイブの定番の贈り物は本で、その夜のうちにベッドで、できればチョコレートと一緒に読みます。"
 
 [[notes]]
 id = "timi"
@@ -327,7 +327,7 @@ id = "ull"
 items = ["peysu", "er_thetta_ull", "er_thetta_islenskt"]
 topics = ["shopping"]
 text = "The «lopapeysa», the patterned wool sweater, dates only from the 1950s but is worn as if ancient. Real ones are hand-knitted from unwashed Icelandic wool, which is why they shrug off rain and cost a month's coffee budget."
-text_ja = "模様編みのウールセーター「ロパペイサ」は1950年代に生まれたものですが、まるで古来のもののように着られています。本物は洗っていないアイスランド羊毛を手編みしたもので、だから雨をはじき、値段はひと月分のコーヒー代くらいします。"
+text_ja = "模様編みのウールセーター«lopapeysa»（ロパペイサ）は1950年代に生まれたものですが、まるで古来のもののように着られています。本物は洗っていないアイスランド羊毛を手編みしたもので、だから雨をはじき、値段はひと月分のコーヒー代くらいします。"
 
 [[notes]]
 id = "fjolskylda"
