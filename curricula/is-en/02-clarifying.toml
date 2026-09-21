@@ -253,6 +253,35 @@ topics = ["clarifying"]
 situation = "Your friend is walking off while you tie your shoe. Tell him to hang on."
 situation_ja = "靴ひもを結んでいる間に友達が歩いていきます。待つよう言ってください。"
 
+# New (issue #29 triage, cluster B): "sjáðu" (look!) previously existed only embedded
+# inside a whale-watching phrase in module 23 — a whale-specific prereq gated it, so
+# relocating that phrase alone wouldn't have actually taught the word any earlier. A
+# short, prereq-free, generically reusable imperative belongs standalone — see
+# docs/HANDOFF.md.
+[[items]]
+id = "sjadu"
+kind = "phrase"
+target = "Sjáðu."
+meaning = "Look."
+meaning_ja = "見て。"
+difficulty = 1
+topics = ["clarifying"]
+situation = "You spot a rainbow over the harbour. Tell your friend to look."
+situation_ja = "港の上に虹が出ています。友達に見てと言ってください。"
+
+# Promoted from module 25 (issue #29 triage, cluster C): a repeat offender across two
+# dialogues before it was otherwise taught, and already the example fill for the
+# later "eg_er_med_have" construction — see docs/HANDOFF.md.
+[[items]]
+id = "vegabref"
+kind = "vocab"
+target = "vegabréf"
+meaning = "a passport"
+meaning_ja = "パスポート"
+difficulty = 2
+tags = ["acc_have", "acc_thing"]
+topics = ["clarifying"]
+
 [[items]]
 id = "skilurdu"
 kind = "phrase"
@@ -466,6 +495,22 @@ meaning_ja = "コーヒーを飲む"
 difficulty = 1
 tags = ["inf"]
 topics = ["daily", "cafe"]
+
+# New (issue #29 triage, cluster B): "ferð" (a trip/tour) previously existed only
+# inside "eg_vil_boka_ferd" (module 25), a fixed phrase that just spells out this
+# same "Ég vil {inf}." pattern by hand instead of using it — reusable material
+# embedded in a fixed phrase, the exact case #29 asks to fix at the source. Adding
+# it here lets "eg_vil" (and later constructions built on this "inf" vocabulary)
+# recombine with it like any other — see docs/HANDOFF.md.
+[[items]]
+id = "boka_ferd"
+kind = "vocab"
+target = "bóka ferð"
+meaning = "book a tour"
+meaning_ja = "ツアーを予約する"
+difficulty = 2
+tags = ["inf"]
+topics = ["daily", "travel"]
 
 [[items]]
 id = "eg_vil"

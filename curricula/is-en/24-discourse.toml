@@ -316,17 +316,6 @@ situation = "Anna mentions her trip to Greenland. Ask her to tell you more."
 situation_ja = "アンナがグリーンランド旅行の話をしました。もっと聞かせてと言ってください。"
 
 [[items]]
-id = "thad_er_god_hugmynd"
-kind = "phrase"
-target = "Það er góð hugmynd."
-meaning = "That's a good idea."
-meaning_ja = "いい考えですね。"
-difficulty = 2
-topics = ["discourse"]
-situation = "Anna suggests the hot tub before dinner. Say that's a good idea."
-situation_ja = "アンナが夕食の前に温泉をと提案しました。いい考えだと言ってください。"
-
-[[items]]
 id = "thvi_midur_ekki"
 kind = "phrase"
 target = "Því miður ekki."

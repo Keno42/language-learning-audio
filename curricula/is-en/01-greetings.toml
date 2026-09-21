@@ -244,6 +244,30 @@ topics = ["greetings", "discourse"]
 situation = "Someone asks if you have change. You don't. Say so regretfully."
 situation_ja = "小銭があるか聞かれましたが、ありません。残念そうに答えてください。"
 
+# Promoted from module 19 (issue #29 triage, cluster C): a repeat offender across
+# three dialogues before it was otherwise taught — see docs/HANDOFF.md.
+[[items]]
+id = "lika"
+kind = "vocab"
+target = "líka"
+meaning = "also"
+meaning_ja = "〜も"
+difficulty = 1
+topics = ["discourse"]
+
+# Promoted from module 24 (issue #29 triage, cluster C): a repeat offender across
+# two dialogues before it was otherwise taught — see docs/HANDOFF.md.
+[[items]]
+id = "thad_er_god_hugmynd"
+kind = "phrase"
+target = "Það er góð hugmynd."
+meaning = "That's a good idea."
+meaning_ja = "いい考えですね。"
+difficulty = 2
+topics = ["discourse"]
+situation = "Anna suggests the hot tub before dinner. Say that's a good idea."
+situation_ja = "アンナが夕食の前に温泉をと提案しました。いい考えだと言ってください。"
+
 [[items]]
 id = "sjaumst_seinna"
 kind = "phrase"

@@ -51,17 +51,18 @@ history. 104 tests, all passing.
 curriculum around reusable concepts and communicative capabilities") —
 (1) triage all `dialogue_sequencing_report()` findings (9 repeat
 offenders plus large single-item gaps like `heyra`) — **done**, posted
-as a comment on #29; session 23 acted on the two lowest-risk items from
-it (a one-dialogue content bug, and `nagranni`'s two big gaps —
-`gott_ad_heyra` relocated, `verð að + infinitive` turned into a real
-construction reusing module 2's existing slot-fill scaffolding) — 49 →
-41 advisory findings, see "Session 23"; the rest of clusters A/B/C are
-still open, cluster A (numbers/money) flagged as needing its own
-dedicated pass over Icelandic's gendered number forms, not a quick
-relocation; (2) a curriculum-wide dependency audit across all 26 modules
-for reusable concepts and late-introduced high-value concepts — not
-started; (3) a pilot testing whether the `godur_gender` gender-agreement
-pattern generalizes to case/tense/modality — not started. #29 stays open
+as a comment on #29, and now fully acted on except cluster A: session 23
+fixed the one-dialogue content bug, `nagranni`'s two big gaps
+(`gott_ad_heyra` relocated, `verð að + infinitive` turned into a real
+construction), and the rest of cluster C's repeat offenders (`líka`,
+`sjáðu`, `vegabréf`, `ferð`, `Það er góð hugmynd`) — 49 → 30 advisory
+findings, see "Session 23". Cluster A (numbers/money) is the one
+remaining item, flagged as needing its own dedicated pass over
+Icelandic's gendered number forms, not a quick relocation; (2) a
+curriculum-wide dependency audit across all 26 modules for reusable
+concepts and late-introduced high-value concepts — not started; (3) a
+pilot testing whether the `godur_gender` gender-agreement pattern
+generalizes to case/tense/modality — not started. #29 stays open
 until the curriculum-wide audit completes a full pass._
 Keep
 this current: whoever picks the project up next, human or AI, should
@@ -1343,20 +1344,57 @@ moving that worst finding elsewhere. Generalized the test to check the
 than which dialogue currently tops the list, so it won't need a
 one-line update every time the audit fixes another finding.
 
+**Second pass, same PR: the rest of cluster C.** `líka` (also, 3
+dialogues), `sjáðu` (look!, 2 dialogues), `vegabréf` (passport, 2
+dialogues), and `Það er góð hugmynd` (that's a good idea, 2 dialogues)
+were all repeat offenders sitting in modules 19–25, well past where
+several early dialogues already use them.
+
+- `lika` and `thad_er_god_hugmynd`: short, prereq-free, nothing depends
+  on them — relocated outright to module 1 (the `lika`/`frábært`/
+  `thad_er_god_hugmynd` moves are now the same established pattern).
+- `vegabref`: also prereq-free and already the example fill for the
+  later `eg_er_med_have` construction — relocated to module 2.
+- `sjáðu`: previously existed *only* embedded inside a whale-watching
+  phrase (`sjadu_hvalinn`, module 23), gated behind a whale-specific
+  prereq. Relocating that phrase alone would only have moved its
+  `order` field — the whale prereq would still block it from actually
+  being taught any earlier in a real lesson, a hollow fix that games
+  the diagnostic without changing the learner experience. Added a new
+  standalone, prereq-free `sjadu` phrase ("Sjáðu." / "Look.") instead,
+  the same shape as the already-existing `biddu` ("Bíddu." / "Wait.").
+- `ferð` (a trip): existed only inside `eg_vil_boka_ferd` (module 25),
+  a fixed phrase that just spells out the `eg_vil` ("Ég vil {inf}.")
+  construction by hand instead of using it — another instance of
+  cluster B's "reusable construction embedded in a fixed phrase"
+  pattern, this time for a noun rather than a verb. Added `boka_ferd`
+  ("bóka ferð" / "book a tour") to module 2's `"inf"` vocabulary instead
+  of just relocating the phrase, so `eg_vil` (and anything later built
+  on that vocabulary) can recombine with it like any other `"inf"` item.
+
+Verified with a 15-lesson simulation that all five surface as expected
+new items early on, and that `eg_vil` correctly resolves to "Ég vil
+bóka ferð." / "I want to book a tour." with `boka_ferd` filled in.
+
+`dialogue_sequencing_report()`: 41 → 30 advisory findings; the
+repeat-offender list is now down to `og`, `bara`, `krónur`, `hundruð` —
+all cluster A (numbers/money) or the one deliberately-left-alone word
+in `tungumal`.
+
 **Scope note.** Cluster A (numbers/money — money amounts are taught as
 whole fixed phrases like "fimm hundruð krónur" rather than a
 number+currency construction, and the base digits 5–12 are taught
 inside the *time* module, after cafe dialogues already need them for
-prices) and the rest of cluster B/C are real, higher-effort next steps
-— cluster A in particular touches Icelandic's gendered number forms
-(`fjórir`/`fjögur`, `tveir`/`tvær`/`tvö`, ...) and deserves the same
-"construction, not more fixed phrases" treatment `godur_gender` already
-modeled, not a quick relocation. Left for a dedicated follow-up rather
-than rushed in this pass. #29 stays open; items 2 (curriculum-wide
-audit) and 3 (case/tense/modality pilot) are still not started.
+prices) is the one real, higher-effort item left from the original
+triage — it touches Icelandic's gendered number forms (`fjórir`/
+`fjögur`, `tveir`/`tvær`/`tvö`, ...) and deserves the same "construction,
+not more fixed phrases" treatment `godur_gender` already modeled, not a
+quick relocation. Left for a dedicated follow-up rather than rushed in
+this pass. #29 stays open; items 2 (curriculum-wide audit) and 3
+(case/tense/modality pilot) are still not started.
 
 104 tests (still 104 — one updated, none added), all passing;
-`audiolesson validate` 49 → 41 advisory findings.
+`audiolesson validate` 49 → 30 advisory findings across the two passes.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 
