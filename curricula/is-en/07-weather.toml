@@ -122,6 +122,8 @@ meaning_ja = "いい天気"
 difficulty = 2
 tags = ["weather"]
 topics = ["weather"]
+situation = "Your friend steps outside and looks up at the clear sky. Comment that the weather's good."
+situation_ja = "友達が外に出て、晴れた空を見上げました。天気がいいと言ってください。"
 
 [[items]]
 id = "vont_vedur"

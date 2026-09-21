@@ -180,6 +180,12 @@ class Note:
     items: list[str] = field(default_factory=list)  # related item ids
     topics: list[str] = field(default_factory=list)
     milestone: bool = False
+    # Extra items a milestone's discrimination practice (Planner.do_discriminate) may
+    # reach into once they're known, on top of `items` — never required for the milestone
+    # itself to fire (issue #29, owner review: noticing a grammatical contrast is not the
+    # same as being asked to apply it to new vocabulary; gating firing on these too would
+    # make the milestone wait on the very transfer material it exists to introduce).
+    transfer_items: list[str] = field(default_factory=list)
 
 
 @dataclass

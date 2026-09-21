@@ -427,6 +427,16 @@ class Planner:
             distinct situations (bakery morning / bedtime / evening restaurant), so replaying
             two of them back to back *is* the discrimination exercise.
 
+            Prefers ``note.transfer_items`` over ``note.items`` once they're known (issue #29,
+            owner review): noticing «góðan daginn» / «góða nótt» / «gott kvöld» share one
+            adjective isn't the same as being able to apply that agreement to a noun the
+            learner hasn't seen it with before — always discriminating among the milestone's
+            own three examples would just replay the same familiar phrases forever. A
+            ``transfer_items`` entry is never required for the milestone to *fire* (see
+            ``Note.transfer_items``); here it's only used once actually known, checked the
+            same "met or exposed this lesson" way ``_eligible_milestone`` checks the gating
+            ``items``, so this never asks for something never introduced.
+
             Excludes only the single item just exercised (whatever triggered the milestone),
             not the whole ``recent`` de-dup deque used elsewhere — with three items, that still
             guarantees two *different* ones to switch between, which is the actual "discriminate"
@@ -437,8 +447,16 @@ class Planner:
             milestone with no follow-up practice at all."""
             nonlocal idx, since_dialogue
             just_touched = recent[-1] if recent else None
-            others = [i for i in note.items if i != just_touched]
-            candidates = [self.cur.by_id[i] for i in others if i in self.cur.by_id and self.cur.by_id[i].has_situation]
+            known_transfer = [i for i in note.transfer_items if self.learner.has_met(i) or i in self.exposures]
+            pool = known_transfer + note.items
+            others = [i for i in pool if i != just_touched]
+            seen: set[str] = set()
+            candidates: list[Item] = []
+            for i in others:
+                if i in seen or i not in self.cur.by_id or not self.cur.by_id[i].has_situation:
+                    continue
+                seen.add(i)
+                candidates.append(self.cur.by_id[i])
             for item in candidates[:2]:
                 do_recall(item, "situation")
                 idx += 1

@@ -62,8 +62,18 @@ Icelandic's gendered number forms, not a quick relocation; (2) a
 curriculum-wide dependency audit across all 26 modules for reusable
 concepts and late-introduced high-value concepts — not started; (3) a
 pilot testing whether the `godur_gender` gender-agreement pattern
-generalizes to case/tense/modality — not started. #29 stays open
-until the curriculum-wide audit completes a full pass._
+generalizes to case/tense/modality — not started. The owner also
+reviewed a real Lesson 3 run and added a new dimension to #29: reusable
+material needs an actual *transfer* opportunity, not just a favorable
+`order` — `godur_gender`'s own discrimination practice was still only
+ever replaying its three founding examples. Added `Note.transfer_items`
+and wired one new-gender noun per gender into `godur_gender` (session
+23's third pass) as a first instance of this; the broader question the
+owner also raised — families of fixed phrases (`Gjörðu svo vel`, `Verði
+þér að góðu`, ...) that share morphology but are taught as unrelated
+strings — is explicitly for the still-not-started audit (item 2) to
+work through case by case. #29 stays open until the curriculum-wide
+audit completes a full pass._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -1395,6 +1405,74 @@ this pass. #29 stays open; items 2 (curriculum-wide audit) and 3
 
 104 tests (still 104 — one updated, none added), all passing;
 `audiolesson validate` 49 → 30 advisory findings across the two passes.
+
+**Third pass, same PR: a real transfer step for `godur_gender`.** The
+owner reviewed a real Lesson 3 run and raised a design point beyond
+resequencing: `godur_gender`'s discrimination practice (`do_discriminate`)
+only ever switches between the milestone's own three founding examples
+(`góðan daginn` / `góða nótt` / `gott kvöld`) — noticing the gender
+contrast is not the same as being asked to apply it to a noun the
+learner hasn't seen it with before, and #29's own progression diagram
+explicitly ends in "apply it to new vocabulary and situations," not
+"replay the same three phrases forever." The owner proposed adding this
+— whether reusable material gets an actual *transfer* opportunity, not
+just a favorable `order` — to #29's own completion criteria going
+forward.
+
+**Fix.** Added `Note.transfer_items: list[str]` — extra items
+`do_discriminate` may reach for once *known*, distinct from the
+milestone's gating `items`. Critically, `transfer_items` never gates
+when the milestone *fires* (`_eligible_milestone` only ever checks
+`items`) — requiring the transfer material known first would be
+circular, since introducing it is the whole point. `do_discriminate` now
+checks `transfer_items` the same "met, or exposed this lesson" way
+`_eligible_milestone` already checks its own gating items, so it never
+asks for something never introduced, and prefers them over `items` when
+available.
+
+Wired `godur_gender` to one already-known-gender noun per gender it
+didn't already have: `thad_er_god_hugmynd` (feminine, "hugmynd" — this
+is the very phrase relocated in the second pass above) and `gott_vedur`
+(neuter, "veður" — already existed as a `weather`-slot vocabulary item,
+just needed a `situation` field added to make it a discrimination
+candidate). No masculine example existed anywhere in the curriculum, so
+added one: `godur_matur` ("Góður matur." / "Good food.", module 17) —
+"matur" is masculine (confirmed via the existing `maturinn_er_tilbuinn`,
+whose `-inn` suffix is the masculine definite article).
+
+Verified directly (not just via the test suite): built a lesson with
+only the three gating items known — the milestone fires and discriminates
+between two of its own three examples, exactly as before. Built another
+with `thad_er_god_hugmynd` also already known — the discrimination step
+right after the note now includes it, applying the pattern to a genuinely
+different noun.
+
+**Tests:** `test_milestone_fires_without_any_of_its_transfer_items_being_known`
+and `test_discrimination_prefers_a_known_transfer_item_over_replaying_the_same_examples`,
+both confirmed to fail against the pre-`transfer_items` code (the first
+with an `AttributeError`, since the field didn't exist yet; the second on
+the discrimination set not containing the transfer item). Also widened
+`test_milestone_note_is_followed_by_contrastive_discrimination`'s allowed
+id set to `items | transfer_items` — it was checking discrimination
+candidates against only the gating `items`, which this change makes too
+narrow (currently passed anyway across its own 20-lesson simulation, but
+only because no transfer item happened to already be known at firing
+time in that particular run — not a guarantee).
+
+**Scope note, from the owner's review.** The second half of that review —
+Lesson 3 introduces `Gjörðu svo vel`, `Verði þér að góðu`, `Gangi þér vel`,
+and `Eigðu góðan dag` close together, useful phrases that currently behave
+as unrelated memorized strings despite sharing morphology — is explicitly
+framed by the owner as a question for the still-not-started curriculum-wide
+audit (item 2), not an immediate fix: distinguishing lexicalized chunks
+worth memorizing whole from families where a shared grammatical dimension
+would reduce memorization load is exactly the kind of judgment call that
+audit exists to make, module by module, not something to guess at in
+isolation for four phrases.
+
+106 tests (104 → 106), all passing; `audiolesson validate` unchanged
+by this pass (transfer material is content depth, not a sequencing gap
+the report measures).
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 

@@ -655,9 +655,13 @@ class CurriculumTests(unittest.TestCase):
         have one) — never just one recall (that would be retrieval, not discrimination) and
         never zero (owner review on #38: a milestone that fires must complete its
         discrimination block even if the lesson runs slightly over its nominal time target).
-        Checked for every milestone note in the curriculum, not just ``godur_gender``."""
+        Checked for every milestone note in the curriculum, not just ``godur_gender``.
+
+        A discrimination candidate may come from ``transfer_items`` too, not only the
+        milestone's own gating ``items`` (issue #29, owner review: applying the pattern to
+        new vocabulary once it's known, not just replaying the same fixed examples)."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
-        milestones = {n.id: set(n.items) for n in cur.notes if n.milestone}
+        milestones = {n.id: set(n.items) | set(n.transfer_items) for n in cur.notes if n.milestone}
         self.assertGreaterEqual(len(milestones), 2)
         learner = LearnerState("is", "en", "A1")
         learner.feedback_mode = "auto"
@@ -679,6 +683,50 @@ class CurriculumTests(unittest.TestCase):
                 self.assertNotEqual(first.item_ids[0], second.item_ids[0])
                 checked.add(note_id)
         self.assertEqual(checked, set(milestones), "not every milestone note fired across 20 simulated lessons")
+
+    def test_milestone_fires_without_any_of_its_transfer_items_being_known(self):
+        """Issue #29, owner review: a milestone's ``transfer_items`` (extra discrimination
+        material demonstrating the pattern applies to new vocabulary, not just its own three
+        gating examples) must never delay the milestone itself — it exists specifically to
+        introduce that transfer material, so requiring it known first would be circular.
+        ``godur_gender`` has three ``transfer_items``; none are met or exposed here, and the
+        milestone must still fire as soon as its actual gating ``items`` are."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        note = cur.note_by_id["godur_gender"]
+        self.assertTrue(note.transfer_items, "godur_gender should have transfer_items for this test to mean anything")
+        a, b, c = note.items
+        learner = LearnerState("is", "en", "A1")
+        learner.items[a] = ItemState(due=TODAY.isoformat())
+        learner.items[b] = ItemState(due=TODAY.isoformat())
+        learner.items[c] = ItemState(due=TODAY.isoformat())
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=5), today=TODAY)
+        for t in note.transfer_items:
+            self.assertFalse(learner.has_met(t) or t in planner.exposures, f"{t} shouldn't be known in this test")
+        found = planner._eligible_milestone([a])
+        self.assertIsNotNone(found)
+        self.assertEqual(found.id, "godur_gender")
+
+    def test_discrimination_prefers_a_known_transfer_item_over_replaying_the_same_examples(self):
+        """Issue #29, owner review: once a milestone's transfer material is already known,
+        the discrimination step that follows it should reach for that — applying the pattern
+        to new vocabulary — rather than only ever switching between the milestone's own three
+        founding examples forever. Here `thad_er_god_hugmynd` (feminine "hugmynd") is known
+        alongside the three gating greetings; the discrimination recall right after the
+        milestone note must include it."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        note = cur.note_by_id["godur_gender"]
+        learner = LearnerState("is", "en", "A1")
+        for iid in list(note.items) + ["thad_er_god_hugmynd"]:
+            learner.items[iid] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="situation")
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY).build()
+        note_idx = next(i for i, ex in enumerate(sc.exercises) if ex.kind == "note" and ex.label == "note: godur_gender")
+        first, second = sc.exercises[note_idx + 1], sc.exercises[note_idx + 2]
+        discriminated = {first.item_ids[0], second.item_ids[0]}
+        self.assertIn(
+            "thad_er_god_hugmynd",
+            discriminated,
+            f"discrimination after godur_gender ignored a known transfer item: {discriminated}",
+        )
 
     def test_milestone_eligible_as_soon_as_its_last_item_is_exercised_this_lesson(self):
         """Owner review follow-up on #32: a milestone must not wait an extra lesson just

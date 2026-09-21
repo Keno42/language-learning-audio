@@ -9,6 +9,14 @@
 id = "godur_gender"
 milestone = true
 items = ["godan_daginn", "goda_nott", "gott_kvold"]
+# Owner review on #29: noticing this contrast among its own three examples isn't the
+# same as being able to apply it to a noun the learner hasn't seen it with before.
+# `transfer_items` never gates when the milestone fires (it still fires as soon as the
+# three greetings above are known) -- they're extra discrimination material Planner.
+# do_discriminate reaches for once known, one example per gender, distinct from
+# `items`' own dagur/nótt/kvöld: `thad_er_god_hugmynd` (feminine, "hugmynd"),
+# `gott_vedur` (neuter, "veður"), `godur_matur` (masculine, "matur", new for this).
+transfer_items = ["thad_er_god_hugmynd", "gott_vedur", "godur_matur"]
 topics = ["grammar", "greetings"]
 text = "In «Góðan daginn», «Góða nótt», and «Gott kvöld», «góðan», «góða», and «gott» are forms of the same adjective, meaning 'good.' Here the ending changes with the noun's grammatical gender: «dagur» is masculine, «nótt» feminine, and «kvöld» neuter. Icelandic adjectives also change for case and number; we'll get to those later."
 text_ja = "«Góðan daginn»、«Góða nótt»、«Gott kvöld» に出てくる «góðan»、«góða»、«gott» は、どれも「良い」という同じ形容詞の形です。ここでは名詞の文法上の性に合わせて語尾が変わります。«dagur» は男性名詞、«nótt» は女性名詞、«kvöld» は中性名詞です。形容詞は格や数によっても変わりますが、それはまた別の機会に。"
