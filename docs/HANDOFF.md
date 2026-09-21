@@ -49,7 +49,22 @@ Japanese track never actually spoke those terms in the native voice —
 fixed by keeping the katakana as a parenthetical gloss and adding the
 real spelling in `«...»` alongside it. Every note in the curriculum that
 names a real Icelandic word now speaks it with the native voice, in both
-instructor languages. Only pilot 10's open question is left on #34._
+instructor languages. Session 18 then took on pilot 10's open question,
+reframed by the owner from a real Lesson 3 output: a 30-minute lesson
+was stopping at ~15 minutes with 11+ minutes of budget unused and 985 of
+993 curriculum items untouched, because every fallback tier (new-item
+cap, pending reactivations, note budget, both review passes) hit its
+ceiling at the same time with no next step. Verified the exact stopping
+point against the owner's own real `learner.json`, then added a new
+fallback (pilot 12) that starts a fresh small arc of new material once
+arc 1 is fully spent and substantial budget remains, instead of padding
+with a second review pass or ending short — gated so a genuine first
+lesson still ends short on purpose. Found and fixed 3 real bugs along
+the way (an infinite loop, and two regressions against existing pacing/
+prerequisite guarantees) via the existing test suite plus new synthetic
+tests. On the owner's own real scenario: 1144.5s → 1689.1s of a 1800s
+target. #34 is otherwise fully addressed; see "Session 18" for the
+scoping note on what a fuller multi-arc redesign would still add._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -777,6 +792,142 @@ field exactly. `audiolesson validate` and all 95 tests still pass
 unchanged (pure content, no mechanism touched) — every note in the
 curriculum that names a real Icelandic word now genuinely speaks it
 with the native voice, in both instructor languages.
+
+## Session 18: issue #34 pilot 12 — the new-item cap should bound an arc, not a lesson
+
+The owner posted a real Lesson 3 output (30-minute request, plan/script/
+transcript attached) reframing pilot 10's open question. The lesson
+ended at ~15 minutes despite plenty of curriculum left (Lesson 3 of a
+993-item course), and the shape wasn't "ran out of material" — it was:
+
+```text
+8 new items introduced (hits the per-lesson cap)
+↓
+16 consecutive isolated recalls
+↓
+"final review" block
+↓
+8 more isolated recalls
+↓
+lesson ends at ~15 min despite a 30 min request
+```
+
+The owner's diagnosis, reframed from "should `max_review_passes`
+default to 1 or 2?" to a deeper question: **when the requested lesson
+is substantially longer than one coherent learning arc, how should the
+planner spend the remaining time?** Proposed model: a lesson can
+contain more than one arc (introduce → practice → contrast → connected
+use → review), with `new_items + 2` bounding *one arc*, not the whole
+lesson — "the planner should prefer starting another coherent learning
+block over padding the current block with low-value repeat review.
+Finishing early remains acceptable when no worthwhile next block can be
+formed, but a large shortfall … should not be the normal consequence of
+a lesson-level new-item cap."
+
+**Verified before touching code.** Reproduced the exact scenario two
+ways: (1) a fresh 3-lesson simulation against the real curriculum
+(seed=1), and (2) loading the owner's own actual `learner.json` after
+lesson 2 and rebuilding lesson 3 directly. Both matched the real
+output's structure (8 new items, 0 dialogues all lesson, notes
+exhausted by exercise ~30). Instrumented `build()`'s final `else:
+break` to print state at the exact moment it fires: **`idx=77,
+duration=1039.7s, remaining=668.3s`** — the lesson stopped with over 11
+minutes of its 30-minute budget still unused, because every fallback
+tier was independently exhausted at the same time: `can_intro=False`
+(new-item cap reached), `pending=0` (arc 1's own reactivations all
+done), `note_budget_left=False` (both ordinary-note slots and both
+eligible milestones already used), and `passes=2` already equal to
+`max_review_passes` (a *second* review pass had already run and also
+emptied out — not just the first). This is a stronger, more precise
+version of the owner's own diagnosis: the mechanism doesn't just lack a
+next step after *one* review pass, it lacks one after *every* available
+fallback, with real budget sitting idle.
+
+**Done.** Added a new fallback tier to `build()`'s step 5 cascade,
+positioned *before* the second-pass branch (prefer new material over
+re-reviewing this lesson's own material, per the owner's framing) and
+*after* the repeat/note branches (still prefer those — they reuse
+already-scheduled structure): once nothing else fits, `remaining >=
+need_for_new`, `not new_queue` (arc 1 is fully drained, not mid-batch),
+and `reviews_used` is non-empty (this lesson actually reviewed
+something — see the first-lesson finding below), select a fresh batch
+of `cfg.resolved_new_items()` new items, `do_intro()` the first
+immediately and queue the rest for step 2 to drain at the normal pace.
+`can_intro`'s original cap (`cfg.resolved_max_new_items()`) is left
+untouched everywhere else — only this one explicit, budget-gated path
+can start a new arc. `closing_reserve` (sized once at lesson start from
+the *original* new-item count) is recomputed the same way whenever a
+new arc starts, since the closing block recalls every introduced item,
+not just arc 1's.
+
+**Three real bugs found and fixed while building this, each caught by
+the existing test suite or a new synthetic test:**
+
+1. **Infinite loop.** The first cut used `continue` after queuing a new
+   batch, matching the pre-existing second-pass branch's style — but
+   unlike that branch (guarded by `passes < max_review_passes`, so it
+   can only fire twice total), nothing stopped this branch from firing
+   again at the *same* `idx` before `intro_gap` had elapsed, since
+   `continue` skips the `idx += 1` at the loop's bottom. Fixed by
+   calling `do_intro()` directly instead of queuing-and-continuing —
+   every branch in the cascade must consume an `idx` tick, and this one
+   hadn't been.
+2. **Defeated `test_first_lesson_at_default_pace_is_short_not_padded`.**
+   Without a gate, a genuinely first lesson (nothing to review at all)
+   hit this same fallback path immediately and ballooned to 11 new
+   items instead of the intended ≤5 — directly undoing session 3's
+   deliberate "a lesson with nothing to review ends short" guarantee.
+   Fixed by gating on `reviews_used` being non-empty: proof this lesson
+   actually reviewed something and ran that pool dry, which is false
+   for a true first lesson and stays false throughout it.
+3. **Defeated `test_prerequisites_respected`.** The dedup fix for
+   avoiding a duplicate item across two arc-starting calls in one
+   lesson (excluding `new_queue`'s contents from `select_new`, not just
+   `introduced`) had a side effect: `select_new`'s readiness check now
+   treated an item still sitting *unintroduced* in the queue as
+   satisfying another item's prerequisite, since both are folded into
+   the same `chosen_ids` set. A construction whose slot-filler prereq
+   was still queued (not yet actually taught) could get selected and
+   `do_intro`'d immediately, jumping ahead of its own prerequisite.
+   Fixed by gating on `not new_queue` instead (only start a new arc
+   once the previous one is *fully* introduced, never mid-batch) and
+   dropping `new_queue` from the exclude set — readiness now only
+   trusts `introduced`, exactly like every other branch already did.
+
+Added `test_a_spent_arc_with_substantial_time_left_starts_a_new_one`
+(a synthetic 26-item curriculum, pace forced to `new_items=2` so the
+cap is hit quickly: asserts more items get introduced than
+`resolved_max_new_items()` allows, with no duplicates),
+`test_a_spent_arc_does_not_start_a_new_one_on_a_genuinely_first_lesson`
+(same curriculum, no learner history at all: asserts the cap still
+holds), and `test_a_new_arc_still_respects_prerequisite_order` (a
+20-item prerequisite chain, reproducing bug 3 directly — confirmed it
+failed before the `not new_queue` fix and passes after). 95 → 98
+tests, all passing; `audiolesson validate` unchanged.
+
+**Real-world effect**, re-running the owner's own scenario from their
+actual post-lesson-2 `learner.json`: lesson 3 went from stopping at
+**1144.5s** (19.1 min, 656s/36% short of the 1800s target) to
+**1689.1s** (28.2 min, 111s/6% short) — 14 items introduced instead of
+8, no duplicates, prerequisites intact. A fresh 15-lesson simulation
+against the real curriculum shows the mechanism self-moderates as
+intended: lessons land within a couple of minutes of the 30-minute
+target from lesson 2 onward, while lesson 1 (genuinely nothing to
+review) correctly stays short at 694s; by lesson 10+, once the review
+pool has matured enough to sustain a full lesson on its own, the extra
+arcs stop firing and `new` settles back to the base pace of 6 — the
+mechanism only engages when it's actually needed.
+
+**Scoping note for whoever picks this up next:** this reuses the
+existing per-item intro/reactivation/review machinery for "arc 2"
+rather than introducing arcs as a first-class concept with their own
+practice/dialogue/review sub-structure, as the owner's fuller diagram
+sketched. It produces the intended practical effect (prefer more
+teaching over repeat-review filler once genuinely nothing else fits,
+while never exceeding one arc's cap without cause) with a small, safe
+diff, but a "real" multi-arc redesign — explicit arc boundaries, a
+connected-use moment per arc, per-arc dialogue preference — is a
+bigger, separate design thread if the owner wants to take it further.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 
@@ -2248,16 +2399,16 @@ Verified in this session:
       the run — fixed by moving the whole check to run first, before any
       branch that emits another recall.
    10. ending a lesson early instead of padding with a second review
-       pass (#34 point 5, other half; session 17). **Investigated, left
-       at the existing default.** The mechanism already exists
-       (`PlanConfig.max_review_passes=1`); flipping the *default*
-       shortened lessons 20–60% on the fixture curricula and broke 3
-       existing length-guarantee tests — a bigger, foundational-
-       architecture call (undoes session 3's "Fixed lesson length") than
-       one pilot should make unilaterally. See "Pilot 10" above for the
-       measurements and the open question for the owner: default it,
-       expose it as a CLI opt-in, or close this half as "already
-       possible, intentionally not defaulted."
+       pass (#34 point 5, other half; session 17). **Superseded by pilot
+       12 (session 18) — see below.** The original framing ("should
+       `max_review_passes` default to 1 or 2?") turned out to be the
+       wrong question, per the owner's own reframing from a real
+       generated lesson: the real problem wasn't the second pass
+       specifically, it was that *every* fallback tier — new-item cap,
+       pending reactivations, note budget, both review passes — could
+       become exhausted at once with substantial budget still unused and
+       no next step. `max_review_passes` itself was left at its default;
+       pilot 12 addresses the actual problem instead.
    11. marked up the remaining 46 cultural-aside notes with `«...»`
        (pilot 8's remainder; session 17). **Done.** See "Pilot 11" above
        for the full note-by-note list and the two deliberate exclusions
@@ -2268,11 +2419,25 @@ Verified in this session:
        speech for 7 notes' Icelandic terms — fixed by keeping the
        katakana as a parenthetical gloss and adding the real spelling in
        `«...»` alongside it (e.g. `«Skyr»（スキール）`).
+   12. the new-item cap should bound one learning arc, not the whole
+       lesson (#34 point 5, reframed by the owner from a real Lesson 3
+       output; session 18). **Done.** See "Session 18" above for the
+       full investigation (a real lesson stopping ~11 minutes short of a
+       30-minute request with 985 of 993 curriculum items untouched),
+       the fix (a new step-5 fallback tier that starts a fresh arc once
+       the current one is fully spent and substantial budget remains,
+       ordered to prefer this over a low-value second review pass), the
+       3 real bugs found and fixed while building it (an infinite loop,
+       and regressions against the first-lesson-stays-short and
+       prerequisite-order guarantees), and the real-world result on the
+       owner's own scenario (1144.5s → 1689.1s of a 1800s target). Noted
+       as a scoping choice, not a gap: this reuses the existing per-item
+       machinery for "arc 2" rather than modeling arcs as a first-class
+       concept with their own practice/dialogue/review sub-structure — a
+       fuller redesign remains available as a separate thread if wanted.
 
-   **Not started:** none — all 7 original pilots plus pilots 8–9 and 11
-   have a concrete step done; pilot 10 was investigated and intentionally
-   left as-is pending an owner decision (see above). What's left: pilot
-   10's open question, nothing else.
+   **Not started:** none — every pilot from the original 7 through
+   pilot 12 has a concrete, done step. Issue #34 has no open pilots left.
 2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
 3. ~~Listen to a real lesson and tune timing~~ — partially done (session
