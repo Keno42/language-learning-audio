@@ -105,6 +105,91 @@ class CurriculumTests(unittest.TestCase):
         with self.assertRaises(CurriculumError):
             curriculum_from_dict(raw)
 
+    def test_a_spent_arc_with_substantial_time_left_starts_a_new_one(self):
+        """Issue #34, reframed by the owner from a real generated lesson: a 30-minute request
+        that hits its per-lesson new-item cap early, then runs its review pool dry (including a
+        second pass), used to just stop — a real Lesson 3 ended at ~15 minutes with 11 minutes
+        of budget still unused and 985 of 993 curriculum items untouched, solely because every
+        fallback tier (due reactivation, extra single item under the cap, repeat, note, second
+        review pass) was independently exhausted. The new-item cap should bound one coherent
+        arc, not the whole lesson: once arc 1's own reactivations are done and review is spent,
+        with substantial time and more curriculum left, the planner should start a fresh small
+        arc instead of ending far short."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": (
+                [{"id": f"r{i}", "kind": "phrase", "target": f"Rifja {i}.", "meaning": f"Review {i}."} for i in range(6)]
+                + [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(20)]
+            ),
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(6):
+            learner.items[f"r{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        cfg = PlanConfig(minutes=60, seed=1, new_items=2, dialogue_every=1000, drill_streak_limit=1000, note_chance=0.0)
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY)
+        sc = planner.build()
+        new_items = sc.meta["new_items"]
+        self.assertGreater(len(new_items), cfg.resolved_max_new_items(), new_items)
+        self.assertEqual(len(new_items), len(set(new_items)), "no item introduced twice")
+
+    def test_a_spent_arc_does_not_start_a_new_one_on_a_genuinely_first_lesson(self):
+        """The new-arc mechanism above must not defeat the deliberate, separately-tested
+        guarantee that a first lesson with nothing to review ends short rather than being
+        padded (``test_first_lesson_at_default_pace_is_short_not_padded``) — it is gated on
+        ``reviews_used`` (this lesson actually reviewed something and ran that pool dry), which
+        stays empty for a learner with no history at all."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(20)],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")  # no items known at all: a true first lesson
+        cfg = PlanConfig(minutes=60, seed=1, new_items=2, dialogue_every=1000, drill_streak_limit=1000, note_chance=0.0)
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY)
+        sc = planner.build()
+        self.assertLessEqual(len(sc.meta["new_items"]), cfg.resolved_max_new_items())
+
+    def test_a_new_arc_still_respects_prerequisite_order(self):
+        """Regression for a real bug hit while building the new-arc mechanism above: the first
+        cut's dedup fix (excluding items already sitting in ``new_queue``, to avoid selecting a
+        duplicate across two arc-starting calls in the same lesson) made ``select_new`` treat a
+        queued-but-not-yet-introduced item as satisfying another item's prerequisite too — since
+        a fresh ``select_new`` call was allowed to run *while a previous arc's queue was still
+        draining*, it could return an item whose prereq was only queued, not yet actually
+        taught, and ``do_intro`` it immediately, jumping ahead. Caught by
+        ``test_prerequisites_respected`` on the real curriculum; this is a minimal, fast
+        reproduction: a chain of 20 items each requiring the previous one, with pace forced low
+        enough that multiple arcs are needed to introduce them all."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": (
+                [{"id": f"r{i}", "kind": "phrase", "target": f"Rifja {i}.", "meaning": f"Review {i}."} for i in range(6)]
+                + [
+                    {
+                        "id": f"w{i}",
+                        "kind": "phrase",
+                        "target": f"Orð {i}.",
+                        "meaning": f"Word {i}.",
+                        "prereqs": ([f"w{i - 1}"] if i > 0 else []),
+                    }
+                    for i in range(20)
+                ]
+            ),
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(6):
+            learner.items[f"r{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        cfg = PlanConfig(minutes=60, seed=1, new_items=2, dialogue_every=1000, drill_streak_limit=1000, note_chance=0.0)
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY)
+        sc = planner.build()
+        order = {iid: idx for idx, iid in enumerate(sc.meta["new_items"])}
+        for i in range(1, 20):
+            a, b = f"w{i - 1}", f"w{i}"
+            if a in order and b in order:
+                self.assertLess(order[a], order[b], f"{b} introduced before its prereq {a}")
+
     def test_a_long_drill_streak_pulls_an_eligible_dialogue_forward(self):
         """Issue #34 points 5-6: a long uninterrupted run of isolated recall exercises should
         pull an eligible dialogue forward rather than waiting for its usual periodic schedule

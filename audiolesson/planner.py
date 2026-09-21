@@ -507,6 +507,42 @@ class Planner:
                     note = self._pick_note(None)
                     b.note(sc, note)  # nothing to practise right now: a cultural aside
                     self.notes_played.append(note.id)
+                elif reviews_used and not new_queue and remaining >= need_for_new and (
+                    more := self.select_new(cfg.resolved_new_items(), exclude={i.id for i in introduced})
+                ):
+                    # Gated on reviews_used (this lesson actually reviewed something and ran the
+                    # pool dry) so a genuinely first lesson — no review history at all, reviews_used
+                    # stays empty the whole time — still ends short on purpose rather than ballooning
+                    # into an unbounded stack of new items just because time remains; that pacing
+                    # guarantee (issue #16/session 3) is deliberate and this must not defeat it.
+                    # Gated on ``not new_queue`` too: only start a fresh arc once the previous one
+                    # has been fully introduced, never while it's still queued — with items still
+                    # queued (not yet in ``introduced``), a construction's slot-filler prereq sitting
+                    # unintroduced in that queue would look "ready" to a fresh select_new call
+                    # (whose readiness check only trusts ``introduced``, correctly, not the queue),
+                    # so a second call could return an item that jumps ahead of its own prereq —
+                    # caught by test_prerequisites_respected.
+                    #
+                    # arc 1 is fully spent — its own reactivations are done, nothing else is due,
+                    # no note fits — but substantial time remains and the curriculum has more to
+                    # teach. Prefer a fresh small arc of new material over padding with a second
+                    # pass of what this same lesson already reviewed (owner reframing of #34
+                    # point 5/6: the new-item cap should bound *an arc*, not the whole lesson —
+                    # a real lesson hit this exactly, stopping ~11 minutes short of a 30-minute
+                    # request with plenty of curriculum left, solely because every fallback tier
+                    # was independently capped). `can_intro`'s original cap is deliberately left
+                    # alone — only this explicit, budget-gated path can start a new arc. Introduce
+                    # the first item now (like the single-extra-item branch above) and queue the
+                    # rest for step 2 to drain at the normal pace — no ``continue`` here: this
+                    # must consume an ``idx`` tick like every other branch, or a lesson where
+                    # ``intro_gap`` isn't yet satisfied would re-enter this branch at the same
+                    # ``idx`` forever without ever making progress.
+                    new_queue.extend(more[1:])
+                    do_intro(more[0])
+                    # the closing block recalls every introduced item, so a new arc needs more
+                    # closing time reserved than arc 1 alone budgeted for — recomputed the same
+                    # way the initial reserve was, over the now-larger total.
+                    closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
                 elif passes < cfg.max_review_passes and reviews_used:
                     # material ran out before the time did: a second pass over what was reviewed,
                     # most urgent first, each one step harder than earlier in this lesson
