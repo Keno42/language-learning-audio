@@ -1,6 +1,7 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-21 (session 18 close-out). **Issue #34** ("Improve
+_Last updated 2026-09-21 (session 22: issue #44's fourth and final review
+round — see below; sessions 21, 20, 19 and 18 close-outs follow). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -25,16 +26,37 @@ failure mode again on future long-running issues: a "pilots done" tally
 is not the same claim as "the issue's own acceptance criteria hold,"
 and this file should track the latter.
 
+**Issue #44** (the two residuals split out of #34) is **done** — four
+review rounds on the same PR (#46), each one closing exactly what the
+previous round left open. Session 19's first fix was judged
+**request-changes equivalent**: each of its two points stopped one step
+short of #44's acceptance criteria (note fallback could still rarely
+fall through to plain recall; dialogue-stage fix only reached items
+wired into an authored dialogue). Session 20 added a dialogue-independent
+recombination fallback (`do_connect()`) and a real deliberate stop as the
+cascade's last resort — the owner confirmed that shape was right, but
+session 20's `connect()` itself was still just two independent flashcard
+recalls under a shared header, was only ever reached as a side effect of
+the drill-streak breaker (not guaranteed per arc), and could pull
+material from the wrong arc. Session 21 rebuilt `connect()` as one
+exercise with an explicit bridging line, added a real per-arc guarantee
+independent of the streak breaker, and fixed the arc-scoping and an
+`idx` off-by-one. Session 22 closed the last gap: `connect()` could
+record a multi-word item at `"situation"` stage regardless of how far it
+had actually climbed its own ladder, silently skipping stages it never
+practised. See "Session 22" through "Session 19" below for the full
+history. 104 tests, all passing.
+
 **Next up, per the owner's priority order:** issue #29 ("Design
 curriculum around reusable concepts and communicative capabilities") —
 (1) triage all `dialogue_sequencing_report()` findings (9 repeat
-offenders plus large single-item gaps like `heyra`), (2) a
-curriculum-wide dependency audit across all 26 modules for reusable
-concepts and late-introduced high-value concepts, (3) a pilot testing
-whether the `godur_gender` gender-agreement pattern generalizes to
-case/tense/modality. #29 stays open until the curriculum-wide audit
-completes a full pass. #44's two residuals are next after that, or
-whenever the owner prioritizes them._
+offenders plus large single-item gaps like `heyra`) — **done**, posted
+as a comment on #29, not yet acted on; (2) a curriculum-wide dependency
+audit across all 26 modules for reusable concepts and late-introduced
+high-value concepts — not started; (3) a pilot testing whether the
+`godur_gender` gender-agreement pattern generalizes to case/tense/
+modality — not started. #29 stays open until the curriculum-wide audit
+completes a full pass._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -898,6 +920,357 @@ while never exceeding one arc's cap without cause) with a small, safe
 diff, but a "real" multi-arc redesign — explicit arc boundaries, a
 connected-use moment per arc, per-arc dialogue preference — is a
 bigger, separate design thread if the owner wants to take it further.
+
+## Session 19: issue #44 — both residual gaps from #34's closure
+
+The owner shared a real Lesson 2 transcript showing exactly the two
+patterns #44 was opened for: eight consecutive `meaning: Já`/`meaning:
+Nei` recalls back to back (11:03–11:49), and another eight consecutive
+`situation` recalls right before "final review" (13:19–14:14) — neither
+interrupted by a dialogue or a note.
+
+### Point 1: a high drill streak with no dialogue/note available fell through to plain recall
+
+**Root cause, verified before touching code.** Reproduced the
+transcript's pacing (`new_items=8`, ~16-minute lesson) against the real
+curriculum and instrumented step 0's note branch directly. Confirmed
+`drill_streak` climbing unbroken from 5 to 15 while every single check
+showed `dlg=None, note_budget_left=False` — the lesson's *one* allowed
+ordinary aside (`max(1, minutes // 12)` — just 1 for a 16-minute lesson)
+had already been spent by the ordinary per-exercise aside roll long
+before the streak ever needed it, so `_note_budget_left()` stayed
+`False` for the rest of the lesson and pilot 9's dialogue-or-note
+fallback (session 17) became a permanent no-op.
+
+**First cut, rejected by its own numbers:** simply not gating the
+streak-triggered note branch by `_note_budget_left()` at all (mirroring
+how a due milestone already bypasses it). Fixed the reproduction case,
+but a 12-lesson `auto`-mode simulation on the real curriculum showed it
+measured as high as **19 asides in one 30-minute lesson** — an
+unconditional bypass doesn't just rescue the streak, it turns rationing
+off entirely and recreates issue #21's original "asides feel like
+non-sequiturs" complaint from the other direction.
+
+**Done, with a bounded allowance instead.** Added
+`PlanConfig.max_streak_relief_notes` (default 2): once the ordinary
+ration (`_note_budget_left()`) is exhausted, up to this many *more*
+notes may fire specifically to break a drill streak with no eligible
+dialogue — not unlimited, a small separate budget spent only when the
+streak genuinely needs it. Re-ran the 12-lesson simulation: consistently
+2–4 asides per lesson (ration + relief), never runaway. Re-ran the
+16-minute reproduction: longest unbroken recall run in the main
+scheduling loop (excluding the deliberate end-of-lesson closing recap,
+which isn't part of this problem) dropped from 15 to exactly
+`drill_streak_limit` (5) for the portion covered by the ration+relief
+budget; once both are spent, an occasional longer run can still occur
+in a genuinely thin, packed lesson — a real resource limit, not a
+regression, and the streak's "or stop" fallback still applies via step
+5's existing cascade once nothing (due, new, review, or note) is left.
+
+Updated `test_notes_follow_related_items_and_are_rationed`'s ceiling
+from `2` (the bare ordinary ration) to `2 + max_streak_relief_notes`,
+with its docstring explaining the new exemption alongside the existing
+milestone one. Added
+`test_streak_relief_notes_are_bounded_not_unlimited`: a synthetic
+12-minute lesson (ration forced to exactly 1) with 30 review items and
+no dialogues, confirming exactly `1 + max_streak_relief_notes` = 3
+notes fire — not fewer (the relief mechanism must engage) and not more
+(it must stay bounded even though the streak keeps retriggering and 7
+more notes remain available).
+
+### Point 2: no learning arc was guaranteed a connected-use moment
+
+**Root cause.** `do_recall()`'s per-item dialogue-stage handling
+(`stage == "dialogue"`, always an item's *last* ladder stage) only
+attempted `eligible_dialogue(prefer_item=item)` when `since_dialogue >=
+dialogue_every // 2` — a frequency-spacing gate meant to stop dialogues
+clustering when several long-known review items happen to cycle back to
+"dialogue" stage close together. Applied unconditionally, it also
+silently skipped a *freshly introduced* item's own first (and only,
+since "dialogue" is the ladder's last stage) attempt at connected use
+whenever that item's own reactivation schedule reached "dialogue" before
+`since_dialogue` had built back up — which is common, since a new item's
+four reactivation gaps (`[3, 5, 8, 13]`) climb the ladder quickly.
+Confirmed directly: a minimal synthetic scenario (one new item wired to
+one dialogue, `dialogue_every` unreachably high, drill-streak disabled
+to isolate this from pilot 9's mechanism) produced `dialogues: []` on
+the pre-fix code — the dialogue never played at all, despite the item
+being fully practiced and the dialogue being trivially eligible the
+whole time.
+
+**Done.** The spacing gate now applies only to items *not* introduced
+this lesson (older material cycling back through ordinary review);
+an item that's part of this lesson's `introduced` list always gets its
+dialogue-stage attempt — that reactivation *is* its arc's connected-use
+moment, and since "dialogue" never recurs later in the same lesson for
+that item, skipping it meant losing the only chance entirely, not
+just delaying it. Re-ran the same synthetic scenario post-fix:
+`dialogues: ['d1']` fires reliably. A 15-lesson simulation against the
+real curriculum shows dialogues now accumulate steadily as vocabulary
+grows (`nagranni` from lesson 6, `tungumal` from lesson 9, `kaffihus`
+from lesson 12) rather than being left entirely to the periodic
+schedule's luck.
+
+Added `test_a_freshly_introduced_items_own_dialogue_stage_is_not_skipped`,
+confirmed against the pre-fix code to reproduce `dialogues: []` before
+passing on the fix.
+
+**Scoping note:** like pilot 12, this reuses existing per-item
+machinery rather than modeling arcs explicitly — "this lesson's
+`introduced` list" stands in for "the current arc." It guarantees a
+connected-use *attempt* for any item that's part of *some* dialogue's
+`required_items`; it does not (and cannot, without new curriculum
+content) do anything for an arc whose items aren't wired into any
+dialogue at all — a content gap, not a planner gap, and one #29's
+curriculum-wide audit may surface incidentally.
+
+100 tests (98 → 100), all passing; `audiolesson validate` unchanged.
+
+## Session 20: issue #44, round 2 — owner rejected PR #46 as "one step short" on both points
+
+The owner reviewed PR #46 (session 19's fix, above) and called it
+**request-changes equivalent**, not because either fix was wrong, but
+because each stopped one step before #44's own acceptance criteria —
+explicitly saying the good parts (the bounded relief-note allowance, the
+fresh-item dialogue-stage bypass, both existing regression tests) should
+be **kept, not discarded**, with one more finishing pass on top.
+
+**Blocker 1 — the relief-note allowance still had a silent fallthrough.**
+Session 19's own writeup admitted it: "once both [the ordinary ration and
+the relief budget] are spent, an occasional longer run can still occur."
+That is exactly the fallthrough #44 rules out, just rarer. The owner
+specified the required cascade explicitly: dialogue → note → a genuine
+connected mini-activity → and only if *that's* also impossible, a
+deliberate stop, never one more isolated recall.
+
+**Blocker 2 — the dialogue-stage fix only reaches items wired into some
+dialogue's `requires`.** Session 19's own "scoping note" called this "a
+content gap, not a planner gap" and punted it to #29's curriculum audit.
+The owner rejected that reclassification: #44's acceptance criteria
+explicitly ask for "dialogue **or recombination**," and its acceptance
+test is specifically "an arc whose material never gets a connected-use
+moment" — an authored-dialogue-shaped fix can never close that gap by
+construction, however #29's audit turns out. This needed a mechanism
+that doesn't depend on dialogue content existing at all.
+
+**Also flagged:** PR #46's branch had drifted from `main` again
+(`ahead_by: 2, behind_by: 1`, same pattern as #45) — rebased onto latest
+`main` (`bb5d008`) before starting this round's work.
+
+### Fix: a dialogue-independent recombination fallback, plus a real stop
+
+Added `do_connect()` / `Builder.connect()` (new exercise kind
+`"connect"`), modeled directly on the existing `do_discriminate()`
+(session 16 pilot 2): frame two already-known items with a brief
+connective narration, then recall each by its `situation` cue in
+succession. Candidate selection prefers this lesson's own `introduced`
+items first (falling back to any other known item with a situation cue),
+so an arc gets its own material recombined rather than two unrelated
+review items — and it needs no `Dialogue.required_items` wiring at all,
+closing blocker 2 directly.
+
+Step 0's streak-triggered cascade is now a real three-tier fallback
+ending in a deliberate stop, not a two-tier `if/elif`:
+
+```
+dialogue → note (ration, then bounded relief) → do_connect() → break
+```
+
+Each tier only runs if the previous one didn't act (`if not acted:
+...`); if all three fail — no eligible dialogue, no note budget left at
+all, and fewer than two known items with a situation cue — the lesson
+stops there rather than emitting one more isolated recall. This is rare
+in practice (it needs all three to fail at once) but is now a real
+branch, not a theoretical one addressed only in a docstring.
+
+**Regression caught before it shipped:** the first cut of `do_connect()`
+had the new `"connect"` frame exercise list its two item ids in the same
+order they were about to be recalled, so the frame's own `item_ids[0]`
+equalled the very next exercise's item — tripping
+`test_no_item_twice_in_a_row` even though the learner never actually
+repeated an item back to back. Fixed by listing the frame's item ids in
+the reverse of recall order.
+
+Added the two regression tests the owner specified verbatim, each
+confirmed to reproduce the bug on the pre-fix code before passing on the
+fix:
+- `test_streak_with_no_dialogue_and_no_notes_does_not_fall_through_to_more_recall`
+  — no dialogues, no notes, `note_chance=0`, plenty of known
+  situation-capable items: pre-fix, the streak just kept emitting
+  `"recall"` past the limit; post-fix, exercise 4 is `"connect"`.
+- `test_connected_use_reaches_an_arc_whose_items_are_wired_into_no_dialogue`
+  — a curriculum with **no dialogues at all**, a fresh two-item arc plus
+  unrelated review material: pre-fix, no `"connect"` exercise ever fired;
+  post-fix, one does, and it covers the arc's own items specifically
+  (not just any known item), confirming the "prefer this lesson's own
+  material" ordering, not only that *something* fired.
+
+102 tests (100 → 102), all passing; `audiolesson validate` unchanged.
+
+## Session 21: issue #44, round 3 — the connect() mechanism itself needed real content, not just structure
+
+The owner reviewed session 20's push and confirmed the cascade shape and
+per-item fixes were right (rebase clean, the three-tier fallback closed
+point 1's silent fallthrough, the dialogue-independent path reached
+material with no authored dialogue) but flagged four remaining problems,
+all in `do_connect()`/`Builder.connect()` itself:
+
+1. **`connect` wasn't actually connected use.** The exercise narrated a
+   shared frame, then ran two ordinary `situation`-stage recalls back to
+   back — structurally two independent flashcards under a header, no
+   semantic link between them. The owner's own reproduction picked
+   "leaving a shop" next to "raising a glass for a toast." The new
+   regression test's `assertTrue(connect_exercises)` only checked the
+   label existed, not that the *content* was connected — testing the
+   fix's structure, not its substance.
+2. **Connected use was a side effect of the streak breaker, not part of
+   an arc's own lifecycle.** `do_connect()` was only ever reached from
+   step 0 (drill-streak triggered), so an arc practiced at a normal pace
+   — never running the streak past its limit — could finish, and the
+   lesson could move on or end, with no connected-use attempt at all.
+   #44's own criteria don't make this conditional on a streak.
+3. **Candidate selection pulled from `introduced` as a whole, in intro
+   order** — not the specific arc being served. With two arcs in one
+   lesson, a later arc's "connected use" could end up reusing an earlier
+   arc's items instead of its own.
+4. **An off-by-one in `idx`.** `do_connect()` incremented `idx` once per
+   sub-exercise it emitted (3 total) *and* the main loop's own trailing
+   `idx += 1` still ran once more on top — 4 increments for 3 exercises,
+   silently skewing when later reactivations came due and when the next
+   intro was allowed.
+
+### Fix 1: `connect()` became one exercise with a real bridge, not three
+
+`Builder.connect()` now builds a single `Exercise`: intro frame →
+item 1's situation cue → answer → an explicit connecting line
+(`connect_then`, "And then —") → item 2's situation cue → answer. The
+second retrieval reads as a continuation of the same moment, not a new
+unrelated prompt — the same reason `dialogue()` keeps a whole exchange's
+turns inside one `Exercise` instead of splitting them apart. `do_connect()`
+also now prefers a same-topic pair over an arbitrary one (falling back to
+any two eligible items only if no topic pair exists), so the two halves
+of the exchange are at least topically related to begin with.
+
+Being a single exercise also resolves fix 4 for free: `do_connect()` no
+longer touches `idx`/`since_dialogue` itself at all, the same as every
+other single-exercise branch (`do_recall`, `do_intro`, dialogue) — the
+main loop's own trailing increment is the only one that ever fires.
+
+### Fix 2 & 3: a real per-arc guarantee, scoped to that arc's own material
+
+Added step 0b, run every iteration (not gated on the streak breaker):
+once every item introduced in an arc has had at least one touch beyond
+its own intro, that arc gets one deliberate `do_connect()` attempt —
+scoped to `arc_items[that_arc]` specifically, falling back to other
+material only if the arc alone can't supply two eligible items. Arc
+membership is tracked via a new `arc_items: dict[int, list[Item]]` /
+`arc_order` / `arc_target` (the arc's own intended item count, fixed at
+creation — without it, the readiness check could fire the instant an
+arc's *first* item got its first reactivation, before the arc had even
+finished being introduced, confirmed empirically with `intro_gap=3`).
+Marked "attempted" once tried regardless of outcome, so a genuinely thin
+arc isn't retried forever.
+
+**Two bugs found and fixed while building this, both via direct
+reproduction:**
+- The arc's own most-recently-touched item is typically the one whose
+  reactivation just completed the arc's readiness check — excluding it
+  from candidacy (the same exclusion `do_discriminate` uses) left only
+  one real member for a 2-item arc and forced a fallback to unrelated
+  material, exactly the cross-arc contamination fix 3 exists to prevent.
+  Fixed by ordering it *second* in the pair instead of excluding it —
+  keeps both real members available while still avoiding an *immediate*
+  repeat.
+- A bounded "don't reuse an item already spent in a connect() this
+  lesson" guard (added for a different reason, see below) combined with
+  the *general* (non-arc) streak-tier fallback retriggering every
+  `drill_streak_limit` recalls for an entire pure-review lesson with no
+  dialogues — together they ran the pool of eligible situation-capable
+  items dry mid-lesson, tripping the "genuinely nothing left" deliberate
+  stop far earlier than intended. Caught by `test_fit_lands_on_the_requested_length`
+  and both `PacingTests` cases dropping lesson length 40-60% below
+  target. The reuse guard was the wrong tool for that other problem (see
+  below) and was reverted rather than papered over with a budget cap.
+
+### A regression along the way: situation-cue rotation and connect() don't mix
+
+`test_situations_rotate_across_repeated_retrieval_of_the_same_item`
+(session 16 pilot, owner review on #39) started failing once `connect()`
+began narrating real situation cues via the shared, rotating
+`_situation()` — an item swept into a `connect()` exercise silently
+consumed a rotation step invisible to any later plain recall of that same
+item; with a 2-cue item, an *even* number of such hidden steps across a
+lesson landed a later recall back on the exact cue an earlier recall had
+already used. Tried excluding already-connected items from later
+candidacy first — this is what caused the pool-exhaustion bug above, so
+it was reverted. **Fix:** `connect()` now reads an item's current
+situation cue via a new `_situation_readonly()` that never advances
+`_situation_uses`, fully decoupling the two mechanisms — pairing an item
+into a connected moment no longer perturbs what an unrelated recall of it
+elsewhere in the lesson shows.
+
+### Tests
+
+Strengthened `test_connected_use_reaches_an_arc_whose_items_are_wired_into_no_dialogue`'s
+assertion from "the arc's items intersect the connected items" (passable
+with just one of the two) to "both of the arc's own two items are in
+there" — the weaker version could pass even with material pulled in from
+outside the arc.
+
+Added `test_each_arc_gets_its_own_connected_use_moment_without_a_drill_streak`:
+two arcs, `drill_streak_limit` set unreachably high so the streak breaker
+never trips, confirming (a) each arc still gets its own connected-use
+exercise and (b) each one's `item_ids` is *exactly* that arc's own two
+items, not a mix with the other arc's — both directly requested by the
+owner's review, confirmed to fail against the pre-fix code (arc 2 got
+none at all in one version, and got contaminated with arc 1's material in
+an earlier iteration of this fix, before landing on the "order second,
+don't exclude" design above).
+
+103 tests (102 → 103; `test_connected_use_reaches_an_arc_whose_items_are_wired_into_no_dialogue`
+strengthened, not counted as new), all passing; `audiolesson validate` unchanged.
+
+## Session 22: issue #44, round 4 — connect() could skip a multi-word item's own stage progression
+
+The owner's last blocker: `do_connect()` recorded *any* has-situation
+candidate at stage `"situation"` regardless of how far it had actually
+climbed its own ladder — harmless for a short item, whose ladder goes
+straight from `meaning` to `situation`, but a multi-word item's ladder
+also has `cloze`/`hinted` in between. Since `LearnerState.record_lesson()`
+never lowers a stage once raised (`st.stage = max(candidates, key=...
+stage_index)`), sweeping such an item into a connect() exercise could
+jump its persisted stage straight to `situation`, permanently skipping
+stages it had never actually practised.
+
+**Fix.** Added `_ready_for_situation(item)`: true only if the item's
+*current* stage (its persisted `ItemState.stage` for already-known
+material, or this lesson's own `exposures` for something introduced
+today) is already at `situation` or one step short of it — i.e.
+recording a `situation` exposure now continues its natural climb rather
+than skipping stages. `_connect_pair()`'s candidate filter now requires
+this alongside `has_situation`. Also had to tighten the per-arc
+readiness check (step 0b, session 21) to use the same per-item gate,
+not just "some post-intro touch" — otherwise an arc could be judged
+"ready" before any of its own items individually were, and its
+guaranteed connect() attempt would find nothing eligible in its own
+material and silently fall back to unrelated review items instead
+(caught by `test_each_arc_gets_its_own_connected_use_moment_...`
+regressing when the per-item gate was added without this).
+
+**Test.** `test_connect_never_skips_a_multi_word_items_own_stage_progression`:
+a known multi-word item stuck at `hinted` (several stages short of
+`situation`) alongside plenty of fully-progressed short items, so every
+connect() this lesson has an alternative pairing that doesn't need it.
+Confirmed against the pre-fix code that the multi-word item got swept
+into a connect() exercise anyway. The test's second half is the general
+guarantee the owner asked for ("monotonic-stage regression test"): for
+every item exposed this lesson, its recorded stage sequence — starting
+from wherever it stood *before* the lesson — never skips a ladder stage.
+Stronger than the existing `test_stages_get_harder_within_lesson`, which
+only checks the sequence doesn't go backward, not that it doesn't jump
+ahead.
+
+104 tests (103 → 104), all passing; `audiolesson validate` unchanged.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 

@@ -82,6 +82,23 @@ class Builder:
         self._situation_uses[item.id] = offset + 1
         return item.situation_for(base + offset)
 
+    def _situation_readonly(self, item: Item) -> str | None:
+        """An item's *current* situation cue for a ``connect()`` exercise, without advancing
+        its rotation (owner review round 2 on #46). ``connect()`` narrates a situation cue the
+        same way a ``situation``-stage recall does, so if it went through ``_situation()`` (and
+        its shared, mutating ``_situation_uses`` counter), pairing an item into a connected
+        moment would silently consume a rotation step for it — invisible to any ordinary
+        recall of that same item elsewhere in the lesson. With a 2-cue item, one such hidden
+        step flips which cue a later recall lands on; two hidden steps (e.g. the item gets
+        swept into two separate connect() exercises in one lesson) land back on the *same*
+        one, regressing the exact same-lesson repeat ``_situation()`` exists to prevent.
+        Reading without advancing keeps the two mechanisms fully independent: connect()'s own
+        framing is free to reuse an item's current cue without perturbing what an unrelated
+        recall of that item sees."""
+        base = self.learner.items[item.id].exposures if item.id in self.learner.items else 0
+        offset = self._situation_uses.get(item.id, 0)
+        return item.situation_for(base + offset)
+
     def _successes(self, item: Item) -> int:
         st = self.learner.items.get(item.id)
         return st.successes if st else 0
@@ -458,6 +475,41 @@ class Builder:
         self._speak_note_text(sc, ex, note.text)
         self._beat(sc, ex)
         self._narr(sc, ex, self.prompts.get("milestone_end" if note.milestone else "aside_end"))
+        self._gap(sc, ex)
+        return ex
+
+    # ---------------------------------------------------------------- connect
+
+    def connect(self, sc: Script, items: list[Item]) -> Exercise:
+        """One connected exchange between two already-known items (issue #44, owner review
+        round 2 on #46): the fallback for "connected use" when no authored dialogue requires
+        them, and a genuine third option for a drill streak with nowhere else to go — not
+        another isolated recall, and not a passive aside either.
+
+        The first cut of this narrated a shared frame and then ran two ordinary situation
+        recalls back to back — structurally two independent flashcards under a header, with
+        no connection between them (confirmed by the pair the planner happened to choose:
+        "leaving a shop" next to "raising a glass for a toast"). This version keeps both
+        retrievals inside one exercise and bridges them with an explicit connecting line
+        (``connect_then``, "And then —") so the second situation reads as a continuation of
+        the same moment, not a new unrelated prompt — the same reason ``dialogue()`` keeps an
+        exchange's turns inside one ``Exercise`` rather than splitting them apart. Its own
+        exercise kind (not folded into ``recall``) so it's identifiable as a deliberate
+        recombination moment, the same way ``note()`` is bookended rather than left to blend
+        into whatever comes next."""
+        first, second = items[0], items[1]
+        ids = [first.id, second.id]
+        ex = sc.new_exercise("connect", None, ids, f"connect: {first.id}+{second.id}")
+        self._narr(sc, ex, self.prompts.get("connect_intro"))
+        self._beat(sc, ex)
+        self._narr(sc, ex, self._situation_readonly(first))  # type: ignore[arg-type]
+        self._answer_pause(sc, ex, first.target, first, generative=True)
+        self._answer(sc, ex, first.target)
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("connect_then"))
+        self._narr(sc, ex, self._situation_readonly(second))  # type: ignore[arg-type]
+        self._answer_pause(sc, ex, second.target, second, generative=True)
+        self._answer(sc, ex, second.target)
         self._gap(sc, ex)
         return ex
 

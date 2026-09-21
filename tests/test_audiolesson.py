@@ -190,6 +190,37 @@ class CurriculumTests(unittest.TestCase):
             if a in order and b in order:
                 self.assertLess(order[a], order[b], f"{b} introduced before its prereq {a}")
 
+    def test_a_freshly_introduced_items_own_dialogue_stage_is_not_skipped(self):
+        """Issue #44 point 2: once an item's own reactivation schedule reaches its ladder's
+        final "dialogue" stage, the old code only attempted it when ``since_dialogue >=
+        dialogue_every // 2`` — a frequency-spacing gate meant to keep dialogues from
+        clustering when several long-known review items cycle back to "dialogue" close
+        together, not something that should apply to a freshly introduced item's own first
+        (and only, since "dialogue" is always the ladder's last stage) attempt at connected
+        use. With ``dialogue_every`` set unreachably high and ``drill_streak_limit`` disabled
+        (isolating this from the streak-triggered dialogue pick, a different mechanism), the
+        item's own schedule must still reach a real "dialogue" exercise rather than silently
+        falling back to ``below_dialogue()`` forever — confirmed against the pre-fix code that
+        this exact scenario produced no dialogue at all (``dialogues: []``)."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": (
+                [{"id": "w0", "kind": "phrase", "target": "Orð eitt tvö.", "meaning": "Word one two."}]
+                + [{"id": f"r{i}", "kind": "phrase", "target": f"Rifja {i}.", "meaning": f"Review {i}."} for i in range(10)]
+            ),
+            "dialogues": [
+                {"id": "d1", "setting": "A test setting.", "requires": ["w0"], "turns": [{"cue": "Say it.", "expect": "w0"}]}
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(10):
+            learner.items[f"r{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        cfg = PlanConfig(minutes=30, seed=1, new_items=1, dialogue_every=1000, drill_streak_limit=1000)
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY)
+        sc = planner.build()
+        self.assertIn("d1", sc.meta["dialogues"])
+
     def test_a_long_drill_streak_pulls_an_eligible_dialogue_forward(self):
         """Issue #34 points 5-6: a long uninterrupted run of isolated recall exercises should
         pull an eligible dialogue forward rather than waiting for its usual periodic schedule
@@ -246,6 +277,244 @@ class CurriculumTests(unittest.TestCase):
         kinds = [ex.kind for ex in sc.exercises if ex.kind != "opening"]
         self.assertEqual(kinds[:3], ["recall"] * 3, kinds)
         self.assertEqual(kinds[3], "note", kinds)
+
+    def test_streak_relief_notes_are_bounded_not_unlimited(self):
+        """Issue #44 point 1: a real generated lesson showed the streak-triggered note fallback
+        (previous test) was itself gated by ``_note_budget_left()``, the ordinary per-lesson
+        aside ration — as little as 1 note for a short lesson, easily spent by the very first
+        unrelated aside roll long before the streak ever needed it, after which the streak kept
+        climbing (confirmed to 15 unbroken recalls on the real curriculum) with no rescue at
+        all. The fix must not simply remove that gate either — an unconditional bypass measured
+        as high as 19 asides in one 30-minute lesson during `auto` pace escalation, turning
+        rationing off entirely. `max_streak_relief_notes` is the middle ground: a small, bounded
+        allowance spent only once the ordinary ration is exhausted.
+
+        This curriculum forces the ordinary ration to exactly 1 (a 12-minute lesson) and gives
+        the streak plenty of opportunities to retrigger (no dialogues, `drill_streak_limit=3`,
+        30 review items). Exactly ration (1) + `max_streak_relief_notes` (2) = 3 notes should
+        fire — not fewer (the relief mechanism must actually engage), and not more (it must stay
+        bounded even though the streak keeps retriggering and more notes remain available)."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(30)],
+            "notes": [{"id": f"n{i}", "text": f"Note {i}."} for i in range(10)],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(30):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        cfg = PlanConfig(minutes=12, seed=1, dialogue_every=1000, drill_streak_limit=3, max_streak_relief_notes=2)
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY)
+        sc = planner.build()
+        self.assertEqual(len(sc.meta["notes"]), 1 + cfg.max_streak_relief_notes, sc.meta["notes"])
+
+    def test_streak_with_no_dialogue_and_no_notes_does_not_fall_through_to_more_recall(self):
+        """Owner review on #46 (issue #44's own acceptance criteria): bounding the relief-note
+        allowance (previous test) still left a silent fallthrough once *both* the ordinary
+        note ration and the relief allowance ran out — the old code just fell back to another
+        isolated recall, exactly what #44 rules out. With no dialogues and no notes in the
+        curriculum at all, there is nothing on the note/dialogue side to rescue the streak, so
+        the very next exercise after the streak trips must be something other than another
+        isolated "recall" — here, the new recombination fallback (``do_connect``, kind
+        "connect"), since plenty of already-known items with a situation cue exist."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}.", "situation": f"Situation {i}."}
+                for i in range(10)
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(10):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        planner = Planner(
+            cur,
+            learner,
+            Prompts.load("en"),
+            Timing(level="A1"),
+            PlanConfig(minutes=30, seed=1, dialogue_every=1000, drill_streak_limit=3, note_chance=0.0),
+            today=TODAY,
+        )
+        sc = planner.build()
+        kinds = [ex.kind for ex in sc.exercises if ex.kind != "opening"]
+        self.assertEqual(kinds[:3], ["recall"] * 3, kinds)
+        self.assertNotEqual(kinds[3], "recall", f"{kinds}: silently fell through to another isolated recall")
+        self.assertEqual(kinds[3], "connect", kinds)
+
+    def test_connected_use_reaches_an_arc_whose_items_are_wired_into_no_dialogue(self):
+        """Issue #44 point 2, owner review on #46: the earlier fix (previous test class,
+        ``test_a_freshly_introduced_items_own_dialogue_stage_is_not_skipped``) only reaches an
+        item's own "dialogue" ladder stage when that item is referenced by some authored
+        dialogue's ``requires`` — an item never wired into any dialogue never gets a "dialogue"
+        ladder stage at all, so that fix could never fire for it. Here the curriculum has *no*
+        dialogues whatsoever, so a whole freshly introduced arc (``a0``, ``a1``) can never get
+        connected use through the dialogue system, no matter how its reactivation schedule
+        plays out. Plenty of other already-known review material exists too. The new
+        recombination fallback (``do_connect``) doesn't depend on authored dialogue content —
+        it must still give the arc's own material a connected-use moment, preferring it over
+        the unrelated review items, once the drill streak trips."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": (
+                [
+                    {"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}.", "situation": f"Situation {i}."}
+                    for i in range(10)
+                ]
+                + [
+                    {"id": "a0", "kind": "phrase", "target": "Boga 0.", "meaning": "Arc 0.", "situation": "Arc situation 0."},
+                    {"id": "a1", "kind": "phrase", "target": "Boga 1.", "meaning": "Arc 1.", "situation": "Arc situation 1."},
+                ]
+            ),
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(10):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        planner = Planner(
+            cur,
+            learner,
+            Prompts.load("en"),
+            Timing(level="A1"),
+            PlanConfig(minutes=30, seed=1, new_items=2, dialogue_every=1000, drill_streak_limit=3, note_chance=0.0),
+            today=TODAY,
+        )
+        sc = planner.build()
+        self.assertNotIn("dialogue", [ex.kind for ex in sc.exercises], "no dialogue exists in this curriculum at all")
+        connect_exercises = [ex for ex in sc.exercises if ex.kind == "connect"]
+        self.assertTrue(connect_exercises, "no connected-use activity ever fired for the wired-nowhere arc")
+        connected_items = {i for ex in connect_exercises for i in ex.item_ids}
+        # both of the arc's own items, not just one of them alongside an unrelated review item —
+        # "recombine the arc's own material" means the arc supplies both halves of the exchange
+        # whenever it can (owner review round 2 on #46).
+        self.assertTrue(
+            {"a0", "a1"} <= connected_items,
+            f"connected-use activity didn't recombine the arc's own two items together: {connected_items}",
+        )
+
+    def test_each_arc_gets_its_own_connected_use_moment_without_a_drill_streak(self):
+        """Issue #44, owner review round 2 on #46: the first cut only ever reached
+        ``do_connect()`` as a side effect of the drill-streak breaker, so an arc practiced at
+        a normal pace — never running the streak past its limit — could finish, and the
+        lesson could move on to a second arc or end, with no connected-use attempt at all.
+        #44's own acceptance criteria don't make this conditional on a streak: once an arc's
+        items have had initial practice, it gets a deliberate connected-use attempt before the
+        lesson moves on. ``drill_streak_limit`` is set unreachably high here specifically to
+        prove this doesn't depend on the streak breaker.
+
+        Also checks the two arcs don't cross-contaminate: arc 2's connected-use moment must
+        use arc 2's own two items, not reuse arc 1's (a risk with a shared ``introduced`` pool
+        ordered by intro time, where an earlier arc's items would otherwise be found first)."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": (
+                [
+                    {"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}.", "situation": f"Situation {i}."}
+                    for i in range(10)
+                ]
+                + [
+                    {"id": "a0", "kind": "phrase", "target": "Boga 0.", "meaning": "Arc one, a.", "situation": "Arc one situation a."},
+                    {"id": "a1", "kind": "phrase", "target": "Boga 1.", "meaning": "Arc one, b.", "situation": "Arc one situation b."},
+                    {"id": "b0", "kind": "phrase", "target": "Boga 2.", "meaning": "Arc two, a.", "situation": "Arc two situation a."},
+                    {"id": "b1", "kind": "phrase", "target": "Boga 3.", "meaning": "Arc two, b.", "situation": "Arc two situation b."},
+                ]
+            ),
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(10):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        planner = Planner(
+            cur,
+            learner,
+            Prompts.load("en"),
+            Timing(level="A1"),
+            PlanConfig(minutes=30, seed=1, new_items=2, max_new_items=2, dialogue_every=1000, drill_streak_limit=1000, note_chance=0.0),
+            today=TODAY,
+        )
+        sc = planner.build()
+        drill_streaks = []
+        streak = 0
+        for ex in sc.exercises:
+            if ex.kind == "recall":
+                streak += 1
+                drill_streaks.append(streak)
+            else:
+                streak = 0
+        self.assertLess(max(drill_streaks, default=0), 1000, "the streak breaker must never have tripped in this test")
+        connect_exercises = [ex for ex in sc.exercises if ex.kind == "connect"]
+        self.assertGreaterEqual(len(connect_exercises), 2, f"expected a connected-use moment per arc: {[ex.item_ids for ex in connect_exercises]}")
+        arc1 = next((ex for ex in connect_exercises if set(ex.item_ids) & {"a0", "a1"}), None)
+        arc2 = next((ex for ex in connect_exercises if set(ex.item_ids) & {"b0", "b1"}), None)
+        self.assertIsNotNone(arc1, f"arc 1 never got its own connected-use moment: {[ex.item_ids for ex in connect_exercises]}")
+        self.assertIsNotNone(arc2, f"arc 2 never got its own connected-use moment: {[ex.item_ids for ex in connect_exercises]}")
+        self.assertEqual(set(arc1.item_ids), {"a0", "a1"}, f"arc 1's connected use pulled in material outside the arc: {arc1.item_ids}")
+        self.assertEqual(set(arc2.item_ids), {"b0", "b1"}, f"arc 2's connected use pulled in material outside the arc: {arc2.item_ids}")
+
+    def test_connect_never_skips_a_multi_word_items_own_stage_progression(self):
+        """Owner review round 3 on #46: ``do_connect()`` recorded *any* has-situation candidate
+        at stage ``"situation"`` regardless of how far it had actually climbed its own ladder —
+        harmless for a short item, whose ladder goes straight from ``meaning`` to ``situation``,
+        but a multi-word item's ladder also has ``cloze``/``hinted`` in between. Since
+        ``record_lesson()`` never lowers a stage once raised (only ``max()``s across what a
+        lesson recorded), sweeping such an item into a connect() exercise could jump its
+        persisted stage straight to ``situation``, permanently skipping stages it never
+        actually practised.
+
+        ``hard0`` is a known multi-word item stuck at ``hinted`` — several stages short of
+        ``situation`` — alongside plenty of fully-progressed short items, so every connect()
+        this lesson has an alternative pairing that doesn't need ``hard0`` at all. Confirmed
+        against the pre-fix code that ``hard0`` got swept into a connect() exercise (and its
+        stage jumped straight to ``situation``) despite never having done ``cloze``/``meaning``
+        in this lesson or any before it.
+
+        The second half checks the general guarantee, not just this one item: no item's
+        recorded stage sequence this lesson, starting from wherever it stood before the
+        lesson, ever skips a ladder stage — stronger than the existing
+        ``test_stages_get_harder_within_lesson``, which only checks the sequence doesn't go
+        *backward*, not that it doesn't jump *ahead*."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": (
+                [
+                    {
+                        "id": "hard0",
+                        "kind": "phrase",
+                        "target": "Þetta er erfitt orð.",
+                        "meaning": "This is a hard word.",
+                        "situation": "A hard-word situation.",
+                    }
+                ]
+                + [
+                    {"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}.", "situation": f"Situation {i}."}
+                    for i in range(10)
+                ]
+            ),
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        learner.items["hard0"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="hinted")
+        for i in range(10):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="situation")
+        planner = Planner(
+            cur,
+            learner,
+            Prompts.load("en"),
+            Timing(level="A1"),
+            PlanConfig(minutes=30, seed=1, dialogue_every=1000, drill_streak_limit=3, note_chance=0.0),
+            today=TODAY,
+        )
+        sc = planner.build()
+        connect_items = {i for ex in sc.exercises if ex.kind == "connect" for i in ex.item_ids}
+        self.assertNotIn("hard0", connect_items, "a not-yet-ready multi-word item was swept into a connect() exercise")
+
+        ladders = sc.meta["ladders"]
+        for item_id, stages in sc.meta["exposures"].items():
+            ladder = ladders[item_id]
+            pre_stage = learner.items[item_id].stage if item_id in learner.items and learner.items[item_id].stage in ladder else ladder[0]
+            seq = [stage_index(ladder, pre_stage)] + [ladder.index(s) for s in stages if s in ladder]
+            gaps = [b - a for a, b in zip(seq, seq[1:])]
+            self.assertTrue(all(g <= 1 for g in gaps), f"{item_id}: stage sequence skipped a ladder stage: {seq} ({ladder})")
 
     def test_high_drill_streak_wins_over_a_due_reactivation_too(self):
         """Owner review on #41: the streak breaker used to run *after* step 1 (a due
@@ -323,18 +592,23 @@ class CurriculumTests(unittest.TestCase):
         point 3 added a second: ``three_kinds_of_sorry`` alongside ``godur_gender``) are
         curriculum events, not filler, so they neither draw on that ration nor shrink it for
         the asides that do — a lesson where both happen to fire can rack up more than 2 notes
-        total without that being a rationing failure."""
+        total without that being a rationing failure. Issue #44 point 1 added a third, small
+        exemption: once the ordinary ration is spent, up to ``max_streak_relief_notes`` (2 by
+        default) more asides may fire specifically to break up a drill streak with no eligible
+        dialogue — bounded, not unlimited, so the ceiling here is the ration plus that
+        allowance, not the ration alone."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         self.assertGreaterEqual(len(cur.notes), 40)
         learner = LearnerState("is", "en", "A1")
         learner.feedback_mode = "auto"
         day = TODAY
         heard: list[str] = []
+        cfg_for_ceiling = PlanConfig(minutes=30)
         for _ in range(12):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=2), today=day).build()
             notes = [e for e in sc.exercises if e.kind == "note"]
             asides = [e for e in notes if not cur.note_by_id[e.label.split(": ")[1]].milestone]
-            self.assertLessEqual(len(asides), 2)
+            self.assertLessEqual(len(asides), 2 + cfg_for_ceiling.max_streak_relief_notes)
             for e in notes:
                 note = cur.note_by_id[e.label.split(": ")[1]]
                 if not note.milestone:

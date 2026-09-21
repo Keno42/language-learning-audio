@@ -37,6 +37,9 @@ class PlanConfig:
     dialogue_first_turns: int = 2  # turns played the first time; one more each later encounter
     max_dialogues: int | None = None  # per lesson (default: one per 10 minutes, at least 2)
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
+    max_streak_relief_notes: int = 2  # extra notes beyond max_notes, only to break a drill streak
+    # when no dialogue fits either (issue #44 point 1) — a small, separate, bounded allowance,
+    # not an unlimited bypass of the ordinary ration
     note_chance: float = 0.7  # chance to play a related note right after its item
     max_review_passes: int = 2  # when material runs out, review what was reviewed once more (harder).
     # Set to 1 to end the lesson short instead (issue #34 point 5, other half) — see docs/HANDOFF.md
@@ -342,6 +345,28 @@ class Planner:
         need_for_new = min(cfg.min_time_for_new_item, budget * 0.6)  # short lessons still get something new
         reviews_used: list[str] = []
         passes = 1
+        streak_relief_notes_used = 0
+        # Per-arc connected-use bookkeeping (issue #44, owner review round 2 on #46): an arc
+        # is the batch of items introduced together by one ``select_new()`` call — the initial
+        # one below, or a later "fresh arc" pick (step 5). ``arc_items`` maps an arc's id to
+        # its own items, populated lazily by ``do_intro`` the first time one of its items is
+        # actually introduced (so an arc that never gets any items, e.g. nothing left to
+        # teach, never shows up here at all); ``arc_order`` records creation order for the
+        # "earliest unattempted arc" scan below. ``arc_target`` is each arc's intended item
+        # count, fixed at the moment the arc is created (``len(new_queue)`` for the initial
+        # arc, ``len(more)`` for a fresh one) — without it, the readiness check below could
+        # fire the instant the *first* item of a still-filling arc got its first reactivation,
+        # days before the arc's other items had even been introduced yet, and "recombine this
+        # arc" would have only one real member to work with (confirmed: with ``intro_gap=3``
+        # separating two items' own intros, the first item's first reactivation reliably landed
+        # before the second item's intro). ``current_arc_id`` only advances at an explicit
+        # fresh-arc start (see step 5) — every item introduced in between, whether via the
+        # initial queue or step 2's ordinary draining of it, belongs to the same arc.
+        current_arc_id = 0
+        arc_items: dict[int, list[Item]] = {}
+        arc_target: dict[int, int] = {0: len(new_queue)}
+        arc_order: list[int] = []
+        arc_connect_attempted: set[int] = set()
 
         def touch(item: Item) -> None:
             recent.append(item.id)
@@ -353,6 +378,10 @@ class Planner:
             ex = b.intro(sc, item)
             b.in_lesson.add(item.id)
             introduced.append(item)
+            if current_arc_id not in arc_items:
+                arc_items[current_arc_id] = []
+                arc_order.append(current_arc_id)
+            arc_items[current_arc_id].append(item)
             self._record([item.id], "intro", ex.item_ids)
             touch(item)
             last_intro = idx
@@ -367,7 +396,19 @@ class Planner:
         def do_recall(item: Item, stage: str) -> None:
             nonlocal since_dialogue
             if stage == "dialogue":
-                dlg = self.eligible_dialogue(prefer_item=item) if since_dialogue >= cfg.dialogue_every // 2 else None
+                # An item introduced earlier *this lesson* reaching its own dialogue-stage
+                # reactivation is that arc's connected-use moment (issue #44 point 2) — always
+                # attempt it, not gated by since_dialogue's frequency spacing. That gate exists
+                # to keep dialogues from clustering when several long-known review items happen
+                # to cycle back to "dialogue" stage close together, not to skip a fresh arc's
+                # one chance at connected use within its own reactivation schedule — without
+                # this, an item whose schedule reached "dialogue" before since_dialogue had
+                # built back up silently fell back to below_dialogue() and, since "dialogue"
+                # is always the last ladder stage, never got a connected-use attempt at all
+                # this lesson. An older item cycling back via ordinary review keeps the
+                # existing spacing gate.
+                fresh_arc_item = any(i.id == item.id for i in introduced)
+                dlg = self.eligible_dialogue(prefer_item=item) if (fresh_arc_item or since_dialogue >= cfg.dialogue_every // 2) else None
                 if dlg is not None:
                     self._play_dialogue(sc, dlg)
                     since_dialogue = 0
@@ -403,19 +444,109 @@ class Planner:
                 idx += 1
                 since_dialogue += 1
 
+        def _ready_for_situation(it: Item) -> bool:
+            """True if recording ``it`` at ``"situation"`` stage right now continues its own
+            natural climb up the ladder rather than skipping stages it hasn't earned yet
+            (owner review round 3 on #46): ``do_connect()`` used to record *any* has-situation
+            candidate at stage ``"situation"`` regardless of how far it had actually climbed —
+            fine for a short item whose ladder goes straight from ``meaning`` to ``situation``,
+            but a multi-word item's ladder also has ``cloze``/``hinted`` in between, and
+            ``record_lesson()`` never lowers a stage, only raises it (``max(candidates, key=...
+            stage_index)``), so one connect() exercise could jump such an item straight to
+            ``situation``, permanently skipping stages it never actually practised. Allows the
+            item at its current stage or one step short of ``situation`` (so the *next* natural
+            step reaches it) — not further back than that."""
+            ladder = self.ladder(it)
+            if "situation" not in ladder:
+                return False
+            situation_idx = stage_index(ladder, "situation")
+            if it.id in self.learner.items:
+                st = self.learner.items[it.id]
+                cur = st.stage if st.stage in ladder else ladder[0]
+            else:
+                done = [s for s in self.exposures.get(it.id, []) if s != "intro"]
+                cur = done[-1] if done and done[-1] in ladder else ladder[0]
+            return stage_index(ladder, cur) >= situation_idx - 1
+
+        def _connect_pair(pool: list[Item], last_touched_id: str | None) -> list[Item] | None:
+            """The two distinct, situation-ready items in ``pool`` to recombine together,
+            preferring a pair that shares a topic — so the connected moment reads as one
+            coherent scene rather than two items that merely happen to both be known (owner
+            review round 2 on #46: a "leaving a shop" situation paired with a "raising a
+            glass" one read as unrelated flashcards). Falls back to any two distinct items if
+            no topic pair exists. Returns ``None`` if ``pool`` doesn't have two eligible items.
+
+            If one of the two chosen items is ``last_touched_id``, it's ordered *second*, not
+            excluded outright — excluding it entirely (as an earlier version of this did) made
+            a fully practiced 2-item arc's own connected-use moment impossible to draw purely
+            from its own material: the arc's last-touched item is typically exactly the one
+            whose own reactivation just completed the arc's readiness check, so excluding it
+            left only one real member and forced a fallback to unrelated material instead —
+            precisely the cross-arc contamination this whole scoping exists to prevent.
+            Ordering it second still avoids the jarring effect an *immediate* repeat would
+            have (the actual reason for the exclusion, shared with ``do_discriminate``)."""
+            seen: set[str] = set()
+            valid: list[Item] = []
+            for it in pool:
+                if it.id in seen or not it.has_situation or not _ready_for_situation(it):
+                    continue
+                seen.add(it.id)
+                valid.append(it)
+            if len(valid) < 2:
+                return None
+            by_topic: dict[str, list[Item]] = {}
+            for it in valid:
+                if it.topics:
+                    by_topic.setdefault(it.topics[0], []).append(it)
+            pair = next((group[:2] for group in by_topic.values() if len(group) >= 2), None) or valid[:2]
+            if pair[0].id == last_touched_id:
+                pair = [pair[1], pair[0]]
+            return pair
+
+        def do_connect(prefer: list[Item] | None = None) -> bool:
+            """Recombine two already-known items into one connected exchange (issue #44):
+            the fallback for "connected use" when no authored dialogue exists for the
+            current material, and a real third option for a drill streak with nowhere else
+            to go — not another isolated recall. ``prefer`` scopes this to a specific arc's
+            own material (see the per-arc step below); without it, this lesson's own
+            ``introduced`` items are preferred, falling back to any other already-known item.
+            Candidates are drawn from ``prefer`` (or ``introduced``) *alone* first — only
+            widening to the rest of the pool if that scope alone can't supply two eligible
+            items — so a later arc's connected-use guarantee can never be quietly satisfied
+            by an earlier arc's material, or by unrelated review items, when its own is
+            enough. Returns ``False`` if no two eligible items exist anywhere."""
+            just_touched = recent[-1] if recent else None
+            preferred = prefer if prefer is not None else introduced
+            candidates = _connect_pair(list(preferred), just_touched)
+            if candidates is None:
+                rest = [it for it in introduced if it not in preferred] + [
+                    self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id
+                ]
+                candidates = _connect_pair(list(preferred) + rest, just_touched)
+                if candidates is None:
+                    return False
+            ex = b.connect(sc, candidates)
+            self._record([i.id for i in candidates], "situation", ex.item_ids)
+            for item in candidates:
+                touch(item)
+            return True
+
         while sc.total_duration < budget - closing_reserve:
             remaining = budget - closing_reserve - sc.total_duration
             due = [p for p in pending if p.due <= idx]
             due.sort()
             acted = False
 
-            # 0. drill streak too high: break up the run with a dialogue, or else a note,
-            #    before any branch below that would emit another isolated recall — including
-            #    step 1's due reactivation, which does not by itself break the streak the way
-            #    an intro or dialogue does. This must come first: a due reactivation is still
-            #    an isolated recall, so running it ahead of this check let the streak continue
-            #    uninterrupted through step 1 every time one happened to be due (owner review
-            #    on #41 — issue #34 point 6).
+            # 0. drill streak too high: break up the run with a dialogue, else a note, else a
+            #    recombination of known items, before any branch below that would emit another
+            #    isolated recall — including step 1's due reactivation, which does not by
+            #    itself break the streak the way an intro or dialogue does. This must come
+            #    first: a due reactivation is still an isolated recall, so running it ahead of
+            #    this check let the streak continue uninterrupted through step 1 every time one
+            #    happened to be due (owner review on #41 — issue #34 point 6). If nothing on
+            #    this whole ladder works, stop the lesson rather than let the streak continue
+            #    unbounded (owner review on #46 — issue #44's own acceptance criteria: this
+            #    must never silently fall through to "one more isolated recall").
             streak_triggered = drill_streak >= cfg.drill_streak_limit
             if streak_triggered:
                 dlg = self.eligible_dialogue()
@@ -423,16 +554,85 @@ class Planner:
                     self._play_dialogue(sc, dlg)
                     since_dialogue = 0
                     acted = True
-                elif self._note_budget_left() and remaining >= 40:
+                if not acted and remaining >= 40:
                     # no dialogue fits either: a note is a varied activity, not another
-                    # flashcard drill. The streak's "or stop" fallback needs no new code
-                    # here, since step 5's own cascade below already ends the lesson once
-                    # genuinely nothing — due, new, review, or note — is left.
-                    note = self._pick_note(None)
-                    if note is not None:
-                        b.note(sc, note)
-                        self.notes_played.append(note.id)
+                    # flashcard drill. `_note_budget_left()` alone isn't enough of a gate here
+                    # (issue #44 point 1): that budget exists to ration *optional* asides, at as
+                    # little as 1 per lesson for a short lesson (`max(1, minutes // 12)`) —
+                    # easily spent by the very first ordinary aside roll, long before the streak
+                    # ever needs it. A real generated lesson hit exactly this: the streak
+                    # trigger fired repeatedly (climbing to 15 unbroken recalls) while
+                    # `_note_budget_left()` stayed `False` the entire time, because the lesson's
+                    # one allowed aside had already played early on. But an unconditional bypass
+                    # overcorrects — measured as high as 19 asides in one 30-minute lesson during
+                    # `auto` pace escalation, turning rationing off entirely and recreating
+                    # issue #21's original "asides feel like non-sequiturs" complaint from the
+                    # other direction. `max_streak_relief_notes` (default 2) is a small, separate
+                    # allowance spent only once the ordinary ration is already exhausted — not
+                    # unlimited, but enough to break up a couple of real monotony episodes in one
+                    # lesson without turning it into a string of asides.
+                    ration_left = self._note_budget_left()
+                    if ration_left or streak_relief_notes_used < cfg.max_streak_relief_notes:
+                        note = self._pick_note(None)
+                        if note is not None:
+                            b.note(sc, note)
+                            self.notes_played.append(note.id)
+                            acted = True
+                            if not ration_left:
+                                streak_relief_notes_used += 1
+                if not acted and remaining >= 40:
+                    # no dialogue and no note either: recombine two already-known items
+                    # instead (issue #44 point 2 — this is also the fallback when a whole arc's
+                    # items were never wired into any authored dialogue at all, so a plain
+                    # eligible_dialogue() check could never have found anything to play for
+                    # them in the first place; recombination doesn't depend on authored
+                    # dialogue content existing).
+                    acted = do_connect()
+                if not acted:
+                    # Dialogue, note (ration and relief), and recombination all failed — there
+                    # is genuinely nothing left but another isolated recall. Stop the lesson
+                    # here rather than let the streak continue unbounded: issue #44's
+                    # acceptance criteria explicitly rule out silent fallthrough to "continued
+                    # isolated recall" as the outcome of a maxed-out drill streak. This is rare
+                    # in practice (it needs no eligible dialogue, an exhausted or absent note
+                    # supply, and fewer than two already-known items with a situation cue,
+                    # all at once) but must be a real option, not just a theoretical one.
+                    break
+
+            # 0b. an arc's own connected-use moment — not just a side effect of the drill-streak
+            #     breaker above (issue #44, owner review round 2 on #46: the first cut only ever
+            #     reached ``do_connect()`` when a streak had already run past its limit, so an
+            #     arc practiced at a normal pace — never triggering the streak breaker — could
+            #     finish, and the lesson could move on to another arc or end, with no connected-
+            #     use attempt at all). Once every item introduced in an arc is itself individually
+            #     ready for a "situation" exposure — ``_ready_for_situation()``, not merely "has
+            #     had some touch beyond intro" (owner review round 3: an item still climbing
+            #     cloze/hinted isn't ready yet, and the arc's own readiness check used to be
+            #     looser than the per-item gate ``_connect_pair`` now enforces, so an arc could be
+            #     judged "ready" before any of its items actually were, and its guaranteed
+            #     connect() attempt would simply find nothing eligible in its own material) —
+            #     that arc gets one deliberate attempt — scoped to its own ``arc_items``
+            #     specifically, not ``introduced`` as a whole, so a later arc's guarantee can't be
+            #     quietly satisfied by an earlier arc's material (an earlier version of this fix
+            #     pulled from whatever had been introduced so far, in intro order, so a later
+            #     arc's connected use could end up reusing an earlier arc's items instead of its
+            #     own). Marked "attempted" whether or not it actually finds two eligible items, so
+            #     a genuinely thin arc isn't retried forever.
+            if not acted and remaining >= 40:
+                ready_arc = next(
+                    (
+                        aid
+                        for aid in arc_order
+                        if aid not in arc_connect_attempted
+                        and len(arc_items[aid]) >= arc_target.get(aid, 0)
+                        and all(_ready_for_situation(it) for it in arc_items[aid])
+                    ),
+                    None,
+                )
+                if ready_arc is not None:
+                    if do_connect(prefer=arc_items[ready_arc]):
                         acted = True
+                    arc_connect_attempted.add(ready_arc)
 
             # 1. a scheduled reactivation that is due (but never the item we just did)
             if not acted:
@@ -537,6 +737,8 @@ class Planner:
                     # must consume an ``idx`` tick like every other branch, or a lesson where
                     # ``intro_gap`` isn't yet satisfied would re-enter this branch at the same
                     # ``idx`` forever without ever making progress.
+                    current_arc_id += 1  # a fresh arc — its own connected-use guarantee (step 0b)
+                    arc_target[current_arc_id] = len(more)
                     new_queue.extend(more[1:])
                     do_intro(more[0])
                     # the closing block recalls every introduced item, so a new arc needs more
