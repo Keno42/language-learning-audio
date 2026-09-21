@@ -1,70 +1,40 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-21 (session 16: the owner opened #34, "Improve
-lesson orchestration and learner experience," reviewing a real Lesson 3
-transcript and finding 8 related problems — including a direct
-critique of the `godur_gender` milestone note session 15 just shipped.
-Broke #34 into 7 pilots ordered by risk, then did pilot 1 (fixed the
-"Say: X. in Icelandic." template collision and normalized `jaeja`'s
-redundant meaning-field parenthetical), pilot 2 (shortened
-`godur_gender`'s text and gave milestone notes their own, non-"aside"
-closing line), pilot 3 (a milestone note now immediately replays two
-of its own items' already-existing `situation`s, so the learner
-switches between forms right after noticing the pattern), pilot 4 (a
-second milestone note contrasting Afsakið/Fyrirgefðu/Því miður by
-function, after verifying `Því miður`'s gloss against a dictionary and
-fixing a budget-accounting bug the second milestone exposed), pilot 5
-(items can now carry several `situations` the planner rotates on
-repeat retrieval, instead of replaying the identical prompt every
-spaced review — retrofitted onto `velkomin`), and, out of order at the
-owner's request, pilot 7 then pilot 6 (removed the vowel-run guesswork
-that cut long single words into mispronounceable fragments — 108 items
-now get slow whole-word repetition instead, no content changes needed
-— then gave the planner a `drill_streak` counter that pulls an eligible
-dialogue forward once too many isolated recalls run in a row) — all 7
-pilots now have at least a first concrete step done; see "Session 16"
-below and item #1a in "Known gaps" for what's still open per pilot).
-Session 17 then did pilot 8: `«...»` markup inside a note's `text` now
-makes a marked Icelandic phrase actually spoken by the target-language
-voice instead of read as instructor-language narration, applied to both
-existing milestone notes; and pilot 9: a high `drill_streak` with no
-eligible dialogue now pulls a note forward instead of silently falling
-through to another isolated recall. Pilot 10 (ending a lesson early
-instead of padding with a second review pass) was investigated but left
-at its existing default — flipping it shortened lessons 20–60% on the
-fixture curricula and broke 3 length-guarantee tests, a bigger call than
-one pilot should make; see "Session 17" and #1a below for the owner
-question this leaves open. Owner review on PR #41 caught two real bugs in
-pilots 8/9 before merge, both fixed: the drill-streak breaker ran after
-a due scheduled reactivation instead of before it, so the reactivation
-could still win and continue the exact run the mechanism exists to
-break; and `_speak_note_text()` could narrate a bare "," left over
-between two «...»-marked phrases as its own meaningless TTS call — now a
-beat instead. Also tightened the «» validation to actually run the
-matching regex instead of just comparing counts. PR #41 merged; pilot 11
-then marked up the remaining 46 cultural-aside notes with `«...»`.
-Owner review on PR #42 caught that pilot 11's first cut left `text_ja`
-fields with only a katakana transliteration unmarked (7 notes), so the
-Japanese track never actually spoke those terms in the native voice —
-fixed by keeping the katakana as a parenthetical gloss and adding the
-real spelling in `«...»` alongside it. Every note in the curriculum that
-names a real Icelandic word now speaks it with the native voice, in both
-instructor languages. Session 18 then took on pilot 10's open question,
-reframed by the owner from a real Lesson 3 output: a 30-minute lesson
-was stopping at ~15 minutes with 11+ minutes of budget unused and 985 of
-993 curriculum items untouched, because every fallback tier (new-item
-cap, pending reactivations, note budget, both review passes) hit its
-ceiling at the same time with no next step. Verified the exact stopping
-point against the owner's own real `learner.json`, then added a new
-fallback (pilot 12) that starts a fresh small arc of new material once
-arc 1 is fully spent and substantial budget remains, instead of padding
-with a second review pass or ending short — gated so a genuine first
-lesson still ends short on purpose. Found and fixed 3 real bugs along
-the way (an infinite loop, and two regressions against existing pacing/
-prerequisite guarantees) via the existing test suite plus new synthetic
-tests. On the owner's own real scenario: 1144.5s → 1689.1s of a 1800s
-target. #34 is otherwise fully addressed; see "Session 18" for the
-scoping note on what a fuller multi-arc redesign would still add._
+_Last updated 2026-09-21 (session 18 close-out). **Issue #34** ("Improve
+lesson orchestration and learner experience," opened session 16 from a
+real Lesson 3 transcript) is **closed**: 12 pilots across sessions
+16–18 (PRs #36–#43) — milestone notes that stay short and speak
+Icelandic examples in the native voice with immediate contrastive
+practice, near-synonyms explicitly contrasted, situation-prompt
+variation on repeat retrieval, no fabricated backward-build chunking,
+smoothed instructor-prompt templates, a `drill_streak` counter that
+pulls a dialogue or note forward instead of running long isolated-recall
+stretches, and a new-item cap that bounds one learning arc rather than
+the whole lesson so a lesson doesn't stop far short of its target with
+plenty of curriculum left. Full narrative in "Session 16" through
+"Session 18" below; the pilot-by-pilot list is item #1a in "Known gaps."
+
+**Correction on closing #34** (owner review): "no open pilots" had
+quietly drifted from "acceptance criteria met." Two criteria weren't
+actually satisfied — a high drill streak with neither an eligible
+dialogue nor an available note still falls through to plain recall, and
+no learning arc is guaranteed a connected-use (dialogue/mini-situation)
+moment of its own. Split both into **issue #44** rather than continuing
+to expand #34; see #1a's correction note for detail. Watch for this
+failure mode again on future long-running issues: a "pilots done" tally
+is not the same claim as "the issue's own acceptance criteria hold,"
+and this file should track the latter.
+
+**Next up, per the owner's priority order:** issue #29 ("Design
+curriculum around reusable concepts and communicative capabilities") —
+(1) triage all `dialogue_sequencing_report()` findings (9 repeat
+offenders plus large single-item gaps like `heyra`), (2) a
+curriculum-wide dependency audit across all 26 modules for reusable
+concepts and late-introduced high-value concepts, (3) a pilot testing
+whether the `godur_gender` gender-agreement pattern generalizes to
+case/tense/modality. #29 stays open until the curriculum-wide audit
+completes a full pass. #44's two residuals are next after that, or
+whenever the owner prioritizes them._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -2278,6 +2248,7 @@ Verified in this session:
    a candidate pilot 3-style pass), and the broader curriculum-wide
    audit.
 1a. **Improve lesson orchestration and learner experience** (issue #34,
+   **closed session 18** — see the correction below the pilot list;
    session 16 — a sequel to #29: where #29 decides *what* gets taught
    and *when*, #34 is about how a lesson built from correctly-sequenced
    material still *feels*). Genesis: the owner reviewed a real
@@ -2437,7 +2408,29 @@ Verified in this session:
        fuller redesign remains available as a separate thread if wanted.
 
    **Not started:** none — every pilot from the original 7 through
-   pilot 12 has a concrete, done step. Issue #34 has no open pilots left.
+   pilot 12 has a concrete, done step.
+
+   **Correction (session 18, owner review): "no open pilots" is not the
+   same claim as "acceptance criteria met."** This entry previously
+   closed with "#34 has no open pilots left," which is true of the
+   pilot list but had quietly drifted from the issue's own acceptance
+   criteria. Two of them are not actually satisfied: "the planner
+   avoids long uninterrupted runs of isolated situation/answer
+   exercises" (pilot 9's streak-triggered dialogue-or-note fallback does
+   nothing, and execution falls through to ordinary recall, whenever
+   *both* are unavailable — common once a lesson's note budget is spent
+   and no dialogue has unlocked yet) and "connected dialogues or
+   mini-situations are preferred when enough known material exists"
+   (pilot 12's arcs get practice and review but no deliberate
+   connected-use step of their own; a lesson can run several arcs with
+   zero connected use if `eligible_dialogue()` never happens to unlock
+   one on its own). Split both into **issue #44**, closed #34 rather
+   than continuing to expand it, per the owner's explicit direction —
+   see #44 for the two gaps' acceptance criteria. `docs/HANDOFF.md`'s
+   own "Keep this current" promise applies to this kind of drift too:
+   a pilot-list summary that silently stops tracking the issue's actual
+   acceptance criteria is exactly the failure mode to watch for on
+   future long-running issues.
 2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
 3. ~~Listen to a real lesson and tune timing~~ — partially done (session
