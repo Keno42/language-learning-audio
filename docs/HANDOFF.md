@@ -23,7 +23,25 @@ now get slow whole-word repetition instead, no content changes needed
 — then gave the planner a `drill_streak` counter that pulls an eligible
 dialogue forward once too many isolated recalls run in a row) — all 7
 pilots now have at least a first concrete step done; see "Session 16"
-below and item #1a in "Known gaps" for what's still open per pilot)._
+below and item #1a in "Known gaps" for what's still open per pilot).
+Session 17 then did pilot 8: `«...»` markup inside a note's `text` now
+makes a marked Icelandic phrase actually spoken by the target-language
+voice instead of read as instructor-language narration, applied to both
+existing milestone notes; and pilot 9: a high `drill_streak` with no
+eligible dialogue now pulls a note forward instead of silently falling
+through to another isolated recall. Pilot 10 (ending a lesson early
+instead of padding with a second review pass) was investigated but left
+at its existing default — flipping it shortened lessons 20–60% on the
+fixture curricula and broke 3 length-guarantee tests, a bigger call than
+one pilot should make; see "Session 17" and #1a below for the owner
+question this leaves open. Owner review on PR #41 caught two real bugs in
+pilots 8/9 before merge, both fixed: the drill-streak breaker ran after
+a due scheduled reactivation instead of before it, so the reactivation
+could still win and continue the exact run the mechanism exists to
+break; and `_speak_note_text()` could narrate a bare "," left over
+between two «...»-marked phrases as its own meaningless TTS call — now a
+beat instead. Also tightened the «» validation to actually run the
+matching regex instead of just comparing counts._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -468,6 +486,211 @@ No code or curriculum content changed this session — this is the same
 a design-and-authoring/algorithm project touching several different
 subsystems (content schema, note rendering, planner pacing, backward-
 build) at different risk levels, not a single PR.
+
+## Session 17: issue #34 pilot 8 — target-language speech inside notes
+
+Picked up the "other half" of #34 point 1, deferred at pilot 2 above for
+lack of a mechanism (`Note.text` was one instructor-language string with
+Icelandic phrases embedded as plain text; making them actually spoken by
+the target-language voice needed the note to carry structured segments,
+which `Builder.note()` didn't support at all).
+
+**Done.** Rather than restructure `Note`'s schema into arrays of typed
+segments — a bigger schema change than the problem needs — marked
+target-language phrases inline with `«...»` inside the existing single
+`text`/`text_ja` strings: `In «Góðan daginn», «góðan» is…`. Added
+`_NOTE_TARGET_RE` and `Builder._speak_note_text()` (`exercises.py`),
+which splits a note's text on the marker and alternates `_narr` (the
+surrounding prose, instructor voice/language) with `_speak` (each marked
+phrase, target voice/language) — exactly the two existing primitives
+every other exercise already uses to interleave instructor commentary
+with native-voiced target speech, just newly wired into `note()` instead
+of a single `_narr(note.text)` call. A note with no `«»` in its text
+behaves exactly as before (one `_narr` call for the whole string), so
+none of the other ~46 notes needed touching for the mechanism itself to
+be safe.
+
+Added a validation check (`content.py`, alongside the existing note
+checks) rejecting a note whose `«`/`»` counts don't match, so a stray or
+missing marker fails `audiolesson validate` instead of silently
+mis-splitting at build time. Applied the markup to both existing
+milestone notes — `godur_gender` (`Góðan daginn`/`Góða nótt`/`Gott
+kvöld`, `góðan`/`góða`/`gott`, `dagur`/`nótt`/`kvöld`) and
+`three_kinds_of_sorry` (`Afsakið`/`Fyrirgefðu`/`Því miður`) — in both
+`text` and `text_ja`; no wording changed, only markup added around
+already-verified Icelandic words, so no new pronunciation/usage claims
+to verify. Documented the convention in `docs/CURRICULUM.md` alongside
+the pre-existing (but previously undocumented) `milestone` flag.
+
+The other ~46 cultural-aside notes also name Icelandic words inline and
+could get the same markup, but that's now purely a content-authoring
+task with no mechanism blocking it — left for a future pass rather than
+bundled in here, per the same "small changes, not one rewrite" guidance
+sessions 15–16 have been following.
+
+91 tests (88 → 91: one for the split/alternation behavior on a
+synthetic note, one confirming an unmarked note still narrates as a
+single piece, one for the new validation error); `audiolesson validate
+curricula/is-en` unchanged apart from the two notes' text (993 items, 48
+notes, ja gloss still complete).
+
+### Pilot 9: a high drill streak with no eligible dialogue now pulls a note forward instead
+
+Pilot 6 (Session 16) only handled half of "prefer connected/varied
+activity over another isolated drill": once `drill_streak` hits its
+limit, step 3 of `build()`'s fallback ladder tries a dialogue — but if
+`eligible_dialogue()` returns `None` (none exist yet, all are exhausted
+for this lesson, or the learner doesn't know enough for any of them),
+nothing happened: the streak check silently fell through to step 4
+(another review pick, i.e. likely another isolated recall), with no
+fallback logic at all.
+
+**Done.** When the streak triggers step 3 and no dialogue fits, `build()`
+now tries a note instead — a "varied activity," not another flashcard
+drill — via `self._pick_note(None)`, subject to the same
+`_note_budget_left()`/`remaining >= 40` checks the ordinary note path
+uses, but bypassing the random `note_chance` roll (this is a deliberate
+action to break up a monotony problem the streak just detected, not
+optional filler subject to a coin flip — the same reasoning
+`_eligible_milestone` already uses to bypass `note_chance` for a due
+milestone). If no note fits either, behavior is unchanged: falls through
+to step 4 exactly as before pilot 6 existed. `drill_streak` resets to 0
+on its own the following iteration once a note plays, via the existing
+`_trailing_drill_streak` recompute — no separate reset needed.
+
+The issue's own "or stop" fallback needed no new code: it already exists
+as step 5's cascade at the bottom of the loop, which stops the lesson
+once genuinely nothing (due, new, review, or note) is left — see pilot
+10 below for why that cascade's own weakest tier (a second review pass)
+is a separate, much bigger change than this one.
+
+Added `test_high_drill_streak_pulls_a_note_forward_when_no_dialogue_fits`:
+a synthetic curriculum with 10 known items and *no dialogues at all* (so
+`eligible_dialogue()` always returns `None`), `note_chance=0.0` (so a
+note can only appear via this new fallback, not the ordinary per-exercise
+random roll — isolates which mechanism produced it), `drill_streak_limit=3`.
+Confirms exactly 3 isolated recalls, then a note. 91 → 92 tests, all
+passing; `audiolesson validate` unchanged.
+
+**Owner review on PR #41: the streak breaker ran too late — a due
+scheduled reactivation could still win first.** The first cut put the
+whole streak-triggered block at its original step-3 position, *after*
+step 1 (a due scheduled reactivation). Step 1 sets `acted = True`
+unconditionally whenever something is due, and step 3 was guarded by
+`if not acted`, so on any turn where a reactivation happened to be due
+*and* the streak was already at its limit, the reactivation fired —
+another isolated recall — and the streak check never even ran. Exactly
+the uninterrupted run this mechanism exists to break, just relocated
+one step earlier in the ladder.
+
+Fixed by moving the whole check to a new step 0, before step 1, so it
+runs before *any* branch that would emit another recall — not only the
+ordinary review path (step 4) the original test already covered. Step
+1's due-reactivation loop is now itself guarded by `if not acted`, since
+step 0 may have already consumed the turn. The periodic (non-streak)
+dialogue check keeps its old step-3 position and lost the now-redundant
+`or streak_triggered` in its condition — step 0 already tried both
+dialogue and note for that case.
+
+Added `test_high_drill_streak_wins_over_a_due_reactivation_too`:
+introduces one new item immediately (scheduling a reactivation a few
+exercises later) with `drill_streak_limit=2`, so the reactivation's due
+turn coincides with the streak already being at the limit. Confirmed
+against the pre-fix code first that this exact scenario reproduced the
+bug (`['intro', 'recall', 'recall', 'recall', 'note', ...]` — the
+reactivation winning at position 3, note pushed to 4) before fixing it
+(`[..., 'note', ...]` at position 3). 92 → 93 tests, all passing;
+`audiolesson validate` unchanged.
+
+**Owner review on PR #41, second finding: `_speak_note_text()` could
+narrate bare punctuation.** A note that marks a short list of phrases —
+exactly `godur_gender`'s real shape, `In «Góðan daginn», «Góða nótt»,
+and «Gott kvöld», ...` — splits into a "," fragment between two of the
+marked phrases wherever the only text separating them is punctuation.
+The first cut narrated every non-empty split fragment unconditionally,
+so a bare `","` became its own meaningless instructor-language TTS call.
+The existing test (`Say «halló» to greet someone, and «bless» ...`)
+didn't expose it because none of its prose fragments happened to be
+punctuation-only.
+
+Fixed in `_speak_note_text()`: a prose fragment with no alphanumeric
+characters now becomes a beat (`self._beat`) instead of a `_narr` call —
+preserving the pause the punctuation implied without synthesizing it as
+speech. A fragment with real words (e.g. `", and"`) is unaffected and
+still narrates normally. Added
+`test_note_text_does_not_narrate_bare_punctuation_between_marked_phrases`,
+using the actual `"In «A», «B», and «C», ..."` shape, confirming the
+bare `","` becomes a pause while `", and"` still narrates. 93 → 94 tests.
+
+**Owner review on PR #41, smaller points, both fixed:** (1) validation
+compared `«`/`»` *counts* only, which passes malformed markup with one
+of each but not actually paired — `"»foo«"` (reversed order) or one real
+pair plus a stray unmatched open. Moved the shared `NOTE_TARGET_RE` from
+`exercises.py` into `content.py` (so validation can use the same regex
+without a circular import) and changed the check to run the regex and
+confirm nothing with a `«` or `»` is left over, instead of comparing
+counts. Added `test_note_with_equal_but_malformed_guillemet_counts_is_rejected`
+(`"»uh oh« then «real»"` — one of each character, still rejected). 94 → 95
+tests. (2) `Builder.note()`'s docstring still said "instructor only," no longer
+true after pilot 8 — reworded.
+
+### Pilot 10, investigated: ending a lesson early instead of padding with a second review pass
+
+The other half of point 5 (deferred at pilot 6): "the planner may finish
+below the nominal time target rather than adding low-value filler
+repetitions." The mechanism for this already exists and needed no new
+code: `PlanConfig.max_review_passes` (added in session 3, "Fixed lesson
+length") defaults to 2, and step 5's very last resort — reached only
+once every other option (a due-later reactivation pulled early, an extra
+new item, a plain repeat, a note) has failed — re-reviews everything
+already reviewed *this same lesson*, one stage harder, purely to fill
+remaining time. Setting `max_review_passes=1` disables exactly that: the
+lesson then ends via step 5's existing `else: break` once real material
+(new + due + one review pass + notes) runs out, instead of manufacturing
+a second pass.
+
+**Not done: left at the default (2), not flipped.** Tried flipping the
+default to 1 and measured the actual effect on `course()` runs built from
+the small fixture curricula (`fr-en-a1.toml`, 47 items) that several
+existing tests use as their "does a lesson reach its requested length"
+fixture:
+- `course(8, minutes=30)`: lesson lengths went from needing ≥23 min at
+  their peak (`test_later_lessons_fill_the_requested_time`'s existing
+  threshold) to a peak of 18.1 min — every one of the 8 lessons fell
+  well short of 30.
+- `course(6, minutes=15)`: lesson 6's built content dropped from filling
+  ~900s (with `fit()`'s pause-stretch bridging the small remaining gap)
+  to ~519s of raw content — `fit()` would need to stretch pauses by 1.25×
+  just to reach 649s, still 250s short of 900, breaking both
+  `test_fit_lands_on_the_requested_length` and
+  `test_fit_tolerance_leaves_pauses_alone_when_close`.
+
+That's a 20–60% reduction in lesson length on this fixture, not the
+modest shortfall "may finish below the nominal time target" suggests —
+and it directly undoes a deliberate, tested guarantee from session 3
+("Fixed lesson length": the second pass and `fit()`'s clamped pause
+stretch were built *together* specifically so a requested lesson length
+is reliably met). Flipping a foundational, already-tested guarantee like
+that by default, for every existing and future curriculum, is a bigger
+call than a single pilot should make unilaterally — unlike pilot 9 above
+(additive, `elif` on an existing branch, zero test impact), this one
+changes what "ask for a 15-minute lesson" *means* app-wide and nothing
+here indicates the owner has weighed that specific tradeoff yet (the
+issue's own wording reads as "don't force it," not "even a much shorter
+lesson than requested is fine").
+
+Left `max_review_passes` at its existing default (2) — this pilot's
+actual code change was reverted back out after measuring the above — and
+documented the finding here instead. Anyone who wants "end early, never
+pad with a same-lesson repeat" today can already set
+`max_review_passes=1` in `PlanConfig`; it just isn't the default, and
+there is no `--` CLI flag for it yet either. **Open question for the
+owner:** should the default change (accepting shorter lessons once
+material runs thin), should it be a new CLI-exposed opt-in instead, or
+should the second pass stay the default and this half of point 5 close
+as "already possible, intentionally not defaulted"? No test or code
+changed for this half; pilot 9 above is the only code change this
+session made to point 5/6.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 
@@ -1850,9 +2073,9 @@ Verified in this session:
       longer says "Back to the lesson." — `Builder.note()` now picks
       `milestone_end` vs `aside_end` the same way it already picked
       `milestone_intro` vs `aside`. Target-language speech *inside* a
-      note's narration is still deferred — `Note` has no
-      structured-segments mechanism yet, unchanged from pilot 2's
-      original scoping.
+      note's narration was deferred here — see pilot 8 below, done in
+      session 17 via `«...»` markup rather than a structured-segments
+      schema change.
    3. a contrastive discrimination exercise right after a milestone
       note. Needed no new content: `godan_daginn`/`goda_nott`/
       `gott_kvold` already each have their own distinct `situation`, so
@@ -1913,9 +2136,47 @@ Verified in this session:
       comprehension as alternatives to another isolated drill —
       separate design threads, deliberately not bundled into this same
       change.
+   8. target-language speech inside a note's narration (#34 point 1,
+      other half; session 17). `«...»` inside a note's `text`/`text_ja`
+      now marks a phrase that `Builder.note()` hands to the
+      target-language voice instead of narrating it as instructor-
+      language text (see "Session 17" above). Applied to both existing
+      milestone notes. The other ~46 cultural asides also name Icelandic
+      words inline and could use the same markup, but that's now just
+      content authoring with no mechanism gap left — not done here.
+      Owner review on PR #41 caught a bare-punctuation-narration bug
+      (fixed: a punctuation-only split fragment is now a beat, not a
+      `_narr` call) and a count-only validation gap (fixed: validation
+      now runs the matching regex instead of comparing counts).
+   9. alternative-activity-or-stop fallback for a high `drill_streak`
+      with no eligible dialogue (#34 point 6, other half; session 17).
+      **Done.** `build()`'s step 0 (moved earlier on owner review — see
+      below) pulls a note forward instead when the streak is high and no
+      dialogue fits, instead of silently falling through to another
+      isolated recall; the "or stop" half needed no new code since step
+      5's existing cascade already ends the lesson once genuinely
+      nothing is left. See "Pilot 9" above. Owner review on PR #41 found
+      the first cut ran this check *after* step 1 (a due scheduled
+      reactivation), so the reactivation could still win and continue
+      the run — fixed by moving the whole check to run first, before any
+      branch that emits another recall.
+   10. ending a lesson early instead of padding with a second review
+       pass (#34 point 5, other half; session 17). **Investigated, left
+       at the existing default.** The mechanism already exists
+       (`PlanConfig.max_review_passes=1`); flipping the *default*
+       shortened lessons 20–60% on the fixture curricula and broke 3
+       existing length-guarantee tests — a bigger, foundational-
+       architecture call (undoes session 3's "Fixed lesson length") than
+       one pilot should make unilaterally. See "Pilot 10" above for the
+       measurements and the open question for the owner: default it,
+       expose it as a CLI opt-in, or close this half as "already
+       possible, intentionally not defaulted."
 
-   **Not started:** none — all 7 pilots have at least a first concrete
-   step done. What's left is scoped above, per pilot.
+   **Not started:** none — all 7 original pilots plus pilots 8–9 have a
+   concrete step done; pilot 10 was investigated and intentionally left
+   as-is pending an owner decision (see above). What's left: marking up
+   the remaining cultural-aside notes with `«...»` (pilot 8, pure content
+   authoring now) and pilot 10's open question.
 2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
 3. ~~Listen to a real lesson and tune timing~~ — partially done (session

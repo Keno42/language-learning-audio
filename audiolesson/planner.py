@@ -38,7 +38,10 @@ class PlanConfig:
     max_dialogues: int | None = None  # per lesson (default: one per 10 minutes, at least 2)
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
     note_chance: float = 0.7  # chance to play a related note right after its item
-    max_review_passes: int = 2  # when material runs out, review what was reviewed once more (harder)
+    max_review_passes: int = 2  # when material runs out, review what was reviewed once more (harder).
+    # Set to 1 to end the lesson short instead (issue #34 point 5, other half) — see docs/HANDOFF.md
+    # "Session 17" for why this isn't the default: measured 20-60% shorter lessons on a small
+    # curriculum once even one review pass falls short of the target length.
     closing_share: float = 0.12  # fraction of time reserved for the final review block
     max_new_items: int | None = None  # hard cap even when there is nothing to review (default: scales with minutes)
     min_time_for_new_item: float = 180.0  # seconds of budget needed to still introduce one
@@ -406,15 +409,41 @@ class Planner:
             due.sort()
             acted = False
 
+            # 0. drill streak too high: break up the run with a dialogue, or else a note,
+            #    before any branch below that would emit another isolated recall — including
+            #    step 1's due reactivation, which does not by itself break the streak the way
+            #    an intro or dialogue does. This must come first: a due reactivation is still
+            #    an isolated recall, so running it ahead of this check let the streak continue
+            #    uninterrupted through step 1 every time one happened to be due (owner review
+            #    on #41 — issue #34 point 6).
+            streak_triggered = drill_streak >= cfg.drill_streak_limit
+            if streak_triggered:
+                dlg = self.eligible_dialogue()
+                if dlg is not None:
+                    self._play_dialogue(sc, dlg)
+                    since_dialogue = 0
+                    acted = True
+                elif self._note_budget_left() and remaining >= 40:
+                    # no dialogue fits either: a note is a varied activity, not another
+                    # flashcard drill. The streak's "or stop" fallback needs no new code
+                    # here, since step 5's own cascade below already ends the lesson once
+                    # genuinely nothing — due, new, review, or note — is left.
+                    note = self._pick_note(None)
+                    if note is not None:
+                        b.note(sc, note)
+                        self.notes_played.append(note.id)
+                        acted = True
+
             # 1. a scheduled reactivation that is due (but never the item we just did)
-            for p in due:
-                if p.item.id in recent:
-                    continue
-                pending.remove(p)
-                heapq.heapify(pending)
-                do_recall(p.item, p.stage)
-                acted = True
-                break
+            if not acted:
+                for p in due:
+                    if p.item.id in recent:
+                        continue
+                    pending.remove(p)
+                    heapq.heapify(pending)
+                    do_recall(p.item, p.stage)
+                    acted = True
+                    break
 
             # 2. introduce something new
             if not acted and new_queue and idx - last_intro >= cfg.intro_gap and remaining >= need_for_new:
@@ -422,9 +451,9 @@ class Planner:
                 acted = True
 
             # 3. a dialogue, now and then, when the learner knows enough — pulled forward,
-            #    ahead of its usual schedule, once too many isolated recalls have run in a row
-            #    (issue #34 points 5-6: prefer connected use over another flashcard drill)
-            if not acted and (since_dialogue >= cfg.dialogue_every or drill_streak >= cfg.drill_streak_limit):
+            #    ahead of its usual periodic schedule (the drill-streak trigger is handled by
+            #    step 0 above, before it can be preempted by a due reactivation)
+            if not acted and since_dialogue >= cfg.dialogue_every:
                 dlg = self.eligible_dialogue()
                 if dlg is not None:
                     self._play_dialogue(sc, dlg)

@@ -17,6 +17,12 @@ KINDS = ("vocab", "phrase", "construction", "transform")
 _SLOT_RE = re.compile(r"\{(\w+)\}")
 _WORD_RE = re.compile(r"\w+", re.UNICODE)
 
+# «...» inside a Note's text marks a target-language phrase that Builder.note() (exercises.py)
+# hands to the target-language voice instead of narrating it as instructor-language text
+# (issue #34 point 1). Shared here, not in exercises.py, so validate() below can also use it
+# without exercises.py importing back into this module.
+NOTE_TARGET_RE = re.compile(r"«([^»]+)»")
+
 # Vowel letters used by this project's target languages (French, Icelandic), including
 # accented forms. A maximal run of these approximates one syllable nucleus, used only to
 # gauge whether a single word is long enough to deserve extra practice (see `is_hard`) — not
@@ -162,6 +168,11 @@ class Note:
     cultural aside. The planner never offers a milestone note as generic
     filler and never skips it once its items are all met (see
     ``Planner._eligible_milestone``); a plain aside can be either.
+
+    Wrap a target-language phrase mentioned inside ``text``/``text_ja`` in
+    ``«...»`` to have it actually spoken by the target-language voice
+    instead of read aloud as instructor-language text (see
+    ``NOTE_TARGET_RE`` and ``Builder._speak_note_text``).
     """
 
     id: str
@@ -384,6 +395,12 @@ def validate(cur: Curriculum) -> None:
         for ref in n.items:
             if ref not in ids:
                 raise CurriculumError(f"note {n.id!r} references unknown item {ref!r}")
+        # A count-only check would pass malformed markup like "»foo«" (one of each, wrong
+        # order) or "«a» «b" (one real pair plus a stray, unpaired open) — actually run the
+        # matching regex and check nothing with a « or » is left unaccounted for.
+        unmatched = NOTE_TARGET_RE.sub("", n.text)
+        if "«" in unmatched or "»" in unmatched:
+            raise CurriculumError(f"note {n.id!r} has malformed or unmatched «» markers")
     for it in cur.items:
         for ref in it.components + it.prereqs:
             if ref not in ids:

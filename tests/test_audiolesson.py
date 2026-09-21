@@ -83,6 +83,28 @@ class CurriculumTests(unittest.TestCase):
         with self.assertRaises(CurriculumError):
             curriculum_from_dict(raw)
 
+    def test_note_with_unbalanced_guillemets_is_rejected(self):
+        """A stray or missing «»  in a note is an authoring mistake — catch it at validation
+        rather than have it silently mis-split at build time (issue #34 point 1)."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "notes": [{"id": "n", "text": "Say «halló to greet someone."}],
+        }
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
+
+    def test_note_with_equal_but_malformed_guillemet_counts_is_rejected(self):
+        """Owner review on #41: counting «/» separately passes malformed markup that happens
+        to have one of each but isn't an actual matched pair — e.g. reversed order, or one
+        real pair plus an unrelated stray open. Validation must actually run the matching
+        regex, not just compare counts."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "notes": [{"id": "n", "text": "»uh oh« then «real»"}],
+        }
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
+
     def test_a_long_drill_streak_pulls_an_eligible_dialogue_forward(self):
         """Issue #34 points 5-6: a long uninterrupted run of isolated recall exercises should
         pull an eligible dialogue forward rather than waiting for its usual periodic schedule
@@ -110,6 +132,72 @@ class CurriculumTests(unittest.TestCase):
         kinds = [ex.kind for ex in sc.exercises if ex.kind != "opening"]
         self.assertEqual(kinds[:4], ["recall"] * 4, kinds)
         self.assertEqual(kinds[4], "dialogue", kinds)
+
+    def test_high_drill_streak_pulls_a_note_forward_when_no_dialogue_fits(self):
+        """Issue #34 point 6: a high drill streak should pull *something* connected/varied
+        forward, not just a dialogue — when no dialogue is eligible either (here: none exist
+        in the curriculum at all), a note breaks up the run instead of silently falling
+        through to yet another isolated recall."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(10)],
+            "notes": [{"id": "n1", "text": "A cultural fact."}],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(10):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        # note_chance=0 so the note can only come from the new streak fallback, not the
+        # ordinary per-exercise random note roll — isolates which mechanism produced it.
+        planner = Planner(
+            cur,
+            learner,
+            Prompts.load("en"),
+            Timing(level="A1"),
+            PlanConfig(minutes=30, seed=1, dialogue_every=1000, drill_streak_limit=3, note_chance=0.0),
+            today=TODAY,
+        )
+        sc = planner.build()
+        kinds = [ex.kind for ex in sc.exercises if ex.kind != "opening"]
+        self.assertEqual(kinds[:3], ["recall"] * 3, kinds)
+        self.assertEqual(kinds[3], "note", kinds)
+
+    def test_high_drill_streak_wins_over_a_due_reactivation_too(self):
+        """Owner review on #41: the streak breaker used to run *after* step 1 (a due
+        scheduled reactivation), guarded by ``if not acted``, so a due reactivation could
+        still win and continue the very run the streak check exists to interrupt — the
+        streak's own trigger condition never got a chance to act that turn. It must run
+        before any branch that would emit another isolated recall, including step 1, not
+        only the ordinary review path (step 4) the earlier tests above cover.
+
+        One new item is introduced immediately (``new_items=1``), scheduling a reactivation
+        a few exercises later; with ``drill_streak_limit=2``, the reactivation's due turn
+        coincides with the streak already being at the limit. The note must win that turn."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": (
+                [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(10)]
+                + [{"id": "n0", "kind": "phrase", "target": "Nýtt.", "meaning": "New."}]
+            ),
+            "notes": [{"id": "n1", "text": "A cultural fact."}],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(10):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        planner = Planner(
+            cur,
+            learner,
+            Prompts.load("en"),
+            Timing(level="A1"),
+            PlanConfig(minutes=30, seed=1, new_items=1, dialogue_every=1000, drill_streak_limit=2, note_chance=0.0),
+            today=TODAY,
+        )
+        sc = planner.build()
+        kinds = [ex.kind for ex in sc.exercises if ex.kind != "opening"]
+        self.assertEqual(kinds[0], "intro", kinds)
+        self.assertEqual(kinds[1:3], ["recall"] * 2, kinds)
+        self.assertEqual(kinds[3], "note", f"{kinds}: a due reactivation must not win over the streak breaker")
 
     def test_trailing_drill_streak_resets_across_a_multi_exercise_iteration(self):
         """Owner review follow-up on #40: a single ``build()`` loop iteration can append
@@ -643,6 +731,73 @@ class LessonStructureTests(unittest.TestCase):
         self.assertEqual(narrations, [prompts.get("milestone_intro"), "A grammar pattern.", prompts.get("milestone_end")])
         self.assertNotEqual(prompts.get("milestone_intro"), prompts.get("aside"))
         self.assertNotEqual(prompts.get("milestone_end"), prompts.get("aside_end"))
+
+    def test_note_text_speaks_guillemet_marked_phrases_in_the_target_voice(self):
+        """Issue #34 point 1, deferred at pilot 2: a target-language phrase named inside a
+        note should be heard spoken by the target-language voice, not read as instructor-
+        language text. «...» inside ``Note.text`` marks that phrase; ``Builder.note()`` must
+        split on it and hand the marked parts to ``_speak`` (target language) while the
+        surrounding prose stays with ``_narr`` (instructor language)."""
+        from audiolesson.content import Note
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.note(sc, Note(id="n", text="Say «halló» to greet someone, and «bless» to say goodbye.", items=[]))
+        speaks = [s for s in sc.segments if s.type == "speak"]
+        self.assertEqual([s.text for s in speaks], ["halló", "bless"])
+        self.assertTrue(all(s.lang == cur.target_lang for s in speaks))
+        narrations = [s.text for s in sc.segments if s.type == "narrate"]
+        self.assertEqual(
+            narrations,
+            [prompts.get("aside"), "Say", "to greet someone, and", "to say goodbye.", prompts.get("aside_end")],
+        )
+        self.assertTrue(all(s.lang == cur.known_lang for s in sc.segments if s.type == "narrate"))
+
+    def test_note_text_does_not_narrate_bare_punctuation_between_marked_phrases(self):
+        """Owner review on #41: a note that marks a short list of phrases — like the real
+        `godur_gender` milestone's "In «Góðan daginn», «Góða nótt», and «Gott kvöld», ..." —
+        splits a bare "," between two «...» phrases into its own prose fragment, which the
+        first cut of this mechanism handed to ``_narr`` as a standalone, meaningless
+        punctuation-only TTS call. A fragment with real words (", and") must still narrate
+        normally; only a fragment with no alphanumeric content becomes a pause instead."""
+        from audiolesson.content import Note
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.note(sc, Note(id="n", text="In «A», «B», and «C», the pattern holds.", items=[]))
+        narrations = [s.text for s in sc.segments if s.type == "narrate"]
+        self.assertEqual(
+            narrations,
+            [prompts.get("aside"), "In", ", and", ", the pattern holds.", prompts.get("aside_end")],
+        )
+        self.assertTrue(all(any(ch.isalnum() for ch in t) for t in narrations), narrations)
+        speaks = [s.text for s in sc.segments if s.type == "speak"]
+        self.assertEqual(speaks, ["A", "B", "C"])
+        a_idx = next(i for i, s in enumerate(sc.segments) if s.type == "speak" and s.text == "A")
+        b_idx = next(i for i, s in enumerate(sc.segments) if s.type == "speak" and s.text == "B")
+        self.assertEqual(sc.segments[a_idx + 1].type, "pause", "bare comma between A and B should become a beat")
+        self.assertEqual(sc.segments[a_idx + 2], sc.segments[b_idx])
+
+    def test_note_text_with_no_guillemets_is_narrated_as_one_piece(self):
+        """A note with no «...» markup keeps behaving exactly as before this mechanism existed
+        — one narrate segment for the whole text, not split into fragments."""
+        from audiolesson.content import Note
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.note(sc, Note(id="n", text="Some cultural fact.", items=[]))
+        narrations = [s.text for s in sc.segments if s.type == "narrate"]
+        self.assertEqual(narrations, [prompts.get("aside"), "Some cultural fact.", prompts.get("aside_end")])
+        self.assertFalse(any(s.type == "speak" for s in sc.segments))
 
     def test_hard_single_word_gets_slow_repetition_not_a_synthetic_backward_split(self):
         """Issue #34 point 7: a long single word has no verified sub-word boundary to build
