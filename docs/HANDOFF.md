@@ -1,6 +1,6 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-20 (session 16: the owner opened #34, "Improve
+_Last updated 2026-09-21 (session 16: the owner opened #34, "Improve
 lesson orchestration and learner experience," reviewing a real Lesson 3
 transcript and finding 8 related problems — including a direct
 critique of the `godur_gender` milestone note session 15 just shipped.
@@ -41,7 +41,15 @@ could still win and continue the exact run the mechanism exists to
 break; and `_speak_note_text()` could narrate a bare "," left over
 between two «...»-marked phrases as its own meaningless TTS call — now a
 beat instead. Also tightened the «» validation to actually run the
-matching regex instead of just comparing counts._
+matching regex instead of just comparing counts. PR #41 merged; pilot 11
+then marked up the remaining 46 cultural-aside notes with `«...»`.
+Owner review on PR #42 caught that pilot 11's first cut left `text_ja`
+fields with only a katakana transliteration unmarked (7 notes), so the
+Japanese track never actually spoke those terms in the native voice —
+fixed by keeping the katakana as a parenthetical gloss and adding the
+real spelling in `«...»` alongside it. Every note in the curriculum that
+names a real Icelandic word now speaks it with the native voice, in both
+instructor languages. Only pilot 10's open question is left on #34._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -691,6 +699,84 @@ should the second pass stay the default and this half of point 5 close
 as "already possible, intentionally not defaulted"? No test or code
 changed for this half; pilot 9 above is the only code change this
 session made to point 5/6.
+
+### Pilot 11: marked up the remaining cultural-aside notes with «...»
+
+The one piece of pilot 8 explicitly left for later: the other 46 notes
+in `90-notes.toml` (all but the two milestones) also name Icelandic
+words and phrases inline, and none of them had `«...»` markup yet — the
+mechanism existed but almost the entire note set still narrated its
+Icelandic examples in the instructor's voice.
+
+**Done.** Went through all 46 notes and added `«...»` around every
+genuine Icelandic word or phrase actually named in `text`/`text_ja` —
+24 notes had at least one (`tvo_l`, `pylsa`, `vedur_smalltalk`,
+`thetta_reddast`, `jaeja`, `nofn`, `konur_nofn`, `takk_fyrir_sidast`,
+`takk_fyrir_matinn`, `kennitala`, `bjor`, `straeto`, `hestar`, `kindur`,
+`hakarl`, `skyr`, `fiskur`, `islenska`, `enska`, `tolur`, `kurteisi`,
+`huldufolk`, `jolabokaflod`, `ull`); the rest either don't name a
+specific Icelandic word in prose (most cultural asides, e.g. `skor`,
+`heitt_vatn`, `kaffi`) or only reference one indirectly (place names
+like Reykjavík, left unmarked and treated as already-anglicized, the
+same way they read in the surrounding English prose everywhere else in
+this file).
+
+Three deliberate exclusions, to avoid marking things that either aren't
+real spoken vocabulary or would mis-render:
+- **Bare letters/digraphs discussed as sounds**, not words — `tvo_l`'s
+  `'t'`, `'l'`, `'ll'`, `'nn'` and `islenska`'s `þ`/`ð`. `is_hard()`-style
+  single graphemes aren't a "phrase" a TTS voice can meaningfully say in
+  isolation, unlike the real words in the same notes (`fjall`, `gull`,
+  `allt`, `tölva`, `tala`, `völva`), which are marked.
+- **Japanese words used as the instructor's own reference point** for a
+  Japanese-background learner — `sentō`, `genkan`, `keigo`, `nattō`,
+  romanized asides like `'atsui desu ne'` or `'sate'`/`'yare yare'`/`'sō
+  ka'`. These are the *known* language's own vocabulary, not the target
+  language; marking them would hand Japanese text to the Icelandic
+  voice.
+- **`text_ja` fields that only carried a katakana transliteration** of
+  the Icelandic term, rather than its actual spelling — see the owner
+  review right below, which corrected the first cut's call to leave
+  these as-is.
+
+No wording changed anywhere, no new content or claims — every marked
+term already existed in already-reviewed text; this pass only added
+punctuation around it. `audiolesson validate` unchanged (993 items, 48
+notes, ja gloss still complete) — the balanced-marker check added in
+pilot 8 passed on the first attempt across all 46 edits, and the full
+95-test suite (several of which load this exact curriculum) still
+passes unchanged. No new tests: the mechanism itself
+(splitting/alternating voices, punctuation handling, validation) is
+already covered by pilot 8/9's tests against synthetic notes — this
+pass is pure content, not a mechanism change.
+
+**Owner review on PR #42: the katakana-only exclusion left the Japanese
+track incomplete, contradicting the pilot's own claim.** The first cut
+above reasoned that fixing `hestar`/`hakarl`/`skyr`/`fiskur`/
+`huldufolk`/`jolabokaflod`/`ull`'s `text_ja` would mean "swapping the
+katakana for the real Icelandic spelling, a content change bigger than
+adding markup" and left them unmarked — but that directly contradicted
+the top-of-file claim this same session wrote, "every note in the
+curriculum that names a real Icelandic word now speaks it with the
+native voice": true for `text`, not yet for `text_ja` on these seven.
+For a Japanese-background learner, `skyr`'s note said only "スキール"
+(the katakana approximation) and never actually heard "Skyr" from the
+Icelandic voice — the whole point of pilot 8.
+
+Fixed by keeping the katakana as a parenthetical reading gloss (so the
+familiar approximation stays in the transcript) while adding the real
+Icelandic spelling in `«...»` right before it, e.g. `スキール` →
+`«Skyr»（スキール）`. Same pattern for all seven:
+`hestar` → `«tölt»（トルト）`, `hakarl` → `«Hákarl»（ハウカルトル）` and
+`«brennivín»（ブレニヴィン）` (`Þorrablót` was already marked),
+`fiskur` → `«Plokkfiskur»（プロックフィスクル）`, `huldufolk` →
+`«huldufólk»（フルドゥフォルク）`, `jolabokaflod` →
+`«jólabókaflóð»（ヨウラボウカフロウズ）`, `ull` →
+`«lopapeysa»（ロパペイサ）`. Casing matches each note's own `text`
+field exactly. `audiolesson validate` and all 95 tests still pass
+unchanged (pure content, no mechanism touched) — every note in the
+curriculum that names a real Icelandic word now genuinely speaks it
+with the native voice, in both instructor languages.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 
@@ -2141,13 +2227,14 @@ Verified in this session:
       now marks a phrase that `Builder.note()` hands to the
       target-language voice instead of narrating it as instructor-
       language text (see "Session 17" above). Applied to both existing
-      milestone notes. The other ~46 cultural asides also name Icelandic
-      words inline and could use the same markup, but that's now just
-      content authoring with no mechanism gap left — not done here.
-      Owner review on PR #41 caught a bare-punctuation-narration bug
-      (fixed: a punctuation-only split fragment is now a beat, not a
-      `_narr` call) and a count-only validation gap (fixed: validation
-      now runs the matching regex instead of comparing counts).
+      milestone notes. Owner review on PR #41 caught a
+      bare-punctuation-narration bug (fixed: a punctuation-only split
+      fragment is now a beat, not a `_narr` call) and a count-only
+      validation gap (fixed: validation now runs the matching regex
+      instead of comparing counts). The other 46 cultural asides also
+      named Icelandic words inline; marked those up too in pilot 11
+      below — every note in the curriculum that names a real Icelandic
+      word now speaks it natively.
    9. alternative-activity-or-stop fallback for a high `drill_streak`
       with no eligible dialogue (#34 point 6, other half; session 17).
       **Done.** `build()`'s step 0 (moved earlier on owner review — see
@@ -2171,12 +2258,21 @@ Verified in this session:
        measurements and the open question for the owner: default it,
        expose it as a CLI opt-in, or close this half as "already
        possible, intentionally not defaulted."
+   11. marked up the remaining 46 cultural-aside notes with `«...»`
+       (pilot 8's remainder; session 17). **Done.** See "Pilot 11" above
+       for the full note-by-note list and the two deliberate exclusions
+       that stand (bare letters discussed as sounds, Japanese reference
+       words). Owner review on PR #42 caught that the first cut also
+       excluded `text_ja` fields carrying only a katakana
+       transliteration, leaving the Japanese track without native-voice
+       speech for 7 notes' Icelandic terms — fixed by keeping the
+       katakana as a parenthetical gloss and adding the real spelling in
+       `«...»` alongside it (e.g. `«Skyr»（スキール）`).
 
-   **Not started:** none — all 7 original pilots plus pilots 8–9 have a
-   concrete step done; pilot 10 was investigated and intentionally left
-   as-is pending an owner decision (see above). What's left: marking up
-   the remaining cultural-aside notes with `«...»` (pilot 8, pure content
-   authoring now) and pilot 10's open question.
+   **Not started:** none — all 7 original pilots plus pilots 8–9 and 11
+   have a concrete step done; pilot 10 was investigated and intentionally
+   left as-is pending an owner decision (see above). What's left: pilot
+   10's open question, nothing else.
 2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
 3. ~~Listen to a real lesson and tune timing~~ — partially done (session

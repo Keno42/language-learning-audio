@@ -25,15 +25,15 @@ text_ja = "«Afsakið» は人の注意を引いたり、「すみません」�
 id = "tvo_l"
 items = ["fjall", "eldfjall", "jokull"]
 topics = ["clarifying", "nature"]
-text = "That 't'-like click you'll start noticing before some 'l' sounds is not a synthesis error: double 'll' in Icelandic is pre-aspirated, so a short voiceless sound lands just before the 'l'. It happens throughout the language wherever you see 'll' or 'nn' — 'fjall' (mountain), 'gull' (gold), 'allt' (everything) — so the more it surprises you, the more Icelandic you are learning to hear."
-text_ja = "これから「l」の前に聞こえてくる「t」のような音は、合成音声の不具合ではありません。アイスランド語の二重子音「ll」には前気音化という現象があり、「l」の直前に軽い無声の音が入るのが標準的な発音です。「fjall」（山）や「gull」（金）、「allt」（すべて）でも同じことが起こります。「ll」や「nn」が出てくるたびに聞こえてくるので、驚くほど、それはアイスランド語の耳が育っている証です。"
+text = "That 't'-like click you'll start noticing before some 'l' sounds is not a synthesis error: double 'll' in Icelandic is pre-aspirated, so a short voiceless sound lands just before the 'l'. It happens throughout the language wherever you see 'll' or 'nn' — «fjall» (mountain), «gull» (gold), «allt» (everything) — so the more it surprises you, the more Icelandic you are learning to hear."
+text_ja = "これから「l」の前に聞こえてくる「t」のような音は、合成音声の不具合ではありません。アイスランド語の二重子音「ll」には前気音化という現象があり、「l」の直前に軽い無声の音が入るのが標準的な発音です。«fjall»（山）や«gull»（金）、«allt»（すべて）でも同じことが起こります。「ll」や「nn」が出てくるたびに聞こえてくるので、驚くほど、それはアイスランド語の耳が育っている証です。"
 
 [[notes]]
 id = "pylsa"
 items = ["pylsu", "eina_pylsu_med_ollu"]
 topics = ["food"]
-text = "The Icelandic hot dog is mostly lamb, and 'með öllu' means ketchup, sweet mustard, remoulade, raw onions and crispy onions. It is the national fast food, the way a convenience-store onigiri is in Japan: cheap, everywhere, and eaten standing up."
-text_ja = "アイスランドのホットドッグはラム肉が主体で、「með öllu」と言えばケチャップ、甘いマスタード、レムラード、生と揚げの玉ねぎが全部乗ります。日本のコンビニおにぎりのような存在で、安くてどこにでもあって、立ったまま食べます。"
+text = "The Icelandic hot dog is mostly lamb, and «með öllu» means ketchup, sweet mustard, remoulade, raw onions and crispy onions. It is the national fast food, the way a convenience-store onigiri is in Japan: cheap, everywhere, and eaten standing up."
+text_ja = "アイスランドのホットドッグはラム肉が主体で、«með öllu»と言えばケチャップ、甘いマスタード、レムラード、生と揚げの玉ねぎが全部乗ります。日本のコンビニおにぎりのような存在で、安くてどこにでもあって、立ったまま食べます。"
 
 [[notes]]
 id = "skor"
@@ -67,50 +67,50 @@ text_ja = "プールの露天の湯船は、井戸端会議の場です。知ら
 id = "vedur_smalltalk"
 items = ["hvernig_er_vedrid", "thad_er_svo_kalt", "rok"]
 topics = ["weather"]
-text = "Weather is the safe topic here, as in Japan, but with more drama. 'Rok' means a gale, and Icelanders say it the way you would say 'atsui desu ne': a greeting more than a complaint."
-text_ja = "天気は日本と同じく無難な話題ですが、こちらはもっと劇的です。「rok」は強風のことで、「暑いですね」と言うのと同じ調子で、文句というよりあいさつとして口にします。"
+text = "Weather is the safe topic here, as in Japan, but with more drama. «Rok» means a gale, and Icelanders say it the way you would say 'atsui desu ne': a greeting more than a complaint."
+text_ja = "天気は日本と同じく無難な話題ですが、こちらはもっと劇的です。«rok»は強風のことで、「暑いですね」と言うのと同じ調子で、文句というよりあいさつとして口にします。"
 
 [[notes]]
 id = "thetta_reddast"
 items = ["thetta_reddast"]
 topics = ["discourse"]
-text = "'Þetta reddast', it will work out, is the national attitude. It is roughly the opposite of Japanese advance planning: people commit first and sort out the details later, and things usually do work out."
-text_ja = "「Þetta reddast」、なんとかなる、は国民的な合言葉です。日本の綿密な事前準備とはほぼ正反対で、まず決めてから細かいことは後で片付ける。そして実際たいてい何とかなります。"
+text = "«Þetta reddast», it will work out, is the national attitude. It is roughly the opposite of Japanese advance planning: people commit first and sort out the details later, and things usually do work out."
+text_ja = "«Þetta reddast»、なんとかなる、は国民的な合言葉です。日本の綿密な事前準備とはほぼ正反対で、まず決めてから細かいことは後で片付ける。そして実際たいてい何とかなります。"
 
 [[notes]]
 id = "jaeja"
 items = ["jaeja"]
 topics = ["discourse"]
-text = "'Jæja' does the work of several Japanese words at once: 'sate', 'yare yare' and 'sō ka'. Said with a rising tone it opens a topic; said falling, it politely ends a visit."
-text_ja = "「Jæja」は日本語の「さて」「やれやれ」「そうか」を一語で引き受けます。上がり調子で言えば話題を切り出し、下がり調子で言えば「そろそろお暇します」の合図になります。"
+text = "«Jæja» does the work of several Japanese words at once: 'sate', 'yare yare' and 'sō ka'. Said with a rising tone it opens a topic; said falling, it politely ends a visit."
+text_ja = "«Jæja»は日本語の「さて」「やれやれ」「そうか」を一語で引き受けます。上がり調子で言えば話題を切り出し、下がり調子で言えば「そろそろお暇します」の合図になります。"
 
 [[notes]]
 id = "nofn"
 items = ["eg_heiti", "hvad_heitir_thu", "hae"]
 topics = ["social"]
-text = "Icelanders go by first names, even with the prime minister or a doctor. Surnames are patronymics: Jónsdóttir is 'Jón's daughter', so the phone book is sorted by first name. Don't reach for '-san'; the first name alone is polite."
-text_ja = "アイスランド人は首相や医者に対してもファーストネームで呼び合います。姓は父親の名前から作る父称で、Jónsdóttir は「ヨウンの娘」という意味なので、電話帳も名前順です。「さん」に当たるものはなく、名前だけで十分に丁寧です。"
+text = "Icelanders go by first names, even with the prime minister or a doctor. Surnames are patronymics: «Jónsdóttir» is 'Jón's daughter', so the phone book is sorted by first name. Don't reach for '-san'; the first name alone is polite."
+text_ja = "アイスランド人は首相や医者に対してもファーストネームで呼び合います。姓は父親の名前から作る父称で、«Jónsdóttir» は「ヨウンの娘」という意味なので、電話帳も名前順です。「さん」に当たるものはなく、名前だけで十分に丁寧です。"
 
 [[notes]]
 id = "konur_nofn"
 items = ["konan_min", "eg_er_gift", "vid_erum_gift"]
 topics = ["family"]
-text = "Icelandic women keep their own names when they marry, since surnames are patronymics anyway. Brother and sister from the same parents have different surnames: Jónsson and Jónsdóttir."
-text_ja = "アイスランドの女性は結婚しても名前を変えません。姓がそもそも父称だからです。同じ両親の兄と妹でも姓が違い、Jónsson と Jónsdóttir になります。"
+text = "Icelandic women keep their own names when they marry, since surnames are patronymics anyway. Brother and sister from the same parents have different surnames: «Jónsson» and «Jónsdóttir»."
+text_ja = "アイスランドの女性は結婚しても名前を変えません。姓がそもそも父称だからです。同じ両親の兄と妹でも姓が違い、«Jónsson» と «Jónsdóttir» になります。"
 
 [[notes]]
 id = "takk_fyrir_sidast"
 items = ["takk_fyrir_sidast", "takk_fyrir_kvoldid"]
 topics = ["greetings"]
-text = "'Takk fyrir síðast', thanks for last time, is said when you next meet someone you spent an evening with. It is close to 'senjitsu wa arigatō gozaimashita', and just as expected."
-text_ja = "「Takk fyrir síðast」、先日はどうも、は一緒に夜を過ごした相手に次に会ったときに言う言葉です。日本の「先日はありがとうございました」とほぼ同じで、同じくらい言うのが当然とされています。"
+text = "«Takk fyrir síðast», thanks for last time, is said when you next meet someone you spent an evening with. It is close to 'senjitsu wa arigatō gozaimashita', and just as expected."
+text_ja = "«Takk fyrir síðast»、先日はどうも、は一緒に夜を過ごした相手に次に会ったときに言う言葉です。日本の「先日はありがとうございました」とほぼ同じで、同じくらい言うのが当然とされています。"
 
 [[notes]]
 id = "takk_fyrir_matinn"
 items = ["takk_fyrir_matinn", "verdi_ther_ad_godu"]
 topics = ["food"]
-text = "'Takk fyrir matinn' after every meal works like 'gochisōsama'. Children learn it early, and the cook answers 'verði þér að góðu'."
-text_ja = "食後の「Takk fyrir matinn」は「ごちそうさま」そのものです。子どもは小さいうちに教わり、作った人は「verði þér að góðu」と返します。"
+text = "«Takk fyrir matinn» after every meal works like 'gochisōsama'. Children learn it early, and the cook answers «verði þér að góðu»."
+text_ja = "食後の«Takk fyrir matinn»は「ごちそうさま」そのものです。子どもは小さいうちに教わり、作った人は«verði þér að góðu»と返します。"
 
 [[notes]]
 id = "thjorfe"
@@ -130,8 +130,8 @@ text_ja = "アイスランドはほぼキャッシュレスです。ホットド
 id = "kennitala"
 items = ["hvar_er_thjodskra", "eg_er_ekki_med_kennitolu"]
 topics = ["practical"]
-text = "The kennitala is a ten-digit number, your birth date plus four digits, used for everything from the pharmacy to the gym. It is like My Number in Japan, except that people give it out freely."
-text_ja = "kennitala は生年月日に4桁を足した10桁の個人番号で、薬局からジムまであらゆる場面で使います。日本のマイナンバーに当たりますが、こちらでは人に気軽に教えます。"
+text = "The «kennitala» is a ten-digit number, your birth date plus four digits, used for everything from the pharmacy to the gym. It is like My Number in Japan, except that people give it out freely."
+text_ja = "«kennitala» は生年月日に4桁を足した10桁の個人番号で、薬局からジムまであらゆる場面で使います。日本のマイナンバーに当たりますが、こちらでは人に気軽に教えます。"
 
 [[notes]]
 id = "kaffi"
@@ -144,8 +144,8 @@ text_ja = "アイスランドの家に一歩入るとすぐコーヒーが出て
 id = "bjor"
 items = ["bjor", "annan_bjor_takk"]
 topics = ["cafe"]
-text = "Beer was illegal in Iceland until the first of March 1989, and the date is still celebrated as Beer Day. Anything stronger than light beer is sold only in the state shop, Vínbúðin, so don't look for it at the supermarket."
-text_ja = "アイスランドでは1989年3月1日までビールが違法で、この日は今も「ビールの日」として祝われます。軽いビールより強い酒は国営の酒屋 Vínbúðin でしか買えないので、スーパーで探しても見つかりません。"
+text = "Beer was illegal in Iceland until the first of March 1989, and the date is still celebrated as Beer Day. Anything stronger than light beer is sold only in the state shop, «Vínbúðin», so don't look for it at the supermarket."
+text_ja = "アイスランドでは1989年3月1日までビールが違法で、この日は今も「ビールの日」として祝われます。軽いビールより強い酒は国営の酒屋 «Vínbúðin» でしか買えないので、スーパーで探しても見つかりません。"
 
 [[notes]]
 id = "blaa_lonid"
@@ -172,8 +172,8 @@ text_ja = "6月は太陽がほとんど沈まず、真夜中に芝を刈る人�
 id = "straeto"
 items = ["strætó", "hvenaer_fer_straeto", "einn_mida_takk"]
 topics = ["transport"]
-text = "There is no train anywhere in Iceland, and the buses are called strætó. You pay with the app or with exact change, because the driver gives none back. The Tokyo habit of trusting the timetable to the minute will be tested."
-text_ja = "アイスランドには鉄道が一本もなく、バスは strætó と呼ばれます。支払いはアプリか釣り銭なしの現金で、運転手はお釣りを出しません。時刻表を分単位で信じる東京の習慣は試されるでしょう。"
+text = "There is no train anywhere in Iceland, and the buses are called «strætó». You pay with the app or with exact change, because the driver gives none back. The Tokyo habit of trusting the timetable to the minute will be tested."
+text_ja = "アイスランドには鉄道が一本もなく、バスは «strætó» と呼ばれます。支払いはアプリか釣り銭なしの現金で、運転手はお釣りを出しません。時刻表を分単位で信じる東京の習慣は試されるでしょう。"
 
 [[notes]]
 id = "vegir"
@@ -186,57 +186,57 @@ text_ja = "国道1号線はおよそ1,300キロで島を一周します。冬の
 id = "hestar"
 items = ["hestur", "eg_a_islenskan_hest"]
 topics = ["nature"]
-text = "Icelandic horses have a fifth gait, the tölt, and no other horse may enter the country; one that leaves may never return. Never call them ponies."
-text_ja = "アイスランドの馬には「トルト」という五つ目の歩法があり、外国の馬は一頭も持ち込めず、一度島を出た馬は二度と戻れません。決して「ポニー」と呼ばないでください。"
+text = "Icelandic horses have a fifth gait, the «tölt», and no other horse may enter the country; one that leaves may never return. Never call them ponies."
+text_ja = "アイスランドの馬には«tölt»（トルト）という五つ目の歩法があり、外国の馬は一頭も持ち込めず、一度島を出た馬は二度と戻れません。決して「ポニー」と呼ばないでください。"
 
 [[notes]]
 id = "kindur"
 items = ["kind", "lambakjot"]
 topics = ["nature", "food"]
-text = "Sheep outnumber people two to one and roam free all summer. In September farmers gather them from the highlands in the réttir, a communal round-up that ends with singing and a great deal of lamb soup."
-text_ja = "羊は人の二倍いて、夏の間は放し飼いです。9月には農家が高地から羊を集める「réttir」があり、地域総出の羊集めは歌とラムのスープで締めくくられます。"
+text = "Sheep outnumber people two to one and roam free all summer. In September farmers gather them from the highlands in the «réttir», a communal round-up that ends with singing and a great deal of lamb soup."
+text_ja = "羊は人の二倍いて、夏の間は放し飼いです。9月には農家が高地から羊を集める«réttir»があり、地域総出の羊集めは歌とラムのスープで締めくくられます。"
 
 [[notes]]
 id = "hakarl"
 items = ["hakarl", "hefurdu_smakkad_hakarl"]
 topics = ["food"]
-text = "Hákarl is Greenland shark, fermented for months because fresh it is poisonous. It is eaten in tiny cubes with a shot of brennivín, mostly at the midwinter feast Þorrablót. Think of it as Iceland's nattō, only stronger."
-text_ja = "ハウカルトルはニシオンデンザメを数か月発酵させたもので、生では毒があります。小さなさいの目にして蒸留酒ブレニヴィンと一緒に、主に真冬の祭り Þorrablót で食べます。アイスランドの納豆だと思ってください。ただし、もっと強烈です。"
+text = "«Hákarl» is Greenland shark, fermented for months because fresh it is poisonous. It is eaten in tiny cubes with a shot of «brennivín», mostly at the midwinter feast «Þorrablót». Think of it as Iceland's nattō, only stronger."
+text_ja = "«Hákarl»（ハウカルトル）はニシオンデンザメを数か月発酵させたもので、生では毒があります。小さなさいの目にして蒸留酒«brennivín»（ブレニヴィン）と一緒に、主に真冬の祭り «Þorrablót» で食べます。アイスランドの納豆だと思ってください。ただし、もっと強烈です。"
 
 [[notes]]
 id = "skyr"
 items = ["skyr"]
 topics = ["food"]
-text = "Skyr looks like yoghurt but is technically a cheese, and Icelanders have eaten it for a thousand years. It is high in protein and low in fat, eaten with milk and sugar or berries."
-text_ja = "スキールはヨーグルトに見えますが分類上はチーズで、アイスランド人は千年前から食べています。高タンパクで低脂肪、牛乳と砂糖、あるいはベリーをかけて食べます。"
+text = "«Skyr» looks like yoghurt but is technically a cheese, and Icelanders have eaten it for a thousand years. It is high in protein and low in fat, eaten with milk and sugar or berries."
+text_ja = "«Skyr»（スキール）はヨーグルトに見えますが分類上はチーズで、アイスランド人は千年前から食べています。高タンパクで低脂肪、牛乳と砂糖、あるいはベリーをかけて食べます。"
 
 [[notes]]
 id = "fiskur"
 items = ["fisk", "plokkfisk", "thorsk"]
 topics = ["food"]
-text = "Fish built Iceland's economy, and the 'cod wars' with Britain in the 1970s were fought over fishing limits. Plokkfiskur, fish and potatoes mashed in a white sauce, is the nation's Tuesday dinner."
-text_ja = "魚がアイスランド経済を築きました。1970年代の英国との「タラ戦争」は漁業水域をめぐる争いです。魚とじゃがいもをホワイトソースで和えたプロックフィスクルは、この国の火曜日の定番の夕食です。"
+text = "Fish built Iceland's economy, and the 'cod wars' with Britain in the 1970s were fought over fishing limits. «Plokkfiskur», fish and potatoes mashed in a white sauce, is the nation's Tuesday dinner."
+text_ja = "魚がアイスランド経済を築きました。1970年代の英国との「タラ戦争」は漁業水域をめぐる争いです。魚とじゃがいもをホワイトソースで和えた«Plokkfiskur»（プロックフィスクル）は、この国の火曜日の定番の夕食です。"
 
 [[notes]]
 id = "islenska"
 items = ["islensku", "eg_er_ad_laera"]
 topics = ["clarifying"]
-text = "Icelandic has changed so little that schoolchildren read thousand-year-old sagas. The letters þ and ð are the two 'th' sounds of English 'thin' and 'this'. Like Japanese, it prefers to coin its own words: a computer is 'tölva', from 'tala', number, and 'völva', prophetess."
-text_ja = "アイスランド語はほとんど変化していないので、小学生が千年前のサガを読めます。þ と ð は英語の thin と this の二つの th の音です。日本語と同じく外来語より造語を好み、コンピューターは「tölva」、数を表す tala と巫女を表す völva の合成語です。"
+text = "Icelandic has changed so little that schoolchildren read thousand-year-old sagas. The letters þ and ð are the two 'th' sounds of English 'thin' and 'this'. Like Japanese, it prefers to coin its own words: a computer is «tölva», from «tala», number, and «völva», prophetess."
+text_ja = "アイスランド語はほとんど変化していないので、小学生が千年前のサガを読めます。þ と ð は英語の thin と this の二つの th の音です。日本語と同じく外来語より造語を好み、コンピューターは«tölva»、数を表す«tala»と巫女を表す«völva»の合成語です。"
 
 [[notes]]
 id = "enska"
 items = ["talar_thu", "eg_tala_sma_islensku"]
 topics = ["clarifying"]
-text = "Almost everyone under sixty speaks English well, and many switch the moment they hear an accent. Saying 'ég er að læra íslensku' usually makes them switch back: people are pleased that anyone tries."
-text_ja = "60歳以下のほぼ全員が英語を上手に話し、訛りを聞くとすぐ英語に切り替える人も多いです。「ég er að læra íslensku」と言うと、たいてい戻してくれます。挑戦する人を喜んでくれるのです。"
+text = "Almost everyone under sixty speaks English well, and many switch the moment they hear an accent. Saying «ég er að læra íslensku» usually makes them switch back: people are pleased that anyone tries."
+text_ja = "60歳以下のほぼ全員が英語を上手に話し、訛りを聞くとすぐ英語に切り替える人も多いです。«ég er að læra íslensku»と言うと、たいてい戻してくれます。挑戦する人を喜んでくれるのです。"
 
 [[notes]]
 id = "tolur"
 items = ["einn", "tveir", "klukkan_er"]
 topics = ["numbers"]
-text = "The numbers one to four change with the gender of what you count: einn, ein, eitt for 'one'. Icelanders understand any form, so say the one you remember and move on. For the clock, use the neuter: eitt, tvö, þrjú, fjögur."
-text_ja = "1から4は数えるものの性で形が変わり、「1」は einn、ein、eitt になります。どの形でも通じるので、覚えている形で言って先に進みましょう。時刻には中性形の eitt、tvö、þrjú、fjögur を使います。"
+text = "The numbers one to four change with the gender of what you count: «einn», «ein», «eitt» for 'one'. Icelanders understand any form, so say the one you remember and move on. For the clock, use the neuter: «eitt», «tvö», «þrjú», «fjögur»."
+text_ja = "1から4は数えるものの性で形が変わり、「1」は«einn»、«ein»、«eitt»になります。どの形でも通じるので、覚えている形で言って先に進みましょう。時刻には中性形の«eitt»、«tvö»、«þrjú»、«fjögur»を使います。"
 
 [[notes]]
 id = "sumarfri"
@@ -256,8 +256,8 @@ text_ja = "アイスランドの子どもたちはクリスマス前の13夜、�
 id = "kurteisi"
 items = ["hae", "nagranni_minn", "gjordu_svo_vel"]
 topics = ["greetings"]
-text = "Greetings are informal: 'hæ' works with a shop assistant, a professor or a stranger, and there is no honorific language like keigo. Politeness comes from tone, from 'gjörðu svo vel', and from saying takk a lot."
-text_ja = "あいさつはくだけています。「hæ」は店員にも教授にも知らない人にも使え、日本の敬語のような体系はありません。丁寧さは声の調子と「gjörðu svo vel」、そして何度も言う takk で伝えます。"
+text = "Greetings are informal: «hæ» works with a shop assistant, a professor or a stranger, and there is no honorific language like keigo. Politeness comes from tone, from «gjörðu svo vel», and from saying «takk» a lot."
+text_ja = "あいさつはくだけています。«hæ»は店員にも教授にも知らない人にも使え、日本の敬語のような体系はありません。丁寧さは声の調子と«gjörðu svo vel»、そして何度も言う«takk»で伝えます。"
 
 [[notes]]
 id = "rod"
@@ -284,15 +284,15 @@ text_ja = "天気予報サイト vedur.is は全員の携帯に入っていて�
 id = "huldufolk"
 items = ["fjall", "utsynid_er_fallegt"]
 topics = ["nature"]
-text = "Some road plans have been altered around rocks said to house the hidden people, the huldufólk. Few Icelanders will say they believe in them, and few will say they don't. It is not far from the feeling around a shrine in a Japanese forest."
-text_ja = "「隠れた人々」フルドゥフォルクが住むとされる岩を避けて、道路計画が変更されたことがあります。信じると言い切るアイスランド人は少ないですが、信じないと言い切る人も少ないです。日本の森の神社のあたりで感じる気配に近いものです。"
+text = "Some road plans have been altered around rocks said to house the hidden people, the «huldufólk». Few Icelanders will say they believe in them, and few will say they don't. It is not far from the feeling around a shrine in a Japanese forest."
+text_ja = "「隠れた人々」«huldufólk»（フルドゥフォルク）が住むとされる岩を避けて、道路計画が変更されたことがあります。信じると言い切るアイスランド人は少ないですが、信じないと言い切る人も少ないです。日本の森の神社のあたりで感じる気配に近いものです。"
 
 [[notes]]
 id = "jolabokaflod"
 items = ["bokum", "eg_er_ad_lesa_goda_bok", "eg_les"]
 topics = ["hobbies"]
-text = "Most books are published in November for the jólabókaflóð, the Christmas book flood. The traditional gift on Christmas Eve is a book, read that same night in bed, ideally with chocolate."
-text_ja = "本の多くは11月に出版され、「クリスマスの本の洪水」ヨウラボウカフロウズと呼ばれます。クリスマスイブの定番の贈り物は本で、その夜のうちにベッドで、できればチョコレートと一緒に読みます。"
+text = "Most books are published in November for the «jólabókaflóð», the Christmas book flood. The traditional gift on Christmas Eve is a book, read that same night in bed, ideally with chocolate."
+text_ja = "本の多くは11月に出版され、「クリスマスの本の洪水」«jólabókaflóð»（ヨウラボウカフロウズ）と呼ばれます。クリスマスイブの定番の贈り物は本で、その夜のうちにベッドで、できればチョコレートと一緒に読みます。"
 
 [[notes]]
 id = "timi"
@@ -326,8 +326,8 @@ text_ja = "医療は公的でおおむね安いですが、まず保健センタ
 id = "ull"
 items = ["peysu", "er_thetta_ull", "er_thetta_islenskt"]
 topics = ["shopping"]
-text = "The lopapeysa, the patterned wool sweater, dates only from the 1950s but is worn as if ancient. Real ones are hand-knitted from unwashed Icelandic wool, which is why they shrug off rain and cost a month's coffee budget."
-text_ja = "模様編みのウールセーター「ロパペイサ」は1950年代に生まれたものですが、まるで古来のもののように着られています。本物は洗っていないアイスランド羊毛を手編みしたもので、だから雨をはじき、値段はひと月分のコーヒー代くらいします。"
+text = "The «lopapeysa», the patterned wool sweater, dates only from the 1950s but is worn as if ancient. Real ones are hand-knitted from unwashed Icelandic wool, which is why they shrug off rain and cost a month's coffee budget."
+text_ja = "模様編みのウールセーター«lopapeysa»（ロパペイサ）は1950年代に生まれたものですが、まるで古来のもののように着られています。本物は洗っていないアイスランド羊毛を手編みしたもので、だから雨をはじき、値段はひと月分のコーヒー代くらいします。"
 
 [[notes]]
 id = "fjolskylda"
