@@ -1,7 +1,7 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-21 (session 20: issue #44's own review round —
-see below; session 19 and 18 close-outs follow). **Issue #34** ("Improve
+_Last updated 2026-09-21 (session 21: issue #44's third review round —
+see below; sessions 20, 19 and 18 close-outs follow). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -27,18 +27,23 @@ is not the same claim as "the issue's own acceptance criteria hold,"
 and this file should track the latter.
 
 **Issue #44** (the two residuals split out of #34) is **done** — but
-took two rounds. Session 19's first fix (PR #46) was reviewed by the
-owner and judged **request-changes equivalent**: each of its two points
-stopped one step short of #44's actual acceptance criteria — the note
-fallback could still, rarely, fall through to plain recall once both its
-budgets were spent, and the dialogue-stage fix only reached items wired
-into an authored dialogue, not "dialogue or recombination" as #44 itself
-asks for. Session 20 kept everything from session 19 (the owner said so
-explicitly) and added the missing piece: a dialogue-independent
-recombination fallback (`do_connect()`) plus a real deliberate stop as
-the cascade's last resort. See "Session 20" and "Session 19" below for
-the full history, both blockers, and their verification. 102 tests, all
-passing.
+took three rounds on the same PR (#46). Session 19's first fix was
+judged **request-changes equivalent**: each of its two points stopped
+one step short of #44's acceptance criteria (note fallback could still
+rarely fall through to plain recall; dialogue-stage fix only reached
+items wired into an authored dialogue). Session 20 added a
+dialogue-independent recombination fallback (`do_connect()`) and a real
+deliberate stop as the cascade's last resort — the owner confirmed that
+shape was right, but session 20's `connect()` itself was still just two
+independent flashcard recalls under a shared header (no real connection
+between them), was only ever reached as a side effect of the drill-streak
+breaker (not guaranteed per arc), and could pull material from the wrong
+arc. Session 21 rebuilt `connect()` as one exercise with an explicit
+bridging line, added a real per-arc guarantee independent of the streak
+breaker, and fixed the arc-scoping and an `idx` off-by-one along the way
+— plus a rotation-vs-connect interaction bug caught by an existing test
+along the way. See "Session 21", "Session 20", and "Session 19" below
+for the full history. 103 tests, all passing.
 
 **Next up, per the owner's priority order:** issue #29 ("Design
 curriculum around reusable concepts and communicative capabilities") —
@@ -1099,6 +1104,129 @@ fix:
   material" ordering, not only that *something* fired.
 
 102 tests (100 → 102), all passing; `audiolesson validate` unchanged.
+
+## Session 21: issue #44, round 3 — the connect() mechanism itself needed real content, not just structure
+
+The owner reviewed session 20's push and confirmed the cascade shape and
+per-item fixes were right (rebase clean, the three-tier fallback closed
+point 1's silent fallthrough, the dialogue-independent path reached
+material with no authored dialogue) but flagged four remaining problems,
+all in `do_connect()`/`Builder.connect()` itself:
+
+1. **`connect` wasn't actually connected use.** The exercise narrated a
+   shared frame, then ran two ordinary `situation`-stage recalls back to
+   back — structurally two independent flashcards under a header, no
+   semantic link between them. The owner's own reproduction picked
+   "leaving a shop" next to "raising a glass for a toast." The new
+   regression test's `assertTrue(connect_exercises)` only checked the
+   label existed, not that the *content* was connected — testing the
+   fix's structure, not its substance.
+2. **Connected use was a side effect of the streak breaker, not part of
+   an arc's own lifecycle.** `do_connect()` was only ever reached from
+   step 0 (drill-streak triggered), so an arc practiced at a normal pace
+   — never running the streak past its limit — could finish, and the
+   lesson could move on or end, with no connected-use attempt at all.
+   #44's own criteria don't make this conditional on a streak.
+3. **Candidate selection pulled from `introduced` as a whole, in intro
+   order** — not the specific arc being served. With two arcs in one
+   lesson, a later arc's "connected use" could end up reusing an earlier
+   arc's items instead of its own.
+4. **An off-by-one in `idx`.** `do_connect()` incremented `idx` once per
+   sub-exercise it emitted (3 total) *and* the main loop's own trailing
+   `idx += 1` still ran once more on top — 4 increments for 3 exercises,
+   silently skewing when later reactivations came due and when the next
+   intro was allowed.
+
+### Fix 1: `connect()` became one exercise with a real bridge, not three
+
+`Builder.connect()` now builds a single `Exercise`: intro frame →
+item 1's situation cue → answer → an explicit connecting line
+(`connect_then`, "And then —") → item 2's situation cue → answer. The
+second retrieval reads as a continuation of the same moment, not a new
+unrelated prompt — the same reason `dialogue()` keeps a whole exchange's
+turns inside one `Exercise` instead of splitting them apart. `do_connect()`
+also now prefers a same-topic pair over an arbitrary one (falling back to
+any two eligible items only if no topic pair exists), so the two halves
+of the exchange are at least topically related to begin with.
+
+Being a single exercise also resolves fix 4 for free: `do_connect()` no
+longer touches `idx`/`since_dialogue` itself at all, the same as every
+other single-exercise branch (`do_recall`, `do_intro`, dialogue) — the
+main loop's own trailing increment is the only one that ever fires.
+
+### Fix 2 & 3: a real per-arc guarantee, scoped to that arc's own material
+
+Added step 0b, run every iteration (not gated on the streak breaker):
+once every item introduced in an arc has had at least one touch beyond
+its own intro, that arc gets one deliberate `do_connect()` attempt —
+scoped to `arc_items[that_arc]` specifically, falling back to other
+material only if the arc alone can't supply two eligible items. Arc
+membership is tracked via a new `arc_items: dict[int, list[Item]]` /
+`arc_order` / `arc_target` (the arc's own intended item count, fixed at
+creation — without it, the readiness check could fire the instant an
+arc's *first* item got its first reactivation, before the arc had even
+finished being introduced, confirmed empirically with `intro_gap=3`).
+Marked "attempted" once tried regardless of outcome, so a genuinely thin
+arc isn't retried forever.
+
+**Two bugs found and fixed while building this, both via direct
+reproduction:**
+- The arc's own most-recently-touched item is typically the one whose
+  reactivation just completed the arc's readiness check — excluding it
+  from candidacy (the same exclusion `do_discriminate` uses) left only
+  one real member for a 2-item arc and forced a fallback to unrelated
+  material, exactly the cross-arc contamination fix 3 exists to prevent.
+  Fixed by ordering it *second* in the pair instead of excluding it —
+  keeps both real members available while still avoiding an *immediate*
+  repeat.
+- A bounded "don't reuse an item already spent in a connect() this
+  lesson" guard (added for a different reason, see below) combined with
+  the *general* (non-arc) streak-tier fallback retriggering every
+  `drill_streak_limit` recalls for an entire pure-review lesson with no
+  dialogues — together they ran the pool of eligible situation-capable
+  items dry mid-lesson, tripping the "genuinely nothing left" deliberate
+  stop far earlier than intended. Caught by `test_fit_lands_on_the_requested_length`
+  and both `PacingTests` cases dropping lesson length 40-60% below
+  target. The reuse guard was the wrong tool for that other problem (see
+  below) and was reverted rather than papered over with a budget cap.
+
+### A regression along the way: situation-cue rotation and connect() don't mix
+
+`test_situations_rotate_across_repeated_retrieval_of_the_same_item`
+(session 16 pilot, owner review on #39) started failing once `connect()`
+began narrating real situation cues via the shared, rotating
+`_situation()` — an item swept into a `connect()` exercise silently
+consumed a rotation step invisible to any later plain recall of that same
+item; with a 2-cue item, an *even* number of such hidden steps across a
+lesson landed a later recall back on the exact cue an earlier recall had
+already used. Tried excluding already-connected items from later
+candidacy first — this is what caused the pool-exhaustion bug above, so
+it was reverted. **Fix:** `connect()` now reads an item's current
+situation cue via a new `_situation_readonly()` that never advances
+`_situation_uses`, fully decoupling the two mechanisms — pairing an item
+into a connected moment no longer perturbs what an unrelated recall of it
+elsewhere in the lesson shows.
+
+### Tests
+
+Strengthened `test_connected_use_reaches_an_arc_whose_items_are_wired_into_no_dialogue`'s
+assertion from "the arc's items intersect the connected items" (passable
+with just one of the two) to "both of the arc's own two items are in
+there" — the weaker version could pass even with material pulled in from
+outside the arc.
+
+Added `test_each_arc_gets_its_own_connected_use_moment_without_a_drill_streak`:
+two arcs, `drill_streak_limit` set unreachably high so the streak breaker
+never trips, confirming (a) each arc still gets its own connected-use
+exercise and (b) each one's `item_ids` is *exactly* that arc's own two
+items, not a mix with the other arc's — both directly requested by the
+owner's review, confirmed to fail against the pre-fix code (arc 2 got
+none at all in one version, and got contaminated with arc 1's material in
+an earlier iteration of this fix, before landing on the "order second,
+don't exclude" design above).
+
+103 tests (102 → 103; `test_connected_use_reaches_an_arc_whose_items_are_wired_into_no_dialogue`
+strengthened, not counted as new), all passing; `audiolesson validate` unchanged.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 

@@ -44,6 +44,7 @@ milestone_intro = "Here's a pattern worth noticing."
 milestone_end = "Let's continue."
 dialogue_replay = "Now the whole conversation, without pauses."
 connect_intro = "Let's put a couple of things together."
+connect_then = "And then —"
 
 [language_names]
 fr = "French"

@@ -384,10 +384,72 @@ class CurriculumTests(unittest.TestCase):
         connect_exercises = [ex for ex in sc.exercises if ex.kind == "connect"]
         self.assertTrue(connect_exercises, "no connected-use activity ever fired for the wired-nowhere arc")
         connected_items = {i for ex in connect_exercises for i in ex.item_ids}
+        # both of the arc's own items, not just one of them alongside an unrelated review item —
+        # "recombine the arc's own material" means the arc supplies both halves of the exchange
+        # whenever it can (owner review round 2 on #46).
         self.assertTrue(
-            connected_items & {"a0", "a1"},
-            f"connected-use activity never covered the arc's own items: {connected_items}",
+            {"a0", "a1"} <= connected_items,
+            f"connected-use activity didn't recombine the arc's own two items together: {connected_items}",
         )
+
+    def test_each_arc_gets_its_own_connected_use_moment_without_a_drill_streak(self):
+        """Issue #44, owner review round 2 on #46: the first cut only ever reached
+        ``do_connect()`` as a side effect of the drill-streak breaker, so an arc practiced at
+        a normal pace — never running the streak past its limit — could finish, and the
+        lesson could move on to a second arc or end, with no connected-use attempt at all.
+        #44's own acceptance criteria don't make this conditional on a streak: once an arc's
+        items have had initial practice, it gets a deliberate connected-use attempt before the
+        lesson moves on. ``drill_streak_limit`` is set unreachably high here specifically to
+        prove this doesn't depend on the streak breaker.
+
+        Also checks the two arcs don't cross-contaminate: arc 2's connected-use moment must
+        use arc 2's own two items, not reuse arc 1's (a risk with a shared ``introduced`` pool
+        ordered by intro time, where an earlier arc's items would otherwise be found first)."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": (
+                [
+                    {"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}.", "situation": f"Situation {i}."}
+                    for i in range(10)
+                ]
+                + [
+                    {"id": "a0", "kind": "phrase", "target": "Boga 0.", "meaning": "Arc one, a.", "situation": "Arc one situation a."},
+                    {"id": "a1", "kind": "phrase", "target": "Boga 1.", "meaning": "Arc one, b.", "situation": "Arc one situation b."},
+                    {"id": "b0", "kind": "phrase", "target": "Boga 2.", "meaning": "Arc two, a.", "situation": "Arc two situation a."},
+                    {"id": "b1", "kind": "phrase", "target": "Boga 3.", "meaning": "Arc two, b.", "situation": "Arc two situation b."},
+                ]
+            ),
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(10):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        planner = Planner(
+            cur,
+            learner,
+            Prompts.load("en"),
+            Timing(level="A1"),
+            PlanConfig(minutes=30, seed=1, new_items=2, max_new_items=2, dialogue_every=1000, drill_streak_limit=1000, note_chance=0.0),
+            today=TODAY,
+        )
+        sc = planner.build()
+        drill_streaks = []
+        streak = 0
+        for ex in sc.exercises:
+            if ex.kind == "recall":
+                streak += 1
+                drill_streaks.append(streak)
+            else:
+                streak = 0
+        self.assertLess(max(drill_streaks, default=0), 1000, "the streak breaker must never have tripped in this test")
+        connect_exercises = [ex for ex in sc.exercises if ex.kind == "connect"]
+        self.assertGreaterEqual(len(connect_exercises), 2, f"expected a connected-use moment per arc: {[ex.item_ids for ex in connect_exercises]}")
+        arc1 = next((ex for ex in connect_exercises if set(ex.item_ids) & {"a0", "a1"}), None)
+        arc2 = next((ex for ex in connect_exercises if set(ex.item_ids) & {"b0", "b1"}), None)
+        self.assertIsNotNone(arc1, f"arc 1 never got its own connected-use moment: {[ex.item_ids for ex in connect_exercises]}")
+        self.assertIsNotNone(arc2, f"arc 2 never got its own connected-use moment: {[ex.item_ids for ex in connect_exercises]}")
+        self.assertEqual(set(arc1.item_ids), {"a0", "a1"}, f"arc 1's connected use pulled in material outside the arc: {arc1.item_ids}")
+        self.assertEqual(set(arc2.item_ids), {"b0", "b1"}, f"arc 2's connected use pulled in material outside the arc: {arc2.item_ids}")
 
     def test_high_drill_streak_wins_over_a_due_reactivation_too(self):
         """Owner review on #41: the streak breaker used to run *after* step 1 (a due

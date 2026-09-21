@@ -43,6 +43,7 @@ milestone_intro = "気づいてほしいパターンがあります。"
 milestone_end = "では、続けましょう。"
 dialogue_replay = "では、会話全体を通して聞きましょう。"
 connect_intro = "いくつかつなげてみましょう。"
+connect_then = "そして、"
 
 [language_names]
 fr = "フランス語"

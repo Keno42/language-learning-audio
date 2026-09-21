@@ -346,6 +346,27 @@ class Planner:
         reviews_used: list[str] = []
         passes = 1
         streak_relief_notes_used = 0
+        # Per-arc connected-use bookkeeping (issue #44, owner review round 2 on #46): an arc
+        # is the batch of items introduced together by one ``select_new()`` call — the initial
+        # one below, or a later "fresh arc" pick (step 5). ``arc_items`` maps an arc's id to
+        # its own items, populated lazily by ``do_intro`` the first time one of its items is
+        # actually introduced (so an arc that never gets any items, e.g. nothing left to
+        # teach, never shows up here at all); ``arc_order`` records creation order for the
+        # "earliest unattempted arc" scan below. ``arc_target`` is each arc's intended item
+        # count, fixed at the moment the arc is created (``len(new_queue)`` for the initial
+        # arc, ``len(more)`` for a fresh one) — without it, the readiness check below could
+        # fire the instant the *first* item of a still-filling arc got its first reactivation,
+        # days before the arc's other items had even been introduced yet, and "recombine this
+        # arc" would have only one real member to work with (confirmed: with ``intro_gap=3``
+        # separating two items' own intros, the first item's first reactivation reliably landed
+        # before the second item's intro). ``current_arc_id`` only advances at an explicit
+        # fresh-arc start (see step 5) — every item introduced in between, whether via the
+        # initial queue or step 2's ordinary draining of it, belongs to the same arc.
+        current_arc_id = 0
+        arc_items: dict[int, list[Item]] = {}
+        arc_target: dict[int, int] = {0: len(new_queue)}
+        arc_order: list[int] = []
+        arc_connect_attempted: set[int] = set()
 
         def touch(item: Item) -> None:
             recent.append(item.id)
@@ -357,6 +378,10 @@ class Planner:
             ex = b.intro(sc, item)
             b.in_lesson.add(item.id)
             introduced.append(item)
+            if current_arc_id not in arc_items:
+                arc_items[current_arc_id] = []
+                arc_order.append(current_arc_id)
+            arc_items[current_arc_id].append(item)
             self._record([item.id], "intro", ex.item_ids)
             touch(item)
             last_intro = idx
@@ -419,43 +444,67 @@ class Planner:
                 idx += 1
                 since_dialogue += 1
 
-        def do_connect() -> bool:
-            """Recombine two already-known items into a brief connected moment (issue #44):
-            the fallback for "connected use" when no authored dialogue exists for the
-            current material, and a real third option for a drill streak with nowhere else
-            to go — not another isolated recall. Prefers this lesson's own newly introduced
-            items (the current arc's own material) first, falling back to any other
-            already-known item with a situation cue; `introduced` and `self.learner.items`
-            are always disjoint (an item introduced this lesson isn't persisted to learner
-            state until after the whole lesson is built), so no de-dup is needed between
-            them. Excludes only the single most-recently-touched item, the same as
-            ``do_discriminate`` — not the whole ``recent`` de-dup deque — so a coincidental
-            exclusion doesn't spuriously starve this of the two *different* candidates it
-            needs. Returns ``False`` if fewer than two eligible items exist at all."""
-            nonlocal idx, since_dialogue
-            just_touched = recent[-1] if recent else None
-            pool = list(introduced) + [self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id]
+        def _connect_pair(pool: list[Item], last_touched_id: str | None) -> list[Item] | None:
+            """The two distinct, situation-capable items in ``pool`` to recombine together,
+            preferring a pair that shares a topic — so the connected moment reads as one
+            coherent scene rather than two items that merely happen to both be known (owner
+            review round 2 on #46: a "leaving a shop" situation paired with a "raising a
+            glass" one read as unrelated flashcards). Falls back to any two distinct items if
+            no topic pair exists. Returns ``None`` if ``pool`` doesn't have two eligible items.
+
+            If one of the two chosen items is ``last_touched_id``, it's ordered *second*, not
+            excluded outright — excluding it entirely (as an earlier version of this did) made
+            a fully practiced 2-item arc's own connected-use moment impossible to draw purely
+            from its own material: the arc's last-touched item is typically exactly the one
+            whose own reactivation just completed the arc's readiness check, so excluding it
+            left only one real member and forced a fallback to unrelated material instead —
+            precisely the cross-arc contamination this whole scoping exists to prevent.
+            Ordering it second still avoids the jarring effect an *immediate* repeat would
+            have (the actual reason for the exclusion, shared with ``do_discriminate``)."""
             seen: set[str] = set()
-            candidates: list[Item] = []
+            valid: list[Item] = []
             for it in pool:
-                if it.id in seen or it.id == just_touched or not it.has_situation:
+                if it.id in seen or not it.has_situation:
                     continue
                 seen.add(it.id)
-                candidates.append(it)
-                if len(candidates) >= 2:
-                    break
-            if len(candidates) < 2:
-                return False
-            # Listed reversed from recall order: the connect frame's own item_ids[0] must
-            # not equal the very next exercise's item (the first recall below), or the
-            # "no item twice in a row" invariant trips on the frame itself even though the
-            # learner never actually repeats an item back to back.
-            b.connect(sc, [i.id for i in reversed(candidates)])
-            idx += 1
+                valid.append(it)
+            if len(valid) < 2:
+                return None
+            by_topic: dict[str, list[Item]] = {}
+            for it in valid:
+                if it.topics:
+                    by_topic.setdefault(it.topics[0], []).append(it)
+            pair = next((group[:2] for group in by_topic.values() if len(group) >= 2), None) or valid[:2]
+            if pair[0].id == last_touched_id:
+                pair = [pair[1], pair[0]]
+            return pair
+
+        def do_connect(prefer: list[Item] | None = None) -> bool:
+            """Recombine two already-known items into one connected exchange (issue #44):
+            the fallback for "connected use" when no authored dialogue exists for the
+            current material, and a real third option for a drill streak with nowhere else
+            to go — not another isolated recall. ``prefer`` scopes this to a specific arc's
+            own material (see the per-arc step below); without it, this lesson's own
+            ``introduced`` items are preferred, falling back to any other already-known item.
+            Candidates are drawn from ``prefer`` (or ``introduced``) *alone* first — only
+            widening to the rest of the pool if that scope alone can't supply two eligible
+            items — so a later arc's connected-use guarantee can never be quietly satisfied
+            by an earlier arc's material, or by unrelated review items, when its own is
+            enough. Returns ``False`` if no two eligible items exist anywhere."""
+            just_touched = recent[-1] if recent else None
+            preferred = prefer if prefer is not None else introduced
+            candidates = _connect_pair(list(preferred), just_touched)
+            if candidates is None:
+                rest = [it for it in introduced if it not in preferred] + [
+                    self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id
+                ]
+                candidates = _connect_pair(list(preferred) + rest, just_touched)
+                if candidates is None:
+                    return False
+            ex = b.connect(sc, candidates)
+            self._record([i.id for i in candidates], "situation", ex.item_ids)
             for item in candidates:
-                do_recall(item, "situation")
-                idx += 1
-                since_dialogue += 1
+                touch(item)
             return True
 
         while sc.total_duration < budget - closing_reserve:
@@ -525,6 +574,38 @@ class Planner:
                     # supply, and fewer than two already-known items with a situation cue,
                     # all at once) but must be a real option, not just a theoretical one.
                     break
+
+            # 0b. an arc's own connected-use moment — not just a side effect of the drill-streak
+            #     breaker above (issue #44, owner review round 2 on #46: the first cut only ever
+            #     reached ``do_connect()`` when a streak had already run past its limit, so an
+            #     arc practiced at a normal pace — never triggering the streak breaker — could
+            #     finish, and the lesson could move on to another arc or end, with no connected-
+            #     use attempt at all). Once every item introduced in an arc has had at least one
+            #     touch beyond its own intro (so this doesn't spring immediately on top of the
+            #     intro itself, before there's anything to "connect" yet), that arc gets one
+            #     deliberate attempt — scoped to its own ``arc_items`` specifically, not
+            #     ``introduced`` as a whole, so a later arc's guarantee can't be quietly satisfied
+            #     by an earlier arc's material (an earlier version of this fix pulled from whatever
+            #     had been introduced so far, in intro order, so a later arc's connected use could
+            #     end up reusing an earlier arc's items instead of its own). Marked "attempted"
+            #     whether or not it actually finds two eligible items, so a genuinely thin arc
+            #     (fewer than two situation-capable items and nothing else known to pair with)
+            #     isn't retried forever.
+            if not acted and remaining >= 40:
+                ready_arc = next(
+                    (
+                        aid
+                        for aid in arc_order
+                        if aid not in arc_connect_attempted
+                        and len(arc_items[aid]) >= arc_target.get(aid, 0)
+                        and all(len(self.exposures.get(it.id, [])) >= 2 for it in arc_items[aid])
+                    ),
+                    None,
+                )
+                if ready_arc is not None:
+                    if do_connect(prefer=arc_items[ready_arc]):
+                        acted = True
+                    arc_connect_attempted.add(ready_arc)
 
             # 1. a scheduled reactivation that is due (but never the item we just did)
             if not acted:
@@ -629,6 +710,8 @@ class Planner:
                     # must consume an ``idx`` tick like every other branch, or a lesson where
                     # ``intro_gap`` isn't yet satisfied would re-enter this branch at the same
                     # ``idx`` forever without ever making progress.
+                    current_arc_id += 1  # a fresh arc — its own connected-use guarantee (step 0b)
+                    arc_target[current_arc_id] = len(more)
                     new_queue.extend(more[1:])
                     do_intro(more[0])
                     # the closing block recalls every introduced item, so a new arc needs more
