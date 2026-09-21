@@ -121,6 +121,35 @@ class CurriculumTests(unittest.TestCase):
         self.assertEqual(kinds[:4], ["recall"] * 4, kinds)
         self.assertEqual(kinds[4], "dialogue", kinds)
 
+    def test_high_drill_streak_pulls_a_note_forward_when_no_dialogue_fits(self):
+        """Issue #34 point 6: a high drill streak should pull *something* connected/varied
+        forward, not just a dialogue — when no dialogue is eligible either (here: none exist
+        in the curriculum at all), a note breaks up the run instead of silently falling
+        through to yet another isolated recall."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(10)],
+            "notes": [{"id": "n1", "text": "A cultural fact."}],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(10):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        # note_chance=0 so the note can only come from the new streak fallback, not the
+        # ordinary per-exercise random note roll — isolates which mechanism produced it.
+        planner = Planner(
+            cur,
+            learner,
+            Prompts.load("en"),
+            Timing(level="A1"),
+            PlanConfig(minutes=30, seed=1, dialogue_every=1000, drill_streak_limit=3, note_chance=0.0),
+            today=TODAY,
+        )
+        sc = planner.build()
+        kinds = [ex.kind for ex in sc.exercises if ex.kind != "opening"]
+        self.assertEqual(kinds[:3], ["recall"] * 3, kinds)
+        self.assertEqual(kinds[3], "note", kinds)
+
     def test_trailing_drill_streak_resets_across_a_multi_exercise_iteration(self):
         """Owner review follow-up on #40: a single ``build()`` loop iteration can append
         several exercises at once — a milestone note plus its discrimination recalls, via

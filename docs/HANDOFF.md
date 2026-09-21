@@ -27,9 +27,14 @@ below and item #1a in "Known gaps" for what's still open per pilot).
 Session 17 then did pilot 8: `«...»` markup inside a note's `text` now
 makes a marked Icelandic phrase actually spoken by the target-language
 voice instead of read as instructor-language narration, applied to both
-existing milestone notes; still open per #1a: ending a lesson early
-instead of padding with filler, and a fallback for a high `drill_streak`
-with no eligible dialogue._
+existing milestone notes; and pilot 9: a high `drill_streak` with no
+eligible dialogue now pulls a note forward instead of silently falling
+through to another isolated recall. Pilot 10 (ending a lesson early
+instead of padding with a second review pass) was investigated but left
+at its existing default — flipping it shortened lessons 20–60% on the
+fixture curricula and broke 3 length-guarantee tests, a bigger call than
+one pilot should make; see "Session 17" and #1a below for the owner
+question this leaves open._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -521,6 +526,102 @@ synthetic note, one confirming an unmarked note still narrates as a
 single piece, one for the new validation error); `audiolesson validate
 curricula/is-en` unchanged apart from the two notes' text (993 items, 48
 notes, ja gloss still complete).
+
+### Pilot 9: a high drill streak with no eligible dialogue now pulls a note forward instead
+
+Pilot 6 (Session 16) only handled half of "prefer connected/varied
+activity over another isolated drill": once `drill_streak` hits its
+limit, step 3 of `build()`'s fallback ladder tries a dialogue — but if
+`eligible_dialogue()` returns `None` (none exist yet, all are exhausted
+for this lesson, or the learner doesn't know enough for any of them),
+nothing happened: the streak check silently fell through to step 4
+(another review pick, i.e. likely another isolated recall), with no
+fallback logic at all.
+
+**Done.** When the streak triggers step 3 and no dialogue fits, `build()`
+now tries a note instead — a "varied activity," not another flashcard
+drill — via `self._pick_note(None)`, subject to the same
+`_note_budget_left()`/`remaining >= 40` checks the ordinary note path
+uses, but bypassing the random `note_chance` roll (this is a deliberate
+action to break up a monotony problem the streak just detected, not
+optional filler subject to a coin flip — the same reasoning
+`_eligible_milestone` already uses to bypass `note_chance` for a due
+milestone). If no note fits either, behavior is unchanged: falls through
+to step 4 exactly as before pilot 6 existed. `drill_streak` resets to 0
+on its own the following iteration once a note plays, via the existing
+`_trailing_drill_streak` recompute — no separate reset needed.
+
+The issue's own "or stop" fallback needed no new code: it already exists
+as step 5's cascade at the bottom of the loop, which stops the lesson
+once genuinely nothing (due, new, review, or note) is left — see pilot
+10 below for why that cascade's own weakest tier (a second review pass)
+is a separate, much bigger change than this one.
+
+Added `test_high_drill_streak_pulls_a_note_forward_when_no_dialogue_fits`:
+a synthetic curriculum with 10 known items and *no dialogues at all* (so
+`eligible_dialogue()` always returns `None`), `note_chance=0.0` (so a
+note can only appear via this new fallback, not the ordinary per-exercise
+random roll — isolates which mechanism produced it), `drill_streak_limit=3`.
+Confirms exactly 3 isolated recalls, then a note. 91 → 92 tests, all
+passing; `audiolesson validate` unchanged.
+
+### Pilot 10, investigated: ending a lesson early instead of padding with a second review pass
+
+The other half of point 5 (deferred at pilot 6): "the planner may finish
+below the nominal time target rather than adding low-value filler
+repetitions." The mechanism for this already exists and needed no new
+code: `PlanConfig.max_review_passes` (added in session 3, "Fixed lesson
+length") defaults to 2, and step 5's very last resort — reached only
+once every other option (a due-later reactivation pulled early, an extra
+new item, a plain repeat, a note) has failed — re-reviews everything
+already reviewed *this same lesson*, one stage harder, purely to fill
+remaining time. Setting `max_review_passes=1` disables exactly that: the
+lesson then ends via step 5's existing `else: break` once real material
+(new + due + one review pass + notes) runs out, instead of manufacturing
+a second pass.
+
+**Not done: left at the default (2), not flipped.** Tried flipping the
+default to 1 and measured the actual effect on `course()` runs built from
+the small fixture curricula (`fr-en-a1.toml`, 47 items) that several
+existing tests use as their "does a lesson reach its requested length"
+fixture:
+- `course(8, minutes=30)`: lesson lengths went from needing ≥23 min at
+  their peak (`test_later_lessons_fill_the_requested_time`'s existing
+  threshold) to a peak of 18.1 min — every one of the 8 lessons fell
+  well short of 30.
+- `course(6, minutes=15)`: lesson 6's built content dropped from filling
+  ~900s (with `fit()`'s pause-stretch bridging the small remaining gap)
+  to ~519s of raw content — `fit()` would need to stretch pauses by 1.25×
+  just to reach 649s, still 250s short of 900, breaking both
+  `test_fit_lands_on_the_requested_length` and
+  `test_fit_tolerance_leaves_pauses_alone_when_close`.
+
+That's a 20–60% reduction in lesson length on this fixture, not the
+modest shortfall "may finish below the nominal time target" suggests —
+and it directly undoes a deliberate, tested guarantee from session 3
+("Fixed lesson length": the second pass and `fit()`'s clamped pause
+stretch were built *together* specifically so a requested lesson length
+is reliably met). Flipping a foundational, already-tested guarantee like
+that by default, for every existing and future curriculum, is a bigger
+call than a single pilot should make unilaterally — unlike pilot 9 above
+(additive, `elif` on an existing branch, zero test impact), this one
+changes what "ask for a 15-minute lesson" *means* app-wide and nothing
+here indicates the owner has weighed that specific tradeoff yet (the
+issue's own wording reads as "don't force it," not "even a much shorter
+lesson than requested is fine").
+
+Left `max_review_passes` at its existing default (2) — this pilot's
+actual code change was reverted back out after measuring the above — and
+documented the finding here instead. Anyone who wants "end early, never
+pad with a same-lesson repeat" today can already set
+`max_review_passes=1` in `PlanConfig`; it just isn't the default, and
+there is no `--` CLI flag for it yet either. **Open question for the
+owner:** should the default change (accepting shorter lessons once
+material runs thin), should it be a new CLI-exposed opt-in instead, or
+should the second pass stay the default and this half of point 5 close
+as "already possible, intentionally not defaulted"? No test or code
+changed for this half; pilot 9 above is the only code change this
+session made to point 5/6.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 
@@ -1974,13 +2075,30 @@ Verified in this session:
       milestone notes. The other ~46 cultural asides also name Icelandic
       words inline and could use the same markup, but that's now just
       content authoring with no mechanism gap left — not done here.
+   9. alternative-activity-or-stop fallback for a high `drill_streak`
+      with no eligible dialogue (#34 point 6, other half; session 17).
+      **Done.** `build()`'s step 3 now pulls a note forward instead when
+      the streak is high and no dialogue fits, instead of silently
+      falling through to another isolated recall; the "or stop" half
+      needed no new code since step 5's existing cascade already ends
+      the lesson once genuinely nothing is left. See "Pilot 9" above.
+   10. ending a lesson early instead of padding with a second review
+       pass (#34 point 5, other half; session 17). **Investigated, left
+       at the existing default.** The mechanism already exists
+       (`PlanConfig.max_review_passes=1`); flipping the *default*
+       shortened lessons 20–60% on the fixture curricula and broke 3
+       existing length-guarantee tests — a bigger, foundational-
+       architecture call (undoes session 3's "Fixed lesson length") than
+       one pilot should make unilaterally. See "Pilot 10" above for the
+       measurements and the open question for the owner: default it,
+       expose it as a CLI opt-in, or close this half as "already
+       possible, intentionally not defaulted."
 
-   **Not started:** none — all 7 original pilots plus pilot 8 have at
-   least a first concrete step done. What's left is scoped above, per
-   pilot: ending a lesson early instead of padding with low-value
-   filler (pilot 6), an alternative-activity-or-stop fallback for a high
-   `drill_streak` when no dialogue is eligible (pilot 6), and marking up
-   the remaining cultural-aside notes (pilot 8).
+   **Not started:** none — all 7 original pilots plus pilots 8–9 have a
+   concrete step done; pilot 10 was investigated and intentionally left
+   as-is pending an owner decision (see above). What's left: marking up
+   the remaining cultural-aside notes with `«...»` (pilot 8, pure content
+   authoring now) and pilot 10's open question.
 2. **Test `edge` provider on a real network** (see above). If edge-tts's
    `rate="+N%"` sounds off for slow renditions, clamp `slow_rate` to ~0.8.
 3. ~~Listen to a real lesson and tune timing~~ — partially done (session
