@@ -8,19 +8,14 @@ sounds. Keep those three concerns apart.
 from __future__ import annotations
 
 import random
-import re
 from dataclasses import dataclass, field
 
-from .content import Curriculum, Dialogue, Item, Note, TransformExample
+from .content import Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample
 from .learner import LearnerState
 from .prompts import Prompts
 from .script import Exercise, Script, Segment
 from .stages import is_generative
 from .timing import Timing
-
-# «...» inside a Note's text marks a target-language phrase that should be spoken by the
-# native voice instead of read aloud by the instructor (issue #34 point 1, deferred at pilot 2).
-_NOTE_TARGET_RE = re.compile(r"«([^»]+)»")
 
 
 @dataclass
@@ -431,22 +426,33 @@ class Builder:
         """Narrate ``text`` in the instructor voice, except «...»-marked phrases, which go to
         the target-language voice instead — so a note that names e.g. Góðan daginn actually
         hears it said, rather than the instructor reading it as instructor-language text
-        (issue #34 point 1, deferred at pilot 2 for lack of this mechanism)."""
-        for i, part in enumerate(_NOTE_TARGET_RE.split(text)):
+        (issue #34 point 1, deferred at pilot 2 for lack of this mechanism).
+
+        A prose fragment between two marked phrases that is only punctuation (e.g. the bare
+        "," left behind by "«a», «b»") is never handed to ``_narr`` as its own TTS call —
+        several notes mark three or more phrases in a list, so this is common, not a rare
+        edge case (owner review on #41). A beat stands in for it instead, preserving the
+        pause the punctuation implied. A fragment with real words (e.g. ", and") still
+        narrates normally."""
+        for i, part in enumerate(NOTE_TARGET_RE.split(text)):
             part = part.strip()
             if not part:
                 continue
             if i % 2:
                 self._speak(sc, ex, part)
-            else:
+            elif any(ch.isalnum() for ch in part):
                 self._narr(sc, ex, part)
+            else:
+                self._beat(sc, ex)
 
     def note(self, sc: Script, note: Note) -> Exercise:
-        """An aside: instructor only, no retrieval. Bookended so it's never mistaken for the
-        start of the next (unrelated) exercise. A milestone note names a grammatical pattern
-        now that its items are known, so it gets its own intro and closing lines instead of
-        being framed as optional cultural trivia the lesson is a detour from (issue #34: "this
-        *is* the lesson")."""
+        """An aside: no retrieval. Bookended so it's never mistaken for the start of the next
+        (unrelated) exercise. Mostly instructor narration, but a «...»-marked phrase inside
+        ``note.text`` is spoken by the target-language voice instead (see
+        ``_speak_note_text``). A milestone note names a grammatical pattern now that its
+        items are known, so it gets its own intro and closing lines instead of being framed
+        as optional cultural trivia the lesson is a detour from (issue #34: "this *is* the
+        lesson")."""
         ex = sc.new_exercise("note", None, list(note.items), f"note: {note.id}")
         self._narr(sc, ex, self.prompts.get("milestone_intro" if note.milestone else "aside"))
         self._speak_note_text(sc, ex, note.text)

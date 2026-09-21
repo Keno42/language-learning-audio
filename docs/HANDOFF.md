@@ -34,7 +34,14 @@ instead of padding with a second review pass) was investigated but left
 at its existing default — flipping it shortened lessons 20–60% on the
 fixture curricula and broke 3 length-guarantee tests, a bigger call than
 one pilot should make; see "Session 17" and #1a below for the owner
-question this leaves open._
+question this leaves open. Owner review on PR #41 caught two real bugs in
+pilots 8/9 before merge, both fixed: the drill-streak breaker ran after
+a due scheduled reactivation instead of before it, so the reactivation
+could still win and continue the exact run the mechanism exists to
+break; and `_speak_note_text()` could narrate a bare "," left over
+between two «...»-marked phrases as its own meaningless TTS call — now a
+beat instead. Also tightened the «» validation to actually run the
+matching regex instead of just comparing counts._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -564,6 +571,68 @@ note can only appear via this new fallback, not the ordinary per-exercise
 random roll — isolates which mechanism produced it), `drill_streak_limit=3`.
 Confirms exactly 3 isolated recalls, then a note. 91 → 92 tests, all
 passing; `audiolesson validate` unchanged.
+
+**Owner review on PR #41: the streak breaker ran too late — a due
+scheduled reactivation could still win first.** The first cut put the
+whole streak-triggered block at its original step-3 position, *after*
+step 1 (a due scheduled reactivation). Step 1 sets `acted = True`
+unconditionally whenever something is due, and step 3 was guarded by
+`if not acted`, so on any turn where a reactivation happened to be due
+*and* the streak was already at its limit, the reactivation fired —
+another isolated recall — and the streak check never even ran. Exactly
+the uninterrupted run this mechanism exists to break, just relocated
+one step earlier in the ladder.
+
+Fixed by moving the whole check to a new step 0, before step 1, so it
+runs before *any* branch that would emit another recall — not only the
+ordinary review path (step 4) the original test already covered. Step
+1's due-reactivation loop is now itself guarded by `if not acted`, since
+step 0 may have already consumed the turn. The periodic (non-streak)
+dialogue check keeps its old step-3 position and lost the now-redundant
+`or streak_triggered` in its condition — step 0 already tried both
+dialogue and note for that case.
+
+Added `test_high_drill_streak_wins_over_a_due_reactivation_too`:
+introduces one new item immediately (scheduling a reactivation a few
+exercises later) with `drill_streak_limit=2`, so the reactivation's due
+turn coincides with the streak already being at the limit. Confirmed
+against the pre-fix code first that this exact scenario reproduced the
+bug (`['intro', 'recall', 'recall', 'recall', 'note', ...]` — the
+reactivation winning at position 3, note pushed to 4) before fixing it
+(`[..., 'note', ...]` at position 3). 92 → 93 tests, all passing;
+`audiolesson validate` unchanged.
+
+**Owner review on PR #41, second finding: `_speak_note_text()` could
+narrate bare punctuation.** A note that marks a short list of phrases —
+exactly `godur_gender`'s real shape, `In «Góðan daginn», «Góða nótt»,
+and «Gott kvöld», ...` — splits into a "," fragment between two of the
+marked phrases wherever the only text separating them is punctuation.
+The first cut narrated every non-empty split fragment unconditionally,
+so a bare `","` became its own meaningless instructor-language TTS call.
+The existing test (`Say «halló» to greet someone, and «bless» ...`)
+didn't expose it because none of its prose fragments happened to be
+punctuation-only.
+
+Fixed in `_speak_note_text()`: a prose fragment with no alphanumeric
+characters now becomes a beat (`self._beat`) instead of a `_narr` call —
+preserving the pause the punctuation implied without synthesizing it as
+speech. A fragment with real words (e.g. `", and"`) is unaffected and
+still narrates normally. Added
+`test_note_text_does_not_narrate_bare_punctuation_between_marked_phrases`,
+using the actual `"In «A», «B», and «C», ..."` shape, confirming the
+bare `","` becomes a pause while `", and"` still narrates. 93 → 94 tests.
+
+**Owner review on PR #41, smaller points, both fixed:** (1) validation
+compared `«`/`»` *counts* only, which passes malformed markup with one
+of each but not actually paired — `"»foo«"` (reversed order) or one real
+pair plus a stray unmatched open. Moved the shared `NOTE_TARGET_RE` from
+`exercises.py` into `content.py` (so validation can use the same regex
+without a circular import) and changed the check to run the regex and
+confirm nothing with a `«` or `»` is left over, instead of comparing
+counts. Added `test_note_with_equal_but_malformed_guillemet_counts_is_rejected`
+(`"»uh oh« then «real»"` — one of each character, still rejected). 94 → 95
+tests. (2) `Builder.note()`'s docstring still said "instructor only," no longer
+true after pilot 8 — reworded.
 
 ### Pilot 10, investigated: ending a lesson early instead of padding with a second review pass
 
@@ -2075,13 +2144,22 @@ Verified in this session:
       milestone notes. The other ~46 cultural asides also name Icelandic
       words inline and could use the same markup, but that's now just
       content authoring with no mechanism gap left — not done here.
+      Owner review on PR #41 caught a bare-punctuation-narration bug
+      (fixed: a punctuation-only split fragment is now a beat, not a
+      `_narr` call) and a count-only validation gap (fixed: validation
+      now runs the matching regex instead of comparing counts).
    9. alternative-activity-or-stop fallback for a high `drill_streak`
       with no eligible dialogue (#34 point 6, other half; session 17).
-      **Done.** `build()`'s step 3 now pulls a note forward instead when
-      the streak is high and no dialogue fits, instead of silently
-      falling through to another isolated recall; the "or stop" half
-      needed no new code since step 5's existing cascade already ends
-      the lesson once genuinely nothing is left. See "Pilot 9" above.
+      **Done.** `build()`'s step 0 (moved earlier on owner review — see
+      below) pulls a note forward instead when the streak is high and no
+      dialogue fits, instead of silently falling through to another
+      isolated recall; the "or stop" half needed no new code since step
+      5's existing cascade already ends the lesson once genuinely
+      nothing is left. See "Pilot 9" above. Owner review on PR #41 found
+      the first cut ran this check *after* step 1 (a due scheduled
+      reactivation), so the reactivation could still win and continue
+      the run — fixed by moving the whole check to run first, before any
+      branch that emits another recall.
    10. ending a lesson early instead of padding with a second review
        pass (#34 point 5, other half; session 17). **Investigated, left
        at the existing default.** The mechanism already exists
