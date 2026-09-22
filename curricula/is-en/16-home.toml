@@ -103,10 +103,16 @@ topics = ["home"]
 id = "hus"
 kind = "vocab"
 target = "hús"
-meaning = "a house"
+meaning = "house"
 meaning_ja = "家"
 difficulty = 1
+tags = ["gendered_noun"]
+gender = "neut"
 topics = ["home"]
+# "hús" is neuter, and nominative and accusative happen to look identical for neuter nouns —
+# so this same item can be the "godur_noun" construction's own worked example (issue #29 owner
+# review: bíll/bók/hús as independently-known nouns whose gender, once learned, lets the learner
+# generate "Góður bíll."/"Góð bók."/"Gott hús." without those exact phrases ever being authored).
 
 [[items]]
 id = "rum"

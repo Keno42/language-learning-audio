@@ -68,6 +68,15 @@ class Item:
     instruction: str = ""  # transform: known-language instruction, e.g. "Make it negative:"
     examples: list[TransformExample] = field(default_factory=list)  # transform pairs
     order: int = 0
+    gender: str | None = None  # noun's grammatical gender ("masc" | "fem" | "neut"), for agreement
+    # construction: {slot} name -> {gender: surface form}. Unlike `slots`, an agreement slot is
+    # never filled by picking an item — its text is derived from the *gender of whichever fill
+    # item* (in another slot) carries a `.gender`. This is what lets a construction's own wording
+    # (not just which noun it names) change to fit a noun the learner already knows independently,
+    # e.g. "{adj} {noun}." with agreement={"adj": {"masc": "Góður", ...}} genuinely generates
+    # "Góður bíll."/"Góð bók."/"Gott hús." rather than requiring each as its own authored phrase
+    # (issue #29 owner review: a real generate-from-parts pilot, not fixed-phrase accumulation).
+    agreement: dict[str, dict[str, str]] = field(default_factory=dict)
 
     # ---- derived helpers -------------------------------------------------
 
@@ -213,9 +222,18 @@ class Curriculum:
         return [i for i in self.items if tag in i.tags]
 
     def resolve_slots(self, construction: Item, fills: dict[str, Item]) -> tuple[str, str]:
-        """Return (target, meaning) with every slot filled from ``fills``."""
+        """Return (target, meaning) with every slot filled from ``fills``.
+
+        Agreement placeholders (``construction.agreement``) resolve first, from the gender of
+        whichever filled item carries one — so the construction's own wording, not just which
+        item it names, tracks the noun that was picked.
+        """
         target = construction.target
         meaning = construction.meaning
+        if construction.agreement:
+            gender = next((item.gender for item in fills.values() if item.gender), None)
+            for slot, forms in construction.agreement.items():
+                target = target.replace("{" + slot + "}", forms[gender])
         for slot, item in fills.items():
             target = target.replace("{" + slot + "}", item.target.rstrip("."))
             meaning = meaning.replace("{" + slot + "}", item.meaning.rstrip("."))
@@ -416,12 +434,22 @@ def validate(cur: Curriculum) -> None:
             if not slots:
                 raise CurriculumError(f"construction {it.id!r} has no {{slot}} in its target")
             for s in slots:
+                if s in it.agreement:
+                    # an agreement placeholder is never filled by picking an item (see
+                    # Item.agreement), so it's exempt from the [slots]/meaning checks below —
+                    # its own invariant is just that it covers every gender it might meet.
+                    missing = {"masc", "fem", "neut"} - set(it.agreement[s])
+                    if missing:
+                        raise CurriculumError(f"construction {it.id!r}: agreement for {{{s}}} is missing forms for {sorted(missing)}")
+                    continue
                 if s not in it.slots:
                     raise CurriculumError(f"construction {it.id!r}: slot {s!r} has no tag in [slots]")
                 if "{" + s + "}" not in it.meaning:
                     raise CurriculumError(f"construction {it.id!r}: meaning must also contain {{{s}}}")
                 if not cur.items_with_tag(it.slots[s]):
                     raise CurriculumError(f"construction {it.id!r}: no item carries tag {it.slots[s]!r}")
+            if it.agreement and not any(g.gender for tag in it.slots.values() for g in cur.items_with_tag(tag)):
+                raise CurriculumError(f"construction {it.id!r}: has agreement but no slot's tagged items carry a gender")
             for s, ref in it.example.items():
                 if ref not in ids:
                     raise CurriculumError(f"construction {it.id!r}: example fill {ref!r} unknown")

@@ -1,6 +1,18 @@
 # 10 — getting around: bus, taxi, airport, car
 
 [[items]]
+id = "bill"
+kind = "vocab"
+target = "bíll"
+meaning = "car"
+meaning_ja = "車"
+difficulty = 1
+tags = ["gendered_noun"]
+gender = "masc"
+topics = ["transport"]
+pronunciation_notes = "nominative — the subject form; 'bíl' (module 25) is the accusative object form"
+
+[[items]]
 id = "leigubil"
 kind = "vocab"
 target = "leigubíl"

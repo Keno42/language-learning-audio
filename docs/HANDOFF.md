@@ -1,7 +1,8 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-21 (session 23: issue #29, acting on the triage —
-see below; session 22 closes out issue #44). **Issue #34** ("Improve
+_Last updated 2026-09-22 (session 23: issue #29, acting on the triage and
+then a generative agreement pilot — see below; session 22 closes out
+issue #44). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -68,12 +69,21 @@ material needs an actual *transfer* opportunity, not just a favorable
 `order` — `godur_gender`'s own discrimination practice was still only
 ever replaying its three founding examples. Added `Note.transfer_items`
 and wired one new-gender noun per gender into `godur_gender` (session
-23's third pass) as a first instance of this; the broader question the
-owner also raised — families of fixed phrases (`Gjörðu svo vel`, `Verði
-þér að góðu`, ...) that share morphology but are taught as unrelated
-strings — is explicitly for the still-not-started audit (item 2) to
-work through case by case. #29 stays open until the curriculum-wide
-audit completes a full pass._
+23's third pass) as a first instance of this; a fourth pass fixed a real
+grammar blocker in that wiring (case, not just gender, differed — see
+"Session 23"). The owner then added a further, explicit requirement
+before #29 itself can close: at least one construction where the learner
+generates a novel combination from independently-known parts, not a
+recalled pre-authored phrase — session 23's fifth pass built exactly
+that (`godur_noun`, a real gender-agreement construction whose own
+adjective wording resolves from a filled noun's `.gender`, genuinely
+producing "Góður bíll."/"Góð bók."/"Gott hús." with none of the three
+authored as its own item). The broader question the owner also raised —
+families of fixed phrases (`Gjörðu svo vel`, `Verði þér að góðu`, ...)
+that share morphology but are taught as unrelated strings — is
+explicitly for the still-not-started audit (item 2) to work through case
+by case. #29 stays open until the curriculum-wide audit (item 2) and the
+case/tense/modality pilot (item 3) are done._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -1540,6 +1550,99 @@ bigger feature than this fix's scope.
 
 107 tests (106 → 107), all passing; `audiolesson validate` unchanged
 by this pass.
+
+**Fifth pass, same PR: a genuine generate-from-parts pilot — the owner's
+final requirement before #29 can close.** Confirming the fourth pass
+mergeable, the owner added a new, explicit acceptance criterion for
+closing #29 itself (not a blocker for this PR): "at least one
+grammar/construction pilot where the learner generates a novel
+combination rather than recalling a pre-authored phrase." Worked example:
+a learner who already separately knows (1) the `góður`/`góð`/`gott`
+gender distinction and (2) that `bíll`/`bók`/`hús` are masc/fem/neut
+should be able to produce "Góður bíll."/"Góð bók."/"Gott hús." as
+combinations that were never authored as their own phrase items — making
+#29's own "notice → model → apply to new vocabulary" pipeline actually
+true, rather than `godur_matur`'s "author a complete phrase → memorize it
+→ explain post-hoc that it fits a pattern" (flagged as still
+fixed-phrase accumulation at the end of the fourth pass above, and the
+owner reiterated that discomfort persisted through it).
+
+**What was missing.** The recombination machinery this criterion needs
+already existed (`Builder.generate()`/`_recombine()` in `exercises.py`
+picks a combo of learner-known fills for a construction's slot(s) and
+computes the sentence via `Curriculum.resolve_slots()` — nothing about
+the *result* is ever stored as its own item). What no construction had
+ever needed before is a slot fill that changes the **construction's own
+other wording**, not just which word is named: every existing
+`slots`/`example` mechanism does plain text substitution into a fixed
+template, so a noun slot could vary which noun appeared, but never make
+the adjective *next to it* agree.
+
+**Fix.** Added `Item.gender: str | None` (masc/fem/neut, for nouns) and
+`Item.agreement: dict[str, dict[str, str]]` (construction: `{slot}` name
+→ `{gender: surface form}`). `Curriculum.resolve_slots()` now resolves
+agreement placeholders first, from the `.gender` of whichever filled item
+carries one, before the ordinary per-slot substitution — so
+`{adj} {noun}.` with `agreement = {adj: {masc: "Góður", fem: "Góð", neut:
+"Gott"}}` genuinely generates three different surface strings from one
+authored template, driven entirely by which independently-known noun
+fills `{noun}`. `validate()` exempts an agreement placeholder from the
+usual "must have a `[slots]` tag and appear in `meaning`" checks (it's
+never filled by picking an item) but requires its form dict cover all
+three genders, and requires at least one of the construction's real
+slots to be tagged with gendered items at all — so a construction can't
+declare agreement it can never actually resolve.
+
+**Content.** Added `godur_noun` (module 18, `curricula/is-en/
+18-adjectives.toml`): `{adj} {noun}.` / `Good {noun}.`, slot `noun`
+tagged `gendered_noun`, `agreement` as above, `example = {noun: "hus"}`,
+gated on the three items behind `godur_gender_nominative` plus `hus`
+itself. Three gendered nouns back it: `bill` (masc, "bíll"/"car", module
+10) and `bok` (fem, "bók"/"book", module 15) are new; `hus` (neut,
+module 16, already existed) was tagged `gendered_noun` and had its
+meaning trimmed from "a house" to "house" (matching the article-free
+"Good X." style `godur_matur`/`gott_vedur` already use, and needed
+because a bare-noun `{noun}` slot inside "Good {noun}." would otherwise
+double up the article: "Good a house."). `hús` being nominative/
+accusative-identical for neuter (the same fact `godur_gender_nominative`
+already explains) is also what let `hus` be reused directly as the
+construction's own worked example rather than adding a fourth new item.
+
+**Verified directly:** `cur.resolve_slots(godur_noun, {"noun": item})`
+for `bill`/`bok`/`hus` produces exactly `"Góður bíll."`/`"Góð bók."`/
+`"Gott hús."` — the owner's own worked example, character for character
+— and none of those three strings exists anywhere else in the curriculum
+as its own item's `target` (checked directly, not just by construction:
+if some future edit ever adds one as a fixed phrase, `validate()`'s
+existing duplicate-target check catches it too). Also ran
+`Builder.generate()` against a learner who knows only `godur_noun`'s
+prereqs (not `bill`/`bok`, which stay learnable independently later) —
+it produces `"Gott hús."`, proving the same machinery every other
+construction uses for lesson-time recombination already picks this one
+up with zero changes beyond the new fields.
+
+**Tests:** three new ones against a synthetic curriculum (isolated from
+real content decisions, same reasoning as `_transfer_curriculum` above)
+cover the agreement mechanism itself: resolves correctly per gender,
+rejects an `agreement` dict missing a gender, rejects a construction with
+no gendered slot to resolve from. A fourth, against the real curriculum,
+pins the exact three generated strings and that none is a pre-authored
+item. A fifth exercises `Builder.generate()` end-to-end. Also widened
+`test_icelandic_course_has_complete_japanese_glosses`'s per-slot
+Japanese-gloss check to skip agreement placeholders (they're never filled
+from an item's own meaning, so have no reason to appear in it).
+
+112 tests (107 → 112), all passing; `audiolesson validate` unchanged
+(a new construction and gendered nouns, not a sequencing change).
+
+**Still open for #29 itself** (this pilot satisfies the owner's new
+criterion for a *single* construction; #29's own remaining items are
+unaffected): item 2 (curriculum-wide dependency audit) and item 3 (piloting
+whether the pattern generalizes to case/tense/modality) are still not
+started; cluster A (numbers/money, gendered number forms) is still the
+one deferred triage item; the `Gjörðu svo vel`/`Verði þér að góðu`/
+`Gangi þér vel`/`Eigðu góðan dag` family is still explicitly deferred to
+the audit.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 

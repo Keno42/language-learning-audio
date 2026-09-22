@@ -771,6 +771,117 @@ class CurriculumTests(unittest.TestCase):
         self.assertIn("nominative", nominative.text.lower())
         self.assertIn("accusative", nominative.text.lower())
 
+    def _agreement_curriculum(self):
+        """A synthetic gender-agreement construction, isolated from the real curriculum's own
+        choice of adjective/nouns (same reasoning as ``_transfer_curriculum`` above): this tests
+        the *mechanism* — that a construction's own wording, not just which item fills a slot,
+        can depend on a filled item's ``gender`` — independent of which real Icelandic words
+        happen to carry it."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "m", "kind": "vocab", "target": "m-noun", "meaning": "m-thing", "tags": ["gnoun"], "gender": "masc"},
+                {"id": "f", "kind": "vocab", "target": "f-noun", "meaning": "f-thing", "tags": ["gnoun"], "gender": "fem"},
+                {"id": "n", "kind": "vocab", "target": "n-noun", "meaning": "n-thing", "tags": ["gnoun"], "gender": "neut"},
+                {
+                    "id": "agree",
+                    "kind": "construction",
+                    "target": "{adj} {noun}.",
+                    "meaning": "Good {noun}.",
+                    "slots": {"noun": "gnoun"},
+                    "agreement": {"adj": {"masc": "GoodM", "fem": "GoodF", "neut": "GoodN"}},
+                    "example": {"noun": "n"},
+                },
+            ],
+        }
+        return curriculum_from_dict(raw)
+
+    def test_agreement_slot_derives_the_constructions_own_wording_from_the_filled_noun_gender(self):
+        """Issue #29 owner review (final requirement): a genuine generate-from-parts pilot
+        needs the construction's own wording (not just which noun it names) to change with an
+        independently-known noun's gender — three surface strings from one authored template,
+        never each written out as its own item. See ``Item.agreement``/``resolve_slots``."""
+        cur = self._agreement_curriculum()
+        agree = cur.by_id["agree"]
+        cases = {"m": ("GoodM m-noun.", "Good m-thing."), "f": ("GoodF f-noun.", "Good f-thing."), "n": ("GoodN n-noun.", "Good n-thing.")}
+        for noun_id, (target, meaning) in cases.items():
+            got_target, got_meaning = cur.resolve_slots(agree, {"noun": cur.by_id[noun_id]})
+            self.assertEqual((got_target, got_meaning), (target, meaning), noun_id)
+
+    def test_agreement_construction_requires_all_three_genders(self):
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "n", "kind": "vocab", "target": "n-noun", "meaning": "n-thing", "tags": ["gnoun"], "gender": "neut"},
+                {
+                    "id": "agree",
+                    "kind": "construction",
+                    "target": "{adj} {noun}.",
+                    "meaning": "Good {noun}.",
+                    "slots": {"noun": "gnoun"},
+                    "agreement": {"adj": {"masc": "GoodM", "neut": "GoodN"}},  # missing "fem"
+                    "example": {"noun": "n"},
+                },
+            ],
+        }
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
+
+    def test_agreement_construction_requires_a_gendered_slot(self):
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "n", "kind": "vocab", "target": "n-noun", "meaning": "n-thing", "tags": ["gnoun"]},  # no gender
+                {
+                    "id": "agree",
+                    "kind": "construction",
+                    "target": "{adj} {noun}.",
+                    "meaning": "Good {noun}.",
+                    "slots": {"noun": "gnoun"},
+                    "agreement": {"adj": {"masc": "GoodM", "fem": "GoodF", "neut": "GoodN"}},
+                    "example": {"noun": "n"},
+                },
+            ],
+        }
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
+
+    def test_godur_noun_generates_the_owners_worked_example_without_authoring_the_phrases(self):
+        """Issue #29 owner review (final requirement before closing #29): 'at least one
+        grammar/construction pilot where the learner generates a novel combination rather than
+        recalling a pre-authored phrase' — the owner's own worked example is a learner who
+        already knows the góður/góð/gott gender distinction and that bíll/bók/hús are
+        masc/fem/neut, producing 'Góður bíll.'/'Góð bók.'/'Gott hús.' as combinations that were
+        never authored as their own phrase items. Proves both halves: the real ``godur_noun``
+        construction really does generate exactly those three strings, AND none of the three
+        exists anywhere in the curriculum as its own item target."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        construction = cur.by_id["godur_noun"]
+        cases = {"bill": "Góður bíll.", "bok": "Góð bók.", "hus": "Gott hús."}
+        targets = {it.target.strip().lower() for it in cur.items}
+        for noun_id, expected in cases.items():
+            target, _ = cur.resolve_slots(construction, {"noun": cur.by_id[noun_id]})
+            self.assertEqual(target, expected)
+            self.assertNotIn(expected.lower(), targets, f"{expected!r} must not also exist as its own pre-authored item")
+
+    def test_godur_noun_construction_is_reachable_once_its_prereqs_are_known(self):
+        """The generative pilot must actually be usable, not just correct in isolation: once a
+        learner has met godur_noun's prereqs (the nominative gender concept plus its own
+        worked-example noun), Builder.generate() -- the same machinery every other construction
+        uses for genuinely novel recombination during a lesson -- must be able to produce a
+        fill for it."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        construction = cur.by_id["godur_noun"]
+        learner = LearnerState("is", "en", "A1")
+        for iid in construction.prereqs:
+            learner.items[iid] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="situation")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
+        gen = b.generate(construction)
+        self.assertIsNotNone(gen, "godur_noun could not be generated once its prereqs were known")
+        self.assertEqual(gen.target, "Gott hús.")  # "hus" is the only gendered_noun known at this point
+
     def test_milestone_eligible_as_soon_as_its_last_item_is_exercised_this_lesson(self):
         """Owner review follow-up on #32: a milestone must not wait an extra lesson just
         because ``has_met`` doesn't count an item introduced earlier in the *same*, still
@@ -871,7 +982,12 @@ class CurriculumTests(unittest.TestCase):
             if it.situation:
                 self.assertTrue(any(ord(ch) > 0x3000 for ch in it.situation), it.id)
             if it.kind == "construction":
+                # an agreement slot (see Item.agreement) is never filled from an item's own
+                # meaning -- it resolves from another slot's gender -- so it has no reason to
+                # appear in the translated meaning the way a real fill-slot does.
                 for slot in it.slot_names:
+                    if slot in it.agreement:
+                        continue
                     self.assertIn("{" + slot + "}", it.meaning, f"{it.id}: slot missing from Japanese meaning")
         for d in cur.dialogues:
             self.assertTrue(any(ord(ch) > 0x3000 for ch in d.setting), d.id)

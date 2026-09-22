@@ -447,6 +447,27 @@ situation = "You try the second sweater. Say this one is better."
 situation_ja = "二枚目のセーターを試します。こっちのほうがいいと言ってください。"
 
 [[items]]
+id = "godur_noun"
+kind = "construction"
+target = "{adj} {noun}."
+meaning = "Good {noun}."
+meaning_ja = "良い{noun}。"
+difficulty = 3
+topics = ["adjectives", "grammar"]
+slots = { noun = "gendered_noun" }
+agreement = { adj = { masc = "Góður", fem = "Góð", neut = "Gott" } }
+example = { noun = "hus" }
+prereqs = ["godur_matur", "gott_vedur", "thad_er_god_hugmynd", "hus"]
+pronunciation_notes = "the adjective's own ending tracks the noun's gender, not just which noun is named — see the «góður/góð/gott» note (90-notes.toml)"
+# Issue #29 owner review: earlier milestones (godur_gender, godur_gender_nominative) only ever
+# paired the góður/góð/gott forms with pre-authored phrases — the *learner* never combined the
+# gender rule with a noun themselves. This construction is the actual generate-from-parts pilot:
+# `resolve_slots` derives {adj} from whichever known noun (bíll/bók/hús, each independently
+# learnable, see their own gendered_noun items) fills {noun}, so "Góður bíll."/"Góð bók." are
+# never authored as their own items — they're produced the first time the learner reaches this
+# construction already knowing a masculine or feminine gendered_noun.
+
+[[items]]
 id = "adjective_opposites"
 kind = "transform"
 target = "gott → vont"
