@@ -199,124 +199,53 @@ topics = ["time"]
 situation = "Your phone is dead. Ask a passer-by what time it is."
 situation_ja = "携帯の電池が切れました。通行人に時間を聞いてください。"
 
+# "(o'clock)"/"（時）" used to be baked into these four items' own meaning, redundant with
+# klukkan_er's own "It's {hour} o'clock."/"今{hour}時です。" wrapper text (issue #29 cluster
+# A cleanup, found while reusing these as the neuter number forms 1000/100-amount
+# constructions need — "eitt/tvö/þrjú/fjögur" are also the correct neuter forms for
+# counting neuter nouns like "þúsund"/"hundrað", not just the clock's own hour slot).
 [[items]]
 id = "eitt"
 kind = "vocab"
 target = "eitt"
-meaning = "one (o'clock)"
-meaning_ja = "1（時）"
+meaning = "one"
+meaning_ja = "1"
 difficulty = 1
-tags = ["hour"]
+tags = ["hour", "big_count"]
+gender = "neut"
 topics = ["time", "numbers"]
 
 [[items]]
 id = "tvo"
 kind = "vocab"
 target = "tvö"
-meaning = "two (o'clock)"
-meaning_ja = "2（時）"
+meaning = "two"
+meaning_ja = "2"
 difficulty = 1
-tags = ["hour"]
+tags = ["hour", "big_count"]
+gender = "neut"
 topics = ["time", "numbers"]
 
 [[items]]
 id = "thrju"
 kind = "vocab"
 target = "þrjú"
-meaning = "three (o'clock)"
-meaning_ja = "3（時）"
+meaning = "three"
+meaning_ja = "3"
 difficulty = 1
-tags = ["hour"]
+tags = ["hour", "big_count"]
+gender = "neut"
 topics = ["time", "numbers"]
 
 [[items]]
 id = "fjogur"
 kind = "vocab"
 target = "fjögur"
-meaning = "four (o'clock)"
-meaning_ja = "4（時）"
+meaning = "four"
+meaning_ja = "4"
 difficulty = 2
-tags = ["hour"]
-topics = ["time", "numbers"]
-
-[[items]]
-id = "fimm"
-kind = "vocab"
-target = "fimm"
-meaning = "five"
-meaning_ja = "5"
-difficulty = 1
-tags = ["hour", "number"]
-topics = ["time", "numbers"]
-
-[[items]]
-id = "sex"
-kind = "vocab"
-target = "sex"
-meaning = "six"
-meaning_ja = "6"
-difficulty = 1
-tags = ["hour", "number"]
-topics = ["time", "numbers"]
-
-[[items]]
-id = "sjo"
-kind = "vocab"
-target = "sjö"
-meaning = "seven"
-meaning_ja = "7"
-difficulty = 1
-tags = ["hour", "number"]
-topics = ["time", "numbers"]
-
-[[items]]
-id = "atta"
-kind = "vocab"
-target = "átta"
-meaning = "eight"
-meaning_ja = "8"
-difficulty = 1
-tags = ["hour", "number"]
-topics = ["time", "numbers"]
-
-[[items]]
-id = "niu"
-kind = "vocab"
-target = "níu"
-meaning = "nine"
-meaning_ja = "9"
-difficulty = 1
-tags = ["hour", "number"]
-topics = ["time", "numbers"]
-
-[[items]]
-id = "tiu"
-kind = "vocab"
-target = "tíu"
-meaning = "ten"
-meaning_ja = "10"
-difficulty = 1
-tags = ["hour", "number"]
-topics = ["time", "numbers"]
-
-[[items]]
-id = "ellefu"
-kind = "vocab"
-target = "ellefu"
-meaning = "eleven"
-meaning_ja = "11"
-difficulty = 1
-tags = ["hour", "number"]
-topics = ["time", "numbers"]
-
-[[items]]
-id = "tolf"
-kind = "vocab"
-target = "tólf"
-meaning = "twelve"
-meaning_ja = "12"
-difficulty = 1
-tags = ["hour", "number"]
+tags = ["hour", "big_count"]
+gender = "neut"
 topics = ["time", "numbers"]
 
 [[items]]

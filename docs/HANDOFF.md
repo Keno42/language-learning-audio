@@ -1,7 +1,9 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-22 (session 25: issue #48, a real partner line
-inside connect()'s recombination fallback — see below; session 24 covers
+_Last updated 2026-09-22 (session 26: issue #29 resumed — cluster A
+(numbers/money), with #48's conversational bar newly applied as a design
+lens; see below. Session 25 covers issue #48, a real partner line
+inside connect()'s recombination fallback; session 24 covers
 issue #49's embedded third-language examples and pronunciation pacing;
 session 23 covers issue #29's triage and generative agreement pilot;
 session 22 closes out issue #44). **Issue #34** ("Improve
@@ -54,18 +56,26 @@ history. 104 tests, all passing.
 curriculum around reusable concepts and communicative capabilities") —
 (1) triage all `dialogue_sequencing_report()` findings (9 repeat
 offenders plus large single-item gaps like `heyra`) — **done**, posted
-as a comment on #29, and now fully acted on except cluster A: session 23
-fixed the one-dialogue content bug, `nagranni`'s two big gaps
-(`gott_ad_heyra` relocated, `verð að + infinitive` turned into a real
-construction), and the rest of cluster C's repeat offenders (`líka`,
-`sjáðu`, `vegabréf`, `ferð`, `Það er góð hugmynd`) — 49 → 30 advisory
-findings, see "Session 23". Cluster A (numbers/money) is the one
-remaining item, flagged as needing its own dedicated pass over
-Icelandic's gendered number forms, not a quick relocation; (2) a
-curriculum-wide dependency audit across all 26 modules for reusable
-concepts and late-introduced high-value concepts — not started; (3) a
-pilot testing whether the `godur_gender` gender-agreement pattern
-generalizes to case/tense/modality — not started. The owner also
+as a comment on #29. Session 23 fixed the one-dialogue content bug,
+`nagranni`'s two big gaps (`gott_ad_heyra` relocated, `verð að +
+infinitive` turned into a real construction), and the rest of cluster C's
+repeat offenders (`líka`, `sjáðu`, `vegabréf`, `ferð`, `Það er góð
+hugmynd`) — 49 → 30 advisory findings. Session 26 closed the one item
+left after that, cluster A (numbers/money): 1–12 repositioned ahead of
+their first real use, a genuine gendered-count-word split (masc/fem/neut,
+not just more vocabulary), two amount constructions generating novel
+"It costs N krónur"/"N thousand krónur" sentences from independently-known
+parts (`thad_kostar_big`, `einn_tvo_thrjar`), and — applying #48's own bar
+as the owner asked — verified those constructions actually reach a real
+voiced exchange via `connect()`, which caught and fixed a latent bug where
+`connect()` could speak an unresolved construction template verbatim
+(see "Session 26"). Singular/plural agreement on "hundrað" and "ein"
+stayed explicitly unmodeled, by design — see that section for why. Triage
+item (1) is now fully closed; (2) a curriculum-wide dependency audit across
+all 26 modules for reusable concepts and late-introduced high-value
+concepts — not started; (3) a pilot testing whether the `godur_gender`
+gender-agreement pattern generalizes to case/tense/modality — not
+started. The owner also
 reviewed a real Lesson 3 run and added a new dimension to #29: reusable
 material needs an actual *transfer* opportunity, not just a favorable
 `order` — `godur_gender`'s own discrimination practice was still only
@@ -2406,6 +2416,147 @@ touched, since having *some* learner-initiated dialogues (asking a
 stranger for directions, ordering food) isn't necessarily wrong and #48's
 own criteria only ask for *at least one* fully native-initiated episode,
 which the other 25 already provide.
+
+## Session 26: issue #29 resumed, cluster A (numbers/money) — with #48's conversational lens applied
+
+The owner asked to resume #29's one remaining item (cluster A, numbers/money —
+flagged at the end of session 23 as needing its own dedicated pass) and,
+explicitly, to newly weigh each piece of new content against whether it meets
+#48's conversational bar (partner-voiced, coherent exchanges — session 25),
+not just #29's own "generate from parts" bar. Gave a five-phase roadmap;
+this session is phase 1 (numbers/money vertical slice) only.
+
+**Basic cardinal numbers, repositioned.** 1–12 were split across two modules
+that both come *after* module 03 (the café dialogues, which already mention
+prices in free text) — 1–4 lived with the clock-hour items in module 06, 5–12
+lived in module 08 itself. Relocated all twelve into module 02, ahead of
+their first real use, in counting order. Relocation is id-based everywhere
+that matters (prereqs, tags, dialogue `requires`), so this only changes
+`order`, confirmed by grepping every cross-module reference before moving
+anything. Picked up one small pre-existing bug opportunistically while
+touching the four neuter clock-hour items for reuse (see next paragraph):
+`klukkan_er` resolved to "It's three (o'clock) o'clock." — the hour word's
+own `meaning` carried a redundant "(o'clock)" the wrapper sentence already
+supplies. Trimmed to "one"/"two"/... to match how 5–12 were already worded.
+
+**Gendered forms.** Icelandic's 1–4 (only) inflect for the gender of the noun
+they count; 5–12 don't. The existing `godur_noun`-era digits (module 06's
+neuter clock hours: eitt/tvö/þrjú/fjögur) are also the correct neuter forms
+for counting neuter nouns, so they were reused directly — adding
+`gender = "neut"` and a `big_count` tag — rather than authored a second time
+under new ids (`validate()` rejects two items sharing a `target`). Added the
+missing feminine set (`ein`/`tvær`/`þrjár`/`fjórar`, tag `small_count`) since
+króna (Iceland's currency) is feminine and nothing feminine existed yet. The
+already-existing masculine set (einn/tveir/þrír/fjórir) stays as counting
+words on their own (an isolated `[[notes]]` entry is their only reference)
+but doesn't participate in either money construction below — money is never
+counted in the masculine form.
+
+**Amount constructions — and where gender agreement stopped short of a real
+model.** Two of the curriculum's seven "price" items used to be whole
+fixed-phrase amounts (`fimm_hundrud_kronur`, `tvo_thusund_kronur`, ...) —
+exactly the pattern #29 exists to fix. Two real constructions now generate
+amounts from independently-known parts instead, mirroring `godur_noun`'s own
+shape (session 23) applied to numbers:
+
+- `thad_kostar_big`: `"Það kostar {count} þúsund krónur."`, `count` tagged
+  `big_count` (5–12 plus the neuter 1–4) — 12 possible fills, all verified
+  correct by direct `resolve_slots()` comparison against the pre-existing
+  fixed phrases they overlap with.
+- `einn_tvo_thrjar` (upgraded from a fixed phrase, same id/situation/
+  meaning framing as the phrase-to-construction pattern session 23 used for
+  `godur_matur` → `godur_noun`): `"{count} krónur."`, `count` tagged
+  `small_count` (the new feminine set) — bare nominative label, deliberately
+  *not* wrapped in "Það kostar" (see below).
+
+Two real agreement gaps surfaced while building these, both caught by
+direct `resolve_slots()` inspection before they could reach a test, both
+handled by **descoping the unsafe case rather than modeling it**, matching
+this project's standing preference for correctness over completeness:
+
+1. **"hundrað" doesn't pluralize like "þúsund".** Icelandic pluralizes
+   "hundrað" → "hundruð" for any count but one ("fimm hundruð", not "fimm
+   hundrað") — a genuine number-agreement dimension distinct from the
+   `Item.gender`/`Item.agreement` mechanism (hardcoded to
+   masc/fem/neut), which can't represent it without a new mechanism.
+   `thad_kostar_big` was first drafted as a *two*-slot construction
+   (`{count} {unit} krónur`, `unit` = hundrað or þúsund); resolving it for
+   "hundrað" produced "Það kostar tvö hundrað krónur." — wrong. Rather than
+   build singular/plural modeling under this pass's scope, dropped "hundrað"
+   from the pool entirely and folded "þúsund" into the fixed template text
+   instead of a slot — amounts in hundreds stay the pre-existing fixed
+   phrases. This also matters structurally: a `unit` slot with only one safe
+   filling would have failed `test_directory_curriculum_loads_and_is_large`'s
+   standing invariant that every construction slot have at least two possible
+   fills (so recombination is never a false promise) — caught by that test
+   directly, not just reasoned through.
+2. **"ein" (feminine "one") needs a singular noun, but the construction's
+   text is plural-fixed.** `einn_tvo_thrjar`'s target is the fixed text
+   `"{count} krónur."` (plural); "one" specifically would need "Ein króna."
+   (singular), not "Ein krónur." — the same number-agreement gap as above,
+   on the noun this time instead of the hundreds word. Fix: "ein" carries no
+   `small_count` tag, so it's never chosen as this construction's fill; kept
+   as an ordinary vocab item (still useful — the point of teaching gendered
+   forms at all is recognizing "ein" belongs with feminine nouns generally,
+   not only as this one construction's slot filler).
+   A third, unrelated grammar risk was caught and designed around before it
+   ever became content: `"Það kostar {count} krónur."` (wrapping the
+   feminine counts in the case-governing "Það kostar" frame, as `thad_kostar_
+   big` does) would need the *accusative* forms (accusative "eina" differs
+   from nominative "ein" for exactly the singular) — not modeled, and not
+   worth adding for one construction. `einn_tvo_thrjar` sidesteps this
+   entirely by staying a bare nominative label ("{count} krónur.", no
+   "kostar" frame) — the same shape its original fixed-phrase form already
+   safely used ("A toy coin game with a child: say 'two krónur'.").
+
+**Novel amount generation — verified, not just structurally assumed.**
+Simulated 150 lessons on the real `is-en` curriculum (`apply_to_learner()`,
+matching session 25's own verification method). Both constructions get
+introduced (lesson 84 and 86 respectively at a 20-minute pace) and then hit
+recall's `hinted`/`meaning`/`situation` stages and the `generative`/
+`recombine` stage repeatedly, producing genuinely distinct never-authored
+sentences across the lessons that followed — "Það kostar sjö þúsund
+krónur.", "tólf krónur.", "fjórar krónur.", and so on — all independently
+grammar-checked by eye against the reasoning above (never "ein", never
+"hundrað" in a generated amount).
+
+**Café/payment real use — the #48 lens, and a real latent bug it caught.**
+Applying #48's own bar (does this read as a coherent voiced exchange, not
+just isolated recall) surfaced a genuine, previously-latent bug in
+`do_connect()` itself, not just a gap in new content: `_connect_pair()`
+(planner.py) picks `connect()` candidates by `Item.has_situation` alone —
+it never filtered by `kind`, and a construction can have a `situation` the
+same as any phrase (`einn_tvo_thrjar` always did, even as a plain fixed
+phrase, before this session's upgrade). `Builder.connect()` spoke
+`item.target` directly — for a construction that's an *unfilled template*
+("{count} krónur."), never resolved. `recall()`/`_recall_construction`
+always resolves a construction's slots before speaking it; `connect()`
+never did, because until this session no construction with a `situation`
+had ever been built. Fixed by adding `Builder._connect_target()`, mirroring
+`_recall_construction`'s own `generate()` → `example_fill()`+`resolve_slots()`
+fallback chain, and calling it for both halves of a `connect()` pair. Caught
+before it could ship by directly exercising `Builder.connect()` on
+`einn_tvo_thrjar` paired with `hvad_kostar_thetta` ("Hvað kostar þetta?" →
+"tvær krónur.", the correct feminine form, entirely voiced, no raw
+template) — and confirmed the same fix also silently repairs a pre-existing
+exposure for `talar_thu` (`"Talar þú {language}?"`, already in the
+curriculum from an earlier pilot and already eligible for `connect()` before
+this session touched anything), which would have spoken the raw template
+had `_connect_pair()` ever actually picked it. Added
+`test_connect_resolves_a_construction_instead_of_speaking_its_raw_template`
+(synthetic curriculum, isolated from real-content specifics) pinning the
+general mechanism.
+
+**Not done, out of this pass's scope:** singular/plural (as opposed to
+gender) agreement remains unmodeled — "hundrað" stays a fixed-phrase-only
+word, and nothing generates amounts under 100 with "ein" or over 100 with
+"hundrað". Phase 1's own roadmap treats this as acceptable descoping, not a
+gap to close now; revisit only if a future #29 pass specifically wants
+hundreds-scale generation.
+
+127 tests (126 → 127); `audiolesson validate` unchanged (1006 items, 25
+advisory dialogue-sequencing pairs, same as entering this session — this
+pass touched grammar correctness and positioning, not sequencing).
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 

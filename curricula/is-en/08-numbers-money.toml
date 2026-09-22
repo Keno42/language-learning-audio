@@ -1,45 +1,6 @@
-# 08 — numbers, money, quantities (5–12, 20–50 are introduced in modules 05/06)
-
-[[items]]
-id = "einn"
-kind = "vocab"
-target = "einn"
-meaning = "one"
-meaning_ja = "1"
-difficulty = 1
-tags = ["number"]
-topics = ["numbers"]
-pronunciation_notes = "counting form (masculine); 'eitt' before neuter nouns and for the clock"
-
-[[items]]
-id = "tveir"
-kind = "vocab"
-target = "tveir"
-meaning = "two"
-meaning_ja = "2"
-difficulty = 1
-tags = ["number"]
-topics = ["numbers"]
-
-[[items]]
-id = "thrir"
-kind = "vocab"
-target = "þrír"
-meaning = "three"
-meaning_ja = "3"
-difficulty = 1
-tags = ["number"]
-topics = ["numbers"]
-
-[[items]]
-id = "fjorir"
-kind = "vocab"
-target = "fjórir"
-meaning = "four"
-meaning_ja = "4"
-difficulty = 1
-tags = ["number"]
-topics = ["numbers"]
+# 08 — numbers, money, quantities (1–12 are introduced in module 02, issue #29 cluster A:
+# the cafe dialogues in module 03 already mention prices before this module used to teach
+# any digits at all)
 
 [[items]]
 id = "threttan"
@@ -172,26 +133,6 @@ tags = ["number"]
 topics = ["numbers"]
 
 [[items]]
-id = "hundrad"
-kind = "vocab"
-target = "hundrað"
-meaning = "a hundred"
-meaning_ja = "100"
-difficulty = 1
-tags = ["number"]
-topics = ["numbers"]
-
-[[items]]
-id = "thusund"
-kind = "vocab"
-target = "þúsund"
-meaning = "a thousand"
-meaning_ja = "1000"
-difficulty = 1
-tags = ["number"]
-topics = ["numbers"]
-
-[[items]]
 id = "fimm_hundrud_kronur"
 kind = "vocab"
 target = "fimm hundruð krónur"
@@ -272,6 +213,33 @@ topics = ["money", "shopping"]
 slots = { price = "price" }
 example = { price = "thusund_kronur" }
 prereqs = ["thusund_kronur", "hvad_kostar_thetta"]
+
+# Issue #29 cluster A: the seven "price" items above are each a whole amount memorized as
+# its own fixed phrase — exactly the "more fixed phrases instead of a construction" pattern
+# #29 exists to fix. This construction generates a thousands-scale amount from an independently-
+# known count word (module 02) × a fixed "þúsund krónur" — same shape as godur_noun (module
+# 18), applied to numbers instead of adjective agreement. þúsund itself isn't a slot: it was
+# a two-way {count}{unit} construction at first, but "hundrað" is the only other money_scale
+# candidate and it pluralizes to "hundruð" for any count but one ("fimm hundruð", not "fimm
+# hundrað") — a real agreement dimension (number, not gender) nothing here models, so a unit
+# slot could only ever have had the one safe filling and that fails the "every construction
+# slot has ≥2 possible fills" invariant (test_directory_curriculum_loads_and_is_large). Amounts
+# in hundreds stay the fixed phrases below (fimm_hundrud_kronur etc.) until that's modeled.
+# The under-100 case (bare "{count} krónur.", no "Það kostar" frame) is einn_tvo_thrjar below —
+# kept separate rather than folded in here because "Það kostar" governs the accusative case,
+# which the feminine count words below (ein/tvær/þrjár/fjórar) are not; see its own note.
+[[items]]
+id = "thad_kostar_big"
+kind = "construction"
+target = "Það kostar {count} þúsund krónur."
+meaning = "It costs {count} thousand krónur."
+meaning_ja = "{count}千クローナです。"
+difficulty = 3
+topics = ["money", "shopping"]
+slots = { count = "big_count" }
+example = { count = "tvo" }
+prereqs = ["tvo", "thusund", "kronur", "hvad_kostar_thetta"]
+pronunciation_notes = "count must be the neuter form (eitt/tvö/þrjú/fjögur) below five, since þúsund is neuter — fimm and up don't change with gender"
 
 [[items]]
 id = "thetta_er_dyrt"
@@ -388,14 +356,22 @@ chunks = ["samtals", "mikið samtals", "þetta mikið samtals", "Hvað er þetta
 situation = "You've put five things on the counter. Ask how much it is altogether."
 situation_ja = "カウンターに5つ品物を置きました。全部でいくらか聞いてください。"
 
+# Bare nominative label, not "Það kostar {count} krónur." — "kostar" governs the accusative
+# case, and the feminine count words (ein/tvær/þrjár/fjórar, module 02) are nominative; for
+# count=1 specifically the two forms actually differ ("ein" vs. accusative "eina"), so putting
+# them inside "Það kostar" would generate wrong Icelandic. Staying with the bare label sidesteps
+# the case question entirely, the same way this item's own original fixed phrase always did.
 [[items]]
 id = "einn_tvo_thrjar"
-kind = "phrase"
-target = "Tvær krónur."
-meaning = "Two krónur. (feminine 'two')"
-meaning_ja = "2クローナ。（女性形の「2」）"
+kind = "construction"
+target = "{count} krónur."
+meaning = "{count} krónur. (feminine count word)"
+meaning_ja = "{count}クローナ。（女性形の数詞）"
 difficulty = 3
 topics = ["numbers", "money"]
+slots = { count = "small_count" }
+example = { count = "tvaer" }
+prereqs = ["tvaer", "kronur"]
 pronunciation_notes = "króna is feminine: ein króna, tvær krónur, þrjár krónur, fjórar krónur"
 situation = "A toy coin game with a child: say 'two krónur'."
 situation_ja = "子どもとおもちゃのコイン遊びをしています。「2クローナ」と言ってください。"
