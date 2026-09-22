@@ -132,11 +132,27 @@ difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
 
-# Six of the seven fixed whole-amount price phrases (fimm_hundrud_kronur, thusund_kronur, ...)
-# moved to module 02 (issue #29 cluster A, owner review on PR #53) — see that module's own
-# comment. This one stays here: it names "fimmtán" (fifteen), taught above in this module, not
-# in module 02's 1–12 range — moving it there would have taught "fimmtán hundruð krónur" before
-# the standalone "fimmtán" it's built from, backwards from #29's capability-first ordering.
+# Only one of the seven fixed whole-amount price phrases, fimm_hundrud_kronur, moved to module
+# 02 (issue #29 cluster A, owner review round 3 on PR #53) — it's the sole earliest exposure to
+# "hundruð" (dialogue_sequencing_report's own finding; see that module's comment), so it's the
+# only one actually load-bearing there. The other six were moved there too in an earlier round
+# of this same fix, checked only as a group ("these are all cluster A price vocabulary") rather
+# than individually — but every word in these six (þúsund/tvö/þrjú/fimm/tíu/krónur) already has
+# an earlier standalone source in module 02 regardless of where these six phrases sit (confirmed
+# directly against dialogue_sequencing_report's own word_to_items table, not assumed), so moving
+# them fixed no gap at all. Same failure mode as the fimmtán one, one layer further: not "does
+# this item's own words need an earlier home" but "does this item need to move at all." Left
+# here instead, in their original ascending-amount order.
+[[items]]
+id = "thusund_kronur"
+kind = "vocab"
+target = "þúsund krónur"
+meaning = "a thousand krónur"
+meaning_ja = "1000クローナ"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
 [[items]]
 id = "fimmtan_hundrud_kronur"
 kind = "vocab"
@@ -144,6 +160,46 @@ target = "fimmtán hundruð krónur"
 meaning = "fifteen hundred krónur"
 meaning_ja = "1500クローナ"
 difficulty = 3
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "tvo_thusund_kronur"
+kind = "vocab"
+target = "tvö þúsund krónur"
+meaning = "two thousand krónur"
+meaning_ja = "2000クローナ"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "thrju_thusund_kronur"
+kind = "vocab"
+target = "þrjú þúsund krónur"
+meaning = "three thousand krónur"
+meaning_ja = "3000クローナ"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "fimm_thusund_kronur"
+kind = "vocab"
+target = "fimm þúsund krónur"
+meaning = "five thousand krónur"
+meaning_ja = "5000クローナ"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "tiu_thusund_kronur"
+kind = "vocab"
+target = "tíu þúsund krónur"
+meaning = "ten thousand krónur"
+meaning_ja = "1万クローナ"
+difficulty = 2
 tags = ["price"]
 topics = ["money"]
 

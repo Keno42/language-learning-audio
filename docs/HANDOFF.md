@@ -2660,6 +2660,29 @@ correction above, one level more specific: a relocation is only as sound
 as the check behind *each* item moved, not the check behind the group it
 was pattern-matched into.
 
+**Third correction, same session (owner question): the "other six stay"
+call above was still the group check, just a smaller group.** The owner
+asked directly whether `thusund_kronur`/`tvo_thusund_kronur`/
+`thrju_thusund_kronur`/`fimm_thusund_kronur`/`tiu_thusund_kronur` could
+also move back to module 08. Checked each one's actual necessity in
+module 02 directly against `dialogue_sequencing_report`'s own
+`word_to_items` table (not the "these six pass the capability-first
+check" reasoning the second correction stopped at): every word these five
+contain — þúsund, tvö, þrjú, fimm, tíu, krónur — already has an *earlier*
+standalone source in module 02 regardless of where these five phrases
+themselves sit (e.g. "þúsund"'s earliest item is the standalone `thusund`
+at order 112, not `thusund_kronur` wherever it lives). Only
+`fimm_hundrud_kronur` is actually load-bearing — it's the sole source of
+"hundruð" anywhere in the curriculum, which is exactly why the `hundruð`
+gap existed in the first place. Moved all five back to module 08, in
+their original ascending-amount order alongside `fimmtan_hundrud_kronur`;
+`fimm_hundrud_kronur` is now the *only* one of the original seven price
+phrases living in module 02. 18 advisory pairs, unchanged (as expected —
+none of these five were closing anything); 127 tests, unaffected. The
+lesson compounds across all three corrections this session: "passes a
+check" is not the same as "needs to be here" — a relocation should
+answer the second question specifically, not stop at the first.
+
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
 Three new issues arrived together, all written by the owner as substantial

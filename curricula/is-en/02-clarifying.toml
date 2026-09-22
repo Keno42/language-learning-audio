@@ -874,75 +874,21 @@ meaning_ja = "そして"
 difficulty = 1
 topics = ["discourse"]
 
-# Six of the seven fixed whole-amount price phrases, relocated from module 08 (issue #29
-# cluster A, owner review on PR #53): module 03's café/restaurant dialogues speak amounts like
-# "Fjögur þúsund og fimm hundruð krónur." right after this module — these are the earliest, and
-# still the only, source of "hundruð" (the irregular plural of hundrað — see thad_kostar_big's
-# own note on why it isn't generated). Kept as fixed vocabulary, unchanged; only their position
-# moves, same as the rest of this module's relocations. Checked each phrase's own words against
-# what this module already teaches by this point (owner review, second round on PR #53) rather
-# than moving all seven as one block: six use only 1–12-range count words (fimm/tvö/þrjú/tíu),
-# þúsund, hundruð and krónur, all already taught above — safe. The seventh, fimmtán hundruð
-# krónur, uses "fimmtán" (15), a teen number outside that range and not taught until module 08 —
-# moving it here would teach the compound phrase before the standalone number it's built from,
-# exactly the ordering #29's capability-first principle rules out. Left in module 08, right
-# after "fimmtan" itself, instead — see that module's own comment.
+# fimm_hundrud_kronur, relocated from module 08 (issue #29 cluster A, owner review round 3 on
+# PR #53): module 03's café/restaurant dialogues speak amounts like "Fjögur þúsund og fimm
+# hundruð krónur." right after this module, and this is the only source anywhere of "hundruð"
+# (the irregular plural of hundrað — see thad_kostar_big's own note on why it isn't generated) —
+# confirmed directly against dialogue_sequencing_report's own word_to_items table, not assumed.
+# The other six original price phrases were moved here too in an earlier round of this same fix,
+# then moved back (module 08's own comment): every word they use already has an earlier
+# standalone source in module 02 regardless of where they themselves sit, so relocating them
+# fixed no gap — only this one item is actually load-bearing here.
 [[items]]
 id = "fimm_hundrud_kronur"
 kind = "vocab"
 target = "fimm hundruð krónur"
 meaning = "five hundred krónur"
 meaning_ja = "500クローナ"
-difficulty = 2
-tags = ["price"]
-topics = ["money"]
-
-[[items]]
-id = "thusund_kronur"
-kind = "vocab"
-target = "þúsund krónur"
-meaning = "a thousand krónur"
-meaning_ja = "1000クローナ"
-difficulty = 2
-tags = ["price"]
-topics = ["money"]
-
-[[items]]
-id = "tvo_thusund_kronur"
-kind = "vocab"
-target = "tvö þúsund krónur"
-meaning = "two thousand krónur"
-meaning_ja = "2000クローナ"
-difficulty = 2
-tags = ["price"]
-topics = ["money"]
-
-[[items]]
-id = "thrju_thusund_kronur"
-kind = "vocab"
-target = "þrjú þúsund krónur"
-meaning = "three thousand krónur"
-meaning_ja = "3000クローナ"
-difficulty = 2
-tags = ["price"]
-topics = ["money"]
-
-[[items]]
-id = "fimm_thusund_kronur"
-kind = "vocab"
-target = "fimm þúsund krónur"
-meaning = "five thousand krónur"
-meaning_ja = "5000クローナ"
-difficulty = 2
-tags = ["price"]
-topics = ["money"]
-
-[[items]]
-id = "tiu_thusund_kronur"
-kind = "vocab"
-target = "tíu þúsund krónur"
-meaning = "ten thousand krónur"
-meaning_ja = "1万クローナ"
 difficulty = 2
 tags = ["price"]
 topics = ["money"]
