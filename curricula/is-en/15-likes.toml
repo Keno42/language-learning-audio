@@ -308,6 +308,19 @@ situation = "Someone asks if you're in the choir. Say you sing."
 situation_ja = "合唱団にいるのか聞かれました。歌うと答えてください。"
 
 [[items]]
+id = "bok"
+kind = "vocab"
+target = "bók"
+meaning = "book"
+meaning_ja = "本"
+difficulty = 1
+tags = ["gendered_noun"]
+gender = "fem"
+topics = ["hobbies"]
+situation = "Anna hands you the book she just finished. Say: book."
+situation_ja = "アンナが読み終えた本を渡してきました。「本」と言ってください。"
+
+[[items]]
 id = "eg_er_ad_lesa_goda_bok"
 kind = "phrase"
 target = "Ég er að lesa góða bók."

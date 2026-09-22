@@ -1,6 +1,20 @@
 # 10 — getting around: bus, taxi, airport, car
 
 [[items]]
+id = "bill"
+kind = "vocab"
+target = "bíll"
+meaning = "car"
+meaning_ja = "車"
+difficulty = 1
+tags = ["gendered_noun"]
+gender = "masc"
+topics = ["transport"]
+pronunciation_notes = "nominative — the subject form; 'bíl' (module 25) is the accusative object form"
+situation = "You point at a car in the driveway. Say: car."
+situation_ja = "私道にある車を指さしています。「車」と言ってください。"
+
+[[items]]
 id = "leigubil"
 kind = "vocab"
 target = "leigubíl"

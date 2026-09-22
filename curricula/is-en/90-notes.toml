@@ -30,6 +30,20 @@ topics = ["grammar"]
 text = "«Góður matur», «góð hugmynd», and «gott veður» show the same adjective as «Góðan daginn» — but in a different case: nominative, not accusative. The ending still changes with the noun's gender the same way — «matur» is masculine, «hugmynd» feminine, «veður» neuter — but nominative and accusative endings differ for masculine and feminine («góðan» becomes «góður», «góða» becomes «góð»); neuter happens to look the same in both."
 text_ja = "«Góður matur»、«góð hugmynd»、«gott veður» に出てくるのは «Góðan daginn» と同じ形容詞ですが、格が違います：対格ではなく主格です。語尾は名詞の性に合わせて変わる点は同じです。«matur» は男性名詞、«hugmynd» は女性名詞、«veður» は中性名詞です。ただし主格と対格では男性・女性の語尾が異なります（«góðan» は «góður» に、«góða» は «góð» になります）。中性はたまたま両方の格で同じ形になります。"
 
+# Owner review on PR #50, point 1: godur_noun's `agreement` mechanism lets the *system* derive
+# the right ending from a noun's gender, but nothing previously told the *learner* that gender —
+# Item.gender lived only in curriculum metadata, never in an exercise. This note is that missing
+# step, gating godur_noun (see its prereqs) so the learner has actually been told bíll/bók/hús's
+# genders — tied back to the dagur/hugmynd/veður examples already known — before being asked to
+# apply the pattern to them.
+[[notes]]
+id = "gendered_nouns_bill_bok_hus"
+milestone = true
+items = ["bill", "bok", "hus"]
+topics = ["grammar"]
+text = "«Bíll» (car) is masculine, «bók» (book) is feminine, and «hús» (house) is neuter — the same three genders as «dagur», «hugmynd», and «veður». Knowing a noun's gender is what lets you pick the right ending for «góður», «góð», or «gott» on any noun, not just the ones you started with."
+text_ja = "«Bíll»（車）は男性名詞、«bók»（本）は女性名詞、«hús»（家）は中性名詞です。«dagur»、«hugmynd»、«veður» と同じ三つの性です。名詞の性がわかれば、«góður»、«góð»、«gott» のうち正しい語尾を、最初に覚えた単語だけでなく、どんな名詞にも当てはめられます。"
+
 [[notes]]
 id = "three_kinds_of_sorry"
 milestone = true

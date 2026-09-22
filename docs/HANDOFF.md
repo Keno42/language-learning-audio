@@ -1,7 +1,8 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-21 (session 23: issue #29, acting on the triage —
-see below; session 22 closes out issue #44). **Issue #34** ("Improve
+_Last updated 2026-09-22 (session 23: issue #29, acting on the triage and
+then a generative agreement pilot — see below; session 22 closes out
+issue #44). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -68,12 +69,21 @@ material needs an actual *transfer* opportunity, not just a favorable
 `order` — `godur_gender`'s own discrimination practice was still only
 ever replaying its three founding examples. Added `Note.transfer_items`
 and wired one new-gender noun per gender into `godur_gender` (session
-23's third pass) as a first instance of this; the broader question the
-owner also raised — families of fixed phrases (`Gjörðu svo vel`, `Verði
-þér að góðu`, ...) that share morphology but are taught as unrelated
-strings — is explicitly for the still-not-started audit (item 2) to
-work through case by case. #29 stays open until the curriculum-wide
-audit completes a full pass._
+23's third pass) as a first instance of this; a fourth pass fixed a real
+grammar blocker in that wiring (case, not just gender, differed — see
+"Session 23"). The owner then added a further, explicit requirement
+before #29 itself can close: at least one construction where the learner
+generates a novel combination from independently-known parts, not a
+recalled pre-authored phrase — session 23's fifth pass built exactly
+that (`godur_noun`, a real gender-agreement construction whose own
+adjective wording resolves from a filled noun's `.gender`, genuinely
+producing "Góður bíll."/"Góð bók."/"Gott hús." with none of the three
+authored as its own item). The broader question the owner also raised —
+families of fixed phrases (`Gjörðu svo vel`, `Verði þér að góðu`, ...)
+that share morphology but are taught as unrelated strings — is
+explicitly for the still-not-started audit (item 2) to work through case
+by case. #29 stays open until the curriculum-wide audit (item 2) and the
+case/tense/modality pilot (item 3) are done._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -1540,6 +1550,242 @@ bigger feature than this fix's scope.
 
 107 tests (106 → 107), all passing; `audiolesson validate` unchanged
 by this pass.
+
+**Fifth pass, same PR: a genuine generate-from-parts pilot — the owner's
+final requirement before #29 can close.** Confirming the fourth pass
+mergeable, the owner added a new, explicit acceptance criterion for
+closing #29 itself (not a blocker for this PR): "at least one
+grammar/construction pilot where the learner generates a novel
+combination rather than recalling a pre-authored phrase." Worked example:
+a learner who already separately knows (1) the `góður`/`góð`/`gott`
+gender distinction and (2) that `bíll`/`bók`/`hús` are masc/fem/neut
+should be able to produce "Góður bíll."/"Góð bók."/"Gott hús." as
+combinations that were never authored as their own phrase items — making
+#29's own "notice → model → apply to new vocabulary" pipeline actually
+true, rather than `godur_matur`'s "author a complete phrase → memorize it
+→ explain post-hoc that it fits a pattern" (flagged as still
+fixed-phrase accumulation at the end of the fourth pass above, and the
+owner reiterated that discomfort persisted through it).
+
+**What was missing.** The recombination machinery this criterion needs
+already existed (`Builder.generate()`/`_recombine()` in `exercises.py`
+picks a combo of learner-known fills for a construction's slot(s) and
+computes the sentence via `Curriculum.resolve_slots()` — nothing about
+the *result* is ever stored as its own item). What no construction had
+ever needed before is a slot fill that changes the **construction's own
+other wording**, not just which word is named: every existing
+`slots`/`example` mechanism does plain text substitution into a fixed
+template, so a noun slot could vary which noun appeared, but never make
+the adjective *next to it* agree.
+
+**Fix.** Added `Item.gender: str | None` (masc/fem/neut, for nouns) and
+`Item.agreement: dict[str, dict[str, str]]` (construction: `{slot}` name
+→ `{gender: surface form}`). `Curriculum.resolve_slots()` now resolves
+agreement placeholders first, from the `.gender` of whichever filled item
+carries one, before the ordinary per-slot substitution — so
+`{adj} {noun}.` with `agreement = {adj: {masc: "Góður", fem: "Góð", neut:
+"Gott"}}` genuinely generates three different surface strings from one
+authored template, driven entirely by which independently-known noun
+fills `{noun}`. `validate()` exempts an agreement placeholder from the
+usual "must have a `[slots]` tag and appear in `meaning`" checks (it's
+never filled by picking an item) but requires its form dict cover all
+three genders, and requires at least one of the construction's real
+slots to be tagged with gendered items at all — so a construction can't
+declare agreement it can never actually resolve.
+
+**Content.** Added `godur_noun` (module 18, `curricula/is-en/
+18-adjectives.toml`): `{adj} {noun}.` / `Good {noun}.`, slot `noun`
+tagged `gendered_noun`, `agreement` as above, `example = {noun: "hus"}`,
+gated on the three items behind `godur_gender_nominative` plus `hus`
+itself. Three gendered nouns back it: `bill` (masc, "bíll"/"car", module
+10) and `bok` (fem, "bók"/"book", module 15) are new; `hus` (neut,
+module 16, already existed) was tagged `gendered_noun` and had its
+meaning trimmed from "a house" to "house" (matching the article-free
+"Good X." style `godur_matur`/`gott_vedur` already use, and needed
+because a bare-noun `{noun}` slot inside "Good {noun}." would otherwise
+double up the article: "Good a house."). `hús` being nominative/
+accusative-identical for neuter (the same fact `godur_gender_nominative`
+already explains) is also what let `hus` be reused directly as the
+construction's own worked example rather than adding a fourth new item.
+
+**Verified directly:** `cur.resolve_slots(godur_noun, {"noun": item})`
+for `bill`/`bok`/`hus` produces exactly `"Góður bíll."`/`"Góð bók."`/
+`"Gott hús."` — the owner's own worked example, character for character
+— and none of those three strings exists anywhere else in the curriculum
+as its own item's `target` (checked directly, not just by construction:
+if some future edit ever adds one as a fixed phrase, `validate()`'s
+existing duplicate-target check catches it too). Also ran
+`Builder.generate()` against a learner who knows only `godur_noun`'s
+prereqs (not `bill`/`bok`, which stay learnable independently later) —
+it produces `"Gott hús."`, proving the same machinery every other
+construction uses for lesson-time recombination already picks this one
+up with zero changes beyond the new fields.
+
+**Tests:** three new ones against a synthetic curriculum (isolated from
+real content decisions, same reasoning as `_transfer_curriculum` above)
+cover the agreement mechanism itself: resolves correctly per gender,
+rejects an `agreement` dict missing a gender, rejects a construction with
+no gendered slot to resolve from. A fourth, against the real curriculum,
+pins the exact three generated strings and that none is a pre-authored
+item. A fifth exercises `Builder.generate()` end-to-end. Also widened
+`test_icelandic_course_has_complete_japanese_glosses`'s per-slot
+Japanese-gloss check to skip agreement placeholders (they're never filled
+from an item's own meaning, so have no reason to appear in it).
+
+112 tests (107 → 112), all passing; `audiolesson validate` unchanged
+(a new construction and gendered nouns, not a sequencing change).
+
+**Still open for #29 itself** (this pilot satisfies the owner's new
+criterion for a *single* construction; #29's own remaining items are
+unaffected): item 2 (curriculum-wide dependency audit) and item 3 (piloting
+whether the pattern generalizes to case/tense/modality) are still not
+started; cluster A (numbers/money, gendered number forms) is still the
+one deferred triage item; the `Gjörðu svo vel`/`Verði þér að góðu`/
+`Gangi þér vel`/`Eigðu góðan dag` family is still explicitly deferred to
+the audit.
+
+**Sixth pass (PR #50 review): the mechanism resolved gender, but the
+learner was never actually told it.** The owner reviewed the fifth pass
+as opened on a fresh PR (#47 had merged mid-session) and raised three
+points, all fixed in the same PR.
+
+1. **The system knew each noun's gender; the learner never did.**
+   `Item.gender` was read by `resolve_slots()` but never surfaced in any
+   exercise — `Builder.intro()` doesn't read `item.gender` or
+   `pronunciation_notes`, so a learner could reach `godur_noun` having
+   memorized "bíll = car" without ever being told "bíll is masculine."
+   That made the pilot genuine *machine-side* recombination but not yet
+   *learner-side* generation from known parts. Fixed with a new note,
+   `gendered_nouns_bill_bok_hus` (90-notes.toml), naming all three
+   genders and tying them back to the already-known `dagur`/`hugmynd`/
+   `veður` examples — the same "aside" mechanism `godur_gender`/
+   `godur_gender_nominative` already use for exactly this job, not a
+   change to the shared `Builder.intro()` path every item goes through.
+   `godur_noun`'s own prereqs were widened from just `hus` (its worked
+   example) to all three gendered nouns, so the note has always fired —
+   and the learner has actually been told each gender — before the
+   construction is reachable. (Discovered a knock-on gap while writing
+   the regression test: `bill`/`bok`/`hus` had no `situation` field, so
+   `do_discriminate` — which only offers situation-eligible items — had
+   nothing to discriminate between after the note fires. Added one to
+   each, matching the existing "short scene ending in a one-word
+   instruction" style `frábært`/`gott_vedur` already use.)
+2. **`agreement`'s controlling slot was inferred, not named.**
+   `resolve_slots()` picked "whichever filled item happens to carry a
+   `.gender`" — correct for `godur_noun` (exactly one gendered slot) but
+   silently ambiguous for any future construction with more than one.
+   `Item.agreement`'s per-placeholder dict now carries an explicit
+   `"from": "<slot name>"`, and resolution is `fills[rule["from"]].gender`
+   — unambiguous regardless of how many other slots exist.
+3. **Validation allowed a runtime `KeyError`.** The old check only
+   required *some* item behind an agreement construction's slot tag to
+   have a gender — a same-tagged but ungendered item, or a typo like
+   `gender = "masculine"`, would pass validation and only fail the day
+   it was actually picked (`forms[None]`/`forms["masculine"]`).
+   `validate()` now checks `Item.gender` (when set) is one of
+   `masc`/`fem`/`neut` for every item in the curriculum; that every
+   candidate behind an agreement's controlling slot has a gender, not
+   just one of them; and that the agreement table covers every gender
+   those candidates can actually produce (no longer hardcoded to require
+   all three regardless of what the controller's candidates offer).
+
+**Tests:** three new validation-rejection tests (missing `from`, missing
+a form the controller's candidates actually need, an ungendered
+candidate slipping through) plus `test_item_gender_must_be_a_known_value`
+mirror the owner's three-item checklist directly. A new
+`test_gendered_nouns_note_actually_teaches_the_genders_godur_noun_relies_on`
+checks the note names all three words and genders, and that
+`godur_noun`'s prereqs *include* the note's gating items — necessary for
+the ordering guarantee below, though (see the seventh pass) not
+sufficient on its own, which is exactly what that pass caught. Widened
+`test_godur_noun_construction_is_reachable_once_its_prereqs_are_known`
+to accept any of the three correct generated sentences (all three
+gendered nouns are prereqs now, so which one `Builder.generate()` picks
+first is no longer pinned to a single outcome).
+
+115 tests (112 → 115), all passing; `audiolesson validate` unchanged.
+
+**Also, unrelated to the review:** PR #47 merged mid-session before this
+pass was pushed, and the branch had gone stale under it — rebuilt the
+commit cleanly on top of the merged `main` and opened a fresh PR (#50)
+for this work rather than force-pushing over a diverged branch.
+
+**Seventh pass (PR #50 review): the note firing wasn't actually
+guaranteed before the construction — reproduced and fixed.** The owner's
+follow-up review named the sixth pass's overstated claim directly:
+`godur_noun`'s prereqs including the note's gating items proves the note
+*can* fire first, not that it *does*. Asked for the guarantee to be real,
+plus a regression test of the shape "all noun items already known, note
+unheard → next lesson must play the note before `godur_noun`'s intro."
+
+**Reproduced first, on a synthetic curriculum** (isolated from
+`godur_noun`'s own content, same convention as this file's other
+mechanism tests): a learner who already knows a milestone's three
+gating items, with the note unheard, entering a lesson whose only new
+thing to introduce is a construction whose own worked-example fill
+(`Curriculum.example_fill`) happens to be one of those same three items.
+The construction was introduced *first*. Root cause: `Builder.
+_intro_construction` plays the construction's own example fill as part
+of its intro exercise, and the only place a milestone note gets checked
+is the post-exercise `Planner._maybe_note(sc, sc.exercises[-1].item_ids,
+...)` call — which runs *after* that intro exercise completes, once it's
+too late. In the ordinary case (a plain vocab item slowly reaching
+"known" over many separate lessons) this race never has room to open,
+since every earlier touch of the item is itself a chance for the check
+to fire the note well before anything downstream needs it — the exact
+"fires the very lesson its last example is introduced" guarantee
+`_eligible_milestone`'s own docstring already describes. A construction
+example-filling on its very first exposure is the one case that check
+runs too late for.
+
+**Fix.** `do_intro()` now checks `self._eligible_milestone(item.prereqs)`
+*before* calling `b.intro()`, not just after — reusing the exact same
+eligibility check the reactive path already relies on, just moved one
+step earlier for the one case that needed it. If a milestone gating this
+item's own prereqs is due, it (and its discrimination step) plays first.
+`_eligible_milestone` already excludes notes in `notes_played`, so this
+never double-fires alongside the reactive check that still runs after
+every exercise. General by construction (checks any item's prereqs, not
+`godur_noun` specifically or anything agreement-related) rather than a
+narrow one-off hack — and, being a strict tightening of an existing
+"fires no later than X" guarantee, is unlikely to change behavior for
+any *other* milestone, confirmed by the full suite staying green
+unchanged.
+
+**Test:** `test_milestone_fires_before_a_construction_whose_own_example_fill_would_complete_it`,
+built on the same synthetic reproduction, checked to fail against the
+pre-fix code (confirmed directly: `git stash` the fix, rerun, watch it
+fail with the construction's intro one exercise ahead of the note) before
+being folded into the suite as a permanent regression guard.
+
+116 tests (115 → 116), all passing; `audiolesson validate` unchanged.
+
+**Eighth pass (PR #50 review): the seventh pass only drained the first
+due milestone, not every one.** The owner caught it by reading
+`godur_noun`'s own prereqs closely: they span *two* independent
+milestones at once — `godur_gender_nominative`'s trio and
+`gendered_nouns_bill_bok_hus`'s — but the seventh pass's fix called
+`self._eligible_milestone(item.prereqs)` exactly once per intro, and
+`_eligible_milestone` only ever returns the *first* eligible note it
+finds. If both milestones were simultaneously due and unheard, the first
+fired before the intro as intended, but the second still only fired via
+the old reactive post-exercise path — too late, the exact failure mode
+the seventh pass exists to prevent, just for the second milestone
+instead of the only one.
+
+**Fix**, exactly as small as the owner's own sketch: the single `if`
+became a `while (milestone := self._eligible_milestone(item.prereqs))
+is not None:` loop, draining every currently-due milestone among the
+item's prereqs before its intro plays. `notes_played` (already checked
+inside `_eligible_milestone`) rules out looping on the same note twice.
+
+**Test:** `test_all_due_milestones_fire_before_an_intro_not_just_the_first_one_found`,
+two independent synthetic milestone groups both already known and
+unheard, gating one construction — confirmed to fail against the
+pre-loop code (the second group's note landed one exercise after the
+construction's intro) before folding it in.
+
+117 tests (116 → 117), all passing; `audiolesson validate` unchanged.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 
