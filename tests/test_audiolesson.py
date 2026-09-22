@@ -91,11 +91,24 @@ class CurriculumTests(unittest.TestCase):
         clock time) must not misfire as one."""
         from audiolesson.content import split_note_span
 
-        self.assertEqual(split_note_span("Halló"), (None, "Halló"))
-        self.assertEqual(split_note_span("ja:sate"), ("ja", "sate"))
-        self.assertEqual(split_note_span("ja: sate"), ("ja", "sate"))  # optional space after the colon
-        self.assertEqual(split_note_span("ja:yare yare"), ("ja", "yare yare"))
-        self.assertEqual(split_note_span("14:00"), (None, "14:00"))  # digits, not a language code
+        self.assertEqual(split_note_span("Halló"), (None, "Halló", "Halló"))
+        self.assertEqual(split_note_span("ja:onigiri"), ("ja", "onigiri", "onigiri"))
+        self.assertEqual(split_note_span("ja: onigiri"), ("ja", "onigiri", "onigiri"))  # optional space after the colon
+        self.assertEqual(split_note_span("ja:yare yare"), ("ja", "yare yare", "yare yare"))
+        self.assertEqual(split_note_span("14:00"), (None, "14:00", "14:00"))  # digits, not a language code
+
+    def test_split_note_span_separates_display_text_from_speech_text(self):
+        """Owner review on PR #51: passing a romanized display form straight to the TTS
+        provider is provider-fragile — some providers (e.g. OpenAIProvider) don't even use
+        the language code to disambiguate it, they just read whatever text they're given.
+        «xx:display|speech» lets a note keep a familiar romanization in the transcript while
+        the provider receives native orthography — not Japanese-specific: the same split
+        serves pinyin → Hanzi, Korean romanization → Hangul, Arabic transliteration, etc."""
+        from audiolesson.content import split_note_span
+
+        self.assertEqual(split_note_span("ja:sate|さて"), ("ja", "sate", "さて"))
+        self.assertEqual(split_note_span("ja:onigiri|おにぎり"), ("ja", "onigiri", "おにぎり"))
+        self.assertEqual(split_note_span("zh:pinyin|漢字"), ("zh", "pinyin", "漢字"))
 
     def test_note_with_unbalanced_guillemets_is_rejected(self):
         """A stray or missing «»  in a note is an authoring mistake — catch it at validation
@@ -1499,6 +1512,26 @@ class LessonStructureTests(unittest.TestCase):
         b.note(sc, Note(id="n", text="Say «bonjour», the way «ja:onigiri» is said in Japan.", items=[]))
         speaks = [s for s in sc.segments if s.type == "speak"]
         self.assertEqual([(s.text, s.lang) for s in speaks], [("bonjour", cur.target_lang), ("onigiri", "ja")])
+        self.assertIsNone(speaks[1].speech_text)  # no "|" given, so text alone is what's spoken
+
+    def test_note_text_with_display_speech_split_keeps_romanization_in_the_transcript(self):
+        """Owner review on PR #51: «ja:sate|さて» must show "sate" in the transcript (what a
+        reader recognizes) while the segment separately carries "さて" as what the TTS
+        provider will actually receive — Segment.speech_text, not Segment.text."""
+        from audiolesson.content import Note
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.note(sc, Note(id="n", text="It works like «ja:sate|さて».", items=[]))
+        speak = next(s for s in sc.segments if s.type == "speak")
+        self.assertEqual(speak.text, "sate")
+        self.assertEqual(speak.speech_text, "さて")
+        self.assertEqual(speak.lang, "ja")
+        self.assertIn("sate", sc.transcript())
+        self.assertNotIn("さて", sc.transcript())  # the transcript shows the romanization, not the kana
 
     def test_note_text_does_not_narrate_bare_punctuation_between_marked_phrases(self):
         """Owner review on #41: a note that marks a short list of phrases — like the real
@@ -2088,6 +2121,38 @@ class RenderTests(unittest.TestCase):
             StubProvider.default_voices = original_defaults
 
         self.assertEqual(heard, [("ja", "voice-for-ja")])
+
+    def test_speech_text_reaches_the_provider_not_the_romanized_display_text(self):
+        """Owner review on PR #51: routing by ``lang`` (the test above) proves *a* Japanese
+        voice gets picked, but #49 ultimately needs the TTS provider to receive text that
+        unambiguously represents the intended Japanese utterance — some providers (e.g.
+        OpenAIProvider) don't even look at ``lang``, they just read whatever ``text`` they're
+        given. Pins the actual synthesize() call: native orthography, not the romanized
+        transcript display, must be what's sent, regardless of the segment's own ``text``."""
+        from audiolesson.render.tts import StubProvider
+        from audiolesson.script import Segment
+
+        sc = Script(1, "Lesson 1", "is", "en")
+        ex = sc.new_exercise("note", None, [], "note: n")
+        sc.add(Segment("narrate", "instructor", "onigiri", "ja", 1.0, 1.0, None, ex.index, speech_text="おにぎり"))
+
+        heard: list[tuple[str, str]] = []
+        original_synth = StubProvider.synthesize
+
+        def spy_synth(self, text, lang, voice, rate=1.0):
+            heard.append((text, lang))
+            return original_synth(self, text, lang, voice, rate)
+
+        StubProvider.synthesize = spy_synth
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                prof = load_profile(None, "stub")
+                prof.mp3 = False
+                render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
+        finally:
+            StubProvider.synthesize = original_synth
+
+        self.assertEqual(heard, [("おにぎり", "ja")])
 
     def test_respell_table_is_scoped_to_its_language_and_word(self):
         from audiolesson.render.renderer import RESPELL_FOR_SPEECH, _respell

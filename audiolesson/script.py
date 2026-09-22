@@ -32,6 +32,12 @@ class Segment:
     duration: float = 0.0  # seconds; exact for pauses, estimated for speech
     role: str | None = None  # for pauses: answer | repeat | beat ; for speech: hint labels
     exercise: int | None = None  # index into Script.exercises
+    # What actually reaches the TTS provider, when it must differ from ``text`` (issue #49,
+    # PR #51 owner review): a note may show a romanized form (``text``, e.g. "sate") but
+    # need native orthography spoken (``speech_text``, e.g. "さて") so pronunciation doesn't
+    # depend on a provider correctly reading transliterated text — some providers don't even
+    # use ``lang`` to disambiguate it. None (the common case) means "speak ``text`` as-is."
+    speech_text: str | None = None
 
     def to_dict(self) -> dict:
         d = asdict(self)

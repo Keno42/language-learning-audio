@@ -63,7 +63,7 @@ text_ja = "これから「l」の前に聞こえてくる「t」のような音�
 id = "pylsa"
 items = ["pylsu", "eina_pylsu_med_ollu"]
 topics = ["food"]
-text = "The Icelandic hot dog is mostly lamb, and «með öllu» means ketchup, sweet mustard, remoulade, raw onions and crispy onions. It is the national fast food, the way a convenience-store «ja:onigiri» is in Japan: cheap, everywhere, and eaten standing up."
+text = "The Icelandic hot dog is mostly lamb, and «með öllu» means ketchup, sweet mustard, remoulade, raw onions and crispy onions. It is the national fast food, the way a convenience-store «ja:onigiri|おにぎり» is in Japan: cheap, everywhere, and eaten standing up."
 text_ja = "アイスランドのホットドッグはラム肉が主体で、«með öllu»と言えばケチャップ、甘いマスタード、レムラード、生と揚げの玉ねぎが全部乗ります。日本のコンビニおにぎりのような存在で、安くてどこにでもあって、立ったまま食べます。"
 
 [[notes]]
@@ -112,7 +112,7 @@ text_ja = "«Þetta reddast»、なんとかなる、は国民的な合言葉で
 id = "jaeja"
 items = ["jaeja"]
 topics = ["discourse"]
-text = "«Jæja» does the work of several Japanese words at once: «ja:sate», «ja:yare yare» and «ja:sō ka». Said with a rising tone it opens a topic; said falling, it politely ends a visit."
+text = "«Jæja» does the work of several Japanese words at once: «ja:sate|さて», «ja:yare yare|やれやれ» and «ja:sō ka|そうか». Said with a rising tone it opens a topic; said falling, it politely ends a visit."
 text_ja = "«Jæja»は日本語の「さて」「やれやれ」「そうか」を一語で引き受けます。上がり調子で言えば話題を切り出し、下がり調子で言えば「そろそろお暇します」の合図になります。"
 
 [[notes]]

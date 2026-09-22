@@ -106,12 +106,26 @@ class Builder:
     def _narr(self, sc: Script, ex: Exercise, text: str) -> None:
         sc.add(Segment("narrate", "instructor", text, self.kl, 1.0, self.timing.speech_estimate(text, self.kl), None, ex.index))
 
-    def _speak(self, sc: Script, ex: Exercise, text: str, speaker: str = "native_a", rate: float = 1.0, role: str | None = None, lang: str | None = None) -> None:
+    def _speak(
+        self,
+        sc: Script,
+        ex: Exercise,
+        text: str,
+        speaker: str = "native_a",
+        rate: float = 1.0,
+        role: str | None = None,
+        lang: str | None = None,
+        speech_text: str | None = None,
+    ) -> None:
         # ``lang`` lets a segment speak a language other than the course's own target
         # language — an embedded third-language example inside a note (issue #49) — while
         # every existing call site (which never passes it) keeps speaking ``self.tl``.
+        # ``speech_text``, when given, is what actually reaches the TTS provider — ``text``
+        # stays what the transcript shows (issue #49, PR #51 owner review): pronunciation
+        # must not depend on the provider being able to read a romanized/transliterated
+        # ``text`` correctly, so the estimate below is based on what will really be spoken.
         lang = lang or self.tl
-        sc.add(Segment("speak", speaker, text, lang, rate, self.timing.speech_estimate(text, lang, rate), role, ex.index))
+        sc.add(Segment("speak", speaker, text, lang, rate, self.timing.speech_estimate(speech_text or text, lang, rate), role, ex.index, speech_text))
 
     def _answer(self, sc: Script, ex: Exercise, text: str, speaker: str = "native_a", rate: float = 1.0) -> None:
         sc.add(Segment("answer", speaker, text, self.tl, rate, self.timing.speech_estimate(text, self.tl, rate), None, ex.index))
@@ -460,7 +474,10 @@ class Builder:
         «Góðan daginn») — a note can legitimately mention a *third* language besides its
         own narration language and the course's target language, e.g. an English note
         naming a Japanese word (issue #49); ``split_note_span`` picks that apart, and an
-        explicit language always wins over the default target-language voice.
+        explicit language always wins over the default target-language voice. It may also
+        carry a "display|speech" pair («ja:sate|さて»): the transcript keeps the familiar
+        romanization, but the TTS provider gets native orthography instead, so
+        pronunciation doesn't depend on a provider correctly reading transliterated text.
 
         A prose fragment between two marked phrases that is only punctuation (e.g. the bare
         "," left behind by "«a», «b»") is never handed to ``_narr`` as its own TTS call —
@@ -473,8 +490,8 @@ class Builder:
             if not part:
                 continue
             if i % 2:
-                lang, spoken = split_note_span(part)
-                self._speak(sc, ex, spoken, lang=lang)
+                lang, display, speech = split_note_span(part)
+                self._speak(sc, ex, display, lang=lang, speech_text=speech if speech != display else None)
             elif any(ch.isalnum() for ch in part):
                 self._narr(sc, ex, part)
             else:

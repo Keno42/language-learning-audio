@@ -164,7 +164,13 @@ def render_script(
         # provider's own default voice for ``lang`` automatically, with no schema change.
         profile_key = speaker if lang.split("-")[0].lower() in primary_langs else f"{speaker}:{lang}"
         sv = profile.voice_for(profile_key, lang, provider, _DEFAULT_INDEX.get(speaker, 0))
-        return (_speak_slashes(_respell(seg.text or "", lang), lang), lang, sv.voice, seg.rate * sv.rate)
+        # ``speech_text``, when set, is what the provider actually hears — e.g. native
+        # orthography for a romanized transcript display (issue #49, PR #51 owner review):
+        # pronunciation must not depend on the provider being able to read transliterated
+        # text itself, since some providers (e.g. OpenAIProvider) don't even use ``lang``
+        # to disambiguate it — they just read whatever text they're given.
+        spoken = seg.speech_text or seg.text or ""
+        return (_speak_slashes(_respell(spoken, lang), lang), lang, sv.voice, seg.rate * sv.rate)
 
     # warm the cache in parallel for providers that talk to a network
     unique = {request_for(seg) for seg in script.segments if seg.type != "pause"}

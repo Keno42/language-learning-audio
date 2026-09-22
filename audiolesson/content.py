@@ -31,18 +31,36 @@ NOTE_TARGET_RE = re.compile(r"«([^»]+)»")
 # implies. «Jæja» (bare) still means "target language," unchanged; «ja:sate» means "say
 # this in Japanese instead." 2-3 lowercase letters keeps this from misfiring on a
 # genuine target-language phrase that happens to contain a colon (e.g. a clock time).
+#
+# After the language code, an optional "display|speech" pair (owner review on #49, PR
+# #51) lets the transcript keep a familiar romanization while the TTS provider receives
+# native orthography instead: «ja:sate|さて» shows "sate" to a reader but sends "さて" to
+# the provider. This matters because pronunciation must not depend on a provider being
+# able to read transliterated text correctly in the first place — some providers (e.g.
+# OpenAIProvider) don't even look at the language code to disambiguate it, they just
+# read whatever text they're given. Not Japanese-specific: the same split serves pinyin
+# → Hanzi, Korean romanization → Hangul, Arabic transliteration → Arabic script, etc.
 NOTE_LANG_PREFIX_RE = re.compile(r"^([a-z]{2,3}):\s*(.+)$", re.DOTALL)
 
 
-def split_note_span(span: str) -> tuple[str | None, str]:
-    """Split one «...»-marked note span into (explicit language code or None, spoken text).
+def split_note_span(span: str) -> tuple[str | None, str, str]:
+    """Split one «...»-marked note span into (explicit language code or None, display
+    text, speech text).
 
-    ``split_note_span("Halló")`` -> ``(None, "Halló")`` — spoken in the target-language
-    voice, as before this existed. ``split_note_span("ja:sate")`` -> ``("ja", "sate")`` —
-    an embedded third-language example, spoken in that language's voice instead.
+    ``split_note_span("Halló")`` -> ``(None, "Halló", "Halló")`` — spoken in the
+    target-language voice, as before this existed.
+    ``split_note_span("ja:onigiri")`` -> ``("ja", "onigiri", "onigiri")`` — an embedded
+    third-language example, spoken (and shown) in that language, display and speech text
+    the same since no "|" was given.
+    ``split_note_span("ja:sate|さて")`` -> ``("ja", "sate", "さて")`` — the transcript
+    keeps the romanization; the provider receives the native script.
     """
     m = NOTE_LANG_PREFIX_RE.match(span)
-    return (m.group(1), m.group(2)) if m else (None, span)
+    if not m:
+        return (None, span, span)
+    lang, rest = m.group(1), m.group(2)
+    display, _, speech = rest.partition("|")
+    return (lang, display, speech or display)
 
 # Vowel letters used by this project's target languages (French, Icelandic), including
 # accented forms. A maximal run of these approximates one syllable nucleus, used only to

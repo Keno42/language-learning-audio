@@ -1870,6 +1870,65 @@ rate.
 change); smoke-generated both the `is-en` and `fr-en-a1` courses with real `espeak`
 audio end to end.
 
+**Second pass (PR #51 review): routing by `lang` alone doesn't make pronunciation
+provider-independent.** The owner caught a real weak spot in part 1's design: passing
+the *romanized* display text ("sate") to the provider with `lang="ja"` still puts
+correct pronunciation at the mercy of the provider actually reading transliterated text
+well — and `OpenAIProvider.synthesize()` (`render/tts.py`) doesn't even look at `lang`
+at all, it just sends whatever `text` it's given straight to the API. The robust fix is
+to send the provider *native orthography* directly, not lean on `lang` to somehow fix up
+romanized text.
+
+**Fix.** If the transcript should keep the familiar romanization (as it does here — an
+English reader recognizes "sate," not necessarily さて), the note markup needs to carry
+both forms. Extended `«xx:...»` once more: after the language code, an optional
+`"display|speech"` pair — `«ja:sate|さて»` shows "sate" in the transcript but sends "さて"
+to the provider. A bare `«ja:onigiri»` (no `|`) still means display and speech are the
+same text, unchanged. `split_note_span()` now returns a 3-tuple `(lang, display,
+speech)` instead of 2. `Segment` gained one new optional field, `speech_text: str |
+None` (defaults to `None` = "speak `text` as-is," so every existing segment
+construction anywhere in the codebase — tests included — is unaffected; `to_dict()`
+already drops `None` fields, so old scripts/cues.json serialize identically). The
+renderer's `request_for()` now sends `seg.speech_text or seg.text` to the provider,
+while `seg.text` alone still drives the transcript and cues.json — mirroring how
+`RESPELL_FOR_SPEECH`/`_respell()` already keeps the *correct* spelling in `Segment.text`
+and only substitutes at the last possible moment before synthesis, for the same reason
+(the "Halló" → "Haló" fix). Deliberately *not* folded into that table, though: it's
+scoped to "known TTS mispronunciation quirks in this project's own target/known
+languages," a global per-language substitution; a romanized-example's native form is
+authored per instance, at the point of writing the note, which is far harder to forget
+than remembering to also edit a lookup table in a different file. `Timing.
+speech_estimate()` (used for lesson-length budgeting) is computed from `speech_text`
+when set, not `text` — otherwise a Japanese duration estimate would count Latin
+characters instead of the kana that will actually be spoken.
+
+Not Japanese-specific by construction: the owner named pinyin → Hanzi, Korean
+romanization → Hangul, and Arabic transliteration → Arabic script as the same shape of
+problem this generalizes to.
+
+Applied to both real notes: `«ja:sate|さて»`, `«ja:yare yare|やれやれ»`, `«ja:sō ka|そう
+か»`, `«ja:onigiri|おにぎり»`.
+
+**Tests:** `split_note_span()`'s 3-tuple return updated across its existing tests, plus
+a new one pinning the `display|speech` split itself (including a non-Japanese example,
+`zh:pinyin|漢字`, to keep the mechanism visibly general). `_speak_note_text()` gained a
+test that a `«ja:sate|さて»` span's segment carries `text="sate"` (transcript) separately
+from `speech_text="さて"`, and that the transcript itself contains "sate," never "さて".
+Most directly answering the owner's own ask: a new render-level test with a
+`StubProvider` spy pins the *exact* `(text, lang)` tuple reaching `synthesize()` as
+`("おにぎり", "ja")` — proving the provider receives native orthography regardless of
+whether it uses `lang` for anything, not just that *a* Japanese-appropriate voice got
+selected (which the existing routing test from the first pass already covered, and
+still passes unchanged).
+
+Verified directly again: rebuilt the two real notes and confirmed each Japanese
+example's segment now carries the romanized `text` and native `speech_text` separately;
+rendered with real `espeak` end to end (still no crash); printed the actual `cues`
+returned by `render_script()` and confirmed they show "sate"/"yare yare"/"sō ka" (the
+romanization), not the kana, matching what a reader following along should see.
+
+123 tests (120 → 123), all passing; `audiolesson validate` unchanged.
+
 The owner reorganized the open issues right after session 14: closed #23
 ("minimal-pair tips") and #25 ("dialogue eligibility should depend on
 vocabulary already learned"), and opened #29, "Design curriculum around
