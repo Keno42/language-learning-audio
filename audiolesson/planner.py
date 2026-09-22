@@ -48,6 +48,7 @@ class PlanConfig:
     closing_share: float = 0.12  # fraction of time reserved for the final review block
     max_new_items: int | None = None  # hard cap even when there is nothing to review (default: scales with minutes)
     min_time_for_new_item: float = 180.0  # seconds of budget needed to still introduce one
+    capability_window: int = 15  # a construction this close after a 3rd slot filler is pulled ahead of it (issue #29)
     presume_success: bool = True
     translate_partner: bool = True
 
@@ -129,6 +130,56 @@ class Planner:
             preferred = [i for i in pool if set(i.topics) & set(self.cfg.topics)]
             rest = [i for i in pool if i not in preferred]
             pool = preferred + rest
+        constructions = [c for c in self.cur.items if c.kind == "construction"]
+
+        def met_fills(tag: str) -> int:
+            return sum(1 for i in self.cur.items_with_tag(tag) if self.learner.has_met(i.id) or i.id in chosen_ids)
+
+        def payoff(filler: Item) -> tuple[bool, Item | None]:
+            """Capability-aware arc boundaries (issue #29, owner comment on a real Lesson 4):
+            once a slot already has two fillers met or chosen, one more filler just before its
+            construction is another isolated flashcard ("íslensku, ensku, japönsku, þýsku,
+            frönsku, dönsku" → lesson ends) while the construction that would make them all
+            usable sits a few items further on. Returns ``(hold, construction)``: the nearby
+            construction to teach now instead, if it's ready (``construction`` set); else
+            whether this filler should wait (``hold``) until that construction is learned, so
+            it arrives later as a transfer opportunity through the pattern rather than as one
+            more item of a homogeneous block.
+
+            Only a construction within ``capability_window`` items *after* the filler counts
+            (a distant one isn't this arc's payoff), and only one whose own prereqs are already
+            met or chosen and don't include this filler — so a hold always waits on something
+            already in motion, never on itself, and can't deadlock."""
+            for c in constructions:
+                if not (0 < c.order - filler.order <= self.cfg.capability_window) or self.learner.knows(c.id):
+                    continue
+                if not any(tag in filler.tags for tag in c.slots.values()) or filler.id in c.prereqs:
+                    continue
+                if not all(self.learner.has_met(p) or p in chosen_ids for p in c.prereqs):
+                    continue
+                if not all(met_fills(tag) >= 2 for tag in c.slots.values()):
+                    continue
+                if c.id not in chosen_ids and not self.learner.has_met(c.id) and ready(c) and all(known_fills(t) >= 2 for t in c.slots.values()):
+                    return False, c
+                return True, None
+            return False, None
+
+        def slot_members(c: Item) -> set[str]:
+            return {i.id for t in c.slots.values() for i in self.cur.items_with_tag(t)}
+
+        def slot_tags(filler: Item) -> set[str]:
+            return {t for t in filler.tags for c in constructions if t in c.slots.values()}
+
+        def transfer_capped(filler: Item) -> bool:
+            """Once a slot's construction has been met, its remaining fillers are transfer
+            material: at most two of one slot per arc, so they don't come back as the same
+            homogeneous block ("þýsku, frönsku, dönsku, spænsku") the payoff rule broke up."""
+            for tag in slot_tags(filler):
+                if any(self.learner.has_met(c.id) and tag in c.slots.values() for c in constructions):
+                    if sum(1 for x in chosen if tag in x.tags and x.kind != "construction") >= 2:
+                        return True
+            return False
+
         # walk in order, but a not-yet-ready item is skipped rather than blocking
         progress = True
         while len(chosen) < count and progress:
@@ -136,6 +187,12 @@ class Planner:
             for it in pool:
                 if it.id in chosen_ids or not ready(it):
                     continue
+                if it.kind != "construction" and it.tags:
+                    hold, target = payoff(it)
+                    if hold or (target is None and transfer_capped(it)):
+                        continue
+                    if target is not None:
+                        it = target  # the payoff construction goes in now; this filler waits
                 chosen.append(it)
                 chosen_ids.add(it.id)
                 progress = True
@@ -149,6 +206,34 @@ class Planner:
                                 chosen_ids.add(extra.id)
                 if len(chosen) >= count:
                     break
+        # The arc's boundary itself (issue #29): don't let it fall between a slot's fillers and
+        # the nearby construction they unlock. If the last pick is a filler whose construction
+        # is now ready, take the construction too — one item over ``count`` is a better arc
+        # than one that stops just short of the capability. If it isn't ready yet (only one
+        # filler so far), drop that trailing filler instead, so it starts the next arc
+        # together with its siblings and pattern — unless it's the only thing chosen.
+        if chosen and chosen[-1].kind != "construction" and slot_tags(chosen[-1]):
+            last = chosen[-1]
+            nearby = [
+                c
+                for c in constructions
+                if 0 < c.order - last.order <= self.cfg.capability_window
+                and any(t in last.tags for t in c.slots.values())
+                and c.id not in chosen_ids
+                and not self.learner.has_met(c.id)
+            ]
+            if nearby:
+                c = nearby[0]
+                if ready(c) and all(known_fills(t) >= 2 for t in c.slots.values()):
+                    chosen.append(c)
+                    chosen_ids.add(c.id)
+                elif len(chosen) > 1 and all(
+                    self.learner.has_met(p) or p in chosen_ids or p in slot_members(c) for p in c.prereqs
+                ):
+                    # only when the pattern is genuinely next (nothing else it needs is
+                    # missing), or the filler would be dropped from arc after arc for nothing
+                    chosen.pop()
+                    chosen_ids.discard(last.id)
         return chosen
 
     def select_reviews(self) -> list[Item]:
@@ -783,6 +868,9 @@ class Planner:
                     do_intro(new_queue.popleft())
                 elif can_intro and remaining >= need_for_new and (more := self.select_new(1, exclude={i.id for i in introduced})):
                     do_intro(more[0])
+                    # a filler can come back with the construction it just made teachable
+                    # (issue #29's capability-aware boundary): queue it so the arc reaches it
+                    new_queue.extend(more[1:])
                 elif pending and sorted(pending)[0].item.id != (recent[-1] if recent else None):
                     p = heapq.heappop(pending)  # a repeat, but not of the very last exercise
                     do_recall(p.item, p.stage)

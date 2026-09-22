@@ -782,6 +782,99 @@ class CurriculumTests(unittest.TestCase):
         for ids in connects:
             self.assertTrue({"a0", "b0"} & set(ids), f"an arc's connected use played only unrelated review items: {ids}")
 
+    @staticmethod
+    def _filler_family(extra_after: int = 3) -> dict:
+        """Six slot fillers, then their construction (prereq: the second filler), then a few
+        unrelated phrases — the shape of the real ``acc_language`` block → ``talar_thu``."""
+        return {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [{"id": f"f{i}", "kind": "vocab", "target": f"fyll{i}", "meaning": f"filler {i}", "tags": ["lang"]} for i in range(6)]
+            + [
+                {
+                    "id": "pat",
+                    "kind": "construction",
+                    "target": "Talar þú {x}?",
+                    "meaning": "Do you speak {x}?",
+                    "slots": {"x": "lang"},
+                    "example": {"x": "f1"},
+                    "prereqs": ["f1"],
+                }
+            ]
+            + [{"id": f"p{i}", "kind": "phrase", "target": f"Setning {i}.", "meaning": f"Phrase {i}."} for i in range(extra_after)],
+        }
+
+    def _select(self, raw: dict, learner: LearnerState, count: int) -> list[str]:
+        cur = curriculum_from_dict(raw)
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY)
+        return [i.id for i in planner.select_new(count)]
+
+    def test_an_arc_reaches_the_construction_its_fillers_unlock(self):
+        """Issue #29 (owner comment on a real Lesson 4): an arc of six language fillers ended
+        right before «Talar þú {language}?», so every filler was only ever an isolated
+        flashcard. The arc should be the smallest set that creates the capability: two
+        fillers, then the construction — the other four wait (they are neither chosen before
+        the pattern nor piled on after it in the same arc)."""
+        chosen = self._select(self._filler_family(), LearnerState("is", "en", "A1"), 6)
+        self.assertEqual(chosen[:3], ["f0", "f1", "pat"], chosen)
+        self.assertFalse({"f2", "f3", "f4", "f5"} & set(chosen), chosen)
+
+    def test_an_arc_boundary_does_not_fall_between_fillers_and_their_construction(self):
+        """Issue #29: when ``count`` runs out right after the second filler, the construction it
+        just made teachable comes along (one over ``count``); when it runs out after a single
+        filler, that lone filler is left for the next arc instead of ending this one."""
+        raw = self._filler_family()
+        raw["items"] = [{"id": f"q{i}", "kind": "phrase", "target": f"Fyrst {i}.", "meaning": f"First {i}."} for i in range(3)] + raw["items"]
+        self.assertEqual(self._select(raw, LearnerState("is", "en", "A1"), 5), ["q0", "q1", "q2", "f0", "f1", "pat"])
+        self.assertEqual(self._select(raw, LearnerState("is", "en", "A1"), 4), ["q0", "q1", "q2"])
+
+    def test_fillers_wait_for_their_construction_then_come_back_as_transfer(self):
+        """Issue #29: while the construction is met but not yet learned, more fillers are held
+        (not another homogeneous block); once it's learned they return — at most two per arc,
+        so the construction gives each one a transfer opportunity instead of a new block."""
+        raw = self._filler_family(extra_after=6)
+        learner = LearnerState("is", "en", "A1")
+        for i in ("f0", "f1", "pat"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=1, durable_successes=0, stage="meaning")
+        self.assertEqual(self._select(raw, learner, 4), ["p0", "p1", "p2", "p3"])
+        for i in ("f0", "f1", "pat"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        chosen = self._select(raw, learner, 4)
+        self.assertEqual(sum(1 for i in chosen if i.startswith("f")), 2, chosen)
+        self.assertEqual(chosen[:2], ["f2", "f3"], chosen)
+
+    def test_a_held_filler_is_never_starved(self):
+        """Issue #29's holds must not strand material: across a simulated course on the small
+        synthetic family, every filler is eventually introduced."""
+        cur = curriculum_from_dict(self._filler_family(extra_after=6))
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        for _ in range(12):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, seed=1), today=day).build()
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=2)
+        self.assertEqual({i.id for i in cur.items} - set(learner.items), set())
+
+    def test_real_language_family_reaches_talar_thu_in_the_same_lesson(self):
+        """Issue #29, the owner's own Lesson 4 example on the real is-en course: with everything
+        before the language block learned, the lesson that introduces the first languages also
+        introduces «Talar þú {language}?» and generates a sentence with it that was never an
+        authored item — parts → construction → novel generation — without first drilling the
+        whole block of six languages as isolated words."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        first = cur.by_id["islensku"].order
+        for it in cur.items:
+            if it.order < first:
+                learner.items[it.id] = ItemState(due=(TODAY + timedelta(days=30)).isoformat(), successes=3, durable_successes=3, stage="situation")
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY).build()
+        new = sc.meta["new_items"]
+        self.assertIn("talar_thu", new, new)
+        languages = [i for i in new if "acc_language" in cur.by_id[i].tags]
+        self.assertLessEqual(len(languages[: new.index("talar_thu")]), 2, new)
+        generated = [ex.label for ex in sc.exercises if ex.kind == "generative" and "talar_thu" in ex.item_ids]
+        example = cur.resolve_slots(cur.by_id["talar_thu"], cur.example_fill(cur.by_id["talar_thu"]))[0]
+        self.assertTrue(any(example not in label for label in generated), f"no novel Talar þú sentence: {generated}")
+
     def test_high_drill_streak_wins_over_a_due_reactivation_too(self):
         """Owner review on #41: the streak breaker used to run *after* step 1 (a due
         scheduled reactivation), guarded by ``if not acted``, so a due reactivation could

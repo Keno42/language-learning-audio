@@ -1,6 +1,7 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-22 (session 27: issue #55, connect() no longer replays
+_Last updated 2026-09-22 (session 28: issue #29, capability-aware arc
+boundaries — an arc reaches the construction its fillers unlock; session 27: issue #55, connect() no longer replays
 one fallback pair all lesson — see below. Session 26: issue #29 resumed — cluster A
 (numbers/money), with #48's conversational bar newly applied as a design
 lens; see below. Session 25 covers issue #48, a real partner line
@@ -2683,6 +2684,66 @@ none of these five were closing anything); 127 tests, unaffected. The
 lesson compounds across all three corrections this session: "passes a
 check" is not the same as "needs to be here" — a relocation should
 answer the second question specifically, not stop at the first.
+
+## Session 28: issue #29 — capability-aware arc boundaries
+
+The owner's latest #29 comment (real Lesson 4): the curriculum now models
+reusable parts correctly, but an arc could still end *between* the parts
+and the capability they unlock — six `acc_language` fillers (íslensku,
+ensku, japönsku, þýsku, frönsku, dönsku) drilled as isolated words, lesson
+ends, «Talar þú {language}?» never reached. New completion criterion:
+parts → construction → novel generation → situated use, with only enough
+fillers before the construction to make it recombinable and later fillers
+arriving as transfer through it.
+
+Measured first: 53 constructions; most families have the same shape (7–14
+fillers, then the pattern — `inf` 12→`eg_vil`, `direction` 12, `time` 13,
+`job` 9, `colour` 8, ...). Fixed generically in `Planner.select_new()`
+rather than hand-reordering ~50 families:
+
+- **Payoff** (`payoff()`): walking the pool, a filler whose slot already has
+  two fillers met-or-chosen, with a construction for that slot within
+  `PlanConfig.capability_window` (15) items after it, swaps in that
+  construction when it's ready (prereqs learned or chosen, two usable fills).
+- **Hold**: if that construction isn't ready yet (its fills/prereqs are met
+  but not yet learned), the filler waits. Deadlock-free by construction: a
+  hold only ever waits on a construction whose own prereqs are already met
+  or chosen and don't include the held filler; a distant construction
+  (outside the window) never holds anything. Verified no holes behind the
+  frontier after 80 simulated lessons.
+- **Transfer cap** (`transfer_capped()`): once a slot's construction is met,
+  at most two of its remaining fillers per arc — otherwise the held block
+  just came back later as a block of four.
+- **Boundary**: if an arc's last pick is a filler whose nearby construction
+  is now ready, the construction joins the arc (one over `count`); if it
+  isn't ready (a lone filler), that filler is dropped to start the next arc
+  with its siblings — only when the pattern is genuinely next and the arc
+  isn't left empty. Step 5's single-extra path now queues anything
+  `select_new(1)` returns beyond the first item, since a filler can come
+  back with its payoff construction.
+
+Real is-en course, 20-minute lessons: L6 now introduces `islensku ensku
+talar_thu` and plays intro → "Talar þú íslensku?"/"Talar þú ensku?"
+(generative) → situation within the lesson; later languages come two per
+arc (`japonsku eg_tala ...`, `thysku fronsku ...`) and each is immediately
+recombined through the known patterns ("Ég tala þýsku.", "Talar þú
+þýsku?", "Ég er að læra þýsku."). `inf` verbs now arrive with `eg_vil` /
+`eg_aetla_ad` rather than as a 12-verb block. Throughput unchanged (80
+lessons: 336 vs 342 items met; 30-minute: 276 vs 268; fr-en-a1 identical).
+
+Left alone deliberately: the masculine count words (einn/tveir/þrír/fjórir)
+still arrive as a block — no construction uses them, so there's no payoff
+to reach; and number fillers whose construction is far away (`big_count` →
+`thad_kostar_big`, ~250 items later) are outside the window by design.
+
+Tests (4 of 5 fail on the pre-fix code): synthetic payoff arc (`f0 f1 pat`,
+no further fillers), boundary append/trim, hold-then-transfer-cap, a
+no-starvation course guard, and the real `acc_language` → `talar_thu`
+lesson with a novel generated sentence. 136 tests, all passing.
+
+#29 still open for: (2) the curriculum-wide audit (fixed-phrase families
+such as Gjörðu svo vel / Verði þér að góðu, `vid_erum` paradigm, `bara`),
+and (3) the case/tense/modality pilot.
 
 ## Session 27: issue #55 — connect()'s fallback pair was replayed all lesson
 
