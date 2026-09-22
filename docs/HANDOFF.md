@@ -1694,10 +1694,11 @@ a form the controller's candidates actually need, an ungendered
 candidate slipping through) plus `test_item_gender_must_be_a_known_value`
 mirror the owner's three-item checklist directly. A new
 `test_gendered_nouns_note_actually_teaches_the_genders_godur_noun_relies_on`
-checks the note names all three words and genders and that
-`godur_noun`'s prereqs guarantee it fired first — the "regression test
-that gender info is actually surfaced in an exercise" the owner asked
-for. Widened `test_godur_noun_construction_is_reachable_once_its_prereqs_are_known`
+checks the note names all three words and genders, and that
+`godur_noun`'s prereqs *include* the note's gating items — necessary for
+the ordering guarantee below, though (see the seventh pass) not
+sufficient on its own, which is exactly what that pass caught. Widened
+`test_godur_noun_construction_is_reachable_once_its_prereqs_are_known`
 to accept any of the three correct generated sentences (all three
 gendered nouns are prereqs now, so which one `Builder.generate()` picks
 first is no longer pinned to a single outcome).
@@ -1708,6 +1709,56 @@ first is no longer pinned to a single outcome).
 pass was pushed, and the branch had gone stale under it — rebuilt the
 commit cleanly on top of the merged `main` and opened a fresh PR (#50)
 for this work rather than force-pushing over a diverged branch.
+
+**Seventh pass (PR #50 review): the note firing wasn't actually
+guaranteed before the construction — reproduced and fixed.** The owner's
+follow-up review named the sixth pass's overstated claim directly:
+`godur_noun`'s prereqs including the note's gating items proves the note
+*can* fire first, not that it *does*. Asked for the guarantee to be real,
+plus a regression test of the shape "all noun items already known, note
+unheard → next lesson must play the note before `godur_noun`'s intro."
+
+**Reproduced first, on a synthetic curriculum** (isolated from
+`godur_noun`'s own content, same convention as this file's other
+mechanism tests): a learner who already knows a milestone's three
+gating items, with the note unheard, entering a lesson whose only new
+thing to introduce is a construction whose own worked-example fill
+(`Curriculum.example_fill`) happens to be one of those same three items.
+The construction was introduced *first*. Root cause: `Builder.
+_intro_construction` plays the construction's own example fill as part
+of its intro exercise, and the only place a milestone note gets checked
+is the post-exercise `Planner._maybe_note(sc, sc.exercises[-1].item_ids,
+...)` call — which runs *after* that intro exercise completes, once it's
+too late. In the ordinary case (a plain vocab item slowly reaching
+"known" over many separate lessons) this race never has room to open,
+since every earlier touch of the item is itself a chance for the check
+to fire the note well before anything downstream needs it — the exact
+"fires the very lesson its last example is introduced" guarantee
+`_eligible_milestone`'s own docstring already describes. A construction
+example-filling on its very first exposure is the one case that check
+runs too late for.
+
+**Fix.** `do_intro()` now checks `self._eligible_milestone(item.prereqs)`
+*before* calling `b.intro()`, not just after — reusing the exact same
+eligibility check the reactive path already relies on, just moved one
+step earlier for the one case that needed it. If a milestone gating this
+item's own prereqs is due, it (and its discrimination step) plays first.
+`_eligible_milestone` already excludes notes in `notes_played`, so this
+never double-fires alongside the reactive check that still runs after
+every exercise. General by construction (checks any item's prereqs, not
+`godur_noun` specifically or anything agreement-related) rather than a
+narrow one-off hack — and, being a strict tightening of an existing
+"fires no later than X" guarantee, is unlikely to change behavior for
+any *other* milestone, confirmed by the full suite staying green
+unchanged.
+
+**Test:** `test_milestone_fires_before_a_construction_whose_own_example_fill_would_complete_it`,
+built on the same synthetic reproduction, checked to fail against the
+pre-fix code (confirmed directly: `git stash` the fix, rerun, watch it
+fail with the construction's intro one exercise ahead of the note) before
+being folded into the suite as a permanent regression guard.
+
+116 tests (115 → 116), all passing; `audiolesson validate` unchanged.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 

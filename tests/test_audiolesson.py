@@ -938,6 +938,51 @@ class CurriculumTests(unittest.TestCase):
         self.assertIn(gen.target, valid, gen.target)
         self.assertEqual(gen.meaning, valid[gen.target])
 
+    def test_milestone_fires_before_a_construction_whose_own_example_fill_would_complete_it(self):
+        """Owner review on PR #50 (the one remaining blocker): godur_noun's prereqs guarantee
+        the gendered_nouns_bill_bok_hus note has *fired* before it — but only if firing was
+        actually forced, not left to chance. Reproduced directly: when all of a milestone's
+        gating items are already known *before* this lesson starts (so nothing about them is
+        freshly touched), and the only new thing left to introduce is a construction whose own
+        worked-example fill happens to be one of those same gating items, the construction's
+        intro exercise (Builder._intro_construction plays its own example fill — see
+        Curriculum.example_fill) is what would complete the milestone's "met or exposed" check —
+        but the post-exercise _maybe_note check only runs *after* that intro finishes, so the
+        milestone note used to fire one exercise too late, after the learner had already met the
+        construction it was meant to prepare them for. Uses a synthetic curriculum, isolated
+        from godur_noun's own specific prereqs/content, matching this file's convention for
+        mechanism tests (see ``_transfer_curriculum``/``_agreement_curriculum`` above)."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "m", "kind": "vocab", "target": "m-noun", "meaning": "m-thing", "tags": ["gnoun"], "gender": "masc"},
+                {"id": "f", "kind": "vocab", "target": "f-noun", "meaning": "f-thing", "tags": ["gnoun"], "gender": "fem"},
+                {"id": "n", "kind": "vocab", "target": "n-noun", "meaning": "n-thing", "tags": ["gnoun"], "gender": "neut"},
+                {
+                    "id": "agree",
+                    "kind": "construction",
+                    "target": "{adj} {noun}.",
+                    "meaning": "Good {noun}.",
+                    "slots": {"noun": "gnoun"},
+                    "agreement": {"adj": {"from": "noun", "masc": "GoodM", "fem": "GoodF", "neut": "GoodN"}},
+                    "example": {"noun": "n"},  # "n" is both the construction's own worked example AND one of the note's gating items
+                    "prereqs": ["m", "f", "n"],
+                },
+            ],
+            "notes": [{"id": "gender_note", "milestone": True, "items": ["m", "f", "n"], "text": "m is masc, f is fem, n is neut."}],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for iid in ("m", "f", "n"):
+            # all noun items already known ...
+            learner.items[iid] = ItemState(due=TODAY.isoformat(), successes=5, durable_successes=5, stage="situation")
+        self.assertEqual(learner.notes_heard.get("gender_note", 0), 0)  # ... and gender note unheard
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+        sc = planner.build()  # next lesson must play note before godur_noun introduction
+        note_idx = next(i for i, ex in enumerate(sc.exercises) if ex.kind == "note" and ex.label == "note: gender_note")
+        intro_idx = next(i for i, ex in enumerate(sc.exercises) if ex.kind == "intro" and "agree" in ex.item_ids)
+        self.assertLess(note_idx, intro_idx, "the construction was introduced before the milestone that names its own pattern had fired")
+
     def test_milestone_eligible_as_soon_as_its_last_item_is_exercised_this_lesson(self):
         """Owner review follow-up on #32: a milestone must not wait an extra lesson just
         because ``has_met`` doesn't count an item introduced earlier in the *same*, still

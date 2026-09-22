@@ -375,6 +375,20 @@ class Planner:
 
         def do_intro(item: Item) -> None:
             nonlocal last_intro, seq
+            # A milestone whose gating items are all already met-or-exposed, purely from
+            # *this* item's own prereqs, must fire before this item's own intro exercise, not
+            # after (owner review on PR #50 point re: godur_noun): a construction's intro plays
+            # its own worked-example fill (see Builder._intro_construction), so if that fill
+            # happens to be the last item a milestone needs, the ordinary post-exercise
+            # _maybe_note check (which only runs after this intro completes) would let the
+            # construction reach the learner before the milestone naming the very pattern it
+            # relies on ever has. Checking prereqs here, before b.intro() runs, closes that gap
+            # regardless of which item's own exposure would otherwise have completed the trio.
+            milestone = self._eligible_milestone(item.prereqs)
+            if milestone is not None:
+                b.note(sc, milestone)
+                self.notes_played.append(milestone.id)
+                do_discriminate(milestone)
             ex = b.intro(sc, item)
             b.in_lesson.add(item.id)
             introduced.append(item)
