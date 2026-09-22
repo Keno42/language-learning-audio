@@ -23,18 +23,8 @@ prereqs = ["hvad_kostar_thetta"]
 situation = "Ask how much the tour costs."
 situation_ja = "ツアーの料金を聞いてください。"
 
-[[items]]
-id = "hvenaer_leggjum_vid_af_stad"
-kind = "phrase"
-target = "Hvenær leggjum við af stað?"
-meaning = "When do we set off?"
-meaning_ja = "出発は何時ですか？"
-difficulty = 4
-topics = ["travel", "time"]
-chunks = ["stað", "af stað", "leggjum við af stað", "Hvenær leggjum við af stað?"]
-situation = "You've booked the glacier tour. Ask when you set off."
-situation_ja = "氷河ツアーを予約しました。出発は何時か聞いてください。"
-
+# hvenaer_leggjum_vid_af_stad moved to module 06 (issue #29 cluster B, PR #53 follow-up) — see
+# that module's own comment.
 [[items]]
 id = "hvad_tekur_ferdin_langan_tima"
 kind = "phrase"

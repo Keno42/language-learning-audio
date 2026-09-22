@@ -45,29 +45,8 @@ prereqs = ["eg_er_sammala"]
 situation = "Someone says the shark is delicious. Say you disagree."
 situation_ja = "誰かがサメはおいしいと言いました。反対だと言ってください。"
 
-[[items]]
-id = "eg_held_thad"
-kind = "phrase"
-target = "Ég held það."
-meaning = "I think so."
-meaning_ja = "そう思います。"
-difficulty = 2
-topics = ["discourse"]
-situation = "Anna asks if the shop is open on Sundays. You think so. Say it."
-situation_ja = "アンナに店は日曜も開いているか聞かれました。そう思うと言ってください。"
-
-[[items]]
-id = "eg_held_ekki"
-kind = "phrase"
-target = "Ég held ekki."
-meaning = "I don't think so."
-meaning_ja = "そうは思いません。"
-difficulty = 2
-topics = ["discourse"]
-prereqs = ["eg_held_thad"]
-situation = "She asks if it'll rain. Say you don't think so."
-situation_ja = "雨が降るか聞かれました。そうは思わないと言ってください。"
-
+# eg_held_thad/eg_held_ekki moved to module 07 (issue #29 cluster B, PR #53 follow-up) — see
+# that module's own comment.
 [[items]]
 id = "eg_vona_thad"
 kind = "phrase"

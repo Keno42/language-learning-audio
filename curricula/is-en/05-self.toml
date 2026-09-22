@@ -502,6 +502,26 @@ requires = ["eg_heiti", "eg_er_fra_japan", "en_thu", "ja", "eg_er_i_frii", "takk
   cue_ja = "お礼を言ってください。"
   expect = "takk"
 
+# Relocated from module 20 (issue #29 cluster B, PR #53 follow-up — the owner's own triage
+# comment on #29 names this exactly: "leigubill... a reusable 'have been' construction").
+# leigubill's own opener asks "Hefurðu verið hér áður?" ("Have you been here before?"); this
+# was sitting 500+ items past that point, unresequenced. Not turned into a slot-fill
+# construction: the only other "hef + participle" example in the curriculum
+# (eg_hef_aldrei_smakkad_thetta, "I've never tasted this") takes a direct object where this one
+# takes a place adverbial ("hér áður") — too little shared shape for one clean template, so this
+# stays what it already was, a genuinely useful whole phrase, just correctly positioned.
+[[items]]
+id = "eg_hef_verid_her_adur"
+kind = "phrase"
+target = "Ég hef verið hér áður."
+meaning = "I have been here before."
+meaning_ja = "前にここに来たことがあります。"
+difficulty = 4
+topics = ["grammar", "social"]
+chunks = ["áður", "hér áður", "verið hér áður", "Ég hef verið hér áður."]
+situation = "The driver asks if it's your first time. Say you've been here before."
+situation_ja = "運転手に初めてか聞かれました。前に来たことがあると答えてください。"
+
 [[dialogues]]
 id = "leigubill"
 setting = "In a taxi from the airport. The driver makes conversation."
