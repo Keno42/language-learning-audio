@@ -874,12 +874,19 @@ meaning_ja = "そして"
 difficulty = 1
 topics = ["discourse"]
 
-# The seven fixed whole-amount price phrases, relocated from module 08 (issue #29 cluster A,
-# owner review on PR #53): module 03's café/restaurant dialogues speak amounts like "Fjögur
-# þúsund og fimm hundruð krónur." right after this module — these are the earliest, and still
-# the only, source of "hundruð" (the irregular plural of hundrað — see thad_kostar_big's own
-# note on why it isn't generated). Kept as fixed vocabulary, unchanged; only their position
-# moves, same as the rest of this module's relocations.
+# Six of the seven fixed whole-amount price phrases, relocated from module 08 (issue #29
+# cluster A, owner review on PR #53): module 03's café/restaurant dialogues speak amounts like
+# "Fjögur þúsund og fimm hundruð krónur." right after this module — these are the earliest, and
+# still the only, source of "hundruð" (the irregular plural of hundrað — see thad_kostar_big's
+# own note on why it isn't generated). Kept as fixed vocabulary, unchanged; only their position
+# moves, same as the rest of this module's relocations. Checked each phrase's own words against
+# what this module already teaches by this point (owner review, second round on PR #53) rather
+# than moving all seven as one block: six use only 1–12-range count words (fimm/tvö/þrjú/tíu),
+# þúsund, hundruð and krónur, all already taught above — safe. The seventh, fimmtán hundruð
+# krónur, uses "fimmtán" (15), a teen number outside that range and not taught until module 08 —
+# moving it here would teach the compound phrase before the standalone number it's built from,
+# exactly the ordering #29's capability-first principle rules out. Left in module 08, right
+# after "fimmtan" itself, instead — see that module's own comment.
 [[items]]
 id = "fimm_hundrud_kronur"
 kind = "vocab"
@@ -897,16 +904,6 @@ target = "þúsund krónur"
 meaning = "a thousand krónur"
 meaning_ja = "1000クローナ"
 difficulty = 2
-tags = ["price"]
-topics = ["money"]
-
-[[items]]
-id = "fimmtan_hundrud_kronur"
-kind = "vocab"
-target = "fimmtán hundruð krónur"
-meaning = "fifteen hundred krónur"
-meaning_ja = "1500クローナ"
-difficulty = 3
 tags = ["price"]
 topics = ["money"]
 

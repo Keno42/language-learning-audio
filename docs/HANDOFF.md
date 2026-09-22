@@ -2601,12 +2601,15 @@ itself once checked directly rather than assumed fixed by association:
 - **`hundruð`** (the irregular plural of hundrað this pass's own
   `thad_kostar_big` note already explains isn't generated) — its only
   source was the seven fixed whole-amount price phrases
-  (`fimm_hundrud_kronur` etc.), still sitting in module 08. Relocated all
-  seven to module 02, unchanged otherwise — deliberately *not* solved by
-  inventing a new decontextualized "hundruð" vocab item, which would have
-  been exactly the shape of fix `dialogue_sequencing_report()`'s own
-  docstring warns against (a patch instead of fixing the sequencing at the
-  source); the fixed phrases already are the source, just badly placed.
+  (`fimm_hundrud_kronur` etc.), still sitting in module 08. Relocated six
+  of the seven to module 02, unchanged otherwise — deliberately *not*
+  solved by inventing a new decontextualized "hundruð" vocab item, which
+  would have been exactly the shape of fix `dialogue_sequencing_report()`'s
+  own docstring warns against (a patch instead of fixing the sequencing at
+  the source); the fixed phrases already are the source, just badly
+  placed. (The seventh, `fimmtan_hundrud_kronur`, stayed in module 08 —
+  see the correction right below; this bullet already reflects that
+  fix, not the original all-seven move.)
 - **`erum`** ("we are") — flagged specifically via the `tynd` (lost)
   dialogue's "Já, sjáðu: við erum hérna..." partner line. The narrow gap
   (this dialogue's own earliest exposure to the word) is closed by
@@ -2630,6 +2633,32 @@ a class of items moved" is not the same claim as "every specific named item
 in the original list was re-checked" — re-verify against the literal
 original findings before declaring a triage item closed, not just against
 the class of problem it named.
+
+**Second correction, same session (owner review): moving all seven price
+phrases as one block was the same mistake at a smaller scale.** The
+`hundruð` fix above relocated all seven fixed whole-amount phrases to
+module 02 together, checked only as a class ("these are all cluster A
+vocabulary") rather than item by item. `fimmtan_hundrud_kronur`
+("fimmtán hundruð krónur", fifteen hundred krónur) names "fimmtán"
+(fifteen) — a teen number outside the 1–12 range this pass moved, still
+taught in module 08. Moving the phrase to module 02 taught it *before*
+the standalone "fimmtán" it's built from: exactly the ordering #29's
+capability-first principle rules out, on a smaller item than the
+`fjögur`/`og`/`erum` mistakes above but the identical failure mode —
+treating a group of similar-looking items as one relocatable unit instead
+of checking each one's own components against what's already taught by
+that point. Left `fimmtan_hundrud_kronur` in module 08, right after
+`fimmtan` itself; the other six phrases (`fimm_hundrud_kronur`,
+`thusund_kronur`, `tvo_thusund_kronur`, `thrju_thusund_kronur`,
+`fimm_thusund_kronur`, `tiu_thusund_kronur`) use only count words already
+in module 02's 1–12 range plus `þúsund`/`hundruð`/`krónur`, so they stay —
+now with that check made explicit in the comment rather than assumed.
+`hundruð`'s own sequencing fix is unaffected: `fimm_hundrud_kronur` (still
+in module 02) remains its earliest exposure, so the gap stays closed.
+18 advisory pairs, unchanged; 127 tests, unaffected. Same lesson as the
+correction above, one level more specific: a relocation is only as sound
+as the check behind *each* item moved, not the check behind the group it
+was pattern-matched into.
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
