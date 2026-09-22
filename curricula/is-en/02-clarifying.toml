@@ -85,6 +85,7 @@ components = ["ensku"]
 prereqs = ["ensku"]
 situation = "You're not sure the receptionist understands you. Ask if she speaks English."
 situation_ja = "受付の人に通じているか不安です。英語を話せるか聞いてください。"
+situation_fill = { language = "ensku" }  # issue #57: the situation says "English"
 
 [[items]]
 id = "eg_tala"

@@ -104,6 +104,10 @@ class Item:
     chunks: list[str] | None = None  # backward-build chunks, shortest first
     slots: dict[str, str] = field(default_factory=dict)  # construction: slot -> required tag
     example: dict[str, str] = field(default_factory=dict)  # construction: slot -> item id
+    # construction: slot -> item id that its authored situation names (issue #57). "Ask if she
+    # speaks English." only fits "Talar þú ensku?", so any exercise that narrates this
+    # construction's situation must use that fill; other stages still generate freely.
+    situation_fill: dict[str, str] = field(default_factory=dict)
     instruction: str = ""  # transform: known-language instruction, e.g. "Make it negative:"
     examples: list[TransformExample] = field(default_factory=list)  # transform pairs
     order: int = 0
@@ -299,6 +303,10 @@ class Curriculum:
             target = target.replace("{" + slot + "}", item.target.rstrip("."))
             meaning = meaning.replace("{" + slot + "}", item.meaning.rstrip("."))
         return target, meaning
+
+    def situation_fills(self, construction: Item) -> dict[str, Item]:
+        """The fills a construction's authored situation is bound to (issue #57), by slot."""
+        return {slot: self.by_id[ref] for slot, ref in construction.situation_fill.items()}
 
     def example_fill(self, construction: Item) -> dict[str, Item]:
         """The author's example fill for a construction, or the first tagged item per slot."""
@@ -529,6 +537,17 @@ def validate(cur: Curriculum) -> None:
             for s, ref in it.example.items():
                 if ref not in ids:
                     raise CurriculumError(f"construction {it.id!r}: example fill {ref!r} unknown")
+            if it.situation_fill and not it.has_situation:
+                raise CurriculumError(f"construction {it.id!r}: situation_fill without a situation")
+            for s, ref in it.situation_fill.items():
+                if s not in it.slots:
+                    raise CurriculumError(f"construction {it.id!r}: situation_fill names unknown slot {s!r}")
+                if ref not in ids:
+                    raise CurriculumError(f"construction {it.id!r}: situation_fill {s!r} references unknown item {ref!r}")
+                if it.slots[s] not in cur.by_id[ref].tags:
+                    raise CurriculumError(f"construction {it.id!r}: situation_fill {ref!r} is not a valid fill for slot {s!r} (needs tag {it.slots[s]!r})")
+        elif it.situation_fill:
+            raise CurriculumError(f"item {it.id!r}: situation_fill is only for constructions")
         elif it.slot_names:
             raise CurriculumError(f"item {it.id!r} has {{slots}} but kind is {it.kind!r}, not construction")
         if it.kind == "transform" and len(it.examples) < 2:

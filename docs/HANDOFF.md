@@ -1,13 +1,14 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-22 (session 30). Recent sessions, oldest first:
+_Last updated 2026-09-22 (session 31). Recent sessions, oldest first:
 22 closes out issue #44; 23 is issue #29's triage and generative agreement
 pilot; 24 is issue #49 (embedded third-language examples, pronunciation
 pacing); 25 is issue #48's first partner line inside connect(); 26 is #29
 cluster A (numbers/money); 27 is #29 cluster B's sequencing findings (PR
 #54); 28 is issue #55 (connect() pair history); 29 is #29's
 capability-aware arc boundaries; 30 is #48's partner exchanges in early
-lessons (28–30 are PR #56). **Issue #34** ("Improve
+lessons (28–30 were PR #56, merged); 31 is issue #57 (situation-bound
+construction fills, its own follow-up PR). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -59,7 +60,11 @@ the session sections):
 - **#55** (connect() replayed one fallback pair all lesson) — fixed in
   session 28 (PR #56): per-lesson pair history, authored-bridge-first
   ranking, per-arc pairs must include the arc's own item, exhaustion
-  stops instead of looping. Closes with PR #56.
+  stops instead of looping. PR #56, merged.
+- **#57** (construction situation vs generated fill) — fixed in session
+  31: `situation_fill` binds the fill a situation names; situation-stage
+  recall and connect() honour it, other stages generate freely (follow-up
+  PR after #56).
 - **#48** (isolated recall → end-to-end conversation) — **partially
   addressed**. Session 25 added authored `partner_cue` bridges to
   connect(); session 30 made early lessons reach partner interaction
@@ -2940,6 +2945,35 @@ Still open for #48: wiring session 26's number constructions into a real
 partner-driven payment exchange; auditing each dialogue's progression the
 way `nagranni` was audited; more authored bridges beyond modules 01–02.
 
+
+## Session 31: issue #57 — a construction's situation and its generated fill disagreed
+
+A real Lesson 4 narrated `talar_thu`'s situation ("You're not sure the
+receptionist understands you. Ask if she speaks English.") inside connect()
+and expected «Talar þú íslensku?» — grammatical, but not an answer to the
+task. A construction's `situation` and its slot generation were independent:
+nothing recorded that the situation names one specific fill.
+
+**Fix.** `Item.situation_fill` (`{ slot = "item_id" }`, construction only):
+the fill(s) the authored situation names. `Builder.generate()` takes
+`fixed=` to pin slots; `_recall_construction` pins them at the `situation`
+stage, and `_connect_target()` always does (connect() always narrates the
+situation). Every other stage (hinted/meaning/recombine) generates freely, so
+«Talar þú íslensku?» etc. still come up there — the issue's non-goal of not
+collapsing to the worked example. `validate()` rejects a binding on a
+non-construction, without a situation, to an unknown slot, to an unknown item,
+or to an item lacking the slot's tag. Audited every construction with a
+situation (only two in is-en, none elsewhere) — both name a fill and are now
+bound: `talar_thu` → `ensku`, `einn_tvo_thrjar` ("say 'two krónur'") → `tvaer`.
+Documented in `docs/CURRICULUM.md`.
+
+**Tests** (the two behaviour tests fail on the pre-fix code): situation-stage
+recall always «Talar þú ensku?» across 12 seeds while meaning/recombine vary;
+connect() with `talar_thu` always «Talar þú ensku?» (the Lesson 4 path);
+validation of bad bindings; and an authoring guard — a construction whose
+situation mentions a fill's meaning ("English", "two") must bind that slot
+(confirmed to fail with `talar_thu`'s binding removed). 143 tests, all
+passing.
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
