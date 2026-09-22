@@ -211,6 +211,11 @@ class DialogueTurn:
     partner_meaning: str | None = None
     opener: str | None = None  # partner line spoken *before* the learner's turn
     opener_meaning: str | None = None
+    # when ``expect`` is a construction: slot -> item id the cue names (issue #48), so the
+    # learner generates e.g. «Það kostar fimm þúsund krónur.» from known parts inside a real
+    # exchange — the dialogue counterpart of Item.situation_fill (#57). The fills count as
+    # required items, so the dialogue waits until they are learned.
+    expect_fill: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -225,6 +230,8 @@ class Dialogue:
     @property
     def required_items(self) -> list[str]:
         out = [t.expect for t in self.turns if t.expect]
+        for t in self.turns:
+            out += [f for f in t.expect_fill.values() if f not in out]
         for r in self.requires:
             if r not in out:
                 out.append(r)
@@ -556,6 +563,15 @@ def validate(cur: Curriculum) -> None:
         for t in d.turns:
             if t.expect and t.expect not in ids:
                 raise CurriculumError(f"dialogue {d.id!r} expects unknown item {t.expect!r}")
+            if t.expect_fill:
+                c = cur.by_id.get(t.expect) if t.expect else None
+                if c is None or c.kind != "construction":
+                    raise CurriculumError(f"dialogue {d.id!r}: expect_fill needs a construction as expect")
+                for s, ref in t.expect_fill.items():
+                    if s not in c.slots:
+                        raise CurriculumError(f"dialogue {d.id!r}: expect_fill names unknown slot {s!r} of {c.id!r}")
+                    if ref not in ids or c.slots[s] not in cur.by_id[ref].tags:
+                        raise CurriculumError(f"dialogue {d.id!r}: expect_fill {ref!r} is not a valid fill for {c.id!r}'s slot {s!r}")
         for r in d.requires:
             if r not in ids:
                 raise CurriculumError(f"dialogue {d.id!r} requires unknown item {r!r}")

@@ -185,6 +185,8 @@ difficulty = 3
 topics = ["clarifying"]
 situation = "There's a word on the sign you don't know. Ask what it means."
 situation_ja = "看板に知らない単語があります。意味を聞いてください。"
+partner_cue = "Já? Get ég hjálpað?"  # issue #48: the partner line between afsakid and this item in connect()
+partner_cue_after = "afsakid"
 
 [[items]]
 id = "hvad_heitir_thetta_a_islensku"
@@ -220,6 +222,8 @@ difficulty = 3
 topics = ["clarifying"]
 situation = "The address is too hard to catch by ear. Ask her to write it."
 situation_ja = "住所が耳では聞き取れません。書いてもらうよう頼んでください。"
+partner_cue = "Já: Laugavegur tuttugu og þrír."  # issue #48: the partner line between gaetirdu_endurtekid_thetta and this item in connect()
+partner_cue_after = "gaetirdu_endurtekid_thetta"
 
 [[items]]
 id = "eg_veit_ekki"
@@ -232,6 +236,8 @@ difficulty = 2
 topics = ["clarifying", "discourse"]
 situation = "Someone asks you where the nearest bank is. You have no idea."
 situation_ja = "一番近い銀行はどこかと聞かれました。見当がつきません。"
+partner_cue = "Góðan daginn. Hvar er bankinn?"  # issue #48: the partner line between godan_daginn and this item in connect()
+partner_cue_after = "godan_daginn"
 
 [[items]]
 id = "eg_er_ekki_viss"
@@ -243,6 +249,8 @@ difficulty = 2
 topics = ["clarifying", "discourse"]
 situation = "Your friend asks if the museum is open on Mondays. You're not sure."
 situation_ja = "友達が博物館は月曜も開いているか聞きました。確信がありません。"
+partner_cue = "Hæ! Er safnið opið á mánudögum?"  # issue #48: the partner line between hae and this item in connect()
+partner_cue_after = "hae"
 
 [[items]]
 id = "augnablik"
@@ -328,6 +336,8 @@ topics = ["clarifying", "emergencies"]
 chunks = ["mér", "hjálpað mér", "Geturðu hjálpað mér?"]
 situation = "The ticket machine won't take your card. Ask the person behind you for help."
 situation_ja = "券売機がカードを受け付けません。後ろの人に助けを求めてください。"
+partner_cue = "Já?"  # issue #48: the partner line between afsakid and this item in connect()
+partner_cue_after = "afsakid"
 
 [[items]]
 id = "eg_tharf_hjalp"
@@ -339,6 +349,8 @@ difficulty = 2
 topics = ["clarifying", "emergencies"]
 situation = "You're at the information desk with a problem. Say you need help."
 situation_ja = "案内カウンターで困っています。助けが必要だと言ってください。"
+partner_cue = "Góðan daginn. Hvað get ég gert fyrir þig?"  # issue #48: the partner line between godan_daginn and this item in connect()
+partner_cue_after = "godan_daginn"
 
 [[items]]
 id = "hvad_er_thetta"
@@ -350,6 +362,8 @@ difficulty = 2
 topics = ["clarifying"]
 situation = "There's a grey paste on your plate. Ask what it is."
 situation_ja = "皿に灰色のペーストがあります。何か聞いてください。"
+partner_cue = "Gjörðu svo vel. Verði þér að góðu!"  # issue #48: the partner line between takk and this item in connect()
+partner_cue_after = "takk"
 
 [[items]]
 id = "er_thetta_rett"
@@ -372,6 +386,8 @@ difficulty = 3
 topics = ["clarifying", "social"]
 situation = "The clerk assumes you know the system. Explain you're a foreigner."
 situation_ja = "係の人が仕組みを知っている前提で話します。外国人だと説明してください。"
+partner_cue = "Þú þarft bara að fylla út eyðublað á netinu."  # issue #48: the partner line between eg_skil_ekki and this item in connect()
+partner_cue_after = "eg_skil_ekki"
 
 [[items]]
 id = "politeness_get_eg_fengid"

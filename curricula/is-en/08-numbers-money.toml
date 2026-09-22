@@ -504,11 +504,53 @@ requires = ["hvad_kostar_thetta", "thad_er_of_dyrt", "tekurdu_kort", "eg_er_ekki
   expect_text = "Ég er ekki með reiðufé. Hvar er næsti hraðbanki?"
   expect_meaning = "I don't have cash. Where is the nearest ATM?"
   expect_meaning_ja = "現金を持っていません。一番近いATMはどこですか？"
-  partner = "Hinum megin við götuna. Ég er með peysu fyrir þig."
-  partner_meaning = "Across the street. I have a sweater for you."
-  partner_meaning_ja = "通りの向かいです。セーターを持っていますよ。"
+  # issue #48 audit: the seller used to add "Ég er með peysu fyrir þig." ("I have a sweater for
+  # you") — a line copied from gonguferd that doesn't follow an ATM question
+  partner = "Hinum megin við götuna."
+  partner_meaning = "Across the street."
+  partner_meaning_ja = "通りの向かいです。"
 
   [[dialogues.turns]]
   cue = "Thank him."
   cue_ja = "お礼を言ってください。"
   expect = "takk"
+
+# issue #48 (still open after session 30): session 26's number constructions were only ever
+# *safe* inside connect(), never used in a partner-driven transaction. Here the learner is the
+# seller: a turn expects the construction thad_kostar_big with its fill bound by the cue
+# (expect_fill, like Item.situation_fill), so «Það kostar fimm þúsund krónur.» is generated from
+# independently known parts inside a real haggle — and the partner answers with a number too.
+[[dialogues]]
+id = "solubas"
+setting = "You're minding a friend's stall at the Kolaportið flea market. A man picks up a wool hat."
+setting_ja = "コラポルティズのフリーマーケットで、友達の露店の店番をしています。男性が毛糸の帽子を手に取りました。"
+topics = ["money", "shopping"]
+
+  [[dialogues.turns]]
+  opener = "Góðan daginn. Hvað kostar þetta?"
+  opener_meaning = "Good morning. How much is this?"
+  opener_meaning_ja = "こんにちは。これはいくらですか？"
+  cue = "Tell him it costs five thousand krónur."
+  cue_ja = "5千クローナだと答えてください。"
+  expect = "thad_kostar_big"
+  expect_fill = { count = "fimm" }
+  partner = "Fimm þúsund? Það er of dýrt. Fjögur þúsund?"
+  partner_meaning = "Five thousand? That's too expensive. Four thousand?"
+  partner_meaning_ja = "5千？高すぎるよ。4千でどう？"
+
+  [[dialogues.turns]]
+  cue = "Agree."
+  cue_ja = "了承してください。"
+  expect = "allt_i_lagi"
+  partner = "Frábært. Má ég borga með korti?"
+  partner_meaning = "Great. May I pay by card?"
+  partner_meaning_ja = "よかった。カードで払えますか？"
+
+  [[dialogues.turns]]
+  cue = "Say no problem."
+  cue_ja = "問題ないと言ってください。"
+  expect = "ekkert_mal"
+  partner = "Takk fyrir! Bless."
+  partner_meaning = "Thanks! Bye."
+  partner_meaning_ja = "ありがとう！じゃあね。"
+

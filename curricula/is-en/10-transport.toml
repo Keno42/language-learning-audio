@@ -441,9 +441,10 @@ requires = ["fer_thessi_straeto_i_midbaeinn", "einn_mida_takk", "hvar_a_eg_ad_fa
   cue = "Ask where you should get off."
   cue_ja = "どこで降りればいいか聞いてください。"
   expect = "hvar_a_eg_ad_fara_ut"
-  partner = "Allt í lagi."
-  partner_meaning = "OK."
-  partner_meaning_ja = "わかりました。"
+  # issue #48 audit: was "Allt í lagi." ("OK") — not an answer to "where do I get off?"
+  partner = "Eftir fimm mínútur, við hliðina á bankanum."
+  partner_meaning = "In five minutes, next to the bank."
+  partner_meaning_ja = "5分後、銀行の隣です。"
 
   [[dialogues.turns]]
   cue = "Thank him."

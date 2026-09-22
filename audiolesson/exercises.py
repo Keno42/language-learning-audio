@@ -649,6 +649,10 @@ class Builder:
             if turn.expect:
                 item = self.cur.item(turn.expect)
                 expected = item.target
+                if item.kind == "construction":
+                    # never speak a raw template; the cue's bound fills, else the worked example
+                    fills = {**self.cur.example_fill(item), **{s: self.cur.by_id[f] for s, f in turn.expect_fill.items()}}
+                    expected = self.cur.resolve_slots(item, fills)[0]
             else:
                 item = None
                 expected = turn.expect_text or ""

@@ -391,20 +391,22 @@ id = "heimsokn"
 setting = "You visit Anna's flat for the first time."
 setting_ja = "初めてアンナのアパートを訪ねます。"
 topics = ["home"]
-requires = ["hae", "fardu_ur_skonum", "viltu_kaffi", "ja_takk", "hvar_er_klosettid_home", "thetta_er_person"]
+requires = ["hae", "audvitad", "fardu_ur_skonum", "viltu_kaffi", "ja_takk", "hvar_er_klosettid_home", "thetta_er_person"]
 
   [[dialogues.turns]]
-  opener = "Hæ, komdu inn!"
-  opener_meaning = "Hi, come in!"
-  opener_meaning_ja = "やあ、入って！"
-  cue = "Say hi. Then she says 'farðu úr skónum' — repeat what she'd say when you keep your shoes on."
-  cue_ja = "やあと言ってください。そして、靴を履いたままのときに彼女が言う「靴を脱いで」を繰り返してください。"
-  expect_text = "Hæ! Farðu úr skónum."
-  expect_meaning = "Hi! Take your shoes off."
-  expect_meaning_ja = "やあ！靴を脱いで。"
-  partner = "Nákvæmlega. Viltu kaffi?"
-  partner_meaning = "Exactly. Do you want coffee?"
-  partner_meaning_ja = "そのとおり。コーヒー飲む？"
+  # issue #48 audit: the roles were inverted — the *guest* said «Farðu úr skónum» to the host,
+  # who answered «Nákvæmlega» ("exactly"). The host says it now; the learner agrees.
+  opener = "Hæ, komdu inn! Farðu úr skónum."
+  opener_meaning = "Hi, come in! Take your shoes off."
+  opener_meaning_ja = "やあ、入って！靴を脱いでね。"
+  cue = "Say hi, and: yes, of course."
+  cue_ja = "やあと言って、はい、もちろんと答えてください。"
+  expect_text = "Hæ! Já, auðvitað."
+  expect_meaning = "Hi! Yes, of course."
+  expect_meaning_ja = "やあ！うん、もちろん。"
+  partner = "Viltu kaffi?"
+  partner_meaning = "Do you want coffee?"
+  partner_meaning_ja = "コーヒー飲む？"
 
   [[dialogues.turns]]
   cue = "Say yes, please, and ask where the toilet is."

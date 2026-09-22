@@ -680,6 +680,85 @@ class CurriculumTests(unittest.TestCase):
                     if word and re.search(r"\b" + re.escape(word) + r"\b", text):
                         self.assertIn(slot, c.situation_fill, f"{c.id}: situation names {word!r} but slot {slot!r} is unbound")
 
+    def test_dialogue_turn_can_expect_a_construction_with_a_bound_fill(self):
+        """Issue #48: a dialogue turn may expect a construction, with the fill its cue names
+        bound by ``expect_fill`` — the learner generates the line from known parts inside a real
+        exchange. The fill is a required item (the dialogue waits for it), the spoken line is
+        resolved, and bad bindings are rejected."""
+        from audiolesson.exercises import Builder
+
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "fimm", "kind": "vocab", "target": "fimm", "meaning": "five", "tags": ["cnt"]},
+                {"id": "sex", "kind": "vocab", "target": "sex", "meaning": "six", "tags": ["cnt"]},
+                {"id": "kaffi", "kind": "vocab", "target": "kaffi", "meaning": "coffee", "tags": ["drink"]},
+                {"id": "ok", "kind": "phrase", "target": "Allt í lagi.", "meaning": "OK."},
+                {"id": "kostar", "kind": "construction", "target": "Það kostar {count} þúsund krónur.",
+                 "meaning": "It costs {count} thousand krónur.", "slots": {"count": "cnt"}, "example": {"count": "sex"}},
+            ],
+            "dialogues": [
+                {"id": "d", "setting": "A stall.", "turns": [
+                    {"opener": "Hvað kostar þetta?", "cue": "Say five thousand.", "expect": "kostar", "expect_fill": {"count": "fimm"}, "partner": "Of dýrt."},
+                    {"cue": "Agree.", "expect": "ok"},
+                ]},
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        self.assertIn("fimm", cur.dialogue_by_id["d"].required_items)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "L", cur.target_lang, cur.known_lang)
+        b.dialogue(sc, cur.dialogue_by_id["d"])
+        self.assertEqual([s.text for s in sc.segments if s.type == "answer"], ["Það kostar fimm þúsund krónur.", "Allt í lagi."])
+        for turn_patch, msg in (
+            ({"expect": "ok", "expect_fill": {"count": "fimm"}}, "needs a construction"),
+            ({"expect_fill": {"n": "fimm"}}, "unknown slot"),
+            ({"expect_fill": {"count": "kaffi"}}, "not a valid fill"),
+        ):
+            bad = json.loads(json.dumps(raw))
+            bad["dialogues"][0]["turns"][0].update(turn_patch)
+            with self.assertRaisesRegex(CurriculumError, msg):
+                curriculum_from_dict(bad)
+
+    def test_real_market_stall_dialogue_generates_the_price(self):
+        """Issue #48: session 26's number constructions were only ever safe inside connect(),
+        never used in a partner-driven transaction. «solubas» puts the learner behind a stall:
+        with the instructor lane stripped, the target-language turns are one haggle, and the
+        price is generated from ``thad_kostar_big`` + the known count word, not recalled."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        sc = Script(1, "L", cur.target_lang, cur.known_lang)
+        b.dialogue(sc, cur.dialogue_by_id["solubas"])
+        lane = [(s.speaker, s.text) for s in sc.segments if s.type in ("speak", "answer")]
+        self.assertEqual(
+            lane,
+            [
+                ("native_b", "Góðan daginn. Hvað kostar þetta?"),
+                ("native_a", "Það kostar fimm þúsund krónur."),
+                ("native_b", "Fimm þúsund? Það er of dýrt. Fjögur þúsund?"),
+                ("native_a", "Allt í lagi."),
+                ("native_b", "Frábært. Má ég borga með korti?"),
+                ("native_a", "Ekkert mál."),
+                ("native_b", "Takk fyrir! Bless."),
+            ],
+        )
+        self.assertIn("fimm", cur.dialogue_by_id["solubas"].required_items)
+
+    def test_no_dialogue_speaks_a_raw_construction_template(self):
+        """Issue #48 guard: every dialogue on the real course, played in full, speaks only
+        resolved target-language lines — never a ``{slot}`` placeholder."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        for d in cur.dialogues:
+            sc = Script(1, "L", cur.target_lang, cur.known_lang)
+            b.dialogue(sc, d, replay=True)
+            spoken = [s.text for s in sc.segments if s.type in ("speak", "answer")]
+            self.assertFalse([t for t in spoken if "{" in t], d.id)
+
     @staticmethod
     def _german_situation_curriculum():
         return curriculum_from_dict(

@@ -453,7 +453,7 @@ requires = ["hvad_heitir_hun", "hvad_er_hun_gomul", "thetta_er_person", "brodir_
   partner_meaning_ja = "彼も東京に住んでるの？"
 
   [[dialogues.turns]]
-  cue = "Say he lives in Japan — no: say yes, he lives in Japan."
+  cue = "Say yes, he lives in Japan."  # issue #48 audit: the cue used to correct itself mid-sentence
   cue_ja = "はい、彼は日本に住んでいます、と言ってください。"
   expect_text = "Já, hann býr í Japan."
   expect_meaning = "Yes, he lives in Japan."

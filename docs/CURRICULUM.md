@@ -78,8 +78,14 @@ partner_speaker = "native_b"                # default
   partner_meaning = "Yes, of course. Where are you from?"
 ```
 
-A dialogue is eligible once every `expect` item and every `requires` item is
-learned. It is replayed without pauses the second time it is practised. Items
+A turn may `expect` a construction when its cue names the fill:
+`expect = "thad_kostar_big"` with `expect_fill = { count = "fimm" }` ("Tell him it
+costs five thousand krónur.") speaks «Það kostar fimm þúsund krónur.», generated
+from the known parts. The bound fills count as required items. Validation rejects a
+non-construction `expect`, an unknown slot, or an item that isn't a fill for that slot.
+
+A dialogue is eligible once every `expect` item, every `expect_fill` item and every
+`requires` item is learned. It is replayed without pauses the second time it is practised. Items
 that appear in a dialogue gain the *dialogue* stage at the top of their ladder.
 
 ## Several learner languages in one file
