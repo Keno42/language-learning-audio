@@ -553,14 +553,18 @@ class Builder:
         first_target = self._connect_target(first)
         second_target = self._connect_target(second)
         ids = [first.id, second.id]
-        ex = sc.new_exercise("connect", None, ids, f"connect: {first.id}+{second.id}")
+        bridged = bool(second.partner_cue) and second.partner_cue_after == first.id
+        # issue #48: only an authored bridge makes this a target-language exchange; without
+        # one it's recombination practice, and is labelled so rather than counted as
+        # conversational continuity
+        ex = sc.new_exercise("connect", "exchange" if bridged else "recombine", ids, f"connect: {first.id}+{second.id}")
         self._narr(sc, ex, self.prompts.get("connect_intro"))
         self._beat(sc, ex)
         self._narr(sc, ex, self._situation_readonly(first))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, first_target, first, generative=True)
         self._answer(sc, ex, first_target)
         self._beat(sc, ex)
-        if second.partner_cue and second.partner_cue_after == first.id:
+        if bridged:
             self._speak(sc, ex, second.partner_cue, speaker="native_b")
             self._beat(sc, ex)
         else:

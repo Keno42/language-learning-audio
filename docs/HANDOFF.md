@@ -1,6 +1,7 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-22 (session 28: issue #29, capability-aware arc
+_Last updated 2026-09-22 (session 29: issue #48, partner exchanges in early
+lessons; session 28: issue #29, capability-aware arc
 boundaries — an arc reaches the construction its fillers unlock; session 27: issue #55, connect() no longer replays
 one fallback pair all lesson — see below. Session 26: issue #29 resumed — cluster A
 (numbers/money), with #48's conversational bar newly applied as a design
@@ -2684,6 +2685,60 @@ none of these five were closing anything); 127 tests, unaffected. The
 lesson compounds across all three corrections this session: "passes a
 check" is not the same as "needs to be here" — a relocation should
 answer the second question specifically, not stop at the first.
+
+## Session 29: issue #48 — partner interaction in early lessons
+
+Measured first (60 simulated 20-minute is-en lessons): lessons 1–8 — up to
+52 items met, including the owner's real Lesson 4 — contained **no partner
+target-language line at all**. Two causes:
+
+1. The first dialogue (`nagranni`) needs `allt_gott`, whose prereq `takk`
+   must be *learned* (durable) before `allt_gott` is even introduced, and
+   `eligible_dialogue()` itself required every item *learned*. That gate
+   was stricter than its own other branch — items introduced minutes
+   earlier in the same lesson (`in_lesson`) already counted — so it now
+   accepts items *met* in any lesson. The first encounter is assisted
+   (cues + translations) either way.
+2. The connect() fallback that does fire early had exactly one authored
+   `partner_cue` in the whole course, so every early connect was English
+   "And then —" narration.
+
+**Content.** Authored 11 more `partner_cue`/`partner_cue_after` bridges
+among modules 01–02, each chosen so *both* lanes hold: target-language
+turns form one exchange, and B's existing English situation still fits the
+scene. E.g. `takk` → «Gjörðu svo vel. Eigðu góðan dag!» → `somuleidis`;
+`eigdu_godan_dag` → «Takk, sömuleiðis. Bless!» → `bless`; `gaman_ad_sja_thig`
+→ «Sömuleiðis! Hvernig hefurðu það?» → `eg_hef_thad_gott`; and the issue's
+own pair, `ha` → «Morgunmaturinn er á fyrstu hæð.» → `eg_skil` (B's
+situation is the receptionist explaining where breakfast is). Some partner
+lines use words not yet taught (`morgunmaturinn`, `afmæli`) — deliberate: a
+partner saying something the learner half-catches is the realistic case,
+and B's instructor cue carries the meaning. Not native-reviewed.
+
+**Planner.**
+- `do_connect()` first looks for an authored exchange that includes at least
+  one of its scope's own items (this lesson's, or the arc's), with the
+  other half from any known material; only then the #55 ranking within the
+  scope. Without this the scope-first search never reached `takk` (met two
+  lessons earlier) while this lesson's items had any generic pair.
+- `Builder.connect()` labels its exercise stage `exchange` (authored bridge
+  used) or `recombine` (none) — #48's "recombination fallback ≠ coherent
+  exchange". `sc.meta` gains `partner_exchanges` (dialogues + exchange
+  connects) and `recombinations`.
+
+Result on the same simulation: every lesson from L2 on has ≥1 partner
+exchange (L1, six items, is the only exception); L4 now plays three
+(`hae+til_hamingju`, `eigdu_godan_dag+bless`, `takk+somuleidis`).
+Throughput within noise (80 lessons: 332 items met vs 336).
+
+Tests (all fail on the pre-fix code): exchange/recombine labelling, every
+authored cue playable (both items have situations), L2–L6 of a real course
+each with a partner exchange plus the `ha+eg_skil` exchange shape, and a
+dialogue eligible once its items are met. 140 tests, all passing.
+
+Still open for #48: wiring session 26's number constructions into a real
+partner-driven payment exchange; auditing each dialogue's progression the
+way `nagranni` was audited; more authored bridges beyond modules 01–02.
 
 ## Session 28: issue #29 — capability-aware arc boundaries
 

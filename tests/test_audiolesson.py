@@ -782,6 +782,86 @@ class CurriculumTests(unittest.TestCase):
         for ids in connects:
             self.assertTrue({"a0", "b0"} & set(ids), f"an arc's connected use played only unrelated review items: {ids}")
 
+    def test_connect_is_labelled_exchange_only_with_an_authored_bridge(self):
+        """Issue #48: a connect() without a compatible target-language bridge is recombination
+        practice, not evidence of conversation — the exercise says which one it was, and the
+        lesson's ``partner_exchanges`` only counts the former (plus dialogues)."""
+        from audiolesson.exercises import Builder
+
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "a", "kind": "phrase", "target": "A.", "meaning": "A.", "situation": "Situation A."},
+                {"id": "c", "kind": "phrase", "target": "C.", "meaning": "C.", "situation": "Situation C."},
+                {"id": "b", "kind": "phrase", "target": "B.", "meaning": "B.", "situation": "Situation B.", "partner_cue": "Bridge.", "partner_cue_after": "a"},
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        self.assertEqual(b.connect(sc, [cur.by_id["a"], cur.by_id["b"]]).stage, "exchange")
+        self.assertEqual(b.connect(sc, [cur.by_id["c"], cur.by_id["b"]]).stage, "recombine")
+
+    def test_every_authored_partner_cue_is_playable(self):
+        """Issue #48 content guard: connect() only pairs items with a situation cue, so a
+        ``partner_cue`` whose item or predecessor has none could never be heard."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        authored = [it for it in cur.items if it.partner_cue]
+        self.assertGreaterEqual(len(authored), 10)
+        for it in authored:
+            self.assertTrue(it.has_situation and cur.by_id[it.partner_cue_after].has_situation, it.id)
+
+    def test_early_real_lessons_contain_a_partner_exchange(self):
+        """Issue #48: a real Lesson 4 was all instructor → learner retrieval — its only
+        "connected" moments were ``Ha?`` → [English "And then —"] → ``Ég skil.``, and the first
+        authored dialogue isn't reachable until its items are learned. With authored bridges
+        among the first modules' items (and #55's ranking preferring them), every lesson from
+        the second on has at least one partner target-language exchange, and the Lesson 4
+        pair itself now plays as one: "Ha?" → partner repeats → "Ég skil."."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        for n in range(1, 7):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20), today=day).build()
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+            if n >= 2:
+                self.assertGreaterEqual(sc.meta["partner_exchanges"], 1, f"lesson {n} had no partner interaction")
+        from audiolesson.exercises import Builder
+
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.connect(sc, [cur.by_id["ha"], cur.by_id["eg_skil"]])
+        turns = [(s.speaker, s.text) for s in sc.segments if s.type in ("answer", "speak")]
+        self.assertEqual([t[0] for t in turns], ["native_a", "native_b", "native_a"], turns)
+
+    def test_a_dialogue_can_play_once_its_items_are_met(self):
+        """Issue #48: a dialogue already accepts items introduced minutes earlier in the same
+        lesson, so requiring items met in an *earlier* lesson to be fully learned first was
+        stricter than that for no reason — and kept every early lesson dialogue-free. The
+        first encounter is assisted (cues and translations), so met is enough."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "a", "kind": "phrase", "target": "Halló.", "meaning": "Hello."},
+                {"id": "b", "kind": "phrase", "target": "Bless.", "meaning": "Bye."},
+            ],
+            "dialogues": [
+                {
+                    "id": "d",
+                    "setting": "A short chat.",
+                    "requires": ["a", "b"],
+                    "turns": [{"cue": "Say hello.", "expect": "a", "partner": "Halló."}, {"cue": "Say bye.", "expect": "b"}],
+                }
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in ("a", "b"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=1, durable_successes=0, stage="meaning")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, seed=1), today=TODAY)
+        self.assertIsNotNone(planner.eligible_dialogue())
+
     @staticmethod
     def _filler_family(extra_after: int = 3) -> dict:
         """Six slot fillers, then their construction (prereq: the second filler), then a few
@@ -871,7 +951,9 @@ class CurriculumTests(unittest.TestCase):
         self.assertIn("talar_thu", new, new)
         languages = [i for i in new if "acc_language" in cur.by_id[i].tags]
         self.assertLessEqual(len(languages[: new.index("talar_thu")]), 2, new)
-        generated = [ex.label for ex in sc.exercises if ex.kind == "generative" and "talar_thu" in ex.item_ids]
+        # every non-intro exercise on the pattern resolves it from known parts; at least one must
+        # use a fill other than the worked example the intro modelled
+        generated = [ex.label for ex in sc.exercises if ex.kind in ("recall", "generative") and "talar_thu" in ex.item_ids]
         example = cur.resolve_slots(cur.by_id["talar_thu"], cur.example_fill(cur.by_id["talar_thu"]))[0]
         self.assertTrue(any(example not in label for label in generated), f"no novel Talar þú sentence: {generated}")
 

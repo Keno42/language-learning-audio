@@ -80,6 +80,8 @@ topics = ["greetings", "social"]
 prereqs = ["takk"]
 situation = "Your neighbour asked how you are. Answer that all is good."
 situation_ja = "近所の人に元気か聞かれました。元気だと答えてください。"
+partner_cue = "Hæ! Hvað segirðu gott?"  # issue #48: the partner line between hae and this item in connect()
+partner_cue_after = "hae"
 
 [[items]]
 id = "hvernig_hefurdu_thad"
@@ -103,6 +105,8 @@ difficulty = 2
 topics = ["greetings", "social"]
 situation = "A colleague asks how you're doing. Say you're doing well."
 situation_ja = "同僚に調子を聞かれました。元気だと答えてください。"
+partner_cue = "Sömuleiðis! Hvernig hefurðu það?"  # issue #48: the partner line between gaman_ad_sja_thig and this item in connect()
+partner_cue_after = "gaman_ad_sja_thig"
 
 [[items]]
 id = "gaman_ad_sja_thig"
@@ -126,6 +130,8 @@ difficulty = 1
 topics = ["greetings"]
 situation = "You're leaving the shop. Say bye."
 situation_ja = "お店を出ます。別れのあいさつをしてください。"
+partner_cue = "Takk, sömuleiðis. Bless!"  # issue #48: the partner line between eigdu_godan_dag and this item in connect()
+partner_cue_after = "eigdu_godan_dag"
 
 [[items]]
 id = "sjaumst"
@@ -137,6 +143,8 @@ difficulty = 2
 topics = ["arrangements", "greetings"]
 situation = "You're parting with a friend you'll see again soon."
 situation_ja = "近いうちにまた会う友達と別れます。"
+partner_cue = "Já, ég verð líka að fara. Bless!"  # issue #48: the partner line between jaeja and this item in connect()
+partner_cue_after = "jaeja"
 
 [[items]]
 id = "takk_kaerlega"
@@ -159,6 +167,8 @@ difficulty = 2
 topics = ["greetings"]
 situation = "Someone thanks you for holding the door. Say you're welcome."
 situation_ja = "ドアを押さえていたら、お礼を言われました。どういたしまして、と答えてください。"
+partner_cue = "Takk kærlega!"  # issue #48: the partner line between gjordu_svo_vel and this item in connect()
+partner_cue_after = "gjordu_svo_vel"
 
 [[items]]
 id = "ja"
@@ -333,6 +343,8 @@ difficulty = 2
 topics = ["greetings", "social"]
 situation = "Your colleague just told you it's her birthday. Congratulate her."
 situation_ja = "同僚が今日は誕生日だと言いました。お祝いを言ってください。"
+partner_cue = "Hæ! Ég á afmæli í dag."  # issue #48: the partner line between hae and this item in connect()
+partner_cue_after = "hae"
 
 [[items]]
 id = "gangi_ther_vel"
@@ -367,6 +379,8 @@ difficulty = 2
 topics = ["greetings"]
 situation = "The cashier wished you a good day. Wish her the same."
 situation_ja = "レジの人に良い一日をと言われました。同じ言葉を返してください。"
+partner_cue = "Gjörðu svo vel. Eigðu góðan dag!"  # issue #48: the partner line between takk and this item in connect()
+partner_cue_after = "takk"
 
 [[items]]
 id = "skal"
@@ -401,6 +415,8 @@ difficulty = 2
 topics = ["greetings", "discourse"]
 situation = "Someone apologises for being five minutes late. Tell them it's no problem."
 situation_ja = "5分遅れたと謝られました。問題ないと言ってください。"
+partner_cue = "Hæ! Fyrirgefðu, ég er of seinn."  # issue #48: the partner line between hae and this item in connect()
+partner_cue_after = "hae"
 
 [[items]]
 id = "ha"
@@ -423,6 +439,8 @@ difficulty = 1
 topics = ["clarifying"]
 situation = "The receptionist explained where breakfast is. Tell her you understand."
 situation_ja = "受付の人が朝食の場所を説明してくれました。わかったと伝えてください。"
+partner_cue = "Morgunmaturinn er á fyrstu hæð."  # issue #48: the partner line between ha and this item in connect()
+partner_cue_after = "ha"
 
 [[items]]
 id = "eg_skil_ekki"
@@ -446,6 +464,8 @@ difficulty = 2
 topics = ["discourse"]
 situation = "Someone asks if they may sit at your table. Tell them by all means."
 situation_ja = "相席してもいいか聞かれました。ぜひどうぞと言ってください。"
+partner_cue = "Góðan daginn. Má ég setjast hérna?"  # issue #48: the partner line between godan_daginn and this item in connect()
+partner_cue_after = "godan_daginn"
 
 [[items]]
 id = "audvitad"
@@ -487,6 +507,8 @@ difficulty = 2
 topics = ["discourse"]
 situation = "A friend says she's feeling better. Say good to hear."
 situation_ja = "友達が体調が良くなったと言いました。よかったと言ってください。"
+partner_cue = "Mér líður miklu betur, takk."  # issue #48: the partner line between hvad_segirdu_gott and this item in connect()
+partner_cue_after = "hvad_segirdu_gott"
 
 [[dialogues]]
 id = "nagranni"

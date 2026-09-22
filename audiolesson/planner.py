@@ -383,7 +383,7 @@ class Planner:
         for d in self.cur.dialogues:
             if d.id in self.dialogues_played:
                 continue
-            if not all(self.learner.knows(i) or i in self.builder.in_lesson for i in d.required_items):
+            if not all(self.learner.has_met(i) or i in self.builder.in_lesson for i in d.required_items):
                 continue
             if prefer_item and prefer_item.id not in d.required_items:
                 continue
@@ -598,7 +598,7 @@ class Planner:
                 cur = done[-1] if done and done[-1] in ladder else ladder[0]
             return stage_index(ladder, cur) >= situation_idx - 1
 
-        def _connect_pair(pool: list[Item], last_touched_id: str | None, anchor: set[str] | None = None) -> list[Item] | None:
+        def _connect_pair(pool: list[Item], last_touched_id: str | None, anchor: set[str] | None = None, exchange_only: bool = False) -> list[Item] | None:
             """The two distinct, situation-ready items in ``pool`` to recombine together, never
             a pair already played by ``connect()`` earlier this lesson (issue #55: the first
             eligible same-topic pair used to win every time, so a lesson whose drill streak
@@ -618,7 +618,8 @@ class Planner:
             connect() exercises, so a fresh pair isn't just the same item with a new partner.
             ``anchor``, when given, requires at least one of the pair to come from it — the
             per-arc guarantee must be about that arc's own material, never satisfied by two
-            unrelated review items (issue #55). Returns ``None`` if no unused pair exists: the
+            unrelated review items (issue #55). ``exchange_only`` restricts the choice to the first
+            tier (authored bridges). Returns ``None`` if no unused pair exists: the
             caller moves on (another activity, or a deliberate stop) instead of looping back.
 
             If one of the two chosen items is ``last_touched_id``, it's ordered *second*, not
@@ -652,6 +653,8 @@ class Planner:
                     elif a.partner_cue and a.partner_cue_after == b_.id:
                         pair, tier = [b_, a], 0
                     else:
+                        if exchange_only:
+                            continue
                         pair = [a, b_]
                         tier = 1 if a.topics and b_.topics and a.topics[0] == b_.topics[0] else 2
                     reuse = connect_item_uses.get(a.id, 0) + connect_item_uses.get(b_.id, 0)
@@ -681,12 +684,17 @@ class Planner:
             anywhere — never replays a pair already played this lesson."""
             just_touched = recent[-1] if recent else None
             preferred = prefer if prefer is not None else introduced
-            candidates = _connect_pair(list(preferred), just_touched)
+            rest = [it for it in introduced if it not in preferred] + [self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id]
+            scope = {it.id for it in preferred}
+            # issue #48: an authored exchange (a real partner line between the two answers)
+            # that uses at least one of this scope's own items beats a generic recombination
+            # drawn from the scope alone — its other half may be older known material, which
+            # the arc-scoping below would otherwise never reach while the scope has any pair
+            candidates = _connect_pair(list(preferred) + rest, just_touched, scope, exchange_only=True) if scope else None
             if candidates is None:
-                rest = [it for it in introduced if it not in preferred] + [
-                    self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id
-                ]
-                anchor = {it.id for it in prefer} if prefer is not None else None
+                candidates = _connect_pair(list(preferred), just_touched)
+            if candidates is None:
+                anchor = scope if prefer is not None else None
                 candidates = _connect_pair(list(preferred) + rest, just_touched, anchor)
                 if candidates is None:
                     return False
@@ -978,6 +986,10 @@ class Planner:
             "support_exposures": self.support,
             "ladders": {i: self.ladder(self.cur.by_id[i]) for i in self.exposures if i in self.cur.by_id},
             "not_introduced": [i.id for i in new_queue],
+            # issue #48: partner target-language interaction vs recombination practice — a
+            # connect() with no authored bridge is the latter, not evidence of conversation
+            "partner_exchanges": len(self.dialogues_played) + sum(1 for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"),
+            "recombinations": sum(1 for e in sc.exercises if e.kind == "connect" and e.stage != "exchange"),
         }
         return sc
 

@@ -149,6 +149,8 @@ topics = ["clarifying"]
 chunks = ["hægar", "talað hægar", "Gætirðu talað hægar?"]
 situation = "The barista is speaking far too fast. Ask her to speak more slowly."
 situation_ja = "バリスタの話が速すぎます。もっとゆっくり話すよう頼んでください。"
+partner_cue = "Góðan daginn! Hvað má bjóða þér?"  # issue #48: the partner line between godan_daginn and this item in connect()
+partner_cue_after = "godan_daginn"
 
 [[items]]
 id = "gaetirdu_endurtekid_thetta"
