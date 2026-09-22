@@ -151,10 +151,26 @@ def render_script(
     cache = Path(cache_dir) if cache_dir else out_path.parent / "cache" / provider.name
     cache.mkdir(parents=True, exist_ok=True)
 
+    primary_langs = {script.known_lang.split("-")[0].lower(), script.target_lang.split("-")[0].lower()}
+
     def request_for(seg) -> tuple[str, str, str, float]:
-        lang = seg.lang or (script.known_lang if seg.speaker == "instructor" else script.target_lang)
-        sv = profile.voice_for(seg.speaker or "native_a", lang, provider, _DEFAULT_INDEX.get(seg.speaker or "", 0))
-        return (_speak_slashes(_respell(seg.text or "", lang), lang), lang, sv.voice, seg.rate * sv.rate)
+        speaker = seg.speaker or "native_a"
+        lang = seg.lang or (script.known_lang if speaker == "instructor" else script.target_lang)
+        # A third language — neither this lesson's instructor language nor its target
+        # language, e.g. a Japanese example embedded in English narration (issue #49) —
+        # must not inherit whichever fixed voice the profile configured for this speaker
+        # role in kl/tl. Looking the profile up under a key it was never configured for
+        # (instead of the plain speaker name) makes ``voice_for`` fall through to the
+        # provider's own default voice for ``lang`` automatically, with no schema change.
+        profile_key = speaker if lang.split("-")[0].lower() in primary_langs else f"{speaker}:{lang}"
+        sv = profile.voice_for(profile_key, lang, provider, _DEFAULT_INDEX.get(speaker, 0))
+        # ``speech_text``, when set, is what the provider actually hears — e.g. native
+        # orthography for a romanized transcript display (issue #49, PR #51 owner review):
+        # pronunciation must not depend on the provider being able to read transliterated
+        # text itself, since some providers (e.g. OpenAIProvider) don't even use ``lang``
+        # to disambiguate it — they just read whatever text they're given.
+        spoken = seg.speech_text or seg.text or ""
+        return (_speak_slashes(_respell(spoken, lang), lang), lang, sv.voice, seg.rate * sv.rate)
 
     # warm the cache in parallel for providers that talk to a network
     unique = {request_for(seg) for seg in script.segments if seg.type != "pause"}
