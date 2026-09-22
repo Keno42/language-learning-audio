@@ -515,7 +515,7 @@ class Builder:
 
     # ---------------------------------------------------------------- connect
 
-    def connect(self, sc: Script, items: list[Item], connector: Item | None = None) -> Exercise:
+    def connect(self, sc: Script, items: list[Item]) -> Exercise:
         """One connected exchange between two already-known items (issue #44, owner review
         round 2 on #46): the fallback for "connected use" when no authored dialogue requires
         them, and a genuine third option for a drill streak with nowhere else to go — not
@@ -527,17 +527,26 @@ class Builder:
         "leaving a shop" next to "raising a glass for a toast"). A second cut bridged them
         with an explicit connecting line (``connect_then``, "And then —"), narrated by the
         instructor — still the same shape issue #48 named directly: English instruction,
-        retrieve one phrase, repeat. ``connector`` (issue #48), when given, replaces that
-        English bridge with an actual partner utterance — a short, already-known discourse
-        phrase spoken by ``native_b`` between the two retrievals — so the second situation
-        reads as the partner's own turn in a continuing scene, not a narrator's transition.
-        ``None`` (a course with no known discourse-topic item short enough to use, e.g. the
-        small sample fr-en-a1 curriculum) falls back to the original English narration,
-        unchanged. Its own exercise kind (not folded into ``recall``) so it's identifiable
-        as a deliberate recombination moment, the same way ``note()`` is bookended rather
-        than left to blend into whatever comes next."""
+        retrieve one phrase, repeat.
+
+        ``items[1].partner_cue`` (issue #48), when authored, replaces that English bridge
+        with an actual partner utterance spoken by ``native_b`` between the two retrievals
+        — so, with the instructor's own scaffolding stripped away, "answer A → partner_cue
+        → answer B" still reads as one coherent exchange. A first cut of this picked a
+        generic already-known "discourse"-topic item instead (owner review round 2 on PR
+        #52): that filter let short function words ("og", "en", "með") through as if they
+        were standalone turns, and didn't guarantee even a genuine reaction phrase actually
+        fit the specific pairing. ``partner_cue`` is curated per item instead of selected
+        algorithmically — the instructor's own instruction for B still narrows the task to
+        one checkable answer either way (the owner was explicit that keeping it isn't the
+        problem); what changes is only whether the *target-language* turns alone already
+        form a plausible sequence. Empty (the common case — most items have no authored
+        bridge) falls back to the original English narration, unchanged. Its own exercise
+        kind (not folded into ``recall``) so it's identifiable as a deliberate recombination
+        moment, the same way ``note()`` is bookended rather than left to blend into
+        whatever comes next."""
         first, second = items[0], items[1]
-        ids = [first.id, second.id] + ([connector.id] if connector else [])
+        ids = [first.id, second.id]
         ex = sc.new_exercise("connect", None, ids, f"connect: {first.id}+{second.id}")
         self._narr(sc, ex, self.prompts.get("connect_intro"))
         self._beat(sc, ex)
@@ -545,8 +554,8 @@ class Builder:
         self._answer_pause(sc, ex, first.target, first, generative=True)
         self._answer(sc, ex, first.target)
         self._beat(sc, ex)
-        if connector:
-            self._speak(sc, ex, connector.target, speaker="native_b")
+        if second.partner_cue:
+            self._speak(sc, ex, second.partner_cue, speaker="native_b")
             self._beat(sc, ex)
         else:
             self._narr(sc, ex, self.prompts.get("connect_then"))

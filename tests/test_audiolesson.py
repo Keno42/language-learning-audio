@@ -543,30 +543,38 @@ class CurriculumTests(unittest.TestCase):
             gaps = [b - a for a, b in zip(seq, seq[1:])]
             self.assertTrue(all(g <= 1 for g in gaps), f"{item_id}: stage sequence skipped a ladder stage: {seq} ({ladder})")
 
-    def test_connect_uses_a_partner_line_instead_of_narrating_and_then(self):
-        """Issue #48 (owner review): connect()'s "And then —" bridge is still the
-        instructor narrating a transition between two isolated recalls — the same
-        "English instruction -> retrieve one phrase" shape #48 names directly, just
-        wrapped inside one exercise. The owner's own fix: keep both instructor-narrated
-        situations, but have an actual partner (native_b) speak a short, already-known
-        discourse phrase between them, so the exchange reads as one connected scene —
-        instructor situation A -> answer A -> partner line -> instructor situation B ->
-        answer B — rather than a narrator bridging two flashcards alone."""
+    def test_connect_speaks_the_second_items_own_authored_partner_cue(self):
+        """Issue #48, owner review round 2 on PR #52: connect()'s "And then —" bridge is
+        still the instructor narrating a transition between two isolated recalls — the
+        same "English instruction -> retrieve one phrase" shape #48 names directly, just
+        wrapped inside one exercise. A first cut picked a generic already-known
+        "discourse"-topic item as the bridge, but that filter let through short function
+        words ("og", "en", "með") that read as nonsense alone ("Partner: Og."), and didn't
+        guarantee even a real reaction phrase actually fit the pairing. The owner's
+        correction: the bridge must be *curated* per item (``Item.partner_cue``), not
+        selected algorithmically from unrelated known vocabulary — the instructor's own
+        instruction for B still narrows the task to one checkable answer (that part was
+        never the problem); what changes is that the target-language turns alone —
+        answer A -> partner_cue -> answer B — read as one real exchange with the English
+        scaffolding stripped away, because a human authored it to."""
         raw = {
             "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
-            "items": (
-                [
-                    {"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}.", "situation": f"Situation {i}."}
-                    for i in range(10)
-                ]
-                + [{"id": "connector", "kind": "phrase", "target": "Jæja.", "meaning": "Well then.", "topics": ["discourse"]}]
-            ),
+            "items": [
+                {
+                    "id": f"w{i}",
+                    "kind": "phrase",
+                    "target": f"Orð {i}.",
+                    "meaning": f"Word {i}.",
+                    "situation": f"Situation {i}.",
+                    "partner_cue": f"Svar {i}.",
+                }
+                for i in range(10)
+            ],
         }
         cur = curriculum_from_dict(raw)
         learner = LearnerState("is", "en", "A1")
         for i in range(10):
             learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
-        learner.items["connector"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
         planner = Planner(
             cur,
             learner,
@@ -578,22 +586,22 @@ class CurriculumTests(unittest.TestCase):
         sc = planner.build()
         ex = next(ex for ex in sc.exercises if ex.kind == "connect")
         segs = [s for s in sc.segments if s.exercise == ex.index]
-        self.assertIn("connector", ex.item_ids, "the connector item should get exposure credit")
+        second = cur.by_id[ex.item_ids[1]]  # whichever item _connect_pair actually chose second
         prompts = Prompts.load("en")
         narrations = [s.text for s in segs if s.type == "narrate"]
         self.assertNotIn(prompts.get("connect_then"), narrations, "the English bridge should be replaced by the partner line")
-        # the shape the owner asked for: situation A -> answer A -> partner line -> situation B -> answer B
+        # the shape the owner asked for: situation A -> answer A -> partner_cue -> situation B -> answer B
         kinds = [(s.type, s.speaker, s.text) for s in segs if s.type in ("narrate", "answer", "speak")]
         answer_idx = [i for i, (t, _, _) in enumerate(kinds) if t == "answer"]
         self.assertEqual(len(answer_idx), 2, kinds)
         between = kinds[answer_idx[0] + 1 : answer_idx[1]]
-        partner_lines = [k for k in between if k[1] == "native_b"]
-        self.assertEqual(partner_lines, [("speak", "native_b", "Jæja.")], kinds)
+        self.assertEqual(between[0], ("speak", "native_b", second.partner_cue), kinds)
 
-    def test_connect_falls_back_to_the_english_bridge_without_a_known_discourse_item(self):
-        """No known discourse-topic item (e.g. the small fr-en-a1 sample curriculum, which
-        has none at all) must not break connect() — it falls back to the original English
-        "And then —" bridge, unchanged."""
+    def test_connect_falls_back_to_the_english_bridge_without_an_authored_partner_cue(self):
+        """No item in this curriculum authors a ``partner_cue`` — connect() must not break;
+        it falls back to the original English "And then —" bridge, unchanged. This is the
+        common case (most items have no authored bridge at all), and matches the small
+        fr-en-a1 sample curriculum most other tests build lessons from."""
         raw = {
             "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
             "items": [

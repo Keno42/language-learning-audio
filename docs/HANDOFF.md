@@ -2297,6 +2297,58 @@ falls into this path, which is why the full suite needed no other changes.
 125 tests (123 → 125), all passing; `audiolesson validate` unchanged;
 smoke-generated both courses with real `espeak` audio.
 
+**Second pass (PR #52 review): the connector needed to be curated, not
+selected.** The owner agreed with the overall shape but flagged a real
+blocker in `_connector_line()`'s selection rule, `"discourse" in
+item.topics and item.word_count <= 2`: `discourse` is a much broader
+category than "can stand alone as a natural partner turn here" — it also
+catches short function words (`og` "and", `en` "but", `eða` "or", `með`
+"with") that read as nonsense alone ("Partner: Og."), and even among
+genuine standalone reactions (`Frábært`/`Því miður`/`Auðvitað`/`Jæja`),
+none is a guaranteed fit for an arbitrary pairing. The owner also
+clarified something usefully: keeping the *second* item's own English
+situation cue is fine — a partner utterance rarely implies one uniquely
+correct response, so the instructor's instruction still earns its keep
+by narrowing the task to something self-checkable. What actually matters
+is that the *target-language* turns alone — answer A → bridge → answer B
+— read as one coherent exchange once the English scaffolding is stripped
+away, and that can't come from an algorithm picking among unrelated
+already-known vocabulary; it has to be authored.
+
+**Fix.** Replaced the generic selection entirely with `Item.partner_cue:
+str = ""` (new field, content.py) — a target-language line a curriculum
+author curates specifically to lead naturally into *that* item as a
+response. `connect()` now checks `items[1].partner_cue` directly: when
+authored, `native_b` speaks it between the two retrievals (replacing
+`connect_then` as before); empty (the default — most items have no
+authored bridge) falls back to the original English narration, unchanged.
+`_connector_line()` and its discourse-topic filtering are gone entirely
+— no more picking from *any* known item, algorithmically, at build time.
+Authored one for real: `gaetirdu_endurtekid_thetta` ("Could you repeat
+that?", already gated by a `situation` that presumes the learner missed
+something the partner said) got `partner_cue = "Auðvitað. Herbergið er
+númer tuttugu og þrjú."` — the owner's own worked example, verbatim:
+"Gætirðu talað hægar?" → "Auðvitað. Herbergið er númer tuttugu og þrjú."
+→ "Gætirðu endurtekið þetta?" holds together as a real exchange with no
+instructor narration at all.
+
+**Tests:** `test_connect_speaks_the_second_items_own_authored_partner_cue`
+(a synthetic curriculum where every item authors a `partner_cue`, so the
+test is robust to exactly which two items `_connect_pair` happens to
+choose) replaces the old discourse-topic-item test; checks the same
+shape as before (situation A → answer A → partner line → situation B →
+answer B, `connect_then` absent) but now asserts the spoken line is
+specifically *item B's own* `partner_cue`, not an unrelated known item.
+`test_connect_falls_back_to_the_english_bridge_without_an_authored_partner_cue`
+(no item authors one) confirms the fallback is unchanged — this is also
+what the small fr-en-a1 sample curriculum exercises, so the rest of the
+suite needed no changes. Verified again against the real curriculum: a
+forced `connect()` on `gaetirdu_talad_haegar`+`gaetirdu_endurtekid_thetta`
+now plays exactly the owner's worked example.
+
+125 tests, all passing (replaced, not net new); `audiolesson validate`
+unchanged; smoke-generated `is-en` again with real `espeak` audio.
+
 **Still open for #48 itself**: the investigation above covers most of the
 acceptance criteria already via #26/#44, and this pass closes the
 `connect()` gap specifically, but #48 as a whole stays open — no attempt

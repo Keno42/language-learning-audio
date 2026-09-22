@@ -119,6 +119,18 @@ class Item:
     # is explicit, not inferred from "whichever fill happens to have a gender" (owner review on
     # PR #50 point 2), so a construction with more than one gendered fill slot stays unambiguous.
     agreement: dict[str, dict[str, str]] = field(default_factory=dict)
+    # A target-language line a partner might plausibly say right before this item as the
+    # response (issue #48, owner review round 2 on PR #52): connect()'s recombination
+    # fallback first tried picking any already-known "discourse"-topic item as a generic
+    # bridge between two recombined situations, but that filter didn't actually guarantee
+    # a coherent turn — short function words ("og", "en", "með") passed it too, and even
+    # genuine standalone reactions aren't interchangeable across arbitrary contexts. This
+    # field is curated, not selected: authored deliberately so that, with the instructor's
+    # own scaffolding stripped away, "<answer A> → <partner_cue> → <answer B>" still reads
+    # as one real exchange, not just three structurally-connected turns. Empty (the
+    # default) for the vast majority of items, which have no authored bridge at all —
+    # connect() falls back to its own English narration for those.
+    partner_cue: str = ""
 
     # ---- derived helpers -------------------------------------------------
 
