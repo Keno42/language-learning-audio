@@ -835,11 +835,13 @@ class CurriculumTests(unittest.TestCase):
         turns = [(s.speaker, s.text) for s in sc.segments if s.type in ("answer", "speak")]
         self.assertEqual([t[0] for t in turns], ["native_a", "native_b", "native_a"], turns)
 
-    def test_a_dialogue_can_play_once_its_items_are_met(self):
-        """Issue #48: a dialogue already accepts items introduced minutes earlier in the same
-        lesson, so requiring items met in an *earlier* lesson to be fully learned first was
-        stricter than that for no reason — and kept every early lesson dialogue-free. The
-        first encounter is assisted (cues and translations), so met is enough."""
+    def test_dialogue_requirements_need_durable_evidence_or_this_lesson(self):
+        """Issue #27's durable gate, kept under #48 (owner review on PR #56): an item met in an
+        earlier lesson but with no durable evidence yet (``durable_successes == 0``) must not
+        satisfy a dialogue's requirements — only ``knows()`` (durable) or the same-lesson
+        exception (introduced earlier in *this* lesson, #25) may. A first cut of #48 widened
+        this to ``has_met``, quietly undoing #27; early partner interaction comes from authored
+        connect() exchanges instead, which unlock nothing."""
         raw = {
             "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
             "items": [
@@ -856,11 +858,18 @@ class CurriculumTests(unittest.TestCase):
             ],
         }
         cur = curriculum_from_dict(raw)
-        learner = LearnerState("is", "en", "A1")
-        for i in ("a", "b"):
-            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=1, durable_successes=0, stage="meaning")
-        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, seed=1), today=TODAY)
-        self.assertIsNotNone(planner.eligible_dialogue())
+
+        def planner_with(durable: int) -> Planner:
+            learner = LearnerState("is", "en", "A1")
+            for i in ("a", "b"):
+                learner.items[i] = ItemState(due=TODAY.isoformat(), successes=1, durable_successes=durable, stage="meaning")
+            return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, seed=1), today=TODAY)
+
+        self.assertIsNone(planner_with(0).eligible_dialogue(), "met but not durable must not unlock a dialogue")
+        self.assertIsNotNone(planner_with(2).eligible_dialogue())
+        same_lesson = planner_with(0)
+        same_lesson.builder.in_lesson.update({"a", "b"})
+        self.assertIsNotNone(same_lesson.eligible_dialogue(), "items introduced this lesson may count (#25)")
 
     @staticmethod
     def _filler_family(extra_after: int = 3) -> dict:

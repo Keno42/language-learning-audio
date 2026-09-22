@@ -383,7 +383,7 @@ class Planner:
         for d in self.cur.dialogues:
             if d.id in self.dialogues_played:
                 continue
-            if not all(self.learner.has_met(i) or i in self.builder.in_lesson for i in d.required_items):
+            if not all(self.learner.knows(i) or i in self.builder.in_lesson for i in d.required_items):
                 continue
             if prefer_item and prefer_item.id not in d.required_items:
                 continue

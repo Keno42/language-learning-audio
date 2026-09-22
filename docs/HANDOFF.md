@@ -62,13 +62,15 @@ the session sections):
   stops instead of looping. Closes with PR #56.
 - **#48** (isolated recall → end-to-end conversation) — **partially
   addressed**. Session 25 added authored `partner_cue` bridges to
-  connect(); session 30 made early lessons actually reach partner
-  interaction (dialogues need items *met*, not learned; 12 authored
-  bridges in modules 01–02, not native-reviewed; connect() labelled
-  `exchange` vs `recombine`; `partner_exchanges` in lesson meta). Still
-  open: number constructions inside a partner-driven payment exchange; a
-  per-dialogue progression audit like session 25's of `nagranni`; bridges
-  beyond modules 01–02.
+  connect(); session 30 made early lessons reach partner interaction
+  through authored connect() exchanges (12 bridges in modules 01–02, not
+  native-reviewed; connect() labelled `exchange` vs `recombine`;
+  `partner_exchanges` in lesson meta) — with #27's durable dialogue gate
+  deliberately left intact (a first cut loosened it; reverted on review).
+  Not every early lesson gets an exchange (e.g. L1/L8 at 20 minutes). Still
+  open: bridges beyond modules 01–02; number constructions inside a
+  partner-driven payment exchange; a per-dialogue progression audit like
+  session 25's of `nagranni`.
 - **#29** (curriculum around reusable concepts and capabilities) — **in
   progress**. What "done" means below is deliberately split into
   *sequencing finding addressed* vs *capability modeled*; don't merge them.
@@ -2873,11 +2875,9 @@ target-language line at all**. Two causes:
 
 1. The first dialogue (`nagranni`) needs `allt_gott`, whose prereq `takk`
    must be *learned* (durable) before `allt_gott` is even introduced, and
-   `eligible_dialogue()` itself required every item *learned*. That gate
-   was stricter than its own other branch — items introduced minutes
-   earlier in the same lesson (`in_lesson`) already counted — so it now
-   accepts items *met* in any lesson. The first encounter is assisted
-   (cues + translations) either way.
+   `eligible_dialogue()` requires every item *learned* (or introduced
+   earlier in the same lesson). That is #27's durable gate, working as
+   intended — **not** changed (see the correction below).
 2. The connect() fallback that does fire early had exactly one authored
    `partner_cue` in the whole course, so every early connect was English
    "And then —" narration.
@@ -2905,15 +2905,36 @@ and B's instructor cue carries the meaning. Not native-reviewed.
   exchange". `sc.meta` gains `partner_exchanges` (dialogues + exchange
   connects) and `recombinations`.
 
-Result on the same simulation: every lesson from L2 on has ≥1 partner
-exchange (L1, six items, is the only exception); L4 now plays three
-(`hae+til_hamingju`, `eigdu_godan_dag+bless`, `takk+somuleidis`).
-Throughput within noise (80 lessons: 332 items met vs 336).
+**Correction (owner review on PR #56): the dialogue gate was a #27
+regression, reverted.** The first cut also widened `eligible_dialogue()`
+from `knows(i) or in_lesson` to `has_met(i) or in_lesson`, reasoning that
+same-lesson items already counted and first encounters are assisted. But
+that distinction is deliberate: #27 exists to stop "one presumed-successful
+retrieval → treated as learned → dependencies unlock", and its acceptance
+criteria put prerequisite/dialogue eligibility on durable evidence.
+`knows() or in_lesson` already expresses exactly the intended rule — older
+material needs durable evidence; material introduced earlier *this* lesson
+is the same-lesson exception #25 allows. Widening it let an item introduced
+once yesterday (`durable_successes == 0`) unlock today's dialogue, and the
+first cut's test even asserted that. Reverted; the test now pins the gate
+(met-but-not-durable → no dialogue; durable → yes; same lesson → yes).
+Early partner interaction comes from the authored connect() exchanges
+instead, which unlock nothing.
 
-Tests (all fail on the pre-fix code): exchange/recombine labelling, every
-authored cue playable (both items have situations), L2–L6 of a real course
-each with a partner exchange plus the `ha+eg_skil` exchange shape, and a
-dialogue eligible once its items are met. 140 tests, all passing.
+Result on the same simulation, with the durable gate intact: L2–L7 each
+have 1–3 partner exchanges (L4 plays three: `hae+til_hamingju`,
+`eigdu_godan_dag+bless`, `takk+somuleidis`); no dialogue plays in L1–L8.
+**Not every lesson gets one:** L1 (six items) and L8 have none at 20
+minutes, L5 and L6 none at 30 minutes — lessons whose own new items have
+no authored bridge, once the scope-anchored exchanges are used up. More
+bridges (beyond modules 01–02) are the lever for that, not the gate.
+Throughput unchanged (80 lessons: 336 items met).
+
+Tests (all fail on the pre-fix code except the gate test, which pins
+existing behavior): exchange/recombine labelling, every authored cue
+playable (both items have situations), L2–L6 of a real 20-minute course
+each with a partner exchange plus the `ha+eg_skil` exchange shape, and the
+durable dialogue gate. 140 tests, all passing.
 
 Still open for #48: wiring session 26's number constructions into a real
 partner-driven payment exchange; auditing each dialogue's progression the
