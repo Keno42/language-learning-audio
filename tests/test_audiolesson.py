@@ -676,6 +676,296 @@ class CurriculumTests(unittest.TestCase):
         narrations = [s.text for s in segs if s.type == "narrate"]
         self.assertIn(prompts.get("connect_then"), narrations)
 
+    def _real_streak_lesson(self, known: list[str]) -> Script:
+        """A real is-en lesson whose drill streak keeps tripping with nothing but connect() to
+        break it: no dialogue, no notes, only ``known`` items ready for "situation", padded with
+        known words that have no situation cue (review material connect() can't use)."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        padding = ["ja", "nei", "lika", "islensku", "ensku", "japonsku", "thysku", "fronsku", "donsku", "vegabref"]
+        for i in known + padding:
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="situation")
+        cfg = PlanConfig(minutes=20, seed=1, new_items=0, max_new_items=0, dialogue_every=1000, drill_streak_limit=3, max_notes=0, max_streak_relief_notes=0)
+        return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+
+    def test_connect_does_not_replay_the_real_lesson_4_pair(self):
+        """Issue #55: a real Lesson 4 played ``connect: ha+eg_skil`` ("Ha?" → "Ég skil.") over
+        and over — every time the drill streak tripped, ``_connect_pair`` picked the first
+        eligible same-topic pair again, with no history of what it had already played. With
+        only those two items known, the pair may be played once; after that the streak breaker
+        has nothing unused left and must stop the lesson rather than loop back to it."""
+        sc = self._real_streak_lesson(["ha", "eg_skil"])
+        pairs = [frozenset(ex.item_ids) for ex in sc.exercises if ex.kind == "connect"]
+        self.assertEqual(pairs, [frozenset({"ha", "eg_skil"})], "the same fallback pair must not be replayed")
+        streak = longest = 0
+        for ex in sc.exercises:
+            streak = streak + 1 if ex.kind == "recall" else 0
+            longest = max(longest, streak)
+        self.assertLessEqual(longest, 3, "exhausted pairs must not let the streak run on unbounded either")
+
+    def test_connect_varies_its_pairs_while_unused_ones_exist(self):
+        """Issue #55: the same streak-heavy lesson with more clarifying items known must use a
+        different pair every time, and not just the same item with a new partner each time."""
+        known = ["ha", "eg_skil", "eg_skil_ekki", "gaetirdu_talad_haegar", "hvad_thydir_thetta", "takk", "godan_daginn", "bless"]
+        sc = self._real_streak_lesson(known)
+        pairs = [frozenset(ex.item_ids) for ex in sc.exercises if ex.kind == "connect"]
+        self.assertGreaterEqual(len(pairs), 3, pairs)
+        self.assertEqual(len(pairs), len(set(pairs)), f"a connect pair was replayed: {pairs}")
+        # the first few spread across different items before any one item is paired again
+        first = [i for p in pairs[:3] for i in p]
+        self.assertEqual(len(first), len(set(first)), f"the first pairs reused an item while fresh ones remained: {pairs[:3]}")
+
+    def test_connect_prefers_an_authored_partner_cue_pair(self):
+        """Issue #55: where both are available, an authored ``partner_cue`` pair (a coherent
+        target-language exchange, issue #48) beats a generic same-topic fallback pair — even
+        though the generic pair comes first in curriculum order — and plays in its authored
+        order, since the cue only fits after its named predecessor."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}.", "situation": f"Situation {i}.", "topics": ["t"]}
+                for i in range(4)
+            ]
+            + [
+                {"id": "a", "kind": "phrase", "target": "A.", "meaning": "A.", "situation": "Situation A.", "topics": ["t"]},
+                {
+                    "id": "b",
+                    "kind": "phrase",
+                    "target": "B.",
+                    "meaning": "B.",
+                    "situation": "Situation B.",
+                    "topics": ["t"],
+                    "partner_cue": "Bridge line.",
+                    "partner_cue_after": "a",
+                },
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for it in cur.items:
+            learner.items[it.id] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="situation")
+        cfg = PlanConfig(minutes=20, seed=1, dialogue_every=1000, drill_streak_limit=3, note_chance=0.0)
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+        connects = [ex for ex in sc.exercises if ex.kind == "connect"]
+        self.assertTrue(connects)
+        self.assertEqual(connects[0].item_ids, ["a", "b"], [ex.item_ids for ex in connects])
+        pairs = [frozenset(ex.item_ids) for ex in connects]
+        self.assertEqual(len(pairs), len(set(pairs)), pairs)
+
+    def test_per_arc_connected_use_is_never_satisfied_by_one_unrelated_pair(self):
+        """Issue #55: an arc too small to pair with itself widens to other known material — but
+        the per-arc guarantee is about *that arc's* material, so the widened pair must include
+        one of its own items. Before, a same-topic pair of unrelated review items (``w0``+``w1``)
+        outranked the arc's own item and was replayed for every arc, "satisfying" each one's
+        connected use without ever touching what it taught."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}.", "situation": f"Situation {i}.", "topics": ["rev"]}
+                for i in range(6)
+            ]
+            + [
+                {"id": "a0", "kind": "phrase", "target": "Boga 0.", "meaning": "Arc one.", "situation": "Arc one situation.", "topics": ["p"]},
+                {"id": "b0", "kind": "phrase", "target": "Boga 1.", "meaning": "Arc two.", "situation": "Arc two situation.", "topics": ["q"]},
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(6):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="situation")
+        cfg = PlanConfig(minutes=30, seed=1, new_items=1, max_new_items=1, dialogue_every=1000, drill_streak_limit=1000, note_chance=0.0)
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+        connects = [ex.item_ids for ex in sc.exercises if ex.kind == "connect"]
+        self.assertEqual(set(sc.meta["new_items"]), {"a0", "b0"}, "both arcs must have been taught for this test to mean anything")
+        self.assertTrue(any("a0" in ids for ids in connects), connects)
+        self.assertTrue(any("b0" in ids for ids in connects), connects)
+        for ids in connects:
+            self.assertTrue({"a0", "b0"} & set(ids), f"an arc's connected use played only unrelated review items: {ids}")
+
+    def test_connect_is_labelled_exchange_only_with_an_authored_bridge(self):
+        """Issue #48: a connect() without a compatible target-language bridge is recombination
+        practice, not evidence of conversation — the exercise says which one it was, and the
+        lesson's ``partner_exchanges`` only counts the former (plus dialogues)."""
+        from audiolesson.exercises import Builder
+
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "a", "kind": "phrase", "target": "A.", "meaning": "A.", "situation": "Situation A."},
+                {"id": "c", "kind": "phrase", "target": "C.", "meaning": "C.", "situation": "Situation C."},
+                {"id": "b", "kind": "phrase", "target": "B.", "meaning": "B.", "situation": "Situation B.", "partner_cue": "Bridge.", "partner_cue_after": "a"},
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        self.assertEqual(b.connect(sc, [cur.by_id["a"], cur.by_id["b"]]).stage, "exchange")
+        self.assertEqual(b.connect(sc, [cur.by_id["c"], cur.by_id["b"]]).stage, "recombine")
+
+    def test_every_authored_partner_cue_is_playable(self):
+        """Issue #48 content guard: connect() only pairs items with a situation cue, so a
+        ``partner_cue`` whose item or predecessor has none could never be heard."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        authored = [it for it in cur.items if it.partner_cue]
+        self.assertGreaterEqual(len(authored), 10)
+        for it in authored:
+            self.assertTrue(it.has_situation and cur.by_id[it.partner_cue_after].has_situation, it.id)
+
+    def test_early_real_lessons_contain_a_partner_exchange(self):
+        """Issue #48: a real Lesson 4 was all instructor → learner retrieval — its only
+        "connected" moments were ``Ha?`` → [English "And then —"] → ``Ég skil.``, and the first
+        authored dialogue isn't reachable until its items are learned. With authored bridges
+        among the first modules' items (and #55's ranking preferring them), every lesson from
+        the second on has at least one partner target-language exchange, and the Lesson 4
+        pair itself now plays as one: "Ha?" → partner repeats → "Ég skil."."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        for n in range(1, 7):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20), today=day).build()
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+            if n >= 2:
+                self.assertGreaterEqual(sc.meta["partner_exchanges"], 1, f"lesson {n} had no partner interaction")
+        from audiolesson.exercises import Builder
+
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.connect(sc, [cur.by_id["ha"], cur.by_id["eg_skil"]])
+        turns = [(s.speaker, s.text) for s in sc.segments if s.type in ("answer", "speak")]
+        self.assertEqual([t[0] for t in turns], ["native_a", "native_b", "native_a"], turns)
+
+    def test_dialogue_requirements_need_durable_evidence_or_this_lesson(self):
+        """Issue #27's durable gate, kept under #48 (owner review on PR #56): an item met in an
+        earlier lesson but with no durable evidence yet (``durable_successes == 0``) must not
+        satisfy a dialogue's requirements — only ``knows()`` (durable) or the same-lesson
+        exception (introduced earlier in *this* lesson, #25) may. A first cut of #48 widened
+        this to ``has_met``, quietly undoing #27; early partner interaction comes from authored
+        connect() exchanges instead, which unlock nothing."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "a", "kind": "phrase", "target": "Halló.", "meaning": "Hello."},
+                {"id": "b", "kind": "phrase", "target": "Bless.", "meaning": "Bye."},
+            ],
+            "dialogues": [
+                {
+                    "id": "d",
+                    "setting": "A short chat.",
+                    "requires": ["a", "b"],
+                    "turns": [{"cue": "Say hello.", "expect": "a", "partner": "Halló."}, {"cue": "Say bye.", "expect": "b"}],
+                }
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+
+        def planner_with(durable: int) -> Planner:
+            learner = LearnerState("is", "en", "A1")
+            for i in ("a", "b"):
+                learner.items[i] = ItemState(due=TODAY.isoformat(), successes=1, durable_successes=durable, stage="meaning")
+            return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, seed=1), today=TODAY)
+
+        self.assertIsNone(planner_with(0).eligible_dialogue(), "met but not durable must not unlock a dialogue")
+        self.assertIsNotNone(planner_with(2).eligible_dialogue())
+        same_lesson = planner_with(0)
+        same_lesson.builder.in_lesson.update({"a", "b"})
+        self.assertIsNotNone(same_lesson.eligible_dialogue(), "items introduced this lesson may count (#25)")
+
+    @staticmethod
+    def _filler_family(extra_after: int = 3) -> dict:
+        """Six slot fillers, then their construction (prereq: the second filler), then a few
+        unrelated phrases — the shape of the real ``acc_language`` block → ``talar_thu``."""
+        return {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [{"id": f"f{i}", "kind": "vocab", "target": f"fyll{i}", "meaning": f"filler {i}", "tags": ["lang"]} for i in range(6)]
+            + [
+                {
+                    "id": "pat",
+                    "kind": "construction",
+                    "target": "Talar þú {x}?",
+                    "meaning": "Do you speak {x}?",
+                    "slots": {"x": "lang"},
+                    "example": {"x": "f1"},
+                    "prereqs": ["f1"],
+                }
+            ]
+            + [{"id": f"p{i}", "kind": "phrase", "target": f"Setning {i}.", "meaning": f"Phrase {i}."} for i in range(extra_after)],
+        }
+
+    def _select(self, raw: dict, learner: LearnerState, count: int) -> list[str]:
+        cur = curriculum_from_dict(raw)
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY)
+        return [i.id for i in planner.select_new(count)]
+
+    def test_an_arc_reaches_the_construction_its_fillers_unlock(self):
+        """Issue #29 (owner comment on a real Lesson 4): an arc of six language fillers ended
+        right before «Talar þú {language}?», so every filler was only ever an isolated
+        flashcard. The arc should be the smallest set that creates the capability: two
+        fillers, then the construction — the other four wait (they are neither chosen before
+        the pattern nor piled on after it in the same arc)."""
+        chosen = self._select(self._filler_family(), LearnerState("is", "en", "A1"), 6)
+        self.assertEqual(chosen[:3], ["f0", "f1", "pat"], chosen)
+        self.assertFalse({"f2", "f3", "f4", "f5"} & set(chosen), chosen)
+
+    def test_an_arc_boundary_does_not_fall_between_fillers_and_their_construction(self):
+        """Issue #29: when ``count`` runs out right after the second filler, the construction it
+        just made teachable comes along (one over ``count``); when it runs out after a single
+        filler, that lone filler is left for the next arc instead of ending this one."""
+        raw = self._filler_family()
+        raw["items"] = [{"id": f"q{i}", "kind": "phrase", "target": f"Fyrst {i}.", "meaning": f"First {i}."} for i in range(3)] + raw["items"]
+        self.assertEqual(self._select(raw, LearnerState("is", "en", "A1"), 5), ["q0", "q1", "q2", "f0", "f1", "pat"])
+        self.assertEqual(self._select(raw, LearnerState("is", "en", "A1"), 4), ["q0", "q1", "q2"])
+
+    def test_fillers_wait_for_their_construction_then_come_back_as_transfer(self):
+        """Issue #29: while the construction is met but not yet learned, more fillers are held
+        (not another homogeneous block); once it's learned they return — at most two per arc,
+        so the construction gives each one a transfer opportunity instead of a new block."""
+        raw = self._filler_family(extra_after=6)
+        learner = LearnerState("is", "en", "A1")
+        for i in ("f0", "f1", "pat"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=1, durable_successes=0, stage="meaning")
+        self.assertEqual(self._select(raw, learner, 4), ["p0", "p1", "p2", "p3"])
+        for i in ("f0", "f1", "pat"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        chosen = self._select(raw, learner, 4)
+        self.assertEqual(sum(1 for i in chosen if i.startswith("f")), 2, chosen)
+        self.assertEqual(chosen[:2], ["f2", "f3"], chosen)
+
+    def test_a_held_filler_is_never_starved(self):
+        """Issue #29's holds must not strand material: across a simulated course on the small
+        synthetic family, every filler is eventually introduced."""
+        cur = curriculum_from_dict(self._filler_family(extra_after=6))
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        for _ in range(12):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, seed=1), today=day).build()
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=2)
+        self.assertEqual({i.id for i in cur.items} - set(learner.items), set())
+
+    def test_real_language_family_reaches_talar_thu_in_the_same_lesson(self):
+        """Issue #29, the owner's own Lesson 4 example on the real is-en course: with everything
+        before the language block learned, the lesson that introduces the first languages also
+        introduces «Talar þú {language}?» and generates a sentence with it that was never an
+        authored item — parts → construction → novel generation — without first drilling the
+        whole block of six languages as isolated words."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        first = cur.by_id["islensku"].order
+        for it in cur.items:
+            if it.order < first:
+                learner.items[it.id] = ItemState(due=(TODAY + timedelta(days=30)).isoformat(), successes=3, durable_successes=3, stage="situation")
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY).build()
+        new = sc.meta["new_items"]
+        self.assertIn("talar_thu", new, new)
+        languages = [i for i in new if "acc_language" in cur.by_id[i].tags]
+        self.assertLessEqual(len(languages[: new.index("talar_thu")]), 2, new)
+        # every non-intro exercise on the pattern resolves it from known parts; at least one must
+        # use a fill other than the worked example the intro modelled
+        generated = [ex.label for ex in sc.exercises if ex.kind in ("recall", "generative") and "talar_thu" in ex.item_ids]
+        example = cur.resolve_slots(cur.by_id["talar_thu"], cur.example_fill(cur.by_id["talar_thu"]))[0]
+        self.assertTrue(any(example not in label for label in generated), f"no novel Talar þú sentence: {generated}")
+
     def test_high_drill_streak_wins_over_a_due_reactivation_too(self):
         """Owner review on #41: the streak breaker used to run *after* step 1 (a due
         scheduled reactivation), guarded by ``if not acted``, so a due reactivation could

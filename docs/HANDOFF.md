@@ -1,14 +1,13 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-22 (session 27: issue #29 — cluster B remainder,
-the four items left after `verð að` closed in session 23: hef verið, er
-að (koma), leggja af stað, held ég; see below. Session 26 covers cluster
-A (numbers/money), with #48's conversational bar newly applied as a
-design lens. Session 25 covers issue #48, a real partner line
-inside connect()'s recombination fallback; session 24 covers
-issue #49's embedded third-language examples and pronunciation pacing;
-session 23 covers issue #29's triage and generative agreement pilot;
-session 22 closes out issue #44). **Issue #34** ("Improve
+_Last updated 2026-09-22 (session 30). Recent sessions, oldest first:
+22 closes out issue #44; 23 is issue #29's triage and generative agreement
+pilot; 24 is issue #49 (embedded third-language examples, pronunciation
+pacing); 25 is issue #48's first partner line inside connect(); 26 is #29
+cluster A (numbers/money); 27 is #29 cluster B's sequencing findings (PR
+#54); 28 is issue #55 (connect() pair history); 29 is #29's
+capability-aware arc boundaries; 30 is #48's partner exchanges in early
+lessons (28–30 are PR #56). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -52,75 +51,61 @@ independent of the streak breaker, and fixed the arc-scoping and an
 record a multi-word item at `"situation"` stage regardless of how far it
 had actually climbed its own ladder, silently skipping stages it never
 practised. See "Session 22" through "Session 19" below for the full
-history. 104 tests, all passing.
+history (104 tests at the time).
 
-**In progress, per the owner's priority order:** issue #29 ("Design
-curriculum around reusable concepts and communicative capabilities") —
-(1) triage all `dialogue_sequencing_report()` findings (9 repeat
-offenders plus large single-item gaps like `heyra`) — **done**, posted
-as a comment on #29. Session 23 fixed the one-dialogue content bug,
-`nagranni`'s two big gaps (`gott_ad_heyra` relocated, `verð að +
-infinitive` turned into a real construction), and the rest of cluster C's
-repeat offenders (`líka`, `sjáðu`, `vegabréf`, `ferð`, `Það er góð
-hugmynd`) — 49 → 30 advisory findings. Session 26 closed the one item
-left after that, cluster A (numbers/money): 1–12 repositioned ahead of
-their first real use, a genuine gendered-count-word split (masc/fem/neut,
-not just more vocabulary), two amount constructions generating novel
-"It costs N krónur"/"N thousand krónur" sentences from independently-known
-parts (`thad_kostar_big`, `einn_tvo_thrjar`), and — applying #48's own bar
-as the owner asked — verified those constructions actually reach a real
-voiced exchange via `connect()`, which caught and fixed a latent bug where
-`connect()` could speak an unresolved construction template verbatim
-(see "Session 26"). Singular/plural agreement on "hundrað" and "ein"
-stayed explicitly unmodeled, by design — see that section for why.
-**Correction, same session (owner review on PR #53):** the first pass
-declared triage item (1) fully closed without re-running the original
-cluster A checklist — `fjögur` (the neuter form the café/restaurant
-dialogues actually speak, as opposed to `fjórir`, the masculine form this
-pass moved), `og`, `hundruð`, and `erum` were all still late. A second
-pass fixed all four the same way as the rest of cluster A (relocation
-only, no mechanism changes) — see "Session 26"'s own correction note.
-Triage item (1) is now fully closed, re-verified against the original
-seven-word list. Session 27 closed cluster B's own remaining four items
-(`hef verið`, `er að` / `koma`, `leggja af stað`, `held ég` — `verð að`
-itself already closed in session 23): four relocations. `held ég`'s
-actual usage — a sentence-final hedge on a statement ("X, held ég.") — is
-a reusable pattern the construction IR can't represent yet, so it is left
-explicitly open for item 3 below rather than faked with a memorised copy
-of the dialogue line (owner review on PR #54; see "Session 27"); a real
-"vera að + infinitive" progressive construction was
-investigated and deliberately not attempted (English gerund substitution
-problem, not an Icelandic one — see that section), left for item 3 below.
-`eg_er_ad_leita_ad_vinnu` (a lower-priority single from the original
-triage, not part of cluster B) was found to have the same shape but
-deliberately left untouched, per the original triage's own prioritization
-— for (2) below, not this pass. (2) a curriculum-wide dependency audit
-across all 26 modules for reusable concepts and late-introduced
-high-value concepts — not started; (3) a pilot testing whether the
-`godur_gender` gender-agreement pattern generalizes to case/tense/
-modality — not started (a real "vera að + inf" progressive construction,
-found blocked in session 27, is a concrete first candidate for this).
-The owner also
-reviewed a real Lesson 3 run and added a new dimension to #29: reusable
-material needs an actual *transfer* opportunity, not just a favorable
-`order` — `godur_gender`'s own discrimination practice was still only
-ever replaying its three founding examples. Added `Note.transfer_items`
-and wired one new-gender noun per gender into `godur_gender` (session
-23's third pass) as a first instance of this; a fourth pass fixed a real
-grammar blocker in that wiring (case, not just gender, differed — see
-"Session 23"). The owner then added a further, explicit requirement
-before #29 itself can close: at least one construction where the learner
-generates a novel combination from independently-known parts, not a
-recalled pre-authored phrase — session 23's fifth pass built exactly
-that (`godur_noun`, a real gender-agreement construction whose own
-adjective wording resolves from a filled noun's `.gender`, genuinely
-producing "Góður bíll."/"Góð bók."/"Gott hús." with none of the three
-authored as its own item). The broader question the owner also raised —
-families of fixed phrases (`Gjörðu svo vel`, `Verði þér að góðu`, ...)
-that share morphology but are taught as unrelated strings — is
-explicitly for the still-not-started audit (item 2) to work through case
-by case. #29 stays open until the curriculum-wide audit (item 2) and the
-case/tense/modality pilot (item 3) are done._
+**Open issues — current state** (keep this block true; details live in
+the session sections):
+
+- **#55** (connect() replayed one fallback pair all lesson) — fixed in
+  session 28 (PR #56): per-lesson pair history, authored-bridge-first
+  ranking, per-arc pairs must include the arc's own item, exhaustion
+  stops instead of looping. Closes with PR #56.
+- **#48** (isolated recall → end-to-end conversation) — **partially
+  addressed**. Session 25 added authored `partner_cue` bridges to
+  connect(); session 30 made early lessons reach partner interaction
+  through authored connect() exchanges (12 bridges in modules 01–02, not
+  native-reviewed; connect() labelled `exchange` vs `recombine`;
+  `partner_exchanges` in lesson meta) — with #27's durable dialogue gate
+  deliberately left intact (a first cut loosened it; reverted on review).
+  Not every early lesson gets an exchange (e.g. L1/L8 at 20 minutes). Still
+  open: bridges beyond modules 01–02; number constructions inside a
+  partner-driven payment exchange; a per-dialogue progression audit like
+  session 25's of `nagranni`.
+- **#29** (curriculum around reusable concepts and capabilities) — **in
+  progress**. What "done" means below is deliberately split into
+  *sequencing finding addressed* vs *capability modeled*; don't merge them.
+  - (1) Triage of `dialogue_sequencing_report()` findings (posted on
+    #29): clusters C and D and `verð að + infinitive` (session 23),
+    cluster A numbers/money (session 26, with three corrections), cluster
+    B remainder (session 27). The flagged *sequencing* gaps of those
+    clusters are addressed; not every concept became a reusable
+    capability — `X, held ég` (sentence-final hedge) and `vera að +
+    infinitive` (progressive) are **unmodeled** representation gaps, and
+    singular/plural agreement (`hundrað`/`ein`, session 26) is
+    deliberately unmodeled. **11 advisory pairs remain** at the default
+    threshold (`tungumal` gert/tölum/bara/fyrir, `leigubill` lengi, `tynd`
+    hvert/bara, `flugvollur` farangur, `heimsokn` nákvæmlega, `dagurinn`
+    vinnu, `vidtal` segðu) — not individually triaged beyond session 23
+    judging `tungumal`'s gert/tölum/bara on-topic content; they belong to
+    item (2).
+  - Owner-added criteria: **transfer** — `godur_gender` discriminates on
+    new nouns via `Note.transfer_items`, and `godur_noun` generates
+    unauthored gender-agreed phrases (session 23); **capability-aware arc
+    boundaries** — `select_new()` pulls a nearby construction in once two
+    fillers exist, holds further fillers, caps them at two per arc
+    afterwards, and keeps an arc boundary from falling between fillers
+    and their construction (session 29). Implemented and simulated; not
+    yet confirmed by the owner on a real generated lesson.
+  - (2) Curriculum-wide dependency audit across all 26 modules — **not
+    started**. Known inputs: fixed-phrase families sharing morphology
+    (`Gjörðu svo vel`, `Verði þér að góðu`, `Gangi þér vel`, `Eigðu góðan
+    dag`), the `vid_erum`-style "to be" paradigm, `eg_er_ad_leita_ad_vinnu`,
+    the 11 remaining advisory pairs.
+  - (3) Case/tense/modality pilot generalizing `godur_gender` — **not
+    started**. Concrete first candidates: `vera að + infinitive` (needs
+    gerund-shaped English meanings), `X, held ég` (needs a clause slot).
+  - #29 stays open until (2) and (3) are done and the arc-boundary
+    behavior is confirmed on real output._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -2776,6 +2761,186 @@ tests, unaffected (every change here is a pure relocation, no mechanism changes)
 `audiolesson validate`: 1006 items, unchanged (after the correction above removed the one new
 item the first cut added).
 
+**Status, stated plainly:** cluster B's *sequencing findings* are addressed (all four tokens'
+gaps closed or near zero), but not all of cluster B's *capabilities* are: `leggja af stað` and
+`hef verið` stay fixed phrases (reasoned above), and `X, held ég` (sentence-final hedge) and
+`vera að + infinitive` (progressive) are reusable patterns that remain **unmodeled** — both are
+representation gaps left for #29 item 3, not closed cases.
+
+## Session 28: issue #55 — connect()'s fallback pair was replayed all lesson
+
+A real Lesson 4 played `connect: ha+eg_skil` ("Ha?" → "And then —" → "Ég
+skil.") over and over. Mechanism: `_connect_pair()` always took the first
+eligible same-topic pair and had no lesson-level history, so every time the
+drill streak tripped, `do_connect()` re-picked the identical pair — "monotony
+detected → play the same canned exchange → monotony detected again". A
+10-lesson `is-en` simulation before the fix showed the same pair up to 11
+times in one lesson (`godan_daginn+takk`, `eg_heiti+hvad_heitir_thu`, ...).
+
+**Fix (planner.py, `build()`'s connect helpers).**
+- `connect_pairs_used` (unordered pairs) and `connect_item_uses` are kept per
+  lesson; `_connect_pair()` never returns a pair already played. Unordered on
+  purpose: "A then B" vs "B then A" is the same two recalls to the learner.
+- Among unused pairs it ranks: (0) an authored `partner_cue` pair
+  (`b.partner_cue_after == a.id`, played in authored order — a coherent
+  exchange per #48), (1) a shared first topic, (2) anything else; ties broken
+  by fewest earlier connect() appearances of the two items, so "fresh pair"
+  doesn't just mean the same item with a new partner.
+- `do_connect(prefer=arc)` widening beyond the arc's own items now passes an
+  `anchor`: the widened pair must still contain one of that arc's items.
+  Previously a same-topic pair of unrelated review items could outrank the
+  arc's own item and be replayed for every arc, "satisfying" each arc's
+  connected-use guarantee without touching what it taught.
+- Exhaustion needs no new branch: `do_connect()` returns `False`, and the
+  streak breaker's existing cascade (dialogue → note → connect → deliberate
+  stop) ends the lesson rather than looping back to a used pair.
+
+Measured on the same simulation after the fix: zero repeated pairs, lesson
+lengths within ±0.5 min of before (20- and 30-minute runs). A 30-minute lesson
+can still play many connect() exercises (one had 22, all distinct) — that is
+the streak breaker's existing frequency, not a repeat; left as is.
+
+**Tests** (all four fail on the pre-fix code): the real Lesson 4 failure on
+`is-en` (`ha`+`eg_skil` the only situation-ready items: played once, then no
+loop-back, streak stays bounded); variety while unused pairs exist (all
+distinct, first three pairs share no item); an authored pair beats an
+earlier same-topic generic pair; each arc's connected use includes that arc's
+own item. 131 tests, all passing.
+
+## Session 29: issue #29 — capability-aware arc boundaries
+
+The owner's latest #29 comment (real Lesson 4): the curriculum now models
+reusable parts correctly, but an arc could still end *between* the parts
+and the capability they unlock — six `acc_language` fillers (íslensku,
+ensku, japönsku, þýsku, frönsku, dönsku) drilled as isolated words, lesson
+ends, «Talar þú {language}?» never reached. New completion criterion:
+parts → construction → novel generation → situated use, with only enough
+fillers before the construction to make it recombinable and later fillers
+arriving as transfer through it.
+
+Measured first: 53 constructions; most families have the same shape (7–14
+fillers, then the pattern — `inf` 12→`eg_vil`, `direction` 12, `time` 13,
+`job` 9, `colour` 8, ...). Fixed generically in `Planner.select_new()`
+rather than hand-reordering ~50 families:
+
+- **Payoff** (`payoff()`): walking the pool, a filler whose slot already has
+  two fillers met-or-chosen, with a construction for that slot within
+  `PlanConfig.capability_window` (15) items after it, swaps in that
+  construction when it's ready (prereqs learned or chosen, two usable fills).
+- **Hold**: if that construction isn't ready yet (its fills/prereqs are met
+  but not yet learned), the filler waits. Deadlock-free by construction: a
+  hold only ever waits on a construction whose own prereqs are already met
+  or chosen and don't include the held filler; a distant construction
+  (outside the window) never holds anything. Verified no holes behind the
+  frontier after 80 simulated lessons.
+- **Transfer cap** (`transfer_capped()`): once a slot's construction is met,
+  at most two of its remaining fillers per arc — otherwise the held block
+  just came back later as a block of four.
+- **Boundary**: if an arc's last pick is a filler whose nearby construction
+  is now ready, the construction joins the arc (one over `count`); if it
+  isn't ready (a lone filler), that filler is dropped to start the next arc
+  with its siblings — only when the pattern is genuinely next and the arc
+  isn't left empty. Step 5's single-extra path now queues anything
+  `select_new(1)` returns beyond the first item, since a filler can come
+  back with its payoff construction.
+
+Real is-en course, 20-minute lessons: L6 now introduces `islensku ensku
+talar_thu` and plays intro → "Talar þú íslensku?"/"Talar þú ensku?"
+(generative) → situation within the lesson; later languages come two per
+arc (`japonsku eg_tala ...`, `thysku fronsku ...`) and each is immediately
+recombined through the known patterns ("Ég tala þýsku.", "Talar þú
+þýsku?", "Ég er að læra þýsku."). `inf` verbs now arrive with `eg_vil` /
+`eg_aetla_ad` rather than as a 12-verb block. Throughput unchanged (80
+lessons: 336 vs 342 items met; 30-minute: 276 vs 268; fr-en-a1 identical).
+
+Left alone deliberately: the masculine count words (einn/tveir/þrír/fjórir)
+still arrive as a block — no construction uses them, so there's no payoff
+to reach; and number fillers whose construction is far away (`big_count` →
+`thad_kostar_big`, ~250 items later) are outside the window by design.
+
+Tests (4 of 5 fail on the pre-fix code): synthetic payoff arc (`f0 f1 pat`,
+no further fillers), boundary append/trim, hold-then-transfer-cap, a
+no-starvation course guard, and the real `acc_language` → `talar_thu`
+lesson with a novel generated sentence. 136 tests, all passing.
+
+#29 still open for: (2) the curriculum-wide audit (fixed-phrase families
+such as Gjörðu svo vel / Verði þér að góðu, `vid_erum` paradigm, `bara`),
+and (3) the case/tense/modality pilot.
+
+## Session 30: issue #48 — partner interaction in early lessons
+
+Measured first (60 simulated 20-minute is-en lessons): lessons 1–8 — up to
+52 items met, including the owner's real Lesson 4 — contained **no partner
+target-language line at all**. Two causes:
+
+1. The first dialogue (`nagranni`) needs `allt_gott`, whose prereq `takk`
+   must be *learned* (durable) before `allt_gott` is even introduced, and
+   `eligible_dialogue()` requires every item *learned* (or introduced
+   earlier in the same lesson). That is #27's durable gate, working as
+   intended — **not** changed (see the correction below).
+2. The connect() fallback that does fire early had exactly one authored
+   `partner_cue` in the whole course, so every early connect was English
+   "And then —" narration.
+
+**Content.** Authored 11 more `partner_cue`/`partner_cue_after` bridges
+among modules 01–02, each chosen so *both* lanes hold: target-language
+turns form one exchange, and B's existing English situation still fits the
+scene. E.g. `takk` → «Gjörðu svo vel. Eigðu góðan dag!» → `somuleidis`;
+`eigdu_godan_dag` → «Takk, sömuleiðis. Bless!» → `bless`; `gaman_ad_sja_thig`
+→ «Sömuleiðis! Hvernig hefurðu það?» → `eg_hef_thad_gott`; and the issue's
+own pair, `ha` → «Morgunmaturinn er á fyrstu hæð.» → `eg_skil` (B's
+situation is the receptionist explaining where breakfast is). Some partner
+lines use words not yet taught (`morgunmaturinn`, `afmæli`) — deliberate: a
+partner saying something the learner half-catches is the realistic case,
+and B's instructor cue carries the meaning. Not native-reviewed.
+
+**Planner.**
+- `do_connect()` first looks for an authored exchange that includes at least
+  one of its scope's own items (this lesson's, or the arc's), with the
+  other half from any known material; only then the #55 ranking within the
+  scope. Without this the scope-first search never reached `takk` (met two
+  lessons earlier) while this lesson's items had any generic pair.
+- `Builder.connect()` labels its exercise stage `exchange` (authored bridge
+  used) or `recombine` (none) — #48's "recombination fallback ≠ coherent
+  exchange". `sc.meta` gains `partner_exchanges` (dialogues + exchange
+  connects) and `recombinations`.
+
+**Correction (owner review on PR #56): the dialogue gate was a #27
+regression, reverted.** The first cut also widened `eligible_dialogue()`
+from `knows(i) or in_lesson` to `has_met(i) or in_lesson`, reasoning that
+same-lesson items already counted and first encounters are assisted. But
+that distinction is deliberate: #27 exists to stop "one presumed-successful
+retrieval → treated as learned → dependencies unlock", and its acceptance
+criteria put prerequisite/dialogue eligibility on durable evidence.
+`knows() or in_lesson` already expresses exactly the intended rule — older
+material needs durable evidence; material introduced earlier *this* lesson
+is the same-lesson exception #25 allows. Widening it let an item introduced
+once yesterday (`durable_successes == 0`) unlock today's dialogue, and the
+first cut's test even asserted that. Reverted; the test now pins the gate
+(met-but-not-durable → no dialogue; durable → yes; same lesson → yes).
+Early partner interaction comes from the authored connect() exchanges
+instead, which unlock nothing.
+
+Result on the same simulation, with the durable gate intact: L2–L7 each
+have 1–3 partner exchanges (L4 plays three: `hae+til_hamingju`,
+`eigdu_godan_dag+bless`, `takk+somuleidis`); no dialogue plays in L1–L8.
+**Not every lesson gets one:** L1 (six items) and L8 have none at 20
+minutes, L5 and L6 none at 30 minutes — lessons whose own new items have
+no authored bridge, once the scope-anchored exchanges are used up. More
+bridges (beyond modules 01–02) are the lever for that, not the gate.
+Throughput unchanged (80 lessons: 336 items met).
+
+Tests (all fail on the pre-fix code except the gate test, which pins
+existing behavior): exchange/recombine labelling, every authored cue
+playable (both items have situations), L2–L6 of a real 20-minute course
+each with a partner exchange plus the `ha+eg_skil` exchange shape, and the
+durable dialogue gate. 140 tests, all passing.
+
+Still open for #48: wiring session 26's number constructions into a real
+partner-driven payment exchange; auditing each dialogue's progression the
+way `nagranni` was audited; more authored bridges beyond modules 01–02.
+
+
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
 Three new issues arrived together, all written by the owner as substantial
@@ -3835,6 +4000,10 @@ Verified in this session:
    (`og, líka, sjáðu, vegabréf, góð, ferð, bara, hundruð, krónur` — each
    a candidate pilot 3-style pass), and the broader curriculum-wide
    audit.
+   *(Superseded, kept as history: the generative half of pilot 2 was done
+   in session 23 (`godur_noun`), and that word list in sessions 23 and 26
+   except `bara`. Current #29 status is the "Open issues" block at the top
+   of this file.)*
 1a. **Improve lesson orchestration and learner experience** (issue #34,
    **closed session 18** — see the correction below the pilot list;
    session 16 — a sequel to #29: where #29 decides *what* gets taught
