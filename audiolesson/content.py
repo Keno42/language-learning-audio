@@ -119,6 +119,26 @@ class Item:
     # is explicit, not inferred from "whichever fill happens to have a gender" (owner review on
     # PR #50 point 2), so a construction with more than one gendered fill slot stays unambiguous.
     agreement: dict[str, dict[str, str]] = field(default_factory=dict)
+    # A target-language line a partner might plausibly say right before this item as the
+    # response (issue #48): connect()'s recombination fallback first tried picking any
+    # already-known "discourse"-topic item as a generic bridge between two recombined
+    # situations, but that filter didn't actually guarantee a coherent turn — short
+    # function words ("og", "en", "með") passed it too, and even genuine standalone
+    # reactions aren't interchangeable across arbitrary contexts (owner review round 2 on
+    # PR #52). This field is curated, not selected: authored deliberately so that, with
+    # the instructor's own scaffolding stripped away, "<answer A> → <partner_cue> →
+    # <answer B>" still reads as one real exchange.
+    #
+    # ``partner_cue`` alone only guarantees the line is good context *for this item* — it
+    # says nothing about whether it followed naturally from whichever item A the planner
+    # happened to recombine it with (owner review round 3 on PR #52: nothing stopped
+    # pairing this cue after a completely unrelated A). ``partner_cue_after`` names the
+    # one item id this cue is written to follow; connect() only uses the pair when the
+    # chosen A actually matches, so the invariant is "A → partner_cue → B is the intended
+    # sequence," not just "partner_cue fits B." Both empty (most items) or both set
+    # together — see ``validate()``.
+    partner_cue: str = ""
+    partner_cue_after: str = ""
 
     # ---- derived helpers -------------------------------------------------
 
@@ -472,6 +492,10 @@ def validate(cur: Curriculum) -> None:
         for ref in it.components + it.prereqs:
             if ref not in ids:
                 raise CurriculumError(f"item {it.id!r} references unknown item {ref!r}")
+        if bool(it.partner_cue) != bool(it.partner_cue_after):
+            raise CurriculumError(f"item {it.id!r}: partner_cue and partner_cue_after must be set together, or not at all")
+        if it.partner_cue_after and it.partner_cue_after not in ids:
+            raise CurriculumError(f"item {it.id!r}: partner_cue_after references unknown item {it.partner_cue_after!r}")
         if it.kind == "construction":
             slots = it.slot_names
             if not slots:

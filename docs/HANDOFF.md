@@ -1,9 +1,10 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-22 (session 24: issue #49, embedded third-language
-note examples and rushed pronunciation scaffolding — see below; session
-23 covers issue #29's triage and generative agreement pilot; session 22
-closes out issue #44). **Issue #34** ("Improve
+_Last updated 2026-09-22 (session 25: issue #48, a real partner line
+inside connect()'s recombination fallback — see below; session 24 covers
+issue #49's embedded third-language examples and pronunciation pacing;
+session 23 covers issue #29's triage and generative agreement pilot;
+session 22 closes out issue #44). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -2215,6 +2216,196 @@ bara, hundruð, krónur`). Validate: 993 items unchanged; full test suite
 constructions in `06-time.toml`" open thread from pilot 1 — see the
 note added to pilot 1's writeup above; they turned out to be a
 different grammatical pattern, already early, not a sequencing gap.
+
+## Session 25: issue #48 — from isolated recall toward end-to-end conversation
+
+Opened alongside #49 from the same real Lesson 3 listening run: a lot of the
+active work still has the shape "English instruction/situation → retrieve
+one Icelandic phrase → hear the answer," with the learner rarely
+experiencing a full communicative episode (native opener → response →
+partner reaction → continuation → natural close).
+
+**Investigated first, before writing anything**, since much of what #48 asks
+for sounded like it might already exist from issue #26 (dialogue scaffolding
+fade) and #44 (connected-use guarantee). Simulated 60 real lessons on the
+full `is-en` curriculum and inspected the actual generated scripts:
+
+- `nagranni` (the neighbour-greeting dialogue) by lesson 6 already plays as:
+  first turn keeps its English cue (nothing to react to yet, no partner line
+  before it), but turns 2 and 3 have **no English cue at all** — the
+  partner's own Icelandic line is the retrieval cue — and the whole thing
+  ends with `Builder.dialogue()`'s `replay` block: the complete 3-turn
+  exchange spoken start to finish by `native_a`/`native_b` alone, zero
+  instructor narration. 11 distinct dialogues got played across the 60
+  lessons (`nagranni` 16 times), and no lesson with substantial known
+  material (>50 items) ever came up with zero dialogue activity.
+- This already satisfies several of #48's acceptance criteria directly:
+  multi-turn interactions, later encounters requiring comprehension of the
+  partner's line rather than an English cue, and progression from
+  scaffolded first encounter to a minimally-scaffolded full replay.
+
+**The one clear, concrete gap found**: `do_connect()` (issue #44's
+recombination fallback for connected use when no authored dialogue covers
+the current material). Its `Builder.connect()` narrates situation A, takes
+the answer, then narrates `connect_then` ("And then —") and situation B,
+takes the second answer — entirely instructor-narrated, no partner voice
+anywhere. Exactly the shape #48 names directly, just wrapped inside one
+exercise instead of two.
+
+Brought this specific gap to the owner rather than guessing at a fix for
+all of #48 at once (a genuinely open design question, not an objective
+bug): first proposal was a short partner "reaction" between the two
+retrievals; the owner's actual preference was more substantive — keep both
+instructor-narrated situations, but have the partner speak a real line
+*between* answer A and situation B, so the exercise reads as one connected
+scene: `instructor situation A → answer A → partner line → instructor
+situation B → answer B`.
+
+**Fix.** `connect()` gained an optional `connector: Item | None` parameter.
+When given, `native_b` speaks the connector's own `target` text between the
+two retrievals, replacing the `connect_then` English narration entirely;
+`None` (no eligible item — e.g. the small fr-en-a1 sample curriculum, which
+has no discourse-topic items at all) falls back to the original English
+bridge, unchanged. The connector itself, `_connector_line()` (new,
+planner.py), is drawn from the learner's own **already-known** vocabulary —
+a short (`word_count <= 2`), `topics=["discourse"]` item — rather than
+authored per pairing: `_connect_pair`'s two recombined items are arbitrary
+and unrelated in general, so nothing could be *written* to fit every
+possible pairing anyway, and reusing a known discourse marker (`Jæja.`,
+`Frábært.`, `Því miður.`, ...) both avoids new fixed-phrase content (the
+same "reuse over more fixed phrases" thrust as #29) and gives that item a
+small passive-exposure credit via the existing `support` bookkeeping (its
+id is added to the exercise's `item_ids`, which `_record()` already counts
+as exposure for anything not in `primary`).
+
+Verified directly against the real curriculum, not just synthetic tests: a
+lesson 7 `connect()` exercise on `gætirðu_talað_hægar` (ask to speak more
+slowly) and `gætirðu_endurtekið_þetta` (ask to repeat) picked `Því miður.`
+("Unfortunately.") as the connector — a genuinely plausible bridge between
+"the barista's too fast, ask her to slow down" and "you missed the room
+number, ask her to repeat it."
+
+**Tests:** `test_connect_uses_a_partner_line_instead_of_narrating_and_then`
+(synthetic curriculum, a known discourse item available) checks the exact
+shape the owner asked for — narrate → answer → `native_b` speak → narrate →
+answer, `connect_then` absent, the connector's id present in the exercise
+for exposure credit. `test_connect_falls_back_to_the_english_bridge_without_a_known_discourse_item`
+(no discourse item known at all) checks the original behavior is preserved
+exactly, unchanged — the fr-en-a1 sample curriculum most other tests use
+falls into this path, which is why the full suite needed no other changes.
+
+125 tests (123 → 125), all passing; `audiolesson validate` unchanged;
+smoke-generated both courses with real `espeak` audio.
+
+**Second pass (PR #52 review): the connector needed to be curated, not
+selected.** The owner agreed with the overall shape but flagged a real
+blocker in `_connector_line()`'s selection rule, `"discourse" in
+item.topics and item.word_count <= 2`: `discourse` is a much broader
+category than "can stand alone as a natural partner turn here" — it also
+catches short function words (`og` "and", `en` "but", `eða` "or", `með`
+"with") that read as nonsense alone ("Partner: Og."), and even among
+genuine standalone reactions (`Frábært`/`Því miður`/`Auðvitað`/`Jæja`),
+none is a guaranteed fit for an arbitrary pairing. The owner also
+clarified something usefully: keeping the *second* item's own English
+situation cue is fine — a partner utterance rarely implies one uniquely
+correct response, so the instructor's instruction still earns its keep
+by narrowing the task to something self-checkable. What actually matters
+is that the *target-language* turns alone — answer A → bridge → answer B
+— read as one coherent exchange once the English scaffolding is stripped
+away, and that can't come from an algorithm picking among unrelated
+already-known vocabulary; it has to be authored.
+
+**Fix.** Replaced the generic selection entirely with `Item.partner_cue:
+str = ""` (new field, content.py) — a target-language line a curriculum
+author curates specifically to lead naturally into *that* item as a
+response. `connect()` now checks `items[1].partner_cue` directly: when
+authored, `native_b` speaks it between the two retrievals (replacing
+`connect_then` as before); empty (the default — most items have no
+authored bridge) falls back to the original English narration, unchanged.
+`_connector_line()` and its discourse-topic filtering are gone entirely
+— no more picking from *any* known item, algorithmically, at build time.
+Authored one for real: `gaetirdu_endurtekid_thetta` ("Could you repeat
+that?", already gated by a `situation` that presumes the learner missed
+something the partner said) got `partner_cue = "Auðvitað. Herbergið er
+númer tuttugu og þrjú."` — the owner's own worked example, verbatim:
+"Gætirðu talað hægar?" → "Auðvitað. Herbergið er númer tuttugu og þrjú."
+→ "Gætirðu endurtekið þetta?" holds together as a real exchange with no
+instructor narration at all.
+
+**Tests:** `test_connect_speaks_the_second_items_own_authored_partner_cue`
+(a synthetic curriculum where every item authors a `partner_cue`, so the
+test is robust to exactly which two items `_connect_pair` happens to
+choose) replaces the old discourse-topic-item test; checks the same
+shape as before (situation A → answer A → partner line → situation B →
+answer B, `connect_then` absent) but now asserts the spoken line is
+specifically *item B's own* `partner_cue`, not an unrelated known item.
+`test_connect_falls_back_to_the_english_bridge_without_an_authored_partner_cue`
+(no item authors one) confirms the fallback is unchanged — this is also
+what the small fr-en-a1 sample curriculum exercises, so the rest of the
+suite needed no changes. Verified again against the real curriculum: a
+forced `connect()` on `gaetirdu_talad_haegar`+`gaetirdu_endurtekid_thetta`
+now plays exactly the owner's worked example.
+
+125 tests, all passing (replaced, not net new); `audiolesson validate`
+unchanged; smoke-generated `is-en` again with real `espeak` audio.
+
+**Third pass (PR #52 review): the cue was tied to B, but not to the pair.**
+The owner agreed the blocker from the second pass was fixed, then found a
+narrower one still open: `partner_cue` only proves the line is good
+context *for B* — nothing stopped `_connect_pair()` from choosing a
+completely different, unrelated A and still playing B's cue after it. For
+the real authored example, `gaetirdu_endurtekid_thetta`'s cue is written
+specifically to follow `gaetirdu_talad_haegar`; paired after some
+unrelated item instead ("Hvað þýðir þetta?" → "Auðvitað. Herbergið er
+númer tuttugu og þrjú." → ...), the exchange stops making sense, even
+though "the cue fits B" was still technically true. The documented
+invariant — "A → partner_cue → B reads as one real exchange" — was not
+actually encoded anywhere; only "partner_cue fits B" was.
+
+**Fix.** Added `Item.partner_cue_after: str = ""` — the one item id a
+`partner_cue` is written to follow. `Builder.connect()` now uses the cue
+only when `second.partner_cue_after == first.id`; anything else falls
+back to the ordinary English bridge, exactly as if no cue existed.
+`validate()` requires the two fields set together (or neither) and that
+`partner_cue_after` names a real item, so an author can't accidentally
+leave a cue with no declared predecessor (which would otherwise just go
+permanently unused, a silent dead end rather than a caught mistake).
+`gaetirdu_endurtekid_thetta` got `partner_cue_after = "gaetirdu_talad_haegar"`.
+Left `_connect_pair()`'s own selection logic untouched — its existing
+same-topic preference (both items share `topics = ["clarifying"]`)
+already makes this specific pairing likely without needing to teach it
+about cue compatibility too; the owner was explicit either approach
+(prefer compatible pairs, or select as before and check after) was fine,
+and the simpler one carries less risk to the rest of `_connect_pair()`'s
+already-delicate heuristics.
+
+**Tests**, matching the owner's own requested shape: rewrote the "cue
+used" test to call `Builder.connect()` directly with two cases — `[a,
+b]` (compatible: `b.partner_cue_after == a.id`) uses the cue; `[c, b]`
+(same `b`, unrelated `c`) does not, falling back to `connect_then`
+instead. Calling `Builder.connect()` directly (not through the whole
+planner, as the second pass's test did) gives full control over which
+item lands in which slot — the planner alone can't guarantee that.
+Added `test_connect_plays_the_owners_real_curriculum_worked_example`,
+which pins the exact real-content exchange the owner gave, verbatim.
+
+126 tests (125 → 126), all passing; `audiolesson validate` unchanged;
+smoke-generated `is-en` again.
+
+**Still open for #48 itself**: the investigation above covers most of the
+acceptance criteria already via #26/#44, and this pass closes the
+`connect()` gap specifically, but #48 as a whole stays open — no attempt
+yet at auditing whether *every* dialogue's progression is as good as
+`nagranni`'s, whether "recent vocabulary reused in complete interactions"
+holds broadly (only `do_connect`'s own two items were addressed here, not
+whether dialogues get preferentially wired to freshly-introduced material
+as reliably as the owner would want), or the 6 of 31 dialogues whose first
+turn has no partner `opener` (so their very first exposure is still
+learner-initiated, cued by English, even at full replay) — noted, not
+touched, since having *some* learner-initiated dialogues (asking a
+stranger for directions, ordering food) isn't necessarily wrong and #48's
+own criteria only ask for *at least one* fully native-initiated episode,
+which the other 25 already provide.
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
