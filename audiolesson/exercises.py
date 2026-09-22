@@ -515,7 +515,7 @@ class Builder:
 
     # ---------------------------------------------------------------- connect
 
-    def connect(self, sc: Script, items: list[Item]) -> Exercise:
+    def connect(self, sc: Script, items: list[Item], connector: Item | None = None) -> Exercise:
         """One connected exchange between two already-known items (issue #44, owner review
         round 2 on #46): the fallback for "connected use" when no authored dialogue requires
         them, and a genuine third option for a drill streak with nowhere else to go — not
@@ -524,16 +524,20 @@ class Builder:
         The first cut of this narrated a shared frame and then ran two ordinary situation
         recalls back to back — structurally two independent flashcards under a header, with
         no connection between them (confirmed by the pair the planner happened to choose:
-        "leaving a shop" next to "raising a glass for a toast"). This version keeps both
-        retrievals inside one exercise and bridges them with an explicit connecting line
-        (``connect_then``, "And then —") so the second situation reads as a continuation of
-        the same moment, not a new unrelated prompt — the same reason ``dialogue()`` keeps an
-        exchange's turns inside one ``Exercise`` rather than splitting them apart. Its own
-        exercise kind (not folded into ``recall``) so it's identifiable as a deliberate
-        recombination moment, the same way ``note()`` is bookended rather than left to blend
-        into whatever comes next."""
+        "leaving a shop" next to "raising a glass for a toast"). A second cut bridged them
+        with an explicit connecting line (``connect_then``, "And then —"), narrated by the
+        instructor — still the same shape issue #48 named directly: English instruction,
+        retrieve one phrase, repeat. ``connector`` (issue #48), when given, replaces that
+        English bridge with an actual partner utterance — a short, already-known discourse
+        phrase spoken by ``native_b`` between the two retrievals — so the second situation
+        reads as the partner's own turn in a continuing scene, not a narrator's transition.
+        ``None`` (a course with no known discourse-topic item short enough to use, e.g. the
+        small sample fr-en-a1 curriculum) falls back to the original English narration,
+        unchanged. Its own exercise kind (not folded into ``recall``) so it's identifiable
+        as a deliberate recombination moment, the same way ``note()`` is bookended rather
+        than left to blend into whatever comes next."""
         first, second = items[0], items[1]
-        ids = [first.id, second.id]
+        ids = [first.id, second.id] + ([connector.id] if connector else [])
         ex = sc.new_exercise("connect", None, ids, f"connect: {first.id}+{second.id}")
         self._narr(sc, ex, self.prompts.get("connect_intro"))
         self._beat(sc, ex)
@@ -541,7 +545,11 @@ class Builder:
         self._answer_pause(sc, ex, first.target, first, generative=True)
         self._answer(sc, ex, first.target)
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("connect_then"))
+        if connector:
+            self._speak(sc, ex, connector.target, speaker="native_b")
+            self._beat(sc, ex)
+        else:
+            self._narr(sc, ex, self.prompts.get("connect_then"))
         self._narr(sc, ex, self._situation_readonly(second))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, second.target, second, generative=True)
         self._answer(sc, ex, second.target)

@@ -543,6 +543,26 @@ class Planner:
                 pair = [pair[1], pair[0]]
             return pair
 
+        def _connector_line(exclude_ids: set[str]) -> Item | None:
+            """A short, already-known discourse phrase the partner can say between the two
+            recombined situations (issue #48, owner review on ``connect()``): a real native
+            utterance bridging them, not the instructor narrating "And then —", so the
+            exchange reads as one scene with a partner in it rather than two flashcards
+            back to back. Drawn from the learner's own known vocabulary (topic
+            "discourse", short) instead of authoring new content per pairing — the two
+            recombined items are arbitrary and unrelated in general, so nothing could be
+            *written* to fit every pairing anyway, and reusing a known discourse marker
+            keeps this in the same spirit as the rest of #29/#48's push toward reusing
+            what's already been learned. Degrades to ``None`` — the old English bridge
+            narration — for a course with no such items (e.g. the small sample fr-en-a1
+            curriculum used by most tests)."""
+            candidates = [
+                self.cur.by_id[i]
+                for i in self.learner.items
+                if i not in exclude_ids and i in self.cur.by_id and self.learner.knows(i) and "discourse" in self.cur.by_id[i].topics and self.cur.by_id[i].word_count <= 2
+            ]
+            return self.rng.choice(candidates) if candidates else None
+
         def do_connect(prefer: list[Item] | None = None) -> bool:
             """Recombine two already-known items into one connected exchange (issue #44):
             the fallback for "connected use" when no authored dialogue exists for the
@@ -565,7 +585,8 @@ class Planner:
                 candidates = _connect_pair(list(preferred) + rest, just_touched)
                 if candidates is None:
                     return False
-            ex = b.connect(sc, candidates)
+            connector = _connector_line({c.id for c in candidates})
+            ex = b.connect(sc, candidates, connector=connector)
             self._record([i.id for i in candidates], "situation", ex.item_ids)
             for item in candidates:
                 touch(item)
