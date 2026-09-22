@@ -1760,6 +1760,33 @@ being folded into the suite as a permanent regression guard.
 
 116 tests (115 → 116), all passing; `audiolesson validate` unchanged.
 
+**Eighth pass (PR #50 review): the seventh pass only drained the first
+due milestone, not every one.** The owner caught it by reading
+`godur_noun`'s own prereqs closely: they span *two* independent
+milestones at once — `godur_gender_nominative`'s trio and
+`gendered_nouns_bill_bok_hus`'s — but the seventh pass's fix called
+`self._eligible_milestone(item.prereqs)` exactly once per intro, and
+`_eligible_milestone` only ever returns the *first* eligible note it
+finds. If both milestones were simultaneously due and unheard, the first
+fired before the intro as intended, but the second still only fired via
+the old reactive post-exercise path — too late, the exact failure mode
+the seventh pass exists to prevent, just for the second milestone
+instead of the only one.
+
+**Fix**, exactly as small as the owner's own sketch: the single `if`
+became a `while (milestone := self._eligible_milestone(item.prereqs))
+is not None:` loop, draining every currently-due milestone among the
+item's prereqs before its intro plays. `notes_played` (already checked
+inside `_eligible_milestone`) rules out looping on the same note twice.
+
+**Test:** `test_all_due_milestones_fire_before_an_intro_not_just_the_first_one_found`,
+two independent synthetic milestone groups both already known and
+unheard, gating one construction — confirmed to fail against the
+pre-loop code (the second group's note landed one exercise after the
+construction's intro) before folding it in.
+
+117 tests (116 → 117), all passing; `audiolesson validate` unchanged.
+
 ## Session 15: #23 and #25 closed, consolidated into #29
 
 The owner reorganized the open issues right after session 14: closed #23

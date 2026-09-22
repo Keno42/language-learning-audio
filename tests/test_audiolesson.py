@@ -983,6 +983,54 @@ class CurriculumTests(unittest.TestCase):
         intro_idx = next(i for i, ex in enumerate(sc.exercises) if ex.kind == "intro" and "agree" in ex.item_ids)
         self.assertLess(note_idx, intro_idx, "the construction was introduced before the milestone that names its own pattern had fired")
 
+    def test_all_due_milestones_fire_before_an_intro_not_just_the_first_one_found(self):
+        """Owner review follow-up on PR #50: godur_noun's own prereqs actually span *two*
+        separate milestones (godur_gender_nominative's trio and
+        gendered_nouns_bill_bok_hus's), but the previous fix's single
+        ``_eligible_milestone(item.prereqs)`` call only ever returns the first one it finds —
+        so if both are simultaneously due and unheard, only the first fires before the intro;
+        the second still only fires reactively afterward, too late for the same reason the
+        previous fix exists at all. ``do_intro`` must drain *every* currently-due milestone
+        among an item's prereqs, not just one, before its own intro exercise plays. Reproduced
+        with two independent milestone groups, both already eligible and unheard, gating a
+        single construction: two milestones already known → its example fill would complete a
+        third check, none of them already 'used up' by only checking once."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "a1", "kind": "phrase", "target": "A1.", "meaning": "A1."},
+                {"id": "a2", "kind": "phrase", "target": "A2.", "meaning": "A2."},
+                {"id": "a3", "kind": "phrase", "target": "A3.", "meaning": "A3."},
+                {"id": "m", "kind": "vocab", "target": "m-noun", "meaning": "m-thing", "tags": ["gnoun"], "gender": "masc"},
+                {"id": "f", "kind": "vocab", "target": "f-noun", "meaning": "f-thing", "tags": ["gnoun"], "gender": "fem"},
+                {"id": "n", "kind": "vocab", "target": "n-noun", "meaning": "n-thing", "tags": ["gnoun"], "gender": "neut"},
+                {
+                    "id": "agree",
+                    "kind": "construction",
+                    "target": "{adj} {noun}.",
+                    "meaning": "Good {noun}.",
+                    "slots": {"noun": "gnoun"},
+                    "agreement": {"adj": {"from": "noun", "masc": "GoodM", "fem": "GoodF", "neut": "GoodN"}},
+                    "example": {"noun": "n"},
+                    "prereqs": ["a1", "a2", "a3", "m", "f", "n"],  # spans two unrelated milestone groups
+                },
+            ],
+            "notes": [
+                {"id": "group_a", "milestone": True, "items": ["a1", "a2", "a3"], "text": "group a."},
+                {"id": "group_gender", "milestone": True, "items": ["m", "f", "n"], "text": "group gender."},
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for iid in ("a1", "a2", "a3", "m", "f", "n"):  # both groups already known
+            learner.items[iid] = ItemState(due=TODAY.isoformat(), successes=5, durable_successes=5, stage="situation")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+        sc = planner.build()
+        intro_idx = next(i for i, ex in enumerate(sc.exercises) if ex.kind == "intro" and "agree" in ex.item_ids)
+        for note_id in ("group_a", "group_gender"):
+            note_idx = next(i for i, ex in enumerate(sc.exercises) if ex.kind == "note" and ex.label == f"note: {note_id}")
+            self.assertLess(note_idx, intro_idx, f"{note_id} was not drained before the construction's intro")
+
     def test_milestone_eligible_as_soon_as_its_last_item_is_exercised_this_lesson(self):
         """Owner review follow-up on #32: a milestone must not wait an extra lesson just
         because ``has_met`` doesn't count an item introduced earlier in the *same*, still

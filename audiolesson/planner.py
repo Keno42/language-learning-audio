@@ -375,17 +375,25 @@ class Planner:
 
         def do_intro(item: Item) -> None:
             nonlocal last_intro, seq
-            # A milestone whose gating items are all already met-or-exposed, purely from
+            # Every milestone whose gating items are all already met-or-exposed, purely from
             # *this* item's own prereqs, must fire before this item's own intro exercise, not
-            # after (owner review on PR #50 point re: godur_noun): a construction's intro plays
-            # its own worked-example fill (see Builder._intro_construction), so if that fill
-            # happens to be the last item a milestone needs, the ordinary post-exercise
-            # _maybe_note check (which only runs after this intro completes) would let the
-            # construction reach the learner before the milestone naming the very pattern it
-            # relies on ever has. Checking prereqs here, before b.intro() runs, closes that gap
-            # regardless of which item's own exposure would otherwise have completed the trio.
-            milestone = self._eligible_milestone(item.prereqs)
-            if milestone is not None:
+            # after (owner review on PR #50 re: godur_noun): a construction's intro plays its
+            # own worked-example fill (see Builder._intro_construction), so if that fill happens
+            # to be the last item a milestone needs, the ordinary post-exercise _maybe_note check
+            # (which only runs after this intro completes) would let the construction reach the
+            # learner before the milestone naming the very pattern it relies on ever has.
+            # Checking prereqs here, before b.intro() runs, closes that gap regardless of which
+            # item's own exposure would otherwise have completed the trio.
+            #
+            # A loop, not a single check (owner review follow-up): an item's prereqs can span
+            # more than one milestone's worth of gating items at once — godur_noun's cover both
+            # godur_gender_nominative's trio and gendered_nouns_bill_bok_hus's. A single
+            # ``_eligible_milestone`` call only ever returns the first one it finds among
+            # ``related``, so the second would still have fired too late, via the reactive path,
+            # after this intro. Draining every currently-due one first closes that too;
+            # ``notes_played`` (checked inside ``_eligible_milestone``) guarantees this can't loop
+            # on the same note twice.
+            while (milestone := self._eligible_milestone(item.prereqs)) is not None:
                 b.note(sc, milestone)
                 self.notes_played.append(milestone.id)
                 do_discriminate(milestone)
