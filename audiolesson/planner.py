@@ -636,7 +636,7 @@ class Planner:
             seen: set[str] = set()
             valid: list[Item] = []
             for it in pool:
-                if it.id in seen or not it.has_situation or not _ready_for_situation(it):
+                if it.id in seen or not b.situation_usable(it) or not _ready_for_situation(it):
                     continue
                 seen.add(it.id)
                 valid.append(it)

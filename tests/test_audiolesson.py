@@ -620,6 +620,160 @@ class CurriculumTests(unittest.TestCase):
         self.assertNotIn("{n} widgets.", answers)
         self.assertIn("tveir widgets.", answers)
 
+    def _talar_thu_builder(self, seed: int):
+        """A Builder on the real is-en course whose learner knows every ``acc_language`` fill,
+        so unconstrained generation for «Talar þú {language}?» has seven languages to pick."""
+        import random
+
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        for it in cur.items_with_tag("acc_language") + [cur.by_id["talar_thu"], cur.by_id["ha"]]:
+            learner.items[it.id] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation")
+        return cur, Builder(cur, Prompts.load("en"), Timing(level="A1"), learner, random.Random(seed))
+
+    def test_construction_situation_practice_uses_the_fill_its_situation_names(self):
+        """Issue #57: «Talar þú {language}?»'s situation says "Ask if she speaks English." — a
+        situation-stage recall must answer «Talar þú ensku?», whatever the generator would
+        otherwise pick. Other stages keep generating other languages (the non-goal: this must
+        not collapse into always using the worked example)."""
+        answers, free = set(), set()
+        for seed in range(12):
+            cur, b = self._talar_thu_builder(seed)
+            sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+            b.recall(sc, cur.by_id["talar_thu"], "situation")
+            b.recall(sc, cur.by_id["talar_thu"], "meaning")
+            b.recall(sc, cur.by_id["talar_thu"], "recombine")
+            situation_ex, *others = sc.exercises
+            self.assertIn("English", " ".join(s.text for s in sc.segments if s.exercise == situation_ex.index and s.type == "narrate"))
+            answers |= {s.text for s in sc.segments if s.exercise == situation_ex.index and s.type == "answer"}
+            free |= {s.text for ex in others for s in sc.segments if s.exercise == ex.index and s.type == "answer"}
+        self.assertEqual(answers, {"Talar þú ensku?"})
+        self.assertGreater(len(free), 2, f"non-situation practice must still vary the fill: {free}")
+
+    def test_connect_uses_the_fill_a_construction_situation_names(self):
+        """Issue #57, the real Lesson 4 failure: inside connect(), "You're not sure the
+        receptionist understands you. Ask if she speaks English." was answered «Talar þú
+        íslensku?» — connect() narrates the construction's situation, so it must honour the
+        same binding."""
+        seen = set()
+        for seed in range(12):
+            cur, b = self._talar_thu_builder(seed)
+            sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+            b.connect(sc, [cur.by_id["ha"], cur.by_id["talar_thu"]])
+            seen |= {s.text for s in sc.segments if s.type == "answer" and s.text.startswith("Talar")}
+        self.assertEqual(seen, {"Talar þú ensku?"})
+
+    def test_construction_situations_that_name_a_fill_are_bound(self):
+        """Issue #57 authoring guard: if a construction's situation mentions one of its slot
+        fills by meaning ("English", "two"), that slot must be bound with ``situation_fill`` —
+        otherwise the generator can answer the named situation with a different fill."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for c in cur.items:
+            if c.kind != "construction" or not c.has_situation:
+                continue
+            text = " ".join(c.situations or [c.situation]).lower()
+            for slot, tag in c.slots.items():
+                for fill in cur.items_with_tag(tag):
+                    word = re.sub(r"\s*\(.*\)", "", fill.meaning).strip().lower()
+                    if word and re.search(r"\b" + re.escape(word) + r"\b", text):
+                        self.assertIn(slot, c.situation_fill, f"{c.id}: situation names {word!r} but slot {slot!r} is unbound")
+
+    @staticmethod
+    def _german_situation_curriculum():
+        return curriculum_from_dict(
+            {
+                "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                "items": [
+                    {"id": "ensku", "kind": "vocab", "target": "ensku", "meaning": "English", "tags": ["lang"]},
+                    {"id": "islensku", "kind": "vocab", "target": "íslensku", "meaning": "Icelandic", "tags": ["lang"]},
+                    {"id": "thysku", "kind": "vocab", "target": "þýsku", "meaning": "German", "tags": ["lang"]},
+                    {
+                        "id": "talar",
+                        "kind": "construction",
+                        "target": "Talar þú {language}?",
+                        "meaning": "Do you speak {language}?",
+                        "slots": {"language": "lang"},
+                        "prereqs": ["ensku"],
+                        "situation": "Ask if she speaks German.",
+                        "situation_fill": {"language": "thysku"},
+                    },
+                ]
+                + [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}.", "situation": f"Situation {i}."} for i in range(8)],
+            }
+        )
+
+    def test_a_situation_fill_the_learner_lacks_is_never_generated(self):
+        """Owner review on PR #58: ``fixed`` fills skipped ``generate()``'s own invariant —
+        constructions are only generated from parts the learner has (known, or introduced this
+        lesson). "Ask if she speaks German." bound to þýsku must not force «Talar þú þýsku?»
+        before þýsku is known: the situation stage drops to ``meaning`` and generates from known
+        fills; once þýsku is known, the situation and its bound fill are used."""
+        import random
+
+        from audiolesson.exercises import Builder
+
+        cur = self._german_situation_curriculum()
+        learner = LearnerState("is", "en", "A1")
+        for i in ("ensku", "islensku", "talar"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation")
+        for seed in range(8):
+            b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner, random.Random(seed))
+            sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+            ex = b.recall(sc, cur.by_id["talar"], "situation")
+            self.assertEqual(ex.stage, "meaning")
+            answers = [s.text for s in sc.segments if s.type == "answer"]
+            self.assertTrue(answers and all("þýsku" not in a for a in answers), answers)
+            with self.assertRaises(ValueError):
+                b.connect(Script(1, "L", cur.target_lang, cur.known_lang), [cur.by_id["ensku"], cur.by_id["talar"]])
+        learner.items["thysku"] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="meaning")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner, random.Random(0))
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        self.assertEqual(b.recall(sc, cur.by_id["talar"], "situation").stage, "situation")
+        self.assertEqual([s.text for s in sc.segments if s.type == "answer"], ["Talar þú þýsku?"])
+
+    def test_connect_never_pairs_a_construction_whose_situation_fill_is_unknown(self):
+        """Owner review on PR #58, planner side: with þýsku unknown, a streak-heavy lesson full
+        of connect() exercises must never pick the German-bound construction."""
+        cur = self._german_situation_curriculum()
+        learner = LearnerState("is", "en", "A1")
+        for i in ["ensku", "islensku", "talar"] + [f"w{i}" for i in range(8)]:
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation")
+        cfg = PlanConfig(minutes=30, seed=1, new_items=0, max_new_items=0, dialogue_every=1000, drill_streak_limit=2, note_chance=0.0)
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+        connects = [ex.item_ids for ex in sc.exercises if ex.kind == "connect"]
+        self.assertTrue(connects)
+        self.assertFalse(any("talar" in ids for ids in connects), connects)
+        self.assertNotIn("Talar þú þýsku?", [s.text for s in sc.segments if s.type == "answer"])
+
+    def test_situation_fill_validation(self):
+        """Issue #57: a situation binding must name a real slot of the construction and an item
+        that is a valid fill for it (carries the slot's tag)."""
+        base = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "en", "kind": "vocab", "target": "ensku", "meaning": "English", "tags": ["lang"]},
+                {"id": "is_", "kind": "vocab", "target": "íslensku", "meaning": "Icelandic", "tags": ["lang"]},
+                {"id": "kaffi", "kind": "vocab", "target": "kaffi", "meaning": "coffee", "tags": ["drink"]},
+                {
+                    "id": "c",
+                    "kind": "construction",
+                    "target": "Talar þú {language}?",
+                    "meaning": "Do you speak {language}?",
+                    "slots": {"language": "lang"},
+                    "situation": "Ask if she speaks English.",
+                    "situation_fill": {"language": "en"},
+                },
+            ],
+        }
+        curriculum_from_dict(base)  # valid
+        for bad, msg in (({"lingo": "en"}, "unknown slot"), ({"language": "kaffi"}, "not a valid fill"), ({"language": "nope"}, "unknown item")):
+            raw = json.loads(json.dumps(base))
+            raw["items"][3]["situation_fill"] = bad
+            with self.assertRaisesRegex(CurriculumError, msg):
+                curriculum_from_dict(raw)
+
     def test_connect_plays_the_owners_real_curriculum_worked_example(self):
         """Issue #48: the real authored pair from the owner's own review — with the
         instructor scaffolding stripped away, the target-language turns alone should form

@@ -376,6 +376,7 @@ prereqs = ["tvaer", "kronur"]
 pronunciation_notes = "króna is feminine: ein króna, tvær krónur, þrjár krónur, fjórar krónur"
 situation = "A toy coin game with a child: say 'two krónur'."
 situation_ja = "子どもとおもちゃのコイン遊びをしています。「2クローナ」と言ってください。"
+situation_fill = { count = "tvaer" }  # issue #57: the situation says "two krónur"
 
 [[items]]
 id = "tvo_kaffi"

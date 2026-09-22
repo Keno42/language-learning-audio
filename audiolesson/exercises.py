@@ -290,7 +290,7 @@ class Builder:
             if gen_ex is not None:
                 return gen_ex
             stage = "meaning"
-        if stage == "situation" and not item.has_situation:
+        if stage == "situation" and not self.situation_usable(item):
             stage = "meaning"
         if stage == "cloze" and item.word_count < 3:
             stage = "hinted"
@@ -336,10 +336,12 @@ class Builder:
         self._speak(sc, ex, self.rng.choice(item.alternatives), role="alternative")
 
     def _recall_construction(self, sc: Script, item: Item, stage: str) -> Exercise:
-        """Recall of a construction always goes through a filled example."""
-        gen = self.generate(item)
+        """Recall of a construction always goes through a filled example — at the situation
+        stage, one that honours the fills the situation names (issue #57)."""
+        fixed = self.cur.situation_fills(item) if stage == "situation" and self.situation_usable(item) else {}
+        gen = self.generate(item, fixed=fixed)
         if gen is None:
-            fills = self.cur.example_fill(item)
+            fills = {**self.cur.example_fill(item), **fixed}
             target, meaning = self.cur.resolve_slots(item, fills)
             gen = Generated(item, fills, target, meaning)
         self.used_combos.add(gen.key)
@@ -397,10 +399,16 @@ class Builder:
 
     # ------------------------------------------------------------ generation
 
-    def generate(self, construction: Item, *, exclude: dict[str, Item] | None = None, prefer_unused: bool = True) -> Generated | None:
-        """Fill a construction with words the learner knows; prefer combos not yet used."""
+    def generate(
+        self, construction: Item, *, exclude: dict[str, Item] | None = None, prefer_unused: bool = True, fixed: dict[str, Item] | None = None
+    ) -> Generated | None:
+        """Fill a construction with words the learner knows; prefer combos not yet used.
+        ``fixed`` pins slots to specific fills (a situation's binding, issue #57)."""
         options: dict[str, list[Item]] = {}
         for slot, tag in construction.slots.items():
+            if fixed and slot in fixed:
+                options[slot] = [fixed[slot]]
+                continue
             cands = [i for i in self.cur.items_with_tag(tag) if self.learner.knows(i.id) or self._in_lesson(i.id)]
             if exclude and slot in exclude:
                 cands = [c for c in cands if c.id != exclude[slot].id]
@@ -450,6 +458,14 @@ class Builder:
 
     def _in_lesson(self, item_id: str) -> bool:
         return item_id in self.in_lesson
+
+    def situation_usable(self, item: Item) -> bool:
+        """Whether ``item``'s authored situation can be practised now. A construction's
+        situation that names a specific fill (``situation_fill``, issue #57) is only usable
+        once that fill is itself available — known, or introduced this lesson — the same bar
+        ``generate()`` sets for any fill: a construction is only ever generated from parts
+        the learner has. "Ask if she speaks German." waits until þýsku is known."""
+        return item.has_situation and all(self.learner.knows(f.id) or self._in_lesson(f.id) for f in self.cur.situation_fills(item).values())
 
     @staticmethod
     def _combo_key(c: Item, fills: dict[str, Item]) -> str:
@@ -582,12 +598,21 @@ class Builder:
         ``has_situation`` alone (``_connect_pair`` in planner.py), which a construction can
         satisfy same as any phrase (e.g. ``einn_tvo_thrjar``, issue #29 cluster A). Mirrors
         ``_recall_construction``'s own fallback chain rather than calling it directly, since
-        that also emits its own exercise/narration this helper must not duplicate."""
+        that also emits its own exercise/narration this helper must not duplicate.
+
+        connect() always narrates the item's situation, so the fills that situation names
+        (``situation_fill``, issue #57) are pinned: "Ask if she speaks English." must be
+        answered "Talar þú ensku?", never another language the generator happened to pick."""
         if item.kind != "construction":
             return item.target
-        gen = self.generate(item)
+        if not self.situation_usable(item):
+            # the planner never pairs such an item (see _connect_pair); refuse rather than
+            # speak a sentence built from a fill the learner hasn't met
+            raise ValueError(f"connect(): {item.id!r}'s situation names a fill the learner doesn't have yet")
+        fixed = self.cur.situation_fills(item)
+        gen = self.generate(item, fixed=fixed)
         if gen is None:
-            fills = self.cur.example_fill(item)
+            fills = {**self.cur.example_fill(item), **fixed}
             target, _ = self.cur.resolve_slots(item, fills)
             return target
         self.used_combos.add(gen.key)
