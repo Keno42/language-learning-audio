@@ -83,9 +83,12 @@ only, no mechanism changes) — see "Session 26"'s own correction note.
 Triage item (1) is now fully closed, re-verified against the original
 seven-word list. Session 27 closed cluster B's own remaining four items
 (`hef verið`, `er að` / `koma`, `leggja af stað`, `held ég` — `verð að`
-itself already closed in session 23): three plain relocations plus one
-new example item for `held ég`'s actual sentence-final-hedge usage (see
-"Session 27"); a real "vera að + infinitive" progressive construction was
+itself already closed in session 23): four relocations. `held ég`'s
+actual usage — a sentence-final hedge on a statement ("X, held ég.") — is
+a reusable pattern the construction IR can't represent yet, so it is left
+explicitly open for item 3 below rather than faked with a memorised copy
+of the dialogue line (owner review on PR #54; see "Session 27"); a real
+"vera að + infinitive" progressive construction was
 investigated and deliberately not attempted (English gerund substitution
 problem, not an Icelandic one — see that section), left for item 3 below.
 `eg_er_ad_leita_ad_vinnu` (a lower-priority single from the original
@@ -2721,14 +2724,24 @@ with the reasoning written down if not" discipline cluster A established:
   ("Ég held það.", I think so), doesn't actually match `gonguferd`'s own usage —
   the dialogue's line is a sentence-*final* hedge tacked onto a statement ("Rigning og rok, held
   ég.", rain and wind, I think), not the standalone initial-position answer `eg_held_thad`
-  teaches. Relocating `eg_held_thad` alone would have silenced the sequencing metric without
-  teaching the pattern the dialogue actually uses — a hollow fix. Relocated `eg_held_thad`/
-  `eg_held_ekki` (module 24 → 07) for their own sake (genuinely useful, zero-prereq, no reason to
-  sit at order 917), and added a new item, `rigning_og_rok_held_eg`, reusing the dialogue's own
-  real line verbatim with vocabulary already available by that point (`rigning`/`rok`, both
-  earlier in the same module) — not built as a slot-fill construction over arbitrary statements,
-  since the curriculum's construction mechanism fills a single word/phrase from a tagged pool,
-  not an already-composed sentence, and nothing like that exists to reuse here.
+  teaches. Relocated `eg_held_thad`/`eg_held_ekki` (module 24 → 07) for their own sake
+  (genuinely useful, zero-prereq, no reason to sit at order 917). That closes the *token* gap for
+  "held" in `dialogue_sequencing_report`, but not the *capability*: the reusable thing is the
+  relation "X, held ég." (any statement + hedge), and the construction mechanism fills a slot
+  from a tagged pool of words/short phrases — it can't yet slot a whole clause.
+
+  **Correction (owner review on PR #54):** the first cut added `rigning_og_rok_held_eg`
+  ("Rigning og rok, held ég." — the dialogue's own line, verbatim) as a new fixed phrase. Removed:
+  that is the exact direction #29 exists to avoid — dialogue line → find what's missing → pre-teach
+  that finished sentence as a memory item. It cleans up the diagnostic without giving the learner
+  any reusable model. "The current IR can't represent the capability yet" is a representation gap,
+  not evidence the hedge is lexicalised, and must not be papered over as if it were. So, stated
+  separately and honestly:
+
+  - sequencing gap for the `held` token: **improved** (gone from the findings);
+  - reusable `X, held ég` capability: **not yet modeled** — left open for #29's grammar /
+    construction pilot (item 3), alongside "vera að + inf" below. A smaller alternative the owner
+    noted, treating `held ég` itself as a discourse chunk, is also possible but not attempted.
 - **`hef verið`**: relocated `eg_hef_verid_her_adur` (module 20 → 05, right before `leigubill`).
   Checked whether this was a genuine construction candidate (per #29's own triage: "hef verið...
   a reusable 'have been' construction") and concluded no: the only other "hef + participle"
@@ -2759,8 +2772,9 @@ Verified all four directly against `dialogue_sequencing_report(gap_threshold=0)`
 from 517 to 16 (both now comfortably inside the dialogue's own base, not zero only because
 another item in the same small gap band pushed order by a couple of positions — not a concern).
 `eg_er_ad_leita_ad_vinnu`/`vinnu` unchanged at 245, as intended. 18 → 11 advisory pairs; 127
-tests, unaffected (every change here is either a pure relocation or a new fixed-phrase item, no
-mechanism changes). `audiolesson validate`: 1006 → 1007 items (the one new `held ég` example).
+tests, unaffected (every change here is a pure relocation, no mechanism changes).
+`audiolesson validate`: 1006 items, unchanged (after the correction above removed the one new
+item the first cut added).
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
