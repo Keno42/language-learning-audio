@@ -375,6 +375,21 @@ topics = ["food", "home"]
 situation = "Call everyone to the table: dinner is ready."
 situation_ja = "みんなを食卓に呼んでください：ご飯ができました。"
 
+# New (issue #29 owner review): a masculine partner for the "godur_gender" milestone's
+# transfer practice — "matur" (food) is masculine, so "góður" is the expected agreement,
+# same pattern as "góðan daginn" but applied to new vocabulary instead of replaying the
+# same three greetings forever. See docs/HANDOFF.md and Note.transfer_items.
+[[items]]
+id = "godur_matur"
+kind = "phrase"
+target = "Góður matur."
+meaning = "Good food."
+meaning_ja = "おいしい食べ物。"
+difficulty = 2
+topics = ["food"]
+situation = "You take a bite of the lamb stew and it's delicious. Say: good food."
+situation_ja = "ラム肉のシチューを一口食べたら、とてもおいしいです。「おいしい食べ物」と言ってください。"
+
 [[items]]
 id = "viltu_meira"
 kind = "phrase"

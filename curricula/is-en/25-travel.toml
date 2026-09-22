@@ -304,16 +304,6 @@ situation = "Your friend leaves for the airport. Wish her a good trip."
 situation_ja = "友達が空港へ向かいます。良い旅をと言ってください。"
 
 [[items]]
-id = "vegabref"
-kind = "vocab"
-target = "vegabréf"
-meaning = "a passport"
-meaning_ja = "パスポート"
-difficulty = 2
-tags = ["acc_have", "acc_thing"]
-topics = ["travel"]
-
-[[items]]
 id = "farangur"
 kind = "vocab"
 target = "farangur"

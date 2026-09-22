@@ -244,6 +244,30 @@ topics = ["greetings", "discourse"]
 situation = "Someone asks if you have change. You don't. Say so regretfully."
 situation_ja = "小銭があるか聞かれましたが、ありません。残念そうに答えてください。"
 
+# Promoted from module 19 (issue #29 triage, cluster C): a repeat offender across
+# three dialogues before it was otherwise taught — see docs/HANDOFF.md.
+[[items]]
+id = "lika"
+kind = "vocab"
+target = "líka"
+meaning = "also"
+meaning_ja = "〜も"
+difficulty = 1
+topics = ["discourse"]
+
+# Promoted from module 24 (issue #29 triage, cluster C): a repeat offender across
+# two dialogues before it was otherwise taught — see docs/HANDOFF.md.
+[[items]]
+id = "thad_er_god_hugmynd"
+kind = "phrase"
+target = "Það er góð hugmynd."
+meaning = "That's a good idea."
+meaning_ja = "いい考えですね。"
+difficulty = 2
+topics = ["discourse"]
+situation = "Anna suggests the hot tub before dinner. Say that's a good idea."
+situation_ja = "アンナが夕食の前に温泉をと提案しました。いい考えだと言ってください。"
+
 [[items]]
 id = "sjaumst_seinna"
 kind = "phrase"
@@ -449,6 +473,20 @@ tags = ["adj_neut"]
 topics = ["adjectives", "discourse"]
 situation = "Anna says the road is open. Say: great!"
 situation_ja = "アンナが道路が開通したと言いました。「すばらしい！」と言ってください。"
+
+# Promoted from module 24 (issue #29 triage): the "nagranni" dialogue right below
+# uses this verbatim as its partner's reaction line, at order ~11 — 915 items before
+# it was otherwise taught. See docs/HANDOFF.md.
+[[items]]
+id = "gott_ad_heyra"
+kind = "phrase"
+target = "Gott að heyra."
+meaning = "Good to hear."
+meaning_ja = "それはよかった。"
+difficulty = 2
+topics = ["discourse"]
+situation = "A friend says she's feeling better. Say good to hear."
+situation_ja = "友達が体調が良くなったと言いました。よかったと言ってください。"
 
 [[dialogues]]
 id = "nagranni"

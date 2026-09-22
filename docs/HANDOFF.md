@@ -1,7 +1,7 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-21 (session 22: issue #44's fourth and final review
-round — see below; sessions 21, 20, 19 and 18 close-outs follow). **Issue #34** ("Improve
+_Last updated 2026-09-21 (session 23: issue #29, acting on the triage —
+see below; session 22 closes out issue #44). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -47,16 +47,33 @@ had actually climbed its own ladder, silently skipping stages it never
 practised. See "Session 22" through "Session 19" below for the full
 history. 104 tests, all passing.
 
-**Next up, per the owner's priority order:** issue #29 ("Design
+**In progress, per the owner's priority order:** issue #29 ("Design
 curriculum around reusable concepts and communicative capabilities") —
 (1) triage all `dialogue_sequencing_report()` findings (9 repeat
 offenders plus large single-item gaps like `heyra`) — **done**, posted
-as a comment on #29, not yet acted on; (2) a curriculum-wide dependency
-audit across all 26 modules for reusable concepts and late-introduced
-high-value concepts — not started; (3) a pilot testing whether the
-`godur_gender` gender-agreement pattern generalizes to case/tense/
-modality — not started. #29 stays open until the curriculum-wide audit
-completes a full pass._
+as a comment on #29, and now fully acted on except cluster A: session 23
+fixed the one-dialogue content bug, `nagranni`'s two big gaps
+(`gott_ad_heyra` relocated, `verð að + infinitive` turned into a real
+construction), and the rest of cluster C's repeat offenders (`líka`,
+`sjáðu`, `vegabréf`, `ferð`, `Það er góð hugmynd`) — 49 → 30 advisory
+findings, see "Session 23". Cluster A (numbers/money) is the one
+remaining item, flagged as needing its own dedicated pass over
+Icelandic's gendered number forms, not a quick relocation; (2) a
+curriculum-wide dependency audit across all 26 modules for reusable
+concepts and late-introduced high-value concepts — not started; (3) a
+pilot testing whether the `godur_gender` gender-agreement pattern
+generalizes to case/tense/modality — not started. The owner also
+reviewed a real Lesson 3 run and added a new dimension to #29: reusable
+material needs an actual *transfer* opportunity, not just a favorable
+`order` — `godur_gender`'s own discrimination practice was still only
+ever replaying its three founding examples. Added `Note.transfer_items`
+and wired one new-gender noun per gender into `godur_gender` (session
+23's third pass) as a first instance of this; the broader question the
+owner also raised — families of fixed phrases (`Gjörðu svo vel`, `Verði
+þér að góðu`, ...) that share morphology but are taught as unrelated
+strings — is explicitly for the still-not-started audit (item 2) to
+work through case by case. #29 stays open until the curriculum-wide
+audit completes a full pass._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -1271,6 +1288,258 @@ only checks the sequence doesn't go backward, not that it doesn't jump
 ahead.
 
 104 tests (103 → 104), all passing; `audiolesson validate` unchanged.
+
+## Session 23: issue #29 — acting on the triage, second pass
+
+With #44 merged, back to #29's own priority order: item 1 (triage of all
+`dialogue_sequencing_report()` findings) was posted as a comment in
+session 21 (see that comment on #29 for the full cluster breakdown —
+A: numbers/money, B: reusable verbs/constructions embedded in fixed
+phrases, C: general repeat-offender vocabulary, D: a one-dialogue
+content bug). This session acted on the two lowest-risk, highest-value
+items from that triage: cluster D (a content bug, one dialogue) and the
+`nagranni` half of cluster B (the issue's own worked example, resolved
+properly rather than patched). 49 → 41 advisory findings.
+
+**Cluster D — `tungumal`'s partner line reached into an unrelated
+module's vocabulary.** The dialogue's actual purpose is asking someone
+to slow down; its second line volunteered full walking directions to a
+pool ("Sundlaugin er beint áfram og svo til vinstri, rétt hjá
+bankanum"), pulling in `beint`/`áfram`/`vinstri`/`bankanum`/`og` from a
+directions module the learner hasn't reached yet. Not a sequencing
+problem — a content mismatch. Trimmed both the line and its "repeat
+that more slowly" callback down to the dialogue's own actual sentence
+("Tölum við bara íslensku."), matching the plain-repeat style
+`kaffihus`'s own "speak more slowly" turn already uses elsewhere in the
+curriculum. Left `gert`/`tölum`/`bara`/`við` alone — those are the
+dialogue's genuine on-topic content, not a detour, and resequencing them
+is a broader question for the ongoing audit (item 2), not a one-line fix.
+
+**Cluster B, `nagranni`'s two words — the issue's own worked example,
+for real.** `nagranni` (module 1, order ~11) has a neighbour say "Gott
+að heyra. Jæja, ég verð að fara." (Good to hear. Well, I have to go.) as
+a natural leave-taking line — and #29's own issue body names `Ég verð
+að fara` explicitly as the example of what *not* to do: turning one
+dialogue's sentence into a special-cased prerequisite. It hadn't become
+a prerequisite; it just sat unresequenced 777 items later (`heyra` was
+worse still, 915 items later, as its own separate fixed phrase).
+
+- `gott_ad_heyra` ("Good to hear.") is a short, complete, prereq-free,
+  nothing-depends-on-it phrase — safe to relocate outright. Moved from
+  module 24 to module 1, right before `nagranni`, following the same
+  pattern session 16 already used for `frábært` (see the comment there).
+- `verð að + infinitive` is exactly the "reusable construction embedded
+  in a fixed phrase" case #29 asks to fix at the source. Module 2
+  already has the machinery for this: an `"inf"`-tagged slot-fill
+  vocabulary (`fara_heim`, `sofa`, `borða`, ...) built for `eg_vil`/
+  `eg_aetla_ad`/`viltu`/`eg_nenni_ekki` — the same shape of construction,
+  already scaffolded. Added `eg_verd_ad` ("Ég verð að {inf}.") to that
+  same chain (`prereqs = ["fara_heim", "eg_aetla_ad"]`), reusing existing
+  vocabulary rather than authoring new content. Verified by building a
+  real lesson out to the point it's introduced: it recombines correctly
+  with every `"inf"` item in later recalls ("Ég verð að borða.", "...fara
+  í sund.", "...sofa.", "...hringja heim.", ...), and both English and
+  Japanese slot substitution resolve correctly (`resolve_slots()` on
+  both `meaning`/`meaning_ja`). Left the original `eg_verd_ad_fara`
+  fixed phrase (module 20) in place rather than deleting it — nothing
+  depends on it and it's still a legitimate review item, just a
+  redundant one now; not worth the risk of an unrequested content
+  deletion in the same pass.
+
+**Test:** `test_dialogue_sequencing_report_is_advisory_not_gating`
+hardcoded `nagranni`/`heyra` as the report's worst finding — now stale
+by construction, since the whole point of the ongoing audit is to keep
+moving that worst finding elsewhere. Generalized the test to check the
+*mechanism* (advisory, never gates eligibility, gap stays large) rather
+than which dialogue currently tops the list, so it won't need a
+one-line update every time the audit fixes another finding.
+
+**Second pass, same PR: the rest of cluster C.** `líka` (also, 3
+dialogues), `sjáðu` (look!, 2 dialogues), `vegabréf` (passport, 2
+dialogues), and `Það er góð hugmynd` (that's a good idea, 2 dialogues)
+were all repeat offenders sitting in modules 19–25, well past where
+several early dialogues already use them.
+
+- `lika` and `thad_er_god_hugmynd`: short, prereq-free, nothing depends
+  on them — relocated outright to module 1 (the `lika`/`frábært`/
+  `thad_er_god_hugmynd` moves are now the same established pattern).
+- `vegabref`: also prereq-free and already the example fill for the
+  later `eg_er_med_have` construction — relocated to module 2.
+- `sjáðu`: previously existed *only* embedded inside a whale-watching
+  phrase (`sjadu_hvalinn`, module 23), gated behind a whale-specific
+  prereq. Relocating that phrase alone would only have moved its
+  `order` field — the whale prereq would still block it from actually
+  being taught any earlier in a real lesson, a hollow fix that games
+  the diagnostic without changing the learner experience. Added a new
+  standalone, prereq-free `sjadu` phrase ("Sjáðu." / "Look.") instead,
+  the same shape as the already-existing `biddu` ("Bíddu." / "Wait.").
+- `ferð` (a trip): existed only inside `eg_vil_boka_ferd` (module 25),
+  a fixed phrase that just spells out the `eg_vil` ("Ég vil {inf}.")
+  construction by hand instead of using it — another instance of
+  cluster B's "reusable construction embedded in a fixed phrase"
+  pattern, this time for a noun rather than a verb. Added `boka_ferd`
+  ("bóka ferð" / "book a tour") to module 2's `"inf"` vocabulary instead
+  of just relocating the phrase, so `eg_vil` (and anything later built
+  on that vocabulary) can recombine with it like any other `"inf"` item.
+
+Verified with a 15-lesson simulation that all five surface as expected
+new items early on, and that `eg_vil` correctly resolves to "Ég vil
+bóka ferð." / "I want to book a tour." with `boka_ferd` filled in.
+
+`dialogue_sequencing_report()`: 41 → 30 advisory findings; the
+repeat-offender list is now down to `og`, `bara`, `krónur`, `hundruð` —
+all cluster A (numbers/money) or the one deliberately-left-alone word
+in `tungumal`.
+
+**Scope note.** Cluster A (numbers/money — money amounts are taught as
+whole fixed phrases like "fimm hundruð krónur" rather than a
+number+currency construction, and the base digits 5–12 are taught
+inside the *time* module, after cafe dialogues already need them for
+prices) is the one real, higher-effort item left from the original
+triage — it touches Icelandic's gendered number forms (`fjórir`/
+`fjögur`, `tveir`/`tvær`/`tvö`, ...) and deserves the same "construction,
+not more fixed phrases" treatment `godur_gender` already modeled, not a
+quick relocation. Left for a dedicated follow-up rather than rushed in
+this pass. #29 stays open; items 2 (curriculum-wide audit) and 3
+(case/tense/modality pilot) are still not started.
+
+104 tests (still 104 — one updated, none added), all passing;
+`audiolesson validate` 49 → 30 advisory findings across the two passes.
+
+**Third pass, same PR: a real transfer step for `godur_gender`.** The
+owner reviewed a real Lesson 3 run and raised a design point beyond
+resequencing: `godur_gender`'s discrimination practice (`do_discriminate`)
+only ever switches between the milestone's own three founding examples
+(`góðan daginn` / `góða nótt` / `gott kvöld`) — noticing the gender
+contrast is not the same as being asked to apply it to a noun the
+learner hasn't seen it with before, and #29's own progression diagram
+explicitly ends in "apply it to new vocabulary and situations," not
+"replay the same three phrases forever." The owner proposed adding this
+— whether reusable material gets an actual *transfer* opportunity, not
+just a favorable `order` — to #29's own completion criteria going
+forward.
+
+**Fix.** Added `Note.transfer_items: list[str]` — extra items
+`do_discriminate` may reach for once *known*, distinct from the
+milestone's gating `items`. Critically, `transfer_items` never gates
+when the milestone *fires* (`_eligible_milestone` only ever checks
+`items`) — requiring the transfer material known first would be
+circular, since introducing it is the whole point. `do_discriminate` now
+checks `transfer_items` the same "met, or exposed this lesson" way
+`_eligible_milestone` already checks its own gating items, so it never
+asks for something never introduced, and prefers them over `items` when
+available.
+
+Wired `godur_gender` to one already-known-gender noun per gender it
+didn't already have: `thad_er_god_hugmynd` (feminine, "hugmynd" — this
+is the very phrase relocated in the second pass above) and `gott_vedur`
+(neuter, "veður" — already existed as a `weather`-slot vocabulary item,
+just needed a `situation` field added to make it a discrimination
+candidate). No masculine example existed anywhere in the curriculum, so
+added one: `godur_matur` ("Góður matur." / "Good food.", module 17) —
+"matur" is masculine (confirmed via the existing `maturinn_er_tilbuinn`,
+whose `-inn` suffix is the masculine definite article).
+
+Verified directly (not just via the test suite): built a lesson with
+only the three gating items known — the milestone fires and discriminates
+between two of its own three examples, exactly as before. Built another
+with `thad_er_god_hugmynd` also already known — the discrimination step
+right after the note now includes it, applying the pattern to a genuinely
+different noun.
+
+**Tests:** `test_milestone_fires_without_any_of_its_transfer_items_being_known`
+and `test_discrimination_prefers_a_known_transfer_item_over_replaying_the_same_examples`,
+both confirmed to fail against the pre-`transfer_items` code (the first
+with an `AttributeError`, since the field didn't exist yet; the second on
+the discrimination set not containing the transfer item). Also widened
+`test_milestone_note_is_followed_by_contrastive_discrimination`'s allowed
+id set to `items | transfer_items` — it was checking discrimination
+candidates against only the gating `items`, which this change makes too
+narrow (currently passed anyway across its own 20-lesson simulation, but
+only because no transfer item happened to already be known at firing
+time in that particular run — not a guarantee).
+
+**Scope note, from the owner's review.** The second half of that review —
+Lesson 3 introduces `Gjörðu svo vel`, `Verði þér að góðu`, `Gangi þér vel`,
+and `Eigðu góðan dag` close together, useful phrases that currently behave
+as unrelated memorized strings despite sharing morphology — is explicitly
+framed by the owner as a question for the still-not-started curriculum-wide
+audit (item 2), not an immediate fix: distinguishing lexicalized chunks
+worth memorizing whole from families where a shared grammatical dimension
+would reduce memorization load is exactly the kind of judgment call that
+audit exists to make, module by module, not something to guess at in
+isolation for four phrases.
+
+106 tests (104 → 106), all passing; `audiolesson validate` unchanged
+by this pass (transfer material is content depth, not a sequencing gap
+the report measures).
+
+**Fourth pass, same PR: the transfer trio was correct gender, wrong case
+too — blocker.** The owner's review of the third pass caught a real
+Icelandic grammar error: `godur_gender`'s own three examples (`Góðan
+daginn`, `Góða nótt`, `Gott kvöld`) are all **accusative** case, but the
+transfer trio wired into `transfer_items` (`Góður matur`, `Það er góð
+hugmynd`, `Gott veður`) are all **nominative**. Masculine and feminine
+adjective endings differ by case as well as gender (BÍN: `góður`
+masc. nom., `góðan` masc. acc.; `góð` fem. nom., `góða` fem. acc.) — only
+neuter happens to look identical in both. Silently pairing them as if
+gender were the only thing varying directly contradicted the note's own
+text ("the ending changes with the noun's grammatical gender," said of
+three examples that all share one case) and would have taught the
+learner an incorrect paradigm: `masc: góðan → góður` reads as if that
+were a gender change, when it's actually gender *and* case at once.
+
+**Fix.** Removed `transfer_items` from `godur_gender` entirely — pairing
+examples across cases isn't a same-case gender transfer, so it doesn't
+belong there. Split the nominative trio into its own milestone,
+`godur_gender_nominative`, explicit in its own text about which case
+these are (nominative) and how the endings differ from `godur_gender`'s
+accusative ones — not silently folded in as if it were the same
+paradigm slot with only gender varying. Being its own milestone (gated
+on all three of `godur_matur`/`thad_er_god_hugmynd`/`gott_vedur`) also
+resolves the owner's non-blocking second point from the third pass more
+thoroughly than `transfer_items` on its own could: an ordinary milestone
+is *guaranteed* to fire once its items are known (same mechanism every
+other milestone in the curriculum already relies on), where
+`transfer_items` only helped if the material *happened* to already be
+known at firing time.
+
+The `Note.transfer_items` mechanism itself stays — the owner's review
+was explicit that the concept (separating a milestone's gating examples
+from material it can reach for once known, without letting the latter
+delay the former) fits #29 well; the problem was this specific content
+pairing, not the mechanism. Rewrote the two mechanism tests
+(`test_milestone_fires_without_any_of_its_transfer_items_being_known`,
+`test_discrimination_prefers_a_known_transfer_item_over_replaying_the_same_examples`)
+against a small synthetic curriculum instead of the real
+`godur_gender`, so their validity no longer depends on a specific
+curriculum-content decision that turned out to need correcting — a
+better test design independent of this fix. Added
+`test_godur_gender_nominative_is_explicit_about_case_not_just_gender`,
+checking directly that `godur_gender` carries no `transfer_items` and
+that the new note's own text names both cases.
+
+**Knock-on fix:** the new milestone's gating items are deeper in the
+curriculum (`godur_matur` at item order ~688) than any existing
+milestone, so the two broad "every milestone must fire" tests — which
+simulated 20 lessons at `auto`-pace, reaching only item order ~72 —
+needed a faster, fixed-pace config (`new_items=10`, 30-minute lessons,
+early-exit once satisfied) to actually reach it in a reasonable test
+runtime; auto-pace escalation was never the point of either test, just
+a convenient way to run several lessons.
+
+**Also addressed (non-blocking):** the owner questioned whether
+`godur_matur` — a new fixed phrase authored specifically to have a
+masculine transfer example — runs against #29's own "reusable capability
+over more fixed phrases" thrust. Left as-is for now (it's grammatically
+safe, harmless content), but noted for the curriculum-wide audit: a
+generative adjective-agreement construction (a noun slot tagged by
+gender, resolving the correct `góður`/`góð`/`gott` ending automatically)
+would fit #29's spirit better than one more fixed phrase, and is a
+bigger feature than this fix's scope.
+
+107 tests (106 → 107), all passing; `audiolesson validate` unchanged
+by this pass.
 
 ## Session 15: #23 and #25 closed, consolidated into #29
 

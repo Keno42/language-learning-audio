@@ -254,15 +254,6 @@ difficulty = 2
 topics = ["discourse"]
 
 [[items]]
-id = "lika"
-kind = "vocab"
-target = "líka"
-meaning = "also"
-meaning_ja = "〜も"
-difficulty = 1
-topics = ["discourse"]
-
-[[items]]
 id = "ekki"
 kind = "vocab"
 target = "ekki"
