@@ -181,6 +181,55 @@ chunks = ["á morgun", "veðrið á morgun", "verður veðrið á morgun", "Hver
 situation = "You're planning a hike. Ask what the weather will be tomorrow."
 situation_ja = "ハイキングを計画しています。明日の天気を聞いてください。"
 
+# eg_held_thad/eg_held_ekki relocated from module 24 (issue #29 cluster B, PR #53 follow-up —
+# the owner's own triage comment on #29 names this exactly: gonguferd's partner line "Rigning
+# og rok, held ég." needs "held" understood, 580+ items before this pair used to sit).
+[[items]]
+id = "eg_held_thad"
+kind = "phrase"
+target = "Ég held það."
+meaning = "I think so."
+meaning_ja = "そう思います。"
+difficulty = 2
+topics = ["discourse"]
+situation = "Anna asks if the shop is open on Sundays. You think so. Say it."
+situation_ja = "アンナに店は日曜も開いているか聞かれました。そう思うと言ってください。"
+
+[[items]]
+id = "eg_held_ekki"
+kind = "phrase"
+target = "Ég held ekki."
+meaning = "I don't think so."
+meaning_ja = "そうは思いません。"
+difficulty = 2
+topics = ["discourse"]
+prereqs = ["eg_held_thad"]
+situation = "She asks if it'll rain. Say you don't think so."
+situation_ja = "雨が降るか聞かれました。そうは思わないと言ってください。"
+
+# New (issue #29 cluster B, PR #53 follow-up): relocating eg_held_thad alone would have silenced
+# dialogue_sequencing_report's finding without teaching what gonguferd's own line actually does —
+# "held ég" isn't used there as eg_held_thad's own standalone "Ég held það." (I think so), it's a
+# sentence-final hedge tacked onto a statement ("X, held ég." — X, I think), a different position
+# in the sentence, closer to English "I think" or "I guess" tagged on the end. Not built as a
+# slot-fill construction over arbitrary statements — the curriculum's slot mechanism fills a
+# single word/short phrase from a tagged pool, not an already-composed sentence, and this
+# curriculum has no such "sentence slot" anywhere; genuinely a lexicalized way of hedging, not a
+# productive template with existing infrastructure to reuse. Reuses the dialogue's own real line
+# verbatim rather than inventing a new example, with already-known vocabulary (rigning/rok, both
+# above) by this point.
+[[items]]
+id = "rigning_og_rok_held_eg"
+kind = "phrase"
+target = "Rigning og rok, held ég."
+meaning = "Rain and wind, I think."
+meaning_ja = "雨と風だと思う。"
+difficulty = 3
+topics = ["weather", "discourse"]
+prereqs = ["rigning", "rok", "eg_held_thad"]
+situation = "Anna asks what tomorrow's weather will be. You're not sure — guess rain and wind."
+situation_ja = "アンナに明日の天気を聞かれました。よくわからないので、雨と風だと思うと答えてください。"
+
 [[items]]
 id = "thad_er_svo_kalt"
 kind = "phrase"

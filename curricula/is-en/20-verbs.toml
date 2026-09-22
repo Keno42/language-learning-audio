@@ -209,18 +209,8 @@ topics = ["grammar", "social"]
 situation = "Leaving the guesthouse you loved. Say you'll come back."
 situation_ja = "気に入ったゲストハウスを出ます。また来ると言ってください。"
 
-[[items]]
-id = "eg_hef_verid_her_adur"
-kind = "phrase"
-target = "Ég hef verið hér áður."
-meaning = "I have been here before."
-meaning_ja = "前にここに来たことがあります。"
-difficulty = 4
-topics = ["grammar", "social"]
-chunks = ["áður", "hér áður", "verið hér áður", "Ég hef verið hér áður."]
-situation = "The driver asks if it's your first time. Say you've been here before."
-situation_ja = "運転手に初めてか聞かれました。前に来たことがあると答えてください。"
-
+# eg_hef_verid_her_adur moved to module 05 (issue #29 cluster B, PR #53 follow-up) — see that
+# module's own comment.
 [[items]]
 id = "eg_hef_aldrei_smakkad_thetta"
 kind = "phrase"
@@ -303,17 +293,8 @@ prereqs = ["eg_maetti_thad"]
 situation = "Your guest asks if he may open the window. Say he may."
 situation_ja = "お客さんが窓を開けていいか聞きました。いいですよと言ってください。"
 
-[[items]]
-id = "eg_er_ad_koma"
-kind = "phrase"
-target = "Ég er að koma!"
-meaning = "I'm coming!"
-meaning_ja = "今行きます！"
-difficulty = 1
-topics = ["grammar"]
-situation = "Someone calls you from the next room. Shout that you're coming."
-situation_ja = "隣の部屋から呼ばれました。今行くと叫んでください。"
-
+# eg_er_ad_koma moved to module 06 (issue #29 cluster B, PR #53 follow-up) — see that module's
+# own comment.
 [[items]]
 id = "eg_er_ad_hugsa"
 kind = "phrase"
