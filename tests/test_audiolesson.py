@@ -789,7 +789,7 @@ class CurriculumTests(unittest.TestCase):
                     "target": "{adj} {noun}.",
                     "meaning": "Good {noun}.",
                     "slots": {"noun": "gnoun"},
-                    "agreement": {"adj": {"masc": "GoodM", "fem": "GoodF", "neut": "GoodN"}},
+                    "agreement": {"adj": {"from": "noun", "masc": "GoodM", "fem": "GoodF", "neut": "GoodN"}},
                     "example": {"noun": "n"},
                 },
             ],
@@ -808,7 +808,10 @@ class CurriculumTests(unittest.TestCase):
             got_target, got_meaning = cur.resolve_slots(agree, {"noun": cur.by_id[noun_id]})
             self.assertEqual((got_target, got_meaning), (target, meaning), noun_id)
 
-    def test_agreement_construction_requires_all_three_genders(self):
+    def test_agreement_requires_an_explicit_controlling_slot(self):
+        """Owner review on PR #50, point 2: inferring the controller as "whichever fill happens
+        to carry a gender" is ambiguous once a construction could have more than one gendered
+        slot. `from` must name it explicitly, and validation must reject its absence."""
         raw = {
             "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
             "items": [
@@ -819,7 +822,7 @@ class CurriculumTests(unittest.TestCase):
                     "target": "{adj} {noun}.",
                     "meaning": "Good {noun}.",
                     "slots": {"noun": "gnoun"},
-                    "agreement": {"adj": {"masc": "GoodM", "neut": "GoodN"}},  # missing "fem"
+                    "agreement": {"adj": {"masc": "GoodM", "fem": "GoodF", "neut": "GoodN"}},  # no "from"
                     "example": {"noun": "n"},
                 },
             ],
@@ -827,21 +830,56 @@ class CurriculumTests(unittest.TestCase):
         with self.assertRaises(CurriculumError):
             curriculum_from_dict(raw)
 
-    def test_agreement_construction_requires_a_gendered_slot(self):
+    def test_agreement_construction_requires_forms_for_every_gender_its_controller_can_produce(self):
         raw = {
             "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
             "items": [
-                {"id": "n", "kind": "vocab", "target": "n-noun", "meaning": "n-thing", "tags": ["gnoun"]},  # no gender
+                {"id": "m", "kind": "vocab", "target": "m-noun", "meaning": "m-thing", "tags": ["gnoun"], "gender": "masc"},
+                {"id": "n", "kind": "vocab", "target": "n-noun", "meaning": "n-thing", "tags": ["gnoun"], "gender": "neut"},
                 {
                     "id": "agree",
                     "kind": "construction",
                     "target": "{adj} {noun}.",
                     "meaning": "Good {noun}.",
                     "slots": {"noun": "gnoun"},
-                    "agreement": {"adj": {"masc": "GoodM", "fem": "GoodF", "neut": "GoodN"}},
+                    "agreement": {"adj": {"from": "noun", "masc": "GoodM"}},  # missing "neut", which "n" needs
                     "example": {"noun": "n"},
                 },
             ],
+        }
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
+
+    def test_agreement_construction_requires_every_controller_candidate_to_have_a_gender(self):
+        """Owner review on PR #50, point 3: validation previously only required *some* tagged
+        item to carry a gender, so an ungendered candidate could still slip through and hit
+        `forms[None]` at runtime the day it happened to be picked. Every candidate for the
+        controlling slot must be gendered, not just one of them."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "m", "kind": "vocab", "target": "m-noun", "meaning": "m-thing", "tags": ["gnoun"], "gender": "masc"},
+                {"id": "u", "kind": "vocab", "target": "u-noun", "meaning": "u-thing", "tags": ["gnoun"]},  # no gender
+                {
+                    "id": "agree",
+                    "kind": "construction",
+                    "target": "{adj} {noun}.",
+                    "meaning": "Good {noun}.",
+                    "slots": {"noun": "gnoun"},
+                    "agreement": {"adj": {"from": "noun", "masc": "GoodM", "fem": "GoodF", "neut": "GoodN"}},
+                    "example": {"noun": "m"},
+                },
+            ],
+        }
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
+
+    def test_item_gender_must_be_a_known_value(self):
+        """Owner review on PR #50, point 3: a typo like gender = "masculine" should fail to
+        load, not silently produce an item that can never satisfy any agreement rule."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [{"id": "n", "kind": "vocab", "target": "n-noun", "meaning": "n-thing", "gender": "masculine"}],
         }
         with self.assertRaises(CurriculumError):
             curriculum_from_dict(raw)
@@ -864,12 +902,28 @@ class CurriculumTests(unittest.TestCase):
             self.assertEqual(target, expected)
             self.assertNotIn(expected.lower(), targets, f"{expected!r} must not also exist as its own pre-authored item")
 
+    def test_gendered_nouns_note_actually_teaches_the_genders_godur_noun_relies_on(self):
+        """Owner review on PR #50, point 1: `Item.gender` and `resolve_slots()` let the
+        *system* resolve bíll/bók/hús's genders, but until this note existed nothing ever told
+        the *learner* — the fact lived only in curriculum metadata, never in an exercise the
+        learner actually hears. Checks both halves: the note names the three words and their
+        genders, and godur_noun's own prereqs guarantee it has always fired first."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        note = cur.note_by_id["gendered_nouns_bill_bok_hus"]
+        self.assertEqual(set(note.items), {"bill", "bok", "hus"})
+        for word in ("bíll", "bók", "hús"):
+            self.assertIn(word, note.text.lower())
+        for word in ("masculine", "feminine", "neuter"):
+            self.assertIn(word, note.text.lower())
+        construction = cur.by_id["godur_noun"]
+        self.assertTrue(set(note.items) <= set(construction.prereqs), "godur_noun must not be reachable before the learner is told these genders")
+
     def test_godur_noun_construction_is_reachable_once_its_prereqs_are_known(self):
         """The generative pilot must actually be usable, not just correct in isolation: once a
-        learner has met godur_noun's prereqs (the nominative gender concept plus its own
-        worked-example noun), Builder.generate() -- the same machinery every other construction
-        uses for genuinely novel recombination during a lesson -- must be able to produce a
-        fill for it."""
+        learner has met godur_noun's prereqs (the gender-agreement concept plus all three
+        gendered nouns, per the owner's own worked example), Builder.generate() -- the same
+        machinery every other construction uses for genuinely novel recombination during a
+        lesson -- must be able to produce a valid fill for it."""
         from audiolesson.exercises import Builder
 
         cur = load_curriculum(ROOT / "curricula" / "is-en")
@@ -880,7 +934,9 @@ class CurriculumTests(unittest.TestCase):
         b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
         gen = b.generate(construction)
         self.assertIsNotNone(gen, "godur_noun could not be generated once its prereqs were known")
-        self.assertEqual(gen.target, "Gott hús.")  # "hus" is the only gendered_noun known at this point
+        valid = {"Gott hús.": "Good house.", "Góður bíll.": "Good car.", "Góð bók.": "Good book."}
+        self.assertIn(gen.target, valid, gen.target)
+        self.assertEqual(gen.meaning, valid[gen.target])
 
     def test_milestone_eligible_as_soon_as_its_last_item_is_exercised_this_lesson(self):
         """Owner review follow-up on #32: a milestone must not wait an extra lesson just

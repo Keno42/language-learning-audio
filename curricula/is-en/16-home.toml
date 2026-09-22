@@ -109,6 +109,8 @@ difficulty = 1
 tags = ["gendered_noun"]
 gender = "neut"
 topics = ["home"]
+situation = "You point at a house up the hill. Say: house."
+situation_ja = "丘の上の家を指さしています。「家」と言ってください。"
 # "hús" is neuter, and nominative and accusative happen to look identical for neuter nouns —
 # so this same item can be the "godur_noun" construction's own worked example (issue #29 owner
 # review: bíll/bók/hús as independently-known nouns whose gender, once learned, lets the learner

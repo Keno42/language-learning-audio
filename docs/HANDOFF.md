@@ -1644,6 +1644,71 @@ one deferred triage item; the `Gjörðu svo vel`/`Verði þér að góðu`/
 `Gangi þér vel`/`Eigðu góðan dag` family is still explicitly deferred to
 the audit.
 
+**Sixth pass (PR #50 review): the mechanism resolved gender, but the
+learner was never actually told it.** The owner reviewed the fifth pass
+as opened on a fresh PR (#47 had merged mid-session) and raised three
+points, all fixed in the same PR.
+
+1. **The system knew each noun's gender; the learner never did.**
+   `Item.gender` was read by `resolve_slots()` but never surfaced in any
+   exercise — `Builder.intro()` doesn't read `item.gender` or
+   `pronunciation_notes`, so a learner could reach `godur_noun` having
+   memorized "bíll = car" without ever being told "bíll is masculine."
+   That made the pilot genuine *machine-side* recombination but not yet
+   *learner-side* generation from known parts. Fixed with a new note,
+   `gendered_nouns_bill_bok_hus` (90-notes.toml), naming all three
+   genders and tying them back to the already-known `dagur`/`hugmynd`/
+   `veður` examples — the same "aside" mechanism `godur_gender`/
+   `godur_gender_nominative` already use for exactly this job, not a
+   change to the shared `Builder.intro()` path every item goes through.
+   `godur_noun`'s own prereqs were widened from just `hus` (its worked
+   example) to all three gendered nouns, so the note has always fired —
+   and the learner has actually been told each gender — before the
+   construction is reachable. (Discovered a knock-on gap while writing
+   the regression test: `bill`/`bok`/`hus` had no `situation` field, so
+   `do_discriminate` — which only offers situation-eligible items — had
+   nothing to discriminate between after the note fires. Added one to
+   each, matching the existing "short scene ending in a one-word
+   instruction" style `frábært`/`gott_vedur` already use.)
+2. **`agreement`'s controlling slot was inferred, not named.**
+   `resolve_slots()` picked "whichever filled item happens to carry a
+   `.gender`" — correct for `godur_noun` (exactly one gendered slot) but
+   silently ambiguous for any future construction with more than one.
+   `Item.agreement`'s per-placeholder dict now carries an explicit
+   `"from": "<slot name>"`, and resolution is `fills[rule["from"]].gender`
+   — unambiguous regardless of how many other slots exist.
+3. **Validation allowed a runtime `KeyError`.** The old check only
+   required *some* item behind an agreement construction's slot tag to
+   have a gender — a same-tagged but ungendered item, or a typo like
+   `gender = "masculine"`, would pass validation and only fail the day
+   it was actually picked (`forms[None]`/`forms["masculine"]`).
+   `validate()` now checks `Item.gender` (when set) is one of
+   `masc`/`fem`/`neut` for every item in the curriculum; that every
+   candidate behind an agreement's controlling slot has a gender, not
+   just one of them; and that the agreement table covers every gender
+   those candidates can actually produce (no longer hardcoded to require
+   all three regardless of what the controller's candidates offer).
+
+**Tests:** three new validation-rejection tests (missing `from`, missing
+a form the controller's candidates actually need, an ungendered
+candidate slipping through) plus `test_item_gender_must_be_a_known_value`
+mirror the owner's three-item checklist directly. A new
+`test_gendered_nouns_note_actually_teaches_the_genders_godur_noun_relies_on`
+checks the note names all three words and genders and that
+`godur_noun`'s prereqs guarantee it fired first — the "regression test
+that gender info is actually surfaced in an exercise" the owner asked
+for. Widened `test_godur_noun_construction_is_reachable_once_its_prereqs_are_known`
+to accept any of the three correct generated sentences (all three
+gendered nouns are prereqs now, so which one `Builder.generate()` picks
+first is no longer pinned to a single outcome).
+
+115 tests (112 → 115), all passing; `audiolesson validate` unchanged.
+
+**Also, unrelated to the review:** PR #47 merged mid-session before this
+pass was pushed, and the branch had gone stale under it — rebuilt the
+commit cleanly on top of the merged `main` and opened a fresh PR (#50)
+for this work rather than force-pushing over a diverged branch.
+
 ## Session 15: #23 and #25 closed, consolidated into #29
 
 The owner reorganized the open issues right after session 14: closed #23

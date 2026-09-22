@@ -317,6 +317,8 @@ difficulty = 1
 tags = ["gendered_noun"]
 gender = "fem"
 topics = ["hobbies"]
+situation = "Anna hands you the book she just finished. Say: book."
+situation_ja = "アンナが読み終えた本を渡してきました。「本」と言ってください。"
 
 [[items]]
 id = "eg_er_ad_lesa_goda_bok"

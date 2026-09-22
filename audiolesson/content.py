@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 KINDS = ("vocab", "phrase", "construction", "transform")
+GENDERS = ("masc", "fem", "neut")
 
 _SLOT_RE = re.compile(r"\{(\w+)\}")
 _WORD_RE = re.compile(r"\w+", re.UNICODE)
@@ -69,13 +70,16 @@ class Item:
     examples: list[TransformExample] = field(default_factory=list)  # transform pairs
     order: int = 0
     gender: str | None = None  # noun's grammatical gender ("masc" | "fem" | "neut"), for agreement
-    # construction: {slot} name -> {gender: surface form}. Unlike `slots`, an agreement slot is
-    # never filled by picking an item — its text is derived from the *gender of whichever fill
-    # item* (in another slot) carries a `.gender`. This is what lets a construction's own wording
-    # (not just which noun it names) change to fit a noun the learner already knows independently,
-    # e.g. "{adj} {noun}." with agreement={"adj": {"masc": "Góður", ...}} genuinely generates
-    # "Góður bíll."/"Góð bók."/"Gott hús." rather than requiring each as its own authored phrase
-    # (issue #29 owner review: a real generate-from-parts pilot, not fixed-phrase accumulation).
+    # construction: {slot} name -> {"from": controlling slot name, gender: surface form, ...}.
+    # Unlike `slots`, an agreement slot is never filled by picking an item — its text is derived
+    # from the `.gender` of whatever fills the named `from` slot. This is what lets a
+    # construction's own wording (not just which noun it names) change to fit a noun the learner
+    # already knows independently, e.g. "{adj} {noun}." with
+    # agreement={"adj": {"from": "noun", "masc": "Góður", ...}} genuinely generates "Góður
+    # bíll."/"Góð bók."/"Gott hús." rather than requiring each as its own authored phrase (issue
+    # #29 owner review: a real generate-from-parts pilot, not fixed-phrase accumulation). `from`
+    # is explicit, not inferred from "whichever fill happens to have a gender" (owner review on
+    # PR #50 point 2), so a construction with more than one gendered fill slot stays unambiguous.
     agreement: dict[str, dict[str, str]] = field(default_factory=dict)
 
     # ---- derived helpers -------------------------------------------------
@@ -225,15 +229,14 @@ class Curriculum:
         """Return (target, meaning) with every slot filled from ``fills``.
 
         Agreement placeholders (``construction.agreement``) resolve first, from the gender of
-        whichever filled item carries one — so the construction's own wording, not just which
-        item it names, tracks the noun that was picked.
+        whatever fills their named ``from`` slot — so the construction's own wording, not just
+        which item it names, tracks the noun that was picked.
         """
         target = construction.target
         meaning = construction.meaning
-        if construction.agreement:
-            gender = next((item.gender for item in fills.values() if item.gender), None)
-            for slot, forms in construction.agreement.items():
-                target = target.replace("{" + slot + "}", forms[gender])
+        for slot, rule in construction.agreement.items():
+            gender = fills[rule["from"]].gender
+            target = target.replace("{" + slot + "}", rule[gender])
         for slot, item in fills.items():
             target = target.replace("{" + slot + "}", item.target.rstrip("."))
             meaning = meaning.replace("{" + slot + "}", item.meaning.rstrip("."))
@@ -408,6 +411,8 @@ def validate(cur: Curriculum) -> None:
         if key in targets:
             raise CurriculumError(f"items {targets[key]!r} and {it.id!r} have the same target {it.target!r}")
         targets[key] = it.id
+        if it.gender is not None and it.gender not in GENDERS:
+            raise CurriculumError(f"item {it.id!r}: gender {it.gender!r} must be one of {sorted(GENDERS)}")
     for d in cur.dialogues:
         if d.id in {x.id for x in cur.dialogues if x is not d}:
             raise CurriculumError(f"duplicate dialogue id {d.id!r}")
@@ -437,8 +442,19 @@ def validate(cur: Curriculum) -> None:
                 if s in it.agreement:
                     # an agreement placeholder is never filled by picking an item (see
                     # Item.agreement), so it's exempt from the [slots]/meaning checks below —
-                    # its own invariant is just that it covers every gender it might meet.
-                    missing = {"masc", "fem", "neut"} - set(it.agreement[s])
+                    # instead, its controlling slot must actually be able to drive it.
+                    rule = it.agreement[s]
+                    controller = rule.get("from")
+                    if not controller:
+                        raise CurriculumError(f"construction {it.id!r}: agreement for {{{s}}} needs a 'from' slot")
+                    if controller not in it.slots:
+                        raise CurriculumError(f"construction {it.id!r}: agreement for {{{s}}} names unknown controlling slot {controller!r}")
+                    candidates = cur.items_with_tag(it.slots[controller])
+                    ungendered = [c.id for c in candidates if c.gender is None]
+                    if ungendered:
+                        raise CurriculumError(f"construction {it.id!r}: agreement controller slot {controller!r} has ungendered candidates {ungendered}")
+                    forms = {k: v for k, v in rule.items() if k != "from"}
+                    missing = {c.gender for c in candidates} - set(forms)
                     if missing:
                         raise CurriculumError(f"construction {it.id!r}: agreement for {{{s}}} is missing forms for {sorted(missing)}")
                     continue
@@ -448,8 +464,6 @@ def validate(cur: Curriculum) -> None:
                     raise CurriculumError(f"construction {it.id!r}: meaning must also contain {{{s}}}")
                 if not cur.items_with_tag(it.slots[s]):
                     raise CurriculumError(f"construction {it.id!r}: no item carries tag {it.slots[s]!r}")
-            if it.agreement and not any(g.gender for tag in it.slots.values() for g in cur.items_with_tag(tag)):
-                raise CurriculumError(f"construction {it.id!r}: has agreement but no slot's tagged items carry a gender")
             for s, ref in it.example.items():
                 if ref not in ids:
                     raise CurriculumError(f"construction {it.id!r}: example fill {ref!r} unknown")
