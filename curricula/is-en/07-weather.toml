@@ -181,6 +181,38 @@ chunks = ["á morgun", "veðrið á morgun", "verður veðrið á morgun", "Hver
 situation = "You're planning a hike. Ask what the weather will be tomorrow."
 situation_ja = "ハイキングを計画しています。明日の天気を聞いてください。"
 
+# eg_held_thad/eg_held_ekki relocated from module 24 (issue #29 cluster B, PR #53 follow-up —
+# the owner's own triage comment on #29 names this exactly: gonguferd's partner line "Rigning
+# og rok, held ég." needs "held" understood, 580+ items before this pair used to sit). That
+# closes the *token* gap for "held", but not the capability: the dialogue uses "held ég" as a
+# sentence-final hedge on a statement ("X, held ég." — X, I think), not the standalone answer
+# these two teach. That reusable relation is deliberately left unmodeled rather than faked with
+# a memorised copy of the dialogue's own sentence (owner review on PR #54): the construction IR
+# can't yet slot a whole clause, which is a representation gap, not evidence the hedge is
+# lexicalised. Open for #29's grammar/construction pilot — see docs/HANDOFF.md "Session 27".
+[[items]]
+id = "eg_held_thad"
+kind = "phrase"
+target = "Ég held það."
+meaning = "I think so."
+meaning_ja = "そう思います。"
+difficulty = 2
+topics = ["discourse"]
+situation = "Anna asks if the shop is open on Sundays. You think so. Say it."
+situation_ja = "アンナに店は日曜も開いているか聞かれました。そう思うと言ってください。"
+
+[[items]]
+id = "eg_held_ekki"
+kind = "phrase"
+target = "Ég held ekki."
+meaning = "I don't think so."
+meaning_ja = "そうは思いません。"
+difficulty = 2
+topics = ["discourse"]
+prereqs = ["eg_held_thad"]
+situation = "She asks if it'll rain. Say you don't think so."
+situation_ja = "雨が降るか聞かれました。そうは思わないと言ってください。"
+
 [[items]]
 id = "thad_er_svo_kalt"
 kind = "phrase"

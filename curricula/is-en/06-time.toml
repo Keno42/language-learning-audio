@@ -279,6 +279,26 @@ slots = { hour = "hour" }
 example = { hour = "sjo" }
 prereqs = ["klukkan_time"]
 
+# Relocated from module 25 (issue #29 cluster B, PR #53 follow-up — the owner's own triage
+# comment on #29 names this exactly: gonguferd's partner line "Klukkan hvað leggjum við af
+# stað?" needs "leggjum"/"stað" understood, 600+ items before this phrase used to sit; a later
+# module 25 dialogue also needs it, unaffected by moving it earlier). Kept as a fixed phrase, not
+# a construction: "leggja af stað" conjugates by person (legg/leggur/leggjum/leggja), but this is
+# the only instance anywhere in the curriculum — a one-fill slot would fail the "every
+# construction slot has ≥2 possible fills" invariant (test_directory_curriculum_loads_and_is_large,
+# the same reason thad_kostar_big dropped "hundrað" from its own unit slot).
+[[items]]
+id = "hvenaer_leggjum_vid_af_stad"
+kind = "phrase"
+target = "Hvenær leggjum við af stað?"
+meaning = "When do we set off?"
+meaning_ja = "出発は何時ですか？"
+difficulty = 4
+topics = ["travel", "time"]
+chunks = ["stað", "af stað", "leggjum við af stað", "Hvenær leggjum við af stað?"]
+situation = "You've booked the glacier tour. Ask when you set off."
+situation_ja = "氷河ツアーを予約しました。出発は何時か聞いてください。"
+
 [[items]]
 id = "hentar_thad"
 kind = "phrase"
@@ -473,6 +493,28 @@ topics = ["time", "hobbies"]
 slots = { frequency = "frequency" }
 example = { frequency = "oft" }
 prereqs = ["oft", "eg_fer"]
+
+# Relocated from module 20 (issue #29 cluster B, PR #53 follow-up — the owner's own triage
+# comment on #29 flags this exactly: stefnumot's opener "Viltu koma á morgun?" needs "koma"
+# understood, 500+ items before this phrase used to sit). Kept as a fixed phrase rather than
+# generalized into a "vera að + infinitive" progressive construction: the existing "inf"-tagged
+# vocabulary pool (module 02, built for eg_verd_ad/eg_vil/eg_aetla_ad) has English meanings
+# shaped for "have to {inf}" / "want to {inf}" ("go home", "sleep", "buy a ticket" — bare
+# infinitive), not the gerund a progressive needs ("going home", not "go home"); substituting
+# them into "I'm {inf}." would read as "I'm go home." — broken English, not a shortcut worth
+# taking. A real progressive construction needs either new gerund-shaped meaning fields or a
+# second English form per inf item, neither of which is this cluster's relocation-only scope —
+# left for #29's still-open case/tense/modality grammar pilot instead.
+[[items]]
+id = "eg_er_ad_koma"
+kind = "phrase"
+target = "Ég er að koma!"
+meaning = "I'm coming!"
+meaning_ja = "今行きます！"
+difficulty = 1
+topics = ["grammar"]
+situation = "Someone calls you from the next room. Shout that you're coming."
+situation_ja = "隣の部屋から呼ばれました。今行くと叫んでください。"
 
 [[dialogues]]
 id = "stefnumot"

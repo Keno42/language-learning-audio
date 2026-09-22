@@ -1,8 +1,10 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-22 (session 26: issue #29 resumed — cluster A
-(numbers/money), with #48's conversational bar newly applied as a design
-lens; see below. Session 25 covers issue #48, a real partner line
+_Last updated 2026-09-22 (session 27: issue #29 — cluster B remainder,
+the four items left after `verð að` closed in session 23: hef verið, er
+að (koma), leggja af stað, held ég; see below. Session 26 covers cluster
+A (numbers/money), with #48's conversational bar newly applied as a
+design lens. Session 25 covers issue #48, a real partner line
 inside connect()'s recombination fallback; session 24 covers
 issue #49's embedded third-language examples and pronunciation pacing;
 session 23 covers issue #29's triage and generative agreement pilot;
@@ -79,11 +81,26 @@ pass moved), `og`, `hundruð`, and `erum` were all still late. A second
 pass fixed all four the same way as the rest of cluster A (relocation
 only, no mechanism changes) — see "Session 26"'s own correction note.
 Triage item (1) is now fully closed, re-verified against the original
-seven-word list; (2) a curriculum-wide dependency audit across
-all 26 modules for reusable concepts and late-introduced high-value
-concepts — not started; (3) a pilot testing whether the `godur_gender`
-gender-agreement pattern generalizes to case/tense/modality — not
-started. The owner also
+seven-word list. Session 27 closed cluster B's own remaining four items
+(`hef verið`, `er að` / `koma`, `leggja af stað`, `held ég` — `verð að`
+itself already closed in session 23): four relocations. `held ég`'s
+actual usage — a sentence-final hedge on a statement ("X, held ég.") — is
+a reusable pattern the construction IR can't represent yet, so it is left
+explicitly open for item 3 below rather than faked with a memorised copy
+of the dialogue line (owner review on PR #54; see "Session 27"); a real
+"vera að + infinitive" progressive construction was
+investigated and deliberately not attempted (English gerund substitution
+problem, not an Icelandic one — see that section), left for item 3 below.
+`eg_er_ad_leita_ad_vinnu` (a lower-priority single from the original
+triage, not part of cluster B) was found to have the same shape but
+deliberately left untouched, per the original triage's own prioritization
+— for (2) below, not this pass. (2) a curriculum-wide dependency audit
+across all 26 modules for reusable concepts and late-introduced
+high-value concepts — not started; (3) a pilot testing whether the
+`godur_gender` gender-agreement pattern generalizes to case/tense/
+modality — not started (a real "vera að + inf" progressive construction,
+found blocked in session 27, is a concrete first candidate for this).
+The owner also
 reviewed a real Lesson 3 run and added a new dimension to #29: reusable
 material needs an actual *transfer* opportunity, not just a favorable
 `order` — `godur_gender`'s own discrimination practice was still only
@@ -2682,6 +2699,82 @@ none of these five were closing anything); 127 tests, unaffected. The
 lesson compounds across all three corrections this session: "passes a
 check" is not the same as "needs to be here" — a relocation should
 answer the second question specifically, not stop at the first.
+
+## Session 27: issue #29 — cluster B remainder (hef verið / er að / leggja af stað / held ég)
+
+Resumed #29's own priority order, phase 2 of the owner's roadmap: the four cluster B items
+still open after `verð að + infinitive` closed in PR #47/session 23 (`eg_verd_ad`). Source of
+truth was #29's own triage comment (not re-derived): `gonguferd` needs `leggjum`/`stað`
+("leggjum af stað", let's set off) and `held` ("held ég", I think); `leigubill` needs
+`áður`/`verið` ("hef verið hér áður", have been here); `stefnumot` needs `koma` ("er að koma",
+I'm coming). Re-ran `dialogue_sequencing_report(gap_threshold=0)` directly against current
+state first (module positions had shifted since the original triage from sessions 26's cluster
+A work) rather than trusting the original gap numbers — all four still genuinely open, 517–611
+gap.
+
+Per item, following the "construction if the content genuinely supports it, plain relocation
+with the reasoning written down if not" discipline cluster A established:
+
+- **`leggja af stað`**: relocated `hvenaer_leggjum_vid_af_stad` (module 25 → 06, right after
+  `hittumst_klukkan`, which the same dialogue turn pairs it with). Not a construction — "leggja
+  af stað" conjugates by person, but this is the only instance of it anywhere in the curriculum;
+  a one-fill slot would fail the same "≥2 possible fills" invariant `thad_kostar_big` hit in
+  cluster A.
+- **`held ég`**: the one item that took real investigation. The flagged item, `eg_held_thad`
+  ("Ég held það.", I think so), doesn't actually match `gonguferd`'s own usage —
+  the dialogue's line is a sentence-*final* hedge tacked onto a statement ("Rigning og rok, held
+  ég.", rain and wind, I think), not the standalone initial-position answer `eg_held_thad`
+  teaches. Relocated `eg_held_thad`/`eg_held_ekki` (module 24 → 07) for their own sake
+  (genuinely useful, zero-prereq, no reason to sit at order 917). That closes the *token* gap for
+  "held" in `dialogue_sequencing_report`, but not the *capability*: the reusable thing is the
+  relation "X, held ég." (any statement + hedge), and the construction mechanism fills a slot
+  from a tagged pool of words/short phrases — it can't yet slot a whole clause.
+
+  **Correction (owner review on PR #54):** the first cut added `rigning_og_rok_held_eg`
+  ("Rigning og rok, held ég." — the dialogue's own line, verbatim) as a new fixed phrase. Removed:
+  that is the exact direction #29 exists to avoid — dialogue line → find what's missing → pre-teach
+  that finished sentence as a memory item. It cleans up the diagnostic without giving the learner
+  any reusable model. "The current IR can't represent the capability yet" is a representation gap,
+  not evidence the hedge is lexicalised, and must not be papered over as if it were. So, stated
+  separately and honestly:
+
+  - sequencing gap for the `held` token: **improved** (gone from the findings);
+  - reusable `X, held ég` capability: **not yet modeled** — left open for #29's grammar /
+    construction pilot (item 3), alongside "vera að + inf" below. A smaller alternative the owner
+    noted, treating `held ég` itself as a discourse chunk, is also possible but not attempted.
+- **`hef verið`**: relocated `eg_hef_verid_her_adur` (module 20 → 05, right before `leigubill`).
+  Checked whether this was a genuine construction candidate (per #29's own triage: "hef verið...
+  a reusable 'have been' construction") and concluded no: the only other "hef + participle"
+  example in the curriculum, `eg_hef_aldrei_smakkad_thetta` ("I've never tasted this"), takes a
+  direct object where this one takes a place adverbial — too little shared shape for one clean
+  template without forcing it.
+- **`er að koma`**: relocated `eg_er_ad_koma` (module 20 → 06, right before `stefnumot`).
+  This one got the deepest look, since #29's triage explicitly flagged it as construction-shaped
+  and the curriculum already has real precedent — `eg_er_ad_laera`/`eg_er_ad_leita_ad` are
+  themselves single-slot "vera að" constructions, and module 02's "inf"-tagged vocabulary pool
+  (built for `eg_verd_ad`) has 14 candidate fills that are all grammatically valid after "er að"
+  too (Icelandic uses the same bare infinitive after both "verða að" and "vera að" — no separate
+  gerund). The blocker is English, not Icelandic: that pool's `meaning` fields are worded for
+  "have to {inf}"/"want to {inf}" ("go home", "sleep", "buy a ticket" — bare infinitive), and
+  `resolve_slots()` only does literal string substitution, so filling a progressive template
+  ("I'm {inf}.") with them reads as "I'm go home." — broken English, not a shortcut worth taking.
+  A real fix needs either new gerund-shaped meaning fields or a second English form per `inf`
+  item, which is a real mechanism question, not a relocation — left for #29's still-open
+  case/tense/modality grammar pilot (phase 4 of the owner's own roadmap) rather than attempted
+  here. Also found, via the same word-matching audit, that `eg_er_ad_leita_ad_vinnu`
+  (`dagurinn`/"vinnu", gap 245) has the same shape — deliberately **not** touched: the original
+  #29 triage explicitly filed this under "remaining singles — lower priority... not flagged for
+  action now," and cluster B's own scope (per the owner's phase list) is the four items above,
+  not everything sharing a word with "er að". Left for the curriculum-wide audit.
+
+Verified all four directly against `dialogue_sequencing_report(gap_threshold=0)`: `leggjum`/
+`stað`/`held` gone entirely from the findings; `áður`/`verið` down from 538 to 2; `koma` down
+from 517 to 16 (both now comfortably inside the dialogue's own base, not zero only because
+another item in the same small gap band pushed order by a couple of positions — not a concern).
+`eg_er_ad_leita_ad_vinnu`/`vinnu` unchanged at 245, as intended. 18 → 11 advisory pairs; 127
+tests, unaffected (every change here is a pure relocation, no mechanism changes).
+`audiolesson validate`: 1006 items, unchanged (after the correction above removed the one new
+item the first cut added).
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
