@@ -24,6 +24,26 @@ _WORD_RE = re.compile(r"\w+", re.UNICODE)
 # without exercises.py importing back into this module.
 NOTE_TARGET_RE = re.compile(r"«([^»]+)»")
 
+# A «...» span may open with an explicit "xx:" language code (issue #49): a note can
+# legitimately mention a *third* language besides its own narration language and the
+# course's target language — e.g. an English note about Icelandic naming a Japanese
+# word — and that word needs its own voice, not the target-language one «...» alone
+# implies. «Jæja» (bare) still means "target language," unchanged; «ja:sate» means "say
+# this in Japanese instead." 2-3 lowercase letters keeps this from misfiring on a
+# genuine target-language phrase that happens to contain a colon (e.g. a clock time).
+NOTE_LANG_PREFIX_RE = re.compile(r"^([a-z]{2,3}):\s*(.+)$", re.DOTALL)
+
+
+def split_note_span(span: str) -> tuple[str | None, str]:
+    """Split one «...»-marked note span into (explicit language code or None, spoken text).
+
+    ``split_note_span("Halló")`` -> ``(None, "Halló")`` — spoken in the target-language
+    voice, as before this existed. ``split_note_span("ja:sate")`` -> ``("ja", "sate")`` —
+    an embedded third-language example, spoken in that language's voice instead.
+    """
+    m = NOTE_LANG_PREFIX_RE.match(span)
+    return (m.group(1), m.group(2)) if m else (None, span)
+
 # Vowel letters used by this project's target languages (French, Icelandic), including
 # accented forms. A maximal run of these approximates one syllable nucleus, used only to
 # gauge whether a single word is long enough to deserve extra practice (see `is_hard`) — not

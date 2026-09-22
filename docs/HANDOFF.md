@@ -1,8 +1,9 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-22 (session 23: issue #29, acting on the triage and
-then a generative agreement pilot — see below; session 22 closes out
-issue #44). **Issue #34** ("Improve
+_Last updated 2026-09-22 (session 24: issue #49, embedded third-language
+note examples and rushed pronunciation scaffolding — see below; session
+23 covers issue #29's triage and generative agreement pilot; session 22
+closes out issue #44). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -1787,7 +1788,87 @@ construction's intro) before folding it in.
 
 117 tests (116 → 117), all passing; `audiolesson validate` unchanged.
 
-## Session 15: #23 and #25 closed, consolidated into #29
+## Session 24: issue #49 — embedded third-language examples, and rushed pronunciation scaffolding
+
+A real Icelandic Lesson 3 listening run surfaced two audio-delivery problems, filed as
+#49: (1) Japanese example words embedded in English instructor notes (`sate`, `yare
+yare`, `sō ka`, `onigiri`) were read with English TTS pronunciation, since they were
+just part of ordinary instructor narration; (2) pronunciation scaffolding — the `slow`
+demo, and backward-build chunking for hard multi-word phrases (`Gjörðu svo vel`, `Verði
+þér að góðu`, `Eigðu góðan dag`) — still felt too fast even where it existed.
+
+**Part 1: a third-language span inside a note.** The existing «...» markup
+(`NOTE_TARGET_RE`, issue #34 point 1) already solves "target-language phrase inside
+instructor narration," but a note can legitimately mention a language that's neither —
+an English note naming a Japanese word is talking about a *third* language, not the
+course's Icelandic. Extended the same markup rather than inventing a new one: a «...»
+span may now open with an explicit `"xx:"` language code — `«ja:sate»` — while a bare
+span keeps meaning "target language," unchanged. `Curriculum.split_note_span()` (new,
+content.py, next to `NOTE_TARGET_RE`) parses it; `Builder._speak_note_text()` passes the
+explicit language through to `_speak()` (which gained a `lang` parameter, defaulting to
+`self.tl` so every existing call site is unaffected).
+
+That alone wasn't enough at the render layer: `VoiceProfile.voice_for()` looks up a
+speaker's voice by role name (`"instructor"`), and if a profile configures a *fixed*
+voice for that role (typical for a real deployment, not just the default-per-language
+fallback this repo's own tests mostly exercise), a Japanese-language segment would still
+get that fixed English voice — `lang` only chooses the voice when nothing overrides it.
+Fixed in `render_script()`'s `request_for()`: a segment whose language is neither the
+script's own known nor target language is now looked up under a profile key
+(`f"{speaker}:{lang}"`) the profile was never configured for, so it falls straight
+through to `provider.default_voices(lang)` — no `VoiceProfile` schema change needed.
+
+Applied the markup to the only two notes issue #49 actually named
+(`curricula/is-en/90-notes.toml`, `jaeja` and `pylsa`): `«ja:sate»`, `«ja:yare yare»`,
+`«ja:sō ka»`, `«ja:onigiri»`. Their `text_ja` (Japanese-narrated) versions already write
+these words as ordinary Japanese prose with no romanization at all, so they needed no
+change — the third-language problem only exists when the *narration* language differs
+from the *example* language, which only happens in the English-narrated version.
+
+Verified directly: built the two real notes with `Builder.note()` and confirmed each
+Japanese word became its own `speak` segment with `lang="ja"`; rendered them with the
+real `espeak` provider end to end (no crash — espeak-ng accepts `-v ja`) alongside the
+existing Icelandic/English segments in the same note.
+
+**Part 2: pronunciation scaffolding was still too fast.** Two separate, both objective,
+bugs — not just a "make it feel slower" request:
+
+1. **Backward-build chunks never actually went slow.** `Builder.intro()`'s three
+   pronunciation-teaching branches (single hard word, difficulty≥2 multi-word, and
+   backward-build) are the *only* three places `Timing.slow_rate` is used anywhere in
+   this codebase — except the backward-build chunk loop itself never actually passed
+   `rate=self.timing.slow_rate` to `_speak()`, unlike the other two branches. Each chunk
+   played at natural rate, which is exactly what issue #49 reported ("backward-building
+   also moves through chunks quickly"). Fixed by adding the missing `rate=` argument.
+2. **`slow_rate` itself (0.72) still read as rushed**, confirmed by the owner's own
+   listening pass on `Fyrirgefðu`/`Sömuleiðis` — both single hard words that *already*
+   go through the slow-rate branch, so this wasn't the chunk bug; the rate value itself
+   needed to drop further. Lowered to 0.6. Since every one of `slow_rate`'s three call
+   sites is a deliberate pronunciation demo (there is no competing "ordinary slow
+   narration" use to protect), issue #49's "define a pronunciation-teaching rate
+   separately from ordinary slow speech" turned out to already be true structurally —
+   there was only ever one meaning for "slow" in this codebase.
+
+Also added one `_beat()` after each backward-build chunk's repeat pause — acoustic
+separation before the next chunk starts, distinct from the repeat pause itself (which is
+sized for the *learner's* own natural-speed imitation, not for marking the chunk
+boundary) — directly matching the acceptance criteria's "enough playback/repetition time
+to distinguish and imitate each chunk comfortably."
+
+**Tests:** `split_note_span()` unit tests (bare span, `ja:` prefix, optional space after
+the colon, a false-positive guard for something colon-shaped but not a language code
+like a clock time); `_speak_note_text()` now speaking a `«ja:...»` span in Japanese while
+a bare span is unaffected; a `StubProvider`-based render test with a lang-distinct
+`default_voices()` and a *fixed* profile voice configured for `"instructor"`, confirming
+a Japanese segment's actual `synthesize()` call never receives that fixed voice.
+`test_hard_phrase_is_built_backwards` (pre-existing) updated: it now expects
+`"Speaker A (slow):"`, not the old unmarked natural-rate label — confirming the chunk-
+rate fix directly, since the transcript's `(slow)` marker comes from the segment's own
+rate.
+
+120 tests (117 → 120), all passing; `audiolesson validate` unchanged (no sequencing
+change); smoke-generated both the `is-en` and `fr-en-a1` courses with real `espeak`
+audio end to end.
 
 The owner reorganized the open issues right after session 14: closed #23
 ("minimal-pair tips") and #25 ("dialogue eligibility should depend on

@@ -83,6 +83,20 @@ class CurriculumTests(unittest.TestCase):
         with self.assertRaises(CurriculumError):
             curriculum_from_dict(raw)
 
+    def test_split_note_span_recognizes_an_explicit_language_prefix(self):
+        """Issue #49: a «...»-marked note span may open with "xx:" to name a language other
+        than the target one — an embedded third-language example, e.g. a Japanese word
+        inside an English note. A bare span (no prefix) still means "target language,"
+        unchanged, and a colon that isn't a real 2-3 letter language code (e.g. inside a
+        clock time) must not misfire as one."""
+        from audiolesson.content import split_note_span
+
+        self.assertEqual(split_note_span("Halló"), (None, "Halló"))
+        self.assertEqual(split_note_span("ja:sate"), ("ja", "sate"))
+        self.assertEqual(split_note_span("ja: sate"), ("ja", "sate"))  # optional space after the colon
+        self.assertEqual(split_note_span("ja:yare yare"), ("ja", "yare yare"))
+        self.assertEqual(split_note_span("14:00"), (None, "14:00"))  # digits, not a language code
+
     def test_note_with_unbalanced_guillemets_is_rejected(self):
         """A stray or missing «»  in a note is an authoring mistake — catch it at validation
         rather than have it silently mis-split at build time (issue #34 point 1)."""
@@ -1470,6 +1484,22 @@ class LessonStructureTests(unittest.TestCase):
         )
         self.assertTrue(all(s.lang == cur.known_lang for s in sc.segments if s.type == "narrate"))
 
+    def test_note_text_speaks_a_language_prefixed_span_in_that_language_not_the_target(self):
+        """Issue #49: a note can legitimately mention a *third* language besides its own
+        narration language and the course's target language — e.g. an English note about
+        Icelandic naming a Japanese word. «ja:onigiri» must be spoken in Japanese, not the
+        target-language voice bare «...» implies, while a plain «...» span is unaffected."""
+        from audiolesson.content import Note
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        prompts = Prompts.load(cur.known_lang)
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.note(sc, Note(id="n", text="Say «bonjour», the way «ja:onigiri» is said in Japan.", items=[]))
+        speaks = [s for s in sc.segments if s.type == "speak"]
+        self.assertEqual([(s.text, s.lang) for s in speaks], [("bonjour", cur.target_lang), ("onigiri", "ja")])
+
     def test_note_text_does_not_narrate_bare_punctuation_between_marked_phrases(self):
         """Owner review on #41: a note that marks a short list of phrases — like the real
         `godur_gender` milestone's "In «Góðan daginn», «Góða nótt», and «Gott kvöld», ..." —
@@ -1627,7 +1657,11 @@ class LessonStructureTests(unittest.TestCase):
     def test_hard_phrase_is_built_backwards(self):
         text = self.script.transcript()
         self.assertIn("build it up from the end", text)
-        self.assertIn("**Speaker A:** plaît", text)
+        # Issue #49: each backward-build chunk used to play at natural rate, the one part
+        # of this ladder that never went through slow_rate despite existing specifically
+        # so the learner can hear and imitate a hard phrase piece by piece — "(slow)" is
+        # how the transcript marks a sub-1.0 rate segment (see Script.transcript()).
+        self.assertIn("**Speaker A (slow):** plaît", text)
 
     def test_script_roundtrip(self):
         with tempfile.TemporaryDirectory() as td:
@@ -2014,6 +2048,46 @@ class RenderTests(unittest.TestCase):
             prof.mp3 = False
             cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
             self.assertGreater(cues["duration_s"], 60)
+
+    def test_third_language_segment_does_not_inherit_the_fixed_speaker_voice(self):
+        """Issue #49: an embedded third-language segment (neither the lesson's known nor
+        target language, e.g. a Japanese example inside English narration) must not
+        inherit whichever fixed voice the profile configured for that speaker role in
+        kl/tl — it needs a voice for its own language instead. Verified by giving the
+        provider a lang-distinct ``default_voices`` and checking the profile's fixed
+        English override never reaches the Japanese segment's actual synthesize() call."""
+        from audiolesson.render.renderer import SpeakerVoice
+        from audiolesson.render.tts import StubProvider
+        from audiolesson.script import Segment
+
+        sc = Script(1, "Lesson 1", "is", "en")
+        ex = sc.new_exercise("note", None, [], "note: n")
+        sc.add(Segment("narrate", "instructor", "onigiri", "ja", 1.0, 1.0, None, ex.index))
+
+        heard: list[tuple[str, str]] = []
+        original_synth = StubProvider.synthesize
+        original_defaults = StubProvider.default_voices
+
+        def spy_synth(self, text, lang, voice, rate=1.0):
+            heard.append((lang, voice))
+            return original_synth(self, text, lang, voice, rate)
+
+        def lang_specific_defaults(self, lang):
+            return [f"voice-for-{lang.split('-')[0].lower()}"]
+
+        StubProvider.synthesize = spy_synth
+        StubProvider.default_voices = lang_specific_defaults
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                prof = load_profile(None, "stub")
+                prof.mp3 = False
+                prof.speakers["instructor"] = SpeakerVoice(voice="fixed-english-voice")
+                render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
+        finally:
+            StubProvider.synthesize = original_synth
+            StubProvider.default_voices = original_defaults
+
+        self.assertEqual(heard, [("ja", "voice-for-ja")])
 
     def test_respell_table_is_scoped_to_its_language_and_word(self):
         from audiolesson.render.renderer import RESPELL_FOR_SPEECH, _respell

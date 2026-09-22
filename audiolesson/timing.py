@@ -40,7 +40,13 @@ class Timing:
     unfamiliar_multiplier: float = 1.15  # successes < 2
     familiar_multiplier: float = 0.85  # successes >= 6
     difficulty_step: float = 0.08  # per difficulty point above 2
-    slow_rate: float = 0.72  # TTS rate for slow pronunciation
+    # TTS rate for slow, pronunciation-teaching speech — the only kind of "slow" this
+    # project has (every call site is a deliberate pronunciation demo, never ordinary
+    # narration), so it exists to prioritise intelligibility over conversational pace.
+    # Issue #49: a real listening pass found even this already-slowed rendition of
+    # single hard words (Fyrirgefðu, Sömuleiðis) still felt rushed at the old 0.72;
+    # lowered further rather than left for the same complaint to recur elsewhere.
+    slow_rate: float = 0.6
     global_pause_multiplier: float = 1.0  # one knob for "everything a bit longer/shorter"
     speech_ratio: dict[str, float] = field(default_factory=dict)  # lang → measured / estimated, from past renders
 
