@@ -218,15 +218,6 @@ situation = "Someone asks what's new. Say nothing new."
 situation_ja = "最近どうか聞かれました。特に変わりないと答えてください。"
 
 [[items]]
-id = "og"
-kind = "vocab"
-target = "og"
-meaning = "and"
-meaning_ja = "そして"
-difficulty = 1
-topics = ["discourse"]
-
-[[items]]
 id = "en"
 kind = "vocab"
 target = "en"

@@ -550,13 +550,15 @@ class Builder:
         so it's identifiable as a deliberate recombination moment, the same way ``note()``
         is bookended rather than left to blend into whatever comes next."""
         first, second = items[0], items[1]
+        first_target = self._connect_target(first)
+        second_target = self._connect_target(second)
         ids = [first.id, second.id]
         ex = sc.new_exercise("connect", None, ids, f"connect: {first.id}+{second.id}")
         self._narr(sc, ex, self.prompts.get("connect_intro"))
         self._beat(sc, ex)
         self._narr(sc, ex, self._situation_readonly(first))  # type: ignore[arg-type]
-        self._answer_pause(sc, ex, first.target, first, generative=True)
-        self._answer(sc, ex, first.target)
+        self._answer_pause(sc, ex, first_target, first, generative=True)
+        self._answer(sc, ex, first_target)
         self._beat(sc, ex)
         if second.partner_cue and second.partner_cue_after == first.id:
             self._speak(sc, ex, second.partner_cue, speaker="native_b")
@@ -564,10 +566,28 @@ class Builder:
         else:
             self._narr(sc, ex, self.prompts.get("connect_then"))
         self._narr(sc, ex, self._situation_readonly(second))  # type: ignore[arg-type]
-        self._answer_pause(sc, ex, second.target, second, generative=True)
-        self._answer(sc, ex, second.target)
+        self._answer_pause(sc, ex, second_target, second, generative=True)
+        self._answer(sc, ex, second_target)
         self._gap(sc, ex)
         return ex
+
+    def _connect_target(self, item: Item) -> str:
+        """The spoken target text for a ``connect()`` turn. A construction's own ``.target``
+        is an unfilled template ("{count} krónur.") — ``recall()``/``_recall_construction``
+        always resolve one before speaking it, but ``connect()`` picks its candidates by
+        ``has_situation`` alone (``_connect_pair`` in planner.py), which a construction can
+        satisfy same as any phrase (e.g. ``einn_tvo_thrjar``, issue #29 cluster A). Mirrors
+        ``_recall_construction``'s own fallback chain rather than calling it directly, since
+        that also emits its own exercise/narration this helper must not duplicate."""
+        if item.kind != "construction":
+            return item.target
+        gen = self.generate(item)
+        if gen is None:
+            fills = self.cur.example_fill(item)
+            target, _ = self.cur.resolve_slots(item, fills)
+            return target
+        self.used_combos.add(gen.key)
+        return gen.target
 
     # -------------------------------------------------------------- dialogue
 

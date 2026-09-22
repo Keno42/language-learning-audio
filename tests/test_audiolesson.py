@@ -587,6 +587,39 @@ class CurriculumTests(unittest.TestCase):
         self.assertNotIn(("native_b", "Bridge line."), speaks2, "c -> b is not what the cue was written for; it must not be used")
         self.assertIn(prompts.get("connect_then"), narrations, "falls back to the ordinary English bridge")
 
+    def test_connect_resolves_a_construction_instead_of_speaking_its_raw_template(self):
+        """A construction can have a ``situation`` (e.g. ``einn_tvo_thrjar``, issue #29 cluster
+        A) just like any phrase, and ``_connect_pair`` (planner.py) picks connect() candidates
+        by ``has_situation`` alone — it doesn't filter by kind. ``recall()`` always resolves a
+        construction's slots before speaking it (``_recall_construction``); connect() must do
+        the same rather than speaking ``item.target`` verbatim, which for a construction is an
+        unfilled template like "{n} widgets." — not a sentence a partner or learner ever says."""
+        from audiolesson.exercises import Builder
+
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "a", "kind": "phrase", "target": "A.", "meaning": "A.", "situation": "Situation A."},
+                {"id": "two", "kind": "vocab", "target": "tveir", "meaning": "two", "tags": ["cnt"]},
+                {
+                    "id": "b",
+                    "kind": "construction",
+                    "target": "{n} widgets.",
+                    "meaning": "{n} widgets.",
+                    "situation": "Situation B.",
+                    "slots": {"n": "cnt"},
+                    "example": {"n": "two"},
+                },
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.connect(sc, [cur.by_id["a"], cur.by_id["b"]])
+        answers = [s.text for s in sc.segments if s.type == "answer"]
+        self.assertNotIn("{n} widgets.", answers)
+        self.assertIn("tveir widgets.", answers)
+
     def test_connect_plays_the_owners_real_curriculum_worked_example(self):
         """Issue #48: the real authored pair from the owner's own review — with the
         instructor scaffolding stripped away, the target-language turns alone should form
