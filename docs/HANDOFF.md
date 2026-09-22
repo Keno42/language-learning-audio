@@ -70,8 +70,16 @@ as the owner asked — verified those constructions actually reach a real
 voiced exchange via `connect()`, which caught and fixed a latent bug where
 `connect()` could speak an unresolved construction template verbatim
 (see "Session 26"). Singular/plural agreement on "hundrað" and "ein"
-stayed explicitly unmodeled, by design — see that section for why. Triage
-item (1) is now fully closed; (2) a curriculum-wide dependency audit across
+stayed explicitly unmodeled, by design — see that section for why.
+**Correction, same session (owner review on PR #53):** the first pass
+declared triage item (1) fully closed without re-running the original
+cluster A checklist — `fjögur` (the neuter form the café/restaurant
+dialogues actually speak, as opposed to `fjórir`, the masculine form this
+pass moved), `og`, `hundruð`, and `erum` were all still late. A second
+pass fixed all four the same way as the rest of cluster A (relocation
+only, no mechanism changes) — see "Session 26"'s own correction note.
+Triage item (1) is now fully closed, re-verified against the original
+seven-word list; (2) a curriculum-wide dependency audit across
 all 26 modules for reusable concepts and late-introduced high-value
 concepts — not started; (3) a pilot testing whether the `godur_gender`
 gender-agreement pattern generalizes to case/tense/modality — not
@@ -2520,9 +2528,10 @@ krónur.", "tólf krónur.", "fjórar krónur.", and so on — all independently
 grammar-checked by eye against the reasoning above (never "ein", never
 "hundrað" in a generated amount).
 
-**Café/payment real use — the #48 lens, and a real latent bug it caught.**
-Applying #48's own bar (does this read as a coherent voiced exchange, not
-just isolated recall) surfaced a genuine, previously-latent bug in
+**Applying the #48 lens — a real latent bug caught, and a claim to keep
+honest.** Applying #48's own bar (does this read as a coherent voiced
+exchange, not just isolated recall) surfaced a genuine, previously-latent
+bug in
 `do_connect()` itself, not just a gap in new content: `_connect_pair()`
 (planner.py) picks `connect()` candidates by `Item.has_situation` alone —
 it never filtered by `kind`, and a construction can have a `situation` the
@@ -2547,6 +2556,18 @@ had `_connect_pair()` ever actually picked it. Added
 (synthetic curriculum, isolated from real-content specifics) pinning the
 general mechanism.
 
+**What this proves, and what it doesn't (owner review on PR #53):** the
+worked example above ("Hvað kostar þetta?" → "tvær krónur.") is two
+learner-produced answers inside `connect()`, separated by instructor
+scaffolding — it proves the new construction is *safe to use in connected
+practice* (no raw template leaks), not that it's *already exercised inside
+a coherent partner-driven café/payment transaction* (a real dialogue turn,
+with a partner reacting to a price). Those are different claims; only the
+first is established here. The second — the new number constructions
+actually wired into a partner exchange, not just safely reachable by one
+— is a real, useful next step for a future #48/#29 integration pass, not
+something this session's work already delivers.
+
 **Not done, out of this pass's scope:** singular/plural (as opposed to
 gender) agreement remains unmodeled — "hundrað" stays a fixed-phrase-only
 word, and nothing generates amounts under 100 with "ein" or over 100 with
@@ -2557,6 +2578,58 @@ hundreds-scale generation.
 127 tests (126 → 127); `audiolesson validate` unchanged (1006 items, 25
 advisory dialogue-sequencing pairs, same as entering this session — this
 pass touched grammar correctness and positioning, not sequencing).
+
+**Correction (owner review on PR #53): "triage item (1) fully closed" was
+premature.** The first pass above repositioned the *general* number system
+but never re-ran the original cluster A checklist (`og`, `hundruð`/`krónur`,
+`þúsund`, `sex`, `tvær`, `fjögur`, `erum`) against it — four of those seven
+were still genuinely late, all catchable by `dialogue_sequencing_report()`
+itself once checked directly rather than assumed fixed by association:
+
+- **`fjögur`** (neuter "four" — the form module 03's own restaurant
+  dialogue actually speaks, "Fjögur þúsund og fimm hundruð krónur.") was
+  never relocated — only `fjórir` (masculine) was. The neuter clock-hour
+  items (`eitt`/`tvö`/`þrjú`/`fjögur`) got their `gender`/`big_count` tag
+  added *in place* in module 06 rather than moved, an oversight in the
+  first pass's own relocation work, not a new gap. Fixed by moving all
+  four into module 02 alongside the rest, id-based and risk-free exactly
+  like every other relocation this session made — `klukkan_er` (module 06)
+  is unaffected.
+- **`og`** ("and") — a bare, no-prereq, difficulty-1 word sitting in module
+  19, needed as early as `tuttugu og einn` (twenty-one) and this same
+  restaurant line. Relocated to module 02.
+- **`hundruð`** (the irregular plural of hundrað this pass's own
+  `thad_kostar_big` note already explains isn't generated) — its only
+  source was the seven fixed whole-amount price phrases
+  (`fimm_hundrud_kronur` etc.), still sitting in module 08. Relocated all
+  seven to module 02, unchanged otherwise — deliberately *not* solved by
+  inventing a new decontextualized "hundruð" vocab item, which would have
+  been exactly the shape of fix `dialogue_sequencing_report()`'s own
+  docstring warns against (a patch instead of fixing the sequencing at the
+  source); the fixed phrases already are the source, just badly placed.
+- **`erum`** ("we are") — flagged specifically via the `tynd` (lost)
+  dialogue's "Já, sjáðu: við erum hérna..." partner line. The narrow gap
+  (this dialogue's own earliest exposure to the word) is closed by
+  relocating `vid_erum_fjogur` ("Við erum fjögur.", a café party-size
+  phrase, itself topically part of cluster A and zero-prereq) to module
+  02. The owner separately raised a broader question — a genuinely
+  reusable "to be" conjugation paradigm, not just this one fixed phrase —
+  which stays **explicitly out of scope**: `vid_erum`/`vid_tolum`/etc.
+  (module 20) are a real, bigger, bigger-than-numbers grammar question,
+  for #29's still-not-started items 2 (curriculum-wide audit) or 3
+  (case/tense/modality pilot), not this cluster's relocation-only fix.
+
+All four re-verified directly against `dialogue_sequencing_report()`
+(`gap_threshold=0`, not just the default-100 summary) rather than assumed
+fixed: none of `fjögur`/`og`/`hundruð`/`erum` appear in its findings
+anymore. 25 → 18 advisory pairs (default threshold); the repeat-offender
+word list is down to `bara` alone (unrelated to cluster A). 127 tests,
+unaffected — every fix here is a pure relocation, same as the rest of this
+pass. The general lesson, not just this specific fix: "the general shape of
+a class of items moved" is not the same claim as "every specific named item
+in the original list was re-checked" — re-verify against the literal
+original findings before declaring a triage item closed, not just against
+the class of problem it named.
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 

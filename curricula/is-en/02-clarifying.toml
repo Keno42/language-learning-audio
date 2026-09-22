@@ -640,6 +640,56 @@ difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
 
+# Neuter counting forms, 1-4 (issue #29 cluster A, owner review on PR #53): these were already
+# in the curriculum as the clock's own hour words (module 06's klukkan_er), relocated here rather
+# than duplicated under new ids ("fjögur þúsund" governs the same neuter agreement "eitt/tvö/
+# þrjú/fjögur o'clock" does) — module 03's café/restaurant dialogues speak amounts like "Fjögur
+# þúsund og fimm hundruð krónur." right after this module, so the neuter forms need to be
+# available this early, not just by the time the clock module (06) introduces them.
+[[items]]
+id = "eitt"
+kind = "vocab"
+target = "eitt"
+meaning = "one"
+meaning_ja = "1"
+difficulty = 1
+tags = ["hour", "big_count"]
+gender = "neut"
+topics = ["numbers", "time"]
+
+[[items]]
+id = "tvo"
+kind = "vocab"
+target = "tvö"
+meaning = "two"
+meaning_ja = "2"
+difficulty = 1
+tags = ["hour", "big_count"]
+gender = "neut"
+topics = ["numbers", "time"]
+
+[[items]]
+id = "thrju"
+kind = "vocab"
+target = "þrjú"
+meaning = "three"
+meaning_ja = "3"
+difficulty = 1
+tags = ["hour", "big_count"]
+gender = "neut"
+topics = ["numbers", "time"]
+
+[[items]]
+id = "fjogur"
+kind = "vocab"
+target = "fjögur"
+meaning = "four"
+meaning_ja = "4"
+difficulty = 2
+tags = ["hour", "big_count"]
+gender = "neut"
+topics = ["numbers", "time"]
+
 [[items]]
 id = "fimm"
 kind = "vocab"
@@ -810,6 +860,112 @@ tags = ["money_unit"]
 gender = "fem"
 topics = ["numbers", "money"]
 pronunciation_notes = "Iceland's currency, feminine — plural form (\"a krónur\" reads oddly in English, but this is what a price is always counted in, e.g. \"tvær krónur\")"
+
+# "og" relocated from module 19 (issue #29 cluster A, owner review on PR #53): a basic,
+# no-prereq conjunction with no business being introduced this late — it glues compound
+# numbers together ("tuttugu og einn", module 08) and shows up as early as module 03's own
+# café/restaurant dialogues ("Fjögur þúsund og fimm hundruð krónur.").
+[[items]]
+id = "og"
+kind = "vocab"
+target = "og"
+meaning = "and"
+meaning_ja = "そして"
+difficulty = 1
+topics = ["discourse"]
+
+# The seven fixed whole-amount price phrases, relocated from module 08 (issue #29 cluster A,
+# owner review on PR #53): module 03's café/restaurant dialogues speak amounts like "Fjögur
+# þúsund og fimm hundruð krónur." right after this module — these are the earliest, and still
+# the only, source of "hundruð" (the irregular plural of hundrað — see thad_kostar_big's own
+# note on why it isn't generated). Kept as fixed vocabulary, unchanged; only their position
+# moves, same as the rest of this module's relocations.
+[[items]]
+id = "fimm_hundrud_kronur"
+kind = "vocab"
+target = "fimm hundruð krónur"
+meaning = "five hundred krónur"
+meaning_ja = "500クローナ"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "thusund_kronur"
+kind = "vocab"
+target = "þúsund krónur"
+meaning = "a thousand krónur"
+meaning_ja = "1000クローナ"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "fimmtan_hundrud_kronur"
+kind = "vocab"
+target = "fimmtán hundruð krónur"
+meaning = "fifteen hundred krónur"
+meaning_ja = "1500クローナ"
+difficulty = 3
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "tvo_thusund_kronur"
+kind = "vocab"
+target = "tvö þúsund krónur"
+meaning = "two thousand krónur"
+meaning_ja = "2000クローナ"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "thrju_thusund_kronur"
+kind = "vocab"
+target = "þrjú þúsund krónur"
+meaning = "three thousand krónur"
+meaning_ja = "3000クローナ"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "fimm_thusund_kronur"
+kind = "vocab"
+target = "fimm þúsund krónur"
+meaning = "five thousand krónur"
+meaning_ja = "5000クローナ"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+[[items]]
+id = "tiu_thusund_kronur"
+kind = "vocab"
+target = "tíu þúsund krónur"
+meaning = "ten thousand krónur"
+meaning_ja = "1万クローナ"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+# Relocated from module 08 (issue #29 cluster A, owner review on PR #53): a party-size phrase
+# for the café/restaurant host's "how many of you?" — squarely a numbers-vocabulary concern, and
+# its own "erum" is a dialogue's earliest exposure to that word ("tynd", module 04's "við erum
+# hérna"). A genuine reusable "to be" conjugation paradigm (vid_erum/vid_tolum/... in module 20)
+# is a separate, bigger question this relocation doesn't attempt — out of cluster A's own scope
+# (numbers/money), left for #29's still-not-started curriculum-wide audit or grammar pilot.
+[[items]]
+id = "vid_erum_fjogur"
+kind = "phrase"
+target = "Við erum fjögur."
+meaning = "There are four of us."
+meaning_ja = "四人です。"
+difficulty = 2
+topics = ["numbers", "cafe"]
+situation = "The host asks how many you are. Say four."
+situation_ja = "案内係に何名か聞かれました。四人と答えてください。"
 
 [[dialogues]]
 id = "tungumal"

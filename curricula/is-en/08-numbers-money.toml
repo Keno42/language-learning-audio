@@ -132,76 +132,8 @@ difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
 
-[[items]]
-id = "fimm_hundrud_kronur"
-kind = "vocab"
-target = "fimm hundruð krónur"
-meaning = "five hundred krónur"
-meaning_ja = "500クローナ"
-difficulty = 2
-tags = ["price"]
-topics = ["money"]
-
-[[items]]
-id = "thusund_kronur"
-kind = "vocab"
-target = "þúsund krónur"
-meaning = "a thousand krónur"
-meaning_ja = "1000クローナ"
-difficulty = 2
-tags = ["price"]
-topics = ["money"]
-
-[[items]]
-id = "fimmtan_hundrud_kronur"
-kind = "vocab"
-target = "fimmtán hundruð krónur"
-meaning = "fifteen hundred krónur"
-meaning_ja = "1500クローナ"
-difficulty = 3
-tags = ["price"]
-topics = ["money"]
-
-[[items]]
-id = "tvo_thusund_kronur"
-kind = "vocab"
-target = "tvö þúsund krónur"
-meaning = "two thousand krónur"
-meaning_ja = "2000クローナ"
-difficulty = 2
-tags = ["price"]
-topics = ["money"]
-
-[[items]]
-id = "thrju_thusund_kronur"
-kind = "vocab"
-target = "þrjú þúsund krónur"
-meaning = "three thousand krónur"
-meaning_ja = "3000クローナ"
-difficulty = 2
-tags = ["price"]
-topics = ["money"]
-
-[[items]]
-id = "fimm_thusund_kronur"
-kind = "vocab"
-target = "fimm þúsund krónur"
-meaning = "five thousand krónur"
-meaning_ja = "5000クローナ"
-difficulty = 2
-tags = ["price"]
-topics = ["money"]
-
-[[items]]
-id = "tiu_thusund_kronur"
-kind = "vocab"
-target = "tíu þúsund krónur"
-meaning = "ten thousand krónur"
-meaning_ja = "1万クローナ"
-difficulty = 2
-tags = ["price"]
-topics = ["money"]
-
+# The seven fixed whole-amount price phrases (fimm_hundrud_kronur, thusund_kronur, ...) moved
+# to module 02 (issue #29 cluster A, owner review on PR #53) — see that module's own comment.
 [[items]]
 id = "thad_kostar"
 kind = "construction"
@@ -409,17 +341,6 @@ difficulty = 2
 topics = ["numbers"]
 situation = "A friend says a group is coming to dinner. Ask how many."
 situation_ja = "友達が夕食にグループが来ると言いました。何人か聞いてください。"
-
-[[items]]
-id = "vid_erum_fjogur"
-kind = "phrase"
-target = "Við erum fjögur."
-meaning = "There are four of us."
-meaning_ja = "四人です。"
-difficulty = 2
-topics = ["numbers", "cafe"]
-situation = "The host asks how many you are. Say four."
-situation_ja = "案内係に何名か聞かれました。四人と答えてください。"
 
 [[items]]
 id = "halfur"

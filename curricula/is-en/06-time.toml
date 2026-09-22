@@ -199,55 +199,13 @@ topics = ["time"]
 situation = "Your phone is dead. Ask a passer-by what time it is."
 situation_ja = "携帯の電池が切れました。通行人に時間を聞いてください。"
 
-# "(o'clock)"/"（時）" used to be baked into these four items' own meaning, redundant with
-# klukkan_er's own "It's {hour} o'clock."/"今{hour}時です。" wrapper text (issue #29 cluster
-# A cleanup, found while reusing these as the neuter number forms 1000/100-amount
-# constructions need — "eitt/tvö/þrjú/fjögur" are also the correct neuter forms for
-# counting neuter nouns like "þúsund"/"hundrað", not just the clock's own hour slot).
-[[items]]
-id = "eitt"
-kind = "vocab"
-target = "eitt"
-meaning = "one"
-meaning_ja = "1"
-difficulty = 1
-tags = ["hour", "big_count"]
-gender = "neut"
-topics = ["time", "numbers"]
-
-[[items]]
-id = "tvo"
-kind = "vocab"
-target = "tvö"
-meaning = "two"
-meaning_ja = "2"
-difficulty = 1
-tags = ["hour", "big_count"]
-gender = "neut"
-topics = ["time", "numbers"]
-
-[[items]]
-id = "thrju"
-kind = "vocab"
-target = "þrjú"
-meaning = "three"
-meaning_ja = "3"
-difficulty = 1
-tags = ["hour", "big_count"]
-gender = "neut"
-topics = ["time", "numbers"]
-
-[[items]]
-id = "fjogur"
-kind = "vocab"
-target = "fjögur"
-meaning = "four"
-meaning_ja = "4"
-difficulty = 2
-tags = ["hour", "big_count"]
-gender = "neut"
-topics = ["time", "numbers"]
-
+# "eitt"/"tvö"/"þrjú"/"fjögur" (the neuter counting forms this clock construction needs) live in
+# module 02 now, with the rest of #29 cluster A's number work (owner review on PR #53: the café/
+# restaurant dialogues right after module 02 already speak "fjögur þúsund" — the neuter form has
+# to be available that early, not just for the clock). Relocation is id-based, so klukkan_er
+# below is unaffected by where they're taught. Their own "(o'clock)"/"（時）" was trimmed from
+# these items' `meaning`/`meaning_ja` while they were still here — redundant with this
+# construction's own "It's {hour} o'clock."/"今{hour}時です。" wrapper text.
 [[items]]
 id = "klukkan_er"
 kind = "construction"
