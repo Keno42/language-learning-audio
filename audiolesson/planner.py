@@ -367,6 +367,11 @@ class Planner:
         arc_target: dict[int, int] = {0: len(new_queue)}
         arc_order: list[int] = []
         arc_connect_attempted: set[int] = set()
+        # connect() history for this lesson (issue #55): unordered pairs already played, and how
+        # often each item has appeared in one, so _connect_pair never replays a pair and spreads
+        # the rest across different items.
+        connect_pairs_used: set[frozenset[str]] = set()
+        connect_item_uses: dict[str, int] = {}
 
         def touch(item: Item) -> None:
             recent.append(item.id)
@@ -508,13 +513,28 @@ class Planner:
                 cur = done[-1] if done and done[-1] in ladder else ladder[0]
             return stage_index(ladder, cur) >= situation_idx - 1
 
-        def _connect_pair(pool: list[Item], last_touched_id: str | None) -> list[Item] | None:
-            """The two distinct, situation-ready items in ``pool`` to recombine together,
-            preferring a pair that shares a topic — so the connected moment reads as one
-            coherent scene rather than two items that merely happen to both be known (owner
-            review round 2 on #46: a "leaving a shop" situation paired with a "raising a
-            glass" one read as unrelated flashcards). Falls back to any two distinct items if
-            no topic pair exists. Returns ``None`` if ``pool`` doesn't have two eligible items.
+        def _connect_pair(pool: list[Item], last_touched_id: str | None, anchor: set[str] | None = None) -> list[Item] | None:
+            """The two distinct, situation-ready items in ``pool`` to recombine together, never
+            a pair already played by ``connect()`` earlier this lesson (issue #55: the first
+            eligible same-topic pair used to win every time, so a lesson whose drill streak
+            kept tripping replayed one canned exchange — "Ha?" → "Ég skil." — over and over).
+            Among the unused pairs, in priority order:
+
+            1. an authored bridge — ``b.partner_cue_after == a.id`` (issue #48), played in that
+               order, since only it is a coherent target-language exchange rather than two
+               recalls under one header;
+            2. a pair sharing a topic — so the connected moment reads as one scene rather than
+               two items that merely happen to both be known (owner review round 2 on #46: a
+               "leaving a shop" situation paired with a "raising a glass" one read as unrelated
+               flashcards);
+            3. any other pair;
+
+            and within each tier, the pair whose items have appeared in the fewest earlier
+            connect() exercises, so a fresh pair isn't just the same item with a new partner.
+            ``anchor``, when given, requires at least one of the pair to come from it — the
+            per-arc guarantee must be about that arc's own material, never satisfied by two
+            unrelated review items (issue #55). Returns ``None`` if no unused pair exists: the
+            caller moves on (another activity, or a deliberate stop) instead of looping back.
 
             If one of the two chosen items is ``last_touched_id``, it's ordered *second*, not
             excluded outright — excluding it entirely (as an earlier version of this did) made
@@ -524,7 +544,9 @@ class Planner:
             left only one real member and forced a fallback to unrelated material instead —
             precisely the cross-arc contamination this whole scoping exists to prevent.
             Ordering it second still avoids the jarring effect an *immediate* repeat would
-            have (the actual reason for the exclusion, shared with ``do_discriminate``)."""
+            have (the actual reason for the exclusion, shared with ``do_discriminate``). An
+            authored pair keeps its authored order regardless: its cue only makes sense after
+            that specific first item."""
             seen: set[str] = set()
             valid: list[Item] = []
             for it in pool:
@@ -532,14 +554,29 @@ class Planner:
                     continue
                 seen.add(it.id)
                 valid.append(it)
-            if len(valid) < 2:
+            best: tuple | None = None
+            for i, a in enumerate(valid):
+                for j in range(i + 1, len(valid)):
+                    b_ = valid[j]
+                    if frozenset((a.id, b_.id)) in connect_pairs_used:
+                        continue
+                    if anchor is not None and a.id not in anchor and b_.id not in anchor:
+                        continue
+                    if b_.partner_cue and b_.partner_cue_after == a.id:
+                        pair, tier = [a, b_], 0
+                    elif a.partner_cue and a.partner_cue_after == b_.id:
+                        pair, tier = [b_, a], 0
+                    else:
+                        pair = [a, b_]
+                        tier = 1 if a.topics and b_.topics and a.topics[0] == b_.topics[0] else 2
+                    reuse = connect_item_uses.get(a.id, 0) + connect_item_uses.get(b_.id, 0)
+                    key = (tier, reuse, i, j)
+                    if best is None or key < best[0]:
+                        best = (key, pair)
+            if best is None:
                 return None
-            by_topic: dict[str, list[Item]] = {}
-            for it in valid:
-                if it.topics:
-                    by_topic.setdefault(it.topics[0], []).append(it)
-            pair = next((group[:2] for group in by_topic.values() if len(group) >= 2), None) or valid[:2]
-            if pair[0].id == last_touched_id:
+            (tier, *_), pair = best
+            if tier != 0 and pair[0].id == last_touched_id:
                 pair = [pair[1], pair[0]]
             return pair
 
@@ -554,7 +591,9 @@ class Planner:
             widening to the rest of the pool if that scope alone can't supply two eligible
             items — so a later arc's connected-use guarantee can never be quietly satisfied
             by an earlier arc's material, or by unrelated review items, when its own is
-            enough. Returns ``False`` if no two eligible items exist anywhere."""
+            enough. When widening for a specific arc, the pair must still include one of that
+            arc's own items (issue #55). Returns ``False`` if no unused eligible pair exists
+            anywhere — never replays a pair already played this lesson."""
             just_touched = recent[-1] if recent else None
             preferred = prefer if prefer is not None else introduced
             candidates = _connect_pair(list(preferred), just_touched)
@@ -562,10 +601,14 @@ class Planner:
                 rest = [it for it in introduced if it not in preferred] + [
                     self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id
                 ]
-                candidates = _connect_pair(list(preferred) + rest, just_touched)
+                anchor = {it.id for it in prefer} if prefer is not None else None
+                candidates = _connect_pair(list(preferred) + rest, just_touched, anchor)
                 if candidates is None:
                     return False
             ex = b.connect(sc, candidates)
+            connect_pairs_used.add(frozenset(i.id for i in candidates))
+            for item in candidates:
+                connect_item_uses[item.id] = connect_item_uses.get(item.id, 0) + 1
             self._record([i.id for i in candidates], "situation", ex.item_ids)
             for item in candidates:
                 touch(item)

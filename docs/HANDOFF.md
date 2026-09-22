@@ -1,6 +1,7 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-22 (session 26: issue #29 resumed — cluster A
+_Last updated 2026-09-22 (session 27: issue #55, connect() no longer replays
+one fallback pair all lesson — see below. Session 26: issue #29 resumed — cluster A
 (numbers/money), with #48's conversational bar newly applied as a design
 lens; see below. Session 25 covers issue #48, a real partner line
 inside connect()'s recombination fallback; session 24 covers
@@ -2682,6 +2683,46 @@ none of these five were closing anything); 127 tests, unaffected. The
 lesson compounds across all three corrections this session: "passes a
 check" is not the same as "needs to be here" — a relocation should
 answer the second question specifically, not stop at the first.
+
+## Session 27: issue #55 — connect()'s fallback pair was replayed all lesson
+
+A real Lesson 4 played `connect: ha+eg_skil` ("Ha?" → "And then —" → "Ég
+skil.") over and over. Mechanism: `_connect_pair()` always took the first
+eligible same-topic pair and had no lesson-level history, so every time the
+drill streak tripped, `do_connect()` re-picked the identical pair — "monotony
+detected → play the same canned exchange → monotony detected again". A
+10-lesson `is-en` simulation before the fix showed the same pair up to 11
+times in one lesson (`godan_daginn+takk`, `eg_heiti+hvad_heitir_thu`, ...).
+
+**Fix (planner.py, `build()`'s connect helpers).**
+- `connect_pairs_used` (unordered pairs) and `connect_item_uses` are kept per
+  lesson; `_connect_pair()` never returns a pair already played. Unordered on
+  purpose: "A then B" vs "B then A" is the same two recalls to the learner.
+- Among unused pairs it ranks: (0) an authored `partner_cue` pair
+  (`b.partner_cue_after == a.id`, played in authored order — a coherent
+  exchange per #48), (1) a shared first topic, (2) anything else; ties broken
+  by fewest earlier connect() appearances of the two items, so "fresh pair"
+  doesn't just mean the same item with a new partner.
+- `do_connect(prefer=arc)` widening beyond the arc's own items now passes an
+  `anchor`: the widened pair must still contain one of that arc's items.
+  Previously a same-topic pair of unrelated review items could outrank the
+  arc's own item and be replayed for every arc, "satisfying" each arc's
+  connected-use guarantee without touching what it taught.
+- Exhaustion needs no new branch: `do_connect()` returns `False`, and the
+  streak breaker's existing cascade (dialogue → note → connect → deliberate
+  stop) ends the lesson rather than looping back to a used pair.
+
+Measured on the same simulation after the fix: zero repeated pairs, lesson
+lengths within ±0.5 min of before (20- and 30-minute runs). A 30-minute lesson
+can still play many connect() exercises (one had 22, all distinct) — that is
+the streak breaker's existing frequency, not a repeat; left as is.
+
+**Tests** (all four fail on the pre-fix code): the real Lesson 4 failure on
+`is-en` (`ha`+`eg_skil` the only situation-ready items: played once, then no
+loop-back, streak stays bounded); variety while unused pairs exist (all
+distinct, first three pairs share no item); an authored pair beats an
+earlier same-topic generic pair; each arc's connected use includes that arc's
+own item. 131 tests, all passing.
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
