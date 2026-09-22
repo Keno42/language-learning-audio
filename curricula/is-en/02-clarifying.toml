@@ -161,13 +161,16 @@ topics = ["clarifying"]
 chunks = ["þetta", "endurtekið þetta", "Gætirðu endurtekið þetta?"]
 situation = "You missed the room number she said. Ask her to repeat it."
 situation_ja = "部屋番号を聞き逃しました。もう一度言うよう頼んでください。"
-# Issue #48 owner review round 2 on PR #52: a curated partner line for connect()'s
-# recombination fallback, not a generic known-vocabulary pick — this is what "she said"
-# that the situation above already presumes the learner missed, so answer A -> this line
-# -> answer B forms a real exchange even with the instructor's own scaffolding stripped
-# away (the owner's own worked example: "Gætirðu talað hægar?" -> "Auðvitað. Herbergið er
-# númer tuttugu og þrjú." -> "Gætirðu endurtekið þetta?").
+# Issue #48 owner review on PR #52: a curated partner line for connect()'s recombination
+# fallback, not a generic known-vocabulary pick — this is what "she said" that the
+# situation above already presumes the learner missed, so answer A -> this line ->
+# answer B forms a real exchange even with the instructor's own scaffolding stripped away
+# (the owner's own worked example: "Gætirðu talað hægar?" -> "Auðvitað. Herbergið er
+# númer tuttugu og þrjú." -> "Gætirðu endurtekið þetta?"). partner_cue_after (owner review
+# round 3) pins that this line is only compatible following gaetirdu_talad_haegar
+# specifically, not any arbitrary item connect() might otherwise pair this one with.
 partner_cue = "Auðvitað. Herbergið er númer tuttugu og þrjú."
+partner_cue_after = "gaetirdu_talad_haegar"
 
 [[items]]
 id = "hvad_thydir_thetta"

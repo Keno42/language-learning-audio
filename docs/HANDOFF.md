@@ -2349,6 +2349,49 @@ now plays exactly the owner's worked example.
 125 tests, all passing (replaced, not net new); `audiolesson validate`
 unchanged; smoke-generated `is-en` again with real `espeak` audio.
 
+**Third pass (PR #52 review): the cue was tied to B, but not to the pair.**
+The owner agreed the blocker from the second pass was fixed, then found a
+narrower one still open: `partner_cue` only proves the line is good
+context *for B* — nothing stopped `_connect_pair()` from choosing a
+completely different, unrelated A and still playing B's cue after it. For
+the real authored example, `gaetirdu_endurtekid_thetta`'s cue is written
+specifically to follow `gaetirdu_talad_haegar`; paired after some
+unrelated item instead ("Hvað þýðir þetta?" → "Auðvitað. Herbergið er
+númer tuttugu og þrjú." → ...), the exchange stops making sense, even
+though "the cue fits B" was still technically true. The documented
+invariant — "A → partner_cue → B reads as one real exchange" — was not
+actually encoded anywhere; only "partner_cue fits B" was.
+
+**Fix.** Added `Item.partner_cue_after: str = ""` — the one item id a
+`partner_cue` is written to follow. `Builder.connect()` now uses the cue
+only when `second.partner_cue_after == first.id`; anything else falls
+back to the ordinary English bridge, exactly as if no cue existed.
+`validate()` requires the two fields set together (or neither) and that
+`partner_cue_after` names a real item, so an author can't accidentally
+leave a cue with no declared predecessor (which would otherwise just go
+permanently unused, a silent dead end rather than a caught mistake).
+`gaetirdu_endurtekid_thetta` got `partner_cue_after = "gaetirdu_talad_haegar"`.
+Left `_connect_pair()`'s own selection logic untouched — its existing
+same-topic preference (both items share `topics = ["clarifying"]`)
+already makes this specific pairing likely without needing to teach it
+about cue compatibility too; the owner was explicit either approach
+(prefer compatible pairs, or select as before and check after) was fine,
+and the simpler one carries less risk to the rest of `_connect_pair()`'s
+already-delicate heuristics.
+
+**Tests**, matching the owner's own requested shape: rewrote the "cue
+used" test to call `Builder.connect()` directly with two cases — `[a,
+b]` (compatible: `b.partner_cue_after == a.id`) uses the cue; `[c, b]`
+(same `b`, unrelated `c`) does not, falling back to `connect_then`
+instead. Calling `Builder.connect()` directly (not through the whole
+planner, as the second pass's test did) gives full control over which
+item lands in which slot — the planner alone can't guarantee that.
+Added `test_connect_plays_the_owners_real_curriculum_worked_example`,
+which pins the exact real-content exchange the owner gave, verbatim.
+
+126 tests (125 → 126), all passing; `audiolesson validate` unchanged;
+smoke-generated `is-en` again.
+
 **Still open for #48 itself**: the investigation above covers most of the
 acceptance criteria already via #26/#44, and this pass closes the
 `connect()` gap specifically, but #48 as a whole stays open — no attempt

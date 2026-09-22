@@ -529,22 +529,26 @@ class Builder:
         instructor — still the same shape issue #48 named directly: English instruction,
         retrieve one phrase, repeat.
 
-        ``items[1].partner_cue`` (issue #48), when authored, replaces that English bridge
-        with an actual partner utterance spoken by ``native_b`` between the two retrievals
-        — so, with the instructor's own scaffolding stripped away, "answer A → partner_cue
-        → answer B" still reads as one coherent exchange. A first cut of this picked a
-        generic already-known "discourse"-topic item instead (owner review round 2 on PR
-        #52): that filter let short function words ("og", "en", "með") through as if they
+        ``items[1].partner_cue`` (issue #48), when authored *and* written for exactly this
+        ``items[0]`` (``partner_cue_after`` names the one item id it's compatible with —
+        owner review round 3 on PR #52: ``partner_cue`` alone only guarantees the line
+        fits B, not that it followed naturally from whichever A the planner happened to
+        pick), replaces the English bridge with an actual partner utterance spoken by
+        ``native_b`` between the two retrievals — so, with the instructor's own
+        scaffolding stripped away, "answer A → partner_cue → answer B" still reads as one
+        coherent exchange, not just "partner_cue fits B" in isolation. A first cut of this
+        picked a generic already-known "discourse"-topic item instead (owner review round
+        2): that filter let short function words ("og", "en", "með") through as if they
         were standalone turns, and didn't guarantee even a genuine reaction phrase actually
-        fit the specific pairing. ``partner_cue`` is curated per item instead of selected
-        algorithmically — the instructor's own instruction for B still narrows the task to
-        one checkable answer either way (the owner was explicit that keeping it isn't the
-        problem); what changes is only whether the *target-language* turns alone already
-        form a plausible sequence. Empty (the common case — most items have no authored
-        bridge) falls back to the original English narration, unchanged. Its own exercise
-        kind (not folded into ``recall``) so it's identifiable as a deliberate recombination
-        moment, the same way ``note()`` is bookended rather than left to blend into
-        whatever comes next."""
+        fit the specific pairing. Curated per item instead of selected algorithmically —
+        the instructor's own instruction for B still narrows the task to one checkable
+        answer either way (the owner was explicit that keeping it isn't the problem); what
+        changes is only whether the *target-language* turns alone already form a plausible
+        sequence. No match (the common case — most items have no authored bridge, or this
+        particular A isn't the one theirs was written for) falls back to the original
+        English narration, unchanged. Its own exercise kind (not folded into ``recall``)
+        so it's identifiable as a deliberate recombination moment, the same way ``note()``
+        is bookended rather than left to blend into whatever comes next."""
         first, second = items[0], items[1]
         ids = [first.id, second.id]
         ex = sc.new_exercise("connect", None, ids, f"connect: {first.id}+{second.id}")
@@ -554,7 +558,7 @@ class Builder:
         self._answer_pause(sc, ex, first.target, first, generative=True)
         self._answer(sc, ex, first.target)
         self._beat(sc, ex)
-        if second.partner_cue:
+        if second.partner_cue and second.partner_cue_after == first.id:
             self._speak(sc, ex, second.partner_cue, speaker="native_b")
             self._beat(sc, ex)
         else:

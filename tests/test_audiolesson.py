@@ -543,59 +543,73 @@ class CurriculumTests(unittest.TestCase):
             gaps = [b - a for a, b in zip(seq, seq[1:])]
             self.assertTrue(all(g <= 1 for g in gaps), f"{item_id}: stage sequence skipped a ladder stage: {seq} ({ladder})")
 
-    def test_connect_speaks_the_second_items_own_authored_partner_cue(self):
-        """Issue #48, owner review round 2 on PR #52: connect()'s "And then —" bridge is
-        still the instructor narrating a transition between two isolated recalls — the
-        same "English instruction -> retrieve one phrase" shape #48 names directly, just
-        wrapped inside one exercise. A first cut picked a generic already-known
-        "discourse"-topic item as the bridge, but that filter let through short function
-        words ("og", "en", "með") that read as nonsense alone ("Partner: Og."), and didn't
-        guarantee even a real reaction phrase actually fit the pairing. The owner's
-        correction: the bridge must be *curated* per item (``Item.partner_cue``), not
-        selected algorithmically from unrelated known vocabulary — the instructor's own
-        instruction for B still narrows the task to one checkable answer (that part was
-        never the problem); what changes is that the target-language turns alone —
-        answer A -> partner_cue -> answer B — read as one real exchange with the English
-        scaffolding stripped away, because a human authored it to."""
+    def test_connect_uses_the_partner_cue_only_for_its_authored_predecessor(self):
+        """Issue #48, owner review round 3 on PR #52: ``partner_cue`` alone only guarantees
+        the line is good context *for B* — it says nothing about whether it followed
+        naturally from whichever A the planner happened to recombine it with. Two cases,
+        tested directly against ``Builder.connect()`` for full control over which item
+        lands in the "first" slot (round 2's version routed through the whole planner,
+        which doesn't guarantee that): a compatible pairing (``b.partner_cue_after ==
+        a.id``) must use the cue; an incompatible one (the very same ``b``, paired after a
+        *different* item) must not — falling back to the ordinary English bridge instead,
+        exactly as if no ``partner_cue`` had ever been authored."""
+        from audiolesson.exercises import Builder
+
         raw = {
             "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
             "items": [
+                {"id": "a", "kind": "phrase", "target": "A.", "meaning": "A.", "situation": "Situation A."},
+                {"id": "c", "kind": "phrase", "target": "C.", "meaning": "C.", "situation": "Situation C."},
                 {
-                    "id": f"w{i}",
+                    "id": "b",
                     "kind": "phrase",
-                    "target": f"Orð {i}.",
-                    "meaning": f"Word {i}.",
-                    "situation": f"Situation {i}.",
-                    "partner_cue": f"Svar {i}.",
-                }
-                for i in range(10)
+                    "target": "B.",
+                    "meaning": "B.",
+                    "situation": "Situation B.",
+                    "partner_cue": "Bridge line.",
+                    "partner_cue_after": "a",
+                },
             ],
         }
         cur = curriculum_from_dict(raw)
-        learner = LearnerState("is", "en", "A1")
-        for i in range(10):
-            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
-        planner = Planner(
-            cur,
-            learner,
-            Prompts.load("en"),
-            Timing(level="A1"),
-            PlanConfig(minutes=30, seed=1, dialogue_every=1000, drill_streak_limit=3, note_chance=0.0),
-            today=TODAY,
-        )
-        sc = planner.build()
-        ex = next(ex for ex in sc.exercises if ex.kind == "connect")
-        segs = [s for s in sc.segments if s.exercise == ex.index]
-        second = cur.by_id[ex.item_ids[1]]  # whichever item _connect_pair actually chose second
         prompts = Prompts.load("en")
-        narrations = [s.text for s in segs if s.type == "narrate"]
-        self.assertNotIn(prompts.get("connect_then"), narrations, "the English bridge should be replaced by the partner line")
-        # the shape the owner asked for: situation A -> answer A -> partner_cue -> situation B -> answer B
-        kinds = [(s.type, s.speaker, s.text) for s in segs if s.type in ("narrate", "answer", "speak")]
-        answer_idx = [i for i, (t, _, _) in enumerate(kinds) if t == "answer"]
-        self.assertEqual(len(answer_idx), 2, kinds)
-        between = kinds[answer_idx[0] + 1 : answer_idx[1]]
-        self.assertEqual(between[0], ("speak", "native_b", second.partner_cue), kinds)
+        b = Builder(cur, prompts, Timing(level="A1"), fresh())
+
+        sc_compatible = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.connect(sc_compatible, [cur.by_id["a"], cur.by_id["b"]])
+        speaks = [(s.speaker, s.text) for s in sc_compatible.segments if s.type == "speak"]
+        self.assertIn(("native_b", "Bridge line."), speaks, "a -> b is exactly what partner_cue_after names; the cue must be used")
+
+        sc_incompatible = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.connect(sc_incompatible, [cur.by_id["c"], cur.by_id["b"]])
+        narrations = [s.text for s in sc_incompatible.segments if s.type == "narrate"]
+        speaks2 = [(s.speaker, s.text) for s in sc_incompatible.segments if s.type == "speak"]
+        self.assertNotIn(("native_b", "Bridge line."), speaks2, "c -> b is not what the cue was written for; it must not be used")
+        self.assertIn(prompts.get("connect_then"), narrations, "falls back to the ordinary English bridge")
+
+    def test_connect_plays_the_owners_real_curriculum_worked_example(self):
+        """Issue #48: the real authored pair from the owner's own review — with the
+        instructor scaffolding stripped away, the target-language turns alone should form
+        one coherent exchange: "Gætirðu talað hægar?" -> "Auðvitað. Herbergið er númer
+        tuttugu og þrjú." -> "Gætirðu endurtekið þetta?"."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        first = cur.by_id["gaetirdu_talad_haegar"]
+        second = cur.by_id["gaetirdu_endurtekid_thetta"]
+        self.assertEqual(second.partner_cue_after, first.id)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.connect(sc, [first, second])
+        turns = [(s.speaker, s.text) for s in sc.segments if s.type in ("answer", "speak")]
+        self.assertEqual(
+            turns,
+            [
+                ("native_a", "Gætirðu talað hægar?"),
+                ("native_b", "Auðvitað. Herbergið er númer tuttugu og þrjú."),
+                ("native_a", "Gætirðu endurtekið þetta?"),
+            ],
+        )
 
     def test_connect_falls_back_to_the_english_bridge_without_an_authored_partner_cue(self):
         """No item in this curriculum authors a ``partner_cue`` — connect() must not break;
