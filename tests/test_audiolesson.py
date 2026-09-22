@@ -680,6 +680,73 @@ class CurriculumTests(unittest.TestCase):
                     if word and re.search(r"\b" + re.escape(word) + r"\b", text):
                         self.assertIn(slot, c.situation_fill, f"{c.id}: situation names {word!r} but slot {slot!r} is unbound")
 
+    @staticmethod
+    def _german_situation_curriculum():
+        return curriculum_from_dict(
+            {
+                "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                "items": [
+                    {"id": "ensku", "kind": "vocab", "target": "ensku", "meaning": "English", "tags": ["lang"]},
+                    {"id": "islensku", "kind": "vocab", "target": "íslensku", "meaning": "Icelandic", "tags": ["lang"]},
+                    {"id": "thysku", "kind": "vocab", "target": "þýsku", "meaning": "German", "tags": ["lang"]},
+                    {
+                        "id": "talar",
+                        "kind": "construction",
+                        "target": "Talar þú {language}?",
+                        "meaning": "Do you speak {language}?",
+                        "slots": {"language": "lang"},
+                        "prereqs": ["ensku"],
+                        "situation": "Ask if she speaks German.",
+                        "situation_fill": {"language": "thysku"},
+                    },
+                ]
+                + [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}.", "situation": f"Situation {i}."} for i in range(8)],
+            }
+        )
+
+    def test_a_situation_fill_the_learner_lacks_is_never_generated(self):
+        """Owner review on PR #58: ``fixed`` fills skipped ``generate()``'s own invariant —
+        constructions are only generated from parts the learner has (known, or introduced this
+        lesson). "Ask if she speaks German." bound to þýsku must not force «Talar þú þýsku?»
+        before þýsku is known: the situation stage drops to ``meaning`` and generates from known
+        fills; once þýsku is known, the situation and its bound fill are used."""
+        import random
+
+        from audiolesson.exercises import Builder
+
+        cur = self._german_situation_curriculum()
+        learner = LearnerState("is", "en", "A1")
+        for i in ("ensku", "islensku", "talar"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation")
+        for seed in range(8):
+            b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner, random.Random(seed))
+            sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+            ex = b.recall(sc, cur.by_id["talar"], "situation")
+            self.assertEqual(ex.stage, "meaning")
+            answers = [s.text for s in sc.segments if s.type == "answer"]
+            self.assertTrue(answers and all("þýsku" not in a for a in answers), answers)
+            with self.assertRaises(ValueError):
+                b.connect(Script(1, "L", cur.target_lang, cur.known_lang), [cur.by_id["ensku"], cur.by_id["talar"]])
+        learner.items["thysku"] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="meaning")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner, random.Random(0))
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        self.assertEqual(b.recall(sc, cur.by_id["talar"], "situation").stage, "situation")
+        self.assertEqual([s.text for s in sc.segments if s.type == "answer"], ["Talar þú þýsku?"])
+
+    def test_connect_never_pairs_a_construction_whose_situation_fill_is_unknown(self):
+        """Owner review on PR #58, planner side: with þýsku unknown, a streak-heavy lesson full
+        of connect() exercises must never pick the German-bound construction."""
+        cur = self._german_situation_curriculum()
+        learner = LearnerState("is", "en", "A1")
+        for i in ["ensku", "islensku", "talar"] + [f"w{i}" for i in range(8)]:
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation")
+        cfg = PlanConfig(minutes=30, seed=1, new_items=0, max_new_items=0, dialogue_every=1000, drill_streak_limit=2, note_chance=0.0)
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+        connects = [ex.item_ids for ex in sc.exercises if ex.kind == "connect"]
+        self.assertTrue(connects)
+        self.assertFalse(any("talar" in ids for ids in connects), connects)
+        self.assertNotIn("Talar þú þýsku?", [s.text for s in sc.segments if s.type == "answer"])
+
     def test_situation_fill_validation(self):
         """Issue #57: a situation binding must name a real slot of the construction and an item
         that is a valid fill for it (carries the slot's tag)."""

@@ -2975,6 +2975,24 @@ situation mentions a fill's meaning ("English", "two") must bind that slot
 (confirmed to fail with `talar_thu`'s binding removed). 143 tests, all
 passing.
 
+**Correction (owner review on PR #58): `fixed` bypassed the known-parts
+invariant.** `generate()` only ever fills a slot from items the learner has
+(`knows()` or introduced this lesson); the first cut's `fixed` path skipped
+that check, so a situation bound to an unlearned fill ("Ask if she speaks
+German." → `thysku`) could force «Talar þú þýsku?» — situation and answer
+consistent, but built from a part the learner doesn't have. Fixed with
+`Builder.situation_usable(item)`: a situation is usable only when every
+bound fill is available. Otherwise `recall()` drops the situation stage to
+`meaning` (as for an item with no situation) and generates from known fills;
+the planner's `_connect_pair` never picks the item; and `Builder.connect()`
+raises if handed one, rather than silently speaking an unlearned part. The
+real bindings (`ensku`, `tvaer`) are both prereqs of their constructions, so
+they are always available and nothing changes for them in practice. Tests
+(both fail on the first cut): an unknown bound fill → `meaning` stage with no
+þýsku generated, `connect()` refuses, and once þýsku is known the situation
+and its fill are used; a streak-heavy planned lesson never pairs the
+German-bound construction. 146 tests, all passing.
+
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
 Three new issues arrived together, all written by the owner as substantial

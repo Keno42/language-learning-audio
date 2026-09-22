@@ -290,7 +290,7 @@ class Builder:
             if gen_ex is not None:
                 return gen_ex
             stage = "meaning"
-        if stage == "situation" and not item.has_situation:
+        if stage == "situation" and not self.situation_usable(item):
             stage = "meaning"
         if stage == "cloze" and item.word_count < 3:
             stage = "hinted"
@@ -338,7 +338,7 @@ class Builder:
     def _recall_construction(self, sc: Script, item: Item, stage: str) -> Exercise:
         """Recall of a construction always goes through a filled example — at the situation
         stage, one that honours the fills the situation names (issue #57)."""
-        fixed = self.cur.situation_fills(item) if stage == "situation" and item.has_situation else {}
+        fixed = self.cur.situation_fills(item) if stage == "situation" and self.situation_usable(item) else {}
         gen = self.generate(item, fixed=fixed)
         if gen is None:
             fills = {**self.cur.example_fill(item), **fixed}
@@ -458,6 +458,14 @@ class Builder:
 
     def _in_lesson(self, item_id: str) -> bool:
         return item_id in self.in_lesson
+
+    def situation_usable(self, item: Item) -> bool:
+        """Whether ``item``'s authored situation can be practised now. A construction's
+        situation that names a specific fill (``situation_fill``, issue #57) is only usable
+        once that fill is itself available — known, or introduced this lesson — the same bar
+        ``generate()`` sets for any fill: a construction is only ever generated from parts
+        the learner has. "Ask if she speaks German." waits until þýsku is known."""
+        return item.has_situation and all(self.learner.knows(f.id) or self._in_lesson(f.id) for f in self.cur.situation_fills(item).values())
 
     @staticmethod
     def _combo_key(c: Item, fills: dict[str, Item]) -> str:
@@ -597,6 +605,10 @@ class Builder:
         answered "Talar þú ensku?", never another language the generator happened to pick."""
         if item.kind != "construction":
             return item.target
+        if not self.situation_usable(item):
+            # the planner never pairs such an item (see _connect_pair); refuse rather than
+            # speak a sentence built from a fill the learner hasn't met
+            raise ValueError(f"connect(): {item.id!r}'s situation names a fill the learner doesn't have yet")
         fixed = self.cur.situation_fills(item)
         gen = self.generate(item, fixed=fixed)
         if gen is None:
