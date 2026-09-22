@@ -36,9 +36,10 @@ skips anything whose `prereqs` the learner does not know yet.
 | `chunks` | vocab, phrase | explicit backward-build pieces, shortest first, last = full target — overrides the automatic word- or syllable-split |
 | `alternatives` | all | other acceptable answers (stored in metadata, not yet spoken) |
 | `pronunciation_notes` | all | printed once in the transcript, under the first exercise on that item; not spoken, and not per-language glossed (always shown as written, regardless of `--known`) |
-| `slots` | construction | `{ slot = "tag" }`; `target` and `meaning` must contain `{slot}` |
+| `slots` | construction | `{ slot = "tag" }`; `target` must contain `{slot}`, and `meaning` `{slot}` or `{slot:form}` (see `meaning_forms`) |
 | `example` | construction | `{ slot = "item_id" }` fill used when the pattern is introduced |
 | `situation_fill` | construction | `{ slot = "item_id" }` fill(s) the `situation` names ("Ask if she speaks English." → `{ language = "ensku" }`): any exercise narrating the situation (situation-stage recall, `connect()`) uses them; other stages still generate freely. The situation is only used once its bound fills are known (or introduced this lesson) — until then the item is practised at `meaning` and never paired in `connect()`, so a binding never forces an unlearned part. Required whenever the situation mentions one specific slot value; validated to name a real slot and an item carrying that slot's tag. Write a slot-independent situation instead when several fills fit |
+| `meaning_forms` | vocab (slot fills) | `{ form = "gloss" }` alternative known-language renderings of `meaning`, glossed like it (`meaning_forms_ja`); a construction's `meaning` asks for one with `{slot:form}` — `"I'm {inf:ing}."` → "I'm going home.", `"{inf:te}もいいですか？"` → 「家に帰ってもいいですか？」. The target-language fill never changes. Validated: every possible fill of that slot must carry the form |
 | `instruction` | transform | known-language prompt, e.g. `"Make it negative:"` |
 | `examples` | transform | ≥2 pairs `{ source, source_meaning, result, result_meaning }` |
 

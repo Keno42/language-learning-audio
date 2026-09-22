@@ -1,6 +1,6 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-22 (session 31). Recent sessions, oldest first:
+_Last updated 2026-09-22 (session 32). Recent sessions, oldest first:
 22 closes out issue #44; 23 is issue #29's triage and generative agreement
 pilot; 24 is issue #49 (embedded third-language examples, pronunciation
 pacing); 25 is issue #48's first partner line inside connect(); 26 is #29
@@ -8,7 +8,8 @@ cluster A (numbers/money); 27 is #29 cluster B's sequencing findings (PR
 #54); 28 is issue #55 (connect() pair history); 29 is #29's
 capability-aware arc boundaries; 30 is #48's partner exchanges in early
 lessons (28–30 were PR #56, merged); 31 is issue #57 (situation-bound
-construction fills, its own follow-up PR). **Issue #34** ("Improve
+construction fills, PR #58); 32 is #29's audit and grammatical-dimension
+pilots (aspect, modality, case). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -101,16 +102,24 @@ the session sections):
     afterwards, and keeps an arc boundary from falling between fillers
     and their construction (session 29). Implemented and simulated; not
     yet confirmed by the owner on a real generated lesson.
-  - (2) Curriculum-wide dependency audit across all 26 modules — **not
-    started**. Known inputs: fixed-phrase families sharing morphology
-    (`Gjörðu svo vel`, `Verði þér að góðu`, `Gangi þér vel`, `Eigðu góðan
-    dag`), the `vid_erum`-style "to be" paradigm, `eg_er_ad_leita_ad_vinnu`,
-    the 11 remaining advisory pairs.
-  - (3) Case/tense/modality pilot generalizing `godur_gender` — **not
-    started**. Concrete first candidates: `vera að + infinitive` (needs
-    gerund-shaped English meanings), `X, held ég` (needs a clause slot).
-  - #29 stays open until (2) and (3) are done and the arc-boundary
-    behavior is confirmed on real output._
+  - (2) Curriculum-wide audit — **first pass done** (session 32):
+    `docs/AUDIT-29.md`, reproducible with `tools/phrase_families.py`, puts
+    every fixed-phrase family of ≥3 into the owner's three dispositions
+    (lexicalised / later-productive / shared dimension) with status and a
+    suggested order. Acted on so far: `Má ég …` and `Ég er að …` (below).
+    Most category-2 families (`Takk fyrir`, `Hvenær fer`, `… virkar ekki`,
+    `Ég á`) are listed, not converted.
+  - (3) Grammatical-dimension pilots generalizing `godur_gender` —
+    **aspect and modality modeled, case named** (session 32): milestones
+    `vera_ad_progressive` → `eg_er_ad_inf`, `modal_infinitive` →
+    `ma_eg_inf` (both productive over the `inf` pool via the new
+    `meaning_forms`/`{slot:form}` mechanism), and `dative_subject` (ég vs
+    mér, contrast + transfer, no construction yet). Tense and person not
+    started; `X, held ég` still unmodeled (no clause slot).
+  - #29 stays open until the audit's remaining dispositions are acted on
+    (or explicitly accepted as chunks), the case pilot becomes productive,
+    tense/person are addressed, and the arc-boundary behavior is confirmed
+    on real output. See `docs/AUDIT-29.md` "Suggested order"._
 Keep
 this current: whoever picks the project up next, human or AI, should
 be able to continue from here without re-deriving decisions._
@@ -2992,6 +3001,72 @@ they are always available and nothing changes for them in practice. Tests
 þýsku generated, `connect()` refuses, and once þýsku is known the situation
 and its fill are used; a streak-heavy planned lesson never pairs the
 German-bound construction. 146 tests, all passing.
+
+## Session 32: issue #29 — curriculum-wide audit, aspect / modality / case pilots
+
+Picked up #29's two open items. Full status table and dispositions:
+`docs/AUDIT-29.md`; this section is the narrative.
+
+**Audit (item 2).** `tools/phrase_families.py` groups phrase items sharing a
+two-word opening/closing frame and flags which frames a construction already
+covers. Read as candidates, not verdicts (the 64 `ég er …` phrases share a
+frame, not a pattern). Every family of ≥3 is sorted into the owner's three
+dispositions — lexicalised chunk / later-productive / shared dimension — in
+the audit doc, including the owner's own «Gjörðu svo vel / Verði þér að
+góðu / Gangi þér vel / Eigðu góðan dag» family (no shared frame; checked by
+hand: two lexicalised formulas, «Eigðu {adj+noun acc.}» a real transfer
+target for `godur_gender`'s accusative, `þér` the dative pair of `mér`).
+
+**Mechanism: `meaning_forms` + `{slot:form}`.** Session 27 found the
+progressive blocked only on English: the `inf` pool's glosses are bare
+infinitives ("go home"), and a progressive needs "going home". A fill can
+now carry `meaning_forms = { ing = "going home" }` (glossed:
+`meaning_forms_ja = { te = "家に帰って" }`), and a construction's meaning
+asks for it with `{inf:ing}`. The Icelandic fill never changes (same bare
+infinitive after «er að», «má», «vil»). `validate()` requires every possible
+fill of that slot to carry the form. All 14 `inf` fills got `ing` and `te`.
+
+**Pilots (item 3)**, each following `godur_gender`'s "familiar examples →
+notice → name → discriminate → transfer":
+
+- **Aspect:** milestone `vera_ad_progressive` over «Ég er að koma!», «Ég er
+  að fara» (relocated module 11 → 06 as a third familiar example), «Ég er að
+  læra íslensku», gating the new construction `eg_er_ad_inf` («Ég er að
+  {inf}.» / "I'm {inf:ing}." / 「今、{inf:te}いるところです。」).
+  `eg_er_ad_laera` gained a situation (bound to `islensku`) so the milestone
+  discriminates between two different familiar examples.
+- **Modality:** milestone `modal_infinitive` over `eg_vil`, `eg_verd_ad`,
+  «Má ég borga með korti?», gating `ma_eg_inf` («Má ég {inf}?» / "May I
+  {inf}?" / 「{inf:te}もいいですか？」). `eg_vil` / `eg_verd_ad` gained
+  situations bound to `fara_heim`, so the discrimination right after the note
+  is a real minimal pair: «Ég vil fara heim.» / «Ég verð að fara heim.», then
+  «Má ég fara heim?».
+- **Case:** milestone `dative_subject` — «Ég er svöng» (ég) vs «Mér er kalt /
+  heitt» (mér, dative) — with «Mér líður vel / illa» as transfer items. Named
+  and contrasted only; a productive `Mér líður {how}` needs new adverb vocab
+  (audit doc, suggested order #1).
+
+Verified on a simulated 110-lesson course (20 min): L31 plays `modal_infinitive`
+→ «Ég vil fara heim.» / «Ég verð að fara heim.» → intro «Má ég {inf}?» →
+hinted/meaning/recombine on other verbs → situation; the progressive milestone
+fires at L72 and `eg_er_ad_inf` arrives at L77, then generates unauthored
+sentences («Ég er að versla.», «Ég er að kaupa miða.»); `dative_subject`
+fires at L80 followed by «Ég er svöng.» / «Mér er kalt.». Throughput unchanged
+(80 lessons: 336 items met), no stranded items.
+
+**Found, not fixed:** fill disambiguators leak into generated glosses — "May I
+work (to work)?", "Do you speak Icelandic (the language)?" (pre-existing;
+stripping globally would break "my friend (male)"/"(female)"; the per-item fix
+is a `meaning_forms` entry, audit doc #3).
+
+**Tests:** the `{slot:form}` mechanism (render, ja gloss, validation); every
+`inf` fill reads correctly through both new constructions in both instructor
+languages; the modality milestone precedes `ma_eg_inf` with the minimal pair and
+novel verbs follow; the aspect milestone precedes `eg_er_ad_inf`. Two existing
+tests widened for the new shapes (ja-gloss slot check accepts `{slot:form}`;
+milestone discrimination accepts a construction recall carrying its fill as
+support) — the discrimination test now also covers the three new milestones.
+150 tests, all passing.
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
