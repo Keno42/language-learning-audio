@@ -32,6 +32,8 @@ meaning_ja = "強風"
 difficulty = 1
 tags = ["weather"]
 topics = ["weather"]
+meaning_forms = { in_sentence = "windy" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "強風" }
 
 [[items]]
 id = "rigning"
@@ -52,6 +54,8 @@ meaning_ja = "暖かい"
 difficulty = 2
 tags = ["weather", "adj_neut"]
 topics = ["weather"]
+meaning_forms = { in_sentence = "warm" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "暖かい" }
 
 [[items]]
 id = "heitt"
@@ -72,6 +76,8 @@ meaning_ja = "晴れ"
 difficulty = 1
 tags = ["weather"]
 topics = ["weather"]
+meaning_forms = { in_sentence = "sunny" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "晴れ" }
 
 [[items]]
 id = "thoka"
@@ -82,6 +88,8 @@ meaning_ja = "霧"
 difficulty = 2
 tags = ["weather"]
 topics = ["weather"]
+meaning_forms = { in_sentence = "foggy" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "霧" }
 
 [[items]]
 id = "snjor"
@@ -92,6 +100,8 @@ meaning_ja = "雪"
 difficulty = 2
 tags = ["weather"]
 topics = ["weather"]
+meaning_forms = { in_sentence = "snowy" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "雪" }
 
 [[items]]
 id = "skyjad"
@@ -112,6 +122,8 @@ meaning_ja = "路面が凍結"
 difficulty = 2
 tags = ["weather"]
 topics = ["weather"]
+meaning_forms = { in_sentence = "icy" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "路面が凍結" }
 
 [[items]]
 id = "gott_vedur"

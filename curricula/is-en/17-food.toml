@@ -145,6 +145,8 @@ difficulty = 2
 tags = ["acc_food"]
 topics = ["food"]
 pronunciation_notes = "the infamous one"
+meaning_forms = { in_sentence = "fermented shark" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "発酵させたサメ" }
 
 [[items]]
 id = "hardfisk"
@@ -165,6 +167,8 @@ meaning_ja = "クレイナ（ねじりドーナツ）"
 difficulty = 2
 tags = ["acc_food"]
 topics = ["food"]
+meaning_forms = { in_sentence = "kleinur" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "クレイナ" }
 
 [[items]]
 id = "flatkokur"
@@ -175,6 +179,8 @@ meaning_ja = "平たいパン（フラットカカ）"
 difficulty = 2
 tags = ["acc_food"]
 topics = ["food"]
+meaning_forms = { in_sentence = "flatbread" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "平たいパン" }
 
 [[items]]
 id = "rugbraud"
@@ -195,6 +201,8 @@ meaning_ja = "魚のマッシュ煮（プロックフィスクル）"
 difficulty = 3
 tags = ["acc_food"]
 topics = ["food"]
+meaning_forms = { in_sentence = "plokkfiskur" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "魚のマッシュ煮" }
 
 [[items]]
 id = "kjotsupu"
@@ -275,6 +283,8 @@ meaning_ja = "フライドポテト"
 difficulty = 1
 tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
+meaning_forms = { in_sentence = "fries" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "フライドポテト" }
 
 [[items]]
 id = "hrisgrjon"
@@ -285,6 +295,8 @@ meaning_ja = "ご飯（米）"
 difficulty = 2
 tags = ["acc_food"]
 topics = ["food"]
+meaning_forms = { in_sentence = "rice" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "ご飯" }
 
 [[items]]
 id = "pasta"

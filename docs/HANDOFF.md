@@ -3164,6 +3164,73 @@ Cloze practice itself stays (the issue's non-goal).
 meaning narrated before the partial; and a course-wide guard that every cloze-eligible phrase's
 prompt contains its meaning (both fail on the pre-fix code). 148 tests, all passing.
 
+## Session 35: issue #63 — the progressive note overclaimed
+
+`vera_ad_progressive` told the learner "Any verb you know can go after «er að»." Icelandic
+uses «vera að» + infinitive for activities, not states: "I'm sitting" is «Ég sit». The note now
+says "Many activity verbs…" and gives the state case its correct form («Ég sit»). It does not
+voice the wrong one. `modal_infinitive`'s "any verb" stays, since vilja / verða að / mega take
+stative infinitives too. `eg_er_ad_inf` draws on the whole `inf` pool, so a new test pins that
+pool to the 14 audited activity verbs: adding an `inf` verb now fails until someone checks
+its progressive. 160 tests, all passing.
+
+**Follow-up (owner review on PR #64):** «sofa» was in that audited list, but «er að sofa»
+is not generally accepted (icelandicgrammar.com marks «Gummi litli er að sofa í vöggunni»
+and gives «sefur»). The owner proposed splitting the pools, and that is what was done:
+`progressive_inf` is a subset of `inf` holding only the 13 dynamic verbs, without «sofa».
+`eg_er_ad_inf` draws on `progressive_inf`; `ma_eg_inf` / `eg_vil` / `eg_verd_ad` keep `inf`,
+so «Má ég sofa?» stays. The note's state example now names sleeping too («Ég sit», «Ég sef»)
+in both languages. The guard test now pins `progressive_inf` rather than `inf`. On a
+120-lesson simulation: «Ég er að sofa.» 0 times, «Má ég sofa?» still produced.
+
+## Session 36: recall-only disambiguators leaked into sentence prompts (#29 audit finding)
+
+The #29 audit (session 32) found fill glosses like "English (the language)", "the hotel (after
+'to' / 'for')" and "work (to work)" being pasted verbatim into generated sentence prompts:
+"Say: Do you speak English (the language)?". Measured before fixing: 128 such construction
+prompts across 40 simulated 20-minute lessons, in 34 of the 40 (ja: 10 prompts, e.g.
+«スキール（アイスランドの乳製品）をください»).
+
+**Fix.** The `meaning_forms` entry `in_sentence` (session 32's mechanism) is used by a
+construction's plain `{slot}` instead of the fill's `meaning`. Isolated recall keeps the
+disambiguator ("Say: English (the language)."). Authored for the 34 fills that leaked, in
+en and ja. Deliberately left in place: parentheticals that tell the learner which word to
+produce ("my friend (male)" vs "(female)"; ja 兄（弟）/姉（妹）, since bróðir/systir cover
+both), and a construction's own authored guidance (`einn_tvo_thrjar`'s "(feminine count
+word)"). Checked first that stripping never makes two fills of one slot read the same. After:
+0 leaking construction prompts in both languages. Test: every construction × fill resolves
+without a fill-borne parenthetical in both languages, except the audited informative ones;
+isolated recall keeps its disambiguator. 160 tests, all passing.
+
+## Session 37: issue #29 — «Eigðu …» transfers godur_gender to a new frame
+
+The owner's real Lesson 3 comment on #29: "grammar is noticed, but not yet transferred".
+`godur_gender` names the accusative agreement in «Góðan daginn / Góða nótt / Gott kvöld», but
+«Eigðu góðan dag» stayed one more fixed string (#29 audit, suggested order #2).
+
+**Content.** Three accusative fills: `dag_acc`, `nott_acc`, `kvold_acc`. These are the nouns
+the note already names with their genders (owner review on PR #50: tell the learner a noun's
+gender before applying agreement to it). Plus `eigdu_godur`: «Eigðu {adj} {time}.» with
+agreement góðan / góða / gott, so «Eigðu góða nótt.» and «Eigðu gott kvöld.» are generated
+rather than authored. Its situation is bound to `kvold_acc` (#57), and it is `godur_gender`'s
+transfer item. It is gated on the note's three greetings plus the worked-example fill.
+
+**Two placement lessons, both visible in simulation.** (1) Gating the construction on all
+three fills kept the arc from reaching the pattern until every word was durable: lessons 4–9
+drilled «dag»/«nótt» as isolated words. (2) Even gated only on the example fill, fills placed
+right after the greetings (order ~31) waited on those greetings becoming durable (#27). The
+block now sits at the end of module 02 (order ~117). A simulated course introduces «dag» and
+«nótt» and the pattern in the same lesson (L23), generating «Eigðu góða nótt.» at once. «kvöld»
+arrives later as transfer (L28 → «Eigðu gott kvöld.»).
+
+**Test changed:** `test_godur_gender_nominative_is_explicit_about_case_not_just_gender` asserted
+`godur_gender` had no transfer items at all, as a proxy for "never pair accusative with
+nominative". It now checks that invariant directly: every transfer item's agreement forms must
+be exactly góðan / góða / gott. New test: both languages resolve correctly, the note lists the
+transfer, and a learner who knows everything before `dag_acc` gets fills plus pattern plus a
+non-example sentence in one lesson. 160 tests, all passing. Throughput unchanged, no stranded
+items.
+
 ## Session 38: issue #69 — recombination connect implied one scene
 
 Without an authored bridge, `connect()` is recombination practice: two independent
