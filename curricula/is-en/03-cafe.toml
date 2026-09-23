@@ -434,6 +434,14 @@ topics = ["cafe", "food"]
 chunks = ["æta", "grænmetisæta", "Ég er grænmetisæta."]
 situation = "The waiter recommends the lamb. Tell him you're a vegetarian."
 situation_ja = "ウェイターがラム肉をすすめます。ベジタリアンだと伝えてください。"
+partner_cue = "Gjörðu svo vel. Ég mæli með lambinu."  # issue #48: the partner line between bord_fyrir_tvo and this item in connect()
+partner_cue_after = "bord_fyrir_tvo"
+partner_cue_setup = "You walk into a restaurant with a friend. Ask for a table for two."
+partner_cue_setup_ja = "友達とレストランに入りました。二人用の席をお願いしてください。"
+partner_cue_meaning = "Here you are. I recommend the lamb."
+partner_cue_meaning_ja = "こちらへどうぞ。ラム肉がおすすめです。"
+partner_cue_situation = "The waiter recommended the lamb. Tell him you're a vegetarian."
+partner_cue_situation_ja = "ウェイターにラム肉を勧められました。ベジタリアンだと伝えてください。"
 
 [[items]]
 id = "eg_er_med_ofnaemi_fyrir_hnetum"
@@ -457,6 +465,14 @@ difficulty = 2
 topics = ["cafe"]
 situation = "The waiter clears your empty plate. Tell him it was good."
 situation_ja = "ウェイターが空いた皿を下げます。おいしかったと伝えてください。"
+partner_cue = "Var þetta gott?"  # issue #48: the partner line between eg_er_sodd and this item in connect()
+partner_cue_after = "eg_er_sodd"
+partner_cue_setup = "At a restaurant, the waiter offers you more. You couldn't eat another bite: say you're full."
+partner_cue_setup_ja = "レストランでウェイターにおかわりを勧められました。もう食べられないので、お腹がいっぱいだと言ってください。"
+partner_cue_meaning = "Was it good?"
+partner_cue_meaning_ja = "おいしかったですか？"
+partner_cue_situation = "He asked if it was good. Tell him it was good."
+partner_cue_situation_ja = "おいしかったかと聞かれました。おいしかったと言ってください。"
 
 [[items]]
 id = "thetta_er_ljuffengt"
@@ -480,6 +496,14 @@ topics = ["cafe", "shopping", "money"]
 chunks = ["korti", "með korti", "borga með korti", "Má ég borga með korti?"]
 situation = "You have no cash. Ask if you may pay by card."
 situation_ja = "現金がありません。カードで払えるか聞いてください。"
+partner_cue = "Auðvitað. Það eru fjögur þúsund krónur."  # issue #48: the partner line between get_eg_fengid_reikninginn and this item in connect()
+partner_cue_after = "get_eg_fengid_reikninginn"
+partner_cue_setup = "You've finished eating at a restaurant. Ask the waiter for the bill."
+partner_cue_setup_ja = "レストランで食事を終えました。ウェイターにお会計を頼んでください。"
+partner_cue_meaning = "Of course. That's four thousand krónur."
+partner_cue_meaning_ja = "かしこまりました。4千クローナです。"
+partner_cue_situation = "He told you the total. You have no cash: ask if you may pay by card."
+partner_cue_situation_ja = "合計額を言われました。現金がないので、カードで払えるか聞いてください。"
 
 # issue #29 pilot 3 (modality): «má» + infinitive as a construction over the "inf" pool, instead
 # of one fixed «Má ég X?» phrase per verb (seven such phrases exist across the course). Gated on
@@ -570,6 +594,14 @@ difficulty = 2
 topics = ["cafe", "shopping"]
 situation = "The waiter asks if you'd like anything else. Say that's all."
 situation_ja = "ウェイターが他に何かいるか聞きました。以上ですと答えてください。"
+partner_cue = "Gjörðu svo vel. Eitthvað fleira?"  # issue #48: the partner line between meira_kaffi_takk and this item in connect()
+partner_cue_after = "meira_kaffi_takk"
+partner_cue_setup = "The waiter comes round with the coffee pot. Ask for more coffee."
+partner_cue_setup_ja = "ウェイターがコーヒーポットを持って回ってきました。コーヒーのおかわりを頼んでください。"
+partner_cue_meaning = "Here you are. Anything else?"
+partner_cue_meaning_ja = "どうぞ。ほかに何か？"
+partner_cue_situation = "He asked if you'd like anything else. Say that's all."
+partner_cue_situation_ja = "ほかに何かいるか聞かれました。それで全部だと言ってください。"
 
 [[items]]
 id = "ekkert_meira_takk"
@@ -581,6 +613,14 @@ difficulty = 2
 topics = ["cafe", "shopping"]
 situation = "The cashier asks if there's anything else. Say nothing more, thanks."
 situation_ja = "レジの人が他に何かあるか聞きました。もう結構ですと答えてください。"
+partner_cue = "Níu hundruð krónur. Eitthvað fleira?"  # issue #48: the partner line between hvad_kostar_thetta and this item in connect()
+partner_cue_after = "hvad_kostar_thetta"
+partner_cue_setup = "At a bakery till, you pick up a sandwich. Ask the cashier how much it is."
+partner_cue_setup_ja = "パン屋のレジでサンドイッチを手に取りました。いくらかレジの人に聞いてください。"
+partner_cue_meaning = "Nine hundred krónur. Anything else?"
+partner_cue_meaning_ja = "900クローナです。ほかに何か？"
+partner_cue_situation = "She told you the price and asked if there's anything else. Say nothing more, thanks."
+partner_cue_situation_ja = "値段を言って、ほかに何かあるか聞かれました。これで結構です、ありがとうと言ってください。"
 
 [[dialogues]]
 id = "kaffihus"
@@ -642,9 +682,11 @@ requires = ["bord_fyrir_tvo", "eg_aetla_ad_fa", "fisk", "vatn", "get_eg_fengid_r
   cue = "Ask for a table for two, please."
   cue_ja = "二人用の席をお願いしてください。"
   expect = "bord_fyrir_tvo"
-  partner = "Gjörðu svo vel. Hérna er matseðilinn. Hvað viltu drekka?"
-  partner_meaning = "Here you are. Here's the menu. What do you want to drink?"
-  partner_meaning_ja = "こちらへどうぞ。メニューです。お飲み物は何にしますか？"
+  # issue #48 audit: was "Hérna er matseðilinn" — accusative after «er»; the nominative
+  # «matseðillinn» isn't taught anywhere, so the menu clause is dropped instead
+  partner = "Gjörðu svo vel. Hvað viltu drekka?"
+  partner_meaning = "Here you are. What do you want to drink?"
+  partner_meaning_ja = "こちらへどうぞ。お飲み物は何にしますか？"
 
   [[dialogues.turns]]
   cue = "Say you'll have water."

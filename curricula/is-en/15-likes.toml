@@ -405,7 +405,7 @@ id = "ahugamal"
 setting = "A rainy evening indoors. Anna asks about your hobbies."
 setting_ja = "雨の夜、家の中で。アンナが趣味について聞きます。"
 topics = ["hobbies"]
-requires = ["eg_hef_gaman_af", "sundi", "gonguferdum", "hefur_thu_gaman_af", "mer_finnst_gaman_ad", "fara_i_sund", "mer_likar_thad"]
+requires = ["eg_hef_gaman_af", "sundi", "gonguferdum", "hefur_thu_gaman_af", "mer_finnst_gaman_ad", "fara_i_sund", "endilega"]
 
   [[dialogues.turns]]
   opener = "Hvað finnst þér skemmtilegt að gera?"
@@ -431,11 +431,13 @@ requires = ["eg_hef_gaman_af", "sundi", "gonguferdum", "hefur_thu_gaman_af", "me
   partner_meaning_ja = "うん、映画が好き。一本見る？"
 
   [[dialogues.turns]]
-  cue = "Say you like it — no: say yes, you'd like that."
-  cue_ja = "はい、いいですね、と言ってください。"
-  expect_text = "Já, mér líkar það."
-  expect_meaning = "Yes, I like that."
-  expect_meaning_ja = "はい、いいですね。"
+  # issue #48 audit: was «Já, mér líkar það» ("yes, I like it") — not an answer to "do you want
+  # to see one?" — with a self-correcting cue
+  cue = "Say yes, you'd love to."
+  cue_ja = "うん、ぜひ、と言ってください。"
+  expect_text = "Já, endilega!"
+  expect_meaning = "Yes, by all means!"
+  expect_meaning_ja = "うん、ぜひ！"
   partner = "Frábært."
   partner_meaning = "Great."
   partner_meaning_ja = "よかった。"

@@ -40,6 +40,8 @@ skips anything whose `prereqs` the learner does not know yet.
 | `example` | construction | `{ slot = "item_id" }` fill used when the pattern is introduced |
 | `situation_fill` | construction | `{ slot = "item_id" }` fill(s) the `situation` names ("Ask if she speaks English." → `{ language = "ensku" }`): any exercise narrating the situation (situation-stage recall, `connect()`) uses them; other stages still generate freely. The situation is only used once its bound fills are known (or introduced this lesson) — until then the item is practised at `meaning` and never paired in `connect()`, so a binding never forces an unlearned part. Required whenever the situation mentions one specific slot value; validated to name a real slot and an item carrying that slot's tag. Write a slot-independent situation instead when several fills fit |
 | `meaning_forms` | vocab (slot fills) | `{ form = "gloss" }` alternative known-language renderings of `meaning`, glossed like it (`meaning_forms_ja`); a construction's `meaning` asks for one with `{slot:form}` — `"I'm {inf:ing}."` → "I'm going home.", `"{inf:te}もいいですか？"` → 「家に帰ってもいいですか？」. The target-language fill never changes. Validated: every possible fill of that slot must carry the form |
+| `partner_cue`, `partner_cue_after` | phrase | a partner line spoken between item `partner_cue_after` (A) and this item (B) when `connect()` pairs them in that order |
+| `partner_cue_setup` / `partner_cue_meaning` / `partner_cue_situation` | phrase | required with `partner_cue`, glossed per language: the bridge as **one scene**. The setup replaces A's standalone situation (shared place, roles, reason; asks for A), the meaning glosses the partner line on the learner's first two hearings of that bridge, and the situation replaces B's own (same scene, names the partner's move) |
 | `instruction` | transform | known-language prompt, e.g. `"Make it negative:"` |
 | `examples` | transform | ≥2 pairs `{ source, source_meaning, result, result_meaning }` |
 
@@ -79,8 +81,17 @@ partner_speaker = "native_b"                # default
   partner_meaning = "Yes, of course. Where are you from?"
 ```
 
-A dialogue is eligible once every `expect` item and every `requires` item is
-learned. It is replayed without pauses the second time it is practised. Items
+A turn may `expect` a construction when its cue names the fill:
+`expect = "thad_kostar_big"` with `expect_fill = { count = "fimm" }` ("Tell him it
+costs five thousand krónur.") speaks «Það kostar fimm þúsund krónur.», generated
+from the known parts. `expect_fill` must bind **every** slot of the construction, and
+the bound fills count as required items, so each spoken part is gated by #27's
+durable-learning rule; nothing falls back to the worked example. Validation rejects an
+unbound slot, a non-construction `expect`, an unknown slot, or an item that isn't a
+fill for that slot.
+
+A dialogue is eligible once every `expect` item, every `expect_fill` item and every
+`requires` item is learned. It is replayed without pauses the second time it is practised. Items
 that appear in a dialogue gain the *dialogue* stage at the top of their ladder.
 
 ## Several learner languages in one file

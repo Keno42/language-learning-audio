@@ -568,6 +568,7 @@ class CurriculumTests(unittest.TestCase):
                     "situation": "Situation B.",
                     "partner_cue": "Bridge line.",
                     "partner_cue_after": "a",
+                    "partner_cue_setup": "Scene: say A.", "partner_cue_meaning": "Bridge meaning.", "partner_cue_situation": "Scene: say B.",
                 },
             ],
         }
@@ -751,6 +752,124 @@ class CurriculumTests(unittest.TestCase):
         self.assertIn("eg_er_ad_inf", sc.meta["new_items"])
         self.assertLess(labels.index("note: vera_ad_progressive"), labels.index("new pattern: Ég er að {inf}."))
 
+    def test_dialogue_turn_can_expect_a_construction_with_a_bound_fill(self):
+        """Issue #48: a dialogue turn may expect a construction, with the fill its cue names
+        bound by ``expect_fill`` — the learner generates the line from known parts inside a real
+        exchange. The fill is a required item (the dialogue waits for it), the spoken line is
+        resolved, and bad bindings are rejected."""
+        from audiolesson.exercises import Builder
+
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "fimm", "kind": "vocab", "target": "fimm", "meaning": "five", "tags": ["cnt"]},
+                {"id": "sex", "kind": "vocab", "target": "sex", "meaning": "six", "tags": ["cnt"]},
+                {"id": "kaffi", "kind": "vocab", "target": "kaffi", "meaning": "coffee", "tags": ["drink"]},
+                {"id": "ok", "kind": "phrase", "target": "Allt í lagi.", "meaning": "OK."},
+                {"id": "kostar", "kind": "construction", "target": "Það kostar {count} þúsund krónur.",
+                 "meaning": "It costs {count} thousand krónur.", "slots": {"count": "cnt"}, "example": {"count": "sex"}},
+            ],
+            "dialogues": [
+                {"id": "d", "setting": "A stall.", "turns": [
+                    {"opener": "Hvað kostar þetta?", "cue": "Say five thousand.", "expect": "kostar", "expect_fill": {"count": "fimm"}, "partner": "Of dýrt."},
+                    {"cue": "Agree.", "expect": "ok"},
+                ]},
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        self.assertIn("fimm", cur.dialogue_by_id["d"].required_items)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "L", cur.target_lang, cur.known_lang)
+        b.dialogue(sc, cur.dialogue_by_id["d"])
+        self.assertEqual([s.text for s in sc.segments if s.type == "answer"], ["Það kostar fimm þúsund krónur.", "Allt í lagi."])
+        for turn_patch, msg in (
+            ({"expect": "ok", "expect_fill": {"count": "fimm"}}, "needs a construction"),
+            ({"expect_fill": {"n": "fimm"}}, "unknown slot"),
+            ({"expect_fill": {"count": "kaffi"}}, "not a valid fill"),
+        ):
+            bad = json.loads(json.dumps(raw))
+            bad["dialogues"][0]["turns"][0].update(turn_patch)
+            with self.assertRaisesRegex(CurriculumError, msg):
+                curriculum_from_dict(bad)
+
+    def test_a_construction_turn_must_bind_every_slot(self):
+        """Owner review on PR #61: with a multi-slot construction, a slot left out of
+        ``expect_fill`` silently fell back to the worked-example fill — which is not a required
+        item, so a dialogue whose other parts were learned became eligible and spoke a part the
+        learner had never durably learned (#27's gate bypassed). The same held for a construction
+        turn with no ``expect_fill`` at all. Every slot of a construction turn must now be bound,
+        so each spoken part is in ``required_items``."""
+        def raw(fill):
+            turn = {"cue": "Order two coffees.", "expect": "order"}
+            if fill is not None:
+                turn["expect_fill"] = fill
+            return {
+                "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                "items": [
+                    {"id": "tvo", "kind": "vocab", "target": "tvo", "meaning": "two", "tags": ["cnt"]},
+                    {"id": "thrju", "kind": "vocab", "target": "þrjú", "meaning": "three", "tags": ["cnt"]},
+                    {"id": "kaffi", "kind": "vocab", "target": "kaffi", "meaning": "coffee", "tags": ["drink"]},
+                    {"id": "te", "kind": "vocab", "target": "te", "meaning": "tea", "tags": ["drink"]},
+                    {"id": "order", "kind": "construction", "target": "{n} {drink}, takk.", "meaning": "{n} {drink}, please.",
+                     "slots": {"n": "cnt", "drink": "drink"}, "example": {"n": "thrju", "drink": "te"}},
+                ],
+                "dialogues": [{"id": "d", "setting": "A café.", "turns": [turn]}],
+            }
+
+        for fill, msg in (({"n": "tvo"}, "must bind every slot"), (None, "must bind every slot")):
+            with self.assertRaisesRegex(CurriculumError, msg):
+                curriculum_from_dict(raw(fill))
+        cur = curriculum_from_dict(raw({"n": "tvo", "drink": "kaffi"}))
+        self.assertTrue({"order", "tvo", "kaffi"} <= set(cur.dialogue_by_id["d"].required_items))
+
+        # the gate itself: with the construction and «kaffi» durable but «tvo» only met, the
+        # dialogue that would speak «tvo kaffi, takk.» is not eligible
+        learner = LearnerState("is", "en", "A1")
+        for i in ("order", "kaffi"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation")
+        learner.items["tvo"] = ItemState(due=TODAY.isoformat(), successes=1, durable_successes=0, stage="meaning")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, seed=1), today=TODAY)
+        self.assertIsNone(planner.eligible_dialogue())
+
+    def test_real_market_stall_dialogue_generates_the_price(self):
+        """Issue #48: session 26's number constructions were only ever safe inside connect(),
+        never used in a partner-driven transaction. «solubas» puts the learner behind a stall:
+        with the instructor lane stripped, the target-language turns are one haggle, and the
+        price is generated from ``thad_kostar_big`` + the known count word, not recalled."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        sc = Script(1, "L", cur.target_lang, cur.known_lang)
+        b.dialogue(sc, cur.dialogue_by_id["solubas"])
+        lane = [(s.speaker, s.text) for s in sc.segments if s.type in ("speak", "answer")]
+        self.assertEqual(
+            lane,
+            [
+                ("native_b", "Góðan daginn. Hvað kostar þetta?"),
+                ("native_a", "Það kostar fimm þúsund krónur."),
+                ("native_b", "Fimm þúsund? Það er of dýrt. Fjögur þúsund?"),
+                ("native_a", "Allt í lagi."),
+                ("native_b", "Frábært. Má ég borga með korti?"),
+                ("native_a", "Ekkert mál."),
+                ("native_b", "Takk fyrir! Bless."),
+            ],
+        )
+        self.assertIn("fimm", cur.dialogue_by_id["solubas"].required_items)
+
+    def test_no_dialogue_speaks_a_raw_construction_template(self):
+        """Issue #48 guard: every dialogue on the real course, played in full, speaks only
+        resolved target-language lines — never a ``{slot}`` placeholder."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        for d in cur.dialogues:
+            sc = Script(1, "L", cur.target_lang, cur.known_lang)
+            b.dialogue(sc, d, replay=True)
+            spoken = [s.text for s in sc.segments if s.type in ("speak", "answer")]
+            self.assertFalse([t for t in spoken if "{" in t], d.id)
+
     @staticmethod
     def _german_situation_curriculum():
         return curriculum_from_dict(
@@ -885,6 +1004,94 @@ class CurriculumTests(unittest.TestCase):
             clozed += 1
         self.assertGreater(clozed, 100)
 
+    def test_bridge_is_one_scene_across_both_lanes(self):
+        """Owner comment on #48 (a real Lesson 4): «Góðan daginn» was cued as greeting *bakery
+        staff*, then the partner said «Má ég setjast hérna?» and B's cue was about someone at
+        *your table* — the target-language turns fit, the instructor's world didn't. A bridge now
+        plays as one authored scene: its own setup for A, what the partner said (early
+        encounters), and B's cue naming the partner's move; the standalone bakery situation is
+        never narrated inside the exchange."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        sc = Script(1, "L", cur.target_lang, cur.known_lang)
+        b.connect(sc, [cur.by_id["godan_daginn"], cur.by_id["endilega"]])
+        narr = [s.text for s in sc.segments if s.type == "narrate"]
+        lane = [s.text for s in sc.segments if s.type in ("speak", "answer")]
+        self.assertEqual(lane, ["Góðan daginn.", "Góðan daginn. Má ég setjast hérna?", "Endilega."])
+        self.assertEqual(
+            narr[1:],
+            [
+                "You're sitting at a shared table in a café. A woman comes over and greets you. Greet her back: good day.",
+                "Good day. May I sit here?",
+                "She asked if she may sit here. Tell her: by all means.",
+            ],
+        )
+        self.assertFalse([n for n in narr if "bakery" in n], "the failure shape: A's standalone bakery scene inside the bridge")
+
+    def test_bridge_gloss_fades_after_early_encounters(self):
+        """Owner comment on #48: early partner input with untaught words gets its communicative
+        move explained; later encounters may drop that support. The partner line is glossed on
+        the learner's first two hearings of a bridge (LearnerState.bridges_heard, counted by
+        apply_to_learner), not after — the scene cues stay, since they keep the task checkable."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        gloss = cur.by_id["endilega"].partner_cue_meaning
+
+        def narrated() -> list[str]:
+            b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
+            sc = Script(1, "L", cur.target_lang, cur.known_lang)
+            b.connect(sc, [cur.by_id["godan_daginn"], cur.by_id["endilega"]])
+            return [s.text for s in sc.segments if s.type == "narrate"]
+
+        self.assertIn(gloss, narrated())
+        learner.bridges_heard["endilega"] = 2
+        later = narrated()
+        self.assertNotIn(gloss, later)
+        self.assertIn(cur.by_id["endilega"].partner_cue_situation, later)
+
+        # the planner records played bridges so the fade actually happens across lessons
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "a", "kind": "phrase", "target": "A.", "meaning": "A.", "situation": "Situation A."},
+                {"id": "b", "kind": "phrase", "target": "B.", "meaning": "B.", "situation": "Situation B.", "partner_cue": "Bridge.",
+                 "partner_cue_after": "a", "partner_cue_setup": "Scene A.", "partner_cue_meaning": "Gloss.", "partner_cue_situation": "Scene B."},
+            ] + [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(6)],
+        }
+        syn = curriculum_from_dict(raw)
+        ls = LearnerState("is", "en", "A1")
+        for i in ["a", "b"] + [f"w{i}" for i in range(6)]:
+            ls.items[i] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation")
+        sc = Planner(syn, ls, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, seed=1, new_items=0, max_new_items=0, dialogue_every=1000, drill_streak_limit=2, note_chance=0.0), today=TODAY).build()
+        self.assertIn("b", sc.meta["bridges"])
+        apply_to_learner(sc, ls, TODAY)
+        self.assertEqual(ls.bridges_heard["b"], sc.meta["bridges"].count("b"))
+
+    def test_bridge_scene_fields_are_validated(self):
+        """A partner_cue bridge needs its whole scene (setup, meaning, situation); scene fields
+        without a partner_cue are an authoring mistake too."""
+        base = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "a", "kind": "phrase", "target": "A.", "meaning": "A.", "situation": "Situation A."},
+                {"id": "b", "kind": "phrase", "target": "B.", "meaning": "B.", "situation": "Situation B.", "partner_cue": "Bridge.",
+                 "partner_cue_after": "a", "partner_cue_setup": "Scene A.", "partner_cue_meaning": "Gloss.", "partner_cue_situation": "Scene B."},
+            ],
+        }
+        curriculum_from_dict(base)
+        missing = json.loads(json.dumps(base))
+        del missing["items"][1]["partner_cue_situation"]
+        with self.assertRaisesRegex(CurriculumError, "whole scene"):
+            curriculum_from_dict(missing)
+        orphan = json.loads(json.dumps(base))
+        orphan["items"][0]["partner_cue_setup"] = "Stray."
+        with self.assertRaisesRegex(CurriculumError, "without a partner_cue"):
+            curriculum_from_dict(orphan)
+
     def test_connect_plays_the_owners_real_curriculum_worked_example(self):
         """Issue #48: the real authored pair from the owner's own review — with the
         instructor scaffolding stripped away, the target-language turns alone should form
@@ -1002,6 +1209,7 @@ class CurriculumTests(unittest.TestCase):
                     "topics": ["t"],
                     "partner_cue": "Bridge line.",
                     "partner_cue_after": "a",
+                    "partner_cue_setup": "Scene: say A.", "partner_cue_meaning": "Bridge meaning.", "partner_cue_situation": "Scene: say B.",
                 },
             ],
         }
@@ -1058,7 +1266,8 @@ class CurriculumTests(unittest.TestCase):
             "items": [
                 {"id": "a", "kind": "phrase", "target": "A.", "meaning": "A.", "situation": "Situation A."},
                 {"id": "c", "kind": "phrase", "target": "C.", "meaning": "C.", "situation": "Situation C."},
-                {"id": "b", "kind": "phrase", "target": "B.", "meaning": "B.", "situation": "Situation B.", "partner_cue": "Bridge.", "partner_cue_after": "a"},
+                {"id": "b", "kind": "phrase", "target": "B.", "meaning": "B.", "situation": "Situation B.", "partner_cue": "Bridge.", "partner_cue_after": "a",
+                 "partner_cue_setup": "Scene: say A.", "partner_cue_meaning": "Bridge meaning.", "partner_cue_situation": "Scene: say B."},
             ],
         }
         cur = curriculum_from_dict(raw)

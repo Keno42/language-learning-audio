@@ -1,6 +1,6 @@
 # Handoff note — audiolesson
 
-_Last updated 2026-09-22 (session 32). Recent sessions, oldest first:
+_Last updated 2026-09-22 (session 33). Recent sessions, oldest first:
 22 closes out issue #44; 23 is issue #29's triage and generative agreement
 pilot; 24 is issue #49 (embedded third-language examples, pronunciation
 pacing); 25 is issue #48's first partner line inside connect(); 26 is #29
@@ -9,8 +9,9 @@ cluster A (numbers/money); 27 is #29 cluster B's sequencing findings (PR
 capability-aware arc boundaries; 30 is #48's partner exchanges in early
 lessons (28–30 were PR #56, merged); 31 is issue #57 (situation-bound
 construction fills, PR #58); 32 is #29's audit and grammatical-dimension
-pilots (aspect, modality, case); 34 is issue #59's cloze prompts (PR #62,
-merged; 33 is #48's dialogue audit, PR #61). **Issue #34** ("Improve
+pilots (aspect, modality, case; PR #60, merged); 33 is #48's per-dialogue audit,
+more bridges, bridge scenes and a partner-driven number transaction (PR #61);
+34 is issue #59's cloze prompts (PR #62, merged). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -70,14 +71,19 @@ the session sections):
 - **#48** (isolated recall → end-to-end conversation) — **partially
   addressed**. Session 25 added authored `partner_cue` bridges to
   connect(); session 30 made early lessons reach partner interaction
-  through authored connect() exchanges (12 bridges in modules 01–02, not
+  through authored connect() exchanges (13 bridges in modules 01–02, not
   native-reviewed; connect() labelled `exchange` vs `recombine`;
   `partner_exchanges` in lesson meta) — with #27's durable dialogue gate
   deliberately left intact (a first cut loosened it; reverted on review).
-  Not every early lesson gets an exchange (e.g. L1/L8 at 20 minutes). Still
-  open: bridges beyond modules 01–02; number constructions inside a
-  partner-driven payment exchange; a per-dialogue progression audit like
-  session 25's of `nagranni`.
+  Session 33 (`docs/AUDIT-48.md`): every dialogue's target-language lane
+  audited — six fixed (a case error, an unanswered question, a copied line,
+  a role inversion, two garbled cues); 13 more bridges (26 total, modules
+  01–03), so only L1 lacks a partner exchange at 20 minutes and none at 30;
+  and `expect_fill` lets a dialogue turn generate from a construction —
+  the new `solubas` stall dialogue has the learner produce «Það kostar
+  fimm þúsund krónur.» from `thad_kostar_big` mid-haggle. Still open:
+  bridges beyond module 03; hundreds/teen amounts in partner lines are
+  still fixed text; five dialogues have no item-linked learner turns.
 - **#29** (curriculum around reusable concepts and capabilities) — **in
   progress**. What "done" means below is deliberately split into
   *sequencing finding addressed* vs *capability modeled*; don't merge them.
@@ -2897,7 +2903,8 @@ target-language line at all**. Two causes:
    `partner_cue` in the whole course, so every early connect was English
    "And then —" narration.
 
-**Content.** Authored 11 more `partner_cue`/`partner_cue_after` bridges
+**Content.** Authored 12 more `partner_cue`/`partner_cue_after` bridges (13 with
+session 25's; the PR #56 text said "11" — a miscount, corrected in session 33)
 among modules 01–02, each chosen so *both* lanes hold: target-language
 turns form one exchange, and B's existing English situation still fits the
 scene. E.g. `takk` → «Gjörðu svo vel. Eigðu góðan dag!» → `somuleidis`;
@@ -3068,6 +3075,76 @@ tests widened for the new shapes (ja-gloss slot check accepts `{slot:form}`;
 milestone discrimination accepts a construction recall carrying its fill as
 support) — the discrimination test now also covers the three new milestones.
 150 tests, all passing.
+
+## Session 33: issue #48 — per-dialogue audit, more bridges, numbers in a transaction
+
+Took #48's three open items from session 30. Status table: `docs/AUDIT-48.md`.
+
+**Per-dialogue audit.** Printed every dialogue's target-language lane with the
+instructor stripped and read all 31. Six had real problems, all fixed:
+`veitingastadur` («Hérna er matseðilinn» — accusative after «er»; the nominative
+isn't taught, so the clause was dropped), `straeto` («Hvar á ég að fara út?» →
+«Allt í lagi.» didn't answer; now «Eftir fimm mínútur, við hliðina á bankanum.»),
+`markadur` (the seller answered the ATM question with a line copied from
+`gonguferd`), `heimsokn` (roles inverted: the guest said «Farðu úr skónum», the
+host replied «Nákvæmlega» — the host says it now, the learner agrees with
+«Hæ! Já, auðvitað.»), `ahugamal` («Viltu sjá eina?» → «Já, mér líkar það» was the
+wrong response; now «Já, endilega!») and `myndir` (a self-correcting cue). All
+replacement partner lines use only taught words, as
+`test_dialogue_lines_stay_within_taught_vocabulary` requires. The `heimsokn` fix
+also drops the «nákvæmlega» sequencing finding (11 → 10).
+
+**More bridges.** 13 more authored `partner_cue` bridges in modules 02–03, chosen
+where B's existing situation already fits (e.g. `hvad_kostar_thetta` → «Níu hundruð
+krónur. Eitthvað fleira?» → `ekkert_meira_takk`). Lessons with no partner
+exchange: 20-min L1 only (was L1, L8); 30-min none (was L5, L6). While counting,
+found session 30 had added 12 bridges, not the 11 its PR text said — corrected.
+
+**Numbers inside a partner-driven transaction.** `DialogueTurn.expect_fill`
+(slot → item id, the dialogue counterpart of `situation_fill`) lets a turn expect a
+construction: the line is resolved from the bound fill, the fill joins
+`required_items` (so #27's durable gate covers it), and validation rejects bad
+bindings. `Builder.dialogue()` also now resolves any construction turn instead of
+speaking a raw template. New dialogue `solubas`: the learner minds a flea-market
+stall and generates «Það kostar fimm þúsund krónur.» from `thad_kostar_big` + `fimm`;
+the partner haggles back with «Fjögur þúsund?». A simulated course reaches it at
+L87 (2/3 turns) and plays it in full at L92.
+
+**Follow-up, same session (owner comment on #48):** target-language coherence is
+necessary but not sufficient — a real Lesson 4 cued «Góðan daginn» as greeting bakery
+staff, then played «Má ég setjast hérna?» and a cue about someone at *your table*: one
+scene in the target lane, two in the instructor lane, and an untaught partner line with no
+stated communicative move. Every bridge is now one authored scene on item B —
+`partner_cue_setup` (replaces A's standalone situation), `partner_cue_meaning` (glosses
+the partner line on the learner's first two hearings, tracked in the new, persisted
+`LearnerState.bridges_heard` via `sc.meta["bridges"]`), `partner_cue_situation` (replaces
+B's, naming the partner's move) — required together by `validate()`. All 26 bridges (13
+already on main + 13 from this session) were audited by hand for both lanes and authored
+in en/ja; several were re-scened (e.g. `endilega`: a shared café table instead of a
+bakery counter; `eg_veit_ekki`: a stranger at a bus stop, not bakery staff, asks where the
+bank is). The table is in `docs/AUDIT-48.md`. Tests: the owner's failure shape as a
+fixture (both lanes pinned, no bakery narration inside the bridge), gloss fading plus the
+planner's `bridges_heard` bookkeeping, and scene-field validation (all fail pre-change).
+154 tests, all passing; throughput and partner-exchange coverage unchanged.
+
+**Correction (owner review on PR #61): `expect_fill` could bypass the durable gate.**
+`Builder.dialogue()` resolved a construction turn as `{**example_fill, **expect_fill}`,
+so on a multi-slot construction an unbound slot silently used the worked-example fill —
+not a required item. A dialogue whose other parts were learned became eligible and spoke
+a part never durably learned (reproduced: «tvo te, takk.» with «te» never learned); a
+construction turn with no `expect_fill` at all did the same. Now `validate()` requires
+`expect_fill` to bind every slot of a construction turn, and `Builder.dialogue()` refuses
+an unbound slot instead of falling back. `solubas` (one slot, bound) is unaffected. Test:
+partial and missing bindings rejected, full binding puts every part in `required_items`,
+and the gate itself (construction + one fill durable, the other only met → not eligible).
+Noticed while there, not fixed (pre-existing, out of scope): `validate()`'s "each turn
+needs expect or expect_text" / "expect_text needs expect_meaning" checks sit inside the
+`requires` loop, so they only ever see a dialogue's last turn.
+
+**Tests:** `expect_fill` (resolution, required items, three validation failures);
+the real `solubas` lane pinned verbatim; no dialogue on the course ever speaks a
+`{slot}` placeholder (all three error on the pre-fix code). 153 tests, all
+passing. Throughput unchanged (80 lessons: 336 items met).
 
 ## Session 34: issue #59 — cloze prompts didn't say what to complete
 
