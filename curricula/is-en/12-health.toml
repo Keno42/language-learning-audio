@@ -140,28 +140,90 @@ topics = ["health"]
 situation = "You've gone pale at the table. Tell your friend you feel unwell."
 situation_ja = "食卓で顔色が悪くなりました。友達に気分が悪いと伝えてください。"
 
+# issue #29 (case): «líða» takes its experiencer in the dative. Instead of one fixed
+# «Mér líður …» phrase per adverb, the adverbs are a pool and the frame is a construction,
+# paired with the question it answers («Hvernig líður þér?», þér = dative of þú).
 [[items]]
-id = "mer_lidur_betur"
-kind = "phrase"
-target = "Mér líður betur."
-meaning = "I feel better."
-meaning_ja = "だいぶ良くなりました。"
-difficulty = 3
-topics = ["health"]
-prereqs = ["mer_lidur_illa"]
-situation = "After a nap your friend checks on you. Say you feel better."
-situation_ja = "昼寝の後、友達が様子を見に来ました。良くなったと言ってください。"
+id = "vel"
+kind = "vocab"
+target = "vel"
+meaning = "well (how you feel)"
+meaning_ja = "いい（気分が）"
+difficulty = 1
+tags = ["how_feel"]
+topics = ["health", "feelings"]
+meaning_forms = { in_sentence = "good" }
+meaning_forms_ja = { in_sentence = "いいです" }
 
 [[items]]
-id = "mer_lidur_vel"
-kind = "phrase"
-target = "Mér líður vel."
-meaning = "I feel good."
-meaning_ja = "気分がいいです。"
-difficulty = 2
+id = "illa"
+kind = "vocab"
+target = "illa"
+meaning = "unwell, badly (how you feel)"
+meaning_ja = "悪い（気分が）"
+difficulty = 1
+tags = ["how_feel"]
 topics = ["health", "feelings"]
+meaning_forms = { in_sentence = "unwell" }
+meaning_forms_ja = { in_sentence = "悪いです" }
+
+[[items]]
+id = "mer_lidur"
+kind = "construction"
+target = "Mér líður {how}."
+meaning = "I feel {how}."
+meaning_ja = "気分は{how}。"
+difficulty = 3
+topics = ["health", "feelings"]
+slots = { how = "how_feel" }
+example = { how = "vel" }
+prereqs = ["vel"]
 situation = "After the hot spring you feel wonderful. Say you feel good."
 situation_ja = "温泉の後で最高の気分です。気分がいいと言ってください。"
+situation_fill = { how = "vel" }
+partner_cue = "Mér líður betur, takk. En þér?"
+partner_cue_after = "hvernig_lidur_ther"
+partner_cue_setup = "Your friend was ill yesterday. You meet her at the café. Ask how she feels."
+partner_cue_setup_ja = "友達は昨日具合が悪かったそうです。カフェで会いました。気分はどうか聞いてください。"
+partner_cue_meaning = "I feel better, thanks. And you?"
+partner_cue_meaning_ja = "良くなったよ、ありがとう。あなたは？"
+partner_cue_situation = "She feels better and asked how you feel. You feel great: say you feel good."
+partner_cue_situation_ja = "良くなったそうで、あなたの気分を聞かれました。気分は最高です。気分がいいと答えてください。"
+
+[[items]]
+id = "betur"
+kind = "vocab"
+target = "betur"
+meaning = "better (how you feel)"
+meaning_ja = "良くなった（気分が）"
+difficulty = 2
+tags = ["how_feel"]
+topics = ["health", "feelings"]
+meaning_forms = { in_sentence = "better" }
+meaning_forms_ja = { in_sentence = "良くなりました" }
+
+[[items]]
+id = "agaetlega"
+kind = "vocab"
+target = "ágætlega"
+meaning = "alright, fine (how you feel)"
+meaning_ja = "まあまあ（気分が）"
+difficulty = 3
+tags = ["how_feel"]
+topics = ["health", "feelings"]
+meaning_forms = { in_sentence = "alright" }
+meaning_forms_ja = { in_sentence = "まあまあです" }
+
+[[items]]
+id = "hvernig_lidur_ther"
+kind = "phrase"
+target = "Hvernig líður þér?"
+meaning = "How do you feel?"
+meaning_ja = "気分はどうですか？"
+difficulty = 3
+topics = ["feelings", "health"]
+situation = "Your friend was ill yesterday. Ask how she feels."
+situation_ja = "友達が昨日病気でした。気分はどうか聞いてください。"
 
 [[items]]
 id = "eg_tharf_laekni"
