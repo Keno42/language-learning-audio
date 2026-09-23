@@ -1762,6 +1762,7 @@ class CurriculumTests(unittest.TestCase):
         learner.feedback_mode = "auto"
         day = TODAY
         heard: list[str] = []
+        last_heard: dict[str, int] = {}
         cfg_for_ceiling = PlanConfig(minutes=30)
         for _ in range(12):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=2), today=day).build()
@@ -1770,9 +1771,11 @@ class CurriculumTests(unittest.TestCase):
             self.assertLessEqual(len(asides), 2 + cfg_for_ceiling.max_streak_relief_notes)
             for e in notes:
                 note = cur.note_by_id[e.label.split(": ")[1]]
-                if not note.milestone:
-                    self.assertNotIn(note.id, heard, "no aside repeats while unheard asides remain")
+                if not note.milestone and note.id in last_heard:
+                    # issue #81: a heard aside may come back, but only after the repeat gap
+                    self.assertGreaterEqual(sc.lesson_number - last_heard[note.id], cfg_for_ceiling.note_repeat_gap, note.id)
                 heard.append(note.id)
+                last_heard[note.id] = sc.lesson_number
             apply_to_learner(sc, learner, day)
             day += timedelta(days=1)
         self.assertGreater(len(heard), 4)
@@ -2321,6 +2324,58 @@ class CurriculumTests(unittest.TestCase):
         learner.notes_heard["cultural"] = 1
         planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=7), today=TODAY)
         self.assertIsNotNone(planner._pick_note(None))
+
+    def test_filler_asides_stay_in_context_and_keep_coming(self):
+        """Issue #81: filler used any unheard note, so asides about material far ahead (families,
+        cashless shops) played in the first lessons and were then used up. One note waiting on
+        its ``requires`` also blocked every repeat, so no aside played from L12 on. Filler now
+        takes a note about met material first, then one about material within
+        ``note_lookahead``; distant material waits for its moment, a waiting note doesn't block
+        repeats, and a heard note comes back only after ``note_repeat_gap`` lessons."""
+        items = [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(300)]
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": items,
+            "notes": [
+                {"id": "far", "items": ["w250"], "text": "About something far ahead."},
+                {"id": "waiting", "items": ["w0"], "requires": ["w299"], "text": "Recommends w299."},
+                {"id": "heard", "items": ["w0"], "text": "Heard before."},
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        learner.items["w0"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        learner.lessons_completed = 29  # the next lesson is L30
+        learner.notes_heard["heard"] = 1
+        learner.notes_last_heard["heard"] = 25
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1), today=TODAY)
+        self.assertIsNone(planner._pick_note(None), "far is out of context, heard is resting, waiting is unavailable")
+        learner.notes_last_heard["heard"] = 30 - PlanConfig().note_repeat_gap
+        self.assertEqual(planner._pick_note(None).id, "heard", "a waiting note no longer blocks a rested repeat")
+        with tempfile.TemporaryDirectory() as td:
+            learner.save(Path(td) / "l.json")
+            self.assertEqual(LearnerState.load(Path(td) / "l.json").notes_last_heard, learner.notes_last_heard)
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        late_asides = 0
+        for _ in range(40):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30), today=day).build()
+            reached = max((cur.by_id[i].order for i in list(learner.items) + list(sc.meta["exposures"]) if i in cur.by_id), default=0)
+            for n in sc.meta["notes"]:
+                note = cur.note_by_id[n]
+                if note.milestone:
+                    continue
+                self.assertTrue(
+                    not note.items or any(cur.by_id[i].order <= reached + PlanConfig().note_lookahead for i in note.items),
+                    f"L{sc.lesson_number}: {n} is about material far ahead",
+                )
+                if sc.lesson_number > 20:
+                    late_asides += 1
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        self.assertGreaterEqual(late_asides, 10, "asides must keep coming after the first lessons")
 
     def test_icelandic_course_has_complete_japanese_glosses(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
