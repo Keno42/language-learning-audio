@@ -21,6 +21,14 @@ difficulty = 3
 topics = ["accommodation"]
 situation = "The receptionist asks what name the booking is under. Say: under the name Yuki."
 situation_ja = "受付に予約の名前を聞かれました。ユキの名前で、と言ってください。"
+partner_cue = "Á hvaða nafni?"
+partner_cue_after = "eg_er_med_bokun"
+partner_cue_setup = "You arrive at the hotel reception with your suitcase. Say you have a reservation."
+partner_cue_setup_ja = "スーツケースを持ってホテルの受付に着きました。予約していると言ってください。"
+partner_cue_meaning = "Under which name?"
+partner_cue_meaning_ja = "どなたのお名前で？"
+partner_cue_situation = "The receptionist asked which name the booking is under. Say: under the name Yuki."
+partner_cue_situation_ja = "予約の名前を聞かれました。ユキの名前でと言ってください。"
 
 [[items]]
 id = "eg_a_pantad_herbergi"
@@ -99,6 +107,14 @@ topics = ["accommodation", "money"]
 prereqs = ["hvad_kostar_thetta"]
 situation = "They have a room. Ask how much a night costs."
 situation_ja = "部屋はあるそうです。一泊いくらか聞いてください。"
+partner_cue = "Já, við erum með eitt laust herbergi."
+partner_cue_after = "hafid_thid_laust_herbergi"
+partner_cue_setup = "You walk into a guesthouse without a booking. Ask if they have a room."
+partner_cue_setup_ja = "予約なしでゲストハウスに入りました。部屋があるか聞いてください。"
+partner_cue_meaning = "Yes, we have one room free."
+partner_cue_meaning_ja = "はい、一部屋空いています。"
+partner_cue_situation = "They have one room. Ask how much a night costs."
+partner_cue_situation_ja = "一部屋空いているそうです。一泊いくらか聞いてください。"
 
 [[items]]
 id = "er_morgunmatur_innifalinn"
@@ -111,6 +127,14 @@ topics = ["accommodation"]
 chunks = ["innifalinn", "morgunmatur innifalinn", "Er morgunmatur innifalinn?"]
 situation = "The price seems high. Ask if breakfast is included."
 situation_ja = "値段が高そうです。朝食が含まれているか聞いてください。"
+partner_cue = "Tuttugu þúsund krónur."
+partner_cue_after = "hvad_kostar_nottin"
+partner_cue_setup = "At a guesthouse reception, they have a free room. Ask how much a night costs."
+partner_cue_setup_ja = "ゲストハウスの受付で、部屋が空いているそうです。一泊いくらか聞いてください。"
+partner_cue_meaning = "Twenty thousand krónur."
+partner_cue_meaning_ja = "2万クローナです。"
+partner_cue_situation = "Twenty thousand seems high. Ask if breakfast is included."
+partner_cue_situation_ja = "2万クローナは高く感じます。朝食込みか聞いてください。"
 
 [[items]]
 id = "hvenaer_er_morgunmatur"
@@ -158,6 +182,14 @@ topics = ["accommodation"]
 prereqs = ["tolf"]
 situation = "You call reception from your room. Say: room number twelve."
 situation_ja = "部屋から受付に電話します。12号室ですと言ってください。"
+partner_cue = "Hvað er herbergisnúmerið?"
+partner_cue_after = "get_eg_fengid_lykilinn"
+partner_cue_setup = "You come back to the hotel after dinner. Ask the receptionist for your key."
+partner_cue_setup_ja = "夕食からホテルに戻りました。受付で鍵をもらってください。"
+partner_cue_meaning = "What's the room number?"
+partner_cue_meaning_ja = "お部屋の番号は？"
+partner_cue_situation = "She asked your room number. Say: room number twelve."
+partner_cue_situation_ja = "部屋番号を聞かれました。12号室と言ってください。"
 
 [[items]]
 id = "get_eg_fengid_lykilinn"
@@ -194,6 +226,14 @@ topics = ["accommodation", "practical"]
 chunks = ["orðið", "lykilorðið", "Hvað er lykilorðið?"]
 situation = "You want to connect to the Wi-Fi. Ask for the password."
 situation_ja = "Wi-Fiにつなぎたいです。パスワードを聞いてください。"
+partner_cue = "Já, og það er ókeypis."
+partner_cue_after = "er_thradlaust_net"
+partner_cue_setup = "At reception you need to check your email. Ask if there's Wi-Fi."
+partner_cue_setup_ja = "受付で、メールを確認したいです。Wi-Fiがあるか聞いてください。"
+partner_cue_meaning = "Yes, and it's free."
+partner_cue_meaning_ja = "はい、無料ですよ。"
+partner_cue_situation = "There's free Wi-Fi. Ask for the password."
+partner_cue_situation_ja = "無料のWi-Fiがあるそうです。パスワードを聞いてください。"
 
 [[items]]
 id = "er_thradlaust_net"
@@ -277,6 +317,14 @@ topics = ["accommodation"]
 chunks = ["hérna", "töskuna hérna", "geymt töskuna hérna", "Get ég geymt töskuna hérna?"]
 situation = "You've checked out but your flight is at night. Ask if you can leave your bag."
 situation_ja = "チェックアウトしましたが便は夜です。荷物を預けられるか聞いてください。"
+partner_cue = "Klukkan ellefu."
+partner_cue_after = "hvenaer_er_utritun"
+partner_cue_setup = "You're leaving tomorrow and your flight is at night. Ask the receptionist when check-out is."
+partner_cue_setup_ja = "明日出発で、飛行機は夜です。受付でチェックアウトは何時か聞いてください。"
+partner_cue_meaning = "At eleven."
+partner_cue_meaning_ja = "11時です。"
+partner_cue_situation = "Check-out is at eleven, hours before your flight. Ask if you can leave your bag here."
+partner_cue_situation_ja = "チェックアウトは11時で、飛行機まで何時間もあります。荷物を預けられるか聞いてください。"
 
 # eg_er_ad_fara moved to module 06 (issue #29 pilot 3, aspect) — see that module.
 [[items]]

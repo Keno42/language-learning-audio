@@ -252,6 +252,14 @@ difficulty = 2
 topics = ["money", "shopping"]
 situation = "The sweater costs thirty thousand krónur. Say it's expensive."
 situation_ja = "セーターが3万クローナします。高いと言ってください。"
+partner_cue = "Þrjátíu þúsund krónur."
+partner_cue_after = "hvad_kostar_thetta"
+partner_cue_setup = "In a wool shop you pick up a sweater you like. Ask how much it costs."
+partner_cue_setup_ja = "毛糸の店で気に入ったセーターを手に取りました。いくらか聞いてください。"
+partner_cue_meaning = "Thirty thousand krónur."
+partner_cue_meaning_ja = "3万クローナです。"
+partner_cue_situation = "It costs thirty thousand. Say it's expensive."
+partner_cue_situation_ja = "3万クローナだそうです。高いと言ってください。"
 
 [[items]]
 id = "thetta_er_odyrt"
@@ -286,6 +294,14 @@ topics = ["money"]
 chunks = ["reiðufé", "með reiðufé", "ekki með reiðufé", "Ég er ekki með reiðufé."]
 situation = "The stall only takes cash. Say you don't have cash."
 situation_ja = "屋台は現金のみです。現金がないと言ってください。"
+partner_cue = "Nei, bara reiðufé."
+partner_cue_after = "tekurdu_kort"
+partner_cue_setup = "At a small market stall you want to buy a scarf. Ask whether they take cards."
+partner_cue_setup_ja = "小さな市場の露店でマフラーを買いたいです。カードが使えるか聞いてください。"
+partner_cue_meaning = "No, cash only."
+partner_cue_meaning_ja = "いいえ、現金だけです。"
+partner_cue_situation = "The stall only takes cash. Say you don't have cash."
+partner_cue_situation_ja = "この店は現金だけです。現金を持っていないと言ってください。"
 
 [[items]]
 id = "hvar_er_naesti_hradbanki"
@@ -310,6 +326,14 @@ topics = ["money", "shopping"]
 prereqs = ["get_eg_fengid", "kvittun"]
 situation = "You need the receipt for expenses. Ask for one."
 situation_ja = "経費精算にレシートが必要です。レシートを頼んでください。"
+partner_cue = "Já, auðvitað."
+partner_cue_after = "ma_eg_borga_med_korti"
+partner_cue_setup = "You're buying a work lunch and have no cash. Ask if you may pay by card."
+partner_cue_setup_ja = "仕事のランチを買いますが、現金がありません。カードで払えるか聞いてください。"
+partner_cue_meaning = "Yes, of course."
+partner_cue_meaning_ja = "ええ、もちろんです。"
+partner_cue_situation = "You've paid by card and need the receipt for expenses. Ask for one."
+partner_cue_situation_ja = "カードで払いました。経費精算のためにレシートが必要です。もらえるか聞いてください。"
 
 [[items]]
 id = "eigdu_afganginn"
@@ -344,6 +368,14 @@ difficulty = 2
 topics = ["money", "shopping"]
 situation = "You're buying three sweaters. Ask if there's a discount."
 situation_ja = "セーターを三枚買います。割引があるか聞いてください。"
+partner_cue = "Tólf þúsund krónur."
+partner_cue_after = "hvad_er_thetta_mikid_samtals"
+partner_cue_setup = "You've put five things on the counter at a gift shop. Ask how much it is altogether."
+partner_cue_setup_ja = "お土産店のカウンターに5つの品物を置きました。全部でいくらか聞いてください。"
+partner_cue_meaning = "Twelve thousand krónur."
+partner_cue_meaning_ja = "1万2千クローナです。"
+partner_cue_situation = "It comes to twelve thousand. Ask if there's a discount."
+partner_cue_situation_ja = "合計1万2千クローナだそうです。割引があるか聞いてください。"
 
 [[items]]
 id = "hvad_er_thetta_mikid_samtals"
