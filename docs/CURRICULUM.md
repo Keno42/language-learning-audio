@@ -57,6 +57,8 @@ skips anything whose `prereqs` the learner does not know yet.
   known vocabulary to produce sentences the learner has never heard
   ("generative practice"). Slot fills use the vocab `target` verbatim, so tag
   only items that are grammatical in that slot (article, gender, number).
+  A sentence that opens with a slot (`"{thing} virkar ekki."`) gets a capital
+  first letter, so fills stay lowercase.
 - **transform** — a grammatical operation shown by example pairs, then
   practised: the native voice says `source`, the learner produces `result`.
 

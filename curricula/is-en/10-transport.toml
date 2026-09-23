@@ -35,17 +35,22 @@ difficulty = 3
 tags = ["acc_thing"]
 topics = ["transport"]
 
+# issue #29 (category-2 family): one construction over what departs (nominative), instead of
+# a fixed «Hvenær fer …?» per vehicle
 [[items]]
-id = "hvenaer_fer_straeto"
-kind = "phrase"
-target = "Hvenær fer strætó?"
-meaning = "When does the bus leave?"
-meaning_ja = "バスは何時に出ますか？"
+id = "hvenaer_fer"
+kind = "construction"
+target = "Hvenær fer {vehicle}?"
+meaning = "When does {vehicle} leave?"
+meaning_ja = "{vehicle}は何時に出ますか？"
 difficulty = 2
 topics = ["transport", "time"]
+slots = { vehicle = "departs" }
+example = { vehicle = "strætó" }
 prereqs = ["hvenaer", "strætó"]
 situation = "You're at the bus stop with no timetable. Ask when the bus leaves."
 situation_ja = "時刻表のないバス停にいます。バスは何時に出るか聞いてください。"
+situation_fill = { vehicle = "strætó" }
 
 [[items]]
 id = "hvenaer_kemur_straeto"
@@ -55,7 +60,7 @@ meaning = "When does the bus come?"
 meaning_ja = "バスは何時に来ますか？"
 difficulty = 2
 topics = ["transport", "time"]
-prereqs = ["hvenaer_fer_straeto"]
+prereqs = ["hvenaer_fer"]
 situation = "You've been waiting ten minutes. Ask when the bus comes."
 situation_ja = "10分待っています。バスは何時に来るか聞いてください。"
 
@@ -131,7 +136,7 @@ prereqs = ["hvad_kostar_thetta", "strætó"]
 situation = "Before boarding, ask how much the bus costs."
 situation_ja = "乗る前に、バス代がいくらか聞いてください。"
 partner_cue = "Eftir tíu mínútur."
-partner_cue_after = "hvenaer_fer_straeto"
+partner_cue_after = "hvenaer_fer"
 partner_cue_setup = "At the bus stop there's no timetable. Ask the woman waiting next to you when the bus leaves."
 partner_cue_setup_ja = "バス停に時刻表がありません。隣で待っている女性にバスはいつ出るか聞いてください。"
 partner_cue_meaning = "In ten minutes."
@@ -212,20 +217,8 @@ target = "flugið"
 meaning = "the flight"
 meaning_ja = "フライト"
 difficulty = 2
-tags = ["nom_event"]
+tags = ["nom_event", "departs"]
 topics = ["transport"]
-
-[[items]]
-id = "hvenaer_fer_flugid"
-kind = "phrase"
-target = "Hvenær fer flugið?"
-meaning = "When does the flight leave?"
-meaning_ja = "フライトは何時に出ますか？"
-difficulty = 2
-topics = ["transport", "time"]
-prereqs = ["flugid", "hvenaer"]
-situation = "You want to confirm the departure. Ask when the flight leaves."
-situation_ja = "出発時刻を確認したいです。何時に出るか聞いてください。"
 
 [[items]]
 id = "flugid_er_seinkad"
@@ -390,20 +383,8 @@ target = "ferjan"
 meaning = "the ferry"
 meaning_ja = "フェリー"
 difficulty = 2
-tags = ["nom_place"]
+tags = ["nom_place", "departs"]
 topics = ["transport"]
-
-[[items]]
-id = "hvenaer_fer_ferjan"
-kind = "phrase"
-target = "Hvenær fer ferjan?"
-meaning = "When does the ferry leave?"
-meaning_ja = "フェリーは何時に出ますか？"
-difficulty = 2
-topics = ["transport", "time"]
-prereqs = ["ferjan", "hvenaer"]
-situation = "You want to go to the Westman Islands. Ask when the ferry leaves."
-situation_ja = "ウェストマン諸島に行きたいです。フェリーは何時に出るか聞いてください。"
 
 [[items]]
 id = "eg_missti_af_straeto"
@@ -480,7 +461,7 @@ id = "flugvollur"
 setting = "At the check-in desk at Keflavík airport."
 setting_ja = "ケプラヴィーク空港のチェックインカウンターにいます。"
 topics = ["transport"]
-requires = ["eg_a_bokun", "eg_er_med_eina_tosku", "hvar_er_hlidid", "hvenaer_fer_flugid", "takk"]
+requires = ["eg_a_bokun", "eg_er_med_eina_tosku", "hvar_er_hlidid", "hvenaer_fer", "takk"]
 
   [[dialogues.turns]]
   opener = "Góðan daginn. Vegabréf, takk."
@@ -512,7 +493,8 @@ requires = ["eg_a_bokun", "eg_er_med_eina_tosku", "hvar_er_hlidid", "hvenaer_fer
   [[dialogues.turns]]
   cue = "Ask when the flight leaves."
   cue_ja = "フライトは何時に出るか聞いてください。"
-  expect = "hvenaer_fer_flugid"
+  expect = "hvenaer_fer"
+  expect_fill = { vehicle = "flugid" }
   partner = "Klukkan hálf þrjú. Góða ferð!"
   partner_meaning = "At half past two. Have a good trip!"
   partner_meaning_ja = "2時半です。良いご旅行を！"

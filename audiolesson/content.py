@@ -247,6 +247,11 @@ class Curriculum:
             meaning = _FORM_SLOT_RE.sub(
                 lambda m: item.meaning_forms.get(m.group(2), item.meaning).rstrip(".") if m.group(1) == slot else m.group(0), meaning
             )
+        # a sentence that opens with a slot ("{thing} virkar ekki.") still starts with a capital
+        if construction.target.startswith("{"):
+            target = target[:1].upper() + target[1:]
+        if construction.meaning.startswith("{"):
+            meaning = meaning[:1].upper() + meaning[1:]
         return target, meaning
 
     def situation_fills(self, construction: Item) -> dict[str, Item]:
