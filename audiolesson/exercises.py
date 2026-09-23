@@ -81,14 +81,14 @@ class Builder:
             return meaning
         return meaning + "."
 
-    def _situation(self, item: Item, advance: bool = True) -> str | None:
+    def _situation(self, item: Item) -> str | None:
         """The situation cue to narrate now, rotated by past exposures plus the cues already
-        narrated this lesson (exposures only update after the lesson). ``connect()`` reads
-        without advancing, so pairing an item never shifts what its own recalls hear."""
+        narrated this lesson (exposures only update after the lesson). Every narration of an
+        item's own cue advances it, connect() included, so the next one is a different variant
+        whenever the item has one."""
         base = self.learner.items[item.id].exposures if item.id in self.learner.items else 0
         offset = self._situation_uses.get(item.id, 0)
-        if advance:
-            self._situation_uses[item.id] = offset + 1
+        self._situation_uses[item.id] = offset + 1
         return item.situation_for(base + offset)
 
     def _meaning_prompt(self, meaning: str) -> str:
@@ -519,7 +519,7 @@ class Builder:
         self._narr(sc, ex, self.prompts.get("connect_intro"))
         self._beat(sc, ex)
         # a bridge's own scene replaces the items' standalone situations
-        self._narr(sc, ex, second.partner_cue_setup if bridged else self._situation(first, advance=False))  # type: ignore[arg-type]
+        self._narr(sc, ex, second.partner_cue_setup if bridged else self._situation(first))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, first_target, first, generative=True)
         self._answer(sc, ex, first_target)
         self._beat(sc, ex)
@@ -532,7 +532,7 @@ class Builder:
                 self._beat(sc, ex)
         else:
             self._narr(sc, ex, self.prompts.get("connect_next"))
-        self._narr(sc, ex, second.partner_cue_situation if bridged else self._situation(second, advance=False))  # type: ignore[arg-type]
+        self._narr(sc, ex, second.partner_cue_situation if bridged else self._situation(second))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, second_target, second, generative=True)
         self._answer(sc, ex, second_target)
         self._gap(sc, ex)

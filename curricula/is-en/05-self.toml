@@ -400,8 +400,8 @@ meaning_ja = "何歳ですか？（女性に）"
 difficulty = 3
 topics = ["social"]
 pronunciation_notes = "to a man: Hvað ertu gamall?"
-situation = "Your new friend has told you her age. Ask hers back — no, ask her age."
-situation_ja = "新しい友達に年齢を聞いてください。"
+situation = "You're chatting with a new friend. Ask how old she is."
+situation_ja = "新しい友達と話しています。何歳か聞いてください。"
 
 [[items]]
 id = "eg_er_gift"
