@@ -185,8 +185,14 @@ meaning = "At what time?"
 meaning_ja = "何時に？"
 difficulty = 2
 topics = ["arrangements"]
-situation = "Anna suggests meeting for dinner. Ask at what time."
-situation_ja = "アンナが夕食に誘ってくれました。何時か聞いてください。"
+situations = [
+  "Anna suggests meeting for dinner. Ask at what time.",
+  "Your colleague says the meeting has moved to tomorrow. Ask at what time.",
+]
+situations_ja = [
+  "アンナが夕食に誘ってくれました。何時か聞いてください。",
+  "同僚に会議が明日に変更になったと言われました。何時からか聞いてください。",
+]
 
 [[items]]
 id = "hvad_er_klukkan"
@@ -322,8 +328,8 @@ situation = "She suggests Friday evening. Say that suits you well."
 situation_ja = "金曜の夜を提案されました。都合がいいと言ってください。"
 partner_cue = "Klukkan sjö. Hentar það?"
 partner_cue_after = "klukkan_hvad"
-partner_cue_setup = "Anna suggests meeting for dinner. Ask at what time."
-partner_cue_setup_ja = "アンナが夕食に誘ってくれました。何時か聞いてください。"
+partner_cue_setup = "Anna calls to invite you to dinner on Friday. Ask at what time."
+partner_cue_setup_ja = "アンナから金曜の夕食に誘う電話がありました。何時か聞いてください。"
 partner_cue_meaning = "At seven. Does that suit you?"
 partner_cue_meaning_ja = "7時に。都合はいい？"
 partner_cue_situation = "She suggested seven and asked if that suits you. Say that suits you well."

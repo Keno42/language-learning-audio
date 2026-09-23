@@ -8,8 +8,16 @@ meaning = "Good day."
 meaning_ja = "こんにちは。"
 difficulty = 2
 topics = ["greetings"]
-situation = "You walk into a bakery in the morning. Greet the person behind the counter."
-situation_ja = "朝、パン屋に入ります。店の人にあいさつしてください。"
+situations = [
+  "You walk into a bakery in the morning. Greet the person behind the counter.",
+  "You step into a small shop at nine in the morning. Greet the shopkeeper.",
+  "A neighbour you don't know well passes you on the stairs in the morning. Greet her politely.",
+]
+situations_ja = [
+  "朝、パン屋に入ります。店の人にあいさつしてください。",
+  "朝9時に小さな店に入ります。店主にあいさつしてください。",
+  "朝、あまり親しくない近所の人と階段ですれ違います。丁寧にあいさつしてください。",
+]
 
 [[items]]
 id = "takk"
@@ -20,8 +28,16 @@ meaning_ja = "ありがとう。"
 alternatives = ["Takk fyrir."]
 difficulty = 1
 topics = ["greetings"]
-situation = "The barista hands you your coffee. Thank her."
-situation_ja = "バリスタがコーヒーを渡してくれました。お礼を言ってください。"
+situations = [
+  "The barista hands you your coffee. Thank her.",
+  "A stranger holds the door open for you. Thank him.",
+  "The bus driver hands you your ticket. Thank him.",
+]
+situations_ja = [
+  "バリスタがコーヒーを渡してくれました。お礼を言ってください。",
+  "知らない人がドアを押さえてくれました。お礼を言ってください。",
+  "バスの運転手が切符を渡してくれました。お礼を言ってください。",
+]
 
 [[items]]
 id = "hvad_segirdu_gott"
@@ -32,8 +48,14 @@ meaning_ja = "元気？"
 difficulty = 3
 topics = ["greetings", "social"]
 chunks = ["gott", "segirðu gott", "Hvað segirðu gott?"]
-situation = "You bump into your neighbour. Ask how she is."
-situation_ja = "近所の人にばったり会いました。元気か聞いてください。"
+situations = [
+  "You bump into your neighbour. Ask how she is.",
+  "Your friend picks up the phone. Ask how she is, the casual way.",
+]
+situations_ja = [
+  "近所の人にばったり会いました。元気か聞いてください。",
+  "友達が電話に出ました。くだけた言い方で元気か聞いてください。",
+]
 
 [[items]]
 id = "en_thu"
@@ -43,8 +65,16 @@ meaning = "And you?"
 meaning_ja = "あなたは？"
 difficulty = 1
 topics = ["social"]
-situation = "You've answered her question. Return it to her."
-situation_ja = "質問に答えました。同じ質問を返してください。"
+situations = [
+  "A colleague asks how your weekend was, and you've told her. Ask her the same: and you?",
+  "Your neighbour asks if you slept well, and you've said yes. Turn the question back to her.",
+  "Someone asks where you're from, and you've answered. Ask them back: and you?",
+]
+situations_ja = [
+  "同僚に週末はどうだったか聞かれ、答えました。「あなたは？」と聞き返してください。",
+  "近所の人によく眠れたか聞かれ、はいと答えました。同じ質問を返してください。",
+  "出身を聞かれて答えました。「あなたは？」と聞き返してください。",
+]
 
 [[items]]
 id = "hae"
@@ -54,8 +84,16 @@ meaning = "Hi."
 meaning_ja = "やあ。"
 difficulty = 1
 topics = ["greetings"]
-situation = "A friend waves at you across the street. Greet them casually."
-situation_ja = "通りの向こうから友達が手を振っています。くだけたあいさつをしてください。"
+situations = [
+  "A friend waves at you across the street. Greet them casually.",
+  "Your flatmate comes home. Greet her casually.",
+  "A classmate sits down next to you. Say a casual hi.",
+]
+situations_ja = [
+  "通りの向こうから友達が手を振っています。くだけたあいさつをしてください。",
+  "ルームメイトが帰ってきました。くだけたあいさつをしてください。",
+  "クラスメートが隣に座りました。気軽にあいさつしてください。",
+]
 
 [[items]]
 id = "hallo"
@@ -65,8 +103,16 @@ meaning = "Hello."
 meaning_ja = "もしもし。／ハロー。"
 difficulty = 1
 topics = ["greetings"]
-situation = "You answer the phone."
-situation_ja = "電話に出ます。"
+situations = [
+  "Your phone rings. Answer it.",
+  "You pick up a call from a number you don't know. Say hello.",
+  "You walk into your friend's flat, but nobody seems to be home. Call out hello.",
+]
+situations_ja = [
+  "電話が鳴りました。電話に出てください。",
+  "知らない番号からの電話に出ます。「もしもし」と言ってください。",
+  "友達の部屋に入りましたが、誰もいないようです。「こんにちは」と呼びかけてください。",
+]
 pronunciation_notes = "'Halló' is a Danish loanword (in use since the 1600s) and is pronounced with a plain 'l', close to the familiar 'hello' — not the pre-aspirated click that native double-'l' words get (e.g. 'fjall', mountain; 'jökull', glacier), which this course pronounces properly wherever it genuinely occurs."
 
 [[items]]
@@ -78,8 +124,14 @@ meaning_ja = "元気です、ありがとう。"
 difficulty = 2
 topics = ["greetings", "social"]
 prereqs = ["takk"]
-situation = "Your neighbour asked how you are. Answer that all is good."
-situation_ja = "近所の人に元気か聞かれました。元気だと答えてください。"
+situations = [
+  "Your neighbour asked how you are. Answer that all is good.",
+  "Your host asks how you're settling in. Answer that all is good.",
+]
+situations_ja = [
+  "近所の人に元気か聞かれました。元気だと答えてください。",
+  "ホストに、もう慣れたか聞かれました。すべて順調だと答えてください。",
+]
 partner_cue = "Hæ! Hvað segirðu gott?"  # issue #48: the partner line between hae and this item in connect()
 partner_cue_after = "hae"
 partner_cue_setup = "Your neighbour waves at you in the street. Greet her casually."
@@ -98,8 +150,14 @@ meaning_ja = "調子はどう？"
 difficulty = 3
 topics = ["greetings", "social"]
 chunks = ["það", "hefurðu það", "Hvernig hefurðu það?"]
-situation = "You meet a colleague you haven't seen for a week. Ask how she's doing."
-situation_ja = "一週間ぶりに同僚に会いました。調子を聞いてください。"
+situations = [
+  "You meet a colleague you haven't seen for a week. Ask how she's doing.",
+  "You call your aunt for the first time in months. Ask how she's doing.",
+]
+situations_ja = [
+  "一週間ぶりに同僚に会いました。調子を聞いてください。",
+  "何か月ぶりにおばさんに電話しました。調子はどうか聞いてください。",
+]
 
 [[items]]
 id = "eg_hef_thad_gott"
@@ -109,8 +167,14 @@ meaning = "I'm doing well."
 meaning_ja = "元気にしています。"
 difficulty = 2
 topics = ["greetings", "social"]
-situation = "A colleague asks how you're doing. Say you're doing well."
-situation_ja = "同僚に調子を聞かれました。元気だと答えてください。"
+situations = [
+  "A colleague asks how you're doing. Say you're doing well.",
+  "Your aunt asks on the phone how you're doing. Say you're doing well.",
+]
+situations_ja = [
+  "同僚に調子を聞かれました。元気だと答えてください。",
+  "電話でおばさんに調子を聞かれました。元気にしていると答えてください。",
+]
 partner_cue = "Sömuleiðis! Hvernig hefurðu það?"  # issue #48: the partner line between gaman_ad_sja_thig and this item in connect()
 partner_cue_after = "gaman_ad_sja_thig"
 partner_cue_setup = "An old colleague walks into the café. Say it's nice to see her."
@@ -128,8 +192,14 @@ meaning = "Nice to see you."
 meaning_ja = "会えてうれしい。"
 difficulty = 3
 topics = ["greetings", "social"]
-situation = "An old acquaintance walks in. Say it's nice to see them."
-situation_ja = "昔の知り合いが入ってきました。会えてうれしいと言ってください。"
+situations = [
+  "An old acquaintance walks in. Say it's nice to see them.",
+  "Your cousin visits you in Reykjavík. Say it's nice to see her.",
+]
+situations_ja = [
+  "昔の知り合いが入ってきました。会えてうれしいと言ってください。",
+  "いとこがレイキャビクに訪ねてきました。会えてうれしいと言ってください。",
+]
 
 [[items]]
 id = "bless"
@@ -140,11 +210,19 @@ meaning_ja = "じゃあね。"
 alternatives = ["Bless bless."]
 difficulty = 1
 topics = ["greetings"]
-situation = "You're leaving the shop. Say bye."
-situation_ja = "お店を出ます。別れのあいさつをしてください。"
+situations = [
+  "You're leaving the shop. Say bye.",
+  "You hang up after a quick call with a friend. Say bye.",
+  "The kiosk cashier says goodbye as you leave. Say bye back.",
+]
+situations_ja = [
+  "お店を出ます。別れのあいさつをしてください。",
+  "友達との短い電話を切ります。別れのあいさつをしてください。",
+  "売店を出るとき、店員にさようならと言われました。あいさつを返してください。",
+]
 partner_cue = "Takk, sömuleiðis. Bless!"  # issue #48: the partner line between eigdu_godan_dag and this item in connect()
 partner_cue_after = "eigdu_godan_dag"
-partner_cue_setup = "You're leaving the shop after paying. Wish the cashier a good day."
+partner_cue_setup = "You've paid at the corner shop and are heading out. Wish the cashier a good day."
 partner_cue_setup_ja = "支払いを済ませて店を出ます。レジの人に良い一日をと言ってください。"
 partner_cue_meaning = "Thanks, you too. Bye!"
 partner_cue_meaning_ja = "ありがとう、あなたも。さようなら！"
@@ -159,8 +237,16 @@ meaning = "See you!"
 meaning_ja = "またね！"
 difficulty = 2
 topics = ["arrangements", "greetings"]
-situation = "You're parting with a friend you'll see again soon."
-situation_ja = "近いうちにまた会う友達と別れます。"
+situations = [
+  "You're parting with a friend you'll see again soon. Say see you!",
+  "Your classmate leaves after the lesson, and you'll meet again on Thursday. Say see you.",
+  "You drop your friend off at home. You're meeting again tomorrow. Say see you.",
+]
+situations_ja = [
+  "近いうちにまた会う友達と別れます。「またね」と言ってください。",
+  "授業の後、クラスメートが帰ります。木曜にまた会います。「またね」と言ってください。",
+  "友達を家まで送りました。明日また会います。「またね」と言ってください。",
+]
 partner_cue = "Já, ég verð líka að fara. Bless!"  # issue #48: the partner line between jaeja and this item in connect()
 partner_cue_after = "jaeja"
 partner_cue_setup = "You've been chatting with a friend for an hour and it's time to go. Signal that the conversation is over."
@@ -178,8 +264,16 @@ meaning = "Thanks a lot."
 meaning_ja = "本当にありがとう。"
 difficulty = 2
 topics = ["greetings"]
-situation = "A stranger walked you all the way to the bus stop. Thank him warmly."
-situation_ja = "知らない人がバス停まで一緒に歩いてくれました。心からお礼を言ってください。"
+situations = [
+  "A stranger walked you all the way to the bus stop. Thank him warmly.",
+  "Your host drove you all the way to the airport. Thank her warmly.",
+  "A stranger found your lost wallet and brought it back. Thank him warmly.",
+]
+situations_ja = [
+  "知らない人がバス停まで一緒に歩いてくれました。心からお礼を言ってください。",
+  "ホストが空港まで車で送ってくれました。心からお礼を言ってください。",
+  "知らない人がなくした財布を見つけて届けてくれました。心からお礼を言ってください。",
+]
 
 [[items]]
 id = "ekkert_ad_thakka"
@@ -189,8 +283,14 @@ meaning = "You're welcome."
 meaning_ja = "どういたしまして。"
 difficulty = 2
 topics = ["greetings"]
-situation = "Someone thanks you for holding the door. Say you're welcome."
-situation_ja = "ドアを押さえていたら、お礼を言われました。どういたしまして、と答えてください。"
+situations = [
+  "Someone thanks you for holding the door. Say you're welcome.",
+  "A tourist thanks you for taking her photo. Say you're welcome.",
+]
+situations_ja = [
+  "ドアを押さえていたら、お礼を言われました。どういたしまして、と答えてください。",
+  "写真を撮ってあげた観光客にお礼を言われました。どういたしまして、と答えてください。",
+]
 partner_cue = "Takk kærlega!"  # issue #48: the partner line between gjordu_svo_vel and this item in connect()
 partner_cue_after = "gjordu_svo_vel"
 partner_cue_setup = "At dinner, your friend asks for the salt. Hand it to her."
@@ -226,8 +326,16 @@ meaning = "Good night."
 meaning_ja = "おやすみなさい。"
 difficulty = 2
 topics = ["greetings"]
-situation = "You're going to bed at your host family's. Say good night."
-situation_ja = "ホストファミリーの家で寝る前です。おやすみと言ってください。"
+situations = [
+  "You're going to bed at your host family's. Say good night.",
+  "Your friend is heading to bed after a long day. Say good night.",
+  "You leave the party at midnight. Say good night to your host.",
+]
+situations_ja = [
+  "ホストファミリーの家で寝る前です。おやすみと言ってください。",
+  "長い一日の後、友達が寝ようとしています。おやすみと言ってください。",
+  "夜中の12時にパーティーを後にします。ホストにおやすみなさいと言ってください。",
+]
 
 [[items]]
 id = "gott_kvold"
@@ -237,8 +345,16 @@ meaning = "Good evening."
 meaning_ja = "こんばんは。"
 difficulty = 2
 topics = ["greetings"]
-situation = "You arrive at a restaurant at eight in the evening. Greet the host."
-situation_ja = "夜8時にレストランに着きました。案内係にあいさつしてください。"
+situations = [
+  "You arrive at a restaurant at eight in the evening. Greet the host.",
+  "You walk into a concert hall at seven in the evening. Greet the usher.",
+  "Your neighbour comes over for dinner in the evening. Greet him.",
+]
+situations_ja = [
+  "夜8時にレストランに着きました。案内係にあいさつしてください。",
+  "夜7時にコンサートホールに入ります。案内係にあいさつしてください。",
+  "夕方、近所の人が夕食に来ました。あいさつしてください。",
+]
 
 [[items]]
 id = "jaeja"
@@ -248,8 +364,16 @@ meaning = "Well then"
 meaning_ja = "さて。／やれやれ。"
 difficulty = 1
 topics = ["greetings", "discourse"]
-situation = "The conversation has run its course and you want to signal it's time to go."
-situation_ja = "話が一段落して、そろそろ帰る合図を出したいです。"
+situations = [
+  "The conversation has run its course. Signal that it's time to go.",
+  "You've finished your coffee with a friend and want to get going. Signal it with one word.",
+  "The meeting is over, but everyone is still sitting. Signal that it's time to move.",
+]
+situations_ja = [
+  "話が一段落しました。そろそろ帰る合図を出してください。",
+  "友達とのコーヒーを飲み終え、そろそろ行きたいです。ひとことで合図してください。",
+  "会議が終わったのに、みんなまだ座っています。そろそろ、と合図してください。",
+]
 
 [[items]]
 id = "afsakid"
@@ -259,8 +383,16 @@ meaning = "Excuse me."
 meaning_ja = "すみません。"
 difficulty = 2
 topics = ["greetings", "directions"]
-situation = "You need to get a stranger's attention in the street."
-situation_ja = "道で知らない人に声をかけたいです。"
+situations = [
+  "You need to get a stranger's attention in the street. Politely say excuse me.",
+  "A man is blocking the aisle on the bus. Politely say excuse me to get past.",
+  "You want to ask the waiter something as he walks past. Get his attention politely.",
+]
+situations_ja = [
+  "道で知らない人に声をかけたいです。丁寧に「すみません」と言ってください。",
+  "バスの通路を男性がふさいでいます。通してもらうよう、丁寧に「すみません」と言ってください。",
+  "通りかかったウェイターに聞きたいことがあります。丁寧に呼び止めてください。",
+]
 
 [[items]]
 id = "fyrirgefdu"
@@ -270,8 +402,16 @@ meaning = "Sorry."
 meaning_ja = "ごめんなさい。"
 difficulty = 2
 topics = ["greetings"]
-situation = "You bumped into someone in the queue. Apologise."
-situation_ja = "列で人にぶつかってしまいました。謝ってください。"
+situations = [
+  "You bumped into someone in the queue. Apologise.",
+  "You stepped on your friend's foot. Apologise.",
+  "You spilled a little coffee on your colleague's desk. Say sorry.",
+]
+situations_ja = [
+  "列で人にぶつかってしまいました。謝ってください。",
+  "友達の足を踏んでしまいました。謝ってください。",
+  "同僚の机に少しコーヒーをこぼしてしまいました。ごめんなさいと言ってください。",
+]
 
 [[items]]
 id = "thvi_midur"
@@ -281,8 +421,14 @@ meaning = "Unfortunately. / I'm afraid so."
 meaning_ja = "あいにくですが。"
 difficulty = 2
 topics = ["greetings", "discourse"]
-situation = "Someone asks if you have change. You don't. Say so regretfully."
-situation_ja = "小銭があるか聞かれましたが、ありません。残念そうに答えてください。"
+situations = [
+  "Someone asks if you have change. You don't. Say so regretfully.",
+  "Your friend asks if you can come on Saturday. You can't. Say so regretfully.",
+]
+situations_ja = [
+  "小銭があるか聞かれましたが、ありません。残念そうに答えてください。",
+  "友達に土曜に来られるか聞かれましたが、行けません。残念そうに答えてください。",
+]
 
 # Promoted from module 19 (issue #29 triage, cluster C): a repeat offender across
 # three dialogues before it was otherwise taught — see docs/HANDOFF.md.
@@ -305,8 +451,14 @@ meaning = "That's a good idea."
 meaning_ja = "いい考えですね。"
 difficulty = 2
 topics = ["discourse"]
-situation = "Anna suggests the hot tub before dinner. Say that's a good idea."
-situation_ja = "アンナが夕食の前に温泉をと提案しました。いい考えだと言ってください。"
+situations = [
+  "Anna suggests the hot tub before dinner. Say that's a good idea.",
+  "It's raining, and your friend suggests taking the bus instead of walking. Say that's a good idea.",
+]
+situations_ja = [
+  "アンナが夕食の前に温泉をと提案しました。いい考えだと言ってください。",
+  "雨が降っていて、友達が歩く代わりにバスに乗ろうと提案しました。いい考えだと言ってください。",
+]
 
 [[items]]
 id = "sjaumst_seinna"
@@ -317,8 +469,14 @@ meaning_ja = "また後で！"
 difficulty = 2
 topics = ["greetings"]
 prereqs = ["sjaumst"]
-situation = "You're leaving the office for lunch and will be back."
-situation_ja = "昼食に出かけますが、オフィスに戻ってきます。"
+situations = [
+  "You're leaving the office for lunch and will be back. Say see you later.",
+  "You leave the café to run an errand. Your friend will wait there for you. Say see you later.",
+]
+situations_ja = [
+  "昼食に出かけますが、オフィスに戻ってきます。「またあとで」と言ってください。",
+  "用事で少しカフェを出ます。友達はそこで待っています。「またあとで」と言ってください。",
+]
 
 [[items]]
 id = "velkomin"
@@ -360,8 +518,14 @@ meaning_ja = "どうぞ召し上がれ。"
 difficulty = 4
 topics = ["greetings", "cafe"]
 chunks = ["góðu", "að góðu", "þér að góðu", "Verði þér að góðu."]
-situation = "You've served your guest a plate of food. Wish her a good meal."
-situation_ja = "お客さんに料理を出しました。召し上がれと言ってください。"
+situations = [
+  "You've served your guest a plate of food. Wish her a good meal.",
+  "Your friend thanks you for the meal you cooked. Answer the way Icelanders do.",
+]
+situations_ja = [
+  "お客さんに料理を出しました。召し上がれと言ってください。",
+  "作った料理のお礼を友達に言われました。アイスランド流に答えてください。",
+]
 
 [[items]]
 id = "til_hamingju"
@@ -371,8 +535,14 @@ meaning = "Congratulations!"
 meaning_ja = "おめでとう！"
 difficulty = 2
 topics = ["greetings", "social"]
-situation = "Your colleague just told you it's her birthday. Congratulate her."
-situation_ja = "同僚が今日は誕生日だと言いました。お祝いを言ってください。"
+situations = [
+  "Your colleague just told you it's her birthday. Congratulate her.",
+  "Your friend tells you she passed her driving test. Congratulate her.",
+]
+situations_ja = [
+  "同僚が今日は誕生日だと言いました。お祝いを言ってください。",
+  "友達が運転免許の試験に受かったと教えてくれました。おめでとうと言ってください。",
+]
 partner_cue = "Hæ! Ég á afmæli í dag."  # issue #48: the partner line between hae and this item in connect()
 partner_cue_after = "hae"
 partner_cue_setup = "Your colleague comes into the office smiling. Greet her casually."
@@ -390,8 +560,14 @@ meaning = "Good luck!"
 meaning_ja = "がんばって！"
 difficulty = 3
 topics = ["greetings", "social"]
-situation = "Your friend is off to a job interview. Wish him luck."
-situation_ja = "友達が面接に向かいます。健闘を祈ってください。"
+situations = [
+  "Your friend is off to a job interview. Wish him luck.",
+  "Your classmate is about to take her exam. Wish her luck.",
+]
+situations_ja = [
+  "友達が面接に向かいます。健闘を祈ってください。",
+  "クラスメートがこれから試験を受けます。がんばってと言ってください。",
+]
 
 [[items]]
 id = "eigdu_godan_dag"
@@ -402,8 +578,16 @@ meaning_ja = "良い一日を。"
 difficulty = 3
 topics = ["greetings"]
 chunks = ["dag", "góðan dag", "Eigðu góðan dag."]
-situation = "You're leaving the shop after paying. Wish the cashier a good day."
-situation_ja = "会計を終えてお店を出ます。レジの人に良い一日をと言ってください。"
+situations = [
+  "You're leaving the shop after paying. Wish the cashier a good day.",
+  "The hotel receptionist hands back your passport as you check out in the morning. Wish her a good day.",
+  "The taxi driver drops you off in the morning. Wish him a good day.",
+]
+situations_ja = [
+  "会計を終えてお店を出ます。レジの人に良い一日をと言ってください。",
+  "朝のチェックアウトで、受付の人がパスポートを返してくれました。良い一日をと言ってください。",
+  "朝、タクシーを降ります。運転手に良い一日をと言ってください。",
+]
 
 [[items]]
 id = "somuleidis"
@@ -413,8 +597,16 @@ meaning = "Likewise. / Same to you."
 meaning_ja = "そちらこそ。"
 difficulty = 2
 topics = ["greetings"]
-situation = "The cashier wished you a good day. Wish her the same."
-situation_ja = "レジの人に良い一日をと言われました。同じ言葉を返してください。"
+situations = [
+  "The cashier wished you a good day. Wish her the same.",
+  "Someone you've just met says it was nice to meet you. Say likewise.",
+  "Your colleague wishes you a good weekend. Wish her the same.",
+]
+situations_ja = [
+  "レジの人に良い一日をと言われました。同じ言葉を返してください。",
+  "知り合ったばかりの人に、会えてよかったと言われました。「こちらこそ」と返してください。",
+  "同僚に良い週末をと言われました。同じ言葉を返してください。",
+]
 partner_cue = "Gjörðu svo vel. Eigðu góðan dag!"  # issue #48: the partner line between takk and this item in connect()
 partner_cue_after = "takk"
 partner_cue_setup = "The cashier hands you your change. Thank her."
@@ -432,8 +624,16 @@ meaning = "Cheers!"
 meaning_ja = "乾杯！"
 difficulty = 1
 topics = ["greetings", "social"]
-situation = "Everyone raises their glass. Say cheers."
-situation_ja = "みんなグラスを掲げています。乾杯と言ってください。"
+situations = [
+  "Everyone raises their glass. Say cheers.",
+  "At a birthday dinner your friend lifts her glass to you. Say cheers.",
+  "After a long hike, you open a beer with your friends. Say cheers.",
+]
+situations_ja = [
+  "みんなグラスを掲げています。乾杯と言ってください。",
+  "誕生日のディナーで友達があなたにグラスを掲げました。乾杯と言ってください。",
+  "長いハイキングの後、友達とビールを開けました。乾杯と言ってください。",
+]
 
 [[items]]
 id = "allt_i_lagi"
@@ -444,8 +644,14 @@ meaning_ja = "わかりました。"
 alternatives = ["Í lagi."]
 difficulty = 2
 topics = ["arrangements", "discourse"]
-situation = "She suggests seven o'clock. Agree."
-situation_ja = "7時を提案されました。承諾してください。"
+situations = [
+  "She suggests seven o'clock. Agree.",
+  "The waiter says your table will be ready in five minutes. Say OK.",
+]
+situations_ja = [
+  "7時を提案されました。承諾してください。",
+  "ウェイターに5分で席が用意できると言われました。わかりましたと言ってください。",
+]
 
 [[items]]
 id = "ekkert_mal"
@@ -455,8 +661,14 @@ meaning = "No problem."
 meaning_ja = "問題ないよ。"
 difficulty = 2
 topics = ["greetings", "discourse"]
-situation = "Someone apologises for being five minutes late. Tell them it's no problem."
-situation_ja = "5分遅れたと謝られました。問題ないと言ってください。"
+situations = [
+  "Someone apologises for being five minutes late. Tell them it's no problem.",
+  "A man asks if you'd mind swapping seats with him. Tell him it's no problem.",
+]
+situations_ja = [
+  "5分遅れたと謝られました。問題ないと言ってください。",
+  "男性に席を替わってもらえないか聞かれました。問題ないと言ってください。",
+]
 partner_cue = "Hæ! Fyrirgefðu, ég er of seinn."  # issue #48: the partner line between hae and this item in connect()
 partner_cue_after = "hae"
 partner_cue_setup = "You're waiting outside the cinema. Your friend finally arrives. Greet him casually."
@@ -474,8 +686,16 @@ meaning = "Sorry? (what did you say?)"
 meaning_ja = "え？"
 difficulty = 1
 topics = ["clarifying"]
-situation = "Someone spoke too fast. Ask them to say it again, casually."
-situation_ja = "相手が早口で聞き取れませんでした。くだけた調子で聞き返してください。"
+situations = [
+  "Someone spoke too fast. Ask them to say it again, casually.",
+  "Your friend mumbles something across the table. Ask her to say it again, casually.",
+  "The music is loud and your friend shouts something. Casually ask what.",
+]
+situations_ja = [
+  "相手が早口で聞き取れませんでした。くだけた調子で聞き返してください。",
+  "テーブルの向こうで友達が何かぼそっと言いました。くだけた調子で聞き返してください。",
+  "音楽がうるさく、友達が何か叫びました。くだけた調子で聞き返してください。",
+]
 
 [[items]]
 id = "eg_skil"
@@ -485,8 +705,14 @@ meaning = "I understand."
 meaning_ja = "わかりました。"
 difficulty = 1
 topics = ["clarifying"]
-situation = "The receptionist explained where breakfast is. Tell her you understand."
-situation_ja = "受付の人が朝食の場所を説明してくれました。わかったと伝えてください。"
+situations = [
+  "The receptionist explained where breakfast is. Tell her you understand.",
+  "Your colleague explains how to log in to the system. Tell her you understand.",
+]
+situations_ja = [
+  "受付の人が朝食の場所を説明してくれました。わかったと伝えてください。",
+  "同僚がシステムへのログインの仕方を説明してくれました。わかったと伝えてください。",
+]
 partner_cue = "Morgunmaturinn er á fyrstu hæð."  # issue #48: the partner line between ha and this item in connect()
 partner_cue_after = "ha"
 partner_cue_setup = "At hotel reception you asked where breakfast is, but the answer came too fast. Ask her to say it again, casually."
@@ -505,8 +731,14 @@ meaning_ja = "わかりません。"
 difficulty = 2
 topics = ["clarifying"]
 prereqs = ["eg_skil"]
-situation = "The man explained something quickly and you got lost. Tell him you don't understand."
-situation_ja = "男性が早口で説明して、ついていけませんでした。わからないと伝えてください。"
+situations = [
+  "The man explained something quickly and you got lost. Tell him you don't understand.",
+  "The instructions on the machine are all in Icelandic. Tell the attendant you don't understand.",
+]
+situations_ja = [
+  "男性が早口で説明して、ついていけませんでした。わからないと伝えてください。",
+  "機械の説明がすべてアイスランド語です。係の人にわからないと伝えてください。",
+]
 
 [[items]]
 id = "endilega"
@@ -516,8 +748,16 @@ meaning = "Please do. / By all means."
 meaning_ja = "ぜひどうぞ。"
 difficulty = 2
 topics = ["discourse"]
-situation = "Someone asks if they may sit at your table. Tell them by all means."
-situation_ja = "相席してもいいか聞かれました。ぜひどうぞと言ってください。"
+situations = [
+  "Someone asks if they may sit at your table. Tell them by all means.",
+  "A colleague asks if she can join you for lunch. Tell her by all means.",
+  "Your neighbour asks if her children may pick apples in your garden. Tell her by all means.",
+]
+situations_ja = [
+  "相席してもいいか聞かれました。ぜひどうぞと言ってください。",
+  "同僚にランチに一緒に行ってもいいか聞かれました。ぜひどうぞと言ってください。",
+  "近所の人に、子どもたちが庭のリンゴを摘んでもいいか聞かれました。ぜひどうぞと言ってください。",
+]
 partner_cue = "Góðan daginn. Má ég setjast hérna?"  # issue #48: the partner line between godan_daginn and this item in connect()
 partner_cue_after = "godan_daginn"
 partner_cue_setup = "You're sitting at a shared table in a café. A woman comes over and greets you. Greet her back: good day."
@@ -535,8 +775,16 @@ meaning = "Of course."
 meaning_ja = "もちろん。"
 difficulty = 2
 topics = ["discourse"]
-situation = "A friend asks if she can borrow your umbrella. Say of course."
-situation_ja = "友達が傘を借りてもいいか聞きました。もちろんと言ってください。"
+situations = [
+  "A friend asks if she can borrow your umbrella. Say of course.",
+  "Your colleague asks if you'll be at the meeting. Say of course.",
+  "A tourist asks if she can take a photo with you. Say of course.",
+]
+situations_ja = [
+  "友達が傘を借りてもいいか聞きました。もちろんと言ってください。",
+  "同僚に会議に出るか聞かれました。もちろんと言ってください。",
+  "観光客に一緒に写真を撮ってもいいか聞かれました。もちろんと言ってください。",
+]
 
 # Promoted from module 18 (issue #29 pilot 3): dialogue_sequencing_report()'s top
 # repeat-offender word. A partner says "Frábært!" as an early reaction in seven
@@ -565,8 +813,14 @@ meaning = "Good to hear."
 meaning_ja = "それはよかった。"
 difficulty = 2
 topics = ["discourse"]
-situation = "A friend says she's feeling better. Say good to hear."
-situation_ja = "友達が体調が良くなったと言いました。よかったと言ってください。"
+situations = [
+  "A friend says she's feeling better. Say good to hear.",
+  "Your colleague tells you her son found a job. Say good to hear.",
+]
+situations_ja = [
+  "友達が体調が良くなったと言いました。よかったと言ってください。",
+  "同僚が、息子さんの就職が決まったと教えてくれました。よかったと言ってください。",
+]
 partner_cue = "Mér líður miklu betur, takk."  # issue #48: the partner line between hvad_segirdu_gott and this item in connect()
 partner_cue_after = "hvad_segirdu_gott"
 partner_cue_setup = "Your friend was ill last week. You bump into her. Ask how she is."

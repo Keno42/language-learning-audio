@@ -300,7 +300,7 @@ partner_cue_setup = "At a small market stall you want to buy a scarf. Ask whethe
 partner_cue_setup_ja = "小さな市場の露店でマフラーを買いたいです。カードが使えるか聞いてください。"
 partner_cue_meaning = "No, cash only."
 partner_cue_meaning_ja = "いいえ、現金だけです。"
-partner_cue_situation = "The stall only takes cash. Say you don't have cash."
+partner_cue_situation = "She said cash only. Say you don't have any cash."
 partner_cue_situation_ja = "この店は現金だけです。現金を持っていないと言ってください。"
 
 [[items]]

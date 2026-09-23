@@ -124,8 +124,14 @@ difficulty = 3
 topics = ["clarifying", "social"]
 prereqs = ["eg_tala", "islensku"]
 chunks = ["íslensku", "smá íslensku", "Ég tala smá íslensku."]
-situation = "She switches to English. Tell her you speak a little Icelandic."
-situation_ja = "相手が英語に切り替えました。アイスランド語を少し話すと伝えてください。"
+situations = [
+  "She switches to English. Tell her you speak a little Icelandic.",
+  "A new colleague asks in English whether you speak Icelandic. Tell her you speak a little Icelandic.",
+]
+situations_ja = [
+  "相手が英語に切り替えました。アイスランド語を少し話すと伝えてください。",
+  "新しい同僚に英語で、アイスランド語を話すか聞かれました。少し話すと伝えてください。",
+]
 
 [[items]]
 id = "eg_tala_ekki_islensku"
@@ -136,8 +142,14 @@ meaning_ja = "アイスランド語は話せません。"
 difficulty = 2
 topics = ["clarifying"]
 prereqs = ["eg_tala", "islensku"]
-situation = "A man starts a long story in Icelandic. Tell him you don't speak Icelandic."
-situation_ja = "男性がアイスランド語で長い話を始めました。アイスランド語は話せないと伝えてください。"
+situations = [
+  "A man starts a long story in Icelandic. Tell him you don't speak Icelandic.",
+  "A caller starts speaking fast Icelandic on the phone. Tell him you don't speak Icelandic.",
+]
+situations_ja = [
+  "男性がアイスランド語で長い話を始めました。アイスランド語は話せないと伝えてください。",
+  "電話の相手が早口のアイスランド語で話し始めました。アイスランド語は話せないと伝えてください。",
+]
 
 [[items]]
 id = "eg_er_ad_laera"
@@ -187,8 +199,14 @@ meaning_ja = "もう一度言ってもらえますか？"
 difficulty = 4
 topics = ["clarifying"]
 chunks = ["þetta", "endurtekið þetta", "Gætirðu endurtekið þetta?"]
-situation = "You missed the room number she said. Ask her to repeat it."
-situation_ja = "部屋番号を聞き逃しました。もう一度言うよう頼んでください。"
+situations = [
+  "You missed the room number she said. Ask her to repeat it.",
+  "The doctor told you when to take the medicine, but you didn't catch it. Ask her to repeat it.",
+]
+situations_ja = [
+  "部屋番号を聞き逃しました。もう一度言うよう頼んでください。",
+  "医者が薬を飲むタイミングを言いましたが、聞き取れませんでした。もう一度言うよう頼んでください。",
+]
 # Issue #48 owner review on PR #52: a curated partner line for connect()'s recombination
 # fallback, not a generic known-vocabulary pick — this is what "she said" that the
 # situation above already presumes the learner missed, so answer A -> this line ->
@@ -214,8 +232,14 @@ meaning = "What does this mean?"
 meaning_ja = "これはどういう意味ですか？"
 difficulty = 3
 topics = ["clarifying"]
-situation = "There's a word on the sign you don't know. Ask what it means."
-situation_ja = "看板に知らない単語があります。意味を聞いてください。"
+situations = [
+  "There's a word on the sign you don't know. Ask what it means.",
+  "Your friend uses a word you've never heard. Ask what it means.",
+]
+situations_ja = [
+  "看板に知らない単語があります。意味を聞いてください。",
+  "友達が聞いたことのない単語を使いました。意味を聞いてください。",
+]
 partner_cue = "Já? Get ég hjálpað?"  # issue #48: the partner line between afsakid and this item in connect()
 partner_cue_after = "afsakid"
 partner_cue_setup = "There's a word on a street sign you don't know. Get the attention of a woman passing by."
@@ -234,8 +258,14 @@ meaning_ja = "これはアイスランド語で何と言いますか？"
 difficulty = 4
 topics = ["clarifying"]
 chunks = ["íslensku", "á íslensku", "þetta á íslensku", "Hvað heitir þetta á íslensku?"]
-situation = "You point at a strange fish on the menu. Ask what it's called in Icelandic."
-situation_ja = "メニューの見慣れない魚を指さして、アイスランド語で何と言うか聞いてください。"
+situations = [
+  "You point at a strange fish on the menu. Ask what it's called in Icelandic.",
+  "You hold up a kitchen utensil you don't know the word for. Ask what it's called in Icelandic.",
+]
+situations_ja = [
+  "メニューの見慣れない魚を指さして、アイスランド語で何と言うか聞いてください。",
+  "名前を知らない台所用品を手に取りました。アイスランド語で何と言うか聞いてください。",
+]
 
 [[items]]
 id = "hvernig_segir_madur_thetta"
@@ -257,8 +287,14 @@ meaning = "Can you write it down?"
 meaning_ja = "書いてもらえますか？"
 difficulty = 3
 topics = ["clarifying"]
-situation = "The address is too hard to catch by ear. Ask her to write it."
-situation_ja = "住所が耳では聞き取れません。書いてもらうよう頼んでください。"
+situations = [
+  "The address is too hard to catch by ear. Ask her to write it.",
+  "The pharmacist says the name of the medicine, but it's long. Ask her to write it.",
+]
+situations_ja = [
+  "住所が耳では聞き取れません。書いてもらうよう頼んでください。",
+  "薬剤師が薬の名前を言いましたが、長い名前です。書いてもらうよう頼んでください。",
+]
 partner_cue = "Já: Laugavegur tuttugu og þrír."  # issue #48: the partner line between gaetirdu_endurtekid_thetta and this item in connect()
 partner_cue_after = "gaetirdu_endurtekid_thetta"
 partner_cue_setup = "A woman is telling you the address of your guesthouse, but you missed it. Ask her to repeat it."
@@ -277,8 +313,14 @@ meaning_ja = "知りません。"
 alternatives = ["Ég veit það ekki."]
 difficulty = 2
 topics = ["clarifying", "discourse"]
-situation = "Someone asks you where the nearest bank is. You have no idea."
-situation_ja = "一番近い銀行はどこかと聞かれました。見当がつきません。"
+situations = [
+  "Someone asks you where the nearest bank is. You have no idea. Say you don't know.",
+  "Your friend asks who won the match. You have no idea. Say you don't know.",
+]
+situations_ja = [
+  "一番近い銀行はどこかと聞かれました。見当がつきません。わからないと言ってください。",
+  "友達に試合で誰が勝ったか聞かれました。まったくわかりません。知らないと言ってください。",
+]
 partner_cue = "Góðan daginn. Hvar er bankinn?"  # issue #48: the partner line between godan_daginn and this item in connect()
 partner_cue_after = "godan_daginn"
 partner_cue_setup = "You're waiting at a bus stop. A man greets you. Greet him back: good day."
@@ -296,8 +338,16 @@ meaning = "I'm not sure."
 meaning_ja = "よくわかりません。"
 difficulty = 2
 topics = ["clarifying", "discourse"]
-situation = "Your friend asks if the museum is open on Mondays. You're not sure."
-situation_ja = "友達が博物館は月曜も開いているか聞きました。確信がありません。"
+situations = [
+  "Your friend asks if the museum is open on Mondays. You're not sure. Say so.",
+  "A tourist asks if this bus goes to the airport. You think so, but you're not certain. Say you're not sure.",
+  "Your colleague asks what time the meeting starts. You're not sure. Say so.",
+]
+situations_ja = [
+  "友達に博物館は月曜も開いているか聞かれました。確かではありません。そう言ってください。",
+  "観光客にこのバスは空港に行くか聞かれました。そう思いますが自信はありません。確かではないと言ってください。",
+  "同僚に会議が何時に始まるか聞かれました。確かではありません。そう言ってください。",
+]
 partner_cue = "Hæ! Er safnið opið á mánudögum?"  # issue #48: the partner line between hae and this item in connect()
 partner_cue_after = "hae"
 partner_cue_setup = "Your friend waves at you across the street. Greet her casually."
@@ -315,8 +365,16 @@ meaning = "One moment."
 meaning_ja = "ちょっと待ってください。"
 difficulty = 2
 topics = ["clarifying"]
-situation = "The phone rings while you're paying. Ask the cashier for a moment."
-situation_ja = "会計中に電話が鳴りました。レジの人に少し待ってもらってください。"
+situations = [
+  "The phone rings while you're paying. Ask the cashier for a moment.",
+  "At the ticket window you're still searching your bag for your card. Ask the clerk for a moment.",
+  "Someone knocks while you're getting dressed. Call out: one moment.",
+]
+situations_ja = [
+  "会計中に電話が鳴りました。レジの人に少し待ってもらってください。",
+  "切符売り場で、まだ鞄の中のカードを探しています。係の人に少し待ってもらってください。",
+  "着替えている最中にノックされました。「少々お待ちください」と声をかけてください。",
+]
 
 [[items]]
 id = "biddu"
@@ -326,8 +384,16 @@ meaning = "Wait. / Hang on."
 meaning_ja = "待って。"
 difficulty = 1
 topics = ["clarifying"]
-situation = "Your friend is walking off while you tie your shoe. Tell him to hang on."
-situation_ja = "靴ひもを結んでいる間に友達が歩いていきます。待つよう言ってください。"
+situations = [
+  "Your friend is walking off while you tie your shoe. Tell him to hang on.",
+  "Your friend starts to cross the street, but a car is coming. Tell her to wait.",
+  "Your friend is about to hang up, but you've remembered something. Tell her to hang on.",
+]
+situations_ja = [
+  "靴ひもを結んでいる間に友達が歩いていきます。待つよう言ってください。",
+  "友達が道を渡りかけましたが、車が来ています。待ってと言ってください。",
+  "友達が電話を切ろうとしていますが、言い忘れたことを思い出しました。ちょっと待ってと言ってください。",
+]
 
 # New (issue #29 triage, cluster B): "sjáðu" (look!) previously existed only embedded
 # inside a whale-watching phrase in module 23 — a whale-specific prereq gated it, so
@@ -342,8 +408,16 @@ meaning = "Look."
 meaning_ja = "見て。"
 difficulty = 1
 topics = ["clarifying"]
-situation = "You spot a rainbow over the harbour. Tell your friend to look."
-situation_ja = "港の上に虹が出ています。友達に見てと言ってください。"
+situations = [
+  "You spot a rainbow over the harbour. Tell your friend to look.",
+  "A whale surfaces next to the boat. Tell your friend to look.",
+  "You find your friend's name in the newspaper. Tell her to look.",
+]
+situations_ja = [
+  "港の上に虹が出ています。友達に見てと言ってください。",
+  "船のすぐ横でクジラが浮かび上がりました。友達に見てと言ってください。",
+  "新聞に友達の名前を見つけました。見てと言ってください。",
+]
 
 # Promoted from module 25 (issue #29 triage, cluster C): a repeat offender across two
 # dialogues before it was otherwise taught, and already the example fill for the
@@ -366,8 +440,16 @@ meaning = "Do you understand?"
 meaning_ja = "わかりますか？"
 difficulty = 2
 topics = ["clarifying"]
-situation = "You've explained the way to the pool in slow Icelandic. Check she understood."
-situation_ja = "プールへの道をゆっくりしたアイスランド語で説明しました。通じたか確かめてください。"
+situations = [
+  "You've explained the way to the pool in slow Icelandic. Check she understood.",
+  "You've shown your friend how to use the coffee machine. Check she understood.",
+  "You've explained the rules of a card game to a child. Ask if he understands.",
+]
+situations_ja = [
+  "プールへの道をゆっくりしたアイスランド語で説明しました。通じたか確かめてください。",
+  "友達にコーヒーマシンの使い方を教えました。わかったか確かめてください。",
+  "子どもにトランプのルールを説明しました。わかったか聞いてください。",
+]
 
 [[items]]
 id = "hvad_sagdirdu"
@@ -377,8 +459,14 @@ meaning = "What did you say?"
 meaning_ja = "何と言いましたか？"
 difficulty = 3
 topics = ["clarifying"]
-situation = "The bus driver said something over the engine noise. Ask what he said."
-situation_ja = "エンジン音の中でバスの運転手が何か言いました。何と言ったか聞いてください。"
+situations = [
+  "The bus driver said something over the engine noise. Ask what he said.",
+  "Your friend said something while you were putting your headphones on. Ask what she said.",
+]
+situations_ja = [
+  "エンジン音の中でバスの運転手が何か言いました。何と言ったか聞いてください。",
+  "ヘッドホンをつけている間に友達が何か言いました。何と言ったか聞いてください。",
+]
 
 [[items]]
 id = "geturdu_hjalpad_mer"
@@ -389,8 +477,14 @@ meaning_ja = "手伝ってもらえますか？"
 difficulty = 3
 topics = ["clarifying", "emergencies"]
 chunks = ["mér", "hjálpað mér", "Geturðu hjálpað mér?"]
-situation = "The ticket machine won't take your card. Ask the person behind you for help."
-situation_ja = "券売機がカードを受け付けません。後ろの人に助けを求めてください。"
+situations = [
+  "The ticket machine won't take your card. Ask the person behind you for help.",
+  "Your suitcase is too heavy to lift onto the train. Ask the man next to you for help.",
+]
+situations_ja = [
+  "券売機がカードを受け付けません。後ろの人に助けを求めてください。",
+  "スーツケースが重くて電車に上げられません。隣の男性に助けを求めてください。",
+]
 partner_cue = "Já?"  # issue #48: the partner line between afsakid and this item in connect()
 partner_cue_after = "afsakid"
 partner_cue_setup = "At the station, the ticket machine won't take your card. Get the attention of the man behind you."
@@ -408,8 +502,14 @@ meaning = "I need help."
 meaning_ja = "助けが必要です。"
 difficulty = 2
 topics = ["clarifying", "emergencies"]
-situation = "You're at the information desk with a problem. Say you need help."
-situation_ja = "案内カウンターで困っています。助けが必要だと言ってください。"
+situations = [
+  "You're at the information desk with a problem. Say you need help.",
+  "You call your landlord: a water pipe has burst. Say you need help.",
+]
+situations_ja = [
+  "案内カウンターで困っています。助けが必要だと言ってください。",
+  "大家に電話します。水道管が破裂しました。助けが必要だと言ってください。",
+]
 partner_cue = "Góðan daginn. Hvað get ég gert fyrir þig?"  # issue #48: the partner line between godan_daginn and this item in connect()
 partner_cue_after = "godan_daginn"
 partner_cue_setup = "You walk up to the information desk with a problem. Greet the clerk: good day."
@@ -427,8 +527,14 @@ meaning = "What is this?"
 meaning_ja = "これは何ですか？"
 difficulty = 2
 topics = ["clarifying"]
-situation = "There's a grey paste on your plate. Ask what it is."
-situation_ja = "皿に灰色のペーストがあります。何か聞いてください。"
+situations = [
+  "There's a grey paste on your plate. Ask what it is.",
+  "Your friend hands you a small wrapped box. Ask what it is.",
+]
+situations_ja = [
+  "皿に灰色のペーストがあります。何か聞いてください。",
+  "友達が小さな包みを渡してくれました。何か聞いてください。",
+]
 partner_cue = "Gjörðu svo vel. Verði þér að góðu!"  # issue #48: the partner line between takk and this item in connect()
 partner_cue_after = "takk"
 partner_cue_setup = "Your host puts a plate in front of you. Thank her."
@@ -446,8 +552,14 @@ meaning = "Is this right?"
 meaning_ja = "これで合っていますか？"
 difficulty = 2
 topics = ["clarifying"]
-situation = "You've filled in the form. Ask the clerk whether it's right."
-situation_ja = "書類に記入しました。係の人に合っているか聞いてください。"
+situations = [
+  "You've filled in the form. Ask the clerk whether it's right.",
+  "You've counted out coins for the bus fare. Ask the driver whether it's right.",
+]
+situations_ja = [
+  "書類に記入しました。係の人に合っているか聞いてください。",
+  "バス代の小銭を数えて出しました。運転手に合っているか聞いてください。",
+]
 
 [[items]]
 id = "eg_er_utlendingur"
@@ -457,8 +569,14 @@ meaning = "I'm a foreigner."
 meaning_ja = "私は外国人です。"
 difficulty = 3
 topics = ["clarifying", "social"]
-situation = "The clerk assumes you know the system. Explain you're a foreigner."
-situation_ja = "係の人が仕組みを知っている前提で話します。外国人だと説明してください。"
+situations = [
+  "The clerk assumes you know the system. Explain you're a foreigner.",
+  "A man is annoyed that you don't know how the recycling works. Explain you're a foreigner.",
+]
+situations_ja = [
+  "係の人が仕組みを知っている前提で話します。外国人だと説明してください。",
+  "リサイクルの仕方を知らないことに男性が苛立っています。外国人だと説明してください。",
+]
 partner_cue = "Þú þarft bara að fylla út eyðublað á netinu."  # issue #48: the partner line between eg_skil_ekki and this item in connect()
 partner_cue_after = "eg_skil_ekki"
 partner_cue_setup = "At the town office, the clerk explains something quickly and you get lost. Tell her you don't understand."

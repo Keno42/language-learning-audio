@@ -2545,6 +2545,72 @@ class CurriculumTests(unittest.TestCase):
             seen.append(next(s.text for s in sc.segments if s.exercise == ex.index and s.type == "narrate"))
         self.assertEqual(len(seen), len(set(seen)), seen)
 
+    def test_connect_advances_the_situation_rotation(self):
+        """Issue #77: connect() narrated an item's current cue without advancing it, so the
+        next ordinary recall of the same item replayed exactly the cue the connect had just
+        used, even though the item had another variant."""
+        from audiolesson.exercises import Builder
+
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "a", "kind": "phrase", "target": "A.", "meaning": "A.", "situations": ["A one.", "A two."]},
+                {"id": "b", "kind": "phrase", "target": "B.", "meaning": "B.", "situations": ["B one.", "B two."]},
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "L", cur.target_lang, cur.known_lang)
+        b.connect(sc, [cur.by_id["a"], cur.by_id["b"]])
+        in_connect = {s.text for s in sc.segments if s.type == "narrate"}
+        self.assertTrue({"A one.", "B one."} <= in_connect)
+        for item_id, expected in (("a", "A two."), ("b", "B two.")):
+            sc = Script(1, "L", cur.target_lang, cur.known_lang)
+            ex = b.recall(sc, cur.by_id[item_id], "situation")
+            self.assertEqual(next(s.text for s in sc.segments if s.exercise == ex.index and s.type == "narrate"), expected)
+
+    def test_a_lesson_never_repeats_a_situation_while_a_variant_is_unused(self):
+        """Issue #77: repeated review in one lesson rotates through an item's authored
+        situations; an exact cue comes back only once every variant has been used. Checked on
+        real simulated lessons in both instructor languages, and non-vacuously: items with
+        variants do recur within a lesson."""
+        for lang in ("en", "ja"):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            cue_item = {c: it for it in cur.items for c in ([it.situation] if it.situation else []) + list(it.situations)}
+            learner = LearnerState("is", lang, "A1")
+            day = TODAY
+            rotated = 0
+            for _ in range(12):
+                sc = Planner(cur, learner, Prompts.load(lang), Timing(level="A1"), PlanConfig(minutes=30), today=day).build()
+                used: dict[str, set[str]] = {}
+                for seg in sc.segments:
+                    if seg.type != "narrate" or seg.text not in cue_item:
+                        continue
+                    it = cue_item[seg.text]
+                    variants = set(it.situations) or {it.situation}
+                    seen = used.setdefault(it.id, set())
+                    self.assertFalse(seg.text in seen and variants - seen, f"L{sc.lesson_number} {lang}: {it.id} repeated a cue with a variant unused")
+                    if seen and seg.text not in seen:
+                        rotated += 1
+                    seen.add(seg.text)
+                apply_to_learner(sc, learner, day)
+                day += timedelta(days=1)
+            self.assertGreater(rotated, 20, lang)
+
+    def test_frequently_reviewed_phrases_have_situation_variants(self):
+        """Issue #77: the functional phrases a real Lesson 6 replayed seven times verbatim now
+        have several situations, and a bridge's own scene never reuses an item's standalone
+        wording (it would count as the same prompt without advancing the rotation)."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for iid in ("augnablik", "biddu", "sjadu", "skilurdu", "eg_er_ekki_viss", "godan_daginn", "takk", "eigdu_godan_dag"):
+            self.assertGreaterEqual(len(cur.by_id[iid].situations), 3, iid)
+        for lang in ("en", "ja"):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            for b_item in (it for it in cur.items if it.partner_cue):
+                a_item = cur.by_id[b_item.partner_cue_after]
+                self.assertNotIn(b_item.partner_cue_setup, set(a_item.situations) or {a_item.situation}, (lang, b_item.id))
+                self.assertNotIn(b_item.partner_cue_situation, set(b_item.situations) or {b_item.situation}, (lang, b_item.id))
+
 
 class LessonStructureTests(unittest.TestCase):
     def setUp(self):

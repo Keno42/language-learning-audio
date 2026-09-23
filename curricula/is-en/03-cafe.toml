@@ -287,8 +287,14 @@ difficulty = 3
 topics = ["cafe", "food"]
 prereqs = ["pylsu"]
 chunks = ["öllu", "með öllu", "pylsu með öllu", "Eina pylsu með öllu."]
-situation = "You're at the famous hot dog stand. Order one with everything."
-situation_ja = "有名なホットドッグ屋台にいます。全部乗せを一つ注文してください。"
+situations = [
+  "You're at the famous hot dog stand. Order one with everything.",
+  "It's your turn at the hot dog stand by the harbour. Order one with everything.",
+]
+situations_ja = [
+  "有名なホットドッグ屋台にいます。全部乗せを一つ注文してください。",
+  "港のそばのホットドッグ屋台で、あなたの番です。全部乗せを一つ注文してください。",
+]
 
 [[items]]
 id = "mig_langar_i"
@@ -387,8 +393,14 @@ meaning = "How much is this?"
 meaning_ja = "これはいくらですか？"
 difficulty = 2
 topics = ["cafe", "shopping"]
-situation = "You want to know the price of the sandwich."
-situation_ja = "サンドイッチの値段を知りたいです。"
+situations = [
+  "You want to know the price of the sandwich. Ask how much it costs.",
+  "You pick up a woollen hat at a market stall. Ask how much it is.",
+]
+situations_ja = [
+  "サンドイッチの値段を知りたいです。いくらか聞いてください。",
+  "市場の露店で毛糸の帽子を手に取りました。いくらか聞いてください。",
+]
 
 [[items]]
 id = "hvad_kostar"
@@ -411,8 +423,14 @@ meaning_ja = "この席、空いていますか？"
 difficulty = 3
 topics = ["cafe", "social"]
 chunks = ["laust", "sæti laust", "Er þetta sæti laust?"]
-situation = "The café is full. Ask a woman whether the seat next to her is free."
-situation_ja = "カフェが満席です。女性の隣の席が空いているか聞いてください。"
+situations = [
+  "The café is full. Ask a woman whether the seat next to her is free.",
+  "The bus is crowded. Ask the man sitting by an empty seat whether it's free.",
+]
+situations_ja = [
+  "カフェが満席です。女性の隣の席が空いているか聞いてください。",
+  "バスが混んでいます。空いている席の隣の男性に、その席が空いているか聞いてください。",
+]
 
 [[items]]
 id = "bord_fyrir_tvo"
@@ -422,8 +440,14 @@ meaning = "A table for two, please."
 meaning_ja = "二人用の席をお願いします。"
 difficulty = 3
 topics = ["cafe"]
-situation = "You walk into a restaurant with a friend. Ask for a table for two."
-situation_ja = "友達とレストランに入りました。二人用の席を頼んでください。"
+situations = [
+  "You walk into a restaurant with a friend. Ask for a table for two.",
+  "You and your partner arrive at a busy pizzeria. Ask for a table for two.",
+]
+situations_ja = [
+  "友達とレストランに入りました。二人用の席を頼んでください。",
+  "パートナーと混んでいるピザ屋に着きました。二人用の席を頼んでください。",
+]
 
 [[items]]
 id = "eg_er_graenmetisaeta"
@@ -438,7 +462,7 @@ situation = "The waiter recommends the lamb. Tell him you're a vegetarian."
 situation_ja = "ウェイターがラム肉をすすめます。ベジタリアンだと伝えてください。"
 partner_cue = "Gjörðu svo vel. Ég mæli með lambinu."  # issue #48: the partner line between bord_fyrir_tvo and this item in connect()
 partner_cue_after = "bord_fyrir_tvo"
-partner_cue_setup = "You walk into a restaurant with a friend. Ask for a table for two."
+partner_cue_setup = "You and a friend arrive at a restaurant for dinner. Ask the waiter for a table for two."
 partner_cue_setup_ja = "友達とレストランに入りました。二人用の席をお願いしてください。"
 partner_cue_meaning = "Here you are. I recommend the lamb."
 partner_cue_meaning_ja = "こちらへどうぞ。ラム肉がおすすめです。"
@@ -454,8 +478,14 @@ meaning_ja = "ナッツアレルギーがあります。"
 difficulty = 4
 topics = ["cafe", "health"]
 chunks = ["hnetum", "fyrir hnetum", "ofnæmi fyrir hnetum", "Ég er með ofnæmi fyrir hnetum."]
-situation = "Before ordering dessert, tell the waiter you're allergic to nuts."
-situation_ja = "デザートを頼む前に、ナッツアレルギーがあるとウェイターに伝えてください。"
+situations = [
+  "Before ordering dessert, tell the waiter you're allergic to nuts.",
+  "Your host offers you a slice of almond cake. Tell her you're allergic to nuts.",
+]
+situations_ja = [
+  "デザートを頼む前に、ナッツアレルギーがあるとウェイターに伝えてください。",
+  "ホストがアーモンドケーキを勧めてくれました。ナッツアレルギーがあると伝えてください。",
+]
 
 [[items]]
 id = "thetta_var_gott"
@@ -465,8 +495,14 @@ meaning = "That was good."
 meaning_ja = "おいしかったです。"
 difficulty = 2
 topics = ["cafe"]
-situation = "The waiter clears your empty plate. Tell him it was good."
-situation_ja = "ウェイターが空いた皿を下げます。おいしかったと伝えてください。"
+situations = [
+  "The waiter clears your empty plate. Tell him it was good.",
+  "Your host clears the plates after dinner. Tell her it was good.",
+]
+situations_ja = [
+  "ウェイターが空いた皿を下げます。おいしかったと伝えてください。",
+  "夕食後、ホストがお皿を片付けています。おいしかったと伝えてください。",
+]
 partner_cue = "Var þetta gott?"  # issue #48: the partner line between eg_er_sodd and this item in connect()
 partner_cue_after = "eg_er_sodd"
 partner_cue_setup = "At a restaurant, the waiter offers you more. You couldn't eat another bite: say you're full."
@@ -484,8 +520,14 @@ meaning = "This is delicious."
 meaning_ja = "これ、とてもおいしいです。"
 difficulty = 3
 topics = ["cafe", "food"]
-situation = "Your host asks how the fish is. Tell her it's delicious."
-situation_ja = "ホストが魚の味を聞きました。とてもおいしいと言ってください。"
+situations = [
+  "Your host asks how the fish is. Tell her it's delicious.",
+  "You taste your friend's homemade soup. Tell her it's delicious.",
+]
+situations_ja = [
+  "ホストが魚の味を聞きました。とてもおいしいと言ってください。",
+  "友達の手作りスープを味見しました。とてもおいしいと言ってください。",
+]
 
 [[items]]
 id = "ma_eg_borga_med_korti"
@@ -496,8 +538,14 @@ meaning_ja = "カードで払えますか？"
 difficulty = 3
 topics = ["cafe", "shopping", "money"]
 chunks = ["korti", "með korti", "borga með korti", "Má ég borga með korti?"]
-situation = "You have no cash. Ask if you may pay by card."
-situation_ja = "現金がありません。カードで払えるか聞いてください。"
+situations = [
+  "You have no cash. Ask if you may pay by card.",
+  "At the kiosk you've only got your card. Ask if you may pay by card.",
+]
+situations_ja = [
+  "現金がありません。カードで払えるか聞いてください。",
+  "売店でカードしか持っていません。カードで払えるか聞いてください。",
+]
 partner_cue = "Auðvitað. Það eru fjögur þúsund krónur."  # issue #48: the partner line between get_eg_fengid_reikninginn and this item in connect()
 partner_cue_after = "get_eg_fengid_reikninginn"
 partner_cue_setup = "You've finished eating at a restaurant. Ask the waiter for the bill."
@@ -535,8 +583,14 @@ meaning_ja = "お腹が空きました。"
 difficulty = 2
 topics = ["cafe", "feelings"]
 pronunciation_notes = "feminine; masculine: Ég er svangur."
-situation = "It's one o'clock and you haven't eaten. Tell your friend you're hungry."
-situation_ja = "1時になりましたが何も食べていません。友達にお腹が空いたと言ってください。"
+situations = [
+  "It's one o'clock and you haven't eaten. Tell your friend you're hungry.",
+  "Your host asks if you'd like to eat now. You skipped lunch. Say you're hungry.",
+]
+situations_ja = [
+  "1時になりましたが何も食べていません。友達にお腹が空いたと言ってください。",
+  "ホストに、もう食べたいか聞かれました。昼食を抜いたので、お腹が空いていると言ってください。",
+]
 
 [[items]]
 id = "eg_er_thyrst"
@@ -547,8 +601,14 @@ meaning_ja = "喉が渇きました。"
 difficulty = 2
 topics = ["cafe", "feelings"]
 pronunciation_notes = "feminine; masculine: Ég er þyrstur."
-situation = "After the hike you need a drink. Say you're thirsty."
-situation_ja = "ハイキングの後で飲み物が欲しいです。喉が渇いたと言ってください。"
+situations = [
+  "After the hike you need a drink. Say you're thirsty.",
+  "It's a hot day and you've been walking around town for hours. Say you're thirsty.",
+]
+situations_ja = [
+  "ハイキングの後で飲み物が欲しいです。喉が渇いたと言ってください。",
+  "暑い日で、何時間も街を歩いています。喉が渇いたと言ってください。",
+]
 
 [[items]]
 id = "eg_er_sodd"
@@ -571,8 +631,14 @@ meaning_ja = "コーヒーのおかわりをお願いします。"
 difficulty = 2
 topics = ["cafe"]
 prereqs = ["kaffi"]
-situation = "The waiter comes round with the pot. Ask for more coffee."
-situation_ja = "ウェイターがポットを持って回ってきました。コーヒーのおかわりを頼んでください。"
+situations = [
+  "The waiter comes round with the pot. Ask for more coffee.",
+  "At breakfast your cup is empty and your host holds up the pot. Ask for more coffee.",
+]
+situations_ja = [
+  "ウェイターがポットを持って回ってきました。コーヒーのおかわりを頼んでください。",
+  "朝食でカップが空になり、ホストがポットを持ち上げました。コーヒーのおかわりを頼んでください。",
+]
 
 [[items]]
 id = "annan_bjor_takk"
@@ -583,8 +649,14 @@ meaning_ja = "ビールをもう一杯お願いします。"
 difficulty = 2
 topics = ["cafe"]
 prereqs = ["bjor"]
-situation = "Your glass is empty. Ask the bartender for another beer."
-situation_ja = "グラスが空です。バーテンダーにもう一杯頼んでください。"
+situations = [
+  "Your glass is empty. Ask the bartender for another beer.",
+  "It's half-time and your beer is finished. Ask the bartender for another.",
+]
+situations_ja = [
+  "グラスが空です。バーテンダーにもう一杯頼んでください。",
+  "試合はハーフタイムで、ビールが空になりました。バーテンダーにもう一杯頼んでください。",
+]
 
 [[items]]
 id = "thetta_er_allt"
@@ -594,8 +666,14 @@ meaning = "That's all."
 meaning_ja = "以上です。"
 difficulty = 2
 topics = ["cafe", "shopping"]
-situation = "The waiter asks if you'd like anything else. Say that's all."
-situation_ja = "ウェイターが他に何かいるか聞きました。以上ですと答えてください。"
+situations = [
+  "The waiter asks if you'd like anything else. Say that's all.",
+  "You've ordered three things at the bakery counter. Tell the assistant that's all.",
+]
+situations_ja = [
+  "ウェイターが他に何かいるか聞きました。以上ですと答えてください。",
+  "パン屋のカウンターで3つ注文しました。店員に以上ですと伝えてください。",
+]
 partner_cue = "Gjörðu svo vel. Eitthvað fleira?"  # issue #48: the partner line between meira_kaffi_takk and this item in connect()
 partner_cue_after = "meira_kaffi_takk"
 partner_cue_setup = "The waiter comes round with the coffee pot. Ask for more coffee."
