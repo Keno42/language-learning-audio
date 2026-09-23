@@ -24,9 +24,11 @@ meaning = [
   "Say: {meaning}",
   "In {language}, say: {meaning}",
 ]
+# issue #68: the novelty claim only when the generated sentence was never presented before
+recombine_new = "Now something you haven't heard yet. Say: {meaning}"
 recombine = [
-  "Now something you haven't heard yet. Say: {meaning}",
   "Put it together yourself. Say: {meaning}",
+  "Use the pattern again. Say: {meaning}",
 ]
 recombine_vocab = "Use it in a sentence. Say: {meaning}"
 also = "You could also say:"

@@ -3242,6 +3242,28 @@ use their own scene cues (`partner_cue_setup` / `partner_cue_situation`). Test: 
 street-sign + menu pair in both languages is `recombine`, uses `connect_next`, and never
 emits the continuity wording. 160 tests, all passing.
 
+## Session 39: issue #68 — recombine claimed already-heard sentences were new
+
+The `recombine` phrasing picked at random between "Now something you haven't heard yet"
+and a neutral line. The generator only *prefers* unused combinations: it falls back to
+heard ones, and a construction's intro worked example was never marked used. So the
+novelty claim was usually false. Measured on 40 simulated 20-minute lessons: 39 of 51
+claims were for a sentence already presented, e.g. the real Lesson 5 «Talar þú íslensku?»
+straight after the intro presented it.
+
+**Fix.** `recombine_new` carries the novelty claim; `recombine` is neutral only ("Put it
+together yourself." / "Use the pattern again."). `Builder.is_new_utterance()` decides by
+the exact surface, normalised for case and trailing punctuation. A sentence is new only if
+it wasn't presented this lesson, wasn't presented in an earlier lesson, and isn't the
+target of a met item. "Presented" means any full target-language line spoken or answered;
+cloze fragments and first-word hints don't count. Earlier lessons are tracked in the new,
+persisted `LearnerState.heard_utterances`, fed from `sc.meta["heard_utterances"]`. The
+intro's worked-example combination is now also marked used, so generation actually prefers
+new fills afterwards. Reuse stays allowed, only worded honestly. After: 16 claims, 0 false.
+Tests: the real Lesson 5 shape (two known fills, so the recombine must repeat and must not
+claim novelty), a third fill making a new sentence that does get the claim, persistence,
+and a save/load round trip. 161 tests, all passing.
+
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
 Three new issues arrived together, all written by the owner as substantial

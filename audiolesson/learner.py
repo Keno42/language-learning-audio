@@ -65,6 +65,7 @@ class LearnerState:
     pace_changed_at: int = 0  # lesson number of the last pace change (auto mode steps slowly)
     speech_calibration: dict[str, float] = field(default_factory=dict)  # lang → measured/estimated TTS length
     notes_heard: dict[str, int] = field(default_factory=dict)  # note id → times played
+    heard_utterances: set[str] = field(default_factory=set)  # normalised target-language lines presented so far (issue #68)
     bridges_heard: dict[str, int] = field(default_factory=dict)  # bridged item id → times its partner_cue played
 
     # ---- queries ---------------------------------------------------------
@@ -309,6 +310,7 @@ class LearnerState:
             "pace_changed_at": self.pace_changed_at,
             "speech_calibration": self.speech_calibration,
             "notes_heard": self.notes_heard,
+            "heard_utterances": sorted(self.heard_utterances),
             "bridges_heard": self.bridges_heard,
         }
 
@@ -333,6 +335,7 @@ class LearnerState:
             pace_changed_at=int(raw.get("pace_changed_at", 0)),
             speech_calibration=dict(raw.get("speech_calibration", {})),
             notes_heard=dict(raw.get("notes_heard", {})),
+            heard_utterances=set(raw.get("heard_utterances", [])),
             bridges_heard=dict(raw.get("bridges_heard", {})),
         )
         ls.items = {k: ItemState(**v) for k, v in raw.get("items", {}).items()}
