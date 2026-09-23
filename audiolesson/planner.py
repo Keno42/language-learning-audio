@@ -316,12 +316,18 @@ class Planner:
             for n in self._notes_by_item.get(i, []):
                 if (
                     n.milestone
+                    and self._note_available(n)
                     and n.id not in self.notes_played
                     and self.learner.notes_heard.get(n.id, 0) == 0
                     and all(self.learner.has_met(x) or x in self.exposures for x in n.items)
                 ):
                     return n
         return None
+
+    def _note_available(self, note) -> bool:
+        """Whatever a note recommends the learner say (``Note.requires``, issue #66) is already
+        theirs: learned, or introduced earlier in this lesson."""
+        return all(self.learner.knows(i) or i in self.builder.in_lesson for i in note.requires)
 
     def _pick_note(self, related: list[str] | None) -> object | None:
         """Least-heard unplayed non-milestone note, related to ``related`` items if given,
@@ -331,12 +337,14 @@ class Planner:
             pool = [n for i in related for n in self._notes_by_item.get(i, [])]
         else:
             pool = list(self.cur.notes)
-        pool = [n for n in pool if not n.milestone]
+        pool = [n for n in pool if not n.milestone and self._note_available(n)]
         pool = [n for n in pool if n.id not in self.notes_played]
         heard = self.learner.notes_heard
         # "unheard" only counts non-milestone notes here: an ineligible milestone note is
         # permanently unheard from this function's point of view (it never picks one), so
         # counting it would needlessly block repeats of ordinary notes that have all been heard.
+        # A note still waiting on its ``requires`` (issue #66) does count as unheard: unlike a
+        # milestone it will become available, so it must not let heard asides start repeating.
         if any(heard.get(n.id, 0) == 0 for n in self.cur.notes if not n.milestone):
             pool = [n for n in pool if heard.get(n.id, 0) == 0]  # never repeat while unheard notes remain
         if not pool:
