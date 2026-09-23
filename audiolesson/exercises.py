@@ -36,6 +36,9 @@ class Generated:
         return [self.construction.id] + [f.id for f in self.fills.values()]
 
 
+BRIDGE_GLOSS_ENCOUNTERS = 2  # a partner_cue is glossed on the learner's first N hearings of that bridge
+
+
 @dataclass
 class Builder:
     cur: Curriculum
@@ -578,16 +581,23 @@ class Builder:
         ex = sc.new_exercise("connect", "exchange" if bridged else "recombine", ids, f"connect: {first.id}+{second.id}")
         self._narr(sc, ex, self.prompts.get("connect_intro"))
         self._beat(sc, ex)
-        self._narr(sc, ex, self._situation_readonly(first))  # type: ignore[arg-type]
+        # an authored bridge is one scene (owner comment on #48): its own setup for A and cue for
+        # B replace the two items' standalone situations, which were written for unrelated scenes
+        self._narr(sc, ex, second.partner_cue_setup if bridged else self._situation_readonly(first))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, first_target, first, generative=True)
         self._answer(sc, ex, first_target)
         self._beat(sc, ex)
         if bridged:
             self._speak(sc, ex, second.partner_cue, speaker="native_b")
             self._beat(sc, ex)
+            if self.translate_partner and self.learner.bridges_heard.get(second.id, 0) < BRIDGE_GLOSS_ENCOUNTERS:
+                # early encounters: say what the partner said, so untaught words don't turn the
+                # line into noise; later ones rely on the learner's own comprehension
+                self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=second.partner_cue_meaning))
+                self._beat(sc, ex)
         else:
             self._narr(sc, ex, self.prompts.get("connect_then"))
-        self._narr(sc, ex, self._situation_readonly(second))  # type: ignore[arg-type]
+        self._narr(sc, ex, second.partner_cue_situation if bridged else self._situation_readonly(second))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, second_target, second, generative=True)
         self._answer(sc, ex, second_target)
         self._gap(sc, ex)

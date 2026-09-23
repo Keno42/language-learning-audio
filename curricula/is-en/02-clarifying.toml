@@ -152,6 +152,12 @@ situation = "The barista is speaking far too fast. Ask her to speak more slowly.
 situation_ja = "バリスタの話が速すぎます。もっとゆっくり話すよう頼んでください。"
 partner_cue = "Góðan daginn! Hvað má bjóða þér?"  # issue #48: the partner line between godan_daginn and this item in connect()
 partner_cue_after = "godan_daginn"
+partner_cue_setup = "You walk into a busy café in the morning. Greet the barista: good day."
+partner_cue_setup_ja = "朝、混んでいるカフェに入りました。バリスタに、こんにちは、とあいさつしてください。"
+partner_cue_meaning = "Good day! What can I get you?"
+partner_cue_meaning_ja = "こんにちは！何になさいますか？"
+partner_cue_situation = "She asked what you'd like, far too fast. Ask her to speak more slowly."
+partner_cue_situation_ja = "何にするか聞かれましたが、早口すぎました。もっとゆっくり話すよう頼んでください。"
 
 [[items]]
 id = "gaetirdu_endurtekid_thetta"
@@ -174,6 +180,12 @@ situation_ja = "部屋番号を聞き逃しました。もう一度言うよう�
 # specifically, not any arbitrary item connect() might otherwise pair this one with.
 partner_cue = "Auðvitað. Herbergið er númer tuttugu og þrjú."
 partner_cue_after = "gaetirdu_talad_haegar"
+partner_cue_setup = "At hotel reception, the receptionist is speaking far too fast. Ask her to speak more slowly."
+partner_cue_setup_ja = "ホテルのフロントで、受付の人がとても早口です。もっとゆっくり話すよう頼んでください。"
+partner_cue_meaning = "Of course. The room is number twenty-three."
+partner_cue_meaning_ja = "もちろん。お部屋は23号室です。"
+partner_cue_situation = "She slowed down, but you still missed the room number. Ask her to repeat it."
+partner_cue_situation_ja = "ゆっくり話してくれましたが、部屋番号を聞き逃しました。もう一度言うよう頼んでください。"
 
 [[items]]
 id = "hvad_thydir_thetta"
@@ -187,6 +199,12 @@ situation = "There's a word on the sign you don't know. Ask what it means."
 situation_ja = "看板に知らない単語があります。意味を聞いてください。"
 partner_cue = "Já? Get ég hjálpað?"  # issue #48: the partner line between afsakid and this item in connect()
 partner_cue_after = "afsakid"
+partner_cue_setup = "There's a word on a street sign you don't know. Get the attention of a woman passing by."
+partner_cue_setup_ja = "通りの標識に知らない単語があります。通りかかった女性に声をかけてください。"
+partner_cue_meaning = "Yes? Can I help?"
+partner_cue_meaning_ja = "はい？何かお困りですか？"
+partner_cue_situation = "She asked if she can help. Point at the sign and ask what it means."
+partner_cue_situation_ja = "何か手伝えるかと聞かれました。標識を指して、どういう意味か聞いてください。"
 
 [[items]]
 id = "hvad_heitir_thetta_a_islensku"
@@ -224,6 +242,12 @@ situation = "The address is too hard to catch by ear. Ask her to write it."
 situation_ja = "住所が耳では聞き取れません。書いてもらうよう頼んでください。"
 partner_cue = "Já: Laugavegur tuttugu og þrír."  # issue #48: the partner line between gaetirdu_endurtekid_thetta and this item in connect()
 partner_cue_after = "gaetirdu_endurtekid_thetta"
+partner_cue_setup = "A woman is telling you the address of your guesthouse, but you missed it. Ask her to repeat it."
+partner_cue_setup_ja = "女性がゲストハウスの住所を教えてくれましたが、聞き逃しました。もう一度言うよう頼んでください。"
+partner_cue_meaning = "Yes: Laugavegur twenty-three."
+partner_cue_meaning_ja = "ええ、ラウガヴェーグル23です。"
+partner_cue_situation = "She repeated the address, but it's still hard to catch by ear. Ask her to write it."
+partner_cue_situation_ja = "住所を繰り返してくれましたが、やはり聞き取りにくいです。書いてくれるよう頼んでください。"
 
 [[items]]
 id = "eg_veit_ekki"
@@ -238,6 +262,12 @@ situation = "Someone asks you where the nearest bank is. You have no idea."
 situation_ja = "一番近い銀行はどこかと聞かれました。見当がつきません。"
 partner_cue = "Góðan daginn. Hvar er bankinn?"  # issue #48: the partner line between godan_daginn and this item in connect()
 partner_cue_after = "godan_daginn"
+partner_cue_setup = "You're waiting at a bus stop. A man greets you. Greet him back: good day."
+partner_cue_setup_ja = "バス停で待っていると、男性があいさつしてきました。こんにちは、と返してください。"
+partner_cue_meaning = "Good day. Where is the bank?"
+partner_cue_meaning_ja = "こんにちは。銀行はどこですか？"
+partner_cue_situation = "He asked where the bank is. You have no idea: say you don't know."
+partner_cue_situation_ja = "銀行はどこかと聞かれました。見当もつきません。わからないと言ってください。"
 
 [[items]]
 id = "eg_er_ekki_viss"
@@ -251,6 +281,12 @@ situation = "Your friend asks if the museum is open on Mondays. You're not sure.
 situation_ja = "友達が博物館は月曜も開いているか聞きました。確信がありません。"
 partner_cue = "Hæ! Er safnið opið á mánudögum?"  # issue #48: the partner line between hae and this item in connect()
 partner_cue_after = "hae"
+partner_cue_setup = "Your friend waves at you across the street. Greet her casually."
+partner_cue_setup_ja = "友達が通りの向こうから手を振っています。気軽にあいさつしてください。"
+partner_cue_meaning = "Hi! Is the museum open on Mondays?"
+partner_cue_meaning_ja = "やあ！博物館って月曜日は開いてる？"
+partner_cue_situation = "She asked if the museum is open on Mondays. You're not sure: say so."
+partner_cue_situation_ja = "博物館が月曜日に開いているか聞かれました。よくわからないので、そう言ってください。"
 
 [[items]]
 id = "augnablik"
@@ -338,6 +374,12 @@ situation = "The ticket machine won't take your card. Ask the person behind you 
 situation_ja = "券売機がカードを受け付けません。後ろの人に助けを求めてください。"
 partner_cue = "Já?"  # issue #48: the partner line between afsakid and this item in connect()
 partner_cue_after = "afsakid"
+partner_cue_setup = "At the station, the ticket machine won't take your card. Get the attention of the man behind you."
+partner_cue_setup_ja = "駅の券売機がカードを受け付けません。後ろの男性に声をかけてください。"
+partner_cue_meaning = "Yes?"
+partner_cue_meaning_ja = "はい？"
+partner_cue_situation = "He turned to you. Ask him if he can help you."
+partner_cue_situation_ja = "こちらを向いてくれました。手伝ってもらえるか聞いてください。"
 
 [[items]]
 id = "eg_tharf_hjalp"
@@ -351,6 +393,12 @@ situation = "You're at the information desk with a problem. Say you need help."
 situation_ja = "案内カウンターで困っています。助けが必要だと言ってください。"
 partner_cue = "Góðan daginn. Hvað get ég gert fyrir þig?"  # issue #48: the partner line between godan_daginn and this item in connect()
 partner_cue_after = "godan_daginn"
+partner_cue_setup = "You walk up to the information desk with a problem. Greet the clerk: good day."
+partner_cue_setup_ja = "困りごとがあって案内所に行きました。係の人に、こんにちは、とあいさつしてください。"
+partner_cue_meaning = "Good day. What can I do for you?"
+partner_cue_meaning_ja = "こんにちは。どうなさいましたか？"
+partner_cue_situation = "She asked what she can do for you. Say you need help."
+partner_cue_situation_ja = "どうしたのかと聞かれました。助けが必要だと言ってください。"
 
 [[items]]
 id = "hvad_er_thetta"
@@ -364,6 +412,12 @@ situation = "There's a grey paste on your plate. Ask what it is."
 situation_ja = "皿に灰色のペーストがあります。何か聞いてください。"
 partner_cue = "Gjörðu svo vel. Verði þér að góðu!"  # issue #48: the partner line between takk and this item in connect()
 partner_cue_after = "takk"
+partner_cue_setup = "Your host puts a plate in front of you. Thank her."
+partner_cue_setup_ja = "ホストがお皿を目の前に置いてくれました。お礼を言ってください。"
+partner_cue_meaning = "Here you are. Enjoy your meal!"
+partner_cue_meaning_ja = "どうぞ。召し上がれ！"
+partner_cue_situation = "She wished you a good meal. There's a grey paste on the plate: ask what it is."
+partner_cue_situation_ja = "召し上がれと言われました。お皿に灰色のペーストがあります。これは何か聞いてください。"
 
 [[items]]
 id = "er_thetta_rett"
@@ -388,6 +442,12 @@ situation = "The clerk assumes you know the system. Explain you're a foreigner."
 situation_ja = "係の人が仕組みを知っている前提で話します。外国人だと説明してください。"
 partner_cue = "Þú þarft bara að fylla út eyðublað á netinu."  # issue #48: the partner line between eg_skil_ekki and this item in connect()
 partner_cue_after = "eg_skil_ekki"
+partner_cue_setup = "At the town office, the clerk explains something quickly and you get lost. Tell her you don't understand."
+partner_cue_setup_ja = "役所で係の人が早口で説明し、ついていけませんでした。わからないと伝えてください。"
+partner_cue_meaning = "You just need to fill in a form online."
+partner_cue_meaning_ja = "オンラインで書類に記入するだけですよ。"
+partner_cue_situation = "She assumes you know how things work here. Explain that you're a foreigner."
+partner_cue_situation_ja = "ここの仕組みを知っている前提で話しています。外国人だと説明してください。"
 
 [[items]]
 id = "politeness_get_eg_fengid"

@@ -143,6 +143,18 @@ class Item:
     # together — see ``validate()``.
     partner_cue: str = ""
     partner_cue_after: str = ""
+    # The bridge as one authored scene (owner comment on #48 after a real Lesson 4: "Góðan daginn"
+    # cued as greeting *bakery staff*, then "Má ég setjast hérna?" and a cue about someone at *your
+    # table* — the target-language turns fit, the instructor-described world didn't). When the
+    # pair plays: ``partner_cue_setup`` replaces A's standalone situation, setting the shared scene
+    # and asking for A; ``partner_cue_meaning`` says what the partner just said, so a line with
+    # untaught words still has a clear communicative move (narrated only on the learner's first
+    # encounters with this bridge — see LearnerState.bridges_heard); ``partner_cue_situation``
+    # replaces B's standalone situation, continuing the same scene and naming the partner's move.
+    # All three are required with ``partner_cue`` (validate()); glossed like ``situation``.
+    partner_cue_setup: str = ""
+    partner_cue_meaning: str = ""
+    partner_cue_situation: str = ""
 
     # ---- derived helpers -------------------------------------------------
 
@@ -382,7 +394,7 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
 
 
 # fields that may carry per-language glosses (``<field>_<lang>``)
-_GLOSSED_ITEM = ("meaning", "situation", "situations", "instruction")
+_GLOSSED_ITEM = ("meaning", "situation", "situations", "instruction", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation")
 _GLOSSED_EXAMPLE = ("source_meaning", "result_meaning")
 _GLOSSED_TURN = ("cue", "opener_meaning", "partner_meaning", "expect_meaning")
 _GLOSSED_DIALOGUE = ("setting",)
@@ -511,6 +523,12 @@ def validate(cur: Curriculum) -> None:
             raise CurriculumError(f"item {it.id!r}: partner_cue and partner_cue_after must be set together, or not at all")
         if it.partner_cue_after and it.partner_cue_after not in ids:
             raise CurriculumError(f"item {it.id!r}: partner_cue_after references unknown item {it.partner_cue_after!r}")
+        scene = {"partner_cue_setup": it.partner_cue_setup, "partner_cue_meaning": it.partner_cue_meaning, "partner_cue_situation": it.partner_cue_situation}
+        if it.partner_cue and not all(scene.values()):
+            missing = [k for k, v in scene.items() if not v]
+            raise CurriculumError(f"item {it.id!r}: a partner_cue bridge needs its whole scene — missing {missing}")
+        if not it.partner_cue and any(scene.values()):
+            raise CurriculumError(f"item {it.id!r}: partner_cue_setup/meaning/situation without a partner_cue")
         if it.kind == "construction":
             slots = it.slot_names
             if not slots:
