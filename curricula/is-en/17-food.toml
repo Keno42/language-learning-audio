@@ -390,7 +390,7 @@ situation_ja = "みんなを食卓に呼んでください：ご飯ができま�
 # New (issue #29 owner review): a masculine partner for the "godur_gender" milestone's
 # transfer practice — "matur" (food) is masculine, so "góður" is the expected agreement,
 # same pattern as "góðan daginn" but applied to new vocabulary instead of replaying the
-# same three greetings forever. See docs/HANDOFF.md and Note.transfer_items.
+# same three greetings forever. See docs/history/sessions.md and Note.transfer_items.
 [[items]]
 id = "godur_matur"
 kind = "phrase"

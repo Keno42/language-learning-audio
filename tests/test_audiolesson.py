@@ -1897,7 +1897,7 @@ class CurriculumTests(unittest.TestCase):
         content decision (issue #29, owner review round 2: the first cut of this test used
         the real ``godur_gender`` note, which coupled the test's validity to a specific
         curriculum-content choice that turned out to need correcting — see
-        ``test_...nominative`` below and docs/HANDOFF.md). This tests the *mechanism* only:
+        ``test_...nominative`` below and docs/history/sessions.md). This tests the *mechanism* only:
         whether ``transfer_items`` gates milestone firing, and whether ``do_discriminate``
         reaches for a known one."""
         raw = {

@@ -255,13 +255,41 @@ tools/          daily.sh (one day of the routine), derive_fr_ja.py (keeps fr-ja 
                 gloss.py (inserts <field>_<lang> glosses), phrase_families.py (fixed-phrase audit)
 profiles/       voice profiles (provider + voice per speaker)
 tests/          python -m unittest
-docs/           HANDOFF.md (current state, invariants, open issues), CURRICULUM.md (format),
-                AUDIT-29.md / AUDIT-48.md (status of the two open issues), history/ (session log)
+docs/           DESIGN.md (code map, invariants, decisions), CURRICULUM.md (format),
+                AUDIT-29.md / AUDIT-48.md (audit tables behind #29 and #48), history/ (session log)
 ```
 
 ## Development
 
+Open work, known gaps and design discussion live in the GitHub issues. `docs/DESIGN.md`
+has the code map, the invariants the tests pin and the decisions behind them.
+
+### How to check your change
+
 ```sh
-python -m unittest -v          # espeak-ng/ffmpeg optional; one test skips without them
-python -m audiolesson.cli generate -c curricula/fr-en-a1.toml -l /tmp/l.json -m 5 --provider stub
+python -m unittest -v
+python -m audiolesson.cli validate curricula/is-en
+python - <<'EOF'
+# ten-lesson simulation: one line per lesson, letters = exercise kinds
+# o opening, i intro, r recall, g generative, c connect/closing, d dialogue, n note
+from datetime import date, timedelta
+from audiolesson.content import load_curriculum
+from audiolesson.learner import LearnerState
+from audiolesson.prompts import Prompts
+from audiolesson.timing import Timing
+from audiolesson.planner import Planner, PlanConfig, apply_to_learner
+cur = load_curriculum("curricula/is-en"); ls = LearnerState("is", "en"); d = date.today()
+for _ in range(10):
+    sc = Planner(cur, ls, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20), today=d).build()
+    apply_to_learner(sc, ls, d); s = sc.summary(); d += timedelta(days=1)
+    print(f"L{sc.lesson_number}: {s['duration_s']/60:.1f}min new={len(sc.meta['new_items'])} "
+          f"rev={len(sc.meta['reviewed_items'])} partner={sc.meta['partner_exchanges']} " + "".join(e.kind[0] for e in sc.exercises))
+EOF
 ```
+
+For a change meant to be behaviour-neutral, dump a few simulated courses' scripts to JSON
+before and after, and compare them.
+
+`python -m audiolesson.cli generate -c curricula/fr-en-a1.toml -l /tmp/l.json -m 5 --provider stub`
+renders a quick lesson without any TTS dependency; espeak-ng/ffmpeg are optional (one test
+skips without them).

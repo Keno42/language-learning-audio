@@ -201,7 +201,7 @@ situation_ja = "ハイキングを計画しています。明日の天気を聞�
 # these two teach. That reusable relation is deliberately left unmodeled rather than faked with
 # a memorised copy of the dialogue's own sentence (owner review on PR #54): the construction IR
 # can't yet slot a whole clause, which is a representation gap, not evidence the hedge is
-# lexicalised. Open for #29's grammar/construction pilot — see docs/HANDOFF.md "Session 27".
+# lexicalised. Open for #29's grammar/construction pilot — see docs/history/sessions.md "Session 27".
 [[items]]
 id = "eg_held_thad"
 kind = "phrase"

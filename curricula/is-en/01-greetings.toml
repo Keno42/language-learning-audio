@@ -285,7 +285,7 @@ situation = "Someone asks if you have change. You don't. Say so regretfully."
 situation_ja = "小銭があるか聞かれましたが、ありません。残念そうに答えてください。"
 
 # Promoted from module 19 (issue #29 triage, cluster C): a repeat offender across
-# three dialogues before it was otherwise taught — see docs/HANDOFF.md.
+# three dialogues before it was otherwise taught — see docs/history/sessions.md.
 [[items]]
 id = "lika"
 kind = "vocab"
@@ -296,7 +296,7 @@ difficulty = 1
 topics = ["discourse"]
 
 # Promoted from module 24 (issue #29 triage, cluster C): a repeat offender across
-# two dialogues before it was otherwise taught — see docs/HANDOFF.md.
+# two dialogues before it was otherwise taught — see docs/history/sessions.md.
 [[items]]
 id = "thad_er_god_hugmynd"
 kind = "phrase"
@@ -541,7 +541,7 @@ situation_ja = "友達が傘を借りてもいいか聞きました。もちろ�
 # Promoted from module 18 (issue #29 pilot 3): dialogue_sequencing_report()'s top
 # repeat-offender word. A partner says "Frábært!" as an early reaction in seven
 # dialogues starting with module 2's own first one, but the word wasn't taught until
-# module 18 — see docs/HANDOFF.md.
+# module 18 — see docs/history/sessions.md.
 [[items]]
 id = "frabaert"
 kind = "vocab"
@@ -556,7 +556,7 @@ situation_ja = "アンナが道路が開通したと言いました。「すば�
 
 # Promoted from module 24 (issue #29 triage): the "nagranni" dialogue right below
 # uses this verbatim as its partner's reaction line, at order ~11 — 915 items before
-# it was otherwise taught. See docs/HANDOFF.md.
+# it was otherwise taught. See docs/history/sessions.md.
 [[items]]
 id = "gott_ad_heyra"
 kind = "phrase"

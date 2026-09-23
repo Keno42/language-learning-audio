@@ -333,7 +333,7 @@ situation_ja = "靴ひもを結んでいる間に友達が歩いていきます�
 # inside a whale-watching phrase in module 23 — a whale-specific prereq gated it, so
 # relocating that phrase alone wouldn't have actually taught the word any earlier. A
 # short, prereq-free, generically reusable imperative belongs standalone — see
-# docs/HANDOFF.md.
+# docs/history/sessions.md.
 [[items]]
 id = "sjadu"
 kind = "phrase"
@@ -347,7 +347,7 @@ situation_ja = "港の上に虹が出ています。友達に見てと言って�
 
 # Promoted from module 25 (issue #29 triage, cluster C): a repeat offender across two
 # dialogues before it was otherwise taught, and already the example fill for the
-# later "eg_er_med_have" construction — see docs/HANDOFF.md.
+# later "eg_er_med_have" construction — see docs/history/sessions.md.
 [[items]]
 id = "vegabref"
 kind = "vocab"
@@ -491,7 +491,7 @@ examples = [
 # want to / can't be bothered to" is a generative construction that recombines
 # with any bare infinitive, and "fara" (go) is one of the highest-repeat,
 # largest-sequencing-gap words the dialogue_sequencing_report() diagnostic
-# flags — see docs/HANDOFF.md. Sequencing value here outweighs topic fit;
+# flags — see docs/history/sessions.md. Sequencing value here outweighs topic fit;
 # `topics` still says what these items are about, not this file's name.
 
 [[items]]
@@ -631,7 +631,7 @@ meaning_forms_ja = { te = "コーヒーを飲んで" }
 # same "Ég vil {inf}." pattern by hand instead of using it — reusable material
 # embedded in a fixed phrase, the exact case #29 asks to fix at the source. Adding
 # it here lets "eg_vil" (and later constructions built on this "inf" vocabulary)
-# recombine with it like any other — see docs/HANDOFF.md.
+# recombine with it like any other — see docs/history/sessions.md.
 [[items]]
 id = "boka_ferd"
 kind = "vocab"
@@ -707,7 +707,7 @@ pronunciation_notes = "nenna — a very Icelandic verb"
 # this exact sentence as the example of what *not* to do: don't make one dialogue's
 # sentence a special-cased prerequisite. A real construction, reusing this module's
 # existing "inf" slot-fill vocabulary, generalizes it the way #29 asks for instead —
-# see docs/HANDOFF.md.
+# see docs/history/sessions.md.
 [[items]]
 id = "eg_verd_ad"
 kind = "construction"
