@@ -69,6 +69,8 @@ meaning_ja = "ごみ箱"
 difficulty = 2
 tags = ["nom_place"]
 topics = ["home"]
+meaning_forms = { in_sentence = "the bin" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "ごみ箱" }
 
 [[items]]
 id = "lykillinn"

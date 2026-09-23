@@ -36,6 +36,11 @@ class Generated:
         return [self.construction.id] + [f.id for f in self.fills.values()]
 
 
+def _norm_utterance(text: str) -> str:
+    """Case- and trailing-punctuation-insensitive form of a target-language line."""
+    return text.strip().rstrip(".?!…").strip().lower()
+
+
 BRIDGE_GLOSS_ENCOUNTERS = 2  # a partner_cue is glossed on the learner's first N hearings of that bridge
 
 
@@ -49,6 +54,7 @@ class Builder:
     translate_partner: bool = True  # narrate the meaning of partner lines in dialogues
     used_combos: set[str] = field(default_factory=set)
     used_examples: set[str] = field(default_factory=set)
+    heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson (issue #68)
     _situation_uses: dict[str, int] = field(default_factory=dict)  # per-item count, this lesson
 
     # ------------------------------------------------------------------ utils
@@ -129,9 +135,22 @@ class Builder:
         # ``text`` correctly, so the estimate below is based on what will really be spoken.
         lang = lang or self.tl
         sc.add(Segment("speak", speaker, text, lang, rate, self.timing.speech_estimate(speech_text or text, lang, rate), role, ex.index, speech_text))
+        if lang == self.tl and role not in ("partial", "hint"):  # a cloze fragment or first-word hint isn't the utterance
+            self.heard.add(_norm_utterance(text))
 
     def _answer(self, sc: Script, ex: Exercise, text: str, speaker: str = "native_a", rate: float = 1.0) -> None:
         sc.add(Segment("answer", speaker, text, self.tl, rate, self.timing.speech_estimate(text, self.tl, rate), None, ex.index))
+        self.heard.add(_norm_utterance(text))
+
+    def is_new_utterance(self, text: str) -> bool:
+        """True only if the learner has never been presented this exact target-language line
+        (issue #68): not this lesson, not in an earlier lesson (``LearnerState.heard_utterances``),
+        and not as the target of an item they've already met — «Eigðu góðan dag.» is both an
+        authored phrase and a sentence a construction can generate."""
+        n = _norm_utterance(text)
+        if n in self.heard or n in self.learner.heard_utterances:
+            return False
+        return not any(_norm_utterance(it.target) == n for it in self.cur.items if self.learner.has_met(it.id))
 
     def _pause(self, sc: Script, ex: Exercise, seconds: float, role: str) -> None:
         sc.add(Segment("pause", None, None, None, 1.0, seconds, role, ex.index))
@@ -235,6 +254,7 @@ class Builder:
         ex = sc.new_exercise("intro", "intro", [item.id], f"new pattern: {item.target}")
         fills = self.cur.example_fill(item)
         target, meaning = self.cur.resolve_slots(item, fills)
+        self.used_combos.add(self._combo_key(item, fills))  # the worked example is heard, not new (issue #68)
         ex.item_ids += [f.id for f in fills.values() if f.id not in ex.item_ids]
         self._narr(sc, ex, self.prompts.get("construction_intro", meaning=self._m(meaning)))
         self._beat(sc, ex)
@@ -374,7 +394,12 @@ class Builder:
         self.used_combos.add(gen.key)
         ids = [item.id] + [i for i in gen.item_ids if i != item.id]  # the practised item comes first
         ex = sc.new_exercise("generative", "recombine", ids, f"recombine: {gen.target}")
-        key = "recombine" if item.kind == "construction" else "recombine_vocab"
+        # "something you haven't heard yet" only when that is literally true (issue #68): the
+        # generator merely *prefers* unused combinations and may fall back to a heard one
+        if item.kind == "construction":
+            key = "recombine_new" if self.is_new_utterance(gen.target) else "recombine"
+        else:
+            key = "recombine_vocab"
         self._narr(sc, ex, self.prompts.get(key, meaning=self._m(gen.meaning)))
         self._answer_pause(sc, ex, gen.target, item, generative=True)
         self._answer(sc, ex, gen.target)
@@ -550,6 +575,11 @@ class Builder:
         instructor — still the same shape issue #48 named directly: English instruction,
         retrieve one phrase, repeat.
 
+        Without an authored bridge the two turns are independent situations (recombination
+        practice, not conversation), so the transition between them is neutral —
+        ``connect_next``, "Now another situation." — never "And then —", which implied the
+        second task followed from the first (issue #69).
+
         ``items[1].partner_cue`` (issue #48), when authored *and* written for exactly this
         ``items[0]`` (``partner_cue_after`` names the one item id it's compatible with —
         owner review round 3 on PR #52: ``partner_cue`` alone only guarantees the line
@@ -596,7 +626,9 @@ class Builder:
                 self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=second.partner_cue_meaning))
                 self._beat(sc, ex)
         else:
-            self._narr(sc, ex, self.prompts.get("connect_then"))
+            # recombination only: two independent situations, so the transition must not imply
+            # the second follows from the first (issue #69)
+            self._narr(sc, ex, self.prompts.get("connect_next"))
         self._narr(sc, ex, second.partner_cue_situation if bridged else self._situation_readonly(second))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, second_target, second, generative=True)
         self._answer(sc, ex, second_target)

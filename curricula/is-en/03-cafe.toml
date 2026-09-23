@@ -107,6 +107,8 @@ meaning_ja = "スキール（アイスランドの乳製品）"
 difficulty = 1
 tags = ["acc_orderable", "nom_item", "acc_food"]
 topics = ["cafe", "food"]
+meaning_forms = { in_sentence = "skyr" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "スキール" }
 
 [[items]]
 id = "braud"

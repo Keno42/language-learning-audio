@@ -22,9 +22,11 @@ meaning = [
   "「{meaning}」と言ってください。",
   "{language}で「{meaning}」と言ってください。",
 ]
+# issue #68: 「まだ聞いたことのない文」は、本当に初めての文のときだけ
+recombine_new = "まだ聞いたことのない文です。「{meaning}」と言ってください。"
 recombine = [
-  "まだ聞いたことのない文です。「{meaning}」と言ってください。",
   "自分で組み立ててください。「{meaning}」。",
+  "同じパターンでもう一度。「{meaning}」と言ってください。",
 ]
 recombine_vocab = "文の中で使ってください。「{meaning}」。"
 also = "こうも言えます。"
@@ -44,7 +46,8 @@ milestone_intro = "気づいてほしいパターンがあります。"
 milestone_end = "では、続けましょう。"
 dialogue_replay = "では、会話全体を通して聞きましょう。"
 connect_intro = "いくつかつなげてみましょう。"
-connect_then = "そして、"
+# issue #69: 無関係な2つの場面をつなぐだけの練習なので、「そして」のような連続を示す言い方はしない
+connect_next = "次は、別の場面です。"
 
 [language_names]
 fr = "フランス語"

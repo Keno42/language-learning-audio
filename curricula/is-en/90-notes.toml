@@ -9,6 +9,8 @@
 id = "godur_gender"
 milestone = true
 items = ["godan_daginn", "goda_nott", "gott_kvold"]
+# issue #29: apply the named agreement in a new frame, not only replay the three greetings
+transfer_items = ["eigdu_godur"]
 topics = ["grammar", "greetings"]
 text = "In «Góðan daginn», «Góða nótt», and «Gott kvöld», «góðan», «góða», and «gott» are forms of the same adjective, meaning 'good.' Here the ending changes with the noun's grammatical gender: «dagur» is masculine, «nótt» feminine, and «kvöld» neuter. Icelandic adjectives also change for case and number; we'll get to those later."
 text_ja = "«Góðan daginn»、«Góða nótt»、«Gott kvöld» に出てくる «góðan»、«góða»、«gott» は、どれも「良い」という同じ形容詞の形です。ここでは名詞の文法上の性に合わせて語尾が変わります。«dagur» は男性名詞、«nótt» は女性名詞、«kvöld» は中性名詞です。形容詞は格や数によっても変わりますが、それはまた別の機会に。"
@@ -386,14 +388,16 @@ text_ja = "生徒は先生をファーストネームで呼び、学校は6歳�
 # → transfer" beyond gender, to aspect, modality and case. Each is gated on items the learner
 # already knows; the aspect and modality ones gate a construction (eg_er_ad_inf, ma_eg_inf) that
 # makes the named pattern productive with the "inf" verbs, and list it as transfer_items.
+# issue #63: the progressive is for activities, not states (Icelandic grammar: «ég sit», not the
+# «er að» form, for "I'm sitting") — so the note no longer says *any* verb fits.
 [[notes]]
 id = "vera_ad_progressive"
 milestone = true
 items = ["eg_er_ad_koma", "eg_er_ad_fara", "eg_er_ad_laera"]
 transfer_items = ["eg_er_ad_inf"]
 topics = ["grammar"]
-text = "«Ég er að koma!», «Ég er að fara», and «Ég er að læra íslensku» all use «er að» plus a verb in its basic form, the infinitive, for something happening right now, like English '-ing'. Compare «Ég ætla að fara heim» (a plan: I'm going to go home) with «Ég er að fara heim» (right now: I'm on my way home). Any verb you know can go after «er að»."
-text_ja = "«Ég er að koma!»、«Ég er að fara»、«Ég er að læra íslensku» は、どれも «er að» のあとに動詞の基本形（不定詞）を置いて、「今〜しているところ」を表します。«Ég ætla að fara heim»（家に帰るつもりです—予定）と «Ég er að fara heim»（今、家に帰っているところです）を比べてみてください。知っている動詞なら何でも «er að» のあとに入れられます。"
+text = "«Ég er að koma!», «Ég er að fara», and «Ég er að læra íslensku» all use «er að» plus a verb in its basic form, the infinitive, for something happening right now, like English '-ing'. Compare «Ég ætla að fara heim» (a plan: I'm going to go home) with «Ég er að fara heim» (right now: I'm on my way home). Many activity verbs you know can go after «er að». Verbs for a state, like sitting or sleeping, keep the plain present instead: «Ég sit», «Ég sef»."
+text_ja = "«Ég er að koma!»、«Ég er að fara»、«Ég er að læra íslensku» は、どれも «er að» のあとに動詞の基本形（不定詞）を置いて、「今〜しているところ」を表します。«Ég ætla að fara heim»（家に帰るつもりです—予定）と «Ég er að fara heim»（今、家に帰っているところです）を比べてみてください。知っている動作の動詞の多くは «er að» のあとに入れられます。ただし、座っている・眠っているなどの状態を表す動詞は、そのまま現在形を使います：«Ég sit»、«Ég sef»。"
 
 [[notes]]
 id = "modal_infinitive"

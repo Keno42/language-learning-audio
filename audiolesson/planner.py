@@ -998,6 +998,7 @@ class Planner:
             # connect() with no authored bridge is the latter, not evidence of conversation
             "partner_exchanges": len(self.dialogues_played) + sum(1 for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"),
             "recombinations": sum(1 for e in sc.exercises if e.kind == "connect" and e.stage != "exchange"),
+            "heard_utterances": sorted(self.builder.heard),
             "bridges": [e.item_ids[1] for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"],
         }
         return sc
@@ -1029,6 +1030,7 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
         learner.dialogues_done[d] = learner.dialogues_done.get(d, 0) + 1
     for n in sc.meta.get("notes", []):
         learner.notes_heard[n] = learner.notes_heard.get(n, 0) + 1
+    learner.heard_utterances.update(sc.meta.get("heard_utterances", []))
     for b in sc.meta.get("bridges", []):
         learner.bridges_heard[b] = learner.bridges_heard.get(b, 0) + 1
     learner.lessons.append(

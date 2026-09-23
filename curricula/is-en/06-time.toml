@@ -544,7 +544,10 @@ meaning = "I'm {inf:ing}."
 meaning_ja = "今、{inf:te}いるところです。"
 difficulty = 3
 topics = ["grammar", "daily"]
-slots = { inf = "inf" }
+# issue #63 / PR #64 review: «vera að» + infinitive takes dynamic verbs only — «sofa» is a fine
+# general infinitive («Má ég sofa?») but «er að sofa» is not generally accepted («sefur» instead),
+# so the progressive draws on its own progressive_inf pool, a subset of "inf"
+slots = { inf = "progressive_inf" }
 example = { inf = "fara_heim" }
 prereqs = ["eg_er_ad_koma", "eg_er_ad_fara", "eg_er_ad_laera", "fara_heim"]
 situation = "Your friend phones while you're on the bus. Tell her you're going home."
