@@ -343,7 +343,7 @@ target = "vinna"
 meaning = "work (to work)"
 meaning_ja = "働く"
 difficulty = 1
-tags = ["inf"]
+tags = ["inf", "progressive_inf"]
 topics = ["work"]
 meaning_forms = { ing = "working" }  # issue #29 pilot 3: for "I'm {inf:ing}."
 meaning_forms_ja = { te = "働いて" }
@@ -355,7 +355,7 @@ target = "læra"
 meaning = "study / learn"
 meaning_ja = "勉強する"
 difficulty = 1
-tags = ["inf"]
+tags = ["inf", "progressive_inf"]
 topics = ["work"]
 meaning_forms = { ing = "studying" }  # issue #29 pilot 3: for "I'm {inf:ing}."
 meaning_forms_ja = { te = "勉強して" }

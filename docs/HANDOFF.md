@@ -3174,6 +3174,15 @@ stative infinitives too. `eg_er_ad_inf` draws on the whole `inf` pool, so a new 
 pool to the 14 audited activity verbs: adding an `inf` verb now fails until someone checks
 its progressive. 160 tests, all passing.
 
+**Follow-up (owner review on PR #64):** «sofa» was in that audited list, but «er að sofa»
+is not generally accepted (icelandicgrammar.com marks «Gummi litli er að sofa í vöggunni»
+and gives «sefur»). The owner proposed splitting the pools, and that is what was done:
+`progressive_inf` is a subset of `inf` holding only the 13 dynamic verbs, without «sofa».
+`eg_er_ad_inf` draws on `progressive_inf`; `ma_eg_inf` / `eg_vil` / `eg_verd_ad` keep `inf`,
+so «Má ég sofa?» stays. The note's state example now names sleeping too («Ég sit», «Ég sef»)
+in both languages. The guard test now pins `progressive_inf` rather than `inf`. On a
+120-lesson simulation: «Ég er að sofa.» 0 times, «Má ég sofa?» still produced.
+
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
 Three new issues arrived together, all written by the owner as substantial

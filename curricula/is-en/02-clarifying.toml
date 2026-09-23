@@ -487,7 +487,7 @@ target = "fara heim"
 meaning = "go home"
 meaning_ja = "家に帰る"
 difficulty = 1
-tags = ["inf"]
+tags = ["inf", "progressive_inf"]
 topics = ["daily"]
 meaning_forms = { ing = "going home" }  # issue #29 pilot 3: for "I'm {inf:ing}."
 meaning_forms_ja = { te = "家に帰って" }
@@ -511,7 +511,7 @@ target = "borða"
 meaning = "eat"
 meaning_ja = "食べる"
 difficulty = 1
-tags = ["inf"]
+tags = ["inf", "progressive_inf"]
 topics = ["daily", "food"]
 meaning_forms = { ing = "eating" }  # issue #29 pilot 3: for "I'm {inf:ing}."
 meaning_forms_ja = { te = "食べて" }
@@ -523,7 +523,7 @@ target = "fara í sund"
 meaning = "go swimming"
 meaning_ja = "泳ぎに行く"
 difficulty = 2
-tags = ["inf"]
+tags = ["inf", "progressive_inf"]
 topics = ["daily", "hobbies"]
 meaning_forms = { ing = "going swimming" }  # issue #29 pilot 3: for "I'm {inf:ing}."
 meaning_forms_ja = { te = "泳ぎに行って" }
@@ -535,7 +535,7 @@ target = "fara út"
 meaning = "go out"
 meaning_ja = "外に出る"
 difficulty = 1
-tags = ["inf"]
+tags = ["inf", "progressive_inf"]
 topics = ["daily"]
 meaning_forms = { ing = "going out" }  # issue #29 pilot 3: for "I'm {inf:ing}."
 meaning_forms_ja = { te = "外に出て" }
@@ -547,7 +547,7 @@ target = "hvíla mig"
 meaning = "rest"
 meaning_ja = "休む"
 difficulty = 2
-tags = ["inf"]
+tags = ["inf", "progressive_inf"]
 topics = ["daily"]
 meaning_forms = { ing = "resting" }  # issue #29 pilot 3: for "I'm {inf:ing}."
 meaning_forms_ja = { te = "休んで" }
@@ -559,7 +559,7 @@ target = "versla"
 meaning = "go shopping"
 meaning_ja = "買い物する"
 difficulty = 2
-tags = ["inf"]
+tags = ["inf", "progressive_inf"]
 topics = ["daily", "shopping"]
 meaning_forms = { ing = "shopping" }  # issue #29 pilot 3: for "I'm {inf:ing}."
 meaning_forms_ja = { te = "買い物して" }
@@ -571,7 +571,7 @@ target = "kaupa miða"
 meaning = "buy a ticket"
 meaning_ja = "切符を買う"
 difficulty = 2
-tags = ["inf"]
+tags = ["inf", "progressive_inf"]
 topics = ["daily", "transport"]
 meaning_forms = { ing = "buying a ticket" }  # issue #29 pilot 3: for "I'm {inf:ing}."
 meaning_forms_ja = { te = "切符を買って" }
@@ -583,7 +583,7 @@ target = "hringja heim"
 meaning = "call home"
 meaning_ja = "家に電話する"
 difficulty = 2
-tags = ["inf"]
+tags = ["inf", "progressive_inf"]
 topics = ["daily"]
 meaning_forms = { ing = "calling home" }  # issue #29 pilot 3: for "I'm {inf:ing}."
 meaning_forms_ja = { te = "家に電話して" }
@@ -595,7 +595,7 @@ target = "fara á safnið"
 meaning = "go to the museum"
 meaning_ja = "博物館に行く"
 difficulty = 2
-tags = ["inf"]
+tags = ["inf", "progressive_inf"]
 topics = ["daily"]
 meaning_forms = { ing = "going to the museum" }  # issue #29 pilot 3: for "I'm {inf:ing}."
 meaning_forms_ja = { te = "博物館に行って" }
@@ -607,7 +607,7 @@ target = "drekka kaffi"
 meaning = "drink coffee"
 meaning_ja = "コーヒーを飲む"
 difficulty = 1
-tags = ["inf"]
+tags = ["inf", "progressive_inf"]
 topics = ["daily", "cafe"]
 meaning_forms = { ing = "drinking coffee" }  # issue #29 pilot 3: for "I'm {inf:ing}."
 meaning_forms_ja = { te = "コーヒーを飲んで" }
@@ -625,7 +625,7 @@ target = "bóka ferð"
 meaning = "book a tour"
 meaning_ja = "ツアーを予約する"
 difficulty = 2
-tags = ["inf"]
+tags = ["inf", "progressive_inf"]
 topics = ["daily", "travel"]
 meaning_forms = { ing = "booking a tour" }  # issue #29 pilot 3: for "I'm {inf:ing}."
 meaning_forms_ja = { te = "ツアーを予約して" }

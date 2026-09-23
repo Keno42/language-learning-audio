@@ -386,8 +386,8 @@ milestone = true
 items = ["eg_er_ad_koma", "eg_er_ad_fara", "eg_er_ad_laera"]
 transfer_items = ["eg_er_ad_inf"]
 topics = ["grammar"]
-text = "«Ég er að koma!», «Ég er að fara», and «Ég er að læra íslensku» all use «er að» plus a verb in its basic form, the infinitive, for something happening right now, like English '-ing'. Compare «Ég ætla að fara heim» (a plan: I'm going to go home) with «Ég er að fara heim» (right now: I'm on my way home). Many activity verbs you know can go after «er að». Verbs for a state, like sitting, keep the plain present instead: «Ég sit»."
-text_ja = "«Ég er að koma!»、«Ég er að fara»、«Ég er að læra íslensku» は、どれも «er að» のあとに動詞の基本形（不定詞）を置いて、「今〜しているところ」を表します。«Ég ætla að fara heim»（家に帰るつもりです—予定）と «Ég er að fara heim»（今、家に帰っているところです）を比べてみてください。知っている動作の動詞の多くは «er að» のあとに入れられます。ただし、座っているなどの状態を表す動詞は、そのまま現在形を使います：«Ég sit»。"
+text = "«Ég er að koma!», «Ég er að fara», and «Ég er að læra íslensku» all use «er að» plus a verb in its basic form, the infinitive, for something happening right now, like English '-ing'. Compare «Ég ætla að fara heim» (a plan: I'm going to go home) with «Ég er að fara heim» (right now: I'm on my way home). Many activity verbs you know can go after «er að». Verbs for a state, like sitting or sleeping, keep the plain present instead: «Ég sit», «Ég sef»."
+text_ja = "«Ég er að koma!»、«Ég er að fara»、«Ég er að læra íslensku» は、どれも «er að» のあとに動詞の基本形（不定詞）を置いて、「今〜しているところ」を表します。«Ég ætla að fara heim»（家に帰るつもりです—予定）と «Ég er að fara heim»（今、家に帰っているところです）を比べてみてください。知っている動作の動詞の多くは «er að» のあとに入れられます。ただし、座っている・眠っているなどの状態を表す動詞は、そのまま現在形を使います：«Ég sit»、«Ég sef»。"
 
 [[notes]]
 id = "modal_infinitive"
