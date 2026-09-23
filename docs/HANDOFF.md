@@ -10,7 +10,8 @@ capability-aware arc boundaries; 30 is #48's partner exchanges in early
 lessons (28–30 were PR #56, merged); 31 is issue #57 (situation-bound
 construction fills, PR #58); 32 is #29's audit and grammatical-dimension
 pilots (aspect, modality, case — a separate PR); 33 is #48's per-dialogue audit, more bridges
-and a partner-driven number transaction. **Issue #34** ("Improve
+and a partner-driven number transaction; 34 is issue #59's cloze prompts (PR
+#62, merged). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -3039,6 +3040,24 @@ L87 (2/3 turns) and plays it in full at L92.
 the real `solubas` lane pinned verbatim; no dialogue on the course ever speaks a
 `{slot}` placeholder (all three error on the pre-fix code). 153 tests, all
 passing. Throughput unchanged (80 lessons: 336 items met).
+
+## Session 34: issue #59 — cloze prompts didn't say what to complete
+
+A real lesson played "Complete the sentence." + «Ég skil…» — but «Ég skil.» is itself a
+complete, known utterance, so nothing told the learner the target was «Ég skil ekki.»;
+«Gott að…» likewise left several completions open. The prompt gave only the partial surface
+form, never the communicative intent, turning the task into a test of remembering the
+course's sentence inventory.
+
+**Fix.** The `cloze` phrasing now takes `{meaning}`, like `hinted` already did: "Complete the
+sentence to say: I don't understand." / 「「わかりません」と言うように、文を完成させてください。」,
+then the partial phrase. Only the narration changed — the partial, the answer and every pause
+(and its duration) are identical to before, checked segment by segment on the two real cases.
+Cloze practice itself stays (the issue's non-goal).
+
+**Tests:** the two real cases (`eg_skil_ekki`, `gott_ad_heyra`) in both instructor languages,
+meaning narrated before the partial; and a course-wide guard that every cloze-eligible phrase's
+prompt contains its meaning (both fail on the pre-fix code). 148 tests, all passing.
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 

@@ -853,6 +853,46 @@ class CurriculumTests(unittest.TestCase):
             with self.assertRaisesRegex(CurriculumError, msg):
                 curriculum_from_dict(raw)
 
+    def test_cloze_names_the_meaning_before_the_partial_phrase(self):
+        """Issue #59: "Complete the sentence." + «Ég skil…» didn't say whether «Ég skil.» (itself a
+        complete, known utterance) or «Ég skil ekki.» was wanted. The cloze prompt now states the
+        target meaning first, in both instructor languages, then the partial phrase; the answer,
+        the partial and the pauses are unchanged."""
+        from audiolesson.exercises import Builder
+
+        expected = {
+            ("en", "eg_skil_ekki"): ("Complete the sentence to say: I don't understand.", "Ég skil…"),
+            ("en", "gott_ad_heyra"): ("Complete the sentence to say: Good to hear.", "Gott að…"),
+            ("ja", "eg_skil_ekki"): ("「わかりません」と言うように、文を完成させてください。", "Ég skil…"),
+            ("ja", "gott_ad_heyra"): ("「それはよかった」と言うように、文を完成させてください。", "Gott að…"),
+        }
+        for (lang, item_id), (narration, partial) in expected.items():
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=None if lang == "en" else lang)
+            b = Builder(cur, Prompts.load(lang), Timing(level="A1"), LearnerState("is", lang, "A1"))
+            sc = Script(1, "L", cur.target_lang, lang)
+            b.recall(sc, cur.by_id[item_id], "cloze")
+            lane = [(s.type, s.text) for s in sc.segments if s.type in ("narrate", "speak", "answer")]
+            self.assertEqual(lane[:2], [("narrate", narration), ("speak", partial)], (lang, item_id))
+            self.assertIn(("answer", cur.by_id[item_id].target), lane)
+
+    def test_every_cloze_prompt_carries_its_items_meaning(self):
+        """Issue #59 regression guard, course-wide: no cloze exercise on the real course narrates
+        a bare "Complete the sentence." — each one contains its target item's meaning."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        clozed = 0
+        for it in cur.items:
+            if it.kind != "phrase" or it.word_count < 3:
+                continue
+            sc = Script(1, "L", cur.target_lang, cur.known_lang)
+            ex = b.recall(sc, it, "cloze")
+            narration = " ".join(s.text for s in sc.segments if s.exercise == ex.index and s.type == "narrate")
+            self.assertIn(it.meaning.strip().rstrip("."), narration, it.id)
+            clozed += 1
+        self.assertGreater(clozed, 100)
+
     def test_connect_plays_the_owners_real_curriculum_worked_example(self):
         """Issue #48: the real authored pair from the owner's own review — with the
         instructor scaffolding stripped away, the target-language turns alone should form
