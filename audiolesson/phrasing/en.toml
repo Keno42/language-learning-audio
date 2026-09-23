@@ -46,7 +46,9 @@ milestone_intro = "Here's a pattern worth noticing."
 milestone_end = "Let's continue."
 dialogue_replay = "Now the whole conversation, without pauses."
 connect_intro = "Let's put a couple of things together."
-connect_then = "And then —"
+# issue #69: a recombination-only connect pairs two independent situations; "And then —"
+# implied the second followed from the first. An authored exchange uses its own scene cues instead.
+connect_next = "Now another situation."
 
 [language_names]
 fr = "French"

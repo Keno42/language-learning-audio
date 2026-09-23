@@ -44,7 +44,8 @@ milestone_intro = "気づいてほしいパターンがあります。"
 milestone_end = "では、続けましょう。"
 dialogue_replay = "では、会話全体を通して聞きましょう。"
 connect_intro = "いくつかつなげてみましょう。"
-connect_then = "そして、"
+# issue #69: 無関係な2つの場面をつなぐだけの練習なので、「そして」のような連続を示す言い方はしない
+connect_next = "次は、別の場面です。"
 
 [language_names]
 fr = "フランス語"

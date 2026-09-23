@@ -586,7 +586,7 @@ class CurriculumTests(unittest.TestCase):
         narrations = [s.text for s in sc_incompatible.segments if s.type == "narrate"]
         speaks2 = [(s.speaker, s.text) for s in sc_incompatible.segments if s.type == "speak"]
         self.assertNotIn(("native_b", "Bridge line."), speaks2, "c -> b is not what the cue was written for; it must not be used")
-        self.assertIn(prompts.get("connect_then"), narrations, "falls back to the ordinary English bridge")
+        self.assertIn(prompts.get("connect_next"), narrations, "falls back to the ordinary English bridge")
 
     def test_connect_resolves_a_construction_instead_of_speaking_its_raw_template(self):
         """A construction can have a ``situation`` (e.g. ``einn_tvo_thrjar``, issue #29 cluster
@@ -1174,6 +1174,25 @@ class CurriculumTests(unittest.TestCase):
         generated = {ex.label.split(": ", 1)[1] for ex in sc.exercises if "eigdu_godur" in ex.item_ids and ex.kind != "intro"}
         self.assertTrue(generated - {"Eigðu góðan dag."}, generated)
 
+    def test_recombination_connect_does_not_imply_one_scene(self):
+        """Issue #69: a recombination-only connect pairs two independent situations — the owner's
+        example is a street sign («Hvað þýðir þetta?») and a fish on a menu («Hvað heitir þetta á
+        íslensku?»). The transition used to be "And then —", implying the second followed from
+        the first. It is now neutral in both instructor languages; the exercise stays
+        ``recombine`` and authored exchanges keep their own scene cues."""
+        from audiolesson.exercises import Builder
+
+        for lang, banned in ((None, "And then"), ("ja", "そして")):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            prompts = Prompts.load(lang or "en")
+            b = Builder(cur, prompts, Timing(level="A1"), LearnerState("is", lang or "en", "A1"))
+            sc = Script(1, "L", cur.target_lang, lang or "en")
+            ex = b.connect(sc, [cur.by_id["hvad_thydir_thetta"], cur.by_id["hvad_heitir_thetta_a_islensku"]])
+            self.assertEqual(ex.stage, "recombine")
+            narr = [s.text for s in sc.segments if s.type == "narrate"]
+            self.assertIn(prompts.get("connect_next"), narr)
+            self.assertFalse([n for n in narr if banned in n], narr)
+
     def test_connect_plays_the_owners_real_curriculum_worked_example(self):
         """Issue #48: the real authored pair from the owner's own review — with the
         instructor scaffolding stripped away, the target-language turns alone should form
@@ -1228,7 +1247,7 @@ class CurriculumTests(unittest.TestCase):
         self.assertFalse(any(s.speaker == "native_b" for s in segs), "no discourse item exists to speak a partner line")
         prompts = Prompts.load("en")
         narrations = [s.text for s in segs if s.type == "narrate"]
-        self.assertIn(prompts.get("connect_then"), narrations)
+        self.assertIn(prompts.get("connect_next"), narrations)
 
     def _real_streak_lesson(self, known: list[str]) -> Script:
         """A real is-en lesson whose drill streak keeps tripping with nothing but connect() to
