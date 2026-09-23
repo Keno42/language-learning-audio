@@ -21,22 +21,9 @@ from ..script import Script
 from .audio import AudioClip, concat, read_wav, silence, to_mp3, write_wav
 from .tts import Provider, get_provider
 
-# Deliberate spelling substitutions applied only to the text sent to the TTS engine,
-# keyed by target language (never to instructor narration, which uses a different
-# language). The curriculum, transcript, cues.json and answer-matching all keep the
-# correct native spelling; only the synthesized audio hears the substitute.
-#
-# Icelandic geminate 'll'/'nn' in native words is pre-aspirated (a brief voiceless
-# click before the l/n: fjall, gull, allt). "Halló" the greeting is a different case:
-# it is a Danish loanword and, per its dictionary entry, does not take that click at
-# all (IPA [ˈhal(ː)ou], plain l) — a same-spelled but unrelated slang adjective does
-# ([ˈhatlou], from a native compound), which is what misled an earlier pass at this.
-# Edge-tts's clicked rendering of the greeting was very likely a genuine mispronun-
-# ciation, not correct Icelandic; spelling it with a single 'l' for the TTS (checked
-# with `espeak-ng -v is -x`) removes it without touching anything else that word
-# triggers elsewhere. See docs/HANDOFF.md session 6 (and its addendum, which corrects
-# an earlier over-confident citation) for the full story; this list is the override,
-# not the explanation.
+# Spelling substitutions applied only to target-language text sent to the TTS engine; the
+# curriculum, transcript and cues keep the real spelling. "Halló" the greeting is a loanword
+# with a plain l ([ˈhal(ː)ou]), but TTS pre-aspirates the native geminate ([ˈhatlou]).
 RESPELL_FOR_SPEECH: dict[str, list[tuple[str, str]]] = {
     "is": [("Halló", "Haló")],
 }
@@ -48,12 +35,7 @@ def _respell(text: str, lang: str) -> str:
     return text
 
 
-# Curriculum authors write "A / B" (and its Japanese fullwidth twin "A／B") to show two
-# acceptable phrasings at a glance. Read aloud literally, a TTS voice says the character's
-# name ("slash") instead of the word it stands for, which is what it's meant to mean in
-# running speech. Fixed at the same render layer as RESPELL_FOR_SPEECH, for the same
-# reason: the written curriculum, transcript and cues.json should still show the "/", only
-# the audio should say the word.
+# "A / B" (or "A／B") in narration is spoken as "A or B", not "A slash B"; text keeps the slash.
 NARRATION_SLASH_AS_SPOKEN: dict[str, tuple[re.Pattern[str], str]] = {
     "en": (re.compile(r"\s*/\s*"), " or "),
     "ja": (re.compile(r"／"), "または"),
@@ -156,19 +138,11 @@ def render_script(
     def request_for(seg) -> tuple[str, str, str, float]:
         speaker = seg.speaker or "native_a"
         lang = seg.lang or (script.known_lang if speaker == "instructor" else script.target_lang)
-        # A third language — neither this lesson's instructor language nor its target
-        # language, e.g. a Japanese example embedded in English narration (issue #49) —
-        # must not inherit whichever fixed voice the profile configured for this speaker
-        # role in kl/tl. Looking the profile up under a key it was never configured for
-        # (instead of the plain speaker name) makes ``voice_for`` fall through to the
-        # provider's own default voice for ``lang`` automatically, with no schema change.
+        # a third language (a Japanese example in English narration) must not inherit the
+        # speaker's configured voice: an unconfigured key falls through to the provider's
+        # default voice for ``lang``
         profile_key = speaker if lang.split("-")[0].lower() in primary_langs else f"{speaker}:{lang}"
         sv = profile.voice_for(profile_key, lang, provider, _DEFAULT_INDEX.get(speaker, 0))
-        # ``speech_text``, when set, is what the provider actually hears — e.g. native
-        # orthography for a romanized transcript display (issue #49, PR #51 owner review):
-        # pronunciation must not depend on the provider being able to read transliterated
-        # text itself, since some providers (e.g. OpenAIProvider) don't even use ``lang``
-        # to disambiguate it — they just read whatever text they're given.
         spoken = seg.speech_text or seg.text or ""
         return (_speak_slashes(_respell(spoken, lang), lang), lang, sv.voice, seg.rate * sv.rate)
 

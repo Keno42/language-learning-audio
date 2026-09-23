@@ -19,24 +19,19 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Iterable
 
-SPEAKERS = ("instructor", "native_a", "native_b")
-
 
 @dataclass
 class Segment:
     type: str  # narrate | speak | pause | answer
-    speaker: str | None = None
+    speaker: str | None = None  # instructor | native_a | native_b
     text: str | None = None
     lang: str | None = None
-    rate: float = 1.0  # 1.0 = natural speed; 0.75 = slow
+    rate: float = 1.0  # 1.0 = natural speed; Timing.slow_rate for pronunciation demos
     duration: float = 0.0  # seconds; exact for pauses, estimated for speech
     role: str | None = None  # for pauses: answer | repeat | beat ; for speech: hint labels
     exercise: int | None = None  # index into Script.exercises
-    # What actually reaches the TTS provider, when it must differ from ``text`` (issue #49,
-    # PR #51 owner review): a note may show a romanized form (``text``, e.g. "sate") but
-    # need native orthography spoken (``speech_text``, e.g. "さて") so pronunciation doesn't
-    # depend on a provider correctly reading transliterated text — some providers don't even
-    # use ``lang`` to disambiguate it. None (the common case) means "speak ``text`` as-is."
+    # what the TTS provider receives when it differs from ``text`` (native script for a
+    # romanized display: "sate" → "さて"); None means speak ``text``
     speech_text: str | None = None
 
     def to_dict(self) -> dict:
@@ -49,7 +44,7 @@ class Exercise:
     """Bookkeeping for one prompt→pause→answer unit (or a dialogue)."""
 
     index: int
-    kind: str  # intro | recall | generative | dialogue | closing | opening
+    kind: str  # opening | intro | recall | generative | connect | dialogue | note | closing
     stage: str | None
     item_ids: list[str] = field(default_factory=list)
     label: str = ""

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fixed-phrase family scan (issue #29, curriculum-wide audit).
+"""Fixed-phrase family scan for the curriculum audit (docs/AUDIT-29.md).
 
 Groups phrase items that share a two-word opening or closing frame ("Má ég …?",
 "… á morgun") and reports, per family, whether any construction already covers that
