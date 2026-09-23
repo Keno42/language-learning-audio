@@ -87,7 +87,9 @@ Families of ≥3 phrases, with disposition and status.
 
 1. Case: `Mér líður {how}.` + `vel`/`illa`/`betur`/`ágætlega`, paired with «Hvernig líður
    þér?», then extend `dative_subject` to `þér`.
-2. The `Eigðu {góðan dag / gott kvöld / góða helgi}` transfer for `godur_gender`.
+2. ~~The `Eigðu {góðan dag / gott kvöld / góða helgi}` transfer for `godur_gender`.~~ Done in
+   session 37 as `eigdu_godur` over dag / nótt / kvöld, the nouns whose genders the note
+   names. «helgi» would need its gender taught first.
 3. Grow the `inf` pool, with `meaning_forms`, so `ma_eg_inf` / `eg_er_ad_inf` absorb
    their fixed siblings; fix the leaking disambiguators at the same time.
 4. Tense (past «var» / «var að») and person (`ég er` / `við erum` …) pilots.

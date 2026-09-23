@@ -9,6 +9,8 @@
 id = "godur_gender"
 milestone = true
 items = ["godan_daginn", "goda_nott", "gott_kvold"]
+# issue #29: apply the named agreement in a new frame, not only replay the three greetings
+transfer_items = ["eigdu_godur"]
 topics = ["grammar", "greetings"]
 text = "In «Góðan daginn», «Góða nótt», and «Gott kvöld», «góðan», «góða», and «gott» are forms of the same adjective, meaning 'good.' Here the ending changes with the noun's grammatical gender: «dagur» is masculine, «nótt» feminine, and «kvöld» neuter. Icelandic adjectives also change for case and number; we'll get to those later."
 text_ja = "«Góðan daginn»、«Góða nótt»、«Gott kvöld» に出てくる «góðan»、«góða»、«gott» は、どれも「良い」という同じ形容詞の形です。ここでは名詞の文法上の性に合わせて語尾が変わります。«dagur» は男性名詞、«nótt» は女性名詞、«kvöld» は中性名詞です。形容詞は格や数によっても変わりますが、それはまた別の機会に。"
