@@ -37,18 +37,14 @@ class PlanConfig:
     dialogue_first_turns: int = 2  # turns played the first time; one more each later encounter
     max_dialogues: int | None = None  # per lesson (default: one per 10 minutes, at least 2)
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
-    max_streak_relief_notes: int = 2  # extra notes beyond max_notes, only to break a drill streak
-    # when no dialogue fits either (issue #44 point 1) — a small, separate, bounded allowance,
-    # not an unlimited bypass of the ordinary ration
+    max_streak_relief_notes: int = 2  # extra notes beyond max_notes, only to break a drill streak no dialogue can
     note_chance: float = 0.7  # chance to play a related note right after its item
-    max_review_passes: int = 2  # when material runs out, review what was reviewed once more (harder).
-    # Set to 1 to end the lesson short instead (issue #34 point 5, other half) — see docs/HANDOFF.md
-    # "Session 17" for why this isn't the default: measured 20-60% shorter lessons on a small
-    # curriculum once even one review pass falls short of the target length.
+    # when material runs out, review what was reviewed once more (harder); 1 ends the lesson short
+    max_review_passes: int = 2
     closing_share: float = 0.12  # fraction of time reserved for the final review block
     max_new_items: int | None = None  # hard cap even when there is nothing to review (default: scales with minutes)
     min_time_for_new_item: float = 180.0  # seconds of budget needed to still introduce one
-    capability_window: int = 15  # a construction this close after a 3rd slot filler is pulled ahead of it (issue #29)
+    capability_window: int = 15  # a construction this close after a 3rd slot filler is pulled ahead of it
     presume_success: bool = True
     translate_partner: bool = True
 
@@ -136,20 +132,13 @@ class Planner:
             return sum(1 for i in self.cur.items_with_tag(tag) if self.learner.has_met(i.id) or i.id in chosen_ids)
 
         def payoff(filler: Item) -> tuple[bool, Item | None]:
-            """Capability-aware arc boundaries (issue #29, owner comment on a real Lesson 4):
-            once a slot already has two fillers met or chosen, one more filler just before its
-            construction is another isolated flashcard ("íslensku, ensku, japönsku, þýsku,
-            frönsku, dönsku" → lesson ends) while the construction that would make them all
-            usable sits a few items further on. Returns ``(hold, construction)``: the nearby
-            construction to teach now instead, if it's ready (``construction`` set); else
-            whether this filler should wait (``hold``) until that construction is learned, so
-            it arrives later as a transfer opportunity through the pattern rather than as one
-            more item of a homogeneous block.
+            """Capability-aware arcs: once a slot has two fillers, a third one just before its
+            construction would be one more isolated word while the pattern that makes them all
+            usable sits a few items on. Returns ``(hold, construction)``: the construction to
+            teach now instead, if it is ready; else whether this filler should wait for it.
 
-            Only a construction within ``capability_window`` items *after* the filler counts
-            (a distant one isn't this arc's payoff), and only one whose own prereqs are already
-            met or chosen and don't include this filler — so a hold always waits on something
-            already in motion, never on itself, and can't deadlock."""
+            Only a construction within ``capability_window`` items after the filler counts, and
+            only one whose other prereqs are already met or chosen, so a hold never deadlocks."""
             for c in constructions:
                 if not (0 < c.order - filler.order <= self.cfg.capability_window) or self.learner.knows(c.id):
                     continue
@@ -172,8 +161,7 @@ class Planner:
 
         def transfer_capped(filler: Item) -> bool:
             """Once a slot's construction has been met, its remaining fillers are transfer
-            material: at most two of one slot per arc, so they don't come back as the same
-            homogeneous block ("þýsku, frönsku, dönsku, spænsku") the payoff rule broke up."""
+            material: at most two of one slot per arc, never a homogeneous block of them."""
             for tag in slot_tags(filler):
                 if any(self.learner.has_met(c.id) and tag in c.slots.values() for c in constructions):
                     if sum(1 for x in chosen if tag in x.tags and x.kind != "construction") >= 2:
@@ -206,12 +194,9 @@ class Planner:
                                 chosen_ids.add(extra.id)
                 if len(chosen) >= count:
                     break
-        # The arc's boundary itself (issue #29): don't let it fall between a slot's fillers and
-        # the nearby construction they unlock. If the last pick is a filler whose construction
-        # is now ready, take the construction too — one item over ``count`` is a better arc
-        # than one that stops just short of the capability. If it isn't ready yet (only one
-        # filler so far), drop that trailing filler instead, so it starts the next arc
-        # together with its siblings and pattern — unless it's the only thing chosen.
+        # Don't end the arc between a slot's fillers and the nearby construction they unlock:
+        # take the construction too if it is ready (one over ``count``), else drop the trailing
+        # filler so it starts the next arc with its siblings and pattern.
         if chosen and chosen[-1].kind != "construction" and slot_tags(chosen[-1]):
             last = chosen[-1]
             nearby = [
@@ -230,8 +215,8 @@ class Planner:
                 elif len(chosen) > 1 and all(
                     self.learner.has_met(p) or p in chosen_ids or p in slot_members(c) for p in c.prereqs
                 ):
-                    # only when the pattern is genuinely next (nothing else it needs is
-                    # missing), or the filler would be dropped from arc after arc for nothing
+                    # only when nothing else the pattern needs is missing, or the filler would
+                    # be dropped from arc after arc
                     chosen.pop()
                     chosen_ids.discard(last.id)
         return chosen
@@ -268,13 +253,8 @@ class Planner:
         return ladder[min(top + 1, len(ladder) - 1)]
 
     def _trailing_drill_streak(self, sc: Script) -> int:
-        """Length of the run of consecutive ``"recall"`` exercises at the end of the
-        transcript so far (issue #34 points 5-6). Recomputed from the actual sequence each
-        time, not carried forward by one increment per ``build()`` loop iteration: a single
-        iteration can append several exercises (a milestone note plus its discrimination
-        recalls, via ``_maybe_note``/``do_discriminate``), and a note or dialogue partway
-        through that sequence breaks the streak even though the iteration's *last* exercise
-        is still a recall (owner review on #40)."""
+        """The number of consecutive recalls at the end of the script. Recomputed each time:
+        one loop iteration can append several exercises (a milestone and its discrimination)."""
         streak = 0
         for ex in reversed(sc.exercises):
             if ex.kind != "recall":
@@ -285,33 +265,18 @@ class Planner:
     # ------------------------------------------------------------------ notes
 
     def _aside_played(self) -> bool:
-        """Whether any *ordinary* (non-milestone) note has played this lesson. Milestones
-        don't count — a milestone firing must not, by itself, satisfy "an aside already
-        played" and suppress the end-of-lesson aside fallback below."""
+        """Whether an ordinary (non-milestone) note has played this lesson."""
         return any(not self.cur.note_by_id[nid].milestone for nid in self.notes_played)
 
     def _note_budget_left(self) -> bool:
-        """Rations ordinary asides only. Milestones are curriculum events, not filler — they
-        neither draw on this budget (``_maybe_note`` never calls this for one) nor shrink it
-        for the asides that do, so however many milestones happen to fire in one lesson (there
-        are two now: ``godur_gender`` and ``three_kinds_of_sorry``) never crowds out the
-        cultural asides this budget exists to pace."""
+        """Rations ordinary asides; milestones neither draw on nor count against it."""
         limit = self.cfg.max_notes if self.cfg.max_notes is not None else max(1, int(self.cfg.minutes // 12))
         played_asides = sum(1 for nid in self.notes_played if not self.cur.note_by_id[nid].milestone)
         return played_asides < limit
 
     def _eligible_milestone(self, related: list[str]) -> object | None:
-        """A milestone note whose ``items`` have all been met, triggered by one of them
-        having just been exercised. Never offered as generic filler (unlike ``_pick_note``,
-        this only ever looks at ``related``) and never subject to ``note_chance`` — once its
-        items are all met, it is due, not a coin flip.
-
-        ``learner.has_met`` alone lags a lesson behind: a newly introduced item isn't
-        persisted to ``LearnerState`` until ``apply_to_learner()`` runs after the whole
-        lesson is built, so the lesson that teaches the final item of the three would
-        otherwise not count it yet. ``self.exposures`` already tracks every item touched so
-        far *this* lesson, so a met-or-exposed check makes the milestone fire on the very
-        lesson its last example is introduced, not one lesson later."""
+        """A due milestone related to ``related``: every one of its ``items`` met, or exposed
+        this lesson (the learner state only updates after the lesson). Due, never a coin flip."""
         for i in related:
             for n in self._notes_by_item.get(i, []):
                 if (
@@ -325,14 +290,12 @@ class Planner:
         return None
 
     def _note_available(self, note) -> bool:
-        """Whatever a note recommends the learner say (``Note.requires``, issue #66) is already
-        theirs: learned, or introduced earlier in this lesson."""
+        """Everything the note recommends saying (``Note.requires``) is learned, or was
+        introduced earlier in this lesson."""
         return all(self.learner.knows(i) or i in self.builder.in_lesson for i in note.requires)
 
     def _pick_note(self, related: list[str] | None) -> object | None:
-        """Least-heard unplayed non-milestone note, related to ``related`` items if given,
-        else any. Milestone notes are never picked here — they only fire once eligible,
-        via ``_eligible_milestone``."""
+        """Least-heard unplayed ordinary note, related to ``related`` items if given, else any."""
         if related:
             pool = [n for i in related for n in self._notes_by_item.get(i, [])]
         else:
@@ -340,13 +303,10 @@ class Planner:
         pool = [n for n in pool if not n.milestone and self._note_available(n)]
         pool = [n for n in pool if n.id not in self.notes_played]
         heard = self.learner.notes_heard
-        # "unheard" only counts non-milestone notes here: an ineligible milestone note is
-        # permanently unheard from this function's point of view (it never picks one), so
-        # counting it would needlessly block repeats of ordinary notes that have all been heard.
-        # A note still waiting on its ``requires`` (issue #66) does count as unheard: unlike a
-        # milestone it will become available, so it must not let heard asides start repeating.
+        # never repeat while an ordinary note is unheard, including one still waiting on its
+        # ``requires`` (it will become available; milestones never come through here)
         if any(heard.get(n.id, 0) == 0 for n in self.cur.notes if not n.milestone):
-            pool = [n for n in pool if heard.get(n.id, 0) == 0]  # never repeat while unheard notes remain
+            pool = [n for n in pool if heard.get(n.id, 0) == 0]
         if not pool:
             return None
         least = min(heard.get(n.id, 0) for n in pool)
@@ -354,29 +314,26 @@ class Planner:
         return self.rng.choice(pool)
 
     def _maybe_note(self, sc: Script, related: list[str], remaining: float) -> object | None:
-        """Returns the milestone note if one just played, so ``build()`` can immediately
-        follow it with contrastive discrimination practice (issue #34 point 2) — never for an
-        ordinary aside, which isn't a curriculum event to build on."""
-        # A due milestone is a curriculum event, not an optional aside: it takes priority
-        # over the ordinary note budget/rationing (``_note_budget_left()``) and the
-        # ``note_chance`` roll, both checked below only for the non-milestone path. It still
-        # needs the same minimum time left in the lesson to actually fit.
+        """Play a due milestone, else maybe a related aside. Returns the milestone, if one
+        played, so ``build()`` can follow it with discrimination practice. A milestone skips
+        the aside ration and ``note_chance``."""
         if remaining >= 40:
             milestone = self._eligible_milestone(related)
             if milestone is not None:
-                self.builder.note(sc, milestone)
-                self.notes_played.append(milestone.id)
+                self._play_note(sc, milestone)
                 return milestone
         if not self._note_budget_left() or remaining < 40:
             return None
         if self.rng.random() > self.cfg.note_chance:
             return None
         note = self._pick_note(related)
-        if note is None:
-            return None
+        if note is not None:
+            self._play_note(sc, note)
+        return None
+
+    def _play_note(self, sc: Script, note) -> None:
         self.builder.note(sc, note)
         self.notes_played.append(note.id)
-        return None
 
     def below_dialogue(self, item: Item) -> str:
         """The hardest non-dialogue stage for an item (used when no dialogue fits right now)."""
@@ -439,30 +396,14 @@ class Planner:
         reviews_used: list[str] = []
         passes = 1
         streak_relief_notes_used = 0
-        # Per-arc connected-use bookkeeping (issue #44, owner review round 2 on #46): an arc
-        # is the batch of items introduced together by one ``select_new()`` call — the initial
-        # one below, or a later "fresh arc" pick (step 5). ``arc_items`` maps an arc's id to
-        # its own items, populated lazily by ``do_intro`` the first time one of its items is
-        # actually introduced (so an arc that never gets any items, e.g. nothing left to
-        # teach, never shows up here at all); ``arc_order`` records creation order for the
-        # "earliest unattempted arc" scan below. ``arc_target`` is each arc's intended item
-        # count, fixed at the moment the arc is created (``len(new_queue)`` for the initial
-        # arc, ``len(more)`` for a fresh one) — without it, the readiness check below could
-        # fire the instant the *first* item of a still-filling arc got its first reactivation,
-        # days before the arc's other items had even been introduced yet, and "recombine this
-        # arc" would have only one real member to work with (confirmed: with ``intro_gap=3``
-        # separating two items' own intros, the first item's first reactivation reliably landed
-        # before the second item's intro). ``current_arc_id`` only advances at an explicit
-        # fresh-arc start (see step 5) — every item introduced in between, whether via the
-        # initial queue or step 2's ordinary draining of it, belongs to the same arc.
+        # An arc is the batch of items one ``select_new()`` call picked: the initial one, or a
+        # fresh arc started in step 5. Each arc gets one connect() attempt of its own (step
+        # 0b) once all ``arc_target`` items are introduced and ready for a situation.
         current_arc_id = 0
         arc_items: dict[int, list[Item]] = {}
         arc_target: dict[int, int] = {0: len(new_queue)}
-        arc_order: list[int] = []
         arc_connect_attempted: set[int] = set()
-        # connect() history for this lesson (issue #55): unordered pairs already played, and how
-        # often each item has appeared in one, so _connect_pair never replays a pair and spreads
-        # the rest across different items.
+        # connect() history: pairs are never replayed, and item reuse is spread out
         connect_pairs_used: set[frozenset[str]] = set()
         connect_item_uses: dict[str, int] = {}
 
@@ -473,35 +414,16 @@ class Planner:
 
         def do_intro(item: Item) -> None:
             nonlocal last_intro, seq
-            # Every milestone whose gating items are all already met-or-exposed, purely from
-            # *this* item's own prereqs, must fire before this item's own intro exercise, not
-            # after (owner review on PR #50 re: godur_noun): a construction's intro plays its
-            # own worked-example fill (see Builder._intro_construction), so if that fill happens
-            # to be the last item a milestone needs, the ordinary post-exercise _maybe_note check
-            # (which only runs after this intro completes) would let the construction reach the
-            # learner before the milestone naming the very pattern it relies on ever has.
-            # Checking prereqs here, before b.intro() runs, closes that gap regardless of which
-            # item's own exposure would otherwise have completed the trio.
-            #
-            # A loop, not a single check (owner review follow-up): an item's prereqs can span
-            # more than one milestone's worth of gating items at once — godur_noun's cover both
-            # godur_gender_nominative's trio and gendered_nouns_bill_bok_hus's. A single
-            # ``_eligible_milestone`` call only ever returns the first one it finds among
-            # ``related``, so the second would still have fired too late, via the reactive path,
-            # after this intro. Draining every currently-due one first closes that too;
-            # ``notes_played`` (checked inside ``_eligible_milestone``) guarantees this can't loop
-            # on the same note twice.
+            # A milestone this item's prereqs complete plays before the intro: a construction's
+            # intro speaks its worked example, which must not come before the note naming the
+            # pattern. A loop, since the prereqs can complete more than one milestone.
             while (milestone := self._eligible_milestone(item.prereqs)) is not None:
-                b.note(sc, milestone)
-                self.notes_played.append(milestone.id)
+                self._play_note(sc, milestone)
                 do_discriminate(milestone)
             ex = b.intro(sc, item)
             b.in_lesson.add(item.id)
             introduced.append(item)
-            if current_arc_id not in arc_items:
-                arc_items[current_arc_id] = []
-                arc_order.append(current_arc_id)
-            arc_items[current_arc_id].append(item)
+            arc_items.setdefault(current_arc_id, []).append(item)
             self._record([item.id], "intro", ex.item_ids)
             touch(item)
             last_intro = idx
@@ -516,17 +438,8 @@ class Planner:
         def do_recall(item: Item, stage: str) -> None:
             nonlocal since_dialogue
             if stage == "dialogue":
-                # An item introduced earlier *this lesson* reaching its own dialogue-stage
-                # reactivation is that arc's connected-use moment (issue #44 point 2) — always
-                # attempt it, not gated by since_dialogue's frequency spacing. That gate exists
-                # to keep dialogues from clustering when several long-known review items happen
-                # to cycle back to "dialogue" stage close together, not to skip a fresh arc's
-                # one chance at connected use within its own reactivation schedule — without
-                # this, an item whose schedule reached "dialogue" before since_dialogue had
-                # built back up silently fell back to below_dialogue() and, since "dialogue"
-                # is always the last ladder stage, never got a connected-use attempt at all
-                # this lesson. An older item cycling back via ordinary review keeps the
-                # existing spacing gate.
+                # An item introduced this lesson always tries its dialogue (its arc's connected
+                # use); older review items keep the spacing between dialogues.
                 fresh_arc_item = any(i.id == item.id for i in introduced)
                 dlg = self.eligible_dialogue(prefer_item=item) if (fresh_arc_item or since_dialogue >= cfg.dialogue_every // 2) else None
                 if dlg is not None:
@@ -540,31 +453,11 @@ class Planner:
             touch(item)
 
         def do_discriminate(note) -> None:
-            """Right after a milestone names a pattern, switch between two of its own
-            already-known examples in quick succession — "notice, name, discriminate"
-            (issue #34 point 2) — reusing each item's own ``situation`` rather than writing
-            new contrastive content: the three phrases behind ``godur_gender`` already have
-            distinct situations (bakery morning / bedtime / evening restaurant), so replaying
-            two of them back to back *is* the discrimination exercise.
-
-            Prefers ``note.transfer_items`` over ``note.items`` once they're known (issue #29,
-            owner review): noticing «góðan daginn» / «góða nótt» / «gott kvöld» share one
-            adjective isn't the same as being able to apply that agreement to a noun the
-            learner hasn't seen it with before — always discriminating among the milestone's
-            own three examples would just replay the same familiar phrases forever. A
-            ``transfer_items`` entry is never required for the milestone to *fire* (see
-            ``Note.transfer_items``); here it's only used once actually known, checked the
-            same "met or exposed this lesson" way ``_eligible_milestone`` checks the gating
-            ``items``, so this never asks for something never introduced.
-
-            Excludes only the single item just exercised (whatever triggered the milestone),
-            not the whole ``recent`` de-dup deque used elsewhere — with three items, that still
-            guarantees two *different* ones to switch between, which is the actual "discriminate"
-            requirement; excluding all of ``recent`` could leave only one. And once a milestone
-            has committed to firing (already past its own ``remaining >= 40`` check), the
-            discrimination block is treated as part of that same instructional unit and always
-            completes — a lesson running a little over its nominal target is preferable to a
-            milestone with no follow-up practice at all."""
+            """After a milestone names a pattern, recall two of its examples back to back from
+            their own situations: notice, name, discriminate. Known ``transfer_items`` come
+            first, so the pattern is applied to new words rather than replaying the same
+            examples. Excludes only the item just exercised, and always completes once the
+            milestone has played."""
             nonlocal idx, since_dialogue
             just_touched = recent[-1] if recent else None
             known_transfer = [i for i in note.transfer_items if self.learner.has_met(i) or i in self.exposures]
@@ -583,17 +476,9 @@ class Planner:
                 since_dialogue += 1
 
         def _ready_for_situation(it: Item) -> bool:
-            """True if recording ``it`` at ``"situation"`` stage right now continues its own
-            natural climb up the ladder rather than skipping stages it hasn't earned yet
-            (owner review round 3 on #46): ``do_connect()`` used to record *any* has-situation
-            candidate at stage ``"situation"`` regardless of how far it had actually climbed —
-            fine for a short item whose ladder goes straight from ``meaning`` to ``situation``,
-            but a multi-word item's ladder also has ``cloze``/``hinted`` in between, and
-            ``record_lesson()`` never lowers a stage, only raises it (``max(candidates, key=...
-            stage_index)``), so one connect() exercise could jump such an item straight to
-            ``situation``, permanently skipping stages it never actually practised. Allows the
-            item at its current stage or one step short of ``situation`` (so the *next* natural
-            step reaches it) — not further back than that."""
+            """Whether recording ``it`` at the situation stage now continues its climb rather
+            than skipping stages it hasn't practised (a stage is never lowered afterwards): its
+            current stage is at most one step short of ``situation``."""
             ladder = self.ladder(it)
             if "situation" not in ladder:
                 return False
@@ -607,40 +492,13 @@ class Planner:
             return stage_index(ladder, cur) >= situation_idx - 1
 
         def _connect_pair(pool: list[Item], last_touched_id: str | None, anchor: set[str] | None = None, exchange_only: bool = False) -> list[Item] | None:
-            """The two distinct, situation-ready items in ``pool`` to recombine together, never
-            a pair already played by ``connect()`` earlier this lesson (issue #55: the first
-            eligible same-topic pair used to win every time, so a lesson whose drill streak
-            kept tripping replayed one canned exchange — "Ha?" → "Ég skil." — over and over).
-            Among the unused pairs, in priority order:
+            """The pair from ``pool`` for connect(), never one already played this lesson.
+            Preference: an authored bridge (in its authored order), then two items sharing a
+            topic, then any pair; within a tier, the items least used in earlier connects.
 
-            1. an authored bridge — ``b.partner_cue_after == a.id`` (issue #48), played in that
-               order, since only it is a coherent target-language exchange rather than two
-               recalls under one header;
-            2. a pair sharing a topic — so the connected moment reads as one scene rather than
-               two items that merely happen to both be known (owner review round 2 on #46: a
-               "leaving a shop" situation paired with a "raising a glass" one read as unrelated
-               flashcards);
-            3. any other pair;
-
-            and within each tier, the pair whose items have appeared in the fewest earlier
-            connect() exercises, so a fresh pair isn't just the same item with a new partner.
-            ``anchor``, when given, requires at least one of the pair to come from it — the
-            per-arc guarantee must be about that arc's own material, never satisfied by two
-            unrelated review items (issue #55). ``exchange_only`` restricts the choice to the first
-            tier (authored bridges). Returns ``None`` if no unused pair exists: the
-            caller moves on (another activity, or a deliberate stop) instead of looping back.
-
-            If one of the two chosen items is ``last_touched_id``, it's ordered *second*, not
-            excluded outright — excluding it entirely (as an earlier version of this did) made
-            a fully practiced 2-item arc's own connected-use moment impossible to draw purely
-            from its own material: the arc's last-touched item is typically exactly the one
-            whose own reactivation just completed the arc's readiness check, so excluding it
-            left only one real member and forced a fallback to unrelated material instead —
-            precisely the cross-arc contamination this whole scoping exists to prevent.
-            Ordering it second still avoids the jarring effect an *immediate* repeat would
-            have (the actual reason for the exclusion, shared with ``do_discriminate``). An
-            authored pair keeps its authored order regardless: its cue only makes sense after
-            that specific first item."""
+            ``anchor`` requires one of the pair to come from it (an arc's own material);
+            ``exchange_only`` allows authored bridges only. ``last_touched_id`` goes second in
+            a non-bridge pair rather than repeating immediately. ``None`` if no pair is left."""
             seen: set[str] = set()
             valid: list[Item] = []
             for it in pool:
@@ -677,27 +535,14 @@ class Planner:
             return pair
 
         def do_connect(prefer: list[Item] | None = None) -> bool:
-            """Recombine two already-known items into one connected exchange (issue #44):
-            the fallback for "connected use" when no authored dialogue exists for the
-            current material, and a real third option for a drill streak with nowhere else
-            to go — not another isolated recall. ``prefer`` scopes this to a specific arc's
-            own material (see the per-arc step below); without it, this lesson's own
-            ``introduced`` items are preferred, falling back to any other already-known item.
-            Candidates are drawn from ``prefer`` (or ``introduced``) *alone* first — only
-            widening to the rest of the pool if that scope alone can't supply two eligible
-            items — so a later arc's connected-use guarantee can never be quietly satisfied
-            by an earlier arc's material, or by unrelated review items, when its own is
-            enough. When widening for a specific arc, the pair must still include one of that
-            arc's own items (issue #55). Returns ``False`` if no unused eligible pair exists
-            anywhere — never replays a pair already played this lesson."""
+            """One connect() exercise; ``False`` if no unused pair is left. ``prefer`` scopes it
+            to an arc's items (default: this lesson's introductions). An authored exchange
+            anchored in that scope comes first, then a pair from the scope alone, then a wider
+            pair; for an arc, the wider pair must still include one of its items."""
             just_touched = recent[-1] if recent else None
             preferred = prefer if prefer is not None else introduced
             rest = [it for it in introduced if it not in preferred] + [self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id]
             scope = {it.id for it in preferred}
-            # issue #48: an authored exchange (a real partner line between the two answers)
-            # that uses at least one of this scope's own items beats a generic recombination
-            # drawn from the scope alone — its other half may be older known material, which
-            # the arc-scoping below would otherwise never reach while the scope has any pair
             candidates = _connect_pair(list(preferred) + rest, just_touched, scope, exchange_only=True) if scope else None
             if candidates is None:
                 candidates = _connect_pair(list(preferred), just_touched)
@@ -721,92 +566,38 @@ class Planner:
             due.sort()
             acted = False
 
-            # 0. drill streak too high: break up the run with a dialogue, else a note, else a
-            #    recombination of known items, before any branch below that would emit another
-            #    isolated recall — including step 1's due reactivation, which does not by
-            #    itself break the streak the way an intro or dialogue does. This must come
-            #    first: a due reactivation is still an isolated recall, so running it ahead of
-            #    this check let the streak continue uninterrupted through step 1 every time one
-            #    happened to be due (owner review on #41 — issue #34 point 6). If nothing on
-            #    this whole ladder works, stop the lesson rather than let the streak continue
-            #    unbounded (owner review on #46 — issue #44's own acceptance criteria: this
-            #    must never silently fall through to "one more isolated recall").
-            streak_triggered = drill_streak >= cfg.drill_streak_limit
-            if streak_triggered:
+            # 0. drill streak too high: break it with a dialogue, else a note, else a connect(),
+            #    before anything that would be one more isolated recall (step 1 included).
+            #    If none works, end the lesson rather than extend the streak.
+            if drill_streak >= cfg.drill_streak_limit:
                 dlg = self.eligible_dialogue()
                 if dlg is not None:
                     self._play_dialogue(sc, dlg)
                     since_dialogue = 0
                     acted = True
                 if not acted and remaining >= 40:
-                    # no dialogue fits either: a note is a varied activity, not another
-                    # flashcard drill. `_note_budget_left()` alone isn't enough of a gate here
-                    # (issue #44 point 1): that budget exists to ration *optional* asides, at as
-                    # little as 1 per lesson for a short lesson (`max(1, minutes // 12)`) —
-                    # easily spent by the very first ordinary aside roll, long before the streak
-                    # ever needs it. A real generated lesson hit exactly this: the streak
-                    # trigger fired repeatedly (climbing to 15 unbroken recalls) while
-                    # `_note_budget_left()` stayed `False` the entire time, because the lesson's
-                    # one allowed aside had already played early on. But an unconditional bypass
-                    # overcorrects — measured as high as 19 asides in one 30-minute lesson during
-                    # `auto` pace escalation, turning rationing off entirely and recreating
-                    # issue #21's original "asides feel like non-sequiturs" complaint from the
-                    # other direction. `max_streak_relief_notes` (default 2) is a small, separate
-                    # allowance spent only once the ordinary ration is already exhausted — not
-                    # unlimited, but enough to break up a couple of real monotony episodes in one
-                    # lesson without turning it into a string of asides.
+                    # the aside ration may be spent already; a small separate allowance
+                    # (max_streak_relief_notes) keeps streak relief from becoming unlimited asides
                     ration_left = self._note_budget_left()
                     if ration_left or streak_relief_notes_used < cfg.max_streak_relief_notes:
                         note = self._pick_note(None)
                         if note is not None:
-                            b.note(sc, note)
-                            self.notes_played.append(note.id)
+                            self._play_note(sc, note)
                             acted = True
                             if not ration_left:
                                 streak_relief_notes_used += 1
                 if not acted and remaining >= 40:
-                    # no dialogue and no note either: recombine two already-known items
-                    # instead (issue #44 point 2 — this is also the fallback when a whole arc's
-                    # items were never wired into any authored dialogue at all, so a plain
-                    # eligible_dialogue() check could never have found anything to play for
-                    # them in the first place; recombination doesn't depend on authored
-                    # dialogue content existing).
                     acted = do_connect()
                 if not acted:
-                    # Dialogue, note (ration and relief), and recombination all failed — there
-                    # is genuinely nothing left but another isolated recall. Stop the lesson
-                    # here rather than let the streak continue unbounded: issue #44's
-                    # acceptance criteria explicitly rule out silent fallthrough to "continued
-                    # isolated recall" as the outcome of a maxed-out drill streak. This is rare
-                    # in practice (it needs no eligible dialogue, an exhausted or absent note
-                    # supply, and fewer than two already-known items with a situation cue,
-                    # all at once) but must be a real option, not just a theoretical one.
                     break
 
-            # 0b. an arc's own connected-use moment — not just a side effect of the drill-streak
-            #     breaker above (issue #44, owner review round 2 on #46: the first cut only ever
-            #     reached ``do_connect()`` when a streak had already run past its limit, so an
-            #     arc practiced at a normal pace — never triggering the streak breaker — could
-            #     finish, and the lesson could move on to another arc or end, with no connected-
-            #     use attempt at all). Once every item introduced in an arc is itself individually
-            #     ready for a "situation" exposure — ``_ready_for_situation()``, not merely "has
-            #     had some touch beyond intro" (owner review round 3: an item still climbing
-            #     cloze/hinted isn't ready yet, and the arc's own readiness check used to be
-            #     looser than the per-item gate ``_connect_pair`` now enforces, so an arc could be
-            #     judged "ready" before any of its items actually were, and its guaranteed
-            #     connect() attempt would simply find nothing eligible in its own material) —
-            #     that arc gets one deliberate attempt — scoped to its own ``arc_items``
-            #     specifically, not ``introduced`` as a whole, so a later arc's guarantee can't be
-            #     quietly satisfied by an earlier arc's material (an earlier version of this fix
-            #     pulled from whatever had been introduced so far, in intro order, so a later
-            #     arc's connected use could end up reusing an earlier arc's items instead of its
-            #     own). Marked "attempted" whether or not it actually finds two eligible items, so
-            #     a genuinely thin arc isn't retried forever.
+            # 0b. an arc's own connected-use moment, once every item of the arc is ready for a
+            #     situation. Scoped to that arc's items; attempted once even if it finds nothing.
             if not acted and remaining >= 40:
                 ready_arc = next(
                     (
                         aid
-                        for aid in arc_order
+                        for aid in arc_items
                         if aid not in arc_connect_attempted
                         and len(arc_items[aid]) >= arc_target.get(aid, 0)
                         and all(_ready_for_situation(it) for it in arc_items[aid])
@@ -834,9 +625,7 @@ class Planner:
                 do_intro(new_queue.popleft())
                 acted = True
 
-            # 3. a dialogue, now and then, when the learner knows enough — pulled forward,
-            #    ahead of its usual periodic schedule (the drill-streak trigger is handled by
-            #    step 0 above, before it can be preempted by a due reactivation)
+            # 3. a dialogue, now and then, when the learner knows enough
             if not acted and since_dialogue >= cfg.dialogue_every:
                 dlg = self.eligible_dialogue()
                 if dlg is not None:
@@ -884,53 +673,26 @@ class Planner:
                     do_intro(new_queue.popleft())
                 elif can_intro and remaining >= need_for_new and (more := self.select_new(1, exclude={i.id for i in introduced})):
                     do_intro(more[0])
-                    # a filler can come back with the construction it just made teachable
-                    # (issue #29's capability-aware boundary): queue it so the arc reaches it
+                    # a filler can come back with the construction it made teachable
                     new_queue.extend(more[1:])
                 elif pending and sorted(pending)[0].item.id != (recent[-1] if recent else None):
                     p = heapq.heappop(pending)  # a repeat, but not of the very last exercise
                     do_recall(p.item, p.stage)
                 elif self._note_budget_left() and remaining >= 40 and self._pick_note(None) is not None:
-                    note = self._pick_note(None)
-                    b.note(sc, note)  # nothing to practise right now: a cultural aside
-                    self.notes_played.append(note.id)
+                    self._play_note(sc, self._pick_note(None))  # nothing to practise now: an aside
                 elif reviews_used and not new_queue and remaining >= need_for_new and (
                     more := self.select_new(cfg.resolved_new_items(), exclude={i.id for i in introduced})
                 ):
-                    # Gated on reviews_used (this lesson actually reviewed something and ran the
-                    # pool dry) so a genuinely first lesson — no review history at all, reviews_used
-                    # stays empty the whole time — still ends short on purpose rather than ballooning
-                    # into an unbounded stack of new items just because time remains; that pacing
-                    # guarantee (issue #16/session 3) is deliberate and this must not defeat it.
-                    # Gated on ``not new_queue`` too: only start a fresh arc once the previous one
-                    # has been fully introduced, never while it's still queued — with items still
-                    # queued (not yet in ``introduced``), a construction's slot-filler prereq sitting
-                    # unintroduced in that queue would look "ready" to a fresh select_new call
-                    # (whose readiness check only trusts ``introduced``, correctly, not the queue),
-                    # so a second call could return an item that jumps ahead of its own prereq —
-                    # caught by test_prerequisites_respected.
-                    #
-                    # arc 1 is fully spent — its own reactivations are done, nothing else is due,
-                    # no note fits — but substantial time remains and the curriculum has more to
-                    # teach. Prefer a fresh small arc of new material over padding with a second
-                    # pass of what this same lesson already reviewed (owner reframing of #34
-                    # point 5/6: the new-item cap should bound *an arc*, not the whole lesson —
-                    # a real lesson hit this exactly, stopping ~11 minutes short of a 30-minute
-                    # request with plenty of curriculum left, solely because every fallback tier
-                    # was independently capped). `can_intro`'s original cap is deliberately left
-                    # alone — only this explicit, budget-gated path can start a new arc. Introduce
-                    # the first item now (like the single-extra-item branch above) and queue the
-                    # rest for step 2 to drain at the normal pace — no ``continue`` here: this
-                    # must consume an ``idx`` tick like every other branch, or a lesson where
-                    # ``intro_gap`` isn't yet satisfied would re-enter this branch at the same
-                    # ``idx`` forever without ever making progress.
-                    current_arc_id += 1  # a fresh arc — its own connected-use guarantee (step 0b)
+                    # A fresh arc of new material rather than a second review pass: the new-item
+                    # cap bounds an arc, not the lesson. Only once the review pool ran dry (a
+                    # first lesson still ends short on purpose) and the previous arc is fully
+                    # introduced (a queued prereq would look ready to select_new). Consumes an
+                    # idx tick like every other branch.
+                    current_arc_id += 1
                     arc_target[current_arc_id] = len(more)
                     new_queue.extend(more[1:])
                     do_intro(more[0])
-                    # the closing block recalls every introduced item, so a new arc needs more
-                    # closing time reserved than arc 1 alone budgeted for — recomputed the same
-                    # way the initial reserve was, over the now-larger total.
+                    # the closing block recalls every introduced item: reserve for the new ones too
                     closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
                 elif passes < cfg.max_review_passes and reviews_used:
                     # material ran out before the time did: a second pass over what was reviewed,
@@ -954,8 +716,7 @@ class Planner:
         if not self._aside_played() and self._note_budget_left():
             note = self._pick_note(None)
             if note is not None:
-                b.note(sc, note)
-                self.notes_played.append(note.id)
+                self._play_note(sc, note)
 
         # ---- closing block: end on success with today's new material -----
         if introduced:
@@ -963,10 +724,7 @@ class Planner:
             # any reactivation that never came due is folded into the closing recall
             order = sorted(introduced, key=lambda i: -i.difficulty)  # hardest first, easiest last
             for item in order:
-                ladder = self.ladder(item)
-                done = [s for s in self.exposures.get(item.id, []) if s != "intro"]
-                top = max((stage_index(ladder, s) for s in done), default=0)
-                stage = ladder[min(top + 1, len(ladder) - 1)]
+                stage = self._harder_than_today(item)
                 if stage == "dialogue":
                     stage = self.below_dialogue(item)
                 ex = b.recall(sc, item, stage)
@@ -980,7 +738,7 @@ class Planner:
                 "minutes": cfg.minutes,
                 "new_items": cfg.resolved_new_items(),
                 "topics": cfg.topics,
-                "seed": self.rng and cfg.seed,
+                "seed": cfg.seed,
                 "level": self.timing.level,
             },
             "curriculum": self.cur.name,
@@ -994,8 +752,7 @@ class Planner:
             "support_exposures": self.support,
             "ladders": {i: self.ladder(self.cur.by_id[i]) for i in self.exposures if i in self.cur.by_id},
             "not_introduced": [i.id for i in new_queue],
-            # issue #48: partner target-language interaction vs recombination practice — a
-            # connect() with no authored bridge is the latter, not evidence of conversation
+            # partner interaction in the target language vs recombination practice
             "partner_exchanges": len(self.dialogues_played) + sum(1 for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"),
             "recombinations": sum(1 for e in sc.exercises if e.kind == "connect" and e.stage != "exchange"),
             "heard_utterances": sorted(self.builder.heard),
@@ -1004,10 +761,8 @@ class Planner:
         return sc
 
     def _play_dialogue(self, sc: Script, dlg: Dialogue) -> None:
-        """Dialogues grow: the first encounter plays a couple of turns, each later one adds a
-        turn. Scaffolding fades on the same schedule (issue #26): translations and response
-        cues are only there the first time, so later encounters ask for comprehension of the
-        partner's actual line, not just recall of a cue."""
+        """Dialogues grow by one turn per encounter; translations and cues are only there the
+        first time, so later encounters ask for comprehension of the partner's line."""
         times = self.learner.dialogues_done.get(dlg.id, 0)
         max_turns = min(len(dlg.turns), self.cfg.dialogue_first_turns + times)
         full = max_turns >= len(dlg.turns)

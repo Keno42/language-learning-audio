@@ -14,8 +14,6 @@ the next stage; ``exercises`` knows how to build a prompt for each one.
 
 from __future__ import annotations
 
-STAGES = ["intro", "cloze", "hinted", "meaning", "situation", "recombine", "dialogue"]
-
 # Which stages apply to which kind of item, in climbing order.
 LADDER: dict[str, list[str]] = {
     "vocab": ["intro", "meaning", "recombine", "dialogue"],

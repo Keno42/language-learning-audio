@@ -29,12 +29,12 @@ skips anything whose `prereqs` the learner does not know yet.
 | `difficulty` | all | 1–5; ≥4 (or ≥5 words, or `chunks`, or a single word with 3+ syllables) triggers backward build; lengthens pauses |
 | `topics` | all | free tags for `--topics`; first topic is used for interleaving |
 | `tags` | vocab | which construction slots accept this item (e.g. `orderable`, `place`) |
-| `prereqs` | all | ids that must be *learned* (≥2 successful recalls) first |
+| `prereqs` | all | ids that must be *learned* first (two recalls on or after a due date, not just within one lesson) |
 | `components` | all | ids this item is built from (documentation for now) |
 | `situation` | phrase, construction | known-language cue for the *situation* stage, spoken as-is with nothing appended — end it with the actual instruction ("You walk into a bakery. Greet the baker."), not just a scene, so the prompt is complete on its own |
 | `situations` | phrase, construction | alternative `situation` cues for the same target, glossed per-language the same way (`situations_ja`, …); when given, the planner rotates through them round-robin on the item's total exposures so far, so a high-repeat item's spaced reviews don't all replay the identical wording — overrides `situation` when non-empty |
-| `chunks` | vocab, phrase | explicit backward-build pieces, shortest first, last = full target — overrides the automatic word- or syllable-split |
-| `alternatives` | all | other acceptable answers (stored in metadata, not yet spoken) |
+| `chunks` | vocab, phrase | explicit backward-build pieces, shortest first, last = full target — overrides the automatic word split (a single word is never split automatically) |
+| `alternatives` | all | other acceptable answers; past the hint stages one is sometimes offered ("You could also say …") |
 | `pronunciation_notes` | all | printed once in the transcript, under the first exercise on that item; not spoken, and not per-language glossed (always shown as written, regardless of `--known`) |
 | `slots` | construction | `{ slot = "tag" }`; `target` must contain `{slot}`, and `meaning` `{slot}` or `{slot:form}` (see `meaning_forms`) |
 | `example` | construction | `{ slot = "item_id" }` fill used when the pattern is introduced |
@@ -131,13 +131,18 @@ note only mentions or illustrates («tölva», «Vínbúðin») needs no entry.
 
 Wrap any target-language word or phrase mentioned inside `text`/`text_ja` in
 `«...»` so it is actually spoken by the target-language voice instead of
-read aloud by the instructor: `In «Góðan daginn», «góðan» is…`. Validation
-rejects a note whose `«`/`»` count doesn't match.
+read aloud by the instructor: `In «Góðan daginn», «góðan» is…`. A word in a
+third language takes a language code, and optionally a native spelling for the
+TTS after `|`: `«ja:sate|さて»` shows "sate" in the transcript and speaks さて.
+Validation rejects unpaired or misordered `«`/`»`.
 
 `milestone = true` marks an instructional note that names a grammatical
-pattern rather than an optional aside: it never fires until the learner has
-met every id in `items`, and once it can, the planner offers it before any
-plain aside and never hands it out as generic filler.
+pattern rather than an optional aside: it fires as soon as the learner has
+met every id in `items`, before any plain aside, is never used as filler, and
+is followed by two quick contrast recalls of its examples (from their
+`situation`s, so give it at least three items that have one).
+`transfer_items` lists items that apply the pattern to new words; once known,
+the contrast recalls prefer them. They are never needed for the note to fire.
 
 ## Languages with cases (Icelandic, German, Russian…)
 
@@ -146,54 +151,29 @@ construction needs and encode the case in the tag: `acc_orderable` for what
 follows *Ég ætla að fá …*, `nom_place` for what follows *Hvar er …?*. A noun
 that is needed in two cases is two vocab items (`supu` / `supa`) — or, if
 the second use is rare, a phrase. Never tag a dictionary form into a slot that
-takes an oblique case. See `curricula/is-en-a1.toml` for the pattern.
+takes an oblique case. See `curricula/is-en/03-cafe.toml` (`acc_orderable`) for the pattern.
 
 ## Guidelines that make lessons good
 
-- **Top priority (issue #29, session 15 — supersedes #23 and #25, both
-  closed into it): design sequencing from learner capabilities outward,
-  not from individual phrases or dialogues.** Decide communicative goals,
-  introduce high-value reusable material deliberately, then write
-  phrases/dialogues from what's already been taught — not the other way
-  around. This applies at more than one level:
-  - **Vocabulary/constructions**: a word or pattern that shows up
-    constantly in real exchanges (`frábært`, `viltu`, `fara`, `og`,
-    `líka`, … — the first three already moved earlier, see
-    `docs/HANDOFF.md` session 15's pilots 1–3) is worth a dedicated
-    early item — or, where the reusable
-    unit is really a pattern rather than one word, a construction (e.g.
-    "need/have to + infinitive") — precisely because it's generative: it
-    combines into many later sentences, not just the one phrase that
-    happened to introduce it. If a natural dialogue line needs material
-    the curriculum hasn't deliberately taught yet, that's a sequencing
-    gap to fix (move the concept earlier, or give it its own item/
-    construction), not something to patch with a late prerequisite or a
-    permanent translation. `audiolesson validate <dir>` prints an
-    advisory (not blocking) report of exactly this signal — words in
-    dialogue lines whose earliest teaching item sits far past what the
-    dialogue otherwise needs; a word repeating across several dialogues
-    in that report is a strong promotion candidate. Token occurrence is
-    a signal, not proof of mastery — it's one input, not the mechanism.
-  - **Grammatical dimensions** (case, gender, number, tense, person,
-    mood, modality, agreement): introduce the dimension itself once
-    enough familiar examples make the contrast visible, rather than
-    leaving the learner to notice it unassisted or explaining it away
-    per-pair. Worked example from the issue: `Góðan daginn` / `Góða
-    nótt` / `Gott kvöld` are all already-taught items whose differing
-    adjective endings are a systematic gender-agreement pattern. A
-    `[[notes]]` entry now names it right after the third phrase is
-    introduced (`godur_gender` in `90-notes.toml`) — the "notice → name"
-    half. The "practice → apply to new words" half is deliberately not
-    done yet: it would mean asserting a *new* noun's case form with
-    nothing existing to check it against, which is exactly the risk the
-    "halló" note below warns about — do that only with a way to verify
-    the new noun's declension, not by pattern-matching the three known
-    ones.
-
-  See `docs/HANDOFF.md` sessions 14–15 for how this was found (via
-  gating dialogue eligibility on comprehension, which broke down
-  mechanically) and why it's now a sequencing/authoring project, not a
-  single fixable bug.
+- **Sequence from learner capabilities outward, not from individual phrases or
+  dialogues** (issue #29). Decide the communicative goals, introduce high-value reusable
+  material deliberately, then write phrases and dialogues from what has already been
+  taught.
+  - **Vocabulary and constructions.** A word or pattern that shows up constantly in real
+    exchanges (`frábært`, `viltu`, `fara`) deserves an early item of its own, or a
+    construction when the reusable unit is a pattern ("need to + infinitive"). If a
+    natural dialogue line needs material that isn't taught yet, that is a sequencing gap:
+    move the concept earlier or give it its own item. Don't patch it with a late
+    prerequisite or a permanent translation. `audiolesson validate <dir>` prints an
+    advisory report of this signal: words in dialogue lines whose earliest teaching item
+    sits far past what the dialogue otherwise needs. A word that repeats across
+    dialogues is a strong candidate. Token counts are one input, not proof of mastery.
+  - **Grammatical dimensions** (case, gender, number, tense, person, mood, modality,
+    agreement). Name the dimension once enough familiar examples make the contrast
+    visible, using a `milestone` note (notice → name → discriminate). Then apply it to
+    new words through a construction (`agreement`, `transfer_items`). Tell the learner a
+    noun's gender before applying agreement to it. Only generate a form you can verify.
+    `docs/AUDIT-29.md` tracks which dimensions are modeled.
 - Introduce a construction right after (or together with) two things that fit
   its slot; the planner pulls one extra fill along automatically.
 - Give every phrase a `situation` — it is the stage that makes recall
@@ -206,7 +186,7 @@ takes an oblique case. See `curricula/is-en-a1.toml` for the pattern.
   the word, not just the first result that matches what you already expect.
   A spelling can be a homograph with an unrelated etymology and a different
   pronunciation (Icelandic "halló" the Danish-loan greeting vs. an unrelated
-  slang adjective spelled the same way — see `docs/HANDOFF.md` session 6).
+  slang adjective spelled the same way — see `docs/history/sessions.md`, sessions 5–6).
   Citing the general spelling rule isn't the same as citing the specific
   word; if in doubt, check other words with the same risk (e.g. "bolli",
   "galli") before asserting how any of them sound.

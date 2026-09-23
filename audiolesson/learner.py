@@ -41,12 +41,8 @@ class ItemState:
 
     @property
     def is_learned(self) -> bool:
-        """Solid enough to build on (used as a component / prerequisite).
-
-        Deliberately keyed on ``durable_successes``, not ``successes``: several correct
-        recalls minutes apart in the same lesson (the intra-lesson reactivation ladder) are
-        good practice but not evidence of retention across time, so they don't count here —
-        only a recall on or after the item's scheduled due date does (see record_lesson)."""
+        """Solid enough to build on (as a component or prerequisite): two recalls on or after
+        a due date. Recalls minutes apart in one lesson are practice, not retention."""
         return self.durable_successes >= 2 and self.stage != "intro"
 
 
@@ -65,7 +61,7 @@ class LearnerState:
     pace_changed_at: int = 0  # lesson number of the last pace change (auto mode steps slowly)
     speech_calibration: dict[str, float] = field(default_factory=dict)  # lang → measured/estimated TTS length
     notes_heard: dict[str, int] = field(default_factory=dict)  # note id → times played
-    heard_utterances: set[str] = field(default_factory=set)  # normalised target-language lines presented so far (issue #68)
+    heard_utterances: set[str] = field(default_factory=set)  # normalised target-language lines presented so far
     bridges_heard: dict[str, int] = field(default_factory=dict)  # bridged item id → times its partner_cue played
 
     # ---- queries ---------------------------------------------------------

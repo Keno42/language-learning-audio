@@ -1,6 +1,6 @@
 # Dialogue and partner-interaction audit for issue #48
 
-As of session 33. The narrative is in `docs/HANDOFF.md`.
+First written in session 33. The narrative is in `docs/history/sessions.md`.
 
 ## The bar
 

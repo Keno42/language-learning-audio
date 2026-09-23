@@ -29,11 +29,15 @@ class Generated:
 
     @property
     def key(self) -> str:
-        return self.construction.id + ":" + ",".join(f"{k}={v.id}" for k, v in sorted(self.fills.items()))
+        return _combo_key(self.construction, self.fills)
 
     @property
     def item_ids(self) -> list[str]:
         return [self.construction.id] + [f.id for f in self.fills.values()]
+
+
+def _combo_key(construction: Item, fills: dict[str, Item]) -> str:
+    return construction.id + ":" + ",".join(f"{k}={v.id}" for k, v in sorted(fills.items()))
 
 
 def _norm_utterance(text: str) -> str:
@@ -54,8 +58,9 @@ class Builder:
     translate_partner: bool = True  # narrate the meaning of partner lines in dialogues
     used_combos: set[str] = field(default_factory=set)
     used_examples: set[str] = field(default_factory=set)
-    heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson (issue #68)
-    _situation_uses: dict[str, int] = field(default_factory=dict)  # per-item count, this lesson
+    heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson
+    in_lesson: set[str] = field(default_factory=set)  # items introduced this lesson: usable as parts
+    _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
 
     # ------------------------------------------------------------------ utils
 
@@ -76,37 +81,18 @@ class Builder:
             return meaning
         return meaning + "."
 
-    def _situation(self, item: Item) -> str | None:
-        """The situation cue to narrate now, rotated across an item's ``situations`` (issue
-        #34 point 4) — starting from how many times it's been exercised in *past* lessons
-        (0 for an item with no recorded state yet, i.e. its first exposure), then advanced by
-        ``_situation_uses`` for every situation narrated so far *within this lesson*.
-        ``ItemState.exposures`` only updates once the whole lesson is applied afterwards
-        (``record_lesson()``), so it alone can't distinguish a second situation recall in the
-        same lesson from the first — without this lesson-local counter, an item recalled at
-        the situation stage more than once in one lesson would repeat the same cue each time,
-        the exact within-lesson repetition this pilot exists to fix (owner review on #39)."""
+    def _situation(self, item: Item, advance: bool = True) -> str | None:
+        """The situation cue to narrate now, rotated by past exposures plus the cues already
+        narrated this lesson (exposures only update after the lesson). ``connect()`` reads
+        without advancing, so pairing an item never shifts what its own recalls hear."""
         base = self.learner.items[item.id].exposures if item.id in self.learner.items else 0
         offset = self._situation_uses.get(item.id, 0)
-        self._situation_uses[item.id] = offset + 1
+        if advance:
+            self._situation_uses[item.id] = offset + 1
         return item.situation_for(base + offset)
 
-    def _situation_readonly(self, item: Item) -> str | None:
-        """An item's *current* situation cue for a ``connect()`` exercise, without advancing
-        its rotation (owner review round 2 on #46). ``connect()`` narrates a situation cue the
-        same way a ``situation``-stage recall does, so if it went through ``_situation()`` (and
-        its shared, mutating ``_situation_uses`` counter), pairing an item into a connected
-        moment would silently consume a rotation step for it — invisible to any ordinary
-        recall of that same item elsewhere in the lesson. With a 2-cue item, one such hidden
-        step flips which cue a later recall lands on; two hidden steps (e.g. the item gets
-        swept into two separate connect() exercises in one lesson) land back on the *same*
-        one, regressing the exact same-lesson repeat ``_situation()`` exists to prevent.
-        Reading without advancing keeps the two mechanisms fully independent: connect()'s own
-        framing is free to reuse an item's current cue without perturbing what an unrelated
-        recall of that item sees."""
-        base = self.learner.items[item.id].exposures if item.id in self.learner.items else 0
-        offset = self._situation_uses.get(item.id, 0)
-        return item.situation_for(base + offset)
+    def _meaning_prompt(self, meaning: str) -> str:
+        return self.prompts.get("meaning", meaning=self._m(meaning), language=self.prompts.language_name(self.tl))
 
     def _successes(self, item: Item) -> int:
         st = self.learner.items.get(item.id)
@@ -126,13 +112,8 @@ class Builder:
         lang: str | None = None,
         speech_text: str | None = None,
     ) -> None:
-        # ``lang`` lets a segment speak a language other than the course's own target
-        # language — an embedded third-language example inside a note (issue #49) — while
-        # every existing call site (which never passes it) keeps speaking ``self.tl``.
-        # ``speech_text``, when given, is what actually reaches the TTS provider — ``text``
-        # stays what the transcript shows (issue #49, PR #51 owner review): pronunciation
-        # must not depend on the provider being able to read a romanized/transliterated
-        # ``text`` correctly, so the estimate below is based on what will really be spoken.
+        """``lang`` overrides the target language (a third-language example in a note);
+        ``speech_text`` is what the TTS provider receives when it differs from ``text``."""
         lang = lang or self.tl
         sc.add(Segment("speak", speaker, text, lang, rate, self.timing.speech_estimate(speech_text or text, lang, rate), role, ex.index, speech_text))
         if lang == self.tl and role not in ("partial", "hint"):  # a cloze fragment or first-word hint isn't the utterance
@@ -143,10 +124,9 @@ class Builder:
         self.heard.add(_norm_utterance(text))
 
     def is_new_utterance(self, text: str) -> bool:
-        """True only if the learner has never been presented this exact target-language line
-        (issue #68): not this lesson, not in an earlier lesson (``LearnerState.heard_utterances``),
-        and not as the target of an item they've already met — «Eigðu góðan dag.» is both an
-        authored phrase and a sentence a construction can generate."""
+        """True only if the learner has never been presented this target-language line: not
+        this lesson, not in an earlier one, and not as the target of an item already met
+        («Eigðu góðan dag.» is both an authored phrase and a generated sentence)."""
         n = _norm_utterance(text)
         if n in self.heard or n in self.learner.heard_utterances:
             return False
@@ -211,12 +191,7 @@ class Builder:
         if len(chunks) > 1:
             self._narr(sc, ex, self.prompts.get("build_up"))
             for chunk in chunks:
-                # issue #49: each chunk was spoken at natural rate here — the one part of
-                # the backward-build ladder that never went through ``slow_rate``, despite
-                # existing specifically to let the learner hear and imitate a difficult
-                # phrase piece by piece. The trailing beat (beyond the repeat pause itself,
-                # which is sized for the learner's own imitation, not for separating
-                # chunks) gives clearer acoustic separation before the next chunk starts.
+                # slow, with a beat after the learner's repetition to separate the chunks
                 self._speak(sc, ex, chunk, rate=self.timing.slow_rate)
                 self._repeat_pause(sc, ex, chunk)
                 self._beat(sc, ex)
@@ -224,8 +199,7 @@ class Builder:
             self._speak(sc, ex, item.target)
             self._repeat_pause(sc, ex, item.target)
         elif item.is_hard():
-            # a long single word with no verified sub-word boundary (issue #34 point 7):
-            # slow whole-word repetition instead of a guessed, possibly mis-synthesized split
+            # a long single word: slow whole-word repetition, never a guessed split
             self._narr(sc, ex, self.prompts.get("slowly"))
             self._speak(sc, ex, item.target, rate=self.timing.slow_rate)
             self._repeat_pause(sc, ex, item.target)
@@ -244,7 +218,7 @@ class Builder:
                 self._speak(sc, ex, item.target)
                 self._repeat_pause(sc, ex, item.target)
         # end the introduction with a first real retrieval
-        self._narr(sc, ex, self.prompts.get("meaning", meaning=self._m(item.meaning), language=self.prompts.language_name(self.tl)))
+        self._narr(sc, ex, self._meaning_prompt(item.meaning))
         self._answer_pause(sc, ex, item.target, item, generative=False)
         self._answer(sc, ex, item.target)
         self._gap(sc, ex)
@@ -254,7 +228,7 @@ class Builder:
         ex = sc.new_exercise("intro", "intro", [item.id], f"new pattern: {item.target}")
         fills = self.cur.example_fill(item)
         target, meaning = self.cur.resolve_slots(item, fills)
-        self.used_combos.add(self._combo_key(item, fills))  # the worked example is heard, not new (issue #68)
+        self.used_combos.add(_combo_key(item, fills))  # the worked example is heard, not new
         ex.item_ids += [f.id for f in fills.values() if f.id not in ex.item_ids]
         self._narr(sc, ex, self.prompts.get("construction_intro", meaning=self._m(meaning)))
         self._beat(sc, ex)
@@ -274,13 +248,13 @@ class Builder:
         # a second example with a known fill, as the first retrieval
         gen = self.generate(item, exclude=fills)
         if gen is None:
-            self._narr(sc, ex, self.prompts.get("meaning", meaning=self._m(meaning), language=self.prompts.language_name(self.tl)))
+            self._narr(sc, ex, self._meaning_prompt(meaning))
             self._answer_pause(sc, ex, target, item, generative=False)
             self._answer(sc, ex, target)
         else:
             self._speak(sc, ex, gen.target)
             self._beat(sc, ex)
-            self._narr(sc, ex, self.prompts.get("meaning", meaning=self._m(gen.meaning), language=self.prompts.language_name(self.tl)))
+            self._narr(sc, ex, self._meaning_prompt(gen.meaning))
             self._answer_pause(sc, ex, gen.target, item, generative=False)
             self._answer(sc, ex, gen.target)
             self.used_combos.add(gen.key)
@@ -323,8 +297,7 @@ class Builder:
         ex = sc.new_exercise("recall", stage, [item.id], f"{stage}: {item.target}")
         target = item.target
         if stage == "cloze":
-            # the target meaning before the partial phrase (issue #59): «Ég skil…» alone doesn't
-            # say whether «Ég skil.» or «Ég skil ekki.» is wanted
+            # say what to complete: «Ég skil…» alone could be «Ég skil.» or «Ég skil ekki.»
             self._narr(sc, ex, self.prompts.get("cloze", meaning=self._m(item.meaning)))
             words = [w for w in target.split() if any(ch.isalnum() for ch in w)]
             partial = " ".join(words[:-1]) + "…"
@@ -338,7 +311,7 @@ class Builder:
             self._narr(sc, ex, self._situation(item))  # type: ignore[arg-type]
             self._answer_pause(sc, ex, target, item, generative=True)
         else:  # meaning (also the fallback for 'dialogue' when no dialogue fits)
-            self._narr(sc, ex, self.prompts.get("meaning", meaning=self._m(item.meaning), language=self.prompts.language_name(self.tl)))
+            self._narr(sc, ex, self._meaning_prompt(item.meaning))
             self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target)
         if stage in ("cloze", "hinted") or item.difficulty >= 4:
@@ -361,8 +334,8 @@ class Builder:
         self._speak(sc, ex, self.rng.choice(item.alternatives), role="alternative")
 
     def _recall_construction(self, sc: Script, item: Item, stage: str) -> Exercise:
-        """Recall of a construction always goes through a filled example — at the situation
-        stage, one that honours the fills the situation names (issue #57)."""
+        """Recall of a construction always goes through a filled example; at the situation
+        stage, one with the fills the situation names."""
         fixed = self.cur.situation_fills(item) if stage == "situation" and self.situation_usable(item) else {}
         gen = self.generate(item, fixed=fixed)
         if gen is None:
@@ -377,7 +350,7 @@ class Builder:
         elif stage == "situation" and item.has_situation:
             self._narr(sc, ex, self._situation(item))
         else:
-            self._narr(sc, ex, self.prompts.get("meaning", meaning=self._m(gen.meaning), language=self.prompts.language_name(self.tl)))
+            self._narr(sc, ex, self._meaning_prompt(gen.meaning))
         self._answer_pause(sc, ex, gen.target, item, generative=is_generative(stage))
         self._answer(sc, ex, gen.target)
         self._gap(sc, ex)
@@ -394,8 +367,7 @@ class Builder:
         self.used_combos.add(gen.key)
         ids = [item.id] + [i for i in gen.item_ids if i != item.id]  # the practised item comes first
         ex = sc.new_exercise("generative", "recombine", ids, f"recombine: {gen.target}")
-        # "something you haven't heard yet" only when that is literally true (issue #68): the
-        # generator merely *prefers* unused combinations and may fall back to a heard one
+        # the generator only *prefers* unused combinations, so claim novelty only when true
         if item.kind == "construction":
             key = "recombine_new" if self.is_new_utterance(gen.target) else "recombine"
         else:
@@ -433,13 +405,13 @@ class Builder:
         self, construction: Item, *, exclude: dict[str, Item] | None = None, prefer_unused: bool = True, fixed: dict[str, Item] | None = None
     ) -> Generated | None:
         """Fill a construction with words the learner knows; prefer combos not yet used.
-        ``fixed`` pins slots to specific fills (a situation's binding, issue #57)."""
+        ``fixed`` pins slots to specific fills (a situation's binding)."""
         options: dict[str, list[Item]] = {}
         for slot, tag in construction.slots.items():
             if fixed and slot in fixed:
                 options[slot] = [fixed[slot]]
                 continue
-            cands = [i for i in self.cur.items_with_tag(tag) if self.learner.knows(i.id) or self._in_lesson(i.id)]
+            cands = [i for i in self.cur.items_with_tag(tag) if self._available(i.id)]
             if exclude and slot in exclude:
                 cands = [c for c in cands if c.id != exclude[slot].id]
             if not cands:
@@ -449,7 +421,7 @@ class Builder:
         combos = self._product(options, slots)
         self.rng.shuffle(combos)
         if prefer_unused:
-            unused = [c for c in combos if self._combo_key(construction, c) not in self.used_combos]
+            unused = [c for c in combos if _combo_key(construction, c) not in self.used_combos]
             combos = unused or combos
         fills = combos[0]
         target, meaning = self.cur.resolve_slots(construction, fills)
@@ -459,7 +431,7 @@ class Builder:
         """Find a known construction with a slot that accepts ``vocab`` and fill it."""
         homes = []
         for c in self.cur.items:
-            if c.kind != "construction" or not (self.learner.knows(c.id) or self._in_lesson(c.id)):
+            if c.kind != "construction" or not self._available(c.id):
                 continue
             for slot, tag in c.slots.items():
                 if tag in vocab.tags:
@@ -483,23 +455,14 @@ class Builder:
         gen.target, gen.meaning = self.cur.resolve_slots(c, gen.fills)
         return gen
 
-    # items introduced earlier in *this* lesson count as usable components
-    in_lesson: set[str] = field(default_factory=set)
-
-    def _in_lesson(self, item_id: str) -> bool:
-        return item_id in self.in_lesson
+    def _available(self, item_id: str) -> bool:
+        """Known, or introduced earlier this lesson: usable as a part of a generated sentence."""
+        return self.learner.knows(item_id) or item_id in self.in_lesson
 
     def situation_usable(self, item: Item) -> bool:
-        """Whether ``item``'s authored situation can be practised now. A construction's
-        situation that names a specific fill (``situation_fill``, issue #57) is only usable
-        once that fill is itself available — known, or introduced this lesson — the same bar
-        ``generate()`` sets for any fill: a construction is only ever generated from parts
-        the learner has. "Ask if she speaks German." waits until þýsku is known."""
-        return item.has_situation and all(self.learner.knows(f.id) or self._in_lesson(f.id) for f in self.cur.situation_fills(item).values())
-
-    @staticmethod
-    def _combo_key(c: Item, fills: dict[str, Item]) -> str:
-        return c.id + ":" + ",".join(f"{k}={v.id}" for k, v in sorted(fills.items()))
+        """Whether ``item``'s situation can be practised now: every fill it names is available
+        ("Ask if she speaks German." waits until þýsku is known)."""
+        return item.has_situation and all(self._available(f.id) for f in self.cur.situation_fills(item).values())
 
     @staticmethod
     def _product(options: dict[str, list[Item]], slots: list[str]) -> list[dict[str, Item]]:
@@ -511,26 +474,9 @@ class Builder:
     # ------------------------------------------------------------------ note
 
     def _speak_note_text(self, sc: Script, ex: Exercise, text: str) -> None:
-        """Narrate ``text`` in the instructor voice, except «...»-marked phrases, which go to
-        the target-language voice instead — so a note that names e.g. Góðan daginn actually
-        hears it said, rather than the instructor reading it as instructor-language text
-        (issue #34 point 1, deferred at pilot 2 for lack of this mechanism).
-
-        A marked span may carry its own explicit language («ja:sate» rather than bare
-        «Góðan daginn») — a note can legitimately mention a *third* language besides its
-        own narration language and the course's target language, e.g. an English note
-        naming a Japanese word (issue #49); ``split_note_span`` picks that apart, and an
-        explicit language always wins over the default target-language voice. It may also
-        carry a "display|speech" pair («ja:sate|さて»): the transcript keeps the familiar
-        romanization, but the TTS provider gets native orthography instead, so
-        pronunciation doesn't depend on a provider correctly reading transliterated text.
-
-        A prose fragment between two marked phrases that is only punctuation (e.g. the bare
-        "," left behind by "«a», «b»") is never handed to ``_narr`` as its own TTS call —
-        several notes mark three or more phrases in a list, so this is common, not a rare
-        edge case (owner review on #41). A beat stands in for it instead, preserving the
-        pause the punctuation implied. A fragment with real words (e.g. ", and") still
-        narrates normally."""
+        """Narrate ``text``, speaking «...» spans in their own voice (see ``split_note_span``).
+        Punctuation-only prose between spans (the "," in "«a», «b»") becomes a beat rather
+        than a TTS call of its own."""
         for i, part in enumerate(NOTE_TARGET_RE.split(text)):
             part = part.strip()
             if not part:
@@ -544,13 +490,8 @@ class Builder:
                 self._beat(sc, ex)
 
     def note(self, sc: Script, note: Note) -> Exercise:
-        """An aside: no retrieval. Bookended so it's never mistaken for the start of the next
-        (unrelated) exercise. Mostly instructor narration, but a «...»-marked phrase inside
-        ``note.text`` is spoken by the target-language voice instead (see
-        ``_speak_note_text``). A milestone note names a grammatical pattern now that its
-        items are known, so it gets its own intro and closing lines instead of being framed
-        as optional cultural trivia the lesson is a detour from (issue #34: "this *is* the
-        lesson")."""
+        """An aside, no retrieval, bookended so it isn't mistaken for the next exercise. A
+        milestone gets its own framing: it is part of the lesson, not a detour."""
         ex = sc.new_exercise("note", None, list(note.items), f"note: {note.id}")
         self._narr(sc, ex, self.prompts.get("milestone_intro" if note.milestone else "aside"))
         self._speak_note_text(sc, ex, note.text)
@@ -562,58 +503,23 @@ class Builder:
     # ---------------------------------------------------------------- connect
 
     def connect(self, sc: Script, items: list[Item]) -> Exercise:
-        """One connected exchange between two already-known items (issue #44, owner review
-        round 2 on #46): the fallback for "connected use" when no authored dialogue requires
-        them, and a genuine third option for a drill streak with nowhere else to go — not
-        another isolated recall, and not a passive aside either.
+        """Two already-known items in one exercise: connected use when no authored dialogue
+        fits, and a way to break a drill streak.
 
-        The first cut of this narrated a shared frame and then ran two ordinary situation
-        recalls back to back — structurally two independent flashcards under a header, with
-        no connection between them (confirmed by the pair the planner happened to choose:
-        "leaving a shop" next to "raising a glass for a toast"). A second cut bridged them
-        with an explicit connecting line (``connect_then``, "And then —"), narrated by the
-        instructor — still the same shape issue #48 named directly: English instruction,
-        retrieve one phrase, repeat.
-
-        Without an authored bridge the two turns are independent situations (recombination
-        practice, not conversation), so the transition between them is neutral —
-        ``connect_next``, "Now another situation." — never "And then —", which implied the
-        second task followed from the first (issue #69).
-
-        ``items[1].partner_cue`` (issue #48), when authored *and* written for exactly this
-        ``items[0]`` (``partner_cue_after`` names the one item id it's compatible with —
-        owner review round 3 on PR #52: ``partner_cue`` alone only guarantees the line
-        fits B, not that it followed naturally from whichever A the planner happened to
-        pick), replaces the English bridge with an actual partner utterance spoken by
-        ``native_b`` between the two retrievals — so, with the instructor's own
-        scaffolding stripped away, "answer A → partner_cue → answer B" still reads as one
-        coherent exchange, not just "partner_cue fits B" in isolation. A first cut of this
-        picked a generic already-known "discourse"-topic item instead (owner review round
-        2): that filter let short function words ("og", "en", "með") through as if they
-        were standalone turns, and didn't guarantee even a genuine reaction phrase actually
-        fit the specific pairing. Curated per item instead of selected algorithmically —
-        the instructor's own instruction for B still narrows the task to one checkable
-        answer either way (the owner was explicit that keeping it isn't the problem); what
-        changes is only whether the *target-language* turns alone already form a plausible
-        sequence. No match (the common case — most items have no authored bridge, or this
-        particular A isn't the one theirs was written for) falls back to the original
-        English narration, unchanged. Its own exercise kind (not folded into ``recall``)
-        so it's identifiable as a deliberate recombination moment, the same way ``note()``
-        is bookended rather than left to blend into whatever comes next."""
+        If ``items[1]`` has a bridge written for ``items[0]`` (``partner_cue_after``), this is
+        an ``exchange``: one scene, with the partner's line spoken between the two answers.
+        Otherwise it is ``recombine`` practice: two independent situations joined by a neutral
+        transition that doesn't imply the second follows from the first."""
         first, second = items[0], items[1]
         first_target = self._connect_target(first)
         second_target = self._connect_target(second)
         ids = [first.id, second.id]
         bridged = bool(second.partner_cue) and second.partner_cue_after == first.id
-        # issue #48: only an authored bridge makes this a target-language exchange; without
-        # one it's recombination practice, and is labelled so rather than counted as
-        # conversational continuity
         ex = sc.new_exercise("connect", "exchange" if bridged else "recombine", ids, f"connect: {first.id}+{second.id}")
         self._narr(sc, ex, self.prompts.get("connect_intro"))
         self._beat(sc, ex)
-        # an authored bridge is one scene (owner comment on #48): its own setup for A and cue for
-        # B replace the two items' standalone situations, which were written for unrelated scenes
-        self._narr(sc, ex, second.partner_cue_setup if bridged else self._situation_readonly(first))  # type: ignore[arg-type]
+        # a bridge's own scene replaces the items' standalone situations
+        self._narr(sc, ex, second.partner_cue_setup if bridged else self._situation(first, advance=False))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, first_target, first, generative=True)
         self._answer(sc, ex, first_target)
         self._beat(sc, ex)
@@ -621,37 +527,24 @@ class Builder:
             self._speak(sc, ex, second.partner_cue, speaker="native_b")
             self._beat(sc, ex)
             if self.translate_partner and self.learner.bridges_heard.get(second.id, 0) < BRIDGE_GLOSS_ENCOUNTERS:
-                # early encounters: say what the partner said, so untaught words don't turn the
-                # line into noise; later ones rely on the learner's own comprehension
+                # early encounters say what the partner said; later ones rely on comprehension
                 self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=second.partner_cue_meaning))
                 self._beat(sc, ex)
         else:
-            # recombination only: two independent situations, so the transition must not imply
-            # the second follows from the first (issue #69)
             self._narr(sc, ex, self.prompts.get("connect_next"))
-        self._narr(sc, ex, second.partner_cue_situation if bridged else self._situation_readonly(second))  # type: ignore[arg-type]
+        self._narr(sc, ex, second.partner_cue_situation if bridged else self._situation(second, advance=False))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, second_target, second, generative=True)
         self._answer(sc, ex, second_target)
         self._gap(sc, ex)
         return ex
 
     def _connect_target(self, item: Item) -> str:
-        """The spoken target text for a ``connect()`` turn. A construction's own ``.target``
-        is an unfilled template ("{count} krónur.") — ``recall()``/``_recall_construction``
-        always resolve one before speaking it, but ``connect()`` picks its candidates by
-        ``has_situation`` alone (``_connect_pair`` in planner.py), which a construction can
-        satisfy same as any phrase (e.g. ``einn_tvo_thrjar``, issue #29 cluster A). Mirrors
-        ``_recall_construction``'s own fallback chain rather than calling it directly, since
-        that also emits its own exercise/narration this helper must not duplicate.
-
-        connect() always narrates the item's situation, so the fills that situation names
-        (``situation_fill``, issue #57) are pinned: "Ask if she speaks English." must be
-        answered "Talar þú ensku?", never another language the generator happened to pick."""
+        """The spoken target of a ``connect()`` turn. A construction is filled first, with
+        the fills its situation names pinned, since connect() narrates that situation."""
         if item.kind != "construction":
             return item.target
         if not self.situation_usable(item):
-            # the planner never pairs such an item (see _connect_pair); refuse rather than
-            # speak a sentence built from a fill the learner hasn't met
+            # the planner never pairs such an item; refuse rather than speak an unmet fill
             raise ValueError(f"connect(): {item.id!r}'s situation names a fill the learner doesn't have yet")
         fixed = self.cur.situation_fills(item)
         gen = self.generate(item, fixed=fixed)
@@ -667,12 +560,9 @@ class Builder:
     def dialogue(self, sc: Script, dlg: Dialogue, *, replay: bool = False, max_turns: int | None = None, assisted: bool = True) -> Exercise:
         """Play a dialogue; ``max_turns`` lets early encounters stop after a few turns.
 
-        ``assisted`` (issue #26): the first encounter narrates a translation of every partner
-        line and an explicit "say X" cue for every turn, so producing the right answer never
-        depends on having understood the partner. From the second encounter on, both drop once
-        there is an actual partner line to react to — the partner's own utterance becomes the
-        retrieval cue. A turn with nothing said yet to react to (the very first turn, when it
-        has no ``opener``) always keeps its cue: there would otherwise be nothing to go on."""
+        ``assisted`` (the first encounter) translates partner lines and cues every turn. Later
+        encounters drop both once the partner has said something: their line is the cue. A
+        turn before any partner line always keeps its cue."""
         turns = dlg.turns if max_turns is None else dlg.turns[: max(1, max_turns)]
         ids = [t.expect for t in turns if t.expect] + [r for r in dlg.requires if r not in {t.expect for t in turns}]
         label = f"dialogue: {dlg.id}" + ("" if len(turns) == len(dlg.turns) else f" ({len(turns)}/{len(dlg.turns)} turns)")
@@ -694,9 +584,7 @@ class Builder:
                 item = self.cur.item(turn.expect)
                 expected = item.target
                 if item.kind == "construction":
-                    # never speak a raw template, and never a part the dialogue didn't require:
-                    # validate() makes expect_fill bind every slot, so no fill falls back to the
-                    # worked example (owner review on PR #61)
+                    # every spoken part must be a required item (validate() enforces this too)
                     unbound = set(item.slots) - set(turn.expect_fill)
                     if unbound:
                         raise ValueError(f"dialogue {dlg.id!r}: construction turn {item.id!r} leaves slots {sorted(unbound)} unbound")
