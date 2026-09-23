@@ -16,47 +16,25 @@ KINDS = ("vocab", "phrase", "construction", "transform")
 GENDERS = ("masc", "fem", "neut")
 
 _SLOT_RE = re.compile(r"\{(\w+)\}")
-# ``{slot:form}`` in a construction's *meaning*: the fill's ``meaning_forms[form]`` instead of
-# its plain ``meaning`` (issue #29 pilot 3) — "I'm {inf:ing}." → "I'm going home."
+# ``{slot:form}`` in a construction's meaning asks for the fill's ``meaning_forms[form]``:
+# "I'm {inf:ing}." → "I'm going home."
 _FORM_SLOT_RE = re.compile(r"\{(\w+):(\w+)\}")
 _WORD_RE = re.compile(r"\w+", re.UNICODE)
 
-# «...» inside a Note's text marks a target-language phrase that Builder.note() (exercises.py)
-# hands to the target-language voice instead of narrating it as instructor-language text
-# (issue #34 point 1). Shared here, not in exercises.py, so validate() below can also use it
-# without exercises.py importing back into this module.
+# «...» in a note's text is spoken by the target-language voice, not narrated.
 NOTE_TARGET_RE = re.compile(r"«([^»]+)»")
 
-# A «...» span may open with an explicit "xx:" language code (issue #49): a note can
-# legitimately mention a *third* language besides its own narration language and the
-# course's target language — e.g. an English note about Icelandic naming a Japanese
-# word — and that word needs its own voice, not the target-language one «...» alone
-# implies. «Jæja» (bare) still means "target language," unchanged; «ja:sate» means "say
-# this in Japanese instead." 2-3 lowercase letters keeps this from misfiring on a
-# genuine target-language phrase that happens to contain a colon (e.g. a clock time).
-#
-# After the language code, an optional "display|speech" pair (owner review on #49, PR
-# #51) lets the transcript keep a familiar romanization while the TTS provider receives
-# native orthography instead: «ja:sate|さて» shows "sate" to a reader but sends "さて" to
-# the provider. This matters because pronunciation must not depend on a provider being
-# able to read transliterated text correctly in the first place — some providers (e.g.
-# OpenAIProvider) don't even look at the language code to disambiguate it, they just
-# read whatever text they're given. Not Japanese-specific: the same split serves pinyin
-# → Hanzi, Korean romanization → Hangul, Arabic transliteration → Arabic script, etc.
+# A «...» span may start with a language code for a third language («ja:sate»), and may split
+# display text from what the TTS provider receives («ja:sate|さて»), so pronunciation never
+# depends on a provider reading a romanization correctly.
 NOTE_LANG_PREFIX_RE = re.compile(r"^([a-z]{2,3}):\s*(.+)$", re.DOTALL)
 
 
 def split_note_span(span: str) -> tuple[str | None, str, str]:
-    """Split one «...»-marked note span into (explicit language code or None, display
-    text, speech text).
+    """Split a «...» span into (language code or None, display text, speech text).
 
-    ``split_note_span("Halló")`` -> ``(None, "Halló", "Halló")`` — spoken in the
-    target-language voice, as before this existed.
-    ``split_note_span("ja:onigiri")`` -> ``("ja", "onigiri", "onigiri")`` — an embedded
-    third-language example, spoken (and shown) in that language, display and speech text
-    the same since no "|" was given.
-    ``split_note_span("ja:sate|さて")`` -> ``("ja", "sate", "さて")`` — the transcript
-    keeps the romanization; the provider receives the native script.
+    ``"Halló"`` → ``(None, "Halló", "Halló")``; ``"ja:onigiri"`` → ``("ja", "onigiri",
+    "onigiri")``; ``"ja:sate|さて"`` → ``("ja", "sate", "さて")``.
     """
     m = NOTE_LANG_PREFIX_RE.match(span)
     if not m:
@@ -65,15 +43,8 @@ def split_note_span(span: str) -> tuple[str | None, str, str]:
     display, _, speech = rest.partition("|")
     return (lang, display, speech or display)
 
-# Vowel letters used by this project's target languages (French, Icelandic), including
-# accented forms. A maximal run of these approximates one syllable nucleus, used only to
-# gauge whether a single word is long enough to deserve extra practice (see `is_hard`) — not
-# to decide where to split it. issue #34 point 7: a former version of this file used the same
-# vowel-run boundaries to actually cut a word into sub-word chunks for backward build-up
-# (e.g. "Fyrirgefðu" -> "ðu"/"gefðu"/"irgefðu"), with no knowledge of Icelandic consonant
-# clusters or gemination — and even a linguistically correct split can still be mispronounced
-# by TTS synthesizing the fragment in isolation, with no context that it's part of a longer
-# word. `Item.backward_chunks` no longer does this for single words; see its docstring.
+# A run of vowels approximates one syllable. Used only to judge whether a single word is long
+# enough for extra practice (``Item.is_hard``), never to split it.
 _VOWEL_RUN_RE = re.compile(r"[aáàâäæeéèêëiíîïoóôöœuúùûüyýÿ]+", re.IGNORECASE)
 
 
@@ -99,71 +70,36 @@ class Item:
     tags: list[str] = field(default_factory=list)
     topics: list[str] = field(default_factory=list)
     situation: str | None = None  # known-language cue for situational recall
-    situations: list[str] = field(default_factory=list)  # alternative cues for the same target,
-    # rotated on repeat retrieval (issue #34 point 4) so spaced review doesn't always replay the
-    # identical wording; overrides `situation` when non-empty (see `situation_for`)
+    # alternative cues, rotated on repeat retrieval; override ``situation`` when non-empty
+    situations: list[str] = field(default_factory=list)
     alternatives: list[str] = field(default_factory=list)
     pronunciation_notes: str = ""
     chunks: list[str] | None = None  # backward-build chunks, shortest first
     slots: dict[str, str] = field(default_factory=dict)  # construction: slot -> required tag
     example: dict[str, str] = field(default_factory=dict)  # construction: slot -> item id
-    # construction: slot -> item id that its authored situation names (issue #57). "Ask if she
-    # speaks English." only fits "Talar þú ensku?", so any exercise that narrates this
-    # construction's situation must use that fill; other stages still generate freely.
+    # construction: slot -> the fill its situation names ("Ask if she speaks English." only fits
+    # «Talar þú ensku?»). Exercises that narrate the situation use it; others generate freely.
     situation_fill: dict[str, str] = field(default_factory=dict)
-    # slot filler: alternative known-language renderings of ``meaning`` that a construction can
-    # ask for with ``{slot:form}`` (issue #29 pilot 3). The target-language fill never changes —
-    # Icelandic uses the same bare infinitive after "vera að", "má", "verða að" — but its
-    # English/Japanese gloss does: "go home" / "going home" / 「家に帰って」. Glossed like
-    # ``meaning`` (``meaning_forms_ja``). The ``in_sentence`` form is special: a construction's
-    # plain ``{slot}`` uses it instead of ``meaning``, so a disambiguator meant for isolated recall
-    # ("English (the language)", "the hotel (after 'to' / 'for')") doesn't leak into a sentence
-    # prompt ("Do you speak English?").
+    # slot filler: other known-language renderings of ``meaning`` ("go home" / "going home"),
+    # requested by a construction's ``{slot:form}``; the target-language fill never changes.
+    # ``in_sentence`` replaces ``meaning`` for a plain ``{slot}``, so a recall disambiguator
+    # ("English (the language)") stays out of sentence prompts.
     meaning_forms: dict[str, str] = field(default_factory=dict)
     instruction: str = ""  # transform: known-language instruction, e.g. "Make it negative:"
     examples: list[TransformExample] = field(default_factory=list)  # transform pairs
     order: int = 0
     gender: str | None = None  # noun's grammatical gender ("masc" | "fem" | "neut"), for agreement
-    # construction: {slot} name -> {"from": controlling slot name, gender: surface form, ...}.
-    # Unlike `slots`, an agreement slot is never filled by picking an item — its text is derived
-    # from the `.gender` of whatever fills the named `from` slot. This is what lets a
-    # construction's own wording (not just which noun it names) change to fit a noun the learner
-    # already knows independently, e.g. "{adj} {noun}." with
-    # agreement={"adj": {"from": "noun", "masc": "Góður", ...}} genuinely generates "Góður
-    # bíll."/"Góð bók."/"Gott hús." rather than requiring each as its own authored phrase (issue
-    # #29 owner review: a real generate-from-parts pilot, not fixed-phrase accumulation). `from`
-    # is explicit, not inferred from "whichever fill happens to have a gender" (owner review on
-    # PR #50 point 2), so a construction with more than one gendered fill slot stays unambiguous.
+    # construction: {slot} -> {"from": controlling slot, <gender>: surface form, ...}. Never
+    # filled by picking an item; its text follows the gender of the ``from`` slot's fill, so
+    # "{adj} {noun}." generates «Góður bíll.» / «Góð bók.» / «Gott hús.».
     agreement: dict[str, dict[str, str]] = field(default_factory=dict)
-    # A target-language line a partner might plausibly say right before this item as the
-    # response (issue #48): connect()'s recombination fallback first tried picking any
-    # already-known "discourse"-topic item as a generic bridge between two recombined
-    # situations, but that filter didn't actually guarantee a coherent turn — short
-    # function words ("og", "en", "með") passed it too, and even genuine standalone
-    # reactions aren't interchangeable across arbitrary contexts (owner review round 2 on
-    # PR #52). This field is curated, not selected: authored deliberately so that, with
-    # the instructor's own scaffolding stripped away, "<answer A> → <partner_cue> →
-    # <answer B>" still reads as one real exchange.
-    #
-    # ``partner_cue`` alone only guarantees the line is good context *for this item* — it
-    # says nothing about whether it followed naturally from whichever item A the planner
-    # happened to recombine it with (owner review round 3 on PR #52: nothing stopped
-    # pairing this cue after a completely unrelated A). ``partner_cue_after`` names the
-    # one item id this cue is written to follow; connect() only uses the pair when the
-    # chosen A actually matches, so the invariant is "A → partner_cue → B is the intended
-    # sequence," not just "partner_cue fits B." Both empty (most items) or both set
-    # together — see ``validate()``.
+    # An authored bridge: the partner line spoken after item ``partner_cue_after`` and before
+    # this item, so "A → partner_cue → this" reads as one real exchange. Set both or neither.
     partner_cue: str = ""
     partner_cue_after: str = ""
-    # The bridge as one authored scene (owner comment on #48 after a real Lesson 4: "Góðan daginn"
-    # cued as greeting *bakery staff*, then "Má ég setjast hérna?" and a cue about someone at *your
-    # table* — the target-language turns fit, the instructor-described world didn't). When the
-    # pair plays: ``partner_cue_setup`` replaces A's standalone situation, setting the shared scene
-    # and asking for A; ``partner_cue_meaning`` says what the partner just said, so a line with
-    # untaught words still has a clear communicative move (narrated only on the learner's first
-    # encounters with this bridge — see LearnerState.bridges_heard); ``partner_cue_situation``
-    # replaces B's standalone situation, continuing the same scene and naming the partner's move.
-    # All three are required with ``partner_cue`` (validate()); glossed like ``situation``.
+    # The bridge's scene, required with ``partner_cue``: ``setup`` replaces A's situation,
+    # ``meaning`` says what the partner said (narrated only on the first encounters, see
+    # LearnerState.bridges_heard), ``situation`` replaces this item's situation.
     partner_cue_setup: str = ""
     partner_cue_meaning: str = ""
     partner_cue_situation: str = ""
@@ -183,10 +119,7 @@ class Item:
         return bool(self.situations or self.situation)
 
     def situation_for(self, exposures: int) -> str | None:
-        """The situation cue to narrate for this exercise. Rotates round-robin through
-        ``situations`` (if authored) on total exposures so far, so retrieving the same item
-        again — the normal course of spaced review — doesn't always replay the identical
-        wording; falls back to the single ``situation`` string otherwise."""
+        """The situation cue for this exposure: ``situations`` round-robin, else ``situation``."""
         if self.situations:
             return self.situations[exposures % len(self.situations)]
         return self.situation
@@ -200,18 +133,11 @@ class Item:
         return self.word_count == 1 and len(_VOWEL_RUN_RE.findall(self.target)) >= 3
 
     def backward_chunks(self) -> list[str]:
-        """Progressively longer tails of the phrase, shortest first, growing from the end.
+        """Progressively longer tails of the phrase, shortest first ("vel" / "svo vel" /
+        "Gjörðu svo vel"), or the authored ``chunks``.
 
-        Authors can override with ``chunks`` for a word whose boundaries are actually
-        verified. Otherwise, multi-word phrases split on words — a real, pronounceable unit
-        ("vel" / "svo vel" / "Gjörðu svo vel") — but a single long word gets no automatic
-        sub-word split (issue #34 point 7): guessing a syllable boundary from spelling alone
-        risks both an outright wrong boundary (Icelandic has consonant clusters and gemination
-        this project has no verified way to reason about) and a correct boundary still coming
-        out mispronounced, since a fragment spoken by TTS in isolation has no context that
-        it's part of a longer word. ``is_hard()`` still flags a long single word for extra
-        practice; ``Builder.intro()`` gives it slow whole-word repetition instead of a
-        backward build when this returns just the one, unsplit chunk.
+        Splits on words only. A single word is never cut into syllables: a guessed boundary
+        can be wrong, and TTS mispronounces fragments out of context.
         """
         if self.chunks:
             return list(self.chunks)
@@ -235,10 +161,9 @@ class DialogueTurn:
     partner_meaning: str | None = None
     opener: str | None = None  # partner line spoken *before* the learner's turn
     opener_meaning: str | None = None
-    # when ``expect`` is a construction: slot -> item id the cue names (issue #48), so the
-    # learner generates e.g. «Það kostar fimm þúsund krónur.» from known parts inside a real
-    # exchange — the dialogue counterpart of Item.situation_fill (#57). The fills count as
-    # required items, so the dialogue waits until they are learned.
+    # when ``expect`` is a construction: slot -> item id for every slot, so the learner
+    # generates e.g. «Það kostar fimm þúsund krónur.» mid-exchange. The fills count as
+    # required items.
     expect_fill: dict[str, str] = field(default_factory=dict)
 
 
@@ -266,37 +191,21 @@ class Dialogue:
 class Note:
     """A short aside in the learner's language, spoken by the instructor.
 
-    Notes are passive content, so the planner rations them (a couple per lesson)
-    and prefers to place one right after an exercise on one of its ``items``.
-
-    ``milestone`` marks an instructional note that names a grammatical pattern
-    once the learner has met all of ``items`` — as opposed to an optional
-    cultural aside. The planner never offers a milestone note as generic
-    filler and never skips it once its items are all met (see
-    ``Planner._eligible_milestone``); a plain aside can be either.
-
-    Wrap a target-language phrase mentioned inside ``text``/``text_ja`` in
-    ``«...»`` to have it actually spoken by the target-language voice
-    instead of read aloud as instructor-language text (see
-    ``NOTE_TARGET_RE`` and ``Builder._speak_note_text``).
+    Asides are rationed and placed right after an exercise on one of ``items``.
+    A ``milestone`` note names a grammatical pattern: it fires as soon as every one of
+    ``items`` has been met, is never used as filler, and is followed by discrimination
+    practice. ``«...»`` spans in ``text`` are spoken by the target-language voice.
     """
 
     id: str
     text: str
-    items: list[str] = field(default_factory=list)  # related item ids
+    items: list[str] = field(default_factory=list)  # related item ids; they trigger the note
     topics: list[str] = field(default_factory=list)
     milestone: bool = False
-    # Extra items a milestone's discrimination practice (Planner.do_discriminate) may
-    # reach into once they're known, on top of `items` — never required for the milestone
-    # itself to fire (issue #29, owner review: noticing a grammatical contrast is not the
-    # same as being asked to apply it to new vocabulary; gating firing on these too would
-    # make the milestone wait on the very transfer material it exists to introduce).
+    # items a milestone's discrimination practice may use once known; never needed to fire
     transfer_items: list[str] = field(default_factory=list)
-    # Items the note *recommends the learner say* (issue #66), as opposed to ``items``, which
-    # are only what the note is related to (and trigger it). The note may not play until each
-    # is learned or was introduced earlier in the same lesson: «Saying "ég er að læra
-    # íslensku"…» before that pattern is taught left the learner behind. Mere illustrations
-    # («tölva», «Vínbúðin») need no entry here.
+    # items the note recommends the learner say: it waits until each is learned or was
+    # introduced earlier in the lesson. Mere illustrations need no entry.
     requires: list[str] = field(default_factory=list)
 
 
@@ -325,12 +234,8 @@ class Curriculum:
         return [i for i in self.items if tag in i.tags]
 
     def resolve_slots(self, construction: Item, fills: dict[str, Item]) -> tuple[str, str]:
-        """Return (target, meaning) with every slot filled from ``fills``.
-
-        Agreement placeholders (``construction.agreement``) resolve first, from the gender of
-        whatever fills their named ``from`` slot — so the construction's own wording, not just
-        which item it names, tracks the noun that was picked.
-        """
+        """Return (target, meaning) with every slot filled from ``fills``; agreement
+        placeholders resolve first, from the gender of their ``from`` slot's fill."""
         target = construction.target
         meaning = construction.meaning
         for slot, rule in construction.agreement.items():
@@ -338,8 +243,6 @@ class Curriculum:
             target = target.replace("{" + slot + "}", rule[gender])
         for slot, item in fills.items():
             target = target.replace("{" + slot + "}", item.target.rstrip("."))
-            # inside a sentence, a fill's gloss drops its isolated-recall disambiguator ("English
-            # (the language)" → "English") when an ``in_sentence`` form is authored (issue #29 audit)
             meaning = meaning.replace("{" + slot + "}", item.meaning_forms.get("in_sentence", item.meaning).rstrip("."))
             meaning = _FORM_SLOT_RE.sub(
                 lambda m: item.meaning_forms.get(m.group(2), item.meaning).rstrip(".") if m.group(1) == slot else m.group(0), meaning
@@ -347,7 +250,7 @@ class Curriculum:
         return target, meaning
 
     def situation_fills(self, construction: Item) -> dict[str, Item]:
-        """The fills a construction's authored situation is bound to (issue #57), by slot."""
+        """The fills a construction's authored situation is bound to, by slot."""
         return {slot: self.by_id[ref] for slot, ref in construction.situation_fill.items()}
 
     def example_fill(self, construction: Item) -> dict[str, Item]:
@@ -532,9 +435,7 @@ def validate(cur: Curriculum) -> None:
         for ref in n.items + n.transfer_items + n.requires:
             if ref not in ids:
                 raise CurriculumError(f"note {n.id!r} references unknown item {ref!r}")
-        # A count-only check would pass malformed markup like "»foo«" (one of each, wrong
-        # order) or "«a» «b" (one real pair plus a stray, unpaired open) — actually run the
-        # matching regex and check nothing with a « or » is left unaccounted for.
+        # strip matched pairs; any « or » left over is malformed ("»foo«", "«a» «b")
         unmatched = NOTE_TARGET_RE.sub("", n.text)
         if "«" in unmatched or "»" in unmatched:
             raise CurriculumError(f"note {n.id!r} has malformed or unmatched «» markers")
@@ -558,9 +459,7 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"construction {it.id!r} has no {{slot}} in its target")
             for s in slots:
                 if s in it.agreement:
-                    # an agreement placeholder is never filled by picking an item (see
-                    # Item.agreement), so it's exempt from the [slots]/meaning checks below —
-                    # instead, its controlling slot must actually be able to drive it.
+                    # not a picked fill: its controlling slot must be able to drive it instead
                     rule = it.agreement[s]
                     controller = rule.get("from")
                     if not controller:
@@ -607,6 +506,10 @@ def validate(cur: Curriculum) -> None:
             raise CurriculumError(f"transform {it.id!r} needs at least two examples")
     for d in cur.dialogues:
         for t in d.turns:
+            if not t.expect and not t.expect_text:
+                raise CurriculumError(f"dialogue {d.id!r}: each turn needs expect or expect_text")
+            if t.expect_text and not t.expect_meaning:
+                raise CurriculumError(f"dialogue {d.id!r}: expect_text needs expect_meaning")
             if t.expect and t.expect not in ids:
                 raise CurriculumError(f"dialogue {d.id!r} expects unknown item {t.expect!r}")
             c = cur.by_id.get(t.expect) if t.expect else None
@@ -619,41 +522,26 @@ def validate(cur: Curriculum) -> None:
                     if ref not in ids or c.slots[s] not in cur.by_id[ref].tags:
                         raise CurriculumError(f"dialogue {d.id!r}: expect_fill {ref!r} is not a valid fill for {c.id!r}'s slot {s!r}")
             if c is not None and c.kind == "construction":
-                # every slot bound, so every spoken part is a required item (owner review on PR #61:
-                # an unbound slot fell back to the worked example, which nothing required — a
-                # dialogue could become eligible and speak a part never durably learned)
+                # every spoken part must be a required item, so every slot must be bound
                 unbound = sorted(set(c.slots) - set(t.expect_fill))
                 if unbound:
                     raise CurriculumError(f"dialogue {d.id!r}: a turn expecting construction {c.id!r} must bind every slot in expect_fill — unbound {unbound}")
         for r in d.requires:
             if r not in ids:
                 raise CurriculumError(f"dialogue {d.id!r} requires unknown item {r!r}")
-            if not t.expect and not t.expect_text:
-                raise CurriculumError(f"dialogue {d.id!r}: each turn needs expect or expect_text")
-            if t.expect_text and not t.expect_meaning:
-                raise CurriculumError(f"dialogue {d.id!r}: expect_text needs expect_meaning")
 
 
-# Proper names spoken in dialogues that don't need a teaching item — see
-# dialogue_sequencing_report and its hard-gating cousin, the
-# test_dialogue_lines_stay_within_taught_vocabulary test.
+# proper names spoken in dialogues that need no teaching item
 _DIALOGUE_PROPER_NAMES = {"sóley"}
 _DIALOGUE_WORD_RE = re.compile(r"[^\W\d]+", re.UNICODE)
 
 
 def dialogue_sequencing_report(cur: Curriculum, gap_threshold: int = 100) -> list[dict]:
-    """Diagnostic only (born from issue #25, now tracked under #29) — this never gates
-    dialogue eligibility, unlike ``Dialogue.required_items``. It flags words spoken in a
-    dialogue's ``opener``/``partner``
-    lines whose earliest teaching item sits far past the items the dialogue already requires:
-    a signal the curriculum may be sequencing that concept too late, or never introducing it as
-    reusable standalone vocabulary at all (buried inside a one-off fixed phrase instead), not
-    something to patch by tacking on more prerequisites. A repeat offender across many dialogues
-    is exactly the "high-value concept, introduced too late" case worth fixing at the source.
+    """Words in a dialogue's partner/opener lines whose earliest teaching item sits more
+    than ``gap_threshold`` items past what the dialogue requires, worst first.
 
-    Returns one finding per (dialogue, word) pair whose gap exceeds ``gap_threshold``, sorted
-    worst-first. An empty list is not a guarantee every word is well-sequenced — only that
-    none crossed the threshold.
+    A diagnostic for authors (the concept may be taught too late, or only inside a fixed
+    phrase), never an eligibility gate.
     """
     word_to_items: dict[str, list[tuple[int, str]]] = {}
     for it in cur.items:
