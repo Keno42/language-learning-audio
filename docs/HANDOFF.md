@@ -3183,6 +3183,35 @@ word)"). Checked first that stripping never makes two fills of one slot read the
 without a fill-borne parenthetical in both languages, except the audited informative ones;
 isolated recall keeps its disambiguator. 160 tests, all passing.
 
+## Session 37: issue #29 — «Eigðu …» transfers godur_gender to a new frame
+
+The owner's real Lesson 3 comment on #29: "grammar is noticed, but not yet transferred".
+`godur_gender` names the accusative agreement in «Góðan daginn / Góða nótt / Gott kvöld», but
+«Eigðu góðan dag» stayed one more fixed string (#29 audit, suggested order #2).
+
+**Content.** Three accusative fills: `dag_acc`, `nott_acc`, `kvold_acc`. These are the nouns
+the note already names with their genders (owner review on PR #50: tell the learner a noun's
+gender before applying agreement to it). Plus `eigdu_godur`: «Eigðu {adj} {time}.» with
+agreement góðan / góða / gott, so «Eigðu góða nótt.» and «Eigðu gott kvöld.» are generated
+rather than authored. Its situation is bound to `kvold_acc` (#57), and it is `godur_gender`'s
+transfer item. It is gated on the note's three greetings plus the worked-example fill.
+
+**Two placement lessons, both visible in simulation.** (1) Gating the construction on all
+three fills kept the arc from reaching the pattern until every word was durable: lessons 4–9
+drilled «dag»/«nótt» as isolated words. (2) Even gated only on the example fill, fills placed
+right after the greetings (order ~31) waited on those greetings becoming durable (#27). The
+block now sits at the end of module 02 (order ~117). A simulated course introduces «dag» and
+«nótt» and the pattern in the same lesson (L23), generating «Eigðu góða nótt.» at once. «kvöld»
+arrives later as transfer (L28 → «Eigðu gott kvöld.»).
+
+**Test changed:** `test_godur_gender_nominative_is_explicit_about_case_not_just_gender` asserted
+`godur_gender` had no transfer items at all, as a proxy for "never pair accusative with
+nominative". It now checks that invariant directly: every transfer item's agreement forms must
+be exactly góðan / góða / gott. New test: both languages resolve correctly, the note lists the
+transfer, and a learner who knows everything before `dag_acc` gets fills plus pattern plus a
+non-example sentence in one lesson. 160 tests, all passing. Throughput unchanged, no stranded
+items.
+
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
 Three new issues arrived together, all written by the owner as substantial

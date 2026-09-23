@@ -1083,3 +1083,65 @@ requires = ["talar_thu", "ensku", "eg_tala_sma_islensku", "gaetirdu_talad_haegar
   expect_text = "Ég skil. Takk."
   expect_meaning = "I understand. Thanks."
   expect_meaning_ja = "わかりました。ありがとう。"
+
+# Issue #29 (owner comment on a real Lesson 3: "grammar is noticed, but not yet transferred"):
+# «Eigðu góðan dag» was one more fixed string to memorise, while godur_gender names exactly the
+# accusative agreement it uses. These three accusative fills are the nouns that note already
+# names with their genders (dagur masc, nótt fem, kvöld neut — owner review on PR #50: a learner
+# is told a noun's gender before applying agreement to it), and eigdu_godur makes the wish
+# productive: «Eigðu góða nótt» and «Eigðu gott kvöld» are never authored as items.
+# Placed here, not next to eigdu_godan_dag in module 01: the construction waits (#27) until those
+# greetings are durable, so fills introduced right after them were drilled as isolated words for
+# several lessons before the pattern could arrive.
+[[items]]
+id = "dag_acc"
+kind = "vocab"
+target = "dag"
+meaning = "day"
+meaning_ja = "一日"
+difficulty = 1
+tags = ["acc_wish_time"]
+gender = "masc"
+topics = ["greetings"]
+
+[[items]]
+id = "nott_acc"
+kind = "vocab"
+target = "nótt"
+meaning = "night"
+meaning_ja = "夜"
+difficulty = 1
+tags = ["acc_wish_time"]
+gender = "fem"
+topics = ["greetings"]
+
+[[items]]
+id = "kvold_acc"
+kind = "vocab"
+target = "kvöld"
+meaning = "evening"
+meaning_ja = "夕べ"
+difficulty = 1
+tags = ["acc_wish_time"]
+gender = "neut"
+topics = ["greetings"]
+
+[[items]]
+id = "eigdu_godur"
+kind = "construction"
+target = "Eigðu {adj} {time}."
+meaning = "Have a good {time}."
+meaning_ja = "良い{time}を。"
+difficulty = 3
+topics = ["greetings", "grammar"]
+slots = { time = "acc_wish_time" }
+agreement = { adj = { from = "time", masc = "góðan", fem = "góða", neut = "gott" } }
+example = { time = "dag_acc" }
+# gated on godur_gender's three greetings (so the gender note fires first) and the worked
+# example's fill only — gating on every fill kept the arc from reaching the pattern until all
+# three words were durable, i.e. several lessons of isolated «dag»/«nótt»/«kvöld» drills
+prereqs = ["eigdu_godan_dag", "godan_daginn", "goda_nott", "gott_kvold", "dag_acc"]
+pronunciation_notes = "the same accusative endings as «Góðan daginn / Góða nótt / Gott kvöld» — see the godur_gender note"
+situation = "Your friend is leaving the café at six to meet her family. Wish her a good evening."
+situation_ja = "友達が家族に会うため6時にカフェを出ます。良い夕べをと言ってください。"
+situation_fill = { time = "kvold_acc" }
