@@ -224,6 +224,14 @@ topics = ["discourse"]
 prereqs = ["eg_held_thad"]
 situation = "She asks if it'll rain. Say you don't think so."
 situation_ja = "雨が降るか聞かれました。そうは思わないと言ってください。"
+partner_cue = "Já. Heldurðu að það rigni á morgun?"
+partner_cue_after = "thad_er_svo_kalt"
+partner_cue_setup = "You step out into a freezing wind with a friend. Complain that it's so cold."
+partner_cue_setup_ja = "友達と外に出ると、凍えるような風です。すごく寒いとぼやいてください。"
+partner_cue_meaning = "Yes. Do you think it'll rain tomorrow?"
+partner_cue_meaning_ja = "ほんとに。明日は雨が降ると思う？"
+partner_cue_situation = "She agreed and asked if you think it'll rain tomorrow. Say you don't think so."
+partner_cue_situation_ja = "同意して、明日は雨だと思うか聞いてきました。そうは思わないと言ってください。"
 
 [[items]]
 id = "thad_er_svo_kalt"
@@ -293,6 +301,14 @@ topics = ["weather", "feelings"]
 chunks = ["rokið", "ekki rokið", "þoli ekki rokið", "Ég þoli ekki rokið."]
 situation = "The wind has knocked your hat off for the third time. Say you can't stand the wind."
 situation_ja = "帽子が三度も飛ばされました。風には耐えられないと言ってください。"
+partner_cue = "Það verður mikið rok."
+partner_cue_after = "hvernig_verdur_vedrid_a_morgun"
+partner_cue_setup = "You're planning a hike with a friend. Ask what the weather will be tomorrow."
+partner_cue_setup_ja = "友達とハイキングの計画を立てています。明日の天気はどうか聞いてください。"
+partner_cue_meaning = "It's going to be very windy."
+partner_cue_meaning_ja = "すごく風が強くなるよ。"
+partner_cue_situation = "She says it'll be very windy. Say you can't stand the wind."
+partner_cue_situation_ja = "風がとても強くなるそうです。風は苦手だと言ってください。"
 
 [[items]]
 id = "mer_finnst_snjorinn_fallegur"
@@ -305,6 +321,14 @@ topics = ["weather"]
 chunks = ["fallegur", "snjórinn fallegur", "Mér finnst snjórinn fallegur."]
 situation = "Your neighbour complains about the snow. Say you think it's beautiful."
 situation_ja = "近所の人が雪に文句を言っています。雪はきれいだと思うと言ってください。"
+partner_cue = "Æ nei, ég þoli ekki snjó."
+partner_cue_after = "thad_snjoar"
+partner_cue_setup = "You look out of the window and see flakes. Tell your friend it's snowing."
+partner_cue_setup_ja = "窓の外を見ると雪が舞っています。友達に雪が降っていると言ってください。"
+partner_cue_meaning = "Oh no, I can't stand snow."
+partner_cue_meaning_ja = "ああ、雪は苦手なんだ。"
+partner_cue_situation = "She groaned that she can't stand snow. Say you think the snow is beautiful."
+partner_cue_situation_ja = "雪は苦手だとぼやいています。雪はきれいだと思うと言ってください。"
 
 [[items]]
 id = "thad_er_bara_svona"
@@ -361,6 +385,14 @@ difficulty = 3
 topics = ["weather"]
 situation = "It starts to pour. Ask your friend if she has an umbrella."
 situation_ja = "土砂降りになりました。友達に傘を持っているか聞いてください。"
+partner_cue = "Það rignir mikið."
+partner_cue_after = "hvernig_er_vedrid"
+partner_cue_setup = "Your friend just came in from outside, and you're about to go out. Ask how the weather is."
+partner_cue_setup_ja = "友達が外から戻ってきました。あなたはこれから出かけます。天気はどうか聞いてください。"
+partner_cue_meaning = "It's raining a lot."
+partner_cue_meaning_ja = "すごく雨が降ってるよ。"
+partner_cue_situation = "She says it's pouring. Ask if she has an umbrella."
+partner_cue_situation_ja = "土砂降りだそうです。傘を持っているか聞いてください。"
 
 [[items]]
 id = "nordurljosin"

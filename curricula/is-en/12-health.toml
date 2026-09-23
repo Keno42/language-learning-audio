@@ -236,6 +236,14 @@ topics = ["health", "emergencies"]
 prereqs = ["eg_tharf"]
 situation = "The fever won't go down. Tell reception you need a doctor."
 situation_ja = "熱が下がりません。受付に医者が必要だと伝えてください。"
+partner_cue = "Viltu fara til læknis?"
+partner_cue_after = "mer_lidur_illa"
+partner_cue_setup = "You've gone pale at the dinner table. Tell your friend you feel unwell."
+partner_cue_setup_ja = "夕食の席で顔色が悪くなりました。友達に気分が悪いと伝えてください。"
+partner_cue_meaning = "Do you want to see a doctor?"
+partner_cue_meaning_ja = "お医者さんに行く？"
+partner_cue_situation = "She asked if you want to see a doctor. Say you need one."
+partner_cue_situation_ja = "医者に行くか聞かれました。医者が必要だと言ってください。"
 
 [[items]]
 id = "hvar_er_naesta_apotek"
@@ -399,6 +407,14 @@ difficulty = 3
 topics = ["emergencies", "directions"]
 situation = "You need a new passport. Ask where the embassy is."
 situation_ja = "新しいパスポートが必要です。大使館はどこか聞いてください。"
+partner_cue = "Þú þarft að fara í sendiráðið."
+partner_cue_after = "eg_tyndi_vegabrefinu"
+partner_cue_setup = "At the police station. Tell the officer you lost your passport."
+partner_cue_setup_ja = "警察署で。警察官にパスポートをなくしたと言ってください。"
+partner_cue_meaning = "You need to go to the embassy."
+partner_cue_meaning_ja = "大使館に行く必要があります。"
+partner_cue_situation = "The officer said you need to go to the embassy. Ask where the embassy is."
+partner_cue_situation_ja = "大使館に行く必要があると言われました。大使館はどこか聞いてください。"
 
 [[items]]
 id = "er_allt_i_lagi"
@@ -423,6 +439,14 @@ topics = ["emergencies", "health"]
 prereqs = ["er_allt_i_lagi"]
 situation = "You slipped but nothing's broken. Tell the worried passer-by you're OK."
 situation_ja = "滑りましたが、けがはありません。心配する通行人に大丈夫だと言ってください。"
+partner_cue = "Æ! Er allt í lagi?"
+partner_cue_after = "eg_datt"
+partner_cue_setup = "You slipped on the ice on a walk with a friend. Tell her you fell."
+partner_cue_setup_ja = "友達と散歩中、氷で滑りました。転んだと言ってください。"
+partner_cue_meaning = "Oh! Are you all right?"
+partner_cue_meaning_ja = "わっ！大丈夫？"
+partner_cue_situation = "She asked if you're all right. Nothing's broken: tell her you're OK."
+partner_cue_situation_ja = "大丈夫かと聞かれました。どこも折れていません。大丈夫だと伝えてください。"
 
 [[items]]
 id = "varlega"

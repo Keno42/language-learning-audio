@@ -217,6 +217,14 @@ topics = ["family"]
 prereqs = ["systir_min"]
 situation = "Say you have two sisters."
 situation_ja = "姉が二人いると言ってください。"
+partner_cue = "Já, ég á einn bróður. En þú?"
+partner_cue_after = "attu_systkini"
+partner_cue_setup = "You're getting to know Anna. Ask if she has siblings."
+partner_cue_setup_ja = "アンナと親しくなってきました。兄弟姉妹がいるか聞いてください。"
+partner_cue_meaning = "Yes, I have one brother. And you?"
+partner_cue_meaning_ja = "ええ、兄弟が一人います。あなたは？"
+partner_cue_situation = "She has one brother and asked about yours. Say you have two sisters."
+partner_cue_situation_ja = "兄弟が一人いて、あなたのことを聞いてきました。姉妹が二人いると言ってください。"
 
 [[items]]
 id = "eg_a_engin_born"
@@ -229,6 +237,14 @@ topics = ["family"]
 prereqs = ["eg_a_tvo_born"]
 situation = "Someone asks about your children. Say you have none."
 situation_ja = "子どもについて聞かれました。いないと答えてください。"
+partner_cue = "Hún er fimm ára. En þú, áttu börn?"
+partner_cue_after = "hvad_er_hun_gomul"
+partner_cue_setup = "Anna shows you a photo of her daughter. Ask how old she is."
+partner_cue_setup_ja = "アンナが娘さんの写真を見せてくれました。何歳か聞いてください。"
+partner_cue_meaning = "She's five. And you, do you have children?"
+partner_cue_meaning_ja = "5歳です。あなたは、お子さんは？"
+partner_cue_situation = "She's five, and Anna asked if you have children. Say you have none."
+partner_cue_situation_ja = "5歳だそうで、あなたに子どもがいるか聞かれました。いないと言ってください。"
 
 [[items]]
 id = "attu_born"
@@ -253,6 +269,14 @@ topics = ["family", "social"]
 prereqs = ["hvad_heitir_thu"]
 situation = "Anna mentions her daughter. Ask what her name is."
 situation_ja = "アンナが娘の話をしました。名前を聞いてください。"
+partner_cue = "Já, ég á eina dóttur."
+partner_cue_after = "attu_born"
+partner_cue_setup = "Over coffee, ask your new friend whether she has children."
+partner_cue_setup_ja = "コーヒーを飲みながら、新しい友達に子どもがいるか聞いてください。"
+partner_cue_meaning = "Yes, I have one daughter."
+partner_cue_meaning_ja = "ええ、娘が一人います。"
+partner_cue_situation = "She has a daughter. Ask what her name is."
+partner_cue_situation_ja = "娘さんがいるそうです。名前を聞いてください。"
 
 [[items]]
 id = "hvad_heitir_hann"
@@ -277,6 +301,14 @@ topics = ["family"]
 prereqs = ["hvad_ertu_gomul"]
 situation = "Anna shows you a photo of her daughter. Ask how old she is."
 situation_ja = "アンナが娘の写真を見せてくれました。何歳か聞いてください。"
+partner_cue = "Hún heitir Sóley."
+partner_cue_after = "hvad_heitir_hun"
+partner_cue_setup = "Anna mentions her daughter. Ask what her name is."
+partner_cue_setup_ja = "アンナが娘さんの話をしました。名前を聞いてください。"
+partner_cue_meaning = "Her name is Sóley."
+partner_cue_meaning_ja = "ソウレイといいます。"
+partner_cue_situation = "Her daughter is called Sóley. Ask how old she is."
+partner_cue_situation_ja = "娘さんの名前はソウレイだそうです。何歳か聞いてください。"
 
 [[items]]
 id = "hun_er_fimm_ara"

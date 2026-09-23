@@ -130,6 +130,14 @@ topics = ["transport", "money"]
 prereqs = ["hvad_kostar_thetta", "strætó"]
 situation = "Before boarding, ask how much the bus costs."
 situation_ja = "乗る前に、バス代がいくらか聞いてください。"
+partner_cue = "Eftir tíu mínútur."
+partner_cue_after = "hvenaer_fer_straeto"
+partner_cue_setup = "At the bus stop there's no timetable. Ask the woman waiting next to you when the bus leaves."
+partner_cue_setup_ja = "バス停に時刻表がありません。隣で待っている女性にバスはいつ出るか聞いてください。"
+partner_cue_meaning = "In ten minutes."
+partner_cue_meaning_ja = "10分後です。"
+partner_cue_situation = "It comes in ten minutes. Ask her how much the bus costs."
+partner_cue_situation_ja = "10分後に来るそうです。バス代はいくらか聞いてください。"
 
 [[items]]
 id = "get_eg_fengid_leigubil"
@@ -176,6 +184,14 @@ topics = ["transport", "time"]
 chunks = ["tíma", "langan tíma", "þetta langan tíma", "Hvað tekur þetta langan tíma?"]
 situation = "You're in a hurry. Ask the driver how long it takes."
 situation_ja = "急いでいます。運転手にどのくらいかかるか聞いてください。"
+partner_cue = "Ekkert mál."
+partner_cue_after = "a_flugvollinn_takk"
+partner_cue_setup = "You get into a taxi in a hurry. Tell the driver: to the airport, please."
+partner_cue_setup_ja = "急いでタクシーに乗りました。運転手に空港までと言ってください。"
+partner_cue_meaning = "No problem."
+partner_cue_meaning_ja = "かしこまりました。"
+partner_cue_situation = "He pulled away. Ask him how long it takes."
+partner_cue_situation_ja = "車が走り出しました。どのくらいかかるか聞いてください。"
 
 [[items]]
 id = "geturdu_stoppad_herna"
@@ -255,6 +271,14 @@ difficulty = 2
 topics = ["transport", "accommodation"]
 situation = "At the car rental desk. Say you have a booking."
 situation_ja = "レンタカーのカウンターです。予約があると言ってください。"
+partner_cue = "Ertu með bókun?"
+partner_cue_after = "eg_vil_leigja_bil"
+partner_cue_setup = "You walk up to the car rental counter. Say you want to rent a car."
+partner_cue_setup_ja = "レンタカーのカウンターに来ました。車を借りたいと言ってください。"
+partner_cue_meaning = "Do you have a booking?"
+partner_cue_meaning_ja = "ご予約はありますか？"
+partner_cue_situation = "The clerk asked if you have a booking. Say you do."
+partner_cue_situation_ja = "予約があるか聞かれました。予約していると言ってください。"
 
 [[items]]
 id = "eg_er_a_bil"
