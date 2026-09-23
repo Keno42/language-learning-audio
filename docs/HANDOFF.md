@@ -3164,6 +3164,34 @@ Cloze practice itself stays (the issue's non-goal).
 meaning narrated before the partial; and a course-wide guard that every cloze-eligible phrase's
 prompt contains its meaning (both fail on the pre-fix code). 148 tests, all passing.
 
+## Session 40: issue #66 — notes recommended expressions before they were taught
+
+A real Lesson 5 played the «enska» note ("Saying «ég er að læra íslensku» usually makes
+them switch back"), triggered by `talar_thu`, before `eg_er_ad_laera` had taught that
+expression. A note's `items` only say what it is related to, and nothing gated what it
+recommends.
+
+**Fix.** `Note.requires` lists the items a note recommends the learner say. A note (ordinary
+or milestone) is eligible only when each is learned or was introduced earlier in the same
+lesson (`Planner._note_available`); validation rejects unknown ids. While a note waits on
+its requirements it still counts as unheard, so it does not unlock repeats of heard asides.
+An existing test caught a first cut that allowed repeats there.
+
+**Audit of all non-milestone notes' «…» spans.** Four recommend an expression and got
+`requires`:
+
+- `enska` → `eg_er_ad_laera`
+- `takk_fyrir_matinn`: triggerable from «Verði þér að góðu» (order 27), ~680 items before
+  «Takk fyrir matinn»
+- `kurteisi`: «hæ», «gjörðu svo vel», «takk»
+- `tolur`: "for the clock, use the neuter «eitt / tvö / þrjú / fjögur»"
+
+The rest only illustrate («tölva», «Vínbúðin», «tölt») or explain their own trigger item,
+and stay ungated, per the issue's non-goal. Measured on 40 simulated lessons: 10 premature
+recommendations before (kurteisi L2, takk_fyrir_matinn L4, tolur L13 …), 0 after. Test:
+the real `enska` ordering, via `_pick_note` and a simulated course, plus validation.
+160 tests, all passing.
+
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
 Three new issues arrived together, all written by the owner as substantial

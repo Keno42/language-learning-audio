@@ -289,6 +289,12 @@ class Note:
     # same as being asked to apply it to new vocabulary; gating firing on these too would
     # make the milestone wait on the very transfer material it exists to introduce).
     transfer_items: list[str] = field(default_factory=list)
+    # Items the note *recommends the learner say* (issue #66), as opposed to ``items``, which
+    # are only what the note is related to (and trigger it). The note may not play until each
+    # is learned or was introduced earlier in the same lesson: «Saying "ég er að læra
+    # íslensku"…» before that pattern is taught left the learner behind. Mere illustrations
+    # («tölva», «Vínbúðin») need no entry here.
+    requires: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -518,7 +524,7 @@ def validate(cur: Curriculum) -> None:
         if n.id in seen_notes:
             raise CurriculumError(f"duplicate note id {n.id!r}")
         seen_notes.add(n.id)
-        for ref in n.items:
+        for ref in n.items + n.transfer_items + n.requires:
             if ref not in ids:
                 raise CurriculumError(f"note {n.id!r} references unknown item {ref!r}")
         # A count-only check would pass malformed markup like "»foo«" (one of each, wrong

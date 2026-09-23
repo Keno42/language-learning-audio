@@ -123,6 +123,12 @@ to two or three sentences, roughly 15–20 seconds of speech; the best ones
 contrast the target culture with the learner's own. Notes with no `items`
 are only used as filler.
 
+`items` says what a note is *related to* (and triggers it). When a note recommends
+an expression for the learner to *say* ("Saying «ég er að læra íslensku» usually makes
+them switch back"), list the item(s) that teach it in `requires`. The note will not
+play until each one is learned or introduced earlier in the same lesson. A word the
+note only mentions or illustrates («tölva», «Vínbúðin») needs no entry.
+
 Wrap any target-language word or phrase mentioned inside `text`/`text_ja` in
 `«...»` so it is actually spoken by the target-language voice instead of
 read aloud by the instructor: `In «Góðan daginn», «góðan» is…`. Validation

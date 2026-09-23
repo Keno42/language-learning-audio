@@ -1543,6 +1543,45 @@ class CurriculumTests(unittest.TestCase):
         self.assertGreater(len(heard), 4)
         self.assertEqual(sum(learner.notes_heard.values()), len(heard))
 
+    def test_note_waits_for_the_expression_it_recommends(self):
+        """Issue #66, the real Lesson 5 case: the «enska» note advises "Saying «ég er að læra
+        íslensku» usually makes them switch back" and is triggered by ``talar_thu`` — which comes
+        before ``eg_er_ad_laera`` teaches that expression. ``Note.requires`` holds it back until
+        each required item is learned or introduced earlier in the same lesson; a note that only
+        *illustrates* a word («tölva» in «islenska») needs no requirement."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertEqual(cur.note_by_id["enska"].requires, ["eg_er_ad_laera"])
+        self.assertFalse(cur.note_by_id["islenska"].requires)
+        learner = LearnerState("is", "en", "A1")
+        for i in ("talar_thu", "eg_tala_sma_islensku", "ensku", "islensku"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="meaning")
+        for seed in range(6):
+            planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=seed), today=TODAY)
+            self.assertNotEqual(getattr(planner._pick_note(["talar_thu"]), "id", None), "enska")
+            planner.builder.in_lesson.add("eg_er_ad_laera")  # introduced earlier this lesson
+            self.assertEqual(planner._pick_note(["talar_thu"]).id, "enska")
+        learner.items["eg_er_ad_laera"] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="meaning")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=0), today=TODAY)
+        self.assertEqual(planner._pick_note(["talar_thu"]).id, "enska")
+
+        # across a simulated course, «enska» never plays before eg_er_ad_laera is available
+        ls = LearnerState("is", "en", "A1")
+        day = TODAY
+        for _ in range(20):
+            sc = Planner(cur, ls, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20), today=day).build()
+            labels = [e.label for e in sc.exercises]
+            if "note: enska" in labels:
+                intro = next((k for k, e in enumerate(sc.exercises) if e.kind == "intro" and "eg_er_ad_laera" in e.item_ids), None)
+                self.assertTrue(ls.knows("eg_er_ad_laera") or (intro is not None and intro < labels.index("note: enska")), labels)
+            apply_to_learner(sc, ls, day)
+            day += timedelta(days=1)
+
+        bad = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": "a", "kind": "phrase", "target": "A.", "meaning": "A."}],
+               "notes": [{"id": "n", "text": "Say «A».", "items": ["a"], "requires": ["nope"]}]}
+        with self.assertRaisesRegex(CurriculumError, "unknown item 'nope'"):
+            curriculum_from_dict(bad)
+
     def test_milestone_note_never_fires_before_all_its_items_are_known(self):
         """Every milestone note (issue #29 pilot 2's góðan/góða/gott gender-agreement note,
         and issue #34 point 3's afsakið/fyrirgefðu/því miður contrast note) must never appear

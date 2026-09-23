@@ -138,6 +138,8 @@ text_ja = "«Takk fyrir síðast»、先日はどうも、は一緒に夜を過�
 
 [[notes]]
 id = "takk_fyrir_matinn"
+# issue #66: recommends «Takk fyrir matinn» after meals; verdi_ther_ad_godu (order 27) could trigger it ~680 items before that phrase is taught
+requires = ["takk_fyrir_matinn"]
 items = ["takk_fyrir_matinn", "verdi_ther_ad_godu"]
 topics = ["food"]
 text = "«Takk fyrir matinn» after every meal works like 'gochisōsama'. Children learn it early, and the cook answers «verði þér að góðu»."
@@ -257,6 +259,8 @@ text_ja = "アイスランド語はほとんど変化していないので、小
 
 [[notes]]
 id = "enska"
+# issue #66: recommends saying «ég er að læra íslensku», taught by eg_er_ad_laera
+requires = ["eg_er_ad_laera"]
 items = ["talar_thu", "eg_tala_sma_islensku"]
 topics = ["clarifying"]
 text = "Almost everyone under sixty speaks English well, and many switch the moment they hear an accent. Saying «ég er að læra íslensku» usually makes them switch back: people are pleased that anyone tries."
@@ -264,6 +268,8 @@ text_ja = "60歳以下のほぼ全員が英語を上手に話し、訛りを聞�
 
 [[notes]]
 id = "tolur"
+# issue #66: tells the learner to use the neuter «eitt / tvö / þrjú / fjögur» for the clock
+requires = ["eitt", "tvo", "thrju", "fjogur"]
 items = ["einn", "tveir", "klukkan_er"]
 topics = ["numbers"]
 text = "The numbers one to four change with the gender of what you count: «einn», «ein», «eitt» for 'one'. Icelanders understand any form, so say the one you remember and move on. For the clock, use the neuter: «eitt», «tvö», «þrjú», «fjögur»."
@@ -285,6 +291,8 @@ text_ja = "アイスランドの子どもたちはクリスマス前の13夜、�
 
 [[notes]]
 id = "kurteisi"
+# issue #66: recommends «hæ», «gjörðu svo vel» and «takk» for politeness
+requires = ["hae", "gjordu_svo_vel", "takk"]
 items = ["hae", "nagranni_minn", "gjordu_svo_vel"]
 topics = ["greetings"]
 text = "Greetings are informal: «hæ» works with a shop assistant, a professor or a stranger, and there is no honorific language like keigo. Politeness comes from tone, from «gjörðu svo vel», and from saying «takk» a lot."
