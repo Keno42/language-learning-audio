@@ -412,7 +412,16 @@ text_ja = "«Ég vil fara heim»、«Ég verð að fara heim»、«Má ég borga
 id = "dative_subject"
 milestone = true
 items = ["eg_er_svong", "mer_er_kalt", "mer_er_heitt"]
-transfer_items = ["mer_lidur_vel", "mer_lidur_illa"]
+transfer_items = ["mer_lidur", "mer_lidur_illa"]
 topics = ["grammar", "feelings"]
 text = "«Ég er svöng» starts with «ég», but «Mér er kalt» and «Mér er heitt» start with «mér», the dative form of «ég», roughly 'to me'. Some feelings are said to happen to you: «Mér er kalt» is literally 'to me is cold'. That is a case change on the pronoun itself, not a new word. You'll meet «mér» again in «Mér líður vel» and «Mér finnst…»."
 text_ja = "«Ég er svöng» は «ég»（私は）で始まりますが、«Mér er kalt» と «Mér er heitt» は «mér» で始まります。«mér» は «ég» の与格で、「私に」に近い形です。感覚の中には「自分に起こる」ものとして言うものがあり、«Mér er kalt» は直訳すると「私に寒い」です。別の単語ではなく、同じ代名詞の格が変わっているのです。«mér» はこのあと «Mér líður vel» や «Mér finnst…» でも出てきます。"
+
+[[notes]]
+id = "mer_ther"
+milestone = true
+items = ["mer_er_kalt", "mer_lidur_illa", "hvernig_lidur_ther"]
+transfer_items = ["mer_lidur"]
+topics = ["grammar", "feelings"]
+text = "«Mér er kalt», «Mér líður illa» and «Hvernig líður þér?» all put the person who feels in the dative: «mér» for «ég», and «þér» for «þú». So «Hvernig líður þér?» asks about you, and the answer starts with «Mér líður…»."
+text_ja = "«Mér er kalt»、«Mér líður illa»、«Hvernig líður þér?» では、どれも感じる人が与格になっています。«ég» なら «mér»、«þú» なら «þér» です。ですから «Hvernig líður þér?» はあなたのことを聞いていて、答えは «Mér líður…» で始まります。"

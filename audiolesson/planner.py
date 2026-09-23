@@ -456,7 +456,8 @@ class Planner:
             """After a milestone names a pattern, recall two of its examples back to back from
             their own situations: notice, name, discriminate. Known ``transfer_items`` come
             first, so the pattern is applied to new words rather than replaying the same
-            examples. Excludes only the item just exercised, and always completes once the
+            examples. A construction qualifies only once the fills its situation names are
+            available. Excludes only the item just exercised, and always completes once the
             milestone has played."""
             nonlocal idx, since_dialogue
             just_touched = recent[-1] if recent else None
@@ -466,7 +467,7 @@ class Planner:
             seen: set[str] = set()
             candidates: list[Item] = []
             for i in others:
-                if i in seen or i not in self.cur.by_id or not self.cur.by_id[i].has_situation:
+                if i in seen or i not in self.cur.by_id or not b.situation_usable(self.cur.by_id[i]):
                     continue
                 seen.add(i)
                 candidates.append(self.cur.by_id[i])

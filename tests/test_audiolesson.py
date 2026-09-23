@@ -1444,6 +1444,31 @@ class CurriculumTests(unittest.TestCase):
         for it in authored:
             self.assertTrue(it.has_situation and cur.by_id[it.partner_cue_after].has_situation, it.id)
 
+    def test_dative_feeling_is_a_construction_paired_with_its_question(self):
+        """Issue #29 (case): «Mér líður …» was four unrelated fixed phrases, and «Hvernig líður
+        þér?» was taught ~870 items later. The adverbs are now a pool for one construction, the
+        question sits right after it, and «Hvernig líður þér?» → «… En þér?» → «Mér líður vel.»
+        is one bridge."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        con = cur.by_id["mer_lidur"]
+        self.assertEqual({i.id for i in cur.items_with_tag("how_feel")}, {"vel", "illa", "betur", "agaetlega"})
+        self.assertFalse([i.id for i in cur.items if i.kind == "phrase" and i.target.startswith("Mér líður") and i.id != "mer_lidur_illa"],
+                         "the construction generates these; only the dialogue's «Mér líður illa.» stays a phrase")
+        self.assertLess(abs(cur.by_id["hvernig_lidur_ther"].order - con.order), 15)
+        for lang, expected in (("en", "I feel alright."), ("ja", "気分はまあまあです。")):
+            c = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            self.assertEqual(c.resolve_slots(c.by_id["mer_lidur"], {"how": c.by_id["agaetlega"]}), ("Mér líður ágætlega.", expected))
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        b.in_lesson.add("vel")
+        sc = Script(1, "L", cur.target_lang, cur.known_lang)
+        ex = b.connect(sc, [cur.by_id["hvernig_lidur_ther"], con])
+        self.assertEqual(ex.stage, "exchange")
+        self.assertEqual([s.text for s in sc.segments if s.type in ("speak", "answer")],
+                         ["Hvernig líður þér?", "Mér líður betur, takk. En þér?", "Mér líður vel."])
+        self.assertIn("mer_lidur", cur.note_by_id["mer_ther"].transfer_items)
+
     def test_partner_bridges_reach_beyond_the_first_modules(self):
         """Issue #48: with bridges only in modules 01–03, a simulated course had no partner
         exchange outside dialogues from about lesson 30 on. Modules 04–13 each author some, and
