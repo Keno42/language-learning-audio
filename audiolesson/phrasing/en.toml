@@ -15,7 +15,9 @@ build_up = "Let's build it up from the end. Repeat each part."
 slowly = "Slowly."
 natural = "And at natural speed."
 
-cloze = "Complete the sentence."
+# issue #59: the meaning comes first, so completing «Ég skil…» is a retrieval of "I don't
+# understand", not a guess at which authored phrase the course has in mind
+cloze = "Complete the sentence to say: {meaning}"
 hinted = "Say: {meaning} It starts with:"
 meaning = [
   "How do you say: {meaning}",
