@@ -611,7 +611,8 @@ class Planner:
                     break
 
             # 0b. an arc's own connected-use moment, once every item of the arc is ready for a
-            #     situation. Scoped to that arc's items; attempted once even if it finds nothing.
+            #     situation: an authored exchange if one fits, else a mixed review of its items.
+            #     Scoped to that arc's items; attempted once even if it finds nothing.
             if not acted and remaining >= 40:
                 ready_arc = next(
                     (

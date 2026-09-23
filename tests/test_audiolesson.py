@@ -1193,6 +1193,30 @@ class CurriculumTests(unittest.TestCase):
             self.assertIn(prompts.get("connect_next"), narr)
             self.assertFalse([n for n in narr if banned in n], narr)
 
+    def test_unrelated_pair_is_framed_as_mixed_review_not_connection(self):
+        """Issue #78, the real Lesson 6 pair: «Augnablik.» (ask the cashier for a moment) and
+        «Bíddu.» (tell a friend to hang on) have no relation a learner can notice, but were
+        announced with "Let's put a couple of things together." An unrelated pair is now framed
+        as mixed review in both instructor languages; an authored exchange keeps its framing."""
+        from audiolesson.exercises import Builder
+
+        for lang, connected in (("en", ("together", "And then")), ("ja", ("つなげ", "そして"))):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            prompts = Prompts.load(lang)
+            b = Builder(cur, prompts, Timing(level="A1"), LearnerState("is", lang, "A1"))
+            sc = Script(1, "L", cur.target_lang, lang)
+            ex = b.connect(sc, [cur.by_id["augnablik"], cur.by_id["biddu"]])
+            narr = [s.text for s in sc.segments if s.type == "narrate"]
+            self.assertEqual(ex.stage, "recombine")
+            self.assertTrue(ex.label.startswith("mixed review"), ex.label)
+            self.assertEqual(narr[0], prompts.get("mixed_review_intro"))
+            self.assertFalse([n for n in narr if any(w in n for w in connected)], narr)
+
+            sc = Script(1, "L", cur.target_lang, lang)
+            ex = b.connect(sc, [cur.by_id["godan_daginn"], cur.by_id["endilega"]])
+            self.assertEqual(ex.stage, "exchange")
+            self.assertEqual(next(s.text for s in sc.segments if s.type == "narrate"), prompts.get("connect_intro"))
+
     def test_recombine_claims_novelty_only_for_a_sentence_never_presented(self):
         """Issue #68, the real Lesson 5 sequence: «Talar þú {language}?»'s intro presents
         «Talar þú ensku?» and a second fill («Talar þú íslensku?»); a later recombine that lands

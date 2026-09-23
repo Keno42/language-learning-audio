@@ -162,8 +162,9 @@ padding. From roughly lesson 5 on, the length is exact.
    its lines — two turns the first time, one more turn on each later
    encounter; constructions are recombined with known vocabulary into
    sentences never heard verbatim. Each batch of new items also gets a
-   *connect* exercise that uses two items together, as a short exchange with
-   a partner line when one is authored. A long run of isolated recalls is
+   *connect* exercise: a short exchange with a partner line between two of
+   its items when one is authored, otherwise a quick mixed review of two
+   separate situations. A long run of isolated recalls is
    broken up by a dialogue, a note or a connect.
    When the last example of a grammatical pattern arrives, a *milestone* note
    names the pattern and two quick contrast recalls follow.
