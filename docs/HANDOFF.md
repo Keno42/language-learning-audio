@@ -3036,6 +3036,23 @@ stall and generates «Það kostar fimm þúsund krónur.» from `thad_kostar_bi
 the partner haggles back with «Fjögur þúsund?». A simulated course reaches it at
 L87 (2/3 turns) and plays it in full at L92.
 
+**Follow-up, same session (owner comment on #48):** target-language coherence is
+necessary but not sufficient — a real Lesson 4 cued «Góðan daginn» as greeting bakery
+staff, then played «Má ég setjast hérna?» and a cue about someone at *your table*: one
+scene in the target lane, two in the instructor lane, and an untaught partner line with no
+stated communicative move. Every bridge is now one authored scene on item B —
+`partner_cue_setup` (replaces A's standalone situation), `partner_cue_meaning` (glosses
+the partner line on the learner's first two hearings, tracked in the new, persisted
+`LearnerState.bridges_heard` via `sc.meta["bridges"]`), `partner_cue_situation` (replaces
+B's, naming the partner's move) — required together by `validate()`. All 26 bridges (13
+already on main + 13 from this session) were audited by hand for both lanes and authored
+in en/ja; several were re-scened (e.g. `endilega`: a shared café table instead of a
+bakery counter; `eg_veit_ekki`: a stranger at a bus stop, not bakery staff, asks where the
+bank is). The table is in `docs/AUDIT-48.md`. Tests: the owner's failure shape as a
+fixture (both lanes pinned, no bakery narration inside the bridge), gloss fading plus the
+planner's `bridges_heard` bookkeeping, and scene-field validation (all fail pre-change).
+154 tests, all passing; throughput and partner-exchange coverage unchanged.
+
 **Tests:** `expect_fill` (resolution, required items, three validation failures);
 the real `solubas` lane pinned verbatim; no dialogue on the course ever speaks a
 `{slot}` placeholder (all three error on the pre-fix code). 153 tests, all

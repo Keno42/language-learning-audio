@@ -74,16 +74,16 @@ had untaught words with nothing saying what move it made.
 
 Each bridge is now one authored scene on item B:
 
-- **** replaces A's standalone situation when the pair plays. It
+- **`partner_cue_setup`** replaces A's standalone situation when the pair plays. It
   sets the shared place, roles and reason, and asks for A.
-- **** says what the partner just said. It is narrated on the
-  learner's first two hearings of that bridge (), then it
+- **`partner_cue_meaning`** says what the partner just said. It is narrated on the
+  learner's first two hearings of that bridge (`LearnerState.bridges_heard`), then it
   fades.
-- **** replaces B's standalone situation. It continues the same
+- **`partner_cue_situation`** replaces B's standalone situation. It continues the same
   scene and names the partner's move ("She asked if she may sit here. Tell her: by all
   means.").
 
-Validation requires all three with every . All 26 bridges were audited
+Validation requires all three with every `partner_cue`. All 26 bridges were audited
 manually for target-language coherence and scene continuity, and each got its scene
 in English and Japanese:
 

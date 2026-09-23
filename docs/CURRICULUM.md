@@ -39,6 +39,8 @@ skips anything whose `prereqs` the learner does not know yet.
 | `slots` | construction | `{ slot = "tag" }`; `target` and `meaning` must contain `{slot}` |
 | `example` | construction | `{ slot = "item_id" }` fill used when the pattern is introduced |
 | `situation_fill` | construction | `{ slot = "item_id" }` fill(s) the `situation` names ("Ask if she speaks English." → `{ language = "ensku" }`): any exercise narrating the situation (situation-stage recall, `connect()`) uses them; other stages still generate freely. The situation is only used once its bound fills are known (or introduced this lesson) — until then the item is practised at `meaning` and never paired in `connect()`, so a binding never forces an unlearned part. Required whenever the situation mentions one specific slot value; validated to name a real slot and an item carrying that slot's tag. Write a slot-independent situation instead when several fills fit |
+| `partner_cue`, `partner_cue_after` | phrase | a partner line spoken between item `partner_cue_after` (A) and this item (B) when `connect()` pairs them in that order |
+| `partner_cue_setup` / `partner_cue_meaning` / `partner_cue_situation` | phrase | required with `partner_cue`, glossed per language: the bridge as **one scene**. The setup replaces A's standalone situation (shared place, roles, reason; asks for A), the meaning glosses the partner line on the learner's first two hearings of that bridge, and the situation replaces B's own (same scene, names the partner's move) |
 | `instruction` | transform | known-language prompt, e.g. `"Make it negative:"` |
 | `examples` | transform | ≥2 pairs `{ source, source_meaning, result, result_meaning }` |
 
