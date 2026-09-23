@@ -575,6 +575,11 @@ class Builder:
         instructor — still the same shape issue #48 named directly: English instruction,
         retrieve one phrase, repeat.
 
+        Without an authored bridge the two turns are independent situations (recombination
+        practice, not conversation), so the transition between them is neutral —
+        ``connect_next``, "Now another situation." — never "And then —", which implied the
+        second task followed from the first (issue #69).
+
         ``items[1].partner_cue`` (issue #48), when authored *and* written for exactly this
         ``items[0]`` (``partner_cue_after`` names the one item id it's compatible with —
         owner review round 3 on PR #52: ``partner_cue`` alone only guarantees the line
@@ -621,7 +626,9 @@ class Builder:
                 self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=second.partner_cue_meaning))
                 self._beat(sc, ex)
         else:
-            self._narr(sc, ex, self.prompts.get("connect_then"))
+            # recombination only: two independent situations, so the transition must not imply
+            # the second follows from the first (issue #69)
+            self._narr(sc, ex, self.prompts.get("connect_next"))
         self._narr(sc, ex, second.partner_cue_situation if bridged else self._situation_readonly(second))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, second_target, second, generative=True)
         self._answer(sc, ex, second_target)
