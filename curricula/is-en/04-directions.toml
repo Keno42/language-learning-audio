@@ -399,6 +399,8 @@ difficulty = 2
 tags = ["dat_place"]
 topics = ["directions", "accommodation"]
 pronunciation_notes = "dative of hótelið"
+meaning_forms = { in_sentence = "the hotel" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "ホテル" }
 
 [[items]]
 id = "flugvellinum"
@@ -410,6 +412,8 @@ difficulty = 3
 tags = ["dat_place"]
 topics = ["directions", "transport"]
 pronunciation_notes = "dative of flugvöllurinn"
+meaning_forms = { in_sentence = "the airport" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "空港" }
 
 [[items]]
 id = "sundlauginni"
@@ -421,6 +425,8 @@ difficulty = 3
 tags = ["dat_place"]
 topics = ["directions"]
 pronunciation_notes = "dative of sundlaugin"
+meaning_forms = { in_sentence = "the swimming pool" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "プール" }
 
 [[items]]
 id = "safninu"
@@ -432,6 +438,8 @@ difficulty = 2
 tags = ["dat_place"]
 topics = ["directions"]
 pronunciation_notes = "dative of safnið"
+meaning_forms = { in_sentence = "the museum" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "博物館" }
 
 [[items]]
 id = "bankanum"
@@ -443,6 +451,8 @@ difficulty = 2
 tags = ["dat_place"]
 topics = ["directions", "money"]
 pronunciation_notes = "dative of bankinn"
+meaning_forms = { in_sentence = "the bank" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "銀行" }
 
 [[items]]
 id = "stoppistodinni"
@@ -454,6 +464,8 @@ difficulty = 3
 tags = ["dat_place"]
 topics = ["directions", "transport"]
 pronunciation_notes = "dative of stoppistöðin"
+meaning_forms = { in_sentence = "the bus stop" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "バス停" }
 
 [[items]]
 id = "hvernig_kemst_eg_ad"

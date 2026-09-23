@@ -32,6 +32,8 @@ difficulty = 2
 tags = ["acc_thing", "acc_clothes"]
 topics = ["shopping"]
 pronunciation_notes = "accusative of húfa"
+meaning_forms = { in_sentence = "a woolly hat" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "ニット帽" }
 
 [[items]]
 id = "vettlinga"

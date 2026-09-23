@@ -53,6 +53,8 @@ meaning_ja = "高い（値段）"
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives", "money"]
+meaning_forms = { in_sentence = "expensive" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "値段が高い" }
 
 [[items]]
 id = "odyrt"
@@ -273,6 +275,8 @@ meaning_ja = "おかしい（面白い）"
 difficulty = 2
 tags = ["adj_neut"]
 topics = ["adjectives"]
+meaning_forms = { in_sentence = "funny" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "面白い" }
 
 [[items]]
 id = "skrytid"

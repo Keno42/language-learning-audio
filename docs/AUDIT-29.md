@@ -71,7 +71,7 @@ Families of ≥3 phrases, with disposition and status.
 
 ## Other findings
 
-- **Fill disambiguators leak into generated glosses.** A fill's `meaning` can carry a
+- **Fixed in session 36 — fill disambiguators leaked into generated glosses.** A fill's `meaning` can carry a
   parenthetical meant for isolated recall: "work (to work)", "Icelandic (the
   language)", "the hotel (after 'to' / 'for')". Constructions paste it in verbatim:
   "May I work (to work)?", "Do you speak Icelandic (the language)?". This predates
