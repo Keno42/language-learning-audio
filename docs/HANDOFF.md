@@ -3164,6 +3164,17 @@ Cloze practice itself stays (the issue's non-goal).
 meaning narrated before the partial; and a course-wide guard that every cloze-eligible phrase's
 prompt contains its meaning (both fail on the pre-fix code). 148 tests, all passing.
 
+## Session 38: issue #69 — recombination connect implied one scene
+
+Without an authored bridge, `connect()` is recombination practice: two independent
+situations, classified `recombine` since session 30. The instructor still joined them with
+"And then —" (ja 「そして、」), implying the second followed from the first, e.g. a street
+sign and then a fish on a menu. The transition is now the neutral `connect_next` ("Now
+another situation." / 「次は、別の場面です。」). Authored exchanges are unchanged; they
+use their own scene cues (`partner_cue_setup` / `partner_cue_situation`). Test: the owner's
+street-sign + menu pair in both languages is `recombine`, uses `connect_next`, and never
+emits the continuity wording. 160 tests, all passing.
+
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
 Three new issues arrived together, all written by the owner as substantial
