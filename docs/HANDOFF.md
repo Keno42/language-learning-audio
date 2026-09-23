@@ -3164,6 +3164,16 @@ Cloze practice itself stays (the issue's non-goal).
 meaning narrated before the partial; and a course-wide guard that every cloze-eligible phrase's
 prompt contains its meaning (both fail on the pre-fix code). 148 tests, all passing.
 
+## Session 35: issue #63 — the progressive note overclaimed
+
+`vera_ad_progressive` told the learner "Any verb you know can go after «er að»." Icelandic
+uses «vera að» + infinitive for activities, not states: "I'm sitting" is «Ég sit». The note now
+says "Many activity verbs…" and gives the state case its correct form («Ég sit»). It does not
+voice the wrong one. `modal_infinitive`'s "any verb" stays, since vilja / verða að / mega take
+stative infinitives too. `eg_er_ad_inf` draws on the whole `inf` pool, so a new test pins that
+pool to the 14 audited activity verbs: adding an `inf` verb now fails until someone checks
+its progressive. 160 tests, all passing.
+
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
 Three new issues arrived together, all written by the owner as substantial

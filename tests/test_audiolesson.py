@@ -743,6 +743,23 @@ class CurriculumTests(unittest.TestCase):
         novel = {l for ex, l in zip(sc.exercises, labels) if "ma_eg_inf" in ex.item_ids and ex.kind != "intro"} - {"situation: Má ég fara heim?"}
         self.assertTrue(novel, labels)
 
+    def test_progressive_only_generates_activity_verbs(self):
+        """Issue #63: «vera að» + infinitive is for activities, not states — «ég sit», not the
+        «er að» form, for "I'm sitting". The note now says so, and «Ég er að {inf}.» generates from
+        the whole "inf" pool, so every verb in that pool must be one whose progressive is natural.
+        Adding a new "inf" verb fails here until someone has checked it (and, if it's stative,
+        kept it out of the pool this construction draws on)."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        audited_activities = {
+            "fara_heim", "sofa", "borda", "fara_i_sund", "fara_ut", "hvila_mig", "versla", "kaupa_mida",
+            "hringja_heim", "fara_a_safnid", "drekka_kaffi", "boka_ferd", "vinna_verb", "laera",
+        }
+        tag = cur.by_id["eg_er_ad_inf"].slots["inf"]
+        self.assertEqual({i.id for i in cur.items_with_tag(tag)}, audited_activities)
+        note = cur.note_by_id["vera_ad_progressive"]
+        self.assertNotIn("Any verb", note.text)
+        self.assertIn("activity verbs", note.text)
+
     def test_aspect_milestone_names_the_progressive_before_eg_er_ad_inf(self):
         """Issue #29 pilot 3 (aspect): the vera_ad_progressive milestone names «er að» +
         infinitive from «Ég er að koma!» / «Ég er að fara» / «Ég er að læra …» before the
