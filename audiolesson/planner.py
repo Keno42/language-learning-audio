@@ -39,6 +39,8 @@ class PlanConfig:
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
     max_streak_relief_notes: int = 2  # extra notes beyond max_notes, only to break a drill streak no dialogue can
     note_chance: float = 0.7  # chance to play a related note right after its item
+    note_repeat_gap: int = 20  # lessons before a heard aside may play again
+    note_lookahead: int = 100  # filler may use an unheard note about an item this close ahead of what's met
     # when material runs out, review what was reviewed once more (harder); 1 ends the lesson short
     max_review_passes: int = 2
     closing_share: float = 0.12  # fraction of time reserved for the final review block
@@ -295,23 +297,39 @@ class Planner:
         return all(self.learner.knows(i) or i in self.builder.in_lesson for i in note.requires)
 
     def _pick_note(self, related: list[str] | None) -> object | None:
-        """Least-heard unplayed ordinary note, related to ``related`` items if given, else any."""
-        if related:
-            pool = [n for i in related for n in self._notes_by_item.get(i, [])]
-        else:
-            pool = list(self.cur.notes)
-        pool = [n for n in pool if not n.milestone and self._note_available(n)]
-        pool = [n for n in pool if n.id not in self.notes_played]
+        """An ordinary note to play: related to ``related`` items if given; as filler, one about
+        material the learner has met, else about material coming up within ``note_lookahead``
+        items. Unheard notes come first; a heard one may come back once ``note_repeat_gap``
+        lessons have passed. An unheard note about distant material is never spent as filler:
+        the only unrelated filler is a repeat, and only when nothing closer is left."""
         heard = self.learner.notes_heard
-        # never repeat while an ordinary note is unheard, including one still waiting on its
-        # ``requires`` (it will become available; milestones never come through here)
-        if any(heard.get(n.id, 0) == 0 for n in self.cur.notes if not n.milestone):
-            pool = [n for n in pool if heard.get(n.id, 0) == 0]
-        if not pool:
-            return None
-        least = min(heard.get(n.id, 0) for n in pool)
-        pool = [n for n in pool if heard.get(n.id, 0) == least]
-        return self.rng.choice(pool)
+        now = self.learner.next_lesson_number()
+
+        def rested(n) -> bool:
+            last = self.learner.notes_last_heard.get(n.id)
+            return heard.get(n.id, 0) == 0 or last is None or now - last >= self.cfg.note_repeat_gap
+
+        def met(n) -> bool:  # a note with no items is general and always in context
+            return not n.items or any(self.learner.has_met(i) or i in self.exposures for i in n.items)
+
+        reached = max((self.cur.by_id[i].order for i in list(self.learner.items) + list(self.exposures) if i in self.cur.by_id), default=0)
+
+        def near(n) -> bool:
+            return any(i in self.cur.by_id and self.cur.by_id[i].order <= reached + self.cfg.note_lookahead for i in n.items)
+
+        pool = [n for i in related for n in self._notes_by_item.get(i, [])] if related else list(self.cur.notes)
+        pool = [n for n in pool if not n.milestone and n.id not in self.notes_played and self._note_available(n) and rested(n)]
+        unheard = [n for n in pool if heard.get(n.id, 0) == 0]
+        repeats = [n for n in pool if heard.get(n.id, 0) > 0]
+        if related:
+            tiers = [unheard, repeats]
+        else:
+            tiers = [[n for n in unheard if met(n)], [n for n in unheard if near(n)], [n for n in repeats if met(n)], repeats]
+        for tier in tiers:
+            if tier:
+                least = min(heard.get(n.id, 0) for n in tier)
+                return self.rng.choice([n for n in tier if heard.get(n.id, 0) == least])
+        return None
 
     def _maybe_note(self, sc: Script, related: list[str], remaining: float) -> object | None:
         """Play a due milestone, else maybe a related aside. Returns the milestone, if one
@@ -786,6 +804,7 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
         learner.dialogues_done[d] = learner.dialogues_done.get(d, 0) + 1
     for n in sc.meta.get("notes", []):
         learner.notes_heard[n] = learner.notes_heard.get(n, 0) + 1
+        learner.notes_last_heard[n] = sc.lesson_number
     learner.heard_utterances.update(sc.meta.get("heard_utterances", []))
     for b in sc.meta.get("bridges", []):
         learner.bridges_heard[b] = learner.bridges_heard.get(b, 0) + 1

@@ -137,8 +137,10 @@ by three mechanisms, all automatic:
 the learner's language (for the Icelandic course, written for someone from
 Japan — hot dogs and onigiri, pools and sentō, first names and -san). The
 planner plays one right after an exercise on a related item, at most one
-per 12 minutes, and uses them to fill a gap when there is nothing due; each
-note is heard at most once per lesson and least-heard first across lessons.
+per 12 minutes, and uses them to fill a gap when there is nothing due. As
+filler it only takes a note about material already met, or coming up within
+about a module; unheard notes come first, and a heard one returns only after
+20 lessons, so asides keep appearing across the course.
 
 The first few lessons still come out short: with nothing to review yet there
 is simply not 30 minutes of honest work, and `generate` says so rather than

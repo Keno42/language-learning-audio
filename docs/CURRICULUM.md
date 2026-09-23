@@ -123,7 +123,11 @@ Notes are spoken by the instructor in the learner's language, never
 required for the lesson, and rationed (about one per 12 minutes). Keep them
 to two or three sentences, roughly 15–20 seconds of speech; the best ones
 contrast the target culture with the learner's own. Notes with no `items`
-are only used as filler.
+are general and only used as filler. As filler, a note with `items` plays only
+once one of them has been met, or is at most `note_lookahead` (100) items
+ahead, so a note is heard when its topic is near rather than spent in the
+first lessons. A heard note may play again after `note_repeat_gap` (20)
+lessons.
 
 `items` says what a note is *related to* (and triggers it). When a note recommends
 an expression for the learner to *say* ("Saying «ég er að læra íslensku» usually makes
