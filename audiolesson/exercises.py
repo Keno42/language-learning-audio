@@ -300,7 +300,9 @@ class Builder:
         ex = sc.new_exercise("recall", stage, [item.id], f"{stage}: {item.target}")
         target = item.target
         if stage == "cloze":
-            self._narr(sc, ex, self.prompts.get("cloze"))
+            # the target meaning before the partial phrase (issue #59): «Ég skil…» alone doesn't
+            # say whether «Ég skil.» or «Ég skil ekki.» is wanted
+            self._narr(sc, ex, self.prompts.get("cloze", meaning=self._m(item.meaning)))
             words = [w for w in target.split() if any(ch.isalnum() for ch in w)]
             partial = " ".join(words[:-1]) + "…"
             self._speak(sc, ex, partial, role="partial")

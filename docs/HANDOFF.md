@@ -9,7 +9,8 @@ cluster A (numbers/money); 27 is #29 cluster B's sequencing findings (PR
 capability-aware arc boundaries; 30 is #48's partner exchanges in early
 lessons (28–30 were PR #56, merged); 31 is issue #57 (situation-bound
 construction fills, PR #58); 32 is #29's audit and grammatical-dimension
-pilots (aspect, modality, case). **Issue #34** ("Improve
+pilots (aspect, modality, case); 34 is issue #59's cloze prompts (PR #62,
+merged; 33 is #48's dialogue audit, PR #61). **Issue #34** ("Improve
 lesson orchestration and learner experience," opened session 16 from a
 real Lesson 3 transcript) is **closed**: 12 pilots across sessions
 16–18 (PRs #36–#43) — milestone notes that stay short and speak
@@ -3067,6 +3068,24 @@ tests widened for the new shapes (ja-gloss slot check accepts `{slot:form}`;
 milestone discrimination accepts a construction recall carrying its fill as
 support) — the discrimination test now also covers the three new milestones.
 150 tests, all passing.
+
+## Session 34: issue #59 — cloze prompts didn't say what to complete
+
+A real lesson played "Complete the sentence." + «Ég skil…» — but «Ég skil.» is itself a
+complete, known utterance, so nothing told the learner the target was «Ég skil ekki.»;
+«Gott að…» likewise left several completions open. The prompt gave only the partial surface
+form, never the communicative intent, turning the task into a test of remembering the
+course's sentence inventory.
+
+**Fix.** The `cloze` phrasing now takes `{meaning}`, like `hinted` already did: "Complete the
+sentence to say: I don't understand." / 「「わかりません」と言うように、文を完成させてください。」,
+then the partial phrase. Only the narration changed — the partial, the answer and every pause
+(and its duration) are identical to before, checked segment by segment on the two real cases.
+Cloze practice itself stays (the issue's non-goal).
+
+**Tests:** the two real cases (`eg_skil_ekki`, `gott_ad_heyra`) in both instructor languages,
+meaning narrated before the partial; and a course-wide guard that every cloze-eligible phrase's
+prompt contains its meaning (both fail on the pre-fix code). 148 tests, all passing.
 
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
