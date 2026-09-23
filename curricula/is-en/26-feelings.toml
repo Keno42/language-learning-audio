@@ -169,29 +169,6 @@ example = { state = "threytt_state" }
 prereqs = ["eg_er_state"]
 
 [[items]]
-id = "hvernig_lidur_ther"
-kind = "phrase"
-target = "Hvernig líður þér?"
-meaning = "How do you feel?"
-meaning_ja = "気分はどうですか？"
-difficulty = 3
-topics = ["feelings", "health"]
-situation = "Your friend was ill yesterday. Ask how she feels."
-situation_ja = "友達が昨日病気でした。気分はどうか聞いてください。"
-
-[[items]]
-id = "mer_lidur_agaetlega"
-kind = "phrase"
-target = "Mér líður ágætlega."
-meaning = "I feel alright."
-meaning_ja = "まあまあです。"
-difficulty = 3
-topics = ["feelings"]
-prereqs = ["hvernig_lidur_ther"]
-situation = "Someone asks how you feel. Say alright."
-situation_ja = "気分はどうか聞かれました。まあまあだと答えてください。"
-
-[[items]]
 id = "eg_er_i_godu_skapi"
 kind = "phrase"
 target = "Ég er í góðu skapi."

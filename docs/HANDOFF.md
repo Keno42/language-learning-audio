@@ -16,7 +16,7 @@ learner model. Usage and layout are in `README.md`; the curriculum format is in
   53 notes, English and Japanese instructor glosses), `curricula/fr-en-a1.toml` and its
   derived Japanese-instructor twin `fr-ja-a1.toml` (small French sample; most tests use it).
   None of the content is native-reviewed.
-- **Tests:** `python -m unittest` (166 tests; one skips without espeak-ng/ffmpeg). CI also
+- **Tests:** `python -m unittest` (167 tests; one skips without espeak-ng/ffmpeg). CI also
   validates `curricula/is-en` and renders short espeak lessons from each curriculum.
 - **TTS:** only `stub` and `espeak` run in CI. `edge`, `openai` and `say` are exercised only
   by hand.
@@ -72,9 +72,9 @@ Only #29 and #48 are open. Their status tables live in the audit files; keep tho
   suggested order. Keep *sequencing finding addressed* separate from *capability modeled*.
   - Modeled so far: gender (`godur_gender` + transfer onto `godur_noun` and
     `eigdu_godur`), aspect (`eg_er_ad_inf` over `progressive_inf`) and modality
-    (`ma_eg_inf`). Case (dative «mér») is named and contrasted, but not productive.
-  - Remaining: a productive case construction (`Mér líður {how}.`); tense and person
-    pilots; category-2 families (`Takk fyrir`, `Hvenær fer`, `… virkar ekki`, `Ég á`);
+    (`ma_eg_inf`), case (dative «mér» / «þér»: `mer_lidur` + milestones
+    `dative_subject` and `mer_ther`).
+  - Remaining: tense and person pilots; category-2 families (`Takk fyrir`, `Hvenær fer`, `… virkar ekki`, `Ég á`);
     growing the `inf` pool so the constructions absorb their fixed siblings.
   - Also remaining: owner confirmation of the capability-aware arc boundaries
     (`select_new`) on real generated output.
