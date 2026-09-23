@@ -1092,6 +1092,64 @@ class CurriculumTests(unittest.TestCase):
         with self.assertRaisesRegex(CurriculumError, "without a partner_cue"):
             curriculum_from_dict(orphan)
 
+    def test_recombine_claims_novelty_only_for_a_sentence_never_presented(self):
+        """Issue #68, the real Lesson 5 sequence: «Talar þú {language}?»'s intro presents
+        «Talar þú ensku?» and a second fill («Talar þú íslensku?»); a later recombine that lands
+        on one of those again used to say "Now something you haven't heard yet". The novelty
+        claim now needs the exact sentence never to have been presented — this lesson, an
+        earlier lesson (persisted), or as a met item's own target — and reuse stays allowed
+        with neutral wording."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        prompts = Prompts.load("en")
+        novelty = prompts.get("recombine_new", meaning="").split(".")[0]  # "Now something you haven't heard yet"
+
+        def learner_with(fills):
+            ls = LearnerState("is", "en", "A1")
+            for i in fills:
+                ls.items[i] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="meaning")
+            return ls
+
+        def recombine_after_intro(ls):
+            b = Builder(cur, prompts, Timing(level="A1"), ls)
+            b.in_lesson.add("talar_thu")
+            sc = Script(1, "L", cur.target_lang, cur.known_lang)
+            b.intro(sc, cur.by_id["talar_thu"])
+            intro_answers = {s.text for s in sc.segments if s.type in ("speak", "answer")}
+            ex = b.recall(sc, cur.by_id["talar_thu"], "recombine")
+            narr = " ".join(s.text for s in sc.segments if s.exercise == ex.index and s.type == "narrate")
+            answer = [s.text for s in sc.segments if s.exercise == ex.index and s.type == "answer"][0]
+            return b, intro_answers, narr, answer
+
+        # only two languages known: the intro uses both, so the recombine must repeat one
+        _, heard, narr, answer = recombine_after_intro(learner_with(["ensku", "islensku"]))
+        self.assertIn(answer, heard)
+        self.assertNotIn(novelty, narr, "a repeated sentence was presented as new")
+
+        # a third known language: the recombine finds an unheard sentence and may say so
+        b, heard, narr, answer = recombine_after_intro(learner_with(["ensku", "islensku", "japonsku"]))
+        self.assertNotIn(answer, heard)
+        self.assertIn(novelty, narr)
+
+        # ...and once presented, it stays heard in later lessons (persisted via the planner meta)
+        ls = learner_with(["ensku"])
+        ls.heard_utterances.add("talar þú japönsku")
+        self.assertFalse(Builder(cur, prompts, Timing(level="A1"), ls).is_new_utterance("Talar þú japönsku?"))
+
+    def test_heard_utterances_persist_across_lessons(self):
+        """Issue #68: what a lesson presented is recorded in the learner state, and survives a
+        save/load round trip, so a later lesson doesn't call it new."""
+        import tempfile
+
+        learner, scripts = course(2)
+        self.assertTrue(learner.heard_utterances)
+        self.assertTrue(set(scripts[0].meta["heard_utterances"]) <= learner.heard_utterances)
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "state.json")
+            learner.save(path)
+            self.assertEqual(LearnerState.load(path).heard_utterances, learner.heard_utterances)
+
     def test_connect_plays_the_owners_real_curriculum_worked_example(self):
         """Issue #48: the real authored pair from the owner's own review — with the
         instructor scaffolding stripped away, the target-language turns alone should form

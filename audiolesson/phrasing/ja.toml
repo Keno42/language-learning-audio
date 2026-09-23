@@ -22,9 +22,11 @@ meaning = [
   "「{meaning}」と言ってください。",
   "{language}で「{meaning}」と言ってください。",
 ]
+# issue #68: 「まだ聞いたことのない文」は、本当に初めての文のときだけ
+recombine_new = "まだ聞いたことのない文です。「{meaning}」と言ってください。"
 recombine = [
-  "まだ聞いたことのない文です。「{meaning}」と言ってください。",
   "自分で組み立ててください。「{meaning}」。",
+  "同じパターンでもう一度。「{meaning}」と言ってください。",
 ]
 recombine_vocab = "文の中で使ってください。「{meaning}」。"
 also = "こうも言えます。"
