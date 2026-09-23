@@ -3164,6 +3164,25 @@ Cloze practice itself stays (the issue's non-goal).
 meaning narrated before the partial; and a course-wide guard that every cloze-eligible phrase's
 prompt contains its meaning (both fail on the pre-fix code). 148 tests, all passing.
 
+## Session 35: issue #63 — the progressive note overclaimed
+
+`vera_ad_progressive` told the learner "Any verb you know can go after «er að»." Icelandic
+uses «vera að» + infinitive for activities, not states: "I'm sitting" is «Ég sit». The note now
+says "Many activity verbs…" and gives the state case its correct form («Ég sit»). It does not
+voice the wrong one. `modal_infinitive`'s "any verb" stays, since vilja / verða að / mega take
+stative infinitives too. `eg_er_ad_inf` draws on the whole `inf` pool, so a new test pins that
+pool to the 14 audited activity verbs: adding an `inf` verb now fails until someone checks
+its progressive. 160 tests, all passing.
+
+**Follow-up (owner review on PR #64):** «sofa» was in that audited list, but «er að sofa»
+is not generally accepted (icelandicgrammar.com marks «Gummi litli er að sofa í vöggunni»
+and gives «sefur»). The owner proposed splitting the pools, and that is what was done:
+`progressive_inf` is a subset of `inf` holding only the 13 dynamic verbs, without «sofa».
+`eg_er_ad_inf` draws on `progressive_inf`; `ma_eg_inf` / `eg_vil` / `eg_verd_ad` keep `inf`,
+so «Má ég sofa?» stays. The note's state example now names sleeping too («Ég sit», «Ég sef»)
+in both languages. The guard test now pins `progressive_inf` rather than `inf`. On a
+120-lesson simulation: «Ég er að sofa.» 0 times, «Má ég sofa?» still produced.
+
 ## Session 36: recall-only disambiguators leaked into sentence prompts (#29 audit finding)
 
 The #29 audit (session 32) found fill glosses like "English (the language)", "the hotel (after

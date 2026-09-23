@@ -713,7 +713,7 @@ class CurriculumTests(unittest.TestCase):
         for lang in (None, "ja"):
             cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
             for cid in ("eg_er_ad_inf", "ma_eg_inf"):
-                for fill in cur.items_with_tag("inf"):
+                for fill in cur.items_with_tag(cur.by_id[cid].slots["inf"]):
                     target, meaning = cur.resolve_slots(cur.by_id[cid], {"inf": fill})
                     self.assertNotIn("{", target + meaning, (cid, fill.id))
                     if cid == "eg_er_ad_inf" and lang is None:
@@ -742,6 +742,34 @@ class CurriculumTests(unittest.TestCase):
         self.assertEqual(labels[note + 1 : note + 3], ["situation: Ég vil fara heim.", "situation: Ég verð að fara heim."])
         novel = {l for ex, l in zip(sc.exercises, labels) if "ma_eg_inf" in ex.item_ids and ex.kind != "intro"} - {"situation: Má ég fara heim?"}
         self.assertTrue(novel, labels)
+
+    def test_progressive_only_generates_activity_verbs(self):
+        """Issue #63 and the owner's review on PR #64: «vera að» + infinitive is for dynamic
+        verbs, not states — «ég sit» for "I'm sitting", and «sofa» too: «er að sofa» is not
+        generally accepted (icelandicgrammar.com gives «sefur»). So the progressive draws on its
+        own ``progressive_inf`` pool, a subset of "inf" without «sofa», while the modal
+        constructions keep the general pool («Má ég sofa?» is fine). Adding a verb to
+        ``progressive_inf`` fails here until someone has checked its progressive is natural."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        audited_dynamic = {
+            "fara_heim", "borda", "fara_i_sund", "fara_ut", "hvila_mig", "versla", "kaupa_mida",
+            "hringja_heim", "fara_a_safnid", "drekka_kaffi", "boka_ferd", "vinna_verb", "laera",
+        }
+        progressive = cur.by_id["eg_er_ad_inf"].slots["inf"]
+        self.assertEqual(progressive, "progressive_inf")
+        self.assertEqual({i.id for i in cur.items_with_tag(progressive)}, audited_dynamic)
+        general = {i.id for i in cur.items_with_tag("inf")}
+        self.assertTrue(audited_dynamic <= general)
+        self.assertIn("sofa", general - audited_dynamic)
+        for cid in ("ma_eg_inf", "eg_vil", "eg_verd_ad"):
+            self.assertEqual(cur.by_id[cid].slots["inf"], "inf", cid)
+        generated = {cur.resolve_slots(cur.by_id["eg_er_ad_inf"], {"inf": f})[0] for f in cur.items_with_tag(progressive)}
+        self.assertNotIn("Ég er að sofa.", generated)
+        self.assertEqual(cur.resolve_slots(cur.by_id["ma_eg_inf"], {"inf": cur.by_id["sofa"]})[0], "Má ég sofa?")
+        note = cur.note_by_id["vera_ad_progressive"]
+        self.assertNotIn("Any verb", note.text)
+        self.assertIn("activity verbs", note.text)
+        self.assertIn("«Ég sef»", note.text)
 
     def test_aspect_milestone_names_the_progressive_before_eg_er_ad_inf(self):
         """Issue #29 pilot 3 (aspect): the vera_ad_progressive milestone names «er að» +
