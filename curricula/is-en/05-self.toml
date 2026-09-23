@@ -109,6 +109,8 @@ difficulty = 2
 tags = ["dat_town"]
 topics = ["social"]
 pronunciation_notes = "dative of Kópavogur"
+meaning_forms = { in_sentence = "Kópavogur" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "コーパヴォグル" }
 
 [[items]]
 id = "osaka_dat"

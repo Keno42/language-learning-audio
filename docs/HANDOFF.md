@@ -3164,6 +3164,25 @@ Cloze practice itself stays (the issue's non-goal).
 meaning narrated before the partial; and a course-wide guard that every cloze-eligible phrase's
 prompt contains its meaning (both fail on the pre-fix code). 148 tests, all passing.
 
+## Session 36: recall-only disambiguators leaked into sentence prompts (#29 audit finding)
+
+The #29 audit (session 32) found fill glosses like "English (the language)", "the hotel (after
+'to' / 'for')" and "work (to work)" being pasted verbatim into generated sentence prompts:
+"Say: Do you speak English (the language)?". Measured before fixing: 128 such construction
+prompts across 40 simulated 20-minute lessons, in 34 of the 40 (ja: 10 prompts, e.g.
+«スキール（アイスランドの乳製品）をください»).
+
+**Fix.** The `meaning_forms` entry `in_sentence` (session 32's mechanism) is used by a
+construction's plain `{slot}` instead of the fill's `meaning`. Isolated recall keeps the
+disambiguator ("Say: English (the language)."). Authored for the 34 fills that leaked, in
+en and ja. Deliberately left in place: parentheticals that tell the learner which word to
+produce ("my friend (male)" vs "(female)"; ja 兄（弟）/姉（妹）, since bróðir/systir cover
+both), and a construction's own authored guidance (`einn_tvo_thrjar`'s "(feminine count
+word)"). Checked first that stripping never makes two fills of one slot read the same. After:
+0 leaking construction prompts in both languages. Test: every construction × fill resolves
+without a fill-borne parenthetical in both languages, except the audited informative ones;
+isolated recall keeps its disambiguator. 160 tests, all passing.
+
 ## Session 37: issue #29 — «Eigðu …» transfers godur_gender to a new frame
 
 The owner's real Lesson 3 comment on #29: "grammar is noticed, but not yet transferred".

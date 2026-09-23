@@ -320,6 +320,8 @@ meaning_ja = "朝食"
 difficulty = 3
 tags = ["nom_place"]
 topics = ["accommodation"]
+meaning_forms = { in_sentence = "breakfast" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "朝食" }
 
 [[items]]
 id = "heiti_potturinn"
@@ -330,6 +332,8 @@ meaning_ja = "露天の湯船（ホットタブ）"
 difficulty = 3
 tags = ["nom_place"]
 topics = ["accommodation", "nature"]
+meaning_forms = { in_sentence = "the hot tub" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "露天の湯船" }
 
 [[items]]
 id = "er_heitur_pottur_herna"

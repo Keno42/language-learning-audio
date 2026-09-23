@@ -1092,6 +1092,36 @@ class CurriculumTests(unittest.TestCase):
         with self.assertRaisesRegex(CurriculumError, "without a partner_cue"):
             curriculum_from_dict(orphan)
 
+    def test_generated_sentence_prompts_carry_no_recall_disambiguators(self):
+        """Issue #29 audit finding: a fill's gloss can carry a disambiguator meant for isolated
+        recall ("English (the language)", "the hotel (after 'to' / 'for')", "work (to work)"),
+        and constructions pasted it into sentence prompts — "Say: Do you speak English (the
+        language)?" in most simulated lessons. A fill's ``in_sentence`` form is used instead.
+        Every construction × fill, in both instructor languages, now resolves without a
+        parenthetical, except the audited few where it tells the learner which word to produce
+        (vinur vs vinkona; bróðir/systir covering older and younger). Isolated recall keeps the
+        disambiguator."""
+        informative = {None: {"vinur_minn", "vinkona_min"}, "ja": {"vinur_minn", "vinkona_min", "brodir_minn", "systir_min"}}
+        for lang in (None, "ja"):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            for c in cur.items:
+                if c.kind != "construction":
+                    continue
+                for slot, tag in c.slots.items():
+                    for fill in cur.items_with_tag(tag):
+                        if fill.id in informative[lang]:
+                            continue
+                        fills = cur.example_fill(c)
+                        fills[slot] = fill
+                        meaning = cur.resolve_slots(c, fills)[1]
+                        # a construction's own authored annotation ("(feminine count word)") is
+                        # deliberate guidance; only what the fills bring in is checked
+                        for own in re.findall(r"[（(][^）)]*[）)]", c.meaning):
+                            meaning = meaning.replace(own, "")
+                        self.assertNotRegex(meaning, r"[（(]", (lang, c.id, fill.id))
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertEqual(cur.by_id["ensku"].meaning, "English (the language)")
+
     def test_eigdu_transfers_godur_gender_to_a_new_frame(self):
         """Issue #29 (owner comment on Lesson 3: grammar noticed but not transferred): «Eigðu
         góðan dag» was one more fixed string. ``eigdu_godur`` applies godur_gender's accusative
