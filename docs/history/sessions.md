@@ -3,7 +3,8 @@
 Moved here unchanged from `docs/HANDOFF.md` on 2026-09-23, when the handoff was cut
 down to the current state. This is the full narrative: what was tried, what review
 rejected, and why. Section references such as "see Session 17 above" point within
-this file. For the current state, read `docs/HANDOFF.md`.
+this file. For the current state, see the GitHub issues and `docs/DESIGN.md`
+(`docs/HANDOFF.md` itself was retired on 2026-09-24).
 
 ---
 

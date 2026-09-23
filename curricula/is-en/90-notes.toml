@@ -23,7 +23,7 @@ text_ja = "«Góðan daginn»、«Góða nótt»、«Gott kvöld» に出てく�
 # contradicting this very note's own "the ending changes with the noun's grammatical
 # gender" (case held constant in its own three examples). Split into its own milestone
 # instead, explicit about which case these forms are in and how it differs from
-# godur_gender's — see docs/HANDOFF.md.
+# godur_gender's — see docs/history/sessions.md.
 [[notes]]
 id = "godur_gender_nominative"
 milestone = true
