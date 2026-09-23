@@ -1444,6 +1444,28 @@ class CurriculumTests(unittest.TestCase):
         for it in authored:
             self.assertTrue(it.has_situation and cur.by_id[it.partner_cue_after].has_situation, it.id)
 
+    def test_partner_bridges_reach_beyond_the_first_modules(self):
+        """Issue #48: with bridges only in modules 01–03, a simulated course had no partner
+        exchange outside dialogues from about lesson 30 on. Modules 04–13 each author some, and
+        one of them plays as a single scene in both instructor languages."""
+        from audiolesson.exercises import Builder
+
+        modules = sorted((ROOT / "curricula" / "is-en").glob("[0-9][0-9]-*.toml"))
+        for f in modules[3:13]:
+            self.assertTrue("partner_cue = " in f.read_text(encoding="utf-8"), f"{f.name} authors no partner bridge")
+        for lang, setup in (("en", "You slipped on the ice on a walk with a friend. Tell her you fell."),
+                            ("ja", "友達と散歩中、氷で滑りました。転んだと言ってください。")):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            b = Builder(cur, Prompts.load(lang), Timing(level="A1"), LearnerState("is", lang, "A1"))
+            sc = Script(1, "L", cur.target_lang, cur.known_lang)
+            ex = b.connect(sc, [cur.by_id["eg_datt"], cur.by_id["eg_er_i_lagi"]])
+            self.assertEqual(ex.stage, "exchange")
+            self.assertEqual([s.text for s in sc.segments if s.type in ("speak", "answer")], ["Ég datt.", "Æ! Er allt í lagi?", "Ég er í lagi."])
+            narr = [s.text for s in sc.segments if s.type == "narrate"]
+            self.assertIn(setup, narr)
+            self.assertIn(cur.by_id["eg_er_i_lagi"].partner_cue_situation, narr)
+            self.assertNotIn(cur.by_id["eg_er_i_lagi"].situation, narr, "B's standalone scene stays out of the bridge")
+
     def test_early_real_lessons_contain_a_partner_exchange(self):
         """Issue #48: a real Lesson 4 was all instructor → learner retrieval — its only
         "connected" moments were ``Ha?`` → [English "And then —"] → ``Ég skil.``, and the first

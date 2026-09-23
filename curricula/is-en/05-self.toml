@@ -32,6 +32,14 @@ difficulty = 2
 topics = ["social"]
 situation = "Someone asks where you're from. Tell them you're from Japan."
 situation_ja = "どこから来たか聞かれました。日本から来たと答えてください。"
+partner_cue = "Ég heiti Anna. Hvaðan ert þú?"
+partner_cue_after = "eg_heiti"
+partner_cue_setup = "At a party, a woman asks your name. Tell her your name is Yuki."
+partner_cue_setup_ja = "パーティーで女性に名前を聞かれました。ユキという名前だと言ってください。"
+partner_cue_meaning = "I'm Anna. Where are you from?"
+partner_cue_meaning_ja = "私はアンナです。どちらの出身ですか？"
+partner_cue_situation = "She told you her name and asked where you're from. Tell her you're from Japan."
+partner_cue_situation_ja = "名前を教えてくれて、出身を聞かれました。日本出身だと言ってください。"
 
 [[items]]
 id = "hvadan_ert_thu"
@@ -56,6 +64,14 @@ topics = ["social"]
 chunks = ["fríi", "í fríi", "Ég er í fríi."]
 situation = "She asks if you're here for work. Tell her you're on holiday."
 situation_ja = "仕事で来たのか聞かれました。休暇中だと答えてください。"
+partner_cue = "Frá Japan! Ertu hér í vinnuferð?"
+partner_cue_after = "eg_er_fra_japan"
+partner_cue_setup = "A man at the hotel bar asks where you're from. Tell him you're from Japan."
+partner_cue_setup_ja = "ホテルのバーで男性に出身を聞かれました。日本出身だと言ってください。"
+partner_cue_meaning = "From Japan! Are you here on a business trip?"
+partner_cue_meaning_ja = "日本から！出張で来ているんですか？"
+partner_cue_situation = "He asked if you're here for work. Tell him you're on holiday."
+partner_cue_situation_ja = "仕事で来ているのか聞かれました。休暇中だと言ってください。"
 
 [[items]]
 id = "gaman_ad_kynnast_ther"
@@ -158,6 +174,14 @@ topics = ["social"]
 pronunciation_notes = "feminine; masculine: Ég er japanskur."
 situation = "The man guesses you're Chinese. Tell him you're Japanese."
 situation_ja = "中国人だと思われました。日本人だと伝えてください。"
+partner_cue = "Já, ég er íslensk. Ert þú kínversk?"
+partner_cue_after = "ert_thu_islensk"
+partner_cue_setup = "The woman next to you on the plane speaks perfect Icelandic. Ask if she's Icelandic."
+partner_cue_setup_ja = "飛行機で隣の女性が完璧なアイスランド語を話しています。アイスランド人か聞いてください。"
+partner_cue_meaning = "Yes, I'm Icelandic. Are you Chinese?"
+partner_cue_meaning_ja = "ええ、アイスランド人です。あなたは中国人ですか？"
+partner_cue_situation = "She said yes and guessed you're Chinese. Tell her you're Japanese."
+partner_cue_situation_ja = "そうだと答え、あなたが中国人かと聞いてきました。日本人だと伝えてください。"
 
 [[items]]
 id = "ert_thu_islensk"
@@ -295,6 +319,14 @@ topics = ["work"]
 chunks = ["fyrirtæki", "litlu fyrirtæki", "hjá litlu fyrirtæki", "Ég vinn hjá litlu fyrirtæki."]
 situation = "She asks where you work. Say you work at a small company."
 situation_ja = "どこで働いているか聞かれました。小さな会社だと答えてください。"
+partner_cue = "Ég er kennari. Hvar vinnur þú?"
+partner_cue_after = "hvad_gerir_thu"
+partner_cue_setup = "You're chatting with a new acquaintance over coffee. Ask what she does."
+partner_cue_setup_ja = "コーヒーを飲みながら知り合ったばかりの人と話しています。仕事は何か聞いてください。"
+partner_cue_meaning = "I'm a teacher. Where do you work?"
+partner_cue_meaning_ja = "私は教師です。あなたはどこで働いているんですか？"
+partner_cue_situation = "She's a teacher, and she asked where you work. Say you work at a small company."
+partner_cue_situation_ja = "彼女は教師で、あなたの勤め先を聞いてきました。小さな会社で働いていると言ってください。"
 
 [[items]]
 id = "eg_er_i_vinnuferd"
@@ -405,6 +437,14 @@ difficulty = 3
 topics = ["social", "family"]
 situation = "She asks if you have children. Say you have two."
 situation_ja = "子どもがいるか聞かれました。二人いると答えてください。"
+partner_cue = "Áttu börn?"
+partner_cue_after = "eg_er_gift"
+partner_cue_setup = "A new acquaintance asks about your family. Say you're married."
+partner_cue_setup_ja = "知り合ったばかりの人に家族のことを聞かれました。結婚していると言ってください。"
+partner_cue_meaning = "Do you have children?"
+partner_cue_meaning_ja = "お子さんはいますか？"
+partner_cue_situation = "She asked if you have children. Say you have two."
+partner_cue_situation_ja = "子どもがいるか聞かれました。二人いると言ってください。"
 
 [[items]]
 id = "eg_er_her_i_fyrsta_sinn"
@@ -428,6 +468,14 @@ difficulty = 3
 topics = ["social"]
 situation = "He asks how long you're staying. Say a week."
 situation_ja = "どのくらい滞在するか聞かれました。一週間と答えてください。"
+partner_cue = "Velkomin! Hversu lengi verður þú hér?"
+partner_cue_after = "eg_er_her_i_fyrsta_sinn"
+partner_cue_setup = "In the taxi from the airport, the driver asks if you've been to Iceland before. Say it's your first time."
+partner_cue_setup_ja = "空港からのタクシーで、運転手にアイスランドは初めてか聞かれました。初めてだと言ってください。"
+partner_cue_meaning = "Welcome! How long will you be here?"
+partner_cue_meaning_ja = "ようこそ！どのくらい滞在するんですか？"
+partner_cue_situation = "He welcomed you and asked how long you're staying. Say a week."
+partner_cue_situation_ja = "歓迎してくれて、滞在期間を聞かれました。一週間だと言ってください。"
 
 [[items]]
 id = "mer_finnst_island_fallegt"
@@ -523,6 +571,14 @@ topics = ["grammar", "social"]
 chunks = ["áður", "hér áður", "verið hér áður", "Ég hef verið hér áður."]
 situation = "The driver asks if it's your first time. Say you've been here before."
 situation_ja = "運転手に初めてか聞かれました。前に来たことがあると答えてください。"
+partner_cue = "Takk! Ertu hér í fyrsta sinn?"
+partner_cue_after = "mer_finnst_island_fallegt"
+partner_cue_setup = "A taxi driver asks how you like Iceland. Say you think it's beautiful."
+partner_cue_setup_ja = "タクシーの運転手にアイスランドはどうか聞かれました。美しいと思うと言ってください。"
+partner_cue_meaning = "Thanks! Is this your first time here?"
+partner_cue_meaning_ja = "ありがとう！ここは初めてですか？"
+partner_cue_situation = "He thanked you and asked if it's your first time. Say you've been here before."
+partner_cue_situation_ja = "お礼を言って、初めてかどうか聞いてきました。前にも来たことがあると言ってください。"
 
 [[dialogues]]
 id = "leigubill"

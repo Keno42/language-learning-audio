@@ -216,6 +216,14 @@ difficulty = 3
 topics = ["shopping"]
 situation = "A shop assistant asks if she can help. Say you're just looking."
 situation_ja = "店員に手伝いが必要か聞かれました。見ているだけだと言ってください。"
+partner_cue = "Góðan daginn. Get ég aðstoðað þig?"
+partner_cue_after = "godan_daginn"
+partner_cue_setup = "You walk into a wool shop in the morning. Greet the shop assistant."
+partner_cue_setup_ja = "朝、毛糸の店に入りました。店員にあいさつしてください。"
+partner_cue_meaning = "Good morning. Can I help you?"
+partner_cue_meaning_ja = "おはようございます。何かお探しですか？"
+partner_cue_situation = "She greeted you and asked if she can help. Say you're just looking."
+partner_cue_situation_ja = "あいさつを返して、手伝おうかと聞いてきました。見ているだけだと言ってください。"
 
 [[items]]
 id = "ma_eg_mata_thetta"
@@ -239,6 +247,14 @@ topics = ["shopping"]
 chunks = ["klefinn", "mátunarklefinn", "Hvar er mátunarklefinn?"]
 situation = "You have the sweater in your hands. Ask where the fitting room is."
 situation_ja = "セーターを手に持っています。試着室はどこか聞いてください。"
+partner_cue = "Já, auðvitað."
+partner_cue_after = "ma_eg_mata_thetta"
+partner_cue_setup = "You've found a sweater you like. Ask the assistant if you may try it on."
+partner_cue_setup_ja = "気に入ったセーターを見つけました。店員に試着していいか聞いてください。"
+partner_cue_meaning = "Yes, of course."
+partner_cue_meaning_ja = "ええ、もちろんです。"
+partner_cue_situation = "She said of course. Ask where the fitting room is."
+partner_cue_situation_ja = "もちろんと言われました。試着室はどこか聞いてください。"
 
 [[items]]
 id = "thetta_er_of_stort"
@@ -250,6 +266,14 @@ difficulty = 2
 topics = ["shopping"]
 situation = "The sweater hangs off your shoulders. Say it's too big."
 situation_ja = "セーターが肩からずり落ちます。大きすぎると言ってください。"
+partner_cue = "Er það of lítið?"
+partner_cue_after = "thetta_passar_ekki"
+partner_cue_setup = "You come out of the fitting room shaking your head. Tell the assistant it doesn't fit."
+partner_cue_setup_ja = "首を振りながら試着室から出てきました。店員にサイズが合わないと伝えてください。"
+partner_cue_meaning = "Is it too small?"
+partner_cue_meaning_ja = "小さすぎますか？"
+partner_cue_situation = "She guessed it's too small, but it hangs off your shoulders. Say it's too big."
+partner_cue_situation_ja = "小さすぎるのかと聞かれましたが、肩からずり落ちています。大きすぎると言ってください。"
 
 [[items]]
 id = "thetta_er_of_litid"
@@ -295,6 +319,14 @@ topics = ["shopping"]
 chunks = ["lit", "öðrum lit", "í öðrum lit", "Áttu þetta í öðrum lit?"]
 situation = "You like the cut but not the orange. Ask for another colour."
 situation_ja = "形は好きですがオレンジは嫌です。別の色を頼んでください。"
+partner_cue = "Já, þetta er íslensk ull."
+partner_cue_after = "er_thetta_ull"
+partner_cue_setup = "An orange sweater looks handmade. Ask the assistant if it's wool."
+partner_cue_setup_ja = "オレンジ色のセーターが手編みのようです。店員にウールか聞いてください。"
+partner_cue_meaning = "Yes, it's Icelandic wool."
+partner_cue_meaning_ja = "ええ、アイスランドの羊毛です。"
+partner_cue_situation = "It's Icelandic wool, but you don't like the orange. Ask if she has it in another colour."
+partner_cue_situation_ja = "アイスランドの羊毛ですが、オレンジ色は好みではありません。ほかの色があるか聞いてください。"
 
 [[items]]
 id = "raudur"
@@ -411,6 +443,14 @@ topics = ["shopping"]
 chunks = ["málið", "hugsa málið", "Ég ætla að hugsa málið."]
 situation = "It's lovely but expensive. Tell the assistant you'll think about it."
 situation_ja = "素敵ですが高いです。店員に考えてみると言ってください。"
+partner_cue = "Frábært! Ætlarðu að taka hana?"
+partner_cue_after = "thetta_passar"
+partner_cue_setup = "You come out of the fitting room in the sweater. Tell the assistant it fits."
+partner_cue_setup_ja = "セーターを着て試着室から出てきました。店員にぴったりだと伝えてください。"
+partner_cue_meaning = "Great! Will you take it?"
+partner_cue_meaning_ja = "よかった！お買い上げになりますか？"
+partner_cue_situation = "She asked if you'll take it. It's lovely but expensive: say you'll think about it."
+partner_cue_situation_ja = "買うかどうか聞かれました。素敵ですが高いので、考えてみると言ってください。"
 
 [[items]]
 id = "get_eg_skilad_thessu"
@@ -489,6 +529,14 @@ difficulty = 2
 topics = ["shopping"]
 situation = "The assistant asks your size. Say you wear a medium."
 situation_ja = "店員にサイズを聞かれました。Mだと答えてください。"
+partner_cue = "Já. Hvaða stærð notar þú?"
+partner_cue_after = "attu_thetta_i_staerra"
+partner_cue_setup = "The sweater on the rack is too small for you. Ask the assistant if she has it in a bigger size."
+partner_cue_setup_ja = "棚のセーターは小さすぎます。店員にもっと大きいサイズがあるか聞いてください。"
+partner_cue_meaning = "Yes. What size do you wear?"
+partner_cue_meaning_ja = "はい。サイズはいくつですか？"
+partner_cue_situation = "She has it and asked your size. Say you wear a medium."
+partner_cue_situation_ja = "あるそうで、サイズを聞かれました。Mサイズだと言ってください。"
 
 [[dialogues]]
 id = "peysubud"

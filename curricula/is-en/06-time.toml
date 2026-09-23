@@ -320,6 +320,14 @@ difficulty = 2
 topics = ["arrangements"]
 situation = "She suggests Friday evening. Say that suits you well."
 situation_ja = "金曜の夜を提案されました。都合がいいと言ってください。"
+partner_cue = "Klukkan sjö. Hentar það?"
+partner_cue_after = "klukkan_hvad"
+partner_cue_setup = "Anna suggests meeting for dinner. Ask at what time."
+partner_cue_setup_ja = "アンナが夕食に誘ってくれました。何時か聞いてください。"
+partner_cue_meaning = "At seven. Does that suit you?"
+partner_cue_meaning_ja = "7時に。都合はいい？"
+partner_cue_situation = "She suggested seven and asked if that suits you. Say that suits you well."
+partner_cue_situation_ja = "7時を提案して、都合を聞いてきました。ちょうどいいと言ってください。"
 
 [[items]]
 id = "eg_get_ekki_a_morgun"
@@ -411,6 +419,14 @@ topics = ["arrangements", "time"]
 prereqs = ["tiu_minutur"]
 situation = "You're late and ten minutes away. Say you'll come in ten minutes."
 situation_ja = "遅れていて、あと10分です。10分後に着くと言ってください。"
+partner_cue = "Ekkert mál. Hvenær kemurðu?"
+partner_cue_after = "eg_er_sein"
+partner_cue_setup = "You call your friend from the bus. You were meant to meet at seven. Tell her you're late."
+partner_cue_setup_ja = "バスから友達に電話します。7時に待ち合わせでした。遅れると伝えてください。"
+partner_cue_meaning = "No problem. When will you get here?"
+partner_cue_meaning_ja = "大丈夫。いつ着く？"
+partner_cue_situation = "She said no problem and asked when you'll get there. Say you'll come in ten minutes."
+partner_cue_situation_ja = "大丈夫と言って、いつ着くか聞いてきました。10分後に行くと言ってください。"
 
 [[items]]
 id = "nuna"
