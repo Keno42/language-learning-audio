@@ -205,7 +205,7 @@ text_ja = "6月は太陽がほとんど沈まず、真夜中に芝を刈る人�
 
 [[notes]]
 id = "straeto"
-items = ["strætó", "hvenaer_fer_straeto", "einn_mida_takk"]
+items = ["strætó", "hvenaer_fer", "einn_mida_takk"]
 topics = ["transport"]
 text = "There is no train anywhere in Iceland, and the buses are called «strætó». You pay with the app or with exact change, because the driver gives none back. The Tokyo habit of trusting the timetable to the minute will be tested."
 text_ja = "アイスランドには鉄道が一本もなく、バスは «strætó» と呼ばれます。支払いはアプリか釣り銭なしの現金で、運転手はお釣りを出しません。時刻表を分単位で信じる東京の習慣は試されるでしょう。"

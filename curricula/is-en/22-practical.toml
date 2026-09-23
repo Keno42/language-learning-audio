@@ -106,15 +106,14 @@ situation = "Ask where you can charge your phone."
 situation_ja = "携帯をどこで充電できるか聞いてください。"
 
 [[items]]
-id = "netid_virkar_ekki"
-kind = "phrase"
-target = "Netið virkar ekki."
-meaning = "The internet doesn't work."
-meaning_ja = "インターネットがつながりません。"
+id = "netid"
+kind = "vocab"
+target = "netið"
+meaning = "the internet"
+meaning_ja = "インターネット"
 difficulty = 2
+tags = ["breaks"]
 topics = ["practical"]
-situation = "Tell reception the internet doesn't work."
-situation_ja = "受付にインターネットがつながらないと伝えてください。"
 
 [[items]]
 id = "hvad_er_netfangid_thitt"

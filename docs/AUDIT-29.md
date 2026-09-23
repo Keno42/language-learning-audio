@@ -61,8 +61,8 @@ Families of ≥3 phrases, with disposition and status.
 | `Ég á …` | 8 | 2 | possession + accusative with gendered counts (tvö börn, tvær systur, einn bróður). Candidate construction once an accusative-count pool exists; overlaps number/case |
 | `Takk fyrir …` | 4 | 2 | «fyrir» + accusative definite noun (dvölina, matinn, kvöldið); «Takk fyrir síðast» is a chunk (1). Candidate construction with an `acc_def` pool |
 | `Hvað heitir …?` | 5 | 2 | «Hvað heitir þú / hún / hann» is a pronoun paradigm (person). «… þetta á íslensku / þetta fjall» are separate |
-| `Hvenær fer …?` | 3 | 2 | nominative vehicles (strætó, flugið, ferjan). Construction over a `nom_vehicle` pool |
-| `… virkar ekki` | 3 | 2 | nominative definite nouns (sturtan, ljósið, netið). Construction candidate |
+| `Hvenær fer …?` | 3 | 2 | **construction added** (`hvenaer_fer` over `departs`: strætó, flugið, ferjan). The three phrases are gone; the `flugvollur` dialogue binds `flugid` with `expect_fill` |
+| `… virkar ekki` | 3 | 2 | **construction added** (`virkar_ekki` over `breaks`: sturtan, ljósið, netið, each now a vocab item where its phrase was) |
 | `Hvernig er …?` | 3 | 2 | nominative definite nouns; `hvar_er` already has a `nom_place` pool that could partly serve |
 | `Áttu þetta í …?` | 3 | 1/2 | stærra / minna / öðrum lit: shopping formulas, fine as chunks |
 | `Hvað er …?` / `Er þetta …?` / `Það er …` / `Þetta er …` | 8–17 | mostly 1 | frames shared, but the members are unrelated predicates. The scan over-groups them; no action |
@@ -94,4 +94,4 @@ Families of ≥3 phrases, with disposition and status.
    their fixed siblings. An activity verb joins `progressive_inf` too only after its
    «er að …» form is checked. (The leaking disambiguators were fixed in session 36.)
 4. Tense (past «var» / «var að») and person (`ég er` / `við erum` …) pilots.
-5. Remaining category-2 families (`Takk fyrir`, `Hvenær fer`, `… virkar ekki`, `Ég á`).
+5. Remaining category-2 families (`Takk fyrir`, `Ég á`). `Hvenær fer` and `… virkar ekki` are constructions now.

@@ -247,16 +247,31 @@ chunks = ["hérna", "net hérna", "þráðlaust net hérna", "Er þráðlaust ne
 situation = "You need to check your email. Ask if there's Wi-Fi."
 situation_ja = "メールを確認したいです。Wi-Fiがあるか聞いてください。"
 
+# issue #29 (category-2 family): «… virkar ekki» over things that break (nominative definite)
 [[items]]
-id = "sturtan_virkar_ekki"
-kind = "phrase"
-target = "Sturtan virkar ekki."
-meaning = "The shower doesn't work."
-meaning_ja = "シャワーが使えません。"
+id = "sturtan"
+kind = "vocab"
+target = "sturtan"
+meaning = "the shower"
+meaning_ja = "シャワー"
+difficulty = 2
+tags = ["breaks"]
+topics = ["accommodation", "home"]
+
+[[items]]
+id = "virkar_ekki"
+kind = "construction"
+target = "{thing} virkar ekki."
+meaning = "{thing} doesn't work."
+meaning_ja = "{thing}が使えません。"
 difficulty = 3
-topics = ["accommodation"]
+topics = ["accommodation", "home"]
+slots = { thing = "breaks" }
+example = { thing = "sturtan" }
+prereqs = ["sturtan"]
 situation = "Only cold water comes out. Tell reception the shower doesn't work."
 situation_ja = "冷たい水しか出ません。受付にシャワーが使えないと伝えてください。"
+situation_fill = { thing = "sturtan" }
 
 [[items]]
 id = "thad_er_ekkert_heitt_vatn"

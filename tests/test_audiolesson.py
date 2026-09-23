@@ -619,7 +619,7 @@ class CurriculumTests(unittest.TestCase):
         b.connect(sc, [cur.by_id["a"], cur.by_id["b"]])
         answers = [s.text for s in sc.segments if s.type == "answer"]
         self.assertNotIn("{n} widgets.", answers)
-        self.assertIn("tveir widgets.", answers)
+        self.assertIn("Tveir widgets.", answers)  # a sentence opening with a slot is capitalised
 
     def _talar_thu_builder(self, seed: int):
         """A Builder on the real is-en course whose learner knows every ``acc_language`` fill,
@@ -1443,6 +1443,35 @@ class CurriculumTests(unittest.TestCase):
         self.assertGreaterEqual(len(authored), 10)
         for it in authored:
             self.assertTrue(it.has_situation and cur.by_id[it.partner_cue_after].has_situation, it.id)
+
+    def test_fixed_phrase_families_become_constructions(self):
+        """Issue #29 audit, category 2: «Hvenær fer …?» and «… virkar ekki» were three fixed
+        strings each. Each is now one construction over a noun pool, no fixed phrase duplicates
+        a sentence it generates, and what used those phrases (a dialogue turn, a bridge) speaks
+        the construction with the fill it names."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for con_id, tag, fills, frame in (("hvenaer_fer", "departs", {"strætó", "flugid", "ferjan"}, r"^Hvenær fer \w+\?$"),
+                                          ("virkar_ekki", "breaks", {"sturtan", "ljosid", "netid"}, r"^\w+ virkar ekki\.$")):
+            self.assertEqual(cur.by_id[con_id].slots, {next(iter(cur.by_id[con_id].slots)): tag})
+            self.assertEqual({i.id for i in cur.items_with_tag(tag)}, fills)
+            self.assertFalse([i.id for i in cur.items if i.kind == "phrase" and re.match(frame, i.target)], con_id)
+        ljos = cur.resolve_slots(cur.by_id["virkar_ekki"], {"thing": cur.by_id["ljosid"]})
+        self.assertEqual(ljos, ("Ljósið virkar ekki.", "The light doesn't work."))
+
+        dlg = cur.dialogue_by_id["flugvollur"]
+        self.assertIn("flugid", dlg.required_items)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "L", cur.target_lang, cur.known_lang)
+        b.dialogue(sc, dlg)
+        self.assertIn("Hvenær fer flugið?", [s.text for s in sc.segments if s.type == "answer"])
+
+        b.in_lesson.update({"strætó"})
+        sc = Script(1, "L", cur.target_lang, cur.known_lang)
+        b.connect(sc, [cur.by_id["hvenaer_fer"], cur.by_id["hvad_kostar_i_straeto"]])
+        self.assertEqual([s.text for s in sc.segments if s.type in ("speak", "answer")],
+                         ["Hvenær fer strætó?", "Eftir tíu mínútur.", "Hvað kostar í strætó?"])
 
     def test_partner_bridges_reach_beyond_the_first_modules(self):
         """Issue #48: with bridges only in modules 01–03, a simulated course had no partner

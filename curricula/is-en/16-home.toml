@@ -235,15 +235,14 @@ situation = "There's a draught. Ask if you may close the door."
 situation_ja = "すきま風が入ります。ドアを閉めていいか聞いてください。"
 
 [[items]]
-id = "ljosid_virkar_ekki"
-kind = "phrase"
-target = "Ljósið virkar ekki."
-meaning = "The light doesn't work."
-meaning_ja = "電気がつきません。"
+id = "ljosid"
+kind = "vocab"
+target = "ljósið"
+meaning = "the light"
+meaning_ja = "電気"
 difficulty = 2
+tags = ["breaks"]
 topics = ["home"]
-situation = "You flip the switch and nothing happens. Tell your landlord."
-situation_ja = "スイッチを押しても何も起きません。大家に伝えてください。"
 
 [[items]]
 id = "eg_er_heima"
