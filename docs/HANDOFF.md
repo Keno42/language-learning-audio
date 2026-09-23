@@ -2993,6 +2993,24 @@ they are always available and nothing changes for them in practice. Tests
 and its fill are used; a streak-heavy planned lesson never pairs the
 German-bound construction. 146 tests, all passing.
 
+## Session 34: issue #59 — cloze prompts didn't say what to complete
+
+A real lesson played "Complete the sentence." + «Ég skil…» — but «Ég skil.» is itself a
+complete, known utterance, so nothing told the learner the target was «Ég skil ekki.»;
+«Gott að…» likewise left several completions open. The prompt gave only the partial surface
+form, never the communicative intent, turning the task into a test of remembering the
+course's sentence inventory.
+
+**Fix.** The `cloze` phrasing now takes `{meaning}`, like `hinted` already did: "Complete the
+sentence to say: I don't understand." / 「「わかりません」と言うように、文を完成させてください。」,
+then the partial phrase. Only the narration changed — the partial, the answer and every pause
+(and its duration) are identical to before, checked segment by segment on the two real cases.
+Cloze practice itself stays (the issue's non-goal).
+
+**Tests:** the two real cases (`eg_skil_ekki`, `gott_ad_heyra`) in both instructor languages,
+meaning narrated before the partial; and a course-wide guard that every cloze-eligible phrase's
+prompt contains its meaning (both fail on the pre-fix code). 148 tests, all passing.
+
 ## Session 14: issues #25–#27, starting with #27 (durable learning)
 
 Three new issues arrived together, all written by the owner as substantial
