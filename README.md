@@ -159,7 +159,12 @@ padding. From roughly lesson 5 on, the length is exact.
    in a row. Every few exercises a dialogue is played if the learner knows all
    its lines — two turns the first time, one more turn on each later
    encounter; constructions are recombined with known vocabulary into
-   sentences never heard verbatim.
+   sentences never heard verbatim. Each batch of new items also gets a
+   *connect* exercise that uses two items together, as a short exchange with
+   a partner line when one is authored. A long run of isolated recalls is
+   broken up by a dialogue, a note or a connect.
+   When the last example of a grammatical pattern arrives, a *milestone* note
+   names the pattern and two quick contrast recalls follow.
 3. **Closing.** The lesson ends by retrieving today's new items once more,
    hardest first so the last thing you do is succeed.
 4. **Learner update.** Every retrieval counts as a presumed success (audio
@@ -193,15 +198,13 @@ See `docs/CURRICULUM.md`. Three curricula ship:
   small talk; 47 items, 4 dialogues.
 - `curricula/fr-ja-a1.toml` — the same material for Japanese speakers
   (日本語の指示でフランス語を学ぶ), derived by `tools/derive_fr_ja.py`.
-- `curricula/is-en/` — Icelandic for English speakers, **993 items, 31
-  dialogues and 45 cultural asides in 26 topic modules** (greetings, café, directions, self, time,
+- `curricula/is-en/` — Icelandic for English speakers, **1012 items, 32
+  dialogues and 53 notes in 26 topic modules** (greetings, café, directions, self, time,
   weather, numbers/money, shopping, transport, accommodation, health, family,
   daily routine, hobbies, home, food, adjectives, question words, verb forms,
   work, practical life, nature, discourse, travel, feelings). Nouns are tagged
   by the case each construction needs. About five months at the default pace.
   Written by an AI and not yet reviewed by a native speaker.
-- `curricula/is-en-a1.toml` — the 61-item starter the module set grew out of
-  (kept for quick tests).
 
 A curriculum can be one file or a directory of modules merged in filename
 order (`audiolesson validate curricula/is-en`).
@@ -247,11 +250,13 @@ audiolesson/
   script.py     the intermediate timed script + transcript
   render/       audio.py (PCM/ffmpeg), tts.py (providers), renderer.py (script → file)
   cli.py        commands, incl. the --user/--root wrapper (out/<user>/, settings.json)
-curricula/      learning material: fr-en, fr-ja (files), is-en/ (26 modules)
-tools/          daily.sh (one day of the routine), derive_fr_ja.py (keeps fr-ja in sync with fr-en)
+curricula/      learning material: fr-en-a1, fr-ja-a1 (files), is-en/ (26 modules)
+tools/          daily.sh (one day of the routine), derive_fr_ja.py (keeps fr-ja in sync with fr-en),
+                gloss.py (inserts <field>_<lang> glosses), phrase_families.py (fixed-phrase audit)
 profiles/       voice profiles (provider + voice per speaker)
 tests/          python -m unittest
-docs/           HANDOFF.md (status + next steps), CURRICULUM.md (format)
+docs/           HANDOFF.md (current state, invariants, open issues), CURRICULUM.md (format),
+                AUDIT-29.md / AUDIT-48.md (status of the two open issues), history/ (session log)
 ```
 
 ## Development
