@@ -3127,6 +3127,20 @@ fixture (both lanes pinned, no bakery narration inside the bridge), gloss fading
 planner's `bridges_heard` bookkeeping, and scene-field validation (all fail pre-change).
 154 tests, all passing; throughput and partner-exchange coverage unchanged.
 
+**Correction (owner review on PR #61): `expect_fill` could bypass the durable gate.**
+`Builder.dialogue()` resolved a construction turn as `{**example_fill, **expect_fill}`,
+so on a multi-slot construction an unbound slot silently used the worked-example fill —
+not a required item. A dialogue whose other parts were learned became eligible and spoke
+a part never durably learned (reproduced: «tvo te, takk.» with «te» never learned); a
+construction turn with no `expect_fill` at all did the same. Now `validate()` requires
+`expect_fill` to bind every slot of a construction turn, and `Builder.dialogue()` refuses
+an unbound slot instead of falling back. `solubas` (one slot, bound) is unaffected. Test:
+partial and missing bindings rejected, full binding puts every part in `required_items`,
+and the gate itself (construction + one fill durable, the other only met → not eligible).
+Noticed while there, not fixed (pre-existing, out of scope): `validate()`'s "each turn
+needs expect or expect_text" / "expect_text needs expect_meaning" checks sit inside the
+`requires` loop, so they only ever see a dialogue's last turn.
+
 **Tests:** `expect_fill` (resolution, required items, three validation failures);
 the real `solubas` lane pinned verbatim; no dialogue on the course ever speaks a
 `{slot}` placeholder (all three error on the pre-fix code). 153 tests, all

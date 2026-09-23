@@ -598,8 +598,8 @@ def validate(cur: Curriculum) -> None:
         for t in d.turns:
             if t.expect and t.expect not in ids:
                 raise CurriculumError(f"dialogue {d.id!r} expects unknown item {t.expect!r}")
+            c = cur.by_id.get(t.expect) if t.expect else None
             if t.expect_fill:
-                c = cur.by_id.get(t.expect) if t.expect else None
                 if c is None or c.kind != "construction":
                     raise CurriculumError(f"dialogue {d.id!r}: expect_fill needs a construction as expect")
                 for s, ref in t.expect_fill.items():
@@ -607,6 +607,13 @@ def validate(cur: Curriculum) -> None:
                         raise CurriculumError(f"dialogue {d.id!r}: expect_fill names unknown slot {s!r} of {c.id!r}")
                     if ref not in ids or c.slots[s] not in cur.by_id[ref].tags:
                         raise CurriculumError(f"dialogue {d.id!r}: expect_fill {ref!r} is not a valid fill for {c.id!r}'s slot {s!r}")
+            if c is not None and c.kind == "construction":
+                # every slot bound, so every spoken part is a required item (owner review on PR #61:
+                # an unbound slot fell back to the worked example, which nothing required — a
+                # dialogue could become eligible and speak a part never durably learned)
+                unbound = sorted(set(c.slots) - set(t.expect_fill))
+                if unbound:
+                    raise CurriculumError(f"dialogue {d.id!r}: a turn expecting construction {c.id!r} must bind every slot in expect_fill — unbound {unbound}")
         for r in d.requires:
             if r not in ids:
                 raise CurriculumError(f"dialogue {d.id!r} requires unknown item {r!r}")

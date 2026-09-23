@@ -792,6 +792,45 @@ class CurriculumTests(unittest.TestCase):
             with self.assertRaisesRegex(CurriculumError, msg):
                 curriculum_from_dict(bad)
 
+    def test_a_construction_turn_must_bind_every_slot(self):
+        """Owner review on PR #61: with a multi-slot construction, a slot left out of
+        ``expect_fill`` silently fell back to the worked-example fill — which is not a required
+        item, so a dialogue whose other parts were learned became eligible and spoke a part the
+        learner had never durably learned (#27's gate bypassed). The same held for a construction
+        turn with no ``expect_fill`` at all. Every slot of a construction turn must now be bound,
+        so each spoken part is in ``required_items``."""
+        def raw(fill):
+            turn = {"cue": "Order two coffees.", "expect": "order"}
+            if fill is not None:
+                turn["expect_fill"] = fill
+            return {
+                "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                "items": [
+                    {"id": "tvo", "kind": "vocab", "target": "tvo", "meaning": "two", "tags": ["cnt"]},
+                    {"id": "thrju", "kind": "vocab", "target": "þrjú", "meaning": "three", "tags": ["cnt"]},
+                    {"id": "kaffi", "kind": "vocab", "target": "kaffi", "meaning": "coffee", "tags": ["drink"]},
+                    {"id": "te", "kind": "vocab", "target": "te", "meaning": "tea", "tags": ["drink"]},
+                    {"id": "order", "kind": "construction", "target": "{n} {drink}, takk.", "meaning": "{n} {drink}, please.",
+                     "slots": {"n": "cnt", "drink": "drink"}, "example": {"n": "thrju", "drink": "te"}},
+                ],
+                "dialogues": [{"id": "d", "setting": "A café.", "turns": [turn]}],
+            }
+
+        for fill, msg in (({"n": "tvo"}, "must bind every slot"), (None, "must bind every slot")):
+            with self.assertRaisesRegex(CurriculumError, msg):
+                curriculum_from_dict(raw(fill))
+        cur = curriculum_from_dict(raw({"n": "tvo", "drink": "kaffi"}))
+        self.assertTrue({"order", "tvo", "kaffi"} <= set(cur.dialogue_by_id["d"].required_items))
+
+        # the gate itself: with the construction and «kaffi» durable but «tvo» only met, the
+        # dialogue that would speak «tvo kaffi, takk.» is not eligible
+        learner = LearnerState("is", "en", "A1")
+        for i in ("order", "kaffi"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation")
+        learner.items["tvo"] = ItemState(due=TODAY.isoformat(), successes=1, durable_successes=0, stage="meaning")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, seed=1), today=TODAY)
+        self.assertIsNone(planner.eligible_dialogue())
+
     def test_real_market_stall_dialogue_generates_the_price(self):
         """Issue #48: session 26's number constructions were only ever safe inside connect(),
         never used in a partner-driven transaction. «solubas» puts the learner behind a stall:

@@ -662,8 +662,13 @@ class Builder:
                 item = self.cur.item(turn.expect)
                 expected = item.target
                 if item.kind == "construction":
-                    # never speak a raw template; the cue's bound fills, else the worked example
-                    fills = {**self.cur.example_fill(item), **{s: self.cur.by_id[f] for s, f in turn.expect_fill.items()}}
+                    # never speak a raw template, and never a part the dialogue didn't require:
+                    # validate() makes expect_fill bind every slot, so no fill falls back to the
+                    # worked example (owner review on PR #61)
+                    unbound = set(item.slots) - set(turn.expect_fill)
+                    if unbound:
+                        raise ValueError(f"dialogue {dlg.id!r}: construction turn {item.id!r} leaves slots {sorted(unbound)} unbound")
+                    fills = {s: self.cur.by_id[f] for s, f in turn.expect_fill.items()}
                     expected = self.cur.resolve_slots(item, fills)[0]
             else:
                 item = None
