@@ -138,6 +138,11 @@ example = { language = "islensku" }
 components = ["islensku"]
 prereqs = ["islensku"]
 pronunciation_notes = "læra: LAI-ra"
+# issue #29 pilot 3: a situation, so the vera_ad_progressive milestone can discriminate between
+# two different familiar «er að» examples, not replay one; bound to the fill it names (#57).
+situation = "A shop assistant hears your accent and asks what you're doing in Iceland. Say you're learning Icelandic."
+situation_ja = "店員さんがあなたのなまりに気づいて、アイスランドで何をしているのか聞きました。アイスランド語を勉強していると言ってください。"
+situation_fill = { language = "islensku" }
 
 [[items]]
 id = "gaetirdu_talad_haegar"
@@ -408,6 +413,8 @@ meaning_ja = "家に帰る"
 difficulty = 1
 tags = ["inf"]
 topics = ["daily"]
+meaning_forms = { ing = "going home" }  # issue #29 pilot 3: for "I'm {inf:ing}."
+meaning_forms_ja = { te = "家に帰って" }
 
 [[items]]
 id = "sofa"
@@ -418,6 +425,8 @@ meaning_ja = "寝る"
 difficulty = 1
 tags = ["inf"]
 topics = ["daily"]
+meaning_forms = { ing = "sleeping" }  # issue #29 pilot 3: for "I'm {inf:ing}."
+meaning_forms_ja = { te = "寝て" }
 
 [[items]]
 id = "borda"
@@ -428,6 +437,8 @@ meaning_ja = "食べる"
 difficulty = 1
 tags = ["inf"]
 topics = ["daily", "food"]
+meaning_forms = { ing = "eating" }  # issue #29 pilot 3: for "I'm {inf:ing}."
+meaning_forms_ja = { te = "食べて" }
 
 [[items]]
 id = "fara_i_sund"
@@ -438,6 +449,8 @@ meaning_ja = "泳ぎに行く"
 difficulty = 2
 tags = ["inf"]
 topics = ["daily", "hobbies"]
+meaning_forms = { ing = "going swimming" }  # issue #29 pilot 3: for "I'm {inf:ing}."
+meaning_forms_ja = { te = "泳ぎに行って" }
 
 [[items]]
 id = "fara_ut"
@@ -448,6 +461,8 @@ meaning_ja = "外に出る"
 difficulty = 1
 tags = ["inf"]
 topics = ["daily"]
+meaning_forms = { ing = "going out" }  # issue #29 pilot 3: for "I'm {inf:ing}."
+meaning_forms_ja = { te = "外に出て" }
 
 [[items]]
 id = "hvila_mig"
@@ -458,6 +473,8 @@ meaning_ja = "休む"
 difficulty = 2
 tags = ["inf"]
 topics = ["daily"]
+meaning_forms = { ing = "resting" }  # issue #29 pilot 3: for "I'm {inf:ing}."
+meaning_forms_ja = { te = "休んで" }
 
 [[items]]
 id = "versla"
@@ -468,6 +485,8 @@ meaning_ja = "買い物する"
 difficulty = 2
 tags = ["inf"]
 topics = ["daily", "shopping"]
+meaning_forms = { ing = "shopping" }  # issue #29 pilot 3: for "I'm {inf:ing}."
+meaning_forms_ja = { te = "買い物して" }
 
 [[items]]
 id = "kaupa_mida"
@@ -478,6 +497,8 @@ meaning_ja = "切符を買う"
 difficulty = 2
 tags = ["inf"]
 topics = ["daily", "transport"]
+meaning_forms = { ing = "buying a ticket" }  # issue #29 pilot 3: for "I'm {inf:ing}."
+meaning_forms_ja = { te = "切符を買って" }
 
 [[items]]
 id = "hringja_heim"
@@ -488,6 +509,8 @@ meaning_ja = "家に電話する"
 difficulty = 2
 tags = ["inf"]
 topics = ["daily"]
+meaning_forms = { ing = "calling home" }  # issue #29 pilot 3: for "I'm {inf:ing}."
+meaning_forms_ja = { te = "家に電話して" }
 
 [[items]]
 id = "fara_a_safnid"
@@ -498,6 +521,8 @@ meaning_ja = "博物館に行く"
 difficulty = 2
 tags = ["inf"]
 topics = ["daily"]
+meaning_forms = { ing = "going to the museum" }  # issue #29 pilot 3: for "I'm {inf:ing}."
+meaning_forms_ja = { te = "博物館に行って" }
 
 [[items]]
 id = "drekka_kaffi"
@@ -508,6 +533,8 @@ meaning_ja = "コーヒーを飲む"
 difficulty = 1
 tags = ["inf"]
 topics = ["daily", "cafe"]
+meaning_forms = { ing = "drinking coffee" }  # issue #29 pilot 3: for "I'm {inf:ing}."
+meaning_forms_ja = { te = "コーヒーを飲んで" }
 
 # New (issue #29 triage, cluster B): "ferð" (a trip/tour) previously existed only
 # inside "eg_vil_boka_ferd" (module 25), a fixed phrase that just spells out this
@@ -524,6 +551,8 @@ meaning_ja = "ツアーを予約する"
 difficulty = 2
 tags = ["inf"]
 topics = ["daily", "travel"]
+meaning_forms = { ing = "booking a tour" }  # issue #29 pilot 3: for "I'm {inf:ing}."
+meaning_forms_ja = { te = "ツアーを予約して" }
 
 [[items]]
 id = "eg_vil"
@@ -537,6 +566,12 @@ slots = { inf = "inf" }
 example = { inf = "fara_heim" }
 prereqs = ["fara_heim"]
 pronunciation_notes = "vilja takes the bare infinitive, no 'að'"
+# issue #29 pilot 3 (modality): a situation bound to the same verb as eg_verd_ad's and
+# ma_eg_inf's, so the modal_infinitive milestone's discrimination practice is a real minimal
+# trio — want / have to / may + "fara heim".
+situation = "The party is dull and you're tired. Tell your friend you want to go home."
+situation_ja = "パーティーが退屈で疲れました。家に帰りたいと友達に言ってください。"
+situation_fill = { inf = "fara_heim" }
 
 [[items]]
 id = "eg_aetla_ad"
@@ -595,6 +630,9 @@ slots = { inf = "inf" }
 example = { inf = "fara_heim" }
 prereqs = ["fara_heim", "eg_aetla_ad"]
 pronunciation_notes = "verða að — literally \"become to\"; the standard way to say need/have to"
+situation = "It's late and you have an early flight. Tell your host you have to go home."
+situation_ja = "もう遅く、明日は早い便です。家に帰らなければならないとホストに言ってください。"
+situation_fill = { inf = "fara_heim" }  # issue #29 pilot 3 — see eg_vil
 
 # Issue #29 cluster A: basic cardinal numbers used to be split across two later modules,
 # out of counting order and after several early dialogues already mention prices or ages —

@@ -278,17 +278,7 @@ chunks = ["hérna", "töskuna hérna", "geymt töskuna hérna", "Get ég geymt t
 situation = "You've checked out but your flight is at night. Ask if you can leave your bag."
 situation_ja = "チェックアウトしましたが便は夜です。荷物を預けられるか聞いてください。"
 
-[[items]]
-id = "eg_er_ad_fara"
-kind = "phrase"
-target = "Ég er að fara."
-meaning = "I'm leaving."
-meaning_ja = "出発します。"
-difficulty = 2
-topics = ["accommodation"]
-situation = "You put the key on the counter. Say you're leaving."
-situation_ja = "鍵をカウンターに置きます。出発すると言ってください。"
-
+# eg_er_ad_fara moved to module 06 (issue #29 pilot 3, aspect) — see that module.
 [[items]]
 id = "takk_fyrir_dvolina"
 kind = "phrase"
