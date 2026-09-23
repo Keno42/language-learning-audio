@@ -516,6 +516,41 @@ topics = ["grammar"]
 situation = "Someone calls you from the next room. Shout that you're coming."
 situation_ja = "隣の部屋から呼ばれました。今行くと叫んでください。"
 
+# Relocated from module 11 (issue #29 pilot 3, aspect): with «Ég er að koma!» right above and
+# «Ég er að læra {language}» from module 02, a third familiar «er að» example for the
+# vera_ad_progressive milestone to name the pattern from, before eg_er_ad_inf makes it productive.
+[[items]]
+id = "eg_er_ad_fara"
+kind = "phrase"
+target = "Ég er að fara."
+meaning = "I'm leaving."
+meaning_ja = "出発します。"
+difficulty = 2
+topics = ["accommodation"]
+situation = "You put the key on the counter. Say you're leaving."
+situation_ja = "鍵をカウンターに置きます。出発すると言ってください。"
+
+# issue #29 pilot 3 (aspect): «vera að» + infinitive, the progressive, as a real construction over
+# the same "inf" pool eg_vil/eg_verd_ad use — replacing the need for one fixed «Ég er að X» phrase
+# per verb. Session 27 found this blocked only on English ("I'm go home."); meaning_forms gives
+# each inf fill its "-ing" form ({inf:ing}) and Japanese te-form, so the Icelandic stays one
+# bare infinitive while the glosses read correctly. Gated on the vera_ad_progressive milestone's
+# own items, so the pattern is named before it is used productively.
+[[items]]
+id = "eg_er_ad_inf"
+kind = "construction"
+target = "Ég er að {inf}."
+meaning = "I'm {inf:ing}."
+meaning_ja = "今、{inf:te}いるところです。"
+difficulty = 3
+topics = ["grammar", "daily"]
+slots = { inf = "inf" }
+example = { inf = "fara_heim" }
+prereqs = ["eg_er_ad_koma", "eg_er_ad_fara", "eg_er_ad_laera", "fara_heim"]
+situation = "Your friend phones while you're on the bus. Tell her you're going home."
+situation_ja = "バスに乗っているときに友達から電話がありました。今、家に帰っているところだと言ってください。"
+situation_fill = { inf = "fara_heim" }
+
 [[dialogues]]
 id = "stefnumot"
 setting = "Anna wants to meet up. You're on the phone."

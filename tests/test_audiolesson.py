@@ -681,6 +681,77 @@ class CurriculumTests(unittest.TestCase):
                     if word and re.search(r"\b" + re.escape(word) + r"\b", text):
                         self.assertIn(slot, c.situation_fill, f"{c.id}: situation names {word!r} but slot {slot!r} is unbound")
 
+    def test_meaning_forms_render_a_fill_in_the_form_a_construction_asks_for(self):
+        """Issue #29 pilot 3: Icelandic uses the same bare infinitive after «er að», «má», «vil»,
+        but English/Japanese glosses don't — "I'm {inf:ing}." needs "going home", not "go home".
+        ``{slot:form}`` renders the fill's ``meaning_forms[form]`` (glossed per language like
+        ``meaning``), and validation insists every possible fill has that form."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "fara_heim", "kind": "vocab", "target": "fara heim", "meaning": "go home", "meaning_ja": "家に帰る",
+                 "tags": ["inf"], "meaning_forms": {"ing": "going home"}, "meaning_forms_ja": {"te": "家に帰って"}},
+                {"id": "sofa", "kind": "vocab", "target": "sofa", "meaning": "sleep", "meaning_ja": "寝る",
+                 "tags": ["inf"], "meaning_forms": {"ing": "sleeping"}, "meaning_forms_ja": {"te": "寝て"}},
+                {"id": "c", "kind": "construction", "target": "Ég er að {inf}.", "meaning": "I'm {inf:ing}.",
+                 "meaning_ja": "今、{inf:te}いるところです。", "slots": {"inf": "inf"}},
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        self.assertEqual(cur.resolve_slots(cur.by_id["c"], {"inf": cur.by_id["sofa"]}), ("Ég er að sofa.", "I'm sleeping."))
+        ja = curriculum_from_dict(raw, known_lang="ja")
+        self.assertEqual(ja.resolve_slots(ja.by_id["c"], {"inf": ja.by_id["fara_heim"]})[1], "今、家に帰っているところです。")
+        bad = json.loads(json.dumps(raw))
+        del bad["items"][1]["meaning_forms"]
+        with self.assertRaisesRegex(CurriculumError, "needs meaning_forms.ing"):
+            curriculum_from_dict(bad)
+
+    def test_real_aspect_and_modality_constructions_read_correctly_for_every_fill(self):
+        """Issue #29 pilot 3 on the real course: «Ég er að {inf}.» and «Má ég {inf}?» over the
+        whole "inf" pool resolve to well-formed glosses in both instructor languages — no raw
+        placeholders, and the progressive always reads "I'm …ing"."""
+        for lang in (None, "ja"):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            for cid in ("eg_er_ad_inf", "ma_eg_inf"):
+                for fill in cur.items_with_tag("inf"):
+                    target, meaning = cur.resolve_slots(cur.by_id[cid], {"inf": fill})
+                    self.assertNotIn("{", target + meaning, (cid, fill.id))
+                    if cid == "eg_er_ad_inf" and lang is None:
+                        self.assertRegex(meaning, r"^I'm \w+ing\b", fill.id)
+
+    def _lesson_introducing(self, item_id: str) -> tuple[Script, "Curriculum"]:
+        """A real is-en lesson for a learner who has learned everything before ``item_id``."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        limit = cur.by_id[item_id].order
+        for it in cur.items:
+            if it.order < limit:
+                learner.items[it.id] = ItemState(due=(TODAY + timedelta(days=30)).isoformat(), successes=3, durable_successes=3, stage="situation")
+        return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY).build(), cur
+
+    def test_modality_milestone_names_the_family_before_ma_eg_becomes_productive(self):
+        """Issue #29 pilot 3 (modality), generalising godur_gender: when «Má ég {inf}?» is
+        introduced, the modal_infinitive milestone has already named want / have to / may +
+        infinitive and immediately contrasted the familiar «Ég vil fara heim» / «Ég verð að
+        fara heim» — then the construction generates verbs beyond its worked example."""
+        sc, cur = self._lesson_introducing("ma_eg_inf")
+        labels = [ex.label for ex in sc.exercises]
+        self.assertIn("ma_eg_inf", sc.meta["new_items"])
+        note = labels.index("note: modal_infinitive")
+        self.assertLess(note, labels.index("new pattern: Má ég {inf}?"))
+        self.assertEqual(labels[note + 1 : note + 3], ["situation: Ég vil fara heim.", "situation: Ég verð að fara heim."])
+        novel = {l for ex, l in zip(sc.exercises, labels) if "ma_eg_inf" in ex.item_ids and ex.kind != "intro"} - {"situation: Má ég fara heim?"}
+        self.assertTrue(novel, labels)
+
+    def test_aspect_milestone_names_the_progressive_before_eg_er_ad_inf(self):
+        """Issue #29 pilot 3 (aspect): the vera_ad_progressive milestone names «er að» +
+        infinitive from «Ég er að koma!» / «Ég er að fara» / «Ég er að læra …» before the
+        productive «Ég er að {inf}.» is introduced."""
+        sc, cur = self._lesson_introducing("eg_er_ad_inf")
+        labels = [ex.label for ex in sc.exercises]
+        self.assertIn("eg_er_ad_inf", sc.meta["new_items"])
+        self.assertLess(labels.index("note: vera_ad_progressive"), labels.index("new pattern: Ég er að {inf}."))
+
     def test_dialogue_turn_can_expect_a_construction_with_a_bound_fill(self):
         """Issue #48: a dialogue turn may expect a construction, with the fill its cue names
         bound by ``expect_fill`` — the learner generates the line from known parts inside a real
@@ -1498,7 +1569,9 @@ class CurriculumTests(unittest.TestCase):
                 first, second = sc.exercises[note_idx + 1], sc.exercises[note_idx + 2]
                 for ex in (first, second):
                     self.assertEqual((ex.kind, ex.stage), ("recall", "situation"))
-                    self.assertEqual(len(ex.item_ids), 1)
+                    # a construction's recall also lists the fill it was generated with (support
+                    # exposure); the practised item itself is always first
+                    self.assertTrue(len(ex.item_ids) == 1 or cur.by_id[ex.item_ids[0]].kind == "construction", ex.item_ids)
                     self.assertIn(ex.item_ids[0], gate_ids)
                 self.assertNotEqual(first.item_ids[0], second.item_ids[0])
                 checked.add(note_id)
@@ -1951,7 +2024,8 @@ class CurriculumTests(unittest.TestCase):
                 for slot in it.slot_names:
                     if slot in it.agreement:
                         continue
-                    self.assertIn("{" + slot + "}", it.meaning, f"{it.id}: slot missing from Japanese meaning")
+                    # ``{slot:form}`` (Item.meaning_forms, issue #29 pilot 3) renders the same slot
+                    self.assertRegex(it.meaning, r"\{" + slot + r"(:\w+)?\}", f"{it.id}: slot missing from Japanese meaning")
         for d in cur.dialogues:
             self.assertTrue(any(ord(ch) > 0x3000 for ch in d.setting), d.id)
             for turn in d.turns:

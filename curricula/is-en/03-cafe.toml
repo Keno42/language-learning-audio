@@ -505,6 +505,25 @@ partner_cue_meaning_ja = "かしこまりました。4千クローナです。"
 partner_cue_situation = "He told you the total. You have no cash: ask if you may pay by card."
 partner_cue_situation_ja = "合計額を言われました。現金がないので、カードで払えるか聞いてください。"
 
+# issue #29 pilot 3 (modality): «má» + infinitive as a construction over the "inf" pool, instead
+# of one fixed «Má ég X?» phrase per verb (seven such phrases exist across the course). Gated on
+# the modal_infinitive milestone's items (eg_vil, eg_verd_ad, this module's «Má ég borga með
+# korti?»), so want / have to / may are named as one family before «má» becomes productive.
+[[items]]
+id = "ma_eg_inf"
+kind = "construction"
+target = "Má ég {inf}?"
+meaning = "May I {inf}?"
+meaning_ja = "{inf:te}もいいですか？"
+difficulty = 3
+topics = ["grammar", "daily"]
+slots = { inf = "inf" }
+example = { inf = "fara_heim" }
+prereqs = ["ma_eg_borga_med_korti", "eg_vil", "eg_verd_ad", "fara_heim"]
+situation = "You feel unwell at work. Ask your boss if you may go home."
+situation_ja = "仕事中に気分が悪くなりました。家に帰ってもいいか上司に聞いてください。"
+situation_fill = { inf = "fara_heim" }
+
 [[items]]
 id = "eg_er_svong"
 kind = "phrase"

@@ -16,6 +16,9 @@ KINDS = ("vocab", "phrase", "construction", "transform")
 GENDERS = ("masc", "fem", "neut")
 
 _SLOT_RE = re.compile(r"\{(\w+)\}")
+# ``{slot:form}`` in a construction's *meaning*: the fill's ``meaning_forms[form]`` instead of
+# its plain ``meaning`` (issue #29 pilot 3) — "I'm {inf:ing}." → "I'm going home."
+_FORM_SLOT_RE = re.compile(r"\{(\w+):(\w+)\}")
 _WORD_RE = re.compile(r"\w+", re.UNICODE)
 
 # «...» inside a Note's text marks a target-language phrase that Builder.note() (exercises.py)
@@ -108,6 +111,12 @@ class Item:
     # speaks English." only fits "Talar þú ensku?", so any exercise that narrates this
     # construction's situation must use that fill; other stages still generate freely.
     situation_fill: dict[str, str] = field(default_factory=dict)
+    # slot filler: alternative known-language renderings of ``meaning`` that a construction can
+    # ask for with ``{slot:form}`` (issue #29 pilot 3). The target-language fill never changes —
+    # Icelandic uses the same bare infinitive after "vera að", "má", "verða að" — but its
+    # English/Japanese gloss does: "go home" / "going home" / 「家に帰って」. Glossed like
+    # ``meaning`` (``meaning_forms_ja``).
+    meaning_forms: dict[str, str] = field(default_factory=dict)
     instruction: str = ""  # transform: known-language instruction, e.g. "Make it negative:"
     examples: list[TransformExample] = field(default_factory=list)  # transform pairs
     order: int = 0
@@ -321,6 +330,9 @@ class Curriculum:
         for slot, item in fills.items():
             target = target.replace("{" + slot + "}", item.target.rstrip("."))
             meaning = meaning.replace("{" + slot + "}", item.meaning.rstrip("."))
+            meaning = _FORM_SLOT_RE.sub(
+                lambda m: item.meaning_forms.get(m.group(2), item.meaning).rstrip(".") if m.group(1) == slot else m.group(0), meaning
+            )
         return target, meaning
 
     def situation_fills(self, construction: Item) -> dict[str, Item]:
@@ -394,7 +406,7 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
 
 
 # fields that may carry per-language glosses (``<field>_<lang>``)
-_GLOSSED_ITEM = ("meaning", "situation", "situations", "instruction", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation")
+_GLOSSED_ITEM = ("meaning", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation")
 _GLOSSED_EXAMPLE = ("source_meaning", "result_meaning")
 _GLOSSED_TURN = ("cue", "opener_meaning", "partner_meaning", "expect_meaning")
 _GLOSSED_DIALOGUE = ("setting",)
@@ -555,8 +567,13 @@ def validate(cur: Curriculum) -> None:
                     continue
                 if s not in it.slots:
                     raise CurriculumError(f"construction {it.id!r}: slot {s!r} has no tag in [slots]")
-                if "{" + s + "}" not in it.meaning:
+                forms = [f for slot, f in _FORM_SLOT_RE.findall(it.meaning) if slot == s]
+                if "{" + s + "}" not in it.meaning and not forms:
                     raise CurriculumError(f"construction {it.id!r}: meaning must also contain {{{s}}}")
+                for form in forms:
+                    lacking = [c.id for c in cur.items_with_tag(it.slots[s]) if form not in c.meaning_forms]
+                    if lacking:
+                        raise CurriculumError(f"construction {it.id!r}: {{{s}:{form}}} needs meaning_forms.{form} on {lacking}")
                 if not cur.items_with_tag(it.slots[s]):
                     raise CurriculumError(f"construction {it.id!r}: no item carries tag {it.slots[s]!r}")
             for s, ref in it.example.items():
