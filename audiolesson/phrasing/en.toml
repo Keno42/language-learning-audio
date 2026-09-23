@@ -47,9 +47,11 @@ aside_end = "Back to the lesson."
 milestone_intro = "Here's a pattern worth noticing."
 milestone_end = "Let's continue."
 dialogue_replay = "Now the whole conversation, without pauses."
+# an authored exchange: one scene, with a partner line between the two answers
 connect_intro = "Let's put a couple of things together."
-# issue #69: a recombination-only connect pairs two independent situations; "And then —"
-# implied the second followed from the first. An authored exchange uses its own scene cues instead.
+# two unrelated situations back to back (issues #69, #78): framed as review, never as a
+# connection or a continuation
+mixed_review_intro = "Quick review: two separate situations."
 connect_next = "Now another situation."
 
 [language_names]

@@ -503,20 +503,22 @@ class Builder:
     # ---------------------------------------------------------------- connect
 
     def connect(self, sc: Script, items: list[Item]) -> Exercise:
-        """Two already-known items in one exercise: connected use when no authored dialogue
-        fits, and a way to break a drill streak.
+        """Two already-known items in one exercise, used for an arc's connected use and to
+        break a drill streak.
 
         If ``items[1]`` has a bridge written for ``items[0]`` (``partner_cue_after``), this is
         an ``exchange``: one scene, with the partner's line spoken between the two answers.
-        Otherwise it is ``recombine`` practice: two independent situations joined by a neutral
-        transition that doesn't imply the second follows from the first."""
+        Otherwise there is no relation to show, so it is presented as mixed review (stage
+        ``recombine``): two independent situations, framed as review and joined by a neutral
+        transition, never as a connection or a continuation."""
         first, second = items[0], items[1]
         first_target = self._connect_target(first)
         second_target = self._connect_target(second)
         ids = [first.id, second.id]
         bridged = bool(second.partner_cue) and second.partner_cue_after == first.id
-        ex = sc.new_exercise("connect", "exchange" if bridged else "recombine", ids, f"connect: {first.id}+{second.id}")
-        self._narr(sc, ex, self.prompts.get("connect_intro"))
+        label = f"connect: {first.id}+{second.id}" if bridged else f"mixed review: {first.id}+{second.id}"
+        ex = sc.new_exercise("connect", "exchange" if bridged else "recombine", ids, label)
+        self._narr(sc, ex, self.prompts.get("connect_intro" if bridged else "mixed_review_intro"))
         self._beat(sc, ex)
         # a bridge's own scene replaces the items' standalone situations
         self._narr(sc, ex, second.partner_cue_setup if bridged else self._situation(first, advance=False))  # type: ignore[arg-type]
