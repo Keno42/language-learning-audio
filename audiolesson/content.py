@@ -115,7 +115,10 @@ class Item:
     # ask for with ``{slot:form}`` (issue #29 pilot 3). The target-language fill never changes —
     # Icelandic uses the same bare infinitive after "vera að", "má", "verða að" — but its
     # English/Japanese gloss does: "go home" / "going home" / 「家に帰って」. Glossed like
-    # ``meaning`` (``meaning_forms_ja``).
+    # ``meaning`` (``meaning_forms_ja``). The ``in_sentence`` form is special: a construction's
+    # plain ``{slot}`` uses it instead of ``meaning``, so a disambiguator meant for isolated recall
+    # ("English (the language)", "the hotel (after 'to' / 'for')") doesn't leak into a sentence
+    # prompt ("Do you speak English?").
     meaning_forms: dict[str, str] = field(default_factory=dict)
     instruction: str = ""  # transform: known-language instruction, e.g. "Make it negative:"
     examples: list[TransformExample] = field(default_factory=list)  # transform pairs
@@ -329,7 +332,9 @@ class Curriculum:
             target = target.replace("{" + slot + "}", rule[gender])
         for slot, item in fills.items():
             target = target.replace("{" + slot + "}", item.target.rstrip("."))
-            meaning = meaning.replace("{" + slot + "}", item.meaning.rstrip("."))
+            # inside a sentence, a fill's gloss drops its isolated-recall disambiguator ("English
+            # (the language)" → "English") when an ``in_sentence`` form is authored (issue #29 audit)
+            meaning = meaning.replace("{" + slot + "}", item.meaning_forms.get("in_sentence", item.meaning).rstrip("."))
             meaning = _FORM_SLOT_RE.sub(
                 lambda m: item.meaning_forms.get(m.group(2), item.meaning).rstrip(".") if m.group(1) == slot else m.group(0), meaning
             )

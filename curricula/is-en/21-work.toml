@@ -345,8 +345,8 @@ meaning_ja = "働く"
 difficulty = 1
 tags = ["inf", "progressive_inf"]
 topics = ["work"]
-meaning_forms = { ing = "working" }  # issue #29 pilot 3: for "I'm {inf:ing}."
-meaning_forms_ja = { te = "働いて" }
+meaning_forms = { ing = "working", in_sentence = "work" }  # issue #29 pilot 3: for "I'm {inf:ing}."
+meaning_forms_ja = { te = "働いて", in_sentence = "働く" }
 
 [[items]]
 id = "laera"

@@ -1120,6 +1120,60 @@ class CurriculumTests(unittest.TestCase):
         with self.assertRaisesRegex(CurriculumError, "without a partner_cue"):
             curriculum_from_dict(orphan)
 
+    def test_generated_sentence_prompts_carry_no_recall_disambiguators(self):
+        """Issue #29 audit finding: a fill's gloss can carry a disambiguator meant for isolated
+        recall ("English (the language)", "the hotel (after 'to' / 'for')", "work (to work)"),
+        and constructions pasted it into sentence prompts — "Say: Do you speak English (the
+        language)?" in most simulated lessons. A fill's ``in_sentence`` form is used instead.
+        Every construction × fill, in both instructor languages, now resolves without a
+        parenthetical, except the audited few where it tells the learner which word to produce
+        (vinur vs vinkona; bróðir/systir covering older and younger). Isolated recall keeps the
+        disambiguator."""
+        informative = {None: {"vinur_minn", "vinkona_min"}, "ja": {"vinur_minn", "vinkona_min", "brodir_minn", "systir_min"}}
+        for lang in (None, "ja"):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            for c in cur.items:
+                if c.kind != "construction":
+                    continue
+                for slot, tag in c.slots.items():
+                    for fill in cur.items_with_tag(tag):
+                        if fill.id in informative[lang]:
+                            continue
+                        fills = cur.example_fill(c)
+                        fills[slot] = fill
+                        meaning = cur.resolve_slots(c, fills)[1]
+                        # a construction's own authored annotation ("(feminine count word)") is
+                        # deliberate guidance; only what the fills bring in is checked
+                        for own in re.findall(r"[（(][^）)]*[）)]", c.meaning):
+                            meaning = meaning.replace(own, "")
+                        self.assertNotRegex(meaning, r"[（(]", (lang, c.id, fill.id))
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertEqual(cur.by_id["ensku"].meaning, "English (the language)")
+
+    def test_eigdu_transfers_godur_gender_to_a_new_frame(self):
+        """Issue #29 (owner comment on Lesson 3: grammar noticed but not transferred): «Eigðu
+        góðan dag» was one more fixed string. ``eigdu_godur`` applies godur_gender's accusative
+        agreement in the «Eigðu …» wish frame to the three nouns whose genders that note names,
+        generating «Eigðu góða nótt.» / «Eigðu gott kvöld.» (never authored), in both instructor
+        languages; and a learner who has learned everything before it gets the fills and the
+        pattern in the same lesson, not several lessons of isolated «dag»/«nótt» drills."""
+        expected = {
+            None: {"dag_acc": ("Eigðu góðan dag.", "Have a good day."), "nott_acc": ("Eigðu góða nótt.", "Have a good night."),
+                   "kvold_acc": ("Eigðu gott kvöld.", "Have a good evening.")},
+            "ja": {"dag_acc": ("Eigðu góðan dag.", "良い一日を。"), "nott_acc": ("Eigðu góða nótt.", "良い夜を。"),
+                   "kvold_acc": ("Eigðu gott kvöld.", "良い夕べを。")},
+        }
+        for lang, rows in expected.items():
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            for fill_id, pair in rows.items():
+                self.assertEqual(cur.resolve_slots(cur.by_id["eigdu_godur"], {"time": cur.by_id[fill_id]}), pair)
+            self.assertIn("eigdu_godur", cur.note_by_id["godur_gender"].transfer_items)
+        sc, cur = self._lesson_introducing("dag_acc")
+        new = sc.meta["new_items"]
+        self.assertIn("eigdu_godur", new, new)
+        generated = {ex.label.split(": ", 1)[1] for ex in sc.exercises if "eigdu_godur" in ex.item_ids and ex.kind != "intro"}
+        self.assertTrue(generated - {"Eigðu góðan dag."}, generated)
+
     def test_connect_plays_the_owners_real_curriculum_worked_example(self):
         """Issue #48: the real authored pair from the owner's own review — with the
         instructor scaffolding stripped away, the target-language turns alone should form
@@ -1719,7 +1773,12 @@ class CurriculumTests(unittest.TestCase):
         slot with only gender varying."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         godur_gender = cur.note_by_id["godur_gender"]
-        self.assertFalse(godur_gender.transfer_items, "godur_gender must not pair accusative examples with nominative ones")
+        # transfer is allowed only within the same (accusative) case: e.g. eigdu_godur, whose
+        # agreement forms are exactly godur_gender's góðan / góða / gott (issue #29 transfer)
+        for tid in godur_gender.transfer_items:
+            t = cur.by_id[tid]
+            forms = {g: f.lower() for rule in t.agreement.values() for g, f in rule.items() if g != "from"}
+            self.assertEqual(forms, {"masc": "góðan", "fem": "góða", "neut": "gott"}, f"{tid} pairs godur_gender with another case")
         nominative = cur.note_by_id["godur_gender_nominative"]
         self.assertEqual(set(nominative.items), {"godur_matur", "thad_er_god_hugmynd", "gott_vedur"})
         self.assertIn("nominative", nominative.text.lower())
