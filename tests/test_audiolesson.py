@@ -3813,6 +3813,7 @@ class CliTests(unittest.TestCase):
                     clips = sorted(cache.iterdir())
                     self.assertTrue(clips)
             self.assertEqual(sorted(cache.iterdir()), clips, "the same lesson adds no new clips")
+            self.assertFalse([c for c in clips if c.suffix != ".wav"], "no temp file left behind")
 
     def test_user_wrapper_remembers_settings_across_calls(self):
         """--user NAME is a thin wrapper: files land under <root>/NAME/, and the curriculum,

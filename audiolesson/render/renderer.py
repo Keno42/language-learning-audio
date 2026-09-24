@@ -10,8 +10,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import sys
+import threading
 import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -242,7 +244,11 @@ def _cached(provider: Provider, cache: Path, text: str, lang: str, voice: str, r
     clip = provider.synthesize(text, lang, voice, rate)
     if trim:
         clip = clip.trimmed()
-    write_wav(clip, path)
+    # write then rename: a cache shared between learners (generate --cache) may be read
+    # by another run meanwhile, and a crash must not leave a truncated clip behind
+    tmp = path.with_name(f"{path.stem}.{os.getpid()}.{threading.get_ident()}.tmp")
+    write_wav(clip, tmp)
+    os.replace(tmp, path)
     return clip
 
 
