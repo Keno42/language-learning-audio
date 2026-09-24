@@ -2401,6 +2401,25 @@ class CurriculumTests(unittest.TestCase):
             day += timedelta(days=1)
         self.assertGreaterEqual(late_asides, 10, "asides must keep coming after the first lessons")
 
+    def test_a_dialogue_is_announced_before_anyone_speaks(self):
+        """Issue #85: a dialogue opened with its setting and then, often, a partner line in a new
+        voice; nothing marked the switch from drills to a conversation. Every dialogue now opens
+        with ``dialogue_start`` in both instructor languages, before the setting and before the
+        first partner line."""
+        from audiolesson.exercises import Builder
+
+        for lang in ("en", "ja"):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            prompts = Prompts.load(lang)
+            dlg = cur.dialogue_by_id["tungumal"]
+            for assisted in (True, False):
+                b = Builder(cur, prompts, Timing(level="A1"), LearnerState("is", lang, "A1"))
+                sc = Script(1, "L", cur.target_lang, lang)
+                b.dialogue(sc, dlg, assisted=assisted)
+                segs = [(s.type, s.text) for s in sc.segments if s.type != "pause"]
+                self.assertEqual(segs[0], ("narrate", prompts.get("dialogue_start")), (lang, assisted))
+                self.assertEqual(segs[1], ("narrate", dlg.setting))
+
     def test_icelandic_course_has_complete_japanese_glosses(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
         self.assertEqual(cur.known_lang, "ja")

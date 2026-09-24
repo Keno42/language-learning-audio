@@ -570,6 +570,8 @@ class Builder:
         label = f"dialogue: {dlg.id}" + ("" if len(turns) == len(dlg.turns) else f" ({len(turns)}/{len(dlg.turns)} turns)")
         ex = sc.new_exercise("dialogue", "dialogue", ids, label)
         partner = dlg.partner_speaker
+        # the switch from drills to a conversation is the biggest change of mode in a lesson
+        self._narr(sc, ex, self.prompts.get("dialogue_start"))
         self._narr(sc, ex, dlg.setting)
         self._beat(sc, ex)
         lines: list[tuple[str, str]] = []
