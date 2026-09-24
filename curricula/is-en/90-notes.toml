@@ -425,3 +425,62 @@ transfer_items = ["mer_lidur"]
 topics = ["grammar", "feelings"]
 text = "«Mér er kalt», «Mér líður illa» and «Hvernig líður þér?» all put the person who feels in the dative: «mér» for «ég», and «þér» for «þú». So «Hvernig líður þér?» asks about you, and the answer starts with «Mér líður…»."
 text_ja = "«Mér er kalt»、«Mér líður illa»、«Hvernig líður þér?» では、どれも感じる人が与格になっています。«ég» なら «mér»、«þú» なら «þér» です。ですから «Hvernig líður þér?» はあなたのことを聞いていて、答えは «Mér líður…» で始まります。"
+
+# issue #82: each recurring sound feature named once, aloud, when its first examples are met.
+# Written with a Japanese listener in mind (text_ja); only features with no exceptions to hedge.
+[[notes]]
+id = "pron_stress_final"
+milestone = true
+items = ["takk", "bless", "skal"]
+topics = ["pronunciation"]
+text = "Two habits carry across every Icelandic word. The stress is always on the first syllable. And a word ends on its consonant, with no vowel added: «Takk», «Bless», «Skál». In «Takk» the double k also starts with a small breath, like 'tahk'."
+text_ja = "アイスランド語全体に効く二つのコツです。アクセントはいつも最初の音節にあります。そして語末の子音のあとに母音を足さないこと：«Takk» は「タック」、«Bless» は「ブレッス」で、「タック・ウ」「ブレス・ウ」のように「ウ」を付けません。«Takk» の kk は、直前に小さく息を吐くように「タハク」と聞こえます。"
+
+[[notes]]
+id = "pron_th"
+milestone = true
+items = ["thvi_midur", "fyrirgefdu", "godan_daginn"]
+topics = ["pronunciation"]
+text = "Two letters English speakers know as 'th'. 'þ', as in «Því miður», is the voiceless 'th' of 'think'. 'ð', as in «Fyrirgefðu» and «Góðan daginn», is the voiced 'th' of 'this'. 'þ' only ever starts a word; 'ð' never does."
+text_ja = "日本語にない音が二つあります。「þ」は英語 think の th で、舌先を上の歯に軽く当てて息だけを出します（«Því miður»）。「ð」は英語 this の th で、同じ舌の位置で声を出します（«Fyrirgefðu»、«Góðan daginn»）。サ行やザ行、ダ行にならないように。「þ」は単語の頭にだけ、「ð」は頭以外にだけ出てきます。"
+
+[[notes]]
+id = "pron_hv"
+milestone = true
+items = ["hvad_segirdu_gott", "hvernig_hefurdu_thad", "hvad_sagdirdu"]
+topics = ["pronunciation"]
+text = "Question words starting with 'hv' are said with a 'kv' sound: «Hvað segirðu gott?», «Hvernig hefurðu það?», «Hvað sagðirðu?». Trust the recording rather than the spelling."
+text_ja = "「hv」で始まる疑問詞は「クヴ」と発音します：«Hvað segirðu gott?»、«Hvernig hefurðu það?»、«Hvað sagðirðu?»。つづりではなく、録音の音をまねてください。"
+
+[[notes]]
+id = "pron_vowels"
+milestone = true
+items = ["sjaumst", "takk_kaerlega", "goda_nott"]
+topics = ["pronunciation"]
+text = "Three vowels sound like two. 'á' is 'ow' as in 'now': «Sjáumst». 'æ' is 'eye': «Takk kærlega». 'ó' is 'oh', gliding to 'u': «Góða nótt». The accent mark doesn't mean stress; it changes the vowel."
+text_ja = "文字は一つでも、二つの母音のように聞こえるものがあります。「á」は「アウ」（«Sjáumst»）、「æ」は「アイ」（«Takk kærlega»）、「ó」は「オウ」（«Góða nótt»）。アクセント記号は強く読む印ではなく、別の母音を表す印です。"
+
+# issue #79: near-synonyms the early lessons teach side by side, named once they are all met
+[[notes]]
+id = "say_it_again"
+milestone = true
+items = ["ha", "hvad_sagdirdu", "gaetirdu_endurtekid_thetta"]
+topics = ["clarifying"]
+text = "Three ways to ask someone to say it again. «Ha?» is a quick 'huh?', fine with friends. «Hvað sagðirðu?» asks 'what did you say?' when you didn't catch it at all. «Gætirðu endurtekið þetta?» is the polite request, 'could you repeat that?', for staff and strangers."
+text_ja = "聞き返し方は三つあります。«Ha?» は「え？」に近い、友達同士の短い聞き返しです。«Hvað sagðirðu?» は「何て言ったの？」で、まったく聞き取れなかったときに使います。«Gætirðu endurtekið þetta?» は「もう一度言っていただけますか？」という丁寧なお願いで、店員や知らない人に向いています。"
+
+[[notes]]
+id = "dont_know"
+milestone = true
+items = ["eg_veit_ekki", "eg_skil_ekki", "eg_er_ekki_viss"]
+topics = ["clarifying"]
+text = "Three different answers that are easy to mix up. «Ég veit ekki»: I don't know, you have no information. «Ég skil ekki»: I don't understand, you heard it but didn't follow. «Ég er ekki viss»: I'm not sure, you have an idea but no certainty."
+text_ja = "混同しやすい三つの答えです。«Ég veit ekki» は「知りません」、情報を持っていないときです。«Ég skil ekki» は「わかりません」、聞こえたけれど理解できなかったときです。«Ég er ekki viss» は「確かではありません」、見当はあるけれど自信がないときです。"
+
+[[notes]]
+id = "goodbyes"
+milestone = true
+items = ["bless", "sjaumst", "sjaumst_seinna"]
+topics = ["greetings"]
+text = "«Bless» simply says goodbye, to anyone. «Sjáumst», literally 'we'll see each other', and «Sjáumst seinna», 'see you later', also say you expect to meet again, so they suit friends and colleagues rather than a shop you won't return to."
+text_ja = "«Bless» はただの「さようなら」で、誰にでも使えます。«Sjáumst»（直訳は「また会いましょう」）と «Sjáumst seinna»（「またあとで」）は、また会うつもりだという気持ちも伝えるので、二度と来ないお店よりも、友達や同僚に向いています。"

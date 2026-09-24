@@ -37,6 +37,7 @@ class PlanConfig:
     dialogue_first_turns: int = 2  # turns played the first time; one more each later encounter
     max_dialogues: int | None = None  # per lesson (default: one per 10 minutes, at least 2)
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
+    max_reactive_milestones: int = 2  # milestones fired after their item, per lesson; more wait for the next one
     max_streak_relief_notes: int = 2  # extra notes beyond max_notes, only to break a drill streak no dialogue can
     note_chance: float = 0.7  # chance to play a related note right after its item
     note_repeat_gap: int = 20  # lessons before a heard aside may play again
@@ -334,8 +335,10 @@ class Planner:
     def _maybe_note(self, sc: Script, related: list[str], remaining: float) -> object | None:
         """Play a due milestone, else maybe a related aside. Returns the milestone, if one
         played, so ``build()`` can follow it with discrimination practice. A milestone skips
-        the aside ration and ``note_chance``."""
-        if remaining >= 40:
+        the aside ration and ``note_chance``; at most ``max_reactive_milestones`` fire this way
+        per lesson, the rest wait for the next lesson."""
+        fired = sum(1 for nid in self.notes_played if self.cur.note_by_id[nid].milestone)
+        if remaining >= 40 and fired < self.cfg.max_reactive_milestones:
             milestone = self._eligible_milestone(related)
             if milestone is not None:
                 self._play_note(sc, milestone)
@@ -680,6 +683,10 @@ class Planner:
             #    else take an extra new item, else accept a repeat, else stop.
             if not acted:
                 candidate = next((p for p in sorted(pending) if p.item.id not in recent), None)
+                if candidate is None and [e.kind for e in sc.exercises[-2:]] == ["intro", "intro"]:
+                    # never a third introduction in a row (lesson 1 has nothing else to offer):
+                    # recall the earlier of the two instead, only the very last item is off limits
+                    candidate = next((p for p in sorted(pending) if p.item.id != recent[-1]), None)
                 can_intro = idx - last_intro >= 1 and len(introduced) < cfg.resolved_max_new_items()
                 if candidate is not None:
                     pending.remove(candidate)
