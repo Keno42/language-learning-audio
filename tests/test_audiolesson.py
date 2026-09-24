@@ -3796,6 +3796,24 @@ class CliTests(unittest.TestCase):
             self.assertEqual(rc, 0)
             self.assertTrue((Path(td) / "lesson-002.wav").exists())
 
+    def test_generate_cache_can_be_shared_between_learners(self):
+        """--cache puts the TTS clips in one place: a second learner re-uses the first's
+        clips (the file name hashes provider, voice, rate, language and text)."""
+        from audiolesson.cli import main
+
+        with tempfile.TemporaryDirectory() as td:
+            cache = Path(td) / "tts-cache"
+            for name in ("a", "b"):
+                out = Path(td) / name
+                rc = main(["generate", "-c", str(CURRICULUM), "-l", str(out / "learner.json"), "-o", str(out),
+                           "-m", "3", "--provider", "stub", "--cache", str(cache), "--date", "2026-09-18"])
+                self.assertEqual(rc, 0)
+                self.assertFalse((out / "cache").exists(), "nothing cached under --out")
+                if name == "a":
+                    clips = sorted(cache.iterdir())
+                    self.assertTrue(clips)
+            self.assertEqual(sorted(cache.iterdir()), clips, "the same lesson adds no new clips")
+
     def test_user_wrapper_remembers_settings_across_calls(self):
         """--user NAME is a thin wrapper: files land under <root>/NAME/, and the curriculum,
         --known, --minutes etc. from the first call don't need repeating on later ones."""

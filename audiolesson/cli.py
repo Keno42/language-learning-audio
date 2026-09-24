@@ -47,6 +47,7 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--profile", "-p", default=None, help="voice profile .toml (see profiles/)")
     g.add_argument("--provider", default=None, help="TTS provider: stub, espeak, edge, openai, say (overrides profile)")
     g.add_argument("--no-audio", action="store_true", help="only write the script and transcript")
+    g.add_argument("--cache", default=None, help="TTS cache directory (default: cache/<provider> under --out, or under --root with --user); safe to share between learners")
     g.add_argument("--no-fit", action="store_true", help="don't scale pauses to land on --minutes")
     g.add_argument("--fit-tolerance", type=float, default=None, help="seconds of slack before pauses are scaled (default 60)")
     g.add_argument("--dry-run", action="store_true", help="don't update the learner state")
@@ -247,7 +248,8 @@ def cmd_generate(args) -> int:
         if args.fit_tolerance is not None:
             profile.fit_tolerance = args.fit_tolerance
         cache_root = Path(args.root) if getattr(args, "user", None) else out
-        cues = render_script(script, profile, f"{stem}.wav", cache_dir=cache_root / "cache" / profile.provider)
+        cache = Path(args.cache) if args.cache else cache_root / "cache" / profile.provider
+        cues = render_script(script, profile, f"{stem}.wav", cache_dir=cache)
         save_cues(cues, f"{stem}.cues.json")
         print(f"  audio: {cues['mp3'] or cues['wav']} ({_mmss(cues['duration_s'])}, provider {cues['provider']}"
               + (f", pauses ×{cues['fit_scale']:.2f}" if profile.fit and abs(cues['fit_scale'] - 1) > 0.005 else "") + ")")
