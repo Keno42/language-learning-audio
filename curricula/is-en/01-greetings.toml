@@ -75,6 +75,14 @@ situations_ja = [
   "近所の人によく眠れたか聞かれ、はいと答えました。同じ質問を返してください。",
   "出身を聞かれて答えました。「あなたは？」と聞き返してください。",
 ]
+partner_cue = "Gott að heyra."
+partner_cue_after = "allt_gott"
+partner_cue_setup = "You bump into a colleague at the bakery, and she asks how things are. Say all good, thanks."
+partner_cue_setup_ja = "パン屋で同僚にばったり会い、調子はどうか聞かれました。「元気です、ありがとう」と言ってください。"
+partner_cue_meaning = "Good to hear."
+partner_cue_meaning_ja = "それはよかった。"
+partner_cue_situation = "She said good to hear. Turn the question back to her: and you?"
+partner_cue_situation_ja = "「それはよかった」と言われました。「あなたは？」と聞き返してください。"
 
 [[items]]
 id = "hae"
@@ -506,14 +514,14 @@ meaning_ja = "どうぞ。"
 difficulty = 3
 topics = ["greetings", "cafe"]
 chunks = ["vel", "svo vel", "Gjörðu svo vel."]
-situation = "You hand your friend the salt she asked for."
-situation_ja = "友達に頼まれた塩を渡します。"
+situation = "You hand your friend the salt she asked for. Say here you are."
+situation_ja = "友達に頼まれた塩を渡します。「どうぞ」と言ってください。"
 
 [[items]]
 id = "verdi_ther_ad_godu"
 kind = "phrase"
 target = "Verði þér að góðu."
-meaning = "Enjoy your meal. (also the reply to thanks for food)"
+meaning = "Enjoy your meal."
 meaning_ja = "どうぞ召し上がれ。"
 difficulty = 4
 topics = ["greetings", "cafe"]
