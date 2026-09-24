@@ -16,7 +16,7 @@ from audiolesson.planner import PlanConfig, Planner, apply_to_learner
 from audiolesson.prompts import Prompts
 from audiolesson.render import load_profile, render_script
 from audiolesson.render.audio import read_wav
-from audiolesson.script import Script
+from audiolesson.script import Script, Segment
 from audiolesson.stages import ladder_for, stage_index
 from audiolesson.timing import Timing
 
@@ -3722,6 +3722,60 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("Excuse me / Sorry.", heard)
         self.assertEqual(cues["segments"][0]["text"], "Excuse me / Sorry.")
         self.assertIn("Excuse me / Sorry.", sc.transcript())
+
+
+class ReviewQuestionTests(unittest.TestCase):
+    def test_every_recalled_item_is_asked_once_with_a_text_cue(self):
+        _, scripts = course(8)
+        for sc in scripts:
+            questions = sc.review_questions()
+            asked = [i for q in questions for i in q["items"]]
+            self.assertEqual(len(asked), len(set(asked)), f"lesson {sc.lesson_number}: an item asked twice")
+            self.assertEqual(set(sc.meta["new_items"]) - set(asked), set(), f"lesson {sc.lesson_number}: a new item not asked")
+            answers = {s.text for s in sc.segments if s.type == "answer"}
+            narrations = {s.text for s in sc.segments if s.type == "narrate"}
+            for q in questions:
+                self.assertIn(q["answer"], answers)
+                self.assertIn(q["prompt"], narrations)
+                self.assertNotIn(q["stage"], ("cloze", "hinted"), "those cues rely on audio")
+
+    def test_preferences_and_shared_sentences(self):
+        sc = Script(1, "t", "is", "en")
+
+        def recall(kind, stage, ids, *turns, hint=False):
+            ex = sc.new_exercise(kind, stage, ids)
+            for cue, answer in turns:
+                sc.add(Segment("narrate", "instructor", cue, "en", exercise=ex.index))
+                if hint:
+                    sc.add(Segment("speak", "native_a", answer.split()[0], "is", role="hint", exercise=ex.index))
+                sc.add(Segment("pause", role="answer", duration=3, exercise=ex.index))
+                sc.add(Segment("answer", "native_a", answer, "is", exercise=ex.index))
+                sc.add(Segment("pause", role="repeat", duration=2, exercise=ex.index))
+                sc.add(Segment("answer", "native_a", answer, "is", exercise=ex.index))
+
+        recall("recall", "hinted", ["a"], ("Say hello.", "Halló."), hint=True)
+        recall("recall", "situation", ["a"], ("A friend walks in.", "Halló."))
+        recall("recall", "meaning", ["a"], ("Say hello.", "Halló."))
+        recall("generative", "recombine", ["c", "f"], ("Say: I want to go home.", "Ég vil fara heim."))
+        recall("recall", "meaning", ["f"], ("Say: go home.", "fara heim"))
+        recall("connect", "exchange", ["b", "a"], ("Greet her.", "Hæ."), ("Answer.", "Allt gott."))
+
+        by_item = {i: q for q in sc.review_questions() for i in q["items"]}
+        self.assertEqual(by_item["a"]["prompt"], "A friend walks in.", "a situation beats a meaning, and a hint is skipped")
+        self.assertEqual(by_item["f"]["prompt"], "Say: go home.", "an item's own recall beats a shared sentence")
+        self.assertEqual(by_item["c"]["items"], ["c"], "the shared sentence only asks about what nothing else covers")
+        self.assertEqual(by_item["c"]["answer"], "Ég vil fara heim.")
+        self.assertEqual(by_item["b"]["answer"], "Hæ.", "a two-turn exchange maps answers to items in order")
+
+    def test_plan_json_carries_the_questions(self):
+        from audiolesson.cli import main
+
+        with tempfile.TemporaryDirectory() as td:
+            learner = Path(td) / "learner.json"
+            main(["generate", "-c", str(CURRICULUM), "-l", str(learner), "-o", td, "-m", "5", "--no-audio", "--date", "2026-09-18"])
+            plan = json.loads((Path(td) / "lesson-001.plan.json").read_text())
+            asked = {i for q in plan["review"] for i in q["items"]}
+            self.assertEqual({i["id"] for i in plan["new_items"]} - asked, set())
 
 
 class CliTests(unittest.TestCase):

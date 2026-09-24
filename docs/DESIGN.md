@@ -17,6 +17,7 @@ came about is in `docs/history/sessions.md`.
 | pause and speech-length model | `audiolesson/timing.py` |
 | instructor phrasing | `audiolesson/phrasing/<lang>.toml` |
 | script → audio, respellings for TTS | `audiolesson/render/` |
+| written review questions for `plan.json` (`review`) | `audiolesson/script.py` (`Script.review_questions`) |
 | diagnostics | `audiolesson validate` (gloss coverage, dialogue sequencing report), `tools/phrase_families.py` |
 
 ## Invariants the tests pin
