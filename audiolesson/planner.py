@@ -687,6 +687,10 @@ class Planner:
             #    else take an extra new item, else accept a repeat, else stop.
             if not acted:
                 candidate = next((p for p in sorted(pending) if p.item.id not in recent), None)
+                if candidate is None and [e.kind for e in sc.exercises[-2:]] == ["intro", "intro"]:
+                    # never a third introduction in a row (lesson 1 has nothing else to offer):
+                    # recall the earlier of the two instead, only the very last item is off limits
+                    candidate = next((p for p in sorted(pending) if p.item.id != recent[-1]), None)
                 can_intro = idx - last_intro >= 1 and len(introduced) < cfg.resolved_max_new_items()
                 if candidate is not None:
                     pending.remove(candidate)

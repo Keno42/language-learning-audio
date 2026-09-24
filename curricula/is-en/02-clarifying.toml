@@ -1019,6 +1019,31 @@ difficulty = 1
 tags = ["hour", "number", "small_count", "big_count"]
 topics = ["time", "numbers"]
 
+[[items]]
+id = "hvad_er_klukkan"
+kind = "phrase"
+target = "Hvað er klukkan?"
+meaning = "What time is it?"
+meaning_ja = "今何時ですか？"
+difficulty = 2
+topics = ["time"]
+situation = "Your phone is dead. Ask a passer-by what time it is."
+situation_ja = "携帯の電池が切れました。通行人に時間を聞いてください。"
+
+# The clock is the first frame for the neuter counting forms above: without it they were drilled
+# as bare words for ~25 lessons before module 06 (issue #80).
+[[items]]
+id = "klukkan_er"
+kind = "construction"
+target = "Klukkan er {hour}."
+meaning = "It's {hour} o'clock."
+meaning_ja = "今{hour}時です。"
+difficulty = 2
+topics = ["time"]
+slots = { hour = "hour" }
+example = { hour = "thrju" }
+prereqs = ["thrju", "hvad_er_klukkan"]
+
 # Feminine counting forms (issue #29 cluster A): Icelandic 1–4 change with the counted
 # noun's gender, the same paradigm godur_noun (module 18) already models for adjectives.
 # "Króna" is feminine, so a genuine "N krónur" construction needs these, not the masculine
