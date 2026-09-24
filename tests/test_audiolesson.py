@@ -2422,6 +2422,42 @@ class CurriculumTests(unittest.TestCase):
         trailing = {it.id for it in cur.items if re.search(r"[.?!]\s*\(", it.meaning)}
         self.assertEqual(trailing - informative, set(), "a usage note belongs in a situation or a note, not the spoken gloss")
 
+    def test_near_synonyms_are_contrasted_and_every_situation_asks_for_something(self):
+        """Issue #79: early lessons teach near-synonym clusters side by side («Ha?» / «Hvað
+        sagðirðu?» / «Gætirðu endurtekið þetta?»; don't know / don't understand / not sure; bye /
+        see you) without saying which fits when. Each cluster now has a milestone that names
+        the difference. Every situation also ends in something to do, so a prompt never leaves
+        the learner guessing whether an answer is wanted; the instruction-verb check is a
+        heuristic, so extend its vocabulary rather than weakening it."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        clusters = {
+            "say_it_again": {"ha", "hvad_sagdirdu", "gaetirdu_endurtekid_thetta"},
+            "dont_know": {"eg_veit_ekki", "eg_skil_ekki", "eg_er_ekki_viss"},
+            "goodbyes": {"bless", "sjaumst", "sjaumst_seinna"},
+        }
+        for note_id, members in clusters.items():
+            note = cur.note_by_id[note_id]
+            self.assertTrue(note.milestone)
+            self.assertEqual(set(note.items), members)
+            self.assertTrue(all(cur.by_id[i].has_situation for i in members), note_id)
+        instruction = re.compile(
+            r"\b(say|ask|tell|greet|thank|wish|answer|apologi[sz]e|congratulate|agree|welcome|warn|shout|remark|"
+            r"complain|reassure|explain|point|order|call|introduce|offer|suggest|check|signal|turn|return|get|"
+            r"comment|repeat|whisper|text|react|start|summari[sz]e|mention|protest|refuse|accept|decline|admit|correct|confirm)\b",
+            re.IGNORECASE,
+        )
+        for it in cur.items:
+            for text in ([it.situation] if it.situation else []) + list(it.situations):
+                self.assertRegex(text, instruction, it.id)
+
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "L", cur.target_lang, cur.known_lang)
+        ex = b.connect(sc, [cur.by_id["allt_gott"], cur.by_id["en_thu"]])
+        self.assertEqual(ex.stage, "exchange")
+        self.assertEqual([s.text for s in sc.segments if s.type in ("speak", "answer")], ["Allt gott, takk.", "Gott að heyra.", "En þú?"])
+
     def test_icelandic_course_has_complete_japanese_glosses(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
         self.assertEqual(cur.known_lang, "ja")

@@ -35,14 +35,21 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   dialogue, then a note (with a small separate relief allowance), then `connect()`, and
   otherwise ends the lesson.
 - **`connect()` is honest about what it is.** It's an `exchange` only with an authored
-  bridge (`partner_cue_after`), played as one scene. Otherwise it's `recombine`, with a
-  neutral transition. It never replays a pair within a lesson.
+  bridge (`partner_cue_after`), played as one scene whose wording differs from both items'
+  standalone situations. Otherwise it's mixed review (stage `recombine`, label
+  `mixed review:`): `mixed_review_intro`, a neutral transition, never "put together" or
+  "and then". It never replays a pair within a lesson.
+- **Situations rotate (#77).** Every narration of an item's own cue, `connect()` included,
+  advances its rotation, so a lesson repeats a cue only once every authored variant has
+  been used.
 - **Novelty is claimed only when true.** `recombine_new` requires `is_new_utterance()`:
   not presented this lesson, in an earlier lesson (`heard_utterances`), or as a met item's
   target.
 - **Notes.** Milestones fire deterministically once their `items` are met or exposed, and
-  are followed by discrimination practice. A note waits for what it recommends saying
-  (`requires`). No aside repeats while an ordinary one is unheard.
+  are followed by discrimination practice over examples whose situation is usable now. A
+  note waits for what it recommends saying (`requires`). As filler, an aside is about met
+  material or material within `note_lookahead` items; an unheard note about distant
+  material is never spent early, and a heard one rests `note_repeat_gap` lessons (#81).
 - **Content guards.** `progressive_inf` holds only verbs audited for «vera að» + infinitive
   («sofa» is excluded). Dialogue partner lines use only taught words. No fill-borne
   parenthetical leaks into a sentence prompt (`meaning_forms.in_sentence`).
