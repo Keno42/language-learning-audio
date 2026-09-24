@@ -82,7 +82,8 @@ audiolesson render out/yuki/lesson-001.script.json -p profiles/openai.toml --pau
 Useful flags for `generate`: `-t cafe,directions` (prefer topics), `--new 4`
 (how many new items), `--level A0|A1|A2|B1|B2` (pause lengths), `--no-audio`,
 `--dry-run` (don't touch the learner state), `--date YYYY-MM-DD`,
-`--no-translate` (don't narrate what the dialogue partner said).
+`--no-translate` (don't narrate what the dialogue partner said), `--cache DIR`
+(TTS clip cache; one directory can serve several learners).
 
 ## Daily routine and pacing
 
