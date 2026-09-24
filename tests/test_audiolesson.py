@@ -2401,6 +2401,37 @@ class CurriculumTests(unittest.TestCase):
             day += timedelta(days=1)
         self.assertGreaterEqual(late_asides, 10, "asides must keep coming after the first lessons")
 
+    def test_milestone_contrast_keeps_two_recalls_when_situations_run_short(self):
+        """Issue #84: contrast practice after a milestone took only examples whose situation was
+        usable, so a milestone with one such example got a single recall, silently (modal_infinitive
+        and vera_ad_progressive are real cases: their other examples are constructions bound to a
+        fill). The shortfall is now made up from meaning-stage recalls of the other examples."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "a", "kind": "phrase", "target": "A a a.", "meaning": "A.", "situation": "Say A."},
+                {"id": "b", "kind": "phrase", "target": "B b b.", "meaning": "B."},
+                {"id": "c", "kind": "phrase", "target": "C c c.", "meaning": "C."},
+            ] + [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(6)],
+            "notes": [{"id": "m", "milestone": True, "items": ["a", "b", "c"], "text": "A, B and C share a pattern."}],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        # a is the most overdue, so it comes first and triggers the milestone; the fillers are due
+        # next, and b and c aren't due, so only the contrast practice can recall them right after
+        later, earlier = (TODAY + timedelta(days=20)).isoformat(), (TODAY - timedelta(days=9)).isoformat()
+        for i, due in [("a", earlier), ("b", later), ("c", later)] + [(f"w{i}", TODAY.isoformat()) for i in range(6)]:
+            learner.items[i] = ItemState(due=due, interval_days=10, successes=2, durable_successes=2, stage="meaning")
+        cfg = PlanConfig(minutes=10, seed=3, drill_streak_limit=100)
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+        at = next(i for i, e in enumerate(sc.exercises) if e.kind == "note" and e.label == "note: m")
+        trigger = sc.exercises[at - 1].item_ids[0]
+        after = sc.exercises[at + 1 : at + 3]
+        self.assertEqual([e.kind for e in after], ["recall", "recall"])
+        self.assertEqual({e.item_ids[0] for e in after}, {"a", "b", "c"} - {trigger})
+        for e in after:
+            self.assertEqual(e.stage, "situation" if e.item_ids[0] == "a" else "meaning")
+
     def test_icelandic_course_has_complete_japanese_glosses(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
         self.assertEqual(cur.known_lang, "ja")

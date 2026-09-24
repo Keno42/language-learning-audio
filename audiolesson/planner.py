@@ -474,23 +474,19 @@ class Planner:
             """After a milestone names a pattern, recall two of its examples back to back from
             their own situations: notice, name, discriminate. Known ``transfer_items`` come
             first, so the pattern is applied to new words rather than replaying the same
-            examples. A construction qualifies only once the fills its situation names are
-            available. Excludes only the item just exercised, and always completes once the
-            milestone has played."""
+            examples. An example whose situation isn't usable now (none authored, or a
+            construction whose bound fill isn't available) is recalled from its meaning instead,
+            so the contrast keeps two recalls whenever two other examples exist (#84). Excludes
+            only the item just exercised, and always completes once the milestone has played."""
             nonlocal idx, since_dialogue
             just_touched = recent[-1] if recent else None
             known_transfer = [i for i in note.transfer_items if self.learner.has_met(i) or i in self.exposures]
-            pool = known_transfer + note.items
-            others = [i for i in pool if i != just_touched]
-            seen: set[str] = set()
-            candidates: list[Item] = []
-            for i in others:
-                if i in seen or i not in self.cur.by_id or not b.situation_usable(self.cur.by_id[i]):
-                    continue
-                seen.add(i)
-                candidates.append(self.cur.by_id[i])
-            for item in candidates[:2]:
-                do_recall(item, "situation")
+            others = list(dict.fromkeys(i for i in known_transfer + note.items if i != just_touched and i in self.cur.by_id))
+            by_situation = [i for i in others if b.situation_usable(self.cur.by_id[i])]
+            by_meaning = [i for i in others if i not in by_situation]
+            picks = [(i, "situation") for i in by_situation] + [(i, "meaning") for i in by_meaning]
+            for item_id, stage in picks[:2]:
+                do_recall(self.cur.by_id[item_id], stage)
                 idx += 1
                 since_dialogue += 1
 
