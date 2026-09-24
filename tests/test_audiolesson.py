@@ -2401,6 +2401,23 @@ class CurriculumTests(unittest.TestCase):
             day += timedelta(days=1)
         self.assertGreaterEqual(late_asides, 10, "asides must keep coming after the first lessons")
 
+    def test_first_lesson_never_opens_with_three_introductions_in_a_row(self):
+        """Issue #86: with nothing to review yet, lesson 1 opened o-i-i-i: three new items back to
+        back before the first retrieval, because pulling a reactivation forward skipped both
+        recently touched items. After two introductions in a row the earlier one is recalled
+        instead. Lesson length and new-item count are unchanged."""
+        for path in (ROOT / "curricula" / "is-en", CURRICULUM):
+            cur = load_curriculum(path)
+            for minutes in (15, 30):
+                learner = LearnerState(cur.target_lang, "en", "A1")
+                day = TODAY
+                for _ in range(5):
+                    sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=minutes), today=day).build()
+                    kinds = "".join("i" if e.kind == "intro" else "-" for e in sc.exercises)
+                    self.assertNotIn("iii", kinds, (path.name, minutes, sc.lesson_number))
+                    apply_to_learner(sc, learner, day)
+                    day += timedelta(days=1)
+
     def test_icelandic_course_has_complete_japanese_glosses(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
         self.assertEqual(cur.known_lang, "ja")
