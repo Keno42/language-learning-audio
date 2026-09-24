@@ -360,6 +360,20 @@ tags = ["acc_request", "acc_thing"]
 topics = ["shopping"]
 pronunciation_notes = "accusative of poki"
 
+# issue #80: the first frame for «vegabréf» and «poka», which otherwise wait until module 09's
+# clothes for any sentence to use them in; the clothes come back as transfer.
+[[items]]
+id = "eg_tharf"
+kind = "construction"
+target = "Ég þarf {thing}."
+meaning = "I need {thing}."
+meaning_ja = "{thing}が必要です。"
+difficulty = 2
+topics = ["shopping"]
+slots = { thing = "acc_thing" }
+example = { thing = "poka" }
+prereqs = ["poka"]
+
 [[items]]
 id = "get_eg_fengid"
 kind = "construction"
@@ -401,6 +415,33 @@ situations_ja = [
   "サンドイッチの値段を知りたいです。いくらか聞いてください。",
   "市場の露店で毛糸の帽子を手に取りました。いくらか聞いてください。",
 ]
+
+# Issue #29 cluster A: the seven "price" items above are each a whole amount memorized as
+# its own fixed phrase — exactly the "more fixed phrases instead of a construction" pattern
+# #29 exists to fix. This construction generates a thousands-scale amount from an independently-
+# known count word (module 02) × a fixed "þúsund krónur" — same shape as godur_noun (module
+# 18), applied to numbers instead of adjective agreement. þúsund itself isn't a slot: it was
+# a two-way {count}{unit} construction at first, but "hundrað" is the only other money_scale
+# candidate and it pluralizes to "hundruð" for any count but one ("fimm hundruð", not "fimm
+# hundrað") — a real agreement dimension (number, not gender) nothing here models, so a unit
+# slot could only ever have had the one safe filling and that fails the "every construction
+# slot has ≥2 possible fills" invariant (test_directory_curriculum_loads_and_is_large). Amounts
+# in hundreds stay the fixed phrases below (fimm_hundrud_kronur etc.) until that's modeled.
+# The under-100 case (bare "{count} krónur.", no "Það kostar" frame) is einn_tvo_thrjar below —
+# kept separate rather than folded in here because "Það kostar" governs the accusative case,
+# which the feminine count words below (ein/tvær/þrjár/fjórar) are not; see its own note.
+[[items]]
+id = "thad_kostar_big"
+kind = "construction"
+target = "Það kostar {count} þúsund krónur."
+meaning = "It costs {count} thousand krónur."
+meaning_ja = "{count}千クローナです。"
+difficulty = 3
+topics = ["money", "shopping"]
+slots = { count = "big_count" }
+example = { count = "tvo" }
+prereqs = ["tvo", "thusund", "kronur", "hvad_kostar_thetta"]
+pronunciation_notes = "count must be the neuter form (eitt/tvö/þrjú/fjögur) below five, since þúsund is neuter — fimm and up don't change with gender"
 
 [[items]]
 id = "hvad_kostar"

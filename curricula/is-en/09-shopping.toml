@@ -195,18 +195,6 @@ prereqs = ["peysu"]
 pronunciation_notes = "átt þú → áttu"
 
 [[items]]
-id = "eg_tharf"
-kind = "construction"
-target = "Ég þarf {thing}."
-meaning = "I need {thing}."
-meaning_ja = "{thing}が必要です。"
-difficulty = 2
-topics = ["shopping"]
-slots = { thing = "acc_thing" }
-example = { thing = "ulpu" }
-prereqs = ["ulpu"]
-
-[[items]]
 id = "eg_er_ad_leita_ad_thing"
 kind = "phrase"
 target = "Ég er bara að skoða."
