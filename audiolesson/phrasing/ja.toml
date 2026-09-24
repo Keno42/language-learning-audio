@@ -44,6 +44,7 @@ aside = "ちょっとした話です。"
 aside_end = "では、レッスンに戻りましょう。"
 milestone_intro = "気づいてほしいパターンがあります。"
 milestone_end = "では、続けましょう。"
+dialogue_start = "ここからは短い会話です。"
 dialogue_replay = "では、会話全体を通して聞きましょう。"
 # 作成済みのやりとり：一つの場面で、二つの答えの間に相手のせりふが入る
 connect_intro = "いくつかつなげてみましょう。"

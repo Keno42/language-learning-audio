@@ -1028,7 +1028,7 @@ class CurriculumTests(unittest.TestCase):
             sc = Script(1, "L", cur.target_lang, cur.known_lang)
             ex = b.recall(sc, it, "cloze")
             narration = " ".join(s.text for s in sc.segments if s.exercise == ex.index and s.type == "narrate")
-            self.assertIn(it.meaning.strip().rstrip("."), narration, it.id)
+            self.assertIn(it.meaning.strip().rstrip(".").lower(), narration.lower(), it.id)  # prompts capitalise the gloss (#83)
             clozed += 1
         self.assertGreater(clozed, 100)
 
@@ -2414,6 +2414,99 @@ class CurriculumTests(unittest.TestCase):
             self.assertLessEqual(con.order - needed, 3, con_id)
         self.assertLess(cur.by_id["hvad_er_klukkan"].order, cur.by_id["klukkan_er"].order)
         self.assertLess(cur.by_id["eg_tharf"].order - cur.by_id["vegabref"].order, 100)
+
+    def test_first_lesson_never_opens_with_three_introductions_in_a_row(self):
+        """Issue #86: with nothing to review yet, lesson 1 opened o-i-i-i: three new items back to
+        back before the first retrieval, because pulling a reactivation forward skipped both
+        recently touched items. After two introductions in a row the earlier one is recalled
+        instead. Lesson length and new-item count are unchanged."""
+        for path in (ROOT / "curricula" / "is-en", CURRICULUM):
+            cur = load_curriculum(path)
+            for minutes in (15, 30):
+                learner = LearnerState(cur.target_lang, "en", "A1")
+                day = TODAY
+                for _ in range(5):
+                    sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=minutes), today=day).build()
+                    kinds = "".join("i" if e.kind == "intro" else "-" for e in sc.exercises)
+                    self.assertNotIn("iii", kinds, (path.name, minutes, sc.lesson_number))
+                    apply_to_learner(sc, learner, day)
+                    day += timedelta(days=1)
+
+    def test_a_dialogue_is_announced_before_anyone_speaks(self):
+        """Issue #85: a dialogue opened with its setting and then, often, a partner line in a new
+        voice; nothing marked the switch from drills to a conversation. Every dialogue now opens
+        with ``dialogue_start`` in both instructor languages, before the setting and before the
+        first partner line."""
+        from audiolesson.exercises import Builder
+
+        for lang in ("en", "ja"):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            prompts = Prompts.load(lang)
+            dlg = cur.dialogue_by_id["tungumal"]
+            for assisted in (True, False):
+                b = Builder(cur, prompts, Timing(level="A1"), LearnerState("is", lang, "A1"))
+                sc = Script(1, "L", cur.target_lang, lang)
+                b.dialogue(sc, dlg, assisted=assisted)
+                segs = [(s.type, s.text) for s in sc.segments if s.type != "pause"]
+                self.assertEqual(segs[0], ("narrate", prompts.get("dialogue_start")), (lang, assisted))
+                self.assertEqual(segs[1], ("narrate", dlg.setting))
+
+    def test_instructor_prompts_capitalise_glosses_and_carry_no_usage_notes(self):
+        """Issue #83, from a real Lesson 6: "Something new. a passport." pasted a lowercase vocab
+        gloss after a full stop, and "In Icelandic, say: Enjoy your meal. (also the reply to
+        thanks for food)." read a usage note aloud inside the prompt. Glosses are capitalised
+        where a template puts them, and a parenthetical after the sentence is only allowed when
+        it tells the learner which form to produce (who is addressed, what is shown)."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "L", cur.target_lang, cur.known_lang)
+        b.intro(sc, cur.by_id["vegabref"])
+        self.assertIn("Something new. A passport.", [s.text for s in sc.segments if s.type == "narrate"])
+        informative = {
+            "a_thetta_hotel_takk", "eg_er_a_bil", "einn_tvo_thrjar", "ert_thu_islensk", "ertu_buin", "ertu_state",
+            "farid_varlega_a_isnum", "gerdu_thig_heimakomna", "ha", "hvad_ertu_gomul", "hvar_er_thetta", "hvers_vegna",
+            "takk_fyrir_sidast",
+        }
+        trailing = {it.id for it in cur.items if re.search(r"[.?!]\s*\(", it.meaning)}
+        self.assertEqual(trailing - informative, set(), "a usage note belongs in a situation or a note, not the spoken gloss")
+
+    def test_near_synonyms_are_contrasted_and_every_situation_asks_for_something(self):
+        """Issue #79: early lessons teach near-synonym clusters side by side («Ha?» / «Hvað
+        sagðirðu?» / «Gætirðu endurtekið þetta?»; don't know / don't understand / not sure; bye /
+        see you) without saying which fits when. Each cluster now has a milestone that names
+        the difference. Every situation also ends in something to do, so a prompt never leaves
+        the learner guessing whether an answer is wanted; the instruction-verb check is a
+        heuristic, so extend its vocabulary rather than weakening it."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        clusters = {
+            "say_it_again": {"ha", "hvad_sagdirdu", "gaetirdu_endurtekid_thetta"},
+            "dont_know": {"eg_veit_ekki", "eg_skil_ekki", "eg_er_ekki_viss"},
+            "goodbyes": {"bless", "sjaumst", "sjaumst_seinna"},
+        }
+        for note_id, members in clusters.items():
+            note = cur.note_by_id[note_id]
+            self.assertTrue(note.milestone)
+            self.assertEqual(set(note.items), members)
+            self.assertTrue(all(cur.by_id[i].has_situation for i in members), note_id)
+        instruction = re.compile(
+            r"\b(say|ask|tell|greet|thank|wish|answer|apologi[sz]e|congratulate|agree|welcome|warn|shout|remark|"
+            r"complain|reassure|explain|point|order|call|introduce|offer|suggest|check|signal|turn|return|get|"
+            r"comment|repeat|whisper|text|react|start|summari[sz]e|mention|protest|refuse|accept|decline|admit|correct|confirm)\b",
+            re.IGNORECASE,
+        )
+        for it in cur.items:
+            for text in ([it.situation] if it.situation else []) + list(it.situations):
+                self.assertRegex(text, instruction, it.id)
+
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "L", cur.target_lang, cur.known_lang)
+        ex = b.connect(sc, [cur.by_id["allt_gott"], cur.by_id["en_thu"]])
+        self.assertEqual(ex.stage, "exchange")
+        self.assertEqual([s.text for s in sc.segments if s.type in ("speak", "answer")], ["Allt gott, takk.", "Gott að heyra.", "En þú?"])
 
     def test_icelandic_course_has_complete_japanese_glosses(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")

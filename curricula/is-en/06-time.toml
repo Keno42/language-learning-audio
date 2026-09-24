@@ -216,8 +216,8 @@ difficulty = 3
 topics = ["time"]
 prereqs = ["klukkan_er"]
 pronunciation_notes = "literally 'half eight' = 7:30, the Germanic way"
-situation = "Your friend asks when the film starts. It's at half past seven."
-situation_ja = "友達が映画は何時に始まるか聞きました。7時半です。"
+situation = "Your friend asks when the film starts. Tell her: half past seven."
+situation_ja = "友達に映画は何時に始まるか聞かれました。7時半だと答えてください。"
 
 [[items]]
 id = "korter_yfir_niu"

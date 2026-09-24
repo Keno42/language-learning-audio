@@ -46,6 +46,7 @@ aside = "A quick aside."
 aside_end = "Back to the lesson."
 milestone_intro = "Here's a pattern worth noticing."
 milestone_end = "Let's continue."
+dialogue_start = "Now a short conversation."
 dialogue_replay = "Now the whole conversation, without pauses."
 # an authored exchange: one scene, with a partner line between the two answers
 connect_intro = "Let's put a couple of things together."
