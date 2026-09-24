@@ -1028,7 +1028,7 @@ class CurriculumTests(unittest.TestCase):
             sc = Script(1, "L", cur.target_lang, cur.known_lang)
             ex = b.recall(sc, it, "cloze")
             narration = " ".join(s.text for s in sc.segments if s.exercise == ex.index and s.type == "narrate")
-            self.assertIn(it.meaning.strip().rstrip("."), narration, it.id)
+            self.assertIn(it.meaning.strip().rstrip(".").lower(), narration.lower(), it.id)  # prompts capitalise the gloss (#83)
             clozed += 1
         self.assertGreater(clozed, 100)
 
@@ -2400,6 +2400,27 @@ class CurriculumTests(unittest.TestCase):
             apply_to_learner(sc, learner, day)
             day += timedelta(days=1)
         self.assertGreaterEqual(late_asides, 10, "asides must keep coming after the first lessons")
+
+    def test_instructor_prompts_capitalise_glosses_and_carry_no_usage_notes(self):
+        """Issue #83, from a real Lesson 6: "Something new. a passport." pasted a lowercase vocab
+        gloss after a full stop, and "In Icelandic, say: Enjoy your meal. (also the reply to
+        thanks for food)." read a usage note aloud inside the prompt. Glosses are capitalised
+        where a template puts them, and a parenthetical after the sentence is only allowed when
+        it tells the learner which form to produce (who is addressed, what is shown)."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "L", cur.target_lang, cur.known_lang)
+        b.intro(sc, cur.by_id["vegabref"])
+        self.assertIn("Something new. A passport.", [s.text for s in sc.segments if s.type == "narrate"])
+        informative = {
+            "a_thetta_hotel_takk", "eg_er_a_bil", "einn_tvo_thrjar", "ert_thu_islensk", "ertu_buin", "ertu_state",
+            "farid_varlega_a_isnum", "gerdu_thig_heimakomna", "ha", "hvad_ertu_gomul", "hvar_er_thetta", "hvers_vegna",
+            "takk_fyrir_sidast",
+        }
+        trailing = {it.id for it in cur.items if re.search(r"[.?!]\s*\(", it.meaning)}
+        self.assertEqual(trailing - informative, set(), "a usage note belongs in a situation or a note, not the spoken gloss")
 
     def test_icelandic_course_has_complete_japanese_glosses(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")

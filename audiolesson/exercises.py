@@ -73,10 +73,12 @@ class Builder:
         return self.cur.known_lang
 
     def _m(self, meaning: str) -> str:
-        """Meaning text ready to drop into a template: ends with punctuation."""
+        """Meaning text ready to drop into a template: starts with a capital (every template
+        puts it at the start of a sentence or after "Say:") and ends with punctuation."""
         meaning = meaning.strip()
         if self.kl.split("-")[0] in ("ja", "zh", "ko"):
             return meaning.rstrip("。")  # the phrasing templates wrap it in 「」
+        meaning = meaning[:1].upper() + meaning[1:]
         if meaning[-1:] in ".?!…":
             return meaning
         return meaning + "."
