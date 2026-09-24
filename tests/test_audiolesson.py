@@ -10,7 +10,7 @@ import unittest
 from datetime import date, timedelta
 from pathlib import Path
 
-from audiolesson.content import CurriculumError, curriculum_from_dict, load_curriculum
+from audiolesson.content import NOTE_TARGET_RE, CurriculumError, curriculum_from_dict, load_curriculum
 from audiolesson.learner import ItemState, LearnerState
 from audiolesson.planner import PlanConfig, Planner, apply_to_learner
 from audiolesson.prompts import Prompts
@@ -2401,6 +2401,33 @@ class CurriculumTests(unittest.TestCase):
             day += timedelta(days=1)
         self.assertGreaterEqual(late_asides, 10, "asides must keep coming after the first lessons")
 
+    def test_pronunciation_features_are_named_early_and_spread_out(self):
+        """Issue #82: sounds that surprise a Japanese listener (no added final vowel and first-
+        syllable stress, þ / ð, hv = kv, á / æ / ó) are each named once, aloud, as milestones
+        over early phrases that contain them. So that they don't crowd one lesson, at most
+        ``max_reactive_milestones`` milestones fire after their item per lesson; the rest wait."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        pron = {n.id: n for n in cur.notes if n.id.startswith("pron_")}
+        self.assertEqual(set(pron), {"pron_stress_final", "pron_th", "pron_hv", "pron_vowels"})
+        for note in pron.values():
+            self.assertTrue(note.milestone)
+            self.assertLess(max(cur.by_id[i].order for i in note.items), 100, note.id)
+            # every example spoken in the target voice is one of the note's own (met) items
+            spoken = {t.rstrip(".!?") for t in NOTE_TARGET_RE.findall(note.text)}
+            self.assertTrue(spoken <= {cur.by_id[i].target.rstrip(".!?") for i in note.items}, (note.id, spoken))
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        fired: set[str] = set()
+        cap = PlanConfig().max_reactive_milestones
+        for _ in range(15):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30), today=day).build()
+            milestones = [e.label.split(": ")[1] for e in sc.exercises if e.kind == "note" and cur.note_by_id[e.label.split(": ")[1]].milestone]
+            self.assertLessEqual(len(milestones), cap, (sc.lesson_number, milestones))
+            fired |= set(milestones)
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        self.assertTrue(set(pron) <= fired, set(pron) - fired)
+
     def test_early_fills_get_their_frame_right_after_them(self):
         """Issue #80: the numbers moved to module 02 (#29 cluster A) but their frames stayed in
         modules 06 and 08, and «vegabréf» / «poka» waited for module 09's clothes, so they were
@@ -2696,10 +2723,9 @@ class CurriculumTests(unittest.TestCase):
         for _ in range(25):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=7), today=day).build()
             this_lesson: list[str] = []
-            for i, ex in enumerate(sc.exercises):
-                if ex.kind == "recall" and ex.stage == "situation" and ex.item_ids == ["velkomin"]:
-                    text = next(s.text for s in sc.segments if s.exercise == i and s.type == "narrate")
-                    this_lesson.append(text)
+            # every narration of the item's cue counts, connect() included: since #77 it advances
+            # the rotation too, so only consecutive narrations can be compared
+            this_lesson = [s.text for s in sc.segments if s.type == "narrate" and s.text in item.situations]
             for a, b in zip(this_lesson, this_lesson[1:]):
                 self.assertNotEqual(a, b, "same lesson repeated the identical situation cue")
                 within_lesson_repeat_checked = True
