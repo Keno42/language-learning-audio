@@ -213,8 +213,8 @@ difficulty = 4
 topics = ["feelings", "social"]
 prereqs = ["eg_hlakka_til"]
 chunks = ["þig", "sjá þig", "að sjá þig", "Ég hlakka til að sjá þig."]
-situation = "End a phone call with a friend you'll see next week."
-situation_ja = "来週会う友達との電話を締めくくってください。"
+situation = "You're ending a phone call with a friend you'll see next week. Say you look forward to seeing her."
+situation_ja = "来週会う友達との電話を終えます。会えるのを楽しみにしていると言ってください。"
 
 [[items]]
 id = "eg_sakna_thin"

@@ -1028,7 +1028,7 @@ class CurriculumTests(unittest.TestCase):
             sc = Script(1, "L", cur.target_lang, cur.known_lang)
             ex = b.recall(sc, it, "cloze")
             narration = " ".join(s.text for s in sc.segments if s.exercise == ex.index and s.type == "narrate")
-            self.assertIn(it.meaning.strip().rstrip("."), narration, it.id)
+            self.assertIn(it.meaning.strip().rstrip(".").lower(), narration.lower(), it.id)  # prompts capitalise the gloss (#83)
             clozed += 1
         self.assertGreater(clozed, 100)
 
@@ -2419,6 +2419,63 @@ class CurriculumTests(unittest.TestCase):
                 segs = [(s.type, s.text) for s in sc.segments if s.type != "pause"]
                 self.assertEqual(segs[0], ("narrate", prompts.get("dialogue_start")), (lang, assisted))
                 self.assertEqual(segs[1], ("narrate", dlg.setting))
+
+    def test_instructor_prompts_capitalise_glosses_and_carry_no_usage_notes(self):
+        """Issue #83, from a real Lesson 6: "Something new. a passport." pasted a lowercase vocab
+        gloss after a full stop, and "In Icelandic, say: Enjoy your meal. (also the reply to
+        thanks for food)." read a usage note aloud inside the prompt. Glosses are capitalised
+        where a template puts them, and a parenthetical after the sentence is only allowed when
+        it tells the learner which form to produce (who is addressed, what is shown)."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "L", cur.target_lang, cur.known_lang)
+        b.intro(sc, cur.by_id["vegabref"])
+        self.assertIn("Something new. A passport.", [s.text for s in sc.segments if s.type == "narrate"])
+        informative = {
+            "a_thetta_hotel_takk", "eg_er_a_bil", "einn_tvo_thrjar", "ert_thu_islensk", "ertu_buin", "ertu_state",
+            "farid_varlega_a_isnum", "gerdu_thig_heimakomna", "ha", "hvad_ertu_gomul", "hvar_er_thetta", "hvers_vegna",
+            "takk_fyrir_sidast",
+        }
+        trailing = {it.id for it in cur.items if re.search(r"[.?!]\s*\(", it.meaning)}
+        self.assertEqual(trailing - informative, set(), "a usage note belongs in a situation or a note, not the spoken gloss")
+
+    def test_near_synonyms_are_contrasted_and_every_situation_asks_for_something(self):
+        """Issue #79: early lessons teach near-synonym clusters side by side («Ha?» / «Hvað
+        sagðirðu?» / «Gætirðu endurtekið þetta?»; don't know / don't understand / not sure; bye /
+        see you) without saying which fits when. Each cluster now has a milestone that names
+        the difference. Every situation also ends in something to do, so a prompt never leaves
+        the learner guessing whether an answer is wanted; the instruction-verb check is a
+        heuristic, so extend its vocabulary rather than weakening it."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        clusters = {
+            "say_it_again": {"ha", "hvad_sagdirdu", "gaetirdu_endurtekid_thetta"},
+            "dont_know": {"eg_veit_ekki", "eg_skil_ekki", "eg_er_ekki_viss"},
+            "goodbyes": {"bless", "sjaumst", "sjaumst_seinna"},
+        }
+        for note_id, members in clusters.items():
+            note = cur.note_by_id[note_id]
+            self.assertTrue(note.milestone)
+            self.assertEqual(set(note.items), members)
+            self.assertTrue(all(cur.by_id[i].has_situation for i in members), note_id)
+        instruction = re.compile(
+            r"\b(say|ask|tell|greet|thank|wish|answer|apologi[sz]e|congratulate|agree|welcome|warn|shout|remark|"
+            r"complain|reassure|explain|point|order|call|introduce|offer|suggest|check|signal|turn|return|get|"
+            r"comment|repeat|whisper|text|react|start|summari[sz]e|mention|protest|refuse|accept|decline|admit|correct|confirm)\b",
+            re.IGNORECASE,
+        )
+        for it in cur.items:
+            for text in ([it.situation] if it.situation else []) + list(it.situations):
+                self.assertRegex(text, instruction, it.id)
+
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "L", cur.target_lang, cur.known_lang)
+        ex = b.connect(sc, [cur.by_id["allt_gott"], cur.by_id["en_thu"]])
+        self.assertEqual(ex.stage, "exchange")
+        self.assertEqual([s.text for s in sc.segments if s.type in ("speak", "answer")], ["Allt gott, takk.", "Gott að heyra.", "En þú?"])
 
     def test_icelandic_course_has_complete_japanese_glosses(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
