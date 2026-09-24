@@ -286,6 +286,7 @@ def _plan(script: Script, cur) -> dict:
         "reviewed_items": [describe(i) for i in meta.get("reviewed_items", [])],
         "dialogues": meta.get("dialogues", []),
         "exposures": meta.get("exposures", {}),
+        "review": script.review_questions(),
         "exercises": [
             {"index": e.index, "kind": e.kind, "stage": e.stage, "items": e.item_ids, "label": e.label, "start_s": round(e.start, 1), "duration_s": round(e.duration, 1)}
             for e in script.exercises

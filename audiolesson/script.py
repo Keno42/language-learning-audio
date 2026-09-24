@@ -112,6 +112,60 @@ class Script:
             "prompts": sum(1 for s in self.segments if s.type == "pause" and s.role == "answer"),
         }
 
+    def review_questions(self) -> list[dict]:
+        """Written recall questions for reviewing the lesson later (a bot, a page): the
+        instructor's cue that preceded an answer, and the answer, so that every item the
+        lesson recalled is asked about once.
+
+        Built from the spoken recalls that still work as text: a cloze fragment or a
+        first-word hint is audio the reader would not have, so those are skipped. A
+        question about the item alone beats a sentence it shares with another item (a
+        construction and its fill), a situation cue beats a bare meaning, a recall beats
+        the introduction, and among equals the latest wins. A shared sentence asks about
+        every item it covers that has no question of its own. Returns, in lesson order,
+        [{"items": [ids], "prompt", "answer", "stage"}].
+        """
+        rank = {"situation": 0, "intro": 2}
+        by_ex: dict[int, list[Segment]] = {}
+        for seg in self.segments:
+            if seg.exercise is not None:
+                by_ex.setdefault(seg.exercise, []).append(seg)
+        candidates = []
+        for ex in self.exercises:
+            if not ex.item_ids or ex.kind not in ("intro", "recall", "connect", "generative"):
+                continue
+            if ex.stage in ("cloze", "hinted"):
+                continue
+            pairs: list[tuple[str, str]] = []
+            cue: str | None = None
+            after_answer_pause = False
+            for seg in by_ex.get(ex.index, []):
+                if seg.type == "narrate":
+                    cue = seg.text
+                elif seg.type == "speak" and seg.role in ("partial", "hint"):
+                    cue = None  # the cue relied on audio
+                elif seg.type == "answer" and after_answer_pause and cue:
+                    pairs.append((cue, seg.text or ""))
+                    cue = None
+                after_answer_pause = seg.type == "pause" and seg.role == "answer"
+            if len(pairs) == len(ex.item_ids):
+                groups = [([i], p) for i, p in zip(ex.item_ids, pairs)]
+            elif len(pairs) == 1:
+                groups = [(list(ex.item_ids), pairs[0])]
+            else:
+                continue  # can't tell which answer belongs to which item
+            for ids, (prompt, answer) in groups:
+                key = (len(ids) > 1, rank.get(ex.stage or "", 1), -ex.index)
+                candidates.append((key, ex.index, ids, prompt, answer, ex.stage))
+        covered: set[str] = set()
+        questions = []
+        for _, index, ids, prompt, answer, stage in sorted(candidates, key=lambda c: c[0]):
+            fresh = [i for i in ids if i not in covered]
+            if fresh:
+                covered.update(fresh)
+                questions.append((index, {"items": fresh, "prompt": prompt, "answer": answer, "stage": stage}))
+        return [q for _, q in sorted(questions, key=lambda q: q[0])]
+
     # ---- I/O -----------------------------------------------------------
 
     def to_dict(self) -> dict:

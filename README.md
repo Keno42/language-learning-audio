@@ -48,7 +48,9 @@ Each `generate` writes into `out/yuki/` (or wherever `-o` points, if `--user`
 is not used):
 
 - `lesson-NNN.script.json` — the timed, machine-readable script (every segment, every pause)
-- `lesson-NNN.plan.json` — what was introduced/reviewed, per-item exposures, exercise index
+- `lesson-NNN.plan.json` — what was introduced/reviewed, per-item exposures, exercise index,
+  and `review`: one written recall question (cue → answer) per recalled item, for a
+  later review outside the audio (a bot, a page) that ends in `report --failed`
 - `lesson-NNN.transcript.md` — readable transcript (supplementary)
 - `lesson-NNN.wav` / `.mp3` and `lesson-NNN.cues.json` (timestamps per exercise)
 - `learner.json` — the persistent learner state, and (with `--user`) `settings.json`
