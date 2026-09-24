@@ -2401,6 +2401,20 @@ class CurriculumTests(unittest.TestCase):
             day += timedelta(days=1)
         self.assertGreaterEqual(late_asides, 10, "asides must keep coming after the first lessons")
 
+    def test_early_fills_get_their_frame_right_after_them(self):
+        """Issue #80: the numbers moved to module 02 (#29 cluster A) but their frames stayed in
+        modules 06 and 08, and «vegabréf» / «poka» waited for module 09's clothes, so they were
+        drilled as bare words for weeks. Each frame now sits right after the last thing it needs:
+        the clock after the numbers, the price after «Hvað kostar þetta?», «Ég þarf …» after
+        «poka»."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for con_id in ("klukkan_er", "thad_kostar_big", "eg_tharf"):
+            con = cur.by_id[con_id]
+            needed = max(cur.by_id[p].order for p in con.prereqs)
+            self.assertLessEqual(con.order - needed, 3, con_id)
+        self.assertLess(cur.by_id["hvad_er_klukkan"].order, cur.by_id["klukkan_er"].order)
+        self.assertLess(cur.by_id["eg_tharf"].order - cur.by_id["vegabref"].order, 100)
+
     def test_first_lesson_never_opens_with_three_introductions_in_a_row(self):
         """Issue #86: with nothing to review yet, lesson 1 opened o-i-i-i: three new items back to
         back before the first retrieval, because pulling a reactivation forward skipped both
