@@ -183,9 +183,18 @@ def render_script(
     # 2. pauses: the script's lengths × profile multiplier, then a small uniform scale to hit the target
     speech_total = sum(c.seconds for c in clips if c is not None)
     pause_base = []
+    # shrinking to fit never takes an answer below the recall floor (issue #106): the lower
+    # bound of each pause when the scale is < 1 (0 = no bound)
+    pause_floor = []
     for seg in script.segments:
         if seg.type == "pause":
-            pause_base.append(seg.duration * (profile.pause_multiplier if seg.role in ("answer", "repeat") else 1.0))
+            secs = seg.duration * (profile.pause_multiplier if seg.role in ("answer", "repeat") else 1.0)
+            pause_base.append(secs)
+            pause_floor.append(min(secs, Timing.min_recall_pause) if seg.role == "answer" else 0.0)
+
+    def scaled(secs: float, floor: float, scale: float) -> float:
+        return max(secs * scale, floor) if scale < 1 else secs * scale
+
     pause_total = sum(pause_base)
     fit_scale = 1.0
     if profile.fit and target_seconds and pause_total > 0:
@@ -194,20 +203,24 @@ def render_script(
             # aim for the nearest edge of the tolerance band, not the exact target: pauses stay
             # as close as possible to what the timing model asked for
             aim = target_seconds - profile.fit_tolerance if delta > 0 else target_seconds + profile.fit_tolerance
-            fit_scale = max(profile.fit_min, min(profile.fit_max, (aim - speech_total) / pause_total))
-    fitted = iter(pause_base)
+            fit_scale = (aim - speech_total) / pause_total
+            if fit_scale < 1:
+                # pauses held at their floor don't shrink: the others make up for them
+                for _ in range(5):
+                    held = [(b, f) for b, f in zip(pause_base, pause_floor) if b * fit_scale < f]
+                    free = pause_total - sum(b for b, _ in held)
+                    if free <= 0:
+                        break
+                    fit_scale = (aim - speech_total - sum(f for _, f in held)) / free
+            fit_scale = max(profile.fit_min, min(profile.fit_max, fit_scale))
+    fitted = iter(zip(pause_base, pause_floor))
     cues: list[dict] = []
     final: list[AudioClip] = []
     t = 0.0
     ex_start: dict[int, float] = {}
     for seg, clip in zip(script.segments, clips):
         if clip is None:
-            secs = next(fitted)
-            scaled = secs * fit_scale
-            if seg.role == "answer" and fit_scale < 1:
-                # shrinking to fit never takes an answer below the recall floor (issue #106)
-                scaled = max(scaled, min(secs, Timing.min_recall_pause))
-            clip = silence(scaled)
+            clip = silence(scaled(*next(fitted), fit_scale))
         if seg.exercise is not None and seg.exercise not in ex_start:
             ex_start[seg.exercise] = t
         cues.append({"t": round(t, 2), "type": seg.type, "speaker": seg.speaker, "text": seg.text, "role": seg.role, "dur": round(clip.seconds, 2)})
