@@ -37,6 +37,9 @@ class ItemState:
     durable_successes: int = 0  # successes on/after their due date only — see is_learned
     failures: int = 0
     exposures: int = 0
+    # set by a reported failure: the next lesson that recalls the item gives it a little
+    # more time to answer (Timing.failure_think_time), then clears it (issue #104)
+    extra_think_time: bool = False
     history: list[dict] = field(default_factory=list)  # [{lesson, stages, ok}] compact log
 
     @property
@@ -264,6 +267,7 @@ class LearnerState:
             st.due = (today + timedelta(days=1)).isoformat()
             # demote one stage; the ladder is recomputed by the planner, so just mark it
             st.stage = "cloze" if st.stage not in ("intro", "cloze") else "intro"
+            st.extra_think_time = True
             if lesson_number is not None and st.history and st.history[-1].get("lesson") == lesson_number:
                 st.history[-1]["ok"] = False
             changed["failed"].append(item_id)

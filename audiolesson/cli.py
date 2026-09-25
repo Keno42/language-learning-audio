@@ -328,7 +328,7 @@ def cmd_report(args) -> int:
     changed = learner.report(_split(args.failed), _split(args.easy), today, args.lesson)
     learner.save(args.learner)
     if changed["failed"]:
-        print(f"marked as failed (back to an easier stage, due tomorrow): {', '.join(changed['failed'])}")
+        print(f"marked as failed (back to an easier stage, due tomorrow, a second more to answer next time): {', '.join(changed['failed'])}")
     if changed["easy"]:
         print(f"marked as easy (longer interval): {', '.join(changed['easy'])}")
     if changed["unknown"]:

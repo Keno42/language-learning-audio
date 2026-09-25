@@ -61,6 +61,7 @@ class Builder:
     heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson
     in_lesson: set[str] = field(default_factory=set)  # items introduced this lesson: usable as parts
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
+    boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
 
     # ------------------------------------------------------------------ utils
 
@@ -148,6 +149,10 @@ class Builder:
         self, sc: Script, ex: Exercise, answer: str, item: Item | None, generative: bool, supported: bool = False
     ) -> None:
         """``supported``: the prompt just gave part of the answer (hint, cloze fragment)."""
+        st = self.learner.items.get(item.id) if item else None
+        after_failure = bool(st and st.extra_think_time)
+        if after_failure and item:
+            self.boosted.add(item.id)
         secs = self.timing.answer_pause(
             answer,
             self.tl,
@@ -155,8 +160,11 @@ class Builder:
             successes=self._successes(item) if item else 0,
             generative=generative,
             supported=supported,
+            after_failure=after_failure,
         )
-        self._pause(sc, ex, secs, "answer", floor=self.timing.answer_floor(supported))
+        # the after-failure second is part of the floor too, so fitting the audio can't take it back
+        floor = self.timing.answer_floor(supported) + (self.timing.failure_think_time if after_failure else 0.0)
+        self._pause(sc, ex, secs, "answer", floor=floor)
 
     def _repeat_pause(self, sc: Script, ex: Exercise, text: str) -> None:
         self._pause(sc, ex, self.timing.repeat_pause(text, self.tl), "repeat", floor=self.timing.min_pause)

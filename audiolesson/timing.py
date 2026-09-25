@@ -29,6 +29,7 @@ CHARS_PER_SECOND = {"ja": 5.5, "zh": 4.5, "ko": 5.0, "th": 5.0}  # languages wit
 class Timing:
     think_time: float = 1.0  # a moment to recall the answer, before saying it (scaled below)
     generative_bonus: float = 1.5  # extra thinking time for novel combinations / situations
+    failure_think_time: float = 1.0  # added once to an item's answer pauses in the lesson after a reported failure
     repeat_delay: float = 0.5  # reaction time before repeating something just heard (not recalled)
     beat: float = 0.8  # tiny gap between speech segments
     between_exercises: float = 1.2
@@ -65,10 +66,13 @@ class Timing:
         successes: int = 0,
         generative: bool = False,
         supported: bool = False,
+        after_failure: bool = False,
     ) -> float:
         """A moment to recall the answer, plus however long it actually takes to say it.
         ``supported``: the prompt just gave part of the answer (a first-word hint, a cloze
-        fragment), so the floor is ``min_supported_pause`` instead of ``min_recall_pause``."""
+        fragment), so the floor is ``min_supported_pause`` instead of ``min_recall_pause``.
+        ``after_failure``: the learner reported failing this item last time; add
+        ``failure_think_time`` on top (not scaled: a flat, temporary second)."""
         think = self.think_time + (self.generative_bonus if generative else 0.0)
         mult = self.level_multiplier.get(self.level, 1.0)
         if successes < 2:
@@ -79,7 +83,8 @@ class Timing:
         mult *= self.global_pause_multiplier
         speak = self.speech_estimate(answer_text, lang)
         floor = self.answer_floor(supported)
-        return round(min(self.max_pause, max(floor, think * mult + speak)), 1)
+        extra = self.failure_think_time if after_failure else 0.0
+        return round(min(self.max_pause, max(floor, think * mult + speak) + extra), 1)
 
     def answer_floor(self, supported: bool = False) -> float:
         """The floor ``answer_pause`` applies, for the renderer to keep when it shrinks pauses."""
