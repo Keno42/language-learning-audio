@@ -134,8 +134,9 @@ class Builder:
             return False
         return not any(_norm_utterance(it.target) == n for it in self.cur.items if self.learner.has_met(it.id))
 
-    def _pause(self, sc: Script, ex: Exercise, seconds: float, role: str) -> None:
-        sc.add(Segment("pause", None, None, None, 1.0, seconds, role, ex.index))
+    def _pause(self, sc: Script, ex: Exercise, seconds: float, role: str, floor: float | None = None) -> None:
+        """``floor``: what fitting the audio to length may shrink this pause to, at most."""
+        sc.add(Segment("pause", None, None, None, 1.0, seconds, role, ex.index, floor=floor))
 
     def _beat(self, sc: Script, ex: Exercise) -> None:
         self._pause(sc, ex, self.timing.beat, "beat")
@@ -155,10 +156,10 @@ class Builder:
             generative=generative,
             supported=supported,
         )
-        self._pause(sc, ex, secs, "answer")
+        self._pause(sc, ex, secs, "answer", floor=self.timing.answer_floor(supported))
 
     def _repeat_pause(self, sc: Script, ex: Exercise, text: str) -> None:
-        self._pause(sc, ex, self.timing.repeat_pause(text, self.tl), "repeat")
+        self._pause(sc, ex, self.timing.repeat_pause(text, self.tl), "repeat", floor=self.timing.min_pause)
 
     # ------------------------------------------------------------ bookends
 

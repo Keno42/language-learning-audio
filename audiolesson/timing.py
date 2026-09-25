@@ -78,8 +78,12 @@ class Timing:
         mult *= 1.0 + self.difficulty_step * max(0, difficulty - 2)
         mult *= self.global_pause_multiplier
         speak = self.speech_estimate(answer_text, lang)
-        floor = self.min_supported_pause if supported else self.min_recall_pause
+        floor = self.answer_floor(supported)
         return round(min(self.max_pause, max(floor, think * mult + speak)), 1)
+
+    def answer_floor(self, supported: bool = False) -> float:
+        """The floor ``answer_pause`` applies, for the renderer to keep when it shrinks pauses."""
+        return self.min_supported_pause if supported else self.min_recall_pause
 
     def repeat_pause(self, answer_text: str, lang: str) -> float:
         """Repeating something just heard needs no recall — just enough time to say it."""

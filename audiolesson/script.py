@@ -33,6 +33,9 @@ class Segment:
     # what the TTS provider receives when it differs from ``text`` (native script for a
     # romanized display: "sate" → "さて"); None means speak ``text``
     speech_text: str | None = None
+    # pauses: the shortest this pause may become when the renderer shrinks pauses to fit
+    # the requested length (the timing model's floor for it); None = no floor
+    floor: float | None = None
 
     def to_dict(self) -> dict:
         d = asdict(self)

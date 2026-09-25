@@ -20,7 +20,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from ..script import Script
-from ..timing import Timing
 from .audio import AudioClip, concat, read_wav, silence, to_mp3, write_wav
 from .tts import Provider, get_provider
 
@@ -183,14 +182,15 @@ def render_script(
     # 2. pauses: the script's lengths × profile multiplier, then a small uniform scale to hit the target
     speech_total = sum(c.seconds for c in clips if c is not None)
     pause_base = []
-    # shrinking to fit never takes an answer below the recall floor (issue #106): the lower
-    # bound of each pause when the scale is < 1 (0 = no bound)
+    # shrinking to fit never takes a pause below the floor the timing model gave it (issue
+    # #106: 2.5 s for unsupported recall, 1.5 s for hinted/cloze and repetition, or whatever
+    # the Timing in use set); the floor never exceeds the pause itself. 0 = no floor
     pause_floor = []
     for seg in script.segments:
         if seg.type == "pause":
             secs = seg.duration * (profile.pause_multiplier if seg.role in ("answer", "repeat") else 1.0)
             pause_base.append(secs)
-            pause_floor.append(min(secs, Timing.min_recall_pause) if seg.role == "answer" else 0.0)
+            pause_floor.append(min(secs, seg.floor) if seg.floor else 0.0)
 
     def scaled(secs: float, floor: float, scale: float) -> float:
         return max(secs * scale, floor) if scale < 1 else secs * scale
