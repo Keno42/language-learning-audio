@@ -3459,6 +3459,42 @@ class TimingTests(unittest.TestCase):
         self.assertLess(t.answer_pause("Oui.", "fr"), t.answer_pause("Je voudrais un café avec du lait.", "fr"))
         self.assertLess(Timing(level="B1").answer_pause("Où est la gare ?", "fr"), Timing(level="A0").answer_pause("Où est la gare ?", "fr"))
 
+    def test_unsupported_recall_has_its_own_floor(self):
+        """Issue #106: an answer pause holds both retrieval and speech, so recall with nothing
+        given never drops below min_recall_pause, while repeating and hinted recall keep the
+        shorter floors; longer answers still get more time from the speech estimate."""
+        t = Timing(level="B2")  # the shortest pauses: familiar item, fast level
+        one_word = t.answer_pause("Já.", "is", successes=8)
+        self.assertEqual(one_word, t.min_recall_pause)
+        self.assertEqual(t.min_recall_pause, 2.5)
+        longer = t.answer_pause("Ég er að læra íslensku á hverjum degi.", "is", successes=8)
+        self.assertGreater(longer, one_word)
+        self.assertEqual(t.repeat_pause("Já.", "is"), t.min_pause, "repetition is unchanged")
+        hinted = t.answer_pause("Já takk.", "is", successes=8, supported=True)
+        self.assertLess(hinted, t.min_recall_pause)
+        self.assertEqual(Timing(level="B2", min_supported_pause=2.0).answer_pause("Já takk.", "is", successes=8, supported=True), 2.0,
+                         "the supported floor is configurable on its own")
+
+    def test_lesson_recall_pauses_respect_the_floor(self):
+        _, scripts = course(4)
+        floor = Timing().min_recall_pause
+        checked = 0
+        for sc in scripts:
+            by_ex = {}
+            for seg in sc.segments:
+                by_ex.setdefault(seg.exercise, []).append(seg)
+            for segs in by_ex.values():
+                supported = False
+                for seg in segs:
+                    if seg.type == "narrate":
+                        supported = False
+                    elif seg.type == "speak" and seg.role in ("hint", "partial"):
+                        supported = True
+                    elif seg.type == "pause" and seg.role == "answer" and not supported:
+                        self.assertGreaterEqual(seg.duration, floor)
+                        checked += 1
+        self.assertGreater(checked, 20)
+
     def test_french_question_mark_is_not_a_word(self):
         t = Timing()
         self.assertEqual(t.answer_pause("Où est la gare ?", "fr"), t.answer_pause("Où est la gare.", "fr"))
@@ -3512,11 +3548,71 @@ class RenderTests(unittest.TestCase):
             self.assertEqual(cues["target_s"], 900)
             self.assertAlmostEqual(cues["duration_s"], 900, delta=1.0, msg=cues["fit_scale"])
             self.assertTrue(0.85 <= cues["fit_scale"] <= 1.25)
-            # speech untouched, every pause scaled by the same factor
+            # speech untouched, every pause scaled by the same factor, except that shrinking
+            # never takes a pause below its own floor (issue #106)
             answers = [c["dur"] for c in cues["segments"] if c["type"] == "pause" and c["role"] == "answer"]
-            expected = [round(s.duration * cues["fit_scale"], 2) for s in sc.segments if s.type == "pause" and s.role == "answer"]
-            for a, e in zip(answers, expected):
-                self.assertAlmostEqual(a, e, delta=0.02)
+            planned = [s for s in sc.segments if s.type == "pause" and s.role == "answer"]
+            for a, p in zip(answers, planned):
+                e = p.duration * cues["fit_scale"]
+                if cues["fit_scale"] < 1:
+                    e = max(e, min(p.duration, p.floor))
+                self.assertAlmostEqual(a, round(e, 2), delta=0.02)
+
+    def test_shrinking_to_fit_keeps_the_recall_floor(self):
+        learner, scripts = course(6, minutes=15)
+        sc = scripts[-1]
+        with tempfile.TemporaryDirectory() as td:
+            prof = load_profile(None, "stub")
+            prof.mp3 = False
+            prof.fit_tolerance = 0.0
+            cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False, target_seconds=300)
+            self.assertEqual(cues["fit_scale"], prof.fit_min, "far too long: pauses shrink as far as allowed")
+            planned = [s for s in sc.segments if s.type == "pause" and s.role == "answer"]
+            answers = [c["dur"] for c in cues["segments"] if c["type"] == "pause" and c["role"] == "answer"]
+            for p, a in zip(planned, answers):
+                self.assertGreaterEqual(a + 0.01, min(p.duration, p.floor))
+            self.assertTrue(any(a < p.duration for p, a in zip(planned, answers)), "longer pauses still shrink")
+
+    def _render_squeezed(self, sc):
+        """Render with fitting forced far below the plan, so every pause hits its floor."""
+        with tempfile.TemporaryDirectory() as td:
+            prof = load_profile(None, "stub")
+            prof.mp3 = False
+            prof.fit_tolerance = 0.0
+            prof.fit_min = 0.1
+            cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False, target_seconds=1)
+        return [c["dur"] for c in cues["segments"] if c["type"] == "pause" and c["role"] == "answer"]
+
+    def _long_recalls(self, timing):
+        """A hinted and an unsupported recall of the same long phrase, built with ``timing``."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        item = max((i for i in cur.items if i.kind == "phrase"), key=lambda i: i.word_count)
+        b = Builder(cur, Prompts.load("en"), timing, fresh())
+        sc = Script(1, "t", cur.target_lang, cur.known_lang)
+        b.recall(sc, item, "hinted")
+        b.recall(sc, item, "meaning")
+        hinted, unsupported = [s for s in sc.segments if s.type == "pause" and s.role == "answer"]
+        return sc, hinted, unsupported
+
+    def test_fitting_keeps_each_pauses_own_floor(self):
+        """PR #107 review: the renderer keeps the floor the timing model gave each pause — a
+        long hinted pause may shrink to the supported floor, unsupported recall keeps the
+        recall floor, and a Timing with overridden floors is honoured after fitting."""
+        sc, hinted, unsupported = self._long_recalls(Timing(level="A1"))
+        self.assertGreater(hinted.duration, 2.5, "long enough that fitting would shrink it")
+        self.assertEqual((hinted.floor, unsupported.floor), (1.5, 2.5))
+        self.assertEqual(self._render_squeezed(sc), [1.5, 2.5])
+
+        sc, hinted, unsupported = self._long_recalls(Timing(level="A1", min_recall_pause=3.5, min_supported_pause=2.0))
+        self.assertEqual(self._render_squeezed(sc), [2.0, 3.5], "overridden floors survive fitting")
+
+    def test_scripts_without_floors_still_render(self):
+        sc, _, _ = self._long_recalls(Timing(level="A1"))
+        for s in sc.segments:
+            s.floor = None  # a script saved before pauses carried floors
+        self.assertTrue(all(d < 1.5 for d in self._render_squeezed(sc)))
 
     def test_fit_tolerance_leaves_pauses_alone_when_close(self):
         learner, scripts = course(6, minutes=15)
