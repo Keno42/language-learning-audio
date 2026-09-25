@@ -3194,6 +3194,77 @@ class LessonStructureTests(unittest.TestCase):
             self.assertAlmostEqual(back.total_duration, self.script.total_duration, places=3)
 
 
+class RecombineNoveltyTests(unittest.TestCase):
+    """Issue #105: recombination only asks for a sentence not yet heard in this lesson."""
+
+    def builder(self, seed=0):
+        import random
+
+        from audiolesson.exercises import Builder
+
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "fara", "kind": "vocab", "target": "fara", "meaning": "to go", "tags": ["inf"]},
+                {"id": "sofa", "kind": "vocab", "target": "sofa", "meaning": "to sleep", "tags": ["inf"]},
+                {"id": "vil", "kind": "construction", "target": "Ég vil {inf}.", "meaning": "I want {inf}.",
+                 "slots": {"inf": "inf"}, "example": {"inf": "fara"}},
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in ("fara", "sofa", "vil"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="meaning")
+        return cur, Builder(cur, Prompts.load("en"), Timing(level="A1"), learner, random.Random(seed))
+
+    @staticmethod
+    def answers(sc):
+        return [s.text for s in sc.segments if s.type == "answer"]
+
+    def test_a_heard_fill_is_replaced_by_the_other(self):
+        for seed in range(6):
+            cur, b = self.builder(seed)
+            b.heard.add("ég vil fara")
+            sc = Script(1, "t", "is", "en")
+            b.recall(sc, cur.by_id["vil"], "recombine")
+            self.assertEqual(sc.exercises[0].kind, "generative")
+            self.assertEqual(self.answers(sc), ["Ég vil sofa."])
+
+    def test_nothing_new_left_means_no_recombine_exercise(self):
+        cur, b = self.builder()
+        b.heard |= {"ég vil fara", "ég vil sofa"}
+        for item_id in ("vil", "sofa"):  # the construction, and a word placed into it
+            self.assertEqual(b.recombine_status(cur.by_id[item_id]), "heard")
+            sc = Script(1, "t", "is", "en")
+            b.recall(sc, cur.by_id[item_id], "recombine")
+            self.assertNotEqual(sc.exercises[0].kind, "generative")
+            narration = " ".join(s.text for s in sc.segments if s.type == "narrate")
+            self.assertNotIn("in a sentence", narration)
+
+    def test_status_has_no_side_effects(self):
+        cur, b = self.builder()
+        state = b.rng.getstate()
+        self.assertEqual(b.recombine_status(cur.by_id["vil"]), "novel")
+        self.assertEqual(b.rng.getstate(), state)
+        self.assertEqual(b.used_combos, set())
+
+    def test_no_lesson_recombines_a_line_it_already_presented(self):
+        _, scripts = course(8)
+        seen_generative = 0
+        for sc in scripts:
+            heard = set()
+            for ex in sc.exercises:
+                segs = [s for s in sc.segments if s.exercise == ex.index]
+                if ex.kind == "generative":
+                    seen_generative += 1
+                    answer = next(s.text for s in segs if s.type == "answer")
+                    self.assertNotIn(answer.strip().rstrip(".?!…").lower(), heard, f"lesson {sc.lesson_number}: {ex.label}")
+                for s in segs:
+                    if s.type in ("speak", "answer") and s.lang == sc.target_lang and s.role not in ("partial", "hint"):
+                        heard.add(s.text.strip().rstrip(".?!…").strip().lower())
+        self.assertGreater(seen_generative, 0, "recombination still happens when something new is possible")
+
+
 class CourseTests(unittest.TestCase):
     def test_lessons_form_a_sequence(self):
         # long enough that items reach durable_successes>=2 (a review on/after its own due

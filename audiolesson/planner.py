@@ -356,6 +356,24 @@ class Planner:
         self.builder.note(sc, note)
         self.notes_played.append(note.id)
 
+    def recombine_or_instead(self, item: Item) -> str | None:
+        """Issue #105: recombine only when it can make a sentence not yet heard this lesson.
+        Otherwise practise the item at the hardest stage it already reached today (or
+        ``meaning``), so stages never go down within a lesson; if it already did recombine
+        today, its situation when usable, else None: skip rather than replay a line under a
+        "make a sentence" prompt. "impossible" (no known fills) keeps the builder's own
+        fallback."""
+        if self.builder.recombine_status(item) != "heard":
+            return "recombine"
+        ladder = self.ladder(item)
+        today = [s for s in self.exposures.get(item.id, []) if s in ladder and s != "intro"]
+        instead = max(today + ["meaning"], key=lambda s: stage_index(ladder, s))
+        if stage_index(ladder, instead) < stage_index(ladder, "recombine"):
+            return instead
+        if "situation" in ladder and stage_index(ladder, "situation") > stage_index(ladder, instead) and self.builder.situation_usable(item):
+            return "situation"
+        return None
+
     def below_dialogue(self, item: Item) -> str:
         """The hardest non-dialogue stage for an item (used when no dialogue fits right now)."""
         ladder = [s for s in self.ladder(item) if s != "dialogue"]
@@ -469,6 +487,8 @@ class Planner:
                     touch(item)
                     return
                 stage = self.below_dialogue(item)
+            if stage == "recombine" and (stage := self.recombine_or_instead(item)) is None:
+                return
             ex = b.recall(sc, item, stage)
             self._record([item.id], ex.stage or stage, ex.item_ids)
             touch(item)
@@ -750,6 +770,8 @@ class Planner:
                 stage = self._harder_than_today(item)
                 if stage == "dialogue":
                     stage = self.below_dialogue(item)
+                if stage == "recombine" and (stage := self.recombine_or_instead(item)) is None:
+                    continue
                 ex = b.recall(sc, item, stage)
                 self._record([item.id], ex.stage or stage, ex.item_ids)
         b.closing(sc, n)

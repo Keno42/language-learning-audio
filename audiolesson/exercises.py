@@ -372,11 +372,13 @@ class Builder:
         return ex
 
     def _recombine(self, sc: Script, item: Item) -> Exercise | None:
-        """Generative practice: a sentence the learner has not heard verbatim."""
+        """Generative practice: a sentence the learner has not heard in this lesson (issue
+        #105). With no such combination left, None: the caller falls back to a plain recall
+        rather than replaying a line under a "make a sentence" label."""
         if item.kind == "construction":
-            gen = self.generate(item)
+            gen = self.generate(item, avoid_heard=True)
         else:
-            gen = self.generate_with(item)
+            gen = self.generate_with(item, avoid_heard=True)
         if gen is None:
             return None
         self.used_combos.add(gen.key)
@@ -392,6 +394,20 @@ class Builder:
         self._answer(sc, ex, gen.target)
         self._gap(sc, ex)
         return ex
+
+    def recombine_status(self, item: Item) -> str:
+        """Whether a recombine exercise for ``item`` could make a sentence now: "novel" (one
+        not yet heard this lesson), "heard" (only already-presented sentences are possible)
+        or "impossible" (no known fills at all). No side effects: the generator's random
+        state is restored."""
+        state = self.rng.getstate()
+        try:
+            gen = self.generate if item.kind == "construction" else self.generate_with
+            if gen(item, avoid_heard=True) is not None:
+                return "novel"
+            return "heard" if gen(item) is not None else "impossible"
+        finally:
+            self.rng.setstate(state)
 
     def _recall_transform(self, sc: Script, item: Item, stage: str) -> Exercise:
         ex = sc.new_exercise("recall", stage, [item.id], f"{stage}: {item.meaning}")
@@ -417,10 +433,17 @@ class Builder:
     # ------------------------------------------------------------ generation
 
     def generate(
-        self, construction: Item, *, exclude: dict[str, Item] | None = None, prefer_unused: bool = True, fixed: dict[str, Item] | None = None
+        self,
+        construction: Item,
+        *,
+        exclude: dict[str, Item] | None = None,
+        prefer_unused: bool = True,
+        fixed: dict[str, Item] | None = None,
+        avoid_heard: bool = False,
     ) -> Generated | None:
         """Fill a construction with words the learner knows; prefer combos not yet used.
-        ``fixed`` pins slots to specific fills (a situation's binding)."""
+        ``fixed`` pins slots to specific fills (a situation's binding). ``avoid_heard`` drops
+        combinations whose sentence was already presented this lesson (None if none is left)."""
         options: dict[str, list[Item]] = {}
         for slot, tag in construction.slots.items():
             if fixed and slot in fixed:
@@ -435,6 +458,10 @@ class Builder:
         slots = list(options)
         combos = self._product(options, slots)
         self.rng.shuffle(combos)
+        if avoid_heard:
+            combos = [c for c in combos if _norm_utterance(self.cur.resolve_slots(construction, c)[0]) not in self.heard]
+            if not combos:
+                return None
         if prefer_unused:
             unused = [c for c in combos if _combo_key(construction, c) not in self.used_combos]
             combos = unused or combos
@@ -442,8 +469,9 @@ class Builder:
         target, meaning = self.cur.resolve_slots(construction, fills)
         return Generated(construction, fills, target, meaning)
 
-    def generate_with(self, vocab: Item) -> Generated | None:
-        """Find a known construction with a slot that accepts ``vocab`` and fill it."""
+    def generate_with(self, vocab: Item, avoid_heard: bool = False) -> Generated | None:
+        """Find a known construction with a slot that accepts ``vocab`` and fill it.
+        ``avoid_heard``: only sentences not yet presented this lesson (None if none is left)."""
         homes = []
         for c in self.cur.items:
             if c.kind != "construction" or not self._available(c.id):
@@ -454,21 +482,15 @@ class Builder:
         if not homes:
             return None
         self.rng.shuffle(homes)
+        fallback = None
         for c, slot in homes:
-            gen = self.generate(c)
+            gen = self.generate(c, fixed={slot: vocab}, avoid_heard=avoid_heard)
             if gen is None:
                 continue
-            gen.fills[slot] = vocab
-            gen.target, gen.meaning = self.cur.resolve_slots(c, gen.fills)
             if gen.key not in self.used_combos:
                 return gen
-        c, slot = homes[0]
-        gen = self.generate(c, prefer_unused=False)
-        if gen is None:
-            return None
-        gen.fills[slot] = vocab
-        gen.target, gen.meaning = self.cur.resolve_slots(c, gen.fills)
-        return gen
+            fallback = fallback or gen
+        return fallback
 
     def _available(self, item_id: str) -> bool:
         """Known, or introduced earlier this lesson: usable as a part of a generated sentence."""

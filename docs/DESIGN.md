@@ -46,6 +46,11 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
 - **Novelty is claimed only when true.** `recombine_new` requires `is_new_utterance()`:
   not presented this lesson, in an earlier lesson (`heard_utterances`), or as a met item's
   target.
+- **A recombine exercise makes a new sentence (#105).** Its target was not presented
+  earlier in the lesson. With only heard sentences possible, the planner practises the item
+  at the hardest stage it already reached today instead (`recombine_or_instead`), so stages
+  still never go down; a recombine already done today moves on to a usable situation or
+  is skipped.
 - **Notes.** Milestones fire deterministically once their `items` are met or exposed, and
   are followed by discrimination practice over examples whose situation is usable now. A
   note waits for what it recommends saying (`requires`). As filler, an aside is about met
