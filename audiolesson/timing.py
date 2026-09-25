@@ -33,7 +33,12 @@ class Timing:
     repeat_delay: float = 0.5  # reaction time before repeating something just heard (not recalled)
     beat: float = 0.8  # tiny gap between speech segments
     between_exercises: float = 1.2
-    min_pause: float = 1.5
+    min_pause: float = 1.5  # floor for repeating what was just heard
+    # floors for answer pauses, which include the time to say the answer: recall with nothing
+    # given needs time to retrieve as well as speak; a hint or cloze fragment supplies part
+    # of the answer, so it keeps the shorter floor
+    min_recall_pause: float = 2.5
+    min_supported_pause: float = 1.5
     max_pause: float = 15.0
     level: str = "A1"
     level_multiplier: dict[str, float] = field(default_factory=lambda: dict(LEVEL_MULTIPLIER))
@@ -60,9 +65,12 @@ class Timing:
         difficulty: int = 2,
         successes: int = 0,
         generative: bool = False,
+        supported: bool = False,
         after_failure: bool = False,
     ) -> float:
         """A moment to recall the answer, plus however long it actually takes to say it.
+        ``supported``: the prompt just gave part of the answer (a first-word hint, a cloze
+        fragment), so the floor is ``min_supported_pause`` instead of ``min_recall_pause``.
         ``after_failure``: the learner reported failing this item last time; add
         ``failure_think_time`` on top (not scaled: a flat, temporary second)."""
         think = self.think_time + (self.generative_bonus if generative else 0.0)
@@ -74,8 +82,13 @@ class Timing:
         mult *= 1.0 + self.difficulty_step * max(0, difficulty - 2)
         mult *= self.global_pause_multiplier
         speak = self.speech_estimate(answer_text, lang)
+        floor = self.answer_floor(supported)
         extra = self.failure_think_time if after_failure else 0.0
-        return round(min(self.max_pause, max(self.min_pause, think * mult + speak) + extra), 1)
+        return round(min(self.max_pause, max(floor, think * mult + speak) + extra), 1)
+
+    def answer_floor(self, supported: bool = False) -> float:
+        """The floor ``answer_pause`` applies, for the renderer to keep when it shrinks pauses."""
+        return self.min_supported_pause if supported else self.min_recall_pause
 
     def repeat_pause(self, answer_text: str, lang: str) -> float:
         """Repeating something just heard needs no recall — just enough time to say it."""
