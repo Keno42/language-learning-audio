@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from ..script import Script
+from ..timing import Timing
 from .audio import AudioClip, concat, read_wav, silence, to_mp3, write_wav
 from .tts import Provider, get_provider
 
@@ -201,7 +202,12 @@ def render_script(
     ex_start: dict[int, float] = {}
     for seg, clip in zip(script.segments, clips):
         if clip is None:
-            clip = silence(next(fitted) * fit_scale)
+            secs = next(fitted)
+            scaled = secs * fit_scale
+            if seg.role == "answer" and fit_scale < 1:
+                # shrinking to fit never takes an answer below the recall floor (issue #106)
+                scaled = max(scaled, min(secs, Timing.min_recall_pause))
+            clip = silence(scaled)
         if seg.exercise is not None and seg.exercise not in ex_start:
             ex_start[seg.exercise] = t
         cues.append({"t": round(t, 2), "type": seg.type, "speaker": seg.speaker, "text": seg.text, "role": seg.role, "dur": round(clip.seconds, 2)})

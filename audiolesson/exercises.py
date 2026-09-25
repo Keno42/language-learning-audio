@@ -143,13 +143,17 @@ class Builder:
     def _gap(self, sc: Script, ex: Exercise) -> None:
         self._pause(sc, ex, self.timing.between_exercises, "beat")
 
-    def _answer_pause(self, sc: Script, ex: Exercise, answer: str, item: Item | None, generative: bool) -> None:
+    def _answer_pause(
+        self, sc: Script, ex: Exercise, answer: str, item: Item | None, generative: bool, supported: bool = False
+    ) -> None:
+        """``supported``: the prompt just gave part of the answer (hint, cloze fragment)."""
         secs = self.timing.answer_pause(
             answer,
             self.tl,
             difficulty=item.difficulty if item else 3,
             successes=self._successes(item) if item else 0,
             generative=generative,
+            supported=supported,
         )
         self._pause(sc, ex, secs, "answer")
 
@@ -304,11 +308,11 @@ class Builder:
             words = [w for w in target.split() if any(ch.isalnum() for ch in w)]
             partial = " ".join(words[:-1]) + "…"
             self._speak(sc, ex, partial, role="partial")
-            self._answer_pause(sc, ex, target, item, generative=False)
+            self._answer_pause(sc, ex, target, item, generative=False, supported=True)
         elif stage == "hinted":
             self._narr(sc, ex, self.prompts.get("hinted", meaning=self._m(item.meaning)))
             self._speak(sc, ex, target.split()[0].rstrip(".,?!"), role="hint")
-            self._answer_pause(sc, ex, target, item, generative=False)
+            self._answer_pause(sc, ex, target, item, generative=False, supported=True)
         elif stage == "situation":
             self._narr(sc, ex, self._situation(item))  # type: ignore[arg-type]
             self._answer_pause(sc, ex, target, item, generative=True)
@@ -353,7 +357,7 @@ class Builder:
             self._narr(sc, ex, self._situation(item))
         else:
             self._narr(sc, ex, self._meaning_prompt(gen.meaning))
-        self._answer_pause(sc, ex, gen.target, item, generative=is_generative(stage))
+        self._answer_pause(sc, ex, gen.target, item, generative=is_generative(stage), supported=stage == "hinted")
         self._answer(sc, ex, gen.target)
         self._gap(sc, ex)
         return ex
@@ -392,7 +396,7 @@ class Builder:
         self._speak(sc, ex, exm.source, role="source")
         if hint:
             self._speak(sc, ex, exm.result.split()[0].rstrip(".,?!"), role="hint")
-        self._answer_pause(sc, ex, exm.result, item, generative=True)
+        self._answer_pause(sc, ex, exm.result, item, generative=True, supported=hint)
         self._answer(sc, ex, exm.result)
         self.used_examples.add(item.id + ":" + exm.source)
 
