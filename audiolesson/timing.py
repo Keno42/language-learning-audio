@@ -29,6 +29,7 @@ CHARS_PER_SECOND = {"ja": 5.5, "zh": 4.5, "ko": 5.0, "th": 5.0}  # languages wit
 class Timing:
     think_time: float = 1.0  # a moment to recall the answer, before saying it (scaled below)
     generative_bonus: float = 1.5  # extra thinking time for novel combinations / situations
+    failure_think_time: float = 1.0  # added once to an item's answer pauses in the lesson after a reported failure
     repeat_delay: float = 0.5  # reaction time before repeating something just heard (not recalled)
     beat: float = 0.8  # tiny gap between speech segments
     between_exercises: float = 1.2
@@ -59,8 +60,11 @@ class Timing:
         difficulty: int = 2,
         successes: int = 0,
         generative: bool = False,
+        after_failure: bool = False,
     ) -> float:
-        """A moment to recall the answer, plus however long it actually takes to say it."""
+        """A moment to recall the answer, plus however long it actually takes to say it.
+        ``after_failure``: the learner reported failing this item last time; add
+        ``failure_think_time`` on top (not scaled: a flat, temporary second)."""
         think = self.think_time + (self.generative_bonus if generative else 0.0)
         mult = self.level_multiplier.get(self.level, 1.0)
         if successes < 2:
@@ -70,7 +74,8 @@ class Timing:
         mult *= 1.0 + self.difficulty_step * max(0, difficulty - 2)
         mult *= self.global_pause_multiplier
         speak = self.speech_estimate(answer_text, lang)
-        return round(min(self.max_pause, max(self.min_pause, think * mult + speak)), 1)
+        extra = self.failure_think_time if after_failure else 0.0
+        return round(min(self.max_pause, max(self.min_pause, think * mult + speak) + extra), 1)
 
     def repeat_pause(self, answer_text: str, lang: str) -> float:
         """Repeating something just heard needs no recall — just enough time to say it."""

@@ -61,6 +61,7 @@ class Builder:
     heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson
     in_lesson: set[str] = field(default_factory=set)  # items introduced this lesson: usable as parts
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
+    boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
 
     # ------------------------------------------------------------------ utils
 
@@ -144,12 +145,17 @@ class Builder:
         self._pause(sc, ex, self.timing.between_exercises, "beat")
 
     def _answer_pause(self, sc: Script, ex: Exercise, answer: str, item: Item | None, generative: bool) -> None:
+        st = self.learner.items.get(item.id) if item else None
+        after_failure = bool(st and st.extra_think_time)
+        if after_failure and item:
+            self.boosted.add(item.id)
         secs = self.timing.answer_pause(
             answer,
             self.tl,
             difficulty=item.difficulty if item else 3,
             successes=self._successes(item) if item else 0,
             generative=generative,
+            after_failure=after_failure,
         )
         self._pause(sc, ex, secs, "answer")
 

@@ -779,6 +779,7 @@ class Planner:
             "partner_exchanges": len(self.dialogues_played) + sum(1 for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"),
             "recombinations": sum(1 for e in sc.exercises if e.kind == "connect" and e.stage != "exchange"),
             "heard_utterances": sorted(self.builder.heard),
+            "think_time_boosted": sorted(self.builder.boosted),
             "bridges": [e.item_ids[1] for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"],
         }
         return sc
@@ -810,6 +811,9 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
         learner.notes_heard[n] = learner.notes_heard.get(n, 0) + 1
         learner.notes_last_heard[n] = sc.lesson_number
     learner.heard_utterances.update(sc.meta.get("heard_utterances", []))
+    for item_id in sc.meta.get("think_time_boosted", []):
+        if item_id in learner.items:
+            learner.items[item_id].extra_think_time = False  # used up; a later failure sets it again
     for b in sc.meta.get("bridges", []):
         learner.bridges_heard[b] = learner.bridges_heard.get(b, 0) + 1
     learner.lessons.append(

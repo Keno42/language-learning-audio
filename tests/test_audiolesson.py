@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 import os
 import re
@@ -3296,6 +3297,81 @@ class JapaneseInstructorTests(unittest.TestCase):
             for i, s in enumerate(sc.segments):
                 if s.role == "alternative":
                     self.assertEqual(sc.segments[i - 1].type, "narrate")
+
+
+class FailureThinkTimeTests(unittest.TestCase):
+    """Issue #104: a reported failure gives the item one more second on its answer pauses in
+    the next lesson that recalls it, and only then."""
+
+    def setUp(self):
+        self.learner, scripts = course(3)
+        self.day = TODAY + timedelta(days=6)
+        # an item the next lesson recalls on its own
+        probe = build(copy.deepcopy(self.learner), today=self.day)
+        self.item = next(e.item_ids[0] for e in probe.exercises if e.kind == "recall" and len(e.item_ids) == 1)
+
+    @staticmethod
+    def pauses(sc, role):
+        return [(e.index, e.item_ids, [s.duration for s in sc.segments if s.exercise == e.index and s.type == "pause" and s.role == role])
+                for e in sc.exercises]
+
+    def test_only_the_failed_items_answer_pauses_grow(self):
+        plain = copy.deepcopy(self.learner)
+        flagged = copy.deepcopy(self.learner)
+        flagged.items[self.item].extra_think_time = True
+        a, b = build(plain, today=self.day), build(flagged, today=self.day)
+        extra = Timing().failure_think_time
+        compared = 0
+        # adding time can only change what fits at the end of the lesson: compare the exercises both share
+        for (ia, ids, pa), (ib, _, pb) in zip(self.pauses(a, "answer"), self.pauses(b, "answer")):
+            if [e.item_ids for e in a.exercises[: ia + 1]] != [e.item_ids for e in b.exercises[: ib + 1]]:
+                break
+            if ids == [self.item]:
+                self.assertEqual([round(x + extra, 1) for x in pa], pb)
+                compared += 1
+            elif self.item not in ids:
+                self.assertEqual(pa, pb, "other items keep their pauses")
+        self.assertGreater(compared, 0)
+        self.assertEqual(
+            [p for _, ids, p in self.pauses(a, "repeat") if ids == [self.item]][:1],
+            [p for _, ids, p in self.pauses(b, "repeat") if ids == [self.item]][:1],
+            "repeating after the model is unchanged",
+        )
+        self.assertEqual(b.meta["think_time_boosted"], [self.item])
+        self.assertEqual(a.meta["think_time_boosted"], [])
+
+    def test_report_sets_it_the_lesson_uses_it_a_new_failure_sets_it_again(self):
+        learner = copy.deepcopy(self.learner)
+        learner.report([self.item], [], self.day)
+        self.assertTrue(learner.items[self.item].extra_think_time)
+        sc = build(learner, today=self.day)
+        self.assertIn(self.item, sc.meta["think_time_boosted"])
+        apply_to_learner(sc, learner, self.day)
+        self.assertFalse(learner.items[self.item].extra_think_time, "used up by the lesson")
+        nxt = build(copy.deepcopy(learner), today=self.day + timedelta(days=2))
+        self.assertEqual(nxt.meta["think_time_boosted"], [], "no boost without a new failure")
+        learner.report([self.item], [], self.day + timedelta(days=1))
+        self.assertTrue(learner.items[self.item].extra_think_time)
+
+    def test_the_boost_waits_for_a_lesson_that_recalls_the_item(self):
+        learner = copy.deepcopy(self.learner)
+        sc = build(copy.deepcopy(learner), minutes=2, today=self.day)
+        absent = next(i for i in learner.items if i not in sc.meta["exposures"])
+        learner.items[absent].extra_think_time = True
+        sc = build(learner, minutes=2, today=self.day)
+        self.assertNotIn(absent, sc.meta["exposures"])
+        apply_to_learner(sc, learner, self.day)
+        self.assertTrue(learner.items[absent].extra_think_time, "kept for the first lesson that practises it")
+
+    def test_older_learner_files_load_without_the_flag(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "l.json"
+            self.learner.save(path)
+            raw = json.loads(path.read_text())
+            for st in raw["items"].values():
+                st.pop("extra_think_time", None)
+            path.write_text(json.dumps(raw))
+            self.assertFalse(any(st.extra_think_time for st in LearnerState.load(path).items.values()))
 
 
 class PacingTests(unittest.TestCase):
