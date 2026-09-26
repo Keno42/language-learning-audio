@@ -342,6 +342,10 @@ class LearnerState:
             bridges_heard=dict(raw.get("bridges_heard", {})),
         )
         ls.items = {k: ItemState(**v) for k, v in raw.get("items", {}).items()}
+        # a file from before notes_last_heard existed: a note heard back then counts as heard
+        # in the latest lesson, so it rests the full repeat gap instead of coming straight back
+        for note_id in ls.notes_heard:
+            ls.notes_last_heard.setdefault(note_id, ls.lessons_completed)
         return ls
 
     @classmethod

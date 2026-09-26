@@ -348,10 +348,76 @@ class CurriculumTests(unittest.TestCase):
         learner = LearnerState("is", "en", "A1")
         for i in range(30):
             learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
-        cfg = PlanConfig(minutes=12, seed=1, dialogue_every=1000, drill_streak_limit=3, max_streak_relief_notes=2)
+        # the lesson-wide note total is tested on its own below; give it room here
+        cfg = PlanConfig(minutes=12, seed=1, dialogue_every=1000, drill_streak_limit=3, max_streak_relief_notes=2, max_notes_total=10)
         planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY)
         sc = planner.build()
         self.assertEqual(len(sc.meta["notes"]), 1 + cfg.max_streak_relief_notes, sc.meta["notes"])
+
+    def _note_lesson(self, minutes, milestones=0, **cfg):
+        """A lesson over 40 known phrases with 20 plain notes and ``milestones`` milestone
+        notes (one per item w0, w1, …, so each fires right after its item is practised)."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(40)],
+            "notes": [{"id": f"n{i}", "text": f"Note {i}."} for i in range(20)]
+            + [{"id": f"m{i}", "text": f"Pattern {i}.", "items": [f"w{i}"], "milestone": True} for i in range(milestones)],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(40):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        cfg = PlanConfig(minutes=minutes, seed=1, dialogue_every=1000, drill_streak_limit=3, note_chance=1.0, **cfg)
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+        played = sc.meta["notes"]
+        return [n for n in played if n.startswith("m")], [n for n in played if n.startswith("n")]
+
+    def test_asides_stop_at_the_lesson_total(self):
+        """Lesson 8 feedback: six notes in 28 minutes. max_notes_total defaults to one per 10
+        minutes, at least 2; with every note chance on, asides fill it and stop."""
+        for minutes, total in ((30, 3), (12, 2)):
+            milestones, asides = self._note_lesson(minutes)
+            self.assertEqual((milestones, len(asides)), ([], total), minutes)
+
+    def test_streak_relief_asides_count_toward_the_total(self):
+        """Relief asides (#44) break a drill streak only while the total has room: with one
+        ordinary aside and two relief asides available, a total of 2 lets through one relief."""
+        _, asides = self._note_lesson(12, max_notes=1, max_streak_relief_notes=2, max_notes_total=2)
+        self.assertEqual(len(asides), 2)
+        _, roomy = self._note_lesson(12, max_notes=1, max_streak_relief_notes=2, max_notes_total=10)
+        self.assertEqual(len(roomy), 3, "the relief allowance itself is unchanged when the total has room")
+
+    def test_milestones_play_past_the_total_but_asides_do_not(self):
+        """The total is not a strict cap: milestones keep their own cap (max_reactive_milestones)
+        and are never blocked, because they name a pattern right where it is practised. Once
+        they fill the total, no aside plays; past it, milestones still do."""
+        milestones, asides = self._note_lesson(30, milestones=1)
+        self.assertEqual((len(milestones), len(asides)), (1, 2), "one milestone + asides up to the total of 3")
+        milestones, asides = self._note_lesson(30, milestones=4, max_reactive_milestones=4)
+        self.assertEqual(len(milestones), 4, "four milestones exceed the total of 3 and all play")
+        self.assertEqual(asides, [], "no aside once milestones have used the total")
+
+    def test_notes_heard_before_last_heard_was_recorded_rest_the_full_gap(self):
+        """Lesson 8 feedback: asides heard in lessons made before notes_last_heard existed came
+        back as if never rested. Loading such a file dates them to the latest lesson."""
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "l.json"
+            old = LearnerState("is", "en", "A1", lessons_completed=7)
+            old.notes_heard = {"nofn": 1, "kindur": 1}
+            old.save(path)
+            raw = json.loads(path.read_text())
+            raw.pop("notes_last_heard")
+            path.write_text(json.dumps(raw))
+            loaded = LearnerState.load(path)
+            self.assertEqual(loaded.notes_last_heard, {"nofn": 7, "kindur": 7})
+            cur = load_curriculum(ROOT / "curricula" / "is-en")
+            planner = Planner(cur, loaded, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+            played = planner.build().meta["notes"]
+            self.assertTrue(played, "other asides still play")
+            self.assertFalse(set(played) & {"nofn", "kindur"}, played)
+            fresh_state = LearnerState("is", "en", "A1", lessons_completed=7)
+            fresh_state.notes_heard = {"nofn": 1, "kindur": 1}  # no last-heard record in memory either
+            self.assertIsNone(fresh_state.notes_last_heard.get("nofn"), "only loading backfills")
 
     def test_streak_with_no_dialogue_and_no_notes_does_not_fall_through_to_more_recall(self):
         """Owner review on #46 (issue #44's own acceptance criteria): bounding the relief-note

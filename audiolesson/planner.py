@@ -39,6 +39,10 @@ class PlanConfig:
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
     max_reactive_milestones: int = 2  # milestones fired after their item, per lesson; more wait for the next one
     max_streak_relief_notes: int = 2  # extra notes beyond max_notes, only to break a drill streak no dialogue can
+    # every note in a lesson — milestones, asides, streak relief — together (default: one per
+    # 10 minutes, at least 2). Milestones keep their own cap and are never blocked by this;
+    # asides only play while it has room (lesson 8 feedback: six notes in 28 minutes)
+    max_notes_total: int | None = None
     note_chance: float = 0.7  # chance to play a related note right after its item
     note_repeat_gap: int = 20  # lessons before a heard aside may play again
     note_lookahead: int = 100  # filler may use an unheard note about an item this close ahead of what's met
@@ -272,10 +276,16 @@ class Planner:
         return any(not self.cur.note_by_id[nid].milestone for nid in self.notes_played)
 
     def _note_budget_left(self) -> bool:
-        """Rations ordinary asides; milestones neither draw on nor count against it."""
+        """Rations ordinary asides; milestones neither draw on nor count against it. Also
+        closed once the lesson's total for every kind of note is used up."""
         limit = self.cfg.max_notes if self.cfg.max_notes is not None else max(1, int(self.cfg.minutes // 12))
         played_asides = sum(1 for nid in self.notes_played if not self.cur.note_by_id[nid].milestone)
-        return played_asides < limit
+        return played_asides < limit and self._total_notes_left()
+
+    def _total_notes_left(self) -> bool:
+        """Room under ``max_notes_total``, which counts milestones, asides and streak relief."""
+        limit = self.cfg.max_notes_total if self.cfg.max_notes_total is not None else max(2, int(self.cfg.minutes // 10))
+        return len(self.notes_played) < limit
 
     def _eligible_milestone(self, related: list[str]) -> object | None:
         """A due milestone related to ``related``: every one of its ``items`` met, or exposed
@@ -617,7 +627,7 @@ class Planner:
                     # the aside ration may be spent already; a small separate allowance
                     # (max_streak_relief_notes) keeps streak relief from becoming unlimited asides
                     ration_left = self._note_budget_left()
-                    if ration_left or streak_relief_notes_used < cfg.max_streak_relief_notes:
+                    if ration_left or (streak_relief_notes_used < cfg.max_streak_relief_notes and self._total_notes_left()):
                         note = self._pick_note(None)
                         if note is not None:
                             self._play_note(sc, note)

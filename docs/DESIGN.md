@@ -56,6 +56,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   note waits for what it recommends saying (`requires`). As filler, an aside is about met
   material or material within `note_lookahead` items; an unheard note about distant
   material is never spent early, and a heard one rests `note_repeat_gap` lessons (#81).
+  All notes share one lesson total (`max_notes_total`, one per 10 minutes, at least 2):
+  milestones are never blocked by it, but asides and streak relief stop once it is used.
+  A note heard in a learner file older than `notes_last_heard` dates to the latest lesson.
 - **Content guards.** `progressive_inf` holds only verbs audited for «vera að» + infinitive
   («sofa» is excluded). Dialogue partner lines use only taught words. No fill-borne
   parenthetical leaks into a sentence prompt (`meaning_forms.in_sentence`).
