@@ -63,19 +63,6 @@ def course(n_lessons: int, minutes: float = 15) -> tuple[LearnerState, list[Scri
 
 
 class CurriculumTests(unittest.TestCase):
-    def expected(text: str) -> str | None:
-            f, m = bool(female.search(text)), bool(male.search(text))
-            return "native_a" if f and not m else "native_b" if m and not f else None
-
-        for path in (ROOT / "curricula" / "is-en", CURRICULUM):
-            cur = load_curriculum(path)
-            for it in cur.items:
-                if it.partner_cue and (want := expected(it.partner_cue_setup + " " + it.partner_cue_situation)):
-                    self.assertEqual(it.partner_cue_speaker, want, f"{path.name}: bridge {it.id}")
-            for d in cur.dialogues:
-                if want := expected(" ".join([d.setting] + [t.cue for t in d.turns])):
-                    self.assertEqual(d.partner_speaker, want, f"{path.name}: dialogue {d.id}")
-
     def test_sample_curriculum_loads(self):
         cur = load_curriculum(CURRICULUM)
         self.assertGreater(len(cur.items), 30)
@@ -3244,7 +3231,20 @@ class PartnerVoiceTests(unittest.TestCase):
         female = re.compile(r"\b(she|her|hers|herself|woman|girl|lady|mother|mum|aunt|grandmother|sister|daughter|wife|waitress|anna)\b", re.I)
         male = re.compile(r"\b(he|him|his|himself|man|boy|guy|father|dad|uncle|grandfather|brother|son|husband|waiter)\b", re.I)
 
-        def test_a_female_partner_gets_the_female_voice_and_the_learner_the_other(self):
+        def expected(text: str) -> str | None:
+            f, m = bool(female.search(text)), bool(male.search(text))
+            return "native_a" if f and not m else "native_b" if m and not f else None
+
+        for path in (ROOT / "curricula" / "is-en", CURRICULUM):
+            cur = load_curriculum(path)
+            for it in cur.items:
+                if it.partner_cue and (want := expected(it.partner_cue_setup + " " + it.partner_cue_situation)):
+                    self.assertEqual(it.partner_cue_speaker, want, f"{path.name}: bridge {it.id}")
+            for d in cur.dialogues:
+                if want := expected(" ".join([d.setting] + [t.cue for t in d.turns])):
+                    self.assertEqual(d.partner_speaker, want, f"{path.name}: dialogue {d.id}")
+
+    def test_a_female_partner_gets_the_female_voice_and_the_learner_the_other(self):
         self.assertEqual(self.exchange("native_a"), ({"native_a"}, {"native_b"}))
 
     def test_default_partner_is_unchanged(self):
