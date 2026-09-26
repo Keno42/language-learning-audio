@@ -331,10 +331,51 @@ class CurriculumTests(unittest.TestCase):
         learner = LearnerState("is", "en", "A1")
         for i in range(30):
             learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
-        cfg = PlanConfig(minutes=12, seed=1, dialogue_every=1000, drill_streak_limit=3, max_streak_relief_notes=2)
+        # the lesson-wide note total is tested on its own below; give it room here
+        cfg = PlanConfig(minutes=12, seed=1, dialogue_every=1000, drill_streak_limit=3, max_streak_relief_notes=2, max_notes_total=10)
         planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY)
         sc = planner.build()
         self.assertEqual(len(sc.meta["notes"]), 1 + cfg.max_streak_relief_notes, sc.meta["notes"])
+
+    def test_every_kind_of_note_shares_one_lesson_total(self):
+        """Lesson 8 feedback: two milestones, two asides and two streak-relief asides made six
+        notes in 28 minutes. max_notes_total (default one per 10 minutes, at least 2) bounds
+        them together; asides stop once it is reached."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(40)],
+            "notes": [{"id": f"n{i}", "text": f"Note {i}."} for i in range(20)],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(40):
+            learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        for minutes, total in ((30, 3), (12, 2)):
+            cfg = PlanConfig(minutes=minutes, seed=1, dialogue_every=1000, drill_streak_limit=3, note_chance=1.0)
+            sc = Planner(cur, copy.deepcopy(learner), Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+            self.assertEqual(len(sc.meta["notes"]), total, (minutes, sc.meta["notes"]))
+
+    def test_notes_heard_before_last_heard_was_recorded_rest_the_full_gap(self):
+        """Lesson 8 feedback: asides heard in lessons made before notes_last_heard existed came
+        back as if never rested. Loading such a file dates them to the latest lesson."""
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "l.json"
+            old = LearnerState("is", "en", "A1", lessons_completed=7)
+            old.notes_heard = {"nofn": 1, "kindur": 1}
+            old.save(path)
+            raw = json.loads(path.read_text())
+            raw.pop("notes_last_heard")
+            path.write_text(json.dumps(raw))
+            loaded = LearnerState.load(path)
+            self.assertEqual(loaded.notes_last_heard, {"nofn": 7, "kindur": 7})
+            cur = load_curriculum(ROOT / "curricula" / "is-en")
+            planner = Planner(cur, loaded, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+            played = planner.build().meta["notes"]
+            self.assertTrue(played, "other asides still play")
+            self.assertFalse(set(played) & {"nofn", "kindur"}, played)
+            fresh_state = LearnerState("is", "en", "A1", lessons_completed=7)
+            fresh_state.notes_heard = {"nofn": 1, "kindur": 1}  # no last-heard record in memory either
+            self.assertIsNone(fresh_state.notes_last_heard.get("nofn"), "only loading backfills")
 
     def test_streak_with_no_dialogue_and_no_notes_does_not_fall_through_to_more_recall(self):
         """Owner review on #46 (issue #44's own acceptance criteria): bounding the relief-note
