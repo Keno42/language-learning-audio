@@ -515,6 +515,7 @@ chunks = ["kortinu", "á kortinu", "sýnt mér á kortinu", "Geturðu sýnt mér
 situation = "The directions are getting long. Hand over your map and ask him to show you."
 situation_ja = "道案内が長くなってきました。地図を渡して示してもらってください。"
 partner_cue = "Æ. Get ég hjálpað þér?"
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "eg_er_tynd"
 partner_cue_setup = "You've taken a wrong turn twice. A woman on the pavement looks at you. Tell her you're lost."
 partner_cue_setup_ja = "二度も道を間違えました。歩道の女性があなたを見ています。道に迷ったと伝えてください。"
@@ -633,6 +634,7 @@ requires = ["afsakid", "hvar_er", "sundlaugin", "er_thad_langt", "takk", "bless"
 id = "tynd"
 setting = "You are lost near the harbour with a paper map. A woman is waiting at a crossing."
 setting_ja = "紙の地図を手に港の近くで迷いました。横断歩道で女性が待っています。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["directions"]
 requires = ["afsakid", "eg_er_tynd", "eg_er_ad_leita_ad", "hotelinu", "geturdu_synt_mer_a_kortinu", "hvad_er_langt_thangad", "takk_kaerlega"]
 

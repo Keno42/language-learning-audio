@@ -353,6 +353,7 @@ examples = [
 id = "kvedja"
 setting = "The end of your stay. Anna drives you to the airport bus."
 setting_ja = "滞在の最終日。アンナが空港バスまで送ってくれます。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["feelings", "greetings"]
 requires = ["thad_var_gaman", "takk_fyrir_kvoldid", "eg_sakna_thin", "eg_mun_koma_aftur", "goda_ferd"]
 

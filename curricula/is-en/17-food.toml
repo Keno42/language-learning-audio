@@ -475,6 +475,7 @@ situation_ja = "ウェイターがスキールをすすめます。乳糖不耐�
 id = "kvoldmatur"
 setting = "Dinner at Anna's. She's made lamb soup."
 setting_ja = "アンナの家で夕食。ラムのスープを作ってくれました。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["food", "home"]
 requires = ["hvad_er_i_thessu", "thetta_er_ljuffengt", "ma_eg_fa_meira", "takk_fyrir_matinn", "verdi_ther_ad_godu"]
 

@@ -42,6 +42,7 @@ skips anything whose `prereqs` the learner does not know yet.
 | `meaning_forms` | vocab (slot fills) | `{ form = "gloss" }` alternative known-language renderings of `meaning`, glossed like it (`meaning_forms_ja`); a construction's `meaning` asks for one with `{slot:form}` — `"I'm {inf:ing}."` → "I'm going home.", `"{inf:te}もいいですか？"` → 「家に帰ってもいいですか？」. The target-language fill never changes. Validated: every possible fill of that slot must carry the form. The form named `in_sentence` is special: a construction's plain `{slot}` uses it instead of `meaning`. So an isolated-recall disambiguator ("English (the language)") stays out of sentence prompts ("Do you speak English?"). Keep a parenthetical in `meaning` alone only when it tells the learner which word to produce ("my friend (male)") |
 | `partner_cue`, `partner_cue_after` | phrase | a partner line spoken between item `partner_cue_after` (A) and this item (B) when `connect()` pairs them in that order |
 | `partner_cue_setup` / `partner_cue_meaning` / `partner_cue_situation` | phrase | required with `partner_cue`, glossed per language: the bridge as **one scene**. The setup replaces A's standalone situation (shared place, roles, reason; asks for A), the meaning glosses the partner line on the learner's first two hearings of that bridge, and the situation replaces B's own (same scene, names the partner's move) |
+| `partner_cue_speaker` | phrase | who says `partner_cue`: `native_a` (voiced female in every profile) or `native_b` (male, the default). Match the scene's he/she; the learner's model answers in that exchange take the other voice. A test checks it against the narration |
 | `instruction` | transform | known-language prompt, e.g. `"Make it negative:"` |
 | `examples` | transform | ≥2 pairs `{ source, source_meaning, result, result_meaning }` |
 
@@ -70,7 +71,7 @@ id = "cafe_seat"
 setting = "You are in a café. There is one free chair at a table where a woman is sitting."
 topics = ["cafe", "social"]
 requires = ["oui", "je_suis_en_vacances"]   # items the expect_text lines rely on
-partner_speaker = "native_b"                # default
+partner_speaker = "native_b"                # default; "native_a" (female voice) when the setting or cues say she/woman — the learner's lines take the other voice
 
   [[dialogues.turns]]
   opener = "Bonjour. Vous désirez ?"        # optional: partner speaks first

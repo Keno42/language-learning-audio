@@ -63,6 +63,28 @@ def course(n_lessons: int, minutes: float = 15) -> tuple[LearnerState, list[Scri
 
 
 class CurriculumTests(unittest.TestCase):
+    def test_partner_voices_match_the_narrations_he_or_she(self):
+        """Lesson 8 feedback: "A woman comes over and greets you" was answered in the male
+        voice (native_b spoke every partner line). Every profile voices native_a female and
+        native_b male, so a bridge or dialogue whose narration only says she/woman/… must use
+        native_a, and one that only says he/man/… native_b. Narration naming both (the partner
+        and someone they talk about) is left to the author."""
+        female = re.compile(r"\b(she|her|hers|herself|woman|girl|lady|mother|mum|aunt|grandmother|sister|daughter|wife|waitress|anna)\b", re.I)
+        male = re.compile(r"\b(he|him|his|himself|man|boy|guy|father|dad|uncle|grandfather|brother|son|husband|waiter)\b", re.I)
+
+        def expected(text: str) -> str | None:
+            f, m = bool(female.search(text)), bool(male.search(text))
+            return "native_a" if f and not m else "native_b" if m and not f else None
+
+        for path in (ROOT / "curricula" / "is-en", CURRICULUM):
+            cur = load_curriculum(path)
+            for it in cur.items:
+                if it.partner_cue and (want := expected(it.partner_cue_setup + " " + it.partner_cue_situation)):
+                    self.assertEqual(it.partner_cue_speaker, want, f"{path.name}: bridge {it.id}")
+            for d in cur.dialogues:
+                if want := expected(" ".join([d.setting] + [t.cue for t in d.turns])):
+                    self.assertEqual(d.partner_speaker, want, f"{path.name}: dialogue {d.id}")
+
     def test_sample_curriculum_loads(self):
         cur = load_curriculum(CURRICULUM)
         self.assertGreater(len(cur.items), 30)
@@ -1291,12 +1313,16 @@ class CurriculumTests(unittest.TestCase):
         sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
         b.connect(sc, [first, second])
         turns = [(s.speaker, s.text) for s in sc.segments if s.type in ("answer", "speak")]
+        # the partner speaks in the bridge's own voice (lesson 8 feedback: match the narration's
+        # he/she), the learner's model answers in the other
+        partner = second.partner_cue_speaker
+        learner = "native_b" if partner == "native_a" else "native_a"
         self.assertEqual(
             turns,
             [
-                ("native_a", "Gætirðu talað hægar?"),
-                ("native_b", "Auðvitað. Herbergið er númer tuttugu og þrjú."),
-                ("native_a", "Gætirðu endurtekið þetta?"),
+                (learner, "Gætirðu talað hægar?"),
+                (partner, "Auðvitað. Herbergið er númer tuttugu og þrjú."),
+                (learner, "Gætirðu endurtekið þetta?"),
             ],
         )
 
@@ -1567,7 +1593,9 @@ class CurriculumTests(unittest.TestCase):
         sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
         b.connect(sc, [cur.by_id["ha"], cur.by_id["eg_skil"]])
         turns = [(s.speaker, s.text) for s in sc.segments if s.type in ("answer", "speak")]
-        self.assertEqual([t[0] for t in turns], ["native_a", "native_b", "native_a"], turns)
+        partner = cur.by_id["eg_skil"].partner_cue_speaker  # the voice the narration's he/she implies
+        learner = "native_b" if partner == "native_a" else "native_a"
+        self.assertEqual([t[0] for t in turns], [learner, partner, learner], turns)
 
     def test_dialogue_requirements_need_durable_evidence_or_this_lesson(self):
         """Issue #27's durable gate, kept under #48 (owner review on PR #56): an item met in an
@@ -3192,6 +3220,55 @@ class LessonStructureTests(unittest.TestCase):
             back = Script.load(p)
             self.assertEqual(len(back.segments), len(self.script.segments))
             self.assertAlmostEqual(back.total_duration, self.script.total_duration, places=3)
+
+
+class PartnerVoiceTests(unittest.TestCase):
+    """The partner speaks in the voice the narration implies; the learner's model answers
+    take the other one, so the two sides of an exchange never sound alike."""
+
+    def exchange(self, speaker):
+        from audiolesson.exercises import Builder
+
+        bridge = {"id": "b", "kind": "phrase", "target": "B.", "meaning": "B.", "situation": "S b.",
+                  "partner_cue": "Hæ!", "partner_cue_after": "a", "partner_cue_setup": "A woman greets you.",
+                  "partner_cue_meaning": "Hi!", "partner_cue_situation": "She said hi. Answer."}
+        if speaker:
+            bridge["partner_cue_speaker"] = speaker
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": "a", "kind": "phrase", "target": "A.", "meaning": "A.", "situation": "S a."}, bridge]}
+        cur = curriculum_from_dict(raw)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "t", "is", "en")
+        b.connect(sc, [cur.by_id["a"], cur.by_id["b"]])
+        partner = {s.speaker for s in sc.segments if s.type == "speak"}
+        learner = {s.speaker for s in sc.segments if s.type == "answer"}
+        return partner, learner
+
+    def test_a_female_partner_gets_the_female_voice_and_the_learner_the_other(self):
+        self.assertEqual(self.exchange("native_a"), ({"native_a"}, {"native_b"}))
+
+    def test_default_partner_is_unchanged(self):
+        self.assertEqual(self.exchange(None), ({"native_b"}, {"native_a"}))
+
+    def test_dialogue_learner_lines_take_the_other_voice(self):
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        dlg = next(d for d in cur.dialogues if d.partner_speaker == "native_a")
+        learner = LearnerState("is", "en", "A1")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
+        sc = Script(1, "t", "is", "en")
+        b.dialogue(sc, dlg)
+        self.assertEqual({s.speaker for s in sc.segments if s.type == "answer"}, {"native_b"})
+        self.assertIn("native_a", {s.speaker for s in sc.segments if s.type == "speak"})
+
+    def test_an_unknown_speaker_is_rejected(self):
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": "a", "kind": "phrase", "target": "A.", "meaning": "A."},
+                         {"id": "b", "kind": "phrase", "target": "B.", "meaning": "B.", "partner_cue": "Hæ!",
+                          "partner_cue_after": "a", "partner_cue_speaker": "native_c"}]}
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
 
 
 class RecombineNoveltyTests(unittest.TestCase):

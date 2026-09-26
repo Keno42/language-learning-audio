@@ -337,6 +337,7 @@ examples = [
 id = "dagurinn"
 setting = "Anna asks about your day over coffee."
 setting_ja = "コーヒーを飲みながら、アンナがあなたの一日について聞きます。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["daily"]
 requires = ["eg_vakna", "eg_fer_i_vinnuna", "eg_fer_i_sund", "eg_elda_kvoldmat", "eg_fer_ad_sofa", "hvad_gerir_thu_um_helgar"]
 

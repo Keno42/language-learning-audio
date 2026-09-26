@@ -40,6 +40,11 @@ def _combo_key(construction: Item, fills: dict[str, Item]) -> str:
     return construction.id + ":" + ",".join(f"{k}={v.id}" for k, v in sorted(fills.items()))
 
 
+def _other_voice(speaker: str) -> str:
+    """The native voice that isn't ``speaker`` (native_a is female, native_b male)."""
+    return "native_b" if speaker == "native_a" else "native_a"
+
+
 def _norm_utterance(text: str) -> str:
     """Case- and trailing-punctuation-insensitive form of a target-language line."""
     return text.strip().rstrip(".?!…").strip().lower()
@@ -558,12 +563,16 @@ class Builder:
         self._narr(sc, ex, self.prompts.get("connect_intro" if bridged else "mixed_review_intro"))
         self._beat(sc, ex)
         # a bridge's own scene replaces the items' standalone situations
+        # the partner speaks in the voice the narration's he/she implies; the learner's model
+        # answers take the other voice, so the two sides never sound alike
+        partner = second.partner_cue_speaker if bridged else "native_b"
+        learner_voice = _other_voice(partner)
         self._narr(sc, ex, second.partner_cue_setup if bridged else self._situation(first))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, first_target, first, generative=True)
-        self._answer(sc, ex, first_target)
+        self._answer(sc, ex, first_target, speaker=learner_voice)
         self._beat(sc, ex)
         if bridged:
-            self._speak(sc, ex, second.partner_cue, speaker="native_b")
+            self._speak(sc, ex, second.partner_cue, speaker=partner)
             self._beat(sc, ex)
             if self.translate_partner and self.learner.bridges_heard.get(second.id, 0) < BRIDGE_GLOSS_ENCOUNTERS:
                 # early encounters say what the partner said; later ones rely on comprehension
@@ -573,7 +582,7 @@ class Builder:
             self._narr(sc, ex, self.prompts.get("connect_next"))
         self._narr(sc, ex, second.partner_cue_situation if bridged else self._situation(second))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, second_target, second, generative=True)
-        self._answer(sc, ex, second_target)
+        self._answer(sc, ex, second_target, speaker=learner_voice)
         self._gap(sc, ex)
         return ex
 
@@ -607,6 +616,7 @@ class Builder:
         label = f"dialogue: {dlg.id}" + ("" if len(turns) == len(dlg.turns) else f" ({len(turns)}/{len(dlg.turns)} turns)")
         ex = sc.new_exercise("dialogue", "dialogue", ids, label)
         partner = dlg.partner_speaker
+        learner_voice = _other_voice(partner)
         # the switch from drills to a conversation is the biggest change of mode in a lesson
         self._narr(sc, ex, self.prompts.get("dialogue_start"))
         self._narr(sc, ex, dlg.setting)
@@ -637,8 +647,8 @@ class Builder:
             if assisted or not heard_partner:
                 self._narr(sc, ex, turn.cue)
             self._answer_pause(sc, ex, expected, item, generative=True)
-            self._answer(sc, ex, expected)
-            lines.append(("native_a", expected))
+            self._answer(sc, ex, expected, speaker=learner_voice)
+            lines.append((learner_voice, expected))
             if turn.partner:
                 self._beat(sc, ex)
                 self._speak(sc, ex, turn.partner, speaker=partner)

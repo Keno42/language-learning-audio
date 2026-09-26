@@ -735,6 +735,7 @@ topics = ["cafe", "shopping"]
 situation = "The cashier asks if there's anything else. Say nothing more, thanks."
 situation_ja = "レジの人が他に何かあるか聞きました。もう結構ですと答えてください。"
 partner_cue = "Níu hundruð krónur. Eitthvað fleira?"  # issue #48: the partner line between hvad_kostar_thetta and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "hvad_kostar_thetta"
 partner_cue_setup = "At a bakery till, you pick up a sandwich. Ask the cashier how much it is."
 partner_cue_setup_ja = "パン屋のレジでサンドイッチを手に取りました。いくらかレジの人に聞いてください。"
@@ -747,6 +748,7 @@ partner_cue_situation_ja = "値段を言って、ほかに何かあるか聞か�
 id = "kaffihus"
 setting = "You're at a café counter in Reykjavík. The barista looks up."
 setting_ja = "レイキャビクのカフェのカウンターにいます。バリスタが顔を上げます。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["cafe", "clarifying"]
 requires = ["godan_daginn", "eg_aetla_ad_fa", "kaffi", "nei", "takk", "gaetirdu_talad_haegar"]
 

@@ -391,6 +391,7 @@ situation_ja = "来客が長いシャワーに驚いています。お湯はほ�
 id = "heimsokn"
 setting = "You visit Anna's flat for the first time."
 setting_ja = "初めてアンナのアパートを訪ねます。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["home"]
 requires = ["hae", "audvitad", "fardu_ur_skonum", "viltu_kaffi", "ja_takk", "hvar_er_klosettid_home", "thetta_er_person"]
 

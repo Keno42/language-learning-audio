@@ -404,6 +404,7 @@ situation_ja = "魚かラムかと聞かれました。どちらでもいいの�
 id = "ahugamal"
 setting = "A rainy evening indoors. Anna asks about your hobbies."
 setting_ja = "雨の夜、家の中で。アンナが趣味について聞きます。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["hobbies"]
 requires = ["eg_hef_gaman_af", "sundi", "gonguferdum", "hefur_thu_gaman_af", "mer_finnst_gaman_ad", "fara_i_sund", "endilega"]
 

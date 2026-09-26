@@ -297,6 +297,7 @@ topics = ["arrangements"]
 situation = "She suggests Friday evening. Say that suits you well."
 situation_ja = "金曜の夜を提案されました。都合がいいと言ってください。"
 partner_cue = "Klukkan sjö. Hentar það?"
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "klukkan_hvad"
 partner_cue_setup = "Anna calls to invite you to dinner on Friday. Ask at what time."
 partner_cue_setup_ja = "アンナから金曜の夕食に誘う電話がありました。何時か聞いてください。"
@@ -396,6 +397,7 @@ prereqs = ["tiu_minutur"]
 situation = "You're late and ten minutes away. Say you'll come in ten minutes."
 situation_ja = "遅れていて、あと10分です。10分後に着くと言ってください。"
 partner_cue = "Ekkert mál. Hvenær kemurðu?"
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "eg_er_sein"
 partner_cue_setup = "You call your friend from the bus. You were meant to meet at seven. Tell her you're late."
 partner_cue_setup_ja = "バスから友達に電話します。7時に待ち合わせでした。遅れると伝えてください。"
@@ -550,6 +552,7 @@ situation_fill = { inf = "fara_heim" }
 id = "stefnumot"
 setting = "Anna wants to meet up. You're on the phone."
 setting_ja = "アンナが会いたいと言っています。電話中です。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["arrangements"]
 requires = ["eg_get_ekki_a_morgun", "klukkan_hvad", "thad_hentar_vel", "sjaumst_time", "a_fostudaginn", "hittumst_klukkan", "sjo"]
 
