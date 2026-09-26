@@ -71,7 +71,7 @@ id = "cafe_seat"
 setting = "You are in a café. There is one free chair at a table where a woman is sitting."
 topics = ["cafe", "social"]
 requires = ["oui", "je_suis_en_vacances"]   # items the expect_text lines rely on
-partner_speaker = "native_b"                # default; "native_a" (female voice) when the setting or cues say she/woman — the learner's lines take the other voice
+partner_speaker = "native_a"                # the woman: native_a is the female voice (default native_b, male); the learner's lines take the other voice
 
   [[dialogues.turns]]
   opener = "Bonjour. Vous désirez ?"        # optional: partner speaks first
