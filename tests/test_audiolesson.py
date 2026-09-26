@@ -1374,12 +1374,16 @@ class CurriculumTests(unittest.TestCase):
         sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
         b.connect(sc, [first, second])
         turns = [(s.speaker, s.text) for s in sc.segments if s.type in ("answer", "speak")]
+        # the partner speaks in the bridge's own voice (lesson 8 feedback: match the narration's
+        # he/she), the learner's model answers in the other
+        partner = second.partner_cue_speaker
+        learner = "native_b" if partner == "native_a" else "native_a"
         self.assertEqual(
             turns,
             [
-                ("native_a", "Gætirðu talað hægar?"),
-                ("native_b", "Auðvitað. Herbergið er númer tuttugu og þrjú."),
-                ("native_a", "Gætirðu endurtekið þetta?"),
+                (learner, "Gætirðu talað hægar?"),
+                (partner, "Auðvitað. Herbergið er númer tuttugu og þrjú."),
+                (learner, "Gætirðu endurtekið þetta?"),
             ],
         )
 
@@ -1650,7 +1654,9 @@ class CurriculumTests(unittest.TestCase):
         sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
         b.connect(sc, [cur.by_id["ha"], cur.by_id["eg_skil"]])
         turns = [(s.speaker, s.text) for s in sc.segments if s.type in ("answer", "speak")]
-        self.assertEqual([t[0] for t in turns], ["native_a", "native_b", "native_a"], turns)
+        partner = cur.by_id["eg_skil"].partner_cue_speaker  # the voice the narration's he/she implies
+        learner = "native_b" if partner == "native_a" else "native_a"
+        self.assertEqual([t[0] for t in turns], [learner, partner, learner], turns)
 
     def test_dialogue_requirements_need_durable_evidence_or_this_lesson(self):
         """Issue #27's durable gate, kept under #48 (owner review on PR #56): an item met in an
@@ -3275,6 +3281,155 @@ class LessonStructureTests(unittest.TestCase):
             back = Script.load(p)
             self.assertEqual(len(back.segments), len(self.script.segments))
             self.assertAlmostEqual(back.total_duration, self.script.total_duration, places=3)
+
+
+class PartnerVoiceTests(unittest.TestCase):
+    """The partner speaks in the voice the narration implies; the learner's model answers
+    take the other one, so the two sides of an exchange never sound alike."""
+
+    def exchange(self, speaker):
+        from audiolesson.exercises import Builder
+
+        bridge = {"id": "b", "kind": "phrase", "target": "B.", "meaning": "B.", "situation": "S b.",
+                  "partner_cue": "Hæ!", "partner_cue_after": "a", "partner_cue_setup": "A woman greets you.",
+                  "partner_cue_meaning": "Hi!", "partner_cue_situation": "She said hi. Answer."}
+        if speaker:
+            bridge["partner_cue_speaker"] = speaker
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": "a", "kind": "phrase", "target": "A.", "meaning": "A.", "situation": "S a."}, bridge]}
+        cur = curriculum_from_dict(raw)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "t", "is", "en")
+        b.connect(sc, [cur.by_id["a"], cur.by_id["b"]])
+        partner = {s.speaker for s in sc.segments if s.type == "speak"}
+        learner = {s.speaker for s in sc.segments if s.type == "answer"}
+        return partner, learner
+
+    def test_partner_voices_match_the_narrations_he_or_she(self):
+        """Lesson 8 feedback: "A woman comes over and greets you" was answered in the male
+        voice (native_b spoke every partner line). Every profile voices native_a female and
+        native_b male, so a bridge or dialogue whose narration only says she/woman/… must use
+        native_a, and one that only says he/man/… native_b. Narration naming both (the partner
+        and someone they talk about) is left to the author."""
+        female = re.compile(r"\b(she|her|hers|herself|woman|girl|lady|mother|mum|aunt|grandmother|sister|daughter|wife|waitress|anna)\b", re.I)
+        male = re.compile(r"\b(he|him|his|himself|man|boy|guy|father|dad|uncle|grandfather|brother|son|husband|waiter)\b", re.I)
+
+        def expected(text: str) -> str | None:
+            f, m = bool(female.search(text)), bool(male.search(text))
+            return "native_a" if f and not m else "native_b" if m and not f else None
+
+        for path in (ROOT / "curricula" / "is-en", CURRICULUM):
+            cur = load_curriculum(path)
+            for it in cur.items:
+                if it.partner_cue and (want := expected(it.partner_cue_setup + " " + it.partner_cue_situation)):
+                    self.assertEqual(it.partner_cue_speaker, want, f"{path.name}: bridge {it.id}")
+            for d in cur.dialogues:
+                if want := expected(" ".join([d.setting] + [t.cue for t in d.turns])):
+                    self.assertEqual(d.partner_speaker, want, f"{path.name}: dialogue {d.id}")
+
+    def test_a_female_partner_gets_the_female_voice_and_the_learner_the_other(self):
+        self.assertEqual(self.exchange("native_a"), ({"native_a"}, {"native_b"}))
+
+    def test_default_partner_is_unchanged(self):
+        self.assertEqual(self.exchange(None), ({"native_b"}, {"native_a"}))
+
+    def test_dialogue_learner_lines_take_the_other_voice(self):
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        dlg = next(d for d in cur.dialogues if d.partner_speaker == "native_a")
+        learner = LearnerState("is", "en", "A1")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
+        sc = Script(1, "t", "is", "en")
+        b.dialogue(sc, dlg)
+        self.assertEqual({s.speaker for s in sc.segments if s.type == "answer"}, {"native_b"})
+        self.assertIn("native_a", {s.speaker for s in sc.segments if s.type == "speak"})
+
+    def test_an_unknown_speaker_is_rejected(self):
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": "a", "kind": "phrase", "target": "A.", "meaning": "A."},
+                         {"id": "b", "kind": "phrase", "target": "B.", "meaning": "B.", "partner_cue": "Hæ!",
+                          "partner_cue_after": "a", "partner_cue_speaker": "native_c"}]}
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
+
+
+class SpeakerGenderTests(unittest.TestCase):
+    """#112 review: practise both the woman's and the man's form when the words follow the
+    speaker's gender («Ég er sein.» / «Ég er seinn.»), and say which one is asked for, each
+    time — in the matching voice."""
+
+    def builder(self, lang="en"):
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+        return cur, Builder(cur, Prompts.load(lang), Timing(level="A1"), LearnerState("is", lang, "A1"))
+
+    @staticmethod
+    def turns(sc, index=None):
+        return [(s.type, s.speaker, s.text) for s in sc.segments if s.type != "pause" and (index is None or s.exercise == index)]
+
+    def test_recalls_alternate_forms_announced_in_the_matching_voice(self):
+        cur, b = self.builder()
+        it = cur.by_id["eg_er_sein"]
+        sc = Script(1, "t", "is", "en")
+        for _ in range(4):
+            b.recall(sc, it, "meaning")
+        pairs = [(n[2].split(":")[0], a[1], a[2]) for n, a in zip(*[iter([t for t in self.turns(sc) if t[0] in ("narrate", "answer")])] * 2)]
+        woman, man = ("As a woman", "native_a", "Ég er sein."), ("As a man", "native_b", "Ég er seinn.")
+        self.assertEqual(pairs, [woman, man, woman, man])
+
+    def test_the_introduction_presents_both_forms(self):
+        cur, b = self.builder("ja")
+        sc = Script(1, "t", "is", "ja")
+        b.intro(sc, cur.by_id["eg_er_sein"])
+        turns = self.turns(sc)
+        self.assertIn(("narrate", "instructor", "男性はこう言います。"), turns)
+        self.assertIn(("speak", "native_b", "Ég er seinn."), turns)
+        self.assertTrue(turns[-2][2].startswith("女性として："), turns[-2])
+
+    def test_words_that_do_not_change_are_not_announced(self):
+        cur, b = self.builder()
+        sc = Script(1, "t", "is", "en")
+        b.recall(sc, cur.by_id["eg_er_ekki_viss"], "meaning")
+        narration = [t[2] for t in self.turns(sc) if t[0] == "narrate"]
+        self.assertFalse(any("As a" in n for n in narration), narration)
+        self.assertEqual({t[1] for t in self.turns(sc) if t[0] == "answer"}, {"native_a"})
+
+    def test_in_an_exchange_the_learner_takes_the_voice_opposite_the_partner(self):
+        """Opposite voices keep the two sides apart; a gendered answer then takes that voice's
+        form and is announced (a woman partner, so the learner answers as a man)."""
+        from audiolesson.content import curriculum_from_dict
+
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": "hae", "kind": "phrase", "target": "Hæ.", "meaning": "Hi.", "situation": "S."},
+                         {"id": "sein", "kind": "phrase", "target": "Ég er sein.", "target_m": "Ég er seinn.",
+                          "meaning": "I'm late.", "situation": "S2.", "partner_cue": "Hvar ertu?", "partner_cue_after": "hae",
+                          "partner_cue_setup": "Your friend calls. Greet her.", "partner_cue_meaning": "Where are you?",
+                          "partner_cue_situation": "She asks where you are. Say you're late.",
+                          "partner_cue_speaker": "native_a"}]}
+        from audiolesson.exercises import Builder
+
+        cur2 = curriculum_from_dict(raw)
+        b2 = Builder(cur2, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "t", "is", "en")
+        b2.connect(sc, [cur2.by_id["hae"], cur2.by_id["sein"]])
+        turns = self.turns(sc)
+        self.assertIn(("speak", "native_a", "Hvar ertu?"), turns)
+        self.assertEqual([t[1:] for t in turns if t[0] == "answer"], [("native_b", "Hæ."), ("native_b", "Ég er seinn.")])
+        self.assertIn(("narrate", "instructor", "As a man: She asks where you are. Say you're late."), turns)
+
+    def test_the_review_question_carries_the_announcement(self):
+        cur, b = self.builder()
+        sc = Script(1, "t", "is", "en")
+        b.recall(sc, cur.by_id["eg_er_sein"], "situation")
+        (q,) = sc.review_questions()
+        self.assertTrue(q["prompt"].startswith("As a woman: "), q)
+        self.assertEqual(q["answer"], "Ég er sein.")
+
+    def test_notes_no_longer_hide_the_mans_form(self):
+        for it in load_curriculum(ROOT / "curricula" / "is-en").items:
+            self.assertNotIn("masculine: Ég", it.pronunciation_notes or "", f"{it.id}: move the man's form to target_m")
 
 
 class RecombineNoveltyTests(unittest.TestCase):

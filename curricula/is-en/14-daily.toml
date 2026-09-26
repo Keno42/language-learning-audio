@@ -273,7 +273,7 @@ meaning = "I'm busy."
 meaning_ja = "忙しいです。"
 difficulty = 3
 topics = ["daily", "work"]
-pronunciation_notes = "feminine; masculine: Ég er upptekinn."
+target_m = "Ég er upptekinn."  # a man says this; lessons practise both forms, announced
 situation = "A friend wants to talk but you're in the middle of work. Say you're busy."
 situation_ja = "友達が話したがっていますが仕事の最中です。忙しいと言ってください。"
 
@@ -337,6 +337,7 @@ examples = [
 id = "dagurinn"
 setting = "Anna asks about your day over coffee."
 setting_ja = "コーヒーを飲みながら、アンナがあなたの一日について聞きます。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["daily"]
 requires = ["eg_vakna", "eg_fer_i_vinnuna", "eg_fer_i_sund", "eg_elda_kvoldmat", "eg_fer_ad_sofa", "hvad_gerir_thu_um_helgar"]
 

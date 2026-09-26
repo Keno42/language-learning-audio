@@ -182,6 +182,7 @@ chunks = ["hægar", "talað hægar", "Gætirðu talað hægar?"]
 situation = "The barista is speaking far too fast. Ask her to speak more slowly."
 situation_ja = "バリスタの話が速すぎます。もっとゆっくり話すよう頼んでください。"
 partner_cue = "Góðan daginn! Hvað má bjóða þér?"  # issue #48: the partner line between godan_daginn and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "godan_daginn"
 partner_cue_setup = "You walk into a busy café in the morning. Greet the barista: good day."
 partner_cue_setup_ja = "朝、混んでいるカフェに入りました。バリスタに、こんにちは、とあいさつしてください。"
@@ -216,6 +217,7 @@ situations_ja = [
 # round 3) pins that this line is only compatible following gaetirdu_talad_haegar
 # specifically, not any arbitrary item connect() might otherwise pair this one with.
 partner_cue = "Auðvitað. Herbergið er númer tuttugu og þrjú."
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "gaetirdu_talad_haegar"
 partner_cue_setup = "At hotel reception, the receptionist is speaking far too fast. Ask her to speak more slowly."
 partner_cue_setup_ja = "ホテルのフロントで、受付の人がとても早口です。もっとゆっくり話すよう頼んでください。"
@@ -241,6 +243,7 @@ situations_ja = [
   "友達が聞いたことのない単語を使いました。意味を聞いてください。",
 ]
 partner_cue = "Já? Get ég hjálpað?"  # issue #48: the partner line between afsakid and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "afsakid"
 partner_cue_setup = "There's a word on a street sign you don't know. Get the attention of a woman passing by."
 partner_cue_setup_ja = "通りの標識に知らない単語があります。通りかかった女性に声をかけてください。"
@@ -296,6 +299,7 @@ situations_ja = [
   "薬剤師が薬の名前を言いましたが、長い名前です。書いてもらうよう頼んでください。",
 ]
 partner_cue = "Já: Laugavegur tuttugu og þrír."  # issue #48: the partner line between gaetirdu_endurtekid_thetta and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "gaetirdu_endurtekid_thetta"
 partner_cue_setup = "A woman is telling you the address of your guesthouse, but you missed it. Ask her to repeat it."
 partner_cue_setup_ja = "女性がゲストハウスの住所を教えてくれましたが、聞き逃しました。もう一度言うよう頼んでください。"
@@ -349,6 +353,7 @@ situations_ja = [
   "同僚に会議が何時に始まるか聞かれました。確かではありません。そう言ってください。",
 ]
 partner_cue = "Hæ! Er safnið opið á mánudögum?"  # issue #48: the partner line between hae and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "hae"
 partner_cue_setup = "Your friend waves at you across the street. Greet her casually."
 partner_cue_setup_ja = "友達が通りの向こうから手を振っています。気軽にあいさつしてください。"
@@ -511,6 +516,7 @@ situations_ja = [
   "大家に電話します。水道管が破裂しました。助けが必要だと言ってください。",
 ]
 partner_cue = "Góðan daginn. Hvað get ég gert fyrir þig?"  # issue #48: the partner line between godan_daginn and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "godan_daginn"
 partner_cue_setup = "You walk up to the information desk with a problem. Greet the clerk: good day."
 partner_cue_setup_ja = "困りごとがあって案内所に行きました。係の人に、こんにちは、とあいさつしてください。"
@@ -536,6 +542,7 @@ situations_ja = [
   "友達が小さな包みを渡してくれました。何か聞いてください。",
 ]
 partner_cue = "Gjörðu svo vel. Verði þér að góðu!"  # issue #48: the partner line between takk and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "takk"
 partner_cue_setup = "Your host puts a plate in front of you. Thank her."
 partner_cue_setup_ja = "ホストがお皿を目の前に置いてくれました。お礼を言ってください。"
@@ -578,6 +585,7 @@ situations_ja = [
   "リサイクルの仕方を知らないことに男性が苛立っています。外国人だと説明してください。",
 ]
 partner_cue = "Þú þarft bara að fylla út eyðublað á netinu."  # issue #48: the partner line between eg_skil_ekki and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "eg_skil_ekki"
 partner_cue_setup = "At the town office, the clerk explains something quickly and you get lost. Tell her you don't understand."
 partner_cue_setup_ja = "役所で係の人が早口で説明し、ついていけませんでした。わからないと伝えてください。"
@@ -1212,6 +1220,7 @@ situation_ja = "案内係に何名か聞かれました。四人と答えてく�
 id = "tungumal"
 setting = "At the tourist information desk. The woman behind it speaks quickly."
 setting_ja = "観光案内所のカウンター。係の女性は早口です。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["clarifying"]
 requires = ["talar_thu", "ensku", "eg_tala_sma_islensku", "gaetirdu_talad_haegar", "takk"]
 

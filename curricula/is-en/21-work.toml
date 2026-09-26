@@ -218,7 +218,7 @@ meaning = "I've finished the task."
 meaning_ja = "作業が終わりました。"
 difficulty = 3
 topics = ["work"]
-pronunciation_notes = "feminine; masculine: Ég er búinn með verkefnið."
+target_m = "Ég er búinn með verkefnið."  # a man says this; lessons practise both forms, announced
 prereqs = ["eg_er_buin"]
 situation = "Tell your boss you've finished the task."
 situation_ja = "上司に作業が終わったと伝えてください。"
@@ -364,6 +364,7 @@ meaning_forms_ja = { te = "勉強して" }
 id = "vidtal"
 setting = "A casual job interview at a café in Reykjavík."
 setting_ja = "レイキャビクのカフェで、くだけた面接です。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["work"]
 requires = ["eg_er_job", "forritari", "eg_vinn_hja", "eg_er_ad_laera", "islensku", "hvad_er_kaupid", "takk_kaerlega"]
 

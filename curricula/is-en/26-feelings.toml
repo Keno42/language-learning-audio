@@ -280,7 +280,7 @@ meaning = "I'm proud of you."
 meaning_ja = "あなたを誇りに思います。"
 difficulty = 3
 topics = ["feelings", "social"]
-pronunciation_notes = "feminine; masculine: Ég er stoltur af þér."
+target_m = "Ég er stoltur af þér."  # a man says this; lessons practise both forms, announced
 situation = "Your friend just finished her first 10 km run. Say you're proud of her."
 situation_ja = "友達が初めて10キロ走り切りました。誇りに思うと言ってください。"
 
@@ -353,6 +353,7 @@ examples = [
 id = "kvedja"
 setting = "The end of your stay. Anna drives you to the airport bus."
 setting_ja = "滞在の最終日。アンナが空港バスまで送ってくれます。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["feelings", "greetings"]
 requires = ["thad_var_gaman", "takk_fyrir_kvoldid", "eg_sakna_thin", "eg_mun_koma_aftur", "goda_ferd"]
 

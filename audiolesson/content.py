@@ -101,6 +101,12 @@ class Item:
     # ``meaning`` says what the partner said (narrated only on the first encounters, see
     # LearnerState.bridges_heard), ``situation`` replaces this item's situation.
     partner_cue_setup: str = ""
+    # who speaks ``partner_cue``: match the narration's he/she. Every profile voices native_a
+    # female and native_b male; the learner's model answers take the other voice
+    partner_cue_speaker: str = "native_b"
+    # what a man says when the words follow the speaker's gender («Ég er seinn.» for «Ég er
+    # sein.»). ``target`` is the woman's form; lessons practise both and announce which one
+    target_m: str = ""
     partner_cue_meaning: str = ""
     partner_cue_situation: str = ""
 
@@ -416,6 +422,9 @@ def _item_from_dict(entry: dict, order: int) -> Item:
     return Item(order=order, examples=examples, **entry)
 
 
+SPEAKERS = ("native_a", "native_b")  # native_a is voiced female, native_b male, in every profile
+
+
 def validate(cur: Curriculum) -> None:
     ids = set()
     targets: dict[str, str] = {}
@@ -432,6 +441,8 @@ def validate(cur: Curriculum) -> None:
     for d in cur.dialogues:
         if d.id in {x.id for x in cur.dialogues if x is not d}:
             raise CurriculumError(f"duplicate dialogue id {d.id!r}")
+        if d.partner_speaker not in SPEAKERS:
+            raise CurriculumError(f"dialogue {d.id!r}: partner_speaker must be one of {SPEAKERS}, not {d.partner_speaker!r}")
     seen_notes: set[str] = set()
     for n in cur.notes:
         if n.id in seen_notes:
@@ -450,6 +461,10 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"item {it.id!r} references unknown item {ref!r}")
         if bool(it.partner_cue) != bool(it.partner_cue_after):
             raise CurriculumError(f"item {it.id!r}: partner_cue and partner_cue_after must be set together, or not at all")
+        if it.target_m and (it.kind == "construction" or it.target_m == it.target):
+            raise CurriculumError(f"item {it.id!r}: target_m is the man's form of a non-construction target and must differ from it")
+        if it.partner_cue_speaker not in SPEAKERS:
+            raise CurriculumError(f"item {it.id!r}: partner_cue_speaker must be one of {SPEAKERS}, not {it.partner_cue_speaker!r}")
         if it.partner_cue_after and it.partner_cue_after not in ids:
             raise CurriculumError(f"item {it.id!r}: partner_cue_after references unknown item {it.partner_cue_after!r}")
         scene = {"partner_cue_setup": it.partner_cue_setup, "partner_cue_meaning": it.partner_cue_meaning, "partner_cue_situation": it.partner_cue_situation}

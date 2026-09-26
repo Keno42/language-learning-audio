@@ -322,6 +322,7 @@ situation_ja = "送ってくれてありがとうと言われました。どう�
 id = "spjall"
 setting = "Chatting with Anna over a second coffee."
 setting_ja = "二杯目のコーヒーを飲みながらアンナとおしゃべり。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["discourse"]
 requires = ["er_thad", "eg_er_sammala", "thad_er_synd", "vid_sjaum_til", "thad_er_god_hugmynd"]
 

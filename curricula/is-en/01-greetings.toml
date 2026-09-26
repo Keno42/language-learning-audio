@@ -76,6 +76,7 @@ situations_ja = [
   "出身を聞かれて答えました。「あなたは？」と聞き返してください。",
 ]
 partner_cue = "Gott að heyra."
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "allt_gott"
 partner_cue_setup = "You bump into a colleague at the bakery, and she asks how things are. Say all good, thanks."
 partner_cue_setup_ja = "パン屋で同僚にばったり会い、調子はどうか聞かれました。「元気です、ありがとう」と言ってください。"
@@ -141,6 +142,7 @@ situations_ja = [
   "ホストに、もう慣れたか聞かれました。すべて順調だと答えてください。",
 ]
 partner_cue = "Hæ! Hvað segirðu gott?"  # issue #48: the partner line between hae and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "hae"
 partner_cue_setup = "Your neighbour waves at you in the street. Greet her casually."
 partner_cue_setup_ja = "近所の人が通りで手を振っています。気軽にあいさつしてください。"
@@ -184,6 +186,7 @@ situations_ja = [
   "電話でおばさんに調子を聞かれました。元気にしていると答えてください。",
 ]
 partner_cue = "Sömuleiðis! Hvernig hefurðu það?"  # issue #48: the partner line between gaman_ad_sja_thig and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "gaman_ad_sja_thig"
 partner_cue_setup = "An old colleague walks into the café. Say it's nice to see her."
 partner_cue_setup_ja = "昔の同僚がカフェに入ってきました。会えてうれしいと言ってください。"
@@ -229,6 +232,7 @@ situations_ja = [
   "売店を出るとき、店員にさようならと言われました。あいさつを返してください。",
 ]
 partner_cue = "Takk, sömuleiðis. Bless!"  # issue #48: the partner line between eigdu_godan_dag and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "eigdu_godan_dag"
 partner_cue_setup = "You've paid at the corner shop and are heading out. Wish the cashier a good day."
 partner_cue_setup_ja = "支払いを済ませて店を出ます。レジの人に良い一日をと言ってください。"
@@ -256,6 +260,7 @@ situations_ja = [
   "友達を家まで送りました。明日また会います。「またね」と言ってください。",
 ]
 partner_cue = "Já, ég verð líka að fara. Bless!"  # issue #48: the partner line between jaeja and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "jaeja"
 partner_cue_setup = "You've been chatting with a friend for an hour and it's time to go. Signal that the conversation is over."
 partner_cue_setup_ja = "友達と1時間おしゃべりして、そろそろ帰る時間です。話を切り上げる合図をしてください。"
@@ -300,6 +305,7 @@ situations_ja = [
   "写真を撮ってあげた観光客にお礼を言われました。どういたしまして、と答えてください。",
 ]
 partner_cue = "Takk kærlega!"  # issue #48: the partner line between gjordu_svo_vel and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "gjordu_svo_vel"
 partner_cue_setup = "At dinner, your friend asks for the salt. Hand it to her."
 partner_cue_setup_ja = "夕食中、友達が塩を取ってほしいと言いました。渡してください。"
@@ -552,6 +558,7 @@ situations_ja = [
   "友達が運転免許の試験に受かったと教えてくれました。おめでとうと言ってください。",
 ]
 partner_cue = "Hæ! Ég á afmæli í dag."  # issue #48: the partner line between hae and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "hae"
 partner_cue_setup = "Your colleague comes into the office smiling. Greet her casually."
 partner_cue_setup_ja = "同僚がにこにこしながら職場に入ってきました。気軽にあいさつしてください。"
@@ -616,6 +623,7 @@ situations_ja = [
   "同僚に良い週末をと言われました。同じ言葉を返してください。",
 ]
 partner_cue = "Gjörðu svo vel. Eigðu góðan dag!"  # issue #48: the partner line between takk and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "takk"
 partner_cue_setup = "The cashier hands you your change. Thank her."
 partner_cue_setup_ja = "レジの人がおつりを渡してくれました。お礼を言ってください。"
@@ -722,6 +730,7 @@ situations_ja = [
   "同僚がシステムへのログインの仕方を説明してくれました。わかったと伝えてください。",
 ]
 partner_cue = "Morgunmaturinn er á fyrstu hæð."  # issue #48: the partner line between ha and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "ha"
 partner_cue_setup = "At hotel reception you asked where breakfast is, but the answer came too fast. Ask her to say it again, casually."
 partner_cue_setup_ja = "ホテルのフロントで朝食の場所を聞きましたが、答えが早すぎました。くだけた調子で聞き返してください。"
@@ -767,6 +776,7 @@ situations_ja = [
   "近所の人に、子どもたちが庭のリンゴを摘んでもいいか聞かれました。ぜひどうぞと言ってください。",
 ]
 partner_cue = "Góðan daginn. Má ég setjast hérna?"  # issue #48: the partner line between godan_daginn and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "godan_daginn"
 partner_cue_setup = "You're sitting at a shared table in a café. A woman comes over and greets you. Greet her back: good day."
 partner_cue_setup_ja = "カフェの相席テーブルに座っています。女性が近づいてきてあいさつしました。こんにちは、と返してください。"
@@ -830,6 +840,7 @@ situations_ja = [
   "同僚が、息子さんの就職が決まったと教えてくれました。よかったと言ってください。",
 ]
 partner_cue = "Mér líður miklu betur, takk."  # issue #48: the partner line between hvad_segirdu_gott and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "hvad_segirdu_gott"
 partner_cue_setup = "Your friend was ill last week. You bump into her. Ask how she is."
 partner_cue_setup_ja = "先週具合が悪かった友達にばったり会いました。元気か聞いてください。"
@@ -842,6 +853,7 @@ partner_cue_situation_ja = "ずっと良くなったと言いました。それ�
 id = "nagranni"
 setting = "You meet your neighbour on the stairs in the morning."
 setting_ja = "朝、階段で近所の人に会いました。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["greetings", "social"]
 requires = ["godan_daginn", "hvad_segirdu_gott", "allt_gott", "en_thu", "sjaumst"]
 

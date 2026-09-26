@@ -268,6 +268,7 @@ chunks = ["reiðufé", "með reiðufé", "ekki með reiðufé", "Ég er ekki me�
 situation = "The stall only takes cash. Say you don't have cash."
 situation_ja = "屋台は現金のみです。現金がないと言ってください。"
 partner_cue = "Nei, bara reiðufé."
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "tekurdu_kort"
 partner_cue_setup = "At a small market stall you want to buy a scarf. Ask whether they take cards."
 partner_cue_setup_ja = "小さな市場の露店でマフラーを買いたいです。カードが使えるか聞いてください。"

@@ -183,6 +183,7 @@ prereqs = ["tolf"]
 situation = "You call reception from your room. Say: room number twelve."
 situation_ja = "部屋から受付に電話します。12号室ですと言ってください。"
 partner_cue = "Hvað er herbergisnúmerið?"
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "get_eg_fengid_lykilinn"
 partner_cue_setup = "You come back to the hotel after dinner. Ask the receptionist for your key."
 partner_cue_setup_ja = "夕食からホテルに戻りました。受付で鍵をもらってください。"
@@ -413,6 +414,7 @@ situation_ja = "田舎のゲストハウスです。露天の湯船があるか�
 id = "innritun"
 setting = "Evening, at the hotel reception. The receptionist looks up."
 setting_ja = "夜、ホテルの受付。受付の人が顔を上げます。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["accommodation", "clarifying"]
 requires = ["talar_thu", "ensku", "eg_er_med_bokun", "a_nafninu_yuki", "er_morgunmatur_innifalinn", "hvad_er_lykilordid", "takk"]
 
@@ -457,6 +459,7 @@ requires = ["talar_thu", "ensku", "eg_er_med_bokun", "a_nafninu_yuki", "er_morgu
 id = "vandamal"
 setting = "Next morning. You call reception from your room."
 setting_ja = "翌朝。部屋から受付に電話します。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["accommodation"]
 requires = ["herbergi_numer_tolf", "thad_er_ekkert_heitt_vatn", "get_eg_fengid_annad_handklaedi", "takk_kaerlega"]
 

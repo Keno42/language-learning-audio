@@ -623,7 +623,7 @@ meaning = "I'm hungry."
 meaning_ja = "お腹が空きました。"
 difficulty = 2
 topics = ["cafe", "feelings"]
-pronunciation_notes = "feminine; masculine: Ég er svangur."
+target_m = "Ég er svangur."  # a man says this; lessons practise both forms, announced
 situations = [
   "It's one o'clock and you haven't eaten. Tell your friend you're hungry.",
   "Your host asks if you'd like to eat now. You skipped lunch. Say you're hungry.",
@@ -641,7 +641,7 @@ meaning = "I'm thirsty."
 meaning_ja = "喉が渇きました。"
 difficulty = 2
 topics = ["cafe", "feelings"]
-pronunciation_notes = "feminine; masculine: Ég er þyrstur."
+target_m = "Ég er þyrstur."  # a man says this; lessons practise both forms, announced
 situations = [
   "After the hike you need a drink. Say you're thirsty.",
   "It's a hot day and you've been walking around town for hours. Say you're thirsty.",
@@ -659,7 +659,7 @@ meaning = "I'm full."
 meaning_ja = "お腹いっぱいです。"
 difficulty = 2
 topics = ["cafe", "feelings"]
-pronunciation_notes = "feminine; masculine: Ég er saddur."
+target_m = "Ég er saddur."  # a man says this; lessons practise both forms, announced
 situation = "Your host offers a third helping. Say you're full."
 situation_ja = "ホストが三杯目をすすめます。お腹いっぱいだと言ってください。"
 
@@ -735,6 +735,7 @@ topics = ["cafe", "shopping"]
 situation = "The cashier asks if there's anything else. Say nothing more, thanks."
 situation_ja = "レジの人が他に何かあるか聞きました。もう結構ですと答えてください。"
 partner_cue = "Níu hundruð krónur. Eitthvað fleira?"  # issue #48: the partner line between hvad_kostar_thetta and this item in connect()
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "hvad_kostar_thetta"
 partner_cue_setup = "At a bakery till, you pick up a sandwich. Ask the cashier how much it is."
 partner_cue_setup_ja = "パン屋のレジでサンドイッチを手に取りました。いくらかレジの人に聞いてください。"
@@ -747,6 +748,7 @@ partner_cue_situation_ja = "値段を言って、ほかに何かあるか聞か�
 id = "kaffihus"
 setting = "You're at a café counter in Reykjavík. The barista looks up."
 setting_ja = "レイキャビクのカフェのカウンターにいます。バリスタが顔を上げます。"
+partner_speaker = "native_a"  # the narration says she
 topics = ["cafe", "clarifying"]
 requires = ["godan_daginn", "eg_aetla_ad_fa", "kaffi", "nei", "takk", "gaetirdu_talad_haegar"]
 

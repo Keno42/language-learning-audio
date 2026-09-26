@@ -490,6 +490,7 @@ examples = [
 [[dialogues]]
 id = "cafe_seat"
 setting = "You are in a café. There is one free chair at a table where a woman is sitting."
+partner_speaker = "native_a"  # the narration says she
 topics = ["cafe", "social"]
 requires = ["je_suis_en_vacances", "oui"]
 
@@ -581,6 +582,7 @@ requires = ["excusez_moi", "ou_est", "le_metro"]
 [[dialogues]]
 id = "hotel_reception"
 setting = "Evening, at the hotel reception. The receptionist looks up."
+partner_speaker = "native_a"  # the narration says she
 topics = ["hotel", "arrangements", "clarifying"]
 requires = ["je_pars", "demain", "merci", "au_revoir"]
 

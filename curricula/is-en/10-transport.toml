@@ -137,6 +137,7 @@ prereqs = ["hvad_kostar_thetta", "strætó"]
 situation = "Before boarding, ask how much the bus costs."
 situation_ja = "乗る前に、バス代がいくらか聞いてください。"
 partner_cue = "Eftir tíu mínútur."
+partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "hvenaer_fer"
 partner_cue_setup = "At the bus stop there's no timetable. Ask the woman waiting next to you when the bus leaves."
 partner_cue_setup_ja = "バス停に時刻表がありません。隣で待っている女性にバスはいつ出るか聞いてください。"
