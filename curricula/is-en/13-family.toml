@@ -382,7 +382,7 @@ meaning = "I live alone."
 meaning_ja = "一人暮らしです。"
 difficulty = 2
 topics = ["family"]
-pronunciation_notes = "feminine; masculine: Ég bý einn."
+target_m = "Ég bý einn."  # a man says this; lessons practise both forms, announced
 situation = "Anna asks who you live with. Say you live alone."
 situation_ja = "アンナに誰と住んでいるか聞かれました。一人暮らしだと答えてください。"
 

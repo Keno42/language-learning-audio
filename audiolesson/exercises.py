@@ -45,6 +45,10 @@ def _other_voice(speaker: str) -> str:
     return "native_b" if speaker == "native_a" else "native_a"
 
 
+VOICE_OF = {"f": "native_a", "m": "native_b"}  # every profile voices native_a female, native_b male
+GENDER_OF = {v: g for g, v in VOICE_OF.items()}
+
+
 def _norm_utterance(text: str) -> str:
     """Case- and trailing-punctuation-insensitive form of a target-language line."""
     return text.strip().rstrip(".?!…").strip().lower()
@@ -66,6 +70,7 @@ class Builder:
     heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson
     in_lesson: set[str] = field(default_factory=set)  # items introduced this lesson: usable as parts
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
+    _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
 
     # ------------------------------------------------------------------ utils
@@ -98,6 +103,29 @@ class Builder:
         offset = self._situation_uses.get(item.id, 0)
         self._situation_uses[item.id] = offset + 1
         return item.situation_for(base + offset)
+
+    # ---- the speaker's gender (Item.target_m) -----------------------------
+
+    def speaker_gender(self, item: Item | None, voice: str | None = None) -> str | None:
+        """For an item whose words follow the speaker's gender, which form this recall asks
+        for: the one ``voice`` implies when an exchange fixes it, else alternating with the
+        item's exposures so both get practised. None when the words don't change."""
+        if item is None or not item.target_m:
+            return None
+        if voice is not None:
+            return GENDER_OF[voice]
+        base = self.learner.items[item.id].exposures if item.id in self.learner.items else 0
+        offset = self._gender_uses.get(item.id, 0)
+        self._gender_uses[item.id] = offset + 1
+        return "fm"[(base + offset) % 2]
+
+    @staticmethod
+    def _gendered(item: Item, gender: str | None) -> str:
+        return item.target_m if gender == "m" and item.target_m else item.target
+
+    def _as(self, gender: str | None, prompt: str) -> str:
+        """``prompt`` with "As a man:" / "As a woman:" in front when the words depend on it."""
+        return self.prompts.get(f"speak_as_{gender}", prompt=prompt) if gender else prompt
 
     def _meaning_prompt(self, meaning: str) -> str:
         return self.prompts.get("meaning", meaning=self._m(meaning), language=self.prompts.language_name(self.tl))
@@ -138,7 +166,7 @@ class Builder:
         n = _norm_utterance(text)
         if n in self.heard or n in self.learner.heard_utterances:
             return False
-        return not any(_norm_utterance(it.target) == n for it in self.cur.items if self.learner.has_met(it.id))
+        return not any(n in (_norm_utterance(it.target), _norm_utterance(it.target_m)) for it in self.cur.items if self.learner.has_met(it.id))
 
     def _pause(self, sc: Script, ex: Exercise, seconds: float, role: str, floor: float | None = None) -> None:
         """``floor``: what fitting the audio to length may shrink this pause to, at most."""
@@ -237,10 +265,17 @@ class Builder:
                 self._narr(sc, ex, self.prompts.get("natural"))
                 self._speak(sc, ex, item.target)
                 self._repeat_pause(sc, ex, item.target)
+        if item.target_m:
+            # the words follow the speaker's gender: a man's form too, in the man's voice
+            self._narr(sc, ex, self.prompts.get("man_says"))
+            self._speak(sc, ex, item.target_m, speaker=VOICE_OF["m"])
+            self._repeat_pause(sc, ex, item.target_m)
         # end the introduction with a first real retrieval
-        self._narr(sc, ex, self._meaning_prompt(item.meaning))
-        self._answer_pause(sc, ex, item.target, item, generative=False)
-        self._answer(sc, ex, item.target)
+        gender = self.speaker_gender(item)
+        target = self._gendered(item, gender)
+        self._narr(sc, ex, self._as(gender, self._meaning_prompt(item.meaning)))
+        self._answer_pause(sc, ex, target, item, generative=False)
+        self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
         self._gap(sc, ex)
         return ex
 
@@ -314,29 +349,31 @@ class Builder:
         if item.kind == "construction" and stage in ("cloze", "hinted", "meaning", "situation"):
             return self._recall_construction(sc, item, stage)
 
-        ex = sc.new_exercise("recall", stage, [item.id], f"{stage}: {item.target}")
-        target = item.target
+        gender = self.speaker_gender(item)
+        target = self._gendered(item, gender)
+        voice = VOICE_OF[gender or "f"]
+        ex = sc.new_exercise("recall", stage, [item.id], f"{stage}: {target}")
         if stage == "cloze":
             # say what to complete: «Ég skil…» alone could be «Ég skil.» or «Ég skil ekki.»
-            self._narr(sc, ex, self.prompts.get("cloze", meaning=self._m(item.meaning)))
+            self._narr(sc, ex, self._as(gender, self.prompts.get("cloze", meaning=self._m(item.meaning))))
             words = [w for w in target.split() if any(ch.isalnum() for ch in w)]
             partial = " ".join(words[:-1]) + "…"
             self._speak(sc, ex, partial, role="partial")
             self._answer_pause(sc, ex, target, item, generative=False, supported=True)
         elif stage == "hinted":
-            self._narr(sc, ex, self.prompts.get("hinted", meaning=self._m(item.meaning)))
+            self._narr(sc, ex, self._as(gender, self.prompts.get("hinted", meaning=self._m(item.meaning))))
             self._speak(sc, ex, target.split()[0].rstrip(".,?!"), role="hint")
             self._answer_pause(sc, ex, target, item, generative=False, supported=True)
         elif stage == "situation":
-            self._narr(sc, ex, self._situation(item))  # type: ignore[arg-type]
+            self._narr(sc, ex, self._as(gender, self._situation(item)))  # type: ignore[arg-type]
             self._answer_pause(sc, ex, target, item, generative=True)
         else:  # meaning (also the fallback for 'dialogue' when no dialogue fits)
-            self._narr(sc, ex, self._meaning_prompt(item.meaning))
+            self._narr(sc, ex, self._as(gender, self._meaning_prompt(item.meaning)))
             self._answer_pause(sc, ex, target, item, generative=False)
-        self._answer(sc, ex, target)
+        self._answer(sc, ex, target, speaker=voice)
         if stage in ("cloze", "hinted") or item.difficulty >= 4:
             self._repeat_pause(sc, ex, target)
-            self._answer(sc, ex, target)
+            self._answer(sc, ex, target, speaker=voice)
         self._maybe_alternative(sc, ex, item, stage)
         self._gap(sc, ex)
         return ex
@@ -554,20 +591,23 @@ class Builder:
         ``recombine``): two independent situations, framed as review and joined by a neutral
         transition, never as a connection or a continuation."""
         first, second = items[0], items[1]
-        first_target = self._connect_target(first)
-        second_target = self._connect_target(second)
         ids = [first.id, second.id]
         bridged = bool(second.partner_cue) and second.partner_cue_after == first.id
+        # the partner speaks in the voice the narration's he/she implies; the learner's model
+        # answers take the other voice, so the two sides never sound alike — and words that
+        # follow the speaker's gender take that voice's form, announced
+        partner = second.partner_cue_speaker if bridged else "native_b"
+        learner_voice = _other_voice(partner)
+        first_gender = self.speaker_gender(first, learner_voice)
+        second_gender = self.speaker_gender(second, learner_voice)
+        first_target = self._connect_target(first, first_gender)
+        second_target = self._connect_target(second, second_gender)
         label = f"connect: {first.id}+{second.id}" if bridged else f"mixed review: {first.id}+{second.id}"
         ex = sc.new_exercise("connect", "exchange" if bridged else "recombine", ids, label)
         self._narr(sc, ex, self.prompts.get("connect_intro" if bridged else "mixed_review_intro"))
         self._beat(sc, ex)
         # a bridge's own scene replaces the items' standalone situations
-        # the partner speaks in the voice the narration's he/she implies; the learner's model
-        # answers take the other voice, so the two sides never sound alike
-        partner = second.partner_cue_speaker if bridged else "native_b"
-        learner_voice = _other_voice(partner)
-        self._narr(sc, ex, second.partner_cue_setup if bridged else self._situation(first))  # type: ignore[arg-type]
+        self._narr(sc, ex, self._as(first_gender, second.partner_cue_setup if bridged else self._situation(first)))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, first_target, first, generative=True)
         self._answer(sc, ex, first_target, speaker=learner_voice)
         self._beat(sc, ex)
@@ -580,17 +620,17 @@ class Builder:
                 self._beat(sc, ex)
         else:
             self._narr(sc, ex, self.prompts.get("connect_next"))
-        self._narr(sc, ex, second.partner_cue_situation if bridged else self._situation(second))  # type: ignore[arg-type]
+        self._narr(sc, ex, self._as(second_gender, second.partner_cue_situation if bridged else self._situation(second)))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, second_target, second, generative=True)
         self._answer(sc, ex, second_target, speaker=learner_voice)
         self._gap(sc, ex)
         return ex
 
-    def _connect_target(self, item: Item) -> str:
+    def _connect_target(self, item: Item, gender: str | None = None) -> str:
         """The spoken target of a ``connect()`` turn. A construction is filled first, with
         the fills its situation names pinned, since connect() narrates that situation."""
         if item.kind != "construction":
-            return item.target
+            return self._gendered(item, gender)
         if not self.situation_usable(item):
             # the planner never pairs such an item; refuse rather than speak an unmet fill
             raise ValueError(f"connect(): {item.id!r}'s situation names a fill the learner doesn't have yet")
@@ -631,9 +671,11 @@ class Builder:
                 if assisted and self.translate_partner and turn.opener_meaning:
                     self._beat(sc, ex)
                     self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=turn.opener_meaning))
+            gender = None
             if turn.expect:
                 item = self.cur.item(turn.expect)
-                expected = item.target
+                gender = self.speaker_gender(item, learner_voice)
+                expected = self._gendered(item, gender)
                 if item.kind == "construction":
                     # every spoken part must be a required item (validate() enforces this too)
                     unbound = set(item.slots) - set(turn.expect_fill)
@@ -645,7 +687,9 @@ class Builder:
                 item = None
                 expected = turn.expect_text or ""
             if assisted or not heard_partner:
-                self._narr(sc, ex, turn.cue)
+                self._narr(sc, ex, self._as(gender, turn.cue))
+            elif gender:
+                self._narr(sc, ex, self.prompts.get(f"speak_as_{gender}_alone"))
             self._answer_pause(sc, ex, expected, item, generative=True)
             self._answer(sc, ex, expected, speaker=learner_voice)
             lines.append((learner_voice, expected))

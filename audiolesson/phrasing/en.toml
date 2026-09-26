@@ -55,6 +55,13 @@ connect_intro = "Let's put a couple of things together."
 mixed_review_intro = "Quick review: two separate situations."
 connect_next = "Now another situation."
 
+# the words follow the speaker's gender (Item.target_m): say which one is asked for
+speak_as_f = "As a woman: {prompt}"
+speak_as_m = "As a man: {prompt}"
+speak_as_f_alone = "As a woman."
+speak_as_m_alone = "As a man."
+man_says = "A man says:"
+
 [language_names]
 fr = "French"
 es = "Spanish"
@@ -67,3 +74,4 @@ ko = "Korean"
 en = "English"
 nl = "Dutch"
 is = "Icelandic"
+

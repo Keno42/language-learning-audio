@@ -499,7 +499,7 @@ meaning = "I'm lost."
 meaning_ja = "道に迷いました。"
 difficulty = 2
 topics = ["directions"]
-pronunciation_notes = "feminine; masculine: Ég er týndur."
+target_m = "Ég er týndur."  # a man says this; lessons practise both forms, announced
 situation = "You've taken a wrong turn twice. Tell a passer-by you're lost."
 situation_ja = "二度も道を間違えました。通行人に迷ったと伝えてください。"
 

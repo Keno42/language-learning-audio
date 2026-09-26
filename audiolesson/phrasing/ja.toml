@@ -52,6 +52,13 @@ connect_intro = "いくつかつなげてみましょう。"
 mixed_review_intro = "ここで復習です。別々の場面を二つ続けます。"
 connect_next = "次は、別の場面です。"
 
+# the words follow the speaker's gender (Item.target_m): say which one is asked for
+speak_as_f = "女性として：{prompt}"
+speak_as_m = "男性として：{prompt}"
+speak_as_f_alone = "女性として答えてください。"
+speak_as_m_alone = "男性として答えてください。"
+man_says = "男性はこう言います。"
+
 [language_names]
 fr = "フランス語"
 es = "スペイン語"
@@ -63,3 +70,4 @@ zh = "中国語"
 ko = "韓国語"
 nl = "オランダ語"
 is = "アイスランド語"
+

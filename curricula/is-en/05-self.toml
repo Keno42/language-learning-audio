@@ -172,7 +172,7 @@ meaning = "I'm Japanese."
 meaning_ja = "私は日本人です。"
 difficulty = 2
 topics = ["social"]
-pronunciation_notes = "feminine; masculine: Ég er japanskur."
+target_m = "Ég er japanskur."  # a man says this; lessons practise both forms, announced
 situation = "The man guesses you're Chinese. Tell him you're Japanese."
 situation_ja = "中国人だと思われました。日本人だと伝えてください。"
 partner_cue = "Já, ég er íslensk. Ert þú kínversk?"
@@ -414,7 +414,7 @@ meaning = "I'm married."
 meaning_ja = "結婚しています。"
 difficulty = 2
 topics = ["social", "family"]
-pronunciation_notes = "feminine; masculine: Ég er giftur."
+target_m = "Ég er giftur."  # a man says this; lessons practise both forms, announced
 situation = "She asks if you're here with your family. Say you're married."
 situation_ja = "家族と来ているのか聞かれました。結婚していると答えてください。"
 
@@ -426,7 +426,7 @@ meaning = "I'm single."
 meaning_ja = "独身です。"
 difficulty = 3
 topics = ["social", "family"]
-pronunciation_notes = "feminine; masculine: Ég er einhleypur."
+target_m = "Ég er einhleypur."  # a man says this; lessons practise both forms, announced
 situation = "Someone asks about your partner. Say you're single."
 situation_ja = "パートナーについて聞かれました。独身だと答えてください。"
 

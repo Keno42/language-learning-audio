@@ -381,7 +381,7 @@ meaning = "I'm late."
 meaning_ja = "遅れています。"
 difficulty = 2
 topics = ["arrangements", "time"]
-pronunciation_notes = "feminine; masculine: Ég er seinn."
+target_m = "Ég er seinn."  # a man says this; lessons practise both forms, announced
 situation = "You call your friend from the bus. Tell her you're late."
 situation_ja = "バスの中から友達に電話します。遅れていると伝えてください。"
 

@@ -113,7 +113,7 @@ meaning = "I'm ill."
 meaning_ja = "病気です。"
 difficulty = 2
 topics = ["health"]
-pronunciation_notes = "feminine; masculine: Ég er veikur."
+target_m = "Ég er veikur."  # a man says this; lessons practise both forms, announced
 situation = "You can't come to the meeting. Say you're ill."
 situation_ja = "会議に行けません。病気だと言ってください。"
 
@@ -125,7 +125,7 @@ meaning = "I'm tired."
 meaning_ja = "疲れました。"
 difficulty = 2
 topics = ["health", "feelings"]
-pronunciation_notes = "feminine; masculine: Ég er þreyttur."
+target_m = "Ég er þreyttur."  # a man says this; lessons practise both forms, announced
 situation = "It's midnight after a long hike. Say you're tired."
 situation_ja = "長いハイキングの後の真夜中です。疲れたと言ってください。"
 
@@ -383,7 +383,7 @@ meaning = "I was robbed."
 meaning_ja = "強盗にあいました。"
 difficulty = 3
 topics = ["emergencies"]
-pronunciation_notes = "feminine; masculine: Ég var rændur."
+target_m = "Ég var rændur."  # a man says this; lessons practise both forms, announced
 situation = "Your wallet is gone. Tell the police officer you were robbed."
 situation_ja = "財布がなくなっています。警察官に強盗にあったと伝えてください。"
 

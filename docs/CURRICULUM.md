@@ -43,6 +43,7 @@ skips anything whose `prereqs` the learner does not know yet.
 | `partner_cue`, `partner_cue_after` | phrase | a partner line spoken between item `partner_cue_after` (A) and this item (B) when `connect()` pairs them in that order |
 | `partner_cue_setup` / `partner_cue_meaning` / `partner_cue_situation` | phrase | required with `partner_cue`, glossed per language: the bridge as **one scene**. The setup replaces A's standalone situation (shared place, roles, reason; asks for A), the meaning glosses the partner line on the learner's first two hearings of that bridge, and the situation replaces B's own (same scene, names the partner's move) |
 | `partner_cue_speaker` | phrase | who says `partner_cue`: `native_a` (voiced female in every profile) or `native_b` (male, the default). Match the scene's he/she; the learner's model answers in that exchange take the other voice. A test checks it against the narration |
+| `target_m` | phrase | what a man says when the words follow the speaker's gender (`target` "Ég er sein.", `target_m` "Ég er seinn."). The introduction presents both; recalls alternate between them and announce which ("As a man: …"), in the matching voice; in an exchange the learner takes the voice opposite the partner and that form |
 | `instruction` | transform | known-language prompt, e.g. `"Make it negative:"` |
 | `examples` | transform | ≥2 pairs `{ source, source_meaning, result, result_meaning }` |
 

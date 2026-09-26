@@ -299,7 +299,7 @@ meaning = "I'm next."
 meaning_ja = "次は私です。"
 difficulty = 2
 topics = ["practical"]
-pronunciation_notes = "feminine; masculine: Ég er næstur."
+target_m = "Ég er næstur."  # a man says this; lessons practise both forms, announced
 situation = "Someone tries to go before you. Say you're next."
 situation_ja = "誰かが先に行こうとしています。次は自分だと言ってください。"
 

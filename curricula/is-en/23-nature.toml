@@ -374,7 +374,7 @@ meaning = "I'm scared."
 meaning_ja = "怖いです。"
 difficulty = 2
 topics = ["nature", "feelings"]
-pronunciation_notes = "feminine; masculine: Ég er hræddur."
+target_m = "Ég er hræddur."  # a man says this; lessons practise both forms, announced
 situation = "The bridge sways over the gorge. Admit you're scared."
 situation_ja = "橋が渓谷の上で揺れています。怖いと認めてください。"
 

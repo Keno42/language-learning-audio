@@ -3288,6 +3288,84 @@ class PartnerVoiceTests(unittest.TestCase):
             curriculum_from_dict(raw)
 
 
+class SpeakerGenderTests(unittest.TestCase):
+    """#112 review: practise both the woman's and the man's form when the words follow the
+    speaker's gender («Ég er sein.» / «Ég er seinn.»), and say which one is asked for, each
+    time — in the matching voice."""
+
+    def builder(self, lang="en"):
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+        return cur, Builder(cur, Prompts.load(lang), Timing(level="A1"), LearnerState("is", lang, "A1"))
+
+    @staticmethod
+    def turns(sc, index=None):
+        return [(s.type, s.speaker, s.text) for s in sc.segments if s.type != "pause" and (index is None or s.exercise == index)]
+
+    def test_recalls_alternate_forms_announced_in_the_matching_voice(self):
+        cur, b = self.builder()
+        it = cur.by_id["eg_er_sein"]
+        sc = Script(1, "t", "is", "en")
+        for _ in range(4):
+            b.recall(sc, it, "meaning")
+        pairs = [(n[2].split(":")[0], a[1], a[2]) for n, a in zip(*[iter([t for t in self.turns(sc) if t[0] in ("narrate", "answer")])] * 2)]
+        woman, man = ("As a woman", "native_a", "Ég er sein."), ("As a man", "native_b", "Ég er seinn.")
+        self.assertEqual(pairs, [woman, man, woman, man])
+
+    def test_the_introduction_presents_both_forms(self):
+        cur, b = self.builder("ja")
+        sc = Script(1, "t", "is", "ja")
+        b.intro(sc, cur.by_id["eg_er_sein"])
+        turns = self.turns(sc)
+        self.assertIn(("narrate", "instructor", "男性はこう言います。"), turns)
+        self.assertIn(("speak", "native_b", "Ég er seinn."), turns)
+        self.assertTrue(turns[-2][2].startswith("女性として："), turns[-2])
+
+    def test_words_that_do_not_change_are_not_announced(self):
+        cur, b = self.builder()
+        sc = Script(1, "t", "is", "en")
+        b.recall(sc, cur.by_id["eg_er_ekki_viss"], "meaning")
+        narration = [t[2] for t in self.turns(sc) if t[0] == "narrate"]
+        self.assertFalse(any("As a" in n for n in narration), narration)
+        self.assertEqual({t[1] for t in self.turns(sc) if t[0] == "answer"}, {"native_a"})
+
+    def test_in_an_exchange_the_learner_takes_the_voice_opposite_the_partner(self):
+        """Opposite voices keep the two sides apart; a gendered answer then takes that voice's
+        form and is announced (a woman partner, so the learner answers as a man)."""
+        from audiolesson.content import curriculum_from_dict
+
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": "hae", "kind": "phrase", "target": "Hæ.", "meaning": "Hi.", "situation": "S."},
+                         {"id": "sein", "kind": "phrase", "target": "Ég er sein.", "target_m": "Ég er seinn.",
+                          "meaning": "I'm late.", "situation": "S2.", "partner_cue": "Hvar ertu?", "partner_cue_after": "hae",
+                          "partner_cue_setup": "Your friend calls. Greet her.", "partner_cue_meaning": "Where are you?",
+                          "partner_cue_situation": "She asks where you are. Say you're late.",
+                          "partner_cue_speaker": "native_a"}]}
+        from audiolesson.exercises import Builder
+
+        cur2 = curriculum_from_dict(raw)
+        b2 = Builder(cur2, Prompts.load("en"), Timing(level="A1"), fresh())
+        sc = Script(1, "t", "is", "en")
+        b2.connect(sc, [cur2.by_id["hae"], cur2.by_id["sein"]])
+        turns = self.turns(sc)
+        self.assertIn(("speak", "native_a", "Hvar ertu?"), turns)
+        self.assertEqual([t[1:] for t in turns if t[0] == "answer"], [("native_b", "Hæ."), ("native_b", "Ég er seinn.")])
+        self.assertIn(("narrate", "instructor", "As a man: She asks where you are. Say you're late."), turns)
+
+    def test_the_review_question_carries_the_announcement(self):
+        cur, b = self.builder()
+        sc = Script(1, "t", "is", "en")
+        b.recall(sc, cur.by_id["eg_er_sein"], "situation")
+        (q,) = sc.review_questions()
+        self.assertTrue(q["prompt"].startswith("As a woman: "), q)
+        self.assertEqual(q["answer"], "Ég er sein.")
+
+    def test_notes_no_longer_hide_the_mans_form(self):
+        for it in load_curriculum(ROOT / "curricula" / "is-en").items:
+            self.assertNotIn("masculine: Ég", it.pronunciation_notes or "", f"{it.id}: move the man's form to target_m")
+
+
 class RecombineNoveltyTests(unittest.TestCase):
     """Issue #105: recombination only asks for a sentence not yet heard in this lesson."""
 

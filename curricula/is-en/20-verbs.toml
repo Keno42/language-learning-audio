@@ -325,7 +325,7 @@ meaning = "I'm done."
 meaning_ja = "終わりました。"
 difficulty = 2
 topics = ["grammar"]
-pronunciation_notes = "feminine; masculine: Ég er búinn."
+target_m = "Ég er búinn."  # a man says this; lessons practise both forms, announced
 situation = "You've finished the form. Tell the clerk you're done."
 situation_ja = "書類を書き終えました。係の人に終わったと伝えてください。"
 
