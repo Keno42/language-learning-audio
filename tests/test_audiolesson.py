@@ -63,16 +63,7 @@ def course(n_lessons: int, minutes: float = 15) -> tuple[LearnerState, list[Scri
 
 
 class CurriculumTests(unittest.TestCase):
-    def test_partner_voices_match_the_narrations_he_or_she(self):
-        """Lesson 8 feedback: "A woman comes over and greets you" was answered in the male
-        voice (native_b spoke every partner line). Every profile voices native_a female and
-        native_b male, so a bridge or dialogue whose narration only says she/woman/… must use
-        native_a, and one that only says he/man/… native_b. Narration naming both (the partner
-        and someone they talk about) is left to the author."""
-        female = re.compile(r"\b(she|her|hers|herself|woman|girl|lady|mother|mum|aunt|grandmother|sister|daughter|wife|waitress|anna)\b", re.I)
-        male = re.compile(r"\b(he|him|his|himself|man|boy|guy|father|dad|uncle|grandfather|brother|son|husband|waiter)\b", re.I)
-
-        def expected(text: str) -> str | None:
+    def expected(text: str) -> str | None:
             f, m = bool(female.search(text)), bool(male.search(text))
             return "native_a" if f and not m else "native_b" if m and not f else None
 
@@ -3244,7 +3235,16 @@ class PartnerVoiceTests(unittest.TestCase):
         learner = {s.speaker for s in sc.segments if s.type == "answer"}
         return partner, learner
 
-    def test_a_female_partner_gets_the_female_voice_and_the_learner_the_other(self):
+    def test_partner_voices_match_the_narrations_he_or_she(self):
+        """Lesson 8 feedback: "A woman comes over and greets you" was answered in the male
+        voice (native_b spoke every partner line). Every profile voices native_a female and
+        native_b male, so a bridge or dialogue whose narration only says she/woman/… must use
+        native_a, and one that only says he/man/… native_b. Narration naming both (the partner
+        and someone they talk about) is left to the author."""
+        female = re.compile(r"\b(she|her|hers|herself|woman|girl|lady|mother|mum|aunt|grandmother|sister|daughter|wife|waitress|anna)\b", re.I)
+        male = re.compile(r"\b(he|him|his|himself|man|boy|guy|father|dad|uncle|grandfather|brother|son|husband|waiter)\b", re.I)
+
+        def test_a_female_partner_gets_the_female_voice_and_the_learner_the_other(self):
         self.assertEqual(self.exchange("native_a"), ({"native_a"}, {"native_b"}))
 
     def test_default_partner_is_unchanged(self):
