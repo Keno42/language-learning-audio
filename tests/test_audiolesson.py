@@ -337,23 +337,48 @@ class CurriculumTests(unittest.TestCase):
         sc = planner.build()
         self.assertEqual(len(sc.meta["notes"]), 1 + cfg.max_streak_relief_notes, sc.meta["notes"])
 
-    def test_every_kind_of_note_shares_one_lesson_total(self):
-        """Lesson 8 feedback: two milestones, two asides and two streak-relief asides made six
-        notes in 28 minutes. max_notes_total (default one per 10 minutes, at least 2) bounds
-        them together; asides stop once it is reached."""
+    def _note_lesson(self, minutes, milestones=0, **cfg):
+        """A lesson over 40 known phrases with 20 plain notes and ``milestones`` milestone
+        notes (one per item w0, w1, …, so each fires right after its item is practised)."""
         raw = {
             "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
             "items": [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(40)],
-            "notes": [{"id": f"n{i}", "text": f"Note {i}."} for i in range(20)],
+            "notes": [{"id": f"n{i}", "text": f"Note {i}."} for i in range(20)]
+            + [{"id": f"m{i}", "text": f"Pattern {i}.", "items": [f"w{i}"], "milestone": True} for i in range(milestones)],
         }
         cur = curriculum_from_dict(raw)
         learner = LearnerState("is", "en", "A1")
         for i in range(40):
             learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning")
+        cfg = PlanConfig(minutes=minutes, seed=1, dialogue_every=1000, drill_streak_limit=3, note_chance=1.0, **cfg)
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+        played = sc.meta["notes"]
+        return [n for n in played if n.startswith("m")], [n for n in played if n.startswith("n")]
+
+    def test_asides_stop_at_the_lesson_total(self):
+        """Lesson 8 feedback: six notes in 28 minutes. max_notes_total defaults to one per 10
+        minutes, at least 2; with every note chance on, asides fill it and stop."""
         for minutes, total in ((30, 3), (12, 2)):
-            cfg = PlanConfig(minutes=minutes, seed=1, dialogue_every=1000, drill_streak_limit=3, note_chance=1.0)
-            sc = Planner(cur, copy.deepcopy(learner), Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
-            self.assertEqual(len(sc.meta["notes"]), total, (minutes, sc.meta["notes"]))
+            milestones, asides = self._note_lesson(minutes)
+            self.assertEqual((milestones, len(asides)), ([], total), minutes)
+
+    def test_streak_relief_asides_count_toward_the_total(self):
+        """Relief asides (#44) break a drill streak only while the total has room: with one
+        ordinary aside and two relief asides available, a total of 2 lets through one relief."""
+        _, asides = self._note_lesson(12, max_notes=1, max_streak_relief_notes=2, max_notes_total=2)
+        self.assertEqual(len(asides), 2)
+        _, roomy = self._note_lesson(12, max_notes=1, max_streak_relief_notes=2, max_notes_total=10)
+        self.assertEqual(len(roomy), 3, "the relief allowance itself is unchanged when the total has room")
+
+    def test_milestones_play_past_the_total_but_asides_do_not(self):
+        """The total is not a strict cap: milestones keep their own cap (max_reactive_milestones)
+        and are never blocked, because they name a pattern right where it is practised. Once
+        they fill the total, no aside plays; past it, milestones still do."""
+        milestones, asides = self._note_lesson(30, milestones=1)
+        self.assertEqual((len(milestones), len(asides)), (1, 2), "one milestone + asides up to the total of 3")
+        milestones, asides = self._note_lesson(30, milestones=4, max_reactive_milestones=4)
+        self.assertEqual(len(milestones), 4, "four milestones exceed the total of 3 and all play")
+        self.assertEqual(asides, [], "no aside once milestones have used the total")
 
     def test_notes_heard_before_last_heard_was_recorded_rest_the_full_gap(self):
         """Lesson 8 feedback: asides heard in lessons made before notes_last_heard existed came
