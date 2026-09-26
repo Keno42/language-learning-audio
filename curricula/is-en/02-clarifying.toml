@@ -852,8 +852,10 @@ situation_fill = { inf = "fara_heim" }  # issue #29 pilot 3 — see eg_vil
 id = "einn"
 kind = "vocab"
 target = "einn"
-meaning = "one"
-meaning_ja = "1"
+meaning = "one (counting; masculine)"  # recall-only disambiguator: 1-4 have three gendered forms
+meaning_ja = "1（数えるとき・男性形）"
+meaning_forms = { in_sentence = "one" }
+meaning_forms_ja = { in_sentence = "1" }
 difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
@@ -863,8 +865,10 @@ pronunciation_notes = "counting form (masculine); 'eitt' before neuter nouns and
 id = "tveir"
 kind = "vocab"
 target = "tveir"
-meaning = "two"
-meaning_ja = "2"
+meaning = "two (counting; masculine)"
+meaning_ja = "2（数えるとき・男性形）"
+meaning_forms = { in_sentence = "two" }
+meaning_forms_ja = { in_sentence = "2" }
 difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
@@ -873,8 +877,10 @@ topics = ["numbers"]
 id = "thrir"
 kind = "vocab"
 target = "þrír"
-meaning = "three"
-meaning_ja = "3"
+meaning = "three (counting; masculine)"
+meaning_ja = "3（数えるとき・男性形）"
+meaning_forms = { in_sentence = "three" }
+meaning_forms_ja = { in_sentence = "3" }
 difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
@@ -883,8 +889,10 @@ topics = ["numbers"]
 id = "fjorir"
 kind = "vocab"
 target = "fjórir"
-meaning = "four"
-meaning_ja = "4"
+meaning = "four (counting; masculine)"
+meaning_ja = "4（数えるとき・男性形）"
+meaning_forms = { in_sentence = "four" }
+meaning_forms_ja = { in_sentence = "4" }
 difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
@@ -899,8 +907,10 @@ topics = ["numbers"]
 id = "eitt"
 kind = "vocab"
 target = "eitt"
-meaning = "one"
-meaning_ja = "1"
+meaning = "one (neuter; clock times)"  # recall-only disambiguator: 1-4 have three gendered forms
+meaning_ja = "1（中性形・時刻など）"
+meaning_forms = { in_sentence = "one" }
+meaning_forms_ja = { in_sentence = "1" }
 difficulty = 1
 tags = ["hour", "big_count"]
 gender = "neut"
@@ -910,8 +920,10 @@ topics = ["numbers", "time"]
 id = "tvo"
 kind = "vocab"
 target = "tvö"
-meaning = "two"
-meaning_ja = "2"
+meaning = "two (neuter; clock times)"
+meaning_ja = "2（中性形・時刻など）"
+meaning_forms = { in_sentence = "two" }
+meaning_forms_ja = { in_sentence = "2" }
 difficulty = 1
 tags = ["hour", "big_count"]
 gender = "neut"
@@ -921,8 +933,10 @@ topics = ["numbers", "time"]
 id = "thrju"
 kind = "vocab"
 target = "þrjú"
-meaning = "three"
-meaning_ja = "3"
+meaning = "three (neuter; clock times)"
+meaning_ja = "3（中性形・時刻など）"
+meaning_forms = { in_sentence = "three" }
+meaning_forms_ja = { in_sentence = "3" }
 difficulty = 1
 tags = ["hour", "big_count"]
 gender = "neut"
@@ -932,8 +946,10 @@ topics = ["numbers", "time"]
 id = "fjogur"
 kind = "vocab"
 target = "fjögur"
-meaning = "four"
-meaning_ja = "4"
+meaning = "four (neuter; clock times)"
+meaning_ja = "4（中性形・時刻など）"
+meaning_forms = { in_sentence = "four" }
+meaning_forms_ja = { in_sentence = "4" }
 difficulty = 2
 tags = ["hour", "big_count"]
 gender = "neut"
@@ -1055,8 +1071,10 @@ prereqs = ["thrju", "hvad_er_klukkan"]
 id = "ein"
 kind = "vocab"
 target = "ein"
-meaning = "one"
-meaning_ja = "1"
+meaning = "one (feminine; krónur)"  # recall-only disambiguator: 1-4 have three gendered forms
+meaning_ja = "1（女性形・クローナなど）"
+meaning_forms = { in_sentence = "one" }
+meaning_forms_ja = { in_sentence = "1" }
 difficulty = 2
 gender = "fem"
 topics = ["numbers", "money"]
@@ -1066,8 +1084,10 @@ pronunciation_notes = "feminine counting form, for feminine nouns like króna �
 id = "tvaer"
 kind = "vocab"
 target = "tvær"
-meaning = "two"
-meaning_ja = "2"
+meaning = "two (feminine; krónur)"
+meaning_ja = "2（女性形・クローナなど）"
+meaning_forms = { in_sentence = "two" }
+meaning_forms_ja = { in_sentence = "2" }
 difficulty = 2
 tags = ["small_count"]
 gender = "fem"
@@ -1077,8 +1097,10 @@ topics = ["numbers", "money"]
 id = "thrjar"
 kind = "vocab"
 target = "þrjár"
-meaning = "three"
-meaning_ja = "3"
+meaning = "three (feminine; krónur)"
+meaning_ja = "3（女性形・クローナなど）"
+meaning_forms = { in_sentence = "three" }
+meaning_forms_ja = { in_sentence = "3" }
 difficulty = 2
 tags = ["small_count"]
 gender = "fem"
@@ -1088,8 +1110,10 @@ topics = ["numbers", "money"]
 id = "fjorar"
 kind = "vocab"
 target = "fjórar"
-meaning = "four"
-meaning_ja = "4"
+meaning = "four (feminine; krónur)"
+meaning_ja = "4（女性形・クローナなど）"
+meaning_forms = { in_sentence = "four" }
+meaning_forms_ja = { in_sentence = "4" }
 difficulty = 2
 tags = ["small_count"]
 gender = "fem"

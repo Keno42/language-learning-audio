@@ -63,6 +63,23 @@ def course(n_lessons: int, minutes: float = 15) -> tuple[LearnerState, list[Scri
 
 
 class CurriculumTests(unittest.TestCase):
+    def test_no_two_items_share_a_recall_prompt(self):
+        """Lesson 8 feedback: «einn», «eitt» and «ein» were all prompted "Say: One." — the
+        learner can't know which form is asked for. Every item's meaning, in every language it
+        is glossed in, must tell it apart from the others (a disambiguator such as "one
+        (neuter; clock times)" or 「鍵（〜を）」 is fine; ``meaning_forms.in_sentence`` keeps
+        sentence prompts plain)."""
+        for path in (ROOT / "curricula" / "is-en", CURRICULUM):
+            for lang in load_curriculum(path).known_langs:
+                cur = load_curriculum(path, known_lang=lang)
+                seen: dict[str, str] = {}
+                for it in cur.items:
+                    if "{" in it.target:
+                        continue  # a construction is prompted through a filled example
+                    key = it.meaning.strip().rstrip(".!?。").lower()
+                    self.assertNotIn(key, seen, f"{path.name} [{lang}]: {it.id} and {seen.get(key)} are both prompted {it.meaning!r}")
+                    seen[key] = it.id
+
     def test_sample_curriculum_loads(self):
         cur = load_curriculum(CURRICULUM)
         self.assertGreater(len(cur.items), 30)
