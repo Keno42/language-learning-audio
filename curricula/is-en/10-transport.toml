@@ -5,7 +5,8 @@ id = "bill"
 kind = "vocab"
 target = "bíll"
 meaning = "car"
-meaning_ja = "車"
+meaning_ja = "車（〜は・〜が）"
+meaning_forms_ja = { in_sentence = "車" }
 difficulty = 1
 tags = ["gendered_noun"]
 gender = "masc"

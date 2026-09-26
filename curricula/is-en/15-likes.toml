@@ -120,7 +120,8 @@ id = "bokum"
 kind = "vocab"
 target = "bókum"
 meaning = "books"
-meaning_ja = "本"
+meaning_ja = "本（複数：〜に）"
+meaning_forms_ja = { in_sentence = "本" }
 difficulty = 2
 tags = ["dat_hobby"]
 topics = ["hobbies"]
@@ -312,7 +313,8 @@ id = "bok"
 kind = "vocab"
 target = "bók"
 meaning = "book"
-meaning_ja = "本"
+meaning_ja = "本（〜は・〜が）"
+meaning_forms_ja = { in_sentence = "本" }
 difficulty = 1
 tags = ["gendered_noun"]
 gender = "fem"
