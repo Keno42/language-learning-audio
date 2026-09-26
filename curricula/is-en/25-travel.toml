@@ -318,7 +318,8 @@ id = "bil"
 kind = "vocab"
 target = "bíl"
 meaning = "a car"
-meaning_ja = "車"
+meaning_ja = "車（〜を）"
+meaning_forms_ja = { in_sentence = "車" }
 difficulty = 1
 tags = ["acc_have", "acc_thing"]
 topics = ["travel", "transport"]

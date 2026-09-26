@@ -331,7 +331,8 @@ id = "siminn"
 kind = "vocab"
 target = "síminn"
 meaning = "the phone"
-meaning_ja = "電話"
+meaning_ja = "その電話（〜は・〜が）"
+meaning_forms_ja = { in_sentence = "その電話" }
 difficulty = 1
 tags = ["nom_place"]
 topics = ["practical"]
