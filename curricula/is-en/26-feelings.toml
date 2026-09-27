@@ -22,7 +22,7 @@ topics = ["feelings"]
 slots = { state = "state_f" }
 example = { state = "glod" }
 prereqs = ["glod"]
-pronunciation_notes = "adjectives agree with the speaker: fills give the woman's form and target_m the man's; lessons practise both"
+pronunciation_notes = "the adjective agrees with the speaker: a woman says «Ég er glöð», a man «Ég er glaður»"
 
 [[items]]
 id = "threytt_state"

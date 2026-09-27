@@ -231,7 +231,8 @@ class Script:
             if s.type == "pause":
                 lines.append(f"    … {s.duration:.1f}s {s.role or ''}".rstrip())
             else:
-                who = {"instructor": "Instructor", "native_a": "Speaker A", "native_b": "Speaker B"}.get(s.speaker, s.speaker)
+                # an answer is what the learner should have said, whichever voice models it
+                who = "You" if s.type == "answer" else {"instructor": "Instructor", "native_a": "Speaker A", "native_b": "Speaker B"}.get(s.speaker, s.speaker)
                 slow = " (slow)" if s.rate < 1 else ""
                 lines.append(f"**{who}{slow}:** {s.text}")
         return "\n".join(lines) + "\n"

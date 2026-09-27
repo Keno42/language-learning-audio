@@ -860,8 +860,8 @@ situation_fill = { inf = "fara_heim" }  # issue #29 pilot 3 — see eg_vil
 id = "einn"
 kind = "vocab"
 target = "einn"
-meaning = "one (counting; masculine)"  # recall-only disambiguator: 1-4 have three gendered forms
-meaning_ja = "1（数えるとき・男性形）"
+meaning = "one, as when counting"  # recall-only disambiguator, spoken as-is: 1-4 have three gendered forms
+meaning_ja = "数を数えるときの1"
 meaning_forms = { in_sentence = "one" }
 meaning_forms_ja = { in_sentence = "1" }
 difficulty = 1
@@ -873,8 +873,8 @@ pronunciation_notes = "counting form (masculine); 'eitt' before neuter nouns and
 id = "tveir"
 kind = "vocab"
 target = "tveir"
-meaning = "two (counting; masculine)"
-meaning_ja = "2（数えるとき・男性形）"
+meaning = "two, as when counting"
+meaning_ja = "数を数えるときの2"
 meaning_forms = { in_sentence = "two" }
 meaning_forms_ja = { in_sentence = "2" }
 difficulty = 1
@@ -885,8 +885,8 @@ topics = ["numbers"]
 id = "thrir"
 kind = "vocab"
 target = "þrír"
-meaning = "three (counting; masculine)"
-meaning_ja = "3（数えるとき・男性形）"
+meaning = "three, as when counting"
+meaning_ja = "数を数えるときの3"
 meaning_forms = { in_sentence = "three" }
 meaning_forms_ja = { in_sentence = "3" }
 difficulty = 1
@@ -897,8 +897,8 @@ topics = ["numbers"]
 id = "fjorir"
 kind = "vocab"
 target = "fjórir"
-meaning = "four (counting; masculine)"
-meaning_ja = "4（数えるとき・男性形）"
+meaning = "four, as when counting"
+meaning_ja = "数を数えるときの4"
 meaning_forms = { in_sentence = "four" }
 meaning_forms_ja = { in_sentence = "4" }
 difficulty = 1
@@ -915,8 +915,8 @@ topics = ["numbers"]
 id = "eitt"
 kind = "vocab"
 target = "eitt"
-meaning = "one (neuter; clock times)"  # recall-only disambiguator: 1-4 have three gendered forms
-meaning_ja = "1（中性形・時刻など）"
+meaning = "one, as in telling the time"  # recall-only disambiguator, spoken as-is: 1-4 have three gendered forms
+meaning_ja = "時刻を言うときの1"
 meaning_forms = { in_sentence = "one" }
 meaning_forms_ja = { in_sentence = "1" }
 difficulty = 1
@@ -928,8 +928,8 @@ topics = ["numbers", "time"]
 id = "tvo"
 kind = "vocab"
 target = "tvö"
-meaning = "two (neuter; clock times)"
-meaning_ja = "2（中性形・時刻など）"
+meaning = "two, as in telling the time"
+meaning_ja = "時刻を言うときの2"
 meaning_forms = { in_sentence = "two" }
 meaning_forms_ja = { in_sentence = "2" }
 difficulty = 1
@@ -941,8 +941,8 @@ topics = ["numbers", "time"]
 id = "thrju"
 kind = "vocab"
 target = "þrjú"
-meaning = "three (neuter; clock times)"
-meaning_ja = "3（中性形・時刻など）"
+meaning = "three, as in telling the time"
+meaning_ja = "時刻を言うときの3"
 meaning_forms = { in_sentence = "three" }
 meaning_forms_ja = { in_sentence = "3" }
 difficulty = 1
@@ -954,8 +954,8 @@ topics = ["numbers", "time"]
 id = "fjogur"
 kind = "vocab"
 target = "fjögur"
-meaning = "four (neuter; clock times)"
-meaning_ja = "4（中性形・時刻など）"
+meaning = "four, as in telling the time"
+meaning_ja = "時刻を言うときの4"
 meaning_forms = { in_sentence = "four" }
 meaning_forms_ja = { in_sentence = "4" }
 difficulty = 2
@@ -1079,21 +1079,23 @@ prereqs = ["thrju", "hvad_er_klukkan"]
 id = "ein"
 kind = "vocab"
 target = "ein"
-meaning = "one (feminine; krónur)"  # recall-only disambiguator: 1-4 have three gendered forms
-meaning_ja = "1（女性形・クローナなど）"
+meaning = "one, as in counting krónur"  # recall-only disambiguator, spoken as-is: 1-4 have three gendered forms
+meaning_ja = "クローナを数えるときの1"
 meaning_forms = { in_sentence = "one" }
 meaning_forms_ja = { in_sentence = "1" }
 difficulty = 2
 gender = "fem"
 topics = ["numbers", "money"]
-pronunciation_notes = "feminine counting form, for feminine nouns like króna — not the same word as \"einn\" (masculine). No small_count tag: einn_tvo_thrjar's target text (\"{count} krónur.\") is fixed plural, but \"one\" takes the singular noun (\"ein króna\", not \"ein krónur\") — the same number-agreement gap that keeps \"hundrað\" out of thad_kostar_big's unit pool."
+# no small_count tag: einn_tvo_thrjar's target text ("{count} krónur.") is fixed plural, but "one" takes the
+# singular noun ("ein króna", not "ein krónur") — the same gap that keeps "hundrað" out of thad_kostar_big's pool
+pronunciation_notes = "the feminine form, for feminine nouns: «ein króna» (one króna). Not the same word as «einn», the counting form."
 
 [[items]]
 id = "tvaer"
 kind = "vocab"
 target = "tvær"
-meaning = "two (feminine; krónur)"
-meaning_ja = "2（女性形・クローナなど）"
+meaning = "two, as in counting krónur"
+meaning_ja = "クローナを数えるときの2"
 meaning_forms = { in_sentence = "two" }
 meaning_forms_ja = { in_sentence = "2" }
 difficulty = 2
@@ -1105,8 +1107,8 @@ topics = ["numbers", "money"]
 id = "thrjar"
 kind = "vocab"
 target = "þrjár"
-meaning = "three (feminine; krónur)"
-meaning_ja = "3（女性形・クローナなど）"
+meaning = "three, as in counting krónur"
+meaning_ja = "クローナを数えるときの3"
 meaning_forms = { in_sentence = "three" }
 meaning_forms_ja = { in_sentence = "3" }
 difficulty = 2
@@ -1118,8 +1120,8 @@ topics = ["numbers", "money"]
 id = "fjorar"
 kind = "vocab"
 target = "fjórar"
-meaning = "four (feminine; krónur)"
-meaning_ja = "4（女性形・クローナなど）"
+meaning = "four, as in counting krónur"
+meaning_ja = "クローナを数えるときの4"
 meaning_forms = { in_sentence = "four" }
 meaning_forms_ja = { in_sentence = "4" }
 difficulty = 2
@@ -1317,7 +1319,7 @@ example = { time = "dag_acc" }
 # example's fill only — gating on every fill kept the arc from reaching the pattern until all
 # three words were durable, i.e. several lessons of isolated «dag»/«nótt»/«kvöld» drills
 prereqs = ["eigdu_godan_dag", "godan_daginn", "goda_nott", "gott_kvold", "dag_acc"]
-pronunciation_notes = "the same accusative endings as «Góðan daginn / Góða nótt / Gott kvöld» — see the godur_gender note"
+pronunciation_notes = "the same accusative endings as «Góðan daginn / Góða nótt / Gott kvöld»"
 situation = "Your friend is leaving the café at six to meet her family. Wish her a good evening."
 situation_ja = "友達が家族に会うため6時にカフェを出ます。良い夕べをと言ってください。"
 situation_fill = { time = "kvold_acc" }
