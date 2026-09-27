@@ -9,7 +9,7 @@ meaning_ja = "うれしい"
 difficulty = 1
 tags = ["state_f"]
 topics = ["feelings"]
-pronunciation_notes = "masculine: glaður"
+target_m = "glaður"  # a man says this
 
 [[items]]
 id = "eg_er_state"
@@ -22,7 +22,7 @@ topics = ["feelings"]
 slots = { state = "state_f" }
 example = { state = "glod" }
 prereqs = ["glod"]
-pronunciation_notes = "adjectives agree with the speaker: these are the feminine forms"
+pronunciation_notes = "adjectives agree with the speaker: fills give the woman's form and target_m the man's; lessons practise both"
 
 [[items]]
 id = "threytt_state"
@@ -33,7 +33,7 @@ meaning_ja = "疲れている"
 difficulty = 1
 tags = ["state_f"]
 topics = ["feelings"]
-pronunciation_notes = "masculine: þreyttur"
+target_m = "þreyttur"  # a man says this
 
 [[items]]
 id = "svong_state"
@@ -44,7 +44,7 @@ meaning_ja = "お腹が空いている"
 difficulty = 1
 tags = ["state_f"]
 topics = ["feelings", "food"]
-pronunciation_notes = "masculine: svangur"
+target_m = "svangur"  # a man says this
 
 [[items]]
 id = "leid"
@@ -55,7 +55,7 @@ meaning_ja = "悲しい"
 difficulty = 1
 tags = ["state_f"]
 topics = ["feelings"]
-pronunciation_notes = "masculine: leiður"
+target_m = "leiður"  # a man says this
 
 [[items]]
 id = "reid"
@@ -66,7 +66,7 @@ meaning_ja = "怒っている"
 difficulty = 1
 tags = ["state_f"]
 topics = ["feelings"]
-pronunciation_notes = "masculine: reiður"
+target_m = "reiður"  # a man says this
 
 [[items]]
 id = "stressud"
@@ -77,7 +77,7 @@ meaning_ja = "ストレスがたまっている"
 difficulty = 2
 tags = ["state_f"]
 topics = ["feelings"]
-pronunciation_notes = "masculine: stressaður"
+target_m = "stressaður"  # a man says this
 
 [[items]]
 id = "spennt"
@@ -88,7 +88,7 @@ meaning_ja = "わくわくしている"
 difficulty = 2
 tags = ["state_f"]
 topics = ["feelings"]
-pronunciation_notes = "masculine: spenntur"
+target_m = "spenntur"  # a man says this
 
 [[items]]
 id = "tilbuin"
@@ -99,7 +99,7 @@ meaning_ja = "準備ができている"
 difficulty = 2
 tags = ["state_f"]
 topics = ["feelings"]
-pronunciation_notes = "masculine: tilbúinn"
+target_m = "tilbúinn"  # a man says this
 
 [[items]]
 id = "veik_state"
@@ -110,7 +110,7 @@ meaning_ja = "病気"
 difficulty = 1
 tags = ["state_f"]
 topics = ["feelings", "health"]
-pronunciation_notes = "masculine: veikur"
+target_m = "veikur"  # a man says this
 
 [[items]]
 id = "aningju"
@@ -121,7 +121,7 @@ meaning_ja = "満足している"
 difficulty = 2
 tags = ["state_f"]
 topics = ["feelings"]
-pronunciation_notes = "masculine: ánægður"
+target_m = "ánægður"  # a man says this
 
 [[items]]
 id = "hraedd_state"
@@ -132,7 +132,7 @@ meaning_ja = "怖がっている"
 difficulty = 1
 tags = ["state_f"]
 topics = ["feelings"]
-pronunciation_notes = "masculine: hræddur"
+target_m = "hræddur"  # a man says this
 
 [[items]]
 id = "einmana"
@@ -154,7 +154,7 @@ meaning_ja = "混乱している"
 difficulty = 2
 tags = ["state_f"]
 topics = ["feelings"]
-pronunciation_notes = "masculine: ruglaður"
+target_m = "ruglaður"  # a man says this
 
 [[items]]
 id = "ertu_state"
@@ -342,11 +342,11 @@ instruction = "Say it about her:"
 instruction_ja = "彼女のこととして言ってください。"
 prereqs = ["eg_er_state"]
 examples = [
-  { source = "Ég er glöð.", source_meaning = "I'm happy.", source_meaning_ja = "私はうれしいです。", result = "Hún er glöð.", result_meaning = "She's happy.", result_meaning_ja = "彼女はうれしいです。" },
-  { source = "Ég er þreytt.", source_meaning = "I'm tired.", source_meaning_ja = "私は疲れています。", result = "Hún er þreytt.", result_meaning = "She's tired.", result_meaning_ja = "彼女は疲れています。" },
-  { source = "Ég er svöng.", source_meaning = "I'm hungry.", source_meaning_ja = "私はお腹が空いています。", result = "Hún er svöng.", result_meaning = "She's hungry.", result_meaning_ja = "彼女はお腹が空いています。" },
-  { source = "Ég er stressuð.", source_meaning = "I'm stressed.", source_meaning_ja = "私はストレスがたまっています。", result = "Hún er stressuð.", result_meaning = "She's stressed.", result_meaning_ja = "彼女はストレスがたまっています。" },
-  { source = "Ég er tilbúin.", source_meaning = "I'm ready.", source_meaning_ja = "私は準備ができています。", result = "Hún er tilbúin.", result_meaning = "She's ready.", result_meaning_ja = "彼女は準備ができています。" },
+  { source = "Ég er glöð.", source_m = "Ég er glaður.", source_meaning = "I'm happy.", source_meaning_ja = "私はうれしいです。", result = "Hún er glöð.", result_meaning = "She's happy.", result_meaning_ja = "彼女はうれしいです。" },
+  { source = "Ég er þreytt.", source_m = "Ég er þreyttur.", source_meaning = "I'm tired.", source_meaning_ja = "私は疲れています。", result = "Hún er þreytt.", result_meaning = "She's tired.", result_meaning_ja = "彼女は疲れています。" },
+  { source = "Ég er svöng.", source_m = "Ég er svangur.", source_meaning = "I'm hungry.", source_meaning_ja = "私はお腹が空いています。", result = "Hún er svöng.", result_meaning = "She's hungry.", result_meaning_ja = "彼女はお腹が空いています。" },
+  { source = "Ég er stressuð.", source_m = "Ég er stressaður.", source_meaning = "I'm stressed.", source_meaning_ja = "私はストレスがたまっています。", result = "Hún er stressuð.", result_meaning = "She's stressed.", result_meaning_ja = "彼女はストレスがたまっています。" },
+  { source = "Ég er tilbúin.", source_m = "Ég er tilbúinn.", source_meaning = "I'm ready.", source_meaning_ja = "私は準備ができています。", result = "Hún er tilbúin.", result_meaning = "She's ready.", result_meaning_ja = "彼女は準備ができています。" },
 ]
 
 [[dialogues]]

@@ -106,11 +106,15 @@ class Builder:
 
     # ---- the speaker's gender (Item.target_m) -----------------------------
 
-    def speaker_gender(self, item: Item | None, voice: str | None = None) -> str | None:
+    def speaker_gender(self, item: Item | None, voice: str | None = None, gendered: bool | None = None) -> str | None:
         """For an item whose words follow the speaker's gender, which form this recall asks
         for: the one ``voice`` implies when an exchange fixes it, else alternating with the
-        item's exposures so both get practised. None when the words don't change."""
-        if item is None or not item.target_m:
+        item's exposures so both get practised. None when the words don't change.
+        ``gendered`` overrides whether they do (a construction depends on its fills, a
+        transform on its example); by default, whether the item has a ``target_m``."""
+        if gendered is None:
+            gendered = bool(item and item.target_m)
+        if item is None or not gendered:
             return None
         if voice is not None:
             return GENDER_OF[voice]
@@ -122,6 +126,18 @@ class Builder:
     @staticmethod
     def _gendered(item: Item, gender: str | None) -> str:
         return item.target_m if gender == "m" and item.target_m else item.target
+
+    @staticmethod
+    def _fills_gendered(fills: dict[str, Item]) -> bool:
+        """Whether a filled construction's words follow the speaker's gender: a fill has a
+        man's form («glöð» / «glaður»); «einmana» is the same for both."""
+        return any(f.target_m for f in fills.values())
+
+    def _filled(self, construction: Item, fills: dict[str, Item], voice: str | None = None) -> tuple[str | None, str]:
+        """(speaker gender or None, target) for ``construction`` filled with ``fills``: when a
+        fill has a man's form, pick which form this exercise asks for (``speaker_gender``)."""
+        gender = self.speaker_gender(construction, voice, gendered=self._fills_gendered(fills))
+        return gender, self.cur.resolve_slots(construction, fills, gender)[0]
 
     def _as(self, gender: str | None, prompt: str) -> str:
         """``prompt`` with "As a man:" / "As a woman:" in front when the words depend on it."""
@@ -299,19 +315,27 @@ class Builder:
             self._narr(sc, ex, self.prompts.get("natural"))
             self._speak(sc, ex, target)
             self._repeat_pause(sc, ex, target)
+        if self._fills_gendered(fills):
+            # the words follow the speaker's gender: a man's form too, in the man's voice
+            target_m = self.cur.resolve_slots(item, fills, "m")[0]
+            self._narr(sc, ex, self.prompts.get("man_says"))
+            self._speak(sc, ex, target_m, speaker=VOICE_OF["m"])
+            self._repeat_pause(sc, ex, target_m)
         self._narr(sc, ex, self.prompts.get("construction_slot"))
         # a second example with a known fill, as the first retrieval
         gen = self.generate(item, exclude=fills)
         if gen is None:
-            self._narr(sc, ex, self._meaning_prompt(meaning))
+            gender, target = self._filled(item, fills)
+            self._narr(sc, ex, self._as(gender, self._meaning_prompt(meaning)))
             self._answer_pause(sc, ex, target, item, generative=False)
-            self._answer(sc, ex, target)
+            self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
         else:
-            self._speak(sc, ex, gen.target)
+            gender, target = self._filled(item, gen.fills)
+            self._speak(sc, ex, target, speaker=VOICE_OF[gender or "f"])
             self._beat(sc, ex)
-            self._narr(sc, ex, self._meaning_prompt(gen.meaning))
-            self._answer_pause(sc, ex, gen.target, item, generative=False)
-            self._answer(sc, ex, gen.target)
+            self._narr(sc, ex, self._as(gender, self._meaning_prompt(gen.meaning)))
+            self._answer_pause(sc, ex, target, item, generative=False)
+            self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
             self.used_combos.add(gen.key)
         self._gap(sc, ex)
         return ex
@@ -400,16 +424,17 @@ class Builder:
             target, meaning = self.cur.resolve_slots(item, fills)
             gen = Generated(item, fills, target, meaning)
         self.used_combos.add(gen.key)
-        ex = sc.new_exercise("recall", stage, gen.item_ids, f"{stage}: {gen.target}")
+        gender, target = self._filled(item, gen.fills)
+        ex = sc.new_exercise("recall", stage, gen.item_ids, f"{stage}: {target}")
         if stage == "hinted":
-            self._narr(sc, ex, self.prompts.get("hinted", meaning=self._m(gen.meaning)))
-            self._speak(sc, ex, gen.target.split()[0].rstrip(".,?!"), role="hint")
+            self._narr(sc, ex, self._as(gender, self.prompts.get("hinted", meaning=self._m(gen.meaning))))
+            self._speak(sc, ex, target.split()[0].rstrip(".,?!"), role="hint")
         elif stage == "situation" and item.has_situation:
-            self._narr(sc, ex, self._situation(item))
+            self._narr(sc, ex, self._as(gender, self._situation(item)))  # type: ignore[arg-type]
         else:
-            self._narr(sc, ex, self._meaning_prompt(gen.meaning))
-        self._answer_pause(sc, ex, gen.target, item, generative=is_generative(stage), supported=stage == "hinted")
-        self._answer(sc, ex, gen.target)
+            self._narr(sc, ex, self._as(gender, self._meaning_prompt(gen.meaning)))
+        self._answer_pause(sc, ex, target, item, generative=is_generative(stage), supported=stage == "hinted")
+        self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
         self._gap(sc, ex)
         return ex
 
@@ -424,16 +449,17 @@ class Builder:
         if gen is None:
             return None
         self.used_combos.add(gen.key)
+        gender, target = self._filled(gen.construction, gen.fills)
         ids = [item.id] + [i for i in gen.item_ids if i != item.id]  # the practised item comes first
-        ex = sc.new_exercise("generative", "recombine", ids, f"recombine: {gen.target}")
+        ex = sc.new_exercise("generative", "recombine", ids, f"recombine: {target}")
         # the generator only *prefers* unused combinations, so claim novelty only when true
         if item.kind == "construction":
-            key = "recombine_new" if self.is_new_utterance(gen.target) else "recombine"
+            key = "recombine_new" if self.is_new_utterance(target) else "recombine"
         else:
             key = "recombine_vocab"
-        self._narr(sc, ex, self.prompts.get(key, meaning=self._m(gen.meaning)))
-        self._answer_pause(sc, ex, gen.target, item, generative=True)
-        self._answer(sc, ex, gen.target)
+        self._narr(sc, ex, self._as(gender, self.prompts.get(key, meaning=self._m(gen.meaning))))
+        self._answer_pause(sc, ex, target, item, generative=True)
+        self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
         self._gap(sc, ex)
         return ex
 
@@ -459,12 +485,21 @@ class Builder:
         return ex
 
     def _transform_prompt(self, sc: Script, ex: Exercise, item: Item, exm: TransformExample, hint: bool = False) -> None:
-        self._narr(sc, ex, item.instruction)
-        self._speak(sc, ex, exm.source, role="source")
+        """When the example's words follow the speaker's gender, alternate forms like any
+        gendered item: the source in that voice, and — only when the learner's own answer
+        changes («Ég var þreyttur í gær.») — an announcement and the answer in that voice.
+        A result about someone else («Hún er glöð.») stays as it is."""
+        gender = self.speaker_gender(item, gendered=bool(exm.source_m or exm.result_m))
+        man = gender == "m"
+        source = exm.source_m if man and exm.source_m else exm.source
+        result = exm.result_m if man and exm.result_m else exm.result
+        answer_gender = gender if exm.result_m else None
+        self._narr(sc, ex, self._as(answer_gender, item.instruction))
+        self._speak(sc, ex, source, role="source", speaker=VOICE_OF[gender or "f"])
         if hint:
-            self._speak(sc, ex, exm.result.split()[0].rstrip(".,?!"), role="hint")
-        self._answer_pause(sc, ex, exm.result, item, generative=True, supported=hint)
-        self._answer(sc, ex, exm.result)
+            self._speak(sc, ex, result.split()[0].rstrip(".,?!"), role="hint")
+        self._answer_pause(sc, ex, result, item, generative=True, supported=hint)
+        self._answer(sc, ex, result, speaker=VOICE_OF[answer_gender or "f"])
         self.used_examples.add(item.id + ":" + exm.source)
 
     def _pick_example(self, item: Item) -> TransformExample:
@@ -501,7 +536,10 @@ class Builder:
         combos = self._product(options, slots)
         self.rng.shuffle(combos)
         if avoid_heard:
-            combos = [c for c in combos if _norm_utterance(self.cur.resolve_slots(construction, c)[0]) not in self.heard]
+            combos = [
+                c for c in combos
+                if not {_norm_utterance(self.cur.resolve_slots(construction, c, g)[0]) for g in "fm"} & self.heard
+            ]
             if not combos:
                 return None
         if prefer_unused:
@@ -598,10 +636,8 @@ class Builder:
         # follow the speaker's gender take that voice's form, announced
         partner = second.partner_cue_speaker if bridged else "native_b"
         learner_voice = _other_voice(partner)
-        first_gender = self.speaker_gender(first, learner_voice)
-        second_gender = self.speaker_gender(second, learner_voice)
-        first_target = self._connect_target(first, first_gender)
-        second_target = self._connect_target(second, second_gender)
+        first_gender, first_target = self._connect_turn(first, learner_voice)
+        second_gender, second_target = self._connect_turn(second, learner_voice)
         label = f"connect: {first.id}+{second.id}" if bridged else f"mixed review: {first.id}+{second.id}"
         ex = sc.new_exercise("connect", "exchange" if bridged else "recombine", ids, label)
         self._narr(sc, ex, self.prompts.get("connect_intro" if bridged else "mixed_review_intro"))
@@ -626,22 +662,22 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def _connect_target(self, item: Item, gender: str | None = None) -> str:
-        """The spoken target of a ``connect()`` turn. A construction is filled first, with
-        the fills its situation names pinned, since connect() narrates that situation."""
+    def _connect_turn(self, item: Item, voice: str) -> tuple[str | None, str]:
+        """(speaker gender or None, spoken target) of a ``connect()`` turn answered in
+        ``voice``. A construction is filled first, with the fills its situation names
+        pinned, since connect() narrates that situation."""
         if item.kind != "construction":
-            return self._gendered(item, gender)
+            gender = self.speaker_gender(item, voice)
+            return gender, self._gendered(item, gender)
         if not self.situation_usable(item):
             # the planner never pairs such an item; refuse rather than speak an unmet fill
             raise ValueError(f"connect(): {item.id!r}'s situation names a fill the learner doesn't have yet")
         fixed = self.cur.situation_fills(item)
         gen = self.generate(item, fixed=fixed)
         if gen is None:
-            fills = {**self.cur.example_fill(item), **fixed}
-            target, _ = self.cur.resolve_slots(item, fills)
-            return target
+            return self._filled(item, {**self.cur.example_fill(item), **fixed}, voice)
         self.used_combos.add(gen.key)
-        return gen.target
+        return self._filled(item, gen.fills, voice)
 
     # -------------------------------------------------------------- dialogue
 
@@ -682,10 +718,11 @@ class Builder:
                     if unbound:
                         raise ValueError(f"dialogue {dlg.id!r}: construction turn {item.id!r} leaves slots {sorted(unbound)} unbound")
                     fills = {s: self.cur.by_id[f] for s, f in turn.expect_fill.items()}
-                    expected = self.cur.resolve_slots(item, fills)[0]
+                    gender, expected = self._filled(item, fills, learner_voice)
             else:
                 item = None
-                expected = turn.expect_text or ""
+                gender = GENDER_OF[learner_voice] if turn.expect_text_m else None
+                expected = (turn.expect_text_m if gender == "m" else turn.expect_text) or ""
             if assisted or not heard_partner:
                 self._narr(sc, ex, self._as(gender, turn.cue))
             elif gender:

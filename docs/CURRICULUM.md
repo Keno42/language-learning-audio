@@ -43,9 +43,9 @@ skips anything whose `prereqs` the learner does not know yet.
 | `partner_cue`, `partner_cue_after` | phrase | a partner line spoken between item `partner_cue_after` (A) and this item (B) when `connect()` pairs them in that order |
 | `partner_cue_setup` / `partner_cue_meaning` / `partner_cue_situation` | phrase | required with `partner_cue`, glossed per language: the bridge as **one scene**. The setup replaces A's standalone situation (shared place, roles, reason; asks for A), the meaning glosses the partner line on the learner's first two hearings of that bridge, and the situation replaces B's own (same scene, names the partner's move) |
 | `partner_cue_speaker` | phrase | who says `partner_cue`: `native_a` (voiced female in every profile) or `native_b` (male, the default). Match the scene's he/she; the learner's model answers in that exchange take the other voice. A test checks it against the narration |
-| `target_m` | phrase | what a man says when the words follow the speaker's gender (`target` "Ég er sein.", `target_m` "Ég er seinn."). The introduction presents both; recalls alternate between them and announce which ("As a man: …"), in the matching voice; in an exchange the learner takes the voice opposite the partner and that form |
+| `target_m` | phrase, vocab | what a man says when the words follow the speaker's gender (`target` "Ég er sein.", `target_m` "Ég er seinn."). The introduction presents both; recalls alternate between them and announce which ("As a man: …"), in the matching voice; in an exchange the learner takes the voice opposite the partner and that form. On a construction's fill («glöð» / «glaður») it makes the filled sentence gendered for that exercise; a fill with one form for both («einmana») has none |
 | `instruction` | transform | known-language prompt, e.g. `"Make it negative:"` |
-| `examples` | transform | ≥2 pairs `{ source, source_meaning, result, result_meaning }` |
+| `examples` | transform | ≥2 pairs `{ source, source_meaning, result, result_meaning }`; `source_m` / `result_m` give the man's form of a side whose words follow the speaker's gender (announced only when the learner's answer, `result`, changes). The result must not depend on anyone else whose gender the exercise leaves open: «Ég er þreytt. → Þú ert þreytt.» agrees with the unnamed listener, so it gets no `source_m` (listener agreement is not modelled) |
 
 ### Kinds
 
@@ -80,6 +80,7 @@ partner_speaker = "native_a"                # the woman: native_a is the female 
   cue = "Ask whether this seat is free."    # narrator, known language
   expect = "cette_place_est_libre"          # item id … or:
   # expect_text = "Oui, je suis en vacances."   literal line
+  # expect_text_m = "…"                         its man's form, when the words follow the speaker's gender
   # expect_meaning = "Yes, I'm on holiday."
   partner = "Oui, bien sûr. Vous êtes d'où ?"
   partner_meaning = "Yes, of course. Where are you from?"

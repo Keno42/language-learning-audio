@@ -118,7 +118,7 @@ instruction_ja = "過去のこととして言ってください——昨日："
 prereqs = ["i_gaer", "transform_thu_form"]
 examples = [
   { source = "Ég fer í sund.", source_meaning = "I go swimming.", source_meaning_ja = "泳ぎに行きます。", result = "Ég fór í sund í gær.", result_meaning = "I went swimming yesterday.", result_meaning_ja = "昨日泳ぎに行きました。" },
-  { source = "Ég er þreytt.", source_meaning = "I'm tired.", source_meaning_ja = "疲れています。", result = "Ég var þreytt í gær.", result_meaning = "I was tired yesterday.", result_meaning_ja = "昨日は疲れていました。" },
+  { source = "Ég er þreytt.", source_m = "Ég er þreyttur.", source_meaning = "I'm tired.", source_meaning_ja = "疲れています。", result = "Ég var þreytt í gær.", result_m = "Ég var þreyttur í gær.", result_meaning = "I was tired yesterday.", result_meaning_ja = "昨日は疲れていました。" },
   { source = "Ég borða fisk.", source_meaning = "I eat fish.", source_meaning_ja = "魚を食べます。", result = "Ég borðaði fisk í gær.", result_meaning = "I ate fish yesterday.", result_meaning_ja = "昨日魚を食べました。" },
   { source = "Ég tala við Önnu.", source_meaning = "I talk to Anna.", source_meaning_ja = "アンナと話します。", result = "Ég talaði við Önnu í gær.", result_meaning = "I talked to Anna yesterday.", result_meaning_ja = "昨日アンナと話しました。" },
   { source = "Ég kem heim.", source_meaning = "I come home.", source_meaning_ja = "帰宅します。", result = "Ég kom heim í gær.", result_meaning = "I came home yesterday.", result_meaning_ja = "昨日帰宅しました。" },
