@@ -949,8 +949,21 @@ difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
 
-# Issue #80: the counting forms' first use, right after them (was module 12): the
-# emergency number is read digit by digit with the counting forms.
+# Issue #80: the counting forms' first uses, right after them. Counting itself is what these
+# forms are for, and the only use that produces all four (review on PR #118: «einn einn
+# tveir» alone never produces þrír or fjórir); then the emergency number (was module 12),
+# read digit by digit with them.
+[[items]]
+id = "einn_tveir_thrir_fjorir"
+kind = "phrase"
+target = "Einn, tveir, þrír, fjórir."
+meaning = "One, two, three, four."
+meaning_ja = "1、2、3、4。"
+difficulty = 1
+topics = ["numbers"]
+situation = "A child asks you to count to four in Icelandic. Count."
+situation_ja = "子どもにアイスランド語で4まで数えてと頼まれました。数えてください。"
+
 [[items]]
 id = "einn_einn_tveir"
 kind = "phrase"
@@ -1223,6 +1236,20 @@ difficulty = 2
 tags = ["small_count"]
 gender = "fem"
 topics = ["numbers", "money"]
+
+# Issue #80, review on PR #118: «{count} krónur.» is plural, so «ein» never fills it; its first
+# use is the singular, a bare label like the construction below (not after «kostar», which
+# takes the accusative «eina krónu»).
+[[items]]
+id = "ein_krona"
+kind = "phrase"
+target = "Ein króna."
+meaning = "One króna."
+meaning_ja = "1クローナ。"
+difficulty = 1
+topics = ["numbers", "money"]
+situation = "The toy coin game again: say 'one króna'."
+situation_ja = "またおもちゃのコイン遊びです。「1クローナ」と言ってください。"
 
 # Issue #80: moved from module 08 (order ~380) to right after the feminine forms, their first
 # and only frame — they used to be drilled as bare words for ~30 lessons before it.

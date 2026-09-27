@@ -276,6 +276,9 @@ text_ja = "60歳以下のほぼ全員が英語を上手に話し、訛りを聞�
 id = "tolur_kyn"
 milestone = true
 items = ["einn_einn_tveir", "klukkan_er", "einn_tvo_thrjar"]
+# the contrast recalls: «Einn, tveir, þrír, fjórir.» against «Ein króna.» — masculine against
+# feminine, from situations that need no particular fill to be known yet
+transfer_items = ["einn_tveir_thrir_fjorir", "ein_krona"]
 topics = ["numbers", "grammar"]
 text = "Three ways to say 'two': «einn einn tveir», «Klukkan er tvö», «tvær krónur». The numbers one to four change like «góður», «góð», «gott», with the gender of what you count: «króna» is feminine, so «tvær krónur». Counting and phone numbers use the masculine, and the clock always the neuter. Pick the wrong one and you'll still be understood."
 text_ja = "「2」の言い方が三つ出てきました：«einn einn tveir»、«Klukkan er tvö»、«tvær krónur»。1から4の数は «góður»、«góð»、«gott» と同じく、数えるものの性で形が変わります。«króna» は女性名詞なので «tvær krónur» です。数を数えるときや電話番号は男性形、時刻はいつも中性形です。形を間違えても通じるので、気にせず言ってみましょう。"
