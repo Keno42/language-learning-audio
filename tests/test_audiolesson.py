@@ -64,6 +64,23 @@ def course(n_lessons: int, minutes: float = 15) -> tuple[LearnerState, list[Scri
 
 
 class CurriculumTests(unittest.TestCase):
+    def test_learner_notes_are_not_authoring_comments(self):
+        """Lesson 18 review: «ein»'s note told the learner about small_count tags and a
+        construction's unit pool. pronunciation_notes are printed in the transcript, so they
+        must not name ids, tags or fields; authoring rationale belongs in a TOML comment."""
+        internal = re.compile(r"\b[a-z]+_[a-z_]+\b|\btags?\b|target text|issue #|#\d")
+        for it in load_curriculum(ROOT / "curricula" / "is-en").items:
+            self.assertIsNone(internal.search(it.pronunciation_notes or ""), f"{it.id}: {it.pronunciation_notes}")
+
+    def test_number_prompts_are_spoken_naturally(self):
+        """Lesson 18 review: "Say: Two (feminine; krónur)." is read out by the TTS as is. The
+        disambiguator for 1-4's three forms is a phrase a person would say."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for i in ("einn", "eitt", "ein", "tveir", "tvo", "tvaer"):
+            self.assertFalse(re.search(r"[();]", cur.by_id[i].meaning), cur.by_id[i].meaning)
+        self.assertEqual(cur.by_id["tvaer"].meaning, "two, as in counting krónur")
+        self.assertEqual(load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja").by_id["eitt"].meaning, "時刻を言うときの1")
+
     def test_no_two_items_share_a_recall_prompt(self):
         """Lesson 8 feedback: «einn», «eitt» and «ein» were all prompted "Say: One." — the
         learner can't know which form is asked for. Every item's meaning, in every language it
@@ -3274,6 +3291,11 @@ class LessonStructureTests(unittest.TestCase):
         # so the learner can hear and imitate a hard phrase piece by piece — "(slow)" is
         # how the transcript marks a sub-1.0 rate segment (see Script.transcript()).
         self.assertIn("**Speaker A (slow):** plaît", text)
+        # the learner's model answers read as "You", whichever voice models them; every
+        # "**You:**" line is an answer and every answer is one
+        answers = [seg.text for seg in self.script.segments if seg.type == "answer"]
+        you = [line.removeprefix("**You:** ") for line in text.splitlines() if line.startswith("**You:** ")]
+        self.assertEqual(you, answers)
 
     def test_script_roundtrip(self):
         with tempfile.TemporaryDirectory() as td:
