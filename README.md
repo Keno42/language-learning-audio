@@ -220,6 +220,11 @@ See `docs/CURRICULUM.md`. Three curricula ship:
 
 A curriculum can be one file or a directory of modules merged in filename
 order (`audiolesson validate curricula/is-en`).
+`validate` also reports vocab items that are drilled as bare words for a long
+time: a word only gets past "say: a passport" in a frame (a construction with
+a slot for it) or a dialogue that needs it, so it lists words whose first
+frame comes more than 50 items later, and words with none (`--frames` for the
+full list, `--frame-span N` to change the distance). Advisory, never a failure.
 
 **Japanese instructor for the Icelandic course.** The same files carry
 Japanese glosses next to the English ones (`meaning_ja`, `situation_ja`,

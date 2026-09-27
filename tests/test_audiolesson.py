@@ -2791,6 +2791,41 @@ class CurriculumTests(unittest.TestCase):
         dlg = cur.dialogue_by_id[worst["dialogue"]]
         self.assertNotIn(worst["item"], dlg.required_items)
 
+    def test_frame_gap_report_flags_bare_words(self):
+        """Issue #80: a vocab item climbs past ``meaning`` only in a frame (a construction with
+        a slot for one of its tags) or a dialogue that requires it. The report lists words whose
+        first such context comes more than ``span`` items later, and words with none."""
+        from audiolesson.content import frame_gap_report
+
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "kaffi", "kind": "vocab", "target": "kaffi", "meaning": "coffee", "tags": ["drink"]},
+                {"id": "te", "kind": "vocab", "target": "te", "meaning": "tea", "tags": ["drink"]},
+                {"id": "vatn", "kind": "vocab", "target": "vatn", "meaning": "water", "tags": ["drink"]},
+                {"id": "lone", "kind": "vocab", "target": "einn", "meaning": "one"},
+                {"id": "talk", "kind": "vocab", "target": "tala", "meaning": "speak"},
+                {"id": "hi", "kind": "phrase", "target": "Hæ.", "meaning": "Hi."},
+            ]
+            + [{"id": f"p{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(8)]
+            + [{"id": "c", "kind": "construction", "target": "{d}, takk.", "meaning": "{d}, please.", "slots": {"d": "drink"}}],
+            "dialogues": [
+                {"id": "d1", "setting": "A test setting.", "turns": [{"cue": "Greet.", "expect": "hi"}, {"cue": "Say 'speak'.", "expect": "talk"}]}
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        report = frame_gap_report(cur, span=5)
+        late = {f["item"]: f for f in report["late"]}
+        self.assertEqual(set(late), {"kaffi", "te", "vatn"}, report)
+        self.assertEqual(late["kaffi"]["context"], "c")
+        self.assertEqual(late["kaffi"]["gap"], cur.by_id["c"].order - cur.by_id["kaffi"].order)
+        self.assertEqual([f["item"] for f in report["none"]], ["lone"], "a dialogue turn is a context too; phrases aren't reported")
+        self.assertEqual(frame_gap_report(cur, span=100)["late"], [])
+
+        # the real course: the numbers of #80, to be driven down by resequencing
+        report = frame_gap_report(load_curriculum(ROOT / "curricula" / "is-en"))
+        self.assertIn("vegabref", {f["item"] for f in report["late"]})
+
     def test_backward_chunks_grow_from_the_end(self):
         cur = load_curriculum(CURRICULUM)
         it = cur.item("je_ne_comprends_pas")
