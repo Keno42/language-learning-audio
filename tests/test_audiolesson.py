@@ -1245,7 +1245,7 @@ class CurriculumTests(unittest.TestCase):
                         fills = cur.example_fill(c)
                         fills[slot] = fill
                         meaning = cur.resolve_slots(c, fills)[1]
-                        # a construction's own authored annotation ("(feminine count word)") is
+                        # a construction's own authored annotation is
                         # deliberate guidance; only what the fills bring in is checked
                         for own in re.findall(r"[（(][^）)]*[）)]", c.meaning):
                             meaning = meaning.replace(own, "")
@@ -2581,6 +2581,30 @@ class CurriculumTests(unittest.TestCase):
             self.assertLessEqual(con.order - needed, 3, con_id)
         self.assertLess(cur.by_id["hvad_er_klukkan"].order, cur.by_id["klukkan_er"].order)
         self.assertLess(cur.by_id["eg_tharf"].order - cur.by_id["vegabref"].order, 100)
+
+    def test_each_gendered_set_of_one_to_four_arrives_with_its_frame(self):
+        """Issue #80, owner direction: not all twelve forms of 1-4 as bare words ahead of any
+        use. The counting forms come first with the emergency number; the neuter set right
+        before the clock (and «Við erum fjögur»); the feminine set right before «{count}
+        krónur.». Once all three frames are met a milestone ties them to góður/góð/gott."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        o = {i.id: i.order for i in cur.items}
+        sets = {
+            "einn_einn_tveir": ["einn", "tveir", "thrir", "fjorir"],
+            "klukkan_er": ["eitt", "tvo", "thrju", "fjogur"],
+            "einn_tvo_thrjar": ["ein", "tvaer", "thrjar", "fjorar"],
+        }
+        for frame, forms in sets.items():
+            self.assertTrue(all(o[f] < o[frame] for f in forms), frame)
+            self.assertLessEqual(o[frame] - max(o[f] for f in forms), 3, frame)
+        self.assertLess(o["klukkan_er"], o["ein"], "the feminine set comes after the clock, not interleaved")
+        self.assertLess(o["vid_erum_fjogur"] - o["klukkan_er"], 3)
+        self.assertLess(o["kronur"], o["einn_tvo_thrjar"])
+        note = cur.note_by_id["tolur_kyn"]
+        self.assertTrue(note.milestone)
+        self.assertEqual(set(note.items), set(sets))
+        self.assertIn("«góður»", note.text)
+        self.assertTrue(all(cur.by_id[i].has_situation for i in note.items), "the contrast recalls use situations")
 
     def test_first_lesson_never_opens_with_three_introductions_in_a_row(self):
         """Issue #86: with nothing to review yet, lesson 1 opened o-i-i-i: three new items back to

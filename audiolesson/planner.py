@@ -654,12 +654,16 @@ class Planner:
                 candidates = _connect_pair(list(preferred), just_touched)
             if candidates is None:
                 anchor = scope if prefer is not None else None
+                live = rest
                 if anchor is None:
-                    # nothing ties the pair to today's material: only items in play today (due,
-                    # or practised this lesson) or rested long enough to review early, or the
+                    # nothing ties the pair to today's material: items in play today (due, or
+                    # practised this lesson) or rested long enough to review early first, or the
                     # same well-known exchange opens lesson after lesson whatever its interval (#94)
-                    rest = [it for it in rest if it.id in self.exposures or self._may_review(it.id)]
-                candidates = _connect_pair(list(preferred) + rest, just_touched, anchor)
+                    live = [it for it in rest if it.id in self.exposures or self._may_review(it.id)]
+                candidates = _connect_pair(list(preferred) + live, just_touched, anchor)
+                if candidates is None and live is not rest:
+                    # still better than ending the lesson on a drill streak nothing else breaks
+                    candidates = _connect_pair(list(preferred) + rest, just_touched, anchor)
                 if candidates is None:
                     return False
             ex = b.connect(sc, candidates)
