@@ -65,11 +65,13 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--fit-tolerance", type=float, default=None)
     r.set_defaults(func=cmd_render)
 
-    rp = sub.add_parser("report", help="after listening: tell the model which items you could not recall")
+    rp = sub.add_parser("report", help="after listening: tell the model which items you recalled, hesitated on or could not recall")
     add_user_args(rp)
     rp.add_argument("--learner", "-l", default=None)
     rp.add_argument("--lesson", type=int, default=None, help="lesson number the feedback refers to")
     rp.add_argument("--failed", default="", help="comma-separated item ids you failed to produce")
+    rp.add_argument("--hesitated", default="", help="comma-separated item ids you produced, but only after hesitating")
+    rp.add_argument("--recalled", default="", help="comma-separated item ids you confirmed you recalled")
     rp.add_argument("--easy", default="", help="comma-separated item ids that felt too easy")
     rp.add_argument("--date", default=None)
     rp.set_defaults(func=cmd_report)
@@ -329,15 +331,21 @@ def _mmss(seconds: float) -> str:
 def cmd_report(args) -> int:
     learner = LearnerState.load(args.learner)
     today = parse_date(args.date)
-    changed = learner.report(_split(args.failed), _split(args.easy), today, args.lesson)
+    changed = learner.report(
+        _split(args.failed), _split(args.easy), today, args.lesson, hesitated=_split(args.hesitated), recalled=_split(args.recalled)
+    )
     learner.save(args.learner)
     if changed["failed"]:
         print(f"marked as failed (back to an easier stage, due tomorrow, a second more to answer next time): {', '.join(changed['failed'])}")
+    if changed["hesitated"]:
+        print(f"marked as hesitated (back sooner, at half the interval): {', '.join(changed['hesitated'])}")
+    if changed["recalled"]:
+        print(f"confirmed as recalled: {', '.join(changed['recalled'])}")
     if changed["easy"]:
         print(f"marked as easy (longer interval): {', '.join(changed['easy'])}")
     if changed["unknown"]:
         print(f"warning: not in learner state: {', '.join(changed['unknown'])}", file=sys.stderr)
-    if not (changed["failed"] or changed["easy"]):
+    if not (changed["failed"] or changed["hesitated"] or changed["recalled"] or changed["easy"]):
         print(f"lesson {changed['lesson']} recorded as all good (pass --failed/--easy item ids from the lesson's .plan.json otherwise)")
     return 0
 

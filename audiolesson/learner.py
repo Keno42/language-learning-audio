@@ -6,9 +6,11 @@ and failures, and when it is next due.
 
 Because the lesson is audio-only we cannot observe whether a recall succeeded.
 The default assumption is *presumed success*: every scheduled retrieval counts
-as a success when the lesson is generated. After listening, the learner can
-correct that with ``audiolesson report --failed …`` which demotes the item and
-brings it back sooner.
+as a success when the lesson is generated (``successes``, and the schedule grows).
+What the learner confirms afterwards (``audiolesson report``, e.g. from the Discord
+review) is kept apart from that (issue #119): ``recalled``, ``hesitated`` and
+``failures`` count only confirmed outcomes, and each moves the schedule its own way —
+recalled keeps it, hesitated brings the item back sooner, failed demotes it to tomorrow.
 """
 
 from __future__ import annotations
@@ -33,9 +35,12 @@ class ItemState:
     due: str = ""  # ISO date
     last_practiced: str = ""  # ISO date
     introduced_lesson: int = 0
-    successes: int = 0
+    successes: int = 0  # retrievals counted as success, presumed at generation unless reported otherwise
     durable_successes: int = 0  # successes on/after their due date only — see is_learned
-    failures: int = 0
+    failures: int = 0  # confirmed: reported as not recalled
+    recalled: int = 0  # confirmed: reported as recalled (issue #119)
+    hesitated: int = 0  # confirmed: reported as recalled with hesitation
+    last_outcome: str = ""  # the latest confirmed outcome: recalled | hesitated | not_recalled
     exposures: int = 0
     # set by a reported failure: the next lesson that recalls the item gives it a little
     # more time to answer (Timing.failure_think_time), then clears it (issue #104)
@@ -243,21 +248,48 @@ class LearnerState:
         st.ease = min(3.0, st.ease + 0.05)
         st.due = (today + timedelta(days=int(st.interval_days))).isoformat()
 
-    def report(self, failed: list[str], easy: list[str], today: date, lesson_number: int | None = None) -> dict:
+    def report(
+        self,
+        failed: list[str],
+        easy: list[str],
+        today: date,
+        lesson_number: int | None = None,
+        hesitated: list[str] | None = None,
+        recalled: list[str] | None = None,
+    ) -> dict:
         """Learner feedback after listening. Returns a summary of what changed.
 
         Without ``lesson_number`` the feedback refers to the latest lesson. Calling it with
-        no failed/easy items is meaningful too: it records "I listened, everything came out".
+        no items is meaningful too: it records "I listened, everything came out".
+
+        Confirmed outcomes (issue #119), applied to a schedule that presumed success:
+        ``recalled`` keeps it (and counts as confirmed), ``hesitated`` brings the item back
+        at half the interval, ``failed`` demotes it and brings it back tomorrow. An item in
+        more than one list (two questions sharing it) takes the weakest outcome.
         """
         if lesson_number is None:
             lesson_number = self.lessons_completed
         if lesson_number and lesson_number not in self.reported:
             self.reported.append(lesson_number)
-        changed = {"failed": [], "easy": [], "unknown": [], "lesson": lesson_number}
-        for item_id in failed:
+        failed = list(dict.fromkeys(failed))
+        hesitated = [i for i in dict.fromkeys(hesitated or []) if i not in failed]
+        recalled = [i for i in dict.fromkeys(recalled or []) if i not in failed and i not in hesitated]
+        changed: dict = {"failed": [], "hesitated": [], "recalled": [], "easy": [], "unknown": [], "lesson": lesson_number}
+
+        def state(item_id: str) -> ItemState | None:
             st = self.items.get(item_id)
-            if not st:
+            if st is None:
                 changed["unknown"].append(item_id)
+            return st
+
+        def note_outcome(st: ItemState, outcome: str) -> None:
+            st.last_outcome = outcome
+            if lesson_number is not None and st.history and st.history[-1].get("lesson") == lesson_number:
+                st.history[-1]["ok"] = outcome != "not_recalled"
+                st.history[-1]["outcome"] = outcome
+
+        for item_id in failed:
+            if (st := state(item_id)) is None:
                 continue
             st.failures += 1
             st.successes = max(0, st.successes - 1)
@@ -268,13 +300,27 @@ class LearnerState:
             # demote one stage; the ladder is recomputed by the planner, so just mark it
             st.stage = "cloze" if st.stage not in ("intro", "cloze") else "intro"
             st.extra_think_time = True
-            if lesson_number is not None and st.history and st.history[-1].get("lesson") == lesson_number:
-                st.history[-1]["ok"] = False
+            note_outcome(st, "not_recalled")
             changed["failed"].append(item_id)
+        for item_id in hesitated:
+            if (st := state(item_id)) is None:
+                continue
+            # it came out, so no demotion; but sooner than a clean recall would come back
+            st.hesitated += 1
+            st.ease = max(1.3, st.ease - 0.1)
+            st.interval_days = max(1.0, round(st.interval_days / 2, 1))
+            sooner = (today + timedelta(days=int(st.interval_days))).isoformat()
+            st.due = min(st.due, sooner) if st.due else sooner
+            note_outcome(st, "hesitated")
+            changed["hesitated"].append(item_id)
+        for item_id in recalled:
+            if (st := state(item_id)) is None:
+                continue
+            st.recalled += 1  # the presumed success stands: the schedule already grew
+            note_outcome(st, "recalled")
+            changed["recalled"].append(item_id)
         for item_id in easy:
-            st = self.items.get(item_id)
-            if not st:
-                changed["unknown"].append(item_id)
+            if (st := state(item_id)) is None:
                 continue
             st.ease = min(3.0, st.ease + 0.15)
             st.interval_days = min(MAX_INTERVAL_DAYS, max(st.interval_days, 1) * 1.5)

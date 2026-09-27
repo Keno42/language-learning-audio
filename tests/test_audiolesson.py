@@ -3767,6 +3767,60 @@ class CourseTests(unittest.TestCase):
         nxt = build(learner, today=TODAY + timedelta(days=4))
         self.assertIn(item, nxt.meta["reviewed_items"])
 
+    def test_confirmed_outcomes_schedule_the_next_lesson_differently(self):
+        """Issue #119: the same item history, reported as recalled, hesitated or not recalled,
+        gives three different schedules — and an unreported item keeps the presumed-success
+        schedule without counting as confirmed."""
+        outcomes = {}
+        for outcome in ("recalled", "hesitated", "failed", None):
+            learner, scripts = course(6)
+            # an item the last lesson practised, on a schedule that grew
+            item = next(i for i in scripts[-1].meta["exposures"] if learner.items[i].interval_days > 5)
+            st = learner.items[item]
+            self.assertGreater(st.interval_days, 1, "a schedule that grew, to tell the outcomes apart")
+            day = TODAY + timedelta(days=11)  # the day after the last lesson (course(): every 2 days)
+            lists = {"failed": [], "hesitated": [], "recalled": []}
+            if outcome:
+                lists[outcome] = [item]
+            learner.report(lists["failed"], [], day, 6, hesitated=lists["hesitated"], recalled=lists["recalled"])
+            outcomes[outcome] = (st.due, st.interval_days, st.recalled, st.hesitated, st.failures, st.last_outcome)
+        recalled, hesitated, failed, unreported = (outcomes[k] for k in ("recalled", "hesitated", "failed", None))
+        self.assertEqual(failed[0], (TODAY + timedelta(days=12)).isoformat(), "not recalled: tomorrow")
+        self.assertLess(failed[0], hesitated[0])
+        self.assertLess(hesitated[0], recalled[0], "hesitated: sooner than a clean recall")
+        self.assertEqual(recalled[:2], unreported[:2], "recalled keeps the presumed schedule")
+        self.assertEqual([o[2:] for o in (recalled, hesitated, failed)], [(1, 0, 0, "recalled"), (0, 1, 0, "hesitated"), (0, 0, 1, "not_recalled")])
+        self.assertEqual(unreported[2:], (0, 0, 0, ""), "no feedback: nothing confirmed")
+
+    def test_appearances_without_feedback_confirm_nothing(self):
+        learner, _ = course(8)
+        practised = [st for st in learner.items.values() if st.successes >= 3]
+        self.assertTrue(practised)
+        self.assertTrue(all(st.recalled == st.hesitated == st.failures == 0 and not st.last_outcome for st in practised))
+
+    def test_an_item_in_two_reported_lists_takes_the_weaker_outcome(self):
+        learner, scripts = course(2)
+        a, b = scripts[0].meta["new_items"][:2]
+        changed = learner.report([a], [], TODAY + timedelta(days=3), 2, hesitated=[a, b], recalled=[a, b])
+        self.assertEqual((changed["failed"], changed["hesitated"], changed["recalled"]), ([a], [b], []))
+        self.assertEqual(learner.items[a].history[-1]["outcome"], "not_recalled")
+
+    def test_older_learner_files_load_without_confirmed_counts(self):
+        """Migration: a learner.json from before #119 keeps its exposures, history and reported
+        failures; the confirmed recalled/hesitated counts start at zero."""
+        learner, _ = course(2)
+        raw = learner.to_dict()
+        for st in raw["items"].values():
+            for key in ("recalled", "hesitated", "last_outcome"):
+                del st[key]
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "l.json"
+            p.write_text(json.dumps(raw), encoding="utf-8")
+            back = LearnerState.load(p)
+        for item_id, st in back.items.items():
+            self.assertEqual((st.recalled, st.hesitated, st.last_outcome), (0, 0, ""))
+            self.assertEqual((st.exposures, st.history), (learner.items[item_id].exposures, learner.items[item_id].history))
+
     def test_topics_are_preferred(self):
         sc = build(fresh(), topics=["directions"])
         cur = load_curriculum(CURRICULUM)
@@ -4593,6 +4647,10 @@ class CliTests(unittest.TestCase):
             plan = json.loads((Path(td) / "lesson-001.plan.json").read_text())
             first = plan["new_items"][0]["id"]
             self.assertEqual(main(["report", "-l", str(learner), "--failed", first, "--date", "2026-09-19"]), 0)
+            others = [i["id"] for i in plan["new_items"][1:3]]
+            self.assertEqual(main(["report", "-l", str(learner), "--lesson", "1", "--hesitated", others[0], "--recalled", others[1], "--date", "2026-09-19"]), 0)
+            items = json.loads(learner.read_text())["items"]
+            self.assertEqual((items[others[0]]["hesitated"], items[others[1]]["recalled"]), (1, 1))
             self.assertEqual(main(["status", "-l", str(learner), "-c", str(CURRICULUM)]), 0)
             rc = main(["generate", "-c", str(CURRICULUM), "-l", str(learner), "-o", td, "-m", "3", "--provider", "stub", "--date", "2026-09-20"])
             self.assertEqual(rc, 0)

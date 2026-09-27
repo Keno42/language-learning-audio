@@ -50,7 +50,7 @@ is not used):
 - `lesson-NNN.script.json` — the timed, machine-readable script (every segment, every pause)
 - `lesson-NNN.plan.json` — what was introduced/reviewed, per-item exposures, exercise index,
   and `review`: one written recall question (cue → answer) per recalled item, for a
-  later review outside the audio (a bot, a page) that ends in `report --failed`
+  later review outside the audio (a bot, a page) that ends in `report --recalled/--hesitated/--failed`
 - `lesson-NNN.transcript.md` — readable transcript (supplementary)
 - `lesson-NNN.wav` / `.mp3` and `lesson-NNN.cues.json` (timestamps per exercise)
 - `learner.json` — the persistent learner state, and (with `--user`) `settings.json`
@@ -180,8 +180,11 @@ padding. From roughly lesson 5 on, the length is exact.
 3. **Closing.** The lesson ends by retrieving today's new items once more,
    hardest first so the last thing you do is succeed.
 4. **Learner update.** Every retrieval counts as a presumed success (audio
-   cannot hear you). Intervals grow 1 → 3 → ×ease days. `report --failed`
-   demotes an item and brings it back tomorrow.
+   cannot hear you). Intervals grow 1 → 3 → ×ease days. What you confirm
+   afterwards is stored apart from that (`recalled`, `hesitated`, `failures` per
+   item) and moves the schedule: `report --recalled` keeps it, `--hesitated`
+   brings the item back at half the interval, `--failed` demotes it and brings
+   it back tomorrow. An unreported item keeps the presumed schedule.
 
 The retrieval ladder per item kind (see `audiolesson/stages.py`):
 
