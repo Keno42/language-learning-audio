@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from .content import CurriculumError, dialogue_sequencing_report, load_curriculum
+from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum
 from .learner import LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -85,6 +85,8 @@ def main(argv: list[str] | None = None) -> int:
     v = sub.add_parser("validate", help="check a curriculum file or directory, and its gloss coverage per language")
     v.add_argument("curriculum")
     v.add_argument("--known", default=None, help="report what is missing for this learner language")
+    v.add_argument("--frames", action="store_true", help="list every vocab item with no frame or dialogue near its introduction")
+    v.add_argument("--frame-span", type=int, default=50, help="items between a word and its first frame before it counts as late (default 50)")
     v.set_defaults(func=cmd_validate)
 
     vo = sub.add_parser("voices", help="list default voices a provider offers for a language")
@@ -403,6 +405,20 @@ def cmd_validate(args) -> int:
         )
         if repeats:
             print(f"  words repeating across dialogues (candidates to introduce earlier, as reusable items): {', '.join(repeats[:10])}")
+    frames = frame_gap_report(cur, args.frame_span)
+    if frames["late"] or frames["none"]:
+        vocab = sum(1 for i in cur.items if i.kind == "vocab")
+        print(
+            f"advisory (not a failure): of {vocab} vocab items, {len(frames['none'])} are never used in a frame "
+            f"or dialogue, and {len(frames['late'])} wait more than {args.frame_span} items for their first one "
+            f"— drilled as bare words until then (#80)."
+            + ("" if args.frames else " --frames lists them.")
+        )
+        if args.frames:
+            for f in frames["late"]:
+                print(f"  late  #{f['order']:<4} {f['item']}: first {f['context']} (#{f['context_order']}, {f['gap']} items later)")
+            for f in frames["none"]:
+                print(f"  none  #{f['order']:<4} {f['item']}")
     return 0
 
 

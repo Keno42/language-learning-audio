@@ -600,3 +600,47 @@ def dialogue_sequencing_report(cur: Curriculum, gap_threshold: int = 100) -> lis
                 findings.append({"dialogue": d.id, "word": w, "item": item_id, "item_order": order, "dialogue_base": base, "gap": gap})
     findings.sort(key=lambda f: -f["gap"])
     return findings
+
+
+def frame_gap_report(cur: Curriculum, span: int = 50) -> dict[str, list[dict]]:
+    """Vocab items the learner is asked to produce long before anything uses them (#80).
+
+    A vocab item's ladder only climbs past ``meaning`` in a *context*: a construction with a
+    slot that takes one of its tags (recombine), or a dialogue that requires it. Its first
+    context is the earliest such construction, or the earliest point a requiring dialogue
+    becomes playable (its latest required item). Returns ``{"late": [...], "none": [...]}``:
+    items whose first context comes more than ``span`` items after them, worst first, and
+    items with no context at all, in curriculum order. Each entry: ``{"item", "order",
+    "context", "context_order", "gap"}`` (context fields ``None`` for "none").
+
+    A diagnostic for authors, never an eligibility gate: hearing a word in a partner line
+    before producing it is fine; repeated bare production with no use is what it flags.
+    """
+    frames: dict[str, tuple[int, str]] = {}  # tag -> earliest construction taking it
+    for c in cur.items:
+        if c.kind == "construction":
+            for tag in c.slots.values():
+                if tag not in frames or c.order < frames[tag][0]:
+                    frames[tag] = (c.order, c.id)
+    dialogue_at: dict[str, tuple[int, str]] = {}  # item -> earliest dialogue requiring it
+    for d in cur.dialogues:
+        req = [cur.by_id[i].order for i in d.required_items if i in cur.by_id]
+        base = max(req, default=0)
+        for i in d.required_items:
+            if i not in dialogue_at or base < dialogue_at[i][0]:
+                dialogue_at[i] = (base, f"dialogue {d.id}")
+    late, none = [], []
+    for it in cur.items:
+        if it.kind != "vocab":
+            continue
+        options = [frames[t] for t in it.tags if t in frames] + ([dialogue_at[it.id]] if it.id in dialogue_at else [])
+        if not options:
+            none.append({"item": it.id, "order": it.order, "context": None, "context_order": None, "gap": None})
+            continue
+        order, context = min(options)
+        gap = max(0, order - it.order)
+        if gap > span:
+            late.append({"item": it.id, "order": it.order, "context": context, "context_order": order, "gap": gap})
+    late.sort(key=lambda f: (-f["gap"], f["order"]))
+    none.sort(key=lambda f: f["order"])
+    return {"late": late, "none": none}
