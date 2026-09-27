@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import json
 import os
+import random
 import re
 import tempfile
 import unittest
@@ -3428,8 +3429,107 @@ class SpeakerGenderTests(unittest.TestCase):
         self.assertEqual(q["answer"], "Ég er sein.")
 
     def test_notes_no_longer_hide_the_mans_form(self):
+        """#112/#113: a man's form lives in data (target_m), never only in a note."""
         for it in load_curriculum(ROOT / "curricula" / "is-en").items:
-            self.assertNotIn("masculine: Ég", it.pronunciation_notes or "", f"{it.id}: move the man's form to target_m")
+            self.assertNotIn("masculine: ", it.pronunciation_notes or "", f"{it.id}: move the man's form to target_m")
+
+    # ---- #113: constructions, transforms and dialogue lines ------------------
+
+    def state_builder(self):
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        for f in cur.items_with_tag("state_f") + [cur.by_id["eg_er_state"]]:
+            learner.items[f.id] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="meaning")
+        return cur, Builder(cur, Prompts.load("en"), Timing(level="A1"), learner, random.Random(3))
+
+    def test_a_filled_construction_alternates_forms_when_its_fill_has_a_mans_form(self):
+        cur, b = self.state_builder()
+        mans = {f.target: f.target_m for f in cur.items_with_tag("state_f") if f.target_m}
+        sc = Script(1, "t", "is", "en")
+        for _ in range(12):
+            b.recall(sc, cur.by_id["eg_er_state"], "meaning")
+        seen = set()
+        for ex in sc.exercises:
+            narr = next(s.text for s in sc.segments if s.exercise == ex.index and s.type == "narrate")
+            ans = next(s for s in sc.segments if s.exercise == ex.index and s.type == "answer")
+            word = ans.text.rstrip(".").split()[-1]
+            if word == "einmana":
+                self.assertFalse(narr.startswith("As a"), "a fill with one form for both is not announced")
+                continue
+            gender = "m" if narr.startswith("As a man:") else "f" if narr.startswith("As a woman:") else None
+            self.assertIsNotNone(gender, narr)
+            self.assertEqual(ans.speaker, {"f": "native_a", "m": "native_b"}[gender])
+            self.assertIn(word, mans.values() if gender == "m" else mans.keys(), (narr, ans.text))
+            seen.add(gender)
+        self.assertEqual(seen, {"f", "m"}, "both forms get practised")
+
+    def test_resolve_slots_takes_the_fills_mans_form(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        c, glod, einmana = cur.by_id["eg_er_state"], cur.by_id["glod"], cur.by_id["einmana"]
+        self.assertEqual(cur.resolve_slots(c, {"state": glod})[0], "Ég er glöð.")
+        self.assertEqual(cur.resolve_slots(c, {"state": glod}, "m")[0], "Ég er glaður.")
+        self.assertEqual(cur.resolve_slots(c, {"state": einmana}, "m")[0], "Ég er einmana.")
+
+    def test_a_fill_without_a_mans_form_is_not_announced(self):
+        from audiolesson.exercises import Builder
+
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": "lonely", "kind": "vocab", "target": "einmana", "meaning": "lonely", "tags": ["st"]},
+                         {"id": "c", "kind": "construction", "target": "Ég er {s}.", "meaning": "I'm {s}.",
+                          "slots": {"s": "st"}, "example": {"s": "lonely"}}]}
+        cur = curriculum_from_dict(raw)
+        learner = fresh()
+        learner.items["lonely"] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="meaning")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
+        sc = Script(1, "t", "is", "en")
+        b.recall(sc, cur.by_id["c"], "meaning")
+        self.assertFalse(any(s.text.startswith("As a") for s in sc.segments if s.type == "narrate"))
+
+    def test_transform_examples_use_the_mans_form(self):
+        cur, b = self.state_builder()
+        past = cur.by_id["transform_past"]
+        exm = next(e for e in past.examples if e.result_m)
+        sc = Script(1, "t", "is", "en")
+        for _ in range(2):
+            b._transform_prompt(sc, sc.new_exercise("recall", "meaning", [past.id]), past, exm)
+        turns = [(s.type, s.speaker, s.text) for s in sc.segments if s.type != "pause"]
+        self.assertIn(("narrate", "instructor", "As a man: " + past.instruction), turns)
+        self.assertIn(("speak", "native_b", "Ég er þreyttur."), turns)
+        self.assertIn(("answer", "native_b", "Ég var þreyttur í gær."), turns)
+        self.assertIn(("answer", "native_a", "Ég var þreytt í gær."), turns)
+        # only the source changes: «Hún er glöð.» is about her, so no announcement
+        hun = cur.by_id["transform_feelings_hun"]
+        exm = hun.examples[0]
+        sc = Script(1, "t", "is", "en")
+        for _ in range(2):
+            b._transform_prompt(sc, sc.new_exercise("recall", "meaning", [hun.id]), hun, exm)
+        turns = [(s.type, s.speaker, s.text) for s in sc.segments if s.type != "pause"]
+        self.assertIn(("speak", "native_b", "Ég er glaður."), turns)
+        self.assertEqual({t for t in turns if t[0] == "answer"}, {("answer", "native_a", "Hún er glöð.")})
+        self.assertFalse(any(t[2].startswith("As a") for t in turns if t[0] == "narrate"))
+
+    def test_a_dialogue_line_takes_the_mans_form_opposite_a_woman(self):
+        cur, b = self.builder()
+        dlg = next(d for d in cur.dialogues if any(t.expect_text_m for t in d.turns))
+        self.assertEqual(dlg.partner_speaker, "native_a")
+        sc = Script(1, "t", "is", "en")
+        b.dialogue(sc, dlg)
+        turns = [(s.type, s.speaker, s.text) for s in sc.segments if s.type != "pause"]
+        self.assertIn(("answer", "native_b", "Afsakið, ég er týndur."), turns)
+        self.assertIn(("narrate", "instructor", "As a man: Excuse yourself and say you're lost."), turns)
+
+    def test_review_questions_carry_the_announcement_for_a_gendered_construction(self):
+        cur, b = self.state_builder()
+        sc = Script(1, "t", "is", "en")
+        for _ in range(6):
+            b.recall(sc, cur.by_id["eg_er_state"], "meaning")
+        questions = sc.review_questions()
+        gendered = [q for q in questions if not q["answer"].endswith("einmana.")]
+        self.assertTrue(gendered)
+        for q in gendered:
+            self.assertTrue(q["prompt"].startswith(("As a woman: ", "As a man: ")), q)
 
 
 class RecombineNoveltyTests(unittest.TestCase):

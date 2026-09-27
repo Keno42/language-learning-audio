@@ -642,6 +642,7 @@ requires = ["afsakid", "eg_er_tynd", "eg_er_ad_leita_ad", "hotelinu", "geturdu_s
   cue = "Excuse yourself and say you're lost."
   cue_ja = "すみませんと言って、道に迷ったと伝えてください。"
   expect_text = "Afsakið, ég er týnd."
+  expect_text_m = "Afsakið, ég er týndur."
   expect_meaning = "Excuse me, I'm lost."
   expect_meaning_ja = "すみません、道に迷いました。"
   partner = "Ekkert mál. Hvert ertu að fara?"

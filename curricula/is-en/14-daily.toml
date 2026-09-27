@@ -328,7 +328,7 @@ examples = [
   { source = "Ég bý í Reykjavík.", source_meaning = "I live in Reykjavík.", source_meaning_ja = "レイキャビクに住んでいます。", result = "Þú býrð í Reykjavík.", result_meaning = "You live in Reykjavík.", result_meaning_ja = "あなたはレイキャビクに住んでいます。" },
   { source = "Ég vinn.", source_meaning = "I work.", source_meaning_ja = "働きます。", result = "Þú vinnur.", result_meaning = "You work.", result_meaning_ja = "あなたは働きます。" },
   { source = "Ég fer á morgun.", source_meaning = "I'm leaving tomorrow.", source_meaning_ja = "明日出発します。", result = "Þú ferð á morgun.", result_meaning = "You're leaving tomorrow.", result_meaning_ja = "あなたは明日出発します。" },
-  { source = "Ég er þreytt.", source_meaning = "I'm tired.", source_meaning_ja = "疲れました。", result = "Þú ert þreytt.", result_meaning = "You're tired.", result_meaning_ja = "あなたは疲れています。" },
+  { source = "Ég er þreytt.", source_m = "Ég er þreyttur.", source_meaning = "I'm tired.", source_meaning_ja = "疲れました。", result = "Þú ert þreytt.", result_meaning = "You're tired.", result_meaning_ja = "あなたは疲れています。" },
   { source = "Ég skil.", source_meaning = "I understand.", source_meaning_ja = "わかります。", result = "Þú skilur.", result_meaning = "You understand.", result_meaning_ja = "あなたはわかっています。" },
   { source = "Ég vil kaffi.", source_meaning = "I want coffee.", source_meaning_ja = "コーヒーが欲しいです。", result = "Þú vilt kaffi.", result_meaning = "You want coffee.", result_meaning_ja = "あなたはコーヒーが欲しいです。" },
 ]

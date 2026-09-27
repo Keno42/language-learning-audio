@@ -56,6 +56,10 @@ class TransformExample:
     source_meaning: str
     result: str
     result_meaning: str
+    # the man's forms when the words follow the speaker's gender («Ég er þreyttur.»); a
+    # side whose words don't change (the listener, "she") stays empty
+    source_m: str = ""
+    result_m: str = ""
 
 
 @dataclass
@@ -163,6 +167,7 @@ class DialogueTurn:
     expect: str | None = None  # item id the learner should produce
     expect_text: str | None = None  # or a literal target-language line
     expect_meaning: str | None = None
+    expect_text_m: str | None = None  # the man's form of ``expect_text`` when the words follow the speaker's gender
     partner: str | None = None  # what the other speaker says after the learner
     partner_meaning: str | None = None
     opener: str | None = None  # partner line spoken *before* the learner's turn
@@ -239,16 +244,19 @@ class Curriculum:
     def items_with_tag(self, tag: str) -> list[Item]:
         return [i for i in self.items if tag in i.tags]
 
-    def resolve_slots(self, construction: Item, fills: dict[str, Item]) -> tuple[str, str]:
+    def resolve_slots(self, construction: Item, fills: dict[str, Item], speaker: str | None = None) -> tuple[str, str]:
         """Return (target, meaning) with every slot filled from ``fills``; agreement
-        placeholders resolve first, from the gender of their ``from`` slot's fill."""
+        placeholders resolve first, from the gender of their ``from`` slot's fill.
+        ``speaker="m"`` fills with each fill's man's form (``target_m``) where it has one:
+        «Ég er {state}.» → «Ég er glaður.»"""
         target = construction.target
         meaning = construction.meaning
         for slot, rule in construction.agreement.items():
             gender = fills[rule["from"]].gender
             target = target.replace("{" + slot + "}", rule[gender])
         for slot, item in fills.items():
-            target = target.replace("{" + slot + "}", item.target.rstrip("."))
+            spoken = item.target_m if speaker == "m" and item.target_m else item.target
+            target = target.replace("{" + slot + "}", spoken.rstrip("."))
             meaning = meaning.replace("{" + slot + "}", item.meaning_forms.get("in_sentence", item.meaning).rstrip("."))
             meaning = _FORM_SLOT_RE.sub(
                 lambda m: item.meaning_forms.get(m.group(2), item.meaning).rstrip(".") if m.group(1) == slot else m.group(0), meaning
@@ -441,6 +449,9 @@ def validate(cur: Curriculum) -> None:
     for d in cur.dialogues:
         if d.id in {x.id for x in cur.dialogues if x is not d}:
             raise CurriculumError(f"duplicate dialogue id {d.id!r}")
+        for t in d.turns:
+            if t.expect_text_m and (not t.expect_text or t.expect_text_m == t.expect_text):
+                raise CurriculumError(f"dialogue {d.id!r}: expect_text_m is the man's form of expect_text and must differ from it")
         if d.partner_speaker not in SPEAKERS:
             raise CurriculumError(f"dialogue {d.id!r}: partner_speaker must be one of {SPEAKERS}, not {d.partner_speaker!r}")
     seen_notes: set[str] = set()
@@ -463,6 +474,9 @@ def validate(cur: Curriculum) -> None:
             raise CurriculumError(f"item {it.id!r}: partner_cue and partner_cue_after must be set together, or not at all")
         if it.target_m and (it.kind == "construction" or it.target_m == it.target):
             raise CurriculumError(f"item {it.id!r}: target_m is the man's form of a non-construction target and must differ from it")
+        for e in it.examples:
+            if (e.source_m and e.source_m == e.source) or (e.result_m and e.result_m == e.result):
+                raise CurriculumError(f"item {it.id!r}: a transform example's man's form must differ from its own ({e.source!r})")
         if it.partner_cue_speaker not in SPEAKERS:
             raise CurriculumError(f"item {it.id!r}: partner_cue_speaker must be one of {SPEAKERS}, not {it.partner_cue_speaker!r}")
         if it.partner_cue_after and it.partner_cue_after not in ids:
