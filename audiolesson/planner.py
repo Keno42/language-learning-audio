@@ -10,10 +10,11 @@ Principles it enforces (see README "How a lesson is built"):
 from __future__ import annotations
 
 import heapq
+import math
 import random
 from collections import deque
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 
 from .content import Curriculum, Dialogue, Item
 from .exercises import Builder
@@ -48,6 +49,15 @@ class PlanConfig:
     note_lookahead: int = 100  # filler may use an unheard note about an item this close ahead of what's met
     # when material runs out, review what was reviewed once more (harder); 1 ends the lesson short
     max_review_passes: int = 2
+    # Reviews are the items that are due, plus those due within this many days. The rest wait
+    # for their date: spending spare time on them made the same well-known phrases come back
+    # every lesson whatever their interval (issue #94). Spare time goes to new material first.
+    review_ahead_days: int = 0
+    # arcs of new items a lesson may hold while reviews remain; more only once every review
+    # filler is used up. The first arc takes new_items, a later one this share of it (rounded
+    # up), keeping a lesson near the pace: 30 min, pace 6 → 6 + 3
+    max_arcs: int = 2
+    extra_arc_share: float = 0.5
     closing_share: float = 0.12  # fraction of time reserved for the final review block
     max_new_items: int | None = None  # hard cap even when there is nothing to review (default: scales with minutes)
     min_time_for_new_item: float = 180.0  # seconds of budget needed to still introduce one
@@ -61,6 +71,9 @@ class PlanConfig:
         if self.max_new_items is not None:
             return self.max_new_items
         return self.resolved_new_items() + 2
+
+    def resolved_extra_arc_items(self) -> int:
+        return math.ceil(self.resolved_new_items() * self.extra_arc_share)
 
     def resolved_new_items(self) -> int:
         if self.new_items is not None:
@@ -229,8 +242,39 @@ class Planner:
         return chosen
 
     def select_reviews(self) -> list[Item]:
+        """The review queue: items due, or due within ``review_ahead_days``, most urgent first.
+        Not-due items further off are left for ``select_early_reviews``, the last filler."""
         met = [self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id]
-        scored = [(self.learner.review_priority(i.id, self.today), i) for i in met]
+        horizon = self.today + timedelta(days=self.cfg.review_ahead_days)
+        met = [i for i in met if not self.learner.items[i.id].due or date.fromisoformat(self.learner.items[i.id].due) <= horizon]
+        return self._by_urgency(met)
+
+    def select_early_reviews(self, exclude: set[str], rested_only: bool = True) -> list[Item]:
+        """Not-due items for a lesson that has run out of everything else (due reviews, new
+        material, the second pass), the longest ago practised first, so none comes back lesson
+        after lesson (#94). ``rested_only``: only those last practised at least half their
+        interval ago."""
+        out = [
+            (self.learner.items[i.id].last_practiced, i.order, i)
+            for i in self.cur.items
+            if i.id in self.learner.items and i.id not in exclude and (not rested_only or self._rested(i.id))
+        ]
+        return [i for *_, i in sorted(out, key=lambda t: t[:2])]
+
+    def _rested(self, item_id: str) -> bool:
+        """Last practised at least half its interval ago (and not today)."""
+        st = self.learner.items[item_id]
+        if not st.last_practiced:
+            return True
+        since = (self.today - date.fromisoformat(st.last_practiced)).days
+        return since >= max(1.0, st.interval_days / 2)
+
+    def _may_review(self, item_id: str) -> bool:
+        """Due, or rested enough to be practised early."""
+        return self.learner.review_priority(item_id, self.today) >= 1.0 or self._rested(item_id)
+
+    def _by_urgency(self, items: list[Item]) -> list[Item]:
+        scored = [(self.learner.review_priority(i.id, self.today), i) for i in items]
         scored.sort(key=lambda t: (-t[0], t[1].order))
         if self.cfg.topics:
             on_topic = [i for _, i in scored if set(i.topics) & set(self.cfg.topics)]
@@ -238,6 +282,13 @@ class Planner:
             # keep urgency first, but let topic pull ties forward
             return sorted(on_topic + off, key=lambda i: -self.learner.review_priority(i.id, self.today) - (0.4 if i in on_topic else 0))
         return [i for _, i in scored]
+
+    def _may_start_arc(self, arcs: int, early_tier: int) -> bool:
+        """Whether a fresh arc may start, with ``arcs`` already in the lesson: up to
+        ``max_arcs`` while other work remains; once every review filler (the early reviews and
+        the second pass) is used up, no limit, so a lesson with nothing else left fills its
+        time with something new rather than ending far short (#34, #94)."""
+        return early_tier >= 2 or arcs < self.cfg.max_arcs
 
     def review_stage(self, item: Item) -> str:
         st = self.learner.items[item.id]
@@ -444,6 +495,8 @@ class Planner:
         need_for_new = min(cfg.min_time_for_new_item, budget * 0.6)  # short lessons still get something new
         reviews_used: list[str] = []
         passes = 1
+        early_ids: set[str] = set()  # not-due items taken as fillers (select_early_reviews)
+        early_tier = 0  # 1: rested items taken, 2: any item taken (see select_early_reviews)
         streak_relief_notes_used = 0
         # An arc is the batch of items one ``select_new()`` call picked: the initial one, or a
         # fresh arc started in step 5. Each arc gets one connect() attempt of its own (step
@@ -455,6 +508,11 @@ class Planner:
         # connect() history: pairs are never replayed, and item reuse is spread out
         connect_pairs_used: set[frozenset[str]] = set()
         connect_item_uses: dict[str, int] = {}
+
+        def load_early(rested_only: bool) -> list[Item]:
+            items = self.select_early_reviews(exclude=set(self.exposures), rested_only=rested_only)
+            early_ids.update(i.id for i in items)
+            return items
 
         def touch(item: Item) -> None:
             recent.append(item.id)
@@ -596,6 +654,11 @@ class Planner:
                 candidates = _connect_pair(list(preferred), just_touched)
             if candidates is None:
                 anchor = scope if prefer is not None else None
+                if anchor is None:
+                    # nothing ties the pair to today's material: only items in play today (due,
+                    # or practised this lesson) or rested long enough to review early, or the
+                    # same well-known exchange opens lesson after lesson whatever its interval (#94)
+                    rest = [it for it in rest if it.id in self.exposures or self._may_review(it.id)]
                 candidates = _connect_pair(list(preferred) + rest, just_touched, anchor)
                 if candidates is None:
                     return False
@@ -696,7 +759,8 @@ class Planner:
                     pick = next((c for c in reviews if c.id not in recent), None)
                 if pick is not None:
                     reviews.remove(pick)
-                    stage = self.review_stage(pick) if passes == 1 else self._harder_than_today(pick)
+                    first_touch = passes == 1 or pick.id in early_ids
+                    stage = self.review_stage(pick) if first_touch else self._harder_than_today(pick)
                     do_recall(pick, stage)
                     if pick.id not in reviews_used:
                         reviews_used.append(pick.id)
@@ -718,13 +782,20 @@ class Planner:
                     # recall the earlier of the two instead, only the very last item is off limits
                     candidate = next((p for p in sorted(pending) if p.item.id != recent[-1]), None)
                 can_intro = idx - last_intro >= 1 and len(introduced) < cfg.resolved_max_new_items()
+                # a later arc was admitted whole (_may_start_arc): its queued items may fill a gap too,
+                # though not as a third introduction in a row
+                can_drain = can_intro or (
+                    current_arc_id > 0 and idx - last_intro >= 1 and [e.kind for e in sc.exercises[-2:]] != ["intro", "intro"]
+                )
                 if candidate is not None:
                     pending.remove(candidate)
                     heapq.heapify(pending)
                     do_recall(candidate.item, candidate.stage)
-                elif new_queue and can_intro and remaining >= need_for_new * 0.6:
+                elif new_queue and can_drain and remaining >= need_for_new * 0.6:
                     do_intro(new_queue.popleft())
-                elif can_intro and remaining >= need_for_new and (more := self.select_new(1, exclude={i.id for i in introduced})):
+                elif can_intro and not reviews_used and remaining >= need_for_new and (more := self.select_new(1, exclude={i.id for i in introduced})):
+                    # an extra item for a lesson with nothing to review (the first ones); a lesson
+                    # that ran out of reviews takes a fresh arc below instead
                     do_intro(more[0])
                     # a filler can come back with the construction it made teachable
                     new_queue.extend(more[1:])
@@ -733,27 +804,44 @@ class Planner:
                     do_recall(p.item, p.stage)
                 elif self._note_budget_left() and remaining >= 40 and self._pick_note(None) is not None:
                     self._play_note(sc, self._pick_note(None))  # nothing to practise now: an aside
-                elif reviews_used and not new_queue and remaining >= need_for_new and (
-                    more := self.select_new(cfg.resolved_new_items(), exclude={i.id for i in introduced})
+                elif (
+                    reviews_used
+                    and not new_queue
+                    and remaining >= need_for_new
+                    and self._may_start_arc(current_arc_id + 1, early_tier)
+                    and (more := self.select_new(cfg.resolved_extra_arc_items(), exclude={i.id for i in introduced}))
                 ):
                     # A fresh arc of new material rather than a second review pass: the new-item
-                    # cap bounds an arc, not the lesson. Only once the review pool ran dry (a
-                    # first lesson still ends short on purpose) and the previous arc is fully
-                    # introduced (a queued prereq would look ready to select_new). Consumes an
-                    # idx tick like every other branch.
+                    # cap bounds an arc, not the lesson (see _may_start_arc). Only once the review
+                    # pool ran dry (a first lesson still ends short on purpose) and the previous
+                    # arc is fully introduced (a queued prereq would look ready to select_new).
+                    # Consumes an idx tick like every other branch.
                     current_arc_id += 1
                     arc_target[current_arc_id] = len(more)
                     new_queue.extend(more[1:])
                     do_intro(more[0])
+                    # the review fillers (rested items, then the second pass) space out the
+                    # arc's introductions and reactivations, or they would come back to back
+                    if early_tier == 0:
+                        early_tier = 1
+                        reviews.extend(load_early(rested_only=True))
+                    if passes < cfg.max_review_passes:
+                        passes += 1
+                        reviews.extend(self._second_pass(reviews_used, recent))
                     # the closing block recalls every introduced item: reserve for the new ones too
                     closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
-                elif passes < cfg.max_review_passes and reviews_used:
+                elif passes < cfg.max_review_passes and reviews_used and early_tier >= 1:
                     # material ran out before the time did: a second pass over what was reviewed,
                     # most urgent first, each one step harder than earlier in this lesson
                     passes += 1
                     reviews = deque(self._second_pass(reviews_used, recent))
-                    if not reviews:
-                        break
+                    continue
+                elif reviews_used and (early_tier == 0 or (early_tier == 1 and passes >= cfg.max_review_passes)):
+                    # still time left: not-due items, the stalest first. First those rested half
+                    # their interval (before the second pass); last, once the second pass is used
+                    # up too, any item not practised today. After that, arcs are unlimited.
+                    early_tier += 1
+                    reviews = deque(load_early(rested_only=early_tier == 1))
                     continue
                 else:
                     break  # only immediate repeats are left: end the lesson a little short
@@ -799,8 +887,9 @@ class Planner:
             "curriculum": self.cur.name,
             "new_items": [i.id for i in introduced],
             "reviewed_items": reviews_used,
+            "reviewed_early": [i for i in reviews_used if i in early_ids],
             "due_at_start": self.learner.due_count(self.today),
-            "due_not_fitted": [i.id for i in reviews if self.learner.review_priority(i.id, self.today) >= 1.0],
+            "due_not_fitted": [i.id for i in reviews if i.id not in self.exposures and self.learner.review_priority(i.id, self.today) >= 1.0],
             "dialogues": list(self.dialogues_played),
             "notes": list(self.notes_played),
             "exposures": self.exposures,

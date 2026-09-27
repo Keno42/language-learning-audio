@@ -558,7 +558,8 @@ class CurriculumTests(unittest.TestCase):
             learner,
             Prompts.load("en"),
             Timing(level="A1"),
-            PlanConfig(minutes=30, seed=1, new_items=2, max_new_items=2, dialogue_every=1000, drill_streak_limit=1000, note_chance=0.0),
+            # extra_arc_share=1: the second arc takes two items too, so each arc can pair with itself
+            PlanConfig(minutes=30, seed=1, new_items=2, max_new_items=2, extra_arc_share=1.0, dialogue_every=1000, drill_streak_limit=1000, note_chance=0.0),
             today=TODAY,
         )
         sc = planner.build()
@@ -3715,6 +3716,116 @@ class CourseTests(unittest.TestCase):
             learner.save(p)
             back = LearnerState.load(p)
             self.assertEqual(back.to_dict(), learner.to_dict())
+
+
+class PrematureReviewTests(unittest.TestCase):
+    """Issue #94: spare time used to go to items that were not due, least premature first, so
+    the same well-known phrases came back in every lesson whatever their interval. Not-due
+    items now wait while due reviews and new material fill the lesson."""
+
+    @staticmethod
+    def _curriculum(due: int, not_due: int, new: int):
+        return curriculum_from_dict(
+            {
+                "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                "items": [{"id": f"d{i}", "kind": "phrase", "target": f"Due {i}.", "meaning": f"Due {i}."} for i in range(due)]
+                + [{"id": f"n{i}", "kind": "phrase", "target": f"Known {i}.", "meaning": f"Known {i}."} for i in range(not_due)]
+                + [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(new)],
+            }
+        )
+
+    @staticmethod
+    def _state(due_in: int, practised_ago: int, interval: float) -> ItemState:
+        return ItemState(
+            due=(TODAY + timedelta(days=due_in)).isoformat(),
+            last_practiced=(TODAY - timedelta(days=practised_ago)).isoformat(),
+            interval_days=interval,
+            successes=4,
+            durable_successes=3,
+            stage="meaning",
+        )
+
+    def test_not_due_items_wait_while_due_reviews_and_new_material_fill_the_lesson(self):
+        cur = self._curriculum(due=12, not_due=6, new=30)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(12):
+            learner.items[f"d{i}"] = self._state(due_in=0, practised_ago=7, interval=7)
+        for i in range(6):
+            learner.items[f"n{i}"] = self._state(due_in=40, practised_ago=4, interval=44)
+        cfg = PlanConfig(minutes=10, seed=1, new_items=3, drill_streak_limit=1000, dialogue_every=1000, note_chance=0.0)
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+        first: dict[str, int] = {}
+        for e in sc.exercises:
+            for i in e.item_ids:
+                first.setdefault(i, e.index)
+        new = sc.meta["new_items"]
+        self.assertGreater(len(new), 3, "spare time went to a second batch of new items")
+        self.assertLessEqual(len(new), 3 + cfg.resolved_extra_arc_items() + 1)  # + a pulled-in filler at most
+        not_due = [first[f"n{i}"] for i in range(6) if f"n{i}" in first]
+        if not_due:
+            self.assertGreater(min(not_due), max(first[f"d{i}"] for i in range(12)), "a not-due item before a due one")
+            self.assertGreater(min(not_due), first[new[3]], "a not-due item before the second batch of new items")
+
+        # on a tighter budget the due reviews and new items fill it all: nothing waits early
+        cfg = PlanConfig(minutes=6, seed=1, new_items=3, drill_streak_limit=1000, dialogue_every=1000, note_chance=0.0)
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+        self.assertFalse({f"n{i}" for i in range(6)} & {i for e in sc.exercises for i in e.item_ids})
+        self.assertEqual(sc.meta["reviewed_early"], [])
+
+    def test_early_reviews_take_the_longest_rested_first(self):
+        """With nothing due and nothing new, the lesson fills with not-due items: first those
+        rested at least half their interval, the longest ago first; one practised yesterday
+        only after all of them."""
+        cur = self._curriculum(due=1, not_due=8, new=0)
+        learner = LearnerState("is", "en", "A1")
+        for i in range(7):
+            learner.items[f"n{i}"] = self._state(due_in=3, practised_ago=20 - i, interval=20)  # n0 the longest ago
+        learner.items["n7"] = self._state(due_in=19, practised_ago=1, interval=20)  # just practised
+        learner.items["d0"] = self._state(due_in=0, practised_ago=3, interval=3)  # one due item: a lesson to fill
+        cfg = PlanConfig(minutes=10, seed=1, new_items=0, dialogue_every=1000, note_chance=0.0)
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+        order = list(dict.fromkeys(e.item_ids[0] for e in sc.exercises if e.kind == "recall"))
+        self.assertEqual(order[0], "d0", "the due item first")
+        rested = [i for i in order if i in {f"n{k}" for k in range(7)}]
+        self.assertEqual(rested, sorted(rested, key=lambda i: int(i[1:])), "the longest rested first")
+        if "n7" in order:
+            self.assertEqual(set(rested), {f"n{k}" for k in range(7)}, "yesterday's item only after every rested one")
+            self.assertGreater(order.index("n7"), max(order.index(i) for i in rested))
+
+    def test_a_course_stops_repeating_well_known_items(self):
+        """#94's acceptance criterion on the real course: no item with an interval of a week or
+        more is drilled (recalled, or in a connect exercise) in more than half the lessons
+        within its interval. Dialogues and fills of a pattern may still use it. Lessons stay
+        on length and the new items per lesson near the pace."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        drilled: dict[str, dict[int, float]] = {}
+        n_lessons = 25
+        for _ in range(n_lessons):
+            interval = {i: st.interval_days for i, st in learner.items.items()}
+            cfg = PlanConfig(minutes=30, seed=1, new_items=6)
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=day).build()
+            for e in sc.exercises:
+                heads = e.item_ids if e.kind == "connect" else e.item_ids[:1] if e.kind in ("recall", "generative") else []
+                for i in heads:
+                    if i in interval:
+                        drilled.setdefault(i, {})[sc.lesson_number] = interval[i]
+            if sc.lesson_number >= 5:
+                self.assertGreater(sc.total_duration, 26 * 60, sc.lesson_number)
+            if sc.lesson_number >= 11:
+                self.assertLessEqual(len(sc.meta["new_items"]), 6 + cfg.resolved_extra_arc_items() + 3, sc.lesson_number)
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        over = []
+        for item, lessons in drilled.items():
+            for n, ivl in lessons.items():
+                window = range(n + 1, min(n_lessons, n + int(ivl) - 1) + 1)
+                if ivl >= 7 and n > 10 and len(window) >= 4:
+                    hits = sum(1 for k in window if k in lessons)
+                    if hits / len(window) > 0.5:
+                        over.append((item, n, ivl, hits, len(window)))
+        self.assertLessEqual(len({o[0] for o in over}), 2, over)
 
 
 class JapaneseInstructorTests(unittest.TestCase):

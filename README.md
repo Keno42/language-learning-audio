@@ -127,9 +127,14 @@ by three mechanisms, all automatic:
 1. *Calibration* — after every render the measured speech length per language
    is folded into the learner state, so the next plan's time estimates match
    the actual voices (espeak, edge and OpenAI all speak at different rates).
-2. *Second review pass* — if the material runs out before the time does, items
-   reviewed earlier in the lesson come back once more, one stage harder,
-   most urgent first.
+2. *Fillers, in order* — once the due reviews are done, the lesson takes a
+   second, smaller batch of new items (half the pace: 30 min → 6 + 3); then
+   items not yet due but last practised at least half their interval ago,
+   the longest ago first; then a second pass over today's reviews, one stage
+   harder; then any other item not practised today, again the longest ago
+   first; and only then more new items. Items that are not due never fill a
+   lesson ahead of those, so a well-known phrase waits for its date instead
+   of coming back every day.
 3. *Fit at render* — if the file would still miss the target by more than a
    minute (`fit_tolerance`, default 60 s), every pause is scaled by one
    factor within 0.85–1.25 (`fit`, `fit_min`, `fit_max` in the profile;
@@ -151,8 +156,9 @@ padding. From roughly lesson 5 on, the length is exact.
 
 ## How a lesson is built
 
-1. **Selection.** Items already met are ranked by review urgency (overdue ×
-   interval, failures, few successes). New items are taken in curriculum order,
+1. **Selection.** Items that are due are ranked by review urgency (overdue ×
+   interval, failures, few successes); items not due yet wait for their date
+   unless the lesson has nothing better left (see "Fixed length"). New items are taken in curriculum order,
    skipping anything whose prerequisites aren't yet solid; a construction pulls
    a second slot-filler along so the pattern can be shown with two fills.
    The number of new items is the learner's pace (see "Daily routine and pacing").

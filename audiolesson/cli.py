@@ -233,7 +233,9 @@ def cmd_generate(args) -> int:
     print(f"  pace: {why}")
     print(f"  new: {', '.join(script.meta['new_items']) or '(none — curriculum exhausted, review only)'}")
     carried = len(script.meta.get("due_not_fitted", []))
+    early = len(script.meta.get("reviewed_early", []))
     print(f"  reviewed: {len(script.meta['reviewed_items'])} items ({script.meta.get('due_at_start', 0)} were due"
+          + (f", {early} early" if early else "")
           + (f", {carried} carried over" if carried else "") + f"), dialogues: {', '.join(script.meta['dialogues']) or '-'}"
           + (f", asides: {', '.join(script.meta['notes'])}" if script.meta.get("notes") else ""))
     print(f"  wrote {stem}.script.json, .transcript.md, .plan.json")
