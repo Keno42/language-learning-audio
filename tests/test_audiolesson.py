@@ -3510,6 +3510,16 @@ class SpeakerGenderTests(unittest.TestCase):
         self.assertEqual({t for t in turns if t[0] == "answer"}, {("answer", "native_a", "Hún er glöð.")})
         self.assertFalse(any(t[2].startswith("As a") for t in turns if t[0] == "narrate"))
 
+    def test_a_second_person_result_keeps_its_source_ungendered(self):
+        """PR #114 review: «Þú ert þreytt.» agrees with the person addressed, whom the exercise
+        never names. A man's source («Ég er þreyttur.») next to it would be an unexplained
+        mismatch, and source_m/result_m can't model speaker and listener separately, so a
+        result addressed to "þú" gets no man's source until the listener is specified."""
+        for it in load_curriculum(ROOT / "curricula" / "is-en").items:
+            for e in it.examples:
+                if re.match(r"(?i)þú\b", e.result):
+                    self.assertFalse(e.source_m or e.result_m, f"{it.id}: {e.source} → {e.result}")
+
     def test_a_dialogue_line_takes_the_mans_form_opposite_a_woman(self):
         cur, b = self.builder()
         dlg = next(d for d in cur.dialogues if any(t.expect_text_m for t in d.turns))
