@@ -268,14 +268,20 @@ topics = ["clarifying"]
 text = "Almost everyone under sixty speaks English well, and many switch the moment they hear an accent. Saying «ég er að læra íslensku» usually makes them switch back: people are pleased that anyone tries."
 text_ja = "60歳以下のほぼ全員が英語を上手に話し、訛りを聞くとすぐ英語に切り替える人も多いです。«ég er að læra íslensku»と言うと、たいてい戻してくれます。挑戦する人を喜んでくれるのです。"
 
+# Issue #80: replaces the "tolur" aside. Fires once the counting form, the clock and krónur
+# are all met — three frames, three forms of the same number — and ties them to the góður/góð/
+# gott agreement the learner already has from lesson 2 (godur_gender), rather than presenting
+# twelve bare forms of 1-4 as new grammar. The contrast recalls that follow are those frames.
 [[notes]]
-id = "tolur"
-# issue #66: tells the learner to use the neuter «eitt / tvö / þrjú / fjögur» for the clock
-requires = ["eitt", "tvo", "thrju", "fjogur"]
-items = ["einn", "tveir", "klukkan_er"]
-topics = ["numbers"]
-text = "The numbers one to four change with the gender of what you count: «einn», «ein», «eitt» for 'one'. Icelanders understand any form, so say the one you remember and move on. For the clock, use the neuter: «eitt», «tvö», «þrjú», «fjögur»."
-text_ja = "1から4は数えるものの性で形が変わり、「1」は«einn»、«ein»、«eitt»になります。どの形でも通じるので、覚えている形で言って先に進みましょう。時刻には中性形の«eitt»、«tvö»、«þrjú»、«fjögur»を使います。"
+id = "tolur_kyn"
+milestone = true
+items = ["einn_einn_tveir", "klukkan_er", "einn_tvo_thrjar"]
+# the contrast recalls: «Einn, tveir, þrír, fjórir.» against «Ein króna.» — masculine against
+# feminine, from situations that need no particular fill to be known yet
+transfer_items = ["einn_tveir_thrir_fjorir", "ein_krona"]
+topics = ["numbers", "grammar"]
+text = "Three ways to say 'two': «einn einn tveir», «Klukkan er tvö», «tvær krónur». The numbers one to four change like «góður», «góð», «gott», with the gender of what you count: «króna» is feminine, so «tvær krónur». Counting and phone numbers use the masculine, and the clock always the neuter. Pick the wrong one and you'll still be understood."
+text_ja = "「2」の言い方が三つ出てきました：«einn einn tveir»、«Klukkan er tvö»、«tvær krónur»。1から4の数は «góður»、«góð»、«gott» と同じく、数えるものの性で形が変わります。«króna» は女性名詞なので «tvær krónur» です。数を数えるときや電話番号は男性形、時刻はいつも中性形です。形を間違えても通じるので、気にせず言ってみましょう。"
 
 [[notes]]
 id = "sumarfri"

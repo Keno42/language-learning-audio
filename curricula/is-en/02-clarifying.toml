@@ -850,6 +850,50 @@ situation = "It's late and you have an early flight. Tell your host you have to 
 situation_ja = "もう遅く、明日は早い便です。家に帰らなければならないとホストに言ってください。"
 situation_fill = { inf = "fara_heim" }  # issue #29 pilot 3 — see eg_vil
 
+[[dialogues]]
+id = "tungumal"
+setting = "At the tourist information desk. The woman behind it speaks quickly."
+setting_ja = "観光案内所のカウンター。係の女性は早口です。"
+partner_speaker = "native_a"  # the narration says she
+topics = ["clarifying"]
+requires = ["talar_thu", "ensku", "eg_tala_sma_islensku", "gaetirdu_talad_haegar", "takk"]
+
+  [[dialogues.turns]]
+  opener = "Góðan daginn, hvað get ég gert fyrir þig?"
+  opener_meaning = "Good day, what can I do for you?"
+  opener_meaning_ja = "こんにちは、どのようなご用件ですか？"
+  cue = "Ask if she speaks English."
+  cue_ja = "英語を話すか聞いてください。"
+  expect_text = "Talar þú ensku?"
+  expect_meaning = "Do you speak English?"
+  expect_meaning_ja = "英語を話しますか？"
+  partner = "Já, smá. En þú talar íslensku?"
+  partner_meaning = "Yes, a little. But you speak Icelandic?"
+  partner_meaning_ja = "ええ、少し。でもあなたはアイスランド語を話すんですね？"
+
+  [[dialogues.turns]]
+  cue = "Say you speak a little Icelandic."
+  cue_ja = "アイスランド語を少し話すと言ってください。"
+  expect = "eg_tala_sma_islensku"
+  partner = "Frábært! Tölum við bara íslensku."
+  partner_meaning = "Great! We'll just speak Icelandic."
+  partner_meaning_ja = "すばらしい！じゃあアイスランド語で話しましょう。"
+
+  [[dialogues.turns]]
+  cue = "That was too fast. Ask her to speak more slowly."
+  cue_ja = "速すぎました。もっとゆっくり話すよう頼んでください。"
+  expect = "gaetirdu_talad_haegar"
+  partner = "Fyrirgefðu. Tölum við bara íslensku."
+  partner_meaning = "Sorry. We'll just speak Icelandic."
+  partner_meaning_ja = "ごめんなさい。アイスランド語で話しましょう。"
+
+  [[dialogues.turns]]
+  cue = "Say you understand, and thank her."
+  cue_ja = "わかったと言って、お礼を言ってください。"
+  expect_text = "Ég skil. Takk."
+  expect_meaning = "I understand. Thanks."
+  expect_meaning_ja = "わかりました。ありがとう。"
+
 # Issue #29 cluster A: basic cardinal numbers used to be split across two later modules,
 # out of counting order and after several early dialogues already mention prices or ages —
 # 1–4 lived in module 08 (numbers-money), 5–12 in module 06 (time), so a learner could meet
@@ -905,63 +949,31 @@ difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
 
-# Neuter counting forms, 1-4 (issue #29 cluster A, owner review on PR #53): these were already
-# in the curriculum as the clock's own hour words (module 06's klukkan_er), relocated here rather
-# than duplicated under new ids ("fjögur þúsund" governs the same neuter agreement "eitt/tvö/
-# þrjú/fjögur o'clock" does) — module 03's café/restaurant dialogues speak amounts like "Fjögur
-# þúsund og fimm hundruð krónur." right after this module, so the neuter forms need to be
-# available this early, not just by the time the clock module (06) introduces them.
+# Issue #80: the counting forms' first uses, right after them. Counting itself is what these
+# forms are for, and the only use that produces all four (review on PR #118: «einn einn
+# tveir» alone never produces þrír or fjórir); then the emergency number (was module 12),
+# read digit by digit with them.
 [[items]]
-id = "eitt"
-kind = "vocab"
-target = "eitt"
-meaning = "one, as in telling the time"  # recall-only disambiguator, spoken as-is: 1-4 have three gendered forms
-meaning_ja = "時刻を言うときの1"
-meaning_forms = { in_sentence = "one" }
-meaning_forms_ja = { in_sentence = "1" }
+id = "einn_tveir_thrir_fjorir"
+kind = "phrase"
+target = "Einn, tveir, þrír, fjórir."
+meaning = "One, two, three, four."
+meaning_ja = "1、2、3、4。"
 difficulty = 1
-tags = ["hour", "big_count"]
-gender = "neut"
-topics = ["numbers", "time"]
+topics = ["numbers"]
+situation = "A child asks you to count to four in Icelandic. Count."
+situation_ja = "子どもにアイスランド語で4まで数えてと頼まれました。数えてください。"
 
 [[items]]
-id = "tvo"
-kind = "vocab"
-target = "tvö"
-meaning = "two, as in telling the time"
-meaning_ja = "時刻を言うときの2"
-meaning_forms = { in_sentence = "two" }
-meaning_forms_ja = { in_sentence = "2" }
+id = "einn_einn_tveir"
+kind = "phrase"
+target = "einn einn tveir"
+meaning = "one one two (the emergency number)"
+meaning_ja = "1、1、2（緊急番号）"
 difficulty = 1
-tags = ["hour", "big_count"]
-gender = "neut"
-topics = ["numbers", "time"]
-
-[[items]]
-id = "thrju"
-kind = "vocab"
-target = "þrjú"
-meaning = "three, as in telling the time"
-meaning_ja = "時刻を言うときの3"
-meaning_forms = { in_sentence = "three" }
-meaning_forms_ja = { in_sentence = "3" }
-difficulty = 1
-tags = ["hour", "big_count"]
-gender = "neut"
-topics = ["numbers", "time"]
-
-[[items]]
-id = "fjogur"
-kind = "vocab"
-target = "fjögur"
-meaning = "four, as in telling the time"
-meaning_ja = "時刻を言うときの4"
-meaning_forms = { in_sentence = "four" }
-meaning_forms_ja = { in_sentence = "4" }
-difficulty = 2
-tags = ["hour", "big_count"]
-gender = "neut"
-topics = ["numbers", "time"]
+topics = ["emergencies", "numbers"]
+situation = "Your friend asks what the emergency number is. Say it."
+situation_ja = "友達に緊急番号は何か聞かれました。言ってください。"
 
 [[items]]
 id = "fimm"
@@ -1054,6 +1066,67 @@ topics = ["time"]
 situation = "Your phone is dead. Ask a passer-by what time it is."
 situation_ja = "携帯の電池が切れました。通行人に時間を聞いてください。"
 
+# Issue #80: each gendered set of 1-4 arrives with the frame that uses it — the neuter with the
+# clock (and "Við erum fjögur" below), the feminine with krónur — instead of all twelve forms
+# as bare words ahead of any use; 5-12, the same in every gender, come first.
+# Neuter counting forms, 1-4 (issue #29 cluster A, owner review on PR #53): these were already
+# in the curriculum as the clock's own hour words (module 06's klukkan_er), relocated here rather
+# than duplicated under new ids ("fjögur þúsund" governs the same neuter agreement "eitt/tvö/
+# þrjú/fjögur o'clock" does) — module 03's café/restaurant dialogues speak amounts like "Fjögur
+# þúsund og fimm hundruð krónur." right after this module, so the neuter forms need to be
+# available this early, not just by the time the clock module (06) introduces them.
+[[items]]
+id = "eitt"
+kind = "vocab"
+target = "eitt"
+meaning = "one, as in telling the time"  # recall-only disambiguator, spoken as-is: 1-4 have three gendered forms
+meaning_ja = "時刻を言うときの1"
+meaning_forms = { in_sentence = "one" }
+meaning_forms_ja = { in_sentence = "1" }
+difficulty = 1
+tags = ["hour", "big_count"]
+gender = "neut"
+topics = ["numbers", "time"]
+
+[[items]]
+id = "tvo"
+kind = "vocab"
+target = "tvö"
+meaning = "two, as in telling the time"
+meaning_ja = "時刻を言うときの2"
+meaning_forms = { in_sentence = "two" }
+meaning_forms_ja = { in_sentence = "2" }
+difficulty = 1
+tags = ["hour", "big_count"]
+gender = "neut"
+topics = ["numbers", "time"]
+
+[[items]]
+id = "thrju"
+kind = "vocab"
+target = "þrjú"
+meaning = "three, as in telling the time"
+meaning_ja = "時刻を言うときの3"
+meaning_forms = { in_sentence = "three" }
+meaning_forms_ja = { in_sentence = "3" }
+difficulty = 1
+tags = ["hour", "big_count"]
+gender = "neut"
+topics = ["numbers", "time"]
+
+[[items]]
+id = "fjogur"
+kind = "vocab"
+target = "fjögur"
+meaning = "four, as in telling the time"
+meaning_ja = "時刻を言うときの4"
+meaning_forms = { in_sentence = "four" }
+meaning_forms_ja = { in_sentence = "4" }
+difficulty = 2
+tags = ["hour", "big_count"]
+gender = "neut"
+topics = ["numbers", "time"]
+
 # The clock is the first frame for the neuter counting forms above: without it they were drilled
 # as bare words for ~25 lessons before module 06 (issue #80).
 [[items]]
@@ -1066,7 +1139,42 @@ difficulty = 2
 topics = ["time"]
 slots = { hour = "hour" }
 example = { hour = "thrju" }
-prereqs = ["thrju", "hvad_er_klukkan"]
+prereqs = ["thrju"]  # issue #80: not hvad_er_klukkan, which comes just before anyway; waiting for it to be
+# *learned* held the clock back five lessons after the neuter forms it is the frame for
+situation = "A passer-by asks you the time. It's three o'clock. Tell them."
+situation_ja = "通りすがりの人に時間を聞かれました。3時です。答えてください。"
+situation_fill = { hour = "thrju" }
+
+# Issue #80: right after the clock, a second use of the neuter forms (a mixed group counts in
+# the neuter).
+# Relocated from module 08 (issue #29 cluster A, owner review on PR #53): a party-size phrase
+# for the café/restaurant host's "how many of you?" — squarely a numbers-vocabulary concern, and
+# its own "erum" is a dialogue's earliest exposure to that word ("tynd", module 04's "við erum
+# hérna"). A genuine reusable "to be" conjugation paradigm (vid_erum/vid_tolum/... in module 20)
+# is a separate, bigger question this relocation doesn't attempt — out of cluster A's own scope
+# (numbers/money), left for #29's still-not-started curriculum-wide audit or grammar pilot.
+[[items]]
+id = "vid_erum_fjogur"
+kind = "phrase"
+target = "Við erum fjögur."
+meaning = "There are four of us."
+meaning_ja = "四人です。"
+difficulty = 2
+topics = ["numbers", "cafe"]
+situation = "The host asks how many you are. Say four."
+situation_ja = "案内係に何名か聞かれました。四人と答えてください。"
+
+[[items]]
+id = "kronur"
+kind = "vocab"
+target = "krónur"
+meaning = "krónur"
+meaning_ja = "クローナ"
+difficulty = 1
+tags = ["money_unit"]
+gender = "fem"
+topics = ["numbers", "money"]
+pronunciation_notes = "Iceland's currency, feminine — plural form (\"a krónur\" reads oddly in English, but this is what a price is always counted in, e.g. \"tvær krónur\")"
 
 # Feminine counting forms (issue #29 cluster A): Icelandic 1–4 change with the counted
 # noun's gender, the same paradigm godur_noun (module 18) already models for adjectives.
@@ -1129,6 +1237,43 @@ tags = ["small_count"]
 gender = "fem"
 topics = ["numbers", "money"]
 
+# Issue #80, review on PR #118: «{count} krónur.» is plural, so «ein» never fills it; its first
+# use is the singular, a bare label like the construction below (not after «kostar», which
+# takes the accusative «eina krónu»).
+[[items]]
+id = "ein_krona"
+kind = "phrase"
+target = "Ein króna."
+meaning = "One króna."
+meaning_ja = "1クローナ。"
+difficulty = 1
+topics = ["numbers", "money"]
+situation = "The toy coin game again: say 'one króna'."
+situation_ja = "またおもちゃのコイン遊びです。「1クローナ」と言ってください。"
+
+# Issue #80: moved from module 08 (order ~380) to right after the feminine forms, their first
+# and only frame — they used to be drilled as bare words for ~30 lessons before it.
+# Bare nominative label, not "Það kostar {count} krónur." — "kostar" governs the accusative
+# case, and the feminine count words (ein/tvær/þrjár/fjórar, module 02) are nominative; for
+# count=1 specifically the two forms actually differ ("ein" vs. accusative "eina"), so putting
+# them inside "Það kostar" would generate wrong Icelandic. Staying with the bare label sidesteps
+# the case question entirely, the same way this item's own original fixed phrase always did.
+[[items]]
+id = "einn_tvo_thrjar"
+kind = "construction"
+target = "{count} krónur."
+meaning = "{count} krónur."
+meaning_ja = "{count}クローナ。"
+difficulty = 3
+topics = ["numbers", "money"]
+slots = { count = "small_count" }
+example = { count = "tvaer" }
+prereqs = ["tvaer"]  # issue #80: krónur comes just before; waiting for it to be *learned* held this frame back
+pronunciation_notes = "króna is feminine: ein króna, tvær krónur, þrjár krónur, fjórar krónur"
+situation = "A toy coin game with a child: say 'two krónur'."
+situation_ja = "子どもとおもちゃのコイン遊びをしています。「2クローナ」と言ってください。"
+situation_fill = { count = "tvaer" }  # issue #57: the situation says "two krónur"
+
 # hundrað/þúsund relocated from module 08 for the same reason as the digits above; krónur
 # is new (issue #29 cluster A) — Iceland's currency was previously only ever named inside
 # seven separate fixed whole-amount phrases ("fimm hundruð krónur", "tvö þúsund krónur",
@@ -1156,18 +1301,6 @@ meaning_ja = "千"
 difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
-
-[[items]]
-id = "kronur"
-kind = "vocab"
-target = "krónur"
-meaning = "krónur"
-meaning_ja = "クローナ"
-difficulty = 1
-tags = ["money_unit"]
-gender = "fem"
-topics = ["numbers", "money"]
-pronunciation_notes = "Iceland's currency, feminine — plural form (\"a krónur\" reads oddly in English, but this is what a price is always counted in, e.g. \"tvær krónur\")"
 
 # "og" relocated from module 19 (issue #29 cluster A, owner review on PR #53): a basic,
 # no-prereq conjunction with no business being introduced this late — it glues compound
@@ -1200,67 +1333,6 @@ meaning_ja = "500クローナ"
 difficulty = 2
 tags = ["price"]
 topics = ["money"]
-
-# Relocated from module 08 (issue #29 cluster A, owner review on PR #53): a party-size phrase
-# for the café/restaurant host's "how many of you?" — squarely a numbers-vocabulary concern, and
-# its own "erum" is a dialogue's earliest exposure to that word ("tynd", module 04's "við erum
-# hérna"). A genuine reusable "to be" conjugation paradigm (vid_erum/vid_tolum/... in module 20)
-# is a separate, bigger question this relocation doesn't attempt — out of cluster A's own scope
-# (numbers/money), left for #29's still-not-started curriculum-wide audit or grammar pilot.
-[[items]]
-id = "vid_erum_fjogur"
-kind = "phrase"
-target = "Við erum fjögur."
-meaning = "There are four of us."
-meaning_ja = "四人です。"
-difficulty = 2
-topics = ["numbers", "cafe"]
-situation = "The host asks how many you are. Say four."
-situation_ja = "案内係に何名か聞かれました。四人と答えてください。"
-
-[[dialogues]]
-id = "tungumal"
-setting = "At the tourist information desk. The woman behind it speaks quickly."
-setting_ja = "観光案内所のカウンター。係の女性は早口です。"
-partner_speaker = "native_a"  # the narration says she
-topics = ["clarifying"]
-requires = ["talar_thu", "ensku", "eg_tala_sma_islensku", "gaetirdu_talad_haegar", "takk"]
-
-  [[dialogues.turns]]
-  opener = "Góðan daginn, hvað get ég gert fyrir þig?"
-  opener_meaning = "Good day, what can I do for you?"
-  opener_meaning_ja = "こんにちは、どのようなご用件ですか？"
-  cue = "Ask if she speaks English."
-  cue_ja = "英語を話すか聞いてください。"
-  expect_text = "Talar þú ensku?"
-  expect_meaning = "Do you speak English?"
-  expect_meaning_ja = "英語を話しますか？"
-  partner = "Já, smá. En þú talar íslensku?"
-  partner_meaning = "Yes, a little. But you speak Icelandic?"
-  partner_meaning_ja = "ええ、少し。でもあなたはアイスランド語を話すんですね？"
-
-  [[dialogues.turns]]
-  cue = "Say you speak a little Icelandic."
-  cue_ja = "アイスランド語を少し話すと言ってください。"
-  expect = "eg_tala_sma_islensku"
-  partner = "Frábært! Tölum við bara íslensku."
-  partner_meaning = "Great! We'll just speak Icelandic."
-  partner_meaning_ja = "すばらしい！じゃあアイスランド語で話しましょう。"
-
-  [[dialogues.turns]]
-  cue = "That was too fast. Ask her to speak more slowly."
-  cue_ja = "速すぎました。もっとゆっくり話すよう頼んでください。"
-  expect = "gaetirdu_talad_haegar"
-  partner = "Fyrirgefðu. Tölum við bara íslensku."
-  partner_meaning = "Sorry. We'll just speak Icelandic."
-  partner_meaning_ja = "ごめんなさい。アイスランド語で話しましょう。"
-
-  [[dialogues.turns]]
-  cue = "Say you understand, and thank her."
-  cue_ja = "わかったと言って、お礼を言ってください。"
-  expect_text = "Ég skil. Takk."
-  expect_meaning = "I understand. Thanks."
-  expect_meaning_ja = "わかりました。ありがとう。"
 
 # Issue #29 (owner comment on a real Lesson 3: "grammar is noticed, but not yet transferred"):
 # «Eigðu góðan dag» was one more fixed string to memorise, while godur_gender names exactly the

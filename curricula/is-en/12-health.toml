@@ -365,17 +365,6 @@ situation = "You're on the phone with 112. Say it's an emergency."
 situation_ja = "112に電話中です。緊急事態だと言ってください。"
 
 [[items]]
-id = "einn_einn_tveir"
-kind = "phrase"
-target = "einn einn tveir"
-meaning = "one one two (the emergency number)"
-meaning_ja = "1、1、2（緊急番号）"
-difficulty = 1
-topics = ["emergencies", "numbers"]
-situation = "Your friend asks what the emergency number is. Say it."
-situation_ja = "友達に緊急番号は何か聞かれました。言ってください。"
-
-[[items]]
 id = "eg_var_raend"
 kind = "phrase"
 target = "Ég var rænd."

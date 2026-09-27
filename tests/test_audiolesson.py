@@ -1245,7 +1245,7 @@ class CurriculumTests(unittest.TestCase):
                         fills = cur.example_fill(c)
                         fills[slot] = fill
                         meaning = cur.resolve_slots(c, fills)[1]
-                        # a construction's own authored annotation ("(feminine count word)") is
+                        # a construction's own authored annotation is
                         # deliberate guidance; only what the fills bring in is checked
                         for own in re.findall(r"[（(][^）)]*[）)]", c.meaning):
                             meaning = meaning.replace(own, "")
@@ -2582,6 +2582,44 @@ class CurriculumTests(unittest.TestCase):
         self.assertLess(cur.by_id["hvad_er_klukkan"].order, cur.by_id["klukkan_er"].order)
         self.assertLess(cur.by_id["eg_tharf"].order - cur.by_id["vegabref"].order, 100)
 
+    def test_each_gendered_set_of_one_to_four_arrives_with_its_frame(self):
+        """Issue #80, owner direction: not all twelve forms of 1-4 as bare words ahead of any
+        use. Each form is *produced* in a context right after its set (review on PR #118:
+        checked on the surfaces the learner actually says, not on an item standing nearby) —
+        the counting forms by counting and the emergency number, the neuter by the clock, the
+        feminine by krónur. Once the three frames are met a milestone ties them to góður/góð/gott."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        o = {i.id: i.order for i in cur.items}
+
+        def surfaces(item) -> set[str]:
+            if item.kind != "construction":
+                return {w.lower() for w in _WORD_RE.findall(item.target)}
+            out: set[str] = set()
+            for slot, tag in item.slots.items():
+                for fill in cur.items_with_tag(tag):
+                    fills = cur.example_fill(item)
+                    fills[slot] = fill
+                    out |= {w.lower() for w in _WORD_RE.findall(cur.resolve_slots(item, fills)[0])}
+            return out
+
+        sets = [
+            ["einn", "tveir", "thrir", "fjorir"],
+            ["eitt", "tvo", "thrju", "fjogur"],
+            ["ein", "tvaer", "thrjar", "fjorar"],
+        ]
+        for forms in sets:
+            last = max(o[f] for f in forms)
+            contexts = [i for i in cur.items if i.kind != "vocab" and last < i.order <= last + 3]
+            said = set().union(*(surfaces(i) for i in contexts))
+            for f in forms:
+                self.assertIn(cur.by_id[f].target.lower(), said, f"{f}: never produced right after its set ({[i.id for i in contexts]})")
+        self.assertLess(o["klukkan_er"], o["ein"], "the feminine set comes after the clock, not interleaved")
+        note = cur.note_by_id["tolur_kyn"]
+        self.assertTrue(note.milestone)
+        self.assertEqual(set(note.items), {"einn_einn_tveir", "klukkan_er", "einn_tvo_thrjar"})
+        self.assertIn("«góður»", note.text)
+        self.assertTrue(all(cur.by_id[i].has_situation for i in note.items), "the contrast recalls use situations")
+
     def test_first_lesson_never_opens_with_three_introductions_in_a_row(self):
         """Issue #86: with nothing to review yet, lesson 1 opened o-i-i-i: three new items back to
         back before the first retrieval, because pulling a reactivation forward skipped both
@@ -2662,7 +2700,7 @@ class CurriculumTests(unittest.TestCase):
         instruction = re.compile(
             r"\b(say|ask|tell|greet|thank|wish|answer|apologi[sz]e|congratulate|agree|welcome|warn|shout|remark|"
             r"complain|reassure|explain|point|order|call|introduce|offer|suggest|check|signal|turn|return|get|"
-            r"comment|repeat|whisper|text|react|start|summari[sz]e|mention|protest|refuse|accept|decline|admit|correct|confirm)\b",
+            r"comment|repeat|whisper|text|react|start|summari[sz]e|mention|protest|refuse|accept|decline|admit|correct|confirm|count)\b",
             re.IGNORECASE,
         )
         for it in cur.items:

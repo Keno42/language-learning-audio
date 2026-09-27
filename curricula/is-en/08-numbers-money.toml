@@ -363,27 +363,6 @@ chunks = ["samtals", "mikið samtals", "þetta mikið samtals", "Hvað er þetta
 situation = "You've put five things on the counter. Ask how much it is altogether."
 situation_ja = "カウンターに5つ品物を置きました。全部でいくらか聞いてください。"
 
-# Bare nominative label, not "Það kostar {count} krónur." — "kostar" governs the accusative
-# case, and the feminine count words (ein/tvær/þrjár/fjórar, module 02) are nominative; for
-# count=1 specifically the two forms actually differ ("ein" vs. accusative "eina"), so putting
-# them inside "Það kostar" would generate wrong Icelandic. Staying with the bare label sidesteps
-# the case question entirely, the same way this item's own original fixed phrase always did.
-[[items]]
-id = "einn_tvo_thrjar"
-kind = "construction"
-target = "{count} krónur."
-meaning = "{count} krónur. (feminine count word)"
-meaning_ja = "{count}クローナ。（女性形の数詞）"
-difficulty = 3
-topics = ["numbers", "money"]
-slots = { count = "small_count" }
-example = { count = "tvaer" }
-prereqs = ["tvaer", "kronur"]
-pronunciation_notes = "króna is feminine: ein króna, tvær krónur, þrjár krónur, fjórar krónur"
-situation = "A toy coin game with a child: say 'two krónur'."
-situation_ja = "子どもとおもちゃのコイン遊びをしています。「2クローナ」と言ってください。"
-situation_fill = { count = "tvaer" }  # issue #57: the situation says "two krónur"
-
 [[items]]
 id = "tvo_kaffi"
 kind = "phrase"
