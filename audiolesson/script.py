@@ -19,6 +19,13 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Iterable
 
+# review_candidates (issue #128): what counts as practising an item, as producing it
+# without a hint, and where "late" and "early" start, as shares of the lesson's length
+PRACTICE_KINDS = ("intro", "recall", "generative", "connect", "dialogue")
+UNHINTED_STAGES = ("meaning", "situation", "recombine", "dialogue")
+LATE_RECALL_SHARE = 2 / 3
+EARLY_LAST_SHARE = 0.5
+
 
 @dataclass
 class Segment:
@@ -168,6 +175,51 @@ class Script:
                 covered.update(fresh)
                 questions.append((index, {"items": fresh, "prompt": prompt, "answer": answer, "stage": stage}))
         return [q for _, q in sorted(questions, key=lambda q: q[0])]
+
+    def review_candidates(self) -> list[dict]:
+        """Deterministic things worth asking the learner about after the lesson (issue
+        #128): they confirm or reject concrete candidates instead of recalling a long
+        lesson from memory. Never used to change scheduling.
+
+        - ``repeated_situation``: the same situation cue asked for the same item more than
+          once in this lesson ({"items", "count", "prompt"}).
+        - ``early_last_appearance``: a new item last heard before the middle of the lesson
+          ({"items", "last_s", "end_s"}).
+        - ``no_late_recall``: a new item heard later on, but never produced without a hint
+          in the last third ({"items", "last_recall_s", "end_s"}); ``last_recall_s`` is
+          None when it was never produced unhinted at all.
+
+        Times are the plan's estimates (before audio fitting), so read them as shares of
+        ``end_s``. Returns candidates in lesson order of their item's first appearance."""
+        by_ex: dict[int, list[str]] = {}
+        for seg in self.segments:
+            if seg.exercise is not None and seg.type == "narrate" and seg.text:
+                by_ex.setdefault(seg.exercise, []).append(seg.text)
+        practice = [e for e in self.exercises if e.item_ids and e.kind in PRACTICE_KINDS]
+        end = max((e.start + e.duration for e in self.exercises), default=0.0)
+        out: list[tuple[float, dict]] = []
+
+        cues: dict[tuple[str, str], list[Exercise]] = {}
+        for e in practice:
+            if e.stage == "situation" and by_ex.get(e.index):
+                cues.setdefault((e.item_ids[0], " ".join(by_ex[e.index])), []).append(e)
+        for (item, prompt), exs in cues.items():
+            if len(exs) > 1:
+                out.append((exs[0].start, {"kind": "repeated_situation", "items": [item], "count": len(exs), "prompt": prompt}))
+
+        for item in self.meta.get("new_items", []):
+            seen = [e for e in practice if item in e.item_ids]
+            if not seen:
+                continue
+            last = max(e.start + e.duration for e in seen)
+            unhinted = [e.start for e in seen if e.stage in UNHINTED_STAGES]
+            first = seen[0].start
+            if last < end * EARLY_LAST_SHARE:
+                out.append((first, {"kind": "early_last_appearance", "items": [item], "last_s": round(last, 1), "end_s": round(end, 1)}))
+            elif not unhinted or max(unhinted) < end * LATE_RECALL_SHARE:
+                last_recall = round(max(unhinted), 1) if unhinted else None
+                out.append((first, {"kind": "no_late_recall", "items": [item], "last_recall_s": last_recall, "end_s": round(end, 1)}))
+        return [c for _, c in sorted(out, key=lambda c: c[0])]
 
     # ---- I/O -----------------------------------------------------------
 

@@ -4864,6 +4864,42 @@ class ReviewQuestionTests(unittest.TestCase):
             plan = json.loads((Path(td) / "lesson-001.plan.json").read_text())
             asked = {i for q in plan["review"] for i in q["items"]}
             self.assertEqual({i["id"] for i in plan["new_items"]} - asked, set())
+            self.assertIsInstance(plan["review_candidates"], list)
+
+    def test_review_candidates(self):
+        """Issue #128: concrete things for the learner to confirm or reject after a lesson —
+        the same situation asked twice, a new item last heard early, and a new item never
+        produced without a hint in the last third."""
+        sc = Script(1, "t", "is", "en")
+        sc.meta["new_items"] = ["early", "hinted_late", "fine"]
+
+        def ex(kind, stage, ids, start, cue="Say it."):
+            e = sc.new_exercise(kind, stage, ids)
+            e.start, e.duration = start, 10
+            sc.add(Segment("narrate", "instructor", cue, "en", exercise=e.index))
+
+        ex("intro", "intro", ["early"], 0)
+        ex("recall", "situation", ["old"], 10, "A friend walks in.")
+        ex("recall", "meaning", ["early"], 100)
+        ex("intro", "intro", ["hinted_late"], 200)
+        ex("recall", "situation", ["old"], 300, "A friend walks in.")
+        ex("recall", "situation", ["old"], 400, "Another friend walks in.")
+        ex("recall", "meaning", ["hinted_late"], 450)
+        ex("intro", "intro", ["fine"], 500)
+        ex("recall", "hinted", ["hinted_late"], 800)
+        ex("recall", "situation", ["fine"], 850, "Your host asks.")
+        ex("closing", None, [], 890)
+        got = [(c["kind"], c["items"]) for c in sc.review_candidates()]
+        self.assertEqual(got, [
+            ("early_last_appearance", ["early"]),
+            ("repeated_situation", ["old"]),
+            ("no_late_recall", ["hinted_late"]),
+        ])
+        by_kind = {c["kind"]: c for c in sc.review_candidates()}
+        self.assertEqual(by_kind["repeated_situation"]["count"], 2)
+        self.assertEqual(by_kind["repeated_situation"]["prompt"], "A friend walks in.")
+        self.assertEqual((by_kind["early_last_appearance"]["last_s"], by_kind["early_last_appearance"]["end_s"]), (110, 900))
+        self.assertEqual(by_kind["no_late_recall"]["last_recall_s"], 450)
 
 
 class CliTests(unittest.TestCase):
