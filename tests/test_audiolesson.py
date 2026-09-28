@@ -903,8 +903,9 @@ class CurriculumTests(unittest.TestCase):
                 self.assertIn(ex.item_ids[0], gate)
 
     def test_past_drills_only_ask_for_forms_already_taught(self):
-        """Issue #29 tense pilot: Icelandic pasts other than «var» are irregular (fór, sá,
-        keypti), so a past drill never asks for one the learner hasn't met as a phrase:
+        """Issue #29 tense pilot: the pilot generalizes only «er → var»; other past-tense
+        patterns (weak «borða → borðaði» included) stay phrase-first until they are introduced
+        explicitly. So a past drill never asks for a past the learner hasn't met as a phrase:
         transform_var changes only «er» → «var», and every transform_past result verb is in a
         phrase introduced before the drill."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")

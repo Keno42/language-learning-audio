@@ -117,10 +117,11 @@ prereqs = ["i_gaer"]
 situation = "Anna asks where you were yesterday. Say you were in Reykjavík."
 situation_ja = "アンナに昨日どこにいたか聞かれました。レイキャビクにいたと答えてください。"
 
-# issue #29 tense pilot: «er → var» is the one past that is a rule, so it is drilled on its
-# own over «Ég er …» phrases the learner already owns (milestone note var_past names it).
-# Every other past is irregular and comes as a phrase first; transform_past below only
-# asks for pasts the learner has met that way.
+# issue #29 tense pilot: this pilot generalizes only «er → var», drilled on its own over
+# «Ég er …» phrases the learner already owns (milestone note var_past names it). Other
+# past-tense patterns — including regular weak ones like «borða → borðaði» — stay
+# phrase-first for now, until weak-verb patterns are introduced explicitly; transform_past
+# below only asks for pasts the learner has met as phrases.
 [[items]]
 id = "transform_var"
 kind = "transform"
@@ -177,8 +178,9 @@ prereqs = ["peysu"]
 situation = "You come back with a bag. Say you bought a sweater."
 situation_ja = "袋を持って戻ってきました。セーターを買ったと言ってください。"
 
-# issue #29 tense pilot: after the irregular pasts have each come as a phrase (fór, sá,
-# keypti) — the drill asks only for those, mixed with «var», never for a form not yet met.
+# issue #29 tense pilot: after those pasts have each come as a phrase (fór, sá, keypti) —
+# the drill asks only for those, mixed with «var», never for a form not yet met, since no
+# past pattern beyond «er → var» is taught yet.
 [[items]]
 id = "transform_past"
 kind = "transform"
