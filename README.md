@@ -51,6 +51,8 @@ is not used):
 - `lesson-NNN.plan.json` — what was introduced/reviewed, per-item exposures, exercise index,
   and `review`: one written recall question (cue → answer) per recalled item, for a
   later review outside the audio (a bot, a page) that ends in `report --recalled/--hesitated/--failed`
+  and `review_candidates`: things to ask the learner about afterwards (the same situation asked
+  twice, a new item last heard early or never produced unhinted late) — feedback only, #128
 - `lesson-NNN.transcript.md` — readable transcript (supplementary)
 - `lesson-NNN.wav` / `.mp3` and `lesson-NNN.cues.json` (timestamps per exercise)
 - `learner.json` — the persistent learner state, and (with `--user`) `settings.json`

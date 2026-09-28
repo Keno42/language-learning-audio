@@ -4864,6 +4864,71 @@ class ReviewQuestionTests(unittest.TestCase):
             plan = json.loads((Path(td) / "lesson-001.plan.json").read_text())
             asked = {i for q in plan["review"] for i in q["items"]}
             self.assertEqual({i["id"] for i in plan["new_items"]} - asked, set())
+            self.assertIsInstance(plan["review_candidates"], list)
+
+    def test_review_candidates(self):
+        """Issue #128: concrete things for the learner to confirm or reject after a lesson —
+        the same situation asked twice, a new item last heard early, and a new item never
+        produced without a hint in the last third."""
+        sc = Script(1, "t", "is", "en")
+        sc.meta["new_items"] = ["early", "hinted_late", "fine"]
+
+        def ex(kind, stage, ids, start, cue="Say it.", hint=False):
+            e = sc.new_exercise(kind, stage, ids)
+            e.start, e.duration = start, 10
+            sc.add(Segment("narrate", "instructor", cue, "en", exercise=e.index))
+            if hint:
+                sc.add(Segment("speak", "native_a", "Ég", "is", role="hint", exercise=e.index))
+            if kind not in ("closing",):
+                sc.add(Segment("pause", role="answer", duration=3, exercise=e.index))
+
+        ex("intro", "intro", ["early"], 0)
+        ex("recall", "situation", ["old"], 10, "A friend walks in.")
+        ex("recall", "meaning", ["early"], 100)
+        ex("intro", "intro", ["hinted_late"], 200)
+        ex("recall", "situation", ["old"], 300, "A friend walks in.")
+        ex("recall", "situation", ["old"], 400, "Another friend walks in.")
+        ex("recall", "meaning", ["hinted_late"], 450)
+        ex("intro", "intro", ["fine"], 500)
+        ex("recall", "hinted", ["hinted_late"], 800, hint=True)
+        ex("recall", "situation", ["fine"], 850, "Your host asks.")
+        ex("closing", None, [], 890)
+        got = [(c["kind"], c["items"]) for c in sc.review_candidates()]
+        self.assertEqual(got, [
+            ("early_last_appearance", ["early"]),
+            ("repeated_situation", ["old"]),
+            ("no_late_recall", ["hinted_late"]),
+        ])
+        by_kind = {c["kind"]: c for c in sc.review_candidates()}
+        self.assertEqual(by_kind["repeated_situation"]["count"], 2)
+        self.assertEqual(by_kind["repeated_situation"]["prompt"], "A friend walks in.")
+        self.assertEqual((by_kind["early_last_appearance"]["last_s"], by_kind["early_last_appearance"]["end_s"]), (110, 900))
+        self.assertEqual(by_kind["no_late_recall"]["last_recall_s"], 450)
+
+    def test_a_late_bridge_exchange_counts_as_an_unhinted_recall(self):
+        """PR #130 review: a bridge exchange (connect, stage "exchange") asks the learner to
+        answer the partner with no hint, so producing a new item there late in the lesson is
+        a late recall — no ``no_late_recall`` for it. A hint spoken inside the same kind of
+        exercise still doesn't count."""
+        def lesson(hint):
+            sc = Script(1, "t", "is", "en")
+            sc.meta["new_items"] = ["eg_lika"]
+            for kind, stage, start, cue in (("intro", "intro", 0, "New."), ("recall", "meaning", 100, "Say: me too."),
+                                            ("connect", "exchange", 700, "Anna says she's tired. Answer her.")):
+                e = sc.new_exercise(kind, stage, ["eg_lika"] if kind != "connect" else ["thu_ert_threytt", "eg_lika"])
+                e.start, e.duration = start, 10
+                sc.add(Segment("narrate", "instructor", cue, "en", exercise=e.index))
+                if kind == "connect" and hint:
+                    sc.add(Segment("speak", "native_a", "Ég", "is", role="hint", exercise=e.index))
+                sc.add(Segment("pause", role="answer", duration=3, exercise=e.index))
+                sc.add(Segment("answer", "native_a", "Ég líka.", "is", exercise=e.index))
+            end = sc.new_exercise("closing", None, [])
+            end.start, end.duration = 890, 10
+            return sc.review_candidates()
+
+        self.assertEqual(lesson(hint=False), [])
+        (c,) = lesson(hint=True)
+        self.assertEqual((c["kind"], c["last_recall_s"]), ("no_late_recall", 100))
 
 
 class CliTests(unittest.TestCase):

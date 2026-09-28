@@ -18,6 +18,7 @@ came about is in `docs/history/sessions.md`.
 | instructor phrasing | `audiolesson/phrasing/<lang>.toml` |
 | script → audio, respellings for TTS | `audiolesson/render/` |
 | written review questions for `plan.json` (`review`) | `audiolesson/script.py` (`Script.review_questions`) |
+| post-lesson feedback candidates for `plan.json` (`review_candidates`, #128) | `audiolesson/script.py` (`Script.review_candidates`) |
 | diagnostics | `audiolesson validate` (gloss coverage, dialogue sequencing report), `tools/phrase_families.py` |
 
 ## Invariants the tests pin
