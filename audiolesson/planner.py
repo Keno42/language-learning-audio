@@ -36,6 +36,10 @@ class PlanConfig:
     dialogue_every: int = 7  # try a dialogue roughly every N exercises
     drill_streak_limit: int = 5  # consecutive isolated recalls before a dialogue is pulled forward
     dialogue_first_turns: int = 2  # turns played the first time; one more each later encounter
+    # a dialogue already heard in full rests this many lessons before it is replayed: with
+    # few dialogues eligible, the same full dialogue otherwise played in every lesson
+    # (simulated lessons 7-12). One still growing a turn per encounter does not wait.
+    dialogue_rest_lessons: int = 3
     max_dialogues: int | None = None  # per lesson (default: one per 10 minutes, at least 2)
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
     max_reactive_milestones: int = 2  # milestones fired after their item, per lesson; more wait for the next one
@@ -452,6 +456,8 @@ class Planner:
                 continue
             if prefer_item and prefer_item.id not in d.required_items:
                 continue
+            if self._dialogue_resting(d):
+                continue
             times = self.learner.dialogues_done.get(d.id, 0)
             cands.append((times, d))
         if not cands:
@@ -459,6 +465,15 @@ class Planner:
         cands.sort(key=lambda t: t[0])
         least = [d for t, d in cands if t == cands[0][0]]
         return self.rng.choice(least)
+
+    def _dialogue_resting(self, d: Dialogue) -> bool:
+        """Heard in full at its last encounter, and that was fewer than
+        ``dialogue_rest_lessons`` lessons ago."""
+        times = self.learner.dialogues_done.get(d.id, 0)
+        if not times or self.cfg.dialogue_first_turns + times - 1 < len(d.turns):
+            return False  # new, or still growing
+        last = next((l["number"] for l in reversed(self.learner.lessons) if d.id in l.get("dialogues", [])), None)
+        return last is not None and self.learner.next_lesson_number() - last <= self.cfg.dialogue_rest_lessons
 
     # -------------------------------------------------------------- recording
 
