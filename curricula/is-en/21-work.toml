@@ -164,6 +164,20 @@ topics = ["work"]
 situation = "A colleague asks if you're free to talk. Say you're on a break."
 situation_ja = "同僚に話せるか聞かれました。休憩中だと答えてください。"
 
+# Issue #29: the verb of «Ég er að …» below as a fill of «Ég er að {inf:ing}» and every other
+# «… {inf}» pattern, not only inside that one sentence. The phrase stays for its situation.
+[[items]]
+id = "senda_tolvupost"
+kind = "vocab"
+target = "senda tölvupóst"
+meaning = "send an email"
+meaning_ja = "メールを送る"
+difficulty = 2
+tags = ["inf", "progressive_inf"]
+topics = ["work"]
+meaning_forms = { ing = "sending an email" }
+meaning_forms_ja = { te = "メールを送って" }
+
 [[items]]
 id = "eg_er_ad_senda_tolvupost"
 kind = "phrase"

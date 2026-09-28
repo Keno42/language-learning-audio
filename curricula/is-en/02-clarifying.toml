@@ -556,6 +556,64 @@ slots = { thing = "acc_thing" }
 example = { thing = "vegabref" }
 prereqs = ["poka"]
 
+# Issue #29: «Takk fyrir …» as a pattern, not only as three fixed phrases hundreds of items
+# apart (dvölina, matinn, kvöldið): accusative definite nouns after «fyrir», first «hjálpina»,
+# right after «Ég þarf hjálp.»/«Geturðu hjálpað mér?». The later fixed phrases stay for their
+# situations and dialogues.
+[[items]]
+id = "hjalpina"
+kind = "vocab"
+target = "hjálpina"
+meaning = "the help (after 'thanks for')"
+meaning_ja = "手伝い（「〜をありがとう」の形）"
+meaning_forms = { in_sentence = "the help" }
+meaning_forms_ja = { in_sentence = "手伝ってくれて" }
+difficulty = 1
+tags = ["acc_thanks"]
+topics = ["social"]
+pronunciation_notes = "accusative, definite: what «Takk fyrir …» takes"
+
+[[items]]
+id = "kaffid"
+kind = "vocab"
+target = "kaffið"
+meaning = "the coffee (after 'thanks for')"
+meaning_ja = "コーヒー（「〜をありがとう」の形）"
+meaning_forms = { in_sentence = "the coffee" }
+meaning_forms_ja = { in_sentence = "コーヒーを" }
+difficulty = 1
+tags = ["acc_thanks"]
+topics = ["social"]
+pronunciation_notes = "accusative, definite: what «Takk fyrir …» takes"
+
+[[items]]
+id = "matinn"
+kind = "vocab"
+target = "matinn"
+meaning = "the meal (after 'thanks for')"
+meaning_ja = "食事（「〜をありがとう」の形）"
+meaning_forms = { in_sentence = "the meal" }
+meaning_forms_ja = { in_sentence = "食事を" }
+difficulty = 1
+tags = ["acc_thanks"]
+topics = ["social"]
+pronunciation_notes = "accusative, definite: what «Takk fyrir …» takes"
+
+[[items]]
+id = "takk_fyrir"
+kind = "construction"
+target = "Takk fyrir {thing}."
+meaning = "Thanks for {thing}."
+meaning_ja = "{thing}ありがとう。"
+difficulty = 2
+topics = ["social"]
+slots = { thing = "acc_thanks" }
+example = { thing = "hjalpina" }
+prereqs = ["hjalpina"]
+situation = "A stranger just helped you find your way. Thank her for the help."
+situation_ja = "知らない人が道を教えてくれました。手伝ってくれたお礼を言ってください。"
+situation_fill = { thing = "hjalpina" }
+
 [[items]]
 id = "hvad_er_thetta"
 kind = "phrase"

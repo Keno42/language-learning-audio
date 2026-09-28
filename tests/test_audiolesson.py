@@ -857,6 +857,9 @@ class CurriculumTests(unittest.TestCase):
         audited_dynamic = {
             "fara_heim", "borda", "fara_i_sund", "fara_ut", "hvila_mig", "versla", "kaupa_mida",
             "hringja_heim", "fara_a_safnid", "drekka_kaffi", "boka_ferd", "vinna_verb", "laera",
+            # #29 families: their progressive is already authored as a phrase in the course
+            # («Ég er að elda.», «Ég er að senda tölvupóst.»)
+            "elda", "senda_tolvupost",
         }
         progressive = cur.by_id["eg_er_ad_inf"].slots["inf"]
         self.assertEqual(progressive, "progressive_inf")
@@ -2914,6 +2917,27 @@ class CurriculumTests(unittest.TestCase):
         self.assertEqual(cur.resolve_slots(cur.by_id["eg_er_ara"], {"age": cur.by_id["sautjan"]})[0], "Ég er sautján ára.")
         for i in ("hvar", "af_hverju", "kannski", "i_gaer"):
             self.assertEqual((cur.by_id[i].kind, cur.by_id[i].has_situation), ("phrase", True), i)
+
+    def test_takk_fyrir_and_the_grown_inf_pool_generate(self):
+        """Issue #29 families: «Takk fyrir {thing}.» is a pattern right after «Ég þarf hjálp.»,
+        not only three fixed phrases hundreds of items later; the «Má ég …?» phrases' verb
+        phrases fill every «… {inf}» pattern, in both instructor languages."""
+        for lang, expect in (
+            (None, {("takk_fyrir", "hjalpina"): ("Takk fyrir hjálpina.", "Thanks for the help."),
+                    ("eg_vil", "taka_mynd"): ("Ég vil taka mynd.", "I want to take a photo."),
+                    ("ma_eg_inf", "opna_gluggann"): ("Má ég opna gluggann?", "May I open the window?")}),
+            ("ja", {("takk_fyrir", "hjalpina"): ("Takk fyrir hjálpina.", "手伝ってくれてありがとう。"),
+                    ("ma_eg_inf", "hringja"): ("Má ég hringja?", "電話してもいいですか？")}),
+        ):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            for (cid, fid), resolved in expect.items():
+                c = cur.by_id[cid]
+                self.assertEqual(cur.resolve_slots(c, {next(iter(c.slots)): cur.by_id[fid]}), resolved)
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertLess(cur.by_id["takk_fyrir"].order - cur.by_id["eg_tharf_hjalp"].order, 10)
+        self.assertLess(cur.by_id["takk_fyrir"].order, cur.by_id["takk_fyrir_dvolina"].order)
+        for fill in ("borga_med_korti", "opna_gluggann", "loka_hurdinni", "hringja", "taka_mynd"):
+            self.assertIn("inf", cur.by_id[fill].tags)
 
     def test_backward_chunks_grow_from_the_end(self):
         cur = load_curriculum(CURRICULUM)

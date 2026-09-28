@@ -219,6 +219,21 @@ topics = ["home", "money"]
 situation = "You're looking at a flat to rent. Ask how high the rent is."
 situation_ja = "借りるアパートを見ています。家賃を聞いてください。"
 
+# Issue #29: the verb phrase of the «Má ég …?» phrase below, as a fill of every «… {inf}» pattern (Ég vil …,
+# Viltu …?, Ég verð að …, Má ég …?), not only inside that one question. The phrase stays
+# for its situation.
+[[items]]
+id = "opna_gluggann"
+kind = "vocab"
+target = "opna gluggann"
+meaning = "open the window"
+meaning_ja = "窓を開ける"
+difficulty = 2
+tags = ["inf"]
+topics = ["home"]
+meaning_forms = { ing = "opening the window" }
+meaning_forms_ja = { te = "窓を開けて" }
+
 [[items]]
 id = "ma_eg_opna_gluggann"
 kind = "phrase"
@@ -230,6 +245,21 @@ topics = ["home"]
 prereqs = ["gluggi"]
 situation = "The room is stuffy. Ask if you may open the window."
 situation_ja = "部屋がむっとしています。窓を開けていいか聞いてください。"
+
+# Issue #29: the verb phrase of the «Má ég …?» phrase below, as a fill of every «… {inf}» pattern (Ég vil …,
+# Viltu …?, Ég verð að …, Má ég …?), not only inside that one question. The phrase stays
+# for its situation.
+[[items]]
+id = "loka_hurdinni"
+kind = "vocab"
+target = "loka hurðinni"
+meaning = "close the door"
+meaning_ja = "ドアを閉める"
+difficulty = 2
+tags = ["inf"]
+topics = ["home"]
+meaning_forms = { ing = "closing the door" }
+meaning_forms_ja = { te = "ドアを閉めて" }
 
 [[items]]
 id = "ma_eg_loka_hurdinni"

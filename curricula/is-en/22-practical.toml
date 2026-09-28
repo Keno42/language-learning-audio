@@ -24,6 +24,21 @@ prereqs = ["hvad_er_simanumerid_thitt"]
 situation = "Give your number: start with 'my phone number is'."
 situation_ja = "番号を伝えます。「私の電話番号は」から始めてください。"
 
+# Issue #29: the verb phrase of the «Má ég …?» phrase below, as a fill of every «… {inf}» pattern (Ég vil …,
+# Viltu …?, Ég verð að …, Má ég …?), not only inside that one question. The phrase stays
+# for its situation.
+[[items]]
+id = "hringja"
+kind = "vocab"
+target = "hringja"
+meaning = "make a call"
+meaning_ja = "電話する"
+difficulty = 2
+tags = ["inf"]
+topics = ["practical"]
+meaning_forms = { ing = "making a call" }
+meaning_forms_ja = { te = "電話して" }
+
 [[items]]
 id = "ma_eg_hringja"
 kind = "phrase"

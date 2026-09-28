@@ -501,6 +501,21 @@ situations_ja = [
   "友達の手作りスープを味見しました。とてもおいしいと言ってください。",
 ]
 
+# Issue #29: the verb phrase of the «Má ég …?» phrase below, as a fill of every «… {inf}» pattern (Ég vil …,
+# Viltu …?, Ég verð að …, Má ég …?), not only inside that one question. The phrase stays
+# for its situation.
+[[items]]
+id = "borga_med_korti"
+kind = "vocab"
+target = "borga með korti"
+meaning = "pay by card"
+meaning_ja = "カードで払う"
+difficulty = 2
+tags = ["inf"]
+topics = ["cafe"]
+meaning_forms = { ing = "paying by card" }
+meaning_forms_ja = { te = "カードで払って" }
+
 [[items]]
 id = "ma_eg_borga_med_korti"
 kind = "phrase"
