@@ -889,8 +889,10 @@ class CurriculumTests(unittest.TestCase):
     def test_tense_and_person_milestones_name_the_rule_before_its_drill(self):
         """Issue #29 tense / person pilot: var_past names «er → var» from three known «var»
         phrases before transform_var drills it, and vid_um names the «við … -um» ending before
-        transform_vid_form — each followed by two of its own phrases' situations."""
-        for drill, note in (("transform_var", "var_past"), ("transform_vid_form", "vid_um")):
+        transform_vid_form — each followed by two of its own phrases' situations. Likewise the
+        «Ég á …» family: eiga_have names «eiga» and the gendered count (einn bróður / tvö börn)
+        right before «Ég á tvær systur.» brings the feminine one."""
+        for drill, note in (("transform_var", "var_past"), ("transform_vid_form", "vid_um"), ("eg_a_tvaer_systur", "eiga_have")):
             sc, cur = self._lesson_introducing(drill)
             labels = [ex.label for ex in sc.exercises]
             self.assertIn(drill, sc.meta["new_items"], drill)
