@@ -314,23 +314,30 @@ partner_cue_meaning_ja = "どうもありがとう！"
 partner_cue_situation = "She thanked you warmly. Say you're welcome."
 partner_cue_situation_ja = "心からお礼を言われました。どういたしましてと言ってください。"
 
+# Issue #80: a phrase with a situation, not a vocab item — "yes"/"no" have no frame to
+# recombine into, so as vocab they were drilled as bare "Say: yes." eleven times in the
+# first twelve simulated lessons; answering a question is their use.
 [[items]]
 id = "ja"
-kind = "vocab"
+kind = "phrase"
 target = "Já."
 meaning = "Yes."
 meaning_ja = "はい"
 difficulty = 1
 topics = ["greetings"]
+situation = "The waiter asks if you'd like more coffee. You would. Answer."
+situation_ja = "店員にコーヒーのおかわりはいかがと聞かれました。欲しいです。答えてください。"
 
 [[items]]
 id = "nei"
-kind = "vocab"
+kind = "phrase"
 target = "Nei."
 meaning = "No."
 meaning_ja = "いいえ"
 difficulty = 1
 topics = ["greetings"]
+situation = "The cashier asks if you need a bag. You don't. Answer."
+situation_ja = "レジで袋はいるか聞かれました。いりません。答えてください。"
 
 [[items]]
 id = "goda_nott"
@@ -446,14 +453,19 @@ situations_ja = [
 
 # Promoted from module 19 (issue #29 triage, cluster C): a repeat offender across
 # three dialogues before it was otherwise taught — see docs/history/sessions.md.
+# Issue #80: «líka» on its own had no frame and was drilled as "Say: also."; its use at
+# this level is «Ég líka.» (module 19's eg_lika, merged in here so it no longer waits for
+# the bare word to be learned). The id stays, so learners who met «líka» keep its history.
 [[items]]
 id = "lika"
-kind = "vocab"
-target = "líka"
-meaning = "also"
-meaning_ja = "〜も"
+kind = "phrase"
+target = "Ég líka."
+meaning = "Me too."
+meaning_ja = "私も。"
 difficulty = 1
 topics = ["discourse"]
+situation = "Anna says she loves the pool. So do you. Answer."
+situation_ja = "アンナがプールが大好きだと言いました。あなたもです。答えてください。"
 
 # Promoted from module 24 (issue #29 triage, cluster C): a repeat offender across
 # two dialogues before it was otherwise taught — see docs/history/sessions.md.
@@ -819,6 +831,30 @@ tags = ["adj_neut"]
 topics = ["adjectives", "discourse"]
 situation = "Anna says the road is open. Say: great!"
 situation_ja = "アンナが道路が開通したと言いました。「すばらしい！」と言ってください。"
+
+[[items]]
+id = "gott"
+kind = "vocab"
+target = "gott"
+meaning = "good"
+meaning_ja = "良い"
+difficulty = 1
+tags = ["adj_neut"]
+topics = ["adjectives"]
+
+# Issue #80: moved from module 18 (with «gott») to right after «frábært», its first fill:
+# «frábært» was drilled as a bare word from order 40 until this frame at order ~720.
+[[items]]
+id = "thetta_er_adj"
+kind = "construction"
+target = "Þetta er {adj}."
+meaning = "This is {adj}."
+meaning_ja = "これは{adj}です。"
+difficulty = 2
+topics = ["adjectives"]
+slots = { adj = "adj_neut" }
+example = { adj = "gott" }
+prereqs = ["gott"]
 
 # Promoted from module 24 (issue #29 triage): the "nagranni" dialogue right below
 # uses this verbatim as its partner's reaction line, at order ~11 — 915 items before

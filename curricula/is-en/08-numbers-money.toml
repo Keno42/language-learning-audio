@@ -132,27 +132,6 @@ difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
 
-# Only one of the seven fixed whole-amount price phrases, fimm_hundrud_kronur, moved to module
-# 02 (issue #29 cluster A, owner review round 3 on PR #53) — it's the sole earliest exposure to
-# "hundruð" (dialogue_sequencing_report's own finding; see that module's comment), so it's the
-# only one actually load-bearing there. The other six were moved there too in an earlier round
-# of this same fix, checked only as a group ("these are all cluster A price vocabulary") rather
-# than individually — but every word in these six (þúsund/tvö/þrjú/fimm/tíu/krónur) already has
-# an earlier standalone source in module 02 regardless of where these six phrases sit (confirmed
-# directly against dialogue_sequencing_report's own word_to_items table, not assumed), so moving
-# them fixed no gap at all. Same failure mode as the fimmtán one, one layer further: not "does
-# this item's own words need an earlier home" but "does this item need to move at all." Left
-# here instead, in their original ascending-amount order.
-[[items]]
-id = "thusund_kronur"
-kind = "vocab"
-target = "þúsund krónur"
-meaning = "a thousand krónur"
-meaning_ja = "1000クローナ"
-difficulty = 2
-tags = ["price"]
-topics = ["money"]
-
 [[items]]
 id = "fimmtan_hundrud_kronur"
 kind = "vocab"
@@ -202,18 +181,6 @@ meaning_ja = "1万クローナ"
 difficulty = 2
 tags = ["price"]
 topics = ["money"]
-
-[[items]]
-id = "thad_kostar"
-kind = "construction"
-target = "Það kostar {price}."
-meaning = "It costs {price}."
-meaning_ja = "{price}です。"
-difficulty = 2
-topics = ["money", "shopping"]
-slots = { price = "price" }
-example = { price = "thusund_kronur" }
-prereqs = ["thusund_kronur", "hvad_kostar_thetta"]
 
 [[items]]
 id = "thetta_er_dyrt"

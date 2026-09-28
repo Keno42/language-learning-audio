@@ -1444,7 +1444,7 @@ class CurriculumTests(unittest.TestCase):
         known words that have no situation cue (review material connect() can't use)."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         learner = LearnerState("is", "en", "A1")
-        padding = ["ja", "nei", "lika", "islensku", "ensku", "japonsku", "thysku", "fronsku", "donsku", "vegabref"]
+        padding = ["kaffi", "te", "vatn", "islensku", "ensku", "japonsku", "thysku", "fronsku", "donsku", "vegabref"]
         for i in known + padding:
             learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="situation")
         cfg = PlanConfig(minutes=20, seed=1, new_items=0, max_new_items=0, dialogue_every=1000, drill_streak_limit=3, max_notes=0, max_streak_relief_notes=0)
@@ -2860,9 +2860,41 @@ class CurriculumTests(unittest.TestCase):
         self.assertEqual([f["item"] for f in report["none"]], ["lone"], "a dialogue turn is a context too; phrases aren't reported")
         self.assertEqual(frame_gap_report(cur, span=100)["late"], [])
 
-        # the real course: the numbers of #80, to be driven down by resequencing
+        # the real course, after #80's resequencing: only bíll/bók/hús still wait (their frame
+        # is godur_noun, gated by a milestone that names their genders)
         report = frame_gap_report(load_curriculum(ROOT / "curricula" / "is-en"))
-        self.assertIn("vegabref", {f["item"] for f in report["late"]})
+        self.assertLessEqual({f["item"] for f in report["late"]}, {"bill", "bok", "hus"})
+
+    def test_a_filler_recombines_into_a_frame_met_in_an_earlier_lesson(self):
+        """Issue #80: a filler could only recombine into a construction already *learned* (or
+        introduced this lesson), while the construction's own review recombined with that very
+        filler as soon as it was met. «vatn» was drilled as "say: water" while «Ég ætla að fá
+        {thing}», met the lesson before, waited to be learned. A frame met in an earlier lesson
+        now serves too — unless its last report was a failure."""
+        from audiolesson.exercises import Builder
+
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "kaffi", "kind": "vocab", "target": "kaffi", "meaning": "coffee", "tags": ["drink"]},
+                {"id": "vatn", "kind": "vocab", "target": "vatn", "meaning": "water", "tags": ["drink"]},
+                {"id": "fa", "kind": "construction", "target": "Ég ætla að fá {d}.", "meaning": "I'll have {d}.", "slots": {"d": "drink"}},
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        for i in ("kaffi", "vatn"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=2, stage="meaning")
+        learner.items["fa"] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=0, stage="hinted")
+        self.assertFalse(learner.knows("fa"), "met and practised, not yet learned")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
+        gen = b.generate_with(cur.by_id["vatn"])
+        self.assertIsNotNone(gen)
+        self.assertEqual(gen.target, "Ég ætla að fá vatn.")
+        learner.items["fa"].last_outcome = "not_recalled"
+        self.assertIsNone(Builder(cur, Prompts.load("en"), Timing(level="A1"), learner).generate_with(cur.by_id["vatn"]))
+        learner.items["fa"] = ItemState(stage="intro")
+        self.assertIsNone(Builder(cur, Prompts.load("en"), Timing(level="A1"), learner).generate_with(cur.by_id["vatn"]), "only met at intro")
 
     def test_backward_chunks_grow_from_the_end(self):
         cur = load_curriculum(CURRICULUM)
@@ -3955,6 +3987,38 @@ class PrematureReviewTests(unittest.TestCase):
         if "n7" in order:
             self.assertEqual(set(rested), {f"n{k}" for k in range(7)}, "yesterday's item only after every rested one")
             self.assertGreater(order.index("n7"), max(order.index(i) for i in rested))
+
+    def test_early_words_are_said_in_a_sentence_within_two_lessons(self):
+        """Issue #80's acceptance criterion: «vegabréf» is used in a sentence within its first
+        two lessons — and so are «frábært» and «fimm hundruð krónur», the other words that
+        waited longest for a frame; «já», «nei» and «Ég líka.» answer situations."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        words = {"vegabref": "vegabréf", "frabaert": "frábært", "fimm_hundrud_kronur": "fimm hundruð krónur"}
+        introduced: dict[str, int] = {}
+        in_sentence: dict[str, int] = {}
+        answered_situations: set[str] = set()
+        for _ in range(14):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=6), today=day).build()
+            for item_id in sc.meta["new_items"]:
+                introduced.setdefault(item_id, sc.lesson_number)
+            for seg in sc.segments:
+                if seg.type != "answer" or not seg.text:
+                    continue
+                for item_id, word in words.items():
+                    if word in seg.text.lower() and seg.text.lower().strip(" .!?") != word:
+                        in_sentence.setdefault(item_id, sc.lesson_number)
+            for ex in sc.exercises:
+                if ex.stage == "situation" and ex.item_ids and ex.item_ids[0] in ("ja", "nei", "lika"):
+                    answered_situations.add(ex.item_ids[0])
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        for item_id in words:
+            self.assertIn(item_id, introduced)
+            self.assertIn(item_id, in_sentence, f"{item_id} never said in a sentence")
+            self.assertLessEqual(in_sentence[item_id] - introduced[item_id], 1, item_id)
+        self.assertEqual(answered_situations, {"ja", "nei", "lika"})
 
     def test_a_later_arc_never_takes_a_lesson_past_the_new_item_ceiling(self):
         """Simulated lessons 1-12: pace 10 plus half again was 15 new items in 30 minutes.

@@ -329,18 +329,6 @@ situation = "Your guest sits down. Ask: coffee or tea?"
 situation_ja = "お客さんが座りました。コーヒーか紅茶か聞いてください。"
 
 [[items]]
-id = "eg_lika"
-kind = "phrase"
-target = "Ég líka."
-meaning = "Me too."
-meaning_ja = "私も。"
-difficulty = 1
-topics = ["discourse"]
-prereqs = ["lika"]
-situation = "Anna says she loves the pool. Say: me too."
-situation_ja = "アンナがプールが大好きだと言いました。私も、と言ってください。"
-
-[[items]]
 id = "eg_ekki"
 kind = "phrase"
 target = "Ég ekki."
@@ -369,7 +357,7 @@ id = "spurningar"
 setting = "A child at the table asks you lots of questions."
 setting_ja = "食卓で子どもが次々に質問してきます。"
 topics = ["questions", "social"]
-requires = ["eg_er_fra_japan", "eg_er_job", "forritari", "af_thvi_ad", "mer_finnst_island_fallegt", "eg_lika"]
+requires = ["eg_er_fra_japan", "eg_er_job", "forritari", "af_thvi_ad", "mer_finnst_island_fallegt", "lika"]
 
   [[dialogues.turns]]
   opener = "Hvaðan ert þú?"
