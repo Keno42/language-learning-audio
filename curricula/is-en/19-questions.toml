@@ -329,18 +329,6 @@ situation = "Your guest sits down. Ask: coffee or tea?"
 situation_ja = "お客さんが座りました。コーヒーか紅茶か聞いてください。"
 
 [[items]]
-id = "eg_lika"
-kind = "phrase"
-target = "Ég líka."
-meaning = "Me too."
-meaning_ja = "私も。"
-difficulty = 1
-topics = ["discourse"]
-prereqs = ["lika"]
-situation = "Anna says she loves the pool. Say: me too."
-situation_ja = "アンナがプールが大好きだと言いました。私も、と言ってください。"
-
-[[items]]
 id = "eg_ekki"
 kind = "phrase"
 target = "Ég ekki."

@@ -554,7 +554,7 @@ class Builder:
         ``avoid_heard``: only sentences not yet presented this lesson (None if none is left)."""
         homes = []
         for c in self.cur.items:
-            if c.kind != "construction" or not self._available(c.id):
+            if c.kind != "construction" or not self._frame_available(c.id):
                 continue
             for slot, tag in c.slots.items():
                 if tag in vocab.tags:
@@ -575,6 +575,18 @@ class Builder:
     def _available(self, item_id: str) -> bool:
         """Known, or introduced earlier this lesson: usable as a part of a generated sentence."""
         return self.learner.knows(item_id) or item_id in self.in_lesson
+
+    def _frame_available(self, item_id: str) -> bool:
+        """A construction as the frame for recombining a filler (issue #80): available as
+        a part, or met in an earlier lesson and not failed at its last report. The
+        construction's own review already recombines it with known fills while it is being
+        learned; a filler reviewed the same day may use it for the very same sentences.
+        Before, «Ég ætla að fá {thing}» met yesterday could not frame «vatn», which was then
+        drilled as "say: water" five times in its first lesson."""
+        if self._available(item_id):
+            return True
+        st = self.learner.items.get(item_id)
+        return bool(st and st.stage != "intro" and st.last_outcome != "not_recalled")
 
     def situation_usable(self, item: Item) -> bool:
         """Whether ``item``'s situation can be practised now: every fill it names is available

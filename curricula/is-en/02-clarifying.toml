@@ -25,6 +25,24 @@ topics = ["clarifying"]
 meaning_forms = { in_sentence = "English" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
 meaning_forms_ja = { in_sentence = "英語" }
 
+# Issue #80: right after its first two fills, the other languages following as transfer: all
+# seven used to come first, drilled as bare words until the pattern arrived.
+[[items]]
+id = "talar_thu"
+kind = "construction"
+target = "Talar þú {language}?"
+meaning = "Do you speak {language}?"
+meaning_ja = "{language}を話しますか？"
+difficulty = 3
+topics = ["clarifying"]
+slots = { language = "acc_language" }
+example = { language = "ensku" }
+components = ["ensku"]
+prereqs = ["ensku"]
+situation = "You're not sure the receptionist understands you. Ask if she speaks English."
+situation_ja = "受付の人に通じているか不安です。英語を話せるか聞いてください。"
+situation_fill = { language = "ensku" }  # issue #57: the situation says "English"
+
 [[items]]
 id = "japonsku"
 kind = "vocab"
@@ -36,6 +54,19 @@ tags = ["acc_language"]
 topics = ["clarifying"]
 meaning_forms = { in_sentence = "Japanese" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
 meaning_forms_ja = { in_sentence = "日本語" }
+
+[[items]]
+id = "eg_tala"
+kind = "construction"
+target = "Ég tala {language}."
+meaning = "I speak {language}."
+meaning_ja = "{language}を話します。"
+difficulty = 2
+topics = ["clarifying", "social"]
+slots = { language = "acc_language" }
+example = { language = "japonsku" }
+components = ["japonsku"]
+prereqs = ["japonsku"]
 
 [[items]]
 id = "thysku"
@@ -84,35 +115,6 @@ tags = ["acc_language"]
 topics = ["clarifying"]
 meaning_forms = { in_sentence = "Spanish" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
 meaning_forms_ja = { in_sentence = "スペイン語" }
-
-[[items]]
-id = "talar_thu"
-kind = "construction"
-target = "Talar þú {language}?"
-meaning = "Do you speak {language}?"
-meaning_ja = "{language}を話しますか？"
-difficulty = 3
-topics = ["clarifying"]
-slots = { language = "acc_language" }
-example = { language = "ensku" }
-components = ["ensku"]
-prereqs = ["ensku"]
-situation = "You're not sure the receptionist understands you. Ask if she speaks English."
-situation_ja = "受付の人に通じているか不安です。英語を話せるか聞いてください。"
-situation_fill = { language = "ensku" }  # issue #57: the situation says "English"
-
-[[items]]
-id = "eg_tala"
-kind = "construction"
-target = "Ég tala {language}."
-meaning = "I speak {language}."
-meaning_ja = "{language}を話します。"
-difficulty = 2
-topics = ["clarifying", "social"]
-slots = { language = "acc_language" }
-example = { language = "japonsku" }
-components = ["japonsku"]
-prereqs = ["japonsku"]
 
 [[items]]
 id = "eg_tala_sma_islensku"
@@ -424,19 +426,6 @@ situations_ja = [
   "新聞に友達の名前を見つけました。見てと言ってください。",
 ]
 
-# Promoted from module 25 (issue #29 triage, cluster C): a repeat offender across two
-# dialogues before it was otherwise taught, and already the example fill for the
-# later "eg_er_med_have" construction — see docs/history/sessions.md.
-[[items]]
-id = "vegabref"
-kind = "vocab"
-target = "vegabréf"
-meaning = "a passport"
-meaning_ja = "パスポート"
-difficulty = 2
-tags = ["acc_have", "acc_thing"]
-topics = ["clarifying"]
-
 [[items]]
 id = "skilurdu"
 kind = "phrase"
@@ -524,6 +513,48 @@ partner_cue_meaning = "Good day. What can I do for you?"
 partner_cue_meaning_ja = "こんにちは。どうなさいましたか？"
 partner_cue_situation = "She asked what she can do for you. Say you need help."
 partner_cue_situation_ja = "どうしたのかと聞かれました。助けが必要だと言ってください。"
+
+# Promoted from module 25 (issue #29 triage, cluster C): a repeat offender across two
+# dialogues before it was otherwise taught, and already the example fill for the
+# later "eg_er_med_have" construction — see docs/history/sessions.md.
+# Issue #80: next to «poka» and «Ég þarf {thing}.», so the word and its first sentence
+# come in the same lesson.
+[[items]]
+id = "vegabref"
+kind = "vocab"
+target = "vegabréf"
+meaning = "a passport"
+meaning_ja = "パスポート"
+difficulty = 2
+tags = ["acc_have", "acc_thing"]
+topics = ["clarifying"]
+
+[[items]]
+id = "poka"
+kind = "vocab"
+target = "poka"
+meaning = "a bag"
+meaning_ja = "袋"
+difficulty = 1
+tags = ["acc_request", "acc_thing"]
+topics = ["shopping"]
+pronunciation_notes = "accusative of poki"
+
+# issue #80: the first frame for «vegabréf» and «poka», which otherwise wait until module 09's
+# clothes for any sentence to use them in; the clothes come back as transfer. Moved (with
+# «poka») from module 03 to right after «Ég þarf hjálp.», a few items after «vegabréf», whose
+# sentence the pattern's own introduction speaks.
+[[items]]
+id = "eg_tharf"
+kind = "construction"
+target = "Ég þarf {thing}."
+meaning = "I need {thing}."
+meaning_ja = "{thing}が必要です。"
+difficulty = 2
+topics = ["shopping"]
+slots = { thing = "acc_thing" }
+example = { thing = "vegabref" }
+prereqs = ["poka"]
 
 [[items]]
 id = "hvad_er_thetta"
@@ -976,6 +1007,98 @@ situation = "Your friend asks what the emergency number is. Say it."
 situation_ja = "友達に緊急番号は何か聞かれました。言ってください。"
 
 [[items]]
+id = "hvad_er_klukkan"
+kind = "phrase"
+target = "Hvað er klukkan?"
+meaning = "What time is it?"
+meaning_ja = "今何時ですか？"
+difficulty = 2
+topics = ["time"]
+situation = "Your phone is dead. Ask a passer-by what time it is."
+situation_ja = "携帯の電池が切れました。通行人に時間を聞いてください。"
+
+# Issue #80: each gendered set of 1-4 arrives with the frame that uses it — the neuter with the
+# clock (and "Við erum fjögur" below), the feminine with krónur — instead of all twelve forms
+# as bare words ahead of any use; 5-12, the same in every gender, follow the clock as its fills.
+# Neuter counting forms, 1-4 (issue #29 cluster A, owner review on PR #53): these were already
+# in the curriculum as the clock's own hour words (module 06's klukkan_er), relocated here rather
+# than duplicated under new ids ("fjögur þúsund" governs the same neuter agreement "eitt/tvö/
+# þrjú/fjögur o'clock" does) — module 03's café/restaurant dialogues speak amounts like "Fjögur
+# þúsund og fimm hundruð krónur." right after this module, so the neuter forms need to be
+# available this early, not just by the time the clock module (06) introduces them.
+[[items]]
+id = "eitt"
+kind = "vocab"
+target = "eitt"
+meaning = "one, as in telling the time"  # recall-only disambiguator, spoken as-is: 1-4 have three gendered forms
+meaning_ja = "時刻を言うときの1"
+meaning_forms = { in_sentence = "one" }
+meaning_forms_ja = { in_sentence = "1" }
+difficulty = 1
+tags = ["hour", "big_count"]
+gender = "neut"
+topics = ["numbers", "time"]
+
+[[items]]
+id = "tvo"
+kind = "vocab"
+target = "tvö"
+meaning = "two, as in telling the time"
+meaning_ja = "時刻を言うときの2"
+meaning_forms = { in_sentence = "two" }
+meaning_forms_ja = { in_sentence = "2" }
+difficulty = 1
+tags = ["hour", "big_count"]
+gender = "neut"
+topics = ["numbers", "time"]
+
+[[items]]
+id = "thrju"
+kind = "vocab"
+target = "þrjú"
+meaning = "three, as in telling the time"
+meaning_ja = "時刻を言うときの3"
+meaning_forms = { in_sentence = "three" }
+meaning_forms_ja = { in_sentence = "3" }
+difficulty = 1
+tags = ["hour", "big_count"]
+gender = "neut"
+topics = ["numbers", "time"]
+
+[[items]]
+id = "fjogur"
+kind = "vocab"
+target = "fjögur"
+meaning = "four, as in telling the time"
+meaning_ja = "時刻を言うときの4"
+meaning_forms = { in_sentence = "four" }
+meaning_forms_ja = { in_sentence = "4" }
+difficulty = 2
+tags = ["hour", "big_count"]
+gender = "neut"
+topics = ["numbers", "time"]
+
+# The clock is the first frame for the neuter counting forms above: without it they were drilled
+# as bare words for ~25 lessons before module 06 (issue #80).
+[[items]]
+id = "klukkan_er"
+kind = "construction"
+target = "Klukkan er {hour}."
+meaning = "It's {hour} o'clock."
+meaning_ja = "今{hour}時です。"
+difficulty = 2
+topics = ["time"]
+slots = { hour = "hour" }
+example = { hour = "thrju" }
+prereqs = ["thrju"]  # issue #80: not hvad_er_klukkan, which comes just before anyway; waiting for it to be
+# *learned* held the clock back five lessons after the neuter forms it is the frame for
+situation = "A passer-by asks you the time. It's three o'clock. Tell them."
+situation_ja = "通りすがりの人に時間を聞かれました。3時です。答えてください。"
+situation_fill = { hour = "thrju" }
+
+# Issue #80: 5-12 come right after the clock, as its next fills («Klukkan er fimm.»): before
+# it, eight bare numbers piled up ahead of their frame in the same lesson.
+[[items]]
 id = "fimm"
 kind = "vocab"
 target = "fimm"
@@ -1054,96 +1177,6 @@ meaning_ja = "12"
 difficulty = 1
 tags = ["hour", "number", "small_count", "big_count"]
 topics = ["time", "numbers"]
-
-[[items]]
-id = "hvad_er_klukkan"
-kind = "phrase"
-target = "Hvað er klukkan?"
-meaning = "What time is it?"
-meaning_ja = "今何時ですか？"
-difficulty = 2
-topics = ["time"]
-situation = "Your phone is dead. Ask a passer-by what time it is."
-situation_ja = "携帯の電池が切れました。通行人に時間を聞いてください。"
-
-# Issue #80: each gendered set of 1-4 arrives with the frame that uses it — the neuter with the
-# clock (and "Við erum fjögur" below), the feminine with krónur — instead of all twelve forms
-# as bare words ahead of any use; 5-12, the same in every gender, come first.
-# Neuter counting forms, 1-4 (issue #29 cluster A, owner review on PR #53): these were already
-# in the curriculum as the clock's own hour words (module 06's klukkan_er), relocated here rather
-# than duplicated under new ids ("fjögur þúsund" governs the same neuter agreement "eitt/tvö/
-# þrjú/fjögur o'clock" does) — module 03's café/restaurant dialogues speak amounts like "Fjögur
-# þúsund og fimm hundruð krónur." right after this module, so the neuter forms need to be
-# available this early, not just by the time the clock module (06) introduces them.
-[[items]]
-id = "eitt"
-kind = "vocab"
-target = "eitt"
-meaning = "one, as in telling the time"  # recall-only disambiguator, spoken as-is: 1-4 have three gendered forms
-meaning_ja = "時刻を言うときの1"
-meaning_forms = { in_sentence = "one" }
-meaning_forms_ja = { in_sentence = "1" }
-difficulty = 1
-tags = ["hour", "big_count"]
-gender = "neut"
-topics = ["numbers", "time"]
-
-[[items]]
-id = "tvo"
-kind = "vocab"
-target = "tvö"
-meaning = "two, as in telling the time"
-meaning_ja = "時刻を言うときの2"
-meaning_forms = { in_sentence = "two" }
-meaning_forms_ja = { in_sentence = "2" }
-difficulty = 1
-tags = ["hour", "big_count"]
-gender = "neut"
-topics = ["numbers", "time"]
-
-[[items]]
-id = "thrju"
-kind = "vocab"
-target = "þrjú"
-meaning = "three, as in telling the time"
-meaning_ja = "時刻を言うときの3"
-meaning_forms = { in_sentence = "three" }
-meaning_forms_ja = { in_sentence = "3" }
-difficulty = 1
-tags = ["hour", "big_count"]
-gender = "neut"
-topics = ["numbers", "time"]
-
-[[items]]
-id = "fjogur"
-kind = "vocab"
-target = "fjögur"
-meaning = "four, as in telling the time"
-meaning_ja = "時刻を言うときの4"
-meaning_forms = { in_sentence = "four" }
-meaning_forms_ja = { in_sentence = "4" }
-difficulty = 2
-tags = ["hour", "big_count"]
-gender = "neut"
-topics = ["numbers", "time"]
-
-# The clock is the first frame for the neuter counting forms above: without it they were drilled
-# as bare words for ~25 lessons before module 06 (issue #80).
-[[items]]
-id = "klukkan_er"
-kind = "construction"
-target = "Klukkan er {hour}."
-meaning = "It's {hour} o'clock."
-meaning_ja = "今{hour}時です。"
-difficulty = 2
-topics = ["time"]
-slots = { hour = "hour" }
-example = { hour = "thrju" }
-prereqs = ["thrju"]  # issue #80: not hvad_er_klukkan, which comes just before anyway; waiting for it to be
-# *learned* held the clock back five lessons after the neuter forms it is the frame for
-situation = "A passer-by asks you the time. It's three o'clock. Tell them."
-situation_ja = "通りすがりの人に時間を聞かれました。3時です。答えてください。"
-situation_fill = { hour = "thrju" }
 
 # Issue #80: right after the clock, a second use of the neuter forms (a mixed group counts in
 # the neuter).
@@ -1333,6 +1366,88 @@ meaning_ja = "500クローナ"
 difficulty = 2
 tags = ["price"]
 topics = ["money"]
+
+# Issue #80: moved from module 03 with the price patterns below, to right after «fimm hundruð
+# krónur»: a price the learner can say, then a question and the patterns that answer it.
+[[items]]
+id = "hvad_kostar_thetta"
+kind = "phrase"
+target = "Hvað kostar þetta?"
+meaning = "How much is this?"
+meaning_ja = "これはいくらですか？"
+difficulty = 2
+topics = ["cafe", "shopping"]
+situations = [
+  "You want to know the price of the sandwich. Ask how much it costs.",
+  "You pick up a woollen hat at a market stall. Ask how much it is.",
+]
+situations_ja = [
+  "サンドイッチの値段を知りたいです。いくらか聞いてください。",
+  "市場の露店で毛糸の帽子を手に取りました。いくらか聞いてください。",
+]
+
+# Issue #29 cluster A: the seven "price" items above are each a whole amount memorized as
+# its own fixed phrase — exactly the "more fixed phrases instead of a construction" pattern
+# #29 exists to fix. This construction generates a thousands-scale amount from an independently-
+# known count word (module 02) × a fixed "þúsund krónur" — same shape as godur_noun (module
+# 18), applied to numbers instead of adjective agreement. þúsund itself isn't a slot: it was
+# a two-way {count}{unit} construction at first, but "hundrað" is the only other money_scale
+# candidate and it pluralizes to "hundruð" for any count but one ("fimm hundruð", not "fimm
+# hundrað") — a real agreement dimension (number, not gender) nothing here models, so a unit
+# slot could only ever have had the one safe filling and that fails the "every construction
+# slot has ≥2 possible fills" invariant (test_directory_curriculum_loads_and_is_large). Amounts
+# in hundreds stay the fixed phrases below (fimm_hundrud_kronur etc.) until that's modeled.
+# The under-100 case (bare "{count} krónur.", no "Það kostar" frame) is einn_tvo_thrjar below —
+# kept separate rather than folded in here because "Það kostar" governs the accusative case,
+# which the feminine count words below (ein/tvær/þrjár/fjórar) are not; see its own note.
+[[items]]
+id = "thad_kostar_big"
+kind = "construction"
+target = "Það kostar {count} þúsund krónur."
+meaning = "It costs {count} thousand krónur."
+meaning_ja = "{count}千クローナです。"
+difficulty = 3
+topics = ["money", "shopping"]
+slots = { count = "big_count" }
+example = { count = "tvo" }
+prereqs = ["tvo", "thusund", "kronur", "hvad_kostar_thetta"]
+pronunciation_notes = "count must be the neuter form (eitt/tvö/þrjú/fjögur) below five, since þúsund is neuter — fimm and up don't change with gender"
+
+# Only one of the seven fixed whole-amount price phrases, fimm_hundrud_kronur, moved to module
+# 02 (issue #29 cluster A, owner review round 3 on PR #53) — it's the sole earliest exposure to
+# "hundruð" (dialogue_sequencing_report's own finding; see that module's comment), so it's the
+# only one actually load-bearing there. The other six were moved there too in an earlier round
+# of this same fix, checked only as a group ("these are all cluster A price vocabulary") rather
+# than individually — but every word in these six (þúsund/tvö/þrjú/fimm/tíu/krónur) already has
+# an earlier standalone source in module 02 regardless of where these six phrases sit (confirmed
+# directly against dialogue_sequencing_report's own word_to_items table, not assumed), so moving
+# them fixed no gap at all. Same failure mode as the fimmtán one, one layer further: not "does
+# this item's own words need an earlier home" but "does this item need to move at all." Left
+# here instead, in their original ascending-amount order.
+[[items]]
+id = "thusund_kronur"
+kind = "vocab"
+target = "þúsund krónur"
+meaning = "a thousand krónur"
+meaning_ja = "1000クローナ"
+difficulty = 2
+tags = ["price"]
+topics = ["money"]
+
+# Issue #80: moved (with «þúsund krónur») from after the other amounts to right after
+# thad_kostar_big: «fimm hundruð krónur», taught early for the café dialogues, waited ~250
+# items for a frame. The other amounts below come back as transfer.
+[[items]]
+id = "thad_kostar"
+kind = "construction"
+target = "Það kostar {price}."
+meaning = "It costs {price}."
+meaning_ja = "{price}です。"
+difficulty = 2
+topics = ["money", "shopping"]
+slots = { price = "price" }
+example = { price = "thusund_kronur" }
+prereqs = ["thusund_kronur", "hvad_kostar_thetta"]
 
 # Issue #29 (owner comment on a real Lesson 3: "grammar is noticed, but not yet transferred"):
 # «Eigðu góðan dag» was one more fixed string to memorise, while godur_gender names exactly the

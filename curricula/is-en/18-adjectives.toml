@@ -1,28 +1,6 @@
 # 18 — describing things: neuter adjectives after "Þetta er …" / "Mér finnst þetta …"
 
 [[items]]
-id = "gott"
-kind = "vocab"
-target = "gott"
-meaning = "good"
-meaning_ja = "良い"
-difficulty = 1
-tags = ["adj_neut"]
-topics = ["adjectives"]
-
-[[items]]
-id = "thetta_er_adj"
-kind = "construction"
-target = "Þetta er {adj}."
-meaning = "This is {adj}."
-meaning_ja = "これは{adj}です。"
-difficulty = 2
-topics = ["adjectives"]
-slots = { adj = "adj_neut" }
-example = { adj = "gott" }
-prereqs = ["gott"]
-
-[[items]]
 id = "mer_finnst_thetta"
 kind = "construction"
 target = "Mér finnst þetta {adj}."
