@@ -19,10 +19,11 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Iterable
 
-# review_candidates (issue #128): what counts as practising an item, as producing it
-# without a hint, and where "late" and "early" start, as shares of the lesson's length
+# review_candidates (issue #128): what counts as practising an item, the stages that give
+# part of the answer away (an intro's own recall comes right after hearing it), and where
+# "late" and "early" start, as shares of the lesson's length
 PRACTICE_KINDS = ("intro", "recall", "generative", "connect", "dialogue")
-UNHINTED_STAGES = ("meaning", "situation", "recombine", "dialogue")
+HINTED_STAGES = ("intro", "cloze", "hinted")
 LATE_RECALL_SHARE = 2 / 3
 EARLY_LAST_SHARE = 0.5
 
@@ -187,14 +188,29 @@ class Script:
           ({"items", "last_s", "end_s"}).
         - ``no_late_recall``: a new item heard later on, but never produced without a hint
           in the last third ({"items", "last_recall_s", "end_s"}); ``last_recall_s`` is
-          None when it was never produced unhinted at all.
+          None when it was never produced unhinted at all. Producing it unhinted means an
+          answer pause with no hint or cloze fragment spoken first, outside an intro — a
+          bridge exchange or a mixed review counts as much as a situation recall.
 
         Times are the plan's estimates (before audio fitting), so read them as shares of
         ``end_s``. Returns candidates in lesson order of their item's first appearance."""
         by_ex: dict[int, list[str]] = {}
+        answered: set[int] = set()
+        hinted: set[int] = set()
         for seg in self.segments:
-            if seg.exercise is not None and seg.type == "narrate" and seg.text:
+            if seg.exercise is None:
+                continue
+            if seg.type == "narrate" and seg.text:
                 by_ex.setdefault(seg.exercise, []).append(seg.text)
+            elif seg.type == "pause" and seg.role == "answer":
+                answered.add(seg.exercise)
+            elif seg.type == "speak" and seg.role in ("partial", "hint"):
+                hinted.add(seg.exercise)
+
+        def unhinted(e: Exercise) -> bool:
+            return (e.kind != "intro" and e.stage not in HINTED_STAGES
+                    and e.index in answered and e.index not in hinted)
+
         practice = [e for e in self.exercises if e.item_ids and e.kind in PRACTICE_KINDS]
         end = max((e.start + e.duration for e in self.exercises), default=0.0)
         out: list[tuple[float, dict]] = []
@@ -212,12 +228,12 @@ class Script:
             if not seen:
                 continue
             last = max(e.start + e.duration for e in seen)
-            unhinted = [e.start for e in seen if e.stage in UNHINTED_STAGES]
+            recalls = [e.start for e in seen if unhinted(e)]
             first = seen[0].start
             if last < end * EARLY_LAST_SHARE:
                 out.append((first, {"kind": "early_last_appearance", "items": [item], "last_s": round(last, 1), "end_s": round(end, 1)}))
-            elif not unhinted or max(unhinted) < end * LATE_RECALL_SHARE:
-                last_recall = round(max(unhinted), 1) if unhinted else None
+            elif not recalls or max(recalls) < end * LATE_RECALL_SHARE:
+                last_recall = round(max(recalls), 1) if recalls else None
                 out.append((first, {"kind": "no_late_recall", "items": [item], "last_recall_s": last_recall, "end_s": round(end, 1)}))
         return [c for _, c in sorted(out, key=lambda c: c[0])]
 
