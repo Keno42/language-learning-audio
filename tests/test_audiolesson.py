@@ -3821,6 +3821,43 @@ class CourseTests(unittest.TestCase):
             self.assertEqual((st.recalled, st.hesitated, st.last_outcome), (0, 0, ""))
             self.assertEqual((st.exposures, st.history), (learner.items[item_id].exposures, learner.items[item_id].history))
 
+    def test_a_dialogue_heard_in_full_rests_before_it_plays_again(self):
+        """Simulated lessons 7-12: «nagranni» was the only dialogue eligible, and played in
+        full in every lesson. Once heard in full it now rests dialogue_rest_lessons lessons;
+        one still growing a turn per encounter comes back next lesson."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [{"id": f"w{i}", "kind": "phrase", "target": f"Orð {i}.", "meaning": f"Word {i}."} for i in range(3)],
+            "dialogues": [
+                {"id": "short", "setting": "A.", "turns": [{"cue": "Say it.", "expect": "w0"}, {"cue": "Say it.", "expect": "w1"}]},
+                {"id": "long", "setting": "B.", "turns": [{"cue": "Say it.", "expect": f"w{i}"} for i in range(3)]},
+            ],
+        }
+        cur = curriculum_from_dict(raw)
+
+        def eligible(done: dict[str, int], played: dict[int, list[str]], last: int) -> set[str]:
+            learner = LearnerState("is", "en", "A1")
+            for i in range(3):
+                learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="meaning")
+            learner.dialogues_done = dict(done)
+            learner.lessons = [{"number": n, "dialogues": played.get(n, [])} for n in range(1, last + 1)]
+            learner.lessons_completed = last
+            out = set()
+            for _ in range(2):
+                planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+                planner.dialogues_played = sorted(out)  # ask again without what it already gave
+                d = planner.eligible_dialogue()
+                if d is None:
+                    break
+                out.add(d.id)
+            return out
+
+        both = {"short": 1, "long": 1}  # short (2 turns) was heard in full; long (3) got 2 of 3
+        self.assertEqual(eligible(both, {4: ["short", "long"]}, 4), {"long"}, "the full one rests, the growing one continues")
+        self.assertEqual(eligible(both, {1: ["short", "long"]}, 3), {"long"})
+        self.assertEqual(eligible(both, {1: ["short", "long"]}, 4), {"short", "long"}, "rested three lessons")
+        self.assertEqual(eligible({"short": 3}, {}, 4), {"short", "long"}, "no record of when: never held back")
+
     def test_topics_are_preferred(self):
         sc = build(fresh(), topics=["directions"])
         cur = load_curriculum(CURRICULUM)
