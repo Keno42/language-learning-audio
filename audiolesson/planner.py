@@ -72,8 +72,19 @@ class PlanConfig:
             return self.max_new_items
         return self.resolved_new_items() + 2
 
-    def resolved_extra_arc_items(self) -> int:
-        return math.ceil(self.resolved_new_items() * self.extra_arc_share)
+    def resolved_extra_arc_items(self, capped: bool = True) -> int:
+        """A later arc's size: ``extra_arc_share`` of the pace, but (``capped``) never taking
+        the lesson past ``new_items_ceiling`` — a pace of 10 plus half again was 15 new items
+        in 30 minutes. Uncapped only as the last resort, when nothing else is left to do."""
+        size = math.ceil(self.resolved_new_items() * self.extra_arc_share)
+        if capped:
+            size = min(size, max(0, self.new_items_ceiling() - self.resolved_new_items()))
+        return size
+
+    def new_items_ceiling(self) -> int:
+        """New items a lesson takes while it has other work: about one per 3 minutes, the top
+        of the 6–10 per 30 minutes that audio courses of this kind converge on (README)."""
+        return max(self.resolved_new_items(), round(self.minutes / 3))
 
     def resolved_new_items(self) -> int:
         if self.new_items is not None:
@@ -813,7 +824,7 @@ class Planner:
                     and not new_queue
                     and remaining >= need_for_new
                     and self._may_start_arc(current_arc_id + 1, early_tier)
-                    and (more := self.select_new(cfg.resolved_extra_arc_items(), exclude={i.id for i in introduced}))
+                    and (more := self.select_new(cfg.resolved_extra_arc_items(capped=early_tier < 2), exclude={i.id for i in introduced}))
                 ):
                     # A fresh arc of new material rather than a second review pass: the new-item
                     # cap bounds an arc, not the lesson (see _may_start_arc). Only once the review

@@ -88,19 +88,27 @@ class LearnerState:
     def due_count(self, today: date) -> int:
         return sum(1 for i in self.items if self.review_priority(i, today) >= 1.0)
 
-    def last_lesson_failures(self) -> tuple[int, int] | None:
-        """(failed new items, new items) of the last lesson, or None if it was not reported."""
+    def last_lesson_failures(self) -> tuple[float, int] | None:
+        """(weak new items, new items) of the last lesson, or None if it was not reported. A
+        failed item counts 1, a hesitated one ½: "it came out, but only just" is not the
+        evidence a faster pace needs (with every new item confirmed in the Discord review, a
+        pace that ignored hesitation rose every lesson to its ceiling)."""
         if not self.lessons:
             return None
         last = self.lessons[-1]
         if last["number"] not in self.reported:
             return None
-        failed = 0
+        weak = 0.0
         for item_id in last.get("new_items", []):
             st = self.items.get(item_id)
-            if st and st.history and st.history[-1].get("lesson") == last["number"] and not st.history[-1].get("ok", True):
-                failed += 1
-        return failed, len(last.get("new_items", []))
+            if not (st and st.history and st.history[-1].get("lesson") == last["number"]):
+                continue
+            entry = st.history[-1]
+            if not entry.get("ok", True):
+                weak += 1
+            elif entry.get("outcome") == "hesitated":
+                weak += 0.5
+        return weak, len(last.get("new_items", []))
 
     def suggest_pace(self, minutes: float, today: date) -> tuple[int, str]:
         """Decide how many new items the next lesson should introduce, and say why.
@@ -110,6 +118,7 @@ class LearnerState:
         - the review backlog must fit: if items due exceed ~80% of the review slots, slow down
         - if the last reported lesson had >20% of its new items fail, slow down
         - speed up only on evidence: last lesson reported with ≤10% failures and a small backlog
+          (a hesitated item counts as half a failure in both)
         - auto mode: an unreported lesson counts as "all good", but the pace steps up at most
           once every AUTO_STEP_EVERY lessons; `report --failed` still slows it down
         """
@@ -132,7 +141,7 @@ class LearnerState:
             reasons.append(f"{due} items due vs ~{review_slots} review slots")
         if fail_rate is not None and fail_rate > 0.2:
             new_pace -= 1
-            reasons.append(f"{fb[0]}/{fb[1]} new items failed last lesson")
+            reasons.append(f"{fb[0]:g}/{fb[1]} new items failed last lesson (a hesitation counts ½)")
         last = self.lessons[-1] if self.lessons else None
         if last and new_pace == pace and last.get("due_at_start", 0) >= 8 and last.get("due_not_fitted", 0) > 0.25 * last["due_at_start"]:
             new_pace -= 1
@@ -140,7 +149,7 @@ class LearnerState:
         if new_pace == pace and fail_rate is not None and fail_rate <= 0.1 and backlog_ratio < 0.5:
             if not auto_assumed:
                 new_pace += 1
-                reasons.append(f"last lesson reported easy ({fb[0]}/{fb[1]} failed), backlog small")
+                reasons.append(f"last lesson reported easy ({fb[0]:g}/{fb[1]} failed), backlog small")
             elif self.lessons_completed - self.pace_changed_at >= AUTO_STEP_EVERY:
                 new_pace += 1
                 reasons.append(f"auto: {AUTO_STEP_EVERY} lessons without reported failures, backlog small")

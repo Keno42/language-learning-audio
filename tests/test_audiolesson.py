@@ -3873,13 +3873,13 @@ class PrematureReviewTests(unittest.TestCase):
         )
 
     def test_not_due_items_wait_while_due_reviews_and_new_material_fill_the_lesson(self):
-        cur = self._curriculum(due=12, not_due=6, new=30)
+        cur = self._curriculum(due=20, not_due=6, new=30)
         learner = LearnerState("is", "en", "A1")
-        for i in range(12):
+        for i in range(20):
             learner.items[f"d{i}"] = self._state(due_in=0, practised_ago=7, interval=7)
         for i in range(6):
             learner.items[f"n{i}"] = self._state(due_in=40, practised_ago=4, interval=44)
-        cfg = PlanConfig(minutes=10, seed=1, new_items=3, drill_streak_limit=1000, dialogue_every=1000, note_chance=0.0)
+        cfg = PlanConfig(minutes=15, seed=1, new_items=3, drill_streak_limit=1000, dialogue_every=1000, note_chance=0.0)
         sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
         first: dict[str, int] = {}
         for e in sc.exercises:
@@ -3890,7 +3890,7 @@ class PrematureReviewTests(unittest.TestCase):
         self.assertLessEqual(len(new), 3 + cfg.resolved_extra_arc_items() + 1)  # + a pulled-in filler at most
         not_due = [first[f"n{i}"] for i in range(6) if f"n{i}" in first]
         if not_due:
-            self.assertGreater(min(not_due), max(first[f"d{i}"] for i in range(12)), "a not-due item before a due one")
+            self.assertGreater(min(not_due), max(first[f"d{i}"] for i in range(20)), "a not-due item before a due one")
             self.assertGreater(min(not_due), first[new[3]], "a not-due item before the second batch of new items")
 
         # on a tighter budget the due reviews and new items fill it all: nothing waits early
@@ -3918,6 +3918,16 @@ class PrematureReviewTests(unittest.TestCase):
         if "n7" in order:
             self.assertEqual(set(rested), {f"n{k}" for k in range(7)}, "yesterday's item only after every rested one")
             self.assertGreater(order.index("n7"), max(order.index(i) for i in rested))
+
+    def test_a_later_arc_never_takes_a_lesson_past_the_new_item_ceiling(self):
+        """Simulated lessons 1-12: pace 10 plus half again was 15 new items in 30 minutes.
+        While a lesson has other work, a later arc stops at about one new item per 3
+        minutes; only the last resort (nothing else left to do) may go past it."""
+        self.assertEqual(PlanConfig(minutes=30, new_items=6).resolved_extra_arc_items(), 3)
+        self.assertEqual(PlanConfig(minutes=30, new_items=8).resolved_extra_arc_items(), 2)
+        self.assertEqual(PlanConfig(minutes=30, new_items=10).resolved_extra_arc_items(), 0)
+        self.assertEqual(PlanConfig(minutes=30, new_items=10).resolved_extra_arc_items(capped=False), 5)
+        self.assertEqual(PlanConfig(minutes=15, new_items=3).resolved_extra_arc_items(), 2)
 
     def test_a_course_stops_repeating_well_known_items(self):
         """#94's acceptance criterion on the real course: no item with an interval of a week or
@@ -4131,6 +4141,26 @@ class PacingTests(unittest.TestCase):
         day += timedelta(days=1)
         down, why = learner.suggest_pace(30, day)
         self.assertEqual(down, 6, why)
+
+    def test_hesitation_counts_as_half_a_failure_for_the_pace(self):
+        """Simulated lessons 1-12 with every new item confirmed in the Discord review: the pace
+        rose every lesson to 10 because only outright failures counted. A hesitation now
+        counts ½: 2 of 12 hesitated (8%) still speeds up, 4 (17%) holds, 6 (25%) slows down."""
+        results = {}
+        for hesitated in (2, 4, 6):
+            learner = fresh()
+            day = TODAY
+            sc = build(learner, 30, today=day, new_items=6)
+            apply_to_learner(sc, learner, day)
+            learner.pace = 6
+            new = sc.meta["new_items"]
+            self.assertGreaterEqual(len(new), hesitated)
+            # the fr-en sample lesson 1 has fewer than 12 new items: scale the count to 12
+            n = round(hesitated * len(new) / 12)
+            learner.report([], [], day, 1, hesitated=new[:n], recalled=new[n:])
+            results[hesitated] = learner.suggest_pace(30, day + timedelta(days=1))
+        self.assertEqual({k: v[0] for k, v in results.items()}, {2: 7, 4: 6, 6: 5}, results)
+        self.assertIn("a hesitation counts ½", results[6][1])
 
     def test_backlog_slows_the_pace(self):
         learner, _ = course(6, minutes=30)
