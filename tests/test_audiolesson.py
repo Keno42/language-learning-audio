@@ -4010,7 +4010,7 @@ class PrematureReviewTests(unittest.TestCase):
                     if word in seg.text.lower() and seg.text.lower().strip(" .!?") != word:
                         in_sentence.setdefault(item_id, sc.lesson_number)
             for ex in sc.exercises:
-                if ex.stage == "situation" and ex.item_ids and ex.item_ids[0] in ("ja", "nei", "lika"):
+                if ex.stage == "situation" and ex.item_ids and ex.item_ids[0] in ("ja", "nei", "eg_lika"):
                     answered_situations.add(ex.item_ids[0])
             apply_to_learner(sc, learner, day)
             day += timedelta(days=1)
@@ -4018,7 +4018,19 @@ class PrematureReviewTests(unittest.TestCase):
             self.assertIn(item_id, introduced)
             self.assertIn(item_id, in_sentence, f"{item_id} never said in a sentence")
             self.assertLessEqual(in_sentence[item_id] - introduced[item_id], 1, item_id)
-        self.assertEqual(answered_situations, {"ja", "nei", "lika"})
+        self.assertEqual(answered_situations, {"ja", "nei", "eg_lika"})
+
+    def test_an_item_removed_from_the_curriculum_is_ignored(self):
+        """#123 review: «lika» left the curriculum («Ég líka.» is eg_lika). An older learner
+        file still has it; lessons build and never practise it."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertNotIn("lika", cur.by_id)
+        learner = LearnerState("is", "en", "A1")
+        for i in ("godan_daginn", "takk", "lika"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=2, stage="meaning")
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1), today=TODAY).build()
+        self.assertNotIn("lika", {i for e in sc.exercises for i in e.item_ids})
+        self.assertIn("takk", sc.meta["reviewed_items"])
 
     def test_a_later_arc_never_takes_a_lesson_past_the_new_item_ceiling(self):
         """Simulated lessons 1-12: pace 10 plus half again was 15 new items in 30 minutes.

@@ -453,11 +453,13 @@ situations_ja = [
 
 # Promoted from module 19 (issue #29 triage, cluster C): a repeat offender across
 # three dialogues before it was otherwise taught — see docs/history/sessions.md.
-# Issue #80: «líka» on its own had no frame and was drilled as "Say: also."; its use at
-# this level is «Ég líka.» (module 19's eg_lika, merged in here so it no longer waits for
-# the bare word to be learned). The id stays, so learners who met «líka» keep its history.
+# Issue #80: the bare word «líka» ("also") had no frame and was drilled as "Say: also."; at
+# this level its use is «Ég líka.», module 19's eg_lika, moved here without its prereq on the
+# bare word (which is removed). A new id rather than reusing «lika», so that «Ég líka.» is
+# introduced like any new phrase instead of inheriting the word's schedule; an old learner
+# file's «lika» entry is simply no longer in the curriculum.
 [[items]]
-id = "lika"
+id = "eg_lika"
 kind = "phrase"
 target = "Ég líka."
 meaning = "Me too."
