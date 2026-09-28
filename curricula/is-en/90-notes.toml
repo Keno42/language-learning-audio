@@ -418,6 +418,19 @@ topics = ["grammar"]
 text = "«Þetta var gott», «Ég var rænd» and «Ég var í Reykjavík í gær» all use «var»: it is the past of «er». «Ég er heima» becomes «Ég var heima», «Það er kalt» becomes «Það var kalt» — swap the one word, and the rest of the sentence stays as it is. Other verbs have past forms of their own, like «fer» to «fór» or «kaupi» to «keypti»; for now, you meet those one phrase at a time."
 text_ja = "«Þetta var gott»、«Ég var rænd»、«Ég var í Reykjavík í gær» には、どれも «var» が入っています。«var» は «er» の過去形です。«Ég er heima» は «Ég var heima» に、«Það er kalt» は «Það var kalt» になります。変えるのはこの一語だけで、文の残りはそのままです。ほかの動詞にもそれぞれの過去形があり、たとえば «fer» は «fór» に、«kaupi» は «keypti» になります。これらは今のところ、フレーズごとに覚えていきます。"
 
+# issue #29 «Ég á …» family: «eiga» for having family, a booking, an appointment, named
+# from three «Ég á» phrases the learner owns, with the count agreeing with the noun's
+# gender (einn bróður / tvö börn, then «tvær systur», introduced right after). No
+# construction yet: a count + accusative noun pool with genders doesn't exist.
+[[notes]]
+id = "eiga_have"
+milestone = true
+items = ["eg_a_tvo_born", "eg_a_bokun", "eg_a_einn_brodur"]
+transfer_items = ["eg_a_tvaer_systur", "eg_a_engin_born", "eg_a_pantad_herbergi", "eg_a_tima_klukkan_tvo"]
+topics = ["grammar", "family"]
+text = "«Ég á tvö börn», «Ég á bókun» and «Ég á einn bróður» all use «á», from the verb «eiga»: to have family, a booking or an appointment, or to own something. You already ask with it: «Áttu …?» is «átt þú», do you have. The number changes with the noun's gender, like «góðan», «góða» and «gott»: «einn bróður» for a masculine noun, «tvö börn» for a neuter one, and for a feminine one, «tvær systur»."
+text_ja = "«Ég á tvö börn»、«Ég á bókun»、«Ég á einn bróður» には、どれも «á» が入っています。動詞 «eiga» の形で、家族がいる、予約がある、何かを持っている、というときに使います。聞くときの «Áttu …?» も、実は «átt þú»、「あなたは持っていますか」です。数は、«góðan»、«góða»、«gott» と同じように名詞の性で変わります。男性名詞なら «einn bróður»、中性名詞なら «tvö börn»、そして女性名詞なら «tvær systur» です。"
+
 # issue #29 person pilot: the «við» ending, named from three «við» phrases before
 # transform_vid_form asks for it over «Ég …» sentences.
 [[notes]]
