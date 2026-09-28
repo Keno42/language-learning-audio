@@ -2933,7 +2933,16 @@ class CurriculumTests(unittest.TestCase):
             for (cid, fid), resolved in expect.items():
                 c = cur.by_id[cid]
                 self.assertEqual(cur.resolve_slots(c, {next(iter(c.slots)): cur.by_id[fid]}), resolved)
+        # food and drink thank the way Japanese does: the generated «Takk fyrir matinn.» is cued as
+        # the fixed phrase is, ごちそうさま, not a literal 食事をありがとう
+        ja = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
+        c = ja.by_id["takk_fyrir"]
+        self.assertEqual(ja.resolve_slots(c, {"thing": ja.by_id["matinn"]})[1], ja.by_id["takk_fyrir_matinn"].meaning)
+        self.assertEqual(ja.resolve_slots(c, {"thing": ja.by_id["kaffid"]})[1], "コーヒー、ごちそうさまでした。")
         cur = load_curriculum(ROOT / "curricula" / "is-en")
+        # «Verði þér að góðu» both wishes a good meal and answers «Takk fyrir matinn»
+        reply = cur.by_id["verdi_ther_ad_godu"]
+        self.assertEqual((reply.partner_cue, reply.partner_cue_after), ("Takk fyrir matinn!", "gjordu_svo_vel"))
         self.assertLess(cur.by_id["takk_fyrir"].order - cur.by_id["eg_tharf_hjalp"].order, 10)
         self.assertLess(cur.by_id["takk_fyrir"].order, cur.by_id["takk_fyrir_dvolina"].order)
         for fill in ("borga_med_korti", "opna_gluggann", "loka_hurdinni", "hringja", "taka_mynd"):

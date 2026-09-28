@@ -565,9 +565,9 @@ id = "hjalpina"
 kind = "vocab"
 target = "hjálpina"
 meaning = "the help (after 'thanks for')"
-meaning_ja = "手伝い（「〜をありがとう」の形）"
+meaning_ja = "手伝い（「Takk fyrir …」の形）"
 meaning_forms = { in_sentence = "the help" }
-meaning_forms_ja = { in_sentence = "手伝ってくれて" }
+meaning_forms_ja = { in_sentence = "手伝ってくれて", thanks = "手伝ってくれてありがとう" }
 difficulty = 1
 tags = ["acc_thanks"]
 topics = ["social"]
@@ -578,9 +578,9 @@ id = "kaffid"
 kind = "vocab"
 target = "kaffið"
 meaning = "the coffee (after 'thanks for')"
-meaning_ja = "コーヒー（「〜をありがとう」の形）"
+meaning_ja = "コーヒー（「Takk fyrir …」の形）"
 meaning_forms = { in_sentence = "the coffee" }
-meaning_forms_ja = { in_sentence = "コーヒーを" }
+meaning_forms_ja = { in_sentence = "コーヒーを", thanks = "コーヒー、ごちそうさまでした" }
 difficulty = 1
 tags = ["acc_thanks"]
 topics = ["social"]
@@ -591,9 +591,9 @@ id = "matinn"
 kind = "vocab"
 target = "matinn"
 meaning = "the meal (after 'thanks for')"
-meaning_ja = "食事（「〜をありがとう」の形）"
+meaning_ja = "食事（「Takk fyrir …」の形）"
 meaning_forms = { in_sentence = "the meal" }
-meaning_forms_ja = { in_sentence = "食事を" }
+meaning_forms_ja = { in_sentence = "食事を", thanks = "ごちそうさまでした" }
 difficulty = 1
 tags = ["acc_thanks"]
 topics = ["social"]
@@ -604,7 +604,7 @@ id = "takk_fyrir"
 kind = "construction"
 target = "Takk fyrir {thing}."
 meaning = "Thanks for {thing}."
-meaning_ja = "{thing}ありがとう。"
+meaning_ja = "{thing:thanks}。"  # per fill: food and drink thank the way Japanese does, with ごちそうさま
 difficulty = 2
 topics = ["social"]
 slots = { thing = "acc_thanks" }

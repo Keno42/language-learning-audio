@@ -554,6 +554,17 @@ situations_ja = [
   "お客さんに料理を出しました。召し上がれと言ってください。",
   "作った料理のお礼を友達に言われました。アイスランド流に答えてください。",
 ]
+# its second use, as an exchange: the host's answer to «Takk fyrir matinn» (as «Ekkert að
+# þakka» answers «Takk kærlega» after the same «Gjörðu svo vel.»)
+partner_cue = "Takk fyrir matinn!"
+partner_cue_speaker = "native_a"  # the narration says she
+partner_cue_after = "gjordu_svo_vel"
+partner_cue_setup = "You've cooked dinner for a friend. Serve her the food."
+partner_cue_setup_ja = "友達に夕食を作りました。料理を出してください。"
+partner_cue_meaning = "Thanks for the meal!"
+partner_cue_meaning_ja = "ごちそうさまでした！"
+partner_cue_situation = "After the meal she thanks you for the food. Answer the way Icelanders do."
+partner_cue_situation_ja = "食後に友達が料理のお礼を言いました。アイスランド流に答えてください。"
 
 [[items]]
 id = "til_hamingju"
