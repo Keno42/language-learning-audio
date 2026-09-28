@@ -94,7 +94,7 @@ difficulty = 3
 topics = ["grammar"]
 instruction = "Say it about us: we…"
 instruction_ja = "私たちのこととして言ってください：私たちは…"
-prereqs = ["transform_thu_form"]
+prereqs = ["transform_thu_form", "vid_erum", "vid_tolum", "vid_forum_a_morgun"]  # the last three complete vid_um
 examples = [
   { source = "Ég fer á morgun.", source_meaning = "I'm leaving tomorrow.", source_meaning_ja = "明日出発します。", result = "Við förum á morgun.", result_meaning = "We're leaving tomorrow.", result_meaning_ja = "私たちは明日出発します。" },
   { source = "Ég er frá Japan.", source_meaning = "I'm from Japan.", source_meaning_ja = "日本から来ました。", result = "Við erum frá Japan.", result_meaning = "We're from Japan.", result_meaning_ja = "私たちは日本から来ました。" },
@@ -103,28 +103,6 @@ examples = [
   { source = "Ég vil kaffi.", source_meaning = "I want coffee.", source_meaning_ja = "コーヒーが欲しいです。", result = "Við viljum kaffi.", result_meaning = "We want coffee.", result_meaning_ja = "私たちはコーヒーが欲しいです。" },
   { source = "Ég skil.", source_meaning = "I understand.", source_meaning_ja = "わかります。", result = "Við skiljum.", result_meaning = "We understand.", result_meaning_ja = "私たちはわかっています。" },
   { source = "Ég á bíl.", source_meaning = "I have a car.", source_meaning_ja = "車を持っています。", result = "Við eigum bíl.", result_meaning = "We have a car.", result_meaning_ja = "私たちは車を持っています。" },
-]
-
-[[items]]
-id = "transform_past"
-kind = "transform"
-target = "present → past"
-meaning = "saying it happened yesterday"
-meaning_ja = "昨日のこととして言う"
-difficulty = 4
-topics = ["grammar"]
-instruction = "Say it in the past — yesterday:"
-instruction_ja = "過去のこととして言ってください——昨日："
-prereqs = ["i_gaer", "transform_thu_form"]
-examples = [
-  { source = "Ég fer í sund.", source_meaning = "I go swimming.", source_meaning_ja = "泳ぎに行きます。", result = "Ég fór í sund í gær.", result_meaning = "I went swimming yesterday.", result_meaning_ja = "昨日泳ぎに行きました。" },
-  { source = "Ég er þreytt.", source_m = "Ég er þreyttur.", source_meaning = "I'm tired.", source_meaning_ja = "疲れています。", result = "Ég var þreytt í gær.", result_m = "Ég var þreyttur í gær.", result_meaning = "I was tired yesterday.", result_meaning_ja = "昨日は疲れていました。" },
-  { source = "Ég borða fisk.", source_meaning = "I eat fish.", source_meaning_ja = "魚を食べます。", result = "Ég borðaði fisk í gær.", result_meaning = "I ate fish yesterday.", result_meaning_ja = "昨日魚を食べました。" },
-  { source = "Ég tala við Önnu.", source_meaning = "I talk to Anna.", source_meaning_ja = "アンナと話します。", result = "Ég talaði við Önnu í gær.", result_meaning = "I talked to Anna yesterday.", result_meaning_ja = "昨日アンナと話しました。" },
-  { source = "Ég kem heim.", source_meaning = "I come home.", source_meaning_ja = "帰宅します。", result = "Ég kom heim í gær.", result_meaning = "I came home yesterday.", result_meaning_ja = "昨日帰宅しました。" },
-  { source = "Ég sé norðurljósin.", source_meaning = "I see the northern lights.", source_meaning_ja = "オーロラを見ます。", result = "Ég sá norðurljósin í gær.", result_meaning = "I saw the northern lights yesterday.", result_meaning_ja = "昨日オーロラを見ました。" },
-  { source = "Ég kaupi peysu.", source_meaning = "I buy a sweater.", source_meaning_ja = "セーターを買います。", result = "Ég keypti peysu í gær.", result_meaning = "I bought a sweater yesterday.", result_meaning_ja = "昨日セーターを買いました。" },
-  { source = "Ég vinn.", source_meaning = "I work.", source_meaning_ja = "働きます。", result = "Ég vann í gær.", result_meaning = "I worked yesterday.", result_meaning_ja = "昨日働きました。" },
 ]
 
 [[items]]
@@ -138,6 +116,30 @@ topics = ["grammar", "time"]
 prereqs = ["i_gaer"]
 situation = "Anna asks where you were yesterday. Say you were in Reykjavík."
 situation_ja = "アンナに昨日どこにいたか聞かれました。レイキャビクにいたと答えてください。"
+
+# issue #29 tense pilot: «er → var» is the one past that is a rule, so it is drilled on its
+# own over «Ég er …» phrases the learner already owns (milestone note var_past names it).
+# Every other past is irregular and comes as a phrase first; transform_past below only
+# asks for pasts the learner has met that way.
+[[items]]
+id = "transform_var"
+kind = "transform"
+target = "er → var"
+meaning = "saying it was so yesterday"
+meaning_ja = "昨日のこととして言う（er → var）"
+difficulty = 3
+topics = ["grammar"]
+instruction = "Say it about yesterday:"
+instruction_ja = "昨日のこととして言ってください："
+prereqs = ["i_gaer", "eg_var_i_reykjavik_i_gaer", "transform_thu_form"]
+examples = [
+  { source = "Ég er heima.", source_meaning = "I'm at home.", source_meaning_ja = "家にいます。", result = "Ég var heima í gær.", result_meaning = "I was at home yesterday.", result_meaning_ja = "昨日は家にいました。" },
+  { source = "Ég er þreytt.", source_m = "Ég er þreyttur.", source_meaning = "I'm tired.", source_meaning_ja = "疲れています。", result = "Ég var þreytt í gær.", result_m = "Ég var þreyttur í gær.", result_meaning = "I was tired yesterday.", result_meaning_ja = "昨日は疲れていました。" },
+  { source = "Það er kalt.", source_meaning = "It's cold.", source_meaning_ja = "寒いです。", result = "Það var kalt í gær.", result_meaning = "It was cold yesterday.", result_meaning_ja = "昨日は寒かったです。" },
+  { source = "Ég er upptekin.", source_m = "Ég er upptekinn.", source_meaning = "I'm busy.", source_meaning_ja = "忙しいです。", result = "Ég var upptekin í gær.", result_m = "Ég var upptekinn í gær.", result_meaning = "I was busy yesterday.", result_meaning_ja = "昨日は忙しかったです。" },
+  { source = "Ég er veik.", source_m = "Ég er veikur.", source_meaning = "I'm ill.", source_meaning_ja = "病気です。", result = "Ég var veik í gær.", result_m = "Ég var veikur í gær.", result_meaning = "I was ill yesterday.", result_meaning_ja = "昨日は病気でした。" },
+  { source = "Ég er í fríi.", source_meaning = "I'm on holiday.", source_meaning_ja = "休暇中です。", result = "Ég var í fríi í gær.", result_meaning = "I was off yesterday.", result_meaning_ja = "昨日は休みでした。" },
+]
 
 [[items]]
 id = "eg_for_i_sund_i_morgun"
@@ -174,6 +176,26 @@ topics = ["grammar", "shopping"]
 prereqs = ["peysu"]
 situation = "You come back with a bag. Say you bought a sweater."
 situation_ja = "袋を持って戻ってきました。セーターを買ったと言ってください。"
+
+# issue #29 tense pilot: after the irregular pasts have each come as a phrase (fór, sá,
+# keypti) — the drill asks only for those, mixed with «var», never for a form not yet met.
+[[items]]
+id = "transform_past"
+kind = "transform"
+target = "present → past"
+meaning = "saying it happened yesterday"
+meaning_ja = "昨日のこととして言う"
+difficulty = 4
+topics = ["grammar"]
+instruction = "Say it in the past — yesterday:"
+instruction_ja = "過去のこととして言ってください——昨日："
+prereqs = ["transform_var", "eg_for_i_sund_i_morgun", "eg_sa_norðurljósin", "eg_keypti_peysu"]
+examples = [
+  { source = "Ég fer í sund.", source_meaning = "I go swimming.", source_meaning_ja = "泳ぎに行きます。", result = "Ég fór í sund í gær.", result_meaning = "I went swimming yesterday.", result_meaning_ja = "昨日泳ぎに行きました。" },
+  { source = "Ég sé norðurljósin.", source_meaning = "I see the northern lights.", source_meaning_ja = "オーロラを見ます。", result = "Ég sá norðurljósin í gær.", result_meaning = "I saw the northern lights yesterday.", result_meaning_ja = "昨日オーロラを見ました。" },
+  { source = "Ég kaupi peysu.", source_meaning = "I buy a sweater.", source_meaning_ja = "セーターを買います。", result = "Ég keypti peysu í gær.", result_meaning = "I bought a sweater yesterday.", result_meaning_ja = "昨日セーターを買いました。" },
+  { source = "Ég er í Reykjavík.", source_meaning = "I'm in Reykjavík.", source_meaning_ja = "レイキャビクにいます。", result = "Ég var í Reykjavík í gær.", result_meaning = "I was in Reykjavík yesterday.", result_meaning_ja = "昨日はレイキャビクにいました。" },
+]
 
 [[items]]
 id = "eg_gleymdi"
@@ -316,6 +338,24 @@ difficulty = 3
 topics = ["grammar", "food"]
 situation = "Anna offers lunch but you've just had some. Say you were just eating."
 situation_ja = "アンナが昼食をすすめますが、食べたばかりです。ちょうど食べたところだと言ってください。"
+
+# issue #29 tense pilot: «er → var» carried into the progressive — «Ég var að …» over the
+# same audited progressive_inf pool as «Ég er að …» (both «I was just …ing» and «I've just
+# …» in Icelandic; the gloss keeps the first, which every fill supports).
+[[items]]
+id = "eg_var_ad_inf"
+kind = "construction"
+target = "Ég var að {inf}."
+meaning = "I was just {inf:ing}."
+meaning_ja = "ちょうど{inf:te}いたところです。"
+difficulty = 3
+topics = ["grammar", "daily"]
+slots = { inf = "progressive_inf" }
+example = { inf = "drekka_kaffi" }
+prereqs = ["eg_er_ad_inf", "eg_var_ad_borda", "drekka_kaffi"]
+situation = "Anna phones and asks if she's disturbing you. Say you were just drinking coffee."
+situation_ja = "アンナから電話があり、邪魔していないか聞かれました。ちょうどコーヒーを飲んでいたところだと言ってください。"
+situation_fill = { inf = "drekka_kaffi" }
 
 [[items]]
 id = "eg_er_buin"
