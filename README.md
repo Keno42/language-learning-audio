@@ -112,6 +112,7 @@ around 80–85%.
 
 - Start at one new item per 5 minutes (30 min → 6), clamped to 3–10.
 - If the last *reported* lesson had more than 20% of its new items fail, pace − 1.
+  A hesitated item (`report --hesitated`) counts as half a failure, here and below.
 - If the items due for review exceed ~80% of the lesson's review slots, pace − 1.
 - Pace + 1 only on evidence: the last lesson was reported with ≤ 10% failures
   and the backlog is small. In manual mode, without `report` the pace never rises.
@@ -128,7 +129,8 @@ by three mechanisms, all automatic:
    is folded into the learner state, so the next plan's time estimates match
    the actual voices (espeak, edge and OpenAI all speak at different rates).
 2. *Fillers, in order* — once the due reviews are done, the lesson takes a
-   second, smaller batch of new items (half the pace: 30 min → 6 + 3); then
+   second, smaller batch of new items (half the pace: 30 min → 6 + 3, never past
+   about one new item per 3 minutes, so pace 10 takes none); then
    items not yet due but last practised at least half their interval ago,
    the longest ago first; then a second pass over today's reviews, one stage
    harder; then any other item not practised today, again the longest ago
