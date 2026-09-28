@@ -1,58 +1,82 @@
 # 19 — question words and small function words
 
+# Issue #80: a one-word answer or question in a situation, not a vocab item: as vocab it had
+# no frame and was only ever drilled as a bare word.
 [[items]]
 id = "hvad"
-kind = "vocab"
-target = "hvað"
-meaning = "what"
-meaning_ja = "何"
+kind = "phrase"
+target = "Hvað?"
+meaning = "What?"
+meaning_ja = "何？"
 difficulty = 1
 topics = ["questions"]
+situation = "Your friend says she has some big news. Ask what."
+situation_ja = "友達が大ニュースがあると言いました。何か聞いてください。"
 
+# Issue #80: a one-word answer or question in a situation, not a vocab item: as vocab it had
+# no frame and was only ever drilled as a bare word.
 [[items]]
 id = "hver"
-kind = "vocab"
-target = "hver"
-meaning = "who"
-meaning_ja = "誰"
+kind = "phrase"
+target = "Hver?"
+meaning = "Who?"
+meaning_ja = "誰？"
 difficulty = 1
 topics = ["questions"]
+situation = "Your friend whispers that someone famous is sitting behind you. Ask who."
+situation_ja = "友達が、後ろに有名人が座っているとささやきました。誰か聞いてください。"
 
+# Issue #80: a one-word answer or question in a situation, not a vocab item: as vocab it had
+# no frame and was only ever drilled as a bare word.
 [[items]]
 id = "hvar"
-kind = "vocab"
-target = "hvar"
-meaning = "where"
-meaning_ja = "どこ"
+kind = "phrase"
+target = "Hvar?"
+meaning = "Where?"
+meaning_ja = "どこ？"
 difficulty = 1
 topics = ["questions"]
+situation = "Your friend says she found a great café. Ask where."
+situation_ja = "友達がいいカフェを見つけたと言いました。どこか聞いてください。"
 
+# Issue #80: a one-word answer or question in a situation, not a vocab item: as vocab it had
+# no frame and was only ever drilled as a bare word.
 [[items]]
 id = "hvert"
-kind = "vocab"
-target = "hvert"
-meaning = "where to"
-meaning_ja = "どこへ"
+kind = "phrase"
+target = "Hvert?"
+meaning = "Where to?"
+meaning_ja = "どこへ？"
 difficulty = 2
 topics = ["questions"]
+situation = "Your colleague says he's going on a trip next week. Ask where to."
+situation_ja = "同僚が来週旅行に行くと言いました。どこへ行くのか聞いてください。"
 
+# Issue #80: a one-word answer or question in a situation, not a vocab item: as vocab it had
+# no frame and was only ever drilled as a bare word.
 [[items]]
 id = "hvernig"
-kind = "vocab"
-target = "hvernig"
-meaning = "how"
-meaning_ja = "どのように"
+kind = "phrase"
+target = "Hvernig?"
+meaning = "How?"
+meaning_ja = "どうやって？"
 difficulty = 1
 topics = ["questions"]
+situation = "Your friend says she fixed the car herself. Ask how."
+situation_ja = "友達が自分で車を直したと言いました。どうやったのか聞いてください。"
 
+# Issue #80: a one-word answer or question in a situation, not a vocab item: as vocab it had
+# no frame and was only ever drilled as a bare word.
 [[items]]
 id = "af_hverju"
-kind = "vocab"
-target = "af hverju"
-meaning = "why"
-meaning_ja = "なぜ"
+kind = "phrase"
+target = "Af hverju?"
+meaning = "Why?"
+meaning_ja = "どうして？"
 difficulty = 2
 topics = ["questions"]
+situation = "Your friend says she's leaving the party already. Ask why."
+situation_ja = "友達がもうパーティーから帰ると言いました。どうしてか聞いてください。"
 
 [[items]]
 id = "hvada"
@@ -63,14 +87,18 @@ meaning_ja = "どの"
 difficulty = 2
 topics = ["questions"]
 
+# Issue #80: a one-word answer or question in a situation, not a vocab item: as vocab it had
+# no frame and was only ever drilled as a bare word.
 [[items]]
 id = "hversu_mikid"
-kind = "vocab"
-target = "hversu mikið"
-meaning = "how much"
-meaning_ja = "どのくらい"
+kind = "phrase"
+target = "Hversu mikið?"
+meaning = "How much?"
+meaning_ja = "いくら？"
 difficulty = 2
 topics = ["questions"]
+situation = "Your friend says his new bike was expensive. Ask how much."
+situation_ja = "友達が新しい自転車は高かったと言いました。いくらだったか聞いてください。"
 
 [[items]]
 id = "hver_er_thetta"
@@ -253,14 +281,18 @@ meaning_ja = "〜ない"
 difficulty = 1
 topics = ["discourse", "grammar"]
 
+# Issue #80: a one-word answer or question in a situation, not a vocab item: as vocab it had
+# no frame and was only ever drilled as a bare word.
 [[items]]
 id = "kannski"
-kind = "vocab"
-target = "kannski"
-meaning = "maybe"
-meaning_ja = "たぶん"
+kind = "phrase"
+target = "Kannski."
+meaning = "Maybe."
+meaning_ja = "たぶん。"
 difficulty = 1
 topics = ["discourse"]
+situation = "A friend asks if you'll come swimming tomorrow. You might. Answer briefly."
+situation_ja = "友達に明日プールに来るか聞かれました。行くかもしれません。短く答えてください。"
 
 [[items]]
 id = "bara"
@@ -280,14 +312,18 @@ meaning_ja = "とても"
 difficulty = 1
 topics = ["discourse"]
 
+# Issue #80: a one-word answer or question in a situation, not a vocab item: as vocab it had
+# no frame and was only ever drilled as a bare word.
 [[items]]
 id = "svolitid"
-kind = "vocab"
-target = "svolítið"
-meaning = "a little"
-meaning_ja = "少し"
+kind = "phrase"
+target = "Svolítið."
+meaning = "A little."
+meaning_ja = "少し。"
 difficulty = 2
 topics = ["discourse"]
+situation = "Someone asks if you speak Icelandic. You speak a little. Answer briefly."
+situation_ja = "アイスランド語を話すか聞かれました。少し話せます。短く答えてください。"
 
 [[items]]
 id = "of"

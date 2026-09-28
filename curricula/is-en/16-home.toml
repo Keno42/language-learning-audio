@@ -100,6 +100,7 @@ target = "íbúð"
 meaning = "a flat"
 meaning_ja = "アパート"
 difficulty = 1
+tags = ["nom_noun"]
 topics = ["home"]
 
 [[items]]
@@ -108,8 +109,10 @@ kind = "vocab"
 target = "hús"
 meaning = "house"
 meaning_ja = "家"
+meaning_forms = { in_sentence = "a house", bare = "house" }
+meaning_forms_ja = { in_sentence = "家" }
 difficulty = 1
-tags = ["gendered_noun"]
+tags = ["gendered_noun", "nom_noun"]
 gender = "neut"
 topics = ["home"]
 situation = "You point at a house up the hill. Say: house."
@@ -126,6 +129,7 @@ target = "rúm"
 meaning = "a bed"
 meaning_ja = "ベッド"
 difficulty = 1
+tags = ["nom_noun"]
 topics = ["home"]
 
 [[items]]
@@ -135,6 +139,7 @@ target = "borð"
 meaning = "a table"
 meaning_ja = "テーブル"
 difficulty = 1
+tags = ["nom_noun"]
 topics = ["home"]
 
 [[items]]
@@ -144,6 +149,7 @@ target = "stóll"
 meaning = "a chair"
 meaning_ja = "椅子"
 difficulty = 1
+tags = ["nom_noun"]
 topics = ["home"]
 
 [[items]]
@@ -153,6 +159,7 @@ target = "gluggi"
 meaning = "a window"
 meaning_ja = "窓"
 difficulty = 1
+tags = ["nom_noun"]
 topics = ["home"]
 
 [[items]]
@@ -162,6 +169,7 @@ target = "hurð"
 meaning = "a door"
 meaning_ja = "ドア"
 difficulty = 1
+tags = ["nom_noun"]
 topics = ["home"]
 
 [[items]]

@@ -2860,10 +2860,11 @@ class CurriculumTests(unittest.TestCase):
         self.assertEqual([f["item"] for f in report["none"]], ["lone"], "a dialogue turn is a context too; phrases aren't reported")
         self.assertEqual(frame_gap_report(cur, span=100)["late"], [])
 
-        # the real course, after #80's resequencing: only bíll/bók/hús still wait (their frame
-        # is godur_noun, gated by a milestone that names their genders)
+        # the real course, after #80: no word waits far for its first frame, and those with none
+        # at all are function words and number parts used inside phrases
         report = frame_gap_report(load_curriculum(ROOT / "curricula" / "is-en"))
-        self.assertLessEqual({f["item"] for f in report["late"]}, {"bill", "bok", "hus"})
+        self.assertEqual(report["late"], [])
+        self.assertLessEqual(len(report["none"]), 26)
 
     def test_a_filler_recombines_into_a_frame_met_in_an_earlier_lesson(self):
         """Issue #80: a filler could only recombine into a construction already *learned* (or
@@ -2895,6 +2896,24 @@ class CurriculumTests(unittest.TestCase):
         self.assertIsNone(Builder(cur, Prompts.load("en"), Timing(level="A1"), learner).generate_with(cur.by_id["vatn"]))
         learner.items["fa"] = ItemState(stage="intro")
         self.assertIsNone(Builder(cur, Prompts.load("en"), Timing(level="A1"), learner).generate_with(cur.by_id["vatn"]), "only met at intro")
+
+    def test_nouns_with_no_other_frame_are_named_by_pointing(self):
+        """Issue #80: people, furniture, work, nature and animal nouns were drilled only as bare
+        words. «Þetta er {thing}.» names each ("That's a waterfall."), «þetta» staying neuter
+        whatever the noun; bíll/bók/hús keep their bare form for «Góður bíll.»."""
+        for lang, expect in ((None, [("Þetta er foss.", "That's a waterfall."), ("Þetta er bíll.", "That's a car."), ("Þetta er maður.", "That's a man.")]),
+                             ("ja", [("Þetta er foss.", "あれは滝です。"), ("Þetta er bíll.", "あれは車です。"), ("Þetta er heitur hver.", "あれは温泉です。")])):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            frame = cur.by_id["thetta_er_noun"]
+            for target, meaning in expect:
+                fill = next(i for i in cur.items_with_tag("nom_noun") if target.startswith(f"Þetta er {i.target}."))
+                self.assertEqual(cur.resolve_slots(frame, {"thing": fill}), (target, meaning))
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertEqual(cur.resolve_slots(cur.by_id["godur_noun"], {"noun": cur.by_id["bill"]}), ("Góður bíll.", "Good car."))
+        self.assertLess(cur.by_id["thetta_er_noun"].order, cur.by_id["bill"].order)
+        self.assertEqual(cur.resolve_slots(cur.by_id["eg_er_ara"], {"age": cur.by_id["sautjan"]})[0], "Ég er sautján ára.")
+        for i in ("hvar", "af_hverju", "kannski", "i_gaer"):
+            self.assertEqual((cur.by_id[i].kind, cur.by_id[i].has_situation), ("phrase", True), i)
 
     def test_backward_chunks_grow_from_the_end(self):
         cur = load_curriculum(CURRICULUM)
