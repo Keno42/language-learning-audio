@@ -34,8 +34,8 @@ throughout. The first does not imply the second.
 | modality (want / have to / may + inf) | **modeled**: milestone `modal_infinitive` → construction `ma_eg_inf`; `eg_vil` / `eg_verd_ad` gained bound situations for a minimal-pair contrast | session 32 |
 | case (dative experiencer «mér» / «þér») | **modeled**: milestone `dative_subject` («Ég er svöng» vs «Mér er kalt / heitt») → construction `mer_lidur` («Mér líður {how}.» over `how_feel`: vel / illa / betur / ágætlega); milestone `mer_ther` names the «mér» / «þér» pair with «Hvernig líður þér?», which moved from module 26 to sit next to the construction | sessions 32, 41 |
 | number (hundrað/hundruð, ein/króna) | **deliberately unmodeled**: amounts in hundreds stay fixed phrases | session 26 |
-| tense (past «var», «var að») | **not started**: «Ég var að borða», «Ég var í Reykjavík í gær», «Ég var rænd» stay separate phrases | — |
-| person (ég er / við erum …) | **not started**: «Við erum fjögur / gift / frá Japan» stay separate phrases | — |
+| tense (past «var», «var að») | **modeled for «er → var»**: milestone `var_past` («Þetta var gott», «Ég var rænd», «Ég var í Reykjavík í gær») → `transform_var` over known «Ég er …» phrases (heima, þreytt, upptekin, veik, í fríi, «Það er kalt») → construction `eg_var_ad_inf` («Ég var að {inf}.» over `progressive_inf`). This pilot generalizes only «er → var»: other past-tense patterns (including regular weak ones such as «borða → borðaði», «tala → talaði») stay phrase-first for now, until weak-verb patterns are introduced explicitly. `transform_past` moved after the past phrases (fór, sá, keypti) and asks only for those plus «var» | #29 tense/person pilot |
+| person (ég er / við erum …) | **named**: milestone `vid_um` («Við erum / tölum / förum»: the «-um» ending, the vowel change in tölum / förum, «erum») right before `transform_vid_form`. No construction: the verbs differ per phrase, and an «-um» form can't be derived from a fill without a paradigm | #29 tense/person pilot |
 
 Two mechanisms were added so these pilots don't have to fake productivity:
 
@@ -66,8 +66,8 @@ Families of ≥3 phrases, with disposition and status.
 | `Hvernig er …?` | 3 | 2 | nominative definite nouns; `hvar_er` already has a `nom_place` pool that could partly serve |
 | `Áttu þetta í …?` | 3 | 1/2 | stærra / minna / öðrum lit: shopping formulas, fine as chunks |
 | `Hvað er …?` / `Er þetta …?` / `Það er …` / `Þetta er …` | 8–17 | mostly 1 | frames shared, but the members are unrelated predicates. The scan over-groups them; no action |
-| `Ég var …` | 3 | 3 (tense) | past tense not started (see table above) |
-| `Við erum …` | 3 | 3 (person) | person paradigm not started |
+| `Ég var …` | 3 | 3 (tense) | **named** by `var_past`, drilled by `transform_var`, productive in `eg_var_ad_inf`; the phrases stay for their situations |
+| `Við erum …` | 3 | 3 (person) | **named** by `vid_um`; the phrases stay (see table above) |
 | `… á morgun`, `… í lagi`, `… að fara` | 4–7 | 1 | shared adverbial/idiom tails, not a construction |
 
 ## Other findings
@@ -94,6 +94,7 @@ Families of ≥3 phrases, with disposition and status.
    their fixed siblings. Started: five `Má ég …?` verb phrases and two progressive ones (elda,
    senda tölvupóst) are fills now; hugsa and grínast stay phrases (odd after «Má ég» / «Viltu»). An activity verb joins `progressive_inf` too only after its
    «er að …» form is checked. (The leaking disambiguators were fixed in session 36.)
-4. Tense (past «var» / «var að») and person (`ég er` / `við erum` …) pilots.
+4. ~~Tense (past «var» / «var að») and person (`ég er` / `við erum` …) pilots.~~ Done:
+   `var_past` / `transform_var` / `eg_var_ad_inf`, and `vid_um`.
 5. Remaining category-2 families: `Ég á` (`Takk fyrir`, `Hvenær fer` and `… virkar ekki` are
    constructions now).

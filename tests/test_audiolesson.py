@@ -886,6 +886,41 @@ class CurriculumTests(unittest.TestCase):
         self.assertIn("eg_er_ad_inf", sc.meta["new_items"])
         self.assertLess(labels.index("note: vera_ad_progressive"), labels.index("new pattern: Ég er að {inf}."))
 
+    def test_tense_and_person_milestones_name_the_rule_before_its_drill(self):
+        """Issue #29 tense / person pilot: var_past names «er → var» from three known «var»
+        phrases before transform_var drills it, and vid_um names the «við … -um» ending before
+        transform_vid_form — each followed by two of its own phrases' situations."""
+        for drill, note in (("transform_var", "var_past"), ("transform_vid_form", "vid_um")):
+            sc, cur = self._lesson_introducing(drill)
+            labels = [ex.label for ex in sc.exercises]
+            self.assertIn(drill, sc.meta["new_items"], drill)
+            at = labels.index(f"note: {note}")
+            first_drill = next(i for i, ex in enumerate(sc.exercises) if drill in ex.item_ids)
+            self.assertLess(at, first_drill, labels)
+            gate = set(cur.note_by_id[note].items) | set(cur.note_by_id[note].transfer_items)
+            for ex in sc.exercises[at + 1 : at + 3]:
+                self.assertEqual((ex.kind, ex.stage), ("recall", "situation"), labels)
+                self.assertIn(ex.item_ids[0], gate)
+
+    def test_past_drills_only_ask_for_forms_already_taught(self):
+        """Issue #29 tense pilot: the pilot generalizes only «er → var»; other past-tense
+        patterns (weak «borða → borðaði» included) stay phrase-first until they are introduced
+        explicitly. So a past drill never asks for a past the learner hasn't met as a phrase:
+        transform_var changes only «er» → «var», and every transform_past result verb is in a
+        phrase introduced before the drill."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        tv = cur.by_id["transform_var"]
+        for ex in tv.examples:
+            for src, res in ((ex.source, ex.result), (ex.source_m or ex.source, ex.result_m or ex.result)):
+                self.assertTrue(res.startswith(src[:-1].replace(" er ", " var ", 1)), (src, res))
+                self.assertTrue(res.endswith(" í gær."), res)
+        past = cur.by_id["transform_past"]
+        earlier = [it.target for it in cur.items if it.order < past.order and it.kind == "phrase"]
+        for ex in past.examples:
+            verb = ex.result.split()[1]
+            self.assertTrue(any(f" {verb} " in f" {t} " for t in earlier), verb)
+        self.assertLess(cur.by_id["eg_keypti_peysu"].order, past.order)
+
     def test_dialogue_turn_can_expect_a_construction_with_a_bound_fill(self):
         """Issue #48: a dialogue turn may expect a construction, with the fill its cue names
         bound by ``expect_fill`` — the learner generates the line from known parts inside a real
@@ -3669,7 +3704,7 @@ class SpeakerGenderTests(unittest.TestCase):
 
     def test_transform_examples_use_the_mans_form(self):
         cur, b = self.state_builder()
-        past = cur.by_id["transform_past"]
+        past = cur.by_id["transform_var"]
         exm = next(e for e in past.examples if e.result_m)
         sc = Script(1, "t", "is", "en")
         for _ in range(2):

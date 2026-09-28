@@ -405,6 +405,30 @@ topics = ["grammar"]
 text = "«Ég er að koma!», «Ég er að fara», and «Ég er að læra íslensku» all use «er að» plus a verb in its basic form, the infinitive, for something happening right now, like English '-ing'. Compare «Ég ætla að fara heim» (a plan: I'm going to go home) with «Ég er að fara heim» (right now: I'm on my way home). Many activity verbs you know can go after «er að». Verbs for a state, like sitting or sleeping, keep the plain present instead: «Ég sit», «Ég sef»."
 text_ja = "«Ég er að koma!»、«Ég er að fara»、«Ég er að læra íslensku» は、どれも «er að» のあとに動詞の基本形（不定詞）を置いて、「今〜しているところ」を表します。«Ég ætla að fara heim»（家に帰るつもりです—予定）と «Ég er að fara heim»（今、家に帰っているところです）を比べてみてください。知っている動作の動詞の多くは «er að» のあとに入れられます。ただし、座っている・眠っているなどの状態を表す動詞は、そのまま現在形を使います：«Ég sit»、«Ég sef»。"
 
+# issue #29 tense pilot: the one past this pilot generalizes. Fires once «Þetta var gott.»,
+# «Ég var rænd.» and «Ég var í Reykjavík í gær.» are met, right before transform_var drills
+# it over «Ég er …» phrases. Other pasts (weak «-aði» ones included) stay phrase-first
+# until their patterns are introduced explicitly.
+[[notes]]
+id = "var_past"
+milestone = true
+items = ["thetta_var_gott", "eg_var_raend", "eg_var_i_reykjavik_i_gaer"]
+transfer_items = ["transform_var", "eg_var_ad_inf"]
+topics = ["grammar"]
+text = "«Þetta var gott», «Ég var rænd» and «Ég var í Reykjavík í gær» all use «var»: it is the past of «er». «Ég er heima» becomes «Ég var heima», «Það er kalt» becomes «Það var kalt» — swap the one word, and the rest of the sentence stays as it is. Other verbs have past forms of their own, like «fer» to «fór» or «kaupi» to «keypti»; for now, you meet those one phrase at a time."
+text_ja = "«Þetta var gott»、«Ég var rænd»、«Ég var í Reykjavík í gær» には、どれも «var» が入っています。«var» は «er» の過去形です。«Ég er heima» は «Ég var heima» に、«Það er kalt» は «Það var kalt» になります。変えるのはこの一語だけで、文の残りはそのままです。ほかの動詞にもそれぞれの過去形があり、たとえば «fer» は «fór» に、«kaupi» は «keypti» になります。これらは今のところ、フレーズごとに覚えていきます。"
+
+# issue #29 person pilot: the «við» ending, named from three «við» phrases before
+# transform_vid_form asks for it over «Ég …» sentences.
+[[notes]]
+id = "vid_um"
+milestone = true
+items = ["vid_erum", "vid_tolum", "vid_forum_a_morgun"]
+transfer_items = ["transform_vid_form", "vid_viljum_bord"]
+topics = ["grammar"]
+text = "«Við erum frá Japan», «Við tölum japönsku» and «Við förum á morgun»: with «við», 'we', the verb ends in «-um». «Ég vil» becomes «við viljum», «ég skil» becomes «við skiljum». The vowel often changes as well: «tala» gives «við tölum», «fara» gives «við förum». And «ég er» becomes «við erum»."
+text_ja = "«Við erum frá Japan»、«Við tölum japönsku»、«Við förum á morgun»：«við»（私たち）が主語のとき、動詞は «-um» で終わります。«ég vil» は «við viljum» に、«ég skil» は «við skiljum» になります。母音も変わることがよくあります。«tala» は «við tölum» に、«fara» は «við förum» になります。そして «ég er» は «við erum» になります。"
+
 [[notes]]
 id = "modal_infinitive"
 milestone = true
