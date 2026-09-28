@@ -144,8 +144,8 @@ id = "takk_fyrir_matinn"
 requires = ["takk_fyrir_matinn"]
 items = ["takk_fyrir_matinn", "verdi_ther_ad_godu"]
 topics = ["food"]
-text = "«Takk fyrir matinn» after every meal works like 'gochisōsama'. Children learn it early, and the cook answers «verði þér að góðu»."
-text_ja = "食後の«Takk fyrir matinn»は「ごちそうさま」そのものです。子どもは小さいうちに教わり、作った人は«verði þér að góðu»と返します。"
+text = "«Takk fyrir matinn» after every meal works like 'gochisōsama', and «Takk fyrir kaffið» after coffee at someone's home. Children learn it early, and the cook answers «verði þér að góðu», the same words that wish a guest a good meal when the food is served; for help or a favour it is «ekkert að þakka». There is nothing like 'itadakimasu' for the guest before eating."
+text_ja = "食後の«Takk fyrir matinn»は「ごちそうさま」そのもので、家でコーヒーを出してもらったら«Takk fyrir kaffið»です。子どもは小さいうちに教わり、作った人は«verði þér að góðu»と返します。料理を出すときの「召し上がれ」と同じ言葉で、飲食物へのお礼にだけ使います。手伝いなどへのお礼には«ekkert að þakka»。食べる前に客が言う「いただきます」にあたる言葉はありません。"
 
 [[notes]]
 id = "thjorfe"

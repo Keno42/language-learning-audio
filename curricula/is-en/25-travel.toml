@@ -155,6 +155,21 @@ prereqs = ["hvad_maelir_thu_med"]
 situation = "A fellow traveller asks about the lagoon you visited. Say you recommend it."
 situation_ja = "旅仲間があなたが行った温泉について聞きました。おすすめだと言ってください。"
 
+# Issue #29: the verb phrase of the «Má ég …?» phrase below, as a fill of every «… {inf}» pattern (Ég vil …,
+# Viltu …?, Ég verð að …, Má ég …?), not only inside that one question. The phrase stays
+# for its situation.
+[[items]]
+id = "taka_mynd"
+kind = "vocab"
+target = "taka mynd"
+meaning = "take a photo"
+meaning_ja = "写真を撮る"
+difficulty = 2
+tags = ["inf"]
+topics = ["travel"]
+meaning_forms = { ing = "taking a photo" }
+meaning_forms_ja = { te = "写真を撮って" }
+
 [[items]]
 id = "ma_eg_taka_mynd"
 kind = "phrase"
