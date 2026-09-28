@@ -405,7 +405,10 @@ target = "maður"
 meaning = "a man / a person"
 meaning_ja = "男の人／人"
 difficulty = 1
+tags = ["nom_noun"]
 topics = ["family", "social"]
+meaning_forms_ja = { in_sentence = "男の人" }
+meaning_forms = { in_sentence = "a man" }
 
 [[items]]
 id = "kona"
@@ -414,7 +417,23 @@ target = "kona"
 meaning = "a woman"
 meaning_ja = "女の人"
 difficulty = 1
+tags = ["nom_noun"]
 topics = ["family", "social"]
+
+# Issue #80: pointing at something and naming it. Nouns in the nominative with no other frame
+# (people, «bíll»/«bók»/«hús», furniture, work, nature, animals) were drilled only as bare
+# words; «þetta» stays neuter whatever the noun's gender, so every one of them fits.
+[[items]]
+id = "thetta_er_noun"
+kind = "construction"
+target = "Þetta er {thing}."
+meaning = "That's {thing}."
+meaning_ja = "あれは{thing}です。"
+difficulty = 1
+topics = ["social", "nature"]
+slots = { thing = "nom_noun" }
+example = { thing = "kona" }
+prereqs = ["kona"]
 
 [[items]]
 id = "barn"
@@ -423,6 +442,7 @@ target = "barn"
 meaning = "a child"
 meaning_ja = "子ども"
 difficulty = 1
+tags = ["nom_noun"]
 topics = ["family"]
 
 [[items]]
@@ -432,6 +452,7 @@ target = "strákur"
 meaning = "a boy"
 meaning_ja = "男の子"
 difficulty = 1
+tags = ["nom_noun"]
 topics = ["family"]
 
 [[items]]
@@ -441,6 +462,7 @@ target = "stelpa"
 meaning = "a girl"
 meaning_ja = "女の子"
 difficulty = 1
+tags = ["nom_noun"]
 topics = ["family"]
 
 [[items]]
@@ -498,3 +520,21 @@ requires = ["hvad_heitir_hun", "hvad_er_hun_gomul", "thetta_er_person", "brodir_
   partner = "Gaman að sjá þetta!"
   partner_meaning = "Nice to see these!"
   partner_meaning_ja = "見せてくれてうれしい！"
+
+# Issue #80: moved from module 10 next to the other nominative nouns and «Þetta er {thing}.»,
+# its first frame (before, only godur_noun's, ~320 items later).
+[[items]]
+id = "bill"
+kind = "vocab"
+target = "bíll"
+meaning = "car"
+meaning_ja = "車（〜は・〜が）"
+meaning_forms = { in_sentence = "a car", bare = "car" }
+meaning_forms_ja = { in_sentence = "車" }
+difficulty = 1
+tags = ["gendered_noun", "nom_noun"]
+gender = "masc"
+topics = ["transport"]
+pronunciation_notes = "nominative — the subject form; 'bíl' (module 25) is the accusative object form"
+situation = "You point at a car in the driveway. Say: car."
+situation_ja = "私道にある車を指さしています。「車」と言ってください。"

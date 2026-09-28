@@ -30,15 +30,19 @@ difficulty = 1
 tags = ["time"]
 topics = ["arrangements", "time"]
 
+# Issue #80: a one-word answer or question in a situation, not a vocab item: as vocab it had
+# no frame and was only ever drilled as a bare word.
 [[items]]
 id = "i_gaer"
-kind = "vocab"
-target = "í gær"
-meaning = "yesterday"
-meaning_ja = "昨日"
+kind = "phrase"
+target = "Í gær."
+meaning = "Yesterday."
+meaning_ja = "昨日。"
 difficulty = 1
 tags = ["past_time"]
 topics = ["time"]
+situation = "A friend asks when you arrived in Iceland. It was yesterday. Answer briefly."
+situation_ja = "アイスランドにいつ着いたか聞かれました。昨日です。短く答えてください。"
 
 [[items]]
 id = "i_fyrramalid"
@@ -318,14 +322,18 @@ prereqs = ["a_morgun"]
 situation = "He suggests tomorrow, but you have plans. Say you can't tomorrow."
 situation_ja = "明日を提案されましたが、予定があります。明日は無理だと言ってください。"
 
+# Issue #80: a one-word answer or question in a situation, not a vocab item: as vocab it had
+# no frame and was only ever drilled as a bare word.
 [[items]]
 id = "hvenaer"
-kind = "vocab"
-target = "hvenær"
-meaning = "when"
-meaning_ja = "いつ"
+kind = "phrase"
+target = "Hvenær?"
+meaning = "When?"
+meaning_ja = "いつ？"
 difficulty = 1
 topics = ["time", "questions"]
+situation = "Your friend says she's moving to Akureyri. Ask when."
+situation_ja = "友達がアークレイリに引っ越すと言いました。いつか聞いてください。"
 
 [[items]]
 id = "hvenaer_opnar"

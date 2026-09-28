@@ -314,9 +314,10 @@ kind = "vocab"
 target = "bók"
 meaning = "book"
 meaning_ja = "本（〜は・〜が）"
+meaning_forms = { in_sentence = "a book", bare = "book" }
 meaning_forms_ja = { in_sentence = "本" }
 difficulty = 1
-tags = ["gendered_noun"]
+tags = ["gendered_noun", "nom_noun"]
 gender = "fem"
 topics = ["hobbies"]
 situation = "Anna hands you the book she just finished. Say: book."

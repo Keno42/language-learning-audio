@@ -316,6 +316,7 @@ target = "fundur"
 meaning = "a meeting"
 meaning_ja = "会議"
 difficulty = 1
+tags = ["nom_noun"]
 topics = ["work"]
 
 [[items]]
@@ -325,7 +326,10 @@ target = "verkefni"
 meaning = "a task / project"
 meaning_ja = "作業／プロジェクト"
 difficulty = 2
+tags = ["nom_noun"]
 topics = ["work"]
+meaning_forms = { in_sentence = "a project" }
+meaning_forms_ja = { in_sentence = "プロジェクト" }
 
 [[items]]
 id = "yfirmadur"
@@ -334,6 +338,7 @@ target = "yfirmaður"
 meaning = "a boss"
 meaning_ja = "上司"
 difficulty = 2
+tags = ["nom_noun"]
 topics = ["work"]
 
 [[items]]

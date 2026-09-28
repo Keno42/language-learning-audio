@@ -7,7 +7,7 @@ target = "fjall"
 meaning = "a mountain"
 meaning_ja = "山"
 difficulty = 1
-tags = ["nature_nom"]
+tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -17,7 +17,7 @@ target = "jökull"
 meaning = "a glacier"
 meaning_ja = "氷河"
 difficulty = 2
-tags = ["nature_nom"]
+tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -27,7 +27,7 @@ target = "foss"
 meaning = "a waterfall"
 meaning_ja = "滝"
 difficulty = 1
-tags = ["nature_nom"]
+tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -36,8 +36,9 @@ kind = "vocab"
 target = "heitur hver"
 meaning = "a hot spring"
 meaning_ja = "温泉（源泉）"
+meaning_forms_ja = { in_sentence = "温泉" }
 difficulty = 2
-tags = ["nature_nom"]
+tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
 pronunciation_notes = "hver = hot spring; also the word for 'who'"
 
@@ -48,7 +49,7 @@ target = "eldfjall"
 meaning = "a volcano"
 meaning_ja = "火山"
 difficulty = 2
-tags = ["nature_nom"]
+tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -58,7 +59,7 @@ target = "hraun"
 meaning = "a lava field"
 meaning_ja = "溶岩原"
 difficulty = 1
-tags = ["nature_nom"]
+tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -68,7 +69,7 @@ target = "strönd"
 meaning = "a beach"
 meaning_ja = "浜辺"
 difficulty = 2
-tags = ["nature_nom"]
+tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -88,7 +89,7 @@ target = "stöðuvatn"
 meaning = "a lake"
 meaning_ja = "湖"
 difficulty = 3
-tags = ["nature_nom"]
+tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -98,7 +99,7 @@ target = "á"
 meaning = "a river"
 meaning_ja = "川"
 difficulty = 1
-tags = ["nature_nom"]
+tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -108,7 +109,7 @@ target = "eyja"
 meaning = "an island"
 meaning_ja = "島"
 difficulty = 1
-tags = ["nature_nom"]
+tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -138,7 +139,7 @@ target = "lundi"
 meaning = "a puffin"
 meaning_ja = "パフィン"
 difficulty = 1
-tags = ["animal"]
+tags = ["animal", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -148,7 +149,7 @@ target = "hvalur"
 meaning = "a whale"
 meaning_ja = "クジラ"
 difficulty = 1
-tags = ["animal"]
+tags = ["animal", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -158,7 +159,7 @@ target = "selur"
 meaning = "a seal"
 meaning_ja = "アザラシ"
 difficulty = 1
-tags = ["animal"]
+tags = ["animal", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -168,7 +169,7 @@ target = "hestur"
 meaning = "a horse"
 meaning_ja = "馬"
 difficulty = 1
-tags = ["animal"]
+tags = ["animal", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -178,7 +179,7 @@ target = "kind"
 meaning = "a sheep"
 meaning_ja = "羊"
 difficulty = 1
-tags = ["animal"]
+tags = ["animal", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -188,7 +189,7 @@ target = "refur"
 meaning = "an arctic fox"
 meaning_ja = "ホッキョクギツネ"
 difficulty = 2
-tags = ["animal"]
+tags = ["animal", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -198,7 +199,7 @@ target = "hundur"
 meaning = "a dog"
 meaning_ja = "犬"
 difficulty = 1
-tags = ["animal"]
+tags = ["animal", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -208,7 +209,7 @@ target = "köttur"
 meaning = "a cat"
 meaning_ja = "猫"
 difficulty = 1
-tags = ["animal"]
+tags = ["animal", "nom_noun"]
 topics = ["nature"]
 
 [[items]]

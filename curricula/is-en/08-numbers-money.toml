@@ -9,7 +9,7 @@ target = "þrettán"
 meaning = "thirteen"
 meaning_ja = "13"
 difficulty = 2
-tags = ["number"]
+tags = ["number", "age", "big_count"]
 topics = ["numbers"]
 
 [[items]]
@@ -19,7 +19,7 @@ target = "fjórtán"
 meaning = "fourteen"
 meaning_ja = "14"
 difficulty = 2
-tags = ["number"]
+tags = ["number", "age", "big_count"]
 topics = ["numbers"]
 
 [[items]]
@@ -29,7 +29,7 @@ target = "fimmtán"
 meaning = "fifteen"
 meaning_ja = "15"
 difficulty = 2
-tags = ["number"]
+tags = ["number", "age", "big_count"]
 topics = ["numbers"]
 
 [[items]]
@@ -39,7 +39,7 @@ target = "sextán"
 meaning = "sixteen"
 meaning_ja = "16"
 difficulty = 2
-tags = ["number"]
+tags = ["number", "age", "big_count"]
 topics = ["numbers"]
 
 [[items]]
@@ -49,7 +49,7 @@ target = "sautján"
 meaning = "seventeen"
 meaning_ja = "17"
 difficulty = 2
-tags = ["number"]
+tags = ["number", "age", "big_count"]
 topics = ["numbers"]
 
 [[items]]
@@ -59,7 +59,7 @@ target = "átján"
 meaning = "eighteen"
 meaning_ja = "18"
 difficulty = 2
-tags = ["number"]
+tags = ["number", "age", "big_count"]
 topics = ["numbers"]
 
 [[items]]
@@ -69,7 +69,7 @@ target = "nítján"
 meaning = "nineteen"
 meaning_ja = "19"
 difficulty = 2
-tags = ["number"]
+tags = ["number", "age", "big_count"]
 topics = ["numbers"]
 
 [[items]]
@@ -109,7 +109,7 @@ target = "sjötíu"
 meaning = "seventy"
 meaning_ja = "70"
 difficulty = 1
-tags = ["number"]
+tags = ["number", "age"]
 topics = ["numbers"]
 
 [[items]]
@@ -119,7 +119,7 @@ target = "áttatíu"
 meaning = "eighty"
 meaning_ja = "80"
 difficulty = 1
-tags = ["number"]
+tags = ["number", "age"]
 topics = ["numbers"]
 
 [[items]]
@@ -129,7 +129,7 @@ target = "níutíu"
 meaning = "ninety"
 meaning_ja = "90"
 difficulty = 1
-tags = ["number"]
+tags = ["number", "age"]
 topics = ["numbers"]
 
 [[items]]
