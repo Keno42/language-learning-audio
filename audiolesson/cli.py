@@ -51,6 +51,8 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--profile", "-p", default=None, help="voice profile .toml (see profiles/)")
     g.add_argument("--provider", default=None, help="TTS provider: stub, espeak, edge, openai, say (overrides profile)")
     g.add_argument("--no-audio", action="store_true", help="only write the script and transcript")
+    g.add_argument("--max-same-situation", type=int, default=None, help="lever (#136): narrate one situation cue at most N times per item per lesson; past it, a meaning recall instead")
+    g.add_argument("--late-unhinted-recall", action="store_true", help="lever (#136): the closing recall of each new item gives no hint")
     g.add_argument("--trip", default=None, help="private trip profile .toml (#132): teach the can-do items first, consolidate in the final two weeks; its contents are never written to outputs")
     g.add_argument("--cache", default=None, help="TTS cache directory (default: cache/<provider> under --out, or under --root with --user); safe to share between learners")
     g.add_argument("--no-fit", action="store_true", help="don't scale pauses to land on --minutes")
@@ -240,6 +242,8 @@ def cmd_generate(args) -> int:
         seed=args.seed,
         translate_partner=not args.no_translate,
         priority=priority,
+        max_same_situation=args.max_same_situation,
+        late_unhinted_recall=args.late_unhinted_recall,
     )
     unknown_topics = [t for t in cfg.topics if t not in cur.topics()]
     if unknown_topics:
