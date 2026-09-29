@@ -78,7 +78,8 @@ up to and through the trip, throttled only by what the learner reports.
 With no profile, or no season, seasonal content is left out of the ordering and the report.
 So holiday greetings are Tier A for a winter-holidays trip and nothing for a summer one.
 
-Simulated at pace 6 over 84 daily lessons, the trip ordering (164 items) meets every
+Simulated at pace 6 over 84 daily lessons, the trip ordering (169 items; 172 for a
+winter-holidays season) meets every
 Tier A item by lesson 35 and every Tier B item by lesson 56. Without it, both tiers miss
 their milestone. The total reached stays about the same (~720 items).
 
