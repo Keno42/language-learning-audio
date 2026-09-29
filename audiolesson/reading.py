@@ -26,6 +26,9 @@ class Card:
     meaning_ja: str = ""
     hint_ja: str = ""  # a katakana approximation; the 🔊 TTS is the real pronunciation
     parts: list[list[str]] = field(default_factory=list)  # [[part, gloss], …] for compounds
+    # [[word, gloss], …]: what each expression listed with «·» means. A letters card's
+    # ``meaning`` is its spelling rule, so without these the words' meanings go unshown
+    words: list[list[str]] = field(default_factory=list)
     own: bool = False  # from the private trip profile: never stored in the repository
 
     def to_dict(self) -> dict:
@@ -52,6 +55,13 @@ def load_deck(curriculum_dir: str | Path, places: list[str] | None = None) -> li
                     raise CurriculumError(f"{f}: card {card.id!r}: text and meaning are required")
                 if any(len(p) != 2 for p in card.parts):
                     raise CurriculumError(f"{f}: card {card.id!r}: parts are [part, gloss] pairs")
+                if any(len(w) != 2 for w in card.words):
+                    raise CurriculumError(f"{f}: card {card.id!r}: words are [word, gloss] pairs")
+                listed = [t.strip() for t in card.text.split("·") if t.strip()]
+                if card.words and [w for w, _ in card.words] != listed:
+                    raise CurriculumError(f"{f}: card {card.id!r}: words must gloss {listed}, in order")
+                if card.stage == "letters" and not card.words:
+                    raise CurriculumError(f"{f}: card {card.id!r}: a letters card glosses its words")
                 cards.append(card)
     ids = [c.id for c in cards]
     dupes = sorted({i for i in ids if ids.count(i) > 1})

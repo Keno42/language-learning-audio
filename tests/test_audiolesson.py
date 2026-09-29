@@ -5285,12 +5285,28 @@ class ReadingDeckTests(unittest.TestCase):
         self.assertEqual([c.text for c in own], ["Leynistaður"], "a place already in the deck is not repeated")
         self.assertEqual(own[0].stage, "places")
 
+    def test_letters_cards_gloss_every_word_they_list(self):
+        """A letters card's ``meaning`` is its spelling rule («þ: the 'th' of 'think'»), so its
+        words' meanings are glossed one by one (owner: the answer showed no meaning)."""
+        from audiolesson.reading import load_deck
+
+        letters = [c for c in load_deck(ROOT / "curricula" / "is-en") if c.stage == "letters"]
+        self.assertTrue(letters)
+        for c in letters:
+            with self.subTest(card=c.id):
+                listed = [t.strip() for t in c.text.split("·")]
+                self.assertEqual([w for w, _ in c.words], listed)
+                self.assertTrue(all(g.strip() for _, g in c.words))
+
     def test_bad_cards_are_rejected(self):
         from audiolesson.reading import load_deck
 
         for body, message in (('id = "x"\nstage = "menus"\ntext = "a"\nmeaning = "b"', "stage"),
                               ('id = "x"\nstage = "signs"\ntext = ""\nmeaning = "b"', "required"),
-                              ('id = "x"\nstage = "signs"\ntext = "a"\nmeaning = "b"\nparts = [["a"]]', "pairs")):
+                              ('id = "x"\nstage = "signs"\ntext = "a"\nmeaning = "b"\nparts = [["a"]]', "pairs"),
+                              ('id = "x"\nstage = "letters"\ntext = "a · b"\nmeaning = "rule"', "glosses its words"),
+                              ('id = "x"\nstage = "letters"\ntext = "a · b"\nmeaning = "rule"\nwords = [["b", "B"], ["a", "A"]]', "in order"),
+                              ('id = "x"\nstage = "signs"\ntext = "a"\nmeaning = "b"\nwords = [["a"]]', "pairs")):
             with tempfile.TemporaryDirectory() as td:
                 (Path(td) / "reading").mkdir()
                 (Path(td) / "reading" / "d.toml").write_text("[[cards]]\n" + body, "utf-8")
