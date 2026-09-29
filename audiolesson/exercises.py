@@ -73,7 +73,7 @@ class Builder:
     _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
     # lever (#136): how often one situation cue may be narrated for an item in a lesson; past
-    # it, a situation recall becomes a meaning recall (None: no limit, the default)
+    # it, a situation recall becomes a meaning recall (None: no limit, the default; ≥ 1 otherwise)
     max_same_situation: int | None = None
     _cue_uses: dict[tuple[str, str], int] = field(default_factory=dict)
 

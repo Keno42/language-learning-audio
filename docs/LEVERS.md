@@ -16,11 +16,10 @@ On the Discord bot, levers are set per deployment with `LESSON_EXTRA_ARGS` in
 | lever | CLI | default | metric that shows its effect |
 |---|---|---|---|
 | new-item budget | `--new N` (one lesson), `--pace N` (ongoing) | the learner's pace | new items per lesson; the reachability report (`validate --cando`) |
-| max identical situation cue per item per lesson | `--max-same-situation N` | no limit | `review_candidates` of kind `repeated_situation` |
+| max identical situation cue per item per lesson | `--max-same-situation N` (N ≥ 1) | no limit | `review_candidates` of kind `repeated_situation` |
 | guaranteed late unhinted recall for new items | `--late-unhinted-recall` | off | `review_candidates` of kinds `no_late_recall` and `early_last_appearance` |
 | answer-time scale | `--pause-multiplier X` | 1.0 | feedback "pacing", weekly check stalls |
 | trip priority ordering | `--trip <profile>` | off | the can-do reachability report |
-| consolidation (final 14 days) | `departure` in the trip profile | off | new items per lesson near departure |
 
 **Max same situation.** Once an item's cue has been narrated N times, a further situation
 recall becomes a meaning recall. An item with another situation variant uses that variant
@@ -33,6 +32,9 @@ being dropped from the closing block.
 Over 12 simulated 30-minute lessons at pace 8, the two levers together took the candidates
 from 68 repeated situations, 7 early last appearances and 1 missing late recall down to
 none. Lesson length did not change.
+
+The pace never depends on the departure date. Lessons go on at the learner's pace up to and
+through the trip, and the pace is throttled only by recall reports (言えた / 迷った / 言えなかった).
 
 ## Not yet levers
 

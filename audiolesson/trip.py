@@ -4,12 +4,14 @@ It lives next to the learner file, outside any repository, and is never copied i
 lesson outputs: generate only reports that a profile is in use. The lesson record keeps
 at most its digest.
 
-    departure = 2030-01-31        # optional: consolidation in the final two weeks
+    departure = 2030-01-31        # optional: the horizon for `validate --cando --trip`
     boost = ["A6", "B2"]          # optional: can-do scenario ids (#131) to teach first
     places = ["…"]                # optional: the learner's own place names (reading, #133)
-    season = "winter-holidays"    # optional
+    season = "winter-holidays"    # optional: seasonal can-do content applies only when it matches
 
-Without ``boost``, the trip ordering puts every Tier A item first, then Tier B.
+Without ``boost``, the trip ordering puts every Tier A item first, then Tier B. The pace
+never depends on the departure date: lessons go on at the learner's pace right up to and
+through the trip, throttled only by what the learner reports (owner, PR #138 review).
 """
 
 from __future__ import annotations
@@ -20,7 +22,6 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
 
-CONSOLIDATION_DAYS = 14  # the final two weeks: fewer new items, more retrieval
 KEYS = {"departure", "boost", "places", "season"}
 
 
@@ -38,11 +39,6 @@ class TripProfile:
 
     def days_left(self, today: date) -> int | None:
         return None if self.departure is None else (self.departure - today).days
-
-    def consolidating(self, today: date) -> bool:
-        """In the final two weeks before departure (not after it)."""
-        left = self.days_left(today)
-        return left is not None and 0 <= left <= CONSOLIDATION_DAYS
 
 
 def load_trip(path: str | Path) -> TripProfile:

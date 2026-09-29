@@ -19,7 +19,9 @@ title = "Greet and take leave, incl. holiday-season greetings"
 title_ja = "挨拶と別れ（季節の挨拶を含む）"
 setting = "Walking into and out of any shop, café, pool or tour bus."
 success = "Greets by time of day and leaves with a farewell, unprompted; returns a seasonal greeting."
-items = ["godan_daginn", "gott_kvold", "goda_nott", "hae", "hallo", "bless", "sjaumst", "eigdu_godan_dag", "eigdu_godur", "somuleidis", "gledileg_jol", "gledilega_hatid", "gledilegt_nytt_ar"]
+items = ["godan_daginn", "gott_kvold", "goda_nott", "hae", "hallo", "bless", "sjaumst", "eigdu_godan_dag", "eigdu_godur", "somuleidis"]
+# only for a trip in that season (the profile's `season`, #132)
+seasonal = { "winter-holidays" = ["gledileg_jol", "gledilega_hatid", "gledilegt_nytt_ar"] }
 respect = ["greet", "farewell"]
 
 [[scenarios]]
@@ -200,6 +202,7 @@ reading = ["Reykjavík", "Þingvellir", "Gullfoss", "Jökulsárlón", "foss", "j
 id = "C2"
 tier = "C"
 title = "Holiday traditions as small talk"
+season = "winter-holidays"
 title_ja = "年末年始の習慣を話題にする"
 setting = "Small talk around the winter holidays."
 success = "Knows a few traditions (New Year's Eve, the Yule Lads) and can say one line about them."
