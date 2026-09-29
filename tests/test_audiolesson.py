@@ -5125,7 +5125,8 @@ class CandoTests(unittest.TestCase):
 
 class TripProfileTests(unittest.TestCase):
     """Issue #132: a private trip profile orders the can-do items (#131) first and
-    consolidates in the final two weeks, without its contents reaching any output."""
+    keeps the learner's pace whatever the departure date, without its contents reaching any
+    output."""
 
     def test_profile_parsing(self):
         from audiolesson.trip import TripError, load_trip
@@ -5137,9 +5138,6 @@ class TripProfileTests(unittest.TestCase):
             self.assertEqual((trip.departure, trip.boost, trip.places), (date(2030, 1, 31), ["A6"], ["Staðurinn"]))
             self.assertEqual(len(trip.digest), 64)
             self.assertEqual(trip.days_left(date(2030, 1, 21)), 10)
-            self.assertTrue(trip.consolidating(date(2030, 1, 17)))
-            self.assertFalse(trip.consolidating(date(2030, 1, 16)), "15 days out")
-            self.assertFalse(trip.consolidating(date(2030, 2, 1)), "after departure")
             for bad in ('hotel = "x"', 'departure = "soon"', 'boost = "A6"'):
                 p.write_text(bad, "utf-8")
                 with self.assertRaises(TripError):
@@ -5161,6 +5159,22 @@ class TripProfileTests(unittest.TestCase):
                      Scenario("C1", "C", "t", items=["e"])]
         self.assertEqual(priority_items(cur, scenarios), ["a", "c", "b"])
         self.assertEqual(priority_items(cur, scenarios, ["C1", "nope"]), ["e", "a", "c", "b"])
+
+    def test_seasonal_content_follows_the_profile_season(self):
+        """PR #138 review: holiday greetings must not be Tier A for a summer trip. Seasonal
+        scenarios and seasonal items apply only when the profile's season matches."""
+        from audiolesson.cando import Scenario, for_season, priority_items
+
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": [
+            {"id": i, "kind": "phrase", "target": i, "meaning": i} for i in ("hello", "xmas", "newyear", "bonfire")]})
+        scenarios = [Scenario("A1", "A", "greet", items=["hello"], seasonal={"winter-holidays": ["xmas", "newyear"]}),
+                     Scenario("C2", "C", "traditions", items=["bonfire"], season="winter-holidays")]
+        self.assertEqual(priority_items(cur, for_season(scenarios, "summer")), ["hello"])
+        self.assertEqual(priority_items(cur, for_season(scenarios, None)), ["hello"], "no profile season: none")
+        self.assertEqual(priority_items(cur, for_season(scenarios, "winter-holidays")), ["hello", "xmas", "newyear"])
+        self.assertEqual([s.id for s in for_season(scenarios, "summer")], ["A1"])
+        self.assertEqual(priority_items(cur, for_season(scenarios, "winter-holidays"), ["C2"])[0], "bonfire")
+        self.assertEqual(scenarios[0].items, ["hello"], "the loaded scenario is not modified")
 
     def test_the_planner_introduces_priority_items_first(self):
         raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
@@ -5202,13 +5216,14 @@ class TripProfileTests(unittest.TestCase):
                              "-m", "10", "--pace", "6", "--no-audio", "--date", "2026-09-18", "--trip", str(trip)])
             self.assertEqual(code, 0)
             text = out.getvalue()
-            self.assertIn("trip consolidation (final 14 days): new items halved to 3", text)
             self.assertIn("can-do items first", text)
+            self.assertNotIn("halved", text, "the pace never depends on the departure date (PR #138 review)")
+            self.assertEqual(json.loads((Path(td) / "lesson-001.plan.json").read_text("utf-8"))["config"]["new_items"], 6)
             plan_text = (Path(td) / "lesson-001.plan.json").read_text("utf-8")
             for private in ("Leynistaður", "2026-09-28", "A6"):
                 self.assertNotIn(private, text + plan_text)
             self.assertGreater(json.loads(plan_text)["config"]["priority_items"], 0)
-            self.assertEqual(json.loads(learner.read_text("utf-8"))["pace"], 6, "the halving is for this lesson only")
+            self.assertEqual(json.loads(learner.read_text("utf-8"))["pace"], 6)
 
 
 class CultureRespectTests(unittest.TestCase):
@@ -5219,7 +5234,7 @@ class CultureRespectTests(unittest.TestCase):
 
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         scenarios = load_cando(ROOT / "curricula" / "is-en", cur)
-        in_scenarios = {i for s in scenarios for i in s.items}
+        in_scenarios = {i for s in scenarios for i in s.items + [x for v in s.seasonal.values() for x in v]}
         noted = {i for n in cur.notes for i in n.items}
         added = ["gledileg_jol", "gledilega_hatid", "gledilegt_nytt_ar", "gledilegt_nytt_ar_takk_fyrir_thad_lidna",
                  "takk_fyrir_mig", "ma_eg_reyna_ad_tala_islensku", "til_ad_taka_med", "eg_aetla_ad_borda_herna",
@@ -5231,7 +5246,14 @@ class CultureRespectTests(unittest.TestCase):
             self.assertIn(i, noted, i)
         self.assertFalse([m for s in scenarios for m in s.missing if "#135" in m], "no #135 gap left open")
         # seasonal content comes last in the default order; the trip ordering brings it forward
+        # only for a trip in its season (PR #138 review)
         self.assertGreater(cur.by_id["gledileg_jol"].order, cur.by_id["ferdin_var_frabaer"].order)
+        from audiolesson.cando import for_season, priority_items
+
+        summer = priority_items(cur, for_season(scenarios, "summer"))
+        winter = priority_items(cur, for_season(scenarios, "winter-holidays"))
+        self.assertNotIn("gledileg_jol", summer)
+        self.assertIn("gledileg_jol", winter)
 
 
 class ReadingDeckTests(unittest.TestCase):
