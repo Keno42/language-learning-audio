@@ -25,7 +25,7 @@ T−7 weeks, Tier B by T−4 weeks, one lesson a day.
 from __future__ import annotations
 
 import tomllib
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -49,6 +49,23 @@ class Scenario:
     reading: list[str] = field(default_factory=list)
     clerk_lines: list[str] = field(default_factory=list)
     respect: list[str] = field(default_factory=list)
+    # seasonal content (PR #138 review): a scenario that only applies in one season, and
+    # extra items a scenario needs in a given season; both follow the trip profile's season
+    season: str | None = None
+    seasonal: dict[str, list[str]] = field(default_factory=dict)
+
+
+def for_season(scenarios: list[Scenario], season: str | None) -> list[Scenario]:
+    """The scenarios as they apply in ``season``: a seasonal scenario only in its season,
+    and each scenario's seasonal items added only for that season. No season (no profile,
+    or a profile without one): no seasonal content at all."""
+    out = []
+    for s in scenarios:
+        if s.season is not None and s.season != season:
+            continue
+        extra = [i for i in s.seasonal.get(season or "", []) if i not in s.items]
+        out.append(replace(s, items=s.items + extra) if extra else s)
+    return out
 
 
 def load_cando(curriculum_dir: str | Path, cur: Curriculum | None = None) -> list[Scenario]:
@@ -74,7 +91,8 @@ def load_cando(curriculum_dir: str | Path, cur: Curriculum | None = None) -> lis
     if dupes:
         raise CurriculumError(f"can-do scenario ids repeat: {sorted(dupes)}")
     if cur is not None:
-        unknown = [(s.id, i) for s in out for i in s.items if i not in cur.by_id]
+        unknown = [(s.id, i) for s in out for i in s.items + [x for v in s.seasonal.values() for x in v]
+                   if i not in cur.by_id]
         if unknown:
             raise CurriculumError(f"can-do scenarios name unknown items: {unknown}")
     return out

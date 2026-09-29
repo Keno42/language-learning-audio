@@ -4,20 +4,20 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import os
 import sys
+from datetime import date
 from pathlib import Path
 
 from . import __version__
-from .cando import check_horizon, coverage, format_coverage, load_cando, priority_items, simulate_reach
+from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum
 from .learner import LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
 from .script import Script
 from .timing import Timing
-from .trip import CONSOLIDATION_DAYS, load_trip
+from .trip import load_trip
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -50,7 +50,7 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--profile", "-p", default=None, help="voice profile .toml (see profiles/)")
     g.add_argument("--provider", default=None, help="TTS provider: stub, espeak, edge, openai, say (overrides profile)")
     g.add_argument("--no-audio", action="store_true", help="only write the script and transcript")
-    g.add_argument("--trip", default=None, help="private trip profile .toml (#132): teach the can-do items first, consolidate in the final two weeks; its contents are never written to outputs")
+    g.add_argument("--trip", default=None, help="private trip profile .toml (#132): teach the can-do items (for its season) first; its contents are never written to outputs")
     g.add_argument("--cache", default=None, help="TTS cache directory (default: cache/<provider> under --out, or under --root with --user); safe to share between learners")
     g.add_argument("--no-fit", action="store_true", help="don't scale pauses to land on --minutes")
     g.add_argument("--fit-tolerance", type=float, default=None, help="seconds of slack before pauses are scaled (default 60)")
@@ -94,7 +94,7 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("--frames", action="store_true", help="list every vocab item with no frame or dialogue near its introduction")
     v.add_argument("--frame-span", type=int, default=50, help="items between a word and its first frame before it counts as late (default 50)")
     v.add_argument("--cando", action="store_true", help="travel can-do coverage (#131): each scenario's items, when they are reached, what is missing (simulates lessons; slow)")
-    v.add_argument("--lessons", type=int, default=84, help="--cando: daily lessons before departure (default 84)")
+    v.add_argument("--lessons", type=int, default=None, help="--cando: daily lessons before departure (default: days left to the --trip profile's departure, else 84)")
     v.add_argument("--paces", default="6,8,10", help="--cando: new items per lesson to simulate, comma-separated (default 6,8,10)")
     v.add_argument("--trip", default=None, help="--cando: simulate with the trip ordering from this private profile (an empty file: the default A-then-B ordering)")
     v.set_defaults(func=cmd_validate)
@@ -216,17 +216,13 @@ def cmd_generate(args) -> int:
         new_items, why = args.new, f"--new {args.new}"
     else:
         new_items, why = learner.suggest_pace(args.minutes, today)
-    pace_new_items = new_items  # what the learner's pace stays at, whatever this lesson does
     priority: list[str] = []
     if args.trip:
         trip = load_trip(args.trip)
         scenarios = load_cando(args.curriculum, cur) if Path(args.curriculum).is_dir() else []
         if not scenarios:
             print("warning: --trip given but the curriculum has no can-do scenarios (cando/*.toml)", file=sys.stderr)
-        priority = priority_items(cur, scenarios, trip.boost)
-        if trip.consolidating(today):
-            new_items = max(1, math.ceil(new_items / 2))
-            why += f"; trip consolidation (final {CONSOLIDATION_DAYS} days): new items halved to {new_items}"
+        priority = priority_items(cur, for_season(scenarios, trip.season), trip.boost)
     cfg = PlanConfig(
         minutes=args.minutes,
         new_items=new_items,
@@ -294,7 +290,7 @@ def cmd_generate(args) -> int:
         apply_to_learner(script, learner, today, presume_success=cfg.presume_success)
         learner.level = level
         if args.new is None:
-            learner.pace = pace_new_items
+            learner.pace = new_items
         learner.save(args.learner)
         _save_user_settings(args)
         print(f"  learner state updated: {args.learner} (use `{_learner_hint(args, ' --failed id,id')}` after listening if some items failed)")
@@ -462,8 +458,13 @@ def cmd_validate(args) -> int:
             paces = [int(p) for p in args.paces.split(",") if p.strip()]
         except ValueError:
             raise ValueError(f"--paces must list positive numbers of new items per lesson (got {args.paces!r})") from None
+        trip = load_trip(args.trip) if args.trip else None
+        if args.lessons is None:
+            left = trip.days_left(date.today()) if trip else None
+            args.lessons = left if left is not None else 84
         check_horizon(args.lessons, paces)
-        priority = priority_items(cur, scenarios, load_trip(args.trip).boost) if args.trip else []
+        scenarios = for_season(scenarios, trip.season if trip else None)
+        priority = priority_items(cur, scenarios, trip.boost) if trip else []
         if priority:
             print(f"trip ordering: {len(priority)} can-do items first")
         reach = {pace: simulate_reach(cur, args.lessons, pace, priority=priority) for pace in paces}
