@@ -381,6 +381,7 @@ kind = "vocab"
 target = "morgunmaturinn"
 meaning = "breakfast (the)"
 meaning_ja = "朝食"
+meaning_spoken = "the breakfast"
 difficulty = 3
 tags = ["nom_place"]
 topics = ["accommodation"]

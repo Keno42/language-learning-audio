@@ -89,6 +89,13 @@ class Item:
     # ``in_sentence`` replaces ``meaning`` for a plain ``{slot}``, so a recall disambiguator
     # ("English (the language)") stays out of sentence prompts.
     meaning_forms: dict[str, str] = field(default_factory=dict)
+    # what the instructor says for ``meaning`` when it names the item alone ("Say: …"): a
+    # recall disambiguator written in brackets («the hotel (after 'to' / 'for')», «本（〜は・〜が）»)
+    # reads as a note on the page but is spoken verbatim, so the spoken form folds it into
+    # natural speech ("to the hotel", «本が»). Per language (``meaning_spoken_ja``), never
+    # borrowed from another: without one the plain ``meaning`` is spoken. The transcript's
+    # written glosses keep ``meaning``.
+    meaning_spoken: str = ""
     instruction: str = ""  # transform: known-language instruction, e.g. "Make it negative:"
     examples: list[TransformExample] = field(default_factory=list)  # transform pairs
     order: int = 0
@@ -115,6 +122,11 @@ class Item:
     partner_cue_situation: str = ""
 
     # ---- derived helpers -------------------------------------------------
+
+    @property
+    def spoken_meaning(self) -> str:
+        """``meaning`` as the instructor says it when naming the item alone."""
+        return self.meaning_spoken or self.meaning
 
     @property
     def slot_names(self) -> list[str]:
@@ -347,6 +359,17 @@ _GLOSSED_NOTE = ("text",)
 _GLOSSED_META = ("name",)
 
 
+def _pick_spoken(entry: dict, lang: str | None) -> dict:
+    """``meaning_spoken`` is optional per language: the learner's language's own, or none
+    (the plain meaning is then spoken). Unlike other glosses it never falls back to the
+    primary language, which would put English into a Japanese instruction."""
+    out = {k: v for k, v in entry.items() if not k.startswith("meaning_spoken")}
+    key = f"meaning_spoken_{lang}" if lang else "meaning_spoken"
+    if key in entry:
+        out["meaning_spoken"] = entry[key]
+    return out
+
+
 def _pick_gloss(entry: dict, fields: tuple[str, ...], lang: str | None, langs: list[str], missing: list[str], label: str) -> dict:
     """Return a copy of ``entry`` with ``<field>_<lang>`` promoted to ``<field>`` and all other
     ``<field>_<xx>`` keys dropped. Records which languages appear and what is missing."""
@@ -378,7 +401,7 @@ def curriculum_from_dict(raw: dict, source: str = "", known_lang: str | None = N
     items: list[Item] = []
     for order, entry in enumerate(raw.get("items", [])):
         label = entry.get("id", f"item#{order}")
-        entry = _pick_gloss(entry, _GLOSSED_ITEM, lang, langs, missing, label)
+        entry = _pick_gloss(_pick_spoken(entry, lang), _GLOSSED_ITEM, lang, langs, missing, label)
         if "examples" in entry:
             entry["examples"] = [_pick_gloss(e, _GLOSSED_EXAMPLE, lang, langs, missing, f"{label}.examples") for e in entry["examples"]]
         items.append(_item_from_dict(entry, order))
@@ -430,6 +453,9 @@ def _item_from_dict(entry: dict, order: int) -> Item:
     return Item(order=order, examples=examples, **entry)
 
 
+# written-only marks: brackets and 〜 read aloud as noise (or «から») by TTS
+_UNSPEAKABLE_RE = re.compile(r"[()（）〜～]")
+
 SPEAKERS = ("native_a", "native_b")  # native_a is voiced female, native_b male, in every profile
 
 
@@ -446,6 +472,8 @@ def validate(cur: Curriculum) -> None:
         targets[key] = it.id
         if it.gender is not None and it.gender not in GENDERS:
             raise CurriculumError(f"item {it.id!r}: gender {it.gender!r} must be one of {sorted(GENDERS)}")
+        if _UNSPEAKABLE_RE.search(it.meaning_spoken):
+            raise CurriculumError(f"item {it.id!r}: meaning_spoken is spoken verbatim, so it takes no brackets or 〜: {it.meaning_spoken!r}")
     for d in cur.dialogues:
         if d.id in {x.id for x in cur.dialogues if x is not d}:
             raise CurriculumError(f"duplicate dialogue id {d.id!r}")

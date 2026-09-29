@@ -529,6 +529,7 @@ kind = "vocab"
 target = "bíll"
 meaning = "car"
 meaning_ja = "車（〜は・〜が）"
+meaning_spoken_ja = "車が"
 meaning_forms = { in_sentence = "a car", bare = "car" }
 meaning_forms_ja = { in_sentence = "車" }
 difficulty = 1

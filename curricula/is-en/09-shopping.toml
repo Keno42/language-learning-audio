@@ -134,6 +134,7 @@ kind = "vocab"
 target = "lykil"
 meaning = "a key"
 meaning_ja = "鍵（〜を）"
+meaning_spoken_ja = "鍵を"
 meaning_forms_ja = { in_sentence = "鍵" }
 difficulty = 2
 tags = ["acc_thing"]
@@ -146,6 +147,7 @@ kind = "vocab"
 target = "síma"
 meaning = "a phone"
 meaning_ja = "電話（〜を）"
+meaning_spoken_ja = "電話を"
 meaning_forms_ja = { in_sentence = "電話" }
 difficulty = 1
 tags = ["acc_thing", "acc_have"]
