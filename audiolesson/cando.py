@@ -137,11 +137,21 @@ def simulate_reach(cur: Curriculum, lessons: int, pace: int, minutes: float = 30
 
 def milestone_lesson(tier: str, lessons: int) -> int | None:
     """The lesson by which a tier's items should be met, for a horizon of ``lessons``
-    daily lessons before departure (None: no milestone, or none left)."""
+    daily lessons before departure. None: the tier has no milestone (Tier C). 0: the
+    milestone has already passed — no lesson is left before it, so every item of the
+    tier is overdue (PR #137 review: a short horizon must show the shortfall, not hide it)."""
     weeks = MILESTONE_WEEKS.get(tier)
     if weeks is None:
         return None
-    return max(lessons - 7 * weeks, 0) or None
+    return max(lessons - 7 * weeks, 0)
+
+
+def check_horizon(lessons: int, paces: list[int]) -> None:
+    """A report needs at least one lesson and at least one positive pace."""
+    if lessons <= 0:
+        raise ValueError(f"--lessons must be positive (got {lessons})")
+    if not paces or any(p <= 0 for p in paces):
+        raise ValueError(f"--paces must list positive numbers of new items per lesson (got {paces})")
 
 
 def coverage(cur: Curriculum, scenarios: list[Scenario], reach: dict[int, dict[str, int]], lessons: int) -> list[dict]:
@@ -159,15 +169,23 @@ def coverage(cur: Curriculum, scenarios: list[Scenario], reach: dict[int, dict[s
             for pace, n in at.items():
                 if due is not None and (n is None or n > due):
                     late.setdefault(pace, []).append(i)
-        rows.append({"scenario": s, "due": due, "items": items, "late": late, "missing": list(s.missing)})
+        rows.append({"scenario": s, "due": due, "overdue": due == 0, "items": items, "late": late, "missing": list(s.missing)})
     return rows
+
+
+def _due_text(tier: str, lessons: int) -> str:
+    due = milestone_lesson(tier, lessons)
+    if due == 0:
+        return (f"Tier {tier}: milestone (T−{MILESTONE_WEEKS[tier]} weeks) already passed — no lesson was left "
+                f"before it, so every Tier {tier} item is overdue")
+    return f"Tier {tier} due by lesson {due}"
 
 
 def format_coverage(rows: list[dict], lessons: int, paces: list[int]) -> str:
     lines = [
         f"can-do coverage for a horizon of {lessons} daily lessons (simulated, every retrieval presumed "
-        f"successful; paces {', '.join(map(str, paces))}). Tier A due by lesson {milestone_lesson('A', lessons)}, "
-        f"Tier B by lesson {milestone_lesson('B', lessons)}."
+        f"successful; paces {', '.join(map(str, paces))}). "
+        + "; ".join(_due_text(t, lessons) for t in MILESTONE_WEEKS) + "."
     ]
     for row in rows:
         s: Scenario = row["scenario"]
@@ -179,7 +197,9 @@ def format_coverage(rows: list[dict], lessons: int, paces: list[int]) -> str:
         )
         for pace in paces:
             late = row["late"].get(pace, [])
-            if late:
+            if late and row["overdue"]:
+                lines.append(f"  overdue at pace {pace} (milestone already passed): {', '.join(late)}")
+            elif late:
                 lines.append(f"  late at pace {pace} (due lesson {row['due']}): {', '.join(late)}")
         for m in row["missing"]:
             lines.append(f"  missing: {m}")
