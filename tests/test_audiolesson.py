@@ -5059,7 +5059,7 @@ class CandoTests(unittest.TestCase):
         from audiolesson.cando import Scenario, coverage, format_coverage, milestone_lesson
 
         self.assertEqual((milestone_lesson("A", 84), milestone_lesson("B", 84), milestone_lesson("C", 84)), (35, 56, None))
-        self.assertIsNone(milestone_lesson("A", 40), "no lessons left before the milestone")
+        self.assertEqual(milestone_lesson("A", 40), 0, "the milestone already passed")
         cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
                                     "items": [{"id": i, "kind": "phrase", "target": i, "meaning": i} for i in ("a", "b", "c")]})
         scenarios = [Scenario("A1", "A", "early", items=["a", "b"], missing=["x"]), Scenario("B1", "B", "late", items=["c"])]
@@ -5070,6 +5070,37 @@ class CandoTests(unittest.TestCase):
         text = format_coverage(rows, 84, [6, 10])
         self.assertIn("late at pace 6 (due lesson 35): b", text)
         self.assertIn("missing: x", text)
+
+    def test_a_passed_milestone_is_reported_overdue_not_hidden(self):
+        """PR #137 review: with six weeks left, Tier A's T−7-week milestone has passed; the
+        report must show every Tier A item as overdue, not grade nothing."""
+        from audiolesson.cando import Scenario, coverage, format_coverage
+
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                                    "items": [{"id": i, "kind": "phrase", "target": i, "meaning": i} for i in ("a", "b", "c")]})
+        scenarios = [Scenario("A1", "A", "must", items=["a", "b"]), Scenario("B1", "B", "should", items=["c"]),
+                     Scenario("C1", "C", "nice", items=["a"])]
+        rows = coverage(cur, scenarios, {10: {"a": 1, "b": 3, "c": 9}}, 42)
+        self.assertEqual((rows[0]["due"], rows[0]["overdue"], rows[0]["late"]), (0, True, {10: ["a", "b"]}))
+        self.assertEqual((rows[1]["due"], rows[1]["late"]), (14, {}), "Tier B still has a window")
+        self.assertEqual((rows[2]["due"], rows[2]["overdue"], rows[2]["late"]), (None, False, {}), "Tier C has no milestone")
+        text = format_coverage(rows, 42, [10])
+        self.assertIn("Tier A: milestone (T−7 weeks) already passed", text)
+        self.assertIn("overdue at pace 10 (milestone already passed): a, b", text)
+        self.assertIn("Tier B due by lesson 14", text)
+        self.assertNotIn("None", text)
+
+    def test_the_report_rejects_an_empty_horizon(self):
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        for args in (["--lessons", "0"], ["--lessons", "-3"], ["--paces", ","], ["--paces", "6,0"]):
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                code = main(["validate", str(ROOT / "curricula" / "is-en"), "--cando", *args])
+            self.assertNotEqual(code, 0, args)
+            self.assertIn("must", err.getvalue(), args)
 
     def test_reach_is_the_lesson_an_item_is_first_met(self):
         from audiolesson.cando import simulate_reach
