@@ -274,7 +274,7 @@ audiolesson/
   script.py     the intermediate timed script + transcript
   render/       audio.py (PCM/ffmpeg), tts.py (providers), renderer.py (script → file)
   cli.py        commands, incl. the --user/--root wrapper (out/<user>/, settings.json)
-curricula/      learning material: fr-en-a1, fr-ja-a1 (files), is-en/ (26 modules)
+curricula/      learning material: fr-en-a1, fr-ja-a1 (files), is-en/ (27 modules)
 tools/          daily.sh (one day of the routine), derive_fr_ja.py (keeps fr-ja in sync with fr-en),
                 gloss.py (inserts <field>_<lang> glosses), phrase_families.py (fixed-phrase audit)
 profiles/       voice profiles (provider + voice per speaker)

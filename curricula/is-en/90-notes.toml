@@ -84,7 +84,7 @@ text_ja = "レイキャビクのお湯は地熱の源泉から直接引かれて
 
 [[notes]]
 id = "sundlaug"
-items = ["sundlaugin", "eg_fer_i_sund", "fara_i_sund", "sundi"]
+items = ["sundlaugin", "eg_fer_i_sund", "fara_i_sund", "sundi", "einn_fullordinn_takk"]
 topics = ["daily"]
 text = "The public pool is Iceland's version of the sentō: cheap, in every town, and where people meet. The rule is to wash thoroughly without a swimsuit before entering, and the signs show exactly which body parts; attendants do check. Treat it like a Japanese bath and you will be fine."
 text_ja = "公営プールはアイスランドの銭湯です。安くて、どの町にもあって、人が集まる場所です。入る前に水着を脱いで全身を洗うのが決まりで、洗う部位を示した図まで貼ってあり、係の人が実際に見ています。日本の銭湯と同じ心構えで大丈夫です。"
@@ -263,7 +263,7 @@ text_ja = "アイスランド語はほとんど変化していないので、小
 id = "enska"
 # issue #66: recommends saying «ég er að læra íslensku», taught by eg_er_ad_laera
 requires = ["eg_er_ad_laera"]
-items = ["talar_thu", "eg_tala_sma_islensku"]
+items = ["talar_thu", "eg_tala_sma_islensku", "ma_eg_reyna_ad_tala_islensku"]
 topics = ["clarifying"]
 text = "Almost everyone under sixty speaks English well, and many switch the moment they hear an accent. Saying «ég er að læra íslensku» usually makes them switch back: people are pleased that anyone tries."
 text_ja = "60歳以下のほぼ全員が英語を上手に話し、訛りを聞くとすぐ英語に切り替える人も多いです。«ég er að læra íslensku»と言うと、たいてい戻してくれます。挑戦する人を喜んでくれるのです。"
@@ -292,7 +292,7 @@ text_ja = "夏休みは神聖です。多くの人が7月に3〜4週間休み、
 
 [[notes]]
 id = "jolasveinar"
-items = ["barn", "strakur", "stelpa"]
+items = ["barn", "strakur", "stelpa", "gledileg_jol"]
 topics = ["family"]
 text = "Icelandic children are visited by thirteen Yule Lads, one each night before Christmas. Each leaves a small gift in a shoe on the windowsill, or a potato if the child misbehaved."
 text_ja = "アイスランドの子どもたちはクリスマス前の13夜、毎晩一人ずつやってくる13人の「ユールラッズ」の訪問を受けます。窓辺の靴に小さな贈り物を、悪い子にはじゃがいもを置いていきます。"
@@ -527,3 +527,26 @@ items = ["bless", "sjaumst", "sjaumst_seinna"]
 topics = ["greetings"]
 text = "«Bless» simply says goodbye, to anyone. «Sjáumst», literally 'we'll see each other', and «Sjáumst seinna», 'see you later', also say you expect to meet again, so they suit friends and colleagues rather than a shop you won't return to."
 text_ja = "«Bless» はただの「さようなら」で、誰にでも使えます。«Sjáumst»（直訳は「また会いましょう」）と «Sjáumst seinna»（「またあとで」）は、また会うつもりだという気持ちも伝えるので、二度と来ないお店よりも、友達や同僚に向いています。"
+
+# issue #135: the holiday season, as general content for winter travellers — it never
+# states any learner's own dates.
+[[notes]]
+id = "hatidarkvedjur"
+items = ["gledileg_jol", "gledilega_hatid", "gledilegt_nytt_ar"]
+topics = ["greetings"]
+text = "In the holiday season these greetings replace a plain goodbye: «Gleðileg jól» until early January, «Gleðilega hátíð» for the whole season, and «Gleðilegt nýtt ár» once the year has turned, well into January. The easy answer to any of them is «Takk, sömuleiðis». Shops and pools keep short hours on the 24th and the 31st of December, and many close on Christmas Day and New Year's Day, so check the «opnunartími» on the door."
+text_ja = "年末年始は、ふつうの別れの挨拶の代わりにこうした挨拶を使います。«Gleðileg jól» は1月の初めまで、«Gleðilega hátíð» はこの時期ずっと、年が明けたら «Gleðilegt nýtt ár» を1月のしばらくのあいだ使います。どれに対しても «Takk, sömuleiðis»（ありがとう、あなたも）と返せば大丈夫です。店やプールは12月24日と31日は短縮営業で、クリスマス当日と元日は閉まるところも多いので、入口の «opnunartími»（営業時間）を確かめましょう。"
+
+[[notes]]
+id = "gamlarskvold"
+items = ["gledilegt_nytt_ar", "gledilegt_nytt_ar_takk_fyrir_thad_lidna"]
+topics = ["greetings"]
+text = "New Year's Eve, «gamlárskvöld», is loud. Neighbourhoods light bonfires in the evening, almost everyone watches the same comedy review of the year on television, and at midnight the whole sky fills with fireworks, most of them bought from the volunteer rescue teams to fund their work. Then comes «Gleðilegt nýtt ár og takk fyrir það liðna»: happy New Year, and thanks for the year gone by."
+text_ja = "大晦日 «gamlárskvöld» はにぎやかです。夜には地区ごとに焚き火が焚かれ、ほぼ全員が同じテレビのお笑い年末番組を見て、真夜中には空いっぱいに花火が上がります。花火の多くはボランティアの救助隊から買うもので、その活動資金になります。そして «Gleðilegt nýtt ár og takk fyrir það liðna»、「新年おめでとう、昨年はありがとう」と挨拶します。"
+
+[[notes]]
+id = "takk_fyrir_mig"
+items = ["takk_fyrir_mig"]
+topics = ["greetings", "food"]
+text = "«Takk fyrir mig», literally 'thanks for me', is what a guest says on leaving a meal or a visit, close to gochisousama and ojama shimashita in one. The host usually answers «Verði þér að góðu»."
+text_ja = "«Takk fyrir mig»（直訳は「私のことをありがとう」）は、食事や訪問のあとで客が帰り際に言う言葉で、「ごちそうさま」と「お邪魔しました」を合わせたような表現です。招いた側はたいてい «Verði þér að góðu» と返します。"

@@ -19,8 +19,7 @@ title = "Greet and take leave, incl. holiday-season greetings"
 title_ja = "挨拶と別れ（季節の挨拶を含む）"
 setting = "Walking into and out of any shop, café, pool or tour bus."
 success = "Greets by time of day and leaves with a farewell, unprompted; returns a seasonal greeting."
-items = ["godan_daginn", "gott_kvold", "goda_nott", "hae", "hallo", "bless", "sjaumst", "eigdu_godan_dag", "eigdu_godur", "somuleidis"]
-missing = ["holiday-season greetings: «Gleðileg jól», «Gleðilega hátíð», «Gleðilegt nýtt ár (og takk fyrir það liðna)» (#135)"]
+items = ["godan_daginn", "gott_kvold", "goda_nott", "hae", "hallo", "bless", "sjaumst", "eigdu_godan_dag", "eigdu_godur", "somuleidis", "gledileg_jol", "gledilega_hatid", "gledilegt_nytt_ar"]
 respect = ["greet", "farewell"]
 
 [[scenarios]]
@@ -44,7 +43,6 @@ items = ["hvar_er", "matvorubudin", "attu", "eg_er_ad_leita_ad_thing", "hvad_kos
 missing = [
   "«Viltu poka?» and «Eitthvað fleira?» as lines to understand and answer (#134)",
   "self-checkout words (#133)",
-  "note: alcohol is sold only at Vínbúðin (#135)",
 ]
 reading = ["mjólk", "skyr", "brauð", "ostur", "smjör", "egg", "vatn", "kaffi", "epli", "súkkulaði"]
 clerk_lines = ["Viltu poka?", "Eitthvað fleira?", "Viltu kvittun?"]
@@ -57,8 +55,7 @@ title = "Café"
 title_ja = "カフェ"
 setting = "Ordering a drink and a pastry at the counter."
 success = "Orders with «Ég ætla að fá … / Get ég fengið …?», answers for here or to go and «Eitthvað fleira?», pays."
-items = ["kaffihusid", "kaffi", "te", "koku", "samloku", "eg_aetla_ad_fa", "get_eg_fengid", "eg_aetla_ad_fa_addon", "med_mjolk", "tvo_kaffi", "thetta_er_allt", "ekkert_meira_takk", "ma_eg_borga_med_korti"]
-missing = ["for here / to go (#135)"]
+items = ["kaffihusid", "kaffi", "te", "koku", "samloku", "eg_aetla_ad_fa", "get_eg_fengid", "eg_aetla_ad_fa_addon", "med_mjolk", "tvo_kaffi", "thetta_er_allt", "ekkert_meira_takk", "ma_eg_borga_med_korti", "til_ad_taka_med", "eg_aetla_ad_borda_herna"]
 clerk_lines = ["Hvað má bjóða þér?", "Eitthvað fleira?", "Til að taka með?"]
 respect = ["greet", "thanks", "farewell"]
 
@@ -80,12 +77,8 @@ title = "Public pool"
 title_ja = "公共の温泉プール"
 setting = "Buying an entry, the changing room, the hot tub."
 success = "Buys an entry, follows the shower-first rule from the signs, exchanges a few lines in the hot tub."
-items = ["sundlaugin", "hvad_kostar", "einn_mida_takk", "sundfot", "sturtan", "heiti_potturinn", "er_heitur_pottur_herna", "thad_er_svo_kalt", "hvadan_ert_thu", "eg_er_fra_japan"]
-missing = [
-  "an entry line («Einn fullorðinn, takk») (#135)",
-  "pool etiquette note: shower without a swimsuit before going in (#135)",
-  "pool signs (#133)",
-]
+items = ["sundlaugin", "hvad_kostar", "einn_fullordinn_takk", "sundfot", "sturtan", "heiti_potturinn", "er_heitur_pottur_herna", "thad_er_svo_kalt", "hvadan_ert_thu", "eg_er_fra_japan"]
+missing = ["pool signs (#133)"]
 reading = ["Sturta", "Karlar", "Konur", "Skór"]
 respect = ["greet", "shower_rule"]
 
@@ -96,8 +89,7 @@ title = "Stay in the conversation"
 title_ja = "会話を続ける（わからない・ゆっくり・アイスランド語で続ける）"
 setting = "The partner speaks too fast, or switches to English."
 success = "Says it didn't understand, asks to slow down or repeat, says it's learning Icelandic and asks to keep going in Icelandic."
-items = ["eg_skil_ekki", "gaetirdu_talad_haegar", "gaetirdu_endurtekid_thetta", "hvad_thydir_thetta", "hvernig_segir_madur_thetta", "eg_tala_sma_islensku", "eg_er_ad_laera", "islensku", "augnablik"]
-missing = ["«Ég er að læra íslensku – má ég reyna?» to keep going in Icelandic (#135)"]
+items = ["eg_skil_ekki", "gaetirdu_talad_haegar", "gaetirdu_endurtekid_thetta", "hvad_thydir_thetta", "hvernig_segir_madur_thetta", "eg_tala_sma_islensku", "eg_er_ad_laera", "islensku", "augnablik", "ma_eg_reyna_ad_tala_islensku"]
 respect = ["stayed_icelandic"]
 
 [[scenarios]]
@@ -220,7 +212,7 @@ title = "Holiday traditions as small talk"
 title_ja = "年末年始の習慣を話題にする"
 setting = "Small talk around the winter holidays."
 success = "Knows a few traditions (New Year's Eve, the Yule Lads) and can say one line about them."
-missing = ["notes on New Year's Eve and the 13 Yule Lads (#135)"]
+items = ["gledilegt_nytt_ar_takk_fyrir_thad_lidna"]
 
 [[scenarios]]
 id = "C3"
@@ -248,6 +240,5 @@ title = "Farewell to the country"
 title_ja = "旅の終わりの挨拶"
 setting = "Leaving the lodging, the last day."
 success = "Thanks the host as a guest and says it will come back."
-items = ["takk_fyrir_dvolina", "eg_mun_koma_aftur", "goda_ferd", "bless"]
-missing = ["«Takk fyrir mig» (#135)"]
+items = ["takk_fyrir_dvolina", "eg_mun_koma_aftur", "goda_ferd", "bless", "takk_fyrir_mig"]
 respect = ["thanks", "farewell"]

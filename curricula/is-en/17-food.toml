@@ -450,6 +450,19 @@ pronunciation_notes = "said after every meal, like gochisousama"
 situation = "You've finished dinner at Anna's. Thank her for the meal."
 situation_ja = "アンナの家で夕食を食べ終えました。食事のお礼を言ってください。"
 
+# issue #135: what a guest says on leaving a meal or a visit (the «takk_fyrir_mig» aside)
+[[items]]
+id = "takk_fyrir_mig"
+kind = "phrase"
+target = "Takk fyrir mig."
+meaning = "Thank you for having me."
+meaning_ja = "ごちそうさまでした／お世話になりました。"
+difficulty = 2
+topics = ["food", "greetings"]
+prereqs = ["takk_fyrir_matinn"]
+situation = "You're leaving Anna's after dinner. Thank her as her guest."
+situation_ja = "夕食の後、アンナの家を出ます。招いてもらったお礼を言ってください。"
+
 [[items]]
 id = "hvad_er_i_thessu"
 kind = "phrase"

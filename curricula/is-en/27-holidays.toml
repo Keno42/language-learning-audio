@@ -1,0 +1,50 @@
+# 27 — holiday-season greetings (issue #135). Last in the default order, so a learner in
+# another season meets them late; the trip ordering (#132) brings them first as part of
+# can-do A1 when a trip falls in the season. General content: it says nothing about any
+# learner's own dates.
+
+[[items]]
+id = "gledileg_jol"
+kind = "phrase"
+target = "Gleðileg jól!"
+meaning = "Merry Christmas!"
+meaning_ja = "メリークリスマス！"
+difficulty = 2
+topics = ["greetings"]
+situation = "It's Christmas time. Wish the café staff a merry Christmas as you leave."
+situation_ja = "クリスマスの時期です。カフェを出るとき、店員さんにメリークリスマスと言ってください。"
+
+[[items]]
+id = "gledilega_hatid"
+kind = "phrase"
+target = "Gleðilega hátíð!"
+meaning = "Happy holidays!"
+meaning_ja = "よいお休みを！（年末年始の挨拶）"
+difficulty = 2
+topics = ["greetings"]
+situation = "Between Christmas and New Year, wish the pool attendant happy holidays."
+situation_ja = "クリスマスと新年のあいだの時期です。プールの係の人に、よいお休みをと挨拶してください。"
+
+[[items]]
+id = "gledilegt_nytt_ar"
+kind = "phrase"
+target = "Gleðilegt nýtt ár!"
+meaning = "Happy New Year!"
+meaning_ja = "新年おめでとう！"
+difficulty = 2
+topics = ["greetings"]
+situation = "It's the first days of January. Greet the bus driver with a happy New Year."
+situation_ja = "1月の初めです。バスの運転手さんに新年の挨拶をしてください。"
+
+[[items]]
+id = "gledilegt_nytt_ar_takk_fyrir_thad_lidna"
+kind = "phrase"
+target = "Gleðilegt nýtt ár og takk fyrir það liðna."
+meaning = "Happy New Year, and thanks for the year gone by."
+meaning_ja = "新年おめでとうございます。昨年はありがとうございました。"
+difficulty = 4
+topics = ["greetings"]
+prereqs = ["gledilegt_nytt_ar"]
+chunks = ["liðna", "það liðna", "takk fyrir það liðna", "Gleðilegt nýtt ár og takk fyrir það liðna."]
+situation = "In January you meet someone who helped you last year. Wish them a happy New Year and thank them for the year gone by."
+situation_ja = "1月、去年お世話になった人に会いました。新年の挨拶と、昨年のお礼を言ってください。"
