@@ -5256,5 +5256,64 @@ class CultureRespectTests(unittest.TestCase):
         self.assertIn("gledileg_jol", winter)
 
 
+class ReadingDeckTests(unittest.TestCase):
+    """Issue #133: a reading deck for the Discord review, since the audio never shows
+    spelling — letters, signs, shop words, place names and their parts."""
+
+    def test_the_deck_covers_every_stage_and_every_can_do_reading_text(self):
+        from audiolesson.cando import load_cando
+        from audiolesson.reading import STAGES, load_deck, texts
+
+        cards = load_deck(ROOT / "curricula" / "is-en")
+        self.assertGreaterEqual(len(cards), 80)
+        self.assertEqual([c.stage for c in cards], sorted((c.stage for c in cards), key=STAGES.index))
+        self.assertEqual({c.stage for c in cards}, set(STAGES))
+        for c in cards:
+            self.assertTrue(c.meaning_ja and c.hint_ja, c.id)
+        deck = texts(cards)
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for s in load_cando(ROOT / "curricula" / "is-en", cur):
+            self.assertEqual([r for r in s.reading if r.casefold() not in deck], [], s.id)
+        raw = "\n".join(p.read_text("utf-8") for p in (ROOT / "curricula" / "is-en" / "reading").glob("*.toml"))
+        self.assertIsNone(re.search(r"\b(19|20)\d\d-\d\d-\d\d\b", raw), "general content only")
+
+    def test_own_places_come_from_the_profile_at_run_time(self):
+        from audiolesson.reading import load_deck
+
+        cards = load_deck(ROOT / "curricula" / "is-en", ["Reykjavík", "Leynistaður"])
+        own = [c for c in cards if c.own]
+        self.assertEqual([c.text for c in own], ["Leynistaður"], "a place already in the deck is not repeated")
+        self.assertEqual(own[0].stage, "places")
+
+    def test_bad_cards_are_rejected(self):
+        from audiolesson.reading import load_deck
+
+        for body, message in (('id = "x"\nstage = "menus"\ntext = "a"\nmeaning = "b"', "stage"),
+                              ('id = "x"\nstage = "signs"\ntext = ""\nmeaning = "b"', "required"),
+                              ('id = "x"\nstage = "signs"\ntext = "a"\nmeaning = "b"\nparts = [["a"]]', "pairs")):
+            with tempfile.TemporaryDirectory() as td:
+                (Path(td) / "reading").mkdir()
+                (Path(td) / "reading" / "d.toml").write_text("[[cards]]\n" + body, "utf-8")
+                with self.assertRaises(CurriculumError) as ctx:
+                    load_deck(td)
+                self.assertIn(message, str(ctx.exception))
+
+    def test_reading_cli_prints_the_deck_as_json(self):
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        with tempfile.TemporaryDirectory() as td:
+            trip = Path(td) / "trip.toml"
+            trip.write_text('places = ["Leynistaður"]\n', "utf-8")
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(main(["reading", str(ROOT / "curricula" / "is-en"), "--trip", str(trip)]), 0)
+        cards = json.loads(out.getvalue())
+        self.assertEqual(cards[0]["stage"], "letters")
+        self.assertIn({"id": "own_1", "text": "Leynistaður", "own": True},
+                      [{k: c[k] for k in ("id", "text", "own")} for c in cards])
+
+
 if __name__ == "__main__":
     unittest.main()

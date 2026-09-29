@@ -1,0 +1,756 @@
+# Reading deck (issue #133): the audio course never shows spelling, so reading signs,
+# shop words and place names — and enjoying it — is taught here, as cards the Discord
+# review shows a few at a time (read aloud → reveal meaning and hint → 🔊 TTS).
+#
+# A subdirectory, so load_curriculum never reads it as a module. Stages run in order:
+# letters (sounds anchored in words the audio course already taught) → signs → shop →
+# places → parts (what place names are made of).
+#
+# `hint_ja` is a katakana approximation for a Japanese speaker, not a transcription: the
+# 🔊 button plays the real pronunciation, and the native tutor checks these hints (#129).
+# General content only: a learner's own places come from the private trip profile (#132).
+
+# ---------------------------------------------------------------- letters
+
+[[cards]]
+id = "l_thorn"
+stage = "letters"
+text = "Það · Þetta · Því miður"
+meaning = "þ: the 'th' of 'think'"
+meaning_ja = "þ は英語 think の th（息だけで出す音）"
+hint_ja = "サズ・セッタ・スヴィ ミズル（最初の「サ・セ・ス」は舌を歯にあてた th）"
+
+[[cards]]
+id = "l_eth"
+stage = "letters"
+text = "Góðan daginn · Fyrirgefðu"
+meaning = "ð: the 'th' of 'this'"
+meaning_ja = "ð は英語 this の th（声を出す th）"
+hint_ja = "ゴウザン ダイイン・フィリルゲヴズ（「ザ・ズ」は this の th）"
+
+[[cards]]
+id = "l_ae"
+stage = "letters"
+text = "Jæja · Sæl"
+meaning = "æ sounds like 'eye'"
+meaning_ja = "æ は「アイ」"
+hint_ja = "ヤイヤ・サイル"
+
+[[cards]]
+id = "l_a_acute"
+stage = "letters"
+text = "Já · Bláa lónið"
+meaning = "á sounds like 'ow' in 'cow'"
+meaning_ja = "á は「アウ」"
+hint_ja = "ヤウ・ブラウア ロウニズ"
+
+[[cards]]
+id = "l_o_acute"
+stage = "letters"
+text = "Góða nótt · Sjáumst"
+meaning = "ó sounds like 'oh-u'; au like 'öy'"
+meaning_ja = "ó は「オウ」、au は「オイ」に近い音"
+hint_ja = "ゴウザ ノウフト・シャウムスト（au は「オイ」と「ウイ」の間）"
+
+[[cards]]
+id = "l_long_i"
+stage = "letters"
+text = "Hvítvín · Ýta · Útsala"
+meaning = "í and ý are a long 'ee'; ú is a long 'oo'"
+meaning_ja = "í と ý は「イー」、ú は「ウー」"
+hint_ja = "クヴィートヴィーン・イータ・ウートサーラ"
+
+[[cards]]
+id = "l_ei"
+stage = "letters"
+text = "Reykjavík · Nei"
+meaning = "ei and ey both sound like 'ay' in 'day'"
+meaning_ja = "ei と ey はどちらも「エイ」"
+hint_ja = "レイキャヴィーク・ネイ"
+
+[[cards]]
+id = "l_o_umlaut"
+stage = "letters"
+text = "Smjör · Kjöt"
+meaning = "ö: rounded lips, saying 'e'"
+meaning_ja = "ö は唇を丸めて「エ」と言う音（オとエの間）"
+hint_ja = "スミョル・キョト"
+
+[[cards]]
+id = "l_ll"
+stage = "letters"
+text = "Fjall · Gullfoss · Allt í lagi"
+meaning = "ll sounds like 'tl'"
+meaning_ja = "ll は「トル」のような音"
+hint_ja = "フィャトル・グトルフォス・アルト イ ライイ（allt は例外的に「アルト」）"
+
+[[cards]]
+id = "l_hv"
+stage = "letters"
+text = "Hvar · Hvað · Hvenær"
+meaning = "hv sounds like 'kv'"
+meaning_ja = "hv は「クヴ」"
+hint_ja = "クヴァル・クヴァズ・クヴェナイル"
+
+[[cards]]
+id = "l_fn_rn"
+stage = "letters"
+text = "Nafn · Björn · Steinn"
+meaning = "fn ≈ 'pn'; rn and nn after a long vowel ≈ 'tn'"
+meaning_ja = "fn は「プン」、rn と（長母音の後の）nn は「トン」に近い"
+hint_ja = "ナプン・ビョルトン・ステイトン"
+
+[[cards]]
+id = "l_j_stress"
+stage = "letters"
+text = "Já · Jökull · Jól"
+meaning = "j is a 'y'; stress is always on the first syllable"
+meaning_ja = "j は「ヤ行」の音。アクセントはいつも最初の音節"
+hint_ja = "ヤウ・ヨークトル・ヨウル（最初を強く）"
+
+# ---------------------------------------------------------------- signs
+
+[[cards]]
+id = "s_opid"
+stage = "signs"
+text = "Opið"
+meaning = "Open"
+meaning_ja = "営業中"
+hint_ja = "オーピズ"
+
+[[cards]]
+id = "s_lokad"
+stage = "signs"
+text = "Lokað"
+meaning = "Closed"
+meaning_ja = "閉店・閉鎖"
+hint_ja = "ローカズ"
+
+[[cards]]
+id = "s_opnunartimi"
+stage = "signs"
+text = "Opnunartími"
+meaning = "Opening hours"
+meaning_ja = "営業時間"
+hint_ja = "オプヌナルティーミ"
+
+[[cards]]
+id = "s_lokad_vedur"
+stage = "signs"
+text = "Lokað vegna veðurs"
+meaning = "Closed due to the weather"
+meaning_ja = "悪天候のため閉鎖"
+hint_ja = "ローカズ ヴェグナ ヴェーズルス"
+
+[[cards]]
+id = "s_inngangur"
+stage = "signs"
+text = "Inngangur"
+meaning = "Entrance"
+meaning_ja = "入口"
+hint_ja = "インガングル"
+
+[[cards]]
+id = "s_utgangur"
+stage = "signs"
+text = "Útgangur"
+meaning = "Exit"
+meaning_ja = "出口"
+hint_ja = "ウートガングル"
+
+[[cards]]
+id = "s_yta"
+stage = "signs"
+text = "Ýta"
+meaning = "Push"
+meaning_ja = "押す"
+hint_ja = "イータ"
+
+[[cards]]
+id = "s_toga"
+stage = "signs"
+text = "Toga"
+meaning = "Pull"
+meaning_ja = "引く"
+hint_ja = "トーガ"
+
+[[cards]]
+id = "s_snyrting"
+stage = "signs"
+text = "Snyrting"
+meaning = "Toilets"
+meaning_ja = "トイレ"
+hint_ja = "スニルティング"
+
+[[cards]]
+id = "s_salerni"
+stage = "signs"
+text = "Salerni"
+meaning = "Toilet"
+meaning_ja = "トイレ（別の言い方）"
+hint_ja = "サレルトニ"
+
+[[cards]]
+id = "s_karlar"
+stage = "signs"
+text = "Karlar"
+meaning = "Men"
+meaning_ja = "男性用"
+hint_ja = "カルトラル"
+
+[[cards]]
+id = "s_konur"
+stage = "signs"
+text = "Konur"
+meaning = "Women"
+meaning_ja = "女性用"
+hint_ja = "コーヌル"
+
+[[cards]]
+id = "s_bannad"
+stage = "signs"
+text = "Bannað"
+meaning = "Forbidden"
+meaning_ja = "禁止"
+hint_ja = "バンナズ"
+
+[[cards]]
+id = "s_adgangur_bannadur"
+stage = "signs"
+text = "Aðgangur bannaður"
+meaning = "No entry"
+meaning_ja = "立入禁止"
+hint_ja = "アズガングル バンナズル"
+
+[[cards]]
+id = "s_haetta"
+stage = "signs"
+text = "Hætta"
+meaning = "Danger"
+meaning_ja = "危険"
+hint_ja = "ハイフタ"
+
+[[cards]]
+id = "s_varud"
+stage = "signs"
+text = "Varúð"
+meaning = "Caution"
+meaning_ja = "注意"
+hint_ja = "ヴァールーズ"
+
+[[cards]]
+id = "s_halka"
+stage = "signs"
+text = "Hálka"
+meaning = "Ice on the road or path"
+meaning_ja = "路面凍結"
+hint_ja = "ハウルカ"
+
+[[cards]]
+id = "s_vegur_lokadur"
+stage = "signs"
+text = "Vegur lokaður"
+meaning = "Road closed"
+meaning_ja = "通行止め"
+hint_ja = "ヴェーグル ローカズル"
+
+[[cards]]
+id = "s_sturta"
+stage = "signs"
+text = "Sturta"
+meaning = "Shower"
+meaning_ja = "シャワー"
+hint_ja = "ストゥルタ"
+
+[[cards]]
+id = "s_buningsklefi"
+stage = "signs"
+text = "Búningsklefi"
+meaning = "Changing room"
+meaning_ja = "更衣室"
+hint_ja = "ブーニングスクレーヴィ"
+
+[[cards]]
+id = "s_skapar"
+stage = "signs"
+text = "Skápar"
+meaning = "Lockers"
+meaning_ja = "ロッカー"
+hint_ja = "スカウパル"
+
+[[cards]]
+id = "s_heitur_pottur"
+stage = "signs"
+text = "Heitur pottur"
+meaning = "Hot tub"
+meaning_ja = "ホットタブ（温かい湯船）"
+hint_ja = "ヘイトゥル ポフトゥル"
+
+[[cards]]
+id = "s_gufubad"
+stage = "signs"
+text = "Gufubað"
+meaning = "Steam bath / sauna"
+meaning_ja = "スチームバス・サウナ"
+hint_ja = "グヴバズ"
+
+[[cards]]
+id = "s_utsala"
+stage = "signs"
+text = "Útsala"
+meaning = "Sale"
+meaning_ja = "セール"
+hint_ja = "ウートサーラ"
+
+[[cards]]
+id = "s_tilbod"
+stage = "signs"
+text = "Tilboð"
+meaning = "Special offer"
+meaning_ja = "特価"
+hint_ja = "ティルボズ"
+
+[[cards]]
+id = "s_okeypis"
+stage = "signs"
+text = "Ókeypis"
+meaning = "Free (no charge)"
+meaning_ja = "無料"
+hint_ja = "オウケイピス"
+
+[[cards]]
+id = "s_sjalfsafgreidsla"
+stage = "signs"
+text = "Sjálfsafgreiðsla"
+meaning = "Self-service / self-checkout"
+meaning_ja = "セルフサービス・セルフレジ"
+hint_ja = "シャウルヴスアヴグレイズスラ"
+
+[[cards]]
+id = "s_greida"
+stage = "signs"
+text = "Greiða"
+meaning = "Pay"
+meaning_ja = "支払う（セルフレジのボタン）"
+hint_ja = "グレイザ"
+
+[[cards]]
+id = "s_gamlarsdagur"
+stage = "signs"
+text = "Gamlársdagur"
+meaning = "New Year's Eve (31 December) — often on opening-hours signs"
+meaning_ja = "大晦日（12月31日）。営業時間の掲示によく出る"
+hint_ja = "ガムラウルスダーグル"
+
+[[cards]]
+id = "s_nyarsdagur"
+stage = "signs"
+text = "Nýársdagur"
+meaning = "New Year's Day (1 January)"
+meaning_ja = "元日（1月1日）"
+hint_ja = "ニーアウルスダーグル"
+
+[[cards]]
+id = "s_joladagur"
+stage = "signs"
+text = "Jóladagur · Aðfangadagur"
+meaning = "Christmas Day · Christmas Eve"
+meaning_ja = "クリスマス当日・クリスマスイブ（営業時間の掲示に出る）"
+hint_ja = "ヨウラダーグル・アズファウンガダーグル"
+
+# ---------------------------------------------------------------- shop
+
+[[cards]]
+id = "w_mjolk"
+stage = "shop"
+text = "Mjólk"
+meaning = "Milk"
+meaning_ja = "牛乳"
+hint_ja = "ミョウルク"
+
+[[cards]]
+id = "w_skyr"
+stage = "shop"
+text = "Skyr"
+meaning = "Skyr (thick Icelandic dairy)"
+meaning_ja = "スキール（アイスランドの濃いヨーグルト風乳製品）"
+hint_ja = "スキル"
+
+[[cards]]
+id = "w_braud"
+stage = "shop"
+text = "Brauð"
+meaning = "Bread"
+meaning_ja = "パン"
+hint_ja = "ブロイズ"
+
+[[cards]]
+id = "w_ostur"
+stage = "shop"
+text = "Ostur"
+meaning = "Cheese"
+meaning_ja = "チーズ"
+hint_ja = "オストゥル"
+
+[[cards]]
+id = "w_smjor"
+stage = "shop"
+text = "Smjör"
+meaning = "Butter"
+meaning_ja = "バター"
+hint_ja = "スミョル"
+
+[[cards]]
+id = "w_egg"
+stage = "shop"
+text = "Egg"
+meaning = "Eggs"
+meaning_ja = "卵"
+hint_ja = "エッグ"
+
+[[cards]]
+id = "w_vatn"
+stage = "shop"
+text = "Vatn"
+meaning = "Water"
+meaning_ja = "水"
+hint_ja = "ヴァフトン"
+
+[[cards]]
+id = "w_kaffi"
+stage = "shop"
+text = "Kaffi"
+meaning = "Coffee"
+meaning_ja = "コーヒー"
+hint_ja = "カッフィ"
+
+[[cards]]
+id = "w_epli"
+stage = "shop"
+text = "Epli"
+meaning = "Apples"
+meaning_ja = "りんご"
+hint_ja = "エプリ"
+
+[[cards]]
+id = "w_sukkuladi"
+stage = "shop"
+text = "Súkkulaði"
+meaning = "Chocolate"
+meaning_ja = "チョコレート"
+hint_ja = "スークラジ"
+
+[[cards]]
+id = "w_nammi"
+stage = "shop"
+text = "Nammi"
+meaning = "Sweets"
+meaning_ja = "お菓子"
+hint_ja = "ナンミ"
+
+[[cards]]
+id = "w_kjot"
+stage = "shop"
+text = "Kjöt"
+meaning = "Meat"
+meaning_ja = "肉"
+hint_ja = "キョト"
+
+[[cards]]
+id = "w_fiskur"
+stage = "shop"
+text = "Fiskur"
+meaning = "Fish"
+meaning_ja = "魚"
+hint_ja = "フィスクル"
+
+[[cards]]
+id = "w_safi"
+stage = "shop"
+text = "Safi"
+meaning = "Juice"
+meaning_ja = "ジュース"
+hint_ja = "サーヴィ"
+
+[[cards]]
+id = "w_poki"
+stage = "shop"
+text = "Poki"
+meaning = "Bag"
+meaning_ja = "袋"
+hint_ja = "ポーキ"
+
+[[cards]]
+id = "w_verd"
+stage = "shop"
+text = "Verð"
+meaning = "Price"
+meaning_ja = "値段"
+hint_ja = "ヴェルズ"
+
+[[cards]]
+id = "w_vinbudin"
+stage = "shop"
+text = "Vínbúðin"
+meaning = "The state alcohol shop"
+meaning_ja = "国営の酒屋（お酒はここでだけ売っている）"
+hint_ja = "ヴィーンブージン"
+
+# ---------------------------------------------------------------- places
+
+[[cards]]
+id = "p_reykjavik"
+stage = "places"
+text = "Reykjavík"
+meaning = "Reykjavík — 'smoky bay'"
+meaning_ja = "レイキャビク（「煙の入り江」）"
+hint_ja = "レイキャヴィーク"
+parts = [["reykur", "煙"], ["vík", "入り江"]]
+
+[[cards]]
+id = "p_keflavik"
+stage = "places"
+text = "Keflavík"
+meaning = "Keflavík, home of the international airport"
+meaning_ja = "ケプラヴィーク（国際空港がある町）"
+hint_ja = "ケプラヴィーク（fl は「プル」）"
+
+[[cards]]
+id = "p_hallgrimskirkja"
+stage = "places"
+text = "Hallgrímskirkja"
+meaning = "Hallgrímur's church"
+meaning_ja = "ハトルグリムス教会（ハトルグリームルの教会）"
+hint_ja = "ハトルグリームスキルキャ"
+parts = [["Hallgrímur", "人名"], ["kirkja", "教会"]]
+
+[[cards]]
+id = "p_laugavegur"
+stage = "places"
+text = "Laugavegur"
+meaning = "The main shopping street — 'pool road'"
+meaning_ja = "ロイガヴェーグル（目抜き通り。「温泉への道」）"
+hint_ja = "ロイガヴェーグル"
+parts = [["laug", "温泉・プール"], ["vegur", "道"]]
+
+[[cards]]
+id = "p_thingvellir"
+stage = "places"
+text = "Þingvellir"
+meaning = "'Assembly plains', site of the old parliament"
+meaning_ja = "シンクヴェトリル（「議会の平原」。古い議会の跡）"
+hint_ja = "シングヴェトリル"
+parts = [["þing", "集会・議会"], ["vellir", "平原"]]
+
+[[cards]]
+id = "p_gullfoss"
+stage = "places"
+text = "Gullfoss"
+meaning = "'Golden falls'"
+meaning_ja = "グトルフォス（「黄金の滝」）"
+hint_ja = "グトルフォス"
+parts = [["gull", "金"], ["foss", "滝"]]
+
+[[cards]]
+id = "p_geysir"
+stage = "places"
+text = "Geysir"
+meaning = "The hot spring that gave every geyser its name"
+meaning_ja = "ゲイシル（「間欠泉」という言葉の元になった温泉）"
+hint_ja = "ゲイシル"
+
+[[cards]]
+id = "p_seljalandsfoss"
+stage = "places"
+text = "Seljalandsfoss"
+meaning = "A waterfall you can walk behind"
+meaning_ja = "セリャランスフォス（裏側を歩ける滝）"
+hint_ja = "セリャランスフォス"
+parts = [["seljaland", "放牧小屋の土地"], ["foss", "滝"]]
+
+[[cards]]
+id = "p_skogafoss"
+stage = "places"
+text = "Skógafoss"
+meaning = "'Forest falls'"
+meaning_ja = "スコウガフォス（「森の滝」）"
+hint_ja = "スコウガフォス"
+parts = [["skógur", "森"], ["foss", "滝"]]
+
+[[cards]]
+id = "p_reynisfjara"
+stage = "places"
+text = "Reynisfjara"
+meaning = "A black-sand beach with dangerous waves"
+meaning_ja = "レイニスフィャーラ（高波が危険な黒砂海岸）"
+hint_ja = "レイニスフィャーラ"
+parts = [["Reynir", "ナナカマド（山の名）"], ["fjara", "浜"]]
+
+[[cards]]
+id = "p_vik"
+stage = "places"
+text = "Vík"
+meaning = "'Bay', a village on the south coast"
+meaning_ja = "ヴィーク（「入り江」。南海岸の村）"
+hint_ja = "ヴィーク"
+
+[[cards]]
+id = "p_solheimajokull"
+stage = "places"
+text = "Sólheimajökull"
+meaning = "A glacier tongue — 'sun-homes glacier'"
+meaning_ja = "ソウルヘイマヨークトル（「太陽の里の氷河」）"
+hint_ja = "ソウルヘイマヨークトル"
+parts = [["sól", "太陽"], ["heimar", "里・住まい"], ["jökull", "氷河"]]
+
+[[cards]]
+id = "p_jokulsarlon"
+stage = "places"
+text = "Jökulsárlón"
+meaning = "'Glacier-river lagoon'"
+meaning_ja = "ヨークルサウルロウン（「氷河の川の潟湖」）"
+hint_ja = "ヨークルサウルロウン"
+parts = [["jökull", "氷河"], ["á", "川"], ["lón", "潟湖"]]
+
+[[cards]]
+id = "p_blaa_lonid"
+stage = "places"
+text = "Bláa lónið"
+meaning = "The Blue Lagoon"
+meaning_ja = "ブルーラグーン（「青い潟湖」）"
+hint_ja = "ブラウア ロウニズ"
+parts = [["blár", "青い"], ["lón", "潟湖"]]
+
+[[cards]]
+id = "p_reykjanes"
+stage = "places"
+text = "Reykjanes"
+meaning = "'Smoky peninsula', the airport's peninsula"
+meaning_ja = "レイキャネス（「煙の半島」。空港のある半島）"
+hint_ja = "レイキャネス"
+parts = [["reykur", "煙"], ["nes", "半島"]]
+
+[[cards]]
+id = "p_snaefellsnes"
+stage = "places"
+text = "Snæfellsnes"
+meaning = "'Snow-mountain peninsula'"
+meaning_ja = "スナイフェトルスネス（「雪山の半島」）"
+hint_ja = "スナイフェトルスネス"
+parts = [["snær", "雪"], ["fell", "山"], ["nes", "半島"]]
+
+[[cards]]
+id = "p_akureyri"
+stage = "places"
+text = "Akureyri"
+meaning = "The north's largest town — 'field spit'"
+meaning_ja = "アークレイリ（北部最大の町。「畑の砂州」）"
+hint_ja = "アークレイリ"
+parts = [["akur", "畑"], ["eyri", "砂州"]]
+
+[[cards]]
+id = "p_myvatn"
+stage = "places"
+text = "Mývatn"
+meaning = "'Midge lake'"
+meaning_ja = "ミーヴァトン（「ブヨの湖」）"
+hint_ja = "ミーヴァフトン"
+parts = [["mý", "ブヨ"], ["vatn", "湖・水"]]
+
+# ---------------------------------------------------------------- parts
+
+[[cards]]
+id = "t_foss"
+stage = "parts"
+text = "foss"
+meaning = "waterfall"
+meaning_ja = "滝"
+hint_ja = "フォス"
+
+[[cards]]
+id = "t_jokull"
+stage = "parts"
+text = "jökull"
+meaning = "glacier"
+meaning_ja = "氷河"
+hint_ja = "ヨークトル"
+
+[[cards]]
+id = "t_vik"
+stage = "parts"
+text = "vík"
+meaning = "bay, inlet"
+meaning_ja = "入り江"
+hint_ja = "ヴィーク"
+
+[[cards]]
+id = "t_fjara"
+stage = "parts"
+text = "fjara"
+meaning = "shore, beach"
+meaning_ja = "浜"
+hint_ja = "フィャーラ"
+
+[[cards]]
+id = "t_nes"
+stage = "parts"
+text = "nes"
+meaning = "peninsula, headland"
+meaning_ja = "半島・岬"
+hint_ja = "ネス"
+
+[[cards]]
+id = "t_tjorn"
+stage = "parts"
+text = "tjörn"
+meaning = "pond"
+meaning_ja = "池"
+hint_ja = "ティョルトン"
+
+[[cards]]
+id = "t_fjall"
+stage = "parts"
+text = "fjall · fell"
+meaning = "mountain · (smaller) mountain"
+meaning_ja = "山・（小さめの）山"
+hint_ja = "フィャトル・フェトル"
+
+[[cards]]
+id = "t_dalur"
+stage = "parts"
+text = "dalur"
+meaning = "valley"
+meaning_ja = "谷"
+hint_ja = "ダール"
+
+[[cards]]
+id = "t_laug"
+stage = "parts"
+text = "laug"
+meaning = "warm spring, pool"
+meaning_ja = "温泉・プール"
+hint_ja = "ロイグ"
+
+[[cards]]
+id = "t_lon"
+stage = "parts"
+text = "lón"
+meaning = "lagoon"
+meaning_ja = "潟湖"
+hint_ja = "ロウン"
+
+[[cards]]
+id = "t_hraun"
+stage = "parts"
+text = "hraun"
+meaning = "lava field"
+meaning_ja = "溶岩原"
+hint_ja = "フロイン"
+
+[[cards]]
+id = "t_kirkja"
+stage = "parts"
+text = "kirkja"
+meaning = "church"
+meaning_ja = "教会"
+hint_ja = "キルキャ"
