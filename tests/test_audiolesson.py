@@ -5315,5 +5315,79 @@ class ReadingDeckTests(unittest.TestCase):
                       [{k: c[k] for k in ("id", "text", "own")} for c in cards])
 
 
+class LeverTests(unittest.TestCase):
+    """Issue #136: planner levers as settings, off by default, each with the metric that
+    shows its effect (the #130 review candidates)."""
+
+    @staticmethod
+    def _candidates(lessons=8, **levers):
+        from collections import Counter
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner, day, kinds = LearnerState("is", "en", "A1"), TODAY, Counter()
+        for n in range(1, lessons + 1):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"),
+                         PlanConfig(minutes=30, new_items=8, seed=n, **levers), today=day).build()
+            kinds.update(c["kind"] for c in sc.review_candidates())
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        return kinds, sc
+
+    def test_max_same_situation_stops_repeating_a_cue(self):
+        default, _ = self._candidates()
+        self.assertGreater(default["repeated_situation"], 0, "the default is unchanged")
+        capped, sc = self._candidates(max_same_situation=1)
+        self.assertEqual(capped["repeated_situation"], 0)
+        self.assertEqual(sc.meta["config"]["levers"]["max_same_situation"], 1)
+
+    def test_a_capped_cue_becomes_a_meaning_recall(self):
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        item = next(i for i in cur.items if i.kind == "phrase" and i.situation and not i.situations and not i.situation_fill)
+        two = next(i for i in cur.items if i.kind == "phrase" and len(i.situations) >= 2)
+        learner = fresh()
+        for i in (item, two):
+            learner.items[i.id] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner, max_same_situation=1)
+        sc = Script(1, "t", "is", "en")
+        self.assertEqual(b.recall(sc, item, "situation").stage, "situation")
+        self.assertEqual(b.recall(sc, item, "situation").stage, "meaning", "one cue, already used")
+        self.assertEqual([b.recall(sc, two, "situation").stage for _ in range(2)], ["situation", "situation"],
+                         "a second variant is a different cue")
+
+    def test_late_unhinted_recall_closes_every_new_item_without_a_hint(self):
+        both, _ = self._candidates(max_same_situation=1, late_unhinted_recall=True)
+        self.assertEqual(both["no_late_recall"] + both["early_last_appearance"], 0)
+
+    def test_levers_pass_through_the_cli(self):
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        with tempfile.TemporaryDirectory() as td:
+            with contextlib.redirect_stdout(io.StringIO()):
+                main(["generate", "-c", str(ROOT / "curricula" / "is-en"), "-l", str(Path(td) / "l.json"), "-o", td,
+                      "-m", "10", "--no-audio", "--date", "2026-09-18", "--max-same-situation", "1", "--late-unhinted-recall"])
+            levers = json.loads((Path(td) / "lesson-001.plan.json").read_text("utf-8"))["config"]["levers"]
+        self.assertEqual(levers, {"max_same_situation": 1, "late_unhinted_recall": True})
+
+    def test_a_non_positive_situation_cap_is_rejected(self):
+        """PR #141 review: a cap of 0 or less is a misconfiguration, not "never"."""
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        for n in ("0", "-1"):
+            with tempfile.TemporaryDirectory() as td:
+                err = io.StringIO()
+                with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                    code = main(["generate", "-c", str(ROOT / "curricula" / "is-en"), "-l", str(Path(td) / "l.json"),
+                                 "-o", td, "--no-audio", "--max-same-situation", n])
+                self.assertEqual(code, 1, n)
+                self.assertIn("at least 1", err.getvalue())
+                self.assertFalse((Path(td) / "l.json").exists(), "nothing generated")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -72,6 +72,10 @@ class Builder:
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
     _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
+    # lever (#136): how often one situation cue may be narrated for an item in a lesson; past
+    # it, a situation recall becomes a meaning recall (None: no limit, the default; ≥ 1 otherwise)
+    max_same_situation: int | None = None
+    _cue_uses: dict[tuple[str, str], int] = field(default_factory=dict)
 
     # ------------------------------------------------------------------ utils
 
@@ -94,15 +98,28 @@ class Builder:
             return meaning
         return meaning + "."
 
+    def _next_situation(self, item: Item) -> str | None:
+        base = self.learner.items[item.id].exposures if item.id in self.learner.items else 0
+        return item.situation_for(base + self._situation_uses.get(item.id, 0))
+
     def _situation(self, item: Item) -> str | None:
         """The situation cue to narrate now, rotated by past exposures plus the cues already
         narrated this lesson (exposures only update after the lesson). Every narration of an
         item's own cue advances it, connect() included, so the next one is a different variant
         whenever the item has one."""
-        base = self.learner.items[item.id].exposures if item.id in self.learner.items else 0
-        offset = self._situation_uses.get(item.id, 0)
-        self._situation_uses[item.id] = offset + 1
-        return item.situation_for(base + offset)
+        cue = self._next_situation(item)
+        self._situation_uses[item.id] = self._situation_uses.get(item.id, 0) + 1
+        if cue is not None:
+            self._cue_uses[(item.id, cue)] = self._cue_uses.get((item.id, cue), 0) + 1
+        return cue
+
+    def situation_fresh(self, item: Item) -> bool:
+        """Whether the item's next situation cue is still under ``max_same_situation`` uses
+        this lesson (#130 found the same cue asked 2–4 times for one item in a lesson)."""
+        if self.max_same_situation is None:
+            return True
+        cue = self._next_situation(item)
+        return cue is None or self._cue_uses.get((item.id, cue), 0) < self.max_same_situation
 
     # ---- the speaker's gender (Item.target_m) -----------------------------
 
@@ -591,7 +608,8 @@ class Builder:
     def situation_usable(self, item: Item) -> bool:
         """Whether ``item``'s situation can be practised now: every fill it names is available
         ("Ask if she speaks German." waits until þýsku is known)."""
-        return item.has_situation and all(self._available(f.id) for f in self.cur.situation_fills(item).values())
+        return (item.has_situation and self.situation_fresh(item)
+                and all(self._available(f.id) for f in self.cur.situation_fills(item).values()))
 
     @staticmethod
     def _product(options: dict[str, list[Item]], slots: list[str]) -> list[dict[str, Item]]:
