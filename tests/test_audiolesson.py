@@ -5015,5 +5015,113 @@ class CliTests(unittest.TestCase):
         self.assertEqual(main(["report"]), 1)
 
 
+class CandoTests(unittest.TestCase):
+    """Issue #131: travel can-do scenarios as the course's outcome, with coverage and
+    reachability reports."""
+
+    def test_the_travel_scenarios_load_and_name_real_items(self):
+        from audiolesson.cando import TIERS, load_cando
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        scenarios = load_cando(ROOT / "curricula" / "is-en", cur)
+        self.assertGreaterEqual(len(scenarios), 20)
+        self.assertEqual({s.tier for s in scenarios}, set(TIERS))
+        for s in scenarios:
+            self.assertTrue(s.title and s.success, s.id)
+            if s.tier in ("A", "B"):
+                self.assertTrue(s.items or s.missing, s.id)
+        # the can-do directory is not a curriculum module
+        self.assertNotIn("A1", cur.by_id)
+
+    def test_scenarios_stay_generic(self):
+        """Personal trip details live in a private profile (#132), never in the repo."""
+        text = "\n".join(p.read_text("utf-8") for p in (ROOT / "curricula" / "is-en" / "cando").glob("*.toml"))
+        self.assertIsNone(re.search(r"\b(19|20)\d\d-\d\d-\d\d\b", text))
+
+    def test_bad_scenarios_are_rejected(self):
+        from audiolesson.cando import load_cando
+
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                                    "items": [{"id": "takk", "kind": "phrase", "target": "Takk.", "meaning": "Thanks."}]})
+        for body, message in (('id = "A1"\ntier = "A"\ntitle = "t"\nitems = ["nope"]', "unknown items"),
+                              ('id = "A1"\ntier = "Z"\ntitle = "t"', "tier"),
+                              ('id = "A1"\ntier = "A"\ntitle = "t"\ncolour = "red"', "colour")):
+            with tempfile.TemporaryDirectory() as td:
+                (Path(td) / "cando").mkdir()
+                (Path(td) / "cando" / "t.toml").write_text("[[scenarios]]\n" + body, "utf-8")
+                with self.assertRaises(CurriculumError) as ctx:
+                    load_cando(td, cur)
+                self.assertIn(message, str(ctx.exception))
+        with tempfile.TemporaryDirectory() as td:
+            self.assertEqual(load_cando(td, cur), [])
+
+    def test_coverage_flags_what_misses_the_tier_milestone(self):
+        from audiolesson.cando import Scenario, coverage, format_coverage, milestone_lesson
+
+        self.assertEqual((milestone_lesson("A", 84), milestone_lesson("B", 84), milestone_lesson("C", 84)), (35, 56, None))
+        self.assertEqual(milestone_lesson("A", 40), 0, "the milestone already passed")
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                                    "items": [{"id": i, "kind": "phrase", "target": i, "meaning": i} for i in ("a", "b", "c")]})
+        scenarios = [Scenario("A1", "A", "early", items=["a", "b"], missing=["x"]), Scenario("B1", "B", "late", items=["c"])]
+        reach = {6: {"a": 3, "b": 40}, 10: {"a": 2, "b": 20, "c": 50}}
+        rows = coverage(cur, scenarios, reach, 84)
+        self.assertEqual(rows[0]["late"], {6: ["b"]})
+        self.assertEqual(rows[1]["late"], {6: ["c"]}, "never reached counts as late; 50 ≤ 56 is in time")
+        text = format_coverage(rows, 84, [6, 10])
+        self.assertIn("late at pace 6 (due lesson 35): b", text)
+        self.assertIn("missing: x", text)
+
+    def test_a_passed_milestone_is_reported_overdue_not_hidden(self):
+        """PR #137 review: with six weeks left, Tier A's T−7-week milestone has passed; the
+        report must show every Tier A item as overdue, not grade nothing."""
+        from audiolesson.cando import Scenario, coverage, format_coverage
+
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                                    "items": [{"id": i, "kind": "phrase", "target": i, "meaning": i} for i in ("a", "b", "c")]})
+        scenarios = [Scenario("A1", "A", "must", items=["a", "b"]), Scenario("B1", "B", "should", items=["c"]),
+                     Scenario("C1", "C", "nice", items=["a"])]
+        rows = coverage(cur, scenarios, {10: {"a": 1, "b": 3, "c": 9}}, 42)
+        self.assertEqual((rows[0]["due"], rows[0]["overdue"], rows[0]["late"]), (0, True, {10: ["a", "b"]}))
+        self.assertEqual((rows[1]["due"], rows[1]["late"]), (14, {}), "Tier B still has a window")
+        self.assertEqual((rows[2]["due"], rows[2]["overdue"], rows[2]["late"]), (None, False, {}), "Tier C has no milestone")
+        text = format_coverage(rows, 42, [10])
+        self.assertIn("Tier A: milestone (T−7 weeks) already passed", text)
+        self.assertIn("overdue at pace 10 (milestone already passed): a, b", text)
+        self.assertIn("Tier B due by lesson 14", text)
+        self.assertNotIn("None", text)
+
+    def test_the_report_rejects_an_empty_horizon(self):
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        for args in (["--lessons", "0"], ["--lessons", "-3"], ["--paces", ","], ["--paces", "6,0"]):
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                code = main(["validate", str(ROOT / "curricula" / "is-en"), "--cando", *args])
+            self.assertNotEqual(code, 0, args)
+            self.assertIn("must", err.getvalue(), args)
+
+    def test_reach_is_the_lesson_an_item_is_first_met(self):
+        from audiolesson.cando import simulate_reach
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        reach = simulate_reach(cur, 2, 4)
+        self.assertEqual(reach["godan_daginn"], 1)
+        self.assertEqual(set(reach.values()), {1, 2})
+        self.assertNotIn("goda_ferd", reach)
+
+    def test_validate_reports_cando_coverage(self):
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(main(["validate", str(ROOT / "curricula" / "is-en"), "--cando", "--lessons", "2", "--paces", "3"]), 0)
+        self.assertIn("can-do coverage for a horizon of 2 daily lessons", out.getvalue())
+        self.assertIn("A3 [A] Supermarket", out.getvalue())
+
+
 if __name__ == "__main__":
     unittest.main()

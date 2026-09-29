@@ -1,0 +1,253 @@
+# Travel can-do scenarios (issue #131). The outcome the course aims at for a short trip:
+# read signs and place names with enjoyment; greet, shop, order and pay; handle simple
+# conversation; show respect for the people and the culture.
+#
+# Generic by design. A learner's own dates, itinerary and weights never go here: they live
+# in a private profile next to the learner file (issue #132).
+#
+# `items` are curriculum ids the scenario needs (validated); `missing` is what the
+# curriculum still lacks for it. `reading` feeds the reading track (#133), `clerk_lines`
+# the listening track (#134); both are candidates until the native tutor checks them.
+# Default tiers suit a budget traveller: supermarket and café before restaurant.
+
+# ---------------------------------------------------------------- Tier A: must, by T−7 weeks
+
+[[scenarios]]
+id = "A1"
+tier = "A"
+title = "Greet and take leave, incl. holiday-season greetings"
+title_ja = "挨拶と別れ（季節の挨拶を含む）"
+setting = "Walking into and out of any shop, café, pool or tour bus."
+success = "Greets by time of day and leaves with a farewell, unprompted; returns a seasonal greeting."
+items = ["godan_daginn", "gott_kvold", "goda_nott", "hae", "hallo", "bless", "sjaumst", "eigdu_godan_dag", "eigdu_godur", "somuleidis"]
+missing = ["holiday-season greetings: «Gleðileg jól», «Gleðilega hátíð», «Gleðilegt nýtt ár (og takk fyrir það liðna)» (#135)"]
+respect = ["greet", "farewell"]
+
+[[scenarios]]
+id = "A2"
+tier = "A"
+title = "Thank, and answer thanks"
+title_ja = "お礼を言う・お礼に応える"
+setting = "Being handed something, helped, or thanked."
+success = "Thanks in proportion (Takk / Takk kærlega / Takk fyrir …) and answers thanks."
+items = ["takk", "takk_kaerlega", "takk_fyrir", "ekkert_ad_thakka", "gjordu_svo_vel", "verdi_ther_ad_godu"]
+respect = ["thanks"]
+
+[[scenarios]]
+id = "A3"
+tier = "A"
+title = "Supermarket"
+title_ja = "スーパー"
+setting = "Finding a few groceries and paying at the till or a self-checkout."
+success = "Finds an item by asking, answers the clerk's questions (bag, receipt), pays by card."
+items = ["hvar_er", "matvorubudin", "attu", "eg_er_ad_leita_ad_thing", "hvad_kostar_thetta", "thad_kostar", "tekurdu_kort", "ma_eg_borga_med_korti", "poka", "ja", "nei", "get_eg_fengid_kvittun", "hvar_er_kassinn", "mjolk", "ost", "smjor", "egg", "braud", "skyr", "vatn", "epli"]
+missing = [
+  "«Viltu poka?» and «Eitthvað fleira?» as lines to understand and answer (#134)",
+  "self-checkout words (#133)",
+  "note: alcohol is sold only at Vínbúðin (#135)",
+]
+reading = ["mjólk", "skyr", "brauð", "ostur", "smjör", "egg", "vatn", "kaffi", "epli", "súkkulaði"]
+clerk_lines = ["Viltu poka?", "Eitthvað fleira?", "Viltu kvittun?"]
+respect = ["greet", "thanks", "farewell"]
+
+[[scenarios]]
+id = "A4"
+tier = "A"
+title = "Café"
+title_ja = "カフェ"
+setting = "Ordering a drink and a pastry at the counter."
+success = "Orders with «Ég ætla að fá … / Get ég fengið …?», answers for here or to go and «Eitthvað fleira?», pays."
+items = ["kaffihusid", "kaffi", "te", "koku", "samloku", "eg_aetla_ad_fa", "get_eg_fengid", "eg_aetla_ad_fa_addon", "med_mjolk", "tvo_kaffi", "thetta_er_allt", "ekkert_meira_takk", "ma_eg_borga_med_korti"]
+missing = ["for here / to go (#135)"]
+clerk_lines = ["Hvað má bjóða þér?", "Eitthvað fleira?", "Til að taka með?"]
+respect = ["greet", "thanks", "farewell"]
+
+[[scenarios]]
+id = "A5"
+tier = "A"
+title = "Bar"
+title_ja = "バー"
+setting = "Ordering drinks and toasting with someone."
+success = "Orders a drink, orders another, toasts, and opens one line of small talk."
+items = ["bjor", "annan_bjor_takk", "eg_aetla_ad_fa", "hvad_kostar", "skal", "er_thetta_saeti_laust", "eg_er_fra_japan"]
+clerk_lines = ["Hvað má bjóða þér?"]
+respect = ["greet", "thanks"]
+
+[[scenarios]]
+id = "A6"
+tier = "A"
+title = "Public pool"
+title_ja = "公共の温泉プール"
+setting = "Buying an entry, the changing room, the hot tub."
+success = "Buys an entry, follows the shower-first rule from the signs, exchanges a few lines in the hot tub."
+items = ["sundlaugin", "hvad_kostar", "einn_mida_takk", "sundfot", "sturtan", "heiti_potturinn", "er_heitur_pottur_herna", "thad_er_svo_kalt", "hvadan_ert_thu", "eg_er_fra_japan"]
+missing = [
+  "an entry line («Einn fullorðinn, takk») (#135)",
+  "pool etiquette note: shower without a swimsuit before going in (#135)",
+  "pool signs (#133)",
+]
+reading = ["Sturta", "Karlar", "Konur", "Skór"]
+respect = ["greet", "shower_rule"]
+
+[[scenarios]]
+id = "A7"
+tier = "A"
+title = "Stay in the conversation"
+title_ja = "会話を続ける（わからない・ゆっくり・アイスランド語で続ける）"
+setting = "The partner speaks too fast, or switches to English."
+success = "Says it didn't understand, asks to slow down or repeat, says it's learning Icelandic and asks to keep going in Icelandic."
+items = ["eg_skil_ekki", "gaetirdu_talad_haegar", "gaetirdu_endurtekid_thetta", "hvad_thydir_thetta", "hvernig_segir_madur_thetta", "eg_tala_sma_islensku", "eg_er_ad_laera", "islensku", "augnablik"]
+missing = ["«Ég er að læra íslensku – má ég reyna?» to keep going in Icelandic (#135)"]
+respect = ["stayed_icelandic"]
+
+[[scenarios]]
+id = "A8"
+tier = "A"
+title = "Excuse me, sorry, the toilet"
+title_ja = "すみません・ごめんなさい・トイレ"
+setting = "Getting past someone, bumping into someone, finding the toilet."
+success = "Uses Afsakið / Fyrirgefðu appropriately and finds the toilet by asking or by the sign."
+items = ["afsakid", "fyrirgefdu", "thvi_midur", "hvar_er", "klosettid"]
+missing = ["toilet sign words (#133)"]
+reading = ["Snyrting", "Salerni", "WC", "Karlar", "Konur"]
+respect = ["politeness"]
+
+[[scenarios]]
+id = "A9"
+tier = "A"
+title = "Essential signs and opening hours"
+title_ja = "必須の看板と営業時間"
+setting = "Doors, shop windows, road and hazard signs, holiday opening hours."
+success = "Reads the sign and acts on it; asks when a place opens or closes."
+items = ["opid", "lokad", "er_opid", "thad_er_lokad", "hvenaer_opnar", "hvenaer_lokar", "haett"]
+missing = ["sign words: Opnunartími, holiday opening hours, Inngangur / Útgangur, Ýta / Toga, Hætta / Varúð (#133)"]
+reading = ["Opið", "Lokað", "Opnunartími", "Inngangur", "Útgangur", "Ýta", "Toga", "Hætta", "Varúð", "Bannað"]
+
+[[scenarios]]
+id = "A10"
+tier = "A"
+title = "Say place names"
+title_ja = "地名を言う"
+setting = "Saying where you're going or where you've been."
+success = "Says well-known place names so a local understands them."
+items = ["reykjavik_dat", "akureyri_dat"]
+missing = [
+  "a broad public list of well-known sights with pronunciation hints (#133)",
+  "the learner's own places, from the private profile (#132)",
+]
+reading = ["Reykjavík", "Keflavík", "Hallgrímskirkja", "Þingvellir", "Gullfoss", "Geysir", "Seljalandsfoss", "Skógafoss", "Jökulsárlón", "Reykjanes", "Snæfellsnes", "Akureyri"]
+
+# ---------------------------------------------------------------- Tier B: should, by T−4 weeks
+
+[[scenarios]]
+id = "B1"
+tier = "B"
+title = "Museum"
+title_ja = "博物館"
+setting = "The ticket desk and the exhibition."
+success = "Buys tickets, asks about photos and closing time."
+items = ["safnid", "fara_a_safnid", "kaupa_mida", "mida", "einn_mida_takk", "thrja_mida", "ma_eg_taka_mynd", "hvenaer_lokar"]
+missing = ["the cloakroom"]
+respect = ["greet", "thanks"]
+
+[[scenarios]]
+id = "B2"
+tier = "B"
+title = "Day tours"
+title_ja = "日帰りツアー"
+setting = "Pick-up, the guide's instructions, sights, the drive back."
+success = "Greets and thanks the guide and driver, confirms pick-up and departure, follows safety instructions, reacts to the sights."
+items = ["hvar_er_saekt", "hvenaer_leggjum_vid_af_stad", "klukkan_hvad", "varlega", "thad_er_halka", "farid_varlega_a_isnum", "ekki_fara_ut_af_stignum", "utsynid_er_fallegt", "vaa", "otrulegt", "nordurljosin", "eg_vil_sja_nordurljosin", "sjadu", "takk_kaerlega", "foss", "jokull", "strond", "hraun", "eldfjall", "thad_er_gos"]
+clerk_lines = ["Farið varlega.", "Ekki fara út af stígnum."]
+respect = ["greet", "thanks", "farewell"]
+
+[[scenarios]]
+id = "B3"
+tier = "B"
+title = "Small talk"
+title_ja = "雑談"
+setting = "A clerk, a guide or someone in the hot tub asks where you're from."
+success = "Answers where from, first visit, how long, what it likes, and comments on the weather."
+items = ["hvad_segirdu_gott", "allt_gott", "en_thu", "gaman_ad_kynnast_ther", "hvadan_ert_thu", "eg_er_fra_japan", "eg_er_i_frii", "eg_er_her_i_fyrsta_sinn", "eg_er_her_i_viku", "mer_finnst_island_fallegt", "hvernig_er_vedrid", "thad_er_svo_kalt", "thad_er_dimmt_uti"]
+respect = ["greet"]
+
+[[scenarios]]
+id = "B4"
+tier = "B"
+title = "Taxi and bus"
+title_ja = "タクシーとバス"
+setting = "Getting a taxi or a bus to a destination."
+success = "Names the destination, asks the price and where to get off."
+items = ["get_eg_fengid_leigubil", "a_flugvollinn_takk", "a_thetta_hotel_takk", "strætó", "hvenaer_kemur_straeto", "fer_thessi_straeto_i_midbaeinn", "hvar_a_eg_ad_fara_ut", "hvad_kostar_i_straeto", "geturdu_stoppad_herna"]
+missing = ["«Til …, takk» with the genitive, for the learner's own destinations (#132)"]
+respect = ["greet", "thanks"]
+
+[[scenarios]]
+id = "B5"
+tier = "B"
+title = "Numbers by ear"
+title_ja = "数字を聞き取る"
+setting = "A total said at the till, a departure time said by a guide."
+success = "Understands the price or time the first time it's said."
+items = ["einn_tveir_thrir_fjorir", "thad_kostar", "thad_kostar_big", "hvad_er_thetta_mikid_samtals", "klukkan_er", "klukkan_time", "half_atta"]
+
+[[scenarios]]
+id = "B6"
+tier = "B"
+title = "Winter talk and safety"
+title_ja = "冬の話題と安全"
+setting = "Cold, wind, ice, darkness, closed roads."
+success = "Comments on the weather and understands warnings about ice and closures."
+items = ["kalt", "rok", "snjor", "halka", "thad_snjoar", "thad_er_svo_kalt", "mer_er_kalt", "thad_er_dimmt_uti", "thad_er_halka", "er_vegurinn_opinn", "vegurinn_er_lokadur", "eg_tharf_ulpu"]
+
+# ---------------------------------------------------------------- Tier C: nice to have
+
+[[scenarios]]
+id = "C1"
+tier = "C"
+title = "Decode place names by their parts"
+title_ja = "地名を部品で読み解く"
+setting = "Reading a map or a road sign."
+success = "Explains what a place name means from its parts."
+items = ["foss", "jokull", "fjall", "a_river", "eyja", "strond", "hraun", "kirkjan"]
+missing = ["vík, fjara, nes, tjörn, dalur, laug, vegur, lón as reading cards (#133)"]
+reading = ["Reykjavík", "Þingvellir", "Gullfoss", "Jökulsárlón"]
+
+[[scenarios]]
+id = "C2"
+tier = "C"
+title = "Holiday traditions as small talk"
+title_ja = "年末年始の習慣を話題にする"
+setting = "Small talk around the winter holidays."
+success = "Knows a few traditions (New Year's Eve, the Yule Lads) and can say one line about them."
+missing = ["notes on New Year's Eve and the 13 Yule Lads (#135)"]
+
+[[scenarios]]
+id = "C3"
+tier = "C"
+title = "Restaurant basics"
+title_ja = "レストランの基本"
+setting = "A sit-down meal."
+success = "Asks for a table, a recommendation and the bill."
+items = ["bord_fyrir_tvo", "matsedilinn", "hvad_maelir_thu_med", "get_eg_fengid_reikninginn", "eg_er_graenmetisaeta", "thetta_var_gott", "takk_fyrir_matinn"]
+respect = ["thanks"]
+
+[[scenarios]]
+id = "C4"
+tier = "C"
+title = "Emergency basics"
+title_ja = "緊急時の基本"
+setting = "Someone is hurt, you're lost, you need a pharmacy."
+success = "Calls for help and says what's wrong in a few words."
+items = ["hjalp", "hringdu_a_sjukrabil", "eg_tharf_laekni", "eg_er_tynd", "hvar_er_naesta_apotek", "er_allt_i_lagi"]
+
+[[scenarios]]
+id = "C5"
+tier = "C"
+title = "Farewell to the country"
+title_ja = "旅の終わりの挨拶"
+setting = "Leaving the lodging, the last day."
+success = "Thanks the host as a guest and says it will come back."
+items = ["takk_fyrir_dvolina", "eg_mun_koma_aftur", "goda_ferd", "bless"]
+missing = ["«Takk fyrir mig» (#135)"]
+respect = ["thanks", "farewell"]
