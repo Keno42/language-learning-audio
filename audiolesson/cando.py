@@ -80,10 +80,40 @@ def load_cando(curriculum_dir: str | Path, cur: Curriculum | None = None) -> lis
     return out
 
 
-def simulate_reach(cur: Curriculum, lessons: int, pace: int, minutes: float = 30, seed: int = 1) -> dict[str, int]:
+def priority_items(cur: Curriculum, scenarios: list[Scenario], boost: list[str] | tuple[str, ...] = (),
+                   tiers: tuple[str, ...] = ("A", "B")) -> list[str]:
+    """The trip ordering (#132): the items to introduce before everything else, in order.
+    Boosted scenarios come first, then each tier in ``tiers``; within a group, curriculum
+    order. Every item brings its prereqs (transitively) into its group, ahead of it.
+    Unknown boost ids are ignored."""
+    by_id = {s.id: s for s in scenarios}
+    groups = [[i for sid in boost if sid in by_id for i in by_id[sid].items]]
+    groups += [[i for s in scenarios if s.tier == t for i in s.items] for t in tiers]
+    out: list[str] = []
+    seen: set[str] = set()
+
+    def closure(item_id: str, acc: set[str]) -> None:
+        if item_id in acc or item_id not in cur.by_id:
+            return
+        acc.add(item_id)
+        for p in cur.by_id[item_id].prereqs:
+            closure(p, acc)
+
+    for group in groups:
+        acc: set[str] = set()
+        for i in group:
+            closure(i, acc)
+        for i in sorted(acc - seen, key=lambda x: cur.by_id[x].order):
+            out.append(i)
+            seen.add(i)
+    return out
+
+
+def simulate_reach(cur: Curriculum, lessons: int, pace: int, minutes: float = 30, seed: int = 1,
+                   priority: list[str] | None = None) -> dict[str, int]:
     """The lesson in which each item is first met, for a new learner doing one lesson a day
     at a fixed pace with every retrieval presumed successful (optimistic: real pace is
-    lower). Items never met within ``lessons`` are absent."""
+    lower). Items never met within ``lessons`` are absent. ``priority``: the trip ordering."""
     from .learner import LearnerState
     from .planner import PlanConfig, Planner, apply_to_learner
     from .prompts import Prompts
@@ -95,7 +125,8 @@ def simulate_reach(cur: Curriculum, lessons: int, pace: int, minutes: float = 30
     reach: dict[str, int] = {}
     for n in range(1, lessons + 1):
         sc = Planner(cur, learner, prompts, Timing(level="A1"),
-                     PlanConfig(minutes=minutes, new_items=pace, seed=seed + n), today=day).build()
+                     PlanConfig(minutes=minutes, new_items=pace, seed=seed + n, priority=list(priority or [])),
+                     today=day).build()
         apply_to_learner(sc, learner, day)
         for it in cur.items:
             if it.id not in reach and learner.has_met(it.id):
