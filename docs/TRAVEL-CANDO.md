@@ -67,15 +67,28 @@ curriculum:
 - the existing arc rules still apply (a construction waits for two fills, and so on).
 
 Without `--trip`, the order is unchanged. An empty profile gives the default A-then-B
-ordering. With `departure` set, the final 14 days halve the new items for each lesson;
-the learner's pace itself is not changed.
+ordering. The pace never depends on the departure date: lessons go on at the learner's pace
+up to and through the trip, throttled only by what the learner reports.
+
+**Seasonal content** follows the profile's `season`:
+
+- A scenario with `season = "…"` applies only in that season.
+- A scenario's `seasonal = { "<season>" = [ids] }` items are added only for that season.
+
+With no profile, or no season, seasonal content is left out of the ordering and the report.
+So holiday greetings are Tier A for a winter-holidays trip and nothing for a summer one.
 
 Simulated at pace 6 over 84 daily lessons, the trip ordering (164 items) meets every
 Tier A item by lesson 35 and every Tier B item by lesson 56. Without it, both tiers miss
 their milestone. The total reached stays about the same (~720 items).
 
-Profile keys, all optional: `departure` (a date), `boost` (scenario ids), `places` (the
-learner's own place names, for the reading track, #133), `season`.
+Profile keys, all optional:
+
+- `departure`: a date. It sets the horizon of `validate --cando --trip` when `--lessons` is
+  not given.
+- `boost`: scenario ids.
+- `places`: the learner's own place names, for the reading track (#133).
+- `season`: which seasonal content applies.
 
 ## Privacy
 
