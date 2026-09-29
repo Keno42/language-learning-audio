@@ -172,6 +172,20 @@ situation = "A shop assistant hears your accent and asks what you're doing in Ic
 situation_ja = "店員さんがあなたのなまりに気づいて、アイスランドで何をしているのか聞きました。アイスランド語を勉強していると言ってください。"
 situation_fill = { language = "islensku" }
 
+# issue #135: keeping the conversation in Icelandic when the other side switches to English
+# (the «enska» aside). Candidate wording, checked by the native tutor (#129).
+[[items]]
+id = "ma_eg_reyna_ad_tala_islensku"
+kind = "phrase"
+target = "Má ég reyna að tala íslensku?"
+meaning = "May I try to speak Icelandic?"
+meaning_ja = "アイスランド語で話してみてもいいですか？"
+difficulty = 3
+topics = ["clarifying", "social"]
+prereqs = ["islensku"]
+situation = "The cashier hears your accent and switches to English. Ask if you may try to speak Icelandic."
+situation_ja = "レジの人があなたのなまりに気づいて英語に切り替えました。アイスランド語で話してみてもいいか聞いてください。"
+
 [[items]]
 id = "gaetirdu_talad_haegar"
 kind = "phrase"

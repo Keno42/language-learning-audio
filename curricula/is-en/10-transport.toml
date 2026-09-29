@@ -110,6 +110,18 @@ prereqs = ["mida"]
 situation = "You step onto the bus. Ask for one ticket."
 situation_ja = "バスに乗り込みます。切符を一枚頼んでください。"
 
+# issue #135: the pool (or museum) entry, where tickets are sold by age group
+[[items]]
+id = "einn_fullordinn_takk"
+kind = "phrase"
+target = "Einn fullorðinn, takk."
+meaning = "One adult, please."
+meaning_ja = "大人一枚お願いします。"
+difficulty = 3
+topics = ["daily", "transport"]
+situation = "At the swimming pool reception. Ask for one adult entry."
+situation_ja = "プールの受付で、大人一人分の入場券を買ってください。"
+
 [[items]]
 id = "hvad_kostar_i_straeto"
 kind = "phrase"

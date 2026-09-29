@@ -5226,5 +5226,35 @@ class TripProfileTests(unittest.TestCase):
             self.assertEqual(json.loads(learner.read_text("utf-8"))["pace"], 6)
 
 
+class CultureRespectTests(unittest.TestCase):
+    def test_the_culture_pack_fills_the_can_do_gaps(self):
+        """Issue #135: the travel phrases the course lacked are items now, each tied to a
+        can-do scenario (#131) and to an aside that explains when to use it."""
+        from audiolesson.cando import load_cando
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        scenarios = load_cando(ROOT / "curricula" / "is-en", cur)
+        in_scenarios = {i for s in scenarios for i in s.items + [x for v in s.seasonal.values() for x in v]}
+        noted = {i for n in cur.notes for i in n.items}
+        added = ["gledileg_jol", "gledilega_hatid", "gledilegt_nytt_ar", "gledilegt_nytt_ar_takk_fyrir_thad_lidna",
+                 "takk_fyrir_mig", "ma_eg_reyna_ad_tala_islensku", "til_ad_taka_med", "eg_aetla_ad_borda_herna",
+                 "einn_fullordinn_takk"]
+        for i in added:
+            self.assertIn(i, cur.by_id, i)
+            self.assertIn(i, in_scenarios, i)
+        for i in ("gledileg_jol", "gledilegt_nytt_ar", "takk_fyrir_mig", "ma_eg_reyna_ad_tala_islensku", "einn_fullordinn_takk"):
+            self.assertIn(i, noted, i)
+        self.assertFalse([m for s in scenarios for m in s.missing if "#135" in m], "no #135 gap left open")
+        # seasonal content comes last in the default order; the trip ordering brings it forward
+        # only for a trip in its season (PR #138 review)
+        self.assertGreater(cur.by_id["gledileg_jol"].order, cur.by_id["ferdin_var_frabaer"].order)
+        from audiolesson.cando import for_season, priority_items
+
+        summer = priority_items(cur, for_season(scenarios, "summer"))
+        winter = priority_items(cur, for_season(scenarios, "winter-holidays"))
+        self.assertNotIn("gledileg_jol", summer)
+        self.assertIn("gledileg_jol", winter)
+
+
 if __name__ == "__main__":
     unittest.main()

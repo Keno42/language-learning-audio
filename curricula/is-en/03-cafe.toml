@@ -690,6 +690,31 @@ partner_cue_meaning_ja = "900クローナです。ほかに何か？"
 partner_cue_situation = "She told you the price and asked if there's anything else. Say nothing more, thanks."
 partner_cue_situation_ja = "値段を言って、ほかに何かあるか聞かれました。これで結構です、ありがとうと言ってください。"
 
+# issue #135: for here / to go at a café counter. Candidate wording, checked by the native
+# tutor (#129) before a clerk-side question is added for it (#134).
+[[items]]
+id = "til_ad_taka_med"
+kind = "phrase"
+target = "Til að taka með, takk."
+meaning = "To take away, please."
+meaning_ja = "持ち帰りでお願いします。"
+difficulty = 3
+topics = ["cafe"]
+situation = "The barista asks whether your coffee is for here or to go. Say it's to take away."
+situation_ja = "店員にコーヒーを店内で飲むか持ち帰るか聞かれました。持ち帰りだと答えてください。"
+
+[[items]]
+id = "eg_aetla_ad_borda_herna"
+kind = "phrase"
+target = "Ég ætla að borða hérna."
+meaning = "I'll eat here."
+meaning_ja = "店内で食べます。"
+difficulty = 3
+topics = ["cafe"]
+prereqs = ["borda"]
+situation = "The cashier asks if your sandwich is to take away. Say you'll eat here."
+situation_ja = "レジの人にサンドイッチを持ち帰るか聞かれました。店内で食べると答えてください。"
+
 [[dialogues]]
 id = "kaffihus"
 setting = "You're at a café counter in Reykjavík. The barista looks up."
