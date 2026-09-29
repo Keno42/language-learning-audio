@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from .cando import coverage, format_coverage, load_cando, priority_items, simulate_reach
+from .cando import check_horizon, coverage, format_coverage, load_cando, priority_items, simulate_reach
 from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum
 from .learner import LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
@@ -464,7 +464,11 @@ def cmd_validate(args) -> int:
         if not scenarios:
             print("no can-do scenarios (<curriculum>/cando/*.toml)")
             return 0
-        paces = [int(p) for p in args.paces.split(",") if p.strip()]
+        try:
+            paces = [int(p) for p in args.paces.split(",") if p.strip()]
+        except ValueError:
+            raise ValueError(f"--paces must list positive numbers of new items per lesson (got {args.paces!r})") from None
+        check_horizon(args.lessons, paces)
         priority = priority_items(cur, scenarios, load_trip(args.trip).boost) if args.trip else []
         if priority:
             print(f"trip ordering: {len(priority)} can-do items first")
