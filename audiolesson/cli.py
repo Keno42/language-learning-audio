@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
+from .cando import coverage, format_coverage, load_cando, simulate_reach
 from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum
 from .learner import LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
@@ -89,6 +90,9 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("--known", default=None, help="report what is missing for this learner language")
     v.add_argument("--frames", action="store_true", help="list every vocab item with no frame or dialogue near its introduction")
     v.add_argument("--frame-span", type=int, default=50, help="items between a word and its first frame before it counts as late (default 50)")
+    v.add_argument("--cando", action="store_true", help="travel can-do coverage (#131): each scenario's items, when they are reached, what is missing (simulates lessons; slow)")
+    v.add_argument("--lessons", type=int, default=84, help="--cando: daily lessons before departure (default 84)")
+    v.add_argument("--paces", default="6,8,10", help="--cando: new items per lesson to simulate, comma-separated (default 6,8,10)")
     v.set_defaults(func=cmd_validate)
 
     vo = sub.add_parser("voices", help="list default voices a provider offers for a language")
@@ -428,6 +432,16 @@ def cmd_validate(args) -> int:
                 print(f"  late  #{f['order']:<4} {f['item']}: first {f['context']} (#{f['context_order']}, {f['gap']} items later)")
             for f in frames["none"]:
                 print(f"  none  #{f['order']:<4} {f['item']}")
+    scenarios = load_cando(args.curriculum, cur) if Path(args.curriculum).is_dir() else []
+    if scenarios and not args.cando:
+        print(f"{len(scenarios)} travel can-do scenarios (#131); --cando reports their coverage")
+    if args.cando:
+        if not scenarios:
+            print("no can-do scenarios (<curriculum>/cando/*.toml)")
+            return 0
+        paces = [int(p) for p in args.paces.split(",") if p.strip()]
+        reach = {pace: simulate_reach(cur, args.lessons, pace) for pace in paces}
+        print(format_coverage(coverage(cur, scenarios, reach, args.lessons), args.lessons, paces))
     return 0
 
 

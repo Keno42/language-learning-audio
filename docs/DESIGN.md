@@ -19,6 +19,7 @@ came about is in `docs/history/sessions.md`.
 | script → audio, respellings for TTS | `audiolesson/render/` |
 | written review questions for `plan.json` (`review`) | `audiolesson/script.py` (`Script.review_questions`) |
 | post-lesson feedback candidates for `plan.json` (`review_candidates`, #128) | `audiolesson/script.py` (`Script.review_candidates`) |
+| travel can-do scenarios and their coverage report (#131) | `curricula/is-en/cando/travel.toml`, `audiolesson/cando.py`, `validate --cando`; see `docs/TRAVEL-CANDO.md` |
 | diagnostics | `audiolesson validate` (gloss coverage, dialogue sequencing report), `tools/phrase_families.py` |
 
 ## Invariants the tests pin
