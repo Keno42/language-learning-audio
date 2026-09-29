@@ -42,9 +42,8 @@ success = "Finds an item by asking, answers the clerk's questions (bag, receipt)
 items = ["hvar_er", "matvorubudin", "attu", "eg_er_ad_leita_ad_thing", "hvad_kostar_thetta", "thad_kostar", "tekurdu_kort", "ma_eg_borga_med_korti", "poka", "ja", "nei", "get_eg_fengid_kvittun", "hvar_er_kassinn", "mjolk", "ost", "smjor", "egg", "braud", "skyr", "vatn", "epli"]
 missing = [
   "«Viltu poka?» and «Eitthvað fleira?» as lines to understand and answer (#134)",
-  "self-checkout words (#133)",
 ]
-reading = ["mjólk", "skyr", "brauð", "ostur", "smjör", "egg", "vatn", "kaffi", "epli", "súkkulaði"]
+reading = ["mjólk", "skyr", "brauð", "ostur", "smjör", "egg", "vatn", "kaffi", "epli", "súkkulaði", "Poki", "Verð", "Tilboð", "Sjálfsafgreiðsla", "Greiða", "Vínbúðin"]
 clerk_lines = ["Viltu poka?", "Eitthvað fleira?", "Viltu kvittun?"]
 respect = ["greet", "thanks", "farewell"]
 
@@ -78,8 +77,7 @@ title_ja = "公共の温泉プール"
 setting = "Buying an entry, the changing room, the hot tub."
 success = "Buys an entry, follows the shower-first rule from the signs, exchanges a few lines in the hot tub."
 items = ["sundlaugin", "hvad_kostar", "einn_fullordinn_takk", "sundfot", "sturtan", "heiti_potturinn", "er_heitur_pottur_herna", "thad_er_svo_kalt", "hvadan_ert_thu", "eg_er_fra_japan"]
-missing = ["pool signs (#133)"]
-reading = ["Sturta", "Karlar", "Konur", "Skór"]
+reading = ["Sturta", "Búningsklefi", "Skápar", "Heitur pottur", "Karlar", "Konur"]
 respect = ["greet", "shower_rule"]
 
 [[scenarios]]
@@ -100,8 +98,7 @@ title_ja = "すみません・ごめんなさい・トイレ"
 setting = "Getting past someone, bumping into someone, finding the toilet."
 success = "Uses Afsakið / Fyrirgefðu appropriately and finds the toilet by asking or by the sign."
 items = ["afsakid", "fyrirgefdu", "thvi_midur", "hvar_er", "klosettid"]
-missing = ["toilet sign words (#133)"]
-reading = ["Snyrting", "Salerni", "WC", "Karlar", "Konur"]
+reading = ["Snyrting", "Salerni", "Karlar", "Konur"]
 respect = ["politeness"]
 
 [[scenarios]]
@@ -112,8 +109,7 @@ title_ja = "必須の看板と営業時間"
 setting = "Doors, shop windows, road and hazard signs, holiday opening hours."
 success = "Reads the sign and acts on it; asks when a place opens or closes."
 items = ["opid", "lokad", "er_opid", "thad_er_lokad", "hvenaer_opnar", "hvenaer_lokar", "haett"]
-missing = ["sign words: Opnunartími, holiday opening hours, Inngangur / Útgangur, Ýta / Toga, Hætta / Varúð (#133)"]
-reading = ["Opið", "Lokað", "Opnunartími", "Inngangur", "Útgangur", "Ýta", "Toga", "Hætta", "Varúð", "Bannað"]
+reading = ["Opið", "Lokað", "Opnunartími", "Lokað vegna veðurs", "Gamlársdagur", "Nýársdagur", "Inngangur", "Útgangur", "Ýta", "Toga", "Hætta", "Varúð", "Bannað", "Aðgangur bannaður", "Hálka", "Vegur lokaður"]
 
 [[scenarios]]
 id = "A10"
@@ -123,10 +119,6 @@ title_ja = "地名を言う"
 setting = "Saying where you're going or where you've been."
 success = "Says well-known place names so a local understands them."
 items = ["reykjavik_dat", "akureyri_dat"]
-missing = [
-  "a broad public list of well-known sights with pronunciation hints (#133)",
-  "the learner's own places, from the private profile (#132)",
-]
 reading = ["Reykjavík", "Keflavík", "Hallgrímskirkja", "Þingvellir", "Gullfoss", "Geysir", "Seljalandsfoss", "Skógafoss", "Jökulsárlón", "Reykjanes", "Snæfellsnes", "Akureyri"]
 
 # ---------------------------------------------------------------- Tier B: should, by T−4 weeks
@@ -202,8 +194,7 @@ title_ja = "地名を部品で読み解く"
 setting = "Reading a map or a road sign."
 success = "Explains what a place name means from its parts."
 items = ["foss", "jokull", "fjall", "a_river", "eyja", "strond", "hraun", "kirkjan"]
-missing = ["vík, fjara, nes, tjörn, dalur, laug, vegur, lón as reading cards (#133)"]
-reading = ["Reykjavík", "Þingvellir", "Gullfoss", "Jökulsárlón"]
+reading = ["Reykjavík", "Þingvellir", "Gullfoss", "Jökulsárlón", "foss", "jökull", "vík", "fjara", "nes", "tjörn", "dalur", "laug", "lón", "hraun", "kirkja"]
 
 [[scenarios]]
 id = "C2"

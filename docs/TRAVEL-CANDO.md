@@ -51,6 +51,28 @@ lists for each scenario:
 
 It takes a few seconds per pace.
 
+## Reading deck (#133)
+
+The audio never shows spelling, so reading is taught by cards in
+`curricula/is-en/reading/deck.toml` (a subdirectory, so it is not a module). The stages
+run in this order:
+
+1. `letters`: the sounds, anchored in words the audio already taught.
+2. `signs`: doors, pools, roads, holiday opening hours.
+3. `shop`
+4. `places`: well-known sights, with the parts they're made of.
+5. `parts`: foss, jökull, vík, …
+
+Each card has the text, a meaning in English and Japanese, a katakana `hint_ja`, and
+`parts` for compounds. The hint is an approximation: the Discord review's 🔊 plays the
+real pronunciation, and the native tutor checks the hints (#129).
+
+`python -m audiolesson.cli reading curricula/is-en [--trip <profile>]` prints the deck as
+JSON for the bot. With a profile, each of its `places` not already in the deck becomes a
+card (`own: true`), built at run time and never stored.
+
+Every can-do scenario's `reading` text is in the deck; a test pins this.
+
 ## Trip ordering and the private profile (#132)
 
 ```sh

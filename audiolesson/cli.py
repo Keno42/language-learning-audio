@@ -17,6 +17,7 @@ from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
 from .script import Script
 from .timing import Timing
+from .reading import load_deck
 from .trip import CONSOLIDATION_DAYS, load_trip
 
 
@@ -98,6 +99,11 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("--paces", default="6,8,10", help="--cando: new items per lesson to simulate, comma-separated (default 6,8,10)")
     v.add_argument("--trip", default=None, help="--cando: simulate with the trip ordering from this private profile (an empty file: the default A-then-B ordering)")
     v.set_defaults(func=cmd_validate)
+
+    r = sub.add_parser("reading", help="the reading deck (#133) as JSON, for the Discord review")
+    r.add_argument("curriculum")
+    r.add_argument("--trip", default=None, help="private trip profile: add a card for each of its places (not stored anywhere)")
+    r.set_defaults(func=cmd_reading)
 
     vo = sub.add_parser("voices", help="list default voices a provider offers for a language")
     vo.add_argument("--provider", default="edge")
@@ -464,6 +470,13 @@ def cmd_validate(args) -> int:
             print(f"trip ordering: {len(priority)} can-do items first")
         reach = {pace: simulate_reach(cur, args.lessons, pace, priority=priority) for pace in paces}
         print(format_coverage(coverage(cur, scenarios, reach, args.lessons), args.lessons, paces))
+    return 0
+
+
+def cmd_reading(args) -> int:
+    places = load_trip(args.trip).places if args.trip else []
+    cards = load_deck(args.curriculum, places)
+    print(json.dumps([c.to_dict() for c in cards], ensure_ascii=False))
     return 0
 
 
