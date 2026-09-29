@@ -5123,5 +5123,108 @@ class CandoTests(unittest.TestCase):
         self.assertIn("A3 [A] Supermarket", out.getvalue())
 
 
+class TripProfileTests(unittest.TestCase):
+    """Issue #132: a private trip profile orders the can-do items (#131) first and
+    keeps the learner's pace whatever the departure date, without its contents reaching any
+    output."""
+
+    def test_profile_parsing(self):
+        from audiolesson.trip import TripError, load_trip
+
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "trip.toml"
+            p.write_text('departure = 2030-01-31\nboost = ["A6"]\nplaces = ["Staðurinn"]\n', "utf-8")
+            trip = load_trip(p)
+            self.assertEqual((trip.departure, trip.boost, trip.places), (date(2030, 1, 31), ["A6"], ["Staðurinn"]))
+            self.assertEqual(len(trip.digest), 64)
+            self.assertEqual(trip.days_left(date(2030, 1, 21)), 10)
+            for bad in ('hotel = "x"', 'departure = "soon"', 'boost = "A6"'):
+                p.write_text(bad, "utf-8")
+                with self.assertRaises(TripError):
+                    load_trip(p)
+            p.write_text("", "utf-8")
+            self.assertIsNone(load_trip(p).departure)
+
+    def test_priority_items_bring_prereqs_and_keep_tier_order(self):
+        from audiolesson.cando import Scenario, priority_items
+
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": [
+            {"id": "a", "kind": "phrase", "target": "a", "meaning": "a"},
+            {"id": "b", "kind": "phrase", "target": "b", "meaning": "b"},
+            {"id": "c", "kind": "phrase", "target": "c", "meaning": "c", "prereqs": ["a"]},
+            {"id": "d", "kind": "phrase", "target": "d", "meaning": "d"},
+            {"id": "e", "kind": "phrase", "target": "e", "meaning": "e"},
+        ]})
+        scenarios = [Scenario("A1", "A", "t", items=["c"]), Scenario("B1", "B", "t", items=["b", "c"]),
+                     Scenario("C1", "C", "t", items=["e"])]
+        self.assertEqual(priority_items(cur, scenarios), ["a", "c", "b"])
+        self.assertEqual(priority_items(cur, scenarios, ["C1", "nope"]), ["e", "a", "c", "b"])
+
+    def test_seasonal_content_follows_the_profile_season(self):
+        """PR #138 review: holiday greetings must not be Tier A for a summer trip. Seasonal
+        scenarios and seasonal items apply only when the profile's season matches."""
+        from audiolesson.cando import Scenario, for_season, priority_items
+
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": [
+            {"id": i, "kind": "phrase", "target": i, "meaning": i} for i in ("hello", "xmas", "newyear", "bonfire")]})
+        scenarios = [Scenario("A1", "A", "greet", items=["hello"], seasonal={"winter-holidays": ["xmas", "newyear"]}),
+                     Scenario("C2", "C", "traditions", items=["bonfire"], season="winter-holidays")]
+        self.assertEqual(priority_items(cur, for_season(scenarios, "summer")), ["hello"])
+        self.assertEqual(priority_items(cur, for_season(scenarios, None)), ["hello"], "no profile season: none")
+        self.assertEqual(priority_items(cur, for_season(scenarios, "winter-holidays")), ["hello", "xmas", "newyear"])
+        self.assertEqual([s.id for s in for_season(scenarios, "summer")], ["A1"])
+        self.assertEqual(priority_items(cur, for_season(scenarios, "winter-holidays"), ["C2"])[0], "bonfire")
+        self.assertEqual(scenarios[0].items, ["hello"], "the loaded scenario is not modified")
+
+    def test_the_planner_introduces_priority_items_first(self):
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": f"i{n}", "kind": "phrase", "target": f"Orð {n} hér.", "meaning": f"word {n}"} for n in range(12)]}
+        raw["items"][11]["prereqs"] = ["i10"]
+        cur = curriculum_from_dict(raw)
+
+        def first_lesson(priority):
+            sc = Planner(cur, fresh(), Prompts.load("en"), Timing(level="A1"),
+                         PlanConfig(minutes=10, new_items=3, seed=1, priority=priority), today=TODAY).build()
+            return sc.meta["new_items"][:3], sc.meta["config"]["priority_items"]
+
+        self.assertEqual(first_lesson([]), (["i0", "i1", "i2"], 0))
+        self.assertEqual(first_lesson(["i10", "i11"]), (["i10", "i11", "i0"], 2))
+
+    def test_trip_ordering_reaches_every_tier_a_and_b_item_in_time(self):
+        """#132's target: at pace 6, Tier A met by T−7 weeks and Tier B by T−4 weeks
+        (84 daily lessons: lessons 35 and 56). Without the ordering, both miss it (#131)."""
+        from audiolesson.cando import coverage, load_cando, priority_items, simulate_reach
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        scenarios = load_cando(ROOT / "curricula" / "is-en", cur)
+        reach = simulate_reach(cur, 84, 6, priority=priority_items(cur, scenarios))
+        late = {r["scenario"].id: r["late"][6] for r in coverage(cur, scenarios, {6: reach}, 84) if r["late"].get(6)}
+        self.assertEqual(late, {})
+
+    def test_generate_with_a_trip_profile(self):
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        with tempfile.TemporaryDirectory() as td:
+            trip = Path(td) / "trip.toml"
+            trip.write_text('departure = 2026-09-28\nplaces = ["Leynistaður"]\nboost = ["A6"]\n', "utf-8")
+            learner = Path(td) / "learner.json"
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                code = main(["generate", "-c", str(ROOT / "curricula" / "is-en"), "-l", str(learner), "-o", td,
+                             "-m", "10", "--pace", "6", "--no-audio", "--date", "2026-09-18", "--trip", str(trip)])
+            self.assertEqual(code, 0)
+            text = out.getvalue()
+            self.assertIn("can-do items first", text)
+            self.assertNotIn("halved", text, "the pace never depends on the departure date (PR #138 review)")
+            self.assertEqual(json.loads((Path(td) / "lesson-001.plan.json").read_text("utf-8"))["config"]["new_items"], 6)
+            plan_text = (Path(td) / "lesson-001.plan.json").read_text("utf-8")
+            for private in ("Leynistaður", "2026-09-28", "A6"):
+                self.assertNotIn(private, text + plan_text)
+            self.assertGreater(json.loads(plan_text)["config"]["priority_items"], 0)
+            self.assertEqual(json.loads(learner.read_text("utf-8"))["pace"], 6)
+
+
 if __name__ == "__main__":
     unittest.main()

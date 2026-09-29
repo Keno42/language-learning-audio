@@ -51,9 +51,53 @@ lists for each scenario:
 
 It takes a few seconds per pace.
 
+## Trip ordering and the private profile (#132)
+
+```sh
+python -m audiolesson.cli generate … --trip <LESSON_ROOT>/<name>/trip.toml
+python -m audiolesson.cli validate curricula/is-en --cando --trip <profile>
+```
+
+`--trip` puts the can-do items (`cando.priority_items`) ahead of the rest of the
+curriculum:
+
+- the profile's `boost` scenarios first, then every Tier A item, then every Tier B item;
+- curriculum order within each group;
+- each item brings its prereqs along, ahead of it;
+- the existing arc rules still apply (a construction waits for two fills, and so on).
+
+Without `--trip`, the order is unchanged. An empty profile gives the default A-then-B
+ordering. The pace never depends on the departure date: lessons go on at the learner's pace
+up to and through the trip, throttled only by what the learner reports.
+
+**Seasonal content** follows the profile's `season`:
+
+- A scenario with `season = "…"` applies only in that season.
+- A scenario's `seasonal = { "<season>" = [ids] }` items are added only for that season.
+
+With no profile, or no season, seasonal content is left out of the ordering and the report.
+So holiday greetings are Tier A for a winter-holidays trip and nothing for a summer one.
+
+Simulated at pace 6 over 84 daily lessons, the trip ordering (164 items) meets every
+Tier A item by lesson 35 and every Tier B item by lesson 56. Without it, both tiers miss
+their milestone. The total reached stays about the same (~720 items).
+
+Profile keys, all optional:
+
+- `departure`: a date. It sets the horizon of `validate --cando --trip` when `--lessons` is
+  not given.
+- `boost`: scenario ids.
+- `places`: the learner's own place names, for the reading track (#133).
+- `season`: which seasonal content applies.
+
 ## Privacy
 
 Personal trip details are never written here, in issues, or in exports: dates, itinerary,
 lodging, and how the scenarios are weighted. They belong in a private profile next to the
-learner file on the machine that generates lessons (#132). A test checks that no date
-appears in the scenario files.
+learner file on the machine that generates lessons (#132).
+
+- `generate` prints only that a trip ordering is in use, and how many items it holds.
+- `plan.json` records only that count (`priority_items`).
+- A lesson record may keep the profile's sha256 (`TripProfile.digest`) and nothing else.
+- Tests check that no date appears in the scenario files, and that the profile's places,
+  date and boost ids never reach the output or the plan.

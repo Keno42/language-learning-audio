@@ -68,6 +68,9 @@ class PlanConfig:
     capability_window: int = 15  # a construction this close after a 3rd slot filler is pulled ahead of it
     presume_success: bool = True
     translate_partner: bool = True
+    # the trip ordering (#132): item ids introduced before the rest, in this order (their
+    # prereqs included by cando.priority_items); empty keeps curriculum order
+    priority: list[str] = field(default_factory=list)
 
     def resolved_max_new_items(self) -> int:
         """Extra new items may fill a lesson that has nothing to review (the first ones),
@@ -161,6 +164,10 @@ class Planner:
             preferred = [i for i in pool if set(i.topics) & set(self.cfg.topics)]
             rest = [i for i in pool if i not in preferred]
             pool = preferred + rest
+        if self.cfg.priority:  # the trip ordering wins over topics
+            rank = {i: n for n, i in enumerate(self.cfg.priority)}
+            first = sorted((i for i in pool if i.id in rank), key=lambda i: rank[i.id])
+            pool = first + [i for i in pool if i.id not in rank]
         constructions = [c for c in self.cur.items if c.kind == "construction"]
 
         def met_fills(tag: str) -> int:
@@ -911,6 +918,7 @@ class Planner:
                 "minutes": cfg.minutes,
                 "new_items": cfg.resolved_new_items(),
                 "topics": cfg.topics,
+                "priority_items": len(cfg.priority),  # a count only: the list may reflect a private profile
                 "seed": cfg.seed,
                 "level": self.timing.level,
             },

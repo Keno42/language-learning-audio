@@ -25,7 +25,7 @@ T−7 weeks, Tier B by T−4 weeks, one lesson a day.
 from __future__ import annotations
 
 import tomllib
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -49,6 +49,23 @@ class Scenario:
     reading: list[str] = field(default_factory=list)
     clerk_lines: list[str] = field(default_factory=list)
     respect: list[str] = field(default_factory=list)
+    # seasonal content (PR #138 review): a scenario that only applies in one season, and
+    # extra items a scenario needs in a given season; both follow the trip profile's season
+    season: str | None = None
+    seasonal: dict[str, list[str]] = field(default_factory=dict)
+
+
+def for_season(scenarios: list[Scenario], season: str | None) -> list[Scenario]:
+    """The scenarios as they apply in ``season``: a seasonal scenario only in its season,
+    and each scenario's seasonal items added only for that season. No season (no profile,
+    or a profile without one): no seasonal content at all."""
+    out = []
+    for s in scenarios:
+        if s.season is not None and s.season != season:
+            continue
+        extra = [i for i in s.seasonal.get(season or "", []) if i not in s.items]
+        out.append(replace(s, items=s.items + extra) if extra else s)
+    return out
 
 
 def load_cando(curriculum_dir: str | Path, cur: Curriculum | None = None) -> list[Scenario]:
@@ -74,16 +91,47 @@ def load_cando(curriculum_dir: str | Path, cur: Curriculum | None = None) -> lis
     if dupes:
         raise CurriculumError(f"can-do scenario ids repeat: {sorted(dupes)}")
     if cur is not None:
-        unknown = [(s.id, i) for s in out for i in s.items if i not in cur.by_id]
+        unknown = [(s.id, i) for s in out for i in s.items + [x for v in s.seasonal.values() for x in v]
+                   if i not in cur.by_id]
         if unknown:
             raise CurriculumError(f"can-do scenarios name unknown items: {unknown}")
     return out
 
 
-def simulate_reach(cur: Curriculum, lessons: int, pace: int, minutes: float = 30, seed: int = 1) -> dict[str, int]:
+def priority_items(cur: Curriculum, scenarios: list[Scenario], boost: list[str] | tuple[str, ...] = (),
+                   tiers: tuple[str, ...] = ("A", "B")) -> list[str]:
+    """The trip ordering (#132): the items to introduce before everything else, in order.
+    Boosted scenarios come first, then each tier in ``tiers``; within a group, curriculum
+    order. Every item brings its prereqs (transitively) into its group, ahead of it.
+    Unknown boost ids are ignored."""
+    by_id = {s.id: s for s in scenarios}
+    groups = [[i for sid in boost if sid in by_id for i in by_id[sid].items]]
+    groups += [[i for s in scenarios if s.tier == t for i in s.items] for t in tiers]
+    out: list[str] = []
+    seen: set[str] = set()
+
+    def closure(item_id: str, acc: set[str]) -> None:
+        if item_id in acc or item_id not in cur.by_id:
+            return
+        acc.add(item_id)
+        for p in cur.by_id[item_id].prereqs:
+            closure(p, acc)
+
+    for group in groups:
+        acc: set[str] = set()
+        for i in group:
+            closure(i, acc)
+        for i in sorted(acc - seen, key=lambda x: cur.by_id[x].order):
+            out.append(i)
+            seen.add(i)
+    return out
+
+
+def simulate_reach(cur: Curriculum, lessons: int, pace: int, minutes: float = 30, seed: int = 1,
+                   priority: list[str] | None = None) -> dict[str, int]:
     """The lesson in which each item is first met, for a new learner doing one lesson a day
     at a fixed pace with every retrieval presumed successful (optimistic: real pace is
-    lower). Items never met within ``lessons`` are absent."""
+    lower). Items never met within ``lessons`` are absent. ``priority``: the trip ordering."""
     from .learner import LearnerState
     from .planner import PlanConfig, Planner, apply_to_learner
     from .prompts import Prompts
@@ -95,7 +143,8 @@ def simulate_reach(cur: Curriculum, lessons: int, pace: int, minutes: float = 30
     reach: dict[str, int] = {}
     for n in range(1, lessons + 1):
         sc = Planner(cur, learner, prompts, Timing(level="A1"),
-                     PlanConfig(minutes=minutes, new_items=pace, seed=seed + n), today=day).build()
+                     PlanConfig(minutes=minutes, new_items=pace, seed=seed + n, priority=list(priority or [])),
+                     today=day).build()
         apply_to_learner(sc, learner, day)
         for it in cur.items:
             if it.id not in reach and learner.has_met(it.id):
