@@ -7,7 +7,7 @@
 #
 # `items` are curriculum ids the scenario needs (validated); `missing` is what the
 # curriculum still lacks for it. `reading` feeds the reading track (#133), `clerk_lines`
-# the listening track (#134); both are candidates until the native tutor checks them.
+# the listening track (#134); both are candidate wordings.
 # Default tiers suit a budget traveller: supermarket and café before restaurant.
 
 # ---------------------------------------------------------------- Tier A: must, by T−7 weeks

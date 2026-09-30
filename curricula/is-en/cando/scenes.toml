@@ -4,8 +4,8 @@
 #
 # `items` are what the first reply needs: a card is shown only once the learner has met
 # all of them. A partner line may go beyond the course (clerk-side lines, #134); its
-# meaning is revealed with the answer. Wordings are candidates until the native tutor
-# checks them (#129, session 1). General content only: no learner's dates or places.
+# meaning is revealed with the answer. Wordings are candidates; a native speaker's
+# corrections are applied when they come. General content only: no learner's dates or places.
 
 # ---------------------------------------------------------------- A1 greetings
 

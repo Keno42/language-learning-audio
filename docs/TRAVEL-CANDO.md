@@ -16,7 +16,7 @@ Milestones are relative to departure, with one lesson a day:
 
 | tier | meaning | items met by |
 |---|---|---|
-| A | must: greetings incl. the season's, thanks, supermarket, café, bar, public pool, staying in the conversation, excuse me / toilet, essential signs, place names | T−7 weeks, before tutor session 1 |
+| A | must: greetings incl. the season's, thanks, supermarket, café, bar, public pool, staying in the conversation, excuse me / toilet, essential signs, place names | T−7 weeks |
 | B | should: museum, day tours, small talk, taxi and bus, numbers by ear, winter talk and safety | T−4 weeks |
 | C | nice to have: place-name parts, holiday traditions, restaurant basics, emergencies, farewell | no milestone |
 
@@ -27,11 +27,11 @@ The default tiers suit a budget traveller: supermarket and café before restaura
 | field | meaning |
 |---|---|
 | `id`, `tier`, `title`, `title_ja` | identity |
-| `setting`, `success` | where it happens; an observable success criterion (what a weekly check or the tutor looks for) |
+| `setting`, `success` | where it happens; an observable success criterion (what a scenario card checks) |
 | `items` | curriculum ids the scenario needs. They are validated: an unknown id fails loading |
 | `missing` | what the scenario needs that the curriculum lacks, pointing at the issue that adds it |
 | `reading` | texts to read. They feed the reading track (#133) |
-| `clerk_lines` | lines to understand. They feed the listening track (#134). They stay candidates until the native tutor checks them |
+| `clerk_lines` | lines to understand. They feed the listening track (#134) and the scenario cards. Wordings are candidates |
 | `respect` | respect markers the scenario checks: `greet`, `thanks`, `farewell`, `stayed_icelandic`, `shower_rule`, … |
 
 ## Coverage report
@@ -65,7 +65,7 @@ run in this order:
 
 Each card has the text, a meaning in English and Japanese, a katakana `hint_ja`, and
 `parts` for compounds. The hint is an approximation: the Discord review's 🔊 plays the
-real pronunciation, and the native tutor checks the hints (#129).
+real pronunciation.
 
 `python -m audiolesson.cli reading curricula/is-en [--trip <profile>]` prints the deck as
 JSON for the bot. With a profile, each of its `places` not already in the deck becomes a

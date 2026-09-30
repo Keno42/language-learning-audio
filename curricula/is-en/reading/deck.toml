@@ -7,7 +7,7 @@
 # places → parts (what place names are made of).
 #
 # `hint_ja` is a katakana approximation for a Japanese speaker, not a transcription: the
-# 🔊 button plays the real pronunciation, and the native tutor checks these hints (#129).
+# 🔊 button plays the real pronunciation.
 # General content only: a learner's own places come from the private trip profile (#132).
 
 # ---------------------------------------------------------------- letters

@@ -173,7 +173,7 @@ situation_ja = "店員さんがあなたのなまりに気づいて、アイス�
 situation_fill = { language = "islensku" }
 
 # issue #135: keeping the conversation in Icelandic when the other side switches to English
-# (the «enska» aside). Candidate wording, checked by the native tutor (#129).
+# (the «enska» aside). Candidate wording.
 [[items]]
 id = "ma_eg_reyna_ad_tala_islensku"
 kind = "phrase"

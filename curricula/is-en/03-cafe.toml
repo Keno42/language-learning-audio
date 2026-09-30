@@ -690,8 +690,8 @@ partner_cue_meaning_ja = "900クローナです。ほかに何か？"
 partner_cue_situation = "She told you the price and asked if there's anything else. Say nothing more, thanks."
 partner_cue_situation_ja = "値段を言って、ほかに何かあるか聞かれました。これで結構です、ありがとうと言ってください。"
 
-# issue #135: for here / to go at a café counter. Candidate wording, checked by the native
-# tutor (#129) before a clerk-side question is added for it (#134).
+# issue #135: for here / to go at a café counter. Candidate wording; the clerk-side question
+# for it is a scenario card (#129) and a listening line (#134).
 [[items]]
 id = "til_ad_taka_med"
 kind = "phrase"
