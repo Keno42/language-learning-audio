@@ -274,13 +274,18 @@ audiolesson/
   script.py     the intermediate timed script + transcript
   render/       audio.py (PCM/ffmpeg), tts.py (providers), renderer.py (script → file)
   cli.py        commands, incl. the --user/--root wrapper (out/<user>/, settings.json)
-curricula/      learning material: fr-en-a1, fr-ja-a1 (files), is-en/ (27 modules)
+  cando.py      travel can-do scenarios, their coverage report, the trip ordering (with trip.py)
+  scenes.py     scenario cards; reading.py  reading deck; records.py  loads both kinds of file
+curricula/      learning material: fr-en-a1, fr-ja-a1 (files), is-en/ (27 modules, plus cando/ and
+                reading/ for the travel scenarios, scenario cards and reading deck)
 tools/          daily.sh (one day of the routine), derive_fr_ja.py (keeps fr-ja in sync with fr-en),
                 gloss.py (inserts <field>_<lang> glosses), phrase_families.py (fixed-phrase audit)
 profiles/       voice profiles (provider + voice per speaker)
 tests/          python -m unittest
 docs/           DESIGN.md (code map, invariants, decisions), CURRICULUM.md (format),
-                AUDIT-29.md / AUDIT-48.md (audit tables behind #29 and #48), history/ (session log)
+                TRAVEL-CANDO.md (scenarios, scenario cards, reading deck, trip profile),
+                LEVERS.md (planner settings), AUDIT-29.md / AUDIT-48.md (audit tables behind #29
+                and #48), history/ (session log)
 ```
 
 ## Development

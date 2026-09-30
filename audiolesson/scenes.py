@@ -30,12 +30,12 @@ clerk-side lines of #134), and its meaning is revealed with the answer.
 
 from __future__ import annotations
 
-import tomllib
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 from .cando import Scenario
 from .content import Curriculum, CurriculumError
+from .records import check_items, load_records
 
 KINDS = ("respond", "initiate", "repair")
 
@@ -64,37 +64,22 @@ def load_scenes(
 ) -> list[Scene]:
     """Every card in ``<curriculum>/cando/*.toml`` (none without the directory). With
     ``cur``, every item must exist; with ``scenarios``, every scenario id."""
-    d = Path(curriculum_dir) / "cando"
-    if not d.is_dir():
-        return []
     out: list[Scene] = []
-    for f in sorted(d.glob("*.toml")):
-        with f.open("rb") as fh:
-            raw = tomllib.load(fh)
-        for s in raw.get("scenes", []):
-            try:
-                scene = Scene(**s)
-            except TypeError as e:
-                raise CurriculumError(f"{f}: scene {s.get('id')!r}: {e}") from None
-            if scene.kind not in KINDS:
-                raise CurriculumError(f"{f}: scene {scene.id!r}: kind must be one of {KINDS}")
-            if scene.kind != "initiate" and not scene.partner.strip():
-                raise CurriculumError(f"{f}: scene {scene.id!r}: a {scene.kind} card needs the partner's line")
-            if scene.kind == "initiate" and scene.partner.strip():
-                raise CurriculumError(f"{f}: scene {scene.id!r}: an initiate card has no partner line")
-            if not scene.replies or not all(r.strip() for r in scene.replies):
-                raise CurriculumError(f"{f}: scene {scene.id!r}: replies are required")
-            if not scene.situation.strip() or not scene.items:
-                raise CurriculumError(f"{f}: scene {scene.id!r}: situation and items are required")
-            out.append(scene)
-    ids = [s.id for s in out]
-    dupes = sorted({i for i in ids if ids.count(i) > 1})
-    if dupes:
-        raise CurriculumError(f"scene ids repeat: {dupes}")
+    for f, scene in load_records(Path(curriculum_dir) / "cando", "scenes", Scene, "scene"):
+        where = f"{f}: scene {scene.id!r}"
+        if scene.kind not in KINDS:
+            raise CurriculumError(f"{where}: kind must be one of {KINDS}")
+        if scene.kind != "initiate" and not scene.partner.strip():
+            raise CurriculumError(f"{where}: a {scene.kind} card needs the partner's line")
+        if scene.kind == "initiate" and scene.partner.strip():
+            raise CurriculumError(f"{where}: an initiate card has no partner line")
+        if not scene.replies or not all(r.strip() for r in scene.replies):
+            raise CurriculumError(f"{where}: replies are required")
+        if not scene.situation.strip() or not scene.items:
+            raise CurriculumError(f"{where}: situation and items are required")
+        out.append(scene)
     if cur is not None:
-        unknown = [(s.id, i) for s in out for i in s.items if i not in cur.by_id]
-        if unknown:
-            raise CurriculumError(f"scenes name unknown items: {unknown}")
+        check_items([(s.id, i) for s in out for i in s.items], cur.by_id, "scenes")
     if scenarios is not None:
         known = {s.id for s in scenarios}
         orphans = [s.id for s in out if s.scenario not in known]

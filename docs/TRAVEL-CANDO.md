@@ -2,13 +2,14 @@
 
 The course's near-term outcome is travel readiness, not item counts:
 
-- reading signs, menus and place names, and enjoying it;
+- reading signs, shop words and place names, and enjoying it;
 - greeting, shopping, ordering and paying, and handling simple conversation;
 - showing respect for the people and the culture.
 
 The scenarios that define it live in `curricula/is-en/cando/travel.toml`. It sits in a
-subdirectory, so `load_curriculum` never reads it as a module. The weekly calibration
-(#129) measures these scenarios, and the planner's trip ordering (#132) aims at them.
+subdirectory, so `load_curriculum` never reads it as a module. The planner's trip ordering
+(#132) aims at these scenarios, and the scenario cards in the Discord review (#129) check
+them.
 
 ## Tiers and milestones
 
@@ -129,8 +130,8 @@ With no profile, or no season, seasonal content is left out of the ordering and 
 So holiday greetings are Tier A for a winter-holidays trip and nothing for a summer one.
 
 Simulated at pace 6 over 84 daily lessons, the trip ordering (169 items; 172 for a
-winter-holidays season) meets every
-Tier A item by lesson 35 and every Tier B item by lesson 56. Without it, both tiers miss
+winter-holidays season) meets every Tier A item by lesson 35 and every Tier B item by
+lesson 56. Without it, both tiers miss
 their milestone. The total reached stays about the same (~720 items).
 
 Profile keys, all optional:

@@ -8,11 +8,11 @@ profile (#132) as extra cards built at run time; they are never written to the r
 
 from __future__ import annotations
 
-import tomllib
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 from .content import CurriculumError
+from .records import load_records
 
 STAGES = ("letters", "signs", "shop", "places", "parts")
 
@@ -38,35 +38,22 @@ class Card:
 def load_deck(curriculum_dir: str | Path, places: list[str] | None = None) -> list[Card]:
     """The deck in stage order (file order within a stage), plus a card for each of the
     learner's own ``places`` (from the trip profile) not already in it."""
-    d = Path(curriculum_dir) / "reading"
     cards: list[Card] = []
-    if d.is_dir():
-        for f in sorted(d.glob("*.toml")):
-            with f.open("rb") as fh:
-                raw = tomllib.load(fh)
-            for c in raw.get("cards", []):
-                try:
-                    card = Card(**c)
-                except TypeError as e:
-                    raise CurriculumError(f"{f}: card {c.get('id')!r}: {e}") from None
-                if card.stage not in STAGES:
-                    raise CurriculumError(f"{f}: card {card.id!r}: stage must be one of {STAGES}")
-                if not card.text.strip() or not card.meaning.strip():
-                    raise CurriculumError(f"{f}: card {card.id!r}: text and meaning are required")
-                if any(len(p) != 2 for p in card.parts):
-                    raise CurriculumError(f"{f}: card {card.id!r}: parts are [part, gloss] pairs")
-                if any(len(w) != 2 for w in card.words):
-                    raise CurriculumError(f"{f}: card {card.id!r}: words are [word, gloss] pairs")
-                listed = [t.strip() for t in card.text.split("·") if t.strip()]
-                if card.words and [w for w, _ in card.words] != listed:
-                    raise CurriculumError(f"{f}: card {card.id!r}: words must gloss {listed}, in order")
-                if card.stage == "letters" and not card.words:
-                    raise CurriculumError(f"{f}: card {card.id!r}: a letters card glosses its words")
-                cards.append(card)
-    ids = [c.id for c in cards]
-    dupes = sorted({i for i in ids if ids.count(i) > 1})
-    if dupes:
-        raise CurriculumError(f"reading card ids repeat: {dupes}")
+    for f, card in load_records(Path(curriculum_dir) / "reading", "cards", Card, "reading card"):
+        where = f"{f}: card {card.id!r}"
+        if card.stage not in STAGES:
+            raise CurriculumError(f"{where}: stage must be one of {STAGES}")
+        if not card.text.strip() or not card.meaning.strip():
+            raise CurriculumError(f"{where}: text and meaning are required")
+        if any(len(p) != 2 for p in card.parts):
+            raise CurriculumError(f"{where}: parts are [part, gloss] pairs")
+        if any(len(w) != 2 for w in card.words):
+            raise CurriculumError(f"{where}: words are [word, gloss] pairs")
+        if card.words and [w for w, _ in card.words] != expressions(card.text):
+            raise CurriculumError(f"{where}: words must gloss {expressions(card.text)}, in order")
+        if card.stage == "letters" and not card.words:
+            raise CurriculumError(f"{where}: a letters card glosses its words")
+        cards.append(card)
     known = {c.text.casefold() for c in cards}
     for n, place in enumerate(places or [], 1):
         if place.strip() and place.casefold() not in known:
@@ -75,11 +62,16 @@ def load_deck(curriculum_dir: str | Path, places: list[str] | None = None) -> li
     return sorted(cards, key=lambda c: STAGES.index(c.stage))
 
 
+def expressions(text: str) -> list[str]:
+    """The expressions a card lists with «·» (one for a single text)."""
+    return [t.strip() for t in text.split("·") if t.strip()]
+
+
 def texts(cards: list[Card]) -> set[str]:
     """Every readable text in the deck, casefolded; a card listing several («A · B»)
     counts each."""
     out: set[str] = set()
     for c in cards:
         out.add(c.text.casefold())
-        out.update(t.strip().casefold() for t in c.text.split("·"))
+        out.update(t.casefold() for t in expressions(c.text))
     return out

@@ -1,7 +1,7 @@
 # Planner levers (issue #136)
 
-The weekly calibration (#129) may change at most two levers a week, with human approval.
-Each lever is a setting, so a change never needs a code change. Every default reproduces
+Levers are changed by hand, at most two a week, on evidence from the post-lesson feedback
+(#128) and the scenario cards (#129). Each lever is a setting, so a change never needs a code change. Every default reproduces
 the behaviour from before the lever existed.
 
 `plan.json` records the active levers under `config.levers`, alongside `new_items`,
@@ -18,7 +18,7 @@ On the Discord bot, levers are set per deployment with `LESSON_EXTRA_ARGS` in
 | new-item budget | `--new N` (one lesson), `--pace N` (ongoing) | the learner's pace | new items per lesson; the reachability report (`validate --cando`) |
 | max identical situation cue per item per lesson | `--max-same-situation N` (N ≥ 1) | no limit | `review_candidates` of kind `repeated_situation` |
 | guaranteed late unhinted recall for new items | `--late-unhinted-recall` | off | `review_candidates` of kinds `no_late_recall` and `early_last_appearance` |
-| answer-time scale | `--pause-multiplier X` | 1.0 | feedback "pacing", weekly check stalls |
+| answer-time scale | `--pause-multiplier X` | 1.0 | feedback "pacing" |
 | trip priority ordering | `--trip <profile>` | off | the can-do reachability report |
 
 **Max same situation.** Once an item's cue has been narrated N times, a further situation
