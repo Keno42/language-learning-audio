@@ -283,6 +283,7 @@ kind = "phrase"
 target = "Ég er laus."
 meaning = "I'm free (available)."
 meaning_ja = "空いています。"
+meaning_spoken = "I'm free, I'm available."
 difficulty = 2
 topics = ["daily", "arrangements"]
 situation = "Anna asks if you can meet on Friday. Say you're free."

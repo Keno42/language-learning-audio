@@ -230,6 +230,8 @@ kind = "phrase"
 target = "Hvar fæ ég kennitölu?"
 meaning = "Where do I get an ID number (kennitala)?"
 meaning_ja = "個人番号（kennitala）はどこでもらえますか？"
+meaning_spoken = "Where do I get an ID number?"
+meaning_spoken_ja = "個人番号はどこでもらえますか？"
 difficulty = 4
 topics = ["practical"]
 chunks = ["kennitölu", "fæ ég kennitölu", "Hvar fæ ég kennitölu?"]
@@ -389,7 +391,7 @@ requires = ["eg_tharf_simkort", "hvad_kostar_thetta", "eg_er_ekki_med_kennitolu"
   expect = "eg_tharf_simkort"
   partner = "Ertu með kennitölu?"
   partner_meaning = "Do you have a kennitala?"
-  partner_meaning_ja = "個人番号（kennitala）はお持ちですか？"
+  partner_meaning_ja = "個人番号はお持ちですか？"
 
   [[dialogues.turns]]
   cue = "Say you don't have a kennitala."

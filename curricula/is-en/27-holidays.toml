@@ -20,6 +20,7 @@ kind = "phrase"
 target = "Gleðilega hátíð!"
 meaning = "Happy holidays!"
 meaning_ja = "よいお休みを！（年末年始の挨拶）"
+meaning_spoken_ja = "年末年始の挨拶で、よいお休みを！"
 difficulty = 2
 topics = ["greetings"]
 situation = "Between Christmas and New Year, wish the pool attendant happy holidays."

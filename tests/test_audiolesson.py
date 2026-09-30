@@ -1171,7 +1171,7 @@ class CurriculumTests(unittest.TestCase):
             sc = Script(1, "L", cur.target_lang, cur.known_lang)
             ex = b.recall(sc, it, "cloze")
             narration = " ".join(s.text for s in sc.segments if s.exercise == ex.index and s.type == "narrate")
-            self.assertIn(it.meaning.strip().rstrip(".").lower(), narration.lower(), it.id)  # prompts capitalise the gloss (#83)
+            self.assertIn(it.spoken_meaning.strip().rstrip(".").lower(), narration.lower(), it.id)  # prompts capitalise the gloss (#83)
             clozed += 1
         self.assertGreater(clozed, 100)
 
@@ -3471,12 +3471,22 @@ class LessonStructureTests(unittest.TestCase):
         self.assertIn(last.item_ids[0], self.script.meta["new_items"])
 
     def test_stages_get_harder_within_lesson(self):
-        cur = load_curriculum(CURRICULUM)
+        """Stages climb; once an item has recombined with no fresh sentence left, it may be
+        recalled again at ``meaning`` (repeating is fine, dropping it is not), which the
+        learner update never counts as a demotion."""
         for item_id, stages in self.script.meta["exposures"].items():
-            it = cur.item(item_id)
             ladder = self.script.meta["ladders"][item_id]
-            idx = [ladder.index(s) for s in stages if s in ladder]
-            self.assertEqual(idx, sorted(idx), f"{item_id}: {stages}")
+            top = -1
+            climbing = []
+            for s in stages:
+                if s not in ladder:
+                    continue
+                i = ladder.index(s)
+                if s == "meaning" and i < top:
+                    continue  # a repeat after the item's hardest stage today
+                climbing.append(i)
+                top = max(top, i)
+            self.assertEqual(climbing, sorted(climbing), f"{item_id}: {stages}")
 
     def test_hard_phrase_is_built_backwards(self):
         text = self.script.transcript()
@@ -4730,6 +4740,13 @@ class RenderTests(unittest.TestCase):
 
         self.assertEqual(heard, [("おにぎり", "ja")])
 
+    def test_japanese_slot_tildes_are_not_read_aloud(self):
+        from audiolesson.render.renderer import _speak_tildes
+
+        self.assertEqual(_speak_tildes("（〜したい）、", "ja"), "（したい）、")
+        self.assertEqual(_speak_tildes("3〜4週間", "ja"), "3〜4週間", "between numbers it means から")
+        self.assertEqual(_speak_tildes("A〜B", "en"), "A〜B", "only Japanese")
+
     def test_respell_table_is_scoped_to_its_language_and_word(self):
         from audiolesson.render.renderer import RESPELL_FOR_SPEECH, _respell
 
@@ -5525,6 +5542,35 @@ class SpokenMeaningTests(unittest.TestCase):
         self.assertIn("ホテルへ", spoken)
         self.assertNotIn("〜", spoken)
         self.assertNotIn("（", spoken)
+
+    def test_nothing_in_brackets_is_spoken_anywhere(self):
+        """Owner, lesson 12: «Say: Skyr (Icelandic yoghurt-like dairy).» Every narrated gloss,
+        in every curriculum and instructor language, is bracket-free (validation enforces it)."""
+        for path, langs in ((ROOT / "curricula" / "is-en", (None, "ja")), (ROOT / "curricula" / "fr-en-a1.toml", (None, "ja")), (ROOT / "curricula" / "fr-ja-a1.toml", (None,))):
+            for lang in langs:
+                cur = load_curriculum(path, known_lang=lang)
+                for it in cur.items:
+                    if it.kind != "transform":
+                        self.assertNotRegex(it.spoken_meaning, r"[()（）〜～]", (path.name, lang, it.id))
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertEqual(cur.by_id["skyr"].spoken_meaning, "skyr, the Icelandic dairy")
+        self.assertEqual(cur.by_id["ertu_state"].spoken_meaning, "to a woman: Are you {state}?")
+
+    def test_a_construction_narrates_its_spoken_meaning(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        c = cur.by_id["ertu_state"]
+        fill = next(i for i in cur.items_with_tag(c.slots["state"]))
+        self.assertNotIn("(", cur.resolve_slots(c, {"state": fill})[1])
+
+    def test_a_bracketed_meaning_without_a_spoken_form_is_rejected(self):
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [{"id": "a", "kind": "vocab", "target": "a", "meaning": "a (b)"}],
+        }
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
+        raw["items"][0]["meaning_spoken"] = "a, b"
+        self.assertEqual(curriculum_from_dict(raw).by_id["a"].spoken_meaning, "a, b")
 
     def test_a_spoken_form_takes_no_brackets(self):
         raw = {

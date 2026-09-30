@@ -52,6 +52,22 @@ def _speak_slashes(text: str, lang: str) -> str:
     return text
 
 
+_TILDE = re.compile(r"[〜～]")
+
+
+def _speak_tildes(text: str, lang: str) -> str:
+    """Written Japanese marks a slot with 〜 («〜したい»), which TTS may read as «から».
+    Between numbers («3〜4週間») it does mean «から», so it stays there; the text keeps it."""
+    if lang.split("-")[0].lower() != "ja":
+        return text
+
+    def keep_between_numbers(m: re.Match[str]) -> str:
+        before, after = text[m.start() - 1 : m.start()], text[m.end() : m.end() + 1]
+        return m.group(0) if before.isdigit() and after.isdigit() else ""
+
+    return _TILDE.sub(keep_between_numbers, text)
+
+
 @dataclass
 class SpeakerVoice:
     voice: str = ""
@@ -146,7 +162,7 @@ def render_script(
         profile_key = speaker if lang.split("-")[0].lower() in primary_langs else f"{speaker}:{lang}"
         sv = profile.voice_for(profile_key, lang, provider, _DEFAULT_INDEX.get(speaker, 0))
         spoken = seg.speech_text or seg.text or ""
-        return (_speak_slashes(_respell(spoken, lang), lang), lang, sv.voice, seg.rate * sv.rate)
+        return (_speak_tildes(_speak_slashes(_respell(spoken, lang), lang), lang), lang, sv.voice, seg.rate * sv.rate)
 
     # warm the cache in parallel for providers that talk to a network
     unique = {request_for(seg) for seg in script.segments if seg.type != "pause"}

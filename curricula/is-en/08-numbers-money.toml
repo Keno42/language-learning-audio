@@ -359,6 +359,7 @@ kind = "phrase"
 target = "Hversu margir?"
 meaning = "How many (people)?"
 meaning_ja = "何人ですか？"
+meaning_spoken = "How many people?"
 difficulty = 2
 topics = ["numbers"]
 situation = "A friend says a group is coming to dinner. Ask how many."
@@ -398,6 +399,7 @@ kind = "vocab"
 target = "aðeins"
 meaning = "a bit / only"
 meaning_ja = "ちょっと／〜だけ"
+meaning_spoken_ja = "ちょっと、少しだけ"
 difficulty = 2
 topics = ["numbers", "discourse"]
 

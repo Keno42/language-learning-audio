@@ -443,12 +443,14 @@ class Planner:
         self.builder.note(sc, note)
         self.notes_played.append(note.id)
 
-    def recombine_or_instead(self, item: Item) -> str | None:
+    def recombine_or_instead(self, item: Item) -> str:
         """Issue #105: recombine only when it can make a sentence not yet heard this lesson.
         Otherwise practise the item at the hardest stage it already reached today (or
         ``meaning``), so stages never go down within a lesson; if it already did recombine
-        today, its situation when usable, else None: skip rather than replay a line under a
-        "make a sentence" prompt. "impossible" (no known fills) keeps the builder's own
+        today, its situation when usable, else a meaning recall: never replay a line under a
+        "make a sentence" prompt, but never drop the recall either. Repeating an item in a
+        lesson is fine (owner, lesson 12 feedback): dropping it left new items unheard from
+        the third minute to the end. "impossible" (no known fills) keeps the builder's own
         fallback."""
         if self.builder.recombine_status(item) != "heard":
             return "recombine"
@@ -459,7 +461,7 @@ class Planner:
             return instead
         if "situation" in ladder and stage_index(ladder, "situation") > stage_index(ladder, instead) and self.builder.situation_usable(item):
             return "situation"
-        return None
+        return "meaning"
 
     def below_dialogue(self, item: Item) -> str:
         """The hardest non-dialogue stage for an item (used when no dialogue fits right now)."""
@@ -592,8 +594,8 @@ class Planner:
                     touch(item)
                     return
                 stage = self.below_dialogue(item)
-            if stage == "recombine" and (stage := self.recombine_or_instead(item)) is None:
-                return
+            if stage == "recombine":
+                stage = self.recombine_or_instead(item)
             ex = b.recall(sc, item, stage)
             self._record([item.id], ex.stage or stage, ex.item_ids)
             touch(item)
@@ -911,10 +913,8 @@ class Planner:
                     stage = self.below_dialogue(item)
                 if cfg.late_unhinted_recall and stage in ("intro", "cloze", "hinted"):
                     stage = "meaning"  # #136: the lesson's last word on a new item is unhinted
-                if stage == "recombine" and (stage := self.recombine_or_instead(item)) is None:
-                    if not cfg.late_unhinted_recall:
-                        continue
-                    stage = "meaning"  # no fresh sentence for it: still recall it, unhinted
+                if stage == "recombine":
+                    stage = self.recombine_or_instead(item)  # no fresh sentence: a meaning recall
                 ex = b.recall(sc, item, stage)
                 self._record([item.id], ex.stage or stage, ex.item_ids)
         b.closing(sc, n)

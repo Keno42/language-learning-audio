@@ -36,6 +36,7 @@ kind = "vocab"
 target = "heitur hver"
 meaning = "a hot spring"
 meaning_ja = "温泉（源泉）"
+meaning_spoken_ja = "温泉の源泉"
 meaning_forms_ja = { in_sentence = "温泉" }
 difficulty = 2
 tags = ["nature_nom", "nom_noun"]
@@ -337,6 +338,8 @@ kind = "phrase"
 target = "Farið varlega á ísnum."
 meaning = "Be careful on the ice. (to several people)"
 meaning_ja = "氷の上では気をつけて。（複数の人に）"
+meaning_spoken = "to several people: Be careful on the ice."
+meaning_spoken_ja = "複数の人に、氷の上では気をつけて。"
 difficulty = 4
 topics = ["nature", "emergencies"]
 chunks = ["ísnum", "á ísnum", "varlega á ísnum", "Farið varlega á ísnum."]

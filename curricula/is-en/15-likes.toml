@@ -399,6 +399,7 @@ kind = "phrase"
 target = "Mér er alveg sama."
 meaning = "I don't mind (either way)."
 meaning_ja = "どちらでもいいです。"
+meaning_spoken = "I don't mind either way."
 difficulty = 3
 topics = ["hobbies", "discourse"]
 chunks = ["sama", "alveg sama", "Mér er alveg sama."]

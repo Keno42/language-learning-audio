@@ -26,8 +26,8 @@ recall becomes a meaning recall. An item with another situation variant uses tha
 instead.
 
 **Late unhinted recall.** The closing recall of a new item skips cloze and hinted prompts.
-A new item whose recombination finds no fresh sentence gets a meaning recall instead of
-being dropped from the closing block.
+(A new item whose recombination finds no fresh sentence now always gets a meaning recall
+instead of being dropped, with or without this lever.)
 
 Over 12 simulated 30-minute lessons at pace 8, the two levers together took the candidates
 from 68 repeated situations, 7 early last appearances and 1 missing late recall down to
