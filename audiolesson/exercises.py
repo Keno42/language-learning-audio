@@ -264,7 +264,7 @@ class Builder:
         if item.kind == "transform":
             return self._intro_transform(sc, item)
         ex = sc.new_exercise("intro", "intro", [item.id], f"new: {item.target}")
-        self._narr(sc, ex, self.prompts.get("intro_new", meaning=self._m(item.meaning)))
+        self._narr(sc, ex, self.prompts.get("intro_new", meaning=self._m(item.spoken_meaning)))
         self._beat(sc, ex)
         self._speak(sc, ex, item.target)
         self._beat(sc, ex)
@@ -306,7 +306,7 @@ class Builder:
         # end the introduction with a first real retrieval
         gender = self.speaker_gender(item)
         target = self._gendered(item, gender)
-        self._narr(sc, ex, self._as(gender, self._meaning_prompt(item.meaning)))
+        self._narr(sc, ex, self._as(gender, self._meaning_prompt(item.spoken_meaning)))
         self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
         self._gap(sc, ex)
@@ -396,20 +396,20 @@ class Builder:
         ex = sc.new_exercise("recall", stage, [item.id], f"{stage}: {target}")
         if stage == "cloze":
             # say what to complete: «Ég skil…» alone could be «Ég skil.» or «Ég skil ekki.»
-            self._narr(sc, ex, self._as(gender, self.prompts.get("cloze", meaning=self._m(item.meaning))))
+            self._narr(sc, ex, self._as(gender, self.prompts.get("cloze", meaning=self._m(item.spoken_meaning))))
             words = [w for w in target.split() if any(ch.isalnum() for ch in w)]
             partial = " ".join(words[:-1]) + "…"
             self._speak(sc, ex, partial, role="partial")
             self._answer_pause(sc, ex, target, item, generative=False, supported=True)
         elif stage == "hinted":
-            self._narr(sc, ex, self._as(gender, self.prompts.get("hinted", meaning=self._m(item.meaning))))
+            self._narr(sc, ex, self._as(gender, self.prompts.get("hinted", meaning=self._m(item.spoken_meaning))))
             self._speak(sc, ex, target.split()[0].rstrip(".,?!"), role="hint")
             self._answer_pause(sc, ex, target, item, generative=False, supported=True)
         elif stage == "situation":
             self._narr(sc, ex, self._as(gender, self._situation(item)))  # type: ignore[arg-type]
             self._answer_pause(sc, ex, target, item, generative=True)
         else:  # meaning (also the fallback for 'dialogue' when no dialogue fits)
-            self._narr(sc, ex, self._as(gender, self._meaning_prompt(item.meaning)))
+            self._narr(sc, ex, self._as(gender, self._meaning_prompt(item.spoken_meaning)))
             self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target, speaker=voice)
         if stage in ("cloze", "hinted") or item.difficulty >= 4:

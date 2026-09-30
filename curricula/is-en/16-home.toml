@@ -78,6 +78,7 @@ kind = "vocab"
 target = "lykillinn"
 meaning = "the key"
 meaning_ja = "その鍵（〜は・〜が）"
+meaning_spoken_ja = "その鍵が"
 meaning_forms_ja = { in_sentence = "その鍵" }
 difficulty = 2
 tags = ["nom_place"]

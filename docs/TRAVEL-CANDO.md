@@ -64,8 +64,10 @@ run in this order:
 5. `parts`: foss, jökull, vík, …
 
 Each card has the text, a meaning in English and Japanese, a katakana `hint_ja`, and
-`parts` for compounds. The hint is an approximation: the Discord review's 🔊 plays the
-real pronunciation.
+`parts` for compounds. A card listing several expressions with «·» may gloss each one in
+`words` (`[[word, gloss], …]`, in the text's order). A `letters` card must: its `meaning`
+is the spelling rule, so without `words` the words themselves would go unexplained. The
+hint is an approximation: the Discord review's 🔊 plays the real pronunciation.
 
 `python -m audiolesson.cli reading curricula/is-en [--trip <profile>]` prints the deck as
 JSON for the bot. With a profile, each of its `places` not already in the deck becomes a
