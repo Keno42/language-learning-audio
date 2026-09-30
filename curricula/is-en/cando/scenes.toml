@@ -1,0 +1,404 @@
+# Scenario cards (issue #129): one scripted beat of a can-do scenario (#131), for the
+# Discord review. The learner reads the situation, hears the local's line (🔊) if there is
+# one, answers aloud, then sees the model replies and the line with its meaning.
+#
+# `items` are what the first reply needs: a card is shown only once the learner has met
+# all of them. A partner line may go beyond the course (clerk-side lines, #134); its
+# meaning is revealed with the answer. Wordings are candidates until the native tutor
+# checks them (#129, session 1). General content only: no learner's dates or places.
+
+# ---------------------------------------------------------------- A1 greetings
+
+[[scenes]]
+id = "a1_enter"
+scenario = "A1"
+kind = "initiate"
+situation = "You walk into a small shop in the morning. The clerk looks up."
+situation_ja = "朝、小さなお店に入ります。店員と目が合いました。"
+replies = ["Góðan daginn.", "Hæ."]
+items = ["godan_daginn"]
+
+[[scenes]]
+id = "a1_leave"
+scenario = "A1"
+kind = "initiate"
+situation = "You've paid and are leaving the shop."
+situation_ja = "支払いが終わり、店を出るところです。"
+replies = ["Takk, bless.", "Bless.", "Eigðu góðan dag."]
+items = ["takk", "bless"]
+
+[[scenes]]
+id = "a1_evening"
+scenario = "A1"
+kind = "respond"
+situation = "You come back to the hotel in the evening. The receptionist greets you."
+situation_ja = "夜、ホテルに戻ると、受付の人に声をかけられました。"
+partner = "Gott kvöld."
+partner_meaning = "Good evening."
+partner_meaning_ja = "こんばんは。"
+replies = ["Gott kvöld."]
+items = ["gott_kvold"]
+
+[[scenes]]
+id = "a1_same_to_you"
+scenario = "A1"
+kind = "respond"
+situation = "As you leave, the clerk says this."
+situation_ja = "店を出るとき、店員にこう言われました。"
+partner = "Eigðu góðan dag!"
+partner_meaning = "Have a good day!"
+partner_meaning_ja = "良い一日を！"
+replies = ["Takk, sömuleiðis.", "Sömuleiðis."]
+items = ["takk", "somuleidis"]
+
+[[scenes]]
+id = "a1_holidays"
+scenario = "A1"
+kind = "respond"
+situation = "It's late December. As you leave, the clerk says this."
+situation_ja = "12月下旬。店を出るとき、店員にこう言われました。"
+partner = "Gleðileg jól!"
+partner_meaning = "Merry Christmas!"
+partner_meaning_ja = "メリークリスマス！"
+replies = ["Takk, sömuleiðis.", "Gleðileg jól!"]
+items = ["gledileg_jol", "somuleidis"]
+season = "winter-holidays"
+
+# ---------------------------------------------------------------- A2 thanks
+
+[[scenes]]
+id = "a2_change"
+scenario = "A2"
+kind = "respond"
+situation = "At the till, the cashier hands you your change."
+situation_ja = "レジで、店員がお釣りを渡してくれます。"
+partner = "Gjörðu svo vel."
+partner_meaning = "Here you go."
+partner_meaning_ja = "どうぞ。"
+replies = ["Takk.", "Takk fyrir."]
+items = ["takk"]
+
+[[scenes]]
+id = "a2_you_are_thanked"
+scenario = "A2"
+kind = "respond"
+situation = "Someone dropped a glove; you picked it up and handed it back. They say this."
+situation_ja = "落とした手袋を拾って渡してあげると、こう言われました。"
+partner = "Takk kærlega!"
+partner_meaning = "Thank you very much!"
+partner_meaning_ja = "本当にありがとう！"
+replies = ["Ekkert að þakka."]
+items = ["ekkert_ad_thakka"]
+
+[[scenes]]
+id = "a2_thanks_for_the_meal"
+scenario = "A2"
+kind = "initiate"
+situation = "You've been treated to a meal at someone's home. Thank them as you finish."
+situation_ja = "家に招かれて食事をごちそうになりました。食べ終わってお礼を言います。"
+replies = ["Takk fyrir matinn."]
+items = ["takk_fyrir", "matinn"]
+note_ja = "答えに «Verði þér að góðu»（どういたしまして・召し上がれ）と返されることがよくあります。"
+
+# ---------------------------------------------------------------- A3 supermarket
+
+[[scenes]]
+id = "a3_have_milk"
+scenario = "A3"
+kind = "initiate"
+situation = "In the supermarket you can't find the milk. Ask a member of staff."
+situation_ja = "スーパーで牛乳が見つかりません。店員に聞きます。"
+replies = ["Áttu mjólk?"]
+items = ["attu", "mjolk"]
+
+[[scenes]]
+id = "a3_bag"
+scenario = "A3"
+kind = "respond"
+situation = "At the till, the cashier asks you something. You brought your own bag."
+situation_ja = "レジで店員に何か聞かれました。袋は自分で持ってきています。"
+partner = "Viltu poka?"
+partner_meaning = "Would you like a bag?"
+partner_meaning_ja = "袋はいりますか？"
+replies = ["Nei, takk."]
+items = ["nei_takk"]
+note_ja = "«poka» は「袋」。袋が欲しいときは «Já, takk.»"
+
+[[scenes]]
+id = "a3_receipt"
+scenario = "A3"
+kind = "respond"
+situation = "The payment went through. The cashier asks one more thing. You'd like it."
+situation_ja = "支払いが済むと、店員にもう一つ聞かれました。もらっておきたいものです。"
+partner = "Viltu kvittun?"
+partner_meaning = "Would you like the receipt?"
+partner_meaning_ja = "レシートはいりますか？"
+replies = ["Já, takk."]
+items = ["ja_takk"]
+
+[[scenes]]
+id = "a3_anything_else"
+scenario = "A3"
+kind = "respond"
+situation = "The cashier has scanned everything you brought."
+situation_ja = "店員が商品を全部通し終わりました。"
+partner = "Eitthvað fleira?"
+partner_meaning = "Anything else?"
+partner_meaning_ja = "ほかに何か？"
+replies = ["Ekkert meira, takk.", "Þetta er allt."]
+items = ["ekkert_meira_takk"]
+
+[[scenes]]
+id = "a3_pay_by_card"
+scenario = "A3"
+kind = "initiate"
+situation = "Time to pay. Ask whether you can pay by card."
+situation_ja = "支払いです。カードで払えるか聞きます。"
+replies = ["Má ég borga með korti?", "Tekurðu kort?"]
+items = ["ma_eg_borga_med_korti"]
+
+# ---------------------------------------------------------------- A4 café
+
+[[scenes]]
+id = "a4_order"
+scenario = "A4"
+kind = "respond"
+situation = "At the café counter the barista speaks to you. Order a coffee."
+situation_ja = "カフェのカウンターで店員に声をかけられました。コーヒーを頼みます。"
+partner = "Hvað má bjóða þér?"
+partner_meaning = "What can I get you?"
+partner_meaning_ja = "何になさいますか？"
+replies = ["Ég ætla að fá kaffi, takk.", "Get ég fengið kaffi?"]
+items = ["eg_aetla_ad_fa", "kaffi"]
+note_ja = "店員の最初のひとことの定番です（直訳「あなたに何を勧めてよいですか」）。"
+
+[[scenes]]
+id = "a4_for_here"
+scenario = "A4"
+kind = "respond"
+situation = "You ordered a piece of cake and are asked this. You'll eat it here."
+situation_ja = "ケーキを頼むとこう聞かれました。店内で食べます。"
+partner = "Til að taka með?"
+partner_meaning = "To take away?"
+partner_meaning_ja = "お持ち帰りですか？"
+replies = ["Nei, ég ætla að borða hérna."]
+items = ["nei", "eg_aetla_ad_borda_herna"]
+
+[[scenes]]
+id = "a4_with_milk"
+scenario = "A4"
+kind = "initiate"
+situation = "Order a coffee with milk."
+situation_ja = "コーヒーをミルク入りで頼みます。"
+replies = ["Ég ætla að fá kaffi með mjólk, takk."]
+items = ["eg_aetla_ad_fa_addon", "kaffi", "med_mjolk"]
+
+# ---------------------------------------------------------------- A5 bar
+
+[[scenes]]
+id = "a5_another"
+scenario = "A5"
+kind = "initiate"
+situation = "At the bar, you'd like another beer."
+situation_ja = "バーで、ビールをもう一杯頼みます。"
+replies = ["Annan bjór, takk."]
+items = ["annan_bjor_takk"]
+
+[[scenes]]
+id = "a5_toast"
+scenario = "A5"
+kind = "respond"
+situation = "The person next to you raises their glass."
+situation_ja = "隣の人がグラスを上げて、こう言いました。"
+partner = "Skál!"
+partner_meaning = "Cheers!"
+partner_meaning_ja = "乾杯！"
+replies = ["Skál!"]
+items = ["skal"]
+
+[[scenes]]
+id = "a5_seat"
+scenario = "A5"
+kind = "initiate"
+situation = "The bar is crowded; there's an empty-looking seat. Ask the person next to it."
+situation_ja = "混んだバーに空いていそうな席があります。隣の人に聞きます。"
+replies = ["Er þetta sæti laust?"]
+items = ["er_thetta_saeti_laust"]
+
+# ---------------------------------------------------------------- A6 public pool
+
+[[scenes]]
+id = "a6_entry"
+scenario = "A6"
+kind = "initiate"
+situation = "At the pool reception. Buy an entry for one adult."
+situation_ja = "プールの受付です。大人一人分の入場券を買います。"
+replies = ["Einn fullorðinn, takk."]
+items = ["einn_fullordinn_takk"]
+
+[[scenes]]
+id = "a6_so_cold"
+scenario = "A6"
+kind = "respond"
+situation = "In the hot tub, the person next to you says this."
+situation_ja = "ホットタブで、隣の人がこう言いました。"
+partner = "Það er svo kalt í dag!"
+partner_meaning = "It's so cold today!"
+partner_meaning_ja = "今日はすごく寒いね！"
+replies = ["Já, það er svo kalt!"]
+items = ["ja", "thad_er_svo_kalt"]
+
+[[scenes]]
+id = "a6_where_from"
+scenario = "A6"
+kind = "respond"
+situation = "In the hot tub, the person next to you asks this."
+situation_ja = "ホットタブで、隣の人にこう聞かれました。"
+partner = "Hvaðan ert þú?"
+partner_meaning = "Where are you from?"
+partner_meaning_ja = "どちらから？"
+replies = ["Ég er frá Japan."]
+items = ["eg_er_fra_japan"]
+
+# ---------------------------------------------------------------- A7 staying in the conversation
+
+[[scenes]]
+id = "a7_too_fast"
+scenario = "A7"
+kind = "repair"
+situation = "Someone in the street asks you something, too fast to follow."
+situation_ja = "道で話しかけられましたが、速すぎて分かりません。"
+partner = "Fyrirgefðu, veistu hvar næsta strætóstoppistöð er?"
+partner_meaning = "Excuse me, do you know where the nearest bus stop is?"
+partner_meaning_ja = "すみません、一番近いバス停がどこか知っていますか？"
+replies = ["Ég skil ekki.", "Gætirðu talað hægar?", "Gætirðu endurtekið þetta?"]
+items = ["eg_skil_ekki"]
+note_ja = "全部分からなくて大丈夫です。聞き返せれば会話は続きます。"
+
+[[scenes]]
+id = "a7_keep_icelandic"
+scenario = "A7"
+kind = "repair"
+situation = "You asked them to repeat, and they offer to switch to English. You'd like to keep going in Icelandic."
+situation_ja = "聞き返すと、英語に切り替えようかと言われました。アイスランド語で続けたいと伝えます。"
+partner = "Viltu að ég tali ensku?"
+partner_meaning = "Do you want me to speak English?"
+partner_meaning_ja = "英語で話しましょうか？"
+replies = ["Ég er að læra íslensku. Má ég reyna að tala íslensku?"]
+items = ["eg_er_ad_laera", "islensku", "ma_eg_reyna_ad_tala_islensku"]
+
+[[scenes]]
+id = "a7_what_means"
+scenario = "A7"
+kind = "initiate"
+situation = "Point at a word you don't know and ask what it means."
+situation_ja = "知らない単語を指さして、意味を聞きます。"
+replies = ["Hvað þýðir þetta?"]
+items = ["hvad_thydir_thetta"]
+
+# ---------------------------------------------------------------- A8 excuse me, sorry, the toilet
+
+[[scenes]]
+id = "a8_get_past"
+scenario = "A8"
+kind = "initiate"
+situation = "Someone is blocking a narrow aisle. Ask to get past."
+situation_ja = "狭い通路を人がふさいでいます。通してもらいます。"
+replies = ["Afsakið."]
+items = ["afsakid"]
+
+[[scenes]]
+id = "a8_bump"
+scenario = "A8"
+kind = "initiate"
+situation = "You bumped into someone."
+situation_ja = "人にぶつかってしまいました。"
+replies = ["Fyrirgefðu."]
+items = ["fyrirgefdu"]
+
+[[scenes]]
+id = "a8_toilet"
+scenario = "A8"
+kind = "initiate"
+situation = "You need the toilet. Ask a member of staff."
+situation_ja = "トイレに行きたいです。店員に聞きます。"
+replies = ["Hvar er klósettið?"]
+items = ["hvar_er", "klosettid"]
+
+# ---------------------------------------------------------------- A9 signs and opening hours
+
+[[scenes]]
+id = "a9_is_it_open"
+scenario = "A9"
+kind = "initiate"
+situation = "You reach a shop whose door looks shut. Ask whether it's open."
+situation_ja = "店の扉が閉まっているように見えます。開いているか聞きます。"
+replies = ["Er opið?"]
+items = ["er_opid"]
+
+[[scenes]]
+id = "a9_closed"
+scenario = "A9"
+kind = "respond"
+situation = "At the pool, the attendant tells you this. Ask when it opens."
+situation_ja = "プールに着くと、係の人にこう言われました。いつ開くか聞きます。"
+partner = "Það er lokað."
+partner_meaning = "It's closed."
+partner_meaning_ja = "閉まっています。"
+replies = ["Hvenær opnar sundlaugin?"]
+items = ["hvenaer_opnar", "sundlaugin"]
+
+# ---------------------------------------------------------------- A10 place names
+
+[[scenes]]
+id = "a10_where_to"
+scenario = "A10"
+kind = "respond"
+situation = "The bus driver asks you this. You're going to Reykjavík."
+situation_ja = "バスの運転手にこう聞かれました。レイキャビクへ行きます。"
+partner = "Hvert ertu að fara?"
+partner_meaning = "Where are you going?"
+partner_meaning_ja = "どこへ行きますか？"
+replies = ["Reykjavík, takk."]
+items = ["reykjavik_dat", "takk"]
+
+# ---------------------------------------------------------------- Tier B
+
+[[scenes]]
+id = "b1_photo"
+scenario = "B1"
+kind = "initiate"
+situation = "In the museum, ask whether you may take a photo."
+situation_ja = "博物館で、写真を撮ってもいいか聞きます。"
+replies = ["Má ég taka mynd?"]
+items = ["ma_eg_taka_mynd"]
+
+[[scenes]]
+id = "b2_view"
+scenario = "B2"
+kind = "initiate"
+situation = "On a day tour, you see a stunning view. Say something."
+situation_ja = "日帰りツアーで絶景が目の前に。ひとこと言います。"
+replies = ["Vá!", "Útsýnið er fallegt!"]
+items = ["vaa"]
+
+[[scenes]]
+id = "b3_first_time"
+scenario = "B3"
+kind = "respond"
+situation = "A local asks you this. It's your first visit."
+situation_ja = "地元の人にこう聞かれました。初めての訪問です。"
+partner = "Ertu hér í fyrsta sinn?"
+partner_meaning = "Is this your first time here?"
+partner_meaning_ja = "ここは初めてですか？"
+replies = ["Já, ég er hér í fyrsta sinn."]
+items = ["ja", "eg_er_her_i_fyrsta_sinn"]
+
+[[scenes]]
+id = "b4_bus_fare"
+scenario = "B4"
+kind = "initiate"
+situation = "Ask the driver how much the bus is."
+situation_ja = "運転手にバス代を聞きます。"
+replies = ["Hvað kostar í strætó?"]
+items = ["hvad_kostar_i_straeto"]

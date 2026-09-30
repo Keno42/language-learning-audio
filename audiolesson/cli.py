@@ -18,6 +18,7 @@ from .prompts import Prompts
 from .script import Script
 from .timing import Timing
 from .reading import load_deck
+from .scenes import available, load_scenes, uncovered
 from .trip import load_trip
 
 
@@ -106,6 +107,12 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("curriculum")
     r.add_argument("--trip", default=None, help="private trip profile: add a card for each of its places (not stored anywhere)")
     r.set_defaults(func=cmd_reading)
+
+    sc = sub.add_parser("scenes", help="the scenario cards (#129) the learner can take, as JSON, for the Discord review")
+    sc.add_argument("curriculum")
+    sc.add_argument("--learner", dest="learner_file", default=None, help="learner.json: only cards whose items the learner has met (none met if the file is missing)")
+    sc.add_argument("--trip", default=None, help="private trip profile: its season decides the seasonal cards")
+    sc.set_defaults(func=cmd_scenes)
 
     vo = sub.add_parser("voices", help="list default voices a provider offers for a language")
     vo.add_argument("--provider", default="edge")
@@ -462,6 +469,12 @@ def cmd_validate(args) -> int:
     scenarios = load_cando(args.curriculum, cur) if Path(args.curriculum).is_dir() else []
     if scenarios and not args.cando:
         print(f"{len(scenarios)} travel can-do scenarios (#131); --cando reports their coverage")
+    scenes = load_scenes(args.curriculum, cur, scenarios) if scenarios else []
+    if scenes:
+        missing = uncovered(scenes, scenarios, "A")
+        if missing:
+            raise CurriculumError(f"Tier A scenarios without a scenario card (#129): {missing}")
+        print(f"{len(scenes)} scenario cards (#129); every Tier A scenario has one")
     if args.cando:
         if not scenarios:
             print("no can-do scenarios (<curriculum>/cando/*.toml)")
@@ -488,6 +501,25 @@ def cmd_reading(args) -> int:
     places = load_trip(args.trip).places if args.trip else []
     cards = load_deck(args.curriculum, places)
     print(json.dumps([c.to_dict() for c in cards], ensure_ascii=False))
+    return 0
+
+
+def cmd_scenes(args) -> int:
+    cur = load_curriculum(args.curriculum)
+    scenarios = load_cando(args.curriculum, cur)
+    season = load_trip(args.trip).season if args.trip else None
+    met = None
+    if args.learner_file:  # not "learner": the --user wrapper would demand one
+        path = Path(args.learner_file)
+        learner = LearnerState.load(path) if path.exists() else None
+        met = {it.id for it in cur.items if learner is not None and learner.has_met(it.id)}
+    by_id = {s.id: s for s in scenarios}
+    cards = available(load_scenes(args.curriculum, cur, scenarios), for_season(scenarios, season), season, met)
+    out = [
+        {**c.to_dict(), "tier": by_id[c.scenario].tier, "title": by_id[c.scenario].title, "title_ja": by_id[c.scenario].title_ja}
+        for c in cards
+    ]
+    print(json.dumps(out, ensure_ascii=False))
     return 0
 
 

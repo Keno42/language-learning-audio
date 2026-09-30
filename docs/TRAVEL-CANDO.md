@@ -73,6 +73,32 @@ card (`own: true`), built at run time and never stored.
 
 Every can-do scenario's `reading` text is in the deck; a test pins this.
 
+## Scenario cards (#129)
+
+A scenario card is one scripted beat of a can-do scenario, for the Discord review. They
+replace the GPT Voice role-play, which did not follow a script and whose transcripts did
+not match what was said. Cards live in `curricula/is-en/cando/scenes.toml` (`load_cando`
+reads only `[[scenarios]]`, so the files share the directory).
+
+| field | meaning |
+|---|---|
+| `scenario` | the can-do scenario it belongs to (`A3`) |
+| `kind` | `respond`: hear the partner, answer. `initiate`: no partner line, start the exchange. `repair`: a partner line beyond the learner; keep the conversation going |
+| `situation`, `situation_ja` | the situation, shown as text before anything is heard |
+| `partner`, `partner_meaning(_ja)` | the local's line: heard (🔊) before answering, shown with its meaning afterwards. Required for `respond` and `repair`, absent for `initiate` |
+| `replies` | model replies, the first being the one `items` describes |
+| `items` | curriculum items the first reply needs: the card is shown only once the learner has met them all |
+| `note_ja`, `season` | an optional note; a seasonal card appears only for that trip-profile season |
+
+A partner line may go beyond the course: clerks say «Viltu poka?» whether or not the
+lesson taught it, and the clerk-side lines (#134) are exactly what these cards practise.
+Its meaning is revealed with the answer.
+
+`validate` checks every card's items and scenario, and that every Tier A scenario has a
+card. `python -m audiolesson.cli scenes curricula/is-en [--learner <learner.json>]
+[--trip <profile>]` prints, as JSON, the cards the learner can take now: every item met,
+the season applied. Each card comes with its scenario's tier and title.
+
 ## Trip ordering and the private profile (#132)
 
 ```sh
