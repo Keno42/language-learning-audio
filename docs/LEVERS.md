@@ -8,8 +8,9 @@ the behaviour from before the lever existed.
 `minutes` and `priority_items`. The bot's lesson manifest (#128) also keeps the generate
 arguments. Together they tie every piece of feedback to the settings that produced it.
 
-On the Discord bot, levers are set per deployment with `LESSON_EXTRA_ARGS` in
-`config.py`, for example `["--max-same-situation", "1", "--late-unhinted-recall"]`.
+On the Discord bot, levers are set in the lesson channel's topic, in a `[levers]` section
+(`max_same_situation = 1`, `late_unhinted_recall = true`, `pause_multiplier = 1.2`), or per
+deployment with `LESSON_EXTRA_ARGS` in `config.py`; the topic wins.
 
 ## Available levers
 
