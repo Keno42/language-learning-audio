@@ -71,7 +71,7 @@ class PlanConfig:
     # the trip ordering (#132): item ids introduced before the rest, in this order (their
     # prereqs included by cando.priority_items); empty keeps curriculum order
     priority: list[str] = field(default_factory=list)
-    # levers (#136), off by default; the weekly calibration (#129) turns them on per learner
+    # levers (#136), off by default; turned on per deployment, by hand (docs/LEVERS.md)
     max_same_situation: int | None = None  # one situation cue per item per lesson, at most this often
     late_unhinted_recall: bool = False  # the closing recall of a new item never gives a hint
 

@@ -24,12 +24,12 @@ T−7 weeks, Tier B by T−4 weeks, one lesson a day.
 
 from __future__ import annotations
 
-import tomllib
 from dataclasses import dataclass, field, replace
 from datetime import date, timedelta
 from pathlib import Path
 
 from .content import Curriculum, CurriculumError
+from .records import check_items, load_records
 
 TIERS = ("A", "B", "C")
 # weeks before departure by which a tier's items should have been introduced
@@ -71,30 +71,14 @@ def for_season(scenarios: list[Scenario], season: str | None) -> list[Scenario]:
 def load_cando(curriculum_dir: str | Path, cur: Curriculum | None = None) -> list[Scenario]:
     """Every scenario in ``<curriculum>/cando/*.toml`` (none if there is no such directory).
     With ``cur``, every listed item id must exist in it."""
-    d = Path(curriculum_dir) / "cando"
-    if not d.is_dir():
-        return []
     out: list[Scenario] = []
-    for f in sorted(d.glob("*.toml")):
-        with f.open("rb") as fh:
-            raw = tomllib.load(fh)
-        for s in raw.get("scenarios", []):
-            try:
-                sc = Scenario(**s)
-            except TypeError as e:
-                raise CurriculumError(f"{f}: scenario {s.get('id')!r}: {e}") from None
-            if sc.tier not in TIERS:
-                raise CurriculumError(f"{f}: scenario {sc.id!r}: tier must be one of {TIERS}")
-            out.append(sc)
-    ids = [s.id for s in out]
-    dupes = {i for i in ids if ids.count(i) > 1}
-    if dupes:
-        raise CurriculumError(f"can-do scenario ids repeat: {sorted(dupes)}")
+    for f, sc in load_records(Path(curriculum_dir) / "cando", "scenarios", Scenario, "can-do scenario"):
+        if sc.tier not in TIERS:
+            raise CurriculumError(f"{f}: scenario {sc.id!r}: tier must be one of {TIERS}")
+        out.append(sc)
     if cur is not None:
-        unknown = [(s.id, i) for s in out for i in s.items + [x for v in s.seasonal.values() for x in v]
-                   if i not in cur.by_id]
-        if unknown:
-            raise CurriculumError(f"can-do scenarios name unknown items: {unknown}")
+        pairs = [(s.id, i) for s in out for i in s.items + [x for v in s.seasonal.values() for x in v]]
+        check_items(pairs, cur.by_id, "can-do scenarios")
     return out
 
 
