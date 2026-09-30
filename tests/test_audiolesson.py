@@ -5389,5 +5389,56 @@ class LeverTests(unittest.TestCase):
                 self.assertFalse((Path(td) / "l.json").exists(), "nothing generated")
 
 
+class SpokenMeaningTests(unittest.TestCase):
+    """Recall disambiguators written in brackets («English (the language)», «本（〜は・〜が）»)
+    were read aloud verbatim. ``meaning_spoken`` folds them into natural speech; the
+    written ``meaning`` stays for glosses."""
+
+    def test_the_spoken_form_is_per_language_and_never_borrowed(self):
+        en = load_curriculum(ROOT / "curricula" / "is-en")
+        ja = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
+        self.assertEqual(en.by_id["hotelinu"].spoken_meaning, "to the hotel")
+        self.assertEqual(en.by_id["hotelinu"].meaning, "the hotel (after 'to' / 'for')")
+        self.assertEqual(ja.by_id["hotelinu"].spoken_meaning, "ホテルへ")
+        self.assertEqual(en.by_id["ensku"].spoken_meaning, "the English language")
+        # English's spoken form never reaches a Japanese instruction: 英語 is unambiguous
+        self.assertEqual(ja.by_id["ensku"].spoken_meaning, "英語")
+        self.assertEqual(ja.by_id["vinna_verb"].spoken_meaning, "働く")
+        self.assertEqual(ja.by_id["bok"].spoken_meaning, "本が")
+        self.assertEqual(en.by_id["bok"].spoken_meaning, "book", "no spoken form: the meaning")
+
+    def test_no_grammar_form_disambiguator_is_spoken(self):
+        """Every bracket that names a grammatical form has a spoken form (issue: category A)."""
+        form = re.compile(r"\(after |\(the language\)|\(the\)|\(to work\)|（〜|（複数：〜|（「Takk fyrir")
+        for lang in (None, "ja"):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            for it in cur.items:
+                if form.search(it.meaning):
+                    with self.subTest(lang=lang, item=it.id):
+                        self.assertNotRegex(it.spoken_meaning, r"[()（）〜]")
+
+    def test_prompts_speak_the_spoken_form(self):
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
+        b = Builder(cur, Prompts.load("ja"), Timing(level="A1"), fresh())
+        sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+        b.intro(sc, cur.by_id["hotelinu"])
+        for stage in ("hinted", "meaning"):
+            b.recall(sc, cur.by_id["hotelinu"], stage)
+        spoken = " ".join(s.text for s in sc.segments if s.type == "narrate")
+        self.assertIn("ホテルへ", spoken)
+        self.assertNotIn("〜", spoken)
+        self.assertNotIn("（", spoken)
+
+    def test_a_spoken_form_takes_no_brackets(self):
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [{"id": "a", "kind": "vocab", "target": "a", "meaning": "a (b)", "meaning_spoken": "a (b)"}],
+        }
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -361,6 +361,7 @@ kind = "vocab"
 target = "vinna"
 meaning = "work (to work)"
 meaning_ja = "働く"
+meaning_spoken = "to work"
 difficulty = 1
 tags = ["inf", "progressive_inf"]
 topics = ["work"]

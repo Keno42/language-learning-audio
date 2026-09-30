@@ -121,6 +121,7 @@ kind = "vocab"
 target = "bókum"
 meaning = "books"
 meaning_ja = "本（複数：〜に）"
+meaning_spoken_ja = "何冊もの本に"
 meaning_forms_ja = { in_sentence = "本" }
 difficulty = 2
 tags = ["dat_hobby"]
@@ -314,6 +315,7 @@ kind = "vocab"
 target = "bók"
 meaning = "book"
 meaning_ja = "本（〜は・〜が）"
+meaning_spoken_ja = "本が"
 meaning_forms = { in_sentence = "a book", bare = "book" }
 meaning_forms_ja = { in_sentence = "本" }
 difficulty = 1
