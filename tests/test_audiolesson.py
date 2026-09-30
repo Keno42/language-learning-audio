@@ -5256,6 +5256,85 @@ class CultureRespectTests(unittest.TestCase):
         self.assertIn("gledileg_jol", winter)
 
 
+class ScenarioCardTests(unittest.TestCase):
+    """#129: scripted scenario cards replace the GPT Voice role-play."""
+
+    def setUp(self):
+        from audiolesson.cando import load_cando
+        from audiolesson.scenes import load_scenes
+
+        self.cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.scenarios = load_cando(ROOT / "curricula" / "is-en", self.cur)
+        self.scenes = load_scenes(ROOT / "curricula" / "is-en", self.cur, self.scenarios)
+
+    def test_every_tier_a_scenario_has_a_card(self):
+        from audiolesson.scenes import uncovered
+
+        self.assertEqual(uncovered(self.scenes, self.scenarios, "A"), [])
+        self.assertGreaterEqual(len(self.scenes), 30)
+
+    def test_a_local_who_speaks_first_gets_a_respond_card(self):
+        """The clerk lines the pilots showed were not understood are practised."""
+        partners = {s.partner for s in self.scenes if s.kind == "respond"}
+        for line in ("Viltu poka?", "Viltu kvittun?", "Hvað má bjóða þér?", "Eitthvað fleira?", "Gjörðu svo vel."):
+            self.assertIn(line, partners)
+
+    def test_cards_appear_once_their_items_are_met_and_in_their_season(self):
+        from audiolesson.cando import for_season
+        from audiolesson.scenes import available
+
+        summer = for_season(self.scenarios, None)
+        self.assertEqual(available(self.scenes, summer, None, set()), [])
+        shown = available(self.scenes, summer, None, {"godan_daginn", "takk", "bless"})
+        self.assertEqual({s.id for s in shown}, {"a1_enter", "a1_leave", "a2_change"})
+        everything = {i.id for i in self.cur.items}
+        self.assertNotIn("a1_holidays", [s.id for s in available(self.scenes, summer, None, everything)])
+        winter = for_season(self.scenarios, "winter-holidays")
+        self.assertIn("a1_holidays", [s.id for s in available(self.scenes, winter, "winter-holidays", everything)])
+
+    def test_bad_cards_are_rejected(self):
+        from audiolesson.cando import load_cando
+        from audiolesson.scenes import load_scenes
+
+        base = 'id = "x"\nscenario = "A1"\nsituation = "s"\nreplies = ["Takk."]\nitems = ["takk"]\n'
+        for body, message in (
+            (base + 'kind = "chat"', "kind"),
+            (base + 'kind = "respond"', "partner"),
+            (base + 'kind = "initiate"\npartner = "Hæ."', "no partner"),
+            (base.replace('["Takk."]', "[]") + 'kind = "initiate"', "replies"),
+            (base.replace('"A1"', '"Z9"') + 'kind = "initiate"', "unknown scenarios"),
+            (base.replace('["takk"]', '["nope"]') + 'kind = "initiate"', "unknown items"),
+        ):
+            with self.subTest(message=message), tempfile.TemporaryDirectory() as td:
+                (Path(td) / "cando").mkdir()
+                (Path(td) / "cando" / "scenes.toml").write_text("[[scenes]]\n" + body, "utf-8")
+                with self.assertRaises(CurriculumError) as ctx:
+                    load_scenes(td, self.cur, load_cando(ROOT / "curricula" / "is-en", self.cur))
+                self.assertIn(message, str(ctx.exception))
+
+    def test_scenes_cli_prints_the_cards_a_learner_can_take(self):
+        import contextlib
+        import io
+
+        from audiolesson.cli import main
+
+        def run(*extra):
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                self.assertEqual(main(["scenes", str(ROOT / "curricula" / "is-en"), *extra]), 0)
+            return json.loads(buf.getvalue())
+
+        every = run()
+        self.assertEqual({c["tier"] for c in every}, {"A", "B"})
+        self.assertTrue(all(c["title_ja"] for c in every))
+        self.assertEqual(run("--learner", "/nonexistent/learner.json"), [], "nothing met yet")
+        with tempfile.TemporaryDirectory() as td:
+            learner = LearnerState("is", "ja", "A1")
+            learner.items["godan_daginn"] = ItemState(due=TODAY.isoformat())
+            learner.save(Path(td) / "l.json")
+            self.assertEqual([c["id"] for c in run("--learner", str(Path(td) / "l.json"))], ["a1_enter"])
+
+
 class ReadingDeckTests(unittest.TestCase):
     """Issue #133: a reading deck for the Discord review, since the audio never shows
     spelling — letters, signs, shop words, place names and their parts."""
