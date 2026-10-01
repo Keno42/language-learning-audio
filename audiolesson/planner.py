@@ -53,6 +53,20 @@ class PlanConfig:
     note_lookahead: int = 100  # filler may use an unheard note about an item this close ahead of what's met
     # when material runs out, review what was reviewed once more (harder); 1 ends the lesson short
     max_review_passes: int = 2
+    # Issue #151: an item counts as stable after this many recalls on or after a due date (a
+    # recalled latest report counts as one) and ``stable_min_successes`` recalls in all, past
+    # the hint stages, with no failure or hesitation in its last three lessons. Fillers (early
+    # reviews, the second pass, extra touches, unanchored connect pairs, substitution frames)
+    # leave stable items alone until they are due: já and hæ came back in every lesson,
+    # interval unchanged, although they were reported as recalled.
+    stable_successes: int = 2
+    stable_min_successes: int = 8
+    # Issue #151: the time stable items no longer fill goes to substitution drills: a known
+    # construction with fills in a sentence not heard this lesson, at most this often each
+    substitutions_per_construction: int = 3
+    # Issue #151: after that, before ending the lesson short, each of today's new items may be
+    # recalled once more, at most this often
+    consolidations_per_item: int = 2
     # Reviews are the items that are due, plus those due within this many days. The rest wait
     # for their date: spending spare time on them made the same well-known phrases come back
     # every lesson whatever their interval (issue #94). Spare time goes to new material first.
@@ -279,13 +293,24 @@ class Planner:
         """Not-due items for a lesson that has run out of everything else (due reviews, new
         material, the second pass), the longest ago practised first, so none comes back lesson
         after lesson (#94). ``rested_only``: only those last practised at least half their
-        interval ago."""
+        interval ago. Never a stable item (#151): it waits for its date."""
         out = [
             (self.learner.items[i.id].last_practiced, i.order, i)
             for i in self.cur.items
-            if i.id in self.learner.items and i.id not in exclude and (not rested_only or self._rested(i.id))
+            if i.id in self.learner.items and i.id not in exclude and (not rested_only or self._rested(i.id)) and not self._stable(i)
         ]
         return [i for *_, i in sorted(out, key=lambda t: t[:2])]
+
+    def _stable(self, item: Item) -> bool:
+        """Issue #151: plainly known. See ``PlanConfig.stable_successes``."""
+        st = self.learner.items.get(item.id)
+        if st is None or st.stage in ("intro", "cloze", "hinted"):
+            return False
+        if any(h.get("ok") is False or h.get("outcome") in ("hesitated", "not_recalled") for h in st.history[-3:]):
+            return False
+        if st.successes < self.cfg.stable_min_successes:
+            return False
+        return st.durable_successes + (st.last_outcome == "recalled") >= self.cfg.stable_successes
 
     def _rested(self, item_id: str) -> bool:
         """Last practised at least half its interval ago (and not today)."""
@@ -309,12 +334,14 @@ class Planner:
             return sorted(on_topic + off, key=lambda i: -self.learner.review_priority(i.id, self.today) - (0.4 if i in on_topic else 0))
         return [i for _, i in scored]
 
-    def _may_start_arc(self, arcs: int, early_tier: int) -> bool:
+    def _may_start_arc(self, arcs: int, early_tier: int, far_short: bool = True) -> bool:
         """Whether a fresh arc may start, with ``arcs`` already in the lesson: up to
         ``max_arcs`` while other work remains; once every review filler (the early reviews and
         the second pass) is used up, no limit, so a lesson with nothing else left fills its
-        time with something new rather than ending far short (#34, #94)."""
-        return early_tier >= 2 or arcs < self.cfg.max_arcs
+        time with something new rather than ending far short (#34, #94). Only while it would
+        end far short (``far_short``: under half its time used): since stable items no longer
+        fill (#151), the fillers run out sooner, and a lesson at pace 3 took 13 new items."""
+        return (early_tier >= 2 and far_short) or arcs < self.cfg.max_arcs
 
     def review_stage(self, item: Item) -> str:
         st = self.learner.items[item.id]
@@ -326,7 +353,8 @@ class Planner:
         return cur if cur != "intro" else ladder[min(1, len(ladder) - 1)]
 
     def _second_pass(self, reviewed: list[str], recent) -> list[Item]:
-        items = [self.cur.by_id[i] for i in reviewed if i in self.cur.by_id and i not in recent]
+        """Today's reviews once more, harder; a stable item was reviewed once and is done (#151)."""
+        items = [self.cur.by_id[i] for i in reviewed if i in self.cur.by_id and i not in recent and not self._stable(self.cur.by_id[i])]
         items.sort(key=lambda i: -self.learner.review_priority(i.id, self.today))
         return items
 
@@ -649,6 +677,8 @@ class Planner:
             for it in pool:
                 if it.id in seen or not b.situation_usable(it) or not _ready_for_situation(it):
                     continue
+                if connect_item_uses.get(it.id) and self._stable(it):
+                    continue  # a stable item takes part in one connect a lesson (#151)
                 seen.add(it.id)
                 valid.append(it)
             best: tuple | None = None
@@ -679,6 +709,67 @@ class Planner:
                 pair = [pair[1], pair[0]]
             return pair
 
+        def not_due_stable(it: Item) -> bool:
+            return self._stable(it) and self.learner.review_priority(it.id, self.today) < 1.0
+
+        substitutions: dict[str, int] = {}
+        consolidations: dict[str, int] = {}
+
+        def pick_consolidation() -> Item | None:
+            """Issue #151: today's new item least practised so far (then the earliest
+            introduced), not just exercised, under ``consolidations_per_item`` extra recalls."""
+            cands = [
+                it for it in introduced
+                if it.id not in recent and consolidations.get(it.id, 0) < cfg.consolidations_per_item
+            ]
+            return min(cands, key=lambda it: len(self.exposures.get(it.id, [])), default=None)
+
+        def continue_substitution() -> Item | None:
+            """The construction of a substitution drill that was the last exercise, while it
+            can make another sentence: a run stays in one frame (#151)."""
+            last = sc.exercises[-1] if sc.exercises else None
+            if last is None or last.kind != "generative" or not last.item_ids or last.item_ids[0] not in substitutions:
+                return None
+            c = self.cur.by_id[last.item_ids[0]]
+            if substitutions[c.id] < cfg.substitutions_per_construction and b.recombine_status(c, met_fills=True) == "novel":
+                return c
+            return None
+
+        def do_substitution(c: Item) -> None:
+            substitutions[c.id] = substitutions.get(c.id, 0) + 1
+            ex = b.recall(sc, c, "recombine", met_fills=True)
+            self._record([c.id], ex.stage or "recombine", ex.item_ids)
+            touch(c)
+
+        def pick_substitution() -> Item | None:
+            """Issue #151: a construction past its hint stages (met before, not failed; if
+            stable, due or rested, as for early reviews) that can still make a sentence not
+            heard this lesson, its slots filled with words met before, under
+            ``substitutions_per_construction``. The one just drilled goes on while it can, so a
+            run swaps words in one frame («Talar þú dönsku?» → «… japönsku?»); then
+            constructions sharing a topic with today's new items, the least used, and
+            curriculum order."""
+            if (c := continue_substitution()) is not None:
+                return c
+            today_topics = {t for it in introduced for t in it.topics}
+            best: tuple | None = None
+            for c in self.cur.items:
+                if c.kind != "construction" or c.id in recent:
+                    continue
+                if substitutions.get(c.id, 0) >= cfg.substitutions_per_construction:
+                    continue
+                st = self.learner.items.get(c.id)
+                today = any(s not in ("intro", "hinted") for s in self.exposures.get(c.id, []))
+                past_hints = st is not None and st.stage not in ("intro", "hinted") and st.last_outcome != "not_recalled"
+                if not (today or past_hints):
+                    continue
+                if not today and self._stable(c) and not self._may_review(c.id):
+                    continue  # a stable frame rests like any stable item, or the same one opens every lesson (#94)
+                key = (not set(c.topics) & today_topics, substitutions.get(c.id, 0), c.order)
+                if (best is None or key < best[0]) and b.recombine_status(c, met_fills=True) == "novel":
+                    best = (key, c)
+            return best[1] if best else None
+
         def do_connect(prefer: list[Item] | None = None) -> bool:
             """One connect() exercise; ``False`` if no unused pair is left. ``prefer`` scopes it
             to an arc's items (default: this lesson's introductions). An authored exchange
@@ -689,6 +780,13 @@ class Planner:
             rest = [it for it in introduced if it not in preferred] + [self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id]
             scope = {it.id for it in preferred}
             candidates = _connect_pair(list(preferred) + rest, just_touched, scope, exchange_only=True) if scope else None
+            exchanged = self.dialogues_played or any(e.kind == "connect" and e.stage == "exchange" for e in sc.exercises)
+            if candidates is None and prefer is None and not exchanged:
+                # no partner exchange yet this lesson (#48): an authored one among items in play,
+                # before a pair of today's items with no exchange between them (#151 left
+                # lesson 4 of the course without one once its new items had no bridge)
+                in_play = [it for it in rest if (self._may_review(it.id) or it.id in self.exposures) and not not_due_stable(it)]
+                candidates = _connect_pair(list(preferred) + in_play, just_touched, exchange_only=True)
             if candidates is None:
                 candidates = _connect_pair(list(preferred), just_touched)
             if candidates is None:
@@ -697,12 +795,13 @@ class Planner:
                 if anchor is None:
                     # nothing ties the pair to today's material: items in play today (due, or
                     # practised this lesson) or rested long enough to review early first, or the
-                    # same well-known exchange opens lesson after lesson whatever its interval (#94)
-                    live = [it for it in rest if it.id in self.exposures or self._may_review(it.id)]
+                    # same well-known exchange opens lesson after lesson whatever its interval (#94).
+                    # A stable item only when due, whatever it did earlier today (#151)
+                    live = [it for it in rest if (it.id in self.exposures or self._may_review(it.id)) and not not_due_stable(it)]
                 candidates = _connect_pair(list(preferred) + live, just_touched, anchor)
                 if candidates is None and live is not rest:
                     # still better than ending the lesson on a drill streak nothing else breaks
-                    candidates = _connect_pair(list(preferred) + rest, just_touched, anchor)
+                    candidates = _connect_pair(list(preferred) + [it for it in rest if not not_due_stable(it)], just_touched, anchor)
                 if candidates is None:
                     return False
             ex = b.connect(sc, candidates)
@@ -764,6 +863,11 @@ class Planner:
                         acted = True
                     arc_connect_attempted.add(ready_arc)
 
+            # 0c. a substitution run goes on in its frame before anything else is fitted in (#151)
+            if not acted and (sub := continue_substitution()) is not None:
+                do_substitution(sub)
+                acted = True
+
             # 1. a scheduled reactivation that is due (but never the item we just did)
             if not acted:
                 for p in due:
@@ -810,7 +914,7 @@ class Planner:
                     # a second, harder touch later in the lesson for weak or climbing items
                     st = self.learner.items[pick.id]
                     ladder = self.ladder(pick)
-                    if stage_index(ladder, stage) < len(ladder) - 1 and (st.failures > 0 or self.rng.random() < 0.5):
+                    if stage_index(ladder, stage) < len(ladder) - 1 and not self._stable(pick) and (st.failures > 0 or self.rng.random() < 0.5):
                         seq += 1
                         heapq.heappush(pending, _Pending(idx + self.rng.randint(5, 9), seq, pick, next_stage(ladder, stage)))
                     acted = True
@@ -847,11 +951,14 @@ class Planner:
                     do_recall(p.item, p.stage)
                 elif self._note_budget_left() and remaining >= 40 and self._pick_note(None) is not None:
                     self._play_note(sc, self._pick_note(None))  # nothing to practise now: an aside
+                elif reviews_used and (sub := pick_substitution()) is not None:
+                    # spare time: a known pattern with other words (#151), before a fresh arc or replayed reviews
+                    do_substitution(sub)
                 elif (
                     reviews_used
                     and not new_queue
                     and remaining >= need_for_new
-                    and self._may_start_arc(current_arc_id + 1, early_tier)
+                    and self._may_start_arc(current_arc_id + 1, early_tier, far_short=sc.total_duration < budget / 2)
                     and (more := self.select_new(cfg.resolved_extra_arc_items(capped=early_tier < 2), exclude={i.id for i in introduced}))
                 ):
                     # A fresh arc of new material rather than a second review pass: the new-item
@@ -886,6 +993,11 @@ class Planner:
                     early_tier += 1
                     reviews = deque(load_early(rested_only=early_tier == 1))
                     continue
+                elif reviews_used and (extra := pick_consolidation()) is not None:
+                    # nothing else worth practising: today's new material once more (#151),
+                    # rather than a stable item again or ending far short
+                    consolidations[extra.id] = consolidations.get(extra.id, 0) + 1
+                    do_recall(extra, self._harder_than_today(extra))
                 else:
                     break  # only immediate repeats are left: end the lesson a little short
             idx += 1
