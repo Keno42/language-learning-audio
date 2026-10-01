@@ -4885,8 +4885,9 @@ class ReviewQuestionTests(unittest.TestCase):
 
     def test_review_candidates(self):
         """Issue #128: concrete things for the learner to confirm or reject after a lesson —
-        the same situation asked twice, a new item last heard early, and a new item never
-        produced without a hint in the last third."""
+        a new item last heard early, and a new item never produced without a hint in the
+        last third. The same situation asked twice is not one: hearing an item in its scene
+        again is practice, not a fault."""
         sc = Script(1, "t", "is", "en")
         sc.meta["new_items"] = ["early", "hinted_late", "fine"]
 
@@ -4913,12 +4914,9 @@ class ReviewQuestionTests(unittest.TestCase):
         got = [(c["kind"], c["items"]) for c in sc.review_candidates()]
         self.assertEqual(got, [
             ("early_last_appearance", ["early"]),
-            ("repeated_situation", ["old"]),
             ("no_late_recall", ["hinted_late"]),
         ])
         by_kind = {c["kind"]: c for c in sc.review_candidates()}
-        self.assertEqual(by_kind["repeated_situation"]["count"], 2)
-        self.assertEqual(by_kind["repeated_situation"]["prompt"], "A friend walks in.")
         self.assertEqual((by_kind["early_last_appearance"]["last_s"], by_kind["early_last_appearance"]["end_s"]), (110, 900))
         self.assertEqual(by_kind["no_late_recall"]["last_recall_s"], 450)
 
@@ -5445,32 +5443,23 @@ class LeverTests(unittest.TestCase):
             day += timedelta(days=1)
         return kinds, sc
 
-    def test_max_same_situation_stops_repeating_a_cue(self):
-        default, _ = self._candidates()
-        self.assertGreater(default["repeated_situation"], 0, "the default is unchanged")
-        capped, sc = self._candidates(max_same_situation=1)
-        self.assertEqual(capped["repeated_situation"], 0)
-        self.assertEqual(sc.meta["config"]["levers"]["max_same_situation"], 1)
-
-    def test_a_capped_cue_becomes_a_meaning_recall(self):
+    def test_a_repeated_cue_stays_a_situation_recall(self):
+        """The max-same-situation lever is gone: an item with one situation is asked in that
+        situation every time, never turned into a bare meaning recall."""
         from audiolesson.exercises import Builder
 
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         item = next(i for i in cur.items if i.kind == "phrase" and i.situation and not i.situations and not i.situation_fill)
-        two = next(i for i in cur.items if i.kind == "phrase" and len(i.situations) >= 2)
         learner = fresh()
-        for i in (item, two):
-            learner.items[i.id] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation")
-        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner, max_same_situation=1)
+        learner.items[item.id] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
         sc = Script(1, "t", "is", "en")
-        self.assertEqual(b.recall(sc, item, "situation").stage, "situation")
-        self.assertEqual(b.recall(sc, item, "situation").stage, "meaning", "one cue, already used")
-        self.assertEqual([b.recall(sc, two, "situation").stage for _ in range(2)], ["situation", "situation"],
-                         "a second variant is a different cue")
+        self.assertEqual([b.recall(sc, item, "situation").stage for _ in range(3)], ["situation"] * 3)
 
     def test_late_unhinted_recall_closes_every_new_item_without_a_hint(self):
-        both, _ = self._candidates(max_same_situation=1, late_unhinted_recall=True)
-        self.assertEqual(both["no_late_recall"] + both["early_last_appearance"], 0)
+        late, sc = self._candidates(late_unhinted_recall=True)
+        self.assertEqual(late["no_late_recall"] + late["early_last_appearance"], 0)
+        self.assertEqual(sc.meta["config"]["levers"], {"late_unhinted_recall": True})
 
     def test_levers_pass_through_the_cli(self):
         import contextlib
@@ -5480,25 +5469,9 @@ class LeverTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             with contextlib.redirect_stdout(io.StringIO()):
                 main(["generate", "-c", str(ROOT / "curricula" / "is-en"), "-l", str(Path(td) / "l.json"), "-o", td,
-                      "-m", "10", "--no-audio", "--date", "2026-09-18", "--max-same-situation", "1", "--late-unhinted-recall"])
+                      "-m", "10", "--no-audio", "--date", "2026-09-18", "--late-unhinted-recall"])
             levers = json.loads((Path(td) / "lesson-001.plan.json").read_text("utf-8"))["config"]["levers"]
-        self.assertEqual(levers, {"max_same_situation": 1, "late_unhinted_recall": True})
-
-    def test_a_non_positive_situation_cap_is_rejected(self):
-        """PR #141 review: a cap of 0 or less is a misconfiguration, not "never"."""
-        import contextlib
-        import io
-        from audiolesson.cli import main
-
-        for n in ("0", "-1"):
-            with tempfile.TemporaryDirectory() as td:
-                err = io.StringIO()
-                with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
-                    code = main(["generate", "-c", str(ROOT / "curricula" / "is-en"), "-l", str(Path(td) / "l.json"),
-                                 "-o", td, "--no-audio", "--max-same-situation", n])
-                self.assertEqual(code, 1, n)
-                self.assertIn("at least 1", err.getvalue())
-                self.assertFalse((Path(td) / "l.json").exists(), "nothing generated")
+        self.assertEqual(levers, {"late_unhinted_recall": True})
 
 
 class SpokenMeaningTests(unittest.TestCase):

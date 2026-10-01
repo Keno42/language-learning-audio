@@ -182,8 +182,6 @@ class Script:
         #128): they confirm or reject concrete candidates instead of recalling a long
         lesson from memory. Never used to change scheduling.
 
-        - ``repeated_situation``: the same situation cue asked for the same item more than
-          once in this lesson ({"items", "count", "prompt"}).
         - ``early_last_appearance``: a new item last heard before the middle of the lesson
           ({"items", "last_s", "end_s"}).
         - ``no_late_recall``: a new item heard later on, but never produced without a hint
@@ -194,15 +192,12 @@ class Script:
 
         Times are the plan's estimates (before audio fitting), so read them as shares of
         ``end_s``. Returns candidates in lesson order of their item's first appearance."""
-        by_ex: dict[int, list[str]] = {}
         answered: set[int] = set()
         hinted: set[int] = set()
         for seg in self.segments:
             if seg.exercise is None:
                 continue
-            if seg.type == "narrate" and seg.text:
-                by_ex.setdefault(seg.exercise, []).append(seg.text)
-            elif seg.type == "pause" and seg.role == "answer":
+            if seg.type == "pause" and seg.role == "answer":
                 answered.add(seg.exercise)
             elif seg.type == "speak" and seg.role in ("partial", "hint"):
                 hinted.add(seg.exercise)
@@ -214,14 +209,6 @@ class Script:
         practice = [e for e in self.exercises if e.item_ids and e.kind in PRACTICE_KINDS]
         end = max((e.start + e.duration for e in self.exercises), default=0.0)
         out: list[tuple[float, dict]] = []
-
-        cues: dict[tuple[str, str], list[Exercise]] = {}
-        for e in practice:
-            if e.stage == "situation" and by_ex.get(e.index):
-                cues.setdefault((e.item_ids[0], " ".join(by_ex[e.index])), []).append(e)
-        for (item, prompt), exs in cues.items():
-            if len(exs) > 1:
-                out.append((exs[0].start, {"kind": "repeated_situation", "items": [item], "count": len(exs), "prompt": prompt}))
 
         for item in self.meta.get("new_items", []):
             seen = [e for e in practice if item in e.item_ids]
