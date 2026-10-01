@@ -4445,6 +4445,12 @@ class ScaffoldFadeTests(unittest.TestCase):
         self.assertNotIn("Someone asks", text)
         self.assertIn("Hvaðan ert þú?", text)
         self.assertIn("Where are you from?", text)
+        more = Script(1, "t", "is", "en")
+        planner = Planner(self._cur(), LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10), today=TODAY)
+        planner.builder.in_lesson.add("q")
+        for _ in range(4):
+            planner.builder.recall(more, planner.cur.by_id["a"], "situation")
+        self.assertEqual(more.transcript().count("Where are you from?"), 2, "glossed on the first two hearings only")
 
     def test_an_open_prompt_line_is_not_a_bare_cue(self):
         """#149: a line the learner reported not being able to say comes with its meaning."""

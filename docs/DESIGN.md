@@ -41,10 +41,13 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   a durable success nor lengthens its interval (it is due again tomorrow). Each lesson practises
   up to `max_open_items` of them, five times at fractions of the lesson time (`open_item_times`, by time not exercise count); the ones that failed last lesson go first, then the longest without an open practice (`ItemState.open_practiced`), and lists them in
   `plan.json` (`open_items`, `open_not_fitted`) so the bot can ask them.
-- **Scaffolds fade (G12).** A situation recall of an item with `prompt_by` whose prompting
-  line is known (or introduced earlier in the lesson) is cued by that line in Icelandic, said
-  by `native_b`, with no English narration (`Builder.prompt_item`); the review question for it
-  is the line itself. No authored situation starts by restating what the learner said.
+- **Scaffolds fade (G12).** A situation recall of an item with `prompt_by` is cued by the
+  prompting item's line in Icelandic, said by `native_b` (`Builder.prompt_item`): bare when the
+  learner knows it and it isn't open, with its meaning on the first two hearings in the lesson
+  when it was only introduced this lesson, met, or open, and the authored situation when it was
+  never met. «Reply.» frames each cue unless the exercise before was one; the review question
+  for it is the line itself (or its meaning). No authored situation starts by restating what the
+  learner said.
 - **Generated sentences use only available parts.** A fill is known or introduced earlier
   in the lesson. A construction's `situation_fill` makes its situation wait for that fill.
   A dialogue turn's `expect_fill` binds every slot, so every spoken part is a required item.

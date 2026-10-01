@@ -55,6 +55,7 @@ def _norm_utterance(text: str) -> str:
 
 
 BRIDGE_GLOSS_ENCOUNTERS = 2  # a partner_cue is glossed on the learner's first N hearings of that bridge
+PROMPT_GLOSS_HEARINGS = 2  # a prompt_by line not yet known is glossed on its first N hearings in a lesson
 
 
 @dataclass
@@ -73,6 +74,7 @@ class Builder:
     _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
     _last_partner_cue: int | None = None  # index of the latest partner-line cue exercise (no repeated "Reply.")
+    _prompt_glosses: dict[str, int] = field(default_factory=dict)  # partner-line cues glossed this lesson, per prompting item
 
     # ------------------------------------------------------------------ utils
 
@@ -119,13 +121,14 @@ class Builder:
     def _partner_cue_recall(self, sc: Script, item: Item, prompt: Item, bare: bool) -> Exercise:
         """A situation recall whose cue is the partner's line, in Icelandic. «Reply.» frames it
         unless the exercise just before was one too; unless ``bare``, the line's meaning follows
-        once. The partner speaks in the male voice, the model answer in the female one."""
+        on its first ``PROMPT_GLOSS_HEARINGS`` hearings in the lesson (the way a bridge does). The partner speaks in the male voice, the model answer in the female one."""
         follows_cue = bool(sc.exercises) and sc.exercises[-1].index == self._last_partner_cue
         ex = sc.new_exercise("recall", "situation", [item.id], f"situation: {item.target}")
         if not follows_cue:
             self._narr(sc, ex, self.prompts.get("reply"))
         self._speak(sc, ex, prompt.target, speaker="native_b", role="prompt")
-        if not bare:
+        if not bare and self._prompt_glosses.get(prompt.id, 0) < PROMPT_GLOSS_HEARINGS:
+            self._prompt_glosses[prompt.id] = self._prompt_glosses.get(prompt.id, 0) + 1
             self._beat(sc, ex)
             self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=self._m(prompt.spoken_meaning)))
         self._answer_pause(sc, ex, item.target, item, generative=True)
