@@ -82,6 +82,26 @@ class LearnerState:
     def has_met(self, item_id: str) -> bool:
         return item_id in self.items
 
+    def is_open(self, item_id: str) -> bool:
+        """A failed item stays open until a later confirmed recall (issue #149, G11): presumed
+        success never closes it. The latest confirmed outcome decides; a failure that predates
+        ``last_outcome`` counts while nothing was ever confirmed recalled."""
+        st = self.items.get(item_id)
+        if st is None:
+            return False
+        if st.last_outcome:
+            return st.last_outcome == "not_recalled"
+        return st.failures > 0 and st.recalled == 0
+
+    def open_items(self) -> list[str]:
+        """Open items, the most recently failed first, then the most often failed."""
+
+        def last_failed(i: str) -> int:
+            hist = self.items[i].history
+            return max((h["lesson"] for h in hist if h.get("outcome") == "not_recalled" or h.get("ok") is False), default=0)
+
+        return sorted((i for i in self.items if self.is_open(i)), key=lambda i: (-last_failed(i), -self.items[i].failures, i))
+
     def next_lesson_number(self) -> int:
         return self.lessons_completed + 1
 
@@ -223,9 +243,15 @@ class LearnerState:
                     st.stage = climbed[-1]
             if presume_success:
                 st.successes += len(climbed)
-                if climbed and self._is_durable_review(st, today, new):
-                    st.durable_successes += 1
-                self._schedule_success(st, today, new)
+                if self.is_open(item_id):
+                    # open (#149): practice is not evidence. No durable success, interval and
+                    # ease stay, and it is due again tomorrow, until a confirmed recall
+                    st.interval_days = 1
+                    st.due = (today + timedelta(days=1)).isoformat()
+                else:
+                    if climbed and self._is_durable_review(st, today, new):
+                        st.durable_successes += 1
+                    self._schedule_success(st, today, new)
             st.last_practiced = today.isoformat()
             st.history.append({"lesson": lesson_number, "stages": stages, "ok": presume_success})
         self.lessons_completed = max(self.lessons_completed, lesson_number)

@@ -82,6 +82,13 @@ class PlanConfig:
     capability_window: int = 15  # a construction this close after a 3rd slot filler is pulled ahead of it
     presume_success: bool = True
     translate_partner: bool = True
+    # Issue #149 (step 1a, G11): an item the learner failed stays open until a later confirmed
+    # recall. Every lesson practises up to ``max_open_items`` of them (the most recently failed
+    # first): one practice early, then at ``open_item_gaps`` exercises apart, about as much
+    # time as an easy new item. ``open_item_practice`` False reproduces the earlier planner.
+    open_item_practice: bool = True
+    max_open_items: int = 5
+    open_item_gaps: list[int] = field(default_factory=lambda: [3, 5, 8, 13])
     # the trip ordering (#132): item ids introduced before the rest, in this order (their
     # prereqs included by cando.priority_items); empty keeps curriculum order
     priority: list[str] = field(default_factory=list)
@@ -545,7 +552,10 @@ class Planner:
         b.opening(sc, n, first_lesson=(n == 1))
 
         new_queue = deque(self.select_new(cfg.resolved_new_items()))
-        reviews = deque(self.select_reviews())
+        open_ids = self.learner.open_items() if cfg.open_item_practice else []
+        open_ids = [i for i in open_ids if i in self.cur.by_id]
+        open_today = open_ids[: cfg.max_open_items]
+        reviews = deque(i for i in self.select_reviews() if i.id not in open_today)
         pending: list[_Pending] = []
         seq = 0
         introduced: list[Item] = []
@@ -573,6 +583,19 @@ class Planner:
         # connect() history: pairs are never replayed, and item reuse is spread out
         connect_pairs_used: set[frozenset[str]] = set()
         connect_item_uses: dict[str, int] = {}
+
+        def schedule_open(item: Item, start: int) -> None:
+            """An open item (#149): its first practice at ``start``, then the gaps, each a step
+            further up its ladder from the demoted stage it failed at."""
+            nonlocal seq
+            ladder = self.ladder(item)
+            stage = self.review_stage(item)
+            due_at = start
+            for gap in [0] + cfg.open_item_gaps:
+                due_at += gap
+                seq += 1
+                heapq.heappush(pending, _Pending(due_at, seq, item, stage))
+                stage = next_stage(ladder, stage)
 
         def load_early(rested_only: bool) -> list[Item]:
             items = self.select_early_reviews(exclude=set(self.exposures), rested_only=rested_only)
@@ -811,6 +834,10 @@ class Planner:
                 touch(item)
             return True
 
+        for k, item_id in enumerate(open_today):
+            schedule_open(self.cur.by_id[item_id], 1 + 2 * k)
+            reviews_used.append(item_id)
+
         while sc.total_duration < budget - closing_reserve:
             remaining = budget - closing_reserve - sc.total_duration
             due = [p for p in pending if p.due <= idx]
@@ -1044,6 +1071,8 @@ class Planner:
             "curriculum": self.cur.name,
             "new_items": [i.id for i in introduced],
             "reviewed_items": reviews_used,
+            "open_items": open_today,
+            "open_not_fitted": [i for i in open_ids if i not in open_today],
             "reviewed_early": [i for i in reviews_used if i in early_ids],
             "due_at_start": self.learner.due_count(self.today),
             "due_not_fitted": [i.id for i in reviews if i.id not in self.exposures and self.learner.review_priority(i.id, self.today) >= 1.0],

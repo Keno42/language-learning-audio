@@ -4278,6 +4278,69 @@ class StableItemTests(unittest.TestCase):
             day += timedelta(days=1)
 
 
+class OpenItemTests(unittest.TestCase):
+    """Issue #149 step 1a (G11): a failed item stays open until a later confirmed recall;
+    presumed success neither closes it nor lengthens its interval, and every lesson practises it."""
+
+    def _setup(self, failed_at_start: bool = True):
+        helper = StableItemTests()
+        cur = helper._curriculum()
+        learner = helper._learner(cur)
+        learner.items["s0"] = helper._state(0, 3, due_in=-1, stage="cloze", failures=2, last_outcome="not_recalled")
+        learner.items["s0"].history = [{"lesson": 9, "stages": ["meaning"], "ok": False, "outcome": "not_recalled"}]
+        learner.items["s1"] = helper._state(0, 3, due_in=3, failures=1)  # a failure from before last_outcome existed
+        return cur, learner
+
+    def _build(self, cur, learner, **cfg):
+        return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, new_items=1, drill_streak_limit=1000, **cfg), today=TODAY).build()
+
+    def test_open_means_no_confirmed_recall_since_the_failure(self):
+        _, learner = self._setup()
+        self.assertEqual(set(learner.open_items()), {"s0", "s1"})
+        learner.items["s0"].last_outcome = "recalled"
+        learner.items["s1"].recalled = 1
+        self.assertEqual(learner.open_items(), [])
+
+    def test_each_open_item_is_practised_at_least_four_times_spread_over_the_lesson(self):
+        cur, learner = self._setup()
+        sc = self._build(cur, learner)
+        self.assertEqual(sc.meta["open_items"], ["s0", "s1"])
+        total = len(sc.exercises)
+        for i in ("s0", "s1"):
+            spots = [k for k, e in enumerate(sc.exercises) if e.kind in ("recall", "connect", "generative") and i in e.item_ids]
+            self.assertGreaterEqual(len(spots), 4, (i, spots))
+            self.assertGreater(spots[-1], total / 2, (i, spots, total))
+
+    def test_presumed_success_does_not_close_or_lengthen_an_open_item(self):
+        cur, learner = self._setup()
+        sc = self._build(cur, learner)
+        before = learner.items["s0"].ease
+        apply_to_learner(sc, learner, TODAY)
+        st = learner.items["s0"]
+        self.assertTrue(learner.is_open("s0"))
+        self.assertEqual((st.durable_successes, st.interval_days, st.ease), (0, 1, before))
+        self.assertEqual(st.due, (TODAY + timedelta(days=1)).isoformat())
+
+    def test_a_confirmed_recall_closes_it(self):
+        cur, learner = self._setup()
+        apply_to_learner(self._build(cur, learner), learner, TODAY)
+        learner.report([], [], TODAY, recalled=["s0"])
+        self.assertFalse(learner.is_open("s0"))
+        sc = self._build(cur, learner)
+        self.assertNotIn("s0", sc.meta["open_items"])
+
+    def test_more_open_items_than_the_cap_wait_their_turn(self):
+        cur, learner = self._setup()
+        sc = self._build(cur, learner, max_open_items=1)
+        self.assertEqual(len(sc.meta["open_items"]), 1)
+        self.assertEqual(len(sc.meta["open_not_fitted"]), 1)
+
+    def test_the_switch_reproduces_the_earlier_planner(self):
+        cur, learner = self._setup()
+        sc = self._build(cur, learner, open_item_practice=False)
+        self.assertEqual(sc.meta["open_items"], [])
+
+
 class PlausibleFillTests(unittest.TestCase):
     """Owner, after lesson 12: never generate a sentence that makes no sense in its scene
     ("order a passport at the café"). Slot tags keep the grammar right; they must also keep
