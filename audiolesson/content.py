@@ -120,6 +120,11 @@ class Item:
     target_m: str = ""
     partner_cue_meaning: str = ""
     partner_cue_situation: str = ""
+    # G12 (lesson 13 feedback): the item whose line the partner says to prompt this one
+    # («Hvaðan ert þú?» for «Ég er frá Japan.»). Once that line is known (or was introduced
+    # earlier in the lesson) it is this item's situation cue, said by the partner with no
+    # English narration; until then the authored ``situation`` is narrated as before.
+    prompt_by: str = ""
 
     # ---- derived helpers -------------------------------------------------
 
@@ -513,6 +518,13 @@ def validate(cur: Curriculum) -> None:
         for e in it.examples:
             if (e.source_m and e.source_m == e.source) or (e.result_m and e.result_m == e.result):
                 raise CurriculumError(f"item {it.id!r}: a transform example's man's form must differ from its own ({e.source!r})")
+        if it.prompt_by:
+            if it.prompt_by == it.id or it.prompt_by not in ids:
+                raise CurriculumError(f"item {it.id!r}: prompt_by must name another item, not {it.prompt_by!r}")
+            if cur.by_id[it.prompt_by].kind not in ("phrase", "vocab"):
+                raise CurriculumError(f"item {it.id!r}: prompt_by {it.prompt_by!r} must be a phrase or vocab item (its target is spoken as the partner's line)")
+            if it.kind == "construction" or it.target_m:
+                raise CurriculumError(f"item {it.id!r}: prompt_by is for a plain phrase (no slots, no speaker-gender forms)")
         if it.partner_cue_speaker not in SPEAKERS:
             raise CurriculumError(f"item {it.id!r}: partner_cue_speaker must be one of {SPEAKERS}, not {it.partner_cue_speaker!r}")
         if it.partner_cue_after and it.partner_cue_after not in ids:

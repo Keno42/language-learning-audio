@@ -8,6 +8,7 @@ meaning = "My name is Yuki."
 meaning_ja = "私の名前はユキです。"
 difficulty = 2
 topics = ["social"]
+prompt_by = "hvad_heitir_thu"
 situation = "Someone asks your name. Say your name is Yuki."
 situation_ja = "名前を聞かれました。ユキだと答えてください。"
 
@@ -19,8 +20,8 @@ meaning = "What's your name?"
 meaning_ja = "お名前は？"
 difficulty = 2
 topics = ["social"]
-situation = "You've introduced yourself. Ask his name."
-situation_ja = "自己紹介をしました。相手の名前を聞いてください。"
+situation = "Ask his name."
+situation_ja = "相手の名前を聞いてください。"
 
 [[items]]
 id = "eg_er_fra_japan"
@@ -30,6 +31,7 @@ meaning = "I'm from Japan."
 meaning_ja = "日本から来ました。"
 difficulty = 2
 topics = ["social"]
+prompt_by = "hvadan_ert_thu"
 situation = "Someone asks where you're from. Tell them you're from Japan."
 situation_ja = "どこから来たか聞かれました。日本から来たと答えてください。"
 partner_cue = "Ég heiti Anna. Hvaðan ert þú?"
@@ -51,8 +53,8 @@ meaning_ja = "どちらのご出身ですか？"
 alternatives = ["Hvaðan ertu?"]
 difficulty = 3
 topics = ["social"]
-situation = "You've said you're from Japan. Ask where she is from."
-situation_ja = "日本から来たと言いました。相手の出身を聞いてください。"
+situation = "Ask where she is from."
+situation_ja = "相手の出身を聞いてください。"
 
 [[items]]
 id = "eg_er_i_frii"
@@ -163,8 +165,8 @@ meaning_ja = "どこに住んでいますか？"
 difficulty = 3
 topics = ["social"]
 prereqs = ["eg_by_i"]
-situation = "You've told her you live in Tokyo. Ask where she lives."
-situation_ja = "東京に住んでいると伝えました。相手はどこに住んでいるか聞いてください。"
+situation = "Ask where she lives."
+situation_ja = "相手はどこに住んでいるか聞いてください。"
 
 [[items]]
 id = "eg_er_japonsk"
@@ -312,8 +314,8 @@ meaning_ja = "お仕事は何ですか？"
 meaning_spoken = "What do you do for a living?"
 difficulty = 2
 topics = ["work", "social"]
-situation = "You've said you're a programmer. Ask what she does."
-situation_ja = "プログラマーだと言いました。相手の仕事を聞いてください。"
+situation = "Ask what she does."
+situation_ja = "相手の仕事を聞いてください。"
 
 [[items]]
 id = "eg_vinn_hja"
@@ -445,6 +447,7 @@ meaning = "I have two children."
 meaning_ja = "子どもが二人います。"
 difficulty = 3
 topics = ["social", "family"]
+prompt_by = "attu_born"
 situation = "She asks if you have children. Say you have two."
 situation_ja = "子どもがいるか聞かれました。二人いると答えてください。"
 partner_cue = "Áttu börn?"

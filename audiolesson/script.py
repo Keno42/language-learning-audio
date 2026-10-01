@@ -153,6 +153,8 @@ class Script:
             for seg in by_ex.get(ex.index, []):
                 if seg.type == "narrate":
                     cue = seg.text
+                elif seg.type == "speak" and seg.role == "prompt":
+                    cue = seg.text  # the partner's line is itself a written cue (G12)
                 elif seg.type == "speak" and seg.role in ("partial", "hint"):
                     cue = None  # the cue relied on audio
                 elif seg.type == "answer" and after_answer_pause and cue:

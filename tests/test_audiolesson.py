@@ -4404,6 +4404,87 @@ class OpenItemTests(unittest.TestCase):
         self.assertEqual(sc.meta["open_items"], [])
 
 
+class ScaffoldFadeTests(unittest.TestCase):
+    """G12 (lesson 13 feedback): the instructor kept narrating in English what the learner
+    already knows. When the partner's line is known it is the cue, in Icelandic; and a
+    situation never re-states what the learner has just said."""
+
+    def _cur(self):
+        return curriculum_from_dict({
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "q", "kind": "phrase", "target": "Hvaðan ert þú?", "meaning": "Where are you from?"},
+                {"id": "a", "kind": "phrase", "target": "Ég er frá Japan.", "meaning": "I'm from Japan.",
+                 "prompt_by": "q", "situation": "Someone asks where you're from. Tell them you're from Japan."},
+            ],
+        })
+
+    def _recall(self, learner_items=(), introduced=()):
+        cur = self._cur()
+        learner = LearnerState("is", "en", "A1")
+        for i in learner_items:
+            learner.items[i] = ItemState(stage="situation", durable_successes=2, successes=6, interval_days=7, due=TODAY.isoformat())
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10), today=TODAY)
+        planner.builder.in_lesson.update(introduced)
+        sc = Script(1, "t", "is", "en")
+        ex = planner.builder.recall(sc, cur.by_id["a"], "situation")
+        return sc, ex
+
+    def test_a_known_partner_line_is_the_cue_with_no_english(self):
+        sc, ex = self._recall(learner_items=["q"])
+        said = [(s.type, s.speaker, s.text) for s in sc.segments if s.exercise == ex.index and s.type in ("narrate", "speak", "answer")]
+        self.assertIn(("speak", "native_b", "Hvaðan ert þú?"), said)
+        self.assertEqual([t for t in said if t[0] == "narrate"], [("narrate", "instructor", "Reply.")])
+        self.assertEqual(said[-1], ("answer", "native_a", "Ég er frá Japan."))
+        self.assertNotIn("Someone asks", sc.transcript())
+
+    def test_a_line_introduced_earlier_in_the_lesson_counts(self):
+        sc, _ = self._recall(introduced=["q"])
+        self.assertNotIn("Someone asks", sc.transcript())
+
+    def test_an_unknown_partner_line_keeps_the_english_situation(self):
+        sc, _ = self._recall()
+        self.assertIn("Someone asks where you're from", sc.transcript())
+
+    def test_reply_is_said_once_per_lesson(self):
+        cur = self._cur()
+        learner = LearnerState("is", "en", "A1")
+        learner.items["q"] = ItemState(stage="situation", durable_successes=2, successes=6, interval_days=7, due=TODAY.isoformat())
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10), today=TODAY)
+        sc = Script(1, "t", "is", "en")
+        for _ in range(2):
+            planner.builder.recall(sc, cur.by_id["a"], "situation")
+        self.assertEqual(sc.transcript().count("Reply."), 1)
+
+    def test_the_review_question_for_a_partner_line_cue_is_the_line(self):
+        sc, ex = self._recall(learner_items=["q"])
+        ex.item_ids = ["a"]
+        questions = sc.review_questions()
+        self.assertEqual([(q["prompt"], q["answer"]) for q in questions], [("Hvaðan ert þú?", "Ég er frá Japan.")])
+
+    def test_prompt_by_must_name_another_phrase(self):
+        base = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}}
+        for bad in ("a", "nothing"):
+            raw = {**base, "items": [{"id": "a", "kind": "phrase", "target": "Já.", "meaning": "Yes.", "prompt_by": bad}]}
+            with self.assertRaises(CurriculumError):
+                curriculum_from_dict(raw)
+
+    def test_no_authored_situation_restates_what_the_learner_said(self):
+        """«You've said you're from Japan. Ask where she is from.» (lesson 13): the learner
+        said it a moment ago. The four questions that carried such a recap are now the task
+        alone, in both languages."""
+        import re
+
+        recap = re.compile(r"^You(?:'ve| have) (?:said you|told \w+ you|answered|introduced yourself)\b")
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for it in cur.items:
+            for text in ([it.situation] if it.situation else []) + list(it.situations):
+                self.assertIsNone(recap.match(text), (it.id, text))
+        ja = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
+        for item_id in ("hvad_heitir_thu", "hvadan_ert_thu", "hvar_byrd_thu", "hvad_gerir_thu"):
+            self.assertEqual(ja.by_id[item_id].situation.count("。"), 1, item_id)
+
+
 class PlausibleFillTests(unittest.TestCase):
     """Owner, after lesson 12: never generate a sentence that makes no sense in its scene
     ("order a passport at the café"). Slot tags keep the grammar right; they must also keep
