@@ -70,6 +70,11 @@ Each card has the text, a meaning in English and Japanese, a katakana `hint_ja`,
 is the spelling rule, so without `words` the words themselves would go unexplained. The
 hint is an approximation: the Discord review's 🔊 plays the real pronunciation.
 
+A `letters` card also names the letters or digraphs it teaches in `graphemes`, and `validate`
+checks them: each must show in a listed word (a rule never goes without an example) and each
+word must show one of them (a word never stands under a rule it doesn't illustrate). A card
+once stated the rule for «au» under «Góða nótt · Sjáumst», where «sjáumst» is á + u.
+
 `python -m audiolesson.cli reading curricula/is-en [--trip <profile>]` prints the deck as
 JSON for the bot. With a profile, each of its `places` not already in the deck becomes a
 card (`own: true`), built at run time and never stored.
