@@ -7,7 +7,7 @@ target = "sundlaugin"
 meaning = "the swimming pool"
 meaning_ja = "プール"
 difficulty = 2
-tags = ["nom_place"]
+tags = ["nom_place", "opens"]
 topics = ["directions"]
 
 [[items]]
@@ -50,7 +50,7 @@ target = "apótekið"
 meaning = "the pharmacy"
 meaning_ja = "薬局"
 difficulty = 2
-tags = ["nom_place"]
+tags = ["nom_place", "opens"]
 topics = ["directions", "health"]
 
 [[items]]
@@ -60,7 +60,7 @@ target = "bankinn"
 meaning = "the bank"
 meaning_ja = "銀行"
 difficulty = 1
-tags = ["nom_place"]
+tags = ["nom_place", "opens"]
 topics = ["directions", "money"]
 
 [[items]]
@@ -110,7 +110,7 @@ target = "safnið"
 meaning = "the museum"
 meaning_ja = "博物館"
 difficulty = 2
-tags = ["nom_place"]
+tags = ["nom_place", "opens"]
 topics = ["directions"]
 
 [[items]]
@@ -130,7 +130,7 @@ target = "búðin"
 meaning = "the shop"
 meaning_ja = "お店"
 difficulty = 1
-tags = ["nom_place"]
+tags = ["nom_place", "opens"]
 topics = ["directions", "shopping"]
 
 [[items]]
@@ -140,7 +140,7 @@ target = "matvörubúðin"
 meaning = "the grocery store"
 meaning_ja = "スーパー"
 difficulty = 3
-tags = ["nom_place"]
+tags = ["nom_place", "opens"]
 topics = ["directions", "shopping"]
 
 [[items]]
@@ -150,7 +150,7 @@ target = "veitingastaðurinn"
 meaning = "the restaurant"
 meaning_ja = "レストラン"
 difficulty = 3
-tags = ["nom_place"]
+tags = ["nom_place", "opens"]
 topics = ["directions", "cafe"]
 
 [[items]]
@@ -160,7 +160,7 @@ target = "kaffihúsið"
 meaning = "the café"
 meaning_ja = "カフェ"
 difficulty = 2
-tags = ["nom_place"]
+tags = ["nom_place", "opens"]
 topics = ["directions", "cafe"]
 
 [[items]]
@@ -190,7 +190,7 @@ target = "bókasafnið"
 meaning = "the library"
 meaning_ja = "図書館"
 difficulty = 2
-tags = ["nom_place"]
+tags = ["nom_place", "opens"]
 topics = ["directions"]
 
 [[items]]
@@ -200,7 +200,7 @@ target = "pósthúsið"
 meaning = "the post office"
 meaning_ja = "郵便局"
 difficulty = 2
-tags = ["nom_place"]
+tags = ["nom_place", "opens"]
 topics = ["directions"]
 
 [[items]]
