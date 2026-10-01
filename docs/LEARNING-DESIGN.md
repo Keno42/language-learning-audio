@@ -173,9 +173,9 @@ changed it).
 | **H5** | Group new material by **scene** (bun, coffee, bag, card), not by **semantic set** (numbers 1–10, colours, yes/no). Similar items introduced together get confused; contrasting them pays off once each is known. | Semantic clustering slows L2 vocabulary learning and thematic clustering doesn't (Tinkham 1993, 1997; Waring 1997). Interleaving helps when the task is telling similar things apart (Brunmair & Richter 2019). Lesson 8: "numbers 1–4: masculine and neuter can't be told apart in the English prompts" (§5.2). | Partly: milestone notes contrast known items; #150 plans contrasts for known pairs and series. Nothing keeps a set from being introduced together: the curriculum lists numbers, colours and languages next to each other (§7, G5) | Items introduced as a set fail no more often than others | bet (research-backed) |
 | **H6** | Chunks first, patterns next, transfer last. A fixed chunk said often becomes fluent (token frequency). A pattern used with many different fillings becomes productive (type frequency). Teach a pattern when two fillings are known, then move it to new words. | Usage-based learning (Bybee 2006); formulaic language (Wray 2002); #29's "capabilities outward". | Constructions with slots and `meaning_forms`; milestones with `transfer_items`; recombination; substitution runs (PR #153) | Substitution drills don't help the learner produce combinations they haven't heard (scenario cards with new fillings) | adopted (principle); testing (substitution) |
 | **H7** | Every generated sentence must be plausible in its scene. An implausible one teaches less than it costs. | Owner (after lesson 12: never produce "order a passport at the café"); H3. | Case- and meaning-tagged slots; `opens` (PR #155); scene templates (#152) | — | adopted |
-| **H8** | Natural-speed partner lines with some unknown words (the owner suggests 10–20%), in a familiar scene, build the tolerance needed to get through real exchanges. | The owner's hypothesis; the #129 pilots (common clerk lines were not understood). **Caveat:** detailed comprehension needs about 95% of the words to be known when listening and 98% when reading (van Zeeland & Schmitt 2013; Hu & Nation 2000). At 80–90%, expect gist from context, not learning of the unknown words. So the scene must carry the meaning. | Scenario cards (partner lines may go beyond the course); partner turns in themes (PR #155); #134 | Respond and repair cards with unknown words stay at 言えなかった, or the learner finds them discouraging rather than useful | bet |
-| **H9** | The number of new items, throttled only by recall reports, keeps the load right. The pace design aims at about 6–10 new productive items per 30 minutes and about 80–85% next-day success. | README "Pacing"; desirable difficulties (Bjork 1994): too easy wastes time, too hard fails. | `suggest_pace` | The load rating drifts to "heavy", or next-day failures stay above 20%, at the pace actually used | **revised:** the actual number of new items is not the pace (§7, G4) |
-| **H10** | Self-reports are informative when they are made the next day, with the answer hidden until the learner has tried. They are noisy, lean towards success and must never be produced by an LLM. | Delayed judgements of learning are far more accurate than immediate ones (Nelson & Dunlosky 1991); #129 (GPT transcripts did not match what was said). | The bot's review (answer revealed only after trying; 3-point scale); the feedback form | The three levels don't separate items: everything 言えた, nothing 迷った | **in question:** so far it reads exactly like that (§5.2) |
+| **H8** | Natural-speed partner lines with some unknown words (the owner suggests 10–20%), in a familiar scene, build the tolerance needed to get through real exchanges. | The owner's hypothesis, and their preference for more listening time over shorter lessons (§5.7); the #129 pilots (common clerk lines were not understood). **Caveat:** detailed comprehension needs about 95% of the words to be known when listening and 98% when reading (van Zeeland & Schmitt 2013; Hu & Nation 2000). At 80–90%, expect gist from context, not learning of the unknown words. So the scene must carry the meaning. | Scenario cards (partner lines may go beyond the course); partner turns in themes (PR #155); #134 | Respond and repair cards with unknown words stay at 言えなかった, or the learner finds them discouraging rather than useful | bet |
+| **H9** | The number of new items, throttled only by recall reports, keeps the load right. The pace design aims at about 6–10 new productive items per 30 minutes and about 80–85% next-day success. | README "Pacing"; desirable difficulties (Bjork 1994): too easy wastes time, too hard fails. | `suggest_pace` | The load rating drifts to "heavy", or next-day failures stay above 20%, at the pace actually used | **revised:** the actual number of new items is not the pace (§7, G4). The learner prefers a full lesson with more new material to hear over a shorter one, as long as long stretches aren't incomprehensible (§5.7) |
+| **H10** | Self-reports are informative when they are made the next day, with the answer hidden until the learner has tried. They are noisy, lean towards success and must never be produced by an LLM. | Delayed judgements of learning are far more accurate than immediate ones (Nelson & Dunlosky 1991); #129 (GPT transcripts did not match what was said). | The bot's review (answer revealed only after trying; 3-point scale); the feedback form | The ratings stop telling recalled lines from guessed or failed ones | **revised (§5.7):** for this learner the scale is binary. They answer at once and are right or wrong, so «迷った» never applies; 言えた and 言えなかった carry the signal |
 | **H11** | Practice spent on items the learner plainly knows is waste, and the learner notices it. A known item should wait for its date. | Spacing (H1); #94; the owner after lesson 12 (já, nei, hæ every lesson although reported 言えた). | Not-due items wait (#94); stable items never fill (PR #153) | — | adopted (#94); the recurrence is fixed in PR #153 |
 | **H12** | Variety, coherence and visible progress keep a daily routine alive. Boredom ("a game of memorizing") is the biggest threat to every other outcome. | Owner, #12 and after lesson 12; Nation's four strands (Nation 2007), whose message is that a course should not be all drill. | Dialogues, exchanges, notes, scenes, reading cards | The routine continues and the learner reports no boredom with a drill-heavy lesson | adopted (value) |
 
@@ -302,6 +302,22 @@ not around anything the learner will do.** That is the gap behind H4 and #149. T
 exceptions are content priorities (numbers, languages, colours, scenes) and two principles
 (H7, and no pause stretching), which are recorded in §9.
 
+### 5.7 The learner's answers (after lesson 12)
+
+- **Why «迷った» is never used:** "Rather than hesitating to recall the right answer, I say
+  'it's probably this!' without spending time, and I'm either right or wrong." The learner
+  commits fast. The rating is binary in practice, and that suits an audio course whose
+  answer pause is meant to be a natural one (O1). The scale works as designed; there is no
+  "slow but right" category for this learner to report.
+- **Short lesson or new material:** "Even somewhat new expressions: I want to get my ear used
+  to them. In the end, language learning is time." With a caveat: long stretches of not
+  understanding are hard. An occasional reminder that not everything has to be memorised
+  would help. For example, when the previous review had many 言えなかった, say so in the
+  lesson as reassurance.
+- So spare time should become more to hear, not an early end. Hearing is meaning-focused
+  input, the thinnest of the four strands (§4). It should come with a scene that carries
+  the meaning (H8) and a word that full recall isn't expected (O5).
+
 ---
 
 ## 6. Signals: what each can and cannot tell us
@@ -329,8 +345,8 @@ exceptions are content priorities (numbers, languages, colours, scenes) and two 
   same window before crediting one of them.
 - **A measure stuck at the ceiling says nothing.** All 言えた means either "fine" or "too easy
   to discriminate". Look at the harder instruments (scenario cards, new fillings, partner
-  lines) or ask the learner. «迷った» never being used is a question to ask, not a fact
-  about the learner.
+  lines) or ask the learner. Asking is how «迷った» never being used got its explanation
+  (§5.7).
 - **Delayed beats immediate.** The next-day review is the honest one. Same-lesson success
   and immediate impressions overestimate (H2, H10).
 - **Candidates are prompts, not diagnoses.** "Same situation twice" was confirmed, but the
@@ -346,12 +362,12 @@ exceptions are content priorities (numbers, languages, colours, scenes) and two 
 |---|---|---|
 | Does next-day recall of new lines stay at about 80% or better at the pace actually used? | H9 | Review outcomes for the previous lesson's new items |
 | Do phrases of three or more words keep failing more often than short ones? | G9 | Failures by phrase length |
-| Does the learner use «迷った» when unsure? If not, why: is it never true, or is the scale wrong? | H10 | Ask; then the outcome counts |
+| ~~Does the learner use «迷った» when unsure?~~ Answered: no, they commit to an answer at once (§5.7) | H10 | — |
 | Are lines practised in situations rated better in scenario cards than lines practised only from meanings? | H3 | Scenario cards against each line's stage history |
 | Once lessons are built around a scene, does "repetitive" go away, and do themed scenes reach readiness sooner? | H4 | Feedback forms; readiness per scenario, themed or not |
 | Do respond cards with unknown partner words improve over the weeks, and does the learner find them useful or discouraging? | H8 | Scenario cards; ask |
 | Do items introduced in the same lesson as a set (numbers, colours) fail more often than others? | H5 | Failures by introduction context |
-| When little is left to practise and a lesson ends a few minutes short, is that better for the learner than filling the time with new material? | O5, H9 | Ask; load ratings |
+| ~~Is a lesson that ends a few minutes short better than one filled with new material?~~ Answered: fill it, with things to hear, and say that not everything has to be memorised (§5.7) | O5, H9 | — |
 
 ---
 
@@ -366,7 +382,7 @@ exceptions are content priorities (numbers, languages, colours, scenes) and two 
 | **G5** | **Semantic sets can arrive together.** The trip ordering and curriculum order can put a whole set (numbers 6–19, colours, languages) into one lesson. | Lesson 8 (numbers); a replay with numbers boosted: nine numbers in one lesson (PR #154) | O1; H5 |
 | **G6** | **Plausibility rests on slot tags.** Implausible or ungrammatical sentences can still be generated: «Hvenær opnar ísskápurinn?» before PR #155, and «Ég vil blár.» (the colour should be accusative). | Found after L12 | O1; H7 |
 | **G7** | **Three schedulers.** The audio's learner model, the Discord review queue (its own 1→3→7→14→30-day steps) and the card queues each decide what comes back, and their combined effect has never been examined. They are separate kinds of evidence by design (#129), but the learner experiences their sum. | Bot README | O5; H10, H11 |
-| **G8** | **The self-report scale may not discriminate.** «迷った» has never been used. | §5.2 | H10 |
+| **G8** | ~~The self-report scale may not discriminate.~~ Resolved: the learner answers at once, right or wrong, so the scale is binary in practice and that is enough (§5.7). | §5.2, §5.7 | H10 |
 | **G9** | **Long phrases fail most.** Three-word-plus formulas get the same treatment as short ones. | §5.2 (9/24 vs 2/27) | O1; H1, H9 |
 | **G10** | **Content isn't native-reviewed.** All the scene lines, partner lines and glosses are candidates. | README | O1–O4 |
 
@@ -377,10 +393,10 @@ exceptions are content priorities (numbers, languages, colours, scenes) and two 
 Ordered by the expected effect on the outcome, adjusted for cost and for what depends on
 what. Re-rank it when the evidence moves.
 
-1. **Make the loop measurable and use it (G1, G8). Cheap; everything else depends on it.**
+1. **Make the loop measurable and use it (G1). Cheap; everything else depends on it.**
    - A weekly read of the signals against the predictions of merged changes, written down
      (§1, last checklist).
-   - Ask the learner about «迷った» and about what "repetitive" meant.
+   - Ask the learner when a signal is ambiguous (as with «迷った», §5.7).
    - A small report that puts the week's numbers side by side: next-day recall of new lines,
      failures by item and phrase length, scenario readiness per tier, feedback forms. It
      should come from the data the bot already keeps (§6.1).
@@ -397,6 +413,10 @@ what. Re-rank it when the evidence moves.
    - The theme's partner lines are where clerk-side listening enters the audio: natural
      speed, two or three variants (#134, H8). #134 should be designed together with #149,
      not after it.
+   - Spare lesson time becomes more to hear (§5.7). New material and the theme's exchanges
+     are heard at natural speed, with the scene carrying the meaning. The lesson doesn't end
+     early. When the previous review had many 言えなかった, the lesson says that hearing
+     counts and not everything has to be memorised (O5).
 3. **Plausible substitution inside the scenes (G6, #152).** Patterns serve the theme's
    exchange; scene templates keep fillings plausible (H6, H7).
 4. **Content priorities, as data for the scenes.** Numbers through prices and times in
