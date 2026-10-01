@@ -41,6 +41,14 @@ class PlanConfig:
     # (simulated lessons 7-12). One still growing a turn per encounter does not wait.
     dialogue_rest_lessons: int = 3
     max_dialogues: int | None = None  # per lesson (default: one per 10 minutes, at least 2)
+    # Issue #149 step 3 (lesson 13: 23.6 of 30 minutes, the last 5 repeating today's items): with
+    # nothing else left, a dialogue lacking one or two required items is played as listening
+    # (its scene carries the meaning, H8). Those items are heard, not learned: never recorded,
+    # never asked in the review. At most this many per lesson, each resting
+    # ``listening_rest_lessons`` lessons. 0 reproduces the earlier planner.
+    max_listening_dialogues: int = 2
+    listening_missing_max: int = 2
+    listening_rest_lessons: int = 6
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
     max_reactive_milestones: int = 2  # milestones fired after their item, per lesson; more wait for the next one
     max_streak_relief_notes: int = 2  # extra notes beyond max_notes, only to break a drill streak no dialogue can
@@ -150,6 +158,7 @@ class Planner:
         self.exposures: dict[str, list[str]] = {}
         self.support: dict[str, int] = {}
         self.dialogues_played: list[str] = []
+        self.dialogues_listened: list[str] = []
         self.notes_played: list[str] = []
         self._in_dialogue = {i for d in cur.dialogues for i in d.required_items}
         self._notes_by_item: dict[str, list] = {}
@@ -525,6 +534,30 @@ class Planner:
         least = [d for t, d in cands if t == cands[0][0]]
         return self.rng.choice(least)
 
+    def listening_dialogue(self) -> tuple[Dialogue, set[str]] | None:
+        """A dialogue to play as listening: one or two required items short (``listening_missing_max``),
+        not played this lesson, not heard as listening within ``listening_rest_lessons``. The
+        one with the fewest missing wins, then the one least often practised."""
+        if len(self.dialogues_listened) >= self.cfg.max_listening_dialogues:
+            return None
+        now = self.learner.next_lesson_number()
+        cands = []
+        for d in self.cur.dialogues:
+            if d.id in self.dialogues_played or d.id in self.dialogues_listened:
+                continue
+            missing = {i for i in d.required_items if not (self.learner.knows(i) or i in self.builder.in_lesson)}
+            if not 1 <= len(missing) <= self.cfg.listening_missing_max:
+                continue
+            last = next((l["number"] for l in reversed(self.learner.lessons) if d.id in l.get("dialogues_listened", [])), None)
+            if last is not None and now - last <= self.cfg.listening_rest_lessons:
+                continue
+            cands.append((len(missing), self.learner.dialogues_done.get(d.id, 0), d.id, d, missing))
+        if not cands:
+            return None
+        best = min(c[:2] for c in cands)
+        d, missing = self.rng.choice([(c[3], c[4]) for c in cands if c[:2] == best])
+        return d, missing
+
     def _dialogue_resting(self, d: Dialogue) -> bool:
         """Heard in full at its last encounter, and that was fewer than
         ``dialogue_rest_lessons`` lessons ago."""
@@ -877,6 +910,10 @@ class Planner:
                                 streak_relief_notes_used += 1
                 if not acted and remaining >= 40:
                     acted = do_connect()
+                if not acted and remaining >= 90 and (ld := self.listening_dialogue()) is not None:
+                    self._play_listening(sc, *ld)
+                    since_dialogue = 0
+                    acted = True
                 if not acted:
                     break
 
@@ -1041,6 +1078,10 @@ class Planner:
                     early_tier += 1
                     reviews = deque(load_early(rested_only=early_tier == 1))
                     continue
+                elif remaining >= 90 and cfg.max_listening_dialogues > 0 and (ld := self.listening_dialogue()) is not None:
+                    # spare time is more to hear (#149 step 3), before today's items once more
+                    self._play_listening(sc, *ld)
+                    since_dialogue = 0
                 elif reviews_used and (extra := pick_consolidation()) is not None:
                     # nothing else worth practising: today's new material once more (#151),
                     # rather than a stable item again or ending far short
@@ -1105,6 +1146,7 @@ class Planner:
             "due_at_start": self.learner.due_count(self.today),
             "due_not_fitted": [i.id for i in reviews if i.id not in self.exposures and self.learner.review_priority(i.id, self.today) >= 1.0],
             "dialogues": list(self.dialogues_played),
+            "dialogues_listened": list(self.dialogues_listened),
             "notes": list(self.notes_played),
             "exposures": self.exposures,
             "support_exposures": self.support,
@@ -1129,6 +1171,14 @@ class Planner:
         primary = [t.expect for t in dlg.turns[:max_turns] if t.expect]
         self._record(primary, "dialogue", ex.item_ids)
         self.dialogues_played.append(dlg.id)
+
+    def _play_listening(self, sc: Script, dlg: Dialogue, missing: set[str]) -> None:
+        """The whole dialogue as listening (#149 step 3): the items the learner lacks are heard
+        with their meaning, not asked for, and not recorded: they stay unmet. The ones they have
+        are practised as usual."""
+        ex = self.builder.dialogue(sc, dlg, assisted=True, listening=missing)
+        self._record([t.expect for t in dlg.turns if t.expect and t.expect not in missing], "dialogue", ex.item_ids)
+        self.dialogues_listened.append(dlg.id)
 
 
 def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_success: bool = True) -> None:
@@ -1161,6 +1211,7 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
             "new_items": sc.meta.get("new_items", []),
             "reviewed_items": sc.meta.get("reviewed_items", []),
             "dialogues": sc.meta.get("dialogues", []),
+            "dialogues_listened": sc.meta.get("dialogues_listened", []),
             "duration_s": round(sc.total_duration, 1),
             "due_at_start": sc.meta.get("due_at_start", 0),
             "due_not_fitted": len(sc.meta.get("due_not_fitted", [])),
