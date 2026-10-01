@@ -130,15 +130,22 @@ by three mechanisms, all automatic:
 1. *Calibration* — after every render the measured speech length per language
    is folded into the learner state, so the next plan's time estimates match
    the actual voices (espeak, edge and OpenAI all speak at different rates).
-2. *Fillers, in order* — once the due reviews are done, the lesson takes a
-   second, smaller batch of new items (half the pace: 30 min → 6 + 3, never past
-   about one new item per 3 minutes, so pace 10 takes none); then
-   items not yet due but last practised at least half their interval ago,
-   the longest ago first; then a second pass over today's reviews, one stage
-   harder; then any other item not practised today, again the longest ago
-   first; and only then more new items. Items that are not due never fill a
-   lesson ahead of those, so a well-known phrase waits for its date instead
-   of coming back every day.
+2. *Fillers, in order* — once the due reviews are done, the lesson takes
+   substitution runs: a pattern met before with other words met before
+   («Talar þú dönsku?» → «… japönsku?»), up to three sentences per pattern,
+   none heard earlier in the lesson; then a second, smaller batch of new items
+   (half the pace: 30 min → 6 + 3, never past about one new item per 3 minutes,
+   so pace 10 takes none); then items not yet due but last practised at least
+   half their interval ago, the longest ago first; then a second pass over
+   today's reviews, one stage harder; then any other item not practised today,
+   again the longest ago first; then more new items, but only while the lesson
+   is under half its length; then today's new items once or twice more. Items
+   that are not due never fill a lesson ahead of those, so a well-known phrase
+   waits for its date instead of coming back every day. A *stable* item (two
+   recalls on or after a due date, a recalled report counting as one, at least
+   eight recalls in all, no failure or hesitation in its last three lessons)
+   is never a filler at all, and when due it is reviewed once (#151). With
+   little left to practise, a lesson can end a few minutes short.
 3. *Fit at render* — if the file would still miss the target by more than a
    minute (`fit_tolerance`, default 60 s), every pause is scaled by one
    factor within 0.85–1.25 (`fit`, `fit_min`, `fit_max` in the profile;

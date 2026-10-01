@@ -4177,6 +4177,107 @@ class PrematureReviewTests(unittest.TestCase):
         self.assertLessEqual(len({o[0] for o in over}), 2, over)
 
 
+class StableItemTests(unittest.TestCase):
+    """Issue #151: já, nei and hæ, reported as recalled, came back in every lesson and
+    several times per lesson: the planner filled spare time with them, and early practice
+    never moved their schedule. Stable items now wait for their date, and the spare time
+    goes to substitution drills over known patterns and to today's new items."""
+
+    PHRASES = [f"Orð {n}." for n in ("eitt", "tvö", "þrjú", "fjögur", "fimm", "sex")]
+
+    # the phrases have no situations, so nothing could break a drill streak: let it run
+    def _curriculum(self, with_pattern: bool = False):
+        items = [{"id": "w0", "kind": "phrase", "target": "Nýtt orð hér.", "meaning": "A new word here."}]
+        items += [{"id": f"s{n}", "kind": "phrase", "target": t, "meaning": f"Stable {n}."} for n, t in enumerate(self.PHRASES)]
+        items += [{"id": f"u{n}", "kind": "phrase", "target": t.replace("Orð", "Annað"), "meaning": f"Unsure {n}."} for n, t in enumerate(self.PHRASES)]
+        if with_pattern:
+            for v, en in (("fara heim", "go home"), ("sofa", "sleep"), ("borða", "eat"), ("versla", "shop"), ("fara út", "go out")):
+                items.append({"id": v.replace(" ", "_").replace("ð", "d"), "kind": "vocab", "target": v, "meaning": en, "tags": ["inf"]})
+            items.append({"id": "eg_vil", "kind": "construction", "target": "Ég vil {inf}.", "meaning": "I want to {inf}.", "slots": {"inf": "inf"}})
+        return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+
+    @staticmethod
+    def _state(durable: int, successes: int, due_in: int, stage: str = "meaning", **kw) -> ItemState:
+        return ItemState(stage=stage, durable_successes=durable, successes=successes, interval_days=7.2,
+                         due=(TODAY + timedelta(days=due_in)).isoformat(),
+                         last_practiced=(TODAY - timedelta(days=7)).isoformat(), **kw)
+
+    def _learner(self, cur) -> LearnerState:
+        learner = LearnerState("is", "en", "A1")
+        for n in range(len(self.PHRASES)):
+            learner.items[f"s{n}"] = self._state(2, 17, due_in=3, last_outcome="recalled")
+            learner.items[f"u{n}"] = self._state(1, 4, due_in=3)
+        learner.items["u0"].due = TODAY.isoformat()  # one due review, so the lesson has reviews
+        return learner
+
+    def test_stable_means_spaced_recalls_many_recalls_and_no_recent_trouble(self):
+        cur = self._curriculum()
+        learner = self._learner(cur)
+        learner.items["s1"].history = [{"lesson": 1, "stages": ["situation"], "ok": True, "outcome": "hesitated"}]
+        learner.items["s2"].last_outcome = ""
+        learner.items["s2"].durable_successes = 1
+        learner.items["s3"].successes = 5
+        learner.items["s4"].stage = "hinted"
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15), today=TODAY)
+        stable = {i for i in learner.items if planner._stable(cur.by_id[i])}
+        self.assertEqual(stable, {"s0", "s5"}, "hesitated lately / one spaced recall and no report / few recalls / hinted")
+
+    def test_fillers_leave_stable_items_alone_until_they_are_due(self):
+        cur = self._curriculum()
+        learner = self._learner(cur)
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, new_items=1, drill_streak_limit=1000), today=TODAY).build()
+        used = {i for e in sc.exercises if e.kind in ("recall", "connect", "generative") for i in e.item_ids}
+        self.assertFalse(used & {f"s{n}" for n in range(6)}, "stable, not due: not even rested ones fill")
+        self.assertTrue(used & {f"u{n}" for n in range(1, 6)}, "rested items that aren't stable still fill early")
+
+    def test_a_stable_due_item_is_reviewed_once(self):
+        cur = self._curriculum()
+        learner = self._learner(cur)
+        learner.items["s0"].due = TODAY.isoformat()
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, new_items=1, drill_streak_limit=1000), today=TODAY).build()
+        self.assertEqual(sum(1 for e in sc.exercises if "s0" in e.item_ids), 1, "no second pass, no extra touch")
+        self.assertGreater(sum(1 for e in sc.exercises if "u0" in e.item_ids), 1, "an item still being learned gets its second pass")
+
+    def test_spare_time_goes_to_substitution_runs_in_one_frame(self):
+        """A known pattern with its other words, one frame at a time («Ég vil sofa.» →
+        «Ég vil borða.»), the words met before but not necessarily learned."""
+        cur = self._curriculum(with_pattern=True)
+        learner = self._learner(cur)
+        learner.items["eg_vil"] = self._state(1, 6, due_in=3, stage="recombine")
+        for v in ("fara_heim", "sofa", "borda", "versla", "fara_ut"):
+            learner.items[v] = self._state(1, 4, due_in=3)
+            learner.items[v].last_practiced = (TODAY - timedelta(days=1)).isoformat()  # not rested: no review of their own
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, new_items=1, drill_streak_limit=1000), today=TODAY).build()
+        drills = [k for k, e in enumerate(sc.exercises) if e.kind == "generative" and e.item_ids[0] == "eg_vil"]
+        self.assertEqual(len(drills), PlanConfig().substitutions_per_construction)
+        self.assertTrue(any(b - a == 1 for a, b in zip(drills, drills[1:])), f"a run in one frame: {drills}")
+        lines = [e.label for k, e in enumerate(sc.exercises) if k in drills]
+        self.assertEqual(len(set(lines)), len(lines), lines)
+
+    def test_a_course_keeps_stable_items_for_their_due_date(self):
+        """The real course, 12 lessons: a stable item that isn't due is never drilled on its
+        own (a connect exchange with one of today's new items, or a milestone's contrast
+        right after its note, may still use it), and a stable due item at most twice."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        for _ in range(12):
+            planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5), today=day)
+            sc = planner.build()
+            stable = {i for i in learner.items if planner._stable(cur.by_id[i])}
+            due = {i for i in stable if learner.review_priority(i, day) >= 1.0}
+            new = set(sc.meta["new_items"])
+            for k, e in enumerate(sc.exercises):
+                if e.kind == "recall" and e.item_ids[0] in stable - due:
+                    self.assertIn("note", [x.kind for x in sc.exercises[max(0, k - 2):k]], (sc.lesson_number, e.label))
+                if e.kind == "connect" and set(e.item_ids) & (stable - due):
+                    self.assertTrue(set(e.item_ids) & (new | due), (sc.lesson_number, e.item_ids))
+            for i in due:
+                self.assertLessEqual(sum(1 for e in sc.exercises if e.kind in ("recall", "connect") and i in e.item_ids), 2, i)
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+
+
 class JapaneseInstructorTests(unittest.TestCase):
     def test_fr_ja_curriculum_builds_a_lesson_in_japanese(self):
         cur = load_curriculum(ROOT / "curricula" / "fr-ja-a1.toml")
