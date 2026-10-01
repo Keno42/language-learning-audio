@@ -4278,6 +4278,19 @@ class StableItemTests(unittest.TestCase):
             day += timedelta(days=1)
 
 
+class PlausibleFillTests(unittest.TestCase):
+    """Owner, after lesson 12: never generate a sentence that makes no sense in its scene
+    ("order a passport at the café"). Slot tags keep the grammar right; they must also keep
+    the sense right."""
+
+    def test_opening_hours_are_asked_only_of_places_that_open(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for cid in ("hvenaer_opnar", "hvenaer_lokar"):
+            fills = {f.id for f in cur.items_with_tag(cur.by_id[cid].slots["place"])}
+            self.assertTrue({"sundlaugin", "safnid", "apotekid", "bankinn"} <= fills, cid)
+            self.assertFalse(fills & {"isskapurinn", "lyftan", "rofinn", "strætó", "lykillinn", "klosettid"}, cid)
+
+
 class JapaneseInstructorTests(unittest.TestCase):
     def test_fr_ja_curriculum_builds_a_lesson_in_japanese(self):
         cur = load_curriculum(ROOT / "curricula" / "fr-ja-a1.toml")
