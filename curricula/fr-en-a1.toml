@@ -200,6 +200,7 @@ id = "pardon"
 kind = "phrase"
 target = "Pardon ?"
 meaning = "Sorry? (I didn't catch that)"
+meaning_spoken = "Sorry? I didn't catch that."
 alternatives = ["Comment ?"]
 difficulty = 1
 topics = ["clarifying"]

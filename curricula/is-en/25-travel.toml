@@ -114,6 +114,8 @@ kind = "phrase"
 target = "Hvar er þetta?"
 meaning = "Where is this? (showing a picture)"
 meaning_ja = "これはどこですか？（写真を見せながら）"
+meaning_spoken = "showing a picture: Where is this?"
+meaning_spoken_ja = "写真を見せながら、これはどこですか？"
 difficulty = 1
 topics = ["travel", "directions"]
 situation = "You show a photo of a waterfall. Ask where it is."
@@ -347,6 +349,7 @@ kind = "construction"
 target = "Ég er með {thing}."
 meaning = "I have {thing} (with me)."
 meaning_ja = "{thing}を持っています。"
+meaning_spoken = "I have {thing} with me."
 difficulty = 2
 topics = ["travel"]
 slots = { thing = "acc_have" }
@@ -359,6 +362,7 @@ kind = "construction"
 target = "Ertu með {thing}?"
 meaning = "Do you have {thing} (with you)?"
 meaning_ja = "{thing}を持っていますか？"
+meaning_spoken = "Do you have {thing} with you?"
 difficulty = 2
 topics = ["travel"]
 slots = { thing = "acc_have" }

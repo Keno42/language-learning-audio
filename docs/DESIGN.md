@@ -57,8 +57,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
 - **A recombine exercise makes a new sentence (#105).** Its target was not presented
   earlier in the lesson. With only heard sentences possible, the planner practises the item
   at the hardest stage it already reached today instead (`recombine_or_instead`), so stages
-  still never go down; a recombine already done today moves on to a usable situation or
-  is skipped.
+  still never go down; a recombine already done today moves on to a usable situation, or
+  else to a meaning recall. A new item is never dropped from a reactivation or the closing
+  block: repeating it is fine (lesson 12 feedback), and the learner update takes the
+  hardest stage reached, so the repeat is not a demotion.
 - **Notes.** Milestones fire deterministically once their `items` are met or exposed, and
   are followed by discrimination practice over examples whose situation is usable now. A
   note waits for what it recommends saying (`requires`). As filler, an aside is about met

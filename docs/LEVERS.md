@@ -8,8 +8,9 @@ the behaviour from before the lever existed.
 `minutes` and `priority_items`. The bot's lesson manifest (#128) also keeps the generate
 arguments. Together they tie every piece of feedback to the settings that produced it.
 
-On the Discord bot, levers are set per deployment with `LESSON_EXTRA_ARGS` in
-`config.py`, for example `["--max-same-situation", "1", "--late-unhinted-recall"]`.
+On the Discord bot, levers are set in the lesson channel's topic, in a `[levers]` section
+(`max_same_situation = 1`, `late_unhinted_recall = true`, `pause_multiplier = 1.2`), or per
+deployment with `LESSON_EXTRA_ARGS` in `config.py`; the topic wins.
 
 ## Available levers
 
@@ -26,8 +27,8 @@ recall becomes a meaning recall. An item with another situation variant uses tha
 instead.
 
 **Late unhinted recall.** The closing recall of a new item skips cloze and hinted prompts.
-A new item whose recombination finds no fresh sentence gets a meaning recall instead of
-being dropped from the closing block.
+(A new item whose recombination finds no fresh sentence now always gets a meaning recall
+instead of being dropped, with or without this lever.)
 
 Over 12 simulated 30-minute lessons at pace 8, the two levers together took the candidates
 from 68 repeated situations, 7 early last appearances and 1 missing late recall down to

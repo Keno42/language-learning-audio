@@ -262,7 +262,7 @@ class Curriculum:
         ``speaker="m"`` fills with each fill's man's form (``target_m``) where it has one:
         «Ég er {state}.» → «Ég er glaður.»"""
         target = construction.target
-        meaning = construction.meaning
+        meaning = construction.spoken_meaning  # narrated: no recall disambiguator in brackets
         for slot, rule in construction.agreement.items():
             gender = fills[rule["from"]].gender
             target = target.replace("{" + slot + "}", rule[gender])
@@ -361,10 +361,11 @@ _GLOSSED_META = ("name",)
 
 def _pick_spoken(entry: dict, lang: str | None) -> dict:
     """``meaning_spoken`` is optional per language: the learner's language's own, or none
-    (the plain meaning is then spoken). Unlike other glosses it never falls back to the
-    primary language, which would put English into a Japanese instruction."""
+    (the plain meaning is then spoken). It never mixes languages: a glossed meaning never
+    takes the primary language's spoken form (English in a Japanese instruction), and a
+    meaning that falls back to the primary language takes its spoken form too."""
     out = {k: v for k, v in entry.items() if not k.startswith("meaning_spoken")}
-    key = f"meaning_spoken_{lang}" if lang else "meaning_spoken"
+    key = f"meaning_spoken_{lang}" if lang and f"meaning_{lang}" in entry else "meaning_spoken"
     if key in entry:
         out["meaning_spoken"] = entry[key]
     return out
@@ -455,6 +456,7 @@ def _item_from_dict(entry: dict, order: int) -> Item:
 
 # written-only marks: brackets and 〜 read aloud as noise (or «から») by TTS
 _UNSPEAKABLE_RE = re.compile(r"[()（）〜～]")
+_ANY_SLOT_RE = re.compile(r"\{[^{}]+\}")  # {slot} and {slot:form}
 
 SPEAKERS = ("native_a", "native_b")  # native_a is voiced female, native_b male, in every profile
 
@@ -472,8 +474,14 @@ def validate(cur: Curriculum) -> None:
         targets[key] = it.id
         if it.gender is not None and it.gender not in GENDERS:
             raise CurriculumError(f"item {it.id!r}: gender {it.gender!r} must be one of {sorted(GENDERS)}")
-        if _UNSPEAKABLE_RE.search(it.meaning_spoken):
-            raise CurriculumError(f"item {it.id!r}: meaning_spoken is spoken verbatim, so it takes no brackets or 〜: {it.meaning_spoken!r}")
+        if it.kind != "transform" and _UNSPEAKABLE_RE.search(it.spoken_meaning):
+            field = "meaning_spoken" if it.meaning_spoken else "meaning"
+            raise CurriculumError(
+                f"item {it.id!r}: its {field} is spoken verbatim, so it takes no brackets or 〜 "
+                f"(write a bracket-free meaning_spoken): {it.spoken_meaning!r}"
+            )
+        if it.meaning_spoken and sorted(_ANY_SLOT_RE.findall(it.meaning_spoken)) != sorted(_ANY_SLOT_RE.findall(it.meaning)):
+            raise CurriculumError(f"item {it.id!r}: meaning_spoken must keep the meaning's slots: {it.meaning_spoken!r}")
     for d in cur.dialogues:
         if d.id in {x.id for x in cur.dialogues if x is not d}:
             raise CurriculumError(f"duplicate dialogue id {d.id!r}")

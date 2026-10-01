@@ -725,6 +725,7 @@ kind = "phrase"
 target = "Ha?"
 meaning = "Sorry? (what did you say?)"
 meaning_ja = "え？"
+meaning_spoken = "Sorry? What was that?"
 difficulty = 1
 topics = ["clarifying"]
 situations = [

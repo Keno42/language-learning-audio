@@ -154,6 +154,7 @@ kind = "phrase"
 target = "Af hverju ekki?"
 meaning = "Why not?"
 meaning_ja = "どうして？（なぜだめ？）"
+meaning_spoken_ja = "どうして？なぜだめなの？"
 difficulty = 2
 topics = ["questions", "discourse"]
 prereqs = ["af_hverju"]
@@ -203,6 +204,8 @@ kind = "phrase"
 target = "Hvers vegna?"
 meaning = "Why? (formal)"
 meaning_ja = "なぜですか？（改まった言い方）"
+meaning_spoken = "formally: Why?"
+meaning_spoken_ja = "改まって、なぜですか？"
 difficulty = 2
 topics = ["questions"]
 prereqs = ["af_hverju"]
@@ -269,6 +272,7 @@ kind = "vocab"
 target = "af því að"
 meaning = "because"
 meaning_ja = "〜だから"
+meaning_spoken_ja = "なぜなら"
 difficulty = 2
 topics = ["discourse"]
 
@@ -278,6 +282,7 @@ kind = "vocab"
 target = "ekki"
 meaning = "not"
 meaning_ja = "〜ない"
+meaning_spoken_ja = "打ち消しの「ない」"
 difficulty = 1
 topics = ["discourse", "grammar"]
 
@@ -300,6 +305,7 @@ kind = "vocab"
 target = "bara"
 meaning = "just / only"
 meaning_ja = "ただ／〜だけ"
+meaning_spoken_ja = "ただ、それだけ"
 difficulty = 1
 topics = ["discourse"]
 
@@ -331,6 +337,8 @@ kind = "vocab"
 target = "of"
 meaning = "too (excessively)"
 meaning_ja = "〜すぎる"
+meaning_spoken = "too, as in excessively"
+meaning_spoken_ja = "あまりにも、すぎる"
 difficulty = 1
 topics = ["discourse"]
 
@@ -340,6 +348,7 @@ kind = "vocab"
 target = "með"
 meaning = "with"
 meaning_ja = "〜と一緒に／〜付き"
+meaning_spoken_ja = "一緒に、または付きで"
 difficulty = 1
 topics = ["discourse"]
 
@@ -349,6 +358,7 @@ kind = "vocab"
 target = "án"
 meaning = "without"
 meaning_ja = "〜なしで"
+meaning_spoken_ja = "なしで"
 difficulty = 1
 topics = ["discourse"]
 

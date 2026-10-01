@@ -394,6 +394,7 @@ kind = "vocab"
 target = "heiti potturinn"
 meaning = "the hot tub"
 meaning_ja = "露天の湯船（ホットタブ）"
+meaning_spoken_ja = "露天の湯船、ホットタブ"
 difficulty = 3
 tags = ["nom_place"]
 topics = ["accommodation", "nature"]
