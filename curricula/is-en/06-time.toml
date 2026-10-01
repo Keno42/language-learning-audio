@@ -276,6 +276,8 @@ meaning_ja = "出発は何時ですか？"
 difficulty = 4
 topics = ["travel", "time"]
 chunks = ["stað", "af stað", "leggjum við af stað", "Hvenær leggjum við af stað?"]
+# G13 (lesson 13 feedback): «Hvenær?» came as a new item after this phrase that contains it
+prereqs = ["hvenaer"]
 situation = "You've booked the glacier tour. Ask when you set off."
 situation_ja = "氷河ツアーを予約しました。出発は何時か聞いてください。"
 

@@ -29,7 +29,7 @@ skips anything whose `prereqs` the learner does not know yet.
 | `difficulty` | all | 1–5; ≥4 (or ≥5 words, or `chunks`, or a single word with 3+ syllables) triggers backward build; lengthens pauses |
 | `topics` | all | free tags for `--topics`; first topic is used for interleaving |
 | `tags` | vocab | which construction slots accept this item (e.g. `orderable`, `place`) |
-| `prereqs` | all | ids that must be *learned* first (two recalls on or after a due date, not just within one lesson) |
+| `prereqs` | all | ids that must be *learned* first (two recalls on or after a due date, not just within one lesson). An item that teaches a word or phrase contained in another item's text, and sits after it, goes in that item's `prereqs` (G13: «Hvenær?» before «Hvenær leggjum við af stað?»); `validate --parts` lists the ones not yet fixed |
 | `components` | all | ids this item is built from (documentation for now) |
 | `situation` | phrase, construction | known-language cue for the *situation* stage, spoken as-is with nothing appended — end it with the actual instruction ("You walk into a bakery. Greet the baker."), not just a scene, so the prompt is complete on its own |
 | `situations` | phrase, construction | alternative `situation` cues for the same target, glossed per-language the same way (`situations_ja`, …); when given, the planner rotates through them round-robin on the item's total exposures so far, so a high-repeat item's spaced reviews don't all replay the identical wording — overrides `situation` when non-empty |

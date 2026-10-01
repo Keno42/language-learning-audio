@@ -11,7 +11,7 @@ from pathlib import Path
 
 from . import __version__
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
-from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum
+from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, part_before_whole_report
 from .learner import LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -95,6 +95,7 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("curriculum")
     v.add_argument("--known", default=None, help="report what is missing for this learner language")
     v.add_argument("--frames", action="store_true", help="list every vocab item with no frame or dialogue near its introduction")
+    v.add_argument("--parts", action="store_true", help="list every item taught after a phrase that already contains it (G13)")
     v.add_argument("--frame-span", type=int, default=50, help="items between a word and its first frame before it counts as late (default 50)")
     v.add_argument("--cando", action="store_true", help="travel can-do coverage (#131): each scenario's items, when they are reached, what is missing (simulates lessons; slow)")
     v.add_argument("--lessons", type=int, default=None, help="--cando: daily lessons before departure (default: days left to the --trip profile's departure, else 84)")
@@ -448,6 +449,16 @@ def cmd_validate(args) -> int:
         )
         if repeats:
             print(f"  words repeating across dialogues (candidates to introduce earlier, as reusable items): {', '.join(repeats[:10])}")
+    parts = part_before_whole_report(cur)
+    if parts:
+        print(
+            f"advisory (not a failure): {len(parts)} items are taught after a phrase that already contains them "
+            f"(G13): the learner meets the part as 'something new' after the whole."
+            + ("" if args.parts else " --parts lists them.")
+        )
+        if args.parts:
+            for f in parts:
+                print(f"  #{f['part_order']:<4} {f['part']} is inside #{f['whole_order']} {f['whole']} ({f['gap']} items earlier)")
     frames = frame_gap_report(cur, args.frame_span)
     if frames["late"] or frames["none"]:
         vocab = sum(1 for i in cur.items if i.kind == "vocab")
