@@ -87,11 +87,10 @@ class PlanConfig:
     # in the last lesson, then the least recently practised, so a backlog comes round. The
     # practices fall at these fractions of the lesson's time before the closing block (by time,
     # not exercise counts: five practices 3-13 exercises apart bunched in the first 8 minutes),
-    # staggered between items. ``open_item_practice`` False reproduces the earlier planner.
+    # interleaved between items. ``open_item_practice`` False reproduces the earlier planner.
     open_item_practice: bool = True
     max_open_items: int = 5
     open_item_times: list[float] = field(default_factory=lambda: [0.04, 0.27, 0.48, 0.68, 0.88])
-    open_item_stagger: float = 0.012
     # the trip ordering (#132): item ids introduced before the rest, in this order (their
     # prereqs included by cando.priority_items); empty keeps curriculum order
     priority: list[str] = field(default_factory=list)
@@ -598,9 +597,13 @@ class Planner:
             st = self.learner.items[item.id]
             stage = st.stage if st.stage in ladder and st.stage != "intro" else ladder[min(1, len(ladder) - 1)]
             usable = budget - closing_reserve
-            for f in cfg.open_item_times:
+            fractions = cfg.open_item_times
+            for j, f in enumerate(fractions):
+                # the items interleave across each interval (item k of n at k/n of the way to the
+                # next fraction) instead of stacking: five practices in a row were a drill streak
+                nxt = fractions[j + 1] if j + 1 < len(fractions) else 1.0
                 seq += 1
-                open_timeline.append((usable * (f + k * cfg.open_item_stagger), seq, item, stage))
+                open_timeline.append((usable * (f + k * (nxt - f) / n_open), seq, item, stage))
                 stage = next_stage(ladder, stage)
 
         def load_early(rested_only: bool) -> list[Item]:
@@ -840,6 +843,7 @@ class Planner:
                 touch(item)
             return True
 
+        n_open = max(1, len(open_today))
         for k, item_id in enumerate(open_today):
             schedule_open(self.cur.by_id[item_id], k)
             reviews_used.append(item_id)
@@ -901,7 +905,7 @@ class Planner:
                 acted = True
 
             # 0d. an open item's practice whose time has come (#149)
-            if not acted:
+            if not acted and drill_streak < cfg.drill_streak_limit - 1:  # leave room for a non-recall exercise
                 for entry in open_timeline:
                     if entry[0] > sc.total_duration:
                         break

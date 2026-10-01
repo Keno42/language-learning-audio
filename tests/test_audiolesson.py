@@ -4360,6 +4360,37 @@ class OpenItemTests(unittest.TestCase):
         self.assertTrue(waited, "the backlog should exceed the cap in this course")
         self.assertLessEqual(max(waited.values()), 3, f"every open item comes round: {waited}")
 
+    def test_open_practice_never_ends_a_lesson_early(self):
+        """Owner's review of #162: five open practices placed together made a drill streak
+        that ended lesson 14 at 15.5 of 30 minutes. The real curriculum, pace 5, two new items
+        failed in lessons 3, 4, 6, 7 and 12 (only new items confirmed afterwards): from lesson
+        9 on every lesson is within two minutes of the same lesson built without open practice
+        (that baseline is itself short in some lessons: the daily-dose gap, #149 step 3), and
+        open practices never run five in a row."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        lessons = {}
+        for on in (False, True):
+            learner = LearnerState("is", "en", "A1")
+            day = TODAY
+            lessons[on] = []
+            for n in range(1, 17):
+                cfg = PlanConfig(minutes=30, new_items=5, open_item_practice=on)
+                sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=day).build()
+                lessons[on].append(sc)
+                if on and sc.meta["open_items"]:
+                    open_ids = set(sc.meta["open_items"])
+                    run = 0
+                    for e in sc.exercises:
+                        run = run + 1 if e.kind == "recall" and e.item_ids and e.item_ids[0] in open_ids else 0
+                        self.assertLess(run, 5, (n, e.index))
+                apply_to_learner(sc, learner, day)
+                new = sc.meta["new_items"]
+                failed = new[:2] if n in (3, 4, 6, 7, 12) else []
+                learner.report(failed, [], day + timedelta(days=1), lesson_number=n, recalled=[i for i in new if i not in failed])
+                day += timedelta(days=1)
+        for n in range(8, 16):
+            self.assertGreaterEqual(lessons[True][n].total_duration, lessons[False][n].total_duration - 120, n + 1)
+
     def test_unconfirmed_practice_does_not_raise_an_open_items_stage(self):
         cur, learner = self._setup()
         before = learner.items["s0"].stage
