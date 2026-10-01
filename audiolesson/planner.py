@@ -83,12 +83,15 @@ class PlanConfig:
     presume_success: bool = True
     translate_partner: bool = True
     # Issue #149 (step 1a, G11): an item the learner failed stays open until a later confirmed
-    # recall. Every lesson practises up to ``max_open_items`` of them (the most recently failed
-    # first): one practice early, then at ``open_item_gaps`` exercises apart, about as much
-    # time as an easy new item. ``open_item_practice`` False reproduces the earlier planner.
+    # recall. Every lesson practises up to ``max_open_items`` of them: first those that failed
+    # in the last lesson, then the least recently practised, so a backlog comes round. The
+    # practices fall at these fractions of the lesson's time before the closing block (by time,
+    # not exercise counts: five practices 3-13 exercises apart bunched in the first 8 minutes),
+    # staggered between items. ``open_item_practice`` False reproduces the earlier planner.
     open_item_practice: bool = True
     max_open_items: int = 5
-    open_item_gaps: list[int] = field(default_factory=lambda: [3, 5, 8, 13])
+    open_item_times: list[float] = field(default_factory=lambda: [0.04, 0.27, 0.48, 0.68, 0.88])
+    open_item_stagger: float = 0.012
     # the trip ordering (#132): item ids introduced before the rest, in this order (their
     # prereqs included by cando.priority_items); empty keeps curriculum order
     priority: list[str] = field(default_factory=list)
@@ -584,17 +587,20 @@ class Planner:
         connect_pairs_used: set[frozenset[str]] = set()
         connect_item_uses: dict[str, int] = {}
 
-        def schedule_open(item: Item, start: int) -> None:
-            """An open item (#149): its first practice at ``start``, then the gaps, each a step
-            further up its ladder from the demoted stage it failed at."""
+        open_timeline: list[tuple[float, int, Item, str]] = []
+
+        def schedule_open(item: Item, k: int) -> None:
+            """An open item (#149): practices at fractions of the lesson's time, each a step
+            further up its ladder from the stage it stands at (a failure demoted it, and
+            practice that isn't confirmed doesn't raise it)."""
             nonlocal seq
             ladder = self.ladder(item)
-            stage = self.review_stage(item)
-            due_at = start
-            for gap in [0] + cfg.open_item_gaps:
-                due_at += gap
+            st = self.learner.items[item.id]
+            stage = st.stage if st.stage in ladder and st.stage != "intro" else ladder[min(1, len(ladder) - 1)]
+            usable = budget - closing_reserve
+            for f in cfg.open_item_times:
                 seq += 1
-                heapq.heappush(pending, _Pending(due_at, seq, item, stage))
+                open_timeline.append((usable * (f + k * cfg.open_item_stagger), seq, item, stage))
                 stage = next_stage(ladder, stage)
 
         def load_early(rested_only: bool) -> list[Item]:
@@ -835,8 +841,9 @@ class Planner:
             return True
 
         for k, item_id in enumerate(open_today):
-            schedule_open(self.cur.by_id[item_id], 1 + 2 * k)
+            schedule_open(self.cur.by_id[item_id], k)
             reviews_used.append(item_id)
+        open_timeline.sort(key=lambda t: t[:2])
 
         while sc.total_duration < budget - closing_reserve:
             remaining = budget - closing_reserve - sc.total_duration
@@ -892,6 +899,18 @@ class Planner:
             if not acted and (sub := continue_substitution()) is not None:
                 do_substitution(sub)
                 acted = True
+
+            # 0d. an open item's practice whose time has come (#149)
+            if not acted:
+                for entry in open_timeline:
+                    if entry[0] > sc.total_duration:
+                        break
+                    if entry[2].id in recent:
+                        continue
+                    open_timeline.remove(entry)
+                    do_recall(entry[2], entry[3])
+                    acted = True
+                    break
 
             # 1. a scheduled reactivation that is due (but never the item we just did)
             if not acted:
@@ -1023,6 +1042,11 @@ class Planner:
                     # rather than a stable item again or ending far short
                     consolidations[extra.id] = consolidations.get(extra.id, 0) + 1
                     do_recall(extra, self._harder_than_today(extra))
+                elif (early_open := next((e for e in open_timeline if e[2].id not in recent), None)) is not None:
+                    # nothing else is left: an open item's next practice comes early rather than
+                    # not at all (#149); the timed entries (0d) are the normal route
+                    open_timeline.remove(early_open)
+                    do_recall(early_open[2], early_open[3])
                 else:
                     break  # only immediate repeats are left: end the lesson a little short
             idx += 1
@@ -1112,6 +1136,9 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
         presume_success=presume_success,
         ladders=sc.meta.get("ladders", {}),
     )
+    for item_id in sc.meta.get("open_items", []):
+        if item_id in learner.items:
+            learner.items[item_id].open_practiced = sc.lesson_number
     for d in sc.meta.get("dialogues", []):
         learner.dialogues_done[d] = learner.dialogues_done.get(d, 0) + 1
     for n in sc.meta.get("notes", []):

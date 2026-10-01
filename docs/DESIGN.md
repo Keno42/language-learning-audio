@@ -39,7 +39,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
 - **Open failures (#149, 1a).** An item whose latest confirmed outcome is 言えなかった is
   open (`LearnerState.is_open`) until a later confirmed recall; presumed success neither adds
   a durable success nor lengthens its interval (it is due again tomorrow). Each lesson practises
-  up to `max_open_items` of them, five times spread by `open_item_gaps`, and lists them in
+  up to `max_open_items` of them, five times at fractions of the lesson time (`open_item_times`, by time not exercise count); the ones that failed last lesson go first, then the longest without an open practice (`ItemState.open_practiced`), and lists them in
   `plan.json` (`open_items`, `open_not_fitted`) so the bot can ask them.
 - **Generated sentences use only available parts.** A fill is known or introduced earlier
   in the lesson. A construction's `situation_fill` makes its situation wait for that fill.

@@ -45,6 +45,8 @@ class ItemState:
     # set by a reported failure: the next lesson that recalls the item gives it a little
     # more time to answer (Timing.failure_think_time), then clears it (issue #104)
     extra_think_time: bool = False
+    # the latest lesson that practised the item as an open failure (#149); orders a backlog
+    open_practiced: int = 0
     history: list[dict] = field(default_factory=list)  # [{lesson, stages, ok}] compact log
 
     @property
@@ -94,13 +96,19 @@ class LearnerState:
         return st.failures > 0 and st.recalled == 0
 
     def open_items(self) -> list[str]:
-        """Open items, the most recently failed first, then the most often failed."""
+        """Open items in the order a lesson takes them: those that failed in the last lesson
+        first (the bot asks them tomorrow), then the one longest without an open practice, so an old
+        backlog comes round instead of starving behind new failures; ties go to the most often
+        failed."""
 
-        def last_failed(i: str) -> int:
-            hist = self.items[i].history
-            return max((h["lesson"] for h in hist if h.get("outcome") == "not_recalled" or h.get("ok") is False), default=0)
+        def failed_last_lesson(i: str) -> bool:
+            h = self.items[i].history
+            return bool(h) and h[-1].get("lesson") == self.lessons_completed and h[-1].get("outcome") == "not_recalled"
 
-        return sorted((i for i in self.items if self.is_open(i)), key=lambda i: (-last_failed(i), -self.items[i].failures, i))
+        return sorted(
+            (i for i in self.items if self.is_open(i)),
+            key=lambda i: (not failed_last_lesson(i), self.items[i].open_practiced, -self.items[i].failures, i),
+        )
 
     def next_lesson_number(self) -> int:
         return self.lessons_completed + 1
@@ -230,6 +238,7 @@ class LearnerState:
                 st = ItemState(introduced_lesson=lesson_number, due=today.isoformat())
                 self.items[item_id] = st
             st.exposures += len(stages)
+            stage_before = st.stage
             # highest stage reached in this lesson (ladder order is per kind; the planner only
             # emits stages in climbing order, so the last non-intro stage is the highest)
             climbed = [s for s in stages if s != "intro"]
@@ -242,13 +251,15 @@ class LearnerState:
                 else:
                     st.stage = climbed[-1]
             if presume_success:
-                st.successes += len(climbed)
                 if self.is_open(item_id):
-                    # open (#149): practice is not evidence. No durable success, interval and
-                    # ease stay, and it is due again tomorrow, until a confirmed recall
+                    # open (#149): practice is not evidence. The stage a failure demoted it to
+                    # stands, no success is counted, interval and ease stay, and it is due
+                    # again tomorrow, until a confirmed recall
+                    st.stage = stage_before
                     st.interval_days = 1
                     st.due = (today + timedelta(days=1)).isoformat()
                 else:
+                    st.successes += len(climbed)
                     if climbed and self._is_durable_review(st, today, new):
                         st.durable_successes += 1
                     self._schedule_success(st, today, new)

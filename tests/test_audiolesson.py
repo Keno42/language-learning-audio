@@ -4335,6 +4335,38 @@ class OpenItemTests(unittest.TestCase):
         self.assertEqual(len(sc.meta["open_items"]), 1)
         self.assertEqual(len(sc.meta["open_not_fitted"]), 1)
 
+    def test_a_course_spreads_open_practice_over_the_lesson_and_rotates_a_backlog(self):
+        """The real curriculum, 30-minute lessons, two new items failed in lessons 3, 4, 6 and
+        7: no gap over 8 minutes between an open item's practices, some in the last third, and
+        the old failures come round instead of waiting behind the newest."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        waited: dict[str, int] = {}
+        for n in range(1, 11):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5), today=day).build()
+            for i in sc.meta["open_items"]:
+                spots = [e.start for e in sc.exercises if e.kind in ("recall", "connect", "generative") and i in e.item_ids]
+                self.assertGreaterEqual(len(spots), 4, (n, i))
+                self.assertGreater(spots[-1], 0.6 * sc.total_duration, (n, i, spots))
+                gaps = [b - a for a, b in zip(spots, spots[1:])]
+                self.assertLess(max(gaps), 8 * 60, (n, i, [round(x / 60, 1) for x in spots]))
+            for i in sc.meta["open_not_fitted"]:
+                waited[i] = waited.get(i, 0) + 1
+            apply_to_learner(sc, learner, day)
+            if n in (3, 4, 6, 7):
+                learner.report(sc.meta["new_items"][:2], [], day + timedelta(days=1), lesson_number=n)
+            day += timedelta(days=1)
+        self.assertTrue(waited, "the backlog should exceed the cap in this course")
+        self.assertLessEqual(max(waited.values()), 3, f"every open item comes round: {waited}")
+
+    def test_unconfirmed_practice_does_not_raise_an_open_items_stage(self):
+        cur, learner = self._setup()
+        before = learner.items["s0"].stage
+        apply_to_learner(self._build(cur, learner), learner, TODAY)
+        self.assertEqual(learner.items["s0"].stage, before)
+        self.assertEqual(learner.items["s0"].open_practiced, learner.lessons_completed)
+
     def test_the_switch_reproduces_the_earlier_planner(self):
         cur, learner = self._setup()
         sc = self._build(cur, learner, open_item_practice=False)
