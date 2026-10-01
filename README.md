@@ -124,7 +124,7 @@ around 80–85%.
   bother to file one. `--manual` switches back.
 - `--new N` overrides one lesson; `--pace N` resets the ongoing pace.
 
-**Fixed length.** A lesson lands on the requested minutes (30:00 for `-m 30`)
+**Fixed length.** A lesson aims at the requested minutes (30:00 for `-m 30`)
 by three mechanisms, all automatic:
 
 1. *Calibration* — after every render the measured speech length per language
@@ -139,11 +139,13 @@ by three mechanisms, all automatic:
    first; and only then more new items. Items that are not due never fill a
    lesson ahead of those, so a well-known phrase waits for its date instead
    of coming back every day.
-3. *Fit at render* — if the file would still miss the target by more than a
-   minute (`fit_tolerance`, default 60 s), every pause is scaled by one
-   factor within 0.85–1.25 (`fit`, `fit_min`, `fit_max` in the profile;
-   `--no-fit`, `--fit-tolerance`). Inside the tolerance, pauses stay exactly
-   as the timing model set them. Speech is never altered.
+3. *Fit at render* — if the file would still run over the target by more than
+   a minute (`fit_tolerance`, default 60 s), every pause is shrunk by one
+   factor, down to 0.85 (`fit`, `fit_min` in the profile; `--no-fit`,
+   `--fit-tolerance`). A file that comes out short stays short: longer pauses
+   would only pad it (`fit_max`, default 1.0, allows stretching in a profile).
+   Inside the tolerance, pauses stay exactly as the timing model set them.
+   Speech is never altered.
 
 **Cultural asides.** A curriculum can carry `[[notes]]`: short remarks in
 the learner's language (for the Icelandic course, written for someone from

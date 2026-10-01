@@ -412,3 +412,60 @@ requires = ["eg_vil_fara_i_hvalaskodun", "hvad_kostar_ferdin", "hvenaer_leggjum_
   partner = "Góða ferð á morgun!"
   partner_meaning = "Have a good trip tomorrow!"
   partner_meaning_ja = "明日は良い旅を！"
+
+# Other travellers' languages, for small talk on a tour or in a bar («Talar þú þýsku?»).
+# Moved here from 02-clarifying (owner, lesson 12 feedback): for a learner who speaks
+# Icelandic, English and Japanese, numbers past five matter long before German or Danish.
+# «Talar þú / Ég tala / Ég er að læra {language}» start with íslensku, ensku, japönsku.
+
+[[items]]
+id = "thysku"
+kind = "vocab"
+target = "þýsku"
+meaning = "German (the language)"
+meaning_ja = "ドイツ語"
+meaning_spoken = "the German language"
+difficulty = 2
+tags = ["acc_language"]
+topics = ["clarifying"]
+meaning_forms = { in_sentence = "German" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "ドイツ語" }
+
+[[items]]
+id = "fronsku"
+kind = "vocab"
+target = "frönsku"
+meaning = "French (the language)"
+meaning_ja = "フランス語"
+meaning_spoken = "the French language"
+difficulty = 2
+tags = ["acc_language"]
+topics = ["clarifying"]
+meaning_forms = { in_sentence = "French" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "フランス語" }
+
+[[items]]
+id = "donsku"
+kind = "vocab"
+target = "dönsku"
+meaning = "Danish (the language)"
+meaning_ja = "デンマーク語"
+meaning_spoken = "the Danish language"
+difficulty = 2
+tags = ["acc_language"]
+topics = ["clarifying"]
+meaning_forms = { in_sentence = "Danish" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "デンマーク語" }
+
+[[items]]
+id = "spaensku"
+kind = "vocab"
+target = "spænsku"
+meaning = "Spanish (the language)"
+meaning_ja = "スペイン語"
+meaning_spoken = "the Spanish language"
+difficulty = 2
+tags = ["acc_language"]
+topics = ["clarifying"]
+meaning_forms = { in_sentence = "Spanish" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms_ja = { in_sentence = "スペイン語" }

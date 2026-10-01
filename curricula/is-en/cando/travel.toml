@@ -123,6 +123,19 @@ success = "Says well-known place names so a local understands them."
 items = ["reykjavik_dat", "akureyri_dat"]
 reading = ["Reykjavík", "Keflavík", "Hallgrímskirkja", "Þingvellir", "Gullfoss", "Geysir", "Seljalandsfoss", "Skógafoss", "Jökulsárlón", "Reykjanes", "Snæfellsnes", "Akureyri"]
 
+[[scenarios]]
+id = "A11"
+tier = "A"
+title = "Numbers up to a hundred"
+title_ja = "100までの数字"
+setting = "Prices, times, ages, room and bus numbers."
+success = "Says and understands any number up to a hundred."
+# owner, lesson 12 feedback: the course stopped at five while other material went on;
+# prices (A3, A4), times (A9, B2) and B5's listening all need the numbers themselves
+items = ["sex", "sjo", "atta", "niu", "tiu", "ellefu", "tolf",
+         "threttan", "fjortan", "fimmtan", "sextan", "sautjan", "atjan", "nitjan",
+         "tuttugu_ara", "thrjatiu", "fjorutiu", "fimmtiu", "sextiu", "sjotiu", "attatiu", "niutiu", "hundrad"]
+
 # ---------------------------------------------------------------- Tier B: should, by T−4 weeks
 
 [[scenarios]]

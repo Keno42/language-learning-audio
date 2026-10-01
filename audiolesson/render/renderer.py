@@ -82,9 +82,11 @@ class VoiceProfile:
     mp3: bool = True
     trim: bool = True
     workers: int = 4  # parallel synthesis requests for network providers
-    fit: bool = True  # stretch/shrink pauses a little so the file lands on the requested length
+    fit: bool = True  # shrink pauses a little so a long file lands on the requested length
     fit_min: float = 0.85  # bounds on the pause scale used for fitting
-    fit_max: float = 1.25
+    # 1.0: never stretch. Longer pauses don't make a short lesson any better, they only pad it
+    # (owner, lesson 12 feedback); a profile may still allow it
+    fit_max: float = 1.0
     fit_tolerance: float = 60.0  # seconds: within this of the target, pauses are left exactly as planned
 
     def voice_for(self, speaker: str, lang: str, provider: Provider, idx_hint: int) -> SpeakerVoice:
@@ -110,7 +112,7 @@ def load_profile(path: str | Path | None, provider: str | None = None) -> VoiceP
         prof.workers = int(raw.get("workers", 4))
         prof.fit = bool(raw.get("fit", True))
         prof.fit_min = float(raw.get("fit_min", 0.85))
-        prof.fit_max = float(raw.get("fit_max", 1.25))
+        prof.fit_max = float(raw.get("fit_max", 1.0))
         prof.fit_tolerance = float(raw.get("fit_tolerance", 60.0))
         for name, spec in raw.get("speakers", {}).items():
             if isinstance(spec, str):
@@ -138,7 +140,8 @@ def render_script(
     """Write ``out_path`` (.wav) and, if possible, an .mp3 beside it. Returns cue metadata.
 
     ``target_seconds`` (default: the script's requested minutes) makes the file land on
-    that length by scaling the learner pauses within ``profile.fit_min..fit_max``.
+    that length by scaling the learner pauses within ``profile.fit_min..fit_max``; by
+    default pauses only shrink, so a short lesson stays short.
     """
     if target_seconds is None:
         minutes = (script.meta.get("config") or {}).get("minutes")

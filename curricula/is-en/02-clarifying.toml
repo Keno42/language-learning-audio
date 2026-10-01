@@ -72,58 +72,6 @@ components = ["japonsku"]
 prereqs = ["japonsku"]
 
 [[items]]
-id = "thysku"
-kind = "vocab"
-target = "þýsku"
-meaning = "German (the language)"
-meaning_ja = "ドイツ語"
-meaning_spoken = "the German language"
-difficulty = 2
-tags = ["acc_language"]
-topics = ["clarifying"]
-meaning_forms = { in_sentence = "German" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
-meaning_forms_ja = { in_sentence = "ドイツ語" }
-
-[[items]]
-id = "fronsku"
-kind = "vocab"
-target = "frönsku"
-meaning = "French (the language)"
-meaning_ja = "フランス語"
-meaning_spoken = "the French language"
-difficulty = 2
-tags = ["acc_language"]
-topics = ["clarifying"]
-meaning_forms = { in_sentence = "French" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
-meaning_forms_ja = { in_sentence = "フランス語" }
-
-[[items]]
-id = "donsku"
-kind = "vocab"
-target = "dönsku"
-meaning = "Danish (the language)"
-meaning_ja = "デンマーク語"
-meaning_spoken = "the Danish language"
-difficulty = 2
-tags = ["acc_language"]
-topics = ["clarifying"]
-meaning_forms = { in_sentence = "Danish" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
-meaning_forms_ja = { in_sentence = "デンマーク語" }
-
-[[items]]
-id = "spaensku"
-kind = "vocab"
-target = "spænsku"
-meaning = "Spanish (the language)"
-meaning_ja = "スペイン語"
-meaning_spoken = "the Spanish language"
-difficulty = 2
-tags = ["acc_language"]
-topics = ["clarifying"]
-meaning_forms = { in_sentence = "Spanish" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
-meaning_forms_ja = { in_sentence = "スペイン語" }
-
-[[items]]
 id = "eg_tala_sma_islensku"
 kind = "phrase"
 target = "Ég tala smá íslensku."
@@ -1535,6 +1483,79 @@ topics = ["money", "shopping"]
 slots = { price = "price" }
 example = { price = "thusund_kronur" }
 prereqs = ["thusund_kronur", "hvad_kostar_thetta"]
+
+# 13–19, moved from module 08 (owner, lesson 12 feedback): counting goes on past twelve
+# right after the first price frame, so prices, ages and times can use them.
+
+[[items]]
+id = "threttan"
+kind = "vocab"
+target = "þrettán"
+meaning = "thirteen"
+meaning_ja = "13"
+difficulty = 2
+tags = ["number", "age", "big_count"]
+topics = ["numbers"]
+
+[[items]]
+id = "fjortan"
+kind = "vocab"
+target = "fjórtán"
+meaning = "fourteen"
+meaning_ja = "14"
+difficulty = 2
+tags = ["number", "age", "big_count"]
+topics = ["numbers"]
+
+[[items]]
+id = "fimmtan"
+kind = "vocab"
+target = "fimmtán"
+meaning = "fifteen"
+meaning_ja = "15"
+difficulty = 2
+tags = ["number", "age", "big_count"]
+topics = ["numbers"]
+
+[[items]]
+id = "sextan"
+kind = "vocab"
+target = "sextán"
+meaning = "sixteen"
+meaning_ja = "16"
+difficulty = 2
+tags = ["number", "age", "big_count"]
+topics = ["numbers"]
+
+[[items]]
+id = "sautjan"
+kind = "vocab"
+target = "sautján"
+meaning = "seventeen"
+meaning_ja = "17"
+difficulty = 2
+tags = ["number", "age", "big_count"]
+topics = ["numbers"]
+
+[[items]]
+id = "atjan"
+kind = "vocab"
+target = "átján"
+meaning = "eighteen"
+meaning_ja = "18"
+difficulty = 2
+tags = ["number", "age", "big_count"]
+topics = ["numbers"]
+
+[[items]]
+id = "nitjan"
+kind = "vocab"
+target = "nítján"
+meaning = "nineteen"
+meaning_ja = "19"
+difficulty = 2
+tags = ["number", "age", "big_count"]
+topics = ["numbers"]
 
 # Issue #29 (owner comment on a real Lesson 3: "grammar is noticed, but not yet transferred"):
 # «Eigðu góðan dag» was one more fixed string to memorise, while godur_gender names exactly the

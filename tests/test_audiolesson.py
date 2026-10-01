@@ -4546,6 +4546,7 @@ class RenderTests(unittest.TestCase):
             prof = load_profile(None, "stub")
             prof.mp3 = False
             prof.fit_tolerance = 0.0
+            prof.fit_max = 1.25  # both directions of the mechanism, as a profile may still allow
             cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False)
             self.assertEqual(cues["target_s"], 900)
             self.assertAlmostEqual(cues["duration_s"], 900, delta=1.0, msg=cues["fit_scale"])
@@ -4559,6 +4560,21 @@ class RenderTests(unittest.TestCase):
                 if cues["fit_scale"] < 1:
                     e = max(e, min(p.duration, p.floor))
                 self.assertAlmostEqual(a, round(e, 2), delta=0.02)
+
+    def test_a_short_lesson_is_not_stretched_by_default(self):
+        """Owner, lesson 12 feedback: longer pauses don't make a short lesson better. With the
+        default profile, a file under its target keeps the pauses the timing model set."""
+        learner, scripts = course(6, minutes=15)
+        sc = scripts[-1]
+        with tempfile.TemporaryDirectory() as td:
+            prof = load_profile(None, "stub")
+            prof.mp3 = False
+            prof.fit_tolerance = 0.0
+            cues = render_script(sc, prof, Path(td) / "l.wav", cache_dir=Path(td) / "c", progress=False, target_seconds=3000)
+            self.assertEqual(cues["fit_scale"], 1.0)
+            self.assertLess(cues["duration_s"], 3000)
+            planned = [round(s.duration, 2) for s in sc.segments if s.type == "pause" and s.role == "answer"]
+            self.assertEqual([c["dur"] for c in cues["segments"] if c["type"] == "pause" and c["role"] == "answer"], planned)
 
     def test_shrinking_to_fit_keeps_the_recall_floor(self):
         learner, scripts = course(6, minutes=15)
