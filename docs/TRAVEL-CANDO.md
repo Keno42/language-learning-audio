@@ -102,6 +102,34 @@ card. `python -m audiolesson.cli scenes curricula/is-en [--learner <learner.json
 [--trip <profile>]` prints, as JSON, the cards the learner can take now: every item met,
 the season applied. Each card comes with its scenario's tier and title.
 
+## Lesson themes (#149)
+
+A lesson is meant to consolidate one scene of a trip rather than a number of words (owner,
+after lesson 12). `curricula/is-en/cando/themes.toml` holds the scenes as short exchanges,
+level by level (`audiolesson/themes.py`):
+
+- the shops and food: bakery, café, supermarket, pharmacy;
+- getting around: airport, bus and taxi, tourist information and maps;
+- sights and outings: museum, a guided day tour, the pool and hot pot, a bar with other
+  travellers;
+- weather, roads and the aurora.
+
+Level 1 is the shortest exchange that works (the bakery: greet → «Þetta, takk.» while
+pointing → yes or no to a bag → goodbye). Later levels raise the resolution: ordering by
+name, a quantity, a question back, paying, a receipt.
+
+- A learner's line (`who = "you"`) has a cue in the learner's language, the model line,
+  the items it needs and other good answers.
+- A partner's line, and a `listen` line (a forecast, an announcement, the guide), has its
+  meaning and may go beyond the course: getting the gist of 80–90% is the point.
+- `read` names reading-deck texts the scene puts in front of the learner: a menu, shelf
+  labels, airport signs, the road and aurora forecasts.
+
+`validate` checks every item, scenario and reading text, and
+`python -m audiolesson.cli themes curricula/is-en [--learner learner.json] [--json]` lists
+the themes with what each level still needs. The planner does not use them yet: building a
+lesson around a theme is the rest of #149.
+
 ## Trip ordering and the private profile (#132)
 
 ```sh

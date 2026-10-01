@@ -1,0 +1,470 @@
+# Lesson themes (issue #149): a scene of a trip as a short exchange, at rising levels.
+# See audiolesson/themes.py. A lesson consolidates one theme instead of a word count; level
+# 1 is the shortest exchange that works, later levels raise its resolution (owner, after
+# lesson 12: the bakery as greet → "this one, please" → yes/no to a bag → goodbye).
+#
+# Partner lines and `listen` lines may go beyond the course: getting the gist of 80–90%
+# is the point. The learner's own lines (`who = "you"`) list the items they need.
+# Wordings are candidates; a native speaker's corrections are applied when they come.
+# General content only: no learner's dates, itinerary or lodging.
+
+# ---------------------------------------------------------------- food and shops
+
+[[themes]]
+id = "bakery"
+scenario = "A4"
+title = "Bakery counter"
+title_ja = "パン屋のカウンター"
+setting = "A bakery in the morning: pastries behind glass, a clerk at the till."
+setting_ja = "朝のパン屋。ガラスケースのパンと、レジの店員。"
+topics = ["bakery", "cafe"]
+
+[[themes.levels]]
+goal = "Get one pastry by pointing, answer the bag question, leave."
+goal_ja = "指さしで一つ買い、袋がいるかに答えて店を出る。"
+turns = [
+  { who = "you", cue = "You walk into a bakery in the morning. Greet the clerk.", cue_ja = "朝、パン屋に入ります。店員にあいさつしてください。", say = "Góðan daginn.", items = ["godan_daginn"], alts = ["Hæ."] },
+  { who = "partner", say = "Góðan daginn! Hvað má bjóða þér?", meaning = "Good morning! What can I get you?", meaning_ja = "おはようございます！何になさいますか？" },
+  { who = "you", cue = "You don't know the name of the pastry you want. Point at it.", cue_ja = "欲しいパンの名前がわかりません。指さしてください。", say = "Þetta, takk.", items = ["thetta_takk"] },
+  { who = "partner", say = "Viltu poka?", meaning = "Would you like a bag?", meaning_ja = "袋はいりますか？" },
+  { who = "you", cue = "You don't need a bag.", cue_ja = "袋はいりません。", say = "Nei, takk.", items = ["nei", "takk"] },
+  { who = "partner", say = "Gjörðu svo vel. Eigðu góðan dag!", meaning = "Here you go. Have a nice day!", meaning_ja = "どうぞ。良い一日を！" },
+  { who = "you", cue = "Thank her and leave.", cue_ja = "お礼を言って店を出ます。", say = "Takk, bless.", items = ["takk", "bless"], alts = ["Takk, sömuleiðis."] },
+]
+listen = [{ say = "Næsti, gjörðu svo vel.", meaning = "Next, please.", meaning_ja = "次の方どうぞ。" }]
+read = ["Opið"]
+
+[[themes.levels]]
+goal = "Order by name, say that's all, take it away, pay by card."
+goal_ja = "名前で注文し、以上ですと言い、持ち帰りでカード払いする。"
+turns = [
+  { who = "partner", say = "Hæ, hvað má bjóða þér?", meaning = "Hi, what can I get you?", meaning_ja = "こんにちは、何になさいますか？" },
+  { who = "you", cue = "Ask for a cinnamon bun.", cue_ja = "シナモンロールを頼んでください。", say = "Ég ætla að fá snúð.", items = ["eg_aetla_ad_fa", "snud"], alts = ["Get ég fengið snúð?"] },
+  { who = "partner", say = "Eitthvað fleira?", meaning = "Anything else?", meaning_ja = "他には？" },
+  { who = "you", cue = "That's all.", cue_ja = "以上です。", say = "Þetta er allt.", items = ["thetta_er_allt"], alts = ["Nei, takk."] },
+  { who = "partner", say = "Til að taka með?", meaning = "To take away?", meaning_ja = "お持ち帰りですか？" },
+  { who = "you", cue = "Yes, to take away.", cue_ja = "はい、持ち帰りです。", say = "Til að taka með, takk.", items = ["til_ad_taka_med"] },
+  { who = "partner", say = "Það gera sex hundruð krónur.", meaning = "That's six hundred krónur.", meaning_ja = "600クローナです。" },
+  { who = "you", cue = "Ask whether you can pay by card.", cue_ja = "カードで払えるか聞いてください。", say = "Má ég borga með korti?", items = ["ma_eg_borga_med_korti"] },
+  { who = "partner", say = "Já, auðvitað.", meaning = "Yes, of course.", meaning_ja = "はい、もちろん。" },
+]
+read = ["Kanilsnúður", "Vínarbrauð"]
+
+[[themes.levels]]
+goal = "Ask what an unknown pastry is, try it, ask for a receipt."
+goal_ja = "知らないパンが何か聞き、試してみて、レシートをもらう。"
+turns = [
+  { who = "you", cue = "There's a pastry you've never seen. Ask what it is.", cue_ja = "見たことのないお菓子があります。何か聞いてください。", say = "Hvað er þetta?", items = ["hvad_er_thetta"] },
+  { who = "partner", say = "Þetta er kleina. Hún er íslensk.", meaning = "It's a kleina. It's Icelandic.", meaning_ja = "クレイナです。アイスランドのお菓子ですよ。" },
+  { who = "you", cue = "You'd like to try it.", cue_ja = "試してみたいです。", say = "Ég vil smakka.", items = ["eg_vil_smakka"] },
+  { who = "partner", say = "Gjörðu svo vel. Þrjú hundruð krónur.", meaning = "Here you go. Three hundred krónur.", meaning_ja = "どうぞ。300クローナです。" },
+  { who = "you", cue = "Ask for a receipt.", cue_ja = "レシートをもらってください。", say = "Get ég fengið kvittun?", items = ["get_eg_fengid_kvittun"] },
+  { who = "partner", say = "Já, hérna.", meaning = "Yes, here.", meaning_ja = "はい、こちらです。" },
+]
+
+[[themes]]
+id = "cafe"
+scenario = "A4"
+title = "Café"
+title_ja = "カフェ"
+setting = "A busy café: order at the counter, find a seat, ask for the bill."
+setting_ja = "混んだカフェ。カウンターで注文し、席を見つけ、会計する。"
+topics = ["cafe"]
+
+[[themes.levels]]
+goal = "Order a coffee and answer the milk question."
+goal_ja = "コーヒーを注文し、ミルクがいるかに答える。"
+turns = [
+  { who = "partner", say = "Hæ! Hvað má bjóða þér?", meaning = "Hi! What can I get you?", meaning_ja = "こんにちは！何にしますか？" },
+  { who = "you", cue = "Order a coffee.", cue_ja = "コーヒーを注文してください。", say = "Ég ætla að fá kaffi.", items = ["eg_aetla_ad_fa", "kaffi"], alts = ["Kaffi, takk."] },
+  { who = "partner", say = "Með mjólk?", meaning = "With milk?", meaning_ja = "ミルクは入れますか？" },
+  { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", say = "Já, takk.", items = ["ja", "takk"] },
+  { who = "partner", say = "Gjörðu svo vel.", meaning = "Here you go.", meaning_ja = "どうぞ。" },
+  { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
+]
+
+[[themes.levels]]
+goal = "Find a free seat, ask for the menu, order the soup and a drink."
+goal_ja = "空いた席を見つけ、メニューをもらい、スープと飲み物を頼む。"
+turns = [
+  { who = "you", cue = "The café is crowded. Ask a stranger if the seat next to them is free.", cue_ja = "カフェが混んでいます。隣の席が空いているか、知らない人に聞いてください。", say = "Er þetta sæti laust?", items = ["er_thetta_saeti_laust"] },
+  { who = "partner", say = "Já, gjörðu svo vel.", meaning = "Yes, go ahead.", meaning_ja = "ええ、どうぞ。" },
+  { who = "you", cue = "At the counter, ask for the menu.", cue_ja = "カウンターでメニューをもらってください。", say = "Get ég fengið matseðilinn?", items = ["get_eg_fengid", "matsedilinn"] },
+  { who = "partner", say = "Já. Súpa dagsins er kjötsúpa.", meaning = "Sure. The soup of the day is lamb soup.", meaning_ja = "はい。本日のスープはラム肉のスープです。" },
+  { who = "you", cue = "Order the soup.", cue_ja = "スープを注文してください。", say = "Ég ætla að fá súpu.", items = ["eg_aetla_ad_fa", "supu"] },
+  { who = "partner", say = "Eitthvað að drekka?", meaning = "Anything to drink?", meaning_ja = "お飲み物は？" },
+  { who = "you", cue = "Just water.", cue_ja = "水だけでいいです。", say = "Vatn, takk.", items = ["vatn", "takk"] },
+]
+read = ["Matseðill", "Súpa dagsins"]
+
+[[themes.levels]]
+goal = "Ask for the bill and say it was good."
+goal_ja = "会計を頼み、おいしかったと伝える。"
+turns = [
+  { who = "you", cue = "You've finished. Ask for the bill.", cue_ja = "食べ終わりました。お会計を頼んでください。", say = "Get ég fengið reikninginn?", items = ["get_eg_fengid_reikninginn"] },
+  { who = "partner", say = "Já, ég kem strax.", meaning = "Yes, I'll be right there.", meaning_ja = "はい、すぐ伺います。" },
+  { who = "you", cue = "Tell her it was good.", cue_ja = "おいしかったと伝えてください。", say = "Þetta var gott.", items = ["thetta_var_gott"], alts = ["Þetta var ljúffengt."] },
+  { who = "partner", say = "Takk fyrir það!", meaning = "Thank you!", meaning_ja = "ありがとうございます！" },
+]
+
+[[themes]]
+id = "supermarket"
+scenario = "A3"
+title = "Supermarket"
+title_ja = "スーパー"
+setting = "A supermarket: the shelves, the dairy fridge, the till."
+setting_ja = "スーパー。棚、乳製品の冷蔵棚、レジ。"
+topics = ["shopping", "food"]
+
+[[themes.levels]]
+goal = "Ask staff for something you can't find, answer the bag question, pay."
+goal_ja = "見つからない物を店員に聞き、袋がいるかに答えて払う。"
+turns = [
+  { who = "you", cue = "You can't find skyr. Ask a member of staff if they have it.", cue_ja = "スキールが見つかりません。店員にあるか聞いてください。", say = "Afsakið, áttu skyr?", items = ["afsakid", "attu", "skyr"] },
+  { who = "partner", say = "Já, það er þarna, í kælinum.", meaning = "Yes, it's over there, in the fridge.", meaning_ja = "はい、あちらの冷蔵棚です。" },
+  { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
+  { who = "partner", say = "Viltu poka?", meaning = "Would you like a bag?", meaning_ja = "袋はいりますか？" },
+  { who = "you", cue = "Yes, you need one.", cue_ja = "はい、いります。", say = "Já, takk.", items = ["ja", "takk"] },
+  { who = "partner", say = "Það gera tvö þúsund krónur.", meaning = "That's two thousand krónur.", meaning_ja = "2000クローナです。" },
+  { who = "you", cue = "Hand over your card.", cue_ja = "カードを渡します。", say = "Gjörðu svo vel.", items = ["gjordu_svo_vel"] },
+]
+read = ["Mjólk", "Skyr", "Mjólkurvörur", "Tilboð", "Verð"]
+
+[[themes.levels]]
+goal = "Say you're just looking, ask for the total, decline the receipt."
+goal_ja = "見ているだけと伝え、合計を聞き、レシートを断る。"
+turns = [
+  { who = "partner", say = "Get ég aðstoðað?", meaning = "Can I help?", meaning_ja = "何かお探しですか？" },
+  { who = "you", cue = "You're just looking.", cue_ja = "見ているだけです。", say = "Ég er bara að skoða.", items = ["eg_er_ad_leita_ad_thing"] },
+  { who = "you", cue = "At the till, ask how much it is in total.", cue_ja = "レジで合計がいくらか聞いてください。", say = "Hvað er þetta mikið samtals?", items = ["hvad_er_thetta_mikid_samtals"] },
+  { who = "partner", say = "Þrjú þúsund og fimm hundruð.", meaning = "Three thousand five hundred.", meaning_ja = "3500です。" },
+  { who = "partner", say = "Viltu kvittun?", meaning = "Would you like the receipt?", meaning_ja = "レシートはいりますか？" },
+  { who = "you", cue = "No need.", cue_ja = "いりません。", say = "Nei, takk.", items = ["nei", "takk"] },
+]
+read = ["Ávextir og grænmeti", "Best fyrir", "Poki"]
+
+[[themes]]
+id = "pharmacy"
+scenario = "B7"
+title = "Pharmacy"
+title_ja = "薬局"
+setting = "A pharmacy: something for a headache, and the everyday things the cold calls for."
+setting_ja = "薬局。頭痛の薬と、寒さで必要になる日用品。"
+topics = ["pharmacy", "health", "shopping"]
+
+[[themes.levels]]
+goal = "Ask for something for a headache and what it costs."
+goal_ja = "頭痛の薬を頼み、値段を聞く。"
+turns = [
+  { who = "you", cue = "In a pharmacy, greet the pharmacist and ask for something for a headache.", cue_ja = "薬局で薬剤師にあいさつし、頭痛の薬を頼んでください。", say = "Góðan daginn. Áttu eitthvað við höfuðverk?", items = ["godan_daginn", "attu_eitthvad_vid_hofudverk"] },
+  { who = "partner", say = "Já, þessar töflur eru góðar.", meaning = "Yes, these tablets are good.", meaning_ja = "はい、この錠剤がいいですよ。" },
+  { who = "you", cue = "Ask how much they cost.", cue_ja = "いくらか聞いてください。", say = "Hvað kostar þetta?", items = ["hvad_kostar_thetta"] },
+  { who = "partner", say = "Níu hundruð krónur.", meaning = "Nine hundred krónur.", meaning_ja = "900クローナです。" },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
+]
+read = ["Apótek", "Verkjalyf"]
+
+[[themes.levels]]
+goal = "Ask for an everyday item, add another, say that's all."
+goal_ja = "日用品を頼み、もう一つ足して、以上ですと言う。"
+turns = [
+  { who = "you", cue = "Your lips are chapped from the cold. Ask for lip balm.", cue_ja = "寒さで唇が荒れました。リップクリームを頼んでください。", say = "Áttu varasalva?", items = ["attu", "varasalva"] },
+  { who = "partner", say = "Já, hann er hérna.", meaning = "Yes, it's here.", meaning_ja = "はい、こちらです。" },
+  { who = "you", cue = "You also need toothpaste.", cue_ja = "歯磨き粉もほしいです。", say = "Og tannkrem, takk.", items = ["og", "tannkrem", "takk"] },
+  { who = "partner", say = "Eitthvað fleira?", meaning = "Anything else?", meaning_ja = "他には？" },
+  { who = "you", cue = "That's all.", cue_ja = "以上です。", say = "Þetta er allt.", items = ["thetta_er_allt"] },
+]
+
+# ---------------------------------------------------------------- getting around
+
+[[themes]]
+id = "airport"
+scenario = "B9"
+title = "Airport"
+title_ja = "空港"
+setting = "Arriving and finding the coach into town; later, checking in and finding the gate."
+setting_ja = "到着して市内行きのバスを探す。帰りはチェックインして搭乗口を探す。"
+topics = ["transport", "travel"]
+
+[[themes.levels]]
+goal = "On arrival, find the coach."
+goal_ja = "到着して長距離バスを見つける。"
+turns = [
+  { who = "you", cue = "You've landed and want the coach into town. Ask where it is.", cue_ja = "到着しました。市内行きの長距離バスはどこか聞いてください。", say = "Afsakið, hvar er rútan?", items = ["afsakid", "hvar_er_rutan"] },
+  { who = "partner", say = "Hún er þarna úti, til vinstri.", meaning = "It's out there, on the left.", meaning_ja = "外の左側です。" },
+  { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
+]
+listen = [{ say = "Velkomin til Íslands.", meaning = "Welcome to Iceland.", meaning_ja = "アイスランドへようこそ。" }]
+read = ["Komur", "Farangur", "Tollur", "Útgangur"]
+
+[[themes.levels]]
+goal = "Check in a bag and find the gate."
+goal_ja = "荷物を預けて搭乗口を見つける。"
+turns = [
+  { who = "partner", say = "Góðan daginn. Vegabréfið, takk.", meaning = "Good morning. Your passport, please.", meaning_ja = "おはようございます。パスポートをお願いします。" },
+  { who = "you", cue = "Hand it over.", cue_ja = "渡してください。", say = "Gjörðu svo vel.", items = ["gjordu_svo_vel"] },
+  { who = "partner", say = "Ertu með farangur?", meaning = "Do you have luggage?", meaning_ja = "預ける荷物はありますか？" },
+  { who = "you", cue = "One suitcase.", cue_ja = "スーツケースが一つです。", say = "Ég er með eina tösku.", items = ["eg_er_med_eina_tosku"] },
+  { who = "partner", say = "Hliðið er númer tólf.", meaning = "The gate is number twelve.", meaning_ja = "搭乗口は12番です。" },
+  { who = "you", cue = "Later you can't find it. Ask where the gate is.", cue_ja = "あとで搭乗口が見つかりません。どこか聞いてください。", say = "Hvar er hliðið?", items = ["hvar_er_hlidid"] },
+]
+listen = [
+  { say = "Fluginu er seinkað.", meaning = "The flight is delayed.", meaning_ja = "便が遅れています。" },
+  { say = "Síðasta útkall.", meaning = "Final call.", meaning_ja = "最終のご案内です。" },
+]
+read = ["Brottfarir", "Upplýsingar"]
+
+[[themes]]
+id = "bus_taxi"
+scenario = "B4"
+title = "Bus and taxi"
+title_ja = "バスとタクシー"
+setting = "A city bus into the centre; a taxi to the hotel."
+setting_ja = "市内中心部へのバス。ホテルまでのタクシー。"
+topics = ["transport"]
+
+[[themes.levels]]
+goal = "Check the bus goes to the centre and where to get off."
+goal_ja = "バスが中心部へ行くか、どこで降りるかを確かめる。"
+turns = [
+  { who = "you", cue = "A bus pulls up. Ask the driver if it goes to the city centre.", cue_ja = "バスが来ました。運転手に市内中心部へ行くか聞いてください。", say = "Fer þessi strætó í miðbæinn?", items = ["fer_thessi_straeto_i_midbaeinn"] },
+  { who = "partner", say = "Já, komdu inn.", meaning = "Yes, come on in.", meaning_ja = "はい、どうぞ乗って。" },
+  { who = "you", cue = "Ask where you should get off.", cue_ja = "どこで降りればいいか聞いてください。", say = "Hvar á ég að fara út?", items = ["hvar_a_eg_ad_fara_ut"] },
+  { who = "partner", say = "Á næstu stoppistöð.", meaning = "At the next stop.", meaning_ja = "次の停留所です。" },
+  { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
+]
+
+[[themes.levels]]
+goal = "Take a taxi to the hotel, ask the fare, pay by card."
+goal_ja = "タクシーでホテルへ行き、料金を聞いてカードで払う。"
+turns = [
+  { who = "you", cue = "Showing the address, tell the driver you'd like to go to this hotel.", cue_ja = "住所を見せて、このホテルまでと伝えてください。", say = "Á þetta hótel, takk.", items = ["a_thetta_hotel_takk"] },
+  { who = "partner", say = "Ekkert mál. Það tekur um tíu mínútur.", meaning = "No problem. It takes about ten minutes.", meaning_ja = "わかりました。10分くらいです。" },
+  { who = "you", cue = "You've arrived. Ask how much it is.", cue_ja = "着きました。いくらか聞いてください。", say = "Hvað kostar þetta?", items = ["hvad_kostar_thetta"] },
+  { who = "partner", say = "Fjögur þúsund krónur.", meaning = "Four thousand krónur.", meaning_ja = "4000クローナです。" },
+  { who = "you", cue = "Ask if you can pay by card.", cue_ja = "カードで払えるか聞いてください。", say = "Má ég borga með korti?", items = ["ma_eg_borga_med_korti"] },
+]
+
+[[themes]]
+id = "map_info"
+scenario = "B10"
+title = "Tourist information and maps"
+title_ja = "観光案内所と地図"
+setting = "The tourist information desk: a free map, where you are, where to go."
+setting_ja = "観光案内所。無料の地図、現在地、行き先。"
+topics = ["directions", "travel"]
+
+[[themes.levels]]
+goal = "Get a map and have the way shown on it."
+goal_ja = "地図をもらい、行き方を地図で示してもらう。"
+turns = [
+  { who = "you", cue = "At the tourist information desk, ask for a map of the area.", cue_ja = "観光案内所で、このあたりの地図があるか聞いてください。", say = "Áttu kort af svæðinu?", items = ["attu_kort_af_svaedinu"] },
+  { who = "partner", say = "Já, gjörðu svo vel. Það er ókeypis.", meaning = "Yes, here you go. It's free.", meaning_ja = "はい、どうぞ。無料です。" },
+  { who = "you", cue = "Ask her to show you on the map.", cue_ja = "地図で示してもらってください。", say = "Geturðu sýnt mér á kortinu?", items = ["geturdu_synt_mer_a_kortinu"] },
+  { who = "partner", say = "Við erum hérna, og safnið er þarna.", meaning = "We're here, and the museum is there.", meaning_ja = "今ここで、博物館はここです。" },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
+]
+read = ["Upplýsingar", "Landakort", "Vegakort", "Ókeypis"]
+
+# ---------------------------------------------------------------- sights and outings
+
+[[themes]]
+id = "museum"
+scenario = "B1"
+title = "Museum"
+title_ja = "博物館"
+setting = "The ticket desk, the cloakroom and the exhibition."
+setting_ja = "チケット窓口、クローク、展示室。"
+topics = ["travel", "directions"]
+
+[[themes.levels]]
+goal = "Buy a ticket and pay by card."
+goal_ja = "チケットを買ってカードで払う。"
+turns = [
+  { who = "you", cue = "At the museum desk, greet and ask for one adult ticket.", cue_ja = "博物館の窓口であいさつし、大人1枚と頼んでください。", say = "Góðan daginn. Einn fullorðinn, takk.", items = ["godan_daginn", "einn_fullordinn_takk"] },
+  { who = "partner", say = "Það eru tvö þúsund og fimm hundruð krónur.", meaning = "That's two thousand five hundred krónur.", meaning_ja = "2500クローナです。" },
+  { who = "you", cue = "Ask if you can pay by card.", cue_ja = "カードで払えるか聞いてください。", say = "Má ég borga með korti?", items = ["ma_eg_borga_med_korti"] },
+  { who = "partner", say = "Já, auðvitað.", meaning = "Yes, of course.", meaning_ja = "はい、もちろん。" },
+]
+read = ["Inngangur", "Opnunartími"]
+
+[[themes.levels]]
+goal = "Find the cloakroom, ask about photos and closing time."
+goal_ja = "クロークを探し、写真と閉館時間について聞く。"
+turns = [
+  { who = "you", cue = "You have a big coat. Ask where the cloakroom is.", cue_ja = "大きなコートを持っています。クロークの場所を聞いてください。", say = "Hvar er fatahengið?", items = ["hvar_er", "fatahengid"] },
+  { who = "partner", say = "Niðri, til hægri.", meaning = "Downstairs, on the right.", meaning_ja = "下の階の右です。" },
+  { who = "you", cue = "Ask if you may take photos.", cue_ja = "写真を撮ってもいいか聞いてください。", say = "Má ég taka mynd?", items = ["ma_eg_taka_mynd"] },
+  { who = "partner", say = "Já, en ekki með flassi.", meaning = "Yes, but not with flash.", meaning_ja = "はい、でもフラッシュはだめです。" },
+  { who = "you", cue = "Ask when the museum closes.", cue_ja = "博物館は何時に閉まるか聞いてください。", say = "Hvenær lokar safnið?", items = ["hvenaer_lokar", "safnid"] },
+  { who = "partner", say = "Klukkan fimm.", meaning = "At five.", meaning_ja = "5時です。" },
+]
+
+[[themes]]
+id = "tour"
+scenario = "B2"
+title = "Day tour with a guide"
+title_ja = "ガイド付きの日帰りツアー"
+setting = "A coach tour: the guide talks to the group, stops at a waterfall, points at a volcano."
+setting_ja = "バスツアー。ガイドの説明、滝での休憩、火山の案内。"
+topics = ["travel", "nature"]
+
+[[themes.levels]]
+goal = "Greet the guide and find out when the coach leaves."
+goal_ja = "ガイドにあいさつし、バスの出発時刻を確かめる。"
+turns = [
+  { who = "partner", say = "Góðan daginn öll! Ég heiti Anna og ég er leiðsögumaðurinn ykkar í dag.", meaning = "Good morning, everyone! I'm Anna, and I'm your guide today.", meaning_ja = "皆さんおはようございます！今日のガイドのアンナです。" },
+  { who = "you", cue = "Greet her back.", cue_ja = "あいさつを返してください。", say = "Góðan daginn.", items = ["godan_daginn"] },
+  { who = "partner", say = "Við stoppum hérna í tuttugu mínútur.", meaning = "We'll stop here for twenty minutes.", meaning_ja = "ここで20分休憩します。" },
+  { who = "you", cue = "Ask when you're leaving.", cue_ja = "いつ出発するか聞いてください。", say = "Hvenær leggjum við af stað?", items = ["hvenaer_leggjum_vid_af_stad"] },
+  { who = "partner", say = "Klukkan hálf þrjú.", meaning = "At half past two.", meaning_ja = "2時半です。" },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
+]
+listen = [
+  { say = "Farið varlega, það er hálka.", meaning = "Be careful, it's icy.", meaning_ja = "滑りやすいので気をつけてください。" },
+  { say = "Ekki fara út af stígnum.", meaning = "Don't leave the path.", meaning_ja = "道から外れないでください。" },
+]
+read = ["Hætta", "Varúð"]
+
+[[themes.levels]]
+goal = "Ask the name of a mountain, react to the view, accept a photo."
+goal_ja = "山の名前を聞き、景色に反応し、写真を撮ってもらう。"
+turns = [
+  { who = "you", cue = "Point at a mountain and ask its name.", cue_ja = "山を指して名前を聞いてください。", say = "Hvað heitir þetta fjall?", items = ["hvad_er_thetta_fjall"] },
+  { who = "partner", say = "Þetta er Hekla. Hún er eldfjall.", meaning = "That's Hekla. It's a volcano.", meaning_ja = "ヘクラ山です。火山ですよ。" },
+  { who = "you", cue = "React to the view.", cue_ja = "景色に反応してください。", say = "Vá! Útsýnið er fallegt.", items = ["vaa", "utsynid_er_fallegt"] },
+  { who = "partner", say = "Viltu að ég taki mynd af ykkur?", meaning = "Shall I take a photo of you?", meaning_ja = "写真を撮りましょうか？" },
+  { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", say = "Já, takk.", items = ["ja", "takk"] },
+]
+
+[[themes]]
+id = "pool"
+scenario = "A6"
+title = "Swimming pool and hot pot"
+title_ja = "プールと温水浴槽"
+setting = "A public pool: the desk, the changing room, the shower rule, small talk in the hot pot."
+setting_ja = "公営プール。受付、更衣室、シャワーの決まり、温水浴槽での世間話。"
+topics = ["pool"]
+
+[[themes.levels]]
+goal = "Get in: a ticket, the changing room, the shower."
+goal_ja = "入場する：チケット、更衣室、シャワー。"
+turns = [
+  { who = "you", cue = "At the pool reception, ask for one adult entry.", cue_ja = "プールの受付で大人1人と頼んでください。", say = "Einn fullorðinn, takk.", items = ["einn_fullordinn_takk"] },
+  { who = "partner", say = "Gjörðu svo vel, hérna er armbandið.", meaning = "Here you go, here's the wristband.", meaning_ja = "どうぞ、リストバンドです。" },
+  { who = "you", cue = "Ask where the changing room is.", cue_ja = "更衣室の場所を聞いてください。", say = "Hvar er búningsklefinn?", items = ["hvar_er", "buningsklefinn"] },
+  { who = "partner", say = "Þarna, til vinstri. Skórnir fara hér.", meaning = "There, on the left. Shoes stay here.", meaning_ja = "あちらの左です。靴はここに置いてください。" },
+  { who = "you", cue = "Ask where the shower is.", cue_ja = "シャワーの場所を聞いてください。", say = "Hvar er sturtan?", items = ["hvar_er_sturtan"] },
+  { who = "partner", say = "Inni í búningsklefanum.", meaning = "Inside the changing room.", meaning_ja = "更衣室の中です。" },
+]
+read = ["Búningsklefi", "Sturta", "Skápar"]
+
+[[themes.levels]]
+goal = "Small talk in the hot pot."
+goal_ja = "温水浴槽で世間話をする。"
+turns = [
+  { who = "partner", say = "Hæ! Hvaðan ert þú?", meaning = "Hi! Where are you from?", meaning_ja = "こんにちは！どこから来たの？" },
+  { who = "you", cue = "Say you're from Japan and ask back.", cue_ja = "日本から来たと言い、聞き返してください。", say = "Ég er frá Japan. En þú?", items = ["eg_er_fra_japan", "en_thu"] },
+  { who = "partner", say = "Ég er héðan, úr Reykjavík. Er kalt í Japan núna?", meaning = "I'm from here, Reykjavík. Is it cold in Japan now?", meaning_ja = "私はここ、レイキャビクの人。日本は今寒い？" },
+  { who = "you", cue = "Say it's so cold here.", cue_ja = "ここはとても寒いと言ってください。", say = "Það er svo kalt!", items = ["thad_er_svo_kalt"] },
+  { who = "partner", say = "Já, en potturinn er heitur!", meaning = "Yes, but the hot pot is warm!", meaning_ja = "でもお湯は温かいよ！" },
+  { who = "you", cue = "Agree.", cue_ja = "同意してください。", say = "Já!", items = ["ja"] },
+]
+read = ["Heitur pottur", "Gufubað"]
+
+[[themes]]
+id = "bar"
+scenario = "A5"
+title = "Bar and other travellers"
+title_ja = "バーと旅行者どうし"
+setting = "A bar in the evening: ordering, and small talk with a traveller from somewhere else."
+setting_ja = "夜のバー。注文と、よそから来た旅行者との世間話。"
+topics = ["social", "cafe"]
+
+[[themes.levels]]
+goal = "Order a beer and say cheers."
+goal_ja = "ビールを頼んで乾杯する。"
+turns = [
+  { who = "you", cue = "At the bar, order a beer.", cue_ja = "バーでビールを頼んでください。", say = "Ég ætla að fá bjór.", items = ["eg_aetla_ad_fa", "bjor"] },
+  { who = "partner", say = "Stóran eða lítinn?", meaning = "Large or small?", meaning_ja = "大きいの？小さいの？" },
+  { who = "you", cue = "Point at the size you want.", cue_ja = "欲しいサイズを指さしてください。", say = "Þetta, takk.", items = ["thetta_takk"] },
+  { who = "partner", say = "Gjörðu svo vel. Skál!", meaning = "Here you go. Cheers!", meaning_ja = "どうぞ。乾杯！" },
+  { who = "you", cue = "Cheers!", cue_ja = "乾杯！", say = "Skál!", items = ["skal"] },
+]
+
+[[themes.levels]]
+goal = "Small talk: where you're from, what you speak."
+goal_ja = "世間話：出身と話せる言葉。"
+turns = [
+  { who = "partner", say = "Hæ! Hvaðan ert þú?", meaning = "Hi! Where are you from?", meaning_ja = "やあ、どこから来たの？" },
+  { who = "you", cue = "Say you're from Japan and ask back.", cue_ja = "日本から来たと言い、聞き返してください。", say = "Ég er frá Japan. En þú?", items = ["eg_er_fra_japan", "en_thu"] },
+  { who = "partner", say = "Ég er frá Þýskalandi. Talar þú íslensku?", meaning = "I'm from Germany. Do you speak Icelandic?", meaning_ja = "ドイツから。アイスランド語は話せるの？" },
+  { who = "you", cue = "Say you speak a little.", cue_ja = "少し話せると言ってください。", say = "Ég tala smá íslensku.", items = ["eg_tala_sma_islensku"] },
+  { who = "partner", say = "Frábært! Ég tala bara ensku.", meaning = "Great! I only speak English.", meaning_ja = "すごい！僕は英語だけ。" },
+  { who = "you", cue = "Say you're learning Icelandic.", cue_ja = "アイスランド語を勉強中だと言ってください。", say = "Ég er að læra íslensku.", items = ["eg_er_ad_laera", "islensku"] },
+]
+
+# ---------------------------------------------------------------- weather, roads and the aurora
+
+[[themes]]
+id = "weather"
+scenario = "B8"
+title = "Tomorrow's weather"
+title_ja = "明日の天気"
+setting = "The forecast on the radio, a warning on the weather site, the receptionist's advice."
+setting_ja = "ラジオの天気予報、気象サイトの警報、受付の人の助言。"
+topics = ["weather"]
+
+[[themes.levels]]
+goal = "Ask about tomorrow's weather and react."
+goal_ja = "明日の天気を聞いて反応する。"
+turns = [
+  { who = "you", cue = "Ask the receptionist what the weather will be like tomorrow.", cue_ja = "受付の人に明日の天気を聞いてください。", say = "Hvernig verður veðrið á morgun?", items = ["hvernig_verdur_vedrid_a_morgun"] },
+  { who = "partner", say = "Það verður kalt og hvasst. Það er gul viðvörun.", meaning = "It'll be cold and windy. There's a yellow warning.", meaning_ja = "寒くて風が強くなります。黄色警報が出ています。" },
+  { who = "you", cue = "Say you need a warm jacket.", cue_ja = "暖かい上着が必要だと言ってください。", say = "Ég þarf úlpu!", items = ["eg_tharf_ulpu"] },
+  { who = "partner", say = "Já, og húfu!", meaning = "Yes, and a hat!", meaning_ja = "ええ、帽子もね！" },
+]
+listen = [{ say = "Á morgun verður norðanátt og snjókoma fyrir norðan.", meaning = "Tomorrow, a north wind and snow in the north.", meaning_ja = "明日は北風で、北部では雪になるでしょう。" }]
+read = ["Veðurspá", "Gul viðvörun"]
+
+[[themes]]
+id = "road"
+scenario = "B8"
+title = "Road conditions"
+title_ja = "道路状況"
+setting = "Is the road open? Asked at a petrol station; the road signs and the road site say the same."
+setting_ja = "道は開いている？ガソリンスタンドで聞く。道路標識や道路情報サイトも同じことを伝える。"
+topics = ["transport", "weather"]
+
+[[themes.levels]]
+goal = "Ask whether the road is open and understand the answer."
+goal_ja = "道路が開いているか聞き、答えを理解する。"
+turns = [
+  { who = "you", cue = "At a petrol station, ask the clerk if the road is open.", cue_ja = "ガソリンスタンドで、道路が開いているか店員に聞いてください。", say = "Er vegurinn opinn?", items = ["er_vegurinn_opinn"] },
+  { who = "partner", say = "Nei, það er ófært yfir heiðina í dag.", meaning = "No, the pass is impassable today.", meaning_ja = "いいえ、今日は峠が通行止めです。" },
+  { who = "you", cue = "Say that's a pity.", cue_ja = "残念だと言ってください。", say = "Því miður.", items = ["thvi_midur"] },
+  { who = "partner", say = "Kíktu á umferdin.is. Þar sérðu færðina.", meaning = "Check umferdin.is. You'll see the road conditions there.", meaning_ja = "umferdin.is を見て。道路状況が出ています。" },
+  { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
+]
+read = ["Ófært", "Þungfært", "Hálka", "Vegur lokaður", "Lokað vegna veðurs"]
+
+[[themes]]
+id = "aurora"
+scenario = "B8"
+title = "Northern lights"
+title_ja = "オーロラ"
+setting = "Tonight's aurora forecast at the desk, then outside in the dark."
+setting_ja = "受付で今夜のオーロラ予報を聞き、暗い外へ。"
+topics = ["nature", "weather"]
+
+[[themes.levels]]
+goal = "Ask about tonight's chances, then react when they come."
+goal_ja = "今夜の見込みを聞き、出たときに反応する。"
+turns = [
+  { who = "you", cue = "Ask the receptionist if there's a chance of northern lights tonight.", cue_ja = "受付の人に、今夜オーロラが見られそうか聞いてください。", say = "Eru líkur á norðurljósum í kvöld?", items = ["eru_likur_a_nordurljosum"] },
+  { who = "partner", say = "Spáin er góð, en það er skýjað núna.", meaning = "The forecast is good, but it's cloudy now.", meaning_ja = "予報はいいけど、今は曇っています。" },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
+  { who = "partner", say = "Sjáðu! Norðurljósin!", meaning = "Look! The northern lights!", meaning_ja = "見て！オーロラ！" },
+  { who = "you", cue = "Later, outside, someone shouts this and points at the sky. React.", cue_ja = "あとで外で、誰かがこう叫んで空を指さしました。反応してください。", say = "Vá! Ótrúlegt!", items = ["vaa", "otrulegt"] },
+]
+read = ["Norðurljósaspá"]

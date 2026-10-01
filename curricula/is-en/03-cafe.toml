@@ -821,3 +821,48 @@ requires = ["bord_fyrir_tvo", "eg_aetla_ad_fa", "fisk", "vatn", "get_eg_fengid_r
   partner = "Já, ekkert mál."
   partner_meaning = "Yes, no problem."
   partner_meaning_ja = "はい、問題ありません。"
+
+# Lesson themes (#149), owner after lesson 12: a bakery counter, the pool, the airport,
+# the pharmacy, maps, the aurora — what each scene's exchange needs.
+
+[[items]]
+id = "thetta_takk"
+kind = "phrase"
+target = "Þetta, takk."
+meaning = "This one, please."
+meaning_ja = "これをください。"
+difficulty = 1
+topics = ["cafe", "bakery", "shopping"]
+situation = "At the bakery counter you don't know the name of the pastry you want. Point at it and ask for it."
+situation_ja = "パン屋のカウンターで、欲しいパンの名前がわかりません。指さして頼んでください。"
+
+[[items]]
+id = "snud"
+kind = "vocab"
+target = "snúð"
+meaning = "a cinnamon bun"
+meaning_ja = "シナモンロール"
+difficulty = 2
+tags = ["acc_orderable"]
+topics = ["cafe", "bakery"]
+pronunciation_notes = "accusative of snúður (kanilsnúður)"
+
+[[items]]
+id = "vinarbraud"
+kind = "vocab"
+target = "vínarbrauð"
+meaning = "a Danish pastry"
+meaning_ja = "デニッシュ"
+difficulty = 2
+tags = ["acc_orderable"]
+topics = ["cafe", "bakery"]
+
+[[items]]
+id = "runstykki"
+kind = "vocab"
+target = "rúnstykki"
+meaning = "a bread roll"
+meaning_ja = "丸パン"
+difficulty = 2
+tags = ["acc_orderable"]
+topics = ["cafe", "bakery"]

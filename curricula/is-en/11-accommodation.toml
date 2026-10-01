@@ -490,3 +490,17 @@ requires = ["herbergi_numer_tolf", "thad_er_ekkert_heitt_vatn", "get_eg_fengid_a
   cue = "Thank her warmly."
   cue_ja = "心からお礼を言ってください。"
   expect = "takk_kaerlega"
+
+# Lesson themes (#149), owner after lesson 12: a bakery counter, the pool, the airport,
+# the pharmacy, maps, the aurora — what each scene's exchange needs.
+
+[[items]]
+id = "hvar_er_sturtan"
+kind = "phrase"
+target = "Hvar er sturtan?"
+meaning = "Where is the shower?"
+meaning_ja = "シャワーはどこですか？"
+difficulty = 2
+topics = ["pool", "accommodation"]
+situation = "At the swimming pool you must shower before going in. Ask where the shower is."
+situation_ja = "プールでは入る前にシャワーを浴びる決まりです。シャワーの場所を聞いてください。"

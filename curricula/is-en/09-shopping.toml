@@ -586,3 +586,17 @@ requires = ["eg_er_ad_leita_ad_thing", "attu", "peysu", "ma_eg_mata_thetta", "th
   partner = "Frábært. Kassinn er hérna."
   partner_meaning = "Great. The till is here."
   partner_meaning_ja = "よかった。レジはこちらです。"
+
+# Lesson themes (#149), owner after lesson 12: a bakery counter, the pool, the airport,
+# the pharmacy, maps, the aurora — what each scene's exchange needs.
+
+[[items]]
+id = "attu_kort_af_svaedinu"
+kind = "phrase"
+target = "Áttu kort af svæðinu?"
+meaning = "Do you have a map of the area?"
+meaning_ja = "このあたりの地図はありますか？"
+difficulty = 3
+topics = ["shopping", "directions", "travel"]
+situation = "At the tourist information desk, ask for a map of the area."
+situation_ja = "観光案内所で、このあたりの地図があるか聞いてください。"

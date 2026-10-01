@@ -343,7 +343,7 @@ meaning = "When does {place} open?"
 meaning_ja = "{place}は何時に開きますか？"
 difficulty = 3
 topics = ["time", "directions"]
-slots = { place = "nom_place" }
+slots = { place = "opens" }  # places with opening hours: never «Hvenær opnar ísskápurinn?» (owner, lesson 12 feedback)
 example = { place = "sundlaugin" }
 prereqs = ["hvenaer", "sundlaugin"]
 
@@ -355,7 +355,7 @@ meaning = "When does {place} close?"
 meaning_ja = "{place}は何時に閉まりますか？"
 difficulty = 3
 topics = ["time", "directions"]
-slots = { place = "nom_place" }
+slots = { place = "opens" }  # places with opening hours: never «Hvenær opnar ísskápurinn?» (owner, lesson 12 feedback)
 example = { place = "safnid" }
 prereqs = ["hvenaer_opnar", "safnid"]
 

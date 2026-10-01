@@ -4177,6 +4177,88 @@ class PrematureReviewTests(unittest.TestCase):
         self.assertLessEqual(len({o[0] for o in over}), 2, over)
 
 
+class ThemeTests(unittest.TestCase):
+    """Issue #149: a lesson consolidates one scene of a trip as a short exchange, at rising
+    levels (owner, after lesson 12: a bakery as greet → "this one, please" → yes/no to a
+    bag → goodbye), across the scenes a trip is spent in."""
+
+    def setUp(self):
+        from audiolesson.cando import load_cando
+        from audiolesson.reading import load_deck, texts
+        from audiolesson.themes import load_themes
+
+        self.root = ROOT / "curricula" / "is-en"
+        self.cur = load_curriculum(self.root)
+        self.scenarios = load_cando(self.root, self.cur)
+        self.deck = texts(load_deck(self.root))
+        self.themes = load_themes(self.root, self.cur, self.scenarios, self.deck)
+
+    def test_the_course_covers_the_scenes_of_a_trip(self):
+        ids = {t.id for t in self.themes}
+        for scene in ("bakery", "cafe", "supermarket", "pharmacy", "airport", "bus_taxi", "map_info",
+                      "museum", "tour", "pool", "bar", "weather", "road", "aurora"):
+            self.assertIn(scene, ids)
+        bakery = next(t for t in self.themes if t.id == "bakery")
+        self.assertEqual([x.say for x in bakery.levels[0].turns if x.who == "you"],
+                         ["Góðan daginn.", "Þetta, takk.", "Nei, takk.", "Takk, bless."])
+        self.assertGreater(len(bakery.levels), 1, "the resolution rises")
+
+    def test_a_level_is_ready_once_its_lines_items_are_met(self):
+        from audiolesson.themes import readiness
+
+        bakery = next(t for t in self.themes if t.id == "bakery")
+        first = readiness(bakery, {"godan_daginn", "nei", "takk", "bless"})[0]
+        self.assertEqual(first["missing"], ["thetta_takk"])
+        self.assertEqual(readiness(bakery, set(bakery.levels[0].items))[0]["missing"], [])
+
+    def test_bad_themes_are_rejected(self):
+        from audiolesson.themes import load_themes
+
+        you = '{ who = "you", cue = "Greet.", say = "Hæ.", items = ["hae"] }'
+        partner = '{ who = "partner", say = "Hæ!", meaning = "Hi!" }'
+
+        def theme(turns, scenario="A1", read="[]"):
+            return (f'[[themes]]\nid = "x"\nscenario = "{scenario}"\ntitle = "t"\nsetting = "s"\n'
+                    f'[[themes.levels]]\ngoal = "g"\nturns = [{turns}]\nread = {read}\n')
+
+        for body, message in (
+            (theme(partner), "says nothing"),
+            (theme(you.replace('cue = "Greet.", ', "")), "cue and items"),
+            (theme(you + ", " + partner.replace('meaning = "Hi!"', 'meaning = "Hi!", items = ["hae"]')), "no cue or items"),
+            (theme(you + ", " + you.replace('"you"', '"guide"')), "who must be"),
+            (theme(you, scenario="Z9"), "unknown scenarios"),
+            (theme(you.replace('["hae"]', '["nope"]')), "unknown items"),
+            (theme(you, read='["Ekki til"]'), "reading deck"),
+            (theme(you.replace('who = "you"', 'who = "you", mood = "x"')), "level 1"),
+        ):
+            with self.subTest(message=message), tempfile.TemporaryDirectory() as td:
+                (Path(td) / "cando").mkdir()
+                (Path(td) / "cando" / "themes.toml").write_text(body, "utf-8")
+                with self.assertRaises(CurriculumError) as ctx:
+                    load_themes(td, self.cur, self.scenarios, self.deck)
+                self.assertIn(message, str(ctx.exception))
+
+    def test_opening_hours_are_asked_only_of_places_that_open(self):
+        """Owner, lesson 12 feedback: an implausible sentence is never generated."""
+        for cid in ("hvenaer_opnar", "hvenaer_lokar"):
+            fills = {f.id for f in self.cur.items_with_tag(self.cur.by_id[cid].slots["place"])}
+            self.assertIn("sundlaugin", fills)
+            self.assertFalse(fills & {"isskapurinn", "lyftan", "rofinn", "strætó", "lykillinn"}, cid)
+
+    def test_themes_cli(self):
+        import contextlib
+        import io
+
+        from audiolesson.cli import main
+
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.assertEqual(main(["themes", str(self.root), "--json", "--learner", "/nonexistent/learner.json"]), 0)
+        out = json.loads(buf.getvalue())
+        self.assertEqual(len(out), len(self.themes))
+        self.assertTrue(all(lv["missing"] for t in out for lv in t["readiness"]), "nothing met yet")
+
+
 class JapaneseInstructorTests(unittest.TestCase):
     def test_fr_ja_curriculum_builds_a_lesson_in_japanese(self):
         cur = load_curriculum(ROOT / "curricula" / "fr-ja-a1.toml")

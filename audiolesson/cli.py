@@ -17,8 +17,9 @@ from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
 from .script import Script
 from .timing import Timing
-from .reading import load_deck
+from .reading import load_deck, texts
 from .scenes import available, load_scenes, uncovered
+from .themes import format_themes, load_themes, readiness
 from .trip import load_trip
 
 
@@ -112,6 +113,12 @@ def main(argv: list[str] | None = None) -> int:
     sc.add_argument("--learner", dest="learner_file", default=None, help="learner.json: only cards whose items the learner has met (none met if the file is missing)")
     sc.add_argument("--trip", default=None, help="private trip profile: its season decides the seasonal cards")
     sc.set_defaults(func=cmd_scenes)
+
+    th = sub.add_parser("themes", help="the lesson themes (#149): each scene's exchange, level by level")
+    th.add_argument("curriculum")
+    th.add_argument("--learner", dest="learner_file", default=None, help="learner.json: what each level still needs")
+    th.add_argument("--json", action="store_true", help="as JSON")
+    th.set_defaults(func=cmd_themes)
 
     vo = sub.add_parser("voices", help="list default voices a provider offers for a language")
     vo.add_argument("--provider", default="edge")
@@ -471,6 +478,10 @@ def cmd_validate(args) -> int:
         if missing:
             raise CurriculumError(f"Tier A scenarios without a scenario card (#129): {missing}")
         print(f"{len(scenes)} scenario cards (#129); every Tier A scenario has one")
+    themes = load_themes(args.curriculum, cur, scenarios, texts(load_deck(args.curriculum))) if scenarios else []
+    if themes:
+        levels = sum(len(t.levels) for t in themes)
+        print(f"{len(themes)} lesson themes (#149), {levels} levels; `audiolesson themes` lists them")
     if args.cando:
         if not scenarios:
             print("no can-do scenarios (<curriculum>/cando/*.toml)")
@@ -516,6 +527,23 @@ def cmd_scenes(args) -> int:
         for c in cards
     ]
     print(json.dumps(out, ensure_ascii=False))
+    return 0
+
+
+def cmd_themes(args) -> int:
+    cur = load_curriculum(args.curriculum)
+    scenarios = load_cando(args.curriculum, cur)
+    themes = load_themes(args.curriculum, cur, scenarios, texts(load_deck(args.curriculum)))
+    met = None
+    if args.learner_file:  # not "learner": the --user wrapper would demand one
+        path = Path(args.learner_file)
+        learner = LearnerState.load(path) if path.exists() else None
+        met = {it.id for it in cur.items if learner is not None and learner.has_met(it.id)}
+    if args.json:
+        out = [{**t.to_dict(), **({"readiness": readiness(t, met)} if met is not None else {})} for t in themes]
+        print(json.dumps(out, ensure_ascii=False))
+    else:
+        print(format_themes(themes, met))
     return 0
 
 

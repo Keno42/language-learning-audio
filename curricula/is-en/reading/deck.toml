@@ -766,3 +766,169 @@ text = "kirkja"
 meaning = "church"
 meaning_ja = "教会"
 hint_ja = "キルキャ"
+
+# ---------------------------------------------------------------- lesson themes (#149)
+# What the themes' scenes put in front of the learner: the airport, the pharmacy, the
+# weather, road and aurora forecasts, a map, the bakery and the supermarket shelves.
+
+[[cards]]
+id = "s_komur"
+stage = "signs"
+text = "Komur"
+meaning = "Arrivals"
+meaning_ja = "到着"
+hint_ja = "コームル"
+
+[[cards]]
+id = "s_brottfarir"
+stage = "signs"
+text = "Brottfarir"
+meaning = "Departures"
+meaning_ja = "出発"
+hint_ja = "ブロットファリル"
+
+[[cards]]
+id = "s_farangur"
+stage = "signs"
+text = "Farangur"
+meaning = "Baggage"
+meaning_ja = "手荷物"
+hint_ja = "ファーラウングル"
+
+[[cards]]
+id = "s_tollur"
+stage = "signs"
+text = "Tollur"
+meaning = "Customs"
+meaning_ja = "税関"
+hint_ja = "トットル"
+
+[[cards]]
+id = "s_upplysingar"
+stage = "signs"
+text = "Upplýsingar"
+meaning = "Information"
+meaning_ja = "案内所"
+hint_ja = "ウプリースィンガル"
+
+[[cards]]
+id = "s_apotek"
+stage = "signs"
+text = "Apótek"
+meaning = "Pharmacy"
+meaning_ja = "薬局"
+hint_ja = "アーポウテーク"
+
+[[cards]]
+id = "s_vedurspa"
+stage = "signs"
+text = "Veðurspá"
+meaning = "Weather forecast"
+meaning_ja = "天気予報"
+hint_ja = "ヴェーズルスパウ"
+
+[[cards]]
+id = "s_gul_vidvorun"
+stage = "signs"
+text = "Gul viðvörun"
+meaning = "Yellow weather warning"
+meaning_ja = "黄色の気象警報"
+hint_ja = "グール ヴィズヴォールン"
+
+[[cards]]
+id = "s_ofaert"
+stage = "signs"
+text = "Ófært"
+meaning = "Impassable: the road can't be driven"
+meaning_ja = "通行不能"
+hint_ja = "オウファイルト"
+
+[[cards]]
+id = "s_thungfaert"
+stage = "signs"
+text = "Þungfært"
+meaning = "Heavy going: snow on the road"
+meaning_ja = "雪で走りにくい"
+hint_ja = "スウングファイルト"
+
+[[cards]]
+id = "s_nordurljosaspa"
+stage = "signs"
+text = "Norðurljósaspá"
+meaning = "Aurora forecast"
+meaning_ja = "オーロラ予報"
+hint_ja = "ノルズルリョウサスパウ"
+parts = [["norðurljós", "オーロラ"], ["spá", "予報"]]
+
+[[cards]]
+id = "p_landakort"
+stage = "shop"
+text = "Landakort · Vegakort"
+meaning = "Map · Road map: what a map is called in the shop"
+meaning_ja = "地図・道路地図（kort だけでも「地図」。カードの意味もある）"
+hint_ja = "ランダコルト・ヴェーガコルト"
+words = [["Landakort", "地図"], ["Vegakort", "道路地図"]]
+
+[[cards]]
+id = "p_matsedill"
+stage = "shop"
+text = "Matseðill"
+meaning = "Menu"
+meaning_ja = "メニュー"
+hint_ja = "マートセジトル"
+
+[[cards]]
+id = "p_supa_dagsins"
+stage = "shop"
+text = "Súpa dagsins"
+meaning = "Soup of the day"
+meaning_ja = "本日のスープ"
+hint_ja = "スーパ ダクスィンス"
+
+[[cards]]
+id = "p_kanilsnudur"
+stage = "shop"
+text = "Kanilsnúður"
+meaning = "Cinnamon bun"
+meaning_ja = "シナモンロール"
+hint_ja = "カニルスヌーズル"
+
+[[cards]]
+id = "p_vinarbraud"
+stage = "shop"
+text = "Vínarbrauð"
+meaning = "Danish pastry"
+meaning_ja = "デニッシュ"
+hint_ja = "ヴィーナルブロイズ"
+
+[[cards]]
+id = "p_mjolkurvorur"
+stage = "shop"
+text = "Mjólkurvörur"
+meaning = "Dairy products"
+meaning_ja = "乳製品"
+hint_ja = "ミョウルクルヴォールル"
+
+[[cards]]
+id = "p_avextir"
+stage = "shop"
+text = "Ávextir og grænmeti"
+meaning = "Fruit and vegetables"
+meaning_ja = "果物と野菜"
+hint_ja = "アウヴェクスティル オグ グライエンメティ"
+
+[[cards]]
+id = "p_best_fyrir"
+stage = "shop"
+text = "Best fyrir"
+meaning = "Best before"
+meaning_ja = "賞味期限"
+hint_ja = "ベスト フィリル"
+
+[[cards]]
+id = "p_verkjalyf"
+stage = "shop"
+text = "Verkjalyf"
+meaning = "Painkillers"
+meaning_ja = "鎮痛剤"
+hint_ja = "ヴェルキャリーヴ"

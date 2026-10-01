@@ -483,3 +483,17 @@ requires = ["hvernig_verdur_vedrid_a_morgun", "thetta_reddast", "eg_tharf_ulpu",
   partner = "Gott. Góða nótt!"
   partner_meaning = "Good. Good night!"
   partner_meaning_ja = "いいね。おやすみ！"
+
+# Lesson themes (#149), owner after lesson 12: a bakery counter, the pool, the airport,
+# the pharmacy, maps, the aurora — what each scene's exchange needs.
+
+[[items]]
+id = "eru_likur_a_nordurljosum"
+kind = "phrase"
+target = "Eru líkur á norðurljósum í kvöld?"
+meaning = "Is there a chance of northern lights tonight?"
+meaning_ja = "今夜オーロラが見られる見込みはありますか？"
+difficulty = 3
+topics = ["weather", "nature"]
+situation = "You ask the hotel receptionist about tonight's aurora forecast."
+situation_ja = "ホテルの受付の人に、今夜オーロラが見られそうか聞きます。"

@@ -22,6 +22,7 @@ came about is in `docs/history/sessions.md`.
 | travel can-do scenarios and their coverage report (#131) | `curricula/is-en/cando/travel.toml`, `audiolesson/cando.py`, `validate --cando`; see `docs/TRAVEL-CANDO.md` |
 | trip ordering from a private profile (#132) | `audiolesson/trip.py`, `cando.priority_items`, `PlanConfig.priority`, `generate --trip` |
 | scenario cards for the Discord review (#129) | `curricula/is-en/cando/scenes.toml`, `audiolesson/scenes.py`, `audiolesson scenes` |
+| lesson themes: a trip's scenes as exchanges at rising levels (#149) | `curricula/is-en/cando/themes.toml`, `audiolesson/themes.py`, `audiolesson themes`; see `docs/TRAVEL-CANDO.md` |
 | reading deck for the Discord review (#133) | `curricula/is-en/reading/deck.toml`, `audiolesson/reading.py`, `audiolesson reading` |
 | loading those record files (`cando/`, `reading/`) | `audiolesson/records.py` |
 | what the instructor says for a meaning (`meaning_spoken`, #143) | `Item.spoken_meaning` in `audiolesson/content.py` |

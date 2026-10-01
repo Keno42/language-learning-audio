@@ -56,7 +56,7 @@ title = "Café"
 title_ja = "カフェ"
 setting = "Ordering a drink and a pastry at the counter."
 success = "Orders with «Ég ætla að fá … / Get ég fengið …?», answers for here or to go and «Eitthvað fleira?», pays."
-items = ["kaffihusid", "kaffi", "te", "koku", "samloku", "eg_aetla_ad_fa", "get_eg_fengid", "eg_aetla_ad_fa_addon", "med_mjolk", "tvo_kaffi", "thetta_er_allt", "ekkert_meira_takk", "ma_eg_borga_med_korti", "til_ad_taka_med", "eg_aetla_ad_borda_herna"]
+items = ["kaffihusid", "kaffi", "te", "koku", "samloku", "eg_aetla_ad_fa", "get_eg_fengid", "eg_aetla_ad_fa_addon", "med_mjolk", "tvo_kaffi", "thetta_er_allt", "ekkert_meira_takk", "ma_eg_borga_med_korti", "til_ad_taka_med", "eg_aetla_ad_borda_herna", "thetta_takk", "snud", "vinarbraud"]
 clerk_lines = ["Hvað má bjóða þér?", "Eitthvað fleira?", "Til að taka með?"]
 respect = ["greet", "thanks", "farewell"]
 
@@ -78,7 +78,7 @@ title = "Public pool"
 title_ja = "公共の温泉プール"
 setting = "Buying an entry, the changing room, the hot tub."
 success = "Buys an entry, follows the shower-first rule from the signs, exchanges a few lines in the hot tub."
-items = ["sundlaugin", "hvad_kostar", "einn_fullordinn_takk", "sundfot", "sturtan", "heiti_potturinn", "er_heitur_pottur_herna", "thad_er_svo_kalt", "hvadan_ert_thu", "eg_er_fra_japan"]
+items = ["sundlaugin", "hvad_kostar", "einn_fullordinn_takk", "sundfot", "sturtan", "heiti_potturinn", "er_heitur_pottur_herna", "thad_er_svo_kalt", "hvadan_ert_thu", "eg_er_fra_japan", "buningsklefinn", "hvar_er_sturtan"]
 reading = ["Sturta", "Búningsklefi", "Skápar", "Heitur pottur", "Karlar", "Konur"]
 respect = ["greet", "shower_rule"]
 
@@ -132,8 +132,7 @@ title = "Museum"
 title_ja = "博物館"
 setting = "The ticket desk and the exhibition."
 success = "Buys tickets, asks about photos and closing time."
-items = ["safnid", "fara_a_safnid", "kaupa_mida", "mida", "einn_mida_takk", "thrja_mida", "ma_eg_taka_mynd", "hvenaer_lokar"]
-missing = ["the cloakroom"]
+items = ["safnid", "fara_a_safnid", "kaupa_mida", "mida", "einn_mida_takk", "thrja_mida", "ma_eg_taka_mynd", "hvenaer_lokar", "fatahengid", "hvar_er"]
 respect = ["greet", "thanks"]
 
 [[scenarios]]
@@ -185,6 +184,48 @@ title_ja = "冬の話題と安全"
 setting = "Cold, wind, ice, darkness, closed roads."
 success = "Comments on the weather and understands warnings about ice and closures."
 items = ["kalt", "rok", "snjor", "halka", "thad_snjoar", "thad_er_svo_kalt", "mer_er_kalt", "thad_er_dimmt_uti", "thad_er_halka", "er_vegurinn_opinn", "vegurinn_er_lokadur", "eg_tharf_ulpu"]
+
+[[scenarios]]
+id = "B7"
+tier = "B"
+title = "Pharmacy and everyday goods"
+title_ja = "薬局と日用品"
+setting = "A pharmacy or a supermarket shelf: a headache, chapped lips in the cold, toothpaste."
+success = "Asks for something for a headache and for an everyday item, and understands the price."
+items = ["hvar_er_naesta_apotek", "attu_eitthvad_vid_hofudverk", "attu", "varasalva", "tannkrem", "plastur", "handaburd", "hvad_kostar_thetta"]
+reading = ["Apótek", "Verkjalyf"]
+
+[[scenarios]]
+id = "B8"
+tier = "B"
+title = "Weather, road and aurora information"
+title_ja = "天気・道路・オーロラの情報"
+setting = "A forecast, a road closure, tonight's aurora chances: asked at the desk or read on a sign or a site."
+success = "Asks about tomorrow's weather, whether a road is open and tonight's aurora, and gets the gist of the answer."
+items = ["hvernig_verdur_vedrid_a_morgun", "er_vegurinn_opinn", "vegurinn_er_lokadur", "thad_er_halka", "eru_likur_a_nordurljosum", "nordurljosin", "eg_tharf_ulpu"]
+reading = ["Veðurspá", "Gul viðvörun", "Ófært", "Þungfært", "Norðurljósaspá"]
+clerk_lines = ["Það verður kalt og hvasst.", "Það er ófært yfir heiðina í dag.", "Spáin er góð, en það er skýjað."]
+
+[[scenarios]]
+id = "B9"
+tier = "B"
+title = "Airport"
+title_ja = "空港"
+setting = "Arriving and finding the coach; checking in a bag and finding the gate."
+success = "Finds the coach on arrival, checks in a bag and finds the gate."
+items = ["hvar_er_rutan", "eg_er_med_eina_tosku", "hvar_er_hlidid", "flugid_er_seinkad", "gjordu_svo_vel"]
+reading = ["Komur", "Brottfarir", "Farangur", "Tollur", "Útgangur"]
+clerk_lines = ["Vegabréfið, takk.", "Ertu með farangur?", "Hliðið er númer tólf."]
+
+[[scenarios]]
+id = "B10"
+tier = "B"
+title = "Maps and tourist information"
+title_ja = "地図と観光案内"
+setting = "The tourist information desk: a free map, where you are, where to go."
+success = "Gets a map and has the way shown on it."
+items = ["attu_kort_af_svaedinu", "geturdu_synt_mer_a_kortinu", "kort_map"]
+reading = ["Upplýsingar", "Landakort", "Vegakort", "Ókeypis"]
 
 # ---------------------------------------------------------------- Tier C: nice to have
 

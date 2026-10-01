@@ -500,3 +500,17 @@ requires = ["eg_a_bokun", "eg_er_med_eina_tosku", "hvar_er_hlidid", "hvenaer_fer
   partner = "Klukkan hálf þrjú. Góða ferð!"
   partner_meaning = "At half past two. Have a good trip!"
   partner_meaning_ja = "2時半です。良いご旅行を！"
+
+# Lesson themes (#149), owner after lesson 12: a bakery counter, the pool, the airport,
+# the pharmacy, maps, the aurora — what each scene's exchange needs.
+
+[[items]]
+id = "hvar_er_rutan"
+kind = "phrase"
+target = "Hvar er rútan?"
+meaning = "Where is the coach?"
+meaning_ja = "長距離バスはどこですか？"
+difficulty = 2
+topics = ["transport", "travel"]
+situation = "You've landed at the airport and want the coach into town. Ask where it is."
+situation_ja = "空港に着きました。市内行きの長距離バスに乗りたいので、どこか聞いてください。"

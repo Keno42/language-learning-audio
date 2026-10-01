@@ -275,9 +275,10 @@ audiolesson/
   render/       audio.py (PCM/ffmpeg), tts.py (providers), renderer.py (script → file)
   cli.py        commands, incl. the --user/--root wrapper (out/<user>/, settings.json)
   cando.py      travel can-do scenarios, their coverage report, the trip ordering (with trip.py)
-  scenes.py     scenario cards; reading.py  reading deck; records.py  loads both kinds of file
+  scenes.py     scenario cards; themes.py  lesson themes; reading.py  reading deck;
+                records.py  loads those files
 curricula/      learning material: fr-en-a1, fr-ja-a1 (files), is-en/ (27 modules, plus cando/ and
-                reading/ for the travel scenarios, scenario cards and reading deck)
+                reading/ for the travel scenarios, scenario cards, lesson themes and reading deck)
 tools/          daily.sh (one day of the routine), derive_fr_ja.py (keeps fr-ja in sync with fr-en),
                 gloss.py (inserts <field>_<lang> glosses), phrase_families.py (fixed-phrase audit)
 profiles/       voice profiles (provider + voice per speaker)

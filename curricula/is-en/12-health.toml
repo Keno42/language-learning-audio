@@ -568,3 +568,48 @@ requires = ["mer_lidur_illa", "eg_er_med", "hita", "halsbolgu", "thad_er_sart_he
   partner = "Gott. Bless bless!"
   partner_meaning = "Good. Bye bye!"
   partner_meaning_ja = "結構です。またね！"
+
+# Lesson themes (#149), owner after lesson 12: a bakery counter, the pool, the airport,
+# the pharmacy, maps, the aurora — what each scene's exchange needs.
+
+[[items]]
+id = "tannkrem"
+kind = "vocab"
+target = "tannkrem"
+meaning = "toothpaste"
+meaning_ja = "歯磨き粉"
+difficulty = 2
+tags = ["acc_thing"]
+topics = ["health", "pharmacy", "shopping"]
+
+[[items]]
+id = "varasalva"
+kind = "vocab"
+target = "varasalva"
+meaning = "lip balm"
+meaning_ja = "リップクリーム"
+difficulty = 2
+tags = ["acc_thing"]
+topics = ["health", "pharmacy", "shopping"]
+pronunciation_notes = "accusative of varasalvi"
+
+[[items]]
+id = "plastur"
+kind = "vocab"
+target = "plástur"
+meaning = "a plaster"
+meaning_ja = "絆創膏"
+difficulty = 2
+tags = ["acc_thing"]
+topics = ["health", "pharmacy", "shopping"]
+
+[[items]]
+id = "handaburd"
+kind = "vocab"
+target = "handáburð"
+meaning = "hand cream"
+meaning_ja = "ハンドクリーム"
+difficulty = 2
+tags = ["acc_thing"]
+topics = ["health", "pharmacy", "shopping"]
+pronunciation_notes = "accusative of handáburður"
