@@ -174,7 +174,7 @@ changed it).
 | **H6** | Chunks first, patterns next, transfer last. A fixed chunk said often becomes fluent (token frequency). A pattern used with many different fillings becomes productive (type frequency). Teach a pattern when two fillings are known, then move it to new words. | Usage-based learning (Bybee 2006); formulaic language (Wray 2002); #29's "capabilities outward". | Constructions with slots and `meaning_forms`; milestones with `transfer_items`; recombination; substitution runs (PR #153) | Substitution drills don't help the learner produce combinations they haven't heard (scenario cards with new fillings) | adopted (principle); testing (substitution) |
 | **H7** | Every generated sentence must be plausible in its scene. An implausible one teaches less than it costs. | Owner (after lesson 12: never produce "order a passport at the café"); H3. | Case- and meaning-tagged slots; `opens` (PR #155); scene templates (#152) | — | adopted |
 | **H8** | Natural-speed partner lines with some unknown words (the owner suggests 10–20%), in a familiar scene, build the tolerance needed to get through real exchanges. | The owner's hypothesis, and their preference for more listening time over shorter lessons (§5.7); the #129 pilots (common clerk lines were not understood). **Caveat:** detailed comprehension needs about 95% of the words to be known when listening and 98% when reading (van Zeeland & Schmitt 2013; Hu & Nation 2000). At 80–90%, expect gist from context, not learning of the unknown words. So the scene must carry the meaning. | Scenario cards (partner lines may go beyond the course); partner turns in themes (PR #155); #134 | Respond and repair cards with unknown words stay at 言えなかった, or the learner finds them discouraging rather than useful | bet |
-| **H9** | The number of new items, throttled only by recall reports, keeps the load right. The pace design aims at about 6–10 new productive items per 30 minutes and about 80–85% next-day success. | README "Pacing"; desirable difficulties (Bjork 1994): too easy wastes time, too hard fails. | `suggest_pace` | The load rating drifts to "heavy", or next-day failures stay above 20%, at the pace actually used | **revised:** the actual number of new items is not the pace (§7, G4). The learner prefers a full lesson with more new material to hear over a shorter one, as long as long stretches aren't incomprehensible (§5.7) |
+| **H9** | The number of new items, throttled only by recall reports, keeps the load right. The pace design aims at about 6–10 new productive items per 30 minutes and about 80–85% next-day success. | README "Pacing"; desirable difficulties (Bjork 1994): too easy wastes time, too hard fails. | `suggest_pace` | The load rating drifts to "heavy", or next-day failures stay above 20%, at the pace actually used | **revised:** the actual number of new items is not the pace (§7, G4). The learner prefers a full lesson with more new material to hear over a shorter one, as long as long stretches aren't incomprehensible (§5.7). **First read (§5.8):** 19 of 19 next-day recalls at 5–8 new items a lesson; no sign of overload, possibly a ceiling |
 | **H10** | Self-reports are informative when they are made the next day, with the answer hidden until the learner has tried. They are noisy, lean towards success and must never be produced by an LLM. | Delayed judgements of learning are far more accurate than immediate ones (Nelson & Dunlosky 1991); #129 (GPT transcripts did not match what was said). | The bot's review (answer revealed only after trying; 3-point scale); the feedback form | The ratings stop telling recalled lines from guessed or failed ones | **revised (§5.7):** for this learner the scale is binary. They answer at once and are right or wrong, so «迷った» never applies; 言えた and 言えなかった carry the signal |
 | **H11** | Practice spent on items the learner plainly knows is waste, and the learner notices it. A known item should wait for its date. | Spacing (H1); #94; the owner after lesson 12 (já, nei, hæ every lesson although reported 言えた). | Not-due items wait (#94); stable items never fill (PR #153) | — | adopted (#94); the recurrence is fixed in PR #153 |
 | **H12** | Variety, coherence and visible progress keep a daily routine alive. Boredom ("a game of memorizing") is the biggest threat to every other outcome. | Owner, #12 and after lesson 12; Nation's four strands (Nation 2007), whose message is that a course should not be all drill. | Dialogues, exchanges, notes, scenes, reading cards | The routine continues and the learner reports no boredom with a drill-heavy lesson | adopted (value) |
@@ -318,6 +318,49 @@ exceptions are content priorities (numbers, languages, colours, scenes) and two 
   input, the thinnest of the four strands (§4). It should come with a scene that carries
   the meaning (H8) and a word that full recall isn't expected (O5).
 
+### 5.8 The first weekly read (lessons 7–12, the evening after lesson 12)
+
+The first `/lesson-week` (site_update_notifier#59), read with §1's last checklist.
+
+- **This week is the baseline.** No lesson in it was generated with #147, #148, #153, #154 or
+  #157 (lesson 11 used language-learning-audio `f272343`, lesson 12 `8d8dfaa`). There is no
+  prediction to check yet. The next reads compare with what follows.
+- **Amount.** New items per lesson 7, 9, 5, 6, 8, 9, against paces 5, 4, 3, 4, 5, 6;
+  lengths 28–31 minutes. The pace recovered from 3 to 6 over the week.
+- **Next-day recall of new lines.** From lesson 9 on, every new item was answered: **19 of 19
+  recalled** (lessons 9–11, five to eight new items each). In lesson 7 one new item failed
+  (the other six have no stored answer), lesson 8 has no stored answers (per-item outcomes
+  weren't stored before lesson 9), and lesson 12's await the next review. The report now
+  tells these apart (site_update_notifier#62).
+  - At five to eight new items, next-day recall is not what limits the learner: H9 shows no
+    sign of overload. One of the two forms called the lesson light.
+  - Two cautions. It may be a ceiling: the learner commits to an answer at once (§5.7), so
+    the scale is lenient or the items are easy at this pace. And the pace had just been cut
+    to 3–5 after the failures in lessons 3–7, so the items may be easier because there are
+    fewer of them.
+  - It doesn't say the pace should rise. The complaint is repetition and lack of context, not
+    load (§5.3, §5.6). It does fit the learner's wish for more to hear (§5.7).
+- **Long phrases.** Not recalled: 2 of 13 one-to-two-word items against 5 of 13 with three
+  words or more. The earlier read (§5.2) counted every new item of lessons 3–7 and found 9 of
+  24 against 2 of 27. The direction holds and the gap is smaller. All the failures are from
+  lessons 3–7, the heavy early lessons (14, 11 and 11 new items), and there has been one
+  since lesson 8, so phrase length and early load can't be told apart (G9). Too small to
+  act on.
+- **Scenario readiness.** Tier A, ten scenes: none ready, six practising, four untaught
+  (café, public pool, essential signs, place names). Tier B, four scenes with cards: all
+  untaught. Not alarming yet: the cards are shown three a day, a scene is ready only when
+  every card was rated 言えた at its latest review, and most cards haven't been seen. The
+  trip ordering began with lesson 12. This reading becomes informative after about two
+  weeks (some thirty-five cards at three a day). If no scene is ready after three weeks,
+  find out why.
+- **Feedback.** Two forms: load "light" once and "about right" once; "repetitive" once; the
+  note about two new items never heard (fixed in #147).
+- **What the instrument couldn't show.** How often a well-known item came back, and how long
+  a new item waited, were not in the report. It now has them (site_update_notifier#62). On
+  the real lesson 12: isolated recall 64% of practice time, partner exchanges 10%; four
+  reviewed items came back four times each (Allt gott, fimm, Góðan daginn, Takk); a new item
+  (matseðilinn) waited 20 minutes between its early practice and the closing recall.
+
 ---
 
 ## 6. Signals: what each can and cannot tell us
@@ -360,7 +403,9 @@ exceptions are content priorities (numbers, languages, colours, scenes) and two 
 
 | question | hypothesis | where to look |
 |---|---|---|
-| Does next-day recall of new lines stay at about 80% or better at the pace actually used? | H9 | Review outcomes for the previous lesson's new items |
+| Does next-day recall of new lines stay at about 80% or better at the pace actually used? So far 19 of 19 (§5.8) | H9 | Review outcomes for the previous lesson's new items |
+| If next-day recall stays near 100%, is the limit now boredom rather than load? Would the learner take more new items? | H9, H12 | Ask; the forms' load rating |
+| After the bump to #153: does any reviewed item come back three times or more in a lesson, and do the forms still say "repetitive"? | H11 | `/lesson-week` «レッスンの中身»; the forms |
 | Do phrases of three or more words keep failing more often than short ones? | G9 | Failures by phrase length |
 | ~~Does the learner use «迷った» when unsure?~~ Answered: no, they commit to an answer at once (§5.7) | H10 | — |
 | Are lines practised in situations rated better in scenario cards than lines practised only from meanings? | H3 | Scenario cards against each line's stage history |
@@ -383,7 +428,7 @@ exceptions are content priorities (numbers, languages, colours, scenes) and two 
 | **G6** | **Plausibility rests on slot tags.** Implausible or ungrammatical sentences can still be generated: «Hvenær opnar ísskápurinn?» before PR #155, and «Ég vil blár.» (the colour should be accusative). | Found after L12 | O1; H7 |
 | **G7** | **Three schedulers.** The audio's learner model, the Discord review queue (its own 1→3→7→14→30-day steps) and the card queues each decide what comes back, and their combined effect has never been examined. They are separate kinds of evidence by design (#129), but the learner experiences their sum. | Bot README | O5; H10, H11 |
 | **G8** | ~~The self-report scale may not discriminate.~~ Resolved: the learner answers at once, right or wrong, so the scale is binary in practice and that is enough (§5.7). | §5.2, §5.7 | H10 |
-| **G9** | **Long phrases fail most.** Three-word-plus formulas get the same treatment as short ones. | §5.2 (9/24 vs 2/27) | O1; H1, H9 |
+| **G9** | **Long phrases fail most.** Three-word-plus formulas get the same treatment as short ones. | §5.2 (9/24 vs 2/27); §5.8 (5/13 vs 2/13), all failures in the heavy early lessons | O1; H1, H9 |
 | **G10** | **Content isn't native-reviewed.** All the scene lines, partner lines and glosses are candidates. | README | O1–O4 |
 
 ---
@@ -399,7 +444,9 @@ what. Re-rank it when the evidence moves.
    - Ask the learner when a signal is ambiguous (as with «迷った», §5.7).
    - A small report that puts the week's numbers side by side: next-day recall of new lines,
      failures by item and phrase length, scenario readiness per tier, feedback forms. It
-     should come from the data the bot already keeps (§6.1).
+     comes from the data the bot already keeps (§6.1). **Built:** `/lesson-week`
+     (site_update_notifier#59, #62). The first read is §5.8; the next ones follow the bump
+     to #153.
 2. **Build lessons around a scene (G2, G5, and G3 through partner turns), in steps (#149).**
    It is the main bet (H4). Test it as a bet: first a theme exchange inserted into today's
    planner, run twice per lesson with other fillings, with time-based spacing for today's
