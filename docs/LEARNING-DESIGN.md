@@ -127,6 +127,22 @@ culture".
 | **O4** | **Show respect** | Greeting, thanks and farewell in the right places; staying in Icelandic when the other person switches to English; cultural ease (#135). |
 | **O5** | **Keep going** | The daily routine survives: not boring, not overloading, progress visible. Every other outcome depends on it. The owner, on day one: "just listing greetings is simply a game of memorizing. it is not only difficult but also boring" (#12). |
 
+### The daily dose (owner, after lesson 13)
+
+The routine is a daily dose of Icelandic that the brain can work on, with sleep between doses.
+In the owner's words: a load too light is no learning at all (wasted time), and a lesson that
+doesn't reach its 30 minutes is a day short of time; the reserved time has to be used fully to
+stimulate the language areas of the brain and build the circuits, and sleep is part of how
+the brain consolidates, so a day with a light lesson is a real loss. "Number of new items" is a
+means of a means of a means, and not what to hold on to. The owner wants a proper learning
+plan, and the 言えなかった answers respected: only the last lesson's failures seem to come back
+in review (§5.10).
+
+What this fixes: the *time* of each lesson is a requirement, filled with things that load the
+learner (new material to hear, exchanges, failed items brought back until recalled), never with
+repetition of what is known (H11) and never by stretching pauses (§9). What it doesn't fix:
+a number of new items, or a length for its own sake (§11).
+
 ### Not the goal
 
 - Item counts, curriculum coverage or a high retention number for their own sake. These are
@@ -409,6 +425,18 @@ the trip profile. Figures are from the export's `script.json`, `plan.json` and
 - **Sequencing:** «Hvenær?» is introduced at 597 s, the phrase «Hvenær leggjum við af stað?»
   at 303 s. The phrase's item has no `prereqs` entry for the word, though `hvenaer` is its
   first word. A data gap, not a planner choice.
+- **Failures are forgotten after the next lesson (the learner's impression: "only the last
+  review's 言えなかった come back").** In the model a confirmed failure sets the item back to
+  tomorrow, with a lower ease (`learner.report`). From the next lesson on, every scheduled
+  practice is *presumed* success again and the interval grows; nothing requires a confirmed
+  recall before it does. Examples from `learner.before.json`: «Fyrirgefðu» failed in lessons 3
+  and 4, and then had eight lessons of presumed success (17 successes, **0 confirmed recalls**),
+  and is next due in eight days; «Hvað sagðirðu?» failed in 6 and 7 (18 successes, 1 confirmed
+  recall); «Eigðu góðan dag.», «Gangi þér vel» and «Verði þér að góðu» failed in lessons 3–4 and
+  have not been confirmed since either. None of the four appears in lesson 13. The Discord
+  review asks about items due in its own queue and always the last lesson's new items, so an
+  older failure is rarely asked again (G7). Confirmed evidence (§9, "Evidence") for these
+  items is a failure and then silence.
 - **What this says about H4:** the learner describes in their own words what the document
   calls G2: the lesson is a list of items, not an exchange they would have. It comes after a
   round of local fixes (§5.9) and the other remarks (allocation, scaffolds, order) have
@@ -488,7 +516,7 @@ fraction of the lesson's time the theme exchange would take.
 | **G8** | ~~The self-report scale may not discriminate.~~ Resolved: the learner answers at once, right or wrong, so the scale is binary in practice and that is enough (§5.7). | §5.2, §5.7 | H10 |
 | **G9** | **Long phrases fail most.** Three-word-plus formulas get the same treatment as short ones. | §5.2 (9/24 vs 2/27); §5.8 (5/13 vs 2/13), all failures in the heavy early lessons | O1; H1, H9 |
 | **G10** | **Content isn't native-reviewed.** All the scene lines, partner lines and glosses are candidates. | README | O1–O4 |
-| **G11** | **Practice is allocated by stage, not by need.** Each new item gets the same ladder and about the same time whether it is easy or hard, while items marked 言えなかった last review get one or two practices. | §5.10 (21–41 s each against 77–199 s for new items); §5.3 | O1, O5; H1, H2, H11 |
+| **G11** | **Practice is allocated by stage, not by need, and a failure is forgotten fast.** Each new item gets the same ladder and about the same time whether it is easy or hard; items marked 言えなかった last review get one or two practices; older failures return to presumed success with no confirmed recall in between. | §5.10 (21–41 s each against 77–199 s for new items; «Fyrirgefðu»: failed twice, then 0 confirmed recalls in 8 lessons); §5.3 | O1, O5; H1, H2, H11 |
 | **G12** | **Scaffolds don't fade.** The English situation and the "you've said…" line are played in full every time, in at least five exercises of one lesson, although the learner knows the line; only the partner's line has a limit on how often its meaning is given. | §5.10 | O5; H3, H8 |
 | **G13** | **Nothing checks that a part is taught before the whole.** «Hvenær leggjum við af stað?» can come before «Hvenær?». | §5.10 | O1; H5 |
 
@@ -521,8 +549,9 @@ what. Re-rank it when the evidence moves.
    - The theme's partner lines are where clerk-side listening enters the audio: natural
      speed, two or three variants (#134, H8). #134 should be designed together with #149,
      not after it.
-   - Allocation by need (G11): the lesson's time goes first to the theme and to what failed
-     in the last review; an easy new item needs less than a hard one. Lesson 13 gave the four
+   - Allocation by need (G11): a failed item stays "open" until it is recalled on a later day
+     (a confirmed recall, not presumed success) and gets its practice in every lesson until
+     then; the lesson's time goes first to the theme and to what is open; an easy new item needs less than a hard one. Lesson 13 gave the four
      failed items 21–41 s each against 77–199 s per new item (§5.10).
    - Fading scaffolds (G12): when the partner's line is known, it is the cue; the English
      situation is dropped and the model answer isn't announced. This follows from building
@@ -563,6 +592,10 @@ Don't reopen these without new evidence; when you do, say what changed.
   - Presumed success is kept apart from confirmed outcomes (#119).
   - The last lesson's new items are reviewed before the next lesson is generated (bot).
   - `knows()` means two recalls on or after a due date (#27).
+- **Daily dose.** A lesson uses its full requested time, with material that loads the learner
+  (owner, after lesson 13: a light lesson wastes a day's consolidation). The number of new
+  items is a means, not the plan. An item the learner failed is respected until it has been
+  recalled again, not for one lesson only. Pauses are never stretched to fill time.
 - **Sequencing.**
   - Sequence from capabilities outward. High-value reusable material comes early (#29).
     The owner: teaching "the high-value words that come up in conversation and should be
