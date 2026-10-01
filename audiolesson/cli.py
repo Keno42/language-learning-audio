@@ -453,7 +453,7 @@ def cmd_validate(args) -> int:
     if parts:
         print(
             f"advisory (not a failure): {len(parts)} items are taught after a phrase that already contains them "
-            f"(G13): the learner meets the part as 'something new' after the whole."
+            f"(G13): the learner meets the part as 'something new' after the whole. Many are chunks taught first on purpose; it is a prompt for a per-case choice, not a count to bring to zero."
             + ("" if args.parts else " --parts lists them.")
         )
         if args.parts:
