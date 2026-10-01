@@ -72,10 +72,6 @@ class Builder:
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
     _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
-    # lever (#136): how often one situation cue may be narrated for an item in a lesson; past
-    # it, a situation recall becomes a meaning recall (None: no limit, the default; ≥ 1 otherwise)
-    max_same_situation: int | None = None
-    _cue_uses: dict[tuple[str, str], int] = field(default_factory=dict)
 
     # ------------------------------------------------------------------ utils
 
@@ -109,17 +105,7 @@ class Builder:
         whenever the item has one."""
         cue = self._next_situation(item)
         self._situation_uses[item.id] = self._situation_uses.get(item.id, 0) + 1
-        if cue is not None:
-            self._cue_uses[(item.id, cue)] = self._cue_uses.get((item.id, cue), 0) + 1
         return cue
-
-    def situation_fresh(self, item: Item) -> bool:
-        """Whether the item's next situation cue is still under ``max_same_situation`` uses
-        this lesson (#130 found the same cue asked 2–4 times for one item in a lesson)."""
-        if self.max_same_situation is None:
-            return True
-        cue = self._next_situation(item)
-        return cue is None or self._cue_uses.get((item.id, cue), 0) < self.max_same_situation
 
     # ---- the speaker's gender (Item.target_m) -----------------------------
 
@@ -375,11 +361,13 @@ class Builder:
 
     # --------------------------------------------------------------- recall
 
-    def recall(self, sc: Script, item: Item, stage: str) -> Exercise:
+    def recall(self, sc: Script, item: Item, stage: str, met_fills: bool = False) -> Exercise:
+        """``met_fills``: a recombination may fill slots with words met in earlier lessons
+        and not failed, not only learned ones (a substitution drill, #151)."""
         if item.kind == "transform":
             return self._recall_transform(sc, item, stage)
         if stage == "recombine":
-            gen_ex = self._recombine(sc, item)
+            gen_ex = self._recombine(sc, item, met_fills)
             if gen_ex is not None:
                 return gen_ex
             stage = "meaning"
@@ -455,12 +443,12 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def _recombine(self, sc: Script, item: Item) -> Exercise | None:
+    def _recombine(self, sc: Script, item: Item, met_fills: bool = False) -> Exercise | None:
         """Generative practice: a sentence the learner has not heard in this lesson (issue
         #105). With no such combination left, None: the caller falls back to a plain recall
         rather than replaying a line under a "make a sentence" label."""
         if item.kind == "construction":
-            gen = self.generate(item, avoid_heard=True)
+            gen = self.generate(item, avoid_heard=True, met_fills=met_fills)
         else:
             gen = self.generate_with(item, avoid_heard=True)
         if gen is None:
@@ -480,14 +468,18 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def recombine_status(self, item: Item) -> str:
+    def recombine_status(self, item: Item, met_fills: bool = False) -> str:
         """Whether a recombine exercise for ``item`` could make a sentence now: "novel" (one
         not yet heard this lesson), "heard" (only already-presented sentences are possible)
         or "impossible" (no known fills at all). No side effects: the generator's random
         state is restored."""
         state = self.rng.getstate()
         try:
-            gen = self.generate if item.kind == "construction" else self.generate_with
+            if item.kind == "construction":
+                def gen(it: Item, avoid_heard: bool = False) -> Generated | None:
+                    return self.generate(it, avoid_heard=avoid_heard, met_fills=met_fills)
+            else:
+                gen = self.generate_with
             if gen(item, avoid_heard=True) is not None:
                 return "novel"
             return "heard" if gen(item) is not None else "impossible"
@@ -534,16 +526,20 @@ class Builder:
         prefer_unused: bool = True,
         fixed: dict[str, Item] | None = None,
         avoid_heard: bool = False,
+        met_fills: bool = False,
     ) -> Generated | None:
         """Fill a construction with words the learner knows; prefer combos not yet used.
         ``fixed`` pins slots to specific fills (a situation's binding). ``avoid_heard`` drops
-        combinations whose sentence was already presented this lesson (None if none is left)."""
+        combinations whose sentence was already presented this lesson (None if none is left).
+        ``met_fills`` also takes words met in an earlier lesson and not failed
+        (``_frame_available``), for substitution drills (#151)."""
+        usable = self._frame_available if met_fills else self._available
         options: dict[str, list[Item]] = {}
         for slot, tag in construction.slots.items():
             if fixed and slot in fixed:
                 options[slot] = [fixed[slot]]
                 continue
-            cands = [i for i in self.cur.items_with_tag(tag) if self._available(i.id)]
+            cands = [i for i in self.cur.items_with_tag(tag) if usable(i.id)]
             if exclude and slot in exclude:
                 cands = [c for c in cands if c.id != exclude[slot].id]
             if not cands:
@@ -608,7 +604,7 @@ class Builder:
     def situation_usable(self, item: Item) -> bool:
         """Whether ``item``'s situation can be practised now: every fill it names is available
         ("Ask if she speaks German." waits until þýsku is known)."""
-        return (item.has_situation and self.situation_fresh(item)
+        return (item.has_situation
                 and all(self._available(f.id) for f in self.cur.situation_fills(item).values()))
 
     @staticmethod

@@ -362,29 +362,6 @@ partner_meaning_ja = "どこへ行きますか？"
 replies = ["Reykjavík, takk."]
 items = ["reykjavik_dat", "takk"]
 
-# ---------------------------------------------------------------- A11 numbers up to a hundred
-
-[[scenes]]
-id = "a11_room"
-scenario = "A11"
-kind = "respond"
-situation = "At check-in, the receptionist tells you your room number. Say it back to check."
-situation_ja = "チェックインで受付の人が部屋番号を言いました。確かめるために繰り返してください。"
-partner = "Herbergið þitt er númer átján."
-partner_meaning = "Your room is number eighteen."
-partner_meaning_ja = "お部屋は18番です。"
-replies = ["Átján? Takk.", "Átján."]
-items = ["atjan", "takk"]
-
-[[scenes]]
-id = "a11_tickets"
-scenario = "A11"
-kind = "initiate"
-situation = "At the ticket desk, ask for seven tickets for your group."
-situation_ja = "チケット売り場で、グループ7人分のチケットを頼みます。"
-replies = ["Sjö miða, takk."]
-items = ["sjo", "mida", "takk"]
-
 # ---------------------------------------------------------------- Tier B
 
 [[scenes]]

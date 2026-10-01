@@ -1,6 +1,76 @@
-# 08 — numbers, money, quantities (1–19 are introduced in module 02, issue #29 cluster A:
+# 08 — numbers, money, quantities (1–12 are introduced in module 02, issue #29 cluster A:
 # the cafe dialogues in module 03 already mention prices before this module used to teach
-# any digits at all; 13–19 joined them after lesson 12's feedback)
+# any digits at all)
+
+[[items]]
+id = "threttan"
+kind = "vocab"
+target = "þrettán"
+meaning = "thirteen"
+meaning_ja = "13"
+difficulty = 2
+tags = ["number", "age", "big_count"]
+topics = ["numbers"]
+
+[[items]]
+id = "fjortan"
+kind = "vocab"
+target = "fjórtán"
+meaning = "fourteen"
+meaning_ja = "14"
+difficulty = 2
+tags = ["number", "age", "big_count"]
+topics = ["numbers"]
+
+[[items]]
+id = "fimmtan"
+kind = "vocab"
+target = "fimmtán"
+meaning = "fifteen"
+meaning_ja = "15"
+difficulty = 2
+tags = ["number", "age", "big_count"]
+topics = ["numbers"]
+
+[[items]]
+id = "sextan"
+kind = "vocab"
+target = "sextán"
+meaning = "sixteen"
+meaning_ja = "16"
+difficulty = 2
+tags = ["number", "age", "big_count"]
+topics = ["numbers"]
+
+[[items]]
+id = "sautjan"
+kind = "vocab"
+target = "sautján"
+meaning = "seventeen"
+meaning_ja = "17"
+difficulty = 2
+tags = ["number", "age", "big_count"]
+topics = ["numbers"]
+
+[[items]]
+id = "atjan"
+kind = "vocab"
+target = "átján"
+meaning = "eighteen"
+meaning_ja = "18"
+difficulty = 2
+tags = ["number", "age", "big_count"]
+topics = ["numbers"]
+
+[[items]]
+id = "nitjan"
+kind = "vocab"
+target = "nítján"
+meaning = "nineteen"
+meaning_ja = "19"
+difficulty = 2
+tags = ["number", "age", "big_count"]
+topics = ["numbers"]
 
 [[items]]
 id = "tuttugu_og_einn"

@@ -51,8 +51,8 @@ is not used):
 - `lesson-NNN.plan.json` — what was introduced/reviewed, per-item exposures, exercise index,
   and `review`: one written recall question (cue → answer) per recalled item, for a
   later review outside the audio (a bot, a page) that ends in `report --recalled/--hesitated/--failed`
-  and `review_candidates`: things to ask the learner about afterwards (the same situation asked
-  twice, a new item last heard early or never produced unhinted late) — feedback only, #128
+  and `review_candidates`: things to ask the learner about afterwards (a new item last heard
+  early or never produced unhinted late) — feedback only, #128
 - `lesson-NNN.transcript.md` — readable transcript (supplementary)
 - `lesson-NNN.wav` / `.mp3` and `lesson-NNN.cues.json` (timestamps per exercise)
 - `learner.json` — the persistent learner state, and (with `--user`) `settings.json`
@@ -130,15 +130,22 @@ by three mechanisms, all automatic:
 1. *Calibration* — after every render the measured speech length per language
    is folded into the learner state, so the next plan's time estimates match
    the actual voices (espeak, edge and OpenAI all speak at different rates).
-2. *Fillers, in order* — once the due reviews are done, the lesson takes a
-   second, smaller batch of new items (half the pace: 30 min → 6 + 3, never past
-   about one new item per 3 minutes, so pace 10 takes none); then
-   items not yet due but last practised at least half their interval ago,
-   the longest ago first; then a second pass over today's reviews, one stage
-   harder; then any other item not practised today, again the longest ago
-   first; and only then more new items. Items that are not due never fill a
-   lesson ahead of those, so a well-known phrase waits for its date instead
-   of coming back every day.
+2. *Fillers, in order* — once the due reviews are done, the lesson takes
+   substitution runs: a pattern met before with other words met before
+   («Talar þú dönsku?» → «… japönsku?»), up to three sentences per pattern,
+   none heard earlier in the lesson; then a second, smaller batch of new items
+   (half the pace: 30 min → 6 + 3, never past about one new item per 3 minutes,
+   so pace 10 takes none); then items not yet due but last practised at least
+   half their interval ago, the longest ago first; then a second pass over
+   today's reviews, one stage harder; then any other item not practised today,
+   again the longest ago first; then more new items, but only while the lesson
+   is under half its length; then today's new items once or twice more. Items
+   that are not due never fill a lesson ahead of those, so a well-known phrase
+   waits for its date instead of coming back every day. A *stable* item (two
+   recalls on or after a due date, a recalled report counting as one, at least
+   eight recalls in all, no failure or hesitation in its last three lessons)
+   is never a filler at all, and when due it is reviewed once (#151). With
+   little left to practise, a lesson can end a few minutes short.
 3. *Fit at render* — if the file would still run over the target by more than
    a minute (`fit_tolerance`, default 60 s), every pause is shrunk by one
    factor, down to 0.85 (`fit`, `fit_min` in the profile; `--no-fit`,
@@ -284,7 +291,8 @@ tools/          daily.sh (one day of the routine), derive_fr_ja.py (keeps fr-ja 
                 gloss.py (inserts <field>_<lang> glosses), phrase_families.py (fixed-phrase audit)
 profiles/       voice profiles (provider + voice per speaker)
 tests/          python -m unittest
-docs/           DESIGN.md (code map, invariants, decisions), CURRICULUM.md (format),
+docs/           LEARNING-DESIGN.md (purpose, hypotheses, evidence, checklist), DESIGN.md (code map,
+                invariants, decisions), CURRICULUM.md (format),
                 TRAVEL-CANDO.md (scenarios, scenario cards, reading deck, trip profile),
                 LEVERS.md (planner settings), AUDIT-29.md / AUDIT-48.md (audit tables behind #29
                 and #48), history/ (session log)
@@ -292,8 +300,11 @@ docs/           DESIGN.md (code map, invariants, decisions), CURRICULUM.md (form
 
 ## Development
 
-Open work, known gaps and design discussion live in the GitHub issues. `docs/DESIGN.md`
-has the code map, the invariants the tests pin and the decisions behind them.
+Before opening an issue or changing how lessons behave, read `docs/LEARNING-DESIGN.md`: what
+the project is for, the hypotheses it rests on, the learner's evidence so far, and a
+checklist for every change. Open work, known gaps and design discussion live in the GitHub
+issues. `docs/DESIGN.md` has the code map, the invariants the tests pin and the decisions
+behind them.
 
 ### How to check your change
 
