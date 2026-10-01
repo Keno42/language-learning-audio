@@ -169,14 +169,14 @@ changed it).
 | **H1** | Producing a line from memory, after a real gap, builds durable recall better than hearing or repeating it. | Retrieval practice and spacing are among the best-supported findings on learning (Roediger & Karpicke 2006; Cepeda et al. 2006). | Answer pauses; the stage ladder; spacing across days (`learner.py`) | Next-day recall of new lines stays low even at a low pace | adopted |
 | **H2** | Only success after a gap is evidence of learning. Success minutes after the first exposure is practice. | Performance during practice is a poor guide to learning (Soderstrom & Bjork 2015); #27. | `durable_successes`, `knows()`; the review comes the next day, before the lesson | — | adopted |
 | **H3** | A line cued by a *situation* or a partner's line transfers to the real moment better than one cued by a translation. The closer practice is to use, the better. | Transfer-appropriate processing and encoding specificity (Morris et al. 1977; Tulving & Thomson 1973). | `situation` stage, `connect` exchanges, dialogues, scenario cards | Lines practised in situations do no better in scenario cards than lines practised from meanings | testing (no comparison made yet) |
-| **H4** | **A lesson built around one scene's exchange beats a lesson built from an item count.** In such a lesson, today's lines are spread across the lesson and used together in a coherent exchange, again with other fillings, at rising resolution over lessons. The result is more lines said at the right turn, and less felt repetition. | H1 + H3, thematic grouping (H5), and the owner's experience of lesson 12 (§5.6). | Not built. #149 holds the design; `cando/themes.toml` (PR #155) holds a draft of the scenes | Themed scenes don't reach readiness faster than unthemed ones, or the learner finds themed lessons no less repetitive | **bet: the main one** |
+| **H4** | **A lesson built around one scene's exchange beats a lesson built from an item count.** In such a lesson, today's lines are spread across the lesson and used together in a coherent exchange, again with other fillings, at rising resolution over lessons. The result is more lines said at the right turn, and less felt repetition. | H1 + H3, thematic grouping (H5), and the owner's experience of lesson 12 (§5.6). | Not built. #149 holds the design; `cando/themes.toml` (PR #155) holds a draft of the scenes | Themed scenes don't reach readiness faster than unthemed ones, or the learner finds themed lessons no less repetitive | **bet: the main one.** Lesson 13 (§5.10): the learner unprompted calls the lesson an "Anki game" of unrelated expressions |
 | **H5** | Group new material by **scene** (bun, coffee, bag, card), not by **semantic set** (numbers 1–10, colours, yes/no). Similar items introduced together get confused; contrasting them pays off once each is known. | Semantic clustering slows L2 vocabulary learning and thematic clustering doesn't (Tinkham 1993, 1997; Waring 1997). Interleaving helps when the task is telling similar things apart (Brunmair & Richter 2019). Lesson 8: "numbers 1–4: masculine and neuter can't be told apart in the English prompts" (§5.2). | Partly: milestone notes contrast known items; #150 plans contrasts for known pairs and series. Nothing keeps a set from being introduced together: the curriculum lists numbers, colours and languages next to each other (§7, G5) | Items introduced as a set fail no more often than others | bet (research-backed) |
 | **H6** | Chunks first, patterns next, transfer last. A fixed chunk said often becomes fluent (token frequency). A pattern used with many different fillings becomes productive (type frequency). Teach a pattern when two fillings are known, then move it to new words. | Usage-based learning (Bybee 2006); formulaic language (Wray 2002); #29's "capabilities outward". | Constructions with slots and `meaning_forms`; milestones with `transfer_items`; recombination; substitution runs (PR #153) | Substitution drills don't help the learner produce combinations they haven't heard (scenario cards with new fillings) | adopted (principle); testing (substitution) |
 | **H7** | Every generated sentence must be plausible in its scene. An implausible one teaches less than it costs. | Owner (after lesson 12: never produce "order a passport at the café"); H3. | Case- and meaning-tagged slots; `opens` (PR #155); scene templates (#152) | — | adopted |
 | **H8** | Natural-speed partner lines with some unknown words (the owner suggests 10–20%), in a familiar scene, build the tolerance needed to get through real exchanges. | The owner's hypothesis, and their preference for more listening time over shorter lessons (§5.7); the #129 pilots (common clerk lines were not understood). **Caveat:** detailed comprehension needs about 95% of the words to be known when listening and 98% when reading (van Zeeland & Schmitt 2013; Hu & Nation 2000). At 80–90%, expect gist from context, not learning of the unknown words. So the scene must carry the meaning. | Scenario cards (partner lines may go beyond the course); partner turns in themes (PR #155); #134 | Respond and repair cards with unknown words stay at 言えなかった, or the learner finds them discouraging rather than useful | bet |
 | **H9** | The number of new items, throttled only by recall reports, keeps the load right. The pace design aims at about 6–10 new productive items per 30 minutes and about 80–85% next-day success. | README "Pacing"; desirable difficulties (Bjork 1994): too easy wastes time, too hard fails. | `suggest_pace` | The load rating drifts to "heavy", or next-day failures stay above 20%, at the pace actually used | **revised:** the actual number of new items is not the pace (§7, G4). The learner prefers a full lesson with more new material to hear over a shorter one, as long as long stretches aren't incomprehensible (§5.7). **First read (§5.8):** 19 of 19 next-day recalls at 5–8 new items a lesson; no sign of overload, possibly a ceiling |
 | **H10** | Self-reports are informative when they are made the next day, with the answer hidden until the learner has tried. They are noisy, lean towards success and must never be produced by an LLM. | Delayed judgements of learning are far more accurate than immediate ones (Nelson & Dunlosky 1991); #129 (GPT transcripts did not match what was said). | The bot's review (answer revealed only after trying; 3-point scale); the feedback form | The ratings stop telling recalled lines from guessed or failed ones | **revised (§5.7):** for this learner the scale is binary. They answer at once and are right or wrong, so «迷った» never applies; 言えた and 言えなかった carry the signal |
-| **H11** | Practice spent on items the learner plainly knows is waste, and the learner notices it. A known item should wait for its date. | Spacing (H1); #94; the owner after lesson 12 (já, nei, hæ every lesson although reported 言えた). | Not-due items wait (#94); stable items never fill (PR #153) | — | adopted (#94); the recurrence is fixed in PR #153 |
+| **H11** | Practice spent on items the learner plainly knows is waste, and the learner notices it. A known item should wait for its date. | Spacing (H1); #94; the owner after lesson 12 (já, nei, hæ every lesson although reported 言えた). | Not-due items wait (#94); stable items never fill (PR #153) | — | adopted (#94); the recurrence is fixed in PR #153. Its other side is open: items that *failed* got one or two practices against 8–12 for every new item (§5.10, G11) |
 | **H12** | Variety, coherence and visible progress keep a daily routine alive. Boredom ("a game of memorizing") is the biggest threat to every other outcome. | Owner, #12 and after lesson 12; Nation's four strands (Nation 2007), whose message is that a course should not be all drill. | Dialogues, exchanges, notes, scenes, reading cards | The routine continues and the learner reports no boredom with a drill-heavy lesson | adopted (value) |
 
 ### What the hypotheses imply for a lesson
@@ -376,6 +376,49 @@ The first `/lesson-week` (site_update_notifier#59), read with §1's last checkli
   effortless (§2). The bot doesn't record how long a review takes, so the next weekly reads
   can't say whether this is typical. Open question for the owner: is six minutes fine?
 
+### 5.10 Lesson 13: the first lesson on the new version (replay of its export)
+
+Lesson 13 was generated with bot `72be512` / LLA `9ef0933`, `--minutes 30`, no other lever, from
+the trip profile. Figures are from the export's `script.json`, `plan.json` and
+`learner.before.json`; the learner's remarks are from the feedback form.
+
+- **The learner's words:** "the new expressions have no relation to each other, they are just
+  lined up at random, so it is an Anki game." Also: the lesson was too short (about 24
+  minutes); the failures of the last review got about one review each while every new
+  expression, easy or hard, was repeated a great many times; «Hvenær?» came after
+  «Hvenær leggjum við af stað?»; an English situation was given although the Icelandic
+  question was already known; a line explained what the learner had just said. The form's
+  "sooner" list named «Hvenær leggjum við af stað?», «hálka» and «matvörubúðin».
+- **Length:** 1417 s = 23.6 minutes of the 30 requested (79%). `fit_max` is 1.0, so pauses only
+  shrink, and nothing refills the lesson when the queue of useful items runs out (§5.7 asks for
+  the time to go to hearing more).
+- **Nine new items in five unrelated topics:** a shop, where one is from, asking the time,
+  asking when one sets off, the weather and road ice. `pace` was 5 (§7, G4: the number of new
+  items is not the pace). Each new item had 8–12 appearances and 77–199 s of the lesson.
+- **Last review's failures had one or two:** the four items marked 言えなかった in lesson 12 got
+  «kaupa miða» 2 appearances (21 s), «matseðilinn» 3 (25 s), «Get ég fengið …?» 4 (41 s) and
+  «Má ég borga með korti?» 2 (24 s), against 8–12 appearances and 77–199 s for each new item.
+  The same shape as lesson 12's "unheard" items, which had one early appearance each (§5.3).
+  Practice follows the introduction and the stage ladder, not what the learner failed.
+- **One scene text, said many times:** "Someone asks where you're from. Tell them you're from
+  Japan." is narrated in at least seven exercises of the one lesson, and "You've said you're
+  from Japan. Ask where she is from." in at least five. They are the authored `situation`
+  texts of the items, played whenever the `situation` stage comes up. Neither is a lesson's
+  theme; both stay English and in full however often they have been heard (the learner notes
+  the same for the Icelandic question that is already known).
+- **Sequencing:** «Hvenær?» is introduced at 597 s, the phrase «Hvenær leggjum við af stað?»
+  at 303 s. The phrase's item has no `prereqs` entry for the word, though `hvenaer` is its
+  first word. A data gap, not a planner choice.
+- **What this says about H4:** the learner describes in their own words what the document
+  calls G2: the lesson is a list of items, not an exchange they would have. It comes after a
+  round of local fixes (§5.9) and the other remarks (allocation, scaffolds, order) have
+  the same shape: each is a symptom of lessons built from items. It makes H4 the cause to
+  fix first; the local patches are not the work.
+
+Not yet measured: next-day recall of lesson 13's nine new items (the review comes with the next
+`/lesson`), the length of the review (PR site_update_notifier#64 starts recording it), and what
+fraction of the lesson's time the theme exchange would take.
+
 ---
 
 ## 6. Signals: what each can and cannot tell us
@@ -445,6 +488,9 @@ The first `/lesson-week` (site_update_notifier#59), read with §1's last checkli
 | **G8** | ~~The self-report scale may not discriminate.~~ Resolved: the learner answers at once, right or wrong, so the scale is binary in practice and that is enough (§5.7). | §5.2, §5.7 | H10 |
 | **G9** | **Long phrases fail most.** Three-word-plus formulas get the same treatment as short ones. | §5.2 (9/24 vs 2/27); §5.8 (5/13 vs 2/13), all failures in the heavy early lessons | O1; H1, H9 |
 | **G10** | **Content isn't native-reviewed.** All the scene lines, partner lines and glosses are candidates. | README | O1–O4 |
+| **G11** | **Practice is allocated by stage, not by need.** Each new item gets the same ladder and about the same time whether it is easy or hard, while items marked 言えなかった last review get one or two practices. | §5.10 (21–41 s each against 77–199 s for new items); §5.3 | O1, O5; H1, H2, H11 |
+| **G12** | **Scaffolds don't fade.** The English situation and the "you've said…" line are played in full every time, in at least five exercises of one lesson, although the learner knows the line; only the partner's line has a limit on how often its meaning is given. | §5.10 | O5; H3, H8 |
+| **G13** | **Nothing checks that a part is taught before the whole.** «Hvenær leggjum við af stað?» can come before «Hvenær?». | §5.10 | O1; H5 |
 
 ---
 
@@ -475,10 +521,19 @@ what. Re-rank it when the evidence moves.
    - The theme's partner lines are where clerk-side listening enters the audio: natural
      speed, two or three variants (#134, H8). #134 should be designed together with #149,
      not after it.
+   - Allocation by need (G11): the lesson's time goes first to the theme and to what failed
+     in the last review; an easy new item needs less than a hard one. Lesson 13 gave the four
+     failed items 21–41 s each against 77–199 s per new item (§5.10).
+   - Fading scaffolds (G12): when the partner's line is known, it is the cue; the English
+     situation is dropped and the model answer isn't announced. This follows from building
+     the lesson on exchanges, not from a rule added to today's stages.
    - Spare lesson time becomes more to hear (§5.7). New material and the theme's exchanges
      are heard at natural speed, with the scene carrying the meaning. The lesson doesn't end
      early. When the previous review had many 言えなかった, the lesson says that hearing
      counts and not everything has to be memorised (O5).
+   - Alongside, a data check that isn't part of the bet (G13): an item whose text contains
+     another item's text lists it in `prereqs`; fixes «Hvenær?» before «Hvenær leggjum við af
+     stað?».
 3. **Plausible substitution inside the scenes (G6, #152).** Patterns serve the theme's
    exchange; scene templates keep fillings plausible (H6, H7).
 4. **Content priorities, as data for the scenes.** Numbers through prices and times in
