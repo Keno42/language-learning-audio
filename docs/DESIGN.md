@@ -2,8 +2,9 @@
 
 What a contributor, human or AI, needs before changing the planner or the curriculum:
 where things are, what the tests hold in place, and why the big decisions went the way
-they did. Open work is tracked in GitHub issues; the full history of how each of these
-came about is in `docs/history/sessions.md`.
+they did. Why the project exists, what it is betting on and how to decide what to change
+next are in `docs/LEARNING-DESIGN.md`; read that first. Open work is tracked in GitHub
+issues; the full history of how each of these came about is in `docs/history/sessions.md`.
 
 ## Where things are
 

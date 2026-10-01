@@ -282,7 +282,8 @@ tools/          daily.sh (one day of the routine), derive_fr_ja.py (keeps fr-ja 
                 gloss.py (inserts <field>_<lang> glosses), phrase_families.py (fixed-phrase audit)
 profiles/       voice profiles (provider + voice per speaker)
 tests/          python -m unittest
-docs/           DESIGN.md (code map, invariants, decisions), CURRICULUM.md (format),
+docs/           LEARNING-DESIGN.md (purpose, hypotheses, evidence, checklist), DESIGN.md (code map,
+                invariants, decisions), CURRICULUM.md (format),
                 TRAVEL-CANDO.md (scenarios, scenario cards, reading deck, trip profile),
                 LEVERS.md (planner settings), AUDIT-29.md / AUDIT-48.md (audit tables behind #29
                 and #48), history/ (session log)
@@ -290,8 +291,11 @@ docs/           DESIGN.md (code map, invariants, decisions), CURRICULUM.md (form
 
 ## Development
 
-Open work, known gaps and design discussion live in the GitHub issues. `docs/DESIGN.md`
-has the code map, the invariants the tests pin and the decisions behind them.
+Before opening an issue or changing how lessons behave, read `docs/LEARNING-DESIGN.md`: what
+the project is for, the hypotheses it rests on, the learner's evidence so far, and a
+checklist for every change. Open work, known gaps and design discussion live in the GitHub
+issues. `docs/DESIGN.md` has the code map, the invariants the tests pin and the decisions
+behind them.
 
 ### How to check your change
 
