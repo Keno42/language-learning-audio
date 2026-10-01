@@ -20,6 +20,7 @@ meaning = "þ: the 'th' of 'think'"
 meaning_ja = "þ は英語 think の th（息だけで出す音）"
 hint_ja = "サズ・セッタ・スヴィ ミズル（最初の「サ・セ・ス」は舌を歯にあてた th）"
 words = [["Það", "それ"], ["Þetta", "これ"], ["Því miður", "残念ながら"]]
+graphemes = ["þ"]
 
 [[cards]]
 id = "l_eth"
@@ -29,6 +30,7 @@ meaning = "ð: the 'th' of 'this'"
 meaning_ja = "ð は英語 this の th（声を出す th）"
 hint_ja = "ゴウザン ダイイン・フィリルゲヴズ（「ザ・ズ」は this の th）"
 words = [["Góðan daginn", "こんにちは"], ["Fyrirgefðu", "すみません"]]
+graphemes = ["ð"]
 
 [[cards]]
 id = "l_ae"
@@ -38,24 +40,37 @@ meaning = "æ sounds like 'eye'"
 meaning_ja = "æ は「アイ」"
 hint_ja = "ヤイヤ・サイル"
 words = [["Jæja", "さて・まあ"], ["Sæl", "こんにちは（女性に）"]]
+graphemes = ["æ"]
 
 [[cards]]
 id = "l_a_acute"
 stage = "letters"
-text = "Já · Bláa lónið"
+text = "Já · Bláa lónið · Sjáumst"
 meaning = "á sounds like 'ow' in 'cow'"
 meaning_ja = "á は「アウ」"
-hint_ja = "ヤウ・ブラウア ロウニズ"
-words = [["Já", "はい"], ["Bláa lónið", "ブルーラグーン"]]
+hint_ja = "ヤウ・ブラウア ロウニズ・シャウムスト"
+words = [["Já", "はい"], ["Bláa lónið", "ブルーラグーン"], ["Sjáumst", "またね"]]
+graphemes = ["á"]
 
 [[cards]]
 id = "l_o_acute"
 stage = "letters"
-text = "Góða nótt · Sjáumst"
-meaning = "ó sounds like 'oh-u'; au like 'öy'"
-meaning_ja = "ó は「オウ」、au は「オイ」に近い音"
-hint_ja = "ゴウザ ノウフト・シャウムスト（au は「オイ」と「ウイ」の間）"
-words = [["Góða nótt", "おやすみなさい"], ["Sjáumst", "またね"]]
+text = "Góða nótt · Sól · Snjór"
+meaning = "ó sounds like 'oh-u'"
+meaning_ja = "ó は「オウ」"
+hint_ja = "ゴウザ ノウフト・ソウル・スニョウル"
+words = [["Góða nótt", "おやすみなさい"], ["Sól", "太陽"], ["Snjór", "雪"]]
+graphemes = ["ó"]
+
+[[cards]]
+id = "l_au"
+stage = "letters"
+text = "Auðvitað · Augnablik · Sundlaugin"
+meaning = "au sounds like 'öy': an 'ö' gliding to 'i'"
+meaning_ja = "au は「オイ」と「ウイ」の間（唇を丸めた ö から「イ」へ）"
+hint_ja = "オイズヴィタズ・オイグナブリク・スンドロイイン"
+words = [["Auðvitað", "もちろん"], ["Augnablik", "ちょっと待って"], ["Sundlaugin", "プール"]]
+graphemes = ["au"]
 
 [[cards]]
 id = "l_long_i"
@@ -65,6 +80,7 @@ meaning = "í and ý are a long 'ee'; ú is a long 'oo'"
 meaning_ja = "í と ý は「イー」、ú は「ウー」"
 hint_ja = "クヴィートヴィーン・イータ・ウートサーラ"
 words = [["Hvítvín", "白ワイン"], ["Ýta", "押す"], ["Útsala", "セール"]]
+graphemes = ["í", "ý", "ú"]
 
 [[cards]]
 id = "l_ei"
@@ -74,6 +90,7 @@ meaning = "ei and ey both sound like 'ay' in 'day'"
 meaning_ja = "ei と ey はどちらも「エイ」"
 hint_ja = "レイキャヴィーク・ネイ"
 words = [["Reykjavík", "レイキャビク"], ["Nei", "いいえ"]]
+graphemes = ["ei", "ey"]
 
 [[cards]]
 id = "l_o_umlaut"
@@ -83,6 +100,7 @@ meaning = "ö: rounded lips, saying 'e'"
 meaning_ja = "ö は唇を丸めて「エ」と言う音（オとエの間）"
 hint_ja = "スミョル・キョト"
 words = [["Smjör", "バター"], ["Kjöt", "肉"]]
+graphemes = ["ö"]
 
 [[cards]]
 id = "l_ll"
@@ -92,6 +110,7 @@ meaning = "ll sounds like 'tl'"
 meaning_ja = "ll は「トル」のような音"
 hint_ja = "フィャトル・グトルフォス・アルト イ ライイ（allt は例外的に「アルト」）"
 words = [["Fjall", "山"], ["Gullfoss", "グトルフォス（黄金の滝）"], ["Allt í lagi", "大丈夫"]]
+graphemes = ["ll"]
 
 [[cards]]
 id = "l_hv"
@@ -101,6 +120,7 @@ meaning = "hv sounds like 'kv'"
 meaning_ja = "hv は「クヴ」"
 hint_ja = "クヴァル・クヴァズ・クヴェナイル"
 words = [["Hvar", "どこ"], ["Hvað", "何"], ["Hvenær", "いつ"]]
+graphemes = ["hv"]
 
 [[cards]]
 id = "l_fn_rn"
@@ -110,6 +130,7 @@ meaning = "fn ≈ 'pn'; rn and nn after a long vowel ≈ 'tn'"
 meaning_ja = "fn は「プン」、rn と（長母音の後の）nn は「トン」に近い"
 hint_ja = "ナプン・ビョルトン・ステイトン"
 words = [["Nafn", "名前"], ["Björn", "ビョルン（男性の名前。「熊」）"], ["Steinn", "ステイン（男性の名前。「石」）"]]
+graphemes = ["fn", "rn", "nn"]
 
 [[cards]]
 id = "l_j_stress"
@@ -119,6 +140,7 @@ meaning = "j is a 'y'; stress is always on the first syllable"
 meaning_ja = "j は「ヤ行」の音。アクセントはいつも最初の音節"
 hint_ja = "ヤウ・ヨークトル・ヨウル（最初を強く）"
 words = [["Já", "はい"], ["Jökull", "氷河"], ["Jól", "クリスマス"]]
+graphemes = ["j"]
 
 # ---------------------------------------------------------------- signs
 

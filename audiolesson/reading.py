@@ -29,6 +29,10 @@ class Card:
     # [[word, gloss], …]: what each expression listed with «·» means. A letters card's
     # ``meaning`` is its spelling rule, so without these the words' meanings go unshown
     words: list[list[str]] = field(default_factory=list)
+    # letters cards: the letters or digraphs the card teaches (``meaning`` states their rule).
+    # Each must show in a listed word and every word must show one, so a rule never goes
+    # without an example and a word never stands under a rule it doesn't illustrate
+    graphemes: list[str] = field(default_factory=list)
     own: bool = False  # from the private trip profile: never stored in the repository
 
     def to_dict(self) -> dict:
@@ -53,6 +57,10 @@ def load_deck(curriculum_dir: str | Path, places: list[str] | None = None) -> li
             raise CurriculumError(f"{where}: words must gloss {expressions(card.text)}, in order")
         if card.stage == "letters" and not card.words:
             raise CurriculumError(f"{where}: a letters card glosses its words")
+        if card.stage == "letters":
+            _check_graphemes(card, where)
+        elif card.graphemes:
+            raise CurriculumError(f"{where}: only a letters card has graphemes")
         cards.append(card)
     known = {c.text.casefold() for c in cards}
     for n, place in enumerate(places or [], 1):
@@ -60,6 +68,18 @@ def load_deck(curriculum_dir: str | Path, places: list[str] | None = None) -> li
             cards.append(Card(id=f"own_{n}", stage="places", text=place, meaning="a place on your trip",
                               meaning_ja="あなたの旅程の地名", own=True))
     return sorted(cards, key=lambda c: STAGES.index(c.stage))
+
+
+def _check_graphemes(card: Card, where: str) -> None:
+    if not card.graphemes:
+        raise CurriculumError(f"{where}: a letters card names the letters it teaches (graphemes)")
+    words = [w.casefold() for w, _ in card.words]
+    unshown = [g for g in card.graphemes if not any(g.casefold() in w for w in words)]
+    if unshown:
+        raise CurriculumError(f"{where}: no listed word shows {unshown}: its rule has no example")
+    bare = [w for w, _ in card.words if not any(g.casefold() in w.casefold() for g in card.graphemes)]
+    if bare:
+        raise CurriculumError(f"{where}: {bare} show none of {card.graphemes}: they illustrate no rule of the card")
 
 
 def expressions(text: str) -> list[str]:

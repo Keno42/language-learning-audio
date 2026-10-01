@@ -361,6 +361,21 @@ The first `/lesson-week` (site_update_notifier#59), read with §1's last checkli
   reviewed items came back four times each (Allt gott, fimm, Góðan daginn, Takk); a new item
   (matseðilinn) waited 20 minutes between its early practice and the closing recall.
 
+### 5.9 After the first lessons on the new version (reading cards, review length)
+
+- **A reading card taught a rule with no example.** «Góða nótt · Sjáumst» stated the rule for
+  *au*, but no listed word has one (the owner noticed it in the review). It was a data error
+  that nothing could have caught: letters cards had no way to say which letters they teach.
+  Fixed in language-learning-audio (split into ó and au cards; `validate` now checks that every
+  rule has an example and every word a rule). Lesson for §11: a content check that only the
+  learner can trigger is a missing check.
+- **Review length (#133's "cards under three minutes").** The owner's estimate: the reading cards
+  alone took under three minutes; the whole review took **six minutes or more**. Not timed
+  (a felt duration), one day, and it includes scenario cards, which are spoken aloud. It is a
+  lead for O5: about a fifth of the 30-minute lesson again, and the feedback must stay nearly
+  effortless (§2). The bot doesn't record how long a review takes, so the next weekly reads
+  can't say whether this is typical. Open question for the owner: is six minutes fine?
+
 ---
 
 ## 6. Signals: what each can and cannot tell us

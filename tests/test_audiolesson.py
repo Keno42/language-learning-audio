@@ -5523,6 +5523,34 @@ class ReadingDeckTests(unittest.TestCase):
                 self.assertEqual([w for w, _ in c.words], listed)
                 self.assertTrue(all(g.strip() for _, g in c.words))
 
+    def test_a_letters_rule_always_has_an_example_and_a_word_a_rule(self):
+        """Owner, after a real review: «Góða nótt · Sjáumst» stated the rule for 'au', yet no
+        listed word has an 'au' («sjáumst» has á + u). A letters card names the letters it
+        teaches, and the words must show them, and each word one of them."""
+        from audiolesson.reading import load_deck
+
+        card = ('[[cards]]\nid = "x"\nstage = "letters"\ntext = "{text}"\nmeaning = "rule"\n'
+                'words = [{words}]\ngraphemes = {graphemes}\n')
+        words = '["Góða nótt", "おやすみ"], ["Sjáumst", "またね"]'
+        for graphemes, message in (('["ó", "au"]', "no listed word shows"),
+                                   ('["ó"]', "show none of")):
+            with self.subTest(graphemes=graphemes), tempfile.TemporaryDirectory() as td:
+                (Path(td) / "reading").mkdir()
+                (Path(td) / "reading" / "d.toml").write_text(
+                    card.format(text="Góða nótt · Sjáumst", words=words, graphemes=graphemes), "utf-8")
+                with self.assertRaises(CurriculumError) as ctx:
+                    load_deck(td)
+                self.assertIn(message, str(ctx.exception))
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "reading").mkdir()
+            (Path(td) / "reading" / "d.toml").write_text(
+                card.format(text="Góða nótt · Sól", words='["Góða nótt", "おやすみ"], ["Sól", "太陽"]',
+                            graphemes='["ó"]'), "utf-8")
+            self.assertEqual([c.id for c in load_deck(td)], ["x"])
+        for c in load_deck(ROOT / "curricula" / "is-en"):
+            if c.stage == "letters":
+                self.assertTrue(c.graphemes, c.id)
+
     def test_bad_cards_are_rejected(self):
         from audiolesson.reading import load_deck
 
@@ -5531,7 +5559,9 @@ class ReadingDeckTests(unittest.TestCase):
                               ('id = "x"\nstage = "signs"\ntext = "a"\nmeaning = "b"\nparts = [["a"]]', "pairs"),
                               ('id = "x"\nstage = "letters"\ntext = "a · b"\nmeaning = "rule"', "glosses its words"),
                               ('id = "x"\nstage = "letters"\ntext = "a · b"\nmeaning = "rule"\nwords = [["b", "B"], ["a", "A"]]', "in order"),
-                              ('id = "x"\nstage = "signs"\ntext = "a"\nmeaning = "b"\nwords = [["a"]]', "pairs")):
+                              ('id = "x"\nstage = "signs"\ntext = "a"\nmeaning = "b"\nwords = [["a"]]', "pairs"),
+                              ('id = "x"\nstage = "letters"\ntext = "a"\nmeaning = "rule"\nwords = [["a", "A"]]', "names the letters"),
+                              ('id = "x"\nstage = "signs"\ntext = "a"\nmeaning = "b"\ngraphemes = ["a"]', "only a letters card")):
             with tempfile.TemporaryDirectory() as td:
                 (Path(td) / "reading").mkdir()
                 (Path(td) / "reading" / "d.toml").write_text("[[cards]]\n" + body, "utf-8")
