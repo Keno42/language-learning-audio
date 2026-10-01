@@ -72,7 +72,7 @@ class Builder:
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
     _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
-    _reply_announced: bool = False  # "Reply." said once per lesson, before the first partner-line cue
+    _last_partner_cue: int | None = None  # index of the latest partner-line cue exercise (no repeated "Reply.")
 
     # ------------------------------------------------------------------ utils
 
@@ -99,27 +99,40 @@ class Builder:
         base = self.learner.items[item.id].exposures if item.id in self.learner.items else 0
         return item.situation_for(base + self._situation_uses.get(item.id, 0))
 
-    def prompt_item(self, item: Item) -> Item | None:
-        """G12: the item whose line the partner says as ``item``'s cue, when the learner knows
-        that line (or met it earlier this lesson). None: narrate the authored situation."""
+    def prompt_item(self, item: Item) -> tuple[Item, bool] | None:
+        """G12: the item whose line the partner says as ``item``'s cue, and whether the line goes
+        bare. Bare (no English at all) only when the learner knows it and it isn't open (#149:
+        a line they reported not being able to say is no cue). Introduced earlier this lesson,
+        met but not yet known, or open: the line, then once what it means, the way a partner
+        bridge does. None (the line was never met): narrate the authored situation."""
         if not item.prompt_by or item.kind == "construction" or item.target_m:
             return None
         prompt = self.cur.by_id.get(item.prompt_by)
-        return prompt if prompt is not None and self._available(prompt.id) else None
+        if prompt is None:
+            return None
+        if self.learner.knows(prompt.id) and not self.learner.is_open(prompt.id):
+            return prompt, True
+        if self._available(prompt.id) or self.learner.has_met(prompt.id):
+            return prompt, False
+        return None
 
-    def _partner_cue_recall(self, sc: Script, item: Item, prompt: Item) -> Exercise:
-        """A situation recall whose cue is the partner's line, in Icelandic, with no English:
-        the learner already knows what it means. The partner speaks in the male voice, the
-        model answer in the female one."""
+    def _partner_cue_recall(self, sc: Script, item: Item, prompt: Item, bare: bool) -> Exercise:
+        """A situation recall whose cue is the partner's line, in Icelandic. «Reply.» frames it
+        unless the exercise just before was one too; unless ``bare``, the line's meaning follows
+        once. The partner speaks in the male voice, the model answer in the female one."""
+        follows_cue = bool(sc.exercises) and sc.exercises[-1].index == self._last_partner_cue
         ex = sc.new_exercise("recall", "situation", [item.id], f"situation: {item.target}")
-        if not self._reply_announced:
+        if not follows_cue:
             self._narr(sc, ex, self.prompts.get("reply"))
-            self._reply_announced = True
         self._speak(sc, ex, prompt.target, speaker="native_b", role="prompt")
+        if not bare:
+            self._beat(sc, ex)
+            self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=self._m(prompt.spoken_meaning)))
         self._answer_pause(sc, ex, item.target, item, generative=True)
         self._answer(sc, ex, item.target, speaker="native_a")
         self._gap(sc, ex)
         self._situation_uses[item.id] = self._situation_uses.get(item.id, 0) + 1
+        self._last_partner_cue = ex.index
         return ex
 
     def _situation(self, item: Item) -> str | None:
@@ -402,8 +415,8 @@ class Builder:
         if item.kind == "construction" and stage in ("cloze", "hinted", "meaning", "situation"):
             return self._recall_construction(sc, item, stage)
 
-        if stage == "situation" and (prompt := self.prompt_item(item)) is not None:
-            return self._partner_cue_recall(sc, item, prompt)
+        if stage == "situation" and (cue := self.prompt_item(item)) is not None:
+            return self._partner_cue_recall(sc, item, *cue)
         gender = self.speaker_gender(item)
         target = self._gendered(item, gender)
         voice = VOICE_OF[gender or "f"]

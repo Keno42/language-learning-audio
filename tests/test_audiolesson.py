@@ -4438,23 +4438,42 @@ class ScaffoldFadeTests(unittest.TestCase):
         self.assertEqual(said[-1], ("answer", "native_a", "Ég er frá Japan."))
         self.assertNotIn("Someone asks", sc.transcript())
 
-    def test_a_line_introduced_earlier_in_the_lesson_counts(self):
+    def test_a_line_introduced_earlier_in_the_lesson_comes_with_its_meaning_once(self):
+        """Not known yet (H2): the line is the cue, then what it means, but no authored scene."""
         sc, _ = self._recall(introduced=["q"])
-        self.assertNotIn("Someone asks", sc.transcript())
+        text = sc.transcript()
+        self.assertNotIn("Someone asks", text)
+        self.assertIn("Hvaðan ert þú?", text)
+        self.assertIn("Where are you from?", text)
+
+    def test_an_open_prompt_line_is_not_a_bare_cue(self):
+        """#149: a line the learner reported not being able to say comes with its meaning."""
+        cur = self._cur()
+        learner = LearnerState("is", "en", "A1")
+        learner.items["q"] = ItemState(stage="situation", durable_successes=2, successes=6, failures=1, interval_days=1,
+                                      due=TODAY.isoformat(), last_outcome="not_recalled")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10), today=TODAY)
+        sc = Script(1, "t", "is", "en")
+        planner.builder.recall(sc, cur.by_id["a"], "situation")
+        self.assertIn("Where are you from?", sc.transcript())
 
     def test_an_unknown_partner_line_keeps_the_english_situation(self):
         sc, _ = self._recall()
         self.assertIn("Someone asks where you're from", sc.transcript())
+        self.assertNotIn("Hvaðan ert þú?", sc.transcript())
 
-    def test_reply_is_said_once_per_lesson(self):
+    def test_reply_frames_a_cue_unless_the_exercise_before_was_one(self):
         cur = self._cur()
         learner = LearnerState("is", "en", "A1")
         learner.items["q"] = ItemState(stage="situation", durable_successes=2, successes=6, interval_days=7, due=TODAY.isoformat())
         planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10), today=TODAY)
         sc = Script(1, "t", "is", "en")
-        for _ in range(2):
-            planner.builder.recall(sc, cur.by_id["a"], "situation")
+        planner.builder.recall(sc, cur.by_id["a"], "situation")
+        planner.builder.recall(sc, cur.by_id["a"], "situation")  # straight after a cue: no frame
         self.assertEqual(sc.transcript().count("Reply."), 1)
+        planner.builder.recall(sc, cur.by_id["q"], "meaning")  # an English-cued recall in between
+        planner.builder.recall(sc, cur.by_id["a"], "situation")
+        self.assertEqual(sc.transcript().count("Reply."), 2)
 
     def test_the_review_question_for_a_partner_line_cue_is_the_line(self):
         sc, ex = self._recall(learner_items=["q"])
