@@ -25,7 +25,7 @@ came about is in `docs/history/sessions.md`.
 | reading deck for the Discord review (#133) | `curricula/is-en/reading/deck.toml`, `audiolesson/reading.py`, `audiolesson reading` |
 | loading those record files (`cando/`, `reading/`) | `audiolesson/records.py` |
 | what the instructor says for a meaning (`meaning_spoken`, #143) | `Item.spoken_meaning` in `audiolesson/content.py` |
-| planner levers, off by default (#136) | `PlanConfig.max_same_situation`, `PlanConfig.late_unhinted_recall`; see `docs/LEVERS.md` |
+| planner levers, off by default (#136) | `PlanConfig.late_unhinted_recall`; see `docs/LEVERS.md` |
 | diagnostics | `audiolesson validate` (gloss coverage, dialogue sequencing report), `tools/phrase_families.py` |
 
 ## Invariants the tests pin

@@ -72,7 +72,6 @@ class PlanConfig:
     # prereqs included by cando.priority_items); empty keeps curriculum order
     priority: list[str] = field(default_factory=list)
     # levers (#136), off by default; turned on per deployment, by hand (docs/LEVERS.md)
-    max_same_situation: int | None = None  # one situation cue per item per lesson, at most this often
     late_unhinted_recall: bool = False  # the closing recall of a new item never gives a hint
 
     def resolved_max_new_items(self) -> int:
@@ -124,8 +123,7 @@ class Planner:
         seed = cfg.seed if cfg.seed is not None else learner.next_lesson_number()
         self.rng = random.Random(seed)
         prompts.rng = self.rng
-        self.builder = Builder(cur, prompts, timing, learner, self.rng, translate_partner=cfg.translate_partner,
-                               max_same_situation=cfg.max_same_situation)
+        self.builder = Builder(cur, prompts, timing, learner, self.rng, translate_partner=cfg.translate_partner)
         self.exposures: dict[str, list[str]] = {}
         self.support: dict[str, int] = {}
         self.dialogues_played: list[str] = []
@@ -927,7 +925,7 @@ class Planner:
                 "new_items": cfg.resolved_new_items(),
                 "topics": cfg.topics,
                 "priority_items": len(cfg.priority),  # a count only: the list may reflect a private profile
-                "levers": {"max_same_situation": cfg.max_same_situation, "late_unhinted_recall": cfg.late_unhinted_recall},
+                "levers": {"late_unhinted_recall": cfg.late_unhinted_recall},
                 "seed": cfg.seed,
                 "level": self.timing.level,
             },

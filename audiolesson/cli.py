@@ -52,7 +52,6 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--profile", "-p", default=None, help="voice profile .toml (see profiles/)")
     g.add_argument("--provider", default=None, help="TTS provider: stub, espeak, edge, openai, say (overrides profile)")
     g.add_argument("--no-audio", action="store_true", help="only write the script and transcript")
-    g.add_argument("--max-same-situation", type=int, default=None, help="lever (#136): narrate one situation cue at most N times per item per lesson (N ≥ 1); past it, a meaning recall instead")
     g.add_argument("--late-unhinted-recall", action="store_true", help="lever (#136): the closing recall of each new item gives no hint")
     g.add_argument("--trip", default=None, help="private trip profile .toml (#132): teach the can-do items (for its season) first; its contents are never written to outputs")
     g.add_argument("--cache", default=None, help="TTS cache directory (default: cache/<provider> under --out, or under --root with --user); safe to share between learners")
@@ -231,8 +230,6 @@ def cmd_generate(args) -> int:
         new_items, why = args.new, f"--new {args.new}"
     else:
         new_items, why = learner.suggest_pace(args.minutes, today)
-    if args.max_same_situation is not None and args.max_same_situation < 1:
-        raise ValueError(f"--max-same-situation must be at least 1 (got {args.max_same_situation})")
     priority: list[str] = []
     if args.trip:
         trip = load_trip(args.trip)
@@ -247,7 +244,6 @@ def cmd_generate(args) -> int:
         seed=args.seed,
         translate_partner=not args.no_translate,
         priority=priority,
-        max_same_situation=args.max_same_situation,
         late_unhinted_recall=args.late_unhinted_recall,
     )
     unknown_topics = [t for t in cfg.topics if t not in cur.topics()]
