@@ -34,6 +34,12 @@ class PlanConfig:
     seed: int | None = None
     reactivation_gaps: list[int] = field(default_factory=lambda: [3, 5, 8, 13])  # exercises between recalls
     intro_gap: int = 3  # min exercises between two introductions
+    # New material is spread over the lesson (lesson 13 feedback: all nine new expressions came in
+    # the first 15 of 30 minutes, the second half only repeated them): the k-th introduction waits
+    # until k/N of ``intro_span`` of the lesson's time, N being the new items it expects to
+    # introduce (the pace plus a later arc). When nothing else is left to do, the next one comes
+    # early, as before.
+    intro_span: float = 0.75
     dialogue_every: int = 7  # try a dialogue roughly every N exercises
     drill_streak_limit: int = 5  # consecutive isolated recalls before a dialogue is pulled forward
     dialogue_first_turns: int = 2  # turns played the first time; one more each later encounter
@@ -634,6 +640,9 @@ class Planner:
         drill_streak = 0  # consecutive isolated recalls, no dialogue/note/intro in between
         # time kept for the closing block: one recall per new item (~14 s) plus the announcement
         closing_reserve = min(budget * cfg.closing_share, 8 + 14 * len(new_queue))
+        # seconds between introductions: the expected number of new items over most of the lesson
+        expected_new = max(1, cfg.resolved_new_items() + cfg.resolved_extra_arc_items())
+        intro_spacing = (budget - closing_reserve) * cfg.intro_span / expected_new
         need_for_new = min(cfg.min_time_for_new_item, budget * 0.6)  # short lessons still get something new
         reviews_used: list[str] = []
         passes = 1
@@ -920,6 +929,25 @@ class Planner:
             reviews_used.append(item_id)
         open_timeline.sort(key=lambda t: t[:2])
 
+        def start_arc(more: list[Item]) -> None:
+            """A fresh arc of new material: its first item now, the rest queued (an arc's
+            introductions are spaced out by the review fillers, and by the lesson's schedule)."""
+            nonlocal current_arc_id, early_tier, passes, closing_reserve
+            current_arc_id += 1
+            arc_target[current_arc_id] = len(more)
+            new_queue.extend(more[1:])
+            do_intro(more[0])
+            # the review fillers (rested items, then the second pass) space out the
+            # arc's introductions and reactivations, or they would come back to back
+            if early_tier == 0:
+                early_tier = 1
+                reviews.extend(load_early(rested_only=True))
+            if passes < cfg.max_review_passes:
+                passes += 1
+                reviews.extend(self._second_pass(reviews_used, recent))
+            # the closing block recalls every introduced item: reserve for the new ones too
+            closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
+
         while sc.total_duration < budget - closing_reserve:
             remaining = budget - closing_reserve - sc.total_duration
             due = [p for p in pending if p.due <= idx]
@@ -951,6 +979,19 @@ class Planner:
                 if not acted and remaining >= 90 and (ld := self.listening_dialogue()) is not None:
                     self._play_listening(sc, *ld)
                     since_dialogue = 0
+                    acted = True
+                if not acted and new_queue and remaining >= need_for_new:
+                    do_intro(new_queue.popleft())  # the last relief: the next new item, before its time
+                    acted = True
+                if (
+                    not acted
+                    and not new_queue
+                    and reviews_used
+                    and current_arc_id + 1 < cfg.max_arcs
+                    and remaining >= need_for_new
+                    and (more := self.select_new(cfg.resolved_extra_arc_items(), exclude={i.id for i in introduced}))
+                ):
+                    start_arc(more)  # or the next arc, before its time
                     acted = True
                 if not acted:
                     break
@@ -1002,9 +1043,28 @@ class Planner:
                     acted = True
                     break
 
-            # 2. introduce something new
-            if not acted and new_queue and idx - last_intro >= cfg.intro_gap and remaining >= need_for_new:
+            # 2. introduce something new, on the lesson's schedule (cfg.intro_span)
+            if (
+                not acted
+                and new_queue
+                and idx - last_intro >= cfg.intro_gap
+                and remaining >= need_for_new
+                and sc.total_duration >= (len(introduced) + len(self.embedded)) * intro_spacing
+            ):
                 do_intro(new_queue.popleft())
+                acted = True
+
+            # 2b. the next arc of new items, on the lesson's schedule rather than only when idle
+            if (
+                not acted
+                and not new_queue
+                and reviews_used
+                and current_arc_id + 1 < cfg.max_arcs
+                and remaining >= need_for_new
+                and sc.total_duration >= (len(introduced) + len(self.embedded)) * intro_spacing
+                and (more := self.select_new(cfg.resolved_extra_arc_items(), exclude={i.id for i in introduced}))
+            ):
+                start_arc(more)
                 acted = True
 
             # 3. a dialogue, now and then, when the learner knows enough
@@ -1089,20 +1149,7 @@ class Planner:
                     # pool ran dry (a first lesson still ends short on purpose) and the previous
                     # arc is fully introduced (a queued prereq would look ready to select_new).
                     # Consumes an idx tick like every other branch.
-                    current_arc_id += 1
-                    arc_target[current_arc_id] = len(more)
-                    new_queue.extend(more[1:])
-                    do_intro(more[0])
-                    # the review fillers (rested items, then the second pass) space out the
-                    # arc's introductions and reactivations, or they would come back to back
-                    if early_tier == 0:
-                        early_tier = 1
-                        reviews.extend(load_early(rested_only=True))
-                    if passes < cfg.max_review_passes:
-                        passes += 1
-                        reviews.extend(self._second_pass(reviews_used, recent))
-                    # the closing block recalls every introduced item: reserve for the new ones too
-                    closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
+                    start_arc(more)
                 elif passes < cfg.max_review_passes and reviews_used and early_tier >= 1:
                     # material ran out before the time did: a second pass over what was reviewed,
                     # most urgent first, each one step harder than earlier in this lesson

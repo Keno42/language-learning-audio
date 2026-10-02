@@ -4618,6 +4618,31 @@ class ListeningDialogueTests(unittest.TestCase):
         self.assertEqual(sc.meta["dialogues_listened"], ["d1"])
 
 
+class SpreadIntroductionTests(unittest.TestCase):
+    """Lesson 13 feedback: all nine new expressions came in the first 15 of 30 minutes and the
+    second half only repeated them. New material is spread over the lesson."""
+
+    def test_introductions_are_spread_over_a_real_course(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        first_third, intros, worst_gap = 0, 0, 0.0
+        for n in range(1, 17):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5), today=day).build()
+            starts = [e.start for e in sc.exercises if e.kind == "intro"]
+            if n >= 8 and len(starts) >= 5:
+                total = sc.total_duration
+                first_third += sum(1 for t in starts if t < total / 3)
+                intros += len(starts)
+                worst_gap = max(worst_gap, max(b - a for a, b in zip(starts, starts[1:])))
+            apply_to_learner(sc, learner, day)
+            learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
+            day += timedelta(days=1)
+        self.assertGreater(intros, 20)
+        self.assertLess(first_third / intros, 0.55, "most new items used to come in the first third")
+        self.assertLess(worst_gap, 9 * 60, "the longest stretch without a new item used to be 10-11 minutes")
+
+
 class PlausibleFillTests(unittest.TestCase):
     """Owner, after lesson 12: never generate a sentence that makes no sense in its scene
     ("order a passport at the café"). Slot tags keep the grammar right; they must also keep

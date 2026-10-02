@@ -57,6 +57,14 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   its first recall on a due date (one durable success, next in three days; `knows()` still takes
   two, §9); not said, `embed_failed` and the usual introduction later. `select_new` skips a
   pending one; `simulate_reach` counts it reached.
+- **New material is spread over the lesson.** The k-th introduction waits until k/N of
+  `intro_span` (0.75) of the lesson's time (N: the pace plus a later arc), so new items come
+  every two or three minutes instead of all in the first half; a second arc starts on the same
+  schedule (step 2b) instead of only when the lesson is idle. When the drill streak reaches its
+  limit the relief is a dialogue, a note, a connect, a listening dialogue and last the next new
+  item; an idle lesson still introduces early (steps 5), so a lesson with nothing else to do
+  doesn't end short.
+  An embedded part counts as an introduction on this schedule.
 - **Generated sentences use only available parts.** A fill is known or introduced earlier
   in the lesson. A construction's `situation_fill` makes its situation wait for that fill.
   A dialogue turn's `expect_fill` binds every slot, so every spoken part is a required item.
