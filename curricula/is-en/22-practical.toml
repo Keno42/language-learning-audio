@@ -37,7 +37,7 @@ difficulty = 2
 tags = ["inf"]
 topics = ["practical"]
 meaning_forms = { ing = "making a call" }
-meaning_forms_ja = { te = "電話して" }
+meaning_forms_ja = { te = "電話して", tai = "電話したい", tai_neg = "電話したくありません" }
 
 [[items]]
 id = "ma_eg_hringja"

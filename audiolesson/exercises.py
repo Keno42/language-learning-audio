@@ -26,18 +26,19 @@ class Generated:
     fills: dict[str, Item]
     target: str
     meaning: str
+    form: str | None = None  # "negative" / "question" (#171); None is the plain sentence
 
     @property
     def key(self) -> str:
-        return _combo_key(self.construction, self.fills)
+        return _combo_key(self.construction, self.fills, self.form)
 
     @property
     def item_ids(self) -> list[str]:
         return [self.construction.id] + [f.id for f in self.fills.values()]
 
 
-def _combo_key(construction: Item, fills: dict[str, Item]) -> str:
-    return construction.id + ":" + ",".join(f"{k}={v.id}" for k, v in sorted(fills.items()))
+def _combo_key(construction: Item, fills: dict[str, Item], form: str | None = None) -> str:
+    return construction.id + (f"~{form}" if form else "") + ":" + ",".join(f"{k}={v.id}" for k, v in sorted(fills.items()))
 
 
 def _other_voice(speaker: str) -> str:
@@ -56,6 +57,10 @@ def _norm_utterance(text: str) -> str:
 
 BRIDGE_GLOSS_ENCOUNTERS = 2  # a partner_cue is glossed on the learner's first N hearings of that bridge
 PROMPT_GLOSS_HEARINGS = 2  # a prompt_by line not yet known is glossed on its first N hearings in a lesson
+FORM_SHARE = 0.25  # the most a negative or question form takes of a lesson's generated sentences (#171)
+FORM_HARD_CAP = 0.35  # a form is not chosen at all once it has this share of the lesson's generated sentences
+FORM_CAP_FROM = 6  # …counted from this many generated sentences (before that a share is meaningless)
+FORM_EXTRA_NEW = 2  # sentences in a form taught this lesson, beyond the practice right after its note
 SITUATION_FULL_MAX = 2  # an authored situation is narrated in full at most this often in a lesson (G12)
 
 
@@ -78,6 +83,9 @@ class Builder:
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
     _last_partner_cue: int | None = None  # index of the latest partner-line cue exercise (no repeated "Reply.")
     _prompt_glosses: dict[str, int] = field(default_factory=dict)  # partner-line cues glossed this lesson, per prompting item
+    notes_taught: set[str] = field(default_factory=set)  # notes played this lesson (the learner state updates after it)
+    form_counts: dict[str, int] = field(default_factory=dict)  # generated sentences this lesson, by form ("plain", "negative", "question")
+    form_extra: dict[str, int] = field(default_factory=dict)  # …of a form taught this lesson, outside its practice right after the note
 
     # ------------------------------------------------------------------ utils
 
@@ -203,11 +211,19 @@ class Builder:
         man's form («glöð» / «glaður»); «einmana» is the same for both."""
         return any(f.target_m for f in fills.values())
 
-    def _filled(self, construction: Item, fills: dict[str, Item], voice: str | None = None) -> tuple[str | None, str]:
+    def _filled(self, construction: Item, fills: dict[str, Item], voice: str | None = None, form: str | None = None) -> tuple[str | None, str]:
         """(speaker gender or None, target) for ``construction`` filled with ``fills``: when a
         fill has a man's form, pick which form this exercise asks for (``speaker_gender``)."""
         gender = self.speaker_gender(construction, voice, gendered=self._fills_gendered(fills))
-        return gender, self.cur.resolve_slots(construction, fills, gender)[0]
+        return gender, self.cur.resolve_slots(construction, fills, gender, form)[0]
+
+    def forms_taught(self) -> set[str]:
+        """The forms of constructions («negative», «question») whose teaching note the learner has
+        heard, in an earlier lesson or this one (#171): only those are used in generated sentences."""
+        return {
+            n.teaches for n in self.cur.notes
+            if n.teaches and (self.learner.notes_heard.get(n.id, 0) > 0 or n.id in self.notes_taught)
+        }
 
     def _as(self, gender: str | None, prompt: str) -> str:
         """``prompt`` with "As a man:" / "As a woman:" in front when the words depend on it."""
@@ -504,13 +520,14 @@ class Builder:
 
     # --------------------------------------------------------------- recall
 
-    def recall(self, sc: Script, item: Item, stage: str, met_fills: bool = False) -> Exercise:
+    def recall(self, sc: Script, item: Item, stage: str, met_fills: bool = False, form: str | None = None) -> Exercise:
         """``met_fills``: a recombination may fill slots with words met in earlier lessons
-        and not failed, not only learned ones (a substitution drill, #151)."""
+        and not failed, not only learned ones (a substitution drill, #151). ``form``: the
+        negative or question form of a construction, for a recombination (#171)."""
         if item.kind == "transform":
             return self._recall_transform(sc, item, stage)
         if stage == "recombine":
-            gen_ex = self._recombine(sc, item, met_fills)
+            gen_ex = self._recombine(sc, item, met_fills, form)
             if gen_ex is not None:
                 return gen_ex
             stage = "meaning"
@@ -590,18 +607,21 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def _recombine(self, sc: Script, item: Item, met_fills: bool = False) -> Exercise | None:
+    def _recombine(self, sc: Script, item: Item, met_fills: bool = False, form: str | None = None) -> Exercise | None:
         """Generative practice: a sentence the learner has not heard in this lesson (issue
         #105). With no such combination left, None: the caller falls back to a plain recall
         rather than replaying a line under a "make a sentence" label."""
         if item.kind == "construction":
-            gen = self.generate(item, avoid_heard=True, met_fills=met_fills)
+            gen = self.generate(item, avoid_heard=True, met_fills=met_fills, forms=True, form=form)
         else:
-            gen = self.generate_with(item, avoid_heard=True)
+            gen = self.generate_with(item, avoid_heard=True, forms=True)
         if gen is None:
             return None
         self.used_combos.add(gen.key)
-        gender, target = self._filled(gen.construction, gen.fills)
+        self.form_counts[gen.form or "plain"] = self.form_counts.get(gen.form or "plain", 0) + 1
+        if gen.form and form is None:
+            self.form_extra[gen.form] = self.form_extra.get(gen.form, 0) + 1
+        gender, target = self._filled(gen.construction, gen.fills, form=gen.form)
         ids = [item.id] + [i for i in gen.item_ids if i != item.id]  # the practised item comes first
         ex = sc.new_exercise("generative", "recombine", ids, f"recombine: {target}")
         # the generator only *prefers* unused combinations, so claim novelty only when true
@@ -622,11 +642,11 @@ class Builder:
         state is restored."""
         state = self.rng.getstate()
         try:
-            if item.kind == "construction":
-                def gen(it: Item, avoid_heard: bool = False) -> Generated | None:
-                    return self.generate(it, avoid_heard=avoid_heard, met_fills=met_fills)
-            else:
-                gen = self.generate_with
+            def gen(it: Item, avoid_heard: bool = False) -> Generated | None:
+                if it.kind == "construction":
+                    return self.generate(it, avoid_heard=avoid_heard, met_fills=met_fills, forms=True)
+                return self.generate_with(it, avoid_heard=avoid_heard, forms=True)
+
             if gen(item, avoid_heard=True) is not None:
                 return "novel"
             return "heard" if gen(item) is not None else "impossible"
@@ -674,12 +694,17 @@ class Builder:
         fixed: dict[str, Item] | None = None,
         avoid_heard: bool = False,
         met_fills: bool = False,
+        forms: bool = False,
+        form: str | None = None,
     ) -> Generated | None:
         """Fill a construction with words the learner knows; prefer combos not yet used.
         ``fixed`` pins slots to specific fills (a situation's binding). ``avoid_heard`` drops
         combinations whose sentence was already presented this lesson (None if none is left).
         ``met_fills`` also takes words met in an earlier lesson and not failed
-        (``_frame_available``), for substitution drills (#151)."""
+        (``_frame_available``), for substitution drills (#151). ``forms`` lets the sentence be
+        the construction's negative or question form too, once the note that teaches that form has
+        been heard (#171); ``form`` asks for one (None if the construction has none, or it isn't
+        taught yet)."""
         usable = self._frame_available if met_fills else self._available
         options: dict[str, list[Item]] = {}
         for slot, tag in construction.slots.items():
@@ -695,23 +720,60 @@ class Builder:
         slots = list(options)
         combos = self._product(options, slots)
         self.rng.shuffle(combos)
-        if avoid_heard:
-            combos = [
-                c for c in combos
-                if not {_norm_utterance(self.cur.resolve_slots(construction, c, g)[0]) for g in "fm"} & self.heard
-            ]
-            if not combos:
+        taught = self.forms_taught()
+        if form:
+            if form not in construction.forms or form not in taught:
                 return None
-        if prefer_unused:
-            unused = [c for c in combos if _combo_key(construction, c) not in self.used_combos]
-            combos = unused or combos
-        fills = combos[0]
-        target, meaning = self.cur.resolve_slots(construction, fills)
-        return Generated(construction, fills, target, meaning)
+            order: list[str | None] = [form]
+        else:
+            order = self._form_order([None] + ([f for f in construction.forms if f in taught] if forms else []))
+        for chosen_form in order:
+            picks = [(chosen_form, c) for c in combos]
+            if avoid_heard:
+                picks = [
+                    (f, c) for f, c in picks
+                    if not {_norm_utterance(self.cur.resolve_slots(construction, c, g, f)[0]) for g in "fm"} & self.heard
+                ]
+            if not picks:
+                continue
+            if prefer_unused:
+                unused = [(f, c) for f, c in picks if _combo_key(construction, c, f) not in self.used_combos]
+                picks = unused or picks
+            if chosen_form:
+                # a form adds variety rather than replacing: when the plain sentence of that combination was heard
+                picks = [(f, c) for f, c in picks if _combo_key(construction, c) in self.used_combos] or picks
+            fills = picks[0][1]
+            target, meaning = self.cur.resolve_slots(construction, fills, form=chosen_form)
+            return Generated(construction, fills, target, meaning, chosen_form)
+        return None
 
-    def generate_with(self, vocab: Item, avoid_heard: bool = False) -> Generated | None:
+    def _form_order(self, options: list[str | None]) -> list[str | None]:
+        """The forms a generated sentence may take, the one furthest below its share first (#171
+        review): the plain sentence is at least half of a lesson's generated sentences and each other
+        form at most about a quarter, so the newest form doesn't crowd out the sentences the trip
+        needs; a form taught in this lesson takes only ``FORM_EXTRA_NEW`` sentences beyond its
+        practice right after the note (``do_forms_practice``)."""
+        if len(options) == 1:
+            return options
+        taught = self.forms_taught()
+        share = min(FORM_SHARE, 0.5 / max(1, len(taught)))
+        desired = {f: (share if f else 1 - share * len(taught)) for f in options}
+        total = sum(self.form_counts.values())
+        fresh = {n.teaches for n in self.cur.notes if n.teaches and n.id in self.notes_taught and self.learner.notes_heard.get(n.id, 0) == 0}
+        ranked = []
+        for f in options:
+            if f in fresh and self.form_extra.get(f, 0) >= FORM_EXTRA_NEW:
+                continue
+            actual = self.form_counts.get(f or "plain", 0) / total if total else 0.0
+            if f and total >= FORM_CAP_FROM and actual >= FORM_HARD_CAP:
+                continue  # at its share: the supply may run short rather than the form crowd out the plain sentences
+            ranked.append((-(desired[f] - actual) + self.rng.random() * 0.01, f))
+        return [f for _, f in sorted(ranked, key=lambda t: t[0])] or [None]
+
+    def generate_with(self, vocab: Item, avoid_heard: bool = False, forms: bool = False) -> Generated | None:
         """Find a known construction with a slot that accepts ``vocab`` and fill it.
-        ``avoid_heard``: only sentences not yet presented this lesson (None if none is left)."""
+        ``avoid_heard``: only sentences not yet presented this lesson (None if none is left).
+        ``forms``: the construction's negative or question form may do (#171)."""
         homes = []
         for c in self.cur.items:
             if c.kind != "construction" or not self._frame_available(c.id):
@@ -724,7 +786,7 @@ class Builder:
         self.rng.shuffle(homes)
         fallback = None
         for c, slot in homes:
-            gen = self.generate(c, fixed={slot: vocab}, avoid_heard=avoid_heard)
+            gen = self.generate(c, fixed={slot: vocab}, avoid_heard=avoid_heard, forms=forms)
             if gen is None:
                 continue
             if gen.key not in self.used_combos:
@@ -783,10 +845,10 @@ class Builder:
         """An aside, no retrieval, bookended so it isn't mistaken for the next exercise. A
         milestone gets its own framing: it is part of the lesson, not a detour."""
         ex = sc.new_exercise("note", None, list(note.items), f"note: {note.id}")
-        self._narr(sc, ex, self.prompts.get("milestone_intro" if note.milestone else "aside"))
+        self._narr(sc, ex, self.prompts.get("milestone_intro" if note.milestone or note.teaches else "aside"))
         self._speak_note_text(sc, ex, note.text)
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("milestone_end" if note.milestone else "aside_end"))
+        self._narr(sc, ex, self.prompts.get("milestone_end" if note.milestone or note.teaches else "aside_end"))
         self._gap(sc, ex)
         return ex
 

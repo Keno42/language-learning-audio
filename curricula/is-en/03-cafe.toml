@@ -16,6 +16,12 @@ kind = "construction"
 target = "Ég ætla að fá {thing}."
 meaning = "I'll have {thing}."
 meaning_ja = "{thing}をください。"
+negative = "Ég ætla ekki að fá {thing}."
+negative_meaning = "I won't have {thing}."
+negative_meaning_ja = "{thing}は結構です。"
+question = "Ætlarðu að fá {thing}?"
+question_meaning = "Will you have {thing}?"
+question_meaning_ja = "{thing}にしますか？"
 difficulty = 3
 topics = ["cafe"]
 slots = { thing = "acc_orderable" }
@@ -310,6 +316,12 @@ kind = "construction"
 target = "Mig langar í {thing}."
 meaning = "I feel like {thing}."
 meaning_ja = "{thing}が食べたいです。"
+negative = "Mig langar ekki í {thing}."
+negative_meaning = "I don't feel like {thing}."
+negative_meaning_ja = "{thing}は欲しくありません。"
+question = "Langar þig í {thing}?"
+question_meaning = "Do you feel like {thing}?"
+question_meaning_ja = "{thing}が欲しいですか？"
 difficulty = 3
 topics = ["cafe", "food"]
 slots = { thing = "acc_orderable" }
@@ -526,7 +538,7 @@ difficulty = 2
 tags = ["inf"]
 topics = ["cafe"]
 meaning_forms = { ing = "paying by card" }
-meaning_forms_ja = { te = "カードで払って" }
+meaning_forms_ja = { te = "カードで払って", tai = "カードで払いたい", tai_neg = "カードで払いたくありません" }
 
 [[items]]
 id = "ma_eg_borga_med_korti"

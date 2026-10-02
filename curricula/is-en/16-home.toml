@@ -234,7 +234,7 @@ difficulty = 2
 tags = ["inf"]
 topics = ["home"]
 meaning_forms = { ing = "opening the window" }
-meaning_forms_ja = { te = "窓を開けて" }
+meaning_forms_ja = { te = "窓を開けて", tai = "窓を開けたい", tai_neg = "窓を開けたくありません" }
 
 [[items]]
 id = "ma_eg_opna_gluggann"
@@ -261,7 +261,7 @@ difficulty = 2
 tags = ["inf"]
 topics = ["home"]
 meaning_forms = { ing = "closing the door" }
-meaning_forms_ja = { te = "ドアを閉めて" }
+meaning_forms_ja = { te = "ドアを閉めて", tai = "ドアを閉めたい", tai_neg = "ドアを閉めたくありません" }
 
 [[items]]
 id = "ma_eg_loka_hurdinni"

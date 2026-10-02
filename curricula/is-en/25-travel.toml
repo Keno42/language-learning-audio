@@ -170,7 +170,7 @@ difficulty = 2
 tags = ["inf"]
 topics = ["travel"]
 meaning_forms = { ing = "taking a photo" }
-meaning_forms_ja = { te = "写真を撮って" }
+meaning_forms_ja = { te = "写真を撮って", tai = "写真を撮りたい", tai_neg = "写真を撮りたくありません" }
 
 [[items]]
 id = "ma_eg_taka_mynd"
@@ -349,6 +349,9 @@ kind = "construction"
 target = "Ég er með {thing}."
 meaning = "I have {thing} (with me)."
 meaning_ja = "{thing}を持っています。"
+negative = "Ég er ekki með {thing}."
+negative_meaning = "I don't have {thing} with me."
+negative_meaning_ja = "{thing}を持っていません。"
 meaning_spoken = "I have {thing} with me."
 difficulty = 2
 topics = ["travel"]

@@ -64,6 +64,9 @@ kind = "construction"
 target = "Ég tala {language}."
 meaning = "I speak {language}."
 meaning_ja = "{language}を話します。"
+negative = "Ég tala ekki {language}."
+negative_meaning = "I don't speak {language}."
+negative_meaning_ja = "{language}を話しません。"
 difficulty = 2
 topics = ["clarifying", "social"]
 slots = { language = "acc_language" }
@@ -114,6 +117,12 @@ kind = "construction"
 target = "Ég er að læra {language}."
 meaning = "I'm learning {language}."
 meaning_ja = "{language}を勉強しています。"
+negative = "Ég er ekki að læra {language}."
+negative_meaning = "I'm not learning {language}."
+negative_meaning_ja = "{language}を勉強していません。"
+question = "Ertu að læra {language}?"
+question_meaning = "Are you learning {language}?"
+question_meaning_ja = "{language}を勉強していますか？"
 difficulty = 3
 topics = ["clarifying", "social"]
 slots = { language = "acc_language" }
@@ -521,6 +530,12 @@ kind = "construction"
 target = "Ég þarf {thing}."
 meaning = "I need {thing}."
 meaning_ja = "{thing}が必要です。"
+negative = "Ég þarf ekki {thing}."
+negative_meaning = "I don't need {thing}."
+negative_meaning_ja = "{thing}は必要ありません。"
+question = "Þarftu {thing}?"
+question_meaning = "Do you need {thing}?"
+question_meaning_ja = "{thing}が必要ですか？"
 difficulty = 2
 topics = ["shopping"]
 slots = { thing = "acc_thing" }
@@ -697,7 +712,7 @@ difficulty = 1
 tags = ["inf", "progressive_inf"]
 topics = ["daily"]
 meaning_forms = { ing = "going home" }  # issue #29 pilot 3: for "I'm {inf:ing}."
-meaning_forms_ja = { te = "家に帰って" }
+meaning_forms_ja = { te = "家に帰って", tai = "家に帰りたい", tai_neg = "家に帰りたくありません" }
 
 [[items]]
 id = "sofa"
@@ -709,7 +724,7 @@ difficulty = 1
 tags = ["inf"]
 topics = ["daily"]
 meaning_forms = { ing = "sleeping" }  # issue #29 pilot 3: for "I'm {inf:ing}."
-meaning_forms_ja = { te = "寝て" }
+meaning_forms_ja = { te = "寝て", tai = "寝たい", tai_neg = "寝たくありません" }
 
 [[items]]
 id = "borda"
@@ -721,7 +736,7 @@ difficulty = 1
 tags = ["inf", "progressive_inf"]
 topics = ["daily", "food"]
 meaning_forms = { ing = "eating" }  # issue #29 pilot 3: for "I'm {inf:ing}."
-meaning_forms_ja = { te = "食べて" }
+meaning_forms_ja = { te = "食べて", tai = "食べたい", tai_neg = "食べたくありません" }
 
 [[items]]
 id = "fara_i_sund"
@@ -733,7 +748,7 @@ difficulty = 2
 tags = ["inf", "progressive_inf"]
 topics = ["daily", "hobbies"]
 meaning_forms = { ing = "going swimming" }  # issue #29 pilot 3: for "I'm {inf:ing}."
-meaning_forms_ja = { te = "泳ぎに行って" }
+meaning_forms_ja = { te = "泳ぎに行って", tai = "泳ぎに行きたい", tai_neg = "泳ぎに行きたくありません" }
 
 [[items]]
 id = "fara_ut"
@@ -745,7 +760,7 @@ difficulty = 1
 tags = ["inf", "progressive_inf"]
 topics = ["daily"]
 meaning_forms = { ing = "going out" }  # issue #29 pilot 3: for "I'm {inf:ing}."
-meaning_forms_ja = { te = "外に出て" }
+meaning_forms_ja = { te = "外に出て", tai = "外に出たい", tai_neg = "外に出たくありません" }
 
 [[items]]
 id = "hvila_mig"
@@ -757,7 +772,7 @@ difficulty = 2
 tags = ["inf", "progressive_inf"]
 topics = ["daily"]
 meaning_forms = { ing = "resting" }  # issue #29 pilot 3: for "I'm {inf:ing}."
-meaning_forms_ja = { te = "休んで" }
+meaning_forms_ja = { te = "休んで", tai = "休みたい", tai_neg = "休みたくありません" }
 
 [[items]]
 id = "versla"
@@ -769,7 +784,7 @@ difficulty = 2
 tags = ["inf", "progressive_inf"]
 topics = ["daily", "shopping"]
 meaning_forms = { ing = "shopping" }  # issue #29 pilot 3: for "I'm {inf:ing}."
-meaning_forms_ja = { te = "買い物して" }
+meaning_forms_ja = { te = "買い物して", tai = "買い物したい", tai_neg = "買い物したくありません" }
 
 [[items]]
 id = "kaupa_mida"
@@ -783,7 +798,7 @@ difficulty = 2
 tags = ["inf", "progressive_inf"]
 topics = ["daily", "transport"]
 meaning_forms = { ing = "buying a ticket" }  # issue #29 pilot 3: for "I'm {inf:ing}."
-meaning_forms_ja = { te = "切符を買って" }
+meaning_forms_ja = { te = "切符を買って", tai = "切符を買いたい", tai_neg = "切符を買いたくありません" }
 
 [[items]]
 id = "hringja_heim"
@@ -795,7 +810,7 @@ difficulty = 2
 tags = ["inf", "progressive_inf"]
 topics = ["daily"]
 meaning_forms = { ing = "calling home" }  # issue #29 pilot 3: for "I'm {inf:ing}."
-meaning_forms_ja = { te = "家に電話して" }
+meaning_forms_ja = { te = "家に電話して", tai = "家に電話したい", tai_neg = "家に電話したくありません" }
 
 [[items]]
 id = "fara_a_safnid"
@@ -809,7 +824,7 @@ difficulty = 2
 tags = ["inf", "progressive_inf"]
 topics = ["daily"]
 meaning_forms = { ing = "going to the museum" }  # issue #29 pilot 3: for "I'm {inf:ing}."
-meaning_forms_ja = { te = "博物館に行って" }
+meaning_forms_ja = { te = "博物館に行って", tai = "博物館に行きたい", tai_neg = "博物館に行きたくありません" }
 
 [[items]]
 id = "drekka_kaffi"
@@ -821,7 +836,7 @@ difficulty = 1
 tags = ["inf", "progressive_inf"]
 topics = ["daily", "cafe"]
 meaning_forms = { ing = "drinking coffee" }  # issue #29 pilot 3: for "I'm {inf:ing}."
-meaning_forms_ja = { te = "コーヒーを飲んで" }
+meaning_forms_ja = { te = "コーヒーを飲んで", tai = "コーヒーを飲みたい", tai_neg = "コーヒーを飲みたくありません" }
 
 # New (issue #29 triage, cluster B): "ferð" (a trip/tour) previously existed only
 # inside "eg_vil_boka_ferd" (module 25), a fixed phrase that just spells out this
@@ -839,7 +854,7 @@ difficulty = 2
 tags = ["inf", "progressive_inf"]
 topics = ["daily", "travel"]
 meaning_forms = { ing = "booking a tour" }  # issue #29 pilot 3: for "I'm {inf:ing}."
-meaning_forms_ja = { te = "ツアーを予約して" }
+meaning_forms_ja = { te = "ツアーを予約して", tai = "ツアーを予約したい", tai_neg = "ツアーを予約したくありません" }
 
 [[items]]
 id = "eg_vil"
@@ -847,6 +862,12 @@ kind = "construction"
 target = "Ég vil {inf}."
 meaning = "I want to {inf}."
 meaning_ja = "{inf}のがいいです。"
+negative = "Ég vil ekki {inf}."
+negative_meaning = "I don't want to {inf}."
+negative_meaning_ja = "{inf:tai_neg}。"
+question = "Viltu {inf}?"
+question_meaning = "Do you want to {inf}?"
+question_meaning_ja = "{inf:tai}ですか？"
 difficulty = 2
 topics = ["daily"]
 slots = { inf = "inf" }
@@ -866,6 +887,12 @@ kind = "construction"
 target = "Ég ætla að {inf}."
 meaning = "I'm going to {inf}."
 meaning_ja = "{inf}つもりです。"
+negative = "Ég ætla ekki að {inf}."
+negative_meaning = "I'm not going to {inf}."
+negative_meaning_ja = "{inf}つもりはありません。"
+question = "Ætlarðu að {inf}?"
+question_meaning = "Are you going to {inf}?"
+question_meaning_ja = "{inf}つもりですか？"
 difficulty = 2
 topics = ["daily"]
 slots = { inf = "inf" }
@@ -1128,6 +1155,12 @@ kind = "construction"
 target = "Klukkan er {hour}."
 meaning = "It's {hour} o'clock."
 meaning_ja = "今{hour}時です。"
+negative = "Klukkan er ekki {hour}."
+negative_meaning = "It isn't {hour} o'clock."
+negative_meaning_ja = "今{hour}時ではありません。"
+question = "Er klukkan {hour}?"
+question_meaning = "Is it {hour} o'clock?"
+question_meaning_ja = "今{hour}時ですか？"
 difficulty = 2
 topics = ["time"]
 slots = { hour = "hour" }
@@ -1492,6 +1525,12 @@ kind = "construction"
 target = "Það kostar {price}."
 meaning = "It costs {price}."
 meaning_ja = "{price}です。"
+negative = "Það kostar ekki {price}."
+negative_meaning = "It doesn't cost {price}."
+negative_meaning_ja = "{price}ではありません。"
+question = "Kostar það {price}?"
+question_meaning = "Does it cost {price}?"
+question_meaning_ja = "{price}ですか？"
 difficulty = 2
 topics = ["money", "shopping"]
 slots = { price = "price" }

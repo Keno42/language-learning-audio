@@ -389,6 +389,7 @@ kind = "vocab"
 target = "lítið"
 meaning = "little / small"
 meaning_ja = "少し／小さい"
+meaning_forms_ja = { neg = "小さくありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["numbers", "adjectives"]

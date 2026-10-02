@@ -17,6 +17,12 @@ kind = "construction"
 target = "Ég er með {condition}."
 meaning = "I have {condition}."
 meaning_ja = "{condition}があります。"
+negative = "Ég er ekki með {condition}."
+negative_meaning = "I don't have {condition}."
+negative_meaning_ja = "{condition}はありません。"
+question = "Ertu með {condition}?"
+question_meaning = "Do you have {condition}?"
+question_meaning_ja = "{condition}がありますか？"
 difficulty = 2
 topics = ["health"]
 slots = { condition = "acc_condition" }

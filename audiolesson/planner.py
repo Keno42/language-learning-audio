@@ -44,6 +44,10 @@ class PlanConfig:
     # When the cap leaves the lesson short, up to this many close variants of what the learner knows
     # (``Item.variant_of``: another case, another gender) come in beyond the new-item limit.
     max_variant_items: int = 4
+    # #171: the negative / question forms are taught once this many constructions that have the
+    # form are known, and then practised ``forms_practice`` times straight away
+    forms_after_constructions: int = 2
+    forms_practice: int = 2
     max_sentence_uses: int = 6  # sentences one short item may be practised in, in a lesson (about ten uses in all)
     intro_gap: int = 3  # min exercises between two introductions
     # New material is spread over the lesson (lesson 13 feedback: all nine new expressions came in
@@ -420,13 +424,19 @@ class Planner:
 
     def _aside_played(self) -> bool:
         """Whether an ordinary (non-milestone) note has played this lesson."""
-        return any(not self.cur.note_by_id[nid].milestone for nid in self.notes_played)
+        return any(self._is_aside(nid) for nid in self.notes_played)
+
+    def _is_aside(self, note_id: str) -> bool:
+        """An ordinary note: not a milestone, and not one that teaches a form (#171), which has its
+        own trigger (``forms_note_due``) and neither draws on nor counts against the aside ration."""
+        n = self.cur.note_by_id[note_id]
+        return not n.milestone and not n.teaches
 
     def _note_budget_left(self) -> bool:
         """Rations ordinary asides; milestones neither draw on nor count against it. Also
         closed once the lesson's total for every kind of note is used up."""
         limit = self.cfg.max_notes if self.cfg.max_notes is not None else max(1, int(self.cfg.minutes // 12))
-        played_asides = sum(1 for nid in self.notes_played if not self.cur.note_by_id[nid].milestone)
+        played_asides = sum(1 for nid in self.notes_played if self._is_aside(nid))
         return played_asides < limit and self._total_notes_left()
 
     def _total_notes_left(self) -> bool:
@@ -476,7 +486,7 @@ class Planner:
             return any(i in self.cur.by_id and self.cur.by_id[i].order <= reached + self.cfg.note_lookahead for i in n.items)
 
         pool = [n for i in related for n in self._notes_by_item.get(i, [])] if related else list(self.cur.notes)
-        pool = [n for n in pool if not n.milestone and n.id not in self.notes_played and self._note_available(n) and rested(n)]
+        pool = [n for n in pool if not n.milestone and not n.teaches and n.id not in self.notes_played and self._note_available(n) and rested(n)]
         unheard = [n for n in pool if heard.get(n.id, 0) == 0]
         repeats = [n for n in pool if heard.get(n.id, 0) > 0]
         if related:
@@ -512,6 +522,25 @@ class Planner:
     def _play_note(self, sc: Script, note) -> None:
         self.builder.note(sc, note)
         self.notes_played.append(note.id)
+        self.builder.notes_taught.add(note.id)
+
+    def forms_note_due(self) -> object | None:
+        """The note that teaches the negative or the question form of constructions (#171), once the
+        learner knows ``forms_after_constructions`` constructions that have the form: the negative
+        first, the question in a later lesson (the forms are contrasted with the plain sentence one
+        at a time, never all at the introduction, H5). One a lesson."""
+        if any(self.cur.note_by_id[n].teaches for n in self.notes_played):
+            return None
+        heard = {n.teaches for n in self.cur.notes if n.teaches and self.learner.notes_heard.get(n.id, 0) > 0}
+        for n in self.cur.notes:
+            if not n.teaches or n.teaches in heard or n.id in self.notes_played:
+                continue
+            if n.teaches == "question" and "negative" not in heard:
+                continue
+            known = [c for c in self.cur.items if c.kind == "construction" and n.teaches in c.forms and self.learner.knows(c.id)]
+            if len(known) >= self.cfg.forms_after_constructions:
+                return n
+        return None
 
     def recombine_or_instead(self, item: Item) -> str:
         """Issue #105: recombine only when it can make a sentence not yet heard this lesson.
@@ -879,6 +908,25 @@ class Planner:
                 used.add(whole.id)
                 return True
             return False
+
+        def do_forms_practice(form: str) -> None:
+            """Right after the note that teaches a form: the form on known constructions, each
+            with a sentence the learner hasn't heard (#171)."""
+            nonlocal idx, since_dialogue
+            known = [c for c in self.cur.items if c.kind == "construction" and form in c.forms and self.learner.knows(c.id) and c.id not in recent]
+            self.rng.shuffle(known)
+            done = 0
+            for c in known:
+                if done >= cfg.forms_practice:
+                    break
+                ex = b._recombine(sc, c, form=form)
+                if ex is None:
+                    continue
+                self._record([c.id], "recombine", ex.item_ids)
+                touch(c)
+                done += 1
+                idx += 1
+                since_dialogue += 1
 
         def do_discriminate(note) -> None:
             """After a milestone names a pattern, recall two of its examples back to back from
@@ -1376,6 +1424,9 @@ class Planner:
                 milestone = self._maybe_note(sc, practised, budget - closing_reserve - sc.total_duration)
                 if milestone is not None:
                     do_discriminate(milestone)
+                elif budget - closing_reserve - sc.total_duration >= 90 and (forms_note := self.forms_note_due()) is not None:
+                    self._play_note(sc, forms_note)
+                    do_forms_practice(forms_note.teaches)
             drill_streak = self._trailing_drill_streak(sc)
 
         # at least one aside per lesson while unheard ones remain (a few seconds over target is fine)
@@ -1417,6 +1468,7 @@ class Planner:
             "new_items": [i.id for i in introduced] + list(self.embedded),
             "embedded_items": list(self.embedded),
             "variant_items": list(variants_used),
+            "forms_taught": [self.cur.note_by_id[n].teaches for n in self.notes_played if self.cur.note_by_id[n].teaches],
             "bare_cap_lapsed": cfg.max_bare_uses > 0 and bare_cap[0] == 0,  # nothing else was left: short items were said alone again
             "reviewed_items": reviews_used,
             "open_items": open_today,

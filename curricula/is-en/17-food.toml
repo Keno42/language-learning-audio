@@ -396,7 +396,7 @@ difficulty = 2
 tags = ["inf", "progressive_inf"]
 topics = ["food"]
 meaning_forms = { ing = "cooking" }
-meaning_forms_ja = { te = "料理して" }
+meaning_forms_ja = { te = "料理して", tai = "料理したい", tai_neg = "料理したくありません" }
 
 [[items]]
 id = "eg_er_ad_elda"

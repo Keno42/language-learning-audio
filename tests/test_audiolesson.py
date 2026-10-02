@@ -4924,6 +4924,165 @@ class FormFamilyCueTests(unittest.TestCase):
             })
 
 
+class ConstructionFormTests(unittest.TestCase):
+    """#171 A: a construction's authored negative and question forms. They are used in generated
+    sentences only after the note that teaches them has been heard."""
+
+    @staticmethod
+    def _raw(**construction):
+        return {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "kalt", "kind": "vocab", "target": "kalt", "meaning": "cold", "tags": ["w"]},
+                {"id": "heitt", "kind": "vocab", "target": "heitt", "meaning": "hot", "tags": ["w"]},
+                {"id": "c", "kind": "construction", "target": "Það er {w}.", "meaning": "It's {w}.", "slots": {"w": "w"},
+                 "negative": "Það er ekki {w}.", "negative_meaning": "It isn't {w}.",
+                 "question": "Er {w}?", "question_meaning": "Is it {w}?", **construction},
+            ],
+            "notes": [
+                {"id": "n_neg", "teaches": "negative", "text": "Put «ekki» after the verb."},
+                {"id": "n_q", "teaches": "question", "text": "Put the verb first."},
+            ],
+        }
+
+    def _builder(self, cur, taught=()):
+        from audiolesson.exercises import Builder
+        learner = LearnerState("is", "en", "A1")
+        for i in ("kalt", "heitt", "c"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+        for n in taught:
+            learner.notes_heard[n] = 1
+        return Builder(cur, Prompts.load("en"), Timing(level="A1"), learner, rng=random.Random(1))
+
+    def test_the_forms_wait_for_their_note(self):
+        cur = curriculum_from_dict(self._raw())
+        c = cur.by_id["c"]
+        b = self._builder(cur)
+        self.assertEqual({b.generate(c, forms=True).form for _ in range(40)}, {None})
+        self.assertIsNone(b.generate(c, form="negative"))
+        b = self._builder(cur, taught=["n_neg"])
+        forms = []
+        for _ in range(60):  # the way recombination counts what it generates
+            form = b.generate(c, forms=True, prefer_unused=False).form
+            b.form_counts[form or "plain"] = b.form_counts.get(form or "plain", 0) + 1
+            forms.append(form)
+        self.assertEqual(set(forms), {None, "negative"})
+        self.assertGreaterEqual(forms.count(None), 40, "the plain sentence stays the larger share")
+        self.assertLessEqual(forms.count("negative"), 20)
+        self.assertEqual(b.generate(c, form="negative").target.split()[:3], ["Það", "er", "ekki"])
+        self.assertIsNone(b.generate(c, form="question"), "the question note hasn't been heard")
+        b = self._builder(cur, taught=["n_neg", "n_q"])
+        gen = b.generate(c, form="question")
+        self.assertTrue(gen.target.endswith("?") and gen.meaning.startswith("Is it"), (gen.target, gen.meaning))
+        self.assertNotEqual(gen.key, b.generate(c, fixed=gen.fills).key, "a form is a different sentence")
+
+    def test_a_note_played_this_lesson_counts(self):
+        cur = curriculum_from_dict(self._raw())
+        b = self._builder(cur)
+        b.notes_taught.add("n_neg")
+        self.assertEqual(b.forms_taught(), {"negative"})
+
+    def test_the_negative_note_comes_first_and_one_a_lesson(self):
+        cur = curriculum_from_dict(self._raw())
+        learner = self._builder(cur).learner
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1), today=TODAY)
+        self.assertIsNone(planner.forms_note_due(), "one known construction is not two")
+        raw = self._raw()
+        raw["items"].append({"id": "c2", "kind": "construction", "target": "Það er {w} núna.", "meaning": "It's {w} now.", "slots": {"w": "w"},
+                             "negative": "Það er ekki {w} núna.", "negative_meaning": "It isn't {w} now."})
+        cur = curriculum_from_dict(raw)
+        learner = self._builder(cur).learner
+        learner.items["c2"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1), today=TODAY)
+        self.assertEqual(planner.forms_note_due().id, "n_neg")
+        learner.notes_heard["n_neg"] = 1
+        self.assertIsNone(planner.forms_note_due(), "only one construction has a question form")
+
+    def test_validation_of_forms(self):
+        def bad(**change):
+            with self.assertRaises(CurriculumError, msg=str(change)):
+                curriculum_from_dict(self._raw(**change))
+        bad(negative="Það er nei {w}.")  # an Icelandic negative contains «ekki»
+        bad(question="Er {w}.")  # a question ends with «?»
+        bad(negative="Það er ekki {x}.")  # the construction's slots
+        bad(negative_meaning="It isn't.")  # the meaning's slots
+        bad(negative_meaning="")  # a form and its meaning go together
+        raw = self._raw()
+        raw["notes"].append({"id": "n2", "teaches": "negative", "text": "again"})
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
+        raw = self._raw()
+        raw["notes"][0]["milestone"] = True
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
+        raw = self._raw()
+        raw["items"][0]["negative"] = "kalt ekki"
+        raw["items"][0]["negative_meaning"] = "not cold"
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)  # forms are for constructions
+
+    def test_every_authored_form_of_the_real_curriculum_resolves_in_both_languages(self):
+        for lang in ("en", "ja"):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            authored = [c for c in cur.items if c.kind == "construction" and c.forms]
+            self.assertGreaterEqual(len(authored), 15)
+            for c in authored:
+                fills = {slot: cur.items_with_tag(tag)[0] for slot, tag in c.slots.items()}
+                for form in c.forms:
+                    target, meaning = cur.resolve_slots(c, fills, form=form)
+                    self.assertNotIn("{", target + meaning, (c.id, form, target, meaning))
+                    self.assertNotEqual(meaning, cur.resolve_slots(c, fills)[1], (c.id, form))
+
+    def test_a_course_teaches_the_forms_and_uses_them_only_after(self):
+        import re as _re
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        # a regex per template: its slots match any words
+        patterns: dict[str, list] = {"negative": [], "question": []}
+        for c in cur.items:
+            if c.kind != "construction":
+                continue
+            for form in c.forms:
+                template = c.negative if form == "negative" else c.question
+                patterns[form].append(_re.compile("^" + _re.sub(r"\\\{[^}]*\\\}", ".+", _re.escape(template)) + "$"))
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        taught: set[str] = set()
+        used_before, first_taught, share_rows = 0, {}, []
+        for n in range(1, 21):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5), today=day).build()
+            sentences = [e.label.split(": ", 1)[1] for e in sc.exercises if e.kind == "generative" and ": " in e.label]
+            by_form = {f: sum(1 for t in sentences if any(p.match(t) for p in pats)) for f, pats in patterns.items()}
+            by_form["plain"] = len(sentences) - by_form["negative"] - by_form["question"]
+            share_rows.append((n, len(sentences), by_form, set(sc.meta["forms_taught"]), set(taught)))
+            if not taught and not sc.meta["forms_taught"]:
+                used_before += by_form["negative"] + by_form["question"]  # no form before its note
+            for f in sc.meta["forms_taught"]:
+                first_taught.setdefault(f, n)
+            taught |= set(sc.meta["forms_taught"])
+            apply_to_learner(sc, learner, day)
+            new = sc.meta["new_items"]
+            learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=new)
+            day += timedelta(days=1)
+        self.assertEqual(used_before, 0, "no form before its note")
+        self.assertEqual(set(first_taught), {"negative", "question"})
+        self.assertLess(first_taught["negative"], first_taught["question"], "the negative first, the question in a later lesson")
+        after = [r for r in share_rows if r[0] >= first_taught["negative"]]
+        total = sum(r[1] for r in after)
+        self.assertGreater(total - sum(r[2]["plain"] for r in after), 40, "once taught, the forms are a real part of the supply")
+        # the newest form must not crowd out the plain sentences (review of #172)
+        self.assertGreaterEqual(sum(r[2]["plain"] for r in after) / total, 0.5, [r[:3] for r in after])
+        for form in ("negative", "question"):
+            self.assertLessEqual(sum(r[2][form] for r in after) / total, 0.3, form)
+        for n, count, by_form, now, before in share_rows:
+            if count >= 10:
+                self.assertGreaterEqual(by_form["plain"] / count, 0.4, (n, by_form))
+                for form in ("negative", "question"):
+                    self.assertLessEqual(by_form[form] / count, 0.4, (n, form, by_form))
+            for form in now:  # the lesson that teaches a form: its practice and a couple more, not a drill
+                self.assertLessEqual(by_form[form], 5, (n, form, by_form))
+
+
 class PlausibleFillTests(unittest.TestCase):
     """Owner, after lesson 12: never generate a sentence that makes no sense in its scene
     ("order a passport at the café"). Slot tags keep the grammar right; they must also keep

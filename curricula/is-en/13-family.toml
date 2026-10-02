@@ -435,6 +435,12 @@ kind = "construction"
 target = "Þetta er {thing}."
 meaning = "That's {thing}."
 meaning_ja = "あれは{thing}です。"
+negative = "Þetta er ekki {thing}."
+negative_meaning = "That isn't {thing}."
+negative_meaning_ja = "あれは{thing}ではありません。"
+question = "Er þetta {thing}?"
+question_meaning = "Is that {thing}?"
+question_meaning_ja = "あれは{thing}ですか？"
 difficulty = 1
 topics = ["social", "nature"]
 slots = { thing = "nom_noun" }
