@@ -477,3 +477,111 @@ examples = [
   { source = "Þetta er skemmtilegt.", source_meaning = "This is fun.", source_meaning_ja = "これは楽しいです。", result = "Þetta er leiðinlegt.", result_meaning = "This is boring.", result_meaning_ja = "これは退屈です。" },
   { source = "Það er opið.", source_meaning = "It's open.", source_meaning_ja = "開いています。", result = "Það er lokað.", result_meaning = "It's closed.", result_meaning_ja = "閉まっています。" },
 ]
+
+# The same adjectives for a person: the masculine and feminine forms of the neuter ones above
+# (`variant_of`), in «Hann er …» / «Hún er …». They come in the course order like any item, and
+# fill a lesson that has run out of other material, beyond its new-item limit (§9 "Repetition").
+# Wordings are candidates for a native speaker to check.
+[[items]]
+id = "hann_er_adj"
+kind = "construction"
+target = "Hann er {adj}."
+meaning = "He is {adj}."
+meaning_ja = "彼は{adj}です。"
+difficulty = 2
+topics = ["adjectives"]
+slots = { adj = "adj_masc" }
+example = { adj = "godur" }
+prereqs = ["thetta_er_adj", "godur"]
+
+[[items]]
+id = "hun_er_adj"
+kind = "construction"
+target = "Hún er {adj}."
+meaning = "She is {adj}."
+meaning_ja = "彼女は{adj}です。"
+difficulty = 2
+topics = ["adjectives"]
+slots = { adj = "adj_fem" }
+example = { adj = "god" }
+prereqs = ["thetta_er_adj", "god"]
+
+[[items]]
+id = "godur"
+kind = "vocab"
+variant_of = "gott"
+target = "góður"
+meaning = "good (of a man)"
+meaning_ja = "良い（男性について）"
+meaning_spoken = "good, said of a man"
+meaning_spoken_ja = "良い、男性について"
+difficulty = 1
+tags = ["adj_masc"]
+topics = ["adjectives"]
+prereqs = ["gott"]
+meaning_forms = { in_sentence = "good" }  # sentence prompts drop the recall-only disambiguator
+meaning_forms_ja = { in_sentence = "良い" }
+
+[[items]]
+id = "god"
+kind = "vocab"
+variant_of = "gott"
+target = "góð"
+meaning = "good (of a woman)"
+meaning_ja = "良い（女性について）"
+meaning_spoken = "good, said of a woman"
+meaning_spoken_ja = "良い、女性について"
+difficulty = 1
+tags = ["adj_fem"]
+topics = ["adjectives"]
+prereqs = ["gott"]
+meaning_forms = { in_sentence = "good" }  # sentence prompts drop the recall-only disambiguator
+meaning_forms_ja = { in_sentence = "良い" }
+
+[[items]]
+id = "fallegur"
+kind = "vocab"
+variant_of = "fallegt"
+target = "fallegur"
+meaning = "beautiful (of a man)"
+meaning_ja = "美しい（男性について）"
+meaning_spoken = "beautiful, said of a man"
+meaning_spoken_ja = "美しい、男性について"
+difficulty = 2
+tags = ["adj_masc"]
+topics = ["adjectives"]
+prereqs = ["fallegt"]
+meaning_forms = { in_sentence = "beautiful" }  # sentence prompts drop the recall-only disambiguator
+meaning_forms_ja = { in_sentence = "美しい" }
+
+[[items]]
+id = "falleg"
+kind = "vocab"
+variant_of = "fallegt"
+target = "falleg"
+meaning = "beautiful (of a woman)"
+meaning_ja = "美しい（女性について）"
+meaning_spoken = "beautiful, said of a woman"
+meaning_spoken_ja = "美しい、女性について"
+difficulty = 2
+tags = ["adj_fem"]
+topics = ["adjectives"]
+prereqs = ["fallegt"]
+meaning_forms = { in_sentence = "beautiful" }  # sentence prompts drop the recall-only disambiguator
+meaning_forms_ja = { in_sentence = "美しい" }
+
+[[items]]
+id = "stor"
+kind = "vocab"
+variant_of = "stort"
+target = "stór"
+meaning = "big (of a person)"
+meaning_ja = "大きい（人について）"
+meaning_spoken = "big, said of a person"
+meaning_spoken_ja = "大きい、人について"
+difficulty = 1
+tags = ["adj_masc", "adj_fem"]  # one form for both
+topics = ["adjectives"]
+prereqs = ["stort"]
+meaning_forms = { in_sentence = "big" }  # sentence prompts drop the recall-only disambiguator
+meaning_forms_ja = { in_sentence = "大きい" }

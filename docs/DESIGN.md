@@ -98,6 +98,34 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   else to a meaning recall. A new item is never dropped from a reactivation or the closing
   block: repeating it is fine (lesson 12 feedback), and the learner update takes the
   hardest stage reached, so the repeat is not a demotion.
+- **Today's items come back by time, and a short one is said alone at most three times
+  (G14, §9 "Repetition").** The recalls of a new item are scheduled at `intro_recall_times`
+  (fractions of the lesson's time after its introduction, about 1, 3, 8 and 15 minutes of 30:
+  `intro_timeline`, like `open_timeline`), played when due and never as the fifth recall in a
+  row; an idle lesson pulls them early (step 5). An item of at most `short_item_words` words
+  (not a construction or transform) introduced today has `max_bare_uses` bare uses
+  (introduction, one early recall, the closing recall); every other practice of it is a
+  sentence (`sentence_practice`): a known pattern with a slot for it (`recombine`), else a known
+  phrase whose words contain it (`containing_items`), else nothing, and the recall is dropped.
+  The one early bare recall is at `meaning` at least. When nothing else is left to fill the lesson
+  (step 5, after the listening dialogues), the cap lapses and the dropped recalls come back
+  (`bare_cap_lapsed` in `plan.json`), so a lesson never ends short for this alone. A drill
+  streak is also broken by a substitution or a sentence for a short item before it ends the
+  lesson.
+- **Close variants fill what the cap leaves (§9 "Repetition").** Before the cap lapses (and as
+  streak relief), `try_variant` introduces an item whose `variant_of` the learner knows (or met
+  earlier in the lesson) and who hasn't met it, beyond the new-item limit: at most
+  `max_variant_items` a lesson, in course order, with room for it (half a new item's time);
+  `variant_items` in `plan.json`. They are not kept out of the normal course order.
+- **A variant is introduced as a form of one they have, and a word says its sentence.** A
+  `variant_of` item whose base was met is introduced «You know this one: tveir. Here is another
+  form of it: …», said and repeated, a sentence it goes in when a pattern takes it, then the usual
+  first retrieval (`_intro_variant`). An item with a `context` is recalled at the meaning stage
+  as «Say: good, as in: This is good.» (`meaning_in_context`); the introduction is unchanged.
+- **A situation is narrated in full twice a lesson.** After two narrations of the same authored
+  situation (`SITUATION_FULL_MAX`) the cue is the meaning, short (or the partner's line, G12);
+  «Quick review: two separate situations.» is said once. A connect() turn whose situation has no room
+  is cued by the item's meaning instead of dropping out of the pairing (`Builder._cue`).
 - **Notes.** Milestones fire deterministically once their `items` are met or exposed, and
   are followed by discrimination practice over examples whose situation is usable now. A
   note waits for what it recommends saying (`requires`). As filler, an aside is about met

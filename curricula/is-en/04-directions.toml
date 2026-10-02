@@ -6,6 +6,8 @@ kind = "vocab"
 target = "sundlaugin"
 meaning = "the swimming pool"
 meaning_ja = "プール"
+context = "Where is the swimming pool?"
+context_ja = "プールはどこですか？"
 difficulty = 2
 tags = ["nom_place", "opens"]
 topics = ["directions"]
@@ -109,6 +111,8 @@ kind = "vocab"
 target = "safnið"
 meaning = "the museum"
 meaning_ja = "博物館"
+context = "Where is the museum?"
+context_ja = "博物館はどこですか？"
 difficulty = 2
 tags = ["nom_place", "opens"]
 topics = ["directions"]
@@ -139,6 +143,8 @@ kind = "vocab"
 target = "matvörubúðin"
 meaning = "the grocery store"
 meaning_ja = "スーパー"
+context = "Where is the grocery store?"
+context_ja = "スーパーはどこですか？"
 difficulty = 3
 tags = ["nom_place", "opens"]
 topics = ["directions", "shopping"]
@@ -392,6 +398,7 @@ situation_ja = "受付の人がプールは歩ける距離だと言います。�
 [[items]]
 id = "hotelinu"
 kind = "vocab"
+variant_of = "hotelid"
 target = "hótelinu"
 meaning = "the hotel (after 'to' / 'for')"
 meaning_ja = "ホテル（〜へ／〜を探して）"
@@ -407,6 +414,7 @@ meaning_forms_ja = { in_sentence = "ホテル" }
 [[items]]
 id = "flugvellinum"
 kind = "vocab"
+variant_of = "flugvollurinn"
 target = "flugvellinum"
 meaning = "the airport (after 'to' / 'for')"
 meaning_ja = "空港（〜へ／〜を探して）"
@@ -422,6 +430,7 @@ meaning_forms_ja = { in_sentence = "空港" }
 [[items]]
 id = "sundlauginni"
 kind = "vocab"
+variant_of = "sundlaugin"
 target = "sundlauginni"
 meaning = "the swimming pool (after 'to' / 'for')"
 meaning_ja = "プール（〜へ／〜を探して）"
@@ -437,6 +446,7 @@ meaning_forms_ja = { in_sentence = "プール" }
 [[items]]
 id = "safninu"
 kind = "vocab"
+variant_of = "safnid"
 target = "safninu"
 meaning = "the museum (after 'to' / 'for')"
 meaning_ja = "博物館（〜へ／〜を探して）"
@@ -452,6 +462,7 @@ meaning_forms_ja = { in_sentence = "博物館" }
 [[items]]
 id = "bankanum"
 kind = "vocab"
+variant_of = "bankinn"
 target = "bankanum"
 meaning = "the bank (after 'to' / 'for')"
 meaning_ja = "銀行（〜へ／〜を探して）"
@@ -467,6 +478,7 @@ meaning_forms_ja = { in_sentence = "銀行" }
 [[items]]
 id = "stoppistodinni"
 kind = "vocab"
+variant_of = "stoppistodin"
 target = "stoppistöðinni"
 meaning = "the bus stop (after 'to' / 'for')"
 meaning_ja = "バス停（〜へ／〜を探して）"

@@ -56,6 +56,7 @@ def _norm_utterance(text: str) -> str:
 
 BRIDGE_GLOSS_ENCOUNTERS = 2  # a partner_cue is glossed on the learner's first N hearings of that bridge
 PROMPT_GLOSS_HEARINGS = 2  # a prompt_by line not yet known is glossed on its first N hearings in a lesson
+SITUATION_FULL_MAX = 2  # an authored situation is narrated in full at most this often in a lesson (G12)
 
 
 @dataclass
@@ -71,6 +72,8 @@ class Builder:
     heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson
     in_lesson: set[str] = field(default_factory=set)  # items introduced this lesson: usable as parts
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
+    _situation_texts: dict[str, int] = field(default_factory=dict)  # times each authored situation was narrated in full
+    _mixed_review_said: bool = False  # «Quick review» is announced once a lesson
     _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
     _last_partner_cue: int | None = None  # index of the latest partner-line cue exercise (no repeated "Reply.")
@@ -98,8 +101,31 @@ class Builder:
         return meaning + "."
 
     def _next_situation(self, item: Item) -> str | None:
-        base = self.learner.items[item.id].exposures if item.id in self.learner.items else 0
-        return item.situation_for(base + self._situation_uses.get(item.id, 0))
+        """The next variant by rotation, skipping any narrated in full ``SITUATION_FULL_MAX``
+        times already this lesson; the first one when none has room (``situation_room``)."""
+        base = (self.learner.items[item.id].exposures if item.id in self.learner.items else 0) + self._situation_uses.get(item.id, 0)
+        variants = list(item.situations) or ([item.situation] if item.situation else [])
+        if not variants:
+            return None
+        for k in range(len(variants)):
+            text = variants[(base + k) % len(variants)]
+            if self._situation_texts.get(text, 0) < SITUATION_FULL_MAX:
+                return text
+        return item.situation_for(base)
+
+    def situation_room(self, item: Item) -> bool:
+        """Whether some authored situation of ``item`` may still be narrated in full this
+        lesson (G12: the same English situation came back 7–10 times). After that the cue
+        is the meaning, short, or the partner's line when the item has one."""
+        variants = list(item.situations) or ([item.situation] if item.situation else [])
+        return any(self._situation_texts.get(t, 0) < SITUATION_FULL_MAX for t in variants)
+
+    def _cue(self, item: Item) -> str | None:
+        """A connect() turn's cue: the situation while it may still be narrated in full, else
+        the meaning, short."""
+        if self.situation_room(item):
+            return self._situation(item)
+        return self._meaning_prompt(item.spoken_meaning)
 
     def prompt_item(self, item: Item) -> tuple[Item, bool] | None:
         """G12: the item whose line the partner says as ``item``'s cue, and whether the line goes
@@ -144,6 +170,8 @@ class Builder:
         whenever the item has one."""
         cue = self._next_situation(item)
         self._situation_uses[item.id] = self._situation_uses.get(item.id, 0) + 1
+        if cue:
+            self._situation_texts[cue] = self._situation_texts.get(cue, 0) + 1
         return cue
 
     # ---- the speaker's gender (Item.target_m) -----------------------------
@@ -185,7 +213,9 @@ class Builder:
         """``prompt`` with "As a man:" / "As a woman:" in front when the words depend on it."""
         return self.prompts.get(f"speak_as_{gender}", prompt=prompt) if gender else prompt
 
-    def _meaning_prompt(self, meaning: str) -> str:
+    def _meaning_prompt(self, meaning: str, context: str = "") -> str:
+        if context:
+            return self.prompts.get("meaning_in_context", meaning=self._m(meaning).rstrip(".。"), context=context)
         return self.prompts.get("meaning", meaning=self._m(meaning), language=self.prompts.language_name(self.tl))
 
     def _successes(self, item: Item) -> int:
@@ -324,6 +354,9 @@ class Builder:
             return self._intro_construction(sc, item)
         if item.kind == "transform":
             return self._intro_transform(sc, item)
+        base = self.cur.by_id.get(item.variant_of) if item.variant_of else None
+        if base is not None and not item.target_m and (self.learner.has_met(base.id) or base.id in self.in_lesson):
+            return self._intro_variant(sc, item, base)
         ex = sc.new_exercise("intro", "intro", [item.id], f"new: {item.target}")
         self._narr(sc, ex, self.prompts.get("intro_new", meaning=self._m(item.spoken_meaning)))
         self._beat(sc, ex)
@@ -370,6 +403,41 @@ class Builder:
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(item.spoken_meaning)))
         self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
+        self._gap(sc, ex)
+        return ex
+
+    def _intro_variant(self, sc: Script, item: Item, base: Item) -> Exercise:
+        """A near form of something the learner has met («tvær» for «tveir», «góð» for «gott»),
+        introduced as that: «You know this:» the form they have, «Here is another form:» the
+        new one, said and repeated, then a short sentence it goes in, and a first retrieval."""
+        ex = sc.new_exercise("intro", "intro", [item.id], f"new: {item.target}")
+        self._narr(sc, ex, self.prompts.get("variant_known"))
+        self._speak(sc, ex, base.target)
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("variant_form", meaning=self._m(item.spoken_meaning)))
+        self._beat(sc, ex)
+        self._speak(sc, ex, item.target)
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("repeat"))
+        self._speak(sc, ex, item.target)
+        self._repeat_pause(sc, ex, item.target)
+        gen = self.generate_with(item, avoid_heard=True)
+        if gen is not None:
+            self.used_combos.add(gen.key)
+            gender, sentence = self._filled(gen.construction, gen.fills)
+            voice = VOICE_OF[gender or "f"]
+            self._narr(sc, ex, self._as(gender, self.prompts.get("embed_sentence")))
+            self._beat(sc, ex)
+            self._speak(sc, ex, sentence, speaker=voice)
+            self._beat(sc, ex)
+            self._narr(sc, ex, self.prompts.get("embed_meaning", meaning=self._m(gen.meaning)))
+            self._beat(sc, ex)
+            self._speak(sc, ex, sentence, speaker=voice)
+            self._repeat_pause(sc, ex, sentence)
+            self.heard.add(_norm_utterance(sentence))
+        self._narr(sc, ex, self._meaning_prompt(item.spoken_meaning))
+        self._answer_pause(sc, ex, item.target, item, generative=False)
+        self._answer(sc, ex, item.target)
         self._gap(sc, ex)
         return ex
 
@@ -455,6 +523,8 @@ class Builder:
 
         if stage == "situation" and (cue := self.prompt_item(item)) is not None:
             return self._partner_cue_recall(sc, item, *cue)
+        if stage == "situation" and not self.situation_room(item):
+            stage = "meaning"  # that situation was narrated in full enough times: the short cue
         gender = self.speaker_gender(item)
         target = self._gendered(item, gender)
         voice = VOICE_OF[gender or "f"]
@@ -474,7 +544,7 @@ class Builder:
             self._narr(sc, ex, self._as(gender, self._situation(item)))  # type: ignore[arg-type]
             self._answer_pause(sc, ex, target, item, generative=True)
         else:  # meaning (also the fallback for 'dialogue' when no dialogue fits)
-            self._narr(sc, ex, self._as(gender, self._meaning_prompt(item.spoken_meaning)))
+            self._narr(sc, ex, self._as(gender, self._meaning_prompt(item.spoken_meaning, item.context)))
             self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target, speaker=voice)
         if stage in ("cloze", "hinted") or item.difficulty >= 4:
@@ -511,7 +581,7 @@ class Builder:
         if stage == "hinted":
             self._narr(sc, ex, self._as(gender, self.prompts.get("hinted", meaning=self._m(gen.meaning))))
             self._speak(sc, ex, target.split()[0].rstrip(".,?!"), role="hint")
-        elif stage == "situation" and item.has_situation:
+        elif stage == "situation" and item.has_situation and self.situation_room(item):
             self._narr(sc, ex, self._as(gender, self._situation(item)))  # type: ignore[arg-type]
         else:
             self._narr(sc, ex, self._as(gender, self._meaning_prompt(gen.meaning)))
@@ -743,10 +813,12 @@ class Builder:
         second_gender, second_target = self._connect_turn(second, learner_voice)
         label = f"connect: {first.id}+{second.id}" if bridged else f"mixed review: {first.id}+{second.id}"
         ex = sc.new_exercise("connect", "exchange" if bridged else "recombine", ids, label)
-        self._narr(sc, ex, self.prompts.get("connect_intro" if bridged else "mixed_review_intro"))
-        self._beat(sc, ex)
+        if bridged or not self._mixed_review_said:
+            self._narr(sc, ex, self.prompts.get("connect_intro" if bridged else "mixed_review_intro"))
+            self._beat(sc, ex)
+            self._mixed_review_said = self._mixed_review_said or not bridged
         # a bridge's own scene replaces the items' standalone situations
-        self._narr(sc, ex, self._as(first_gender, second.partner_cue_setup if bridged else self._situation(first)))  # type: ignore[arg-type]
+        self._narr(sc, ex, self._as(first_gender, second.partner_cue_setup if bridged else self._cue(first)))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, first_target, first, generative=True)
         self._answer(sc, ex, first_target, speaker=learner_voice)
         self._beat(sc, ex)
@@ -759,7 +831,7 @@ class Builder:
                 self._beat(sc, ex)
         else:
             self._narr(sc, ex, self.prompts.get("connect_next"))
-        self._narr(sc, ex, self._as(second_gender, second.partner_cue_situation if bridged else self._situation(second)))  # type: ignore[arg-type]
+        self._narr(sc, ex, self._as(second_gender, second.partner_cue_situation if bridged else self._cue(second)))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, second_target, second, generative=True)
         self._answer(sc, ex, second_target, speaker=learner_voice)
         self._gap(sc, ex)

@@ -456,6 +456,14 @@ the export's `learner.before.json` and arguments (the old code reproduces the re
 exercises, 23.6 min). For lessons 14 and 15 it assumes every new item was recalled the next day,
 and each open item with three or more words failed once more.
 
+The batch also includes #170, which the weekly read judges with it: today's items come back by
+time (not by exercise count); a short item is said alone at most three times and practised in
+sentences (a pattern with a slot, else a known phrase that contains it); a lesson with nothing
+else left lets the cap lapse; close variants of known items come in beyond the pace; a variant
+is introduced as a form of one the learner has; `context` («Say: good, as in: This is good.») for
+the 24 words of lessons 13–15; the same situation is narrated in full at most twice; asides are
+about practised items only; and `max_listening_dialogues` is 4, not 2.
+
 | | lesson 13 | lesson 14 | lesson 15 |
 |---|---|---|---|
 | length, before → after (min) | 23.6 → 28.6 | 28.9 → 29.3 | 26.7 → 28.3 |
@@ -632,6 +640,12 @@ Don't reopen these without new evidence; when you do, say what changed.
 
 - **Pace.** It never depends on the departure date. Lessons go on at the same best-effort
   pace before and during the trip, throttled only by recall reports (owner; #129, #131).
+  The pace is throttled by what needs review: a learner with much to review gets fewer new
+  items because the lesson is full. **Close variants** (`Item.variant_of`: another case, another
+  gender of something the learner knows) come in beyond the pace only when the lesson has run
+  out of other material (up to four, #170), so they follow that rule and don't revise it. They
+  are listed apart in `plan.json` (`variant_items`), so the weekly read doesn't count them as a
+  pace change.
 - **Evidence.**
   - Presumed success is kept apart from confirmed outcomes (#119).
   - The last lesson's new items are reviewed before the next lesson is generated (bot).
@@ -654,13 +668,19 @@ Don't reopen these without new evidence; when you do, say what changed.
   - `connect` without an authored bridge is mixed review, and says so (#78).
 - **Repetition.**
   - New items may repeat within a lesson and are never dropped (#147).
-  - Situation variety is welcome, with no cap (#148).
+  - Situation variety is welcome (#148), but the same authored situation is narrated in full at
+    most twice in a lesson; after that the cue is the meaning, or the partner's line (G12;
+    #170).
   - Not-due items wait for their date (#94).
-  - A short item (one or two words, one-word questions such as «Hvenær?» included) is said
-    alone at most **three** times in a lesson; the rest of its practice is inside sentences,
+  - A short item (a word, or a one-word question such as «Hvenær?»; sentences and full
+    questions of two words are not short items) is said alone at most **three** times in a lesson; the rest of its practice is inside sentences,
     preferably different ones, up to about **ten** uses in all (owner, after replaying lesson
     13, §5.11). The numbers are a starting guess, not evidence: tune them with the learner's
     remarks.
+  - **Order of the two rules (#170).** When even close variants, listening dialogues, open
+    practices and substitutions leave the lesson short, the cap lapses and the dropped recalls
+    come back (`bare_cap_lapsed`): the daily dose above ranks over "alone at most three". A
+    graded lapse (4, then 5…) would keep more of the cap; it is the owner's call.
 - **Generation and audio.**
   - Only plausible sentences in plausible scenes (owner after L12).
   - No pause stretching to fill a short lesson (owner after L12).

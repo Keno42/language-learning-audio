@@ -9,6 +9,7 @@ import random
 import re
 import tempfile
 import unittest
+from collections import Counter
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -3896,6 +3897,8 @@ class CourseTests(unittest.TestCase):
             for e in sc.exercises:
                 if e.kind == "dialogue":
                     dlg_id = e.label.split(":")[1].split("(")[0].strip()
+                    if dlg_id in sc.meta.get("dialogues_listened", []):
+                        continue  # played as listening (#149 step 3): its own mechanism, not a step of this series
                     n_turns = sum(1 for s in sc.segments if s.exercise == e.index and s.type == "pause" and s.role == "answer")
                     seen.setdefault(dlg_id, []).append(n_turns)
         self.assertTrue(seen)
@@ -4747,6 +4750,178 @@ class SpreadIntroductionTests(unittest.TestCase):
         self.assertGreater(intros, 20)
         self.assertLess(first_third / intros, 0.55, "most new items used to come in the first third")
         self.assertLess(worst_gap, 9 * 60, "the longest stretch without a new item used to be 10-11 minutes")
+
+
+class ShortItemRepetitionTests(unittest.TestCase):
+    """Lesson 13 feedback, and lessons 6 and 13 before it (G14, §9 "Repetition"): a short new
+    item was said alone six to nine times, within minutes, and the same English situation was
+    narrated seven to ten times."""
+
+    @staticmethod
+    def _course(lessons: int = 18):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        for n in range(1, lessons + 1):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5), today=day).build()
+            yield cur, sc
+            apply_to_learner(sc, learner, day)
+            new = sc.meta["new_items"]
+            failed = new[:2] if n in (3, 4, 6, 7, 12) else []
+            learner.report(failed, [], day + timedelta(days=1), lesson_number=n, recalled=[i for i in new if i not in failed])
+            day += timedelta(days=1)
+
+    def test_a_short_new_item_is_said_alone_at_most_three_times(self):
+        bare = {"intro", "cloze", "hinted", "meaning", "situation"}
+        checked = lapsed = in_sentences = 0
+        for cur, sc in self._course():
+            if sc.meta["bare_cap_lapsed"]:
+                lapsed += 1  # nothing else was left to fill the lesson
+                continue
+            for i in sc.meta["new_items"]:
+                it = cur.by_id[i]
+                if i in sc.meta["embedded_items"] or it.kind in ("construction", "transform") or it.word_count > 2:
+                    continue
+                ex = [e for e in sc.exercises if i in e.item_ids]
+                alone = sum(1 for e in ex if e.item_ids[0] == i and e.kind in ("intro", "recall") and e.stage in bare)
+                self.assertLessEqual(alone, 3, (sc.lesson_number, i, alone))
+                in_sentences += sum(1 for e in ex if e.kind == "generative" or (e.kind == "recall" and e.item_ids[0] != i))
+                checked += 1
+        self.assertGreater(checked, 30)
+        self.assertLessEqual(lapsed, 7, "the cap should hold in most lessons of a course")
+        self.assertGreater(in_sentences, 20, "the rest of a short item's practice is inside sentences")
+
+    def test_a_situation_is_narrated_in_full_twice_a_lesson_and_review_is_announced_once(self):
+        for cur, sc in self._course():
+            texts = {t for it in cur.items for t in ([it.situation] if it.situation else []) + list(it.situations)}
+            narrated = Counter(s.text for s in sc.segments if s.type == "narrate" and s.text in texts)
+            self.assertLessEqual(max(narrated.values(), default=0), 2, (sc.lesson_number, narrated.most_common(1)))
+            quick = sum(1 for s in sc.segments if (s.text or "").startswith("Quick review"))
+            self.assertLessEqual(quick, 1, sc.lesson_number)
+
+    def test_an_item_with_no_slot_is_practised_in_a_phrase_that_holds_it(self):
+        """No pattern takes «Hvenær?» (no tags), so its sentence is a known phrase that contains
+        it; and the item stops there rather than going back to being said alone."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        learner.items["hvenaer_leggjum_vid_af_stad"] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+        self.assertIn("hvenaer_leggjum_vid_af_stad", [i.id for i in planner.containing_items(cur.by_id["hvenaer"])])
+        self.assertEqual(planner.containing_items(cur.by_id["hvenaer_leggjum_vid_af_stad"]), [])
+
+
+class VariantFillTests(unittest.TestCase):
+    """§9 "Repetition": when a lesson has run out of other material, a close variant of something
+    the learner knows (another case, another gender) comes in beyond the new-item limit."""
+
+    @staticmethod
+    def _cur(variant_extra=None):
+        items = [
+            {"id": "n0", "kind": "phrase", "target": "Ný setning núll.", "meaning": "New sentence zero."},
+            {"id": "bankinn", "kind": "vocab", "target": "bankinn", "meaning": "the bank"},
+            {"id": "bankanum", "kind": "vocab", "target": "bankanum", "meaning": "the bank (after 'to')", "variant_of": "bankinn", "meaning_spoken": "the bank, after to"},
+        ] + [{"id": f"r{i}", "kind": "phrase", "target": f"Rifja {i}.", "meaning": f"Review {i}."} for i in range(6)]
+        return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items + (variant_extra or [])})
+
+    def _learner(self, cur, known=("bankinn",)):
+        learner = LearnerState("is", "en", "A1")
+        for i in [f"r{i}" for i in range(6)] + list(known):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+        return learner
+
+    def test_an_idle_lesson_introduces_a_variant_of_a_known_item_beyond_its_limit(self):
+        cur = self._cur()
+        sc = Planner(cur, self._learner(cur), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=1, max_new_items=1, max_arcs=1), today=TODAY).build()
+        self.assertEqual(sc.meta["variant_items"], ["bankanum"])
+        self.assertEqual(sorted(sc.meta["new_items"]), ["bankanum", "n0"])
+
+    def test_a_variant_of_something_not_yet_known_waits(self):
+        cur = self._cur()
+        sc = Planner(cur, self._learner(cur, known=()), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=1, max_new_items=1, max_arcs=1), today=TODAY).build()
+        self.assertEqual(sc.meta["variant_items"], [])
+        self.assertNotIn("bankanum", sc.meta["new_items"])
+
+    def test_the_variant_count_is_capped(self):
+        extra = [{"id": f"v{i}", "kind": "vocab", "target": f"vara{i}", "meaning": f"variant {i}", "variant_of": "bankinn", "meaning_spoken": f"variant {i}"} for i in range(6)]
+        cur = self._cur(extra)
+        sc = Planner(cur, self._learner(cur), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=1, max_new_items=1, max_arcs=1, max_variant_items=2), today=TODAY).build()
+        self.assertLessEqual(len(sc.meta["variant_items"]), 2)
+
+    def test_variant_of_is_validated(self):
+        def items(**variant):
+            return [
+                {"id": "a", "kind": "vocab", "target": "a", "meaning": "A"},
+                {"id": "b", "kind": "vocab", "target": "b", "meaning": "B", **variant},
+            ]
+        for bad in ({"variant_of": "b"}, {"variant_of": "missing"}, {"variant_of": "a", "target": "a"}):
+            with self.assertRaises(CurriculumError, msg=str(bad)):
+                curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items(**bad)})
+        chained = items(variant_of="a") + [{"id": "c", "kind": "vocab", "target": "c", "meaning": "C", "variant_of": "b"}]
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": chained})
+        curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items(variant_of="a")})
+
+    def test_the_real_curriculum_has_variants_to_give(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        variants = [i for i in cur.items if i.variant_of]
+        self.assertGreaterEqual(len(variants), 15)
+        self.assertTrue({"dat_place", "adj_masc", "adj_fem", "small_count"} <= {t for i in variants for t in i.tags})
+
+
+class FormFamilyCueTests(unittest.TestCase):
+    """The owner, on «Say: good» → «gott» alone: a word's other forms (góður, góðan…) get no
+    context. A variant is introduced as a form of one the learner has, and the recall after the
+    introduction says what sentence the word is said in."""
+
+    def _cur(self):
+        return curriculum_from_dict({
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "gott", "kind": "vocab", "target": "gott", "meaning": "good", "context": "This is good."},
+                {"id": "godur", "kind": "vocab", "target": "góður", "meaning": "good (of a man)", "meaning_spoken": "good, said of a man", "variant_of": "gott"},
+            ],
+        })
+
+    def _builder(self, cur, met=()):
+        from audiolesson.exercises import Builder
+        learner = LearnerState("is", "en", "A1")
+        for i in met:
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=1, stage="meaning")
+        return Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
+
+    def _narration(self, sc, ex):
+        return [s.text for s in sc.segments if s.exercise == ex.index and s.type == "narrate"]
+
+    def test_a_recall_after_the_introduction_says_what_sentence_the_word_is_in(self):
+        cur = self._cur()
+        b = self._builder(cur)
+        sc = Script(1, "t", "is", "en")
+        said = self._narration(sc, b.recall(sc, cur.by_id["gott"], "meaning"))[0]
+        self.assertTrue(said.lower().startswith(("say: good", "how do you say good")), said)
+        self.assertIn("as in: This is good.", said)
+        self.assertNotIn(".,", said)
+        intro = self._narration(sc, b.intro(sc, cur.by_id["gott"]))
+        self.assertFalse(any("as in" in t for t in intro), "the introduction keeps its own wording")
+
+    def test_a_variant_is_introduced_as_a_form_of_one_the_learner_has(self):
+        cur = self._cur()
+        sc = Script(1, "t", "is", "en")
+        ex = self._builder(cur, met=["gott"]).intro(sc, cur.by_id["godur"])
+        said = [(s.type, s.text) for s in sc.segments if s.exercise == ex.index and s.type in ("narrate", "speak")]
+        self.assertEqual(said[0], ("narrate", "You know this one:"))
+        self.assertEqual(said[1], ("speak", "gott"))
+        self.assertIn("another form", said[2][1])
+        self.assertEqual(ex.kind, "intro")
+        sc = Script(1, "t", "is", "en")
+        plain = self._builder(cur).intro(sc, cur.by_id["godur"])
+        self.assertTrue(self._narration(sc, plain)[0].startswith("Something new"), "base not met: the usual introduction")
+
+    def test_context_is_for_phrases_and_vocab_only(self):
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict({
+                "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                "items": [{"id": "c", "kind": "construction", "target": "A {x}.", "meaning": "A {x}.", "slots": {"x": "t"}, "context": "Hi."}],
+            })
 
 
 class PlausibleFillTests(unittest.TestCase):
@@ -6075,9 +6250,9 @@ class LeverTests(unittest.TestCase):
             day += timedelta(days=1)
         return kinds, sc
 
-    def test_a_repeated_cue_stays_a_situation_recall(self):
-        """The max-same-situation lever is gone: an item with one situation is asked in that
-        situation every time, never turned into a bare meaning recall."""
+    def test_a_situation_is_narrated_in_full_twice_then_the_cue_is_short(self):
+        """§9 "Repetition" (G12): an item with one situation is asked in that situation, narrated
+        in full at most twice a lesson; after that the cue is the meaning, short."""
         from audiolesson.exercises import Builder
 
         cur = load_curriculum(ROOT / "curricula" / "is-en")
@@ -6086,7 +6261,7 @@ class LeverTests(unittest.TestCase):
         learner.items[item.id] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation")
         b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
         sc = Script(1, "t", "is", "en")
-        self.assertEqual([b.recall(sc, item, "situation").stage for _ in range(3)], ["situation"] * 3)
+        self.assertEqual([b.recall(sc, item, "situation").stage for _ in range(3)], ["situation", "situation", "meaning"])
 
     def test_late_unhinted_recall_closes_every_new_item_without_a_hint(self):
         late, sc = self._candidates(late_unhinted_recall=True)
