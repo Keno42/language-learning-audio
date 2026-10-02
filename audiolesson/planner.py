@@ -763,16 +763,17 @@ class Planner:
         return reach[len(words)]
 
     def can_say_part(self, turn) -> bool:
-        """Whether the learner can say *some* of a construction turn's line (#183 tried): a chunk they can say
-        sits in it (a word or phrase of a line they can say). A turn with no such part stays heard only."""
+        """Whether the learner can say *some* of a turn's line (#183 tried), judged at word level: a word of the
+        line occurs in a line they can say («þarf» from «Ég þarf hjálp.», «ég» from «Ég er frá Japan.»). The
+        words of a whole known line almost never sit inside another line, so chunks would never fire. A turn with
+        no such word stays heard only."""
         if not turn.expect:
             return False
         item = self.cur.by_id[turn.expect]
         fills = {s: self.cur.by_id[f] for s, f in turn.expect_fill.items()}
-        words = tuple(w.lower() for w in _WORD_RE.findall(self.cur.resolve_slots(item, fills)[0] if item.kind == "construction" else item.target))
-        chunks = self._say_chunks(True)
-        longest = max((len(c) for c in chunks), default=0)
-        return any(words[k : k + n] in chunks for k in range(len(words)) for n in range(1, min(longest, len(words) - k) + 1))
+        line = self.cur.resolve_slots(item, fills)[0] if item.kind == "construction" else item.target
+        known = {w for chunk in self._say_chunks(True) for w in chunk}
+        return any(w.lower() in known for w in _WORD_RE.findall(line))
 
     def classify_turns(self, dlg: Dialogue) -> tuple[set[str], set[str]]:
         """The turns of a listening dialogue that the learner can't say in full (#183): ``(heard, tried)`` as

@@ -4875,6 +4875,27 @@ class SayableLineTests(unittest.TestCase):
         self.assertNotIn("big", planner.exposures, "the unknown construction is not recorded")
         self.assertIn("fimm", planner.exposures, "the part they have is credited as practised")
 
+    def test_a_line_with_a_word_from_a_known_line_is_tried_on_the_real_curriculum(self):
+        """#183 re-check (owner): the learner's words live inside longer known lines («þarf» in «Ég þarf hjálp.»), so
+        a part is judged at word level. «Ég þarf símkort.» is tried by one who has «Ég þarf hjálp.»; with nothing
+        known it stays heard only; a line they can say whole is asked."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        dlg = next(d for d in cur.dialogues if d.id == "simabud")
+        known = Planner(cur, self._learner(["eg_tharf_hjalp"]), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15), today=TODAY)
+        heard, tried = known.classify_turns(dlg)
+        self.assertIn("eg_tharf_simkort", tried)
+        self.assertNotIn("eg_tharf_simkort", heard)
+        nothing = Planner(cur, self._learner([]), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15), today=TODAY)
+        heard, tried = nothing.classify_turns(dlg)
+        self.assertIn("eg_tharf_simkort", heard)
+        self.assertEqual(tried, set())
+        whole = Planner(cur, self._learner(["eg_tharf_simkort"]), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15), today=TODAY)
+        self.assertNotIn("eg_tharf_simkort", set().union(*whole.classify_turns(dlg)))
+        sc = Script(1, "t", "is", "en")
+        known._play_listening(sc, dlg, set())
+        self.assertTrue(any(t["answer"] == "Ég þarf símkort." for t in known.listening_tried))
+        self.assertIn("Try it.", sc.transcript())
+
     def test_tried_lines_become_bonus_review_questions_and_a_said_one_counts(self):
         """#183 addendum: at most two tried lines go into the next review as bonus questions; 言えた makes the
         tried items met with one durable success; a miss changes nothing; the learner file keeps `tried`."""
