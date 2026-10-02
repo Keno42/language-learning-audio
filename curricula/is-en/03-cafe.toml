@@ -573,6 +573,7 @@ partner_cue_situation_ja = "合計額を言われました。現金がないの�
 [[items]]
 id = "ma_eg_inf"
 kind = "construction"
+refresh = 3  # a light review every lesson once known (#171)
 target = "Má ég {inf}?"
 meaning = "May I {inf}?"
 meaning_ja = "{inf:te}もいいですか？"
