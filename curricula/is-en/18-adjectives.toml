@@ -585,35 +585,3 @@ topics = ["adjectives"]
 prereqs = ["stort"]
 meaning_forms = { in_sentence = "big" }  # sentence prompts drop the recall-only disambiguator
 meaning_forms_ja = { in_sentence = "大きい" }
-
-[[items]]
-id = "erfidur"
-kind = "vocab"
-variant_of = "erfitt"
-target = "erfiður"
-meaning = "difficult (of a man)"
-meaning_ja = "難しい（男性について）"
-meaning_spoken = "difficult, said of a man"
-meaning_spoken_ja = "難しい、男性について"
-difficulty = 2
-tags = ["adj_masc"]
-topics = ["adjectives"]
-prereqs = ["erfitt"]
-meaning_forms = { in_sentence = "difficult" }  # sentence prompts drop the recall-only disambiguator
-meaning_forms_ja = { in_sentence = "難しい" }
-
-[[items]]
-id = "erfid"
-kind = "vocab"
-variant_of = "erfitt"
-target = "erfið"
-meaning = "difficult (of a woman)"
-meaning_ja = "難しい（女性について）"
-meaning_spoken = "difficult, said of a woman"
-meaning_spoken_ja = "難しい、女性について"
-difficulty = 2
-tags = ["adj_fem"]
-topics = ["adjectives"]
-prereqs = ["erfitt"]
-meaning_forms = { in_sentence = "difficult" }  # sentence prompts drop the recall-only disambiguator
-meaning_forms_ja = { in_sentence = "難しい" }
