@@ -5061,15 +5061,17 @@ class ConstructionFormTests(unittest.TestCase):
                 continue
             for form in c.forms:
                 template = c.negative if form == "negative" else c.question
-                patterns[form].append(_re.compile("^" + _re.sub(r"\\\{[^}]*\\\}", ".+", _re.escape(template)) + "$"))
+                patterns[form].append((c.id, _re.compile("^" + _re.sub(r"\\\{[^}]*\\\}", ".+", _re.escape(template)) + "$")))
         learner = LearnerState("is", "en", "A1")
         day = TODAY
         taught: set[str] = set()
         used_before, first_taught, share_rows = 0, {}, []
         for n in range(1, 21):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5), today=day).build()
-            sentences = [e.label.split(": ", 1)[1] for e in sc.exercises if e.kind == "generative" and ": " in e.label]
-            by_form = {f: sum(1 for t in sentences if any(p.match(t) for p in pats)) for f, pats in patterns.items()}
+            sentences = [(e.label.split(": ", 1)[1], [i for i in e.item_ids if cur.by_id[i].kind == "construction"]) for e in sc.exercises if e.kind == "generative" and ": " in e.label]
+            # a form sentence matches the template of a construction in that exercise: «Viltu sofa?» is a plain sentence
+            # of «Viltu {inf}?», not the question form of «Ég vil {inf}.»
+            by_form = {f: sum(1 for t, cs in sentences if any(p.match(t) for cid, p in pats if cid in cs)) for f, pats in patterns.items()}
             by_form["plain"] = len(sentences) - by_form["negative"] - by_form["question"]
             share_rows.append((n, len(sentences), by_form, set(sc.meta["forms_taught"]), set(taught)))
             if not taught and not sc.meta["forms_taught"]:
@@ -5133,7 +5135,11 @@ class CheapConstructionTests(unittest.TestCase):
         p = self._planner(cur, self._learner(["w0", "w1"]))
         self.assertEqual(p.cheap_construction(set()).id, "c_big")
         self.assertIsNone(self._planner(cur, self._learner(["w0"])).cheap_construction(set()))
-        self.assertIsNone(self._planner(cur, self._learner(["w1", "w2"])).cheap_construction(set()), "its prerequisite isn't known")
+        # #180 (b): a prerequisite that is only a filler of the construction's own slot is covered by the slot's known fillers
+        self.assertEqual(self._planner(cur, self._learner(["w1", "w2"])).cheap_construction(set()).id, "c_big", "its prerequisite w0 is a filler of its slot")
+        gated = self._cur([{"id": "c_gated", "kind": "construction", "target": "Hlið {x}.", "meaning": "Side {x}.", "slots": {"x": "t"}, "prereqs": ["n0"]}])
+        self.assertEqual(self._planner(gated, self._learner(["w0", "w1", "w2"])).cheap_construction(set(), only={"c_gated"}), None, "a prerequisite that is no filler of its slot still has to be known")
+        self.assertEqual(self._planner(gated, self._learner(["w0", "w1", "w2", "n0"])).cheap_construction(set(), only={"c_gated"}).id, "c_gated")
         learner = self._learner(["w0", "w1", "w2"])
         learner.items["c_big"] = ItemState(due=TODAY.isoformat(), stage="meaning")
         self.assertIsNone(self._planner(cur, learner).cheap_construction(set()), "already met")
@@ -5169,6 +5175,30 @@ class CheapConstructionTests(unittest.TestCase):
         only = self._planner(cur, learner, priority=["n0", "n1"])
         self.assertEqual([i.id for i in only.select_new(2, cheap=True)], ["n0", "n1"])
 
+    def test_a_cheap_refresh_construction_outside_the_trip_list_goes_first(self):
+        """#180 (owner's option 1 on #176): a construction with ``refresh`` counts as trip-serving. Cheap and not
+        a trip item, it still goes to the front of the trip order, takes one new-item place, and no trip item
+        is dropped beyond that place: the trip order behind it shifts by one."""
+        cur = self._cur()
+        cur.by_id["c_big"].refresh = 3
+        learner = self._learner(["w0", "w1", "w2"])
+        trip = ["n0", "n1", "u0"]
+        planner = self._planner(cur, learner, priority=trip)
+        chosen = [i.id for i in planner.select_new(2, cheap=True)]
+        self.assertEqual(chosen, ["c_big", "n0"], "ahead of the trip items, one place")
+        self.assertEqual(planner.cheap_placed, ["c_big"])
+        self.assertEqual(len(chosen), len(set(chosen)))
+        self.assertEqual([i.id for i in planner.select_new(2)], ["n0", "n1"], "without the promotion: the trip order")
+        again = self._planner(cur, learner, priority=trip).select_new(2, cheap=True)
+        self.assertEqual([i.id for i in again][1:], ["n0"], "the trip item behind it is the next one: only n1 waits a lesson")
+        # not cheap (its prerequisite is no filler of its slot and isn't known): never promoted
+        cur.by_id["c_big"].prereqs = ["n0"]
+        self.assertEqual([i.id for i in self._planner(cur, self._learner(["w0", "w1", "w2"]), priority=trip).select_new(2, cheap=True)], ["n0", "n1"])
+        cur.by_id["c_big"].prereqs = ["w0"]
+        # a construction without ``refresh`` that is not a trip item stays out
+        cur2 = self._cur()
+        self.assertEqual([i.id for i in self._planner(cur2, learner, priority=trip).select_new(2, cheap=True)], ["n0", "n1"])
+
     def test_an_idle_lesson_takes_a_cheap_construction_beyond_its_limit(self):
         cur = self._cur()
         learner = self._learner(["w0", "w1", "w2"])
@@ -5180,21 +5210,70 @@ class CheapConstructionTests(unittest.TestCase):
 
     def test_the_patterns_a_course_has_met_come_sooner(self):
         """On the real curriculum, without a trip ordering: the learner has met more constructions
-        by lesson 12, and the lesson then has more to practise."""
+        by lesson 12, and the lessons then have more to practise (the length over lessons 9 to 16; a
+        single lesson's length varies with what the course happens to have met)."""
         def course(**cfg):
             cur = load_curriculum(ROOT / "curricula" / "is-en")
             learner = LearnerState("is", "en", "A1")
             day = TODAY
-            for n in range(1, 13):
+            lengths = []
+            for n in range(1, 17):
                 sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5, **cfg), today=day).build()
+                if n >= 9:
+                    lengths.append(sc.total_duration)
+                if n == 12:
+                    met_by_12 = sum(1 for c in cur.items if c.kind == "construction" and learner.has_met(c.id))
                 apply_to_learner(sc, learner, day)
                 learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
                 day += timedelta(days=1)
-            return sum(1 for c in cur.items if c.kind == "construction" and learner.has_met(c.id)), sc.total_duration
+            return met_by_12, sum(lengths)
         with_met, with_len = course()
         without_met, without_len = course(cheap_place=False, max_cheap_extra=0)
         self.assertGreaterEqual(with_met, without_met + 2, (with_met, without_met))
         self.assertGreaterEqual(with_len, without_len, (with_len, without_len))
+
+
+class PatternRotationTests(unittest.TestCase):
+    """#180 (owner's review of #182): one new pattern with many fillers took 21 of a lesson's sentences, since a
+    word's homes were drawn at random. A word's sentences rotate through its homes, the one with the fewest
+    sentences this lesson first, and a pattern that has about ten stops taking a word's sentences."""
+
+    @staticmethod
+    def _planner():
+        items = [{"id": f"w{i}", "kind": "vocab", "target": f"orð{i}", "meaning": f"word {i}", "tags": ["t"]} for i in range(4)]
+        items += [
+            {"id": "ca", "kind": "construction", "target": "Aðeins {x}.", "meaning": "Only {x}.", "slots": {"x": "t"}},
+            {"id": "cb", "kind": "construction", "target": "Líka {x}.", "meaning": "Also {x}.", "slots": {"x": "t"}},
+        ]
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+        learner = LearnerState("is", "en", "A1")
+        for i in ("w0", "w1", "w2", "w3", "ca", "cb"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+        return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+
+    def test_a_word_goes_to_the_home_with_the_fewest_sentences(self):
+        b = self._planner().builder
+        word = b.cur.by_id["w0"]
+        for ca, cb, want in ((5, 0, "cb"), (0, 5, "ca"), (9, 3, "cb")):
+            b.construction_counts = {"ca": ca, "cb": cb}
+            self.assertEqual(b.generate_with(word).construction.id, want, (ca, cb))
+        b.construction_counts = {}
+        seen = {b.generate_with(word).construction.id for _ in range(30)}  # an even count: either, by chance
+        self.assertEqual(seen, {"ca", "cb"})
+
+    def test_a_full_pattern_takes_no_more_of_a_words_sentences(self):
+        b = self._planner().builder
+        word = b.cur.by_id["w0"]
+        b.construction_counts = {"ca": 10, "cb": 4}
+        self.assertEqual({b.generate_with(word).construction.id for _ in range(20)}, {"cb"})
+        b.construction_counts = {"ca": 10, "cb": 10}
+        self.assertIsNone(b.generate_with(word), "a word with no home left has no sentence")
+
+    def test_sentences_are_counted_by_construction_in_a_lesson(self):
+        planner = self._planner()
+        sc = planner.build()
+        counts = planner.builder.construction_counts
+        self.assertEqual(sum(counts.values()), sum(1 for e in sc.exercises if e.kind == "generative"))
 
 
 class RequestPatternSupplyTests(unittest.TestCase):
