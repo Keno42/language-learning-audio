@@ -139,6 +139,11 @@ class Item:
     # («Það er ekki {weather}.») and the yes/no question («Er {weather}?»), each a target template
     # with the construction's slots and a meaning. They are used in generated sentences only
     # once the note that teaches them (``Note.teaches``) has been heard.
+    # A light review (#171, owner): once the learner knows this construction and it isn't open, this
+    # many sentences of it come in every lesson, spread over the time, with the fillers changing. Not a
+    # drill: a construction that is core to what a traveller says (asking permission, saying what you
+    # will do) stays in the ear. The first lesson and a failure get the usual practice instead.
+    refresh: int = 0
     negative: str = ""
     negative_meaning: str = ""
     question: str = ""
@@ -567,6 +572,9 @@ def validate(cur: Curriculum) -> None:
         for e in it.examples:
             if (e.source_m and e.source_m == e.source) or (e.result_m and e.result_m == e.result):
                 raise CurriculumError(f"item {it.id!r}: a transform example's man's form must differ from its own ({e.source!r})")
+        if it.refresh:
+            if it.kind != "construction" or not 0 < it.refresh <= 5:
+                raise CurriculumError(f"item {it.id!r}: refresh is a number of sentences, 1 to 5, for a construction")
         for form in FORMS:
             template, meaning = it.form_templates(form)
             has = bool(getattr(it, form) or getattr(it, form + "_meaning"))
