@@ -447,6 +447,42 @@ Not yet measured: next-day recall of lesson 13's nine new items (the review come
 `/lesson`), the length of the review (PR site_update_notifier#64 starts recording it), and what
 fraction of the lesson's time the theme exchange would take.
 
+### 5.11 Lesson 13 replayed after the fix-up batch (#162–#168)
+
+Lesson 13 was bad enough that the changes after it were made as one batch, checked by replaying
+lesson 13's export and continuing to lessons 14 and 15 before the learner's next lesson. They
+are not separate experiments: the weekly read judges the batch as one change. The replay uses
+the export's `learner.before.json` and arguments (the old code reproduces the real lesson: 128
+exercises, 23.6 min). For lessons 14 and 15 it assumes every new item was recalled the next day,
+and each open item with three or more words failed once more.
+
+| | lesson 13 | lesson 14 | lesson 15 |
+|---|---|---|---|
+| length, before → after (min) | 23.6 → 28.6 | 28.9 → 29.3 | 26.7 → 28.3 |
+| longest gap between introductions (min) | 4.9 → 4.7 | 7.4 → 2.7 | 9.1 → 2.8 |
+| failed items practised (each) | – → 4–10 times, spread | → 4–8 | → 4–6 |
+| most appearances of one new item | 12 → 12 | 12 → 10 | 10 → 8 |
+| the same English situation, most narrations | 8 → 8 | 8 → 7 | 7 → 10 |
+
+Fixed: the length, the failed items, the part before the whole, the recap of what the learner just
+said. Not fixed in lesson 13: the repetition the learner named. Counted per new item of one or two
+words, how often it was said **alone** against inside a sentence:
+
+| item | alone | in a sentence | distinct sentences |
+|---|---|---|---|
+| Hvenær? | 9 | 0 | 0 |
+| Klukkan hvað? | 9 | 1 | 0 |
+| hálka | 7 | 4 | 1 |
+| kalt | 6 | 4 | 2 |
+| matvörubúðin | 6 | 4 | 1 |
+
+«hálka» had seven recalls within about two minutes of its introduction, all at the same stage: today's
+items are still reactivated by exercise counts (3, 5, 8, 13 exercises), the shape #162 removed for
+open items. The owner, reading this: practising a word **alone** is what grates most; in a sentence it
+is much better. A sentence may come five times or more, and the same word in slightly different
+sentences might not be noticed even at ten. The same complaint came after lesson 6 («vegabréf»
+drilled seven times as a bare word, §5.1), so it is a pattern, not one remark (G14).
+
 ---
 
 ## 6. Signals: what each can and cannot tell us
@@ -519,6 +555,7 @@ fraction of the lesson's time the theme exchange would take.
 | **G11** | **Practice is allocated by stage, not by need, and a failure is forgotten fast.** Each new item gets the same ladder and about the same time whether it is easy or hard; items marked 言えなかった last review get one or two practices; older failures return to presumed success with no confirmed recall in between. | §5.10 (21–41 s each against 77–199 s for new items; «Fyrirgefðu»: failed twice, then 0 confirmed recalls in 8 lessons); §5.3 | O1, O5; H1, H2, H11 |
 | **G12** | **Scaffolds don't fade.** The English situation and the "you've said…" line are played in full every time, in at least five exercises of one lesson, although the learner knows the line; only the partner's line has a limit on how often its meaning is given. | §5.10 | O5; H3, H8 |
 | **G13** | **Nothing checks that a part is taught before the whole.** «Hvenær leggjum við af stað?» can come before «Hvenær?». | §5.10 | O1; H5 |
+| **G14** | **Short items are drilled alone.** A new item of one or two words is recalled by itself six to nine times in a lesson, often within minutes, and rarely inside a sentence; when it is, it is the same sentence. | §5.11 (lesson 13 replayed after the batch); §5.1 (lesson 6, «vegabréf») | O1, O5; H3, H6, H12 |
 
 ---
 
@@ -553,6 +590,13 @@ what. Re-rank it when the evidence moves.
      (a confirmed recall, not presumed success) and gets its practice in every lesson until
      then; the lesson's time goes first to the theme and to what is open; an easy new item needs less than a hard one. Lesson 13 gave the four
      failed items 21–41 s each against 77–199 s per new item (§5.10).
+   - Words in sentences (G14, §9 "Repetition"): today's items come back by time (about 1, 3, 8
+     and 15 minutes after the introduction), not by exercise counts. A short item is said alone
+     at most three times; its other practice is inside sentences, a different one each time where
+     possible: a known pattern with a slot for it («Það er {weather}» → «Það er hálka»), a known
+     item that contains it («Hvenær opnar safnið?» for «Hvenær?»), or an authored example where
+     neither exists. With no sentence available, it stops at three, and the time goes to the
+     theme, open items and things to hear.
    - Fading scaffolds (G12): when the partner's line is known, it is the cue; the English
      situation is dropped and the model answer isn't announced. This follows from building
      the lesson on exchanges, not from a rule added to today's stages.
@@ -612,6 +656,11 @@ Don't reopen these without new evidence; when you do, say what changed.
   - New items may repeat within a lesson and are never dropped (#147).
   - Situation variety is welcome, with no cap (#148).
   - Not-due items wait for their date (#94).
+  - A short item (one or two words, one-word questions such as «Hvenær?» included) is said
+    alone at most **three** times in a lesson; the rest of its practice is inside sentences,
+    preferably different ones, up to about **ten** uses in all (owner, after replaying lesson
+    13, §5.11). The numbers are a starting guess, not evidence: tune them with the learner's
+    remarks.
 - **Generation and audio.**
   - Only plausible sentences in plausible scenes (owner after L12).
   - No pause stretching to fill a short lesson (owner after L12).
