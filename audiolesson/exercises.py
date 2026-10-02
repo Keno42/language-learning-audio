@@ -59,6 +59,7 @@ BRIDGE_GLOSS_ENCOUNTERS = 2  # a partner_cue is glossed on the learner's first N
 PROMPT_GLOSS_HEARINGS = 2  # a prompt_by line not yet known is glossed on its first N hearings in a lesson
 FORM_SHARE = 0.25  # the most a negative or question form takes of a lesson's generated sentences (#171)
 FORM_HARD_CAP = 0.35  # a form is not chosen at all once it has this share of the lesson's generated sentences
+FORM_ALL_HARD_CAP = 0.55  # …nor any form once the forms together have this share
 FORM_CAP_FROM = 6  # …counted from this many generated sentences (before that a share is meaningless)
 FORM_EXTRA_NEW = 2  # sentences in a form taught this lesson, beyond the practice right after its note
 SITUATION_FULL_MAX = 2  # an authored situation is narrated in full at most this often in a lesson (G12)
@@ -460,6 +461,12 @@ class Builder:
     def _intro_construction(self, sc: Script, item: Item) -> Exercise:
         ex = sc.new_exercise("intro", "intro", [item.id], f"new pattern: {item.target}")
         fills = self.cur.example_fill(item)
+        # the worked example uses words the learner has: when the authored one isn't, a known filler of the slot
+        for slot, tag in item.slots.items():
+            if slot in fills and not self._available(fills[slot].id):
+                known = next((i for i in self.cur.items_with_tag(tag) if self._available(i.id)), None)
+                if known is not None:
+                    fills[slot] = known
         target, meaning = self.cur.resolve_slots(item, fills)
         self.used_combos.add(_combo_key(item, fills))  # the worked example is heard, not new
         ex.item_ids += [f.id for f in fills.values() if f.id not in ex.item_ids]
@@ -765,8 +772,9 @@ class Builder:
             if f in fresh and self.form_extra.get(f, 0) >= FORM_EXTRA_NEW:
                 continue
             actual = self.form_counts.get(f or "plain", 0) / total if total else 0.0
-            if f and total >= FORM_CAP_FROM and actual >= FORM_HARD_CAP:
-                continue  # at its share: the supply may run short rather than the form crowd out the plain sentences
+            forms_share = 1.0 - self.form_counts.get("plain", 0) / total if total else 0.0
+            if f and total >= FORM_CAP_FROM and (actual >= FORM_HARD_CAP or forms_share >= FORM_ALL_HARD_CAP):
+                continue  # at its share: the supply may run short rather than the forms crowd out the plain sentences
             ranked.append((-(desired[f] - actual) + self.rng.random() * 0.01, f))
         return [f for _, f in sorted(ranked, key=lambda t: t[0])] or [None]
 

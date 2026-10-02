@@ -138,6 +138,16 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   pull them early (`play_refresh`), and a construction with no unheard sentence left is dropped for the
   lesson. `refresh_sentences` in `plan.json`. A construction that is open or unknown gets none: its own
   practice is the heavy one.
+- **Cheap constructions come early (#171 B).** A construction is cheap when it is unmet, its prerequisites
+  are known and every slot has `cheap_min_fillers` known fillers (`Planner.cheap_construction`, the
+  one adding the most sentences first). `select_new(cheap=True)`, for the lesson's own new items, puts
+  one in place of the last **non-trip** item (`cheap_place`): a trip item is never displaced. With a trip
+  ordering the cheap *trip* construction (the best one) moves to the front of the remaining trip order
+  instead: every item is still a trip item, only the order changes (H6). A lesson whose new items are all
+  trip items and has no cheap trip construction takes none this way. A lesson with time left takes up to
+  `max_cheap_extra` more beyond the new-item limit, right after the variants (`try_variant`);
+  `cheap_constructions` in `plan.json`. The worked example of a construction's introduction uses a known
+  filler of the slot when the authored one isn't known.
 - **Close variants fill what the cap leaves (§9 "Repetition").** Before the cap lapses (and as
   streak relief), `try_variant` introduces an item whose `variant_of` the learner knows (or met
   earlier in the lesson) and who hasn't met it, beyond the new-item limit: at most

@@ -5083,6 +5083,103 @@ class ConstructionFormTests(unittest.TestCase):
                 self.assertLessEqual(by_form[form], 5, (n, form, by_form))
 
 
+class CheapConstructionTests(unittest.TestCase):
+    """#171 B: a construction whose every slot already has two known fillers adds sentences at once, so
+    it gets a place among a lesson's new items (never a trip item's) and, when a lesson has time left,
+    comes in beyond the new-item limit."""
+
+    @staticmethod
+    def _cur(extra=()):
+        words = [{"id": f"w{i}", "kind": "vocab", "target": f"orð{i}", "meaning": f"word {i}", "tags": ["t"]} for i in range(3)]
+        items = words + [
+            {"id": "u0", "kind": "vocab", "target": "uorð0", "meaning": "u word 0", "tags": ["u"]},
+            {"id": "n0", "kind": "phrase", "target": "Ný setning núll.", "meaning": "New sentence zero."},
+            {"id": "n1", "kind": "phrase", "target": "Ný setning eitt.", "meaning": "New sentence one."},
+            {"id": "c_big", "kind": "construction", "target": "Stórt {x}.", "meaning": "Big {x}.", "slots": {"x": "t"}, "prereqs": ["w0"]},
+            {"id": "c_small", "kind": "construction", "target": "Lítið {y}.", "meaning": "Small {y}.", "slots": {"y": "u"}, "prereqs": ["w0"]},
+        ] + list(extra)
+        return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+
+    def _learner(self, known):
+        learner = LearnerState("is", "en", "A1")
+        for i in known:
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+        return learner
+
+    def _planner(self, cur, learner, **cfg):
+        return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, **cfg), today=TODAY)
+
+    def test_a_construction_is_cheap_when_every_slot_has_known_fillers(self):
+        cur = self._cur()
+        p = self._planner(cur, self._learner(["w0", "w1", "w2", "u0"]))
+        self.assertEqual(p.cheap_construction(set()).id, "c_big", "«c_small» has one known filler only")
+        p = self._planner(cur, self._learner(["w0", "w1"]))
+        self.assertEqual(p.cheap_construction(set()).id, "c_big")
+        self.assertIsNone(self._planner(cur, self._learner(["w0"])).cheap_construction(set()))
+        self.assertIsNone(self._planner(cur, self._learner(["w1", "w2"])).cheap_construction(set()), "its prerequisite isn't known")
+        learner = self._learner(["w0", "w1", "w2"])
+        learner.items["c_big"] = ItemState(due=TODAY.isoformat(), stage="meaning")
+        self.assertIsNone(self._planner(cur, learner).cheap_construction(set()), "already met")
+
+    def test_a_cheap_construction_takes_the_place_of_a_non_trip_item_never_a_trip_item(self):
+        cur = self._cur()
+        learner = self._learner(["w0", "w1", "w2"])
+        chosen = self._planner(cur, learner).select_new(2, cheap=True)
+        self.assertIn("c_big", [i.id for i in chosen])
+        self.assertEqual(len(chosen), 2)
+        plain = self._planner(cur, learner).select_new(2)
+        self.assertNotIn("c_big", [i.id for i in plain], "only the lesson's own selection asks for one")
+        trip = self._planner(cur, learner, priority=[i.id for i in plain])
+        self.assertEqual([i.id for i in trip.select_new(2, cheap=True)], [i.id for i in plain], "a trip item is never displaced")
+
+    def test_a_cheap_trip_construction_moves_to_the_front_of_the_trip_order(self):
+        """Review of #174: with a trip ordering every new item is a trip item, so no place opens for a cheap
+        construction. A trip construction the learner can already fill moves to the front of the
+        remaining trip order instead: nothing is displaced, only the order changes."""
+        cur = self._cur()
+        learner = self._learner(["w0", "w1", "w2"])
+        trip = ["n0", "n1", "u0", "c_big", "c_small"]
+        planner = self._planner(cur, learner, priority=trip)
+        self.assertEqual([i.id for i in planner.select_new(2)], ["n0", "n1"], "without it: the trip order")
+        chosen = [i.id for i in planner.select_new(2, cheap=True)]
+        self.assertEqual(chosen, ["c_big", "n0"])
+        self.assertEqual(planner.cheap_placed, ["c_big"])
+        self.assertTrue(set(chosen) <= set(trip), "every item is still a trip item")
+        # not cheap (one known filler of «c_small»): the order is the trip's own
+        fresh = self._planner(cur, self._learner(["w0"]), priority=trip)
+        self.assertEqual([i.id for i in fresh.select_new(2, cheap=True)], ["n0", "n1"])
+        # …and a cheap construction that isn't a trip item is not promoted (it takes a non-trip place, none here)
+        only = self._planner(cur, learner, priority=["n0", "n1"])
+        self.assertEqual([i.id for i in only.select_new(2, cheap=True)], ["n0", "n1"])
+
+    def test_an_idle_lesson_takes_a_cheap_construction_beyond_its_limit(self):
+        cur = self._cur()
+        learner = self._learner(["w0", "w1", "w2"])
+        sc = self._planner(cur, learner, new_items=1, max_new_items=1, max_arcs=1, cheap_place=False).build()
+        self.assertEqual(sc.meta["cheap_constructions"], ["c_big"])
+        self.assertIn("c_big", sc.meta["new_items"])
+        sc = self._planner(cur, self._learner(["w0", "w1", "w2"]), new_items=1, max_new_items=1, max_arcs=1, cheap_place=False, max_cheap_extra=0).build()
+        self.assertEqual(sc.meta["cheap_constructions"], [])
+
+    def test_the_patterns_a_course_has_met_come_sooner(self):
+        """On the real curriculum, without a trip ordering: the learner has met more constructions
+        by lesson 12, and the lesson then has more to practise."""
+        def course(**cfg):
+            cur = load_curriculum(ROOT / "curricula" / "is-en")
+            learner = LearnerState("is", "en", "A1")
+            day = TODAY
+            for n in range(1, 13):
+                sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5, **cfg), today=day).build()
+                apply_to_learner(sc, learner, day)
+                learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
+                day += timedelta(days=1)
+            return sum(1 for c in cur.items if c.kind == "construction" and learner.has_met(c.id)), sc.total_duration
+        with_met, with_len = course()
+        without_met, without_len = course(cheap_place=False, max_cheap_extra=0)
+        self.assertGreaterEqual(with_met, without_met + 2, (with_met, without_met))
+        self.assertGreaterEqual(with_len, without_len, (with_len, without_len))
+
+
 class RequestPatternSupplyTests(unittest.TestCase):
     """#171 C: food, drink and shop nouns can go into the patterns a person uses at a counter, so a new
     noun has sentences to be practised in (lesson 15: ost, egg, smjör, mjólk had none)."""
