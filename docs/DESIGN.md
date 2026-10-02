@@ -49,13 +49,14 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (`dialogues_listened`). `max_listening_dialogues=0` reproduces the earlier planner.
 - **Embedded parts (#149).** A vocab word with a slot to go in (`Builder.generate_with` finds the
   sentence) whose words sit inside an item the learner has met (not open), or met earlier in the
-  lesson, is not introduced on its own (`Planner.embeddable`): «A new word, in a sentence you can
-  already build», the sentence, its meaning, the sentence again, a pause to repeat (`embed`,
-  about 14 s against 100 s). Nothing is recorded: `LearnerState.embedded` holds it until the review
-  asks the sentence (`review_questions`, stage `embed`; the plan lists the part in `new_items`
-  and `embedded_items`). Said back it becomes a learned item (two durable successes, due in three
-  days); not said, `embed_failed` and the usual introduction later. `select_new` skips a pending
-  one; `simulate_reach` counts it reached.
+  lesson, is not introduced on its own (`Planner.embed_source`, the shortest such item):
+  «You know this:» the phrase, «This word is in it:» the part, «In another sentence. Listen, then
+  repeat.», the sentence, its meaning, the sentence again, a pause to repeat (`embed`). Nothing is
+  recorded: `LearnerState.embedded` holds it until the review asks the sentence (`review_questions`,
+  stage `embed`; the plan lists the part in `new_items` and `embedded_items`). Said back it is
+  its first recall on a due date (one durable success, next in three days; `knows()` still takes
+  two, §9); not said, `embed_failed` and the usual introduction later. `select_new` skips a
+  pending one; `simulate_reach` counts it reached.
 - **Generated sentences use only available parts.** A fill is known or introduced earlier
   in the lesson. A construction's `situation_fill` makes its situation wait for that fill.
   A dialogue turn's `expect_fill` binds every slot, so every spoken part is a required item.

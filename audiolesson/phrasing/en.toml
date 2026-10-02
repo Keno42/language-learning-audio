@@ -47,9 +47,10 @@ aside_end = "Back to the lesson."
 milestone_intro = "Here's a pattern worth noticing."
 milestone_end = "Let's continue."
 # a part heard in a sentence instead of being introduced on its own (LearnerState.embedded)
-embed_intro = "A new word, in a sentence you can already build. Listen, then repeat."
+embed_known = "You know this:"
+embed_part = "This word is in it:"
+embed_sentence = "In another sentence. Listen, then repeat."
 embed_meaning = "{meaning}"
-embed_next = "Another one."
 # a dialogue with an expression or two the learner hasn't learned, played as listening (H8)
 listening_intro = "A conversation to listen to. It has a few new expressions in it. You don't need to remember them: just hear how it goes."
 listening_line = "Here you would say:"

@@ -542,19 +542,21 @@ class Planner:
         least = [d for t, d in cands if t == cands[0][0]]
         return self.rng.choice(least)
 
-    def embeddable(self, item: Item) -> bool:
-        """Whether ``item`` is introduced inside an easy sentence, not on its own (#149, lesson 13
-        feedback: «opið», «miða»… came back as single words long after the learner could say
-        the phrase that holds them). A vocab word with a slot to go in (``embed`` finds the
-        sentence) whose words sit inside another item the learner has met (and hasn't failed),
-        or met earlier this lesson, and that wasn't embedded before."""
+    def embed_source(self, item: Item) -> Item | None:
+        """The item ``item`` is taken out of, when it is introduced inside an easy sentence, not
+        on its own (#149, lesson 13 feedback: «opið», «miða»… came back as single words long after
+        the learner could say the phrase that holds them): a vocab word with a slot to go in
+        (``embed`` finds the sentence) whose words sit inside another item the learner has met
+        (and hasn't failed), or met earlier this lesson, and that wasn't embedded before. The
+        shortest such item, so "you know it" is as easy to hear as it can be. None otherwise."""
         if item.kind != "vocab" or not item.tags:
-            return False
+            return None
         if item.id in self.learner.embedded or item.id in self.learner.embed_failed or self.learner.has_met(item.id):
-            return False
+            return None
         words = [w.lower() for w in _WORD_RE.findall(item.target)]
         if not words:
-            return False
+            return None
+        found: list[tuple[int, Item]] = []
         for whole in self.cur.items:
             if whole.id == item.id or whole.kind not in ("phrase", "vocab"):
                 continue
@@ -562,8 +564,8 @@ class Planner:
                 continue
             ww = [w.lower() for w in _WORD_RE.findall(whole.target)]
             if len(ww) > len(words) and any(ww[k : k + len(words)] == words for k in range(len(ww) - len(words) + 1)):
-                return True
-        return False
+                found.append((len(ww), whole))
+        return min(found, key=lambda t: t[0])[1] if found else None
 
     def listening_dialogue(self) -> tuple[Dialogue, set[str]] | None:
         """A dialogue to play as listening: one or two required items short (``listening_missing_max``),
@@ -688,7 +690,7 @@ class Planner:
             while (milestone := self._eligible_milestone(item.prereqs)) is not None:
                 self._play_note(sc, milestone)
                 do_discriminate(milestone)
-            if self.embeddable(item) and b.embed(sc, item) is not None:
+            if (source := self.embed_source(item)) is not None and b.embed(sc, item, source) is not None:
                 self.embedded.append(item.id)
                 touch(item)
                 last_intro = idx

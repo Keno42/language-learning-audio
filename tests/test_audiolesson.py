@@ -4476,7 +4476,10 @@ class EmbeddedPartTests(unittest.TestCase):
         self.assertEqual([e.kind for e in sc.exercises if "opid" in e.item_ids and e.kind in ("intro", "embed")], ["embed"])
         text = sc.transcript()
         self.assertIn("Þetta er opið.", text)
-        self.assertNotIn("Something new", text.split("embed:")[1].split("##")[0])
+        block = text.split("embed:")[1].split("##")[0]
+        self.assertNotIn("Something new", block)
+        self.assertIn("You know this:", block)
+        self.assertIn("Er opið?", block, "it names the phrase it is taken out of")
         self.assertNotIn("opid", sc.meta["exposures"], "nothing is recorded for it: the review decides")
 
     def test_without_a_phrase_that_holds_it_or_a_pattern_to_put_it_in_it_is_introduced(self):
@@ -4492,7 +4495,7 @@ class EmbeddedPartTests(unittest.TestCase):
         qs = [q for q in sc.review_questions() if q["items"] == ["opid"]]
         self.assertEqual([(q["prompt"], q["answer"]) for q in qs], [("This is open.", "Þetta er opið.")])
 
-    def test_said_back_it_counts_as_learned_on_its_own(self):
+    def test_said_back_it_counts_as_its_first_recall(self):
         cur = self._cur()
         learner = self._learner()
         sc = self._plan(cur, learner)
@@ -4502,9 +4505,11 @@ class EmbeddedPartTests(unittest.TestCase):
         planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, new_items=1, priority=["opid"]), today=TODAY)
         self.assertNotIn("opid", [i.id for i in planner.select_new(3)], "pending: not introduced meanwhile")
         learner.report([], [], TODAY + timedelta(days=1), recalled=["opid"])
-        self.assertTrue(learner.knows("opid"))
+        self.assertTrue(learner.has_met("opid"))
         self.assertEqual(learner.embedded, {})
-        self.assertGreaterEqual(learner.items["opid"].interval_days, 3)
+        st = learner.items["opid"]
+        self.assertEqual((st.durable_successes, st.interval_days), (1, 3))
+        self.assertFalse(learner.knows("opid"), "§9: known after two recalls on or after a due date, like any item")
 
     def test_not_said_back_it_is_introduced_the_usual_way_next_time(self):
         cur = self._cur()

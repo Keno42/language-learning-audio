@@ -72,7 +72,6 @@ class Builder:
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
     _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
-    _embeds: int = 0  # parts heard inside a sentence this lesson ("Another one." after the first)
 
     # ------------------------------------------------------------------ utils
 
@@ -245,30 +244,37 @@ class Builder:
 
     # ---------------------------------------------------------------- intro
 
-    def embed(self, sc: Script, item: Item) -> Exercise | None:
+    def embed(self, sc: Script, item: Item, source: Item) -> Exercise | None:
         """Introduce a vocab part inside an easy sentence instead of on its own (#149, lesson 13
         feedback: parts of phrases the learner can already say kept coming back as single
-        words): «A new word, in a sentence you can already build. Listen, then repeat.», the
-        sentence, what it means, the sentence again and a pause to repeat it. Nothing is
-        recorded for the part: the next review asks the sentence, and what the learner says
-        decides whether it counts as learned (``LearnerState.report``). None when no known
-        pattern takes the part: the caller introduces it the usual way."""
+        words), as taken out of what they know: «You know this:» ``source``, «This word is in
+        it:» the part, «In another sentence. Listen, then repeat.», the sentence, what it means,
+        the sentence again and a pause to repeat it. Nothing is recorded for the part: the next
+        review asks the sentence, and what the learner says decides whether it counts as learned
+        (``LearnerState.report``). None when no known pattern takes the part: the caller
+        introduces it the usual way."""
         gen = self.generate_with(item, avoid_heard=True)
         if gen is None:
             return None
         self.used_combos.add(gen.key)
         gender, target = self._filled(gen.construction, gen.fills)
+        voice = VOICE_OF[gender or "f"]
         ex = sc.new_exercise("embed", "embed", [item.id], f"embed: {target}")
-        self._narr(sc, ex, self._as(gender, self.prompts.get("embed_intro" if self._embeds == 0 else "embed_next")))
-        self._embeds += 1
+        self._narr(sc, ex, self.prompts.get("embed_known"))
+        self._speak(sc, ex, source.target, speaker=voice)
         self._beat(sc, ex)
-        self._speak(sc, ex, target, speaker=VOICE_OF[gender or "f"], role="embed_sentence")
+        self._narr(sc, ex, self.prompts.get("embed_part"))
+        self._speak(sc, ex, item.target, speaker=voice)
+        self._beat(sc, ex)
+        self._narr(sc, ex, self._as(gender, self.prompts.get("embed_sentence")))
+        self._beat(sc, ex)
+        self._speak(sc, ex, target, speaker=voice, role="embed_sentence")
         self._beat(sc, ex)
         sc.add(Segment("narrate", "instructor", self.prompts.get("embed_meaning", meaning=self._m(gen.meaning)), self.kl, 1.0,
                        self.timing.speech_estimate(gen.meaning, self.kl), "embed_meaning", ex.index))
         self._beat(sc, ex)
         self._narr(sc, ex, self.prompts.get("repeat"))
-        self._speak(sc, ex, target, speaker=VOICE_OF[gender or "f"])
+        self._speak(sc, ex, target, speaker=voice)
         self._repeat_pause(sc, ex, target)
         self.heard.add(_norm_utterance(target))
         self._gap(sc, ex)

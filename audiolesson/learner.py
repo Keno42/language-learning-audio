@@ -348,11 +348,11 @@ class LearnerState:
         for item_id, result in embedded_result.items():
             lesson = self.embedded.pop(item_id)
             if result == "recalled":
-                # said back after a day: learned on its own, scheduled like any item that passed
-                # two reviews (#149); it keeps coming back at its interval
+                # said back after a day: that is its first recall on a due date, like any item's
+                # (§9: ``knows()`` still takes two); the next one comes after the usual 3 days
                 self.items[item_id] = ItemState(
                     stage="meaning", ease=2.3, interval_days=3, due=(today + timedelta(days=3)).isoformat(),
-                    last_practiced=today.isoformat(), introduced_lesson=lesson, successes=2, durable_successes=2,
+                    last_practiced=today.isoformat(), introduced_lesson=lesson, successes=1, durable_successes=1,
                     recalled=1, last_outcome="recalled", exposures=1,
                     history=[{"lesson": lesson, "stages": ["embed"], "ok": True, "outcome": "recalled"}],
                 )
