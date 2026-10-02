@@ -7,7 +7,7 @@ target = "kjöt"
 meaning = "meat"
 meaning_ja = "肉"
 difficulty = 1
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable", "acc_thing"]
 topics = ["food"]
 
 [[items]]
@@ -40,10 +40,10 @@ kind = "vocab"
 target = "ost"
 meaning = "cheese"
 meaning_ja = "チーズ"
-context = "I love cheese."
-context_ja = "チーズが大好きです。"
+context = "I'd like some cheese."
+context_ja = "チーズをください。"
 difficulty = 1
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
 pronunciation_notes = "accusative of ostur"
 
@@ -53,10 +53,10 @@ kind = "vocab"
 target = "egg"
 meaning = "eggs"
 meaning_ja = "卵"
-context = "I love eggs."
-context_ja = "卵が大好きです。"
+context = "I'd like some eggs."
+context_ja = "卵をください。"
 difficulty = 1
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
 
 [[items]]
@@ -65,10 +65,10 @@ kind = "vocab"
 target = "smjör"
 meaning = "butter"
 meaning_ja = "バター"
-context = "I love butter."
-context_ja = "バターが大好きです。"
+context = "I'd like some butter."
+context_ja = "バターをください。"
 difficulty = 1
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
 
 [[items]]
@@ -77,10 +77,10 @@ kind = "vocab"
 target = "mjólk"
 meaning = "milk"
 meaning_ja = "牛乳"
-context = "I love milk."
-context_ja = "牛乳が大好きです。"
+context = "I'd like some milk."
+context_ja = "牛乳をください。"
 difficulty = 1
-tags = ["acc_food", "acc_drink"]
+tags = ["acc_food", "acc_drink", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
 
 [[items]]
@@ -89,10 +89,10 @@ kind = "vocab"
 target = "epli"
 meaning = "apples"
 meaning_ja = "りんご"
-context = "I love apples."
-context_ja = "りんごが大好きです。"
+context = "I'd like some apples."
+context_ja = "りんごをください。"
 difficulty = 1
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
 
 [[items]]
@@ -102,7 +102,7 @@ target = "banana"
 meaning = "bananas"
 meaning_ja = "バナナ"
 difficulty = 1
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
 
 [[items]]
@@ -112,7 +112,7 @@ target = "kartöflur"
 meaning = "potatoes"
 meaning_ja = "じゃがいも"
 difficulty = 2
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable", "acc_thing"]
 topics = ["food"]
 
 [[items]]
@@ -122,7 +122,7 @@ target = "grænmeti"
 meaning = "vegetables"
 meaning_ja = "野菜"
 difficulty = 2
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable", "acc_thing"]
 topics = ["food"]
 
 [[items]]
@@ -132,7 +132,7 @@ target = "ávexti"
 meaning = "fruit"
 meaning_ja = "果物"
 difficulty = 2
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable", "acc_thing"]
 topics = ["food"]
 
 [[items]]
@@ -142,7 +142,7 @@ target = "súkkulaði"
 meaning = "chocolate"
 meaning_ja = "チョコレート"
 difficulty = 2
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
 
 [[items]]
@@ -153,7 +153,7 @@ meaning = "fermented shark"
 meaning_ja = "発酵させたサメ（ハウカルトル）"
 meaning_spoken_ja = "発酵させたサメ"
 difficulty = 2
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
 pronunciation_notes = "the infamous one"
 meaning_forms = { in_sentence = "fermented shark" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
@@ -166,7 +166,7 @@ target = "harðfisk"
 meaning = "dried fish"
 meaning_ja = "干し魚"
 difficulty = 2
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
 
 [[items]]
@@ -178,7 +178,7 @@ meaning_ja = "クレイナ（ねじりドーナツ）"
 meaning_spoken = "twisted doughnuts"
 meaning_spoken_ja = "ねじりドーナツ"
 difficulty = 2
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
 meaning_forms = { in_sentence = "kleinur" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
 meaning_forms_ja = { in_sentence = "クレイナ" }
@@ -192,7 +192,7 @@ meaning_ja = "平たいパン（フラットカカ）"
 meaning_spoken = "flatbread"
 meaning_spoken_ja = "平たいパン"
 difficulty = 2
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
 meaning_forms = { in_sentence = "flatbread" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
 meaning_forms_ja = { in_sentence = "平たいパン" }
@@ -204,7 +204,7 @@ target = "rúgbrauð"
 meaning = "rye bread"
 meaning_ja = "ライ麦パン"
 difficulty = 2
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
 
 [[items]]
@@ -216,7 +216,7 @@ meaning_ja = "魚のマッシュ煮（プロックフィスクル）"
 meaning_spoken = "the Icelandic fish stew"
 meaning_spoken_ja = "魚のマッシュ煮"
 difficulty = 3
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
 meaning_forms = { in_sentence = "plokkfiskur" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
 meaning_forms_ja = { in_sentence = "魚のマッシュ煮" }
@@ -228,7 +228,7 @@ target = "kjötsúpu"
 meaning = "lamb soup"
 meaning_ja = "ラムのスープ"
 difficulty = 3
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
 
 [[items]]
@@ -238,7 +238,7 @@ target = "humar"
 meaning = "langoustine"
 meaning_ja = "手長エビ"
 difficulty = 2
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
 
 [[items]]
@@ -248,7 +248,7 @@ target = "lax"
 meaning = "salmon"
 meaning_ja = "サーモン"
 difficulty = 1
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
 
 [[items]]
@@ -258,7 +258,7 @@ target = "þorsk"
 meaning = "cod"
 meaning_ja = "タラ"
 difficulty = 2
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
 
 [[items]]
@@ -268,7 +268,7 @@ target = "sushi"
 meaning = "sushi"
 meaning_ja = "寿司"
 difficulty = 1
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
 
 [[items]]
@@ -278,7 +278,7 @@ target = "pítsu"
 meaning = "pizza"
 meaning_ja = "ピザ"
 difficulty = 1
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
 
 [[items]]
@@ -312,7 +312,7 @@ meaning = "rice"
 meaning_ja = "ご飯（米）"
 meaning_spoken_ja = "ご飯、お米"
 difficulty = 2
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable", "acc_thing"]
 topics = ["food"]
 meaning_forms = { in_sentence = "rice" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
 meaning_forms_ja = { in_sentence = "ご飯" }
@@ -324,7 +324,7 @@ target = "pasta"
 meaning = "pasta"
 meaning_ja = "パスタ"
 difficulty = 1
-tags = ["acc_food"]
+tags = ["acc_food", "acc_orderable", "acc_thing"]
 topics = ["food"]
 
 [[items]]

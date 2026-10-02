@@ -5180,6 +5180,50 @@ class CheapConstructionTests(unittest.TestCase):
         self.assertGreaterEqual(with_len, without_len, (with_len, without_len))
 
 
+class RequestPatternSupplyTests(unittest.TestCase):
+    """#171 C: food, drink and shop nouns can go into the patterns a person uses at a counter, so a new
+    noun has sentences to be practised in (lesson 15: ost, egg, smjör, mjólk had none)."""
+
+    SHOP_GOODS = {"kjot", "ost", "egg", "smjor", "mjolk", "epli", "banana", "kartoflur", "graenmeti", "avexti",
+                  "sukkuladi", "kleinur", "flatkokur", "rugbraud", "hrisgrjon", "pasta"}
+    ASKED_FOR = {"ost", "egg", "smjor", "mjolk", "epli", "banana", "sukkuladi", "kleinur", "flatkokur", "rugbraud"}
+
+    def test_every_food_noun_fits_a_request_pattern(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        request_tags = {t for c in cur.items if c.kind == "construction" and c.id not in ("eg_elska", "eg_borda_ekki") for t in c.slots.values()}
+        for it in cur.items_with_tag("acc_food"):
+            self.assertTrue(set(it.tags) & request_tags, f"{it.id} fits only «Ég elska …» / «Ég borða ekki …»")
+
+    def test_the_patterns_take_only_what_a_person_says_there(self):
+        """«Áttu {thing}?», «Ég þarf {thing}.» and «Get ég fengið {thing}?» take shop goods, never a
+        dish on a menu or a place; ordering takes dishes too (H7)."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        food = {i.id for i in cur.items_with_tag("acc_food")}
+        self.assertEqual({i.id for i in cur.items_with_tag("acc_thing")} & food, self.SHOP_GOODS)
+        self.assertEqual({i.id for i in cur.items_with_tag("acc_request")} & food, self.ASKED_FOR & food)
+        for dish in ("plokkfisk", "humar", "sushi", "pitsu", "kjotsupu", "hakarl"):
+            self.assertIn("acc_orderable", cur.by_id[dish].tags)
+            self.assertNotIn("acc_thing", cur.by_id[dish].tags)
+            self.assertNotIn("acc_request", cur.by_id[dish].tags)
+
+    def test_a_new_food_noun_gets_sentences_once_the_patterns_are_met(self):
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        for i in ("eg_aetla_ad_fa", "get_eg_fengid", "attu", "kaffi", "vatn", "matsedilinn", "poka", "peysu"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner, rng=random.Random(1))
+        b.in_lesson.add("ost")
+        seen = set()
+        for _ in range(30):
+            gen = b.generate_with(cur.by_id["ost"])
+            self.assertIsNotNone(gen)
+            seen.add(gen.target)
+        self.assertGreaterEqual(len(seen), 3, seen)
+        self.assertTrue(seen <= {"Ég ætla að fá ost.", "Get ég fengið ost?", "Áttu ost?"}, seen)
+
+
 class PlausibleFillTests(unittest.TestCase):
     """Owner, after lesson 12: never generate a sentence that makes no sense in its scene
     ("order a passport at the café"). Slot tags keep the grammar right; they must also keep
