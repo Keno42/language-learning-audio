@@ -51,7 +51,7 @@ class PlanConfig:
     # nothing else left, a dialogue lacking one or two required items is played as listening
     # (its scene carries the meaning, H8). Those items are heard, not learned: never recorded,
     # never asked in the review. At most this many per lesson, each resting
-    # ``listening_rest_lessons`` lessons. 0 reproduces the earlier planner.
+    # ``listening_rest_lessons`` lessons.
     max_listening_dialogues: int = 2
     listening_missing_max: int = 2
     listening_rest_lessons: int = 6
@@ -101,8 +101,7 @@ class PlanConfig:
     # in the last lesson, then the least recently practised, so a backlog comes round. The
     # practices fall at these fractions of the lesson's time before the closing block (by time,
     # not exercise counts: five practices 3-13 exercises apart bunched in the first 8 minutes),
-    # interleaved between items. ``open_item_practice`` False reproduces the earlier planner.
-    open_item_practice: bool = True
+    # interleaved between items.
     max_open_items: int = 5
     open_item_times: list[float] = field(default_factory=lambda: [0.04, 0.27, 0.48, 0.68, 0.88])
     # the trip ordering (#132): item ids introduced before the rest, in this order (their
@@ -593,7 +592,7 @@ class Planner:
         b.opening(sc, n, first_lesson=(n == 1))
 
         new_queue = deque(self.select_new(cfg.resolved_new_items()))
-        open_ids = self.learner.open_items() if cfg.open_item_practice else []
+        open_ids = self.learner.open_items()
         open_ids = [i for i in open_ids if i in self.cur.by_id]
         open_today = open_ids[: cfg.max_open_items]
         reviews = deque(i for i in self.select_reviews() if i.id not in open_today)
@@ -1125,7 +1124,7 @@ class Planner:
                     early_tier += 1
                     reviews = deque(load_early(rested_only=early_tier == 1))
                     continue
-                elif remaining >= 90 and cfg.max_listening_dialogues > 0 and (ld := self.listening_dialogue()) is not None:
+                elif remaining >= 90 and (ld := self.listening_dialogue()) is not None:
                     # spare time is more to hear (#149 step 3), before today's items once more
                     self._play_listening(sc, *ld)
                     since_dialogue = 0

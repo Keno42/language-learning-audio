@@ -46,7 +46,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   items (`Planner.listening_dialogue`) plays whole: the turn for a missing item is «Here you
   would say:», the line, its meaning, with no pause for the learner. The missing items are never
   recorded (they stay unmet, never in the review) and a dialogue so heard rests six lessons
-  (`dialogues_listened`). `max_listening_dialogues=0` reproduces the earlier planner.
+  (`dialogues_listened`).
 - **New material is spread over the lesson.** The k-th introduction waits until k/N of
   `intro_span` (0.75) of the lesson's time (N: the pace plus a later arc), so new items come
   every two or three minutes instead of all in the first half; a second arc starts on the same
