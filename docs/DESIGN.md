@@ -47,6 +47,13 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   would say:», the line, its meaning, with no pause for the learner. The missing items are never
   recorded (they stay unmet, never in the review) and a dialogue so heard rests six lessons
   (`dialogues_listened`). `max_listening_dialogues=0` reproduces the earlier planner.
+- **New material is spread over the lesson.** The k-th introduction waits until k/N of
+  `intro_span` (0.75) of the lesson's time (N: the pace plus a later arc), so new items come
+  every two or three minutes instead of all in the first half; a second arc starts on the same
+  schedule (step 2b) instead of only when the lesson is idle. When the drill streak reaches its
+  limit the relief is a dialogue, a note, a connect, a listening dialogue and last the next new
+  item; an idle lesson still introduces early (steps 5), so a lesson with nothing else to do
+  doesn't end short.
 - **Generated sentences use only available parts.** A fill is known or introduced earlier
   in the lesson. A construction's `situation_fill` makes its situation wait for that fill.
   A dialogue turn's `expect_fill` binds every slot, so every spoken part is a required item.
