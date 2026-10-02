@@ -5132,6 +5132,26 @@ class CheapConstructionTests(unittest.TestCase):
         trip = self._planner(cur, learner, priority=[i.id for i in plain])
         self.assertEqual([i.id for i in trip.select_new(2, cheap=True)], [i.id for i in plain], "a trip item is never displaced")
 
+    def test_a_cheap_trip_construction_moves_to_the_front_of_the_trip_order(self):
+        """Review of #174: with a trip ordering every new item is a trip item, so no place opens for a cheap
+        construction. A trip construction the learner can already fill moves to the front of the
+        remaining trip order instead: nothing is displaced, only the order changes."""
+        cur = self._cur()
+        learner = self._learner(["w0", "w1", "w2"])
+        trip = ["n0", "n1", "u0", "c_big", "c_small"]
+        planner = self._planner(cur, learner, priority=trip)
+        self.assertEqual([i.id for i in planner.select_new(2)], ["n0", "n1"], "without it: the trip order")
+        chosen = [i.id for i in planner.select_new(2, cheap=True)]
+        self.assertEqual(chosen, ["c_big", "n0"])
+        self.assertEqual(planner.cheap_placed, ["c_big"])
+        self.assertTrue(set(chosen) <= set(trip), "every item is still a trip item")
+        # not cheap (one known filler of «c_small»): the order is the trip's own
+        fresh = self._planner(cur, self._learner(["w0"]), priority=trip)
+        self.assertEqual([i.id for i in fresh.select_new(2, cheap=True)], ["n0", "n1"])
+        # …and a cheap construction that isn't a trip item is not promoted (it takes a non-trip place, none here)
+        only = self._planner(cur, learner, priority=["n0", "n1"])
+        self.assertEqual([i.id for i in only.select_new(2, cheap=True)], ["n0", "n1"])
+
     def test_an_idle_lesson_takes_a_cheap_construction_beyond_its_limit(self):
         cur = self._cur()
         learner = self._learner(["w0", "w1", "w2"])

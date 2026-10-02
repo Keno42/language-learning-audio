@@ -218,13 +218,16 @@ class Planner:
 
     # --------------------------------------------------------------- selection
 
-    def cheap_construction(self, exclude: set[str]) -> Item | None:
+    def cheap_construction(self, exclude: set[str], only: set[str] | None = None) -> Item | None:
         """The cheap construction (#171 B) that adds the most sentences: unmet, its prerequisites known
         (or introduced this lesson) and ``cheap_min_fillers`` known fillers in every slot, so it is
-        usable the moment it is taught. Most known fillers first, then curriculum order."""
+        usable the moment it is taught. Most known fillers first, then curriculum order. ``only``
+        restricts the candidates to those ids (the trip ordering's constructions)."""
         best: tuple[int, int, Item] | None = None
         for c in self.cur.items:
             if c.kind != "construction" or not c.slots or c.id in exclude or c.id in self.learner.embedded or self.learner.has_met(c.id):
+                continue
+            if only is not None and c.id not in only:
                 continue
             if not all(self.learner.knows(p) or p in self.builder.in_lesson for p in c.prereqs):
                 continue
@@ -244,6 +247,7 @@ class Planner:
     def select_new(self, count: int, exclude: set[str] | None = None, cheap: bool = False) -> list[Item]:
         chosen: list[Item] = []
         chosen_ids: set[str] = set(exclude or ())
+        promoted_id: str | None = None
 
         def ready(it: Item) -> bool:
             return all(self.learner.knows(p) or p in chosen_ids for p in it.prereqs)
@@ -262,6 +266,15 @@ class Planner:
         if self.cfg.priority:  # the trip ordering wins over topics
             rank = {i: n for n, i in enumerate(self.cfg.priority)}
             first = sorted((i for i in pool if i.id in rank), key=lambda i: rank[i.id])
+            if cheap and self.cfg.cheap_place:
+                # #171 B: a trip construction the learner can already fill moves to the front of the
+                # remaining trip order. Every item is still a trip item; only the order changes (H6:
+                # teach a pattern when two fillings are known), so no trip item is displaced.
+                promoted = self.cheap_construction(chosen_ids, only=set(rank))
+                if promoted is not None and promoted in first:
+                    first.remove(promoted)
+                    first.insert(0, promoted)
+                    promoted_id = promoted.id
             pool = first + [i for i in pool if i.id not in rank]
         constructions = [c for c in self.cur.items if c.kind == "construction"]
 
@@ -356,6 +369,8 @@ class Planner:
                     # be dropped from arc after arc
                     chosen.pop()
                     chosen_ids.discard(last.id)
+        if promoted_id is not None and any(i.id == promoted_id for i in chosen):
+            self.cheap_placed.append(promoted_id)
         if cheap and self.cfg.cheap_place and not any(i.kind == "construction" for i in chosen):
             # #171 B: one place for a cheap construction, from the non-trip items: never a trip item's
             candidate = self.cheap_construction(chosen_ids)
