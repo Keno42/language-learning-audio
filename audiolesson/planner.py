@@ -218,6 +218,18 @@ class Planner:
 
     # --------------------------------------------------------------- selection
 
+    def _prereq_met(self, c: Item, p: str, have) -> bool:
+        """A prerequisite of ``c`` is met when ``have(p)``, or (#180) when it is only a filler of ``c``'s own
+        slot and that slot already has ``cheap_min_fillers`` others: the pattern is usable without it
+        («Viltu {inf}?» doesn't wait for one more infinitive)."""
+        if have(p):
+            return True
+        tags = self.cur.by_id[p].tags
+        return any(
+            tag in tags and sum(1 for i in self.cur.items_with_tag(tag) if have(i.id)) >= self.cfg.cheap_min_fillers
+            for tag in c.slots.values()
+        )
+
     def cheap_construction(self, exclude: set[str], only: set[str] | None = None) -> Item | None:
         """The cheap construction (#171 B) that adds the most sentences: unmet, its prerequisites known
         (or introduced this lesson) and ``cheap_min_fillers`` known fillers in every slot, so it is
@@ -229,7 +241,7 @@ class Planner:
                 continue
             if only is not None and c.id not in only:
                 continue
-            if not all(self.learner.knows(p) or p in self.builder.in_lesson for p in c.prereqs):
+            if not all(self._prereq_met(c, p, lambda i: self.learner.knows(i) or i in self.builder.in_lesson) for p in c.prereqs):
                 continue
             counts = [
                 sum(1 for i in self.cur.items_with_tag(tag) if self.learner.knows(i.id) or i.id in self.builder.in_lesson)
@@ -250,7 +262,7 @@ class Planner:
         promoted_id: str | None = None
 
         def ready(it: Item) -> bool:
-            return all(self.learner.knows(p) or p in chosen_ids for p in it.prereqs)
+            return all(self._prereq_met(it, p, lambda i: self.learner.knows(i) or i in chosen_ids) for p in it.prereqs)
 
         def known_fills(tag: str) -> int:
             return sum(1 for i in self.cur.items_with_tag(tag) if self.learner.knows(i.id) or i.id in chosen_ids)
@@ -965,8 +977,8 @@ class Planner:
                     used.add(ex.label)
                     return True
             for whole in self.containing_items(item):
-                if whole.id in used or whole.id in recent:
-                    continue
+                if whole.id in used or whole.id in recent or bare_capped(whole):
+                    continue  # a short whole item has its own bare uses to keep to
                 ex = b.recall(sc, whole, "meaning")
                 self._record([whole.id], ex.stage or "meaning", ex.item_ids + [item.id])
                 touch(whole)
@@ -1130,7 +1142,7 @@ class Planner:
                     continue
                 if not today and self._stable(c) and not self._may_review(c.id):
                     continue  # a stable frame rests like any stable item, or the same one opens every lesson (#94)
-                key = (not set(c.topics) & today_topics, substitutions.get(c.id, 0), c.order)
+                key = (not set(c.topics) & today_topics, b.construction_counts.get(c.id, 0), substitutions.get(c.id, 0), c.order)  # #180: the pattern with the fewest sentences first
                 if (best is None or key < best[0]) and b.recombine_status(c, met_fills=True) == "novel":
                     best = (key, c)
             return best[1] if best else None
@@ -1390,9 +1402,10 @@ class Planner:
             # 4. review older material, interleaving topics
             if not acted and reviews:
                 pick = None
+                run_of_open = open_run() >= 3
                 for cand in list(reviews):
-                    if cand.id in recent:
-                        continue
+                    if cand.id in recent or (run_of_open and cand.id in open_today):
+                        continue  # open practices never run on past three: another review comes between
                     if cand.topics and cand.topics[0] in recent_topics and len(reviews) > 2:
                         continue
                     pick = cand

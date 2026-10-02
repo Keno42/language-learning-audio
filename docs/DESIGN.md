@@ -141,7 +141,16 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
 - **A `refresh` construction is a trip item for #174's reorder (#180).** In `select_new(cheap=True)` the
   candidates are the trip constructions and the constructions with `refresh`; the cheap one with the most
   sentences goes to the front of the trip order, one a lesson, taking one new-item place (the trip items behind
-  it shift by one). Its prerequisites must still be known (`ready`).
+  it shift by one). Its prerequisites must still be known (`ready`), except one that is only a filler of the
+  construction's own slot (#180 (b), `Planner._prereq_met`): it counts once the slot has `cheap_min_fillers`
+  other known fillers, in `cheap_construction` and in `select_new`'s `ready()`.
+- **Rotation and a ceiling (#180).** `Builder.generate_with` orders a word's homes by the sentences each
+  construction has had this lesson (`construction_counts`), least first, random tie-break; substitution runs
+  pick the pattern with the fewest likewise. A construction takes at most `CONSTRUCTION_CEILING` (10) generated
+  sentences in a lesson, a word's and its own recombinations alike (`construction_full`); its introduction and
+  timed recalls aren't generated sentences. A form is not chosen if it would leave the forms together above
+  `FORM_ALL_HARD_CAP` (0.5) or one form above `FORM_HARD_CAP`: the cap is tested on the share after the sentence.
+  Open practices never run on past three in the review queue (`open_run()`).
 - **Cheap constructions come early (#171 B).** A construction is cheap when it is unmet, its prerequisites
   are known and every slot has `cheap_min_fillers` known fillers (`Planner.cheap_construction`, the
   one adding the most sentences first). `select_new(cheap=True)`, for the lesson's own new items, puts

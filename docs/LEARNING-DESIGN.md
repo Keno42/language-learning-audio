@@ -727,6 +727,12 @@ Don't reopen these without new evidence; when you do, say what changed.
     traveller-core patterns).** A cheap one (every slot has ≥ 2 known fillers, prerequisites known)
     competes with the cheap trip constructions on the same terms and goes to the front of the trip order,
     one a lesson, taking one new-item place.
+    A prerequisite that is only a filler of the construction's own slot is covered by the slot's known
+    fillers; «Má ég {inf}?» no longer waits for «Ég verð að» (the modal family stays in its milestone, and
+    similar items are better met apart, H5).
+  - **A pattern is not a lesson's whole supply (#180).** A word's sentences rotate through its homes, the
+    pattern with the fewest this lesson first, and a construction has at most about ten generated sentences
+    in a lesson (§9 "about ten uses", extended to patterns).
   - A short item (a word, or a one-word question such as «Hvenær?»; sentences and full
     questions of two words are not short items) is said alone at most **three** times in a lesson; the rest of its practice is inside sentences,
     preferably different ones, up to about **ten** uses in all (owner, after replaying lesson
