@@ -165,6 +165,7 @@ id = "taka_mynd"
 kind = "vocab"
 target = "taka mynd"
 meaning = "take a photo"
+meaning_spoken = "to take a photo"  # an infinitive: "Say: buy a ticket" would ask for the imperative
 meaning_ja = "写真を撮る"
 difficulty = 2
 tags = ["inf"]
