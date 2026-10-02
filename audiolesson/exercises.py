@@ -134,7 +134,6 @@ class Builder:
         self._answer_pause(sc, ex, item.target, item, generative=True)
         self._answer(sc, ex, item.target, speaker="native_a")
         self._gap(sc, ex)
-        self._situation_uses[item.id] = self._situation_uses.get(item.id, 0) + 1
         self._last_partner_cue = ex.index
         return ex
 
