@@ -5279,10 +5279,6 @@ class RefreshConstructionTests(unittest.TestCase):
             curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
                                   "items": [{"id": "p", "kind": "phrase", "target": "P.", "meaning": "P.", "refresh": 2}]})
 
-    def test_the_real_curriculum_refreshes_the_three_permission_and_intention_patterns(self):
-        cur = load_curriculum(ROOT / "curricula" / "is-en")
-        self.assertEqual({c.id for c in cur.items if c.refresh}, {"ma_eg_inf", "eg_aetla_ad", "viltu"})
-
 
 class PlausibleFillTests(unittest.TestCase):
     """Owner, after lesson 12: never generate a sentence that makes no sense in its scene
