@@ -120,10 +120,12 @@ class Builder:
         variants = list(item.situations) or ([item.situation] if item.situation else [])
         return any(self._situation_texts.get(t, 0) < SITUATION_FULL_MAX for t in variants)
 
-    def situation_cue_ok(self, item: Item) -> bool:
-        """``situation_usable`` and a situation still to narrate: what a pairing that narrates
-        both situations (connect, a note's discrimination) needs."""
-        return self.situation_usable(item) and self.situation_room(item)
+    def _cue(self, item: Item) -> str | None:
+        """A connect() turn's cue: the situation while it may still be narrated in full, else
+        the meaning, short."""
+        if self.situation_room(item):
+            return self._situation(item)
+        return self._meaning_prompt(item.spoken_meaning)
 
     def prompt_item(self, item: Item) -> tuple[Item, bool] | None:
         """G12: the item whose line the partner says as ``item``'s cue, and whether the line goes
@@ -776,7 +778,7 @@ class Builder:
             self._beat(sc, ex)
             self._mixed_review_said = self._mixed_review_said or not bridged
         # a bridge's own scene replaces the items' standalone situations
-        self._narr(sc, ex, self._as(first_gender, second.partner_cue_setup if bridged else self._situation(first)))  # type: ignore[arg-type]
+        self._narr(sc, ex, self._as(first_gender, second.partner_cue_setup if bridged else self._cue(first)))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, first_target, first, generative=True)
         self._answer(sc, ex, first_target, speaker=learner_voice)
         self._beat(sc, ex)
@@ -789,7 +791,7 @@ class Builder:
                 self._beat(sc, ex)
         else:
             self._narr(sc, ex, self.prompts.get("connect_next"))
-        self._narr(sc, ex, self._as(second_gender, second.partner_cue_situation if bridged else self._situation(second)))  # type: ignore[arg-type]
+        self._narr(sc, ex, self._as(second_gender, second.partner_cue_situation if bridged else self._cue(second)))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, second_target, second, generative=True)
         self._answer(sc, ex, second_target, speaker=learner_voice)
         self._gap(sc, ex)

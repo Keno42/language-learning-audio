@@ -41,6 +41,9 @@ class PlanConfig:
     # its practice is inside sentences, a different one where possible.
     max_bare_uses: int = 3
     short_item_words: int = 2
+    # When the cap leaves the lesson short, up to this many close variants of what the learner knows
+    # (``Item.variant_of``: another case, another gender) come in beyond the new-item limit.
+    max_variant_items: int = 4
     max_sentence_uses: int = 6  # sentences one short item may be practised in, in a lesson (about ten uses in all)
     intro_gap: int = 3  # min exercises between two introductions
     # New material is spread over the lesson (lesson 13 feedback: all nine new expressions came in
@@ -582,6 +585,27 @@ class Planner:
                 found.append((len(ww), whole))
         return min(found, key=lambda t: t[0])[1] if found else None
 
+    def select_variants(self, count: int, exclude: set[str]) -> list[Item]:
+        """Close variants (``Item.variant_of``) the learner can be given next: the form they vary is
+        known or was introduced earlier this lesson, the variant itself is new to them (never met,
+        or failed to be said back when it was heard inside a sentence), its prerequisites are known,
+        in curriculum order."""
+        out: list[Item] = []
+        for it in self.cur.items:
+            if len(out) >= count:
+                break
+            if not it.variant_of or it.id in exclude or it.id in self.learner.embedded:
+                continue
+            if self.learner.has_met(it.id) or self.learner.is_open(it.id):
+                continue
+            base = it.variant_of
+            if not (self.learner.knows(base) or base in self.builder.in_lesson):
+                continue
+            if not all(self.learner.knows(p) or p in self.builder.in_lesson for p in it.prereqs):
+                continue
+            out.append(it)
+        return out
+
     def containing_items(self, item: Item) -> list[Item]:
         """Phrases and words the learner can say (known, or introduced earlier this lesson, not
         open) whose words contain ``item``'s words in order, the shortest first: a sentence the
@@ -749,6 +773,26 @@ class Planner:
                 seq += 1
                 intro_timeline.append((sc.total_duration + after * (budget - closing_reserve), seq, item, ladder[min(k + 1, len(ladder) - 1)]))
 
+        variants_used: list[str] = []
+
+        def try_variant() -> bool:
+            """The lesson has run out of other material (§9 "Repetition"): a close variant of what
+            the learner knows, beyond the new-item limit, rather than the same words again."""
+            nonlocal closing_reserve
+            if len(variants_used) >= cfg.max_variant_items or remaining_time() < need_for_new * 0.5 or idx - last_intro < 1:
+                return False
+            taken = {i.id for i in introduced} | set(self.embedded) | {i.id for i in new_queue}
+            found = self.select_variants(1, taken)
+            if not found:
+                return False
+            do_intro(found[0])
+            variants_used.append(found[0].id)
+            closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
+            return True
+
+        def remaining_time() -> float:
+            return budget - closing_reserve - sc.total_duration
+
         def do_recall(item: Item, stage: str, allow_cap: bool = True) -> bool:
             """Practise ``item`` at ``stage``; False when nothing was played (a capped short item
             with no sentence to go in)."""
@@ -848,7 +892,7 @@ class Planner:
             just_touched = recent[-1] if recent else None
             known_transfer = [i for i in note.transfer_items if self.learner.has_met(i) or i in self.exposures]
             others = list(dict.fromkeys(i for i in known_transfer + note.items if i != just_touched and i in self.cur.by_id))
-            by_situation = [i for i in others if b.situation_cue_ok(self.cur.by_id[i])]
+            by_situation = [i for i in others if b.situation_usable(self.cur.by_id[i])]
             by_meaning = [i for i in others if i not in by_situation]
             picks = [(i, "situation") for i in by_situation] + [(i, "meaning") for i in by_meaning]
             for item_id, stage in picks[:2]:
@@ -883,7 +927,7 @@ class Planner:
             seen: set[str] = set()
             valid: list[Item] = []
             for it in pool:
-                if it.id in seen or not b.situation_cue_ok(it) or not _ready_for_situation(it):
+                if it.id in seen or not b.situation_usable(it) or not _ready_for_situation(it):
                     continue
                 if connect_item_uses.get(it.id) and self._stable(it):
                     continue  # a stable item takes part in one connect a lesson (#151)
@@ -1093,6 +1137,8 @@ class Planner:
                     acted = True
                 if not acted and reviews_used and (sub := pick_substitution()) is not None:
                     do_substitution(sub)  # a generative exercise breaks the streak too: a known pattern, other words
+                    acted = True
+                if not acted and try_variant():
                     acted = True
                 if not acted and remaining >= 40:
                     # a sentence for one of today's short items breaks it as well (and is the practice it lacks)
@@ -1308,6 +1354,8 @@ class Planner:
                     # not at all (#149); the timed entries (0d) are the normal route
                     open_timeline.remove(early_open)
                     do_recall(early_open[2], early_open[3])
+                elif bare_cap[0] > 0 and try_variant():
+                    pass  # close variants of what they know fill the time before the same words come back
                 elif bare_cap[0] > 0 and (capped_backlog or intro_timeline):
                     # nothing else is left, and the lesson would end short: today's short items may be
                     # said alone again, the dropped recalls first, rather than losing the time (§9 "daily dose")
@@ -1366,6 +1414,7 @@ class Planner:
             "curriculum": self.cur.name,
             "new_items": [i.id for i in introduced] + list(self.embedded),
             "embedded_items": list(self.embedded),
+            "variant_items": list(variants_used),
             "bare_cap_lapsed": cfg.max_bare_uses > 0 and bare_cap[0] == 0,  # nothing else was left: short items were said alone again
             "reviewed_items": reviews_used,
             "open_items": open_today,

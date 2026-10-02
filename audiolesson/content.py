@@ -125,6 +125,12 @@ class Item:
     # earlier in the lesson) it is this item's situation cue, said by the partner with no
     # English narration; until then the authored ``situation`` is narrated as before.
     prompt_by: str = ""
+    # §9 "Repetition" (G14): the item this one is a near form of: another case of a noun
+    # («bankanum» for «bankinn»), another gender of an adjective («góð» for «gott»). When a lesson has
+    # run out of other material, such a variant of something the learner knows (or met earlier
+    # that lesson) may be introduced beyond the lesson's new-item limit, to fill the time with
+    # something close to what they can already say rather than with the same words again.
+    variant_of: str = ""
 
     # ---- derived helpers -------------------------------------------------
 
@@ -518,6 +524,15 @@ def validate(cur: Curriculum) -> None:
         for e in it.examples:
             if (e.source_m and e.source_m == e.source) or (e.result_m and e.result_m == e.result):
                 raise CurriculumError(f"item {it.id!r}: a transform example's man's form must differ from its own ({e.source!r})")
+        if it.variant_of:
+            if it.variant_of == it.id or it.variant_of not in ids:
+                raise CurriculumError(f"item {it.id!r}: variant_of must name another item, not {it.variant_of!r}")
+            if it.kind not in ("phrase", "vocab") or cur.by_id[it.variant_of].kind not in ("phrase", "vocab"):
+                raise CurriculumError(f"item {it.id!r}: variant_of links phrase and vocab items (a construction's variety is its slot fills)")
+            if cur.by_id[it.variant_of].variant_of:
+                raise CurriculumError(f"item {it.id!r}: variant_of {it.variant_of!r} is itself a variant; name the form it is a variant of")
+            if cur.by_id[it.variant_of].target == it.target:
+                raise CurriculumError(f"item {it.id!r}: a variant must differ from {it.variant_of!r} in its words")
         if it.prompt_by:
             if it.prompt_by == it.id or it.prompt_by not in ids:
                 raise CurriculumError(f"item {it.id!r}: prompt_by must name another item, not {it.prompt_by!r}")

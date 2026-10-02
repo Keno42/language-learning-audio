@@ -112,10 +112,15 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (`bare_cap_lapsed` in `plan.json`), so a lesson never ends short for this alone. A drill
   streak is also broken by a substitution or a sentence for a short item before it ends the
   lesson.
+- **Close variants fill what the cap leaves (§9 "Repetition").** Before the cap lapses (and as
+  streak relief), `try_variant` introduces an item whose `variant_of` the learner knows (or met
+  earlier in the lesson) and who hasn't met it, beyond the new-item limit: at most
+  `max_variant_items` a lesson, in course order, with room for it (half a new item's time);
+  `variant_items` in `plan.json`. They are not kept out of the normal course order.
 - **A situation is narrated in full twice a lesson.** After two narrations of the same authored
   situation (`SITUATION_FULL_MAX`) the cue is the meaning, short (or the partner's line, G12);
-  «Quick review: two separate situations.» is said once. A pairing that narrates both
-  situations (connect, the contrast after a note) takes `situation_cue_ok`.
+  «Quick review: two separate situations.» is said once. A connect() turn whose situation has no room
+  is cued by the item's meaning instead of dropping out of the pairing (`Builder._cue`).
 - **Notes.** Milestones fire deterministically once their `items` are met or exposed, and
   are followed by discrimination practice over examples whose situation is usable now. A
   note waits for what it recommends saying (`requires`). As filler, an aside is about met

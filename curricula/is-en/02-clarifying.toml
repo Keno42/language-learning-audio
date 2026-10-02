@@ -547,6 +547,7 @@ pronunciation_notes = "accusative, definite: what «Takk fyrir …» takes"
 [[items]]
 id = "kaffid"
 kind = "vocab"
+variant_of = "kaffi"
 target = "kaffið"
 meaning = "the coffee (after 'thanks for')"
 meaning_ja = "コーヒー（「Takk fyrir …」の形）"
@@ -1269,6 +1270,7 @@ pronunciation_notes = "the feminine form, for feminine nouns: «ein króna» (on
 [[items]]
 id = "tvaer"
 kind = "vocab"
+variant_of = "tveir"
 target = "tvær"
 meaning = "two, as in counting krónur"
 meaning_ja = "クローナを数えるときの2"
@@ -1282,6 +1284,7 @@ topics = ["numbers", "money"]
 [[items]]
 id = "thrjar"
 kind = "vocab"
+variant_of = "thrir"
 target = "þrjár"
 meaning = "three, as in counting krónur"
 meaning_ja = "クローナを数えるときの3"
@@ -1295,6 +1298,7 @@ topics = ["numbers", "money"]
 [[items]]
 id = "fjorar"
 kind = "vocab"
+variant_of = "fjorir"
 target = "fjórar"
 meaning = "four, as in counting krónur"
 meaning_ja = "クローナを数えるときの4"
