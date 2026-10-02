@@ -44,6 +44,13 @@ class PlanConfig:
     # When the cap leaves the lesson short, up to this many close variants of what the learner knows
     # (``Item.variant_of``: another case, another gender) come in beyond the new-item limit.
     max_variant_items: int = 4
+    # #171 B: a construction whose every slot already has ``cheap_min_fillers`` known fillers is cheap:
+    # it adds sentences at once. One takes the place of the last non-trip item of a lesson's new
+    # items (``cheap_place``; a trip item is never displaced), and, when a lesson has time left, up
+    # to ``max_cheap_extra`` more come in beyond the new-item limit, like the variants.
+    cheap_min_fillers: int = 2
+    cheap_place: bool = True
+    max_cheap_extra: int = 1
     # #171: the negative / question forms are taught once this many constructions that have the
     # form are known, and then practised ``forms_practice`` times straight away
     forms_after_constructions: int = 2
@@ -185,6 +192,7 @@ class Planner:
         self.support: dict[str, int] = {}
         self.dialogues_played: list[str] = []
         self.dialogues_listened: list[str] = []
+        self.cheap_placed: list[str] = []  # cheap constructions given a new-item place (#171 B)
         self.embedded: list[str] = []  # parts heard inside a sentence this lesson (#149)
         self.notes_played: list[str] = []
         self._in_dialogue = {i for d in cur.dialogues for i in d.required_items}
@@ -210,9 +218,36 @@ class Planner:
 
     # --------------------------------------------------------------- selection
 
-    def select_new(self, count: int, exclude: set[str] | None = None) -> list[Item]:
+    def cheap_construction(self, exclude: set[str], only: set[str] | None = None) -> Item | None:
+        """The cheap construction (#171 B) that adds the most sentences: unmet, its prerequisites known
+        (or introduced this lesson) and ``cheap_min_fillers`` known fillers in every slot, so it is
+        usable the moment it is taught. Most known fillers first, then curriculum order. ``only``
+        restricts the candidates to those ids (the trip ordering's constructions)."""
+        best: tuple[int, int, Item] | None = None
+        for c in self.cur.items:
+            if c.kind != "construction" or not c.slots or c.id in exclude or c.id in self.learner.embedded or self.learner.has_met(c.id):
+                continue
+            if only is not None and c.id not in only:
+                continue
+            if not all(self.learner.knows(p) or p in self.builder.in_lesson for p in c.prereqs):
+                continue
+            counts = [
+                sum(1 for i in self.cur.items_with_tag(tag) if self.learner.knows(i.id) or i.id in self.builder.in_lesson)
+                for tag in c.slots.values()
+            ]
+            if min(counts) < self.cfg.cheap_min_fillers:
+                continue
+            sentences = 1
+            for k in counts:
+                sentences *= k
+            if best is None or (-sentences, c.order) < (best[0], best[1]):
+                best = (-sentences, c.order, c)
+        return best[2] if best else None
+
+    def select_new(self, count: int, exclude: set[str] | None = None, cheap: bool = False) -> list[Item]:
         chosen: list[Item] = []
         chosen_ids: set[str] = set(exclude or ())
+        promoted_id: str | None = None
 
         def ready(it: Item) -> bool:
             return all(self.learner.knows(p) or p in chosen_ids for p in it.prereqs)
@@ -231,6 +266,15 @@ class Planner:
         if self.cfg.priority:  # the trip ordering wins over topics
             rank = {i: n for n, i in enumerate(self.cfg.priority)}
             first = sorted((i for i in pool if i.id in rank), key=lambda i: rank[i.id])
+            if cheap and self.cfg.cheap_place:
+                # #171 B: a trip construction the learner can already fill moves to the front of the
+                # remaining trip order. Every item is still a trip item; only the order changes (H6:
+                # teach a pattern when two fillings are known), so no trip item is displaced.
+                promoted = self.cheap_construction(chosen_ids, only=set(rank))
+                if promoted is not None and promoted in first:
+                    first.remove(promoted)
+                    first.insert(0, promoted)
+                    promoted_id = promoted.id
             pool = first + [i for i in pool if i.id not in rank]
         constructions = [c for c in self.cur.items if c.kind == "construction"]
 
@@ -325,6 +369,16 @@ class Planner:
                     # be dropped from arc after arc
                     chosen.pop()
                     chosen_ids.discard(last.id)
+        if promoted_id is not None and any(i.id == promoted_id for i in chosen):
+            self.cheap_placed.append(promoted_id)
+        if cheap and self.cfg.cheap_place and not any(i.kind == "construction" for i in chosen):
+            # #171 B: one place for a cheap construction, from the non-trip items: never a trip item's
+            candidate = self.cheap_construction(chosen_ids)
+            trip = set(self.cfg.priority)
+            drop = next((i for i in reversed(chosen) if i.id not in trip and i.kind != "construction"), None)
+            if candidate is not None and drop is not None:
+                chosen[chosen.index(drop)] = candidate
+                self.cheap_placed.append(candidate.id)
         return chosen
 
     def select_reviews(self) -> list[Item]:
@@ -706,7 +760,7 @@ class Planner:
         b = self.builder
         b.opening(sc, n, first_lesson=(n == 1))
 
-        new_queue = deque(self.select_new(cfg.resolved_new_items()))
+        new_queue = deque(self.select_new(cfg.resolved_new_items(), cheap=True))
         open_ids = self.learner.open_items()
         open_ids = [i for i in open_ids if i in self.cur.by_id]
         open_today = open_ids[: cfg.max_open_items]
@@ -803,6 +857,7 @@ class Planner:
                 intro_timeline.append((sc.total_duration + after * (budget - closing_reserve), seq, item, ladder[min(k + 1, len(ladder) - 1)]))
 
         variants_used: list[str] = []
+        cheap_used: list[str] = []
 
         def try_variant() -> bool:
             """The lesson has run out of other material (§9 "Repetition"): a close variant of what
@@ -812,10 +867,14 @@ class Planner:
                 return False
             taken = {i.id for i in introduced} | set(self.embedded) | {i.id for i in new_queue}
             found = self.select_variants(1, taken)
-            if not found:
+            if not found and len(cheap_used) < cfg.max_cheap_extra and (cand := self.cheap_construction(taken)) is not None:
+                found = [cand]  # a pattern the learner can fill at once, beyond the new-item limit (#171 B)
+                cheap_used.append(cand.id)
+            elif not found:
                 return False
             do_intro(found[0])
-            variants_used.append(found[0].id)
+            if found[0].id not in cheap_used:
+                variants_used.append(found[0].id)
             closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
             return True
 
@@ -1468,6 +1527,7 @@ class Planner:
             "new_items": [i.id for i in introduced] + list(self.embedded),
             "embedded_items": list(self.embedded),
             "variant_items": list(variants_used),
+            "cheap_constructions": list(self.cheap_placed) + list(cheap_used),  # #171 B: taken in a new-item place / beyond the limit
             "forms_taught": [self.cur.note_by_id[n].teaches for n in self.notes_played if self.cur.note_by_id[n].teaches],
             "bare_cap_lapsed": cfg.max_bare_uses > 0 and bare_cap[0] == 0,  # nothing else was left: short items were said alone again
             "reviewed_items": reviews_used,
