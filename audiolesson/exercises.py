@@ -55,6 +55,7 @@ def _norm_utterance(text: str) -> str:
 
 
 BRIDGE_GLOSS_ENCOUNTERS = 2  # a partner_cue is glossed on the learner's first N hearings of that bridge
+PROMPT_GLOSS_HEARINGS = 2  # a prompt_by line not yet known is glossed on its first N hearings in a lesson
 
 
 @dataclass
@@ -72,6 +73,8 @@ class Builder:
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
     _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
+    _last_partner_cue: int | None = None  # index of the latest partner-line cue exercise (no repeated "Reply.")
+    _prompt_glosses: dict[str, int] = field(default_factory=dict)  # partner-line cues glossed this lesson, per prompting item
 
     # ------------------------------------------------------------------ utils
 
@@ -97,6 +100,42 @@ class Builder:
     def _next_situation(self, item: Item) -> str | None:
         base = self.learner.items[item.id].exposures if item.id in self.learner.items else 0
         return item.situation_for(base + self._situation_uses.get(item.id, 0))
+
+    def prompt_item(self, item: Item) -> tuple[Item, bool] | None:
+        """G12: the item whose line the partner says as ``item``'s cue, and whether the line goes
+        bare. Bare (no English at all) only when the learner knows it and it isn't open (#149:
+        a line they reported not being able to say is no cue). Introduced earlier this lesson,
+        met but not yet known, or open: the line, then once what it means, the way a partner
+        bridge does. None (the line was never met): narrate the authored situation."""
+        if not item.prompt_by or item.kind == "construction" or item.target_m:
+            return None
+        prompt = self.cur.by_id.get(item.prompt_by)
+        if prompt is None:
+            return None
+        if self.learner.knows(prompt.id) and not self.learner.is_open(prompt.id):
+            return prompt, True
+        if self._available(prompt.id) or self.learner.has_met(prompt.id):
+            return prompt, False
+        return None
+
+    def _partner_cue_recall(self, sc: Script, item: Item, prompt: Item, bare: bool) -> Exercise:
+        """A situation recall whose cue is the partner's line, in Icelandic. «Reply.» frames it
+        unless the exercise just before was one too; unless ``bare``, the line's meaning follows
+        on its first ``PROMPT_GLOSS_HEARINGS`` hearings in the lesson (the way a bridge does). The partner speaks in the male voice, the model answer in the female one."""
+        follows_cue = bool(sc.exercises) and sc.exercises[-1].index == self._last_partner_cue
+        ex = sc.new_exercise("recall", "situation", [item.id], f"situation: {item.target}")
+        if not follows_cue:
+            self._narr(sc, ex, self.prompts.get("reply"))
+        self._speak(sc, ex, prompt.target, speaker="native_b", role="prompt")
+        if not bare and self._prompt_glosses.get(prompt.id, 0) < PROMPT_GLOSS_HEARINGS:
+            self._prompt_glosses[prompt.id] = self._prompt_glosses.get(prompt.id, 0) + 1
+            self._beat(sc, ex)
+            self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=self._m(prompt.spoken_meaning)))
+        self._answer_pause(sc, ex, item.target, item, generative=True)
+        self._answer(sc, ex, item.target, speaker="native_a")
+        self._gap(sc, ex)
+        self._last_partner_cue = ex.index
+        return ex
 
     def _situation(self, item: Item) -> str | None:
         """The situation cue to narrate now, rotated by past exposures plus the cues already
@@ -414,6 +453,8 @@ class Builder:
         if item.kind == "construction" and stage in ("cloze", "hinted", "meaning", "situation"):
             return self._recall_construction(sc, item, stage)
 
+        if stage == "situation" and (cue := self.prompt_item(item)) is not None:
+            return self._partner_cue_recall(sc, item, *cue)
         gender = self.speaker_gender(item)
         target = self._gendered(item, gender)
         voice = VOICE_OF[gender or "f"]

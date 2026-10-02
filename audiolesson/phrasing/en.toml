@@ -46,6 +46,8 @@ aside = "A quick aside."
 aside_end = "Back to the lesson."
 milestone_intro = "Here's a pattern worth noticing."
 milestone_end = "Let's continue."
+# the partner's line is the cue (Item.prompt_by): frames each such cue, unless the one before was a cue too
+reply = "Reply."
 # a part heard in a sentence instead of being introduced on its own (LearnerState.embedded)
 embed_known = "You know this:"
 embed_part = "This word is in it:"

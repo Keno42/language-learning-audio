@@ -133,6 +133,7 @@ meaning_ja = "元気です、ありがとう。"
 difficulty = 2
 topics = ["greetings", "social"]
 prereqs = ["takk"]
+prompt_by = "hvad_segirdu_gott"
 situations = [
   "Your neighbour asked how you are. Answer that all is good.",
   "Your host asks how you're settling in. Answer that all is good.",
@@ -177,6 +178,7 @@ meaning = "I'm doing well."
 meaning_ja = "元気にしています。"
 difficulty = 2
 topics = ["greetings", "social"]
+prompt_by = "hvernig_hefurdu_thad"
 situations = [
   "A colleague asks how you're doing. Say you're doing well.",
   "Your aunt asks on the phone how you're doing. Say you're doing well.",
