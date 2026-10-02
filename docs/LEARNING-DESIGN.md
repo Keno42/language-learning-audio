@@ -185,13 +185,13 @@ changed it).
 | **H1** | Producing a line from memory, after a real gap, builds durable recall better than hearing or repeating it. | Retrieval practice and spacing are among the best-supported findings on learning (Roediger & Karpicke 2006; Cepeda et al. 2006). | Answer pauses; the stage ladder; spacing across days (`learner.py`) | Next-day recall of new lines stays low even at a low pace | adopted |
 | **H2** | Only success after a gap is evidence of learning. Success minutes after the first exposure is practice. | Performance during practice is a poor guide to learning (Soderstrom & Bjork 2015); #27. | `durable_successes`, `knows()`; the review comes the next day, before the lesson | — | adopted |
 | **H3** | A line cued by a *situation* or a partner's line transfers to the real moment better than one cued by a translation. The closer practice is to use, the better. | Transfer-appropriate processing and encoding specificity (Morris et al. 1977; Tulving & Thomson 1973). | `situation` stage, `connect` exchanges, dialogues, scenario cards | Lines practised in situations do no better in scenario cards than lines practised from meanings | testing (no comparison made yet) |
-| **H4** | **A lesson built around one scene's exchange beats a lesson built from an item count.** In such a lesson, today's lines are spread across the lesson and used together in a coherent exchange, again with other fillings, at rising resolution over lessons. The result is more lines said at the right turn, and less felt repetition. | H1 + H3, thematic grouping (H5), and the owner's experience of lesson 12 (§5.6). | Not built. #149 holds the design; `cando/themes.toml` (PR #155) holds a draft of the scenes | Themed scenes don't reach readiness faster than unthemed ones, or the learner finds themed lessons no less repetitive | **bet: the main one.** Lesson 13 (§5.10): the learner unprompted calls the lesson an "Anki game" of unrelated expressions |
+| **H4** | **A lesson built around one scene's exchange beats a lesson built from an item count.** In such a lesson, today's lines are spread across the lesson and used together in a coherent exchange, again with other fillings, at rising resolution over lessons. The result is more lines said at the right turn, and less felt repetition. | H1 + H3, thematic grouping (H5), and the owner's experience of lesson 12 (§5.6). | Not built. #149 holds the design; `cando/themes.toml` (PR #155) holds a draft of the scenes | Themed scenes don't reach readiness faster than unthemed ones, or the learner finds themed lessons no less repetitive | **bet: the main one.** Lesson 13 (§5.10): the learner unprompted calls the lesson an "Anki game" of unrelated expressions. Lesson 14 (§5.12), after the batch (no themes yet): "repetitive" is gone from the form, so the batch removed the repetition. Whether a theme makes the lesson feel coherent is still untested |
 | **H5** | Group new material by **scene** (bun, coffee, bag, card), not by **semantic set** (numbers 1–10, colours, yes/no). Similar items introduced together get confused; contrasting them pays off once each is known. | Semantic clustering slows L2 vocabulary learning and thematic clustering doesn't (Tinkham 1993, 1997; Waring 1997). Interleaving helps when the task is telling similar things apart (Brunmair & Richter 2019). Lesson 8: "numbers 1–4: masculine and neuter can't be told apart in the English prompts" (§5.2). | Partly: milestone notes contrast known items; #150 plans contrasts for known pairs and series. Nothing keeps a set from being introduced together: the curriculum lists numbers, colours and languages next to each other (§7, G5) | Items introduced as a set fail no more often than others | bet (research-backed) |
 | **H6** | Chunks first, patterns next, transfer last. A fixed chunk said often becomes fluent (token frequency). A pattern used with many different fillings becomes productive (type frequency). Teach a pattern when two fillings are known, then move it to new words. | Usage-based learning (Bybee 2006); formulaic language (Wray 2002); #29's "capabilities outward". | Constructions with slots and `meaning_forms`; milestones with `transfer_items`; recombination; substitution runs (PR #153) | Substitution drills don't help the learner produce combinations they haven't heard (scenario cards with new fillings) | adopted (principle); testing (substitution) |
 | **H7** | Every generated sentence must be plausible in its scene. An implausible one teaches less than it costs. | Owner (after lesson 12: never produce "order a passport at the café"); H3. | Case- and meaning-tagged slots; `opens` (PR #155); scene templates (#152) | — | adopted |
 | **H8** | Natural-speed partner lines with some unknown words (the owner suggests 10–20%), in a familiar scene, build the tolerance needed to get through real exchanges. | The owner's hypothesis, and their preference for more listening time over shorter lessons (§5.7); the #129 pilots (common clerk lines were not understood). **Caveat:** detailed comprehension needs about 95% of the words to be known when listening and 98% when reading (van Zeeland & Schmitt 2013; Hu & Nation 2000). At 80–90%, expect gist from context, not learning of the unknown words. So the scene must carry the meaning. | Scenario cards (partner lines may go beyond the course); partner turns in themes (PR #155); #134 | Respond and repair cards with unknown words stay at 言えなかった, or the learner finds them discouraging rather than useful | bet |
-| **H9** | The number of new items, throttled only by recall reports, keeps the load right. The pace design aims at about 6–10 new productive items per 30 minutes and about 80–85% next-day success. | README "Pacing"; desirable difficulties (Bjork 1994): too easy wastes time, too hard fails. | `suggest_pace` | The load rating drifts to "heavy", or next-day failures stay above 20%, at the pace actually used | **revised:** the actual number of new items is not the pace (§7, G4). The learner prefers a full lesson with more new material to hear over a shorter one, as long as long stretches aren't incomprehensible (§5.7). **First read (§5.8):** 19 of 19 next-day recalls at 5–8 new items a lesson; no sign of overload, possibly a ceiling |
-| **H10** | Self-reports are informative when they are made the next day, with the answer hidden until the learner has tried. They are noisy, lean towards success and must never be produced by an LLM. | Delayed judgements of learning are far more accurate than immediate ones (Nelson & Dunlosky 1991); #129 (GPT transcripts did not match what was said). | The bot's review (answer revealed only after trying; 3-point scale); the feedback form | The ratings stop telling recalled lines from guessed or failed ones | **revised (§5.7):** for this learner the scale is binary. They answer at once and are right or wrong, so «迷った» never applies; 言えた and 言えなかった carry the signal |
+| **H9** | The number of new items, throttled only by recall reports, keeps the load right. The pace design aims at about 6–10 new productive items per 30 minutes and about 80–85% next-day success. | README "Pacing"; desirable difficulties (Bjork 1994): too easy wastes time, too hard fails. | `suggest_pace` | The load rating drifts to "heavy", or next-day failures stay above 20%, at the pace actually used | **revised:** the actual number of new items is not the pace (§7, G4). The learner prefers a full lesson with more new material to hear over a shorter one, as long as long stretches aren't incomprehensible (§5.7). **First read (§5.8):** 19 of 19 next-day recalls at 5–8 new items a lesson; no sign of overload, possibly a ceiling. **Lesson 14 (§5.12):** load «about right» at 8 new items in a full 29-minute lesson (lesson 13: «light»); lesson 13's 9 new items had 0 next-day failures and 3 «迷った» |
+| **H10** | Self-reports are informative when they are made the next day, with the answer hidden until the learner has tried. They are noisy, lean towards success and must never be produced by an LLM. | Delayed judgements of learning are far more accurate than immediate ones (Nelson & Dunlosky 1991); #129 (GPT transcripts did not match what was said). | The bot's review (answer revealed only after trying; 3-point scale); the feedback form | The ratings stop telling recalled lines from guessed or failed ones | **revised (§5.7):** for this learner the scale is binary. They answer at once and are right or wrong, so «迷った» never applies; 言えた and 言えなかった carry the signal. **Lesson 14 (§5.12):** «迷った» used for the first time, on 3 of lesson 13's 9 new items (two of them three words or more). Read it as a third value again, and watch whether it recurs |
 | **H11** | Practice spent on items the learner plainly knows is waste, and the learner notices it. A known item should wait for its date. | Spacing (H1); #94; the owner after lesson 12 (já, nei, hæ every lesson although reported 言えた). | Not-due items wait (#94); stable items never fill (PR #153) | — | adopted (#94); the recurrence is fixed in PR #153. Its other side is open: items that *failed* got one or two practices against 8–12 for every new item (§5.10, G11) |
 | **H12** | Variety, coherence and visible progress keep a daily routine alive. Boredom ("a game of memorizing") is the biggest threat to every other outcome. | Owner, #12 and after lesson 12; Nation's four strands (Nation 2007), whose message is that a course should not be all drill. | Dialogues, exchanges, notes, scenes, reading cards | The routine continues and the learner reports no boredom with a drill-heavy lesson | adopted (value) |
 
@@ -490,6 +490,51 @@ open items. The owner, reading this: practising a word **alone** is what grates 
 is much better. A sentence may come five times or more, and the same word in slightly different
 sentences might not be noticed even at ten. The same complaint came after lesson 6 («vegabréf»
 drilled seven times as a bare word, §5.1), so it is a pattern, not one remark (G14).
+
+### 5.12 Lesson 14: the first lesson heard on the batch (the baseline)
+
+Lesson 14 was generated with LLA `175c76a`: #162–#174, not yet #175–#177. It is the first lesson
+the learner heard on the post-lesson-13 batch. The figures are from its export, which a replay
+reproduces exactly (145 exercises, 29.3 min); the lesson-13 column is the real lesson 13. This is the
+reference for the next weekly read, which judges the batch as one change (§5.11).
+
+| | lesson 13 | lesson 14 |
+|---|---|---|
+| length | 23.6 min | **29.3 min** |
+| new items | 9 | 8 (one a cheap trip construction moved forward, «Klukkan er {hour}.») |
+| a short new item said alone, most | 10 («Hvenær?») | **3** («peysu»: 3 alone, 5 in «Áttu peysu?») |
+| most narrations of one English situation | 8 | 3 |
+| «Quick review» announcements | 6 | 1 |
+| longest gap between introductions | 4.9 min | 3.0 min |
+| most appearances of one new item | 12 | 9 |
+| generated sentences (plain / negative / question) | 21 (all plain) | 31 (27 / 4 / 0; the negative was taught in this lesson) |
+| fitted open items | – | 5, practised ≥ 4 times each |
+| listening dialogues | 0 | 2 |
+
+- **The feedback form:** load «light» → **«about right»**; friction «repetitive, other» → «other»; "sooner":
+  «Sérðu norðurljósin?», «Tekurðu kort?». The lesson-13 complaints (an Anki game, too short, failures
+  barely reviewed, a part after its whole, English for a known question, a recap of what was just said)
+  are not repeated.
+- **The notes name three things, from two causes:**
+  - «How do you say: It's {hour} o'clock.»: a mixed-review cue narrated a construction's raw template.
+    A regression from #170 (#178).
+  - «Say: A sweater, as in: Do you have a sweater?» at the close, after «Áttu peysu?» had been said five
+    times. And a listening dialogue that told the learner «Það kostar fimm þúsund krónur.» and «Gætirðu
+    talað hægar?», lines they can say. Both judge "can the learner say this?" per item from `knows()`,
+    not per sentence from what they can produce (#179). It is the same shape as §5.10's «English for a
+    known question».
+- **Next-day review of lesson 13's nine new items:** 6 言えた, **3 迷った** («matvörubúðin», «Hvenær leggjum
+  við af stað?», «Það er {weather}.»), 0 言えなかった. This is the first time «迷った» has been used at all
+  (H10, §5.7).
+- **Open items (#162):** the four failures of lesson 12 were asked the next day and recalled, so they
+  are closed. The nine older ones («Fyrirgefðu», «Eigðu góðan dag», «Gangi þér vel»…) are still open:
+  lesson 13 predates #162 and site_update_notifier#65, so they were neither practised nor asked. From
+  lesson 14 on they are. How many close is a question for the next read.
+- **Still open, structurally:**
+  - the lesson's coherence (H4, #149 1b-ii: the theme exchange);
+  - generative supply for this learner (G15). In replays of lessons 14–16 the learner meets one new
+    construction a lesson at most. The core patterns the owner chose («Má ég …?», «Ég ætla að …»,
+    «Viltu …?», `refresh`) are not reached on the trip ordering (#180).
 
 ---
 
