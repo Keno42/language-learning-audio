@@ -498,6 +498,11 @@ def _item_from_dict(entry: dict, order: int) -> Item:
 # written-only marks: brackets and 〜 read aloud as noise (or «から») by TTS
 _UNSPEAKABLE_RE = re.compile(r"[()（）〜～]")
 _ANY_SLOT_RE = re.compile(r"\{[^{}]+\}")  # {slot} and {slot:form}
+def _slot_names(text: str) -> list[str]:
+    """The slots a template names, ignoring a ``:form`` suffix."""
+    return [m[1:-1].split(":")[0] for m in _ANY_SLOT_RE.findall(text)]
+
+
 FORMS = ("negative", "question")  # a construction's authored forms besides the plain one (#171)
 
 SPEAKERS = ("native_a", "native_b")  # native_a is voiced female, native_b male, in every profile
@@ -573,7 +578,7 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"item {it.id!r}: {form} and {form}_meaning go together")
             if sorted(_ANY_SLOT_RE.findall(template)) != sorted(_ANY_SLOT_RE.findall(it.target)):
                 raise CurriculumError(f"item {it.id!r}: {form} must use the construction's slots, as {it.target!r} does")
-            if sorted(_ANY_SLOT_RE.findall(meaning)) != sorted(_ANY_SLOT_RE.findall(it.meaning)):
+            if sorted(_slot_names(meaning)) != sorted(_slot_names(it.meaning)):
                 raise CurriculumError(f"item {it.id!r}: {form}_meaning must use the meaning's slots, as {it.meaning!r} does")
             if _UNSPEAKABLE_RE.search(meaning):
                 raise CurriculumError(f"item {it.id!r}: {form}_meaning is spoken verbatim, so it takes no brackets or 〜")
@@ -636,9 +641,10 @@ def validate(cur: Curriculum) -> None:
                 if s not in it.slots:
                     raise CurriculumError(f"construction {it.id!r}: slot {s!r} has no tag in [slots]")
                 forms = [f for slot, f in _FORM_SLOT_RE.findall(it.meaning) if slot == s]
+                form_forms = [f for text in (it.negative_meaning, it.question_meaning) for slot, f in _FORM_SLOT_RE.findall(text) if slot == s]
                 if "{" + s + "}" not in it.meaning and not forms:
                     raise CurriculumError(f"construction {it.id!r}: meaning must also contain {{{s}}}")
-                for form in forms:
+                for form in forms + form_forms:
                     lacking = [c.id for c in cur.items_with_tag(it.slots[s]) if form not in c.meaning_forms]
                     if lacking:
                         raise CurriculumError(f"construction {it.id!r}: {{{s}:{form}}} needs meaning_forms.{form} on {lacking}")

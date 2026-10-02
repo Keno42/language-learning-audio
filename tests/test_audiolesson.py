@@ -4961,7 +4961,14 @@ class ConstructionFormTests(unittest.TestCase):
         self.assertEqual({b.generate(c, forms=True).form for _ in range(40)}, {None})
         self.assertIsNone(b.generate(c, form="negative"))
         b = self._builder(cur, taught=["n_neg"])
-        self.assertEqual({b.generate(c, forms=True, prefer_unused=False).form for _ in range(60)}, {None, "negative"})
+        forms = []
+        for _ in range(60):  # the way recombination counts what it generates
+            form = b.generate(c, forms=True, prefer_unused=False).form
+            b.form_counts[form or "plain"] = b.form_counts.get(form or "plain", 0) + 1
+            forms.append(form)
+        self.assertEqual(set(forms), {None, "negative"})
+        self.assertGreaterEqual(forms.count(None), 40, "the plain sentence stays the larger share")
+        self.assertLessEqual(forms.count("negative"), 20)
         self.assertEqual(b.generate(c, form="negative").target.split()[:3], ["Það", "er", "ekki"])
         self.assertIsNone(b.generate(c, form="question"), "the question note hasn't been heard")
         b = self._builder(cur, taught=["n_neg", "n_q"])
@@ -5031,26 +5038,25 @@ class ConstructionFormTests(unittest.TestCase):
 
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         # a regex per template: its slots match any words
-        patterns = []
+        patterns: dict[str, list] = {"negative": [], "question": []}
         for c in cur.items:
             if c.kind != "construction":
                 continue
-            for t in (c.negative, c.question):
-                if t:
-                    patterns.append(_re.compile("^" + _re.sub(r"\\\{[^}]*\\\}", ".+", _re.escape(t)) + "$"))
+            for form in c.forms:
+                template = c.negative if form == "negative" else c.question
+                patterns[form].append(_re.compile("^" + _re.sub(r"\\\{[^}]*\\\}", ".+", _re.escape(template)) + "$"))
         learner = LearnerState("is", "en", "A1")
         day = TODAY
         taught: set[str] = set()
-        used_before, used_after, first_taught = 0, 0, {}
+        used_before, first_taught, share_rows = 0, {}, []
         for n in range(1, 21):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5), today=day).build()
             sentences = [e.label.split(": ", 1)[1] for e in sc.exercises if e.kind == "generative" and ": " in e.label]
-            hits = sum(1 for t in sentences if any(p.match(t) for p in patterns))
-            if taught:
-                used_after += hits
-            else:
-                # the note plays early in its lesson; a form before it would be one in a lesson without it
-                used_before += hits if not sc.meta["forms_taught"] else 0
+            by_form = {f: sum(1 for t in sentences if any(p.match(t) for p in pats)) for f, pats in patterns.items()}
+            by_form["plain"] = len(sentences) - by_form["negative"] - by_form["question"]
+            share_rows.append((n, len(sentences), by_form, set(sc.meta["forms_taught"]), set(taught)))
+            if not taught and not sc.meta["forms_taught"]:
+                used_before += by_form["negative"] + by_form["question"]  # no form before its note
             for f in sc.meta["forms_taught"]:
                 first_taught.setdefault(f, n)
             taught |= set(sc.meta["forms_taught"])
@@ -5061,7 +5067,20 @@ class ConstructionFormTests(unittest.TestCase):
         self.assertEqual(used_before, 0, "no form before its note")
         self.assertEqual(set(first_taught), {"negative", "question"})
         self.assertLess(first_taught["negative"], first_taught["question"], "the negative first, the question in a later lesson")
-        self.assertGreater(used_after, 40, "once taught, the forms are most of the sentence supply")
+        after = [r for r in share_rows if r[0] >= first_taught["negative"]]
+        total = sum(r[1] for r in after)
+        self.assertGreater(total - sum(r[2]["plain"] for r in after), 40, "once taught, the forms are a real part of the supply")
+        # the newest form must not crowd out the plain sentences (review of #172)
+        self.assertGreaterEqual(sum(r[2]["plain"] for r in after) / total, 0.5, [r[:3] for r in after])
+        for form in ("negative", "question"):
+            self.assertLessEqual(sum(r[2][form] for r in after) / total, 0.3, form)
+        for n, count, by_form, now, before in share_rows:
+            if count >= 10:
+                self.assertGreaterEqual(by_form["plain"] / count, 0.4, (n, by_form))
+                for form in ("negative", "question"):
+                    self.assertLessEqual(by_form[form] / count, 0.4, (n, form, by_form))
+            for form in now:  # the lesson that teaches a form: its practice and a couple more, not a drill
+                self.assertLessEqual(by_form[form], 5, (n, form, by_form))
 
 
 class PlausibleFillTests(unittest.TestCase):

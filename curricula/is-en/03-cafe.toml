@@ -318,10 +318,10 @@ meaning = "I feel like {thing}."
 meaning_ja = "{thing}が食べたいです。"
 negative = "Mig langar ekki í {thing}."
 negative_meaning = "I don't feel like {thing}."
-negative_meaning_ja = "{thing}は食べたくありません。"
+negative_meaning_ja = "{thing}は欲しくありません。"
 question = "Langar þig í {thing}?"
 question_meaning = "Do you feel like {thing}?"
-question_meaning_ja = "{thing}が食べたいですか？"
+question_meaning_ja = "{thing}が欲しいですか？"
 difficulty = 3
 topics = ["cafe", "food"]
 slots = { thing = "acc_orderable" }
@@ -538,7 +538,7 @@ difficulty = 2
 tags = ["inf"]
 topics = ["cafe"]
 meaning_forms = { ing = "paying by card" }
-meaning_forms_ja = { te = "カードで払って" }
+meaning_forms_ja = { te = "カードで払って", tai = "カードで払いたい", tai_neg = "カードで払いたくありません" }
 
 [[items]]
 id = "ma_eg_borga_med_korti"

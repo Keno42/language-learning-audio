@@ -842,6 +842,7 @@ kind = "vocab"
 target = "frábært"
 meaning = "great"
 meaning_ja = "すばらしい"
+meaning_forms_ja = { neg = "すばらしくありません" }
 difficulty = 2
 tags = ["adj_neut"]
 topics = ["adjectives", "discourse"]
@@ -854,6 +855,7 @@ kind = "vocab"
 target = "gott"
 meaning = "good"
 meaning_ja = "良い"
+meaning_forms_ja = { neg = "良くありません" }
 context = "This is good."
 context_ja = "これは良いです。"
 difficulty = 1
@@ -870,7 +872,7 @@ meaning = "This is {adj}."
 meaning_ja = "これは{adj}です。"
 negative = "Þetta er ekki {adj}."
 negative_meaning = "This isn't {adj}."
-negative_meaning_ja = "これは{adj}とは言えません。"
+negative_meaning_ja = "これは{adj:neg}。"
 question = "Er þetta {adj}?"
 question_meaning = "Is this {adj}?"
 question_meaning_ja = "これは{adj}ですか？"

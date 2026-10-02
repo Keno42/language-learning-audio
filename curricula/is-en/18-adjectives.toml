@@ -24,6 +24,7 @@ kind = "vocab"
 target = "vont"
 meaning = "bad"
 meaning_ja = "悪い"
+meaning_forms_ja = { neg = "悪くありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -39,7 +40,7 @@ difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives", "money"]
 meaning_forms = { in_sentence = "expensive" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
-meaning_forms_ja = { in_sentence = "値段が高い" }
+meaning_forms_ja = { in_sentence = "値段が高い", neg = "値段が高くありません" }
 
 [[items]]
 id = "odyrt"
@@ -47,6 +48,7 @@ kind = "vocab"
 target = "ódýrt"
 meaning = "cheap"
 meaning_ja = "安い"
+meaning_forms_ja = { neg = "安くありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives", "money"]
@@ -57,6 +59,7 @@ kind = "vocab"
 target = "fallegt"
 meaning = "beautiful"
 meaning_ja = "美しい"
+meaning_forms_ja = { neg = "美しくありません" }
 difficulty = 2
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -67,6 +70,7 @@ kind = "vocab"
 target = "ljótt"
 meaning = "ugly"
 meaning_ja = "醜い"
+meaning_forms_ja = { neg = "醜くありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -77,6 +81,7 @@ kind = "vocab"
 target = "stórt"
 meaning = "big"
 meaning_ja = "大きい"
+meaning_forms_ja = { neg = "大きくありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -87,6 +92,7 @@ kind = "vocab"
 target = "erfitt"
 meaning = "difficult"
 meaning_ja = "難しい"
+meaning_forms_ja = { neg = "難しくありません" }
 difficulty = 2
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -97,6 +103,7 @@ kind = "vocab"
 target = "auðvelt"
 meaning = "easy"
 meaning_ja = "簡単"
+meaning_forms_ja = { neg = "簡単ではありません" }
 difficulty = 2
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -107,6 +114,7 @@ kind = "vocab"
 target = "skemmtilegt"
 meaning = "fun"
 meaning_ja = "楽しい"
+meaning_forms_ja = { neg = "楽しくありません" }
 difficulty = 2
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -117,6 +125,7 @@ kind = "vocab"
 target = "leiðinlegt"
 meaning = "boring"
 meaning_ja = "退屈"
+meaning_forms_ja = { neg = "退屈ではありません" }
 difficulty = 2
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -127,6 +136,7 @@ kind = "vocab"
 target = "gamalt"
 meaning = "old"
 meaning_ja = "古い"
+meaning_forms_ja = { neg = "古くありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -137,6 +147,7 @@ kind = "vocab"
 target = "nýtt"
 meaning = "new"
 meaning_ja = "新しい"
+meaning_forms_ja = { neg = "新しくありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -147,6 +158,7 @@ kind = "vocab"
 target = "langt"
 meaning = "long / far"
 meaning_ja = "長い／遠い"
+meaning_forms_ja = { neg = "長くありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -157,6 +169,7 @@ kind = "vocab"
 target = "stutt"
 meaning = "short"
 meaning_ja = "短い"
+meaning_forms_ja = { neg = "短くありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -167,6 +180,7 @@ kind = "vocab"
 target = "hratt"
 meaning = "fast"
 meaning_ja = "速い"
+meaning_forms_ja = { neg = "速くありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -177,6 +191,7 @@ kind = "vocab"
 target = "hægt"
 meaning = "slow"
 meaning_ja = "遅い"
+meaning_forms_ja = { neg = "遅くありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -187,6 +202,7 @@ kind = "vocab"
 target = "hreint"
 meaning = "clean"
 meaning_ja = "清潔"
+meaning_forms_ja = { neg = "清潔ではありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -197,6 +213,7 @@ kind = "vocab"
 target = "skítugt"
 meaning = "dirty"
 meaning_ja = "汚い"
+meaning_forms_ja = { neg = "汚くありません" }
 difficulty = 2
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -207,6 +224,7 @@ kind = "vocab"
 target = "rétt"
 meaning = "right / correct"
 meaning_ja = "正しい"
+meaning_forms_ja = { neg = "正しくありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -217,6 +235,7 @@ kind = "vocab"
 target = "rangt"
 meaning = "wrong"
 meaning_ja = "間違い"
+meaning_forms_ja = { neg = "間違いではありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -227,6 +246,7 @@ kind = "vocab"
 target = "mikilvægt"
 meaning = "important"
 meaning_ja = "大切"
+meaning_forms_ja = { neg = "大切ではありません" }
 difficulty = 3
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -237,6 +257,7 @@ kind = "vocab"
 target = "áhugavert"
 meaning = "interesting"
 meaning_ja = "興味深い"
+meaning_forms_ja = { neg = "興味深くありません" }
 difficulty = 3
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -247,6 +268,7 @@ kind = "vocab"
 target = "hræðilegt"
 meaning = "terrible"
 meaning_ja = "ひどい"
+meaning_forms_ja = { neg = "ひどくありません" }
 difficulty = 3
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -262,7 +284,7 @@ difficulty = 2
 tags = ["adj_neut"]
 topics = ["adjectives"]
 meaning_forms = { in_sentence = "funny" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
-meaning_forms_ja = { in_sentence = "面白い" }
+meaning_forms_ja = { in_sentence = "面白い", neg = "おかしくありません" }
 
 [[items]]
 id = "skrytid"
@@ -270,6 +292,7 @@ kind = "vocab"
 target = "skrýtið"
 meaning = "strange"
 meaning_ja = "変"
+meaning_forms_ja = { neg = "変ではありません" }
 difficulty = 2
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -280,6 +303,7 @@ kind = "vocab"
 target = "fullt"
 meaning = "full"
 meaning_ja = "いっぱい"
+meaning_forms_ja = { neg = "いっぱいではありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -290,6 +314,7 @@ kind = "vocab"
 target = "tómt"
 meaning = "empty"
 meaning_ja = "空っぽ"
+meaning_forms_ja = { neg = "空っぽではありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -300,6 +325,7 @@ kind = "vocab"
 target = "opið"
 meaning = "open"
 meaning_ja = "開いている"
+meaning_forms_ja = { neg = "開いていません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -310,6 +336,7 @@ kind = "vocab"
 target = "lokað"
 meaning = "closed"
 meaning_ja = "閉まっている"
+meaning_forms_ja = { neg = "閉まっていません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -320,6 +347,7 @@ kind = "vocab"
 target = "hættulegt"
 meaning = "dangerous"
 meaning_ja = "危険"
+meaning_forms_ja = { neg = "危険ではありません" }
 difficulty = 3
 tags = ["adj_neut"]
 topics = ["adjectives", "emergencies"]
@@ -330,6 +358,7 @@ kind = "vocab"
 target = "öruggt"
 meaning = "safe"
 meaning_ja = "安全"
+meaning_forms_ja = { neg = "安全ではありません" }
 difficulty = 2
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -410,6 +439,7 @@ kind = "vocab"
 target = "betra"
 meaning = "better"
 meaning_ja = "より良い"
+meaning_forms_ja = { neg = "より良くありません" }
 difficulty = 2
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -420,6 +450,7 @@ kind = "vocab"
 target = "verra"
 meaning = "worse"
 meaning_ja = "より悪い"
+meaning_forms_ja = { neg = "より悪くありません" }
 difficulty = 2
 tags = ["adj_neut"]
 topics = ["adjectives"]
@@ -496,7 +527,7 @@ meaning = "He is {adj}."
 meaning_ja = "彼は{adj}です。"
 negative = "Hann er ekki {adj}."
 negative_meaning = "He isn't {adj}."
-negative_meaning_ja = "彼は{adj}とは言えません。"
+negative_meaning_ja = "彼は{adj:neg}。"
 question = "Er hann {adj}?"
 question_meaning = "Is he {adj}?"
 question_meaning_ja = "彼は{adj}ですか？"
@@ -514,7 +545,7 @@ meaning = "She is {adj}."
 meaning_ja = "彼女は{adj}です。"
 negative = "Hún er ekki {adj}."
 negative_meaning = "She isn't {adj}."
-negative_meaning_ja = "彼女は{adj}とは言えません。"
+negative_meaning_ja = "彼女は{adj:neg}。"
 question = "Er hún {adj}?"
 question_meaning = "Is she {adj}?"
 question_meaning_ja = "彼女は{adj}ですか？"
@@ -538,7 +569,7 @@ tags = ["adj_masc"]
 topics = ["adjectives"]
 prereqs = ["gott"]
 meaning_forms = { in_sentence = "good" }  # sentence prompts drop the recall-only disambiguator
-meaning_forms_ja = { in_sentence = "良い" }
+meaning_forms_ja = { in_sentence = "良い", neg = "良くありません" }
 
 [[items]]
 id = "god"
@@ -554,7 +585,7 @@ tags = ["adj_fem"]
 topics = ["adjectives"]
 prereqs = ["gott"]
 meaning_forms = { in_sentence = "good" }  # sentence prompts drop the recall-only disambiguator
-meaning_forms_ja = { in_sentence = "良い" }
+meaning_forms_ja = { in_sentence = "良い", neg = "良くありません" }
 
 [[items]]
 id = "fallegur"
@@ -570,7 +601,7 @@ tags = ["adj_masc"]
 topics = ["adjectives"]
 prereqs = ["fallegt"]
 meaning_forms = { in_sentence = "beautiful" }  # sentence prompts drop the recall-only disambiguator
-meaning_forms_ja = { in_sentence = "美しい" }
+meaning_forms_ja = { in_sentence = "美しい", neg = "美しくありません" }
 
 [[items]]
 id = "falleg"
@@ -586,7 +617,7 @@ tags = ["adj_fem"]
 topics = ["adjectives"]
 prereqs = ["fallegt"]
 meaning_forms = { in_sentence = "beautiful" }  # sentence prompts drop the recall-only disambiguator
-meaning_forms_ja = { in_sentence = "美しい" }
+meaning_forms_ja = { in_sentence = "美しい", neg = "美しくありません" }
 
 [[items]]
 id = "stor"
@@ -602,4 +633,4 @@ tags = ["adj_masc", "adj_fem"]  # one form for both
 topics = ["adjectives"]
 prereqs = ["stort"]
 meaning_forms = { in_sentence = "big" }  # sentence prompts drop the recall-only disambiguator
-meaning_forms_ja = { in_sentence = "大きい" }
+meaning_forms_ja = { in_sentence = "大きい", neg = "大きくありません" }

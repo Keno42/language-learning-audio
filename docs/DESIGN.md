@@ -123,6 +123,14 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   a milestone nor an aside (it draws on neither ration). A form is a different sentence
   (`_combo_key` carries it) with its own meaning as the cue; the exercise is credited to the
   construction. `forms_taught` in `plan.json`.
+  The mix is held (`Builder._form_order`): the plain sentence is at least half of a lesson's
+  generated sentences and a form takes at most about a quarter (`FORM_SHARE`; hard stop at
+  `FORM_HARD_CAP` of the lesson's sentences, once it has `FORM_CAP_FROM`), the form furthest below its
+  share first; a form taught in this lesson takes `FORM_EXTRA_NEW` sentences beyond its practice
+  right after the note; among a form's combinations, one whose plain sentence was heard comes
+  first (variety, not replacement). When plain sentences run out the supply may run short rather
+  than the newest form crowd them out. Japanese glosses of a form that depend on the fill's word
+  class use a per-fill `meaning_forms_ja` (`neg`, `tai`, `tai_neg`).
 - **Close variants fill what the cap leaves (§9 "Repetition").** Before the cap lapses (and as
   streak relief), `try_variant` introduces an item whose `variant_of` the learner knows (or met
   earlier in the lesson) and who hasn't met it, beyond the new-item limit: at most

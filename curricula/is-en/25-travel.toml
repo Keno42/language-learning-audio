@@ -170,7 +170,7 @@ difficulty = 2
 tags = ["inf"]
 topics = ["travel"]
 meaning_forms = { ing = "taking a photo" }
-meaning_forms_ja = { te = "写真を撮って" }
+meaning_forms_ja = { te = "写真を撮って", tai = "写真を撮りたい", tai_neg = "写真を撮りたくありません" }
 
 [[items]]
 id = "ma_eg_taka_mynd"

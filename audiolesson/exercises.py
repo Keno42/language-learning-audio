@@ -57,6 +57,10 @@ def _norm_utterance(text: str) -> str:
 
 BRIDGE_GLOSS_ENCOUNTERS = 2  # a partner_cue is glossed on the learner's first N hearings of that bridge
 PROMPT_GLOSS_HEARINGS = 2  # a prompt_by line not yet known is glossed on its first N hearings in a lesson
+FORM_SHARE = 0.25  # the most a negative or question form takes of a lesson's generated sentences (#171)
+FORM_HARD_CAP = 0.35  # a form is not chosen at all once it has this share of the lesson's generated sentences
+FORM_CAP_FROM = 6  # …counted from this many generated sentences (before that a share is meaningless)
+FORM_EXTRA_NEW = 2  # sentences in a form taught this lesson, beyond the practice right after its note
 SITUATION_FULL_MAX = 2  # an authored situation is narrated in full at most this often in a lesson (G12)
 
 
@@ -80,6 +84,8 @@ class Builder:
     _last_partner_cue: int | None = None  # index of the latest partner-line cue exercise (no repeated "Reply.")
     _prompt_glosses: dict[str, int] = field(default_factory=dict)  # partner-line cues glossed this lesson, per prompting item
     notes_taught: set[str] = field(default_factory=set)  # notes played this lesson (the learner state updates after it)
+    form_counts: dict[str, int] = field(default_factory=dict)  # generated sentences this lesson, by form ("plain", "negative", "question")
+    form_extra: dict[str, int] = field(default_factory=dict)  # …of a form taught this lesson, outside its practice right after the note
 
     # ------------------------------------------------------------------ utils
 
@@ -612,6 +618,9 @@ class Builder:
         if gen is None:
             return None
         self.used_combos.add(gen.key)
+        self.form_counts[gen.form or "plain"] = self.form_counts.get(gen.form or "plain", 0) + 1
+        if gen.form and form is None:
+            self.form_extra[gen.form] = self.form_extra.get(gen.form, 0) + 1
         gender, target = self._filled(gen.construction, gen.fills, form=gen.form)
         ids = [item.id] + [i for i in gen.item_ids if i != item.id]  # the practised item comes first
         ex = sc.new_exercise("generative", "recombine", ids, f"recombine: {target}")
@@ -715,25 +724,51 @@ class Builder:
         if form:
             if form not in construction.forms or form not in taught:
                 return None
-            form_options: list[str | None] = [form]
+            order: list[str | None] = [form]
         else:
-            form_options = [None] + ([f for f in construction.forms if f in taught] if forms else [])
-        picks = [(f, c) for f in form_options for c in combos]
-        if len(form_options) > 1:
-            self.rng.shuffle(picks)
-        if avoid_heard:
-            picks = [
-                (f, c) for f, c in picks
-                if not {_norm_utterance(self.cur.resolve_slots(construction, c, g, f)[0]) for g in "fm"} & self.heard
-            ]
+            order = self._form_order([None] + ([f for f in construction.forms if f in taught] if forms else []))
+        for chosen_form in order:
+            picks = [(chosen_form, c) for c in combos]
+            if avoid_heard:
+                picks = [
+                    (f, c) for f, c in picks
+                    if not {_norm_utterance(self.cur.resolve_slots(construction, c, g, f)[0]) for g in "fm"} & self.heard
+                ]
             if not picks:
-                return None
-        if prefer_unused:
-            unused = [(f, c) for f, c in picks if _combo_key(construction, c, f) not in self.used_combos]
-            picks = unused or picks
-        chosen_form, fills = picks[0]
-        target, meaning = self.cur.resolve_slots(construction, fills, form=chosen_form)
-        return Generated(construction, fills, target, meaning, chosen_form)
+                continue
+            if prefer_unused:
+                unused = [(f, c) for f, c in picks if _combo_key(construction, c, f) not in self.used_combos]
+                picks = unused or picks
+            if chosen_form:
+                # a form adds variety rather than replacing: when the plain sentence of that combination was heard
+                picks = [(f, c) for f, c in picks if _combo_key(construction, c) in self.used_combos] or picks
+            fills = picks[0][1]
+            target, meaning = self.cur.resolve_slots(construction, fills, form=chosen_form)
+            return Generated(construction, fills, target, meaning, chosen_form)
+        return None
+
+    def _form_order(self, options: list[str | None]) -> list[str | None]:
+        """The forms a generated sentence may take, the one furthest below its share first (#171
+        review): the plain sentence is at least half of a lesson's generated sentences and each other
+        form at most about a quarter, so the newest form doesn't crowd out the sentences the trip
+        needs; a form taught in this lesson takes only ``FORM_EXTRA_NEW`` sentences beyond its
+        practice right after the note (``do_forms_practice``)."""
+        if len(options) == 1:
+            return options
+        taught = self.forms_taught()
+        share = min(FORM_SHARE, 0.5 / max(1, len(taught)))
+        desired = {f: (share if f else 1 - share * len(taught)) for f in options}
+        total = sum(self.form_counts.values())
+        fresh = {n.teaches for n in self.cur.notes if n.teaches and n.id in self.notes_taught and self.learner.notes_heard.get(n.id, 0) == 0}
+        ranked = []
+        for f in options:
+            if f in fresh and self.form_extra.get(f, 0) >= FORM_EXTRA_NEW:
+                continue
+            actual = self.form_counts.get(f or "plain", 0) / total if total else 0.0
+            if f and total >= FORM_CAP_FROM and actual >= FORM_HARD_CAP:
+                continue  # at its share: the supply may run short rather than the form crowd out the plain sentences
+            ranked.append((-(desired[f] - actual) + self.rng.random() * 0.01, f))
+        return [f for _, f in sorted(ranked, key=lambda t: t[0])] or [None]
 
     def generate_with(self, vocab: Item, avoid_heard: bool = False, forms: bool = False) -> Generated | None:
         """Find a known construction with a slot that accepts ``vocab`` and fill it.
