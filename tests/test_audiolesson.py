@@ -4398,32 +4398,26 @@ class OpenItemTests(unittest.TestCase):
         """Owner's review of #162: five open practices placed together made a drill streak
         that ended lesson 14 at 15.5 of 30 minutes. The real curriculum, pace 5, two new items
         failed in lessons 3, 4, 6, 7 and 12 (only new items confirmed afterwards): from lesson
-        9 on every lesson is within two minutes of the same lesson built without open practice
-        (that baseline is itself short in some lessons: the daily-dose gap, #149 step 3), and
-        open practices never run five in a row."""
+        9 on every lesson runs at least 20 of its 30 minutes, and open practices never run
+        five in a row."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
-        lessons = {}
-        for on in (False, True):
-            learner = LearnerState("is", "en", "A1")
-            day = TODAY
-            lessons[on] = []
-            for n in range(1, 17):
-                cfg = PlanConfig(minutes=30, new_items=5, open_item_practice=on)
-                sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=day).build()
-                lessons[on].append(sc)
-                if on and sc.meta["open_items"]:
-                    open_ids = set(sc.meta["open_items"])
-                    run = 0
-                    for e in sc.exercises:
-                        run = run + 1 if e.kind == "recall" and e.item_ids and e.item_ids[0] in open_ids else 0
-                        self.assertLess(run, 5, (n, e.index))
-                apply_to_learner(sc, learner, day)
-                new = sc.meta["new_items"]
-                failed = new[:2] if n in (3, 4, 6, 7, 12) else []
-                learner.report(failed, [], day + timedelta(days=1), lesson_number=n, recalled=[i for i in new if i not in failed])
-                day += timedelta(days=1)
-        for n in range(8, 16):
-            self.assertGreaterEqual(lessons[True][n].total_duration, lessons[False][n].total_duration - 120, n + 1)
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        for n in range(1, 17):
+            cfg = PlanConfig(minutes=30, new_items=5)
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=day).build()
+            if n >= 9:
+                self.assertGreaterEqual(sc.total_duration, 20 * 60, n)
+            open_ids = set(sc.meta["open_items"])
+            run = 0
+            for e in sc.exercises:
+                run = run + 1 if e.kind == "recall" and e.item_ids and e.item_ids[0] in open_ids else 0
+                self.assertLess(run, 5, (n, e.index))
+            apply_to_learner(sc, learner, day)
+            new = sc.meta["new_items"]
+            failed = new[:2] if n in (3, 4, 6, 7, 12) else []
+            learner.report(failed, [], day + timedelta(days=1), lesson_number=n, recalled=[i for i in new if i not in failed])
+            day += timedelta(days=1)
 
     def test_unconfirmed_practice_does_not_raise_an_open_items_stage(self):
         cur, learner = self._setup()
@@ -4432,10 +4426,6 @@ class OpenItemTests(unittest.TestCase):
         self.assertEqual(learner.items["s0"].stage, before)
         self.assertEqual(learner.items["s0"].open_practiced, learner.lessons_completed)
 
-    def test_the_switch_reproduces_the_earlier_planner(self):
-        cur, learner = self._setup()
-        sc = self._build(cur, learner, open_item_practice=False)
-        self.assertEqual(sc.meta["open_items"], [])
 
 
 class ListeningDialogueTests(unittest.TestCase):
@@ -4517,21 +4507,18 @@ class ListeningDialogueTests(unittest.TestCase):
         self.assertEqual(learner.lessons[-1]["dialogues_listened"], ["d1"])
         self.assertNotIn("u0", {i for q in sc.review_questions() for i in q["items"]})
 
-    def test_a_listened_dialogue_rests_and_the_switch_turns_it_off(self):
+    def test_a_listened_dialogue_rests(self):
         cur = self._cur()
         recent = [{"number": 4, "dialogues_listened": ["d1"]}]
         self.assertIsNone(self._planner(cur, self._learner(cur, recent)).listening_dialogue())
         old = [{"number": 4, "dialogues_listened": ["d1"]}, {"number": 11}]
         self.assertIsNotNone(self._planner(cur, self._learner(cur, old)).listening_dialogue())
-        self.assertIsNone(self._planner(cur, self._learner(cur), max_listening_dialogues=0).listening_dialogue())
 
     def test_a_lesson_with_nothing_else_left_ends_on_listening_not_short(self):
         cur = self._cur()
         learner = self._learner(cur)
         sc = self._planner(cur, learner).build()
         self.assertEqual(sc.meta["dialogues_listened"], ["d1"])
-        off = self._planner(cur, self._learner(cur), max_listening_dialogues=0).build()
-        self.assertEqual(off.meta["dialogues_listened"], [])
 
 
 class PlausibleFillTests(unittest.TestCase):
