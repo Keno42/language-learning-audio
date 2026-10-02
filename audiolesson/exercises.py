@@ -647,6 +647,34 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def sentence_recall(self, sc: Script, item: Item) -> Exercise | None:
+        """A short item asked inside a sentence it was already in this lesson (#179): the closing recall
+        of an item said in sentences asks a sentence, not the bare part. A plain meaning recall of a
+        filled pattern (a heard line may repeat; it is not offered as «make a sentence»), preferring the
+        item's ``context`` sentence. None when no known pattern takes the item."""
+        gen = None
+        want = _norm_utterance(item.context) if item.context else ""
+        for _ in range(12 if want else 1):
+            state = self.rng.getstate()
+            cand = self.generate_with(item, ceiling=False)  # a recall of a sentence, not a generated one: no ceiling
+            if cand is None:
+                return None
+            gen = cand
+            if not want or _norm_utterance(cand.meaning) == want:
+                break
+            self.rng.setstate(state)  # keep the draw order stable, then try the next home
+            self.rng.random()
+        if gen is None:
+            return None
+        gender, target = self._filled(gen.construction, gen.fills, form=gen.form)
+        ids = [item.id] + [i for i in gen.item_ids if i != item.id]
+        ex = sc.new_exercise("recall", "meaning", ids, f"meaning: {target}")
+        self._narr(sc, ex, self._as(gender, self._meaning_prompt(gen.meaning)))
+        self._answer_pause(sc, ex, target, item, generative=False)
+        self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
+        self._gap(sc, ex)
+        return ex
+
     def recombine_status(self, item: Item, met_fills: bool = False) -> str:
         """Whether a recombine exercise for ``item`` could make a sentence now: "novel" (one
         not yet heard this lesson), "heard" (only already-presented sentences are possible)
@@ -795,7 +823,7 @@ class Builder:
         Its introduction and its timed recalls (not generated sentences) are not held to it."""
         return self.construction_counts.get(c.id, 0) >= CONSTRUCTION_CEILING
 
-    def generate_with(self, vocab: Item, avoid_heard: bool = False, forms: bool = False) -> Generated | None:
+    def generate_with(self, vocab: Item, avoid_heard: bool = False, forms: bool = False, ceiling: bool = True) -> Generated | None:
         """Find a known construction with a slot that accepts ``vocab`` and fill it.
         ``avoid_heard``: only sentences not yet presented this lesson (None if none is left).
         ``forms``: the construction's negative or question form may do (#171)."""
@@ -811,7 +839,8 @@ class Builder:
         self.rng.shuffle(homes)
         # rotate (#180): the home with the fewest sentences this lesson first, so a new pattern with many
         # fillers doesn't win most draws; one that is full takes no more (the ceiling, for a word with one home)
-        homes = [h for h in homes if not self.construction_full(h[0])]
+        if ceiling:
+            homes = [h for h in homes if not self.construction_full(h[0])]
         homes.sort(key=lambda h: self.construction_counts.get(h[0].id, 0))
         fallback = None
         for c, slot in homes:
@@ -956,6 +985,7 @@ class Builder:
         max_turns: int | None = None,
         assisted: bool = True,
         listening: frozenset[str] | set[str] = frozenset(),
+        tried: frozenset[str] | set[str] = frozenset(),
     ) -> Exercise:
         """Play a dialogue; ``max_turns`` lets early encounters stop after a few turns.
 
@@ -973,7 +1003,7 @@ class Builder:
         partner = dlg.partner_speaker
         learner_voice = _other_voice(partner)
         # the switch from drills to a conversation is the biggest change of mode in a lesson
-        if listening:
+        if listening or tried:
             self._narr(sc, ex, self.prompts.get("listening_intro"))
         self._narr(sc, ex, self.prompts.get("dialogue_start"))
         self._narr(sc, ex, dlg.setting)
@@ -1007,11 +1037,16 @@ class Builder:
                 item = None
                 gender = GENDER_OF[learner_voice] if turn.expect_text_m else None
                 expected = (turn.expect_text_m if gender == "m" else turn.expect_text) or ""
-            if assisted or not heard_partner:
+            heard_only = item is not None and item.id in listening  # no task cue: nothing is asked
+            if heard_only:
+                pass
+            elif assisted or not heard_partner:
                 self._narr(sc, ex, self._as(gender, turn.cue))
             elif gender:
                 self._narr(sc, ex, self.prompts.get(f"speak_as_{gender}_alone"))
-            if item is not None and item.id in listening:
+            if item is not None and item.id in tried:
+                self._narr(sc, ex, self.prompts.get("listening_try"))  # a line they can say part of: «Try it.»
+            if heard_only:
                 self._narr(sc, ex, self.prompts.get("listening_line"))
                 self._answer(sc, ex, expected, speaker=learner_voice)
                 self._beat(sc, ex)

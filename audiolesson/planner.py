@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 
 from .content import Curriculum, Dialogue, Item
-from .exercises import Builder
+from .exercises import Builder, _norm_utterance
 from .learner import LearnerState
 from .prompts import Prompts
 from .script import Script
@@ -77,6 +77,7 @@ class PlanConfig:
     # never asked in the review. At most this many per lesson, each resting
     # ``listening_rest_lessons`` lessons.
     max_listening_dialogues: int = 4
+    max_bonus_questions: int = 2  # #183: tried lines that go into the next review as bonus questions
     listening_missing_max: int = 2
     listening_rest_lessons: int = 6
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
@@ -192,6 +193,9 @@ class Planner:
         self.support: dict[str, int] = {}
         self.dialogues_played: list[str] = []
         self.dialogues_listened: list[str] = []
+        self._chunk_cache: tuple[tuple, set[tuple[str, ...]]] | None = None
+        self.listening_tried: list[dict] = []  # #183: lines tried on a part: the bonus questions of the next review
+        self.listening_asked: list[dict] = []  # #179: turns asked because the learner can say the line, not `knows()` it
         self.cheap_placed: list[str] = []  # cheap constructions given a new-item place (#171 B)
         self.embedded: list[str] = []  # parts heard inside a sentence this lesson (#149)
         self.notes_played: list[str] = []
@@ -724,29 +728,132 @@ class Planner:
                 found.append((len(ww), whole))
         return [w for _, w in sorted(found, key=lambda t: (t[0], t[1].id))]
 
+    def can_say_item(self, item_id: str, practised: bool = True) -> bool:
+        """Whether the learner can say an item now (#179): met and not open, or (``practised``)
+        practised or introduced earlier this lesson. ``knows()`` is a scheduling notion (two
+        durable recalls), not "can produce"."""
+        if practised and (item_id in self.builder.in_lesson or item_id in self.exposures):
+            return True
+        return self.learner.has_met(item_id) and not self.learner.is_open(item_id)
+
+    def _say_chunks(self, practised: bool) -> set[tuple[str, ...]]:
+        """The word chunks the learner can say (#179): a sayable item's target, a sayable construction's
+        fixed text between its slots («Það kostar»). Cached while the lesson's practice is unchanged."""
+        key = (practised, len(self.exposures), len(self.builder.in_lesson), len(self.learner.items))
+        if self._chunk_cache is not None and self._chunk_cache[0] == key:
+            return self._chunk_cache[1]
+        chunks: set[tuple[str, ...]] = set()
+        for it in self.cur.items:
+            if not self.can_say_item(it.id, practised):
+                continue
+            texts = re.split(r"\{[^}]*\}", it.target) if it.kind == "construction" else [it.target]
+            for text in texts:
+                words = tuple(w.lower() for w in _WORD_RE.findall(text))
+                if words:
+                    chunks.add(words)
+        self._chunk_cache = (key, chunks)
+        return chunks
+
+    def can_say_turn(self, turn, practised: bool = True) -> bool:
+        """Whether the learner can say a dialogue turn's line (#179): its item (and its fills) can be
+        said, or, for a construction turn, the filled line is covered, in order, by chunks they can say
+        («Það kostar | fimm | þúsund krónur.»: «Það kostar {price}.», «fimm» and «þúsund krónur»). A line
+        with any word outside what they can say is not sayable."""
+        if not turn.expect:
+            return True
+        item = self.cur.by_id[turn.expect]
+        fills = {s: self.cur.by_id[f] for s, f in turn.expect_fill.items()}
+        if self.can_say_item(item.id, practised) and all(self.can_say_item(f.id, practised) for f in fills.values()):
+            return True
+        if item.kind != "construction":
+            return False
+        words = tuple(w.lower() for w in _WORD_RE.findall(self.cur.resolve_slots(item, fills)[0]))
+        chunks = self._say_chunks(practised)
+        longest = max((len(c) for c in chunks), default=0)
+        reach = [True] + [False] * len(words)  # reach[k]: the first k words are covered
+        for k in range(len(words)):
+            if reach[k]:
+                for n in range(1, min(longest, len(words) - k) + 1):
+                    if words[k : k + n] in chunks:
+                        reach[k + n] = True
+        return reach[len(words)]
+
+    def can_say_part(self, turn) -> bool:
+        """Whether the learner can say *some* of a turn's line (#183 tried), judged at word level: a word of the
+        line occurs in a line they can say («þarf» from «Ég þarf hjálp.», «ég» from «Ég er frá Japan.»). The
+        words of a whole known line almost never sit inside another line, so chunks would never fire. A turn with
+        no such word stays heard only."""
+        if not turn.expect:
+            return False
+        item = self.cur.by_id[turn.expect]
+        fills = {s: self.cur.by_id[f] for s, f in turn.expect_fill.items()}
+        line = self.cur.resolve_slots(item, fills)[0] if item.kind == "construction" else item.target
+        known = {w for chunk in self._say_chunks(True) for w in chunk}
+        return any(w.lower() in known for w in _WORD_RE.findall(line))
+
+    def classify_turns(self, dlg: Dialogue) -> tuple[set[str], set[str]]:
+        """The turns of a listening dialogue that the learner can't say in full (#183): ``(heard, tried)`` as
+        sets of turn items. A turn they can say in full is asked as usual; one of which part can be said is
+        tried (asked, with a frame, nothing new recorded); one with nothing they can say is heard only."""
+        heard: set[str] = set()
+        tried: set[str] = set()
+        for t in dlg.turns:
+            if not t.expect or self.can_say_turn(t):
+                continue
+            (tried if self.can_say_part(t) else heard).add(t.expect)
+        return heard, tried
+
     def listening_dialogue(self) -> tuple[Dialogue, set[str]] | None:
-        """A dialogue to play as listening: one or two required items short (``listening_missing_max``),
-        not played this lesson, not heard as listening within ``listening_rest_lessons``. The
-        one with the fewest missing wins, then the one least often practised."""
-        if len(self.dialogues_listened) >= self.cfg.max_listening_dialogues:
-            return None
+        """A dialogue to play as listening: one or two of its lines short (``listening_missing_max``),
+        not played this lesson, not heard as listening within ``listening_rest_lessons``. A line
+        is short when the learner can't say it (``can_say_turn``, #179), not when ``knows()`` says
+        so. With none short, the dialogue is an ordinary one (an empty ``missing``): played with
+        its pauses, and not counted against the listening rest. The one with the fewest missing
+        wins, then the one least often practised."""
         now = self.learner.next_lesson_number()
         cands = []
         for d in self.cur.dialogues:
             if d.id in self.dialogues_played or d.id in self.dialogues_listened:
                 continue
-            missing = {i for i in d.required_items if not (self.learner.knows(i) or i in self.builder.in_lesson)}
-            if not 1 <= len(missing) <= self.cfg.listening_missing_max:
+            # the required items the learner can't say, less those of a turn whose line they can say
+            missing = {i for i in d.required_items if not self.can_say_item(i)}
+            for t in d.turns:
+                if t.expect and missing and self.can_say_turn(t):
+                    missing -= {t.expect, *t.expect_fill.values()}
+            if len(missing) > self.cfg.listening_missing_max:
                 continue
-            last = next((l["number"] for l in reversed(self.learner.lessons) if d.id in l.get("dialogues_listened", [])), None)
-            if last is not None and now - last <= self.cfg.listening_rest_lessons:
-                continue
+            if not missing:
+                # an ordinary dialogue; the regular route takes it when every item is known
+                if (
+                    self._dialogue_resting(d)
+                    or all(self.learner.knows(i) or i in self.builder.in_lesson for i in d.required_items)
+                    or not all(self.can_say_turn(t, practised=False) for t in d.turns)
+                    or not all(self.can_say_item(i, practised=False) for i in d.requires)
+                ):
+                    continue
+            else:
+                if len(self.dialogues_listened) >= self.cfg.max_listening_dialogues:
+                    continue
+                last = next((l["number"] for l in reversed(self.learner.lessons) if d.id in l.get("dialogues_listened", [])), None)
+                if last is not None and now - last <= self.cfg.listening_rest_lessons:
+                    continue
             cands.append((len(missing), self.learner.dialogues_done.get(d.id, 0), d.id, d, missing))
         if not cands:
             return None
         best = min(c[:2] for c in cands)
         d, missing = self.rng.choice([(c[3], c[4]) for c in cands if c[:2] == best])
         return d, missing
+
+    def _bonus_review(self) -> list[dict]:
+        """Up to ``max_bonus_questions`` of the lines tried this lesson, as bonus questions for the next review
+        (#183): the lines of the trip ordering's items first, then the most recent. A bonus question may be
+        said (it then counts) and costs nothing when it isn't."""
+        trip = set(self.cfg.priority)
+        order = sorted(enumerate(self.listening_tried), key=lambda t: (not set(t[1]["items"]) & trip, -t[0]))
+        return [
+            {"items": list(t["items"]), "prompt": t["prompt"], "answer": t["answer"], "stage": "bonus", "bonus": True}
+            for _, t in order[: self.cfg.max_bonus_questions]
+        ]
 
     def _dialogue_resting(self, d: Dialogue) -> bool:
         """Heard in full at its last encounter, and that was fewer than
@@ -925,6 +1032,8 @@ class Planner:
                 ladder = self.ladder(item)
                 if "meaning" in ladder and stage_index(ladder, stage) < stage_index(ladder, "meaning"):
                     stage = "meaning"
+            if allow_cap and stage in BARE_STAGES and short_today(item) and said_in_sentence(item) and ask_a_sentence(item):
+                return True
             ex = b.recall(sc, item, stage)
             self._record([item.id], ex.stage or stage, ex.item_ids)
             touch(item)
@@ -963,6 +1072,33 @@ class Planner:
         def bare_capped(item: Item) -> bool:
             """A short item that has had its share of bare uses, the closing recall's one kept back."""
             return bare_short(item) and bare_uses(item) >= bare_cap[0] - 1
+
+        def short_today(item: Item) -> bool:
+            """A short item introduced today, whatever the cap says (#179)."""
+            return item.kind not in ("construction", "transform") and item.word_count <= cfg.short_item_words and any(i.id == item.id for i in introduced)
+
+        def said_in_sentence(item: Item) -> bool:
+            """Whether ``item`` has been said inside a sentence in this lesson (#179): a generated
+            sentence, or a whole sentence that holds it."""
+            return any(e.kind == "generative" and item.id in e.item_ids or e.kind == "recall" and item.id in e.item_ids[1:] for e in sc.exercises)
+
+        def ask_a_sentence(item: Item, repeat: bool = False) -> bool:
+            """A short item already said in a sentence is asked as a sentence from then on (#179):
+            another one where there is one, else (``repeat``, the closing) a sentence it was in, its ``context`` one first. Credited to the item."""
+            if sentence_practice(item):
+                return True
+            if repeat:
+                ex = b.sentence_recall(sc, item)
+                if ex is not None:
+                    self._record([item.id], "meaning", ex.item_ids)
+                    touch(item)
+                    return True
+                for whole in self.containing_items(item):
+                    ex = b.recall(sc, whole, "meaning")
+                    self._record([whole.id], ex.stage or "meaning", ex.item_ids + [item.id])
+                    touch(whole)
+                    return True
+            return False
 
         def sentence_practice(item: Item) -> bool:
             """One more practice of ``item`` inside a sentence, a different one where possible:
@@ -1017,7 +1153,8 @@ class Planner:
             just_touched = recent[-1] if recent else None
             known_transfer = [i for i in note.transfer_items if self.learner.has_met(i) or i in self.exposures]
             others = list(dict.fromkeys(i for i in known_transfer + note.items if i != just_touched and i in self.cur.by_id))
-            by_situation = [i for i in others if b.situation_usable(self.cur.by_id[i])]
+            # a situation already narrated in full twice (G12) would come back as a bare meaning cue: prefer the others
+            by_situation = [i for i in others if b.situation_usable(self.cur.by_id[i]) and b.situation_room(self.cur.by_id[i])]
             by_meaning = [i for i in others if i not in by_situation]
             picks = [(i, "situation") for i in by_situation] + [(i, "meaning") for i in by_meaning]
             for item_id, stage in picks[:2]:
@@ -1562,6 +1699,8 @@ class Planner:
                     stage = "meaning"  # #136: the lesson's last word on a new item is unhinted
                 if stage == "recombine":
                     stage = self.recombine_or_instead(item)  # no fresh sentence: a meaning recall
+                if (stage in BARE_STAGES or stage == "recombine") and short_today(item) and said_in_sentence(item) and ask_a_sentence(item, repeat=True):
+                    continue  # #179: said in a sentence today, so asked in one now, not as a bare part
                 ex = b.recall(sc, item, stage)
                 self._record([item.id], ex.stage or stage, ex.item_ids)
         b.closing(sc, n)
@@ -1594,6 +1733,9 @@ class Planner:
             "due_not_fitted": [i.id for i in reviews if i.id not in self.exposures and self.learner.review_priority(i.id, self.today) >= 1.0],
             "dialogues": list(self.dialogues_played),
             "dialogues_listened": list(self.dialogues_listened),
+            "listening_tried": list(self.listening_tried),
+            "bonus_review": self._bonus_review(),
+            "listening_asked": list(self.listening_asked),  # #179: asked because the line can be said
             "notes": list(self.notes_played),
             "exposures": self.exposures,
             "support_exposures": self.support,
@@ -1620,11 +1762,33 @@ class Planner:
         self.dialogues_played.append(dlg.id)
 
     def _play_listening(self, sc: Script, dlg: Dialogue, missing: set[str]) -> None:
-        """The whole dialogue as listening (#149 step 3): the items the learner lacks are heard
-        with their meaning, not asked for, and not recorded: they stay unmet. The ones they have
-        are practised as usual."""
-        ex = self.builder.dialogue(sc, dlg, assisted=True, listening=missing)
-        self._record([t.expect for t in dlg.turns if t.expect and t.expect not in missing], "dialogue", ex.item_ids)
+        """The whole dialogue as listening (#149 step 3): a line the learner can say nothing of is heard
+        with its meaning, not asked for; one they can say in full is asked as usual (#179); one they can say
+        part of is tried (#183): asked with «Try it.», the model line after, nothing new recorded. With none
+        missing it is an ordinary dialogue."""
+        heard, tried = self.classify_turns(dlg)
+        asked = [
+            t.expect for t in dlg.turns
+            if t.expect and t.expect not in heard and t.expect not in tried
+            and not (self.learner.knows(t.expect) and all(self.learner.knows(f) for f in t.expect_fill.values()))
+        ]
+        if asked:
+            self.listening_asked.append({"dialogue": dlg.id, "items": asked})
+        if not missing and not heard and not tried:
+            self._play_dialogue(sc, dlg)
+            return
+        ex = self.builder.dialogue(sc, dlg, assisted=True, listening=heard, tried=tried)
+        self._record([t.expect for t in dlg.turns if t.expect and t.expect not in heard and t.expect not in tried], "dialogue", ex.item_ids)
+        for t in dlg.turns:
+            if t.expect in tried:
+                item = self.cur.by_id[t.expect]
+                parts = [i for i in [t.expect, *t.expect_fill.values()] if self.can_say_item(i)]
+                unknown = [i for i in [t.expect, *t.expect_fill.values()] if not self.can_say_item(i)]
+                if parts:
+                    self._record(parts, "dialogue", ex.item_ids)
+                fills = {s: self.cur.by_id[f] for s, f in t.expect_fill.items()}
+                line = self.cur.resolve_slots(item, fills) if item.kind == "construction" else (item.target, item.meaning)
+                self.listening_tried.append({"dialogue": dlg.id, "items": [t.expect, *t.expect_fill.values()], "unknown": unknown, "prompt": t.cue, "answer": line[0]})
         self.dialogues_listened.append(dlg.id)
 
 
@@ -1642,6 +1806,10 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
             learner.items[item_id].open_practiced = sc.lesson_number
     for item_id in sc.meta.get("embedded_items", []):
         learner.embedded[item_id] = sc.lesson_number
+    for entry in sc.meta.get("listening_tried", []):
+        for item_id in entry.get("unknown", []):
+            if item_id not in learner.items:
+                learner.tried[item_id] = sc.lesson_number
     for d in sc.meta.get("dialogues", []):
         learner.dialogues_done[d] = learner.dialogues_done.get(d, 0) + 1
     for n in sc.meta.get("notes", []):

@@ -328,8 +328,10 @@ def _plan(script: Script, cur) -> dict:
         "new_items": [describe(i) for i in meta.get("new_items", [])],
         "reviewed_items": [describe(i) for i in meta.get("reviewed_items", [])],
         "dialogues": meta.get("dialogues", []),
+        "listening_asked": meta.get("listening_asked", []),  # #179: turns asked because the line can be said
+        "listening_tried": meta.get("listening_tried", []),  # #183: turns tried on a part (bonus questions)
         "exposures": meta.get("exposures", {}),
-        "review": script.review_questions(),
+        "review": script.review_questions() + list(meta.get("bonus_review", [])),
         "review_candidates": script.review_candidates(),
         "exercises": [
             {"index": e.index, "kind": e.kind, "stage": e.stage, "items": e.item_ids, "label": e.label, "start_s": round(e.start, 1), "duration_s": round(e.duration, 1)}

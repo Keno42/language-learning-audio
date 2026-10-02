@@ -80,6 +80,10 @@ class LearnerState:
     # later (``embed_failed``, so it is not embedded twice).
     embedded: dict[str, int] = field(default_factory=dict)
     embed_failed: list[str] = field(default_factory=list)
+    # #183: the unknown items of a line tried in a listening scene (said part of): item id → the lesson. Not met. Said
+    # back in the bonus question of the next review (``report``) the item becomes met with one durable
+    # success; anything else records nothing. ``select_new`` ignores it, so a later normal introduction is unaffected.
+    tried: dict[str, int] = field(default_factory=dict)
 
     # ---- queries ---------------------------------------------------------
 
@@ -361,6 +365,21 @@ class LearnerState:
                 if item_id not in self.embed_failed:
                     self.embed_failed.append(item_id)
                 changed["failed"].append(item_id)
+        # a tried item (#183): only a 言えた counts, as its first recall; a miss records nothing at all
+        tried_result = [i for i in recalled if i in self.tried and i not in self.items]
+        for item_id in tried_result:
+            lesson = self.tried.pop(item_id)
+            self.items[item_id] = ItemState(
+                stage="meaning", ease=2.3, interval_days=3, due=(today + timedelta(days=3)).isoformat(),
+                last_practiced=today.isoformat(), introduced_lesson=lesson, successes=1, durable_successes=1,
+                recalled=1, last_outcome="recalled", exposures=1,
+                history=[{"lesson": lesson, "stages": ["tried"], "ok": True, "outcome": "recalled"}],
+            )
+            changed["recalled"].append(item_id)
+        untouched = {i for i in failed + hesitated if i in self.tried and i not in self.items}
+        failed = [i for i in failed if i not in untouched]
+        hesitated = [i for i in hesitated if i not in untouched]
+        recalled = [i for i in recalled if i not in tried_result]
         failed = [i for i in failed if i not in embedded_result]
         hesitated = [i for i in hesitated if i not in embedded_result]
         recalled = [i for i in recalled if i not in embedded_result]
@@ -445,6 +464,7 @@ class LearnerState:
             "bridges_heard": self.bridges_heard,
             "embedded": self.embedded,
             "embed_failed": self.embed_failed,
+            "tried": self.tried,
         }
 
     def save(self, path: str | Path) -> None:
@@ -473,6 +493,7 @@ class LearnerState:
             bridges_heard=dict(raw.get("bridges_heard", {})),
             embedded={k: int(v) for k, v in raw.get("embedded", {}).items()},
             embed_failed=list(raw.get("embed_failed", [])),
+            tried={k: int(v) for k, v in raw.get("tried", {}).items()},
         )
         ls.items = {k: ItemState(**v) for k, v in raw.get("items", {}).items()}
         # a file from before notes_last_heard existed: a note heard back then counts as heard

@@ -35,7 +35,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
 
 - **Durable learning (#27).** `LearnerState.knows()` means two recalls on or after a due
   date. Recalls minutes apart in one lesson don't count. Dialogue eligibility is
-  `knows(i) or i in builder.in_lesson` for every required item, never `has_met`.
+  `knows(i) or i in builder.in_lesson` for every required item, never `has_met`. One deliberate
+  exception (#179): the listening route plays an ordinary dialogue (pauses, no listening) whose lines
+  the learner can say though only met (`Planner.can_say_turn`, strict: today's practice doesn't count
+  there); the regular route keeps the rule.
 - **Open failures (#149, 1a).** An item whose latest confirmed outcome is 言えなかった is
   open (`LearnerState.is_open`) until a later confirmed recall; presumed success neither adds
   a durable success nor lengthens its interval (it is due again tomorrow). Each lesson practises
@@ -54,6 +57,23 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   would say:», the line, its meaning, with no pause for the learner. The missing items are never
   recorded (they stay unmet, never in the review) and a dialogue so heard rests six lessons
   (`dialogues_listened`).
+  **A line is "missing" when the learner can't say it (#179), not when `knows()` says so**
+  (`Planner.can_say_item`/`can_say_turn`): said if its item is met and not open, practised this
+  lesson, or the filled line is covered, in order, by chunks they can say (a sayable item's target, a sayable construction's fixed text). A heard
+  turn has no task cue. A dialogue with no missing line is ordinary (asked, with its pauses, not
+  counted in `dialogues_listened`); `listening_asked` in `plan.json` lists the turns asked
+  because the line can be said although `knows()` is false.
+  **Tried lines (#183).** In a listening dialogue a turn the learner can't say in full but can say a
+  chunk of (`Planner.can_say_part`) is *tried*: its cue, «Try it.» (`listening_try`), the answer pause and
+  the model line. A turn with nothing they can say stays heard only. Nothing is recorded for a tried
+  line's unknown items (the parts they have are credited as practised); they go into
+  `LearnerState.tried` (item → lesson, like `embedded`, never met, `select_new` ignores it). Up to
+  `max_bonus_questions` (2) tried lines go into `plan.json` `review` as `"bonus": true` questions
+  (`Planner._bonus_review`; the trip ordering's lines first, then the latest; `prompt` is the turn's
+  cue, `answer` the line). A bonus question reported 言えた makes its tried items met with one
+  durable success and the usual first interval (`knows()` still needs a second recall); a miss is
+  not reported by the bot, and if it were, `report` ignores it for a tried item. `listening_tried` and
+  `listening_asked` are in `plan.json`.
 - **Embedded parts (#149).** A vocab word with a slot to go in (`Builder.generate_with` finds the
   sentence) whose words sit inside an item the learner has met (not open), or met earlier in the
   lesson, is not introduced on its own (`Planner.embed_source`, the shortest such item):
@@ -112,6 +132,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (`bare_cap_lapsed` in `plan.json`), so a lesson never ends short for this alone. A drill
   streak is also broken by a substitution or a sentence for a short item before it ends the
   lesson.
+  A short item introduced today that has been said inside a sentence in this lesson is asked in a
+  sentence from then on, the closing recall included (#179: `ask_a_sentence`, `Builder.sentence_recall`
+  with its `context` sentence first), not as a bare part; a short item with no sentence yet keeps the
+  bare recall.
 - **Constructions have authored negative and question forms (#171).** `Item.negative` /
   `question` (with meanings) are alternatives of a construction's target template, never derived;
   `validate` checks slots, «ekki», «?» and the meanings. `Builder.generate(forms=True)` may pick
