@@ -46,7 +46,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   items (`Planner.listening_dialogue`) plays whole: the turn for a missing item is «Here you
   would say:», the line, its meaning, with no pause for the learner. The missing items are never
   recorded (they stay unmet, never in the review) and a dialogue so heard rests six lessons
-  (`dialogues_listened`). `max_listening_dialogues=0` reproduces the earlier planner.
+  (`dialogues_listened`).
 - **Embedded parts (#149).** A vocab word with a slot to go in (`Builder.generate_with` finds the
   sentence) whose words sit inside an item the learner has met (not open), or met earlier in the
   lesson, is not introduced on its own (`Planner.embed_source`, the shortest such item):
