@@ -550,3 +550,23 @@ items = ["takk_fyrir_mig"]
 topics = ["greetings", "food"]
 text = "«Takk fyrir mig», literally 'thanks for me', is what a guest says on leaving a meal or a visit, close to gochisousama and ojama shimashita in one. The host usually answers «Verði þér að góðu»."
 text_ja = "«Takk fyrir mig»（直訳は「私のことをありがとう」）は、食事や訪問のあとで客が帰り際に言う言葉で、「ごちそうさま」と「お邪魔しました」を合わせたような表現です。招いた側はたいてい «Verði þér að góðu» と返します。"
+
+# #171: the two notes that teach a construction's other forms. They have no `items` and are not
+# milestones (`teaches` is their own trigger, see Planner.forms_note_due): each plays
+# once the learner knows two constructions that have the form (`teaches`), the negative first and
+# the question in a later lesson, and each is followed by the form on two known constructions.
+# Until a note has been heard its form isn't used in generated sentences. The forms themselves
+# are authored on the constructions (`negative`, `question`).
+[[notes]]
+id = "negation_ekki"
+teaches = "negative"
+topics = ["grammar"]
+text = "To say «not» in Icelandic, put «ekki» right after the verb. «Ég tala íslensku» becomes «Ég tala ekki íslensku», and «Það er kalt» becomes «Það er ekki kalt». The rest of the sentence stays as it was."
+text_ja = "アイスランド語で「〜ない」と言うには、動詞のすぐ後ろに «ekki» を置きます。«Ég tala íslensku» は «Ég tala ekki íslensku» に、«Það er kalt» は «Það er ekki kalt» になります。文のそれ以外の部分はそのままです。"
+
+[[notes]]
+id = "question_verb_first"
+teaches = "question"
+topics = ["grammar"]
+text = "For a question you can answer with yes or no, put the verb first. «Þú talar íslensku» becomes «Talar þú íslensku?», and «Það er kalt» becomes «Er kalt?». When you ask the other person, the verb often changes with the person too: «Ég vil kaffi» turns into «Viltu kaffi?»."
+text_ja = "「はい・いいえ」で答えられる質問では、動詞を先頭に置きます。«Þú talar íslensku» は «Talar þú íslensku?» に、«Það er kalt» は «Er kalt?» になります。相手に尋ねるときは、人称に合わせて動詞の形も変わることがよくあります。«Ég vil kaffi» は «Viltu kaffi?» になります。"

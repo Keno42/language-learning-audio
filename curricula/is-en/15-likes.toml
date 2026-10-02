@@ -175,6 +175,12 @@ kind = "construction"
 target = "Mér finnst gaman að {inf}."
 meaning = "I like to {inf}."
 meaning_ja = "{inf}のが好きです。"
+negative = "Mér finnst ekki gaman að {inf}."
+negative_meaning = "I don't like to {inf}."
+negative_meaning_ja = "{inf}のは好きではありません。"
+question = "Finnst þér gaman að {inf}?"
+question_meaning = "Do you like to {inf}?"
+question_meaning_ja = "{inf}のが好きですか？"
 difficulty = 3
 topics = ["hobbies"]
 slots = { inf = "inf" }

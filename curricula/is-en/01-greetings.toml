@@ -868,6 +868,12 @@ kind = "construction"
 target = "Þetta er {adj}."
 meaning = "This is {adj}."
 meaning_ja = "これは{adj}です。"
+negative = "Þetta er ekki {adj}."
+negative_meaning = "This isn't {adj}."
+negative_meaning_ja = "これは{adj}とは言えません。"
+question = "Er þetta {adj}?"
+question_meaning = "Is this {adj}?"
+question_meaning_ja = "これは{adj}ですか？"
 difficulty = 2
 topics = ["adjectives"]
 slots = { adj = "adj_neut" }

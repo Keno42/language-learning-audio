@@ -135,6 +135,14 @@ class Item:
     # prompt after its introduction says «Say: good, as in: This is good.», so the answer is the
     # form that sentence takes rather than any of the word's family (gott, góður, góðan…).
     context: str = ""
+    # §9 "Repetition" / #171: a construction's other forms, authored (never derived): the negative
+    # («Það er ekki {weather}.») and the yes/no question («Er {weather}?»), each a target template
+    # with the construction's slots and a meaning. They are used in generated sentences only
+    # once the note that teaches them (``Note.teaches``) has been heard.
+    negative: str = ""
+    negative_meaning: str = ""
+    question: str = ""
+    question_meaning: str = ""
 
     # ---- derived helpers -------------------------------------------------
 
@@ -146,6 +154,20 @@ class Item:
     @property
     def slot_names(self) -> list[str]:
         return _SLOT_RE.findall(self.target)
+
+    def form_templates(self, form: str | None) -> tuple[str, str]:
+        """(target, meaning) template of ``form`` ("negative" / "question"); the plain ones for
+        None or a form this construction doesn't have."""
+        if form == "negative" and self.negative:
+            return self.negative, self.negative_meaning
+        if form == "question" and self.question:
+            return self.question, self.question_meaning
+        return self.target, self.meaning
+
+    @property
+    def forms(self) -> list[str]:
+        """The authored forms besides the plain one."""
+        return [f for f, t in (("negative", self.negative), ("question", self.question)) if t]
 
     @property
     def word_count(self) -> int:
@@ -245,6 +267,10 @@ class Note:
     # items the note recommends the learner say: it waits until each is learned or was
     # introduced earlier in the lesson. Mere illustrations need no entry.
     requires: list[str] = field(default_factory=list)
+    # #171: "negative" or "question": the note that teaches that form of the constructions. It
+    # has no ``items``; it plays once the learner knows two constructions that have the form, and
+    # until it has been heard the form is not used in generated sentences.
+    teaches: str = ""
 
 
 @dataclass
@@ -271,13 +297,13 @@ class Curriculum:
     def items_with_tag(self, tag: str) -> list[Item]:
         return [i for i in self.items if tag in i.tags]
 
-    def resolve_slots(self, construction: Item, fills: dict[str, Item], speaker: str | None = None) -> tuple[str, str]:
+    def resolve_slots(self, construction: Item, fills: dict[str, Item], speaker: str | None = None, form: str | None = None) -> tuple[str, str]:
         """Return (target, meaning) with every slot filled from ``fills``; agreement
         placeholders resolve first, from the gender of their ``from`` slot's fill.
         ``speaker="m"`` fills with each fill's man's form (``target_m``) where it has one:
         «Ég er {state}.» → «Ég er glaður.»"""
-        target = construction.target
-        meaning = construction.spoken_meaning  # narrated: no recall disambiguator in brackets
+        target, form_meaning = construction.form_templates(form)
+        meaning = construction.spoken_meaning if form_meaning == construction.meaning else form_meaning  # narrated: no recall disambiguator in brackets
         for slot, rule in construction.agreement.items():
             gender = fills[rule["from"]].gender
             target = target.replace("{" + slot + "}", rule[gender])
@@ -289,9 +315,9 @@ class Curriculum:
                 lambda m: item.meaning_forms.get(m.group(2), item.meaning).rstrip(".") if m.group(1) == slot else m.group(0), meaning
             )
         # a sentence that opens with a slot ("{thing} virkar ekki.") still starts with a capital
-        if construction.target.startswith("{"):
+        if construction.form_templates(form)[0].startswith("{"):
             target = target[:1].upper() + target[1:]
-        if construction.meaning.startswith("{"):
+        if construction.form_templates(form)[1].startswith("{"):
             meaning = meaning[:1].upper() + meaning[1:]
         return target, meaning
 
@@ -366,7 +392,7 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
 
 
 # fields that may carry per-language glosses (``<field>_<lang>``)
-_GLOSSED_ITEM = ("meaning", "context", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation")
+_GLOSSED_ITEM = ("meaning", "context", "negative_meaning", "question_meaning", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation")
 _GLOSSED_EXAMPLE = ("source_meaning", "result_meaning")
 _GLOSSED_TURN = ("cue", "opener_meaning", "partner_meaning", "expect_meaning")
 _GLOSSED_DIALOGUE = ("setting",)
@@ -472,6 +498,7 @@ def _item_from_dict(entry: dict, order: int) -> Item:
 # written-only marks: brackets and 〜 read aloud as noise (or «から») by TTS
 _UNSPEAKABLE_RE = re.compile(r"[()（）〜～]")
 _ANY_SLOT_RE = re.compile(r"\{[^{}]+\}")  # {slot} and {slot:form}
+FORMS = ("negative", "question")  # a construction's authored forms besides the plain one (#171)
 
 SPEAKERS = ("native_a", "native_b")  # native_a is voiced female, native_b male, in every profile
 
@@ -513,6 +540,13 @@ def validate(cur: Curriculum) -> None:
         for ref in n.items + n.transfer_items + n.requires:
             if ref not in ids:
                 raise CurriculumError(f"note {n.id!r} references unknown item {ref!r}")
+        if n.teaches:
+            if n.teaches not in FORMS:
+                raise CurriculumError(f"note {n.id!r}: teaches must be one of {FORMS}, not {n.teaches!r}")
+            if n.milestone or n.items:
+                raise CurriculumError(f"note {n.id!r}: a note that teaches a form has no items and isn't a milestone (it plays once the learner knows two constructions that have it)")
+            if sum(1 for x in cur.notes if x.teaches == n.teaches) > 1:
+                raise CurriculumError(f"note {n.id!r}: more than one note teaches {n.teaches!r}")
         # strip matched pairs; any « or » left over is malformed ("»foo«", "«a» «b")
         unmatched = NOTE_TARGET_RE.sub("", n.text)
         if "«" in unmatched or "»" in unmatched:
@@ -528,6 +562,25 @@ def validate(cur: Curriculum) -> None:
         for e in it.examples:
             if (e.source_m and e.source_m == e.source) or (e.result_m and e.result_m == e.result):
                 raise CurriculumError(f"item {it.id!r}: a transform example's man's form must differ from its own ({e.source!r})")
+        for form in FORMS:
+            template, meaning = it.form_templates(form)
+            has = bool(getattr(it, form) or getattr(it, form + "_meaning"))
+            if not has:
+                continue
+            if it.kind != "construction" or it.agreement:
+                raise CurriculumError(f"item {it.id!r}: {form} is for a construction without agreement placeholders")
+            if not (getattr(it, form) and getattr(it, form + "_meaning")):
+                raise CurriculumError(f"item {it.id!r}: {form} and {form}_meaning go together")
+            if sorted(_ANY_SLOT_RE.findall(template)) != sorted(_ANY_SLOT_RE.findall(it.target)):
+                raise CurriculumError(f"item {it.id!r}: {form} must use the construction's slots, as {it.target!r} does")
+            if sorted(_ANY_SLOT_RE.findall(meaning)) != sorted(_ANY_SLOT_RE.findall(it.meaning)):
+                raise CurriculumError(f"item {it.id!r}: {form}_meaning must use the meaning's slots, as {it.meaning!r} does")
+            if _UNSPEAKABLE_RE.search(meaning):
+                raise CurriculumError(f"item {it.id!r}: {form}_meaning is spoken verbatim, so it takes no brackets or 〜")
+            if form == "negative" and cur.target_lang == "is" and not re.search(r"\bekki\b", template, re.IGNORECASE):
+                raise CurriculumError(f"item {it.id!r}: an Icelandic negative contains «ekki»: {template!r}")
+            if form == "question" and not template.rstrip().endswith("?"):
+                raise CurriculumError(f"item {it.id!r}: a question ends with «?»: {template!r}")
         if it.context and it.kind not in ("phrase", "vocab"):
             raise CurriculumError(f"item {it.id!r}: context is for a phrase or vocab item (a construction is recalled through a filled sentence)")
         if it.context and _UNSPEAKABLE_RE.search(it.context):

@@ -546,6 +546,12 @@ kind = "construction"
 target = "Ég er að {inf}."
 meaning = "I'm {inf:ing}."
 meaning_ja = "今、{inf:te}いるところです。"
+negative = "Ég er ekki að {inf}."
+negative_meaning = "I'm not {inf:ing}."
+negative_meaning_ja = "今、{inf:te}いるところではありません。"
+question = "Ertu að {inf}?"
+question_meaning = "Are you {inf:ing}?"
+question_meaning_ja = "今、{inf:te}いるところですか？"
 difficulty = 3
 topics = ["grammar", "daily"]
 # issue #63 / PR #64 review: «vera að» + infinitive takes dynamic verbs only — «sofa» is a fine

@@ -112,6 +112,17 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (`bare_cap_lapsed` in `plan.json`), so a lesson never ends short for this alone. A drill
   streak is also broken by a substitution or a sentence for a short item before it ends the
   lesson.
+- **Constructions have authored negative and question forms (#171).** `Item.negative` /
+  `question` (with meanings) are alternatives of a construction's target template, never derived;
+  `validate` checks slots, «ekki», «?» and the meanings. `Builder.generate(forms=True)` may pick
+  one for a recombination, sentence practice or substitution run, but only once the note that
+  teaches it (`Note.teaches`) has been heard (`Builder.forms_taught`: the learner's `notes_heard`
+  plus `notes_taught` of this lesson). `Planner.forms_note_due` plays the teaching note once the
+  learner knows two constructions with the form (negative first, one a lesson) and
+  `do_forms_practice` follows it with the form on two known constructions; the note is neither
+  a milestone nor an aside (it draws on neither ration). A form is a different sentence
+  (`_combo_key` carries it) with its own meaning as the cue; the exercise is credited to the
+  construction. `forms_taught` in `plan.json`.
 - **Close variants fill what the cap leaves (§9 "Repetition").** Before the cap lapses (and as
   streak relief), `try_variant` introduces an item whose `variant_of` the learner knows (or met
   earlier in the lesson) and who hasn't met it, beyond the new-item limit: at most

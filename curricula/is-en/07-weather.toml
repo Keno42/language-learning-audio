@@ -18,6 +18,12 @@ kind = "construction"
 target = "Það er {weather}."
 meaning = "It's {weather}."
 meaning_ja = "{weather}です。"
+negative = "Það er ekki {weather}."
+negative_meaning = "It isn't {weather}."
+negative_meaning_ja = "{weather}とは言えません。"
+question = "Er {weather}?"
+question_meaning = "Is it {weather}?"
+question_meaning_ja = "{weather}ですか？"
 difficulty = 2
 topics = ["weather"]
 slots = { weather = "weather" }
