@@ -143,6 +143,14 @@ class Script:
                 by_ex.setdefault(seg.exercise, []).append(seg)
         candidates = []
         for ex in self.exercises:
+            if ex.kind == "embed" and ex.item_ids:
+                # a part heard in a sentence: the review asks the sentence, from its meaning
+                segs = by_ex.get(ex.index, [])
+                meaning = next((s.text for s in segs if s.role == "embed_meaning"), None)
+                sentence = next((s.text for s in segs if s.role == "embed_sentence"), None)
+                if meaning and sentence:
+                    candidates.append(((False, 0, -ex.index), ex.index, list(ex.item_ids), meaning, sentence, "embed"))
+                continue
             if not ex.item_ids or ex.kind not in ("intro", "recall", "connect", "generative"):
                 continue
             if ex.stage in ("cloze", "hinted"):
