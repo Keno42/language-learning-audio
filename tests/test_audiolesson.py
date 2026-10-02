@@ -4398,8 +4398,8 @@ class OpenItemTests(unittest.TestCase):
         """Owner's review of #162: five open practices placed together made a drill streak
         that ended lesson 14 at 15.5 of 30 minutes. The real curriculum, pace 5, two new items
         failed in lessons 3, 4, 6, 7 and 12 (only new items confirmed afterwards): from lesson
-        9 on every lesson runs at least 20 of its 30 minutes, and open practices never run
-        five in a row."""
+        9 on every lesson runs at least 25 of its 30 minutes (the daily dose, §9), and open
+        practices never run five in a row."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         learner = LearnerState("is", "en", "A1")
         day = TODAY
@@ -4407,7 +4407,7 @@ class OpenItemTests(unittest.TestCase):
             cfg = PlanConfig(minutes=30, new_items=5)
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=day).build()
             if n >= 9:
-                self.assertGreaterEqual(sc.total_duration, 20 * 60, n)
+                self.assertGreaterEqual(sc.total_duration, 25 * 60, n)
             open_ids = set(sc.meta["open_items"])
             run = 0
             for e in sc.exercises:
