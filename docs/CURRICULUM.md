@@ -174,6 +174,13 @@ that is needed in two cases is two vocab items (`supu` / `supa`) — or, if
 the second use is rare, a phrase. Never tag a dictionary form into a slot that
 takes an oblique case. See `curricula/is-en/03-cafe.toml` (`acc_orderable`) for the pattern.
 
+A noun carries the tag of **every** pattern a person would plausibly say it in, so a new noun has
+sentences to be practised in: a food or shop noun is `acc_orderable` («Ég ætla að fá …», «Mig langar í …»),
+a shop good `acc_thing` («Áttu …?», «Ég þarf …») and a thing one asks the clerk for `acc_request`
+(«Get ég fengið …?»). Judge it by whether the sentence is said at a counter: «Áttu ost?» and «Get ég
+fengið mjólk?» are; «Áttu plokkfisk?» and «Get ég fengið humar?» are not, so the dishes are orderable only
+(#171 C; a test pins the sets).
+
 ## Guidelines that make lessons good
 
 - **Sequence from learner capabilities outward, not from individual phrases or
