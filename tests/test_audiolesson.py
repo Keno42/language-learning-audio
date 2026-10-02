@@ -4398,32 +4398,26 @@ class OpenItemTests(unittest.TestCase):
         """Owner's review of #162: five open practices placed together made a drill streak
         that ended lesson 14 at 15.5 of 30 minutes. The real curriculum, pace 5, two new items
         failed in lessons 3, 4, 6, 7 and 12 (only new items confirmed afterwards): from lesson
-        9 on every lesson is within two minutes of the same lesson built without open practice
-        (that baseline is itself short in some lessons: the daily-dose gap, #149 step 3), and
-        open practices never run five in a row."""
+        9 on every lesson runs at least 25 of its 30 minutes (the daily dose, §9), and open
+        practices never run five in a row."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
-        lessons = {}
-        for on in (False, True):
-            learner = LearnerState("is", "en", "A1")
-            day = TODAY
-            lessons[on] = []
-            for n in range(1, 17):
-                cfg = PlanConfig(minutes=30, new_items=5, open_item_practice=on)
-                sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=day).build()
-                lessons[on].append(sc)
-                if on and sc.meta["open_items"]:
-                    open_ids = set(sc.meta["open_items"])
-                    run = 0
-                    for e in sc.exercises:
-                        run = run + 1 if e.kind == "recall" and e.item_ids and e.item_ids[0] in open_ids else 0
-                        self.assertLess(run, 5, (n, e.index))
-                apply_to_learner(sc, learner, day)
-                new = sc.meta["new_items"]
-                failed = new[:2] if n in (3, 4, 6, 7, 12) else []
-                learner.report(failed, [], day + timedelta(days=1), lesson_number=n, recalled=[i for i in new if i not in failed])
-                day += timedelta(days=1)
-        for n in range(8, 16):
-            self.assertGreaterEqual(lessons[True][n].total_duration, lessons[False][n].total_duration - 120, n + 1)
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        for n in range(1, 17):
+            cfg = PlanConfig(minutes=30, new_items=5)
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=day).build()
+            if n >= 9:
+                self.assertGreaterEqual(sc.total_duration, 25 * 60, n)
+            open_ids = set(sc.meta["open_items"])
+            run = 0
+            for e in sc.exercises:
+                run = run + 1 if e.kind == "recall" and e.item_ids and e.item_ids[0] in open_ids else 0
+                self.assertLess(run, 5, (n, e.index))
+            apply_to_learner(sc, learner, day)
+            new = sc.meta["new_items"]
+            failed = new[:2] if n in (3, 4, 6, 7, 12) else []
+            learner.report(failed, [], day + timedelta(days=1), lesson_number=n, recalled=[i for i in new if i not in failed])
+            day += timedelta(days=1)
 
     def test_unconfirmed_practice_does_not_raise_an_open_items_stage(self):
         cur, learner = self._setup()
@@ -4432,10 +4426,103 @@ class OpenItemTests(unittest.TestCase):
         self.assertEqual(learner.items["s0"].stage, before)
         self.assertEqual(learner.items["s0"].open_practiced, learner.lessons_completed)
 
-    def test_the_switch_reproduces_the_earlier_planner(self):
-        cur, learner = self._setup()
-        sc = self._build(cur, learner, open_item_practice=False)
-        self.assertEqual(sc.meta["open_items"], [])
+
+
+class EmbeddedPartTests(unittest.TestCase):
+    """#149 (lesson 13 feedback): a part of a phrase the learner can say shouldn't come back as a
+    single word. It is heard inside an easy sentence; the review decides if it counts as learned."""
+
+    def _cur(self, with_frame=True):
+        items = [
+            {"id": "er_opid", "kind": "phrase", "target": "Er opið?", "meaning": "Is it open?"},
+            {"id": "gott", "kind": "vocab", "target": "gott", "meaning": "good", "tags": ["adj"]},
+            {"id": "kalt", "kind": "vocab", "target": "kalt", "meaning": "cold", "tags": ["adj"]},
+            {"id": "opid", "kind": "vocab", "target": "opið", "meaning": "open", "tags": ["adj"]},
+        ]
+        if with_frame:
+            items.append({"id": "thetta_er", "kind": "construction", "target": "Þetta er {adj}.", "meaning": "This is {adj}.",
+                          "slots": {"adj": "adj"}, "example": {"adj": "gott"}})
+        return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+
+    def _learner(self, whole_met=True, frame=True):
+        learner = LearnerState("is", "en", "A1")
+        known = dict(stage="meaning", durable_successes=2, successes=8, interval_days=7, due=(TODAY + timedelta(days=5)).isoformat(),
+                     last_practiced=(TODAY - timedelta(days=2)).isoformat())
+        for i in ["gott", "kalt"] + (["thetta_er"] if frame else []):
+            learner.items[i] = ItemState(**known)
+        if whole_met:
+            learner.items["er_opid"] = ItemState(**known)
+        return learner
+
+    def _plan(self, cur, learner, **cfg):
+        return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"),
+                       PlanConfig(minutes=10, new_items=1, max_new_items=1, priority=["opid"], seed=3, **cfg), today=TODAY).build()
+
+    def test_a_part_of_a_met_phrase_is_heard_in_a_sentence_not_introduced(self):
+        cur = self._cur()
+        sc = self._plan(cur, self._learner())
+        self.assertEqual(sc.meta["embedded_items"], ["opid"])
+        self.assertIn("opid", sc.meta["new_items"])
+        self.assertEqual([e.kind for e in sc.exercises if "opid" in e.item_ids and e.kind in ("intro", "embed")], ["embed"])
+        text = sc.transcript()
+        self.assertIn("Þetta er opið.", text)
+        block = text.split("embed:")[1].split("##")[0]
+        self.assertNotIn("Something new", block)
+        self.assertIn("You know this:", block)
+        self.assertIn("Er opið?", block, "it names the phrase it is taken out of")
+        self.assertNotIn("opid", sc.meta["exposures"], "nothing is recorded for it: the review decides")
+
+    def test_without_a_phrase_that_holds_it_or_a_pattern_to_put_it_in_it_is_introduced(self):
+        for kw in (dict(whole_met=False), dict(frame=False)):
+            cur = self._cur(with_frame=kw.get("frame", True))
+            sc = self._plan(cur, self._learner(**kw))
+            self.assertEqual(sc.meta["embedded_items"], [], kw)
+            self.assertIn("opid", sc.meta["exposures"], kw)
+
+    def test_the_review_asks_the_sentence(self):
+        cur = self._cur()
+        sc = self._plan(cur, self._learner())
+        qs = [q for q in sc.review_questions() if q["items"] == ["opid"]]
+        self.assertEqual([(q["prompt"], q["answer"]) for q in qs], [("This is open.", "Þetta er opið.")])
+
+    def test_said_back_it_counts_as_its_first_recall(self):
+        cur = self._cur()
+        learner = self._learner()
+        sc = self._plan(cur, learner)
+        apply_to_learner(sc, learner, TODAY)
+        self.assertEqual(learner.embedded, {"opid": learner.lessons_completed})
+        self.assertFalse(learner.has_met("opid"))
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, new_items=1, priority=["opid"]), today=TODAY)
+        self.assertNotIn("opid", [i.id for i in planner.select_new(3)], "pending: not introduced meanwhile")
+        learner.report([], [], TODAY + timedelta(days=1), recalled=["opid"])
+        self.assertTrue(learner.has_met("opid"))
+        self.assertEqual(learner.embedded, {})
+        st = learner.items["opid"]
+        self.assertEqual((st.durable_successes, st.interval_days), (1, 3))
+        self.assertFalse(learner.knows("opid"), "§9: known after two recalls on or after a due date, like any item")
+
+    def test_not_said_back_it_is_introduced_the_usual_way_next_time(self):
+        cur = self._cur()
+        learner = self._learner()
+        apply_to_learner(self._plan(cur, learner), learner, TODAY)
+        learner.report(["opid"], [], TODAY + timedelta(days=1))
+        self.assertFalse(learner.has_met("opid"))
+        self.assertEqual(learner.embed_failed, ["opid"])
+        again = self._plan(cur, learner)
+        self.assertEqual(again.meta["embedded_items"], [])
+        self.assertIn("opid", again.meta["exposures"])
+
+    def test_the_state_round_trips(self):
+        learner = self._learner()
+        learner.embedded["opid"] = 4
+        learner.embed_failed.append("mida")
+        import tempfile, os
+
+        with tempfile.TemporaryDirectory() as td:
+            path = os.path.join(td, "l.json")
+            learner.save(path)
+            back = LearnerState.load(path)
+        self.assertEqual((back.embedded, back.embed_failed), ({"opid": 4}, ["mida"]))
 
 
 class ScaffoldFadeTests(unittest.TestCase):
@@ -4623,21 +4710,43 @@ class ListeningDialogueTests(unittest.TestCase):
         self.assertEqual(learner.lessons[-1]["dialogues_listened"], ["d1"])
         self.assertNotIn("u0", {i for q in sc.review_questions() for i in q["items"]})
 
-    def test_a_listened_dialogue_rests_and_the_switch_turns_it_off(self):
+    def test_a_listened_dialogue_rests(self):
         cur = self._cur()
         recent = [{"number": 4, "dialogues_listened": ["d1"]}]
         self.assertIsNone(self._planner(cur, self._learner(cur, recent)).listening_dialogue())
         old = [{"number": 4, "dialogues_listened": ["d1"]}, {"number": 11}]
         self.assertIsNotNone(self._planner(cur, self._learner(cur, old)).listening_dialogue())
-        self.assertIsNone(self._planner(cur, self._learner(cur), max_listening_dialogues=0).listening_dialogue())
 
     def test_a_lesson_with_nothing_else_left_ends_on_listening_not_short(self):
         cur = self._cur()
         learner = self._learner(cur)
         sc = self._planner(cur, learner).build()
         self.assertEqual(sc.meta["dialogues_listened"], ["d1"])
-        off = self._planner(cur, self._learner(cur), max_listening_dialogues=0).build()
-        self.assertEqual(off.meta["dialogues_listened"], [])
+
+
+class SpreadIntroductionTests(unittest.TestCase):
+    """Lesson 13 feedback: all nine new expressions came in the first 15 of 30 minutes and the
+    second half only repeated them. New material is spread over the lesson."""
+
+    def test_introductions_are_spread_over_a_real_course(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        first_third, intros, worst_gap = 0, 0, 0.0
+        for n in range(1, 17):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5), today=day).build()
+            starts = [e.start for e in sc.exercises if e.kind == "intro"]
+            if n >= 8 and len(starts) >= 5:
+                total = sc.total_duration
+                first_third += sum(1 for t in starts if t < total / 3)
+                intros += len(starts)
+                worst_gap = max(worst_gap, max(b - a for a, b in zip(starts, starts[1:])))
+            apply_to_learner(sc, learner, day)
+            learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
+            day += timedelta(days=1)
+        self.assertGreater(intros, 20)
+        self.assertLess(first_third / intros, 0.55, "most new items used to come in the first third")
+        self.assertLess(worst_gap, 9 * 60, "the longest stretch without a new item used to be 10-11 minutes")
 
 
 class PlausibleFillTests(unittest.TestCase):

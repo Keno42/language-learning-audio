@@ -12,6 +12,7 @@ from __future__ import annotations
 import heapq
 import math
 import random
+import re
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -33,6 +34,12 @@ class PlanConfig:
     seed: int | None = None
     reactivation_gaps: list[int] = field(default_factory=lambda: [3, 5, 8, 13])  # exercises between recalls
     intro_gap: int = 3  # min exercises between two introductions
+    # New material is spread over the lesson (lesson 13 feedback: all nine new expressions came in
+    # the first 15 of 30 minutes, the second half only repeated them): the k-th introduction waits
+    # until k/N of ``intro_span`` of the lesson's time, N being the new items it expects to
+    # introduce (the pace plus a later arc). When nothing else is left to do, the next one comes
+    # early, as before.
+    intro_span: float = 0.75
     dialogue_every: int = 7  # try a dialogue roughly every N exercises
     drill_streak_limit: int = 5  # consecutive isolated recalls before a dialogue is pulled forward
     dialogue_first_turns: int = 2  # turns played the first time; one more each later encounter
@@ -45,7 +52,7 @@ class PlanConfig:
     # nothing else left, a dialogue lacking one or two required items is played as listening
     # (its scene carries the meaning, H8). Those items are heard, not learned: never recorded,
     # never asked in the review. At most this many per lesson, each resting
-    # ``listening_rest_lessons`` lessons. 0 reproduces the earlier planner.
+    # ``listening_rest_lessons`` lessons.
     max_listening_dialogues: int = 2
     listening_missing_max: int = 2
     listening_rest_lessons: int = 6
@@ -95,8 +102,7 @@ class PlanConfig:
     # in the last lesson, then the least recently practised, so a backlog comes round. The
     # practices fall at these fractions of the lesson's time before the closing block (by time,
     # not exercise counts: five practices 3-13 exercises apart bunched in the first 8 minutes),
-    # interleaved between items. ``open_item_practice`` False reproduces the earlier planner.
-    open_item_practice: bool = True
+    # interleaved between items.
     max_open_items: int = 5
     open_item_times: list[float] = field(default_factory=lambda: [0.04, 0.27, 0.48, 0.68, 0.88])
     # the trip ordering (#132): item ids introduced before the rest, in this order (their
@@ -132,6 +138,9 @@ class PlanConfig:
         return int(max(3, min(10, round(self.minutes / 5))))
 
 
+_WORD_RE = re.compile(r"[^\W\d_]+", re.UNICODE)
+
+
 @dataclass
 class _Pending:
     due: int
@@ -159,6 +168,7 @@ class Planner:
         self.support: dict[str, int] = {}
         self.dialogues_played: list[str] = []
         self.dialogues_listened: list[str] = []
+        self.embedded: list[str] = []  # parts heard inside a sentence this lesson (#149)
         self.notes_played: list[str] = []
         self._in_dialogue = {i for d in cur.dialogues for i in d.required_items}
         self._notes_by_item: dict[str, list] = {}
@@ -193,7 +203,10 @@ class Planner:
         def known_fills(tag: str) -> int:
             return sum(1 for i in self.cur.items_with_tag(tag) if self.learner.knows(i.id) or i.id in chosen_ids)
 
-        pool = [i for i in self.cur.items if not self.learner.has_met(i.id) and i.id not in chosen_ids]
+        pool = [
+            i for i in self.cur.items
+            if not self.learner.has_met(i.id) and i.id not in chosen_ids and i.id not in self.learner.embedded
+        ]
         if self.cfg.topics:
             preferred = [i for i in pool if set(i.topics) & set(self.cfg.topics)]
             rest = [i for i in pool if i not in preferred]
@@ -534,6 +547,31 @@ class Planner:
         least = [d for t, d in cands if t == cands[0][0]]
         return self.rng.choice(least)
 
+    def embed_source(self, item: Item) -> Item | None:
+        """The item ``item`` is taken out of, when it is introduced inside an easy sentence, not
+        on its own (#149, lesson 13 feedback: «opið», «miða»… came back as single words long after
+        the learner could say the phrase that holds them): a vocab word with a slot to go in
+        (``embed`` finds the sentence) whose words sit inside another item the learner has met
+        (and hasn't failed), or met earlier this lesson, and that wasn't embedded before. The
+        shortest such item, so "you know it" is as easy to hear as it can be. None otherwise."""
+        if item.kind != "vocab" or not item.tags:
+            return None
+        if item.id in self.learner.embedded or item.id in self.learner.embed_failed or self.learner.has_met(item.id):
+            return None
+        words = [w.lower() for w in _WORD_RE.findall(item.target)]
+        if not words:
+            return None
+        found: list[tuple[int, Item]] = []
+        for whole in self.cur.items:
+            if whole.id == item.id or whole.kind not in ("phrase", "vocab"):
+                continue
+            if not (whole.id in self.builder.in_lesson or (self.learner.has_met(whole.id) and not self.learner.is_open(whole.id))):
+                continue
+            ww = [w.lower() for w in _WORD_RE.findall(whole.target)]
+            if len(ww) > len(words) and any(ww[k : k + len(words)] == words for k in range(len(ww) - len(words) + 1)):
+                found.append((len(ww), whole))
+        return min(found, key=lambda t: t[0])[1] if found else None
+
     def listening_dialogue(self) -> tuple[Dialogue, set[str]] | None:
         """A dialogue to play as listening: one or two required items short (``listening_missing_max``),
         not played this lesson, not heard as listening within ``listening_rest_lessons``. The
@@ -587,7 +625,7 @@ class Planner:
         b.opening(sc, n, first_lesson=(n == 1))
 
         new_queue = deque(self.select_new(cfg.resolved_new_items()))
-        open_ids = self.learner.open_items() if cfg.open_item_practice else []
+        open_ids = self.learner.open_items()
         open_ids = [i for i in open_ids if i in self.cur.by_id]
         open_today = open_ids[: cfg.max_open_items]
         reviews = deque(i for i in self.select_reviews() if i.id not in open_today)
@@ -602,6 +640,9 @@ class Planner:
         drill_streak = 0  # consecutive isolated recalls, no dialogue/note/intro in between
         # time kept for the closing block: one recall per new item (~14 s) plus the announcement
         closing_reserve = min(budget * cfg.closing_share, 8 + 14 * len(new_queue))
+        # seconds between introductions: the expected number of new items over most of the lesson
+        expected_new = max(1, cfg.resolved_new_items() + cfg.resolved_extra_arc_items())
+        intro_spacing = (budget - closing_reserve) * cfg.intro_span / expected_new
         need_for_new = min(cfg.min_time_for_new_item, budget * 0.6)  # short lessons still get something new
         reviews_used: list[str] = []
         passes = 1
@@ -657,6 +698,12 @@ class Planner:
             while (milestone := self._eligible_milestone(item.prereqs)) is not None:
                 self._play_note(sc, milestone)
                 do_discriminate(milestone)
+            if (source := self.embed_source(item)) is not None and b.embed(sc, item, source) is not None:
+                self.embedded.append(item.id)
+                touch(item)
+                last_intro = idx
+                arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
+                return
             ex = b.intro(sc, item)
             b.in_lesson.add(item.id)
             introduced.append(item)
@@ -882,6 +929,25 @@ class Planner:
             reviews_used.append(item_id)
         open_timeline.sort(key=lambda t: t[:2])
 
+        def start_arc(more: list[Item]) -> None:
+            """A fresh arc of new material: its first item now, the rest queued (an arc's
+            introductions are spaced out by the review fillers, and by the lesson's schedule)."""
+            nonlocal current_arc_id, early_tier, passes, closing_reserve
+            current_arc_id += 1
+            arc_target[current_arc_id] = len(more)
+            new_queue.extend(more[1:])
+            do_intro(more[0])
+            # the review fillers (rested items, then the second pass) space out the
+            # arc's introductions and reactivations, or they would come back to back
+            if early_tier == 0:
+                early_tier = 1
+                reviews.extend(load_early(rested_only=True))
+            if passes < cfg.max_review_passes:
+                passes += 1
+                reviews.extend(self._second_pass(reviews_used, recent))
+            # the closing block recalls every introduced item: reserve for the new ones too
+            closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
+
         while sc.total_duration < budget - closing_reserve:
             remaining = budget - closing_reserve - sc.total_duration
             due = [p for p in pending if p.due <= idx]
@@ -913,6 +979,19 @@ class Planner:
                 if not acted and remaining >= 90 and (ld := self.listening_dialogue()) is not None:
                     self._play_listening(sc, *ld)
                     since_dialogue = 0
+                    acted = True
+                if not acted and new_queue and remaining >= need_for_new:
+                    do_intro(new_queue.popleft())  # the last relief: the next new item, before its time
+                    acted = True
+                if (
+                    not acted
+                    and not new_queue
+                    and reviews_used
+                    and current_arc_id + 1 < cfg.max_arcs
+                    and remaining >= need_for_new
+                    and (more := self.select_new(cfg.resolved_extra_arc_items(), exclude={i.id for i in introduced}))
+                ):
+                    start_arc(more)  # or the next arc, before its time
                     acted = True
                 if not acted:
                     break
@@ -964,9 +1043,28 @@ class Planner:
                     acted = True
                     break
 
-            # 2. introduce something new
-            if not acted and new_queue and idx - last_intro >= cfg.intro_gap and remaining >= need_for_new:
+            # 2. introduce something new, on the lesson's schedule (cfg.intro_span)
+            if (
+                not acted
+                and new_queue
+                and idx - last_intro >= cfg.intro_gap
+                and remaining >= need_for_new
+                and sc.total_duration >= (len(introduced) + len(self.embedded)) * intro_spacing
+            ):
                 do_intro(new_queue.popleft())
+                acted = True
+
+            # 2b. the next arc of new items, on the lesson's schedule rather than only when idle
+            if (
+                not acted
+                and not new_queue
+                and reviews_used
+                and current_arc_id + 1 < cfg.max_arcs
+                and remaining >= need_for_new
+                and sc.total_duration >= (len(introduced) + len(self.embedded)) * intro_spacing
+                and (more := self.select_new(cfg.resolved_extra_arc_items(), exclude={i.id for i in introduced}))
+            ):
+                start_arc(more)
                 acted = True
 
             # 3. a dialogue, now and then, when the learner knows enough
@@ -1025,7 +1123,7 @@ class Planner:
                     do_recall(candidate.item, candidate.stage)
                 elif new_queue and can_drain and remaining >= need_for_new * 0.6:
                     do_intro(new_queue.popleft())
-                elif can_intro and not reviews_used and remaining >= need_for_new and (more := self.select_new(1, exclude={i.id for i in introduced})):
+                elif can_intro and not reviews_used and remaining >= need_for_new and (more := self.select_new(1, exclude={i.id for i in introduced} | set(self.embedded))):
                     # an extra item for a lesson with nothing to review (the first ones); a lesson
                     # that ran out of reviews takes a fresh arc below instead
                     do_intro(more[0])
@@ -1044,27 +1142,14 @@ class Planner:
                     and not new_queue
                     and remaining >= need_for_new
                     and self._may_start_arc(current_arc_id + 1, early_tier, far_short=sc.total_duration < budget / 2)
-                    and (more := self.select_new(cfg.resolved_extra_arc_items(capped=early_tier < 2), exclude={i.id for i in introduced}))
+                    and (more := self.select_new(cfg.resolved_extra_arc_items(capped=early_tier < 2), exclude={i.id for i in introduced} | set(self.embedded)))
                 ):
                     # A fresh arc of new material rather than a second review pass: the new-item
                     # cap bounds an arc, not the lesson (see _may_start_arc). Only once the review
                     # pool ran dry (a first lesson still ends short on purpose) and the previous
                     # arc is fully introduced (a queued prereq would look ready to select_new).
                     # Consumes an idx tick like every other branch.
-                    current_arc_id += 1
-                    arc_target[current_arc_id] = len(more)
-                    new_queue.extend(more[1:])
-                    do_intro(more[0])
-                    # the review fillers (rested items, then the second pass) space out the
-                    # arc's introductions and reactivations, or they would come back to back
-                    if early_tier == 0:
-                        early_tier = 1
-                        reviews.extend(load_early(rested_only=True))
-                    if passes < cfg.max_review_passes:
-                        passes += 1
-                        reviews.extend(self._second_pass(reviews_used, recent))
-                    # the closing block recalls every introduced item: reserve for the new ones too
-                    closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
+                    start_arc(more)
                 elif passes < cfg.max_review_passes and reviews_used and early_tier >= 1:
                     # material ran out before the time did: a second pass over what was reviewed,
                     # most urgent first, each one step harder than earlier in this lesson
@@ -1078,7 +1163,7 @@ class Planner:
                     early_tier += 1
                     reviews = deque(load_early(rested_only=early_tier == 1))
                     continue
-                elif remaining >= 90 and cfg.max_listening_dialogues > 0 and (ld := self.listening_dialogue()) is not None:
+                elif remaining >= 90 and (ld := self.listening_dialogue()) is not None:
                     # spare time is more to hear (#149 step 3), before today's items once more
                     self._play_listening(sc, *ld)
                     since_dialogue = 0
@@ -1138,7 +1223,8 @@ class Planner:
                 "level": self.timing.level,
             },
             "curriculum": self.cur.name,
-            "new_items": [i.id for i in introduced],
+            "new_items": [i.id for i in introduced] + list(self.embedded),
+            "embedded_items": list(self.embedded),
             "reviewed_items": reviews_used,
             "open_items": open_today,
             "open_not_fitted": [i for i in open_ids if i not in open_today],
@@ -1193,6 +1279,8 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
     for item_id in sc.meta.get("open_items", []):
         if item_id in learner.items:
             learner.items[item_id].open_practiced = sc.lesson_number
+    for item_id in sc.meta.get("embedded_items", []):
+        learner.embedded[item_id] = sc.lesson_number
     for d in sc.meta.get("dialogues", []):
         learner.dialogues_done[d] = learner.dialogues_done.get(d, 0) + 1
     for n in sc.meta.get("notes", []):
