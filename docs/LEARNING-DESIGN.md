@@ -723,6 +723,10 @@ Don't reopen these without new evidence; when you do, say what changed.
     #94 / H11 bug (já, nei, hæ coming back unchanged): the owner wants the pattern with different
     fillers, and what is unwelcome is the bare repeat. Its variety is bounded by the fillers the
     learner knows, so it grows with #171's supply, not with this mechanism.
+  - **`refresh` constructions are taught as trip items once cheap (#180, owner's choice of
+    traveller-core patterns).** A cheap one (every slot has ≥ 2 known fillers, prerequisites known)
+    competes with the cheap trip constructions on the same terms and goes to the front of the trip order,
+    one a lesson, taking one new-item place.
   - A short item (a word, or a one-word question such as «Hvenær?»; sentences and full
     questions of two words are not short items) is said alone at most **three** times in a lesson; the rest of its practice is inside sentences,
     preferably different ones, up to about **ten** uses in all (owner, after replaying lesson

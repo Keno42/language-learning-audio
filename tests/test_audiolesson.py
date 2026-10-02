@@ -5169,6 +5169,28 @@ class CheapConstructionTests(unittest.TestCase):
         only = self._planner(cur, learner, priority=["n0", "n1"])
         self.assertEqual([i.id for i in only.select_new(2, cheap=True)], ["n0", "n1"])
 
+    def test_a_cheap_refresh_construction_outside_the_trip_list_goes_first(self):
+        """#180 (owner's option 1 on #176): a construction with ``refresh`` counts as trip-serving. Cheap and not
+        a trip item, it still goes to the front of the trip order, takes one new-item place, and no trip item
+        is dropped beyond that place: the trip order behind it shifts by one."""
+        cur = self._cur()
+        cur.by_id["c_big"].refresh = 3
+        learner = self._learner(["w0", "w1", "w2"])
+        trip = ["n0", "n1", "u0"]
+        planner = self._planner(cur, learner, priority=trip)
+        chosen = [i.id for i in planner.select_new(2, cheap=True)]
+        self.assertEqual(chosen, ["c_big", "n0"], "ahead of the trip items, one place")
+        self.assertEqual(planner.cheap_placed, ["c_big"])
+        self.assertEqual(len(chosen), len(set(chosen)))
+        self.assertEqual([i.id for i in planner.select_new(2)], ["n0", "n1"], "without the promotion: the trip order")
+        again = self._planner(cur, learner, priority=trip).select_new(2, cheap=True)
+        self.assertEqual([i.id for i in again][1:], ["n0"], "the trip item behind it is the next one: only n1 waits a lesson")
+        # not cheap (one known filler of its slot's tag... here its prerequisite is unknown): never promoted
+        self.assertEqual([i.id for i in self._planner(cur, self._learner(["w1", "w2"]), priority=trip).select_new(2, cheap=True)], ["n0", "n1"])
+        # a construction without ``refresh`` that is not a trip item stays out
+        cur2 = self._cur()
+        self.assertEqual([i.id for i in self._planner(cur2, learner, priority=trip).select_new(2, cheap=True)], ["n0", "n1"])
+
     def test_an_idle_lesson_takes_a_cheap_construction_beyond_its_limit(self):
         cur = self._cur()
         learner = self._learner(["w0", "w1", "w2"])

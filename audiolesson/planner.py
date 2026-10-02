@@ -268,14 +268,18 @@ class Planner:
             first = sorted((i for i in pool if i.id in rank), key=lambda i: rank[i.id])
             if cheap and self.cfg.cheap_place:
                 # #171 B: a trip construction the learner can already fill moves to the front of the
-                # remaining trip order. Every item is still a trip item; only the order changes (H6:
-                # teach a pattern when two fillings are known), so no trip item is displaced.
-                promoted = self.cheap_construction(chosen_ids, only=set(rank))
-                if promoted is not None and promoted in first:
-                    first.remove(promoted)
+                # remaining trip order (H6: teach a pattern when two fillings are known). A construction
+                # with ``refresh`` counts as one (#180: the owner's traveller-core patterns), so it
+                # competes on the same terms and goes to the front too. It takes one of the lesson's
+                # new-item places; the trip items behind it only shift by one.
+                refresh_ids = {c.id for c in self.cur.items if c.refresh}
+                promoted = self.cheap_construction(chosen_ids, only=set(rank) | refresh_ids)
+                if promoted is not None:
+                    if promoted in first:
+                        first.remove(promoted)
                     first.insert(0, promoted)
                     promoted_id = promoted.id
-            pool = first + [i for i in pool if i.id not in rank]
+            pool = first + [i for i in pool if i.id not in rank and i.id != promoted_id]
         constructions = [c for c in self.cur.items if c.kind == "construction"]
 
         def met_fills(tag: str) -> int:

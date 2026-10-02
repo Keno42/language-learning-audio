@@ -138,6 +138,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   pull them early (`play_refresh`), and a construction with no unheard sentence left is dropped for the
   lesson. `refresh_sentences` in `plan.json`. A construction that is open or unknown gets none: its own
   practice is the heavy one.
+- **A `refresh` construction is a trip item for #174's reorder (#180).** In `select_new(cheap=True)` the
+  candidates are the trip constructions and the constructions with `refresh`; the cheap one with the most
+  sentences goes to the front of the trip order, one a lesson, taking one new-item place (the trip items behind
+  it shift by one). Its prerequisites must still be known (`ready`).
 - **Cheap constructions come early (#171 B).** A construction is cheap when it is unmet, its prerequisites
   are known and every slot has `cheap_min_fillers` known fillers (`Planner.cheap_construction`, the
   one adding the most sentences first). `select_new(cheap=True)`, for the lesson's own new items, puts
