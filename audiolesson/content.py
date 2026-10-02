@@ -650,6 +650,43 @@ def dialogue_sequencing_report(cur: Curriculum, gap_threshold: int = 100) -> lis
     return findings
 
 
+def part_before_whole_report(cur: Curriculum) -> list[dict]:
+    """Items the learner meets as "something new" after a phrase that already contains them
+    (G13, lesson 13 feedback: «Hvenær?» came as a new item after «Hvenær leggjum við af
+    stað?»). An item A is a part of item B when A's words occur in B's words in the same
+    order, and A is taught after B (``A.order > B.order``) with no ``prereqs`` path from B
+    to A. Worst first (the gap in items between them).
+
+    A diagnostic for authors, never an eligibility gate: most parts are function words or
+    question words taught late as items of their own, and moving them is a curriculum edit
+    (list A in B's ``prereqs`` and put A before B), not something to apply wholesale."""
+    words = {i.id: [w.lower() for w in _DIALOGUE_WORD_RE.findall(i.target)] for i in cur.items}
+
+    def needs(item_id: str, seen: set[str] | None = None) -> set[str]:
+        seen = set() if seen is None else seen
+        for p in cur.by_id[item_id].prereqs:
+            if p not in seen:
+                seen.add(p)
+                needs(p, seen)
+        return seen
+
+    findings = []
+    for b in cur.items:
+        wb = words[b.id]
+        closure = None
+        for a in cur.items:
+            wa = words[a.id]
+            if a.id == b.id or a.kind == "construction" or not wa or len(wa) >= len(wb) or a.order <= b.order:
+                continue
+            if not any(wb[k : k + len(wa)] == wa for k in range(len(wb) - len(wa) + 1)):
+                continue
+            closure = needs(b.id) if closure is None else closure
+            if a.id not in closure:
+                findings.append({"whole": b.id, "whole_order": b.order, "part": a.id, "part_order": a.order, "gap": a.order - b.order})
+    findings.sort(key=lambda f: (-f["gap"], f["whole"], f["part"]))
+    return findings
+
+
 def frame_gap_report(cur: Curriculum, span: int = 50) -> dict[str, list[dict]]:
     """Vocab items the learner is asked to produce long before anything uses them (#80).
 

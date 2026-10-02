@@ -2869,6 +2869,40 @@ class CurriculumTests(unittest.TestCase):
         dlg = cur.dialogue_by_id[worst["dialogue"]]
         self.assertNotIn(worst["item"], dlg.required_items)
 
+    def test_part_before_whole_report_and_the_hvenaer_fix(self):
+        """G13 (lesson 13 feedback): «Hvenær?» came as a new item after «Hvenær leggjum við af
+        stað?». The report is advisory; the phrase now lists the word as a prerequisite."""
+        from audiolesson.content import part_before_whole_report
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertIn("hvenaer", cur.by_id["hvenaer_leggjum_vid_af_stad"].prereqs)
+        found = {(f["whole"], f["part"]) for f in part_before_whole_report(cur)}
+        self.assertNotIn(("hvenaer_leggjum_vid_af_stad", "hvenaer"), found)
+        small = curriculum_from_dict({
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "whole", "kind": "phrase", "target": "Hvenær kemur þú?", "meaning": "When do you come?"},
+                {"id": "part", "kind": "phrase", "target": "Hvenær?", "meaning": "When?"},
+            ],
+        })
+        self.assertEqual([(f["whole"], f["part"]) for f in part_before_whole_report(small)], [("whole", "part")])
+        small.by_id["whole"].prereqs.append("part")
+        self.assertEqual(part_before_whole_report(small), [])
+
+    def test_a_phrase_waits_for_its_part_and_comes_after_it(self):
+        cur = curriculum_from_dict({
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "whole", "kind": "phrase", "target": "Hvenær kemur þú?", "meaning": "When do you come?", "prereqs": ["part"]},
+                {"id": "other", "kind": "phrase", "target": "Takk fyrir.", "meaning": "Thanks."},
+                {"id": "part", "kind": "phrase", "target": "Hvenær?", "meaning": "When?"},
+            ],
+        })
+        learner = LearnerState("is", "en", "A1")
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, new_items=3, priority=["whole"]), today=TODAY).build()
+        order = sc.meta["new_items"]
+        self.assertLess(order.index("part"), order.index("whole"))
+
     def test_frame_gap_report_flags_bare_words(self):
         """Issue #80: a vocab item climbs past ``meaning`` only in a frame (a construction with
         a slot for one of its tags) or a dialogue that requires it. The report lists words whose
@@ -4508,6 +4542,102 @@ class ScaffoldFadeTests(unittest.TestCase):
         ja = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
         for item_id in ("hvad_heitir_thu", "hvadan_ert_thu", "hvar_byrd_thu", "hvad_gerir_thu"):
             self.assertEqual(ja.by_id[item_id].situation.count("。"), 1, item_id)
+
+
+class ListeningDialogueTests(unittest.TestCase):
+    """#149 step 3 (lesson 13: 23.6 of 30 minutes, the last 5 repeating today's items): with
+    nothing else left, a dialogue lacking one or two required items is played as listening."""
+
+    def _cur(self, missing_count=1):
+        known = [{"id": f"k{i}", "kind": "phrase", "target": f"Þekkt {i}.", "meaning": f"Known {i}."} for i in range(8)]
+        unknown = [{"id": f"u{i}", "kind": "phrase", "target": f"Nýtt {i}.", "meaning": f"New {i}."} for i in range(3)]
+        turns = [
+            {"cue": "Say known 0.", "expect": "k0", "partner": "Gott.", "partner_meaning": "Good."},
+            {"cue": "Say new 0.", "expect": "u0", "partner": "Já.", "partner_meaning": "Yes."},
+            {"cue": "Say known 1.", "expect": "k1"},
+        ]
+        requires = ["k0", "k1"] + [f"u{i}" for i in range(missing_count)]
+        return curriculum_from_dict({
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": known + unknown,
+            "dialogues": [{"id": "d1", "setting": "A test setting.", "requires": requires, "turns": turns}],
+        })
+
+    def _learner(self, cur, lessons=()):
+        learner = LearnerState("is", "en", "A1")
+        for i in range(8):
+            learner.items[f"k{i}"] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7,
+                                              due=(TODAY + timedelta(days=5)).isoformat(), last_practiced=(TODAY - timedelta(days=2)).isoformat())
+        learner.lessons = list(lessons)
+        learner.lessons_completed = max((l["number"] for l in lessons), default=0)
+        return learner
+
+    def _planner(self, cur, learner, **cfg):
+        return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, new_items=0, max_new_items=0, **cfg), today=TODAY)
+
+    def test_one_or_two_missing_items_make_a_listening_dialogue(self):
+        cur = self._cur(missing_count=1)
+        found = self._planner(cur, self._learner(cur)).listening_dialogue()
+        self.assertEqual((found[0].id, found[1]), ("d1", {"u0"}))
+        cur3 = self._cur(missing_count=3)
+        self.assertIsNone(self._planner(cur3, self._learner(cur3)).listening_dialogue())
+        done = self._cur(missing_count=1)
+        learner = self._learner(done)
+        learner.items["u0"] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, due=TODAY.isoformat())
+        self.assertIsNone(self._planner(done, learner).listening_dialogue(), "nothing missing: it is an ordinary dialogue")
+
+    def test_the_missing_turn_is_heard_not_asked_for(self):
+        cur = self._cur()
+        planner = self._planner(cur, self._learner(cur))
+        sc = Script(1, "t", "is", "en")
+        planner._play_listening(sc, cur.dialogues[0], {"u0"})
+        text = sc.transcript()
+        self.assertIn("You don't need to remember them", text)
+        self.assertIn("Here you would say:", text)
+        self.assertIn("Nýtt 0.", text)
+        self.assertIn("New 0.", text)
+        pauses = [s for s in sc.segments if s.type == "pause" and s.role == "answer"]
+        self.assertEqual(len(pauses), 2, "the two known turns are asked; the unknown one is not")
+
+    def test_a_heard_construction_turn_says_its_filled_meaning(self):
+        """The real dialogue 'solubas' lacks a construction turn: its meaning was narrated with
+        the slot still in it («It costs {count} thousand krónur.»)."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        dlg = cur.dialogues_by_id["solubas"] if hasattr(cur, "dialogues_by_id") else next(d for d in cur.dialogues if d.id == "solubas")
+        learner = LearnerState("is", "en", "A1")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15), today=TODAY)
+        sc = Script(1, "t", "is", "en")
+        planner._play_listening(sc, dlg, {i for i in dlg.required_items})
+        self.assertNotIn("{", sc.transcript())
+
+    def test_heard_items_are_not_recorded_or_asked(self):
+        cur = self._cur()
+        learner = self._learner(cur)
+        planner = self._planner(cur, learner)
+        sc = Script(1, "t", "is", "en")
+        planner._play_listening(sc, cur.dialogues[0], {"u0"})
+        sc.meta = {"exposures": planner.exposures, "ladders": {}, "dialogues_listened": ["d1"], "new_items": []}
+        apply_to_learner(sc, learner, TODAY)
+        self.assertNotIn("u0", learner.items)
+        self.assertIn("k0", learner.items)
+        self.assertEqual(learner.lessons[-1]["dialogues_listened"], ["d1"])
+        self.assertNotIn("u0", {i for q in sc.review_questions() for i in q["items"]})
+
+    def test_a_listened_dialogue_rests_and_the_switch_turns_it_off(self):
+        cur = self._cur()
+        recent = [{"number": 4, "dialogues_listened": ["d1"]}]
+        self.assertIsNone(self._planner(cur, self._learner(cur, recent)).listening_dialogue())
+        old = [{"number": 4, "dialogues_listened": ["d1"]}, {"number": 11}]
+        self.assertIsNotNone(self._planner(cur, self._learner(cur, old)).listening_dialogue())
+        self.assertIsNone(self._planner(cur, self._learner(cur), max_listening_dialogues=0).listening_dialogue())
+
+    def test_a_lesson_with_nothing_else_left_ends_on_listening_not_short(self):
+        cur = self._cur()
+        learner = self._learner(cur)
+        sc = self._planner(cur, learner).build()
+        self.assertEqual(sc.meta["dialogues_listened"], ["d1"])
+        off = self._planner(cur, self._learner(cur), max_listening_dialogues=0).build()
+        self.assertEqual(off.meta["dialogues_listened"], [])
 
 
 class PlausibleFillTests(unittest.TestCase):

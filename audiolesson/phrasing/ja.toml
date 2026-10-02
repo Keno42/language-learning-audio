@@ -44,8 +44,11 @@ aside = "ちょっとした話です。"
 aside_end = "では、レッスンに戻りましょう。"
 milestone_intro = "気づいてほしいパターンがあります。"
 milestone_end = "では、続けましょう。"
-# the partner's line is the cue (Item.prompt_by): said once per lesson before the first one
+# the partner's line is the cue (Item.prompt_by): frames each such cue, unless the one before was a cue too
 reply = "答えてください。"
+# a dialogue with an expression or two the learner hasn't learned, played as listening (H8)
+listening_intro = "聞くための会話です。新しい表現が少し出てきますが、覚えなくて大丈夫です。流れを聞いてください。"
+listening_line = "ここでは、こう言います。"
 dialogue_start = "ここからは短い会話です。"
 dialogue_replay = "では、会話全体を通して聞きましょう。"
 # 作成済みのやりとり：一つの場面で、二つの答えの間に相手のせりふが入る

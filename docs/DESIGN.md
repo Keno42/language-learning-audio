@@ -27,7 +27,7 @@ issues; the full history of how each of these came about is in `docs/history/ses
 | loading those record files (`cando/`, `reading/`) | `audiolesson/records.py` |
 | what the instructor says for a meaning (`meaning_spoken`, #143) | `Item.spoken_meaning` in `audiolesson/content.py` |
 | planner levers, off by default (#136) | `PlanConfig.late_unhinted_recall`; see `docs/LEVERS.md` |
-| diagnostics | `audiolesson validate` (gloss coverage, dialogue sequencing report), `tools/phrase_families.py` |
+| diagnostics | `audiolesson validate` (gloss coverage, dialogue sequencing report, part-before-whole report `--parts`), `tools/phrase_families.py` |
 
 ## Invariants the tests pin
 
@@ -48,6 +48,12 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   never met. «Reply.» frames each cue unless the exercise before was one; the review question
   for it is the line itself (or its meaning). No authored situation starts by restating what the
   learner said.
+- **Listening dialogues (#149 step 3).** With nothing else left (step 5, before today's items
+  are repeated, or as the last drill-streak relief), a dialogue lacking one or two required
+  items (`Planner.listening_dialogue`) plays whole: the turn for a missing item is «Here you
+  would say:», the line, its meaning, with no pause for the learner. The missing items are never
+  recorded (they stay unmet, never in the review) and a dialogue so heard rests six lessons
+  (`dialogues_listened`). `max_listening_dialogues=0` reproduces the earlier planner.
 - **Generated sentences use only available parts.** A fill is known or introduced earlier
   in the lesson. A construction's `situation_fill` makes its situation wait for that fill.
   A dialogue turn's `expect_fill` binds every slot, so every spoken part is a required item.

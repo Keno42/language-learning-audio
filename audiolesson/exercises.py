@@ -749,8 +749,21 @@ class Builder:
 
     # -------------------------------------------------------------- dialogue
 
-    def dialogue(self, sc: Script, dlg: Dialogue, *, replay: bool = False, max_turns: int | None = None, assisted: bool = True) -> Exercise:
+    def dialogue(
+        self,
+        sc: Script,
+        dlg: Dialogue,
+        *,
+        replay: bool = False,
+        max_turns: int | None = None,
+        assisted: bool = True,
+        listening: frozenset[str] | set[str] = frozenset(),
+    ) -> Exercise:
         """Play a dialogue; ``max_turns`` lets early encounters stop after a few turns.
+
+        ``listening`` names required items the learner hasn't learned (H8, #149 step 3): their
+        turns are heard, not asked for: «Here you would say:», the line, what it means. The
+        scene carries the meaning; nothing is expected back for them.
 
         ``assisted`` (the first encounter) translates partner lines and cues every turn. Later
         encounters drop both once the partner has said something: their line is the cue. A
@@ -762,6 +775,8 @@ class Builder:
         partner = dlg.partner_speaker
         learner_voice = _other_voice(partner)
         # the switch from drills to a conversation is the biggest change of mode in a lesson
+        if listening:
+            self._narr(sc, ex, self.prompts.get("listening_intro"))
         self._narr(sc, ex, self.prompts.get("dialogue_start"))
         self._narr(sc, ex, dlg.setting)
         self._beat(sc, ex)
@@ -776,8 +791,10 @@ class Builder:
                     self._beat(sc, ex)
                     self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=turn.opener_meaning))
             gender = None
+            meaning_text = ""
             if turn.expect:
                 item = self.cur.item(turn.expect)
+                meaning_text = item.spoken_meaning
                 gender = self.speaker_gender(item, learner_voice)
                 expected = self._gendered(item, gender)
                 if item.kind == "construction":
@@ -787,6 +804,7 @@ class Builder:
                         raise ValueError(f"dialogue {dlg.id!r}: construction turn {item.id!r} leaves slots {sorted(unbound)} unbound")
                     fills = {s: self.cur.by_id[f] for s, f in turn.expect_fill.items()}
                     gender, expected = self._filled(item, fills, learner_voice)
+                    meaning_text = self.cur.resolve_slots(item, fills)[1]
             else:
                 item = None
                 gender = GENDER_OF[learner_voice] if turn.expect_text_m else None
@@ -795,8 +813,14 @@ class Builder:
                 self._narr(sc, ex, self._as(gender, turn.cue))
             elif gender:
                 self._narr(sc, ex, self.prompts.get(f"speak_as_{gender}_alone"))
-            self._answer_pause(sc, ex, expected, item, generative=True)
-            self._answer(sc, ex, expected, speaker=learner_voice)
+            if item is not None and item.id in listening:
+                self._narr(sc, ex, self.prompts.get("listening_line"))
+                self._answer(sc, ex, expected, speaker=learner_voice)
+                self._beat(sc, ex)
+                self._narr(sc, ex, self._m(meaning_text))
+            else:
+                self._answer_pause(sc, ex, expected, item, generative=True)
+                self._answer(sc, ex, expected, speaker=learner_voice)
             lines.append((learner_voice, expected))
             if turn.partner:
                 self._beat(sc, ex)
