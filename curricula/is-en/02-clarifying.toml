@@ -884,6 +884,7 @@ situation_fill = { inf = "fara_heim" }
 [[items]]
 id = "eg_aetla_ad"
 kind = "construction"
+refresh = 3  # a light review every lesson once known (#171)
 target = "Ég ætla að {inf}."
 meaning = "I'm going to {inf}."
 meaning_ja = "{inf}つもりです。"
@@ -902,6 +903,7 @@ prereqs = ["fara_i_sund", "eg_vil"]
 [[items]]
 id = "viltu"
 kind = "construction"
+refresh = 3  # a light review every lesson once known (#171)
 target = "Viltu {inf}?"
 meaning = "Do you want to {inf}?"
 meaning_ja = "{inf}のはどうですか？"
