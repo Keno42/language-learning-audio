@@ -59,7 +59,7 @@ BRIDGE_GLOSS_ENCOUNTERS = 2  # a partner_cue is glossed on the learner's first N
 PROMPT_GLOSS_HEARINGS = 2  # a prompt_by line not yet known is glossed on its first N hearings in a lesson
 FORM_SHARE = 0.25  # the most a negative or question form takes of a lesson's generated sentences (#171)
 FORM_HARD_CAP = 0.35  # a form is not chosen at all once it has this share of the lesson's generated sentences
-FORM_ALL_HARD_CAP = 0.5  # …nor any form once the forms together have this share
+FORM_ALL_HARD_CAP = 0.55  # …nor any form once the forms together have this share
 FORM_CAP_FROM = 6  # …counted from this many generated sentences (before that a share is meaningless)
 FORM_EXTRA_NEW = 2  # sentences in a form taught this lesson, beyond the practice right after its note
 SITUATION_FULL_MAX = 2  # an authored situation is narrated in full at most this often in a lesson (G12)
@@ -963,6 +963,7 @@ class Builder:
         max_turns: int | None = None,
         assisted: bool = True,
         listening: frozenset[str] | set[str] = frozenset(),
+        tried: frozenset[str] | set[str] = frozenset(),
     ) -> Exercise:
         """Play a dialogue; ``max_turns`` lets early encounters stop after a few turns.
 
@@ -980,7 +981,7 @@ class Builder:
         partner = dlg.partner_speaker
         learner_voice = _other_voice(partner)
         # the switch from drills to a conversation is the biggest change of mode in a lesson
-        if listening:
+        if listening or tried:
             self._narr(sc, ex, self.prompts.get("listening_intro"))
         self._narr(sc, ex, self.prompts.get("dialogue_start"))
         self._narr(sc, ex, dlg.setting)
@@ -1021,6 +1022,8 @@ class Builder:
                 self._narr(sc, ex, self._as(gender, turn.cue))
             elif gender:
                 self._narr(sc, ex, self.prompts.get(f"speak_as_{gender}_alone"))
+            if item is not None and item.id in tried:
+                self._narr(sc, ex, self.prompts.get("listening_try"))  # a line they can say part of: «Try it.»
             if heard_only:
                 self._narr(sc, ex, self.prompts.get("listening_line"))
                 self._answer(sc, ex, expected, speaker=learner_voice)

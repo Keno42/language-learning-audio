@@ -63,6 +63,17 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   turn has no task cue. A dialogue with no missing line is ordinary (asked, with its pauses, not
   counted in `dialogues_listened`); `listening_asked` in `plan.json` lists the turns asked
   because the line can be said although `knows()` is false.
+  **Tried lines (#183).** In a listening dialogue a turn the learner can't say in full but can say a
+  chunk of (`Planner.can_say_part`) is *tried*: its cue, «Try it.» (`listening_try`), the answer pause and
+  the model line. A turn with nothing they can say stays heard only. Nothing is recorded for a tried
+  line's unknown items (the parts they have are credited as practised); they go into
+  `LearnerState.tried` (item → lesson, like `embedded`, never met, `select_new` ignores it). Up to
+  `max_bonus_questions` (2) tried lines go into `plan.json` `review` as `"bonus": true` questions
+  (`Planner._bonus_review`; the trip ordering's lines first, then the latest; `prompt` is the turn's
+  cue, `answer` the line). A bonus question reported 言えた makes its tried items met with one
+  durable success and the usual first interval (`knows()` still needs a second recall); a miss is
+  not reported by the bot, and if it were, `report` ignores it for a tried item. `listening_tried` and
+  `listening_asked` are in `plan.json`.
 - **Embedded parts (#149).** A vocab word with a slot to go in (`Builder.generate_with` finds the
   sentence) whose words sit inside an item the learner has met (not open), or met earlier in the
   lesson, is not introduced on its own (`Planner.embed_source`, the shortest such item):

@@ -737,6 +737,11 @@ Don't reopen these without new evidence; when you do, say what changed.
     («Það kostar | fimm | þúsund krónur.»); `knows()` is a scheduling notion, not "can produce". A sayable line in a listening
     dialogue is asked with its pause (a heard line has no task cue), and a short item already said
     in a sentence this lesson is asked in a sentence at the closing, not as a bare part.
+  - **A listening scene asks for whatever the learner can make (#183, owner).** A line they can say in
+    full is asked; one they can say part of is *tried* («Try it.», then the model line); only a line
+    with nothing they can say is heard. A try on an unknown part is never a failure: nothing is
+    recorded for it, and up to two tried lines a lesson are asked the next day as bonus questions in
+    the review (a 言えた gains one durable success, a miss costs nothing).
 - **Generation and audio.**
   - Only plausible sentences in plausible scenes (owner after L12).
   - No pause stretching to fill a short lesson (owner after L12).

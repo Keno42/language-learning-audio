@@ -63,6 +63,7 @@ variant_form = "Here is another form of it: {meaning}"
 # a dialogue with an expression or two the learner hasn't learned, played as listening (H8)
 listening_intro = "A conversation to listen to. It has a few new expressions in it. You don't need to remember them: just hear how it goes."
 listening_line = "Here you would say:"
+listening_try = "Try it."
 dialogue_start = "Now a short conversation."
 dialogue_replay = "Now the whole conversation, without pauses."
 # an authored exchange: one scene, with a partner line between the two answers

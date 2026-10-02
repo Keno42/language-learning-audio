@@ -4845,13 +4845,82 @@ class SayableLineTests(unittest.TestCase):
 
     def test_a_heard_line_has_no_task_cue(self):
         cur = self._cur()
-        planner = self._planner(cur, self._learner(["k0", "fimm"]))
+        planner = self._planner(cur, self._learner(["k0"]))  # nothing of «Það kostar fimm þúsund krónur.» is theirs
+        self.assertEqual(planner.classify_turns(cur.dialogues[0]), ({"big"}, set()))
         sc = Script(1, "t", "is", "en")
         planner._play_listening(sc, cur.dialogues[0], {"big"})
         text = sc.transcript()
         self.assertIn("Here you would say:", text)
         self.assertNotIn("Tell him it costs five thousand krónur.", text, "«Tell him…» contradicts «Here you would say:»")
         self.assertIn("Say known zero.", text, "the lines that are asked keep their cue")
+        self.assertEqual(planner.listening_tried, [])
+
+    def test_a_line_they_can_say_part_of_is_tried_not_told(self):
+        """#183 (owner): in a listening scene, ask for whatever the learner can make. «fimm» is theirs, the rest of
+        the line isn't: the cue, «Try it.», a pause, the model line. Nothing new is recorded for the unknown items."""
+        cur = self._cur()
+        planner = self._planner(cur, self._learner(["k0", "fimm"]))
+        self.assertEqual(planner.classify_turns(cur.dialogues[0]), (set(), {"big"}))
+        sc = Script(1, "t", "is", "en")
+        planner._play_listening(sc, cur.dialogues[0], {"big"})
+        text = sc.transcript()
+        self.assertIn("Tell him it costs five thousand krónur.", text, "the cue stays")
+        self.assertIn("Try it.", text)
+        self.assertNotIn("Here you would say:", text, "a turn with a pause is never told")
+        self.assertEqual(len([s for s in sc.segments if s.type == "pause" and s.role == "answer"]), 2)
+        tried = planner.listening_tried
+        self.assertEqual([(t["dialogue"], t["answer"], t["prompt"]) for t in tried], [("d1", "Það kostar fimm þúsund krónur.", "Tell him it costs five thousand krónur.")])
+        self.assertEqual(tried[0]["unknown"], ["big"])
+        self.assertIn("fimm", tried[0]["items"])
+        self.assertNotIn("big", planner.exposures, "the unknown construction is not recorded")
+        self.assertIn("fimm", planner.exposures, "the part they have is credited as practised")
+
+    def test_tried_lines_become_bonus_review_questions_and_a_said_one_counts(self):
+        """#183 addendum: at most two tried lines go into the next review as bonus questions; 言えた makes the
+        tried items met with one durable success; a miss changes nothing; the learner file keeps `tried`."""
+        cur = self._cur()
+        learner = self._learner(["k0", "fimm"])
+        planner = self._planner(cur, learner)
+        sc = Script(1, "t", "is", "en")
+        planner._play_listening(sc, cur.dialogues[0], {"big"})
+        bonus = planner._bonus_review()
+        self.assertEqual(len(bonus), 1)
+        self.assertEqual((bonus[0]["prompt"], bonus[0]["answer"], bonus[0]["bonus"]), ("Tell him it costs five thousand krónur.", "Það kostar fimm þúsund krónur.", True))
+        self.assertEqual(set(bonus[0]["items"]), {"big", "fimm"})
+        planner.cfg.max_bonus_questions = 0
+        self.assertEqual(planner._bonus_review(), [])
+        sc.meta = {"exposures": planner.exposures, "ladders": {}, "dialogues_listened": ["d1"], "new_items": [], "listening_tried": planner.listening_tried}
+        apply_to_learner(sc, learner, TODAY)
+        self.assertEqual(learner.tried, {"big": 1}, "the unknown construction is tried, not met")
+        self.assertNotIn("big", learner.items)
+        with tempfile.TemporaryDirectory() as tmp:
+            learner.save(Path(tmp) / "l.json")
+            self.assertEqual(LearnerState.load(Path(tmp) / "l.json").tried, {"big": 1}, "kept in the learner file")
+        # a miss: nothing recorded, the item stays unmet and tried
+        learner.report(["big"], [], TODAY + timedelta(days=1), lesson_number=1)
+        learner.report([], [], TODAY + timedelta(days=1), lesson_number=1, hesitated=["big"])
+        self.assertNotIn("big", learner.items)
+        self.assertEqual(learner.tried, {"big": 1})
+        # 言えた: met with one durable success, a normal first interval, known on its next recall
+        learner.report([], [], TODAY + timedelta(days=1), lesson_number=1, recalled=["big", "fimm"])
+        st = learner.items["big"]
+        self.assertEqual((st.durable_successes, st.successes, st.recalled, st.interval_days), (1, 1, 1, 3))
+        self.assertFalse(learner.knows("big"), "one durable success is not two (§9)")
+        self.assertNotIn("big", learner.tried)
+
+    def test_plan_json_carries_the_bonus_questions_and_the_tried_lines(self):
+        from audiolesson.cli import _plan
+
+        cur = self._cur()
+        planner = self._planner(cur, self._learner(["k0", "fimm"]))
+        sc = Script(1, "t", "is", "en")
+        planner._play_listening(sc, cur.dialogues[0], {"big"})
+        sc.meta = {"bonus_review": planner._bonus_review(), "listening_tried": planner.listening_tried, "listening_asked": planner.listening_asked}
+        plan = _plan(sc, cur)
+        self.assertEqual([q["items"] for q in plan["review"] if q.get("bonus")], [planner.listening_tried[0]["items"]])
+        self.assertEqual(plan["listening_tried"][0]["dialogue"], "d1")
+        self.assertIn("listening_asked", plan)
+        self.assertFalse(any(q.get("bonus") for q in _plan(Script(1, "t", "is", "en"), cur)["review"]), "no bonus without tried lines")
 
     def test_a_short_item_said_in_a_sentence_is_asked_in_one_at_the_closing(self):
         checked = 0
@@ -5166,15 +5235,17 @@ class ConstructionFormTests(unittest.TestCase):
                 continue
             for form in c.forms:
                 template = c.negative if form == "negative" else c.question
-                patterns[form].append(_re.compile("^" + _re.sub(r"\\\{[^}]*\\\}", ".+", _re.escape(template)) + "$"))
+                patterns[form].append((c.id, _re.compile("^" + _re.sub(r"\\\{[^}]*\\\}", ".+", _re.escape(template)) + "$")))
         learner = LearnerState("is", "en", "A1")
         day = TODAY
         taught: set[str] = set()
         used_before, first_taught, share_rows = 0, {}, []
         for n in range(1, 21):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5), today=day).build()
-            sentences = [e.label.split(": ", 1)[1] for e in sc.exercises if e.kind == "generative" and ": " in e.label]
-            by_form = {f: sum(1 for t in sentences if any(p.match(t) for p in pats)) for f, pats in patterns.items()}
+            sentences = [(e.label.split(": ", 1)[1], [i for i in e.item_ids if cur.by_id[i].kind == "construction"]) for e in sc.exercises if e.kind == "generative" and ": " in e.label]
+            # a form sentence matches the template of a construction in that exercise: «Viltu sofa?» is a plain sentence
+            # of «Viltu {inf}?», not the question form of «Ég vil {inf}.»
+            by_form = {f: sum(1 for t, cs in sentences if any(p.match(t) for cid, p in pats if cid in cs)) for f, pats in patterns.items()}
             by_form["plain"] = len(sentences) - by_form["negative"] - by_form["question"]
             share_rows.append((n, len(sentences), by_form, set(sc.meta["forms_taught"]), set(taught)))
             if not taught and not sc.meta["forms_taught"]:
