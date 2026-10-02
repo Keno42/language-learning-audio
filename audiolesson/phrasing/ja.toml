@@ -44,6 +44,11 @@ aside = "ちょっとした話です。"
 aside_end = "では、レッスンに戻りましょう。"
 milestone_intro = "気づいてほしいパターンがあります。"
 milestone_end = "では、続けましょう。"
+# a part heard in a sentence instead of being introduced on its own (LearnerState.embedded)
+embed_known = "知っているフレーズです："
+embed_part = "この中の単語です："
+embed_sentence = "別の文で聞きます。聞いて、繰り返してください。"
+embed_meaning = "「{meaning}」"
 # a dialogue with an expression or two the learner hasn't learned, played as listening (H8)
 listening_intro = "聞くための会話です。新しい表現が少し出てきますが、覚えなくて大丈夫です。流れを聞いてください。"
 listening_line = "ここでは、こう言います。"

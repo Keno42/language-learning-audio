@@ -130,6 +130,12 @@ def simulate_reach(cur: Curriculum, lessons: int, pace: int, minutes: float = 30
                      PlanConfig(minutes=minutes, new_items=pace, seed=seed + n, priority=list(priority or [])),
                      today=day).build()
         apply_to_learner(sc, learner, day)
+        # a part heard inside a sentence (#149) is reached in that lesson; the optimistic
+        # learner says it back at the next review, so it counts as learned from then on
+        for item_id in list(learner.embedded):
+            reach.setdefault(item_id, n)
+        if learner.embedded:
+            learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=list(learner.embedded))
         for it in cur.items:
             if it.id not in reach and learner.has_met(it.id):
                 reach[it.id] = n

@@ -4428,6 +4428,103 @@ class OpenItemTests(unittest.TestCase):
 
 
 
+class EmbeddedPartTests(unittest.TestCase):
+    """#149 (lesson 13 feedback): a part of a phrase the learner can say shouldn't come back as a
+    single word. It is heard inside an easy sentence; the review decides if it counts as learned."""
+
+    def _cur(self, with_frame=True):
+        items = [
+            {"id": "er_opid", "kind": "phrase", "target": "Er opið?", "meaning": "Is it open?"},
+            {"id": "gott", "kind": "vocab", "target": "gott", "meaning": "good", "tags": ["adj"]},
+            {"id": "kalt", "kind": "vocab", "target": "kalt", "meaning": "cold", "tags": ["adj"]},
+            {"id": "opid", "kind": "vocab", "target": "opið", "meaning": "open", "tags": ["adj"]},
+        ]
+        if with_frame:
+            items.append({"id": "thetta_er", "kind": "construction", "target": "Þetta er {adj}.", "meaning": "This is {adj}.",
+                          "slots": {"adj": "adj"}, "example": {"adj": "gott"}})
+        return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+
+    def _learner(self, whole_met=True, frame=True):
+        learner = LearnerState("is", "en", "A1")
+        known = dict(stage="meaning", durable_successes=2, successes=8, interval_days=7, due=(TODAY + timedelta(days=5)).isoformat(),
+                     last_practiced=(TODAY - timedelta(days=2)).isoformat())
+        for i in ["gott", "kalt"] + (["thetta_er"] if frame else []):
+            learner.items[i] = ItemState(**known)
+        if whole_met:
+            learner.items["er_opid"] = ItemState(**known)
+        return learner
+
+    def _plan(self, cur, learner, **cfg):
+        return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"),
+                       PlanConfig(minutes=10, new_items=1, max_new_items=1, priority=["opid"], seed=3, **cfg), today=TODAY).build()
+
+    def test_a_part_of_a_met_phrase_is_heard_in_a_sentence_not_introduced(self):
+        cur = self._cur()
+        sc = self._plan(cur, self._learner())
+        self.assertEqual(sc.meta["embedded_items"], ["opid"])
+        self.assertIn("opid", sc.meta["new_items"])
+        self.assertEqual([e.kind for e in sc.exercises if "opid" in e.item_ids and e.kind in ("intro", "embed")], ["embed"])
+        text = sc.transcript()
+        self.assertIn("Þetta er opið.", text)
+        block = text.split("embed:")[1].split("##")[0]
+        self.assertNotIn("Something new", block)
+        self.assertIn("You know this:", block)
+        self.assertIn("Er opið?", block, "it names the phrase it is taken out of")
+        self.assertNotIn("opid", sc.meta["exposures"], "nothing is recorded for it: the review decides")
+
+    def test_without_a_phrase_that_holds_it_or_a_pattern_to_put_it_in_it_is_introduced(self):
+        for kw in (dict(whole_met=False), dict(frame=False)):
+            cur = self._cur(with_frame=kw.get("frame", True))
+            sc = self._plan(cur, self._learner(**kw))
+            self.assertEqual(sc.meta["embedded_items"], [], kw)
+            self.assertIn("opid", sc.meta["exposures"], kw)
+
+    def test_the_review_asks_the_sentence(self):
+        cur = self._cur()
+        sc = self._plan(cur, self._learner())
+        qs = [q for q in sc.review_questions() if q["items"] == ["opid"]]
+        self.assertEqual([(q["prompt"], q["answer"]) for q in qs], [("This is open.", "Þetta er opið.")])
+
+    def test_said_back_it_counts_as_its_first_recall(self):
+        cur = self._cur()
+        learner = self._learner()
+        sc = self._plan(cur, learner)
+        apply_to_learner(sc, learner, TODAY)
+        self.assertEqual(learner.embedded, {"opid": learner.lessons_completed})
+        self.assertFalse(learner.has_met("opid"))
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, new_items=1, priority=["opid"]), today=TODAY)
+        self.assertNotIn("opid", [i.id for i in planner.select_new(3)], "pending: not introduced meanwhile")
+        learner.report([], [], TODAY + timedelta(days=1), recalled=["opid"])
+        self.assertTrue(learner.has_met("opid"))
+        self.assertEqual(learner.embedded, {})
+        st = learner.items["opid"]
+        self.assertEqual((st.durable_successes, st.interval_days), (1, 3))
+        self.assertFalse(learner.knows("opid"), "§9: known after two recalls on or after a due date, like any item")
+
+    def test_not_said_back_it_is_introduced_the_usual_way_next_time(self):
+        cur = self._cur()
+        learner = self._learner()
+        apply_to_learner(self._plan(cur, learner), learner, TODAY)
+        learner.report(["opid"], [], TODAY + timedelta(days=1))
+        self.assertFalse(learner.has_met("opid"))
+        self.assertEqual(learner.embed_failed, ["opid"])
+        again = self._plan(cur, learner)
+        self.assertEqual(again.meta["embedded_items"], [])
+        self.assertIn("opid", again.meta["exposures"])
+
+    def test_the_state_round_trips(self):
+        learner = self._learner()
+        learner.embedded["opid"] = 4
+        learner.embed_failed.append("mida")
+        import tempfile, os
+
+        with tempfile.TemporaryDirectory() as td:
+            path = os.path.join(td, "l.json")
+            learner.save(path)
+            back = LearnerState.load(path)
+        self.assertEqual((back.embedded, back.embed_failed), ({"opid": 4}, ["mida"]))
+
+
 class ListeningDialogueTests(unittest.TestCase):
     """#149 step 3 (lesson 13: 23.6 of 30 minutes, the last 5 repeating today's items): with
     nothing else left, a dialogue lacking one or two required items is played as listening."""

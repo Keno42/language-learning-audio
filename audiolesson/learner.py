@@ -74,6 +74,12 @@ class LearnerState:
     notes_last_heard: dict[str, int] = field(default_factory=dict)  # note id → lesson it last played in
     heard_utterances: set[str] = field(default_factory=set)  # normalised target-language lines presented so far
     bridges_heard: dict[str, int] = field(default_factory=dict)  # bridged item id → times its partner_cue played
+    # #149 (lesson 13 feedback): a part heard inside an easy sentence instead of being introduced on
+    # its own. item id → the lesson that did it. Not met yet: the review decides. Said back
+    # (recalled), it counts as learned on its own; not said, it is introduced the usual way
+    # later (``embed_failed``, so it is not embedded twice).
+    embedded: dict[str, int] = field(default_factory=dict)
+    embed_failed: list[str] = field(default_factory=list)
 
     # ---- queries ---------------------------------------------------------
 
@@ -328,6 +334,37 @@ class LearnerState:
                 changed["unknown"].append(item_id)
             return st
 
+        # an embedded part (heard in a sentence, not introduced): the review decides
+        embedded_result: dict[str, str] = {}
+        for item_id in failed:
+            if item_id in self.embedded:
+                embedded_result[item_id] = "failed"
+        for item_id in hesitated:
+            if item_id in self.embedded:
+                embedded_result[item_id] = "failed"  # "only just" is not "can say it on its own"
+        for item_id in recalled:
+            if item_id in self.embedded:
+                embedded_result[item_id] = "recalled"
+        for item_id, result in embedded_result.items():
+            lesson = self.embedded.pop(item_id)
+            if result == "recalled":
+                # said back after a day: that is its first recall on a due date, like any item's
+                # (§9: ``knows()`` still takes two); the next one comes after the usual 3 days
+                self.items[item_id] = ItemState(
+                    stage="meaning", ease=2.3, interval_days=3, due=(today + timedelta(days=3)).isoformat(),
+                    last_practiced=today.isoformat(), introduced_lesson=lesson, successes=1, durable_successes=1,
+                    recalled=1, last_outcome="recalled", exposures=1,
+                    history=[{"lesson": lesson, "stages": ["embed"], "ok": True, "outcome": "recalled"}],
+                )
+                changed["recalled"].append(item_id)
+            else:
+                if item_id not in self.embed_failed:
+                    self.embed_failed.append(item_id)
+                changed["failed"].append(item_id)
+        failed = [i for i in failed if i not in embedded_result]
+        hesitated = [i for i in hesitated if i not in embedded_result]
+        recalled = [i for i in recalled if i not in embedded_result]
+
         def note_outcome(st: ItemState, outcome: str) -> None:
             st.last_outcome = outcome
             if lesson_number is not None and st.history and st.history[-1].get("lesson") == lesson_number:
@@ -406,6 +443,8 @@ class LearnerState:
             "notes_last_heard": self.notes_last_heard,
             "heard_utterances": sorted(self.heard_utterances),
             "bridges_heard": self.bridges_heard,
+            "embedded": self.embedded,
+            "embed_failed": self.embed_failed,
         }
 
     def save(self, path: str | Path) -> None:
@@ -432,6 +471,8 @@ class LearnerState:
             notes_last_heard=dict(raw.get("notes_last_heard", {})),
             heard_utterances=set(raw.get("heard_utterances", [])),
             bridges_heard=dict(raw.get("bridges_heard", {})),
+            embedded={k: int(v) for k, v in raw.get("embedded", {}).items()},
+            embed_failed=list(raw.get("embed_failed", [])),
         )
         ls.items = {k: ItemState(**v) for k, v in raw.get("items", {}).items()}
         # a file from before notes_last_heard existed: a note heard back then counts as heard
