@@ -533,6 +533,7 @@ id = "borga_med_korti"
 kind = "vocab"
 target = "borga með korti"
 meaning = "pay by card"
+meaning_spoken = "to pay by card"  # an infinitive: "Say: buy a ticket" would ask for the imperative
 meaning_ja = "カードで払う"
 difficulty = 2
 tags = ["inf"]

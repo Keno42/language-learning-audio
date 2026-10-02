@@ -532,6 +532,10 @@ def validate(cur: Curriculum) -> None:
                 f"item {it.id!r}: its {field} is spoken verbatim, so it takes no brackets or 〜 "
                 f"(write a bracket-free meaning_spoken): {it.spoken_meaning!r}"
             )
+        if "inf" in it.tags and cur.known_lang == "en" and not it.spoken_meaning.startswith("to "):
+            # an infinitive filler said alone: «Say: buy a ticket» asks for the imperative («Kauptu miða»),
+            # «Say: to buy a ticket» for what the item is («kaupa miða»); sentences fill from `meaning`
+            raise CurriculumError(f"item {it.id!r}: an infinitive is named with «to» (meaning_spoken = \"to {it.meaning}\"): {it.spoken_meaning!r}")
         if it.meaning_spoken and sorted(_ANY_SLOT_RE.findall(it.meaning_spoken)) != sorted(_ANY_SLOT_RE.findall(it.meaning)):
             raise CurriculumError(f"item {it.id!r}: meaning_spoken must keep the meaning's slots: {it.meaning_spoken!r}")
     for d in cur.dialogues:

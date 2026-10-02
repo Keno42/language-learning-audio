@@ -32,6 +32,7 @@ id = "hringja"
 kind = "vocab"
 target = "hringja"
 meaning = "make a call"
+meaning_spoken = "to make a call"  # an infinitive: "Say: buy a ticket" would ask for the imperative
 meaning_ja = "電話する"
 difficulty = 2
 tags = ["inf"]

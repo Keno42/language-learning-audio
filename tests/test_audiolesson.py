@@ -120,6 +120,23 @@ class CurriculumTests(unittest.TestCase):
         with self.assertRaises(CurriculumError):
             curriculum_from_dict(raw)
 
+    def test_an_infinitive_is_named_with_to(self):
+        """Owner: «Say: Buy a ticket.» → «kaupa miða» asks for the imperative («Kauptu miða.»)
+        and answers with the infinitive. Said alone, an infinitive filler is «to buy a ticket»;
+        in a sentence the fill still comes from ``meaning`` («I want to buy a ticket»)."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [{"id": "k", "kind": "vocab", "target": "kaupa miða", "meaning": "buy a ticket", "tags": ["inf"]}],
+        }
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
+        raw["items"][0]["meaning_spoken"] = "to buy a ticket"
+        curriculum_from_dict(raw)
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        item = cur.by_id["kaupa_mida"]
+        self.assertEqual(item.spoken_meaning, "to buy a ticket")
+        self.assertEqual(cur.resolve_slots(cur.by_id["eg_vil"], {"inf": item})[1], "I want to buy a ticket.")
+
     def test_split_note_span_recognizes_an_explicit_language_prefix(self):
         """Issue #49: a «...»-marked note span may open with "xx:" to name a language other
         than the target one — an embedded third-language example, e.g. a Japanese word
@@ -793,9 +810,9 @@ class CurriculumTests(unittest.TestCase):
         raw = {
             "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
             "items": [
-                {"id": "fara_heim", "kind": "vocab", "target": "fara heim", "meaning": "go home", "meaning_ja": "家に帰る",
+                {"id": "fara_heim", "kind": "vocab", "target": "fara heim", "meaning": "go home", "meaning_spoken": "to go home", "meaning_ja": "家に帰る",
                  "tags": ["inf"], "meaning_forms": {"ing": "going home"}, "meaning_forms_ja": {"te": "家に帰って"}},
-                {"id": "sofa", "kind": "vocab", "target": "sofa", "meaning": "sleep", "meaning_ja": "寝る",
+                {"id": "sofa", "kind": "vocab", "target": "sofa", "meaning": "sleep", "meaning_spoken": "to sleep", "meaning_ja": "寝る",
                  "tags": ["inf"], "meaning_forms": {"ing": "sleeping"}, "meaning_forms_ja": {"te": "寝て"}},
                 {"id": "c", "kind": "construction", "target": "Ég er að {inf}.", "meaning": "I'm {inf:ing}.",
                  "meaning_ja": "今、{inf:te}いるところです。", "slots": {"inf": "inf"}},
@@ -4229,7 +4246,7 @@ class StableItemTests(unittest.TestCase):
         items += [{"id": f"u{n}", "kind": "phrase", "target": t.replace("Orð", "Annað"), "meaning": f"Unsure {n}."} for n, t in enumerate(self.PHRASES)]
         if with_pattern:
             for v, en in (("fara heim", "go home"), ("sofa", "sleep"), ("borða", "eat"), ("versla", "shop"), ("fara út", "go out")):
-                items.append({"id": v.replace(" ", "_").replace("ð", "d"), "kind": "vocab", "target": v, "meaning": en, "tags": ["inf"]})
+                items.append({"id": v.replace(" ", "_").replace("ð", "d"), "kind": "vocab", "target": v, "meaning": en, "meaning_spoken": "to " + en, "tags": ["inf"]})
             items.append({"id": "eg_vil", "kind": "construction", "target": "Ég vil {inf}.", "meaning": "I want to {inf}.", "slots": {"inf": "inf"}})
         return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
 

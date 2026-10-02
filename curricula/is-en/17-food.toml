@@ -391,6 +391,7 @@ id = "elda"
 kind = "vocab"
 target = "elda"
 meaning = "cook"
+meaning_spoken = "to cook"  # an infinitive: "Say: buy a ticket" would ask for the imperative
 meaning_ja = "料理する"
 difficulty = 2
 tags = ["inf", "progressive_inf"]
