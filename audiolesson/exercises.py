@@ -656,7 +656,7 @@ class Builder:
         want = _norm_utterance(item.context) if item.context else ""
         for _ in range(12 if want else 1):
             state = self.rng.getstate()
-            cand = self.generate_with(item)
+            cand = self.generate_with(item, ceiling=False)  # a recall of a sentence, not a generated one: no ceiling
             if cand is None:
                 return None
             gen = cand
@@ -823,7 +823,7 @@ class Builder:
         Its introduction and its timed recalls (not generated sentences) are not held to it."""
         return self.construction_counts.get(c.id, 0) >= CONSTRUCTION_CEILING
 
-    def generate_with(self, vocab: Item, avoid_heard: bool = False, forms: bool = False) -> Generated | None:
+    def generate_with(self, vocab: Item, avoid_heard: bool = False, forms: bool = False, ceiling: bool = True) -> Generated | None:
         """Find a known construction with a slot that accepts ``vocab`` and fill it.
         ``avoid_heard``: only sentences not yet presented this lesson (None if none is left).
         ``forms``: the construction's negative or question form may do (#171)."""
@@ -839,7 +839,8 @@ class Builder:
         self.rng.shuffle(homes)
         # rotate (#180): the home with the fewest sentences this lesson first, so a new pattern with many
         # fillers doesn't win most draws; one that is full takes no more (the ceiling, for a word with one home)
-        homes = [h for h in homes if not self.construction_full(h[0])]
+        if ceiling:
+            homes = [h for h in homes if not self.construction_full(h[0])]
         homes.sort(key=lambda h: self.construction_counts.get(h[0].id, 0))
         fallback = None
         for c, slot in homes:

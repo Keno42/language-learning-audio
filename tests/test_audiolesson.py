@@ -13,6 +13,7 @@ from collections import Counter
 from datetime import date, timedelta
 from pathlib import Path
 
+from audiolesson.exercises import SITUATION_FULL_MAX
 from audiolesson.content import NOTE_TARGET_RE, CurriculumError, curriculum_from_dict, load_curriculum
 from audiolesson.learner import ItemState, LearnerState
 from audiolesson.planner import PlanConfig, Planner, apply_to_learner
@@ -2075,7 +2076,13 @@ class CurriculumTests(unittest.TestCase):
                 self.assertGreater(len(sc.exercises), note_idx + 2, f"{note_id} wasn't followed by two discrimination exercises")
                 first, second = sc.exercises[note_idx + 1], sc.exercises[note_idx + 2]
                 for ex in (first, second):
-                    self.assertEqual((ex.kind, ex.stage), ("recall", "situation"))
+                    # a situation narrated in full twice already this lesson (#170, G12) is recalled from its short
+                    # meaning cue instead; otherwise the item's own situation
+                    item = cur.by_id[ex.item_ids[0]]
+                    texts = {t for t in ([item.situation] if item.situation else []) + list(item.situations)}
+                    told = sum(1 for sg in sc.segments if sg.type == "narrate" and sg.text in texts and sg.exercise is not None and sg.exercise < ex.index)
+                    allowed = {("recall", "situation")} | ({("recall", "meaning")} if told >= SITUATION_FULL_MAX else set())
+                    self.assertIn((ex.kind, ex.stage), allowed, (note_id, ex.item_ids, told))
                     # a construction's recall also lists the fill it was generated with (support
                     # exposure); the practised item itself is always first
                     self.assertTrue(len(ex.item_ids) == 1 or cur.by_id[ex.item_ids[0]].kind == "construction", ex.item_ids)

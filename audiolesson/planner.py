@@ -1153,7 +1153,8 @@ class Planner:
             just_touched = recent[-1] if recent else None
             known_transfer = [i for i in note.transfer_items if self.learner.has_met(i) or i in self.exposures]
             others = list(dict.fromkeys(i for i in known_transfer + note.items if i != just_touched and i in self.cur.by_id))
-            by_situation = [i for i in others if b.situation_usable(self.cur.by_id[i])]
+            # a situation already narrated in full twice (G12) would come back as a bare meaning cue: prefer the others
+            by_situation = [i for i in others if b.situation_usable(self.cur.by_id[i]) and b.situation_room(self.cur.by_id[i])]
             by_meaning = [i for i in others if i not in by_situation]
             picks = [(i, "situation") for i in by_situation] + [(i, "meaning") for i in by_meaning]
             for item_id, stage in picks[:2]:
@@ -1698,7 +1699,7 @@ class Planner:
                     stage = "meaning"  # #136: the lesson's last word on a new item is unhinted
                 if stage == "recombine":
                     stage = self.recombine_or_instead(item)  # no fresh sentence: a meaning recall
-                if stage in BARE_STAGES and short_today(item) and said_in_sentence(item) and ask_a_sentence(item, repeat=True):
+                if (stage in BARE_STAGES or stage == "recombine") and short_today(item) and said_in_sentence(item) and ask_a_sentence(item, repeat=True):
                     continue  # #179: said in a sentence today, so asked in one now, not as a bare part
                 ex = b.recall(sc, item, stage)
                 self._record([item.id], ex.stage or stage, ex.item_ids)
