@@ -35,7 +35,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
 
 - **Durable learning (#27).** `LearnerState.knows()` means two recalls on or after a due
   date. Recalls minutes apart in one lesson don't count. Dialogue eligibility is
-  `knows(i) or i in builder.in_lesson` for every required item, never `has_met`.
+  `knows(i) or i in builder.in_lesson` for every required item, never `has_met`. One deliberate
+  exception (#179): the listening route plays an ordinary dialogue (pauses, no listening) whose lines
+  the learner can say though only met (`Planner.can_say_turn`, strict: today's practice doesn't count
+  there); the regular route keeps the rule.
 - **Open failures (#149, 1a).** An item whose latest confirmed outcome is 言えなかった is
   open (`LearnerState.is_open`) until a later confirmed recall; presumed success neither adds
   a durable success nor lengthens its interval (it is due again tomorrow). Each lesson practises
@@ -56,7 +59,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (`dialogues_listened`).
   **A line is "missing" when the learner can't say it (#179), not when `knows()` says so**
   (`Planner.can_say_item`/`can_say_turn`): said if its item is met and not open, practised this
-  lesson, or a met construction filled with items they can say makes the same sentence. A heard
+  lesson, or the filled line is covered, in order, by chunks they can say (a sayable item's target, a sayable construction's fixed text). A heard
   turn has no task cue. A dialogue with no missing line is ordinary (asked, with its pauses, not
   counted in `dialogues_listened`); `listening_asked` in `plan.json` lists the turns asked
   because the line can be said although `knows()` is false.

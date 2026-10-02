@@ -4779,7 +4779,7 @@ class SayableLineTests(unittest.TestCase):
         items = [
             {"id": "k0", "kind": "phrase", "target": "Þekkt núll.", "meaning": "Known zero."},
             {"id": "fimm", "kind": "vocab", "target": "fimm", "meaning": "five", "tags": ["num"]},
-            {"id": "p5", "kind": "vocab", "target": "fimm þúsund krónur", "meaning": "five thousand krónur", "tags": ["price"]},
+            {"id": "tk", "kind": "vocab", "target": "þúsund krónur", "meaning": "a thousand krónur", "tags": ["price"]},
             {"id": "kostar", "kind": "construction", "target": "Það kostar {price}.", "meaning": "It costs {price}.", "slots": {"price": "price"}},
             {"id": "big", "kind": "construction", "target": "Það kostar {count} þúsund krónur.", "meaning": "It costs {count} thousand krónur.", "slots": {"count": "num"}},
         ]
@@ -4806,11 +4806,11 @@ class SayableLineTests(unittest.TestCase):
 
     def test_a_line_another_pattern_makes_is_asked_not_told(self):
         cur = self._cur()
-        learner = self._learner(["k0", "fimm", "p5", "kostar"])
+        learner = self._learner(["k0", "fimm", "tk", "kostar"])
         planner = self._planner(cur, learner)
         turn = cur.dialogues[0].turns[0]
-        self.assertFalse(any(learner.knows(i) for i in ("big", "p5", "kostar")))
-        self.assertTrue(planner.can_say_turn(turn), "«Það kostar fimm þúsund krónur.» from «Það kostar {price}.»")
+        self.assertFalse(any(learner.knows(i) for i in ("big", "tk", "kostar")))
+        self.assertTrue(planner.can_say_turn(turn), "«Það kostar | fimm | þúsund krónur.»: every chunk is something they say")
         found = planner.listening_dialogue()
         self.assertEqual((found[0].id, found[1]), ("d1", set()), "nothing is missing: an ordinary dialogue")
         sc = Script(1, "t", "is", "en")
@@ -4821,10 +4821,27 @@ class SayableLineTests(unittest.TestCase):
         self.assertEqual(planner.dialogues_listened, [], "an ordinary dialogue is not counted against the listening rest")
         self.assertEqual(planner.listening_asked[0]["dialogue"], "d1")
         self.assertIn("big", planner.listening_asked[0]["items"])
-        # without «Það kostar {price}.» and «fimm þúsund krónur» the line can't be said: it is heard
+        # without «Það kostar {price}.» and «þúsund krónur» the line can't be said: it is heard
         bare = self._planner(cur, self._learner(["k0", "fimm"]))
         self.assertFalse(bare.can_say_turn(turn))
         self.assertEqual(bare.listening_dialogue()[1], {"big"})
+
+    def test_the_real_solubas_line_is_sayable_from_chunks(self):
+        """#179's named case on the real curriculum: «Það kostar {price}.» met, «fimm» known, «þúsund krónur»
+        met, and `thad_kostar_big` unmet. No met pattern makes the exact sentence («fimm þúsund krónur» is no
+        filler of «Það kostar {price}.»), but every chunk of the line is something the learner says."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        dlg = next(d for d in cur.dialogues if d.id == "solubas")
+        turn = dlg.turns[0]
+        self.assertEqual(turn.expect, "thad_kostar_big")
+        learner = self._learner(["thad_kostar", "thusund_kronur"])
+        learner.items["fimm"] = ItemState(stage="meaning", durable_successes=2, successes=4, recalled=2, interval_days=3,
+                                          due=(TODAY + timedelta(days=3)).isoformat(), last_practiced=TODAY.isoformat())
+        self.assertNotIn("thad_kostar_big", learner.items)
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15), today=TODAY)
+        self.assertTrue(planner.can_say_turn(turn))
+        bare = Planner(cur, self._learner(["thad_kostar"]), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15), today=TODAY)
+        self.assertFalse(bare.can_say_turn(turn), "«þúsund krónur» and «fimm» are not met: a word outside what they say")
 
     def test_a_heard_line_has_no_task_cue(self):
         cur = self._cur()

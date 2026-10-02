@@ -192,6 +192,7 @@ class Planner:
         self.support: dict[str, int] = {}
         self.dialogues_played: list[str] = []
         self.dialogues_listened: list[str] = []
+        self._chunk_cache: tuple[tuple, set[tuple[str, ...]]] | None = None
         self.listening_asked: list[dict] = []  # #179: turns asked because the learner can say the line, not `knows()` it
         self.cheap_placed: list[str] = []  # cheap constructions given a new-item place (#171 B)
         self.embedded: list[str] = []  # parts heard inside a sentence this lesson (#149)
@@ -717,10 +718,29 @@ class Planner:
             return True
         return self.learner.has_met(item_id) and not self.learner.is_open(item_id)
 
+    def _say_chunks(self, practised: bool) -> set[tuple[str, ...]]:
+        """The word chunks the learner can say (#179): a sayable item's target, a sayable construction's
+        fixed text between its slots («Það kostar»). Cached while the lesson's practice is unchanged."""
+        key = (practised, len(self.exposures), len(self.builder.in_lesson), len(self.learner.items))
+        if self._chunk_cache is not None and self._chunk_cache[0] == key:
+            return self._chunk_cache[1]
+        chunks: set[tuple[str, ...]] = set()
+        for it in self.cur.items:
+            if not self.can_say_item(it.id, practised):
+                continue
+            texts = re.split(r"\{[^}]*\}", it.target) if it.kind == "construction" else [it.target]
+            for text in texts:
+                words = tuple(w.lower() for w in _WORD_RE.findall(text))
+                if words:
+                    chunks.add(words)
+        self._chunk_cache = (key, chunks)
+        return chunks
+
     def can_say_turn(self, turn, practised: bool = True) -> bool:
         """Whether the learner can say a dialogue turn's line (#179): its item (and its fills) can be
-        said, or a construction they have met, filled with items they can say, makes the same sentence
-        (normalised text): «Það kostar fimm þúsund krónur.» from «Það kostar {price}.»."""
+        said, or, for a construction turn, the filled line is covered, in order, by chunks they can say
+        («Það kostar | fimm | þúsund krónur.»: «Það kostar {price}.», «fimm» and «þúsund krónur»). A line
+        with any word outside what they can say is not sayable."""
         if not turn.expect:
             return True
         item = self.cur.by_id[turn.expect]
@@ -729,21 +749,16 @@ class Planner:
             return True
         if item.kind != "construction":
             return False
-        want = _norm_utterance(self.cur.resolve_slots(item, fills)[0])
-        for c in self.cur.items:
-            if c.kind != "construction" or c.id == item.id or not c.slots or not self.can_say_item(c.id, practised):
-                continue
-            options = [[i for i in self.cur.items_with_tag(tag) if self.can_say_item(i.id, practised)] for tag in c.slots.values()]
-            if not all(options):
-                continue
-            names = list(c.slots)
-            combos = [{}]
-            for name, opts in zip(names, options):
-                combos = [dict(cb, **{name: o}) for cb in combos for o in opts][:2000]
-            for cb in combos:
-                if _norm_utterance(self.cur.resolve_slots(c, cb)[0]) == want:
-                    return True
-        return False
+        words = tuple(w.lower() for w in _WORD_RE.findall(self.cur.resolve_slots(item, fills)[0]))
+        chunks = self._say_chunks(practised)
+        longest = max((len(c) for c in chunks), default=0)
+        reach = [True] + [False] * len(words)  # reach[k]: the first k words are covered
+        for k in range(len(words)):
+            if reach[k]:
+                for n in range(1, min(longest, len(words) - k) + 1):
+                    if words[k : k + n] in chunks:
+                        reach[k + n] = True
+        return reach[len(words)]
 
     def listening_dialogue(self) -> tuple[Dialogue, set[str]] | None:
         """A dialogue to play as listening: one or two of its lines short (``listening_missing_max``),
