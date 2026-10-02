@@ -25,6 +25,10 @@ meaning = [
   "In {language}, say: {meaning}",
 ]
 # issue #68: the novelty claim only when the generated sentence was never presented before
+meaning_in_context = [
+  "Say: {meaning}, as in: {context}",
+  "How do you say {meaning}, as in: {context}",
+]
 recombine_new = "Now something you haven't heard yet. Say: {meaning}"
 recombine = [
   "Put it together yourself. Say: {meaning}",
@@ -53,6 +57,9 @@ embed_known = "You know this:"
 embed_part = "This word is in it:"
 embed_sentence = "In another sentence. Listen, then repeat."
 embed_meaning = "{meaning}"
+# a near form of something the learner has met (Item.variant_of)
+variant_known = "You know this one:"
+variant_form = "Here is another form of it: {meaning}"
 # a dialogue with an expression or two the learner hasn't learned, played as listening (H8)
 listening_intro = "A conversation to listen to. It has a few new expressions in it. You don't need to remember them: just hear how it goes."
 listening_line = "Here you would say:"

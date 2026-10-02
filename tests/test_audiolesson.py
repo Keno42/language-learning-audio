@@ -4868,6 +4868,62 @@ class VariantFillTests(unittest.TestCase):
         self.assertTrue({"dat_place", "adj_masc", "adj_fem", "small_count"} <= {t for i in variants for t in i.tags})
 
 
+class FormFamilyCueTests(unittest.TestCase):
+    """The owner, on «Say: good» → «gott» alone: a word's other forms (góður, góðan…) get no
+    context. A variant is introduced as a form of one the learner has, and the recall after the
+    introduction says what sentence the word is said in."""
+
+    def _cur(self):
+        return curriculum_from_dict({
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "gott", "kind": "vocab", "target": "gott", "meaning": "good", "context": "This is good."},
+                {"id": "godur", "kind": "vocab", "target": "góður", "meaning": "good (of a man)", "meaning_spoken": "good, said of a man", "variant_of": "gott"},
+            ],
+        })
+
+    def _builder(self, cur, met=()):
+        from audiolesson.exercises import Builder
+        learner = LearnerState("is", "en", "A1")
+        for i in met:
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=1, stage="meaning")
+        return Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
+
+    def _narration(self, sc, ex):
+        return [s.text for s in sc.segments if s.exercise == ex.index and s.type == "narrate"]
+
+    def test_a_recall_after_the_introduction_says_what_sentence_the_word_is_in(self):
+        cur = self._cur()
+        b = self._builder(cur)
+        sc = Script(1, "t", "is", "en")
+        said = self._narration(sc, b.recall(sc, cur.by_id["gott"], "meaning"))[0]
+        self.assertTrue(said.lower().startswith(("say: good", "how do you say good")), said)
+        self.assertIn("as in: This is good.", said)
+        self.assertNotIn(".,", said)
+        intro = self._narration(sc, b.intro(sc, cur.by_id["gott"]))
+        self.assertFalse(any("as in" in t for t in intro), "the introduction keeps its own wording")
+
+    def test_a_variant_is_introduced_as_a_form_of_one_the_learner_has(self):
+        cur = self._cur()
+        sc = Script(1, "t", "is", "en")
+        ex = self._builder(cur, met=["gott"]).intro(sc, cur.by_id["godur"])
+        said = [(s.type, s.text) for s in sc.segments if s.exercise == ex.index and s.type in ("narrate", "speak")]
+        self.assertEqual(said[0], ("narrate", "You know this one:"))
+        self.assertEqual(said[1], ("speak", "gott"))
+        self.assertIn("another form", said[2][1])
+        self.assertEqual(ex.kind, "intro")
+        sc = Script(1, "t", "is", "en")
+        plain = self._builder(cur).intro(sc, cur.by_id["godur"])
+        self.assertTrue(self._narration(sc, plain)[0].startswith("Something new"), "base not met: the usual introduction")
+
+    def test_context_is_for_phrases_and_vocab_only(self):
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict({
+                "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                "items": [{"id": "c", "kind": "construction", "target": "A {x}.", "meaning": "A {x}.", "slots": {"x": "t"}, "context": "Hi."}],
+            })
+
+
 class PlausibleFillTests(unittest.TestCase):
     """Owner, after lesson 12: never generate a sentence that makes no sense in its scene
     ("order a passport at the café"). Slot tags keep the grammar right; they must also keep

@@ -213,7 +213,9 @@ class Builder:
         """``prompt`` with "As a man:" / "As a woman:" in front when the words depend on it."""
         return self.prompts.get(f"speak_as_{gender}", prompt=prompt) if gender else prompt
 
-    def _meaning_prompt(self, meaning: str) -> str:
+    def _meaning_prompt(self, meaning: str, context: str = "") -> str:
+        if context:
+            return self.prompts.get("meaning_in_context", meaning=self._m(meaning).rstrip(".。"), context=context)
         return self.prompts.get("meaning", meaning=self._m(meaning), language=self.prompts.language_name(self.tl))
 
     def _successes(self, item: Item) -> int:
@@ -352,6 +354,9 @@ class Builder:
             return self._intro_construction(sc, item)
         if item.kind == "transform":
             return self._intro_transform(sc, item)
+        base = self.cur.by_id.get(item.variant_of) if item.variant_of else None
+        if base is not None and not item.target_m and (self.learner.has_met(base.id) or base.id in self.in_lesson):
+            return self._intro_variant(sc, item, base)
         ex = sc.new_exercise("intro", "intro", [item.id], f"new: {item.target}")
         self._narr(sc, ex, self.prompts.get("intro_new", meaning=self._m(item.spoken_meaning)))
         self._beat(sc, ex)
@@ -398,6 +403,41 @@ class Builder:
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(item.spoken_meaning)))
         self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
+        self._gap(sc, ex)
+        return ex
+
+    def _intro_variant(self, sc: Script, item: Item, base: Item) -> Exercise:
+        """A near form of something the learner has met («tvær» for «tveir», «góð» for «gott»),
+        introduced as that: «You know this:» the form they have, «Here is another form:» the
+        new one, said and repeated, then a short sentence it goes in, and a first retrieval."""
+        ex = sc.new_exercise("intro", "intro", [item.id], f"new: {item.target}")
+        self._narr(sc, ex, self.prompts.get("variant_known"))
+        self._speak(sc, ex, base.target)
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("variant_form", meaning=self._m(item.spoken_meaning)))
+        self._beat(sc, ex)
+        self._speak(sc, ex, item.target)
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("repeat"))
+        self._speak(sc, ex, item.target)
+        self._repeat_pause(sc, ex, item.target)
+        gen = self.generate_with(item, avoid_heard=True)
+        if gen is not None:
+            self.used_combos.add(gen.key)
+            gender, sentence = self._filled(gen.construction, gen.fills)
+            voice = VOICE_OF[gender or "f"]
+            self._narr(sc, ex, self._as(gender, self.prompts.get("embed_sentence")))
+            self._beat(sc, ex)
+            self._speak(sc, ex, sentence, speaker=voice)
+            self._beat(sc, ex)
+            self._narr(sc, ex, self.prompts.get("embed_meaning", meaning=self._m(gen.meaning)))
+            self._beat(sc, ex)
+            self._speak(sc, ex, sentence, speaker=voice)
+            self._repeat_pause(sc, ex, sentence)
+            self.heard.add(_norm_utterance(sentence))
+        self._narr(sc, ex, self._meaning_prompt(item.spoken_meaning))
+        self._answer_pause(sc, ex, item.target, item, generative=False)
+        self._answer(sc, ex, item.target)
         self._gap(sc, ex)
         return ex
 
@@ -504,7 +544,7 @@ class Builder:
             self._narr(sc, ex, self._as(gender, self._situation(item)))  # type: ignore[arg-type]
             self._answer_pause(sc, ex, target, item, generative=True)
         else:  # meaning (also the fallback for 'dialogue' when no dialogue fits)
-            self._narr(sc, ex, self._as(gender, self._meaning_prompt(item.spoken_meaning)))
+            self._narr(sc, ex, self._as(gender, self._meaning_prompt(item.spoken_meaning, item.context)))
             self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target, speaker=voice)
         if stage in ("cloze", "hinted") or item.difficulty >= 4:

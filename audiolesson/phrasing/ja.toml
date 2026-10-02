@@ -23,6 +23,10 @@ meaning = [
   "{language}で「{meaning}」と言ってください。",
 ]
 # issue #68: 「まだ聞いたことのない文」は、本当に初めての文のときだけ
+meaning_in_context = [
+  "「{meaning}」と言ってください。たとえば「{context}」というときの形です。",
+  "「{context}」というときの「{meaning}」は、何と言いますか？",
+]
 recombine_new = "まだ聞いたことのない文です。「{meaning}」と言ってください。"
 recombine = [
   "自分で組み立ててください。「{meaning}」。",
@@ -51,6 +55,9 @@ embed_known = "知っているフレーズです："
 embed_part = "この中の単語です："
 embed_sentence = "別の文で聞きます。聞いて、繰り返してください。"
 embed_meaning = "「{meaning}」"
+# a near form of something the learner has met (Item.variant_of)
+variant_known = "知っている形です："
+variant_form = "別の形です。「{meaning}」。"
 # a dialogue with an expression or two the learner hasn't learned, played as listening (H8)
 listening_intro = "聞くための会話です。新しい表現が少し出てきますが、覚えなくて大丈夫です。流れを聞いてください。"
 listening_line = "ここでは、こう言います。"

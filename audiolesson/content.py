@@ -131,6 +131,10 @@ class Item:
     # that lesson) may be introduced beyond the lesson's new-item limit, to fill the time with
     # something close to what they can already say rather than with the same words again.
     variant_of: str = ""
+    # A short known-language sentence the word is said in («This is good.» for «gott»): the recall
+    # prompt after its introduction says «Say: good, as in: This is good.», so the answer is the
+    # form that sentence takes rather than any of the word's family (gott, góður, góðan…).
+    context: str = ""
 
     # ---- derived helpers -------------------------------------------------
 
@@ -362,7 +366,7 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
 
 
 # fields that may carry per-language glosses (``<field>_<lang>``)
-_GLOSSED_ITEM = ("meaning", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation")
+_GLOSSED_ITEM = ("meaning", "context", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation")
 _GLOSSED_EXAMPLE = ("source_meaning", "result_meaning")
 _GLOSSED_TURN = ("cue", "opener_meaning", "partner_meaning", "expect_meaning")
 _GLOSSED_DIALOGUE = ("setting",)
@@ -524,6 +528,10 @@ def validate(cur: Curriculum) -> None:
         for e in it.examples:
             if (e.source_m and e.source_m == e.source) or (e.result_m and e.result_m == e.result):
                 raise CurriculumError(f"item {it.id!r}: a transform example's man's form must differ from its own ({e.source!r})")
+        if it.context and it.kind not in ("phrase", "vocab"):
+            raise CurriculumError(f"item {it.id!r}: context is for a phrase or vocab item (a construction is recalled through a filled sentence)")
+        if it.context and _UNSPEAKABLE_RE.search(it.context):
+            raise CurriculumError(f"item {it.id!r}: context is spoken by the instructor, so it takes no brackets or 〜")
         if it.variant_of:
             if it.variant_of == it.id or it.variant_of not in ids:
                 raise CurriculumError(f"item {it.id!r}: variant_of must name another item, not {it.variant_of!r}")

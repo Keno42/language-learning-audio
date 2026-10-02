@@ -117,6 +117,11 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   earlier in the lesson) and who hasn't met it, beyond the new-item limit: at most
   `max_variant_items` a lesson, in course order, with room for it (half a new item's time);
   `variant_items` in `plan.json`. They are not kept out of the normal course order.
+- **A variant is introduced as a form of one they have, and a word says its sentence.** A
+  `variant_of` item whose base was met is introduced «You know this one: tveir. Here is another
+  form of it: …», said and repeated, a sentence it goes in when a pattern takes it, then the usual
+  first retrieval (`_intro_variant`). An item with a `context` is recalled at the meaning stage
+  as «Say: good, as in: This is good.» (`meaning_in_context`); the introduction is unchanged.
 - **A situation is narrated in full twice a lesson.** After two narrations of the same authored
   situation (`SITUATION_FULL_MAX`) the cue is the meaning, short (or the partner's line, G12);
   «Quick review: two separate situations.» is said once. A connect() turn whose situation has no room

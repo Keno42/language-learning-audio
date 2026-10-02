@@ -1371,7 +1371,9 @@ class Planner:
             idx += 1
             since_dialogue += 1
             if sc.exercises and sc.exercises[-1].kind not in ("note", "opening"):
-                milestone = self._maybe_note(sc, sc.exercises[-1].item_ids, budget - closing_reserve - sc.total_duration)
+                # an aside is about what was practised: a listening dialogue's missing items are only heard
+                practised = [i for i in sc.exercises[-1].item_ids if self.learner.has_met(i) or i in self.exposures or i in b.in_lesson]
+                milestone = self._maybe_note(sc, practised, budget - closing_reserve - sc.total_duration)
                 if milestone is not None:
                     do_discriminate(milestone)
             drill_streak = self._trailing_drill_streak(sc)
