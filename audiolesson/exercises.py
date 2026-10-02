@@ -58,9 +58,10 @@ def _norm_utterance(text: str) -> str:
 BRIDGE_GLOSS_ENCOUNTERS = 2  # a partner_cue is glossed on the learner's first N hearings of that bridge
 PROMPT_GLOSS_HEARINGS = 2  # a prompt_by line not yet known is glossed on its first N hearings in a lesson
 FORM_SHARE = 0.25  # the most a negative or question form takes of a lesson's generated sentences (#171)
-FORM_HARD_CAP = 0.35  # a form is not chosen at all once it has this share of the lesson's generated sentences
-FORM_ALL_HARD_CAP = 0.55  # …nor any form once the forms together have this share
+FORM_HARD_CAP = 0.35  # a form is not chosen at all if it would pass this share of the lesson's generated sentences
+FORM_ALL_HARD_CAP = 0.5  # …nor any form that would leave the forms together above this share
 FORM_CAP_FROM = 6  # …counted from this many generated sentences (before that a share is meaningless)
+CONSTRUCTION_CEILING = 10  # generated sentences one construction may have in a lesson (#180; §9 "about ten uses", extended to patterns)
 FORM_EXTRA_NEW = 2  # sentences in a form taught this lesson, beyond the practice right after its note
 SITUATION_FULL_MAX = 2  # an authored situation is narrated in full at most this often in a lesson (G12)
 
@@ -85,6 +86,7 @@ class Builder:
     _last_partner_cue: int | None = None  # index of the latest partner-line cue exercise (no repeated "Reply.")
     _prompt_glosses: dict[str, int] = field(default_factory=dict)  # partner-line cues glossed this lesson, per prompting item
     notes_taught: set[str] = field(default_factory=set)  # notes played this lesson (the learner state updates after it)
+    construction_counts: dict[str, int] = field(default_factory=dict)  # generated sentences this lesson, by construction (#180)
     form_counts: dict[str, int] = field(default_factory=dict)  # generated sentences this lesson, by form ("plain", "negative", "question")
     form_extra: dict[str, int] = field(default_factory=dict)  # …of a form taught this lesson, outside its practice right after the note
 
@@ -619,12 +621,15 @@ class Builder:
         #105). With no such combination left, None: the caller falls back to a plain recall
         rather than replaying a line under a "make a sentence" label."""
         if item.kind == "construction":
+            if self.construction_full(item):
+                return None  # the ceiling: about ten generated sentences of one pattern in a lesson (#180)
             gen = self.generate(item, avoid_heard=True, met_fills=met_fills, forms=True, form=form)
         else:
             gen = self.generate_with(item, avoid_heard=True, forms=True)
         if gen is None:
             return None
         self.used_combos.add(gen.key)
+        self.construction_counts[gen.construction.id] = self.construction_counts.get(gen.construction.id, 0) + 1
         self.form_counts[gen.form or "plain"] = self.form_counts.get(gen.form or "plain", 0) + 1
         if gen.form and form is None:
             self.form_extra[gen.form] = self.form_extra.get(gen.form, 0) + 1
@@ -682,6 +687,8 @@ class Builder:
                     return self.generate(it, avoid_heard=avoid_heard, met_fills=met_fills, forms=True)
                 return self.generate_with(it, avoid_heard=avoid_heard, forms=True)
 
+            if item.kind == "construction" and self.construction_full(item):
+                return "heard"
             if gen(item, avoid_heard=True) is not None:
                 return "novel"
             return "heard" if gen(item) is not None else "impossible"
@@ -800,11 +807,21 @@ class Builder:
             if f in fresh and self.form_extra.get(f, 0) >= FORM_EXTRA_NEW:
                 continue
             actual = self.form_counts.get(f or "plain", 0) / total if total else 0.0
-            forms_share = 1.0 - self.form_counts.get("plain", 0) / total if total else 0.0
-            if f and total >= FORM_CAP_FROM and (actual >= FORM_HARD_CAP or forms_share >= FORM_ALL_HARD_CAP):
-                continue  # at its share: the supply may run short rather than the forms crowd out the plain sentences
+            if f and total >= FORM_CAP_FROM:
+                # the shares this sentence would leave (#180: the plain sentences stay at least half of the
+                # lesson's: a cap tested before the sentence let the forms settle at the cap, plain just under half)
+                forms_after = (total - self.form_counts.get("plain", 0) + 1) / (total + 1)
+                form_after = (self.form_counts.get(f, 0) + 1) / (total + 1)
+                if form_after > FORM_HARD_CAP or forms_after > FORM_ALL_HARD_CAP:
+                    continue  # at its share: the supply may run short rather than the forms crowd out the plain sentences
             ranked.append((-(desired[f] - actual) + self.rng.random() * 0.01, f))
         return [f for _, f in sorted(ranked, key=lambda t: t[0])] or [None]
+
+    def construction_full(self, c: Item) -> bool:
+        """A construction that has had ``CONSTRUCTION_CEILING`` generated sentences this lesson (#180). The
+        backstop: it stops a word's sentences, and the pattern's own recombinations, going to that pattern.
+        Its introduction and its timed recalls (not generated sentences) are not held to it."""
+        return self.construction_counts.get(c.id, 0) >= CONSTRUCTION_CEILING
 
     def generate_with(self, vocab: Item, avoid_heard: bool = False, forms: bool = False) -> Generated | None:
         """Find a known construction with a slot that accepts ``vocab`` and fill it.
@@ -820,6 +837,10 @@ class Builder:
         if not homes:
             return None
         self.rng.shuffle(homes)
+        # rotate (#180): the home with the fewest sentences this lesson first, so a new pattern with many
+        # fillers doesn't win most draws; one that is full takes no more (the ceiling, for a word with one home)
+        homes = [h for h in homes if not self.construction_full(h[0])]
+        homes.sort(key=lambda h: self.construction_counts.get(h[0].id, 0))
         fallback = None
         for c, slot in homes:
             gen = self.generate(c, fixed={slot: vocab}, avoid_heard=avoid_heard, forms=forms)
