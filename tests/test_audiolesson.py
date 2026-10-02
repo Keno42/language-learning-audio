@@ -5224,6 +5224,62 @@ class RequestPatternSupplyTests(unittest.TestCase):
         self.assertTrue(seen <= {"Ég ætla að fá ost.", "Get ég fengið ost?", "Áttu ost?"}, seen)
 
 
+class RefreshConstructionTests(unittest.TestCase):
+    """Owner, on «Má ég {inf}?», «Ég ætla að {inf}.», «Viltu {inf}?»: a few sentences of each in every
+    lesson is welcome, with the parts changing; the real practice is for the first appearance and for
+    what the learner couldn't say."""
+
+    @staticmethod
+    def _cur(refresh=3):
+        words = [{"id": f"w{i}", "kind": "vocab", "target": f"orð{i}", "meaning": f"word {i}", "tags": ["t"]} for i in range(8)]
+        others = [{"id": f"r{i}", "kind": "phrase", "target": f"Rifja {i}.", "meaning": f"Review {i}."} for i in range(40)]
+        c = {"id": "c", "kind": "construction", "target": "Má ég {x}?", "meaning": "May I {x}?", "slots": {"x": "t"}}
+        if refresh:
+            c["refresh"] = refresh
+        return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": words + others + [c]})
+
+    def _build(self, cur, known=True, outcome="recalled", minutes=30):
+        """Neither the construction nor its fillers are due (their own reviews wait ten days): what the
+        construction gets is the light review."""
+        learner = LearnerState("is", "en", "A1")
+        for i in [f"r{i}" for i in range(40)]:
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="meaning", recalled=3, last_outcome="recalled")
+        for i in [f"w{i}" for i in range(8)]:  # known, not due: their own reviews don't use up the sentences
+            learner.items[i] = ItemState(due=(TODAY + timedelta(days=10)).isoformat(), successes=3, durable_successes=3, stage="meaning", recalled=3, interval_days=10, last_outcome="recalled")
+        if known:
+            learner.items["c"] = ItemState(due=(TODAY + timedelta(days=10)).isoformat(), successes=3, durable_successes=3, stage="meaning", recalled=3, interval_days=10, last_outcome=outcome)
+        return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=minutes, seed=1, new_items=0), today=TODAY).build()
+
+    def test_a_known_construction_comes_back_a_few_times_spread_over_the_lesson(self):
+        sc = self._build(self._cur())
+        mine = [e for e in sc.exercises if e.kind == "generative" and e.item_ids[0] == "c"]
+        self.assertGreaterEqual(sc.meta["refresh_sentences"].get("c", 0), 3)
+        self.assertGreaterEqual(len(mine), 3)
+        self.assertEqual(len({e.label for e in mine}), len(mine), "a different sentence each time")
+        starts = [e.start / sc.total_duration for e in mine]
+        self.assertLess(starts[0], 0.4)
+        self.assertGreater(starts[-1], 0.5, "spread over the lesson, not stacked")
+
+    def test_not_a_construction_that_isnt_known_or_failed_or_has_no_refresh(self):
+        self.assertEqual(self._build(self._cur(), known=False).meta["refresh_sentences"], {})
+        self.assertEqual(self._build(self._cur(), outcome="not_recalled").meta["refresh_sentences"], {}, "an open one has its own practice")
+        self.assertEqual(self._build(self._cur(refresh=0)).meta["refresh_sentences"], {})
+
+    def test_refresh_is_validated(self):
+        for bad in (0, 6, -1):
+            raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                   "items": [{"id": "w", "kind": "vocab", "target": "w", "meaning": "w", "tags": ["t"]},
+                             {"id": "c", "kind": "construction", "target": "A {x}.", "meaning": "A {x}.", "slots": {"x": "t"}, "refresh": bad}]}
+            if bad == 0:
+                curriculum_from_dict(raw)  # 0 is the default: no refresh
+                continue
+            with self.assertRaises(CurriculumError):
+                curriculum_from_dict(raw)
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                                  "items": [{"id": "p", "kind": "phrase", "target": "P.", "meaning": "P.", "refresh": 2}]})
+
+
 class PlausibleFillTests(unittest.TestCase):
     """Owner, after lesson 12: never generate a sentence that makes no sense in its scene
     ("order a passport at the café"). Slot tags keep the grammar right; they must also keep

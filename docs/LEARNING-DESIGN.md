@@ -673,6 +673,11 @@ Don't reopen these without new evidence; when you do, say what changed.
     most twice in a lesson; after that the cue is the meaning, or the partner's line (G12;
     #170).
   - Not-due items wait for their date (#94).
+  - **Exception: `refresh` (#175).** A known construction that carries `refresh` returns every
+    lesson as a few light sentences with *changing* parts. This is deliberate and is not the
+    #94 / H11 bug (já, nei, hæ coming back unchanged): the owner wants the pattern with different
+    fillers, and what is unwelcome is the bare repeat. Its variety is bounded by the fillers the
+    learner knows, so it grows with #171's supply, not with this mechanism.
   - A short item (a word, or a one-word question such as «Hvenær?»; sentences and full
     questions of two words are not short items) is said alone at most **three** times in a lesson; the rest of its practice is inside sentences,
     preferably different ones, up to about **ten** uses in all (owner, after replaying lesson

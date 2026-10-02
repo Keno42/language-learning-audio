@@ -797,6 +797,8 @@ class Planner:
         connect_item_uses: dict[str, int] = {}
 
         open_timeline: list[tuple[float, int, Item, str]] = []
+        refresh_timeline: list[tuple[float, int, Item]] = []  # a known construction's light review sentences (#171)
+        refresh_done: dict[str, int] = {}
         intro_timeline: list[tuple[float, int, Item, str]] = []  # today's items' recalls, by time
         sentence_used: dict[str, set[str]] = {}  # per short item, the sentences practised this lesson
         capped_backlog: list[tuple[float, int, Item, str]] = []  # recalls dropped for want of a sentence
@@ -1177,6 +1179,34 @@ class Planner:
             schedule_open(self.cur.by_id[item_id], k)
             reviews_used.append(item_id)
         open_timeline.sort(key=lambda t: t[:2])
+        refresh_items = [
+            c for c in self.cur.items
+            if c.kind == "construction" and c.refresh and self.learner.knows(c.id) and not self.learner.is_open(c.id)
+        ]
+        for j, c in enumerate(refresh_items):
+            for k in range(c.refresh):
+                # the constructions interleave across each stretch of the lesson, never stacked
+                seq += 1
+                refresh_timeline.append(((budget - closing_reserve) * (k + (j + 1) / (len(refresh_items) + 1)) / c.refresh, seq, c))
+        refresh_timeline.sort()
+
+        def play_refresh(due_only: bool) -> bool:
+            """The next light-review sentence of a known construction (its time has come, or, in an idle
+            lesson, any); a construction with no sentence left that hasn't been heard is dropped."""
+            for entry in list(refresh_timeline):
+                if due_only and entry[0] > sc.total_duration:
+                    break
+                if entry[2].id in recent:
+                    continue
+                refresh_timeline.remove(entry)
+                ex = b._recombine(sc, entry[2], met_fills=True)
+                if ex is None:
+                    continue
+                self._record([entry[2].id], "recombine", ex.item_ids)
+                touch(entry[2])
+                refresh_done[entry[2].id] = refresh_done.get(entry[2].id, 0) + 1
+                return True
+            return False
 
         def start_arc(more: list[Item]) -> None:
             """A fresh arc of new material: its first item now, the rest queued (an arc's
@@ -1245,6 +1275,8 @@ class Planner:
                 if not acted and reviews_used and (sub := pick_substitution()) is not None:
                     do_substitution(sub)  # a generative exercise breaks the streak too: a known pattern, other words
                     acted = True
+                if not acted and play_refresh(due_only=False):
+                    acted = True  # a sentence of a known construction, with other fillers, breaks a streak too
                 if not acted and try_variant():
                     acted = True
                 if not acted and remaining >= 40:
@@ -1291,6 +1323,10 @@ class Planner:
                     do_recall(entry[2], entry[3])
                     acted = True
                     break
+
+            # 0f. a known construction's light review: a sentence with other fillers, now and then (#171)
+            if not acted and drill_streak < cfg.drill_streak_limit - 1:
+                acted = play_refresh(due_only=True)
 
             # 0e. today's items come back at their times after the introduction, interleaved
             #     because each introduction has its own times (§9 "Repetition")
@@ -1461,6 +1497,8 @@ class Planner:
                     # not at all (#149); the timed entries (0d) are the normal route
                     open_timeline.remove(early_open)
                     do_recall(early_open[2], early_open[3])
+                elif play_refresh(due_only=False):
+                    pass  # nothing else is left: the light reviews of known constructions come early
                 elif bare_cap[0] > 0 and try_variant():
                     pass  # close variants of what they know fill the time before the same words come back
                 elif bare_cap[0] > 0 and (capped_backlog or intro_timeline):
@@ -1527,6 +1565,7 @@ class Planner:
             "new_items": [i.id for i in introduced] + list(self.embedded),
             "embedded_items": list(self.embedded),
             "variant_items": list(variants_used),
+            "refresh_sentences": dict(refresh_done),
             "cheap_constructions": list(self.cheap_placed) + list(cheap_used),  # #171 B: taken in a new-item place / beyond the limit
             "forms_taught": [self.cur.note_by_id[n].teaches for n in self.notes_played if self.cur.note_by_id[n].teaches],
             "bare_cap_lapsed": cfg.max_bare_uses > 0 and bare_cap[0] == 0,  # nothing else was left: short items were said alone again

@@ -131,6 +131,13 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   first (variety, not replacement). When plain sentences run out the supply may run short rather
   than the newest form crowd them out. Japanese glosses of a form that depend on the fill's word
   class use a per-fill `meaning_forms_ja` (`neg`, `tai`, `tai_neg`).
+- **A core construction gets a light review every lesson (#171).** `Item.refresh` sentences of a known,
+  not open construction are scheduled across the lesson (`refresh_timeline`, constructions interleaved),
+  each a recombination with fillers not heard this lesson (`_recombine`, `met_fills`, forms once taught);
+  one whose time has come plays when the drill streak allows, an idle lesson and a streak with no relief
+  pull them early (`play_refresh`), and a construction with no unheard sentence left is dropped for the
+  lesson. `refresh_sentences` in `plan.json`. A construction that is open or unknown gets none: its own
+  practice is the heavy one.
 - **Cheap constructions come early (#171 B).** A construction is cheap when it is unmet, its prerequisites
   are known and every slot has `cheap_min_fillers` known fillers (`Planner.cheap_construction`, the
   one adding the most sentences first). `select_new(cheap=True)`, for the lesson's own new items, puts
