@@ -41,6 +41,12 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   a durable success nor lengthens its interval (it is due again tomorrow). Each lesson practises
   up to `max_open_items` of them, five times at fractions of the lesson time (`open_item_times`, by time not exercise count); the ones that failed last lesson go first, then the longest without an open practice (`ItemState.open_practiced`), and lists them in
   `plan.json` (`open_items`, `open_not_fitted`) so the bot can ask them.
+- **Listening dialogues (#149 step 3).** With nothing else left (step 5, before today's items
+  are repeated, or as the last drill-streak relief), a dialogue lacking one or two required
+  items (`Planner.listening_dialogue`) plays whole: the turn for a missing item is «Here you
+  would say:», the line, its meaning, with no pause for the learner. The missing items are never
+  recorded (they stay unmet, never in the review) and a dialogue so heard rests six lessons
+  (`dialogues_listened`). `max_listening_dialogues=0` reproduces the earlier planner.
 - **Generated sentences use only available parts.** A fill is known or introduced earlier
   in the lesson. A construction's `situation_fill` makes its situation wait for that fill.
   A dialogue turn's `expect_fill` binds every slot, so every spoken part is a required item.
