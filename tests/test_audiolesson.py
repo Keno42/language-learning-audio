@@ -2869,6 +2869,40 @@ class CurriculumTests(unittest.TestCase):
         dlg = cur.dialogue_by_id[worst["dialogue"]]
         self.assertNotIn(worst["item"], dlg.required_items)
 
+    def test_part_before_whole_report_and_the_hvenaer_fix(self):
+        """G13 (lesson 13 feedback): «Hvenær?» came as a new item after «Hvenær leggjum við af
+        stað?». The report is advisory; the phrase now lists the word as a prerequisite."""
+        from audiolesson.content import part_before_whole_report
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertIn("hvenaer", cur.by_id["hvenaer_leggjum_vid_af_stad"].prereqs)
+        found = {(f["whole"], f["part"]) for f in part_before_whole_report(cur)}
+        self.assertNotIn(("hvenaer_leggjum_vid_af_stad", "hvenaer"), found)
+        small = curriculum_from_dict({
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "whole", "kind": "phrase", "target": "Hvenær kemur þú?", "meaning": "When do you come?"},
+                {"id": "part", "kind": "phrase", "target": "Hvenær?", "meaning": "When?"},
+            ],
+        })
+        self.assertEqual([(f["whole"], f["part"]) for f in part_before_whole_report(small)], [("whole", "part")])
+        small.by_id["whole"].prereqs.append("part")
+        self.assertEqual(part_before_whole_report(small), [])
+
+    def test_a_phrase_waits_for_its_part_and_comes_after_it(self):
+        cur = curriculum_from_dict({
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "whole", "kind": "phrase", "target": "Hvenær kemur þú?", "meaning": "When do you come?", "prereqs": ["part"]},
+                {"id": "other", "kind": "phrase", "target": "Takk fyrir.", "meaning": "Thanks."},
+                {"id": "part", "kind": "phrase", "target": "Hvenær?", "meaning": "When?"},
+            ],
+        })
+        learner = LearnerState("is", "en", "A1")
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, new_items=3, priority=["whole"]), today=TODAY).build()
+        order = sc.meta["new_items"]
+        self.assertLess(order.index("part"), order.index("whole"))
+
     def test_frame_gap_report_flags_bare_words(self):
         """Issue #80: a vocab item climbs past ``meaning`` only in a frame (a construction with
         a slot for one of its tags) or a dialogue that requires it. The report lists words whose
