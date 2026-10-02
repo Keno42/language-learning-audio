@@ -59,7 +59,7 @@ BRIDGE_GLOSS_ENCOUNTERS = 2  # a partner_cue is glossed on the learner's first N
 PROMPT_GLOSS_HEARINGS = 2  # a prompt_by line not yet known is glossed on its first N hearings in a lesson
 FORM_SHARE = 0.25  # the most a negative or question form takes of a lesson's generated sentences (#171)
 FORM_HARD_CAP = 0.35  # a form is not chosen at all once it has this share of the lesson's generated sentences
-FORM_ALL_HARD_CAP = 0.55  # …nor any form once the forms together have this share
+FORM_ALL_HARD_CAP = 0.5  # …nor any form once the forms together have this share
 FORM_CAP_FROM = 6  # …counted from this many generated sentences (before that a share is meaningless)
 FORM_EXTRA_NEW = 2  # sentences in a form taught this lesson, beyond the practice right after its note
 SITUATION_FULL_MAX = 2  # an authored situation is narrated in full at most this often in a lesson (G12)
@@ -642,6 +642,34 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def sentence_recall(self, sc: Script, item: Item) -> Exercise | None:
+        """A short item asked inside a sentence it was already in this lesson (#179): the closing recall
+        of an item said in sentences asks a sentence, not the bare part. A plain meaning recall of a
+        filled pattern (a heard line may repeat; it is not offered as «make a sentence»), preferring the
+        item's ``context`` sentence. None when no known pattern takes the item."""
+        gen = None
+        want = _norm_utterance(item.context) if item.context else ""
+        for _ in range(12 if want else 1):
+            state = self.rng.getstate()
+            cand = self.generate_with(item)
+            if cand is None:
+                return None
+            gen = cand
+            if not want or _norm_utterance(cand.meaning) == want:
+                break
+            self.rng.setstate(state)  # keep the draw order stable, then try the next home
+            self.rng.random()
+        if gen is None:
+            return None
+        gender, target = self._filled(gen.construction, gen.fills, form=gen.form)
+        ids = [item.id] + [i for i in gen.item_ids if i != item.id]
+        ex = sc.new_exercise("recall", "meaning", ids, f"meaning: {target}")
+        self._narr(sc, ex, self._as(gender, self._meaning_prompt(gen.meaning)))
+        self._answer_pause(sc, ex, target, item, generative=False)
+        self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
+        self._gap(sc, ex)
+        return ex
+
     def recombine_status(self, item: Item, met_fills: bool = False) -> str:
         """Whether a recombine exercise for ``item`` could make a sentence now: "novel" (one
         not yet heard this lesson), "heard" (only already-presented sentences are possible)
@@ -986,11 +1014,14 @@ class Builder:
                 item = None
                 gender = GENDER_OF[learner_voice] if turn.expect_text_m else None
                 expected = (turn.expect_text_m if gender == "m" else turn.expect_text) or ""
-            if assisted or not heard_partner:
+            heard_only = item is not None and item.id in listening  # no task cue: nothing is asked
+            if heard_only:
+                pass
+            elif assisted or not heard_partner:
                 self._narr(sc, ex, self._as(gender, turn.cue))
             elif gender:
                 self._narr(sc, ex, self.prompts.get(f"speak_as_{gender}_alone"))
-            if item is not None and item.id in listening:
+            if heard_only:
                 self._narr(sc, ex, self.prompts.get("listening_line"))
                 self._answer(sc, ex, expected, speaker=learner_voice)
                 self._beat(sc, ex)

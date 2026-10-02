@@ -54,6 +54,12 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   would say:», the line, its meaning, with no pause for the learner. The missing items are never
   recorded (they stay unmet, never in the review) and a dialogue so heard rests six lessons
   (`dialogues_listened`).
+  **A line is "missing" when the learner can't say it (#179), not when `knows()` says so**
+  (`Planner.can_say_item`/`can_say_turn`): said if its item is met and not open, practised this
+  lesson, or a met construction filled with items they can say makes the same sentence. A heard
+  turn has no task cue. A dialogue with no missing line is ordinary (asked, with its pauses, not
+  counted in `dialogues_listened`); `listening_asked` in `plan.json` lists the turns asked
+  because the line can be said although `knows()` is false.
 - **Embedded parts (#149).** A vocab word with a slot to go in (`Builder.generate_with` finds the
   sentence) whose words sit inside an item the learner has met (not open), or met earlier in the
   lesson, is not introduced on its own (`Planner.embed_source`, the shortest such item):
@@ -112,6 +118,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (`bare_cap_lapsed` in `plan.json`), so a lesson never ends short for this alone. A drill
   streak is also broken by a substitution or a sentence for a short item before it ends the
   lesson.
+  A short item introduced today that has been said inside a sentence in this lesson is asked in a
+  sentence from then on, the closing recall included (#179: `ask_a_sentence`, `Builder.sentence_recall`
+  with its `context` sentence first), not as a bare part; a short item with no sentence yet keeps the
+  bare recall.
 - **Constructions have authored negative and question forms (#171).** `Item.negative` /
   `question` (with meanings) are alternatives of a construction's target template, never derived;
   `validate` checks slots, «ekki», «?» and the meanings. `Builder.generate(forms=True)` may pick

@@ -732,6 +732,11 @@ Don't reopen these without new evidence; when you do, say what changed.
     practices and substitutions leave the lesson short, the cap lapses and the dropped recalls
     come back (`bare_cap_lapsed`): the daily dose above ranks over "alone at most three". A
     graded lapse (4, then 5…) would keep more of the cap; it is the owner's call.
+  - **"Can the learner say it?" is judged per line (#179).** A line is sayable if its item is
+    met and not open, was practised this lesson, or a met pattern with met parts makes the same
+    sentence; `knows()` is a scheduling notion, not "can produce". A sayable line in a listening
+    dialogue is asked with its pause (a heard line has no task cue), and a short item already said
+    in a sentence this lesson is asked in a sentence at the closing, not as a bare part.
 - **Generation and audio.**
   - Only plausible sentences in plausible scenes (owner after L12).
   - No pause stretching to fill a short lesson (owner after L12).

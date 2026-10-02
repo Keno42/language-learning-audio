@@ -4769,6 +4769,94 @@ class SpreadIntroductionTests(unittest.TestCase):
         self.assertLess(worst_gap, 9 * 60, "the longest stretch without a new item used to be 10-11 minutes")
 
 
+class SayableLineTests(unittest.TestCase):
+    """#179 (lesson 14 feedback): "can the learner say this line?" is judged per line, not per item
+    from ``knows()``: a line they can say is asked (with a pause) even in a listening dialogue, and a
+    short item already said in a sentence is asked in one at the closing, not as a bare part."""
+
+    @staticmethod
+    def _cur():
+        items = [
+            {"id": "k0", "kind": "phrase", "target": "Þekkt núll.", "meaning": "Known zero."},
+            {"id": "fimm", "kind": "vocab", "target": "fimm", "meaning": "five", "tags": ["num"]},
+            {"id": "p5", "kind": "vocab", "target": "fimm þúsund krónur", "meaning": "five thousand krónur", "tags": ["price"]},
+            {"id": "kostar", "kind": "construction", "target": "Það kostar {price}.", "meaning": "It costs {price}.", "slots": {"price": "price"}},
+            {"id": "big", "kind": "construction", "target": "Það kostar {count} þúsund krónur.", "meaning": "It costs {count} thousand krónur.", "slots": {"count": "num"}},
+        ]
+        turns = [
+            {"cue": "Tell him it costs five thousand krónur.", "expect": "big", "expect_fill": {"count": "fimm"}, "partner": "Dýrt.", "partner_meaning": "Dear."},
+            {"cue": "Say known zero.", "expect": "k0"},
+        ]
+        return curriculum_from_dict({
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": items,
+            "dialogues": [{"id": "d1", "setting": "A stall.", "requires": ["k0", "fimm"], "turns": turns}],
+        })
+
+    @staticmethod
+    def _learner(met):
+        learner = LearnerState("is", "en", "A1")
+        for i in met:  # met and recalled once: not `knows()` (two durable recalls), but the learner can say it
+            learner.items[i] = ItemState(stage="meaning", successes=1, recalled=1, durable_successes=1, interval_days=1,
+                                         due=(TODAY + timedelta(days=1)).isoformat(), last_practiced=TODAY.isoformat())
+        return learner
+
+    def _planner(self, cur, learner):
+        return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, new_items=0, max_new_items=0), today=TODAY)
+
+    def test_a_line_another_pattern_makes_is_asked_not_told(self):
+        cur = self._cur()
+        learner = self._learner(["k0", "fimm", "p5", "kostar"])
+        planner = self._planner(cur, learner)
+        turn = cur.dialogues[0].turns[0]
+        self.assertFalse(any(learner.knows(i) for i in ("big", "p5", "kostar")))
+        self.assertTrue(planner.can_say_turn(turn), "«Það kostar fimm þúsund krónur.» from «Það kostar {price}.»")
+        found = planner.listening_dialogue()
+        self.assertEqual((found[0].id, found[1]), ("d1", set()), "nothing is missing: an ordinary dialogue")
+        sc = Script(1, "t", "is", "en")
+        planner._play_listening(sc, *found)
+        pauses = [s for s in sc.segments if s.type == "pause" and s.role == "answer"]
+        self.assertEqual(len(pauses), 2, "both turns are asked, with a pause")
+        self.assertNotIn("Here you would say", sc.transcript())
+        self.assertEqual(planner.dialogues_listened, [], "an ordinary dialogue is not counted against the listening rest")
+        self.assertEqual(planner.listening_asked[0]["dialogue"], "d1")
+        self.assertIn("big", planner.listening_asked[0]["items"])
+        # without «Það kostar {price}.» and «fimm þúsund krónur» the line can't be said: it is heard
+        bare = self._planner(cur, self._learner(["k0", "fimm"]))
+        self.assertFalse(bare.can_say_turn(turn))
+        self.assertEqual(bare.listening_dialogue()[1], {"big"})
+
+    def test_a_heard_line_has_no_task_cue(self):
+        cur = self._cur()
+        planner = self._planner(cur, self._learner(["k0", "fimm"]))
+        sc = Script(1, "t", "is", "en")
+        planner._play_listening(sc, cur.dialogues[0], {"big"})
+        text = sc.transcript()
+        self.assertIn("Here you would say:", text)
+        self.assertNotIn("Tell him it costs five thousand krónur.", text, "«Tell him…» contradicts «Here you would say:»")
+        self.assertIn("Say known zero.", text, "the lines that are asked keep their cue")
+
+    def test_a_short_item_said_in_a_sentence_is_asked_in_one_at_the_closing(self):
+        checked = 0
+        for n, (cur, sc) in enumerate(ShortItemRepetitionTests._course(14), 1):
+            closing = next((e.index for e in sc.exercises if e.kind == "closing" and e.label == "final review"), None)
+            if closing is None:
+                continue
+            for i in sc.meta["new_items"]:
+                it = cur.by_id[i]
+                if i in sc.meta["embedded_items"] or it.kind in ("construction", "transform") or it.word_count > 2:
+                    continue
+                before = [e for e in sc.exercises if e.index < closing and (e.kind == "generative" and i in e.item_ids or e.kind == "recall" and i in e.item_ids[1:])]
+                if not before:
+                    continue
+                at_close = [e for e in sc.exercises if e.index > closing and i in e.item_ids]
+                if not at_close:
+                    continue
+                checked += 1
+                self.assertFalse(any(e.item_ids == [i] and e.kind == "recall" for e in at_close), (n, i, [e.label for e in at_close]))
+        self.assertGreater(checked, 10)
+
+
 class ShortItemRepetitionTests(unittest.TestCase):
     """Lesson 13 feedback, and lessons 6 and 13 before it (G14, §9 "Repetition"): a short new
     item was said alone six to nine times, within minutes, and the same English situation was
