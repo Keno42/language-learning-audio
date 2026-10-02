@@ -640,11 +640,12 @@ Don't reopen these without new evidence; when you do, say what changed.
 
 - **Pace.** It never depends on the departure date. Lessons go on at the same best-effort
   pace before and during the trip, throttled only by recall reports (owner; #129, #131).
-  One exception, revised in #170: when a lesson has run out of other material, up to four
-  **close variants** (`Item.variant_of`: another case, another gender) of something the learner
-  knows are introduced beyond the pace, rather than the same words again. The reason is the
-  daily dose below; `variant_items` in `plan.json` lets the weekly read count them apart from
-  the pace.
+  The pace is throttled by what needs review: a learner with much to review gets fewer new
+  items because the lesson is full. **Close variants** (`Item.variant_of`: another case, another
+  gender of something the learner knows) come in beyond the pace only when the lesson has run
+  out of other material (up to four, #170), so they follow that rule and don't revise it. They
+  are listed apart in `plan.json` (`variant_items`), so the weekly read doesn't count them as a
+  pace change.
 - **Evidence.**
   - Presumed success is kept apart from confirmed outcomes (#119).
   - The last lesson's new items are reviewed before the next lesson is generated (bot).
