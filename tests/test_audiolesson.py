@@ -4485,8 +4485,6 @@ class EmbeddedPartTests(unittest.TestCase):
             sc = self._plan(cur, self._learner(**kw))
             self.assertEqual(sc.meta["embedded_items"], [], kw)
             self.assertIn("opid", sc.meta["exposures"], kw)
-        sc = self._plan(self._cur(), self._learner(), embed_parts=False)
-        self.assertEqual(sc.meta["embedded_items"], [])
 
     def test_the_review_asks_the_sentence(self):
         cur = self._cur()

@@ -55,7 +55,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   asks the sentence (`review_questions`, stage `embed`; the plan lists the part in `new_items`
   and `embedded_items`). Said back it becomes a learned item (two durable successes, due in three
   days); not said, `embed_failed` and the usual introduction later. `select_new` skips a pending
-  one; `simulate_reach` counts it reached. `embed_parts=False` reproduces the earlier planner.
+  one; `simulate_reach` counts it reached.
 - **Generated sentences use only available parts.** A fill is known or introduced earlier
   in the lesson. A construction's `situation_fill` makes its situation wait for that fill.
   A dialogue turn's `expect_fill` binds every slot, so every spoken part is a required item.

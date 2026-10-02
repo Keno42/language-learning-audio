@@ -47,10 +47,6 @@ class PlanConfig:
     # (its scene carries the meaning, H8). Those items are heard, not learned: never recorded,
     # never asked in the review. At most this many per lesson, each resting
     # ``listening_rest_lessons`` lessons. 0 reproduces the earlier planner.
-    # Issue #149 (lesson 13 feedback: parts of phrases the learner can say came back as single
-    # words): such a part is heard inside an easy sentence instead of being introduced alone;
-    # the review decides whether it counts as learned. False reproduces the earlier planner.
-    embed_parts: bool = True
     max_listening_dialogues: int = 2
     listening_missing_max: int = 2
     listening_rest_lessons: int = 6
@@ -551,9 +547,8 @@ class Planner:
         feedback: «opið», «miða»… came back as single words long after the learner could say
         the phrase that holds them). A vocab word with a slot to go in (``embed`` finds the
         sentence) whose words sit inside another item the learner has met (and hasn't failed),
-        or met earlier this lesson, and that wasn't embedded before. ``embed_parts=False``
-        reproduces the earlier planner."""
-        if not self.cfg.embed_parts or item.kind != "vocab" or not item.tags:
+        or met earlier this lesson, and that wasn't embedded before."""
+        if item.kind != "vocab" or not item.tags:
             return False
         if item.id in self.learner.embedded or item.id in self.learner.embed_failed or self.learner.has_met(item.id):
             return False
