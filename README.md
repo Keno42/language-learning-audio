@@ -178,7 +178,9 @@ padding. From roughly lesson 5 on, the length is exact.
 2. **Timeline.** Each new item is introduced (listen, repeat; hard phrases are
    built backwards from the last word; a slow rendition is always followed by
    natural speed) and immediately retrieved once. Its reactivations are then
-   scheduled after 3, 5, 8 and 13 intervening exercises, each at a harder stage.
+   scheduled by time (about 1, 3, 8 and 15 minutes of a 30-minute lesson after the
+   introduction), each at a harder stage; a short item (one or two words) is said
+   alone at most three times in a lesson, its other practice being inside sentences.
    Reviews of older items fill the gaps, avoiding the same item or topic twice
    in a row. Every few exercises a dialogue is played if the learner knows all
    its lines — two turns the first time, one more turn on each later

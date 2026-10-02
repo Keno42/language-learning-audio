@@ -1,7 +1,7 @@
 """Lesson planner: decides what to practise, in what order, at which stage.
 
 Principles it enforces (see README "How a lesson is built"):
-- a few new items, each reactivated at expanding gaps within the lesson
+- a few new items, each reactivated at expanding times within the lesson
 - reviews of older material interleaved between them
 - generative recombination and dialogues once enough is known
 - a closing block that ends on successful recall of today's material
@@ -32,7 +32,16 @@ class PlanConfig:
     new_items: int | None = None  # default derived from minutes
     topics: list[str] = field(default_factory=list)
     seed: int | None = None
-    reactivation_gaps: list[int] = field(default_factory=lambda: [3, 5, 8, 13])  # exercises between recalls
+    # Today's items come back by time, not by exercise count (lesson 13: «hálka» seven recalls
+    # within two minutes of its introduction, all at the same stage): fractions of the lesson's
+    # time after the introduction (about 1, 3, 8 and 15 minutes of 30), plus the closing block.
+    intro_recall_times: list[float] = field(default_factory=lambda: [1 / 30, 1 / 10, 4 / 15, 1 / 2])
+    # A short item (``short_item_words`` words or fewer) is said alone at most this often in a
+    # lesson, the introduction and the closing recall included (§9 "Repetition"); the rest of
+    # its practice is inside sentences, a different one where possible.
+    max_bare_uses: int = 3
+    short_item_words: int = 2
+    max_sentence_uses: int = 6  # sentences one short item may be practised in, in a lesson (about ten uses in all)
     intro_gap: int = 3  # min exercises between two introductions
     # New material is spread over the lesson (lesson 13 feedback: all nine new expressions came in
     # the first 15 of 30 minutes, the second half only repeated them): the k-th introduction waits
@@ -53,7 +62,7 @@ class PlanConfig:
     # (its scene carries the meaning, H8). Those items are heard, not learned: never recorded,
     # never asked in the review. At most this many per lesson, each resting
     # ``listening_rest_lessons`` lessons.
-    max_listening_dialogues: int = 2
+    max_listening_dialogues: int = 4
     listening_missing_max: int = 2
     listening_rest_lessons: int = 6
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
@@ -139,6 +148,7 @@ class PlanConfig:
 
 
 _WORD_RE = re.compile(r"[^\W\d_]+", re.UNICODE)
+BARE_STAGES = frozenset({"cloze", "hinted", "meaning", "situation"})  # an item said alone, not in a sentence
 
 
 @dataclass
@@ -572,6 +582,25 @@ class Planner:
                 found.append((len(ww), whole))
         return min(found, key=lambda t: t[0])[1] if found else None
 
+    def containing_items(self, item: Item) -> list[Item]:
+        """Phrases and words the learner can say (known, or introduced earlier this lesson, not
+        open) whose words contain ``item``'s words in order, the shortest first: a sentence the
+        part can be practised in when no pattern takes it («Hvenær?» in «Hvenær leggjum við af
+        stað?»)."""
+        words = [w.lower() for w in _WORD_RE.findall(item.target)]
+        if not words:
+            return []
+        found: list[tuple[int, Item]] = []
+        for whole in self.cur.items:
+            if whole.id == item.id or whole.kind not in ("phrase", "vocab") or whole.target_m:
+                continue
+            if not self.builder._available(whole.id) or self.learner.is_open(whole.id):
+                continue
+            ww = [w.lower() for w in _WORD_RE.findall(whole.target)]
+            if len(ww) > len(words) and any(ww[k : k + len(words)] == words for k in range(len(ww) - len(words) + 1)):
+                found.append((len(ww), whole))
+        return [w for _, w in sorted(found, key=lambda t: (t[0], t[1].id))]
+
     def listening_dialogue(self) -> tuple[Dialogue, set[str]] | None:
         """A dialogue to play as listening: one or two required items short (``listening_missing_max``),
         not played this lesson, not heard as listening within ``listening_rest_lessons``. The
@@ -661,6 +690,10 @@ class Planner:
         connect_item_uses: dict[str, int] = {}
 
         open_timeline: list[tuple[float, int, Item, str]] = []
+        intro_timeline: list[tuple[float, int, Item, str]] = []  # today's items' recalls, by time
+        sentence_used: dict[str, set[str]] = {}  # per short item, the sentences practised this lesson
+        capped_backlog: list[tuple[float, int, Item, str]] = []  # recalls dropped for want of a sentence
+        bare_cap = [cfg.max_bare_uses]  # lapses to 0 when nothing else is left (step 5)
 
         def schedule_open(item: Item, k: int) -> None:
             """An open item (#149): practices at fractions of the lesson's time, each a step
@@ -712,14 +745,13 @@ class Planner:
             touch(item)
             last_intro = idx
             ladder = self.ladder(item)
-            due_at = idx
-            for k, gap in enumerate(cfg.reactivation_gaps):
-                due_at += gap
-                stage = ladder[min(k + 1, len(ladder) - 1)]
+            for k, after in enumerate(cfg.intro_recall_times):
                 seq += 1
-                heapq.heappush(pending, _Pending(due_at, seq, item, stage))
+                intro_timeline.append((sc.total_duration + after * (budget - closing_reserve), seq, item, ladder[min(k + 1, len(ladder) - 1)]))
 
-        def do_recall(item: Item, stage: str) -> None:
+        def do_recall(item: Item, stage: str, allow_cap: bool = True) -> bool:
+            """Practise ``item`` at ``stage``; False when nothing was played (a capped short item
+            with no sentence to go in)."""
             nonlocal since_dialogue
             if stage == "dialogue":
                 # An item introduced this lesson always tries its dialogue (its arc's connected
@@ -730,13 +762,79 @@ class Planner:
                     self._play_dialogue(sc, dlg)
                     since_dialogue = 0
                     touch(item)
-                    return
+                    return True
                 stage = self.below_dialogue(item)
             if stage == "recombine":
                 stage = self.recombine_or_instead(item)
+            if allow_cap and (stage in BARE_STAGES or stage == "recombine") and bare_capped(item):
+                return sentence_practice(item)
+            if allow_cap and stage in BARE_STAGES and bare_short(item) and bare_uses(item) == bare_cap[0] - 2:
+                # the one bare recall a short item gets between its introduction and the closing:
+                # at "meaning" at least, since a hint of one word is the whole answer, and it
+                # leaves the item ready for a situation (connect)
+                ladder = self.ladder(item)
+                if "meaning" in ladder and stage_index(ladder, stage) < stage_index(ladder, "meaning"):
+                    stage = "meaning"
             ex = b.recall(sc, item, stage)
             self._record([item.id], ex.stage or stage, ex.item_ids)
             touch(item)
+            return True
+
+        def open_run() -> int:
+            """Open items' practices at the end of the script, back to back."""
+            run = 0
+            for ex in reversed(sc.exercises):
+                if not (ex.item_ids and ex.item_ids[0] in open_today):
+                    break
+                run += 1
+            return run
+
+        def play_timed(entry: tuple[float, int, Item, str]) -> bool:
+            """A today's-item recall off ``intro_timeline``; one dropped for want of a sentence
+            waits in ``capped_backlog`` for the cap to lapse."""
+            intro_timeline.remove(entry)
+            if do_recall(entry[2], entry[3]):
+                return True
+            capped_backlog.append(entry)
+            return False
+
+        def bare_short(item: Item) -> bool:
+            """A short item introduced today, while the cap is on (§9 "Repetition")."""
+            return (
+                bare_cap[0] > 0
+                and item.kind not in ("construction", "transform")
+                and item.word_count <= cfg.short_item_words
+                and any(i.id == item.id for i in introduced)
+            )
+
+        def bare_uses(item: Item) -> int:
+            return sum(1 for st in self.exposures.get(item.id, []) if st in BARE_STAGES or st == "intro")
+
+        def bare_capped(item: Item) -> bool:
+            """A short item that has had its share of bare uses, the closing recall's one kept back."""
+            return bare_short(item) and bare_uses(item) >= bare_cap[0] - 1
+
+        def sentence_practice(item: Item) -> bool:
+            """One more practice of ``item`` inside a sentence, a different one where possible:
+            a known pattern with a slot for it, else a known item whose words contain it.
+            False when there is none (the item stops at its bare uses)."""
+            used = sentence_used.setdefault(item.id, set())
+            if b.recombine_status(item) == "novel":
+                ex = b.recall(sc, item, "recombine")
+                if ex.kind == "generative":
+                    self._record([item.id], ex.stage or "recombine", ex.item_ids)
+                    touch(item)
+                    used.add(ex.label)
+                    return True
+            for whole in self.containing_items(item):
+                if whole.id in used or whole.id in recent:
+                    continue
+                ex = b.recall(sc, whole, "meaning")
+                self._record([whole.id], ex.stage or "meaning", ex.item_ids + [item.id])
+                touch(whole)
+                used.add(whole.id)
+                return True
+            return False
 
         def do_discriminate(note) -> None:
             """After a milestone names a pattern, recall two of its examples back to back from
@@ -750,11 +848,11 @@ class Planner:
             just_touched = recent[-1] if recent else None
             known_transfer = [i for i in note.transfer_items if self.learner.has_met(i) or i in self.exposures]
             others = list(dict.fromkeys(i for i in known_transfer + note.items if i != just_touched and i in self.cur.by_id))
-            by_situation = [i for i in others if b.situation_usable(self.cur.by_id[i])]
+            by_situation = [i for i in others if b.situation_cue_ok(self.cur.by_id[i])]
             by_meaning = [i for i in others if i not in by_situation]
             picks = [(i, "situation") for i in by_situation] + [(i, "meaning") for i in by_meaning]
             for item_id, stage in picks[:2]:
-                do_recall(self.cur.by_id[item_id], stage)
+                do_recall(self.cur.by_id[item_id], stage, allow_cap=False)
                 idx += 1
                 since_dialogue += 1
 
@@ -785,7 +883,7 @@ class Planner:
             seen: set[str] = set()
             valid: list[Item] = []
             for it in pool:
-                if it.id in seen or not b.situation_usable(it) or not _ready_for_situation(it):
+                if it.id in seen or not b.situation_cue_ok(it) or not _ready_for_situation(it):
                     continue
                 if connect_item_uses.get(it.id) and self._stable(it):
                     continue  # a stable item takes part in one connect a lesson (#151)
@@ -830,7 +928,7 @@ class Planner:
             introduced), not just exercised, under ``consolidations_per_item`` extra recalls."""
             cands = [
                 it for it in introduced
-                if it.id not in recent and consolidations.get(it.id, 0) < cfg.consolidations_per_item
+                if it.id not in recent and consolidations.get(it.id, 0) < cfg.consolidations_per_item and not bare_capped(it)
             ]
             return min(cands, key=lambda it: len(self.exposures.get(it.id, [])), default=None)
 
@@ -993,6 +1091,15 @@ class Planner:
                 ):
                     start_arc(more)  # or the next arc, before its time
                     acted = True
+                if not acted and reviews_used and (sub := pick_substitution()) is not None:
+                    do_substitution(sub)  # a generative exercise breaks the streak too: a known pattern, other words
+                    acted = True
+                if not acted and remaining >= 40:
+                    # a sentence for one of today's short items breaks it as well (and is the practice it lacks)
+                    for it in sorted(introduced, key=lambda i: len(self.exposures.get(i.id, []))):
+                        if it.id not in recent and len(sentence_used.get(it.id, ())) < cfg.max_sentence_uses and sentence_practice(it):
+                            acted = True
+                            break
                 if not acted:
                     break
 
@@ -1031,6 +1138,18 @@ class Planner:
                     do_recall(entry[2], entry[3])
                     acted = True
                     break
+
+            # 0e. today's items come back at their times after the introduction, interleaved
+            #     because each introduction has its own times (§9 "Repetition")
+            if not acted and drill_streak < cfg.drill_streak_limit - 1:
+                for entry in sorted(intro_timeline):
+                    if entry[0] > sc.total_duration:
+                        break
+                    if entry[2].id in recent:
+                        continue
+                    if play_timed(entry):
+                        acted = True
+                        break
 
             # 1. a scheduled reactivation that is due (but never the item we just did)
             if not acted:
@@ -1107,10 +1226,14 @@ class Planner:
             #    else take an extra new item, else accept a repeat, else stop.
             if not acted:
                 candidate = next((p for p in sorted(pending) if p.item.id not in recent), None)
-                if candidate is None and [e.kind for e in sc.exercises[-2:]] == ["intro", "intro"]:
+                pulled = None  # today's item whose time has not come, taken early when nothing else fits
+                if candidate is None:
+                    pulled = next((e for e in sorted(intro_timeline) if e[2].id not in recent), None)
+                if candidate is None and pulled is None and [e.kind for e in sc.exercises[-2:]] == ["intro", "intro"]:
                     # never a third introduction in a row (lesson 1 has nothing else to offer):
                     # recall the earlier of the two instead, only the very last item is off limits
                     candidate = next((p for p in sorted(pending) if p.item.id != recent[-1]), None)
+                    pulled = next((e for e in sorted(intro_timeline) if e[2].id != recent[-1]), None)
                 can_intro = idx - last_intro >= 1 and len(introduced) < cfg.resolved_max_new_items()
                 # a later arc was admitted whole (_may_start_arc): its queued items may fill a gap too,
                 # though not as a third introduction in a row
@@ -1121,6 +1244,8 @@ class Planner:
                     pending.remove(candidate)
                     heapq.heapify(pending)
                     do_recall(candidate.item, candidate.stage)
+                elif pulled is not None:
+                    play_timed(pulled)
                 elif new_queue and can_drain and remaining >= need_for_new * 0.6:
                     do_intro(new_queue.popleft())
                 elif can_intro and not reviews_used and remaining >= need_for_new and (more := self.select_new(1, exclude={i.id for i in introduced} | set(self.embedded))):
@@ -1132,6 +1257,12 @@ class Planner:
                 elif pending and sorted(pending)[0].item.id != (recent[-1] if recent else None):
                     p = heapq.heappop(pending)  # a repeat, but not of the very last exercise
                     do_recall(p.item, p.stage)
+                elif (
+                    repeat := next((e for e in sorted(intro_timeline) if e[2].id != (recent[-1] if recent else None) or e[3] == "dialogue"), None)
+                ) is not None:
+                    # likewise a today's item whose time has not come (its dialogue rung is no repeat
+                    # of the last exercise, whatever that was)
+                    play_timed(repeat)
                 elif self._note_budget_left() and remaining >= 40 and self._pick_note(None) is not None:
                     self._play_note(sc, self._pick_note(None))  # nothing to practise now: an aside
                 elif reviews_used and (sub := pick_substitution()) is not None:
@@ -1172,10 +1303,20 @@ class Planner:
                     # rather than a stable item again or ending far short
                     consolidations[extra.id] = consolidations.get(extra.id, 0) + 1
                     do_recall(extra, self._harder_than_today(extra))
-                elif (early_open := next((e for e in open_timeline if e[2].id not in recent), None)) is not None:
+                elif (early_open := next((e for e in open_timeline if e[2].id not in recent), None)) is not None and open_run() < 3:
                     # nothing else is left: an open item's next practice comes early rather than
                     # not at all (#149); the timed entries (0d) are the normal route
                     open_timeline.remove(early_open)
+                    do_recall(early_open[2], early_open[3])
+                elif bare_cap[0] > 0 and (capped_backlog or intro_timeline):
+                    # nothing else is left, and the lesson would end short: today's short items may be
+                    # said alone again, the dropped recalls first, rather than losing the time (§9 "daily dose")
+                    bare_cap[0] = 0
+                    intro_timeline.extend(capped_backlog)
+                    capped_backlog.clear()
+                    continue
+                elif (early_open := next((e for e in open_timeline if e[2].id not in recent), None)) is not None:
+                    open_timeline.remove(early_open)  # the last resort: open practices back to back rather than a short lesson
                     do_recall(early_open[2], early_open[3])
                 else:
                     break  # only immediate repeats are left: end the lesson a little short
@@ -1225,6 +1366,7 @@ class Planner:
             "curriculum": self.cur.name,
             "new_items": [i.id for i in introduced] + list(self.embedded),
             "embedded_items": list(self.embedded),
+            "bare_cap_lapsed": cfg.max_bare_uses > 0 and bare_cap[0] == 0,  # nothing else was left: short items were said alone again
             "reviewed_items": reviews_used,
             "open_items": open_today,
             "open_not_fitted": [i for i in open_ids if i not in open_today],
