@@ -335,6 +335,7 @@ meaning = "red"
 meaning_ja = "赤"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "rauð", neut = "rautt" }  # the forms a scene's «{noun} er {colour}.» takes (#158): the form follows the noun
 topics = ["shopping"]
 
 [[items]]
@@ -345,6 +346,7 @@ meaning = "blue"
 meaning_ja = "青"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "blá", neut = "blátt" }  # the forms a scene's «{noun} er {colour}.» takes (#158): the form follows the noun
 topics = ["shopping"]
 
 [[items]]
@@ -355,6 +357,7 @@ meaning = "green"
 meaning_ja = "緑"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "græn", neut = "grænt" }  # the forms a scene's «{noun} er {colour}.» takes (#158): the form follows the noun
 topics = ["shopping"]
 
 [[items]]
@@ -365,6 +368,7 @@ meaning = "yellow"
 meaning_ja = "黄色"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "gul", neut = "gult" }  # the forms a scene's «{noun} er {colour}.» takes (#158): the form follows the noun
 topics = ["shopping"]
 
 [[items]]
@@ -375,6 +379,7 @@ meaning = "black"
 meaning_ja = "黒"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "svört", neut = "svart" }  # the forms a scene's «{noun} er {colour}.» takes (#158): the form follows the noun
 topics = ["shopping"]
 
 [[items]]
@@ -385,6 +390,7 @@ meaning = "white"
 meaning_ja = "白"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "hvít", neut = "hvítt" }  # the forms a scene's «{noun} er {colour}.» takes (#158): the form follows the noun
 topics = ["shopping"]
 
 [[items]]
@@ -395,6 +401,7 @@ meaning = "grey"
 meaning_ja = "灰色"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "grá", neut = "grátt" }  # the forms a scene's «{noun} er {colour}.» takes (#158): the form follows the noun
 topics = ["shopping"]
 
 [[items]]
@@ -405,20 +412,14 @@ meaning = "brown"
 meaning_ja = "茶色"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "brún", neut = "brúnt" }  # the forms a scene's «{noun} er {colour}.» takes (#158): the form follows the noun
 topics = ["shopping"]
 
-[[items]]
-id = "eg_vil_thann_lit"
-kind = "construction"
-target = "Ég vil {colour}."
-meaning = "I want the {colour} one."
-meaning_ja = "{colour}のがいいです。"
-difficulty = 2
-topics = ["shopping"]
-slots = { colour = "colour" }
-example = { colour = "blar" }
-prereqs = ["blar"]
-pronunciation_notes = "colour in masculine form, as when pointing at 'þennan' (this one)"
+
+# «Ég vil {colour}.» was here (#158): its slot took the colour names as stored, masculine nominative, and
+# «vilja» takes the accusative, so it generated «Ég vil blár.» (a chunk «Ég vil bláan.» would be wrong too
+# for a feminine or neuter thing, «bláa», «blátt»). Colours come back through a scene that uses them, with the
+# noun that fixes their form (a weather warning: «gul viðvörun»), not as a pattern over the bare names.
 
 [[items]]
 id = "eg_aetla_ad_taka_thetta"
