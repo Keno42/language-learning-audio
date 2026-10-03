@@ -92,6 +92,14 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   item; an idle lesson still introduces early (steps 5), so a lesson with nothing else to do
   doesn't end short.
   An embedded part counts as an introduction on this schedule.
+  **Last-resort extras are spread (#187).** A cheap construction beyond the limit or a variant (`try_variant`) used to come
+  after the whole idle stretch (substitution drills, replayed reviews), so a lesson heard ten minutes with nothing new and
+  a new item two minutes before the end. `Planner.build` now builds a lesson that took such an extra a second time with
+  those ids known (`PlanConfig.planned_extras`, internal; at most two rebuilds): the idle ladder takes a planned extra once
+  `idle_intro_slack` (2) spacings have passed since the last introduction, before the substitution drills. Only an extra the
+  first build took is moved, so the lesson's items are the same and only their timing changes; a lesson that never runs
+  idle takes no extra and is built once. The planned extras stay out of `new_queue`: a non-empty queue blocks `start_arc`
+  and the extra item of a lesson with nothing to review, and shortened a lesson from 20 to 13.7 minutes.
 - **Generated sentences use only available parts.** A fill is known or introduced earlier
   in the lesson. A construction's `situation_fill` makes its situation wait for that fill.
   A dialogue turn's `expect_fill` binds every slot, so every spoken part is a required item.
