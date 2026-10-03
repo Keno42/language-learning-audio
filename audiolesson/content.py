@@ -230,6 +230,8 @@ class DialogueTurn:
     # generates e.g. «Það kostar fimm þúsund krónur.» mid-exchange. The fills count as
     # required items.
     expect_fill: dict[str, str] = field(default_factory=dict)
+    # the cue stays even in a later, unassisted play (a theme exchange's turn that no partner line prompts, #149 1b-ii)
+    keep_cue: bool = False
 
 
 @dataclass

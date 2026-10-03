@@ -168,6 +168,22 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   it shift by one). Its prerequisites must still be known (`ready`), except one that is only a filler of the
   construction's own slot (#180 (b), `Planner._prereq_met`): it counts once the slot has `cheap_min_fillers`
   other known fillers, in `cheap_construction` and in `select_new`'s `ready()`.
+- **The lesson's theme exchange (#149 1b-ii).** A theme (`audiolesson/themes.py`, `cando/themes.toml`) is a
+  scene of a trip as an exchange, at rising levels (partner and learner turns; a learner turn lists the items it
+  needs). `Planner.pick_theme` takes, among the themes whose next level the learner can say in all but a quarter of
+  their turns (`theme_ready`: every item of a turn met and not open), the lowest level not yet played, the trip
+  profile's boosted scenarios first (`theme_scenarios`, `scenario_order`), then Tier A, then Tier B, in file order. The level
+  becomes a `Dialogue` (`level_dialogue`; the learner's lines are literal) played **twice**: at about 15% of the
+  lesson's time with the partner's lines translated, and at about 85% with only the partner's line as the
+  cue (`play_theme`, step 0g; a lesson that ran out of other material plays what is left before the closing). A
+  turn with an item the learner lacks is *tried* (#183: `tried_turns`, «Try it.», the model line, nothing
+  recorded; its line becomes a bonus question) in the first play. In the late play a learner turn keeps its cue
+  when no partner line prompts it (`DialogueTurn.keep_cue`: it doesn't directly follow a partner line, or the data
+  says `prompted = false`, a scene change) and a tried turn always keeps it; a level's `partner_speaker`
+  (`native_a`, female, where the cues say «her») voices the partner. The items of the turns they can say are credited
+  as practised (stage `dialogue`). `plan.json` has `theme`: `{id, scenario, level, plays}` (None when no theme was
+  ready); `LearnerState.themes_done` (theme → highest level played) makes the next lesson take the next level.
+  Without `themes` in `PlanConfig` (the CLI loads them from the curriculum's `cando/themes.toml`) nothing changes.
 - **Rotation and a ceiling (#180).** `Builder.generate_with` orders a word's homes by the sentences each
   construction has had this lesson (`construction_counts`), least first, random tie-break; substitution runs
   pick the pattern with the fewest likewise. A construction takes at most `CONSTRUCTION_CEILING` (10) generated

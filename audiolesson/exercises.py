@@ -988,12 +988,16 @@ class Builder:
         assisted: bool = True,
         listening: frozenset[str] | set[str] = frozenset(),
         tried: frozenset[str] | set[str] = frozenset(),
+        tried_turns: frozenset[int] | set[int] = frozenset(),
     ) -> Exercise:
         """Play a dialogue; ``max_turns`` lets early encounters stop after a few turns.
 
         ``listening`` names required items the learner hasn't learned (H8, #149 step 3): their
         turns are heard, not asked for: «Here you would say:», the line, what it means. The
         scene carries the meaning; nothing is expected back for them.
+
+        ``tried_turns``: indices of turns whose line is only tried (#149 1b-ii): the cue, «Try it.», the pause and the
+        model line; the theme exchange's lines are literal, so they have no item to name.
 
         ``assisted`` (the first encounter) translates partner lines and cues every turn. Later
         encounters drop both once the partner has said something: their line is the cue. A
@@ -1012,7 +1016,7 @@ class Builder:
         self._beat(sc, ex)
         lines: list[tuple[str, str]] = []
         heard_partner = False
-        for turn in turns:
+        for k, turn in enumerate(turns):
             if turn.opener:
                 self._speak(sc, ex, turn.opener, speaker=partner)
                 lines.append((partner, turn.opener))
@@ -1042,11 +1046,11 @@ class Builder:
             heard_only = item is not None and item.id in listening  # no task cue: nothing is asked
             if heard_only:
                 pass
-            elif assisted or not heard_partner:
+            elif assisted or not heard_partner or turn.keep_cue or k in tried_turns:
                 self._narr(sc, ex, self._as(gender, turn.cue))
             elif gender:
                 self._narr(sc, ex, self.prompts.get(f"speak_as_{gender}_alone"))
-            if item is not None and item.id in tried:
+            if (item is not None and item.id in tried) or k in tried_turns:
                 self._narr(sc, ex, self.prompts.get("listening_try"))  # a line they can say part of: «Try it.»
             if heard_only:
                 self._narr(sc, ex, self.prompts.get("listening_line"))
