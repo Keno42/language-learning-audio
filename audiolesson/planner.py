@@ -9,6 +9,7 @@ Principles it enforces (see README "How a lesson is built"):
 
 from __future__ import annotations
 
+import dataclasses
 import heapq
 import math
 import random
@@ -52,6 +53,10 @@ class PlanConfig:
     cheap_min_fillers: int = 2
     cheap_place: bool = True
     max_cheap_extra: int = 1
+    # (internal, #187) the extras a first build of this lesson took as its last resort. The lesson is built again with
+    # them known, so an idle stretch takes them when it starts, not at the very end: the same extras, spread.
+    planned_extras: list = field(default_factory=list)
+    idle_intro_slack: float = 2.0  # spacings of idle time after the last introduction before a planned extra comes
     # #171: the negative / question forms are taught once this many constructions that have the
     # form are known, and then practised ``forms_practice`` times straight away
     forms_after_constructions: int = 2
@@ -903,6 +908,23 @@ class Planner:
     # ------------------------------------------------------------------ build
 
     def build(self) -> Script:
+        """The lesson. A lesson that took a last-resort extra (a cheap construction beyond the limit, a variant) after a long
+        idle stretch is built again with those extras known (``PlanConfig.planned_extras``), so the idle stretch takes them
+        when it starts instead of at the very end: the same items, spread over the lesson (#187). A lesson that never runs
+        idle takes no extra, so it is built once."""
+        sc = self._build()
+        planned = list(self.cfg.planned_extras)
+        for _ in range(2):
+            new = [i for i in self._extras_taken if i not in planned]
+            if not new:
+                break  # the rebuild took only the extras it was told of: it is the lesson
+            planned += new
+            again = Planner(self.cur, self.learner, self.prompts, self.timing, dataclasses.replace(self.cfg, planned_extras=planned), today=self.today)
+            sc = again._build()
+            self.__dict__.update(again.__dict__)
+        return sc
+
+    def _build(self) -> Script:
         cfg = self.cfg
         n = self.learner.next_lesson_number()
         budget = cfg.minutes * 60.0
@@ -922,6 +944,9 @@ class Planner:
         recent_topics: deque[str] = deque(maxlen=2)
         idx = 0
         last_intro = -cfg.intro_gap
+        last_intro_at = 0.0  # lesson time of the last introduction
+        planned_left = list(cfg.planned_extras)  # extras a first build took: they come when an idle stretch starts (#187)
+        self._extras_taken = []
         since_dialogue = 0
         drill_streak = 0  # consecutive isolated recalls, no dialogue/note/intro in between
         # time kept for the closing block: one recall per new item (~14 s) plus the announcement
@@ -983,7 +1008,7 @@ class Planner:
                 recent_topics.append(item.topics[0])
 
         def do_intro(item: Item) -> None:
-            nonlocal last_intro, seq
+            nonlocal last_intro, last_intro_at, seq
             # A milestone this item's prereqs complete plays before the intro: a construction's
             # intro speaks its worked example, which must not come before the note naming the
             # pattern. A loop, since the prereqs can complete more than one milestone.
@@ -994,6 +1019,7 @@ class Planner:
                 self.embedded.append(item.id)
                 touch(item)
                 last_intro = idx
+                last_intro_at = sc.total_duration
                 arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
                 return
             ex = b.intro(sc, item)
@@ -1003,6 +1029,7 @@ class Planner:
             self._record([item.id], "intro", ex.item_ids)
             touch(item)
             last_intro = idx
+            last_intro_at = sc.total_duration
             ladder = self.ladder(item)
             for k, after in enumerate(cfg.intro_recall_times):
                 seq += 1
@@ -1018,6 +1045,15 @@ class Planner:
             if len(variants_used) >= cfg.max_variant_items or remaining_time() < need_for_new * 0.5 or idx - last_intro < 1:
                 return False
             taken = {i.id for i in introduced} | set(self.embedded) | {i.id for i in new_queue}
+            while planned_left and (planned_left[0] in taken or planned_left[0] not in self.cur.by_id):
+                planned_left.pop(0)
+            if planned_left:  # an extra this lesson takes anyway (a first build took it): now, not at the end
+                item = self.cur.by_id[planned_left.pop(0)]
+                (cheap_used if item.kind == "construction" else variants_used).append(item.id)
+                do_intro(item)
+                self._extras_taken.append(item.id)
+                closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
+                return True
             found = self.select_variants(1, taken)
             if not found and len(cheap_used) < cfg.max_cheap_extra and (cand := self.cheap_construction(taken)) is not None:
                 found = [cand]  # a pattern the learner can fill at once, beyond the new-item limit (#171 B)
@@ -1025,6 +1061,7 @@ class Planner:
             elif not found:
                 return False
             do_intro(found[0])
+            self._extras_taken.append(found[0].id)
             if found[0].id not in cheap_used:
                 variants_used.append(found[0].id)
             closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
@@ -1671,6 +1708,8 @@ class Planner:
                     play_timed(repeat)
                 elif self._note_budget_left() and remaining >= 40 and self._pick_note(None) is not None:
                     self._play_note(sc, self._pick_note(None))  # nothing to practise now: an aside
+                elif planned_left and sc.total_duration - last_intro_at >= cfg.idle_intro_slack * intro_spacing and try_variant():
+                    pass  # idle for a while, and this lesson takes an extra anyway: it comes now (#187)
                 elif reviews_used and (sub := pick_substitution()) is not None:
                     # spare time: a known pattern with other words (#151), before a fresh arc or replayed reviews
                     do_substitution(sub)
