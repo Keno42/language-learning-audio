@@ -5075,6 +5075,30 @@ class ShortItemRepetitionTests(unittest.TestCase):
         self.assertNotIn("bankinn", asked, "never alone while its sentence can be said")
         self.assertGreaterEqual(asked.count("hvar_er_bankinn"), 2, "its review is the sentence (besides the sentence's own)")
 
+    def test_a_part_is_not_reviewed_by_asking_the_sentence_just_asked(self):
+        """#190 review: «Hvenær?» was reviewed by asking «Hvenær leggjum við af stað?» right after that sentence was asked, so the
+        sentence came again and again and «Hvenær?» itself never. The review path does not repeat the previous exercise: the sentence
+        just asked, or asked twice, is not asked again, and an utterance falls back to its own scene."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for seed in range(6):
+            learner = LearnerState("is", "en", "A1")
+            for i in ("hvenaer", "hvenaer_leggjum_vid_af_stad"):
+                learner.items[i] = ItemState(due=(TODAY - timedelta(days=9)).isoformat(), successes=1, durable_successes=0, stage="meaning", recalled=1, last_outcome="hesitated")
+            for i in ("ja", "nei", "takk", "hae", "bless", "godan_daginn", "afsakid", "eg_skil"):
+                learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=seed, new_items=0), today=TODAY).build()
+            asked = [e.item_ids[0] for e in sc.exercises if e.kind == "recall"]
+            self.assertFalse([a for a, b in zip(asked, asked[1:]) if a == b], (seed, asked))
+            self.assertLessEqual(asked.count("hvenaer_leggjum_vid_af_stad"), 4, (seed, asked))
+            self.assertIn("hvenaer", asked, "the part itself is reviewed too")
+
+    def test_a_negated_sentence_does_not_hold_its_part(self):
+        """#190 review: «Ég skil ekki.» says the opposite of «Ég skil.» and must not be the sentence its review asks."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        planner = Planner(cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30), today=TODAY)
+        planner.exposures["eg_skil_ekki"] = ["meaning"]
+        self.assertEqual(planner.containing_items(cur.by_id["eg_skil"]), [])
+
     def test_a_part_is_a_vocab_item_whatever_its_length(self):
         """#190, the owner's decision: «fara á safnið» is a part though it has three words, so after the learner has said «Ég vil
         fara á safnið.» it is not asked alone; a phrase like «Hvenær?» is an utterance (scenes may repeat it)."""

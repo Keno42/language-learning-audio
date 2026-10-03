@@ -174,6 +174,7 @@ class PlanConfig:
 
 
 _WORD_RE = re.compile(r"[^\W\d_]+", re.UNICODE)
+NEGATION = frozenset({"ekki", "ekkert", "aldrei", "enginn", "engin"})  # words that turn a held part into its opposite
 BARE_STAGES = frozenset({"cloze", "hinted", "meaning", "situation"})  # an item said alone, not in a sentence
 
 
@@ -736,6 +737,8 @@ class Planner:
                 continue
             ww = [w.lower() for w in _WORD_RE.findall(whole.target)]
             if len(ww) > len(words) and any(ww[k : k + len(words)] == words for k in range(len(ww) - len(words) + 1)):
+                if NEGATION & (set(ww) - set(words)):
+                    continue  # «Ég skil ekki.» says the opposite of «Ég skil.»: no holder of it
                 found.append((len(ww), whole))
         return [w for _, w in sorted(found, key=lambda t: (t[0], t[1].id))]
 
@@ -1161,6 +1164,10 @@ class Planner:
             """A part or short utterance due for review (not introduced today, not open): said alone only when no sentence holds it (#187)."""
             return cap_concerns(item) and not any(i.id == item.id for i in introduced) and not self.learner.is_open(item.id)
 
+        def asked_times(whole: Item) -> int:
+            """How often ``whole`` was asked (recall or connect) in this lesson."""
+            return sum(1 for e in sc.exercises if e.kind in ("recall", "connect") and whole.id in e.item_ids)
+
         def holds_sentence(item: Item) -> bool:
             """A sentence that can be said holds ``item`` (a known or practised phrase that contains it, not a stable one)."""
             return any(not self._stable(w) for w in self.containing_items(item))
@@ -1182,8 +1189,8 @@ class Planner:
                     touch(item)
                     return True
                 for whole in self.containing_items(item):
-                    if self._stable(whole) or (review and bare_capped(whole)):
-                        continue  # a stable one keeps to its date, a short whole to its own bare uses
+                    if self._stable(whole) or (review and (bare_capped(whole) or whole.id in recent or asked_times(whole) >= 2)):
+                        continue  # a stable one keeps to its date, a short whole to its own bare uses, the one just asked is not asked again
                     ex = b.recall(sc, whole, "meaning")
                     self._record([item.id, whole.id] if review else [whole.id], ex.stage or "meaning", ex.item_ids + ([] if review else [item.id]))
                     touch(whole)
@@ -1203,7 +1210,7 @@ class Planner:
                     used.add(ex.label)
                     return True
             for whole in self.containing_items(item):
-                if whole.id in used or whole.id in recent or bare_capped(whole):
+                if whole.id in used or whole.id in recent or bare_capped(whole) or (review and asked_times(whole) >= 2):
                     continue  # a short whole item has its own bare uses to keep to
                 if self._stable(whole):
                     continue  # a stable item is practised on its own dates, never as the sentence for another (#94, #151)

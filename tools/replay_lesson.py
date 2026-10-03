@@ -102,7 +102,8 @@ def measure(cur, sc, known_constructions: int) -> dict:
     for e in exs:
         said = answers.get(e.index, [])
         it = cur.by_id.get(e.item_ids[0]) if e.item_ids else None
-        if it and e.kind == "recall" and it.kind not in ("construction", "transform") and e.item_ids[0] not in m["new_items"] and (it.kind == "vocab" or len(words(it.target)) <= 2):
+        scene = it is not None and it.kind != "vocab" and e.stage == "situation"  # an utterance in a scene is its proper use (#187)
+        if it and e.kind == "recall" and not scene and it.kind not in ("construction", "transform") and e.item_ids[0] not in m["new_items"] and (it.kind == "vocab" or len(words(it.target)) <= 2):
             own = " ".join(words(it.target))
             if own in said and any(f" {own} " in f" {t} " and t != own for t in said_before):
                 part_after_whole += 1
