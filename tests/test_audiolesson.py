@@ -5008,26 +5008,34 @@ class ShortItemRepetitionTests(unittest.TestCase):
             learner.report(failed, [], day + timedelta(days=1), lesson_number=n, recalled=[i for i in new if i not in failed])
             day += timedelta(days=1)
 
-    def test_a_short_new_item_is_said_alone_at_most_three_times(self):
+    def test_a_part_or_short_utterance_is_said_alone_at_most_three_times(self):
+        """A part (a ``vocab`` item, whatever its length) is said alone at most three times: any bare practice counts, a
+        mixed-review turn included (#187). A short utterance (a ``phrase``) is a complete thing to say, so a scene is its proper
+        use (the owner's decision on #190): only its meaning-cued bare practices count."""
         bare = {"intro", "cloze", "hinted", "meaning", "situation"}
-        checked = lapsed = in_sentences = 0
+        cued = {"intro", "cloze", "hinted", "meaning"}
+        checked = utterances = lapsed = in_sentences = 0
         for cur, sc in self._course():
             if sc.meta["bare_cap_lapsed"]:
                 lapsed += 1  # nothing else was left to fill the lesson
                 continue
             for i in sc.meta["new_items"]:
                 it = cur.by_id[i]
-                if i in sc.meta["embedded_items"] or it.kind in ("construction", "transform") or it.word_count > 2:
+                part = it.kind == "vocab"
+                if i in sc.meta["embedded_items"] or it.kind in ("construction", "transform") or (not part and it.word_count > 2):
                     continue
                 ex = [e for e in sc.exercises if i in e.item_ids]
-                alone = sum(1 for e in ex if e.item_ids[0] == i and e.kind in ("intro", "recall") and e.stage in bare)
-                alone += sum(1 for e in ex if e.kind == "connect")  # #187: a pair's situation turns say each item alone
+                alone = sum(1 for e in ex if e.item_ids[0] == i and e.kind in ("intro", "recall") and e.stage in (bare if part else cued))
+                if part:
+                    alone += sum(1 for e in ex if e.kind == "connect")  # a pair's situation turns say each part alone
                 self.assertLessEqual(alone, 3, (sc.lesson_number, i, alone))
                 in_sentences += sum(1 for e in ex if e.kind == "generative" or (e.kind == "recall" and e.item_ids[0] != i))
                 checked += 1
+                utterances += not part
         self.assertGreater(checked, 30)
+        self.assertGreater(utterances, 5, "short utterances are checked too")
         self.assertLessEqual(lapsed, 7, "the cap should hold in most lessons of a course")
-        self.assertGreater(in_sentences, 20, "the rest of a short item's practice is inside sentences")
+        self.assertGreater(in_sentences, 20, "the rest of a part's practice is inside sentences")
 
     def test_a_due_short_review_item_is_asked_in_a_sentence_that_holds_it(self):
         """#187: the learner said «Hvar er bankinn?» and is then asked «bankinn» alone: the part after the whole. A short

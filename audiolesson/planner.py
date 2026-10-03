@@ -1058,7 +1058,8 @@ class Planner:
                 stage = self.below_dialogue(item)
             if stage == "recombine":
                 stage = self.recombine_or_instead(item)
-            if allow_cap and (stage in BARE_STAGES or stage == "recombine") and bare_capped(item):
+            scene = stage == "situation" and b.situation_usable(item) and b.situation_room(item)  # not the short meaning cue it falls back to
+            if allow_cap and (stage in BARE_STAGES or stage == "recombine") and (is_part(item) or not scene) and bare_capped(item):
                 return sentence_practice(item)
             if allow_cap and stage in BARE_STAGES and bare_short(item) and bare_uses(item) == bare_cap[0] - 2:
                 # the one bare recall a short item gets between its introduction and the closing:
@@ -1094,34 +1095,46 @@ class Planner:
             capped_backlog.append(entry)
             return False
 
+        def is_part(item: Item) -> bool:
+            """A part is not a complete utterance: every slot filler in the course is a ``vocab`` item and no ``phrase`` is
+            one («fara á safnið», «peysu»), whatever its length. A part is said alone only at its introduction and its
+            early recall; every other practice is a sentence. An utterance («Hvenær?», «Vá!», «Takk.») is a complete
+            thing to say: a scene that calls for it is its proper use (#187, the owner's decision)."""
+            return item.kind == "vocab"
+
+        def cap_concerns(item: Item) -> bool:
+            """The items the bare cap is about: parts, and short utterances (``short_item_words``)."""
+            return item.kind not in ("construction", "transform") and (is_part(item) or item.word_count <= cfg.short_item_words)
+
+        def counts_alone(item: Item, stage: str) -> bool:
+            """Whether a practice at ``stage`` says ``item`` alone against its cap: for a part any bare practice; for an
+            utterance only the meaning-cued ones, since situation turns and mixed review are scenes."""
+            if is_part(item):
+                return stage in BARE_STAGES or stage == "intro"
+            return stage in ("intro", "cloze", "hinted", "meaning")
+
         def bare_short(item: Item) -> bool:
-            """A short item introduced today, while the cap is on (§9 "Repetition")."""
-            return (
-                bare_cap[0] > 0
-                and item.kind not in ("construction", "transform")
-                and item.word_count <= cfg.short_item_words
-                and any(i.id == item.id for i in introduced)
-            )
+            """An item the cap concerns, introduced today, while the cap is on (§9 "Repetition")."""
+            return bare_cap[0] > 0 and cap_concerns(item) and any(i.id == item.id for i in introduced)
 
         def bare_uses(item: Item) -> int:
-            return sum(1 for st in self.exposures.get(item.id, []) if st in BARE_STAGES or st == "intro")
+            return sum(1 for st in self.exposures.get(item.id, []) if counts_alone(item, st))
 
         def bare_capped(item: Item) -> bool:
-            """A short item that has had its share of bare uses, the closing recall's one kept back."""
+            """An item that has had its share of bare uses, the closing recall's one kept back."""
             return bare_short(item) and bare_uses(item) >= bare_cap[0] - 1
 
         def short_today(item: Item) -> bool:
-            """A short item introduced today, whatever the cap says (#179)."""
-            return item.kind not in ("construction", "transform") and item.word_count <= cfg.short_item_words and any(i.id == item.id for i in introduced)
+            """An item the cap concerns, introduced today, whatever the cap says (#179)."""
+            return cap_concerns(item) and any(i.id == item.id for i in introduced)
 
         def short_review(item: Item) -> bool:
-            """A short item due for review (not introduced today, not open): said alone only when no sentence holds it (#187)."""
-            return (
-                item.kind not in ("construction", "transform")
-                and item.word_count <= cfg.short_item_words
-                and not any(i.id == item.id for i in introduced)
-                and not self.learner.is_open(item.id)
-            )
+            """A part or short utterance due for review (not introduced today, not open): said alone only when no sentence holds it (#187)."""
+            return cap_concerns(item) and not any(i.id == item.id for i in introduced) and not self.learner.is_open(item.id)
+
+        def holds_sentence(item: Item) -> bool:
+            """A sentence that can be said holds ``item`` (a known or practised phrase that contains it, not a stable one before its date)."""
+            return any(not not_due_stable(w) for w in self.containing_items(item))
 
         def said_in_sentence(item: Item) -> bool:
             """Whether ``item`` has been said inside a sentence in this lesson (#179): a generated
@@ -1140,10 +1153,10 @@ class Planner:
                     touch(item)
                     return True
                 for whole in self.containing_items(item):
-                    if review and (bare_capped(whole) or not_due_stable(whole)):
-                        continue  # a short whole item keeps to its own bare uses, a stable one to its date
+                    if not_due_stable(whole) or (review and bare_capped(whole)):
+                        continue  # a stable one keeps to its date, a short whole to its own bare uses
                     ex = b.recall(sc, whole, "meaning")
-                    self._record([item.id] if review else [whole.id], ex.stage or "meaning", ex.item_ids + ([] if review else [item.id]))
+                    self._record([item.id, whole.id] if review else [whole.id], ex.stage or "meaning", ex.item_ids + ([] if review else [item.id]))
                     touch(whole)
                     return True
             return False
@@ -1163,11 +1176,11 @@ class Planner:
             for whole in self.containing_items(item):
                 if whole.id in used or whole.id in recent or bare_capped(whole):
                     continue  # a short whole item has its own bare uses to keep to
-                if review and not_due_stable(whole):
+                if not_due_stable(whole):
                     continue  # a stable item waits for its date, even as the sentence for another (#94, #151)
                 ex = b.recall(sc, whole, "meaning")
-                if review:  # the review of ``item``: it is the one credited (its due date moves), the whole supports it
-                    self._record([item.id], ex.stage or "meaning", ex.item_ids)
+                if review:  # the review of ``item``: it is credited (its due date moves), and so is the whole, which was asked
+                    self._record([item.id, whole.id], ex.stage or "meaning", ex.item_ids)
                     touch(item)
                 else:
                     self._record([whole.id], ex.stage or "meaning", ex.item_ids + [item.id])
@@ -1245,8 +1258,10 @@ class Planner:
             for it in pool:
                 if it.id in seen or not b.situation_usable(it) or not _ready_for_situation(it):
                     continue
-                if bare_capped(it):
-                    continue  # the situation turn says it alone: it counts against the cap like any bare use (#187)
+                if is_part(it) and bare_capped(it):
+                    continue  # a part is not said alone in a scene either: its situation turn counts against the cap (#187)
+                if short_review(it) and holds_sentence(it):
+                    continue  # a sentence that holds it can be said: not the bare word (#187)
                 if connect_item_uses.get(it.id) and self._stable(it):
                     continue  # a stable item takes part in one connect a lesson (#151)
                 seen.add(it.id)
