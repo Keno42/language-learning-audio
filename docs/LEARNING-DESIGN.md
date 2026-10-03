@@ -742,7 +742,7 @@ Don't reopen these without new evidence; when you do, say what changed.
     word about ten times in all *if the sentences differ a little*. The word-level rules (the bare cap, the situation
     narration, the pattern ceiling) never counted a fixed sentence that is said identically. `Builder.said` now counts every
     model answer (the repeat after the model included), an introduction once and a dialogue's partner lines. The repeat after
-    the model teaches only for a line's first two askings in a lesson (`echo_asked`). A sentence said `max_sentence_utterances`
+    the model teaches only for a line's first asking in a lesson (`echo_asked`). A sentence said `max_sentence_utterances`
     (6) times is practised in another sentence that holds it where there is one (a preference, not a cap: dropping the
     practice leaves the lesson idle and lapses the caps, G15), and a mixed-review pair avoids the item just practised and
     sentences past that count.

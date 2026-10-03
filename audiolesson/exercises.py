@@ -7,9 +7,8 @@ sounds. Keep those three concerns apart.
 
 from __future__ import annotations
 
-from collections import Counter
-
 import random
+from collections import Counter
 from dataclasses import dataclass, field
 
 from .content import Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample, split_note_span
@@ -79,7 +78,7 @@ class Builder:
     used_combos: set[str] = field(default_factory=set)
     used_examples: set[str] = field(default_factory=set)
     heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson
-    echo_asked: int = 2  # a line is repeated after the model only for its first askings this lesson (#192)
+    echo_asked: int = 1  # a line is repeated after the model only for its first asking this lesson (#192)
     said: Counter = field(default_factory=Counter)  # how often each sentence was said this lesson: model answers, echoes, the intro once, partner lines (#192)
     produced: Counter = field(default_factory=Counter)  # how often the learner was asked for each line this lesson: the echo only while it teaches
     recent_answers: list[str] = field(default_factory=list)  # the last two answers said (normalised): a generated sentence is not the one just asked (#190)

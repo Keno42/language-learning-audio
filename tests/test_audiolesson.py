@@ -5118,9 +5118,9 @@ class ShortItemRepetitionTests(unittest.TestCase):
         planner.exposures["eg_skil_ekki"] = ["meaning"]
         self.assertEqual(planner.containing_items(cur.by_id["eg_skil"]), [])
 
-    def test_the_repeat_after_the_model_only_teaches_for_the_first_two_askings(self):
+    def test_the_repeat_after_the_model_only_teaches_for_the_first_asking(self):
         """#192: cloze and hinted recalls play the model answer twice (answer, then repeat), so five practices of one line were
-        ten utterances. The repeat stays for the first two askings of a line in a lesson; the third is one answer."""
+        ten utterances. The repeat stays for the first asking of a line in a lesson; the later ones are one answer."""
         from audiolesson.exercises import Builder
 
         cur = load_curriculum(ROOT / "curricula" / "is-en")
@@ -5131,8 +5131,8 @@ class ShortItemRepetitionTests(unittest.TestCase):
         for _ in range(3):
             ex = builder.recall(sc, item, "hinted")
             answers.append(sum(1 for g in sc.segments if g.exercise == ex.index and g.type == "answer"))
-        self.assertEqual(answers, [2, 2, 1])
-        self.assertEqual(builder.said[_norm_utterance(item.target)], 5, "every model answer is counted, the repeat included")
+        self.assertEqual(answers, [2, 1, 1])
+        self.assertEqual(builder.said[_norm_utterance(item.target)], 4, "every model answer is counted, the repeat included")
 
     def test_a_sentence_is_not_said_ten_times_and_a_recall_is_not_followed_by_its_own_pair(self):
         """#192: the same sentence was said up to 17 times in a lesson of the simulated course (the repeat counted), and a

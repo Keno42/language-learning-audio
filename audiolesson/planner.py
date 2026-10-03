@@ -1050,11 +1050,13 @@ class Planner:
             """The lesson has run out of other material (§9 "Repetition"): a close variant of what
             the learner knows, beyond the new-item limit, rather than the same words again."""
             nonlocal closing_reserve
-            if len(variants_used) >= cfg.max_variant_items or remaining_time() < need_for_new * 0.5 or idx - last_intro < 1:
+            if idx - last_intro < 1:
                 return False
             taken = {i.id for i in introduced} | set(self.embedded) | {i.id for i in new_queue}
             while planned_left and (planned_left[0] in taken or planned_left[0] not in self.cur.by_id):
                 planned_left.pop(0)
+            if not planned_left and (len(variants_used) >= cfg.max_variant_items or remaining_time() < need_for_new * 0.5):
+                return False  # a planned extra was within the limits of the first build, time included: only an unplanned one is counted
             if planned_left:  # an extra this lesson takes anyway (a first build took it): now, not at the end
                 item = self.cur.by_id[planned_left.pop(0)]
                 (cheap_used if item.kind == "construction" else variants_used).append(item.id)
@@ -1782,8 +1784,8 @@ class Planner:
                     play_timed(repeat)
                 elif self._note_budget_left() and remaining >= 40 and self._pick_note(None) is not None:
                     self._play_note(sc, self._pick_note(None))  # nothing to practise now: an aside
-                elif planned_left and sc.total_duration - last_intro_at >= cfg.idle_intro_slack * intro_spacing and try_variant():
-                    pass  # idle for a while, and this lesson takes an extra anyway: it comes now (#187)
+                elif planned_left and sc.total_duration - last_intro_at >= (1.0 if self._extras_taken else cfg.idle_intro_slack) * intro_spacing and try_variant():
+                    pass  # idle for a while, and this lesson takes an extra anyway: it comes now, the next ones a spacing apart (#187)
                 elif reviews_used and (sub := pick_substitution()) is not None:
                     # spare time: a known pattern with other words (#151), before a fresh arc or replayed reviews
                     do_substitution(sub)
