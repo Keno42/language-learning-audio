@@ -335,6 +335,7 @@ meaning = "red"
 meaning_ja = "赤"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "rauð", neut = "rautt" }  # for «{noun} er {colour}.» (#158): the form follows the noun
 topics = ["shopping"]
 
 [[items]]
@@ -345,6 +346,7 @@ meaning = "blue"
 meaning_ja = "青"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "blá", neut = "blátt" }  # for «{noun} er {colour}.» (#158): the form follows the noun
 topics = ["shopping"]
 
 [[items]]
@@ -355,6 +357,7 @@ meaning = "green"
 meaning_ja = "緑"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "græn", neut = "grænt" }  # for «{noun} er {colour}.» (#158): the form follows the noun
 topics = ["shopping"]
 
 [[items]]
@@ -365,6 +368,7 @@ meaning = "yellow"
 meaning_ja = "黄色"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "gul", neut = "gult" }  # for «{noun} er {colour}.» (#158): the form follows the noun
 topics = ["shopping"]
 
 [[items]]
@@ -375,6 +379,7 @@ meaning = "black"
 meaning_ja = "黒"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "svört", neut = "svart" }  # for «{noun} er {colour}.» (#158): the form follows the noun
 topics = ["shopping"]
 
 [[items]]
@@ -385,6 +390,7 @@ meaning = "white"
 meaning_ja = "白"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "hvít", neut = "hvítt" }  # for «{noun} er {colour}.» (#158): the form follows the noun
 topics = ["shopping"]
 
 [[items]]
@@ -395,6 +401,7 @@ meaning = "grey"
 meaning_ja = "灰色"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "grá", neut = "grátt" }  # for «{noun} er {colour}.» (#158): the form follows the noun
 topics = ["shopping"]
 
 [[items]]
@@ -405,20 +412,103 @@ meaning = "brown"
 meaning_ja = "茶色"
 difficulty = 1
 tags = ["colour"]
+gender_forms = { fem = "brún", neut = "brúnt" }  # for «{noun} er {colour}.» (#158): the form follows the noun
 topics = ["shopping"]
 
+# The colours with their noun (#158). «Ég vil {colour}.» generated «Ég vil blár.» (the colour names are stored
+# masculine nominative and «vilja» takes the accusative), so it left the course. A colour in the nominative is right
+# when it follows the gender of the thing it describes: «Bíllinn er blár.», «Bókin er blá.», «Húsið er blátt.». The
+# colour items carry their feminine and neuter forms (`gender_forms`, in 09-shopping.toml) and the construction's
+# `agreement` takes the fill's own form from the noun's gender. The nouns are definite, since «Bíll er blár.» isn't a
+# sentence; signs and the road condition are what a traveller reads in colour («gult skilti», a red road
+# warning), the car, the book and the sofa are the plain cases.
 [[items]]
-id = "eg_vil_thann_lit"
-kind = "construction"
-target = "Ég vil {colour}."
-meaning = "I want the {colour} one."
-meaning_ja = "{colour}のがいいです。"
+id = "skiltid"
+kind = "vocab"
+target = "skiltið"
+meaning = "the sign"
+meaning_ja = "その標識"
+difficulty = 1
+tags = ["def_noun"]
+gender = "neut"
+topics = ["adjectives", "travel"]
+
+[[items]]
+id = "faerdin"
+kind = "vocab"
+target = "færðin"
+meaning = "the road condition"
+meaning_ja = "道路の状況"
 difficulty = 2
-topics = ["shopping"]
-slots = { colour = "colour" }
-example = { colour = "blar" }
-prereqs = ["blar"]
-pronunciation_notes = "colour in masculine form, as when pointing at 'þennan' (this one)"
+tags = ["def_noun"]
+gender = "fem"
+topics = ["adjectives", "travel"]
+
+[[items]]
+id = "billinn"
+kind = "vocab"
+target = "bíllinn"
+meaning = "the car"
+meaning_ja = "その車"
+difficulty = 1
+tags = ["def_noun"]
+gender = "masc"
+topics = ["adjectives", "transport"]
+
+[[items]]
+id = "bokin"
+kind = "vocab"
+target = "bókin"
+meaning = "the book"
+meaning_ja = "その本"
+difficulty = 1
+tags = ["def_noun"]
+gender = "fem"
+topics = ["adjectives"]
+
+[[items]]
+id = "husid"
+kind = "vocab"
+target = "húsið"
+meaning = "the house"
+meaning_ja = "その家"
+difficulty = 1
+tags = ["def_noun"]
+gender = "neut"
+topics = ["adjectives"]
+
+[[items]]
+id = "sofinn"
+kind = "vocab"
+target = "sófinn"
+meaning = "the sofa"
+meaning_ja = "そのソファ"
+difficulty = 1
+tags = ["def_noun"]
+gender = "masc"
+topics = ["adjectives"]
+
+[[items]]
+id = "colour_is"
+kind = "construction"
+target = "{noun} er {colour}."
+meaning = "{noun} is {colour}."
+meaning_ja = "{noun}は{colour}です。"
+difficulty = 3
+topics = ["adjectives", "grammar"]
+slots = { noun = "def_noun", colour = "colour" }
+agreement = { colour = { from = "noun", fills = true } }
+example = { noun = "billinn", colour = "blar" }
+prereqs = ["blar", "billinn"]
+situation = "You point at the sign by the road. Say that it is yellow."
+situation_ja = "道路脇の標識を指さして、黄色だと言ってください。"
+situation_fill = { noun = "skiltid", colour = "gulur" }
+pronunciation_notes = "the colour follows the noun's gender (blár / blá / blátt), as «góður / góð / gott» do"
+
+# «Ég vil {colour}.» was here (#158): its slot took the colour names as stored, masculine nominative, and
+# «vilja» takes the accusative, so it generated «Ég vil blár.» (a chunk «Ég vil bláan.» would be wrong too
+# for a feminine or neuter thing, «bláa», «blátt»). Colours come back through a scene that uses them, with the
+# noun that fixes their form (a weather warning: «gul viðvörun»), not as a pattern over the bare names.
 
 [[items]]
 id = "eg_aetla_ad_taka_thetta"

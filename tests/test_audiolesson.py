@@ -5435,6 +5435,62 @@ class CheapConstructionTests(unittest.TestCase):
         self.assertGreaterEqual(with_len, without_len, (with_len, without_len))
 
 
+class ColourFormTests(unittest.TestCase):
+    """#158: «Ég vil {colour}.» filled its slot with the colour names as stored (masculine nominative) and generated
+    «Ég vil blár.»; «vilja» takes the accusative. Slot fills are verbatim targets, with no morphology engine, so the
+    construction left the course. A colour in the nominative is right when it follows the noun's gender: «Bíllinn er
+    blár.», «Bókin er blá.», «Húsið er blátt.» (`gender_forms` and the `fills` agreement)."""
+
+    FORMS = {  # nominative: masculine, feminine, neuter
+        "raudur": ("rauður", "rauð", "rautt"), "blar": ("blár", "blá", "blátt"), "graenn": ("grænn", "græn", "grænt"),
+        "gulur": ("gulur", "gul", "gult"), "svartur": ("svartur", "svört", "svart"), "hvitur": ("hvítur", "hvít", "hvítt"),
+        "grar": ("grár", "grá", "grátt"), "brunn": ("brúnn", "brún", "brúnt"),
+    }
+    GENDER = {"masc": 0, "fem": 1, "neut": 2}
+
+    def test_a_colour_slot_is_always_agreed_with_a_noun(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertEqual({i.id for i in cur.items_with_tag("colour")}, set(self.FORMS), "the colour words themselves are still taught")
+        for c in cur.items:
+            if c.kind == "construction" and "colour" in c.slots.values():
+                slot = next(s for s, tag in c.slots.items() if tag == "colour")
+                rule = c.agreement.get(slot)
+                self.assertTrue(rule and rule.get("fills"), f"{c.id}: a colour needs the form its noun's gender takes, not the stored masculine one")
+
+    def test_every_generated_sentence_has_the_colour_in_its_nouns_gender(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        c = cur.by_id["colour_is"]
+        nouns = cur.items_with_tag("def_noun")
+        self.assertGreaterEqual(len({n.gender for n in nouns}), 3, "all three genders are there")
+        for n in nouns:
+            for col in cur.items_with_tag("colour"):
+                target, meaning = cur.resolve_slots(c, {"noun": n, "colour": col})
+                want = f"{n.target} er {self.FORMS[col.id][self.GENDER[n.gender]]}."
+                self.assertEqual(target, want[0].upper() + want[1:], (n.id, col.id))  # a sentence that opens with a slot is capitalised
+                self.assertNotIn("{", meaning)
+        self.assertEqual(cur.resolve_slots(c, {"noun": cur.by_id["billinn"], "colour": cur.by_id["blar"]})[1], "The car is blue.")
+
+    def test_a_fill_without_forms_for_a_noun_gender_fails_validation(self):
+        from audiolesson.content import CurriculumError
+
+        def raw(forms):
+            return {
+                "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                "items": [
+                    {"id": "bil", "kind": "vocab", "target": "bíllinn", "meaning": "the car", "tags": ["n"], "gender": "masc"},
+                    {"id": "bok", "kind": "vocab", "target": "bókin", "meaning": "the book", "tags": ["n"], "gender": "fem"},
+                    dict({"id": "bla", "kind": "vocab", "target": "blár", "meaning": "blue", "tags": ["c"]}, **forms),
+                    {"id": "is", "kind": "construction", "target": "{n} er {c}.", "meaning": "{n} is {c}.", "slots": {"n": "n", "c": "c"},
+                     "agreement": {"c": {"from": "n", "fills": True}}},
+                ],
+            }
+
+        cur = curriculum_from_dict(raw({"gender_forms": {"fem": "blá"}}))
+        self.assertEqual(cur.resolve_slots(cur.by_id["is"], {"n": cur.by_id["bok"], "c": cur.by_id["bla"]})[0], "Bókin er blá.")
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw({}))
+
+
 class NoSlotLeakTests(unittest.TestCase):
     """#178: a mixed-review cue narrated «How do you say: It's {hour} o'clock.», the construction's raw template. No
     narrated or spoken segment of a built lesson may contain a slot placeholder, whatever path built it."""

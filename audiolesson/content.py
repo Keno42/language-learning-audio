@@ -104,6 +104,10 @@ class Item:
     # filled by picking an item; its text follows the gender of the ``from`` slot's fill, so
     # "{adj} {noun}." generates «Góður bíll.» / «Góð bók.» / «Gott hús.».
     agreement: dict[str, dict[str, str]] = field(default_factory=dict)
+    # an adjective-like item whose surface form follows the gender of the noun it is said of (#158): the forms for
+    # the genders other than the stored one («blár» → fem «blá», neut «blátt»). A construction's agreement rule
+    # {"from": noun slot, "fills": true} puts the form of this slot's own fill into the sentence.
+    gender_forms: dict[str, str] = field(default_factory=dict)
     # An authored bridge: the partner line spoken after item ``partner_cue_after`` and before
     # this item, so "A → partner_cue → this" reads as one real exchange. Set both or neither.
     partner_cue: str = ""
@@ -311,6 +315,11 @@ class Curriculum:
         meaning = construction.spoken_meaning if form_meaning == construction.meaning else form_meaning  # narrated: no recall disambiguator in brackets
         for slot, rule in construction.agreement.items():
             gender = fills[rule["from"]].gender
+            if rule.get("fills"):
+                # the slot's own fill, in the form its noun's gender takes (#158): «Bíllinn er blár.» / «Bókin er blá.»
+                fill = fills[slot]
+                target = target.replace("{" + slot + "}", fill.gender_forms.get(gender, fill.target).rstrip("."))
+                continue
             target = target.replace("{" + slot + "}", rule[gender])
         for slot, item in fills.items():
             spoken = item.target_m if speaker == "m" and item.target_m else item.target
@@ -645,7 +654,16 @@ def validate(cur: Curriculum) -> None:
                     ungendered = [c.id for c in candidates if c.gender is None]
                     if ungendered:
                         raise CurriculumError(f"construction {it.id!r}: agreement controller slot {controller!r} has ungendered candidates {ungendered}")
-                    forms = {k: v for k, v in rule.items() if k != "from"}
+                    if rule.get("fills"):
+                        # the slot is also picked from its own pool; each fill carries the form for every gender its noun can take
+                        if s not in it.slots:
+                            raise CurriculumError(f"construction {it.id!r}: agreement for {{{s}}} takes the fill's forms, so {s!r} needs a tag in [slots]")
+                        genders = {c.gender for c in candidates}
+                        lacking = [f.id for f in cur.items_with_tag(it.slots[s]) if any(g != "masc" and g not in f.gender_forms for g in genders)]  # the stored form is the masculine one
+                        if lacking:
+                            raise CurriculumError(f"construction {it.id!r}: fills of {{{s}}} lack gender_forms (the stored form is the masculine one) for {sorted(genders)}: {lacking}")
+                        continue
+                    forms = {k: v for k, v in rule.items() if k not in ("from", "fills")}
                     missing = {c.gender for c in candidates} - set(forms)
                     if missing:
                         raise CurriculumError(f"construction {it.id!r}: agreement for {{{s}}} is missing forms for {sorted(missing)}")
