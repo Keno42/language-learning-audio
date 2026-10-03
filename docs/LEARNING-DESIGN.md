@@ -198,7 +198,7 @@ changed it).
 | **H1** | Producing a line from memory, after a real gap, builds durable recall better than hearing or repeating it. | Retrieval practice and spacing are among the best-supported findings on learning (Roediger & Karpicke 2006; Cepeda et al. 2006). | Answer pauses; the stage ladder; spacing across days (`learner.py`) | Next-day recall of new lines stays low even at a low pace | adopted |
 | **H2** | Only success after a gap is evidence of learning. Success minutes after the first exposure is practice. | Performance during practice is a poor guide to learning (Soderstrom & Bjork 2015); #27. | `durable_successes`, `knows()`; the review comes the next day, before the lesson | — | adopted |
 | **H3** | A line cued by a *situation* or a partner's line transfers to the real moment better than one cued by a translation. The closer practice is to use, the better. | Transfer-appropriate processing and encoding specificity (Morris et al. 1977; Tulving & Thomson 1973). | `situation` stage, `connect` exchanges, dialogues, scenario cards | Lines practised in situations do no better in scenario cards than lines practised from meanings | testing (no comparison made yet) |
-| **H4** | **A lesson built around one scene's exchange beats a lesson built from an item count.** In such a lesson, today's lines are spread across the lesson and used together in a coherent exchange, again with other fillings, at rising resolution over lessons. The result is more lines said at the right turn, and less felt repetition. | H1 + H3, thematic grouping (H5), and the owner's experience of lesson 12 (§5.6). | Step 1b-ii built (#149): a lesson's theme exchange is played twice (early assisted, late with only the partner's line as the cue); `cando/themes.toml` has four themes, eight levels, taken from #155's draft. New material by theme (step 2) and the rest of the draft are not built | Themed scenes don't reach readiness faster than unthemed ones, or the learner finds themed lessons no less repetitive | **bet: the main one.** Lesson 13 (§5.10): the learner unprompted calls the lesson an "Anki game" of unrelated expressions. Lesson 14 (§5.12), after the batch (no themes yet): "repetitive" is gone from the form, so the batch removed the repetition. Whether a theme makes the lesson feel coherent is still untested |
+| **H4** | **A lesson built around one scene's exchange beats a lesson built from an item count.** In such a lesson, today's lines are spread across the lesson and used together in a coherent exchange, again with other fillings, at rising resolution over lessons. The result is more lines said at the right turn, and less felt repetition. | H1 + H3, thematic grouping (H5), and the owner's experience of lesson 12 (§5.6). | Step 1b-ii built (#149): a lesson's theme exchange is played twice (early assisted, late with only the partner's line as the cue, #186), the partner's lines in variants (#189); `cando/themes.toml` has four themes, eight levels. Since 2026-10-03 the theme is the frame of every lesson (§9 "Themes"). Not built: a theme in every lesson, new material by theme (step 2), the closing block on the theme's lines | Themed scenes don't reach readiness faster than unthemed ones, or the learner finds themed lessons no less repetitive | **bet: the main one.** Lesson 13 (§5.10): the learner unprompted calls the lesson an "Anki game" of unrelated expressions. Lesson 14 (§5.12), after the batch (no themes yet): "repetitive" is gone from the form, so the batch removed the repetition. Whether a theme makes the lesson feel coherent is still untested |
 | **H5** | Group new material by **scene** (bun, coffee, bag, card), not by **semantic set** (numbers 1–10, colours, yes/no). Similar items introduced together get confused; contrasting them pays off once each is known. | Semantic clustering slows L2 vocabulary learning and thematic clustering doesn't (Tinkham 1993, 1997; Waring 1997). Interleaving helps when the task is telling similar things apart (Brunmair & Richter 2019). Lesson 8: "numbers 1–4: masculine and neuter can't be told apart in the English prompts" (§5.2). | Partly: milestone notes contrast known items; #150 plans contrasts for known pairs and series. Nothing keeps a set from being introduced together: the curriculum lists numbers, colours and languages next to each other (§7, G5) | Items introduced as a set fail no more often than others | bet (research-backed) |
 | **H6** | Chunks first, patterns next, transfer last. A fixed chunk said often becomes fluent (token frequency). A pattern used with many different fillings becomes productive (type frequency). Teach a pattern when two fillings are known, then move it to new words. | Usage-based learning (Bybee 2006); formulaic language (Wray 2002); #29's "capabilities outward". | Constructions with slots and `meaning_forms`; milestones with `transfer_items`; recombination; substitution runs (PR #153) | Substitution drills don't help the learner produce combinations they haven't heard (scenario cards with new fillings) | adopted (principle); testing (substitution) |
 | **H7** | Every generated sentence must be plausible in its scene. An implausible one teaches less than it costs. | Owner (after lesson 12: never produce "order a passport at the café"); H3. | Case- and meaning-tagged slots; `opens` (PR #155); scene templates (#152) | — | adopted |
@@ -641,13 +641,22 @@ what. Re-rank it when the evidence moves.
      (site_update_notifier#59, #62). The first read is §5.8; the next ones follow the bump
      to #153.
 2. **Build lessons around a scene (G2, G5, and G3 through partner turns), in steps (#149).**
-   It is the main bet (H4). Test it as a bet: first a theme exchange inserted into today's
-   planner, run twice per lesson with other fillings, with time-based spacing for today's
-   lines. Then reviews grouped by the theme's topics. A larger redesign only if the first
-   steps pay off.
-   - New material goes into a lesson by scene, and semantic sets are introduced across
-     lessons and scenes, not in one block (H5). Today the curriculum lists numbers, colours
-     and languages next to each other. #150's contrasts (yes and no back to back, a series as a
+   It is the main bet (H4), and since 2026-10-03 the frame of every lesson (§9 "Themes", the
+   owner's decision): the theme comes first, and items, reviews and spare time serve it.
+   **Built:** time-based spacing and words in sentences (1b-i, #170, #187/#190); the theme
+   exchange played twice, early assisted and late with only the partner's line as the cue
+   (1b-ii, #186), with the partner's lines in variants at natural speed (#189). **Next**, in
+   order (#149): no lesson without a theme (a level already done comes back after a rest when no
+   next level is ready); new material chosen for the theme (step 2, below); the closing block
+   taking the theme's lines.
+   - New material goes into a lesson by scene (step 2): the items the top theme's next level
+     lacks come first, ahead of the trip order of single items. A part comes with its frame, or
+     after it: a part whose only frames are unknown has no sentence to live in and is drilled
+     alone («sturtan» in lesson 15, §9 "Repetition"). A fixed phrase that is an instance of a
+     pattern («Þrjá miða, takk.») is linked to it, so its later practice varies («Tvo miða,
+     takk.») instead of repeating the same sentence ten times (#192).
+   - Semantic sets are introduced across lessons and scenes, not in one block (H5). Today the
+     curriculum lists numbers, colours and languages next to each other. #150's contrasts (yes and no back to back, a series as a
      run) fit H5 for items already known; they must not become a way to introduce a set
      together.
    - The theme's partner lines are where clerk-side listening enters the audio: natural
@@ -721,6 +730,15 @@ Don't reopen these without new evidence; when you do, say what changed.
   - Never an exact dialogue line as a memory item, just because the representation can't
     yet express the pattern behind it («held ég», #54 review). The test is whether the
     learner gains a reusable model, not whether a diagnostic comes out clean.
+- **Themes (owner, 2026-10-03; #149).** Every lesson after the first is built around a theme: a
+  scene of the trip as an exchange, at rising levels. The theme ranks above the item count and
+  above the trip order of single items: new material is chosen for the theme's next level, and
+  a lesson with no new level ready replays one already done rather than going without. Why:
+  words, sentences and exchanges are more enjoyable, and easier to place, once the learner can
+  picture the whole conversation (O5; the "Anki game" of lesson 13, §5.10). This settles H4's
+  place in the plan; whether it works is still read from the signals in H4's row. Reopen it if
+  themed lessons are still felt as unrelated items, if next-day recall of new lines drops, or
+  if themed scenes don't reach readiness sooner than unthemed ones.
 - **Conversation.**
   - An exchange's target-language turns must form a plausible conversation with the
     instructor lane removed (#48).
