@@ -1162,8 +1162,8 @@ class Planner:
             return cap_concerns(item) and not any(i.id == item.id for i in introduced) and not self.learner.is_open(item.id)
 
         def holds_sentence(item: Item) -> bool:
-            """A sentence that can be said holds ``item`` (a known or practised phrase that contains it, not a stable one before its date)."""
-            return any(not not_due_stable(w) for w in self.containing_items(item))
+            """A sentence that can be said holds ``item`` (a known or practised phrase that contains it, not a stable one)."""
+            return any(not self._stable(w) for w in self.containing_items(item))
 
         def said_in_sentence(item: Item) -> bool:
             """Whether ``item`` has been said inside a sentence in this lesson (#179): a generated
@@ -1182,7 +1182,7 @@ class Planner:
                     touch(item)
                     return True
                 for whole in self.containing_items(item):
-                    if not_due_stable(whole) or (review and bare_capped(whole)):
+                    if self._stable(whole) or (review and bare_capped(whole)):
                         continue  # a stable one keeps to its date, a short whole to its own bare uses
                     ex = b.recall(sc, whole, "meaning")
                     self._record([item.id, whole.id] if review else [whole.id], ex.stage or "meaning", ex.item_ids + ([] if review else [item.id]))
@@ -1205,8 +1205,8 @@ class Planner:
             for whole in self.containing_items(item):
                 if whole.id in used or whole.id in recent or bare_capped(whole):
                     continue  # a short whole item has its own bare uses to keep to
-                if not_due_stable(whole):
-                    continue  # a stable item waits for its date, even as the sentence for another (#94, #151)
+                if self._stable(whole):
+                    continue  # a stable item is practised on its own dates, never as the sentence for another (#94, #151)
                 ex = b.recall(sc, whole, "meaning")
                 if review:  # the review of ``item``: it is credited (its due date moves), and so is the whole, which was asked
                     self._record([item.id, whole.id], ex.stage or "meaning", ex.item_ids)
