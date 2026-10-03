@@ -155,8 +155,11 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   pattern with a slot, its `context` sentence, a known or earlier-practised phrase that contains it), else it keeps
   the bare recall; mixed review also skips such an item when `holds_sentence`. A stable whole is never the
   sentence for another item (it is practised on its own dates); neither is the whole just asked or one asked twice
-  already (an utterance then falls back to its own scene, a part to its bare recall), nor a whole that negates the part
+  already: the part was just said inside it, so its review counts as done through that exercise (the item is credited)
+  and nothing more is played; nor is a whole that negates the part
   («Ég skil ekki.» for «Ég skil.»: `NEGATION`), and a whole asked as a sentence is credited with the item.
+  A generated sentence is not the one the learner just said or the one before (`Builder.recent_answers`), and `sentence_recall`
+  marks its combination used, so a part's closing and its pattern's closing do not say the same sentence back to back.
 - **Constructions have authored negative and question forms (#171).** `Item.negative` /
   `question` (with meanings) are alternatives of a construction's target template, never derived;
   `validate` checks slots, «ekki», «?» and the meanings. `Builder.generate(forms=True)` may pick

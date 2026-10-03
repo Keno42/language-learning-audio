@@ -1192,9 +1192,16 @@ class Planner:
                     if self._stable(whole) or (review and (bare_capped(whole) or whole.id in recent or asked_times(whole) >= 2)):
                         continue  # a stable one keeps to its date, a short whole to its own bare uses, the one just asked is not asked again
                     ex = b.recall(sc, whole, "meaning")
-                    self._record([item.id, whole.id] if review else [whole.id], ex.stage or "meaning", ex.item_ids + ([] if review else [item.id]))
+                    ex.item_ids.append(item.id)  # the part was practised inside it: the exercise says so
+                    self._record([item.id, whole.id] if review else [whole.id], ex.stage or "meaning", ex.item_ids)
                     touch(whole)
                     return True
+                if review:
+                    produced = next((w for w in self.containing_items(item) if not self._stable(w) and (w.id in recent or asked_times(w) >= 2)), None)
+                    if produced is not None:  # the part was just said inside that sentence: the review is done through it, nothing more to play (#190)
+                        self._record([item.id], "meaning", [produced.id])
+                        touch(item)
+                        return True
             return False
 
         def sentence_practice(item: Item, review: bool = False) -> bool:
@@ -1215,11 +1222,12 @@ class Planner:
                 if self._stable(whole):
                     continue  # a stable item is practised on its own dates, never as the sentence for another (#94, #151)
                 ex = b.recall(sc, whole, "meaning")
+                ex.item_ids.append(item.id)  # the part was practised inside it: the exercise says so
                 if review:  # the review of ``item``: it is credited (its due date moves), and so is the whole, which was asked
                     self._record([item.id, whole.id], ex.stage or "meaning", ex.item_ids)
                     touch(item)
                 else:
-                    self._record([whole.id], ex.stage or "meaning", ex.item_ids + [item.id])
+                    self._record([whole.id], ex.stage or "meaning", ex.item_ids)
                 touch(whole)
                 used.add(whole.id)
                 return True

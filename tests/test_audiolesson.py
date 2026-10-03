@@ -5078,7 +5078,7 @@ class ShortItemRepetitionTests(unittest.TestCase):
     def test_a_part_is_not_reviewed_by_asking_the_sentence_just_asked(self):
         """#190 review: «Hvenær?» was reviewed by asking «Hvenær leggjum við af stað?» right after that sentence was asked, so the
         sentence came again and again and «Hvenær?» itself never. The review path does not repeat the previous exercise: the sentence
-        just asked, or asked twice, is not asked again, and an utterance falls back to its own scene."""
+        just asked, or asked twice, is not asked again; the part was just said inside it, so its review is done through that exercise and nothing more is played."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         for seed in range(6):
             learner = LearnerState("is", "en", "A1")
@@ -5090,7 +5090,26 @@ class ShortItemRepetitionTests(unittest.TestCase):
             asked = [e.item_ids[0] for e in sc.exercises if e.kind == "recall"]
             self.assertFalse([a for a, b in zip(asked, asked[1:]) if a == b], (seed, asked))
             self.assertLessEqual(asked.count("hvenaer_leggjum_vid_af_stad"), 4, (seed, asked))
-            self.assertIn("hvenaer", asked, "the part itself is reviewed too")
+            self.assertTrue(sc.meta["exposures"].get("hvenaer"), "the part is credited as reviewed, through the sentence that was just asked")
+            sentence = "hvenaer_leggjum_vid_af_stad"
+            self.assertFalse([b for a, b in zip(asked, asked[1:]) if a == sentence and b == "hvenaer"], "never as a scene right after its sentence")
+
+    def test_a_generated_sentence_is_not_the_one_the_learner_just_said(self):
+        """#190 review: the closing recalls of «peysu» and of «Áttu {thing}?» both said «Áttu peysu?», back to back: the first, asked as
+        the part's sentence, was not counted as used, and the pattern's three fillers were all used by then. The sentence just said
+        (or the one before) is not drawn again while another is possible; sentence_recall marks its combination used."""
+        from audiolesson.exercises import _norm_utterance
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        for i in ("attu", "peysu", "poka", "vegabref"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+        builder = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY).builder
+        builder.recent_answers = [_norm_utterance("Áttu peysu?")]
+        drawn = {builder.generate(cur.by_id["attu"]).target for _ in range(40)}
+        self.assertEqual(drawn, {"Áttu poka?", "Áttu vegabréf?"})
+        builder.recent_answers = []
+        self.assertIn("Áttu peysu?", {builder.generate(cur.by_id["attu"]).target for _ in range(40)}, "otherwise it is drawn like any other")
 
     def test_a_negated_sentence_does_not_hold_its_part(self):
         """#190 review: «Ég skil ekki.» says the opposite of «Ég skil.» and must not be the sentence its review asks."""
