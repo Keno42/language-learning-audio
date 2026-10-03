@@ -36,6 +36,7 @@ from audiolesson.cando import for_season, load_cando, priority_items  # noqa: E4
 from audiolesson.content import load_curriculum  # noqa: E402
 from audiolesson.learner import LearnerState  # noqa: E402
 from audiolesson.planner import PlanConfig, Planner, apply_to_learner  # noqa: E402
+from audiolesson.themes import load_themes, scenario_order  # noqa: E402
 from audiolesson.prompts import Prompts  # noqa: E402
 from audiolesson.timing import Timing  # noqa: E402
 from audiolesson.trip import load_trip  # noqa: E402
@@ -114,6 +115,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "most appearances of one new item": max((sum(1 for e in exs if i in e.item_ids) for i in m["new_items"]), default=0),
         "generated sentences (plain / negative / question)": f"{sum(forms.values())} ({forms['plain']} / {forms['negative']} / {forms['question']})",
         "most sentences of one construction": max(per_construction.values(), default=0),
+        "theme (level) / plays": f"{m['theme']['id']} ({m['theme']['level']}) / {m['theme']['plays']}" if m.get("theme") else "–",
         "listening dialogues": len(m.get("dialogues_listened", [])),
         "heard-only lines": narrated.count(Prompts.load(cur.known_lang).get("listening_line")),
         "tried lines / bonus questions": f"{len(m.get('listening_tried', []))} / {len(m.get('bonus_review', []))}",
@@ -146,9 +148,13 @@ def main(argv: list[str] | None = None) -> int:
     cur = load_curriculum(args.curriculum, known_lang=known)
     learner = LearnerState.load(args.export / "learner.before.json")
     priority: list[str] = []
-    if args.trip:
-        trip = load_trip(args.trip)
-        priority = priority_items(cur, for_season(load_cando(args.curriculum, cur), trip.season), trip.boost)
+    scenarios = load_cando(args.curriculum, cur) if Path(args.curriculum).is_dir() else []
+    trip = load_trip(args.trip) if args.trip else None
+    if trip is not None:
+        priority = priority_items(cur, for_season(scenarios, trip.season), trip.boost)
+    # the lesson's theme exchange (#149 1b-ii), loaded as `generate` does
+    themes = load_themes(args.curriculum, cur, scenarios) if scenarios else []
+    theme_scenarios = scenario_order(for_season(scenarios, trip.season) if trip else scenarios, trip.boost if trip else ()) if themes else []
     prompts = Prompts.load(cur.known_lang)
     day = date.fromisoformat(manifest["created_at"][:10])
 
@@ -165,7 +171,7 @@ def main(argv: list[str] | None = None) -> int:
         known_c = sum(1 for c in cur.items if c.kind == "construction" and learner.knows(c.id))
         pace, _why = learner.suggest_pace(minutes, day)
         timing = Timing(level=learner.level or cur.level, speech_ratio=dict(learner.speech_calibration))
-        sc = Planner(cur, learner, prompts, timing, PlanConfig(minutes=minutes, new_items=pace, priority=priority), today=day).build()
+        sc = Planner(cur, learner, prompts, timing, PlanConfig(minutes=minutes, new_items=pace, priority=priority, themes=themes, theme_scenarios=theme_scenarios), today=day).build()
         rows.append(measure(cur, sc, known_c))
         apply_to_learner(sc, learner, day)
         day += timedelta(days=1)

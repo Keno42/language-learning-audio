@@ -10,6 +10,7 @@ from datetime import date
 from pathlib import Path
 
 from . import __version__
+from .themes import load_themes, scenario_order
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, part_before_whole_report
 from .learner import LearnerState, parse_date
@@ -232,12 +233,15 @@ def cmd_generate(args) -> int:
     else:
         new_items, why = learner.suggest_pace(args.minutes, today)
     priority: list[str] = []
-    if args.trip:
-        trip = load_trip(args.trip)
-        scenarios = load_cando(args.curriculum, cur) if Path(args.curriculum).is_dir() else []
+    scenarios = load_cando(args.curriculum, cur) if Path(args.curriculum).is_dir() else []
+    trip = load_trip(args.trip) if args.trip else None
+    if trip is not None:
         if not scenarios:
             print("warning: --trip given but the curriculum has no can-do scenarios (cando/*.toml)", file=sys.stderr)
         priority = priority_items(cur, for_season(scenarios, trip.season), trip.boost)
+    # #149 1b-ii: the lesson's theme exchange, from the trip profile's boosted scenarios first, else Tier A
+    themes = load_themes(args.curriculum, cur, scenarios) if scenarios else []
+    theme_scenarios = scenario_order(for_season(scenarios, trip.season) if trip else scenarios, trip.boost if trip else ()) if themes else []
     cfg = PlanConfig(
         minutes=args.minutes,
         new_items=new_items,
@@ -245,6 +249,8 @@ def cmd_generate(args) -> int:
         seed=args.seed,
         translate_partner=not args.no_translate,
         priority=priority,
+        themes=themes,
+        theme_scenarios=theme_scenarios,
         late_unhinted_recall=args.late_unhinted_recall,
     )
     unknown_topics = [t for t in cfg.topics if t not in cur.topics()]
@@ -328,6 +334,7 @@ def _plan(script: Script, cur) -> dict:
         "new_items": [describe(i) for i in meta.get("new_items", [])],
         "reviewed_items": [describe(i) for i in meta.get("reviewed_items", [])],
         "dialogues": meta.get("dialogues", []),
+        "theme": meta.get("theme"),  # #149 1b-ii: the lesson's theme and level, and how often its exchange played
         "listening_asked": meta.get("listening_asked", []),  # #179: turns asked because the line can be said
         "listening_tried": meta.get("listening_tried", []),  # #183: turns tried on a part (bonus questions)
         "exposures": meta.get("exposures", {}),
@@ -484,6 +491,9 @@ def cmd_validate(args) -> int:
         if missing:
             raise CurriculumError(f"Tier A scenarios without a scenario card (#129): {missing}")
         print(f"{len(scenes)} scenario cards (#129); every Tier A scenario has one")
+    themes = load_themes(args.curriculum, cur, scenarios) if scenarios else []
+    if themes:
+        print(f"{len(themes)} lesson themes (#149), {sum(len(t.levels) for t in themes)} levels")
     if args.cando:
         if not scenarios:
             print("no can-do scenarios (<curriculum>/cando/*.toml)")

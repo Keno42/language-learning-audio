@@ -5486,6 +5486,214 @@ class ColourFormTests(unittest.TestCase):
             curriculum_from_dict(raw({}))
 
 
+class ThemeExchangeTests(unittest.TestCase):
+    """#149 1b-ii: a lesson consolidates one theme, a scene of a trip as a short exchange: its exchange is played twice,
+    early with the partner's lines translated, late with only the partner's line as the cue; a turn whose items the
+    learner lacks is tried; plan.json names the theme and level."""
+
+    @staticmethod
+    def _world():
+        from audiolesson.cando import load_cando
+        from audiolesson.themes import load_themes, scenario_order
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        scenarios = load_cando(ROOT / "curricula" / "is-en", cur)
+        themes = load_themes(ROOT / "curricula" / "is-en", cur, scenarios)
+        return cur, scenarios, themes, scenario_order
+
+    @staticmethod
+    def _learner(ids):
+        learner = LearnerState("is", "en", "A1")
+        for i in ids:
+            learner.items[i] = ItemState(due=(TODAY + timedelta(days=3)).isoformat(), successes=2, durable_successes=2, stage="meaning",
+                                         recalled=2, last_outcome="recalled", interval_days=3, last_practiced=(TODAY - timedelta(days=1)).isoformat())
+        return learner
+
+    def _planner(self, learner, themes, order, **cfg):
+        cur = self._cur
+        return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=0, themes=themes, theme_scenarios=order, **cfg), today=TODAY)
+
+    def setUp(self):
+        self._cur, self._scenarios, self._themes, so = self._world()
+        self._order = so(self._scenarios)
+        self._supermarket = next(t for t in self._themes if t.id == "supermarket")
+        self._known = list(self._supermarket.levels[0].items)
+        self._rest = [i.id for i in sorted(self._cur.items, key=lambda i: i.order)[:120] if i.id not in self._known]
+
+    def test_the_themes_load_and_validate_against_the_curriculum(self):
+        from audiolesson.themes import level_dialogue
+
+        self.assertGreaterEqual(len(self._themes), 2)
+        scenario_ids = {s.id for s in self._scenarios}
+        for t in self._themes:
+            self.assertIn(t.scenario, scenario_ids)
+            for n, lv in enumerate(t.levels):
+                self.assertTrue(all(i in self._cur.by_id for i in lv.items))
+                dlg = level_dialogue(t, n)
+                self.assertEqual(len(dlg.turns), sum(1 for x in lv.turns if x.who == "you"))
+
+    def test_a_level_becomes_a_dialogue_with_openers_and_replies(self):
+        from audiolesson.themes import level_dialogue
+
+        dlg = level_dialogue(self._supermarket, 0)
+        first = dlg.turns[0]
+        self.assertIsNone(first.opener, "the level starts with the learner")
+        self.assertTrue(first.partner and first.partner_meaning)
+        cafe = next(t for t in self._themes if t.id == "cafe")
+        opening = level_dialogue(cafe, 0).turns[0]
+        self.assertTrue(opening.opener and opening.opener_meaning, "a partner line first is the opener")
+        self.assertEqual(opening.expect_text, "Ég ætla að fá kaffi.")
+
+    def test_the_boosted_scenario_comes_first_and_the_lowest_level_wins(self):
+        everything = list(self._cur.by_id)
+        learner = self._learner(everything)
+        cafe_first = self._planner(learner, self._themes, ["A4", "A3"]).pick_theme()
+        self.assertEqual((cafe_first[0].id, cafe_first[1]), ("cafe", 0))
+        market_first = self._planner(learner, self._themes, ["A3", "A4"]).pick_theme()
+        self.assertEqual(market_first[0].id, "supermarket")
+        learner.themes_done = {"supermarket": 1, "cafe": 0, "museum": 1, "tour": 2}
+        later = self._planner(learner, self._themes, ["A3", "A4", "B1", "B2"]).pick_theme()
+        self.assertEqual((later[0].id, later[1]), ("cafe", 0), "the lowest level not played wins over a boosted theme's next level")
+        learner.themes_done = {t.id: len(t.levels) for t in self._themes}
+        self.assertIsNone(self._planner(learner, self._themes, self._order).pick_theme(), "every level played")
+
+    def test_a_theme_waits_until_the_learner_can_say_most_of_it(self):
+        learner = self._learner([i for i in self._known if i not in ("skyr", "attu", "gjordu_svo_vel")])
+        planner = self._planner(learner, [self._supermarket], ["A3"])
+        self.assertIsNone(planner.pick_theme(), "two of four turns lack an item")
+        learner = self._learner([i for i in self._known if i != "gjordu_svo_vel"])
+        picked = self._planner(learner, [self._supermarket], ["A3"]).pick_theme()
+        self.assertEqual((picked[0].id, picked[1], picked[2]), ("supermarket", 0, {3}), "one turn in four is tried")
+
+    def test_the_exchange_is_played_twice_early_assisted_and_late_with_only_the_partners_line(self):
+        learner = self._learner(self._known + self._rest)
+        planner = self._planner(learner, [self._supermarket], ["A3"])
+        sc = planner.build()
+        plays = [e for e in sc.exercises if e.label.startswith("dialogue: theme:supermarket:1")]
+        self.assertEqual(len(plays), 2)
+        total = sc.total_duration
+        self.assertLess(plays[0].start, 0.3 * total)
+        self.assertGreater(plays[1].start, 0.7 * total)
+        segs = lambda e: [g for g in sc.segments if g.exercise == e.index]
+        meaning = "Yes, it's over there, in the fridge."
+        self.assertTrue(any(g.text == meaning for g in segs(plays[0])), "assisted: the partner's line is translated")
+        self.assertFalse(any(g.text == meaning for g in segs(plays[1])), "later: the partner's line is the cue")
+        asked_first = [g for g in segs(plays[0]) if g.type == "pause" and g.role == "answer"]
+        self.assertEqual(len(asked_first), 4)
+        self.assertEqual(sc.meta["theme"], {"id": "supermarket", "scenario": "A3", "level": 1, "plays": 2})
+
+    def test_a_turn_no_partner_line_prompts_keeps_its_cue_in_the_late_play(self):
+        """Review of #186: in the late play the partner's line is the cue, which holds only where the partner's line asks
+        for the learner's. A learner line after their own line, or a scene change after a line that doesn't ask for it,
+        keeps its cue; otherwise the learner has to recall the script."""
+        from audiolesson.themes import Level, Theme, Turn, level_dialogue
+
+        market2 = level_dialogue(self._supermarket, 1)
+        self.assertEqual([t.keep_cue for t in market2.turns], [False, True, False], "the second line follows the learner's own")
+        cafe = next(t for t in self._themes if t.id == "cafe")
+        menu = level_dialogue(cafe, 1).turns
+        self.assertEqual([t.keep_cue for t in menu][:3], [True, True, False], "the seat question opens; the menu is a scene change (prompted = false)")
+        theme = Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
+            Turn(who="partner", say="Hæ.", meaning="Hi."),
+            Turn(who="you", say="Hæ.", cue="Say hi.", items=["hae"]),
+            Turn(who="partner", say="Takk.", meaning="Thanks."),
+            Turn(who="you", say="Bless.", cue="Say bye.", items=["bless"], prompted=False),
+        ])])
+        self.assertEqual([t.keep_cue for t in level_dialogue(theme, 0).turns], [False, True])
+        learner = self._learner(self._known + self._rest + ["eg_er_ad_leita_ad_thing", "hvad_er_thetta_mikid_samtals"])
+        planner = self._planner(learner, [self._supermarket], ["A3"])
+        planner.learner.themes_done = {"supermarket": 1}
+        sc = planner.build()
+        early, late = [e for e in sc.exercises if e.label.startswith("dialogue: theme:supermarket:2")]
+        said = lambda e: [g.text for g in sc.segments if g.exercise == e.index and g.type == "narrate"]
+        self.assertIn("At the till, ask how much it is in total.", said(late), "the line after the learner's own keeps its cue")
+        self.assertNotIn("You're just looking.", said(late), "a line that answers the partner has none")
+        self.assertIn("You're just looking.", said(early))
+
+    def test_a_tried_turn_keeps_its_cue_in_the_late_play(self):
+        learner = self._learner([i for i in self._known if i != "gjordu_svo_vel"] + [i for i in self._rest if i != "gjordu_svo_vel"])
+        sc = self._planner(learner, [self._supermarket], ["A3"]).build()
+        first, second = [e for e in sc.exercises if e.label.startswith("dialogue: theme:")]
+        for e in (first, second):
+            texts = [g.text for g in sc.segments if g.exercise == e.index and g.type == "narrate"]
+            self.assertIn("Hand over your card.", texts)
+            self.assertLess(texts.index("Hand over your card."), texts.index("Try it."), "the cue first, then «Try it.»")
+
+    def test_the_partner_is_voiced_as_the_cues_say(self):
+        """Review of #186: the tour guide is «Anna» and the cues say «her»; a male voice contradicted both."""
+        from audiolesson.themes import Level, Theme, Turn, _check, level_dialogue
+
+        tour = next(t for t in self._themes if t.id == "tour")
+        self.assertEqual(level_dialogue(tour, 0).partner_speaker, "native_a")
+        self.assertEqual(level_dialogue(self._supermarket, 0).partner_speaker, "native_b")
+        cafe = next(t for t in self._themes if t.id == "cafe")
+        self.assertEqual(level_dialogue(cafe, 2).partner_speaker, "native_a")
+        planner = self._planner(self._learner([]), [], [])
+        sc = Script(1, "t", "is", "en")
+        planner.builder.dialogue(sc, level_dialogue(tour, 0))
+        self.assertEqual({g.speaker for g in sc.segments if g.text and g.text.startswith("Góðan daginn öll")}, {"native_a"})
+        with self.assertRaises(CurriculumError):
+            _check(Theme(id="x", scenario="A1", title="X", levels=[Level(goal="g", partner_speaker="native_c", turns=[Turn(who="you", say="Takk.", cue="Thank him.", items=["takk"])])]))
+
+    def test_the_themes_items_are_credited_and_the_next_lesson_takes_the_next_level(self):
+        learner = self._learner(self._known + self._rest + ["eg_er_ad_leita_ad_thing", "hvad_er_thetta_mikid_samtals"])
+        planner = self._planner(learner, [self._supermarket], ["A3"])
+        sc = planner.build()
+        self.assertIn("skyr", planner.exposures)
+        apply_to_learner(sc, learner, TODAY)
+        self.assertEqual(learner.themes_done, {"supermarket": 1})
+        again = self._planner(learner, [self._supermarket], ["A3"]).pick_theme()
+        self.assertEqual((again[0].id, again[1]), ("supermarket", 1))
+        with tempfile.TemporaryDirectory() as tmp:
+            learner.save(Path(tmp) / "l.json")
+            self.assertEqual(LearnerState.load(Path(tmp) / "l.json").themes_done, {"supermarket": 1})
+
+    def test_a_tried_turn_is_said_with_try_it_and_goes_to_the_bonus_review(self):
+        learner = self._learner([i for i in self._known if i != "gjordu_svo_vel"] + [i for i in self._rest if i != "gjordu_svo_vel"])
+        planner = self._planner(learner, [self._supermarket], ["A3"])
+        sc = planner.build()
+        text = sc.transcript()
+        first, second = [e for e in sc.exercises if e.label.startswith("dialogue: theme:")]
+        tried = lambda e: [g.text for g in sc.segments if g.exercise == e.index and g.text == "Try it."]
+        self.assertEqual((len(tried(first)), len(tried(second))), (1, 1))
+        theme_tried = [t for t in planner.listening_tried if t["dialogue"].startswith("theme:")]
+        self.assertEqual([t["answer"] for t in theme_tried], ["Gjörðu svo vel."], "tried once, in the first play")
+        self.assertEqual(theme_tried[0]["unknown"], ["gjordu_svo_vel"])
+        self.assertIn("Gjörðu svo vel.", [q["answer"] for q in planner._bonus_review()])
+        self.assertIn("Try it.", text)
+
+    def test_no_theme_without_themes_or_with_nothing_ready(self):
+        sc = self._planner(self._learner(self._known + self._rest), [], []).build()
+        self.assertIsNone(sc.meta["theme"])
+        self.assertFalse(any(e.label.startswith("dialogue: theme:") for e in sc.exercises))
+        sc = self._planner(self._learner([]), [self._supermarket], ["A3"]).build()
+        self.assertIsNone(sc.meta["theme"])
+
+    def test_plan_json_names_the_theme_and_level(self):
+        from audiolesson.cli import _plan
+
+        planner = self._planner(self._learner(self._known + self._rest), [self._supermarket], ["A3"])
+        plan = _plan(planner.build(), self._cur)
+        self.assertEqual((plan["theme"]["id"], plan["theme"]["level"]), ("supermarket", 1))
+
+    def test_validation_errors(self):
+        from audiolesson.content import CurriculumError
+        from audiolesson.themes import Level, Theme, Turn, _check
+
+        good = Turn(who="you", say="Takk.", cue="Thank him.", items=["takk"])
+        with self.assertRaises(CurriculumError):
+            _check(Theme(id="x", scenario="A1", title="X", levels=[]))
+        with self.assertRaises(CurriculumError):
+            _check(Theme(id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[Turn(who="partner", say="Hæ.", meaning="Hi.")])]))
+        with self.assertRaises(CurriculumError):
+            _check(Theme(id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[Turn(who="you", say="Takk.", items=["takk"])])]))
+        with self.assertRaises(CurriculumError):
+            _check(Theme(id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[good, Turn(who="partner", say="Hæ.")])]))
+        with self.assertRaises(CurriculumError):
+            _check(Theme(id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[Turn(who="him", say="Hæ.")])]))
+        _check(Theme(id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[good])]))
+
+
 class NoSlotLeakTests(unittest.TestCase):
     """#178: a mixed-review cue narrated «How do you say: It's {hour} o'clock.», the construction's raw template. No
     narrated or spoken segment of a built lesson may contain a slot placeholder, whatever path built it."""
@@ -5706,7 +5914,7 @@ class ReplayToolTests(unittest.TestCase):
                 self.assertEqual(tool.main([str(export), "--lessons", "2", "--curriculum", str(ROOT / "curricula" / "is-en")]), 0)
         text = out.getvalue()
         self.assertIn("| | lesson 4 | lesson 5 |", text)
-        for row in ("| minutes |", "| short new item alone, most |", "| bare_cap_lapsed |", "| tried lines / bonus questions |"):
+        for row in ("| minutes |", "| short new item alone, most |", "| bare_cap_lapsed |", "| tried lines / bonus questions |", "| theme (level) / plays |"):
             self.assertIn(row, text)
 
 
