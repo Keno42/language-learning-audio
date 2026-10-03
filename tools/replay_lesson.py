@@ -138,6 +138,9 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "short new item alone, most": max((v[0] for v in short.values()), default=0),
         "short items (alone / in sentences / distinct)": ", ".join(f"{k} {v[0]}/{v[1]}/{v[2]}" + (f" +{v[3]} in scenes" if v[3] else "") for k, v in short.items()) or "–",
         "short review item alone after its sentence": f"{part_after_whole}" + (f" +{scenes_after_whole} in scenes" if scenes_after_whole else ""),
+        "new items for the theme's next level (taken / lacked)": (
+            f"{sum(1 for i in m['new_items'] if i in m['theme_target']['wanted'])} / {len(m['theme_target']['wanted'])}" if m.get("theme_target") else "–"
+        ),
         "most times one sentence is said": most_said,
         "longest gap between introductions (min)": round(max((b - a for a, b in zip(intros, intros[1:])), default=0), 1),
         "most narrations of one situation": situations.most_common(1)[0][1] if situations else 0,
