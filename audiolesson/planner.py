@@ -95,6 +95,10 @@ class PlanConfig:
     theme_scenarios: list[str] = field(default_factory=list)
     theme_ready: float = 0.75  # a theme's level plays once the learner can say this share of its turns; the rest are tried
     theme_rest_lessons: int = 3  # a level already played comes back no sooner than this many lessons later (#149 step 1)
+    # #149 step 2 (H5): a semantic set is not introduced as a block: at most ``max_set_items`` new items a lesson share
+    # one of these tags (numbers, colours, languages...); the others wait for another lesson, and the pool goes on
+    semantic_sets: tuple[str, ...] = ("number", "colour", "animal", "acc_language", "weather", "nature_nom", "day", "job")
+    max_set_items: int = 3
     listening_missing_max: int = 2
     listening_rest_lessons: int = 6
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
@@ -437,12 +441,21 @@ class Planner:
                     best = (key, c, fillers)
             return (best[1], best[2]) if best else None
 
+        def set_full(it: Item) -> bool:
+            """Whether the lesson already has ``max_set_items`` new items of a semantic set ``it`` belongs to (#149 step 2),
+            counting this lesson's earlier arcs (``exclude``) and what this call chose."""
+            sets = [t for t in self.cfg.semantic_sets if t in it.tags]
+            if not sets or it.kind == "construction":
+                return False
+            lesson = [self.cur.by_id[i] for i in chosen_ids if i in self.cur.by_id]
+            return any(sum(1 for x in lesson if t in x.tags and x.kind != "construction") >= self.cfg.max_set_items for t in sets)
+
         # walk in order, but a not-yet-ready item is skipped rather than blocking
         progress = True
         while len(chosen) < count and progress:
             progress = False
             for it in pool:
-                if it.id in chosen_ids or not ready(it):
+                if it.id in chosen_ids or not ready(it) or set_full(it):
                     continue
                 if it.kind != "construction" and it.tags:
                     hold, target = payoff(it)
