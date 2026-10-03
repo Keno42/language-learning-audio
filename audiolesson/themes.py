@@ -35,7 +35,11 @@ and ``load_scenes`` only ``[[scenes]]``, so they share the directory)::
   keeps it: by default one that doesn't directly follow a partner line, and with ``prompted = false`` a
   scene change («At the counter, ask for the menu.») after a line that doesn't ask for it.
 - A ``partner`` turn is what the other person says, with its meaning. It may go beyond the
-  course: a learner who gets the gist of 80-90% of what is said is where they should be.
+  course: a learner who gets the gist of 80-90% of what is said is where they should be. It is spoken at
+  natural speed, and may carry ``variants = [{ say, meaning, meaning_ja }, ...]``: other ways a real
+  clerk puts the same thing (#134). Each play of the exchange picks one per turn (the second play another than
+  the first), so the learner meets the variation; the transcript and plan.json say which was used. Every variant
+  must fit the learner's reply that follows: it asks the same thing.
 - A level is ready once every item of its ``you`` turns can be said (met, not open).
 
 General content only: no learner's dates, itinerary or lodging (the private trip profile, #132,
@@ -44,6 +48,7 @@ decides which scenarios come first).
 
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -65,6 +70,11 @@ class Turn:
     items: list[str] = field(default_factory=list)
     alts: list[str] = field(default_factory=list)
     prompted: bool | None = None  # a learner turn: does the partner's line before it ask for it? None: yes if a partner line comes right before
+    variants: list[dict] = field(default_factory=list)  # a partner turn: other ways to say it, each {say, meaning, meaning_ja} (#134)
+
+    def lines(self) -> list[Turn]:
+        """The partner's line and its variants, the line as written first: any of them fits the learner's reply."""
+        return [self] + [Turn("partner", v.get("say", ""), meaning=v.get("meaning", ""), meaning_ja=v.get("meaning_ja", "")) for v in self.variants]
 
 
 @dataclass
@@ -142,6 +152,13 @@ def _check(theme: Theme) -> None:
                 raise CurriculumError(f"{where} turn {k}: a learner's line needs a cue and the items it needs")
             if t.who == "partner" and not t.meaning:
                 raise CurriculumError(f"{where} turn {k}: a partner's line needs its meaning")
+            if t.variants and t.who != "partner":
+                raise CurriculumError(f"{where} turn {k}: only a partner's line has variants")
+            for v in t.variants:
+                if not (isinstance(v, dict) and v.get("say") and v.get("meaning")) or set(v) - {"say", "meaning", "meaning_ja"}:
+                    raise CurriculumError(f"{where} turn {k}: a variant is {{ say, meaning, meaning_ja }}, with the line and its meaning")
+            if len({x.say for x in t.lines()}) < len(t.lines()):
+                raise CurriculumError(f"{where} turn {k}: a variant repeats a line")
 
 
 def scenario_order(scenarios: list[Scenario], boost: list[str] | tuple[str, ...] = (), tiers: tuple[str, ...] = ("A", "B")) -> list[str]:
@@ -154,7 +171,25 @@ def scenario_order(scenarios: list[Scenario], boost: list[str] | tuple[str, ...]
     return out
 
 
-def level_dialogue(theme: Theme, n: int, known_lang: str = "en") -> Dialogue:
+def pick_variants(level: Level, rng: random.Random, avoid: dict[int, int] | None = None) -> dict[int, int]:
+    """Which line each partner turn with variants says (index into ``Turn.lines()``, keyed by the turn's place in the
+    level). ``avoid`` is an earlier play's pick: a turn says another line than it did then, so that the lesson's second
+    play of the exchange is heard with the variation, not the same words (#134)."""
+    out: dict[int, int] = {}
+    for k, t in enumerate(level.turns):
+        if t.who != "partner" or not t.variants:
+            continue
+        options = [i for i in range(len(t.lines())) if not avoid or avoid.get(k) != i] or [0]
+        out[k] = rng.choice(options)
+    return out
+
+
+def variant_label(level: Level, picks: dict[int, int]) -> str:
+    """The picks as the transcript and plan.json name them: the 1-based line (1 = as written) of each varying turn."""
+    return ",".join(str(picks.get(k, 0) + 1) for k, t in enumerate(level.turns) if t.who == "partner" and t.variants)
+
+
+def level_dialogue(theme: Theme, n: int, known_lang: str = "en", picks: dict[int, int] | None = None) -> Dialogue:
     """Level ``n`` (0-based) as a dialogue the builder can play: a partner line before the learner's first turn
     is its opener, one after a learner's turn is the reply to it (a learner turn no partner line prompts keeps its cue
     in every play: ``keep_cue``); the learner's lines are literal
@@ -164,7 +199,9 @@ def level_dialogue(theme: Theme, n: int, known_lang: str = "en") -> Dialogue:
     turns: list[DialogueTurn] = []
     opener: tuple[str, str] | None = None
     previous: Turn | None = None
-    for t in level.turns:
+    for k, t in enumerate(level.turns):
+        if t.who == "partner":
+            t = t.lines()[(picks or {}).get(k, 0)]
         meaning = (t.meaning_ja if ja and t.meaning_ja else t.meaning)
         if t.who == "partner":
             if turns and turns[-1].partner is None:
@@ -181,4 +218,11 @@ def level_dialogue(theme: Theme, n: int, known_lang: str = "en") -> Dialogue:
         turns.append(turn)
         previous = t
     setting = theme.setting_ja if ja and theme.setting_ja else theme.setting
-    return Dialogue(id=f"theme:{theme.id}:{n + 1}", setting=setting or theme.title, turns=turns, topics=list(theme.topics), partner_speaker=level.partner_speaker)
+    return Dialogue(
+        id=f"theme:{theme.id}:{n + 1}",
+        setting=setting or theme.title,
+        turns=turns,
+        topics=list(theme.topics),
+        partner_speaker=level.partner_speaker,
+        variant=variant_label(level, picks or {}),
+    )

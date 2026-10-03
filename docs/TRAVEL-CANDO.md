@@ -41,7 +41,9 @@ The default tiers suit a budget traveller: supermarket and café before restaura
 consolidate: per theme (`scenario`: the can-do scenario it serves), levels of an exchange, each a list of `partner`
 turns (with their meaning) and `you` turns (a cue, the model line, the `items` it needs, optional `alts`). `validate`
 checks every item and scenario. The lesson picks one (`Planner.pick_theme`; H4 in docs/LEARNING-DESIGN.md) and plays
-its exchange twice; `plan.json` names the theme and level. General content only: the private trip profile decides which
+its exchange twice; `plan.json` names the theme and level. A partner line carries 1–2 `variants` (how another clerk says
+the same thing, #134); the second play uses other words than the first and the transcript marks the lines used. The wordings are
+candidates for native-speaker correction. General content only: the private trip profile decides which
 scenarios come first and never appears here.
 
 ## Coverage report

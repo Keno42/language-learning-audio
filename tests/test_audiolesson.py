@@ -5529,7 +5529,8 @@ class ThemeExchangeTests(unittest.TestCase):
         self.assertFalse(any(g.text == meaning for g in segs(plays[1])), "later: the partner's line is the cue")
         asked_first = [g for g in segs(plays[0]) if g.type == "pause" and g.role == "answer"]
         self.assertEqual(len(asked_first), 4)
-        self.assertEqual(sc.meta["theme"], {"id": "supermarket", "scenario": "A3", "level": 1, "plays": 2})
+        self.assertEqual(sc.meta["theme"], {"id": "supermarket", "scenario": "A3", "level": 1, "plays": 2, "lines": sc.meta["theme"]["lines"]})
+        self.assertEqual(len(sc.meta["theme"]["lines"]), 2)
 
     def test_a_turn_no_partner_line_prompts_keeps_its_cue_in_the_late_play(self):
         """Review of #186: in the late play the partner's line is the cue, which holds only where the partner's line asks
@@ -5558,6 +5559,41 @@ class ThemeExchangeTests(unittest.TestCase):
         self.assertIn("At the till, ask how much it is in total.", said(late), "the line after the learner's own keeps its cue")
         self.assertNotIn("You're just looking.", said(late), "a line that answers the partner has none")
         self.assertIn("You're just looking.", said(early))
+
+    def test_partner_lines_vary_between_plays_at_natural_speed_and_the_transcript_says_which(self):
+        """#134: a clerk says the same thing in other words: each play picks a variant per line (the second another than
+        the first), every line is spoken at natural speed, and the label and plan.json name the lines used."""
+        import random
+        from audiolesson.themes import Level, Theme, Turn, _check, level_dialogue, pick_variants
+        from audiolesson.content import CurriculumError
+
+        for t in self._themes:
+            for lv in t.levels:
+                if any(x.variants for x in lv.turns):
+                    first = pick_variants(lv, random.Random(3))
+                    again = pick_variants(lv, random.Random(3), first)
+                    self.assertTrue(first and all(again[k] != first[k] for k in first), f"{t.id}: the second play varies every line")
+        self.assertTrue(all(any(x.variants for x in lv.turns if x.who == "partner") for t in self._themes for lv in t.levels), "every level has a line that varies")
+        learner = self._learner(self._known + self._rest)
+        sc = self._planner(learner, [self._supermarket], ["A3"]).build()
+        plays = [e for e in sc.exercises if e.label.startswith("dialogue: theme:supermarket:1")]
+        lines = sc.meta["theme"]["lines"]
+        self.assertEqual(len(lines), 2)
+        self.assertNotEqual(lines[0], lines[1])
+        for e, used in zip(plays, lines):
+            self.assertTrue(e.label.endswith(f"[lines {used}]"))
+        partner = {g.text for e in plays for g in sc.segments if g.exercise == e.index and g.type == "speak"}
+        self.assertTrue(len(partner) > 3, "the partner's lines differ between plays")
+        self.assertTrue(all(g.rate >= 1.0 for e in plays for g in sc.segments if g.exercise == e.index and g.type == "speak"))
+        base = level_dialogue(self._supermarket, 0)
+        self.assertEqual(base.variant, "1,1,1")
+        self.assertEqual(level_dialogue(self._supermarket, 0, picks={1: 1}).turns[0].partner, self._supermarket.levels[0].turns[1].variants[0]["say"])
+        bad = Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
+            Turn(who="partner", say="Hæ.", meaning="Hi.", variants=[{"say": "Hæ."}]),
+            Turn(who="you", say="Hæ.", cue="Say hi.", items=["hae"]),
+        ])])
+        with self.assertRaises(CurriculumError):
+            _check(bad)
 
     def test_a_tried_turn_keeps_its_cue_in_the_late_play(self):
         learner = self._learner([i for i in self._known if i != "gjordu_svo_vel"] + [i for i in self._rest if i != "gjordu_svo_vel"])

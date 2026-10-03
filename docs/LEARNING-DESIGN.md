@@ -175,7 +175,7 @@ a number of new items, or a length for its own sake (§11).
 | outcome | observable now | not observable yet |
 |---|---|---|
 | O1 | Scenario cards for the scene rated 言えた on their latest review (the weekly readiness summary, #129); next-day recall of new lines in the review | Whether the line comes out at the right turn of a running exchange, inside the audio lesson |
-| O2 | `respond` and `repair` cards with a partner line heard first | Natural-speed lines with variation in the daily audio (#134) |
+| O2 | `respond` and `repair` cards with a partner line heard first | Whether variants of the partner lines in the daily audio (themes, #134) are understood; they come with a gist, not a check |
 | O3 | Reading cards | Reading in the wild |
 | O4 | The `respect` markers of each scenario, as lines in the cards | Behaviour, in a real exchange |
 | O5 | Load and friction in the feedback form; the owner's remarks; whether lessons are actually done | — |
@@ -610,7 +610,7 @@ reference for the next weekly read, which judges the batch as one change (§5.11
 |---|---|---|---|
 | **G1** | **We don't read our signals routinely.** Decisions follow single remarks; there is no weekly comparison of predictions with data, and the readiness summary isn't used in decisions. | §5.3, §5.6; one feedback form so far | all; §10 |
 | **G2** | **Lessons are assembled from an item count and an urgency queue.** Practice is bunched after each introduction, reviews have no shared scene, and the only coherent chunks are dialogues and exchanges. | §5.4; the owner after L12 | O1, O5; H4 |
-| **G3** | **No natural-speed listening in the daily audio.** Partner lines come at one speed and in one wording. | §5.5; #134 ("now the top pre-trip gap") | O2; H8 |
+| **G3** | **No natural-speed listening in the daily audio.** Partner lines come at one speed and in one wording (since #134 the theme exchange's partner lines vary: each play uses other words). | §5.5; #134 ("now the top pre-trip gap") | O2; H8 |
 | **G4** | **The pace isn't the number of new items.** Extra arcs add up to half the pace again, and before PR #153, without limit when the fillers ran out. | §5.2 | O5; H9 |
 | **G5** | **Semantic sets can arrive together.** The trip ordering and curriculum order can put a whole set (numbers 6–19, colours, languages) into one lesson. | Lesson 8 (numbers); a replay from lesson 12 with a scenario holding numbers 6–19 boosted: five numbers in lesson 12, nine more in lesson 13 (an experiment from PR #154's first version, not in the repository) | O1; H5 |
 | **G6** | **Plausibility rests on slot tags.** Implausible or ungrammatical sentences can still be generated: «Hvenær opnar ísskápurinn?» before PR #155, and «Ég vil blár.» (the colour should be accusative). | Found after L12 | O1; H7 |
