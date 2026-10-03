@@ -4776,6 +4776,24 @@ class SpreadIntroductionTests(unittest.TestCase):
         self.assertLess(worst_gap, 9 * 60, "the longest stretch without a new item used to be 10-11 minutes")
 
 
+    def test_the_spread_does_not_depend_on_the_lesson_seed(self):
+        """#187: the test above passed by the luck of its seeds (the seed is the lesson number); the same course with other seeds
+        had ten minutes with no introduction, because an idle lesson left its cheap construction or variant to the very end."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for seed in (0, 1, 2):
+            learner = LearnerState("is", "en", "A1")
+            day, worst = TODAY, 0.0
+            for n in range(1, 17):
+                sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5, seed=seed), today=day).build()
+                starts = [e.start for e in sc.exercises if e.kind == "intro"]
+                if n >= 8 and len(starts) >= 5:
+                    worst = max(worst, max(b - a for a, b in zip(starts, starts[1:])))
+                apply_to_learner(sc, learner, day)
+                learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
+                day += timedelta(days=1)
+            self.assertLess(worst, 9 * 60, (seed, worst))
+
+
 class SayableLineTests(unittest.TestCase):
     """#179 (lesson 14 feedback): "can the learner say this line?" is judged per line, not per item
     from ``knows()``: a line they can say is asked (with a pause) even in a listening dialogue, and a

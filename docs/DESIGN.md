@@ -92,6 +92,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   item; an idle lesson still introduces early (steps 5), so a lesson with nothing else to do
   doesn't end short.
   An embedded part counts as an introduction on this schedule.
+  An idle lesson's cheap construction or variant (`try_variant`) no longer waits for the very end: once
+  `idle_intro_slack` (2) spacings have passed since the last introduction it comes before the next substitution drill, but
+  only while the lesson has introduced fewer than the N it expects, so an introduction moves earlier and none is added (#187).
 - **Generated sentences use only available parts.** A fill is known or introduced earlier
   in the lesson. A construction's `situation_fill` makes its situation wait for that fill.
   A dialogue turn's `expect_fill` binds every slot, so every spoken part is a required item.

@@ -64,6 +64,11 @@ class PlanConfig:
     # introduce (the pace plus a later arc). When nothing else is left to do, the next one comes
     # early, as before.
     intro_span: float = 0.75
+    # An idle lesson's cheap construction or variant (``try_variant``) is not left to the very end: once this many
+    # spacings have passed since the last introduction it comes before the next substitution drill, so the
+    # introductions stay spread over the lesson (#187: a 10-minute tail of sentences with nothing new). Only up to
+    # the introductions the lesson expects (the pace plus a later arc): it moves an introduction earlier, it adds none.
+    idle_intro_slack: float = 2.0
     dialogue_every: int = 7  # try a dialogue roughly every N exercises
     drill_streak_limit: int = 5  # consecutive isolated recalls before a dialogue is pulled forward
     dialogue_first_turns: int = 2  # turns played the first time; one more each later encounter
@@ -922,6 +927,7 @@ class Planner:
         recent_topics: deque[str] = deque(maxlen=2)
         idx = 0
         last_intro = -cfg.intro_gap
+        last_intro_at = 0.0  # lesson time of the last introduction
         since_dialogue = 0
         drill_streak = 0  # consecutive isolated recalls, no dialogue/note/intro in between
         # time kept for the closing block: one recall per new item (~14 s) plus the announcement
@@ -983,7 +989,7 @@ class Planner:
                 recent_topics.append(item.topics[0])
 
         def do_intro(item: Item) -> None:
-            nonlocal last_intro, seq
+            nonlocal last_intro, last_intro_at, seq
             # A milestone this item's prereqs complete plays before the intro: a construction's
             # intro speaks its worked example, which must not come before the note naming the
             # pattern. A loop, since the prereqs can complete more than one milestone.
@@ -994,6 +1000,7 @@ class Planner:
                 self.embedded.append(item.id)
                 touch(item)
                 last_intro = idx
+                last_intro_at = sc.total_duration
                 arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
                 return
             ex = b.intro(sc, item)
@@ -1003,6 +1010,7 @@ class Planner:
             self._record([item.id], "intro", ex.item_ids)
             touch(item)
             last_intro = idx
+            last_intro_at = sc.total_duration
             ladder = self.ladder(item)
             for k, after in enumerate(cfg.intro_recall_times):
                 seq += 1
@@ -1692,6 +1700,8 @@ class Planner:
                     play_timed(repeat)
                 elif self._note_budget_left() and remaining >= 40 and self._pick_note(None) is not None:
                     self._play_note(sc, self._pick_note(None))  # nothing to practise now: an aside
+                elif bare_cap[0] > 0 and len(introduced) + len(self.embedded) < expected_new and sc.total_duration - last_intro_at >= cfg.idle_intro_slack * intro_spacing and try_variant():
+                    pass  # nothing new for a long while: the cheap construction or variant comes now, not as the last resort (#187)
                 elif reviews_used and (sub := pick_substitution()) is not None:
                     # spare time: a known pattern with other words (#151), before a fresh arc or replayed reviews
                     do_substitution(sub)
