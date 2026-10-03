@@ -224,6 +224,12 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   prerequisites, and `select_new` puts them first in its pool, ahead of the trip order (a promoted cheap construction keeps
   its place). The pace is unchanged: it decides how many, the theme which. `plan.json` has `theme_target`: `{id, level, wanted}`
   (the items the level lacked at the start).
+  A part comes with its frame (#149 step 2): when `select_new` takes a part (`kind == "vocab"`; an utterance such as
+  «Hvenær?» is not one), one construction that lists it as a prerequisite (`Planner.frames_of`, «{thing} virkar ekki.» for
+  «sturtan»; the ready one needing the fewest new fillers, then course order) goes in right after it, behind the fillers its
+  slots still need. The group (part, fillers, frame) is budgeted against the count with at most one item over; a group that
+  doesn't fit leaves the part for a lesson with room, as a part alone is how it was drilled bare. A part whose frame is already
+  met or not ready, or that no construction lists, is unchanged.
   A partner turn may carry `variants` (#134): `pick_variants` picks one line per turn for the early,
   assisted play (heard with its meaning); the late play says the lines as written, which are also the ones the review
   cards ask. Every partner line is spoken at natural speed (rate 1.0), and each variant must fit the learner's reply

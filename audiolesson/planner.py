@@ -278,6 +278,11 @@ class Planner:
                 best = (-sentences, c.order, c)
         return best[2] if best else None
 
+    def frames_of(self, part: Item) -> list[Item]:
+        """The constructions a part is taught for (#149 step 2): those with slots that list it as a prerequisite
+        («{thing} virkar ekki.» after «sturtan»)."""
+        return [c for c in self.cur.items if c.kind == "construction" and c.slots and part.id in c.prereqs]
+
     def theme_target(self) -> tuple | None:
         """The theme and level (0-based) new material is chosen for (#149 step 2): the first by the order
         ``pick_theme`` ranks themes in (lowest level, then boosted scenarios, Tier A, Tier B, file order), whether or
@@ -397,6 +402,41 @@ class Planner:
                         return True
             return False
 
+        def take(it: Item, fillers_first: bool = False) -> None:
+            if not fillers_first:
+                chosen.append(it)
+                chosen_ids.add(it.id)
+            # a pattern is only teachable with two things to put in its slot; a frame taken after its part gets
+            # them before it, so its first sentences can use them
+            if it.kind == "construction":
+                for tag in it.slots.values():
+                    if known_fills(tag) < 2:
+                        extra = next((f for f in pool if tag in f.tags and f.id not in chosen_ids), None)
+                        if extra is not None:
+                            chosen.append(extra)
+                            chosen_ids.add(extra.id)
+            if fillers_first:
+                chosen.append(it)
+                chosen_ids.add(it.id)
+
+        def frame_group(part: Item) -> tuple[Item, list[Item]] | None:
+            """The frame to teach with ``part`` (already chosen) and the fillers it would pull: of the unmet, ready
+            constructions that list the part as a prerequisite, the one needing the fewest new fillers, then course order."""
+            best = None
+            for c in self.frames_of(part):
+                if c.id in chosen_ids or self.learner.has_met(c.id) or not ready(c):
+                    continue
+                fillers: list[Item] = []
+                for tag in c.slots.values():
+                    if known_fills(tag) + sum(1 for f in fillers if tag in f.tags) < 2:
+                        extra = next((f for f in pool if tag in f.tags and f.id not in chosen_ids and f not in fillers), None)
+                        if extra is not None:
+                            fillers.append(extra)
+                key = (len(fillers), c.order)
+                if best is None or key < best[0]:
+                    best = (key, c, fillers)
+            return (best[1], best[2]) if best else None
+
         # walk in order, but a not-yet-ready item is skipped rather than blocking
         progress = True
         while len(chosen) < count and progress:
@@ -410,17 +450,21 @@ class Planner:
                         continue
                     if target is not None:
                         it = target  # the payoff construction goes in now; this filler waits
-                chosen.append(it)
-                chosen_ids.add(it.id)
+                take(it)
+                if it.kind == "vocab":
+                    # a part (not a complete utterance, #187) comes with its frame (#149 step 2): one construction that
+                    # lists it as a prerequisite, with the fillers its slots still need, the whole group at most one
+                    # item over ``count``; a group that doesn't fit leaves the part for a lesson with room, since a
+                    # part alone is how it was drilled bare
+                    group = frame_group(it)
+                    if group is not None:
+                        frame, fillers = group
+                        if len(chosen) + len(fillers) + 1 > count + 1:
+                            chosen.pop()
+                            chosen_ids.discard(it.id)
+                            continue
+                        take(frame, fillers_first=True)
                 progress = True
-                # a pattern is only teachable with two things to put in its slot
-                if it.kind == "construction":
-                    for tag in it.slots.values():
-                        if known_fills(tag) < 2:
-                            extra = next((f for f in pool if tag in f.tags and f.id not in chosen_ids), None)
-                            if extra is not None:
-                                chosen.append(extra)
-                                chosen_ids.add(extra.id)
                 if len(chosen) >= count:
                     break
         # Don't end the arc between a slot's fillers and the nearby construction they unlock:
