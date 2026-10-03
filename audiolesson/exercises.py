@@ -1005,6 +1005,8 @@ class Builder:
         turns = dlg.turns if max_turns is None else dlg.turns[: max(1, max_turns)]
         ids = [t.expect for t in turns if t.expect] + [r for r in dlg.requires if r not in {t.expect for t in turns}]
         label = f"dialogue: {dlg.id}" + ("" if len(turns) == len(dlg.turns) else f" ({len(turns)}/{len(dlg.turns)} turns)")
+        if dlg.variant:
+            label += f" [lines {dlg.variant}]"
         ex = sc.new_exercise("dialogue", "dialogue", ids, label)
         partner = dlg.partner_speaker
         learner_voice = _other_voice(partner)

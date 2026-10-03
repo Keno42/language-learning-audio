@@ -181,9 +181,13 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   when no partner line prompts it (`DialogueTurn.keep_cue`: it doesn't directly follow a partner line, or the data
   says `prompted = false`, a scene change) and a tried turn always keeps it; a level's `partner_speaker`
   (`native_a`, female, where the cues say «her») voices the partner. The items of the turns they can say are credited
-  as practised (stage `dialogue`). `plan.json` has `theme`: `{id, scenario, level, plays}` (None when no theme was
-  ready); `LearnerState.themes_done` (theme → highest level played) makes the next lesson take the next level.
-  Without `themes` in `PlanConfig` (the CLI loads them from the curriculum's `cando/themes.toml`) nothing changes.
+  as practised (stage `dialogue`). `plan.json` has `theme`: `{id, scenario, level, plays, lines}` (None when no theme was
+  ready; `lines`: per play, the 1-based variant of each varying partner line,
+  as in the exercise label `[lines 2,1]`); `LearnerState.themes_done` (theme → highest level played) makes the next lesson take the next level.
+  A partner turn may carry `variants` (#134): `pick_variants` picks one line per turn for the early,
+  assisted play (heard with its meaning); the late play says the lines as written, which are also the ones the review
+  cards ask. Every partner line is spoken at natural speed (rate 1.0), and each variant must fit the learner's reply
+  that follows. Without `themes` in `PlanConfig` (the CLI loads them from the curriculum's `cando/themes.toml`) nothing changes.
 - **Rotation and a ceiling (#180).** `Builder.generate_with` orders a word's homes by the sentences each
   construction has had this lesson (`construction_counts`), least first, random tie-break; substitution runs
   pick the pattern with the fewest likewise. A construction takes at most `CONSTRUCTION_CEILING` (10) generated

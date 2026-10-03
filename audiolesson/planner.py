@@ -23,7 +23,7 @@ from .learner import LearnerState
 from .prompts import Prompts
 from .script import Script
 from .stages import ladder_for, next_stage, stage_index
-from .themes import level_dialogue
+from .themes import level_dialogue, pick_variants
 from .timing import Timing
 
 
@@ -1375,11 +1375,14 @@ class Planner:
         theme_pick = self.pick_theme()
         theme_marks = (0.15, 0.85) if theme_pick else ()
         theme_plays = 0
-
+        theme_lines: list[str] = []  # per play, which variant of each varying partner line was spoken (#134)
+        
         def play_theme() -> bool:
             nonlocal theme_plays
             theme, n, tried = theme_pick
-            dlg = level_dialogue(theme, n, self.cur.known_lang)
+            picks = pick_variants(theme.levels[n], self.rng, canonical=theme_plays > 0)
+            dlg = level_dialogue(theme, n, self.cur.known_lang, picks)
+            theme_lines.append(dlg.variant)
             ex = b.dialogue(sc, dlg, assisted=theme_plays == 0, tried_turns=tried)
             you = [t for t in theme.levels[n].turns if t.who == "you"]
             said = [i for k, t in enumerate(you) if k not in tried for i in t.items if i in self.cur.by_id]
@@ -1787,7 +1790,7 @@ class Planner:
             "refresh_sentences": dict(refresh_done),
             # #149 1b-ii: the lesson's theme and level (1-based) and how often its exchange played; None: no theme was ready
             "theme": (
-                {"id": theme_pick[0].id, "scenario": theme_pick[0].scenario, "level": theme_pick[1] + 1, "plays": theme_plays}
+                {"id": theme_pick[0].id, "scenario": theme_pick[0].scenario, "level": theme_pick[1] + 1, "plays": theme_plays, "lines": theme_lines}
                 if theme_pick
                 else None
             ),

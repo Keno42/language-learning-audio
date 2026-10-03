@@ -245,6 +245,7 @@ class Dialogue:
     turns: list[DialogueTurn]
     topics: list[str] = field(default_factory=list)
     partner_speaker: str = "native_b"
+    variant: str = ""  # a theme exchange: which variant of each varying partner line is spoken (#134), for the label
     requires: list[str] = field(default_factory=list)  # extra items the expect_text turns rely on
 
     @property
