@@ -278,6 +278,41 @@ class Planner:
                 best = (-sentences, c.order, c)
         return best[2] if best else None
 
+    def theme_target(self) -> tuple | None:
+        """The theme and level (0-based) new material is chosen for (#149 step 2): the first by the order
+        ``pick_theme`` ranks themes in (lowest level, then boosted scenarios, Tier A, Tier B, file order), whether or
+        not the learner can say it yet. None when every level is played or no theme is ranked."""
+        rank = {sid: n for n, sid in enumerate(self.cfg.theme_scenarios)}
+        best = None
+        for order, theme in enumerate(self.cfg.themes):
+            level = self.learner.themes_done.get(theme.id, 0)
+            if level >= len(theme.levels) or theme.scenario not in rank:
+                continue
+            key = (level, rank[theme.scenario], order)
+            if best is None or key < best[0]:
+                best = (key, theme, level)
+        return best[1:] if best else None
+
+    def theme_wants(self) -> list[str]:
+        """The items the target theme's next level lacks, in the order of its turns, each behind the unmet
+        prerequisites it needs (#149 step 2: the theme decides which items, the pace how many)."""
+        target = self.theme_target()
+        if target is None:
+            return []
+        theme, level = target
+        wanted: list[str] = []
+
+        def want(item_id: str) -> None:
+            if item_id in wanted or item_id not in self.cur.by_id or self.learner.has_met(item_id) or item_id in self.learner.embedded:
+                return
+            for p in self.cur.by_id[item_id].prereqs:
+                want(p)
+            wanted.append(item_id)
+
+        for item_id in theme.levels[level].items:
+            want(item_id)
+        return wanted
+
     def select_new(self, count: int, exclude: set[str] | None = None, cheap: bool = False) -> list[Item]:
         chosen: list[Item] = []
         chosen_ids: set[str] = set(exclude or ())
@@ -314,6 +349,12 @@ class Planner:
                     first.insert(0, promoted)
                     promoted_id = promoted.id
             pool = first + [i for i in pool if i.id not in rank and i.id != promoted_id]
+        wants = self.theme_wants()
+        if wants:  # the theme comes first (#149 step 2), ahead of the trip order; a promoted cheap construction keeps its place
+            order = {i: n for n, i in enumerate(wants)}
+            front = [promoted_id] if promoted_id else []
+            theme_items = sorted((i for i in pool if i.id in order and i.id != promoted_id), key=lambda i: order[i.id])
+            pool = [i for i in pool if i.id in front] + theme_items + [i for i in pool if i.id not in order and i.id not in front]
         constructions = [c for c in self.cur.items if c.kind == "construction"]
 
         def met_fills(tag: str) -> int:
@@ -965,6 +1006,8 @@ class Planner:
         b = self.builder
         b.opening(sc, n, first_lesson=(n == 1))
 
+        target = self.theme_target()
+        wanted_at_start = self.theme_wants()
         new_queue = deque(self.select_new(cfg.resolved_new_items(), cheap=True))
         open_ids = self.learner.open_items()
         open_ids = [i for i in open_ids if i in self.cur.by_id]
@@ -1940,6 +1983,8 @@ class Planner:
                 if theme_pick
                 else None
             ),
+            # #149 step 2: the theme new material was chosen for, and the items its next level lacked at the start
+            "theme_target": {"id": target[0].id, "level": target[1] + 1, "wanted": wanted_at_start} if target else None,
             "cheap_constructions": list(self.cheap_placed) + list(cheap_used),  # #171 B: taken in a new-item place / beyond the limit
             "forms_taught": [self.cur.note_by_id[n].teaches for n in self.notes_played if self.cur.note_by_id[n].teaches],
             "bare_cap_lapsed": cfg.max_bare_uses > 0 and bare_cap[0] == 0,  # nothing else was left: short items were said alone again

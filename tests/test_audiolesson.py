@@ -5932,6 +5932,44 @@ class ThemeExchangeTests(unittest.TestCase):
             fresh.save(Path(tmp) / "l.json")
             self.assertEqual(LearnerState.load(Path(tmp) / "l.json").themes_heard, fresh.themes_heard)
 
+    def test_new_material_is_chosen_for_the_themes_next_level_before_the_trip_order(self):
+        missing = [i for i in self._known if i not in ("skyr", "attu")]
+        learner = self._learner(missing + self._rest)
+        def planner(themes, **cfg):
+            return Planner(self._cur, learner, Prompts.load("en"), Timing(level="A1"),
+                           PlanConfig(minutes=30, new_items=2, themes=themes, theme_scenarios=["A3"], seed=1, **cfg), today=TODAY)
+
+        trip_first = planner([]).select_new(2)[0].id  # what the course order would teach first
+        self.assertNotIn(trip_first, ("skyr", "attu"))
+        p = planner([self._supermarket], priority=[trip_first])
+        self.assertEqual(p.theme_target()[:2], (self._supermarket, 0))
+        wants = p.theme_wants()
+        self.assertEqual({"skyr", "attu"} - set(wants), set(), "the items the level lacks")
+        self.assertTrue(all(w in self._cur.by_id and not learner.has_met(w) for w in wants))
+        chosen = [i.id for i in p.select_new(2)]
+        self.assertEqual(chosen, [w for w in wants if w in chosen][:2], "the theme's items first, in the order of its turns")
+        self.assertNotIn(trip_first, chosen)
+        self.assertEqual(planner([], priority=[trip_first]).select_new(2)[0].id, trip_first, "with no theme the trip order decides")
+
+    def test_a_wanted_item_comes_behind_the_prerequisites_it_needs(self):
+        learner = self._learner([i for i in self._known + self._rest if i != "skyr"])
+        planner = Planner(self._cur, learner, Prompts.load("en"), Timing(level="A1"),
+                          PlanConfig(minutes=30, new_items=2, themes=[self._supermarket], theme_scenarios=["A3"]), today=TODAY)
+        wants = planner.theme_wants()
+        for k, w in enumerate(wants):
+            for p in self._cur.by_id[w].prereqs:
+                if not learner.has_met(p):
+                    self.assertIn(p, wants[:k])
+
+    def test_the_plan_names_the_theme_new_material_was_chosen_for(self):
+        learner = self._learner([i for i in self._known + self._rest if i != "skyr"])
+        sc = Planner(self._cur, learner, Prompts.load("en"), Timing(level="A1"),
+                     PlanConfig(minutes=30, new_items=2, themes=[self._supermarket], theme_scenarios=["A3"]), today=TODAY).build()
+        target = sc.meta["theme_target"]
+        self.assertEqual((target["id"], target["level"]), ("supermarket", 1))
+        self.assertIn("skyr", target["wanted"])
+        self.assertIn("skyr", sc.meta["new_items"])
+
     def test_a_tried_turn_is_said_with_try_it_and_goes_to_the_bonus_review(self):
         learner = self._learner([i for i in self._known if i != "gjordu_svo_vel"] + [i for i in self._rest if i != "gjordu_svo_vel"])
         planner = self._planner(learner, [self._supermarket], ["A3"])

@@ -219,6 +219,11 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (`LearnerState.themes_last`: theme → lesson that last played it), else the longest rested; a replay is not assisted, and its early play says only partner wordings already heard with their meaning
   (`LearnerState.themes_heard`: `theme:level` → `turn:line`, recorded from `theme.heard` of the assisted first play;
   none heard: the line as written). The fallback can replay a theme heard two lessons ago when none has rested enough.
+  New material is chosen for the theme (#149 step 2): `Planner.theme_target()` is the theme and level `pick_theme` would
+  rank first whether or not the learner can say it yet, `theme_wants()` the items its turns lack, each behind its unmet
+  prerequisites, and `select_new` puts them first in its pool, ahead of the trip order (a promoted cheap construction keeps
+  its place). The pace is unchanged: it decides how many, the theme which. `plan.json` has `theme_target`: `{id, level, wanted}`
+  (the items the level lacked at the start).
   A partner turn may carry `variants` (#134): `pick_variants` picks one line per turn for the early,
   assisted play (heard with its meaning); the late play says the lines as written, which are also the ones the review
   cards ask. Every partner line is spoken at natural speed (rate 1.0), and each variant must fit the learner's reply

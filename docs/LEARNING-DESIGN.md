@@ -694,8 +694,9 @@ what. Re-rank it when the evidence moves.
    exchange played twice, early assisted and late with only the partner's line as the cue
    (1b-ii, #186), with the partner's lines in variants at natural speed (#189); no lesson without
    a theme (step 1: a level already done comes back after a rest of three lessons when no next
-   level is ready). **Next**, in order (#149): new material chosen for the theme (step 2, below); the closing block
-   taking the theme's lines.
+   level is ready). new material chosen for the theme's next level, ahead of the trip order (step 2a, #149).
+   **Next**, in order (#149): the rest of step 2 (a part with its frame, a fixed phrase linked to its pattern,
+   semantic sets by scene, more theme data); the closing block taking the theme's lines.
    - New material goes into a lesson by scene (step 2): the items the top theme's next level
      lacks come first, ahead of the trip order of single items. A part comes with its frame, or
      after it: a part whose only frames are unknown has no sentence to live in and is drilled
