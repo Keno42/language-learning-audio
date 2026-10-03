@@ -5435,6 +5435,39 @@ class CheapConstructionTests(unittest.TestCase):
         self.assertGreaterEqual(with_len, without_len, (with_len, without_len))
 
 
+class NoSlotLeakTests(unittest.TestCase):
+    """#178: a mixed-review cue narrated «How do you say: It's {hour} o'clock.», the construction's raw template. No
+    narrated or spoken segment of a built lesson may contain a slot placeholder, whatever path built it."""
+
+    def _leaks(self, sc):
+        return [(s.exercise, s.role, s.text) for s in sc.segments if s.text and ("{" in s.text or "}" in s.text)]
+
+    def test_no_narration_of_a_twenty_lesson_course_contains_a_slot(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        for n in range(1, 21):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5), today=day).build()
+            self.assertEqual(self._leaks(sc), [], f"lesson {n}")
+            apply_to_learner(sc, learner, day)
+            learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
+            day += timedelta(days=1)
+
+    def test_a_mixed_review_cue_names_the_filled_sentence(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        for i in cur.by_id:
+            if i in ("klukkan_er", "thrju", "eitt", "tvo", "tekurdu_kort", "kort"):
+                learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30), today=TODAY)
+        b = planner.builder
+        b._situation_texts.update({t: 99 for t in ([cur.by_id["klukkan_er"].situation] if cur.by_id["klukkan_er"].situation else []) + list(cur.by_id["klukkan_er"].situations)})
+        sc = Script(1, "t", "is", "en")
+        b.connect(sc, [cur.by_id["klukkan_er"], cur.by_id["tekurdu_kort"]])
+        self.assertEqual(self._leaks(sc), [])
+        self.assertIn("o'clock", sc.transcript())
+
+
 class PatternRotationTests(unittest.TestCase):
     """#180 (owner's review of #182): one new pattern with many fillers took 21 of a lesson's sentences, since a
     word's homes were drawn at random. A word's sentences rotate through its homes, the one with the fewest

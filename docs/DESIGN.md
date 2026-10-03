@@ -198,7 +198,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
 - **A situation is narrated in full twice a lesson.** After two narrations of the same authored
   situation (`SITUATION_FULL_MAX`) the cue is the meaning, short (or the partner's line, G12);
   «Quick review: two separate situations.» is said once. A connect() turn whose situation has no room
-  is cued by the item's meaning instead of dropping out of the pairing (`Builder._cue`).
+  is cued by the item's meaning instead of dropping out of the pairing (`Builder._cue`); for a
+  construction that is the meaning of the sentence it asks for, filled with the answer's fills
+  (`_connect_turn`, #178), never its template. **No narrated or spoken segment of a built lesson contains
+  a slot placeholder** (`NoSlotLeakTests`, a 20-lesson course).
 - **Notes.** Milestones fire deterministically once their `items` are met or exposed, and
   are followed by discrimination practice over examples whose situation is usable now. A
   note waits for what it recommends saying (`requires`). As filler, an aside is about met

@@ -131,12 +131,13 @@ class Builder:
         variants = list(item.situations) or ([item.situation] if item.situation else [])
         return any(self._situation_texts.get(t, 0) < SITUATION_FULL_MAX for t in variants)
 
-    def _cue(self, item: Item) -> str | None:
+    def _cue(self, item: Item, meaning: str | None = None) -> str | None:
         """A connect() turn's cue: the situation while it may still be narrated in full, else
-        the meaning, short."""
+        the meaning, short. ``meaning`` is the filled sentence's, for a construction (#178): its own
+        ``spoken_meaning`` is the unfilled template."""
         if self.situation_room(item):
             return self._situation(item)
-        return self._meaning_prompt(item.spoken_meaning)
+        return self._meaning_prompt(meaning or item.spoken_meaning)
 
     def prompt_item(self, item: Item) -> tuple[Item, bool] | None:
         """G12: the item whose line the partner says as ``item``'s cue, and whether the line goes
@@ -929,8 +930,8 @@ class Builder:
         # follow the speaker's gender take that voice's form, announced
         partner = second.partner_cue_speaker if bridged else "native_b"
         learner_voice = _other_voice(partner)
-        first_gender, first_target = self._connect_turn(first, learner_voice)
-        second_gender, second_target = self._connect_turn(second, learner_voice)
+        first_gender, first_target, first_meaning = self._connect_turn(first, learner_voice)
+        second_gender, second_target, second_meaning = self._connect_turn(second, learner_voice)
         label = f"connect: {first.id}+{second.id}" if bridged else f"mixed review: {first.id}+{second.id}"
         ex = sc.new_exercise("connect", "exchange" if bridged else "recombine", ids, label)
         if bridged or not self._mixed_review_said:
@@ -938,7 +939,7 @@ class Builder:
             self._beat(sc, ex)
             self._mixed_review_said = self._mixed_review_said or not bridged
         # a bridge's own scene replaces the items' standalone situations
-        self._narr(sc, ex, self._as(first_gender, second.partner_cue_setup if bridged else self._cue(first)))  # type: ignore[arg-type]
+        self._narr(sc, ex, self._as(first_gender, second.partner_cue_setup if bridged else self._cue(first, first_meaning)))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, first_target, first, generative=True)
         self._answer(sc, ex, first_target, speaker=learner_voice)
         self._beat(sc, ex)
@@ -951,28 +952,29 @@ class Builder:
                 self._beat(sc, ex)
         else:
             self._narr(sc, ex, self.prompts.get("connect_next"))
-        self._narr(sc, ex, self._as(second_gender, second.partner_cue_situation if bridged else self._cue(second)))  # type: ignore[arg-type]
+        self._narr(sc, ex, self._as(second_gender, second.partner_cue_situation if bridged else self._cue(second, second_meaning)))  # type: ignore[arg-type]
         self._answer_pause(sc, ex, second_target, second, generative=True)
         self._answer(sc, ex, second_target, speaker=learner_voice)
         self._gap(sc, ex)
         return ex
 
-    def _connect_turn(self, item: Item, voice: str) -> tuple[str | None, str]:
-        """(speaker gender or None, spoken target) of a ``connect()`` turn answered in
-        ``voice``. A construction is filled first, with the fills its situation names
-        pinned, since connect() narrates that situation."""
+    def _connect_turn(self, item: Item, voice: str) -> tuple[str | None, str, str | None]:
+        """(speaker gender or None, spoken target, filled meaning or None) of a ``connect()`` turn
+        answered in ``voice``. A construction is filled first, with the fills its situation names
+        pinned, since connect() narrates that situation; its meaning is the filled sentence's (#178)."""
         if item.kind != "construction":
             gender = self.speaker_gender(item, voice)
-            return gender, self._gendered(item, gender)
+            return gender, self._gendered(item, gender), None
         if not self.situation_usable(item):
             # the planner never pairs such an item; refuse rather than speak an unmet fill
             raise ValueError(f"connect(): {item.id!r}'s situation names a fill the learner doesn't have yet")
         fixed = self.cur.situation_fills(item)
         gen = self.generate(item, fixed=fixed)
         if gen is None:
-            return self._filled(item, {**self.cur.example_fill(item), **fixed}, voice)
+            fills = {**self.cur.example_fill(item), **fixed}
+            return (*self._filled(item, fills, voice), self.cur.resolve_slots(item, fills)[1])
         self.used_combos.add(gen.key)
-        return self._filled(item, gen.fills, voice)
+        return (*self._filled(item, gen.fills, voice), gen.meaning)
 
     # -------------------------------------------------------------- dialogue
 
