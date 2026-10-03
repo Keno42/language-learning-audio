@@ -212,9 +212,13 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   when no partner line prompts it (`DialogueTurn.keep_cue`: it doesn't directly follow a partner line, or the data
   says `prompted = false`, a scene change) and a tried turn always keeps it; a level's `partner_speaker`
   (`native_a`, female, where the cues say «her») voices the partner. The items of the turns they can say are credited
-  as practised (stage `dialogue`). `plan.json` has `theme`: `{id, scenario, level, plays, lines}` (None when no theme was
-  ready; `lines`: per play, the 1-based variant of each varying partner line,
-  as in the exercise label `[lines 2,1]`); `LearnerState.themes_done` (theme → highest level played) makes the next lesson take the next level.
+  as practised (stage `dialogue`). `plan.json` has `theme`: `{id, scenario, level, plays, lines, replay, heard}` (None only when no theme
+  can be said at all; `replay`: a level already played, #149 step 1; `lines`: per play, the 1-based variant of each varying partner line,
+  as in the exercise label `[lines 2,1]`); `LearnerState.themes_done` (theme → highest level played) makes the next lesson take the next level; when none is
+  ready, `pick_theme` replays the last level done of the highest-ranked theme rested `theme_rest_lessons` (3) lessons
+  (`LearnerState.themes_last`: theme → lesson that last played it), else the longest rested; a replay is not assisted, and its early play says only partner wordings already heard with their meaning
+  (`LearnerState.themes_heard`: `theme:level` → `turn:line`, recorded from `theme.heard` of the assisted first play;
+  none heard: the line as written). The fallback can replay a theme heard two lessons ago when none has rested enough.
   A partner turn may carry `variants` (#134): `pick_variants` picks one line per turn for the early,
   assisted play (heard with its meaning); the late play says the lines as written, which are also the ones the review
   cards ask. Every partner line is spoken at natural speed (rate 1.0), and each variant must fit the learner's reply
