@@ -172,13 +172,22 @@ def scenario_order(scenarios: list[Scenario], boost: list[str] | tuple[str, ...]
     return out
 
 
-def pick_variants(level: Level, rng: random.Random, canonical: bool = False) -> dict[int, int]:
+def pick_variants(level: Level, rng: random.Random, canonical: bool = False, heard: set[tuple[int, int]] | None = None) -> dict[int, int]:
     """Which line each partner turn with variants says (index into ``Turn.lines()``, keyed by the turn's place in the
     level). The lesson's two plays split the work (#134, review): the early, assisted play takes a variant at random,
     heard with its meaning; the late one (``canonical``) says every line as written, the familiar cue when only the
-    partner's line is given, and the wording the review cards ask."""
+    partner's line is given, and the wording the review cards ask. A replay passes ``heard`` (turn, line) pairs already
+    heard with their meaning: its early play takes only those, so no wording comes untranslated (#196)."""
     if canonical:
         return {}
+    if heard is not None:
+        picks = {}
+        for k, t in enumerate(level.turns):
+            if t.who == "partner" and t.variants:
+                known = sorted(i for (turn, i) in heard if turn == k)
+                if known:
+                    picks[k] = rng.choice(known)
+        return picks
     return {k: rng.randrange(1, len(t.lines())) for k, t in enumerate(level.turns) if t.who == "partner" and t.variants}
 
 
