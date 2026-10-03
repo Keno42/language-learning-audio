@@ -87,6 +87,7 @@ class LearnerState:
     # #149 1b-ii: theme id → the highest level whose exchange a lesson played. The next lesson takes the next level.
     themes_done: dict[str, int] = field(default_factory=dict)
     themes_last: dict[str, int] = field(default_factory=dict)  # theme -> the lesson that last played one of its levels (#149)
+    themes_heard: dict[str, list[str]] = field(default_factory=dict)  # "theme:level" -> "turn:line" partner wordings heard with their meaning (#196)
 
     # ---- queries ---------------------------------------------------------
 
@@ -470,6 +471,7 @@ class LearnerState:
             "tried": self.tried,
             "themes_done": self.themes_done,
             "themes_last": self.themes_last,
+            "themes_heard": self.themes_heard,
         }
 
     def save(self, path: str | Path) -> None:
@@ -501,6 +503,7 @@ class LearnerState:
             tried={k: int(v) for k, v in raw.get("tried", {}).items()},
             themes_done={k: int(v) for k, v in raw.get("themes_done", {}).items()},
             themes_last={k: int(v) for k, v in raw.get("themes_last", {}).items()},
+            themes_heard={k: list(v) for k, v in raw.get("themes_heard", {}).items()},
         )
         ls.items = {k: ItemState(**v) for k, v in raw.get("items", {}).items()}
         # a file from before notes_last_heard existed: a note heard back then counts as heard

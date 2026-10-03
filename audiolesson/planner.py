@@ -873,7 +873,8 @@ class Planner:
 
         When no next level is ready the lesson still has a theme (#149 step 1, the owner's decision: the theme comes
         first): the last level already played of the highest-ranked theme that has rested ``theme_rest_lessons`` lessons,
-        else the one that rested longest, played again, assisted early and unassisted late. None only when no level
+        else the one that rested longest (which can be a theme played two lessons ago when none has rested enough), played
+        again: not assisted, and its early play says only partner wordings already heard with their meaning. None only when no level
         was ever played and none is ready (a first lesson)."""
         rank = {sid: n for n, sid in enumerate(self.cfg.theme_scenarios)}
         best = None
@@ -1513,12 +1514,17 @@ class Planner:
         theme_marks = (0.15, 0.85) if theme_pick else ()
         theme_replay = bool(theme_pick) and theme_pick[1] < self.learner.themes_done.get(theme_pick[0].id, 0)  # a level already played
         theme_plays = 0
+        theme_heard: list[str] = []  # "turn:line" partner wordings the assisted play spoke with their meaning (#196)
         theme_lines: list[str] = []  # per play, which variant of each varying partner line was spoken (#134)
         
         def play_theme() -> bool:
             nonlocal theme_plays
             theme, n, tried = theme_pick
-            picks = pick_variants(theme.levels[n], self.rng, canonical=theme_plays > 0)
+            key = f"{theme.id}:{n + 1}"
+            heard = {tuple(map(int, h.split(":"))) for h in self.learner.themes_heard.get(key, [])} if theme_replay else None
+            picks = pick_variants(theme.levels[n], self.rng, canonical=theme_plays > 0, heard=heard)
+            if theme_plays == 0 and not theme_replay:
+                theme_heard.extend(f"{k}:{i}" for k, i in picks.items())
             dlg = level_dialogue(theme, n, self.cur.known_lang, picks)
             theme_lines.append(dlg.variant)
             ex = b.dialogue(sc, dlg, assisted=theme_plays == 0 and not theme_replay, tried_turns=tried)
@@ -1930,7 +1936,7 @@ class Planner:
             "refresh_sentences": dict(refresh_done),
             # #149 1b-ii: the lesson's theme and level (1-based) and how often its exchange played; None: no theme was ready
             "theme": (
-                {"id": theme_pick[0].id, "scenario": theme_pick[0].scenario, "level": theme_pick[1] + 1, "plays": theme_plays, "lines": theme_lines, "replay": theme_replay}
+                {"id": theme_pick[0].id, "scenario": theme_pick[0].scenario, "level": theme_pick[1] + 1, "plays": theme_plays, "lines": theme_lines, "replay": theme_replay, "heard": theme_heard}
                 if theme_pick
                 else None
             ),
@@ -2022,6 +2028,9 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
     if theme and theme.get("plays"):
         learner.themes_done[theme["id"]] = max(learner.themes_done.get(theme["id"], 0), theme["level"])
         learner.themes_last[theme["id"]] = sc.lesson_number
+        if theme.get("heard"):
+            key = f"{theme['id']}:{theme['level']}"
+            learner.themes_heard[key] = sorted(set(learner.themes_heard.get(key, [])) | set(theme["heard"]))
     for entry in sc.meta.get("listening_tried", []):
         for item_id in entry.get("unknown", []):
             if item_id not in learner.items:

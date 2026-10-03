@@ -5765,7 +5765,8 @@ class ThemeExchangeTests(unittest.TestCase):
         self.assertFalse(any(g.text == meaning for g in segs(plays[1])), "later: the partner's line is the cue")
         asked_first = [g for g in segs(plays[0]) if g.type == "pause" and g.role == "answer"]
         self.assertEqual(len(asked_first), 4)
-        self.assertEqual(sc.meta["theme"], {"id": "supermarket", "scenario": "A3", "level": 1, "plays": 2, "lines": sc.meta["theme"]["lines"], "replay": False})
+        self.assertEqual(sc.meta["theme"], {"id": "supermarket", "scenario": "A3", "level": 1, "plays": 2, "lines": sc.meta["theme"]["lines"], "replay": False, "heard": sc.meta["theme"]["heard"]})
+        self.assertTrue(sc.meta["theme"]["heard"], "the assisted play's variants were heard with their meaning")
         self.assertEqual(len(sc.meta["theme"]["lines"]), 2)
 
     def test_a_turn_no_partner_line_prompts_keeps_its_cue_in_the_late_play(self):
@@ -5894,6 +5895,42 @@ class ThemeExchangeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             learner.save(Path(tmp) / "l.json")
             self.assertEqual(LearnerState.load(Path(tmp) / "l.json").themes_last, learner.themes_last)
+
+    def test_a_replays_early_play_only_says_wordings_already_heard_with_their_meaning(self):
+        import random
+        from audiolesson.themes import pick_variants
+
+        level = self._supermarket.levels[0]
+        varying = [k for k, t in enumerate(level.turns) if t.who == "partner" and t.variants]
+        self.assertTrue(varying)
+        for seed in range(20):
+            self.assertEqual(pick_variants(level, random.Random(seed), heard=set()), {}, "nothing heard: the line as written")
+            heard = {(varying[0], 1)}
+            self.assertEqual(pick_variants(level, random.Random(seed), heard=heard), {varying[0]: 1})
+        learner = self._learner(self._known + self._rest)
+        learner.themes_done = {"supermarket": 1}
+        learner.themes_last = {}
+        sc = self._planner(learner, [self._supermarket], ["A3"]).build()
+        self.assertTrue(sc.meta["theme"]["replay"])
+        self.assertEqual(sc.meta["theme"]["lines"][0], "1," * (len(varying) - 1) + "1", "no wording was heard: both plays as written")
+        self.assertEqual(sc.meta["theme"]["heard"], [])
+        apply_to_learner(sc, learner, TODAY)
+        self.assertEqual(learner.themes_heard, {})
+        # a first play records what it said translated; the replay's early play keeps within it
+        fresh = self._learner(self._known + self._rest)
+        first = self._planner(fresh, [self._supermarket], ["A3"]).build()
+        apply_to_learner(first, fresh, TODAY)
+        self.assertTrue(fresh.themes_heard.get("supermarket:1"))
+        fresh.themes_last = {"supermarket": 0}
+        again = self._planner(fresh, [self._supermarket], ["A3"]).build()
+        self.assertTrue(again.meta["theme"]["replay"])
+        spoken = again.meta["theme"]["lines"][0].split(",")
+        heard = {tuple(map(int, h.split(":"))) for h in fresh.themes_heard["supermarket:1"]}
+        for pos, k in enumerate(varying):
+            self.assertIn(int(spoken[pos]) - 1, {0} | {i for (turn, i) in heard if turn == k})
+        with tempfile.TemporaryDirectory() as tmp:
+            fresh.save(Path(tmp) / "l.json")
+            self.assertEqual(LearnerState.load(Path(tmp) / "l.json").themes_heard, fresh.themes_heard)
 
     def test_a_tried_turn_is_said_with_try_it_and_goes_to_the_bonus_review(self):
         learner = self._learner([i for i in self._known if i != "gjordu_svo_vel"] + [i for i in self._rest if i != "gjordu_svo_vel"])
