@@ -738,6 +738,14 @@ Don't reopen these without new evidence; when you do, say what changed.
     that calls for it is its proper use and may repeat: situation turns and mixed review don't count against its cap,
     only a meaning-cued bare recall does; it still prefers a sentence that holds it when there is one. This replaces
     the word-count framing of "a short item".
+  - **Identical sentences are counted too (#192).** The owner's rule is that a sentence may come five times or more, and a
+    word about ten times in all *if the sentences differ a little*. The word-level rules (the bare cap, the situation
+    narration, the pattern ceiling) never counted a fixed sentence that is said identically. `Builder.said` now counts every
+    model answer (the repeat after the model included), an introduction once and a dialogue's partner lines. The repeat after
+    the model teaches only for a line's first two askings in a lesson (`echo_asked`). A sentence said `max_sentence_utterances`
+    (6) times is practised in another sentence that holds it where there is one (a preference, not a cap: dropping the
+    practice leaves the lesson idle and lapses the caps, G15), and a mixed-review pair avoids the item just practised and
+    sentences past that count.
   - Not-due items wait for their date (#94).
   - **Exception: `refresh` (#175).** A known construction that carries `refresh` returns every
     lesson as a few light sentences with *changing* parts. This is deliberate and is not the

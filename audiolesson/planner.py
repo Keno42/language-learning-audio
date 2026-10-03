@@ -43,6 +43,11 @@ class PlanConfig:
     # its practice is inside sentences, a different one where possible.
     max_bare_uses: int = 3
     short_item_words: int = 2
+    # A fixed sentence is said this often in a lesson, the repeat after the model included, before the planner prefers
+    # another sentence that holds the item (§9 "Repetition": a sentence five times or more is fine, ten identical ones is
+    # the "repetitive" of lesson 13, #192). Not a hard cap: with no other sentence the practice stays, since dropping it
+    # leaves the lesson idle and lapses the caps (the shortage of generative supply, G15). Lapses with the bare cap.
+    max_sentence_utterances: int = 6
     # When the cap leaves the lesson short, up to this many close variants of what the learner knows
     # (``Item.variant_of``: another case, another gender) come in beyond the new-item limit.
     max_variant_items: int = 4
@@ -1090,6 +1095,9 @@ class Planner:
                 stage = self.below_dialogue(item)
             if stage == "recombine":
                 stage = self.recombine_or_instead(item)
+            if over_utterance_cap(item):
+                if sentence_practice(item, review=not any(i.id == item.id for i in introduced)):  # the same line again is ten identical drills: another sentence that holds it
+                    return True
             scene = stage == "situation" and b.situation_usable(item) and b.situation_room(item)  # not the short meaning cue it falls back to
             if allow_cap and (stage in BARE_STAGES or stage == "recombine") and (is_part(item) or not scene) and bare_capped(item):
                 return sentence_practice(item)
@@ -1164,6 +1172,10 @@ class Planner:
             """A part or short utterance due for review (not introduced today, not open): said alone only when no sentence holds it (#187)."""
             return cap_concerns(item) and not any(i.id == item.id for i in introduced) and not self.learner.is_open(item.id)
 
+        def over_utterance_cap(item: Item) -> bool:
+            """``item``'s own sentence has been said as often as a lesson allows (#192), while the caps are on."""
+            return bare_cap[0] > 0 and item.kind not in ("construction", "transform") and b.said[_norm_utterance(item.target)] >= cfg.max_sentence_utterances
+
         def asked_times(whole: Item) -> int:
             """How often ``whole`` was asked (recall or connect) in this lesson."""
             return sum(1 for e in sc.exercises if e.kind in ("recall", "connect") and whole.id in e.item_ids)
@@ -1188,7 +1200,7 @@ class Planner:
                     self._record([item.id], "meaning", ex.item_ids)
                     touch(item)
                     return True
-                for whole in self.containing_items(item):
+                for whole in sorted(self.containing_items(item), key=over_utterance_cap):  # one not yet said as often as a lesson allows first
                     if self._stable(whole) or (review and (bare_capped(whole) or whole.id in recent or asked_times(whole) >= 2)):
                         continue  # a stable one keeps to its date, a short whole to its own bare uses, the one just asked is not asked again
                     ex = b.recall(sc, whole, "meaning")
@@ -1216,7 +1228,7 @@ class Planner:
                     touch(item)
                     used.add(ex.label)
                     return True
-            for whole in self.containing_items(item):
+            for whole in sorted(self.containing_items(item), key=over_utterance_cap):
                 if whole.id in used or whole.id in recent or bare_capped(whole) or (review and asked_times(whole) >= 2):
                     continue  # a short whole item has its own bare uses to keep to
                 if self._stable(whole):
@@ -1310,27 +1322,38 @@ class Planner:
                     continue  # a stable item takes part in one connect a lesson (#151)
                 seen.add(it.id)
                 valid.append(it)
-            best: tuple | None = None
-            for i, a in enumerate(valid):
-                for j in range(i + 1, len(valid)):
-                    b_ = valid[j]
-                    if frozenset((a.id, b_.id)) in connect_pairs_used:
-                        continue
-                    if anchor is not None and a.id not in anchor and b_.id not in anchor:
-                        continue
-                    if b_.partner_cue and b_.partner_cue_after == a.id:
-                        pair, tier = [a, b_], 0
-                    elif a.partner_cue and a.partner_cue_after == b_.id:
-                        pair, tier = [b_, a], 0
-                    else:
-                        if exchange_only:
+            def search(cands: list[Item]) -> tuple | None:
+                found: tuple | None = None
+                for i, a in enumerate(cands):
+                    for j in range(i + 1, len(cands)):
+                        b_ = cands[j]
+                        if frozenset((a.id, b_.id)) in connect_pairs_used:
                             continue
-                        pair = [a, b_]
-                        tier = 1 if a.topics and b_.topics and a.topics[0] == b_.topics[0] else 2
-                    reuse = connect_item_uses.get(a.id, 0) + connect_item_uses.get(b_.id, 0)
-                    key = (tier, reuse, i, j)
-                    if best is None or key < best[0]:
-                        best = (key, pair)
+                        if anchor is not None and a.id not in anchor and b_.id not in anchor:
+                            continue
+                        if b_.partner_cue and b_.partner_cue_after == a.id:
+                            pair, tier = [a, b_], 0
+                        elif a.partner_cue and a.partner_cue_after == b_.id:
+                            pair, tier = [b_, a], 0
+                        else:
+                            if exchange_only:
+                                continue
+                            pair = [a, b_]
+                            tier = 1 if a.topics and b_.topics and a.topics[0] == b_.topics[0] else 2
+                        reuse = connect_item_uses.get(a.id, 0) + connect_item_uses.get(b_.id, 0)
+                        key = (tier, reuse, i, j)
+                        if found is None or key < found[0]:
+                            found = (key, pair)
+                return found
+
+            best: tuple | None = None
+            # a pair of items whose sentences have not been said as often as a lesson allows, and not the item just
+            # practised (#192: a recall, then a pair that asks the same line in the same situation again), when one can be made
+            not_last = [it for it in valid if not (recent and it.id == recent[-1])]
+            for cands in ([it for it in not_last if not over_utterance_cap(it)], not_last, [it for it in valid if not over_utterance_cap(it)], valid):
+                best = search(cands)
+                if best is not None:
+                    break
             if best is None:
                 return None
             (tier, *_), pair = best

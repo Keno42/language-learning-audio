@@ -158,6 +158,12 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   already: the part was just said inside it, so its review counts as done through that exercise (the item is credited)
   and nothing more is played; nor is a whole that negates the part
   («Ég skil ekki.» for «Ég skil.»: `NEGATION`), and a whole asked as a sentence is credited with the item.
+  **Identical sentences (#192).** `Builder.said` counts each sentence said in the lesson (model answers with the repeat after
+  the model, an introduction once, a dialogue's partner lines); `Builder.produced` counts how often a line was asked, and the
+  repeat after the model (`echo_asked`, 2) comes only for those first askings. `PlanConfig.max_sentence_utterances` (6) is a
+  preference: past it `do_recall` practises the item in another sentence that holds it (`sentence_practice`) when one exists,
+  holders are tried under-count first, and `_connect_pair` takes a pair whose items are neither the one just practised nor past
+  the count, falling back to any pair. `replay_lesson.py` reports "most times one sentence is said".
   A generated sentence is not the one the learner just said or the one before (`Builder.recent_answers`), and `sentence_recall`
   marks its combination used, so a part's closing and its pattern's closing do not say the same sentence back to back.
 - **Constructions have authored negative and question forms (#171).** `Item.negative` /

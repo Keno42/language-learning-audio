@@ -13,7 +13,7 @@ from collections import Counter
 from datetime import date, timedelta
 from pathlib import Path
 
-from audiolesson.exercises import SITUATION_FULL_MAX
+from audiolesson.exercises import SITUATION_FULL_MAX, _norm_utterance
 from audiolesson.content import NOTE_TARGET_RE, CurriculumError, curriculum_from_dict, load_curriculum
 from audiolesson.learner import ItemState, LearnerState
 from audiolesson.planner import PlanConfig, Planner, apply_to_learner
@@ -5117,6 +5117,46 @@ class ShortItemRepetitionTests(unittest.TestCase):
         planner = Planner(cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30), today=TODAY)
         planner.exposures["eg_skil_ekki"] = ["meaning"]
         self.assertEqual(planner.containing_items(cur.by_id["eg_skil"]), [])
+
+    def test_the_repeat_after_the_model_only_teaches_for_the_first_two_askings(self):
+        """#192: cloze and hinted recalls play the model answer twice (answer, then repeat), so five practices of one line were
+        ten utterances. The repeat stays for the first two askings of a line in a lesson; the third is one answer."""
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        item = next(i for i in cur.items if i.kind == "phrase" and i.word_count >= 3 and not i.target_m and not i.alternatives)
+        builder = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"), random.Random(1))
+        sc = Script(1, "t", "is", "en")
+        answers = []
+        for _ in range(3):
+            ex = builder.recall(sc, item, "hinted")
+            answers.append(sum(1 for g in sc.segments if g.exercise == ex.index and g.type == "answer"))
+        self.assertEqual(answers, [2, 2, 1])
+        self.assertEqual(builder.said[_norm_utterance(item.target)], 5, "every model answer is counted, the repeat included")
+
+    def test_a_sentence_is_not_said_ten_times_and_a_recall_is_not_followed_by_its_own_pair(self):
+        """#192: the same sentence was said up to 17 times in a lesson of the simulated course (the repeat counted), and a
+        recall was followed directly by a mixed-review pair asking the same line in the same situation again (22-31 times in
+        20 lessons). The repeat is dropped after two askings, a sentence past six utterances is practised in another sentence
+        that holds it where one exists, and a pair avoids the item just practised."""
+        from audiolesson.exercises import _norm_utterance as norm
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for seed in (None, 0):
+            learner = LearnerState("is", "en", "A1")
+            day, worst, adjacent = TODAY, 0, 0
+            for n in range(1, 21):
+                cfg = PlanConfig(minutes=30, new_items=5) if seed is None else PlanConfig(minutes=30, new_items=5, seed=seed)
+                sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=day).build()
+                said = Counter(norm(g.text) for g in sc.segments if g.type == "answer" and g.exercise is not None and sc.exercises[g.exercise].kind != "intro")
+                said.update(norm(cur.by_id[e.item_ids[0]].target) for e in sc.exercises if e.kind == "intro" and e.item_ids and e.item_ids[0] in cur.by_id)
+                worst = max(worst, max(said.values(), default=0))
+                adjacent += sum(1 for a, b in zip(sc.exercises, sc.exercises[1:]) if a.kind == "recall" and b.kind == "connect" and a.item_ids[0] in b.item_ids)
+                apply_to_learner(sc, learner, day)
+                learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
+                day += timedelta(days=1)
+            self.assertLessEqual(worst, 15, (seed, worst))
+            self.assertLessEqual(adjacent, 10, (seed, adjacent))
 
     def test_a_part_is_a_vocab_item_whatever_its_length(self):
         """#190, the owner's decision: «fara á safnið» is a part though it has three words, so after the learner has said «Ég vil
