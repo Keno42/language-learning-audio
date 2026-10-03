@@ -561,10 +561,10 @@ class CurriculumTests(unittest.TestCase):
                     for i in range(10)
                 ]
                 + [
-                    {"id": "a0", "kind": "phrase", "target": "Boga 0.", "meaning": "Arc one, a.", "situation": "Arc one situation a."},
-                    {"id": "a1", "kind": "phrase", "target": "Boga 1.", "meaning": "Arc one, b.", "situation": "Arc one situation b."},
-                    {"id": "b0", "kind": "phrase", "target": "Boga 2.", "meaning": "Arc two, a.", "situation": "Arc two situation a."},
-                    {"id": "b1", "kind": "phrase", "target": "Boga 3.", "meaning": "Arc two, b.", "situation": "Arc two situation b."},
+                    {"id": "a0", "kind": "phrase", "target": "Boga núll hér.", "meaning": "Arc one, a.", "situation": "Arc one situation a."},
+                    {"id": "a1", "kind": "phrase", "target": "Boga einn hér.", "meaning": "Arc one, b.", "situation": "Arc one situation b."},
+                    {"id": "b0", "kind": "phrase", "target": "Boga tveir hér.", "meaning": "Arc two, a.", "situation": "Arc two situation a."},
+                    {"id": "b1", "kind": "phrase", "target": "Boga þrír hér.", "meaning": "Arc two, b.", "situation": "Arc two situation b."},
                 ]
             ),
         }
@@ -1587,8 +1587,8 @@ class CurriculumTests(unittest.TestCase):
                 for i in range(6)
             ]
             + [
-                {"id": "a0", "kind": "phrase", "target": "Boga 0.", "meaning": "Arc one.", "situation": "Arc one situation.", "topics": ["p"]},
-                {"id": "b0", "kind": "phrase", "target": "Boga 1.", "meaning": "Arc two.", "situation": "Arc two situation.", "topics": ["q"]},
+                {"id": "a0", "kind": "phrase", "target": "Boga núll hér.", "meaning": "Arc one.", "situation": "Arc one situation.", "topics": ["p"]},
+                {"id": "b0", "kind": "phrase", "target": "Boga einn hér.", "meaning": "Arc two.", "situation": "Arc two situation.", "topics": ["q"]},
             ],
         }
         cur = curriculum_from_dict(raw)
@@ -5003,12 +5003,30 @@ class ShortItemRepetitionTests(unittest.TestCase):
                     continue
                 ex = [e for e in sc.exercises if i in e.item_ids]
                 alone = sum(1 for e in ex if e.item_ids[0] == i and e.kind in ("intro", "recall") and e.stage in bare)
+                alone += sum(1 for e in ex if e.kind == "connect")  # #187: a pair's situation turns say each item alone
                 self.assertLessEqual(alone, 3, (sc.lesson_number, i, alone))
                 in_sentences += sum(1 for e in ex if e.kind == "generative" or (e.kind == "recall" and e.item_ids[0] != i))
                 checked += 1
         self.assertGreater(checked, 30)
         self.assertLessEqual(lapsed, 7, "the cap should hold in most lessons of a course")
         self.assertGreater(in_sentences, 20, "the rest of a short item's practice is inside sentences")
+
+    def test_a_due_short_review_item_is_asked_in_a_sentence_that_holds_it(self):
+        """#187: the learner said «Hvar er bankinn?» and is then asked «bankinn» alone: the part after the whole. A short
+        item due for review is a sentence that holds it, when one can be said."""
+        items = [
+            {"id": "bankinn", "kind": "vocab", "target": "bankinn", "meaning": "the bank"},
+            {"id": "hvar_er_bankinn", "kind": "phrase", "target": "Hvar er bankinn?", "meaning": "Where is the bank?"},
+        ] + [{"id": f"r{i}", "kind": "phrase", "target": f"Rifja {i}.", "meaning": f"Review {i}."} for i in range(6)]
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+        learner = LearnerState("is", "en", "A1")
+        for i in ["bankinn", "hvar_er_bankinn"] + [f"r{i}" for i in range(6)]:
+            overdue = (TODAY - timedelta(days=9)).isoformat() if i == "bankinn" else TODAY.isoformat()
+            learner.items[i] = ItemState(due=overdue, successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1, new_items=0), today=TODAY).build()
+        asked = [e.item_ids[0] for e in sc.exercises if e.kind == "recall"]
+        self.assertNotIn("bankinn", asked, "never alone while its sentence can be said")
+        self.assertGreaterEqual(asked.count("hvar_er_bankinn"), 2, "its review is the sentence (besides the sentence's own)")
 
     def test_a_situation_is_narrated_in_full_twice_a_lesson_and_review_is_announced_once(self):
         for cur, sc in self._course():

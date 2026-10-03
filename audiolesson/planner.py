@@ -1061,6 +1061,8 @@ class Planner:
                     stage = "meaning"
             if allow_cap and stage in BARE_STAGES and short_today(item) and said_in_sentence(item) and ask_a_sentence(item):
                 return True
+            if allow_cap and stage in BARE_STAGES and short_review(item) and ask_a_sentence(item, repeat=True, review=True):
+                return True  # #187: a due review item is a sentence too, where one holds it
             ex = b.recall(sc, item, stage)
             self._record([item.id], ex.stage or stage, ex.item_ids)
             touch(item)
@@ -1104,15 +1106,24 @@ class Planner:
             """A short item introduced today, whatever the cap says (#179)."""
             return item.kind not in ("construction", "transform") and item.word_count <= cfg.short_item_words and any(i.id == item.id for i in introduced)
 
+        def short_review(item: Item) -> bool:
+            """A short item due for review (not introduced today, not open): said alone only when no sentence holds it (#187)."""
+            return (
+                item.kind not in ("construction", "transform")
+                and item.word_count <= cfg.short_item_words
+                and not any(i.id == item.id for i in introduced)
+                and not self.learner.is_open(item.id)
+            )
+
         def said_in_sentence(item: Item) -> bool:
             """Whether ``item`` has been said inside a sentence in this lesson (#179): a generated
             sentence, or a whole sentence that holds it."""
             return any(e.kind == "generative" and item.id in e.item_ids or e.kind == "recall" and item.id in e.item_ids[1:] for e in sc.exercises)
 
-        def ask_a_sentence(item: Item, repeat: bool = False) -> bool:
+        def ask_a_sentence(item: Item, repeat: bool = False, review: bool = False) -> bool:
             """A short item already said in a sentence is asked as a sentence from then on (#179):
             another one where there is one, else (``repeat``, the closing) a sentence it was in, its ``context`` one first. Credited to the item."""
-            if sentence_practice(item):
+            if sentence_practice(item, review=review):
                 return True
             if repeat:
                 ex = b.sentence_recall(sc, item)
@@ -1121,13 +1132,15 @@ class Planner:
                     touch(item)
                     return True
                 for whole in self.containing_items(item):
+                    if review and (bare_capped(whole) or not_due_stable(whole)):
+                        continue  # a short whole item keeps to its own bare uses, a stable one to its date
                     ex = b.recall(sc, whole, "meaning")
-                    self._record([whole.id], ex.stage or "meaning", ex.item_ids + [item.id])
+                    self._record([item.id] if review else [whole.id], ex.stage or "meaning", ex.item_ids + ([] if review else [item.id]))
                     touch(whole)
                     return True
             return False
 
-        def sentence_practice(item: Item) -> bool:
+        def sentence_practice(item: Item, review: bool = False) -> bool:
             """One more practice of ``item`` inside a sentence, a different one where possible:
             a known pattern with a slot for it, else a known item whose words contain it.
             False when there is none (the item stops at its bare uses)."""
@@ -1142,8 +1155,14 @@ class Planner:
             for whole in self.containing_items(item):
                 if whole.id in used or whole.id in recent or bare_capped(whole):
                     continue  # a short whole item has its own bare uses to keep to
+                if review and not_due_stable(whole):
+                    continue  # a stable item waits for its date, even as the sentence for another (#94, #151)
                 ex = b.recall(sc, whole, "meaning")
-                self._record([whole.id], ex.stage or "meaning", ex.item_ids + [item.id])
+                if review:  # the review of ``item``: it is the one credited (its due date moves), the whole supports it
+                    self._record([item.id], ex.stage or "meaning", ex.item_ids)
+                    touch(item)
+                else:
+                    self._record([whole.id], ex.stage or "meaning", ex.item_ids + [item.id])
                 touch(whole)
                 used.add(whole.id)
                 return True
@@ -1218,6 +1237,8 @@ class Planner:
             for it in pool:
                 if it.id in seen or not b.situation_usable(it) or not _ready_for_situation(it):
                     continue
+                if bare_capped(it):
+                    continue  # the situation turn says it alone: it counts against the cap like any bare use (#187)
                 if connect_item_uses.get(it.id) and self._stable(it):
                     continue  # a stable item takes part in one connect a lesson (#151)
                 seen.add(it.id)

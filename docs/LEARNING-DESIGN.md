@@ -730,6 +730,8 @@ Don't reopen these without new evidence; when you do, say what changed.
   - Situation variety is welcome (#148), but the same authored situation is narrated in full at
     most twice in a lesson; after that the cue is the meaning, or the partner's line (G12;
     #170).
+  - A short item is said alone only when no sentence holding it can be said, on every path: today's recalls, mixed
+    review and due review items (#187). The part is not asked after the learner has said the whole.
   - Not-due items wait for their date (#94).
   - **Exception: `refresh` (#175).** A known construction that carries `refresh` returns every
     lesson as a few light sentences with *changing* parts. This is deliberate and is not the

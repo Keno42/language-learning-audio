@@ -136,6 +136,11 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   sentence from then on, the closing recall included (#179: `ask_a_sentence`, `Builder.sentence_recall`
   with its `context` sentence first), not as a bare part; a short item with no sentence yet keeps the
   bare recall.
+  The cap holds on every path (#187): mixed review (`_connect_pair`) skips an item that is `bare_capped`, since a
+  situation turn says it alone too, and a short item *due for review* (not introduced today, not open:
+  `short_review`) is asked as a sentence that holds it when one can be said (`ask_a_sentence(review=True)`: a
+  pattern with a slot, its `context` sentence, a known phrase that contains it; a short whole item that is itself
+  capped is skipped), else it keeps the bare recall. An interjection has no sentence, so it keeps its three bare uses.
 - **Constructions have authored negative and question forms (#171).** `Item.negative` /
   `question` (with meanings) are alternatives of a construction's target template, never derived;
   `validate` checks slots, «ekki», «?» and the meanings. `Builder.generate(forms=True)` may pick
