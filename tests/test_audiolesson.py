@@ -4751,6 +4751,41 @@ class ListeningDialogueTests(unittest.TestCase):
         self.assertEqual(sc.meta["dialogues_listened"], ["d1"])
 
 
+class PartWithItsFrameTests(unittest.TestCase):
+    """#149 step 2: a part comes with its frame. «sturtan» alone has no sentence to live in («{thing} virkar ekki.» is the
+    only one, and it lists «sturtan» as a prerequisite), so the frame is taught in the same selection, one over the count."""
+
+    def setUp(self):
+        self.cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.learner = LearnerState("is", "en", "A1")
+        for i in self.cur.items:
+            if i.order < self.cur.by_id["virkar_ekki"].order and i.id not in ("sturtan", "ljosid"):
+                self.learner.items[i.id] = ItemState(due=(TODAY + timedelta(days=3)).isoformat(), successes=2, durable_successes=2, stage="meaning",
+                                                     recalled=2, last_outcome="recalled", interval_days=3, last_practiced=(TODAY - timedelta(days=1)).isoformat())
+
+    def _planner(self, **cfg):
+        return Planner(self.cur, self.learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=1, seed=1, **cfg), today=TODAY)
+
+    def test_a_part_is_selected_with_the_construction_that_lists_it(self):
+        planner = self._planner(priority=["sturtan"])
+        self.assertEqual([c.id for c in planner.frames_of(self.cur.by_id["sturtan"])], ["virkar_ekki"])
+        ids = [i.id for i in planner.select_new(1)]
+        self.assertEqual(ids, ["sturtan", "ljosid", "virkar_ekki"], "the part, the second filler the pattern needs, then the frame")
+
+    def test_a_frame_with_an_unmet_prerequisite_stays_out(self):
+        for gone in ("dag_acc", "godan_daginn"):
+            del self.learner.items[gone]
+        self.assertIn("dag_acc", self.cur.by_id["eigdu_godur"].prereqs)
+        ids = [i.id for i in self._planner(priority=["dag_acc"]).select_new(1)]
+        self.assertIn("dag_acc", ids)
+        self.assertNotIn("eigdu_godur", ids, "«godan_daginn» is still unmet: the frame can't be taught yet")
+
+    def test_the_plan_does_not_drill_it_alone(self):
+        sc = self._planner(priority=["sturtan"]).build()
+        self.assertIn("sturtan", sc.meta["new_items"])
+        self.assertIn("virkar_ekki", sc.meta["new_items"])
+
+
 class SpreadIntroductionTests(unittest.TestCase):
     """Lesson 13 feedback: all nine new expressions came in the first 15 of 30 minutes and the
     second half only repeated them. New material is spread over the lesson."""
@@ -5575,8 +5610,12 @@ class CheapConstructionTests(unittest.TestCase):
         again = self._planner(cur, learner, priority=trip).select_new(2, cheap=True)
         self.assertEqual([i.id for i in again][1:], ["n0"], "the trip item behind it is the next one: only n1 waits a lesson")
         # not cheap (its prerequisite is no filler of its slot and isn't known): never promoted
+        # premise changed (#149 step 2b): c_big lists n0 as a prerequisite, so it is n0's frame and now comes with it, as
+        # the part's frame rather than as a promoted cheap construction: still not promoted, but no longer left out
         cur.by_id["c_big"].prereqs = ["n0"]
-        self.assertEqual([i.id for i in self._planner(cur, self._learner(["w0", "w1", "w2"]), priority=trip).select_new(2, cheap=True)], ["n0", "n1"])
+        unpromoted = self._planner(cur, self._learner(["w0", "w1", "w2"]), priority=trip)
+        self.assertEqual([i.id for i in unpromoted.select_new(2, cheap=True)], ["n0", "c_big"])
+        self.assertEqual(unpromoted.cheap_placed, [])
         cur.by_id["c_big"].prereqs = ["w0"]
         # a construction without ``refresh`` that is not a trip item stays out
         cur2 = self._cur()
