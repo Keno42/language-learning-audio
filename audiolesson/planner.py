@@ -1376,13 +1376,12 @@ class Planner:
         theme_marks = (0.15, 0.85) if theme_pick else ()
         theme_plays = 0
         theme_lines: list[str] = []  # per play, which variant of each varying partner line was spoken (#134)
-        theme_picks: dict[int, int] = {}
-
+        
         def play_theme() -> bool:
-            nonlocal theme_plays, theme_picks
+            nonlocal theme_plays
             theme, n, tried = theme_pick
-            theme_picks = pick_variants(theme.levels[n], self.rng, theme_picks)
-            dlg = level_dialogue(theme, n, self.cur.known_lang, theme_picks)
+            picks = pick_variants(theme.levels[n], self.rng, canonical=theme_plays > 0)
+            dlg = level_dialogue(theme, n, self.cur.known_lang, picks)
             theme_lines.append(dlg.variant)
             ex = b.dialogue(sc, dlg, assisted=theme_plays == 0, tried_turns=tried)
             you = [t for t in theme.levels[n].turns if t.who == "you"]

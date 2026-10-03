@@ -5525,7 +5525,8 @@ class ThemeExchangeTests(unittest.TestCase):
         self.assertGreater(plays[1].start, 0.7 * total)
         segs = lambda e: [g for g in sc.segments if g.exercise == e.index]
         meaning = "Yes, it's over there, in the fridge."
-        self.assertTrue(any(g.text == meaning for g in segs(plays[0])), "assisted: the partner's line is translated")
+        turn = self._supermarket.levels[0].turns[1]  # the early play says a variant of this line (#134), translated
+        self.assertTrue(any(g.text == v["meaning"] for v in turn.variants for g in segs(plays[0])), "assisted: the partner's line is translated")
         self.assertFalse(any(g.text == meaning for g in segs(plays[1])), "later: the partner's line is the cue")
         asked_first = [g for g in segs(plays[0]) if g.type == "pause" and g.role == "answer"]
         self.assertEqual(len(asked_first), 4)
@@ -5570,24 +5571,30 @@ class ThemeExchangeTests(unittest.TestCase):
         for t in self._themes:
             for lv in t.levels:
                 if any(x.variants for x in lv.turns):
-                    first = pick_variants(lv, random.Random(3))
-                    again = pick_variants(lv, random.Random(3), first)
-                    self.assertTrue(first and all(again[k] != first[k] for k in first), f"{t.id}: the second play varies every line")
+                    early = pick_variants(lv, random.Random(3))
+                    self.assertTrue(early and all(i >= 1 for i in early.values()), f"{t.id}: the early play takes a variant of every line")
+                    self.assertEqual(pick_variants(lv, random.Random(3), canonical=True), {}, "the late play says the lines as written")
         self.assertTrue(all(any(x.variants for x in lv.turns if x.who == "partner") for t in self._themes for lv in t.levels), "every level has a line that varies")
         learner = self._learner(self._known + self._rest)
         sc = self._planner(learner, [self._supermarket], ["A3"]).build()
         plays = [e for e in sc.exercises if e.label.startswith("dialogue: theme:supermarket:1")]
         lines = sc.meta["theme"]["lines"]
         self.assertEqual(len(lines), 2)
+        self.assertEqual(lines[1], "1,1,1", "the late play says the lines as written")
         self.assertNotEqual(lines[0], lines[1])
         for e, used in zip(plays, lines):
             self.assertTrue(e.label.endswith(f"[lines {used}]"))
+        canonical = [t.say for t in self._supermarket.levels[0].turns if t.who == "partner"]
+        late = {g.text for g in sc.segments if g.exercise == plays[1].index and g.type == "speak"}
+        self.assertTrue(set(canonical) <= late, "every lesson says the canonical lines once")
         partner = {g.text for e in plays for g in sc.segments if g.exercise == e.index and g.type == "speak"}
         self.assertTrue(len(partner) > 3, "the partner's lines differ between plays")
         self.assertTrue(all(g.rate >= 1.0 for e in plays for g in sc.segments if g.exercise == e.index and g.type == "speak"))
         base = level_dialogue(self._supermarket, 0)
         self.assertEqual(base.variant, "1,1,1")
         self.assertEqual(level_dialogue(self._supermarket, 0, picks={1: 1}).turns[0].partner, self._supermarket.levels[0].turns[1].variants[0]["say"])
+        photo = next(t for t in self._themes if t.id == "tour").levels[1].turns[3]
+        self.assertTrue(all(x.say.startswith(("Viltu", "Á ég að")) for x in photo.lines()), "every variant offers the photo: «Já, takk.» answers it")
         bad = Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
             Turn(who="partner", say="Hæ.", meaning="Hi.", variants=[{"say": "Hæ."}]),
             Turn(who="you", say="Hæ.", cue="Say hi.", items=["hae"]),

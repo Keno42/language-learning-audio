@@ -37,8 +37,9 @@ and ``load_scenes`` only ``[[scenes]]``, so they share the directory)::
 - A ``partner`` turn is what the other person says, with its meaning. It may go beyond the
   course: a learner who gets the gist of 80-90% of what is said is where they should be. It is spoken at
   natural speed, and may carry ``variants = [{ say, meaning, meaning_ja }, ...]``: other ways a real
-  clerk puts the same thing (#134). Each play of the exchange picks one per turn (the second play another than
-  the first), so the learner meets the variation; the transcript and plan.json say which was used. Every variant
+  clerk puts the same thing (#134). The early (assisted) play picks a variant per turn, translated; the late play
+  says the lines as written, so the learner meets the variation with its meaning and the canonical line every lesson;
+  the transcript and plan.json say which was used. Every variant
   must fit the learner's reply that follows: it asks the same thing.
 - A level is ready once every item of its ``you`` turns can be said (met, not open).
 
@@ -171,17 +172,14 @@ def scenario_order(scenarios: list[Scenario], boost: list[str] | tuple[str, ...]
     return out
 
 
-def pick_variants(level: Level, rng: random.Random, avoid: dict[int, int] | None = None) -> dict[int, int]:
+def pick_variants(level: Level, rng: random.Random, canonical: bool = False) -> dict[int, int]:
     """Which line each partner turn with variants says (index into ``Turn.lines()``, keyed by the turn's place in the
-    level). ``avoid`` is an earlier play's pick: a turn says another line than it did then, so that the lesson's second
-    play of the exchange is heard with the variation, not the same words (#134)."""
-    out: dict[int, int] = {}
-    for k, t in enumerate(level.turns):
-        if t.who != "partner" or not t.variants:
-            continue
-        options = [i for i in range(len(t.lines())) if not avoid or avoid.get(k) != i] or [0]
-        out[k] = rng.choice(options)
-    return out
+    level). The lesson's two plays split the work (#134, review): the early, assisted play takes a variant at random,
+    heard with its meaning; the late one (``canonical``) says every line as written, the familiar cue when only the
+    partner's line is given, and the wording the review cards ask."""
+    if canonical:
+        return {}
+    return {k: rng.randrange(1, len(t.lines())) for k, t in enumerate(level.turns) if t.who == "partner" and t.variants}
 
 
 def variant_label(level: Level, picks: dict[int, int]) -> str:

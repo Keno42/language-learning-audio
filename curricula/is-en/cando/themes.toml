@@ -133,6 +133,6 @@ turns = [
   { who = "you", cue = "Point at a mountain and ask its name.", cue_ja = "山を指して名前を聞いてください。", say = "Hvað heitir þetta fjall?", items = ["hvad_er_thetta_fjall"] },
   { who = "partner", say = "Þetta er Hekla. Hún er eldfjall.", meaning = "That's Hekla. It's a volcano.", meaning_ja = "ヘクラ山です。火山ですよ。", variants = [{ say = "Þetta er Hekla, eldfjall.", meaning = "That's Hekla, a volcano.", meaning_ja = "ヘクラ山、火山です。" }, { say = "Þarna er Hekla. Hún er eldfjall.", meaning = "There's Hekla. It's a volcano.", meaning_ja = "あれがヘクラ山です。火山ですよ。" }] },
   { who = "you", cue = "React to the view.", cue_ja = "景色に反応してください。", say = "Vá! Útsýnið er fallegt.", items = ["vaa", "utsynid_er_fallegt"], prompted = false },
-  { who = "partner", say = "Viltu að ég taki mynd af ykkur?", meaning = "Shall I take a photo of you?", meaning_ja = "写真を撮りましょうか？", variants = [{ say = "Á ég að taka mynd af ykkur?", meaning = "Shall I take a picture of you?", meaning_ja = "写真を撮りましょうか？" }, { say = "Má ég taka mynd af ykkur?", meaning = "May I take a picture of you?", meaning_ja = "写真を撮ってもいいですか？" }] },
+  { who = "partner", say = "Viltu að ég taki mynd af ykkur?", meaning = "Shall I take a photo of you?", meaning_ja = "写真を撮りましょうか？", variants = [{ say = "Á ég að taka mynd af ykkur?", meaning = "Shall I take a picture of you?", meaning_ja = "写真を撮りましょうか？" }, { say = "Viltu að ég taki mynd?", meaning = "Do you want me to take a photo?", meaning_ja = "写真を撮りましょうか？" }] },
   { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", say = "Já, takk.", items = ["ja", "takk"] },
 ]
