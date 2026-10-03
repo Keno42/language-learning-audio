@@ -4756,24 +4756,32 @@ class SpreadIntroductionTests(unittest.TestCase):
     second half only repeated them. New material is spread over the lesson."""
 
     def test_introductions_are_spread_over_a_real_course(self):
+        """The scheduled introductions (the pace plus a later arc) are spread over the lesson. A cheap construction or a
+        variant is the last resort of a lesson with nothing else left (§9, #171 B, #182): it comes after a long idle
+        stretch by design, so it is not a scheduled introduction and the gap before it is not measured here. The seeds
+        are the lesson number by default, so a single course is a matter of luck: this one and three other seeds are checked (#190)."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
-        learner = LearnerState("is", "en", "A1")
-        day = TODAY
-        first_third, intros, worst_gap = 0, 0, 0.0
-        for n in range(1, 17):
-            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5), today=day).build()
-            starts = [e.start for e in sc.exercises if e.kind == "intro"]
-            if n >= 8 and len(starts) >= 5:
-                total = sc.total_duration
-                first_third += sum(1 for t in starts if t < total / 3)
-                intros += len(starts)
-                worst_gap = max(worst_gap, max(b - a for a, b in zip(starts, starts[1:])))
-            apply_to_learner(sc, learner, day)
-            learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
-            day += timedelta(days=1)
-        self.assertGreater(intros, 20)
+        first_third = intros = 0
+        for seed in (None, 0, 1, 2):
+            learner = LearnerState("is", "en", "A1")
+            day, worst_gap = TODAY, 0.0
+            for n in range(1, 17):
+                cfg = PlanConfig(minutes=30, new_items=5) if seed is None else PlanConfig(minutes=30, new_items=5, seed=seed)
+                sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=day).build()
+                last_resort = set(sc.meta.get("cheap_constructions", [])) | set(sc.meta.get("variant_items", []))
+                everything = [e.start for e in sc.exercises if e.kind == "intro"]
+                starts = [e.start for e in sc.exercises if e.kind in ("intro", "embed") and e.item_ids[0] not in last_resort]  # an embedded part is an introduction on the schedule
+                if n >= 8 and len(everything) >= 5:
+                    first_third += sum(1 for t in everything if t < sc.total_duration / 3)
+                    intros += len(everything)
+                    if len(starts) >= 2:
+                        worst_gap = max(worst_gap, max(b - a for a, b in zip(starts, starts[1:])))
+                apply_to_learner(sc, learner, day)
+                learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
+                day += timedelta(days=1)
+            self.assertLess(worst_gap, 9 * 60, f"seed {seed}: the longest stretch without a scheduled introduction used to be 10-11 minutes")
+        self.assertGreater(intros, 80)
         self.assertLess(first_third / intros, 0.55, "most new items used to come in the first third")
-        self.assertLess(worst_gap, 9 * 60, "the longest stretch without a new item used to be 10-11 minutes")
 
 
 class SayableLineTests(unittest.TestCase):

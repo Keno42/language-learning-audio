@@ -92,6 +92,8 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   item; an idle lesson still introduces early (steps 5), so a lesson with nothing else to do
   doesn't end short.
   An embedded part counts as an introduction on this schedule.
+  A cheap construction or a variant (`try_variant`) is a last-resort extra, not a scheduled introduction: it comes after
+  an idle stretch by design, so the spread test measures the scheduled ones (embedded parts included) over several seeds.
 - **Generated sentences use only available parts.** A fill is known or introduced earlier
   in the lesson. A construction's `situation_fill` makes its situation wait for that fill.
   A dialogue turn's `expect_fill` binds every slot, so every spoken part is a required item.
