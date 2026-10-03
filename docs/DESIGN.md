@@ -97,7 +97,8 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   a new item two minutes before the end. `Planner.build` now builds a lesson that took such an extra a second time with
   those ids known (`PlanConfig.planned_extras`, internal; at most two rebuilds): the idle ladder takes a planned extra once
   `idle_intro_slack` (2) spacings have passed since the last introduction, before the substitution drills. Only an extra the
-  first build took is moved, so the lesson's items are the same and only their timing changes; a lesson that never runs
+  first build took is moved (within the limits and the time the first build had, so the later ones follow a spacing
+  apart rather than another `idle_intro_slack`), so the lesson's items are the same and only their timing changes; a lesson that never runs
   idle takes no extra and is built once. The planned extras stay out of `new_queue`: a non-empty queue blocks `start_arc`
   and the extra item of a lesson with nothing to review, and shortened a lesson from 20 to 13.7 minutes.
 - **Generated sentences use only available parts.** A fill is known or introduced earlier
@@ -160,7 +161,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   («Ég skil ekki.» for «Ég skil.»: `NEGATION`), and a whole asked as a sentence is credited with the item.
   **Identical sentences (#192).** `Builder.said` counts each sentence said in the lesson (model answers with the repeat after
   the model, an introduction once, a dialogue's partner lines); `Builder.produced` counts how often a line was asked, and the
-  repeat after the model (`echo_asked`, 2) comes only for those first askings. `PlanConfig.max_sentence_utterances` (6) is a
+  repeat after the model (`echo_asked`, 1) comes only for the first asking of a line. `PlanConfig.max_sentence_utterances` (6) is a
   preference: past it `do_recall` practises the item in another sentence that holds it (`sentence_practice`) when one exists,
   holders are tried under-count first, and `_connect_pair` takes a pair whose items are neither the one just practised nor past
   the count, falling back to any pair. `replay_lesson.py` reports "most times one sentence is said".
