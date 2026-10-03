@@ -96,13 +96,13 @@ def measure(cur, sc, known_constructions: int) -> dict:
                 sentences += 1
                 distinct.update(said)
         short[i] = (alone, sentences, len(distinct), scenes)
-    # #187: a short review item asked alone after a sentence holding it was already said this lesson
+    # #187: a part (any vocab item) or short utterance asked alone after a sentence holding it was already said this lesson
     said_before: list[str] = []
     part_after_whole = 0
     for e in exs:
         said = answers.get(e.index, [])
         it = cur.by_id.get(e.item_ids[0]) if e.item_ids else None
-        if it and e.kind == "recall" and it.kind not in ("construction", "transform") and e.item_ids[0] not in m["new_items"] and len(words(it.target)) <= 2:
+        if it and e.kind == "recall" and it.kind not in ("construction", "transform") and e.item_ids[0] not in m["new_items"] and (it.kind == "vocab" or len(words(it.target)) <= 2):
             own = " ".join(words(it.target))
             if own in said and any(f" {own} " in f" {t} " and t != own for t in said_before):
                 part_after_whole += 1
