@@ -420,8 +420,9 @@ topics = ["shopping"]
 # when it follows the gender of the thing it describes: «Bíllinn er blár.», «Bókin er blá.», «Húsið er blátt.». The
 # colour items carry their feminine and neuter forms (`gender_forms`, in 09-shopping.toml) and the construction's
 # `agreement` takes the fill's own form from the noun's gender. The nouns are definite, since «Bíll er blár.» isn't a
-# sentence; signs and the road condition are what a traveller reads in colour («gult skilti», a red road
-# warning), the car, the book and the sofa are the plain cases.
+# sentence; a sign is what a traveller reads in colour («gult skilti»), the car, the book and the sofa are the plain cases.
+# «Færðin er {colour}.» (the road condition) is not here: only «rauð» of its eight sentences is anything said (a reading
+# of the road map's colour code, not usage), so the road and weather colours wait for the weather and road scene.
 [[items]]
 id = "skiltid"
 kind = "vocab"
@@ -431,17 +432,6 @@ meaning_ja = "その標識"
 difficulty = 1
 tags = ["def_noun"]
 gender = "neut"
-topics = ["adjectives", "travel"]
-
-[[items]]
-id = "faerdin"
-kind = "vocab"
-target = "færðin"
-meaning = "the road condition"
-meaning_ja = "道路の状況"
-difficulty = 2
-tags = ["def_noun"]
-gender = "fem"
 topics = ["adjectives", "travel"]
 
 [[items]]

@@ -576,5 +576,5 @@ text_ja = "「はい・いいえ」で答えられる質問では、動詞を先
 id = "colours_follow_noun"
 items = ["colour_is"]
 topics = ["grammar", "shopping"]
-text = "A colour word changes with the noun's grammatical gender, like «góður», «góð», «gott»: «bíllinn» is masculine, so «Bíllinn er blár»; «bókin» is feminine, «Bókin er blá»; «húsið» is neuter, «Húsið er blátt». Signs and the road warnings use the same forms: «Skiltið er gult», «Færðin er rauð»."
-text_ja = "色の言葉は、«góður»、«góð»、«gott» と同じく、名詞の文法上の性で形が変わります。«bíllinn» は男性なので «Bíllinn er blár»、«bókin» は女性で «Bókin er blá»、«húsið» は中性で «Húsið er blátt»。標識や道路の警告も同じ形です。«Skiltið er gult»、«Færðin er rauð»。"
+text = "A colour word changes with the noun's grammatical gender, like «góður», «góð», «gott»: «bíllinn» is masculine, so «Bíllinn er blár»; «bókin» is feminine, «Bókin er blá»; «húsið» is neuter, «Húsið er blátt». A sign follows its own gender too: «Skiltið er gult»."
+text_ja = "色の言葉は、«góður»、«góð»、«gott» と同じく、名詞の文法上の性で形が変わります。«bíllinn» は男性なので «Bíllinn er blár»、«bókin» は女性で «Bókin er blá»、«húsið» は中性で «Húsið er blátt»。標識も、その性に合わせます。«Skiltið er gult»。"
