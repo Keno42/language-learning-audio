@@ -730,6 +730,14 @@ Don't reopen these without new evidence; when you do, say what changed.
   - Situation variety is welcome (#148), but the same authored situation is narrated in full at
     most twice in a lesson; after that the cue is the meaning, or the partner's line (G12;
     #170).
+  - **Parts against utterances (#187, #190, the owner's decision).** What is not a complete utterance is a *part*, whatever its
+    length: «peysu», «kaupa miða», «fara á safnið». The data draws the line: every slot filler has `kind = "vocab"` and no
+    `phrase` is one. A part is said alone only at its introduction and its early recall; every other practice, reviews
+    included, is a sentence (a pattern with a slot, its `context` sentence, or a phrase that contains it), and bare is the
+    fallback only when no sentence exists. An utterance («Hvenær?», «Vá!», «Takk.») is a complete thing to say, so a scene
+    that calls for it is its proper use and may repeat: situation turns and mixed review don't count against its cap,
+    only a meaning-cued bare recall does; it still prefers a sentence that holds it when there is one. This replaces
+    the word-count framing of "a short item".
   - Not-due items wait for their date (#94).
   - **Exception: `refresh` (#175).** A known construction that carries `refresh` returns every
     lesson as a few light sentences with *changing* parts. This is deliberate and is not the

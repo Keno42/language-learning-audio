@@ -82,17 +82,35 @@ def measure(cur, sc, known_constructions: int) -> dict:
         it = cur.by_id[i]
         if it.kind in ("construction", "transform") or len(words(it.target)) > 1:
             continue
-        alone, sentences, distinct = 1, 0, set()
+        alone, sentences, distinct, scenes = 1, 0, set(), 0
         for e in exs:
             if i not in e.item_ids or e.kind == "intro":
                 continue
             said = answers.get(e.index, [])
             if " ".join(words(it.target)) in said:
-                alone += 1
+                if it.kind != "vocab" and (e.kind == "connect" or e.stage == "situation"):
+                    scenes += 1  # an utterance in a scene is its proper use, not a drill (#187): not counted as alone
+                else:
+                    alone += 1
             else:
                 sentences += 1
                 distinct.update(said)
-        short[i] = (alone, sentences, len(distinct))
+        short[i] = (alone, sentences, len(distinct), scenes)
+    # #187: a part (any vocab item) or short utterance asked alone after a sentence holding it was already said this lesson
+    said_before: list[str] = []
+    part_after_whole = scenes_after_whole = 0
+    for e in exs:
+        said = answers.get(e.index, [])
+        it = cur.by_id.get(e.item_ids[0]) if e.item_ids else None
+        scene = it is not None and it.kind != "vocab" and e.stage == "situation"  # an utterance in a scene is allowed (#187), but kept visible
+        if it and e.kind == "recall" and it.kind not in ("construction", "transform") and e.item_ids[0] not in m["new_items"] and (it.kind == "vocab" or len(words(it.target)) <= 2):
+            own = " ".join(words(it.target))
+            if own in said and any(f" {own} " in f" {t} " and t != own for t in said_before):
+                if scene:
+                    scenes_after_whole += 1
+                else:
+                    part_after_whole += 1
+        said_before.extend(said)
     open_practice = {i: sum(1 for e in exs if i in e.item_ids) for i in m.get("open_items", [])}
     forms = collections.Counter(form_of(cur, e) for e in exs if e.kind == "generative")
     per_construction = collections.Counter(
@@ -105,7 +123,8 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "new items": len(m["new_items"]),
         "constructions known at start": known_constructions,
         "short new item alone, most": max((v[0] for v in short.values()), default=0),
-        "short items (alone / in sentences / distinct)": ", ".join(f"{k} {v[0]}/{v[1]}/{v[2]}" for k, v in short.items()) or "–",
+        "short items (alone / in sentences / distinct)": ", ".join(f"{k} {v[0]}/{v[1]}/{v[2]}" + (f" +{v[3]} in scenes" if v[3] else "") for k, v in short.items()) or "–",
+        "short review item alone after its sentence": f"{part_after_whole}" + (f" +{scenes_after_whole} in scenes" if scenes_after_whole else ""),
         "longest gap between introductions (min)": round(max((b - a for a, b in zip(intros, intros[1:])), default=0), 1),
         "most narrations of one situation": situations.most_common(1)[0][1] if situations else 0,
         "«Quick review» announcements": narrated.count("Quick review: two separate situations."),

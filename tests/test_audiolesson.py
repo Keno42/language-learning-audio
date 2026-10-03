@@ -561,10 +561,10 @@ class CurriculumTests(unittest.TestCase):
                     for i in range(10)
                 ]
                 + [
-                    {"id": "a0", "kind": "phrase", "target": "Boga 0.", "meaning": "Arc one, a.", "situation": "Arc one situation a."},
-                    {"id": "a1", "kind": "phrase", "target": "Boga 1.", "meaning": "Arc one, b.", "situation": "Arc one situation b."},
-                    {"id": "b0", "kind": "phrase", "target": "Boga 2.", "meaning": "Arc two, a.", "situation": "Arc two situation a."},
-                    {"id": "b1", "kind": "phrase", "target": "Boga 3.", "meaning": "Arc two, b.", "situation": "Arc two situation b."},
+                    {"id": "a0", "kind": "phrase", "target": "Boga núll hér.", "meaning": "Arc one, a.", "situation": "Arc one situation a."},
+                    {"id": "a1", "kind": "phrase", "target": "Boga einn hér.", "meaning": "Arc one, b.", "situation": "Arc one situation b."},
+                    {"id": "b0", "kind": "phrase", "target": "Boga tveir hér.", "meaning": "Arc two, a.", "situation": "Arc two situation a."},
+                    {"id": "b1", "kind": "phrase", "target": "Boga þrír hér.", "meaning": "Arc two, b.", "situation": "Arc two situation b."},
                 ]
             ),
         }
@@ -1587,8 +1587,8 @@ class CurriculumTests(unittest.TestCase):
                 for i in range(6)
             ]
             + [
-                {"id": "a0", "kind": "phrase", "target": "Boga 0.", "meaning": "Arc one.", "situation": "Arc one situation.", "topics": ["p"]},
-                {"id": "b0", "kind": "phrase", "target": "Boga 1.", "meaning": "Arc two.", "situation": "Arc two situation.", "topics": ["q"]},
+                {"id": "a0", "kind": "phrase", "target": "Boga núll hér.", "meaning": "Arc one.", "situation": "Arc one situation.", "topics": ["p"]},
+                {"id": "b0", "kind": "phrase", "target": "Boga einn hér.", "meaning": "Arc two.", "situation": "Arc two situation.", "topics": ["q"]},
             ],
         }
         cur = curriculum_from_dict(raw)
@@ -5029,25 +5029,127 @@ class ShortItemRepetitionTests(unittest.TestCase):
             learner.report(failed, [], day + timedelta(days=1), lesson_number=n, recalled=[i for i in new if i not in failed])
             day += timedelta(days=1)
 
-    def test_a_short_new_item_is_said_alone_at_most_three_times(self):
+    def test_a_part_or_short_utterance_is_said_alone_at_most_three_times(self):
+        """A part (a ``vocab`` item, whatever its length) is said alone at most three times: any bare practice counts, a
+        mixed-review turn included (#187). A short utterance (a ``phrase``) is a complete thing to say, so a scene is its proper
+        use (the owner's decision on #190): only its meaning-cued bare practices count."""
         bare = {"intro", "cloze", "hinted", "meaning", "situation"}
-        checked = lapsed = in_sentences = 0
+        cued = {"intro", "cloze", "hinted", "meaning"}
+        checked = utterances = lapsed = in_sentences = 0
         for cur, sc in self._course():
             if sc.meta["bare_cap_lapsed"]:
                 lapsed += 1  # nothing else was left to fill the lesson
                 continue
             for i in sc.meta["new_items"]:
                 it = cur.by_id[i]
-                if i in sc.meta["embedded_items"] or it.kind in ("construction", "transform") or it.word_count > 2:
+                part = it.kind == "vocab"
+                if i in sc.meta["embedded_items"] or it.kind in ("construction", "transform") or (not part and it.word_count > 2):
                     continue
                 ex = [e for e in sc.exercises if i in e.item_ids]
-                alone = sum(1 for e in ex if e.item_ids[0] == i and e.kind in ("intro", "recall") and e.stage in bare)
+                alone = sum(1 for e in ex if e.item_ids[0] == i and e.kind in ("intro", "recall") and e.stage in (bare if part else cued))
+                if part:
+                    alone += sum(1 for e in ex if e.kind == "connect")  # a pair's situation turns say each part alone
                 self.assertLessEqual(alone, 3, (sc.lesson_number, i, alone))
                 in_sentences += sum(1 for e in ex if e.kind == "generative" or (e.kind == "recall" and e.item_ids[0] != i))
                 checked += 1
+                utterances += not part
         self.assertGreater(checked, 30)
+        self.assertGreater(utterances, 5, "short utterances are checked too")
         self.assertLessEqual(lapsed, 7, "the cap should hold in most lessons of a course")
-        self.assertGreater(in_sentences, 20, "the rest of a short item's practice is inside sentences")
+        self.assertGreater(in_sentences, 20, "the rest of a part's practice is inside sentences")
+
+    def test_a_due_short_review_item_is_asked_in_a_sentence_that_holds_it(self):
+        """#187: the learner said «Hvar er bankinn?» and is then asked «bankinn» alone: the part after the whole. A short
+        item due for review is a sentence that holds it, when one can be said."""
+        items = [
+            {"id": "bankinn", "kind": "vocab", "target": "bankinn", "meaning": "the bank"},
+            {"id": "hvar_er_bankinn", "kind": "phrase", "target": "Hvar er bankinn?", "meaning": "Where is the bank?"},
+        ] + [{"id": f"r{i}", "kind": "phrase", "target": f"Rifja {i}.", "meaning": f"Review {i}."} for i in range(6)]
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+        learner = LearnerState("is", "en", "A1")
+        for i in ["bankinn", "hvar_er_bankinn"] + [f"r{i}" for i in range(6)]:
+            overdue = (TODAY - timedelta(days=9)).isoformat() if i == "bankinn" else TODAY.isoformat()
+            learner.items[i] = ItemState(due=overdue, successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1, new_items=0), today=TODAY).build()
+        asked = [e.item_ids[0] for e in sc.exercises if e.kind == "recall"]
+        self.assertNotIn("bankinn", asked, "never alone while its sentence can be said")
+        self.assertGreaterEqual(asked.count("hvar_er_bankinn"), 2, "its review is the sentence (besides the sentence's own)")
+
+    def test_a_part_is_not_reviewed_by_asking_the_sentence_just_asked(self):
+        """#190 review: «Hvenær?» was reviewed by asking «Hvenær leggjum við af stað?» right after that sentence was asked, so the
+        sentence came again and again and «Hvenær?» itself never. The review path does not repeat the previous exercise: the sentence
+        just asked, or asked twice, is not asked again; the part was just said inside it, so its review is done through that exercise and nothing more is played."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for seed in range(6):
+            learner = LearnerState("is", "en", "A1")
+            for i in ("hvenaer", "hvenaer_leggjum_vid_af_stad"):
+                learner.items[i] = ItemState(due=(TODAY - timedelta(days=9)).isoformat(), successes=1, durable_successes=0, stage="meaning", recalled=1, last_outcome="hesitated")
+            for i in ("ja", "nei", "takk", "hae", "bless", "godan_daginn", "afsakid", "eg_skil"):
+                learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=seed, new_items=0), today=TODAY).build()
+            asked = [e.item_ids[0] for e in sc.exercises if e.kind == "recall"]
+            self.assertFalse([a for a, b in zip(asked, asked[1:]) if a == b], (seed, asked))
+            self.assertLessEqual(asked.count("hvenaer_leggjum_vid_af_stad"), 4, (seed, asked))
+            self.assertTrue(sc.meta["exposures"].get("hvenaer"), "the part is credited as reviewed, through the sentence that was just asked")
+            sentence = "hvenaer_leggjum_vid_af_stad"
+            self.assertFalse([b for a, b in zip(asked, asked[1:]) if a == sentence and b == "hvenaer"], "never as a scene right after its sentence")
+
+    def test_a_generated_sentence_is_not_the_one_the_learner_just_said(self):
+        """#190 review: the closing recalls of «peysu» and of «Áttu {thing}?» both said «Áttu peysu?», back to back: the first, asked as
+        the part's sentence, was not counted as used, and the pattern's three fillers were all used by then. The sentence just said
+        (or the one before) is not drawn again while another is possible; sentence_recall marks its combination used."""
+        from audiolesson.exercises import _norm_utterance
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        for i in ("attu", "peysu", "poka", "vegabref"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+        builder = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY).builder
+        builder.recent_answers = [_norm_utterance("Áttu peysu?")]
+        drawn = {builder.generate(cur.by_id["attu"]).target for _ in range(40)}
+        self.assertEqual(drawn, {"Áttu poka?", "Áttu vegabréf?"})
+        builder.recent_answers = []
+        self.assertIn("Áttu peysu?", {builder.generate(cur.by_id["attu"]).target for _ in range(40)}, "otherwise it is drawn like any other")
+
+    def test_a_negated_sentence_does_not_hold_its_part(self):
+        """#190 review: «Ég skil ekki.» says the opposite of «Ég skil.» and must not be the sentence its review asks."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        planner = Planner(cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30), today=TODAY)
+        planner.exposures["eg_skil_ekki"] = ["meaning"]
+        self.assertEqual(planner.containing_items(cur.by_id["eg_skil"]), [])
+
+    def test_a_part_is_a_vocab_item_whatever_its_length(self):
+        """#190, the owner's decision: «fara á safnið» is a part though it has three words, so after the learner has said «Ég vil
+        fara á safnið.» it is not asked alone; a phrase like «Hvenær?» is an utterance (scenes may repeat it)."""
+        items = [
+            {"id": "safnid", "kind": "vocab", "target": "fara á safnið", "meaning": "to go to the museum"},
+            {"id": "vil_safnid", "kind": "phrase", "target": "Ég vil fara á safnið.", "meaning": "I want to go to the museum."},
+        ] + [{"id": f"r{i}", "kind": "phrase", "target": f"Rifja {i}.", "meaning": f"Review {i}."} for i in range(6)]
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+        learner = LearnerState("is", "en", "A1")
+        for i in ["safnid", "vil_safnid"] + [f"r{i}" for i in range(6)]:
+            overdue = (TODAY - timedelta(days=9)).isoformat() if i == "safnid" else TODAY.isoformat()
+            learner.items[i] = ItemState(due=overdue, successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1, new_items=0), today=TODAY).build()
+        asked = [e.item_ids[0] for e in sc.exercises if e.kind == "recall"]
+        self.assertNotIn("safnid", asked, "a three-word part is not asked alone while its sentence can be said")
+        self.assertGreaterEqual(asked.count("vil_safnid"), 2)
+
+    def test_a_sentence_said_earlier_in_the_lesson_holds_its_part_though_not_yet_known(self):
+        """#190 review: «Hvenær leggjum við af stað?» had no durable recall (it hesitated), so it held no part, though the
+        learner had said it twice minutes before: «Hvenær?» was asked alone right after it."""
+        items = [
+            {"id": "bankinn", "kind": "vocab", "target": "bankinn", "meaning": "the bank"},
+            {"id": "hvar_er_bankinn", "kind": "phrase", "target": "Hvar er bankinn?", "meaning": "Where is the bank?"},
+        ]
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+        learner = LearnerState("is", "en", "A1")
+        for i in ("bankinn", "hvar_er_bankinn"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=1, durable_successes=0, stage="meaning", recalled=1, last_outcome="hesitated")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1, new_items=0), today=TODAY)
+        self.assertEqual(planner.containing_items(cur.by_id["bankinn"]), [], "met, not known, not practised today")
+        planner.exposures["hvar_er_bankinn"] = ["meaning"]
+        self.assertEqual([i.id for i in planner.containing_items(cur.by_id["bankinn"])], ["hvar_er_bankinn"])
 
     def test_a_situation_is_narrated_in_full_twice_a_lesson_and_review_is_announced_once(self):
         for cur, sc in self._course():

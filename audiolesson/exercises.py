@@ -77,6 +77,7 @@ class Builder:
     used_combos: set[str] = field(default_factory=set)
     used_examples: set[str] = field(default_factory=set)
     heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson
+    recent_answers: list[str] = field(default_factory=list)  # the last two answers said (normalised): a generated sentence is not the one just asked (#190)
     in_lesson: set[str] = field(default_factory=set)  # items introduced this lesson: usable as parts
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
     _situation_texts: dict[str, int] = field(default_factory=dict)  # times each authored situation was narrated in full
@@ -266,6 +267,7 @@ class Builder:
     def _answer(self, sc: Script, ex: Exercise, text: str, speaker: str = "native_a", rate: float = 1.0) -> None:
         sc.add(Segment("answer", speaker, text, self.tl, rate, self.timing.speech_estimate(text, self.tl, rate), None, ex.index))
         self.heard.add(_norm_utterance(text))
+        self.recent_answers = (self.recent_answers + [_norm_utterance(text)])[-2:]
 
     def is_new_utterance(self, text: str) -> bool:
         """True only if the learner has never been presented this target-language line: not
@@ -668,6 +670,7 @@ class Builder:
         if gen is None:
             return None
         gender, target = self._filled(gen.construction, gen.fills, form=gen.form)
+        self.used_combos.add(gen.key)  # the construction's own recall does not make the same sentence next (#190 review)
         ids = [item.id] + [i for i in gen.item_ids if i != item.id]
         ex = sc.new_exercise("recall", "meaning", ids, f"meaning: {target}")
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(gen.meaning)))
@@ -782,6 +785,12 @@ class Builder:
             if prefer_unused:
                 unused = [(f, c) for f, c in picks if _combo_key(construction, c, f) not in self.used_combos]
                 picks = unused or picks
+            if self.recent_answers:  # not the sentence the learner has just said, when another one is possible
+                fresh = [
+                    (f, c) for f, c in picks
+                    if not {_norm_utterance(self.cur.resolve_slots(construction, c, g, f)[0]) for g in "fm"} & set(self.recent_answers)
+                ]
+                picks = fresh or picks
             if chosen_form:
                 # a form adds variety rather than replacing: when the plain sentence of that combination was heard
                 picks = [(f, c) for f, c in picks if _combo_key(construction, c) in self.used_combos] or picks

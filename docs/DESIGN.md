@@ -144,6 +144,22 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   sentence from then on, the closing recall included (#179: `ask_a_sentence`, `Builder.sentence_recall`
   with its `context` sentence first), not as a bare part; a short item with no sentence yet keeps the
   bare recall.
+  **Parts and utterances (#187, #190).** The cap is keyed to `Item.kind`, not to length: a *part* (`vocab`: every slot
+  filler in the course, whatever its length: «peysu», «fara á safnið») is said alone only at its introduction and its
+  early recall (`max_bare_uses`, any bare practice counts, a mixed-review turn included) and otherwise in a sentence
+  (`is_part`, `counts_alone`). An *utterance* (a `phrase` of at most `short_item_words` words: «Hvenær?», «Vá!», «Takk.») is
+  a complete thing to say: a scene calling for it is its proper use, so only its meaning-cued bare practices
+  (`cloze`, `hinted`, `meaning`) count against the cap, not situation turns or mixed review. The cap holds on every
+  path: `_connect_pair` skips a capped part; and a part or short utterance *due for review* (not introduced today, not
+  open: `short_review`) is asked as a sentence that holds it when one can be said (`ask_a_sentence(review=True)`: a
+  pattern with a slot, its `context` sentence, a known or earlier-practised phrase that contains it), else it keeps
+  the bare recall; mixed review also skips such an item when `holds_sentence`. A stable whole is never the
+  sentence for another item (it is practised on its own dates); neither is the whole just asked or one asked twice
+  already: the part was just said inside it, so its review counts as done through that exercise (the item is credited)
+  and nothing more is played; nor is a whole that negates the part
+  («Ég skil ekki.» for «Ég skil.»: `NEGATION`), and a whole asked as a sentence is credited with the item.
+  A generated sentence is not the one the learner just said or the one before (`Builder.recent_answers`), and `sentence_recall`
+  marks its combination used, so a part's closing and its pattern's closing do not say the same sentence back to back.
 - **Constructions have authored negative and question forms (#171).** `Item.negative` /
   `question` (with meanings) are alternatives of a construction's target template, never derived;
   `validate` checks slots, «ekki», «?» and the meanings. `Builder.generate(forms=True)` may pick
