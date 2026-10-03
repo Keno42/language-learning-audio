@@ -7,6 +7,8 @@ sounds. Keep those three concerns apart.
 
 from __future__ import annotations
 
+from collections import Counter
+
 import random
 from dataclasses import dataclass, field
 
@@ -77,6 +79,9 @@ class Builder:
     used_combos: set[str] = field(default_factory=set)
     used_examples: set[str] = field(default_factory=set)
     heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson
+    echo_asked: int = 2  # a line is repeated after the model only for its first askings this lesson (#192)
+    said: Counter = field(default_factory=Counter)  # how often each sentence was said this lesson: model answers, echoes, the intro once, partner lines (#192)
+    produced: Counter = field(default_factory=Counter)  # how often the learner was asked for each line this lesson: the echo only while it teaches
     recent_answers: list[str] = field(default_factory=list)  # the last two answers said (normalised): a generated sentence is not the one just asked (#190)
     in_lesson: set[str] = field(default_factory=set)  # items introduced this lesson: usable as parts
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
@@ -263,11 +268,15 @@ class Builder:
         sc.add(Segment("speak", speaker, text, lang, rate, self.timing.speech_estimate(speech_text or text, lang, rate), role, ex.index, speech_text))
         if lang == self.tl and role not in ("partial", "hint"):  # a cloze fragment or first-word hint isn't the utterance
             self.heard.add(_norm_utterance(text))
+            if ex.kind == "dialogue" and role is None:
+                self.said[_norm_utterance(text)] += 1
 
     def _answer(self, sc: Script, ex: Exercise, text: str, speaker: str = "native_a", rate: float = 1.0) -> None:
         sc.add(Segment("answer", speaker, text, self.tl, rate, self.timing.speech_estimate(text, self.tl, rate), None, ex.index))
         self.heard.add(_norm_utterance(text))
         self.recent_answers = (self.recent_answers + [_norm_utterance(text)])[-2:]
+        if ex.kind != "intro":
+            self.said[_norm_utterance(text)] += 1
 
     def is_new_utterance(self, text: str) -> bool:
         """True only if the learner has never been presented this target-language line: not
@@ -380,6 +389,7 @@ class Builder:
         if base is not None and not item.target_m and (self.learner.has_met(base.id) or base.id in self.in_lesson):
             return self._intro_variant(sc, item, base)
         ex = sc.new_exercise("intro", "intro", [item.id], f"new: {item.target}")
+        self.said[_norm_utterance(item.target)] += 1  # the introduction counts once, however often it models the line
         self._narr(sc, ex, self.prompts.get("intro_new", meaning=self._m(item.spoken_meaning)))
         self._beat(sc, ex)
         self._speak(sc, ex, item.target)
@@ -576,8 +586,10 @@ class Builder:
             self._narr(sc, ex, self._as(gender, self._meaning_prompt(item.spoken_meaning, item.context)))
             self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target, speaker=voice)
-        if stage in ("cloze", "hinted") or item.difficulty >= 4:
-            self._repeat_pause(sc, ex, target)
+        asked_before = self.produced[_norm_utterance(target)]
+        self.produced[_norm_utterance(target)] += 1
+        if (stage in ("cloze", "hinted") or item.difficulty >= 4) and asked_before < self.echo_asked:
+            self._repeat_pause(sc, ex, target)  # the repeat after the model teaches while the line is new; past two askings it only repeats
             self._answer(sc, ex, target, speaker=voice)
         self._maybe_alternative(sc, ex, item, stage)
         self._gap(sc, ex)

@@ -111,6 +111,19 @@ def measure(cur, sc, known_constructions: int) -> dict:
                 else:
                     part_after_whole += 1
         said_before.extend(said)
+    # #192: how often one sentence is said in the lesson: every model answer (the repeat included), partner lines of a
+    # dialogue, and an introduction once, keyed by its text
+    said_times = collections.Counter()
+    for g in sc.segments:
+        if g.exercise is None or not g.text or g.exercise >= len(exs):
+            continue
+        kind = exs[g.exercise].kind
+        if g.type == "answer" and kind != "intro" or g.type == "speak" and kind == "dialogue" and g.role is None:
+            said_times[" ".join(words(g.text))] += 1
+    for e in exs:
+        if e.kind == "intro" and e.item_ids and e.item_ids[0] in cur.by_id:
+            said_times[" ".join(words(cur.by_id[e.item_ids[0]].target))] += 1
+    most_said = said_times.most_common(1)[0][1] if said_times else 0
     open_practice = {i: sum(1 for e in exs if i in e.item_ids) for i in m.get("open_items", [])}
     forms = collections.Counter(form_of(cur, e) for e in exs if e.kind == "generative")
     per_construction = collections.Counter(
@@ -125,6 +138,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "short new item alone, most": max((v[0] for v in short.values()), default=0),
         "short items (alone / in sentences / distinct)": ", ".join(f"{k} {v[0]}/{v[1]}/{v[2]}" + (f" +{v[3]} in scenes" if v[3] else "") for k, v in short.items()) or "–",
         "short review item alone after its sentence": f"{part_after_whole}" + (f" +{scenes_after_whole} in scenes" if scenes_after_whole else ""),
+        "most times one sentence is said": most_said,
         "longest gap between introductions (min)": round(max((b - a for a, b in zip(intros, intros[1:])), default=0), 1),
         "most narrations of one situation": situations.most_common(1)[0][1] if situations else 0,
         "«Quick review» announcements": narrated.count("Quick review: two separate situations."),
