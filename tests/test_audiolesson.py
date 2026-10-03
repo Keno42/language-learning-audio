@@ -5582,6 +5582,42 @@ class RefreshConstructionTests(unittest.TestCase):
         self.assertEqual({c.id for c in cur.items if c.refresh}, {"ma_eg_inf", "eg_aetla_ad", "viltu"})
 
 
+class ReplayToolTests(unittest.TestCase):
+    """tools/replay_lesson.py, the daily read's table (LEARNING-DESIGN §1): it rebuilds an export's
+    lesson from ``learner.before.json`` and the manifest's arguments, continues it, and prints one row
+    per figure. A smoke test on an export made from a short real-curriculum course."""
+
+    def test_the_tool_rebuilds_an_export_and_prints_the_table(self):
+        import contextlib
+        import io
+        import importlib.util
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="en")
+        learner = LearnerState(cur.target_lang, cur.known_lang, "A1")
+        day = date(2026, 1, 1)
+        for _ in range(3):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, new_items=4), today=day).build()
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        with tempfile.TemporaryDirectory() as td:
+            export = Path(td) / "lesson-004"
+            export.mkdir()
+            learner.save(export / "learner.before.json")
+            manifest = {"lesson": 4, "created_at": f"{day.isoformat()}T08:00:00+09:00", "revisions": {"lla": "test"},
+                        "generate_args": ["generate", "--curriculum", "curricula/is-en", "--known", "en", "--minutes", "20"]}
+            (export / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+            spec = importlib.util.spec_from_file_location("replay_lesson", ROOT / "tools" / "replay_lesson.py")
+            tool = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(tool)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(tool.main([str(export), "--lessons", "2", "--curriculum", str(ROOT / "curricula" / "is-en")]), 0)
+        text = out.getvalue()
+        self.assertIn("| | lesson 4 | lesson 5 |", text)
+        for row in ("| minutes |", "| short new item alone, most |", "| bare_cap_lapsed |", "| tried lines / bonus questions |"):
+            self.assertIn(row, text)
+
+
 class PlausibleFillTests(unittest.TestCase):
     """Owner, after lesson 12: never generate a sentence that makes no sense in its scene
     ("order a passport at the café"). Slot tags keep the grammar right; they must also keep

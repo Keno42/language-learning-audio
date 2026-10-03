@@ -69,14 +69,27 @@ Answer these in the issue. If one has no answer yet, say so; that is information
 3. "Done" means the issue's acceptance criteria hold, not that the planned steps were all
    taken (§11).
 
-### After each round of learner feedback (at least weekly)
+### After each round of learner feedback (daily while the design is moving)
 
-1. Read the signals in §6: review outcomes, scenario readiness, reading cards, feedback
-   forms, owner notes.
-2. Compare them with the predictions of the changes merged since the last round. Keep a
+While the lessons are still being reshaped (§9 "Governance": the fix-up phase), this is done
+after **every** lesson, the next day; once they settle, weekly.
+
+1. Replay the export of the lesson just heard: `python tools/replay_lesson.py <lesson-NNN>
+   --trip <profile> --lessons 3`. The first column is that lesson rebuilt with the current code
+   (exact on the export's own revision); the next two continue it under a stated assumption.
+   Compare with the previous day's table.
+2. Read the signals in §6: review outcomes, scenario readiness, reading cards, feedback
+   forms, owner notes. A fault the learner heard, or the table shows, becomes an issue the
+   same day.
+3. Compare them with the predictions of the changes merged since the last round. Keep a
    change, revert it or give it more time; write down which and why.
-3. Update §5 (evidence) and the status column in §4. Re-rank §8 if the evidence moved it.
-4. Ask the learner when a signal is ambiguous (§6.2). Don't guess from the data alone.
+4. **Two speeds.** What one lesson shows (length, a word said alone, a repeated narration, a
+   bug, the form's load and friction) is read daily. What needs volume (next-day recall rates,
+   long phrases against short, «迷った», scenario readiness) is read once three to five lessons
+   have added up. **The slow reads gate the decisions that depend on them, never the work:**
+   development and merges go on while they accumulate.
+5. Update §5 (evidence) and the status column in §4. Re-rank §8 if the evidence moved it.
+6. Ask the learner when a signal is ambiguous (§6.2). Don't guess from the data alone.
 
 ---
 
@@ -550,7 +563,7 @@ reference for the next weekly read, which judges the batch as one change (§5.11
 | **Feedback form** (#128) | `lesson_feedback.jsonl` | How usable, heavy or repetitive the lesson felt; candidates the learner confirms; a free note | Causes. It is given immediately after a long lesson, so the early parts are half forgotten. One form so far |
 | **Lesson records** | `lesson_manifests/` (plan, script, transcript, `learner.before.json`, arguments) | Exactly what was practised and when. Replays can reproduce a lesson | What the learner noticed («I didn't hear "kaupa miða"») |
 | **Owner observations** | Issues, chat, transcript reviews | The richest qualitative signal: what felt wrong and why | Whether a single remark is a pattern. Check it against the data and §9 |
-| **Simulations and replays** | Scripts in `tools/`, tests | Planner behaviour under stated assumptions; cheap before/after comparisons | Anything about learning. A simulation from scratch can differ from the real path (§5.4) |
+| **Simulations and replays** | `tools/replay_lesson.py` (an export's lesson rebuilt and continued; the daily table), other scripts in `tools/`, tests | Planner behaviour under stated assumptions; cheap before/after comparisons | Anything about learning. A simulation from scratch can differ from the real path (§5.4) |
 | **Native corrections** | When they come (#129) | Correctness and naturalness | — |
 | *Not a signal* | LLM transcripts or assessments | — | Everything (#129) |
 
@@ -761,7 +774,13 @@ Don't reopen these without new evidence; when you do, say what changed.
     tracked (owner).
 - **Governance.**
   - At most two lever changes a week, and only on a pattern across three or more items or
-    two consecutive weeks.
+    two consecutive weeks. **Suspended during the fix-up phase (owner, after lesson 14):**
+    while lessons are being reshaped after the lesson-13 failure, each lesson is read the next
+    day (§1), faults are fixed in batches and checked by replaying the latest export, and the
+    batch is judged as one change (§5.11). A change merges when the daily replay shows nothing
+    already fixed coming back (length, a short item alone at most three times, open items
+    practised). Slow signals (recall rates, phrase length, readiness) gate only the decisions
+    that depend on them, not development. Back to the weekly rule once the lessons settle.
   - Every change states its hypothesis, lever, expected outcome and check week.
   - A human approves every change, and nothing changes the learner model or the planner
     automatically (#129, #136).
@@ -778,14 +797,17 @@ Don't reopen these without new evidence; when you do, say what changed.
   should move in which signal (§6) and when it will be checked. At the check, keep the
   change, revert it or extend it, and write down which.
 - **Few changes at a time.** With one learner, two simultaneous changes can't be told apart.
-  The lever rule in §9 applies to behaviour changes generally, not only to levers.
+  The lever rule in §9 applies to behaviour changes generally, not only to levers, except in
+  the fix-up phase (§9 "Governance"), where a batch is judged as one change.
+- **Waiting is not a task.** A read that needs several lessons of data never sits in the queue
+  of work ahead of development; it accumulates alongside the daily read (§1).
 - **An owner request is evidence of a need.** Restate the need in terms of §3 and §4, look
   for the cause shared with other recent requests, and fit it into §8. If it is a principle
   ("never implausible"), record it in §9. If the request conflicts with a hypothesis or the
   evidence, say so before building it. Agreement is not the goal; the learner's outcome is.
 - **Acceptance criteria describe the learner's experience** and are checked on the real
   path (§1).
-- **Keep this document true.** Update §5 and §4 at each weekly read, §8 when priorities
+- **Keep this document true.** Update §5 and §4 at each read (daily in the fix-up phase), §8 when priorities
   move, §9 when a decision is made. Write lesson numbers and issue numbers, never trip
   dates.
 
