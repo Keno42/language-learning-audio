@@ -68,7 +68,7 @@ class PlanConfig:
     # spacings have passed since the last introduction it comes before the next substitution drill, so the
     # introductions stay spread over the lesson (#187: a 10-minute tail of sentences with nothing new). Only up to
     # the introductions the lesson expects (the pace plus a later arc): it moves an introduction earlier, it adds none.
-    idle_intro_slack: float = 2.0
+    idle_intro_slack: float = 1.5
     dialogue_every: int = 7  # try a dialogue roughly every N exercises
     drill_streak_limit: int = 5  # consecutive isolated recalls before a dialogue is pulled forward
     dialogue_first_turns: int = 2  # turns played the first time; one more each later encounter
@@ -721,7 +721,7 @@ class Planner:
         return out
 
     def containing_items(self, item: Item) -> list[Item]:
-        """Phrases and words the learner can say (known, or introduced earlier this lesson, not
+        """Phrases and words the learner can say (known, or introduced or practised earlier this lesson, not
         open) whose words contain ``item``'s words in order, the shortest first: a sentence the
         part can be practised in when no pattern takes it («Hvenær?» in «Hvenær leggjum við af
         stað?»)."""
@@ -732,7 +732,7 @@ class Planner:
         for whole in self.cur.items:
             if whole.id == item.id or whole.kind not in ("phrase", "vocab") or whole.target_m:
                 continue
-            if not self.builder._available(whole.id) or self.learner.is_open(whole.id):
+            if not (self.builder._available(whole.id) or whole.id in self.exposures) or self.learner.is_open(whole.id):
                 continue
             ww = [w.lower() for w in _WORD_RE.findall(whole.target)]
             if len(ww) > len(words) and any(ww[k : k + len(words)] == words for k in range(len(ww) - len(words) + 1)):
@@ -1700,7 +1700,7 @@ class Planner:
                     play_timed(repeat)
                 elif self._note_budget_left() and remaining >= 40 and self._pick_note(None) is not None:
                     self._play_note(sc, self._pick_note(None))  # nothing to practise now: an aside
-                elif bare_cap[0] > 0 and len(introduced) + len(self.embedded) < expected_new and sc.total_duration - last_intro_at >= cfg.idle_intro_slack * intro_spacing and try_variant():
+                elif bare_cap[0] > 0 and len(introduced) < expected_new and sc.total_duration - last_intro_at >= cfg.idle_intro_slack * intro_spacing and try_variant():
                     pass  # nothing new for a long while: the cheap construction or variant comes now, not as the last resort (#187)
                 elif reviews_used and (sub := pick_substitution()) is not None:
                     # spare time: a known pattern with other words (#151), before a fresh arc or replayed reviews

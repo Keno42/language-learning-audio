@@ -5046,6 +5046,22 @@ class ShortItemRepetitionTests(unittest.TestCase):
         self.assertNotIn("bankinn", asked, "never alone while its sentence can be said")
         self.assertGreaterEqual(asked.count("hvar_er_bankinn"), 2, "its review is the sentence (besides the sentence's own)")
 
+    def test_a_sentence_said_earlier_in_the_lesson_holds_its_part_though_not_yet_known(self):
+        """#190 review: «Hvenær leggjum við af stað?» had no durable recall (it hesitated), so it held no part, though the
+        learner had said it twice minutes before: «Hvenær?» was asked alone right after it."""
+        items = [
+            {"id": "bankinn", "kind": "vocab", "target": "bankinn", "meaning": "the bank"},
+            {"id": "hvar_er_bankinn", "kind": "phrase", "target": "Hvar er bankinn?", "meaning": "Where is the bank?"},
+        ]
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+        learner = LearnerState("is", "en", "A1")
+        for i in ("bankinn", "hvar_er_bankinn"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=1, durable_successes=0, stage="meaning", recalled=1, last_outcome="hesitated")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1, new_items=0), today=TODAY)
+        self.assertEqual(planner.containing_items(cur.by_id["bankinn"]), [], "met, not known, not practised today")
+        planner.exposures["hvar_er_bankinn"] = ["meaning"]
+        self.assertEqual([i.id for i in planner.containing_items(cur.by_id["bankinn"])], ["hvar_er_bankinn"])
+
     def test_a_situation_is_narrated_in_full_twice_a_lesson_and_review_is_announced_once(self):
         for cur, sc in self._course():
             texts = {t for it in cur.items for t in ([it.situation] if it.situation else []) + list(it.situations)}
