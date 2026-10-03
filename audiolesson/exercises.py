@@ -802,6 +802,12 @@ class Builder:
                     if not {_norm_utterance(self.cur.resolve_slots(construction, c, g, f)[0]) for g in "fm"} & set(self.recent_answers)
                 ]
                 picks = fresh or picks
+            if len(picks) > 1 and self.said:  # when every combination was used, the one said fewest times (#192)
+                def times(pick: tuple[str | None, dict[str, Item]]) -> int:
+                    return max(self.said.get(_norm_utterance(self.cur.resolve_slots(construction, pick[1], g, pick[0])[0]), 0) for g in "fm")
+
+                counts = [times(p) for p in picks]
+                picks = [p for p, n in zip(picks, counts) if n == min(counts)]
             if chosen_form:
                 # a form adds variety rather than replacing: when the plain sentence of that combination was heard
                 picks = [(f, c) for f, c in picks if _combo_key(construction, c) in self.used_combos] or picks
