@@ -64,10 +64,10 @@ class PlanConfig:
     # introduce (the pace plus a later arc). When nothing else is left to do, the next one comes
     # early, as before.
     intro_span: float = 0.75
-    # An idle lesson's cheap construction or variant (``try_variant``) is not left to the very end: once this many
-    # spacings have passed since the last introduction it comes before the next substitution drill, so the
-    # introductions stay spread over the lesson (#187: a 10-minute tail of sentences with nothing new). Only up to
-    # the introductions the lesson expects (the pace plus a later arc): it moves an introduction earlier, it adds none.
+    # An idle lesson's cheap construction (``try_variant(cheap_only=True)``, #182) is not left to the very end: once
+    # this many spacings have passed since the last introduction it comes before the next substitution drill, so the
+    # introductions stay spread over the lesson (#187: a 10-minute tail of sentences with nothing new). Only a cheap
+    # construction, which is worth teaching at once (at most ``max_cheap_extra``); a variant stays the last resort.
     idle_intro_slack: float = 1.5
     dialogue_every: int = 7  # try a dialogue roughly every N exercises
     drill_streak_limit: int = 5  # consecutive isolated recalls before a dialogue is pulled forward
@@ -1019,14 +1019,15 @@ class Planner:
         variants_used: list[str] = []
         cheap_used: list[str] = []
 
-        def try_variant() -> bool:
+        def try_variant(cheap_only: bool = False) -> bool:
             """The lesson has run out of other material (§9 "Repetition"): a close variant of what
-            the learner knows, beyond the new-item limit, rather than the same words again."""
+            the learner knows, beyond the new-item limit, rather than the same words again
+            (``cheap_only``: only a pattern the learner can fill at once, #187)."""
             nonlocal closing_reserve
-            if len(variants_used) >= cfg.max_variant_items or remaining_time() < need_for_new * 0.5 or idx - last_intro < 1:
+            if (len(variants_used) >= cfg.max_variant_items and not cheap_only) or remaining_time() < need_for_new * 0.5 or idx - last_intro < 1:
                 return False
             taken = {i.id for i in introduced} | set(self.embedded) | {i.id for i in new_queue}
-            found = self.select_variants(1, taken)
+            found = [] if cheap_only else self.select_variants(1, taken)
             if not found and len(cheap_used) < cfg.max_cheap_extra and (cand := self.cheap_construction(taken)) is not None:
                 found = [cand]  # a pattern the learner can fill at once, beyond the new-item limit (#171 B)
                 cheap_used.append(cand.id)
@@ -1715,8 +1716,8 @@ class Planner:
                     play_timed(repeat)
                 elif self._note_budget_left() and remaining >= 40 and self._pick_note(None) is not None:
                     self._play_note(sc, self._pick_note(None))  # nothing to practise now: an aside
-                elif bare_cap[0] > 0 and len(introduced) < expected_new and sc.total_duration - last_intro_at >= cfg.idle_intro_slack * intro_spacing and try_variant():
-                    pass  # nothing new for a long while: the cheap construction or variant comes now, not as the last resort (#187)
+                elif sc.total_duration - last_intro_at >= cfg.idle_intro_slack * intro_spacing and try_variant(cheap_only=True):
+                    pass  # nothing new for a long while: the cheap construction comes now, not as the last resort (#187)
                 elif reviews_used and (sub := pick_substitution()) is not None:
                     # spare time: a known pattern with other words (#151), before a fresh arc or replayed reviews
                     do_substitution(sub)

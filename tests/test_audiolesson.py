@@ -5054,6 +5054,23 @@ class ShortItemRepetitionTests(unittest.TestCase):
         self.assertNotIn("bankinn", asked, "never alone while its sentence can be said")
         self.assertGreaterEqual(asked.count("hvar_er_bankinn"), 2, "its review is the sentence (besides the sentence's own)")
 
+    def test_a_part_is_a_vocab_item_whatever_its_length(self):
+        """#190, the owner's decision: «fara á safnið» is a part though it has three words, so after the learner has said «Ég vil
+        fara á safnið.» it is not asked alone; a phrase like «Hvenær?» is an utterance (scenes may repeat it)."""
+        items = [
+            {"id": "safnid", "kind": "vocab", "target": "fara á safnið", "meaning": "to go to the museum"},
+            {"id": "vil_safnid", "kind": "phrase", "target": "Ég vil fara á safnið.", "meaning": "I want to go to the museum."},
+        ] + [{"id": f"r{i}", "kind": "phrase", "target": f"Rifja {i}.", "meaning": f"Review {i}."} for i in range(6)]
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+        learner = LearnerState("is", "en", "A1")
+        for i in ["safnid", "vil_safnid"] + [f"r{i}" for i in range(6)]:
+            overdue = (TODAY - timedelta(days=9)).isoformat() if i == "safnid" else TODAY.isoformat()
+            learner.items[i] = ItemState(due=overdue, successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1, new_items=0), today=TODAY).build()
+        asked = [e.item_ids[0] for e in sc.exercises if e.kind == "recall"]
+        self.assertNotIn("safnid", asked, "a three-word part is not asked alone while its sentence can be said")
+        self.assertGreaterEqual(asked.count("vil_safnid"), 2)
+
     def test_a_sentence_said_earlier_in_the_lesson_holds_its_part_though_not_yet_known(self):
         """#190 review: «Hvenær leggjum við af stað?» had no durable recall (it hesitated), so it held no part, though the
         learner had said it twice minutes before: «Hvenær?» was asked alone right after it."""

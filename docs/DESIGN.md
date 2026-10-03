@@ -92,9 +92,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   item; an idle lesson still introduces early (steps 5), so a lesson with nothing else to do
   doesn't end short.
   An embedded part counts as an introduction on this schedule.
-  An idle lesson's cheap construction or variant (`try_variant`) no longer waits for the very end: once
-  `idle_intro_slack` (2) spacings have passed since the last introduction it comes before the next substitution drill, but
-  only while the lesson has introduced fewer than the N it expects, so an introduction moves earlier and none is added (#187).
+  An idle lesson's cheap construction (`try_variant(cheap_only=True)`, #182) no longer waits for the very end:
+  once `idle_intro_slack` (1.5) spacings have passed since the last introduction it comes before the next substitution
+  drill, within `max_cheap_extra`. A lesson whose tail would otherwise have no introduction thus teaches a pattern more
+  (the owner chose this over leaving the gap, #190); a variant stays the last resort.
 - **Generated sentences use only available parts.** A fill is known or introduced earlier
   in the lesson. A construction's `situation_fill` makes its situation wait for that fill.
   A dialogue turn's `expect_fill` binds every slot, so every spoken part is a required item.
@@ -139,11 +140,17 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   sentence from then on, the closing recall included (#179: `ask_a_sentence`, `Builder.sentence_recall`
   with its `context` sentence first), not as a bare part; a short item with no sentence yet keeps the
   bare recall.
-  The cap holds on every path (#187): mixed review (`_connect_pair`) skips an item that is `bare_capped`, since a
-  situation turn says it alone too, and a short item *due for review* (not introduced today, not open:
-  `short_review`) is asked as a sentence that holds it when one can be said (`ask_a_sentence(review=True)`: a
-  pattern with a slot, its `context` sentence, a known phrase that contains it; a short whole item that is itself
-  capped is skipped), else it keeps the bare recall. An interjection has no sentence, so it keeps its three bare uses.
+  **Parts and utterances (#187, #190).** The cap is keyed to `Item.kind`, not to length: a *part* (`vocab`: every slot
+  filler in the course, whatever its length: «peysu», «fara á safnið») is said alone only at its introduction and its
+  early recall (`max_bare_uses`, any bare practice counts, a mixed-review turn included) and otherwise in a sentence
+  (`is_part`, `counts_alone`). An *utterance* (a `phrase` of at most `short_item_words` words: «Hvenær?», «Vá!», «Takk.») is
+  a complete thing to say: a scene calling for it is its proper use, so only its meaning-cued bare practices
+  (`cloze`, `hinted`, `meaning`) count against the cap, not situation turns or mixed review. The cap holds on every
+  path: `_connect_pair` skips a capped part; and a part or short utterance *due for review* (not introduced today, not
+  open: `short_review`) is asked as a sentence that holds it when one can be said (`ask_a_sentence(review=True)`: a
+  pattern with a slot, its `context` sentence, a known or earlier-practised phrase that contains it), else it keeps
+  the bare recall; mixed review also skips such an item when `holds_sentence`. A stable whole not yet due is never the
+  sentence for another item, and a whole asked as a sentence is credited with the item.
 - **Constructions have authored negative and question forms (#171).** `Item.negative` /
   `question` (with meanings) are alternatives of a construction's target template, never derived;
   `validate` checks slots, «ekki», «?» and the meanings. `Builder.generate(forms=True)` may pick
