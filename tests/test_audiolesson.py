@@ -5466,6 +5466,14 @@ class NoSlotLeakTests(unittest.TestCase):
         b.connect(sc, [cur.by_id["klukkan_er"], cur.by_id["tekurdu_kort"]])
         self.assertEqual(self._leaks(sc), [])
         self.assertIn("o'clock", sc.transcript())
+        # the cue's fill is the answer's: «It's three o'clock.» is answered «Klukkan er þrjú.»
+        hours = {it.meaning_forms.get("in_sentence", it.meaning): it.target for it in cur.items_with_tag("hour")}
+        segs = [g for g in sc.segments if g.exercise == sc.exercises[-1].index]
+        cue = next(g for g in segs if g.type == "narrate" and "o'clock" in (g.text or ""))
+        answer = next(g for g in segs[segs.index(cue):] if g.type == "answer")
+        said = re.search(r"It's (.+?) o'clock", cue.text).group(1)
+        self.assertIn(said, hours, cue.text)
+        self.assertEqual(answer.text, f"Klukkan er {hours[said]}.")
 
 
 class PatternRotationTests(unittest.TestCase):
