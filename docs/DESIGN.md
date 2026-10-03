@@ -227,7 +227,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   A semantic set is not introduced as a block (#149 step 2, H5): `select_new` skips an item when the lesson already has
   `PlanConfig.max_set_items` (3) new items with one of the tags in `PlanConfig.semantic_sets` (number, colour, animal, acc_language,
   weather, nature_nom, day, job), counting the lesson's earlier arcs (`exclude`) and what the call chose. The skipped item waits for
-  another lesson and the pool goes on, so the pace is unchanged; a filler pulled in for a construction's slot is not counted.
+  another lesson and the pool goes on, so the pace is unchanged; a filler pulled in for a construction's slot is not counted. The items the target theme's next level wants (`theme_wants`) are a scene, not a bare set: they are neither stopped by the limit nor counted towards it.
   A part comes with its frame (#149 step 2): when `select_new` takes a part (`kind == "vocab"`; an utterance such as
   «Hvenær?» is not one), one construction that lists it as a prerequisite (`Planner.frames_of`, «{thing} virkar ekki.» for
   «sturtan»; the ready one needing the fewest new fillers, then course order) goes in right after it, behind the fillers its

@@ -4782,6 +4782,20 @@ class SemanticSetTests(unittest.TestCase):
         ids = [i.id for i in self._planner().select_new(8, exclude=earlier)]
         self.assertEqual(len(self._of_set(ids)), 1, "two already in the lesson: one more")
 
+    def test_the_items_a_theme_level_wants_are_a_scene_and_exempt(self):
+        from audiolesson.themes import Level, Theme, Turn
+
+        scene = ["sjor", "nordurljos", "midnætursol"]  # no slot tag: only the set limit applies to them
+        level = Level(goal="g", partner_speaker="native_c", turns=[Turn(who="you", say="Takk.", cue="Thank him.", items=scene)])
+        theme = Theme(id="nature_test", scenario="A1", title="Nature", levels=[level])
+        with_theme = self._planner(themes=[theme], theme_scenarios=["A1"], max_set_items=2)
+        self.assertEqual(sorted(i for i in with_theme.theme_wants() if i in scene), sorted(scene))
+        ids = [i.id for i in with_theme.select_new(8)]
+        self.assertTrue(all(i in ids for i in scene), "a level that needs three of a set gets all three, over a limit of two")
+        # the same items without a theme: the limit holds
+        without = [i.id for i in self._planner(max_set_items=2).select_new(8)]
+        self.assertEqual(len(self._of_set(without)), 2)
+
     def test_the_limit_is_a_setting(self):
         ids = [i.id for i in self._planner(max_set_items=5).select_new(8)]
         self.assertEqual(len(self._of_set(ids)), 5)

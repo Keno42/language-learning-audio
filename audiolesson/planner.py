@@ -441,13 +441,16 @@ class Planner:
                     best = (key, c, fillers)
             return (best[1], best[2]) if best else None
 
+        scene = set(self.theme_wants())  # what the theme's next level is made of is a scene, not a bare set (#149 step 2)
+
         def set_full(it: Item) -> bool:
             """Whether the lesson already has ``max_set_items`` new items of a semantic set ``it`` belongs to (#149 step 2),
-            counting this lesson's earlier arcs (``exclude``) and what this call chose."""
+            counting this lesson's earlier arcs (``exclude``) and what this call chose. The items the theme's next level
+            wants are exempt, neither stopped by the cap nor counted: a price level needs several numbers together."""
             sets = [t for t in self.cfg.semantic_sets if t in it.tags]
-            if not sets or it.kind == "construction":
+            if not sets or it.kind == "construction" or it.id in scene:
                 return False
-            lesson = [self.cur.by_id[i] for i in chosen_ids if i in self.cur.by_id]
+            lesson = [self.cur.by_id[i] for i in chosen_ids if i in self.cur.by_id and i not in scene]
             return any(sum(1 for x in lesson if t in x.tags and x.kind != "construction") >= self.cfg.max_set_items for t in sets)
 
         # walk in order, but a not-yet-ready item is skipped rather than blocking
