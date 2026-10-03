@@ -5736,7 +5736,10 @@ class ThemeExchangeTests(unittest.TestCase):
         later = self._planner(learner, self._themes, ["A3", "A4", "B1", "B2"]).pick_theme()
         self.assertEqual((later[0].id, later[1]), ("cafe", 0), "the lowest level not played wins over a boosted theme's next level")
         learner.themes_done = {t.id: len(t.levels) for t in self._themes}
-        self.assertIsNone(self._planner(learner, self._themes, self._order).pick_theme(), "every level played")
+        # premise changed (#149 step 1): with every level played the lesson still has a theme, the last level again
+        again = self._planner(learner, self._themes, self._order).pick_theme()
+        self.assertIsNotNone(again, "every level played: a played level comes again")
+        self.assertEqual(again[1], len(again[0].levels) - 1)
 
     def test_a_theme_waits_until_the_learner_can_say_most_of_it(self):
         learner = self._learner([i for i in self._known if i not in ("skyr", "attu", "gjordu_svo_vel")])
@@ -5762,7 +5765,7 @@ class ThemeExchangeTests(unittest.TestCase):
         self.assertFalse(any(g.text == meaning for g in segs(plays[1])), "later: the partner's line is the cue")
         asked_first = [g for g in segs(plays[0]) if g.type == "pause" and g.role == "answer"]
         self.assertEqual(len(asked_first), 4)
-        self.assertEqual(sc.meta["theme"], {"id": "supermarket", "scenario": "A3", "level": 1, "plays": 2, "lines": sc.meta["theme"]["lines"]})
+        self.assertEqual(sc.meta["theme"], {"id": "supermarket", "scenario": "A3", "level": 1, "plays": 2, "lines": sc.meta["theme"]["lines"], "replay": False})
         self.assertEqual(len(sc.meta["theme"]["lines"]), 2)
 
     def test_a_turn_no_partner_line_prompts_keeps_its_cue_in_the_late_play(self):
@@ -5871,6 +5874,26 @@ class ThemeExchangeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             learner.save(Path(tmp) / "l.json")
             self.assertEqual(LearnerState.load(Path(tmp) / "l.json").themes_done, {"supermarket": 1})
+
+    def test_a_lesson_with_every_level_played_replays_the_most_rested_level_unassisted(self):
+        learner = self._learner(self._known + self._rest)
+        learner.themes_done = {t.id: len(t.levels) for t in self._themes}
+        learner.themes_last = {"supermarket": 9, "cafe": 3, "museum": 8, "tour": 7}
+        planner = self._planner(learner, self._themes, self._order)
+        now = learner.next_lesson_number()
+        learner.themes_last = {"supermarket": now - 1, "cafe": now - 5, "museum": now - 4, "tour": now - 2}
+        pick = planner.pick_theme()
+        self.assertIsNotNone(pick)
+        rested = {t.id for t in self._themes if now - learner.themes_last[t.id] >= planner.cfg.theme_rest_lessons}
+        self.assertIn(pick[0].id, rested, "a theme played in the last lessons rests")
+        sc = planner.build()
+        theme = sc.meta["theme"]
+        self.assertTrue(theme and theme["replay"] and theme["plays"] == 2)
+        apply_to_learner(sc, learner, TODAY)
+        self.assertEqual(learner.themes_last[theme["id"]], sc.lesson_number)
+        with tempfile.TemporaryDirectory() as tmp:
+            learner.save(Path(tmp) / "l.json")
+            self.assertEqual(LearnerState.load(Path(tmp) / "l.json").themes_last, learner.themes_last)
 
     def test_a_tried_turn_is_said_with_try_it_and_goes_to_the_bonus_review(self):
         learner = self._learner([i for i in self._known if i != "gjordu_svo_vel"] + [i for i in self._rest if i != "gjordu_svo_vel"])

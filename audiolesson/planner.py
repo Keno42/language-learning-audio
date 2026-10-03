@@ -94,6 +94,7 @@ class PlanConfig:
     themes: list = field(default_factory=list)
     theme_scenarios: list[str] = field(default_factory=list)
     theme_ready: float = 0.75  # a theme's level plays once the learner can say this share of its turns; the rest are tried
+    theme_rest_lessons: int = 3  # a level already played comes back no sooner than this many lessons later (#149 step 1)
     listening_missing_max: int = 2
     listening_rest_lessons: int = 6
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
@@ -868,7 +869,12 @@ class Planner:
         the lowest level not yet played, among the themes whose next level the learner can say in all but a
         quarter of their turns (``theme_ready``; every item of a turn met and not open), the trip profile's
         boosted scenarios first, then Tier A, then Tier B, in file order. A turn with an item they lack is *tried*, as in a listening
-        scene (#183). None when no theme is ready."""
+        scene (#183).
+
+        When no next level is ready the lesson still has a theme (#149 step 1, the owner's decision: the theme comes
+        first): the last level already played of the highest-ranked theme that has rested ``theme_rest_lessons`` lessons,
+        else the one that rested longest, played again, assisted early and unassisted late. None only when no level
+        was ever played and none is ready (a first lesson)."""
         rank = {sid: n for n, sid in enumerate(self.cfg.theme_scenarios)}
         best = None
         for order, theme in enumerate(self.cfg.themes):
@@ -882,7 +888,25 @@ class Planner:
             key = (level, rank[theme.scenario], order)
             if best is None or key < best[0]:
                 best = (key, theme, level, tried)
-        return best[1:] if best else None
+        if best is not None:
+            return best[1:]
+        now = self.learner.next_lesson_number()
+        again = None
+        for order, theme in enumerate(self.cfg.themes):
+            done = min(self.learner.themes_done.get(theme.id, 0), len(theme.levels))
+            if done < 1 or theme.scenario not in rank:
+                continue
+            since = now - self.learner.themes_last.get(theme.id, 0)
+            rested = since >= self.cfg.theme_rest_lessons
+            key = (not rested, rank[theme.scenario] if rested else -since, order)
+            if again is None or key < again[0]:
+                again = (key, theme, done - 1)
+        if again is None:
+            return None
+        _, theme, level = again
+        you = [t for t in theme.levels[level].turns if t.who == "you"]
+        tried = {k for k, t in enumerate(you) if not all(self.can_say_item(i, practised=False) for i in t.items)}
+        return theme, level, tried
 
     def _bonus_review(self) -> list[dict]:
         """Up to ``max_bonus_questions`` of the lines tried this lesson, as bonus questions for the next review
@@ -1487,6 +1511,7 @@ class Planner:
         # with only the partner's line as the cue (about 15% and 85% of the lesson's time)
         theme_pick = self.pick_theme()
         theme_marks = (0.15, 0.85) if theme_pick else ()
+        theme_replay = bool(theme_pick) and theme_pick[1] < self.learner.themes_done.get(theme_pick[0].id, 0)  # a level already played
         theme_plays = 0
         theme_lines: list[str] = []  # per play, which variant of each varying partner line was spoken (#134)
         
@@ -1496,7 +1521,7 @@ class Planner:
             picks = pick_variants(theme.levels[n], self.rng, canonical=theme_plays > 0)
             dlg = level_dialogue(theme, n, self.cur.known_lang, picks)
             theme_lines.append(dlg.variant)
-            ex = b.dialogue(sc, dlg, assisted=theme_plays == 0, tried_turns=tried)
+            ex = b.dialogue(sc, dlg, assisted=theme_plays == 0 and not theme_replay, tried_turns=tried)
             you = [t for t in theme.levels[n].turns if t.who == "you"]
             said = [i for k, t in enumerate(you) if k not in tried for i in t.items if i in self.cur.by_id]
             self._record(list(dict.fromkeys(said)), "dialogue", ex.item_ids)
@@ -1905,7 +1930,7 @@ class Planner:
             "refresh_sentences": dict(refresh_done),
             # #149 1b-ii: the lesson's theme and level (1-based) and how often its exchange played; None: no theme was ready
             "theme": (
-                {"id": theme_pick[0].id, "scenario": theme_pick[0].scenario, "level": theme_pick[1] + 1, "plays": theme_plays, "lines": theme_lines}
+                {"id": theme_pick[0].id, "scenario": theme_pick[0].scenario, "level": theme_pick[1] + 1, "plays": theme_plays, "lines": theme_lines, "replay": theme_replay}
                 if theme_pick
                 else None
             ),
@@ -1996,6 +2021,7 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
     theme = sc.meta.get("theme")
     if theme and theme.get("plays"):
         learner.themes_done[theme["id"]] = max(learner.themes_done.get(theme["id"], 0), theme["level"])
+        learner.themes_last[theme["id"]] = sc.lesson_number
     for entry in sc.meta.get("listening_tried", []):
         for item_id in entry.get("unknown", []):
             if item_id not in learner.items:
