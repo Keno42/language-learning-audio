@@ -35,6 +35,15 @@ The default tiers suit a budget traveller: supermarket and café before restaura
 | `clerk_lines` | lines to understand. They feed the listening track (#134) and the scenario cards. Wordings are candidates |
 | `respect` | respect markers the scenario checks: `greet`, `thanks`, `farewell`, `stayed_icelandic`, `shower_rule`, … |
 
+## Lesson themes (#149 1b-ii)
+
+`curricula/is-en/cando/themes.toml` (`audiolesson/themes.py` documents the format) holds the scenes a lesson can
+consolidate: per theme (`scenario`: the can-do scenario it serves), levels of an exchange, each a list of `partner`
+turns (with their meaning) and `you` turns (a cue, the model line, the `items` it needs, optional `alts`). `validate`
+checks every item and scenario. The lesson picks one (`Planner.pick_theme`; H4 in docs/LEARNING-DESIGN.md) and plays
+its exchange twice; `plan.json` names the theme and level. General content only: the private trip profile decides which
+scenarios come first and never appears here.
+
 ## Coverage report
 
 ```sh

@@ -23,6 +23,7 @@ from .learner import LearnerState
 from .prompts import Prompts
 from .script import Script
 from .stages import ladder_for, next_stage, stage_index
+from .themes import level_dialogue
 from .timing import Timing
 
 
@@ -78,6 +79,11 @@ class PlanConfig:
     # ``listening_rest_lessons`` lessons.
     max_listening_dialogues: int = 4
     max_bonus_questions: int = 2  # #183: tried lines that go into the next review as bonus questions
+    # #149 1b-ii: the scenes a lesson's theme exchange comes from (``audiolesson.themes``) and, in order, the
+    # can-do scenarios to take one from (the trip profile's boosted first). No themes: no theme exchange.
+    themes: list = field(default_factory=list)
+    theme_scenarios: list[str] = field(default_factory=list)
+    theme_ready: float = 0.75  # a theme's level plays once the learner can say this share of its turns; the rest are tried
     listening_missing_max: int = 2
     listening_rest_lessons: int = 6
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
@@ -844,6 +850,27 @@ class Planner:
         d, missing = self.rng.choice([(c[3], c[4]) for c in cands if c[:2] == best])
         return d, missing
 
+    def pick_theme(self) -> tuple | None:
+        """The lesson's theme, its level (0-based) and the learner's turns of it that are only tried (#149 1b-ii):
+        the lowest level not yet played, among the themes whose next level the learner can say in all but a
+        quarter of their turns (``theme_ready``; every item of a turn met and not open), the trip profile's
+        boosted scenarios first, then Tier A in order. A turn with an item they lack is *tried*, as in a listening
+        scene (#183). None when no theme is ready."""
+        rank = {sid: n for n, sid in enumerate(self.cfg.theme_scenarios)}
+        best = None
+        for order, theme in enumerate(self.cfg.themes):
+            level = self.learner.themes_done.get(theme.id, 0)
+            if level >= len(theme.levels) or theme.scenario not in rank:
+                continue
+            you = [t for t in theme.levels[level].turns if t.who == "you"]
+            tried = {k for k, t in enumerate(you) if not all(self.can_say_item(i, practised=False) for i in t.items)}
+            if len(tried) > (1 - self.cfg.theme_ready) * len(you):
+                continue
+            key = (level, rank[theme.scenario], order)
+            if best is None or key < best[0]:
+                best = (key, theme, level, tried)
+        return best[1:] if best else None
+
     def _bonus_review(self) -> list[dict]:
         """Up to ``max_bonus_questions`` of the lines tried this lesson, as bonus questions for the next review
         (#183): the lines of the trip ordering's items first, then the most recent. A bonus question may be
@@ -1343,6 +1370,35 @@ class Planner:
                 refresh_timeline.append(((budget - closing_reserve) * (k + (j + 1) / (len(refresh_items) + 1)) / c.refresh, seq, c))
         refresh_timeline.sort()
 
+        # #149 1b-ii: the lesson's theme exchange, played twice: early with the partner's lines translated, late
+        # with only the partner's line as the cue (about 15% and 85% of the lesson's time)
+        theme_pick = self.pick_theme()
+        theme_marks = (0.15, 0.85) if theme_pick else ()
+        theme_plays = 0
+
+        def play_theme() -> bool:
+            nonlocal theme_plays
+            theme, n, tried = theme_pick
+            dlg = level_dialogue(theme, n, self.cur.known_lang)
+            ex = b.dialogue(sc, dlg, assisted=theme_plays == 0, tried_turns=tried)
+            you = [t for t in theme.levels[n].turns if t.who == "you"]
+            said = [i for k, t in enumerate(you) if k not in tried for i in t.items if i in self.cur.by_id]
+            self._record(list(dict.fromkeys(said)), "dialogue", ex.item_ids)
+            if theme_plays == 0:
+                for k in sorted(tried):
+                    items = [i for i in you[k].items if i in self.cur.by_id]
+                    unknown = [i for i in items if not self.can_say_item(i, practised=False)]
+                    self.listening_tried.append({"dialogue": dlg.id, "items": items, "unknown": unknown, "prompt": dlg.turns[k].cue, "answer": you[k].say})
+            theme_plays += 1
+            return True
+
+        def theme_due() -> bool:
+            return (
+                theme_plays < len(theme_marks)
+                and sc.total_duration >= theme_marks[theme_plays] * (budget - closing_reserve)
+                and budget - closing_reserve - sc.total_duration >= 90
+            )
+
         def play_refresh(due_only: bool) -> bool:
             """The next light-review sentence of a known construction (its time has come, or, in an idle
             lesson, any); a construction with no sentence left that hasn't been heard is dropped."""
@@ -1476,6 +1532,10 @@ class Planner:
                     do_recall(entry[2], entry[3])
                     acted = True
                     break
+
+            # 0g. the lesson's theme exchange, when its time has come (#149 1b-ii)
+            if not acted and theme_pick and drill_streak < cfg.drill_streak_limit and theme_due():
+                acted = play_theme()
 
             # 0f. a known construction's light review: a sentence with other fillers, now and then (#171)
             if not acted and drill_streak < cfg.drill_streak_limit - 1:
@@ -1686,6 +1746,9 @@ class Planner:
             if note is not None:
                 self._play_note(sc, note)
 
+        while theme_pick and theme_plays < len(theme_marks) and budget - closing_reserve - sc.total_duration >= 60:
+            play_theme()  # a lesson that ran out of other material, or never reached the mark: the exchange still comes
+
         # ---- closing block: end on success with today's new material -----
         if introduced:
             b.final_block_announce(sc)
@@ -1722,6 +1785,12 @@ class Planner:
             "embedded_items": list(self.embedded),
             "variant_items": list(variants_used),
             "refresh_sentences": dict(refresh_done),
+            # #149 1b-ii: the lesson's theme and level (1-based) and how often its exchange played; None: no theme was ready
+            "theme": (
+                {"id": theme_pick[0].id, "scenario": theme_pick[0].scenario, "level": theme_pick[1] + 1, "plays": theme_plays}
+                if theme_pick
+                else None
+            ),
             "cheap_constructions": list(self.cheap_placed) + list(cheap_used),  # #171 B: taken in a new-item place / beyond the limit
             "forms_taught": [self.cur.note_by_id[n].teaches for n in self.notes_played if self.cur.note_by_id[n].teaches],
             "bare_cap_lapsed": cfg.max_bare_uses > 0 and bare_cap[0] == 0,  # nothing else was left: short items were said alone again
@@ -1806,6 +1875,9 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
             learner.items[item_id].open_practiced = sc.lesson_number
     for item_id in sc.meta.get("embedded_items", []):
         learner.embedded[item_id] = sc.lesson_number
+    theme = sc.meta.get("theme")
+    if theme and theme.get("plays"):
+        learner.themes_done[theme["id"]] = max(learner.themes_done.get(theme["id"], 0), theme["level"])
     for entry in sc.meta.get("listening_tried", []):
         for item_id in entry.get("unknown", []):
             if item_id not in learner.items:
