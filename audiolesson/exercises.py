@@ -1046,7 +1046,7 @@ class Builder:
             heard_only = item is not None and item.id in listening  # no task cue: nothing is asked
             if heard_only:
                 pass
-            elif assisted or not heard_partner:
+            elif assisted or not heard_partner or turn.keep_cue or k in tried_turns:
                 self._narr(sc, ex, self._as(gender, turn.cue))
             elif gender:
                 self._narr(sc, ex, self.prompts.get(f"speak_as_{gender}_alone"))

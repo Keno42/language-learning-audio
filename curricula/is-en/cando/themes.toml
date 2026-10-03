@@ -36,7 +36,7 @@ goal_ja = "空いた席を見つけ、メニューをもらい、スープと飲
 turns = [
   { who = "you", cue = "The café is crowded. Ask a stranger if the seat next to them is free.", cue_ja = "カフェが混んでいます。隣の席が空いているか、知らない人に聞いてください。", say = "Er þetta sæti laust?", items = ["er_thetta_saeti_laust"] },
   { who = "partner", say = "Já, gjörðu svo vel.", meaning = "Yes, go ahead.", meaning_ja = "ええ、どうぞ。" },
-  { who = "you", cue = "At the counter, ask for the menu.", cue_ja = "カウンターでメニューをもらってください。", say = "Get ég fengið matseðilinn?", items = ["get_eg_fengid", "matsedilinn"] },
+  { who = "you", cue = "At the counter, ask for the menu.", cue_ja = "カウンターでメニューをもらってください。", say = "Get ég fengið matseðilinn?", items = ["get_eg_fengid", "matsedilinn"], prompted = false },
   { who = "partner", say = "Já. Súpa dagsins er kjötsúpa.", meaning = "Sure. The soup of the day is lamb soup.", meaning_ja = "はい。本日のスープはラム肉のスープです。" },
   { who = "you", cue = "Order the soup.", cue_ja = "スープを注文してください。", say = "Ég ætla að fá súpu.", items = ["eg_aetla_ad_fa", "supu"] },
   { who = "partner", say = "Eitthvað að drekka?", meaning = "Anything to drink?", meaning_ja = "お飲み物は？" },
@@ -44,12 +44,13 @@ turns = [
 ]
 
 [[themes.levels]]
+partner_speaker = "native_a"  # the partner is a woman
 goal = "Ask for the bill and say it was good."
 goal_ja = "会計を頼み、おいしかったと伝える。"
 turns = [
   { who = "you", cue = "You've finished. Ask for the bill.", cue_ja = "食べ終わりました。お会計を頼んでください。", say = "Get ég fengið reikninginn?", items = ["get_eg_fengid_reikninginn"] },
   { who = "partner", say = "Já, ég kem strax.", meaning = "Yes, I'll be right there.", meaning_ja = "はい、すぐ伺います。" },
-  { who = "you", cue = "Tell her it was good.", cue_ja = "おいしかったと伝えてください。", say = "Þetta var gott.", items = ["thetta_var_gott"], alts = ["Þetta var ljúffengt."] },
+  { who = "you", cue = "Tell her it was good.", cue_ja = "おいしかったと伝えてください。", say = "Þetta var gott.", items = ["thetta_var_gott"], prompted = false, alts = ["Þetta var ljúffengt."] },
   { who = "partner", say = "Takk fyrir það!", meaning = "Thank you!", meaning_ja = "ありがとうございます！" },
 ]
 
@@ -101,7 +102,7 @@ goal_ja = "チケットを買ってカードで払う。"
 turns = [
   { who = "you", cue = "At the museum desk, greet and ask for one adult ticket.", cue_ja = "博物館の窓口であいさつし、大人1枚と頼んでください。", say = "Góðan daginn. Einn fullorðinn, takk.", items = ["godan_daginn", "einn_fullordinn_takk"] },
   { who = "partner", say = "Það eru tvö þúsund og fimm hundruð krónur.", meaning = "That's two thousand five hundred krónur.", meaning_ja = "2500クローナです。" },
-  { who = "you", cue = "Ask if you can pay by card.", cue_ja = "カードで払えるか聞いてください。", say = "Má ég borga með korti?", items = ["ma_eg_borga_med_korti"] },
+  { who = "you", cue = "Ask if you can pay by card.", cue_ja = "カードで払えるか聞いてください。", say = "Má ég borga með korti?", items = ["ma_eg_borga_med_korti"], prompted = false },
   { who = "partner", say = "Já, auðvitað.", meaning = "Yes, of course.", meaning_ja = "はい、もちろん。" },
 ]
 
@@ -114,13 +115,14 @@ setting = "A coach tour: the guide talks to the group, stops at a waterfall, poi
 setting_ja = "バスツアー。ガイドの説明、滝での休憩、火山の案内。"
 topics = ["travel", "nature"]
 [[themes.levels]]
+partner_speaker = "native_a"  # the partner is a woman
 goal = "Greet the guide and find out when the coach leaves."
 goal_ja = "ガイドにあいさつし、バスの出発時刻を確かめる。"
 turns = [
   { who = "partner", say = "Góðan daginn öll! Ég heiti Anna og ég er leiðsögumaðurinn ykkar í dag.", meaning = "Good morning, everyone! I'm Anna, and I'm your guide today.", meaning_ja = "皆さんおはようございます！今日のガイドのアンナです。" },
   { who = "you", cue = "Greet her back.", cue_ja = "あいさつを返してください。", say = "Góðan daginn.", items = ["godan_daginn"] },
   { who = "partner", say = "Við stoppum hérna í tuttugu mínútur.", meaning = "We'll stop here for twenty minutes.", meaning_ja = "ここで20分休憩します。" },
-  { who = "you", cue = "Ask when you're leaving.", cue_ja = "いつ出発するか聞いてください。", say = "Hvenær leggjum við af stað?", items = ["hvenaer_leggjum_vid_af_stad"] },
+  { who = "you", cue = "Ask when you're leaving.", cue_ja = "いつ出発するか聞いてください。", say = "Hvenær leggjum við af stað?", items = ["hvenaer_leggjum_vid_af_stad"], prompted = false },
   { who = "partner", say = "Klukkan hálf þrjú.", meaning = "At half past two.", meaning_ja = "2時半です。" },
   { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
 ]
@@ -130,7 +132,7 @@ goal_ja = "山の名前を聞き、景色に反応し、写真を撮ってもら
 turns = [
   { who = "you", cue = "Point at a mountain and ask its name.", cue_ja = "山を指して名前を聞いてください。", say = "Hvað heitir þetta fjall?", items = ["hvad_er_thetta_fjall"] },
   { who = "partner", say = "Þetta er Hekla. Hún er eldfjall.", meaning = "That's Hekla. It's a volcano.", meaning_ja = "ヘクラ山です。火山ですよ。" },
-  { who = "you", cue = "React to the view.", cue_ja = "景色に反応してください。", say = "Vá! Útsýnið er fallegt.", items = ["vaa", "utsynid_er_fallegt"] },
+  { who = "you", cue = "React to the view.", cue_ja = "景色に反応してください。", say = "Vá! Útsýnið er fallegt.", items = ["vaa", "utsynid_er_fallegt"], prompted = false },
   { who = "partner", say = "Viltu að ég taki mynd af ykkur?", meaning = "Shall I take a photo of you?", meaning_ja = "写真を撮りましょうか？" },
   { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", say = "Já, takk.", items = ["ja", "takk"] },
 ]

@@ -854,7 +854,7 @@ class Planner:
         """The lesson's theme, its level (0-based) and the learner's turns of it that are only tried (#149 1b-ii):
         the lowest level not yet played, among the themes whose next level the learner can say in all but a
         quarter of their turns (``theme_ready``; every item of a turn met and not open), the trip profile's
-        boosted scenarios first, then Tier A in order. A turn with an item they lack is *tried*, as in a listening
+        boosted scenarios first, then Tier A, then Tier B, in file order. A turn with an item they lack is *tried*, as in a listening
         scene (#183). None when no theme is ready."""
         rank = {sid: n for n, sid in enumerate(self.cfg.theme_scenarios)}
         best = None

@@ -30,7 +30,10 @@ and ``load_scenes`` only ``[[scenes]]``, so they share the directory)::
 
 - A ``you`` turn is the learner's line: a ``cue`` (the situation, in the learner's language),
   ``say`` (the model line), ``items`` (the curriculum items it needs) and optional ``alts``
-  (other good answers).
+  (other good answers; they wait for the review side, which asks ``say`` only). In the late play a learner
+  turn that follows a partner line has no cue (their line is the cue); a turn that no partner line prompts
+  keeps it: by default one that doesn't directly follow a partner line, and with ``prompted = false`` a
+  scene change («At the counter, ask for the menu.») after a line that doesn't ask for it.
 - A ``partner`` turn is what the other person says, with its meaning. It may go beyond the
   course: a learner who gets the gist of 80-90% of what is said is where they should be.
 - A level is ready once every item of its ``you`` turns can be said (met, not open).
@@ -45,7 +48,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .cando import Scenario
-from .content import Curriculum, CurriculumError, Dialogue, DialogueTurn
+from .content import SPEAKERS, Curriculum, CurriculumError, Dialogue, DialogueTurn
 from .records import check_items, load_records
 
 WHO = ("you", "partner")
@@ -61,12 +64,14 @@ class Turn:
     meaning_ja: str = ""
     items: list[str] = field(default_factory=list)
     alts: list[str] = field(default_factory=list)
+    prompted: bool | None = None  # a learner turn: does the partner's line before it ask for it? None: yes if a partner line comes right before
 
 
 @dataclass
 class Level:
     goal: str
     goal_ja: str = ""
+    partner_speaker: str = "native_b"  # "native_a" is voiced female, "native_b" male: the partner's, when the cues say «her»
     turns: list[Turn] = field(default_factory=list)
 
     @property
@@ -124,6 +129,8 @@ def _check(theme: Theme) -> None:
         where = f"theme {theme.id!r} level {n}"
         if not lv.goal:
             raise CurriculumError(f"{where}: no goal")
+        if lv.partner_speaker not in SPEAKERS:
+            raise CurriculumError(f"{where}: partner_speaker must be one of {SPEAKERS}, not {lv.partner_speaker!r}")
         if not any(t.who == "you" for t in lv.turns):
             raise CurriculumError(f"{where}: no turn for the learner")
         for k, t in enumerate(lv.turns, 1):
@@ -149,12 +156,14 @@ def scenario_order(scenarios: list[Scenario], boost: list[str] | tuple[str, ...]
 
 def level_dialogue(theme: Theme, n: int, known_lang: str = "en") -> Dialogue:
     """Level ``n`` (0-based) as a dialogue the builder can play: a partner line before the learner's first turn
-    is its opener, one after a learner's turn is the reply to it; the learner's lines are literal
+    is its opener, one after a learner's turn is the reply to it (a learner turn no partner line prompts keeps its cue
+    in every play: ``keep_cue``); the learner's lines are literal
     (``expect_text``), since a line may be built from several items."""
     ja = known_lang == "ja"
     level = theme.levels[n]
     turns: list[DialogueTurn] = []
     opener: tuple[str, str] | None = None
+    previous: Turn | None = None
     for t in level.turns:
         meaning = (t.meaning_ja if ja and t.meaning_ja else t.meaning)
         if t.who == "partner":
@@ -162,11 +171,14 @@ def level_dialogue(theme: Theme, n: int, known_lang: str = "en") -> Dialogue:
                 turns[-1].partner, turns[-1].partner_meaning = t.say, meaning
             else:
                 opener = (t.say, meaning)
+            previous = t
             continue
-        turn = DialogueTurn(cue=(t.cue_ja if ja and t.cue_ja else t.cue), expect_text=t.say)
+        prompted = t.prompted if t.prompted is not None else (previous is not None and previous.who == "partner")
+        turn = DialogueTurn(cue=(t.cue_ja if ja and t.cue_ja else t.cue), expect_text=t.say, keep_cue=not prompted)
         if opener is not None:
             turn.opener, turn.opener_meaning = opener
             opener = None
         turns.append(turn)
+        previous = t
     setting = theme.setting_ja if ja and theme.setting_ja else theme.setting
-    return Dialogue(id=f"theme:{theme.id}:{n + 1}", setting=setting or theme.title, turns=turns, topics=list(theme.topics))
+    return Dialogue(id=f"theme:{theme.id}:{n + 1}", setting=setting or theme.title, turns=turns, topics=list(theme.topics), partner_speaker=level.partner_speaker)
