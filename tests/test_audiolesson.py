@@ -4815,7 +4815,7 @@ class SpreadIntroductionTests(unittest.TestCase):
         self.assertGreater(rebuilt, 2, "some lessons took an extra, so some were rebuilt")
 
 
-
+class SayableLineTests(unittest.TestCase):
     """#179 (lesson 14 feedback): "can the learner say this line?" is judged per line, not per item
     from ``knows()``: a line they can say is asked (with a pause) even in a listening dialogue, and a
     short item already said in a sentence is asked in one at the closing, not as a bare part."""

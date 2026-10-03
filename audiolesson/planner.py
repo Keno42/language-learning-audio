@@ -915,9 +915,10 @@ class Planner:
         sc = self._build()
         planned = list(self.cfg.planned_extras)
         for _ in range(2):
-            if not self._extras_taken:
-                break
-            planned += [i for i in self._extras_taken if i not in planned]
+            new = [i for i in self._extras_taken if i not in planned]
+            if not new:
+                break  # the rebuild took only the extras it was told of: it is the lesson
+            planned += new
             again = Planner(self.cur, self.learner, self.prompts, self.timing, dataclasses.replace(self.cfg, planned_extras=planned), today=self.today)
             sc = again._build()
             self.__dict__.update(again.__dict__)
