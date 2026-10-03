@@ -27,7 +27,7 @@ issues; the full history of how each of these came about is in `docs/history/ses
 | loading those record files (`cando/`, `reading/`) | `audiolesson/records.py` |
 | what the instructor says for a meaning (`meaning_spoken`, #143) | `Item.spoken_meaning` in `audiolesson/content.py` |
 | planner levers, off by default (#136) | `PlanConfig.late_unhinted_recall`; see `docs/LEVERS.md` |
-| diagnostics | `audiolesson validate` (gloss coverage, dialogue sequencing report, part-before-whole report `--parts`), `tools/phrase_families.py` |
+| diagnostics | `audiolesson validate` (gloss coverage, dialogue sequencing report, part-before-whole report `--parts`), `tools/phrase_families.py`, `tools/replay_lesson.py` (a feedback export's lesson rebuilt and continued: the daily-read table, LEARNING-DESIGN §1) |
 
 ## Invariants the tests pin
 
