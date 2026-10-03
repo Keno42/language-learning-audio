@@ -2963,7 +2963,7 @@ class CurriculumTests(unittest.TestCase):
         # at all are function words and number parts used inside phrases
         report = frame_gap_report(load_curriculum(ROOT / "curricula" / "is-en"))
         self.assertEqual(report["late"], [])
-        self.assertLessEqual(len(report["none"]), 26)
+        self.assertLessEqual(len(report["none"]), 34)  # 26 plus the eight colours, which wait for a scene that uses them (#158)
 
     def test_a_filler_recombines_into_a_frame_met_in_an_earlier_lesson(self):
         """Issue #80: a filler could only recombine into a construction already *learned* (or
@@ -5438,8 +5438,9 @@ class CheapConstructionTests(unittest.TestCase):
 class ColourFormTests(unittest.TestCase):
     """#158: «Ég vil {colour}.» filled its slot with the colour names as stored (masculine nominative) and generated
     «Ég vil blár.»; «vilja» takes the accusative. Slot fills are verbatim targets, with no morphology engine, so the
-    construction left the course. A colour in the nominative is right when it follows the noun's gender: «Bíllinn er
-    blár.», «Bókin er blá.», «Húsið er blátt.» (`gender_forms` and the `fills` agreement)."""
+    construction left the course. The colour words wait for a scene that uses them, and the mechanism that gives a
+    colour the form its noun's gender takes (`gender_forms` and the `fills` agreement: «Bíllinn er blár.», «Bókin er
+    blá.», «Húsið er blátt.») is ready for it."""
 
     FORMS = {  # nominative: masculine, feminine, neuter
         "raudur": ("rauður", "rauð", "rautt"), "blar": ("blár", "blá", "blátt"), "graenn": ("grænn", "græn", "grænt"),
@@ -5457,18 +5458,12 @@ class ColourFormTests(unittest.TestCase):
                 rule = c.agreement.get(slot)
                 self.assertTrue(rule and rule.get("fills"), f"{c.id}: a colour needs the form its noun's gender takes, not the stored masculine one")
 
-    def test_every_generated_sentence_has_the_colour_in_its_nouns_gender(self):
+    def test_every_colour_carries_its_feminine_and_neuter_forms(self):
+        """The colour words wait for a scene that uses them, with the forms their noun's gender takes ready (#158)."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
-        c = cur.by_id["colour_is"]
-        nouns = cur.items_with_tag("def_noun")
-        self.assertGreaterEqual(len({n.gender for n in nouns}), 3, "all three genders are there")
-        for n in nouns:
-            for col in cur.items_with_tag("colour"):
-                target, meaning = cur.resolve_slots(c, {"noun": n, "colour": col})
-                want = f"{n.target} er {self.FORMS[col.id][self.GENDER[n.gender]]}."
-                self.assertEqual(target, want[0].upper() + want[1:], (n.id, col.id))  # a sentence that opens with a slot is capitalised
-                self.assertNotIn("{", meaning)
-        self.assertEqual(cur.resolve_slots(c, {"noun": cur.by_id["billinn"], "colour": cur.by_id["blar"]})[1], "The car is blue.")
+        for col in cur.items_with_tag("colour"):
+            masc, fem, neut = self.FORMS[col.id]
+            self.assertEqual((col.target, col.gender_forms), (masc, {"fem": fem, "neut": neut}), col.id)
 
     def test_a_fill_without_forms_for_a_noun_gender_fails_validation(self):
         from audiolesson.content import CurriculumError
