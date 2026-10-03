@@ -419,6 +419,24 @@ class Planner:
                 chosen.append(it)
                 chosen_ids.add(it.id)
 
+        def frame_group(part: Item) -> tuple[Item, list[Item]] | None:
+            """The frame to teach with ``part`` (already chosen) and the fillers it would pull: of the unmet, ready
+            constructions that list the part as a prerequisite, the one needing the fewest new fillers, then course order."""
+            best = None
+            for c in self.frames_of(part):
+                if c.id in chosen_ids or self.learner.has_met(c.id) or not ready(c):
+                    continue
+                fillers: list[Item] = []
+                for tag in c.slots.values():
+                    if known_fills(tag) + sum(1 for f in fillers if tag in f.tags) < 2:
+                        extra = next((f for f in pool if tag in f.tags and f.id not in chosen_ids and f not in fillers), None)
+                        if extra is not None:
+                            fillers.append(extra)
+                key = (len(fillers), c.order)
+                if best is None or key < best[0]:
+                    best = (key, c, fillers)
+            return (best[1], best[2]) if best else None
+
         # walk in order, but a not-yet-ready item is skipped rather than blocking
         progress = True
         while len(chosen) < count and progress:
@@ -433,13 +451,20 @@ class Planner:
                     if target is not None:
                         it = target  # the payoff construction goes in now; this filler waits
                 take(it)
+                if it.kind == "vocab":
+                    # a part (not a complete utterance, #187) comes with its frame (#149 step 2): one construction that
+                    # lists it as a prerequisite, with the fillers its slots still need, the whole group at most one
+                    # item over ``count``; a group that doesn't fit leaves the part for a lesson with room, since a
+                    # part alone is how it was drilled bare
+                    group = frame_group(it)
+                    if group is not None:
+                        frame, fillers = group
+                        if len(chosen) + len(fillers) + 1 > count + 1:
+                            chosen.pop()
+                            chosen_ids.discard(it.id)
+                            continue
+                        take(frame, fillers_first=True)
                 progress = True
-                if it.kind != "construction":
-                    # a part comes with its frame (#149 step 2): the construction that lists it as a prerequisite goes in
-                    # right after it, one over ``count`` if need be, so it has a sentence to live in
-                    for frame in self.frames_of(it):
-                        if frame.id not in chosen_ids and not self.learner.has_met(frame.id) and ready(frame):
-                            take(frame, fillers_first=True)
                 if len(chosen) >= count:
                     break
         # Don't end the arc between a slot's fillers and the nearby construction they unlock:

@@ -4764,13 +4764,36 @@ class PartWithItsFrameTests(unittest.TestCase):
                                                      recalled=2, last_outcome="recalled", interval_days=3, last_practiced=(TODAY - timedelta(days=1)).isoformat())
 
     def _planner(self, **cfg):
-        return Planner(self.cur, self.learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=1, seed=1, **cfg), today=TODAY)
+        cfg = {"new_items": 1, **cfg}
+        return Planner(self.cur, self.learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, **cfg), today=TODAY)
 
     def test_a_part_is_selected_with_the_construction_that_lists_it(self):
         planner = self._planner(priority=["sturtan"])
         self.assertEqual([c.id for c in planner.frames_of(self.cur.by_id["sturtan"])], ["virkar_ekki"])
-        ids = [i.id for i in planner.select_new(1)]
-        self.assertEqual(ids, ["sturtan", "ljosid", "virkar_ekki"], "the part, the second filler the pattern needs, then the frame")
+        ids = [i.id for i in planner.select_new(2)]
+        self.assertEqual(ids, ["sturtan", "ljosid", "virkar_ekki"], "the part, the second filler the pattern needs, then the frame: one over the count")
+        alone = [i.id for i in self._planner(priority=["sturtan"]).select_new(1)]
+        self.assertNotIn("sturtan", alone, "the group (part, filler, frame) doesn't fit one place: the part waits rather than coming alone")
+
+    def test_a_part_with_two_ready_frames_takes_one_and_the_group_stays_within_one_over_the_count(self):
+        cur = self.cur
+        learner = LearnerState("is", "en", "A1")
+        for i in cur.items:
+            if i.order < cur.by_id["sundlaugin"].order or i.id == "hvenaer":
+                learner.items[i.id] = ItemState(due=(TODAY + timedelta(days=3)).isoformat(), successes=2, durable_successes=2, stage="meaning",
+                                                recalled=2, last_outcome="recalled", interval_days=3, last_practiced=(TODAY - timedelta(days=1)).isoformat())
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=3, seed=1, priority=["sundlaugin"]), today=TODAY)
+        frames = [c.id for c in planner.frames_of(cur.by_id["sundlaugin"])]
+        self.assertEqual(sorted(frames), ["hvar_er", "hvenaer_opnar"])
+        for count in (1, 2, 3, 4):
+            ids = [i.id for i in planner.select_new(count)]
+            self.assertLessEqual(len(ids), count + 1, ids)
+            self.assertLessEqual(sum(1 for f in frames if f in ids), 1, f"one frame per part: {ids}")
+        # an utterance (a ``phrase``) is no part: it is not the trigger
+        self.assertEqual(cur.by_id["hvenaer"].kind, "phrase")
+        learner.items.pop("hvenaer")
+        ids = [i.id for i in Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=1, seed=1, priority=["hvenaer"]), today=TODAY).select_new(1)]
+        self.assertEqual(ids, ["hvenaer"], "«Hvenær?» comes alone, as an utterance")
 
     def test_a_frame_with_an_unmet_prerequisite_stays_out(self):
         for gone in ("dag_acc", "godan_daginn"):
@@ -4781,7 +4804,7 @@ class PartWithItsFrameTests(unittest.TestCase):
         self.assertNotIn("eigdu_godur", ids, "«godan_daginn» is still unmet: the frame can't be taught yet")
 
     def test_the_plan_does_not_drill_it_alone(self):
-        sc = self._planner(priority=["sturtan"]).build()
+        sc = self._planner(priority=["sturtan"], new_items=3).build()
         self.assertIn("sturtan", sc.meta["new_items"])
         self.assertIn("virkar_ekki", sc.meta["new_items"])
 
@@ -5610,12 +5633,8 @@ class CheapConstructionTests(unittest.TestCase):
         again = self._planner(cur, learner, priority=trip).select_new(2, cheap=True)
         self.assertEqual([i.id for i in again][1:], ["n0"], "the trip item behind it is the next one: only n1 waits a lesson")
         # not cheap (its prerequisite is no filler of its slot and isn't known): never promoted
-        # premise changed (#149 step 2b): c_big lists n0 as a prerequisite, so it is n0's frame and now comes with it, as
-        # the part's frame rather than as a promoted cheap construction: still not promoted, but no longer left out
         cur.by_id["c_big"].prereqs = ["n0"]
-        unpromoted = self._planner(cur, self._learner(["w0", "w1", "w2"]), priority=trip)
-        self.assertEqual([i.id for i in unpromoted.select_new(2, cheap=True)], ["n0", "c_big"])
-        self.assertEqual(unpromoted.cheap_placed, [])
+        self.assertEqual([i.id for i in self._planner(cur, self._learner(["w0", "w1", "w2"]), priority=trip).select_new(2, cheap=True)], ["n0", "n1"])
         cur.by_id["c_big"].prereqs = ["w0"]
         # a construction without ``refresh`` that is not a trip item stays out
         cur2 = self._cur()
