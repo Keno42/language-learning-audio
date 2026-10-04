@@ -78,7 +78,7 @@ title = "Public pool"
 title_ja = "公共の温泉プール"
 setting = "Buying an entry, the changing room, the hot tub."
 success = "Buys an entry, follows the shower-first rule from the signs, exchanges a few lines in the hot tub."
-items = ["sundlaugin", "hvad_kostar", "einn_fullordinn_takk", "sundfot", "sturtan", "heiti_potturinn", "er_heitur_pottur_herna", "thad_er_svo_kalt", "hvadan_ert_thu", "eg_er_fra_japan"]
+items = ["sundlaugin", "hvad_kostar", "partei_takk", "einn_fullordinn_takk", "sundfot", "sturtan", "heiti_potturinn", "er_heitur_pottur_herna", "thad_er_svo_kalt", "hvadan_ert_thu", "eg_er_fra_japan"]
 reading = ["Sturta", "Búningsklefi", "Skápar", "Heitur pottur", "Karlar", "Konur"]
 respect = ["greet", "shower_rule"]
 
@@ -132,7 +132,7 @@ title = "Museum"
 title_ja = "博物館"
 setting = "The ticket desk and the exhibition."
 success = "Buys tickets, asks about photos and closing time."
-items = ["safnid", "fara_a_safnid", "kaupa_mida", "mida", "einn_mida_takk", "thrja_mida", "ma_eg_taka_mynd", "hvenaer_lokar"]
+items = ["safnid", "fara_a_safnid", "kaupa_mida", "mida", "count_mida_takk", "einn_mida_takk", "thrja_mida", "ma_eg_taka_mynd", "hvenaer_lokar"]
 missing = ["the cloakroom"]
 respect = ["greet", "thanks"]
 

@@ -135,6 +135,11 @@ class Item:
     # that lesson) may be introduced beyond the lesson's new-item limit, to fill the time with
     # something close to what they can already say rather than with the same words again.
     variant_of: str = ""
+    # #192 / #149 step 2: a fixed phrase that is one instance of a pattern («Þrjá miða, takk.» of «{count} miða, takk.»):
+    # the construction and the fills that make it. Once the pattern is known, the phrase's later practice in a lesson is
+    # another sentence of the pattern with other fillers, credited to the pattern and its fillers, never to the phrase.
+    instance_of: str = ""
+    instance_fill: dict[str, str] = field(default_factory=dict)
     # A short known-language sentence the word is said in («This is good.» for «gott»): the recall
     # prompt after its introduction says «Say: good, as in: This is good.», so the answer is the
     # form that sentence takes rather than any of the word's family (gott, góður, góðan…).
@@ -623,6 +628,20 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"item {it.id!r}: variant_of {it.variant_of!r} is itself a variant; name the form it is a variant of")
             if cur.by_id[it.variant_of].target == it.target:
                 raise CurriculumError(f"item {it.id!r}: a variant must differ from {it.variant_of!r} in its words")
+        if it.instance_of or it.instance_fill:
+            c = cur.by_id.get(it.instance_of)
+            if it.kind != "phrase" or c is None or c.kind != "construction":
+                raise CurriculumError(f"item {it.id!r}: instance_of names the construction a phrase is an instance of, not {it.instance_of!r}")
+            if sorted(it.instance_fill) != sorted(c.slots):
+                raise CurriculumError(f"item {it.id!r}: instance_fill must name every slot of {c.id!r} ({sorted(c.slots)})")
+            fills = {}
+            for slot, ref in it.instance_fill.items():
+                if ref not in ids or c.slots[slot] not in cur.by_id[ref].tags:
+                    raise CurriculumError(f"item {it.id!r}: instance_fill {slot!r}={ref!r} is not a fill with tag {c.slots[slot]!r}")
+                fills[slot] = cur.by_id[ref]
+            made = cur.resolve_slots(c, fills)[0]
+            if made.strip().casefold() != it.target.strip().casefold():
+                raise CurriculumError(f"item {it.id!r}: the pattern with these fills says {made!r}, not {it.target!r}")
         if it.prompt_by:
             if it.prompt_by == it.id or it.prompt_by not in ids:
                 raise CurriculumError(f"item {it.id!r}: prompt_by must name another item, not {it.prompt_by!r}")

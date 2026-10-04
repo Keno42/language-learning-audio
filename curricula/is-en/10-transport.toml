@@ -121,6 +121,109 @@ difficulty = 3
 topics = ["daily", "transport"]
 situation = "At the swimming pool reception. Ask for one adult entry."
 situation_ja = "プールの受付で、大人一人分の入場券を買ってください。"
+instance_of = "partei_takk"
+instance_fill = { party = "einn_fullordinn" }
+
+# issue #192 (owner's decisions): the fixed ticket phrases are instances of patterns, so their later practice in a lesson
+# can be another sentence of the pattern. All wordings below are candidates for a native speaker (G10).
+#
+# The accusative count forms (a masculine thing, as in «Þrjá miða»): tvo, þrjá, fjóra, each the accusative of the counting
+# form «tveir / þrír / fjórir». «Einn miða, takk.» stays a plain phrase: «einn» is the counting form itself.
+[[items]]
+id = "tvo_acc"
+kind = "vocab"
+variant_of = "tveir"
+target = "tvo"
+meaning = "two, as when ordering tickets"
+meaning_ja = "切符を頼むときの2"
+meaning_forms = { in_sentence = "two", ticket = "two tickets" }
+meaning_forms_ja = { in_sentence = "2", ticket = "切符2枚" }
+difficulty = 2
+tags = ["count_masc"]
+topics = ["transport", "numbers"]
+pronunciation_notes = "accusative of tveir: tvo miða"
+
+[[items]]
+id = "thrja_acc"
+kind = "vocab"
+variant_of = "thrir"
+target = "þrjá"
+meaning = "three, as when ordering tickets"
+meaning_ja = "切符を頼むときの3"
+meaning_forms = { in_sentence = "three", ticket = "three tickets" }
+meaning_forms_ja = { in_sentence = "3", ticket = "切符3枚" }
+difficulty = 2
+tags = ["count_masc"]
+topics = ["transport", "numbers"]
+pronunciation_notes = "accusative of þrír: þrjá miða"
+
+[[items]]
+id = "fjora_acc"
+kind = "vocab"
+variant_of = "fjorir"
+target = "fjóra"
+meaning = "four, as when ordering tickets"
+meaning_ja = "切符を頼むときの4"
+meaning_forms = { in_sentence = "four", ticket = "four tickets" }
+meaning_forms_ja = { in_sentence = "4", ticket = "切符4枚" }
+difficulty = 2
+tags = ["count_masc"]
+topics = ["transport", "numbers"]
+pronunciation_notes = "accusative of fjórir: fjóra miða"
+
+[[items]]
+id = "count_mida_takk"
+kind = "construction"
+target = "{count} miða, takk."
+meaning = "{count:ticket}, please."
+meaning_ja = "{count:ticket}お願いします。"
+difficulty = 3
+topics = ["transport", "numbers"]
+slots = { count = "count_masc" }
+example = { count = "thrja_acc" }
+prereqs = ["mida", "thrja_acc"]
+pronunciation_notes = "miði is a masculine noun, so after a request: tvo miða, þrjá miða, fjóra miða (accusative)"
+situation = "You're at the ticket window with two friends. Ask for three tickets."
+situation_ja = "友達二人と窓口にいます。切符を三枚頼んでください。"
+situation_fill = { count = "thrja_acc" }
+
+# A party at a ticket desk: each filler is a whole unit, since the noun's form depends on the count
+# (einn fullorðinn, tvo fullorðna) and the pattern has no agreement machinery.
+[[items]]
+id = "einn_fullordinn"
+kind = "vocab"
+target = "einn fullorðinn"
+meaning = "one adult"
+meaning_ja = "大人1名"
+difficulty = 2
+tags = ["party"]
+topics = ["transport", "daily"]
+
+[[items]]
+id = "tvo_fullordna"
+kind = "vocab"
+target = "tvo fullorðna"
+meaning = "two adults"
+meaning_ja = "大人2名"
+difficulty = 2
+tags = ["party"]
+topics = ["transport", "daily"]
+pronunciation_notes = "accusative plural of fullorðinn"
+
+[[items]]
+id = "partei_takk"
+kind = "construction"
+target = "{party}, takk."
+meaning = "{party}, please."
+meaning_ja = "{party}お願いします。"
+difficulty = 3
+topics = ["transport", "daily"]
+slots = { party = "party" }
+example = { party = "tvo_fullordna" }
+prereqs = ["einn_fullordinn", "tvo_fullordna"]
+situation = "At the swimming pool reception with a friend. Ask for two adult entries."
+situation_ja = "友達とプールの受付にいます。大人二人分の入場券を頼んでください。"
+situation_fill = { party = "tvo_fullordna" }
 
 [[items]]
 id = "hvad_kostar_i_straeto"

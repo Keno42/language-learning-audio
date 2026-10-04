@@ -352,6 +352,8 @@ difficulty = 3
 topics = ["transport", "numbers"]
 situation = "You're at the ticket window with two friends. Ask for three tickets."
 situation_ja = "友達二人と窓口にいます。切符を三枚頼んでください。"
+instance_of = "count_mida_takk"
+instance_fill = { count = "thrja_acc" }
 
 [[items]]
 id = "hversu_margir"

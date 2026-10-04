@@ -4803,6 +4803,95 @@ class SemanticSetTests(unittest.TestCase):
         self.assertGreater(len(self._of_set(ids)), 3)
 
 
+class InstanceOfPatternTests(unittest.TestCase):
+    """#192 (owner's decisions): a fixed phrase that is an instance of a pattern is linked to it. Once the pattern is known,
+    the phrase's later practice in a lesson is another sentence of the pattern with other fillers, credited to the pattern
+    and its fillers, never to the phrase."""
+
+    @staticmethod
+    def _cur(fill=None, kind="phrase"):
+        return curriculum_from_dict({
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "tvo", "kind": "vocab", "target": "tvo", "meaning": "two", "tags": ["c"]},
+                {"id": "thrja", "kind": "vocab", "target": "þrjá", "meaning": "three", "tags": ["c"]},
+                {"id": "fjora", "kind": "vocab", "target": "fjóra", "meaning": "four", "tags": ["c"]},
+                {"id": "pat", "kind": "construction", "target": "{count} miða, takk.", "meaning": "{count} tickets, please.",
+                 "slots": {"count": "c"}, "example": {"count": "thrja"}},
+                {"id": "ph", "kind": kind, "target": "Þrjá miða, takk.", "meaning": "Three tickets, please.",
+                 "instance_of": "pat", "instance_fill": fill or {"count": "thrja"}},
+            ],
+        })
+
+    def test_a_link_must_make_the_phrase_exactly(self):
+        self._cur()
+        with self.assertRaisesRegex(CurriculumError, "says 'Tvo miða, takk.'"):
+            self._cur(fill={"count": "tvo"})
+        with self.assertRaisesRegex(CurriculumError, "every slot"):
+            self._cur(fill={"other": "thrja"})
+        with self.assertRaisesRegex(CurriculumError, "instance_of names the construction"):
+            self._cur(kind="vocab")
+
+    def test_the_real_curriculum_links_its_ticket_phrases(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        linked = {i.id: (i.instance_of, i.instance_fill) for i in cur.items if i.instance_of}
+        self.assertEqual(linked["thrja_mida"], ("count_mida_takk", {"count": "thrja_acc"}))
+        self.assertEqual(linked["einn_fullordinn_takk"], ("partei_takk", {"party": "einn_fullordinn"}))
+        for ja in (None, "ja"):  # both glosses make a sentence of every filler
+            c = load_curriculum(ROOT / "curricula" / "is-en", known_lang=ja)
+            for pattern in ("count_mida_takk", "partei_takk"):
+                item = c.by_id[pattern]
+                tag = next(iter(item.slots.values()))
+                for f in c.items_with_tag(tag):
+                    target, meaning = c.resolve_slots(item, {next(iter(item.slots)): f})
+                    self.assertTrue(target and meaning, (pattern, f.id))
+
+    def _lesson(self):
+        from unittest import mock
+
+        from audiolesson.exercises import Builder
+
+        cur = self._cur()
+        learner = LearnerState("is", "en", "A1")
+        for i in ("tvo", "thrja", "fjora", "pat", "ph"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation", recalled=3,
+                                         last_outcome="recalled", interval_days=3, last_practiced=(TODAY - timedelta(days=3)).isoformat())
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=8, new_items=0, max_sentence_utterances=1, seed=1), today=TODAY)
+        calls = []
+        real = Builder._recombine
+
+        def spy(self, sc, item, met_fills=False, form=None, exclude=None):
+            ex = real(self, sc, item, met_fills=met_fills, form=form, exclude=exclude)
+            calls.append((item.id, dict(exclude or {}), list(ex.item_ids) if ex else None, ex.label if ex else None))
+            return ex
+
+        with mock.patch.object(Builder, "_recombine", spy):
+            sc = planner.build()
+        return cur, sc, calls
+
+    def test_the_phrase_past_its_cap_is_practised_in_another_sentence_of_the_pattern(self):
+        cur, sc, calls = self._lesson()
+        siblings = [c for c in calls if c[0] == "pat" and c[1].get("count") is not None and c[1]["count"].id == "thrja"]
+        self.assertTrue(siblings, "the pattern was asked for a sentence other than the phrase's own")
+        for _, _, ids, label in siblings:
+            if ids is not None:
+                self.assertNotIn("ph", ids, "never credited to the phrase")
+                self.assertNotIn("Þrjá", label, "another filler")
+
+    def test_a_pattern_not_yet_known_leaves_the_phrase_as_it_was(self):
+        from unittest import mock
+
+        from audiolesson.exercises import Builder
+
+        cur = self._cur()
+        learner = LearnerState("is", "en", "A1")
+        learner.items["ph"] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation", recalled=3,
+                                        last_outcome="recalled", interval_days=3, last_practiced=(TODAY - timedelta(days=3)).isoformat())
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=6, new_items=0, max_sentence_utterances=1, seed=1), today=TODAY)
+        with mock.patch.object(Builder, "_recombine", side_effect=AssertionError("no pattern sentence before the pattern is known")):
+            planner.build()
+
+
 class LeastSaidSentenceTests(unittest.TestCase):
     """#192: a generated sentence is, once every combination was used, the one said fewest times in the lesson."""
 
