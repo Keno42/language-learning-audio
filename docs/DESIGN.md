@@ -228,8 +228,8 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   its place). The pace is unchanged: it decides how many, the theme which. `plan.json` has `theme_target`: `{id, level, wanted}`
   (the items the level lacked at the start).
   A semantic set is not introduced as a block (#149 step 2, H5): `select_new` skips an item when the lesson already has
-  `PlanConfig.max_set_items` (3) new items with one of the tags in `PlanConfig.semantic_sets` (number, colour, animal, acc_language,
-  weather, nature_nom, day, job), counting the lesson's earlier arcs (`exclude`) and what the call chose. The skipped item waits for
+  `PlanConfig.max_set_items` (3) new items of one set in `PlanConfig.semantic_sets` (number, colour, animal, acc_language,
+  weather, nature_nom, day, job, and the adjectives: `adj_neut|adj_masc|adj_fem` counted as one set, `semantic_set_tags`), counting the lesson's earlier arcs (`exclude`) and what the call chose. The skipped item waits for
   another lesson and the pool goes on, so the pace is unchanged; a filler pulled in for a construction's slot is not counted. The items the target theme's next level wants (`theme_wants`) are a scene, not a bare set: they are neither stopped by the limit nor counted towards it.
   A part comes with its frame (#149 step 2): when `select_new` takes a part (`kind == "vocab"`; an utterance such as
   «Hvenær?» is not one), one construction that lists it as a prerequisite (`Planner.frames_of`, «{thing} virkar ekki.» for
