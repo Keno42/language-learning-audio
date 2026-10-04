@@ -35,7 +35,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from audiolesson.cando import for_season, load_cando, priority_items  # noqa: E402
 from audiolesson.content import load_curriculum  # noqa: E402
 from audiolesson.learner import LearnerState  # noqa: E402
-from audiolesson.planner import PlanConfig, Planner, apply_to_learner  # noqa: E402
+from audiolesson.planner import PlanConfig, Planner, apply_to_learner, semantic_set_tags  # noqa: E402
 from audiolesson.themes import load_themes, scenario_order  # noqa: E402
 from audiolesson.prompts import Prompts  # noqa: E402
 from audiolesson.timing import Timing  # noqa: E402
@@ -141,7 +141,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "new items for the theme's next level (taken / lacked)": (
             f"{sum(1 for i in m['new_items'] if i in m['theme_target']['wanted'])} / {len(m['theme_target']['wanted'])}" if m.get("theme_target") else "–"
         ),
-        "most new items of one set": max((sum(1 for i in m["new_items"] if t in cur.by_id[i].tags) for t in PlanConfig().semantic_sets), default=0),
+        "most new items of one set": max((sum(1 for i in m["new_items"] if g & set(cur.by_id[i].tags)) for g in semantic_set_tags(PlanConfig().semantic_sets)), default=0),
         "most times one sentence is said": most_said,
         "longest gap between introductions (min)": round(max((b - a for a, b in zip(intros, intros[1:])), default=0), 1),
         "most narrations of one situation": situations.most_common(1)[0][1] if situations else 0,
