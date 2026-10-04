@@ -4751,6 +4751,58 @@ class ListeningDialogueTests(unittest.TestCase):
         self.assertEqual(sc.meta["dialogues_listened"], ["d1"])
 
 
+class SemanticSetTests(unittest.TestCase):
+    """#149 step 2 (H5): at most ``max_set_items`` new items of one semantic set a lesson."""
+
+    def setUp(self):
+        self.cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.nature = [i for i in self.cur.items if "nature_nom" in i.tags and i.kind != "construction"]
+        self.assertGreaterEqual(len(self.nature), 5)
+        first = min(i.order for i in self.nature)
+        self.learner = LearnerState("is", "en", "A1")
+        for i in self.cur.items:
+            if i.order < first and "nature_nom" not in i.tags:
+                self.learner.items[i.id] = ItemState(due=(TODAY + timedelta(days=3)).isoformat(), successes=2, durable_successes=2, stage="meaning",
+                                                     recalled=2, last_outcome="recalled", interval_days=3, last_practiced=(TODAY - timedelta(days=1)).isoformat())
+
+    def _planner(self, **cfg):
+        return Planner(self.cur, self.learner, Prompts.load("en"), Timing(level="A1"),
+                       PlanConfig(minutes=30, new_items=8, seed=1, priority=[i.id for i in self.nature], **cfg), today=TODAY)
+
+    def _of_set(self, ids):
+        return [i for i in ids if "nature_nom" in self.cur.by_id[i].tags]
+
+    def test_a_lesson_takes_at_most_three_of_a_set_and_the_pool_goes_on(self):
+        ids = [i.id for i in self._planner().select_new(8)]
+        self.assertEqual(len(self._of_set(ids)), 3)
+        self.assertGreaterEqual(len(ids), 8, "the pace is unchanged: other items fill the places")
+
+    def test_the_limit_counts_the_lessons_earlier_arcs(self):
+        earlier = {i.id for i in self.nature[:2]}
+        ids = [i.id for i in self._planner().select_new(8, exclude=earlier)]
+        self.assertEqual(len(self._of_set(ids)), 1, "two already in the lesson: one more")
+
+    def test_the_items_a_theme_level_wants_are_a_scene_and_exempt(self):
+        from audiolesson.themes import Level, Theme, Turn
+
+        scene = ["sjor", "nordurljos", "midnætursol"]  # no slot tag: only the set limit applies to them
+        level = Level(goal="g", partner_speaker="native_c", turns=[Turn(who="you", say="Takk.", cue="Thank him.", items=scene)])
+        theme = Theme(id="nature_test", scenario="A1", title="Nature", levels=[level])
+        with_theme = self._planner(themes=[theme], theme_scenarios=["A1"], max_set_items=2)
+        self.assertEqual(sorted(i for i in with_theme.theme_wants() if i in scene), sorted(scene))
+        ids = [i.id for i in with_theme.select_new(8)]
+        self.assertTrue(all(i in ids for i in scene), "a level that needs three of a set gets all three, over a limit of two")
+        # the same items without a theme: the limit holds
+        without = [i.id for i in self._planner(max_set_items=2).select_new(8)]
+        self.assertEqual(len(self._of_set(without)), 2)
+
+    def test_the_limit_is_a_setting(self):
+        ids = [i.id for i in self._planner(max_set_items=5).select_new(8)]
+        self.assertEqual(len(self._of_set(ids)), 5)
+        ids = [i.id for i in self._planner(semantic_sets=()).select_new(8)]
+        self.assertGreater(len(self._of_set(ids)), 3)
+
+
 class LeastSaidSentenceTests(unittest.TestCase):
     """#192: a generated sentence is, once every combination was used, the one said fewest times in the lesson."""
 
