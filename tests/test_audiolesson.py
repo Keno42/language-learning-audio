@@ -4877,6 +4877,23 @@ class OpenItemsInThePlanTests(unittest.TestCase):
         self.assertEqual(q["answer"], self.cur.by_id["skyr"].target)
         self.assertEqual(q["stage"], "open")
         self.assertTrue(q["prompt"])
+        self.assertNotIn("(", q["prompt"], "the narrated meaning carries no recall disambiguator")
+
+    def test_the_fallback_prompt_uses_the_lessons_own_meaning_cue_in_the_known_language(self):
+        from audiolesson.cli import _plan
+        from audiolesson.exercises import meaning_text
+
+        for lang in (None, "ja"):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            item = next(i for i in cur.items if i.kind in ("phrase", "vocab") and not i.has_situation)
+            sc = Script(1, "t", cur.target_lang, cur.known_lang)
+            sc.meta["open_items"] = [item.id]
+            (q,) = [q for q in _plan(sc, cur)["review"] if q["items"] == [item.id]]
+            prompts = Prompts.load(cur.known_lang)
+            expected = prompts.get("meaning", meaning=meaning_text(cur.known_lang, item.spoken_meaning), language=prompts.language_name(cur.target_lang))
+            self.assertEqual(q["prompt"], expected)
+            if lang == "ja":
+                self.assertNotIn("Say:", q["prompt"])
 
     def test_an_open_item_in_a_theme_turn_is_asked_not_tried(self):
         pick = self._planner().pick_theme()

@@ -67,6 +67,18 @@ FORM_EXTRA_NEW = 2  # sentences in a form taught this lesson, beyond the practic
 SITUATION_FULL_MAX = 2  # an authored situation is narrated in full at most this often in a lesson (G12)
 
 
+def meaning_text(known_lang: str, meaning: str) -> str:
+    """Meaning text ready to drop into a template (``Builder._m``): a capital and closing punctuation, or for ja/zh/ko the
+    bare text the phrasing templates wrap in 「」."""
+    meaning = meaning.strip()
+    if known_lang.split("-")[0] in ("ja", "zh", "ko"):
+        return meaning.rstrip("。")
+    meaning = meaning[:1].upper() + meaning[1:]
+    if meaning[-1:] in ".?!…":
+        return meaning
+    return meaning + "."
+
+
 @dataclass
 class Builder:
     cur: Curriculum
@@ -108,13 +120,7 @@ class Builder:
     def _m(self, meaning: str) -> str:
         """Meaning text ready to drop into a template: starts with a capital (every template
         puts it at the start of a sentence or after "Say:") and ends with punctuation."""
-        meaning = meaning.strip()
-        if self.kl.split("-")[0] in ("ja", "zh", "ko"):
-            return meaning.rstrip("。")  # the phrasing templates wrap it in 「」
-        meaning = meaning[:1].upper() + meaning[1:]
-        if meaning[-1:] in ".?!…":
-            return meaning
-        return meaning + "."
+        return meaning_text(self.kl, meaning)
 
     def _next_situation(self, item: Item) -> str | None:
         """The next variant by rotation, skipping any narrated in full ``SITUATION_FULL_MAX``

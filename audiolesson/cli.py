@@ -12,6 +12,7 @@ from pathlib import Path
 from . import __version__
 from .themes import load_themes, scenario_order
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
+from .exercises import meaning_text
 from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, part_before_whole_report
 from .learner import LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
@@ -330,11 +331,13 @@ def _plan(script: Script, cur) -> dict:
     # #199: an open item practised only through a cloze, a hint or a dialogue has no written question, so the review
     # could not check it; it gets one from its situation or meaning (a construction has no single answer: skipped)
     asked = {i for q in review for i in q.get("items", [])}
+    prompts = Prompts.load(cur.known_lang)
     for i in meta.get("open_items", []):
         it = cur.by_id.get(i)
         if i in asked or it is None or it.kind == "construction":
             continue
-        review.append({"items": [i], "prompt": it.situation_for(0) or f"Say: {it.meaning}", "answer": it.target, "stage": "open"})
+        prompt = it.situation_for(0) or prompts.get("meaning", meaning=meaning_text(cur.known_lang, it.spoken_meaning), language=prompts.language_name(cur.target_lang))
+        review.append({"items": [i], "prompt": prompt, "answer": it.target, "stage": "open"})
     return {
         "lesson_number": script.lesson_number,
         "date": meta.get("date"),
