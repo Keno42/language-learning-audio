@@ -165,6 +165,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   preference: past it `do_recall` practises the item in another sentence that holds it (`sentence_practice`) when one exists,
   holders are tried under-count first, and `_connect_pair` takes a pair whose items are neither the one just practised nor past
   the count, falling back to any pair. `replay_lesson.py` reports "most times one sentence is said".
+  Once every combination of a construction's fills was used, `generate` takes the one whose sentence was said fewest times (`Builder.said`).
   A generated sentence is not the one the learner just said or the one before (`Builder.recent_answers`), and `sentence_recall`
   marks its combination used, so a part's closing and its pattern's closing do not say the same sentence back to back.
 - **Constructions have authored negative and question forms (#171).** `Item.negative` /

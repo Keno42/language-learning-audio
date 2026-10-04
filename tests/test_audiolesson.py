@@ -4803,6 +4803,26 @@ class SemanticSetTests(unittest.TestCase):
         self.assertGreater(len(self._of_set(ids)), 3)
 
 
+class LeastSaidSentenceTests(unittest.TestCase):
+    """#192: a generated sentence is, once every combination was used, the one said fewest times in the lesson."""
+
+    def test_a_generated_sentence_is_the_one_said_fewest_times(self):
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        c = cur.by_id["virkar_ekki"]
+        b.in_lesson.update({"virkar_ekki", "sturtan", "ljosid", "netid"})
+        sentences = {i: _norm_utterance(cur.resolve_slots(c, {"thing": cur.by_id[i]}, "f", None)[0]) for i in ("sturtan", "ljosid", "netid")}
+        for i in sentences:
+            b.used_combos.add(f"virkar_ekki:thing={i}")
+        b.said[sentences["sturtan"]] = 5
+        b.said[sentences["ljosid"]] = 3
+        b.said[sentences["netid"]] = 4
+        for _ in range(10):
+            self.assertEqual(b.generate(c).fills["thing"].id, "ljosid", "every combination used: the least said")
+
+
 class PartWithItsFrameTests(unittest.TestCase):
     """#149 step 2: a part comes with its frame. «sturtan» alone has no sentence to live in («{thing} virkar ekki.» is the
     only one, and it lists «sturtan» as a prerequisite), so the frame is taught in the same selection, one over the count."""
