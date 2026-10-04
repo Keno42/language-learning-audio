@@ -1357,6 +1357,15 @@ class Planner:
             a known pattern with a slot for it, else a known item whose words contain it.
             False when there is none (the item stops at its bare uses)."""
             used = sentence_used.setdefault(item.id, set())
+            if item.instance_of and (pattern := self.cur.by_id.get(item.instance_of)) is not None and b._frame_available(pattern.id):
+                # a fixed phrase that is an instance of a known pattern (#192): another sentence of the pattern with other
+                # fillers. It is credited to the pattern and its fillers, never to the phrase, whose own review stays in its own form
+                own = {slot: self.cur.by_id[ref] for slot, ref in item.instance_fill.items()}
+                ex = b._recombine(sc, pattern, met_fills=True, exclude=own)
+                if ex is not None:
+                    self._record(list(ex.item_ids), ex.stage or "recombine", ex.item_ids)
+                    touch(pattern)
+                    return True
             if b.recombine_status(item) == "novel":
                 ex = b.recall(sc, item, "recombine")
                 if ex.kind == "generative":

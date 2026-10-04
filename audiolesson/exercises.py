@@ -636,14 +636,14 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def _recombine(self, sc: Script, item: Item, met_fills: bool = False, form: str | None = None) -> Exercise | None:
+    def _recombine(self, sc: Script, item: Item, met_fills: bool = False, form: str | None = None, exclude: dict[str, Item] | None = None) -> Exercise | None:
         """Generative practice: a sentence the learner has not heard in this lesson (issue
         #105). With no such combination left, None: the caller falls back to a plain recall
         rather than replaying a line under a "make a sentence" label."""
         if item.kind == "construction":
             if self.construction_full(item):
                 return None  # the ceiling: about ten generated sentences of one pattern in a lesson (#180)
-            gen = self.generate(item, avoid_heard=True, met_fills=met_fills, forms=True, form=form)
+            gen = self.generate(item, avoid_heard=True, met_fills=met_fills, forms=True, form=form, exclude=exclude)
         else:
             gen = self.generate_with(item, avoid_heard=True, forms=True)
         if gen is None:

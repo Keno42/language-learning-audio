@@ -812,6 +812,14 @@ Don't reopen these without new evidence; when you do, say what changed.
     (6) times is practised in another sentence that holds it where there is one (a preference, not a cap: dropping the
     practice leaves the lesson idle and lapses the caps, G15), and a mixed-review pair avoids the item just practised and
     sentences past that count.
+  - **A fixed phrase that is an instance of a pattern is linked to it (owner, 2026-10-04; #192).** «Þrjá miða, takk.» is
+    «{count} miða, takk.» with «þrjá», «Einn fullorðinn, takk.» is «{party}, takk.» with «einn fullorðinn»; the link is data
+    (`instance_of`, `instance_fill`, checked to make the phrase exactly). Once the pattern is known, a phrase past
+    `max_sentence_utterances` is practised in another sentence of the pattern with other fillers («Tvo miða, takk.»). **Credit
+    goes one way only:** the variant is credited to the pattern and its fillers, never to the phrase, whose own review is
+    checked in its own form. The patterns and their accusative number forms are candidates without native review (G10). The
+    party fillers are whole units («tvo fullorðna»), since the noun's form follows the count and the pattern has no
+    agreement machinery.
   - Not-due items wait for their date (#94).
   - **Exception: `refresh` (#175).** A known construction that carries `refresh` returns every
     lesson as a few light sentences with *changing* parts. This is deliberate and is not the
