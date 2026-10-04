@@ -43,7 +43,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   open (`LearnerState.is_open`) until a later confirmed recall; presumed success neither adds
   a durable success nor lengthens its interval (it is due again tomorrow). Each lesson practises
   up to `max_open_items` of them, five times at fractions of the lesson time (`open_item_times`, by time not exercise count); the ones that failed last lesson go first, then the longest without an open practice (`ItemState.open_practiced`), and lists them in
-  `plan.json` (`open_items`, `open_not_fitted`) so the bot can ask them.
+  `plan.json` (`open_items`, `open_not_fitted`, written by `cli._plan`; #199 found they never were) so the bot can ask them. An open item
+  practised without a written question (only a cloze, a hint or a dialogue) gets one from its situation or meaning, `stage: "open"`. An open
+  item is *met*: a theme or listening turn that lacks only an open item is asked, not «tried» (`Planner._tried_turns`, `classify_turns`).
 - **Scaffolds fade (G12).** A situation recall of an item with `prompt_by` is cued by the
   prompting item's line in Icelandic, said by `native_b` (`Builder.prompt_item`): bare when the
   learner knows it and it isn't open, with its meaning on the first two hearings in the lesson

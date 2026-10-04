@@ -921,6 +921,8 @@ class Planner:
         for t in dlg.turns:
             if not t.expect or self.can_say_turn(t):
                 continue
+            if all(self.learner.has_met(i) for i in [t.expect, *t.expect_fill.values()]):
+                continue  # only an open item stands in the way: it is being repaired, so the line is asked (#199)
             (tried if self.can_say_part(t) else heard).add(t.expect)
         return heard, tried
 
@@ -965,6 +967,11 @@ class Planner:
         d, missing = self.rng.choice([(c[3], c[4]) for c in cands if c[:2] == best])
         return d, missing
 
+    def _tried_turns(self, you: list) -> set[int]:
+        """The learner's turns of a theme level with an item never met: those are tried (#183). An open item is met:
+        the learner is repairing it, so its line is asked, not framed as one they haven't learned (#199)."""
+        return {k for k, t in enumerate(you) if not all(self.learner.has_met(i) for i in t.items)}
+
     def pick_theme(self) -> tuple | None:
         """The lesson's theme, its level (0-based) and the learner's turns of it that are only tried (#149 1b-ii):
         the lowest level not yet played, among the themes whose next level the learner can say in all but a
@@ -984,7 +991,7 @@ class Planner:
             if level >= len(theme.levels) or theme.scenario not in rank:
                 continue
             you = [t for t in theme.levels[level].turns if t.who == "you"]
-            tried = {k for k, t in enumerate(you) if not all(self.can_say_item(i, practised=False) for i in t.items)}
+            tried = self._tried_turns(you)
             if len(tried) > (1 - self.cfg.theme_ready) * len(you):
                 continue
             key = (level, rank[theme.scenario], order)
@@ -1007,8 +1014,7 @@ class Planner:
             return None
         _, theme, level = again
         you = [t for t in theme.levels[level].turns if t.who == "you"]
-        tried = {k for k, t in enumerate(you) if not all(self.can_say_item(i, practised=False) for i in t.items)}
-        return theme, level, tried
+        return theme, level, self._tried_turns(you)
 
     def _bonus_review(self) -> list[dict]:
         """Up to ``max_bonus_questions`` of the lines tried this lesson, as bonus questions for the next review
@@ -1637,7 +1643,7 @@ class Planner:
             if theme_plays == 0:
                 for k in sorted(tried):
                     items = [i for i in you[k].items if i in self.cur.by_id]
-                    unknown = [i for i in items if not self.can_say_item(i, practised=False)]
+                    unknown = [i for i in items if not self.learner.has_met(i)]
                     self.listening_tried.append({"dialogue": dlg.id, "items": items, "unknown": unknown, "prompt": dlg.turns[k].cue, "answer": you[k].say})
             theme_plays += 1
             return True
