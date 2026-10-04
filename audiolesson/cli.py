@@ -326,6 +326,15 @@ def _plan(script: Script, cur) -> dict:
         it = cur.by_id.get(i)
         return {"id": i, "target": it.target if it else None, "meaning": it.meaning if it else None, "kind": it.kind if it else None}
 
+    review = script.review_questions() + list(meta.get("bonus_review", []))
+    # #199: an open item practised only through a cloze, a hint or a dialogue has no written question, so the review
+    # could not check it; it gets one from its situation or meaning (a construction has no single answer: skipped)
+    asked = {i for q in review for i in q.get("items", [])}
+    for i in meta.get("open_items", []):
+        it = cur.by_id.get(i)
+        if i in asked or it is None or it.kind == "construction":
+            continue
+        review.append({"items": [i], "prompt": it.situation_for(0) or f"Say: {it.meaning}", "answer": it.target, "stage": "open"})
     return {
         "lesson_number": script.lesson_number,
         "date": meta.get("date"),
@@ -338,7 +347,9 @@ def _plan(script: Script, cur) -> dict:
         "listening_asked": meta.get("listening_asked", []),  # #179: turns asked because the line can be said
         "listening_tried": meta.get("listening_tried", []),  # #183: turns tried on a part (bonus questions)
         "exposures": meta.get("exposures", {}),
-        "review": script.review_questions() + list(meta.get("bonus_review", [])),
+        "open_items": list(meta.get("open_items", [])),  # #199: the bot brings their questions forward and asks the waiting ones
+        "open_not_fitted": list(meta.get("open_not_fitted", [])),
+        "review": review,
         "review_candidates": script.review_candidates(),
         "exercises": [
             {"index": e.index, "kind": e.kind, "stage": e.stage, "items": e.item_ids, "label": e.label, "start_s": round(e.start, 1), "duration_s": round(e.duration, 1)}

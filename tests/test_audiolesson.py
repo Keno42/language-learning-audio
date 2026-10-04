@@ -4771,6 +4771,83 @@ class LeastSaidSentenceTests(unittest.TestCase):
             self.assertEqual(b.generate(c).fills["thing"].id, "ljosid", "every combination used: the least said")
 
 
+class OpenItemsInThePlanTests(unittest.TestCase):
+    """#199: plan.json carries the open items the lesson practised and those waiting, every practised one has a written
+    question, and an open item is repaired, not «tried», in a theme or listening turn."""
+
+    def setUp(self):
+        from audiolesson.cando import load_cando
+        from audiolesson.themes import load_themes, scenario_order
+
+        self.cur = load_curriculum(ROOT / "curricula" / "is-en")
+        scenarios = load_cando(ROOT / "curricula" / "is-en", self.cur)
+        self.themes = load_themes(ROOT / "curricula" / "is-en", self.cur, scenarios)
+        self.order = scenario_order(scenarios)
+        self.supermarket = next(t for t in self.themes if t.id == "supermarket")
+        self.learner = LearnerState("is", "en", "A1")
+        known = list(self.supermarket.levels[0].items) + [i.id for i in sorted(self.cur.items, key=lambda i: i.order)[:120]]
+        for i in dict.fromkeys(known):
+            self.learner.items[i] = ItemState(due=(TODAY + timedelta(days=3)).isoformat(), successes=2, durable_successes=2, stage="meaning",
+                                              recalled=2, last_outcome="recalled", interval_days=3, last_practiced=(TODAY - timedelta(days=1)).isoformat())
+
+    def _planner(self):
+        return Planner(self.cur, self.learner, Prompts.load("en"), Timing(level="A1"),
+                       PlanConfig(minutes=30, new_items=0, themes=[self.supermarket], theme_scenarios=["A3"], seed=1), today=TODAY)
+
+    def _open(self, item_id):
+        self.learner.items[item_id].last_outcome = "not_recalled"
+        self.learner.items[item_id].failures = 1
+        self.assertTrue(self.learner.is_open(item_id))
+
+    def test_the_plan_lists_open_items_and_every_practised_one_has_a_question(self):
+        from audiolesson.cli import _plan
+
+        for i in ("skyr", "attu"):
+            self._open(i)
+        sc = self._planner().build()
+        plan = _plan(sc, self.cur)
+        self.assertIn("open_items", plan)
+        self.assertIn("open_not_fitted", plan)
+        self.assertEqual(plan["open_items"], sc.meta["open_items"])
+        self.assertTrue(plan["open_items"], "an open item was practised")
+        asked = {i for q in plan["review"] for i in q["items"]}
+        for i in plan["open_items"]:
+            if self.cur.by_id[i].kind != "construction":
+                self.assertIn(i, asked, f"{i}: an open item the review can ask")
+
+    def test_an_open_item_without_a_written_question_gets_one_from_its_situation_or_meaning(self):
+        from audiolesson.cli import _plan
+
+        sc = Script(1, "t", "is", "en")
+        sc.meta["open_items"] = ["skyr"]
+        plan = _plan(sc, self.cur)
+        (q,) = [q for q in plan["review"] if q["items"] == ["skyr"]]
+        self.assertEqual(q["answer"], self.cur.by_id["skyr"].target)
+        self.assertEqual(q["stage"], "open")
+        self.assertTrue(q["prompt"])
+
+    def test_an_open_item_in_a_theme_turn_is_asked_not_tried(self):
+        pick = self._planner().pick_theme()
+        self.assertEqual(pick[2], set())
+        for i in self.supermarket.levels[0].items:
+            self._open(i)
+        self.assertEqual(self._planner().pick_theme()[2], set(), "open items are met: no turn is tried")
+        del self.learner.items["skyr"]
+        self.assertTrue(self._planner().pick_theme()[2], "an item never met still makes its turn tried")
+
+    def test_an_open_item_in_a_listening_turn_is_not_tried(self):
+        planner = self._planner()
+        dlg = next(d for d in self.cur.dialogues if any(t.expect for t in d.turns))
+        turn = next(t for t in dlg.turns if t.expect)
+        for i in [turn.expect, *turn.expect_fill.values()]:
+            self.learner.items.setdefault(i, ItemState(due=(TODAY + timedelta(days=3)).isoformat(), successes=2, durable_successes=2, stage="meaning",
+                                                       recalled=2, last_outcome="recalled", interval_days=3, last_practiced=(TODAY - timedelta(days=1)).isoformat()))
+            self._open(i)
+        heard, tried = planner.classify_turns(dlg)
+        self.assertNotIn(turn.expect, heard)
+        self.assertNotIn(turn.expect, tried)
+
+
 class PartWithItsFrameTests(unittest.TestCase):
     """#149 step 2: a part comes with its frame. «sturtan» alone has no sentence to live in («{thing} virkar ekki.» is the
     only one, and it lists «sturtan» as a prerequisite), so the frame is taught in the same selection, one over the count."""
