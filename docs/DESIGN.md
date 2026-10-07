@@ -121,7 +121,8 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   been used.
 - **Novelty is claimed only when true.** `recombine_new` requires `is_new_utterance()`:
   not presented this lesson, in an earlier lesson (`heard_utterances`), or as a met item's
-  target.
+  target. It is claimed once per construction and form in a lesson (`Builder.novelty_announced`, #197): what is new is the
+  pattern or its form, not each filler, so a substitution run announces its first step only.
 - **A recombine exercise makes a new sentence (#105).** Its target was not presented
   earlier in the lesson. With only heard sentences possible, the planner practises the item
   at the hardest stage it already reached today instead (`recombine_or_instead`), so stages
