@@ -146,6 +146,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "longest gap between introductions (min)": round(max((b - a for a, b in zip(intros, intros[1:])), default=0), 1),
         "most narrations of one situation": situations.most_common(1)[0][1] if situations else 0,
         "«Quick review» announcements": narrated.count("Quick review: two separate situations."),
+        "«something you haven't heard yet» announcements": sum(1 for t in narrated if "haven't heard yet" in t or "まだ聞いたことのない" in t),
         "narrations with «{»": sum(1 for t in narrated if "{" in t),
         "open items fitted / waiting": f"{len(m.get('open_items', []))} / {len(m.get('open_not_fitted', []))}",
         "open item practices, fewest": min(open_practice.values(), default="–"),

@@ -4828,6 +4828,52 @@ class SemanticSetTests(unittest.TestCase):
         self.assertGreater(len(self._of_set(ids)), 3)
 
 
+class NoveltyAnnouncementTests(unittest.TestCase):
+    """#197: «Now something you haven't heard yet» is for a new pattern or form, not for each new filler: once per construction
+    and form in a lesson. The owner also dropped «Klukkan er ekki {hour}.»."""
+
+    def _builder(self, known):
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"), random.Random(1))
+        b.in_lesson.update(known)
+        return cur, b
+
+    @staticmethod
+    def _narration(sc, ex):
+        return " ".join(s.text for s in sc.segments if s.exercise == ex.index and s.type == "narrate")
+
+    def test_a_run_of_fillers_is_announced_once(self):
+        cur, b = self._builder({"klukkan_er", "thrju", "fimm", "sex", "sjo", "atta"})
+        sc = Script(1, "t", "is", "en")
+        said = []
+        for _ in range(4):
+            ex = b._recombine(sc, cur.by_id["klukkan_er"], met_fills=True)
+            self.assertIsNotNone(ex)
+            said.append("haven't heard yet" in self._narration(sc, ex))
+        self.assertEqual(said, [True, False, False, False])
+
+    def test_another_pattern_is_announced_again(self):
+        cur, b = self._builder({"klukkan_er", "thrju", "fimm", "sex", "eg_aetla_ad", "fara_heim", "fara_i_sund", "versla"})
+        sc = Script(1, "t", "is", "en")
+        first = b._recombine(sc, cur.by_id["klukkan_er"], met_fills=True)
+        other = b._recombine(sc, cur.by_id["eg_aetla_ad"], met_fills=True)
+        self.assertTrue("haven't heard yet" in self._narration(sc, first))
+        self.assertTrue(other is not None and "haven't heard yet" in self._narration(sc, other))
+
+    def test_a_new_lesson_announces_again_and_the_clock_has_no_negative(self):
+        cur, b = self._builder({"klukkan_er", "thrju", "fimm", "sex"})
+        self.assertEqual(cur.by_id["klukkan_er"].negative, "")
+        self.assertTrue(cur.by_id["klukkan_er"].question)
+        sc = Script(1, "t", "is", "en")
+        b._recombine(sc, cur.by_id["klukkan_er"], met_fills=True)
+        _, again = self._builder({"klukkan_er", "thrju", "fimm", "sex"})
+        sc2 = Script(2, "t", "is", "en")
+        ex = again._recombine(sc2, cur.by_id["klukkan_er"], met_fills=True)
+        self.assertIn("haven't heard yet", self._narration(sc2, ex))
+
+
 class LeastSaidSentenceTests(unittest.TestCase):
     """#192: a generated sentence is, once every combination was used, the one said fewest times in the lesson."""
 

@@ -91,6 +91,7 @@ class Builder:
     used_examples: set[str] = field(default_factory=set)
     heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson
     echo_asked: int = 1  # a line is repeated after the model only for its first asking this lesson (#192)
+    novelty_announced: set = field(default_factory=set)  # (construction, form) already announced as «something you haven't heard yet» this lesson (#197)
     said: Counter = field(default_factory=Counter)  # how often each sentence was said this lesson: model answers, echoes, the intro once, partner lines (#192)
     produced: Counter = field(default_factory=Counter)  # how often the learner was asked for each line this lesson: the echo only while it teaches
     recent_answers: list[str] = field(default_factory=list)  # the last two answers said (normalised): a generated sentence is not the one just asked (#190)
@@ -659,6 +660,12 @@ class Builder:
         # the generator only *prefers* unused combinations, so claim novelty only when true
         if item.kind == "construction":
             key = "recombine_new" if self.is_new_utterance(target) else "recombine"
+            if key == "recombine_new":
+                # what is new is the pattern and its form, not each filler (#197): announced once per construction and form in a lesson
+                form_id = (gen.construction.id, gen.form or "plain")
+                if form_id in self.novelty_announced:
+                    key = "recombine"
+                self.novelty_announced.add(form_id)
         else:
             key = "recombine_vocab"
         self._narr(sc, ex, self._as(gender, self.prompts.get(key, meaning=self._m(gen.meaning))))
