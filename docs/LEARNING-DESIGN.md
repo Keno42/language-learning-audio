@@ -820,6 +820,10 @@ Don't reopen these without new evidence; when you do, say what changed.
     checked in its own form. The patterns and their accusative number forms are candidates without native review (G10). The
     party fillers are whole units («tvo fullorðna»), since the noun's form follows the count and the pattern has no
     agreement machinery.
+  - **Never ten identical (owner, 2026-10-04; #192).** A fixed phrase is said at most `max_sentence_hard` (9) times in a lesson, while the
+    caps are on: its practice is handed to the pattern's other instances where it is linked, and dropped where no other sentence holds it.
+    A new item keeps its closing recall. Repetition inside a scene is still fine up to the cap. On lessons 14–25 of the replay the most-said
+    sentence was 9–11 and is at most 9 throughout; a linked phrase whose pattern is known stops at 7.
   - Not-due items wait for their date (#94).
   - **Exception: `refresh` (#175).** A known construction that carries `refresh` returns every
     lesson as a few light sentences with *changing* parts. This is deliberate and is not the

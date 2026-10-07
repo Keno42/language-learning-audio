@@ -47,6 +47,7 @@ class PlanConfig:
     # another sentence that holds the item (§9 "Repetition": a sentence five times or more is fine, ten identical ones is
     # the "repetitive" of lesson 13, #192). Not a hard cap: with no other sentence the practice stays, since dropping it
     # leaves the lesson idle and lapses the caps (the shortage of generative supply, G15). Lapses with the bare cap.
+    max_sentence_hard: int = 9  # past this many identical utterances of a fixed line the practice is dropped when no other sentence holds it (#192)
     max_sentence_utterances: int = 6
     # When the cap leaves the lesson short, up to this many close variants of what the learner knows
     # (``Item.variant_of``: another case, another gender) come in beyond the new-item limit.
@@ -210,7 +211,7 @@ class Planner:
         seed = cfg.seed if cfg.seed is not None else learner.next_lesson_number()
         self.rng = random.Random(seed)
         prompts.rng = self.rng
-        self.builder = Builder(cur, prompts, timing, learner, self.rng, translate_partner=cfg.translate_partner)
+        self.builder = Builder(cur, prompts, timing, learner, self.rng, translate_partner=cfg.translate_partner, said_cap=cfg.max_sentence_hard)
         self.exposures: dict[str, list[str]] = {}
         self.support: dict[str, int] = {}
         self.dialogues_played: list[str] = []
@@ -1234,6 +1235,8 @@ class Planner:
             if over_utterance_cap(item):
                 if sentence_practice(item, review=not any(i.id == item.id for i in introduced)):  # the same line again is ten identical drills: another sentence that holds it
                     return True
+            if allow_cap and over_hard_cap(item):
+                return False  # no other sentence holds it and it has been said as often as a lesson allows (#192, the owner's rule: never ten)
             scene = stage == "situation" and b.situation_usable(item) and b.situation_room(item)  # not the short meaning cue it falls back to
             if allow_cap and (stage in BARE_STAGES or stage == "recombine") and (is_part(item) or not scene) and bare_capped(item):
                 return sentence_practice(item)
@@ -1312,6 +1315,22 @@ class Planner:
             """``item``'s own sentence has been said as often as a lesson allows (#192), while the caps are on."""
             return bare_cap[0] > 0 and item.kind not in ("construction", "transform") and b.said[_norm_utterance(item.target)] >= cfg.max_sentence_utterances
 
+        def over_hard_cap(item: Item, closing: bool = False) -> bool:
+            """A fixed phrase said ``max_sentence_hard`` times already in this lesson (#192): nothing more is asked of it. A new
+            item keeps one place for its closing recall, so everything before the closing stops one short of the cap."""
+            if item.kind != "phrase" or cfg.max_sentence_hard <= 0 or bare_cap[0] <= 0:
+                return False
+            reserve = 0 if closing or not any(i.id == item.id for i in introduced) else 1
+            limit = cfg.max_sentence_hard
+            if item.instance_of and item.instance_of in self.cur.by_id and b._frame_available(item.instance_of):
+                limit = min(limit, cfg.max_sentence_utterances + 1)  # a linked phrase hands the rest to its pattern's other instances (#192)
+            return b.said[_norm_utterance(item.target)] >= limit - reserve
+
+        def holders_all_capped(item: Item) -> bool:
+            """Every sentence that holds ``item`` has been said as often as a lesson allows (#192)."""
+            wholes = [w for w in self.containing_items(item) if not self._stable(w)]
+            return bool(wholes) and all(over_hard_cap(w) for w in wholes)
+
         def asked_times(whole: Item) -> int:
             """How often ``whole`` was asked (recall or connect) in this lesson."""
             return sum(1 for e in sc.exercises if e.kind in ("recall", "connect") and whole.id in e.item_ids)
@@ -1337,7 +1356,7 @@ class Planner:
                     touch(item)
                     return True
                 for whole in sorted(self.containing_items(item), key=over_utterance_cap):  # one not yet said as often as a lesson allows first
-                    if self._stable(whole) or (review and (bare_capped(whole) or whole.id in recent or asked_times(whole) >= 2)):
+                    if self._stable(whole) or over_hard_cap(whole) or (review and (bare_capped(whole) or whole.id in recent or asked_times(whole) >= 2)):
                         continue  # a stable one keeps to its date, a short whole to its own bare uses, the one just asked is not asked again
                     ex = b.recall(sc, whole, "meaning")
                     ex.item_ids.append(item.id)  # the part was practised inside it: the exercise says so
@@ -1361,7 +1380,7 @@ class Planner:
                 # a fixed phrase that is an instance of a known pattern (#192): another sentence of the pattern with other
                 # fillers. It is credited to the pattern and its fillers, never to the phrase, whose own review stays in its own form
                 own = {slot: self.cur.by_id[ref] for slot, ref in item.instance_fill.items()}
-                ex = b._recombine(sc, pattern, met_fills=True, exclude=own)
+                ex = b._recombine(sc, pattern, met_fills=True, exclude=own) or b.sibling_recall(sc, pattern, own)
                 if ex is not None:
                     self._record(list(ex.item_ids), ex.stage or "recombine", ex.item_ids)
                     touch(pattern)
@@ -1374,7 +1393,7 @@ class Planner:
                     used.add(ex.label)
                     return True
             for whole in sorted(self.containing_items(item), key=over_utterance_cap):
-                if whole.id in used or whole.id in recent or bare_capped(whole) or (review and asked_times(whole) >= 2):
+                if whole.id in used or whole.id in recent or bare_capped(whole) or over_hard_cap(whole) or (review and asked_times(whole) >= 2):
                     continue  # a short whole item has its own bare uses to keep to
                 if self._stable(whole):
                     continue  # a stable item is practised on its own dates, never as the sentence for another (#94, #151)
@@ -1463,6 +1482,8 @@ class Planner:
                     continue  # a part is not said alone in a scene either: its situation turn counts against the cap (#187)
                 if short_review(it) and holds_sentence(it):
                     continue  # a sentence that holds it can be said: not the bare word (#187)
+                if over_hard_cap(it):
+                    continue  # said as often as a lesson allows: not in a scene either (#192)
                 if connect_item_uses.get(it.id) and self._stable(it):
                     continue  # a stable item takes part in one connect a lesson (#151)
                 seen.add(it.id)
@@ -2031,6 +2052,10 @@ class Planner:
                     stage = self.recombine_or_instead(item)  # no fresh sentence: a meaning recall
                 if (stage in BARE_STAGES or stage == "recombine") and short_today(item) and said_in_sentence(item) and ask_a_sentence(item, repeat=True):
                     continue  # #179: said in a sentence today, so asked in one now, not as a bare part
+                if over_hard_cap(item, closing=True):
+                    continue  # #192: it was just said as often as a lesson allows; the closing recall would be one more identical drill
+                if (stage in BARE_STAGES or stage == "recombine") and short_today(item) and said_in_sentence(item) and holders_all_capped(item):
+                    continue  # asked in a sentence today and every sentence that holds it is at the cap: no bare part in its place
                 ex = b.recall(sc, item, stage)
                 self._record([item.id], ex.stage or stage, ex.item_ids)
         b.closing(sc, n)

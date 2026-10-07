@@ -231,9 +231,16 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   `PlanConfig.max_set_items` (3) new items with one of the tags in `PlanConfig.semantic_sets` (number, colour, animal, acc_language,
   weather, nature_nom, day, job), counting the lesson's earlier arcs (`exclude`) and what the call chose. The skipped item waits for
   another lesson and the pool goes on, so the pace is unchanged; a filler pulled in for a construction's slot is not counted. The items the target theme's next level wants (`theme_wants`) are a scene, not a bare set: they are neither stopped by the limit nor counted towards it.
+  **Never ten identical (#192, owner).** `PlanConfig.max_sentence_hard` (9): a fixed phrase (`kind == "phrase"`) whose sentence has been
+  said that often (`Builder.said`) is asked no more: `do_recall` plays nothing for it when no other sentence holds it, a mixed-review pair
+  leaves it out, a sentence that holds another item is not taken from it, and `Builder.sentence_recall` (`said_cap`) offers no sentence at
+  the cap. A new item keeps one place for its closing recall, so everything before the closing stops at the cap minus one, and a linked phrase (below) whose pattern is available stops at `max_sentence_utterances` (6) + 1 (7, then its closing recall); a short item
+  whose every holder sentence is at the cap gets no bare part in its place at the closing. Like the bare cap it holds only while
+  the caps do (`bare_cap_lapsed`: nothing else is left).
   A fixed phrase linked to a pattern (`Item.instance_of`, `instance_fill`, #192): in `sentence_practice`, past
   `max_sentence_utterances` and once the pattern is available (`Builder._frame_available`), the phrase is practised through
-  `Builder._recombine(pattern, met_fills=True, exclude=<its own fills>)`: another sentence of the pattern. `_record` credits the
+  `Builder._recombine(pattern, met_fills=True, exclude=<its own fills>)` (another sentence of the pattern), else `Builder.sibling_recall`
+  (a plain meaning recall of the sentence of another filler said fewest times, a heard line may repeat). `_record` credits the
   pattern and its fillers (`ex.item_ids`), never the phrase.
   A part comes with its frame (#149 step 2): when `select_new` takes a part (`kind == "vocab"`; an utterance such as
   «Hvenær?» is not one), one construction that lists it as a prerequisite (`Planner.frames_of`, «{thing} virkar ekki.» for

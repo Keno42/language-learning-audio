@@ -211,6 +211,28 @@ topics = ["transport", "daily"]
 pronunciation_notes = "accusative plural of fullorðinn"
 
 [[items]]
+id = "eitt_barn"
+kind = "vocab"
+target = "eitt barn"
+meaning = "one child"
+meaning_ja = "子ども1名"
+difficulty = 2
+tags = ["party"]
+topics = ["transport", "daily"]
+pronunciation_notes = "neuter: the accusative is the same as the nominative"
+
+[[items]]
+id = "tvo_born"
+kind = "vocab"
+target = "tvö börn"
+meaning = "two children"
+meaning_ja = "子ども2名"
+difficulty = 2
+tags = ["party"]
+topics = ["transport", "daily"]
+pronunciation_notes = "neuter plural: the accusative is the same as the nominative"
+
+[[items]]
 id = "partei_takk"
 kind = "construction"
 target = "{party}, takk."

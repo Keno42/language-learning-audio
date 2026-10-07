@@ -577,8 +577,10 @@ class CurriculumTests(unittest.TestCase):
             learner,
             Prompts.load("en"),
             Timing(level="A1"),
-            # extra_arc_share=1: the second arc takes two items too, so each arc can pair with itself
-            PlanConfig(minutes=30, seed=1, new_items=2, max_new_items=2, extra_arc_share=1.0, dialogue_every=1000, drill_streak_limit=1000, note_chance=0.0),
+            # extra_arc_share=1: the second arc takes two items too, so each arc can pair with itself.
+            # premise changed (#192): max_sentence_hard=0 (the hard cap off): twelve fixed phrases fill a 30-minute lesson here, so the new ones
+            # reach the cap and are left out of scenes; the test is about the arcs' connect moments, not identical counts
+            PlanConfig(minutes=30, seed=1, new_items=2, max_new_items=2, extra_arc_share=1.0, dialogue_every=1000, drill_streak_limit=1000, note_chance=0.0, max_sentence_hard=0),
             today=TODAY,
         )
         sc = planner.build()
@@ -2031,7 +2033,9 @@ class CurriculumTests(unittest.TestCase):
         # whose items sit as deep as order ~700 within a reasonable number of simulated
         # lessons — issue #29 owner review added "godur_gender_nominative", gated on items
         # spread across modules 1/7/17).
-        for _ in range(80):
+        # premise changed (#192): the course grew by nine items (the ticket and party patterns), so the deepest milestone now needs
+        # 81-82 simulated lessons at this pace, not 80 or fewer; the budget is 85
+        for _ in range(85):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=10, seed=3), today=day).build()
             played = {e.label.split(": ")[1] for e in sc.exercises if e.kind == "note" and e.label.split(": ")[1] in milestones}
             apply_to_learner(sc, learner, day)
@@ -2066,7 +2070,9 @@ class CurriculumTests(unittest.TestCase):
         checked: set[str] = set()
         # Fixed, fast pace, not auto-escalation -- see test_milestone_note_never_fires_...
         # above for why (a milestone's items can sit as deep as order ~700).
-        for _ in range(80):
+        # premise changed (#192): the course grew by nine items (the ticket and party patterns), so the deepest milestone now needs
+        # 81-82 simulated lessons at this pace, not 80 or fewer; the budget is 85
+        for _ in range(85):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=10, seed=3), today=day).build()
             note_positions = [(i, e.label.split(": ")[1]) for i, e in enumerate(sc.exercises) if e.kind == "note" and e.label.split(": ")[1] in milestones]
             apply_to_learner(sc, learner, day)
@@ -4803,6 +4809,36 @@ class SemanticSetTests(unittest.TestCase):
         self.assertGreater(len(self._of_set(ids)), 3)
 
 
+class HardSentenceCapTests(unittest.TestCase):
+    """#192 (owner: «never ten identical»): a fixed phrase is said at most ``max_sentence_hard`` times in a lesson, while the
+    caps are on. Its practice is dropped when no other sentence holds it; a new item keeps one place for its closing recall."""
+
+    @staticmethod
+    def _plan(hard):
+        from audiolesson.exercises import _norm_utterance
+
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": [
+            {"id": "ph", "kind": "phrase", "target": "Þetta er allt.", "meaning": "That's all.", "situation": "You're done at the till. Say that's all."},
+            {"id": "ph2", "kind": "phrase", "target": "Takk fyrir.", "meaning": "Thanks.", "situation": "Thank the clerk."},
+        ]})
+        planner = Planner(cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"),
+                          PlanConfig(minutes=10, new_items=2, max_sentence_hard=hard, seed=1), today=TODAY)
+        sc = planner.build()
+        return planner, sc, {k: v for k, v in planner.builder.said.items()}
+
+    def test_a_fixed_phrase_is_said_no_more_than_the_cap(self):
+        _, sc, said = self._plan(6)
+        self.assertLessEqual(max(said.values()), 6, said)
+        self.assertFalse(sc.meta["bare_cap_lapsed"])
+        for i in sc.meta["new_items"]:  # each new item still gets its closing recall
+            closing = next(e.index for e in sc.exercises if e.kind == "closing" and e.label == "final review")
+            self.assertTrue(any(e.index > closing and i in e.item_ids for e in sc.exercises), i)
+
+    def test_without_the_cap_the_same_lesson_says_a_line_more_often(self):
+        _, _, said = self._plan(0)
+        self.assertGreater(max(said.values()), 6, said)
+
+
 class InstanceOfPatternTests(unittest.TestCase):
     """#192 (owner's decisions): a fixed phrase that is an instance of a pattern is linked to it. Once the pattern is known,
     the phrase's later practice in a lesson is another sentence of the pattern with other fillers, credited to the pattern
@@ -4845,6 +4881,30 @@ class InstanceOfPatternTests(unittest.TestCase):
                 for f in c.items_with_tag(tag):
                     target, meaning = c.resolve_slots(item, {next(iter(item.slots)): f})
                     self.assertTrue(target and meaning, (pattern, f.id))
+
+    def test_a_sibling_recall_repeats_a_heard_sentence_rather_than_the_phrase(self):
+        from audiolesson.exercises import Builder
+
+        cur = self._cur()
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        b.in_lesson.update({"tvo", "thrja", "fjora", "pat"})
+        sc = Script(1, "t", "is", "en")
+        own = {"count": cur.by_id["thrja"]}
+        for _ in range(8):  # every other sentence is heard in turn, then they repeat: always another than «Þrjá miða»
+            ex = b.sibling_recall(sc, cur.by_id["pat"], own)
+            self.assertIsNotNone(ex)
+            self.assertNotIn("thrja", ex.item_ids)
+            self.assertNotIn("ph", ex.item_ids)
+            self.assertEqual((ex.kind, ex.stage), ("recall", "meaning"))
+        none_left = {"count": cur.by_id["thrja"], **{}}
+        b2 = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        b2.in_lesson.update({"thrja", "pat"})
+        self.assertIsNone(b2.sibling_recall(Script(1, "t", "is", "en"), cur.by_id["pat"], none_left), "no other filler: nothing to offer")
+
+    def test_the_real_party_pattern_has_fillers_to_rotate(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertGreaterEqual(len(cur.items_with_tag("party")), 4)
+        self.assertTrue({"eitt_barn", "tvo_born"} <= {i.id for i in cur.items_with_tag("party")})
 
     def _lesson(self):
         from unittest import mock

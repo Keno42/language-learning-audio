@@ -91,6 +91,7 @@ class Builder:
     used_examples: set[str] = field(default_factory=set)
     heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson
     echo_asked: int = 1  # a line is repeated after the model only for its first asking this lesson (#192)
+    said_cap: int = 0  # >0: a sentence said this often in the lesson is not asked again as a part's sentence (#192)
     said: Counter = field(default_factory=Counter)  # how often each sentence was said this lesson: model answers, echoes, the intro once, partner lines (#192)
     produced: Counter = field(default_factory=Counter)  # how often the learner was asked for each line this lesson: the echo only while it teaches
     recent_answers: list[str] = field(default_factory=list)  # the last two answers said (normalised): a generated sentence is not the one just asked (#190)
@@ -687,11 +688,29 @@ class Builder:
         if gen is None:
             return None
         gender, target = self._filled(gen.construction, gen.fills, form=gen.form)
+        if self.said_cap and self.said[_norm_utterance(target)] >= self.said_cap:
+            return None  # the sentence has been said as often as a lesson allows: no one more identical drill (#192)
         self.used_combos.add(gen.key)  # the construction's own recall does not make the same sentence next (#190 review)
         ids = [item.id] + [i for i in gen.item_ids if i != item.id]
         ex = sc.new_exercise("recall", "meaning", ids, f"meaning: {target}")
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(gen.meaning)))
         self._answer_pause(sc, ex, target, item, generative=False)
+        self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
+        self._gap(sc, ex)
+        return ex
+
+    def sibling_recall(self, sc: Script, pattern: Item, exclude: dict[str, Item]) -> Exercise | None:
+        """A plain meaning recall of another sentence of ``pattern`` than the one a linked phrase says (#192): when every
+        such sentence was heard in this lesson, the one said fewest times (a heard line may repeat; it is not offered as
+        «make a sentence»). The exercise holds the pattern and its fillers, never the phrase. None when no filler is left."""
+        gen = self.generate(pattern, exclude=exclude, met_fills=True)
+        if gen is None:
+            return None
+        gender, target = self._filled(gen.construction, gen.fills, form=gen.form)
+        self.used_combos.add(gen.key)
+        ex = sc.new_exercise("recall", "meaning", list(gen.item_ids), f"meaning: {target}")
+        self._narr(sc, ex, self._as(gender, self._meaning_prompt(gen.meaning)))
+        self._answer_pause(sc, ex, target, pattern, generative=False)
         self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
         self._gap(sc, ex)
         return ex
