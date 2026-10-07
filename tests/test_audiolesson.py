@@ -5091,6 +5091,50 @@ class OpenItemsInThePlanTests(unittest.TestCase):
         self.assertNotIn(turn.expect, tried)
 
 
+class AdmissionOfPartsTests(unittest.TestCase):
+    """#206 review: one admission rule for a part, whichever way it is introduced. A part some construction lists as a
+    prerequisite is not given alone while that construction can still come with it; a part only a phrase holds comes with
+    that phrase."""
+
+    def setUp(self):
+        self.cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.learner = LearnerState("is", "en", "A1")
+        self.known = dict(stage="meaning", durable_successes=2, successes=8, interval_days=7, due=(TODAY + timedelta(days=5)).isoformat(),
+                          last_practiced=(TODAY - timedelta(days=2)).isoformat())
+
+    def _planner(self, **cfg):
+        return Planner(self.cur, self.learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, **{"new_items": 1, **cfg}), today=TODAY)
+
+    def test_a_variant_part_is_not_offered_while_its_frame_is_still_to_come(self):
+        for i in self.cur.items:
+            if i.order < self.cur.by_id["count_mida_takk"].order and i.id not in ("thrja_acc", "thrja_mida"):
+                self.learner.items[i.id] = ItemState(**self.known)
+        planner = self._planner()
+        self.assertEqual([c.id for c in planner.frames_of(self.cur.by_id["thrja_acc"])], ["count_mida_takk"])
+        self.assertNotIn("thrja_acc", [i.id for i in planner.select_variants(5, set())])
+        planner.builder.in_lesson.add("count_mida_takk")  # the frame is in the lesson already: the variant may follow
+        self.assertTrue(planner.part_has_home(self.cur.by_id["thrja_acc"], {"count_mida_takk"}))
+
+    def test_a_variant_part_comes_with_its_frame_when_selected(self):
+        for i in self.cur.items:
+            if i.order < self.cur.by_id["count_mida_takk"].order and i.id not in ("thrja_acc", "thrja_mida"):
+                self.learner.items[i.id] = ItemState(**self.known)
+        ids = [i.id for i in self._planner(priority=["thrja_acc"]).select_new(2)]
+        self.assertIn("thrja_acc", ids)
+        self.assertIn("count_mida_takk", ids, ids)
+
+    def test_a_part_no_construction_takes_comes_with_the_phrase_that_holds_it(self):
+        planner = self._planner(priority=["fjall"])
+        self.assertEqual(planner.frames_of(self.cur.by_id["fjall"]), [], "no construction lists it as a prerequisite")
+        self.assertEqual([w.id for w in planner.candidate_wholes(self.cur.by_id["fjall"])][:1], ["hvad_er_thetta_fjall"])
+        for i in self.cur.items:
+            if i.order < self.cur.by_id["fjall"].order and i.id not in ("fjall", "hvad_er_thetta_fjall", "thetta_er_noun"):
+                self.learner.items[i.id] = ItemState(**self.known)
+        ids = [i.id for i in self._planner(priority=["fjall"]).select_new(2)]
+        self.assertIn("fjall", ids)
+        self.assertIn("hvad_er_thetta_fjall", ids, ids)
+
+
 class PartWithItsFrameTests(unittest.TestCase):
     """#149 step 2: a part comes with its frame. «sturtan» alone has no sentence to live in («{thing} virkar ekki.» is the
     only one, and it lists «sturtan» as a prerequisite), so the frame is taught in the same selection, one over the count."""
@@ -6011,7 +6055,8 @@ class CheapConstructionTests(unittest.TestCase):
         with_met, with_len = course()
         without_met, without_len = course(cheap_place=False, max_cheap_extra=0)
         self.assertGreaterEqual(with_met, without_met + 2, (with_met, without_met))
-        self.assertGreaterEqual(with_len, without_len, (with_len, without_len))
+        # not shorter by more than 2%: which parts wait for their frame (#206) moves the sum by about 1% either way
+        self.assertGreaterEqual(with_len, without_len * 0.98, (with_len, without_len))
 
 
 class ColourFormTests(unittest.TestCase):

@@ -296,6 +296,39 @@ class Planner:
         («{thing} virkar ekki.» after «sturtan»)."""
         return [c for c in self.cur.items if c.kind == "construction" and c.slots and part.id in c.prereqs]
 
+    def homes_of(self, part: Item) -> list[Item]:
+        """The constructions a part can be said in: those that list it as a prerequisite, then those with a slot it fits (#206
+        review: one admission rule for every way a part is introduced)."""
+        tags = set(part.tags)
+        linked = self.frames_of(part)
+        tagged = [c for c in self.cur.items if c.kind == "construction" and c.slots and c not in linked and tags & set(c.slots.values())]
+        return linked + tagged
+
+    def candidate_wholes(self, part: Item) -> list[Item]:
+        """The phrases whose words contain the part's, known or not, the shortest first: the sentence a part can be brought in
+        with when no construction takes it («Hvað er þetta fjall?» for «fjall»)."""
+        words = [w.lower() for w in _WORD_RE.findall(part.target)]
+        out: list[tuple[int, Item]] = []
+        for whole in self.cur.items:
+            if whole.id == part.id or whole.kind != "phrase" or whole.target_m or not words:
+                continue
+            ww = [w.lower() for w in _WORD_RE.findall(whole.target)]
+            if len(ww) > len(words) and any(ww[k : k + len(words)] == words for k in range(len(ww) - len(words) + 1)) and not NEGATION & (set(ww) - set(words)):
+                out.append((len(ww), whole))
+        return [w for _, w in sorted(out, key=lambda t: (t[0], t[1].id))]
+
+    def part_has_home(self, part: Item, introduced: set[str] | frozenset[str] = frozenset()) -> bool:
+        """A sentence the part can be said in is there now. Which sentence: a construction that lists it as a prerequisite
+        (met, or in the lesson already, ``introduced``); else a phrase that holds its words; a phrase the learner can say but
+        has not yet made stable also counts (the part is heard in it). A part with neither has no home to wait for and counts
+        as housed: a slot it fits is no sentence of its own until the construction is taught (fillers come first, #29)."""
+        frames, wholes = self.frames_of(part), self.candidate_wholes(part)
+        if any(self.learner.has_met(c.id) or c.id in introduced or c.id in self.builder.in_lesson for c in frames):
+            return True
+        if any(not self._stable(w) for w in self.containing_items(part)) or any(w.id in introduced or self.learner.has_met(w.id) for w in wholes):
+            return True
+        return not frames and not wholes
+
     def theme_target(self) -> tuple | None:
         """The theme and level (0-based) new material is chosen for (#149 step 2): the first by the order
         ``pick_theme`` ranks themes in (lowest level, then boosted scenarios, Tier A, Tier B, file order), whether or
@@ -335,6 +368,7 @@ class Planner:
         chosen: list[Item] = []
         chosen_ids: set[str] = set(exclude or ())
         promoted_id: str | None = None
+        pulled: set[str] = set()  # the frames and phrases brought in with a part: never the place given up for a cheap construction
 
         def ready(it: Item) -> bool:
             return all(self._prereq_met(it, p, lambda i: self.learner.knows(i) or i in chosen_ids) for p in it.prereqs)
@@ -434,7 +468,8 @@ class Planner:
 
         def frame_group(part: Item) -> tuple[Item, list[Item]] | None:
             """The frame to teach with ``part`` (already chosen) and the fillers it would pull: of the unmet, ready
-            constructions that list the part as a prerequisite, the one needing the fewest new fillers, then course order."""
+            constructions that list the part as a prerequisite, the one needing the fewest new fillers,
+            then course order."""
             best = None
             for c in self.frames_of(part):
                 if c.id in chosen_ids or self.learner.has_met(c.id) or not ready(c):
@@ -448,7 +483,10 @@ class Planner:
                 key = (len(fillers), c.order)
                 if best is None or key < best[0]:
                     best = (key, c, fillers)
-            return (best[1], best[2]) if best else None
+            if best is None:  # no construction to bring: a phrase that holds it, if one is ready
+                whole = next((w for w in self.candidate_wholes(part) if w.id not in chosen_ids and not self.learner.has_met(w.id) and ready(w)), None)
+                return (whole, []) if whole is not None else None
+            return (best[1], best[2])
 
         scene = set(self.theme_wants())  # what the theme's next level is made of is a scene, not a bare set (#149 step 2)
 
@@ -481,7 +519,7 @@ class Planner:
                     # lists it as a prerequisite, with the fillers its slots still need, the whole group at most one
                     # item over ``count``; a group that doesn't fit leaves the part for a lesson with room, since a
                     # part alone is how it was drilled bare
-                    group = frame_group(it)
+                    group = frame_group(it) if not self.part_has_home(it, chosen_ids) else None
                     if group is not None:
                         frame, fillers = group
                         if len(chosen) + len(fillers) + 1 > count + 1:
@@ -489,6 +527,7 @@ class Planner:
                             chosen_ids.discard(it.id)
                             continue
                         take(frame, fillers_first=True)
+                        pulled.add(frame.id)
                 progress = True
                 if len(chosen) >= count:
                     break
@@ -523,7 +562,7 @@ class Planner:
             # #171 B: one place for a cheap construction, from the non-trip items: never a trip item's
             candidate = self.cheap_construction(chosen_ids)
             trip = set(self.cfg.priority)
-            drop = next((i for i in reversed(chosen) if i.id not in trip and i.kind != "construction"), None)
+            drop = next((i for i in reversed(chosen) if i.id not in trip and i.kind != "construction" and i.id not in pulled), None)
             if candidate is not None and drop is not None:
                 chosen[chosen.index(drop)] = candidate
                 self.cheap_placed.append(candidate.id)
@@ -834,6 +873,8 @@ class Planner:
                 continue
             if not all(self.learner.knows(p) or p in self.builder.in_lesson for p in it.prereqs):
                 continue
+            if it.kind == "vocab" and not self.part_has_home(it, exclude):
+                continue  # a part is not introduced alone, whichever way it comes (#206 review)
             out.append(it)
         return out
 
