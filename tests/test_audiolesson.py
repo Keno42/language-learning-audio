@@ -4802,6 +4802,31 @@ class SemanticSetTests(unittest.TestCase):
         without = [i.id for i in self._planner(max_set_items=2).select_new(8)]
         self.assertEqual(len(self._of_set(without)), 2)
 
+    def test_the_adjectives_are_one_set_whatever_their_gender(self):
+        """The owner, after #204: adjectives arrive as a block too («vont», «dýrt», «ódýrt», «fallegt», «ljótt», «stórt» stand
+        together in the course), and «góður» / «góð» / «gott» are one set across their gender tags."""
+        adjectives = [i for i in self.cur.items if {"adj_neut", "adj_masc", "adj_fem"} & set(i.tags) and i.kind != "construction"]
+        first = min(i.order for i in adjectives)
+        learner = LearnerState("is", "en", "A1")
+        for i in self.cur.items:
+            if i.order < first and i not in adjectives:
+                learner.items[i.id] = ItemState(due=(TODAY + timedelta(days=3)).isoformat(), successes=2, durable_successes=2, stage="meaning",
+                                                recalled=2, last_outcome="recalled", interval_days=3, last_practiced=(TODAY - timedelta(days=1)).isoformat())
+        def pick(sets):
+            planner = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"),
+                              PlanConfig(minutes=30, new_items=8, seed=1, priority=[i.id for i in adjectives], semantic_sets=sets), today=TODAY)
+            return [i.id for i in planner.select_new(8)]
+
+        adj_ids = {a.id for a in adjectives}
+        ids = pick(PlanConfig().semantic_sets)
+        # the fillers a chosen construction's slot pulls in come with their pattern, not as a set (#204)
+        slot_tags = {t for i in ids if self.cur.by_id[i].kind == "construction" for t in self.cur.by_id[i].slots.values()}
+        alone = [i for i in ids if i in adj_ids and not slot_tags & set(self.cur.by_id[i].tags)]
+        self.assertLessEqual(len(alone), 3, ids)
+        self.assertGreaterEqual(len(ids), 8, "the pace is unchanged: other items fill the places")
+        without = pick(tuple(s for s in PlanConfig().semantic_sets if "adj" not in s))
+        self.assertGreater(sum(1 for i in without if i in adj_ids), sum(1 for i in ids if i in adj_ids), "without the set, more come together")
+
     def test_the_limit_is_a_setting(self):
         ids = [i.id for i in self._planner(max_set_items=5).select_new(8)]
         self.assertEqual(len(self._of_set(ids)), 5)

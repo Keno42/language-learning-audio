@@ -97,8 +97,11 @@ class PlanConfig:
     theme_ready: float = 0.75  # a theme's level plays once the learner can say this share of its turns; the rest are tried
     theme_rest_lessons: int = 3  # a level already played comes back no sooner than this many lessons later (#149 step 1)
     # #149 step 2 (H5): a semantic set is not introduced as a block: at most ``max_set_items`` new items a lesson share
-    # one of these tags (numbers, colours, languages...); the others wait for another lesson, and the pool goes on
-    semantic_sets: tuple[str, ...] = ("number", "colour", "animal", "acc_language", "weather", "nature_nom", "day", "job")
+    # one of these sets (numbers, colours, languages...); the others wait for another lesson, and the pool goes on. A set
+    # is a tag, or several tags joined by «|» that count as one: the adjectives, whatever gender their form is (owner)
+    semantic_sets: tuple[str, ...] = (
+        "number", "colour", "animal", "acc_language", "weather", "nature_nom", "day", "job", "adj_neut|adj_masc|adj_fem",
+    )
     max_set_items: int = 3
     listening_missing_max: int = 2
     listening_rest_lessons: int = 6
@@ -187,6 +190,11 @@ class PlanConfig:
 _WORD_RE = re.compile(r"[^\W\d_]+", re.UNICODE)
 NEGATION = frozenset({"ekki", "ekkert", "aldrei", "enginn", "engin"})  # words that turn a held part into its opposite
 BARE_STAGES = frozenset({"cloze", "hinted", "meaning", "situation"})  # an item said alone, not in a sentence
+
+
+def semantic_set_tags(sets: tuple[str, ...]) -> list[set[str]]:
+    """``PlanConfig.semantic_sets`` as tag sets: «adj_neut|adj_masc|adj_fem» is one set (#149 step 2)."""
+    return [set(entry.split("|")) for entry in sets]
 
 
 @dataclass
@@ -448,11 +456,11 @@ class Planner:
             """Whether the lesson already has ``max_set_items`` new items of a semantic set ``it`` belongs to (#149 step 2),
             counting this lesson's earlier arcs (``exclude``) and what this call chose. The items the theme's next level
             wants are exempt, neither stopped by the cap nor counted: a price level needs several numbers together."""
-            sets = [t for t in self.cfg.semantic_sets if t in it.tags]
+            sets = [g for g in semantic_set_tags(self.cfg.semantic_sets) if g & set(it.tags)]
             if not sets or it.kind == "construction" or it.id in scene:
                 return False
             lesson = [self.cur.by_id[i] for i in chosen_ids if i in self.cur.by_id and i not in scene]
-            return any(sum(1 for x in lesson if t in x.tags and x.kind != "construction") >= self.cfg.max_set_items for t in sets)
+            return any(sum(1 for x in lesson if g & set(x.tags) and x.kind != "construction") >= self.cfg.max_set_items for g in sets)
 
         # walk in order, but a not-yet-ready item is skipped rather than blocking
         progress = True
