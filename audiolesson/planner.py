@@ -330,6 +330,17 @@ class Planner:
             return True
         return not frames and not wholes
 
+    def part_said_with_home(self, part: Item, introduced: set[str] | frozenset[str] = frozenset()) -> bool:
+        """For a part offered as an extra: a home that is *used* in this lesson, not only known. A frame that is met or in the
+        lesson; a phrase that holds it only when it was practised earlier in this lesson (a phrase met long ago and not scheduled
+        gives the part no sentence: «þrjá» beside a «Þrjá miða, takk.» nobody says, #206 review); or no home at all."""
+        frames, wholes = self.frames_of(part), self.candidate_wholes(part)
+        if any(self.learner.has_met(c.id) or c.id in introduced or c.id in self.builder.in_lesson for c in frames):
+            return True
+        if any(w.id in introduced or w.id in self.builder.in_lesson for w in wholes):
+            return True
+        return not frames and not wholes
+
     def theme_target(self) -> tuple | None:
         """The theme and level (0-based) new material is chosen for (#149 step 2): the first by the order
         ``pick_theme`` ranks themes in (lowest level, then boosted scenarios, Tier A, Tier B, file order), whether or
@@ -874,7 +885,7 @@ class Planner:
                 continue
             if not all(self.learner.knows(p) or p in self.builder.in_lesson for p in it.prereqs):
                 continue
-            if it.kind == "vocab" and not self.part_has_home(it, exclude):
+            if it.kind == "vocab" and not self.part_said_with_home(it, exclude):
                 continue  # a part is not introduced alone, whichever way it comes (#206 review)
             out.append(it)
         return out

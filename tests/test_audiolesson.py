@@ -5139,6 +5139,19 @@ class AdmissionOfPartsTests(unittest.TestCase):
         self.assertIn("thrja_acc", ids)
         self.assertIn("count_mida_takk", ids, ids)
 
+    def test_a_part_whose_phrase_is_known_but_not_scheduled_is_not_offered_as_an_extra(self):
+        """#206 review (lesson 18 of the real path): «þrjá» was admitted because «Þrjá miða, takk.» is a met phrase that holds it,
+        yet nothing made the lesson say that phrase, so «þrjá» was drilled bare. A phrase counts as the part's home as an extra only
+        once the lesson has practised it."""
+        for i in self.cur.items:
+            if i.order < self.cur.by_id["count_mida_takk"].order and i.id not in ("thrja_acc", "count_mida_takk"):
+                self.learner.items[i.id] = ItemState(**self.known)
+        planner = self._planner()
+        self.assertTrue(self.learner.has_met("thrja_mida"))
+        self.assertNotIn("thrja_acc", [i.id for i in planner.select_variants(5, set())])
+        planner.builder.in_lesson.add("thrja_mida")  # the lesson says the phrase: the part has its sentence
+        self.assertIn("thrja_acc", [i.id for i in planner.select_variants(5, set())])
+
     def test_a_part_no_construction_takes_comes_with_the_phrase_that_holds_it(self):
         planner = self._planner(priority=["fjall"])
         self.assertEqual(planner.frames_of(self.cur.by_id["fjall"]), [], "no construction lists it as a prerequisite")
