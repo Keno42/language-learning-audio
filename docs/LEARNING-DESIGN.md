@@ -824,6 +824,12 @@ Don't reopen these without new evidence; when you do, say what changed.
     caps are on: its practice is handed to the pattern's other instances where it is linked, and dropped where no other sentence holds it.
     A new item keeps its closing recall. Repetition inside a scene is still fine up to the cap. On lessons 14–25 of the replay the most-said
     sentence was 9–11 and is at most 9 throughout; a linked phrase whose pattern is known stops at 7.
+    **The hard cap and the bare cap conflict whenever both bind** (owner review of #206, lesson 23 of the lesson-18 path: two phrases at 9,
+    and the freed practice went to a bare part past the bare cap). The freed time is not given back to bare words: a lesson under
+    180 s short because of the hard cap ends there. A cap value per path would only hide it (8 lapsed on the lesson-14 path, 9 did not).
+  - **One admission rule for a part (owner review of #206).** A part is not introduced alone when a frame or a phrase that holds it can
+    come with it, on every path (theme target, trip order, extras, variants) — a variant part (`þrjá`) was drilled bare through the
+    extras path, the same shape as the lesson-17 feedback about numbers 1–4 asked without gender or scene.
   - Not-due items wait for their date (#94).
   - **Exception: `refresh` (#175).** A known construction that carries `refresh` returns every
     lesson as a few light sentences with *changing* parts. This is deliberate and is not the

@@ -248,6 +248,18 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   slots still need. The group (part, fillers, frame) is budgeted against the count with at most one item over; a group that
   doesn't fit leaves the part for a lesson with room, as a part alone is how it was drilled bare. A part whose frame is already
   met or not ready, or that no construction lists, is unchanged.
+  One admission rule for a part, whichever path introduces it (#206 review): `Planner.part_has_home` is true when a construction
+  that lists it is met or in the lesson, or a phrase that holds its words is (`candidate_wholes`: the shortest phrase containing it,
+  never one with a negation the part lacks), or it has neither (a slot it fits is no sentence before the construction is taught). When it
+  is false, `select_new` brings the ready frame, else the ready phrase that holds it (`frame_group`), within the same one-over budget,
+  and neither is the place given up for a cheap construction (`pulled`); `select_variants` does not offer a variant part (`variant_of`,
+  `vocab`) before. A part whose frame is blocked by other material that is not yet known is still introduced alone, as before
+  (waiting for it moved the whole price chain by four lessons and broke #80's «said in a sentence within two lessons»); it is bounded
+  by the bare cap, and the replay table's «short items» row lists them.
+  The two caps (hard cap, bare cap) conflict whenever both bind: a recall the hard cap keeps out frees time that bare words would fill
+  past their own cap. `over_hard_cap` records that it held (`hard_cap_held`), and a lesson whose remaining time is under
+  `PlanConfig.hard_cap_short_max` (180 s) then ends there instead of lapsing the bare cap (the lapse stays for a lesson that is short
+  for another reason).
   A partner turn may carry `variants` (#134): `pick_variants` picks one line per turn for the early,
   assisted play (heard with its meaning); the late play says the lines as written, which are also the ones the review
   cards ask. Every partner line is spoken at natural speed (rate 1.0), and each variant must fit the learner's reply

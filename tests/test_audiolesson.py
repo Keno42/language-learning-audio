@@ -4864,6 +4864,22 @@ class HardSentenceCapTests(unittest.TestCase):
         self.assertGreater(max(said.values()), 6, said)
 
 
+    def test_the_time_the_cap_frees_is_not_given_to_bare_words_past_their_own_cap(self):
+        """#206 review: the two caps conflict whenever both bind. A recall the hard cap keeps out is not made up for by
+        saying short words alone past the bare cap: the lesson ends a little short instead. A hard cap of 5 binds in
+        most lessons of the real course, so the bare cap would lapse without it."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        for n in range(1, 15):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=6, max_sentence_hard=5), today=day).build()
+            if n >= 6:  # the first lessons have little to practise and lapse the bare cap whatever the hard cap is
+                self.assertFalse(sc.meta["bare_cap_lapsed"], sc.lesson_number)
+                self.assertGreaterEqual(sc.total_duration, 30 * 60 - 240, sc.lesson_number)
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+
+
 class InstanceOfPatternTests(unittest.TestCase):
     """#192 (owner's decisions): a fixed phrase that is an instance of a pattern is linked to it. Once the pattern is known,
     the phrase's later practice in a lesson is another sentence of the pattern with other fillers, credited to the pattern

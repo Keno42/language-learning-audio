@@ -47,6 +47,7 @@ class PlanConfig:
     # another sentence that holds the item (§9 "Repetition": a sentence five times or more is fine, ten identical ones is
     # the "repetitive" of lesson 13, #192). Not a hard cap: with no other sentence the practice stays, since dropping it
     # leaves the lesson idle and lapses the caps (the shortage of generative supply, G15). Lapses with the bare cap.
+    hard_cap_short_max: float = 180.0  # seconds: a lesson the hard cap leaves this short ends there rather than lapse the bare cap
     max_sentence_hard: int = 9  # past this many identical utterances of a fixed line the practice is dropped when no other sentence holds it (#192)
     max_sentence_utterances: int = 6
     # When the cap leaves the lesson short, up to this many close variants of what the learner knows
@@ -1364,6 +1365,8 @@ class Planner:
             """``item``'s own sentence has been said as often as a lesson allows (#192), while the caps are on."""
             return bare_cap[0] > 0 and item.kind not in ("construction", "transform") and b.said[_norm_utterance(item.target)] >= cfg.max_sentence_utterances
 
+        hard_cap_held = [False]  # the hard cap kept a recall out: the time it frees is not given back by lapsing the bare cap
+
         def over_hard_cap(item: Item, closing: bool = False) -> bool:
             """A fixed phrase said ``max_sentence_hard`` times already in this lesson (#192): nothing more is asked of it. A new
             item keeps one place for its closing recall, so everything before the closing stops one short of the cap."""
@@ -1373,7 +1376,9 @@ class Planner:
             limit = cfg.max_sentence_hard
             if item.instance_of and item.instance_of in self.cur.by_id and b._frame_available(item.instance_of):
                 limit = min(limit, cfg.max_sentence_utterances + 1)  # a linked phrase hands the rest to its pattern's other instances (#192)
-            return b.said[_norm_utterance(item.target)] >= limit - reserve
+            capped = b.said[_norm_utterance(item.target)] >= limit - reserve
+            hard_cap_held[0] = hard_cap_held[0] or capped
+            return capped
 
         def holders_all_capped(item: Item) -> bool:
             """Every sentence that holds ``item`` has been said as often as a lesson allows (#192)."""
@@ -2052,6 +2057,8 @@ class Planner:
                     pass  # nothing else is left: the light reviews of known constructions come early
                 elif bare_cap[0] > 0 and try_variant():
                     pass  # close variants of what they know fill the time before the same words come back
+                elif hard_cap_held[0] and bare_cap[0] > 0 and remaining < cfg.hard_cap_short_max and (capped_backlog or intro_timeline):
+                    break  # the hard cap freed this time: the two caps conflict, so the lesson ends a little short, not bare words again (#206)
                 elif bare_cap[0] > 0 and (capped_backlog or intro_timeline):
                     # nothing else is left, and the lesson would end short: today's short items may be
                     # said alone again, the dropped recalls first, rather than losing the time (§9 "daily dose")
