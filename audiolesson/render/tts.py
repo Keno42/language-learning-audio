@@ -158,14 +158,17 @@ class EdgeProvider(Provider):
         data = self._retrying(lambda: asyncio.run(run()))
         return to_pcm(data, "mp3").trimmed()
 
-    # The service now and then answers "no audio" or drops the connection for one clip, and the same request works a
-    # moment later (#77): a few retries after a wait, for these errors only. Anything else (an unknown voice, a bug) fails at once.
+    # The service now and then answers "no audio", drops the socket or sends a cut-off frame for one clip, and the same request works a
+    # moment later (#77): a few retries after a wait, for the errors that look like the service or the network. Decided by family, not by
+    # a list of names: every ``EdgeTTSException`` (NoAudioReceived, WebSocketError, UnexpectedResponse, …) plus aiohttp's ClientError, timeouts
+    # and connection errors. A malformed argument (a ValueError, a TypeError) is not one and fails at once; an unknown but well-formed voice
+    # comes back as NoAudioReceived, so it is retried and then fails with that message.
     RETRY_WAITS = (5.0, 20.0, 60.0)
 
     @staticmethod
     def _transient(exc: BaseException) -> bool:
         names = {c.__name__ for c in type(exc).__mro__}
-        return bool(names & {"NoAudioReceived", "ClientError", "TimeoutError", "ConnectionError"})
+        return bool(names & {"EdgeTTSException", "ClientError", "TimeoutError", "ConnectionError"})
 
     def _retrying(self, attempt):
         for n, wait in enumerate((*self.RETRY_WAITS, None)):

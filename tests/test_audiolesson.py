@@ -4867,19 +4867,39 @@ class EdgeRetryTests(unittest.TestCase):
         return result, len(calls), waits, err.getvalue()
 
     def test_a_clip_that_fails_once_is_retried_and_the_lesson_goes_on(self):
-        class NoAudioReceived(Exception):
+        class EdgeTTSException(Exception):
+            pass
+
+        class NoAudioReceived(EdgeTTSException):
             pass
 
         result, calls, waits, err = self._run([NoAudioReceived("No audio was received.")])
         self.assertEqual((result, calls, waits), ("ok", 2, [5.0]))
         self.assertIn("retrying in 5 s (1/3)", err)
 
-    def test_a_dropped_connection_is_retried_too(self):
-        result, calls, waits, _ = self._run([ConnectionResetError("reset"), TimeoutError()])
-        self.assertEqual((result, calls, waits), ("ok", 3, [5.0, 20.0]))
+    def test_the_whole_edge_tts_family_and_a_dropped_connection_are_retried(self):
+        """Decided by family: WebSocketError (a socket error frame) and UnexpectedResponse (a cut-off frame) are as transient
+        as NoAudioReceived, without naming each (#77 review)."""
+
+        class EdgeTTSException(Exception):
+            pass
+
+        class WebSocketError(EdgeTTSException):
+            pass
+
+        class UnexpectedResponse(EdgeTTSException):
+            pass
+
+        for errors in ([WebSocketError("socket")], [UnexpectedResponse("short frame")], [ConnectionResetError("reset"), TimeoutError()]):
+            result, calls, waits, _ = self._run(errors)
+            self.assertEqual((result, calls), ("ok", len(errors) + 1), errors)
+            self.assertEqual(waits, [5.0, 20.0][: len(errors)])
 
     def test_an_error_that_keeps_coming_fails_after_the_retries_with_its_own_error(self):
-        class NoAudioReceived(Exception):
+        class EdgeTTSException(Exception):
+            pass
+
+        class NoAudioReceived(EdgeTTSException):
             pass
 
         errors = [NoAudioReceived(f"try {k}") for k in range(4)]
@@ -4887,10 +4907,11 @@ class EdgeRetryTests(unittest.TestCase):
         self.assertIs(result, errors[-1])
         self.assertEqual((calls, waits), (4, [5.0, 20.0, 60.0]))
 
-    def test_any_other_error_fails_at_once(self):
-        result, calls, waits, _ = self._run([ValueError("unknown voice")])
-        self.assertIsInstance(result, ValueError)
-        self.assertEqual((calls, waits), (1, []))
+    def test_a_malformed_argument_fails_at_once(self):
+        for exc in (ValueError("Invalid voice 'x'"), TypeError("bad rate"), KeyError("k")):
+            result, calls, waits, _ = self._run([exc])
+            self.assertIs(result, exc)
+            self.assertEqual((calls, waits), (1, []), exc)
 
 
 class HardSentenceCapTests(unittest.TestCase):
