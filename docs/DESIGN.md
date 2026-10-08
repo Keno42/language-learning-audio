@@ -324,6 +324,14 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   that decides them. `--sooner` (the feedback form's «not enough / don't remember», filled right after listening) only moves `due` to at most
   half the interval from today: nothing is counted, `ease`, `interval_days` and the history are untouched, an embedded or tried item is
   `sooner_skipped` (its next-day review decides it), and the lesson is not marked reported, so the pace still waits for evidence (H2).
+- **An item is taught once in a lesson (#217).** Every `select_new` call in the lesson loop excludes `taught()` (introduced ∪ embedded this
+  lesson), so an arc start does not spend a pick on an item already taught, which would be a lost slot. The first selection
+  (`new_queue = deque(self.select_new(...))`) runs before anything is taught and has nothing to exclude. `do_intro`, where every path to an
+  introduction ends (the planned queue, the extra arcs, variants, cheap constructions), keeps a guard as the backstop: it skips an item
+  already introduced or embedded this lesson, records it in `meta["intro_skipped"]`, and counts the skipped turn down its arc's target as
+  an embed does. The course property asserts `intro_skipped` stays empty, so it pins the source; the mocked test pins the guard.
+  `meta["new_items"]` is built without duplicates. Before, an item embedded in a sentence and queued again was introduced as new nine
+  minutes later and listed twice (lesson 19's «miða»), which also broke the bot's feedback form (a select with a repeated value).
 - **A transient edge-tts error is retried per clip (#77).** `EdgeProvider._retrying`: any `EdgeTTSException` (looked up by name in the MRO,
   so edge-tts is not imported: `NoAudioReceived`, `WebSocketError`, `UnexpectedResponse`, …), aiohttp's `ClientError`, a timeout or a
   connection error is retried after 5, 20 and 60 s (one stderr line per retry, so the bot's status shows it). A malformed argument (a
