@@ -47,6 +47,8 @@ class PlanConfig:
     # another sentence that holds the item (§9 "Repetition": a sentence five times or more is fine, ten identical ones is
     # the "repetitive" of lesson 13, #192). Not a hard cap: with no other sentence the practice stays, since dropping it
     # leaves the lesson idle and lapses the caps (the shortage of generative supply, G15). Lapses with the bare cap.
+    hard_cap_short_max: float = 180.0  # seconds: a lesson the hard cap leaves this short ends there rather than lapse the bare cap
+    max_sentence_hard: int = 9  # past this many identical utterances of a fixed line the practice is dropped when no other sentence holds it (#192)
     max_sentence_utterances: int = 6
     # When the cap leaves the lesson short, up to this many close variants of what the learner knows
     # (``Item.variant_of``: another case, another gender) come in beyond the new-item limit.
@@ -218,7 +220,7 @@ class Planner:
         seed = cfg.seed if cfg.seed is not None else learner.next_lesson_number()
         self.rng = random.Random(seed)
         prompts.rng = self.rng
-        self.builder = Builder(cur, prompts, timing, learner, self.rng, translate_partner=cfg.translate_partner)
+        self.builder = Builder(cur, prompts, timing, learner, self.rng, translate_partner=cfg.translate_partner, said_cap=cfg.max_sentence_hard)
         self.exposures: dict[str, list[str]] = {}
         self.support: dict[str, int] = {}
         self.dialogues_played: list[str] = []
@@ -295,6 +297,51 @@ class Planner:
         («{thing} virkar ekki.» after «sturtan»)."""
         return [c for c in self.cur.items if c.kind == "construction" and c.slots and part.id in c.prereqs]
 
+    def homes_of(self, part: Item) -> list[Item]:
+        """The constructions a part can be said in: those that list it as a prerequisite, then those with a slot it fits (#206
+        review: one admission rule for every way a part is introduced)."""
+        tags = set(part.tags)
+        linked = self.frames_of(part)
+        tagged = [c for c in self.cur.items if c.kind == "construction" and c.slots and c not in linked and tags & set(c.slots.values())]
+        return linked + tagged
+
+    def candidate_wholes(self, part: Item) -> list[Item]:
+        """The phrases whose words contain the part's, known or not, the shortest first: the sentence a part can be brought in
+        with when no construction takes it («Hvað er þetta fjall?» for «fjall»)."""
+        words = [w.lower() for w in _WORD_RE.findall(part.target)]
+        out: list[tuple[int, Item]] = []
+        for whole in self.cur.items:
+            if whole.id == part.id or whole.kind != "phrase" or whole.target_m or not words:
+                continue
+            ww = [w.lower() for w in _WORD_RE.findall(whole.target)]
+            if len(ww) > len(words) and any(ww[k : k + len(words)] == words for k in range(len(ww) - len(words) + 1)) and not NEGATION & (set(ww) - set(words)):
+                out.append((len(ww), whole))
+        return [w for _, w in sorted(out, key=lambda t: (t[0], t[1].id))]
+
+    def part_has_home(self, part: Item, introduced: set[str] | frozenset[str] = frozenset()) -> bool:
+        """The one question every introduction path asks (#206 review): will this part be said in a sentence in this lesson?
+        Yes when a construction that lists it is met or already in the lesson (``introduced`` is what this call has chosen),
+        or a phrase that holds its words is in the lesson; a phrase the learner met long ago and the lesson does not practise
+        is no home. A part with neither a frame nor a phrase has no home to wait for and counts as housed (those parts are
+        a content gap, #215)."""
+        frames, wholes = self.frames_of(part), self.candidate_wholes(part)
+        if any(self.learner.has_met(c.id) or c.id in introduced or c.id in self.builder.in_lesson for c in frames):
+            return True
+        if any(w.id in introduced or w.id in self.builder.in_lesson for w in wholes):
+            return True
+        if not part.variant_of and any(self.learner.has_met(w.id) for w in wholes):
+            return True  # a plain part is heard in a phrase it knows (the embed path); only a variant form must be said now
+        return not frames and not wholes
+
+    def part_waits_for_home(self, part: Item) -> bool:
+        """A part with no home in this lesson waits (rather than being given alone) when it has a frame still to come and a known
+        phrase that only looks like a home («þrjá» beside a «Þrjá miða, takk.» nobody schedules): it comes with its frame. Only a
+        variant form (`variant_of`) waits: waiting every part for a blocked frame starved the course (a part and its frame each
+        waiting for the other, 20 lessons on the gendered-noun milestone). A part whose frame is met is embedded in a sentence
+        instead; one with no frame at all, or with a plain frame still blocked, is introduced as before (#215)."""
+        frames = self.frames_of(part)
+        return bool(part.variant_of) and bool(frames) and not any(self.learner.has_met(c.id) for c in frames) and any(self.learner.has_met(w.id) for w in self.candidate_wholes(part))
+
     def theme_target(self) -> tuple | None:
         """The theme and level (0-based) new material is chosen for (#149 step 2): the first by the order
         ``pick_theme`` ranks themes in (lowest level, then boosted scenarios, Tier A, Tier B, file order), whether or
@@ -334,6 +381,7 @@ class Planner:
         chosen: list[Item] = []
         chosen_ids: set[str] = set(exclude or ())
         promoted_id: str | None = None
+        pulled: set[str] = set()  # the frames and phrases brought in with a part: never the place given up for a cheap construction
 
         def ready(it: Item) -> bool:
             return all(self._prereq_met(it, p, lambda i: self.learner.knows(i) or i in chosen_ids) for p in it.prereqs)
@@ -433,7 +481,8 @@ class Planner:
 
         def frame_group(part: Item) -> tuple[Item, list[Item]] | None:
             """The frame to teach with ``part`` (already chosen) and the fillers it would pull: of the unmet, ready
-            constructions that list the part as a prerequisite, the one needing the fewest new fillers, then course order."""
+            constructions that list the part as a prerequisite, the one needing the fewest new fillers,
+            then course order."""
             best = None
             for c in self.frames_of(part):
                 if c.id in chosen_ids or self.learner.has_met(c.id) or not ready(c):
@@ -447,7 +496,10 @@ class Planner:
                 key = (len(fillers), c.order)
                 if best is None or key < best[0]:
                     best = (key, c, fillers)
-            return (best[1], best[2]) if best else None
+            if best is None:  # no construction to bring: a phrase that holds it, if one is ready
+                whole = next((w for w in self.candidate_wholes(part) if w.id not in chosen_ids and not self.learner.has_met(w.id) and ready(w)), None)
+                return (whole, []) if whole is not None else None
+            return (best[1], best[2])
 
         scene = set(self.theme_wants())  # what the theme's next level is made of is a scene, not a bare set (#149 step 2)
 
@@ -480,7 +532,7 @@ class Planner:
                     # lists it as a prerequisite, with the fillers its slots still need, the whole group at most one
                     # item over ``count``; a group that doesn't fit leaves the part for a lesson with room, since a
                     # part alone is how it was drilled bare
-                    group = frame_group(it)
+                    group = frame_group(it) if not self.part_has_home(it, chosen_ids) else None
                     if group is not None:
                         frame, fillers = group
                         if len(chosen) + len(fillers) + 1 > count + 1:
@@ -488,6 +540,11 @@ class Planner:
                             chosen_ids.discard(it.id)
                             continue
                         take(frame, fillers_first=True)
+                        pulled.add(frame.id)
+                    elif not self.part_has_home(it, chosen_ids) and self.part_waits_for_home(it):
+                        chosen.pop()  # its phrase is known but not in this lesson and no frame comes with it: it waits (#206 review)
+                        chosen_ids.discard(it.id)
+                        continue
                 progress = True
                 if len(chosen) >= count:
                     break
@@ -522,7 +579,7 @@ class Planner:
             # #171 B: one place for a cheap construction, from the non-trip items: never a trip item's
             candidate = self.cheap_construction(chosen_ids)
             trip = set(self.cfg.priority)
-            drop = next((i for i in reversed(chosen) if i.id not in trip and i.kind != "construction"), None)
+            drop = next((i for i in reversed(chosen) if i.id not in trip and i.kind != "construction" and i.id not in pulled), None)
             if candidate is not None and drop is not None:
                 chosen[chosen.index(drop)] = candidate
                 self.cheap_placed.append(candidate.id)
@@ -833,6 +890,8 @@ class Planner:
                 continue
             if not all(self.learner.knows(p) or p in self.builder.in_lesson for p in it.prereqs):
                 continue
+            if it.kind == "vocab" and not self.part_has_home(it, exclude):
+                continue  # a part is not introduced alone, whichever way it comes (#206 review)
             out.append(it)
         return out
 
@@ -1242,6 +1301,8 @@ class Planner:
             if over_utterance_cap(item):
                 if sentence_practice(item, review=not any(i.id == item.id for i in introduced)):  # the same line again is ten identical drills: another sentence that holds it
                     return True
+            if allow_cap and over_hard_cap(item):
+                return False  # no other sentence holds it and it has been said as often as a lesson allows (#192, the owner's rule: never ten)
             scene = stage == "situation" and b.situation_usable(item) and b.situation_room(item)  # not the short meaning cue it falls back to
             if allow_cap and (stage in BARE_STAGES or stage == "recombine") and (is_part(item) or not scene) and bare_capped(item):
                 return sentence_practice(item)
@@ -1320,6 +1381,26 @@ class Planner:
             """``item``'s own sentence has been said as often as a lesson allows (#192), while the caps are on."""
             return bare_cap[0] > 0 and item.kind not in ("construction", "transform") and b.said[_norm_utterance(item.target)] >= cfg.max_sentence_utterances
 
+        hard_cap_held = [False]  # the hard cap kept a recall out: the time it frees is not given back by lapsing the bare cap
+
+        def over_hard_cap(item: Item, closing: bool = False) -> bool:
+            """A fixed phrase said ``max_sentence_hard`` times already in this lesson (#192): nothing more is asked of it. A new
+            item keeps one place for its closing recall, so everything before the closing stops one short of the cap."""
+            if item.kind != "phrase" or cfg.max_sentence_hard <= 0 or bare_cap[0] <= 0:
+                return False
+            reserve = 0 if closing or not any(i.id == item.id for i in introduced) else 1
+            limit = cfg.max_sentence_hard
+            if item.instance_of and item.instance_of in self.cur.by_id and b._frame_available(item.instance_of):
+                limit = min(limit, cfg.max_sentence_utterances + 1)  # a linked phrase hands the rest to its pattern's other instances (#192)
+            capped = b.said[_norm_utterance(item.target)] >= limit - reserve
+            hard_cap_held[0] = hard_cap_held[0] or capped
+            return capped
+
+        def holders_all_capped(item: Item) -> bool:
+            """Every sentence that holds ``item`` has been said as often as a lesson allows (#192)."""
+            wholes = [w for w in self.containing_items(item) if not self._stable(w)]
+            return bool(wholes) and all(over_hard_cap(w) for w in wholes)
+
         def asked_times(whole: Item) -> int:
             """How often ``whole`` was asked (recall or connect) in this lesson."""
             return sum(1 for e in sc.exercises if e.kind in ("recall", "connect") and whole.id in e.item_ids)
@@ -1345,7 +1426,7 @@ class Planner:
                     touch(item)
                     return True
                 for whole in sorted(self.containing_items(item), key=over_utterance_cap):  # one not yet said as often as a lesson allows first
-                    if self._stable(whole) or (review and (bare_capped(whole) or whole.id in recent or asked_times(whole) >= 2)):
+                    if self._stable(whole) or over_hard_cap(whole) or (review and (bare_capped(whole) or whole.id in recent or asked_times(whole) >= 2)):
                         continue  # a stable one keeps to its date, a short whole to its own bare uses, the one just asked is not asked again
                     ex = b.recall(sc, whole, "meaning")
                     ex.item_ids.append(item.id)  # the part was practised inside it: the exercise says so
@@ -1365,6 +1446,15 @@ class Planner:
             a known pattern with a slot for it, else a known item whose words contain it.
             False when there is none (the item stops at its bare uses)."""
             used = sentence_used.setdefault(item.id, set())
+            if item.instance_of and (pattern := self.cur.by_id.get(item.instance_of)) is not None and b._frame_available(pattern.id):
+                # a fixed phrase that is an instance of a known pattern (#192): another sentence of the pattern with other
+                # fillers. It is credited to the pattern and its fillers, never to the phrase, whose own review stays in its own form
+                own = {slot: self.cur.by_id[ref] for slot, ref in item.instance_fill.items()}
+                ex = b._recombine(sc, pattern, met_fills=True, exclude=own) or b.sibling_recall(sc, pattern, own)
+                if ex is not None:
+                    self._record(list(ex.item_ids), ex.stage or "recombine", ex.item_ids)
+                    touch(pattern)
+                    return True
             if b.recombine_status(item) == "novel":
                 ex = b.recall(sc, item, "recombine")
                 if ex.kind == "generative":
@@ -1373,7 +1463,7 @@ class Planner:
                     used.add(ex.label)
                     return True
             for whole in sorted(self.containing_items(item), key=over_utterance_cap):
-                if whole.id in used or whole.id in recent or bare_capped(whole) or (review and asked_times(whole) >= 2):
+                if whole.id in used or whole.id in recent or bare_capped(whole) or over_hard_cap(whole) or (review and asked_times(whole) >= 2):
                     continue  # a short whole item has its own bare uses to keep to
                 if self._stable(whole):
                     continue  # a stable item is practised on its own dates, never as the sentence for another (#94, #151)
@@ -1462,6 +1552,8 @@ class Planner:
                     continue  # a part is not said alone in a scene either: its situation turn counts against the cap (#187)
                 if short_review(it) and holds_sentence(it):
                     continue  # a sentence that holds it can be said: not the bare word (#187)
+                if over_hard_cap(it):
+                    continue  # said as often as a lesson allows: not in a scene either (#192)
                 if connect_item_uses.get(it.id) and self._stable(it):
                     continue  # a stable item takes part in one connect a lesson (#151)
                 seen.add(it.id)
@@ -1981,6 +2073,8 @@ class Planner:
                     pass  # nothing else is left: the light reviews of known constructions come early
                 elif bare_cap[0] > 0 and try_variant():
                     pass  # close variants of what they know fill the time before the same words come back
+                elif hard_cap_held[0] and bare_cap[0] > 0 and remaining < cfg.hard_cap_short_max and (capped_backlog or intro_timeline):
+                    break  # the hard cap freed this time: the two caps conflict, so the lesson ends a little short, not bare words again (#206)
                 elif bare_cap[0] > 0 and (capped_backlog or intro_timeline):
                     # nothing else is left, and the lesson would end short: today's short items may be
                     # said alone again, the dropped recalls first, rather than losing the time (§9 "daily dose")
@@ -2030,6 +2124,10 @@ class Planner:
                     stage = self.recombine_or_instead(item)  # no fresh sentence: a meaning recall
                 if (stage in BARE_STAGES or stage == "recombine") and short_today(item) and said_in_sentence(item) and ask_a_sentence(item, repeat=True):
                     continue  # #179: said in a sentence today, so asked in one now, not as a bare part
+                if over_hard_cap(item, closing=True):
+                    continue  # #192: it was just said as often as a lesson allows; the closing recall would be one more identical drill
+                if (stage in BARE_STAGES or stage == "recombine") and short_today(item) and said_in_sentence(item) and holders_all_capped(item):
+                    continue  # asked in a sentence today and every sentence that holds it is at the cap: no bare part in its place
                 ex = b.recall(sc, item, stage)
                 self._record([item.id], ex.stage or stage, ex.item_ids)
         b.closing(sc, n)
