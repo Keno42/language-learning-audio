@@ -134,6 +134,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "minutes": round(max(e.start + e.duration for e in exs) / 60, 1),
         "exercises": len(exs),
         "new items": len(m["new_items"]),
+        "new components, weighted (forms)": (f"{m['new_components']['total']:g} ({m['new_components']['forms']:g})" if m.get("new_components") else "–"),
         "constructions known at start": known_constructions,
         "short new item alone, most": max((v[0] for v in short.values()), default=0),
         "short items (alone / in sentences / distinct)": ", ".join(f"{k} {v[0]}/{v[1]}/{v[2]}" + (f" +{v[3]} in scenes" if v[3] else "") for k, v in short.items()) or "–",
@@ -209,8 +210,9 @@ def main(argv: list[str] | None = None) -> int:
     for _ in range(args.lessons):
         known_c = sum(1 for c in cur.items if c.kind == "construction" and learner.knows(c.id))
         pace, _why = learner.suggest_pace(minutes, day)
+        target, _twhy = learner.suggest_target(minutes, day)  # the lesson plans from its target of weighted components (#218 b3)
         timing = Timing(level=learner.level or cur.level, speech_ratio=dict(learner.speech_calibration))
-        sc = Planner(cur, learner, prompts, timing, PlanConfig(minutes=minutes, new_items=pace, priority=priority, themes=themes, theme_scenarios=theme_scenarios), today=day).build()
+        sc = Planner(cur, learner, prompts, timing, PlanConfig(minutes=minutes, new_items=pace, new_target=target, priority=priority, themes=themes, theme_scenarios=theme_scenarios), today=day).build()
         rows.append(measure(cur, sc, known_c))
         apply_to_learner(sc, learner, day)
         day += timedelta(days=1)

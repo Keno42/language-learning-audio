@@ -25,6 +25,8 @@ from .stages import ladder_for, next_stage, stage_index
 STATE_FORMAT = "audiolesson-learner/1"
 MAX_INTERVAL_DAYS = 180
 AUTO_STEP_EVERY = 3  # auto mode: lessons between pace increases
+NEW_TARGET_START = 8.0  # weighted new components a lesson starts at (#218 b3)
+NEW_TARGET_MIN, NEW_TARGET_MAX = 4.0, 12.0
 PACE_WINDOW = 3  # reported lessons the recall rate is taken over (#218)
 LOADS = ("light", "right", "heavy")  # the learner's rating of a lesson's load (#218)
 
@@ -71,6 +73,8 @@ class LearnerState:
     reported: list[int] = field(default_factory=list)  # lesson numbers the learner gave feedback on
     feedback_mode: str = "manual"  # manual: pace rises only on `report`; auto: rises on its own every few lessons
     pace_changed_at: int = 0  # lesson number of the last pace change (auto mode steps slowly)
+    new_target: float = NEW_TARGET_START  # weighted new components a lesson aims at (#218 b3), moved by suggest_target
+    target_changed_at: int = 0
     speech_calibration: dict[str, float] = field(default_factory=dict)  # lang → measured/estimated TTS length
     notes_heard: dict[str, int] = field(default_factory=dict)  # note id → times played
     notes_last_heard: dict[str, int] = field(default_factory=dict)  # note id → lesson it last played in
@@ -171,7 +175,9 @@ class LearnerState:
         return weak, total
 
     def suggest_pace(self, minutes: float, today: date) -> tuple[int, str]:
-        """Decide how many new items the next lesson should introduce, and say why.
+        """Decide how many new items the next lesson should introduce, and say why. ``pace`` keeps its meaning in items:
+        ``--pace`` / ``--new``, the simulations, ``cando.simulate_reach`` and the coverage report use it. A lesson is planned
+        from ``suggest_target`` (weighted new components, #218 b3) unless the number of items is given.
 
         Rules (see README "Pacing"):
         - start at about one new item per 5 minutes (30 min → 6), never below 3 or above 10
@@ -186,10 +192,26 @@ class LearnerState:
         """
         default = int(min(10, max(3, round(minutes / 5))))
         pace = self.pace or default
+        new_pace, reasons, changed = self._pace_rules(pace, 3, 10, minutes, today, self.pace_changed_at, "pace", pace)
+        if changed:
+            self.pace_changed_at = self.lessons_completed
+        return int(new_pace), "; ".join(reasons)
+
+    def suggest_target(self, minutes: float, today: date) -> tuple[float, str]:
+        """The lesson's target of weighted new components (#218 b3), and why: the same rules as ``suggest_pace`` (the three-lesson
+        recall window, the load rating, the backlog) move it by one a lesson, within ``NEW_TARGET_MIN``–``NEW_TARGET_MAX``."""
+        # the backlog estimate reserves review slots for new *items*, so it takes the item pace, not the component target
+        items = self.pace or int(min(10, max(3, round(minutes / 5))))
+        new_target, reasons, changed = self._pace_rules(self.new_target, NEW_TARGET_MIN, NEW_TARGET_MAX, minutes, today, self.target_changed_at, "new-component target", items)
+        if changed:
+            self.target_changed_at = self.lessons_completed
+        return float(new_target), "; ".join(reasons)
+
+    def _pace_rules(self, pace: float, lo: float, hi: float, minutes: float, today: date, changed_at: int, label: str, slots_items: float) -> tuple[float, list[str], bool]:
         reasons: list[str] = []
         due = self.due_count(today)
         # rough capacity: one exercise ≈ 16 s; a new item costs ≈ 6 exercises
-        review_slots = max(0, int(minutes * 60 / 16) - pace * 6)
+        review_slots = max(0, int(minutes * 60 / 16) - round(slots_items) * 6)
         backlog_ratio = due / review_slots if review_slots else 1.0
         fb = self.recall_rate()
         auto_assumed = False
@@ -223,24 +245,22 @@ class LearnerState:
             new_pace += 1
             reasons.append(f"the last two lessons were rated light ({fb[0]:g}/{fb[1]} failed)")
         elif new_pace == pace and not heavy and fail_rate is not None and fail_rate <= 0.15 and backlog_ratio < 0.5 and auto_assumed:
-            if self.lessons_completed - self.pace_changed_at >= AUTO_STEP_EVERY:
+            if self.lessons_completed - changed_at >= AUTO_STEP_EVERY:
                 new_pace += 1
                 reasons.append(f"auto: {AUTO_STEP_EVERY} lessons without reported failures, backlog small")
             else:
-                reasons.append(f"auto: next step after lesson {self.pace_changed_at + AUTO_STEP_EVERY}")
+                reasons.append(f"auto: next step after lesson {changed_at + AUTO_STEP_EVERY}")
         if auto_assumed and fb[1] == 0:
             reasons.append("last lesson was review only")
         elif self.feedback_mode != "auto" and self.lessons and self.lessons[-1]["number"] not in self.reported:
             reasons.append("no feedback for the last lesson (run `audiolesson report`, or use --auto) — not speeding up")
         elif fb is not None and fb[1] == 0 and not auto_assumed:
             reasons.append("last lesson was review only")
-        new_pace = int(min(10, max(3, new_pace)))
-        if new_pace != pace:
-            self.pace_changed_at = self.lessons_completed
-            reasons.insert(0, f"pace {pace} → {new_pace}")
-        else:
-            reasons.insert(0, f"pace {pace}")
-        return new_pace, "; ".join(reasons)
+        new_pace = min(hi, max(lo, new_pace))
+        changed = new_pace != pace
+        shown = (lambda v: f"{v:g}")
+        reasons.insert(0, f"{label} {shown(pace)} → {shown(new_pace)}" if changed else f"{label} {shown(pace)}")
+        return new_pace, reasons, changed
 
     def review_priority(self, item_id: str, today: date) -> float:
         """Higher = more urgent. 0 if not due yet."""
@@ -524,6 +544,8 @@ class LearnerState:
             "reported": self.reported,
             "feedback_mode": self.feedback_mode,
             "pace_changed_at": self.pace_changed_at,
+            "new_target": self.new_target,
+            "target_changed_at": self.target_changed_at,
             "speech_calibration": self.speech_calibration,
             "notes_heard": self.notes_heard,
             "notes_last_heard": self.notes_last_heard,
@@ -556,6 +578,8 @@ class LearnerState:
             reported=list(raw.get("reported", [])),
             feedback_mode=raw.get("feedback_mode", "manual"),
             pace_changed_at=int(raw.get("pace_changed_at", 0)),
+            new_target=float(raw.get("new_target", NEW_TARGET_START)),
+            target_changed_at=int(raw.get("target_changed_at", 0)),
             speech_calibration=dict(raw.get("speech_calibration", {})),
             notes_heard=dict(raw.get("notes_heard", {})),
             notes_last_heard=dict(raw.get("notes_last_heard", {})),
