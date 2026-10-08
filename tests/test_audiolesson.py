@@ -4525,6 +4525,7 @@ class EmbeddedPartTests(unittest.TestCase):
             intros = [e.item_ids[0] for e in sc.exercises if e.kind == "intro"]
             self.assertEqual(len(intros), len(set(intros)), (sc.lesson_number, intros))
             self.assertFalse(set(intros) & set(sc.meta["embedded_items"]), (sc.lesson_number, "embedded and introduced"))
+            self.assertEqual(sc.meta["intro_skipped"], [], (sc.lesson_number, "the guard fired: a selection chose an item already taught"))
             apply_to_learner(sc, learner, day)
             day += timedelta(days=1)
 
@@ -4546,6 +4547,7 @@ class EmbeddedPartTests(unittest.TestCase):
                          PlanConfig(minutes=10, new_items=2, max_new_items=2, seed=3), today=TODAY).build()  # fmt: skip
         self.assertEqual(sc.meta["new_items"], ["opid"], "once")
         self.assertEqual(sc.meta["embedded_items"], ["opid"])
+        self.assertEqual(sc.meta["intro_skipped"], ["opid"], "the guard reports that it fired")
         self.assertEqual([e.kind for e in sc.exercises if "opid" in e.item_ids and e.kind in ("intro", "embed")], ["embed"],
                          "heard inside the sentence, not introduced again")  # fmt: skip
 

@@ -1149,6 +1149,10 @@ class Planner:
         pending: list[_Pending] = []
         seq = 0
         introduced: list[Item] = []
+        intro_skipped: list[str] = []  # items do_intro refused as already taught: should stay empty (the selections exclude them)
+
+        def taught() -> set[str]:
+            return {i.id for i in introduced} | set(self.embedded)  # one set of what this lesson taught, for every select_new exclude
         recent: deque[str] = deque(maxlen=2)  # item ids of the last exercises
         recent_topics: deque[str] = deque(maxlen=2)
         idx = 0
@@ -1221,6 +1225,7 @@ class Planner:
             if item.id in self.embedded or any(i.id == item.id for i in introduced):
                 # taught already this lesson (embedded, then queued again: «miða» in lesson 19, #217): its turn goes to the
                 # next item. Checked here because every path to an introduction ends here, whatever queue it came from
+                intro_skipped.append(item.id)
                 arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
                 return
             # A milestone this item's prereqs complete plays before the intro: a construction's
@@ -1838,7 +1843,7 @@ class Planner:
                     and reviews_used
                     and current_arc_id + 1 < cfg.max_arcs
                     and remaining >= need_for_new
-                    and (more := self.select_new(cfg.resolved_extra_arc_items(), exclude={i.id for i in introduced}))
+                    and (more := self.select_new(cfg.resolved_extra_arc_items(), exclude=taught()))
                 ):
                     start_arc(more)  # or the next arc, before its time
                     acted = True
@@ -1944,7 +1949,7 @@ class Planner:
                 and current_arc_id + 1 < cfg.max_arcs
                 and remaining >= need_for_new
                 and sc.total_duration >= (len(introduced) + len(self.embedded)) * intro_spacing
-                and (more := self.select_new(cfg.resolved_extra_arc_items(), exclude={i.id for i in introduced}))
+                and (more := self.select_new(cfg.resolved_extra_arc_items(), exclude=taught()))
             ):
                 start_arc(more)
                 acted = True
@@ -2012,7 +2017,7 @@ class Planner:
                     play_timed(pulled)
                 elif new_queue and can_drain and remaining >= need_for_new * 0.6:
                     do_intro(new_queue.popleft())
-                elif can_intro and not reviews_used and remaining >= need_for_new and (more := self.select_new(1, exclude={i.id for i in introduced} | set(self.embedded))):
+                elif can_intro and not reviews_used and remaining >= need_for_new and (more := self.select_new(1, exclude=taught())):
                     # an extra item for a lesson with nothing to review (the first ones); a lesson
                     # that ran out of reviews takes a fresh arc below instead
                     do_intro(more[0])
@@ -2039,7 +2044,7 @@ class Planner:
                     and not new_queue
                     and remaining >= need_for_new
                     and self._may_start_arc(current_arc_id + 1, early_tier, far_short=sc.total_duration < budget / 2)
-                    and (more := self.select_new(cfg.resolved_extra_arc_items(capped=early_tier < 2), exclude={i.id for i in introduced} | set(self.embedded)))
+                    and (more := self.select_new(cfg.resolved_extra_arc_items(capped=early_tier < 2), exclude=taught()))
                 ):
                     # A fresh arc of new material rather than a second review pass: the new-item
                     # cap bounds an arc, not the lesson (see _may_start_arc). Only once the review
@@ -2152,6 +2157,7 @@ class Planner:
             "curriculum": self.cur.name,
             "new_items": list(dict.fromkeys([i.id for i in introduced] + list(self.embedded))),
             "embedded_items": list(self.embedded),
+            "intro_skipped": list(intro_skipped),
             "variant_items": list(variants_used),
             "refresh_sentences": dict(refresh_done),
             # #149 1b-ii: the lesson's theme and level (1-based) and how often its exchange played; None: no theme was ready

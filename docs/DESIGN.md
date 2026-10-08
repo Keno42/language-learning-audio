@@ -326,7 +326,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   `sooner_skipped` (its next-day review decides it), and the lesson is not marked reported, so the pace still waits for evidence (H2).
 - **An item is taught once in a lesson (#217).** `do_intro` is where every path to an introduction ends (the planned queue, the extra arcs,
   variants, cheap constructions), so it skips an item already introduced or embedded this lesson instead of each queue being filtered;
-  the skipped turn also counts down its arc's target, as an embed does. `meta["new_items"]` is built without duplicates. Before, an item
+  the skipped turn also counts down its arc's target, as an embed does. `meta["new_items"]` is built without duplicates. The guard is the
+  backstop, not the fix: every `select_new` call in `build` excludes `taught()` (introduced ∪ embedded this lesson), so an arc start does
+  not spend a pick on an item already taught (that would be a lost slot), and the guard records any item it skips in `meta["intro_skipped"]`,
+  which the course property asserts stays empty. Before, an item
   embedded in a sentence and queued again was introduced as new nine minutes later and listed twice (lesson 19's «miða»), which also
   broke the bot's feedback form (a select with a repeated value). The tests pin it as a property over a simulated course.
 - **A transient edge-tts error is retried per clip (#77).** `EdgeProvider._retrying`: any `EdgeTTSException` (looked up by name in the MRO,
