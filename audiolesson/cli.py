@@ -465,6 +465,22 @@ def cmd_status(args) -> int:
     return 0
 
 
+def _check_bin(cur, curriculum) -> list[str]:
+    """Every ``variant_of`` item and its base are forms of one BÍN lemma (#218 b2), against the cached lookups. Until the cache has been
+    built (tools/bin_lookup.py --variants), a curriculum directory without ``bin/forms.json`` only gets a warning."""
+    from .binform import cache_path, check_variants, load_cache
+
+    if not Path(curriculum).is_dir():
+        return []
+    path = cache_path(curriculum)
+    if not path.exists():
+        n = sum(1 for i in cur.items if i.variant_of)
+        if n:
+            print(f"warning: {n} variant items are not checked against BÍN yet; run `python tools/bin_lookup.py --variants` (writes {path})", file=sys.stderr)
+        return []
+    return check_variants(cur, load_cache(path))
+
+
 def cmd_validate(args) -> int:
     cur = load_curriculum(args.curriculum, known_lang=args.known)
     kinds = {}
@@ -484,6 +500,11 @@ def cmd_validate(args) -> int:
             print(f"{lang}: {total - len(c.missing_glosses)}/{total} strings glossed; missing in {len(by_item)} entries, e.g. {', '.join(list(by_item)[:10])}")
         else:
             print(f"{lang}: complete ({total} strings)")
+    problems = _check_bin(cur, args.curriculum)
+    if problems:
+        for line in problems:
+            print(f"error: {line}", file=sys.stderr)
+        return 1
     findings = dialogue_sequencing_report(cur)
     if findings:
         words: dict[str, int] = {}

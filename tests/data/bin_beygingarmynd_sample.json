@@ -1,0 +1,45 @@
+{
+ "_comment": "HAND-WRITTEN to the shape audiolesson.binform.parse_lookup expects, not a recording of the real API; replace with a real response on the first run of tools/bin_lookup.py.",
+ "q": "miða",
+ "results": [
+  {
+   "guid": "g-mid",
+   "ord": "mið",
+   "ofl": "hk",
+   "kyn": "hk",
+   "bmyndir": [
+    {
+     "b": "miða",
+     "g": "EFET"
+    }
+   ]
+  },
+  {
+   "guid": "g-miða",
+   "ord": "miða",
+   "ofl": "so",
+   "bmyndir": [
+    {
+     "b": "miða",
+     "g": "GM-NH"
+    }
+   ]
+  },
+  {
+   "guid": "g-miði",
+   "ord": "miði",
+   "ofl": "kk",
+   "kyn": "kk",
+   "bmyndir": [
+    {
+     "b": "miða",
+     "g": "ÞFET"
+    },
+    {
+     "b": "miða",
+     "g": "ÞGFET"
+    }
+   ]
+  }
+ ]
+}

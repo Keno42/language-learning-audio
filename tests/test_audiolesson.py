@@ -7197,6 +7197,91 @@ class FailureThinkTimeTests(unittest.TestCase):
             self.assertFalse(any(st.extra_think_time for st in LearnerState.load(path).items.values()))
 
 
+class BinFormCheckTests(unittest.TestCase):
+    """#218 b2: a variant item and its base are forms of one BÍN lemma, checked once and cached so ``validate`` runs offline."""
+
+    @staticmethod
+    def _cur():
+        return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": [
+            {"id": "kaffi", "kind": "vocab", "target": "kaffi", "meaning": "coffee"},
+            {"id": "kaffid", "kind": "vocab", "target": "kaffið", "meaning": "the coffee", "variant_of": "kaffi", "meaning_spoken": "the coffee"},
+        ]})
+
+    @staticmethod
+    def _entry(guid, lemma="kaffi"):
+        return {"lemma": lemma, "guid": guid, "ofl": "hk", "kyn": "hk", "tag": "NFET", "checked_on": "2026-10-09"}
+
+    def test_a_pair_of_one_lemma_passes(self):
+        from audiolesson.binform import check_variants
+
+        cache = {"kaffi": self._entry("g1"), "kaffið": self._entry("g1")}
+        self.assertEqual(check_variants(self._cur(), cache), [])
+
+    def test_a_variant_missing_from_the_cache_fails_with_the_command_to_run(self):
+        from audiolesson.binform import check_variants
+
+        problems = check_variants(self._cur(), {"kaffi": self._entry("g1")})
+        self.assertEqual(len(problems), 1)
+        self.assertIn("tools/bin_lookup.py kaffið", problems[0])
+
+    def test_a_variant_whose_lemma_differs_from_its_base_fails(self):
+        from audiolesson.binform import check_variants
+
+        problems = check_variants(self._cur(), {"kaffi": self._entry("g1"), "kaffið": self._entry("g2", "kaffið")})
+        self.assertEqual(len(problems), 1)
+        self.assertIn("not one lemma", problems[0])
+
+    def test_the_cli_validates_against_the_cache_when_it_exists(self):
+        from audiolesson.binform import save_cache
+        from audiolesson.cli import main
+
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}}
+        with tempfile.TemporaryDirectory() as td:
+            d = Path(td)
+            (d / "course.toml").write_text(
+                '[curriculum]\nname = "x"\ntarget_lang = "is"\nknown_lang = "en"\n\n[[items]]\nid = "kaffi"\nkind = "vocab"\ntarget = "kaffi"\nmeaning = "coffee"\n\n'
+                '[[items]]\nid = "kaffid"\nkind = "vocab"\ntarget = "kaffið"\nmeaning = "the coffee"\nmeaning_spoken = "the coffee"\nvariant_of = "kaffi"\n', encoding="utf-8")
+            self.assertEqual(main(["validate", str(d)]), 0, "no cache built yet: a warning only")
+            save_cache(d / "bin" / "forms.json", {"kaffi": self._entry("g1")})
+            self.assertEqual(main(["validate", str(d)]), 1, "a cache without the variant fails")
+            save_cache(d / "bin" / "forms.json", {"kaffi": self._entry("g1"), "kaffið": self._entry("g1")})
+            self.assertEqual(main(["validate", str(d)]), 0)
+
+    def test_the_committed_cache_covers_the_real_curriculum(self):
+        from audiolesson.binform import cache_path, check_variants, load_cache
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        path = cache_path(ROOT / "curricula" / "is-en")
+        if not path.exists():
+            self.skipTest("curricula/is-en/bin/forms.json is not built yet: python tools/bin_lookup.py --variants")
+        self.assertEqual(check_variants(cur, load_cache(path)), [])
+
+    def test_the_tool_parses_a_response_and_waits_for_a_pick_when_ambiguous(self):
+        import contextlib
+        import importlib.util
+        import io
+
+        spec = importlib.util.spec_from_file_location("bin_lookup", ROOT / "tools" / "bin_lookup.py")
+        tool = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(tool)
+        data = json.loads((ROOT / "tests" / "data" / "bin_beygingarmynd_sample.json").read_text(encoding="utf-8"))
+        chosen, cands = tool.resolve("miða", data)
+        self.assertIsNone(chosen)
+        self.assertEqual([(c["lemma"], c["ofl"]) for c in cands], [("mið", "hk"), ("miða", "so"), ("miði", "kk")])
+        self.assertEqual(next(c for c in cands if c["lemma"] == "miði")["tags"], ["ÞFET", "ÞGFET"])
+        chosen, _ = tool.resolve("miða", data, pick="g-miði")
+        self.assertEqual(chosen["lemma"], "miði")
+        chosen, _ = tool.resolve("miða", data, ofl="so")
+        self.assertEqual(chosen["guid"], "g-miða")
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "bin" / "forms.json"
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(tool.run([("miða", None)], path, None, "2026-10-09", fetcher=lambda f, o: data, pause=0), 1, "ambiguous: nothing written")
+                self.assertFalse(path.exists())
+                self.assertEqual(tool.run([("miða", None)], path, "g-miði", "2026-10-09", fetcher=lambda f, o: data, pause=0), 0)
+            self.assertEqual(json.loads(path.read_text(encoding="utf-8"))["miða"]["guid"], "g-miði")
+
+
 class PacingTests(unittest.TestCase):
     def test_durable_successes_need_a_review_on_or_after_its_due_date(self):
         """Issue #27: several recalls minutes apart in one lesson (the intra-lesson
