@@ -14,7 +14,7 @@ from .themes import load_themes, scenario_order
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts
 from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, part_before_whole_report
-from .learner import LearnerState, parse_date
+from .learner import LOADS, LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
 from .script import Script
@@ -83,6 +83,7 @@ def main(argv: list[str] | None = None) -> int:
     rp.add_argument("--recalled", default="", help="comma-separated item ids you confirmed you recalled")
     rp.add_argument("--easy", default="", help="comma-separated item ids that felt too easy")
     rp.add_argument("--sooner", default="", help="comma-separated item ids the learner does not remember: they come back sooner (due within half their interval), without an outcome being recorded")
+    rp.add_argument("--load", choices=LOADS, default=None, help="how heavy the lesson was: light, right or heavy (does not mark the lesson reported on its own)")
     rp.add_argument("--date", default=None)
     rp.set_defaults(func=cmd_report)
 
@@ -413,7 +414,8 @@ def cmd_report(args) -> int:
     learner = LearnerState.load(args.learner)
     today = parse_date(args.date)
     changed = learner.report(
-        _split(args.failed), _split(args.easy), today, args.lesson, hesitated=_split(args.hesitated), recalled=_split(args.recalled), sooner=_split(args.sooner)
+        _split(args.failed), _split(args.easy), today, args.lesson, hesitated=_split(args.hesitated), recalled=_split(args.recalled), sooner=_split(args.sooner),
+        load=args.load,
     )
     learner.save(args.learner)
     if changed["failed"]:
@@ -428,9 +430,11 @@ def cmd_report(args) -> int:
         print(f"coming back sooner (due within half the interval; no outcome recorded): {', '.join(changed['sooner'])}")
     if changed["sooner_skipped"]:
         print(f"left to the next-day review (embedded or tried): {', '.join(changed['sooner_skipped'])}")
+    if changed["load"]:
+        print(f"lesson {changed['lesson']} load recorded: {changed['load']}")
     if changed["unknown"]:
         print(f"warning: not in learner state: {', '.join(changed['unknown'])}", file=sys.stderr)
-    if not (changed["failed"] or changed["hesitated"] or changed["recalled"] or changed["easy"] or args.sooner):
+    if not (changed["failed"] or changed["hesitated"] or changed["recalled"] or changed["easy"] or args.sooner or args.load):
         print(f"lesson {changed['lesson']} recorded as all good (pass --failed/--easy item ids from the lesson's .plan.json otherwise)")
     return 0
 

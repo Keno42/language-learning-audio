@@ -25,6 +25,8 @@ from .stages import ladder_for, next_stage, stage_index
 STATE_FORMAT = "audiolesson-learner/1"
 MAX_INTERVAL_DAYS = 180
 AUTO_STEP_EVERY = 3  # auto mode: lessons between pace increases
+PACE_WINDOW = 3  # reported lessons the recall rate is taken over (#218)
+LOADS = ("light", "right", "heavy")  # the learner's rating of a lesson's load (#218)
 
 
 @dataclass
@@ -130,27 +132,43 @@ class LearnerState:
     def due_count(self, today: date) -> int:
         return sum(1 for i in self.items if self.review_priority(i, today) >= 1.0)
 
-    def last_lesson_failures(self) -> tuple[float, int] | None:
-        """(weak new items, new items) of the last lesson, or None if it was not reported. A
-        failed item counts 1, a hesitated one ½: "it came out, but only just" is not the
-        evidence a faster pace needs (with every new item confirmed in the Discord review, a
-        pace that ignored hesitation rose every lesson to its ceiling)."""
-        if not self.lessons:
-            return None
-        last = self.lessons[-1]
-        if last["number"] not in self.reported:
-            return None
+    def _lesson_weakness(self, lesson: dict) -> tuple[float, int]:
+        """(weak new items, new items) of one lesson. A failed item counts 1, a hesitated one ½: "it came out,
+        but only just" is not the evidence a faster pace needs (with every new item confirmed in the Discord
+        review, a pace that ignored hesitation rose every lesson to its ceiling). An item's entry is found by
+        the lesson's number: a later lesson appends its own and ``history[-1]`` would be that one (#218). An
+        embedded new item that failed or hesitated (``embed_failed``; it has no history of its own) is weak."""
+        number = lesson["number"]
         weak = 0.0
-        for item_id in last.get("new_items", []):
+        new_items = lesson.get("new_items", [])
+        for item_id in new_items:
             st = self.items.get(item_id)
-            if not (st and st.history and st.history[-1].get("lesson") == last["number"]):
+            entry = next((e for e in reversed(st.history) if e.get("lesson") == number), None) if st else None
+            if entry is None:
+                if item_id in self.embed_failed:
+                    weak += 1
                 continue
-            entry = st.history[-1]
             if not entry.get("ok", True):
                 weak += 1
             elif entry.get("outcome") == "hesitated":
                 weak += 0.5
-        return weak, len(last.get("new_items", []))
+        return weak, len(new_items)
+
+    def reported_window(self) -> list[dict]:
+        """The last ``PACE_WINDOW`` lessons[] entries whose number is in ``reported``."""
+        return [le for le in self.lessons if le["number"] in self.reported][-PACE_WINDOW:]
+
+    def recall_rate(self) -> tuple[float, int] | None:
+        """(weak new items, new items) over the last three reported lessons, or None if the last lesson was not
+        reported (the pace waits for the review, H2)."""
+        if not self.lessons or self.lessons[-1]["number"] not in self.reported:
+            return None
+        weak, total = 0.0, 0
+        for lesson in self.reported_window():
+            w, n = self._lesson_weakness(lesson)
+            weak += w
+            total += n
+        return weak, total
 
     def suggest_pace(self, minutes: float, today: date) -> tuple[int, str]:
         """Decide how many new items the next lesson should introduce, and say why.
@@ -158,9 +176,10 @@ class LearnerState:
         Rules (see README "Pacing"):
         - start at about one new item per 5 minutes (30 min → 6), never below 3 or above 10
         - the review backlog must fit: if items due exceed ~80% of the review slots, slow down
-        - if the last reported lesson had >20% of its new items fail, slow down
-        - speed up only on evidence: last lesson reported with ≤10% failures and a small backlog
-          (a hesitated item counts as half a failure in both)
+        - the recall rate is taken over the last three reported lessons (a failed new item counts 1, a
+          hesitated one ½): up by one at ≤15% with a small backlog, hold at 15–25%, down by one above 25%
+        - the load rating (``report --load``): the last two rated lessons both «light» and a rate ≤25% also
+          raise it by one; any «heavy» in the window blocks a rise. One step a lesson at most.
         - auto mode: an unreported lesson counts as "all good", but the pace steps up at most
           once every AUTO_STEP_EVERY lessons; `report --failed` still slows it down
         """
@@ -171,7 +190,7 @@ class LearnerState:
         # rough capacity: one exercise ≈ 16 s; a new item costs ≈ 6 exercises
         review_slots = max(0, int(minutes * 60 / 16) - pace * 6)
         backlog_ratio = due / review_slots if review_slots else 1.0
-        fb = self.last_lesson_failures()
+        fb = self.recall_rate()
         auto_assumed = False
         if fb is None and self.feedback_mode == "auto" and self.lessons:
             fb = (0, len(self.lessons[-1].get("new_items", [])))
@@ -181,18 +200,27 @@ class LearnerState:
         if backlog_ratio > 0.8:
             new_pace -= 1
             reasons.append(f"{due} items due vs ~{review_slots} review slots")
-        if fail_rate is not None and fail_rate > 0.2:
+        if fail_rate is not None and fail_rate > 0.25:
             new_pace -= 1
-            reasons.append(f"{fb[0]:g}/{fb[1]} new items failed last lesson (a hesitation counts ½)")
+            reasons.append(f"{fb[0]:g}/{fb[1]} new items failed in the last {len(self.reported_window())} lessons (a hesitation counts ½)")
         last = self.lessons[-1] if self.lessons else None
         if last and new_pace == pace and last.get("due_at_start", 0) >= 8 and last.get("due_not_fitted", 0) > 0.25 * last["due_at_start"]:
             new_pace -= 1
             reasons.append(f"{last['due_not_fitted']} of {last['due_at_start']} due reviews did not fit last lesson")
-        if new_pace == pace and fail_rate is not None and fail_rate <= 0.1 and backlog_ratio < 0.5:
-            if not auto_assumed:
-                new_pace += 1
-                reasons.append(f"last lesson reported easy ({fb[0]:g}/{fb[1]} failed), backlog small")
-            elif self.lessons_completed - self.pace_changed_at >= AUTO_STEP_EVERY:
+        recent = self.reported_window() + ([last] if last else [])
+        heavy = any(le.get("load") == "heavy" for le in recent)
+        rated = [le for le in self.lessons if le.get("load") in LOADS][-2:]
+        two_light = len(rated) == 2 and all(le["load"] == "light" for le in rated)
+        if new_pace == pace and heavy and fail_rate is not None and fail_rate <= 0.15 and backlog_ratio < 0.5:
+            reasons.append("a lesson in the window was rated heavy — not speeding up")
+        elif new_pace == pace and not heavy and fail_rate is not None and fail_rate <= 0.15 and backlog_ratio < 0.5 and not auto_assumed:
+            new_pace += 1
+            reasons.append(f"{fb[0]:g}/{fb[1]} new items failed over the last {len(self.reported_window())} lessons, backlog small")
+        elif new_pace == pace and not heavy and two_light and fail_rate is not None and fail_rate <= 0.25 and not auto_assumed:
+            new_pace += 1
+            reasons.append(f"the last two lessons were rated light ({fb[0]:g}/{fb[1]} failed)")
+        elif new_pace == pace and not heavy and fail_rate is not None and fail_rate <= 0.15 and backlog_ratio < 0.5 and auto_assumed:
+            if self.lessons_completed - self.pace_changed_at >= AUTO_STEP_EVERY:
                 new_pace += 1
                 reasons.append(f"auto: {AUTO_STEP_EVERY} lessons without reported failures, backlog small")
             else:
@@ -317,6 +345,7 @@ class LearnerState:
         hesitated: list[str] | None = None,
         recalled: list[str] | None = None,
         sooner: list[str] | None = None,
+        load: str | None = None,
     ) -> dict:
         """Learner feedback after listening. Returns a summary of what changed.
 
@@ -333,16 +362,27 @@ class LearnerState:
         interval from today and changes nothing else: no hesitation, failure or recall is counted, the ease and
         history stay, an embedded or tried item is left to its next-day review (``sooner_skipped``), and a call
         with ``sooner`` alone does not mark the lesson reported (that waits for the review, H2).
+
+        ``load`` (#218) is the learner's rating of the lesson (light / right / heavy), stored as ``lessons[k]["load"]`` for
+        the matching number; like ``sooner`` alone, a call with only a load does not mark the lesson reported.
         """
-        only_sooner = bool(sooner) and not (failed or easy or hesitated or recalled)
+        only_sooner = bool(sooner or load) and not (failed or easy or hesitated or recalled)
         if lesson_number is None:
             lesson_number = self.lessons_completed
         if lesson_number and lesson_number not in self.reported and not only_sooner:
             self.reported.append(lesson_number)
+        if load is not None and load not in LOADS:
+            raise ValueError(f"load must be one of {', '.join(LOADS)}, not {load!r}")
         failed = list(dict.fromkeys(failed))
         hesitated = [i for i in dict.fromkeys(hesitated or []) if i not in failed]
         recalled = [i for i in dict.fromkeys(recalled or []) if i not in failed and i not in hesitated]
-        changed: dict = {"failed": [], "hesitated": [], "recalled": [], "easy": [], "unknown": [], "lesson": lesson_number, "sooner": [], "sooner_skipped": []}
+        changed: dict = {"failed": [], "hesitated": [], "recalled": [], "easy": [], "unknown": [], "lesson": lesson_number, "sooner": [], "sooner_skipped": [], "load": None}
+
+        if load is not None:
+            for entry in self.lessons:
+                if entry["number"] == lesson_number:
+                    entry["load"] = load
+                    changed["load"] = load
 
         def state(item_id: str) -> ItemState | None:
             st = self.items.get(item_id)
@@ -398,9 +438,10 @@ class LearnerState:
 
         def note_outcome(st: ItemState, outcome: str) -> None:
             st.last_outcome = outcome
-            if lesson_number is not None and st.history and st.history[-1].get("lesson") == lesson_number:
-                st.history[-1]["ok"] = outcome != "not_recalled"
-                st.history[-1]["outcome"] = outcome
+            entry = next((e for e in reversed(st.history) if e.get("lesson") == lesson_number), None) if lesson_number is not None else None
+            if entry is not None:  # by number: a later lesson has appended its own entry (#218)
+                entry["ok"] = outcome != "not_recalled"
+                entry["outcome"] = outcome
 
         for item_id in failed:
             if (st := state(item_id)) is None:
