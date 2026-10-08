@@ -7508,17 +7508,63 @@ class NewComponentTests(unittest.TestCase):
         self.assertEqual(len(chosen), 3, "2.5 is below the third item's start: the last one goes over")
         self.assertEqual(planner.select_new(10), [], "the target is met")
 
-    def test_a_lesson_counts_components_and_zero_cost_items_stop_at_the_ceiling(self):
-        known = [{"id": "base", "kind": "phrase", "target": "Orð eitt tvö þrjú fjögur fimm.", "meaning": "Words."}]
-        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": known + [
-            {"id": f"z{i}", "kind": "phrase", "target": f"{a} {b}.", "meaning": f"Zero {i}."}
-            for i, (a, b) in enumerate((a, b) for a in ["Orð", "eitt", "tvö", "þrjú", "fjögur"] for b in ["Orð", "eitt", "tvö", "þrjú", "fjögur"] if a != b)]})
+    @staticmethod
+    def _zero_then_words(zeros=12, words=12):
+        base = [{"id": "base", "kind": "phrase", "target": "Orð eitt tvö þrjú fjögur fimm.", "meaning": "Words."}]
+        ws = ["Orð", "eitt", "tvö", "þrjú", "fjögur"]
+        pairs = [(a, b) for a in ws for b in ws if a != b][:zeros]
+        zero = [{"id": f"z{i}", "kind": "phrase", "target": f"{a} {b}.", "meaning": f"Zero {i}."} for i, (a, b) in enumerate(pairs)]
+        new = [{"id": f"w{i}", "kind": "vocab", "target": f"nýtt{'abcdefghijkl'[i]}", "meaning": f"new {i}"} for i in range(words)]
+        return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": base + zero + new})
+
+    def test_zero_cost_items_do_not_use_up_the_item_ceiling_so_the_target_is_reached(self):
+        """#218 b3 (owner, option b): the ceiling caps load. The first ten picks of this course cost nothing; the target must still be reached."""
+        cur = self._zero_then_words()
         learner = LearnerState("is", "en", "A1")
         self._met(learner, "base")
-        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6, new_target=8), today=TODAY)
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6, new_target=6), today=TODAY)
         chosen = planner.select_new(planner.cfg.new_items_ceiling())
-        self.assertEqual(planner.components_total, 0.0)
-        self.assertEqual(len(chosen), planner.cfg.new_items_ceiling(), "nothing costs anything: the ceiling stops it")
+        self.assertGreater(sum(1 for i in chosen if i.id.startswith("z")), 10, "more than the ceiling's worth of free items")
+        self.assertGreaterEqual(planner.components_total, 6.0)
+        costed = [i for i in chosen if planner.component_by_item[i.id] > 0]
+        self.assertLessEqual(len(costed), planner.cfg.new_items_ceiling())
+        # counting items the same course would stop at the ceiling, short of the target
+        items_mode = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6), today=TODAY)
+        self.assertEqual(len(items_mode.select_new(10)), 10)
+
+    def test_a_lesson_whose_first_picks_cost_nothing_reaches_its_target(self):
+        cur = self._zero_then_words()
+        learner = LearnerState("is", "en", "A1")
+        self._met(learner, "base")
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6, new_target=6), today=TODAY).build()
+        nc = sc.meta["new_components"]
+        self.assertGreaterEqual(nc["total"], 6.0, nc)
+        self.assertLessEqual(nc["total"], 6.0 + 1.0, "one item over at most")
+
+    def test_the_last_pick_goes_over_by_one_item_at_most(self):
+        two = [{"id": f"p{i}", "kind": "phrase", "target": f"Orð{'abcdefgh'[2 * i]} orð{'abcdefgh'[2 * i + 1]}.", "meaning": f"Two {i}."} for i in range(4)]
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": two})
+        for target, expected in ((3.0, 4.0), (2.5, 2.0)):
+            planner = Planner(cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6, new_target=target), today=TODAY)
+            planner.select_new(10)
+            self.assertEqual(planner.components_total, expected, target)
+
+    def test_a_phrase_made_of_a_curriculum_chunk_counts_the_chunk_once(self):
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": [
+            {"id": "ma_eg", "kind": "phrase", "target": "Má ég fara?", "meaning": "May I go?"},
+            {"id": "taka_mynd", "kind": "vocab", "target": "taka mynd", "meaning": "take a photo"},
+            {"id": "ma_eg_taka_mynd", "kind": "phrase", "target": "Má ég taka mynd?", "meaning": "May I take a photo?"}]})
+        planner = self._planner("ma_eg", cur=cur)
+        self.assertEqual(planner.component_cost(cur.by_id["ma_eg_taka_mynd"]), 1.0, "«taka mynd» is one item: 1, not 2")
+        self.assertEqual(planner.component_cost(cur.by_id["taka_mynd"]), 1.0)
+
+    def test_the_backlog_estimate_for_the_target_reserves_item_slots_not_components(self):
+        learner = PacingTests._rated([["r"] * 10] * 3)
+        slots = max(0, int(30 * 60 / 16) - 6 * 6)
+        for k in range(int(slots * 0.7)):  # a backlog just under the limit when new material is 6 items
+            learner.items[f"pad{k}"] = ItemState(stage="meaning", due=TODAY.isoformat())
+        learner.new_target = 12.0
+        self.assertGreaterEqual(learner.suggest_target(30, TODAY)[0], 12.0, "12 components are not reserved as 12 items")
 
     def test_the_lesson_reports_its_components_and_a_rebuild_keeps_the_total(self):
         extra = [{"id": f"w{i}", "kind": "vocab", "target": f"orð{'abcdefghijklmn'[i]}", "meaning": f"word {i}"} for i in range(14)]

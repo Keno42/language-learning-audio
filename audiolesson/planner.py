@@ -35,6 +35,7 @@ class PlanConfig:
     # #218 b3: the lesson's target of weighted new components (None: count items, as the simulations and ``--new`` do). New material is
     # taken while the lesson's running total is below it; the last item may go over. The new-item ceiling and the time check stay.
     new_target: float | None = None
+    item_ceiling: int | None = None  # the cap on new items that cost something; None: about one per 3 minutes (``new_items_ceiling``)
     form_weight: float = 0.5  # w: what a close variant (a new form of a known word) costs; fitted later from next-day failures
     topics: list[str] = field(default_factory=list)
     seed: int | None = None
@@ -185,7 +186,11 @@ class PlanConfig:
 
     def new_items_ceiling(self) -> int:
         """New items a lesson takes while it has other work: about one per 3 minutes, the top
-        of the 6–10 per 30 minutes that audio courses of this kind converge on (README)."""
+        of the 6–10 per 30 minutes that audio courses of this kind converge on (README). Counting components (#218 b3) it is a cap on
+        *load*: only items that cost something count against it (a 0-cost item adds lesson time, which the time check bounds). A tunable
+        load cap: raise ``item_ceiling`` if lessons keep coming in «light» with the target reached."""
+        if self.item_ceiling is not None:
+            return self.item_ceiling
         return max(self.resolved_new_items(), round(self.minutes / 3))
 
     def resolved_new_items(self) -> int:
@@ -196,6 +201,7 @@ class PlanConfig:
 
 _WORD_RE = re.compile(r"[^\W\d_]+", re.UNICODE)
 NEGATION = frozenset({"ekki", "ekkert", "aldrei", "enginn", "engin"})  # words that turn a held part into its opposite
+OVERSHOOT = 1.0  # components a lesson's last pick may carry the total past its target (#218 b3)
 BARE_STAGES = frozenset({"cloze", "hinted", "meaning", "situation"})  # an item said alone, not in a sentence
 
 
@@ -440,8 +446,24 @@ class Planner:
             fixed = frozenset(self._fixed_text_words(item))
             return 0.0 if not new and any(fixed <= p for p in patterns) else 1.0
         if item.kind == "phrase":
-            return float(len(new))
+            # a run of new words the curriculum already treats as one item counts once («taka mynd» in «Má ég taka mynd?»)
+            words = self._fixed_text_words(item)
+            fresh = set(new)
+            cost = float(len(new))
+            for chunk in self._chunk_runs():
+                n = len(chunk)
+                if all(w in fresh for w in chunk) and any(tuple(words[k : k + n]) == chunk for k in range(len(words) - n + 1)):
+                    cost -= n - 1
+                    fresh -= set(chunk)
+            return cost
         return 1.0 if new else 0.0
+
+    def _chunk_runs(self) -> list[tuple[str, ...]]:
+        """The word runs of the curriculum's multi-word vocab items («taka mynd»), longest first."""
+        if getattr(self, "_chunks", None) is None:
+            runs = {tuple(w.lower() for w in _WORD_RE.findall(i.target)) for i in self.cur.items if i.kind == "vocab"}
+            self._chunks = sorted((r for r in runs if len(r) > 1), key=lambda r: -len(r))
+        return self._chunks
 
     def _charge(self, item: Item) -> float:
         known, patterns = self._component_base()
@@ -468,19 +490,28 @@ class Planner:
         if mode and remaining_target <= 0:
             return []  # the lesson's target is met (the last item may have gone over it)
 
-        def spent() -> float:
-            """The components of ``chosen`` so far, each item counting the words the earlier ones brought."""
+        def tally() -> tuple[float, int]:
+            """(the components of ``chosen`` so far, how many of them cost something), each item counting the words the earlier ones
+            brought. Counting components, only a costed item counts against ``count``, the load cap (#218 b3, owner)."""
             known, patterns = set(self._component_base()[0]), list(self._component_base()[1])
-            total = 0.0
+            total, costed = 0.0, 0
             for x in chosen:
-                total += self.component_cost(x, known, patterns)
+                c = self.component_cost(x, known, patterns)
+                total += c
+                costed += c > 0
                 known.update(self._fixed_text_words(x))
                 if x.kind == "construction":
                     patterns.append(frozenset(self._fixed_text_words(x)))
-            return total
+            return total, costed
+
+        def spent() -> float:
+            return tally()[0]
 
         def full() -> bool:
-            return len(chosen) >= count or (mode and bool(chosen) and spent() >= remaining_target)
+            if not mode:
+                return len(chosen) >= count
+            total, costed = tally()
+            return costed >= count or (bool(chosen) and total >= remaining_target)
         pulled: set[str] = set()  # the frames and phrases brought in with a part: never the place given up for a cheap construction
 
         def ready(it: Item) -> bool:
@@ -629,6 +660,7 @@ class Planner:
                     break
                 if it.id in chosen_ids or not ready(it) or set_full(it):
                     continue
+                n0 = len(chosen)
                 if it.kind != "construction" and it.tags:
                     hold, target = payoff(it)
                     if hold or (target is None and transfer_capped(it)):
@@ -654,6 +686,14 @@ class Planner:
                         chosen.pop()  # its phrase is known but not in this lesson and no frame comes with it: it waits (#206 review)
                         chosen_ids.discard(it.id)
                         continue
+                if mode and n0 > 0 and spent() - remaining_target > OVERSHOOT:
+                    # the target would be passed by more than one item (a part pulling in a two-word phrase): "the last may go over"
+                    # means one item, so this unit waits for a lesson with room, and cheaper picks fill the place
+                    for x in chosen[n0:]:
+                        chosen_ids.discard(x.id)
+                        pulled.discard(x.id)
+                    del chosen[n0:]
+                    continue
                 progress = True
                 if full():
                     break
@@ -1268,7 +1308,8 @@ class Planner:
             ceiling leaves: the target itself stops the arc."""
             if not self.components_mode:
                 return cfg.resolved_extra_arc_items(capped=capped)
-            return max(0, cfg.new_items_ceiling() - len(taught()) - len(new_queue)) if capped else cfg.new_items_ceiling()
+            costed = sum(1 for i in taught() | {q.id for q in new_queue} if self.component_by_item.get(i, 1.0) > 0)
+            return max(0, cfg.new_items_ceiling() - costed) if capped else cfg.new_items_ceiling()
 
         recent: deque[str] = deque(maxlen=2)  # item ids of the last exercises
         recent_topics: deque[str] = deque(maxlen=2)
@@ -2156,7 +2197,8 @@ class Planner:
                     # recall the earlier of the two instead, only the very last item is off limits
                     candidate = next((p for p in sorted(pending) if p.item.id != recent[-1]), None)
                     pulled = next((e for e in sorted(intro_timeline) if e[2].id != recent[-1]), None)
-                can_intro = idx - last_intro >= 1 and len(introduced) < cfg.resolved_max_new_items()
+                n_introduced = sum(1 for i in introduced if self.component_by_item.get(i.id, 1.0) > 0) if self.components_mode else len(introduced)
+                can_intro = idx - last_intro >= 1 and n_introduced < cfg.resolved_max_new_items()
                 # a later arc was admitted whole (_may_start_arc): its queued items may fill a gap too,
                 # though not as a third introduction in a row
                 can_drain = can_intro or (

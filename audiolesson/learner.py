@@ -192,7 +192,7 @@ class LearnerState:
         """
         default = int(min(10, max(3, round(minutes / 5))))
         pace = self.pace or default
-        new_pace, reasons, changed = self._pace_rules(pace, 3, 10, minutes, today, self.pace_changed_at, "pace")
+        new_pace, reasons, changed = self._pace_rules(pace, 3, 10, minutes, today, self.pace_changed_at, "pace", pace)
         if changed:
             self.pace_changed_at = self.lessons_completed
         return int(new_pace), "; ".join(reasons)
@@ -200,16 +200,18 @@ class LearnerState:
     def suggest_target(self, minutes: float, today: date) -> tuple[float, str]:
         """The lesson's target of weighted new components (#218 b3), and why: the same rules as ``suggest_pace`` (the three-lesson
         recall window, the load rating, the backlog) move it by one a lesson, within ``NEW_TARGET_MIN``–``NEW_TARGET_MAX``."""
-        new_target, reasons, changed = self._pace_rules(self.new_target, NEW_TARGET_MIN, NEW_TARGET_MAX, minutes, today, self.target_changed_at, "new-component target")
+        # the backlog estimate reserves review slots for new *items*, so it takes the item pace, not the component target
+        items = self.pace or int(min(10, max(3, round(minutes / 5))))
+        new_target, reasons, changed = self._pace_rules(self.new_target, NEW_TARGET_MIN, NEW_TARGET_MAX, minutes, today, self.target_changed_at, "new-component target", items)
         if changed:
             self.target_changed_at = self.lessons_completed
         return float(new_target), "; ".join(reasons)
 
-    def _pace_rules(self, pace: float, lo: float, hi: float, minutes: float, today: date, changed_at: int, label: str) -> tuple[float, list[str], bool]:
+    def _pace_rules(self, pace: float, lo: float, hi: float, minutes: float, today: date, changed_at: int, label: str, slots_items: float) -> tuple[float, list[str], bool]:
         reasons: list[str] = []
         due = self.due_count(today)
         # rough capacity: one exercise ≈ 16 s; a new item costs ≈ 6 exercises
-        review_slots = max(0, int(minutes * 60 / 16) - round(pace) * 6)
+        review_slots = max(0, int(minutes * 60 / 16) - round(slots_items) * 6)
         backlog_ratio = due / review_slots if review_slots else 1.0
         fb = self.recall_rate()
         auto_assumed = False
