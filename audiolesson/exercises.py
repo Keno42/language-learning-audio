@@ -403,6 +403,31 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def pattern_instance(self, sc: Script, item: Item, pattern: Item, fills: dict[str, Item]) -> Exercise:
+        """A fixed phrase that is an instance of a pattern the learner knows, with fillers they know (#192), presented
+        once as a sentence of that pattern, not introduced on its own: «A sentence from a pattern you know. Listen, then
+        repeat.», the sentence, what it means, the sentence again and a pause to repeat it. No ladder and no closing
+        recall. It writes the same ``embed_sentence`` / ``embed_meaning`` segments as ``embed``, so the next-day question
+        asks the phrase in its own form, and what the learner says decides whether it counts as learned
+        (``LearnerState.report``). Nothing is recorded for the phrase here; the caller credits the pattern and its fillers."""
+        gender, made = self._filled(pattern, fills)
+        target = item.target if made.strip().casefold() == item.target.strip().casefold() else made
+        voice = VOICE_OF[gender or "f"]
+        ex = sc.new_exercise("embed", "embed", [item.id], f"pattern: {target}")
+        self._narr(sc, ex, self._as(gender, self.prompts.get("instance_sentence")))
+        self._beat(sc, ex)
+        self._speak(sc, ex, target, speaker=voice, role="embed_sentence")
+        self._beat(sc, ex)
+        sc.add(Segment("narrate", "instructor", self.prompts.get("embed_meaning", meaning=self._m(item.spoken_meaning)), self.kl, 1.0,
+                       self.timing.speech_estimate(item.spoken_meaning, self.kl), "embed_meaning", ex.index))
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("repeat"))
+        self._speak(sc, ex, target, speaker=voice)
+        self._repeat_pause(sc, ex, target)
+        self.heard.add(_norm_utterance(target))
+        self._gap(sc, ex)
+        return ex
+
     def intro(self, sc: Script, item: Item) -> Exercise:
         if item.kind == "construction":
             return self._intro_construction(sc, item)

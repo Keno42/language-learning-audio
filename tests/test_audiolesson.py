@@ -2113,6 +2113,8 @@ class CurriculumTests(unittest.TestCase):
                     f"{note_id} fired in a lesson that didn't end up knowing all its items",
                 )
                 fired.add(note_id)
+            # the next day's review: a real learner says the embedded parts and pattern sentences back (#149, #192), so they are met
+            learner.report([], [], day, recalled=list(learner.embedded))
             if fired == set(milestones):
                 break
         self.assertEqual(fired, set(milestones), "not every milestone note fired across simulated lessons")
@@ -2162,6 +2164,8 @@ class CurriculumTests(unittest.TestCase):
                     self.assertIn(ex.item_ids[0], gate_ids)
                 self.assertNotEqual(first.item_ids[0], second.item_ids[0])
                 checked.add(note_id)
+            # the next day's review: a real learner says the embedded parts and pattern sentences back (#149, #192), so they are met
+            learner.report([], [], day, recalled=list(learner.embedded))
             if checked == set(milestones):
                 break
         self.assertEqual(checked, set(milestones), "not every milestone note fired across simulated lessons")
@@ -5130,6 +5134,81 @@ class HardSentenceCapTests(unittest.TestCase):
                 self.assertGreaterEqual(sc.total_duration, 30 * 60 - 240, sc.lesson_number)
             apply_to_learner(sc, learner, day)
             day += timedelta(days=1)
+
+
+class PatternInstanceIntroTests(unittest.TestCase):
+    """#192, the rest (owner, after lesson 18): a linked phrase whose pattern and fillers are *known* comes in as one sentence of its
+    pattern, not as a new item with a ladder; it stays in ``new_items`` and the next-day question decides."""
+
+    @staticmethod
+    def _cur():
+        return curriculum_from_dict({
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "tvo", "kind": "vocab", "target": "tvo", "meaning": "two", "tags": ["c"]},
+                {"id": "thrja", "kind": "vocab", "target": "þrjá", "meaning": "three", "tags": ["c"]},
+                {"id": "pat", "kind": "construction", "target": "{count} miða, takk.", "meaning": "{count} tickets, please.",
+                 "slots": {"count": "c"}, "example": {"count": "tvo"}},
+                {"id": "ph", "kind": "phrase", "target": "Þrjá miða, takk.", "meaning": "Three tickets, please.",
+                 "instance_of": "pat", "instance_fill": {"count": "thrja"}},
+            ],
+        })
+
+    @staticmethod
+    def _learner(known=("tvo", "thrja", "pat")):
+        learner = LearnerState("is", "en", "A1")
+        for i in known:
+            learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3,
+                                         due=(TODAY + timedelta(days=5)).isoformat(), last_practiced=(TODAY - timedelta(days=2)).isoformat())
+        learner.lessons_completed = 4
+        return learner
+
+    def _plan(self, learner, day=TODAY):
+        return Planner(self._cur(), learner, Prompts.load("en"), Timing(level="A1"),
+                       PlanConfig(minutes=10, new_items=1, max_new_items=1, priority=["ph"], seed=3), today=day).build()
+
+    def test_a_known_pattern_and_filler_take_the_phrase_as_one_pattern_sentence(self):
+        sc = self._plan(self._learner())
+        self.assertEqual((sc.meta["embedded_items"], sc.meta["pattern_instances"]), (["ph"], ["ph"]))
+        self.assertIn("ph", sc.meta["new_items"], "it stays in new_items: the bot asks it the next day")
+        mine = [e for e in sc.exercises if "ph" in e.item_ids]
+        self.assertEqual([e.kind for e in mine], ["embed"], "one exercise: no ladder, no closing recall")
+        self.assertIn("A sentence from a pattern you know", sc.transcript())
+        self.assertNotIn("ph", sc.meta["exposures"], "nothing is recorded for the phrase")
+        self.assertEqual(sc.meta["exposures"]["pat"], ["recombine"], "credited to the pattern")
+        self.assertEqual(sc.meta["exposures"]["thrja"], ["recombine"], "and its filler")
+
+    def test_the_next_day_question_asks_the_phrase_in_its_own_form(self):
+        qs = [q for q in self._plan(self._learner()).review_questions() if q["items"] == ["ph"]]
+        self.assertEqual([(q["prompt"], q["answer"], q["stage"]) for q in qs], [("Three tickets, please.", "Þrjá miða, takk.", "embed")])
+
+    def test_said_back_it_is_met_with_one_durable_success_and_not_said_it_is_introduced_the_usual_way(self):
+        learner = self._learner()
+        apply_to_learner(self._plan(learner), learner, TODAY)
+        self.assertEqual(learner.embedded, {"ph": 5})
+        self.assertFalse(learner.has_met("ph"))
+        said = copy.deepcopy(learner)
+        said.report([], [], TODAY + timedelta(days=1), recalled=["ph"])
+        self.assertTrue(said.has_met("ph"))
+        self.assertEqual(said.items["ph"].durable_successes, 1)
+        learner.report(["ph"], [], TODAY + timedelta(days=1))
+        self.assertEqual(learner.embed_failed, ["ph"])
+        sc = self._plan(learner, TODAY + timedelta(days=2))
+        self.assertEqual((sc.meta["embedded_items"], sc.meta["pattern_instances"]), ([], []))
+        self.assertIn("ph", sc.meta["exposures"], "a normal introduction")
+        self.assertTrue(any(e.kind == "intro" and e.item_ids == ["ph"] for e in sc.exercises))
+
+    def test_with_the_pattern_or_a_filler_not_yet_known_the_introduction_is_as_today(self):
+        for known in (("tvo", "thrja"), ("pat", "tvo")):
+            sc = self._plan(self._learner(known))
+            self.assertEqual(sc.meta["pattern_instances"], [], known)
+            self.assertTrue(any(e.kind == "intro" and e.item_ids == ["ph"] for e in sc.exercises), known)
+
+    def test_the_real_curriculum_links_the_receipt_and_bill_phrases(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for phrase, filler in (("get_eg_fengid_kvittun", "kvittun"), ("get_eg_fengid_reikninginn", "reikninginn")):
+            self.assertEqual((cur.by_id[phrase].instance_of, cur.by_id[phrase].instance_fill), ("get_eg_fengid", {"thing": filler}))
+        self.assertIn("acc_request", cur.by_id["kvittun"].tags)
 
 
 class InstanceOfPatternTests(unittest.TestCase):
