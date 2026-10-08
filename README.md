@@ -125,6 +125,9 @@ around 80–85%.
   lesson counts as "all good", and the pace steps up once every 3 lessons while
   the backlog stays small. `report --failed …` still slows it down whenever you
   bother to file one. `--manual` switches back.
+- Spare time is never filled with a close variant of a known word (another case or gender): it goes to
+  more to hear — listening dialogues, then a played theme level heard again — and a form comes in only
+  when a scene, a frame or a contrast asks for it (#218).
 - `--new N` overrides one lesson; `--pace N` resets the ongoing pace.
 
 **Fixed length.** A lesson aims at the requested minutes (30:00 for `-m 30`)

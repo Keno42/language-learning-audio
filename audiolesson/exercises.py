@@ -1088,12 +1088,16 @@ class Builder:
         listening: frozenset[str] | set[str] = frozenset(),
         tried: frozenset[str] | set[str] = frozenset(),
         tried_turns: frozenset[int] | set[int] = frozenset(),
+        heard_only: bool = False,
     ) -> Exercise:
         """Play a dialogue; ``max_turns`` lets early encounters stop after a few turns.
 
         ``listening`` names required items the learner hasn't learned (H8, #149 step 3): their
         turns are heard, not asked for: «Here you would say:», the line, what it means. The
         scene carries the meaning; nothing is expected back for them.
+
+        ``heard_only`` (#218 b1): every learner turn is heard, not asked: the cue (the intent) stays, then «Here you would say:» and the
+        line. Spare time goes to this, not to filler items.
 
         ``tried_turns``: indices of turns whose line is only tried (#149 1b-ii): the cue, «Try it.», the pause and the
         model line; the theme exchange's lines are literal, so they have no item to name.
@@ -1104,14 +1108,14 @@ class Builder:
         that goes on drops it (the partner's line never decides the reply)."""
         turns = dlg.turns if max_turns is None else dlg.turns[: max(1, max_turns)]
         ids = [t.expect for t in turns if t.expect] + [r for r in dlg.requires if r not in {t.expect for t in turns}]
-        label = f"dialogue: {dlg.id}" + ("" if len(turns) == len(dlg.turns) else f" ({len(turns)}/{len(dlg.turns)} turns)")
+        label = ("heard: " if heard_only else "dialogue: ") + dlg.id + ("" if len(turns) == len(dlg.turns) else f" ({len(turns)}/{len(dlg.turns)} turns)")
         if dlg.variant:
             label += f" [lines {dlg.variant}]"
         ex = sc.new_exercise("dialogue", "dialogue", ids, label)
         partner = dlg.partner_speaker
         learner_voice = _other_voice(partner)
         # the switch from drills to a conversation is the biggest change of mode in a lesson
-        if listening or tried:
+        if listening or tried or heard_only:
             self._narr(sc, ex, self.prompts.get("listening_intro"))
         self._narr(sc, ex, self.prompts.get("dialogue_start"))
         self._narr(sc, ex, dlg.setting)
@@ -1146,18 +1150,19 @@ class Builder:
                 item = None
                 gender = GENDER_OF[learner_voice] if turn.expect_text_m else None
                 expected = (turn.expect_text_m if gender == "m" else turn.expect_text) or ""
-            heard_only = item is not None and item.id in listening  # no task cue: nothing is asked
-            if heard_only:
-                pass
+            line_heard = heard_only or (item is not None and item.id in listening)
+            if line_heard and not heard_only:
+                pass  # a listening scene's line: no task cue, nothing is asked
             else:
                 self._narr(sc, ex, self._as(gender, turn.cue))
             if (item is not None and item.id in tried) or k in tried_turns:
                 self._narr(sc, ex, self.prompts.get("listening_try"))  # a line they can say part of: «Try it.»
-            if heard_only:
+            if line_heard:
                 self._narr(sc, ex, self.prompts.get("listening_line"))
                 self._answer(sc, ex, expected, speaker=learner_voice)
                 self._beat(sc, ex)
-                self._narr(sc, ex, self._m(meaning_text))
+                if meaning_text:
+                    self._narr(sc, ex, self._m(meaning_text))
             else:
                 self._answer_pause(sc, ex, expected, item, generative=True)
                 self._answer(sc, ex, expected, speaker=learner_voice)

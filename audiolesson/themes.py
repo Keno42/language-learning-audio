@@ -189,7 +189,9 @@ def pick_variants(level: Level, rng: random.Random, canonical: bool = False, hea
     level). The lesson's two plays split the work (#134, review): the early, translated play takes a variant at random,
     heard with its meaning; the late one (``canonical``) says every line as written, the familiar cue when only the
     partner's line is given, and the wording the review cards ask. A replay passes ``heard`` (turn, line) pairs already
-    heard with their meaning: its early play takes only those, so no wording comes untranslated (#196)."""
+    heard with their meaning: its early play takes only those, so no wording comes untranslated (#196).
+    A heard-only play (spare time, #218 b1) takes any variant, untranslated, with neither ``canonical`` nor ``heard``: natural-speed
+    exposure to wordings in a familiar scene, on purpose (H8; the owner's decision on the review of #233), unlike a replay's early play."""
     if canonical:
         return {}
     if heard is not None:

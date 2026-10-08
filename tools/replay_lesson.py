@@ -155,6 +155,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "most sentences of one construction": max(per_construction.values(), default=0),
         "theme (level) / plays": f"{m['theme']['id']} ({m['theme']['level']}) / {m['theme']['plays']}" if m.get("theme") else "–",
         "listening dialogues": len(m.get("dialogues_listened", [])),
+        "theme levels heard again (#218 b1)": ", ".join(m.get("heard_themes", [])) or "–",
         "heard-only lines": narrated.count(Prompts.load(cur.known_lang).get("listening_line")),
         "tried lines / bonus questions": f"{len(m.get('listening_tried', []))} / {len(m.get('bonus_review', []))}",
         "cheap constructions": ", ".join(m.get("cheap_constructions", [])) or "–",

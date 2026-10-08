@@ -5580,7 +5580,7 @@ class AdmissionOfPartsTests(unittest.TestCase):
                 self.learner.items[i.id] = ItemState(**self.known)
         planner = self._planner()
         self.assertEqual([c.id for c in planner.frames_of(self.cur.by_id["thrja_acc"])], ["count_mida_takk"])
-        self.assertNotIn("thrja_acc", [i.id for i in planner.select_variants(5, set())])
+        self.assertFalse(planner.part_has_home(self.cur.by_id["thrja_acc"], set()), "not alone while its frame can still come with it")
         planner.builder.in_lesson.add("count_mida_takk")  # the frame is in the lesson already: the variant may follow
         self.assertTrue(planner.part_has_home(self.cur.by_id["thrja_acc"], {"count_mida_takk"}))
 
@@ -5601,9 +5601,9 @@ class AdmissionOfPartsTests(unittest.TestCase):
                 self.learner.items[i.id] = ItemState(**self.known)
         planner = self._planner()
         self.assertTrue(self.learner.has_met("thrja_mida"))
-        self.assertNotIn("thrja_acc", [i.id for i in planner.select_variants(5, set())])
+        self.assertFalse(planner.part_has_home(self.cur.by_id["thrja_acc"], set()))
         planner.builder.in_lesson.add("thrja_mida")  # the lesson says the phrase: the part has its sentence
-        self.assertIn("thrja_acc", [i.id for i in planner.select_variants(5, set())])
+        self.assertTrue(planner.part_has_home(self.cur.by_id["thrja_acc"], set()))
 
     def test_select_new_asks_the_same_question_for_a_variant_part(self):
         """#206 review: lesson 18 took «þrjá» through ``select_new``, which accepted a met phrase as its home. Whatever the path, a
@@ -6167,11 +6167,12 @@ class VariantFillTests(unittest.TestCase):
             learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
         return learner
 
-    def test_an_idle_lesson_introduces_a_variant_of_a_known_item_beyond_its_limit(self):
+    def test_an_idle_lesson_takes_no_variant_as_filler(self):
+        """#218 b1: a form comes in with a purpose, never to fill time (it used to: «bankanum», beyond the new-item limit)."""
         cur = self._cur()
         sc = Planner(cur, self._learner(cur), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=1, max_new_items=1, max_arcs=1), today=TODAY).build()
-        self.assertEqual(sc.meta["variant_items"], ["bankanum"])
-        self.assertEqual(sorted(sc.meta["new_items"]), ["bankanum", "n0"])
+        self.assertEqual(sc.meta["variant_items"], [])
+        self.assertEqual(sc.meta["new_items"], ["n0"])
 
     def test_a_variant_of_something_not_yet_known_waits(self):
         cur = self._cur()
@@ -6179,11 +6180,41 @@ class VariantFillTests(unittest.TestCase):
         self.assertEqual(sc.meta["variant_items"], [])
         self.assertNotIn("bankanum", sc.meta["new_items"])
 
-    def test_the_variant_count_is_capped(self):
+    def test_however_many_variants_there_are_none_fills(self):
         extra = [{"id": f"v{i}", "kind": "vocab", "target": f"vara{i}", "meaning": f"variant {i}", "variant_of": "bankinn", "meaning_spoken": f"variant {i}"} for i in range(6)]
         cur = self._cur(extra)
-        sc = Planner(cur, self._learner(cur), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=1, max_new_items=1, max_arcs=1, max_variant_items=2), today=TODAY).build()
-        self.assertLessEqual(len(sc.meta["variant_items"]), 2)
+        sc = Planner(cur, self._learner(cur), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=1, max_new_items=1, max_arcs=1), today=TODAY).build()
+        self.assertEqual(sc.meta["variant_items"], [])
+
+    def test_an_idle_lesson_takes_listening_not_a_variant(self):
+        extra = [{"id": "u0", "kind": "phrase", "target": "Nýtt núll.", "meaning": "New zero."}]
+        cur = self._cur(extra)
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": i.id, "kind": i.kind, "target": i.target, "meaning": i.meaning, **({"variant_of": i.variant_of, "meaning_spoken": i.meaning_spoken} if i.variant_of else {})} for i in cur.items],
+               "dialogues": [{"id": "d1", "setting": "A test setting.", "requires": ["r0", "r1", "u0"], "turns": [
+                   {"cue": "Say r0.", "expect": "r0", "partner": "Gott.", "partner_meaning": "Good."},
+                   {"cue": "Say new.", "expect": "u0", "partner": "Já.", "partner_meaning": "Yes."},
+                   {"cue": "Say r1.", "expect": "r1"}]}]}
+        cur = curriculum_from_dict(raw)
+        sc = Planner(cur, self._learner(cur), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=0, max_new_items=0, max_arcs=1), today=TODAY).build()
+        self.assertEqual(sc.meta["dialogues_listened"], ["d1"], "the spare time is more to hear")
+        self.assertEqual(sc.meta["variant_items"], [])
+        self.assertNotIn("bankanum", sc.meta["exposures"])
+
+    def test_a_variant_the_theme_does_not_want_stays_out_of_select_new(self):
+        cur = self._cur()
+        planner = Planner(cur, self._learner(cur), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=10), today=TODAY)
+        self.assertEqual([i.id for i in planner.select_new(10)], ["n0"])
+        # something pulls it: a phrase still to come lists it as a prerequisite (#202), so the course does not stall
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": "bankinn", "kind": "vocab", "target": "bankinn", "meaning": "the bank"},
+                         {"id": "bankanum", "kind": "vocab", "target": "bankanum", "meaning": "the bank (to)", "variant_of": "bankinn", "meaning_spoken": "the bank, after to"},
+                         {"id": "fer", "kind": "phrase", "target": "Ég fer í bankanum.", "meaning": "I go.", "prereqs": ["bankanum"]}]}
+        pulled = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        learner.items["bankinn"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+        planner = Planner(pulled, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=3), today=TODAY)
+        self.assertIn("bankanum", [i.id for i in planner.select_new(3)])
 
     def test_variant_of_is_validated(self):
         def items(**variant):
@@ -6695,7 +6726,7 @@ class ThemeExchangeTests(unittest.TestCase):
         plays = [e for e in sc.exercises if e.label.startswith("dialogue: theme:supermarket:1")]
         self.assertEqual(len(plays), 2)
         total = sc.total_duration
-        self.assertLess(plays[0].start, 0.3 * total)
+        self.assertLess(plays[0].start, 0.3 * 30 * 60, "early in a 30-minute lesson (which, with no filler variants, may end short in a thin course)")
         self.assertGreater(plays[1].start, 0.7 * total)
         segs = lambda e: [g for g in sc.segments if g.exercise == e.index]
         meaning = "Yes, it's over there, in the fridge."
@@ -6922,6 +6953,25 @@ class ThemeExchangeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             learner.save(Path(tmp) / "l.json")
             self.assertEqual(LearnerState.load(Path(tmp) / "l.json").themes_last, learner.themes_last)
+
+    def test_spare_time_hears_a_played_level_again_with_its_cues(self):
+        """#218 b1: after the listening dialogues, a theme level already played is heard again (partner lines in variants, the cue
+        kept, the learner's line modelled and not asked), at most twice a lesson."""
+        learner = self._learner(self._known + self._rest)
+        learner.themes_done = {t.id: len(t.levels) for t in self._themes}
+        learner.themes_last = {"supermarket": 1, "cafe": 1, "museum": 1, "tour": 1}
+        sc = self._planner(learner, self._themes, self._order).build()
+        heard = sc.meta["heard_themes"]
+        self.assertTrue(0 < len(heard) <= PlanConfig().heard_theme_plays, heard)
+        own = f"{sc.meta['theme']['id']}:{sc.meta['theme']['level']}"
+        self.assertNotIn(own, heard)
+        plays = [e for e in sc.exercises if e.label.startswith("heard: theme:")]
+        self.assertEqual(len(plays), len(heard))
+        for e in plays:
+            segs = [g for g in sc.segments if g.exercise == e.index]
+            self.assertFalse(any(g.type == "pause" and g.role == "answer" for g in segs), "heard, not asked")
+            self.assertTrue(any(g.type == "answer" for g in segs), "the learner's line is modelled")
+            self.assertTrue(sum(1 for g in segs if g.type == "narrate") >= 3, "the cues stay")
 
     def test_a_replays_early_play_only_says_wordings_already_heard_with_their_meaning(self):
         import random
