@@ -333,6 +333,15 @@ def _review_cue(cur, prompts: Prompts, it) -> str:
     return it.situation_for(0) or meaning_prompt(prompts, cur.known_lang, cur.target_lang, it.spoken_meaning, it.context)
 
 
+def _review_cues(cur, prompts: Prompts, it) -> list[str]:
+    """Every cue the bare item is asked with now: each situation, else the meaning cue. The bot rewords only a stored
+    bare question whose prompt is none of these (it is stale), not one that is another current cue (#220)."""
+    prompts = Prompts(prompts.data, prompts.lang)
+    cues = list(it.situations or ([it.situation] if it.situation else []))
+    cues.append(meaning_prompt(prompts, cur.known_lang, cur.target_lang, it.spoken_meaning, it.context))
+    return list(dict.fromkeys(cues))
+
+
 def _plan(script: Script, cur) -> dict:
     meta = script.meta
 
@@ -561,7 +570,7 @@ def cmd_questions(args) -> int:
     for i in _split(args.ids):
         it = cur.by_id.get(i)
         if it is not None and it.kind != "construction":
-            out[i] = {"prompt": _review_cue(cur, prompts, it), "answer": it.target}
+            out[i] = {"prompt": _review_cue(cur, prompts, it), "answer": it.target, "cues": _review_cues(cur, prompts, it)}
     print(json.dumps(out, ensure_ascii=False))
     return 0
 
