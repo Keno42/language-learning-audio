@@ -42,7 +42,7 @@ consolidate: per theme (`scenario`: the can-do scenario it serves), levels of an
 turns (with their meaning) and `you` turns (a cue, the model line, the `items` it needs, optional `alts`). `validate`
 checks every item and scenario. The lesson picks one (`Planner.pick_theme`; H4 in docs/LEARNING-DESIGN.md) and plays
 its exchange twice; `plan.json` names the theme and level. A partner line carries 1–2 `variants` (how another clerk says
-the same thing, #134); the early (assisted) play uses a variant, translated; the late play says the line as written; the transcript marks the lines used. The wordings are
+the same thing, #134); the early (translated) play uses a variant; the late play says the line as written; the transcript marks the lines used. The wordings are
 candidates for native-speaker correction. General content only: the private trip profile decides which
 scenarios come first and never appears here.
 

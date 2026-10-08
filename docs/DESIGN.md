@@ -221,12 +221,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   their turns (`theme_ready`: every item of a turn met and not open), the lowest level not yet played, the trip
   profile's boosted scenarios first (`theme_scenarios`, `scenario_order`), then Tier A, then Tier B, in file order. The level
   becomes a `Dialogue` (`level_dialogue`; the learner's lines are literal) played **twice**: at about 15% of the
-  lesson's time with the partner's lines translated, and at about 85% with only the partner's line as the
-  cue (`play_theme`, step 0g; a lesson that ran out of other material plays what is left before the closing). A
+  lesson's time with the partner's lines translated, and at about 85% without the translation (the cue, the intent,
+  and a turn's `scene` line play both times, #210; `play_theme`, step 0g; a lesson that ran out of other material plays what is left before the closing). A
   turn with an item the learner lacks is *tried* (#183: `tried_turns`, «Try it.», the model line, nothing
-  recorded; its line becomes a bonus question) in the first play. In the late play a learner turn keeps its cue
-  when no partner line prompts it (`DialogueTurn.keep_cue`: it doesn't directly follow a partner line, or the data
-  says `prompted = false`, a scene change) and a tried turn always keeps it; a level's `partner_speaker`
+  recorded; its line becomes a bonus question) in the first play. A learner turn keeps its cue in every play, whatever the partner just said: no turn of an exchange that goes on drops it (owner, #230 review: the partner's line never decides the reply; a one-off reply with several example answers is a separate change). `Turn.scene` (partner turns only) lands in `DialogueTurn.scene` / `partner_scene`, narrator lines played every time; a level's `partner_speaker`
   (`native_a`, female, where the cues say «her») voices the partner. The items of the turns they can say are credited
   as practised (stage `dialogue`). `plan.json` has `theme`: `{id, scenario, level, plays, lines, replay, heard}` (None only when no theme
   can be said at all; `replay`: a level already played, #149 step 1; `lines`: per play, the 1-based variant of each varying partner line,
@@ -255,6 +253,11 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   `Builder._recombine(pattern, met_fills=True, exclude=<its own fills>)` (another sentence of the pattern), else `Builder.sibling_recall`
   (a plain meaning recall of the sentence of another filler said fewest times, a heard line may repeat). `_record` credits the
   pattern and its fillers (`ex.item_ids`), never the phrase.
+  When the pattern and every filler pass `knows()` and the phrase is neither met nor in `embed_failed`, `do_intro` (`Planner.pattern_instance_of`)
+  does not introduce the phrase: `Builder.pattern_instance` plays one sentence of the pattern (the `embed_sentence` / `embed_meaning` segments, so
+  `review_questions` asks the phrase in its own form), `_record` credits the pattern and the fillers, and the phrase goes into `learner.embedded`
+  and stays in `new_items`; `plan.json` `pattern_instances` lists them. The bot's next-day check decides: said back, it is met with one durable
+  success; not said, it is in `embed_failed` and gets a normal introduction.
   A part comes with its frame (#149 step 2): when `select_new` takes a part (`kind == "vocab"`; an utterance such as
   «Hvenær?» is not one), one construction that lists it as a prerequisite (`Planner.frames_of`, «{thing} virkar ekki.» for
   «sturtan»; the ready one needing the fewest new fillers, then course order) goes in right after it, behind the fillers its
@@ -266,7 +269,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (`introduced`), or a phrase that holds its words (`candidate_wholes`: the shortest phrase containing it, never one with a negation
   the part lacks) is in the lesson; or it has neither (a content gap, #215). A plain part also counts a phrase it knows (the embed
   path says the phrase), but a variant form (`variant_of`) does not: «þrjá» beside a «Þrjá miða, takk.» met long ago and not
-  scheduled was drilled bare. Every path asks it: `select_new` (theme target, trip order, cheap), `select_variants`. When it is false,
+  scheduled was drilled bare. Every path asks it: `select_new` (theme target, trip order, cheap). When it is false,
   `select_new` brings the ready frame, else the ready unmet phrase that holds it (`frame_group`), within the one-over budget, and
   neither is the place given up for a cheap construction (`pulled`); a variant with no frame that can come waits
   (`part_waits_for_home`). Waiting every part for a blocked frame starved the course (a part and its frame each waiting for the
@@ -278,9 +281,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   `PlanConfig.hard_cap_short_max` (180 s) then ends there instead of lapsing the bare cap (the lapse stays for a lesson that is short
   for another reason).
   A partner turn may carry `variants` (#134): `pick_variants` picks one line per turn for the early,
-  assisted play (heard with its meaning); the late play says the lines as written, which are also the ones the review
+  translated play (heard with its meaning); the late play says the lines as written, which are also the ones the review
   cards ask. Every partner line is spoken at natural speed (rate 1.0), and each variant must fit the learner's reply
-  that follows. Without `themes` in `PlanConfig` (the CLI loads them from the curriculum's `cando/themes.toml`) nothing changes.
+  that follows. A replay's early play takes only wordings already heard with their meaning (#196); a heard-only play (spare time, #218 b1) takes any variant, untranslated, as listening exposure (H8), on purpose. Without `themes` in `PlanConfig` (the CLI loads them from the curriculum's `cando/themes.toml`) nothing changes.
 - **Rotation and a ceiling (#180).** `Builder.generate_with` orders a word's homes by the sentences each
   construction has had this lesson (`construction_counts`), least first, random tie-break; substitution runs
   pick the pattern with the fewest likewise. A construction takes at most `CONSTRUCTION_CEILING` (10) generated
@@ -295,14 +298,16 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   ordering the cheap *trip* construction (the best one) moves to the front of the remaining trip order
   instead: every item is still a trip item, only the order changes (H6). A lesson whose new items are all
   trip items and has no cheap trip construction takes none this way. A lesson with time left takes up to
-  `max_cheap_extra` more beyond the new-item limit, right after the variants (`try_variant`);
+  `max_cheap_extra` more beyond the new-item limit, (`try_extra`);
   `cheap_constructions` in `plan.json`. The worked example of a construction's introduction uses a known
   filler of the slot when the authored one isn't known.
-- **Close variants fill what the cap leaves (§9 "Repetition").** Before the cap lapses (and as
-  streak relief), `try_variant` introduces an item whose `variant_of` the learner knows (or met
-  earlier in the lesson) and who hasn't met it, beyond the new-item limit: at most
-  `max_variant_items` a lesson, in course order, with room for it (half a new item's time);
-  `variant_items` in `plan.json`. They are not kept out of the normal course order.
+- **No close variant as filler (#218 b1).** `try_extra` (streak relief, an idle planned extra #187, before the cap lapses) takes only a
+  planned extra or the cheap construction. `select_new` keeps a `variant_of` item out of the pool unless the theme's next level wants it
+  (#201) or an unmet item lists it as a prerequisite (#202; a frame's filler is found in `fill_pool`); the trip and course orders do not
+  take variants. Spare time goes to listening dialogues, then to up to `heard_theme_plays` (2) heard-only plays of a theme level already
+  played (`Builder.dialogue(heard_only=True)`, label `heard: theme:…`: partner lines in variants, the cues kept, «Here you would say:» and
+  the line, nothing asked; `heard_themes` in `plan.json`), then the consolidation, then the cap lapses. `variant_items` in `plan.json`
+  lists the variants the lesson did introduce, which a theme or frame asked for.
 - **A variant is introduced as a form of one they have, and a word says its sentence.** A
   `variant_of` item whose base was met is introduced «You know this one: tveir. Here is another
   form of it: …», said and repeated, a sentence it goes in when a pattern takes it, then the usual
@@ -336,6 +341,18 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   that decides them. `--sooner` (the feedback form's «not enough / don't remember», filled right after listening) only moves `due` to at most
   half the interval from today: nothing is counted, `ease`, `interval_days` and the history are untouched, an embedded or tried item is
   `sooner_skipped` (its next-day review decides it), and the lesson is not marked reported, so the pace still waits for evidence (H2).
+- **The pace reads three lessons and a load rating (#218, part a).** `recall_rate()` sums weak/new items over the last three
+  `lessons[]` entries in `reported` (each item's entry is found by lesson number, never `history[-1]`; an embedded item in `embed_failed`
+  is weak). `suggest_pace`: up at ≤ 15% with a small backlog, hold to 25%, down above. `report --load light|right|heavy` stores
+  `lessons[k]["load"]`; like `--sooner` alone it does not mark the lesson reported. Two «light» lessons raise it at ≤ 25% with the same small-backlog condition (< 0.5) as the recall-based rise; an unrated lesson is skipped (it neither breaks nor extends the run); a «heavy» in the
+  window blocks a rise; one step a lesson. `report --load` for a lesson not in `lessons[]` warns on stderr.
+- **The pace's unit is weighted new components (#218 b3).** `PlanConfig.new_target` (from `learner.new_target` via `suggest_target`, which
+  runs the same rules as `suggest_pace`, `LearnerState._pace_rules`; None counts items) is the lesson's target. `Planner.component_cost`:
+  `variant_of` item `form_weight` (0.5); construction 1, or 0 when every fixed word is known and a known pattern holds them all; vocab
+  1 if any word is new; phrase 1 per new word; a #192 pattern instance 0. A word is known when it is in an item the learner has met, has
+  heard embedded (also failed), or was charged earlier in the lesson. One running total (`components_total`) over every path:
+  `select_new` charges what it returns and stops once the total reaches the target (the last item may go over), as do the extra arcs
+  and the cheap extra; the extras a first build took are charged at the start of the rebuild (#187). The last pick may carry the total over the target by one item at most (`OVERSHOOT` = 1: a part whose frame or phrase would pass it by more waits for a lesson with room). `new_items_ceiling` is a cap on *load*: only items that cost something count against it (a 0-cost item adds lesson time, which the time check bounds; owner's decision on the review of #235), and it is tunable (`PlanConfig.item_ceiling`; raise it if lessons stay «light» with the target reached). A run of new words the curriculum treats as one vocab item («taka mynd») counts once in a phrase. The backlog rule for the target reserves review slots for the *item* pace, not for components. `meta["new_components"]` = {total, forms, target, by_item} (also in `plan.json`); `status` shows the target.
 - **An item is taught once in a lesson (#217).** Every `select_new` call in the lesson loop excludes `taught()` (introduced ∪ embedded this
   lesson), so an arc start does not spend a pick on an item already taught, which would be a lost slot. The first selection
   (`new_queue = deque(self.select_new(...))`) runs before anything is taught and has nothing to exclude. `do_intro`, where every path to an
