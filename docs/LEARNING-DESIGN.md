@@ -203,7 +203,7 @@ changed it).
 | **H6** | Chunks first, patterns next, transfer last. A fixed chunk said often becomes fluent (token frequency). A pattern used with many different fillings becomes productive (type frequency). Teach a pattern when two fillings are known, then move it to new words. | Usage-based learning (Bybee 2006); formulaic language (Wray 2002); #29's "capabilities outward". | Constructions with slots and `meaning_forms`; milestones with `transfer_items`; recombination; substitution runs (PR #153) | Substitution drills don't help the learner produce combinations they haven't heard (scenario cards with new fillings) | adopted (principle); testing (substitution). Lesson 16 (§5.14): a construction's question and negative were asked before the learner had heard them (#211) |
 | **H7** | Every generated sentence must be plausible in its scene. An implausible one teaches less than it costs. | Owner (after lesson 12: never produce "order a passport at the café"); H3. | Case- and meaning-tagged slots; `opens` (PR #155); scene templates (#152) | — | adopted |
 | **H8** | Natural-speed partner lines with some unknown words (the owner suggests 10–20%), in a familiar scene, build the tolerance needed to get through real exchanges. | The owner's hypothesis, and their preference for more listening time over shorter lessons (§5.7); the #129 pilots (common clerk lines were not understood). **Caveat:** detailed comprehension needs about 95% of the words to be known when listening and 98% when reading (van Zeeland & Schmitt 2013; Hu & Nation 2000). At 80–90%, expect gist from context, not learning of the unknown words. So the scene must carry the meaning. | Scenario cards (partner lines may go beyond the course); partner turns in themes (PR #155); #134 | Respond and repair cards with unknown words stay at 言えなかった, or the learner finds them discouraging rather than useful | bet |
-| **H9** | The amount of new material, counted in new words (#218), throttled by recall reports (over the last three lessons) and by the learner's load rating, keeps the load right. It aims at about 8 new words a lesson to start (#218) and about 80–85% next-day success. | README "Pacing"; desirable difficulties (Bjork 1994): too easy wastes time, too hard fails. | `suggest_pace` | The load rating drifts to "heavy", or next-day failures stay above 20%, at the pace actually used | **revised (§5.14–5.15, #218):** the number of new items is not the pace (G4), and the learner prefers full lessons with more to hear (§5.7). Lessons 18–19 were «light» at 81–100% next-day success: one lesson's eight items let the pace rise only when all were recalled, and the load rating was not read. A lead from four lessons: the load seems to follow new *words* (7–9 «right», 4–6 «light»), not new items; lesson 18 also replayed a level (supermarket 1), another reason it may have felt light (§6.2, "Time confounds everything"). Owner's decisions (#218, not built yet): a three-lesson window (hold at 15–25% failures: three lessons are only about 24 items), the load rating as an input, and new words as the pace's unit |
+| **H9** | The amount of new material, counted in weighted new components (#218: a new word, chunk or pattern 1, a new form of a known word w), throttled by recall reports (over the last three lessons) and by the learner's load rating, keeps the load right. It aims at about 8 a lesson to start (#218) and about 80–85% next-day success. | README "Pacing"; desirable difficulties (Bjork 1994): too easy wastes time, too hard fails. | `suggest_pace` | The load rating drifts to "heavy", or next-day failures stay above 20%, at the pace actually used | **revised (§5.14–5.15, #218):** the number of new items is not the pace (G4), and the learner prefers full lessons with more to hear (§5.7). Lessons 18–19 were «light» at 81–100% next-day success: one lesson's eight items let the pace rise only when all were recalled, and the load rating was not read. A lead from four lessons: the load seems to follow new *components* (8 and 8 «right», 5 and 5 «light», weighted), not new items; lesson 18 also replayed a level (supermarket 1), another reason it may have felt light (§6.2, "Time confounds everything"). Owner's decisions (#218, not built yet): a three-lesson window (hold at 15–25% failures: three lessons are only about 24 items), the load rating as an input, and weighted new components as the pace's unit |
 | **H10** | Self-reports are informative when they are made the next day, with the answer hidden until the learner has tried. They are noisy, lean towards success and must never be produced by an LLM. | Delayed judgements of learning are far more accurate than immediate ones (Nelson & Dunlosky 1991); #129 (GPT transcripts did not match what was said). | The bot's review (answer revealed only after trying; 3-point scale); the feedback form | The ratings stop telling recalled lines from guessed or failed ones | **revised:** the learner usually commits at once (§5.7), but «迷った» was used in 3 of the last 6 reviews (before lessons 14, 15 and 18; §5.12–5.15), and the pace counts it as half a failure. Read it as a third value |
 | **H11** | Practice spent on items the learner plainly knows is waste, and the learner notices it. A known item should wait for its date. | Spacing (H1); #94; the owner after lesson 12 (já, nei, hæ every lesson although reported 言えた). | Not-due items wait (#94); stable items never fill (PR #153) | — | adopted (#94); the recurrence is fixed in PR #153. Lesson 19 (§5.15): the learner notices both sides of it. Easy items («miða», the clock's five hours) are repeated, and an open item is practised every lesson with no check since lesson 15. Closing it needs a check, and this item was never asked in the review (#205 closed four others, §5.14; #220: open items always asked) |
 | **H12** | Variety, coherence and visible progress keep a daily routine alive. Boredom ("a game of memorizing") is the biggest threat to every other outcome. | Owner, #12 and after lesson 12; Nation's four strands (Nation 2007), whose message is that a course should not be all drill. | Dialogues, exchanges, notes, scenes, reading cards | The routine continues and the learner reports no boredom with a drill-heavy lesson | adopted (value) |
@@ -680,7 +680,7 @@ the pace rise from 5 to 6. The feedback form opened once the bot's dedup (site_u
 |---|---|
 | length | 29.2 min |
 | new items | 9 listed, 8 distinct («miða» embedded at 5:30, introduced again at 14:14, #217) |
-| new words | 6 (sundföt, ótrúlegt, sótt, taka, mynd, reyna) |
+| new components, weighted (#218) | 5 (sundföt, ótrúlegt, sótt, taka mynd, reyna) |
 | a short new item said alone, most | 3 |
 | a part said alone after a sentence holding it | 1 |
 | most times one sentence is said | 10 («Einn miða, takk.»; #206's cap of 9 came after) |
@@ -692,9 +692,13 @@ the pace rise from 5 to 6. The feedback form opened once the bot's dedup (site_u
 | next-day review of the lesson's new items | not yet (lesson 20's export) |
 | feedback form: load; friction | **light**; other |
 
-- **«Light» again, at a higher pace.** Counting new *words* (word forms in no item met before) instead of new
-  items, lessons 16–19 had 7, 9, 4 and 6, against loads «right», «right», «light», «light». The item count was 8
-  every time. The owner reads lesson 19 as five new words (the rule counts six; the owner counts «taka mynd» as one) and moves the pace's unit to new words (#218).
+- **«Light» again, at a higher pace.** The item count was 8 every time. Counting new word forms (in no item met
+  before) instead, lessons 16–19 had 7, 9, 4 and 6, against loads «right», «right», «light», «light»; the owner read
+  lesson 19 as five new words, «taka mynd» being one. The pace's unit becomes new *components*, weighted (#218): a
+  new word, a chunk the curriculum treats as one item («taka mynd») or a new pattern with its frame's new words is 1,
+  a new form of a known word is w (0.5 to start, the one weight fitted from next-day failures), a combination of
+  known parts is 0. Recounted, lessons 16–19 come to 8, 8, 5 and 5. Counting a pattern as 1 plus its new words
+  instead gives 9, 8.5, 7 and 5–6, which blurs lessons 17 and 18.
 - **What the learner wrote, by cause:**
   - «How do you say: Sleep.» → «sofa» in the review: the imperative reading. The curriculum's `meaning_spoken` is
     «to sleep», and lessons 14–19's plans ask «sofa» only in sentences, so this is an early lesson's queued
@@ -771,7 +775,7 @@ the pace rise from 5 to 6. The feedback form opened once the bot's dedup (site_u
 | **G1** | **We don't read our signals routinely.** Decisions follow single remarks; there is no weekly comparison of predictions with data, and the readiness summary isn't used in decisions. | §5.3, §5.6; one feedback form so far | all; §10 |
 | **G2** | **Lessons are assembled from an item count and an urgency queue.** Practice is bunched after each introduction, reviews have no shared scene, and the only coherent chunks are dialogues and exchanges. | §5.4; the owner after L12 | O1, O5; H4 |
 | **G3** | **No natural-speed listening in the daily audio.** Partner lines come at one speed and in one wording (since #134 the theme exchange's partner lines vary: each play uses other words). | §5.5; #134 ("now the top pre-trip gap") | O2; H8 |
-| **G4** | **The pace isn't the number of new items.** Extra arcs add up to half the pace again, and before PR #153, without limit when the fillers ran out. The load follows new words (#218). | §5.2, §5.15 | O5; H9 |
+| **G4** | **The pace isn't the number of new items.** Extra arcs add up to half the pace again, and before PR #153, without limit when the fillers ran out. The load follows weighted new components (#218). | §5.2, §5.15 | O5; H9 |
 | **G5** | **Semantic sets can arrive together.** The trip ordering and curriculum order can put a whole set (numbers 6–19, colours, languages) into one lesson. | Lesson 8 (numbers); a replay from lesson 12 with a scenario holding numbers 6–19 boosted: five numbers in lesson 12, nine more in lesson 13 (an experiment from PR #154's first version, not in the repository) | O1; H5 |
 | **G6** | **Plausibility rests on slot tags.** Implausible or ungrammatical sentences can still be generated: «Hvenær opnar ísskápurinn?» before PR #155, and «Ég vil blár.» (the colour should be accusative). | Found after L12 | O1; H7 |
 | **G7** | **Three schedulers.** The audio's learner model, the Discord review queue (its own 1→3→7→14→30-day steps) and the card queues each decide what comes back, and their combined effect has never been examined. They are separate kinds of evidence by design (#129), but the learner experiences their sum. | Bot README | O5; H10, H11 |
@@ -812,7 +816,7 @@ what. Re-rank it when the evidence moves.
    semantic set a lesson (step 2c, #204, #207); a fixed phrase linked to its pattern (#206).
    **Next**, in order (#149): the rest of step 2 (numbers through a number × noun track, 1–99 across prices,
    tickets, people and time (#213): new numbers enter one or two a lesson, with a frame and inside the set cap,
-   and the track's fixed share keeps the known ones in use; the colours through their scenes; more theme data); the closing block
+   and the track's fixed share keeps the known ones in use, inside the pace's target (#218); the colours through their scenes; more theme data); the closing block
    taking the theme's lines.
    - New material goes into a lesson by scene (step 2): the items the top theme's next level
      lacks come first, ahead of the trip order of single items. A part comes with its frame, or
@@ -876,14 +880,14 @@ Don't reopen these without new evidence; when you do, say what changed.
   pace before and during the trip, throttled only by what the learner reports (owner; #129, #131):
   today, the last lesson's recall; from #218 (owner, 2026-10-08; decided, not built yet), recall over the
   last three reported lessons (up at ≤ 15% failures, down above 25%) and the feedback form's load rating,
-  with new words, not new items, as the unit of the pace.
-  The pace is throttled by what needs review: a learner with much to review gets fewer new
-  words because the lesson is full. **Close variants** (`Item.variant_of`: another case, another
-  gender of something the learner knows) come in beyond the pace only when the lesson has run
-  out of other material (up to four, #170), so they follow that rule and don't revise it. They
-  are listed apart in `plan.json` (`variant_items`), so the weekly read doesn't count them as a
-  pace change. With new words as the unit, a variant adds a new word form («þrjá» after «þrír»);
-  whether it uses the new-word target or stays outside it is open (#218, the owner's decision).
+  with weighted new components, not new items, as the unit of the pace: a new word, chunk or pattern 1, a new
+  form of a known word w (fitted from next-day failures, 0.5 to start), a combination of known parts 0.
+  The pace is throttled by what needs review: a learner with much to review gets less new
+  material because the lesson is full. **Close variants** (`Item.variant_of`: another case, another
+  gender of something the learner knows) come in only when the lesson has run out of other
+  material (up to four, #170). Today they come beyond the pace and are listed apart in `plan.json`
+  (`variant_items`). From #218 (decided, not built yet) a variant counts at w against the target,
+  like any other new form («þrjá» after «þrír»).
 - **Evidence.**
   - Presumed success is kept apart from confirmed outcomes (#119).
   - The last lesson's new items are reviewed before the next lesson is generated (bot).
@@ -914,6 +918,8 @@ Don't reopen these without new evidence; when you do, say what changed.
   - **Exception: the number × noun track (#213; decided direction, not built).** It keeps a fixed share of
     practice every lesson, whatever the theme: numbers with gendered nouns, covering 1–99 across prices, tickets,
     people and time. Like `refresh` (§9 "Repetition"), the known part returns with changing fillers.
+    It sits inside the pace's target (#218): known combinations cost 0, and a new number or form costs what it
+    adds (a number ending in 1–4 agrees with the noun, and the noun takes the count's number and case).
 - **Conversation.**
   - An exchange's target-language turns must form a plausible conversation with the
     instructor lane removed (#48).
