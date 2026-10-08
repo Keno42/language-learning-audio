@@ -695,7 +695,7 @@ the pace rise from 5 to 6. The feedback form opened once the bot's dedup (site_u
 - **«Light» again, at a higher pace.** The item count was 8 every time. Counting new word forms (in no item met
   before) instead, lessons 16–19 had 7, 9, 4 and 6, against loads «right», «right», «light», «light»; the owner read
   lesson 19 as five new words, «taka mynd» being one. The pace's unit becomes weighted new *components* (§9
-  "Pace", #218). Recounted, lessons 16–19 come to 8, 8, 5 and 5. The count was chosen on principle (a pattern is
+  "Pace", #218). Recounted, lessons 16–19 come to 8, 8, 5 and 5 (recounted by the planner's `component_cost` on the exports, #218 b3: 8, 9, 5, 5: «norðurljós» has its own vocab item, so it costs 1, and «farið» counts as a word, the form having no item of its own). The count was chosen on principle (a pattern is
   one learning step, like a chunk, which is also the owner's reading of «taka mynd»), not to fit four lessons: the
   other counts separate «right» from «light» too (a pattern as 1 plus its new words: 9 and 8.5 against 7 and 5–6;
   no weight for patterns: 7 and 7.5 against 4 and 5).
