@@ -12,7 +12,7 @@ from pathlib import Path
 from . import __version__
 from .themes import load_themes, scenario_order
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
-from .exercises import meaning_text
+from .exercises import meaning_prompt
 from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, part_before_whole_report
 from .learner import LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
@@ -116,6 +116,12 @@ def main(argv: list[str] | None = None) -> int:
     sc.add_argument("--learner", dest="learner_file", default=None, help="learner.json: only cards whose items the learner has met (none met if the file is missing)")
     sc.add_argument("--trip", default=None, help="private trip profile: its season decides the seasonal cards")
     sc.set_defaults(func=cmd_scenes)
+
+    q = sub.add_parser("questions", help="the review question (prompt and answer) for single items as JSON, for the Discord review (#220)")
+    q.add_argument("curriculum")
+    q.add_argument("--ids", default="", help="item ids, comma-separated; unknown ids and constructions are left out")
+    q.add_argument("--known", default=None)
+    q.set_defaults(func=cmd_questions)
 
     vo = sub.add_parser("voices", help="list default voices a provider offers for a language")
     vo.add_argument("--provider", default="edge")
@@ -321,6 +327,12 @@ def cmd_generate(args) -> int:
     return 0
 
 
+def _review_cue(cur, prompts: Prompts, it) -> str:
+    """The review question for a single item: its situation, else the meaning cue (with the item's context, like the lesson)."""
+    prompts = Prompts(prompts.data, prompts.lang)  # a fresh generator: an item's cue does not depend on the ones asked before it
+    return it.situation_for(0) or meaning_prompt(prompts, cur.known_lang, cur.target_lang, it.spoken_meaning, it.context)
+
+
 def _plan(script: Script, cur) -> dict:
     meta = script.meta
 
@@ -333,12 +345,12 @@ def _plan(script: Script, cur) -> dict:
     # could not check it; it gets one from its situation or meaning (a construction has no single answer: skipped)
     asked = {i for q in review for i in q.get("items", [])}
     prompts = Prompts.load(cur.known_lang)
-    for i in meta.get("open_items", []):
+    for i in list(meta.get("open_items", [])) + list(meta.get("open_not_fitted", [])):  # #220: every open item is asked, fitted or not
         it = cur.by_id.get(i)
         if i in asked or it is None or it.kind == "construction":
             continue
-        prompt = it.situation_for(0) or prompts.get("meaning", meaning=meaning_text(cur.known_lang, it.spoken_meaning), language=prompts.language_name(cur.target_lang))
-        review.append({"items": [i], "prompt": prompt, "answer": it.target, "stage": "open"})
+        asked.add(i)
+        review.append({"items": [i], "prompt": _review_cue(cur, prompts, it), "answer": it.target, "stage": "open"})
     return {
         "lesson_number": script.lesson_number,
         "date": meta.get("date"),
@@ -539,6 +551,18 @@ def cmd_reading(args) -> int:
     places = load_trip(args.trip).places if args.trip else []
     cards = load_deck(args.curriculum, places)
     print(json.dumps([c.to_dict() for c in cards], ensure_ascii=False))
+    return 0
+
+
+def cmd_questions(args) -> int:
+    cur = load_curriculum(args.curriculum, known_lang=args.known)
+    prompts = Prompts.load(cur.known_lang)
+    out = {}
+    for i in _split(args.ids):
+        it = cur.by_id.get(i)
+        if it is not None and it.kind != "construction":
+            out[i] = {"prompt": _review_cue(cur, prompts, it), "answer": it.target}
+    print(json.dumps(out, ensure_ascii=False))
     return 0
 
 

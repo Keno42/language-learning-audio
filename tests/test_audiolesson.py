@@ -5288,6 +5288,45 @@ class OpenItemsInThePlanTests(unittest.TestCase):
             if self.cur.by_id[i].kind != "construction":
                 self.assertIn(i, asked, f"{i}: an open item the review can ask")
 
+    def test_an_open_item_that_did_not_fit_the_lesson_has_a_question_too(self):
+        """#220: the review asks every open item, so one the lesson had no room for needs its question as well."""
+        from audiolesson.cli import _plan
+
+        sc = Script(1, "t", "is", "en")
+        sc.meta["open_items"] = ["skyr"]
+        sc.meta["open_not_fitted"] = ["sofa"]
+        plan = _plan(sc, self.cur)
+        (q,) = [q for q in plan["review"] if q["items"] == ["sofa"]]
+        self.assertEqual(q["answer"], self.cur.by_id["sofa"].target)
+        self.assertEqual(q["stage"], "open")
+        self.assertEqual(sum(1 for q in plan["review"] if q["items"] == ["skyr"]), 1)
+
+    def test_a_construction_has_no_question_of_its_own(self):
+        from audiolesson.cli import _plan
+
+        cons = next(i.id for i in self.cur.items if i.kind == "construction")
+        sc = Script(1, "t", "is", "en")
+        sc.meta["open_not_fitted"] = [cons]
+        self.assertEqual([q for q in _plan(sc, self.cur)["review"] if cons in q["items"]], [])
+
+    def test_the_questions_command_gives_the_lessons_cue(self):
+        """#220/#73: «sofa» is asked as «to sleep», not «Sleep.»; a form with a context is asked with it; a construction is left out."""
+        import contextlib
+        import io
+
+        from audiolesson.cli import main
+
+        cons = next(i.id for i in self.cur.items if i.kind == "construction")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(main(["questions", str(ROOT / "curricula" / "is-en"), "--ids", f"sofa,gott,{cons},no_such_item"]), 0)
+        got = json.loads(out.getvalue())
+        self.assertEqual(set(got), {"sofa", "gott"})
+        self.assertEqual(got["sofa"]["answer"], "sofa")
+        self.assertIn("To sleep", got["sofa"]["prompt"])
+        self.assertNotIn("Sleep.", got["sofa"]["prompt"])
+        self.assertIn(self.cur.by_id["gott"].context, got["gott"]["prompt"])
+
     def test_an_open_item_without_a_written_question_gets_one_from_its_situation_or_meaning(self):
         from audiolesson.cli import _plan
 
@@ -5302,7 +5341,7 @@ class OpenItemsInThePlanTests(unittest.TestCase):
 
     def test_the_fallback_prompt_uses_the_lessons_own_meaning_cue_in_the_known_language(self):
         from audiolesson.cli import _plan
-        from audiolesson.exercises import meaning_text
+        from audiolesson.exercises import meaning_prompt
 
         for lang in (None, "ja"):
             cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
@@ -5311,8 +5350,11 @@ class OpenItemsInThePlanTests(unittest.TestCase):
             sc.meta["open_items"] = [item.id]
             (q,) = [q for q in _plan(sc, cur)["review"] if q["items"] == [item.id]]
             prompts = Prompts.load(cur.known_lang)
-            expected = prompts.get("meaning", meaning=meaning_text(cur.known_lang, item.spoken_meaning), language=prompts.language_name(cur.target_lang))
+            # the lesson's cue: an item with a context is asked with it (#220)
+            expected = meaning_prompt(prompts, cur.known_lang, cur.target_lang, item.spoken_meaning, item.context)
             self.assertEqual(q["prompt"], expected)
+            if item.context:
+                self.assertIn(item.context, q["prompt"])
             if lang == "ja":
                 self.assertNotIn("Say:", q["prompt"])
 

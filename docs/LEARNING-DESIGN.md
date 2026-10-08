@@ -894,7 +894,7 @@ Don't reopen these without new evidence; when you do, say what changed.
   - Presumed success is kept apart from confirmed outcomes (#119).
   - The last lesson's new items are reviewed before the next lesson is generated (bot).
   - Every open item the plan lists (`open_items`, `open_not_fitted`) is asked at the next review, like the new items' check
-    (#220; owner, 2026-10-08; decided, not built yet).
+    (#220; owner, 2026-10-08). The plan carries a question for each (`cli._plan`); the bot makes one question per item required.
   - `knows()` means two recalls on or after a due date (#27).
 - **Daily dose.** A lesson uses its full requested time, with material that loads the learner
   (owner, after lesson 13: a light lesson wastes a day's consolidation). The number of new
