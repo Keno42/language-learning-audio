@@ -274,10 +274,6 @@ class DialogueTurn:
     # generates e.g. «Það kostar fimm þúsund krónur.» mid-exchange. The fills count as
     # required items.
     expect_fill: dict[str, str] = field(default_factory=dict)
-    # a reply the partner's line decides (returning a greeting): its cue is dropped once the learner can say it. Any other
-    # turn keeps its cue, the intent, in every play (#210)
-    settled: bool = False
-    say_items: list[str] = field(default_factory=list)  # a theme turn's literal line is built from these items: it is sayable when each one is (#210 review)
     # a scene line narrated every time: before the turn's opener (or its cue), and before the partner's reply (#210)
     scene: str = ""
     partner_scene: str = ""

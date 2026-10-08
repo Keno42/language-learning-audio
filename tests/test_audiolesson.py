@@ -3539,7 +3539,7 @@ class LessonStructureTests(unittest.TestCase):
     def test_only_the_translation_fades_on_later_encounters_the_cue_stays(self):
         """Issue #26, narrowed by #210: the translation of the partner's line fades (the learner has to understand it),
         but the cue, the intent, plays in every encounter, so the learner always knows what they are to say and where
-        they are. A settled turn (the partner's line decides the reply) drops it once it can be said."""
+        they are. No turn drops it: the partner's line never decides the reply (#230 review)."""
         from audiolesson.content import Dialogue, DialogueTurn
         from audiolesson.exercises import Builder
 
@@ -3564,13 +3564,6 @@ class LessonStructureTests(unittest.TestCase):
         # a meaning comes the first time its turn is heard
         self.assertTrue(any("With milk?" in n for n in narrations(frozenset({0}))))
         self.assertFalse(any("With milk?" in n for n in narrations(frozenset({1}))))
-        # a settled turn drops its cue only when it can be said
-        turns[1].settled = True
-        self.assertIn("Say no thanks.", narrations(False), "no way to tell: the cue plays")
-        self.assertIn("Say no thanks.", narrations(False, can_say=lambda t: False))
-        self.assertNotIn("Say no thanks.", narrations(False, can_say=lambda t: True))
-        self.assertIn("Say no thanks.", narrations(False, can_say=lambda t: True, tried_turns={1}), "a tried turn keeps it")
-        self.assertEqual(b.cueless_turns, ["d:2"])
 
     @staticmethod
     def _play(builder, dlg, **kw):
@@ -6650,7 +6643,6 @@ class ThemeExchangeTests(unittest.TestCase):
         for cue in ("You're just looking.", "At the till, ask how much it is in total.", "No need."):
             self.assertIn(cue, said(early))
             self.assertIn(cue, said(late))
-        self.assertEqual(sc.meta["turns_without_cue"], [])
         replay = self._learner(self._known + self._rest)
         replay.themes_done = {"supermarket": 1}
         replay.themes_last = {}
@@ -6659,43 +6651,22 @@ class ThemeExchangeTests(unittest.TestCase):
         for e in [e for e in sc.exercises if e.label.startswith("dialogue: theme:supermarket:1")]:
             self.assertIn("Thank him.", [g.text for g in sc.segments if g.exercise == e.index and g.type == "narrate"])
 
-    def test_a_settled_turn_drops_its_cue_only_when_the_learner_can_say_it(self):
+    def test_no_turn_of_a_continuing_exchange_drops_its_cue_in_any_play(self):
+        """#230 review (owner): the partner's line never decides the reply, so every learner turn of every theme level keeps its cue,
+        the second play and a replay included, the tour's «Greet her back.» too."""
         from audiolesson.themes import level_dialogue
 
-        tour = next(t for t in self._themes if t.id == "tour")
-        greet = next(t for t in tour.levels[0].turns if t.cue == "Greet her back.")
-        self.assertTrue(greet.settled)
-        self.assertEqual([t.settled for t in level_dialogue(tour, 0).turns].count(True), 1)
-        everything = self._known + self._rest + ["godan_daginn"]
-        planner = self._planner(self._learner(everything), [tour], ["B2"])
-        dlg = level_dialogue(tour, 0)
-        k = [t.cue for t in dlg.turns].index("Greet her back.")
-        sc = Script(1, "t", "is", "en")
-        planner.builder.dialogue(sc, dlg, translate=False, can_say=planner.can_say_turn)
-        self.assertNotIn("Greet her back.", [g.text for g in sc.segments if g.type == "narrate"])
-        self.assertEqual(planner.builder.cueless_turns, [f"{dlg.id}:{k + 1}"])
-        sc = Script(1, "t", "is", "en")
-        planner.builder.dialogue(sc, dlg, translate=False, can_say=lambda t: False)
-        self.assertIn("Greet her back.", [g.text for g in sc.segments if g.type == "narrate"])
-
-    def test_a_settled_turn_is_sayable_only_when_its_items_are(self):
-        """#230 review: a theme turn has no ``expect``; its literal line is judged by the items it is built from."""
-        from audiolesson.content import DialogueTurn
-        from audiolesson.themes import level_dialogue
-
-        tour = next(t for t in self._themes if t.id == "tour")
-        dlg = level_dialogue(tour, 0)
-        turn = next(t for t in dlg.turns if t.cue == "Greet her back.")
-        self.assertEqual(turn.say_items, ["godan_daginn"])
-        known = self._known + self._rest + ["godan_daginn"]
-        planner = self._planner(self._learner(known), [tour], ["B2"])
-        self.assertTrue(planner.can_say_turn(turn))
-        failed = self._learner(known)
-        failed.report(["godan_daginn"], [], TODAY)  # open: the learner is repairing it
-        self.assertTrue(failed.is_open("godan_daginn"))
-        self.assertFalse(self._planner(failed, [tour], ["B2"]).can_say_turn(turn))
-        self.assertFalse(self._planner(self._learner([i for i in known if i != "godan_daginn"]), [tour], ["B2"]).can_say_turn(turn))
-        self.assertTrue(planner.can_say_turn(DialogueTurn(cue="x", expect_text="y")), "a turn with no items listed: as before")
+        planner = self._planner(self._learner(self._known + self._rest + ["godan_daginn"]), self._themes, self._order)
+        for theme in self._themes:
+            for n, level in enumerate(theme.levels):
+                dlg = level_dialogue(theme, n)
+                for translate in (True, False):
+                    sc = Script(1, "t", "is", "en")
+                    planner.builder.dialogue(sc, dlg, translate=translate)
+                    narrated = [g.text for g in sc.segments if g.type == "narrate"]
+                    for turn in dlg.turns:
+                        self.assertIn(turn.cue, narrated, (theme.id, n + 1, translate))
+        self.assertIn("Greet her back.", [t.cue for t in level_dialogue(next(t for t in self._themes if t.id == "tour"), 0).turns])
 
     def test_a_scene_line_on_a_partner_turn_is_narrated_before_its_line_in_every_play(self):
         from audiolesson.themes import Level, Theme, Turn, level_dialogue
@@ -6735,8 +6706,6 @@ class ThemeExchangeTests(unittest.TestCase):
         for bad in (you(cue=""), you(cue="  ")):
             with self.assertRaises(CurriculumError):
                 check(bad)
-        with self.assertRaises(CurriculumError):
-            check(Turn(who="partner", say="Hæ.", meaning="Hi.", settled=True), you())
         with self.assertRaises(CurriculumError):
             check(you(scene="At the till."))
 

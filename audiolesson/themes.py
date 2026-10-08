@@ -31,8 +31,8 @@ and ``load_scenes`` only ``[[scenes]]``, so they share the directory)::
 - A ``you`` turn is the learner's line: a ``cue`` (the intent, in the learner's language; always played),
   ``say`` (the model line), ``items`` (the curriculum items it needs) and optional ``alts``
   (other good answers; they wait for the review side, which asks ``say`` only). The cue plays in every
-  play (#210). The one exception is ``settled = true``: a reply the partner's line decides (returning a
-  greeting), which drops its cue once the learner can say it. Mark only those.
+  play (#210), for every turn: no turn of an exchange that goes on drops it, since the partner's line never
+  decides the reply.
 - A partner turn can carry ``scene`` / ``scene_ja``: a line the narrator says every time before the partner's line
   («At the till.»), where the setting changes. (A learner's turn has its cue for that; a scene on one fails validation.)
 - A ``partner`` turn is what the other person says, with its meaning. It may go beyond the
@@ -71,7 +71,6 @@ class Turn:
     meaning_ja: str = ""
     items: list[str] = field(default_factory=list)
     alts: list[str] = field(default_factory=list)
-    settled: bool = False  # a learner turn the partner's line decides: no cue once the learner can say it (#210)
     scene: str = ""  # a line the narrator says before this turn, every play (#210)
     scene_ja: str = ""
     variants: list[dict] = field(default_factory=list)  # a partner turn: other ways to say it, each {say, meaning, meaning_ja} (#134)
@@ -160,8 +159,6 @@ def _check(theme: Theme) -> None:
                 raise CurriculumError(f"{where} turn {k}: cue: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
             if t.who == "you" and not (t.cue.strip() and t.items):
                 raise CurriculumError(f"{where} turn {k}: a learner's line needs a cue (the intent, played every time) and the items it needs")
-            if t.settled and t.who != "you":
-                raise CurriculumError(f"{where} turn {k}: only a learner's line can be settled")
             if t.scene and t.who != "partner":
                 raise CurriculumError(f"{where} turn {k}: a scene goes on a partner's line (a learner's turn has its cue)")
             for w in unmarked_japanese(t.scene):
@@ -233,7 +230,7 @@ def level_dialogue(theme: Theme, n: int, known_lang: str = "en", picks: dict[int
             else:
                 opener, opener_scene = (t.say, meaning), scene
             continue
-        turn = DialogueTurn(cue=(t.cue_ja if ja and t.cue_ja else t.cue), expect_text=t.say, settled=t.settled, say_items=list(t.items))
+        turn = DialogueTurn(cue=(t.cue_ja if ja and t.cue_ja else t.cue), expect_text=t.say)
         if opener is not None:
             turn.opener, turn.opener_meaning, turn.scene = opener[0], opener[1], opener_scene
             opener, opener_scene = None, ""

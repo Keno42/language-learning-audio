@@ -154,7 +154,6 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "generated sentences (plain / negative / question)": f"{sum(forms.values())} ({forms['plain']} / {forms['negative']} / {forms['question']})",
         "most sentences of one construction": max(per_construction.values(), default=0),
         "theme (level) / plays": f"{m['theme']['id']} ({m['theme']['level']}) / {m['theme']['plays']}" if m.get("theme") else "–",
-        "you turns played without a cue (settled only)": len(m.get("turns_without_cue", [])),
         "listening dialogues": len(m.get("dialogues_listened", [])),
         "heard-only lines": narrated.count(Prompts.load(cur.known_lang).get("listening_line")),
         "tried lines / bonus questions": f"{len(m.get('listening_tried', []))} / {len(m.get('bonus_review', []))}",

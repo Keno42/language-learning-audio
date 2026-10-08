@@ -946,10 +946,9 @@ class Planner:
         """Whether the learner can say a dialogue turn's line (#179): its item (and its fills) can be
         said, or, for a construction turn, the filled line is covered, in order, by chunks they can say
         («Það kostar | fimm | þúsund krónur.»: «Það kostar {price}.», «fimm» and «þúsund krónur»). A line
-        with any word outside what they can say is not sayable. A theme turn has a literal line built from
-        ``say_items`` (#210 review): it is sayable when each of them is."""
+        with any word outside what they can say is not sayable."""
         if not turn.expect:
-            return all(self.can_say_item(i, practised) for i in turn.say_items)
+            return True
         item = self.cur.by_id[turn.expect]
         fills = {s: self.cur.by_id[f] for s, f in turn.expect_fill.items()}
         if self.can_say_item(item.id, practised) and all(self.can_say_item(f.id, practised) for f in fills.values()):
@@ -1747,7 +1746,7 @@ class Planner:
                 theme_heard.extend(f"{k}:{i}" for k, i in picks.items())
             dlg = level_dialogue(theme, n, self.cur.known_lang, picks)
             theme_lines.append(dlg.variant)
-            ex = b.dialogue(sc, dlg, translate=theme_plays == 0 and not theme_replay, can_say=self.can_say_turn, tried_turns=tried)
+            ex = b.dialogue(sc, dlg, translate=theme_plays == 0 and not theme_replay, tried_turns=tried)
             you = [t for t in theme.levels[n].turns if t.who == "you"]
             said = [i for k, t in enumerate(you) if k not in tried for i in t.items if i in self.cur.by_id]
             self._record(list(dict.fromkeys(said)), "dialogue", ex.item_ids)
@@ -2191,7 +2190,6 @@ class Planner:
             # partner interaction in the target language vs recombination practice
             "partner_exchanges": len(self.dialogues_played) + sum(1 for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"),
             "recombinations": sum(1 for e in sc.exercises if e.kind == "connect" and e.stage != "exchange"),
-            "turns_without_cue": list(self.builder.cueless_turns),  # settled learner turns whose cue was dropped (#210); any other is a bug
             "heard_utterances": sorted(self.builder.heard),
             "think_time_boosted": sorted(self.builder.boosted),
             "bridges": [e.item_ids[1] for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"],
@@ -2206,7 +2204,7 @@ class Planner:
         full = max_turns >= len(dlg.turns)
         # a turn's meaning is given the first time that turn is heard (#210): turn k comes in at encounter k + 1 - first_turns
         new_turns = frozenset(k for k in range(max_turns) if max(0, k + 1 - self.cfg.dialogue_first_turns) == times)
-        ex = self.builder.dialogue(sc, dlg, replay=(times > 0 and full), max_turns=max_turns, translate=new_turns, can_say=self.can_say_turn)
+        ex = self.builder.dialogue(sc, dlg, replay=(times > 0 and full), max_turns=max_turns, translate=new_turns)
         primary = [t.expect for t in dlg.turns[:max_turns] if t.expect]
         self._record(primary, "dialogue", ex.item_ids)
         self.dialogues_played.append(dlg.id)
@@ -2227,7 +2225,7 @@ class Planner:
         if not missing and not heard and not tried:
             self._play_dialogue(sc, dlg)
             return
-        ex = self.builder.dialogue(sc, dlg, translate=True, can_say=self.can_say_turn, listening=heard, tried=tried)
+        ex = self.builder.dialogue(sc, dlg, translate=True, listening=heard, tried=tried)
         self._record([t.expect for t in dlg.turns if t.expect and t.expect not in heard and t.expect not in tried], "dialogue", ex.item_ids)
         for t in dlg.turns:
             if t.expect in tried:

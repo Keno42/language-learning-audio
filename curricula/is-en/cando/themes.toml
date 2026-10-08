@@ -120,7 +120,7 @@ goal = "Greet the guide and find out when the coach leaves."
 goal_ja = "ガイドにあいさつし、バスの出発時刻を確かめる。"
 turns = [
   { who = "partner", say = "Góðan daginn öll! Ég heiti Anna og ég er leiðsögumaðurinn ykkar í dag.", meaning = "Good morning, everyone! I'm Anna, and I'm your guide today.", meaning_ja = "皆さんおはようございます！今日のガイドのアンナです。" },
-  { who = "you", cue = "Greet her back.", cue_ja = "あいさつを返してください。", say = "Góðan daginn.", items = ["godan_daginn"], settled = true },
+  { who = "you", cue = "Greet her back.", cue_ja = "あいさつを返してください。", say = "Góðan daginn.", items = ["godan_daginn"] },
   { who = "partner", say = "Við stoppum hérna í tuttugu mínútur.", meaning = "We'll stop here for twenty minutes.", meaning_ja = "ここで20分休憩します。", variants = [{ say = "Við verðum hérna í tuttugu mínútur.", meaning = "We'll be here for twenty minutes.", meaning_ja = "ここに20分います。" }, { say = "Hér stoppum við í tuttugu mínútur.", meaning = "Here we stop for twenty minutes.", meaning_ja = "ここで20分止まります。" }] },
   { who = "you", cue = "Ask when you're leaving.", cue_ja = "いつ出発するか聞いてください。", say = "Hvenær leggjum við af stað?", items = ["hvenaer_leggjum_vid_af_stad"] },
   { who = "partner", say = "Klukkan hálf þrjú.", meaning = "At half past two.", meaning_ja = "2時半です。", variants = [{ say = "Við förum klukkan hálf þrjú.", meaning = "We leave at half past two.", meaning_ja = "2時半に出発します。" }, { say = "Rútan fer klukkan hálf þrjú.", meaning = "The coach leaves at half past two.", meaning_ja = "バスは2時半に出ます。" }] },
