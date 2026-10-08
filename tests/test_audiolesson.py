@@ -5326,6 +5326,21 @@ class OpenItemsInThePlanTests(unittest.TestCase):
         self.assertIn("To sleep", got["sofa"]["prompt"])
         self.assertNotIn("Sleep.", got["sofa"]["prompt"])
         self.assertIn(self.cur.by_id["gott"].context, got["gott"]["prompt"])
+        for i in ("sofa", "gott"):  # «cues»: every way the bare item is asked now, the first being the prompt
+            self.assertIn(got[i]["prompt"], got[i]["cues"])
+        prompts = Prompts.load("en")
+        templates = prompts.data["meaning"]
+        self.assertGreater(len(templates), 1)
+        for t in templates:  # every wording the lesson can use for the meaning cue is a current cue
+            self.assertIn(t.format(meaning="To sleep.", language="Icelandic"), got["sofa"]["cues"])
+        in_context = prompts.data["meaning_in_context"]
+        for t in in_context if isinstance(in_context, list) else [in_context]:
+            self.assertTrue(any(c.endswith(t.split("{meaning}")[-1].format(context=self.cur.by_id["gott"].context)) for c in got["gott"]["cues"]))
+        with_situations = next(it for it in self.cur.items if len(it.situations) > 1 and it.kind != "construction")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            main(["questions", str(ROOT / "curricula" / "is-en"), "--ids", with_situations.id])
+        self.assertTrue(set(with_situations.situations) <= set(json.loads(out.getvalue())[with_situations.id]["cues"]))
 
     def test_an_open_item_without_a_written_question_gets_one_from_its_situation_or_meaning(self):
         from audiolesson.cli import _plan
