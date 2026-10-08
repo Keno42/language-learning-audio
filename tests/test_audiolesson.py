@@ -5326,6 +5326,13 @@ class OpenItemsInThePlanTests(unittest.TestCase):
         self.assertIn("To sleep", got["sofa"]["prompt"])
         self.assertNotIn("Sleep.", got["sofa"]["prompt"])
         self.assertIn(self.cur.by_id["gott"].context, got["gott"]["prompt"])
+        for i in ("sofa", "gott"):  # «cues»: every way the bare item is asked now, the first being the prompt
+            self.assertIn(got[i]["prompt"], got[i]["cues"])
+        with_situations = next(it for it in self.cur.items if len(it.situations) > 1 and it.kind != "construction")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            main(["questions", str(ROOT / "curricula" / "is-en"), "--ids", with_situations.id])
+        self.assertTrue(set(with_situations.situations) <= set(json.loads(out.getvalue())[with_situations.id]["cues"]))
 
     def test_an_open_item_without_a_written_question_gets_one_from_its_situation_or_meaning(self):
         from audiolesson.cli import _plan
