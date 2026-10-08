@@ -432,6 +432,8 @@ def cmd_report(args) -> int:
         print(f"left to the next-day review (embedded or tried): {', '.join(changed['sooner_skipped'])}")
     if changed["load"]:
         print(f"lesson {changed['lesson']} load recorded: {changed['load']}")
+    if changed.get("load_unknown") is not None:
+        print(f"warning: lesson {changed['load_unknown']} is not in the lesson log: its load ({args.load}) was not stored", file=sys.stderr)
     if changed["unknown"]:
         print(f"warning: not in learner state: {', '.join(changed['unknown'])}", file=sys.stderr)
     if not (changed["failed"] or changed["hesitated"] or changed["recalled"] or changed["easy"] or args.sooner or args.load):

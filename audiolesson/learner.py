@@ -178,8 +178,9 @@ class LearnerState:
         - the review backlog must fit: if items due exceed ~80% of the review slots, slow down
         - the recall rate is taken over the last three reported lessons (a failed new item counts 1, a
           hesitated one ½): up by one at ≤15% with a small backlog, hold at 15–25%, down by one above 25%
-        - the load rating (``report --load``): the last two rated lessons both «light» and a rate ≤25% also
-          raise it by one; any «heavy» in the window blocks a rise. One step a lesson at most.
+        - the load rating (``report --load``): the last two rated lessons both «light», a rate ≤25% and a small backlog
+          (< 0.5, as for the recall-based rise) also raise it by one; any «heavy» in the window blocks a rise. A lesson
+          with no rating is skipped: it neither breaks nor extends the run (owner, #229). One step a lesson at most.
         - auto mode: an unreported lesson counts as "all good", but the pace steps up at most
           once every AUTO_STEP_EVERY lessons; `report --failed` still slows it down
         """
@@ -207,7 +208,9 @@ class LearnerState:
         if last and new_pace == pace and last.get("due_at_start", 0) >= 8 and last.get("due_not_fitted", 0) > 0.25 * last["due_at_start"]:
             new_pace -= 1
             reasons.append(f"{last['due_not_fitted']} of {last['due_at_start']} due reviews did not fit last lesson")
-        recent = self.reported_window() + ([last] if last else [])
+        recent = self.reported_window()
+        if last and last not in recent:
+            recent.append(last)
         heavy = any(le.get("load") == "heavy" for le in recent)
         rated = [le for le in self.lessons if le.get("load") in LOADS][-2:]
         two_light = len(rated) == 2 and all(le["load"] == "light" for le in rated)
@@ -216,7 +219,7 @@ class LearnerState:
         elif new_pace == pace and not heavy and fail_rate is not None and fail_rate <= 0.15 and backlog_ratio < 0.5 and not auto_assumed:
             new_pace += 1
             reasons.append(f"{fb[0]:g}/{fb[1]} new items failed over the last {len(self.reported_window())} lessons, backlog small")
-        elif new_pace == pace and not heavy and two_light and fail_rate is not None and fail_rate <= 0.25 and not auto_assumed:
+        elif new_pace == pace and not heavy and two_light and fail_rate is not None and fail_rate <= 0.25 and backlog_ratio < 0.5 and not auto_assumed:
             new_pace += 1
             reasons.append(f"the last two lessons were rated light ({fb[0]:g}/{fb[1]} failed)")
         elif new_pace == pace and not heavy and fail_rate is not None and fail_rate <= 0.15 and backlog_ratio < 0.5 and auto_assumed:
@@ -383,6 +386,8 @@ class LearnerState:
                 if entry["number"] == lesson_number:
                     entry["load"] = load
                     changed["load"] = load
+            if changed["load"] is None:
+                changed["load_unknown"] = lesson_number
 
         def state(item_id: str) -> ItemState | None:
             st = self.items.get(item_id)

@@ -7437,6 +7437,36 @@ class PacingTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             learner.report([], [], TODAY, 1, load="enormous")
 
+    def test_two_light_lessons_need_a_small_backlog_like_the_recall_rise(self):
+        outs = [["r"] * 4 + ["f"] * 6] + [["r"] * 10] * 2
+        learner = self._rated(outs, [None, "light", "light"])
+        self.assertEqual(learner.suggest_pace(30, TODAY)[0], 7)
+        slots = max(0, int(30 * 60 / 16) - 6 * 6)
+        for k in range(int(slots * 0.6)):  # items due now: between 0.5 and 0.8 of the review slots
+            learner.items[f"pad{k}"] = ItemState(stage="meaning", due=TODAY.isoformat())
+        self.assertEqual(learner.suggest_pace(30, TODAY)[0], 6, "a backlog the recall rise would not accept blocks the light rise too")
+
+    def test_an_unrated_lesson_neither_breaks_nor_extends_the_run_of_light_lessons(self):
+        outs = [["r"] * 8 + ["f"] * 2] * 4
+        light_gap = self._rated(outs, ["light", "light", None, None])
+        self.assertEqual(light_gap.suggest_pace(30, TODAY)[0], 7, "the last two rated lessons are both light")
+        broken = self._rated(outs, ["light", "light", "right", None])
+        self.assertEqual(broken.suggest_pace(30, TODAY)[0], 6, "a rated «right» breaks it")
+
+    def test_a_load_for_a_lesson_not_in_the_log_warns(self):
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "learner.json"
+            SoonerRequestTests._learner().save(path)
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err):
+                self.assertEqual(main(["report", "-l", str(path), "--lesson", "9", "--load", "light", "--date", TODAY.isoformat()]), 0)
+            self.assertIn("lesson 9 is not in the lesson log", err.getvalue())
+            self.assertNotIn("load", LearnerState.load(path).lessons[0])
+
     def test_the_cli_takes_load_alone_and_saves_it(self):
         import contextlib
         import io
