@@ -265,6 +265,8 @@ meaning_ja = "レシートをもらえますか？"
 difficulty = 3
 topics = ["money", "shopping"]
 prereqs = ["get_eg_fengid", "kvittun"]
+instance_of = "get_eg_fengid"
+instance_fill = { thing = "kvittun" }
 situation = "You need the receipt for expenses. Ask for one."
 situation_ja = "経費精算にレシートが必要です。レシートを頼んでください。"
 partner_cue = "Já, auðvitað."

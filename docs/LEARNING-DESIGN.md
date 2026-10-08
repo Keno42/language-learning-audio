@@ -955,7 +955,7 @@ Don't reopen these without new evidence; when you do, say what changed.
     goes one way only:** the variant is credited to the pattern and its fillers, never to the phrase, whose own review is
     checked in its own form. The patterns and their accusative number forms are candidates without native review (G10). The
     party fillers are whole units («tvo fullorðna»), since the noun's form follows the count and the pattern has no
-    agreement machinery.
+    agreement machinery. **The introduction too (owner, after lesson 18; #192, the rest):** a linked phrase whose pattern and fillers are *known* (`knows()`, not the weaker `_frame_available`) is not introduced as a new item with a ladder (8 exercises for «Get ég fengið kvittun?» in lesson 18): it is played once as a sentence of its pattern, credited to the pattern and its fillers, kept in `new_items` and decided by the next day's check, like an embedded part.
   - **Never ten identical (owner, 2026-10-04; #192).** A fixed phrase is said at most `max_sentence_hard` (9) times in a lesson, while the
     caps are on: its practice is handed to the pattern's other instances where it is linked, and dropped where no other sentence holds it.
     A new item keeps its closing recall. Repetition inside a scene is still fine up to the cap. On lessons 14–25 of the replay the most-said

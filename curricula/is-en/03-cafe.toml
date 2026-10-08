@@ -394,6 +394,8 @@ meaning_ja = "お会計をお願いできますか？"
 difficulty = 4
 topics = ["cafe"]
 prereqs = ["get_eg_fengid", "reikninginn"]
+instance_of = "get_eg_fengid"
+instance_fill = { thing = "reikninginn" }
 chunks = ["reikninginn", "fengið reikninginn", "Get ég fengið reikninginn?"]
 situation = "You've finished eating. Ask for the bill."
 situation_ja = "食事が終わりました。お会計を頼んでください。"

@@ -57,6 +57,7 @@ embed_known = "You know this:"
 embed_part = "This word is in it:"
 embed_sentence = "In another sentence. Listen, then repeat."
 embed_meaning = "{meaning}"
+instance_sentence = "A sentence from a pattern you know. Listen, then repeat."
 # a near form of something the learner has met (Item.variant_of)
 variant_known = "You know this one:"
 variant_form = "Here is another form of it: {meaning}"

@@ -230,6 +230,7 @@ class Planner:
         self.listening_asked: list[dict] = []  # #179: turns asked because the learner can say the line, not `knows()` it
         self.cheap_placed: list[str] = []  # cheap constructions given a new-item place (#171 B)
         self.embedded: list[str] = []  # parts heard inside a sentence this lesson (#149)
+        self.pattern_instances: list[str] = []  # …of them, linked phrases that came in as a sentence of their known pattern (#192)
         self.notes_played: list[str] = []
         self._in_dialogue = {i for d in cur.dialogues for i in d.required_items}
         self._notes_by_item: dict[str, list] = {}
@@ -872,6 +873,21 @@ class Planner:
                 found.append((len(ww), whole))
         return min(found, key=lambda t: t[0])[1] if found else None
 
+    def pattern_instance_of(self, item: Item) -> tuple[Item, dict[str, Item]] | None:
+        """(pattern, fillers) when ``item`` is a fixed phrase that is an instance of a pattern the learner *knows* with fillers
+        they all know (#192, the owner's decision after lesson 18: «known»; #206 uses the weaker ``_frame_available``), and the
+        phrase is neither met nor failed when heard inside a sentence: it then comes in as a sentence of its pattern, not as a
+        new item. None otherwise: the introduction is as usual."""
+        if item.kind != "phrase" or not item.instance_of or not item.instance_fill:
+            return None
+        pattern = self.cur.by_id.get(item.instance_of)
+        if pattern is None or item.id in self.learner.embed_failed or self.learner.has_met(item.id):
+            return None
+        fills = {slot: self.cur.by_id[ref] for slot, ref in item.instance_fill.items()}
+        if not (self.learner.knows(pattern.id) and all(self.learner.knows(f.id) for f in fills.values())):
+            return None
+        return pattern, fills
+
     def select_variants(self, count: int, exclude: set[str]) -> list[Item]:
         """Close variants (``Item.variant_of``) the learner can be given next: the form they vary is
         known or was introduced earlier this lesson, the variant itself is new to them (never met,
@@ -1236,6 +1252,21 @@ class Planner:
                 do_discriminate(milestone)
             if (source := self.embed_source(item)) is not None and b.embed(sc, item, source) is not None:
                 self.embedded.append(item.id)
+                touch(item)
+                last_intro = idx
+                last_intro_at = sc.total_duration
+                arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
+                return
+            if (instance := self.pattern_instance_of(item)) is not None:
+                # a linked phrase of a known pattern and fillers (#192): one sentence of the pattern, no ladder, no closing recall.
+                # The practice is credited to the pattern and its fillers (one way, as in sentence_practice); the phrase waits
+                # for the next day's question like an embedded part, and stays in new_items
+                pattern, fills = instance
+                ex = b.pattern_instance(sc, item, pattern, fills)
+                credited = [pattern.id, *(f.id for f in fills.values())]
+                self._record(credited, "recombine", credited)
+                self.embedded.append(item.id)
+                self.pattern_instances.append(item.id)
                 touch(item)
                 last_intro = idx
                 last_intro_at = sc.total_duration
@@ -2157,6 +2188,7 @@ class Planner:
             "curriculum": self.cur.name,
             "new_items": list(dict.fromkeys([i.id for i in introduced] + list(self.embedded))),
             "embedded_items": list(self.embedded),
+            "pattern_instances": list(self.pattern_instances),
             "intro_skipped": list(intro_skipped),
             "variant_items": list(variants_used),
             "refresh_sentences": dict(refresh_done),

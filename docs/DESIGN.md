@@ -247,6 +247,11 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   `Builder._recombine(pattern, met_fills=True, exclude=<its own fills>)` (another sentence of the pattern), else `Builder.sibling_recall`
   (a plain meaning recall of the sentence of another filler said fewest times, a heard line may repeat). `_record` credits the
   pattern and its fillers (`ex.item_ids`), never the phrase.
+  When the pattern and every filler pass `knows()` and the phrase is neither met nor in `embed_failed`, `do_intro` (`Planner.pattern_instance_of`)
+  does not introduce the phrase: `Builder.pattern_instance` plays one sentence of the pattern (the `embed_sentence` / `embed_meaning` segments, so
+  `review_questions` asks the phrase in its own form), `_record` credits the pattern and the fillers, and the phrase goes into `learner.embedded`
+  and stays in `new_items`; `plan.json` `pattern_instances` lists them. The bot's next-day check decides: said back, it is met with one durable
+  success; not said, it is in `embed_failed` and gets a normal introduction.
   A part comes with its frame (#149 step 2): when `select_new` takes a part (`kind == "vocab"`; an utterance such as
   «Hvenær?» is not one), one construction that lists it as a prerequisite (`Planner.frames_of`, «{thing} virkar ekki.» for
   «sturtan»; the ready one needing the fewest new fillers, then course order) goes in right after it, behind the fillers its
