@@ -43,6 +43,31 @@ def split_note_span(span: str) -> tuple[str | None, str, str]:
     display, _, speech = rest.partition("|")
     return (lang, display, speech or display)
 
+# Romanized Japanese left outside «ja:…» markup is read by the English voice (#219). A word is flagged when it is made only
+# of Japanese morae AND has a mark English rarely has: a macron, tsu/shi/chi/fu/ji, an ending -masu/-desu/-shita, or "gozai".
+_MORA = r"(?:(?:tch|ssh|kk|ss|tt|pp|ch|sh|ts|[kgszjtdnhfbpmrw]y?|y)?[aiueoāīūēō]|n(?![aiueoyāīūēō]))"
+_JAPANESE_WORD_RE = re.compile(rf"^(?:{_MORA})+$")
+_JAPANESE_MARK_RE = re.compile(r"[āīūēō]|tsu|shi|chi|fu|ji|(?:masu|desu|shita)$|gozai")
+_ROMAJI_WORD_RE = re.compile(r"[A-Za-zāīūēōĀĪŪĒŌ]+")
+# English words that look Japanese, each with its reason; an item's English `meaning` is where they turn up.
+ROMAJI_ALLOWED = {
+    "fun": "English",
+    "machine": "English",
+    "chinese": "English (the language)",
+    "sushi": "English loanword; the English voice says it as English does",
+}
+
+
+def unmarked_japanese(text: str) -> list[str]:
+    """Words of ``text`` that look like romanized Japanese, outside «…» spans (which carry their own language)."""
+    out = []
+    for w in _ROMAJI_WORD_RE.findall(NOTE_TARGET_RE.sub("", text)):
+        w = w.lower()
+        if len(w) > 2 and w not in ROMAJI_ALLOWED and _JAPANESE_WORD_RE.match(w) and _JAPANESE_MARK_RE.search(w):
+            out.append(w)
+    return out
+
+
 # A run of vowels approximates one syllable. Used only to judge whether a single word is long
 # enough for extra practice (``Item.is_hard``), never to split it.
 _VOWEL_RUN_RE = re.compile(r"[aáàâäæeéèêëiíîïoóôöœuúùûüyýÿ]+", re.IGNORECASE)
@@ -582,7 +607,12 @@ def validate(cur: Curriculum) -> None:
         unmatched = NOTE_TARGET_RE.sub("", n.text)
         if "«" in unmatched or "»" in unmatched:
             raise CurriculumError(f"note {n.id!r} has malformed or unmatched «» markers")
+        for w in unmarked_japanese(n.text):
+            raise CurriculumError(f"note {n.id!r}: romanized Japanese outside «ja:…» markup: {w!r}")
     for it in cur.items:
+        for field_name, text in [("situation", it.situation), ("instruction", it.instruction), *[("situations", t) for t in it.situations]]:
+            for w in unmarked_japanese(text or ""):
+                raise CurriculumError(f"item {it.id!r}: {field_name}: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
         for ref in it.components + it.prereqs:
             if ref not in ids:
                 raise CurriculumError(f"item {it.id!r} references unknown item {ref!r}")

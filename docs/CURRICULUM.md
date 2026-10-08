@@ -151,7 +151,13 @@ Wrap any target-language word or phrase mentioned inside `text`/`text_ja` in
 read aloud by the instructor: `In «Góðan daginn», «góðan» is…`. A word in a
 third language takes a language code, and optionally a native spelling for the
 TTS after `|`: `«ja:sate|さて»` shows "sate" in the transcript and speaks さて.
-Validation rejects unpaired or misordered `«`/`»`.
+Validation rejects unpaired or misordered `«`/`»`, and romanized Japanese left
+outside a span (#219): an English-voice reading of "gochisōsama" is gibberish.
+It flags a word made only of Japanese morae that also has a mark English rarely
+has (a macron, tsu/shi/chi/fu/ji, an ending -masu/-desu/-shita, "gozai"); the
+few English lookalikes are `content.ROMAJI_ALLOWED`. The same scan runs over an
+item's `situation(s)` and `instruction` and a theme's `setting` and turn `cue`,
+where there is no span markup, so reword rather than mark.
 
 `milestone = true` marks an instructional note that names a grammatical
 pattern rather than an optional aside: it fires as soon as the learner has

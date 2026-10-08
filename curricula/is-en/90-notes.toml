@@ -86,7 +86,7 @@ text_ja = "レイキャビクのお湯は地熱の源泉から直接引かれて
 id = "sundlaug"
 items = ["sundlaugin", "eg_fer_i_sund", "fara_i_sund", "sundi", "einn_fullordinn_takk"]
 topics = ["daily"]
-text = "The public pool is Iceland's version of the sentō: cheap, in every town, and where people meet. The rule is to wash thoroughly without a swimsuit before entering, and the signs show exactly which body parts; attendants do check. Treat it like a Japanese bath and you will be fine."
+text = "The public pool is Iceland's version of the «ja:sentō|銭湯»: cheap, in every town, and where people meet. The rule is to wash thoroughly without a swimsuit before entering, and the signs show exactly which body parts; attendants do check. Treat it like a Japanese bath and you will be fine."
 text_ja = "公営プールはアイスランドの銭湯です。安くて、どの町にもあって、人が集まる場所です。入る前に水着を脱いで全身を洗うのが決まりで、洗う部位を示した図まで貼ってあり、係の人が実際に見ています。日本の銭湯と同じ心構えで大丈夫です。"
 
 [[notes]]
@@ -100,7 +100,7 @@ text_ja = "プールの露天の湯船は、井戸端会議の場です。知ら
 id = "vedur_smalltalk"
 items = ["hvernig_er_vedrid", "thad_er_svo_kalt", "rok"]
 topics = ["weather"]
-text = "Weather is the safe topic here, as in Japan, but with more drama. «Rok» means a gale, and Icelanders say it the way you would say 'atsui desu ne': a greeting more than a complaint."
+text = "Weather is the safe topic here, as in Japan, but with more drama. «Rok» means a gale, and Icelanders say it the way you would say «ja:atsui desu ne|暑いですね»: a greeting more than a complaint."
 text_ja = "天気は日本と同じく無難な話題ですが、こちらはもっと劇的です。«rok»は強風のことで、「暑いですね」と言うのと同じ調子で、文句というよりあいさつとして口にします。"
 
 [[notes]]
@@ -135,7 +135,7 @@ text_ja = "アイスランドの女性は結婚しても名前を変えません
 id = "takk_fyrir_sidast"
 items = ["takk_fyrir_sidast", "takk_fyrir_kvoldid"]
 topics = ["greetings"]
-text = "«Takk fyrir síðast», thanks for last time, is said when you next meet someone you spent an evening with. It is close to 'senjitsu wa arigatō gozaimashita', and just as expected."
+text = "«Takk fyrir síðast», thanks for last time, is said when you next meet someone you spent an evening with. It is close to «ja:senjitsu wa arigatō gozaimashita|先日はありがとうございました», and just as expected."
 text_ja = "«Takk fyrir síðast»、先日はどうも、は一緒に夜を過ごした相手に次に会ったときに言う言葉です。日本の「先日はありがとうございました」とほぼ同じで、同じくらい言うのが当然とされています。"
 
 [[notes]]
@@ -144,7 +144,7 @@ id = "takk_fyrir_matinn"
 requires = ["takk_fyrir_matinn"]
 items = ["takk_fyrir_matinn", "verdi_ther_ad_godu"]
 topics = ["food"]
-text = "«Takk fyrir matinn» after every meal works like 'gochisōsama', and «Takk fyrir kaffið» after coffee at someone's home. Children learn it early, and the cook answers «verði þér að góðu», the same words that wish a guest a good meal when the food is served; for help or a favour it is «ekkert að þakka». There is nothing like 'itadakimasu' for the guest before eating."
+text = "«Takk fyrir matinn» after every meal works like «ja:gochisōsama|ごちそうさま», and «Takk fyrir kaffið» after coffee at someone's home. Children learn it early, and the cook answers «verði þér að góðu», the same words that wish a guest a good meal when the food is served; for help or a favour it is «ekkert að þakka». There is nothing like «ja:itadakimasu|いただきます» for the guest before eating."
 text_ja = "食後の«Takk fyrir matinn»は「ごちそうさま」そのもので、家でコーヒーを出してもらったら«Takk fyrir kaffið»です。子どもは小さいうちに教わり、作った人は«verði þér að góðu»と返します。料理を出すときの「召し上がれ」と同じ言葉で、飲食物へのお礼にだけ使います。手伝いなどへのお礼には«ekkert að þakka»。食べる前に客が言う「いただきます」にあたる言葉はありません。"
 
 [[notes]]
@@ -235,7 +235,7 @@ text_ja = "羊は人の二倍いて、夏の間は放し飼いです。9月に�
 id = "hakarl"
 items = ["hakarl", "hefurdu_smakkad_hakarl"]
 topics = ["food"]
-text = "«Hákarl» is Greenland shark, fermented for months because fresh it is poisonous. It is eaten in tiny cubes with a shot of «brennivín», mostly at the midwinter feast «Þorrablót». Think of it as Iceland's nattō, only stronger."
+text = "«Hákarl» is Greenland shark, fermented for months because fresh it is poisonous. It is eaten in tiny cubes with a shot of «brennivín», mostly at the midwinter feast «Þorrablót». Think of it as Iceland's «ja:nattō|納豆», only stronger."
 text_ja = "«Hákarl»（ハウカルトル）はニシオンデンザメを数か月発酵させたもので、生では毒があります。小さなさいの目にして蒸留酒«brennivín»（ブレニヴィン）と一緒に、主に真冬の祭り «Þorrablót» で食べます。アイスランドの納豆だと思ってください。ただし、もっと強烈です。"
 
 [[notes]]
@@ -548,7 +548,7 @@ text_ja = "大晦日 «gamlárskvöld» はにぎやかです。夜には地区�
 id = "takk_fyrir_mig"
 items = ["takk_fyrir_mig"]
 topics = ["greetings", "food"]
-text = "«Takk fyrir mig», literally 'thanks for me', is what a guest says on leaving a meal or a visit, close to gochisousama and ojama shimashita in one. The host usually answers «Verði þér að góðu»."
+text = "«Takk fyrir mig», literally 'thanks for me', is what a guest says on leaving a meal or a visit, close to «ja:gochisōsama|ごちそうさま» and «ja:ojama shimashita|お邪魔しました» in one. The host usually answers «Verði þér að góðu»."
 text_ja = "«Takk fyrir mig»（直訳は「私のことをありがとう」）は、食事や訪問のあとで客が帰り際に言う言葉で、「ごちそうさま」と「お邪魔しました」を合わせたような表現です。招いた側はたいてい «Verði þér að góðu» と返します。"
 
 # #171: the two notes that teach a construction's other forms. They have no `items` and are not
