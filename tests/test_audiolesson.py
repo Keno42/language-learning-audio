@@ -6462,7 +6462,7 @@ class ConstructionFormTests(unittest.TestCase):
         self.assertEqual(len(answers), 1)
         self.assertTrue(answers[0].endswith("?"))
         self.assertNotEqual(answers[0], spoken[1], "asked with another filler than the one heard first")
-        self.assertIn(answers[0], spoken, "…which was heard before it was asked")
+        self.assertNotIn(answers[0], spoken, "…and not spoken before it is asked: the form is first produced there")
         self.assertIsNone(b.generate(c, form="negative"), "only the modelled form opens")
         self.assertIsNotNone(b.generate(c, form="question"))
 

@@ -750,7 +750,7 @@ class Builder:
     def model_form(self, sc: Script, c: Item, form: str) -> Exercise | None:
         """Model a construction's negative or question form before it is asked (#211), after ``_intro_variant``: «You know this
         one:» the plain sentence, «As a question:» the same sentence in the form, said and repeated; then «Another word, the same
-        form.» with another filler, heard and asked. Marks ``construction:form`` as modelled (this lesson, and the learner's state
+        form.» with another filler, asked without being spoken first (the form is first produced there). Marks ``construction:form`` as modelled (this lesson, and the learner's state
         through ``apply_to_learner``). None when the construction has no sentence to show (no filler is available)."""
         first = self.generate(c, met_fills=True)
         if first is None or form not in c.forms:
@@ -777,15 +777,12 @@ class Builder:
         self.heard.update({_norm_utterance(plain), _norm_utterance(shown)})
         asked, asked_meaning = shown, meaning
         if second is not None:
-            gender2, asked = self._filled(c, second.fills, form=form)
+            # the second filler is where the form is first produced (review of #232): asked without being spoken first; the answer
+            # after the pause still plays it
+            gender, asked = self._filled(c, second.fills, form=form)
             asked_meaning = self.cur.resolve_slots(c, second.fills, form=form)[1]
-            voice = VOICE_OF[gender2 or "f"]
-            gender = gender2
+            voice = VOICE_OF[gender or "f"]
             self._narr(sc, ex, self.prompts.get("form_model_again"))
-            self._beat(sc, ex)
-            self._speak(sc, ex, asked, speaker=voice)
-            self._beat(sc, ex)
-            self._narr(sc, ex, self.prompts.get("embed_meaning", meaning=self._m(asked_meaning)))
             self._beat(sc, ex)
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(asked_meaning)))
         self._answer_pause(sc, ex, asked, c, generative=True)

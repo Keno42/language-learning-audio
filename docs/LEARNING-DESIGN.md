@@ -974,7 +974,7 @@ Don't reopen these without new evidence; when you do, say what changed.
     learner knows, so it grows with #171's supply, not with this mechanism.
   - **A construction's question or negative is modelled once before it is asked (#211).** A generated sentence takes a form of
     construction c only when the learner knows c and the form was modelled to them, in an earlier lesson or this one («You know this
-    one:» the plain sentence, «As a question:» the same sentence, then another filler heard and asked). The teaching note alone
+    one:» the plain sentence, «As a question:» the same sentence, then another filler, asked without being spoken first). The teaching note alone
     unlocks nothing; one or two forms are modelled a lesson, by trip priority. `learner.forms_modelled` is the state; a file from before
     it is seeded from `heard_utterances` (suggested to the owner; a clean start would lock every form used since lessons 14–15). If the
     generated-sentences row does not recover over three lessons, relax the gate to «met in an earlier lesson» (the issue's own fallback).

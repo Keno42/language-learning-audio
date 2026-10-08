@@ -189,10 +189,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   **A form is modelled before it is asked (#211).** `Builder.generate` offers a form of construction c only when `knows(c)` and `c:form` is in
   `learner.forms_modelled` (or modelled earlier in this lesson, `Builder.forms_modelled`): the note alone unlocks nothing. `Builder.model_form`
   (kind `model`, stage `form`, after `_intro_variant`) plays «You know this one:» the plain sentence, «As a question:» the same in the form,
-  repeated, then the form with another filler, heard and asked. `do_forms_practice` models the first un-modelled known constructions right after
+  repeated, then the form with another filler, asked without being spoken first (the form is first produced there). `do_forms_practice` models the first un-modelled known constructions right after
   the note; `form_model_due_now` models one more at 35% / 65% of a later lesson (at most `PlanConfig.forms_models` = 2 a lesson), the trip
   profile's priority items first. `apply_to_learner` saves `meta["forms_modelled"]`; a file from before #211 (`forms_modelled` None) is
-  seeded in `Builder.__post_init__` from `heard_utterances` (a form sentence already said or heard counts as modelled). `plan.json` has
+  seeded in `Builder.__post_init__` from `heard_utterances` (a form sentence already said or heard counts as modelled, also for a construction not known yet: the owner accepted that on the review of #232, since it only affects a learner already past lessons 15–16, whose «ætla» forms skip their model step; a new learner starts with nothing heard). `plan.json` has
   `forms_modelled_now`. Because of the gate, «Now something you haven't heard yet» (#197) only ever means a new filler in a form already heard.
   The mix is held (`Builder._form_order`): the plain sentence is at least half of a lesson's
   generated sentences and a form takes at most about a quarter (`FORM_SHARE`; hard stop at

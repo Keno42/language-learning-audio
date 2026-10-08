@@ -1693,6 +1693,7 @@ class Planner:
             """Right after the note that teaches a form: it is modelled on known constructions, not produced cold (#171, #211):
             the plain sentence, the same sentence in the form, then the form with another filler, heard and asked."""
             for c, f in form_models_due(form):
+                # ``forms_practice`` is how many the note's lesson models straight away; ``forms_models`` caps every lesson, this one included
                 if models_done >= min(cfg.forms_practice, cfg.forms_models):
                     break
                 do_form_model(c, f)
