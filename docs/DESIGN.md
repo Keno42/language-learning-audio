@@ -338,6 +338,15 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   is weak). `suggest_pace`: up at ≤ 15% with a small backlog, hold to 25%, down above. `report --load light|right|heavy` stores
   `lessons[k]["load"]`; like `--sooner` alone it does not mark the lesson reported. Two «light» lessons raise it at ≤ 25% with the same small-backlog condition (< 0.5) as the recall-based rise; an unrated lesson is skipped (it neither breaks nor extends the run); a «heavy» in the
   window blocks a rise; one step a lesson. `report --load` for a lesson not in `lessons[]` warns on stderr.
+- **The pace's unit is weighted new components (#218 b3).** `PlanConfig.new_target` (from `learner.new_target` via `suggest_target`, which
+  runs the same rules as `suggest_pace`, `LearnerState._pace_rules`; None counts items) is the lesson's target. `Planner.component_cost`:
+  `variant_of` item `form_weight` (0.5); construction 1, or 0 when every fixed word is known and a known pattern holds them all; vocab
+  1 if any word is new; phrase 1 per new word; a #192 pattern instance 0. A word is known when it is in an item the learner has met, has
+  heard embedded (also failed), or was charged earlier in the lesson. One running total (`components_total`) over every path:
+  `select_new` charges what it returns and stops once the total reaches the target (the last item may go over), as do the extra arcs
+  and the cheap extra; the extras a first build took are charged at the start of the rebuild (#187). `new_items_ceiling` and the time
+  check stay. `meta["new_components"]` = {total, forms, target, by_item} (also in `plan.json`); `status` shows the target.
+>>>>>>> 8777aef (The pace's unit is weighted new components (#218 b3))
 - **An item is taught once in a lesson (#217).** Every `select_new` call in the lesson loop excludes `taught()` (introduced ∪ embedded this
   lesson), so an arc start does not spend a pick on an item already taught, which would be a lost slot. The first selection
   (`new_queue = deque(self.select_new(...))`) runs before anything is taught and has nothing to exclude. `do_intro`, where every path to an

@@ -112,7 +112,14 @@ research and the established audio courses of the prompt–pause–answer type
 converge on: about 6–10 productive items per 30 minutes, retrieval success
 around 80–85%.
 
-- Start at one new item per 5 minutes (30 min → 6), clamped to 3–10.
+- **A lesson's new material is counted in weighted new components** (#218): a new word or chunk costs 1, a new pattern 1 (its
+  frame's new words included), a phrase 1 for each new word, a close variant (a new form of a known word) `form_weight` (0.5), and
+  known parts or a linked-phrase pattern sentence 0. The learner's target starts at 8 and moves by one a lesson (within 4–12) by the
+  rules below; selection takes new items while the lesson's running total is below it, the last one may go over, and the new-item
+  ceiling (about one per 3 minutes) and the time check still bound it. `plan.json` has `new_components`; `status` shows the target.
+  `--new N` and `--pace N` count items for that lesson, and the simulations and the coverage report always do.
+- The rules below move the target (and the item `pace`, kept in items for those uses). The item pace starts at one new item per 5
+  minutes (30 min → 6), clamped to 3–10.
 - The recall rate is taken over the last three *reported* lessons (a failed new item counts 1,
   a hesitated one ½, `report --hesitated` here and below; an embedded new item that failed
   counts too): above 25% failures, pace − 1; 15–25% holds.

@@ -32,6 +32,10 @@ from .timing import Timing
 class PlanConfig:
     minutes: float = 15.0
     new_items: int | None = None  # default derived from minutes
+    # #218 b3: the lesson's target of weighted new components (None: count items, as the simulations and ``--new`` do). New material is
+    # taken while the lesson's running total is below it; the last item may go over. The new-item ceiling and the time check stay.
+    new_target: float | None = None
+    form_weight: float = 0.5  # w: what a close variant (a new form of a known word) costs; fitted later from next-day failures
     topics: list[str] = field(default_factory=list)
     seed: int | None = None
     # Today's items come back by time, not by exercise count (lesson 13: «hálka» seven recalls
@@ -166,6 +170,8 @@ class PlanConfig:
         but only a little beyond the pace — a short first lesson beats a 12-item dump."""
         if self.max_new_items is not None:
             return self.max_new_items
+        if self.new_target is not None:
+            return self.new_items_ceiling() + 2  # items that cost nothing would otherwise never stop; the target bounds the rest
         return self.resolved_new_items() + 2
 
     def resolved_extra_arc_items(self, capped: bool = True) -> int:
@@ -230,6 +236,7 @@ class Planner:
         self.listening_asked: list[dict] = []  # #179: turns asked because the learner can say the line, not `knows()` it
         self.cheap_placed: list[str] = []  # cheap constructions given a new-item place (#171 B)
         self.embedded: list[str] = []  # parts heard inside a sentence this lesson (#149)
+        self._reset_components()
         self.pattern_instances: list[str] = []  # …of them, linked phrases that came in as a sentence of their known pattern (#192)
         self.notes_played: list[str] = []
         self._in_dialogue = {i for d in cur.dialogues for i in d.required_items}
@@ -378,10 +385,102 @@ class Planner:
             want(item_id)
         return wanted
 
+    # ---- #218 b3: new material is counted in weighted components ----
+
+    @property
+    def components_mode(self) -> bool:
+        return self.cfg.new_target is not None
+
+    @staticmethod
+    def _fixed_text_words(item: Item) -> list[str]:
+        """The words an item says: a construction's fixed text only (its slots are other items')."""
+        texts = re.split(r"\{[^}]*\}", item.target) if item.kind == "construction" else [item.target]
+        if item.target_m and item.kind != "construction":
+            texts.append(item.target_m)
+        return [w.lower() for t in texts for w in _WORD_RE.findall(t)]
+
+    def _reset_components(self) -> None:
+        self.components_total = 0.0
+        self.component_by_item: dict[str, float] = {}
+        self._known_words: set[str] | None = None
+        self._known_patterns: list[frozenset[str]] = []
+
+    def _component_base(self) -> tuple[set[str], list[frozenset[str]]]:
+        """(words known, word sets of known patterns): a word is known when it appears in an item the learner has met, has heard embedded
+        (also one that failed), or was charged earlier in this lesson."""
+        if getattr(self, "_known_words", None) is None:
+            seen = set(self.learner.items) | set(self.learner.embedded) | set(self.learner.embed_failed)
+            words: set[str] = set()
+            patterns: list[frozenset[str]] = []
+            for i in seen:
+                it = self.cur.by_id.get(i)
+                if it is None:
+                    continue
+                ws = self._fixed_text_words(it)
+                words.update(ws)
+                if it.kind == "construction" and ws:
+                    patterns.append(frozenset(ws))
+            self._known_words, self._known_patterns = words, patterns
+        return self._known_words, self._known_patterns
+
+    def component_cost(self, item: Item, known: set[str] | None = None, patterns: list[frozenset[str]] | None = None) -> float:
+        """What ``item`` costs against the lesson's target when it is introduced (#218 b3, the owner's amendments of 2026-10-08/09):
+        a close variant (a new form of a known word) ``form_weight``; a pattern 1, its frame's new words included, or 0 when it is made
+        of known parts only (every fixed word known, and a known pattern holds them all: «klukkan {hour}» after «Klukkan er {hour}.»);
+        a vocab item or chunk 1 if any of its words is new, however many; a phrase 1 for each new word; a pattern instance (#192) and
+        anything made only of known words 0."""
+        if known is None or patterns is None:
+            known, patterns = self._component_base()
+        if item.variant_of:
+            return self.cfg.form_weight
+        if item.kind == "phrase" and self.pattern_instance_of(item) is not None:
+            return 0.0
+        new = list(dict.fromkeys(w for w in self._fixed_text_words(item) if w not in known))
+        if item.kind == "construction":
+            fixed = frozenset(self._fixed_text_words(item))
+            return 0.0 if not new and any(fixed <= p for p in patterns) else 1.0
+        if item.kind == "phrase":
+            return float(len(new))
+        return 1.0 if new else 0.0
+
+    def _charge(self, item: Item) -> float:
+        known, patterns = self._component_base()
+        cost = self.component_cost(item, known, patterns)
+        self.components_total += cost
+        self.component_by_item[item.id] = cost
+        known.update(self._fixed_text_words(item))
+        if item.kind == "construction":
+            patterns.append(frozenset(self._fixed_text_words(item)))
+        return cost
+
+    def components_meta(self) -> dict:
+        """``plan.json`` ``new_components``: the weighted total, how much of it is forms, and the cost of each item."""
+        forms = sum(c for i, c in self.component_by_item.items() if self.cur.by_id[i].variant_of)
+        return {"total": round(self.components_total, 2), "forms": round(forms, 2), "target": self.cfg.new_target,
+                "by_item": {i: c for i, c in self.component_by_item.items()}}
+
     def select_new(self, count: int, exclude: set[str] | None = None, cheap: bool = False) -> list[Item]:
         chosen: list[Item] = []
         chosen_ids: set[str] = set(exclude or ())
         promoted_id: str | None = None
+        mode = self.components_mode
+        remaining_target = (self.cfg.new_target - self.components_total) if mode else 0.0
+        if mode and remaining_target <= 0:
+            return []  # the lesson's target is met (the last item may have gone over it)
+
+        def spent() -> float:
+            """The components of ``chosen`` so far, each item counting the words the earlier ones brought."""
+            known, patterns = set(self._component_base()[0]), list(self._component_base()[1])
+            total = 0.0
+            for x in chosen:
+                total += self.component_cost(x, known, patterns)
+                known.update(self._fixed_text_words(x))
+                if x.kind == "construction":
+                    patterns.append(frozenset(self._fixed_text_words(x)))
+            return total
+
+        def full() -> bool:
+            return len(chosen) >= count or (mode and bool(chosen) and spent() >= remaining_target)
         pulled: set[str] = set()  # the frames and phrases brought in with a part: never the place given up for a cheap construction
 
         def ready(it: Item) -> bool:
@@ -523,9 +622,11 @@ class Planner:
 
         # walk in order, but a not-yet-ready item is skipped rather than blocking
         progress = True
-        while len(chosen) < count and progress:
+        while not full() and progress:
             progress = False
             for it in pool:
+                if full():
+                    break
                 if it.id in chosen_ids or not ready(it) or set_full(it):
                     continue
                 if it.kind != "construction" and it.tags:
@@ -554,7 +655,7 @@ class Planner:
                         chosen_ids.discard(it.id)
                         continue
                 progress = True
-                if len(chosen) >= count:
+                if full():
                     break
         # Don't end the arc between a slot's fillers and the nearby construction they unlock:
         # take the construction too if it is ready (one over ``count``), else drop the trailing
@@ -591,6 +692,9 @@ class Planner:
             if candidate is not None and drop is not None:
                 chosen[chosen.index(drop)] = candidate
                 self.cheap_placed.append(candidate.id)
+        if mode:
+            for it in chosen:
+                self._charge(it)  # one running total for the lesson, over every path that adds new material
         return chosen
 
     def select_reviews(self) -> list[Item]:
@@ -1133,6 +1237,11 @@ class Planner:
 
     def _build(self) -> Script:
         cfg = self.cfg
+        self._reset_components()
+        if self.components_mode:  # the extras a first build took count from the start, so the rebuild keeps the first build's total (#187)
+            for pid in cfg.planned_extras:
+                if pid in self.cur.by_id:
+                    self._charge(self.cur.by_id[pid])
         n = self.learner.next_lesson_number()
         budget = cfg.minutes * 60.0
         sc = Script(n, f"Lesson {n}", self.cur.target_lang, self.cur.known_lang)
@@ -1141,7 +1250,8 @@ class Planner:
 
         target = self.theme_target()
         wanted_at_start = self.theme_wants()
-        new_queue = deque(self.select_new(cfg.resolved_new_items(), cheap=True))
+        first_arc = cfg.new_items_ceiling() if self.components_mode else cfg.resolved_new_items()  # in components, the target stops the arc
+        new_queue = deque(self.select_new(first_arc, cheap=True))
         open_ids = self.learner.open_items()
         open_ids = [i for i in open_ids if i in self.cur.by_id]
         open_today = open_ids[: cfg.max_open_items]
@@ -1153,6 +1263,13 @@ class Planner:
 
         def taught() -> set[str]:
             return {i.id for i in introduced} | set(self.embedded)  # one set of what this lesson taught, for every select_new exclude
+        def arc_size(capped: bool = True) -> int:
+            """Items a later arc may take. Counting items, a share of the pace; counting components (#218 b3), what the new-item
+            ceiling leaves: the target itself stops the arc."""
+            if not self.components_mode:
+                return cfg.resolved_extra_arc_items(capped=capped)
+            return max(0, cfg.new_items_ceiling() - len(taught()) - len(new_queue)) if capped else cfg.new_items_ceiling()
+
         recent: deque[str] = deque(maxlen=2)  # item ids of the last exercises
         recent_topics: deque[str] = deque(maxlen=2)
         idx = 0
@@ -1165,7 +1282,7 @@ class Planner:
         # time kept for the closing block: one recall per new item (~14 s) plus the announcement
         closing_reserve = min(budget * cfg.closing_share, 8 + 14 * len(new_queue))
         # seconds between introductions: the expected number of new items over most of the lesson
-        expected_new = max(1, cfg.resolved_new_items() + cfg.resolved_extra_arc_items())
+        expected_new = max(1, len(new_queue) if self.components_mode else cfg.resolved_new_items() + cfg.resolved_extra_arc_items())
         intro_spacing = (budget - closing_reserve) * cfg.intro_span / expected_new
         need_for_new = min(cfg.min_time_for_new_item, budget * 0.6)  # short lessons still get something new
         reviews_used: list[str] = []
@@ -1291,9 +1408,13 @@ class Planner:
                 self._extras_taken.append(item.id)
                 closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
                 return True
+            if self.components_mode and self.components_total >= cfg.new_target:
+                return False  # it is new material: it counts against the target like any other path (#218 b3)
             if len(cheap_used) >= cfg.max_cheap_extra or (cand := self.cheap_construction(taken)) is None:
                 return False
             cheap_used.append(cand.id)  # a pattern the learner can fill at once, beyond the new-item limit (#171 B)
+            if self.components_mode:
+                self._charge(cand)
             do_intro(cand)
             self._extras_taken.append(cand.id)
             closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
@@ -1875,7 +1996,7 @@ class Planner:
                     and reviews_used
                     and current_arc_id + 1 < cfg.max_arcs
                     and remaining >= need_for_new
-                    and (more := self.select_new(cfg.resolved_extra_arc_items(), exclude=taught()))
+                    and (more := self.select_new(arc_size(), exclude=taught()))
                 ):
                     start_arc(more)  # or the next arc, before its time
                     acted = True
@@ -1981,7 +2102,7 @@ class Planner:
                 and current_arc_id + 1 < cfg.max_arcs
                 and remaining >= need_for_new
                 and sc.total_duration >= (len(introduced) + len(self.embedded)) * intro_spacing
-                and (more := self.select_new(cfg.resolved_extra_arc_items(), exclude=taught()))
+                and (more := self.select_new(arc_size(), exclude=taught()))
             ):
                 start_arc(more)
                 acted = True
@@ -2076,7 +2197,7 @@ class Planner:
                     and not new_queue
                     and remaining >= need_for_new
                     and self._may_start_arc(current_arc_id + 1, early_tier, far_short=sc.total_duration < budget / 2)
-                    and (more := self.select_new(cfg.resolved_extra_arc_items(capped=early_tier < 2), exclude=taught()))
+                    and (more := self.select_new(arc_size(capped=early_tier < 2), exclude=taught()))
                 ):
                     # A fresh arc of new material rather than a second review pass: the new-item
                     # cap bounds an arc, not the lesson (see _may_start_arc). Only once the review
@@ -2205,6 +2326,7 @@ class Planner:
             # #149 step 2: the theme new material was chosen for, and the items its next level lacked at the start
             "theme_target": {"id": target[0].id, "level": target[1] + 1, "wanted": wanted_at_start} if target else None,
             "cheap_constructions": list(self.cheap_placed) + list(cheap_used),  # #171 B: taken in a new-item place / beyond the limit
+            "new_components": self.components_meta() if self.components_mode else None,  # the weighted total of new material, forms apart (#218 b3)
             "forms_taught": [self.cur.note_by_id[n].teaches for n in self.notes_played if self.cur.note_by_id[n].teaches],
             "bare_cap_lapsed": cfg.max_bare_uses > 0 and bare_cap[0] == 0,  # nothing else was left: short items were said alone again
             "reviewed_items": reviews_used,

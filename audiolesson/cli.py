@@ -41,8 +41,8 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--learner", "-l", default=None, help="learner state .json (created if missing); implied by --user")
     g.add_argument("--out", "-o", default=None, help="output directory (default: out/, or <root>/<user>/ with --user)")
     g.add_argument("--minutes", "-m", type=float, default=None, help="lesson length (default 15, remembered per --user)")
-    g.add_argument("--new", type=int, default=None, help="new items to introduce this lesson (default: the learner's pace, see README 'Pacing')")
-    g.add_argument("--pace", type=int, default=None, help="set the learner's ongoing pace (new items per lesson) before planning")
+    g.add_argument("--new", type=int, default=None, help="new items to introduce this lesson, counting items (default: the learner's target of weighted new components, see README 'Pacing')")
+    g.add_argument("--pace", type=int, default=None, help="set the learner's ongoing pace (new items per lesson) before planning; this lesson counts items, not components")
     g.add_argument("--auto", action="store_true", help="auto mode (persists): pace rises on its own every few lessons; `report --failed` still slows it")
     g.add_argument("--manual", action="store_true", help="back to manual mode (persists): pace rises only after `report`")
     g.add_argument("--topics", "-t", default="", help="comma-separated topics to prefer")
@@ -237,10 +237,15 @@ def cmd_generate(args) -> int:
     if args.pace is not None:
         learner.pace = args.pace
         learner.pace_changed_at = learner.lessons_completed
+    new_target = None
     if args.new is not None:
         new_items, why = args.new, f"--new {args.new}"
+    elif args.pace is not None:
+        new_items, why = learner.suggest_pace(args.minutes, today)  # an explicit pace in items: this lesson counts items (#218 b3)
     else:
-        new_items, why = learner.suggest_pace(args.minutes, today)
+        new_items, items_why = learner.suggest_pace(args.minutes, today)
+        new_target, why = learner.suggest_target(args.minutes, today)
+        why += f" (≈ {new_items} items)"
     priority: list[str] = []
     scenarios = load_cando(args.curriculum, cur) if Path(args.curriculum).is_dir() else []
     trip = load_trip(args.trip) if args.trip else None
@@ -254,6 +259,7 @@ def cmd_generate(args) -> int:
     cfg = PlanConfig(
         minutes=args.minutes,
         new_items=new_items,
+        new_target=new_target,
         topics=_split(args.topics),
         seed=args.seed,
         translate_partner=not args.no_translate,
@@ -286,6 +292,9 @@ def cmd_generate(args) -> int:
         # never the profile's contents: only that one is in use
         print(f"  trip ordering: {len(priority)} can-do items first")
     print(f"  new: {', '.join(script.meta['new_items']) or '(none — curriculum exhausted, review only)'}")
+    if script.meta.get("new_components"):
+        nc = script.meta["new_components"]
+        print(f"  new components (weighted): {nc['total']:g} of a target {nc['target']:g}" + (f", {nc['forms']:g} of them forms" if nc["forms"] else ""))
     carried = len(script.meta.get("due_not_fitted", []))
     early = len(script.meta.get("reviewed_early", []))
     print(f"  reviewed: {len(script.meta['reviewed_items'])} items ({script.meta.get('due_at_start', 0)} were due"
@@ -322,6 +331,8 @@ def cmd_generate(args) -> int:
         learner.level = level
         if args.new is None:
             learner.pace = new_items
+        if new_target is not None:
+            learner.new_target = new_target
         learner.save(args.learner)
         _save_user_settings(args)
         print(f"  learner state updated: {args.learner} (use `{_learner_hint(args, ' --failed id,id')}` after listening if some items failed)")
@@ -370,6 +381,7 @@ def _plan(script: Script, cur) -> dict:
         "reviewed_items": [describe(i) for i in meta.get("reviewed_items", [])],
         "dialogues": meta.get("dialogues", []),
         "theme": meta.get("theme"),  # #149 1b-ii: the lesson's theme and level, and how often its exchange played
+        "new_components": meta.get("new_components"),  # #218 b3: the weighted new material, forms apart, and each item's cost (None when counting items)
         "listening_asked": meta.get("listening_asked", []),  # #179: turns asked because the line can be said
         "listening_tried": meta.get("listening_tried", []),  # #183: turns tried on a part (bonus questions)
         "exposures": meta.get("exposures", {}),
@@ -464,7 +476,7 @@ def cmd_status(args) -> int:
     if learner.lessons:
         trend = " ".join(str(l.get("due_at_start", "?")) for l in learner.lessons[-8:])
         carried = " ".join(str(l.get("due_not_fitted", "?")) for l in learner.lessons[-8:])
-        print(f"pace: {learner.pace or 'default'} new items/lesson ({learner.feedback_mode} mode); due at start of last lessons: {trend}; not fitted: {carried}")
+        print(f"new-component target: {learner.new_target:g} weighted components/lesson (what a lesson plans from); pace: {learner.pace or 'default'} new items/lesson, which `--new` / `--pace`, the simulations and the coverage report count ({learner.feedback_mode} mode); due at start of last lessons: {trend}; not fitted: {carried}")
         unreported = [l["number"] for l in learner.lessons[-3:] if l["number"] not in learner.reported]
         if unreported and learner.feedback_mode != "auto":
             print(f"no feedback yet for lesson(s) {unreported}: run `{_learner_hint(args, ' [--failed ids]')}`")
