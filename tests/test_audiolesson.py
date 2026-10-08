@@ -2786,12 +2786,12 @@ class CurriculumTests(unittest.TestCase):
             cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
             prompts = Prompts.load(lang)
             dlg = cur.dialogue_by_id["tungumal"]
-            for assisted in (True, False):
+            for translate in (True, False):
                 b = Builder(cur, prompts, Timing(level="A1"), LearnerState("is", lang, "A1"))
                 sc = Script(1, "L", cur.target_lang, lang)
-                b.dialogue(sc, dlg, assisted=assisted)
+                b.dialogue(sc, dlg, translate=translate)
                 segs = [(s.type, s.text) for s in sc.segments if s.type != "pause"]
-                self.assertEqual(segs[0], ("narrate", prompts.get("dialogue_start")), (lang, assisted))
+                self.assertEqual(segs[0], ("narrate", prompts.get("dialogue_start")), (lang, translate))
                 self.assertEqual(segs[1], ("narrate", dlg.setting))
 
     def test_instructor_prompts_capitalise_glosses_and_carry_no_usage_notes(self):
@@ -3536,12 +3536,10 @@ class LessonStructureTests(unittest.TestCase):
         opener_idx = next(i for i, s in enumerate(sc.segments) if s.type == "speak" and s.text == "Bonjour !")
         self.assertEqual(sc.segments[opener_idx + 1].type, "pause")
 
-    def test_dialogue_scaffolding_fades_on_later_encounters(self):
-        """Issue #26: a translation of the partner's line plus an explicit "say X" cue meant
-        the learner never had to understand the partner to answer correctly. On a later
-        encounter (assisted=False) both should drop once there's a partner line to react to —
-        but a turn with nothing said yet (no opener, nothing before it) must keep its cue,
-        since there would otherwise be no way to know what to say."""
+    def test_only_the_translation_fades_on_later_encounters_the_cue_stays(self):
+        """Issue #26, narrowed by #210: the translation of the partner's line fades (the learner has to understand it),
+        but the cue, the intent, plays in every encounter, so the learner always knows what they are to say and where
+        they are. A settled turn (the partner's line decides the reply) drops it once it can be said."""
         from audiolesson.content import Dialogue, DialogueTurn
         from audiolesson.exercises import Builder
 
@@ -3553,20 +3551,48 @@ class LessonStructureTests(unittest.TestCase):
             DialogueTurn(cue="Say no thanks.", expect_text="Non, merci."),
         ]
         dlg = Dialogue(id="d", setting="A scene.", turns=turns)
+        narrations = lambda translate, **kw: [s.text for s in self._play(b, dlg, translate=translate, **kw).segments if s.type == "narrate"]
 
-        assisted = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
-        b.dialogue(assisted, dlg, assisted=True)
-        narrations = [s.text for s in assisted.segments if s.type == "narrate"]
-        self.assertIn("Ask how much.", narrations)
-        self.assertIn("Say no thanks.", narrations)
-        self.assertTrue(any("With milk?" in n for n in narrations))
+        first = narrations(True)
+        self.assertIn("Ask how much.", first)
+        self.assertIn("Say no thanks.", first)
+        self.assertTrue(any("With milk?" in n for n in first))
+        later = narrations(False)
+        self.assertIn("Ask how much.", later)
+        self.assertIn("Say no thanks.", later, "the cue stays after the partner has spoken")
+        self.assertFalse(any("With milk?" in n for n in later), "only the translation drops")
+        # a meaning comes the first time its turn is heard
+        self.assertTrue(any("With milk?" in n for n in narrations(frozenset({0}))))
+        self.assertFalse(any("With milk?" in n for n in narrations(frozenset({1}))))
+        # a settled turn drops its cue only when it can be said
+        turns[1].settled = True
+        self.assertIn("Say no thanks.", narrations(False), "no way to tell: the cue plays")
+        self.assertIn("Say no thanks.", narrations(False, can_say=lambda t: False))
+        self.assertNotIn("Say no thanks.", narrations(False, can_say=lambda t: True))
+        self.assertIn("Say no thanks.", narrations(False, can_say=lambda t: True, tried_turns={1}), "a tried turn keeps it")
+        self.assertEqual(b.cueless_turns, ["d:2"])
 
-        later = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
-        b.dialogue(later, dlg, assisted=False)
-        narrations = [s.text for s in later.segments if s.type == "narrate"]
-        self.assertIn("Ask how much.", narrations)  # turn 1: nothing said yet, cue stays
-        self.assertNotIn("Say no thanks.", narrations)  # turn 2: partner just spoke, cue drops
-        self.assertFalse(any("With milk?" in n for n in narrations))  # translation drops too
+    @staticmethod
+    def _play(builder, dlg, **kw):
+        sc = Script(1, "Lesson 1", "is", "en")
+        builder.dialogue(sc, dlg, **kw)
+        return sc
+
+    def test_a_scene_line_plays_in_every_encounter(self):
+        from audiolesson.content import Dialogue, DialogueTurn
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        b = Builder(cur, Prompts.load(cur.known_lang), Timing(level="A1"), fresh())
+        dlg = Dialogue(id="d", setting="A scene.", turns=[
+            DialogueTurn(cue="Ask.", expect_text="Hæ.", partner="Viltu poka?", partner_meaning="A bag?", partner_scene="At the till."),
+            DialogueTurn(cue="Answer.", expect_text="Já.", opener="Gjörðu svo vel.", opener_meaning="Here you go.", scene="Outside."),
+        ])
+        for translate in (True, False):
+            segs = [(s.type, s.text) for s in self._play(b, dlg, translate=translate).segments if s.type in ("narrate", "speak")]
+            texts = [t for _, t in segs]
+            self.assertLess(texts.index("At the till."), texts.index("Viltu poka?"))
+            self.assertLess(texts.index("Outside."), texts.index("Gjörðu svo vel."), "before the opener")
 
     def test_later_lessons_fill_the_requested_time(self):
         _, scripts = course(8, minutes=30)
@@ -6590,7 +6616,7 @@ class ThemeExchangeTests(unittest.TestCase):
         picked = self._planner(learner, [self._supermarket], ["A3"]).pick_theme()
         self.assertEqual((picked[0].id, picked[1], picked[2]), ("supermarket", 0, {3}), "one turn in four is tried")
 
-    def test_the_exchange_is_played_twice_early_assisted_and_late_with_only_the_partners_line(self):
+    def test_the_exchange_is_played_twice_early_translated_and_late_without_the_translation(self):
         learner = self._learner(self._known + self._rest)
         planner = self._planner(learner, [self._supermarket], ["A3"])
         sc = planner.build()
@@ -6602,41 +6628,134 @@ class ThemeExchangeTests(unittest.TestCase):
         segs = lambda e: [g for g in sc.segments if g.exercise == e.index]
         meaning = "Yes, it's over there, in the fridge."
         turn = self._supermarket.levels[0].turns[1]  # the early play says a variant of this line (#134), translated
-        self.assertTrue(any(g.text == v["meaning"] for v in turn.variants for g in segs(plays[0])), "assisted: the partner's line is translated")
-        self.assertFalse(any(g.text == meaning for g in segs(plays[1])), "later: the partner's line is the cue")
+        self.assertTrue(any(g.text == v["meaning"] for v in turn.variants for g in segs(plays[0])), "early: the partner's line is translated")
+        self.assertFalse(any(g.text == meaning for g in segs(plays[1])), "later: only the translation fades")
+        cue = self._supermarket.levels[0].turns[2].cue
+        self.assertTrue(all(cue in [g.text for g in segs(e) if g.type == "narrate"] for e in plays), "the cue plays in both")
         asked_first = [g for g in segs(plays[0]) if g.type == "pause" and g.role == "answer"]
         self.assertEqual(len(asked_first), 4)
         self.assertEqual(sc.meta["theme"], {"id": "supermarket", "scenario": "A3", "level": 1, "plays": 2, "lines": sc.meta["theme"]["lines"], "replay": False, "heard": sc.meta["theme"]["heard"]})
         self.assertTrue(sc.meta["theme"]["heard"], "the assisted play's variants were heard with their meaning")
         self.assertEqual(len(sc.meta["theme"]["lines"]), 2)
 
-    def test_a_turn_no_partner_line_prompts_keeps_its_cue_in_the_late_play(self):
-        """Review of #186: in the late play the partner's line is the cue, which holds only where the partner's line asks
-        for the learner's. A learner line after their own line, or a scene change after a line that doesn't ask for it,
-        keeps its cue; otherwise the learner has to recall the script."""
-        from audiolesson.themes import Level, Theme, Turn, level_dialogue
-
-        market2 = level_dialogue(self._supermarket, 1)
-        self.assertEqual([t.keep_cue for t in market2.turns], [False, True, False], "the second line follows the learner's own")
-        cafe = next(t for t in self._themes if t.id == "cafe")
-        menu = level_dialogue(cafe, 1).turns
-        self.assertEqual([t.keep_cue for t in menu][:3], [True, True, False], "the seat question opens; the menu is a scene change (prompted = false)")
-        theme = Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
-            Turn(who="partner", say="Hæ.", meaning="Hi."),
-            Turn(who="you", say="Hæ.", cue="Say hi.", items=["hae"]),
-            Turn(who="partner", say="Takk.", meaning="Thanks."),
-            Turn(who="you", say="Bless.", cue="Say bye.", items=["bless"], prompted=False),
-        ])])
-        self.assertEqual([t.keep_cue for t in level_dialogue(theme, 0).turns], [False, True])
+    def test_every_learner_turn_keeps_its_cue_in_the_late_play_and_in_a_replay(self):
+        """#210 (it was #186 review): the cue is the intent, so it plays every time; before, 13 of 24 turns lost it in the
+        late play and a replay played none."""
         learner = self._learner(self._known + self._rest + ["eg_er_ad_leita_ad_thing", "hvad_er_thetta_mikid_samtals"])
         planner = self._planner(learner, [self._supermarket], ["A3"])
         planner.learner.themes_done = {"supermarket": 1}
         sc = planner.build()
         early, late = [e for e in sc.exercises if e.label.startswith("dialogue: theme:supermarket:2")]
         said = lambda e: [g.text for g in sc.segments if g.exercise == e.index and g.type == "narrate"]
-        self.assertIn("At the till, ask how much it is in total.", said(late), "the line after the learner's own keeps its cue")
-        self.assertNotIn("You're just looking.", said(late), "a line that answers the partner has none")
-        self.assertIn("You're just looking.", said(early))
+        for cue in ("You're just looking.", "At the till, ask how much it is in total.", "No need."):
+            self.assertIn(cue, said(early))
+            self.assertIn(cue, said(late))
+        self.assertEqual(sc.meta["turns_without_cue"], [])
+        replay = self._learner(self._known + self._rest)
+        replay.themes_done = {"supermarket": 1}
+        replay.themes_last = {}
+        sc = self._planner(replay, [self._supermarket], ["A3"]).build()
+        self.assertTrue(sc.meta["theme"]["replay"])
+        for e in [e for e in sc.exercises if e.label.startswith("dialogue: theme:supermarket:1")]:
+            self.assertIn("Thank him.", [g.text for g in sc.segments if g.exercise == e.index and g.type == "narrate"])
+
+    def test_a_settled_turn_drops_its_cue_only_when_the_learner_can_say_it(self):
+        from audiolesson.themes import level_dialogue
+
+        tour = next(t for t in self._themes if t.id == "tour")
+        greet = next(t for t in tour.levels[0].turns if t.cue == "Greet her back.")
+        self.assertTrue(greet.settled)
+        self.assertEqual([t.settled for t in level_dialogue(tour, 0).turns].count(True), 1)
+        everything = self._known + self._rest + ["godan_daginn"]
+        planner = self._planner(self._learner(everything), [tour], ["B2"])
+        dlg = level_dialogue(tour, 0)
+        k = [t.cue for t in dlg.turns].index("Greet her back.")
+        sc = Script(1, "t", "is", "en")
+        planner.builder.dialogue(sc, dlg, translate=False, can_say=planner.can_say_turn)
+        self.assertNotIn("Greet her back.", [g.text for g in sc.segments if g.type == "narrate"])
+        self.assertEqual(planner.builder.cueless_turns, [f"{dlg.id}:{k + 1}"])
+        sc = Script(1, "t", "is", "en")
+        planner.builder.dialogue(sc, dlg, translate=False, can_say=lambda t: False)
+        self.assertIn("Greet her back.", [g.text for g in sc.segments if g.type == "narrate"])
+
+    def test_a_scene_line_on_a_partner_turn_is_narrated_before_its_line_in_every_play(self):
+        from audiolesson.themes import Level, Theme, Turn, level_dialogue
+
+        dlg = level_dialogue(self._supermarket, 0)
+        self.assertEqual(dlg.turns[1].partner_scene, "At the till.", "«Viltu poka?» is the partner reply of «Takk.»")
+        self.assertEqual(dlg.turns[1].scene, "")
+        ja = level_dialogue(self._supermarket, 0, known_lang="ja")
+        self.assertTrue(ja.turns[1].partner_scene and ja.turns[1].partner_scene != "At the till.")
+        theme = Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
+            Turn(who="you", say="Hæ.", cue="Say hi.", items=["hae"]),
+            Turn(who="partner", say="Halló.", meaning="Hello.", scene="Later."),
+            Turn(who="you", say="Bless.", cue="Say bye.", items=["bless"]),
+        ])])
+        self.assertEqual(level_dialogue(theme, 0).turns[0].partner_scene, "Later.")
+        opener = Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
+            Turn(who="partner", say="Hæ.", meaning="Hi.", scene="At the door."),
+            Turn(who="you", say="Hæ.", cue="Say hi.", items=["hae"]),
+        ])])
+        self.assertEqual(level_dialogue(opener, 0).turns[0].scene, "At the door.")
+        learner = self._learner(self._known + self._rest)
+        sc = self._planner(learner, [self._supermarket], ["A3"]).build()
+        for e in [e for e in sc.exercises if e.label.startswith("dialogue: theme:supermarket:1")]:
+            seq = [g.text for g in sc.segments if g.exercise == e.index and g.type in ("narrate", "speak")]
+            i = seq.index("At the till.")
+            self.assertTrue(seq[i + 1].startswith(("Viltu", "Þarftu")) or "poka" in seq[i + 1], seq[i : i + 2])
+
+    def test_a_theme_validation_fails_on_an_empty_cue_or_a_misplaced_flag(self):
+        from audiolesson.themes import Level, Theme, Turn, _check
+        from audiolesson.content import CurriculumError
+
+        def check(*turns):
+            _check(Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=list(turns))]))
+
+        you = lambda **kw: Turn(**{"who": "you", "say": "Hæ.", "cue": "Say hi.", "items": ["hae"], **kw})
+        check(you())
+        for bad in (you(cue=""), you(cue="  ")):
+            with self.assertRaises(CurriculumError):
+                check(bad)
+        with self.assertRaises(CurriculumError):
+            check(Turn(who="partner", say="Hæ.", meaning="Hi.", settled=True), you())
+        with self.assertRaises(CurriculumError):
+            check(you(scene="At the till."))
+
+    def test_a_dialogue_turn_gets_its_meaning_the_first_time_it_is_heard(self):
+        """#210: «tungumal» turn 3 is new at encounter 2 (two turns the first time, one more each time) and used to get neither
+        cue nor meaning; now the cue always plays and the meaning comes with the turn."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        dlg = cur.dialogue_by_id["tungumal"]
+        learner = LearnerState("is", "en", "A1")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, new_items=1), today=TODAY)
+        first_turns = planner.cfg.dialogue_first_turns
+        self.assertEqual(first_turns, 2)
+        meaning = dlg.turns[2].partner_meaning
+        for times in range(4):
+            learner.dialogues_done["tungumal"] = times
+            sc = Script(1, "t", cur.target_lang, cur.known_lang)
+            planner._play_dialogue(sc, dlg)
+            narr = [s.text for s in sc.segments if s.type == "narrate"]
+            played = min(len(dlg.turns), first_turns + times)
+            for k in range(played):
+                self.assertIn(dlg.turns[k].cue, narr, f"encounter {times}: turn {k + 1} keeps its cue")
+            said = lambda k: any(dlg.turns[k].partner_meaning in n for n in narr)
+            self.assertEqual(said(2), times == 1 and played > 2, f"turn 3's meaning comes at encounter 2 only (times={times})")
+            if times == 0:
+                self.assertTrue(said(0) and said(1))
+            elif times >= 1:
+                self.assertFalse(said(0) or said(1), "earlier turns' meanings have faded")
+
+    def test_a_dialogue_turn_without_a_cue_fails_validation(self):
+        from audiolesson.content import validate
+
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": "hae", "kind": "phrase", "target": "Hæ.", "meaning": "Hi."}],
+               "dialogues": [{"id": "d", "setting": "A door.", "turns": [{"cue": "", "expect": "hae"}]}]}
+        with self.assertRaises(CurriculumError):
+            validate(curriculum_from_dict(raw))
+        raw["dialogues"][0]["turns"][0]["cue"] = "Say hi."
+        validate(curriculum_from_dict(raw))
 
     def test_partner_lines_vary_between_plays_at_natural_speed_and_the_transcript_says_which(self):
         """#134: a clerk says the same thing in other words: each play picks a variant per line (the second another than

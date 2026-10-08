@@ -213,12 +213,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   their turns (`theme_ready`: every item of a turn met and not open), the lowest level not yet played, the trip
   profile's boosted scenarios first (`theme_scenarios`, `scenario_order`), then Tier A, then Tier B, in file order. The level
   becomes a `Dialogue` (`level_dialogue`; the learner's lines are literal) played **twice**: at about 15% of the
-  lesson's time with the partner's lines translated, and at about 85% with only the partner's line as the
-  cue (`play_theme`, step 0g; a lesson that ran out of other material plays what is left before the closing). A
+  lesson's time with the partner's lines translated, and at about 85% without the translation (the cue, the intent,
+  and a turn's `scene` line play both times, #210; `play_theme`, step 0g; a lesson that ran out of other material plays what is left before the closing). A
   turn with an item the learner lacks is *tried* (#183: `tried_turns`, «Try it.», the model line, nothing
-  recorded; its line becomes a bonus question) in the first play. In the late play a learner turn keeps its cue
-  when no partner line prompts it (`DialogueTurn.keep_cue`: it doesn't directly follow a partner line, or the data
-  says `prompted = false`, a scene change) and a tried turn always keeps it; a level's `partner_speaker`
+  recorded; its line becomes a bonus question) in the first play. A learner turn keeps its cue in every play; only a turn marked `settled` (the partner's line decides the reply: returning a greeting) drops it, and only when `can_say_turn` holds and it is not tried (`Builder.dialogue(can_say=…)`; `turns_without_cue` in `plan.json` lists them, #210). `Turn.scene` / `DialogueTurn.scene`, `partner_scene` are narrator lines played every time; a level's `partner_speaker`
   (`native_a`, female, where the cues say «her») voices the partner. The items of the turns they can say are credited
   as practised (stage `dialogue`). `plan.json` has `theme`: `{id, scenario, level, plays, lines, replay, heard}` (None only when no theme
   can be said at all; `replay`: a level already played, #149 step 1; `lines`: per play, the 1-based variant of each varying partner line,
@@ -270,7 +268,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   `PlanConfig.hard_cap_short_max` (180 s) then ends there instead of lapsing the bare cap (the lapse stays for a lesson that is short
   for another reason).
   A partner turn may carry `variants` (#134): `pick_variants` picks one line per turn for the early,
-  assisted play (heard with its meaning); the late play says the lines as written, which are also the ones the review
+  translated play (heard with its meaning); the late play says the lines as written, which are also the ones the review
   cards ask. Every partner line is spoken at natural speed (rate 1.0), and each variant must fit the learner's reply
   that follows. Without `themes` in `PlanConfig` (the CLI loads them from the curriculum's `cando/themes.toml`) nothing changes.
 - **Rotation and a ceiling (#180).** `Builder.generate_with` orders a word's homes by the sentences each

@@ -1049,7 +1049,7 @@ class Planner:
         When no next level is ready the lesson still has a theme (#149 step 1, the owner's decision: the theme comes
         first): the last level already played of the highest-ranked theme that has rested ``theme_rest_lessons`` lessons,
         else the one that rested longest (which can be a theme played two lessons ago when none has rested enough), played
-        again: not assisted, and its early play says only partner wordings already heard with their meaning. None only when no level
+        again: its partner lines are not translated, and its early play says only partner wordings already heard with their meaning. None only when no level
         was ever played and none is ready (a first lesson)."""
         rank = {sid: n for n, sid in enumerate(self.cfg.theme_scenarios)}
         best = None
@@ -1728,12 +1728,12 @@ class Planner:
         refresh_timeline.sort()
 
         # #149 1b-ii: the lesson's theme exchange, played twice: early with the partner's lines translated, late
-        # with only the partner's line as the cue (about 15% and 85% of the lesson's time)
+        # without the translation; the cue and the scene line play both times (#210) (about 15% and 85% of the lesson's time)
         theme_pick = self.pick_theme()
         theme_marks = (0.15, 0.85) if theme_pick else ()
         theme_replay = bool(theme_pick) and theme_pick[1] < self.learner.themes_done.get(theme_pick[0].id, 0)  # a level already played
         theme_plays = 0
-        theme_heard: list[str] = []  # "turn:line" partner wordings the assisted play spoke with their meaning (#196)
+        theme_heard: list[str] = []  # "turn:line" partner wordings the translated play spoke with their meaning (#196)
         theme_lines: list[str] = []  # per play, which variant of each varying partner line was spoken (#134)
         
         def play_theme() -> bool:
@@ -1746,7 +1746,7 @@ class Planner:
                 theme_heard.extend(f"{k}:{i}" for k, i in picks.items())
             dlg = level_dialogue(theme, n, self.cur.known_lang, picks)
             theme_lines.append(dlg.variant)
-            ex = b.dialogue(sc, dlg, assisted=theme_plays == 0 and not theme_replay, tried_turns=tried)
+            ex = b.dialogue(sc, dlg, translate=theme_plays == 0 and not theme_replay, can_say=self.can_say_turn, tried_turns=tried)
             you = [t for t in theme.levels[n].turns if t.who == "you"]
             said = [i for k, t in enumerate(you) if k not in tried for i in t.items if i in self.cur.by_id]
             self._record(list(dict.fromkeys(said)), "dialogue", ex.item_ids)
@@ -2190,6 +2190,7 @@ class Planner:
             # partner interaction in the target language vs recombination practice
             "partner_exchanges": len(self.dialogues_played) + sum(1 for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"),
             "recombinations": sum(1 for e in sc.exercises if e.kind == "connect" and e.stage != "exchange"),
+            "turns_without_cue": list(self.builder.cueless_turns),  # settled learner turns whose cue was dropped (#210); any other is a bug
             "heard_utterances": sorted(self.builder.heard),
             "think_time_boosted": sorted(self.builder.boosted),
             "bridges": [e.item_ids[1] for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"],
@@ -2197,12 +2198,14 @@ class Planner:
         return sc
 
     def _play_dialogue(self, sc: Script, dlg: Dialogue) -> None:
-        """Dialogues grow by one turn per encounter; translations and cues are only there the
-        first time, so later encounters ask for comprehension of the partner's line."""
+        """Dialogues grow by one turn per encounter. A turn's cue (the intent) plays every time; its partner
+        lines are translated only the first time that turn is heard (#210)."""
         times = self.learner.dialogues_done.get(dlg.id, 0)
         max_turns = min(len(dlg.turns), self.cfg.dialogue_first_turns + times)
         full = max_turns >= len(dlg.turns)
-        ex = self.builder.dialogue(sc, dlg, replay=(times > 0 and full), max_turns=max_turns, assisted=(times == 0))
+        # a turn's meaning is given the first time that turn is heard (#210): turn k comes in at encounter k + 1 - first_turns
+        new_turns = frozenset(k for k in range(max_turns) if max(0, k + 1 - self.cfg.dialogue_first_turns) == times)
+        ex = self.builder.dialogue(sc, dlg, replay=(times > 0 and full), max_turns=max_turns, translate=new_turns, can_say=self.can_say_turn)
         primary = [t.expect for t in dlg.turns[:max_turns] if t.expect]
         self._record(primary, "dialogue", ex.item_ids)
         self.dialogues_played.append(dlg.id)
@@ -2223,7 +2226,7 @@ class Planner:
         if not missing and not heard and not tried:
             self._play_dialogue(sc, dlg)
             return
-        ex = self.builder.dialogue(sc, dlg, assisted=True, listening=heard, tried=tried)
+        ex = self.builder.dialogue(sc, dlg, translate=True, can_say=self.can_say_turn, listening=heard, tried=tried)
         self._record([t.expect for t in dlg.turns if t.expect and t.expect not in heard and t.expect not in tried], "dialogue", ex.item_ids)
         for t in dlg.turns:
             if t.expect in tried:

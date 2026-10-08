@@ -4,8 +4,8 @@ A theme is what a lesson consolidates instead of a word count: a scene with a go
 a café, paying at the supermarket) and, per level, the exchange that reaches it. Level 1 is the
 shortest exchange that works; later levels raise its resolution (a question back, paying, a
 receipt). The lesson plays the theme's exchange twice (``Planner.pick_theme``, ``play_theme``):
-once early with the partner's lines translated, and once late with only the partner's line as
-the cue.
+once early with the partner's lines translated, and once late without the translation. Only the
+translation fades: the cue (the intent) and the scene line play every time (#210).
 
 Themes live in ``<curriculum>/cando/themes.toml`` (``load_cando`` reads only ``[[scenarios]]``
 and ``load_scenes`` only ``[[scenes]]``, so they share the directory)::
@@ -28,16 +28,17 @@ and ``load_scenes`` only ``[[scenes]]``, so they share the directory)::
       …
     ]
 
-- A ``you`` turn is the learner's line: a ``cue`` (the situation, in the learner's language),
+- A ``you`` turn is the learner's line: a ``cue`` (the intent, in the learner's language; always played),
   ``say`` (the model line), ``items`` (the curriculum items it needs) and optional ``alts``
-  (other good answers; they wait for the review side, which asks ``say`` only). In the late play a learner
-  turn that follows a partner line has no cue (their line is the cue); a turn that no partner line prompts
-  keeps it: by default one that doesn't directly follow a partner line, and with ``prompted = false`` a
-  scene change («At the counter, ask for the menu.») after a line that doesn't ask for it.
+  (other good answers; they wait for the review side, which asks ``say`` only). The cue plays in every
+  play (#210). The one exception is ``settled = true``: a reply the partner's line decides (returning a
+  greeting), which drops its cue once the learner can say it. Mark only those.
+- Either kind of turn can carry ``scene`` / ``scene_ja``: a line the narrator says every time before it
+  («At the till.»), where the setting changes. A partner turn's scene comes before the partner's line.
 - A ``partner`` turn is what the other person says, with its meaning. It may go beyond the
   course: a learner who gets the gist of 80-90% of what is said is where they should be. It is spoken at
   natural speed, and may carry ``variants = [{ say, meaning, meaning_ja }, ...]``: other ways a real
-  clerk puts the same thing (#134). The early (assisted) play picks a variant per turn, translated; the late play
+  clerk puts the same thing (#134). The early (translated) play picks a variant per turn; the late play
   says the lines as written, so the learner meets the variation with its meaning and the canonical line every lesson;
   the transcript and plan.json say which was used. Every variant
   must fit the learner's reply that follows: it asks the same thing.
@@ -70,7 +71,9 @@ class Turn:
     meaning_ja: str = ""
     items: list[str] = field(default_factory=list)
     alts: list[str] = field(default_factory=list)
-    prompted: bool | None = None  # a learner turn: does the partner's line before it ask for it? None: yes if a partner line comes right before
+    settled: bool = False  # a learner turn the partner's line decides: no cue once the learner can say it (#210)
+    scene: str = ""  # a line the narrator says before this turn, every play (#210)
+    scene_ja: str = ""
     variants: list[dict] = field(default_factory=list)  # a partner turn: other ways to say it, each {say, meaning, meaning_ja} (#134)
 
     def lines(self) -> list[Turn]:
@@ -155,8 +158,14 @@ def _check(theme: Theme) -> None:
                 raise CurriculumError(f"{where} turn {k}: meaning: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
             for w in unmarked_japanese(t.cue):
                 raise CurriculumError(f"{where} turn {k}: cue: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
-            if t.who == "you" and not (t.cue and t.items):
-                raise CurriculumError(f"{where} turn {k}: a learner's line needs a cue and the items it needs")
+            if t.who == "you" and not (t.cue.strip() and t.items):
+                raise CurriculumError(f"{where} turn {k}: a learner's line needs a cue (the intent, played every time) and the items it needs")
+            if t.settled and t.who != "you":
+                raise CurriculumError(f"{where} turn {k}: only a learner's line can be settled")
+            if t.scene and t.who != "partner":
+                raise CurriculumError(f"{where} turn {k}: a scene goes on a partner's line (a learner's turn has its cue)")
+            for w in unmarked_japanese(t.scene):
+                raise CurriculumError(f"{where} turn {k}: scene: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
             if t.who == "partner" and not t.meaning:
                 raise CurriculumError(f"{where} turn {k}: a partner's line needs its meaning")
             if t.variants and t.who != "partner":
@@ -180,7 +189,7 @@ def scenario_order(scenarios: list[Scenario], boost: list[str] | tuple[str, ...]
 
 def pick_variants(level: Level, rng: random.Random, canonical: bool = False, heard: set[tuple[int, int]] | None = None) -> dict[int, int]:
     """Which line each partner turn with variants says (index into ``Turn.lines()``, keyed by the turn's place in the
-    level). The lesson's two plays split the work (#134, review): the early, assisted play takes a variant at random,
+    level). The lesson's two plays split the work (#134, review): the early, translated play takes a variant at random,
     heard with its meaning; the late one (``canonical``) says every line as written, the familiar cue when only the
     partner's line is given, and the wording the review cards ask. A replay passes ``heard`` (turn, line) pairs already
     heard with their meaning: its early play takes only those, so no wording comes untranslated (#196)."""
@@ -204,32 +213,31 @@ def variant_label(level: Level, picks: dict[int, int]) -> str:
 
 def level_dialogue(theme: Theme, n: int, known_lang: str = "en", picks: dict[int, int] | None = None) -> Dialogue:
     """Level ``n`` (0-based) as a dialogue the builder can play: a partner line before the learner's first turn
-    is its opener, one after a learner's turn is the reply to it (a learner turn no partner line prompts keeps its cue
-    in every play: ``keep_cue``); the learner's lines are literal
-    (``expect_text``), since a line may be built from several items."""
+    is its opener, one after a learner's turn is the reply to it; the learner's lines are literal
+    (``expect_text``), since a line may be built from several items. A partner turn's scene line is narrated
+    before its line, whichever of the two places it lands in (the opener of the next turn, or the previous
+    turn's partner reply)."""
     ja = known_lang == "ja"
     level = theme.levels[n]
     turns: list[DialogueTurn] = []
     opener: tuple[str, str] | None = None
-    previous: Turn | None = None
+    opener_scene = ""
     for k, t in enumerate(level.turns):
+        scene = t.scene_ja if ja and t.scene_ja else t.scene
         if t.who == "partner":
             t = t.lines()[(picks or {}).get(k, 0)]
         meaning = (t.meaning_ja if ja and t.meaning_ja else t.meaning)
         if t.who == "partner":
             if turns and turns[-1].partner is None:
-                turns[-1].partner, turns[-1].partner_meaning = t.say, meaning
+                turns[-1].partner, turns[-1].partner_meaning, turns[-1].partner_scene = t.say, meaning, scene
             else:
-                opener = (t.say, meaning)
-            previous = t
+                opener, opener_scene = (t.say, meaning), scene
             continue
-        prompted = t.prompted if t.prompted is not None else (previous is not None and previous.who == "partner")
-        turn = DialogueTurn(cue=(t.cue_ja if ja and t.cue_ja else t.cue), expect_text=t.say, keep_cue=not prompted)
+        turn = DialogueTurn(cue=(t.cue_ja if ja and t.cue_ja else t.cue), expect_text=t.say, settled=t.settled)
         if opener is not None:
-            turn.opener, turn.opener_meaning = opener
-            opener = None
+            turn.opener, turn.opener_meaning, turn.scene = opener[0], opener[1], opener_scene
+            opener, opener_scene = None, ""
         turns.append(turn)
-        previous = t
     setting = theme.setting_ja if ja and theme.setting_ja else theme.setting
     return Dialogue(
         id=f"theme:{theme.id}:{n + 1}",

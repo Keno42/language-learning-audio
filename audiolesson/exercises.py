@@ -9,9 +9,10 @@ from __future__ import annotations
 
 import random
 from collections import Counter
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
-from .content import Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample, split_note_span
+from .content import Curriculum, Dialogue, DialogueTurn, Item, Note, NOTE_TARGET_RE, TransformExample, split_note_span
 from .learner import LearnerState
 from .prompts import Prompts
 from .script import Exercise, Script, Segment
@@ -126,6 +127,7 @@ class Builder:
     construction_counts: dict[str, int] = field(default_factory=dict)  # generated sentences this lesson, by construction (#180)
     form_counts: dict[str, int] = field(default_factory=dict)  # generated sentences this lesson, by form ("plain", "negative", "question")
     form_extra: dict[str, int] = field(default_factory=dict)  # …of a form taught this lesson, outside its practice right after the note
+    cueless_turns: list[str] = field(default_factory=list)  # "<dialogue id>:<turn>" learner turns played without their cue (#210): only settled ones
 
     # ------------------------------------------------------------------ utils
 
@@ -1059,7 +1061,8 @@ class Builder:
         *,
         replay: bool = False,
         max_turns: int | None = None,
-        assisted: bool = True,
+        translate: bool | frozenset[int] | set[int] = True,
+        can_say: Callable[[DialogueTurn], bool] | None = None,
         listening: frozenset[str] | set[str] = frozenset(),
         tried: frozenset[str] | set[str] = frozenset(),
         tried_turns: frozenset[int] | set[int] = frozenset(),
@@ -1073,9 +1076,10 @@ class Builder:
         ``tried_turns``: indices of turns whose line is only tried (#149 1b-ii): the cue, «Try it.», the pause and the
         model line; the theme exchange's lines are literal, so they have no item to name.
 
-        ``assisted`` (the first encounter) translates partner lines and cues every turn. Later
-        encounters drop both once the partner has said something: their line is the cue. A
-        turn before any partner line always keeps its cue."""
+        ``translate`` gives the partner's lines their meaning: ``True`` for every turn, or the indices of the turns
+        whose lines are heard for the first time (the opener before a turn and the reply after it). Only the
+        translation fades (#210). The cue, the intent, plays in every encounter; the one exception is a turn marked
+        ``settled`` (the partner's line decides the reply) that ``can_say`` reports sayable, and it is not tried."""
         turns = dlg.turns if max_turns is None else dlg.turns[: max(1, max_turns)]
         ids = [t.expect for t in turns if t.expect] + [r for r in dlg.requires if r not in {t.expect for t in turns}]
         label = f"dialogue: {dlg.id}" + ("" if len(turns) == len(dlg.turns) else f" ({len(turns)}/{len(dlg.turns)} turns)")
@@ -1091,13 +1095,14 @@ class Builder:
         self._narr(sc, ex, dlg.setting)
         self._beat(sc, ex)
         lines: list[tuple[str, str]] = []
-        heard_partner = False
         for k, turn in enumerate(turns):
+            glossed = translate is True or (translate is not False and k in translate)
+            if turn.scene:
+                self._narr(sc, ex, turn.scene)
             if turn.opener:
                 self._speak(sc, ex, turn.opener, speaker=partner)
                 lines.append((partner, turn.opener))
-                heard_partner = True
-                if assisted and self.translate_partner and turn.opener_meaning:
+                if glossed and self.translate_partner and turn.opener_meaning:
                     self._beat(sc, ex)
                     self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=turn.opener_meaning))
             gender = None
@@ -1122,10 +1127,12 @@ class Builder:
             heard_only = item is not None and item.id in listening  # no task cue: nothing is asked
             if heard_only:
                 pass
-            elif assisted or not heard_partner or turn.keep_cue or k in tried_turns:
+            elif turn.settled and k not in tried_turns and can_say is not None and can_say(turn):
+                self.cueless_turns.append(f"{dlg.id}:{k + 1}")
+                if gender:
+                    self._narr(sc, ex, self.prompts.get(f"speak_as_{gender}_alone"))
+            else:
                 self._narr(sc, ex, self._as(gender, turn.cue))
-            elif gender:
-                self._narr(sc, ex, self.prompts.get(f"speak_as_{gender}_alone"))
             if (item is not None and item.id in tried) or k in tried_turns:
                 self._narr(sc, ex, self.prompts.get("listening_try"))  # a line they can say part of: «Try it.»
             if heard_only:
@@ -1139,10 +1146,11 @@ class Builder:
             lines.append((learner_voice, expected))
             if turn.partner:
                 self._beat(sc, ex)
+                if turn.partner_scene:
+                    self._narr(sc, ex, turn.partner_scene)
                 self._speak(sc, ex, turn.partner, speaker=partner)
                 lines.append((partner, turn.partner))
-                heard_partner = True
-                if assisted and self.translate_partner and turn.partner_meaning:
+                if glossed and self.translate_partner and turn.partner_meaning:
                     self._beat(sc, ex)
                     self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=turn.partner_meaning))
         if replay:
