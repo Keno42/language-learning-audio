@@ -319,6 +319,11 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
 
 - **Python 3.11+, zero required deps.** TOML via `tomllib`, audio via `wave`; ffmpeg only
   for mp3 and for decoding non-WAV TTS output.
+- **A transient edge-tts error is retried per clip (#77).** `EdgeProvider._retrying`: any `EdgeTTSException` (looked up by name in the MRO,
+  so edge-tts is not imported: `NoAudioReceived`, `WebSocketError`, `UnexpectedResponse`, …), aiohttp's `ClientError`, a timeout or a
+  connection error is retried after 5, 20 and 60 s (one stderr line per retry, so the bot's status shows it). A malformed argument (a
+  `ValueError` or `TypeError`, e.g. a malformed voice name) fails at once; an unknown but well-formed voice comes back as `NoAudioReceived`, so it
+  is retried and then fails with that message. An error that keeps coming fails with its own message. Only the failing clip is redone.
 - **Three-stage pipeline with a serialized script in the middle** (`script.json`), so
   voices, pauses and providers can change without re-planning.
 - **Presumed success.** Audio can't hear the learner, so every retrieval counts as a

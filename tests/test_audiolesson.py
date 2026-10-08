@@ -4834,6 +4834,86 @@ class SemanticSetTests(unittest.TestCase):
         self.assertGreater(len(self._of_set(ids)), 3)
 
 
+class EdgeRetryTests(unittest.TestCase):
+    """#77: one clip that edge-tts answers with «no audio» (or a dropped connection) is retried after a wait instead of failing the
+    whole lesson; any other error fails at once, and an error that keeps coming fails after the retries, as before."""
+
+    @staticmethod
+    def _provider():
+        from audiolesson.render.tts import EdgeProvider
+
+        return EdgeProvider()
+
+    def _run(self, errors, final="ok"):
+        import contextlib
+        import io
+        from unittest import mock
+
+        calls, waits = [], []
+        queue = list(errors)
+
+        def attempt():
+            calls.append(1)
+            if queue:
+                raise queue.pop(0)
+            return final
+
+        err = io.StringIO()
+        with mock.patch("audiolesson.render.tts.time.sleep", side_effect=waits.append), contextlib.redirect_stderr(err):
+            try:
+                result = self._provider()._retrying(attempt)
+            except Exception as exc:
+                result = exc
+        return result, len(calls), waits, err.getvalue()
+
+    def test_a_clip_that_fails_once_is_retried_and_the_lesson_goes_on(self):
+        class EdgeTTSException(Exception):
+            pass
+
+        class NoAudioReceived(EdgeTTSException):
+            pass
+
+        result, calls, waits, err = self._run([NoAudioReceived("No audio was received.")])
+        self.assertEqual((result, calls, waits), ("ok", 2, [5.0]))
+        self.assertIn("retrying in 5 s (1/3)", err)
+
+    def test_the_whole_edge_tts_family_and_a_dropped_connection_are_retried(self):
+        """Decided by family: WebSocketError (a socket error frame) and UnexpectedResponse (a cut-off frame) are as transient
+        as NoAudioReceived, without naming each (#77 review)."""
+
+        class EdgeTTSException(Exception):
+            pass
+
+        class WebSocketError(EdgeTTSException):
+            pass
+
+        class UnexpectedResponse(EdgeTTSException):
+            pass
+
+        for errors in ([WebSocketError("socket")], [UnexpectedResponse("short frame")], [ConnectionResetError("reset"), TimeoutError()]):
+            result, calls, waits, _ = self._run(errors)
+            self.assertEqual((result, calls), ("ok", len(errors) + 1), errors)
+            self.assertEqual(waits, [5.0, 20.0][: len(errors)])
+
+    def test_an_error_that_keeps_coming_fails_after_the_retries_with_its_own_error(self):
+        class EdgeTTSException(Exception):
+            pass
+
+        class NoAudioReceived(EdgeTTSException):
+            pass
+
+        errors = [NoAudioReceived(f"try {k}") for k in range(4)]
+        result, calls, waits, _ = self._run(errors)
+        self.assertIs(result, errors[-1])
+        self.assertEqual((calls, waits), (4, [5.0, 20.0, 60.0]))
+
+    def test_a_malformed_argument_fails_at_once(self):
+        for exc in (ValueError("Invalid voice 'x'"), TypeError("bad rate"), KeyError("k")):
+            result, calls, waits, _ = self._run([exc])
+            self.assertIs(result, exc)
+            self.assertEqual((calls, waits), (1, []), exc)
+
+
 class HardSentenceCapTests(unittest.TestCase):
     """#192 (owner: «never ten identical»): a fixed phrase is said at most ``max_sentence_hard`` times in a lesson, while the
     caps are on. Its practice is dropped when no other sentence holds it; a new item keeps one place for its closing recall."""
