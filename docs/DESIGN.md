@@ -319,6 +319,11 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
 
 - **Python 3.11+, zero required deps.** TOML via `tomllib`, audio via `wave`; ffmpeg only
   for mp3 and for decoding non-WAV TTS output.
+- **`report --hesitated` is a next-day outcome; `report --sooner` is a learner's request about the schedule (#222).** `--hesitated` counts
+  (`hesitated`, ease −0.1, a history outcome), consumes an embedded item as failed and marks the lesson reported, so it belongs to the review
+  that decides them. `--sooner` (the feedback form's «not enough / don't remember», filled right after listening) only moves `due` to at most
+  half the interval from today: nothing is counted, `ease`, `interval_days` and the history are untouched, an embedded or tried item is
+  `sooner_skipped` (its next-day review decides it), and the lesson is not marked reported, so the pace still waits for evidence (H2).
 - **A transient edge-tts error is retried per clip (#77).** `EdgeProvider._retrying`: any `EdgeTTSException` (looked up by name in the MRO,
   so edge-tts is not imported: `NoAudioReceived`, `WebSocketError`, `UnexpectedResponse`, …), aiohttp's `ClientError`, a timeout or a
   connection error is retried after 5, 20 and 60 s (one stderr line per retry, so the bot's status shows it). A malformed argument (a

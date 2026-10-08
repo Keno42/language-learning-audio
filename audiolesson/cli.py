@@ -82,6 +82,7 @@ def main(argv: list[str] | None = None) -> int:
     rp.add_argument("--hesitated", default="", help="comma-separated item ids you produced, but only after hesitating")
     rp.add_argument("--recalled", default="", help="comma-separated item ids you confirmed you recalled")
     rp.add_argument("--easy", default="", help="comma-separated item ids that felt too easy")
+    rp.add_argument("--sooner", default="", help="comma-separated item ids the learner does not remember: they come back sooner (due within half their interval), without an outcome being recorded")
     rp.add_argument("--date", default=None)
     rp.set_defaults(func=cmd_report)
 
@@ -391,7 +392,7 @@ def cmd_report(args) -> int:
     learner = LearnerState.load(args.learner)
     today = parse_date(args.date)
     changed = learner.report(
-        _split(args.failed), _split(args.easy), today, args.lesson, hesitated=_split(args.hesitated), recalled=_split(args.recalled)
+        _split(args.failed), _split(args.easy), today, args.lesson, hesitated=_split(args.hesitated), recalled=_split(args.recalled), sooner=_split(args.sooner)
     )
     learner.save(args.learner)
     if changed["failed"]:
@@ -402,9 +403,13 @@ def cmd_report(args) -> int:
         print(f"confirmed as recalled: {', '.join(changed['recalled'])}")
     if changed["easy"]:
         print(f"marked as easy (longer interval): {', '.join(changed['easy'])}")
+    if changed["sooner"]:
+        print(f"coming back sooner (due within half the interval; no outcome recorded): {', '.join(changed['sooner'])}")
+    if changed["sooner_skipped"]:
+        print(f"left to the next-day review (embedded or tried): {', '.join(changed['sooner_skipped'])}")
     if changed["unknown"]:
         print(f"warning: not in learner state: {', '.join(changed['unknown'])}", file=sys.stderr)
-    if not (changed["failed"] or changed["hesitated"] or changed["recalled"] or changed["easy"]):
+    if not (changed["failed"] or changed["hesitated"] or changed["recalled"] or changed["easy"] or args.sooner):
         print(f"lesson {changed['lesson']} recorded as all good (pass --failed/--easy item ids from the lesson's .plan.json otherwise)")
     return 0
 
