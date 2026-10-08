@@ -59,11 +59,12 @@ ROMAJI_ALLOWED = {
 
 
 # Known romanized Japanese the mark heuristic cannot see (plain morae: no macron, tsu/shi/chi/fu/ji…). A word here fails wherever
-# it appears unmarked; add the next one a note about Japan tempts (#219).
+# it appears unmarked; add the next one a note about Japan tempts (#219). Exact words only: «onsens» passes. Words English has
+# taken in (futon, tatami, ramen) are left out on purpose: the English voice says them acceptably.
 ROMAJI_DENIED = frozenset({
     "genkan", "keigo", "onsen", "sento", "natto", "ryokan", "kanpai", "izakaya", "konbini", "omiyage", "shinkansen",
     "onigiri", "ojama", "arigato", "sumimasen", "okaeri", "tadaima", "itterasshai", "ittekimasu", "yoroshiku",
-    "otsukaresama", "senpai", "kohai", "tatami", "futon", "yukata", "ryokan", "obon", "matsuri",
+    "otsukaresama", "senpai", "kohai", "yukata", "obon", "matsuri",
 })
 
 
@@ -564,6 +565,15 @@ FORMS = ("negative", "question")  # a construction's authored forms besides the 
 SPEAKERS = ("native_a", "native_b")  # native_a is voiced female, native_b male, in every profile
 
 
+def _check_glossed(obj, names: tuple, where: str) -> None:
+    """Fail on romanized Japanese in the English fields the narrator reads (#219); ``names`` is the glossing's own list."""
+    for name in names:
+        value = getattr(obj, name, "") or ""
+        texts = value.values() if isinstance(value, dict) else [value] if isinstance(value, str) else value
+        for w in (w for text in texts for w in unmarked_japanese(text or "")):
+            raise CurriculumError(f"{where}: {name}: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
+
+
 def validate(cur: Curriculum) -> None:
     ids = set()
     targets: dict[str, str] = {}
@@ -590,6 +600,9 @@ def validate(cur: Curriculum) -> None:
         if it.meaning_spoken and sorted(_ANY_SLOT_RE.findall(it.meaning_spoken)) != sorted(_ANY_SLOT_RE.findall(it.meaning)):
             raise CurriculumError(f"item {it.id!r}: meaning_spoken must keep the meaning's slots: {it.meaning_spoken!r}")
     for d in cur.dialogues:
+        _check_glossed(d, _GLOSSED_DIALOGUE, f"dialogue {d.id!r}")
+        for k, t in enumerate(d.turns, 1):
+            _check_glossed(t, _GLOSSED_TURN, f"dialogue {d.id!r} turn {k}")
         if d.id in {x.id for x in cur.dialogues if x is not d}:
             raise CurriculumError(f"duplicate dialogue id {d.id!r}")
         for t in d.turns:
@@ -619,11 +632,9 @@ def validate(cur: Curriculum) -> None:
         for w in unmarked_japanese(n.text):
             raise CurriculumError(f"note {n.id!r}: romanized Japanese outside «ja:…» markup: {w!r}")
     for it in cur.items:
-        for field_name in _GLOSSED_ITEM:  # every English field of an item, the list the glossing uses
-            value = getattr(it, field_name, "") or ""
-            texts = value.values() if isinstance(value, dict) else [value] if isinstance(value, str) else value
-            for w in (w for text in texts for w in unmarked_japanese(text or "")):
-                raise CurriculumError(f"item {it.id!r}: {field_name}: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
+        _check_glossed(it, _GLOSSED_ITEM, f"item {it.id!r}")  # every English field of an item, the list the glossing uses
+        for k, e in enumerate(it.examples, 1):
+            _check_glossed(e, _GLOSSED_EXAMPLE, f"item {it.id!r} example {k}")
         for ref in it.components + it.prereqs:
             if ref not in ids:
                 raise CurriculumError(f"item {it.id!r} references unknown item {ref!r}")

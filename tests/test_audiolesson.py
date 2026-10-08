@@ -205,6 +205,22 @@ class CurriculumTests(unittest.TestCase):
         with self.assertRaisesRegex(CurriculumError, "romanized Japanese"):
             _check(theme)
 
+    def test_unmarked_japanese_in_a_dialogue_or_an_example_fails(self):
+        """The same English fields the glossing names: a dialogue's setting and turns, an item's transform examples."""
+        head = {"name": "x", "target_lang": "is", "known_lang": "en"}
+        item = {"id": "w0", "kind": "vocab", "target": "Halló", "meaning": "Hello."}
+        for turn_field, value in (("cue", "Say gochisōsama."), ("partner_meaning", "Yes, arigatō."), ("expect_meaning", "After the onsen.")):
+            dlg = {"id": "d1", "setting": "A setting.", "requires": ["w0"], "turns": [{"cue": "Say it.", "expect": "w0", turn_field: value}]}
+            with self.assertRaisesRegex(CurriculumError, turn_field):
+                curriculum_from_dict({"curriculum": head, "items": [item], "dialogues": [dlg]})
+        dlg = {"id": "d1", "setting": "After the onsen.", "requires": ["w0"], "turns": [{"cue": "Say it.", "expect": "w0"}]}
+        with self.assertRaisesRegex(CurriculumError, "setting"):
+            curriculum_from_dict({"curriculum": head, "items": [item], "dialogues": [dlg]})
+        tr = {"id": "t0", "kind": "transform", "target": "x", "meaning": "m", "instruction": "Do it:",
+              "examples": [{"source": "a", "source_meaning": "like gochisōsama", "result": "b", "result_meaning": "B."}]}
+        with self.assertRaisesRegex(CurriculumError, "source_meaning"):
+            curriculum_from_dict({"curriculum": head, "items": [tr]})
+
     def test_a_note_with_a_marked_japanese_span_is_spoken_in_japanese(self):
         from audiolesson.exercises import Builder
         from audiolesson.prompts import Prompts
