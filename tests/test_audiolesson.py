@@ -577,8 +577,10 @@ class CurriculumTests(unittest.TestCase):
             learner,
             Prompts.load("en"),
             Timing(level="A1"),
-            # extra_arc_share=1: the second arc takes two items too, so each arc can pair with itself
-            PlanConfig(minutes=30, seed=1, new_items=2, max_new_items=2, extra_arc_share=1.0, dialogue_every=1000, drill_streak_limit=1000, note_chance=0.0),
+            # extra_arc_share=1: the second arc takes two items too, so each arc can pair with itself.
+            # premise changed (#192): max_sentence_hard=0 (the hard cap off): twelve fixed phrases fill a 30-minute lesson here, so the new ones
+            # reach the cap and are left out of scenes; the test is about the arcs' connect moments, not identical counts
+            PlanConfig(minutes=30, seed=1, new_items=2, max_new_items=2, extra_arc_share=1.0, dialogue_every=1000, drill_streak_limit=1000, note_chance=0.0, max_sentence_hard=0),
             today=TODAY,
         )
         sc = planner.build()
@@ -2031,7 +2033,9 @@ class CurriculumTests(unittest.TestCase):
         # whose items sit as deep as order ~700 within a reasonable number of simulated
         # lessons — issue #29 owner review added "godur_gender_nominative", gated on items
         # spread across modules 1/7/17).
-        for _ in range(80):
+        # premise changed (#192): the course grew by nine items (the ticket and party patterns), so the deepest milestone now needs
+        # 81-82 simulated lessons at this pace, not 80 or fewer; the budget is 85
+        for _ in range(85):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=10, seed=3), today=day).build()
             played = {e.label.split(": ")[1] for e in sc.exercises if e.kind == "note" and e.label.split(": ")[1] in milestones}
             apply_to_learner(sc, learner, day)
@@ -2066,7 +2070,9 @@ class CurriculumTests(unittest.TestCase):
         checked: set[str] = set()
         # Fixed, fast pace, not auto-escalation -- see test_milestone_note_never_fires_...
         # above for why (a milestone's items can sit as deep as order ~700).
-        for _ in range(80):
+        # premise changed (#192): the course grew by nine items (the ticket and party patterns), so the deepest milestone now needs
+        # 81-82 simulated lessons at this pace, not 80 or fewer; the budget is 85
+        for _ in range(85):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=10, seed=3), today=day).build()
             note_positions = [(i, e.label.split(": ")[1]) for i, e in enumerate(sc.exercises) if e.kind == "note" and e.label.split(": ")[1] in milestones]
             apply_to_learner(sc, learner, day)
@@ -4828,6 +4834,165 @@ class SemanticSetTests(unittest.TestCase):
         self.assertGreater(len(self._of_set(ids)), 3)
 
 
+class HardSentenceCapTests(unittest.TestCase):
+    """#192 (owner: «never ten identical»): a fixed phrase is said at most ``max_sentence_hard`` times in a lesson, while the
+    caps are on. Its practice is dropped when no other sentence holds it; a new item keeps one place for its closing recall."""
+
+    @staticmethod
+    def _plan(hard):
+        from audiolesson.exercises import _norm_utterance
+
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": [
+            {"id": "ph", "kind": "phrase", "target": "Þetta er allt.", "meaning": "That's all.", "situation": "You're done at the till. Say that's all."},
+            {"id": "ph2", "kind": "phrase", "target": "Takk fyrir.", "meaning": "Thanks.", "situation": "Thank the clerk."},
+        ]})
+        planner = Planner(cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"),
+                          PlanConfig(minutes=10, new_items=2, max_sentence_hard=hard, seed=1), today=TODAY)
+        sc = planner.build()
+        return planner, sc, {k: v for k, v in planner.builder.said.items()}
+
+    def test_a_fixed_phrase_is_said_no_more_than_the_cap(self):
+        _, sc, said = self._plan(6)
+        self.assertLessEqual(max(said.values()), 6, said)
+        self.assertFalse(sc.meta["bare_cap_lapsed"])
+        for i in sc.meta["new_items"]:  # each new item still gets its closing recall
+            closing = next(e.index for e in sc.exercises if e.kind == "closing" and e.label == "final review")
+            self.assertTrue(any(e.index > closing and i in e.item_ids for e in sc.exercises), i)
+
+    def test_without_the_cap_the_same_lesson_says_a_line_more_often(self):
+        _, _, said = self._plan(0)
+        self.assertGreater(max(said.values()), 6, said)
+
+
+    def test_the_time_the_cap_frees_is_not_given_to_bare_words_past_their_own_cap(self):
+        """#206 review: the two caps conflict whenever both bind. A recall the hard cap keeps out is not made up for by
+        saying short words alone past the bare cap: the lesson ends a little short instead. A hard cap of 5 binds in
+        most lessons of the real course, so the bare cap would lapse without it."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        for n in range(1, 15):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=6, max_sentence_hard=5), today=day).build()
+            if n >= 6:  # the first lessons have little to practise and lapse the bare cap whatever the hard cap is
+                self.assertFalse(sc.meta["bare_cap_lapsed"], sc.lesson_number)
+                self.assertGreaterEqual(sc.total_duration, 30 * 60 - 240, sc.lesson_number)
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+
+
+class InstanceOfPatternTests(unittest.TestCase):
+    """#192 (owner's decisions): a fixed phrase that is an instance of a pattern is linked to it. Once the pattern is known,
+    the phrase's later practice in a lesson is another sentence of the pattern with other fillers, credited to the pattern
+    and its fillers, never to the phrase."""
+
+    @staticmethod
+    def _cur(fill=None, kind="phrase"):
+        return curriculum_from_dict({
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "tvo", "kind": "vocab", "target": "tvo", "meaning": "two", "tags": ["c"]},
+                {"id": "thrja", "kind": "vocab", "target": "þrjá", "meaning": "three", "tags": ["c"]},
+                {"id": "fjora", "kind": "vocab", "target": "fjóra", "meaning": "four", "tags": ["c"]},
+                {"id": "pat", "kind": "construction", "target": "{count} miða, takk.", "meaning": "{count} tickets, please.",
+                 "slots": {"count": "c"}, "example": {"count": "thrja"}},
+                {"id": "ph", "kind": kind, "target": "Þrjá miða, takk.", "meaning": "Three tickets, please.",
+                 "instance_of": "pat", "instance_fill": fill or {"count": "thrja"}},
+            ],
+        })
+
+    def test_a_link_must_make_the_phrase_exactly(self):
+        self._cur()
+        with self.assertRaisesRegex(CurriculumError, "says 'Tvo miða, takk.'"):
+            self._cur(fill={"count": "tvo"})
+        with self.assertRaisesRegex(CurriculumError, "every slot"):
+            self._cur(fill={"other": "thrja"})
+        with self.assertRaisesRegex(CurriculumError, "instance_of names the construction"):
+            self._cur(kind="vocab")
+
+    def test_the_real_curriculum_links_its_ticket_phrases(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        linked = {i.id: (i.instance_of, i.instance_fill) for i in cur.items if i.instance_of}
+        self.assertEqual(linked["thrja_mida"], ("count_mida_takk", {"count": "thrja_acc"}))
+        self.assertEqual(linked["einn_fullordinn_takk"], ("partei_takk", {"party": "einn_fullordinn"}))
+        for ja in (None, "ja"):  # both glosses make a sentence of every filler
+            c = load_curriculum(ROOT / "curricula" / "is-en", known_lang=ja)
+            for pattern in ("count_mida_takk", "partei_takk"):
+                item = c.by_id[pattern]
+                tag = next(iter(item.slots.values()))
+                for f in c.items_with_tag(tag):
+                    target, meaning = c.resolve_slots(item, {next(iter(item.slots)): f})
+                    self.assertTrue(target and meaning, (pattern, f.id))
+
+    def test_a_sibling_recall_repeats_a_heard_sentence_rather_than_the_phrase(self):
+        from audiolesson.exercises import Builder
+
+        cur = self._cur()
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        b.in_lesson.update({"tvo", "thrja", "fjora", "pat"})
+        sc = Script(1, "t", "is", "en")
+        own = {"count": cur.by_id["thrja"]}
+        for _ in range(8):  # every other sentence is heard in turn, then they repeat: always another than «Þrjá miða»
+            ex = b.sibling_recall(sc, cur.by_id["pat"], own)
+            self.assertIsNotNone(ex)
+            self.assertNotIn("thrja", ex.item_ids)
+            self.assertNotIn("ph", ex.item_ids)
+            self.assertEqual((ex.kind, ex.stage), ("recall", "meaning"))
+        none_left = {"count": cur.by_id["thrja"], **{}}
+        b2 = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        b2.in_lesson.update({"thrja", "pat"})
+        self.assertIsNone(b2.sibling_recall(Script(1, "t", "is", "en"), cur.by_id["pat"], none_left), "no other filler: nothing to offer")
+
+    def test_the_real_party_pattern_has_fillers_to_rotate(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.assertGreaterEqual(len(cur.items_with_tag("party")), 4)
+        self.assertTrue({"eitt_barn", "tvo_born"} <= {i.id for i in cur.items_with_tag("party")})
+
+    def _lesson(self):
+        from unittest import mock
+
+        from audiolesson.exercises import Builder
+
+        cur = self._cur()
+        learner = LearnerState("is", "en", "A1")
+        for i in ("tvo", "thrja", "fjora", "pat", "ph"):
+            learner.items[i] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation", recalled=3,
+                                         last_outcome="recalled", interval_days=3, last_practiced=(TODAY - timedelta(days=3)).isoformat())
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=8, new_items=0, max_sentence_utterances=1, seed=1), today=TODAY)
+        calls = []
+        real = Builder._recombine
+
+        def spy(self, sc, item, met_fills=False, form=None, exclude=None):
+            ex = real(self, sc, item, met_fills=met_fills, form=form, exclude=exclude)
+            calls.append((item.id, dict(exclude or {}), list(ex.item_ids) if ex else None, ex.label if ex else None))
+            return ex
+
+        with mock.patch.object(Builder, "_recombine", spy):
+            sc = planner.build()
+        return cur, sc, calls
+
+    def test_the_phrase_past_its_cap_is_practised_in_another_sentence_of_the_pattern(self):
+        cur, sc, calls = self._lesson()
+        siblings = [c for c in calls if c[0] == "pat" and c[1].get("count") is not None and c[1]["count"].id == "thrja"]
+        self.assertTrue(siblings, "the pattern was asked for a sentence other than the phrase's own")
+        for _, _, ids, label in siblings:
+            if ids is not None:
+                self.assertNotIn("ph", ids, "never credited to the phrase")
+                self.assertNotIn("Þrjá", label, "another filler")
+
+    def test_a_pattern_not_yet_known_leaves_the_phrase_as_it_was(self):
+        from unittest import mock
+
+        from audiolesson.exercises import Builder
+
+        cur = self._cur()
+        learner = LearnerState("is", "en", "A1")
+        learner.items["ph"] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="situation", recalled=3,
+                                        last_outcome="recalled", interval_days=3, last_practiced=(TODAY - timedelta(days=3)).isoformat())
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=6, new_items=0, max_sentence_utterances=1, seed=1), today=TODAY)
+        with mock.patch.object(Builder, "_recombine", side_effect=AssertionError("no pattern sentence before the pattern is known")):
+            planner.build()
+
+
 class NoveltyAnnouncementTests(unittest.TestCase):
     """#197: «Now something you haven't heard yet» is for a new pattern or form, not for each new filler: once per construction
     and form in a lesson. The owner also dropped «Klukkan er ekki {hour}.»."""
@@ -4986,6 +5151,77 @@ class OpenItemsInThePlanTests(unittest.TestCase):
         heard, tried = planner.classify_turns(dlg)
         self.assertNotIn(turn.expect, heard)
         self.assertNotIn(turn.expect, tried)
+
+
+class AdmissionOfPartsTests(unittest.TestCase):
+    """#206 review: one admission rule for a part, whichever way it is introduced. A part some construction lists as a
+    prerequisite is not given alone while that construction can still come with it; a part only a phrase holds comes with
+    that phrase."""
+
+    def setUp(self):
+        self.cur = load_curriculum(ROOT / "curricula" / "is-en")
+        self.learner = LearnerState("is", "en", "A1")
+        self.known = dict(stage="meaning", durable_successes=2, successes=8, interval_days=7, due=(TODAY + timedelta(days=5)).isoformat(),
+                          last_practiced=(TODAY - timedelta(days=2)).isoformat())
+
+    def _planner(self, **cfg):
+        return Planner(self.cur, self.learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, **{"new_items": 1, **cfg}), today=TODAY)
+
+    def test_a_variant_part_is_not_offered_while_its_frame_is_still_to_come(self):
+        for i in self.cur.items:
+            if i.order < self.cur.by_id["count_mida_takk"].order and i.id not in ("thrja_acc", "thrja_mida"):
+                self.learner.items[i.id] = ItemState(**self.known)
+        planner = self._planner()
+        self.assertEqual([c.id for c in planner.frames_of(self.cur.by_id["thrja_acc"])], ["count_mida_takk"])
+        self.assertNotIn("thrja_acc", [i.id for i in planner.select_variants(5, set())])
+        planner.builder.in_lesson.add("count_mida_takk")  # the frame is in the lesson already: the variant may follow
+        self.assertTrue(planner.part_has_home(self.cur.by_id["thrja_acc"], {"count_mida_takk"}))
+
+    def test_a_variant_part_comes_with_its_frame_when_selected(self):
+        for i in self.cur.items:
+            if i.order < self.cur.by_id["count_mida_takk"].order and i.id not in ("thrja_acc", "thrja_mida"):
+                self.learner.items[i.id] = ItemState(**self.known)
+        ids = [i.id for i in self._planner(priority=["thrja_acc"]).select_new(2)]
+        self.assertIn("thrja_acc", ids)
+        self.assertIn("count_mida_takk", ids, ids)
+
+    def test_a_part_whose_phrase_is_known_but_not_scheduled_is_not_offered_as_an_extra(self):
+        """#206 review (lesson 18 of the real path): «þrjá» was admitted because «Þrjá miða, takk.» is a met phrase that holds it,
+        yet nothing made the lesson say that phrase, so «þrjá» was drilled bare. A phrase counts as the part's home as an extra only
+        once the lesson has practised it."""
+        for i in self.cur.items:
+            if i.order < self.cur.by_id["count_mida_takk"].order and i.id not in ("thrja_acc", "count_mida_takk"):
+                self.learner.items[i.id] = ItemState(**self.known)
+        planner = self._planner()
+        self.assertTrue(self.learner.has_met("thrja_mida"))
+        self.assertNotIn("thrja_acc", [i.id for i in planner.select_variants(5, set())])
+        planner.builder.in_lesson.add("thrja_mida")  # the lesson says the phrase: the part has its sentence
+        self.assertIn("thrja_acc", [i.id for i in planner.select_variants(5, set())])
+
+    def test_select_new_asks_the_same_question_for_a_variant_part(self):
+        """#206 review: lesson 18 took «þrjá» through ``select_new``, which accepted a met phrase as its home. Whatever the path, a
+        variant part with a met phrase that the lesson does not practise comes with its frame, or waits when the frame cannot."""
+        for i in self.cur.items:
+            if i.order < self.cur.by_id["count_mida_takk"].order and i.id not in ("thrja_acc", "count_mida_takk"):
+                self.learner.items[i.id] = ItemState(**self.known)
+        planner = self._planner(priority=["thrja_acc"])
+        self.assertIn("thrja_acc", [i.id for i in planner.select_new(2)])
+        self.assertIn("count_mida_takk", [i.id for i in planner.select_new(2)], "the frame comes with it")
+        # the frame cannot come (a prerequisite nobody has): the part waits, though «Þrjá miða, takk.» is known
+        self.cur.by_id["count_mida_takk"].prereqs = list(self.cur.by_id["count_mida_takk"].prereqs) + ["fjall"]
+        planner = self._planner(priority=["thrja_acc"])
+        self.assertNotIn("thrja_acc", [i.id for i in planner.select_new(2)])
+
+    def test_a_part_no_construction_takes_comes_with_the_phrase_that_holds_it(self):
+        planner = self._planner(priority=["fjall"])
+        self.assertEqual(planner.frames_of(self.cur.by_id["fjall"]), [], "no construction lists it as a prerequisite")
+        self.assertEqual([w.id for w in planner.candidate_wholes(self.cur.by_id["fjall"])][:1], ["hvad_er_thetta_fjall"])
+        for i in self.cur.items:
+            if i.order < self.cur.by_id["fjall"].order and i.id not in ("fjall", "hvad_er_thetta_fjall", "thetta_er_noun"):
+                self.learner.items[i.id] = ItemState(**self.known)
+        ids = [i.id for i in self._planner(priority=["fjall"]).select_new(2)]
+        self.assertIn("fjall", ids)
+        self.assertIn("hvad_er_thetta_fjall", ids, ids)
 
 
 class PartWithItsFrameTests(unittest.TestCase):
@@ -5908,7 +6144,8 @@ class CheapConstructionTests(unittest.TestCase):
         with_met, with_len = course()
         without_met, without_len = course(cheap_place=False, max_cheap_extra=0)
         self.assertGreaterEqual(with_met, without_met + 2, (with_met, without_met))
-        self.assertGreaterEqual(with_len, without_len, (with_len, without_len))
+        # not shorter by more than 2%: which parts wait for their frame (#206) moves the sum by about 1% either way
+        self.assertGreaterEqual(with_len, without_len * 0.98, (with_len, without_len))
 
 
 class ColourFormTests(unittest.TestCase):

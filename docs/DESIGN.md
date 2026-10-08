@@ -232,12 +232,39 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   `PlanConfig.max_set_items` (3) new items of one set in `PlanConfig.semantic_sets` (number, colour, animal, acc_language,
   weather, nature_nom, day, job, and the adjectives: `adj_neut|adj_masc|adj_fem` counted as one set, `semantic_set_tags`), counting the lesson's earlier arcs (`exclude`) and what the call chose. The skipped item waits for
   another lesson and the pool goes on, so the pace is unchanged; a filler pulled in for a construction's slot is not counted. The items the target theme's next level wants (`theme_wants`) are a scene, not a bare set: they are neither stopped by the limit nor counted towards it.
+  **Never ten identical (#192, owner).** `PlanConfig.max_sentence_hard` (9): a fixed phrase (`kind == "phrase"`) whose sentence has been
+  said that often (`Builder.said`) is asked no more: `do_recall` plays nothing for it when no other sentence holds it, a mixed-review pair
+  leaves it out, a sentence that holds another item is not taken from it, and `Builder.sentence_recall` (`said_cap`) offers no sentence at
+  the cap. A new item keeps one place for its closing recall, so everything before the closing stops at the cap minus one, and a linked phrase (below) whose pattern is available stops at `max_sentence_utterances` (6) + 1 (7, then its closing recall); a short item
+  whose every holder sentence is at the cap gets no bare part in its place at the closing. Like the bare cap it holds only while
+  the caps do (`bare_cap_lapsed`: nothing else is left).
+  A fixed phrase linked to a pattern (`Item.instance_of`, `instance_fill`, #192): in `sentence_practice`, past
+  `max_sentence_utterances` and once the pattern is available (`Builder._frame_available`), the phrase is practised through
+  `Builder._recombine(pattern, met_fills=True, exclude=<its own fills>)` (another sentence of the pattern), else `Builder.sibling_recall`
+  (a plain meaning recall of the sentence of another filler said fewest times, a heard line may repeat). `_record` credits the
+  pattern and its fillers (`ex.item_ids`), never the phrase.
   A part comes with its frame (#149 step 2): when `select_new` takes a part (`kind == "vocab"`; an utterance such as
   «Hvenær?» is not one), one construction that lists it as a prerequisite (`Planner.frames_of`, «{thing} virkar ekki.» for
   «sturtan»; the ready one needing the fewest new fillers, then course order) goes in right after it, behind the fillers its
   slots still need. The group (part, fillers, frame) is budgeted against the count with at most one item over; a group that
   doesn't fit leaves the part for a lesson with room, as a part alone is how it was drilled bare. A part whose frame is already
   met or not ready, or that no construction lists, is unchanged.
+  One admission rule for a part, whichever path introduces it (#206 review): `Planner.part_has_home` is the only question
+  («will this part be said in a sentence in this lesson?»): a construction that lists it is met, in the lesson or just chosen
+  (`introduced`), or a phrase that holds its words (`candidate_wholes`: the shortest phrase containing it, never one with a negation
+  the part lacks) is in the lesson; or it has neither (a content gap, #215). A plain part also counts a phrase it knows (the embed
+  path says the phrase), but a variant form (`variant_of`) does not: «þrjá» beside a «Þrjá miða, takk.» met long ago and not
+  scheduled was drilled bare. Every path asks it: `select_new` (theme target, trip order, cheap), `select_variants`. When it is false,
+  `select_new` brings the ready frame, else the ready unmet phrase that holds it (`frame_group`), within the one-over budget, and
+  neither is the place given up for a cheap construction (`pulled`); a variant with no frame that can come waits
+  (`part_waits_for_home`). Waiting every part for a blocked frame starved the course (a part and its frame each waiting for the
+  other: the gendered-noun milestone moved by 20 lessons), and moved the price chain four lessons later, which broke #80's
+  «said in a sentence within two lessons»: a plain part whose frame is blocked is introduced as before and is listed in the replay
+  table's «short items» row.
+  The two caps (hard cap, bare cap) conflict whenever both bind: a recall the hard cap keeps out frees time that bare words would fill
+  past their own cap. `over_hard_cap` records that it held (`hard_cap_held`), and a lesson whose remaining time is under
+  `PlanConfig.hard_cap_short_max` (180 s) then ends there instead of lapsing the bare cap (the lapse stays for a lesson that is short
+  for another reason).
   A partner turn may carry `variants` (#134): `pick_variants` picks one line per turn for the early,
   assisted play (heard with its meaning); the late play says the lines as written, which are also the ones the review
   cards ask. Every partner line is spoken at natural speed (rate 1.0), and each variant must fit the learner's reply
