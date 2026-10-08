@@ -33,8 +33,8 @@ and ``load_scenes`` only ``[[scenes]]``, so they share the directory)::
   (other good answers; they wait for the review side, which asks ``say`` only). The cue plays in every
   play (#210). The one exception is ``settled = true``: a reply the partner's line decides (returning a
   greeting), which drops its cue once the learner can say it. Mark only those.
-- Either kind of turn can carry ``scene`` / ``scene_ja``: a line the narrator says every time before it
-  («At the till.»), where the setting changes. A partner turn's scene comes before the partner's line.
+- A partner turn can carry ``scene`` / ``scene_ja``: a line the narrator says every time before the partner's line
+  («At the till.»), where the setting changes. (A learner's turn has its cue for that; a scene on one fails validation.)
 - A ``partner`` turn is what the other person says, with its meaning. It may go beyond the
   course: a learner who gets the gist of 80-90% of what is said is where they should be. It is spoken at
   natural speed, and may carry ``variants = [{ say, meaning, meaning_ja }, ...]``: other ways a real
@@ -233,7 +233,7 @@ def level_dialogue(theme: Theme, n: int, known_lang: str = "en", picks: dict[int
             else:
                 opener, opener_scene = (t.say, meaning), scene
             continue
-        turn = DialogueTurn(cue=(t.cue_ja if ja and t.cue_ja else t.cue), expect_text=t.say, settled=t.settled)
+        turn = DialogueTurn(cue=(t.cue_ja if ja and t.cue_ja else t.cue), expect_text=t.say, settled=t.settled, say_items=list(t.items))
         if opener is not None:
             turn.opener, turn.opener_meaning, turn.scene = opener[0], opener[1], opener_scene
             opener, opener_scene = None, ""

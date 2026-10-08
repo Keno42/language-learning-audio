@@ -946,9 +946,10 @@ class Planner:
         """Whether the learner can say a dialogue turn's line (#179): its item (and its fills) can be
         said, or, for a construction turn, the filled line is covered, in order, by chunks they can say
         («Það kostar | fimm | þúsund krónur.»: «Það kostar {price}.», «fimm» and «þúsund krónur»). A line
-        with any word outside what they can say is not sayable."""
+        with any word outside what they can say is not sayable. A theme turn has a literal line built from
+        ``say_items`` (#210 review): it is sayable when each of them is."""
         if not turn.expect:
-            return True
+            return all(self.can_say_item(i, practised) for i in turn.say_items)
         item = self.cur.by_id[turn.expect]
         fills = {s: self.cur.by_id[f] for s, f in turn.expect_fill.items()}
         if self.can_say_item(item.id, practised) and all(self.can_say_item(f.id, practised) for f in fills.values()):

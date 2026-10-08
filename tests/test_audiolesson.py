@@ -6678,6 +6678,25 @@ class ThemeExchangeTests(unittest.TestCase):
         planner.builder.dialogue(sc, dlg, translate=False, can_say=lambda t: False)
         self.assertIn("Greet her back.", [g.text for g in sc.segments if g.type == "narrate"])
 
+    def test_a_settled_turn_is_sayable_only_when_its_items_are(self):
+        """#230 review: a theme turn has no ``expect``; its literal line is judged by the items it is built from."""
+        from audiolesson.content import DialogueTurn
+        from audiolesson.themes import level_dialogue
+
+        tour = next(t for t in self._themes if t.id == "tour")
+        dlg = level_dialogue(tour, 0)
+        turn = next(t for t in dlg.turns if t.cue == "Greet her back.")
+        self.assertEqual(turn.say_items, ["godan_daginn"])
+        known = self._known + self._rest + ["godan_daginn"]
+        planner = self._planner(self._learner(known), [tour], ["B2"])
+        self.assertTrue(planner.can_say_turn(turn))
+        failed = self._learner(known)
+        failed.report(["godan_daginn"], [], TODAY)  # open: the learner is repairing it
+        self.assertTrue(failed.is_open("godan_daginn"))
+        self.assertFalse(self._planner(failed, [tour], ["B2"]).can_say_turn(turn))
+        self.assertFalse(self._planner(self._learner([i for i in known if i != "godan_daginn"]), [tour], ["B2"]).can_say_turn(turn))
+        self.assertTrue(planner.can_say_turn(DialogueTurn(cue="x", expect_text="y")), "a turn with no items listed: as before")
+
     def test_a_scene_line_on_a_partner_turn_is_narrated_before_its_line_in_every_play(self):
         from audiolesson.themes import Level, Theme, Turn, level_dialogue
 
