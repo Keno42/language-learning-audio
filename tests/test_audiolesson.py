@@ -4512,6 +4512,43 @@ class EmbeddedPartTests(unittest.TestCase):
             self.assertEqual(sc.meta["embedded_items"], [], kw)
             self.assertIn("opid", sc.meta["exposures"], kw)
 
+    def test_no_item_is_taught_twice_in_a_lesson_over_a_simulated_course(self):
+        """#217 as a property: over a real-curriculum course, ``new_items`` never repeats an id, an item is not both embedded and
+        introduced, and nothing is introduced twice."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        for _ in range(30):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=8, seed=3), today=day).build()
+            new = sc.meta["new_items"]
+            self.assertEqual(len(new), len(set(new)), (sc.lesson_number, new))
+            intros = [e.item_ids[0] for e in sc.exercises if e.kind == "intro"]
+            self.assertEqual(len(intros), len(set(intros)), (sc.lesson_number, intros))
+            self.assertFalse(set(intros) & set(sc.meta["embedded_items"]), (sc.lesson_number, "embedded and introduced"))
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+
+    def test_an_item_queued_twice_is_taught_once(self):
+        """#217 (lesson 19, «miða»): an item embedded in a sentence and then reaching ``do_intro`` again from a queue was introduced
+        as new nine minutes later, and ``new_items`` listed it twice (the bot's feedback form broke on the duplicate)."""
+        from unittest import mock
+
+        cur = self._cur()
+        opid = cur.by_id["opid"]
+        calls = []
+
+        def select_new(self, count, exclude=None, cheap=False):
+            calls.append(1)
+            return [opid, opid] if len(calls) == 1 else []  # the first selection queues it twice; later ones honour ``exclude``
+
+        with mock.patch.object(Planner, "select_new", select_new):
+            sc = Planner(cur, self._learner(), Prompts.load("en"), Timing(level="A1"),
+                         PlanConfig(minutes=10, new_items=2, max_new_items=2, seed=3), today=TODAY).build()  # fmt: skip
+        self.assertEqual(sc.meta["new_items"], ["opid"], "once")
+        self.assertEqual(sc.meta["embedded_items"], ["opid"])
+        self.assertEqual([e.kind for e in sc.exercises if "opid" in e.item_ids and e.kind in ("intro", "embed")], ["embed"],
+                         "heard inside the sentence, not introduced again")  # fmt: skip
+
     def test_the_review_asks_the_sentence(self):
         cur = self._cur()
         sc = self._plan(cur, self._learner())

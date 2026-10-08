@@ -1218,6 +1218,11 @@ class Planner:
 
         def do_intro(item: Item) -> None:
             nonlocal last_intro, last_intro_at, seq
+            if item.id in self.embedded or any(i.id == item.id for i in introduced):
+                # taught already this lesson (embedded, then queued again: «miða» in lesson 19, #217): its turn goes to the
+                # next item. Checked here because every path to an introduction ends here, whatever queue it came from
+                arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
+                return
             # A milestone this item's prereqs complete plays before the intro: a construction's
             # intro speaks its worked example, which must not come before the note naming the
             # pattern. A loop, since the prereqs can complete more than one milestone.
@@ -2145,7 +2150,7 @@ class Planner:
                 "level": self.timing.level,
             },
             "curriculum": self.cur.name,
-            "new_items": [i.id for i in introduced] + list(self.embedded),
+            "new_items": list(dict.fromkeys([i.id for i in introduced] + list(self.embedded))),
             "embedded_items": list(self.embedded),
             "variant_items": list(variants_used),
             "refresh_sentences": dict(refresh_done),
