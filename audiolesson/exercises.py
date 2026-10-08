@@ -79,6 +79,14 @@ def meaning_text(known_lang: str, meaning: str) -> str:
     return meaning + "."
 
 
+def meaning_prompt(prompts: Prompts, known_lang: str, target_lang: str, meaning: str, context: str = "") -> str:
+    """The cue that asks for ``meaning`` in the target language: «Say: …, as in: <context>» when the item has a context
+    (a counting form, a bare number), else «How do you say: …». The lesson and the review questions share it."""
+    if context:
+        return prompts.get("meaning_in_context", meaning=meaning_text(known_lang, meaning).rstrip(".。"), context=context)
+    return prompts.get("meaning", meaning=meaning_text(known_lang, meaning), language=prompts.language_name(target_lang))
+
+
 @dataclass
 class Builder:
     cur: Curriculum
@@ -247,9 +255,7 @@ class Builder:
         return self.prompts.get(f"speak_as_{gender}", prompt=prompt) if gender else prompt
 
     def _meaning_prompt(self, meaning: str, context: str = "") -> str:
-        if context:
-            return self.prompts.get("meaning_in_context", meaning=self._m(meaning).rstrip(".。"), context=context)
-        return self.prompts.get("meaning", meaning=self._m(meaning), language=self.prompts.language_name(self.tl))
+        return meaning_prompt(self.prompts, self.kl, self.tl, meaning, context)
 
     def _successes(self, item: Item) -> int:
         st = self.learner.items.get(item.id)

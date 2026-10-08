@@ -23,6 +23,7 @@ issues; the full history of how each of these came about is in `docs/history/ses
 | travel can-do scenarios and their coverage report (#131) | `curricula/is-en/cando/travel.toml`, `audiolesson/cando.py`, `validate --cando`; see `docs/TRAVEL-CANDO.md` |
 | trip ordering from a private profile (#132) | `audiolesson/trip.py`, `cando.priority_items`, `PlanConfig.priority`, `generate --trip` |
 | scenario cards for the Discord review (#129) | `curricula/is-en/cando/scenes.toml`, `audiolesson/scenes.py`, `audiolesson scenes` |
+| a single item's review question, fresh from the course (#73, #220) | `audiolesson questions --ids …` (`cli._review_cue`, shared with `_plan`) |
 | reading deck for the Discord review (#133) | `curricula/is-en/reading/deck.toml`, `audiolesson/reading.py`, `audiolesson reading` |
 | loading those record files (`cando/`, `reading/`) | `audiolesson/records.py` |
 | what the instructor says for a meaning (`meaning_spoken`, #143) | `Item.spoken_meaning` in `audiolesson/content.py` |
@@ -44,7 +45,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   a durable success nor lengthens its interval (it is due again tomorrow). Each lesson practises
   up to `max_open_items` of them, five times at fractions of the lesson time (`open_item_times`, by time not exercise count); the ones that failed last lesson go first, then the longest without an open practice (`ItemState.open_practiced`), and lists them in
   `plan.json` (`open_items`, `open_not_fitted`, written by `cli._plan`; #199 found they never were) so the bot can ask them. An open item
-  practised without a written question (only a cloze, a hint or a dialogue) gets one from its situation or meaning, `stage: "open"`. An open
+  practised without a written question (only a cloze, a hint or a dialogue) gets one from its situation or meaning, `stage: "open"`; so does one that did
+  not fit the lesson (`open_not_fitted`, #220), because the bot asks every open item. The cue is the lesson's own (`exercises.meaning_prompt`, with the item's
+  `context`); constructions have no single answer and are skipped. An open
   item is *met*: a theme or listening turn that lacks only an open item is asked, not «tried» (`Planner._tried_turns`, `classify_turns`).
 - **Scaffolds fade (G12).** A situation recall of an item with `prompt_by` is cued by the
   prompting item's line in Icelandic, said by `native_b` (`Builder.prompt_item`): bare when the
