@@ -249,14 +249,18 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   slots still need. The group (part, fillers, frame) is budgeted against the count with at most one item over; a group that
   doesn't fit leaves the part for a lesson with room, as a part alone is how it was drilled bare. A part whose frame is already
   met or not ready, or that no construction lists, is unchanged.
-  One admission rule for a part, whichever path introduces it (#206 review): `Planner.part_has_home` is true when a construction
-  that lists it is met or in the lesson, or a phrase that holds its words is (`candidate_wholes`: the shortest phrase containing it,
-  never one with a negation the part lacks), or it has neither (a slot it fits is no sentence before the construction is taught). When it
-  is false, `select_new` brings the ready frame, else the ready phrase that holds it (`frame_group`), within the same one-over budget,
-  and neither is the place given up for a cheap construction (`pulled`); `select_variants` does not offer a variant part (`variant_of`,
-  `vocab`) before. A part whose frame is blocked by other material that is not yet known is still introduced alone, as before
-  (waiting for it moved the whole price chain by four lessons and broke #80's «said in a sentence within two lessons»); it is bounded
-  by the bare cap, and the replay table's «short items» row lists them.
+  One admission rule for a part, whichever path introduces it (#206 review): `Planner.part_has_home` is the only question
+  («will this part be said in a sentence in this lesson?»): a construction that lists it is met, in the lesson or just chosen
+  (`introduced`), or a phrase that holds its words (`candidate_wholes`: the shortest phrase containing it, never one with a negation
+  the part lacks) is in the lesson; or it has neither (a content gap, #215). A plain part also counts a phrase it knows (the embed
+  path says the phrase), but a variant form (`variant_of`) does not: «þrjá» beside a «Þrjá miða, takk.» met long ago and not
+  scheduled was drilled bare. Every path asks it: `select_new` (theme target, trip order, cheap), `select_variants`. When it is false,
+  `select_new` brings the ready frame, else the ready unmet phrase that holds it (`frame_group`), within the one-over budget, and
+  neither is the place given up for a cheap construction (`pulled`); a variant with no frame that can come waits
+  (`part_waits_for_home`). Waiting every part for a blocked frame starved the course (a part and its frame each waiting for the
+  other: the gendered-noun milestone moved by 20 lessons), and moved the price chain four lessons later, which broke #80's
+  «said in a sentence within two lessons»: a plain part whose frame is blocked is introduced as before and is listed in the replay
+  table's «short items» row.
   The two caps (hard cap, bare cap) conflict whenever both bind: a recall the hard cap keeps out frees time that bare words would fill
   past their own cap. `over_hard_cap` records that it held (`hard_cap_held`), and a lesson whose remaining time is under
   `PlanConfig.hard_cap_short_max` (180 s) then ends there instead of lapsing the bare cap (the lapse stays for a lesson that is short

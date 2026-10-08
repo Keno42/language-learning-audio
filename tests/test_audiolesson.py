@@ -5198,6 +5198,20 @@ class AdmissionOfPartsTests(unittest.TestCase):
         planner.builder.in_lesson.add("thrja_mida")  # the lesson says the phrase: the part has its sentence
         self.assertIn("thrja_acc", [i.id for i in planner.select_variants(5, set())])
 
+    def test_select_new_asks_the_same_question_for_a_variant_part(self):
+        """#206 review: lesson 18 took «þrjá» through ``select_new``, which accepted a met phrase as its home. Whatever the path, a
+        variant part with a met phrase that the lesson does not practise comes with its frame, or waits when the frame cannot."""
+        for i in self.cur.items:
+            if i.order < self.cur.by_id["count_mida_takk"].order and i.id not in ("thrja_acc", "count_mida_takk"):
+                self.learner.items[i.id] = ItemState(**self.known)
+        planner = self._planner(priority=["thrja_acc"])
+        self.assertIn("thrja_acc", [i.id for i in planner.select_new(2)])
+        self.assertIn("count_mida_takk", [i.id for i in planner.select_new(2)], "the frame comes with it")
+        # the frame cannot come (a prerequisite nobody has): the part waits, though «Þrjá miða, takk.» is known
+        self.cur.by_id["count_mida_takk"].prereqs = list(self.cur.by_id["count_mida_takk"].prereqs) + ["fjall"]
+        planner = self._planner(priority=["thrja_acc"])
+        self.assertNotIn("thrja_acc", [i.id for i in planner.select_new(2)])
+
     def test_a_part_no_construction_takes_comes_with_the_phrase_that_holds_it(self):
         planner = self._planner(priority=["fjall"])
         self.assertEqual(planner.frames_of(self.cur.by_id["fjall"]), [], "no construction lists it as a prerequisite")

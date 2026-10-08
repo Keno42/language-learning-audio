@@ -319,27 +319,28 @@ class Planner:
         return [w for _, w in sorted(out, key=lambda t: (t[0], t[1].id))]
 
     def part_has_home(self, part: Item, introduced: set[str] | frozenset[str] = frozenset()) -> bool:
-        """A sentence the part can be said in is there now. Which sentence: a construction that lists it as a prerequisite
-        (met, or in the lesson already, ``introduced``); else a phrase that holds its words; a phrase the learner can say but
-        has not yet made stable also counts (the part is heard in it). A part with neither has no home to wait for and counts
-        as housed: a slot it fits is no sentence of its own until the construction is taught (fillers come first, #29)."""
-        frames, wholes = self.frames_of(part), self.candidate_wholes(part)
-        if any(self.learner.has_met(c.id) or c.id in introduced or c.id in self.builder.in_lesson for c in frames):
-            return True
-        if any(not self._stable(w) for w in self.containing_items(part)) or any(w.id in introduced or self.learner.has_met(w.id) for w in wholes):
-            return True
-        return not frames and not wholes
-
-    def part_said_with_home(self, part: Item, introduced: set[str] | frozenset[str] = frozenset()) -> bool:
-        """For a part offered as an extra: a home that is *used* in this lesson, not only known. A frame that is met or in the
-        lesson; a phrase that holds it only when it was practised earlier in this lesson (a phrase met long ago and not scheduled
-        gives the part no sentence: «þrjá» beside a «Þrjá miða, takk.» nobody says, #206 review); or no home at all."""
+        """The one question every introduction path asks (#206 review): will this part be said in a sentence in this lesson?
+        Yes when a construction that lists it is met or already in the lesson (``introduced`` is what this call has chosen),
+        or a phrase that holds its words is in the lesson; a phrase the learner met long ago and the lesson does not practise
+        is no home. A part with neither a frame nor a phrase has no home to wait for and counts as housed (those parts are
+        a content gap, #215)."""
         frames, wholes = self.frames_of(part), self.candidate_wholes(part)
         if any(self.learner.has_met(c.id) or c.id in introduced or c.id in self.builder.in_lesson for c in frames):
             return True
         if any(w.id in introduced or w.id in self.builder.in_lesson for w in wholes):
             return True
+        if not part.variant_of and any(self.learner.has_met(w.id) for w in wholes):
+            return True  # a plain part is heard in a phrase it knows (the embed path); only a variant form must be said now
         return not frames and not wholes
+
+    def part_waits_for_home(self, part: Item) -> bool:
+        """A part with no home in this lesson waits (rather than being given alone) when it has a frame still to come and a known
+        phrase that only looks like a home («þrjá» beside a «Þrjá miða, takk.» nobody schedules): it comes with its frame. Only a
+        variant form (`variant_of`) waits: waiting every part for a blocked frame starved the course (a part and its frame each
+        waiting for the other, 20 lessons on the gendered-noun milestone). A part whose frame is met is embedded in a sentence
+        instead; one with no frame at all, or with a plain frame still blocked, is introduced as before (#215)."""
+        frames = self.frames_of(part)
+        return bool(part.variant_of) and bool(frames) and not any(self.learner.has_met(c.id) for c in frames) and any(self.learner.has_met(w.id) for w in self.candidate_wholes(part))
 
     def theme_target(self) -> tuple | None:
         """The theme and level (0-based) new material is chosen for (#149 step 2): the first by the order
@@ -540,6 +541,10 @@ class Planner:
                             continue
                         take(frame, fillers_first=True)
                         pulled.add(frame.id)
+                    elif not self.part_has_home(it, chosen_ids) and self.part_waits_for_home(it):
+                        chosen.pop()  # its phrase is known but not in this lesson and no frame comes with it: it waits (#206 review)
+                        chosen_ids.discard(it.id)
+                        continue
                 progress = True
                 if len(chosen) >= count:
                     break
@@ -885,7 +890,7 @@ class Planner:
                 continue
             if not all(self.learner.knows(p) or p in self.builder.in_lesson for p in it.prereqs):
                 continue
-            if it.kind == "vocab" and not self.part_said_with_home(it, exclude):
+            if it.kind == "vocab" and not self.part_has_home(it, exclude):
                 continue  # a part is not introduced alone, whichever way it comes (#206 review)
             out.append(it)
         return out
