@@ -43,6 +43,41 @@ def split_note_span(span: str) -> tuple[str | None, str, str]:
     display, _, speech = rest.partition("|")
     return (lang, display, speech or display)
 
+# Romanized Japanese left outside «ja:…» markup is read by the English voice (#219). A word is flagged when it is made only
+# of Japanese morae AND has a mark English rarely has: a macron, tsu/shi/chi/fu/ji, an ending -masu/-desu/-shita, or "gozai".
+_MORA = r"(?:(?:tch|ssh|kk|ss|tt|pp|ch|sh|ts|[kgszjtdnhfbpmrw]y?|y)?[aiueoāīūēō]|n(?![aiueoyāīūēō]))"
+_JAPANESE_WORD_RE = re.compile(rf"^(?:{_MORA})+$")
+_JAPANESE_MARK_RE = re.compile(r"[āīūēō]|tsu|shi|chi|fu|ji|(?:masu|desu|shita)$|gozai")
+_ROMAJI_WORD_RE = re.compile(r"[A-Za-zāīūēōĀĪŪĒŌ]+")
+# English words that look Japanese, each with its reason; an item's English `meaning` is where they turn up.
+ROMAJI_ALLOWED = {
+    "fun": "English",
+    "machine": "English",
+    "chinese": "English (the language)",
+    "sushi": "English loanword; the English voice says it as English does",
+}
+
+
+# Known romanized Japanese the mark heuristic cannot see (plain morae: no macron, tsu/shi/chi/fu/ji…). A word here fails wherever
+# it appears unmarked; add the next one a note about Japan tempts (#219). Exact words only: «onsens» passes. Words English has
+# taken in (futon, tatami, ramen) are left out on purpose: the English voice says them acceptably.
+ROMAJI_DENIED = frozenset({
+    "genkan", "keigo", "onsen", "sento", "natto", "ryokan", "kanpai", "izakaya", "konbini", "omiyage", "shinkansen",
+    "onigiri", "ojama", "arigato", "sumimasen", "okaeri", "tadaima", "itterasshai", "ittekimasu", "yoroshiku",
+    "otsukaresama", "senpai", "kohai", "yukata", "obon", "matsuri",
+})
+
+
+def unmarked_japanese(text: str) -> list[str]:
+    """Words of ``text`` that look like romanized Japanese, outside «…» spans (which carry their own language)."""
+    out = []
+    for w in _ROMAJI_WORD_RE.findall(NOTE_TARGET_RE.sub("", text)):
+        w = w.lower()
+        if w in ROMAJI_DENIED or (len(w) > 2 and w not in ROMAJI_ALLOWED and _JAPANESE_WORD_RE.match(w) and _JAPANESE_MARK_RE.search(w)):
+            out.append(w)
+    return out
+
+
 # A run of vowels approximates one syllable. Used only to judge whether a single word is long
 # enough for extra practice (``Item.is_hard``), never to split it.
 _VOWEL_RUN_RE = re.compile(r"[aáàâäæeéèêëiíîïoóôöœuúùûüyýÿ]+", re.IGNORECASE)
@@ -530,6 +565,15 @@ FORMS = ("negative", "question")  # a construction's authored forms besides the 
 SPEAKERS = ("native_a", "native_b")  # native_a is voiced female, native_b male, in every profile
 
 
+def _check_glossed(obj, names: tuple, where: str) -> None:
+    """Fail on romanized Japanese in the English fields the narrator reads (#219); ``names`` is the glossing's own list."""
+    for name in names:
+        value = getattr(obj, name, "") or ""
+        texts = value.values() if isinstance(value, dict) else [value] if isinstance(value, str) else value
+        for w in (w for text in texts for w in unmarked_japanese(text or "")):
+            raise CurriculumError(f"{where}: {name}: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
+
+
 def validate(cur: Curriculum) -> None:
     ids = set()
     targets: dict[str, str] = {}
@@ -556,6 +600,9 @@ def validate(cur: Curriculum) -> None:
         if it.meaning_spoken and sorted(_ANY_SLOT_RE.findall(it.meaning_spoken)) != sorted(_ANY_SLOT_RE.findall(it.meaning)):
             raise CurriculumError(f"item {it.id!r}: meaning_spoken must keep the meaning's slots: {it.meaning_spoken!r}")
     for d in cur.dialogues:
+        _check_glossed(d, _GLOSSED_DIALOGUE, f"dialogue {d.id!r}")
+        for k, t in enumerate(d.turns, 1):
+            _check_glossed(t, _GLOSSED_TURN, f"dialogue {d.id!r} turn {k}")
         if d.id in {x.id for x in cur.dialogues if x is not d}:
             raise CurriculumError(f"duplicate dialogue id {d.id!r}")
         for t in d.turns:
@@ -582,7 +629,12 @@ def validate(cur: Curriculum) -> None:
         unmatched = NOTE_TARGET_RE.sub("", n.text)
         if "«" in unmatched or "»" in unmatched:
             raise CurriculumError(f"note {n.id!r} has malformed or unmatched «» markers")
+        for w in unmarked_japanese(n.text):
+            raise CurriculumError(f"note {n.id!r}: romanized Japanese outside «ja:…» markup: {w!r}")
     for it in cur.items:
+        _check_glossed(it, _GLOSSED_ITEM, f"item {it.id!r}")  # every English field of an item, the list the glossing uses
+        for k, e in enumerate(it.examples, 1):
+            _check_glossed(e, _GLOSSED_EXAMPLE, f"item {it.id!r} example {k}")
         for ref in it.components + it.prereqs:
             if ref not in ids:
                 raise CurriculumError(f"item {it.id!r} references unknown item {ref!r}")

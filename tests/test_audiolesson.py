@@ -14,7 +14,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 from audiolesson.exercises import SITUATION_FULL_MAX, _norm_utterance
-from audiolesson.content import NOTE_TARGET_RE, CurriculumError, curriculum_from_dict, load_curriculum
+from audiolesson.content import NOTE_TARGET_RE, CurriculumError, curriculum_from_dict, load_curriculum, unmarked_japanese
 from audiolesson.learner import ItemState, LearnerState
 from audiolesson.planner import PlanConfig, Planner, apply_to_learner
 from audiolesson.prompts import Prompts
@@ -164,6 +164,73 @@ class CurriculumTests(unittest.TestCase):
         self.assertEqual(split_note_span("ja:sate|さて"), ("ja", "sate", "さて"))
         self.assertEqual(split_note_span("ja:onigiri|おにぎり"), ("ja", "onigiri", "おにぎり"))
         self.assertEqual(split_note_span("zh:pinyin|漢字"), ("zh", "pinyin", "漢字"))
+
+    def test_the_scan_finds_the_romanized_japanese_the_notes_had_and_nothing_now(self):
+        """#219: the romanized Japanese that lessons 14, 17 and 18 had the English voice read."""
+        before = (
+            "the sentō: cheap. 'atsui desu ne' and 'senjitsu wa arigatō gozaimashita' and 'gochisōsama' and 'itadakimasu', "
+            "close to gochisousama and ojama shimashita in one."
+        )
+        self.assertEqual(
+            set(unmarked_japanese(before)),
+            {"sentō", "atsui", "desu", "senjitsu", "arigatō", "gozaimashita", "gochisōsama", "itadakimasu", "gochisousama", "ojama", "shimashita"},
+        )
+        cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="en")
+        self.assertEqual([(n.id, w) for n in cur.notes for w in unmarked_japanese(n.text)], [])
+
+    def test_a_note_with_unmarked_japanese_fails_validate_and_marked_passes(self):
+        def raw(text):
+            return {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "notes": [{"id": "n", "text": text}]}
+
+        with self.assertRaisesRegex(CurriculumError, "romanized Japanese outside"):
+            curriculum_from_dict(raw("Said like 'atsui desu ne' in Japan."))
+        curriculum_from_dict(raw("Said like «ja:atsui desu ne|暑いですね» in Japan."))
+        with self.assertRaisesRegex(CurriculumError, "genkan"):  # plain morae: the mark heuristic misses it, the denylist does not
+            curriculum_from_dict(raw("There is no genkan step."))
+        curriculum_from_dict(raw("There is no «ja:genkan|玄関» step."))
+        curriculum_from_dict(raw("A sushi bar, a machine, Chinese food and some fun."))  # the allowlist
+
+    def test_unmarked_japanese_in_an_items_situation_or_a_themes_cue_fails(self):
+        from audiolesson.themes import Level, Theme, Turn, _check
+
+        item = {"id": "a", "kind": "phrase", "target": "Halló", "meaning": "Hello.", "situation": "Say it as you would 'gochisōsama'."}
+        with self.assertRaisesRegex(CurriculumError, "romanized Japanese"):
+            curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": [item]})
+        # every English field of an item is read, the list the glossing uses
+        for field_name in ("meaning", "context", "partner_cue_setup"):
+            with self.assertRaisesRegex(CurriculumError, field_name):
+                curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": [{**item, "situation": "", field_name: "like a gochisōsama"}]})
+        theme = Theme(id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[
+            Turn(who="you", say="Takk.", cue="Say 'gochisōsama' in Icelandic.", items=["takk"])])])
+        with self.assertRaisesRegex(CurriculumError, "romanized Japanese"):
+            _check(theme)
+
+    def test_unmarked_japanese_in_a_dialogue_or_an_example_fails(self):
+        """The same English fields the glossing names: a dialogue's setting and turns, an item's transform examples."""
+        head = {"name": "x", "target_lang": "is", "known_lang": "en"}
+        item = {"id": "w0", "kind": "vocab", "target": "Halló", "meaning": "Hello."}
+        for turn_field, value in (("cue", "Say gochisōsama."), ("partner_meaning", "Yes, arigatō."), ("expect_meaning", "After the onsen.")):
+            dlg = {"id": "d1", "setting": "A setting.", "requires": ["w0"], "turns": [{"cue": "Say it.", "expect": "w0", turn_field: value}]}
+            with self.assertRaisesRegex(CurriculumError, turn_field):
+                curriculum_from_dict({"curriculum": head, "items": [item], "dialogues": [dlg]})
+        dlg = {"id": "d1", "setting": "After the onsen.", "requires": ["w0"], "turns": [{"cue": "Say it.", "expect": "w0"}]}
+        with self.assertRaisesRegex(CurriculumError, "setting"):
+            curriculum_from_dict({"curriculum": head, "items": [item], "dialogues": [dlg]})
+        tr = {"id": "t0", "kind": "transform", "target": "x", "meaning": "m", "instruction": "Do it:",
+              "examples": [{"source": "a", "source_meaning": "like gochisōsama", "result": "b", "result_meaning": "B."}]}
+        with self.assertRaisesRegex(CurriculumError, "source_meaning"):
+            curriculum_from_dict({"curriculum": head, "items": [tr]})
+
+    def test_a_note_with_a_marked_japanese_span_is_spoken_in_japanese(self):
+        from audiolesson.exercises import Builder
+        from audiolesson.prompts import Prompts
+        from audiolesson.timing import Timing
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="en")
+        sc = Script(1, "t", cur.target_lang, cur.known_lang)
+        Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh()).note(sc, next(n for n in cur.notes if n.id == "vedur_smalltalk"))
+        ja = [s for s in sc.segments if s.type == "speak" and s.lang == "ja"]
+        self.assertTrue(any(s.speech_text == "暑いですね" for s in ja), [(s.text, s.speech_text) for s in ja])
 
     def test_note_with_unbalanced_guillemets_is_rejected(self):
         """A stray or missing «»  in a note is an authoring mistake — catch it at validation
