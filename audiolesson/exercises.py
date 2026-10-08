@@ -87,6 +87,16 @@ def meaning_prompt(prompts: Prompts, known_lang: str, target_lang: str, meaning:
     return prompts.get("meaning", meaning=meaning_text(known_lang, meaning), language=prompts.language_name(target_lang))
 
 
+def meaning_prompts(prompts: Prompts, known_lang: str, target_lang: str, meaning: str, context: str = "") -> list[str]:
+    """Every wording ``meaning_prompt`` can give for this item (the prompts file lists several templates per key)."""
+    if context:
+        key, fmt = "meaning_in_context", {"meaning": meaning_text(known_lang, meaning).rstrip(".。"), "context": context}
+    else:
+        key, fmt = "meaning", {"meaning": meaning_text(known_lang, meaning), "language": prompts.language_name(target_lang)}
+    val = prompts.data[key]
+    return [t.format(**fmt) for t in (val if isinstance(val, list) else [val])]
+
+
 @dataclass
 class Builder:
     cur: Curriculum
