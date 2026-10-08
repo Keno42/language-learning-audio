@@ -173,7 +173,7 @@ class CurriculumTests(unittest.TestCase):
         )
         self.assertEqual(
             set(unmarked_japanese(before)),
-            {"sentō", "atsui", "desu", "senjitsu", "arigatō", "gozaimashita", "gochisōsama", "itadakimasu", "gochisousama", "shimashita"},
+            {"sentō", "atsui", "desu", "senjitsu", "arigatō", "gozaimashita", "gochisōsama", "itadakimasu", "gochisousama", "ojama", "shimashita"},
         )
         cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="en")
         self.assertEqual([(n.id, w) for n in cur.notes for w in unmarked_japanese(n.text)], [])
@@ -185,6 +185,9 @@ class CurriculumTests(unittest.TestCase):
         with self.assertRaisesRegex(CurriculumError, "romanized Japanese outside"):
             curriculum_from_dict(raw("Said like 'atsui desu ne' in Japan."))
         curriculum_from_dict(raw("Said like «ja:atsui desu ne|暑いですね» in Japan."))
+        with self.assertRaisesRegex(CurriculumError, "genkan"):  # plain morae: the mark heuristic misses it, the denylist does not
+            curriculum_from_dict(raw("There is no genkan step."))
+        curriculum_from_dict(raw("There is no «ja:genkan|玄関» step."))
         curriculum_from_dict(raw("A sushi bar, a machine, Chinese food and some fun."))  # the allowlist
 
     def test_unmarked_japanese_in_an_items_situation_or_a_themes_cue_fails(self):
@@ -193,6 +196,10 @@ class CurriculumTests(unittest.TestCase):
         item = {"id": "a", "kind": "phrase", "target": "Halló", "meaning": "Hello.", "situation": "Say it as you would 'gochisōsama'."}
         with self.assertRaisesRegex(CurriculumError, "romanized Japanese"):
             curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": [item]})
+        # every English field of an item is read, the list the glossing uses
+        for field_name in ("meaning", "context", "partner_cue_setup"):
+            with self.assertRaisesRegex(CurriculumError, field_name):
+                curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": [{**item, "situation": "", field_name: "like a gochisōsama"}]})
         theme = Theme(id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[
             Turn(who="you", say="Takk.", cue="Say 'gochisōsama' in Icelandic.", items=["takk"])])])
         with self.assertRaisesRegex(CurriculumError, "romanized Japanese"):

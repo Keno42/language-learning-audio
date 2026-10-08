@@ -58,12 +58,21 @@ ROMAJI_ALLOWED = {
 }
 
 
+# Known romanized Japanese the mark heuristic cannot see (plain morae: no macron, tsu/shi/chi/fu/ji…). A word here fails wherever
+# it appears unmarked; add the next one a note about Japan tempts (#219).
+ROMAJI_DENIED = frozenset({
+    "genkan", "keigo", "onsen", "sento", "natto", "ryokan", "kanpai", "izakaya", "konbini", "omiyage", "shinkansen",
+    "onigiri", "ojama", "arigato", "sumimasen", "okaeri", "tadaima", "itterasshai", "ittekimasu", "yoroshiku",
+    "otsukaresama", "senpai", "kohai", "tatami", "futon", "yukata", "ryokan", "obon", "matsuri",
+})
+
+
 def unmarked_japanese(text: str) -> list[str]:
     """Words of ``text`` that look like romanized Japanese, outside «…» spans (which carry their own language)."""
     out = []
     for w in _ROMAJI_WORD_RE.findall(NOTE_TARGET_RE.sub("", text)):
         w = w.lower()
-        if len(w) > 2 and w not in ROMAJI_ALLOWED and _JAPANESE_WORD_RE.match(w) and _JAPANESE_MARK_RE.search(w):
+        if w in ROMAJI_DENIED or (len(w) > 2 and w not in ROMAJI_ALLOWED and _JAPANESE_WORD_RE.match(w) and _JAPANESE_MARK_RE.search(w)):
             out.append(w)
     return out
 
@@ -610,8 +619,10 @@ def validate(cur: Curriculum) -> None:
         for w in unmarked_japanese(n.text):
             raise CurriculumError(f"note {n.id!r}: romanized Japanese outside «ja:…» markup: {w!r}")
     for it in cur.items:
-        for field_name, text in [("situation", it.situation), ("instruction", it.instruction), *[("situations", t) for t in it.situations]]:
-            for w in unmarked_japanese(text or ""):
+        for field_name in _GLOSSED_ITEM:  # every English field of an item, the list the glossing uses
+            value = getattr(it, field_name, "") or ""
+            texts = value.values() if isinstance(value, dict) else [value] if isinstance(value, str) else value
+            for w in (w for text in texts for w in unmarked_japanese(text or "")):
                 raise CurriculumError(f"item {it.id!r}: {field_name}: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
         for ref in it.components + it.prereqs:
             if ref not in ids:

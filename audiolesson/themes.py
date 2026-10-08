@@ -151,6 +151,8 @@ def _check(theme: Theme) -> None:
                 raise CurriculumError(f"{where} turn {k}: who must be one of {WHO}")
             if not t.say:
                 raise CurriculumError(f"{where} turn {k}: no line")
+            for w in unmarked_japanese(t.meaning):
+                raise CurriculumError(f"{where} turn {k}: meaning: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
             for w in unmarked_japanese(t.cue):
                 raise CurriculumError(f"{where} turn {k}: cue: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
             if t.who == "you" and not (t.cue and t.items):

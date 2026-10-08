@@ -24,6 +24,7 @@ issues; the full history of how each of these came about is in `docs/history/ses
 | trip ordering from a private profile (#132) | `audiolesson/trip.py`, `cando.priority_items`, `PlanConfig.priority`, `generate --trip` |
 | scenario cards for the Discord review (#129) | `curricula/is-en/cando/scenes.toml`, `audiolesson/scenes.py`, `audiolesson scenes` |
 | a single item's review question, fresh from the course (#73, #220) | `audiolesson questions --ids …` (`prompt`, `answer`, and `cues`: every current way to ask the bare item) (`cli._review_cue`, shared with `_plan`) |
+| romanized Japanese outside «ja:…» is rejected (#219): notes, items' English fields, themes; not the reading deck («gufuba») | `content.unmarked_japanese` (`ROMAJI_DENIED`, `ROMAJI_ALLOWED`), called from `validate` and `themes._check` |
 | reading deck for the Discord review (#133) | `curricula/is-en/reading/deck.toml`, `audiolesson/reading.py`, `audiolesson reading` |
 | loading those record files (`cando/`, `reading/`) | `audiolesson/records.py` |
 | what the instructor says for a meaning (`meaning_spoken`, #143) | `Item.spoken_meaning` in `audiolesson/content.py` |

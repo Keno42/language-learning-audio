@@ -72,7 +72,7 @@ text_ja = "アイスランドのホットドッグはラム肉が主体で、«m
 id = "skor"
 items = ["fardu_ur_skonum", "komdu_inn"]
 topics = ["home"]
-text = "Shoes come off at the door in Iceland too, so this will feel familiar. Unlike in Japan there is no genkan step and nobody offers slippers; you just walk around in socks."
+text = "Shoes come off at the door in Iceland too, so this will feel familiar. Unlike in Japan there is no «ja:genkan|玄関» step and nobody offers slippers; you just walk around in socks."
 text_ja = "アイスランドでも家に入るときは靴を脱ぐので、ここは日本と同じで安心です。ただし玄関の段差はなく、スリッパも出てきません。靴下のまま歩き回ります。"
 
 [[notes]]
@@ -303,7 +303,7 @@ id = "kurteisi"
 requires = ["hae", "gjordu_svo_vel", "takk"]
 items = ["hae", "nagranni_minn", "gjordu_svo_vel"]
 topics = ["greetings"]
-text = "Greetings are informal: «hæ» works with a shop assistant, a professor or a stranger, and there is no honorific language like keigo. Politeness comes from tone, from «gjörðu svo vel», and from saying «takk» a lot."
+text = "Greetings are informal: «hæ» works with a shop assistant, a professor or a stranger, and there is no honorific language like «ja:keigo|敬語». Politeness comes from tone, from «gjörðu svo vel», and from saying «takk» a lot."
 text_ja = "あいさつはくだけています。«hæ»は店員にも教授にも知らない人にも使え、日本の敬語のような体系はありません。丁寧さは声の調子と«gjörðu svo vel»、そして何度も言う«takk»で伝えます。"
 
 [[notes]]
@@ -352,7 +352,7 @@ text_ja = "アイスランド人は日本に比べて時間にのんびりして
 id = "afmaeli"
 items = ["til_hamingju"]
 topics = ["social"]
-text = "Birthdays are celebrated with a sweet-and-savoury table at home, and it is the birthday person who bakes for colleagues. The logic is the same as bringing omiyage back to the office."
+text = "Birthdays are celebrated with a sweet-and-savoury table at home, and it is the birthday person who bakes for colleagues. The logic is the same as bringing «ja:omiyage|お土産» back to the office."
 text_ja = "誕生日は家で甘いものと塩気のものを並べたテーブルで祝い、職場に焼き菓子を持っていくのは誕生日の本人です。旅行のお土産を職場に配るのと同じ理屈です。"
 
 [[notes]]
