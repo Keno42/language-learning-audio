@@ -261,7 +261,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (`introduced`), or a phrase that holds its words (`candidate_wholes`: the shortest phrase containing it, never one with a negation
   the part lacks) is in the lesson; or it has neither (a content gap, #215). A plain part also counts a phrase it knows (the embed
   path says the phrase), but a variant form (`variant_of`) does not: «þrjá» beside a «Þrjá miða, takk.» met long ago and not
-  scheduled was drilled bare. Every path asks it: `select_new` (theme target, trip order, cheap), `select_variants`. When it is false,
+  scheduled was drilled bare. Every path asks it: `select_new` (theme target, trip order, cheap). When it is false,
   `select_new` brings the ready frame, else the ready unmet phrase that holds it (`frame_group`), within the one-over budget, and
   neither is the place given up for a cheap construction (`pulled`); a variant with no frame that can come waits
   (`part_waits_for_home`). Waiting every part for a blocked frame starved the course (a part and its frame each waiting for the
@@ -290,14 +290,16 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   ordering the cheap *trip* construction (the best one) moves to the front of the remaining trip order
   instead: every item is still a trip item, only the order changes (H6). A lesson whose new items are all
   trip items and has no cheap trip construction takes none this way. A lesson with time left takes up to
-  `max_cheap_extra` more beyond the new-item limit, right after the variants (`try_variant`);
+  `max_cheap_extra` more beyond the new-item limit, (`try_extra`);
   `cheap_constructions` in `plan.json`. The worked example of a construction's introduction uses a known
   filler of the slot when the authored one isn't known.
-- **Close variants fill what the cap leaves (§9 "Repetition").** Before the cap lapses (and as
-  streak relief), `try_variant` introduces an item whose `variant_of` the learner knows (or met
-  earlier in the lesson) and who hasn't met it, beyond the new-item limit: at most
-  `max_variant_items` a lesson, in course order, with room for it (half a new item's time);
-  `variant_items` in `plan.json`. They are not kept out of the normal course order.
+- **No close variant as filler (#218 b1).** `try_extra` (streak relief, an idle planned extra #187, before the cap lapses) takes only a
+  planned extra or the cheap construction. `select_new` keeps a `variant_of` item out of the pool unless the theme's next level wants it
+  (#201) or an unmet item lists it as a prerequisite (#202; a frame's filler is found in `fill_pool`); the trip and course orders do not
+  take variants. Spare time goes to listening dialogues, then to up to `heard_theme_plays` (2) heard-only plays of a theme level already
+  played (`Builder.dialogue(heard_only=True)`, label `heard: theme:…`: partner lines in variants, the cues kept, «Here you would say:» and
+  the line, nothing asked; `heard_themes` in `plan.json`), then the consolidation, then the cap lapses. `variant_items` in `plan.json`
+  lists the variants the lesson did introduce, which a theme or frame asked for.
 - **A variant is introduced as a form of one they have, and a word says its sentence.** A
   `variant_of` item whose base was met is introduced «You know this one: tveir. Here is another
   form of it: …», said and repeated, a sentence it goes in when a pattern takes it, then the usual

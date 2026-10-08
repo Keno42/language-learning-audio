@@ -473,7 +473,7 @@ and each open item with three or more words failed once more.
 The batch also includes #170, which the weekly read judges with it: today's items come back by
 time (not by exercise count); a short item is said alone at most three times and practised in
 sentences (a pattern with a slot, else a known phrase that contains it); a lesson with nothing
-else left lets the cap lapse; close variants of known items come in beyond the pace; a variant
+else left lets the cap lapse; (until #218 b1) close variants of known items came in beyond the pace; a variant
 is introduced as a form of one the learner has; `context` («Say: good, as in: This is good.») for
 the 24 words of lessons 13–15; the same situation is narrated in full at most twice; asides are
 about practised items only; and `max_listening_dialogues` is 4, not 2.
@@ -886,10 +886,10 @@ Don't reopen these without new evidence; when you do, say what changed.
   {hour}.»).
   The pace is throttled by what needs review: a learner with much to review gets less new
   material because the lesson is full. **Close variants** (`Item.variant_of`: another case, another
-  gender of something the learner knows) come in only when the lesson has run out of other
-  material (up to four, #170). Today they come beyond the pace and are listed apart in `plan.json`
-  (`variant_items`). From #218 (decided, not built yet) a variant counts at w against the target,
-  like any other new form («þrjá» after «þrír»).
+  gender of something the learner knows) no longer fill spare time (#218 b1, owner 2026-10-09; before, up to four came in
+  beyond the pace, #170). A form comes in with a purpose: the theme's next level wants it (#201), a frame or phrase pulls it
+  (#202), the number × noun track (#213), or a contrast worth teaching (#198, H5). They are listed apart in `plan.json`
+  (`variant_items`). From #218 b3 a variant counts at w against the target, like any other new form («þrjá» after «þrír»).
 - **Evidence.**
   - Presumed success is kept apart from confirmed outcomes (#119).
   - The last lesson's new items are reviewed before the next lesson is generated (bot).
@@ -987,7 +987,8 @@ Don't reopen these without new evidence; when you do, say what changed.
     preferably different ones, up to about **ten** uses in all (owner, after replaying lesson
     13, §5.11). The numbers are a starting guess, not evidence: tune them with the learner's
     remarks.
-  - **Order of the two rules (#170).** When even close variants, listening dialogues, open
+  - **Order of the two rules (#170).** When even listening dialogues, heard-only plays of a
+    played theme level (#218 b1: spare time is more to hear, not a filler form), open
     practices and substitutions leave the lesson short, the cap lapses and the dropped recalls
     come back (`bare_cap_lapsed`): the daily dose above ranks over "alone at most three". A
     graded lapse (4, then 5…) would keep more of the cap; it is the owner's call.
