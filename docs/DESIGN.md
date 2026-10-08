@@ -182,10 +182,18 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   teaches it (`Note.teaches`) has been heard (`Builder.forms_taught`: the learner's `notes_heard`
   plus `notes_taught` of this lesson). `Planner.forms_note_due` plays the teaching note once the
   learner knows two constructions with the form (negative first, one a lesson) and
-  `do_forms_practice` follows it with the form on two known constructions; the note is neither
+  `do_forms_practice` follows it by *modelling* the form on two known constructions (below); the note is neither
   a milestone nor an aside (it draws on neither ration). A form is a different sentence
   (`_combo_key` carries it) with its own meaning as the cue; the exercise is credited to the
   construction. `forms_taught` in `plan.json`.
+  **A form is modelled before it is asked (#211).** `Builder.generate` offers a form of construction c only when `knows(c)` and `c:form` is in
+  `learner.forms_modelled` (or modelled earlier in this lesson, `Builder.forms_modelled`): the note alone unlocks nothing. `Builder.model_form`
+  (kind `model`, stage `form`, after `_intro_variant`) plays «You know this one:» the plain sentence, «As a question:» the same in the form,
+  repeated, then the form with another filler, heard and asked. `do_forms_practice` models the first un-modelled known constructions right after
+  the note; `form_model_due_now` models one more at 35% / 65% of a later lesson (at most `PlanConfig.forms_models` = 2 a lesson), the trip
+  profile's priority items first. `apply_to_learner` saves `meta["forms_modelled"]`; a file from before #211 (`forms_modelled` None) is
+  seeded in `Builder.__post_init__` from `heard_utterances` (a form sentence already said or heard counts as modelled). `plan.json` has
+  `forms_modelled_now`. Because of the gate, «Now something you haven't heard yet» (#197) only ever means a new filler in a form already heard.
   The mix is held (`Builder._form_order`): the plain sentence is at least half of a lesson's
   generated sentences and a form takes at most about a quarter (`FORM_SHARE`; hard stop at
   `FORM_HARD_CAP` of the lesson's sentences, once it has `FORM_CAP_FROM`), the form furthest below its

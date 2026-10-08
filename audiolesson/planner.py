@@ -68,6 +68,7 @@ class PlanConfig:
     # form are known, and then practised ``forms_practice`` times straight away
     forms_after_constructions: int = 2
     forms_practice: int = 2
+    forms_models: int = 2  # forms modelled in one lesson, the practice right after a note included (#211)
     max_sentence_uses: int = 6  # sentences one short item may be practised in, in a lesson (about ten uses in all)
     intro_gap: int = 3  # min exercises between two introductions
     # New material is spread over the lesson (lesson 13 feedback: all nine new expressions came in
@@ -1489,24 +1490,49 @@ class Planner:
                 return True
             return False
 
+        models_done = 0  # forms modelled this lesson (#211)
+        rank = {i: n for n, i in enumerate(cfg.priority)}
+
+        def form_models_due(only: str | None = None) -> list[tuple[Item, str]]:
+            """(construction, form) pairs to model (#211): the learner knows the construction, the form's note has been heard, and
+            the form was not modelled before; the trip profile's priority items first, then curriculum order."""
+            taught = b.forms_taught()
+            out = [
+                (c, f) for c in self.cur.items
+                if c.kind == "construction" and c.forms and c.id not in recent and self.learner.knows(c.id)
+                for f in c.forms if f in taught and (only is None or f == only) and f"{c.id}:{f}" not in b.forms_modelled
+            ]
+            return sorted(out, key=lambda cf: rank.get(cf[0].id, len(rank)))  # stable: curriculum order within a rank
+
+        def do_form_model(c: Item, form: str) -> bool:
+            nonlocal idx, since_dialogue, models_done
+            ex = b.model_form(sc, c, form)
+            if ex is None:
+                return False
+            self._record([c.id], "recombine", ex.item_ids)
+            touch(c)
+            models_done += 1
+            idx += 1
+            since_dialogue += 1
+            return True
+
         def do_forms_practice(form: str) -> None:
-            """Right after the note that teaches a form: the form on known constructions, each
-            with a sentence the learner hasn't heard (#171)."""
-            nonlocal idx, since_dialogue
-            known = [c for c in self.cur.items if c.kind == "construction" and form in c.forms and self.learner.knows(c.id) and c.id not in recent]
-            self.rng.shuffle(known)
-            done = 0
-            for c in known:
-                if done >= cfg.forms_practice:
+            """Right after the note that teaches a form: it is modelled on known constructions, not produced cold (#171, #211):
+            the plain sentence, the same sentence in the form, then the form with another filler, heard and asked."""
+            for c, f in form_models_due(form):
+                if models_done >= min(cfg.forms_practice, cfg.forms_models):
                     break
-                ex = b._recombine(sc, c, form=form)
-                if ex is None:
-                    continue
-                self._record([c.id], "recombine", ex.item_ids)
-                touch(c)
-                done += 1
-                idx += 1
-                since_dialogue += 1
+                do_form_model(c, f)
+
+        def form_model_due_now() -> bool:
+            """A later lesson models a form for a construction the learner has come to know since the note (#211): one or two a lesson,
+            spread over its length."""
+            return (
+                models_done < cfg.forms_models
+                and sc.total_duration >= (0.35 + 0.3 * models_done) * (budget - closing_reserve)
+                and budget - closing_reserve - sc.total_duration >= 90
+                and bool(form_models_due())
+            )
 
         def do_discriminate(note) -> None:
             """After a milestone names a pattern, recall two of its examples back to back from
@@ -2108,6 +2134,9 @@ class Planner:
                 elif budget - closing_reserve - sc.total_duration >= 90 and (forms_note := self.forms_note_due()) is not None:
                     self._play_note(sc, forms_note)
                     do_forms_practice(forms_note.teaches)
+                elif form_model_due_now():
+                    for c, f in form_models_due()[:1]:
+                        do_form_model(c, f)
             drill_streak = self._trailing_drill_streak(sc)
 
         # at least one aside per lesson while unheard ones remain (a few seconds over target is fine)
@@ -2169,6 +2198,8 @@ class Planner:
             # #149 step 2: the theme new material was chosen for, and the items its next level lacked at the start
             "theme_target": {"id": target[0].id, "level": target[1] + 1, "wanted": wanted_at_start} if target else None,
             "cheap_constructions": list(self.cheap_placed) + list(cheap_used),  # #171 B: taken in a new-item place / beyond the limit
+            "forms_modelled": sorted(self.builder.forms_modelled or ()),  # every construction:form modelled so far (#211)
+            "forms_modelled_now": list(self.builder.models_now),
             "forms_taught": [self.cur.note_by_id[n].teaches for n in self.notes_played if self.cur.note_by_id[n].teaches],
             "bare_cap_lapsed": cfg.max_bare_uses > 0 and bare_cap[0] == 0,  # nothing else was left: short items were said alone again
             "reviewed_items": reviews_used,
@@ -2252,6 +2283,8 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
             learner.items[item_id].open_practiced = sc.lesson_number
     for item_id in sc.meta.get("embedded_items", []):
         learner.embedded[item_id] = sc.lesson_number
+    if sc.meta.get("forms_modelled") is not None:
+        learner.forms_modelled = (learner.forms_modelled or set()) | set(sc.meta["forms_modelled"])
     theme = sc.meta.get("theme")
     if theme and theme.get("plays"):
         learner.themes_done[theme["id"]] = max(learner.themes_done.get(theme["id"], 0), theme["level"])

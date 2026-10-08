@@ -57,6 +57,11 @@ embed_known = "You know this:"
 embed_part = "This word is in it:"
 embed_sentence = "In another sentence. Listen, then repeat."
 embed_meaning = "{meaning}"
+# a construction's negative or question form modelled before it is asked (#211)
+form_model_known = "You know this one:"
+form_model_question = "As a question:"
+form_model_negative = "As a negative:"
+form_model_again = "Another word, the same form. Listen:"
 # a near form of something the learner has met (Item.variant_of)
 variant_known = "You know this one:"
 variant_form = "Here is another form of it: {meaning}"

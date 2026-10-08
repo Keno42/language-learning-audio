@@ -972,6 +972,12 @@ Don't reopen these without new evidence; when you do, say what changed.
     #94 / H11 bug (já, nei, hæ coming back unchanged): the owner wants the pattern with different
     fillers, and what is unwelcome is the bare repeat. Its variety is bounded by the fillers the
     learner knows, so it grows with #171's supply, not with this mechanism.
+  - **A construction's question or negative is modelled once before it is asked (#211).** A generated sentence takes a form of
+    construction c only when the learner knows c and the form was modelled to them, in an earlier lesson or this one («You know this
+    one:» the plain sentence, «As a question:» the same sentence, then another filler heard and asked). The teaching note alone
+    unlocks nothing; one or two forms are modelled a lesson, by trip priority. `learner.forms_modelled` is the state; a file from before
+    it is seeded from `heard_utterances` (suggested to the owner; a clean start would lock every form used since lessons 14–15). If the
+    generated-sentences row does not recover over three lessons, relax the gate to «met in an earlier lesson» (the issue's own fallback).
   - **`refresh` constructions are taught as trip items once cheap (#180, owner's choice of
     traveller-core patterns).** A cheap one (every slot has ≥ 2 known fillers, prerequisites known)
     competes with the cheap trip constructions on the same terms and goes to the front of the trip order,

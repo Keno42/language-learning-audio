@@ -153,6 +153,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "most appearances of one new item": max((sum(1 for e in exs if i in e.item_ids) for i in m["new_items"]), default=0),
         "generated sentences (plain / negative / question)": f"{sum(forms.values())} ({forms['plain']} / {forms['negative']} / {forms['question']})",
         "most sentences of one construction": max(per_construction.values(), default=0),
+        "forms modelled this lesson (#211)": ", ".join(m.get("forms_modelled_now", [])) or "–",
         "theme (level) / plays": f"{m['theme']['id']} ({m['theme']['level']}) / {m['theme']['plays']}" if m.get("theme") else "–",
         "listening dialogues": len(m.get("dialogues_listened", [])),
         "heard-only lines": narrated.count(Prompts.load(cur.known_lang).get("listening_line")),

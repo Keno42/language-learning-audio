@@ -126,6 +126,37 @@ class Builder:
     construction_counts: dict[str, int] = field(default_factory=dict)  # generated sentences this lesson, by construction (#180)
     form_counts: dict[str, int] = field(default_factory=dict)  # generated sentences this lesson, by form ("plain", "negative", "question")
     form_extra: dict[str, int] = field(default_factory=dict)  # …of a form taught this lesson, outside its practice right after the note
+    forms_modelled: set[str] | None = None  # "construction:form" keys modelled in an earlier lesson or this one (#211); seeded from the learner
+    models_now: list[str] = field(default_factory=list)  # …the ones modelled this lesson
+
+    def __post_init__(self) -> None:
+        if self.forms_modelled is None:
+            saved = self.learner.forms_modelled
+            self.forms_modelled = set(saved) if saved is not None else self._seed_forms_modelled()
+
+    def _seed_forms_modelled(self) -> set[str]:
+        """A learner file from before #211: a construction whose form sentence was already said or heard counts as modelled, so
+        the gate does not lock the forms the learner has met since lessons 14-15."""
+        heard = self.learner.heard_utterances
+        out: set[str] = set()
+        if not heard:
+            return out
+        for c in self.cur.items:
+            if c.kind != "construction" or not c.forms:
+                continue
+            options = {slot: self.cur.items_with_tag(tag) for slot, tag in c.slots.items()}
+            if not all(options.values()):
+                continue
+            combos = self._product(options, list(options))
+            for form in c.forms:
+                if any(_norm_utterance(self.cur.resolve_slots(c, fills, g, form)[0]) in heard for fills in combos for g in "fm"):
+                    out.add(f"{c.id}:{form}")
+        return out
+
+    def form_modelled(self, construction: Item, form: str) -> bool:
+        """Whether a generated sentence may take ``form`` for ``construction`` (#211): the learner knows the construction and has been
+        shown the form, in an earlier lesson or this one."""
+        return self.learner.knows(construction.id) and f"{construction.id}:{form}" in (self.forms_modelled or ())
 
     # ------------------------------------------------------------------ utils
 
@@ -691,6 +722,60 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def model_form(self, sc: Script, c: Item, form: str) -> Exercise | None:
+        """Model a construction's negative or question form before it is asked (#211), after ``_intro_variant``: «You know this
+        one:» the plain sentence, «As a question:» the same sentence in the form, said and repeated; then «Another word, the same
+        form.» with another filler, heard and asked. Marks ``construction:form`` as modelled (this lesson, and the learner's state
+        through ``apply_to_learner``). None when the construction has no sentence to show (no filler is available)."""
+        first = self.generate(c, met_fills=True)
+        if first is None or form not in c.forms:
+            return None
+        gender, plain = self._filled(c, first.fills)
+        _, shown = self._filled(c, first.fills, form=form)
+        meaning = self.cur.resolve_slots(c, first.fills, form=form)[1]
+        second = self.generate(c, met_fills=True, exclude=dict(first.fills))
+        voice = VOICE_OF[gender or "f"]
+        ids = list(dict.fromkeys([c.id, *first.item_ids, *(second.item_ids if second else [])]))
+        ex = sc.new_exercise("model", "form", ids, f"model: {shown}")
+        self._narr(sc, ex, self.prompts.get("form_model_known"))
+        self._speak(sc, ex, plain, speaker=voice)
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get(f"form_model_{form}"))
+        self._beat(sc, ex)
+        self._speak(sc, ex, shown, speaker=voice)
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("embed_meaning", meaning=self._m(meaning)))
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("repeat"))
+        self._speak(sc, ex, shown, speaker=voice)
+        self._repeat_pause(sc, ex, shown)
+        self.heard.update({_norm_utterance(plain), _norm_utterance(shown)})
+        asked, asked_meaning = shown, meaning
+        if second is not None:
+            gender2, asked = self._filled(c, second.fills, form=form)
+            asked_meaning = self.cur.resolve_slots(c, second.fills, form=form)[1]
+            voice = VOICE_OF[gender2 or "f"]
+            gender = gender2
+            self._narr(sc, ex, self.prompts.get("form_model_again"))
+            self._beat(sc, ex)
+            self._speak(sc, ex, asked, speaker=voice)
+            self._beat(sc, ex)
+            self._narr(sc, ex, self.prompts.get("embed_meaning", meaning=self._m(asked_meaning)))
+            self._beat(sc, ex)
+        self._narr(sc, ex, self._as(gender, self._meaning_prompt(asked_meaning)))
+        self._answer_pause(sc, ex, asked, c, generative=True)
+        self._answer(sc, ex, asked, speaker=voice)
+        self._gap(sc, ex)
+        self.used_combos.add(_combo_key(c, first.fills, form))
+        if second is not None:
+            self.used_combos.add(_combo_key(c, second.fills, form))
+        self.construction_counts[c.id] = self.construction_counts.get(c.id, 0) + 1
+        self.form_counts[form] = self.form_counts.get(form, 0) + 1
+        key = f"{c.id}:{form}"
+        self.forms_modelled.add(key)
+        self.models_now.append(key)
+        return ex
+
     def sentence_recall(self, sc: Script, item: Item) -> Exercise | None:
         """A short item asked inside a sentence it was already in this lesson (#179): the closing recall
         of an item said in sentences asks a sentence, not the bare part. A plain meaning recall of a
@@ -827,11 +912,12 @@ class Builder:
         self.rng.shuffle(combos)
         taught = self.forms_taught()
         if form:
-            if form not in construction.forms or form not in taught:
+            if form not in construction.forms or form not in taught or not self.form_modelled(construction, form):
                 return None
             order: list[str | None] = [form]
         else:
-            order = self._form_order([None] + ([f for f in construction.forms if f in taught] if forms else []))
+            offered = [f for f in construction.forms if f in taught and self.form_modelled(construction, f)]
+            order = self._form_order([None] + (offered if forms else []))
         for chosen_form in order:
             picks = [(chosen_form, c) for c in combos]
             if avoid_heard:
