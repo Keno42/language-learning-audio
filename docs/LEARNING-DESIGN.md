@@ -888,7 +888,7 @@ Don't reopen these without new evidence; when you do, say what changed.
   material because the lesson is full. **Close variants** (`Item.variant_of`: another case, another
   gender of something the learner knows) no longer fill spare time (#218 b1, owner 2026-10-09; before, up to four came in
   beyond the pace, #170). A form comes in with a purpose: the theme's next level wants it (#201), a frame or phrase pulls it
-  (#202), the number × noun track (#213), or a contrast worth teaching (#198, H5). They are listed apart in `plan.json`
+  (#202), the number × noun track (#213), or a contrast worth teaching (#198, H5). A heard-only play of a played theme level (spare time) takes any variant of a partner line, untranslated, as natural-speed exposure (H8); a replay's early play still takes only wordings heard with their meaning (#196). They are listed apart in `plan.json`
   (`variant_items`). From #218 b3 a variant counts at w against the target, like any other new form («þrjá» after «þrír»).
 - **Evidence.**
   - Presumed success is kept apart from confirmed outcomes (#119).

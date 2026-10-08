@@ -275,7 +275,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   A partner turn may carry `variants` (#134): `pick_variants` picks one line per turn for the early,
   translated play (heard with its meaning); the late play says the lines as written, which are also the ones the review
   cards ask. Every partner line is spoken at natural speed (rate 1.0), and each variant must fit the learner's reply
-  that follows. Without `themes` in `PlanConfig` (the CLI loads them from the curriculum's `cando/themes.toml`) nothing changes.
+  that follows. A replay's early play takes only wordings already heard with their meaning (#196); a heard-only play (spare time, #218 b1) takes any variant, untranslated, as listening exposure (H8), on purpose. Without `themes` in `PlanConfig` (the CLI loads them from the curriculum's `cando/themes.toml`) nothing changes.
 - **Rotation and a ceiling (#180).** `Builder.generate_with` orders a word's homes by the sentences each
   construction has had this lesson (`construction_counts`), least first, random tie-break; substitution runs
   pick the pattern with the fewest likewise. A construction takes at most `CONSTRUCTION_CEILING` (10) generated

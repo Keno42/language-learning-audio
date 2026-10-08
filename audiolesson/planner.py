@@ -2117,7 +2117,7 @@ class Planner:
                 elif play_refresh(due_only=False):
                     pass  # nothing else is left: the light reviews of known constructions come early
                 elif bare_cap[0] > 0 and try_extra():
-                    pass  # close variants of what they know fill the time before the same words come back
+                    pass  # nothing else is left: a planned extra or the cheap construction, never a close variant (#218 b1)
                 elif hard_cap_held[0] and bare_cap[0] > 0 and remaining < cfg.hard_cap_short_max and (capped_backlog or intro_timeline):
                     break  # the hard cap freed this time: the two caps conflict, so the lesson ends a little short, not bare words again (#206)
                 elif bare_cap[0] > 0 and (capped_backlog or intro_timeline):
