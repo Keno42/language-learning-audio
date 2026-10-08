@@ -4914,6 +4914,72 @@ class EdgeRetryTests(unittest.TestCase):
             self.assertEqual((calls, waits), (1, []), exc)
 
 
+class SoonerRequestTests(unittest.TestCase):
+    """#222: the feedback form's «not enough / don't remember» is a request about the schedule, not an outcome. ``report(sooner=…)``
+    moves ``due`` to at most half the interval and changes nothing else; ``report(hesitated=…)`` stays the next-day outcome."""
+
+    @staticmethod
+    def _learner(interval=6.0, due_in=6):
+        learner = LearnerState("is", "en", "A1")
+        learner.items["a"] = ItemState(stage="meaning", successes=3, durable_successes=2, recalled=2, ease=2.3, interval_days=interval,
+                                       due=(TODAY + timedelta(days=due_in)).isoformat(), last_practiced=TODAY.isoformat(), last_outcome="recalled",
+                                       history=[{"lesson": 1, "stages": ["meaning"], "ok": True, "outcome": "recalled"}])
+        learner.lessons = [{"number": 1, "new_items": ["a"]}]
+        learner.lessons_completed = 1
+        return learner
+
+    def test_the_due_date_moves_to_half_the_interval_and_nothing_else_changes(self):
+        learner = self._learner()
+        before = copy.deepcopy(learner.items["a"])
+        changed = learner.report([], [], TODAY, 1, sooner=["a"])
+        st = learner.items["a"]
+        self.assertEqual(st.due, (TODAY + timedelta(days=3)).isoformat())
+        self.assertEqual(changed["sooner"], ["a"])
+        before.due = st.due
+        self.assertEqual(st, before, "no hesitation, failure, recall, ease, interval or history entry")
+        self.assertEqual(st.interval_days, 6.0, "the next success grows it from where it was")
+
+    def test_it_does_not_mark_the_lesson_reported_so_the_pace_still_waits_for_the_review(self):
+        learner = self._learner()
+        self.assertIsNone(learner.last_lesson_failures())
+        learner.report([], [], TODAY, 1, sooner=["a"])
+        self.assertEqual(learner.reported, [])
+        self.assertIsNone(learner.last_lesson_failures())
+        learner.report([], [], TODAY, sooner=["a"])  # no lesson given: the same
+        self.assertEqual(learner.reported, [])
+
+    def test_a_due_date_already_sooner_is_not_moved_later(self):
+        learner = self._learner(interval=6.0, due_in=1)
+        learner.report([], [], TODAY, sooner=["a"])
+        self.assertEqual(learner.items["a"].due, (TODAY + timedelta(days=1)).isoformat())
+
+    def test_an_embedded_or_tried_item_is_left_to_its_review_and_an_unknown_one_is_listed(self):
+        learner = self._learner()
+        learner.embedded["e"] = 1
+        learner.tried["t"] = 1
+        changed = learner.report([], [], TODAY, sooner=["e", "t", "zzz"])
+        self.assertEqual((changed["sooner_skipped"], changed["unknown"]), (["e", "t"], ["zzz"]))
+        self.assertEqual((learner.embedded, learner.embed_failed), ({"e": 1}, []), "not consumed as failed")
+        self.assertIn("t", learner.tried)
+
+    def test_hesitated_stays_a_next_day_outcome(self):
+        learner = self._learner()
+        learner.report([], [], TODAY, 1, hesitated=["a"])
+        self.assertEqual(learner.reported, [1])
+        self.assertEqual(learner.items["a"].hesitated, 1)
+
+    def test_the_cli_takes_sooner_alone(self):
+        from audiolesson.cli import main
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "learner.json"
+            self._learner().save(path)
+            self.assertEqual(main(["report", "-l", str(path), "--sooner", "a", "--date", TODAY.isoformat()]), 0)
+            loaded = LearnerState.load(path)
+            self.assertEqual(loaded.items["a"].due, (TODAY + timedelta(days=3)).isoformat())
+            self.assertEqual(loaded.reported, [])
+
+
 class HardSentenceCapTests(unittest.TestCase):
     """#192 (owner: «never ten identical»): a fixed phrase is said at most ``max_sentence_hard`` times in a lesson, while the
     caps are on. Its practice is dropped when no other sentence holds it; a new item keeps one place for its closing recall."""

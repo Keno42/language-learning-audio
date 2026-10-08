@@ -316,6 +316,7 @@ class LearnerState:
         lesson_number: int | None = None,
         hesitated: list[str] | None = None,
         recalled: list[str] | None = None,
+        sooner: list[str] | None = None,
     ) -> dict:
         """Learner feedback after listening. Returns a summary of what changed.
 
@@ -326,15 +327,22 @@ class LearnerState:
         ``recalled`` keeps it (and counts as confirmed), ``hesitated`` brings the item back
         at half the interval, ``failed`` demotes it and brings it back tomorrow. An item in
         more than one list (two questions sharing it) takes the weakest outcome.
+
+        ``sooner`` (#222) is not an outcome but a request about the schedule: the learner says, right after
+        listening, that they don't remember an item (the feedback form). It moves ``due`` to at most half the
+        interval from today and changes nothing else: no hesitation, failure or recall is counted, the ease and
+        history stay, an embedded or tried item is left to its next-day review (``sooner_skipped``), and a call
+        with ``sooner`` alone does not mark the lesson reported (that waits for the review, H2).
         """
+        only_sooner = bool(sooner) and not (failed or easy or hesitated or recalled)
         if lesson_number is None:
             lesson_number = self.lessons_completed
-        if lesson_number and lesson_number not in self.reported:
+        if lesson_number and lesson_number not in self.reported and not only_sooner:
             self.reported.append(lesson_number)
         failed = list(dict.fromkeys(failed))
         hesitated = [i for i in dict.fromkeys(hesitated or []) if i not in failed]
         recalled = [i for i in dict.fromkeys(recalled or []) if i not in failed and i not in hesitated]
-        changed: dict = {"failed": [], "hesitated": [], "recalled": [], "easy": [], "unknown": [], "lesson": lesson_number}
+        changed: dict = {"failed": [], "hesitated": [], "recalled": [], "easy": [], "unknown": [], "lesson": lesson_number, "sooner": [], "sooner_skipped": []}
 
         def state(item_id: str) -> ItemState | None:
             st = self.items.get(item_id)
@@ -425,6 +433,15 @@ class LearnerState:
             st.recalled += 1  # the presumed success stands: the schedule already grew
             note_outcome(st, "recalled")
             changed["recalled"].append(item_id)
+        for item_id in dict.fromkeys(sooner or []):
+            st = self.items.get(item_id)
+            if st is None:
+                # decided by its next-day review; anything else is not in the learner state at all
+                changed["sooner_skipped" if item_id in self.embedded or item_id in self.tried else "unknown"].append(item_id)
+                continue
+            earlier = (today + timedelta(days=max(1, round(st.interval_days / 2)))).isoformat()
+            st.due = min(st.due, earlier) if st.due else earlier
+            changed["sooner"].append(item_id)
         for item_id in easy:
             if (st := state(item_id)) is None:
                 continue

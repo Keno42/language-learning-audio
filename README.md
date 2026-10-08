@@ -199,7 +199,10 @@ padding. From roughly lesson 5 on, the length is exact.
    afterwards is stored apart from that (`recalled`, `hesitated`, `failures` per
    item) and moves the schedule: `report --recalled` keeps it, `--hesitated`
    brings the item back at half the interval, `--failed` demotes it and brings
-   it back tomorrow. An unreported item keeps the presumed schedule.
+   it back tomorrow. An unreported item keeps the presumed schedule. `report
+   --sooner` is not an outcome but a request: the learner says right after
+   listening that they don't remember an item, and it comes back within half
+   its interval, with nothing else changed (#222).
 
 The retrieval ladder per item kind (see `audiolesson/stages.py`):
 
