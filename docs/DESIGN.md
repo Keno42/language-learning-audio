@@ -319,6 +319,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
 
 - **Python 3.11+, zero required deps.** TOML via `tomllib`, audio via `wave`; ffmpeg only
   for mp3 and for decoding non-WAV TTS output.
+- **A transient edge-tts error is retried per clip (#77).** `EdgeProvider._retrying`: `NoAudioReceived`, a dropped connection or a
+  timeout is retried after 5, 20 and 60 s (one stderr line per retry, so the bot's status shows it); any other error fails at once, and an
+  error that keeps coming fails with its own message. Only the failing clip is redone; the lesson, the review and the cache are untouched.
 - **Three-stage pipeline with a serialized script in the middle** (`script.json`), so
   voices, pauses and providers can change without re-planning.
 - **Presumed success.** Audio can't hear the learner, so every retrieval counts as a

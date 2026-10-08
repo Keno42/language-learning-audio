@@ -15,7 +15,9 @@ import math
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
+import time
 import urllib.request
 from pathlib import Path
 
@@ -153,8 +155,27 @@ class EdgeProvider(Provider):
                     chunks.append(chunk["data"])
             return b"".join(chunks)
 
-        data = asyncio.run(run())
+        data = self._retrying(lambda: asyncio.run(run()))
         return to_pcm(data, "mp3").trimmed()
+
+    # The service now and then answers "no audio" or drops the connection for one clip, and the same request works a
+    # moment later (#77): a few retries after a wait, for these errors only. Anything else (an unknown voice, a bug) fails at once.
+    RETRY_WAITS = (5.0, 20.0, 60.0)
+
+    @staticmethod
+    def _transient(exc: BaseException) -> bool:
+        names = {c.__name__ for c in type(exc).__mro__}
+        return bool(names & {"NoAudioReceived", "ClientError", "TimeoutError", "ConnectionError"})
+
+    def _retrying(self, attempt):
+        for n, wait in enumerate((*self.RETRY_WAITS, None)):
+            try:
+                return attempt()
+            except Exception as exc:
+                if wait is None or not self._transient(exc):
+                    raise
+                print(f"edge-tts: {type(exc).__name__}, retrying in {wait:g} s ({n + 1}/{len(self.RETRY_WAITS)})", file=sys.stderr, flush=True)
+                time.sleep(wait)
 
     def default_voices(self, lang: str) -> list[str]:
         return list(self.VOICES.get(lang.split("-")[0].lower(), []))
