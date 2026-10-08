@@ -328,6 +328,11 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   that decides them. `--sooner` (the feedback form's «not enough / don't remember», filled right after listening) only moves `due` to at most
   half the interval from today: nothing is counted, `ease`, `interval_days` and the history are untouched, an embedded or tried item is
   `sooner_skipped` (its next-day review decides it), and the lesson is not marked reported, so the pace still waits for evidence (H2).
+- **The pace reads three lessons and a load rating (#218, part a).** `recall_rate()` sums weak/new items over the last three
+  `lessons[]` entries in `reported` (each item's entry is found by lesson number, never `history[-1]`; an embedded item in `embed_failed`
+  is weak). `suggest_pace`: up at ≤ 15% with a small backlog, hold to 25%, down above. `report --load light|right|heavy` stores
+  `lessons[k]["load"]`; like `--sooner` alone it does not mark the lesson reported. Two «light» lessons raise it at ≤ 25% with the same small-backlog condition (< 0.5) as the recall-based rise; an unrated lesson is skipped (it neither breaks nor extends the run); a «heavy» in the
+  window blocks a rise; one step a lesson. `report --load` for a lesson not in `lessons[]` warns on stderr.
 - **An item is taught once in a lesson (#217).** Every `select_new` call in the lesson loop excludes `taught()` (introduced ∪ embedded this
   lesson), so an arc start does not spend a pick on an item already taught, which would be a lost slot. The first selection
   (`new_queue = deque(self.select_new(...))`) runs before anything is taught and has nothing to exclude. `do_intro`, where every path to an

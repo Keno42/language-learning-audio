@@ -5047,10 +5047,10 @@ class SoonerRequestTests(unittest.TestCase):
 
     def test_it_does_not_mark_the_lesson_reported_so_the_pace_still_waits_for_the_review(self):
         learner = self._learner()
-        self.assertIsNone(learner.last_lesson_failures())
+        self.assertIsNone(learner.recall_rate())
         learner.report([], [], TODAY, 1, sooner=["a"])
         self.assertEqual(learner.reported, [])
-        self.assertIsNone(learner.last_lesson_failures())
+        self.assertIsNone(learner.recall_rate())
         learner.report([], [], TODAY, sooner=["a"])  # no lesson given: the same
         self.assertEqual(learner.reported, [])
 
@@ -7274,9 +7274,9 @@ class PacingTests(unittest.TestCase):
     def test_hesitation_counts_as_half_a_failure_for_the_pace(self):
         """Simulated lessons 1-12 with every new item confirmed in the Discord review: the pace
         rose every lesson to 10 because only outright failures counted. A hesitation now
-        counts ½: 2 of 12 hesitated (8%) still speeds up, 4 (17%) holds, 6 (25%) slows down."""
+        counts ½: 2 of 12 hesitated (8%) still speeds up, 4 (17%) and 6 (25%) hold, 8 (33%) slows down (#218)."""
         results = {}
-        for hesitated in (2, 4, 6):
+        for hesitated in (2, 4, 6, 8):
             learner = fresh()
             day = TODAY
             sc = build(learner, 30, today=day, new_items=6)
@@ -7288,8 +7288,8 @@ class PacingTests(unittest.TestCase):
             n = round(hesitated * len(new) / 12)
             learner.report([], [], day, 1, hesitated=new[:n], recalled=new[n:])
             results[hesitated] = learner.suggest_pace(30, day + timedelta(days=1))
-        self.assertEqual({k: v[0] for k, v in results.items()}, {2: 7, 4: 6, 6: 5}, results)
-        self.assertIn("a hesitation counts ½", results[6][1])
+        self.assertEqual({k: v[0] for k, v in results.items()}, {2: 7, 4: 6, 6: 6, 8: 5}, results)
+        self.assertIn("a hesitation counts ½", results[8][1])
 
     def test_backlog_slows_the_pace(self):
         learner, _ = course(6, minutes=30)
@@ -7344,6 +7344,143 @@ class PacingTests(unittest.TestCase):
         learner.report(new[: len(new) // 2], [], day)
         pace2, why = learner.suggest_pace(30, day + timedelta(days=1))
         self.assertEqual(pace2, 5, why)
+
+    # ---- #218 part a: the recall rate over three lessons and the load rating ----
+
+    @staticmethod
+    def _rated(outcomes, loads=None, pace=6):
+        """A learner with one lesson per entry of ``outcomes`` (each a list of 'r'ecalled / 'h'esitated / 'f'ailed
+        for that lesson's new items), all reported; ``loads`` are stored on the lessons in order."""
+        learner = fresh()
+        learner.pace = pace
+        learner.lessons = []
+        for n, outs in enumerate(outcomes, 1):
+            ids = []
+            for k, o in enumerate(outs):
+                item_id = f"i{n}_{k}"
+                ids.append(item_id)
+                learner.items[item_id] = ItemState(
+                    stage="meaning", due=(TODAY + timedelta(days=30)).isoformat(),
+                    history=[{"lesson": n, "stages": ["meaning"], "ok": o != "f", **({"outcome": "hesitated"} if o == "h" else {})}],
+                )
+            learner.lessons.append({"number": n, "new_items": ids, **({"load": loads[n - 1]} if loads and loads[n - 1] else {})})
+            learner.reported.append(n)
+        learner.lessons_completed = len(outcomes)
+        return learner
+
+    def test_the_rate_is_taken_over_the_last_three_reported_lessons(self):
+        learner = self._rated(["f" * 3 + "r" * 7, "r" * 10, "r" * 10, "r" * 10])
+        self.assertEqual(learner.recall_rate(), (0, 30), "lesson 1 is outside the window")
+        learner = self._rated(["r" * 10, "f" * 2 + "r" * 8, "r" * 10])
+        self.assertEqual(learner.recall_rate(), (2, 30))
+        learner.lessons.insert(1, {"number": 99, "new_items": ["i1_0"]})  # not reported: not in the window
+        self.assertEqual(learner.recall_rate(), (2, 30))
+
+    def test_up_at_15_percent_hold_to_25_down_above(self):
+        # window of 30 items: 4 failed = 13% (up), 6 = 20% (hold), 8 = 27% (down)
+        out = {}
+        for failed in (4, 6, 8):
+            learner = self._rated([["r"] * 10] * 3)
+            for k in range(failed):
+                learner.items[f"i{1 + k // 10}_{k % 10}"].history[-1]["ok"] = False
+            out[failed] = learner.suggest_pace(30, TODAY)[0]
+        self.assertEqual(out, {4: 7, 6: 6, 8: 5})
+
+    def test_a_later_lesson_does_not_hide_an_outcome(self):
+        """``history[-1]`` is the latest lesson's entry; the lesson's own is found by number, in the rate and in the report."""
+        learner = self._rated([["r"] * 9 + ["f"]])
+        learner.items["i1_9"].history.append({"lesson": 2, "stages": ["meaning"], "ok": True})
+        self.assertEqual(learner.recall_rate(), (1, 10))
+        learner = self._rated([["r"] * 4])
+        learner.items["i1_0"].history.append({"lesson": 2, "stages": ["meaning"], "ok": True})
+        learner.report(["i1_0"], [], TODAY, 1)
+        self.assertEqual([(e["lesson"], e["ok"]) for e in learner.items["i1_0"].history], [(1, False), (2, True)])
+        self.assertEqual(learner.recall_rate(), (1, 4))
+
+    def test_an_embedded_item_that_failed_counts_as_weak(self):
+        learner = self._rated([["r"] * 3])
+        learner.lessons[0]["new_items"].append("emb")
+        learner.embedded["emb"] = 1
+        self.assertEqual(learner.recall_rate(), (0, 4), "still pending: not counted")
+        learner.report(["emb"], [], TODAY, 1)
+        self.assertEqual(learner.embed_failed, ["emb"])
+        self.assertEqual(learner.recall_rate(), (1, 4))
+
+    def test_two_light_lessons_raise_the_pace_and_one_heavy_blocks_it(self):
+        # 20% over the window: a hold on the rate alone
+        outs = [["r"] * 4 + ["f"] * 6] + [["r"] * 10] * 2
+        self.assertEqual(self._rated(outs).suggest_pace(30, TODAY)[0], 6)
+        pace, why = self._rated(outs, [None, "light", "light"]).suggest_pace(30, TODAY)
+        self.assertEqual(pace, 7, why)
+        self.assertIn("light", why)
+        self.assertEqual(self._rated(outs, [None, "right", "light"]).suggest_pace(30, TODAY)[0], 6)
+        self.assertEqual(self._rated(outs, [None, "light", "light"]).suggest_pace(30, TODAY)[0], 7)
+        pace, why = self._rated(outs, ["heavy", "light", "light"]).suggest_pace(30, TODAY)
+        self.assertEqual(pace, 6, why)
+        # a heavy lesson also stops a rise on a clean rate
+        clean = [["r"] * 10] * 3
+        self.assertEqual(self._rated(clean).suggest_pace(30, TODAY)[0], 7)
+        self.assertEqual(self._rated(clean, [None, "heavy", None]).suggest_pace(30, TODAY)[0], 6)
+        # light lessons do not lift a rate above 25%
+        bad = [["r"] * 6 + ["f"] * 4] * 3
+        self.assertEqual(self._rated(bad, [None, "light", "light"]).suggest_pace(30, TODAY)[0], 5)
+
+    def test_a_load_only_report_leaves_the_lesson_unreported(self):
+        learner = SoonerRequestTests._learner()
+        changed = learner.report([], [], TODAY, 1, load="heavy")
+        self.assertEqual((learner.reported, learner.lessons[0]["load"], changed["load"]), ([], "heavy", "heavy"))
+        self.assertIsNone(learner.recall_rate())
+        learner.report([], [], TODAY, 1, load="light")  # the last word stands
+        self.assertEqual(learner.lessons[0]["load"], "light")
+        learner.report(["a"], [], TODAY, 1, load="right")
+        self.assertEqual((learner.reported, learner.lessons[0]["load"]), ([1], "right"))
+        with self.assertRaises(ValueError):
+            learner.report([], [], TODAY, 1, load="enormous")
+
+    def test_two_light_lessons_need_a_small_backlog_like_the_recall_rise(self):
+        outs = [["r"] * 4 + ["f"] * 6] + [["r"] * 10] * 2
+        learner = self._rated(outs, [None, "light", "light"])
+        self.assertEqual(learner.suggest_pace(30, TODAY)[0], 7)
+        slots = max(0, int(30 * 60 / 16) - 6 * 6)
+        for k in range(int(slots * 0.6)):  # items due now: between 0.5 and 0.8 of the review slots
+            learner.items[f"pad{k}"] = ItemState(stage="meaning", due=TODAY.isoformat())
+        self.assertEqual(learner.suggest_pace(30, TODAY)[0], 6, "a backlog the recall rise would not accept blocks the light rise too")
+
+    def test_an_unrated_lesson_neither_breaks_nor_extends_the_run_of_light_lessons(self):
+        outs = [["r"] * 8 + ["f"] * 2] * 4
+        light_gap = self._rated(outs, ["light", "light", None, None])
+        self.assertEqual(light_gap.suggest_pace(30, TODAY)[0], 7, "the last two rated lessons are both light")
+        broken = self._rated(outs, ["light", "light", "right", None])
+        self.assertEqual(broken.suggest_pace(30, TODAY)[0], 6, "a rated «right» breaks it")
+
+    def test_a_load_for_a_lesson_not_in_the_log_warns(self):
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "learner.json"
+            SoonerRequestTests._learner().save(path)
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err):
+                self.assertEqual(main(["report", "-l", str(path), "--lesson", "9", "--load", "light", "--date", TODAY.isoformat()]), 0)
+            self.assertIn("lesson 9 is not in the lesson log", err.getvalue())
+            self.assertNotIn("load", LearnerState.load(path).lessons[0])
+
+    def test_the_cli_takes_load_alone_and_saves_it(self):
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "learner.json"
+            SoonerRequestTests._learner().save(path)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(main(["report", "-l", str(path), "--lesson", "1", "--load", "light", "--date", TODAY.isoformat()]), 0)
+            loaded = LearnerState.load(path)
+            self.assertEqual((loaded.lessons[0]["load"], loaded.reported), ("light", []))
+            self.assertNotIn("all good", out.getvalue())
 
     def test_report_defaults_to_latest_lesson(self):
         learner, scripts = course(2)
