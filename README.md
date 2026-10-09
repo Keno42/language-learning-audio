@@ -354,3 +354,9 @@ before and after, and compare them.
 `python -m audiolesson.cli generate -c curricula/fr-en-a1.toml -l /tmp/l.json -m 5 --provider stub`
 renders a quick lesson without any TTS dependency; espeak-ng/ffmpeg are optional (one test
 skips without them).
+
+## Data sources
+
+- **BÍN** (used for the Icelandic course's form checks, `curricula/is-en/bin/`): *Beygingarlýsing íslensks nútímamáls. Stofnun Árna
+  Magnússonar í íslenskum fræðum. Höfundur og ritstjóri Kristín Bjarnadóttir.* https://bin.arnastofnun.is — the downloadable language-technology data, licensed CC BY-SA 4.0. Only a
+  subset of forms with fewer fields is cached (the check only warns); see `curricula/is-en/bin/README.md` for what was changed.

@@ -490,6 +490,20 @@ def cmd_status(args) -> int:
     return 0
 
 
+def _check_bin(cur, curriculum) -> list[str]:
+    """Warnings (never failures: the BÍN check advises, #218 b2) about the variants against the cached lookups: the cache missing, a form not
+    in it, or a variant and its base given to different words."""
+    from .binform import cache_path, load_cache, variant_warnings
+
+    if not Path(curriculum).is_dir():
+        return []
+    path = cache_path(curriculum)
+    n = sum(1 for i in cur.items if i.variant_of)
+    if not path.exists():
+        return [f"{n} variant items are not checked against BÍN yet; run `python tools/bin_lookup.py --data SHsnid.csv.zip --variants` (writes {path})"] if n else []
+    return variant_warnings(cur, load_cache(path))
+
+
 def cmd_validate(args) -> int:
     cur = load_curriculum(args.curriculum, known_lang=args.known)
     kinds = {}
@@ -509,6 +523,8 @@ def cmd_validate(args) -> int:
             print(f"{lang}: {total - len(c.missing_glosses)}/{total} strings glossed; missing in {len(by_item)} entries, e.g. {', '.join(list(by_item)[:10])}")
         else:
             print(f"{lang}: complete ({total} strings)")
+    for line in _check_bin(cur, args.curriculum):
+        print(f"warning: {line}", file=sys.stderr)
     findings = dialogue_sequencing_report(cur)
     if findings:
         words: dict[str, int] = {}
