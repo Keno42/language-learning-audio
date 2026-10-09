@@ -7723,6 +7723,39 @@ class NewComponentTests(unittest.TestCase):
         heavy = PacingTests._rated([["r"] * 10] * 3, [None, "heavy", None])
         self.assertEqual(heavy.suggest_target(30, TODAY)[0], 8.0)
 
+    def test_the_target_is_a_rate_per_30_minutes_and_a_lesson_plans_its_share(self):
+        """#242: at 5 minutes a rate of 8 plans 1.33; at 30, 8; the saved value is the rate."""
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        for minutes, planned in ((5, 8 * 5 / 30), (15, 4.0), (30, 8.0)):
+            with tempfile.TemporaryDirectory() as td:
+                path = Path(td) / "l.json"
+                LearnerState("fr", "en", "A1").save(path)
+                out = Path(td) / "out"
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(main(["generate", "-c", str(ROOT / "curricula" / "fr-en-a1.toml"), "-l", str(path), "--out", str(out), "--no-audio", "-m", str(minutes)]), 0)
+                plan = json.loads(next(out.glob("*.plan.json")).read_text())
+                self.assertAlmostEqual(plan["new_components"]["target"], planned, places=2, msg=minutes)
+                self.assertEqual(LearnerState.load(path).new_target, 8.0, "the rate is saved, not the share")
+
+    def test_a_very_short_lesson_plans_at_least_one_component(self):
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "l.json"
+            learner = LearnerState("fr", "en", "A1")
+            learner.new_target = 4.0
+            learner.save(path)
+            out = Path(td) / "out"
+            with contextlib.redirect_stdout(io.StringIO()):
+                main(["generate", "-c", str(ROOT / "curricula" / "fr-en-a1.toml"), "-l", str(path), "--out", str(out), "--no-audio", "-m", "3"])
+            plan = json.loads(next(out.glob("*.plan.json")).read_text())
+            self.assertEqual(plan["new_components"]["target"], 1.0)
+
     def test_the_target_is_saved_and_the_cli_plans_from_it(self):
         import contextlib
         import io
@@ -8652,7 +8685,7 @@ class CliTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as td:
             learner = Path(td) / "learner.json"
-            rc = main(["generate", "-c", str(CURRICULUM), "-l", str(learner), "-o", td, "-m", "3", "--no-audio", "--date", "2026-09-18"])
+            rc = main(["generate", "-c", str(CURRICULUM), "-l", str(learner), "-o", td, "-m", "3", "--new", "3", "--no-audio", "--date", "2026-09-18"])  # --new: this counts items; the target is a share of 30 minutes (#242)
             self.assertEqual(rc, 0)
             self.assertTrue((Path(td) / "lesson-001.script.json").exists())
             self.assertTrue((Path(td) / "lesson-001.transcript.md").exists())
