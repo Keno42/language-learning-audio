@@ -841,8 +841,7 @@ What the learner wrote, by what the lesson and the review did:
   - «hjálpina», «matinn» and «kaffihúsið» are asked bare, and «kaffihúsið» in three more sentences;
   - «hraun», «strönd», «norðurljós» and «samloku» are asked bare (#215).
 - **The pick-outs.** They have the shape of concept 2 but not its work. Nothing has to be found when the answer is the
-  only new thing in the line. Saying it back in Icelandic shows hearing, not understanding. Concept 2 is understanding
-  what was said, so the answer must show that.
+  only new thing in the line. The line must hold more than the answer: the learner finds one piece among others.
 - **The under-practised items.** All four had no recall of their own for 7–12 minutes of the second half
   («kaffihúsið» only inside generated sentences) while the rotation played. One lesson, below the heavy share: watch
   it; no change yet.
@@ -946,11 +945,15 @@ what. Re-rank it when the evidence moves.
    - The review asks the whole the learner learned, never a part that only lives inside it. It asks each target
      expression once: no two questions with the same answer, no part next to the whole that holds it.
    - #215's data side (a home for every part) belongs here: a part with no whole can't be asked as one.
-2. **Pick out the information means understanding it (#248, step 2; concept 2).**
-   - The answer shows the information was understood. It is said in the known language («three thousand five
-     hundred krónur», 「3500クローナ」), not said back in Icelandic (owner to confirm).
-   - The line holds more than the answer: a scene's partner line at natural speed, a line with two pieces of
-     information, or a frame the learner hasn't been drilled on (§5.17).
+2. **Pick out the information means finding it (#248, step 2; concept 2).**
+   - The line holds more than the answer, so the learner has to find it:
+     - a line with two or more pieces of information, and the question asks for one
+       («Kaffi kostar fimm hundruð og samloka þúsund krónur.» → "How much is the sandwich?");
+     - or a scene's partner line at natural speed, in wording the learner hasn't drilled
+       («Það gera þrjú þúsund og fimm hundruð krónur.»).
+   - A drilled frame plus the answer is not used (lesson 21's eight pick-outs, §5.17).
+   - The answer stays Icelandic. The owner, 2026-10-10: the course is about Icelandic coming out, and the echo came
+     from the line, not from the answer's language. An answer in the known language is not used.
    - Then `count` and `place` probes, the number × noun sentence (#213), and more `word_glosses` for the unknown word.
 
 **Built after lesson 20** (#247, #250, #251, #252): spare time serves the scene and the ear, with the second half a
@@ -964,7 +967,7 @@ feedbacks after it carry no remark of the same kind:
 3. items the audio asks that the same morning's review asked (`asked_after_review`, #238);
 4. framing lines followed by an example without a beat (#241);
 5. review questions whose answer is a part asked outside its whole, or that share an answer with another question (#239: to build);
-6. pick-outs whose answer is the whole of what is new in the line (#248 step 2: to build).
+6. pick-outs whose line holds nothing but a drilled frame and the answer (#248 step 2: to build).
 
 **Small and cheap, any time:** a scene card answered well on its first showing comes back after 3 days, not the next
 morning (site_update_notifier#95).
