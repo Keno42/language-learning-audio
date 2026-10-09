@@ -94,6 +94,10 @@ class LearnerState:
     themes_done: dict[str, int] = field(default_factory=dict)
     themes_last: dict[str, int] = field(default_factory=dict)  # theme -> the lesson that last played one of its levels (#149)
     themes_heard: dict[str, list[str]] = field(default_factory=dict)  # "theme:level" -> "turn:line" partner wordings heard with their meaning (#196)
+    # #211: "construction:form" keys whose negative or question form was modelled to the learner ("You know this one… as a question…"). A
+    # generated sentence takes a form only once it has been. None: a file from before it existed; the builder seeds it from
+    # ``heard_utterances`` (a form sentence already said or heard counts as modelled) and the next lesson saves it.
+    forms_modelled: set[str] | None = None
 
     # ---- queries ---------------------------------------------------------
 
@@ -557,6 +561,7 @@ class LearnerState:
             "themes_done": self.themes_done,
             "themes_last": self.themes_last,
             "themes_heard": self.themes_heard,
+            **({"forms_modelled": sorted(self.forms_modelled)} if self.forms_modelled is not None else {}),
         }
 
     def save(self, path: str | Path) -> None:
@@ -591,6 +596,7 @@ class LearnerState:
             themes_done={k: int(v) for k, v in raw.get("themes_done", {}).items()},
             themes_last={k: int(v) for k, v in raw.get("themes_last", {}).items()},
             themes_heard={k: list(v) for k, v in raw.get("themes_heard", {}).items()},
+            forms_modelled=set(raw["forms_modelled"]) if "forms_modelled" in raw else None,
         )
         ls.items = {k: ItemState(**v) for k, v in raw.get("items", {}).items()}
         # a file from before notes_last_heard existed: a note heard back then counts as heard

@@ -6314,13 +6314,15 @@ class ConstructionFormTests(unittest.TestCase):
             ],
         }
 
-    def _builder(self, cur, taught=()):
+    def _builder(self, cur, taught=(), modelled=None):
+        """``modelled``: the ``construction:form`` keys already shown (#211); by default every form of ``c`` the notes taught."""
         from audiolesson.exercises import Builder
         learner = LearnerState("is", "en", "A1")
         for i in ("kalt", "heitt", "c"):
             learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
         for n in taught:
             learner.notes_heard[n] = 1
+        learner.forms_modelled = {"c:negative", "c:question"} if modelled is None else set(modelled)
         return Builder(cur, Prompts.load("en"), Timing(level="A1"), learner, rng=random.Random(1))
 
     def test_the_forms_wait_for_their_note(self):
@@ -6328,6 +6330,9 @@ class ConstructionFormTests(unittest.TestCase):
         c = cur.by_id["c"]
         b = self._builder(cur)
         self.assertEqual({b.generate(c, forms=True).form for _ in range(40)}, {None})
+        self.assertIsNone(b.generate(c, form="negative"))
+        b = self._builder(cur, taught=["n_neg"], modelled=[])
+        self.assertEqual({b.generate(c, forms=True).form for _ in range(40)}, {None}, "the note is not the model (#211)")
         self.assertIsNone(b.generate(c, form="negative"))
         b = self._builder(cur, taught=["n_neg"])
         forms = []
@@ -6401,6 +6406,122 @@ class ConstructionFormTests(unittest.TestCase):
                     target, meaning = cur.resolve_slots(c, fills, form=form)
                     self.assertNotIn("{", target + meaning, (c.id, form, target, meaning))
                     self.assertNotEqual(meaning, cur.resolve_slots(c, fills)[1], (c.id, form))
+
+    # ---- #211: a form is modelled before it is asked ----
+
+    def test_a_form_is_offered_only_for_a_known_construction_whose_form_was_modelled(self):
+        cur = curriculum_from_dict(self._raw())
+        c = cur.by_id["c"]
+        taught = ["n_neg", "n_q"]
+        for modelled, expected in (([], {None}), (["c:negative"], {None, "negative"}), (["c:negative", "c:question"], {None, "negative", "question"})):
+            b = self._builder(cur, taught=taught, modelled=modelled)
+            seen = set()
+            for _ in range(120):
+                form = b.generate(c, forms=True, prefer_unused=False).form
+                b.form_counts[form or "plain"] = b.form_counts.get(form or "plain", 0) + 1
+                seen.add(form)
+            self.assertEqual(seen, expected, modelled)
+        b = self._builder(cur, taught=taught, modelled=["c:negative"])
+        self.assertIsNone(b.generate(c, form="question"))
+        b.learner.items["c"] = ItemState(due=TODAY.isoformat(), successes=1, durable_successes=1, stage="meaning")  # introduced, not yet known
+        self.assertEqual({b.generate(c, forms=True).form for _ in range(40)}, {None}, "a construction not known yet gets no form sentence")
+        self.assertIsNone(b.generate(c, form="negative"))
+
+    def test_a_word_s_sentence_takes_a_form_only_through_a_known_modelled_frame(self):
+        cur = curriculum_from_dict(self._raw())
+        kalt = cur.by_id["kalt"]
+        b = self._builder(cur, taught=["n_neg"], modelled=[])
+        self.assertEqual({b.generate_with(kalt, forms=True).form for _ in range(40)}, {None})
+        b = self._builder(cur, taught=["n_neg"], modelled=["c:negative"])
+        seen = set()
+        for _ in range(60):  # the way recombination counts what it generates
+            form = b.generate_with(kalt, forms=True, ceiling=False).form
+            b.form_counts[form or "plain"] = b.form_counts.get(form or "plain", 0) + 1
+            seen.add(form)
+        self.assertEqual(seen, {None, "negative"})
+        self.assertEqual(b.recombine_status(kalt), "novel")
+
+    def test_the_model_shows_the_plain_sentence_then_the_form_then_another_filler_heard_and_asked(self):
+        cur = curriculum_from_dict(self._raw())
+        c = cur.by_id["c"]
+        b = self._builder(cur, taught=["n_neg", "n_q"], modelled=[])
+        sc = Script(1, "t", "is", "en")
+        ex = b.model_form(sc, c, "question")
+        self.assertEqual((ex.kind, ex.stage), ("model", "form"))
+        self.assertEqual(b.models_now, ["c:question"])
+        self.assertTrue(b.form_modelled(c, "question") and not b.form_modelled(c, "negative"))
+        segs = [(g.type, g.text) for g in sc.segments if g.exercise == ex.index and g.type in ("narrate", "speak", "answer")]
+        texts = [t for _, t in segs]
+        prompts = Prompts.load("en")
+        order = [texts.index(prompts.get("form_model_known")), texts.index(prompts.get("form_model_question")), texts.index(prompts.get("form_model_again"))]
+        self.assertEqual(order, sorted(order))
+        spoken = [t for kind, t in segs if kind == "speak"]
+        self.assertTrue(spoken[0].startswith("Það er ") and not spoken[0].endswith("?"), "the plain sentence first")
+        self.assertTrue(spoken[1].endswith("?"), "then the same sentence as a question")
+        answers = [t for kind, t in segs if kind == "answer"]
+        self.assertEqual(len(answers), 1)
+        self.assertTrue(answers[0].endswith("?"))
+        self.assertNotEqual(answers[0], spoken[1], "asked with another filler than the one heard first")
+        self.assertNotIn(answers[0], spoken, "…and not spoken before it is asked: the form is first produced there")
+        self.assertIsNone(b.generate(c, form="negative"), "only the modelled form opens")
+        self.assertIsNotNone(b.generate(c, form="question"))
+
+    def test_older_learner_files_are_seeded_from_what_was_heard_and_the_state_round_trips(self):
+        from audiolesson.exercises import Builder
+
+        cur = curriculum_from_dict(self._raw())
+        learner = LearnerState("is", "en", "A1")
+        self.assertIsNone(learner.forms_modelled)
+        learner.heard_utterances.update({"það er ekki kalt", "er heitt"})
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
+        self.assertEqual(b.forms_modelled, {"c:negative", "c:question"}, "a form sentence already heard counts as modelled")
+        learner.heard_utterances = {"það er kalt"}
+        self.assertEqual(Builder(cur, Prompts.load("en"), Timing(level="A1"), learner).forms_modelled, set(), "a plain sentence does not")
+        learner.forms_modelled = {"c:negative"}
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "l.json"
+            learner.save(path)
+            self.assertEqual(LearnerState.load(path).forms_modelled, {"c:negative"})
+            raw = json.loads(path.read_text())
+            raw.pop("forms_modelled")
+            path.write_text(json.dumps(raw))
+            self.assertIsNone(LearnerState.load(path).forms_modelled, "a file from before #211: seeded when the next lesson is built")
+
+    def test_a_course_models_each_form_once_before_its_first_sentence(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        modelled_at: dict[str, int] = {}
+        known_at_model: list[bool] = []
+        for n in range(1, 21):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5), today=day).build()
+            before = set(learner.forms_modelled or ())
+            now = sc.meta["forms_modelled_now"]
+            self.assertLessEqual(len(now), PlanConfig().forms_models, (n, now))
+            for key in now:
+                self.assertNotIn(key, modelled_at, f"{key} was modelled twice")
+                modelled_at[key] = n
+                known_at_model.append(learner.knows(key.split(":")[0]))
+            models = {k: next(e.index for e in sc.exercises if e.kind == "model" and k.split(":")[0] in e.item_ids) for k in now}
+            for e in sc.exercises:
+                if e.kind != "generative":
+                    continue
+                for cid in e.item_ids[:3]:
+                    c = cur.by_id.get(cid)
+                    if not (c and c.kind == "construction" and c.forms):
+                        continue
+                    for form in c.forms:
+                        template = c.negative if form == "negative" else c.question
+                        rx = re.compile("^" + re.sub(r"\\\{[^}]*\\\}", ".+", re.escape(template)) + "$")
+                        if rx.match(e.label.split(": ", 1)[1]):
+                            key = f"{cid}:{form}"
+                            self.assertTrue(key in before or (key in models and models[key] < e.index), (n, key, e.label))
+            apply_to_learner(sc, learner, day)
+            learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
+            day += timedelta(days=1)
+        self.assertTrue(modelled_at, "the course models forms")
+        self.assertTrue(all(known_at_model), "only known constructions are modelled")
+        self.assertEqual(set(modelled_at), set(learner.forms_modelled))
 
     def test_a_course_teaches_the_forms_and_uses_them_only_after(self):
         import re as _re

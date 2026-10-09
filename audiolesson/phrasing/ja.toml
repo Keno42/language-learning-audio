@@ -55,6 +55,11 @@ embed_known = "知っているフレーズです："
 embed_part = "この中の単語です："
 embed_sentence = "別の文で聞きます。聞いて、繰り返してください。"
 embed_meaning = "「{meaning}」"
+# 疑問・否定の形を、出題の前に一度見せる (#211)
+form_model_known = "知っている文です："
+form_model_question = "疑問文にすると："
+form_model_negative = "否定文にすると："
+form_model_again = "別の単語で、同じ形です。今度はあなたの番です。"
 instance_sentence = "知っている型の文です。聞いて、繰り返してください。"
 # a near form of something the learner has met (Item.variant_of)
 variant_known = "知っている形です："
