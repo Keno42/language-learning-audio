@@ -7434,7 +7434,8 @@ class FailureThinkTimeTests(unittest.TestCase):
 
 
 class BinFormCheckTests(unittest.TestCase):
-    """#218 b2: a variant item and its base are forms of one BÍN lemma, checked once and cached so ``validate`` runs offline."""
+    """#218 b2: a variant item and its base should be forms of one BÍN lemma, looked up once in BÍN's downloaded data and cached so
+    ``validate`` runs offline. The check advises and never blocks (owner, after lesson 20)."""
 
     @staticmethod
     def _cur():
@@ -7445,77 +7446,100 @@ class BinFormCheckTests(unittest.TestCase):
 
     @staticmethod
     def _entry(guid, lemma="kaffi"):
-        return {"lemma": lemma, "guid": guid, "ofl": "hk", "kyn": "hk", "tag": "NFET", "checked_on": "2026-10-09"}
+        return {"lemma": lemma, "guid": guid, "ofl": "no", "kyn": "", "tag": "NFET", "source": "SHsnid.csv", "checked_on": "2026-10-09"}
 
-    def test_a_pair_of_one_lemma_passes(self):
-        from audiolesson.binform import check_variants
+    def test_a_pair_of_one_lemma_has_no_warning(self):
+        from audiolesson.binform import variant_warnings
 
         cache = {"kaffi": self._entry("g1"), "kaffið": self._entry("g1")}
-        self.assertEqual(check_variants(self._cur(), cache), [])
+        self.assertEqual(variant_warnings(self._cur(), cache), [])
 
-    def test_a_variant_missing_from_the_cache_fails_with_the_command_to_run(self):
-        from audiolesson.binform import check_variants
+    def test_a_variant_missing_from_the_cache_warns_with_the_command_to_run(self):
+        from audiolesson.binform import variant_warnings
 
-        problems = check_variants(self._cur(), {"kaffi": self._entry("g1")})
+        problems = variant_warnings(self._cur(), {"kaffi": self._entry("g1")})
         self.assertEqual(len(problems), 1)
-        self.assertIn("tools/bin_lookup.py kaffið", problems[0])
+        self.assertIn("tools/bin_lookup.py", problems[0])
+        self.assertIn("kaffið", problems[0])
 
-    def test_a_variant_whose_lemma_differs_from_its_base_fails(self):
-        from audiolesson.binform import check_variants
+    def test_a_variant_whose_lemma_differs_from_its_base_warns(self):
+        from audiolesson.binform import variant_warnings
 
-        problems = check_variants(self._cur(), {"kaffi": self._entry("g1"), "kaffið": self._entry("g2", "kaffið")})
+        problems = variant_warnings(self._cur(), {"kaffi": self._entry("g1"), "kaffið": self._entry("g2", "kaffið")})
         self.assertEqual(len(problems), 1)
         self.assertIn("not one lemma", problems[0])
 
-    def test_the_cli_validates_against_the_cache_when_it_exists(self):
+    def test_validate_only_ever_warns(self):
+        import contextlib
+        import io
         from audiolesson.binform import save_cache
         from audiolesson.cli import main
 
-        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}}
         with tempfile.TemporaryDirectory() as td:
             d = Path(td)
             (d / "course.toml").write_text(
                 '[curriculum]\nname = "x"\ntarget_lang = "is"\nknown_lang = "en"\n\n[[items]]\nid = "kaffi"\nkind = "vocab"\ntarget = "kaffi"\nmeaning = "coffee"\n\n'
                 '[[items]]\nid = "kaffid"\nkind = "vocab"\ntarget = "kaffið"\nmeaning = "the coffee"\nmeaning_spoken = "the coffee"\nvariant_of = "kaffi"\n', encoding="utf-8")
-            self.assertEqual(main(["validate", str(d)]), 0, "no cache built yet: a warning only")
-            save_cache(d / "bin" / "forms.json", {"kaffi": self._entry("g1")})
-            self.assertEqual(main(["validate", str(d)]), 1, "a cache without the variant fails")
-            save_cache(d / "bin" / "forms.json", {"kaffi": self._entry("g1"), "kaffið": self._entry("g1")})
-            self.assertEqual(main(["validate", str(d)]), 0)
+            for cache, warns in ((None, "not checked against BÍN yet"),
+                                 ({"kaffi": self._entry("g1")}, "not in the BÍN cache"),
+                                 ({"kaffi": self._entry("g1"), "kaffið": self._entry("g2", "kaffið")}, "not one lemma"),
+                                 ({"kaffi": self._entry("g1"), "kaffið": self._entry("g1")}, None)):
+                if cache is not None:
+                    save_cache(d / "bin" / "forms.json", cache)
+                err = io.StringIO()
+                with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+                    self.assertEqual(main(["validate", str(d)]), 0, warns)
+                self.assertEqual(warns is None or warns in err.getvalue(), True, (warns, err.getvalue()))
 
-    def test_the_committed_cache_covers_the_real_curriculum(self):
-        from audiolesson.binform import cache_path, check_variants, load_cache
+    def test_the_real_cache_when_it_exists_agrees_with_the_curriculum(self):
+        from audiolesson.binform import cache_path, load_cache, variant_warnings
 
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         path = cache_path(ROOT / "curricula" / "is-en")
         if not path.exists():
-            self.skipTest("curricula/is-en/bin/forms.json is not built yet: python tools/bin_lookup.py --variants")
-        self.assertEqual(check_variants(cur, load_cache(path)), [])
+            self.skipTest("curricula/is-en/bin/forms.json is not built yet: python tools/bin_lookup.py --data SHsnid.csv.zip --variants")
+        self.assertEqual(variant_warnings(cur, load_cache(path)), [])
 
-    def test_the_tool_parses_a_response_and_waits_for_a_pick_when_ambiguous(self):
-        import contextlib
+    def _tool(self):
         import importlib.util
-        import io
 
         spec = importlib.util.spec_from_file_location("bin_lookup", ROOT / "tools" / "bin_lookup.py")
         tool = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(tool)
-        data = json.loads((ROOT / "tests" / "data" / "bin_beygingarmynd_sample.json").read_text(encoding="utf-8"))
-        chosen, cands = tool.resolve("miða", data)
-        self.assertIsNone(chosen)
-        self.assertEqual([(c["lemma"], c["ofl"]) for c in cands], [("mið", "hk"), ("miða", "so"), ("miði", "kk")])
-        self.assertEqual(next(c for c in cands if c["lemma"] == "miði")["tags"], ["ÞFET", "ÞGFET"])
-        chosen, _ = tool.resolve("miða", data, pick="g-miði")
-        self.assertEqual(chosen["lemma"], "miði")
-        chosen, _ = tool.resolve("miða", data, ofl="so")
-        self.assertEqual(chosen["guid"], "g-miða")
+        return tool
+
+    def test_the_tool_reads_the_downloaded_list_and_waits_for_a_pick_when_ambiguous(self):
+        """The fixture ``tests/data/bin_sample.csv`` is HAND-WRITTEN in the layout ``binform.COLUMNS`` assumes (lemma; id; word class;
+        domain; form; tag), not a slice of the real file: replace it with one on the first real run."""
+        import contextlib
+        import io
+        import zipfile
+
+        tool = self._tool()
+        data = ROOT / "tests" / "data" / "bin_sample.csv"
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / "bin" / "forms.json"
-            with contextlib.redirect_stdout(io.StringIO()):
-                self.assertEqual(tool.run([("miða", None)], path, None, "2026-10-09", fetcher=lambda f, o: data, pause=0), 1, "ambiguous: nothing written")
+            with contextlib.redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(tool.run([("miða", None)], data, path, None, "2026-10-09"), 1, "ambiguous: nothing written")
                 self.assertFalse(path.exists())
-                self.assertEqual(tool.run([("miða", None)], path, "g-miði", "2026-10-09", fetcher=lambda f, o: data, pause=0), 0)
-            self.assertEqual(json.loads(path.read_text(encoding="utf-8"))["miða"]["guid"], "g-miði")
+                self.assertIn("pick one with --pick", out.getvalue())
+                self.assertEqual(tool.run([("miða", None)], data, path, "no-such-id", "2026-10-09"), 1)
+                self.assertIn("no word with id 'no-such-id'", out.getvalue(), "a wrong pick is not 'not found'")
+                self.assertEqual(tool.run([("miða", "so")], data, path, None, "2026-10-09"), 0, "--ofl narrows it to one word")
+                self.assertEqual(tool.run([("miða", None)], data, path, "1002", "2026-10-09"), 0)
+                self.assertEqual(tool.run([("kaffið", None), ("nonexistent", None)], data, path, None, "2026-10-09"), 1, "a form not in the list")
+            cache = json.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual((cache["miða"]["lemma"], cache["miða"]["tag"], cache["miða"]["source"]), ("miði", "ÞFET/ÞGFET", "bin_sample.csv"))
+            self.assertEqual(cache["kaffið"]["guid"], "2000")
+            # the zipped download works the same
+            zpath = Path(td) / "SHsnid.csv.zip"
+            with zipfile.ZipFile(zpath, "w") as z:
+                z.write(data, "SHsnid.csv")
+            from audiolesson.binform import find_forms
+
+            self.assertEqual(find_forms(zpath, {"kaffið"}), find_forms(data, {"kaffið"}))
+
+
 class NewComponentTests(unittest.TestCase):
     """#218 b3: the pace's unit is weighted new components (the owner's amendments of 2026-10-08/09): a word or chunk 1, a pattern 1
     (its frame's new words included), a phrase 1 for each new word, a close variant w (0.5), known parts and a #192 pattern instance 0."""
