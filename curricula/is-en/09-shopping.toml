@@ -199,6 +199,7 @@ topics = ["shopping"]
 slots = { thing = "acc_thing" }
 example = { thing = "peysu" }
 prereqs = ["peysu"]
+exclude_fills = ["leigubil"]  # «Áttu leigubíl?» is not said (#192)
 pronunciation_notes = "átt þú → áttu"
 
 [[items]]

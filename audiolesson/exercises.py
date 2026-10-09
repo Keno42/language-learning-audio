@@ -144,7 +144,7 @@ class Builder:
         for c in self.cur.items:
             if c.kind != "construction" or not c.forms:
                 continue
-            options = {slot: self.cur.items_with_tag(tag) for slot, tag in c.slots.items()}
+            options = {slot: self.cur.items_with_tag(tag, c) for slot, tag in c.slots.items()}
             if not all(options.values()):
                 continue
             combos = self._product(options, list(options))
@@ -558,7 +558,7 @@ class Builder:
         # the worked example uses words the learner has: when the authored one isn't, a known filler of the slot
         for slot, tag in item.slots.items():
             if slot in fills and not self._available(fills[slot].id):
-                known = next((i for i in self.cur.items_with_tag(tag) if self._available(i.id)), None)
+                known = next((i for i in self.cur.items_with_tag(tag, item) if self._available(i.id)), None)
                 if known is not None:
                     fills[slot] = known
         target, meaning = self.cur.resolve_slots(item, fills)
@@ -923,7 +923,7 @@ class Builder:
             if fixed and slot in fixed:
                 options[slot] = [fixed[slot]]
                 continue
-            cands = [i for i in self.cur.items_with_tag(tag) if usable(i.id)]
+            cands = [i for i in self.cur.items_with_tag(tag, construction) if usable(i.id)]
             if exclude and slot in exclude:
                 cands = [c for c in cands if c.id != exclude[slot].id]
             if not cands:

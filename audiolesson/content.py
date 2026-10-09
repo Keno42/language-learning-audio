@@ -175,6 +175,10 @@ class Item:
     # another sentence of the pattern with other fillers, credited to the pattern and its fillers, never to the phrase.
     instance_of: str = ""
     instance_fill: dict[str, str] = field(default_factory=dict)
+    # A construction: fills (item ids) that its generated sentences never take although their tags fit a slot: a named
+    # exception to the tags («Áttu leigubíl?» is not said; the tags explain nine cases in ten, #192, §9 "Good enough
+    # overall"). Not a tagging scheme: an authored fill (example, situation_fill, instance_fill) is still used.
+    exclude_fills: list[str] = field(default_factory=list)
     # A short known-language sentence the word is said in («This is good.» for «gott»): the recall
     # prompt after its introduction says «Say: good, as in: This is good.», so the answer is the
     # form that sentence takes rather than any of the word's family (gott, góður, góðan…).
@@ -347,8 +351,10 @@ class Curriculum:
     def item(self, item_id: str) -> Item:
         return self.by_id[item_id]
 
-    def items_with_tag(self, tag: str) -> list[Item]:
-        return [i for i in self.items if tag in i.tags]
+    def items_with_tag(self, tag: str, construction: Item | None = None) -> list[Item]:
+        """The items with ``tag``; for ``construction``'s slot, without the fills its ``exclude_fills`` names."""
+        skip = construction.exclude_fills if construction is not None else ()
+        return [i for i in self.items if tag in i.tags and i.id not in skip]
 
     def resolve_slots(self, construction: Item, fills: dict[str, Item], speaker: str | None = None, form: str | None = None) -> tuple[str, str]:
         """Return (target, meaning) with every slot filled from ``fills``; agreement
@@ -390,7 +396,7 @@ class Curriculum:
             if slot in construction.example:
                 fills[slot] = self.by_id[construction.example[slot]]
             else:
-                candidates = self.items_with_tag(tag)
+                candidates = self.items_with_tag(tag, construction)
                 if not candidates:
                     raise CurriculumError(f"construction {construction.id!r}: no items tagged {tag!r} for slot {slot!r}")
                 fills[slot] = candidates[0]
@@ -681,6 +687,12 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"item {it.id!r}: variant_of {it.variant_of!r} is itself a variant; name the form it is a variant of")
             if cur.by_id[it.variant_of].target == it.target:
                 raise CurriculumError(f"item {it.id!r}: a variant must differ from {it.variant_of!r} in its words")
+        if it.exclude_fills:
+            if it.kind != "construction":
+                raise CurriculumError(f"item {it.id!r}: exclude_fills is for a construction")
+            for ref in it.exclude_fills:
+                if ref not in cur.by_id or not any(t in cur.by_id[ref].tags for t in it.slots.values()):
+                    raise CurriculumError(f"item {it.id!r}: exclude_fills {ref!r} is not a fill with a tag of one of its slots")
         if it.instance_of or it.instance_fill:
             c = cur.by_id.get(it.instance_of)
             if it.kind != "phrase" or c is None or c.kind != "construction":

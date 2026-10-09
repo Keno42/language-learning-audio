@@ -5155,6 +5155,59 @@ class HardSentenceCapTests(unittest.TestCase):
             day += timedelta(days=1)
 
 
+class ExcludeFillsTests(unittest.TestCase):
+    """#192 (owner, after lesson 20): a named fill a construction never takes although its tag fits: an exception to the tags, not a
+    new tagging scheme («Áttu leigubíl?» is not said; «Ég þarf leigubíl.» stays)."""
+
+    @staticmethod
+    def _raw(exclude=("bil",)):
+        return {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "peysa", "kind": "vocab", "target": "peysu", "meaning": "a sweater", "tags": ["acc"]},
+                {"id": "bil", "kind": "vocab", "target": "leigubíl", "meaning": "a taxi", "tags": ["acc"]},
+                {"id": "attu", "kind": "construction", "target": "Áttu {thing}?", "meaning": "Do you have {thing}?",
+                 "slots": {"thing": "acc"}, "example": {"thing": "peysa"}, "exclude_fills": list(exclude)},
+                {"id": "tharf", "kind": "construction", "target": "Ég þarf {thing}.", "meaning": "I need {thing}.",
+                 "slots": {"thing": "acc"}, "example": {"thing": "bil"}},
+            ],
+        }
+
+    def test_the_construction_never_takes_the_excluded_fill_and_another_one_does(self):
+        from audiolesson.exercises import Builder
+        cur = curriculum_from_dict(self._raw())
+        self.assertEqual([i.id for i in cur.items_with_tag("acc", cur.by_id["attu"])], ["peysa"])
+        self.assertEqual([i.id for i in cur.items_with_tag("acc", cur.by_id["tharf"])], ["peysa", "bil"])
+        learner = fresh()
+        for i in ("peysa", "bil"):
+            learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
+        said = set()
+        for _ in range(12):
+            for c in ("attu", "tharf"):
+                g = b.generate(cur.by_id[c], prefer_unused=False)
+                if g is not None:
+                    said.add(g.target)
+        self.assertNotIn("Áttu leigubíl?", said)
+        self.assertIn("Ég þarf leigubíl.", said)
+        self.assertIn("Áttu peysu?", said)
+
+    def test_validate_rejects_an_unknown_fill_a_wrong_tag_and_a_non_construction(self):
+        for bad in ("nope", "tharf"):
+            with self.assertRaises(CurriculumError):
+                curriculum_from_dict(self._raw(exclude=(bad,)))
+        raw = self._raw()
+        raw["items"][0]["exclude_fills"] = ["bil"]
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
+
+    def test_the_course_excludes_leigubil_from_attu_only(self):
+        cur = load_curriculum(Path(__file__).resolve().parent.parent / "curricula" / "is-en")
+        self.assertEqual(cur.by_id["attu"].exclude_fills, ["leigubil"])
+        self.assertNotIn("leigubil", [i.id for i in cur.items_with_tag("acc_thing", cur.by_id["attu"])])
+        self.assertIn("leigubil", [i.id for i in cur.items_with_tag("acc_thing")])
+
+
 class PatternInstanceIntroTests(unittest.TestCase):
     """#192, the rest (owner, after lesson 18): a linked phrase whose pattern and fillers are *known* comes in as one sentence of its
     pattern, not as a new item with a ladder; it stays in ``new_items`` and the next-day question decides."""
