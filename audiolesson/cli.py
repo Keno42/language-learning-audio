@@ -390,7 +390,7 @@ def _plan(script: Script, cur) -> dict:
         "theme": meta.get("theme"),  # #149 1b-ii: the lesson's theme and level, and how often its exchange played
         "new_components": meta.get("new_components"),  # #218 b3: the weighted new material, forms apart, and each item's cost (None when counting items)
         "listening_asked": meta.get("listening_asked", []),  # #179: turns asked because the line can be said
-        "second_half": {k: meta.get(k, 0) for k in ("pick_out_count", "catch_unknown_count", "longest_kind_run_after_target")},  # #248: the listening rotation
+        "second_half": {k: meta.get(k, 0) for k in ("pick_out_count", "catch_unknown_count", "pick_out_echo_count", "longest_kind_run_after_target")},  # #248: the listening rotation
         "listening_tried": meta.get("listening_tried", []),  # #183: turns tried on a part (bonus questions)
         "exposures": meta.get("exposures", {}),
         "open_items": list(meta.get("open_items", [])),  # #199: the bot brings their questions forward and asks the waiting ones

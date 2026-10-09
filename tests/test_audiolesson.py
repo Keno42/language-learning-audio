@@ -5328,6 +5328,73 @@ class ListeningTaskTests(unittest.TestCase):
     def test_the_curriculum_carries_probes_and_glosses(self):
         self.assertEqual({k for k in ("thad_kostar_big", "thad_kostar", "klukkan_er") if self.cur.by_id[k].information_probes}, {"thad_kostar_big", "thad_kostar", "klukkan_er"})
 
+    # -- pick out of a scene's line (#248 step 2)
+
+    @staticmethod
+    def _theme(turn):
+        from audiolesson.themes import Level, Theme, Turn
+        return Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
+            turn, Turn(who="you", say="Takk.", cue="Thank her.", items=["takk"]),
+        ])])
+
+    def test_a_probe_is_a_stretch_of_its_line_with_a_question_when_there_are_two(self):
+        from audiolesson.themes import Turn, _check
+        two = [
+            {"kind": "price", "answer": "fimm hundruð krónur", "meanings": {"en": "five hundred krónur", "ja": "500クローナ"}, "ask": {"en": "How much is the coffee?", "ja": "コーヒーは？"}},
+            {"kind": "price", "answer": "þúsund krónur", "meanings": {"en": "a thousand krónur", "ja": "1000クローナ"}, "ask": {"en": "How much is the sandwich?", "ja": "サンドイッチは？"}},
+        ]
+        say = "Kaffið kostar fimm hundruð krónur og samlokan kostar þúsund krónur."
+        _check(self._theme(Turn(who="partner", say="Hæ.", meaning="Hi.", listen=[{"say": say, "meaning": "m", "probes": two}])))
+        def bad(probes, **kw):
+            return self._theme(Turn(who="partner", say="Hæ.", meaning="Hi.", listen=[{"say": say, "meaning": "m", "probes": probes}], **kw))
+        for broken in (
+            [{**two[0], "answer": "tvö hundruð krónur"}, two[1]],  # not in the line
+            [{k: v for k, v in two[0].items() if k != "ask"}, two[1]],  # two pieces, no question for one
+            [{**two[0], "kind": "weather"}, two[1]],
+            [{**two[0], "meanings": {"en": "five hundred krónur"}}, two[1]],
+        ):
+            with self.assertRaises(CurriculumError, msg=str(broken)):
+                _check(bad(broken))
+        _check(bad([{k: v for k, v in two[0].items() if k != "ask"}]))  # one piece: the plain question will do
+        with self.assertRaises(CurriculumError):
+            _check(self._theme(Turn(who="partner", say="Hæ.", meaning="Hi.", listen=[{"say": say, "meaning": "m"}])))  # a listening line without a probe
+        with self.assertRaises(CurriculumError):
+            _check(self._theme(Turn(who="you", say="Takk.", cue="c", items=["takk"], probes=two)))  # a learner's line has none
+
+    def test_a_scenes_line_with_two_pieces_asks_for_one_in_icelandic(self):
+        from audiolesson.listening_tasks import append_task, partner_pick_out
+        from audiolesson.cando import load_cando
+        from audiolesson.themes import load_themes
+        themes = load_themes(ROOT / "curricula" / "is-en", self.cur, load_cando(ROOT / "curricula" / "is-en"))
+        tour = next(t for t in themes if t.id == "tour")
+        line = tour.levels[0].turns[2].listen_lines()[0]
+        self.assertEqual(len(line.probes), 2, "two pieces: how long, and when")
+        known = self._known("tuttugu mínútur klukkan hálf þrjú")
+        tasks = [partner_pick_out(line, p, known, "en", source="theme:tour:1:2:0", scene="A coach tour.", speaker="native_a") for p in line.probes]
+        self.assertEqual([(t.answer, t.meaning, t.ask) for t in tasks], [
+            ("tuttugu mínútur", "twenty minutes", "How long do we stop?"), ("klukkan hálf þrjú", "half past two", "When do we leave?")])
+        sc = Script(1, "t", "is", "en")
+        b = self._builder()
+        append_task(b, sc, tasks[0], 120.0)
+        self.assertEqual([g.text for g in sc.segments if g.type in ("speak", "answer")], [line.say, "tuttugu mínútur", line.say])
+        self.assertIn("How long do we stop?", sc.transcript())
+        # the learner must be able to say the answer
+        self.assertIsNone(partner_pick_out(line, line.probes[0], known - {"mínútur"}, "en", source="s", scene="", speaker="native_a"))
+        # a line with several pieces and a probe without a question asks nothing
+        broken = type(line)(who="partner", say=line.say, probes=[{k: v for k, v in line.probes[0].items() if k != "ask"}, line.probes[1]])
+        self.assertIsNone(partner_pick_out(broken, broken.probes[0], known, "en", source="s", scene=""))
+
+    def test_a_single_piece_in_a_line_the_learner_hasnt_drilled_is_asked_with_the_plain_question(self):
+        from audiolesson.listening_tasks import append_task, partner_pick_out
+        from audiolesson.themes import Turn
+        line = Turn(who="partner", say="Það gera þrjú þúsund og fimm hundruð krónur.", meaning="m",
+                    probes=[{"kind": "price", "answer": "þrjú þúsund og fimm hundruð krónur", "meanings": {"en": "three thousand five hundred krónur", "ja": "3500クローナ"}}])
+        task = partner_pick_out(line, line.probes[0], self._known("þrjú þúsund og fimm hundruð krónur"), "en", source="theme:supermarket:2:3:1:0", scene="")
+        sc = Script(1, "t", "is", "en")
+        append_task(self._builder(), sc, task, 120.0)
+        self.assertIn("How much is it?", sc.transcript())
+        self.assertEqual(task.answer, "þrjú þúsund og fimm hundruð krónur")
+
     # -- pick out
 
     def test_a_price_is_picked_out_of_a_generated_sentence(self):
@@ -5473,12 +5540,16 @@ class ListeningTaskTests(unittest.TestCase):
         self.assertGreater(kinds["catch_unknown"], 3)
         for cur, learner, sc in lessons:
             m = sc.meta
-            self.assertEqual(m["pick_out_count"], sum(e.kind == "pick_out" for e in sc.exercises if e.start >= m["target_reached_at"]))
+            closing_at = next((e.start for e in sc.exercises if e.kind == "closing"), float("inf"))  # the closing block's own exercises are not counted
+            self.assertEqual(m["pick_out_count"], sum(e.kind == "pick_out" for e in sc.exercises if m["target_reached_at"] <= e.start < closing_at))
             self.assertEqual(_plan(sc, cur)["second_half"]["pick_out_count"], m["pick_out_count"])
             self.assertLessEqual(sc.total_duration, 30 * 60 + 120, sc.lesson_number)
             # #248 review: the same two frames and the same word over and over would be a new boredom
-            picks = Counter(e.item_ids[0] for e in sc.exercises if e.kind == "pick_out")
+            picks = Counter(e.label.rsplit(":", 1)[0] for e in sc.exercises if e.kind == "pick_out")  # per line of a scene
             self.assertLessEqual(max(picks.values(), default=0), PlanConfig().max_pick_outs_per_pattern, f"lesson {sc.lesson_number}: {picks}")
+            # #248 step 2: a line of a scene, never a drilled frame plus its answer
+            self.assertTrue(all(e.label.startswith("theme:") for e in sc.exercises if e.kind == "pick_out"), f"lesson {sc.lesson_number}")
+            self.assertEqual(m["pick_out_echo_count"], 0)
             words = [next(g.text.lower() for g in sc.segments if g.exercise == e.index and g.type == "answer") for e in sc.exercises if e.kind == "catch_unknown"]
             self.assertEqual(len(words), len(set(words)), f"lesson {sc.lesson_number}: a word caught twice: {words}")
             # the run row stops at the closing block, whose recalls are a run of their own
@@ -5495,6 +5566,15 @@ class ListeningTaskTests(unittest.TestCase):
             practised = {i for e in sc.exercises if e.kind in ("intro", "recall", "generative", "connect", "dialogue") for i in e.item_ids}
             for item in heard_only - practised:
                 self.assertNotIn(item, m["exposures"], f"lesson {sc.lesson_number}: {item} was only heard")
+
+    def test_a_line_with_two_pieces_is_asked_with_a_question_that_names_one(self):
+        asked = set()
+        for _, _, sc in self._course(30):
+            text = sc.transcript()
+            for q in ("How much is the coffee?", "How much is the sandwich?", "How much is the skyr?", "How much is the milk?", "How long do we stop?", "When do we leave?"):
+                if q in text:
+                    asked.add(q)
+        self.assertGreaterEqual(len(asked), 2, asked)
 
     def test_no_pick_out_before_the_target_is_delivered(self):
         for _, _, sc in self._course(21):

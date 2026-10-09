@@ -42,6 +42,12 @@ and ``load_scenes`` only ``[[scenes]]``, so they share the directory)::
   says the lines as written, so the learner meets the variation with its meaning and the canonical line every lesson;
   the transcript and plan.json say which was used. Every variant
   must fit the learner's reply that follows: it asks the same thing.
+- A partner line (and a variant) may carry ``probes`` and ``word_glosses``, and a partner turn ``listen`` lines (#248): what the second half's
+  listening exercises use. A *probe* is ``{ kind, answer, meanings = { en, ja }, ask = { en, ja } }``: ``answer`` a stretch of the line as written
+  («tuttugu mínútur»), ``kind`` price / time / count / place / duration; the learner finds it and says it in Icelandic. A line with two or more probes
+  gives each an ``ask`` («How long do we stop?»). A ``listen`` line ``{ say, meaning, meaning_ja, probes, word_glosses }`` is never played in the
+  exchange: it is wording for the listening exercises only, with two pieces of information for the question to pick between.
+  ``word_glosses = { word = { en, ja } }`` is the meaning of a word in the line the learner may not know («One word was new»).
 - A level is ready once every item of its ``you`` turns can be said (met, not open).
 
 General content only: no learner's dates, itinerary or lodging (the private trip profile, #132,
@@ -56,7 +62,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .cando import Scenario
-from .content import SPEAKERS, Curriculum, CurriculumError, Dialogue, DialogueTurn, unmarked_japanese
+from .content import PROBE_KINDS, SPEAKERS, Curriculum, CurriculumError, Dialogue, DialogueTurn, unmarked_japanese
 from .records import check_items, load_records
 
 WHO = ("you", "partner")
@@ -78,12 +84,26 @@ class Turn:
     # a partner line: the meaning of a word in it the learner may not know, per known language {word: {en, ja}} (#248). Authored, never
     # guessed from the line's translation: it is what «One word was new» answers.
     word_glosses: dict[str, dict[str, str]] = field(default_factory=dict)
+    # a partner line: what a learner can listen for in it (#248 step 2), each {kind, answer, meanings: {en, ja}, ask: {en, ja}}: ``answer`` is a stretch
+    # of the line as written («tuttugu mínútur»), ``meanings`` what it means, ``ask`` the question when the line holds more than one piece
+    # («How long do we stop?»; required then), else the plain question of the kind. The answer stays in the target language.
+    probes: list[dict] = field(default_factory=list)
+    # a partner turn: lines that are never played in the exchange, only heard in a listening exercise of the scene, each {say, meaning, meaning_ja, probes,
+    # word_glosses}: wording the learner hasn't drilled, with two or more pieces of information for the question to pick between (#248 step 2)
+    listen: list[dict] = field(default_factory=list)
 
     def lines(self) -> list[Turn]:
         """The partner's line and its variants, the line as written first: any of them fits the learner's reply."""
         return [self] + [
-            Turn("partner", v.get("say", ""), meaning=v.get("meaning", ""), meaning_ja=v.get("meaning_ja", ""), word_glosses=v.get("word_glosses", {}))
+            Turn("partner", v.get("say", ""), meaning=v.get("meaning", ""), meaning_ja=v.get("meaning_ja", ""), word_glosses=v.get("word_glosses", {}), probes=v.get("probes", []))
             for v in self.variants
+        ]
+
+    def listen_lines(self) -> list[Turn]:
+        """The lines only a listening exercise of the scene uses."""
+        return [
+            Turn("partner", v.get("say", ""), meaning=v.get("meaning", ""), meaning_ja=v.get("meaning_ja", ""), word_glosses=v.get("word_glosses", {}), probes=v.get("probes", []))
+            for v in self.listen
         ]
 
 
@@ -175,11 +195,15 @@ def _check(theme: Theme) -> None:
             if t.variants and t.who != "partner":
                 raise CurriculumError(f"{where} turn {k}: only a partner's line has variants")
             for v in t.variants:
-                if not (isinstance(v, dict) and v.get("say") and v.get("meaning")) or set(v) - {"say", "meaning", "meaning_ja", "word_glosses"}:
-                    raise CurriculumError(f"{where} turn {k}: a variant is {{ say, meaning, meaning_ja, word_glosses }}, with the line and its meaning")
-            if t.word_glosses and t.who != "partner":
-                raise CurriculumError(f"{where} turn {k}: word glosses go on a partner's line")
-            for line in t.lines():
+                if not (isinstance(v, dict) and v.get("say") and v.get("meaning")) or set(v) - {"say", "meaning", "meaning_ja", "word_glosses", "probes"}:
+                    raise CurriculumError(f"{where} turn {k}: a variant is {{ say, meaning, meaning_ja, word_glosses, probes }}, with the line and its meaning")
+            if (t.word_glosses or t.probes or t.listen) and t.who != "partner":
+                raise CurriculumError(f"{where} turn {k}: word glosses, probes and listening lines go on a partner's line")
+            for v in t.listen:
+                if not (isinstance(v, dict) and v.get("say") and v.get("meaning") and v.get("probes")) or set(v) - {"say", "meaning", "meaning_ja", "word_glosses", "probes"}:
+                    raise CurriculumError(f"{where} turn {k}: a listening line is {{ say, meaning, meaning_ja, probes, word_glosses }}, with at least one probe")
+            for line in [*t.lines(), *t.listen_lines()]:
+                _check_probes(where, k, line)
                 words = {w.lower() for w in re.findall(r"[^\W\d_]+", line.say)}
                 for word, gloss in line.word_glosses.items():
                     if word.lower() not in words:
@@ -188,6 +212,26 @@ def _check(theme: Theme) -> None:
                         raise CurriculumError(f"{where} turn {k}: word gloss {word!r} needs a non-empty meaning in en and ja")
             if len({x.say for x in t.lines()}) < len(t.lines()):
                 raise CurriculumError(f"{where} turn {k}: a variant repeats a line")
+
+
+def _check_probes(where: str, k: int, line: Turn) -> None:
+    """A line's probes (#248 step 2): a known kind, the answer a stretch of the line as written, a meaning in en and ja, and a question of its own
+    (``ask`` in en and ja) when the line holds more than one piece."""
+    words = [w.lower() for w in re.findall(r"[^\W\d_]+", line.say)]
+    for probe in line.probes:
+        if not (isinstance(probe, dict) and {"kind", "answer", "meanings"} <= set(probe) and set(probe) <= {"kind", "answer", "meanings", "ask"}):
+            raise CurriculumError(f"{where} turn {k}: a probe is {{ kind, answer, meanings, ask }}")
+        if probe["kind"] not in PROBE_KINDS:
+            raise CurriculumError(f"{where} turn {k}: probe kind must be one of {PROBE_KINDS}, not {probe['kind']!r}")
+        part = [w.lower() for w in re.findall(r"[^\W\d_]+", str(probe["answer"]))]
+        if not part or not any(words[i : i + len(part)] == part for i in range(len(words))):
+            raise CurriculumError(f"{where} turn {k}: probe answer {probe['answer']!r} is not a stretch of {line.say!r}")
+        for field_name in ("meanings", "ask"):
+            val = probe.get(field_name)
+            if val is None and field_name == "ask" and len(line.probes) == 1:
+                continue
+            if not isinstance(val, dict) or {"en", "ja"} - set(val) or not all(isinstance(m, str) and m.strip() for m in val.values()):
+                raise CurriculumError(f"{where} turn {k}: probe {probe['answer']!r} needs a non-empty {field_name} in en and ja" + (" (a line with several pieces asks for one)" if field_name == "ask" else ""))
 
 
 def scenario_order(scenarios: list[Scenario], boost: list[str] | tuple[str, ...] = (), tiers: tuple[str, ...] = ("A", "B")) -> list[str]:

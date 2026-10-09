@@ -78,6 +78,8 @@ class ListeningTask:
     speaker: str = "native_b"
     item_ids: tuple[str, ...] = ()
     repair: str = ""  # catch_unknown: the phrase that asks what the word means
+    ask: str = ""  # pick_out of a line holding several pieces: the question that names the one to find; else the plain question of the kind
+    pattern: str = ""  # what the planner caps per lesson: a construction for a generated sentence, the line for a scene's line
 
 
 def generated_pick_out(cur, gen, probe: dict, known_words: set[str], scene: str, speaker: str = "native_b") -> ListeningTask | None:
@@ -116,6 +118,36 @@ def generated_pick_out(cur, gen, probe: dict, known_words: set[str], scene: str,
         prompt_key=f"pick_out_{probe['kind']}",
         speaker=speaker,
         item_ids=(gen.construction.id,),
+        pattern=gen.construction.id,
+    )
+
+
+def partner_pick_out(line, probe: dict, known_words: set[str], known_lang: str, *, source: str, scene: str, speaker: str = "native_b") -> ListeningTask | None:
+    """A pick-out from a scene's partner ``line`` (#248 step 2): the learner has to find one piece of information in wording they haven't drilled, and says
+    it in Icelandic as it was said. ``probe`` is one of the line's ``probes``. None when the learner can't say the answer yet (a word of it they don't know)
+    or the probe has no meaning (or question) in their language."""
+    lang = language(known_lang)
+    meaning = probe["meanings"].get(lang)
+    ask = (probe.get("ask") or {}).get(lang, "")
+    if not meaning or (len(line.probes) > 1 and not ask):
+        return None
+    spans = [(m.group().lower(), m.start(), m.end()) for m in WORD.finditer(line.say)]
+    words = [w for w, _, _ in spans]
+    part = [w.lower() for w in tokens(probe["answer"])]
+    at = next((i for i in range(len(words)) if part and words[i : i + len(part)] == part), None)
+    if at is None or any(w not in known_words for w in part):
+        return None
+    return ListeningTask(
+        kind="pick_out",
+        source=source,
+        scene=scene,
+        line=line.say,
+        answer=line.say[spans[at][1] : spans[at + len(part) - 1][2]],
+        meaning=meaning,
+        prompt_key=f"pick_out_{probe['kind']}",
+        speaker=speaker,
+        ask=ask,
+        pattern=line.say,
     )
 
 
@@ -164,7 +196,8 @@ def _build(b, sc: Script, task: ListeningTask) -> None:
     b._beat(sc, ex)
     # named after the scene it comes from when there is one: whose line it was; otherwise the plain question
     who = b.prompts.get("speaker_he" if task.speaker == "native_b" else "speaker_she")
-    b._narr(sc, ex, b.prompts.get(task.prompt_key + "_scene", who=who) if task.scene and task.kind == "pick_out" else b.prompts.get(task.prompt_key))
+    question = task.ask or (b.prompts.get(task.prompt_key + "_scene", who=who) if task.scene and task.kind == "pick_out" else b.prompts.get(task.prompt_key))
+    b._narr(sc, ex, question)
     expected = f"{task.answer} {task.repair}" if task.repair else task.answer
     b._pause(sc, ex, b.timing.answer_pause(expected, b.tl, generative=True), "answer", floor=b.timing.answer_floor())
     voice = _other_voice(task.speaker) if task.repair else task.speaker
