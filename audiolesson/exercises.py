@@ -403,6 +403,31 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def pattern_instance(self, sc: Script, item: Item, pattern: Item, fills: dict[str, Item]) -> Exercise:
+        """A fixed phrase that is an instance of a pattern the learner knows, with fillers they know (#192), presented
+        once as a sentence of that pattern, not introduced on its own: «A sentence from a pattern you know. Listen, then
+        repeat.», the sentence, what it means, the sentence again and a pause to repeat it. No ladder and no closing
+        recall. It writes the same ``embed_sentence`` / ``embed_meaning`` segments as ``embed``, so the next-day question
+        asks the phrase in its own form, and what the learner says decides whether it counts as learned
+        (``LearnerState.report``). Nothing is recorded for the phrase here; the caller credits the pattern and its fillers."""
+        gender, made = self._filled(pattern, fills)
+        target = item.target if made.strip().casefold() == item.target.strip().casefold() else made
+        voice = VOICE_OF[gender or "f"]
+        ex = sc.new_exercise("embed", "embed", [item.id], f"pattern: {target}")
+        self._narr(sc, ex, self._as(gender, self.prompts.get("instance_sentence")))
+        self._beat(sc, ex)
+        self._speak(sc, ex, target, speaker=voice, role="embed_sentence")
+        self._beat(sc, ex)
+        sc.add(Segment("narrate", "instructor", self.prompts.get("embed_meaning", meaning=self._m(item.spoken_meaning)), self.kl, 1.0,
+                       self.timing.speech_estimate(item.spoken_meaning, self.kl), "embed_meaning", ex.index))
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("repeat"))
+        self._speak(sc, ex, target, speaker=voice)
+        self._repeat_pause(sc, ex, target)
+        self.heard.add(_norm_utterance(target))
+        self._gap(sc, ex)
+        return ex
+
     def intro(self, sc: Script, item: Item) -> Exercise:
         if item.kind == "construction":
             return self._intro_construction(sc, item)
@@ -1059,10 +1084,11 @@ class Builder:
         *,
         replay: bool = False,
         max_turns: int | None = None,
-        assisted: bool = True,
+        translate: bool | frozenset[int] | set[int] = True,
         listening: frozenset[str] | set[str] = frozenset(),
         tried: frozenset[str] | set[str] = frozenset(),
         tried_turns: frozenset[int] | set[int] = frozenset(),
+        heard_only: bool = False,
     ) -> Exercise:
         """Play a dialogue; ``max_turns`` lets early encounters stop after a few turns.
 
@@ -1070,34 +1096,39 @@ class Builder:
         turns are heard, not asked for: «Here you would say:», the line, what it means. The
         scene carries the meaning; nothing is expected back for them.
 
+        ``heard_only`` (#218 b1): every learner turn is heard, not asked: the cue (the intent) stays, then «Here you would say:» and the
+        line. Spare time goes to this, not to filler items.
+
         ``tried_turns``: indices of turns whose line is only tried (#149 1b-ii): the cue, «Try it.», the pause and the
         model line; the theme exchange's lines are literal, so they have no item to name.
 
-        ``assisted`` (the first encounter) translates partner lines and cues every turn. Later
-        encounters drop both once the partner has said something: their line is the cue. A
-        turn before any partner line always keeps its cue."""
+        ``translate`` gives the partner's lines their meaning: ``True`` for every turn, or the indices of the turns
+        whose lines are heard for the first time (the opener before a turn and the reply after it). Only the
+        translation fades (#210). The cue, the intent, plays in every encounter, for every turn: no turn of an exchange
+        that goes on drops it (the partner's line never decides the reply)."""
         turns = dlg.turns if max_turns is None else dlg.turns[: max(1, max_turns)]
         ids = [t.expect for t in turns if t.expect] + [r for r in dlg.requires if r not in {t.expect for t in turns}]
-        label = f"dialogue: {dlg.id}" + ("" if len(turns) == len(dlg.turns) else f" ({len(turns)}/{len(dlg.turns)} turns)")
+        label = ("heard: " if heard_only else "dialogue: ") + dlg.id + ("" if len(turns) == len(dlg.turns) else f" ({len(turns)}/{len(dlg.turns)} turns)")
         if dlg.variant:
             label += f" [lines {dlg.variant}]"
         ex = sc.new_exercise("dialogue", "dialogue", ids, label)
         partner = dlg.partner_speaker
         learner_voice = _other_voice(partner)
         # the switch from drills to a conversation is the biggest change of mode in a lesson
-        if listening or tried:
+        if listening or tried or heard_only:
             self._narr(sc, ex, self.prompts.get("listening_intro"))
         self._narr(sc, ex, self.prompts.get("dialogue_start"))
         self._narr(sc, ex, dlg.setting)
         self._beat(sc, ex)
         lines: list[tuple[str, str]] = []
-        heard_partner = False
         for k, turn in enumerate(turns):
+            glossed = translate is True or (translate is not False and k in translate)
+            if turn.scene:
+                self._narr(sc, ex, turn.scene)
             if turn.opener:
                 self._speak(sc, ex, turn.opener, speaker=partner)
                 lines.append((partner, turn.opener))
-                heard_partner = True
-                if assisted and self.translate_partner and turn.opener_meaning:
+                if glossed and self.translate_partner and turn.opener_meaning:
                     self._beat(sc, ex)
                     self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=turn.opener_meaning))
             gender = None
@@ -1119,30 +1150,30 @@ class Builder:
                 item = None
                 gender = GENDER_OF[learner_voice] if turn.expect_text_m else None
                 expected = (turn.expect_text_m if gender == "m" else turn.expect_text) or ""
-            heard_only = item is not None and item.id in listening  # no task cue: nothing is asked
-            if heard_only:
-                pass
-            elif assisted or not heard_partner or turn.keep_cue or k in tried_turns:
+            line_heard = heard_only or (item is not None and item.id in listening)
+            if line_heard and not heard_only:
+                pass  # a listening scene's line: no task cue, nothing is asked
+            else:
                 self._narr(sc, ex, self._as(gender, turn.cue))
-            elif gender:
-                self._narr(sc, ex, self.prompts.get(f"speak_as_{gender}_alone"))
             if (item is not None and item.id in tried) or k in tried_turns:
                 self._narr(sc, ex, self.prompts.get("listening_try"))  # a line they can say part of: «Try it.»
-            if heard_only:
+            if line_heard:
                 self._narr(sc, ex, self.prompts.get("listening_line"))
                 self._answer(sc, ex, expected, speaker=learner_voice)
                 self._beat(sc, ex)
-                self._narr(sc, ex, self._m(meaning_text))
+                if meaning_text:
+                    self._narr(sc, ex, self._m(meaning_text))
             else:
                 self._answer_pause(sc, ex, expected, item, generative=True)
                 self._answer(sc, ex, expected, speaker=learner_voice)
             lines.append((learner_voice, expected))
             if turn.partner:
                 self._beat(sc, ex)
+                if turn.partner_scene:
+                    self._narr(sc, ex, turn.partner_scene)
                 self._speak(sc, ex, turn.partner, speaker=partner)
                 lines.append((partner, turn.partner))
-                heard_partner = True
-                if assisted and self.translate_partner and turn.partner_meaning:
+                if glossed and self.translate_partner and turn.partner_meaning:
                     self._beat(sc, ex)
                     self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=turn.partner_meaning))
         if replay:

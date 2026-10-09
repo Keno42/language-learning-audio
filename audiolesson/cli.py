@@ -14,7 +14,7 @@ from .themes import load_themes, scenario_order
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts
 from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, part_before_whole_report
-from .learner import LearnerState, parse_date
+from .learner import LOADS, LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
 from .script import Script
@@ -41,8 +41,8 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--learner", "-l", default=None, help="learner state .json (created if missing); implied by --user")
     g.add_argument("--out", "-o", default=None, help="output directory (default: out/, or <root>/<user>/ with --user)")
     g.add_argument("--minutes", "-m", type=float, default=None, help="lesson length (default 15, remembered per --user)")
-    g.add_argument("--new", type=int, default=None, help="new items to introduce this lesson (default: the learner's pace, see README 'Pacing')")
-    g.add_argument("--pace", type=int, default=None, help="set the learner's ongoing pace (new items per lesson) before planning")
+    g.add_argument("--new", type=int, default=None, help="new items to introduce this lesson, counting items (default: the learner's target of weighted new components, see README 'Pacing')")
+    g.add_argument("--pace", type=int, default=None, help="set the learner's ongoing pace (new items per lesson) before planning; this lesson counts items, not components")
     g.add_argument("--auto", action="store_true", help="auto mode (persists): pace rises on its own every few lessons; `report --failed` still slows it")
     g.add_argument("--manual", action="store_true", help="back to manual mode (persists): pace rises only after `report`")
     g.add_argument("--topics", "-t", default="", help="comma-separated topics to prefer")
@@ -83,6 +83,7 @@ def main(argv: list[str] | None = None) -> int:
     rp.add_argument("--recalled", default="", help="comma-separated item ids you confirmed you recalled")
     rp.add_argument("--easy", default="", help="comma-separated item ids that felt too easy")
     rp.add_argument("--sooner", default="", help="comma-separated item ids the learner does not remember: they come back sooner (due within half their interval), without an outcome being recorded")
+    rp.add_argument("--load", choices=LOADS, default=None, help="how heavy the lesson was: light, right or heavy (does not mark the lesson reported on its own)")
     rp.add_argument("--date", default=None)
     rp.set_defaults(func=cmd_report)
 
@@ -236,10 +237,15 @@ def cmd_generate(args) -> int:
     if args.pace is not None:
         learner.pace = args.pace
         learner.pace_changed_at = learner.lessons_completed
+    new_target = None
     if args.new is not None:
         new_items, why = args.new, f"--new {args.new}"
+    elif args.pace is not None:
+        new_items, why = learner.suggest_pace(args.minutes, today)  # an explicit pace in items: this lesson counts items (#218 b3)
     else:
-        new_items, why = learner.suggest_pace(args.minutes, today)
+        new_items, items_why = learner.suggest_pace(args.minutes, today)
+        new_target, why = learner.suggest_target(args.minutes, today)
+        why += f" (≈ {new_items} items)"
     priority: list[str] = []
     scenarios = load_cando(args.curriculum, cur) if Path(args.curriculum).is_dir() else []
     trip = load_trip(args.trip) if args.trip else None
@@ -253,6 +259,7 @@ def cmd_generate(args) -> int:
     cfg = PlanConfig(
         minutes=args.minutes,
         new_items=new_items,
+        new_target=new_target,
         topics=_split(args.topics),
         seed=args.seed,
         translate_partner=not args.no_translate,
@@ -285,6 +292,9 @@ def cmd_generate(args) -> int:
         # never the profile's contents: only that one is in use
         print(f"  trip ordering: {len(priority)} can-do items first")
     print(f"  new: {', '.join(script.meta['new_items']) or '(none — curriculum exhausted, review only)'}")
+    if script.meta.get("new_components"):
+        nc = script.meta["new_components"]
+        print(f"  new components (weighted): {nc['total']:g} of a target {nc['target']:g}" + (f", {nc['forms']:g} of them forms" if nc["forms"] else ""))
     carried = len(script.meta.get("due_not_fitted", []))
     early = len(script.meta.get("reviewed_early", []))
     print(f"  reviewed: {len(script.meta['reviewed_items'])} items ({script.meta.get('due_at_start', 0)} were due"
@@ -321,6 +331,8 @@ def cmd_generate(args) -> int:
         learner.level = level
         if args.new is None:
             learner.pace = new_items
+        if new_target is not None:
+            learner.new_target = new_target
         learner.save(args.learner)
         _save_user_settings(args)
         print(f"  learner state updated: {args.learner} (use `{_learner_hint(args, ' --failed id,id')}` after listening if some items failed)")
@@ -369,6 +381,7 @@ def _plan(script: Script, cur) -> dict:
         "reviewed_items": [describe(i) for i in meta.get("reviewed_items", [])],
         "dialogues": meta.get("dialogues", []),
         "theme": meta.get("theme"),  # #149 1b-ii: the lesson's theme and level, and how often its exchange played
+        "new_components": meta.get("new_components"),  # #218 b3: the weighted new material, forms apart, and each item's cost (None when counting items)
         "listening_asked": meta.get("listening_asked", []),  # #179: turns asked because the line can be said
         "listening_tried": meta.get("listening_tried", []),  # #183: turns tried on a part (bonus questions)
         "exposures": meta.get("exposures", {}),
@@ -413,7 +426,8 @@ def cmd_report(args) -> int:
     learner = LearnerState.load(args.learner)
     today = parse_date(args.date)
     changed = learner.report(
-        _split(args.failed), _split(args.easy), today, args.lesson, hesitated=_split(args.hesitated), recalled=_split(args.recalled), sooner=_split(args.sooner)
+        _split(args.failed), _split(args.easy), today, args.lesson, hesitated=_split(args.hesitated), recalled=_split(args.recalled), sooner=_split(args.sooner),
+        load=args.load,
     )
     learner.save(args.learner)
     if changed["failed"]:
@@ -428,9 +442,13 @@ def cmd_report(args) -> int:
         print(f"coming back sooner (due within half the interval; no outcome recorded): {', '.join(changed['sooner'])}")
     if changed["sooner_skipped"]:
         print(f"left to the next-day review (embedded or tried): {', '.join(changed['sooner_skipped'])}")
+    if changed["load"]:
+        print(f"lesson {changed['lesson']} load recorded: {changed['load']}")
+    if changed.get("load_unknown") is not None:
+        print(f"warning: lesson {changed['load_unknown']} is not in the lesson log: its load ({args.load}) was not stored", file=sys.stderr)
     if changed["unknown"]:
         print(f"warning: not in learner state: {', '.join(changed['unknown'])}", file=sys.stderr)
-    if not (changed["failed"] or changed["hesitated"] or changed["recalled"] or changed["easy"] or args.sooner):
+    if not (changed["failed"] or changed["hesitated"] or changed["recalled"] or changed["easy"] or args.sooner or args.load):
         print(f"lesson {changed['lesson']} recorded as all good (pass --failed/--easy item ids from the lesson's .plan.json otherwise)")
     return 0
 
@@ -458,7 +476,7 @@ def cmd_status(args) -> int:
     if learner.lessons:
         trend = " ".join(str(l.get("due_at_start", "?")) for l in learner.lessons[-8:])
         carried = " ".join(str(l.get("due_not_fitted", "?")) for l in learner.lessons[-8:])
-        print(f"pace: {learner.pace or 'default'} new items/lesson ({learner.feedback_mode} mode); due at start of last lessons: {trend}; not fitted: {carried}")
+        print(f"new-component target: {learner.new_target:g} weighted components/lesson (what a lesson plans from); pace: {learner.pace or 'default'} new items/lesson, which `--new` / `--pace`, the simulations and the coverage report count ({learner.feedback_mode} mode); due at start of last lessons: {trend}; not fitted: {carried}")
         unreported = [l["number"] for l in learner.lessons[-3:] if l["number"] not in learner.reported]
         if unreported and learner.feedback_mode != "auto":
             print(f"no feedback yet for lesson(s) {unreported}: run `{_learner_hint(args, ' [--failed ids]')}`")

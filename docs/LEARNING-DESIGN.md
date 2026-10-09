@@ -26,7 +26,10 @@ Contents: [1 Checklists](#1-checklists) · [2 What the project is](#2-what-the-p
 
 Answer these in the issue. If one has no answer yet, say so; that is information too.
 
-1. **Outcome.** Which outcome in §3 (O1–O5) does it serve? If none, why do it now?
+1. **Concept and outcome.** Which of the four things in §3 "The concept" does it serve, and how (and which outcome,
+   O1–O5)? Will the learner notice? If §8 "Now" still lists a twenty-point part, why does this come first? Precision
+   work (units, form checks, scheduling edge cases) comes only when no twenty-point part is open, or as a named
+   exception (§9 "Good enough overall").
 2. **Gap.** Which gap in §7 does it close, or which new gap does it reveal? Is that gap the
    most limiting one right now (§8)? If not, what makes it worth doing first?
 3. **Evidence.** What prompted it: learner data (which lesson or export, which numbers), an
@@ -90,6 +93,11 @@ after **every** lesson, the next day; once they settle, weekly.
    development and merges go on while they accumulate.
 5. Update §5 (evidence) and the status column in §4. Re-rank §8 if the evidence moved it.
 6. Ask the learner when a signal is ambiguous (§6.2). Don't guess from the data alone.
+7. **Sort each remark into one of three** (§9 "Good enough overall"):
+   - **A twenty-point part.** The learner names something boring, confusing or contradictory. It goes into §8
+     "Now", which holds three or four items at most.
+   - **A precision problem.** A line not quite right, a rare case. It becomes a named exception, or it waits.
+   - **A mechanism idea.** It goes under "Not now", unless it fixes a twenty-point part.
 
 ---
 
@@ -139,6 +147,26 @@ culture".
 | **O3** | **Read, and enjoy it** | Signs, menus, shelf labels, place names. The audio never shows spelling, so reading is taught in Discord (#133). |
 | **O4** | **Show respect** | Greeting, thanks and farewell in the right places; staying in Icelandic when the other person switches to English; cultural ease (#135). |
 | **O5** | **Keep going** | The daily routine survives: not boring, not overloading, progress visible. Every other outcome depends on it. The owner, on day one: "just listing greetings is simply a game of memorizing. it is not only difficult but also boring" (#12). |
+
+### The concept (owner, after lesson 20)
+
+This is not an app for producing any natural Icelandic sentence. The learner learns the expressions a traveller will
+use, and gets familiar with the basics of Icelandic on the way. So each scene has **target expressions**. Around each
+one come a few **parallel expressions**, only as many as help the target come out quickly. Grammar and generation
+serve the targets; they are not ends in themselves.
+
+What the lessons should leave the learner able to do:
+
+1. **The ear is used to Icelandic, and the set scenes get an answer** (O1, O2).
+2. **Find the information they need** in what is said: the price, the time, the stop (O2).
+3. **Pin down the part they don't understand,** to look it up or ask about it (O2, repair).
+4. **Keep enjoying it,** day after day (O5).
+
+Greetings, thanks and farewells (O4) are target expressions of their scenes, so they come under 1. Reading (O3) is
+its own track, in Discord (the reading cards, #133), and is not judged by these four.
+
+Every finer decision asks which of these it serves, and how; when none, it waits. §9 "Good enough overall" says how
+much precision that takes.
 
 ### The daily dose (owner, after lesson 13)
 
@@ -198,15 +226,15 @@ changed it).
 | **H1** | Producing a line from memory, after a real gap, builds durable recall better than hearing or repeating it. | Retrieval practice and spacing are among the best-supported findings on learning (Roediger & Karpicke 2006; Cepeda et al. 2006). | Answer pauses; the stage ladder; spacing across days (`learner.py`) | Next-day recall of new lines stays low even at a low pace | adopted |
 | **H2** | Only success after a gap is evidence of learning. Success minutes after the first exposure is practice. | Performance during practice is a poor guide to learning (Soderstrom & Bjork 2015); #27. | `durable_successes`, `knows()`; the review comes the next day, before the lesson | — | adopted |
 | **H3** | A line cued by a *situation* or a partner's line transfers to the real moment better than one cued by a translation. The closer practice is to use, the better. | Transfer-appropriate processing and encoding specificity (Morris et al. 1977; Tulving & Thomson 1973). | `situation` stage, `connect` exchanges, dialogues, scenario cards | Lines practised in situations do no better in scenario cards than lines practised from meanings | testing (no comparison made yet) |
-| **H4** | **A lesson built around one scene's exchange beats a lesson built from an item count.** In such a lesson, today's lines are spread across the lesson and used together in a coherent exchange, again with other fillings, at rising resolution over lessons. The result is more lines said at the right turn, and less felt repetition. | H1 + H3, thematic grouping (H5), and the owner's experience of lesson 12 (§5.6). | Built (#149): the theme exchange played twice, early assisted and late with only the partner's line as the cue (#186), the partner's lines in variants (#189); a theme in every lesson, a played level replaying after a rest (step 1, #196); new material for the theme's next level, a part with its frame and caps on a semantic set (step 2a–2c: #201, #202, #204, #207); a fixed phrase linked to its pattern (#206). `cando/themes.toml` has four themes, eight levels. Not built: numbers and colours through their scenes (#213), more theme data, the closing block on the theme's lines | Themed scenes don't reach readiness faster than unthemed ones, or the learner finds themed lessons no less repetitive | **bet: the main one.** Lesson 13 (§5.10): the learner calls the lesson an "Anki game" of unrelated expressions. Lessons 15–18 (§5.13–5.14): four themed lessons, and nothing about unrelated items. New material was still mostly the trip order's: the themes' next levels lacked one item in three lessons, so this is the theme as a frame, not yet themed new material. The friction that came back has its own causes: «unclear» is the theme's later play dropping what to say (#210); «repetitive» is a known pattern taught as a new phrase (#192, #206) |
+| **H4** | **A lesson built around one scene's exchange beats a lesson built from an item count.** In such a lesson, today's lines are spread across the lesson and used together in a coherent exchange, again with other fillings, at rising resolution over lessons. The result is more lines said at the right turn, and less felt repetition. | H1 + H3, thematic grouping (H5), and the owner's experience of lesson 12 (§5.6). | Built (#149): the theme exchange played twice, early with the translation and late without it, the cue (the intent) in both (#210) (#186), the partner's lines in variants (#189); a theme in every lesson, a played level replaying after a rest (step 1, #196); new material for the theme's next level, a part with its frame and caps on a semantic set (step 2a–2c: #201, #202, #204, #207); a fixed phrase linked to its pattern (#206). `cando/themes.toml` has four themes, eight levels. Not built: numbers and colours through their scenes (#213), more theme data, the closing block on the theme's lines | Themed scenes don't reach readiness faster than unthemed ones, or the learner finds themed lessons no less repetitive | **bet: the main one.** Lesson 13 (§5.10): the learner calls the lesson an "Anki game" of unrelated expressions. Lessons 15–18 (§5.13–5.14): four themed lessons, and nothing about unrelated items. New material was still mostly the trip order's: the themes' next levels lacked one item in three lessons, so this is the theme as a frame, not yet themed new material. The friction that came back has its own causes: «unclear» is the theme's later play dropping what to say (#210); «repetitive» is a known pattern taught as a new phrase (#192, #206) |
 | **H5** | Group new material by **scene** (bun, coffee, bag, card), not by **semantic set** (numbers 1–10, colours, yes/no). Similar items introduced together get confused; contrasting them pays off once each is known. | Semantic clustering slows L2 vocabulary learning and thematic clustering doesn't (Tinkham 1993, 1997; Waring 1997). Interleaving helps when the task is telling similar things apart (Brunmair & Richter 2019). Lesson 8: "numbers 1–4: masculine and neuter can't be told apart in the English prompts" (§5.2). | Partly: milestone notes contrast known items; #150 plans contrasts for known pairs and series. Nothing keeps a set from being introduced together: the curriculum lists numbers, colours and languages next to each other (§7, G5) | Items introduced as a set fail no more often than others | bet (research-backed). Lesson 15's two forms of one word, introduced together, both failed the next day (§5.14). The other side, a set every scene needs that never moves forward: #213 |
-| **H6** | Chunks first, patterns next, transfer last. A fixed chunk said often becomes fluent (token frequency). A pattern used with many different fillings becomes productive (type frequency). Teach a pattern when two fillings are known, then move it to new words. | Usage-based learning (Bybee 2006); formulaic language (Wray 2002); #29's "capabilities outward". | Constructions with slots and `meaning_forms`; milestones with `transfer_items`; recombination; substitution runs (PR #153) | Substitution drills don't help the learner produce combinations they haven't heard (scenario cards with new fillings) | adopted (principle); testing (substitution). Lesson 16 (§5.14): a construction's question and negative were asked before the learner had heard them (#211) |
+| **H6** | Chunks first, patterns next, transfer last. A fixed chunk said often becomes fluent (token frequency). A pattern used with many different fillings becomes productive (type frequency). Teach a pattern when two fillings are known, then move it to new words. | Usage-based learning (Bybee 2006); formulaic language (Wray 2002); #29's "capabilities outward". | Constructions with slots and `meaning_forms`; milestones with `transfer_items`; recombination; substitution runs (PR #153) | Substitution drills don't help the learner produce combinations they haven't heard (scenario cards with new fillings) | adopted (principle); testing (substitution). Lesson 16 (§5.14): a construction's question and negative were asked before the learner had heard them (#211). Revised by the concept (owner, after lesson 20; §3, §9 "Good enough overall"): patterns serve target expressions; moving a pattern to new words is limited to the few parallel expressions a target needs |
 | **H7** | Every generated sentence must be plausible in its scene. An implausible one teaches less than it costs. | Owner (after lesson 12: never produce "order a passport at the café"); H3. | Case- and meaning-tagged slots; `opens` (PR #155); scene templates (#152) | — | adopted |
 | **H8** | Natural-speed partner lines with some unknown words (the owner suggests 10–20%), in a familiar scene, build the tolerance needed to get through real exchanges. | The owner's hypothesis, and their preference for more listening time over shorter lessons (§5.7); the #129 pilots (common clerk lines were not understood). **Caveat:** detailed comprehension needs about 95% of the words to be known when listening and 98% when reading (van Zeeland & Schmitt 2013; Hu & Nation 2000). At 80–90%, expect gist from context, not learning of the unknown words. So the scene must carry the meaning. | Scenario cards (partner lines may go beyond the course); partner turns in themes (PR #155); #134 | Respond and repair cards with unknown words stay at 言えなかった, or the learner finds them discouraging rather than useful | bet |
-| **H9** | The amount of new material, counted in weighted new components (§9 "Pace", #218), throttled by recall reports (over the last three lessons) and by the learner's load rating, keeps the load right. It aims at about 8 a lesson to start (#218) and about 80–85% next-day success. | README "Pacing"; desirable difficulties (Bjork 1994): too easy wastes time, too hard fails. | `suggest_pace` | The load rating drifts to "heavy", or next-day failures stay above 20%, at the pace actually used | **revised (§5.14–5.15, #218):** the number of new items is not the pace (G4), and the learner prefers full lessons with more to hear (§5.7). Lessons 18–19 were «light» at 81–100% next-day success: one lesson's eight items let the pace rise only when all were recalled, and the load rating was not read. A lead from four lessons: the load seems to follow new *components* (8 and 8 «right», 5 and 5 «light», weighted), not new items; lesson 18 also replayed a level (supermarket 1), another reason it may have felt light (§6.2, "Time confounds everything"). Owner's decisions (#218, not built yet): a three-lesson window (hold at 15–25% failures: three lessons are only about 24 items), the load rating as an input, and weighted new components as the pace's unit |
-| **H10** | Self-reports are informative when they are made the next day, with the answer hidden until the learner has tried. They are noisy, lean towards success and must never be produced by an LLM. | Delayed judgements of learning are far more accurate than immediate ones (Nelson & Dunlosky 1991); #129 (GPT transcripts did not match what was said). | The bot's review (answer revealed only after trying; 3-point scale); the feedback form | The ratings stop telling recalled lines from guessed or failed ones | **revised:** the learner usually commits at once (§5.7), but «迷った» was used in 3 of the last 6 reviews (before lessons 14, 15 and 18; §5.12–5.15), and the pace counts it as half a failure. Read it as a third value |
-| **H11** | Practice spent on items the learner plainly knows is waste, and the learner notices it. A known item should wait for its date. | Spacing (H1); #94; the owner after lesson 12 (já, nei, hæ every lesson although reported 言えた). | Not-due items wait (#94); stable items never fill (PR #153) | — | adopted (#94); the recurrence is fixed in PR #153. Lesson 19 (§5.15): the learner notices both sides of it. Easy items («miða», the clock's five hours) are repeated, and an open item is practised every lesson with no check since lesson 15. Closing it needs a check, and this item was never asked in the review (#205 closed four others, §5.14; #220: open items always asked) |
-| **H12** | Variety, coherence and visible progress keep a daily routine alive. Boredom ("a game of memorizing") is the biggest threat to every other outcome. | Owner, #12 and after lesson 12; Nation's four strands (Nation 2007), whose message is that a course should not be all drill. | Dialogues, exchanges, notes, scenes, reading cards | The routine continues and the learner reports no boredom with a drill-heavy lesson | adopted (value) |
+| **H9** | The amount of new material, counted in weighted new components (§9 "Pace", #218), throttled by recall reports (over the last three lessons) and by the learner's load rating, keeps the load right. It aims at about 8 a lesson to start (#218) and about 80–85% next-day success. | README "Pacing"; desirable difficulties (Bjork 1994): too easy wastes time, too hard fails. | `suggest_pace` | The load rating drifts to "heavy", or next-day failures stay above 20%, at the pace actually used | **revised (§5.14–5.15, #218):** the number of new items is not the pace (G4), and the learner prefers full lessons with more to hear (§5.7). Lessons 18–19 were «light» at 81–100% next-day success: one lesson's eight items let the pace rise only when all were recalled, and the load rating was not read. A lead from four lessons: the load seems to follow new *components* (8 and 8 «right», 5 and 5 «light», weighted), not new items; lesson 18 also replayed a level (supermarket 1), another reason it may have felt light (§6.2, "Time confounds everything"). Owner's decisions (#218; built: part a, the window and the load rating, #229; part b: b1, no form as filler, #233; b3, weighted components, #235; b2, the BÍN check, still open, #234): a three-lesson window (hold at 15–25% failures: three lessons are only about 24 items), the load rating as an input, and weighted new components as the pace's unit. Lesson 20 (§5.16): «light» again at 9 of a target of 9 components, after a next-day review with all 8 recalled. The time after the target went to filler the learner found boring, so the load rating also reads what fills the rest of the lesson |
+| **H10** | Self-reports are informative when they are made the next day, with the answer hidden until the learner has tried. They are noisy, lean towards success and must never be produced by an LLM. | Delayed judgements of learning are far more accurate than immediate ones (Nelson & Dunlosky 1991); #129 (GPT transcripts did not match what was said). | The bot's review (answer revealed only after trying; 3-point scale); the feedback form | The ratings stop telling recalled lines from guessed or failed ones | **revised:** the learner usually commits at once (§5.7), but «迷った» was used in 3 of the last 7 reviews (before lessons 14, 15 and 18; none before lesson 20; §5.12–5.16), and the pace counts it as half a failure. Read it as a third value |
+| **H11** | Practice spent on items the learner plainly knows is waste, and the learner notices it. A known item should wait for its date. | Spacing (H1); #94; the owner after lesson 12 (já, nei, hæ every lesson although reported 言えた). | Not-due items wait (#94); stable items never fill (PR #153) | — | adopted (#94); the recurrence is fixed in PR #153. Lesson 19 (§5.15): the learner notices both sides of it. Easy items («miða», the clock's five hours) are repeated, and an open item is practised every lesson with no check since lesson 15. Closing it needs a check, and this item was never asked in the review (#205 closed four others, §5.14; #220: open items always asked). Lesson 20 (§5.16): items the morning's review had just asked were asked again in the audio (one-day intervals; G7), and items not yet due filled spare time |
+| **H12** | Variety, coherence and visible progress keep a daily routine alive. Boredom ("a game of memorizing") is the biggest threat to every other outcome. | Owner, #12 and after lesson 12; Nation's four strands (Nation 2007), whose message is that a course should not be all drill. | Dialogues, exchanges, notes, scenes, reading cards | The routine continues and the learner reports no boredom with a drill-heavy lesson | adopted (value). Lesson 20 (§5.16): about eight minutes of easy recombination and reviews read as boring |
 | **H13** | Hearing a hard-to-say word slowed and split by syllable once, at its introduction, lowers pronunciation anxiety at little cost in time. | The learner's requests after lessons 15 and 16 (§5.13, §5.14); no study cited. | Not built: single words get no slow model (#212) | Anxiety remarks continue on words that got the slow model, or those words fail next day no less than others | bet (proposed, #212) |
 
 ### What the hypotheses imply for a lesson
@@ -223,8 +251,9 @@ Read together, H1–H13 describe a lesson that is still the target:
 5. Patterns grow from known chunks, and only plausible sentences are generated (H6, H7).
 6. Natural-speed partner lines are part of practice, and the scene carries their meaning
    (H8).
-7. Time is not spent on what is plainly known (H11). Spare time goes to the scene, to
-   substitution and to today's lines, not to padding.
+7. Time is not spent on what is plainly known (H11). Spare time goes to the scene and the
+   ear (§3 "The concept"), and to today's lines; not to padding, and not to recombining known
+   patterns for their own sake (lesson 20, §5.16).
 8. The learner's effort for feedback stays tiny, and their judgement is asked for the next
    day (H10).
 
@@ -473,7 +502,7 @@ and each open item with three or more words failed once more.
 The batch also includes #170, which the weekly read judges with it: today's items come back by
 time (not by exercise count); a short item is said alone at most three times and practised in
 sentences (a pattern with a slot, else a known phrase that contains it); a lesson with nothing
-else left lets the cap lapse; close variants of known items come in beyond the pace; a variant
+else left lets the cap lapse; (until #218 b1) close variants of known items came in beyond the pace; a variant
 is introduced as a form of one the learner has; `context` («Say: good, as in: This is good.») for
 the 24 words of lessons 13–15; the same situation is narrated in full at most twice; asides are
 about practised items only; and `max_listening_dialogues` is 4, not 2.
@@ -570,7 +599,7 @@ with a theme** (the supermarket, level 1, played twice).
 | longest gap between introductions | 3.0 min | 3.5 min |
 | generated sentences (plain / negative / question) | 31 (27 / 4 / 0) | 34 (19 / 11 / 4) |
 | fitted open items | 5 | 5, practised ≥ 4 times each |
-| theme | – | supermarket 1, twice (early assisted, late with the partner's line as the cue) |
+| theme | – | supermarket 1, twice (early assisted, late with the partner's line as the cue; since #210 the cue plays in both) |
 
 - **The feedback form:** load «about right» (again); **friction: nothing ticked, the first time ever**;
   "sooner": «Er heitur pottur hérna?», «fallegt». Nothing in it describes the lesson as unrelated items.
@@ -689,13 +718,13 @@ the pace rise from 5 to 6. The feedback form opened once the bot's dedup (site_u
 | generated sentences (plain / negative / question) | 48 (27 / 11 / 10) |
 | fitted / waiting open items; fewest practices of a fitted one | 5 / 2; 6 |
 | theme, played twice | cafe 1 |
-| next-day review of the lesson's new items | not yet (lesson 20's export) |
+| next-day review of the lesson's new items | 8/8 recalled (§5.16) |
 | feedback form: load; friction | **light**; other |
 
 - **«Light» again, at a higher pace.** The item count was 8 every time. Counting new word forms (in no item met
   before) instead, lessons 16–19 had 7, 9, 4 and 6, against loads «right», «right», «light», «light»; the owner read
   lesson 19 as five new words, «taka mynd» being one. The pace's unit becomes weighted new *components* (§9
-  "Pace", #218). Recounted, lessons 16–19 come to 8, 8, 5 and 5. The count was chosen on principle (a pattern is
+  "Pace", #218). Recounted, lessons 16–19 come to 8, 8, 5 and 5 (recounted by the planner's `component_cost` on the exports, #218 b3: 8, 9, 5, 5: «norðurljós» has its own vocab item, so it costs 1, and «farið» counts as a word, the form having no item of its own). The count was chosen on principle (a pattern is
   one learning step, like a chunk, which is also the owner's reading of «taka mynd»), not to fit four lessons: the
   other counts separate «right» from «light» too (a pattern as 1 plus its new words: 9 and 8.5 against 7 and 5–6;
   no weight for patterns: 7 and 7.5 against 4 and 5).
@@ -712,6 +741,57 @@ the pace rise from 5 to 6. The feedback form opened once the bot's dedup (site_u
     next review, like the new items' check (#220).
   - Numbers 1–5 only, the fourth remark. Owner: a number × noun track, with a fixed share of practice a lesson
     that covers 1–99 across prices, tickets, people and time, and that also makes the common nouns stick (#213).
+
+### 5.16 Lesson 20: the first lesson on #229, #230, #231, #233 and #235
+
+Lesson 20 was generated with LLA `5e99829`. It is the first lesson heard with these changes:
+- the pace from three lessons and the load rating (#229);
+- the pattern instance (#192, #231);
+- the cue in every play (#210, #230);
+- no form as filler (#233);
+- weighted new components (#235).
+
+Lesson 19's next-day review: all 8 new items recalled.
+
+| | lesson 20 |
+|---|---|
+| length | 28.7 min, 146 exercises |
+| new items; new components, weighted (#218) | 11; 9 of a target of 9 (3 of the items cost 0) |
+| theme, played twice | tour 1, a replay |
+| generated sentences | 36 exercises |
+| feedback form: load; friction | **light**; pacing, repetitive, unclear, other |
+
+What the learner wrote, by what the lesson did:
+
+- **"From about 17 minutes, endless easy, random repetition; boring."** The target was reached by 14:50.
+  - From 15:43 to 19:00 came 21 generated sentences in a row from known patterns: «Ég tala ekki ensku / japönsku /
+    dönsku», «Það kostar … krónur» ×3, «Hvað kostar …?» ×3, «Hvar er …?» ×3, «klukkan …» ×3.
+  - From 19:05 to 23:00 came one-shot reviews of known items.
+  - None of it served a target expression or a scene.
+- **"Expressions I reported as said in the review come back many times: «eldfjall», «Hvernig segir maður þetta á
+  íslensku?», «sturtan»."** These had a one-day interval and were due that day. The audio asked them again hours after
+  the morning's Discord review had (G7: the audio's learner model and the Discord review queue each schedule on their own). In the same stretch, items due only the next day («hraun»,
+  «strönd», «norðurljós») filled time too.
+- **"«Eigðu góðan dag» was announced as new, but it isn't."** The pattern «Eigðu {adj} {time}.» was introduced as a
+  new pattern with that phrase, which the learner already knew. The pattern costs 1 by the rule, but it was presented
+  as new rather than as a pattern of a phrase the learner knows.
+- **"«hjálpina» 'for help' and «matinn» 'for food' feel half-taught; better the full sentence."** They are the fillers
+  of «Takk fyrir {thing}.», drilled as words, with a gloss that only makes sense inside the sentence. The expressions
+  the traveller needs are «Takk fyrir hjálpina.» and «Takk fyrir matinn.».
+- **"Told to just listen, then told to say it, about the bus and getting off, which never came up, and nothing
+  introduces them afterwards."** The bus dialogue (`straeto`) opened with "a conversation to listen to… you don't need
+  to remember them". It then asked for «Fer þessi strætó í miðbæinn?» and «Hvar á ég að fara út?» with "Try it."
+  (#183), although both were new to the learner, and nothing afterwards taught them.
+- **"Sometimes no pause between the instructor's line and the example."** For example: "You can put other words in
+  the same place." → the sentence; "You know this:" → the line; "Now the whole conversation, without pauses." → the
+  first line.
+- **"The review asked «the hot tub, as in where is the hot tub?» although I learned «Hvar er heiti potturinn?»."** The
+  Discord review asked the part, not the whole the learner had learned.
+
+**Reading.** The load is «light» again, now with the target met. The remarks share one cause. The lesson's time and
+choices come from mechanisms: generation supply, the spacing schedule, part and whole, tried turns. Each is right by
+its own rule, and none asks whether it helps a target expression come out or trains the ear. The owner's answer is the
+concept in §3 and §9 "Good enough overall". The next work follows from it (§8).
 
 ---
 
@@ -750,16 +830,21 @@ the pace rise from 5 to 6. The feedback form opened once the bot's dedup (site_u
   arguments before trusting a simulated course (checklist in §1).
 - **Proxies drift from the outcome.** Retention, item counts and candidate counts are
   diagnostics. The readiness of scenes (O1–O4) and the routine (O5) are the outcome.
+- **«Light» with «repetitive» or «pacing» is first about content.** When the form marks the load «light» together
+  with «repetitive» or «pacing», suspect what filled the lesson's spare time before the amount of new material.
+  Lesson 20 was «light» at its full target, with an eight-minute stretch of recombination and reviews (§5.16). The
+  two-«light» rise (#229) stays as decided. If the "Now" fixes make «light» go away without a change of target,
+  that says it was the content.
 
 ### 6.3 Questions the next weeks of data can answer
 
 | question | hypothesis | where to look |
 |---|---|---|
-| Does next-day recall of new lines stay at about 80% or better at the pace actually used? Lessons 15–18's new items: 5/9, 7/8, 6.5/8, 8/8 (§5.14; earlier 19 of 19, §5.8) | H9 | Review outcomes for the previous lesson's new items |
+| Does next-day recall of new lines stay at about 80% or better at the pace actually used? Lessons 15–19's new items: 5/9, 7/8, 6.5/8, 8/8, 8/8 (§5.14, §5.16; earlier 19 of 19, §5.8) | H9 | Review outcomes for the previous lesson's new items |
 | ~~If next-day recall stays near 100%, is the limit now boredom rather than load? Would the learner take more new items?~~ Answered: lessons 18 and 19 «light» at 81–100% next-day success; the pace rule changes (#218) | H9, H12 | — |
 | After the bump to #153: does any reviewed item come back three times or more in a lesson, and do the forms still say "repetitive"? | H11 | `/lesson-week` «レッスンの中身»; the forms |
 | Do phrases of three or more words keep failing more often than short ones? | G9 | Failures by phrase length |
-| Does the learner use «迷った» when unsure? At first no (§5.7); since lesson 14, in 3 of 6 reviews (§5.14–5.15) | H10 | Review outcomes per lesson |
+| Does the learner use «迷った» when unsure? At first no (§5.7); since lesson 14, in 3 of 7 reviews (§5.14–5.16) | H10 | Review outcomes per lesson |
 | Are lines practised in situations rated better in scenario cards than lines practised only from meanings? | H3 | Scenario cards against each line's stage history |
 | Once lessons are built around a scene, does "repetitive" go away, and do themed scenes reach readiness sooner? | H4 | Feedback forms; readiness per scenario, themed or not |
 | Do respond cards with unknown partner words improve over the weeks, and does the learner find them useful or discouraging? | H8 | Scenario cards; ask |
@@ -779,13 +864,13 @@ the pace rise from 5 to 6. The feedback form opened once the bot's dedup (site_u
 | **G5** | **Semantic sets can arrive together.** The trip ordering and curriculum order can put a whole set (numbers 6–19, colours, languages) into one lesson. | Lesson 8 (numbers); a replay from lesson 12 with a scenario holding numbers 6–19 boosted: five numbers in lesson 12, nine more in lesson 13 (an experiment from PR #154's first version, not in the repository) | O1; H5 |
 | **G6** | **Plausibility rests on slot tags.** Implausible or ungrammatical sentences can still be generated: «Hvenær opnar ísskápurinn?» before PR #155, and «Ég vil blár.» (the colour should be accusative). | Found after L12 | O1; H7 |
 | **G7** | **Three schedulers.** The audio's learner model, the Discord review queue (its own 1→3→7→14→30-day steps) and the card queues each decide what comes back, and their combined effect has never been examined. They are separate kinds of evidence by design (#129), but the learner experiences their sum. | Bot README | O5; H10, H11 |
-| **G8** | ~~The self-report scale may not discriminate.~~ Mostly binary (§5.7), but «迷った» is used (3 of the last 6 reviews) and counts as half a failure in the pace: a third value, read as such (§5.14). | §5.2, §5.7, §5.14, §5.15 | H10 |
+| **G8** | ~~The self-report scale may not discriminate.~~ Mostly binary (§5.7), but «迷った» is used (3 of the last 7 reviews) and counts as half a failure in the pace: a third value, read as such (§5.14). | §5.2, §5.7, §5.14, §5.15 | H10 |
 | **G9** | **Long phrases fail most.** Three-word-plus formulas get the same treatment as short ones. | §5.2 (9/24 vs 2/27); §5.8 (5/13 vs 2/13), all failures in the heavy early lessons | O1; H1, H9 |
 | **G10** | **Content isn't native-reviewed.** All the scene lines, partner lines and glosses are candidates. | README | O1–O4 |
 | **G11** | **Practice is allocated by stage, not by need, and a failure is forgotten fast.** Each new item gets the same ladder and about the same time whether it is easy or hard; items marked 言えなかった last review get one or two practices; older failures return to presumed success with no confirmed recall in between. | §5.10 (21–41 s each against 77–199 s for new items; «Fyrirgefðu»: failed twice, then 0 confirmed recalls in 8 lessons); §5.3 | O1, O5; H1, H2, H11 |
 | **G12** | **Scaffolds don't fade.** The English situation and the "you've said…" line are played in full every time, in at least five exercises of one lesson, although the learner knows the line; only the partner's line has a limit on how often its meaning is given. | §5.10 | O5; H3, H8 |
 | **G13** | **Nothing checks that a part is taught before the whole.** «Hvenær leggjum við af stað?» can come before «Hvenær?». | §5.10 | O1; H5 |
-| **G15** | **Generative supply is tiny.** After 12 lessons the learner knows 3 constructions; known constructions × known fillers give 6 sentences. A lesson that has run out of sentences repeats words, and the cap on bare repeats (G14) lapses. The course has no negation operation, and questions exist only as a late transform. | #171 (counts from lesson 13's export); #170's replay (cap lapsing in lesson 13, 7 of 9 short items without a sentence in lesson 15) | O1, O5; H6, H12 |
+| **G15** | **Generative supply is tiny.** After 12 lessons the learner knows 3 constructions; known constructions × known fillers give 6 sentences. A lesson that has run out of sentences repeats words, and the cap on bare repeats (G14) lapses. The course has no negation operation, and questions exist only as a late transform. | #171 (counts from lesson 13's export); #170's replay (cap lapsing in lesson 13, 7 of 9 short items without a sentence in lesson 15) | O1, O5; H6, H12. Revised by the concept (owner, after lesson 20; §3, §9 "Good enough overall"): supply matters only as parallels of target expressions; more generation is not a goal (lesson 20's boring stretch was generated sentences, §5.16) |
 | **G14** | **Short items are drilled alone.** A new item of one or two words is recalled by itself six to nine times in a lesson, often within minutes, and rarely inside a sentence; when it is, it is the same sentence. | §5.11 (lesson 13 replayed after the batch); §5.1 (lesson 6, «vegabréf») | O1, O5; H3, H6, H12 |
 
 ---
@@ -794,6 +879,22 @@ the pace rise from 5 to 6. The feedback form opened once the bot's dedup (site_u
 
 Ordered by the expected effect on the outcome, adjusted for cost and for what depends on
 what. Re-rank it when the evidence moves.
+
+**Now (after lesson 20, under the concept in §3).** The lesson's twenty-point parts come first, ahead of every step below,
+#213 included (§9 "Good enough overall", §5.16):
+- Spare time serves the scenes and the ear (concept 1, 2 and 4), not random recombination of known patterns, nor
+  reviews of what the morning's Discord review has just asked.
+- A part or a pattern is taught inside its target expression (concept 1). That means «Takk fyrir hjálpina.», not
+  «hjálpina» 'for help'; and «Eigðu {adj} {time}.» as the pattern of the known «Eigðu góðan dag.», not as something new.
+- A listening scene never asks for a line that was never taught (concept 1 and 4).
+- A beat after the instructor's framing line, before the example.
+
+Each "Now" item is done when its row in the daily read (`tools/replay_lesson.py`; the rows come with the first of these
+issues) reads 0 on the replay, and three feedbacks after it carry no remark of the same kind:
+1. minutes after the target that serve neither a target expression nor a scene;
+2. lines a listening scene asks for that were never taught;
+3. items the audio asks that the same morning's review asked;
+4. framing lines followed by an example without a beat.
 
 1. **Make the loop measurable and use it (G1). Cheap; everything else depends on it.**
    - A weekly read of the signals against the predictions of merged changes, written down
@@ -808,13 +909,13 @@ what. Re-rank it when the evidence moves.
    It is the main bet (H4), and since 2026-10-03 the frame of every lesson (§9 "Themes", the
    owner's decision): the theme comes first, and items, reviews and spare time serve it.
    **Built:** time-based spacing and words in sentences (1b-i, #170, #187/#190); the theme
-   exchange played twice, early assisted and late with only the partner's line as the cue
+   exchange played twice, early with the translation and late without it, the cue (the intent) in both (#210)
    (1b-ii, #186), with the partner's lines in variants at natural speed (#189); no lesson without
    a theme (step 1: a level already done comes back after a rest of three lessons when no next
    level is ready); new material chosen for the theme's next level, ahead of the trip order (step 2a,
    #201); a part with the construction that lists it (step 2b, #202); at most three new items of one
    semantic set a lesson (step 2c, #204, #207); a fixed phrase linked to its pattern (#206).
-   **Next**, in order (#149): the rest of step 2 (numbers through a number × noun track, #213 and §9 "Themes";
+   **Next**, after §8 "Now", in order (#149): the rest of step 2 (numbers through a number × noun track, #213 and §9 "Themes";
    the colours through their scenes; more theme data), then the closing block taking the theme's lines.
    - New material goes into a lesson by scene (step 2): the items the top theme's next level
      lacks come first, ahead of the trip order of single items. A part comes with its frame, or
@@ -858,15 +959,16 @@ what. Re-rank it when the evidence moves.
    viðvörun, agreeing with the noun). The scene catalogue reviewed by the owner, and by a
    native speaker when one is available (G10).
 5. **Long phrases (G9).** Watch whether the pattern holds as more data comes in. If it
-   does, give long formulas more scaffolding or count them as more than one item in the
-   pace.
+   does, give long formulas more scaffolding (the components unit, #218, already counts a phrase's new
+   words).
 
 **Not now:**
 
 - more planner levers;
 - content that no mechanism uses yet;
 - new instruments before the existing ones are read;
-- local fixes to symptoms that step 2 will remove.
+- local fixes to symptoms that step 2 will remove;
+- precision work (refining the unit, form checks, scheduling edge cases) while a twenty-point part is open in "Now".
 
 ---
 
@@ -874,11 +976,23 @@ what. Re-rank it when the evidence moves.
 
 Don't reopen these without new evidence; when you do, say what changed.
 
+- **Good enough overall (owner, after lesson 20).** The learner's experience of the whole lesson is what counts.
+  - Eighty points across the whole lesson beat a hundred on one part. A part that scores twenty, a stretch that bores
+    or a contradiction the learner hears, is fixed first, ahead of any precision work.
+  - Rules (tags, frames, schedules) cover about nine cases in ten. The tenth is declared as an exception by name, not
+    met with a new mechanism: «Áttu leigubíl?» is excluded while «leigubíl» keeps its tag (#192).
+  - About one line in ten that a native speaker wouldn't quite say is acceptable. For a traveller from the other side
+    of the world it costs almost nothing. Checks of linguistic detail (the BÍN form check, #234) advise and never block.
+  - A lesson is about 30 minutes. Nothing is designed for other lengths (#218 b3).
+  - Before a change, weigh what the learner will notice against the development time it takes.
+  - **Named exceptions** are listed here, in one place, so they can be read together and don't grow into mechanisms:
+    - «Áttu leigubíl?» is never generated (#192).
+
 - **Pace.** It never depends on the departure date. Lessons go on at the same best-effort
   pace before and during the trip, throttled only by what the learner reports (owner; #129, #131):
-  today, the last lesson's recall; from #218 (owner, 2026-10-08; decided, not built yet), recall over the
-  last three reported lessons (up at ≤ 15% failures, down above 25%) and the feedback form's load rating,
-  with weighted new components, not new items, as the unit of the pace. An item costs the sum of its new
+  recall over the last three reported lessons (up at ≤ 15% failures, down above 25%) and the feedback form's
+  load rating (`report --load`; #218 part a, built); from #218 part b (owner, 2026-10-08; built, #235),
+  weighted new components, not new items, as the unit of the pace. An item costs the sum of its new
   components: a new word, a chunk the curriculum treats as one item («taka mynd») or a new pattern, its frame's new
   words included, 1; a new form of a known word w (fitted from next-day failures, 0.5 to start); a combination of
   known parts 0. A pattern counts 1 the first time even when all its words are known («Hvað kostar {item}?» after
@@ -886,10 +1000,10 @@ Don't reopen these without new evidence; when you do, say what changed.
   {hour}.»).
   The pace is throttled by what needs review: a learner with much to review gets less new
   material because the lesson is full. **Close variants** (`Item.variant_of`: another case, another
-  gender of something the learner knows) come in only when the lesson has run out of other
-  material (up to four, #170). Today they come beyond the pace and are listed apart in `plan.json`
-  (`variant_items`). From #218 (decided, not built yet) a variant counts at w against the target,
-  like any other new form («þrjá» after «þrír»).
+  gender of something the learner knows) no longer fill spare time (#218 b1, owner 2026-10-09; before, up to four came in
+  beyond the pace, #170). A form comes in with a purpose: the theme's next level wants it (#201), a frame or phrase pulls it
+  (#202), the number × noun track (#213), or a contrast worth teaching (#198, H5). A heard-only play of a played theme level (spare time) takes any variant of a partner line, untranslated, as natural-speed exposure (H8); a replay's early play still takes only wordings heard with their meaning (#196). They are listed apart in `plan.json`
+  (`variant_items`). From #218 b3 a variant counts at w against the target, like any other new form («þrjá» after «þrír»).
 - **Evidence.**
   - Presumed success is kept apart from confirmed outcomes (#119).
   - The last lesson's new items are reviewed before the next lesson is generated (bot).
@@ -923,6 +1037,10 @@ Don't reopen these without new evidence; when you do, say what changed.
     enter one or two a lesson, with a frame and inside the set cap.
     It sits inside the pace's target: known combinations cost 0, and a new number or form costs what it adds
     (#218).
+    **Revised by the concept (owner, after lesson 20; §3, §9 "Good enough overall"):** the track leans to concept 2. Prices, times and counts are *heard* at natural speed in scene
+    lines and picked out; saying them is limited to the target expressions that need them («Tvo fullorðna, takk.»).
+    Lesson 20's boring stretch held «Það kostar … krónur» ×3 and «klukkan …» ×3, which is the shape a spoken
+    track would repeat.
 - **Conversation.**
   - An exchange's target-language turns must form a plausible conversation with the
     instructor lane removed (#48).
@@ -940,6 +1058,8 @@ Don't reopen these without new evidence; when you do, say what changed.
     that calls for it is its proper use and may repeat: situation turns and mixed review don't count against its cap,
     only a meaning-cued bare recall does; it still prefers a sentence that holds it when there is one. This replaces
     the word-count framing of "a short item".
+    **Revised by the concept (owner, after lesson 20; §3, §9 "Good enough overall"):** a part is introduced inside the target expression that holds it: «Takk fyrir hjálpina.», not
+    «hjálpina» 'for help' (lesson 20). It may be said alone afterwards, never first.
   - **Identical sentences are counted too (#192).** The owner's rule is that a sentence may come five times or more, and a
     word about ten times in all *if the sentences differ a little*. The word-level rules (the bare cap, the situation
     narration, the pattern ceiling) never counted a fixed sentence that is said identically. `Builder.said` now counts every
@@ -955,7 +1075,7 @@ Don't reopen these without new evidence; when you do, say what changed.
     goes one way only:** the variant is credited to the pattern and its fillers, never to the phrase, whose own review is
     checked in its own form. The patterns and their accusative number forms are candidates without native review (G10). The
     party fillers are whole units («tvo fullorðna»), since the noun's form follows the count and the pattern has no
-    agreement machinery.
+    agreement machinery. **The introduction too (owner, after lesson 18; #192, the rest):** a linked phrase whose pattern and fillers are *known* (`knows()`, not the weaker `_frame_available`) is not introduced as a new item with a ladder (8 exercises for «Get ég fengið kvittun?» in lesson 18): it is played once as a sentence of its pattern, credited to the pattern and its fillers, kept in `new_items` and decided by the next day's check, like an embedded part.
   - **Never ten identical (owner, 2026-10-04; #192).** A fixed phrase is said at most `max_sentence_hard` (9) times in a lesson, while the
     caps are on: its practice is handed to the pattern's other instances where it is linked, and dropped where no other sentence holds it.
     A new item keeps its closing recall. Repetition inside a scene is still fine up to the cap. On lessons 14–25 of the replay the most-said
@@ -972,6 +1092,8 @@ Don't reopen these without new evidence; when you do, say what changed.
     #94 / H11 bug (já, nei, hæ coming back unchanged): the owner wants the pattern with different
     fillers, and what is unwelcome is the bare repeat. Its variety is bounded by the fillers the
     learner knows, so it grows with #171's supply, not with this mechanism.
+    **Revised by the concept (owner, after lesson 20; §3, §9 "Good enough overall"):** a `refresh` sentence comes when it is a parallel of a target expression in the lesson's scene. It
+    is no longer a standing share of every lesson.
   - **`refresh` constructions are taught as trip items once cheap (#180, owner's choice of
     traveller-core patterns).** A cheap one (every slot has ≥ 2 known fillers, prerequisites known)
     competes with the cheap trip constructions on the same terms and goes to the front of the trip order,
@@ -987,8 +1109,10 @@ Don't reopen these without new evidence; when you do, say what changed.
     preferably different ones, up to about **ten** uses in all (owner, after replaying lesson
     13, §5.11). The numbers are a starting guess, not evidence: tune them with the learner's
     remarks.
-  - **Order of the two rules (#170).** When even close variants, listening dialogues, open
-    practices and substitutions leave the lesson short, the cap lapses and the dropped recalls
+  - **Order of the two rules (#170).** When even listening dialogues, heard-only plays of a
+    played theme level (#218 b1: spare time is more to hear, not a filler form), open
+    practices and substitutions leave the lesson short (**Revised by the concept (owner, after lesson 20; §3, §9 "Good enough overall"):** a substitution fills time only as a parallel
+    of a target expression of the lesson's scene, never as a run of known patterns), the cap lapses and the dropped recalls
     come back (`bare_cap_lapsed`): the daily dose above ranks over "alone at most three". A
     graded lapse (4, then 5…) would keep more of the cap; it is the owner's call.
   - **"Can the learner say it?" is judged per line (#179).** A line is sayable if its item is
@@ -1001,6 +1125,7 @@ Don't reopen these without new evidence; when you do, say what changed.
     with nothing they can say is heard. A try on an unknown part is never a failure: nothing is
     recorded for it, and up to two tried lines a lesson are asked the next day as bonus questions in
     the review (a 言えた gains one durable success, a miss costs nothing).
+    **Revised by the concept (owner, after lesson 20; §3, §9 "Good enough overall"):** a listening scene never asks for a line that wasn't taught. A line with an untaught part is heard, with its meaning, not tried (lesson 20's bus scene, §5.16). How a line that is taught in full is asked stays as above.
 - **Generation and audio.**
   - Only plausible sentences in plausible scenes (owner after L12).
   - No pause stretching to fill a short lesson (owner after L12).
@@ -1067,6 +1192,11 @@ Each of these has happened. Watch for them.
   items («held ég»), a representation limit mistaken for a property of the language.
 - **LLM output taken as evidence.** The GPT Voice transcripts (#129).
 - **Bundling.** Several behaviour changes in one PR, so their effects can't be told apart.
+- **Polishing parts while the whole disappoints.** After twenty days of daily feedback loops, lesson 20 still had
+  about eight minutes of easy, random repetition, and a listening scene that asked for lines never taught (§5.16).
+  Development time had meanwhile gone to the pace's unit, form checks and scheduling edge cases. The owner: a strict
+  hundred on a part is worse than eighty overall, and a part that scores twenty disappoints. Read each feedback for
+  the twenty-point parts first (§9 "Good enough overall").
 
 ---
 

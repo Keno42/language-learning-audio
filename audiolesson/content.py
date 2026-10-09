@@ -274,8 +274,9 @@ class DialogueTurn:
     # generates e.g. «Það kostar fimm þúsund krónur.» mid-exchange. The fills count as
     # required items.
     expect_fill: dict[str, str] = field(default_factory=dict)
-    # the cue stays even in a later, unassisted play (a theme exchange's turn that no partner line prompts, #149 1b-ii)
-    keep_cue: bool = False
+    # a scene line narrated every time: before the turn's opener (or its cue), and before the partner's reply (#210)
+    scene: str = ""
+    partner_scene: str = ""
 
 
 @dataclass
@@ -451,7 +452,7 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
 # fields that may carry per-language glosses (``<field>_<lang>``)
 _GLOSSED_ITEM = ("meaning", "context", "negative_meaning", "question_meaning", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation")
 _GLOSSED_EXAMPLE = ("source_meaning", "result_meaning")
-_GLOSSED_TURN = ("cue", "opener_meaning", "partner_meaning", "expect_meaning")
+_GLOSSED_TURN = ("cue", "opener_meaning", "partner_meaning", "expect_meaning", "scene", "partner_scene")
 _GLOSSED_DIALOGUE = ("setting",)
 _GLOSSED_NOTE = ("text",)
 _GLOSSED_META = ("name",)
@@ -776,6 +777,8 @@ def validate(cur: Curriculum) -> None:
         for t in d.turns:
             if not t.expect and not t.expect_text:
                 raise CurriculumError(f"dialogue {d.id!r}: each turn needs expect or expect_text")
+            if not t.cue.strip():
+                raise CurriculumError(f"dialogue {d.id!r}: a learner's turn needs a cue, the intent, which plays in every encounter (#210)")
             if t.expect_text and not t.expect_meaning:
                 raise CurriculumError(f"dialogue {d.id!r}: expect_text needs expect_meaning")
             if t.expect and t.expect not in ids:

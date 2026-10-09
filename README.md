@@ -112,16 +112,29 @@ research and the established audio courses of the prompt–pause–answer type
 converge on: about 6–10 productive items per 30 minutes, retrieval success
 around 80–85%.
 
-- Start at one new item per 5 minutes (30 min → 6), clamped to 3–10.
-- If the last *reported* lesson had more than 20% of its new items fail, pace − 1.
-  A hesitated item (`report --hesitated`) counts as half a failure, here and below.
+- **A lesson's new material is counted in weighted new components** (#218): a new word or chunk costs 1, a new pattern 1 (its
+  frame's new words included), a phrase 1 for each new word, a close variant (a new form of a known word) `form_weight` (0.5), and
+  known parts or a linked-phrase pattern sentence 0. The learner's target starts at 8 and moves by one a lesson (within 4–12) by the
+  rules below; selection takes new items while the lesson's running total is below it, the last one may go over, and the new-item
+  ceiling (about one per 3 minutes) and the time check still bound it. `plan.json` has `new_components`; `status` shows the target.
+  `--new N` and `--pace N` count items for that lesson, and the simulations and the coverage report always do.
+- The rules below move the target (and the item `pace`, kept in items for those uses). The item pace starts at one new item per 5
+  minutes (30 min → 6), clamped to 3–10.
+- The recall rate is taken over the last three *reported* lessons (a failed new item counts 1,
+  a hesitated one ½, `report --hesitated` here and below; an embedded new item that failed
+  counts too): above 25% failures, pace − 1; 15–25% holds.
 - If the items due for review exceed ~80% of the lesson's review slots, pace − 1.
-- Pace + 1 only on evidence: the last lesson was reported with ≤ 10% failures
-  and the backlog is small. In manual mode, without `report` the pace never rises.
+- Pace + 1 only on evidence: the window at ≤ 15% failures and the backlog small, or the
+  last two rated lessons both «light» (`report --load light|right|heavy`) at ≤ 25% with a small backlog. A lesson with no rating is skipped: it neither breaks nor extends the run. Any «heavy»
+  in the window blocks a rise; one step a lesson at most. In manual mode, without `report` the
+  pace never rises. A load-only report does not mark the lesson reported.
 - **Auto mode** (`--auto`, persists; `AUTO=1` for `tools/daily.sh`): an unreported
   lesson counts as "all good", and the pace steps up once every 3 lessons while
   the backlog stays small. `report --failed …` still slows it down whenever you
   bother to file one. `--manual` switches back.
+- Spare time is never filled with a close variant of a known word (another case or gender): it goes to
+  more to hear — listening dialogues, then a played theme level heard again — and a form comes in only
+  when a scene, a frame or a contrast asks for it (#218).
 - `--new N` overrides one lesson; `--pace N` resets the ongoing pace.
 
 **Fixed length.** A lesson aims at the requested minutes (30:00 for `-m 30`)

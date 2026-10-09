@@ -2113,6 +2113,8 @@ class CurriculumTests(unittest.TestCase):
                     f"{note_id} fired in a lesson that didn't end up knowing all its items",
                 )
                 fired.add(note_id)
+            # the next day's review: a real learner says the embedded parts and pattern sentences back (#149, #192), so they are met
+            learner.report([], [], day, recalled=list(learner.embedded))
             if fired == set(milestones):
                 break
         self.assertEqual(fired, set(milestones), "not every milestone note fired across simulated lessons")
@@ -2162,6 +2164,8 @@ class CurriculumTests(unittest.TestCase):
                     self.assertIn(ex.item_ids[0], gate_ids)
                 self.assertNotEqual(first.item_ids[0], second.item_ids[0])
                 checked.add(note_id)
+            # the next day's review: a real learner says the embedded parts and pattern sentences back (#149, #192), so they are met
+            learner.report([], [], day, recalled=list(learner.embedded))
             if checked == set(milestones):
                 break
         self.assertEqual(checked, set(milestones), "not every milestone note fired across simulated lessons")
@@ -2786,12 +2790,12 @@ class CurriculumTests(unittest.TestCase):
             cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
             prompts = Prompts.load(lang)
             dlg = cur.dialogue_by_id["tungumal"]
-            for assisted in (True, False):
+            for translate in (True, False):
                 b = Builder(cur, prompts, Timing(level="A1"), LearnerState("is", lang, "A1"))
                 sc = Script(1, "L", cur.target_lang, lang)
-                b.dialogue(sc, dlg, assisted=assisted)
+                b.dialogue(sc, dlg, translate=translate)
                 segs = [(s.type, s.text) for s in sc.segments if s.type != "pause"]
-                self.assertEqual(segs[0], ("narrate", prompts.get("dialogue_start")), (lang, assisted))
+                self.assertEqual(segs[0], ("narrate", prompts.get("dialogue_start")), (lang, translate))
                 self.assertEqual(segs[1], ("narrate", dlg.setting))
 
     def test_instructor_prompts_capitalise_glosses_and_carry_no_usage_notes(self):
@@ -3536,12 +3540,10 @@ class LessonStructureTests(unittest.TestCase):
         opener_idx = next(i for i, s in enumerate(sc.segments) if s.type == "speak" and s.text == "Bonjour !")
         self.assertEqual(sc.segments[opener_idx + 1].type, "pause")
 
-    def test_dialogue_scaffolding_fades_on_later_encounters(self):
-        """Issue #26: a translation of the partner's line plus an explicit "say X" cue meant
-        the learner never had to understand the partner to answer correctly. On a later
-        encounter (assisted=False) both should drop once there's a partner line to react to —
-        but a turn with nothing said yet (no opener, nothing before it) must keep its cue,
-        since there would otherwise be no way to know what to say."""
+    def test_only_the_translation_fades_on_later_encounters_the_cue_stays(self):
+        """Issue #26, narrowed by #210: the translation of the partner's line fades (the learner has to understand it),
+        but the cue, the intent, plays in every encounter, so the learner always knows what they are to say and where
+        they are. No turn drops it: the partner's line never decides the reply (#230 review)."""
         from audiolesson.content import Dialogue, DialogueTurn
         from audiolesson.exercises import Builder
 
@@ -3553,20 +3555,41 @@ class LessonStructureTests(unittest.TestCase):
             DialogueTurn(cue="Say no thanks.", expect_text="Non, merci."),
         ]
         dlg = Dialogue(id="d", setting="A scene.", turns=turns)
+        narrations = lambda translate, **kw: [s.text for s in self._play(b, dlg, translate=translate, **kw).segments if s.type == "narrate"]
 
-        assisted = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
-        b.dialogue(assisted, dlg, assisted=True)
-        narrations = [s.text for s in assisted.segments if s.type == "narrate"]
-        self.assertIn("Ask how much.", narrations)
-        self.assertIn("Say no thanks.", narrations)
-        self.assertTrue(any("With milk?" in n for n in narrations))
+        first = narrations(True)
+        self.assertIn("Ask how much.", first)
+        self.assertIn("Say no thanks.", first)
+        self.assertTrue(any("With milk?" in n for n in first))
+        later = narrations(False)
+        self.assertIn("Ask how much.", later)
+        self.assertIn("Say no thanks.", later, "the cue stays after the partner has spoken")
+        self.assertFalse(any("With milk?" in n for n in later), "only the translation drops")
+        # a meaning comes the first time its turn is heard
+        self.assertTrue(any("With milk?" in n for n in narrations(frozenset({0}))))
+        self.assertFalse(any("With milk?" in n for n in narrations(frozenset({1}))))
 
-        later = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
-        b.dialogue(later, dlg, assisted=False)
-        narrations = [s.text for s in later.segments if s.type == "narrate"]
-        self.assertIn("Ask how much.", narrations)  # turn 1: nothing said yet, cue stays
-        self.assertNotIn("Say no thanks.", narrations)  # turn 2: partner just spoke, cue drops
-        self.assertFalse(any("With milk?" in n for n in narrations))  # translation drops too
+    @staticmethod
+    def _play(builder, dlg, **kw):
+        sc = Script(1, "Lesson 1", "is", "en")
+        builder.dialogue(sc, dlg, **kw)
+        return sc
+
+    def test_a_scene_line_plays_in_every_encounter(self):
+        from audiolesson.content import Dialogue, DialogueTurn
+        from audiolesson.exercises import Builder
+
+        cur = load_curriculum(CURRICULUM)
+        b = Builder(cur, Prompts.load(cur.known_lang), Timing(level="A1"), fresh())
+        dlg = Dialogue(id="d", setting="A scene.", turns=[
+            DialogueTurn(cue="Ask.", expect_text="Hæ.", partner="Viltu poka?", partner_meaning="A bag?", partner_scene="At the till."),
+            DialogueTurn(cue="Answer.", expect_text="Já.", opener="Gjörðu svo vel.", opener_meaning="Here you go.", scene="Outside."),
+        ])
+        for translate in (True, False):
+            segs = [(s.type, s.text) for s in self._play(b, dlg, translate=translate).segments if s.type in ("narrate", "speak")]
+            texts = [t for _, t in segs]
+            self.assertLess(texts.index("At the till."), texts.index("Viltu poka?"))
+            self.assertLess(texts.index("Outside."), texts.index("Gjörðu svo vel."), "before the opener")
 
     def test_later_lessons_fill_the_requested_time(self):
         _, scripts = course(8, minutes=30)
@@ -5047,10 +5070,10 @@ class SoonerRequestTests(unittest.TestCase):
 
     def test_it_does_not_mark_the_lesson_reported_so_the_pace_still_waits_for_the_review(self):
         learner = self._learner()
-        self.assertIsNone(learner.last_lesson_failures())
+        self.assertIsNone(learner.recall_rate())
         learner.report([], [], TODAY, 1, sooner=["a"])
         self.assertEqual(learner.reported, [])
-        self.assertIsNone(learner.last_lesson_failures())
+        self.assertIsNone(learner.recall_rate())
         learner.report([], [], TODAY, sooner=["a"])  # no lesson given: the same
         self.assertEqual(learner.reported, [])
 
@@ -5130,6 +5153,81 @@ class HardSentenceCapTests(unittest.TestCase):
                 self.assertGreaterEqual(sc.total_duration, 30 * 60 - 240, sc.lesson_number)
             apply_to_learner(sc, learner, day)
             day += timedelta(days=1)
+
+
+class PatternInstanceIntroTests(unittest.TestCase):
+    """#192, the rest (owner, after lesson 18): a linked phrase whose pattern and fillers are *known* comes in as one sentence of its
+    pattern, not as a new item with a ladder; it stays in ``new_items`` and the next-day question decides."""
+
+    @staticmethod
+    def _cur():
+        return curriculum_from_dict({
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "tvo", "kind": "vocab", "target": "tvo", "meaning": "two", "tags": ["c"]},
+                {"id": "thrja", "kind": "vocab", "target": "þrjá", "meaning": "three", "tags": ["c"]},
+                {"id": "pat", "kind": "construction", "target": "{count} miða, takk.", "meaning": "{count} tickets, please.",
+                 "slots": {"count": "c"}, "example": {"count": "tvo"}},
+                {"id": "ph", "kind": "phrase", "target": "Þrjá miða, takk.", "meaning": "Three tickets, please.",
+                 "instance_of": "pat", "instance_fill": {"count": "thrja"}},
+            ],
+        })
+
+    @staticmethod
+    def _learner(known=("tvo", "thrja", "pat")):
+        learner = LearnerState("is", "en", "A1")
+        for i in known:
+            learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3,
+                                         due=(TODAY + timedelta(days=5)).isoformat(), last_practiced=(TODAY - timedelta(days=2)).isoformat())
+        learner.lessons_completed = 4
+        return learner
+
+    def _plan(self, learner, day=TODAY):
+        return Planner(self._cur(), learner, Prompts.load("en"), Timing(level="A1"),
+                       PlanConfig(minutes=10, new_items=1, max_new_items=1, priority=["ph"], seed=3), today=day).build()
+
+    def test_a_known_pattern_and_filler_take_the_phrase_as_one_pattern_sentence(self):
+        sc = self._plan(self._learner())
+        self.assertEqual((sc.meta["embedded_items"], sc.meta["pattern_instances"]), (["ph"], ["ph"]))
+        self.assertIn("ph", sc.meta["new_items"], "it stays in new_items: the bot asks it the next day")
+        mine = [e for e in sc.exercises if "ph" in e.item_ids]
+        self.assertEqual([e.kind for e in mine], ["embed"], "one exercise: no ladder, no closing recall")
+        self.assertIn("A sentence from a pattern you know", sc.transcript())
+        self.assertNotIn("ph", sc.meta["exposures"], "nothing is recorded for the phrase")
+        self.assertEqual(sc.meta["exposures"]["pat"], ["recombine"], "credited to the pattern")
+        self.assertEqual(sc.meta["exposures"]["thrja"], ["recombine"], "and its filler")
+
+    def test_the_next_day_question_asks_the_phrase_in_its_own_form(self):
+        qs = [q for q in self._plan(self._learner()).review_questions() if q["items"] == ["ph"]]
+        self.assertEqual([(q["prompt"], q["answer"], q["stage"]) for q in qs], [("Three tickets, please.", "Þrjá miða, takk.", "embed")])
+
+    def test_said_back_it_is_met_with_one_durable_success_and_not_said_it_is_introduced_the_usual_way(self):
+        learner = self._learner()
+        apply_to_learner(self._plan(learner), learner, TODAY)
+        self.assertEqual(learner.embedded, {"ph": 5})
+        self.assertFalse(learner.has_met("ph"))
+        said = copy.deepcopy(learner)
+        said.report([], [], TODAY + timedelta(days=1), recalled=["ph"])
+        self.assertTrue(said.has_met("ph"))
+        self.assertEqual(said.items["ph"].durable_successes, 1)
+        learner.report(["ph"], [], TODAY + timedelta(days=1))
+        self.assertEqual(learner.embed_failed, ["ph"])
+        sc = self._plan(learner, TODAY + timedelta(days=2))
+        self.assertEqual((sc.meta["embedded_items"], sc.meta["pattern_instances"]), ([], []))
+        self.assertIn("ph", sc.meta["exposures"], "a normal introduction")
+        self.assertTrue(any(e.kind == "intro" and e.item_ids == ["ph"] for e in sc.exercises))
+
+    def test_with_the_pattern_or_a_filler_not_yet_known_the_introduction_is_as_today(self):
+        for known in (("tvo", "thrja"), ("pat", "tvo")):
+            sc = self._plan(self._learner(known))
+            self.assertEqual(sc.meta["pattern_instances"], [], known)
+            self.assertTrue(any(e.kind == "intro" and e.item_ids == ["ph"] for e in sc.exercises), known)
+
+    def test_the_real_curriculum_links_the_receipt_and_bill_phrases(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for phrase, filler in (("get_eg_fengid_kvittun", "kvittun"), ("get_eg_fengid_reikninginn", "reikninginn")):
+            self.assertEqual((cur.by_id[phrase].instance_of, cur.by_id[phrase].instance_fill), ("get_eg_fengid", {"thing": filler}))
+        self.assertIn("acc_request", cur.by_id["kvittun"].tags)
 
 
 class InstanceOfPatternTests(unittest.TestCase):
@@ -5482,7 +5580,7 @@ class AdmissionOfPartsTests(unittest.TestCase):
                 self.learner.items[i.id] = ItemState(**self.known)
         planner = self._planner()
         self.assertEqual([c.id for c in planner.frames_of(self.cur.by_id["thrja_acc"])], ["count_mida_takk"])
-        self.assertNotIn("thrja_acc", [i.id for i in planner.select_variants(5, set())])
+        self.assertFalse(planner.part_has_home(self.cur.by_id["thrja_acc"], set()), "not alone while its frame can still come with it")
         planner.builder.in_lesson.add("count_mida_takk")  # the frame is in the lesson already: the variant may follow
         self.assertTrue(planner.part_has_home(self.cur.by_id["thrja_acc"], {"count_mida_takk"}))
 
@@ -5503,9 +5601,9 @@ class AdmissionOfPartsTests(unittest.TestCase):
                 self.learner.items[i.id] = ItemState(**self.known)
         planner = self._planner()
         self.assertTrue(self.learner.has_met("thrja_mida"))
-        self.assertNotIn("thrja_acc", [i.id for i in planner.select_variants(5, set())])
+        self.assertFalse(planner.part_has_home(self.cur.by_id["thrja_acc"], set()))
         planner.builder.in_lesson.add("thrja_mida")  # the lesson says the phrase: the part has its sentence
-        self.assertIn("thrja_acc", [i.id for i in planner.select_variants(5, set())])
+        self.assertTrue(planner.part_has_home(self.cur.by_id["thrja_acc"], set()))
 
     def test_select_new_asks_the_same_question_for_a_variant_part(self):
         """#206 review: lesson 18 took «þrjá» through ``select_new``, which accepted a met phrase as its home. Whatever the path, a
@@ -6069,11 +6167,12 @@ class VariantFillTests(unittest.TestCase):
             learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
         return learner
 
-    def test_an_idle_lesson_introduces_a_variant_of_a_known_item_beyond_its_limit(self):
+    def test_an_idle_lesson_takes_no_variant_as_filler(self):
+        """#218 b1: a form comes in with a purpose, never to fill time (it used to: «bankanum», beyond the new-item limit)."""
         cur = self._cur()
         sc = Planner(cur, self._learner(cur), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=1, max_new_items=1, max_arcs=1), today=TODAY).build()
-        self.assertEqual(sc.meta["variant_items"], ["bankanum"])
-        self.assertEqual(sorted(sc.meta["new_items"]), ["bankanum", "n0"])
+        self.assertEqual(sc.meta["variant_items"], [])
+        self.assertEqual(sc.meta["new_items"], ["n0"])
 
     def test_a_variant_of_something_not_yet_known_waits(self):
         cur = self._cur()
@@ -6081,11 +6180,41 @@ class VariantFillTests(unittest.TestCase):
         self.assertEqual(sc.meta["variant_items"], [])
         self.assertNotIn("bankanum", sc.meta["new_items"])
 
-    def test_the_variant_count_is_capped(self):
+    def test_however_many_variants_there_are_none_fills(self):
         extra = [{"id": f"v{i}", "kind": "vocab", "target": f"vara{i}", "meaning": f"variant {i}", "variant_of": "bankinn", "meaning_spoken": f"variant {i}"} for i in range(6)]
         cur = self._cur(extra)
-        sc = Planner(cur, self._learner(cur), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=1, max_new_items=1, max_arcs=1, max_variant_items=2), today=TODAY).build()
-        self.assertLessEqual(len(sc.meta["variant_items"]), 2)
+        sc = Planner(cur, self._learner(cur), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=1, max_new_items=1, max_arcs=1), today=TODAY).build()
+        self.assertEqual(sc.meta["variant_items"], [])
+
+    def test_an_idle_lesson_takes_listening_not_a_variant(self):
+        extra = [{"id": "u0", "kind": "phrase", "target": "Nýtt núll.", "meaning": "New zero."}]
+        cur = self._cur(extra)
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": i.id, "kind": i.kind, "target": i.target, "meaning": i.meaning, **({"variant_of": i.variant_of, "meaning_spoken": i.meaning_spoken} if i.variant_of else {})} for i in cur.items],
+               "dialogues": [{"id": "d1", "setting": "A test setting.", "requires": ["r0", "r1", "u0"], "turns": [
+                   {"cue": "Say r0.", "expect": "r0", "partner": "Gott.", "partner_meaning": "Good."},
+                   {"cue": "Say new.", "expect": "u0", "partner": "Já.", "partner_meaning": "Yes."},
+                   {"cue": "Say r1.", "expect": "r1"}]}]}
+        cur = curriculum_from_dict(raw)
+        sc = Planner(cur, self._learner(cur), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=0, max_new_items=0, max_arcs=1), today=TODAY).build()
+        self.assertEqual(sc.meta["dialogues_listened"], ["d1"], "the spare time is more to hear")
+        self.assertEqual(sc.meta["variant_items"], [])
+        self.assertNotIn("bankanum", sc.meta["exposures"])
+
+    def test_a_variant_the_theme_does_not_want_stays_out_of_select_new(self):
+        cur = self._cur()
+        planner = Planner(cur, self._learner(cur), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=10), today=TODAY)
+        self.assertEqual([i.id for i in planner.select_new(10)], ["n0"])
+        # something pulls it: a phrase still to come lists it as a prerequisite (#202), so the course does not stall
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": "bankinn", "kind": "vocab", "target": "bankinn", "meaning": "the bank"},
+                         {"id": "bankanum", "kind": "vocab", "target": "bankanum", "meaning": "the bank (to)", "variant_of": "bankinn", "meaning_spoken": "the bank, after to"},
+                         {"id": "fer", "kind": "phrase", "target": "Ég fer í bankanum.", "meaning": "I go.", "prereqs": ["bankanum"]}]}
+        pulled = curriculum_from_dict(raw)
+        learner = LearnerState("is", "en", "A1")
+        learner.items["bankinn"] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
+        planner = Planner(pulled, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=3), today=TODAY)
+        self.assertIn("bankanum", [i.id for i in planner.select_new(3)])
 
     def test_variant_of_is_validated(self):
         def items(**variant):
@@ -6590,53 +6719,141 @@ class ThemeExchangeTests(unittest.TestCase):
         picked = self._planner(learner, [self._supermarket], ["A3"]).pick_theme()
         self.assertEqual((picked[0].id, picked[1], picked[2]), ("supermarket", 0, {3}), "one turn in four is tried")
 
-    def test_the_exchange_is_played_twice_early_assisted_and_late_with_only_the_partners_line(self):
+    def test_the_exchange_is_played_twice_early_translated_and_late_without_the_translation(self):
         learner = self._learner(self._known + self._rest)
         planner = self._planner(learner, [self._supermarket], ["A3"])
         sc = planner.build()
         plays = [e for e in sc.exercises if e.label.startswith("dialogue: theme:supermarket:1")]
         self.assertEqual(len(plays), 2)
         total = sc.total_duration
-        self.assertLess(plays[0].start, 0.3 * total)
+        self.assertLess(plays[0].start, 0.3 * 30 * 60, "early in a 30-minute lesson (which, with no filler variants, may end short in a thin course)")
         self.assertGreater(plays[1].start, 0.7 * total)
         segs = lambda e: [g for g in sc.segments if g.exercise == e.index]
         meaning = "Yes, it's over there, in the fridge."
         turn = self._supermarket.levels[0].turns[1]  # the early play says a variant of this line (#134), translated
-        self.assertTrue(any(g.text == v["meaning"] for v in turn.variants for g in segs(plays[0])), "assisted: the partner's line is translated")
-        self.assertFalse(any(g.text == meaning for g in segs(plays[1])), "later: the partner's line is the cue")
+        self.assertTrue(any(g.text == v["meaning"] for v in turn.variants for g in segs(plays[0])), "early: the partner's line is translated")
+        self.assertFalse(any(g.text == meaning for g in segs(plays[1])), "later: only the translation fades")
+        cue = self._supermarket.levels[0].turns[2].cue
+        self.assertTrue(all(cue in [g.text for g in segs(e) if g.type == "narrate"] for e in plays), "the cue plays in both")
         asked_first = [g for g in segs(plays[0]) if g.type == "pause" and g.role == "answer"]
         self.assertEqual(len(asked_first), 4)
         self.assertEqual(sc.meta["theme"], {"id": "supermarket", "scenario": "A3", "level": 1, "plays": 2, "lines": sc.meta["theme"]["lines"], "replay": False, "heard": sc.meta["theme"]["heard"]})
         self.assertTrue(sc.meta["theme"]["heard"], "the assisted play's variants were heard with their meaning")
         self.assertEqual(len(sc.meta["theme"]["lines"]), 2)
 
-    def test_a_turn_no_partner_line_prompts_keeps_its_cue_in_the_late_play(self):
-        """Review of #186: in the late play the partner's line is the cue, which holds only where the partner's line asks
-        for the learner's. A learner line after their own line, or a scene change after a line that doesn't ask for it,
-        keeps its cue; otherwise the learner has to recall the script."""
-        from audiolesson.themes import Level, Theme, Turn, level_dialogue
-
-        market2 = level_dialogue(self._supermarket, 1)
-        self.assertEqual([t.keep_cue for t in market2.turns], [False, True, False], "the second line follows the learner's own")
-        cafe = next(t for t in self._themes if t.id == "cafe")
-        menu = level_dialogue(cafe, 1).turns
-        self.assertEqual([t.keep_cue for t in menu][:3], [True, True, False], "the seat question opens; the menu is a scene change (prompted = false)")
-        theme = Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
-            Turn(who="partner", say="Hæ.", meaning="Hi."),
-            Turn(who="you", say="Hæ.", cue="Say hi.", items=["hae"]),
-            Turn(who="partner", say="Takk.", meaning="Thanks."),
-            Turn(who="you", say="Bless.", cue="Say bye.", items=["bless"], prompted=False),
-        ])])
-        self.assertEqual([t.keep_cue for t in level_dialogue(theme, 0).turns], [False, True])
+    def test_every_learner_turn_keeps_its_cue_in_the_late_play_and_in_a_replay(self):
+        """#210 (it was #186 review): the cue is the intent, so it plays every time; before, 13 of 24 turns lost it in the
+        late play and a replay played none."""
         learner = self._learner(self._known + self._rest + ["eg_er_ad_leita_ad_thing", "hvad_er_thetta_mikid_samtals"])
         planner = self._planner(learner, [self._supermarket], ["A3"])
         planner.learner.themes_done = {"supermarket": 1}
         sc = planner.build()
         early, late = [e for e in sc.exercises if e.label.startswith("dialogue: theme:supermarket:2")]
         said = lambda e: [g.text for g in sc.segments if g.exercise == e.index and g.type == "narrate"]
-        self.assertIn("At the till, ask how much it is in total.", said(late), "the line after the learner's own keeps its cue")
-        self.assertNotIn("You're just looking.", said(late), "a line that answers the partner has none")
-        self.assertIn("You're just looking.", said(early))
+        for cue in ("You're just looking.", "At the till, ask how much it is in total.", "No need."):
+            self.assertIn(cue, said(early))
+            self.assertIn(cue, said(late))
+        replay = self._learner(self._known + self._rest)
+        replay.themes_done = {"supermarket": 1}
+        replay.themes_last = {}
+        sc = self._planner(replay, [self._supermarket], ["A3"]).build()
+        self.assertTrue(sc.meta["theme"]["replay"])
+        for e in [e for e in sc.exercises if e.label.startswith("dialogue: theme:supermarket:1")]:
+            self.assertIn("Thank him.", [g.text for g in sc.segments if g.exercise == e.index and g.type == "narrate"])
+
+    def test_no_turn_of_a_continuing_exchange_drops_its_cue_in_any_play(self):
+        """#230 review (owner): the partner's line never decides the reply, so every learner turn of every theme level keeps its cue,
+        the second play and a replay included, the tour's «Greet her back.» too."""
+        from audiolesson.themes import level_dialogue
+
+        planner = self._planner(self._learner(self._known + self._rest + ["godan_daginn"]), self._themes, self._order)
+        for theme in self._themes:
+            for n, level in enumerate(theme.levels):
+                dlg = level_dialogue(theme, n)
+                for translate in (True, False):
+                    sc = Script(1, "t", "is", "en")
+                    planner.builder.dialogue(sc, dlg, translate=translate)
+                    narrated = [g.text for g in sc.segments if g.type == "narrate"]
+                    for turn in dlg.turns:
+                        self.assertIn(turn.cue, narrated, (theme.id, n + 1, translate))
+        self.assertIn("Greet her back.", [t.cue for t in level_dialogue(next(t for t in self._themes if t.id == "tour"), 0).turns])
+
+    def test_a_scene_line_on_a_partner_turn_is_narrated_before_its_line_in_every_play(self):
+        from audiolesson.themes import Level, Theme, Turn, level_dialogue
+
+        dlg = level_dialogue(self._supermarket, 0)
+        self.assertEqual(dlg.turns[1].partner_scene, "At the till.", "«Viltu poka?» is the partner reply of «Takk.»")
+        self.assertEqual(dlg.turns[1].scene, "")
+        ja = level_dialogue(self._supermarket, 0, known_lang="ja")
+        self.assertTrue(ja.turns[1].partner_scene and ja.turns[1].partner_scene != "At the till.")
+        theme = Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
+            Turn(who="you", say="Hæ.", cue="Say hi.", items=["hae"]),
+            Turn(who="partner", say="Halló.", meaning="Hello.", scene="Later."),
+            Turn(who="you", say="Bless.", cue="Say bye.", items=["bless"]),
+        ])])
+        self.assertEqual(level_dialogue(theme, 0).turns[0].partner_scene, "Later.")
+        opener = Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
+            Turn(who="partner", say="Hæ.", meaning="Hi.", scene="At the door."),
+            Turn(who="you", say="Hæ.", cue="Say hi.", items=["hae"]),
+        ])])
+        self.assertEqual(level_dialogue(opener, 0).turns[0].scene, "At the door.")
+        learner = self._learner(self._known + self._rest)
+        sc = self._planner(learner, [self._supermarket], ["A3"]).build()
+        for e in [e for e in sc.exercises if e.label.startswith("dialogue: theme:supermarket:1")]:
+            seq = [g.text for g in sc.segments if g.exercise == e.index and g.type in ("narrate", "speak")]
+            i = seq.index("At the till.")
+            self.assertTrue(seq[i + 1].startswith(("Viltu", "Þarftu")) or "poka" in seq[i + 1], seq[i : i + 2])
+
+    def test_a_theme_validation_fails_on_an_empty_cue_or_a_misplaced_flag(self):
+        from audiolesson.themes import Level, Theme, Turn, _check
+        from audiolesson.content import CurriculumError
+
+        def check(*turns):
+            _check(Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=list(turns))]))
+
+        you = lambda **kw: Turn(**{"who": "you", "say": "Hæ.", "cue": "Say hi.", "items": ["hae"], **kw})
+        check(you())
+        for bad in (you(cue=""), you(cue="  ")):
+            with self.assertRaises(CurriculumError):
+                check(bad)
+        with self.assertRaises(CurriculumError):
+            check(you(scene="At the till."))
+
+    def test_a_dialogue_turn_gets_its_meaning_the_first_time_it_is_heard(self):
+        """#210: «tungumal» turn 3 is new at encounter 2 (two turns the first time, one more each time) and used to get neither
+        cue nor meaning; now the cue always plays and the meaning comes with the turn."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        dlg = cur.dialogue_by_id["tungumal"]
+        learner = LearnerState("is", "en", "A1")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, new_items=1), today=TODAY)
+        first_turns = planner.cfg.dialogue_first_turns
+        self.assertEqual(first_turns, 2)
+        meaning = dlg.turns[2].partner_meaning
+        for times in range(4):
+            learner.dialogues_done["tungumal"] = times
+            sc = Script(1, "t", cur.target_lang, cur.known_lang)
+            planner._play_dialogue(sc, dlg)
+            narr = [s.text for s in sc.segments if s.type == "narrate"]
+            played = min(len(dlg.turns), first_turns + times)
+            for k in range(played):
+                self.assertIn(dlg.turns[k].cue, narr, f"encounter {times}: turn {k + 1} keeps its cue")
+            said = lambda k: any(dlg.turns[k].partner_meaning in n for n in narr)
+            self.assertEqual(said(2), times == 1 and played > 2, f"turn 3's meaning comes at encounter 2 only (times={times})")
+            if times == 0:
+                self.assertTrue(said(0) and said(1))
+            elif times >= 1:
+                self.assertFalse(said(0) or said(1), "earlier turns' meanings have faded")
+
+    def test_a_dialogue_turn_without_a_cue_fails_validation(self):
+        from audiolesson.content import validate
+
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": "hae", "kind": "phrase", "target": "Hæ.", "meaning": "Hi."}],
+               "dialogues": [{"id": "d", "setting": "A door.", "turns": [{"cue": "", "expect": "hae"}]}]}
+        with self.assertRaises(CurriculumError):
+            validate(curriculum_from_dict(raw))
+        raw["dialogues"][0]["turns"][0]["cue"] = "Say hi."
+        validate(curriculum_from_dict(raw))
 
     def test_partner_lines_vary_between_plays_at_natural_speed_and_the_transcript_says_which(self):
         """#134: a clerk says the same thing in other words: each play picks a variant per line (the second another than
@@ -6736,6 +6953,25 @@ class ThemeExchangeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             learner.save(Path(tmp) / "l.json")
             self.assertEqual(LearnerState.load(Path(tmp) / "l.json").themes_last, learner.themes_last)
+
+    def test_spare_time_hears_a_played_level_again_with_its_cues(self):
+        """#218 b1: after the listening dialogues, a theme level already played is heard again (partner lines in variants, the cue
+        kept, the learner's line modelled and not asked), at most twice a lesson."""
+        learner = self._learner(self._known + self._rest)
+        learner.themes_done = {t.id: len(t.levels) for t in self._themes}
+        learner.themes_last = {"supermarket": 1, "cafe": 1, "museum": 1, "tour": 1}
+        sc = self._planner(learner, self._themes, self._order).build()
+        heard = sc.meta["heard_themes"]
+        self.assertTrue(0 < len(heard) <= PlanConfig().heard_theme_plays, heard)
+        own = f"{sc.meta['theme']['id']}:{sc.meta['theme']['level']}"
+        self.assertNotIn(own, heard)
+        plays = [e for e in sc.exercises if e.label.startswith("heard: theme:")]
+        self.assertEqual(len(plays), len(heard))
+        for e in plays:
+            segs = [g for g in sc.segments if g.exercise == e.index]
+            self.assertFalse(any(g.type == "pause" and g.role == "answer" for g in segs), "heard, not asked")
+            self.assertTrue(any(g.type == "answer" for g in segs), "the learner's line is modelled")
+            self.assertTrue(sum(1 for g in segs if g.type == "narrate") >= 3, "the cues stay")
 
     def test_a_replays_early_play_only_says_wordings_already_heard_with_their_meaning(self):
         import random
@@ -7280,6 +7516,200 @@ class BinFormCheckTests(unittest.TestCase):
                 self.assertFalse(path.exists())
                 self.assertEqual(tool.run([("miða", None)], path, "g-miði", "2026-10-09", fetcher=lambda f, o: data, pause=0), 0)
             self.assertEqual(json.loads(path.read_text(encoding="utf-8"))["miða"]["guid"], "g-miði")
+class NewComponentTests(unittest.TestCase):
+    """#218 b3: the pace's unit is weighted new components (the owner's amendments of 2026-10-08/09): a word or chunk 1, a pattern 1
+    (its frame's new words included), a phrase 1 for each new word, a close variant w (0.5), known parts and a #192 pattern instance 0."""
+
+    @staticmethod
+    def _cur(extra=()):
+        items = [
+            {"id": "kaffi", "kind": "vocab", "target": "kaffi", "meaning": "coffee", "tags": ["thing"]},
+            {"id": "te", "kind": "vocab", "target": "te", "meaning": "tea", "tags": ["thing"]},
+            {"id": "taka_mynd", "kind": "vocab", "target": "taka mynd", "meaning": "take a photo"},
+            {"id": "hvad_kostar_thetta", "kind": "phrase", "target": "Hvað kostar þetta?", "meaning": "What does this cost?"},
+            {"id": "kostar_pat", "kind": "construction", "target": "Hvað kostar {thing}?", "meaning": "What does {thing} cost?", "slots": {"thing": "thing"}, "example": {"thing": "kaffi"}},
+            {"id": "opnar_pat", "kind": "construction", "target": "Hvenær opnar {thing}?", "meaning": "When does {thing} open?", "slots": {"thing": "thing"}, "example": {"thing": "kaffi"}},
+            {"id": "opnar", "kind": "vocab", "target": "opnar", "meaning": "opens"},
+            {"id": "kaffid", "kind": "vocab", "target": "kaffið", "meaning": "the coffee", "variant_of": "kaffi", "meaning_spoken": "the coffee"},
+            {"id": "bara", "kind": "phrase", "target": "Ég vil bara kaffi.", "meaning": "I just want coffee."},
+            {"id": "sundfot", "kind": "phrase", "target": "Sundföt og handklæði.", "meaning": "Swimsuit and towel."},
+        ]
+        return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items + list(extra)})
+
+    @staticmethod
+    def _met(learner, *ids):
+        for i in ids:
+            learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=2,
+                                         due=(TODAY + timedelta(days=5)).isoformat(), last_practiced=(TODAY - timedelta(days=2)).isoformat())
+
+    def _planner(self, *met, cur=None, **cfg):
+        cur = cur or self._cur()
+        learner = LearnerState("is", "en", "A1")
+        self._met(learner, *met)
+        return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6, new_target=8, **cfg), today=TODAY)
+
+    def test_each_kind_costs_what_it_adds(self):
+        planner = self._planner("kaffi")
+        cost = lambda i: planner.component_cost(planner.cur.by_id[i])
+        self.assertEqual(cost("te"), 1.0, "a word")
+        self.assertEqual(cost("taka_mynd"), 1.0, "a chunk counts once, however many words")
+        self.assertEqual(cost("sundfot"), 3.0, "a phrase: 1 for each new word")
+        self.assertEqual(cost("bara"), 3.0, "…not for the word it shares with what is met («kaffi»)")
+        self.assertEqual(cost("kaffid"), 0.5, "a close variant costs w")
+        self.assertEqual(cost("kostar_pat"), 1.0, "a pattern counts 1, its frame's new words included")
+        self.assertEqual(planner.cfg.form_weight, 0.5)
+
+    def test_a_pattern_of_known_words_still_counts_one_unless_it_sits_inside_a_known_pattern(self):
+        planner = self._planner("hvad_kostar_thetta", "kaffi")
+        self.assertEqual(planner.component_cost(planner.cur.by_id["kostar_pat"]), 1.0, "after a fixed phrase, the pattern is a new step")
+        raw = self._cur([{"id": "hvenaer_pat", "kind": "construction", "target": "Hvenær {thing}?", "meaning": "When {thing}?", "slots": {"thing": "thing"}, "example": {"thing": "kaffi"}}])
+        planner = self._planner("opnar_pat", "kaffi", cur=raw)
+        self.assertEqual(planner.component_cost(raw.by_id["hvenaer_pat"]), 0.0, "a frame inside a known pattern is a known part")
+
+    def test_a_frames_words_are_not_counted_twice(self):
+        planner = self._planner("kaffi")
+        a, b = planner.cur.by_id["opnar_pat"], planner.cur.by_id["opnar"]
+        self.assertEqual(planner._charge(a), 1.0)
+        self.assertEqual(planner._charge(b), 0.0, "«opnar» came with its frame")
+        self.assertEqual(planner.components_total, 1.0)
+
+    def test_a_pattern_instance_costs_nothing(self):
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": [
+            {"id": "tvo", "kind": "vocab", "target": "tvo", "meaning": "two", "tags": ["c"]},
+            {"id": "thrja", "kind": "vocab", "target": "þrjá", "meaning": "three", "tags": ["c"]},
+            {"id": "pat", "kind": "construction", "target": "{count} miða, takk.", "meaning": "{count} tickets, please.", "slots": {"count": "c"}, "example": {"count": "tvo"}},
+            {"id": "ph", "kind": "phrase", "target": "Þrjá miða, takk.", "meaning": "Three tickets, please.", "instance_of": "pat", "instance_fill": {"count": "thrja"}}]})
+        planner = self._planner("tvo", "thrja", "pat", cur=cur)
+        self.assertEqual(planner.component_cost(cur.by_id["ph"]), 0.0)
+
+    def test_the_total_stops_selection_and_the_last_item_may_go_over(self):
+        extra = [{"id": f"w{i}", "kind": "vocab", "target": f"orð{'abcdefghijkl'[i]}", "meaning": f"word {i}"} for i in range(12)]
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": extra})
+        planner = Planner(cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6, new_target=2.5), today=TODAY)
+        chosen = planner.select_new(10)
+        self.assertEqual(planner.components_total, 3.0, [i.id for i in chosen])
+        self.assertEqual(len(chosen), 3, "2.5 is below the third item's start: the last one goes over")
+        self.assertEqual(planner.select_new(10), [], "the target is met")
+
+    @staticmethod
+    def _zero_then_words(zeros=12, words=12):
+        base = [{"id": "base", "kind": "phrase", "target": "Orð eitt tvö þrjú fjögur fimm.", "meaning": "Words."}]
+        ws = ["Orð", "eitt", "tvö", "þrjú", "fjögur"]
+        pairs = [(a, b) for a in ws for b in ws if a != b][:zeros]
+        zero = [{"id": f"z{i}", "kind": "phrase", "target": f"{a} {b}.", "meaning": f"Zero {i}."} for i, (a, b) in enumerate(pairs)]
+        new = [{"id": f"w{i}", "kind": "vocab", "target": f"nýtt{'abcdefghijkl'[i]}", "meaning": f"new {i}"} for i in range(words)]
+        return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": base + zero + new})
+
+    def test_zero_cost_items_do_not_use_up_the_item_ceiling_so_the_target_is_reached(self):
+        """#218 b3 (owner, option b): the ceiling caps load. The first ten picks of this course cost nothing; the target must still be reached."""
+        cur = self._zero_then_words()
+        learner = LearnerState("is", "en", "A1")
+        self._met(learner, "base")
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6, new_target=6), today=TODAY)
+        chosen = planner.select_new(planner.cfg.new_items_ceiling())
+        self.assertGreater(sum(1 for i in chosen if i.id.startswith("z")), 10, "more than the ceiling's worth of free items")
+        self.assertGreaterEqual(planner.components_total, 6.0)
+        costed = [i for i in chosen if planner.component_by_item[i.id] > 0]
+        self.assertLessEqual(len(costed), planner.cfg.new_items_ceiling())
+        # counting items the same course would stop at the ceiling, short of the target
+        items_mode = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6), today=TODAY)
+        self.assertEqual(len(items_mode.select_new(10)), 10)
+
+    def test_a_lesson_whose_first_picks_cost_nothing_reaches_its_target(self):
+        cur = self._zero_then_words()
+        learner = LearnerState("is", "en", "A1")
+        self._met(learner, "base")
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6, new_target=6), today=TODAY).build()
+        nc = sc.meta["new_components"]
+        self.assertGreaterEqual(nc["total"], 6.0, nc)
+        self.assertLessEqual(nc["total"], 6.0 + 1.0, "one item over at most")
+
+    def test_the_last_pick_goes_over_by_one_item_at_most(self):
+        two = [{"id": f"p{i}", "kind": "phrase", "target": f"Orð{'abcdefgh'[2 * i]} orð{'abcdefgh'[2 * i + 1]}.", "meaning": f"Two {i}."} for i in range(4)]
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": two})
+        for target, expected in ((3.0, 4.0), (2.5, 2.0)):
+            planner = Planner(cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6, new_target=target), today=TODAY)
+            planner.select_new(10)
+            self.assertEqual(planner.components_total, expected, target)
+
+    def test_a_phrase_made_of_a_curriculum_chunk_counts_the_chunk_once(self):
+        cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": [
+            {"id": "ma_eg", "kind": "phrase", "target": "Má ég fara?", "meaning": "May I go?"},
+            {"id": "taka_mynd", "kind": "vocab", "target": "taka mynd", "meaning": "take a photo"},
+            {"id": "ma_eg_taka_mynd", "kind": "phrase", "target": "Má ég taka mynd?", "meaning": "May I take a photo?"}]})
+        planner = self._planner("ma_eg", cur=cur)
+        self.assertEqual(planner.component_cost(cur.by_id["ma_eg_taka_mynd"]), 1.0, "«taka mynd» is one item: 1, not 2")
+        self.assertEqual(planner.component_cost(cur.by_id["taka_mynd"]), 1.0)
+
+    def test_the_backlog_estimate_for_the_target_reserves_item_slots_not_components(self):
+        learner = PacingTests._rated([["r"] * 10] * 3)
+        slots = max(0, int(30 * 60 / 16) - 6 * 6)
+        for k in range(int(slots * 0.7)):  # a backlog just under the limit when new material is 6 items
+            learner.items[f"pad{k}"] = ItemState(stage="meaning", due=TODAY.isoformat())
+        learner.new_target = 12.0
+        self.assertGreaterEqual(learner.suggest_target(30, TODAY)[0], 12.0, "12 components are not reserved as 12 items")
+
+    def test_the_lesson_reports_its_components_and_a_rebuild_keeps_the_total(self):
+        extra = [{"id": f"w{i}", "kind": "vocab", "target": f"orð{'abcdefghijklmn'[i]}", "meaning": f"word {i}"} for i in range(14)]
+        cur = self._cur(extra)
+        learner = LearnerState("is", "en", "A1")
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6, new_target=6), today=TODAY).build()
+        nc = sc.meta["new_components"]
+        self.assertEqual(set(nc), {"total", "forms", "target", "by_item"})
+        self.assertGreaterEqual(nc["total"], 6)
+        self.assertLessEqual(nc["total"], 6 + 1.5, "stops once the target is reached, the last item may go over")
+        self.assertEqual(nc["total"], round(sum(nc["by_item"].values()), 2))
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6, new_target=6, planned_extras=["w13"]), today=TODAY)
+        sc2 = planner.build()
+        self.assertIn("w13", sc2.meta["new_components"]["by_item"], "an extra a first build took counts from the start, so the rebuild keeps the total")
+
+    def test_counting_items_is_unchanged(self):
+        cur = self._cur()
+        sc = Planner(cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, new_items=3), today=TODAY).build()
+        self.assertIsNone(sc.meta["new_components"])
+
+    def test_the_target_moves_by_the_pace_rules_within_four_and_twelve(self):
+        learner = PacingTests._rated([["r"] * 10] * 3)
+        self.assertEqual(learner.new_target, 8.0)
+        target, why = learner.suggest_target(30, TODAY)
+        self.assertEqual(target, 9.0, why)
+        self.assertEqual(learner.suggest_pace(30, TODAY)[0], 7, "the items pace moves on its own, unchanged")
+        bad = PacingTests._rated([["r"] * 6 + ["f"] * 4] * 3)
+        self.assertEqual(bad.suggest_target(30, TODAY)[0], 7.0)
+        for start, outcomes, expected in ((12.0, [["r"] * 10] * 3, 12.0), (4.0, [["r"] * 6 + ["f"] * 4] * 3, 4.0)):
+            lr = PacingTests._rated(outcomes)
+            lr.new_target = start
+            self.assertEqual(lr.suggest_target(30, TODAY)[0], expected, start)
+        light = PacingTests._rated([["r"] * 8 + ["f"] * 2] * 3, [None, "light", "light"])
+        self.assertEqual(light.suggest_target(30, TODAY)[0], 9.0, "two light lessons raise it")
+        heavy = PacingTests._rated([["r"] * 10] * 3, [None, "heavy", None])
+        self.assertEqual(heavy.suggest_target(30, TODAY)[0], 8.0)
+
+    def test_the_target_is_saved_and_the_cli_plans_from_it(self):
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        learner = LearnerState("fr", "en", "A1")
+        learner.new_target = 9.0
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "l.json"
+            learner.save(path)
+            self.assertEqual(LearnerState.load(path).new_target, 9.0)
+            raw = json.loads(path.read_text())
+            raw.pop("new_target")
+            path.write_text(json.dumps(raw))
+            self.assertEqual(LearnerState.load(path).new_target, 8.0, "an older file starts at 8")
+            out = Path(td) / "out"
+            with contextlib.redirect_stdout(io.StringIO()) as buf:
+                self.assertEqual(main(["generate", "-c", str(ROOT / "curricula" / "fr-en-a1.toml"), "-l", str(path), "--out", str(out), "--no-audio", "-m", "10"]), 0)
+            self.assertIn("new components (weighted)", buf.getvalue())
+            self.assertTrue(LearnerState.load(path).new_target >= 4.0)
+            plan = json.loads(next(out.glob("*.plan.json")).read_text())
+            self.assertTrue(plan["new_components"]["total"] >= 0)
+            with contextlib.redirect_stdout(io.StringIO()) as buf:
+                self.assertEqual(main(["generate", "-c", str(ROOT / "curricula" / "fr-en-a1.toml"), "-l", str(path), "--out", str(out), "--no-audio", "-m", "10", "--new", "3"]), 0)
+            self.assertNotIn("new components (weighted)", buf.getvalue(), "--new counts items")
 
 
 class PacingTests(unittest.TestCase):
@@ -7359,9 +7789,9 @@ class PacingTests(unittest.TestCase):
     def test_hesitation_counts_as_half_a_failure_for_the_pace(self):
         """Simulated lessons 1-12 with every new item confirmed in the Discord review: the pace
         rose every lesson to 10 because only outright failures counted. A hesitation now
-        counts ½: 2 of 12 hesitated (8%) still speeds up, 4 (17%) holds, 6 (25%) slows down."""
+        counts ½: 2 of 12 hesitated (8%) still speeds up, 4 (17%) and 6 (25%) hold, 8 (33%) slows down (#218)."""
         results = {}
-        for hesitated in (2, 4, 6):
+        for hesitated in (2, 4, 6, 8):
             learner = fresh()
             day = TODAY
             sc = build(learner, 30, today=day, new_items=6)
@@ -7373,8 +7803,8 @@ class PacingTests(unittest.TestCase):
             n = round(hesitated * len(new) / 12)
             learner.report([], [], day, 1, hesitated=new[:n], recalled=new[n:])
             results[hesitated] = learner.suggest_pace(30, day + timedelta(days=1))
-        self.assertEqual({k: v[0] for k, v in results.items()}, {2: 7, 4: 6, 6: 5}, results)
-        self.assertIn("a hesitation counts ½", results[6][1])
+        self.assertEqual({k: v[0] for k, v in results.items()}, {2: 7, 4: 6, 6: 6, 8: 5}, results)
+        self.assertIn("a hesitation counts ½", results[8][1])
 
     def test_backlog_slows_the_pace(self):
         learner, _ = course(6, minutes=30)
@@ -7429,6 +7859,143 @@ class PacingTests(unittest.TestCase):
         learner.report(new[: len(new) // 2], [], day)
         pace2, why = learner.suggest_pace(30, day + timedelta(days=1))
         self.assertEqual(pace2, 5, why)
+
+    # ---- #218 part a: the recall rate over three lessons and the load rating ----
+
+    @staticmethod
+    def _rated(outcomes, loads=None, pace=6):
+        """A learner with one lesson per entry of ``outcomes`` (each a list of 'r'ecalled / 'h'esitated / 'f'ailed
+        for that lesson's new items), all reported; ``loads`` are stored on the lessons in order."""
+        learner = fresh()
+        learner.pace = pace
+        learner.lessons = []
+        for n, outs in enumerate(outcomes, 1):
+            ids = []
+            for k, o in enumerate(outs):
+                item_id = f"i{n}_{k}"
+                ids.append(item_id)
+                learner.items[item_id] = ItemState(
+                    stage="meaning", due=(TODAY + timedelta(days=30)).isoformat(),
+                    history=[{"lesson": n, "stages": ["meaning"], "ok": o != "f", **({"outcome": "hesitated"} if o == "h" else {})}],
+                )
+            learner.lessons.append({"number": n, "new_items": ids, **({"load": loads[n - 1]} if loads and loads[n - 1] else {})})
+            learner.reported.append(n)
+        learner.lessons_completed = len(outcomes)
+        return learner
+
+    def test_the_rate_is_taken_over_the_last_three_reported_lessons(self):
+        learner = self._rated(["f" * 3 + "r" * 7, "r" * 10, "r" * 10, "r" * 10])
+        self.assertEqual(learner.recall_rate(), (0, 30), "lesson 1 is outside the window")
+        learner = self._rated(["r" * 10, "f" * 2 + "r" * 8, "r" * 10])
+        self.assertEqual(learner.recall_rate(), (2, 30))
+        learner.lessons.insert(1, {"number": 99, "new_items": ["i1_0"]})  # not reported: not in the window
+        self.assertEqual(learner.recall_rate(), (2, 30))
+
+    def test_up_at_15_percent_hold_to_25_down_above(self):
+        # window of 30 items: 4 failed = 13% (up), 6 = 20% (hold), 8 = 27% (down)
+        out = {}
+        for failed in (4, 6, 8):
+            learner = self._rated([["r"] * 10] * 3)
+            for k in range(failed):
+                learner.items[f"i{1 + k // 10}_{k % 10}"].history[-1]["ok"] = False
+            out[failed] = learner.suggest_pace(30, TODAY)[0]
+        self.assertEqual(out, {4: 7, 6: 6, 8: 5})
+
+    def test_a_later_lesson_does_not_hide_an_outcome(self):
+        """``history[-1]`` is the latest lesson's entry; the lesson's own is found by number, in the rate and in the report."""
+        learner = self._rated([["r"] * 9 + ["f"]])
+        learner.items["i1_9"].history.append({"lesson": 2, "stages": ["meaning"], "ok": True})
+        self.assertEqual(learner.recall_rate(), (1, 10))
+        learner = self._rated([["r"] * 4])
+        learner.items["i1_0"].history.append({"lesson": 2, "stages": ["meaning"], "ok": True})
+        learner.report(["i1_0"], [], TODAY, 1)
+        self.assertEqual([(e["lesson"], e["ok"]) for e in learner.items["i1_0"].history], [(1, False), (2, True)])
+        self.assertEqual(learner.recall_rate(), (1, 4))
+
+    def test_an_embedded_item_that_failed_counts_as_weak(self):
+        learner = self._rated([["r"] * 3])
+        learner.lessons[0]["new_items"].append("emb")
+        learner.embedded["emb"] = 1
+        self.assertEqual(learner.recall_rate(), (0, 4), "still pending: not counted")
+        learner.report(["emb"], [], TODAY, 1)
+        self.assertEqual(learner.embed_failed, ["emb"])
+        self.assertEqual(learner.recall_rate(), (1, 4))
+
+    def test_two_light_lessons_raise_the_pace_and_one_heavy_blocks_it(self):
+        # 20% over the window: a hold on the rate alone
+        outs = [["r"] * 4 + ["f"] * 6] + [["r"] * 10] * 2
+        self.assertEqual(self._rated(outs).suggest_pace(30, TODAY)[0], 6)
+        pace, why = self._rated(outs, [None, "light", "light"]).suggest_pace(30, TODAY)
+        self.assertEqual(pace, 7, why)
+        self.assertIn("light", why)
+        self.assertEqual(self._rated(outs, [None, "right", "light"]).suggest_pace(30, TODAY)[0], 6)
+        self.assertEqual(self._rated(outs, [None, "light", "light"]).suggest_pace(30, TODAY)[0], 7)
+        pace, why = self._rated(outs, ["heavy", "light", "light"]).suggest_pace(30, TODAY)
+        self.assertEqual(pace, 6, why)
+        # a heavy lesson also stops a rise on a clean rate
+        clean = [["r"] * 10] * 3
+        self.assertEqual(self._rated(clean).suggest_pace(30, TODAY)[0], 7)
+        self.assertEqual(self._rated(clean, [None, "heavy", None]).suggest_pace(30, TODAY)[0], 6)
+        # light lessons do not lift a rate above 25%
+        bad = [["r"] * 6 + ["f"] * 4] * 3
+        self.assertEqual(self._rated(bad, [None, "light", "light"]).suggest_pace(30, TODAY)[0], 5)
+
+    def test_a_load_only_report_leaves_the_lesson_unreported(self):
+        learner = SoonerRequestTests._learner()
+        changed = learner.report([], [], TODAY, 1, load="heavy")
+        self.assertEqual((learner.reported, learner.lessons[0]["load"], changed["load"]), ([], "heavy", "heavy"))
+        self.assertIsNone(learner.recall_rate())
+        learner.report([], [], TODAY, 1, load="light")  # the last word stands
+        self.assertEqual(learner.lessons[0]["load"], "light")
+        learner.report(["a"], [], TODAY, 1, load="right")
+        self.assertEqual((learner.reported, learner.lessons[0]["load"]), ([1], "right"))
+        with self.assertRaises(ValueError):
+            learner.report([], [], TODAY, 1, load="enormous")
+
+    def test_two_light_lessons_need_a_small_backlog_like_the_recall_rise(self):
+        outs = [["r"] * 4 + ["f"] * 6] + [["r"] * 10] * 2
+        learner = self._rated(outs, [None, "light", "light"])
+        self.assertEqual(learner.suggest_pace(30, TODAY)[0], 7)
+        slots = max(0, int(30 * 60 / 16) - 6 * 6)
+        for k in range(int(slots * 0.6)):  # items due now: between 0.5 and 0.8 of the review slots
+            learner.items[f"pad{k}"] = ItemState(stage="meaning", due=TODAY.isoformat())
+        self.assertEqual(learner.suggest_pace(30, TODAY)[0], 6, "a backlog the recall rise would not accept blocks the light rise too")
+
+    def test_an_unrated_lesson_neither_breaks_nor_extends_the_run_of_light_lessons(self):
+        outs = [["r"] * 8 + ["f"] * 2] * 4
+        light_gap = self._rated(outs, ["light", "light", None, None])
+        self.assertEqual(light_gap.suggest_pace(30, TODAY)[0], 7, "the last two rated lessons are both light")
+        broken = self._rated(outs, ["light", "light", "right", None])
+        self.assertEqual(broken.suggest_pace(30, TODAY)[0], 6, "a rated «right» breaks it")
+
+    def test_a_load_for_a_lesson_not_in_the_log_warns(self):
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "learner.json"
+            SoonerRequestTests._learner().save(path)
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err):
+                self.assertEqual(main(["report", "-l", str(path), "--lesson", "9", "--load", "light", "--date", TODAY.isoformat()]), 0)
+            self.assertIn("lesson 9 is not in the lesson log", err.getvalue())
+            self.assertNotIn("load", LearnerState.load(path).lessons[0])
+
+    def test_the_cli_takes_load_alone_and_saves_it(self):
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "learner.json"
+            SoonerRequestTests._learner().save(path)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(main(["report", "-l", str(path), "--lesson", "1", "--load", "light", "--date", TODAY.isoformat()]), 0)
+            loaded = LearnerState.load(path)
+            self.assertEqual((loaded.lessons[0]["load"], loaded.reported), ("light", []))
+            self.assertNotIn("all good", out.getvalue())
 
     def test_report_defaults_to_latest_lesson(self):
         learner, scripts = course(2)

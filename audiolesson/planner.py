@@ -32,6 +32,11 @@ from .timing import Timing
 class PlanConfig:
     minutes: float = 15.0
     new_items: int | None = None  # default derived from minutes
+    # #218 b3: the lesson's target of weighted new components (None: count items, as the simulations and ``--new`` do). New material is
+    # taken while the lesson's running total is below it; the last item may go over. The new-item ceiling and the time check stay.
+    new_target: float | None = None
+    item_ceiling: int | None = None  # the cap on new items that cost something; None: about one per 3 minutes (``new_items_ceiling``)
+    form_weight: float = 0.5  # w: what a close variant (a new form of a known word) costs; fitted later from next-day failures
     topics: list[str] = field(default_factory=list)
     seed: int | None = None
     # Today's items come back by time, not by exercise count (lesson 13: «hálka» seven recalls
@@ -50,9 +55,9 @@ class PlanConfig:
     hard_cap_short_max: float = 180.0  # seconds: a lesson the hard cap leaves this short ends there rather than lapse the bare cap
     max_sentence_hard: int = 9  # past this many identical utterances of a fixed line the practice is dropped when no other sentence holds it (#192)
     max_sentence_utterances: int = 6
-    # When the cap leaves the lesson short, up to this many close variants of what the learner knows
-    # (``Item.variant_of``: another case, another gender) come in beyond the new-item limit.
-    max_variant_items: int = 4
+    # Spare time is more to hear, never a close variant as filler (#218 b1): after the listening dialogues, up to this many
+    # heard-only plays of a theme level already played (partner lines in variants, the cues kept).
+    heard_theme_plays: int = 2
     # #171 B: a construction whose every slot already has ``cheap_min_fillers`` known fillers is cheap:
     # it adds sentences at once. One takes the place of the last non-trip item of a lesson's new
     # items (``cheap_place``; a trip item is never displaced), and, when a lesson has time left, up
@@ -166,6 +171,8 @@ class PlanConfig:
         but only a little beyond the pace — a short first lesson beats a 12-item dump."""
         if self.max_new_items is not None:
             return self.max_new_items
+        if self.new_target is not None:
+            return self.new_items_ceiling() + 2  # items that cost nothing would otherwise never stop; the target bounds the rest
         return self.resolved_new_items() + 2
 
     def resolved_extra_arc_items(self, capped: bool = True) -> int:
@@ -179,7 +186,11 @@ class PlanConfig:
 
     def new_items_ceiling(self) -> int:
         """New items a lesson takes while it has other work: about one per 3 minutes, the top
-        of the 6–10 per 30 minutes that audio courses of this kind converge on (README)."""
+        of the 6–10 per 30 minutes that audio courses of this kind converge on (README). Counting components (#218 b3) it is a cap on
+        *load*: only items that cost something count against it (a 0-cost item adds lesson time, which the time check bounds). A tunable
+        load cap: raise ``item_ceiling`` if lessons keep coming in «light» with the target reached."""
+        if self.item_ceiling is not None:
+            return self.item_ceiling
         return max(self.resolved_new_items(), round(self.minutes / 3))
 
     def resolved_new_items(self) -> int:
@@ -190,6 +201,7 @@ class PlanConfig:
 
 _WORD_RE = re.compile(r"[^\W\d_]+", re.UNICODE)
 NEGATION = frozenset({"ekki", "ekkert", "aldrei", "enginn", "engin"})  # words that turn a held part into its opposite
+OVERSHOOT = 1.0  # components a lesson's last pick may carry the total past its target (#218 b3)
 BARE_STAGES = frozenset({"cloze", "hinted", "meaning", "situation"})  # an item said alone, not in a sentence
 
 
@@ -230,6 +242,8 @@ class Planner:
         self.listening_asked: list[dict] = []  # #179: turns asked because the learner can say the line, not `knows()` it
         self.cheap_placed: list[str] = []  # cheap constructions given a new-item place (#171 B)
         self.embedded: list[str] = []  # parts heard inside a sentence this lesson (#149)
+        self._reset_components()
+        self.pattern_instances: list[str] = []  # …of them, linked phrases that came in as a sentence of their known pattern (#192)
         self.notes_played: list[str] = []
         self._in_dialogue = {i for d in cur.dialogues for i in d.required_items}
         self._notes_by_item: dict[str, list] = {}
@@ -377,10 +391,127 @@ class Planner:
             want(item_id)
         return wanted
 
+    # ---- #218 b3: new material is counted in weighted components ----
+
+    @property
+    def components_mode(self) -> bool:
+        return self.cfg.new_target is not None
+
+    @staticmethod
+    def _fixed_text_words(item: Item) -> list[str]:
+        """The words an item says: a construction's fixed text only (its slots are other items')."""
+        texts = re.split(r"\{[^}]*\}", item.target) if item.kind == "construction" else [item.target]
+        if item.target_m and item.kind != "construction":
+            texts.append(item.target_m)
+        return [w.lower() for t in texts for w in _WORD_RE.findall(t)]
+
+    def _reset_components(self) -> None:
+        self.components_total = 0.0
+        self.component_by_item: dict[str, float] = {}
+        self._known_words: set[str] | None = None
+        self._known_patterns: list[frozenset[str]] = []
+
+    def _component_base(self) -> tuple[set[str], list[frozenset[str]]]:
+        """(words known, word sets of known patterns): a word is known when it appears in an item the learner has met, has heard embedded
+        (also one that failed), or was charged earlier in this lesson."""
+        if getattr(self, "_known_words", None) is None:
+            seen = set(self.learner.items) | set(self.learner.embedded) | set(self.learner.embed_failed)
+            words: set[str] = set()
+            patterns: list[frozenset[str]] = []
+            for i in seen:
+                it = self.cur.by_id.get(i)
+                if it is None:
+                    continue
+                ws = self._fixed_text_words(it)
+                words.update(ws)
+                if it.kind == "construction" and ws:
+                    patterns.append(frozenset(ws))
+            self._known_words, self._known_patterns = words, patterns
+        return self._known_words, self._known_patterns
+
+    def component_cost(self, item: Item, known: set[str] | None = None, patterns: list[frozenset[str]] | None = None) -> float:
+        """What ``item`` costs against the lesson's target when it is introduced (#218 b3, the owner's amendments of 2026-10-08/09):
+        a close variant (a new form of a known word) ``form_weight``; a pattern 1, its frame's new words included, or 0 when it is made
+        of known parts only (every fixed word known, and a known pattern holds them all: «klukkan {hour}» after «Klukkan er {hour}.»);
+        a vocab item or chunk 1 if any of its words is new, however many; a phrase 1 for each new word; a pattern instance (#192) and
+        anything made only of known words 0."""
+        if known is None or patterns is None:
+            known, patterns = self._component_base()
+        if item.variant_of:
+            return self.cfg.form_weight
+        if item.kind == "phrase" and self.pattern_instance_of(item) is not None:
+            return 0.0
+        new = list(dict.fromkeys(w for w in self._fixed_text_words(item) if w not in known))
+        if item.kind == "construction":
+            fixed = frozenset(self._fixed_text_words(item))
+            return 0.0 if not new and any(fixed <= p for p in patterns) else 1.0
+        if item.kind == "phrase":
+            # a run of new words the curriculum already treats as one item counts once («taka mynd» in «Má ég taka mynd?»)
+            words = self._fixed_text_words(item)
+            fresh = set(new)
+            cost = float(len(new))
+            for chunk in self._chunk_runs():
+                n = len(chunk)
+                if all(w in fresh for w in chunk) and any(tuple(words[k : k + n]) == chunk for k in range(len(words) - n + 1)):
+                    cost -= n - 1
+                    fresh -= set(chunk)
+            return cost
+        return 1.0 if new else 0.0
+
+    def _chunk_runs(self) -> list[tuple[str, ...]]:
+        """The word runs of the curriculum's multi-word vocab items («taka mynd»), longest first."""
+        if getattr(self, "_chunks", None) is None:
+            runs = {tuple(w.lower() for w in _WORD_RE.findall(i.target)) for i in self.cur.items if i.kind == "vocab"}
+            self._chunks = sorted((r for r in runs if len(r) > 1), key=lambda r: -len(r))
+        return self._chunks
+
+    def _charge(self, item: Item) -> float:
+        known, patterns = self._component_base()
+        cost = self.component_cost(item, known, patterns)
+        self.components_total += cost
+        self.component_by_item[item.id] = cost
+        known.update(self._fixed_text_words(item))
+        if item.kind == "construction":
+            patterns.append(frozenset(self._fixed_text_words(item)))
+        return cost
+
+    def components_meta(self) -> dict:
+        """``plan.json`` ``new_components``: the weighted total, how much of it is forms, and the cost of each item."""
+        forms = sum(c for i, c in self.component_by_item.items() if self.cur.by_id[i].variant_of)
+        return {"total": round(self.components_total, 2), "forms": round(forms, 2), "target": self.cfg.new_target,
+                "by_item": {i: c for i, c in self.component_by_item.items()}}
+
     def select_new(self, count: int, exclude: set[str] | None = None, cheap: bool = False) -> list[Item]:
         chosen: list[Item] = []
         chosen_ids: set[str] = set(exclude or ())
         promoted_id: str | None = None
+        mode = self.components_mode
+        remaining_target = (self.cfg.new_target - self.components_total) if mode else 0.0
+        if mode and remaining_target <= 0:
+            return []  # the lesson's target is met (the last item may have gone over it)
+
+        def tally() -> tuple[float, int]:
+            """(the components of ``chosen`` so far, how many of them cost something), each item counting the words the earlier ones
+            brought. Counting components, only a costed item counts against ``count``, the load cap (#218 b3, owner)."""
+            known, patterns = set(self._component_base()[0]), list(self._component_base()[1])
+            total, costed = 0.0, 0
+            for x in chosen:
+                c = self.component_cost(x, known, patterns)
+                total += c
+                costed += c > 0
+                known.update(self._fixed_text_words(x))
+                if x.kind == "construction":
+                    patterns.append(frozenset(self._fixed_text_words(x)))
+            return total, costed
+
+        def spent() -> float:
+            return tally()[0]
+
+        def full() -> bool:
+            if not mode:
+                return len(chosen) >= count
+            total, costed = tally()
+            return costed >= count or (bool(chosen) and total >= remaining_target)
         pulled: set[str] = set()  # the frames and phrases brought in with a part: never the place given up for a cheap construction
 
         def ready(it: Item) -> bool:
@@ -393,6 +524,13 @@ class Planner:
             i for i in self.cur.items
             if not self.learner.has_met(i.id) and i.id not in chosen_ids and i.id not in self.learner.embedded
         ]
+        # A close variant (another case, another gender) is not general material (#218 b1): it comes only when the theme's next level
+        # wants it (#201), or something pulls it (#202: it is a prerequisite of a frame or phrase still to come; as a filler the
+        # frame needs, it is found in ``fill_pool``). The trip order does not take variants, nor does the course order.
+        fill_pool = list(pool)
+        pulling = {p for i in pool if not i.variant_of for p in i.prereqs}
+        in_scene = set(self.theme_wants())
+        pool = [i for i in pool if not i.variant_of or i.id in pulling or i.id in in_scene]
         if self.cfg.topics:
             preferred = [i for i in pool if set(i.topics) & set(self.cfg.topics)]
             rest = [i for i in pool if i not in preferred]
@@ -471,7 +609,7 @@ class Planner:
             if it.kind == "construction":
                 for tag in it.slots.values():
                     if known_fills(tag) < 2:
-                        extra = next((f for f in pool if tag in f.tags and f.id not in chosen_ids), None)
+                        extra = next((f for f in pool if tag in f.tags and f.id not in chosen_ids), None) or next((f for f in fill_pool if tag in f.tags and f.id not in chosen_ids), None)
                         if extra is not None:
                             chosen.append(extra)
                             chosen_ids.add(extra.id)
@@ -490,7 +628,7 @@ class Planner:
                 fillers: list[Item] = []
                 for tag in c.slots.values():
                     if known_fills(tag) + sum(1 for f in fillers if tag in f.tags) < 2:
-                        extra = next((f for f in pool if tag in f.tags and f.id not in chosen_ids and f not in fillers), None)
+                        extra = next((f for f in pool if tag in f.tags and f.id not in chosen_ids and f not in fillers), None) or next((f for f in fill_pool if tag in f.tags and f.id not in chosen_ids and f not in fillers), None)
                         if extra is not None:
                             fillers.append(extra)
                 key = (len(fillers), c.order)
@@ -515,11 +653,14 @@ class Planner:
 
         # walk in order, but a not-yet-ready item is skipped rather than blocking
         progress = True
-        while len(chosen) < count and progress:
+        while not full() and progress:
             progress = False
             for it in pool:
+                if full():
+                    break
                 if it.id in chosen_ids or not ready(it) or set_full(it):
                     continue
+                n0 = len(chosen)
                 if it.kind != "construction" and it.tags:
                     hold, target = payoff(it)
                     if hold or (target is None and transfer_capped(it)):
@@ -545,8 +686,16 @@ class Planner:
                         chosen.pop()  # its phrase is known but not in this lesson and no frame comes with it: it waits (#206 review)
                         chosen_ids.discard(it.id)
                         continue
+                if mode and n0 > 0 and spent() - remaining_target > OVERSHOOT:
+                    # the target would be passed by more than one item (a part pulling in a two-word phrase): "the last may go over"
+                    # means one item, so this unit waits for a lesson with room, and cheaper picks fill the place
+                    for x in chosen[n0:]:
+                        chosen_ids.discard(x.id)
+                        pulled.discard(x.id)
+                    del chosen[n0:]
+                    continue
                 progress = True
-                if len(chosen) >= count:
+                if full():
                     break
         # Don't end the arc between a slot's fillers and the nearby construction they unlock:
         # take the construction too if it is ready (one over ``count``), else drop the trailing
@@ -583,6 +732,9 @@ class Planner:
             if candidate is not None and drop is not None:
                 chosen[chosen.index(drop)] = candidate
                 self.cheap_placed.append(candidate.id)
+        if mode:
+            for it in chosen:
+                self._charge(it)  # one running total for the lesson, over every path that adds new material
         return chosen
 
     def select_reviews(self) -> list[Item]:
@@ -872,28 +1024,20 @@ class Planner:
                 found.append((len(ww), whole))
         return min(found, key=lambda t: t[0])[1] if found else None
 
-    def select_variants(self, count: int, exclude: set[str]) -> list[Item]:
-        """Close variants (``Item.variant_of``) the learner can be given next: the form they vary is
-        known or was introduced earlier this lesson, the variant itself is new to them (never met,
-        or failed to be said back when it was heard inside a sentence), its prerequisites are known,
-        in curriculum order."""
-        out: list[Item] = []
-        for it in self.cur.items:
-            if len(out) >= count:
-                break
-            if not it.variant_of or it.id in exclude or it.id in self.learner.embedded:
-                continue
-            if self.learner.has_met(it.id) or self.learner.is_open(it.id):
-                continue
-            base = it.variant_of
-            if not (self.learner.knows(base) or base in self.builder.in_lesson):
-                continue
-            if not all(self.learner.knows(p) or p in self.builder.in_lesson for p in it.prereqs):
-                continue
-            if it.kind == "vocab" and not self.part_has_home(it, exclude):
-                continue  # a part is not introduced alone, whichever way it comes (#206 review)
-            out.append(it)
-        return out
+    def pattern_instance_of(self, item: Item) -> tuple[Item, dict[str, Item]] | None:
+        """(pattern, fillers) when ``item`` is a fixed phrase that is an instance of a pattern the learner *knows* with fillers
+        they all know (#192, the owner's decision after lesson 18: «known»; #206 uses the weaker ``_frame_available``), and the
+        phrase is neither met nor failed when heard inside a sentence: it then comes in as a sentence of its pattern, not as a
+        new item. None otherwise: the introduction is as usual."""
+        if item.kind != "phrase" or not item.instance_of or not item.instance_fill:
+            return None
+        pattern = self.cur.by_id.get(item.instance_of)
+        if pattern is None or item.id in self.learner.embed_failed or self.learner.has_met(item.id):
+            return None
+        fills = {slot: self.cur.by_id[ref] for slot, ref in item.instance_fill.items()}
+        if not (self.learner.knows(pattern.id) and all(self.learner.knows(f.id) for f in fills.values())):
+            return None
+        return pattern, fills
 
     def containing_items(self, item: Item) -> list[Item]:
         """Phrases and words the learner can say (known, or introduced or practised earlier this lesson, not
@@ -1049,7 +1193,7 @@ class Planner:
         When no next level is ready the lesson still has a theme (#149 step 1, the owner's decision: the theme comes
         first): the last level already played of the highest-ranked theme that has rested ``theme_rest_lessons`` lessons,
         else the one that rested longest (which can be a theme played two lessons ago when none has rested enough), played
-        again: not assisted, and its early play says only partner wordings already heard with their meaning. None only when no level
+        again: its partner lines are not translated, and its early play says only partner wordings already heard with their meaning. None only when no level
         was ever played and none is ready (a first lesson)."""
         rank = {sid: n for n, sid in enumerate(self.cfg.theme_scenarios)}
         best = None
@@ -1133,6 +1277,11 @@ class Planner:
 
     def _build(self) -> Script:
         cfg = self.cfg
+        self._reset_components()
+        if self.components_mode:  # the extras a first build took count from the start, so the rebuild keeps the first build's total (#187)
+            for pid in cfg.planned_extras:
+                if pid in self.cur.by_id:
+                    self._charge(self.cur.by_id[pid])
         n = self.learner.next_lesson_number()
         budget = cfg.minutes * 60.0
         sc = Script(n, f"Lesson {n}", self.cur.target_lang, self.cur.known_lang)
@@ -1141,7 +1290,8 @@ class Planner:
 
         target = self.theme_target()
         wanted_at_start = self.theme_wants()
-        new_queue = deque(self.select_new(cfg.resolved_new_items(), cheap=True))
+        first_arc = cfg.new_items_ceiling() if self.components_mode else cfg.resolved_new_items()  # in components, the target stops the arc
+        new_queue = deque(self.select_new(first_arc, cheap=True))
         open_ids = self.learner.open_items()
         open_ids = [i for i in open_ids if i in self.cur.by_id]
         open_today = open_ids[: cfg.max_open_items]
@@ -1153,6 +1303,14 @@ class Planner:
 
         def taught() -> set[str]:
             return {i.id for i in introduced} | set(self.embedded)  # one set of what this lesson taught, for every select_new exclude
+        def arc_size(capped: bool = True) -> int:
+            """Items a later arc may take. Counting items, a share of the pace; counting components (#218 b3), what the new-item
+            ceiling leaves: the target itself stops the arc."""
+            if not self.components_mode:
+                return cfg.resolved_extra_arc_items(capped=capped)
+            costed = sum(1 for i in taught() | {q.id for q in new_queue} if self.component_by_item.get(i, 1.0) > 0)
+            return max(0, cfg.new_items_ceiling() - costed) if capped else cfg.new_items_ceiling()
+
         recent: deque[str] = deque(maxlen=2)  # item ids of the last exercises
         recent_topics: deque[str] = deque(maxlen=2)
         idx = 0
@@ -1165,7 +1323,7 @@ class Planner:
         # time kept for the closing block: one recall per new item (~14 s) plus the announcement
         closing_reserve = min(budget * cfg.closing_share, 8 + 14 * len(new_queue))
         # seconds between introductions: the expected number of new items over most of the lesson
-        expected_new = max(1, cfg.resolved_new_items() + cfg.resolved_extra_arc_items())
+        expected_new = max(1, len(new_queue) if self.components_mode else cfg.resolved_new_items() + cfg.resolved_extra_arc_items())
         intro_spacing = (budget - closing_reserve) * cfg.intro_span / expected_new
         need_for_new = min(cfg.min_time_for_new_item, budget * 0.6)  # short lessons still get something new
         reviews_used: list[str] = []
@@ -1241,6 +1399,21 @@ class Planner:
                 last_intro_at = sc.total_duration
                 arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
                 return
+            if (instance := self.pattern_instance_of(item)) is not None:
+                # a linked phrase of a known pattern and fillers (#192): one sentence of the pattern, no ladder, no closing recall.
+                # The practice is credited to the pattern and its fillers (one way, as in sentence_practice); the phrase waits
+                # for the next day's question like an embedded part, and stays in new_items
+                pattern, fills = instance
+                ex = b.pattern_instance(sc, item, pattern, fills)
+                credited = [pattern.id, *(f.id for f in fills.values())]
+                self._record(credited, "recombine", credited)
+                self.embedded.append(item.id)
+                self.pattern_instances.append(item.id)
+                touch(item)
+                last_intro = idx
+                last_intro_at = sc.total_duration
+                arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
+                return
             ex = b.intro(sc, item)
             b.in_lesson.add(item.id)
             introduced.append(item)
@@ -1254,37 +1427,37 @@ class Planner:
                 seq += 1
                 intro_timeline.append((sc.total_duration + after * (budget - closing_reserve), seq, item, ladder[min(k + 1, len(ladder) - 1)]))
 
-        variants_used: list[str] = []
         cheap_used: list[str] = []
 
-        def try_variant() -> bool:
-            """The lesson has run out of other material (§9 "Repetition"): a close variant of what
-            the learner knows, beyond the new-item limit, rather than the same words again."""
+        def try_extra() -> bool:
+            """The lesson has run out of other material (§9 "Repetition"): an extra the lesson takes beyond the new-item limit. Only
+            a construction the learner can fill at once (#171 B), or one a first build of this lesson already took (#187); never a
+            close variant as filler (#218 b1): a form comes in with a purpose (a scene, a frame, a contrast), not to fill time."""
             nonlocal closing_reserve
             if idx - last_intro < 1:
                 return False
             taken = {i.id for i in introduced} | set(self.embedded) | {i.id for i in new_queue}
             while planned_left and (planned_left[0] in taken or planned_left[0] not in self.cur.by_id):
                 planned_left.pop(0)
-            if not planned_left and (len(variants_used) >= cfg.max_variant_items or remaining_time() < need_for_new * 0.5):
+            if not planned_left and remaining_time() < need_for_new * 0.5:
                 return False  # a planned extra was within the limits of the first build, time included: only an unplanned one is counted
             if planned_left:  # an extra this lesson takes anyway (a first build took it): now, not at the end
                 item = self.cur.by_id[planned_left.pop(0)]
-                (cheap_used if item.kind == "construction" else variants_used).append(item.id)
+                if item.kind == "construction":
+                    cheap_used.append(item.id)
                 do_intro(item)
                 self._extras_taken.append(item.id)
                 closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
                 return True
-            found = self.select_variants(1, taken)
-            if not found and len(cheap_used) < cfg.max_cheap_extra and (cand := self.cheap_construction(taken)) is not None:
-                found = [cand]  # a pattern the learner can fill at once, beyond the new-item limit (#171 B)
-                cheap_used.append(cand.id)
-            elif not found:
+            if self.components_mode and self.components_total >= cfg.new_target:
+                return False  # it is new material: it counts against the target like any other path (#218 b3)
+            if len(cheap_used) >= cfg.max_cheap_extra or (cand := self.cheap_construction(taken)) is None:
                 return False
-            do_intro(found[0])
-            self._extras_taken.append(found[0].id)
-            if found[0].id not in cheap_used:
-                variants_used.append(found[0].id)
+            cheap_used.append(cand.id)  # a pattern the learner can fill at once, beyond the new-item limit (#171 B)
+            if self.components_mode:
+                self._charge(cand)
+            do_intro(cand)
+            self._extras_taken.append(cand.id)
             closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
             return True
 
@@ -1728,12 +1901,12 @@ class Planner:
         refresh_timeline.sort()
 
         # #149 1b-ii: the lesson's theme exchange, played twice: early with the partner's lines translated, late
-        # with only the partner's line as the cue (about 15% and 85% of the lesson's time)
+        # without the translation; the cue and the scene line play both times (#210) (about 15% and 85% of the lesson's time)
         theme_pick = self.pick_theme()
         theme_marks = (0.15, 0.85) if theme_pick else ()
         theme_replay = bool(theme_pick) and theme_pick[1] < self.learner.themes_done.get(theme_pick[0].id, 0)  # a level already played
         theme_plays = 0
-        theme_heard: list[str] = []  # "turn:line" partner wordings the assisted play spoke with their meaning (#196)
+        theme_heard: list[str] = []  # "turn:line" partner wordings the translated play spoke with their meaning (#196)
         theme_lines: list[str] = []  # per play, which variant of each varying partner line was spoken (#134)
         
         def play_theme() -> bool:
@@ -1746,7 +1919,7 @@ class Planner:
                 theme_heard.extend(f"{k}:{i}" for k, i in picks.items())
             dlg = level_dialogue(theme, n, self.cur.known_lang, picks)
             theme_lines.append(dlg.variant)
-            ex = b.dialogue(sc, dlg, assisted=theme_plays == 0 and not theme_replay, tried_turns=tried)
+            ex = b.dialogue(sc, dlg, translate=theme_plays == 0 and not theme_replay, tried_turns=tried)
             you = [t for t in theme.levels[n].turns if t.who == "you"]
             said = [i for k, t in enumerate(you) if k not in tried for i in t.items if i in self.cur.by_id]
             self._record(list(dict.fromkeys(said)), "dialogue", ex.item_ids)
@@ -1757,6 +1930,27 @@ class Planner:
                     self.listening_tried.append({"dialogue": dlg.id, "items": items, "unknown": unknown, "prompt": dlg.turns[k].cue, "answer": you[k].say})
             theme_plays += 1
             return True
+
+        heard_plays: list[str] = []  # "theme:level" levels already played, heard again this lesson as spare time (#218 b1)
+
+        def pick_heard_theme() -> tuple | None:
+            """A theme level already played, to hear again (spare time is more to hear, #218 b1): not the lesson's own and not one heard
+            earlier in it, at random among the rest."""
+            if len(heard_plays) >= cfg.heard_theme_plays:
+                return None
+            own = (theme_pick[0].id, theme_pick[1]) if theme_pick else None
+            cands = [
+                (t, n) for t in cfg.themes for n in range(min(self.learner.themes_done.get(t.id, 0), len(t.levels)))
+                if (t.id, n) != own and f"{t.id}:{n + 1}" not in heard_plays
+            ]
+            return self.rng.choice(cands) if cands else None
+
+        def play_heard_theme(theme, n: int) -> None:
+            nonlocal since_dialogue
+            dlg = level_dialogue(theme, n, self.cur.known_lang, pick_variants(theme.levels[n], self.rng))
+            b.dialogue(sc, dlg, translate=False, heard_only=True)
+            heard_plays.append(f"{theme.id}:{n + 1}")
+            since_dialogue = 0
 
         def theme_due() -> bool:
             return (
@@ -1843,7 +2037,7 @@ class Planner:
                     and reviews_used
                     and current_arc_id + 1 < cfg.max_arcs
                     and remaining >= need_for_new
-                    and (more := self.select_new(cfg.resolved_extra_arc_items(), exclude=taught()))
+                    and (more := self.select_new(arc_size(), exclude=taught()))
                 ):
                     start_arc(more)  # or the next arc, before its time
                     acted = True
@@ -1852,7 +2046,7 @@ class Planner:
                     acted = True
                 if not acted and play_refresh(due_only=False):
                     acted = True  # a sentence of a known construction, with other fillers, breaks a streak too
-                if not acted and try_variant():
+                if not acted and try_extra():
                     acted = True
                 if not acted and remaining >= 40:
                     # a sentence for one of today's short items breaks it as well (and is the practice it lacks)
@@ -1949,7 +2143,7 @@ class Planner:
                 and current_arc_id + 1 < cfg.max_arcs
                 and remaining >= need_for_new
                 and sc.total_duration >= (len(introduced) + len(self.embedded)) * intro_spacing
-                and (more := self.select_new(cfg.resolved_extra_arc_items(), exclude=taught()))
+                and (more := self.select_new(arc_size(), exclude=taught()))
             ):
                 start_arc(more)
                 acted = True
@@ -2003,7 +2197,8 @@ class Planner:
                     # recall the earlier of the two instead, only the very last item is off limits
                     candidate = next((p for p in sorted(pending) if p.item.id != recent[-1]), None)
                     pulled = next((e for e in sorted(intro_timeline) if e[2].id != recent[-1]), None)
-                can_intro = idx - last_intro >= 1 and len(introduced) < cfg.resolved_max_new_items()
+                n_introduced = sum(1 for i in introduced if self.component_by_item.get(i.id, 1.0) > 0) if self.components_mode else len(introduced)
+                can_intro = idx - last_intro >= 1 and n_introduced < cfg.resolved_max_new_items()
                 # a later arc was admitted whole (_may_start_arc): its queued items may fill a gap too,
                 # though not as a third introduction in a row
                 can_drain = can_intro or (
@@ -2034,7 +2229,7 @@ class Planner:
                     play_timed(repeat)
                 elif self._note_budget_left() and remaining >= 40 and self._pick_note(None) is not None:
                     self._play_note(sc, self._pick_note(None))  # nothing to practise now: an aside
-                elif planned_left and sc.total_duration - last_intro_at >= (1.0 if self._extras_taken else cfg.idle_intro_slack) * intro_spacing and try_variant():
+                elif planned_left and sc.total_duration - last_intro_at >= (1.0 if self._extras_taken else cfg.idle_intro_slack) * intro_spacing and try_extra():
                     pass  # idle for a while, and this lesson takes an extra anyway: it comes now, the next ones a spacing apart (#187)
                 elif reviews_used and (sub := pick_substitution()) is not None:
                     # spare time: a known pattern with other words (#151), before a fresh arc or replayed reviews
@@ -2044,7 +2239,7 @@ class Planner:
                     and not new_queue
                     and remaining >= need_for_new
                     and self._may_start_arc(current_arc_id + 1, early_tier, far_short=sc.total_duration < budget / 2)
-                    and (more := self.select_new(cfg.resolved_extra_arc_items(capped=early_tier < 2), exclude=taught()))
+                    and (more := self.select_new(arc_size(capped=early_tier < 2), exclude=taught()))
                 ):
                     # A fresh arc of new material rather than a second review pass: the new-item
                     # cap bounds an arc, not the lesson (see _may_start_arc). Only once the review
@@ -2069,6 +2264,9 @@ class Planner:
                     # spare time is more to hear (#149 step 3), before today's items once more
                     self._play_listening(sc, *ld)
                     since_dialogue = 0
+                elif remaining >= 90 and (ht := pick_heard_theme()) is not None:
+                    # then a theme level already played, heard again in its variants at natural speed, before today's items once more
+                    play_heard_theme(*ht)
                 elif reviews_used and (extra := pick_consolidation()) is not None:
                     # nothing else worth practising: today's new material once more (#151),
                     # rather than a stable item again or ending far short
@@ -2081,8 +2279,8 @@ class Planner:
                     do_recall(early_open[2], early_open[3])
                 elif play_refresh(due_only=False):
                     pass  # nothing else is left: the light reviews of known constructions come early
-                elif bare_cap[0] > 0 and try_variant():
-                    pass  # close variants of what they know fill the time before the same words come back
+                elif bare_cap[0] > 0 and try_extra():
+                    pass  # nothing else is left: a planned extra or the cheap construction, never a close variant (#218 b1)
                 elif hard_cap_held[0] and bare_cap[0] > 0 and remaining < cfg.hard_cap_short_max and (capped_backlog or intro_timeline):
                     break  # the hard cap freed this time: the two caps conflict, so the lesson ends a little short, not bare words again (#206)
                 elif bare_cap[0] > 0 and (capped_backlog or intro_timeline):
@@ -2157,8 +2355,9 @@ class Planner:
             "curriculum": self.cur.name,
             "new_items": list(dict.fromkeys([i.id for i in introduced] + list(self.embedded))),
             "embedded_items": list(self.embedded),
+            "pattern_instances": list(self.pattern_instances),
             "intro_skipped": list(intro_skipped),
-            "variant_items": list(variants_used),
+            "variant_items": [i.id for i in [*introduced, *(self.cur.by_id[e] for e in self.embedded)] if i.variant_of],  # a form comes with a purpose (#218 b1)
             "refresh_sentences": dict(refresh_done),
             # #149 1b-ii: the lesson's theme and level (1-based) and how often its exchange played; None: no theme was ready
             "theme": (
@@ -2169,6 +2368,7 @@ class Planner:
             # #149 step 2: the theme new material was chosen for, and the items its next level lacked at the start
             "theme_target": {"id": target[0].id, "level": target[1] + 1, "wanted": wanted_at_start} if target else None,
             "cheap_constructions": list(self.cheap_placed) + list(cheap_used),  # #171 B: taken in a new-item place / beyond the limit
+            "new_components": self.components_meta() if self.components_mode else None,  # the weighted total of new material, forms apart (#218 b3)
             "forms_taught": [self.cur.note_by_id[n].teaches for n in self.notes_played if self.cur.note_by_id[n].teaches],
             "bare_cap_lapsed": cfg.max_bare_uses > 0 and bare_cap[0] == 0,  # nothing else was left: short items were said alone again
             "reviewed_items": reviews_used,
@@ -2190,6 +2390,7 @@ class Planner:
             # partner interaction in the target language vs recombination practice
             "partner_exchanges": len(self.dialogues_played) + sum(1 for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"),
             "recombinations": sum(1 for e in sc.exercises if e.kind == "connect" and e.stage != "exchange"),
+            "heard_themes": list(heard_plays),  # levels heard again as spare time (#218 b1)
             "heard_utterances": sorted(self.builder.heard),
             "think_time_boosted": sorted(self.builder.boosted),
             "bridges": [e.item_ids[1] for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"],
@@ -2197,12 +2398,14 @@ class Planner:
         return sc
 
     def _play_dialogue(self, sc: Script, dlg: Dialogue) -> None:
-        """Dialogues grow by one turn per encounter; translations and cues are only there the
-        first time, so later encounters ask for comprehension of the partner's line."""
+        """Dialogues grow by one turn per encounter. A turn's cue (the intent) plays every time; its partner
+        lines are translated only the first time that turn is heard (#210)."""
         times = self.learner.dialogues_done.get(dlg.id, 0)
         max_turns = min(len(dlg.turns), self.cfg.dialogue_first_turns + times)
         full = max_turns >= len(dlg.turns)
-        ex = self.builder.dialogue(sc, dlg, replay=(times > 0 and full), max_turns=max_turns, assisted=(times == 0))
+        # a turn's meaning is given the first time that turn is heard (#210): turn k comes in at encounter k + 1 - first_turns
+        new_turns = frozenset(k for k in range(max_turns) if max(0, k + 1 - self.cfg.dialogue_first_turns) == times)
+        ex = self.builder.dialogue(sc, dlg, replay=(times > 0 and full), max_turns=max_turns, translate=new_turns)
         primary = [t.expect for t in dlg.turns[:max_turns] if t.expect]
         self._record(primary, "dialogue", ex.item_ids)
         self.dialogues_played.append(dlg.id)
@@ -2223,7 +2426,7 @@ class Planner:
         if not missing and not heard and not tried:
             self._play_dialogue(sc, dlg)
             return
-        ex = self.builder.dialogue(sc, dlg, assisted=True, listening=heard, tried=tried)
+        ex = self.builder.dialogue(sc, dlg, translate=True, listening=heard, tried=tried)
         self._record([t.expect for t in dlg.turns if t.expect and t.expect not in heard and t.expect not in tried], "dialogue", ex.item_ids)
         for t in dlg.turns:
             if t.expect in tried:
