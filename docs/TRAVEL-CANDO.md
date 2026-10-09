@@ -46,6 +46,11 @@ the same thing, #134); the early (translated) play uses a variant; the late play
 candidates for native-speaker correction. General content only: the private trip profile decides which
 scenarios come first and never appears here.
 
+A partner line, or one of its variants, may carry `word_glosses = { word = { en, ja } }`: the meaning of a word in it
+the learner may not know (#248). The second half's *catch the unknown word* exercise uses a line whose words hold exactly
+one unknown word with a gloss; the learner says the word and «Hvað þýðir þetta?». A gloss is authored, never guessed
+from the line's translation; `validate` fails a gloss whose word is not in the line.
+
 ## Coverage report
 
 ```sh
