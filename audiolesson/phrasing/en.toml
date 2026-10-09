@@ -68,8 +68,9 @@ variant_known = "You know this one:"
 variant_form = "Here is another form of it: {meaning}"
 # a dialogue with an expression or two the learner hasn't learned, played as listening (H8)
 listening_intro = "A conversation to listen to. It has a few new expressions in it. You don't need to remember them: just hear how it goes."
+# the same, when some of the learner's lines in it are ones they know and will be asked for (#240)
+listening_intro_some_asked = "A conversation to listen to. It has a few new expressions in it: just hear those. You don't need to remember them. When a line you know comes, say it."
 listening_line = "Here you would say:"
-listening_try = "Try it."
 dialogue_start = "Now a short conversation."
 dialogue_replay = "Now the whole conversation, without pauses."
 # an authored exchange: one scene, with a partner line between the two answers

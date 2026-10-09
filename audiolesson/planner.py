@@ -102,7 +102,7 @@ class PlanConfig:
     # can-do scenarios to take one from (the trip profile's boosted first). No themes: no theme exchange.
     themes: list = field(default_factory=list)
     theme_scenarios: list[str] = field(default_factory=list)
-    theme_ready: float = 0.75  # a theme's level plays once the learner can say this share of its turns; the rest are tried
+    theme_ready: float = 0.75  # a theme's level plays once the learner can say this share of its turns; the rest are heard (#240)
     theme_rest_lessons: int = 3  # a level already played comes back no sooner than this many lessons later (#149 step 1)
     # #149 step 2 (H5): a semantic set is not introduced as a block: at most ``max_set_items`` new items a lesson share
     # one of these sets (numbers, colours, languages...); the others wait for another lesson, and the pool goes on. A set
@@ -242,7 +242,11 @@ class Planner:
         self.dialogues_played: list[str] = []
         self.dialogues_listened: list[str] = []
         self._chunk_cache: tuple[tuple, set[tuple[str, ...]]] | None = None
-        self.listening_tried: list[dict] = []  # #183: lines tried on a part: the bonus questions of the next review
+        # #183's tried lines, the bonus questions of the next review: since #240 nothing tries a line, so this stays empty
+        # (kept so plan.json and the bot's bonus path keep their shape)
+        self.listening_tried: list[dict] = []
+        # #240: lines a listening scene asked for that the learner was never taught (the daily read's Now row 2: 0)
+        self.listening_untaught: list[str] = []
         self.listening_asked: list[dict] = []  # #179: turns asked because the learner can say the line, not `knows()` it
         self.cheap_placed: list[str] = []  # cheap constructions given a new-item place (#171 B)
         self.embedded: list[str] = []  # parts heard inside a sentence this lesson (#149)
@@ -1190,9 +1194,10 @@ class Planner:
         return any(w.lower() in known for w in _WORD_RE.findall(line))
 
     def classify_turns(self, dlg: Dialogue) -> tuple[set[str], set[str]]:
-        """The turns of a listening dialogue that the learner can't say in full (#183): ``(heard, tried)`` as
-        sets of turn items. A turn they can say in full is asked as usual; one of which part can be said is
-        tried (asked, with a frame, nothing new recorded); one with nothing they can say is heard only."""
+        """The turns of a listening dialogue that the learner can't say in full: ``(nothing sayable, partly sayable)``
+        as sets of turn items. A turn they can say in full, or whose items are all met (an open item being repaired),
+        is in neither. Since #240 a listening scene hears both kinds (``_play_listening``); the split is kept for the
+        daily read and for #183's tried lines elsewhere."""
         heard: set[str] = set()
         tried: set[str] = set()
         for t in dlg.turns:
@@ -1244,16 +1249,16 @@ class Planner:
         d, missing = self.rng.choice([(c[3], c[4]) for c in cands if c[:2] == best])
         return d, missing
 
-    def _tried_turns(self, you: list) -> set[int]:
-        """The learner's turns of a theme level with an item never met: those are tried (#183). An open item is met:
-        the learner is repairing it, so its line is asked, not framed as one they haven't learned (#199)."""
+    def _untaught_turns(self, you: list) -> set[int]:
+        """The learner's turns of a theme level with an item never met: those are heard, not asked (#240, the owner: a line
+        never taught can't be said at all). An open item is met: the learner is repairing it, so its line is asked (#199)."""
         return {k for k, t in enumerate(you) if not all(self.learner.has_met(i) for i in t.items)}
 
     def pick_theme(self) -> tuple | None:
-        """The lesson's theme, its level (0-based) and the learner's turns of it that are only tried (#149 1b-ii):
+        """The lesson's theme, its level (0-based) and the learner's turns of it that are only heard (#149 1b-ii, #240):
         the lowest level not yet played, among the themes whose next level the learner can say in all but a
         quarter of their turns (``theme_ready``; every item of a turn met and not open), the trip profile's
-        boosted scenarios first, then Tier A, then Tier B, in file order. A turn with an item they lack is *tried*, as in a listening
+        boosted scenarios first, then Tier A, then Tier B, in file order. A turn with an item they lack is *heard*, as in a listening
         scene (#183).
 
         When no next level is ready the lesson still has a theme (#149 step 1, the owner's decision: the theme comes
@@ -1268,12 +1273,12 @@ class Planner:
             if level >= len(theme.levels) or theme.scenario not in rank:
                 continue
             you = [t for t in theme.levels[level].turns if t.who == "you"]
-            tried = self._tried_turns(you)
-            if len(tried) > (1 - self.cfg.theme_ready) * len(you):
+            untaught = self._untaught_turns(you)
+            if len(untaught) > (1 - self.cfg.theme_ready) * len(you):
                 continue
             key = (level, rank[theme.scenario], order)
             if best is None or key < best[0]:
-                best = (key, theme, level, tried)
+                best = (key, theme, level, untaught)
         if best is not None:
             return best[1:]
         now = self.learner.next_lesson_number()
@@ -1291,7 +1296,7 @@ class Planner:
             return None
         _, theme, level = again
         you = [t for t in theme.levels[level].turns if t.who == "you"]
-        return theme, level, self._tried_turns(you)
+        return theme, level, self._untaught_turns(you)
 
     def _bonus_review(self) -> list[dict]:
         """Up to ``max_bonus_questions`` of the lines tried this lesson, as bonus questions for the next review
@@ -2026,7 +2031,7 @@ class Planner:
         
         def play_theme() -> bool:
             nonlocal theme_plays
-            theme, n, tried = theme_pick
+            theme, n, untaught = theme_pick
             key = f"{theme.id}:{n + 1}"
             heard = {tuple(map(int, h.split(":"))) for h in self.learner.themes_heard.get(key, [])} if theme_replay else None
             picks = pick_variants(theme.levels[n], self.rng, canonical=theme_plays > 0, heard=heard)
@@ -2034,15 +2039,13 @@ class Planner:
                 theme_heard.extend(f"{k}:{i}" for k, i in picks.items())
             dlg = level_dialogue(theme, n, self.cur.known_lang, picks)
             theme_lines.append(dlg.variant)
-            ex = b.dialogue(sc, dlg, translate=theme_plays == 0 and not theme_replay, tried_turns=tried)
             you = [t for t in theme.levels[n].turns if t.who == "you"]
-            said = [i for k, t in enumerate(you) if k not in tried for i in t.items if i in self.cur.by_id]
+            # a turn is heard while one of its items is untaught: never met before and not introduced earlier in this lesson
+            # (#240). One taught by now (the theme's next level brings its items in, #201) is asked in this play.
+            heard_now = {k for k in untaught if not all(self.learner.has_met(i) or i in b.in_lesson for i in you[k].items)}
+            ex = b.dialogue(sc, dlg, translate=theme_plays == 0 and not theme_replay, heard_turns=heard_now)
+            said = [i for k, t in enumerate(you) if k not in heard_now for i in t.items if i in self.cur.by_id]
             self._record(list(dict.fromkeys(said)), "dialogue", ex.item_ids)
-            if theme_plays == 0:
-                for k in sorted(tried):
-                    items = [i for i in you[k].items if i in self.cur.by_id]
-                    unknown = [i for i in items if not self.learner.has_met(i)]
-                    self.listening_tried.append({"dialogue": dlg.id, "items": items, "unknown": unknown, "prompt": dlg.turns[k].cue, "answer": you[k].say})
             theme_plays += 1
             return True
 
@@ -2544,6 +2547,7 @@ class Planner:
             "dialogues": list(self.dialogues_played),
             "dialogues_listened": list(self.dialogues_listened),
             "listening_tried": list(self.listening_tried),
+            "listening_untaught": list(self.listening_untaught),
             "bonus_review": self._bonus_review(),
             "listening_asked": list(self.listening_asked),  # #179: asked because the line can be said
             "notes": list(self.notes_played),
@@ -2575,33 +2579,30 @@ class Planner:
         self.dialogues_played.append(dlg.id)
 
     def _play_listening(self, sc: Script, dlg: Dialogue, missing: set[str]) -> None:
-        """The whole dialogue as listening (#149 step 3): a line the learner can say nothing of is heard
-        with its meaning, not asked for; one they can say in full is asked as usual (#179); one they can say
-        part of is tried (#183): asked with «Try it.», the model line after, nothing new recorded. With none
-        missing it is an ordinary dialogue."""
-        heard, tried = self.classify_turns(dlg)
+        """The whole dialogue as listening (#149 step 3). A line the learner can say in full is asked as usual (#179).
+        Any other line is heard with its meaning, not asked for: a listening scene never asks for a line that wasn't
+        taught (#240; §9 #183 as revised by the concept). A line they could say part of is heard too, so no «Try it.»
+        and no bonus question comes from a listening scene. With none missing it is an ordinary dialogue."""
+        heard, partly = self.classify_turns(dlg)
+        heard = heard | partly
         asked = [
             t.expect for t in dlg.turns
-            if t.expect and t.expect not in heard and t.expect not in tried
+            if t.expect and t.expect not in heard
             and not (self.learner.knows(t.expect) and all(self.learner.knows(f) for f in t.expect_fill.values()))
         ]
         if asked:
             self.listening_asked.append({"dialogue": dlg.id, "items": asked})
-        if not missing and not heard and not tried:
+        # the daily read's guard: a line asked here must be one the learner was taught (can say, or is repairing)
+        self.listening_untaught += [
+            t.expect for t in dlg.turns
+            if t.expect and t.expect not in heard and not self.can_say_turn(t)
+            and not all(self.learner.has_met(i) for i in [t.expect, *t.expect_fill.values()])
+        ]
+        if not missing and not heard:
             self._play_dialogue(sc, dlg)
             return
-        ex = self.builder.dialogue(sc, dlg, translate=True, listening=heard, tried=tried)
-        self._record([t.expect for t in dlg.turns if t.expect and t.expect not in heard and t.expect not in tried], "dialogue", ex.item_ids)
-        for t in dlg.turns:
-            if t.expect in tried:
-                item = self.cur.by_id[t.expect]
-                parts = [i for i in [t.expect, *t.expect_fill.values()] if self.can_say_item(i)]
-                unknown = [i for i in [t.expect, *t.expect_fill.values()] if not self.can_say_item(i)]
-                if parts:
-                    self._record(parts, "dialogue", ex.item_ids)
-                fills = {s: self.cur.by_id[f] for s, f in t.expect_fill.items()}
-                line = self.cur.resolve_slots(item, fills) if item.kind == "construction" else (item.target, item.meaning)
-                self.listening_tried.append({"dialogue": dlg.id, "items": [t.expect, *t.expect_fill.values()], "unknown": unknown, "prompt": t.cue, "answer": line[0]})
+        ex = self.builder.dialogue(sc, dlg, translate=True, listening=heard)
+        self._record([t.expect for t in dlg.turns if t.expect and t.expect not in heard], "dialogue", ex.item_ids)
         self.dialogues_listened.append(dlg.id)
 
 

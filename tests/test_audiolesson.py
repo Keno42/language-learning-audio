@@ -5998,46 +5998,55 @@ class SayableLineTests(unittest.TestCase):
         self.assertIn("Say known zero.", text, "the lines that are asked keep their cue")
         self.assertEqual(planner.listening_tried, [])
 
-    def test_a_line_they_can_say_part_of_is_tried_not_told(self):
-        """#183 (owner): in a listening scene, ask for whatever the learner can make. «fimm» is theirs, the rest of
-        the line isn't: the cue, «Try it.», a pause, the model line. Nothing new is recorded for the unknown items."""
+    def test_a_line_they_can_say_part_of_is_heard_not_tried(self):
+        """#240 (§9 #183 as revised by the concept): a listening scene never asks for a line that wasn't taught. «fimm»
+        is theirs, the rest of the line isn't: the line is heard with its meaning, «Try it.» is gone, nothing is
+        recorded for it, and no bonus question comes from it. The line they can say in full is still asked."""
         cur = self._cur()
         planner = self._planner(cur, self._learner(["k0", "fimm"]))
-        self.assertEqual(planner.classify_turns(cur.dialogues[0]), (set(), {"big"}))
+        self.assertEqual(planner.classify_turns(cur.dialogues[0]), (set(), {"big"}), "partly sayable, as before")
         sc = Script(1, "t", "is", "en")
         planner._play_listening(sc, cur.dialogues[0], {"big"})
         text = sc.transcript()
-        self.assertIn("Tell him it costs five thousand krónur.", text, "the cue stays")
-        self.assertIn("Try it.", text)
-        self.assertNotIn("Here you would say:", text, "a turn with a pause is never told")
-        self.assertEqual(len([s for s in sc.segments if s.type == "pause" and s.role == "answer"]), 2)
-        tried = planner.listening_tried
-        self.assertEqual([(t["dialogue"], t["answer"], t["prompt"]) for t in tried], [("d1", "Það kostar fimm þúsund krónur.", "Tell him it costs five thousand krónur.")])
-        self.assertEqual(tried[0]["unknown"], ["big"])
-        self.assertIn("fimm", tried[0]["items"])
-        self.assertNotIn("big", planner.exposures, "the unknown construction is not recorded")
-        self.assertIn("fimm", planner.exposures, "the part they have is credited as practised")
+        self.assertNotIn("Try it.", text)
+        self.assertIn("Here you would say:", text)
+        self.assertIn("It costs five thousand krónur.", text, "a heard line comes with its meaning")
+        self.assertIn("Say known zero.", text, "the taught line keeps its cue")
+        self.assertEqual(len([s for s in sc.segments if s.type == "pause" and s.role == "answer"]), 1, "only the taught line is asked")
+        self.assertEqual(planner.listening_tried, [])
+        self.assertEqual(planner.listening_untaught, [])
+        self.assertNotIn("big", planner.exposures, "the untaught construction is not recorded")
 
-    def test_a_line_with_a_word_from_a_known_line_is_tried_on_the_real_curriculum(self):
-        """#183 re-check (owner): the learner's words live inside longer known lines («þarf» in «Ég þarf hjálp.»), so
-        a part is judged at word level. «Ég þarf símkort.» is tried by one who has «Ég þarf hjálp.»; with nothing
-        known it stays heard only; a line they can say whole is asked."""
+    def test_a_line_with_a_word_from_a_known_line_is_heard_on_the_real_curriculum(self):
+        """#183 re-check (owner): the learner's words live inside longer known lines («þarf» in «Ég þarf hjálp.»), so a
+        part is judged at word level, and «Ég þarf símkort.» is partly sayable for one who has «Ég þarf hjálp.». Since
+        #240 a listening scene hears it all the same; a line they can say whole is asked."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         dlg = next(d for d in cur.dialogues if d.id == "simabud")
         known = Planner(cur, self._learner(["eg_tharf_hjalp"]), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15), today=TODAY)
-        heard, tried = known.classify_turns(dlg)
-        self.assertIn("eg_tharf_simkort", tried)
+        heard, partly = known.classify_turns(dlg)
+        self.assertIn("eg_tharf_simkort", partly)
         self.assertNotIn("eg_tharf_simkort", heard)
         nothing = Planner(cur, self._learner([]), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15), today=TODAY)
-        heard, tried = nothing.classify_turns(dlg)
+        heard, partly = nothing.classify_turns(dlg)
         self.assertIn("eg_tharf_simkort", heard)
-        self.assertEqual(tried, set())
+        self.assertEqual(partly, set())
         whole = Planner(cur, self._learner(["eg_tharf_simkort"]), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15), today=TODAY)
         self.assertNotIn("eg_tharf_simkort", set().union(*whole.classify_turns(dlg)))
         sc = Script(1, "t", "is", "en")
         known._play_listening(sc, dlg, set())
-        self.assertTrue(any(t["answer"] == "Ég þarf símkort." for t in known.listening_tried))
-        self.assertIn("Try it.", sc.transcript())
+        self.assertEqual(known.listening_tried, [])
+        self.assertNotIn("Try it.", sc.transcript())
+        self.assertIn("Here you would say:", sc.transcript())
+
+    def test_a_listening_scene_that_asks_nothing_says_just_listen(self):
+        """#240: the framing stays true to what follows. Every learner line heard → «just hear how it goes»."""
+        cur = self._cur()
+        planner = self._planner(cur, self._learner([]))
+        sc = Script(1, "t", "is", "en")
+        planner.builder.dialogue(sc, cur.dialogues[0], translate=True, listening={"big", "k0"})
+        self.assertIn(Prompts.load("en").get("listening_intro"), sc.transcript())
+        self.assertNotIn(Prompts.load("en").get("listening_intro_some_asked"), sc.transcript())
 
     def test_tried_lines_become_bonus_review_questions_and_a_said_one_counts(self):
         """#183 addendum: at most two tried lines go into the next review as bonus questions; 言えた makes the
@@ -6046,7 +6055,9 @@ class SayableLineTests(unittest.TestCase):
         learner = self._learner(["k0", "fimm"])
         planner = self._planner(cur, learner)
         sc = Script(1, "t", "is", "en")
-        planner._play_listening(sc, cur.dialogues[0], {"big"})
+        # a tried line, as a theme turn makes one (a listening scene no longer tries, #240)
+        planner.listening_tried.append({"dialogue": "d1", "items": ["big", "fimm"], "unknown": ["big"],
+                                        "prompt": "Tell him it costs five thousand krónur.", "answer": "Það kostar fimm þúsund krónur."})
         bonus = planner._bonus_review()
         self.assertEqual(len(bonus), 1)
         self.assertEqual((bonus[0]["prompt"], bonus[0]["answer"], bonus[0]["bonus"]), ("Tell him it costs five thousand krónur.", "Það kostar fimm þúsund krónur.", True))
@@ -6078,7 +6089,9 @@ class SayableLineTests(unittest.TestCase):
         cur = self._cur()
         planner = self._planner(cur, self._learner(["k0", "fimm"]))
         sc = Script(1, "t", "is", "en")
-        planner._play_listening(sc, cur.dialogues[0], {"big"})
+        # a tried line, as a theme turn makes one (a listening scene no longer tries, #240)
+        planner.listening_tried.append({"dialogue": "d1", "items": ["big", "fimm"], "unknown": ["big"],
+                                        "prompt": "Tell him it costs five thousand krónur.", "answer": "Það kostar fimm þúsund krónur."})
         sc.meta = {"bonus_review": planner._bonus_review(), "listening_tried": planner.listening_tried, "listening_asked": planner.listening_asked}
         plan = _plan(sc, cur)
         self.assertEqual([q["items"] for q in plan["review"] if q.get("bonus")], [planner.listening_tried[0]["items"]])
@@ -7176,14 +7189,17 @@ class ThemeExchangeTests(unittest.TestCase):
         with self.assertRaises(CurriculumError):
             _check(bad)
 
-    def test_a_tried_turn_keeps_its_cue_in_the_late_play(self):
+    def test_an_untaught_turn_keeps_its_cue_and_is_heard_in_both_plays(self):
+        """#240 (owner, 2026-10-09: an untaught line can't be said at all, so it is never asked): «Gjörðu svo vel.» is
+        never met, so its turn is heard in both plays: the cue (the intent) first, then «Here you would say:»."""
         learner = self._learner([i for i in self._known if i != "gjordu_svo_vel"] + [i for i in self._rest if i != "gjordu_svo_vel"])
-        sc = self._planner(learner, [self._supermarket], ["A3"]).build()
+        sc = self._planner(learner, [self._supermarket], ["A3"], max_new_items=0).build()  # nothing new: it stays untaught
         first, second = [e for e in sc.exercises if e.label.startswith("dialogue: theme:")]
         for e in (first, second):
             texts = [g.text for g in sc.segments if g.exercise == e.index and g.type == "narrate"]
             self.assertIn("Hand over your card.", texts)
-            self.assertLess(texts.index("Hand over your card."), texts.index("Try it."), "the cue first, then «Try it.»")
+            self.assertNotIn("Try it.", texts)
+            self.assertLess(texts.index("Hand over your card."), texts.index("Here you would say:"), "the cue first, then the line")
 
     def test_the_partner_is_voiced_as_the_cues_say(self):
         """Review of #186: the tour guide is «Anna» and the cues say «her»; a male voice contradicted both."""
@@ -7327,19 +7343,55 @@ class ThemeExchangeTests(unittest.TestCase):
         self.assertIn("skyr", target["wanted"])
         self.assertIn("skyr", sc.meta["new_items"])
 
-    def test_a_tried_turn_is_said_with_try_it_and_goes_to_the_bonus_review(self):
+    def test_an_untaught_theme_turn_is_heard_not_asked(self):
+        """#240: the untaught turn has no answer pause and no bonus question, and nothing is recorded for it; the turns
+        the learner was taught are asked as before."""
         learner = self._learner([i for i in self._known if i != "gjordu_svo_vel"] + [i for i in self._rest if i != "gjordu_svo_vel"])
-        planner = self._planner(learner, [self._supermarket], ["A3"])
+        planner = self._planner(learner, [self._supermarket], ["A3"], max_new_items=0)  # nothing new: it stays untaught
         sc = planner.build()
-        text = sc.transcript()
         first, second = [e for e in sc.exercises if e.label.startswith("dialogue: theme:")]
-        tried = lambda e: [g.text for g in sc.segments if g.exercise == e.index and g.text == "Try it."]
-        self.assertEqual((len(tried(first)), len(tried(second))), (1, 1))
-        theme_tried = [t for t in planner.listening_tried if t["dialogue"].startswith("theme:")]
-        self.assertEqual([t["answer"] for t in theme_tried], ["Gjörðu svo vel."], "tried once, in the first play")
-        self.assertEqual(theme_tried[0]["unknown"], ["gjordu_svo_vel"])
-        self.assertIn("Gjörðu svo vel.", [q["answer"] for q in planner._bonus_review()])
-        self.assertIn("Try it.", text)
+        for e in (first, second):
+            segs = [g for g in sc.segments if g.exercise == e.index]
+            heard = [k for k, g in enumerate(segs) if g.text == "Here you would say:"]
+            self.assertEqual(len(heard), 1)
+            self.assertEqual(segs[heard[0] + 1].text, "Gjörðu svo vel.", "the line comes right after, without a pause")
+            self.assertTrue(any(g.type == "pause" and g.role == "answer" for g in segs), "the taught turns are still asked")
+        self.assertNotIn("Try it.", sc.transcript())
+        self.assertEqual(planner.listening_tried, [])
+        self.assertEqual(planner._bonus_review(), [])
+        self.assertNotIn("gjordu_svo_vel", planner.exposures)
+
+    def test_a_turn_taught_earlier_in_the_lesson_is_asked_in_the_play(self):
+        """#240: "untaught" is judged when the exchange plays. The theme's next level brings «Gjörðu svo vel.» in as new
+        material (#201); introduced before the plays, its turn is asked in both, with a pause, not heard."""
+        learner = self._learner([i for i in self._known if i != "gjordu_svo_vel"] + [i for i in self._rest if i != "gjordu_svo_vel"])
+        sc = self._planner(learner, [self._supermarket], ["A3"]).build()
+        intro = next(e for e in sc.exercises if e.kind == "intro" and "gjordu_svo_vel" in e.item_ids)
+        plays = [e for e in sc.exercises if e.label.startswith("dialogue: theme:")]
+        self.assertTrue(plays and all(intro.start < e.start for e in plays))
+        for e in plays:
+            self.assertNotIn("Here you would say:", [g.text for g in sc.segments if g.exercise == e.index])
+
+    def test_the_bus_scene_of_lesson_20_hears_the_untaught_lines(self):
+        """#240, lesson 20 (§5.16): «Fer þessi strætó í miðbæinn?» and «Hvar á ég að fara út?» had never been taught and
+        were asked with «Try it.» after "just hear how it goes". Now both are heard with their meaning; the lines the
+        learner knows are asked, and the framing says so."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        dlg = next(d for d in cur.dialogues if d.id == "straeto")
+        met = ["einn_mida_takk", "takk", "eg_fer_i_sund", "hvar_er", "fara_heim"]
+        planner = Planner(cur, self._learner([i for i in met if i in cur.by_id]), Prompts.load("en"), Timing(level="A1"),
+                          PlanConfig(minutes=15, new_items=0, max_new_items=0), today=TODAY)
+        _, partly = planner.classify_turns(dlg)
+        self.assertEqual(partly, {"fer_thessi_straeto_i_midbaeinn", "hvar_a_eg_ad_fara_ut"}, "the two lines of lesson 20")
+        sc = Script(1, "t", "is", "en")
+        planner._play_listening(sc, dlg, set())
+        text = sc.transcript()
+        self.assertNotIn("Try it.", text)
+        self.assertEqual(text.count("Here you would say:"), 2)
+        self.assertIn(Prompts.load("en").get("listening_intro_some_asked"), text)
+        self.assertNotIn(Prompts.load("en").get("listening_intro"), text, "no «just hear it» when lines are asked")
+        self.assertIn("Ask for one ticket.", text, "a taught line is asked with its cue")
+        self.assertEqual((planner.listening_tried, planner.listening_untaught), ([], []))
 
     def test_no_theme_without_themes_or_with_nothing_ready(self):
         sc = self._planner(self._learner(self._known + self._rest), [], []).build()
@@ -7593,7 +7645,7 @@ class ReplayToolTests(unittest.TestCase):
                 self.assertEqual(tool.main([str(export), "--lessons", "2", "--curriculum", str(ROOT / "curricula" / "is-en")]), 0)
         text = out.getvalue()
         self.assertIn("| | lesson 4 | lesson 5 |", text)
-        for row in ("| minutes |", "| short new item alone, most |", "| bare_cap_lapsed |", "| tried lines / bonus questions |", "| theme (level) / plays |"):
+        for row in ("| minutes |", "| short new item alone, most |", "| bare_cap_lapsed |", "| tried lines / bonus questions |", "| lines a listening scene asks for that were never taught (#240) |", "| theme (level) / plays |"):
             self.assertIn(row, text)
 
 

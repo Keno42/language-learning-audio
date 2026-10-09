@@ -899,7 +899,7 @@ what. Re-rank it when the evidence moves.
 Each "Now" item is done when its row in the daily read (`tools/replay_lesson.py`; the rows come with the first of these
 issues) reads 0 on the replay, and three feedbacks after it carry no remark of the same kind:
 1. minutes after the target that serve neither a target expression nor a scene; (built in #238 as `spare_unserved_s`; the not-due early tiers still run before the ear, see DESIGN.md)
-2. lines a listening scene asks for that were never taught;
+2. lines a listening scene asks for that were never taught; (built in #240 as `listening_untaught`)
 3. items the audio asks that the same morning's review asked; (built in #238 as `asked_after_review`; a dialogue's lines and a note's examples are not excluded)
 4. framing lines followed by an example without a beat.
 
@@ -1139,7 +1139,7 @@ Don't reopen these without new evidence; when you do, say what changed.
     with nothing they can say is heard. A try on an unknown part is never a failure: nothing is
     recorded for it, and up to two tried lines a lesson are asked the next day as bonus questions in
     the review (a 言えた gains one durable success, a miss costs nothing).
-    **Revised by the concept (owner, after lesson 20; §3, §9 "Good enough overall"):** a listening scene never asks for a line that wasn't taught. A line with an untaught part is heard, with its meaning, not tried (lesson 20's bus scene, §5.16). How a line that is taught in full is asked stays as above.
+    **Revised by the concept (owner, after lesson 20; §3, §9 "Good enough overall"):** a listening scene never asks for a line that wasn't taught. A line with an untaught part is heard, with its meaning, not tried (lesson 20's bus scene, §5.16). The same holds in a theme's play (owner, 2026-10-09: an untaught line can't be said at all, so it is never asked; #240). How a line that is taught in full is asked stays as above.
 - **Generation and audio.**
   - Only plausible sentences in plausible scenes (owner after L12).
   - No pause stretching to fill a short lesson (owner after L12).
