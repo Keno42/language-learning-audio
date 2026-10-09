@@ -74,7 +74,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   `variant_*`, `construction_slot`, `also`, `form_model_*`, `milestone_intro` / `aside`, a turn's `scene` / `partner_scene`,
   `listening_line`, `dialogue_replay`) is said by `Builder._frame` (a narration with role `frame`, then a beat). A cue for the
   learner's own action («Repeat.», «Slowly.», the reply cue, cloze and hint cues) joins its line at once; Icelandic inside a note's
-  prose stays inline. The daily read counts a `frame` narration followed straight by speech (0). `bare_cap_lapsed_short_s` in the
+  prose stays inline. A turn's opener after the first has a beat before it (the previous turn's partner meaning has just ended). The daily read counts any instructor narration followed straight by speech, whatever its role, except the action cues and a note's prose (0). `bare_cap_lapsed_short_s` in the
   meta says how short the lesson would have ended when the bare cap lapsed.
   **A listening scene asks only for taught lines (#240).** A turn the learner can't say in full is heard
   («Here you would say:», the line, its meaning), whether or not they can say a chunk of it

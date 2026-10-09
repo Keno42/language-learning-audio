@@ -7730,6 +7730,26 @@ class FramingBeatTests(unittest.TestCase):
         for k in scenes:
             self.assertEqual((sc.segments[k + 1].type, sc.segments[k + 1].role), ("pause", "beat"))
 
+    def test_the_next_turns_opener_has_a_beat_after_the_partner_lines_meaning(self):
+        """#241 review (L21, supermarket:2): «That's three thousand five hundred krónur.» ran straight into the next turn's
+        opener «Viltu fá kvittun?». Nothing narrated runs into the partner's Icelandic."""
+        from audiolesson.themes import level_dialogue, load_themes
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        themes = load_themes(ROOT / "curricula" / "is-en", cur)
+        planner = Planner(cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15), today=TODAY)
+        checked = 0
+        for theme in themes:
+            for n in range(len(theme.levels)):
+                sc = Script(1, "t", "is", "en")
+                planner.builder.dialogue(sc, level_dialogue(theme, n))
+                for a, b in zip(sc.segments, sc.segments[1:]):
+                    if a.type == "narrate" and b.type == "speak" and b.speaker.startswith("native"):
+                        cue = a.text in (Prompts.load("en").get("repeat"),)
+                        self.assertTrue(cue, f"{theme.id}:{n + 1}: {a.text!r} runs into {b.text!r}")
+                    checked += a.type == "narrate" and a.text == Prompts.load("en").get("dialogue_start")
+        self.assertGreater(checked, 3)
+
     def test_a_cue_for_the_learners_action_joins_its_line(self):
         repeat = Prompts.load("en").get("repeat")
         joins = [(a, b) for sc in self.lessons for a, b in zip(sc.segments, sc.segments[1:]) if a.type == "narrate" and a.text == repeat]

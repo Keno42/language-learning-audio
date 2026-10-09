@@ -75,10 +75,20 @@ def measure(cur, sc, known_constructions: int) -> dict:
         if s.type == "answer" and s.exercise is not None:
             answers[s.exercise].append(" ".join(words(s.text)))
     narrated = [s.text for s in sc.segments if s.type == "narrate" and s.speaker == "instructor" and s.text]
-    # #241 (Now row 4): a framing line (``Builder._frame``) running straight into a target-language line, with no beat
+    # #241 (Now row 4): any instructor narration running straight into a target-language line with no beat, whatever its role
+    # (so the row doesn't depend on ``Builder._frame``). Not counted: the cues for the learner's own action, which join their line,
+    # and a note's prose, where the Icelandic stays inline.
+    prompts = Prompts.load(cur.known_lang)
+    def _cue_re(key: str) -> list:
+        raw = prompts.data[key]
+        return [re.compile("^" + re.sub(r"\\\{\w+\\\}", ".*", re.escape(t)) + "$", re.S) for t in (raw if isinstance(raw, list) else [raw])]
+
+    cue_res = [r for k in ("repeat", "slowly", "natural", "build_up", "reply", "cloze", "hinted") for r in _cue_re(k)]
+    note_ex = {e.index for e in exs if e.kind == "note"}
     unframed = sum(
         1 for a, b in zip(sc.segments, sc.segments[1:])
-        if a.type == "narrate" and a.role == "frame" and b.type in ("speak", "answer")
+        if a.type == "narrate" and a.speaker == "instructor" and b.type in ("speak", "answer")
+        and a.exercise not in note_ex and not any(r.match(a.text) for r in cue_res)
     )
     situations = collections.Counter(t for t in narrated if len(t) > 25)
     intros = sorted(e.start / 60 for e in exs if e.kind in ("intro", "embed"))

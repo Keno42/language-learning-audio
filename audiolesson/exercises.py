@@ -1213,6 +1213,8 @@ class Builder:
             if turn.scene:
                 self._frame(sc, ex, turn.scene)
             if turn.opener:
+                if k > 0 and not turn.scene:
+                    self._beat(sc, ex)  # the previous turn's meaning or line has ended: the next opener is a new line (#241 review)
                 self._speak(sc, ex, turn.opener, speaker=partner)
                 lines.append((partner, turn.opener))
                 if glossed and self.translate_partner and turn.opener_meaning:
