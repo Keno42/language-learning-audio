@@ -1177,6 +1177,9 @@ difficulty = 2
 topics = ["time"]
 slots = { hour = "hour" }
 example = { hour = "thrju" }
+information_probes = [
+  { kind = "time", answer = "{hour}", meanings = { en = "{hour} o'clock", ja = "{hour}時" } },
+]
 prereqs = ["thrju"]  # issue #80: not hvad_er_klukkan, which comes just before anyway; waiting for it to be
 # *learned* held the clock back five lessons after the neuter forms it is the frame for
 situation = "A passer-by asks you the time. It's three o'clock. Tell them."
@@ -1504,6 +1507,9 @@ slots = { count = "big_count" }
 example = { count = "tvo" }
 prereqs = ["tvo", "thusund", "kronur", "hvad_kostar_thetta"]
 pronunciation_notes = "count must be the neuter form (eitt/tvö/þrjú/fjögur) below five, since þúsund is neuter — fimm and up don't change with gender"
+information_probes = [
+  { kind = "price", answer = "{count} þúsund krónur", meanings = { en = "{count} thousand krónur", ja = "{count}千クローナ" } },
+]
 
 # Only one of the seven fixed whole-amount price phrases, fimm_hundrud_kronur, moved to module
 # 02 (issue #29 cluster A, owner review round 3 on PR #53) — it's the sole earliest exposure to
@@ -1548,6 +1554,9 @@ topics = ["money", "shopping"]
 slots = { price = "price" }
 example = { price = "thusund_kronur" }
 prereqs = ["thusund_kronur", "hvad_kostar_thetta"]
+information_probes = [
+  { kind = "price", answer = "{price}", meanings = { en = "{price}", ja = "{price}" } },
+]
 
 # Issue #29 (owner comment on a real Lesson 3: "grammar is noticed, but not yet transferred"):
 # «Eigðu góðan dag» was one more fixed string to memorise, while godur_gender names exactly the

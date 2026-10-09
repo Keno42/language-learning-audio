@@ -5264,6 +5264,246 @@ class SpareTimeTests(unittest.TestCase):
         self.assertEqual(sorted(first), sorted(plain))
 
 
+class ListeningTaskTests(unittest.TestCase):
+    """#248: the second half's listening exercises (pick out information, catch an unknown word) and their rotation."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.cur = load_curriculum(ROOT / "curricula" / "is-en")
+        cls.en = Prompts.load("en")
+
+    def _builder(self, known=()):
+        from audiolesson.exercises import Builder
+        learner = LearnerState("is", "en", "A1")
+        for i in known:
+            learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3)
+        return Builder(self.cur, self.en, Timing(level="A1"), learner)
+
+    def _gen(self, cid, **fills):
+        from audiolesson.exercises import Generated
+        c = self.cur.by_id[cid]
+        f = {slot: self.cur.by_id[i] for slot, i in fills.items()}
+        target, meaning = self.cur.resolve_slots(c, f)
+        return Generated(c, f, target, meaning)
+
+    def _known(self, *lines):
+        from audiolesson.listening_tasks import tokens
+        return {w.lower() for line in lines for w in tokens(line)}
+
+    # -- the curriculum's side
+
+    def test_a_probe_names_its_slots_and_both_languages(self):
+        raw = ExcludeFillsTests._raw()
+        raw["items"][2]["information_probes"] = [{"kind": "price", "answer": "{thing}", "meanings": {"en": "{thing}", "ja": "{thing}"}}]
+        curriculum_from_dict(raw)  # a good probe loads
+        for bad in (
+            {"kind": "weather", "answer": "{thing}", "meanings": {"en": "{thing}", "ja": "{thing}"}},  # not a kind
+            {"kind": "price", "answer": "peysu", "meanings": {"en": "x", "ja": "x"}},  # nothing to listen for
+            {"kind": "price", "answer": "{other}", "meanings": {"en": "{other}", "ja": "{other}"}},  # a slot the construction lacks
+            {"kind": "price", "answer": "{thing}", "meanings": {"en": "{thing}"}},  # no Japanese
+            {"kind": "price", "answer": "{thing}", "meanings": {"en": "x", "ja": "y"}},  # meanings without the slot
+        ):
+            raw = ExcludeFillsTests._raw()
+            raw["items"][2]["information_probes"] = [bad]
+            with self.assertRaises(CurriculumError, msg=str(bad)):
+                curriculum_from_dict(raw)
+        raw = ExcludeFillsTests._raw()
+        raw["items"][0]["information_probes"] = [{"kind": "price", "answer": "{thing}", "meanings": {"en": "{thing}", "ja": "{thing}"}}]
+        with self.assertRaises(CurriculumError):  # a vocab item has no slots
+            curriculum_from_dict(raw)
+
+    def test_a_word_gloss_is_a_word_of_the_line_with_both_meanings(self):
+        from audiolesson.themes import Level, Theme, Turn, _check
+        def theme(gloss):
+            return Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
+                Turn(who="partner", say="Þarftu poka?", meaning="Do you need a bag?", variants=[{"say": "Viltu poka?", "meaning": "Do you want a bag?", "word_glosses": gloss}]),
+                Turn(who="you", say="Nei, takk.", cue="Say no.", items=["nei"]),
+            ])])
+        _check(theme({"viltu": {"en": "do you want", "ja": "ほしいですか"}}))
+        for bad in ({"hvar": {"en": "where", "ja": "どこ"}}, {"viltu": {"en": "do you want"}}, {"viltu": {"en": "", "ja": "x"}}):
+            with self.assertRaises(CurriculumError, msg=str(bad)):
+                _check(theme(bad))
+        self.assertEqual(theme({"viltu": {"en": "a", "ja": "b"}}).levels[0].turns[0].lines()[1].word_glosses, {"viltu": {"en": "a", "ja": "b"}})
+
+    def test_the_curriculum_carries_probes_and_glosses(self):
+        self.assertEqual({k for k in ("thad_kostar_big", "thad_kostar", "klukkan_er") if self.cur.by_id[k].information_probes}, {"thad_kostar_big", "thad_kostar", "klukkan_er"})
+
+    # -- pick out
+
+    def test_a_price_is_picked_out_of_a_generated_sentence(self):
+        from audiolesson.listening_tasks import generated_pick_out
+        gen = self._gen("thad_kostar_big", count="fimm")
+        probe = self.cur.by_id["thad_kostar_big"].information_probes[0]
+        known = self._known(gen.target)
+        task = generated_pick_out(self.cur, gen, probe, known, "At the till.", "native_b")
+        self.assertEqual((task.line, task.answer, task.meaning), ("Það kostar fimm þúsund krónur.", "fimm þúsund krónur", "five thousand krónur"))
+        self.assertEqual((task.kind, task.prompt_key, task.item_ids), ("pick_out", "pick_out_price", ("thad_kostar_big",)))
+        self.assertIsNone(generated_pick_out(self.cur, gen, probe, known - {"krónur"}, "", "native_b"), "a word they do not know: not a listening task")
+        self.assertIsNone(generated_pick_out(self.cur, gen, {**probe, "meanings": {"de": "x"}}, known, "", "native_b"), "no meaning in the learner's language")
+
+    def test_a_time_is_picked_out_of_the_clock_sentence(self):
+        from audiolesson.listening_tasks import generated_pick_out
+        gen = self._gen("klukkan_er", hour="thrju")
+        task = generated_pick_out(self.cur, gen, self.cur.by_id["klukkan_er"].information_probes[0], self._known(gen.target), "", "native_a")
+        self.assertEqual((task.answer, task.meaning, task.prompt_key), ("þrjú", "three o'clock", "pick_out_time"))
+
+    def test_the_question_is_never_guessed_from_a_slot_name(self):
+        """«Hvenær opnar {place}?» holds no time: a construction without a probe never makes a pick-out."""
+        self.assertFalse([c.id for c in self.cur.items if c.kind == "construction" and c.information_probes and c.id not in ("thad_kostar_big", "thad_kostar", "klukkan_er")])
+
+    def test_a_pick_out_is_built_in_one_exercise_and_records_nothing(self):
+        from audiolesson.listening_tasks import append_task, generated_pick_out
+        b = self._builder()
+        gen = self._gen("thad_kostar_big", count="fimm")
+        task = generated_pick_out(self.cur, gen, self.cur.by_id["thad_kostar_big"].information_probes[0], self._known(gen.target), "At the till.", "native_b")
+        sc = Script(1, "t", "is", "en")
+        ex = append_task(b, sc, task, 120.0)
+        self.assertEqual((ex.kind, ex.item_ids), ("pick_out", ["thad_kostar_big"]))
+        text = sc.transcript()
+        self.assertIn("At the till.", text)
+        self.assertIn("How much does he say it costs?", text, "a scene was named: whose line it was")
+        sc2 = Script(1, "t", "is", "en")
+        from dataclasses import replace as _replace
+        append_task(b, sc2, _replace(task, scene="", line="Það kostar tvö þúsund krónur."), 120.0)
+        self.assertIn("How much is it?", sc2.transcript(), "no scene: the plain question")
+        self.assertNotIn("partner", sc2.transcript() + text)
+        self.assertEqual(len([g for g in sc.segments if g.type == "pause" and g.role == "answer"]), 1)
+        self.assertEqual([g.text for g in sc.segments if g.type == "speak"], ["Það kostar fimm þúsund krónur."] * 2, "heard, then again after the answer")
+        self.assertEqual(sc.review_questions(), [], "the next day's review does not ask a sentence that was only heard")
+
+    def test_a_task_that_does_not_fit_leaves_no_trace(self):
+        from audiolesson.listening_tasks import append_task, generated_pick_out
+        b = self._builder()
+        gen = self._gen("thad_kostar_big", count="fimm")
+        task = generated_pick_out(self.cur, gen, self.cur.by_id["thad_kostar_big"].information_probes[0], self._known(gen.target), "", "native_b")
+        sc = Script(1, "t", "is", "en")
+        heard, said, recent = set(b.heard), dict(b.said), list(b.recent_answers)
+        self.assertIsNone(append_task(b, sc, task, 3.0))
+        self.assertEqual((sc.segments, sc.exercises, set(b.heard), dict(b.said), b.recent_answers), ([], [], heard, said, recent))
+
+    def test_no_kind_runs_on_for_more_than_three(self):
+        from audiolesson.listening_tasks import append_task, generated_pick_out, kind_has_room
+        b = self._builder()
+        sc = Script(1, "t", "is", "en")
+        probe = self.cur.by_id["thad_kostar_big"].information_probes[0]
+        made = 0
+        for count in ("fimm", "tiu", "tvo", "thrju"):
+            if count not in self.cur.by_id:
+                continue
+            gen = self._gen("thad_kostar_big", count=count)
+            task = generated_pick_out(self.cur, gen, probe, self._known(gen.target), "", "native_b")
+            made += append_task(b, sc, task, 120.0) is not None
+        self.assertEqual(made, 3, "the fourth of a kind is refused")
+        self.assertFalse(kind_has_room(sc, "pick_out"))
+        self.assertTrue(kind_has_room(sc, "catch_unknown"))
+
+    # -- catch an unknown word
+
+    def test_one_unknown_word_with_a_meaning_is_caught(self):
+        from audiolesson.listening_tasks import catch_unknown
+        repair = self.cur.by_id["hvad_thydir_thetta"]
+        glosses = {"viltu": {"en": "do you want", "ja": "ほしいですか"}, "poka": {"en": "a bag", "ja": "袋"}}
+        known = self._known("Ég vil poka með því.")
+        task = catch_unknown("Viltu poka?", glosses, known, "en", repair, repair_known=True, source="theme:x:1:0:1", scene="")
+        self.assertEqual((task.kind, task.answer, task.meaning, task.repair, task.item_ids), ("catch_unknown", "Viltu", "do you want", repair.target, (repair.id,)))
+        each = lambda **kw: catch_unknown(**{"line": "Viltu poka?", "glosses": glosses, "known_words": known, "known_lang": "en", "repair": repair, "repair_known": True, "source": "s", "scene": "", **kw})
+        self.assertIsNone(each(repair_known=False), "the learner cannot yet ask what a word means")
+        self.assertIsNone(each(line="Viltu poka? Viltu."), "the same unknown word twice")
+        self.assertIsNone(each(known_words=known - {"poka"}), "two unknown words")
+        self.assertIsNone(each(known_words=known | {"viltu"}), "no unknown word")
+        self.assertIsNone(each(glosses={}), "an unknown word without an authored meaning")
+
+    def test_a_catch_is_asked_with_the_repair_phrase_and_records_nothing(self):
+        from audiolesson.listening_tasks import append_task, catch_unknown
+        repair = self.cur.by_id["hvad_thydir_thetta"]
+        b = self._builder(known=[repair.id])
+        task = catch_unknown("Viltu poka?", {"viltu": {"en": "do you want", "ja": "ほしいですか"}}, self._known("poka"), "en", repair, repair_known=True, source="s", scene="")
+        sc = Script(1, "t", "is", "en")
+        ex = append_task(b, sc, task, 120.0)
+        self.assertEqual(ex.kind, "catch_unknown")
+        answers = [g for g in sc.segments if g.type == "answer"]
+        self.assertEqual([g.text for g in answers], ["Viltu", repair.target])
+        self.assertTrue(all(g.speaker == "native_a" for g in answers), "the model answer is the other voice than the partner's")
+        self.assertIn("Do you want", sc.transcript())
+        self.assertEqual(b.learner.items.keys(), {repair.id}, "nothing is credited")
+
+    # -- the rotation
+
+    def test_the_rotation_goes_round_and_skips_what_cannot_be_added(self):
+        from audiolesson.listening_tasks import SecondHalfRotation
+        r = SecondHalfRotation()
+        asked = []
+        def emit(kind):
+            asked.append(kind)
+            return True
+        for _ in range(7):
+            r.play(emit)
+        self.assertEqual(asked, ["heard", "pick_out", "pick_out", "catch_unknown", "today", "heard", "pick_out"])
+        r = SecondHalfRotation()
+        asked.clear()
+        self.assertTrue(r.play(lambda k: asked.append(k) or k == "today"))
+        self.assertEqual(asked, ["heard", "pick_out", "pick_out", "catch_unknown", "today"], "one round, to the first kind that could be added")
+        self.assertFalse(SecondHalfRotation().play(lambda k: False))
+
+    # -- in a lesson
+
+    @staticmethod
+    def _course(lessons):
+        from audiolesson.cando import load_cando
+        from audiolesson.themes import load_themes, scenario_order
+        path = ROOT / "curricula" / "is-en"
+        cur = load_curriculum(path)
+        scenarios = load_cando(path)
+        themes = load_themes(path, cur, scenarios)
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        for n in range(1, lessons + 1):
+            cfg = PlanConfig(minutes=30, new_target=8, themes=themes, theme_scenarios=scenario_order(scenarios))
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=day).build()
+            yield cur, learner, sc
+            apply_to_learner(sc, learner, day)
+            learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
+            day += timedelta(days=1)
+
+    def test_the_second_half_of_a_lesson_listens_for_information_and_unknown_words(self):
+        from audiolesson.cli import _plan
+        lessons = list(self._course(21))
+        kinds = Counter(e.kind for _, _, sc in lessons for e in sc.exercises)
+        self.assertGreater(kinds["pick_out"], 3)
+        self.assertGreater(kinds["catch_unknown"], 3)
+        for cur, learner, sc in lessons:
+            m = sc.meta
+            self.assertEqual(m["pick_out_count"], sum(e.kind == "pick_out" for e in sc.exercises if e.start >= m["target_reached_at"]))
+            self.assertEqual(_plan(sc, cur)["second_half"]["pick_out_count"], m["pick_out_count"])
+            self.assertLessEqual(sc.total_duration, 30 * 60 + 120, sc.lesson_number)
+            # #248 review: the same two frames and the same word over and over would be a new boredom
+            picks = Counter(e.item_ids[0] for e in sc.exercises if e.kind == "pick_out")
+            self.assertLessEqual(max(picks.values(), default=0), PlanConfig().max_pick_outs_per_pattern, f"lesson {sc.lesson_number}: {picks}")
+            words = [next(g.text.lower() for g in sc.segments if g.exercise == e.index and g.type == "answer") for e in sc.exercises if e.kind == "catch_unknown"]
+            self.assertEqual(len(words), len(set(words)), f"lesson {sc.lesson_number}: a word caught twice: {words}")
+            # the run row stops at the closing block, whose recalls are a run of their own
+            from itertools import groupby
+            closing_at = next((e.start for e in sc.exercises if e.kind == "closing"), float("inf"))
+            between = [e for e in sc.exercises if m["target_reached_at"] <= e.start < closing_at and e.kind not in ("opening", "closing")]
+            self.assertEqual(m["longest_kind_run_after_target"], max((sum(1 for _ in g) for _, g in groupby(between, key=lambda e: e.kind)), default=0))
+            row = [e.kind for e in sc.exercises]
+            for k in range(len(row) - 3):
+                if row[k] in ("pick_out", "catch_unknown"):
+                    self.assertFalse(row[k] == row[k + 1] == row[k + 2] == row[k + 3], f"lesson {sc.lesson_number}: four {row[k]} in a row")
+            # what was only heard is not practised: the exposures name no item for an exercise of these kinds alone
+            heard_only = {i for e in sc.exercises if e.kind in ("pick_out", "catch_unknown") for i in e.item_ids}
+            practised = {i for e in sc.exercises if e.kind in ("intro", "recall", "generative", "connect", "dialogue") for i in e.item_ids}
+            for item in heard_only - practised:
+                self.assertNotIn(item, m["exposures"], f"lesson {sc.lesson_number}: {item} was only heard")
+
+    def test_no_pick_out_before_the_target_is_delivered(self):
+        for _, _, sc in self._course(21):
+            reached = sc.meta["target_reached_at"]
+            for e in sc.exercises:
+                if e.kind in ("pick_out", "catch_unknown") and sc.meta["target_reached_at"]:
+                    self.assertGreaterEqual(e.start + 0.01, reached - 1, f"lesson {sc.lesson_number}")
+
+
 class RepeatedWordFillsTests(unittest.TestCase):
     """#251 review (owner): a generated sentence never repeats a word across two of its fills («Ég ætla að fá mjólk með mjólk.»)."""
 

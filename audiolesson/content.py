@@ -179,6 +179,11 @@ class Item:
     # exception to the tags («Áttu leigubíl?» is not said; the tags explain nine cases in ten, #192, §9 "Good enough
     # overall"). Not a tagging scheme: an authored fill (example, situation_fill, instance_fill) is still used.
     exclude_fills: list[str] = field(default_factory=list)
+    # A construction: what a learner can listen for in a sentence of it (#248): each probe is {kind, answer, meanings} where ``answer`` is
+    # the part of the sentence that carries the information, written with the construction's slots («{count} þúsund krónur»), and
+    # ``meanings`` its meaning per known language, with the same slots. The kind (price, time, count, place) picks the question.
+    # Never inferred from a slot's name: «Hvenær opnar {place}?» has no time in it to listen for.
+    information_probes: list[dict] = field(default_factory=list)
     # A short known-language sentence the word is said in («This is good.» for «gott»): the recall
     # prompt after its introduction says «Say: good, as in: This is good.», so the answer is the
     # form that sentence takes rather than any of the word's family (gott, góður, góðan…).
@@ -567,6 +572,7 @@ def _slot_names(text: str) -> list[str]:
     return [m[1:-1].split(":")[0] for m in _ANY_SLOT_RE.findall(text)]
 
 
+PROBE_KINDS = ("price", "time", "count", "place")  # what an information probe asks to listen for (#248)
 FORMS = ("negative", "question")  # a construction's authored forms besides the plain one (#171)
 
 SPEAKERS = ("native_a", "native_b")  # native_a is voiced female, native_b male, in every profile
@@ -687,6 +693,21 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"item {it.id!r}: variant_of {it.variant_of!r} is itself a variant; name the form it is a variant of")
             if cur.by_id[it.variant_of].target == it.target:
                 raise CurriculumError(f"item {it.id!r}: a variant must differ from {it.variant_of!r} in its words")
+        for probe in it.information_probes:
+            where = f"item {it.id!r}: information_probes"
+            if it.kind != "construction":
+                raise CurriculumError(f"{where} is for a construction")
+            if not (isinstance(probe, dict) and set(probe) == {"kind", "answer", "meanings"}):
+                raise CurriculumError(f"{where}: a probe is {{ kind, answer, meanings }}")
+            if probe["kind"] not in PROBE_KINDS:
+                raise CurriculumError(f"{where}: kind must be one of {PROBE_KINDS}, not {probe['kind']!r}")
+            if not isinstance(probe["meanings"], dict) or not isinstance(probe["answer"], str):
+                raise CurriculumError(f"{where}: a probe needs its answer and a meaning per language")
+            slots = set(_slot_names(probe["answer"]))
+            if not slots or not slots <= set(it.slots):
+                raise CurriculumError(f"{where}: the answer holds the construction's slots (and only those): there must be something to listen for")
+            if {"en", "ja"} - set(probe["meanings"]) or not all(isinstance(m, str) and m.strip() and set(_slot_names(m)) == slots for m in probe["meanings"].values()):
+                raise CurriculumError(f"{where}: a meaning in en and ja, each holding the answer's slots")
         if it.exclude_fills:
             if it.kind != "construction":
                 raise CurriculumError(f"item {it.id!r}: exclude_fills is for a construction")
