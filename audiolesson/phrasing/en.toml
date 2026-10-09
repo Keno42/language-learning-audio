@@ -38,6 +38,8 @@ recombine_vocab = "Use it in a sentence. Say: {meaning}"
 also = "You could also say:"
 
 construction_intro = "Here is a useful pattern. {meaning}"
+intro_whole = "A new expression. {meaning}"
+construction_of_known = "It is a pattern: you can say it with other words."
 construction_slot = "You can put other words in the same place."
 slot_word = "something"
 
