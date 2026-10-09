@@ -132,9 +132,11 @@ around 80–85%.
   lesson counts as "all good", and the pace steps up once every 3 lessons while
   the backlog stays small. `report --failed …` still slows it down whenever you
   bother to file one. `--manual` switches back.
-- Spare time is never filled with a close variant of a known word (another case or gender): it goes to
-  more to hear — listening dialogues, then a played theme level heard again — and a form comes in only
-  when a scene, a frame or a contrast asks for it (#218).
+- Spare time is never filled with a close variant of a known word (another case or gender), and a form comes in
+  only when a scene, a frame or a contrast asks for it (#218). Once the lesson's new material is taught, the second
+  half rotates (#248): a played scene heard again, *pick out the information* (a sentence heard, then "How much is
+  it?"), *catch the unknown word* (a partner line with one word beyond the learner, said back with «Hvað þýðir
+  þetta?»), and one of today's expressions. What the morning's review asked is not asked again (#238).
 - `--order new-first` (a user option, outside the design) introduces every new item first, back to back, then turns to known material; `spread` (default) is the planner as described here.
 - `--new N` overrides one lesson; `--pace N` resets the ongoing pace.
 
