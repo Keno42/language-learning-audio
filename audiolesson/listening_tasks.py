@@ -79,7 +79,8 @@ class ListeningTask:
     item_ids: tuple[str, ...] = ()
     repair: str = ""  # catch_unknown: the phrase that asks what the word means
     ask: str = ""  # pick_out of a line holding several pieces: the question that names the one to find; else the plain question of the kind
-    pattern: str = ""  # what the planner caps per lesson: a construction for a generated sentence, the line for a scene's line
+    pattern: str = ""  # what the planner caps per lesson: a construction for a generated sentence, the partner turn for a scene's line
+    pieces: int = 1  # how many pieces of information the line holds (a generated sentence holds the frame and one)
 
 
 def generated_pick_out(cur, gen, probe: dict, known_words: set[str], scene: str, speaker: str = "native_b") -> ListeningTask | None:
@@ -137,6 +138,8 @@ def partner_pick_out(line, probe: dict, known_words: set[str], known_lang: str, 
     at = next((i for i in range(len(words)) if part and words[i : i + len(part)] == part), None)
     if at is None or any(w not in known_words for w in part):
         return None
+    if len(line.probes) == 1 and len(words) - len(part) <= len(part):
+        return None  # a single piece that is most of the line is an echo of it (#248 step 2 review): nothing is found
     return ListeningTask(
         kind="pick_out",
         source=source,
@@ -147,7 +150,8 @@ def partner_pick_out(line, probe: dict, known_words: set[str], known_lang: str, 
         prompt_key=f"pick_out_{probe['kind']}",
         speaker=speaker,
         ask=ask,
-        pattern=line.say,
+        pattern=source.rsplit(":", 2)[0],  # the partner turn: its variants and listening lines count as one a lesson
+        pieces=len(line.probes),
     )
 
 
@@ -189,7 +193,7 @@ def catch_unknown(
 
 
 def _build(b, sc: Script, task: ListeningTask) -> None:
-    ex = sc.new_exercise(task.kind, None, list(task.item_ids), task.source)
+    ex = sc.new_exercise(task.kind, ("multi" if task.pieces > 1 else "single") if task.kind == "pick_out" else None, list(task.item_ids), task.source)
     if task.scene:
         b._frame(sc, ex, task.scene)
     b._speak(sc, ex, task.line, speaker=task.speaker, role="listening_line")

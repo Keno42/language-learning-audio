@@ -104,7 +104,7 @@ class PlanConfig:
     # can-do scenarios to take one from (the trip profile's boosted first). No themes: no theme exchange.
     themes: list = field(default_factory=list)
     theme_scenarios: list[str] = field(default_factory=list)
-    max_pick_outs_per_pattern: int = 3  # pick-out exercises one pattern (a construction, or a scene line) gives in a lesson (#248 review: the same two frames)
+    max_pick_outs_per_pattern: int = 1  # pick-outs one partner turn gives in a lesson, its variants and listening lines counted together (#248 review)
     theme_ready: float = 0.75  # a theme's level plays once the learner can say this share of its turns; the rest are heard (#240)
     theme_rest_lessons: int = 3  # a level already played comes back no sooner than this many lessons later (#149 step 1)
     # #149 step 2 (H5): a semantic set is not introduced as a block: at most ``max_set_items`` new items a lesson share
@@ -799,9 +799,23 @@ class Planner:
             "target_reached_at": round(reached), "spare_unserved_s": round(unserved), "asked_after_review": again, "longest_generated_run": longest,
             "pick_out_count": counts["pick_out"], "catch_unknown_count": counts["catch_unknown"],
             # a pick-out of a drilled frame plus its answer rather than a line of a scene (#248 step 2)
-            "pick_out_echo_count": sum(1 for e in after if e.kind == "pick_out" and not e.label.startswith("theme:")),
+            "pick_out_echo_count": sum(1 for e in after if e.kind == "pick_out" and self._is_echo(sc, e)),
             "longest_kind_run_after_target": kind_run,
         }
+
+    @staticmethod
+    def _is_echo(sc: Script, e) -> bool:
+        """A pick-out whose line is a drilled frame plus its answer (#248 step 2): not a line of a scene, or a single piece that is most of its line
+        (the words outside the answer do not outnumber the answer's)."""
+        if not e.label.startswith("theme:"):
+            return True
+        if e.stage == "multi":
+            return False
+        segs = [s for s in sc.segments if s.exercise == e.index]
+        line = next((s.text for s in segs if s.type == "speak"), "")
+        answer = next((s.text for s in segs if s.type == "answer"), "")
+        n_line, n_answer = len(re.findall(r"[^\W\d_]+", line)), len(re.findall(r"[^\W\d_]+", answer))
+        return n_line - n_answer <= n_answer
 
     def reviewed_today(self, item_id: str) -> bool:
         """The learner's own review asked it today, before this lesson (#238): the audio does not ask it again (an open item's repair

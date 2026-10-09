@@ -5517,18 +5517,34 @@ class ListeningTaskTests(unittest.TestCase):
         broken = type(line)(who="partner", say=line.say, probes=[{k: v for k, v in line.probes[0].items() if k != "ask"}, line.probes[1]])
         self.assertIsNone(partner_pick_out(broken, broken.probes[0], known, "en", source="s", scene=""))
 
-    def test_a_single_piece_in_a_line_the_learner_hasnt_drilled_is_asked_with_the_plain_question(self):
+    def test_a_single_piece_that_is_most_of_its_line_is_an_echo_and_is_not_asked(self):
+        """#248 step 2 review: «Það gera tvö þúsund krónur.» → "How much?" → «tvö þúsund krónur» is lesson 21's "just parroting": the answer is 3 of the
+        line's 5 words. A single piece is asked only when the words outside it outnumber it."""
         from audiolesson.listening_tasks import append_task, partner_pick_out
         from audiolesson.themes import Turn
-        line = Turn(who="partner", say="Það gera þrjú þúsund og fimm hundruð krónur.", meaning="m",
-                    probes=[{"kind": "price", "answer": "þrjú þúsund og fimm hundruð krónur", "meanings": {"en": "three thousand five hundred krónur", "ja": "3500クローナ"}}])
-        task = partner_pick_out(line, line.probes[0], self._known("þrjú þúsund og fimm hundruð krónur"), "en", source="theme:supermarket:2:3:1:0", scene="")
+        probe = {"kind": "price", "answer": "tvö þúsund krónur", "meanings": {"en": "two thousand krónur", "ja": "2000クローナ"}}
+        known = self._known("tvö þúsund krónur tuttugu mínútur")
+        echo = Turn(who="partner", say="Það gera tvö þúsund krónur.", meaning="m", probes=[probe])
+        self.assertIsNone(partner_pick_out(echo, probe, known, "en", source="theme:supermarket:1:5:0:0", scene=""))
+        richer = Turn(who="partner", say="Hér stoppum við í tuttugu mínútur.", meaning="m",
+                      probes=[{"kind": "duration", "answer": "tuttugu mínútur", "meanings": {"en": "twenty minutes", "ja": "20分"}}])
+        task = partner_pick_out(richer, richer.probes[0], known, "en", source="theme:tour:1:2:2:0", scene="")
+        self.assertEqual((task.answer, task.pattern, task.pieces), ("tuttugu mínútur", "theme:tour:1:2", 1))
         sc = Script(1, "t", "is", "en")
-        append_task(self._builder(), sc, task, 120.0)
-        self.assertIn("How much is it?", sc.transcript())
-        self.assertEqual(task.answer, "þrjú þúsund og fimm hundruð krónur")
+        ex = append_task(self._builder(), sc, task, 120.0)
+        self.assertIn("How long?", sc.transcript())
+        self.assertEqual(ex.stage, "single")
 
-    # -- pick out
+    def test_the_row_counts_a_single_piece_that_is_most_of_its_line(self):
+        from audiolesson.planner import Planner
+        sc = Script(1, "t", "is", "en")
+        for stage, line, answer in (("single", "Það gera tvö þúsund krónur.", "tvö þúsund krónur"), ("single", "Hér stoppum við í tuttugu mínútur.", "tuttugu mínútur"),
+                                    ("multi", "Safnið opnar klukkan tíu og lokar klukkan fimm.", "klukkan fimm")):
+            ex = sc.new_exercise("pick_out", stage, [], "theme:x:1:1:0:0")
+            sc.add(Segment("speak", "native_b", line, "is", 1.0, 1.0, "listening_line", ex.index))
+            sc.add(Segment("answer", "native_b", answer, "is", 1.0, 1.0, None, ex.index))
+        gen = sc.new_exercise("pick_out", "single", [], "attu: Áttu peysu?")
+        self.assertEqual([Planner._is_echo(sc, e) for e in sc.exercises], [True, False, False, True])
 
     def test_a_price_is_picked_out_of_a_generated_sentence(self):
         from audiolesson.listening_tasks import generated_pick_out
@@ -5678,7 +5694,7 @@ class ListeningTaskTests(unittest.TestCase):
             self.assertEqual(_plan(sc, cur)["second_half"]["pick_out_count"], m["pick_out_count"])
             self.assertLessEqual(sc.total_duration, 30 * 60 + 120, sc.lesson_number)
             # #248 review: the same two frames and the same word over and over would be a new boredom
-            picks = Counter(e.label.rsplit(":", 1)[0] for e in sc.exercises if e.kind == "pick_out")  # per line of a scene
+            picks = Counter(":".join(e.label.split(":")[:4]) for e in sc.exercises if e.kind == "pick_out")  # per partner turn of a scene: one a lesson (#248 review)
             self.assertLessEqual(max(picks.values(), default=0), PlanConfig().max_pick_outs_per_pattern, f"lesson {sc.lesson_number}: {picks}")
             # #248 step 2: a line of a scene, never a drilled frame plus its answer
             self.assertTrue(all(e.label.startswith("theme:") for e in sc.exercises if e.kind == "pick_out"), f"lesson {sc.lesson_number}")
