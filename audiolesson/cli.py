@@ -14,7 +14,7 @@ from .themes import load_themes, scenario_order
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts
 from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, part_before_whole_report
-from .learner import LOADS, LearnerState, parse_date
+from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
 from .script import Script
@@ -244,7 +244,9 @@ def cmd_generate(args) -> int:
         new_items, why = learner.suggest_pace(args.minutes, today)  # an explicit pace in items: this lesson counts items (#218 b3)
     else:
         new_items, items_why = learner.suggest_pace(args.minutes, today)
-        new_target, why = learner.suggest_target(args.minutes, today)
+        # the target is a rate per 30 minutes, so its rules (the backlog's review slots included) run at 30 minutes: at 5, the slots
+        # are about 0 and the backlog rule would lower the rate every lesson (#242)
+        new_target, why = learner.suggest_target(NEW_TARGET_MINUTES, today)
         why += f" (≈ {new_items} items)"
     priority: list[str] = []
     scenarios = load_cando(args.curriculum, cur) if Path(args.curriculum).is_dir() else []
@@ -256,10 +258,12 @@ def cmd_generate(args) -> int:
     # #149 1b-ii: the lesson's theme exchange, from the trip profile's boosted scenarios first, else Tier A
     themes = load_themes(args.curriculum, cur, scenarios) if scenarios else []
     theme_scenarios = scenario_order(for_season(scenarios, trip.season) if trip else scenarios, trip.boost if trip else ()) if themes else []
+    # the learner's target is a rate per 30 minutes; this lesson plans its share of it (the rate is what is saved)
+    plan_target = None if new_target is None else max(1.0, new_target * args.minutes / NEW_TARGET_MINUTES)
     cfg = PlanConfig(
         minutes=args.minutes,
         new_items=new_items,
-        new_target=new_target,
+        new_target=plan_target,
         topics=_split(args.topics),
         seed=args.seed,
         translate_partner=not args.no_translate,
@@ -476,7 +480,7 @@ def cmd_status(args) -> int:
     if learner.lessons:
         trend = " ".join(str(l.get("due_at_start", "?")) for l in learner.lessons[-8:])
         carried = " ".join(str(l.get("due_not_fitted", "?")) for l in learner.lessons[-8:])
-        print(f"new-component target: {learner.new_target:g} weighted components/lesson (what a lesson plans from); pace: {learner.pace or 'default'} new items/lesson, which `--new` / `--pace`, the simulations and the coverage report count ({learner.feedback_mode} mode); due at start of last lessons: {trend}; not fitted: {carried}")
+        print(f"new-component target: {learner.new_target:g} weighted components per 30 min (a lesson of m minutes plans m/30 of it); pace: {learner.pace or 'default'} new items/lesson, which `--new` / `--pace`, the simulations and the coverage report count ({learner.feedback_mode} mode); due at start of last lessons: {trend}; not fitted: {carried}")
         unreported = [l["number"] for l in learner.lessons[-3:] if l["number"] not in learner.reported]
         if unreported and learner.feedback_mode != "auto":
             print(f"no feedback yet for lesson(s) {unreported}: run `{_learner_hint(args, ' [--failed ids]')}`")

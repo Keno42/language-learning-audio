@@ -346,7 +346,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   is weak). `suggest_pace`: up at ≤ 15% with a small backlog, hold to 25%, down above. `report --load light|right|heavy` stores
   `lessons[k]["load"]`; like `--sooner` alone it does not mark the lesson reported. Two «light» lessons raise it at ≤ 25% with the same small-backlog condition (< 0.5) as the recall-based rise; an unrated lesson is skipped (it neither breaks nor extends the run); a «heavy» in the
   window blocks a rise; one step a lesson. `report --load` for a lesson not in `lessons[]` warns on stderr.
-- **The pace's unit is weighted new components (#218 b3).** `PlanConfig.new_target` (from `learner.new_target` via `suggest_target`, which
+- **The pace's unit is weighted new components (#218 b3).** `PlanConfig.new_target` (from `learner.new_target`, a rate per `NEW_TARGET_MINUTES` = 30 minutes, via `suggest_target`, whose rules run at 30 minutes; a lesson of m minutes plans `max(1, rate × m/30)` and `generate` saves the rate, #242;, which
   runs the same rules as `suggest_pace`, `LearnerState._pace_rules`; None counts items) is the lesson's target. `Planner.component_cost`:
   `variant_of` item `form_weight` (0.5); construction 1, or 0 when every fixed word is known and a known pattern holds them all; vocab
   1 if any word is new; phrase 1 per new word; a #192 pattern instance 0. A word is known when it is in an item the learner has met, has
