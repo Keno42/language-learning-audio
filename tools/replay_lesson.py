@@ -32,6 +32,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from audiolesson.cli import _plan  # noqa: E402
+from audiolesson.review_wholes import parts_outside_their_whole  # noqa: E402
 from audiolesson.cando import for_season, load_cando, priority_items  # noqa: E402
 from audiolesson.content import load_curriculum  # noqa: E402
 from audiolesson.learner import LearnerState  # noqa: E402
@@ -182,6 +184,8 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "tried lines / bonus questions": f"{len(m.get('listening_tried', []))} / {len(m.get('bonus_review', []))}",
         "lines a listening scene asks for that were never taught (#240)": len(m.get("listening_untaught", [])),
         "framing lines followed by an example without a beat (#241)": unframed,
+        "review questions: a part beside its whole, or one answer asked twice (#239)": parts_outside_their_whole(_plan(sc, cur)["review"], cur),
+        "review questions changed to keep each expression once (#239)": ", ".join(f"{r['kind']}:{'+'.join(r['items'])}" for r in _plan(sc, cur)["review_refined"]) or "–",
         "cheap constructions": ", ".join(m.get("cheap_constructions", [])) or "–",
         "refresh sentences": sum((m.get("refresh_sentences") or {}).values()),
         "variants": ", ".join(m.get("variant_items", [])) or "–",

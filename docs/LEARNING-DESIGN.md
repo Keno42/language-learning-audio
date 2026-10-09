@@ -1073,7 +1073,8 @@ Don't reopen these without new evidence; when you do, say what changed.
     only a meaning-cued bare recall does; it still prefers a sentence that holds it when there is one. This replaces
     the word-count framing of "a short item".
     **Revised by the concept (owner, after lesson 20; §3, §9 "Good enough overall"):** a part is introduced inside the target expression that holds it: «Takk fyrir hjálpina.», not
-    «hjálpina» 'for help' (lesson 20). It may be said alone afterwards, never first.
+    «hjálpina» 'for help' (lesson 20). It may be said alone afterwards, never first. **Built in #239:** `Builder.whole_home` / `_intro_in_whole` on the
+    lesson side, `review_wholes.refine_review` on the review side (DESIGN.md "A part lives inside its whole").
   - **Identical sentences are counted too (#192).** The owner's rule is that a sentence may come five times or more, and a
     word about ten times in all *if the sentences differ a little*. The word-level rules (the bare cap, the situation
     narration, the pattern ceiling) never counted a fixed sentence that is said identically. `Builder.said` now counts every
