@@ -84,6 +84,13 @@ speak_as_f_alone = "女性として答えてください。"
 speak_as_m_alone = "男性として答えてください。"
 man_says = "男性はこう言います。"
 
+# a listening exercise of the second half (#248): the question after a sentence heard, and the unknown word to catch
+pick_out_price = "いくらと言っていましたか？"
+pick_out_time = "いつと言っていましたか？"
+pick_out_count = "いくつと言っていましたか？"
+pick_out_place = "どこだと言っていましたか？"
+catch_unknown = "知らない単語が一つありました。その単語を言って、意味を聞いてください。"
+
 [language_names]
 fr = "フランス語"
 es = "スペイン語"

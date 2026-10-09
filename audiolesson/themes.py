@@ -51,6 +51,7 @@ decides which scenarios come first).
 from __future__ import annotations
 
 import random
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -74,10 +75,16 @@ class Turn:
     scene: str = ""  # a line the narrator says before this turn, every play (#210)
     scene_ja: str = ""
     variants: list[dict] = field(default_factory=list)  # a partner turn: other ways to say it, each {say, meaning, meaning_ja} (#134)
+    # a partner line: the meaning of a word in it the learner may not know, per known language {word: {en, ja}} (#248). Authored, never
+    # guessed from the line's translation: it is what «One word was new» answers.
+    word_glosses: dict[str, dict[str, str]] = field(default_factory=dict)
 
     def lines(self) -> list[Turn]:
         """The partner's line and its variants, the line as written first: any of them fits the learner's reply."""
-        return [self] + [Turn("partner", v.get("say", ""), meaning=v.get("meaning", ""), meaning_ja=v.get("meaning_ja", "")) for v in self.variants]
+        return [self] + [
+            Turn("partner", v.get("say", ""), meaning=v.get("meaning", ""), meaning_ja=v.get("meaning_ja", ""), word_glosses=v.get("word_glosses", {}))
+            for v in self.variants
+        ]
 
 
 @dataclass
@@ -168,8 +175,17 @@ def _check(theme: Theme) -> None:
             if t.variants and t.who != "partner":
                 raise CurriculumError(f"{where} turn {k}: only a partner's line has variants")
             for v in t.variants:
-                if not (isinstance(v, dict) and v.get("say") and v.get("meaning")) or set(v) - {"say", "meaning", "meaning_ja"}:
-                    raise CurriculumError(f"{where} turn {k}: a variant is {{ say, meaning, meaning_ja }}, with the line and its meaning")
+                if not (isinstance(v, dict) and v.get("say") and v.get("meaning")) or set(v) - {"say", "meaning", "meaning_ja", "word_glosses"}:
+                    raise CurriculumError(f"{where} turn {k}: a variant is {{ say, meaning, meaning_ja, word_glosses }}, with the line and its meaning")
+            if t.word_glosses and t.who != "partner":
+                raise CurriculumError(f"{where} turn {k}: word glosses go on a partner's line")
+            for line in t.lines():
+                words = {w.lower() for w in re.findall(r"[^\W\d_]+", line.say)}
+                for word, gloss in line.word_glosses.items():
+                    if word.lower() not in words:
+                        raise CurriculumError(f"{where} turn {k}: word gloss {word!r} is not a word of {line.say!r}")
+                    if not isinstance(gloss, dict) or {"en", "ja"} - set(gloss) or not all(isinstance(g, str) and g.strip() for g in gloss.values()):
+                        raise CurriculumError(f"{where} turn {k}: word gloss {word!r} needs a non-empty meaning in en and ja")
             if len({x.say for x in t.lines()}) < len(t.lines()):
                 raise CurriculumError(f"{where} turn {k}: a variant repeats a line")
 

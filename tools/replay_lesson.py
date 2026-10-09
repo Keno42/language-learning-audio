@@ -174,6 +174,8 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "listening dialogues": len(m.get("dialogues_listened", [])),
         "minutes after the target serving neither a target expression nor a scene (#238)": f"{m.get('spare_unserved_s', 0) / 60:.1f} (target reached at {m.get('target_reached_at', 0) / 60:.1f})",
         "longest run of generated sentences in a row (#238)": m.get("longest_generated_run", 0),
+        "pick-out / unknown-word exercises after the target (#248)": f"{m.get('pick_out_count', 0)} / {m.get('catch_unknown_count', 0)}",
+        "longest run of one kind of exercise after the target (#248)": m.get("longest_kind_run_after_target", 0),
         "items asked again after the learner's review today (#238)": ", ".join(m.get("asked_after_review", [])) or "0",
         "theme levels heard again (#218 b1)": ", ".join(m.get("heard_themes", [])) or "–",
         "heard-only lines": narrated.count(Prompts.load(cur.known_lang).get("listening_line")),

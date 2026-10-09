@@ -890,7 +890,12 @@ what. Re-rank it when the evidence moves.
   *Catch the unknown word*: a line with one word beyond what the learner knows, the word and «Hvað þýðir þetta?».
   These rotate with a heard scene and today's lines once the target is reached. The sentences that were boring to
   *say* in a row (lesson 20; up to 17 on #247's replay) are the material when *heard* with a question. Not-due
-  reviews are the last resort.
+  reviews are the last resort. **Built in #248 as a first step:** `listening_tasks.py` (DESIGN.md "The second half is a rotation").
+  The first version takes information from sentences generated from patterns that carry an `information_probes` entry (price, time) and
+  unknown words from the partner lines and variants that carry `word_glosses`; so how many exercises a lesson gets is
+  limited by that authored material, and the daily read says it (`pick_out_count`, `catch_unknown_count`,
+  `longest_kind_run_after_target`). Not yet: `count` and `place` probes, a number × noun sentence (#213), glosses beyond the
+  first seven lines.
 - A part or a pattern is taught inside its target expression (concept 1). That means «Takk fyrir hjálpina.», not
   «hjálpina» 'for help'; and «Eigðu {adj} {time}.» as the pattern of the known «Eigðu góðan dag.», not as something new.
 - A listening scene never asks for a line that was never taught (concept 1 and 4).

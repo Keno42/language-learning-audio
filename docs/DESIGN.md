@@ -373,6 +373,26 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   `meta`: `longest_generated_run`, `target_reached_at` (end of the last introduction that costs a component), `spare_unserved_s` (seconds after it that serve neither
   a target expression nor the scene: generated sentences outside the scene, recalls of items taken as filler; due reviews are not counted),
   `asked_after_review` (items the learner's review asked today that the lesson asks again; open items' repair excepted); two rows in `replay_lesson.py`.
+- **The second half is a rotation (#248, concept 2 and 3, O2, O5, G16).** Once the lesson has taught what the target asked for
+  (`mark_delivered_target`, after every introduction, an embed and a pattern instance included: `target_reached_at` in the meta is that time)
+  and nothing is left in `new_queue`, `audiolesson/listening_tasks.py::SecondHalfRotation` takes the filler time round *hear the scene (a theme
+  level at natural speed) → pick out information × 2 → catch an unknown word → use one of today's expressions*; a kind that cannot be added passes
+  to the next. It sits ahead of the not-due reviews, the second pass, a substitution outside the scene and `try_extra` (step 4b), and the
+  substitution run (0c) and refresh sentences (0f) wait while it is on; scheduled work (open items, the theme, today's timed recalls, due
+  reviews) is unchanged, but after three exercises of one kind the rotation comes in between. A short pick-out or unknown-word exercise also follows
+  every third recall of the closing block when there is one to add (`closing_cost` keeps the seconds).
+  - *Pick out information* (`generated_pick_out`): a sentence of a known construction with `Item.information_probes` (`{kind, answer, meanings}`,
+    `kind` in price / time / count / place, the answer written with the construction's slots), built from words the learner knows
+    (`known_at_start` plus the words of what was taught today), heard from the scene's partner voice; the instructor asks the question of
+    `pick_out_<kind>`, the learner pauses, the answer fragment, its meaning and the sentence again follow. The scene's constructions come first, then a
+    played scene's (named aloud), then the rest. The question is never guessed from a slot's name.
+  - *Catch an unknown word* (`catch_unknown`): a partner line (or variant) of the lesson's scene or a played one whose words hold exactly one
+    the learner does not know (counted by occurrence), with an authored meaning in `Turn.word_glosses` (also a variant's); only once
+    `hvad_thydir_thetta` can be said. The learner says the word and asks what it means; the model answers in the other voice.
+  - Both are exercise kinds of their own (`pick_out`, `catch_unknown`), not in `PRACTICE_KINDS`, and nothing is `_record`ed: what was only heard
+    is not practised, and the next day's review does not ask it. No new item is introduced for them.
+  - `meta` / `plan.json` `second_half`: `pick_out_count`, `catch_unknown_count`, `longest_kind_run_after_target` (closing recalls included);
+    three rows in `replay_lesson.py`.
 - **Named exceptions to the tags (#192, owner after lesson 20).** `Item.exclude_fills` (a construction): `Curriculum.items_with_tag(tag, construction)` leaves those fills out, so `generate`, `generate_with`, a substituted worked example and `example_fill` never take them; authored fills are untouched. It is the way to declare the tenth case in ten the tags don't explain, instead of retagging (LEARNING-DESIGN §9 "Good enough overall"). The general rule beside it (#251 review): `Builder._product` drops any combination in which two fills of a sentence share a word (exact casefolded tokens of their targets, short function words excepted), so «Ég ætla að fá mjólk með mjólk.» is never built; inflected repeats are not caught.
 - **`--order new-first` (#243, a user option outside the design).** `PlanConfig.order` (`spread` by default, today's planner). `new-first` sets `intro_spacing` to 0 and the gap between introductions to 1, drops the later arcs (step 2b) and, while `new_queue` still has items, skips the steps that play known material: the streak breaker's dialogue / connect / listening, substitution (0c), open items (0d), the theme (0g, its early play comes right after the block), refresh (0f), reactivations of items not introduced today (1), dialogue (3) and review (4). Inside the block stay an arc's connected use (0b) and today's timed recalls (0e). `plan.json` `config.order`.
 - **The pace's unit is weighted new components (#218 b3).** `PlanConfig.new_target` (from `learner.new_target`, a rate per `NEW_TARGET_MINUTES` = 30 minutes, via `suggest_target`, whose rules run at 30 minutes; a lesson of m minutes plans `max(1, rate × m/30)` and `generate` saves the rate, #242;, which

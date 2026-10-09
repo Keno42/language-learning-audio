@@ -14,13 +14,15 @@ import heapq
 import math
 import random
 import re
-from collections import deque
+from collections import Counter, deque
 from dataclasses import dataclass, field
 from datetime import date, timedelta
+from itertools import groupby
 
 from .content import Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance
 from .learner import LearnerState
+from .listening_tasks import REPAIR_ITEM, SecondHalfRotation, append_task, catch_unknown, generated_pick_out, key_of
 from .prompts import Prompts
 from .script import Script
 from .stages import ladder_for, next_stage, stage_index
@@ -753,7 +755,7 @@ class Planner:
         met = [i for i in met if not self.learner.items[i.id].due or date.fromisoformat(self.learner.items[i.id].due) <= horizon]
         return self._by_urgency([i for i in met if not self.reviewed_today(i.id)])
 
-    def _spare_time(self, sc: Script, introduced: list[Item], theme_pick: tuple | None, early_ids: set[str]) -> dict:
+    def _spare_time(self, sc: Script, introduced: list[Item], theme_pick: tuple | None, early_ids: set[str], delivered_at: float | None = None) -> dict:
         """The daily-read figures for #238. ``target_reached_at``: the end of the last introduction of a new item that costs something.
         ``spare_unserved_s``: the seconds after it that serve neither a target expression of the lesson (an item new today, or one of
         the scene's) nor the scene and the ear (a theme or dialogue play, a heard-only play): a generated sentence of a pattern outside the
@@ -762,6 +764,8 @@ class Planner:
         today_ids = {i.id for i in introduced} | set(self.embedded)
         paid = {i.id for i in introduced if not self.components_mode or self.component_by_item.get(i.id, 1.0) > 0}
         reached = max((e.start + e.duration for e in sc.exercises if e.kind == "intro" and e.item_ids and e.item_ids[0] in paid), default=0.0)
+        if delivered_at is not None:
+            reached = delivered_at  # when the introduction that completed the target ended, whatever way it was taught (#248)
         scene_cons = self.scene_constructions(theme_pick) or set()
         scene_items: set[str] = set()
         if theme_pick:
@@ -785,7 +789,15 @@ class Planner:
         for e in sc.exercises:
             run = run + 1 if e.kind == "generative" else 0
             longest = max(longest, run)
-        return {"target_reached_at": round(reached), "spare_unserved_s": round(unserved), "asked_after_review": again, "longest_generated_run": longest}
+        after = (
+            [e for e in sc.exercises if e.start >= delivered_at and e.kind not in ("opening", "closing")] if delivered_at is not None else []
+        )
+        counts = Counter(e.kind for e in after)
+        kind_run = max((sum(1 for _ in g) for _, g in groupby(after, key=lambda e: e.kind)), default=0)
+        return {
+            "target_reached_at": round(reached), "spare_unserved_s": round(unserved), "asked_after_review": again, "longest_generated_run": longest,
+            "pick_out_count": counts["pick_out"], "catch_unknown_count": counts["catch_unknown"], "longest_kind_run_after_target": kind_run,
+        }
 
     def reviewed_today(self, item_id: str) -> bool:
         """The learner's own review asked it today, before this lesson (#238): the audio does not ask it again (an open item's repair
@@ -1349,6 +1361,7 @@ class Planner:
     def _build(self) -> Script:
         cfg = self.cfg
         self._reset_components()
+        known_at_start = set(self._component_base()[0])  # before select_new charges what is only chosen, not yet taught (#248)
         if self.components_mode:  # the extras a first build took count from the start, so the rebuild keeps the first build's total (#187)
             for pid in cfg.planned_extras:
                 if pid in self.cur.by_id:
@@ -1382,6 +1395,11 @@ class Planner:
             costed = sum(1 for i in taught() | {q.id for q in new_queue} if self.component_by_item.get(i, 1.0) > 0)
             return max(0, cfg.new_items_ceiling() - costed) if capped else cfg.new_items_ceiling()
 
+        def closing_cost(n: int) -> float:
+            """Seconds kept for the closing block of ``n`` new items: a recall each (~14 s) and the announcement. A run of recalls is broken by a
+            short listening exercise after every third (#248), kept for here too."""
+            return 8 + 14 * n + (12 * (max(0, n - 1) // 3) if self.components_mode else 0)
+
         recent: deque[str] = deque(maxlen=2)  # item ids of the last exercises
         recent_topics: deque[str] = deque(maxlen=2)
         idx = 0
@@ -1392,7 +1410,7 @@ class Planner:
         since_dialogue = 0
         drill_streak = 0  # consecutive isolated recalls, no dialogue/note/intro in between
         # time kept for the closing block: one recall per new item (~14 s) plus the announcement
-        closing_reserve = min(budget * cfg.closing_share, 8 + 14 * len(new_queue))
+        closing_reserve = min(budget * cfg.closing_share, closing_cost(len(new_queue)))
         # seconds between introductions: the expected number of new items over most of the lesson
         expected_new = max(1, len(new_queue) if self.components_mode else cfg.resolved_new_items() + cfg.resolved_extra_arc_items())
         intro_spacing = (budget - closing_reserve) * cfg.intro_span / expected_new
@@ -1483,6 +1501,7 @@ class Planner:
                 last_intro = idx
                 last_intro_at = sc.total_duration
                 arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
+                mark_delivered_target()
                 return
             if (instance := self.pattern_instance_of(item)) is not None:
                 # a linked phrase of a known pattern and fillers (#192): one sentence of the pattern, no ladder, no closing recall.
@@ -1498,6 +1517,7 @@ class Planner:
                 last_intro = idx
                 last_intro_at = sc.total_duration
                 arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
+                mark_delivered_target()
                 return
             ex = b.intro(sc, item)
             b.in_lesson.add(item.id)
@@ -1511,6 +1531,7 @@ class Planner:
             for k, after in enumerate(cfg.intro_recall_times):
                 seq += 1
                 intro_timeline.append((sc.total_duration + after * (budget - closing_reserve), seq, item, ladder[min(k + 1, len(ladder) - 1)]))
+            mark_delivered_target()
 
         cheap_used: list[str] = []
 
@@ -1532,7 +1553,7 @@ class Planner:
                     cheap_used.append(item.id)
                 do_intro(item)
                 self._extras_taken.append(item.id)
-                closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
+                closing_reserve = min(budget * cfg.closing_share, closing_cost(len(introduced) + len(new_queue)))
                 return True
             if self.components_mode and self.components_total >= cfg.new_target:
                 return False  # it is new material: it counts against the target like any other path (#218 b3)
@@ -1543,7 +1564,7 @@ class Planner:
                 self._charge(cand)
             do_intro(cand)
             self._extras_taken.append(cand.id)
-            closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
+            closing_reserve = min(budget * cfg.closing_share, closing_cost(len(introduced) + len(new_queue)))
             return True
 
         def remaining_time() -> float:
@@ -2115,7 +2136,134 @@ class Planner:
                 passes += 1
                 reviews.extend(self._second_pass(reviews_used, recent))
             # the closing block recalls every introduced item: reserve for the new ones too
-            closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
+            closing_reserve = min(budget * cfg.closing_share, closing_cost(len(introduced) + len(new_queue)))
+
+        # ---- #248: once the lesson has delivered what it set out to teach, the second half goes round a rotation (hear the scene,
+        # pick out information x2, catch an unknown word, use one of today's expressions) instead of saying known sentences again
+        rotation = SecondHalfRotation()
+        used_listening_tasks: set[tuple[str, str, str]] = set()
+        delivered_at: list[float | None] = [None]  # lesson time at which the new material of the target was taught
+
+        def known_now() -> set[str]:
+            words = set(known_at_start)
+            for item_id in taught():
+                words.update(self._fixed_text_words(self.cur.by_id[item_id]))
+            return words
+
+        def mark_delivered_target() -> None:
+            if cfg.new_target is None or delivered_at[0] is not None:
+                return
+            if sum(self.component_by_item.get(i, 0.0) for i in taught()) >= cfg.new_target:
+                delivered_at[0] = sc.total_duration
+
+        def rotation_on() -> bool:
+            return delivered_at[0] is not None and not new_queue
+
+        def scene_levels() -> list[tuple]:
+            """The levels a listening exercise may take its scene from: the lesson's own, then those already played."""
+            out: list[tuple] = []
+            if theme_pick:
+                out.append((theme_pick[0], theme_pick[1]))
+            for t in cfg.themes:
+                out += [(t, n) for n in range(min(self.learner.themes_done.get(t.id, 0), len(t.levels))) if (t, n) not in out]
+            return out
+
+        def level_scene(theme, n: int) -> str:
+            """What the narrator says to name a scene taken from elsewhere than the lesson's own; nothing for the lesson's own."""
+            if theme_pick and (theme.id, n) == (theme_pick[0].id, theme_pick[1]):
+                return ""
+            return level_dialogue(theme, n, self.cur.known_lang).setting
+
+        def emit_listening_task(task, room: float | None = None) -> bool:
+            if task is None:
+                return False
+            key = key_of(task)
+            if key in used_listening_tasks or append_task(b, sc, task, remaining_time() if room is None else room) is None:
+                return False
+            used_listening_tasks.add(key)
+            return True
+
+        def pick_out_tasks():
+            """Sentences of known patterns that hold a piece of information to listen for: the scene's patterns first, then those of a scene
+            played before (named aloud), then the rest."""
+            levels = scene_levels()
+            known = known_now()
+            rank: dict[str, tuple] = {}
+            for c in self.cur.items:
+                if c.kind != "construction" or not c.information_probes or not (c.id in taught() or self.can_say_item(c.id)):
+                    continue
+                home = next(((t, n) for t, n in levels if any(c.id in turn.items for turn in t.levels[n].turns if turn.who == "you")), None)
+                rank[c.id] = (0 if scene_cons and c.id in scene_cons else 1 if home else 2, home)
+            order = list(rank)
+            self.rng.shuffle(order)
+            for cid in sorted(order, key=lambda i: rank[i][0]):
+                c = self.cur.by_id[cid]
+                home = rank[cid][1]
+                gen = b.generate(c, met_fills=True, avoid_heard=True)
+                if gen is None:
+                    continue
+                scene = level_scene(*home) if home else ""
+                speaker = home[0].levels[home[1]].partner_speaker if home else "native_b"
+                for probe in c.information_probes:
+                    yield generated_pick_out(self.cur, gen, probe, known, scene, speaker)
+
+        def catch_unknown_tasks():
+            """Lines of a scene's partner with one word the learner does not know, whose meaning is authored: the lesson's own scene first."""
+            repair = self.cur.by_id.get(REPAIR_ITEM)
+            if repair is None or not self.can_say_item(repair.id):
+                return
+            known = known_now()
+            for t, n in scene_levels():
+                lines = [(k, v, ln) for k, turn in enumerate(t.levels[n].turns) if turn.who == "partner" for v, ln in enumerate(turn.lines())]
+                self.rng.shuffle(lines)
+                for k, v, ln in lines:
+                    yield catch_unknown(
+                        ln.say, ln.word_glosses, known, self.cur.known_lang, repair, repair_known=True,
+                        source=f"theme:{t.id}:{n + 1}:{k}:{v}", scene=level_scene(t, n), speaker=t.levels[n].partner_speaker,
+                    )
+
+        def listening_available() -> bool:
+            """The rotation is on and something to hear is left (a scene to hear again, a pick-out or an unknown word to catch): then a
+            substitution run and the refresh sentences wait for it. With nothing to hear they go on, as before, so the lesson does not end short."""
+            if not rotation_on():
+                return False
+            if remaining_time() >= 90 and len(heard_plays) < cfg.heard_theme_plays and any(
+                self.learner.themes_done.get(t.id, 0) > 0 and f"{t.id}:1" not in heard_plays for t in cfg.themes
+            ):
+                return True
+            fresh = lambda tasks: any(t is not None and key_of(t) not in used_listening_tasks for t in tasks)
+            return fresh(pick_out_tasks()) or fresh(catch_unknown_tasks())
+
+        def last_kinds_same(k: int = 3) -> str | None:
+            tail = [e.kind for e in sc.exercises if e.kind != "opening"][-k:]
+            return tail[0] if len(tail) == k and len(set(tail)) == 1 else None
+
+        def break_closing_run(room: float) -> bool:
+            """The closing block's recalls run on as the new items do: a short listening exercise after every third (#248), within ``room`` seconds."""
+            return any(emit_listening_task(t, room) for t in pick_out_tasks()) or any(emit_listening_task(t, room) for t in catch_unknown_tasks())
+
+        def emit_second_half(kind: str) -> bool:
+            if kind == "heard":
+                if remaining_time() >= 90 and (ht := pick_heard_theme()) is not None:
+                    play_heard_theme(*ht)
+                    return True
+                return False
+            if kind == "pick_out":
+                return any(emit_listening_task(task) for task in pick_out_tasks())
+            if kind == "catch_unknown":
+                return any(emit_listening_task(task) for task in catch_unknown_tasks())
+            if kind == "today" and last_kinds_same() not in ("recall", "generative"):
+                for it in sorted((i for i in introduced if i.id not in recent), key=lambda i: len(self.exposures.get(i.id, []))):
+                    stage = self._harder_than_today(it)
+                    if stage == "dialogue":
+                        stage = self.below_dialogue(it)
+                    if stage in ("intro", "cloze", "hinted"):
+                        stage = "meaning"
+                    if stage == "recombine":
+                        stage = self.recombine_or_instead(it)
+                    if do_recall(it, stage):
+                        return True
+            return False
 
         def generated_run() -> int:
             run = 0
@@ -2213,8 +2361,12 @@ class Planner:
                         acted = True
                     arc_connect_attempted.add(ready_arc)
 
+            # 0b'. no kind of exercise runs on for more than three once the target is delivered (#248): the rotation comes in between
+            if not acted and rotation_on() and (run_kind := last_kinds_same()) not in (None, "intro", "note"):
+                acted = rotation.play(emit_second_half)
+
             # 0c. a substitution run goes on in its frame before anything else is fitted in (#151)
-            if not acted and not in_new_block() and (sub := continue_substitution()) is not None:
+            if not acted and not in_new_block() and not listening_available() and (sub := continue_substitution()) is not None:
                 do_substitution(sub)
                 acted = True
 
@@ -2235,7 +2387,7 @@ class Planner:
                 acted = play_theme()
 
             # 0f. a known construction's light review: a sentence with other fillers, now and then (#171)
-            if not acted and not in_new_block() and drill_streak < cfg.drill_streak_limit - 1:
+            if not acted and not in_new_block() and not listening_available() and drill_streak < cfg.drill_streak_limit - 1:
                 acted = play_refresh(due_only=True)
 
             # 0e. today's items come back at their times after the introduction, interleaved
@@ -2323,6 +2475,12 @@ class Planner:
                         seq += 1
                         heapq.heappush(pending, _Pending(idx + self.rng.randint(5, 9), seq, pick, next_stage(ladder, stage)))
                     acted = True
+
+            # 4b. the target is delivered and nothing scheduled is due (#248): the rotation, ahead of the not-due reviews, the second pass, a
+            #     substitution outside the scene and every other way of filling the time. It passes on only when no exercise of the rotation can
+            #     be added at all, so the lesson does not end short.
+            if not acted and rotation_on():
+                acted = rotation.play(emit_second_half)
 
             # 5. nothing else fits here (typically the first lessons, with nothing to review):
             #    introduce early, else pull the next reactivation of a *different* item early,
@@ -2482,9 +2640,11 @@ class Planner:
             # any reactivation that never came due is folded into the closing recall
             order = sorted(introduced, key=lambda i: -i.difficulty)  # hardest first, easiest last
             closed: set[str] = set()  # sentences the closing recalls asked for another new item: its holder is not asked again (#238)
-            for item in order:
+            for pos, item in enumerate(order):
                 if item.id in closed:
-                    continue  # a part just asked inside the sentence of another new item (the closing double of «Ein króna.»)
+                    continue
+                if self.components_mode and delivered_at[0] is not None and last_kinds_same() == "recall":
+                    break_closing_run(budget - sc.total_duration - 14 * (len(order) - pos) - 6)  # a part just asked inside the sentence of another new item (the closing double of «Ein króna.»)
                 stage = self._harder_than_today(item)
                 if stage == "dialogue":
                     stage = self.below_dialogue(item)
@@ -2505,7 +2665,7 @@ class Planner:
         b.closing(sc, n)
 
         sc.retime()
-        spare = self._spare_time(sc, introduced, theme_pick, early_ids)
+        spare = self._spare_time(sc, introduced, theme_pick, early_ids, delivered_at[0])
         sc.meta = {
             "date": self.today.isoformat(),
             "config": {

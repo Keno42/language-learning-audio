@@ -87,6 +87,13 @@ speak_as_f_alone = "As a woman."
 speak_as_m_alone = "As a man."
 man_says = "A man says:"
 
+# a listening exercise of the second half (#248): the question after a sentence heard, and the unknown word to catch
+pick_out_price = "How much does the partner say it costs?"
+pick_out_time = "When does the partner say?"
+pick_out_count = "How many does the partner say?"
+pick_out_place = "Where does the partner say it is?"
+catch_unknown = "One word was new. Say it, and ask what it means."
+
 [language_names]
 fr = "French"
 es = "Spanish"

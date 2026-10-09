@@ -49,7 +49,7 @@ goal = "Ask for the bill and say it was good."
 goal_ja = "会計を頼み、おいしかったと伝える。"
 turns = [
   { who = "you", cue = "You've finished. Ask for the bill.", cue_ja = "食べ終わりました。お会計を頼んでください。", say = "Get ég fengið reikninginn?", items = ["get_eg_fengid_reikninginn"] },
-  { who = "partner", say = "Já, ég kem strax.", meaning = "Yes, I'll be right there.", meaning_ja = "はい、すぐ伺います。", variants = [{ say = "Já, augnablik.", meaning = "Yes, one moment.", meaning_ja = "はい、少々お待ちください。" }, { say = "Já, ég kem með reikninginn.", meaning = "Yes, I'll bring the bill.", meaning_ja = "はい、お会計をお持ちします。" }] },
+  { who = "partner", say = "Já, ég kem strax.", meaning = "Yes, I'll be right there.", meaning_ja = "はい、すぐ伺います。", variants = [{ say = "Já, augnablik.", meaning = "Yes, one moment.", meaning_ja = "はい、少々お待ちください。", word_glosses = { "augnablik" = { en = "a moment", ja = "少しの間" } } }, { say = "Já, ég kem með reikninginn.", meaning = "Yes, I'll bring the bill.", meaning_ja = "はい、お会計をお持ちします。", word_glosses = { "kem" = { en = "I come", ja = "来ます" }, "reikninginn" = { en = "the bill", ja = "お会計" } } }] },
   { who = "you", cue = "Tell her it was good.", cue_ja = "おいしかったと伝えてください。", say = "Þetta var gott.", items = ["thetta_var_gott"], alts = ["Þetta var ljúffengt."] },
   { who = "partner", say = "Takk fyrir það!", meaning = "Thank you!", meaning_ja = "ありがとうございます！", variants = [{ say = "Gaman að heyra!", meaning = "Nice to hear!", meaning_ja = "それはよかったです！" }, { say = "Takk fyrir komuna!", meaning = "Thanks for coming!", meaning_ja = "ご来店ありがとうございました！" }] },
 ]
@@ -70,7 +70,7 @@ turns = [
   { who = "you", cue = "You can't find skyr. Ask a member of staff if they have it.", cue_ja = "スキールが見つかりません。店員にあるか聞いてください。", say = "Afsakið, áttu skyr?", items = ["afsakid", "attu", "skyr"] },
   { who = "partner", say = "Já, það er þarna, í kælinum.", meaning = "Yes, it's over there, in the fridge.", meaning_ja = "はい、あちらの冷蔵棚です。", variants = [{ say = "Já, það er í kælinum þarna.", meaning = "Yes, it's in the fridge over there.", meaning_ja = "はい、あそこの冷蔵棚にあります。" }, { say = "Já, skyrið er hjá mjólkinni.", meaning = "Yes, the skyr is next to the milk.", meaning_ja = "はい、スキールは牛乳の隣です。" }] },
   { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
-  { who = "partner", scene = "At the till.", scene_ja = "レジです。", say = "Viltu poka?", meaning = "Would you like a bag?", meaning_ja = "袋はいりますか？", variants = [{ say = "Þarftu poka?", meaning = "Do you need a bag?", meaning_ja = "袋は必要ですか？" }, { say = "Viltu poka með því?", meaning = "Would you like a bag with that?", meaning_ja = "袋をおつけしますか？" }] },
+  { who = "partner", scene = "At the till.", scene_ja = "レジです。", say = "Viltu poka?", meaning = "Would you like a bag?", meaning_ja = "袋はいりますか？", variants = [{ say = "Þarftu poka?", meaning = "Do you need a bag?", meaning_ja = "袋は必要ですか？", word_glosses = { "þarftu" = { en = "do you need", ja = "必要ですか" }, "poka" = { en = "a bag", ja = "袋" } } }, { say = "Viltu poka með því?", meaning = "Would you like a bag with that?", meaning_ja = "袋をおつけしますか？", word_glosses = { "viltu" = { en = "do you want", ja = "ほしいですか" }, "poka" = { en = "a bag", ja = "袋" } } }] },
   { who = "you", cue = "Yes, you need one.", cue_ja = "はい、いります。", say = "Já, takk.", items = ["ja", "takk"] },
   { who = "partner", say = "Það gera tvö þúsund krónur.", meaning = "That's two thousand krónur.", meaning_ja = "2000クローナです。", variants = [{ say = "Það eru tvö þúsund krónur.", meaning = "It's two thousand krónur.", meaning_ja = "2000クローナです。" }, { say = "Tvö þúsund krónur, takk.", meaning = "Two thousand krónur, please.", meaning_ja = "2000クローナお願いします。" }] },
   { who = "you", cue = "Hand over your card.", cue_ja = "カードを渡します。", say = "Gjörðu svo vel.", items = ["gjordu_svo_vel"] },
@@ -80,11 +80,11 @@ turns = [
 goal = "Say you're just looking, ask for the total, decline the receipt."
 goal_ja = "見ているだけと伝え、合計を聞き、レシートを断る。"
 turns = [
-  { who = "partner", say = "Get ég aðstoðað?", meaning = "Can I help?", meaning_ja = "何かお探しですか？", variants = [{ say = "Get ég hjálpað þér?", meaning = "Can I help you?", meaning_ja = "お手伝いしましょうか？" }, { say = "Vantar þig aðstoð?", meaning = "Do you need help?", meaning_ja = "何かお困りですか？" }] },
+  { who = "partner", say = "Get ég aðstoðað?", meaning = "Can I help?", meaning_ja = "何かお探しですか？", variants = [{ say = "Get ég hjálpað þér?", meaning = "Can I help you?", meaning_ja = "お手伝いしましょうか？" }, { say = "Vantar þig aðstoð?", meaning = "Do you need help?", meaning_ja = "何かお困りですか？", word_glosses = { "vantar" = { en = "lacks, needs", ja = "必要としている" }, "aðstoð" = { en = "help", ja = "手助け" } } }] },
   { who = "you", cue = "You're just looking.", cue_ja = "見ているだけです。", say = "Ég er bara að skoða.", items = ["eg_er_ad_leita_ad_thing"] },
   { who = "you", cue = "At the till, ask how much it is in total.", cue_ja = "レジで合計がいくらか聞いてください。", say = "Hvað er þetta mikið samtals?", items = ["hvad_er_thetta_mikid_samtals"] },
   { who = "partner", say = "Þrjú þúsund og fimm hundruð.", meaning = "Three thousand five hundred.", meaning_ja = "3500です。", variants = [{ say = "Það gera þrjú þúsund og fimm hundruð krónur.", meaning = "That's three thousand five hundred krónur.", meaning_ja = "3500クローナです。" }, { say = "Þrjú þúsund og fimm hundruð krónur, takk.", meaning = "Three thousand five hundred krónur, please.", meaning_ja = "3500クローナお願いします。" }] },
-  { who = "partner", say = "Viltu kvittun?", meaning = "Would you like the receipt?", meaning_ja = "レシートはいりますか？", variants = [{ say = "Viltu fá kvittun?", meaning = "Do you want a receipt?", meaning_ja = "レシートが欲しいですか？" }, { say = "Þarftu kvittun?", meaning = "Do you need a receipt?", meaning_ja = "レシートは必要ですか？" }] },
+  { who = "partner", say = "Viltu kvittun?", meaning = "Would you like the receipt?", meaning_ja = "レシートはいりますか？", variants = [{ say = "Viltu fá kvittun?", meaning = "Do you want a receipt?", meaning_ja = "レシートが欲しいですか？", word_glosses = { "viltu" = { en = "do you want", ja = "ほしいですか" }, "kvittun" = { en = "a receipt", ja = "レシート" } } }, { say = "Þarftu kvittun?", meaning = "Do you need a receipt?", meaning_ja = "レシートは必要ですか？", word_glosses = { "þarftu" = { en = "do you need", ja = "必要ですか" }, "kvittun" = { en = "a receipt", ja = "レシート" } } }] },
   { who = "you", cue = "No need.", cue_ja = "いりません。", say = "Nei, takk.", items = ["nei", "takk"] },
 ]
 
