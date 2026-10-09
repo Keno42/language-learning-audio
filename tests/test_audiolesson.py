@@ -5361,7 +5361,12 @@ class ListeningTaskTests(unittest.TestCase):
         self.assertEqual((ex.kind, ex.item_ids), ("pick_out", ["thad_kostar_big"]))
         text = sc.transcript()
         self.assertIn("At the till.", text)
-        self.assertIn(self.en.get("pick_out_price"), text)
+        self.assertIn("How much does he say it costs?", text, "a scene was named: whose line it was")
+        sc2 = Script(1, "t", "is", "en")
+        from dataclasses import replace as _replace
+        append_task(b, sc2, _replace(task, scene="", line="Það kostar tvö þúsund krónur."), 120.0)
+        self.assertIn("How much is it?", sc2.transcript(), "no scene: the plain question")
+        self.assertNotIn("partner", sc2.transcript() + text)
         self.assertEqual(len([g for g in sc.segments if g.type == "pause" and g.role == "answer"]), 1)
         self.assertEqual([g.text for g in sc.segments if g.type == "speak"], ["Það kostar fimm þúsund krónur."] * 2, "heard, then again after the answer")
         self.assertEqual(sc.review_questions(), [], "the next day's review does not ask a sentence that was only heard")
@@ -5471,6 +5476,16 @@ class ListeningTaskTests(unittest.TestCase):
             self.assertEqual(m["pick_out_count"], sum(e.kind == "pick_out" for e in sc.exercises if e.start >= m["target_reached_at"]))
             self.assertEqual(_plan(sc, cur)["second_half"]["pick_out_count"], m["pick_out_count"])
             self.assertLessEqual(sc.total_duration, 30 * 60 + 120, sc.lesson_number)
+            # #248 review: the same two frames and the same word over and over would be a new boredom
+            picks = Counter(e.item_ids[0] for e in sc.exercises if e.kind == "pick_out")
+            self.assertLessEqual(max(picks.values(), default=0), PlanConfig().max_pick_outs_per_pattern, f"lesson {sc.lesson_number}: {picks}")
+            words = [next(g.text.lower() for g in sc.segments if g.exercise == e.index and g.type == "answer") for e in sc.exercises if e.kind == "catch_unknown"]
+            self.assertEqual(len(words), len(set(words)), f"lesson {sc.lesson_number}: a word caught twice: {words}")
+            # the run row stops at the closing block, whose recalls are a run of their own
+            from itertools import groupby
+            closing_at = next((e.start for e in sc.exercises if e.kind == "closing"), float("inf"))
+            between = [e for e in sc.exercises if m["target_reached_at"] <= e.start < closing_at and e.kind not in ("opening", "closing")]
+            self.assertEqual(m["longest_kind_run_after_target"], max((sum(1 for _ in g) for _, g in groupby(between, key=lambda e: e.kind)), default=0))
             row = [e.kind for e in sc.exercises]
             for k in range(len(row) - 3):
                 if row[k] in ("pick_out", "catch_unknown"):

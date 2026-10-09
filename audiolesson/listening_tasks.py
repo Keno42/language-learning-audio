@@ -162,7 +162,9 @@ def _build(b, sc: Script, task: ListeningTask) -> None:
         b._frame(sc, ex, task.scene)
     b._speak(sc, ex, task.line, speaker=task.speaker, role="listening_line")
     b._beat(sc, ex)
-    b._narr(sc, ex, b.prompts.get(task.prompt_key))
+    # named after the scene it comes from when there is one: whose line it was; otherwise the plain question
+    who = b.prompts.get("speaker_he" if task.speaker == "native_b" else "speaker_she")
+    b._narr(sc, ex, b.prompts.get(task.prompt_key + "_scene", who=who) if task.scene and task.kind == "pick_out" else b.prompts.get(task.prompt_key))
     expected = f"{task.answer} {task.repair}" if task.repair else task.answer
     b._pause(sc, ex, b.timing.answer_pause(expected, b.tl, generative=True), "answer", floor=b.timing.answer_floor())
     voice = _other_voice(task.speaker) if task.repair else task.speaker

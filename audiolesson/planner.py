@@ -104,6 +104,7 @@ class PlanConfig:
     # can-do scenarios to take one from (the trip profile's boosted first). No themes: no theme exchange.
     themes: list = field(default_factory=list)
     theme_scenarios: list[str] = field(default_factory=list)
+    max_pick_outs_per_pattern: int = 3  # pick-out exercises one construction gives in a lesson (#248 review: the same two frames)
     theme_ready: float = 0.75  # a theme's level plays once the learner can say this share of its turns; the rest are heard (#240)
     theme_rest_lessons: int = 3  # a level already played comes back no sooner than this many lessons later (#149 step 1)
     # #149 step 2 (H5): a semantic set is not introduced as a block: at most ``max_set_items`` new items a lesson share
@@ -790,7 +791,7 @@ class Planner:
             run = run + 1 if e.kind == "generative" else 0
             longest = max(longest, run)
         after = (
-            [e for e in sc.exercises if e.start >= delivered_at and e.kind not in ("opening", "closing")] if delivered_at is not None else []
+            [e for e in sc.exercises if delivered_at <= e.start < closing_at and e.kind not in ("opening", "closing")] if delivered_at is not None else []
         )
         counts = Counter(e.kind for e in after)
         kind_run = max((sum(1 for _ in g) for _, g in groupby(after, key=lambda e: e.kind)), default=0)
@@ -2142,6 +2143,8 @@ class Planner:
         # pick out information x2, catch an unknown word, use one of today's expressions) instead of saying known sentences again
         rotation = SecondHalfRotation()
         used_listening_tasks: set[tuple[str, str, str]] = set()
+        picks_by_pattern: Counter[str] = Counter()  # pick-outs per construction this lesson: the same two frames over and over would be a new boredom
+        caught_words: set[str] = set()  # one catch per unknown word this lesson, whichever line it came from
         delivered_at: list[float | None] = [None]  # lesson time at which the new material of the target was taught
 
         def known_now() -> set[str]:
@@ -2178,9 +2181,19 @@ class Planner:
             if task is None:
                 return False
             key = key_of(task)
-            if key in used_listening_tasks or append_task(b, sc, task, remaining_time() if room is None else room) is None:
+            if key in used_listening_tasks:
+                return False
+            if task.kind == "pick_out" and picks_by_pattern[task.item_ids[0]] >= cfg.max_pick_outs_per_pattern:
+                return False
+            if task.kind == "catch_unknown" and task.answer.lower() in caught_words:
+                return False
+            if append_task(b, sc, task, remaining_time() if room is None else room) is None:
                 return False
             used_listening_tasks.add(key)
+            if task.kind == "pick_out":
+                picks_by_pattern[task.item_ids[0]] += 1
+            else:
+                caught_words.add(task.answer.lower())
             return True
 
         def pick_out_tasks():
@@ -2231,7 +2244,14 @@ class Planner:
                 self.learner.themes_done.get(t.id, 0) > 0 and f"{t.id}:1" not in heard_plays for t in cfg.themes
             ):
                 return True
-            fresh = lambda tasks: any(t is not None and key_of(t) not in used_listening_tasks for t in tasks)
+            def fresh(tasks) -> bool:
+                return any(
+                    t is not None and key_of(t) not in used_listening_tasks
+                    and not (t.kind == "pick_out" and picks_by_pattern[t.item_ids[0]] >= cfg.max_pick_outs_per_pattern)
+                    and not (t.kind == "catch_unknown" and t.answer.lower() in caught_words)
+                    for t in tasks
+                )
+
             return fresh(pick_out_tasks()) or fresh(catch_unknown_tasks())
 
         def last_kinds_same(k: int = 3) -> str | None:
