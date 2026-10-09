@@ -166,6 +166,8 @@ class PlanConfig:
     priority: list[str] = field(default_factory=list)
     # levers (#136), off by default; turned on per deployment, by hand (docs/LEVERS.md)
     late_unhinted_recall: bool = False  # the closing recall of a new item never gives a hint
+    # "new-first" (a user option, outside the design; #243): every introduction first, back to back, then known material
+    order: str = "spread"
 
     def resolved_max_new_items(self) -> int:
         """Extra new items may fill a lesson that has nothing to review (the first ones),
@@ -1326,6 +1328,19 @@ class Planner:
         # seconds between introductions: the expected number of new items over most of the lesson
         expected_new = max(1, len(new_queue) if self.components_mode else cfg.resolved_new_items() + cfg.resolved_extra_arc_items())
         intro_spacing = (budget - closing_reserve) * cfg.intro_span / expected_new
+        # --order new-first: the introductions come first, back to back (today's own timed recalls may come between them), and known
+        # material waits until the last one; no later arcs
+        new_first = cfg.order == "new-first"
+        if new_first:
+            intro_spacing = 0.0
+        intro_gap = 1 if new_first else cfg.intro_gap
+
+        def in_new_block() -> bool:
+            return new_first and bool(new_queue)
+
+        def is_today(item_id: str) -> bool:
+            return item_id in self.embedded or any(i.id == item_id for i in introduced)
+
         need_for_new = min(cfg.min_time_for_new_item, budget * 0.6)  # short lessons still get something new
         reviews_used: list[str] = []
         passes = 1
@@ -2033,7 +2048,7 @@ class Planner:
             #    before anything that would be one more isolated recall (step 1 included).
             #    If none works, end the lesson rather than extend the streak.
             if drill_streak >= cfg.drill_streak_limit:
-                dlg = self.eligible_dialogue()
+                dlg = None if in_new_block() else self.eligible_dialogue()
                 if dlg is not None:
                     self._play_dialogue(sc, dlg)
                     since_dialogue = 0
@@ -2049,9 +2064,9 @@ class Planner:
                             acted = True
                             if not ration_left:
                                 streak_relief_notes_used += 1
-                if not acted and remaining >= 40:
+                if not acted and remaining >= 40 and not in_new_block():
                     acted = do_connect()
-                if not acted and remaining >= 90 and (ld := self.listening_dialogue()) is not None:
+                if not acted and remaining >= 90 and not in_new_block() and (ld := self.listening_dialogue()) is not None:
                     self._play_listening(sc, *ld)
                     since_dialogue = 0
                     acted = True
@@ -2104,12 +2119,12 @@ class Planner:
                     arc_connect_attempted.add(ready_arc)
 
             # 0c. a substitution run goes on in its frame before anything else is fitted in (#151)
-            if not acted and (sub := continue_substitution()) is not None:
+            if not acted and not in_new_block() and (sub := continue_substitution()) is not None:
                 do_substitution(sub)
                 acted = True
 
             # 0d. an open item's practice whose time has come (#149)
-            if not acted and drill_streak < cfg.drill_streak_limit - 1:  # leave room for a non-recall exercise
+            if not acted and not in_new_block() and drill_streak < cfg.drill_streak_limit - 1:  # leave room for a non-recall exercise
                 for entry in open_timeline:
                     if entry[0] > sc.total_duration:
                         break
@@ -2121,11 +2136,11 @@ class Planner:
                     break
 
             # 0g. the lesson's theme exchange, when its time has come (#149 1b-ii)
-            if not acted and theme_pick and drill_streak < cfg.drill_streak_limit and theme_due():
+            if not acted and theme_pick and not in_new_block() and drill_streak < cfg.drill_streak_limit and theme_due():
                 acted = play_theme()
 
             # 0f. a known construction's light review: a sentence with other fillers, now and then (#171)
-            if not acted and drill_streak < cfg.drill_streak_limit - 1:
+            if not acted and not in_new_block() and drill_streak < cfg.drill_streak_limit - 1:
                 acted = play_refresh(due_only=True)
 
             # 0e. today's items come back at their times after the introduction, interleaved
@@ -2143,7 +2158,7 @@ class Planner:
             # 1. a scheduled reactivation that is due (but never the item we just did)
             if not acted:
                 for p in due:
-                    if p.item.id in recent:
+                    if p.item.id in recent or (in_new_block() and not is_today(p.item.id)):
                         continue
                     pending.remove(p)
                     heapq.heapify(pending)
@@ -2155,7 +2170,7 @@ class Planner:
             if (
                 not acted
                 and new_queue
-                and idx - last_intro >= cfg.intro_gap
+                and idx - last_intro >= intro_gap
                 and remaining >= need_for_new
                 and sc.total_duration >= (len(introduced) + len(self.embedded)) * intro_spacing
             ):
@@ -2165,6 +2180,7 @@ class Planner:
             # 2b. the next arc of new items, on the lesson's schedule rather than only when idle
             if (
                 not acted
+                and not new_first
                 and not new_queue
                 and reviews_used
                 and current_arc_id + 1 < cfg.max_arcs
@@ -2176,7 +2192,7 @@ class Planner:
                 acted = True
 
             # 3. a dialogue, now and then, when the learner knows enough
-            if not acted and since_dialogue >= cfg.dialogue_every:
+            if not acted and not in_new_block() and since_dialogue >= cfg.dialogue_every:
                 dlg = self.eligible_dialogue()
                 if dlg is not None:
                     self._play_dialogue(sc, dlg)
@@ -2184,7 +2200,7 @@ class Planner:
                     acted = True
 
             # 4. review older material, interleaving topics
-            if not acted and reviews:
+            if not acted and reviews and not in_new_block():
                 pick = None
                 run_of_open = open_run() >= 3
                 for cand in list(reviews):
@@ -2215,7 +2231,10 @@ class Planner:
             #    introduce early, else pull the next reactivation of a *different* item early,
             #    else take an extra new item, else accept a repeat, else stop.
             if not acted:
-                candidate = next((p for p in sorted(pending) if p.item.id not in recent), None)
+                candidate = next(
+                    (p for p in sorted(pending) if p.item.id not in recent and not (in_new_block() and not is_today(p.item.id))),
+                    None,
+                )
                 pulled = None  # today's item whose time has not come, taken early when nothing else fits
                 if candidate is None:
                     pulled = next((e for e in sorted(intro_timeline) if e[2].id not in recent), None)
@@ -2379,6 +2398,7 @@ class Planner:
                 "topics": cfg.topics,
                 "priority_items": len(cfg.priority),  # a count only: the list may reflect a private profile
                 "levers": {"late_unhinted_recall": cfg.late_unhinted_recall},
+                "order": cfg.order,
                 "seed": cfg.seed,
                 "level": self.timing.level,
             },

@@ -7783,6 +7783,82 @@ class NewComponentTests(unittest.TestCase):
             self.assertNotIn("new components (weighted)", buf.getvalue(), "--new counts items")
 
 
+class NewFirstOrderTests(unittest.TestCase):
+    """#243 (a user option, outside the design): ``--order new-first`` introduces every planned new item first, back to back, then
+    turns to known material; ``spread`` is the planner as it was."""
+
+    @staticmethod
+    def _state(lessons=8):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        for _ in range(lessons):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6, seed=3), today=day).build()
+            apply_to_learner(sc, learner, day)
+            learner.report([], [], day + timedelta(days=1), lesson_number=sc.lesson_number, recalled=sc.meta["new_items"])
+            day += timedelta(days=1)
+        return cur, learner, day
+
+    @staticmethod
+    def _cfg(order):
+        return PlanConfig(minutes=30, new_items=6, new_target=8.0, seed=3, order=order)  # the default path counts components
+
+    def _plan(self, cur, learner, day, order):
+        return Planner(cur, copy.deepcopy(learner), Prompts.load("en"), Timing(level="A1"), self._cfg(order), today=day).build()
+
+    def _block(self, cur, learner, day, sc):
+        """(the new items the lesson picked at its start, the indices of their introductions)."""
+        first = {i.id for i in Planner(cur, copy.deepcopy(learner), Prompts.load("en"), Timing(level="A1"), self._cfg("new-first"), today=day).select_new(
+            self._cfg("new-first").new_items_ceiling(), cheap=True)}
+        idx = [e.index for e in sc.exercises if e.kind in ("intro", "embed") and e.item_ids and e.item_ids[0] in first]
+        return first, idx
+
+    def test_known_material_waits_until_the_last_introduction(self):
+        cur, learner, day = self._state()
+        sc = self._plan(cur, learner, day, "new-first")
+        today, intros = self._block(cur, learner, day, sc)
+        self.assertGreaterEqual(len(intros), 3, "a lesson with several introductions")
+        for e in sc.exercises[: max(intros)]:
+            if e.kind in ("intro", "embed", "note", "opening"):
+                continue
+            self.assertNotEqual(e.kind, "dialogue", (e.index, e.label))
+            self.assertTrue(set(e.item_ids) & today, f"known material before the last introduction: {e.kind} {e.label} {e.item_ids}")
+        spread = self._plan(cur, learner, day, "spread")
+        self.assertTrue(any(not set(e.item_ids) & today for e in spread.exercises[: max(intros)] if e.kind not in ("intro", "embed", "note", "opening")),
+                        "…which the spread order does not do")
+
+    def test_the_introductions_are_consecutive_apart_from_todays_own_recalls(self):
+        cur, learner, day = self._state()
+        sc = self._plan(cur, learner, day, "new-first")
+        today, intros = self._block(cur, learner, day, sc)
+        for a, b in zip(intros, intros[1:]):
+            between = [e for e in sc.exercises[a + 1 : b] if e.kind not in ("note", "opening")]
+            self.assertLessEqual(len(between), 3, [(e.kind, e.label) for e in between])
+            self.assertTrue(all(set(e.item_ids) & today for e in between), [(e.kind, e.label) for e in between])
+
+    def test_the_length_stays_within_5_percent_of_spread_and_spread_is_unchanged(self):
+        cur, learner, day = self._state()
+        spread = self._plan(cur, learner, day, "spread")
+        first = self._plan(cur, learner, day, "new-first")
+        self.assertLess(abs(first.total_duration - spread.total_duration) / spread.total_duration, 0.05, (first.total_duration, spread.total_duration))
+        default = Planner(cur, copy.deepcopy(learner), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6, new_target=8.0, seed=3), today=day).build()
+        self.assertEqual([e.label for e in default.exercises], [e.label for e in spread.exercises], "spread is the default and today's planner")
+        self.assertEqual(spread.meta["config"]["order"], "spread")
+        self.assertEqual(first.meta["config"]["order"], "new-first")
+
+    def test_the_cli_takes_order(self):
+        import contextlib
+        import io
+        from audiolesson.cli import main
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "l.json"
+            LearnerState("fr", "en", "A1").save(path)
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(main(["generate", "-c", str(ROOT / "curricula" / "fr-en-a1.toml"), "-l", str(path), "--out", td, "--no-audio", "-m", "10", "--order", "new-first"]), 0)
+            self.assertEqual(json.loads(next(Path(td).glob("*.plan.json")).read_text())["config"]["order"], "new-first")
+
+
 class PacingTests(unittest.TestCase):
     def test_durable_successes_need_a_review_on_or_after_its_due_date(self):
         """Issue #27: several recalls minutes apart in one lesson (the intra-lesson
