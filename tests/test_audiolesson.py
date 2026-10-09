@@ -5155,6 +5155,84 @@ class HardSentenceCapTests(unittest.TestCase):
             day += timedelta(days=1)
 
 
+class SpareTimeTests(unittest.TestCase):
+    """#238 (Now 1, lesson 20): the time after the target serves the scene and the ear; what the learner's own review asked this morning
+    is not asked again in the audio; a generated sentence in spare time is a parallel of a target expression of the scene."""
+
+    @staticmethod
+    def _cfg():
+        from audiolesson.cando import load_cando
+        from audiolesson.themes import load_themes, scenario_order
+        path = ROOT / "curricula" / "is-en"
+        cur = load_curriculum(path)
+        scenarios = load_cando(path, cur)
+        themes = load_themes(path, cur, scenarios)
+        return cur, dict(themes=themes, theme_scenarios=scenario_order(scenarios, ()))
+
+    @classmethod
+    def _course_to(cls, n: int):
+        cur, extra = cls._cfg()
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        for k in range(1, n + 1):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_target=8.0, **extra), today=day).build()
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        return cur, learner, day, extra
+
+    def test_a_report_marks_the_day_the_review_asked_an_item(self):
+        learner = LearnerState("is", "en", "A1")
+        learner.items["a"] = ItemState(stage="meaning", due=TODAY.isoformat())
+        learner.items["b"] = ItemState(stage="meaning", due=TODAY.isoformat())
+        learner.items["c"] = ItemState(stage="meaning", due=TODAY.isoformat())
+        learner.report(["a"], [], TODAY, hesitated=["b"], recalled=[])
+        self.assertEqual((learner.items["a"].last_reviewed, learner.items["b"].last_reviewed, learner.items["c"].last_reviewed), (TODAY.isoformat(), TODAY.isoformat(), ""))
+        learner.report([], [], TODAY + timedelta(days=1), sooner=["c"])
+        self.assertEqual(learner.items["c"].last_reviewed, "", "the feedback form's «sooner» is not a review")
+
+    def test_what_the_review_asked_this_morning_is_not_reviewed_or_used_as_filler_in_the_audio(self):
+        cur, learner, day, extra = self._course_to(9)
+        due = [i for i, st in learner.items.items() if st.due and st.due <= day.isoformat()]
+        self.assertGreater(len(due), 5)
+        base = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_target=8.0, **extra), today=day)
+        asked = set(base.build().meta["reviewed_items"])
+        reviewed = sorted(asked)[:6]
+        self.assertTrue(reviewed)
+        for i in reviewed:
+            learner.items[i].last_reviewed = day.isoformat()
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_target=8.0, **extra), today=day).build()
+        open_ids = set(learner.open_items())
+        again = (set(sc.meta["reviewed_items"]) | set(sc.meta["reviewed_early"])) & set(reviewed) - open_ids
+        self.assertFalse(again, again)
+        self.assertFalse(set(sc.meta["asked_after_review"]) - open_ids - {x for e in sc.exercises if e.kind == "note" for x in e.item_ids}, sc.meta["asked_after_review"])
+
+    def test_the_scene_names_the_patterns_spare_time_may_make_parallels_of(self):
+        cur, learner, day, extra = self._course_to(9)
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_target=8.0, **extra), today=day)
+        theme = next(t for t in extra["themes"] if t.id == "cafe")
+        pick = (theme, 0, set())
+        scene = planner.scene_constructions(pick)
+        self.assertEqual(scene, {"eg_aetla_ad_fa"}, "the learner's turns use one pattern and two phrases")
+        self.assertIsNone(planner.scene_constructions(None), "no theme (a first lesson): nothing is restricted")
+
+    def test_the_lesson_reports_when_the_target_was_reached_and_how_much_after_it_served_neither(self):
+        cur, learner, day, extra = self._course_to(10)
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_target=8.0, **extra), today=day).build()
+        m = sc.meta
+        self.assertGreater(m["target_reached_at"], 0)
+        self.assertLess(m["target_reached_at"], sc.total_duration)
+        self.assertGreaterEqual(m["spare_unserved_s"], 0)
+        self.assertLess(m["spare_unserved_s"], sc.total_duration - m["target_reached_at"])
+        self.assertIsInstance(m["asked_after_review"], list)
+
+    def test_the_last_resort_is_a_parallel_outside_the_scene_only_when_nothing_else_is_left(self):
+        """Spare time tries the scene's parallels first; a pattern outside the scene comes only at the very end (rather than bare words again)."""
+        cur, learner, day, extra = self._course_to(12)
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_target=8.0, **extra), today=day).build()
+        self.assertGreaterEqual(sc.total_duration, 24 * 60)
+        self.assertFalse(sc.meta["bare_cap_lapsed"])
+
+
 class PatternInstanceIntroTests(unittest.TestCase):
     """#192, the rest (owner, after lesson 18): a linked phrase whose pattern and fillers are *known* comes in as one sentence of its
     pattern, not as a new item with a ladder; it stays in ``new_items`` and the next-day question decides."""
@@ -6094,7 +6172,7 @@ class ShortItemRepetitionTests(unittest.TestCase):
                 learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
                 day += timedelta(days=1)
             self.assertLessEqual(worst, 15, (seed, worst))
-            self.assertLessEqual(adjacent, 10, (seed, adjacent))
+            self.assertLessEqual(adjacent, 12, (seed, adjacent))  # 10 before #238: the pool is smaller once what the review asked today is out of it
 
     def test_a_part_is_a_vocab_item_whatever_its_length(self):
         """#190, the owner's decision: «fara á safnið» is a part though it has three words, so after the learner has said «Ég vil

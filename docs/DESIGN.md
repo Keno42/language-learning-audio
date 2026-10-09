@@ -347,6 +347,17 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   is weak). `suggest_pace`: up at ≤ 15% with a small backlog, hold to 25%, down above. `report --load light|right|heavy` stores
   `lessons[k]["load"]`; like `--sooner` alone it does not mark the lesson reported. Two «light» lessons raise it at ≤ 25% with the same small-backlog condition (< 0.5) as the recall-based rise; an unrated lesson is skipped (it neither breaks nor extends the run); a «heavy» in the
   window blocks a rise; one step a lesson. `report --load` for a lesson not in `lessons[]` warns on stderr.
+- **Spare time serves the scene and the ear (#238, Now 1).** `ItemState.last_reviewed` (set by `report` for failed / hesitated / recalled, not by `--sooner`)
+  is the day the learner's own review asked an item; `Planner.reviewed_today` keeps it out of `select_reviews`, `select_early_reviews`, the
+  connect pool, substitutions and `refresh`. `Planner.scene_constructions(theme_pick)` = the constructions the learner's turns of the lesson's
+  theme level use (and the pattern of a linked phrase): `pick_substitution` and the `refresh` timeline take only those (a parallel of a target
+  expression of the scene), unless the lesson has no theme. In the step-5 chain the order of spare time is: the scene's parallels, a fresh arc,
+  the not-due early tiers and the second pass (kept, as before), the lesson's own theme level heard again (`heard_theme_plays` = 4 in all, own
+  level first), listening dialogues, today's new lines again, and last a substitution outside the scene before the bare cap lapses. A closing
+  recall skips a new item just asked as the holder of another new item's sentence.
+  `meta`: `target_reached_at` (end of the last introduction that costs a component), `spare_unserved_s` (seconds after it that serve neither
+  a target expression nor the scene: generated sentences outside the scene, recalls of items taken as filler; due reviews are not counted),
+  `asked_after_review` (items the learner's review asked today that the lesson asks again; open items' repair excepted); two rows in `replay_lesson.py`.
 - **`--order new-first` (#243, a user option outside the design).** `PlanConfig.order` (`spread` by default, today's planner). `new-first` sets `intro_spacing` to 0 and the gap between introductions to 1, drops the later arcs (step 2b) and, while `new_queue` still has items, skips the steps that play known material: the streak breaker's dialogue / connect / listening, substitution (0c), open items (0d), the theme (0g, its early play comes right after the block), refresh (0f), reactivations of items not introduced today (1), dialogue (3) and review (4). Inside the block stay an arc's connected use (0b) and today's timed recalls (0e). `plan.json` `config.order`.
 - **The pace's unit is weighted new components (#218 b3).** `PlanConfig.new_target` (from `learner.new_target`, a rate per `NEW_TARGET_MINUTES` = 30 minutes, via `suggest_target`, whose rules run at 30 minutes; a lesson of m minutes plans `max(1, rate × m/30)` and `generate` saves the rate, #242;, which
   runs the same rules as `suggest_pace`, `LearnerState._pace_rules`; None counts items) is the lesson's target. `Planner.component_cost`:
