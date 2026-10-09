@@ -5149,7 +5149,10 @@ class HardSentenceCapTests(unittest.TestCase):
         for n in range(1, 15):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=6, max_sentence_hard=5), today=day).build()
             if n >= 6:  # the first lessons have little to practise and lapse the bare cap whatever the hard cap is
-                self.assertFalse(sc.meta["bare_cap_lapsed"], sc.lesson_number)
+                # the rule, not one path's outcome: the cap lapses only when the lesson would otherwise end more than
+                # hard_cap_short_max short (a few seconds of beats, #241, moved lesson 9 of this course just past it)
+                if sc.meta["bare_cap_lapsed"]:
+                    self.assertGreaterEqual(sc.meta["bare_cap_lapsed_short_s"], PlanConfig().hard_cap_short_max, sc.lesson_number)
                 self.assertGreaterEqual(sc.total_duration, 30 * 60 - 240, sc.lesson_number)
             apply_to_learner(sc, learner, day)
             day += timedelta(days=1)
@@ -7354,7 +7357,9 @@ class ThemeExchangeTests(unittest.TestCase):
             segs = [g for g in sc.segments if g.exercise == e.index]
             heard = [k for k, g in enumerate(segs) if g.text == "Here you would say:"]
             self.assertEqual(len(heard), 1)
-            self.assertEqual(segs[heard[0] + 1].text, "Gjörðu svo vel.", "the line comes right after, without a pause")
+            # «Here you would say:» is a framing line (#241): a beat, then the line, and no answer pause for it
+            self.assertEqual((segs[heard[0] + 1].type, segs[heard[0] + 1].role), ("pause", "beat"))
+            self.assertEqual(segs[heard[0] + 2].text, "Gjörðu svo vel.")
             self.assertTrue(any(g.type == "pause" and g.role == "answer" for g in segs), "the taught turns are still asked")
         self.assertNotIn("Try it.", sc.transcript())
         self.assertEqual(planner.listening_tried, [])
@@ -7682,7 +7687,54 @@ class JapaneseInstructorTests(unittest.TestCase):
         for sc in scripts:
             for i, s in enumerate(sc.segments):
                 if s.role == "alternative":
-                    self.assertEqual(sc.segments[i - 1].type, "narrate")
+                    # «You could also say:» is a framing line: a beat, then the alternative (#241)
+                    self.assertEqual((sc.segments[i - 1].type, sc.segments[i - 1].role), ("pause", "beat"))
+                    self.assertEqual((sc.segments[i - 2].type, sc.segments[i - 2].role), ("narrate", "frame"))
+
+
+class FramingBeatTests(unittest.TestCase):
+    """#241 (lesson 20: «sometimes no pause between the instructor's line and the example»): a framing line that introduces
+    an example or a scene is followed by a beat; a cue for the learner's own action joins its line at once."""
+
+    FRAMING = ("construction_slot", "also", "embed_known", "embed_part", "variant_known", "form_model_known",
+               "listening_line", "dialogue_replay", "milestone_intro", "aside", "instance_sentence", "embed_sentence")
+
+    @classmethod
+    def setUpClass(cls):
+        cls.lessons = [sc for _, sc in ShortItemRepetitionTests._course(12)]
+
+    def test_no_framing_line_runs_into_target_language_speech(self):
+        prompts = Prompts.load("en")
+        framing = {prompts.get(k) for k in self.FRAMING}
+        framed = 0
+        for sc in self.lessons:
+            for a, b in zip(sc.segments, sc.segments[1:]):
+                if a.type != "narrate":
+                    continue
+                if a.role == "frame" or a.text in framing:
+                    framed += 1
+                    self.assertFalse(b.type in ("speak", "answer"), f"lesson {sc.lesson_number}: {a.text!r} runs into {b.text!r}")
+        self.assertGreater(framed, 20, "the course has framing lines to check")
+
+    def test_a_scene_line_comes_with_a_beat_before_the_partner_speaks(self):
+        from audiolesson.themes import level_dialogue, load_themes
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        supermarket = next(t for t in load_themes(ROOT / "curricula" / "is-en", cur) if t.id == "supermarket")
+
+        planner = Planner(cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15), today=TODAY)
+        sc = Script(1, "t", "is", "en")
+        planner.builder.dialogue(sc, level_dialogue(supermarket, 0))
+        scenes = [k for k, s in enumerate(sc.segments) if s.type == "narrate" and s.role == "frame"]
+        self.assertTrue(scenes, "supermarket level 1 has its «at the till» line (#230)")
+        for k in scenes:
+            self.assertEqual((sc.segments[k + 1].type, sc.segments[k + 1].role), ("pause", "beat"))
+
+    def test_a_cue_for_the_learners_action_joins_its_line(self):
+        repeat = Prompts.load("en").get("repeat")
+        joins = [(a, b) for sc in self.lessons for a, b in zip(sc.segments, sc.segments[1:]) if a.type == "narrate" and a.text == repeat]
+        self.assertTrue(joins)
+        self.assertTrue(all(b.type == "speak" for _, b in joins), "«Repeat.» is followed by the line at once")
 
 
 class FailureThinkTimeTests(unittest.TestCase):

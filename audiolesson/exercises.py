@@ -302,8 +302,15 @@ class Builder:
         st = self.learner.items.get(item.id)
         return st.successes if st else 0
 
-    def _narr(self, sc: Script, ex: Exercise, text: str) -> None:
-        sc.add(Segment("narrate", "instructor", text, self.kl, 1.0, self.timing.speech_estimate(text, self.kl), None, ex.index))
+    def _narr(self, sc: Script, ex: Exercise, text: str, role: str | None = None) -> None:
+        sc.add(Segment("narrate", "instructor", text, self.kl, 1.0, self.timing.speech_estimate(text, self.kl), role, ex.index))
+
+    def _frame(self, sc: Script, ex: Exercise, text: str) -> None:
+        """A framing line that introduces an example or a scene, then a beat before the target-language line (#241, lesson
+        20: «sometimes no pause between the instructor's line and the example»). A cue for the learner's own action
+        («Repeat.», «Slowly.», «It starts with:») joins its line at once and is not a framing line."""
+        self._narr(sc, ex, text, role="frame")
+        self._beat(sc, ex)
 
     def _speak(
         self,
@@ -414,14 +421,13 @@ class Builder:
         gender, target = self._filled(gen.construction, gen.fills)
         voice = VOICE_OF[gender or "f"]
         ex = sc.new_exercise("embed", "embed", [item.id], f"embed: {target}")
-        self._narr(sc, ex, self.prompts.get("embed_known"))
+        self._frame(sc, ex, self.prompts.get("embed_known"))
         self._speak(sc, ex, source.target, speaker=voice)
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("embed_part"))
+        self._frame(sc, ex, self.prompts.get("embed_part"))
         self._speak(sc, ex, item.target, speaker=voice)
         self._beat(sc, ex)
-        self._narr(sc, ex, self._as(gender, self.prompts.get("embed_sentence")))
-        self._beat(sc, ex)
+        self._frame(sc, ex, self._as(gender, self.prompts.get("embed_sentence")))
         self._speak(sc, ex, target, speaker=voice, role="embed_sentence")
         self._beat(sc, ex)
         sc.add(Segment("narrate", "instructor", self.prompts.get("embed_meaning", meaning=self._m(gen.meaning)), self.kl, 1.0,
@@ -445,8 +451,7 @@ class Builder:
         target = item.target if made.strip().casefold() == item.target.strip().casefold() else made
         voice = VOICE_OF[gender or "f"]
         ex = sc.new_exercise("embed", "embed", [item.id], f"pattern: {target}")
-        self._narr(sc, ex, self._as(gender, self.prompts.get("instance_sentence")))
-        self._beat(sc, ex)
+        self._frame(sc, ex, self._as(gender, self.prompts.get("instance_sentence")))
         self._speak(sc, ex, target, speaker=voice, role="embed_sentence")
         self._beat(sc, ex)
         sc.add(Segment("narrate", "instructor", self.prompts.get("embed_meaning", meaning=self._m(item.spoken_meaning)), self.kl, 1.0,
@@ -522,11 +527,10 @@ class Builder:
         introduced as that: «You know this:» the form they have, «Here is another form:» the
         new one, said and repeated, then a short sentence it goes in, and a first retrieval."""
         ex = sc.new_exercise("intro", "intro", [item.id], f"new: {item.target}")
-        self._narr(sc, ex, self.prompts.get("variant_known"))
+        self._frame(sc, ex, self.prompts.get("variant_known"))
         self._speak(sc, ex, base.target)
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("variant_form", meaning=self._m(item.spoken_meaning)))
-        self._beat(sc, ex)
+        self._frame(sc, ex, self.prompts.get("variant_form", meaning=self._m(item.spoken_meaning)))
         self._speak(sc, ex, item.target)
         self._beat(sc, ex)
         self._narr(sc, ex, self.prompts.get("repeat"))
@@ -537,8 +541,7 @@ class Builder:
             self.used_combos.add(gen.key)
             gender, sentence = self._filled(gen.construction, gen.fills)
             voice = VOICE_OF[gender or "f"]
-            self._narr(sc, ex, self._as(gender, self.prompts.get("embed_sentence")))
-            self._beat(sc, ex)
+            self._frame(sc, ex, self._as(gender, self.prompts.get("embed_sentence")))
             self._speak(sc, ex, sentence, speaker=voice)
             self._beat(sc, ex)
             self._narr(sc, ex, self.prompts.get("embed_meaning", meaning=self._m(gen.meaning)))
@@ -584,7 +587,7 @@ class Builder:
             self._narr(sc, ex, self.prompts.get("man_says"))
             self._speak(sc, ex, target_m, speaker=VOICE_OF["m"])
             self._repeat_pause(sc, ex, target_m)
-        self._narr(sc, ex, self.prompts.get("construction_slot"))
+        self._frame(sc, ex, self.prompts.get("construction_slot"))
         # a second example with a known fill, as the first retrieval
         gen = self.generate(item, exclude=fills)
         if gen is None:
@@ -683,7 +686,7 @@ class Builder:
             return
         self.used_examples.add(key)
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("also"))
+        self._frame(sc, ex, self.prompts.get("also"))
         self._speak(sc, ex, self.rng.choice(item.alternatives), role="alternative")
 
     def _recall_construction(self, sc: Script, item: Item, stage: str) -> Exercise:
@@ -762,11 +765,10 @@ class Builder:
         voice = VOICE_OF[gender or "f"]
         ids = list(dict.fromkeys([c.id, *first.item_ids, *(second.item_ids if second else [])]))
         ex = sc.new_exercise("model", "form", ids, f"model: {shown}")
-        self._narr(sc, ex, self.prompts.get("form_model_known"))
+        self._frame(sc, ex, self.prompts.get("form_model_known"))
         self._speak(sc, ex, plain, speaker=voice)
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get(f"form_model_{form}"))
-        self._beat(sc, ex)
+        self._frame(sc, ex, self.prompts.get(f"form_model_{form}"))
         self._speak(sc, ex, shown, speaker=voice)
         self._beat(sc, ex)
         self._narr(sc, ex, self.prompts.get("embed_meaning", meaning=self._m(meaning)))
@@ -782,8 +784,7 @@ class Builder:
             gender, asked = self._filled(c, second.fills, form=form)
             asked_meaning = self.cur.resolve_slots(c, second.fills, form=form)[1]
             voice = VOICE_OF[gender or "f"]
-            self._narr(sc, ex, self.prompts.get("form_model_again"))
-            self._beat(sc, ex)
+            self._frame(sc, ex, self.prompts.get("form_model_again"))
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(asked_meaning)))
         self._answer_pause(sc, ex, asked, c, generative=True)
         self._answer(sc, ex, asked, speaker=voice)
@@ -1086,7 +1087,7 @@ class Builder:
         """An aside, no retrieval, bookended so it isn't mistaken for the next exercise. A
         milestone gets its own framing: it is part of the lesson, not a detour."""
         ex = sc.new_exercise("note", None, list(note.items), f"note: {note.id}")
-        self._narr(sc, ex, self.prompts.get("milestone_intro" if note.milestone or note.teaches else "aside"))
+        self._frame(sc, ex, self.prompts.get("milestone_intro" if note.milestone or note.teaches else "aside"))
         self._speak_note_text(sc, ex, note.text)
         self._beat(sc, ex)
         self._narr(sc, ex, self.prompts.get("milestone_end" if note.milestone or note.teaches else "aside_end"))
@@ -1210,7 +1211,7 @@ class Builder:
         for k, turn in enumerate(turns):
             glossed = translate is True or (translate is not False and k in translate)
             if turn.scene:
-                self._narr(sc, ex, turn.scene)
+                self._frame(sc, ex, turn.scene)
             if turn.opener:
                 self._speak(sc, ex, turn.opener, speaker=partner)
                 lines.append((partner, turn.opener))
@@ -1242,7 +1243,7 @@ class Builder:
             else:
                 self._narr(sc, ex, self._as(gender, turn.cue))
             if line_heard:
-                self._narr(sc, ex, self.prompts.get("listening_line"))
+                self._frame(sc, ex, self.prompts.get("listening_line"))
                 self._answer(sc, ex, expected, speaker=learner_voice)
                 self._beat(sc, ex)
                 if meaning_text:
@@ -1254,7 +1255,7 @@ class Builder:
             if turn.partner:
                 self._beat(sc, ex)
                 if turn.partner_scene:
-                    self._narr(sc, ex, turn.partner_scene)
+                    self._frame(sc, ex, turn.partner_scene)
                 self._speak(sc, ex, turn.partner, speaker=partner)
                 lines.append((partner, turn.partner))
                 if glossed and self.translate_partner and turn.partner_meaning:
@@ -1262,7 +1263,7 @@ class Builder:
                     self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=turn.partner_meaning))
         if replay:
             self._gap(sc, ex)
-            self._narr(sc, ex, self.prompts.get("dialogue_replay"))
+            self._frame(sc, ex, self.prompts.get("dialogue_replay"))
             for who, text in lines:
                 self._speak(sc, ex, text, speaker=who)
                 self._beat(sc, ex)

@@ -1432,6 +1432,7 @@ class Planner:
         intro_timeline: list[tuple[float, int, Item, str]] = []  # today's items' recalls, by time
         sentence_used: dict[str, set[str]] = {}  # per short item, the sentences practised this lesson
         capped_backlog: list[tuple[float, int, Item, str]] = []  # recalls dropped for want of a sentence
+        lapse_short = [None]  # seconds the lesson would have ended short when the bare cap lapsed (for the daily read and tests)
         bare_cap = [cfg.max_bare_uses]  # lapses to 0 when nothing else is left (step 5)
 
         def schedule_open(item: Item, k: int) -> None:
@@ -2440,6 +2441,7 @@ class Planner:
                 elif bare_cap[0] > 0 and (capped_backlog or intro_timeline):
                     # nothing else is left, and the lesson would end short: today's short items may be
                     # said alone again, the dropped recalls first, rather than losing the time (§9 "daily dose")
+                    lapse_short[0] = round(remaining)
                     bare_cap[0] = 0
                     intro_timeline.extend(capped_backlog)
                     capped_backlog.clear()
@@ -2536,6 +2538,7 @@ class Planner:
             "forms_modelled_now": list(self.builder.models_now),
             "new_components": self.components_meta() if self.components_mode else None,  # the weighted total of new material, forms apart (#218 b3)
             "forms_taught": [self.cur.note_by_id[n].teaches for n in self.notes_played if self.cur.note_by_id[n].teaches],
+            "bare_cap_lapsed_short_s": lapse_short[0],  # how short the lesson would have ended then
             "bare_cap_lapsed": cfg.max_bare_uses > 0 and bare_cap[0] == 0,  # nothing else was left: short items were said alone again
             "reviewed_items": reviews_used,
             "open_items": open_today,

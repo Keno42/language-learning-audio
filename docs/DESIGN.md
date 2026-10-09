@@ -70,6 +70,12 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   turn has no task cue. A dialogue with no missing line is ordinary (asked, with its pauses, not
   counted in `dialogues_listened`); `listening_asked` in `plan.json` lists the turns asked
   because the line can be said although `knows()` is false.
+  **A framing line is followed by a beat (#241).** A line that introduces an example or a scene (`embed_*`, `instance_sentence`,
+  `variant_*`, `construction_slot`, `also`, `form_model_*`, `milestone_intro` / `aside`, a turn's `scene` / `partner_scene`,
+  `listening_line`, `dialogue_replay`) is said by `Builder._frame` (a narration with role `frame`, then a beat). A cue for the
+  learner's own action («Repeat.», «Slowly.», the reply cue, cloze and hint cues) joins its line at once; Icelandic inside a note's
+  prose stays inline. The daily read counts a `frame` narration followed straight by speech (0). `bare_cap_lapsed_short_s` in the
+  meta says how short the lesson would have ended when the bare cap lapsed.
   **A listening scene asks only for taught lines (#240).** A turn the learner can't say in full is heard
   («Here you would say:», the line, its meaning), whether or not they can say a chunk of it
   (`Planner.can_say_part`; `classify_turns` keeps the two kinds apart for the daily read). The scene opens with
