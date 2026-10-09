@@ -48,6 +48,8 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--topics", "-t", default="", help="comma-separated topics to prefer")
     g.add_argument("--level", default=None, help="learner level for pause lengths: A0 A1 A2 B1 B2 (default: from learner state)")
     g.add_argument("--seed", type=int, default=None)
+    g.add_argument("--order", choices=("spread", "new-first"), default="spread",
+                   help="spread (default): new items over the lesson; new-first: every new item first, then known material (a user option)")
     g.add_argument("--date", default=None, help="pretend today is YYYY-MM-DD (for scheduling/tests)")
     g.add_argument("--pause-multiplier", type=float, default=None, help="scale every answer pause (e.g. 1.3 = more time)")
     g.add_argument("--no-translate", action="store_true", help="don't narrate the meaning of partner lines in dialogues")
@@ -267,6 +269,7 @@ def cmd_generate(args) -> int:
         themes=themes,
         theme_scenarios=theme_scenarios,
         late_unhinted_recall=args.late_unhinted_recall,
+        order=args.order,
     )
     unknown_topics = [t for t in cfg.topics if t not in cur.topics()]
     if unknown_topics:

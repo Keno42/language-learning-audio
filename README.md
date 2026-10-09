@@ -135,6 +135,7 @@ around 80–85%.
 - Spare time is never filled with a close variant of a known word (another case or gender): it goes to
   more to hear — listening dialogues, then a played theme level heard again — and a form comes in only
   when a scene, a frame or a contrast asks for it (#218).
+- `--order new-first` (a user option, outside the design) introduces every new item first, back to back, then turns to known material; `spread` (default) is the planner as described here.
 - `--new N` overrides one lesson; `--pace N` resets the ongoing pace.
 
 **Fixed length.** A lesson aims at the requested minutes (30:00 for `-m 30`)
