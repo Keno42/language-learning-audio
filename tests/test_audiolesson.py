@@ -5232,6 +5232,34 @@ class SpareTimeTests(unittest.TestCase):
         self.assertGreaterEqual(sc.total_duration, 24 * 60)
         self.assertFalse(sc.meta["bare_cap_lapsed"])
 
+    def test_a_run_of_generated_sentences_is_cut_at_three_while_there_is_something_to_hear(self):
+        """Review of #247: lesson 20 had 20 generated sentences in a row, lesson 22 had 17. With a theme level to hear again, a listening
+        dialogue or one of today's lines left, a fourth generated sentence does not follow three."""
+        cur, extra = self._cfg()
+        learner = LearnerState("is", "en", "A1")
+        day = TODAY
+        checked = 0
+        for n in range(1, 13):
+            cfg = PlanConfig(minutes=30, seed=1, new_target=8.0, **extra)
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=day).build()
+            if len(sc.meta["heard_themes"]) < cfg.heard_theme_plays:  # the ear still had something left
+                self.assertLessEqual(sc.meta["longest_generated_run"], cfg.generated_run_max, sc.lesson_number)
+                checked += 1
+            apply_to_learner(sc, learner, day)
+            learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
+            day += timedelta(days=1)
+        self.assertGreaterEqual(checked, 6)
+
+    def test_the_not_due_fillers_start_with_the_scene(self):
+        cur, learner, day, extra = self._course_to(9)
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_target=8.0, **extra), today=day)
+        plain = [i.id for i in planner.select_early_reviews(set(), rested_only=False)]
+        self.assertGreater(len(plain), 5)
+        last = plain[-1]
+        first = [i.id for i in planner.select_early_reviews(set(), rested_only=False, prefer=frozenset({last}))]
+        self.assertEqual(first[0], last)
+        self.assertEqual(sorted(first), sorted(plain))
+
 
 class ExcludeFillsTests(unittest.TestCase):
     """#192 (owner, after lesson 20): a named fill a construction never takes although its tag fits: an exception to the tags, not a

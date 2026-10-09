@@ -355,7 +355,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   the not-due early tiers and the second pass (kept, as before), the lesson's own theme level heard again (`heard_theme_plays` = 4 in all, own
   level first), listening dialogues, today's new lines again, and last a substitution outside the scene before the bare cap lapses. A closing
   recall skips a new item just asked as the holder of another new item's sentence.
-  `meta`: `target_reached_at` (end of the last introduction that costs a component), `spare_unserved_s` (seconds after it that serve neither
+  A run of generated sentences is cut at `generated_run_max` (3) while something to hear is left (a theme level to hear again, a listening
+  dialogue): a construction's review waits and the ear comes between. The not-due early tiers list the scene's own items
+  and patterns first (`select_early_reviews(prefer=…)`).
+  `meta`: `longest_generated_run`, `target_reached_at` (end of the last introduction that costs a component), `spare_unserved_s` (seconds after it that serve neither
   a target expression nor the scene: generated sentences outside the scene, recalls of items taken as filler; due reviews are not counted),
   `asked_after_review` (items the learner's review asked today that the lesson asks again; open items' repair excepted); two rows in `replay_lesson.py`.
 - **Named exceptions to the tags (#192, owner after lesson 20).** `Item.exclude_fills` (a construction): `Curriculum.items_with_tag(tag, construction)` leaves those fills out, so `generate`, `generate_with`, a substituted worked example and `example_fill` never take them; authored fills are untouched. It is the way to declare the tenth case in ten the tags don't explain, instead of retagging (LEARNING-DESIGN §9 "Good enough overall").
