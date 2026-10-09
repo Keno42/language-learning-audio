@@ -5232,6 +5232,7 @@ class SpareTimeTests(unittest.TestCase):
         self.assertGreaterEqual(sc.total_duration, 24 * 60)
         self.assertFalse(sc.meta["bare_cap_lapsed"])
 
+
 class ExcludeFillsTests(unittest.TestCase):
     """#192 (owner, after lesson 20): a named fill a construction never takes although its tag fits: an exception to the tags, not a
     new tagging scheme («Áttu leigubíl?» is not said; «Ég þarf leigubíl.» stays)."""
