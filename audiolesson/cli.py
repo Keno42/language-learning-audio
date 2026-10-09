@@ -17,6 +17,7 @@ from .content import CurriculumError, dialogue_sequencing_report, frame_gap_repo
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
+from .review_wholes import refine_review
 from .script import Script
 from .timing import Timing
 from .reading import load_deck
@@ -379,6 +380,9 @@ def _plan(script: Script, cur) -> dict:
             continue
         asked.add(i)
         review.append({"items": [i], "prompt": _review_cue(cur, prompts, it), "answer": it.target, "stage": "open"})
+    refined: list[dict] = []
+    if "met_items" in meta:  # #239: each target expression once; a part only through the whole that holds it
+        review, refined = refine_review(review, cur, set(meta["met_items"]), prompts)
     return {
         "lesson_number": script.lesson_number,
         "date": meta.get("date"),
@@ -396,6 +400,7 @@ def _plan(script: Script, cur) -> dict:
         "open_items": list(meta.get("open_items", [])),  # #199: the bot brings their questions forward and asks the waiting ones
         "open_not_fitted": list(meta.get("open_not_fitted", [])),
         "review": review,
+        "review_refined": refined,  # #239: what was changed in the questions, and why (beside_whole, through_whole, no_home, same_answer)
         "review_candidates": script.review_candidates(),
         "exercises": [
             {"index": e.index, "kind": e.kind, "stage": e.stage, "items": e.item_ids, "label": e.label, "start_s": round(e.start, 1), "duration_s": round(e.duration, 1)}

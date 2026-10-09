@@ -5264,6 +5264,139 @@ class SpareTimeTests(unittest.TestCase):
         self.assertEqual(sorted(first), sorted(plain))
 
 
+class PartsLiveInsideTheirWholeTests(unittest.TestCase):
+    """#239 (lesson 20 and 21): a part is introduced inside the target expression that holds it, the review asks each expression once and a part only
+    through its whole, and a pattern whose example is known is not announced as new."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.cur = load_curriculum(ROOT / "curricula" / "is-en")
+        cls.en = Prompts.load("en")
+
+    def _builder(self, met=()):
+        from audiolesson.exercises import Builder
+        learner = LearnerState("is", "en", "A1")
+        for i in met:
+            learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3)
+        return Builder(self.cur, self.en, Timing(level="A1"), learner)
+
+    # -- the lesson: a part inside its whole
+
+    def test_hjalpina_is_introduced_inside_takk_fyrir_hjalpina(self):
+        """Lesson 20: «hjálpina» 'for help' was introduced and drilled as a word. The gloss only makes sense inside «Takk fyrir {thing}.»"""
+        b = self._builder(met=["takk"])
+        home = b.whole_home(self.cur.by_id["hjalpina"])
+        self.assertEqual((home[0].id, {k: v.id for k, v in home[1].items()}), ("takk_fyrir", {"thing": "hjalpina"}))
+        sc = Script(1, "t", "is", "en")
+        ex = b.intro(sc, self.cur.by_id["hjalpina"])
+        self.assertEqual((ex.kind, ex.item_ids, ex.label), ("intro", ["hjalpina"], "new: Takk fyrir hjálpina. (hjálpina)"))
+        speech = [g.text for g in sc.segments if g.type in ("speak", "answer")]
+        self.assertEqual(speech[0], "Takk fyrir hjálpina.", "the whole comes first")
+        self.assertLess(speech.index("Takk fyrir hjálpina."), speech.index("hjálpina"), "the part is said alone afterwards, never first")
+        self.assertIn("A new expression. Thanks for the help.", sc.transcript())
+        self.assertEqual(speech[-1], "Takk fyrir hjálpina.", "the first retrieval asks the whole")
+        # the next day's question asks the sentence
+        self.assertEqual([(q["items"], q["answer"]) for q in sc.review_questions()], [(["hjalpina"], "Takk fyrir hjálpina.")])
+
+    def test_a_part_without_an_authored_home_or_with_a_strange_frame_is_introduced_as_before(self):
+        b = self._builder()
+        self.assertIsNone(b.whole_home(self.cur.by_id["kaffihusid"]), "no construction names it")
+        thusund = self._builder(met=[])
+        self.assertIsNone(thusund.whole_home(self.cur.by_id["tvo"]), "«Það kostar … þúsund krónur.» has two words they have never met")
+        self.assertIsNone(self._builder().whole_home(self.cur.by_id["takk_fyrir"]), "only a part has a whole")
+        b = self._builder(met=["takk"])
+        b.heard.add(_norm_utterance("Takk fyrir hjálpina."))
+        self.assertIsNone(b.whole_home(self.cur.by_id["hjalpina"]), "the sentence was already heard whole")
+
+    def test_a_pattern_whose_example_is_known_is_not_announced_as_new(self):
+        """Lesson 20: «Eigðu {adj} {time}.» was introduced as "new pattern" with «Eigðu góðan dag.», which the learner already knew."""
+        b = self._builder(met=["eigdu_godan_dag", "godan_daginn", "goda_nott", "gott_kvold", "dag_acc"])
+        sc = Script(1, "t", "is", "en")
+        b.intro(sc, self.cur.by_id["eigdu_godur"])
+        text = sc.transcript()
+        self.assertIn("You know this:", text)
+        self.assertIn("It is a pattern: you can say it with other words.", text)
+        self.assertNotIn("Here is a useful pattern", text)
+        # a pattern whose example is not known is still introduced as before
+        fresh = self._builder(met=["hjalpina"])
+        sc = Script(1, "t", "is", "en")
+        fresh.intro(sc, self.cur.by_id["takk_fyrir"])
+        self.assertIn("Here is a useful pattern", sc.transcript())
+        # and in the lesson where the part came in with its whole, the pattern is that sentence with other words
+        both = self._builder(met=["takk"])
+        sc = Script(1, "t", "is", "en")
+        both.intro(sc, self.cur.by_id["hjalpina"])
+        both.in_lesson.add("hjalpina")
+        both.intro(sc, self.cur.by_id["takk_fyrir"])
+        self.assertEqual(sc.transcript().count("Here is a useful pattern"), 0)
+
+    # -- the review: each expression once, a part through its whole
+
+    def _prompts(self):
+        return Prompts.load("en")
+
+    def test_a_bare_part_is_asked_through_the_whole_the_learner_knows(self):
+        from audiolesson.review_wholes import refine_review
+        met = {"takk", "takk_fyrir", "hjalpina"}
+        review = [{"items": ["hjalpina"], "prompt": "for the help", "answer": "hjálpina", "stage": "meaning"}]
+        out, report = refine_review(review, self.cur, met, self._prompts())
+        self.assertEqual([(q["items"], q["answer"], q["through"]) for q in out], [(["hjalpina"], "Takk fyrir hjálpina.", "takk_fyrir")])
+        self.assertIn("Thanks for the help.", out[0]["prompt"])
+        self.assertEqual([r["kind"] for r in report], ["through_whole"])
+        # the whole is not known yet: the part stays bare, the fallback when no sentence exists
+        out, report = refine_review(review, self.cur, {"hjalpina"}, self._prompts())
+        self.assertEqual(([q["answer"] for q in out], report), (["hjálpina"], []))
+
+    def test_a_part_is_never_asked_beside_the_whole_that_holds_it(self):
+        from audiolesson.review_wholes import parts_outside_their_whole, refine_review
+        review = [
+            {"items": ["tvo_fullordna"], "prompt": "two adults", "answer": "tvo fullorðna", "stage": "meaning"},
+            {"items": ["partei_takk"], "prompt": "Two adults, please.", "answer": "Tvo fullorðna, takk.", "stage": "situation"},
+        ]
+        self.assertEqual(parts_outside_their_whole(review, self.cur), 1)
+        out, report = refine_review(review, self.cur, {"tvo_fullordna", "partei_takk"}, self._prompts())
+        self.assertEqual([(q["items"], q["answer"]) for q in out], [(["partei_takk", "tvo_fullordna"], "Tvo fullorðna, takk.")])
+        self.assertEqual([r["kind"] for r in report], ["beside_whole"])
+        self.assertEqual(parts_outside_their_whole(out, self.cur), 0)
+
+    def test_no_two_questions_share_an_answer(self):
+        from audiolesson.review_wholes import parts_outside_their_whole, refine_review
+        review = [
+            {"items": ["eigdu_godan_dag"], "prompt": "Wish him a good day.", "answer": "Eigðu góðan dag.", "stage": "situation"},
+            {"items": ["eigdu_godur"], "prompt": "Have a good day.", "answer": "Eigðu góðan dag.", "stage": "recombine"},
+            {"items": ["x"], "prompt": "p", "answer": "Eigðu góðan dag.", "stage": "meaning", "bonus": True},
+        ]
+        self.assertEqual(parts_outside_their_whole(review, self.cur), 1)
+        out, report = refine_review(review, self.cur, set(), self._prompts())
+        self.assertEqual([(q["items"], bool(q.get("bonus"))) for q in out], [(["eigdu_godan_dag", "eigdu_godur"], False), (["x"], True)])
+        self.assertEqual([r["kind"] for r in report], ["same_answer"])
+
+    def test_a_part_with_no_home_at_all_comes_out_of_the_review(self):
+        from audiolesson.review_wholes import has_home, refine_review
+        self.assertFalse(has_home(self.cur, self.cur.by_id["hundrad"]), "#215: no frame, no phrase")
+        self.assertTrue(has_home(self.cur, self.cur.by_id["hjalpina"]))
+        review = [{"items": ["hundrad"], "prompt": "a hundred", "answer": "hundrað", "stage": "meaning"}]
+        out, report = refine_review(review, self.cur, {"hundrad"}, self._prompts())
+        self.assertEqual((out, [r["kind"] for r in report]), ([], ["no_home"]))
+
+    def test_the_plan_carries_the_refined_review_and_the_lessons_row_reads_zero(self):
+        from audiolesson.cli import _plan
+        from audiolesson.review_wholes import parts_outside_their_whole
+        lessons = list(ListeningTaskTests._course(21))
+        changed = 0
+        for cur, _, sc in lessons:
+            plan = _plan(sc, cur)
+            self.assertEqual(parts_outside_their_whole(plan["review"], cur), 0, f"lesson {sc.lesson_number}")
+            changed += len(plan["review_refined"])
+            answers = [q["answer"].casefold() for q in plan["review"] if not q.get("bonus")]
+            self.assertEqual(len(answers), len(set(answers)), f"lesson {sc.lesson_number}: one answer asked twice")
+        self.assertGreater(changed, 10, "the review has something to refine on a real course")
+        # lesson 20's case on the real path: the part comes in with its whole
+        labels = [e.label for _, _, sc in lessons for e in sc.exercises if e.kind == "intro"]
+        self.assertIn("new: Takk fyrir hjálpina. (hjálpina)", labels)
+        self.assertNotIn("new: hjálpina", labels)
+
+
 class ListeningTaskTests(unittest.TestCase):
     """#248: the second half's listening exercises (pick out information, catch an unknown word) and their rotation."""
 
@@ -8571,7 +8704,13 @@ class NewFirstOrderTests(unittest.TestCase):
         cur, learner, day = self._state()
         spread = self._plan(cur, learner, day, "spread")
         first = self._plan(cur, learner, day, "new-first")
-        self.assertLess(abs(first.total_duration - spread.total_duration) / spread.total_duration, 0.05, (first.total_duration, spread.total_duration))
+        # a lesson the hard cap leaves short ends there by design (#206: up to hard_cap_short_max), rather than say short words alone; a part
+        # introduced inside its whole (#239) puts that sentence on the cap sooner, so this state can end that much short
+        short = spread.total_duration - first.total_duration
+        self.assertTrue(
+            abs(short) / spread.total_duration < 0.05 or (0 < short <= PlanConfig().hard_cap_short_max and not first.meta["bare_cap_lapsed"]),
+            (first.total_duration, spread.total_duration),
+        )
         default = Planner(cur, copy.deepcopy(learner), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=6, new_target=8.0, seed=3), today=day).build()
         self.assertEqual([e.label for e in default.exercises], [e.label for e in spread.exercises], "spread is the default and today's planner")
         self.assertEqual(spread.meta["config"]["order"], "spread")

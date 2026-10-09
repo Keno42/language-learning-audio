@@ -373,6 +373,21 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   `meta`: `longest_generated_run`, `target_reached_at` (end of the last introduction that costs a component), `spare_unserved_s` (seconds after it that serve neither
   a target expression nor the scene: generated sentences outside the scene, recalls of items taken as filler; due reviews are not counted),
   `asked_after_review` (items the learner's review asked today that the lesson asks again; open items' repair excepted); two rows in `replay_lesson.py`.
+- **A part lives inside its whole (#239, concept 1; §9 "Parts against utterances").**
+  - *In the lesson.* `Builder.whole_home(part)`: a vocab item that a construction's authored `situation_fill` or `example` fills («hjálpina» in
+    «Takk fyrir {thing}.»), with the other slots filled from what the learner has (the authored fills when available), at most one word of the frame
+    they have never met, and a sentence not yet heard whole (`is_new_utterance`). `intro` then calls `_intro_in_whole`: «A new expression. Thanks for the help.»,
+    the sentence said and repeated (slowly when the pattern is difficulty ≥ 2), «This word is in it:» the part, and a first retrieval of the whole from its meaning.
+    The exercise stays an `intro` of the part (`item_ids = [part]`), so `Script.review_questions` asks the sentence next day. A part without such a home is introduced as before.
+  - *A pattern whose example is known.* `_intro_construction` checks the worked example with `is_new_utterance`; when it is not new («Eigðu góðan dag.», or the
+    sentence the part came in with) it says «You know this:», the sentence and `construction_of_known` («It is a pattern: you can say it with other words.») instead of «Here is a useful pattern».
+  - *In the review* (`audiolesson/review_wholes.py`, applied in `cli._plan` to `plan.json` `review`; the bot is unchanged). `refine_review(review, cur, met, prompts)`:
+    (1) a part's question whose part sits in another question's answer is dropped and credited to that question (`beside_whole`); (2) a bare part with a whole
+    the learner knows (a construction filled with the part and met fills, the one whose authored fill names it first, else the shortest phrase that holds it) is
+    asked through it: the whole's meaning is the cue and the sentence the answer (`through_whole`, with `through` naming the item); a part with no home in the curriculum
+    (#215's definition: no slot takes its tags, no construction lists it as a prerequisite, no phrase holds its words) comes out of the review (`no_home`); a part whose homes
+    are all unmet stays bare, the fallback; (3) no two questions share an answer: the later one's items are credited to the first (`same_answer`). Bonus questions are left alone.
+    `meta.met_items` is what the learner has met, plus what this lesson taught. `plan.json` `review_refined` lists every change; `replay_lesson.py` row 5 counts a part beside its whole and a repeated answer (0).
 - **The second half is a rotation (#248, concept 2 and 3, O2, O5, G16).** Once the lesson has taught what the target asked for
   (`mark_delivered_target`, after every introduction, an embed and a pattern instance included: `target_reached_at` in the meta is that time)
   and nothing is left in `new_queue`, `audiolesson/listening_tasks.py::SecondHalfRotation` takes the filler time round *hear the scene (a theme

@@ -36,6 +36,8 @@ recombine_vocab = "文の中で使ってください。「{meaning}」。"
 also = "こうも言えます。"
 
 construction_intro = "便利なパターンです。「{meaning}」。"
+intro_whole = "新しい表現です。「{meaning}」。"
+construction_of_known = "これはパターンです。ほかの言葉でも言えます。"
 construction_slot = "同じ場所に、ほかの言葉を入れることができます。"
 slot_word = "なにか"
 

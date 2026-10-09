@@ -489,6 +489,8 @@ class Builder:
         base = self.cur.by_id.get(item.variant_of) if item.variant_of else None
         if base is not None and not item.target_m and (self.learner.has_met(base.id) or base.id in self.in_lesson):
             return self._intro_variant(sc, item, base)
+        if (home := self.whole_home(item)) is not None:
+            return self._intro_in_whole(sc, item, *home)
         ex = sc.new_exercise("intro", "intro", [item.id], f"new: {item.target}")
         self.said[_norm_utterance(item.target)] += 1  # the introduction counts once, however often it models the line
         self._narr(sc, ex, self.prompts.get("intro_new", meaning=self._m(item.spoken_meaning)))
@@ -539,6 +541,76 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def _known_words(self) -> set[str]:
+        """The words of the items the learner has met or that were introduced in this lesson."""
+        words: set[str] = set()
+        for it in self.cur.items:
+            if self.learner.has_met(it.id) or it.id in self.in_lesson:
+                words.update(w.lower() for t in re.split(r"\{[^}]*\}", it.target) for w in re.findall(r"[^\W\d_]+", t))
+        return words
+
+    def whole_home(self, item: Item) -> tuple[Item, dict[str, Item]] | None:
+        """The target expression a new part is introduced inside (#239, concept 1; §9 "Parts against utterances"): a construction whose authored
+        situation or example fills the part («Takk fyrir hjálpina.» for «hjálpina»), with the other slots filled from what the learner has (the authored
+        fills when they are available), at most one word of its frame that they have never met, and a sentence they have not heard whole. None when
+        the part has no such home: it is then introduced as before."""
+        if item.kind != "vocab" or item.variant_of or item.target_m:
+            return None
+        known = self._known_words()
+        for c in self.cur.items:
+            if c.kind != "construction" or not c.slots:
+                continue
+            authored = {**c.example, **c.situation_fill}
+            slot = next((s for s, ref in authored.items() if ref == item.id and s in c.slots), None)
+            if slot is None:
+                continue
+            fills = {slot: item}
+            for other in c.slots:
+                if other == slot:
+                    continue
+                ref = authored.get(other)
+                pick = self.cur.by_id.get(ref) if ref and self._available(ref) else None
+                if pick is None:
+                    break
+                fills[other] = pick
+            else:
+                frame = {w.lower() for t in re.split(r"\{[^}]*\}", c.target) for w in re.findall(r"[^\W\d_]+", t)}
+                if len(frame - known) <= 1 and self.is_new_utterance(self._filled(c, fills)[1]):
+                    return c, fills
+        return None
+
+    def _intro_in_whole(self, sc: Script, item: Item, construction: Item, fills: dict[str, Item]) -> Exercise:
+        """A new part inside the expression that holds it (#239): «A new expression: Thanks for the help.», the sentence said and repeated, «This word is
+        in it:» the part, and a first retrieval of the whole from its meaning. The part is said alone afterwards, never first; the next-day question
+        asks the sentence (``Script.review_questions`` reads the intro's cue and answer)."""
+        gender, target = self._filled(construction, fills)
+        meaning = self.cur.resolve_slots(construction, fills)[1]
+        voice = VOICE_OF[gender or "f"]
+        ex = sc.new_exercise("intro", "intro", [item.id], f"new: {target} ({item.target})")
+        self.said[_norm_utterance(target)] += 1  # the introduction counts once, however often it models the line
+        self._narr(sc, ex, self.prompts.get("intro_whole", meaning=self._m(meaning)))
+        self._beat(sc, ex)
+        self._speak(sc, ex, target, speaker=voice)
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("repeat"))
+        self._speak(sc, ex, target, speaker=voice)
+        self._repeat_pause(sc, ex, target)
+        if construction.difficulty >= 2:
+            self._narr(sc, ex, self.prompts.get("slowly"))
+            self._speak(sc, ex, target, speaker=voice, rate=self.timing.slow_rate)
+            self._repeat_pause(sc, ex, target)
+            self._narr(sc, ex, self.prompts.get("natural"))
+            self._speak(sc, ex, target, speaker=voice)
+            self._repeat_pause(sc, ex, target)
+        self._frame(sc, ex, self.prompts.get("embed_part"))
+        self._speak(sc, ex, item.target, speaker=voice)
+        self._beat(sc, ex)
+        self._narr(sc, ex, self._as(gender, self._meaning_prompt(meaning)))
+        self._answer_pause(sc, ex, target, item, generative=False)
+        self._answer(sc, ex, target, speaker=voice)
+        self._gap(sc, ex)
+        return ex
+
     def _intro_variant(self, sc: Script, item: Item, base: Item) -> Exercise:
         """A near form of something the learner has met («tvær» for «tveir», «góð» for «gott»),
         introduced as that: «You know this:» the form they have, «Here is another form:» the
@@ -584,27 +656,34 @@ class Builder:
         target, meaning = self.cur.resolve_slots(item, fills)
         self.used_combos.add(_combo_key(item, fills))  # the worked example is heard, not new
         ex.item_ids += [f.id for f in fills.values() if f.id not in ex.item_ids]
-        self._narr(sc, ex, self.prompts.get("construction_intro", meaning=self._m(meaning)))
-        self._beat(sc, ex)
-        self._speak(sc, ex, target)
-        self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("repeat"))
-        self._speak(sc, ex, target)
-        self._repeat_pause(sc, ex, target)
-        if item.difficulty >= 2:
-            self._narr(sc, ex, self.prompts.get("slowly"))
-            self._speak(sc, ex, target, rate=self.timing.slow_rate)
-            self._repeat_pause(sc, ex, target)
-            self._narr(sc, ex, self.prompts.get("natural"))
+        known_example = not self.is_new_utterance(target)  # #239: «Eigðu góðan dag.» is known: the pattern is that phrase with other words, not news
+        if known_example:
+            self._frame(sc, ex, self.prompts.get("embed_known"))
+            self._speak(sc, ex, target)
+            self._beat(sc, ex)
+            self._frame(sc, ex, self.prompts.get("construction_of_known"))
+        else:
+            self._narr(sc, ex, self.prompts.get("construction_intro", meaning=self._m(meaning)))
+            self._beat(sc, ex)
+            self._speak(sc, ex, target)
+            self._beat(sc, ex)
+            self._narr(sc, ex, self.prompts.get("repeat"))
             self._speak(sc, ex, target)
             self._repeat_pause(sc, ex, target)
-        if self._fills_gendered(fills):
-            # the words follow the speaker's gender: a man's form too, in the man's voice
-            target_m = self.cur.resolve_slots(item, fills, "m")[0]
-            self._narr(sc, ex, self.prompts.get("man_says"))
-            self._speak(sc, ex, target_m, speaker=VOICE_OF["m"])
-            self._repeat_pause(sc, ex, target_m)
-        self._frame(sc, ex, self.prompts.get("construction_slot"))
+            if item.difficulty >= 2:
+                self._narr(sc, ex, self.prompts.get("slowly"))
+                self._speak(sc, ex, target, rate=self.timing.slow_rate)
+                self._repeat_pause(sc, ex, target)
+                self._narr(sc, ex, self.prompts.get("natural"))
+                self._speak(sc, ex, target)
+                self._repeat_pause(sc, ex, target)
+            if self._fills_gendered(fills):
+                # the words follow the speaker's gender: a man's form too, in the man's voice
+                target_m = self.cur.resolve_slots(item, fills, "m")[0]
+                self._narr(sc, ex, self.prompts.get("man_says"))
+                self._speak(sc, ex, target_m, speaker=VOICE_OF["m"])
+                self._repeat_pause(sc, ex, target_m)
+            self._frame(sc, ex, self.prompts.get("construction_slot"))
         # a second example with a known fill, as the first retrieval
         gen = self.generate(item, exclude=fills)
         if gen is None:

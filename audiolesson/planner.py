@@ -2718,6 +2718,7 @@ class Planner:
             "forms_taught": [self.cur.note_by_id[n].teaches for n in self.notes_played if self.cur.note_by_id[n].teaches],
             "bare_cap_lapsed_short_s": lapse_short[0],  # how short the lesson would have ended then
             "bare_cap_lapsed": cfg.max_bare_uses > 0 and bare_cap[0] == 0,  # nothing else was left: short items were said alone again
+            "met_items": sorted({i for i in self.cur.by_id if self.learner.has_met(i)} | set(self.exposures) | taught()),  # what the review may ask through (#239)
             "reviewed_items": reviews_used,
             "open_items": open_today,
             "open_not_fitted": [i for i in open_ids if i not in open_today],
