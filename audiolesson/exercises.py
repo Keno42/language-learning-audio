@@ -8,6 +8,7 @@ sounds. Keep those three concerns apart.
 from __future__ import annotations
 
 import random
+import re
 from collections import Counter
 from dataclasses import dataclass, field
 
@@ -49,6 +50,22 @@ def _other_voice(speaker: str) -> str:
 
 VOICE_OF = {"f": "native_a", "m": "native_b"}  # every profile voices native_a female, native_b male
 GENDER_OF = {v: g for g, v in VOICE_OF.items()}
+
+
+_FUNCTION_WORDS = frozenset({"á", "í", "með", "að", "og", "af", "um", "til", "frá", "við", "er", "en", "of", "ég", "þú"})
+_FILL_WORD_RE = re.compile(r"[^\W\d_]+", re.UNICODE)
+
+
+def _fills_repeat_a_word(fills: dict[str, Item]) -> bool:
+    """Whether two fills of one sentence share a word (casefolded exact tokens of their targets; function words don't count).
+    Inflected repeats («mjólk» / «mjólkur») are not caught."""
+    seen: set[str] = set()
+    for it in fills.values():
+        words = {w for w in _FILL_WORD_RE.findall(it.target.casefold()) if w not in _FUNCTION_WORDS}
+        if words & seen:
+            return True
+        seen |= words
+    return False
 
 
 def _norm_utterance(text: str) -> str:
@@ -1060,10 +1077,12 @@ class Builder:
 
     @staticmethod
     def _product(options: dict[str, list[Item]], slots: list[str]) -> list[dict[str, Item]]:
+        """Every combination of the slots' fills, less those in which two fills share a word (#251 review: «Ég ætla að fá mjólk
+        með mjólk.»): a sentence repeating a word of its own is not plausible (§9). Short function words don't count."""
         out: list[dict[str, Item]] = [{}]
         for s in slots:
             out = [{**d, s: it} for d in out for it in options[s]]
-        return out
+        return [c for c in out if not _fills_repeat_a_word(c)]
 
     # ------------------------------------------------------------------ note
 

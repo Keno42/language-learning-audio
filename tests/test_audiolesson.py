@@ -5264,6 +5264,27 @@ class SpareTimeTests(unittest.TestCase):
         self.assertEqual(sorted(first), sorted(plain))
 
 
+class RepeatedWordFillsTests(unittest.TestCase):
+    """#251 review (owner): a generated sentence never repeats a word across two of its fills («Ég ætla að fá mjólk með mjólk.»)."""
+
+    def test_two_fills_sharing_a_word_never_make_a_sentence(self):
+        from audiolesson.exercises import Builder
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        c = cur.by_id["eg_aetla_ad_fa_addon"]
+        learner = fresh()
+        for i in ("mjolk", "kaffi", "med_mjolk", "eg_aetla_ad_fa"):
+            self.assertIn(i, cur.by_id, i)
+            learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
+        seen = set()
+        for _ in range(30):
+            g = b.generate(c, prefer_unused=False)
+            if g is not None:
+                seen.add(g.target)
+        self.assertNotIn("Ég ætla að fá mjólk með mjólk.", seen)
+        self.assertIn("Ég ætla að fá kaffi með mjólk.", seen, "a different word is still fine")
+
+
 class ExcludeFillsTests(unittest.TestCase):
     """#192 (owner, after lesson 20): a named fill a construction never takes although its tag fits: an exception to the tags, not a
     new tagging scheme («Áttu leigubíl?» is not said; «Ég þarf leigubíl.» stays)."""
