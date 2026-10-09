@@ -27,6 +27,7 @@ MAX_INTERVAL_DAYS = 180
 AUTO_STEP_EVERY = 3  # auto mode: lessons between pace increases
 NEW_TARGET_START = 8.0  # weighted new components a lesson starts at (#218 b3)
 NEW_TARGET_MIN, NEW_TARGET_MAX = 4.0, 12.0
+NEW_TARGET_MINUTES = 30.0  # new_target is a rate per this many minutes; a lesson of m minutes plans m/30 of it (#242)
 PACE_WINDOW = 3  # reported lessons the recall rate is taken over (#218)
 LOADS = ("light", "right", "heavy")  # the learner's rating of a lesson's load (#218)
 
@@ -73,7 +74,7 @@ class LearnerState:
     reported: list[int] = field(default_factory=list)  # lesson numbers the learner gave feedback on
     feedback_mode: str = "manual"  # manual: pace rises only on `report`; auto: rises on its own every few lessons
     pace_changed_at: int = 0  # lesson number of the last pace change (auto mode steps slowly)
-    new_target: float = NEW_TARGET_START  # weighted new components a lesson aims at (#218 b3), moved by suggest_target
+    new_target: float = NEW_TARGET_START  # weighted new components per ``NEW_TARGET_MINUTES`` minutes (#218 b3, #242), moved by suggest_target
     target_changed_at: int = 0
     speech_calibration: dict[str, float] = field(default_factory=dict)  # lang → measured/estimated TTS length
     notes_heard: dict[str, int] = field(default_factory=dict)  # note id → times played
