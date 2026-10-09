@@ -901,7 +901,8 @@ issues) reads 0 on the replay, and three feedbacks after it carry no remark of t
 1. minutes after the target that serve neither a target expression nor a scene; (built in #238 as `spare_unserved_s`; the not-due early tiers still run before the ear, see DESIGN.md)
 2. lines a listening scene asks for that were never taught; (built in #240 as `listening_untaught`)
 3. items the audio asks that the same morning's review asked; (built in #238 as `asked_after_review`; a dialogue's lines and a note's examples are not excluded)
-4. framing lines followed by an example without a beat.
+4. framing lines followed by an example without a beat. (built in #241: `Builder._frame` says a framing line and a beat; the row counts
+   any instructor narration followed straight by speech, except the action cues and a note's prose)
 
 1. **Make the loop measurable and use it (G1). Cheap; everything else depends on it.**
    - A weekly read of the signals against the predictions of merged changes, written down
