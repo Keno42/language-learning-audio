@@ -46,6 +46,8 @@ class ItemState:
     recalled: int = 0  # confirmed: reported as recalled (issue #119)
     hesitated: int = 0  # confirmed: reported as recalled with hesitation
     last_outcome: str = ""  # the latest confirmed outcome: recalled | hesitated | not_recalled
+    # the day the learner's own review (the bot's, before the lesson) last asked it (#238): the audio does not ask it again that day
+    last_reviewed: str = ""
     exposures: int = 0
     # set by a reported failure: the next lesson that recalls the item gives it a little
     # more time to answer (Timing.failure_think_time), then clears it (issue #104)
@@ -473,6 +475,9 @@ class LearnerState:
                 entry["ok"] = outcome != "not_recalled"
                 entry["outcome"] = outcome
 
+        for item_id in (*failed, *hesitated, *recalled):
+            if (st := state(item_id)) is not None:
+                st.last_reviewed = today.isoformat()
         for item_id in failed:
             if (st := state(item_id)) is None:
                 continue

@@ -891,9 +891,9 @@ what. Re-rank it when the evidence moves.
 
 Each "Now" item is done when its row in the daily read (`tools/replay_lesson.py`; the rows come with the first of these
 issues) reads 0 on the replay, and three feedbacks after it carry no remark of the same kind:
-1. minutes after the target that serve neither a target expression nor a scene;
+1. minutes after the target that serve neither a target expression nor a scene; (built in #238 as `spare_unserved_s`; the not-due early tiers still run before the ear, see DESIGN.md)
 2. lines a listening scene asks for that were never taught;
-3. items the audio asks that the same morning's review asked;
+3. items the audio asks that the same morning's review asked; (built in #238 as `asked_after_review`; a dialogue's lines and a note's examples are not excluded)
 4. framing lines followed by an example without a beat.
 
 1. **Make the loop measurable and use it (G1). Cheap; everything else depends on it.**

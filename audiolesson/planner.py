@@ -57,7 +57,7 @@ class PlanConfig:
     max_sentence_utterances: int = 6
     # Spare time is more to hear, never a close variant as filler (#218 b1): after the listening dialogues, up to this many
     # heard-only plays of a theme level already played (partner lines in variants, the cues kept).
-    heard_theme_plays: int = 2
+    heard_theme_plays: int = 4  # spare time is more to hear: the lesson's own theme level first, then others (#218 b1, #238)
     # #171 B: a construction whose every slot already has ``cheap_min_fillers`` known fillers is cheap:
     # it adds sentences at once. One takes the place of the last non-trip item of a lesson's new
     # items (``cheap_place``; a trip item is never displaced), and, when a lesson has time left, up
@@ -83,6 +83,7 @@ class PlanConfig:
     # early, as before.
     intro_span: float = 0.75
     dialogue_every: int = 7  # try a dialogue roughly every N exercises
+    generated_run_max: int = 3  # generated sentences in a row before something to hear (or one of today's lines) comes between (#238)
     drill_streak_limit: int = 5  # consecutive isolated recalls before a dialogue is pulled forward
     dialogue_first_turns: int = 2  # turns played the first time; one more each later encounter
     # a dialogue already heard in full rests this many lessons before it is replayed: with
@@ -746,19 +747,81 @@ class Planner:
         met = [self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id]
         horizon = self.today + timedelta(days=self.cfg.review_ahead_days)
         met = [i for i in met if not self.learner.items[i.id].due or date.fromisoformat(self.learner.items[i.id].due) <= horizon]
-        return self._by_urgency(met)
+        return self._by_urgency([i for i in met if not self.reviewed_today(i.id)])
 
-    def select_early_reviews(self, exclude: set[str], rested_only: bool = True) -> list[Item]:
+    def _spare_time(self, sc: Script, introduced: list[Item], theme_pick: tuple | None, early_ids: set[str]) -> dict:
+        """The daily-read figures for #238. ``target_reached_at``: the end of the last introduction of a new item that costs something.
+        ``spare_unserved_s``: the seconds after it that serve neither a target expression of the lesson (an item new today, or one of
+        the scene's) nor the scene and the ear (a theme or dialogue play, a heard-only play): a generated sentence of a pattern outside the
+        scene, or a recall of a not-due item taken as filler. Due reviews are scheduled, not filler, and are not counted.
+        ``asked_after_review``: items the learner's own review asked today that this lesson asks again (open items' repair excepted)."""
+        today_ids = {i.id for i in introduced} | set(self.embedded)
+        paid = {i.id for i in introduced if not self.components_mode or self.component_by_item.get(i.id, 1.0) > 0}
+        reached = max((e.start + e.duration for e in sc.exercises if e.kind == "intro" and e.item_ids and e.item_ids[0] in paid), default=0.0)
+        scene_cons = self.scene_constructions(theme_pick) or set()
+        scene_items: set[str] = set()
+        if theme_pick:
+            theme, n, _ = theme_pick
+            scene_items = {ref for t in theme.levels[n].turns if t.who == "you" for ref in t.items}
+        closing_at = next((e.start for e in sc.exercises if e.kind == "closing"), float("inf"))
+        unserved = 0.0
+        for e in sc.exercises:
+            if e.start < reached or e.start >= closing_at or e.kind not in ("recall", "generative", "connect"):
+                continue
+            if set(e.item_ids) & (today_ids | scene_items | scene_cons):
+                continue
+            if e.kind == "generative" or set(e.item_ids) & early_ids:
+                unserved += e.duration
+        open_ids = set(self.learner.open_items())
+        again = [
+            i for i in dict.fromkeys(e.item_ids[0] for e in sc.exercises if e.kind in ("recall", "generative", "connect") and e.item_ids)
+            if self.reviewed_today(i) and i not in open_ids
+        ]
+        run = longest = 0
+        for e in sc.exercises:
+            run = run + 1 if e.kind == "generative" else 0
+            longest = max(longest, run)
+        return {"target_reached_at": round(reached), "spare_unserved_s": round(unserved), "asked_after_review": again, "longest_generated_run": longest}
+
+    def reviewed_today(self, item_id: str) -> bool:
+        """The learner's own review asked it today, before this lesson (#238): the audio does not ask it again (an open item's repair
+        practice is a different path and stays)."""
+        st = self.learner.items.get(item_id)
+        return st is not None and st.last_reviewed == self.today.isoformat()
+
+    def scene_constructions(self, theme_pick: tuple | None) -> set[str] | None:
+        """The patterns of the lesson's scene (#238): the constructions the learner's turns of the theme level use, and the pattern a linked
+        phrase is an instance of. A generated sentence in spare time is a parallel of one of these. None when the lesson has no theme (a first
+        lesson), where nothing is restricted."""
+        if not theme_pick:
+            return None
+        theme, n, _ = theme_pick
+        out: set[str] = set()
+        for turn in theme.levels[n].turns:
+            if turn.who != "you":
+                continue
+            for ref in turn.items:
+                it = self.cur.by_id.get(ref)
+                if it is None:
+                    continue
+                if it.kind == "construction":
+                    out.add(it.id)
+                elif it.instance_of:
+                    out.add(it.instance_of)
+        return out
+
+    def select_early_reviews(self, exclude: set[str], rested_only: bool = True, prefer: frozenset[str] = frozenset()) -> list[Item]:
         """Not-due items for a lesson that has run out of everything else (due reviews, new
         material, the second pass), the longest ago practised first, so none comes back lesson
         after lesson (#94). ``rested_only``: only those last practised at least half their
         interval ago. Never a stable item (#151): it waits for its date."""
         out = [
-            (self.learner.items[i.id].last_practiced, i.order, i)
+            (i.id not in prefer, self.learner.items[i.id].last_practiced, i.order, i)
             for i in self.cur.items
             if i.id in self.learner.items and i.id not in exclude and (not rested_only or self._rested(i.id)) and not self._stable(i)
+            and not self.reviewed_today(i.id)
         ]
-        return [i for *_, i in sorted(out, key=lambda t: t[:2])]
+        return [i for *_, i in sorted(out, key=lambda t: t[:3])]
 
     def _stable(self, item: Item) -> bool:
         """Issue #151: plainly known. See ``PlanConfig.stable_successes``."""
@@ -1385,7 +1448,7 @@ class Planner:
                 stage = next_stage(ladder, stage)
 
         def load_early(rested_only: bool) -> list[Item]:
-            items = self.select_early_reviews(exclude=set(self.exposures), rested_only=rested_only)
+            items = self.select_early_reviews(exclude=set(self.exposures), rested_only=rested_only, prefer=scene_pref)
             early_ids.update(i.id for i in items)
             return items
 
@@ -1854,7 +1917,7 @@ class Planner:
             self._record([c.id], ex.stage or "recombine", ex.item_ids)
             touch(c)
 
-        def pick_substitution() -> Item | None:
+        def pick_substitution(scene_only: bool = True) -> Item | None:
             """Issue #151: a construction past its hint stages (met before, not failed; if
             stable, due or rested, as for early reviews) that can still make a sentence not
             heard this lesson, its slots filled with words met before, under
@@ -1862,13 +1925,18 @@ class Planner:
             run swaps words in one frame («Talar þú dönsku?» → «… japönsku?»); then
             constructions sharing a topic with today's new items, the least used, and
             curriculum order."""
-            if (c := continue_substitution()) is not None:
+            restrict = scene_cons if scene_only else None
+            if (c := continue_substitution()) is not None and (restrict is None or c.id in restrict):
                 return c
             today_topics = {t for it in introduced for t in it.topics}
             best: tuple | None = None
             for c in self.cur.items:
                 if c.kind != "construction" or c.id in recent:
                     continue
+                if self.reviewed_today(c.id) and c.id not in self.exposures:
+                    continue  # the learner's own review asked it this morning (#238)
+                if restrict is not None and c.id not in restrict:
+                    continue  # a parallel of a target expression of the lesson's scene, never a run of unrelated known patterns (#238)
                 if substitutions.get(c.id, 0) >= cfg.substitutions_per_construction:
                     continue
                 st = self.learner.items.get(c.id)
@@ -1890,7 +1958,7 @@ class Planner:
             pair; for an arc, the wider pair must still include one of its items."""
             just_touched = recent[-1] if recent else None
             preferred = prefer if prefer is not None else introduced
-            rest = [it for it in introduced if it not in preferred] + [self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id]
+            rest = [it for it in introduced if it not in preferred] + [self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id and not self.reviewed_today(i)]
             scope = {it.id for it in preferred}
             candidates = _connect_pair(list(preferred) + rest, just_touched, scope, exchange_only=True) if scope else None
             exchanged = self.dialogues_played or any(e.kind == "connect" and e.stage == "exchange" for e in sc.exercises)
@@ -1931,9 +1999,15 @@ class Planner:
             schedule_open(self.cur.by_id[item_id], k)
             reviews_used.append(item_id)
         open_timeline.sort(key=lambda t: t[:2])
+        theme_pick = self.pick_theme()
+        scene_cons = self.scene_constructions(theme_pick)  # spare-time sentences are parallels of these (#238); None: no theme, no restriction
+        scene_pref = frozenset(
+            (scene_cons or set()) | ({r for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you" for r in t.items} if theme_pick else set())
+        )  # the not-due fillers start with the scene's own items and patterns (#238)
         refresh_items = [
             c for c in self.cur.items
             if c.kind == "construction" and c.refresh and self.learner.knows(c.id) and not self.learner.is_open(c.id)
+            and (scene_cons is None or c.id in scene_cons) and not self.reviewed_today(c.id)
         ]
         for j, c in enumerate(refresh_items):
             for k in range(c.refresh):
@@ -1944,7 +2018,6 @@ class Planner:
 
         # #149 1b-ii: the lesson's theme exchange, played twice: early with the partner's lines translated, late
         # without the translation; the cue and the scene line play both times (#210) (about 15% and 85% of the lesson's time)
-        theme_pick = self.pick_theme()
         theme_marks = (0.15, 0.85) if theme_pick else ()
         theme_replay = bool(theme_pick) and theme_pick[1] < self.learner.themes_done.get(theme_pick[0].id, 0)  # a level already played
         theme_plays = 0
@@ -1981,6 +2054,8 @@ class Planner:
             if len(heard_plays) >= cfg.heard_theme_plays:
                 return None
             own = (theme_pick[0].id, theme_pick[1]) if theme_pick else None
+            if own is not None and own[1] < self.learner.themes_done.get(own[0], 0) and f"{own[0]}:{own[1] + 1}" not in heard_plays and theme_plays >= len(theme_marks):
+                return next((t, own[1]) for t in cfg.themes if t.id == own[0])  # the lesson's own scene first (#238), once both plays are done
             cands = [
                 (t, n) for t in cfg.themes for n in range(min(self.learner.themes_done.get(t.id, 0), len(t.levels)))
                 if (t.id, n) != own and f"{t.id}:{n + 1}" not in heard_plays
@@ -2038,8 +2113,24 @@ class Planner:
             # the closing block recalls every introduced item: reserve for the new ones too
             closing_reserve = min(budget * cfg.closing_share, 8 + 14 * (len(introduced) + len(new_queue)))
 
+        def generated_run() -> int:
+            run = 0
+            for ex in reversed(sc.exercises):
+                if ex.kind != "generative":
+                    break
+                run += 1
+            return run
+
+        def ear_alternative(remaining: float) -> bool:
+            """Something to put between generated sentences (#238): a theme level to hear again or a listening dialogue."""
+            heard_left = len(heard_plays) < cfg.heard_theme_plays and any(
+                self.learner.themes_done.get(t.id, 0) > 0 and f"{t.id}:1" not in heard_plays for t in cfg.themes
+            )
+            return remaining >= 90 and (heard_left or self.listening_dialogue() is not None)
+
         while sc.total_duration < budget - closing_reserve:
             remaining = budget - closing_reserve - sc.total_duration
+            gen_capped = theme_pick is not None and generated_run() >= cfg.generated_run_max and ear_alternative(remaining)  # a lesson with a scene
             due = [p for p in pending if p.due <= idx]
             due.sort()
             acted = False
@@ -2206,12 +2297,14 @@ class Planner:
                 for cand in list(reviews):
                     if cand.id in recent or (run_of_open and cand.id in open_today):
                         continue  # open practices never run on past three: another review comes between
+                    if gen_capped and cand.kind == "construction":
+                        continue  # a construction's review is a generated sentence: something to hear comes between runs of them (#238)
                     if cand.topics and cand.topics[0] in recent_topics and len(reviews) > 2:
                         continue
                     pick = cand
                     break
                 if pick is None:
-                    pick = next((c for c in reviews if c.id not in recent), None)
+                    pick = next((c for c in reviews if c.id not in recent and not (gen_capped and c.kind == "construction")), None)
                 if pick is not None:
                     reviews.remove(pick)
                     first_touch = passes == 1 or pick.id in early_ids
@@ -2230,6 +2323,16 @@ class Planner:
             # 5. nothing else fits here (typically the first lessons, with nothing to review):
             #    introduce early, else pull the next reactivation of a *different* item early,
             #    else take an extra new item, else accept a repeat, else stop.
+            if not acted and gen_capped:
+                # after a run of generated sentences (#238): a theme level heard again, or a listening dialogue
+                if remaining >= 90 and (ht := pick_heard_theme()) is not None:
+                    play_heard_theme(*ht)
+                    acted = True
+                elif remaining >= 90 and (ld := self.listening_dialogue()) is not None:
+                    self._play_listening(sc, *ld)
+                    since_dialogue = 0
+                    acted = True
+
             if not acted:
                 candidate = next(
                     (p for p in sorted(pending) if p.item.id not in recent and not (in_new_block() and not is_today(p.item.id))),
@@ -2294,15 +2397,15 @@ class Planner:
                     # Consumes an idx tick like every other branch.
                     start_arc(more)
                 elif passes < cfg.max_review_passes and reviews_used and early_tier >= 1:
-                    # material ran out before the time did: a second pass over what was reviewed,
-                    # most urgent first, each one step harder than earlier in this lesson
+                    # the last resort, after the scene, more to hear and today's new lines (#238): material ran out before the time did, a
+                    # second pass over what was reviewed, most urgent first, each one step harder than earlier in this lesson
                     passes += 1
                     reviews = deque(self._second_pass(reviews_used, recent))
                     continue
                 elif reviews_used and (early_tier == 0 or (early_tier == 1 and passes >= cfg.max_review_passes)):
-                    # still time left: not-due items, the stalest first. First those rested half
-                    # their interval (before the second pass); last, once the second pass is used
-                    # up too, any item not practised today. After that, arcs are unlimited.
+                    # likewise the last resort (#238): not-due items, the stalest first, never one the learner's own review asked today. First
+                    # those rested half their interval (before the second pass); last, once the second pass is used up too, any item not
+                    # practised today. After that, arcs are unlimited.
                     early_tier += 1
                     reviews = deque(load_early(rested_only=early_tier == 1))
                     continue
@@ -2327,6 +2430,8 @@ class Planner:
                     pass  # nothing else is left: the light reviews of known constructions come early
                 elif bare_cap[0] > 0 and try_extra():
                     pass  # nothing else is left: a planned extra or the cheap construction, never a close variant (#218 b1)
+                elif reviews_used and (sub := pick_substitution(scene_only=False)) is not None:
+                    do_substitution(sub)  # the very last resort (#238): a known pattern outside the scene, rather than bare words again or a short lesson
                 elif hard_cap_held[0] and bare_cap[0] > 0 and remaining < cfg.hard_cap_short_max and (capped_backlog or intro_timeline):
                     break  # the hard cap freed this time: the two caps conflict, so the lesson ends a little short, not bare words again (#206)
                 elif bare_cap[0] > 0 and (capped_backlog or intro_timeline):
@@ -2371,7 +2476,10 @@ class Planner:
             b.final_block_announce(sc)
             # any reactivation that never came due is folded into the closing recall
             order = sorted(introduced, key=lambda i: -i.difficulty)  # hardest first, easiest last
+            closed: set[str] = set()  # sentences the closing recalls asked for another new item: its holder is not asked again (#238)
             for item in order:
+                if item.id in closed:
+                    continue  # a part just asked inside the sentence of another new item (the closing double of «Ein króna.»)
                 stage = self._harder_than_today(item)
                 if stage == "dialogue":
                     stage = self.below_dialogue(item)
@@ -2380,6 +2488,7 @@ class Planner:
                 if stage == "recombine":
                     stage = self.recombine_or_instead(item)  # no fresh sentence: a meaning recall
                 if (stage in BARE_STAGES or stage == "recombine") and short_today(item) and said_in_sentence(item) and ask_a_sentence(item, repeat=True):
+                    closed.update(i for i in sc.exercises[-1].item_ids[:1] if i != item.id)
                     continue  # #179: said in a sentence today, so asked in one now, not as a bare part
                 if over_hard_cap(item, closing=True):
                     continue  # #192: it was just said as often as a lesson allows; the closing recall would be one more identical drill
@@ -2387,9 +2496,11 @@ class Planner:
                     continue  # asked in a sentence today and every sentence that holds it is at the cap: no bare part in its place
                 ex = b.recall(sc, item, stage)
                 self._record([item.id], ex.stage or stage, ex.item_ids)
+                closed.update(i for i in ex.item_ids[:1] if i != item.id)
         b.closing(sc, n)
 
         sc.retime()
+        spare = self._spare_time(sc, introduced, theme_pick, early_ids)
         sc.meta = {
             "date": self.today.isoformat(),
             "config": {
@@ -2427,6 +2538,7 @@ class Planner:
             "open_items": open_today,
             "open_not_fitted": [i for i in open_ids if i not in open_today],
             "reviewed_early": [i for i in reviews_used if i in early_ids],
+            **spare,
             "due_at_start": self.learner.due_count(self.today),
             "due_not_fitted": [i.id for i in reviews if i.id not in self.exposures and self.learner.review_priority(i.id, self.today) >= 1.0],
             "dialogues": list(self.dialogues_played),
