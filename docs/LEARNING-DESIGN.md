@@ -871,6 +871,7 @@ concept in §3 and §9 "Good enough overall". The next work follows from it (§8
 | **G12** | **Scaffolds don't fade.** The English situation and the "you've said…" line are played in full every time, in at least five exercises of one lesson, although the learner knows the line; only the partner's line has a limit on how often its meaning is given. | §5.10 | O5; H3, H8 |
 | **G13** | **Nothing checks that a part is taught before the whole.** «Hvenær leggjum við af stað?» can come before «Hvenær?». | §5.10 | O1; H5 |
 | **G15** | **Generative supply is tiny.** After 12 lessons the learner knows 3 constructions; known constructions × known fillers give 6 sentences. A lesson that has run out of sentences repeats words, and the cap on bare repeats (G14) lapses. The course has no negation operation, and questions exist only as a late transform. | #171 (counts from lesson 13's export); #170's replay (cap lapsing in lesson 13, 7 of 9 short items without a sentence in lesson 15) | O1, O5; H6, H12. Revised by the concept (owner, after lesson 20; §3, §9 "Good enough overall"): supply matters only as parallels of target expressions; more generation is not a goal (lesson 20's boring stretch was generated sentences, §5.16) |
+| **G16** | **Concept 2 and 3 have no exercise.** Finding the information in what is said, and pinning down the unknown word, are two of the four things the lessons should leave the learner able to do (§3), and no exercise trains them; the time after the target went to recombination and reviews instead. | §5.16; #247's replay of the lesson-20 export (3.5–4 unserved minutes, runs of 8 and 17 generated sentences) | O2, O5; H8, H3 (#248) |
 | **G14** | **Short items are drilled alone.** A new item of one or two words is recalled by itself six to nine times in a lesson, often within minutes, and rarely inside a sentence; when it is, it is the same sentence. | §5.11 (lesson 13 replayed after the batch); §5.1 (lesson 6, «vegabréf») | O1, O5; H3, H6, H12 |
 
 ---
@@ -883,7 +884,13 @@ what. Re-rank it when the evidence moves.
 **Now (after lesson 20, under the concept in §3).** The lesson's twenty-point parts come first, ahead of every step below,
 #213 included (§9 "Good enough overall", §5.16):
 - Spare time serves the scenes and the ear (concept 1, 2 and 4), not random recombination of known patterns, nor
-  reviews of what the morning's Discord review has just asked.
+  reviews of what the morning's Discord review has just asked. #247 takes the morning's reviewed items out and adds
+  heard plays. **The rest (#248, owner, 2026-10-09):** the lesson's second half trains concept 2 and 3, which had no
+  exercise. *Pick out the information*: a partner line at natural speed, "how much / when / where?", the answer.
+  *Catch the unknown word*: a line with one word beyond what the learner knows, the word and «Hvað þýðir þetta?».
+  These rotate with a heard scene and today's lines once the target is reached. The sentences that were boring to
+  *say* in a row (lesson 20; up to 17 on #247's replay) are the material when *heard* with a question. Not-due
+  reviews are the last resort.
 - A part or a pattern is taught inside its target expression (concept 1). That means «Takk fyrir hjálpina.», not
   «hjálpina» 'for help'; and «Eigðu {adj} {time}.» as the pattern of the known «Eigðu góðan dag.», not as something new.
 - A listening scene never asks for a line that was never taught (concept 1 and 4).
@@ -1041,6 +1048,7 @@ Don't reopen these without new evidence; when you do, say what changed.
     lines and picked out; saying them is limited to the target expressions that need them («Tvo fullorðna, takk.»).
     Lesson 20's boring stretch held «Það kostar … krónur» ×3 and «klukkan …» ×3, which is the shape a spoken
     track would repeat.
+    It lives in #248's *pick out the information* exercise (owner, 2026-10-09).
 - **Conversation.**
   - An exchange's target-language turns must form a plausible conversation with the
     instructor lane removed (#48).
