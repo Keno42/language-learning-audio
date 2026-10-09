@@ -163,6 +163,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "theme levels heard again (#218 b1)": ", ".join(m.get("heard_themes", [])) or "–",
         "heard-only lines": narrated.count(Prompts.load(cur.known_lang).get("listening_line")),
         "tried lines / bonus questions": f"{len(m.get('listening_tried', []))} / {len(m.get('bonus_review', []))}",
+        "lines a listening scene asks for that were never taught (#240)": len(m.get("listening_untaught", [])),
         "cheap constructions": ", ".join(m.get("cheap_constructions", [])) or "–",
         "refresh sentences": sum((m.get("refresh_sentences") or {}).values()),
         "variants": ", ".join(m.get("variant_items", [])) or "–",

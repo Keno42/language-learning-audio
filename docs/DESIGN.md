@@ -50,7 +50,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   practised without a written question (only a cloze, a hint or a dialogue) gets one from its situation or meaning, `stage: "open"`; so does one that did
   not fit the lesson (`open_not_fitted`, #220), because the bot asks every open item. The cue is the lesson's own (`exercises.meaning_prompt`, with the item's
   `context`); constructions have no single answer and are skipped. An open
-  item is *met*: a theme or listening turn that lacks only an open item is asked, not «tried» (`Planner._tried_turns`, `classify_turns`).
+  item is *met*: a theme or listening turn that lacks only an open item is asked, not heard (`Planner._untaught_turns`, `classify_turns`).
 - **Scaffolds fade (G12).** A situation recall of an item with `prompt_by` is cued by the
   prompting item's line in Icelandic, said by `native_b` (`Builder.prompt_item`): bare when the
   learner knows it and it isn't open, with its meaning on the first two hearings in the lesson
@@ -70,9 +70,15 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   turn has no task cue. A dialogue with no missing line is ordinary (asked, with its pauses, not
   counted in `dialogues_listened`); `listening_asked` in `plan.json` lists the turns asked
   because the line can be said although `knows()` is false.
-  **Tried lines (#183).** In a listening dialogue a turn the learner can't say in full but can say a
-  chunk of (`Planner.can_say_part`) is *tried*: its cue, «Try it.» (`listening_try`), the answer pause and
-  the model line. A turn with nothing they can say stays heard only. Nothing is recorded for a tried
+  **A listening scene asks only for taught lines (#240).** A turn the learner can't say in full is heard
+  («Here you would say:», the line, its meaning), whether or not they can say a chunk of it
+  (`Planner.can_say_part`; `classify_turns` keeps the two kinds apart for the daily read). The scene opens with
+  `listening_intro` ("just hear how it goes") only when nothing is asked; when some lines are asked it opens with
+  `listening_intro_some_asked`. `listening_untaught` in the script's meta lists any line a listening scene asked
+  that the learner was never taught (the daily read's Now row 2; 0 by construction).
+  **Tried lines (#183) are gone (#240):** no scene asks for a line that wasn't taught, a theme's play included (the
+  owner: an untaught line can't be said at all). What follows describes the bonus path, which has nothing feeding
+  it now; it stays so `plan.json` and the bot keep their shape. Nothing is recorded for a tried
   line's unknown items (the parts they have are credited as practised); they go into
   `LearnerState.tried` (item → lesson, like `embedded`, never met, `select_new` ignores it). Up to
   `max_bonus_questions` (2) tried lines go into `plan.json` `review` as `"bonus": true` questions
@@ -224,8 +230,8 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   becomes a `Dialogue` (`level_dialogue`; the learner's lines are literal) played **twice**: at about 15% of the
   lesson's time with the partner's lines translated, and at about 85% without the translation (the cue, the intent,
   and a turn's `scene` line play both times, #210; `play_theme`, step 0g; a lesson that ran out of other material plays what is left before the closing). A
-  turn with an item the learner lacks is *tried* (#183: `tried_turns`, «Try it.», the model line, nothing
-  recorded; its line becomes a bonus question) in the first play. A learner turn keeps its cue in every play, whatever the partner just said: no turn of an exchange that goes on drops it (owner, #230 review: the partner's line never decides the reply; a one-off reply with several example answers is a separate change). `Turn.scene` (partner turns only) lands in `DialogueTurn.scene` / `partner_scene`, narrator lines played every time; a level's `partner_speaker`
+  turn with an item the learner has never met is heard, not asked (#240: `heard_turns`; its cue, then «Here you would
+  say:», the line and its meaning; nothing recorded), in both plays. A learner turn keeps its cue in every play, whatever the partner just said: no turn of an exchange that goes on drops it (owner, #230 review: the partner's line never decides the reply; a one-off reply with several example answers is a separate change). `Turn.scene` (partner turns only) lands in `DialogueTurn.scene` / `partner_scene`, narrator lines played every time; a level's `partner_speaker`
   (`native_a`, female, where the cues say «her») voices the partner. The items of the turns they can say are credited
   as practised (stage `dialogue`). `plan.json` has `theme`: `{id, scenario, level, plays, lines, replay, heard}` (None only when no theme
   can be said at all; `replay`: a level already played, #149 step 1; `lines`: per play, the 1-based variant of each varying partner line,

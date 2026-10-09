@@ -1169,8 +1169,7 @@ class Builder:
         max_turns: int | None = None,
         translate: bool | frozenset[int] | set[int] = True,
         listening: frozenset[str] | set[str] = frozenset(),
-        tried: frozenset[str] | set[str] = frozenset(),
-        tried_turns: frozenset[int] | set[int] = frozenset(),
+        heard_turns: frozenset[int] | set[int] = frozenset(),
         heard_only: bool = False,
     ) -> Exercise:
         """Play a dialogue; ``max_turns`` lets early encounters stop after a few turns.
@@ -1182,8 +1181,10 @@ class Builder:
         ``heard_only`` (#218 b1): every learner turn is heard, not asked: the cue (the intent) stays, then «Here you would say:» and the
         line. Spare time goes to this, not to filler items.
 
-        ``tried_turns``: indices of turns whose line is only tried (#149 1b-ii): the cue, «Try it.», the pause and the
-        model line; the theme exchange's lines are literal, so they have no item to name.
+        ``heard_turns``: indices of the learner's turns heard, not asked (#240, the owner: a line never taught can't be said
+        at all, so it is never asked): the cue (the intent) stays, then «Here you would say:», the line and its meaning. A
+        theme level's turn with an item the learner has never met; the theme exchange's lines are literal, so they have no
+        item to name.
 
         ``translate`` gives the partner's lines their meaning: ``True`` for every turn, or the indices of the turns
         whose lines are heard for the first time (the opener before a turn and the reply after it). Only the
@@ -1198,8 +1199,10 @@ class Builder:
         partner = dlg.partner_speaker
         learner_voice = _other_voice(partner)
         # the switch from drills to a conversation is the biggest change of mode in a lesson
-        if listening or tried or heard_only:
-            self._narr(sc, ex, self.prompts.get("listening_intro"))
+        if listening or heard_only:
+            # the framing says what follows (#240): «just hear it» only when nothing is asked of the learner
+            asks = not heard_only and any(not t.expect or t.expect not in listening for t in turns)
+            self._narr(sc, ex, self.prompts.get("listening_intro_some_asked" if asks else "listening_intro"))
         self._narr(sc, ex, self.prompts.get("dialogue_start"))
         self._narr(sc, ex, dlg.setting)
         self._beat(sc, ex)
@@ -1233,13 +1236,11 @@ class Builder:
                 item = None
                 gender = GENDER_OF[learner_voice] if turn.expect_text_m else None
                 expected = (turn.expect_text_m if gender == "m" else turn.expect_text) or ""
-            line_heard = heard_only or (item is not None and item.id in listening)
-            if line_heard and not heard_only:
+            line_heard = heard_only or k in heard_turns or (item is not None and item.id in listening)
+            if line_heard and not heard_only and k not in heard_turns:
                 pass  # a listening scene's line: no task cue, nothing is asked
             else:
                 self._narr(sc, ex, self._as(gender, turn.cue))
-            if (item is not None and item.id in tried) or k in tried_turns:
-                self._narr(sc, ex, self.prompts.get("listening_try"))  # a line they can say part of: «Try it.»
             if line_heard:
                 self._narr(sc, ex, self.prompts.get("listening_line"))
                 self._answer(sc, ex, expected, speaker=learner_voice)
