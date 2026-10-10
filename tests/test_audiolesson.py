@@ -5323,13 +5323,28 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
             sc = Script(1, "t", "is", "en")
             ex = b.intro(sc, self.cur.by_id[part])
             self.assertTrue(ex.label.startswith("new: ") and ex.label.endswith(f"({self.cur.by_id[part].target})"), ex.label)
-            self.assertEqual(b.wholes_taught[part], frame)
+            self.assertEqual(b.wholes_taught[part]["through"], frame)
+
+    def test_the_review_asks_the_sentence_exactly_as_it_was_taught(self):
+        """#262 review: «Þetta er blá bók.» was taught for «blá», and a sentence rebuilt from other met words («Þetta er blár bíll.») was asked next day."""
+        from audiolesson.review_wholes import whole_for
+        b = self._builder(met=["thetta_er_noun", "bok"])
+        sc = Script(1, "t", "is", "en")
+        for part in ("blar", "raudur"):
+            ex = b.intro(sc, self.cur.by_id[part])
+            taught = b.wholes_taught.get(part)
+            if not taught:
+                continue
+            self.assertEqual(ex.label, f"new: {taught['answer']} ({self.cur.by_id[part].target})")
+            met = {"thetta_er_noun", "bok", "bill", part}
+            self.assertEqual(whole_for(self.cur, self.cur.by_id[part], met - {taught["through"]}, self.en, taught)["answer"], taught["answer"])
 
     def test_a_whole_taught_for_one_part_does_not_make_other_parts_askable_through_it(self):
         from audiolesson.review_wholes import whole_for
         cur = self.cur
+        taught = {"through": "attu", "answer": "Áttu peysu?", "meaning": "Do you have a sweater?"}
         self.assertIsNone(whole_for(cur, cur.by_id["vegabref"], {"takk"}, self.en), "not met, not taught with it")
-        self.assertIsNotNone(whole_for(cur, cur.by_id["vegabref"], {"takk"}, self.en, "attu"))
+        self.assertEqual(whole_for(cur, cur.by_id["peysu"], {"takk"}, self.en, taught)["answer"], "Áttu peysu?", "asked exactly as taught")
 
     def test_a_part_without_an_authored_home_or_with_a_strange_frame_is_introduced_as_before(self):
         b = self._builder()
@@ -5794,7 +5809,7 @@ class ListeningTaskTests(unittest.TestCase):
         for cur, learner, sc in lessons:
             m = sc.meta
             closing_at = next((e.start for e in sc.exercises if e.kind == "closing"), float("inf"))  # the closing block's own exercises are not counted
-            self.assertEqual(m["pick_out_count"], sum(e.kind == "pick_out" for e in sc.exercises if m["target_reached_at"] <= e.start < closing_at))
+            self.assertEqual(m["pick_out_count"], sum(e.kind == "pick_out" for e in sc.exercises if m["target_reached_s"] <= e.start < closing_at))
             self.assertEqual(_plan(sc, cur)["second_half"]["pick_out_count"], m["pick_out_count"])
             self.assertLessEqual(sc.total_duration, 30 * 60 + 120, sc.lesson_number)
             # #248 review: the same two frames and the same word over and over would be a new boredom
@@ -5808,7 +5823,7 @@ class ListeningTaskTests(unittest.TestCase):
             # the run row stops at the closing block, whose recalls are a run of their own
             from itertools import groupby
             closing_at = next((e.start for e in sc.exercises if e.kind == "closing"), float("inf"))
-            between = [e for e in sc.exercises if m["target_reached_at"] <= e.start < closing_at and e.kind not in ("opening", "closing")]
+            between = [e for e in sc.exercises if m["target_reached_s"] <= e.start < closing_at and e.kind not in ("opening", "closing")]
             self.assertEqual(m["longest_kind_run_after_target"], max((sum(1 for _ in g) for _, g in groupby(between, key=lambda e: e.kind)), default=0))
             row = [e.kind for e in sc.exercises]
             for k in range(len(row) - 3):

@@ -130,7 +130,7 @@ class Builder:
     heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson
     echo_asked: int = 1  # a line is repeated after the model only for its first asking this lesson (#192)
     said_cap: int = 0  # >0: a sentence said this often in the lesson is not asked again as a part's sentence (#192)
-    wholes_taught: dict = field(default_factory=dict)  # part id → the construction whose sentence it was introduced in (#239): that sentence was taught whole today
+    wholes_taught: dict = field(default_factory=dict)  # part id → {through, answer, meaning}: the sentence it was introduced in (#239), taught whole today, as taught
     novelty_announced: set = field(default_factory=set)  # (construction, form) already announced as «something you haven't heard yet» this lesson (#197)
     said: Counter = field(default_factory=Counter)  # how often each sentence was said this lesson: model answers, echoes, the intro once, partner lines (#192)
     produced: Counter = field(default_factory=Counter)  # how often the learner was asked for each line this lesson: the echo only while it teaches
@@ -596,7 +596,7 @@ class Builder:
         gender, target = self._filled(construction, fills)
         meaning = self.cur.resolve_slots(construction, fills)[1]
         voice = VOICE_OF[gender or "f"]
-        self.wholes_taught[item.id] = construction.id
+        self.wholes_taught[item.id] = {"through": construction.id, "answer": target, "meaning": meaning}
         ex = sc.new_exercise("intro", "intro", [item.id], f"new: {target} ({item.target})")
         self.said[_norm_utterance(target)] += 1  # the introduction counts once, however often it models the line
         self._narr(sc, ex, self.prompts.get("intro_whole", meaning=self._m(meaning)))

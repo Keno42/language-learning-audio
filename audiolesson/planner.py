@@ -791,12 +791,12 @@ class Planner:
             run = run + 1 if e.kind == "generative" else 0
             longest = max(longest, run)
         after = (
-            [e for e in sc.exercises if round(delivered_at) <= e.start < closing_at and e.kind not in ("opening", "closing")] if delivered_at is not None else []
+            [e for e in sc.exercises if delivered_at <= e.start < closing_at and e.kind not in ("opening", "closing")] if delivered_at is not None else []
         )
         counts = Counter(e.kind for e in after)
         kind_run = max((sum(1 for _ in g) for _, g in groupby(after, key=lambda e: e.kind)), default=0)
         return {
-            "target_reached_at": round(reached), "spare_unserved_s": round(unserved), "asked_after_review": again, "longest_generated_run": longest,
+            "target_reached_at": round(reached), "target_reached_s": reached, "spare_unserved_s": round(unserved), "asked_after_review": again, "longest_generated_run": longest,
             "pick_out_count": counts["pick_out"], "catch_unknown_count": counts["catch_unknown"],
             # a pick-out of a drilled frame plus its answer rather than a line of a scene (#248 step 2)
             "pick_out_echo_count": sum(1 for e in after if e.kind == "pick_out" and self._is_echo(sc, e)),
