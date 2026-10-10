@@ -572,7 +572,7 @@ def _slot_names(text: str) -> list[str]:
     return [m[1:-1].split(":")[0] for m in _ANY_SLOT_RE.findall(text)]
 
 
-PROBE_KINDS = ("price", "time", "count", "place")  # what an information probe asks to listen for (#248)
+PROBE_KINDS = ("price", "time", "count", "place", "duration")  # what an information probe asks to listen for (#248)
 FORMS = ("negative", "question")  # a construction's authored forms besides the plain one (#171)
 
 SPEAKERS = ("native_a", "native_b")  # native_a is voiced female, native_b male, in every profile

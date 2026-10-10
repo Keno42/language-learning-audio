@@ -22,7 +22,7 @@ from itertools import groupby
 from .content import Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance
 from .learner import LearnerState
-from .listening_tasks import REPAIR_ITEM, SecondHalfRotation, append_task, catch_unknown, generated_pick_out, key_of
+from .listening_tasks import REPAIR_ITEM, SecondHalfRotation, append_task, catch_unknown, key_of, partner_pick_out
 from .prompts import Prompts
 from .script import Script
 from .stages import ladder_for, next_stage, stage_index
@@ -104,7 +104,7 @@ class PlanConfig:
     # can-do scenarios to take one from (the trip profile's boosted first). No themes: no theme exchange.
     themes: list = field(default_factory=list)
     theme_scenarios: list[str] = field(default_factory=list)
-    max_pick_outs_per_pattern: int = 3  # pick-out exercises one construction gives in a lesson (#248 review: the same two frames)
+    max_pick_outs_per_pattern: int = 1  # pick-outs one partner turn gives in a lesson, its variants and listening lines counted together (#248 review)
     theme_ready: float = 0.75  # a theme's level plays once the learner can say this share of its turns; the rest are heard (#240)
     theme_rest_lessons: int = 3  # a level already played comes back no sooner than this many lessons later (#149 step 1)
     # #149 step 2 (H5): a semantic set is not introduced as a block: at most ``max_set_items`` new items a lesson share
@@ -797,8 +797,25 @@ class Planner:
         kind_run = max((sum(1 for _ in g) for _, g in groupby(after, key=lambda e: e.kind)), default=0)
         return {
             "target_reached_at": round(reached), "spare_unserved_s": round(unserved), "asked_after_review": again, "longest_generated_run": longest,
-            "pick_out_count": counts["pick_out"], "catch_unknown_count": counts["catch_unknown"], "longest_kind_run_after_target": kind_run,
+            "pick_out_count": counts["pick_out"], "catch_unknown_count": counts["catch_unknown"],
+            # a pick-out of a drilled frame plus its answer rather than a line of a scene (#248 step 2)
+            "pick_out_echo_count": sum(1 for e in after if e.kind == "pick_out" and self._is_echo(sc, e)),
+            "longest_kind_run_after_target": kind_run,
         }
+
+    @staticmethod
+    def _is_echo(sc: Script, e) -> bool:
+        """A pick-out whose line is a drilled frame plus its answer (#248 step 2): not a line of a scene, or a single piece that is most of its line
+        (the words outside the answer do not outnumber the answer's)."""
+        if not e.label.startswith("theme:"):
+            return True
+        if e.stage == "multi":
+            return False
+        segs = [s for s in sc.segments if s.exercise == e.index]
+        line = next((s.text for s in segs if s.type == "speak"), "")
+        answer = next((s.text for s in segs if s.type == "answer"), "")
+        n_line, n_answer = len(re.findall(r"[^\W\d_]+", line)), len(re.findall(r"[^\W\d_]+", answer))
+        return n_line - n_answer <= n_answer
 
     def reviewed_today(self, item_id: str) -> bool:
         """The learner's own review asked it today, before this lesson (#238): the audio does not ask it again (an open item's repair
@@ -2183,7 +2200,7 @@ class Planner:
             key = key_of(task)
             if key in used_listening_tasks:
                 return False
-            if task.kind == "pick_out" and picks_by_pattern[task.item_ids[0]] >= cfg.max_pick_outs_per_pattern:
+            if task.kind == "pick_out" and picks_by_pattern[task.pattern] >= cfg.max_pick_outs_per_pattern:
                 return False
             if task.kind == "catch_unknown" and task.answer.lower() in caught_words:
                 return False
@@ -2191,34 +2208,29 @@ class Planner:
                 return False
             used_listening_tasks.add(key)
             if task.kind == "pick_out":
-                picks_by_pattern[task.item_ids[0]] += 1
+                picks_by_pattern[task.pattern] += 1
             else:
                 caught_words.add(task.answer.lower())
             return True
 
         def pick_out_tasks():
-            """Sentences of known patterns that hold a piece of information to listen for: the scene's patterns first, then those of a scene
-            played before (named aloud), then the rest."""
-            levels = scene_levels()
+            """Lines of a scene's partner that hold information to find (#248 step 2): a line with two pieces first (the question names one), then a single
+            piece in wording the learner hasn't drilled; the lesson's own scene before the others, which are named aloud. A drilled frame plus its answer is
+            an echo and is not a pick-out."""
             known = known_now()
-            rank: dict[str, tuple] = {}
-            for c in self.cur.items:
-                if c.kind != "construction" or not c.information_probes or not (c.id in taught() or self.can_say_item(c.id)):
-                    continue
-                home = next(((t, n) for t, n in levels if any(c.id in turn.items for turn in t.levels[n].turns if turn.who == "you")), None)
-                rank[c.id] = (0 if scene_cons and c.id in scene_cons else 1 if home else 2, home)
-            order = list(rank)
-            self.rng.shuffle(order)
-            for cid in sorted(order, key=lambda i: rank[i][0]):
-                c = self.cur.by_id[cid]
-                home = rank[cid][1]
-                gen = b.generate(c, met_fills=True, avoid_heard=True)
-                if gen is None:
-                    continue
-                scene = level_scene(*home) if home else ""
-                speaker = home[0].levels[home[1]].partner_speaker if home else "native_b"
-                for probe in c.information_probes:
-                    yield generated_pick_out(self.cur, gen, probe, known, scene, speaker)
+            cands = []
+            for rank, (t, n) in enumerate(scene_levels()):
+                level = t.levels[n]
+                for k, turn in enumerate(level.turns):
+                    if turn.who != "partner":
+                        continue
+                    for v, ln in enumerate([*turn.lines(), *turn.listen_lines()]):
+                        for pi, probe in enumerate(ln.probes):
+                            cands.append(((0 if len(ln.probes) > 1 else 1, 0 if rank == 0 and theme_pick else 1, self.rng.random()), t, n, k, v, pi, ln, probe))
+            for _, t, n, k, v, pi, ln, probe in sorted(cands, key=lambda c: c[0]):
+                yield partner_pick_out(
+                    ln, probe, known, self.cur.known_lang, source=f"theme:{t.id}:{n + 1}:{k}:{v}:{pi}", scene=level_scene(t, n), speaker=t.levels[n].partner_speaker
+                )
 
         def catch_unknown_tasks():
             """Lines of a scene's partner with one word the learner does not know, whose meaning is authored: the lesson's own scene first."""
@@ -2247,7 +2259,7 @@ class Planner:
             def fresh(tasks) -> bool:
                 return any(
                     t is not None and key_of(t) not in used_listening_tasks
-                    and not (t.kind == "pick_out" and picks_by_pattern[t.item_ids[0]] >= cfg.max_pick_outs_per_pattern)
+                    and not (t.kind == "pick_out" and picks_by_pattern[t.pattern] >= cfg.max_pick_outs_per_pattern)
                     and not (t.kind == "catch_unknown" and t.answer.lower() in caught_words)
                     for t in tasks
                 )

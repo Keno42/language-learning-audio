@@ -397,8 +397,16 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   reviews) is unchanged, but after three exercises of one kind the rotation comes in between. A short pick-out or unknown-word exercise also follows
   every third recall of the closing block when time allows (`closing_cost` keeps the seconds; on the lesson-20 replay it did not fire, the closing's
   room being too small).
-  - *Pick out information* (`generated_pick_out`): a sentence of a known construction with `Item.information_probes` (`{kind, answer, meanings}`,
-    `kind` in price / time / count / place, the answer written with the construction's slots), built from words the learner knows
+  - *Pick out information* (step 2, #248: the learner has to **find** it; the answer stays Icelandic): a line of a scene's partner with `Turn.probes`
+    (`{kind, answer, meanings, ask}`; `answer` a stretch of the line, `kind` price / time / count / place / duration) or a `listen` line of the turn (never played in the
+    exchange: wording for the ear, two pieces of information, each probe with its own `ask`: «How much is the sandwich?»). `partner_pick_out`; the learner must be
+    able to say the answer (every word of it known), the rest of the line may hold unknown words. Two-piece lines come first; a single piece is asked only when the words outside it outnumber it
+    («Hér stoppum við í tuttugu mínútur.», not «Það gera tvö þúsund krónur.»: that is lesson 21's echo); one pick-out per partner turn a lesson (its variants and listening
+    lines count as one, and a two-piece line gives one question: the other piece waits for another lesson); the lesson's own scene before the others (named aloud).
+    The exercise's `stage` is `multi` or `single`. `plan.json` `second_half.pick_out_echo_count` and the replay's row 6 count a pick-out
+    whose line is only a drilled frame plus its answer, or a single piece that is most of its line (`Planner._is_echo`, read from the script; 0: the planner takes none). `generated_pick_out` (a sentence of a construction with
+    `Item.information_probes`) stays for sentences that hold more than the frame (#213), and is not used by the planner.
+    *(Step 1, kept for the question wording:)* built from words the learner knows
     (`known_at_start` plus the words of what was taught today), heard from the scene's partner voice; the instructor asks the question of
     `pick_out_<kind>` (plain: «How much is it?»; with a scene named, `pick_out_<kind>_scene`: «How much does he say it costs?»), the learner
     pauses, the answer fragment, its meaning and the sentence again follow. At most `max_pick_outs_per_pattern` (3) a lesson from one construction,
