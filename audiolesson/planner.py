@@ -1242,6 +1242,14 @@ class Planner:
         known = {w for chunk in self._say_chunks(True) for w in chunk}
         return any(w.lower() in known for w in _WORD_RE.findall(line))
 
+    def line_role(self, items, turn=None) -> str:
+        """The one decision on a learner's line in every play mode (#263, step 1 of #265): ``"ask"`` or ``"hear"``. A line is asked when the learner can say it
+        (``can_say_turn``, for a dialogue turn) or every item in it is met or taught earlier in this lesson (an open item being repaired, #199); else it
+        is heard with its meaning (#240: a line never taught is never asked). A line with no item to name (a literal) is asked."""
+        if turn is not None and (not turn.expect or self.can_say_turn(turn)):
+            return "ask"
+        return "ask" if all(self.learner.has_met(i) or i in self.builder.in_lesson for i in items) else "hear"
+
     def classify_turns(self, dlg: Dialogue) -> tuple[set[str], set[str]]:
         """The turns of a listening dialogue that the learner can't say in full: ``(nothing sayable, partly sayable)``
         as sets of turn items. A turn they can say in full, or whose items are all met (an open item being repaired),
@@ -1250,10 +1258,8 @@ class Planner:
         heard: set[str] = set()
         tried: set[str] = set()
         for t in dlg.turns:
-            if not t.expect or self.can_say_turn(t):
+            if self.line_role([t.expect, *t.expect_fill.values()], t) == "ask":
                 continue
-            if all(self.learner.has_met(i) for i in [t.expect, *t.expect_fill.values()]):
-                continue  # only an open item stands in the way: it is being repaired, so the line is asked (#199)
             (tried if self.can_say_part(t) else heard).add(t.expect)
         return heard, tried
 
@@ -1301,7 +1307,7 @@ class Planner:
     def _untaught_turns(self, you: list) -> set[int]:
         """The learner's turns of a theme level with an item never met: those are heard, not asked (#240, the owner: a line
         never taught can't be said at all). An open item is met: the learner is repairing it, so its line is asked (#199)."""
-        return {k for k, t in enumerate(you) if not all(self.learner.has_met(i) for i in t.items)}
+        return {k for k, t in enumerate(you) if self.line_role(t.items) == "hear"}
 
     def pick_theme(self) -> tuple | None:
         """The lesson's theme, its level (0-based) and the learner's turns of it that are only heard (#149 1b-ii, #240):
@@ -2109,7 +2115,7 @@ class Planner:
             you = [t for t in theme.levels[n].turns if t.who == "you"]
             # a turn is heard while one of its items is untaught: never met before and not introduced earlier in this lesson
             # (#240). One taught by now (the theme's next level brings its items in, #201) is asked in this play.
-            heard_now = {k for k in untaught if not all(self.learner.has_met(i) or i in b.in_lesson for i in you[k].items)}
+            heard_now = {k for k in untaught if self.line_role(you[k].items) == "hear"}
             ex = b.dialogue(sc, dlg, translate=theme_plays == 0 and not theme_replay, heard_turns=heard_now)
             said = [i for k, t in enumerate(you) if k not in heard_now for i in t.items if i in self.cur.by_id]
             self._record(list(dict.fromkeys(said)), "dialogue", ex.item_ids)
@@ -2135,7 +2141,12 @@ class Planner:
         def play_heard_theme(theme, n: int) -> None:
             nonlocal since_dialogue
             dlg = level_dialogue(theme, n, self.cur.known_lang, pick_variants(theme.levels[n], self.rng))
-            b.dialogue(sc, dlg, translate=False, heard_only=True)
+            you = [t for t in theme.levels[n].turns if t.who == "you"]
+            hear = {k for k, t in enumerate(you) if self.line_role(t.items) == "hear"}
+            # the scene again (#263): the partner is heard, the learner's lines they can say are asked, the others heard
+            ex = b.dialogue(sc, dlg, translate=False, heard_play=True, heard_turns=hear)
+            said = [i for k, t in enumerate(you) if k not in hear for i in t.items if i in self.cur.by_id]
+            self._record(list(dict.fromkeys(said)), "dialogue", ex.item_ids)
             heard_plays.append(f"{theme.id}:{n + 1}")
             since_dialogue = 0
 

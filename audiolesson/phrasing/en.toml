@@ -72,6 +72,8 @@ variant_form = "Here is another form of it: {meaning}"
 listening_intro = "A conversation to listen to. It has a few new expressions in it. You don't need to remember them: just hear how it goes."
 # the same, when some of the learner's lines in it are ones they know and will be asked for (#240)
 listening_intro_some_asked = "A conversation to listen to. It has a few new expressions in it: just hear those. You don't need to remember them. When a line you know comes, say it."
+# a scene played again, every line of the learner's one they can say (#263): nothing new, nothing only heard
+listening_intro_known = "The conversation again. You know your lines: say them when it's your turn."
 listening_line = "Here you would say:"
 dialogue_start = "Now a short conversation."
 dialogue_replay = "Now the whole conversation, without pauses."

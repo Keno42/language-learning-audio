@@ -7877,9 +7877,27 @@ class ThemeExchangeTests(unittest.TestCase):
         self.assertEqual(len(plays), len(heard))
         for e in plays:
             segs = [g for g in sc.segments if g.exercise == e.index]
-            self.assertFalse(any(g.type == "pause" and g.role == "answer" for g in segs), "heard, not asked")
+            texts = [g.text for g in segs if g.type == "narrate"]
+            here = texts.count(Prompts.load("en").get("listening_line"))
+            asked = sum(1 for g in segs if g.type == "pause" and g.role == "answer")
             self.assertTrue(any(g.type == "answer" for g in segs), "the learner's line is modelled")
+            opening = Prompts.load("en").get("listening_intro_known" if here == 0 else "listening_intro" if asked == 0 else "listening_intro_some_asked")
+            self.assertIn(opening, texts, "the opening follows from what is asked")
+            self.assertEqual("new expressions" in " ".join(texts), here > 0, "«new expressions» only when a line is only heard")
             self.assertTrue(sum(1 for g in segs if g.type == "narrate") >= 3, "the cues stay")
+
+    def test_a_scene_heard_again_hears_only_the_lines_with_an_untaught_item(self):
+        learner = LearnerState("is", "en", "A1")
+        learner.themes_done = {"supermarket": 1, "cafe": 1, "museum": 1, "tour": 1}
+        learner.themes_last = {"supermarket": 1, "cafe": 1, "museum": 1, "tour": 1}
+        planner = self._planner(learner, self._themes, self._order)
+        you = [t for t in self._supermarket.levels[0].turns if t.who == "you"]
+        self.assertEqual({k for k, t in enumerate(you) if planner.line_role(t.items) == "hear"}, set(range(len(you))), "nothing met: every line is heard")
+        for t in you:
+            for i in t.items:
+                if i in planner.cur.by_id:
+                    learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3)
+        self.assertEqual({k for k, t in enumerate(you) if planner.line_role(t.items) == "hear"}, set(), "all met: every line is asked")
 
     def test_a_replays_early_play_only_says_wordings_already_heard_with_their_meaning(self):
         import random
