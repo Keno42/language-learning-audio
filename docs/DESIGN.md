@@ -387,6 +387,8 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
     asked through it: the whole's meaning is the cue and the sentence the answer (`through_whole`, with `through` naming the item); a part with no home in the curriculum
     (#215's definition: no slot takes its tags, no construction lists it as a prerequisite, no phrase holds its words) comes out of the review (`no_home`); a part whose homes
     are all unmet stays bare, the fallback; (3) no two questions share an answer: the later one's items are credited to the first (`same_answer`). Bonus questions are left alone.
+    `audiolesson refine-review CURRICULUM [-l LEARNER]` is the same rules for the bot's review queue (site_update_notifier#96): `{"review": [...]}` on stdin (optional `"met"`),
+    `{"review": [...], "refined": [...]}` on stdout; what the learner has met comes from the learner file.
     `meta.met_items` is what the learner has met, plus what this lesson taught and the patterns whose sentence it taught whole around a new part (`Builder.wholes_taught`: the pattern is not introduced yet, but the sentence is known). `plan.json` `review_refined` lists every change; `replay_lesson.py` row 5 counts a part beside its whole and a repeated answer (0).
 - **The second half is a rotation (#248, concept 2 and 3, O2, O5, G16).** Once the lesson has taught what the target asked for
   (`mark_delivered_target`, after every introduction, an embed and a pattern instance included: `target_reached_at` in the meta is that time)
