@@ -5379,6 +5379,21 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
         out, report = refine_review(review, self.cur, {"hundrad"}, self._prompts())
         self.assertEqual((out, [r["kind"] for r in report]), ([], ["no_home"]))
 
+    def test_the_sentence_a_part_came_in_with_is_what_the_review_asks(self):
+        """The first lesson of the bot's end-to-end test: «peysu» comes in inside «Áttu peysu?», a sentence taught whole, so the next-day question is the sentence even
+        though the pattern itself is not introduced yet."""
+        from audiolesson.cli import _plan
+        learner = LearnerState("is", "en", "A1")
+        sc = Planner(self.cur, learner, self.en, Timing(level="A1"), PlanConfig(minutes=5, new_items=3, priority=["afsakid", "peysu", "vegabref"]), today=TODAY).build()
+        self.assertIn("new: Áttu peysu? (peysu)", [e.label for e in sc.exercises])
+        plan = _plan(sc, self.cur)
+        answers = {i: q["answer"] for q in plan["review"] for i in q["items"]}
+        self.assertEqual(answers["peysu"], "Áttu peysu?", "the part is asked in its sentence")
+        self.assertEqual(answers["vegabref"], "Áttu vegabréf?", "and another part through the pattern it was just taught whole in")
+        self.assertEqual(Counter(q["answer"] for q in plan["review"]).most_common(1)[0][1], 1)
+        self.assertIn("peysu", sc.meta["met_items"])
+        self.assertIn("attu", sc.meta["met_items"], "taught whole today")
+
     def test_the_plan_carries_the_refined_review_and_the_lessons_row_reads_zero(self):
         from audiolesson.cli import _plan
         from audiolesson.review_wholes import parts_outside_their_whole
