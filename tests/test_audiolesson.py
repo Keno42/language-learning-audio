@@ -7877,9 +7877,120 @@ class ThemeExchangeTests(unittest.TestCase):
         self.assertEqual(len(plays), len(heard))
         for e in plays:
             segs = [g for g in sc.segments if g.exercise == e.index]
-            self.assertFalse(any(g.type == "pause" and g.role == "answer" for g in segs), "heard, not asked")
+            texts = [g.text for g in segs if g.type == "narrate"]
+            here = texts.count(Prompts.load("en").get("listening_line"))
+            asked = sum(1 for g in segs if g.type == "pause" and g.role == "answer")
             self.assertTrue(any(g.type == "answer" for g in segs), "the learner's line is modelled")
+            opening = Prompts.load("en").get("listening_intro_known" if here == 0 else "listening_intro" if asked == 0 else "listening_intro_some_asked")
+            self.assertIn(opening, texts, "the opening follows from what is asked")
+            self.assertEqual("new expressions" in " ".join(texts), here > 0, "«new expressions» only when a line is only heard")
             self.assertTrue(sum(1 for g in segs if g.type == "narrate") >= 3, "the cues stay")
+
+    def _replays(self, met):
+        """The scenes heard again in a lesson of a learner who has met ``met`` and played every theme level: for each, the expectation computed from the
+        theme's own turns (a line is asked when all its items are met) and what the exercise did."""
+        learner = self._learner(met)
+        learner.themes_done = {t.id: len(t.levels) for t in self._themes}
+        learner.themes_last = {"supermarket": 1, "cafe": 1, "museum": 1, "tour": 1}
+        planner = self._planner(learner, self._themes, self._order)
+        sc = planner.build()
+        out = []
+        for e in sc.exercises:
+            if not e.label.startswith("heard: theme:"):
+                continue
+            theme_id, level = e.label.split()[1].split(":")[1:3]
+            theme = next(t for t in self._themes if t.id == theme_id)
+            you = [t for t in theme.levels[int(level) - 1].turns if t.who == "you"]
+            taught = {i for x in sc.exercises if x.index < e.index and x.kind in ("intro", "embed") for i in x.item_ids}  # taught earlier in this lesson counts as met
+            asked = [t for t in you if all(i in met or i in taught for i in t.items)]
+            segs = [g for g in sc.segments if g.exercise == e.index]
+            texts = [g.text for g in segs if g.type == "narrate"]
+            out.append((you, asked, e, segs, texts, planner))
+        self.assertTrue(out, "the lesson has spare time for scenes heard again")
+        return out
+
+    def test_a_replay_of_scenes_the_learner_knows_asks_every_line_and_credits_them(self):
+        prompts = Prompts.load("en")
+        met = sorted({i for t in self._themes for lv in t.levels for tn in lv.turns if tn.who == "you" for i in tn.items})
+        for you, asked, e, segs, texts, planner in self._replays(met):
+            self.assertEqual(len(asked), len(you))
+            self.assertEqual(sum(1 for g in segs if g.type == "pause" and g.role == "answer"), len(you), e.label)
+            self.assertEqual(texts.count(prompts.get("listening_line")), 0)
+            self.assertIn(prompts.get("listening_intro_known"), texts)
+            self.assertEqual(e.item_ids, list(dict.fromkeys(i for t in you for i in t.items)), e.label)
+            self.assertEqual(e.heard_ids, [])
+            self.assertTrue(set(e.item_ids) <= set(planner.exposures), "credited as practice")
+
+    def test_a_replay_of_scenes_the_learner_has_not_met_asks_nothing(self):
+        prompts = Prompts.load("en")
+        none_asked = 0
+        for you, asked, e, segs, texts, planner in self._replays([]):
+            if asked:
+                continue  # «Takk.» was taught earlier in this lesson, so that scene is a mixed one
+            none_asked += 1
+            self.assertEqual(sum(1 for g in segs if g.type == "pause" and g.role == "answer"), 0)
+            self.assertEqual(texts.count(prompts.get("listening_line")), len(you))
+            self.assertIn(prompts.get("listening_intro"), texts)
+            self.assertEqual(e.item_ids, [])
+            self.assertEqual(e.heard_ids, list(dict.fromkeys(i for t in you for i in t.items)), e.label)
+        self.assertGreater(none_asked, 0)
+
+    def test_a_replay_that_mixes_known_and_unmet_lines_asks_exactly_the_known_ones(self):
+        prompts = Prompts.load("en")
+        met = ["takk", "ja"]
+        mixed = 0
+        for you, asked, e, segs, texts, planner in self._replays(met):
+            if not asked or len(asked) == len(you):
+                continue
+            mixed += 1
+            self.assertEqual(sum(1 for g in segs if g.type == "pause" and g.role == "answer"), len(asked), e.label)
+            self.assertEqual(texts.count(prompts.get("listening_line")), len(you) - len(asked))
+            self.assertIn(prompts.get("listening_intro_some_asked"), texts)
+            self.assertEqual(e.item_ids, list(dict.fromkeys(i for t in asked for i in t.items)))
+            self.assertEqual(set(e.heard_ids), {i for t in you if t not in asked for i in t.items} - set(e.item_ids))
+        self.assertGreater(mixed, 0, "a mixed replay was generated")
+
+    def test_the_same_line_gets_the_same_role_in_a_dialogue_and_a_theme(self):
+        """«Ég ætla að fá kaffi.» is covered by chunks the learner can say although its construction is unmet: asked in both."""
+        learner = self._learner(["eg_aetla_ad_fa_addon", "kaffi"]) if "eg_aetla_ad_fa_addon" in self._cur.by_id else None
+        if learner is None:
+            self.skipTest("the fixture curriculum has no eg_aetla_ad_fa_addon")
+        planner = self._planner(learner, self._themes, self._order)
+        cafe = next(t for t in self._themes if t.id == "cafe")
+        line = next(t for t in cafe.levels[0].turns if t.who == "you" and t.say == "Ég ætla að fá kaffi.")
+        self.assertNotIn("eg_aetla_ad_fa", learner.items)
+        self.assertEqual(planner.line_role(line.items, text=line.say), "ask")
+        from audiolesson.content import DialogueTurn
+        turn = DialogueTurn(cue="", expect="eg_aetla_ad_fa", expect_fill={"thing": "kaffi"})
+        self.assertEqual(planner.line_role([turn.expect, "kaffi"], turn), "ask")
+
+    def test_a_phrase_made_of_known_chunks_gets_the_same_role_in_a_dialogue_and_a_theme(self):
+        """#263 review: «Má ég borga með korti?» (the phrase ma_eg_borga_med_korti, unmet) when «má ég» and «borga með korti» are known. A phrase is a unit with its
+        own introduction, so the policy is one for both callers: heard, until it is taught."""
+        learner = self._learner(["ma_eg_inf", "borga_med_korti"])
+        planner = self._planner(learner, self._themes, self._order)
+        self.assertNotIn("ma_eg_borga_med_korti", learner.items)
+        theme_turn = next(t for th in self._themes for lv in th.levels for t in lv.turns if t.who == "you" and t.say == "Má ég borga með korti?")
+        dialogue_turn = next(t for d in self._cur.dialogues for t in d.turns if t.expect == "ma_eg_borga_med_korti")
+        self.assertEqual(planner.line_role(theme_turn.items, text=theme_turn.say), "hear")
+        self.assertEqual(planner.line_role([dialogue_turn.expect], dialogue_turn), "hear")
+        # …and once it is met, asked in both
+        learner.items["ma_eg_borga_med_korti"] = learner.items["ma_eg_inf"]
+        self.assertEqual(planner.line_role(theme_turn.items, text=theme_turn.say), "ask")
+        self.assertEqual(planner.line_role([dialogue_turn.expect], dialogue_turn), "ask")
+
+    def test_a_scene_heard_again_hears_only_the_lines_with_an_untaught_item(self):
+        learner = LearnerState("is", "en", "A1")
+        learner.themes_done = {"supermarket": 1, "cafe": 1, "museum": 1, "tour": 1}
+        learner.themes_last = {"supermarket": 1, "cafe": 1, "museum": 1, "tour": 1}
+        planner = self._planner(learner, self._themes, self._order)
+        you = [t for t in self._supermarket.levels[0].turns if t.who == "you"]
+        self.assertEqual({k for k, t in enumerate(you) if planner.line_role(t.items) == "hear"}, set(range(len(you))), "nothing met: every line is heard")
+        for t in you:
+            for i in t.items:
+                if i in planner.cur.by_id:
+                    learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3)
+        self.assertEqual({k for k, t in enumerate(you) if planner.line_role(t.items) == "hear"}, set(), "all met: every line is asked")
 
     def test_a_replays_early_play_only_says_wordings_already_heard_with_their_meaning(self):
         import random

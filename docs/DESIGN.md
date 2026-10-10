@@ -321,8 +321,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   planned extra or the cheap construction. `select_new` keeps a `variant_of` item out of the pool unless the theme's next level wants it
   (#201) or an unmet item lists it as a prerequisite (#202; a frame's filler is found in `fill_pool`); the trip and course orders do not
   take variants. Spare time goes to listening dialogues, then to up to `heard_theme_plays` (2) heard-only plays of a theme level already
-  played (`Builder.dialogue(heard_only=True)`, label `heard: theme:…`: partner lines in variants, the cues kept, «Here you would say:» and
-  the line, nothing asked; `heard_themes` in `plan.json`), then the consolidation, then the cap lapses. `variant_items` in `plan.json`
+  played again (`Builder.dialogue(heard_play=True)`, label `heard: theme:…`: partner lines in variants; #263: the learner's lines they can say are **asked** with the cue,
+  the pause and the model, and only a line with an untaught item is heard with «Here you would say:»; the opening follows: `listening_intro_known` when all are asked;
+  `heard_themes` in `plan.json`). **One role rule (#263):** `Planner.line_role(items, turn)` → `ask`/`hear` decides every learner line in every play mode (`classify_turns`, `_untaught_turns`, `play_theme`, the scene heard again), judging *can say* through one policy, `Planner.can_say_line(items, text)`, for a dialogue turn and a theme turn alike: every item can be said, or a construction is among them and its filled line is covered by chunks they can say; a phrase is a unit, never covered by its pieces. A dialogue exercise names the items it asked (`item_ids`) apart from those of lines only heard (`heard_ids`); a theme level's turns map to items through `turn_items`, then the consolidation, then the cap lapses. `variant_items` in `plan.json`
   lists the variants the lesson did introduce, which a theme or frame asked for.
 - **A variant is introduced as a form of one they have, and a word says its sentence.** A
   `variant_of` item whose base was met is introduced «You know this one: tveir. Here is another

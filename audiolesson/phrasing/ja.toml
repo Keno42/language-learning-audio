@@ -70,6 +70,8 @@ variant_form = "別の形です。「{meaning}」。"
 listening_intro = "聞くための会話です。新しい表現が少し出てきますが、覚えなくて大丈夫です。流れを聞いてください。"
 # the same, when some of the learner's lines in it are ones they know and will be asked for (#240)
 listening_intro_some_asked = "聞くための会話です。新しい表現が少し出てきますが、それは聞くだけで、覚えなくて大丈夫です。知っている表現の番が来たら、言ってください。"
+# a scene played again, every line of the learner's one they can say (#263)
+listening_intro_known = "もう一度、同じ会話です。あなたの番の表現は知っているものです。番が来たら言ってください。"
 listening_line = "ここでは、こう言います。"
 dialogue_start = "ここからは短い会話です。"
 dialogue_replay = "では、会話全体を通して聞きましょう。"
