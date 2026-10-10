@@ -1289,6 +1289,7 @@ class Builder:
         listening: frozenset[str] | set[str] = frozenset(),
         heard_turns: frozenset[int] | set[int] = frozenset(),
         heard_play: bool = False,
+        turn_items: dict[int, list[str]] | None = None,
     ) -> Exercise:
         """Play a dialogue; ``max_turns`` lets early encounters stop after a few turns.
 
@@ -1298,6 +1299,9 @@ class Builder:
 
         ``heard_play`` (#218 b1, #263): the scene played again as spare time. The partner is heard; a learner line is asked or heard
         by ``heard_turns`` like in any play, and the opening follows from what is asked.
+
+        ``turn_items``: a theme level's turns have literal lines and so no item to name; this maps a turn's index to the items it needs, so the
+        exercise names the items it asked (``item_ids``) apart from those of the lines only heard (``heard_ids``, #263).
 
         ``heard_turns``: indices of the learner's turns heard, not asked (#240, the owner: a line never taught can't be said
         at all, so it is never asked): the cue (the intent) stays, then «Here you would say:», the line and its meaning. A
@@ -1313,7 +1317,14 @@ class Builder:
         label = ("heard: " if heard_play else "dialogue: ") + dlg.id + ("" if len(turns) == len(dlg.turns) else f" ({len(turns)}/{len(dlg.turns)} turns)")
         if dlg.variant:
             label += f" [lines {dlg.variant}]"
+        heard_ids: list[str] = []
+        for k, its in (turn_items or {}).items():
+            if k < len(turns):
+                (heard_ids if k in heard_turns else ids).extend(i for i in its if i in self.cur.by_id)
+        ids = list(dict.fromkeys(ids))
+        heard_ids = [i for i in dict.fromkeys(heard_ids) if i not in ids]
         ex = sc.new_exercise("dialogue", "dialogue", ids, label)
+        ex.heard_ids = heard_ids
         partner = dlg.partner_speaker
         learner_voice = _other_voice(partner)
         # the switch from drills to a conversation is the biggest change of mode in a lesson

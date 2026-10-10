@@ -1218,7 +1218,11 @@ class Planner:
             return True
         if item.kind != "construction":
             return False
-        words = tuple(w.lower() for w in _WORD_RE.findall(self.cur.resolve_slots(item, fills)[0]))
+        return self._covered(self.cur.resolve_slots(item, fills)[0], practised)
+
+    def _covered(self, text: str, practised: bool = True) -> bool:
+        """Whether ``text`` is covered, in order, by chunks the learner can say."""
+        words = tuple(w.lower() for w in _WORD_RE.findall(text))
         chunks = self._say_chunks(practised)
         longest = max((len(c) for c in chunks), default=0)
         reach = [True] + [False] * len(words)  # reach[k]: the first k words are covered
@@ -1242,11 +1246,18 @@ class Planner:
         known = {w for chunk in self._say_chunks(True) for w in chunk}
         return any(w.lower() in known for w in _WORD_RE.findall(line))
 
-    def line_role(self, items, turn=None) -> str:
-        """The one decision on a learner's line in every play mode (#263, step 1 of #265): ``"ask"`` or ``"hear"``. A line is asked when the learner can say it
-        (``can_say_turn``, for a dialogue turn) or every item in it is met or taught earlier in this lesson (an open item being repaired, #199); else it
-        is heard with its meaning (#240: a line never taught is never asked). A line with no item to name (a literal) is asked."""
-        if turn is not None and (not turn.expect or self.can_say_turn(turn)):
+    def line_role(self, items, turn=None, text: str = "") -> str:
+        """The one decision on a learner's line in every play mode (#263, step 1 of #265): ``"ask"`` or ``"hear"``. A line is asked when the learner can
+        say it, or every item in it is met or taught earlier in this lesson (an open item being repaired, #199); else it is heard with its meaning (#240:
+        a line never taught is never asked). *Can say* is judged on the expression itself, whichever the caller: a dialogue ``turn`` (``can_say_turn``),
+        or a theme turn's ``text`` (its items said, or its words covered by chunks they can say, as ``can_say_turn`` does). A dialogue turn with no item
+        to name is a literal, asked."""
+        if turn is not None:
+            if not turn.expect:
+                return "ask"
+            if self.can_say_turn(turn):
+                return "ask"
+        elif items and all(self.can_say_item(i) for i in items if i in self.cur.by_id) or (text and self._covered(text)):
             return "ask"
         return "ask" if all(self.learner.has_met(i) or i in self.builder.in_lesson for i in items) else "hear"
 
@@ -1307,7 +1318,7 @@ class Planner:
     def _untaught_turns(self, you: list) -> set[int]:
         """The learner's turns of a theme level with an item never met: those are heard, not asked (#240, the owner: a line
         never taught can't be said at all). An open item is met: the learner is repairing it, so its line is asked (#199)."""
-        return {k for k, t in enumerate(you) if self.line_role(t.items) == "hear"}
+        return {k for k, t in enumerate(you) if self.line_role(t.items, text=t.say) == "hear"}
 
     def pick_theme(self) -> tuple | None:
         """The lesson's theme, its level (0-based) and the learner's turns of it that are only heard (#149 1b-ii, #240):
@@ -2115,10 +2126,9 @@ class Planner:
             you = [t for t in theme.levels[n].turns if t.who == "you"]
             # a turn is heard while one of its items is untaught: never met before and not introduced earlier in this lesson
             # (#240). One taught by now (the theme's next level brings its items in, #201) is asked in this play.
-            heard_now = {k for k in untaught if self.line_role(you[k].items) == "hear"}
-            ex = b.dialogue(sc, dlg, translate=theme_plays == 0 and not theme_replay, heard_turns=heard_now)
-            said = [i for k, t in enumerate(you) if k not in heard_now for i in t.items if i in self.cur.by_id]
-            self._record(list(dict.fromkeys(said)), "dialogue", ex.item_ids)
+            heard_now = {k for k in untaught if self.line_role(you[k].items, text=you[k].say) == "hear"}
+            ex = b.dialogue(sc, dlg, translate=theme_plays == 0 and not theme_replay, heard_turns=heard_now, turn_items={k: t.items for k, t in enumerate(you)})
+            self._record(ex.item_ids, "dialogue", ex.item_ids)
             theme_plays += 1
             return True
 
@@ -2142,11 +2152,10 @@ class Planner:
             nonlocal since_dialogue
             dlg = level_dialogue(theme, n, self.cur.known_lang, pick_variants(theme.levels[n], self.rng))
             you = [t for t in theme.levels[n].turns if t.who == "you"]
-            hear = {k for k, t in enumerate(you) if self.line_role(t.items) == "hear"}
+            hear = {k for k, t in enumerate(you) if self.line_role(t.items, text=t.say) == "hear"}
             # the scene again (#263): the partner is heard, the learner's lines they can say are asked, the others heard
-            ex = b.dialogue(sc, dlg, translate=False, heard_play=True, heard_turns=hear)
-            said = [i for k, t in enumerate(you) if k not in hear for i in t.items if i in self.cur.by_id]
-            self._record(list(dict.fromkeys(said)), "dialogue", ex.item_ids)
+            ex = b.dialogue(sc, dlg, translate=False, heard_play=True, heard_turns=hear, turn_items={k: t.items for k, t in enumerate(you)})
+            self._record(ex.item_ids, "dialogue", ex.item_ids)
             heard_plays.append(f"{theme.id}:{n + 1}")
             since_dialogue = 0
 

@@ -57,8 +57,9 @@ class Exercise:
     index: int
     kind: str  # opening | intro | recall | generative | connect | dialogue | note | closing
     stage: str | None
-    item_ids: list[str] = field(default_factory=list)
+    item_ids: list[str] = field(default_factory=list)  # the items asked or practised
     label: str = ""
+    heard_ids: list[str] = field(default_factory=list)  # a dialogue: the items of lines only heard, never asked (#263)
     start: float = 0.0  # estimated start time in seconds
     duration: float = 0.0
 
