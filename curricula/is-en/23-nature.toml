@@ -80,7 +80,7 @@ target = "sjór"
 meaning = "the sea"
 meaning_ja = "海"
 difficulty = 1
-tags = ["nature_nom"]
+tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
@@ -127,10 +127,10 @@ topics = ["nature"]
 id = "midnætursol"
 kind = "vocab"
 target = "miðnætursól"
-meaning = "midnight sun"
+meaning = "the midnight sun"
 meaning_ja = "白夜の太陽"
 difficulty = 3
-tags = ["nature_nom"]
+tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
 
 [[items]]
