@@ -57,13 +57,17 @@ def has_home(cur, part) -> bool:
     return False
 
 
-def whole_for(cur, part, met: set[str], prompts: Prompts) -> dict | None:
+def whole_for(cur, part, met: set[str], prompts: Prompts, taught: dict | None = None) -> dict | None:
     """The sentence the learner knows that holds ``part``: ``{"prompt", "answer", "through"}`` or None. A construction filled with the part (and
     fills the learner has met for its other slots) comes first, the one whose authored situation or example names the part before the rest;
-    then the shortest phrase that holds the part's words."""
+    then the shortest phrase that holds the part's words. ``taught`` is the sentence the part came in with today (``Builder.wholes_taught``): when its
+    pattern is not met yet it is asked exactly as taught, never rebuilt with other words (#262 review)."""
+    if taught and taught["through"] not in met:
+        prompt = meaning_prompts(Prompts(prompts.data, prompts.lang), cur.known_lang, cur.target_lang, taught["meaning"])[0]
+        return {"prompt": prompt, "answer": taught["answer"], "through": taught["through"]}
     options: list[tuple] = []
     for c in cur.items:
-        if c.kind != "construction" or c.id not in met or not c.slots:
+        if c.kind != "construction" or not (c.id in met) or not c.slots:
             continue
         slot = next((s for s, tag in c.slots.items() if part in cur.items_with_tag(tag, c)), None)
         if slot is None:
@@ -95,7 +99,7 @@ def whole_for(cur, part, met: set[str], prompts: Prompts) -> dict | None:
     return {"prompt": prompt, "answer": target, "through": through}
 
 
-def refine_review(review: list[dict], cur, met: set[str], prompts: Prompts) -> tuple[list[dict], list[dict]]:
+def refine_review(review: list[dict], cur, met: set[str], prompts: Prompts, wholes_taught: dict[str, dict] | None = None) -> tuple[list[dict], list[dict]]:
     """The review with every part asked through its whole, no part beside its whole and no two questions with one answer; and a report of
     what was changed. Bonus questions are left alone. See the module docstring for the rules."""
     out = [dict(q) for q in review]
@@ -131,7 +135,7 @@ def refine_review(review: list[dict], cur, met: set[str], prompts: Prompts) -> t
         part = part_of(q)
         if part is None:
             continue
-        whole = whole_for(cur, part, met, prompts)
+        whole = whole_for(cur, part, met, prompts, (wholes_taught or {}).get(part.id))
         if whole is not None:
             report.append({"items": q["items"], "kind": "through_whole", "was": q["answer"], "now": whole["answer"]})
             q["prompt"], q["answer"], q["through"] = whole["prompt"], whole["answer"], whole["through"]

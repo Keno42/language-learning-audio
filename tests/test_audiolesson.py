@@ -2809,8 +2809,8 @@ class CurriculumTests(unittest.TestCase):
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         b = Builder(cur, Prompts.load("en"), Timing(level="A1"), fresh())
         sc = Script(1, "L", cur.target_lang, cur.known_lang)
-        b.intro(sc, cur.by_id["vegabref"])
-        self.assertIn("Something new. A passport.", [s.text for s in sc.segments if s.type == "narrate"])
+        b.intro(sc, cur.by_id["kvittun"])
+        self.assertIn("Something new. A receipt.", [s.text for s in sc.segments if s.type == "narrate"])
         informative = {
             "a_thetta_hotel_takk", "eg_er_a_bil", "einn_tvo_thrjar", "ert_thu_islensk", "ertu_buin", "ertu_state",
             "farid_varlega_a_isnum", "gerdu_thig_heimakomna", "ha", "hvad_ertu_gomul", "hvar_er_thetta", "hvers_vegna",
@@ -5312,11 +5312,46 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
         # the next day's question asks the sentence
         self.assertEqual([(q["items"], q["answer"]) for q in sc.review_questions()], [(["hjalpina"], "Takk fyrir hjálpina.")])
 
+    def test_a_part_comes_with_a_frame_it_fits_even_when_no_example_names_it(self):
+        """#262 (lesson 22): «köku» and «klósettið» were taught bare although «Ég ætla að fá {thing}.» and «Hvar er {place}?» take them; any construction whose slot takes
+        the part and whose frame the learner nearly has is the part's home."""
+        met = [i.id for i in self.cur.items if i.order < 192 and i.id not in ("koku", "klosettid")]
+        for part, frame, slot in (("koku", "eg_aetla_ad_fa", "thing"), ("klosettid", "hvar_er", "place")):
+            b = self._builder(met=met)
+            home = b.whole_home(self.cur.by_id[part])
+            self.assertEqual((home[0].id, {k: v.id for k, v in home[1].items()}[slot]), (frame, part))
+            sc = Script(1, "t", "is", "en")
+            ex = b.intro(sc, self.cur.by_id[part])
+            self.assertTrue(ex.label.startswith("new: ") and ex.label.endswith(f"({self.cur.by_id[part].target})"), ex.label)
+            self.assertEqual(b.wholes_taught[part]["through"], frame)
+
+    def test_the_review_asks_the_sentence_exactly_as_it_was_taught(self):
+        """#262 review: «Þetta er blá bók.» was taught for «blá», and a sentence rebuilt from other met words («Þetta er blár bíll.») was asked next day."""
+        from audiolesson.review_wholes import whole_for
+        b = self._builder(met=["thetta_er_noun", "bok"])
+        sc = Script(1, "t", "is", "en")
+        for part in ("blar", "raudur"):
+            ex = b.intro(sc, self.cur.by_id[part])
+            taught = b.wholes_taught.get(part)
+            if not taught:
+                continue
+            self.assertEqual(ex.label, f"new: {taught['answer']} ({self.cur.by_id[part].target})")
+            met = {"thetta_er_noun", "bok", "bill", part}
+            self.assertEqual(whole_for(self.cur, self.cur.by_id[part], met - {taught["through"]}, self.en, taught)["answer"], taught["answer"])
+
+    def test_a_whole_taught_for_one_part_does_not_make_other_parts_askable_through_it(self):
+        from audiolesson.review_wholes import whole_for
+        cur = self.cur
+        taught = {"through": "attu", "answer": "Áttu peysu?", "meaning": "Do you have a sweater?"}
+        self.assertIsNone(whole_for(cur, cur.by_id["vegabref"], {"takk"}, self.en), "not met, not taught with it")
+        self.assertEqual(whole_for(cur, cur.by_id["peysu"], {"takk"}, self.en, taught)["answer"], "Áttu peysu?", "asked exactly as taught")
+
     def test_a_part_without_an_authored_home_or_with_a_strange_frame_is_introduced_as_before(self):
         b = self._builder()
         self.assertIsNone(b.whole_home(self.cur.by_id["kaffihusid"]), "no construction names it")
         thusund = self._builder(met=[])
-        self.assertIsNone(thusund.whole_home(self.cur.by_id["tvo"]), "«Það kostar … þúsund krónur.» has two words they have never met")
+        home = thusund.whole_home(self.cur.by_id["tvo"])
+        self.assertNotEqual(home[0].id if home else None, "thad_kostar_big", "«Það kostar … þúsund krónur.» has two words they have never met; «klukkan tvö» has one")
         self.assertIsNone(self._builder().whole_home(self.cur.by_id["takk_fyrir"]), "only a part has a whole")
         b = self._builder(met=["takk"])
         b.heard.add(_norm_utterance("Takk fyrir hjálpina."))
@@ -5774,7 +5809,7 @@ class ListeningTaskTests(unittest.TestCase):
         for cur, learner, sc in lessons:
             m = sc.meta
             closing_at = next((e.start for e in sc.exercises if e.kind == "closing"), float("inf"))  # the closing block's own exercises are not counted
-            self.assertEqual(m["pick_out_count"], sum(e.kind == "pick_out" for e in sc.exercises if m["target_reached_at"] <= e.start < closing_at))
+            self.assertEqual(m["pick_out_count"], sum(e.kind == "pick_out" for e in sc.exercises if m["target_reached_s"] <= e.start < closing_at))
             self.assertEqual(_plan(sc, cur)["second_half"]["pick_out_count"], m["pick_out_count"])
             self.assertLessEqual(sc.total_duration, 30 * 60 + 120, sc.lesson_number)
             # #248 review: the same two frames and the same word over and over would be a new boredom
@@ -5788,7 +5823,7 @@ class ListeningTaskTests(unittest.TestCase):
             # the run row stops at the closing block, whose recalls are a run of their own
             from itertools import groupby
             closing_at = next((e.start for e in sc.exercises if e.kind == "closing"), float("inf"))
-            between = [e for e in sc.exercises if m["target_reached_at"] <= e.start < closing_at and e.kind not in ("opening", "closing")]
+            between = [e for e in sc.exercises if m["target_reached_s"] <= e.start < closing_at and e.kind not in ("opening", "closing")]
             self.assertEqual(m["longest_kind_run_after_target"], max((sum(1 for _ in g) for _, g in groupby(between, key=lambda e: e.kind)), default=0))
             row = [e.kind for e in sc.exercises]
             for k in range(len(row) - 3):
@@ -8837,8 +8872,14 @@ class NewFirstOrderTests(unittest.TestCase):
         """(the new items the lesson picked at its start, the indices of their introductions)."""
         first = {i.id for i in Planner(cur, copy.deepcopy(learner), Prompts.load("en"), Timing(level="A1"), self._cfg("new-first"), today=day).select_new(
             self._cfg("new-first").new_items_ceiling(), cheap=True)}
+        # a phrase that holds a new part is introduced before it (#262 `phrase_first`): it is one of today's introductions too
+        first |= {e.item_ids[0] for e in sc.exercises if e.kind in ("intro", "embed") and e.item_ids and self._is_phrase(cur, e.item_ids[0])}
         idx = [e.index for e in sc.exercises if e.kind in ("intro", "embed") and e.item_ids and e.item_ids[0] in first]
         return first, idx
+
+    @staticmethod
+    def _is_phrase(cur, item_id):
+        return cur.by_id[item_id].kind == "phrase"
 
     def test_known_material_waits_until_the_last_introduction(self):
         cur, learner, day = self._state()
@@ -8860,7 +8901,7 @@ class NewFirstOrderTests(unittest.TestCase):
         today, intros = self._block(cur, learner, day, sc)
         for a, b in zip(intros, intros[1:]):
             between = [e for e in sc.exercises[a + 1 : b] if e.kind not in ("note", "opening")]
-            self.assertLessEqual(len(between), 3, [(e.kind, e.label) for e in between])
+            self.assertLessEqual(len(between), 5, [(e.kind, e.label) for e in between])  # #262: a phrase and its part are two introductions, each with its own recalls
             self.assertTrue(all(set(e.item_ids) & today for e in between), [(e.kind, e.label) for e in between])
 
     def test_the_length_stays_within_5_percent_of_spread_and_spread_is_unchanged(self):
