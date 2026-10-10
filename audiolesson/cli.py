@@ -17,7 +17,7 @@ from .content import CurriculumError, dialogue_sequencing_report, frame_gap_repo
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
-from .review_wholes import refine_review
+from .review_wholes import has_home, refine_review
 from .script import Script
 from .timing import Timing
 from .reading import load_deck
@@ -561,6 +561,12 @@ def cmd_validate(args) -> int:
         if args.parts:
             for f in parts:
                 print(f"  #{f['part_order']:<4} {f['part']} is inside #{f['whole_order']} {f['whole']} ({f['gap']} items earlier)")
+    homeless = [i.id for i in cur.items if i.kind == "vocab" and not has_home(cur, i)]
+    if homeless:
+        print(
+            f"advisory (not a failure): {len(homeless)} vocab items have no home: no construction slot takes their tags, no construction lists them as a "
+            f"prerequisite and no phrase holds their words, so the review can't ask them in a sentence (#215, #239): {', '.join(homeless)}"
+        )
     frames = frame_gap_report(cur, args.frame_span)
     if frames["late"] or frames["none"]:
         vocab = sum(1 for i in cur.items if i.kind == "vocab")

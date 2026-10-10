@@ -486,6 +486,18 @@ meaning_ja = "人々"
 difficulty = 1
 topics = ["social"]
 
+[[items]]
+id = "margt_folk_her"
+kind = "phrase"
+target = "Það er margt fólk hér."
+meaning = "There are a lot of people here."
+meaning_ja = "ここは人が多いですね。"
+difficulty = 3
+topics = ["social"]
+prereqs = ["folk"]
+situation = "You walk into a crowded hall. Say that there are a lot of people."
+situation_ja = "混んだ広間に入りました。人が多いと言ってください。"
+
 [[dialogues]]
 id = "myndir"
 setting = "Anna shows you photos on her phone."

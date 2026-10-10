@@ -277,6 +277,18 @@ difficulty = 2
 topics = ["discourse"]
 
 [[items]]
+id = "eg_er_her_af_thvi_ad"
+kind = "phrase"
+target = "Ég er hér af því að ég er í fríi."
+meaning = "I'm here because I'm on holiday."
+meaning_ja = "休暇で来ているからです。"
+difficulty = 3
+topics = ["discourse", "social"]
+prereqs = ["af_thvi_ad"]
+situation = "Someone asks why you are in Iceland. Say you are here on holiday."
+situation_ja = "なぜアイスランドにいるのか聞かれました。休暇で来ていると答えてください。"
+
+[[items]]
 id = "ekki"
 kind = "vocab"
 target = "ekki"
@@ -361,6 +373,18 @@ meaning_ja = "〜なしで"
 meaning_spoken_ja = "なしで"
 difficulty = 1
 topics = ["discourse"]
+
+[[items]]
+id = "te_an_sykurs_takk"
+kind = "phrase"
+target = "Te án sykurs, takk."
+meaning = "Tea without sugar, please."
+meaning_ja = "砂糖なしの紅茶をお願いします。"
+difficulty = 2
+topics = ["discourse", "cafe"]
+prereqs = ["an"]
+situation = "At the café, ask for tea with no sugar."
+situation_ja = "カフェで紅茶を頼みます。砂糖は要りません。"
 
 [[items]]
 id = "kaffi_eda_te"

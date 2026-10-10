@@ -33,6 +33,15 @@ def _holds(sentence_words: list[str], part_words: list[str]) -> bool:
     return bool(part_words) and any(sentence_words[i : i + n] == part_words for i in range(len(sentence_words) - n + 1))
 
 
+def _holds_inflected(sentence_words: list[str], part_words: list[str]) -> bool:
+    """A long one-word part inside a longer form of itself («norðurljós» in «norðurljósin»): the definite and other endings are the part's own."""
+    return len(part_words) == 1 and len(part_words[0]) >= 6 and any(w != part_words[0] and w.startswith(part_words[0]) for w in sentence_words)
+
+
+def _phrase_holds(phrase_words: list[str], part_words: list[str]) -> bool:
+    return _holds(phrase_words, part_words) or _holds_inflected(phrase_words, part_words)
+
+
 def has_home(cur, part) -> bool:
     """Whether the curriculum keeps ``part`` in a sentence anywhere: a construction slot takes its tags, a construction lists it as a prerequisite
     or a phrase holds its words (#215's definition)."""
@@ -43,7 +52,7 @@ def has_home(cur, part) -> bool:
         if c.kind == "construction":
             if part.id in c.prereqs or any(part in cur.items_with_tag(tag, c) for tag in c.slots.values()):
                 return True
-        elif c.kind == "phrase" and _holds(_words(c.target), part_words):
+        elif c.kind == "phrase" and _phrase_holds(_words(c.target), part_words):
             return True
     return False
 
@@ -77,7 +86,7 @@ def whole_for(cur, part, met: set[str], prompts: Prompts) -> dict | None:
         _, target, meaning, through = min(options, key=lambda o: o[0])
     else:
         part_words = _words(part.target)
-        phrases = [p for p in cur.items if p.kind == "phrase" and p.id in met and _holds(_words(p.target), part_words)]
+        phrases = [p for p in cur.items if p.kind == "phrase" and p.id in met and _phrase_holds(_words(p.target), part_words)]
         if not phrases:
             return None
         phrase = min(phrases, key=lambda p: (len(_words(p.target)), p.order))

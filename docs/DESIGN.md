@@ -389,6 +389,12 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
     are all unmet stays bare, the fallback; (3) no two questions share an answer: the later one's items are credited to the first (`same_answer`). Bonus questions are left alone.
     `audiolesson refine-review CURRICULUM [-l LEARNER]` is the same rules for the bot's review queue (site_update_notifier#96): `{"review": [...]}` on stdin (optional `"met"`),
     `{"review": [...], "refined": [...]}` on stdout; what the learner has met comes from the learner file.
+    *Homes (#215, data side).* `review_wholes.has_home(cur, part)` is the definition: a construction slot takes the part's tags, a construction lists it as a prerequisite, or a phrase
+    holds its words (a long one-word part also in a longer form of itself, «norðurljós» in «norðurljósin»; `whole_for` uses the same match, so a part that counts as housed can be asked
+    through that phrase). `validate` prints an advisory listing the vocab items with none (the sample curricula have a few; the course has none, and the tests pin it).
+    The colours' home is `litur_noun` («Þetta er {colour} {noun}.», the colour taking the form of its noun: «Þetta er blár bíll.», «blá bók», «blátt hús»);
+    `sjor` and `midnaetursol` are `nom_noun` (they fit «Þetta er {thing}.»); `hundrad`, `halfur`, `adeins`, `folk`, `af_thvi_ad` and `an` each have a short phrase;
+    `tuttugu_og_einn` was removed (no scene needs it, and its age form is the genitive).
     `meta.met_items` is what the learner has met, plus what this lesson taught and the patterns whose sentence it taught whole around a new part (`Builder.wholes_taught`: the pattern is not introduced yet, but the sentence is known). `plan.json` `review_refined` lists every change; `replay_lesson.py` row 5 counts a part beside its whole and a repeated answer (0).
 - **The second half is a rotation (#248, concept 2 and 3, O2, O5, G16).** Once the lesson has taught what the target asked for
   (`mark_delivered_target`, after every introduction, an embed and a pattern instance included: `target_reached_at` in the meta is that time)
