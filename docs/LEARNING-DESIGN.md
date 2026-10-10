@@ -994,25 +994,32 @@ What the learner wrote, by what the lesson did:
 Ordered by the expected effect on the outcome, adjusted for cost and for what depends on
 what. Re-rank it when the evidence moves.
 
-**Now (after lesson 22, under the concept in §3).** The twenty-point parts come first, ahead of every step below
-(§9 "Good enough overall"). In order:
+**Now (after lesson 22, under the concept in §3): expression first (#265).** The remarks of lessons 20–22 share one
+cause. Concept 1 teaches target expressions, but each mechanism has its own unit and its own rule for what the learner
+may do with a line:
+- introduction: the item, so a part could enter before its whole;
+- play modes: one rule per mode, so a known line could be withheld;
+- review: items, refined into wholes after the fact;
+- pace: new words, so a phrase of known words costs 0.
 
-1. **A part comes with its frame, in the lesson and in the review (#262; concept 1).**
-   - The lesson side, from lesson 22 (§5.18): a part is introduced inside any whole that holds it. That means a phrase
-     known or introduced in the lesson («Hvar er klósettið?»), or a known construction with the part as a fill
-     («Ég ætla að fá köku.»). An inflected form is never introduced bare: its frame is the case hint.
-   - Admission: when a part's frames are all unmet, the cheapest frame comes forward with it («Þetta er {thing}.» houses
-     «hraun», «strönd», «eldfjall»…).
-   - The review: a part with a home is never asked bare.
-2. **A scene heard again asks the lines the learner can say (#263; concept 1 and 4).** The partner's lines stay heard
-   at natural speed; the learner's own known lines are asked; only untaught ones are heard (#240's rule). The opening
-   says what follows.
-3. **Catch the unknown word by its place in the meaning (#248; concept 3).** The prompt names the word through the
-   part of the line the learner understood ("she said today there's *something*: ask what it is"), and the model is
-   «Hvað þýðir {word}?». Then the pick-out's variety and more material.
+The answer is one unit, the target expression (an utterance), and one rule per question, not a fix per remark
+(§9 "Good enough overall", §11). In order:
 
-**Watch:** next-day recall of new items (lesson 21: 4 of 11) and uses of each new item before the closing (lesson 22: 4.2).
-If lesson 22's next-day review is low again, the share of the second half given to today's items becomes a "Now" item (§5.18).
+1. **One line-role rule for every play mode (#263).** A learner line the learner can say is asked; one they can't is
+   heard with its meaning. It is decided in one function that every play mode calls: listening scene, theme play, scene
+   heard again, connect. #240's two code paths fold into it. This removes the lesson-22 remark (12 known lines told,
+   not asked).
+2. **Introduction by utterance (#262).** A part is taken out of an utterance the learner has or is given now («Hvar er
+   klósettið?», «Ég ætla að fá köku.»), never presented first; an inflected form gets its frame, which is its case hint.
+   Then admission: the cheapest frame comes forward with a part whose frames are unmet.
+3. **The pace unit: read the evidence before any change.** Lesson 21's next-day recall was 4 of 11, and 3 of its 4
+   zero-cost phrases failed. If lesson 22's next-day recall is again below about 60%, revisit #235's zero cost for a new
+   phrase of known words (owner's decision, option b; a floor such as 0.5 is one option). Until then, no code.
+4. **Catch the unknown word by its place in the meaning (#248; concept 3).** The prompt names the word through the part
+   the learner understood; the model is «Hvað þýðir {word}?».
+
+**Watch:** uses of each new item before the closing (lesson 22: 4.2). If lesson 22's next-day review is low again, check
+this together with item 3: the second half's share for today's items, and the pace unit.
 
 **Built after lesson 21:**
 - a part inside its whole, in the lesson and in the review (#254, #256, #258), and the bot's queue (site_update_notifier#96);
