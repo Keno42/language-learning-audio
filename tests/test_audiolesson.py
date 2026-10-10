@@ -5361,6 +5361,35 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
         out, report = refine_review(review, self.cur, {"hjalpina"}, self._prompts())
         self.assertEqual(([q["answer"] for q in out], report), (["hjálpina"], []))
 
+    def test_the_refine_review_subcommand_refines_a_list_of_questions(self):
+        """For the bot's queue (site_update_notifier#96): the same rules as `plan.json` `review`, from JSON on stdin; what the learner has met comes from the learner file."""
+        import contextlib
+        import io
+        import sys
+        from audiolesson.cli import main
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "l.json"
+            learner = LearnerState("is", "en", "A1")
+            for i in ("takk", "takk_fyrir", "hjalpina", "matinn"):
+                learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3)
+            learner.save(path)
+            payload = {"review": [
+                {"items": ["matinn"], "prompt": "for the meal", "answer": "matinn"},
+                {"items": ["eigdu_godan_dag"], "prompt": "p", "answer": "Eigðu góðan dag."},
+                {"items": ["eigdu_godur"], "prompt": "q", "answer": "Eigðu góðan dag."},
+            ]}
+            out = io.StringIO()
+            old_stdin = sys.stdin
+            sys.stdin = io.StringIO(json.dumps(payload))
+            try:
+                with contextlib.redirect_stdout(out):
+                    self.assertEqual(main(["refine-review", str(ROOT / "curricula" / "is-en"), "-l", str(path)]), 0)
+            finally:
+                sys.stdin = old_stdin
+            result = json.loads(out.getvalue())
+        self.assertEqual([(q["items"], q["answer"]) for q in result["review"]], [(["matinn"], "Takk fyrir matinn."), (["eigdu_godan_dag", "eigdu_godur"], "Eigðu góðan dag.")])
+        self.assertEqual(sorted(r["kind"] for r in result["refined"]), ["same_answer", "through_whole"])
+
     def test_a_part_inside_a_longer_form_is_asked_through_that_phrase(self):
         """#257 review: «norðurljós» counts as housed by «Ég vil sjá norðurljósin.»; the review must then ask that sentence, not the bare word."""
         from audiolesson.review_wholes import refine_review

@@ -387,6 +387,8 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
     asked through it: the whole's meaning is the cue and the sentence the answer (`through_whole`, with `through` naming the item); a part with no home in the curriculum
     (#215's definition: no slot takes its tags, no construction lists it as a prerequisite, no phrase holds its words) comes out of the review (`no_home`); a part whose homes
     are all unmet stays bare, the fallback; (3) no two questions share an answer: the later one's items are credited to the first (`same_answer`). Bonus questions are left alone.
+    `audiolesson refine-review CURRICULUM [-l LEARNER]` is the same rules for the bot's review queue (site_update_notifier#96): `{"review": [...]}` on stdin (optional `"met"`),
+    `{"review": [...], "refined": [...]}` on stdout; what the learner has met comes from the learner file.
     *Homes (#215, data side).* `review_wholes.has_home(cur, part)` is the definition: a construction slot takes the part's tags, a construction lists it as a prerequisite, or a phrase
     holds its words (a long one-word part also in a longer form of itself, «norðurljós» in «norðurljósin»; `whole_for` uses the same match, so a part that counts as housed can be asked
     through that phrase). `validate` prints an advisory listing the vocab items with none (the sample curricula have a few; the course has none, and the tests pin it).

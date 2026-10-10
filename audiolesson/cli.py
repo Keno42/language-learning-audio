@@ -127,6 +127,12 @@ def main(argv: list[str] | None = None) -> int:
     q.add_argument("--known", default=None)
     q.set_defaults(func=cmd_questions)
 
+    rf = sub.add_parser("refine-review", help="refine review questions (JSON on stdin) as plan.json's review is: each expression once, a part through its whole (#239); for the bot's queue")
+    rf.add_argument("curriculum")
+    rf.add_argument("-l", "--learner", default=None, help="learner file: what the learner has met decides which wholes may be asked")
+    rf.add_argument("--known", default=None)
+    rf.set_defaults(func=cmd_refine_review)
+
     vo = sub.add_parser("voices", help="list default voices a provider offers for a language")
     vo.add_argument("--provider", default="edge")
     vo.add_argument("--lang", default="fr")
@@ -625,6 +631,20 @@ def cmd_questions(args) -> int:
         if it is not None and it.kind != "construction":
             out[i] = {"prompt": _review_cue(cur, prompts, it), "answer": it.target, "cues": _review_cues(cur, prompts, it)}
     print(json.dumps(out, ensure_ascii=False))
+    return 0
+
+
+def cmd_refine_review(args) -> int:
+    """stdin: ``{"review": [{"items", "prompt", "answer", ...}], "met": [ids]}`` (``met`` optional, added to what the learner file says the learner has met);
+    stdout: ``{"review": [...], "refined": [{"items", "kind", ...}]}`` (``review_wholes.refine_review``, the same rules as ``plan.json`` ``review``)."""
+    cur = load_curriculum(args.curriculum, known_lang=args.known)
+    data = json.load(sys.stdin)
+    met = set(data.get("met") or [])
+    if args.learner and Path(args.learner).exists():
+        learner = LearnerState.load(Path(args.learner))
+        met |= {it.id for it in cur.items if learner.has_met(it.id)}
+    review, refined = refine_review(list(data.get("review") or []), cur, met, Prompts.load(cur.known_lang))
+    print(json.dumps({"review": review, "refined": refined}, ensure_ascii=False))
     return 0
 
 
