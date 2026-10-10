@@ -230,7 +230,7 @@ changed it).
 | **H5** | Group new material by **scene** (bun, coffee, bag, card), not by **semantic set** (numbers 1–10, colours, yes/no). Similar items introduced together get confused; contrasting them pays off once each is known. | Semantic clustering slows L2 vocabulary learning and thematic clustering doesn't (Tinkham 1993, 1997; Waring 1997). Interleaving helps when the task is telling similar things apart (Brunmair & Richter 2019). Lesson 8: "numbers 1–4: masculine and neuter can't be told apart in the English prompts" (§5.2). | Partly: milestone notes contrast known items; #150 plans contrasts for known pairs and series. Nothing keeps a set from being introduced together: the curriculum lists numbers, colours and languages next to each other (§7, G5) | Items introduced as a set fail no more often than others | bet (research-backed). Lesson 15's two forms of one word, introduced together, both failed the next day (§5.14). The other side, a set every scene needs that never moves forward: #213 |
 | **H6** | Chunks first, patterns next, transfer last. A fixed chunk said often becomes fluent (token frequency). A pattern used with many different fillings becomes productive (type frequency). Teach a pattern when two fillings are known, then move it to new words. | Usage-based learning (Bybee 2006); formulaic language (Wray 2002); #29's "capabilities outward". | Constructions with slots and `meaning_forms`; milestones with `transfer_items`; recombination; substitution runs (PR #153) | Substitution drills don't help the learner produce combinations they haven't heard (scenario cards with new fillings) | adopted (principle); testing (substitution). Lesson 16 (§5.14): a construction's question and negative were asked before the learner had heard them (#211). Revised by the concept (owner, after lesson 20; §3, §9 "Good enough overall"): patterns serve target expressions; moving a pattern to new words is limited to the few parallel expressions a target needs |
 | **H7** | Every generated sentence must be plausible in its scene. An implausible one teaches less than it costs. | Owner (after lesson 12: never produce "order a passport at the café"); H3. | Case- and meaning-tagged slots; `opens` (PR #155); scene templates (#152) | — | adopted |
-| **H8** | Natural-speed partner lines with some unknown words (the owner suggests 10–20%), in a familiar scene, build the tolerance needed to get through real exchanges. | The owner's hypothesis, and their preference for more listening time over shorter lessons (§5.7); the #129 pilots (common clerk lines were not understood). **Caveat:** detailed comprehension needs about 95% of the words to be known when listening and 98% when reading (van Zeeland & Schmitt 2013; Hu & Nation 2000). At 80–90%, expect gist from context, not learning of the unknown words. So the scene must carry the meaning. | Scenario cards (partner lines may go beyond the course); partner turns in themes (PR #155); #134 | Respond and repair cards with unknown words stay at 言えなかった, or the learner finds them discouraging rather than useful | bet. In the audio since #252: a heard scene, *pick out* and *catch the unknown word* in the second half. Lesson 21 (§5.17): no discouragement, but the pick-outs were too easy to train anything (the answer was all that was new in the line) |
+| **H8** | Natural-speed partner lines with some unknown words (the owner suggests 10–20%), in a familiar scene, build the tolerance needed to get through real exchanges. | The owner's hypothesis, and their preference for more listening time over shorter lessons (§5.7); the #129 pilots (common clerk lines were not understood). **Caveat:** detailed comprehension needs about 95% of the words to be known when listening and 98% when reading (van Zeeland & Schmitt 2013; Hu & Nation 2000). At 80–90%, expect gist from context, not learning of the unknown words. So the scene must carry the meaning. | Scenario cards (partner lines may go beyond the course); partner turns in themes (PR #155); #134 | Respond and repair cards with unknown words stay at 言えなかった, or the learner finds them discouraging rather than useful | bet. In the audio since #252: a heard scene, *pick out* and *catch the unknown word* in the second half. Lesson 21 (§5.17): no discouragement, but the pick-outs were too easy to train anything (the answer was all that was new in the line). Lesson 22 (§5.18): two-piece pick-outs from scene lines drew no remark; the owner asks that the unknown word be pointed to through the meaning, not guessed (#248) |
 | **H9** | The amount of new material, counted in weighted new components (§9 "Pace", #218), throttled by recall reports (over the last three lessons) and by the learner's load rating, keeps the load right. It aims at about 8 a lesson to start (#218) and about 80–85% next-day success. | README "Pacing"; desirable difficulties (Bjork 1994): too easy wastes time, too hard fails. | `suggest_pace` | The load rating drifts to "heavy", or next-day failures stay above 20%, at the pace actually used | **revised (§5.14–5.15, #218):** the number of new items is not the pace (G4), and the learner prefers full lessons with more to hear (§5.7). Lessons 18–19 were «light» at 81–100% next-day success: one lesson's eight items let the pace rise only when all were recalled, and the load rating was not read. A lead from four lessons: the load seems to follow new *components* (8 and 8 «right», 5 and 5 «light», weighted), not new items; lesson 18 also replayed a level (supermarket 1), another reason it may have felt light (§6.2, "Time confounds everything"). Owner's decisions (#218; built: part a, the window and the load rating, #229; part b: b1, no form as filler, #233; b3, weighted components, #235; b2, the BÍN check, still open, #234): a three-lesson window (hold at 15–25% failures: three lessons are only about 24 items), the load rating as an input, and weighted new components as the pace's unit. Lesson 20 (§5.16): «light» again at 9 of a target of 9 components, after a next-day review with all 8 recalled. The time after the target went to filler the learner found boring, so the load rating also reads what fills the rest of the lesson |
 | **H10** | Self-reports are informative when they are made the next day, with the answer hidden until the learner has tried. They are noisy, lean towards success and must never be produced by an LLM. | Delayed judgements of learning are far more accurate than immediate ones (Nelson & Dunlosky 1991); #129 (GPT transcripts did not match what was said). | The bot's review (answer revealed only after trying; 3-point scale); the feedback form | The ratings stop telling recalled lines from guessed or failed ones | **revised:** the learner usually commits at once (§5.7), but «迷った» was used in 3 of the last 7 reviews (before lessons 14, 15 and 18; none before lesson 20; §5.12–5.16), and the pace counts it as half a failure. Read it as a third value |
 | **H11** | Practice spent on items the learner plainly knows is waste, and the learner notices it. A known item should wait for its date. | Spacing (H1); #94; the owner after lesson 12 (já, nei, hæ every lesson although reported 言えた). | Not-due items wait (#94); stable items never fill (PR #153) | — | adopted (#94); the recurrence is fixed in PR #153. Lesson 19 (§5.15): the learner notices both sides of it. Easy items («miða», the clock's five hours) are repeated, and an open item is practised every lesson with no check since lesson 15. Closing it needs a check, and this item was never asked in the review (#205 closed four others, §5.14; #220: open items always asked). Lesson 20 (§5.16): items the morning's review had just asked were asked again in the audio (one-day intervals; G7), and items not yet due filled spare time |
@@ -846,6 +846,66 @@ What the learner wrote, by what the lesson and the review did:
   («kaffihúsið» only inside generated sentences) while the rotation played. One lesson, below the heavy share: watch
   it; no change yet.
 
+
+### 5.18 Lesson 22: the first lesson on #254–#260
+
+Lesson 22 was generated with LLA `923553b`, with the bot's queue pass (site_update_notifier#96/#97) and the 3-day first
+showing of a scene card (#95/#98). It is the first lesson heard with:
+- a part introduced inside its whole and asked through it (#254, #256), and the review's questions refined (#258);
+- a home for every part (#257);
+- pick-outs from a scene's line with two pieces of information (#255);
+- an aside read a sentence at a time (#260).
+
+**Lesson 21's next-day review.** 4 of the 11 new items asked were recalled; 2 were not asked. By question, about 5 of
+10 failed:
+- «Ég vil frekar te.» and «Ég ætla að fá mjólk án sykurs.», each a question carrying several items since #239;
+- «Er þetta sæti laust?», «Þetta er allt.» and «Til að taka með, takk.».
+
+Lesson 20's was 8 of 10. The pace held at 10: over three lessons the failures are 7 of 33, inside the 15–25% band.
+
+| | lesson 22 |
+|---|---|
+| length | 27.7 min, 135 exercises |
+| new items; new components, weighted | 13; 12 of a target of 10 |
+| target reached | 15:31 |
+| second half | 2 pick-outs (both two-piece lines), 3 unknown words caught, 4 scenes heard again |
+| daily-read rows | unserved after the target 54 s; longest generated run 3; longest run of one kind 4; echo pick-outs 0 |
+| uses of each new item before the closing | 4.2 on average (lesson 20: 6.3; lesson 21: 5.8) |
+| feedback form: load; friction | **right**; other |
+| marked under-practised | «Gleðilega hátíð!» |
+
+What the learner wrote, by what the lesson did:
+
+- **"I was made to say «the toilet is what?», which is odd."** «klósettið» ("The toilet.") was introduced and asked
+  bare at 05:34, before «Hvar er klósettið?» at 06:20 (#262). #254's whole-first introduction only looks at a
+  construction whose authored example names the part. «klósettið»'s whole is a phrase.
+- **"In the conversations, expressions I learned long ago were not mine to say; I was told the answer, maybe ten
+  times."**
+  - The rotation played four scenes the learner has done as heard plays (#218 b1).
+  - In a heard play every learner line is "«Here you would say:» → the line", with no pause. That was 12 lines the
+    learner can say.
+  - Each play opened with "it has a few new expressions in it", and none were new (#263).
+- **The owner, on the transcript: «köku» ("a piece of cake") was introduced bare, with no hint of its case.** The
+  ordinary form is «kaka»; «Ég ætla að fá köku.» should come first (#262).
+- **The owner: "One word was new. Say it, and ask what it means." makes guessing the word the task.** "He said
+  *something* is closed: ask what it is" would be clear (#248).
+
+**Reading.**
+- **What did not come back.** None of lesson 21's remarks returned: no echo pick-outs, no review remark about parts
+  asked bare or twice, no boring stretch, nothing untaught asked, no missing pause. The load is «right» for the second
+  lesson running. For the work built after lesson 21 this is the first of the three feedbacks.
+- **One cause behind the new remarks.** Both follow the shape of #239: a mechanism that puts a line outside the
+  learner's own use.
+  - A part introduced before its whole («klósettið», «köku»): the whole-first rule is too narrow.
+  - A known line withheld in a scene heard again: the heard play was built for the ear, not for the lines the learner
+    owns.
+- **Watch, no change yet.**
+  - Lesson 21's next-day recall fell to 4 of 11.
+  - Lesson 22 gave each new item fewer uses before the closing (4.2).
+  - Possible causes: the second half taking time from today's items, the review now asking whole sentences (harder
+    than parts), or 13 café items close to each other.
+  - It is one lesson. Lesson 22's next-day review will tell; if it is low again, this becomes a "Now" item.
+
 ---
 
 ## 6. Signals: what each can and cannot tell us
@@ -934,31 +994,34 @@ What the learner wrote, by what the lesson and the review did:
 Ordered by the expected effect on the outcome, adjusted for cost and for what depends on
 what. Re-rank it when the evidence moves.
 
-**Now (after lesson 21, under the concept in §3).** The twenty-point parts come first, ahead of every step below
+**Now (after lesson 22, under the concept in §3).** The twenty-point parts come first, ahead of every step below
 (§9 "Good enough overall"). In order:
 
-1. **A part lives inside its whole, in the lesson and in the review (#239, with #215's homes; concept 1).**
-   - The evidence: lesson 20 (§5.16), and four of the five review remarks after lesson 21 (§5.17). The two failed
-     items of lesson 20 are the two parts asked bare.
-   - A part is introduced inside the target expression that holds it («Takk fyrir hjálpina.», then «hjálpina»), and a
-     pattern whose example is known is presented as that phrase's pattern.
-   - The review asks the whole the learner learned, never a part that only lives inside it. It asks each target
-     expression once: no two questions with the same answer, no part next to the whole that holds it.
-   - #215's data side (a home for every part) belongs here: a part with no whole can't be asked as one.
-2. **Pick out the information means finding it (#248, step 2; concept 2).**
-   - The line holds more than the answer, so the learner has to find it:
-     - a line with two or more pieces of information, and the question asks for one
-       («Kaffi kostar fimm hundruð og samloka þúsund krónur.» → "How much is the sandwich?");
-     - or a scene's partner line at natural speed, in wording the learner hasn't drilled
-       («Það gera þrjú þúsund og fimm hundruð krónur.»).
-   - A drilled frame plus the answer is not used (lesson 21's eight pick-outs, §5.17).
-   - The answer stays Icelandic. The owner, 2026-10-10: the course is about Icelandic coming out, and the echo came
-     from the line, not from the answer's language. An answer in the known language is not used.
-   - Then `count` and `place` probes, the number × noun sentence (#213), and more `word_glosses` for the unknown word.
+1. **A part comes with its frame, in the lesson and in the review (#262; concept 1).**
+   - The lesson side, from lesson 22 (§5.18): a part is introduced inside any whole that holds it. That means a phrase
+     known or introduced in the lesson («Hvar er klósettið?»), or a known construction with the part as a fill
+     («Ég ætla að fá köku.»). An inflected form is never introduced bare: its frame is the case hint.
+   - Admission: when a part's frames are all unmet, the cheapest frame comes forward with it («Þetta er {thing}.» houses
+     «hraun», «strönd», «eldfjall»…).
+   - The review: a part with a home is never asked bare.
+2. **A scene heard again asks the lines the learner can say (#263; concept 1 and 4).** The partner's lines stay heard
+   at natural speed; the learner's own known lines are asked; only untaught ones are heard (#240's rule). The opening
+   says what follows.
+3. **Catch the unknown word by its place in the meaning (#248; concept 3).** The prompt names the word through the
+   part of the line the learner understood ("she said today there's *something*: ask what it is"), and the model is
+   «Hvað þýðir {word}?». Then the pick-out's variety and more material.
 
-**Built after lesson 20** (#247, #250, #251, #252): spare time serves the scene and the ear, with the second half a
-rotation of hearing, picking out and catching (#248's first step); no untaught line is asked; a beat after every
-framing line. Lesson 21 is the first of the three feedbacks each needs, with no remark of their kinds (§5.17).
+**Watch:** next-day recall of new items (lesson 21: 4 of 11) and uses of each new item before the closing (lesson 22: 4.2).
+If lesson 22's next-day review is low again, the share of the second half given to today's items becomes a "Now" item (§5.18).
+
+**Built after lesson 21:**
+- a part inside its whole, in the lesson and in the review (#254, #256, #258), and the bot's queue (site_update_notifier#96);
+- a home for every part (#257);
+- pick-outs from a scene's two-piece lines (#255);
+- an aside read a sentence at a time (#260);
+- a scene card's first good answer comes back after 3 days (site_update_notifier#95).
+
+Lesson 22 is the first of the three feedbacks each needs, with no remark of their kinds (§5.18).
 
 Each "Now" item is done when its row in the daily read (`tools/replay_lesson.py`) reads 0 on the replay, and three
 feedbacks after it carry no remark of the same kind:
@@ -966,20 +1029,20 @@ feedbacks after it carry no remark of the same kind:
 2. lines a listening scene asks for that were never taught (`listening_untaught`, #240);
 3. items the audio asks that the same morning's review asked (`asked_after_review`, #238);
 4. framing lines followed by an example without a beat (#241);
-5. review questions whose answer is a part asked outside its whole, or that share an answer with another question (#239: to build);
-6. pick-outs whose line holds nothing but a drilled frame and the answer (#248 step 2: to build).
+5. review questions whose answer is a part beside its whole, or that share an answer with another question (#239);
+6. pick-outs whose line holds nothing but a drilled frame and the answer (#255: `pick_out_echo_count`);
+7. parts introduced or asked alone while a whole that holds them exists (#262: to build);
+8. learner lines heard, not asked, in a scene heard again, that the learner can say (#263: to build).
 
-**Small and cheap, any time:** a scene card answered well on its first showing comes back after 3 days, not the next
-morning (site_update_notifier#95).
+**Small and cheap, any time:** the partner's reply to «Gætirðu talað hægar?» comes word by word, with gaps (#261).
 
 **Open issues after "Now", in order:**
 - #212: hard words get a slow, split model (concept 1, the ear).
 - #236: a one-off reply gets several example answers (owner: low priority).
 - #198: a word on why «heiti potturinn» and «heitur pottur» differ.
 - #142: nature and winter safety inside a theme (content, step 2 of #149).
-- #209: when a fluent speaker is available (G10).
-- #208: a short policy and status brief for coding tasks. This is documentation, not a learning change; it can be
-  done any time.
+- #209: when a fluent speaker is available (G10). It is worth more now that #255 and #257 added authored Icelandic.
+- #208: a short policy and status brief for coding tasks (documentation; any time).
 - #220: precision work on scheduling (§8 "Not now").
 
 1. **Make the loop measurable and use it (G1). Cheap; everything else depends on it.**
