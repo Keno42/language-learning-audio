@@ -5361,6 +5361,14 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
         out, report = refine_review(review, self.cur, {"hjalpina"}, self._prompts())
         self.assertEqual(([q["answer"] for q in out], report), (["hjálpina"], []))
 
+    def test_a_part_inside_a_longer_form_is_asked_through_that_phrase(self):
+        """#257 review: «norðurljós» counts as housed by «Ég vil sjá norðurljósin.»; the review must then ask that sentence, not the bare word."""
+        from audiolesson.review_wholes import refine_review
+        review = [{"items": ["nordurljos"], "prompt": "northern lights", "answer": "norðurljós", "stage": "meaning"}]
+        out, report = refine_review(review, self.cur, {"nordurljos", "eg_vil_sja_nordurljosin"}, self._prompts())
+        self.assertEqual([(q["answer"], q["through"]) for q in out], [("Ég vil sjá norðurljósin.", "eg_vil_sja_nordurljosin")])
+        self.assertEqual([r["kind"] for r in report], ["through_whole"])
+
     def test_a_part_is_never_asked_beside_the_whole_that_holds_it(self):
         from audiolesson.review_wholes import parts_outside_their_whole, refine_review
         review = [
@@ -5388,10 +5396,14 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
     def test_a_part_with_no_home_at_all_comes_out_of_the_review(self):
         from audiolesson.review_wholes import has_home, refine_review
         self.assertTrue(has_home(self.cur, self.cur.by_id["hundrad"]), "«Hundrað krónur, takk.» (#215)")
-        self.assertFalse(has_home(self.cur, self.cur.by_id["tuttugu_og_einn"]), "#215: no frame, no phrase yet")
+        self.assertTrue(has_home(self.cur, self.cur.by_id["nordurljos"]), "«Ég vil sjá norðurljósin.» holds it in a longer form")
         self.assertTrue(has_home(self.cur, self.cur.by_id["hjalpina"]))
-        review = [{"items": ["tuttugu_og_einn"], "prompt": "twenty-one", "answer": "tuttugu og einn", "stage": "meaning"}]
-        out, report = refine_review(review, self.cur, {"tuttugu_og_einn"}, self._prompts())
+        raw = ExcludeFillsTests._raw()
+        raw["items"].append({"id": "orphan", "kind": "vocab", "target": "munaðarlaus", "meaning": "an orphan"})
+        cur = curriculum_from_dict(raw)
+        self.assertFalse(has_home(cur, cur.by_id["orphan"]))
+        review = [{"items": ["orphan"], "prompt": "an orphan", "answer": "munaðarlaus", "stage": "meaning"}]
+        out, report = refine_review(review, cur, {"orphan"}, self._prompts())
         self.assertEqual((out, [r["kind"] for r in report]), ([], ["no_home"]))
 
     def test_the_sentence_a_part_came_in_with_is_what_the_review_asks(self):
@@ -5409,18 +5421,18 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
         self.assertIn("peysu", sc.meta["met_items"])
         self.assertIn("attu", sc.meta["met_items"], "taught whole today")
 
-    def test_every_part_has_a_home_but_one(self):
-        """#215's data side: the 18 vocab items with no frame or phrase now have one («Blár bíll.», «Hundrað krónur, takk.», «Það er margt fólk hér.»). Left for the owner:
-        «tuttugu og einn» (a number that fits no scene yet)."""
+    def test_every_part_has_a_home(self):
+        """#215's data side: the 18 vocab items with no frame or phrase now have one («Þetta er blár bíll.», «Hundrað krónur, takk.», «Það er margt fólk hér.»), or are gone
+        («tuttugu og einn»: no scene needs it). The course is pinned at 0 here; `validate` lists them as an advisory because the sample curricula have a few («oui», «non»)."""
         from audiolesson.review_wholes import has_home
-        self.assertEqual([i.id for i in self.cur.items if i.kind == "vocab" and not has_home(self.cur, i)], ["tuttugu_og_einn"])
+        self.assertEqual([i.id for i in self.cur.items if i.kind == "vocab" and not has_home(self.cur, i)], [])
 
     def test_a_colour_takes_the_form_of_its_noun(self):
-        """The colours' home (#215): «{colour} {noun}.» with the form of the noun's gender (#158)."""
+        """The colours' home (#215): «Þetta er {colour} {noun}.» with the colour in the form of its noun's gender (#158)."""
         c = self.cur.by_id["litur_noun"]
         said = {self.cur.resolve_slots(c, {"colour": self.cur.by_id["blar"], "noun": self.cur.by_id[n]})[0] for n in ("bill", "bok", "hus")}
-        self.assertEqual(said, {"Blár bíll.", "Blá bók.", "Blátt hús."})
-        self.assertEqual(self.cur.resolve_slots(c, {"colour": self.cur.by_id["raudur"], "noun": self.cur.by_id["bok"]})[1], "A red book.")
+        self.assertEqual(said, {"Þetta er blár bíll.", "Þetta er blá bók.", "Þetta er blátt hús."})
+        self.assertEqual(self.cur.resolve_slots(c, {"colour": self.cur.by_id["raudur"], "noun": self.cur.by_id["bok"]})[1], "This is a red book.")
 
     def test_the_plan_carries_the_refined_review_and_the_lessons_row_reads_zero(self):
         from audiolesson.cli import _plan

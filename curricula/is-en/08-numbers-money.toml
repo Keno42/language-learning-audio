@@ -73,16 +73,6 @@ tags = ["number", "age", "big_count"]
 topics = ["numbers"]
 
 [[items]]
-id = "tuttugu_og_einn"
-kind = "vocab"
-target = "tuttugu og einn"
-meaning = "twenty-one"
-meaning_ja = "21"
-difficulty = 2
-tags = ["number"]
-topics = ["numbers"]
-
-[[items]]
 id = "tuttugu_og_fimm"
 kind = "vocab"
 target = "tuttugu og fimm"
