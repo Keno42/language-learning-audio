@@ -52,6 +52,9 @@ VOICE_OF = {"f": "native_a", "m": "native_b"}  # every profile voices native_a f
 GENDER_OF = {v: g for g, v in VOICE_OF.items()}
 
 
+# where one sentence of a note's prose ends and the next begins (#259): after «. » «? » «! » «: » with a capital letter next, or after «。» «！» «？»
+_SENTENCE_BREAK = re.compile(r"(?<=[.?!:])\s+(?=[A-ZÁÐÉÍÓÚÝÞÆÖ])|(?<=[。！？])")
+_SENTENCE_END = re.compile(r"[.?!。！？][\"'”’)\]]*\s*$")
 _FUNCTION_WORDS = frozenset({"á", "í", "með", "að", "og", "af", "um", "til", "frá", "við", "er", "en", "of", "ég", "þú"})
 _FILL_WORD_RE = re.compile(r"[^\W\d_]+", re.UNICODE)
 
@@ -1170,18 +1173,26 @@ class Builder:
     def _speak_note_text(self, sc: Script, ex: Exercise, text: str) -> None:
         """Narrate ``text``, speaking «...» spans in their own voice (see ``split_note_span``).
         Punctuation-only prose between spans (the "," in "«a», «b»") becomes a beat rather
-        than a TTS call of its own."""
-        for i, part in enumerate(NOTE_TARGET_RE.split(text)):
-            part = part.strip()
-            if not part:
-                continue
+        than a TTS call of its own.
+
+        Each sentence of the prose is its own narration with a beat after it (#259: an aside read in one breath can't be followed). A sentence ends
+        at «. », «? », «! » or «: » followed by a capital letter, or at «。», «！», «？»; «e.g.» and «vedur.is» don't split. A «…» span inside a
+        sentence stays inline. The last sentence of the text gets no beat of its own: the caller's closing beat follows."""
+        parts = [(i, p.strip()) for i, p in enumerate(NOTE_TARGET_RE.split(text))]
+        parts = [(i, p) for i, p in parts if p]
+        for n, (i, part) in enumerate(parts):
+            last_part = n == len(parts) - 1
             if i % 2:
                 lang, display, speech = split_note_span(part)
                 self._speak(sc, ex, display, lang=lang, speech_text=speech if speech != display else None)
-            elif any(ch.isalnum() for ch in part):
-                self._narr(sc, ex, part)
-            else:
+            elif not any(ch.isalnum() for ch in part):
                 self._beat(sc, ex)
+            else:
+                sentences = [s for s in _SENTENCE_BREAK.split(part) if s.strip()]
+                for k, sentence in enumerate(sentences):
+                    self._narr(sc, ex, sentence.strip())
+                    if k < len(sentences) - 1 or (not last_part and _SENTENCE_END.search(sentence)):
+                        self._beat(sc, ex)  # the sentence is over: a breath before the next (a sentence going on into a span gets none)
 
     def note(self, sc: Script, note: Note) -> Exercise:
         """An aside, no retrieval, bookended so it isn't mistaken for the next exercise. A

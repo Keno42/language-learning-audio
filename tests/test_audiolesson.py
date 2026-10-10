@@ -8266,6 +8266,69 @@ class JapaneseInstructorTests(unittest.TestCase):
                     self.assertEqual((sc.segments[i - 2].type, sc.segments[i - 2].role), ("narrate", "frame"))
 
 
+class AsideBreathTests(unittest.TestCase):
+    """#259 (the owner on lesson 20's aside): a note's prose was one narration, however many sentences it held; each sentence is its own narration with a beat
+    after it, a «…» span inside a sentence stays inline, and the last sentence is followed by the one closing beat."""
+
+    def _builder(self):
+        from audiolesson.exercises import Builder
+        return Builder(load_curriculum(ROOT / "curricula" / "is-en"), Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+
+    @staticmethod
+    def _shape(sc):
+        return [("beat" if s.type == "pause" else s.speaker if s.type == "speak" else "narr") + (f":{s.text}" if s.type != "pause" else "") for s in sc.segments]
+
+    def test_each_sentence_is_a_narration_with_a_beat_after_it(self):
+        b = self._builder()
+        sc = Script(1, "t", "is", "en")
+        ex = sc.new_exercise("note", None, [], "n")
+        b._speak_note_text(sc, ex, "A quick fact. It is old: really old! Is it? Yes, e.g. in vedur.is. Done.")
+        narrated = [g.text for g in sc.segments if g.type == "narrate"]
+        self.assertEqual(narrated, ["A quick fact.", "It is old: really old!", "Is it?", "Yes, e.g. in vedur.is.", "Done."])
+        kinds = [g.type for g in sc.segments]
+        self.assertEqual(kinds, ["narrate", "pause", "narrate", "pause", "narrate", "pause", "narrate", "pause", "narrate"], "a beat between sentences, none after the last")
+
+    def test_a_span_inside_a_sentence_stays_inline_and_a_span_after_a_stop_follows_a_beat(self):
+        b = self._builder()
+        sc = Script(1, "t", "is", "en")
+        ex = sc.new_exercise("note", None, [], "n")
+        b._speak_note_text(sc, ex, "The «kennitala» is a ten-digit number. It is like My Number. «Takk» means thanks, e.g. here.")
+        shape = [("beat" if g.type == "pause" else g.type + ":" + g.text) for g in sc.segments]
+        self.assertEqual(shape, ["narrate:The", "speak:kennitala", "narrate:is a ten-digit number.", "beat", "narrate:It is like My Number.", "beat",
+                                 "speak:Takk", "narrate:means thanks, e.g. here."], "'The / kennitala / is a ten-digit number.' is one sentence")
+
+    def test_the_closing_beat_of_a_note_is_a_single_beat(self):
+        b = self._builder()
+        note = next(n for n in b.cur.notes if n.id == "kennitala") if any(n.id == "kennitala" for n in b.cur.notes) else b.cur.notes[0]
+        sc = Script(1, "t", "is", "en")
+        b.note(sc, note)
+        segs = sc.segments
+        end = next(k for k in range(len(segs) - 1, -1, -1) if segs[k].type == "narrate")  # aside_end
+        self.assertEqual(segs[end - 1].type, "pause", "one beat before «Back to the lesson.»")
+        self.assertNotEqual(segs[end - 2].type, "pause", "and not two")
+
+    def test_japanese_prose_breaks_at_the_full_stop(self):
+        b = self._builder()
+        sc = Script(1, "t", "is", "ja")
+        ex = sc.new_exercise("note", None, [], "n")
+        b._speak_note_text(sc, ex, "これは日本語です。次の文です！最後です？")
+        self.assertEqual([g.text for g in sc.segments if g.type == "narrate"], ["これは日本語です。", "次の文です！", "最後です？"])
+
+    def test_no_note_of_the_course_has_two_sentences_in_one_narration(self):
+        import re
+        b = self._builder()
+        for lang in ("en", "ja"):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            from audiolesson.exercises import Builder
+            bl = Builder(cur, Prompts.load(lang), Timing(level="A1"), LearnerState("is", lang, "A1"))
+            for note in cur.notes:
+                sc = Script(1, "t", "is", lang)
+                bl.note(sc, note)
+                for g in sc.segments:
+                    if g.type == "narrate":
+                        self.assertIsNone(re.search(r"[.?!] [A-ZÁÐÉÍÓÚÝÞÆÖ]|[。！？].", g.text), f"{lang} {note.id}: {g.text!r}")
+
+
 class FramingBeatTests(unittest.TestCase):
     """#241 (lesson 20: «sometimes no pause between the instructor's line and the example»): a framing line that introduces
     an example or a scene is followed by a beat; a cue for the learner's own action joins its line at once."""
