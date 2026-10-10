@@ -421,6 +421,22 @@ topics = ["shopping"]
 # «vilja» takes the accusative, so it generated «Ég vil blár.» (a chunk «Ég vil bláan.» would be wrong too
 # for a feminine or neuter thing, «bláa», «blátt»). Colours come back through a scene that uses them, with the
 # noun that fixes their form (a weather warning: «gul viðvörun»), not as a pattern over the bare names.
+#
+# #215: the colours' home. «{colour} {noun}.» is a noun phrase, so the colour takes the form of its noun (the noun's gender decides: «Blár bíll.»,
+# «Blá bók.», «Blátt hús.»), never a bare name after a verb that asks for another case.
+[[items]]
+id = "litur_noun"
+kind = "construction"
+target = "{colour} {noun}."
+meaning = "A {colour} {noun:bare}."
+meaning_ja = "{colour}{noun}。"
+difficulty = 3
+topics = ["shopping", "adjectives"]
+slots = { colour = "colour", noun = "gendered_noun" }
+agreement = { colour = { from = "noun", fills = true } }
+example = { colour = "blar", noun = "bill" }
+prereqs = ["blar", "bill", "bok", "hus"]
+pronunciation_notes = "the colour's ending follows the noun's gender, as in «góður bíll / góð bók / gott hús»"
 
 [[items]]
 id = "eg_aetla_ad_taka_thetta"

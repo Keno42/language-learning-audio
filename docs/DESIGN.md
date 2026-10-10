@@ -387,6 +387,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
     asked through it: the whole's meaning is the cue and the sentence the answer (`through_whole`, with `through` naming the item); a part with no home in the curriculum
     (#215's definition: no slot takes its tags, no construction lists it as a prerequisite, no phrase holds its words) comes out of the review (`no_home`); a part whose homes
     are all unmet stays bare, the fallback; (3) no two questions share an answer: the later one's items are credited to the first (`same_answer`). Bonus questions are left alone.
+    *Homes (#215, data side).* `review_wholes.has_home(cur, part)` is the definition: a construction slot takes the part's tags, a construction lists it as a prerequisite, or a phrase
+    holds its words (a long one-word part also in a longer form of itself, «norðurljós» in «norðurljósin»). `validate` prints an advisory listing the vocab items with none (one is left:
+    `tuttugu_og_einn`, a number that fits no scene). The colours' home is `litur_noun` («{colour} {noun}.», the colour taking the form of its noun: «Blár bíll.», «Blá bók.», «Blátt hús.»);
+    `sjor` and `midnaetursol` are `nom_noun` (they fit «Þetta er {thing}.»); `hundrad`, `halfur`, `adeins`, `folk`, `af_thvi_ad` and `an` each have a short phrase.
     `meta.met_items` is what the learner has met, plus what this lesson taught and the patterns whose sentence it taught whole around a new part (`Builder.wholes_taught`: the pattern is not introduced yet, but the sentence is known). `plan.json` `review_refined` lists every change; `replay_lesson.py` row 5 counts a part beside its whole and a repeated answer (0).
 - **The second half is a rotation (#248, concept 2 and 3, O2, O5, G16).** Once the lesson has taught what the target asked for
   (`mark_delivered_target`, after every introduction, an embed and a pattern instance included: `target_reached_at` in the meta is that time)

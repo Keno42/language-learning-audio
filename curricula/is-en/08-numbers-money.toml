@@ -379,6 +379,18 @@ difficulty = 1
 topics = ["numbers"]
 
 [[items]]
+id = "halfur_litri_takk"
+kind = "phrase"
+target = "Hálfur lítri, takk."
+meaning = "Half a litre, please."
+meaning_ja = "半リットル、お願いします。"
+difficulty = 2
+topics = ["numbers", "food"]
+prereqs = ["halfur"]
+situation = "At the counter, ask for half a litre of milk."
+situation_ja = "カウンターで、牛乳を半リットル頼んでください。"
+
+[[items]]
 id = "mikid"
 kind = "vocab"
 target = "mikið"
@@ -407,6 +419,18 @@ meaning_ja = "ちょっと／〜だけ"
 meaning_spoken_ja = "ちょっと、少しだけ"
 difficulty = 2
 topics = ["numbers", "discourse"]
+
+[[items]]
+id = "adeins_eitt_takk"
+kind = "phrase"
+target = "Aðeins eitt, takk."
+meaning = "Only one, please."
+meaning_ja = "ひとつだけ、お願いします。"
+difficulty = 2
+topics = ["numbers", "discourse"]
+prereqs = ["adeins"]
+situation = "The assistant asks how many you want. Say you want just one."
+situation_ja = "店員にいくつ欲しいか聞かれました。ひとつだけです。"
 
 [[items]]
 id = "numbers_price_transform"

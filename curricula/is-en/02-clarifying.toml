@@ -1419,6 +1419,18 @@ topics = ["numbers"]
 # generated the same way þúsund is), but kept consistent for whenever it becomes one.
 
 [[items]]
+id = "hundrad_kronur_takk"
+kind = "phrase"
+target = "Hundrað krónur, takk."
+meaning = "A hundred krónur, please."
+meaning_ja = "100クローナ、お願いします。"
+difficulty = 2
+topics = ["money"]
+prereqs = ["hundrad"]
+situation = "A kiosk sells a small bag for a hundred krónur. Ask for it, naming the price."
+situation_ja = "キオスクで小さな袋が100クローナです。金額を言って、お願いしてください。"
+
+[[items]]
 id = "thusund"
 kind = "vocab"
 target = "þúsund"
