@@ -7964,6 +7964,21 @@ class ThemeExchangeTests(unittest.TestCase):
         turn = DialogueTurn(cue="", expect="eg_aetla_ad_fa", expect_fill={"thing": "kaffi"})
         self.assertEqual(planner.line_role([turn.expect, "kaffi"], turn), "ask")
 
+    def test_a_phrase_made_of_known_chunks_gets_the_same_role_in_a_dialogue_and_a_theme(self):
+        """#263 review: «Má ég borga með korti?» (the phrase ma_eg_borga_med_korti, unmet) when «má ég» and «borga með korti» are known. A phrase is a unit with its
+        own introduction, so the policy is one for both callers: heard, until it is taught."""
+        learner = self._learner(["ma_eg_inf", "borga_med_korti"])
+        planner = self._planner(learner, self._themes, self._order)
+        self.assertNotIn("ma_eg_borga_med_korti", learner.items)
+        theme_turn = next(t for th in self._themes for lv in th.levels for t in lv.turns if t.who == "you" and t.say == "Má ég borga með korti?")
+        dialogue_turn = next(t for d in self._cur.dialogues for t in d.turns if t.expect == "ma_eg_borga_med_korti")
+        self.assertEqual(planner.line_role(theme_turn.items, text=theme_turn.say), "hear")
+        self.assertEqual(planner.line_role([dialogue_turn.expect], dialogue_turn), "hear")
+        # …and once it is met, asked in both
+        learner.items["ma_eg_borga_med_korti"] = learner.items["ma_eg_inf"]
+        self.assertEqual(planner.line_role(theme_turn.items, text=theme_turn.say), "ask")
+        self.assertEqual(planner.line_role([dialogue_turn.expect], dialogue_turn), "ask")
+
     def test_a_scene_heard_again_hears_only_the_lines_with_an_untaught_item(self):
         learner = LearnerState("is", "en", "A1")
         learner.themes_done = {"supermarket": 1, "cafe": 1, "museum": 1, "tour": 1}

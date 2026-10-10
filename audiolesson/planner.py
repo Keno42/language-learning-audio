@@ -1214,11 +1214,19 @@ class Planner:
             return True
         item = self.cur.by_id[turn.expect]
         fills = {s: self.cur.by_id[f] for s, f in turn.expect_fill.items()}
-        if self.can_say_item(item.id, practised) and all(self.can_say_item(f.id, practised) for f in fills.values()):
+        text = self.cur.resolve_slots(item, fills)[0] if item.kind == "construction" else item.target
+        return self.can_say_line([item.id, *(f.id for f in fills.values())], text, practised)
+
+    def can_say_line(self, items, text: str, practised: bool = True) -> bool:
+        """The one policy on whether a line can be said, whichever play mode asks (#263 review): every item of it can be said; or, when a construction is
+        among them, its filled line is covered by chunks the learner can say. A phrase or a word is a unit with its own introduction: pieces
+        that happen to cover it do not make it sayable, in a dialogue or in a theme alike."""
+        ids = [i for i in items if i in self.cur.by_id]
+        if ids and all(self.can_say_item(i, practised) for i in ids):
             return True
-        if item.kind != "construction":
+        if not text or not any(self.cur.by_id[i].kind == "construction" for i in ids):
             return False
-        return self._covered(self.cur.resolve_slots(item, fills)[0], practised)
+        return self._covered(text, practised)
 
     def _covered(self, text: str, practised: bool = True) -> bool:
         """Whether ``text`` is covered, in order, by chunks the learner can say."""
@@ -1250,14 +1258,14 @@ class Planner:
         """The one decision on a learner's line in every play mode (#263, step 1 of #265): ``"ask"`` or ``"hear"``. A line is asked when the learner can
         say it, or every item in it is met or taught earlier in this lesson (an open item being repaired, #199); else it is heard with its meaning (#240:
         a line never taught is never asked). *Can say* is judged on the expression itself, whichever the caller: a dialogue ``turn`` (``can_say_turn``),
-        or a theme turn's ``text`` (its items said, or its words covered by chunks they can say, as ``can_say_turn`` does). A dialogue turn with no item
+        or a theme turn's ``items`` and ``text``; both go through ``can_say_line``. A dialogue turn with no item
         to name is a literal, asked."""
         if turn is not None:
             if not turn.expect:
                 return "ask"
             if self.can_say_turn(turn):
                 return "ask"
-        elif items and all(self.can_say_item(i) for i in items if i in self.cur.by_id) or (text and self._covered(text)):
+        elif self.can_say_line(items, text):
             return "ask"
         return "ask" if all(self.learner.has_met(i) or i in self.builder.in_lesson for i in items) else "hear"
 
