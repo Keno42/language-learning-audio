@@ -377,8 +377,8 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   a target expression nor the scene: generated sentences outside the scene, recalls of items taken as filler; due reviews are not counted),
   `asked_after_review` (items the learner's review asked today that the lesson asks again; open items' repair excepted); two rows in `replay_lesson.py`.
 - **A part lives inside its whole (#239, concept 1; §9 "Parts against utterances").**
-  - *In the lesson.* `Builder.whole_home(part)`: a vocab item that a construction's authored `situation_fill` or `example` fills («hjálpina» in
-    «Takk fyrir {thing}.»), with the other slots filled from what the learner has (the authored fills when available), at most one word of the frame
+  - *In the lesson.* `Builder.whole_home(part)`: a vocab item that a construction's slot takes («hjálpina» in
+    «Takk fyrir {thing}.»; #262: any such construction, the one whose authored fills name the part first, no authored example needed), with the other slots filled from what the learner has (the authored fills when available), at most one word of the frame
     they have never met, and a sentence not yet heard whole (`is_new_utterance`). `intro` then calls `_intro_in_whole`: «A new expression. Thanks for the help.»,
     the sentence said and repeated (slowly when the pattern is difficulty ≥ 2), «This word is in it:» the part, and a first retrieval of the whole from its meaning.
     The exercise stays an `intro` of the part (`item_ids = [part]`), so `Script.review_questions` asks the sentence next day. A part without such a home is introduced as before.
@@ -398,7 +398,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
     The colours' home is `litur_noun` («Þetta er {colour} {noun}.», the colour taking the form of its noun: «Þetta er blár bíll.», «blá bók», «blátt hús»);
     `sjor` and `midnaetursol` are `nom_noun` (they fit «Þetta er {thing}.»); `hundrad`, `halfur`, `adeins`, `folk`, `af_thvi_ad` and `an` each have a short phrase;
     `tuttugu_og_einn` was removed (no scene needs it, and its age form is the genitive).
-    `meta.met_items` is what the learner has met, plus what this lesson taught and the patterns whose sentence it taught whole around a new part (`Builder.wholes_taught`: the pattern is not introduced yet, but the sentence is known). `plan.json` `review_refined` lists every change; `replay_lesson.py` row 5 counts a part beside its whole and a repeated answer (0).
+    `meta.met_items` is what the learner has met plus what this lesson taught; `meta.wholes_taught` maps each part to the pattern its sentence was taught whole in (#262: per part, so a pattern taught around «peysu» does not make «vegabréf» askable through it). A new phrase that holds a part is introduced before it (`Planner.phrase_first`). `plan.json` `review_refined` lists every change; `replay_lesson.py` row 5 counts a part beside its whole and a repeated answer (0).
 - **The second half is a rotation (#248, concept 2 and 3, O2, O5, G16).** Once the lesson has taught what the target asked for
   (`mark_delivered_target`, after every introduction, an embed and a pattern instance included: `target_reached_at` in the meta is that time)
   and nothing is left in `new_queue`, `audiolesson/listening_tasks.py::SecondHalfRotation` takes the filler time round *hear the scene (a theme

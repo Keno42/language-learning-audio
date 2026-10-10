@@ -791,7 +791,7 @@ class Planner:
             run = run + 1 if e.kind == "generative" else 0
             longest = max(longest, run)
         after = (
-            [e for e in sc.exercises if delivered_at <= e.start < closing_at and e.kind not in ("opening", "closing")] if delivered_at is not None else []
+            [e for e in sc.exercises if round(delivered_at) <= e.start < closing_at and e.kind not in ("opening", "closing")] if delivered_at is not None else []
         )
         counts = Counter(e.kind for e in after)
         kind_run = max((sum(1 for _ in g) for _, g in groupby(after, key=lambda e: e.kind)), default=0)
@@ -1123,6 +1123,25 @@ class Planner:
             if len(ww) > len(words) and any(ww[k : k + len(words)] == words for k in range(len(ww) - len(words) + 1)):
                 found.append((len(ww), whole))
         return min(found, key=lambda t: t[0])[1] if found else None
+
+    def phrase_first(self, item: Item) -> Item | None:
+        """The phrase a new part is introduced inside when no construction takes it (#262: «klósettið» in «Hvar er klósettið?»): the shortest phrase that holds the
+        part's words, that the learner has not met and the lesson does not have, whose other words are known but for one and whose prerequisites are
+        available. The phrase comes in first, as a new item of the lesson, and the part after it, inside it. None when the part is introduced as usual (a
+        sentence it can be embedded in already exists, or a construction is its whole, or no phrase fits)."""
+        if item.kind != "vocab" or item.variant_of or item.target_m or self.learner.has_met(item.id) or item.id in self.learner.embed_failed:
+            return None
+        if self.embed_source(item) is not None or self.builder.whole_home(item) is not None:
+            return None
+        known = self.builder._known_words()
+        part_words = {w.lower() for w in _WORD_RE.findall(item.target)}
+        for phrase in self.candidate_wholes(item):
+            if self.learner.has_met(phrase.id) or phrase.id in self.learner.embedded or phrase.id in self.learner.embed_failed or phrase.id in self.builder.in_lesson:
+                continue
+            others = {w.lower() for w in _WORD_RE.findall(phrase.target)} - part_words - known
+            if len(others) <= 1 and all(p == item.id or self.learner.knows(p) or p in self.builder.in_lesson for p in phrase.prereqs):
+                return phrase
+        return None
 
     def pattern_instance_of(self, item: Item) -> tuple[Item, dict[str, Item]] | None:
         """(pattern, fillers) when ``item`` is a fixed phrase that is an instance of a pattern the learner *knows* with fillers
@@ -1500,7 +1519,7 @@ class Planner:
                 recent_topics.append(item.topics[0])
 
         def do_intro(item: Item) -> None:
-            nonlocal last_intro, last_intro_at, seq
+            nonlocal last_intro, last_intro_at, seq, closing_reserve
             if item.id in self.embedded or any(i.id == item.id for i in introduced):
                 # taught already this lesson (embedded, then queued again: «miða» in lesson 19, #217): its turn goes to the
                 # next item. Checked here because every path to an introduction ends here, whatever queue it came from
@@ -1513,6 +1532,14 @@ class Planner:
             while (milestone := self._eligible_milestone(item.prereqs)) is not None:
                 self._play_note(sc, milestone)
                 do_discriminate(milestone)
+            if (phrase := self.phrase_first(item)) is not None:
+                # #262: a part is taken out of an utterance the learner has or is given now: the phrase that holds it comes first, as a new item of the lesson
+                if self.components_mode and phrase.id not in self.component_by_item:
+                    self._charge(phrase)
+                if phrase in new_queue:
+                    new_queue.remove(phrase)
+                do_intro(phrase)
+                closing_reserve = min(budget * cfg.closing_share, closing_cost(len(introduced) + len(new_queue)))
             if (source := self.embed_source(item)) is not None and b.embed(sc, item, source) is not None:
                 self.embedded.append(item.id)
                 touch(item)
@@ -2732,8 +2759,9 @@ class Planner:
             "forms_taught": [self.cur.note_by_id[n].teaches for n in self.notes_played if self.cur.note_by_id[n].teaches],
             "bare_cap_lapsed_short_s": lapse_short[0],  # how short the lesson would have ended then
             "bare_cap_lapsed": cfg.max_bare_uses > 0 and bare_cap[0] == 0,  # nothing else was left: short items were said alone again
-            # what the review may ask through (#239): what the learner has met, what this lesson taught, and the sentences it taught whole around a new part
-            "met_items": sorted({i for i in self.cur.by_id if self.learner.has_met(i)} | set(self.exposures) | taught() | set(self.builder.wholes_taught.values())),
+            # what the review may ask through (#239): what the learner has met and what this lesson taught
+            "met_items": sorted({i for i in self.cur.by_id if self.learner.has_met(i)} | set(self.exposures) | taught()),
+            "wholes_taught": dict(self.builder.wholes_taught),  # part → the pattern whose sentence it came in with: usable as a whole for that part only (#262)
             "reviewed_items": reviews_used,
             "open_items": open_today,
             "open_not_fitted": [i for i in open_ids if i not in open_today],

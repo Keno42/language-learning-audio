@@ -388,7 +388,7 @@ def _plan(script: Script, cur) -> dict:
         review.append({"items": [i], "prompt": _review_cue(cur, prompts, it), "answer": it.target, "stage": "open"})
     refined: list[dict] = []
     if "met_items" in meta:  # #239: each target expression once; a part only through the whole that holds it
-        review, refined = refine_review(review, cur, set(meta["met_items"]), prompts)
+        review, refined = refine_review(review, cur, set(meta["met_items"]), prompts, meta.get("wholes_taught") or {})
     return {
         "lesson_number": script.lesson_number,
         "date": meta.get("date"),

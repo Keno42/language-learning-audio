@@ -554,34 +554,40 @@ class Builder:
         return words
 
     def whole_home(self, item: Item) -> tuple[Item, dict[str, Item]] | None:
-        """The target expression a new part is introduced inside (#239, concept 1; §9 "Parts against utterances"): a construction whose authored
-        situation or example fills the part («Takk fyrir hjálpina.» for «hjálpina»), with the other slots filled from what the learner has (the authored
-        fills when they are available), at most one word of its frame that they have never met, and a sentence they have not heard whole. None when
-        the part has no such home: it is then introduced as before."""
+        """The target expression a new part is introduced inside (#239, #262; concept 1, §9 "Parts against utterances"): a construction whose slot takes the
+        part, filled with the part («Takk fyrir hjálpina.» for «hjálpina», «Ég ætla að fá köku.» for «köku», «Þetta er hraun.» for «hraun»). The other
+        slots are filled from what the learner has (the authored fills when they are available), at most one word of the frame is one they have never
+        met, and the sentence is one they have not heard whole. A construction whose authored example or situation names the part comes first, then one
+        the learner knows, then the easiest. A pattern that is not introduced yet may be the frame: the sentence is taught whole and the pattern comes
+        later as the pattern of a sentence the learner knows. None when the part has no such home: a phrase that holds it is tried next (the planner),
+        else it is introduced as before."""
         if item.kind != "vocab" or item.variant_of or item.target_m:
             return None
         known = self._known_words()
+        options = []
         for c in self.cur.items:
             if c.kind != "construction" or not c.slots:
                 continue
-            authored = {**c.example, **c.situation_fill}
-            slot = next((s for s, ref in authored.items() if ref == item.id and s in c.slots), None)
+            slot = next((s for s, tag in c.slots.items() if item in self.cur.items_with_tag(tag, c)), None)
             if slot is None:
                 continue
+            authored = {**c.example, **c.situation_fill}
             fills = {slot: item}
-            for other in c.slots:
+            for other, tag in c.slots.items():
                 if other == slot:
                     continue
                 ref = authored.get(other)
                 pick = self.cur.by_id.get(ref) if ref and self._available(ref) else None
+                pick = pick or next((i for i in self.cur.items_with_tag(tag, c) if self._available(i.id)), None)
                 if pick is None:
                     break
                 fills[other] = pick
             else:
                 frame = {w.lower() for t in re.split(r"\{[^}]*\}", c.target) for w in re.findall(r"[^\W\d_]+", t)}
                 if len(frame - known) <= 1 and self.is_new_utterance(self._filled(c, fills)[1]):
-                    return c, fills
-        return None
+                    named = item.id in authored.values()
+                    options.append(((0 if named else 1, 0 if self._available(c.id) else 1, c.difficulty, c.order), c, fills))
+        return min(options, key=lambda o: o[0])[1:] if options else None
 
     def _intro_in_whole(self, sc: Script, item: Item, construction: Item, fills: dict[str, Item]) -> Exercise:
         """A new part inside the expression that holds it (#239): «A new expression: Thanks for the help.», the sentence said and repeated, «This word is
