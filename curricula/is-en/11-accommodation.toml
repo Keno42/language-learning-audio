@@ -260,6 +260,9 @@ context_ja = "シャワーが動きません。"
 difficulty = 2
 tags = ["breaks"]
 topics = ["accommodation", "home"]
+noun = "sturta"
+form = "nom_def"
+gender = "fem"
 
 [[items]]
 id = "virkar_ekki"

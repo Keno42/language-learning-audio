@@ -33,6 +33,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from audiolesson.cli import _plan  # noqa: E402
+from audiolesson.nouns import noun_report  # noqa: E402
 from audiolesson.review_wholes import bare_parts_with_a_home, parts_outside_their_whole  # noqa: E402
 from audiolesson.cando import for_season, load_cando, priority_items  # noqa: E402
 from audiolesson.content import load_curriculum  # noqa: E402
@@ -246,6 +247,8 @@ def main(argv: list[str] | None = None) -> int:
         sc = Planner(cur, learner, prompts, timing, PlanConfig(minutes=minutes, new_items=pace, new_target=target, priority=priority, themes=themes, theme_scenarios=theme_scenarios), today=day).build()
         rows.append(measure(cur, sc, known_c))
         apply_to_learner(sc, learner, day)
+        rows[-1]["nouns that have met a form (#270)"] = noun_report(cur, learner)
+        rows[-1]["nouns asked bare in the lesson's own recall (#270)"] = ", ".join(sc.meta.get("bare_noun_recalls", [])) or "–"
         day += timedelta(days=1)
         m = sc.meta
         asked = m.get("open_items", []) + m.get("open_not_fitted", [])[:3]

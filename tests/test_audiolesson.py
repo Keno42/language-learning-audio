@@ -4926,7 +4926,13 @@ class SemanticSetTests(unittest.TestCase):
     def test_the_limit_counts_the_lessons_earlier_arcs(self):
         earlier = {i.id for i in self.nature[:2]}
         ids = [i.id for i in self._planner().select_new(8, exclude=earlier)]
-        self.assertEqual(len(self._of_set(ids)), 1, "two already in the lesson: one more")
+        # a frame taken in the lesson (#270's «Mig langar að sjá {…}.») brings the sights it needs as fillers (``take``: a pattern is only teachable with two things
+        # to put in its slot), which the set limit does not count: the limit holds for what the lesson takes by itself
+        frame_tags = {t for i in ids if self.cur.by_id[i].kind == "construction" for t in self.cur.by_id[i].slots.values()}
+        pulled = [i for i in self._of_set(ids) if set(self.cur.by_id[i].tags) & frame_tags]
+        self.assertLessEqual(len(self._of_set(ids)) - len(pulled), 1, "two already in the lesson: one more")
+        if not pulled:
+            self.assertEqual(len(self._of_set(ids)), 1)
 
     def test_the_items_a_theme_level_wants_are_a_scene_and_exempt(self):
         from audiolesson.themes import Level, Theme, Turn

@@ -22,6 +22,7 @@ from itertools import groupby
 from .content import Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance
 from .learner import LearnerState
+from .review_wholes import whole_for
 from .listening_tasks import REPAIR_ITEM, SecondHalfRotation, append_task, catch_unknown, key_of, partner_pick_out
 from .prompts import Prompts
 from .script import Script
@@ -823,6 +824,10 @@ class Planner:
             "target_delivered": delivered_at is not None,  # false when the lesson ran out of time before the target's items were all taught
             "longest_without_scene_s": longest_without_scene,  # #273: the longest stretch with no conversation, pick-out or catch task
             "asked_again_within_spacing": asked_again,  # #273: an item asked again less than ``spacing_report`` after it was last asked
+            # #270: a noun asked from its translation alone, in the lesson's own recall (the written review has its own row)
+            "bare_noun_recalls": [e.label for e in sc.exercises if e.kind == "recall" and e.stage in BARE_STAGES and len(e.item_ids) == 1
+                                  and (it := self.cur.by_id.get(e.item_ids[0])) is not None and it.noun
+                                  and any(g.type == "answer" and g.exercise == e.index and _norm_utterance(g.text or "") == _norm_utterance(it.target) for g in sc.segments)],
         }
 
     @staticmethod
@@ -1728,6 +1733,10 @@ class Planner:
                 ladder = self.ladder(item)
                 if "meaning" in ladder and stage_index(ladder, stage) < stage_index(ladder, "meaning"):
                     stage = "meaning"
+            if allow_cap and item.noun and (stage in BARE_STAGES or (stage == "recombine" and b.recombine_status(item) != "novel")) and ask_noun(item):
+                return True  # #270: a noun is never a context-free memory question, whatever stage asked it, when a sentence exists
+            if allow_cap and item.noun and (stage in BARE_STAGES or stage == "recombine") and noun_sentence_capped(item):
+                return False  # its sentence has been said as often as a lesson allows: the bare word does not take its place
             if allow_cap and stage in BARE_STAGES and short_today(item) and said_in_sentence(item) and ask_a_sentence(item):
                 return True
             if allow_cap and stage in BARE_STAGES and short_review(item) and ask_a_sentence(item, repeat=True, review=True):
@@ -1828,6 +1837,28 @@ class Planner:
             """Whether ``item`` has been said inside a sentence in this lesson (#179): a generated
             sentence, or a whole sentence that holds it."""
             return any(e.kind == "generative" and item.id in e.item_ids or e.kind == "recall" and item.id in e.item_ids[1:] for e in sc.exercises)
+
+        def noun_whole(item: Item) -> dict | None:
+            """The sentence a noun is asked in: the one it was taught in today, else the one it was taught in before (``learned_wholes``), else a construction or
+            phrase the learner has that holds it (``review_wholes.whole_for``, the rule the written review uses)."""
+            met = {i for i in self.cur.by_id if self.learner.has_met(i) or i in b.in_lesson}
+            taught = b.wholes_taught.get(item.id) or self.learner.learned_wholes.get(item.id)
+            return whole_for(self.cur, item, met, self.prompts, taught)
+
+        def ask_noun(item: Item) -> bool:
+            """Ask a noun in its sentence from the sentence's meaning (``Builder.recall_whole``), credited to the noun. False when no sentence exists or it has been said as often as a
+            lesson allows: the caller asks it as it would have (#270)."""
+            whole = noun_whole(item)
+            if whole is None or (ex := b.recall_whole(sc, item, whole)) is None:
+                return False
+            self._record([item.id], "meaning", ex.item_ids)
+            touch(item)
+            return True
+
+        def noun_sentence_capped(item: Item) -> bool:
+            """A noun has a sentence but it has been said as often as a lesson allows: nothing more is asked of it, not the bare word in its place (#270)."""
+            whole = noun_whole(item)
+            return whole is not None and bool(b.said_cap) and b.said[_norm_utterance(whole["answer"])] >= b.said_cap
 
         def ask_a_sentence(item: Item, repeat: bool = False, review: bool = False) -> bool:
             """A short item already said in a sentence is asked as a sentence from then on (#179):
@@ -2827,6 +2858,8 @@ class Planner:
                     continue  # #192: it was just said as often as a lesson allows; the closing recall would be one more identical drill
                 if (stage in BARE_STAGES or stage == "recombine") and short_today(item) and said_in_sentence(item) and holders_all_capped(item):
                     continue  # asked in a sentence today and every sentence that holds it is at the cap: no bare part in its place
+                if item.noun and (stage in BARE_STAGES or stage == "recombine") and (ask_noun(item) or noun_sentence_capped(item)):
+                    continue  # #270: the closing recall of a noun is its sentence too, or nothing once that has been said enough, never the bare word
                 ex = b.recall(sc, item, stage)
                 self._record([item.id], ex.stage or stage, ex.item_ids)
                 closed.update(i for i in ex.item_ids[:1] if i != item.id)

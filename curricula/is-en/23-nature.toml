@@ -19,6 +19,9 @@ meaning_ja = "氷河"
 difficulty = 2
 tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
+noun = "jokull"
+form = "nom"
+gender = "masc"
 
 [[items]]
 id = "foss"
@@ -27,7 +30,7 @@ target = "foss"
 meaning = "a waterfall"
 meaning_ja = "滝"
 difficulty = 1
-tags = ["nature_nom", "nom_noun"]
+tags = ["nature_nom", "nom_noun", "acc_sight"]
 topics = ["nature"]
 
 [[items]]
@@ -50,8 +53,11 @@ target = "eldfjall"
 meaning = "a volcano"
 meaning_ja = "火山"
 difficulty = 2
-tags = ["nature_nom", "nom_noun"]
+tags = ["nature_nom", "nom_noun", "acc_sight"]
 topics = ["nature"]
+noun = "eldfjall"
+form = "nom"
+gender = "neut"
 
 [[items]]
 id = "hraun"
@@ -60,8 +66,11 @@ target = "hraun"
 meaning = "a lava field"
 meaning_ja = "溶岩原"
 difficulty = 1
-tags = ["nature_nom", "nom_noun"]
+tags = ["nature_nom", "nom_noun", "acc_sight"]
 topics = ["nature"]
+noun = "hraun"
+form = "nom"
+gender = "neut"
 
 [[items]]
 id = "strond"
@@ -70,7 +79,7 @@ target = "strönd"
 meaning = "a beach"
 meaning_ja = "浜辺"
 difficulty = 2
-tags = ["nature_nom", "nom_noun"]
+tags = ["nature_nom", "nom_noun", "acc_sight"]
 topics = ["nature"]
 
 [[items]]
@@ -122,6 +131,9 @@ meaning_ja = "オーロラ"
 difficulty = 2
 tags = ["nature_nom"]
 topics = ["nature"]
+noun = "nordurljos"
+form = "pl"
+gender = "neut"
 
 [[items]]
 id = "midnætursol"
@@ -260,6 +272,62 @@ topics = ["nature"]
 prereqs = ["nordurljos"]
 situation = "Say you want to see the northern lights."
 situation_ja = "オーロラが見たいと言ってください。"
+
+# #270: «Mig langar að sjá {…}.» is the accusative frame of the tour scene; «jökull» is the form that changes («jökul»), the sights that do not change
+# (eldfjall, hraun, foss, strönd) stay the same. A candidate until native-checked (G10).
+[[items]]
+id = "jokull_acc"
+kind = "vocab"
+target = "jökul"
+meaning = "a glacier (after 'to see')"
+meaning_ja = "氷河（〜を見る）"
+meaning_spoken = "a glacier, as in 'to see a glacier'"
+meaning_spoken_ja = "氷河を"
+meaning_forms = { in_sentence = "a glacier" }
+meaning_forms_ja = { in_sentence = "氷河" }
+difficulty = 2
+tags = ["acc_sight"]
+topics = ["nature"]
+variant_of = "jokull"
+noun = "jokull"
+form = "acc"
+gender = "masc"
+pronunciation_notes = "accusative of jökull"
+
+[[items]]
+id = "nordurljosin_acc"
+kind = "vocab"
+target = "norðurljósin"
+meaning = "the northern lights (after 'to see')"
+meaning_ja = "オーロラ（〜を見る）"
+meaning_spoken = "the northern lights, as in 'to see the northern lights'"
+meaning_spoken_ja = "オーロラを"
+meaning_forms = { in_sentence = "the northern lights" }
+meaning_forms_ja = { in_sentence = "オーロラ" }
+difficulty = 2
+tags = ["acc_sight"]
+topics = ["nature"]
+variant_of = "nordurljos"
+noun = "nordurljos"
+form = "pl_def"
+gender = "neut"
+pronunciation_notes = "plural with the article"
+
+[[items]]
+id = "mig_langar_ad_sja"
+kind = "construction"
+target = "Mig langar að sjá {thing}."
+meaning = "I'd like to see {thing}."
+meaning_ja = "{thing}が見たいです。"
+difficulty = 3
+topics = ["nature"]
+slots = { thing = "acc_sight" }
+example = { thing = "eldfjall" }
+prereqs = ["mig_langar_i", "eg_vil_sja_lunda"]
+situation_fill = { thing = "eldfjall" }
+situation = "The guide asks what you'd like to see. Say you want to see a volcano."
+situation_ja = "ガイドに何が見たいか聞かれました。火山が見たいと言ってください。"
+pronunciation_notes = "the sights after «sjá» are in the accusative: «jökull» becomes «jökul», «eldfjall», «hraun», «foss» and «strönd» do not change"
 
 [[items]]
 id = "er_haegt_ad_synda_herna"

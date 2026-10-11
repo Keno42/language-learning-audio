@@ -135,6 +135,12 @@ class Item:
     examples: list[TransformExample] = field(default_factory=list)  # transform pairs
     order: int = 0
     gender: str | None = None  # noun's grammatical gender ("masc" | "fem" | "neut"), for agreement
+    # #270, a noun is one entry whose forms are items: ``noun`` names the noun this item is a form of, ``form`` which form («nom», «acc», «dat», «nom_def»,
+    # «pl»…), ``noun_base`` the basic word when no item carries it («kaka» for «köku»). Each form keeps its own item id, so the learner's state is per
+    # form and an old id resolves to its noun and form without a mapping to migrate (``Curriculum.noun_form``).
+    noun: str = ""
+    form: str = ""
+    noun_base: str = ""
     # construction: {slot} -> {"from": controlling slot, <gender>: surface form, ...}. Never
     # filled by picking an item; its text follows the gender of the ``from`` slot's fill, so
     # "{adj} {noun}." generates «Góður bíll.» / «Góð bók.» / «Gott hús.».
@@ -352,6 +358,17 @@ class Curriculum:
         self.by_id: dict[str, Item] = {i.id: i for i in self.items}
         self.dialogue_by_id: dict[str, Dialogue] = {d.id: d for d in self.dialogues}
         self.note_by_id: dict[str, Note] = {n.id: n for n in self.notes}
+        self.nouns: dict[str, dict] = {}  # noun id → {"gender", "base", "forms": {form: item id}} (#270)
+        for it in self.items:
+            if it.noun:
+                entry = self.nouns.setdefault(it.noun, {"gender": it.gender, "base": it.noun_base, "forms": {}})
+                entry["base"] = entry["base"] or it.noun_base
+                entry["forms"].setdefault(it.form, it.id)
+
+    def noun_form(self, item_id: str) -> tuple[str, str] | None:
+        """``(noun, form)`` an item id is a form of, or None: how an old id (a learner file's item state, a review queue's entry) resolves to the noun entry (#270)."""
+        it = self.by_id.get(item_id)
+        return (it.noun, it.form) if it is not None and it.noun else None
 
     def item(self, item_id: str) -> Item:
         return self.by_id[item_id]
@@ -598,6 +615,15 @@ def validate(cur: Curriculum) -> None:
         if key in targets:
             raise CurriculumError(f"items {targets[key]!r} and {it.id!r} have the same target {it.target!r}")
         targets[key] = it.id
+        if it.noun or it.form or it.noun_base:
+            if not (it.noun and it.form):
+                raise CurriculumError(f"item {it.id!r}: noun and form go together (noun {it.noun!r}, form {it.form!r})")
+            if it.kind != "vocab":
+                raise CurriculumError(f"item {it.id!r}: noun forms are vocab items")
+            if it.gender is None:
+                raise CurriculumError(f"item {it.id!r}: a noun form needs the noun's gender")
+            if it.noun_base and it.noun_base.strip().lower() == it.target.strip().lower():
+                raise CurriculumError(f"item {it.id!r}: noun_base is the basic word when it differs from the form ({it.target!r})")
         if it.gender is not None and it.gender not in GENDERS:
             raise CurriculumError(f"item {it.id!r}: gender {it.gender!r} must be one of {sorted(GENDERS)}")
         if it.kind != "transform" and _UNSPEAKABLE_RE.search(it.spoken_meaning):
@@ -833,6 +859,17 @@ def validate(cur: Curriculum) -> None:
         for r in d.requires:
             if r not in ids:
                 raise CurriculumError(f"dialogue {d.id!r} requires unknown item {r!r}")
+    # one noun, one gender and one item per form (#270)
+    seen: dict[tuple[str, str], str] = {}
+    gender: dict[str, str | None] = {}
+    for it in cur.items:
+        if not it.noun:
+            continue
+        if (it.noun, it.form) in seen:
+            raise CurriculumError(f"items {seen[(it.noun, it.form)]!r} and {it.id!r} are both the {it.form!r} form of noun {it.noun!r}")
+        seen[(it.noun, it.form)] = it.id
+        if gender.setdefault(it.noun, it.gender) != it.gender:
+            raise CurriculumError(f"noun {it.noun!r}: its forms disagree about the gender ({gender[it.noun]!r} / {it.gender!r})")
 
 
 # proper names spoken in dialogues that need no teaching item

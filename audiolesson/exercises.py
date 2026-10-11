@@ -687,6 +687,13 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def _form_contrast(self, sc: Script, ex: Exercise, item: Item, voice: str) -> None:
+        """A noun in a form its frame asks is named once against its basic word (#270: «köku» ← «kaka» after «Ég ætla að fá»)."""
+        if item.noun and item.noun_base and _norm_utterance(item.noun_base) != _norm_utterance(item.target):
+            self._frame(sc, ex, self.prompts.get("form_of_base"))
+            self._speak(sc, ex, item.noun_base, speaker=voice)
+            self._beat(sc, ex)
+
     def _intro_in_whole(self, sc: Script, item: Item, construction: Item, fills: dict[str, Item]) -> Exercise:
         """A new part inside the expression that holds it (#239): «A new expression: Thanks for the help.», the sentence said and repeated, «This word is
         in it:» the part, and a first retrieval of the whole from its meaning. The part is said alone afterwards, never first; the next-day question
@@ -714,6 +721,7 @@ class Builder:
         self._frame(sc, ex, self.prompts.get("embed_part"))
         self._speak(sc, ex, item.target, speaker=voice)
         self._beat(sc, ex)
+        self._form_contrast(sc, ex, item, voice)
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(meaning)))
         self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target, speaker=voice)
@@ -1034,6 +1042,22 @@ class Builder:
         ids = [item.id] + [i for i in gen.item_ids if i != item.id]
         ex = sc.new_exercise("recall", "meaning", ids, f"meaning: {target}")
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(gen.meaning)))
+        self._answer_pause(sc, ex, target, item, generative=False)
+        self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
+        self._gap(sc, ex)
+        return ex
+
+    def recall_whole(self, sc: Script, item: Item, whole: dict) -> Exercise | None:
+        """A noun asked in the sentence it is said in, from that sentence's meaning (#270): ``whole`` is ``{prompt, answer, through}`` as ``review_wholes.whole_for``
+        gives it. None when the sentence has been said as often as a lesson allows."""
+        target = whole["answer"]
+        if self.said_cap and self.said[_norm_utterance(target)] >= self.said_cap:
+            return None
+        self.said[_norm_utterance(target)] += 1
+        ex = sc.new_exercise("recall", "meaning", [item.id], f"meaning: {target}")
+        through = self.cur.by_id.get(whole.get("through", ""))
+        gender = self.speaker_gender(through) if through is not None and through.target_m else None  # a sentence that follows the speaker's gender keeps the voice
+        self._narr(sc, ex, whole["prompt"])
         self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
         self._gap(sc, ex)
