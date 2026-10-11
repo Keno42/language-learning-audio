@@ -5866,7 +5866,7 @@ class ListeningTaskTests(unittest.TestCase):
         glosses = {"viltu": {"en": "do you want", "ja": "ほしいですか"}, "poka": {"en": "a bag", "ja": "袋"}}
         known = self._known("Ég vil poka með því.")
         task = catch_unknown("Viltu poka?", glosses, known, "en", repair, repair_known=True, source="theme:x:1:0:1", scene="", line_meaning="Do you want a bag?")
-        self.assertEqual((task.kind, task.answer, task.meaning, task.repair, task.item_ids), ("catch_unknown", "Viltu", "do you want", "Hvað þýðir Viltu?", (repair.id,)))
+        self.assertEqual((task.kind, task.answer, task.meaning, task.repair, task.item_ids), ("catch_unknown", "Viltu", "do you want", "Hvað þýðir viltu?", (repair.id,)))
         each = lambda **kw: catch_unknown(**{"line": "Viltu poka?", "glosses": glosses, "known_words": known, "known_lang": "en", "repair": repair, "repair_known": True, "source": "s", "scene": "", "line_meaning": "Do you want a bag?", **kw})
         self.assertIsNone(each(repair_known=False), "the learner cannot yet ask what a word means")
         self.assertIsNone(each(line="Viltu poka? Viltu."), "the same unknown word twice")
@@ -5883,7 +5883,7 @@ class ListeningTaskTests(unittest.TestCase):
         ex = append_task(b, sc, task, 120.0)
         self.assertEqual(ex.kind, "catch_unknown")
         answers = [g for g in sc.segments if g.type == "answer"]
-        self.assertEqual([g.text for g in answers], ["Hvað þýðir Viltu?"])
+        self.assertEqual([g.text for g in answers], ["Hvað þýðir viltu?"])
         self.assertTrue(all(g.speaker == "native_a" for g in answers), "the model answer is the other voice than the partner's")
         self.assertIn("Do you want", sc.transcript())
         self.assertEqual(b.learner.items.keys(), {repair.id}, "nothing is credited")
@@ -5986,6 +5986,19 @@ class ListeningTaskTests(unittest.TestCase):
                     played = any(x.kind == "dialogue" and x.label.startswith(f"dialogue: theme:{own['id']}:{own['level']}") and x.start < e.start for x in sc.exercises)
                     self.assertTrue(played or not e.label.startswith(f"theme:{own['id']}:{own['level']}:"), f"lesson {sc.lesson_number}: {e.label} is from a scene not played yet")
         self.assertGreater(before, 0, "scene units are spread through the lesson, not saved for after the target")
+
+    def test_the_interleave_step_places_units_at_least_an_interval_apart(self):
+        """#275 review: the last scene's end is read from the segments (an exercise's start and duration are only filled in when the lesson is done), so the step
+        does not fire on every pass after the first interval: two units it places are at least `scene_unit_interval` apart, and no longest stretch exceeds
+        the interval by more than one unit's time and the supply allows."""
+        interval = PlanConfig().scene_unit_interval
+        placed = 0
+        for _, _, sc in self._course(21):
+            times = sc.meta["scene_units_placed"]
+            placed += len(times)
+            for a, b in zip(times, times[1:]):
+                self.assertGreaterEqual(b - a, interval, f"lesson {sc.lesson_number}: {times}")
+        self.assertGreater(placed, 0)
 
     def test_the_longest_stretch_without_a_scene_is_in_the_plan(self):
         lessons = list(self._course(21))
@@ -7631,8 +7644,9 @@ class CheapConstructionTests(unittest.TestCase):
         with_met, with_len = course()
         without_met, without_len = course(cheap_place=False, max_cheap_extra=0)
         self.assertGreaterEqual(with_met, without_met + 2, (with_met, without_met))
-        # not shorter by more than 2%: which parts wait for their frame (#206) moves the sum by about 1% either way
-        self.assertGreaterEqual(with_len, without_len * 0.98, (with_len, without_len))
+        # not shorter by more than 3%: which parts wait for their frame (#206) moves the sum by about 1% either way, and a pattern met earlier makes more
+        # conversation replies known ones, answered a second sooner (#272)
+        self.assertGreaterEqual(with_len, without_len * 0.97, (with_len, without_len))
 
 
 class ColourFormTests(unittest.TestCase):

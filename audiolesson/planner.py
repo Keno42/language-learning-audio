@@ -2378,10 +2378,18 @@ class Planner:
 
             return fresh(pick_out_tasks()) or fresh(catch_unknown_tasks())
 
+        scene_units_placed: list[float] = []  # lesson times at which step 0b'' began a scene unit (#273)
+
         def last_scene_end() -> float:
-            """The lesson time at which the last scene unit ended (a conversation, a pick-out, a catch task); the start of the lesson when there was none."""
-            ends = [e.start + e.duration for e in sc.exercises if e.kind in ("dialogue", "pick_out", "catch_unknown")]
-            return max(ends, default=0.0)
+            """The lesson time at which the last scene unit ended (a conversation, a pick-out, a catch task); 0 when there was none. Read from the segments, which are
+            always current: an exercise's ``start`` and ``duration`` are only filled in by ``retime()`` when the lesson is done (#275 review)."""
+            scene = {e.index for e in sc.exercises if e.kind in ("dialogue", "pick_out", "catch_unknown")}
+            t = end = 0.0
+            for seg in sc.segments:
+                t += seg.duration
+                if seg.exercise in scene:
+                    end = t
+            return end
 
         def last_kinds_same(k: int = 3) -> str | None:
             tail = [e.kind for e in sc.exercises if e.kind != "opening"][-k:]
@@ -2520,7 +2528,10 @@ class Planner:
                 not acted and introduced and remaining >= 90 and idx - last_intro >= 1
                 and sc.total_duration - last_scene_end() >= cfg.scene_unit_interval
             ):
+                at = sc.total_duration
                 acted = rotation.play(lambda kind: kind != "today" and emit_second_half(kind))
+                if acted:
+                    scene_units_placed.append(round(at, 1))
 
             # 0c. a substitution run goes on in its frame before anything else is fitted in (#151)
             if not acted and not in_new_block() and not listening_available() and (sub := continue_substitution()) is not None:
@@ -2841,6 +2852,7 @@ class Planner:
             "pattern_instances": list(self.pattern_instances),
             "intro_skipped": list(intro_skipped),
             "variant_items": [i.id for i in [*introduced, *(self.cur.by_id[e] for e in self.embedded)] if i.variant_of],  # a form comes with a purpose (#218 b1)
+            "scene_units_placed": list(scene_units_placed),  # #273: the lesson times at which the interleave step began a scene unit
             "refresh_sentences": dict(refresh_done),
             # #149 1b-ii: the lesson's theme and level (1-based) and how often its exchange played; None: no theme was ready
             "theme": (
