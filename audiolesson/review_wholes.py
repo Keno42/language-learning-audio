@@ -61,10 +61,15 @@ def whole_for(cur, part, met: set[str], prompts: Prompts, taught: dict | None = 
     """The sentence the learner knows that holds ``part``: ``{"prompt", "answer", "through"}`` or None. A construction filled with the part (and
     fills the learner has met for its other slots) comes first, the one whose authored situation or example names the part before the rest;
     then the shortest phrase that holds the part's words. ``taught`` is the sentence the part came in with today (``Builder.wholes_taught``): when its
-    pattern is not met yet it is asked exactly as taught, never rebuilt with other words (#262 review)."""
+    pattern is not met yet it is asked exactly as taught, never rebuilt with other words (#262 review); and when nothing else holds the part (a line
+    such as «þúsund krónur» is neither a pattern nor a phrase), it is asked as taught too."""
+    as_taught = lambda: {
+        "prompt": meaning_prompts(Prompts(prompts.data, prompts.lang), cur.known_lang, cur.target_lang, taught["meaning"])[0],
+        "answer": taught["answer"],
+        "through": taught["through"],
+    }
     if taught and taught["through"] not in met:
-        prompt = meaning_prompts(Prompts(prompts.data, prompts.lang), cur.known_lang, cur.target_lang, taught["meaning"])[0]
-        return {"prompt": prompt, "answer": taught["answer"], "through": taught["through"]}
+        return as_taught()
     options: list[tuple] = []
     for c in cur.items:
         if c.kind != "construction" or not (c.id in met) or not c.slots:
@@ -92,7 +97,7 @@ def whole_for(cur, part, met: set[str], prompts: Prompts, taught: dict | None = 
         part_words = _words(part.target)
         phrases = [p for p in cur.items if p.kind == "phrase" and p.id in met and _phrase_holds(_words(p.target), part_words)]
         if not phrases:
-            return None
+            return as_taught() if taught else None
         phrase = min(phrases, key=lambda p: (len(_words(p.target)), p.order))
         target, meaning, through = phrase.target, phrase.spoken_meaning, phrase.id
     prompt = meaning_prompts(Prompts(prompts.data, prompts.lang), cur.known_lang, cur.target_lang, meaning)[0]
@@ -175,3 +180,17 @@ def parts_outside_their_whole(review: list[dict], cur) -> int:
             count += 1
     answers = [_norm_utterance(q.get("answer", "")) for q in asked]
     return count + len(answers) - len(set(answers))
+
+
+def bare_parts_with_a_home(review: list[dict], cur) -> list[str]:
+    """The daily read's row for #262: the parts the review still asks bare (the answer is the part itself) although the curriculum keeps them in a sentence
+    (``has_home``). A part with no home is not counted here: it comes out of the review (#215)."""
+    out = []
+    for q in review:
+        if q.get("bonus"):
+            continue
+        for i in q.get("items", []):
+            it = cur.by_id.get(i)
+            if it is not None and it.kind == "vocab" and _norm_utterance(it.target) == _norm_utterance(q.get("answer", "")) and has_home(cur, it):
+                out.append(i)
+    return list(dict.fromkeys(out))

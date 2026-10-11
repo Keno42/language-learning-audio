@@ -1124,7 +1124,7 @@ class Planner:
                 found.append((len(ww), whole))
         return min(found, key=lambda t: t[0])[1] if found else None
 
-    def phrase_first(self, item: Item) -> Item | None:
+    def phrase_first(self, item: Item, queued: set[str] | frozenset[str] = frozenset()) -> Item | None:
         """The phrase a new part is introduced inside when no construction takes it (#262: «klósettið» in «Hvar er klósettið?»): the shortest phrase that holds the
         part's words, that the learner has not met and the lesson does not have, whose other words are known but for one and whose prerequisites are
         available. The phrase comes in first, as a new item of the lesson, and the part after it, inside it. None when the part is introduced as usual (a
@@ -1139,8 +1139,28 @@ class Planner:
             if self.learner.has_met(phrase.id) or phrase.id in self.learner.embedded or phrase.id in self.learner.embed_failed or phrase.id in self.builder.in_lesson:
                 continue
             others = {w.lower() for w in _WORD_RE.findall(phrase.target)} - part_words - known
-            if len(others) <= 1 and all(p == item.id or self.learner.knows(p) or p in self.builder.in_lesson for p in phrase.prereqs):
+            # a prerequisite that is itself a new item of this lesson comes after the phrase, out of it (hundrað and krónur in «Hundrað krónur, takk.»)
+            if len(others) <= 1 and all(p == item.id or self.learner.knows(p) or p in self.builder.in_lesson or p in queued for p in phrase.prereqs):
                 return phrase
+        return None
+
+    def frame_first(self, item: Item, queue: list[Item]) -> tuple[Item, str] | None:
+        """The pattern of this lesson's queue that a new part is introduced inside (#262: «matseðilinn» in «Get ég fengið matseðilinn?»), with the slot it
+        fills: a construction still to come whose slot takes the part and whose other prerequisites are available. Its worked example is made of the part,
+        so the pattern comes first and the part is taken out of the sentence just heard. None when the part has a whole already (a sentence it can be in
+        now, a phrase, an embed) or no such pattern is queued."""
+        if item.kind != "vocab" or item.variant_of or item.target_m or self.learner.has_met(item.id) or item.id in self.learner.embed_failed:
+            return None
+        if self.embed_source(item) is not None or self.builder.whole_home(item) is not None or self.builder.phrase_home(item) is not None:
+            return None
+        for c in queue:
+            if c.kind != "construction" or not c.slots or self.learner.has_met(c.id) or c.id in self.learner.embedded:
+                continue
+            slot = next((sl for sl, tag in c.slots.items() if item in self.cur.items_with_tag(tag, c)), None)
+            if slot is None or len(c.slots) != 1:
+                continue
+            if all(p == item.id or self.learner.knows(p) or p in self.builder.in_lesson for p in c.prereqs):
+                return c, slot
         return None
 
     def pattern_instance_of(self, item: Item) -> tuple[Item, dict[str, Item]] | None:
@@ -1543,7 +1563,7 @@ class Planner:
             if item.topics:
                 recent_topics.append(item.topics[0])
 
-        def do_intro(item: Item) -> None:
+        def do_intro(item: Item, worked_fills: dict[str, Item] | None = None) -> None:
             nonlocal last_intro, last_intro_at, seq, closing_reserve
             if item.id in self.embedded or any(i.id == item.id for i in introduced):
                 # taught already this lesson (embedded, then queued again: «miða» in lesson 19, #217): its turn goes to the
@@ -1557,7 +1577,7 @@ class Planner:
             while (milestone := self._eligible_milestone(item.prereqs)) is not None:
                 self._play_note(sc, milestone)
                 do_discriminate(milestone)
-            if (phrase := self.phrase_first(item)) is not None:
+            if (phrase := self.phrase_first(item, {i.id for i in new_queue})) is not None:
                 # #262: a part is taken out of an utterance the learner has or is given now: the phrase that holds it comes first, as a new item of the lesson
                 if self.components_mode and phrase.id not in self.component_by_item:
                     self._charge(phrase)
@@ -1565,7 +1585,21 @@ class Planner:
                     new_queue.remove(phrase)
                 do_intro(phrase)
                 closing_reserve = min(budget * cfg.closing_share, closing_cost(len(introduced) + len(new_queue)))
-            if (source := self.embed_source(item)) is not None and b.embed(sc, item, source) is not None:
+            if (given := self.frame_first(item, new_queue)) is not None:
+                # #262: a part is taken out of an utterance the learner is given now: the pattern it goes in comes first, its worked example made of the part
+                frame, slot = given
+                if self.components_mode and frame.id not in self.component_by_item:
+                    self._charge(frame)
+                new_queue.remove(frame)
+                do_intro(frame, {slot: item})
+                closing_reserve = min(budget * cfg.closing_share, closing_cost(len(introduced) + len(new_queue)))
+            source = self.embed_source(item)
+            if source is not None and b.embed(sc, item, source) is None:
+                # #262: no known pattern makes a new sentence of the part, but the learner knows a line that holds it («krónur» in «þúsund krónur»):
+                # the part is taken out of that line, not given alone
+                b.modeled_wholes.setdefault(item.id, b.whole_of(source))
+                source = None
+            if source is not None:
                 self.embedded.append(item.id)
                 touch(item)
                 last_intro = idx
@@ -1589,7 +1623,7 @@ class Planner:
                 arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
                 mark_delivered_target()
                 return
-            ex = b.intro(sc, item)
+            ex = b.intro(sc, item, worked_fills)
             b.in_lesson.add(item.id)
             introduced.append(item)
             arc_items.setdefault(current_arc_id, []).append(item)

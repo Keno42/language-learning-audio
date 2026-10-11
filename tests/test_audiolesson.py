@@ -4602,6 +4602,17 @@ class EmbeddedPartTests(unittest.TestCase):
             self.assertEqual(sc.meta["embedded_items"], [], kw)
             self.assertIn("opid", sc.meta["exposures"], kw)
 
+    def test_a_part_of_a_met_line_with_no_pattern_to_put_it_in_is_taken_out_of_the_line(self):
+        """#262 (lesson 23 replay: «krónur» and «þúsund» alone although the learner knows «þúsund krónur»): with no known pattern to make a new sentence of the
+        part, it is still taken out of the line the learner knows, and the next day asks that line, not the bare word."""
+        from audiolesson.cli import _plan
+        cur = self._cur(with_frame=False)
+        sc = self._plan(cur, self._learner(frame=False))
+        self.assertEqual(sc.meta["embedded_items"], [])
+        self.assertEqual([e.label for e in sc.exercises if "opid" in e.item_ids and e.kind == "intro"], ["new: Er opið? (opið)"])
+        self.assertNotIn("new: opið", sc.transcript())
+        self.assertEqual([q["answer"] for q in _plan(sc, cur)["review"] if "opid" in q["items"]], ["Er opið?"])
+
     def test_no_item_is_taught_twice_in_a_lesson_over_a_simulated_course(self):
         """#217 as a property: over a real-curriculum course, ``new_items`` never repeats an id, an item is not both embedded and
         introduced, and nothing is introduced twice."""
@@ -5338,6 +5349,79 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
             self.assertEqual(ex.label, f"new: {taught['answer']} ({self.cur.by_id[part].target})")
             met = {"thetta_er_noun", "bok", "bill", part}
             self.assertEqual(whole_for(self.cur, self.cur.by_id[part], met - {taught["through"]}, self.en, taught)["answer"], taught["answer"])
+
+    def test_a_part_after_the_phrase_it_is_in_is_taken_out_of_it(self):
+        """#262: «matinn» right after «Takk fyrir matinn.» in the same lesson is not a new bare word: «You know this: …», «This word is in it: …»."""
+        b = self._builder(met=["takk"])
+        sc = Script(1, "t", "is", "en")
+        b.intro(sc, self.cur.by_id["takk_fyrir_matinn"])
+        b.in_lesson.add("takk_fyrir_matinn")
+        self.assertEqual(b.phrase_home(self.cur.by_id["matinn"]).id, "takk_fyrir_matinn")
+        ex = b.intro(sc, self.cur.by_id["matinn"])
+        self.assertEqual((ex.kind, ex.item_ids, ex.label), ("intro", ["matinn"], "new: Takk fyrir matinn. (matinn)"))
+        self.assertEqual([(q["items"], q["answer"]) for q in sc.review_questions() if q["items"] == ["matinn"]], [(["matinn"], "Takk fyrir matinn.")])
+
+    @staticmethod
+    def _met_learner(ids):
+        learner = LearnerState("is", "en", "A1")
+        for i in ids:
+            learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3)
+        return learner
+
+    def test_a_phrase_whose_prerequisite_is_the_next_new_part_still_comes_first(self):
+        """#262: «krónur» and «hundrað» are both new; «Hundrað krónur, takk.» needs «hundrað», which is the next item of the same lesson: it is the whole «krónur»
+        is taken out of, and «hundrað» then comes out of it."""
+        met = [i.id for i in self.cur.items if i.order < self.cur.by_id["hundrad"].order and i.id not in ("hundrad", "kronur", "hundrad_kronur_takk")]
+        planner = Planner(self.cur, self._met_learner(met), self.en, Timing(level="A1"), PlanConfig(minutes=5), today=TODAY)
+        self.assertIsNone(planner.phrase_first(self.cur.by_id["kronur"]), "«hundrað» is neither known nor in the lesson")
+        phrase = planner.phrase_first(self.cur.by_id["kronur"], {"hundrad"})
+        self.assertEqual(phrase.id if phrase else None, "hundrad_kronur_takk")
+
+    def test_a_part_is_taken_out_of_the_worked_example_of_the_pattern_given_with_it(self):
+        """#262 review: «Get ég fengið matseðilinn?» is the pattern's worked example, so «matseðilinn» introduced next is taken out of that sentence, not given alone."""
+        met = [i.id for i in self.cur.items if i.order < self.cur.by_id["matsedilinn"].order and i.id != "matsedilinn"]
+        b = self._builder(met=met)
+        pattern, part = self.cur.by_id["get_eg_fengid"], self.cur.by_id["matsedilinn"]
+        self.assertIsNone(b.phrase_home(part))
+        sc = Script(1, "t", "is", "en")
+        ex = b.intro(sc, pattern, {"thing": part})
+        b.in_lesson.add(pattern.id)
+        speech = [g.text for g in sc.segments if g.type in ("speak", "answer")]
+        self.assertIn("Get ég fengið matseðilinn?", speech, "the worked example is made of the part")
+        self.assertNotIn("matsedilinn", ex.item_ids, "the part is not credited by the pattern's introduction")
+        self.assertEqual(b.modeled_wholes["matsedilinn"]["answer"], "Get ég fengið matseðilinn?")
+        ex2 = b.intro(sc, part)
+        self.assertEqual((ex2.kind, ex2.item_ids, ex2.label), ("intro", ["matsedilinn"], "new: Get ég fengið matseðilinn? (matseðilinn)"))
+        self.assertEqual(b.wholes_taught["matsedilinn"]["through"], "get_eg_fengid")
+        q = [(x["items"], x["answer"]) for x in sc.review_questions() if x["items"] == ["matsedilinn"]]
+        self.assertEqual(q, [(["matsedilinn"], "Get ég fengið matseðilinn?")])
+        # without the pattern's example the part is introduced as before
+        self.assertNotIn("matsedilinn", self._builder(met=met).modeled_wholes)
+
+    def test_the_planner_brings_the_queued_pattern_forward_of_its_part(self):
+        met = [i.id for i in self.cur.items if i.order < self.cur.by_id["matsedilinn"].order and i.id not in ("matsedilinn", "get_eg_fengid") and "fengið" not in i.target.lower()]
+        planner = Planner(self.cur, self._met_learner(met), self.en, Timing(level="A1"), PlanConfig(minutes=5), today=TODAY)
+        given = planner.frame_first(self.cur.by_id["matsedilinn"], [self.cur.by_id["get_eg_fengid"]])
+        self.assertEqual(given and (given[0].id, given[1]), ("get_eg_fengid", "thing"))
+        self.assertIsNone(planner.frame_first(self.cur.by_id["matsedilinn"], []), "no pattern queued: introduced as before")
+
+    def test_a_part_taken_out_of_a_met_line_that_is_not_a_phrase_is_asked_as_taught(self):
+        """#262: «þúsund krónur» is a known vocab line, neither a pattern nor a phrase; the review's search finds no whole for «krónur», so it asks the line taught."""
+        from audiolesson.review_wholes import whole_for
+        taught = {"through": "thusund_kronur", "answer": "þúsund krónur", "meaning": "a thousand krónur"}
+        part = self.cur.by_id["kronur"]
+        self.assertIsNone(whole_for(self.cur, part, {"thusund_kronur", "kronur"}, self.en))
+        self.assertEqual(whole_for(self.cur, part, {"thusund_kronur", "kronur"}, self.en, taught)["answer"], "þúsund krónur")
+
+    def test_the_daily_read_lists_the_parts_still_asked_bare_that_have_a_home(self):
+        from audiolesson.review_wholes import bare_parts_with_a_home
+        review = [
+            {"items": ["hjalpina"], "prompt": "the help", "answer": "hjálpina"},
+            {"items": ["hjalpina"], "prompt": "Thanks for the help.", "answer": "Takk fyrir hjálpina."},
+            {"items": ["peysu"], "prompt": "a sweater", "answer": "peysu", "bonus": True},
+        ]
+        self.assertEqual(bare_parts_with_a_home(review, self.cur), ["hjalpina"])
+        self.assertEqual(bare_parts_with_a_home(review[1:], self.cur), [])
 
     def test_a_whole_taught_for_one_part_does_not_make_other_parts_askable_through_it(self):
         from audiolesson.review_wholes import whole_for
