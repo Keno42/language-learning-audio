@@ -1055,9 +1055,11 @@ class Builder:
             return None
         self.said[_norm_utterance(target)] += 1
         ex = sc.new_exercise("recall", "meaning", [item.id], f"meaning: {target}")
+        through = self.cur.by_id.get(whole.get("through", ""))
+        gender = self.speaker_gender(through) if through is not None and through.target_m else None  # a sentence that follows the speaker's gender keeps the voice
         self._narr(sc, ex, whole["prompt"])
         self._answer_pause(sc, ex, target, item, generative=False)
-        self._answer(sc, ex, target, speaker=VOICE_OF["f"])
+        self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
         self._gap(sc, ex)
         return ex
 

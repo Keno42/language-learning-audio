@@ -205,6 +205,27 @@ class TourFrameTests(unittest.TestCase):
 
 
 class NounRecallTests(unittest.TestCase):
+    def test_a_new_noun_is_never_asked_bare_in_its_own_lesson_closing_included(self):
+        """#276 review: the closing recall and a `recombine` recall with no sentence to make asked «Reykjavík» bare although «Ég bý í Reykjavík.» was its sentence."""
+        from audiolesson.planner import PlanConfig, Planner
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        item = cur.by_id["reykjavik_dat"]
+        learner = LearnerState("is", "en", "A1")
+        for i in cur.items:
+            if i.order < item.order and i.id != item.id:
+                learner.items[i.id] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3, due="2026-03-04",
+                                                last_outcome="recalled", last_practiced="2026-02-28")
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=8, new_items=1, priority=[item.id]), today=TODAY).build()
+        labels = [(e.kind, e.label) for e in sc.exercises if e.item_ids == [item.id]]
+        self.assertEqual(labels[0], ("intro", "new: Ég bý í Reykjavík. (Reykjavík)"))
+        self.assertGreater(len(labels), 2, labels)
+        self.assertNotIn(("recall", "meaning: Reykjavík"), labels, labels)
+        self.assertEqual(sc.meta["bare_noun_recalls"], [])
+        # the last thing asked of it is the closing recall, and that is its sentence
+        self.assertEqual(labels[-1], ("recall", "meaning: Ég bý í Reykjavík."))
+
+
     def test_a_noun_is_recalled_in_its_sentence_from_the_meaning(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         from audiolesson.review_wholes import whole_for
