@@ -380,6 +380,34 @@ class Builder:
     def _gap(self, sc: Script, ex: Exercise) -> None:
         self._pause(sc, ex, self.timing.between_exercises, "beat")
 
+    def _beat_after_partner(self, sc: Script, ex: Exercise) -> None:
+        """A partner's line is always followed by a beat before the next narration (#272), as a learner's line is; none doubled."""
+        last = sc.segments[-1] if sc.segments else None
+        if not (last is not None and last.type == "pause" and last.role == "beat"):
+            self._beat(sc, ex)
+
+    def _line_known(self, ids: list[str]) -> bool:
+        """Whether the learner has said this line before: every item of it met and none open (#272)."""
+        return bool(ids) and all(self.learner.has_met(i) and not self.learner.is_open(i) for i in ids)
+
+    def _reply_pause(self, sc: Script, ex: Exercise, expected: str, item: Item | None, ids: list[str], known: bool) -> None:
+        """The pause for a conversation turn's reply (#272). A line the learner has said before is answered from the situation, not from a novel
+        combination: no thinking bonus, and the items' own successes and difficulty set the familiarity. A first-time or open line keeps the
+        pause it had. The floor stays the recall floor either way."""
+        if not known:
+            self._answer_pause(sc, ex, expected, item, generative=True)
+        elif item is not None:
+            self._answer_pause(sc, ex, expected, item, generative=False)
+        else:
+            items = [self.cur.by_id[i] for i in ids if i in self.cur.by_id]
+            secs = self.timing.answer_pause(
+                expected, self.tl,
+                difficulty=max((i.difficulty for i in items), default=2),
+                successes=min((self._successes(i) for i in items), default=0),
+                generative=False,
+            )
+            self._pause(sc, ex, secs, "answer", floor=self.timing.answer_floor())
+
     def _answer_pause(
         self, sc: Script, ex: Exercise, answer: str, item: Item | None, generative: bool, supported: bool = False
     ) -> None:
@@ -1394,7 +1422,8 @@ class Builder:
             else:
                 key = "listening_intro_some_asked" if any(not t.expect or t.expect not in listening for t in turns) else "listening_intro"
             self._narr(sc, ex, self.prompts.get(key))
-        self._narr(sc, ex, self.prompts.get("dialogue_start"))
+        if not (heard_play and key == "listening_intro_known"):
+            self._narr(sc, ex, self.prompts.get("dialogue_start"))  # a scene heard again has the one intro (#272)
         self._narr(sc, ex, dlg.setting)
         self._beat(sc, ex)
         lines: list[tuple[str, str]] = []
@@ -1410,6 +1439,8 @@ class Builder:
                 if glossed and self.translate_partner and turn.opener_meaning:
                     self._beat(sc, ex)
                     self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=turn.opener_meaning))
+                else:
+                    self._beat_after_partner(sc, ex)
             gender = None
             meaning_text = ""
             if turn.expect:
@@ -1441,7 +1472,11 @@ class Builder:
                 if meaning_text:
                     self._narr(sc, ex, self._m(meaning_text))
             else:
-                self._answer_pause(sc, ex, expected, item, generative=True)
+                if item is not None:
+                    ids = [item.id, *turn.expect_fill.values()]
+                else:
+                    ids = list((turn_items or {}).get(k, []))
+                self._reply_pause(sc, ex, expected, item, ids, heard_play or self._line_known(ids))
                 self._answer(sc, ex, expected, speaker=learner_voice)
             lines.append((learner_voice, expected))
             if turn.partner:
@@ -1453,6 +1488,8 @@ class Builder:
                 if glossed and self.translate_partner and turn.partner_meaning:
                     self._beat(sc, ex)
                     self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=turn.partner_meaning))
+                else:
+                    self._beat_after_partner(sc, ex)
         if replay:
             self._gap(sc, ex)
             self._frame(sc, ex, self.prompts.get("dialogue_replay"))

@@ -157,6 +157,13 @@ def partner_pick_out(line, probe: dict, known_words: set[str], known_lang: str, 
     )
 
 
+def word_as_asked(line: str, word: str) -> str:
+    """The heard word as the learner says it inside the question (#272): lower-cased when it only had a capital because it began a sentence, kept when it is
+    a name in the middle of one."""
+    m = re.search(rf"(^|[.!?]\s+)({re.escape(word)})(?!\w)", line)
+    return word[:1].lower() + word[1:] if m else word
+
+
 def catch_unknown(
     line: str,
     glosses: dict,
@@ -180,12 +187,13 @@ def catch_unknown(
     if len(unknown) != 1:
         return None
     word = unknown[0]
+    spoken = word_as_asked(line, word)
     gloss = (glosses or {}).get(word.lower(), {})
     meaning = gloss.get(language(known_lang))
     cue = unknown_cue(line_meaning, gloss, known_lang)
     if not meaning or cue is None:
         return None
-    question, replacements = re.subn(r"\bþetta\b", lambda _: word, repair.target, count=1, flags=re.IGNORECASE)
+    question, replacements = re.subn(r"\bþetta\b", lambda _: spoken, repair.target, count=1, flags=re.IGNORECASE)
     if replacements != 1:
         return None
     cue_kind, cue_text = cue
