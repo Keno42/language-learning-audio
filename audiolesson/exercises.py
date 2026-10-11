@@ -130,6 +130,7 @@ class Builder:
     heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson
     echo_asked: int = 1  # a line is repeated after the model only for its first asking this lesson (#192)
     said_cap: int = 0  # >0: a sentence said this often in the lesson is not asked again as a part's sentence (#192)
+    modeled_wholes: dict = field(default_factory=dict)  # part id → {through, answer, meaning, gender}: the sentence a pattern's worked example modelled with it (#262)
     wholes_taught: dict = field(default_factory=dict)  # part id → {through, answer, meaning}: the sentence it was introduced in (#239), taught whole today, as taught
     novelty_announced: set = field(default_factory=set)  # (construction, form) already announced as «something you haven't heard yet» this lesson (#197)
     said: Counter = field(default_factory=Counter)  # how often each sentence was said this lesson: model answers, echoes, the intro once, partner lines (#192)
@@ -485,9 +486,10 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def intro(self, sc: Script, item: Item) -> Exercise:
+    def intro(self, sc: Script, item: Item, worked_fills: dict[str, Item] | None = None) -> Exercise:
+        """``worked_fills`` (constructions only): the fill the worked example must use for a slot, a part that is new today and is taken out of the example next (#262)."""
         if item.kind == "construction":
-            return self._intro_construction(sc, item)
+            return self._intro_construction(sc, item, worked_fills)
         if item.kind == "transform":
             return self._intro_transform(sc, item)
         base = self.cur.by_id.get(item.variant_of) if item.variant_of else None
@@ -497,6 +499,8 @@ class Builder:
             return self._intro_in_whole(sc, item, *home)
         if (phrase := self.phrase_home(item)) is not None:
             return self._intro_in_phrase(sc, item, phrase)
+        if item.id in self.modeled_wholes and item.id not in self.wholes_taught:
+            return self._intro_out_of(sc, item, self.modeled_wholes[item.id])
         ex = sc.new_exercise("intro", "intro", [item.id], f"new: {item.target}")
         self.said[_norm_utterance(item.target)] += 1  # the introduction counts once, however often it models the line
         self._narr(sc, ex, self.prompts.get("intro_new", meaning=self._m(item.spoken_meaning)))
@@ -606,12 +610,17 @@ class Builder:
         return min(found, key=lambda t: t[:2])[2] if found else None
 
     def _intro_in_phrase(self, sc: Script, item: Item, phrase: Item) -> Exercise:
-        """A new part taken out of a phrase introduced a moment ago in this lesson (#262: «matinn» after «Takk fyrir matinn.»): «You know this:» the phrase,
-        «This word is in it:» the part, the part repeated, and a retrieval of the phrase from its meaning, so the next day's question asks the phrase."""
+        """A new part taken out of a phrase introduced a moment ago in this lesson (#262: «matinn» after «Takk fyrir matinn.»)."""
         gender = self.speaker_gender(phrase)
-        target = self._gendered(phrase, gender)
+        return self._intro_out_of(sc, item, {"through": phrase.id, "answer": self._gendered(phrase, gender), "meaning": phrase.spoken_meaning, "gender": gender})
+
+    def _intro_out_of(self, sc: Script, item: Item, whole: dict) -> Exercise:
+        """A new part taken out of a sentence the learner has just heard in this lesson: «You know this:» the sentence, «This word is in it:» the part, the part
+        repeated, and a retrieval of the sentence from its meaning, so the next day's question asks the sentence. ``whole`` is ``{through, answer, meaning,
+        gender}``: a phrase taught earlier, or the worked example of a pattern that was given with this part (#262)."""
+        target, gender = whole["answer"], whole.get("gender")
         voice = VOICE_OF[gender or "f"]
-        self.wholes_taught[item.id] = {"through": phrase.id, "answer": target, "meaning": phrase.spoken_meaning}
+        self.wholes_taught[item.id] = {k: whole[k] for k in ("through", "answer", "meaning")}
         ex = sc.new_exercise("intro", "intro", [item.id], f"new: {target} ({item.target})")
         self.said[_norm_utterance(item.target)] += 1
         self._frame(sc, ex, self.prompts.get("embed_known"))
@@ -623,8 +632,8 @@ class Builder:
         self._narr(sc, ex, self.prompts.get("repeat"))
         self._speak(sc, ex, item.target, speaker=voice)
         self._repeat_pause(sc, ex, item.target)
-        self._narr(sc, ex, self._as(gender, self._meaning_prompt(phrase.spoken_meaning)))
-        self._answer_pause(sc, ex, target, phrase, generative=False)
+        self._narr(sc, ex, self._as(gender, self._meaning_prompt(whole["meaning"])))
+        self._answer_pause(sc, ex, target, self.cur.by_id[whole["through"]], generative=False)
         self._answer(sc, ex, target, speaker=voice)
         self._gap(sc, ex)
         return ex
@@ -695,18 +704,22 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def _intro_construction(self, sc: Script, item: Item) -> Exercise:
+    def _intro_construction(self, sc: Script, item: Item, worked_fills: dict[str, Item] | None = None) -> Exercise:
         ex = sc.new_exercise("intro", "intro", [item.id], f"new pattern: {item.target}")
         fills = self.cur.example_fill(item)
+        fills.update(worked_fills or {})
         # the worked example uses words the learner has: when the authored one isn't, a known filler of the slot
         for slot, tag in item.slots.items():
-            if slot in fills and not self._available(fills[slot].id):
+            if slot in fills and slot not in (worked_fills or {}) and not self._available(fills[slot].id):
                 known = next((i for i in self.cur.items_with_tag(tag, item) if self._available(i.id)), None)
                 if known is not None:
                     fills[slot] = known
         target, meaning = self.cur.resolve_slots(item, fills)
         self.used_combos.add(_combo_key(item, fills))  # the worked example is heard, not new
-        ex.item_ids += [f.id for f in fills.values() if f.id not in ex.item_ids]
+        ex.item_ids += [f.id for s_, f in fills.items() if f.id not in ex.item_ids and s_ not in (worked_fills or {})]
+        for f in (worked_fills or {}).values():  # the sentence heard here is the part's whole when it is introduced next (#262)
+            gender_, target_ = self._filled(item, fills)
+            self.modeled_wholes[f.id] = {"through": item.id, "answer": target_, "meaning": meaning, "gender": gender_}
         known_example = not self.is_new_utterance(target)  # #239: «Eigðu góðan dag.» is known: the pattern is that phrase with other words, not news
         if known_example:
             self._frame(sc, ex, self.prompts.get("embed_known"))

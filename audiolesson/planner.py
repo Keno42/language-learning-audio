@@ -1144,6 +1144,25 @@ class Planner:
                 return phrase
         return None
 
+    def frame_first(self, item: Item, queue: list[Item]) -> tuple[Item, str] | None:
+        """The pattern of this lesson's queue that a new part is introduced inside (#262: «matseðilinn» in «Get ég fengið matseðilinn?»), with the slot it
+        fills: a construction still to come whose slot takes the part and whose other prerequisites are available. Its worked example is made of the part,
+        so the pattern comes first and the part is taken out of the sentence just heard. None when the part has a whole already (a sentence it can be in
+        now, a phrase, an embed) or no such pattern is queued."""
+        if item.kind != "vocab" or item.variant_of or item.target_m or self.learner.has_met(item.id) or item.id in self.learner.embed_failed:
+            return None
+        if self.embed_source(item) is not None or self.builder.whole_home(item) is not None or self.builder.phrase_home(item) is not None:
+            return None
+        for c in queue:
+            if c.kind != "construction" or not c.slots or self.learner.has_met(c.id) or c.id in self.learner.embedded:
+                continue
+            slot = next((sl for sl, tag in c.slots.items() if item in self.cur.items_with_tag(tag, c)), None)
+            if slot is None or len(c.slots) != 1:
+                continue
+            if all(p == item.id or self.learner.knows(p) or p in self.builder.in_lesson for p in c.prereqs):
+                return c, slot
+        return None
+
     def pattern_instance_of(self, item: Item) -> tuple[Item, dict[str, Item]] | None:
         """(pattern, fillers) when ``item`` is a fixed phrase that is an instance of a pattern the learner *knows* with fillers
         they all know (#192, the owner's decision after lesson 18: «known»; #206 uses the weaker ``_frame_available``), and the
@@ -1544,7 +1563,7 @@ class Planner:
             if item.topics:
                 recent_topics.append(item.topics[0])
 
-        def do_intro(item: Item) -> None:
+        def do_intro(item: Item, worked_fills: dict[str, Item] | None = None) -> None:
             nonlocal last_intro, last_intro_at, seq, closing_reserve
             if item.id in self.embedded or any(i.id == item.id for i in introduced):
                 # taught already this lesson (embedded, then queued again: «miða» in lesson 19, #217): its turn goes to the
@@ -1565,6 +1584,14 @@ class Planner:
                 if phrase in new_queue:
                     new_queue.remove(phrase)
                 do_intro(phrase)
+                closing_reserve = min(budget * cfg.closing_share, closing_cost(len(introduced) + len(new_queue)))
+            if (given := self.frame_first(item, new_queue)) is not None:
+                # #262: a part is taken out of an utterance the learner is given now: the pattern it goes in comes first, its worked example made of the part
+                frame, slot = given
+                if self.components_mode and frame.id not in self.component_by_item:
+                    self._charge(frame)
+                new_queue.remove(frame)
+                do_intro(frame, {slot: item})
                 closing_reserve = min(budget * cfg.closing_share, closing_cost(len(introduced) + len(new_queue)))
             if (source := self.embed_source(item)) is not None and b.embed(sc, item, source) is not None:
                 self.embedded.append(item.id)
@@ -1590,7 +1617,7 @@ class Planner:
                 arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
                 mark_delivered_target()
                 return
-            ex = b.intro(sc, item)
+            ex = b.intro(sc, item, worked_fills)
             b.in_lesson.add(item.id)
             introduced.append(item)
             arc_items.setdefault(current_arc_id, []).append(item)

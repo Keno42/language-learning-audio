@@ -5366,6 +5366,34 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
         phrase = planner.phrase_first(self.cur.by_id["kronur"], {"hundrad"})
         self.assertEqual(phrase.id if phrase else None, "hundrad_kronur_takk")
 
+    def test_a_part_is_taken_out_of_the_worked_example_of_the_pattern_given_with_it(self):
+        """#262 review: «Get ég fengið matseðilinn?» is the pattern's worked example, so «matseðilinn» introduced next is taken out of that sentence, not given alone."""
+        met = [i.id for i in self.cur.items if i.order < self.cur.by_id["matsedilinn"].order and i.id != "matsedilinn"]
+        b = self._builder(met=met)
+        pattern, part = self.cur.by_id["get_eg_fengid"], self.cur.by_id["matsedilinn"]
+        self.assertIsNone(b.phrase_home(part))
+        sc = Script(1, "t", "is", "en")
+        ex = b.intro(sc, pattern, {"thing": part})
+        b.in_lesson.add(pattern.id)
+        speech = [g.text for g in sc.segments if g.type in ("speak", "answer")]
+        self.assertIn("Get ég fengið matseðilinn?", speech, "the worked example is made of the part")
+        self.assertNotIn("matsedilinn", ex.item_ids, "the part is not credited by the pattern's introduction")
+        self.assertEqual(b.modeled_wholes["matsedilinn"]["answer"], "Get ég fengið matseðilinn?")
+        ex2 = b.intro(sc, part)
+        self.assertEqual((ex2.kind, ex2.item_ids, ex2.label), ("intro", ["matsedilinn"], "new: Get ég fengið matseðilinn? (matseðilinn)"))
+        self.assertEqual(b.wholes_taught["matsedilinn"]["through"], "get_eg_fengid")
+        q = [(x["items"], x["answer"]) for x in sc.review_questions() if x["items"] == ["matsedilinn"]]
+        self.assertEqual(q, [(["matsedilinn"], "Get ég fengið matseðilinn?")])
+        # without the pattern's example the part is introduced as before
+        self.assertNotIn("matsedilinn", self._builder(met=met).modeled_wholes)
+
+    def test_the_planner_brings_the_queued_pattern_forward_of_its_part(self):
+        met = [i.id for i in self.cur.items if i.order < self.cur.by_id["matsedilinn"].order and i.id not in ("matsedilinn", "get_eg_fengid") and "fengið" not in i.target.lower()]
+        planner = Planner(self.cur, self._met_learner(met), self.en, Timing(level="A1"), PlanConfig(minutes=5), today=TODAY)
+        given = planner.frame_first(self.cur.by_id["matsedilinn"], [self.cur.by_id["get_eg_fengid"]])
+        self.assertEqual(given and (given[0].id, given[1]), ("get_eg_fengid", "thing"))
+        self.assertIsNone(planner.frame_first(self.cur.by_id["matsedilinn"], []), "no pattern queued: introduced as before")
+
     def test_the_daily_read_lists_the_parts_still_asked_bare_that_have_a_home(self):
         from audiolesson.review_wholes import bare_parts_with_a_home
         review = [
