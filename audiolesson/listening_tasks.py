@@ -9,8 +9,8 @@ known sentences again::
   the instructor asks for one piece of information in it (the price, the time) and the learner says it. The probe that names
   the piece lives with the pattern (``Item.information_probes``): never inferred from a slot's name.
 - **Catch an unknown word** (``catch_unknown``): a line the partner of a scene said, with exactly one word the learner does not
-  know. The learner says the word and asks what it means (the repair phrase they already can say); the word's meaning is
-  authored with the line (``Turn.word_glosses``), never guessed from the line's translation.
+  know. Its place is cued through the understood meaning. The learner asks «Hvað þýðir {word}?», using the repair phrase
+  they already can say; the word's gloss and optional pointer are authored with the line (``Turn.word_glosses``).
 
 Both are listening exercises of their own kind. What was only heard is not recorded as practised (no ``Planner._record``): hearing
 a pattern or an unknown word does not make it learnt, and the next day's review does not ask for it.
@@ -25,6 +25,7 @@ from typing import Callable
 
 from .exercises import _norm_utterance, _other_voice
 from .script import Script
+from .listening_cues import unknown_cue
 
 # the phrase that asks what a word means; the catch-an-unknown-word exercise only runs once the learner can say it
 REPAIR_ITEM = "hvad_thydir_thetta"
@@ -77,10 +78,11 @@ class ListeningTask:
     prompt_key: str
     speaker: str = "native_b"
     item_ids: tuple[str, ...] = ()
-    repair: str = ""  # catch_unknown: the phrase that asks what the word means
+    repair: str = ""  # catch_unknown: the complete question, with the heard word in place of þetta
     ask: str = ""  # pick_out of a line holding several pieces: the question that names the one to find; else the plain question of the kind
     pattern: str = ""  # what the planner caps per lesson: a construction for a generated sentence, the partner turn for a scene's line
     pieces: int = 1  # how many pieces of information the line holds (a generated sentence holds the frame and one)
+    cue: str = ""  # catch_unknown: the masked meaning or authored pointer
 
 
 def generated_pick_out(cur, gen, probe: dict, known_words: set[str], scene: str, speaker: str = "native_b") -> ListeningTask | None:
@@ -166,18 +168,27 @@ def catch_unknown(
     source: str,
     scene: str,
     speaker: str = "native_b",
+    line_meaning: str = "",
 ) -> ListeningTask | None:
     """An unknown-word exercise from a partner's ``line``; None unless the learner can already say the repair phrase, the line holds exactly
-    one word they do not know (counted by occurrence, so a word said twice excludes the line) and that word has an authored meaning."""
+    one word they do not know (counted by occurrence, so a word said twice excludes the line), and that word has an authored
+    meaning and a cue locating it in the understood part. ``answer`` stays the word for the planner's per-word deduplication;
+    ``repair`` is the complete question the learner says."""
     if not repair_known:
         return None
     unknown = [w for w in tokens(line) if w.lower() not in known_words]
     if len(unknown) != 1:
         return None
     word = unknown[0]
-    meaning = (glosses or {}).get(word.lower(), {}).get(language(known_lang))
-    if not meaning:
+    gloss = (glosses or {}).get(word.lower(), {})
+    meaning = gloss.get(language(known_lang))
+    cue = unknown_cue(line_meaning, gloss, known_lang)
+    if not meaning or cue is None:
         return None
+    question, replacements = re.subn(r"\bþetta\b", lambda _: word, repair.target, count=1, flags=re.IGNORECASE)
+    if replacements != 1:
+        return None
+    cue_kind, cue_text = cue
     return ListeningTask(
         kind="catch_unknown",
         source=f"{source}: {line}",
@@ -185,10 +196,11 @@ def catch_unknown(
         line=line,
         answer=word,
         meaning=meaning,
-        prompt_key="catch_unknown",
+        prompt_key=f"catch_unknown_{cue_kind}",
         speaker=speaker,
         item_ids=(repair.id,),
-        repair=repair.target,
+        repair=question,
+        cue=cue_text,
     )
 
 
@@ -200,16 +212,16 @@ def _build(b, sc: Script, task: ListeningTask) -> None:
     b._beat(sc, ex)
     # named after the scene it comes from when there is one: whose line it was; otherwise the plain question
     who = b.prompts.get("speaker_he" if task.speaker == "native_b" else "speaker_she")
-    question = task.ask or (b.prompts.get(task.prompt_key + "_scene", who=who) if task.scene and task.kind == "pick_out" else b.prompts.get(task.prompt_key))
+    if task.kind == "catch_unknown":
+        question = b.prompts.get(task.prompt_key, context=task.cue, pointer=task.cue)
+    else:
+        question = task.ask or (b.prompts.get(task.prompt_key + "_scene", who=who) if task.scene else b.prompts.get(task.prompt_key))
     b._narr(sc, ex, question)
-    expected = f"{task.answer} {task.repair}" if task.repair else task.answer
+    expected = task.repair or task.answer
     b._pause(sc, ex, b.timing.answer_pause(expected, b.tl, generative=True), "answer", floor=b.timing.answer_floor())
     voice = _other_voice(task.speaker) if task.repair else task.speaker
-    b._answer(sc, ex, task.answer, speaker=voice)
+    b._answer(sc, ex, expected, speaker=voice)
     b._beat(sc, ex)
-    if task.repair:
-        b._answer(sc, ex, task.repair, speaker=voice)
-        b._beat(sc, ex)
     b._narr(sc, ex, b._m(task.meaning))
     b._beat(sc, ex)
     b._speak(sc, ex, task.line, speaker=task.speaker, role="listening_replay")

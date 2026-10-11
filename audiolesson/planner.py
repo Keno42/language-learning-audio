@@ -2334,6 +2334,7 @@ class Planner:
                     yield catch_unknown(
                         ln.say, ln.word_glosses, known, self.cur.known_lang, repair, repair_known=True,
                         source=f"theme:{t.id}:{n + 1}:{k}:{v}", scene=level_scene(t, n), speaker=t.levels[n].partner_speaker,
+                        line_meaning=ln.meaning_ja if self.cur.known_lang.split("-")[0].lower() == "ja" else ln.meaning,
                     )
 
         def listening_available() -> bool:

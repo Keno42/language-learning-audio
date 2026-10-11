@@ -47,7 +47,9 @@ and ``load_scenes`` only ``[[scenes]]``, so they share the directory)::
   («tuttugu mínútur»), ``kind`` price / time / count / place / duration; the learner finds it and says it in Icelandic. A line with two or more probes
   gives each an ``ask`` («How long do we stop?»). A ``listen`` line ``{ say, meaning, meaning_ja, probes, word_glosses }`` is never played in the
   exchange: it is wording for the listening exercises only, with two pieces of information for the question to pick between.
-  ``word_glosses = { word = { en, ja } }`` is the meaning of a word in the line the learner may not know («One word was new»).
+  ``word_glosses = { word = { en, ja, pointer = { en, ja } } }`` is the meaning of a word in the line the learner may not know.
+  A catch cue masks its unique gloss in the line's meaning; an optional authored ``pointer`` instead locates it through the
+  understood part, and is required when literal masking is unavailable. Validation checks both known languages (#248).
 - A level is ready once every item of its ``you`` turns can be said (met, not open).
 
 General content only: no learner's dates, itinerary or lodging (the private trip profile, #132,
@@ -64,6 +66,7 @@ from pathlib import Path
 from .cando import Scenario
 from .content import PROBE_KINDS, SPEAKERS, Curriculum, CurriculumError, Dialogue, DialogueTurn, unmarked_japanese
 from .records import check_items, load_records
+from .listening_cues import unknown_cue
 
 WHO = ("you", "partner")
 
@@ -82,8 +85,8 @@ class Turn:
     scene_ja: str = ""
     variants: list[dict] = field(default_factory=list)  # a partner turn: other ways to say it, each {say, meaning, meaning_ja} (#134)
     # a partner line: the meaning of a word in it the learner may not know, per known language {word: {en, ja}} (#248). Authored, never
-    # guessed from the line's translation: it is what «One word was new» answers.
-    word_glosses: dict[str, dict[str, str]] = field(default_factory=dict)
+    # guessed from the line's translation. An optional pointer {en, ja} locates it in the understood part (#248).
+    word_glosses: dict[str, dict] = field(default_factory=dict)
     # a partner line: what a learner can listen for in it (#248 step 2), each {kind, answer, meanings: {en, ja}, ask: {en, ja}}: ``answer`` is a stretch
     # of the line as written («tuttugu mínútur»), ``meanings`` what it means, ``ask`` the question when the line holds more than one piece
     # («How long do we stop?»; required then), else the plain question of the kind. The answer stays in the target language.
@@ -208,8 +211,14 @@ def _check(theme: Theme) -> None:
                 for word, gloss in line.word_glosses.items():
                     if word.lower() not in words:
                         raise CurriculumError(f"{where} turn {k}: word gloss {word!r} is not a word of {line.say!r}")
-                    if not isinstance(gloss, dict) or {"en", "ja"} - set(gloss) or not all(isinstance(g, str) and g.strip() for g in gloss.values()):
+                    if not isinstance(gloss, dict) or {"en", "ja"} - set(gloss) or not all(isinstance(g, str) and g.strip() for name, g in gloss.items() if name != "pointer"):
                         raise CurriculumError(f"{where} turn {k}: word gloss {word!r} needs a non-empty meaning in en and ja")
+                    pointer = gloss.get("pointer")
+                    if pointer is not None and (not isinstance(pointer, dict) or {"en", "ja"} - set(pointer) or not all(isinstance(p, str) and p.strip() for p in pointer.values())):
+                        raise CurriculumError(f"{where} turn {k}: word gloss {word!r} pointer needs non-empty text in en and ja")
+                    for lang, meaning in (("en", line.meaning), ("ja", line.meaning_ja)):
+                        if unknown_cue(meaning, gloss, lang) is None:
+                            raise CurriculumError(f"{where} turn {k}: word gloss {word!r} needs a unique gloss in the {lang} line meaning, or an authored pointer")
             if len({x.say for x in t.lines()}) < len(t.lines()):
                 raise CurriculumError(f"{where} turn {k}: a variant repeats a line")
 
