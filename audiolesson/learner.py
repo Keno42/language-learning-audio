@@ -101,6 +101,8 @@ class LearnerState:
     # generated sentence takes a form only once it has been. None: a file from before it existed; the builder seeds it from
     # ``heard_utterances`` (a form sentence already said or heard counts as modelled) and the next lesson saves it.
     forms_modelled: set[str] | None = None
+    # #262: the exact line a part was taught in. Knowing that line does not make its pattern met.
+    learned_wholes: dict[str, dict[str, str]] = field(default_factory=dict)
 
     # ---- queries ---------------------------------------------------------
 
@@ -560,6 +562,7 @@ class LearnerState:
             "notes_heard": self.notes_heard,
             "notes_last_heard": self.notes_last_heard,
             "heard_utterances": sorted(self.heard_utterances),
+            "learned_wholes": {i: dict(whole) for i, whole in self.learned_wholes.items()},
             "bridges_heard": self.bridges_heard,
             "embedded": self.embedded,
             "embed_failed": self.embed_failed,
@@ -595,6 +598,7 @@ class LearnerState:
             notes_heard=dict(raw.get("notes_heard", {})),
             notes_last_heard=dict(raw.get("notes_last_heard", {})),
             heard_utterances=set(raw.get("heard_utterances", [])),
+            learned_wholes={i: dict(whole) for i, whole in raw.get("learned_wholes", {}).items()},
             bridges_heard=dict(raw.get("bridges_heard", {})),
             embedded={k: int(v) for k, v in raw.get("embedded", {}).items()},
             embed_failed=list(raw.get("embed_failed", [])),
