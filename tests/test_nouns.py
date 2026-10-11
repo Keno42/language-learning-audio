@@ -157,5 +157,97 @@ class BareNounRowTests(unittest.TestCase):
         self.assertGreater(differing, 0, "a noun whose meaning differs from its word is counted (köku, þúsund…)")
 
 
+class TourFrameTests(unittest.TestCase):
+    """#270 owner decision: «Mig langar að sjá {…}.» is a frame of the tour scene; «jökull» becomes «jökul», the other sights do not change."""
+
+    @classmethod
+    def setUpClass(cls):
+        from audiolesson.cando import load_cando
+        from audiolesson.themes import load_themes
+
+        cls.cur = load_curriculum(ROOT / "curricula" / "is-en")
+        cls.themes = load_themes(ROOT / "curricula" / "is-en", cls.cur, load_cando(ROOT / "curricula" / "is-en", cls.cur))
+
+    def sentence(self, fill_id):
+        frame = self.cur.by_id["mig_langar_ad_sja"]
+        return self.cur.resolve_slots(frame, {"thing": self.cur.by_id[fill_id]})[0]
+
+    def test_the_frame_takes_the_sights_in_the_accusative(self):
+        frame = self.cur.by_id["mig_langar_ad_sja"]
+        fills = {i.id for i in self.cur.items_with_tag(frame.slots["thing"], frame)}
+        self.assertEqual(fills, {"eldfjall", "hraun", "foss", "strond", "jokull_acc", "nordurljosin_acc"})
+        self.assertEqual(self.sentence("eldfjall"), "Mig langar að sjá eldfjall.")
+        self.assertEqual(self.sentence("jokull_acc"), "Mig langar að sjá jökul.", "the one that changes")
+        self.assertEqual(self.sentence("nordurljosin_acc"), "Mig langar að sjá norðurljósin.")
+        self.assertEqual(self.cur.noun_form("jokull_acc"), ("jokull", "acc"))
+        self.assertEqual(self.cur.nouns["jokull"]["forms"], {"nom": "jokull", "acc": "jokull_acc"})
+        self.assertEqual(self.cur.nouns["jokull"]["gender"], "masc")
+
+    def test_the_tour_scene_has_a_turn_for_it(self):
+        tour = next(t for t in self.themes if t.id == "tour")
+        says = [t.say for lv in tour.levels for t in lv.turns if t.who == "you"]
+        self.assertIn("Mig langar að sjá eldfjall.", says)
+        turn = next(t for lv in tour.levels for t in lv.turns if t.who == "you" and t.say == "Mig langar að sjá eldfjall.")
+        self.assertEqual(turn.items, ["mig_langar_ad_sja", "eldfjall"])
+        self.assertIn("Mig langar að sjá jökul.", turn.alts)
+
+    def test_a_new_form_of_a_known_noun_is_introduced_as_a_form_of_it(self):
+        learner = LearnerState("is", "en", "A1")
+        for i in self.cur.items:
+            if i.order < self.cur.by_id["jokull_acc"].order and i.id != "jokull_acc":
+                learner.items[i.id] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3)
+        b = Builder(self.cur, Prompts.load("en"), Timing(level="A1"), learner)
+        sc = Script(1, "t", "is", "en")
+        ex = b.intro(sc, self.cur.by_id["jokull_acc"])
+        text = " ".join(g.text or "" for g in sc.segments if g.exercise == ex.index)
+        self.assertIn("jökull", text)
+        self.assertIn("jökul", text)
+
+
+class NounRecallTests(unittest.TestCase):
+    def test_a_noun_is_recalled_in_its_sentence_from_the_meaning(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        from audiolesson.review_wholes import whole_for
+
+        met = {i.id for i in cur.items if i.order < cur.by_id["koku"].order}
+        learner = LearnerState("is", "en", "A1")
+        for i in met:
+            learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
+        sc = Script(1, "t", "is", "en")
+        item = cur.by_id["koku"]
+        taught = {"through": "eg_aetla_ad_fa", "answer": "Ég ætla að fá köku.", "meaning": "I'll have a piece of cake."}
+        whole = whole_for(cur, item, met | {"koku"}, Prompts.load("en"), taught)
+        ex = b.recall_whole(sc, item, whole)
+        self.assertEqual((ex.kind, ex.stage, ex.item_ids, ex.label), ("recall", "meaning", ["koku"], "meaning: Ég ætla að fá köku."))
+        self.assertEqual([g.text for g in sc.segments if g.type == "answer"], ["Ég ætla að fá köku."])
+        self.assertEqual([(q["items"], q["answer"]) for q in sc.review_questions()], [(["koku"], "Ég ætla að fá köku.")])
+
+    def test_the_lesson_recall_of_the_pilot_nouns_goes_through_a_sentence(self):
+        from datetime import timedelta
+
+        from audiolesson.cando import load_cando
+        from audiolesson.planner import PlanConfig, Planner, apply_to_learner
+        from audiolesson.themes import load_themes, scenario_order
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        scenarios = load_cando(ROOT / "curricula" / "is-en", cur)
+        themes = load_themes(ROOT / "curricula" / "is-en", cur, scenarios)
+        learner, day = LearnerState("is", "en", "A1"), TODAY
+        bare, whole_recalls = [], 0
+        for n in range(1, 23):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"),
+                         PlanConfig(minutes=30, new_target=8, themes=themes, theme_scenarios=scenario_order(scenarios)), today=day).build()
+            bare += sc.meta["bare_noun_recalls"]
+            whole_recalls += sum(1 for e in sc.exercises if e.kind == "recall" and len(e.item_ids) == 1 and cur.by_id[e.item_ids[0]].noun
+                                 and e.label != f"meaning: {cur.by_id[e.item_ids[0]].target}")
+            apply_to_learner(sc, learner, day)
+            learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
+            day += timedelta(days=1)
+        self.assertGreater(whole_recalls, 0, "a pilot noun was asked through its sentence")
+        for word in ("köku", "klósettið", "sturtan", "Reykjavík", "eldfjall", "hraun", "jökull"):
+            self.assertNotIn(f"meaning: {word}", bare)
+
+
 if __name__ == "__main__":
     unittest.main()

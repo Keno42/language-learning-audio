@@ -136,3 +136,13 @@ turns = [
   { who = "partner", say = "Viltu að ég taki mynd af ykkur?", meaning = "Shall I take a photo of you?", meaning_ja = "写真を撮りましょうか？", variants = [{ say = "Á ég að taka mynd af ykkur?", meaning = "Shall I take a picture of you?", meaning_ja = "写真を撮りましょうか？" }, { say = "Viltu að ég taki mynd?", meaning = "Do you want me to take a photo?", meaning_ja = "写真を撮りましょうか？" }] },
   { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", say = "Já, takk.", items = ["ja", "takk"] },
 ]
+[[themes.levels]]
+partner_speaker = "native_a"  # the partner is a woman
+goal = "Say what you'd like to see."
+goal_ja = "見たいものを伝える。"
+turns = [
+  { who = "partner", say = "Hvað langar ykkur að sjá?", meaning = "What would you like to see?", meaning_ja = "何が見たいですか？", variants = [{ say = "Hvað viljið þið sjá?", meaning = "What do you want to see?", meaning_ja = "何を見たいですか？" }] },
+  { who = "you", cue = "Say you'd like to see a volcano.", cue_ja = "火山が見たいと言ってください。", say = "Mig langar að sjá eldfjall.", items = ["mig_langar_ad_sja", "eldfjall"], alts = ["Mig langar að sjá jökul."] },
+  { who = "partner", say = "Já, það er hægt.", meaning = "Yes, that's possible.", meaning_ja = "ええ、できますよ。" },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
+]

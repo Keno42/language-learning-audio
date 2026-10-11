@@ -1047,6 +1047,20 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def recall_whole(self, sc: Script, item: Item, whole: dict) -> Exercise | None:
+        """A noun asked in the sentence it is said in, from that sentence's meaning (#270): ``whole`` is ``{prompt, answer, through}`` as ``review_wholes.whole_for``
+        gives it. None when the sentence has been said as often as a lesson allows."""
+        target = whole["answer"]
+        if self.said_cap and self.said[_norm_utterance(target)] >= self.said_cap:
+            return None
+        self.said[_norm_utterance(target)] += 1
+        ex = sc.new_exercise("recall", "meaning", [item.id], f"meaning: {target}")
+        self._narr(sc, ex, whole["prompt"])
+        self._answer_pause(sc, ex, target, item, generative=False)
+        self._answer(sc, ex, target, speaker=VOICE_OF["f"])
+        self._gap(sc, ex)
+        return ex
+
     def sibling_recall(self, sc: Script, pattern: Item, exclude: dict[str, Item]) -> Exercise | None:
         """A plain meaning recall of another sentence of ``pattern`` than the one a linked phrase says (#192): when every
         such sentence was heard in this lesson, the one said fewest times (a heard line may repeat; it is not offered as

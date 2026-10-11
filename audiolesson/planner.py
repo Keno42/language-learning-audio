@@ -22,6 +22,7 @@ from itertools import groupby
 from .content import Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance
 from .learner import LearnerState
+from .review_wholes import whole_for
 from .listening_tasks import REPAIR_ITEM, SecondHalfRotation, append_task, catch_unknown, key_of, partner_pick_out
 from .prompts import Prompts
 from .script import Script
@@ -1732,6 +1733,11 @@ class Planner:
                 ladder = self.ladder(item)
                 if "meaning" in ladder and stage_index(ladder, stage) < stage_index(ladder, "meaning"):
                     stage = "meaning"
+            if allow_cap and stage in BARE_STAGES and item.noun and (whole := noun_whole(item)) is not None and (ex := b.recall_whole(sc, item, whole)) is not None:
+                # #270: a noun is never a context-free memory question: the sentence it was taught in (or one it is said in), from its meaning
+                self._record([item.id], "meaning", ex.item_ids)
+                touch(item)
+                return True
             if allow_cap and stage in BARE_STAGES and short_today(item) and said_in_sentence(item) and ask_a_sentence(item):
                 return True
             if allow_cap and stage in BARE_STAGES and short_review(item) and ask_a_sentence(item, repeat=True, review=True):
@@ -1832,6 +1838,13 @@ class Planner:
             """Whether ``item`` has been said inside a sentence in this lesson (#179): a generated
             sentence, or a whole sentence that holds it."""
             return any(e.kind == "generative" and item.id in e.item_ids or e.kind == "recall" and item.id in e.item_ids[1:] for e in sc.exercises)
+
+        def noun_whole(item: Item) -> dict | None:
+            """The sentence a noun is asked in: the one it was taught in today, else the one it was taught in before (``learned_wholes``), else a construction or
+            phrase the learner has that holds it (``review_wholes.whole_for``, the rule the written review uses)."""
+            met = {i for i in self.cur.by_id if self.learner.has_met(i) or i in b.in_lesson}
+            taught = b.wholes_taught.get(item.id) or self.learner.learned_wholes.get(item.id)
+            return whole_for(self.cur, item, met, self.prompts, taught)
 
         def ask_a_sentence(item: Item, repeat: bool = False, review: bool = False) -> bool:
             """A short item already said in a sentence is asked as a sentence from then on (#179):
