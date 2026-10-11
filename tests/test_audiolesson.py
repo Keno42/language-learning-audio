@@ -5949,7 +5949,7 @@ class ListeningTaskTests(unittest.TestCase):
             # the run row stops at the closing block, whose recalls are a run of their own
             from itertools import groupby
             closing_at = next((e.start for e in sc.exercises if e.kind == "closing"), float("inf"))
-            between = [e for e in sc.exercises if m["target_reached_s"] <= e.start < closing_at and e.kind not in ("opening", "closing")]
+            between = [e for e in sc.exercises if m["target_reached_s"] <= e.start < closing_at and e.kind not in ("opening", "closing")] if m["target_delivered"] else []
             self.assertEqual(m["longest_kind_run_after_target"], max((sum(1 for _ in g) for _, g in groupby(between, key=lambda e: e.kind)), default=0))
             row = [e.kind for e in sc.exercises]
             for k in range(len(row) - 3):
@@ -5970,12 +5970,43 @@ class ListeningTaskTests(unittest.TestCase):
                     asked.add(q)
         self.assertGreaterEqual(len(asked), 2, asked)
 
-    def test_no_pick_out_before_the_target_is_delivered(self):
+    def test_a_scene_unit_before_the_target_takes_only_a_scene_already_played(self):
+        """#273 (it replaces #248's "no pick-out before the target"): a pick-out or a catch task may come before the target is delivered, but only in a scene the
+        learner has played: not the lesson's own, until its exchange has been played in the lesson."""
+        before = 0
         for _, _, sc in self._course(21):
-            reached = sc.meta["target_reached_at"]
+            m = sc.meta
+            reached = m["target_reached_at"]
+            own = m.get("theme")
             for e in sc.exercises:
-                if e.kind in ("pick_out", "catch_unknown") and sc.meta["target_reached_at"]:
-                    self.assertGreaterEqual(e.start + 0.01, reached - 1, f"lesson {sc.lesson_number}")
+                if e.kind not in ("pick_out", "catch_unknown") or not (reached and e.start + 0.01 < reached - 1):
+                    continue
+                before += 1
+                if own and not own.get("replay"):  # a level played in an earlier lesson is a scene already played
+                    played = any(x.kind == "dialogue" and x.label.startswith(f"dialogue: theme:{own['id']}:{own['level']}") and x.start < e.start for x in sc.exercises)
+                    self.assertTrue(played or not e.label.startswith(f"theme:{own['id']}:{own['level']}:"), f"lesson {sc.lesson_number}: {e.label} is from a scene not played yet")
+        self.assertGreater(before, 0, "scene units are spread through the lesson, not saved for after the target")
+
+    def test_the_interleave_step_places_units_at_least_an_interval_apart(self):
+        """#275 review: the last scene's end is read from the segments (an exercise's start and duration are only filled in when the lesson is done), so the step
+        does not fire on every pass after the first interval: two units it places are at least `scene_unit_interval` apart, and no longest stretch exceeds
+        the interval by more than one unit's time and the supply allows."""
+        interval = PlanConfig().scene_unit_interval
+        placed = 0
+        for _, _, sc in self._course(21):
+            times = sc.meta["scene_units_placed"]
+            placed += len(times)
+            for a, b in zip(times, times[1:]):
+                self.assertGreaterEqual(b - a, interval, f"lesson {sc.lesson_number}: {times}")
+        self.assertGreater(placed, 0)
+
+    def test_the_longest_stretch_without_a_scene_is_in_the_plan(self):
+        lessons = list(self._course(21))
+        for _, _, sc in lessons:
+            self.assertIn("longest_without_scene_s", sc.meta)
+            self.assertLessEqual(sc.meta["longest_without_scene_s"], sc.total_duration)
+        late = [sc.meta["longest_without_scene_s"] for _, _, sc in lessons[12:]]
+        self.assertLess(sum(late) / len(late), 11 * 60, late)
 
 
 class RepeatedWordFillsTests(unittest.TestCase):
