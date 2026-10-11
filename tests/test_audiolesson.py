@@ -5413,6 +5413,48 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
         self.assertIsNone(whole_for(self.cur, part, {"thusund_kronur", "kronur"}, self.en))
         self.assertEqual(whole_for(self.cur, part, {"thusund_kronur", "kronur"}, self.en, taught)["answer"], "þúsund krónur")
 
+    def test_the_sentence_a_part_was_taught_in_is_kept_across_lessons(self):
+        """#262: «peysu» was taught in «Áttu peysu?» while its pattern is not met; a later lesson's review, and the bot's `refine-review -l`, still ask that sentence."""
+        from audiolesson.cli import _plan, cmd_refine_review
+        from audiolesson.review_wholes import refine_review
+        learner = LearnerState("is", "en", "A1")
+        sc = Planner(self.cur, learner, self.en, Timing(level="A1"), PlanConfig(minutes=5, new_items=3, priority=["afsakid", "peysu", "vegabref"]), today=TODAY).build()
+        taught = sc.meta["wholes_taught"]["peysu"]
+        apply_to_learner(sc, learner, TODAY)
+        self.assertEqual(learner.learned_wholes["peysu"], taught)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "l.json"
+            learner.save(path)
+            loaded = LearnerState.load(path)
+            self.assertEqual(loaded.learned_wholes, learner.learned_wholes, "saved and read back")
+            old = json.loads(path.read_text())
+            del old["learned_wholes"]
+            path.write_text(json.dumps(old))
+            self.assertEqual(LearnerState.load(path).learned_wholes, {}, "a file from before it existed reads as empty")
+            loaded.save(path)
+            # a later lesson: the part is asked bare and its pattern is not met; the kept sentence is what the review asks
+            review = [{"items": ["peysu"], "prompt": "a sweater", "answer": "peysu", "stage": "meaning"}]
+            out, report = refine_review(review, self.cur, {"peysu"}, self.en, loaded.learned_wholes)
+            self.assertEqual([q["answer"] for q in out], [taught["answer"]])
+            import io, sys, argparse
+            from contextlib import redirect_stdout
+            args = argparse.Namespace(curriculum=ROOT / "curricula" / "is-en", known="en", learner=str(path))
+            stdin, sys.stdin = sys.stdin, io.StringIO(json.dumps({"review": review, "met": ["peysu"]}))
+            buf = io.StringIO()
+            try:
+                with redirect_stdout(buf):
+                    cmd_refine_review(args)
+            finally:
+                sys.stdin = stdin
+            self.assertEqual([q["answer"] for q in json.loads(buf.getvalue())["review"]], [taught["answer"]])
+        # today's teaching replaces the old line; the script carries a snapshot for a review made without the learner
+        plan = _plan(sc, self.cur)
+        self.assertEqual({q["answer"] for q in plan["review"] if "peysu" in q["items"]}, {taught["answer"]})
+        self.assertIn("learned_wholes", sc.meta)
+        learner.learned_wholes["peysu"] = {"through": "attu", "answer": "Old line?", "meaning": "x"}
+        apply_to_learner(sc, learner, TODAY)
+        self.assertEqual(learner.learned_wholes["peysu"], taught)
+
     def test_the_daily_read_lists_the_parts_still_asked_bare_that_have_a_home(self):
         from audiolesson.review_wholes import bare_parts_with_a_home
         review = [

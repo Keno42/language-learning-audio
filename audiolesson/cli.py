@@ -388,7 +388,9 @@ def _plan(script: Script, cur) -> dict:
         review.append({"items": [i], "prompt": _review_cue(cur, prompts, it), "answer": it.target, "stage": "open"})
     refined: list[dict] = []
     if "met_items" in meta:  # #239: each target expression once; a part only through the whole that holds it
-        review, refined = refine_review(review, cur, set(meta["met_items"]), prompts, meta.get("wholes_taught") or {})
+        # #262: retain a part's taught line across lessons; today's teaching takes precedence.
+        taught = {**(meta.get("learned_wholes") or {}), **(meta.get("wholes_taught") or {})}
+        review, refined = refine_review(review, cur, set(meta["met_items"]), prompts, taught)
     return {
         "lesson_number": script.lesson_number,
         "date": meta.get("date"),
@@ -640,10 +642,12 @@ def cmd_refine_review(args) -> int:
     cur = load_curriculum(args.curriculum, known_lang=args.known)
     data = json.load(sys.stdin)
     met = set(data.get("met") or [])
+    taught = {}
     if args.learner and Path(args.learner).exists():
         learner = LearnerState.load(Path(args.learner))
         met |= {it.id for it in cur.items if learner.has_met(it.id)}
-    review, refined = refine_review(list(data.get("review") or []), cur, met, Prompts.load(cur.known_lang))
+        taught = learner.learned_wholes
+    review, refined = refine_review(list(data.get("review") or []), cur, met, Prompts.load(cur.known_lang), taught)
     print(json.dumps({"review": review, "refined": refined}, ensure_ascii=False))
     return 0
 

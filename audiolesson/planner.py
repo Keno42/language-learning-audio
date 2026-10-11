@@ -2823,6 +2823,7 @@ class Planner:
             "bare_cap_lapsed": cfg.max_bare_uses > 0 and bare_cap[0] == 0,  # nothing else was left: short items were said alone again
             # what the review may ask through (#239): what the learner has met and what this lesson taught
             "met_items": sorted({i for i in self.cur.by_id if self.learner.has_met(i)} | set(self.exposures) | taught()),
+            "learned_wholes": {i: dict(whole) for i, whole in self.learner.learned_wholes.items()},  # #262: a snapshot for later review, including when the script is loaded without the learner
             "wholes_taught": dict(self.builder.wholes_taught),  # part → the pattern whose sentence it came in with: usable as a whole for that part only (#262)
             "reviewed_items": reviews_used,
             "open_items": open_today,
@@ -2895,6 +2896,11 @@ class Planner:
 
 def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_success: bool = True) -> None:
     """Update the learner model from a built script's metadata."""
+    # Store only parts actually taught, not a worked example's queued parts. A new teaching replaces the old line.
+    learner.learned_wholes.update({
+        i: {k: whole[k] for k in ("through", "answer", "meaning")}
+        for i, whole in (sc.meta.get("wholes_taught") or {}).items()
+    })
     learner.record_lesson(
         sc.lesson_number,
         sc.meta.get("exposures", {}),
