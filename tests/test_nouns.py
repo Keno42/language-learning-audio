@@ -125,5 +125,37 @@ class PerFormStateTests(unittest.TestCase):
         self.assertTrue(learner.is_open("koku"))
 
 
+class BareNounRowTests(unittest.TestCase):
+    def test_the_bare_noun_row_counts_by_the_exercise_not_by_the_label(self):
+        """#276 review: the row compared the label with the item's meaning, so only «krónur» (meaning equal to target) was ever counted."""
+        from datetime import timedelta
+
+        from audiolesson.cando import load_cando
+        from audiolesson.planner import BARE_STAGES, PlanConfig, Planner, apply_to_learner
+        from audiolesson.themes import load_themes, scenario_order
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        scenarios = load_cando(ROOT / "curricula" / "is-en", cur)
+        themes = load_themes(ROOT / "curricula" / "is-en", cur, scenarios)
+        learner, day = LearnerState("is", "en", "A1"), TODAY
+        counted = 0
+        differing = 0
+        for n in range(1, 23):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"),
+                         PlanConfig(minutes=30, new_target=8, themes=themes, theme_scenarios=scenario_order(scenarios)), today=day).build()
+            expected = []
+            for e in sc.exercises:
+                it = cur.by_id.get(e.item_ids[0]) if len(e.item_ids) == 1 else None
+                if e.kind == "recall" and e.stage in BARE_STAGES and it is not None and it.noun and any(g.type == "answer" and g.exercise == e.index and g.text == it.target for g in sc.segments):
+                    expected.append(e.label)
+                    differing += it.meaning.lower() != it.target.lower()
+            self.assertEqual(sc.meta["second_half"]["bare_noun_recalls"] if "second_half" in sc.meta else sc.meta["bare_noun_recalls"], expected)
+            counted += len(expected)
+            apply_to_learner(sc, learner, day)
+            learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
+            day += timedelta(days=1)
+        self.assertGreater(differing, 0, "a noun whose meaning differs from its word is counted (köku, þúsund…)")
+
+
 if __name__ == "__main__":
     unittest.main()

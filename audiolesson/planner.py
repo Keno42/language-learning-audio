@@ -803,7 +803,8 @@ class Planner:
             "longest_kind_run_after_target": kind_run,
             # #270: a noun asked from its translation alone, in the lesson's own recall (the written review has its own row)
             "bare_noun_recalls": [e.label for e in sc.exercises if e.kind == "recall" and e.stage in BARE_STAGES and len(e.item_ids) == 1
-                                  and (it := self.cur.by_id.get(e.item_ids[0])) is not None and it.noun and e.label.endswith(it.meaning)],
+                                  and (it := self.cur.by_id.get(e.item_ids[0])) is not None and it.noun
+                                  and any(g.type == "answer" and g.exercise == e.index and _norm_utterance(g.text or "") == _norm_utterance(it.target) for g in sc.segments)],
         }
 
     @staticmethod
