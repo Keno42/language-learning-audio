@@ -5694,7 +5694,7 @@ class ListeningTaskTests(unittest.TestCase):
         from audiolesson.themes import Level, Theme, Turn, _check
         def theme(gloss):
             return Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
-                Turn(who="partner", say="Þarftu poka?", meaning="Do you need a bag?", variants=[{"say": "Viltu poka?", "meaning": "Do you want a bag?", "word_glosses": gloss}]),
+                Turn(who="partner", say="Þarftu poka?", meaning="Do you need a bag?", variants=[{"say": "Viltu poka?", "meaning": "Do you want a bag?", "meaning_ja": "袋がほしいですか？", "word_glosses": gloss}]),
                 Turn(who="you", say="Nei, takk.", cue="Say no.", items=["nei"]),
             ])])
         _check(theme({"viltu": {"en": "do you want", "ja": "ほしいですか"}}))
@@ -5865,9 +5865,9 @@ class ListeningTaskTests(unittest.TestCase):
         repair = self.cur.by_id["hvad_thydir_thetta"]
         glosses = {"viltu": {"en": "do you want", "ja": "ほしいですか"}, "poka": {"en": "a bag", "ja": "袋"}}
         known = self._known("Ég vil poka með því.")
-        task = catch_unknown("Viltu poka?", glosses, known, "en", repair, repair_known=True, source="theme:x:1:0:1", scene="")
-        self.assertEqual((task.kind, task.answer, task.meaning, task.repair, task.item_ids), ("catch_unknown", "Viltu", "do you want", repair.target, (repair.id,)))
-        each = lambda **kw: catch_unknown(**{"line": "Viltu poka?", "glosses": glosses, "known_words": known, "known_lang": "en", "repair": repair, "repair_known": True, "source": "s", "scene": "", **kw})
+        task = catch_unknown("Viltu poka?", glosses, known, "en", repair, repair_known=True, source="theme:x:1:0:1", scene="", line_meaning="Do you want a bag?")
+        self.assertEqual((task.kind, task.answer, task.meaning, task.repair, task.item_ids), ("catch_unknown", "Viltu", "do you want", "Hvað þýðir Viltu?", (repair.id,)))
+        each = lambda **kw: catch_unknown(**{"line": "Viltu poka?", "glosses": glosses, "known_words": known, "known_lang": "en", "repair": repair, "repair_known": True, "source": "s", "scene": "", "line_meaning": "Do you want a bag?", **kw})
         self.assertIsNone(each(repair_known=False), "the learner cannot yet ask what a word means")
         self.assertIsNone(each(line="Viltu poka? Viltu."), "the same unknown word twice")
         self.assertIsNone(each(known_words=known - {"poka"}), "two unknown words")
@@ -5878,12 +5878,12 @@ class ListeningTaskTests(unittest.TestCase):
         from audiolesson.listening_tasks import append_task, catch_unknown
         repair = self.cur.by_id["hvad_thydir_thetta"]
         b = self._builder(known=[repair.id])
-        task = catch_unknown("Viltu poka?", {"viltu": {"en": "do you want", "ja": "ほしいですか"}}, self._known("poka"), "en", repair, repair_known=True, source="s", scene="")
+        task = catch_unknown("Viltu poka?", {"viltu": {"en": "do you want", "ja": "ほしいですか"}}, self._known("poka"), "en", repair, repair_known=True, source="s", scene="", line_meaning="Do you want a bag?")
         sc = Script(1, "t", "is", "en")
         ex = append_task(b, sc, task, 120.0)
         self.assertEqual(ex.kind, "catch_unknown")
         answers = [g for g in sc.segments if g.type == "answer"]
-        self.assertEqual([g.text for g in answers], ["Viltu", repair.target])
+        self.assertEqual([g.text for g in answers], ["Hvað þýðir Viltu?"])
         self.assertTrue(all(g.speaker == "native_a" for g in answers), "the model answer is the other voice than the partner's")
         self.assertIn("Do you want", sc.transcript())
         self.assertEqual(b.learner.items.keys(), {repair.id}, "nothing is credited")

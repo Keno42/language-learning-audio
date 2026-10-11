@@ -15,6 +15,19 @@ known_lang = "en"      # the learner's language; needs audiolesson/phrasing/<kno
 level = "A1"           # default pause level for a new learner
 ```
 
+### Unknown-word pointers (#248)
+
+A partner line's `word_glosses` may include an authored `pointer = { en, ja }`.
+The pointer names the unknown word through the understood part of the line,
+without supplying the target word or its gloss. It is preferred when present;
+otherwise the cue masks one unique occurrence of the gloss in the line's
+`meaning` / `meaning_ja` with "something" / "何か". Validation requires one
+of these cues in each language for canonical lines, variants and `listen` lines.
+
+The answer is one question, «Hvað þýðir {word}?», rather than a bare word
+followed by «Hvað þýðir þetta?». The repair phrase must already be sayable;
+hearing the unknown word does not add it to learned items or the review.
+
 ## Items
 
 Listed in the default order of introduction. The planner keeps this order but

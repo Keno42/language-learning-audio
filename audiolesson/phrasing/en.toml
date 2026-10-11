@@ -105,7 +105,8 @@ pick_out_duration = "How long?"
 pick_out_duration_scene = "How long does {who} say?"
 speaker_he = "he"
 speaker_she = "she"
-catch_unknown = "One word was new. Say it, and ask what it means."
+catch_unknown_context = "You heard: {context} Ask what the missing word means."
+catch_unknown_pointer = "Ask about {pointer}. Ask what that word means."
 
 [language_names]
 fr = "French"

@@ -101,7 +101,8 @@ pick_out_duration = "どのくらいですか？"
 pick_out_duration_scene = "どのくらいと言っていましたか？"
 speaker_he = "男性"
 speaker_she = "女性"
-catch_unknown = "知らない単語が一つありました。その単語を言って、意味を聞いてください。"
+catch_unknown_context = "「{context}」と言っていました。そこに入ることばの意味を聞いてください。"
+catch_unknown_pointer = "{pointer}を表すことばの意味を聞いてください。"
 
 [language_names]
 fr = "フランス語"
