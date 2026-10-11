@@ -643,6 +643,13 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def _form_contrast(self, sc: Script, ex: Exercise, item: Item, voice: str) -> None:
+        """A noun in a form its frame asks is named once against its basic word (#270: «köku» ← «kaka» after «Ég ætla að fá»)."""
+        if item.noun and item.noun_base and _norm_utterance(item.noun_base) != _norm_utterance(item.target):
+            self._frame(sc, ex, self.prompts.get("form_of_base"))
+            self._speak(sc, ex, item.noun_base, speaker=voice)
+            self._beat(sc, ex)
+
     def _intro_in_whole(self, sc: Script, item: Item, construction: Item, fills: dict[str, Item]) -> Exercise:
         """A new part inside the expression that holds it (#239): «A new expression: Thanks for the help.», the sentence said and repeated, «This word is
         in it:» the part, and a first retrieval of the whole from its meaning. The part is said alone afterwards, never first; the next-day question
@@ -670,6 +677,7 @@ class Builder:
         self._frame(sc, ex, self.prompts.get("embed_part"))
         self._speak(sc, ex, item.target, speaker=voice)
         self._beat(sc, ex)
+        self._form_contrast(sc, ex, item, voice)
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(meaning)))
         self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target, speaker=voice)

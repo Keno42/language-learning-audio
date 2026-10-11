@@ -19,6 +19,9 @@ meaning_ja = "氷河"
 difficulty = 2
 tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
+noun = "jokull"
+form = "nom"
+gender = "masc"
 
 [[items]]
 id = "foss"
@@ -52,6 +55,9 @@ meaning_ja = "火山"
 difficulty = 2
 tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
+noun = "eldfjall"
+form = "nom"
+gender = "neut"
 
 [[items]]
 id = "hraun"
@@ -62,6 +68,9 @@ meaning_ja = "溶岩原"
 difficulty = 1
 tags = ["nature_nom", "nom_noun"]
 topics = ["nature"]
+noun = "hraun"
+form = "nom"
+gender = "neut"
 
 [[items]]
 id = "strond"

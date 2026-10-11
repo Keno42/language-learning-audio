@@ -55,6 +55,8 @@ reply = "答えてください。"
 # a part heard in a sentence instead of being introduced on its own (LearnerState.embedded)
 embed_known = "知っているフレーズです："
 embed_part = "この中の単語です："
+# 文型に合わせて形が変わった名詞 (#270): 基本の形を一度だけ言う
+form_of_base = "この文では単語の形が変わっています。基本の形は："
 embed_sentence = "別の文で聞きます。聞いて、繰り返してください。"
 embed_meaning = "「{meaning}」"
 # 疑問・否定の形を、出題の前に一度見せる (#211)

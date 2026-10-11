@@ -97,6 +97,9 @@ meaning_ja = "レイキャビク"
 difficulty = 1
 tags = ["dat_town"]
 topics = ["social"]
+noun = "reykjavik"
+form = "dat"
+gender = "fem"
 
 [[items]]
 id = "tokyo_dat"

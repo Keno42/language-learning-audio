@@ -34,6 +34,9 @@ meaning_ja = "トイレ"
 difficulty = 2
 tags = ["nom_place"]
 topics = ["directions"]
+noun = "klosett"
+form = "nom_def"
+gender = "neut"
 
 [[items]]
 id = "hotelid"

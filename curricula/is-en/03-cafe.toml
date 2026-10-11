@@ -94,6 +94,10 @@ difficulty = 2
 tags = ["acc_orderable", "acc_food"]
 topics = ["cafe"]
 pronunciation_notes = "accusative of kaka"
+noun = "kaka"
+form = "acc"
+noun_base = "kaka"
+gender = "fem"
 
 [[items]]
 id = "pylsu"

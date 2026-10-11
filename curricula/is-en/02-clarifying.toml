@@ -1298,6 +1298,8 @@ tags = ["money_unit"]
 gender = "fem"
 topics = ["numbers", "money"]
 pronunciation_notes = "Iceland's currency, feminine — plural form (\"a krónur\" reads oddly in English, but this is what a price is always counted in, e.g. \"tvær krónur\")"
+noun = "krona"
+form = "pl"
 
 # Feminine counting forms (issue #29 cluster A): Icelandic 1–4 change with the counted
 # noun's gender, the same paradigm godur_noun (module 18) already models for adjectives.
@@ -1439,6 +1441,9 @@ meaning_ja = "千"
 difficulty = 1
 tags = ["number"]
 topics = ["numbers"]
+noun = "thusund"
+form = "nom"
+gender = "neut"
 
 # "og" relocated from module 19 (issue #29 cluster A, owner review on PR #53): a basic,
 # no-prereq conjunction with no business being introduced this late — it glues compound

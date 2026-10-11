@@ -801,6 +801,9 @@ class Planner:
             # a pick-out of a drilled frame plus its answer rather than a line of a scene (#248 step 2)
             "pick_out_echo_count": sum(1 for e in after if e.kind == "pick_out" and self._is_echo(sc, e)),
             "longest_kind_run_after_target": kind_run,
+            # #270: a noun asked from its translation alone, in the lesson's own recall (the written review has its own row)
+            "bare_noun_recalls": [e.label for e in sc.exercises if e.kind == "recall" and e.stage in BARE_STAGES and len(e.item_ids) == 1
+                                  and (it := self.cur.by_id.get(e.item_ids[0])) is not None and it.noun and e.label.endswith(it.meaning)],
         }
 
     @staticmethod
