@@ -28,6 +28,21 @@ The answer is one question, «Hvað þýðir {word}?», rather than a bare word
 followed by «Hvað þýðir þetta?». The repair phrase must already be sayable;
 hearing the unknown word does not add it to learned items or the review.
 
+### Nouns and their forms (#270, the pilot)
+
+A noun is one entry; each of its forms is an item, so the learner's state stays per form. A vocab item that is a form of a noun carries:
+
+```toml
+noun = "kaka"        # the noun this item is a form of
+form = "acc"         # which form: nom, acc, dat, nom_def, pl …
+noun_base = "kaka"   # the basic word, when no item carries it and it differs from the form
+gender = "fem"       # masc | fem | neut; required, the same for every form of a noun
+```
+
+Item ids do not change when a word is grouped, so a learner file and a review queue written before it keep resolving (`Curriculum.noun_form(id)` → `(noun, form)`).
+A form that differs from its `noun_base` is named once against it when it is introduced («This word is in it: köku. In this sentence the word changes. The basic word is: kaka.»).
+`validate` rejects a noun without a form or a gender, two items for one form, forms that disagree about the gender, and a base equal to the form.
+
 ## Items
 
 Listed in the default order of introduction. The planner keeps this order but
