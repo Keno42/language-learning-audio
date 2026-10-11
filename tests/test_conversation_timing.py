@@ -94,7 +94,33 @@ class ConversationTimingTests(unittest.TestCase):
         self.assertNotIn(self.en.get("dialogue_start"), texts)
         sc2, ex2, _ = self.play(learner_with([]), False, heard_play=True, heard_turns={0, 1, 2, 3, 4, 5})
         texts2 = [g.text for g in sc2.segments if g.exercise == ex2.index and g.type == "narrate"]
-        self.assertIn(self.en.get("dialogue_start"), texts2, "the other openings are unchanged")
+        self.assertNotIn(self.en.get("dialogue_start"), texts2, "no second intro in the other openings either (#274 review)")
+
+    def test_a_literal_line_made_of_words_the_learner_has_said_is_paused_as_a_known_one(self):
+        """#274 review: a curriculum dialogue's `expect_text` turn has no item; it is known when every word is a word of a met item that is not open."""
+        cur = self.cur
+        dlg = next(d for d in cur.dialogues if any(t.expect_text for t in d.turns))
+        turn = next(t for t in dlg.turns if t.expect_text)
+        b = Builder(cur, self.en, Timing(level="A1"), learner_with([]))
+        self.assertIsNone(b._met_items_holding(turn.expect_text), "nothing met: not made of known words")
+        met = [i.id for i in cur.items if i.kind != "transform"]
+        b = Builder(cur, self.en, Timing(level="A1"), learner_with(met))
+        self.assertIsNotNone(b._met_items_holding("Nei, takk."))
+        self.assertIsNone(b._met_items_holding("Nei, takk. Eldfjall með rjóma."), "a word of no met item")
+        failed = learner_with(met)
+        for i in met:
+            failed.items[i].last_outcome = "not_recalled"
+        self.assertIsNone(Builder(cur, self.en, Timing(level="A1"), failed)._met_items_holding("Nei, takk."), "open items do not count")
+
+    def test_every_heard_play_has_one_intro_and_no_beat_doubles_up(self):
+        learner = learner_with(self.all_items())
+        for heard in (set(), {0, 1}, {0, 1, 2, 3, 4, 5}):
+            sc, ex, dlg = self.play(learner, False, heard_play=True, heard_turns=heard)
+            texts = [g.text for g in sc.segments if g.exercise == ex.index and g.type == "narrate"]
+            self.assertNotIn(self.en.get("dialogue_start"), texts, heard)
+            segs = [g for g in sc.segments if g.exercise == ex.index]
+            for a, b in zip(segs, segs[1:]):
+                self.assertFalse(a.type == b.type == "pause" and a.role == b.role == "beat", f"two beats in a row ({heard})")
 
     def test_the_catch_task_reads_as_one_sentence_and_lowercases_the_word(self):
         self.assertEqual(word_as_asked("Þarftu poka?", "Þarftu"), "þarftu")

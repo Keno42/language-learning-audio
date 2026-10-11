@@ -390,6 +390,22 @@ class Builder:
         """Whether the learner has said this line before: every item of it met and none open (#272)."""
         return bool(ids) and all(self.learner.has_met(i) and not self.learner.is_open(i) for i in ids)
 
+    def _met_items_holding(self, text: str) -> list[Item] | None:
+        """The met, not open items whose words cover every word of ``text`` (#272 review): the items a literal line is made of. None when a word is not theirs."""
+        words = [w.lower() for w in re.findall(r"[^\W\d_]+", text)]
+        if not words:
+            return None
+        held: dict[str, Item] = {}
+        for it in self.cur.items:
+            if it.kind == "transform" or not self.learner.has_met(it.id) or self.learner.is_open(it.id):
+                continue
+            for t in (re.split(r"\{[^}]*\}", it.target) if it.kind == "construction" else [it.target]):
+                for w in re.findall(r"[^\W\d_]+", t):
+                    held.setdefault(w.lower(), it)
+        if any(w not in held for w in words):
+            return None
+        return list({held[w].id: held[w] for w in words}.values())
+
     def _reply_pause(self, sc: Script, ex: Exercise, expected: str, item: Item | None, ids: list[str], known: bool) -> None:
         """The pause for a conversation turn's reply (#272). A line the learner has said before is answered from the situation, not from a novel
         combination: no thinking bonus, and the items' own successes and difficulty set the familiarity. A first-time or open line keeps the
@@ -1422,8 +1438,8 @@ class Builder:
             else:
                 key = "listening_intro_some_asked" if any(not t.expect or t.expect not in listening for t in turns) else "listening_intro"
             self._narr(sc, ex, self.prompts.get(key))
-        if not (heard_play and key == "listening_intro_known"):
-            self._narr(sc, ex, self.prompts.get("dialogue_start"))  # a scene heard again has the one intro (#272)
+        if not heard_play:
+            self._narr(sc, ex, self.prompts.get("dialogue_start"))  # a scene heard again has the one intro, whichever it is (#272)
         self._narr(sc, ex, dlg.setting)
         self._beat(sc, ex)
         lines: list[tuple[str, str]] = []
@@ -1476,11 +1492,13 @@ class Builder:
                     ids = [item.id, *turn.expect_fill.values()]
                 else:
                     ids = list((turn_items or {}).get(k, []))
+                    if not ids and (made_of := self._met_items_holding(expected)) is not None:
+                        ids = [i.id for i in made_of]  # a literal line (``expect_text``) made only of words of items the learner has said (#272 review)
                 self._reply_pause(sc, ex, expected, item, ids, heard_play or self._line_known(ids))
                 self._answer(sc, ex, expected, speaker=learner_voice)
             lines.append((learner_voice, expected))
             if turn.partner:
-                self._beat(sc, ex)
+                self._beat_after_partner(sc, ex)  # the learner's line has its beat already (a heard line without a meaning ends on one)
                 if turn.partner_scene:
                     self._frame(sc, ex, turn.partner_scene)
                 self._speak(sc, ex, turn.partner, speaker=partner)
@@ -1496,5 +1514,8 @@ class Builder:
             for who, text in lines:
                 self._speak(sc, ex, text, speaker=who)
                 self._beat(sc, ex)
+        last = sc.segments[-1] if sc.segments else None
+        if last is not None and last.type == "pause" and last.role == "beat" and last.exercise == ex.index:
+            sc.segments.pop()  # the exercise gap follows the last line: not a beat and a gap one after the other (#272 review)
         self._gap(sc, ex)
         return ex
