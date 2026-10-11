@@ -59,6 +59,8 @@ class PlanConfig:
     max_sentence_utterances: int = 6
     # Spare time is more to hear, never a close variant as filler (#218 b1): after the listening dialogues, up to this many
     # heard-only plays of a theme level already played (partner lines in variants, the cues kept).
+    scene_unit_interval: float = 240.0  # #273: seconds of single exercises after which a scene unit (a pick-out, a catch task, a scene heard again) comes, before or after the target
+    spacing_report: float = 60.0  # #273: the daily read counts an item asked again less than this many seconds after it was last asked
     heard_theme_plays: int = 4  # spare time is more to hear: the lesson's own theme level first, then others (#218 b1, #238)
     # #171 B: a construction whose every slot already has ``cheap_min_fillers`` known fillers is cheap:
     # it adds sentences at once. One takes the place of the last non-trip item of a lesson's new
@@ -793,6 +795,23 @@ class Planner:
         after = (
             [e for e in sc.exercises if delivered_at <= e.start < closing_at and e.kind not in ("opening", "closing")] if delivered_at is not None else []
         )
+        scene_kinds = ("dialogue", "pick_out", "catch_unknown")
+        lesson_end = next((e.start for e in sc.exercises if e.kind == "closing"), sc.total_duration)
+        edge = 0.0
+        longest_without_scene = 0.0
+        for e in sc.exercises:
+            if e.kind in scene_kinds:
+                longest_without_scene = max(longest_without_scene, e.start - edge)
+                edge = e.start + e.duration
+        longest_without_scene = round(max(longest_without_scene, lesson_end - edge))
+        last_asked: dict[str, float] = {}
+        asked_again = 0
+        for e in sc.exercises:
+            if e.kind not in ("recall", "generative", "connect") or not e.item_ids or e.start >= lesson_end:
+                continue
+            if e.item_ids[0] in last_asked and e.start - last_asked[e.item_ids[0]] < self.cfg.spacing_report:
+                asked_again += 1
+            last_asked[e.item_ids[0]] = e.start + e.duration
         counts = Counter(e.kind for e in after)
         kind_run = max((sum(1 for _ in g) for _, g in groupby(after, key=lambda e: e.kind)), default=0)
         return {
@@ -801,6 +820,9 @@ class Planner:
             # a pick-out of a drilled frame plus its answer rather than a line of a scene (#248 step 2)
             "pick_out_echo_count": sum(1 for e in after if e.kind == "pick_out" and self._is_echo(sc, e)),
             "longest_kind_run_after_target": kind_run,
+            "target_delivered": delivered_at is not None,  # false when the lesson ran out of time before the target's items were all taught
+            "longest_without_scene_s": longest_without_scene,  # #273: the longest stretch with no conversation, pick-out or catch task
+            "asked_again_within_spacing": asked_again,  # #273: an item asked again less than ``spacing_report`` after it was last asked
         }
 
     @staticmethod
@@ -2271,7 +2293,7 @@ class Planner:
         def scene_levels() -> list[tuple]:
             """The levels a listening exercise may take its scene from: the lesson's own, then those already played."""
             out: list[tuple] = []
-            if theme_pick:
+            if theme_pick and (rotation_on() or theme_plays > 0):  # before the target the lesson's own scene only once it has been played (#273)
                 out.append((theme_pick[0], theme_pick[1]))
             for t in cfg.themes:
                 out += [(t, n) for n in range(min(self.learner.themes_done.get(t.id, 0), len(t.levels))) if (t, n) not in out]
@@ -2355,6 +2377,11 @@ class Planner:
                 )
 
             return fresh(pick_out_tasks()) or fresh(catch_unknown_tasks())
+
+        def last_scene_end() -> float:
+            """The lesson time at which the last scene unit ended (a conversation, a pick-out, a catch task); the start of the lesson when there was none."""
+            ends = [e.start + e.duration for e in sc.exercises if e.kind in ("dialogue", "pick_out", "catch_unknown")]
+            return max(ends, default=0.0)
 
         def last_kinds_same(k: int = 3) -> str | None:
             tail = [e.kind for e in sc.exercises if e.kind != "opening"][-k:]
@@ -2486,6 +2513,14 @@ class Planner:
             # 0b'. no kind of exercise runs on for more than three once the target is delivered (#248): the rotation comes in between
             if not acted and rotation_on() and (run_kind := last_kinds_same()) not in (None, "intro", "note"):
                 acted = rotation.play(emit_second_half)
+
+            # 0b''. #273: a scene unit at least every ``scene_unit_interval`` seconds, before the target is delivered too: a pick-out or a catch task in a
+            #       scene already played, or a scene heard again; it comes from the rotation the second half has, so the variety rule holds
+            if (
+                not acted and introduced and remaining >= 90 and idx - last_intro >= 1
+                and sc.total_duration - last_scene_end() >= cfg.scene_unit_interval
+            ):
+                acted = rotation.play(lambda kind: kind != "today" and emit_second_half(kind))
 
             # 0c. a substitution run goes on in its frame before anything else is fitted in (#151)
             if not acted and not in_new_block() and not listening_available() and (sub := continue_substitution()) is not None:
