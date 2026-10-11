@@ -1593,7 +1593,13 @@ class Planner:
                 new_queue.remove(frame)
                 do_intro(frame, {slot: item})
                 closing_reserve = min(budget * cfg.closing_share, closing_cost(len(introduced) + len(new_queue)))
-            if (source := self.embed_source(item)) is not None and b.embed(sc, item, source) is not None:
+            source = self.embed_source(item)
+            if source is not None and b.embed(sc, item, source) is None:
+                # #262: no known pattern makes a new sentence of the part, but the learner knows a line that holds it («krónur» in «þúsund krónur»):
+                # the part is taken out of that line, not given alone
+                b.modeled_wholes.setdefault(item.id, b.whole_of(source))
+                source = None
+            if source is not None:
                 self.embedded.append(item.id)
                 touch(item)
                 last_intro = idx

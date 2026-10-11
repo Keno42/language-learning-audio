@@ -4602,6 +4602,17 @@ class EmbeddedPartTests(unittest.TestCase):
             self.assertEqual(sc.meta["embedded_items"], [], kw)
             self.assertIn("opid", sc.meta["exposures"], kw)
 
+    def test_a_part_of_a_met_line_with_no_pattern_to_put_it_in_is_taken_out_of_the_line(self):
+        """#262 (lesson 23 replay: «krónur» and «þúsund» alone although the learner knows «þúsund krónur»): with no known pattern to make a new sentence of the
+        part, it is still taken out of the line the learner knows, and the next day asks that line, not the bare word."""
+        from audiolesson.cli import _plan
+        cur = self._cur(with_frame=False)
+        sc = self._plan(cur, self._learner(frame=False))
+        self.assertEqual(sc.meta["embedded_items"], [])
+        self.assertEqual([e.label for e in sc.exercises if "opid" in e.item_ids and e.kind == "intro"], ["new: Er opið? (opið)"])
+        self.assertNotIn("new: opið", sc.transcript())
+        self.assertEqual([q["answer"] for q in _plan(sc, cur)["review"] if "opid" in q["items"]], ["Er opið?"])
+
     def test_no_item_is_taught_twice_in_a_lesson_over_a_simulated_course(self):
         """#217 as a property: over a real-curriculum course, ``new_items`` never repeats an id, an item is not both embedded and
         introduced, and nothing is introduced twice."""
@@ -5393,6 +5404,14 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
         given = planner.frame_first(self.cur.by_id["matsedilinn"], [self.cur.by_id["get_eg_fengid"]])
         self.assertEqual(given and (given[0].id, given[1]), ("get_eg_fengid", "thing"))
         self.assertIsNone(planner.frame_first(self.cur.by_id["matsedilinn"], []), "no pattern queued: introduced as before")
+
+    def test_a_part_taken_out_of_a_met_line_that_is_not_a_phrase_is_asked_as_taught(self):
+        """#262: «þúsund krónur» is a known vocab line, neither a pattern nor a phrase; the review's search finds no whole for «krónur», so it asks the line taught."""
+        from audiolesson.review_wholes import whole_for
+        taught = {"through": "thusund_kronur", "answer": "þúsund krónur", "meaning": "a thousand krónur"}
+        part = self.cur.by_id["kronur"]
+        self.assertIsNone(whole_for(self.cur, part, {"thusund_kronur", "kronur"}, self.en))
+        self.assertEqual(whole_for(self.cur, part, {"thusund_kronur", "kronur"}, self.en, taught)["answer"], "þúsund krónur")
 
     def test_the_daily_read_lists_the_parts_still_asked_bare_that_have_a_home(self):
         from audiolesson.review_wholes import bare_parts_with_a_home

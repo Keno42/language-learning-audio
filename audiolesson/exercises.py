@@ -609,15 +609,20 @@ class Builder:
                 found.append((len(ww), ph.order, ph))
         return min(found, key=lambda t: t[:2])[2] if found else None
 
+    def whole_of(self, line: Item) -> dict:
+        """``{through, answer, meaning, gender}`` for a line a part is taken out of (``_intro_out_of``), as the learner hears it."""
+        gender = self.speaker_gender(line)
+        return {"through": line.id, "answer": self._gendered(line, gender), "meaning": line.spoken_meaning, "gender": gender}
+
     def _intro_in_phrase(self, sc: Script, item: Item, phrase: Item) -> Exercise:
         """A new part taken out of a phrase introduced a moment ago in this lesson (#262: «matinn» after «Takk fyrir matinn.»)."""
-        gender = self.speaker_gender(phrase)
-        return self._intro_out_of(sc, item, {"through": phrase.id, "answer": self._gendered(phrase, gender), "meaning": phrase.spoken_meaning, "gender": gender})
+        return self._intro_out_of(sc, item, self.whole_of(phrase))
 
     def _intro_out_of(self, sc: Script, item: Item, whole: dict) -> Exercise:
         """A new part taken out of a sentence the learner has just heard in this lesson: «You know this:» the sentence, «This word is in it:» the part, the part
         repeated, and a retrieval of the sentence from its meaning, so the next day's question asks the sentence. ``whole`` is ``{through, answer, meaning,
-        gender}``: a phrase taught earlier, or the worked example of a pattern that was given with this part (#262)."""
+        gender}``: a phrase taught earlier, the worked example of a pattern that was given with this part, or a line the learner knows that no known pattern
+        can rebuild with the part (#262)."""
         target, gender = whole["answer"], whole.get("gender")
         voice = VOICE_OF[gender or "f"]
         self.wholes_taught[item.id] = {k: whole[k] for k in ("through", "answer", "meaning")}
