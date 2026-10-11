@@ -1124,7 +1124,7 @@ class Planner:
                 found.append((len(ww), whole))
         return min(found, key=lambda t: t[0])[1] if found else None
 
-    def phrase_first(self, item: Item) -> Item | None:
+    def phrase_first(self, item: Item, queued: set[str] | frozenset[str] = frozenset()) -> Item | None:
         """The phrase a new part is introduced inside when no construction takes it (#262: «klósettið» in «Hvar er klósettið?»): the shortest phrase that holds the
         part's words, that the learner has not met and the lesson does not have, whose other words are known but for one and whose prerequisites are
         available. The phrase comes in first, as a new item of the lesson, and the part after it, inside it. None when the part is introduced as usual (a
@@ -1139,7 +1139,8 @@ class Planner:
             if self.learner.has_met(phrase.id) or phrase.id in self.learner.embedded or phrase.id in self.learner.embed_failed or phrase.id in self.builder.in_lesson:
                 continue
             others = {w.lower() for w in _WORD_RE.findall(phrase.target)} - part_words - known
-            if len(others) <= 1 and all(p == item.id or self.learner.knows(p) or p in self.builder.in_lesson for p in phrase.prereqs):
+            # a prerequisite that is itself a new item of this lesson comes after the phrase, out of it (hundrað and krónur in «Hundrað krónur, takk.»)
+            if len(others) <= 1 and all(p == item.id or self.learner.knows(p) or p in self.builder.in_lesson or p in queued for p in phrase.prereqs):
                 return phrase
         return None
 
@@ -1557,7 +1558,7 @@ class Planner:
             while (milestone := self._eligible_milestone(item.prereqs)) is not None:
                 self._play_note(sc, milestone)
                 do_discriminate(milestone)
-            if (phrase := self.phrase_first(item)) is not None:
+            if (phrase := self.phrase_first(item, {i.id for i in new_queue})) is not None:
                 # #262: a part is taken out of an utterance the learner has or is given now: the phrase that holds it comes first, as a new item of the lesson
                 if self.components_mode and phrase.id not in self.component_by_item:
                     self._charge(phrase)

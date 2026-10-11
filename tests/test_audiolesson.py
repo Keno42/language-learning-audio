@@ -5339,6 +5339,43 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
             met = {"thetta_er_noun", "bok", "bill", part}
             self.assertEqual(whole_for(self.cur, self.cur.by_id[part], met - {taught["through"]}, self.en, taught)["answer"], taught["answer"])
 
+    def test_a_part_after_the_phrase_it_is_in_is_taken_out_of_it(self):
+        """#262: «matinn» right after «Takk fyrir matinn.» in the same lesson is not a new bare word: «You know this: …», «This word is in it: …»."""
+        b = self._builder(met=["takk"])
+        sc = Script(1, "t", "is", "en")
+        b.intro(sc, self.cur.by_id["takk_fyrir_matinn"])
+        b.in_lesson.add("takk_fyrir_matinn")
+        self.assertEqual(b.phrase_home(self.cur.by_id["matinn"]).id, "takk_fyrir_matinn")
+        ex = b.intro(sc, self.cur.by_id["matinn"])
+        self.assertEqual((ex.kind, ex.item_ids, ex.label), ("intro", ["matinn"], "new: Takk fyrir matinn. (matinn)"))
+        self.assertEqual([(q["items"], q["answer"]) for q in sc.review_questions() if q["items"] == ["matinn"]], [(["matinn"], "Takk fyrir matinn.")])
+
+    @staticmethod
+    def _met_learner(ids):
+        learner = LearnerState("is", "en", "A1")
+        for i in ids:
+            learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3)
+        return learner
+
+    def test_a_phrase_whose_prerequisite_is_the_next_new_part_still_comes_first(self):
+        """#262: «krónur» and «hundrað» are both new; «Hundrað krónur, takk.» needs «hundrað», which is the next item of the same lesson: it is the whole «krónur»
+        is taken out of, and «hundrað» then comes out of it."""
+        met = [i.id for i in self.cur.items if i.order < self.cur.by_id["hundrad"].order and i.id not in ("hundrad", "kronur", "hundrad_kronur_takk")]
+        planner = Planner(self.cur, self._met_learner(met), self.en, Timing(level="A1"), PlanConfig(minutes=5), today=TODAY)
+        self.assertIsNone(planner.phrase_first(self.cur.by_id["kronur"]), "«hundrað» is neither known nor in the lesson")
+        phrase = planner.phrase_first(self.cur.by_id["kronur"], {"hundrad"})
+        self.assertEqual(phrase.id if phrase else None, "hundrad_kronur_takk")
+
+    def test_the_daily_read_lists_the_parts_still_asked_bare_that_have_a_home(self):
+        from audiolesson.review_wholes import bare_parts_with_a_home
+        review = [
+            {"items": ["hjalpina"], "prompt": "the help", "answer": "hjálpina"},
+            {"items": ["hjalpina"], "prompt": "Thanks for the help.", "answer": "Takk fyrir hjálpina."},
+            {"items": ["peysu"], "prompt": "a sweater", "answer": "peysu", "bonus": True},
+        ]
+        self.assertEqual(bare_parts_with_a_home(review, self.cur), ["hjalpina"])
+        self.assertEqual(bare_parts_with_a_home(review[1:], self.cur), [])
+
     def test_a_whole_taught_for_one_part_does_not_make_other_parts_askable_through_it(self):
         from audiolesson.review_wholes import whole_for
         cur = self.cur

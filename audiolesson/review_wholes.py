@@ -175,3 +175,17 @@ def parts_outside_their_whole(review: list[dict], cur) -> int:
             count += 1
     answers = [_norm_utterance(q.get("answer", "")) for q in asked]
     return count + len(answers) - len(set(answers))
+
+
+def bare_parts_with_a_home(review: list[dict], cur) -> list[str]:
+    """The daily read's row for #262: the parts the review still asks bare (the answer is the part itself) although the curriculum keeps them in a sentence
+    (``has_home``). A part with no home is not counted here: it comes out of the review (#215)."""
+    out = []
+    for q in review:
+        if q.get("bonus"):
+            continue
+        for i in q.get("items", []):
+            it = cur.by_id.get(i)
+            if it is not None and it.kind == "vocab" and _norm_utterance(it.target) == _norm_utterance(q.get("answer", "")) and has_home(cur, it):
+                out.append(i)
+    return list(dict.fromkeys(out))

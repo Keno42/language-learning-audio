@@ -495,6 +495,8 @@ class Builder:
             return self._intro_variant(sc, item, base)
         if (home := self.whole_home(item)) is not None:
             return self._intro_in_whole(sc, item, *home)
+        if (phrase := self.phrase_home(item)) is not None:
+            return self._intro_in_phrase(sc, item, phrase)
         ex = sc.new_exercise("intro", "intro", [item.id], f"new: {item.target}")
         self.said[_norm_utterance(item.target)] += 1  # the introduction counts once, however often it models the line
         self._narr(sc, ex, self.prompts.get("intro_new", meaning=self._m(item.spoken_meaning)))
@@ -588,6 +590,44 @@ class Builder:
                     named = item.id in authored.values()
                     options.append(((0 if named else 1, 0 if self._available(c.id) else 1, c.difficulty, c.order), c, fills))
         return min(options, key=lambda o: o[0])[1:] if options else None
+
+    def phrase_home(self, item: Item) -> Item | None:
+        """The phrase taught earlier in this lesson that holds a new part's words, the shortest (#262): the part is taken out of it, not given alone."""
+        if item.kind != "vocab" or item.variant_of or item.target_m:
+            return None
+        words = [w.lower() for w in re.findall(r"[^\W\d_]+", item.target)]
+        found = []
+        for ph in self.cur.items:
+            if ph.kind != "phrase" or ph.target_m or ph.id not in self.in_lesson or ph.id == item.id:
+                continue
+            ww = [w.lower() for w in re.findall(r"[^\W\d_]+", ph.target)]
+            if words and len(ww) > len(words) and any(ww[k : k + len(words)] == words for k in range(len(ww) - len(words) + 1)):
+                found.append((len(ww), ph.order, ph))
+        return min(found, key=lambda t: t[:2])[2] if found else None
+
+    def _intro_in_phrase(self, sc: Script, item: Item, phrase: Item) -> Exercise:
+        """A new part taken out of a phrase introduced a moment ago in this lesson (#262: «matinn» after «Takk fyrir matinn.»): «You know this:» the phrase,
+        «This word is in it:» the part, the part repeated, and a retrieval of the phrase from its meaning, so the next day's question asks the phrase."""
+        gender = self.speaker_gender(phrase)
+        target = self._gendered(phrase, gender)
+        voice = VOICE_OF[gender or "f"]
+        self.wholes_taught[item.id] = {"through": phrase.id, "answer": target, "meaning": phrase.spoken_meaning}
+        ex = sc.new_exercise("intro", "intro", [item.id], f"new: {target} ({item.target})")
+        self.said[_norm_utterance(item.target)] += 1
+        self._frame(sc, ex, self.prompts.get("embed_known"))
+        self._speak(sc, ex, target, speaker=voice)
+        self._beat(sc, ex)
+        self._frame(sc, ex, self.prompts.get("embed_part"))
+        self._speak(sc, ex, item.target, speaker=voice)
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("repeat"))
+        self._speak(sc, ex, item.target, speaker=voice)
+        self._repeat_pause(sc, ex, item.target)
+        self._narr(sc, ex, self._as(gender, self._meaning_prompt(phrase.spoken_meaning)))
+        self._answer_pause(sc, ex, target, phrase, generative=False)
+        self._answer(sc, ex, target, speaker=voice)
+        self._gap(sc, ex)
+        return ex
 
     def _intro_in_whole(self, sc: Script, item: Item, construction: Item, fills: dict[str, Item]) -> Exercise:
         """A new part inside the expression that holds it (#239): «A new expression: Thanks for the help.», the sentence said and repeated, «This word is
