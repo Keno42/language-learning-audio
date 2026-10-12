@@ -82,6 +82,7 @@ class VoiceProfile:
     mp3: bool = True
     trim: bool = True
     workers: int = 4  # parallel synthesis requests for network providers
+    refusal_budget_min: float = 15.0  # how long the speech service may refuse the connection (403) before the render fails (#296)
     fit: bool = True  # shrink pauses a little so a long file lands on the requested length
     fit_min: float = 0.85  # bounds on the pause scale used for fitting
     # 1.0: never stretch. Longer pauses don't make a short lesson any better, they only pad it
@@ -110,6 +111,7 @@ def load_profile(path: str | Path | None, provider: str | None = None) -> VoiceP
         prof.mp3 = bool(raw.get("mp3", True))
         prof.trim = bool(raw.get("trim", True))
         prof.workers = int(raw.get("workers", 4))
+        prof.refusal_budget_min = float(raw.get("refusal_budget_min", 15.0))
         prof.fit = bool(raw.get("fit", True))
         prof.fit_min = float(raw.get("fit_min", 0.85))
         prof.fit_max = float(raw.get("fit_max", 1.0))
@@ -148,6 +150,8 @@ def render_script(
         target_seconds = float(minutes) * 60 if minutes else None
     out_path = Path(out_path)
     provider = get_provider(profile.provider)
+    if hasattr(provider, "refusal_budget_min"):
+        provider.refusal_budget_min = profile.refusal_budget_min
     problem = provider.check()
     if problem:
         raise RuntimeError(f"TTS provider {provider.name!r} cannot run: {problem}")

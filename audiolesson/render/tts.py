@@ -17,11 +17,16 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import urllib.request
 from pathlib import Path
 
 from .audio import DEFAULT_RATE, AudioClip, silence, to_pcm, wav_bytes_to_clip
+
+
+class SpeechRefused(RuntimeError):
+    """The speech service refused the connection for the whole budget (#296)."""
 
 
 class Provider:
@@ -170,15 +175,94 @@ class EdgeProvider(Provider):
         names = {c.__name__ for c in type(exc).__mro__}
         return bool(names & {"EdgeTTSException", "ClientError", "TimeoutError", "ConnectionError"})
 
+    # A refusal of the handshake itself (HTTP 403) is the service saying no to everyone, not a clip failing (#296): it lasts minutes to days. It is one shared state: the
+    # first worker to meet it probes after 1, 2, 4, 8 … minutes (``refusal_budget_min`` in all, 15 by default, settable in the voice profile) while the others wait on it;
+    # when a probe gets through they all go on, and when the budget is spent they all fail at once with one clear last line. What was synthesized stays in the cache.
+    refusal_budget_min = 15.0
+    MINUTE = 60.0  # seconds in the wait unit; tests shorten it
+
+    def __init__(self) -> None:
+        self._cond = threading.Condition()
+        self._state = "open"  # open | probing | failed
+        self._failure: Exception | None = None
+
+    @staticmethod
+    def _refused(exc: BaseException) -> bool:
+        """The service refused the connection (status 403 at the handshake): decided by the status, not by the exception's name."""
+        return getattr(exc, "status", None) == 403
+
+    def _schedule(self) -> list[float]:
+        """The minutes to wait before each probe: 1, 2, 4, 8 … until the budget is spent."""
+        waits, spent, step = [], 0.0, 1.0
+        while spent + 1e-9 < self.refusal_budget_min:
+            wait = min(step, self.refusal_budget_min - spent)
+            waits.append(wait)
+            spent += wait
+            step *= 2
+        return waits or [self.refusal_budget_min]
+
+    def _wait_out_refusal(self, attempt, exc: BaseException):
+        """Called by a worker that met a refusal: ``("done", result)`` when this worker's own probe got through, ``("go", None)`` when another worker's did (try again),
+        and raises ``SpeechRefused`` when the budget is spent (for every worker)."""
+        with self._cond:
+            if self._state == "failed":
+                raise self._failure  # type: ignore[misc]
+            if self._state == "probing":
+                while self._state == "probing":
+                    self._cond.wait()
+                if self._state == "failed":
+                    raise self._failure  # type: ignore[misc]
+                return "go", None
+            self._state = "probing"
+        schedule = self._schedule()
+        try:
+            for n, minutes in enumerate(schedule, 1):
+                print(f"edge-tts: service refusing (403), waiting {minutes:g} min ({n}/{len(schedule)})", file=sys.stderr, flush=True)
+                time.sleep(minutes * self.MINUTE)
+                try:
+                    result = attempt()
+                except Exception as again:
+                    if self._refused(again):
+                        continue
+                    with self._cond:  # not a refusal any more (another error, or none): the service answers
+                        self._state = "open"
+                        self._cond.notify_all()
+                    raise
+                with self._cond:
+                    self._state = "open"
+                    self._cond.notify_all()
+                return "done", result
+            failure = SpeechRefused(f"speech service refused (403) for {self.refusal_budget_min:g} min; cached clips kept")
+            with self._cond:
+                self._state, self._failure = "failed", failure
+                self._cond.notify_all()
+            raise failure
+        except BaseException:
+            with self._cond:
+                if self._state == "probing":
+                    self._state = "open"
+                    self._cond.notify_all()
+            raise
+
     def _retrying(self, attempt):
-        for n, wait in enumerate((*self.RETRY_WAITS, None)):
+        n = 0
+        while True:
+            wait = self.RETRY_WAITS[n] if n < len(self.RETRY_WAITS) else None
             try:
                 return attempt()
+            except SpeechRefused:
+                raise
             except Exception as exc:
+                if self._refused(exc):
+                    kind, result = self._wait_out_refusal(attempt, exc)
+                    if kind == "done":
+                        return result
+                    continue  # another worker's probe got through: try this clip again
                 if wait is None or not self._transient(exc):
                     raise
                 print(f"edge-tts: {type(exc).__name__}, retrying in {wait:g} s ({n + 1}/{len(self.RETRY_WAITS)})", file=sys.stderr, flush=True)
                 time.sleep(wait)
+                n += 1
 
     def default_voices(self, lang: str) -> list[str]:
         return list(self.VOICES.get(lang.split("-")[0].lower(), []))
