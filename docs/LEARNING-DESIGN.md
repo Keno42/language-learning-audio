@@ -1049,32 +1049,55 @@ What the learner wrote, by what the lesson did:
 Ordered by the expected effect on the outcome, adjusted for cost and for what depends on
 what. Re-rank it when the evidence moves.
 
-**Now (after lesson 23): tomorrow's lesson first, refactoring alongside (owner: about 80% / 20%).**
+**Now (after lesson 23, updated 2026-10-12): tomorrow's lesson first, refactoring alongside (owner: about 80% / 20%).**
 
 **Built after lesson 22** (expression first, #265): one line-role rule for every play mode (#263, #267); a part taken
 out of the line that holds it and the line kept across lessons (#262: #266, #268, #269); a catch task cued by the
 understood meaning (#248: #271); conversation timing (#272, #274); scene units through the lesson (#273: #275, the
 interleave half); the noun pilot with the tour frame «Mig langar að sjá {…}.» (#270 step 0: #276).
 
-**Now, in order (lesson 23's remarks, §5.19):**
-1. **A part is asked through its sentence, and a question whose cue is its answer is never asked (#277).** #276's rule
-   for every vocab part, not only pilot nouns; a `trivial` rule in the lesson and in `refine_review`; the bot's
-   `REFINE_VERSION` bumped so the queue's place-name questions are refined again. Lesson 24 has «Say: <name>. →
-   <name>» twice and «Say: A puffin.» after «Þetta er lundi.».
-2. **A scene is named in a sentence to hear (#278).** A spoken `scene_line` per theme replaces the written `setting`
-   in speech (9 times in lesson 24).
-3. **The partner answers the learner's question in a catch task (#279),** step 1: the narrator reports what the partner
-   said, and the replay is framed as hearing it again.
-4. **A near-copy of what was just taught is introduced lightly (#280):** a pattern's question form, and the parts of a
-   line the learner knows. Not in lesson 24.
+**Built after lesson 23** (lesson 23's remarks, §5.19, and the owner's remarks of 2026-10-10 and 2026-10-12):
+- **A part is asked through its sentence; a question whose cue is its answer is never asked (#277: #283).** The bot's
+  `REFINE_VERSION` is 2, so the queue's place-name questions were refined again (site_update_notifier#104).
+- **A scene is named in a sentence to hear (#278: #284),** the written `setting` is no longer spoken.
+- **The narrator reports the partner's answer in a catch task (#279 step 1: #285).** Step 2 moved to #209.
+- **A near-copy of what was just taught is introduced lightly (#280: #286).**
+- **The partner slows down when asked (#261: #288):** after «Gætirðu talað hægar?» the reply is said word by word, at
+  natural speed, with short gaps.
+- **No sentence asked twice within a minute (#273, spacing half: #289).** With #275, both halves of #273 are built.
+- **«Use it in a sentence.» keeps its promise (#287: #290, #291):** it is said only right after the item was practised,
+  and a new part is applied in another sentence right after its first retrieval.
+- **Hard-to-say words get a slow, split model at their introduction (#212: #292).** The syllables are authored,
+  `validate` keeps a flagged cluster («tt», «ll», «fj») inside one piece, and they are candidates until native-checked (G10).
+- **A known noun whose only frame is unmet brings that frame forward (#270 admission: #293),** in the new-item place
+  left over behind the day's items.
+- **The bot's reading-card gaps are 0.5 s, each clip's padding trimmed** (site_update_notifier#106, #107).
 
-**Next:** #270 step 1 (the remaining nouns and frames; a frame comes forward for a known noun whose only frame is
-unmet: «sturtan», «eldfjall»); #273's spacing half (no sentence asked twice within a minute); #212 (hard words, with
-lesson 23's evidence); #261 (the slowed reply).
+**To check on the first lesson built on all of the above** (its export, replayed):
+- **By ear:**
+  - «Sex · hundruð · krónur.» sounds like a person speaking slowly, not a list (#261);
+  - a split word («hætt · u · legt») sounds right, and a lone syllable is not mispronounced (#212);
+  - the reading-card gaps and first sounds (bot #106).
+- **Rows:**
+  - a sentence asked again within a minute (#273), between 3 and 11 a lesson on the replays: ordering moves it;
+  - recombine prompts promising a link that is not there (#287), 0;
+  - `apply_in_sentence_parts`, `hard_words` and `stranded_frames` in `plan.json`, read against the transcript.
+
+**Now, in order:**
+1. **Retention after the first day (#220),** in progress: the review queue takes in about 60 questions a lesson and
+   asks 14, and nothing checks an item again after its first day. Review it on a replay of ten lessons or more:
+   - the questions a day;
+   - the days before an item is checked again;
+   - lesson length and new items unchanged.
+2. **A lesson keeps its second half when an item counted toward the target is not taught that day (#294).** Small. It
+   protects every later change that moves items.
+3. **#270 step 1:** gender and forms for the remaining nouns, with each scene's frames and the case each asks (owner:
+   gender and case matter more than drilling single words). #198 («heiti potturinn» against «heitur pottur») fits here.
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
 learner say this line", then the planner's build loop. Each step leaves the replays of the lesson-21–23 exports
-byte-identical.
+byte-identical. Also split `docs/DESIGN.md`'s one-line invariants paragraph into one line per topic. Every PR that
+touched it this round conflicted with the one merged before it.
 
 **Decided by the evidence:** the pace unit stays (lesson 22's next-day recall 10 of 13, above the 60% rule of §5.18).
 
@@ -1090,16 +1113,17 @@ feedbacks after it carry no remark of the same kind:
    the lesson's own recall (#270: `bare_noun_recalls`, widened to every vocab part with #277: a part's sentence is asked, `do_recall` no longer keys on `noun`);
 8. the longest stretch without a scene, at most about 5 minutes (#273: `longest_without_scene_s`);
 9. questions whose cue is their answer, in the lesson and in the review (#277: `trivial_questions` in the lesson, `trivial` in `review_refined`);
-10. theme `setting` text spoken (#278: to build).
+10. a sentence asked again within a minute (#273: `asked_again_within_spacing`, keyed by the answer; a soft preference, so
+    read it as a trend, not a 0);
+11. recombine prompts promising a link that is not there (#287: `unkept_links`);
+12. lessons whose target is not delivered (#294: `target_delivered`; to build as a row).
 
 **Open issues after "Now", in order:**
 - #236: a one-off reply gets several example answers (owner: low priority).
-- #198: a word on why «heiti potturinn» and «heitur pottur» differ.
 - #142: nature and winter safety inside a theme (content, step 2 of #149).
-- #209: when a fluent speaker is available (G10). It is worth more now that #255, #257 and #276 added authored
-  Icelandic.
+- #209: when a fluent speaker is available (G10). It is worth more now that #255, #257, #276 and #292 added authored
+  Icelandic, and it holds #279's step 2.
 - #208: a short policy and status brief for coding tasks (documentation; any time).
-- #220: precision work on scheduling (§8 "Not now").
 
 1. **Make the loop measurable and use it (G1). Cheap; everything else depends on it.**
    - A weekly read of the signals against the predictions of merged changes, written down
@@ -1126,7 +1150,7 @@ feedbacks after it carry no remark of the same kind:
      lacks come first, ahead of the trip order of single items. A part comes with its frame, or
      after it: a part whose only frames are unknown had no sentence to live in and was drilled
      alone («sturtan» in lesson 15; #215). Since #262 and #270 it is taken out of a line it is in, and a known noun
-     whose only frame is unmet brings that frame forward (#270 step 1). A fixed phrase that is an instance of a
+     whose only frame is unmet brings that frame forward (#270: #293). A fixed phrase that is an instance of a
      pattern («Þrjá miða, takk.») is linked to it, so its later practice varies («Tvo miða,
      takk.») instead of repeating the same sentence ten times (#192).
    - Semantic sets are introduced across lessons and scenes, not in one block (H5). Today the
