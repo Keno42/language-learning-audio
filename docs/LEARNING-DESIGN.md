@@ -906,6 +906,61 @@ What the learner wrote, by what the lesson did:
     than parts), or 13 café items close to each other.
   - It is one lesson. Lesson 22's next-day review will tell; if it is low again, this becomes a "Now" item.
 
+### 5.19 Lesson 23: the first lesson on #262–#276
+
+Lesson 23 was generated with LLA `bc8e5fa`. It is the first lesson heard with:
+- one line-role rule for every play mode (#263, #267);
+- a part taken out of the line that holds it, and the line kept across lessons for the review (#266, #268, #269);
+- a catch task cued by the understood meaning (#271);
+- conversation timing: a beat after the partner's line, known replies paused as single exercises (#272, #274);
+- scene units every 4–5 minutes through the lesson (#273, #275);
+- the noun pilot: a form named against its basic word, a pilot noun recalled in its sentence, the tour frame «Mig langar
+  að sjá {…}.» (#270, #276).
+
+**Lesson 22's next-day review.** 10 of its 13 new items were recalled. «Hvað heitir þetta fjall?» and «Gleðileg jól!» were
+hesitated; «Gleðilega hátíð!» failed. Lesson 21's was 4 of 11. The §8 decision rule (revisit #235's zero cost below about
+60%) does not fire: the pace unit stays as it is.
+
+| | lesson 23 |
+|---|---|
+| length | 28.4 min, 125 exercises |
+| new items; new components, weighted | 13; 11 of a target of 10 |
+| target reached | 19:06 |
+| longest stretch without a scene | 4.2 min (lesson 22, before #275: 12–16 min on the replays) |
+| scene units | 3 unknown words caught after the target; pick-outs and scenes heard again through the lesson |
+| uses of each new item before the closing | 4.8 on average (lesson 22: 4.2) |
+| bare recalls of a pilot noun | «sturtan», «eldfjall» (no sentence exists yet for either) |
+| feedback form: load; friction | **right**; other |
+
+The rebuilt lesson 23 on main is identical to the export (125 exercises, 28.4 min), so the replay is the real path.
+
+What the learner wrote, by what the lesson did:
+
+- **"«A supermarket: the shelves, the dairy fridge, the till.» makes no sense read aloud."** A theme's `setting` is a written
+  synopsis. It was spoken 10 times: as the scene line of each conversation and as the lead-in of every scene unit from
+  another theme, which #275 made more frequent (#278).
+- **"«Say: Akureyri. → Akureyri», «Say: Reykjavík. → Reykjavík» in the review are far too obvious."** When an item's
+  meaning is its target, the cue says the answer. The lesson's own recall does the same, and the predicted lesson 24 has
+  both again in the audio (#277).
+- **"When I ask Speaker B what a word means, the Instructor answers in English and Speaker B only repeats the line."**
+  The narrator answers a question put to the partner (#279).
+- **"«nýtt ár», «flugið», «hættulegt» were hard to make out."** The phrase got a slow model, the hard word did not (#212).
+- **"«Er þetta hættulegt?» came as a second new expression after «Þetta er hættulegt.»; the negative was light."** It is
+  the `question` form of «Þetta er {adj}.», but the data has it as its own phrase, with a full ladder (#280).
+- **"«þúsund» and «krónur» were each stressed on their own: redundant."** Each was taken out of «þúsund krónur» in its
+  own exercise, 90 s apart (#280).
+- **"«Say: Here.» is ambiguous: hér or hérna?"** «hérna» was asked bare although it came in «Það er hérna.»: the
+  sentence rule of #276 covers only the pilot nouns (#277).
+
+**Reading.**
+- **What did not come back.** None of lesson 22's remarks returned: no part introduced before its whole, no known line
+  withheld in a scene heard again, no "guess the word" catch task, no long stretch of drills. The load is «right» for
+  the third lesson running. For #262, #263 and #248's catch task this is the first of the three feedbacks.
+- **One cause behind three remarks.** A rule built for one path, missing in another: the sentence rule exists for pilot
+  nouns only (hérna, lundi in lesson 24), nothing stops a question whose cue is its answer, and a written synopsis is
+  spoken. The fixes widen a rule that exists (#277) or replace data meant for the eye (#278), not new mechanisms.
+- **Recall recovered.** 10 of 13, with 4.8 uses per new item before the closing. The "watch" of §5.18 closes.
+
 ---
 
 ## 6. Signals: what each can and cannot tell us
@@ -994,41 +1049,34 @@ What the learner wrote, by what the lesson did:
 Ordered by the expected effect on the outcome, adjusted for cost and for what depends on
 what. Re-rank it when the evidence moves.
 
-**Now (after lesson 22, under the concept in §3): expression first (#265).** The remarks of lessons 20–22 share one
-cause. Concept 1 teaches target expressions, but each mechanism has its own unit and its own rule for what the learner
-may do with a line:
-- introduction: the item, so a part could enter before its whole;
-- play modes: one rule per mode, so a known line could be withheld;
-- review: items, refined into wholes after the fact;
-- pace: new words, so a phrase of known words costs 0.
+**Now (after lesson 23): tomorrow's lesson first, refactoring alongside (owner: about 80% / 20%).**
 
-The answer is one unit, the target expression (an utterance), and one rule per question, not a fix per remark
-(§9 "Good enough overall", §11). In order:
+**Built after lesson 22** (expression first, #265): one line-role rule for every play mode (#263, #267); a part taken
+out of the line that holds it and the line kept across lessons (#262: #266, #268, #269); a catch task cued by the
+understood meaning (#248: #271); conversation timing (#272, #274); scene units through the lesson (#273: #275, the
+interleave half); the noun pilot with the tour frame «Mig langar að sjá {…}.» (#270 step 0: #276).
 
-1. **One line-role rule for every play mode (#263).** A learner line the learner can say is asked; one they can't is
-   heard with its meaning. It is decided in one function that every play mode calls: listening scene, theme play, scene
-   heard again, connect. #240's two code paths fold into it. This removes the lesson-22 remark (12 known lines told,
-   not asked).
-2. **Introduction by utterance (#262).** A part is taken out of an utterance the learner has or is given now («Hvar er
-   klósettið?», «Ég ætla að fá köku.»), never presented first; an inflected form gets its frame, which is its case hint.
-   Then admission: the cheapest frame comes forward with a part whose frames are unmet.
-3. **The pace unit: read the evidence before any change.** Lesson 21's next-day recall was 4 of 11, and 3 of its 4
-   zero-cost phrases failed. If lesson 22's next-day recall is again below about 60%, revisit #235's zero cost for a new
-   phrase of known words (owner's decision, option b; a floor such as 0.5 is one option). Until then, no code.
-4. **Catch the unknown word by its place in the meaning (#248; concept 3).** The prompt names the word through the part
-   the learner understood; the model is «Hvað þýðir {word}?».
+**Now, in order (lesson 23's remarks, §5.19):**
+1. **A part is asked through its sentence, and a question whose cue is its answer is never asked (#277).** #276's rule
+   for every vocab part, not only pilot nouns; a `trivial` rule in the lesson and in `refine_review`; the bot's
+   `REFINE_VERSION` bumped so the queue's place-name questions are refined again. Lesson 24 has «Say: <name>. →
+   <name>» twice and «Say: A puffin.» after «Þetta er lundi.».
+2. **A scene is named in a sentence to hear (#278).** A spoken `scene_line` per theme replaces the written `setting`
+   in speech (9 times in lesson 24).
+3. **The partner answers the learner's question in a catch task (#279),** step 1: the narrator reports what the partner
+   said, and the replay is framed as hearing it again.
+4. **A near-copy of what was just taught is introduced lightly (#280):** a pattern's question form, and the parts of a
+   line the learner knows. Not in lesson 24.
 
-**Watch:** uses of each new item before the closing (lesson 22: 4.2). If lesson 22's next-day review is low again, check
-this together with item 3: the second half's share for today's items, and the pace unit.
+**Next:** #270 step 1 (the remaining nouns and frames; a frame comes forward for a known noun whose only frame is
+unmet: «sturtan», «eldfjall»); #273's spacing half (no sentence asked twice within a minute); #212 (hard words, with
+lesson 23's evidence); #261 (the slowed reply).
 
-**Built after lesson 21:**
-- a part inside its whole, in the lesson and in the review (#254, #256, #258), and the bot's queue (site_update_notifier#96);
-- a home for every part (#257);
-- pick-outs from a scene's two-piece lines (#255);
-- an aside read a sentence at a time (#260);
-- a scene card's first good answer comes back after 3 days (site_update_notifier#95).
+**Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
+learner say this line", then the planner's build loop. Each step leaves the replays of the lesson-21–23 exports
+byte-identical.
 
-Lesson 22 is the first of the three feedbacks each needs, with no remark of their kinds (§5.18).
+**Decided by the evidence:** the pace unit stays (lesson 22's next-day recall 10 of 13, above the 60% rule of §5.18).
 
 Each "Now" item is done when its row in the daily read (`tools/replay_lesson.py`) reads 0 on the replay, and three
 feedbacks after it carry no remark of the same kind:
@@ -1038,17 +1086,18 @@ feedbacks after it carry no remark of the same kind:
 4. framing lines followed by an example without a beat (#241);
 5. review questions whose answer is a part beside its whole, or that share an answer with another question (#239);
 6. pick-outs whose line holds nothing but a drilled frame and the answer (#255: `pick_out_echo_count`);
-7. parts introduced or asked alone while a whole that holds them exists (#262: to build);
-8. learner lines heard, not asked, in a scene heard again, that the learner can say (#263: to build).
-
-**Small and cheap, any time:** the partner's reply to «Gætirðu talað hægar?» comes word by word, with gaps (#261).
+7. review questions asking a part bare although it has a home (#262: `bare_parts_with_a_home`), and nouns asked bare in
+   the lesson's own recall (#270: `bare_noun_recalls`, to widen to every part with #277);
+8. the longest stretch without a scene, at most about 5 minutes (#273: `longest_without_scene_s`);
+9. questions whose cue is their answer, in the lesson and in the review (#277: to build);
+10. theme `setting` text spoken (#278: to build).
 
 **Open issues after "Now", in order:**
-- #212: hard words get a slow, split model (concept 1, the ear).
 - #236: a one-off reply gets several example answers (owner: low priority).
 - #198: a word on why «heiti potturinn» and «heitur pottur» differ.
 - #142: nature and winter safety inside a theme (content, step 2 of #149).
-- #209: when a fluent speaker is available (G10). It is worth more now that #255 and #257 added authored Icelandic.
+- #209: when a fluent speaker is available (G10). It is worth more now that #255, #257 and #276 added authored
+  Icelandic.
 - #208: a short policy and status brief for coding tasks (documentation; any time).
 - #220: precision work on scheduling (§8 "Not now").
 
@@ -1075,9 +1124,9 @@ feedbacks after it carry no remark of the same kind:
    the colours through their scenes; more theme data), then the closing block taking the theme's lines.
    - New material goes into a lesson by scene (step 2): the items the top theme's next level
      lacks come first, ahead of the trip order of single items. A part comes with its frame, or
-     after it: a part whose only frames are unknown has no sentence to live in and is drilled
-     alone («sturtan» in lesson 15, §9 "Repetition"; the parts the curriculum gives no home, or
-     whose frame comes late: #215). A fixed phrase that is an instance of a
+     after it: a part whose only frames are unknown had no sentence to live in and was drilled
+     alone («sturtan» in lesson 15; #215). Since #262 and #270 it is taken out of a line it is in, and a known noun
+     whose only frame is unmet brings that frame forward (#270 step 1). A fixed phrase that is an instance of a
      pattern («Þrjá miða, takk.») is linked to it, so its later practice varies («Tvo miða,
      takk.») instead of repeating the same sentence ten times (#192).
    - Semantic sets are introduced across lessons and scenes, not in one block (H5). Today the
@@ -1218,6 +1267,10 @@ Don't reopen these without new evidence; when you do, say what changed.
     **Revised by the concept (owner, after lesson 20; §3, §9 "Good enough overall"):** a part is introduced inside the target expression that holds it: «Takk fyrir hjálpina.», not
     «hjálpina» 'for help' (lesson 20). It may be said alone afterwards, never first. **Built in #239:** `Builder.whole_home` / `_intro_in_whole` on the
     lesson side, `review_wholes.refine_review` on the review side (DESIGN.md "A part lives inside its whole").
+    **The rule as it stands (#269, #270, #276, #277 under way):** the line a part was taught in is kept across lessons
+    (`learned_wholes`), and both the lesson's own recall and the review ask the part through a sentence wherever one
+    exists, the closing included. Bare is the fallback only when no sentence exists yet, and then the bare cap below
+    applies. A question whose cue says its answer (a name, «krónur») is never asked.
   - **Identical sentences are counted too (#192).** The owner's rule is that a sentence may come five times or more, and a
     word about ten times in all *if the sentences differ a little*. The word-level rules (the bare cap, the situation
     narration, the pattern ceiling) never counted a fixed sentence that is said identically. `Builder.said` now counts every
@@ -1269,7 +1322,8 @@ Don't reopen these without new evidence; when you do, say what changed.
     pattern with the fewest this lesson first, and a construction has at most about ten generated sentences
     in a lesson (§9 "about ten uses", extended to patterns).
   - A short item (a word, or a one-word question such as «Hvenær?»; sentences and full
-    questions of two words are not short items) is said alone at most **three** times in a lesson; the rest of its practice is inside sentences,
+    questions of two words are not short items) is said alone at most **three** times in a lesson (for a part: only
+    while no sentence holds it, see "Parts against utterances" above); the rest of its practice is inside sentences,
     preferably different ones, up to about **ten** uses in all (owner, after replaying lesson
     13, §5.11). The numbers are a starting guess, not evidence: tune them with the learner's
     remarks.
