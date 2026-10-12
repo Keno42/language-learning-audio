@@ -5615,7 +5615,7 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
         self.assertEqual(answers["vegabref"], "Áttu vegabréf?", "and another part through the pattern it was just taught whole in")
         self.assertEqual(Counter(q["answer"] for q in plan["review"]).most_common(1)[0][1], 1)
         self.assertIn("peysu", sc.meta["met_items"])
-        self.assertIn("attu", sc.meta["met_items"], "taught whole today")
+        self.assertEqual(sc.meta["wholes_taught"]["peysu"]["through"], "attu", "taught whole today")  # #277: the part's later asking credits the part, not the pattern
 
     def test_every_part_has_a_home(self):
         """#215's data side: the 18 vocab items with no frame or phrase now have one («Þetta er blár bíll.», «Hundrað krónur, takk.», «Það er margt fólk hér.»), or are gone
@@ -6957,8 +6957,8 @@ class ShortItemRepetitionTests(unittest.TestCase):
             learner.items[i] = ItemState(due=overdue, successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
         sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1, new_items=0), today=TODAY).build()
         asked = [e.item_ids[0] for e in sc.exercises if e.kind == "recall"]
-        self.assertNotIn("bankinn", asked, "never alone while its sentence can be said")
-        self.assertGreaterEqual(asked.count("hvar_er_bankinn"), 2, "its review is the sentence (besides the sentence's own)")
+        self.assertNotIn("meaning: bankinn", [e.label for e in sc.exercises], "never alone while its sentence can be said (#277: the part may be credited by its sentence)")
+        self.assertGreaterEqual([e.label for e in sc.exercises].count("meaning: Hvar er bankinn?"), 2, "its review is the sentence (besides the sentence's own)")
 
     def test_a_part_is_not_reviewed_by_asking_the_sentence_just_asked(self):
         """#190 review: «Hvenær?» was reviewed by asking «Hvenær leggjum við af stað?» right after that sentence was asked, so the
@@ -7057,8 +7057,8 @@ class ShortItemRepetitionTests(unittest.TestCase):
             learner.items[i] = ItemState(due=overdue, successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
         sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1, new_items=0), today=TODAY).build()
         asked = [e.item_ids[0] for e in sc.exercises if e.kind == "recall"]
-        self.assertNotIn("safnid", asked, "a three-word part is not asked alone while its sentence can be said")
-        self.assertGreaterEqual(asked.count("vil_safnid"), 2)
+        self.assertNotIn("meaning: fara á safnið", [e.label for e in sc.exercises], "a three-word part is not asked alone while its sentence can be said")
+        self.assertGreaterEqual([e.label for e in sc.exercises].count("meaning: Ég vil fara á safnið."), 2)
 
     def test_a_sentence_said_earlier_in_the_lesson_holds_its_part_though_not_yet_known(self):
         """#190 review: «Hvenær leggjum við af stað?» had no durable recall (it hesitated), so it held no part, though the
