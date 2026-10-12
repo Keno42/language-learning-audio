@@ -733,8 +733,7 @@ class Builder:
             self._narr(sc, ex, self.prompts.get("split_slowly"))
             for piece in item.syllables:
                 self._speak(sc, ex, piece, speaker=voice or "native_a", rate=self.timing.slow_rate)
-                self._repeat_pause(sc, ex, piece)
-                self._beat(sc, ex)
+                self._repeat_pause(sc, ex, piece)  # one pause between pieces is enough
         else:
             self._narr(sc, ex, self.prompts.get("slowly"))
             self._speak(sc, ex, item.target, speaker=voice or "native_a", rate=self.timing.slow_rate)
@@ -753,7 +752,6 @@ class Builder:
             for piece in item.syllables:
                 self._speak(sc, ex, piece, rate=self.timing.slow_rate)
                 self._repeat_pause(sc, ex, piece)
-                self._beat(sc, ex)
             self._narr(sc, ex, self.prompts.get("natural"))
             self._speak(sc, ex, item.target)
             self._repeat_pause(sc, ex, item.target)

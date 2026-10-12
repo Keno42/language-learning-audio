@@ -6,7 +6,7 @@
 id = "threttan"
 kind = "vocab"
 target = "þrettán"
-syllables = ["þret", "tán"]
+syllables = ["þrett", "án"]
 meaning = "thirteen"
 meaning_ja = "13"
 difficulty = 2
@@ -108,7 +108,7 @@ topics = ["numbers"]
 id = "attatiu"
 kind = "vocab"
 target = "áttatíu"
-syllables = ["át", "ta", "tí", "u"]
+syllables = ["átt", "a", "tí", "u"]
 meaning = "eighty"
 meaning_ja = "80"
 difficulty = 1

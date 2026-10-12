@@ -12,6 +12,8 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .sounds import split_breaks_a_cluster
+
 KINDS = ("vocab", "phrase", "construction", "transform")
 GENDERS = ("masc", "fem", "neut")
 
@@ -688,6 +690,8 @@ def validate(cur: Curriculum) -> None:
             plain = re.sub(r"[\s.?!,]", "", it.target).casefold()
             if len(it.syllables) < 2 or it.word_count != 1 or joined != plain:
                 raise CurriculumError(f"item {it.id!r}: syllables are two or more pieces of a one-word target that join to it exactly: {it.syllables!r} vs {it.target!r}")
+            if (cut := split_breaks_a_cluster(it.syllables)) is not None:
+                raise CurriculumError(f"item {it.id!r}: syllables {it.syllables!r} cut the cluster «{cut}» in two; keep it inside one piece (said apart it is an ordinary sound)")
         if bool(it.partner_cue) != bool(it.partner_cue_after):
             raise CurriculumError(f"item {it.id!r}: partner_cue and partner_cue_after must be set together, or not at all")
         if it.target_m and (it.kind == "construction" or it.target_m == it.target):

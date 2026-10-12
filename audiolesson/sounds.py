@@ -1,8 +1,9 @@
 """Hard-to-say words (#212, H13): a word whose sounds the learner stumbles on gets a slow, split model at its introduction.
 
-The signal is a small set of sound rules on the letters of a one-word target of two or more syllables. ``ll`` (pre-aspirated) and ``ý`` belong to the
+The signal is a small set of sound rules on the letters of a one-word target of two or more syllables. ``ll`` (pre-stopped: «fallegt» is [fatlɛxt]) and ``ý`` belong to the
 reading deck's letters rules (`curricula/is-en/reading/deck.toml`, ``graphemes``; a test keeps them in step); ``tt`` (pre-aspirated, «nýtt», «hættulegt») and
-``fj`` («fjall», «fjórir») are the learner's own remarks. The ending «-ið» («flugið») is not a rule here: it ends every neuter definite form (a quarter of the flagged words), so it would flag too much (lessons 16 and 23) and are not cards of the deck yet. An item carries its authored syllables
+``fj`` («fjall», «fjórir») are the learner's own remarks (lessons 16 and 23) and are not cards of the deck yet. The ending «-ið» («flugið») is not a rule here: it ends every neuter definite
+form (a quarter of the flagged words), so it would flag too much. An item carries its authored syllables
 (``Item.syllables``, checked to make the word); without them it is given a slow whole-word repetition.
 """
 
@@ -30,3 +31,16 @@ def hard_sounds(item) -> list[str]:
     if len(_VOWELS.findall(word)) < 2:
         return []
     return [name for name, rx in HARD_SOUNDS.items() if rx.search(word)]
+
+
+# the letter pairs of a rule that a split must keep inside one piece: said apart, «hæt» + «tu» or «fal» + «legt» are an ordinary t and l (#212 review)
+CLUSTERS = ("ll", "tt", "fj")
+
+
+def split_breaks_a_cluster(syllables: list[str]) -> str | None:
+    """The cluster ("tt") that two neighbouring syllables cut between them, or None."""
+    for a, b in zip(syllables, syllables[1:]):
+        pair = (a[-1:] + b[:1]).lower()
+        if pair in CLUSTERS:
+            return pair
+    return None

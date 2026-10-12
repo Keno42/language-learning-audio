@@ -56,6 +56,18 @@ class HardWordTests(unittest.TestCase):
         b.intro(sc, item)
         self.assertNotIn("in parts", sc.transcript())
 
+    def test_no_split_cuts_the_cluster_a_word_was_flagged_for(self):
+        """#292 review: «hæt-tu» and «fal-legt» said apart are an ordinary t and l, not the pre-aspirated / pre-stopped sound of the word."""
+        from audiolesson.sounds import split_breaks_a_cluster
+
+        self.assertEqual([(i.id, split_breaks_a_cluster(i.syllables)) for i in self.cur.items if i.syllables and split_breaks_a_cluster(i.syllables)], [])
+        self.assertEqual(split_breaks_a_cluster(["hæt", "tu", "legt"]), "tt")
+        self.assertIsNone(split_breaks_a_cluster(["hætt", "u", "legt"]))
+        raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+               "items": [{"id": "a", "kind": "vocab", "target": "fallegt", "meaning": "beautiful", "syllables": ["fal", "legt"]}]}
+        with self.assertRaisesRegex(CurriculumError, "cluster"):
+            curriculum_from_dict(raw)
+
     def test_syllables_must_join_to_the_target(self):
         raw = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
                "items": [{"id": "a", "kind": "vocab", "target": "jökull", "meaning": "glacier", "syllables": ["jö", "kul"]}]}
