@@ -966,18 +966,19 @@ class Builder:
             self.form_extra[gen.form] = self.form_extra.get(gen.form, 0) + 1
         gender, target = self._filled(gen.construction, gen.fills, form=gen.form)
         ids = [item.id] + [i for i in gen.item_ids if i != item.id]  # the practised item comes first
+        linked = bool(sc.exercises) and item.id in sc.exercises[-1].item_ids  # #287: «it» / «the pattern again» name what the exercise just before practised
         ex = sc.new_exercise("generative", "recombine", ids, f"recombine: {target}")
         # the generator only *prefers* unused combinations, so claim novelty only when true
         if item.kind == "construction":
-            key = "recombine_new" if self.is_new_utterance(target) else "recombine"
+            key = "recombine_new" if self.is_new_utterance(target) else "recombine_again" if linked else "recombine"
             if key == "recombine_new":
                 # what is new is the pattern and its form, not each filler (#197): announced once per construction and form in a lesson
                 form_id = (gen.construction.id, gen.form or "plain")
                 if form_id in self.novelty_announced:
-                    key = "recombine"
+                    key = "recombine_again" if linked else "recombine"
                 self.novelty_announced.add(form_id)
         else:
-            key = "recombine_vocab"
+            key = "recombine_vocab_again" if linked else "recombine_vocab"
         self._narr(sc, ex, self._as(gender, self.prompts.get(key, meaning=self._m(gen.meaning))))
         self._answer_pause(sc, ex, target, item, generative=True)
         self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
