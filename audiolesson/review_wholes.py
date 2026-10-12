@@ -9,6 +9,7 @@ The lesson-21 review asked «hjálpina» ("for the help") bare, a part next to t
    that whole: the sentence's meaning is the cue and the sentence the answer. A part that has no home at all in the curriculum (#215: no slot takes
    it, no construction lists it as a prerequisite, no phrase holds its words) can't be asked as one: it comes out of the review and is
    reported. A part whose homes are all unmet stays bare, the fallback when no sentence exists.
+   A part whose cue is its own answer (a name, «krónur») and has no whole is a trivial question (#277) and comes out as well.
 3. No two questions share an answer: the later one's items are credited to the first.
 
 A *part* is a vocab item; a construction, a phrase or a transform is a complete thing to say.
@@ -18,7 +19,7 @@ from __future__ import annotations
 
 import re
 
-from .exercises import _norm_utterance, meaning_prompts
+from .exercises import _norm_utterance, cue_is_answer, meaning_prompts
 from .prompts import Prompts
 
 _WORD = re.compile(r"[^\W\d_]+", re.UNICODE)
@@ -144,6 +145,9 @@ def refine_review(review: list[dict], cur, met: set[str], prompts: Prompts, whol
         if whole is not None:
             report.append({"items": q["items"], "kind": "through_whole", "was": q["answer"], "now": whole["answer"]})
             q["prompt"], q["answer"], q["through"] = whole["prompt"], whole["answer"], whole["through"]
+        elif cue_is_answer(part):
+            out.remove(q)
+            report.append({"items": q["items"], "kind": "trivial", "answer": q["answer"]})
         elif not has_home(cur, part):
             out.remove(q)
             report.append({"items": q["items"], "kind": "no_home", "answer": q["answer"]})

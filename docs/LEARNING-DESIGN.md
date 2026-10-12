@@ -1087,9 +1087,9 @@ feedbacks after it carry no remark of the same kind:
 5. review questions whose answer is a part beside its whole, or that share an answer with another question (#239);
 6. pick-outs whose line holds nothing but a drilled frame and the answer (#255: `pick_out_echo_count`);
 7. review questions asking a part bare although it has a home (#262: `bare_parts_with_a_home`), and nouns asked bare in
-   the lesson's own recall (#270: `bare_noun_recalls`, to widen to every part with #277);
+   the lesson's own recall (#270: `bare_noun_recalls`, widened to every vocab part with #277: a part's sentence is asked, `do_recall` no longer keys on `noun`);
 8. the longest stretch without a scene, at most about 5 minutes (#273: `longest_without_scene_s`);
-9. questions whose cue is their answer, in the lesson and in the review (#277: to build);
+9. questions whose cue is their answer, in the lesson and in the review (#277: `trivial_questions` in the lesson, `trivial` in `review_refined`);
 10. theme `setting` text spoken (#278: to build).
 
 **Open issues after "Now", in order:**
