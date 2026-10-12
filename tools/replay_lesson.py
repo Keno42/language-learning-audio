@@ -33,6 +33,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from audiolesson.cli import _plan  # noqa: E402
+from audiolesson.learner import retention_report  # noqa: E402
 from audiolesson.nouns import noun_report  # noqa: E402
 from audiolesson.review_wholes import bare_parts_with_a_home, parts_outside_their_whole  # noqa: E402
 from audiolesson.cando import for_season, load_cando, priority_items  # noqa: E402
@@ -251,6 +252,7 @@ def main(argv: list[str] | None = None) -> int:
         rows.append(measure(cur, sc, known_c))
         apply_to_learner(sc, learner, day)
         rows[-1]["nouns that have met a form (#270)"] = noun_report(cur, learner)
+        rows[-1]["confirmed recall rate by gap, 3 / 7 / 14+ days (#220)"] = " · ".join(f"{k}: {v}" for k, v in retention_report(learner).items())
         rows[-1]["nouns asked bare in the lesson's own recall (#270)"] = ", ".join(sc.meta.get("bare_noun_recalls", [])) or "–"
         day += timedelta(days=1)
         m = sc.meta

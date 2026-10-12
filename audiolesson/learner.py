@@ -24,6 +24,8 @@ from .stages import ladder_for, next_stage, stage_index
 
 STATE_FORMAT = "audiolesson-learner/1"
 MAX_INTERVAL_DAYS = 180
+LONG_GAP_DAYS = 7  # #220: a recall confirmed after this many days or more is evidence of retention: the ease rises
+RETENTION_BUCKETS = (3, 7, 14)  # the gaps (days) the retention rate is read at
 AUTO_STEP_EVERY = 3  # auto mode: lessons between pace increases
 NEW_TARGET_START = 8.0  # weighted new components a lesson starts at (#218 b3)
 NEW_TARGET_MIN, NEW_TARGET_MAX = 4.0, 12.0
@@ -103,6 +105,9 @@ class LearnerState:
     forms_modelled: set[str] | None = None
     # #262: the exact line a part was taught in. Knowing that line does not make its pattern met.
     learned_wholes: dict[str, dict[str, str]] = field(default_factory=dict)
+    # #220: the confirmed outcomes of items tested after a gap, by the gap bucket ("3", "7", "14" days: the longest one the gap reached): [recalled, tested].
+    # The retention rate at 3, 7 and 14 days that H1/H2 and the pace rule (#218) need; the bot passes the gap with each answer (``report(gaps=…)``).
+    retention: dict[str, list[int]] = field(default_factory=dict)
 
     # ---- queries ---------------------------------------------------------
 
@@ -378,6 +383,7 @@ class LearnerState:
         recalled: list[str] | None = None,
         sooner: list[str] | None = None,
         load: str | None = None,
+        gaps: dict[str, int] | None = None,
     ) -> dict:
         """Learner feedback after listening. Returns a summary of what changed.
 
@@ -394,6 +400,11 @@ class LearnerState:
         interval from today and changes nothing else: no hesitation, failure or recall is counted, the ease and
         history stay, an embedded or tried item is left to its next-day review (``sooner_skipped``), and a call
         with ``sooner`` alone does not mark the lesson reported (that waits for the review, H2).
+
+        ``gaps`` (#220) maps an item to the days since it was last confirmed or practised when this answer was asked (the bot knows it; the audio's own
+        schedule cannot). It is evidence about retention and does three things: every outcome is counted in ``retention`` by gap bucket (3, 7, 14 days),
+        a ``recalled`` at ``LONG_GAP_DAYS`` or more raises the ease by 0.1 and lifts the interval to at least that gap times the ease (the due date follows
+        if it is later), and a failure or hesitation is still handled as before. An item with no gap is handled as before.
 
         ``load`` (#218) is the learner's rating of the lesson (light / right / heavy), stored as ``lessons[k]["load"]`` for
         the matching number; like ``sooner`` alone, a call with only a load does not mark the lesson reported.
@@ -480,9 +491,20 @@ class LearnerState:
         for item_id in (*failed, *hesitated, *recalled):
             if (st := state(item_id)) is not None:
                 st.last_reviewed = today.isoformat()
+        gaps = {i: int(g) for i, g in (gaps or {}).items() if g is not None}
+
+        def count_retention(item_id: str, ok: bool) -> None:
+            gap = gaps.get(item_id)
+            bucket = max((b for b in RETENTION_BUCKETS if gap is not None and gap >= b), default=None)
+            if bucket is not None:
+                row = self.retention.setdefault(str(bucket), [0, 0])
+                row[0] += int(ok)
+                row[1] += 1
+
         for item_id in failed:
             if (st := state(item_id)) is None:
                 continue
+            count_retention(item_id, False)
             st.failures += 1
             st.successes = max(0, st.successes - 1)
             st.durable_successes = max(0, st.durable_successes - 1)
@@ -498,6 +520,7 @@ class LearnerState:
             if (st := state(item_id)) is None:
                 continue
             # it came out, so no demotion; but sooner than a clean recall would come back
+            count_retention(item_id, False)
             st.hesitated += 1
             st.ease = max(1.3, st.ease - 0.1)
             st.interval_days = max(1.0, round(st.interval_days / 2, 1))
@@ -509,6 +532,13 @@ class LearnerState:
             if (st := state(item_id)) is None:
                 continue
             st.recalled += 1  # the presumed success stands: the schedule already grew
+            count_retention(item_id, True)
+            if (gap := gaps.get(item_id)) is not None and gap >= LONG_GAP_DAYS:
+                # a recall confirmed after a long gap is evidence: the ease learns from it and the interval is at least what was just bridged, times the ease (#220)
+                st.ease = min(3.0, st.ease + 0.1)
+                st.interval_days = round(min(MAX_INTERVAL_DAYS, max(st.interval_days, gap * st.ease)), 1)
+                later = (today + timedelta(days=int(st.interval_days))).isoformat()
+                st.due = max(st.due, later) if st.due else later
             note_outcome(st, "recalled")
             changed["recalled"].append(item_id)
         for item_id in dict.fromkeys(sooner or []):
@@ -571,6 +601,7 @@ class LearnerState:
             "themes_last": self.themes_last,
             "themes_heard": self.themes_heard,
             **({"forms_modelled": sorted(self.forms_modelled)} if self.forms_modelled is not None else {}),
+            **({"retention": {k: list(v) for k, v in self.retention.items()}} if self.retention else {}),
         }
 
     def save(self, path: str | Path) -> None:
@@ -607,6 +638,7 @@ class LearnerState:
             themes_last={k: int(v) for k, v in raw.get("themes_last", {}).items()},
             themes_heard={k: list(v) for k, v in raw.get("themes_heard", {}).items()},
             forms_modelled=set(raw["forms_modelled"]) if "forms_modelled" in raw else None,
+            retention={k: [int(x) for x in v] for k, v in raw.get("retention", {}).items()},
         )
         ls.items = {k: ItemState(**v) for k, v in raw.get("items", {}).items()}
         # a file from before notes_last_heard existed: a note heard back then counts as heard
@@ -639,3 +671,12 @@ def parse_date(s: str | None) -> date:
 
 
 __all__ = ["ItemState", "LearnerState", "ladder_for", "next_stage", "stage_index", "today_iso", "parse_date"]
+
+
+def retention_report(learner: "LearnerState") -> dict[str, str]:
+    """The confirmed recall rate by gap (#220): «3 days: 8/10 (80%)». Empty buckets read «–»."""
+    out = {}
+    for b in RETENTION_BUCKETS:
+        ok, n = learner.retention.get(str(b), [0, 0])
+        out[f"{b}+ days"] = f"{ok}/{n} ({round(100 * ok / n)}%)" if n else "–"
+    return out
