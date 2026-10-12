@@ -40,6 +40,21 @@ class StrandedFrameTests(unittest.TestCase):
         self.assertEqual(chosen[0].id, "virkar")
         self.assertEqual(p.stranded_placed, ["virkar"])
 
+    def test_it_takes_the_place_left_over_behind_the_days_own_items_and_brings_no_new_noun(self):
+        """#293 review: first, the frame pushed the day's own line out of lesson 24 and pulled a second new noun with it."""
+        extra = {"id": "ljosid", "kind": "vocab", "target": "ljósið", "meaning": "the light", "tags": ["nom_noun"], "noun": "ljos", "form": "nom_def", "gender": "neut"}
+        raw = cur()
+        items = [i for i in raw.items] + [curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": [extra]}).items[0]]
+        raw.items[:] = items
+        raw.by_id[extra["id"]] = items[-1]
+        p = Planner(raw, learner(), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, new_items=2, max_new_items=2, seed=3, priority=["w0", "w1"]), today=TODAY)
+        self.assertEqual([i.id for i in p.select_new(2)], ["w0", "w1"], "the day's items keep both places")
+        p = Planner(raw, learner(), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, new_items=3, max_new_items=3, seed=3, priority=["w0", "w1"]), today=TODAY)
+        chosen = [i.id for i in p.select_new(3)]
+        self.assertEqual(chosen[:2], ["w0", "w1"])
+        self.assertIn("virkar", chosen)
+        self.assertNotIn("ljosid", chosen, "the met nouns «sturtan» and «klósettið» fill it: no new noun comes with it")
+
     def test_nothing_is_brought_forward_when_the_frame_is_met_or_the_noun_is_not(self):
         self.assertIsNone(self.planner(learner(met=("sturtan", "klosettid", "virkar"))).stranded_frame(lambda c: True))
         self.assertIsNone(self.planner(learner(met=("klosettid",))).stranded_frame(lambda c: True), "the noun itself is not known yet")

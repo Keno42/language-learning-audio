@@ -595,8 +595,12 @@ class Planner:
             pool = [i for i in pool if i.id in front] + theme_items + [i for i in pool if i.id not in order and i.id not in front]
         constructions = [c for c in self.cur.items if c.kind == "construction"]
         if (stranded := self.stranded_frame(ready, chosen_ids)) is not None and stranded in pool:
-            pool.remove(stranded)  # #270: a known noun whose only frame is unmet: that frame comes first, once per selection
-            pool.insert(0, stranded)
+            # #270: a known noun whose only frame is unmet: the frame takes the place that is left over, behind the day's scene (the theme's items) and the trip order's items
+            # (#293 review: first, it pushed the day's own line out and lesson 24 lost its second half); once per selection
+            pool.remove(stranded)
+            day_items = set(self.theme_wants()) | set(self.cfg.priority)
+            behind = max((n for n, i in enumerate(pool) if i.id in day_items), default=-1)
+            pool.insert(behind + 1, stranded)
             pulled.add(stranded.id)
 
         def met_fills(tag: str) -> int:
@@ -647,6 +651,8 @@ class Planner:
             # them before it, so its first sentences can use them
             if it.kind == "construction":
                 for tag in it.slots.values():
+                    if stranded is not None and it.id == stranded.id and met_fills(tag) >= 2:
+                        continue  # #270: the stranded frame is made of nouns the learner has met («sturtan» and another): it brings no new noun with it
                     if known_fills(tag) < 2:
                         extra = next((f for f in pool if tag in f.tags and f.id not in chosen_ids), None) or next((f for f in fill_pool if tag in f.tags and f.id not in chosen_ids), None)
                         if extra is not None:
