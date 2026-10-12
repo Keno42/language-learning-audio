@@ -28,7 +28,10 @@ meaning_in_context = [
   "「{context}」というときの「{meaning}」は、何と言いますか？",
 ]
 recombine_new = "まだ聞いたことのない文です。「{meaning}」と言ってください。"
-recombine = "自分で組み立ててください。「{meaning}」。"
+recombine = [
+  "自分で組み立ててください。「{meaning}」。",
+  "あなたの番です。「{meaning}」と言ってください。",
+]
 # #287: 前の練習が同じパターン・項目のときだけ、つながりを言う
 recombine_again = "同じパターンでもう一度。「{meaning}」と言ってください。"
 recombine_vocab = "文で言ってください。「{meaning}」。"

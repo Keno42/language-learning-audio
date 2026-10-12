@@ -30,7 +30,10 @@ meaning_in_context = [
   "How do you say {meaning}, as in: {context}",
 ]
 recombine_new = "Now something you haven't heard yet. Say: {meaning}"
-recombine = "Put it together yourself. Say: {meaning}"
+recombine = [
+  "Put it together yourself. Say: {meaning}",
+  "Your turn. Say: {meaning}",
+]
 # #287: a link is promised only when the exercise just before practised the same pattern / item
 recombine_again = "Use the pattern again. Say: {meaning}"
 recombine_vocab = "In a sentence. Say: {meaning}"
