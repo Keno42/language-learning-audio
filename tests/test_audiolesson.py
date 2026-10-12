@@ -200,7 +200,7 @@ class CurriculumTests(unittest.TestCase):
         for field_name in ("meaning", "context", "partner_cue_setup"):
             with self.assertRaisesRegex(CurriculumError, field_name):
                 curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": [{**item, "situation": "", field_name: "like a gochisōsama"}]})
-        theme = Theme(id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[
+        theme = Theme(scene_line="You are there.", id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[
             Turn(who="you", say="Takk.", cue="Say 'gochisōsama' in Icelandic.", items=["takk"])])])
         with self.assertRaisesRegex(CurriculumError, "romanized Japanese"):
             _check(theme)
@@ -4939,7 +4939,7 @@ class SemanticSetTests(unittest.TestCase):
 
         scene = ["sjor", "nordurljos", "midnætursol"]  # no slot tag: only the set limit applies to them
         level = Level(goal="g", partner_speaker="native_c", turns=[Turn(who="you", say="Takk.", cue="Thank him.", items=scene)])
-        theme = Theme(id="nature_test", scenario="A1", title="Nature", levels=[level])
+        theme = Theme(scene_line="You are there.", id="nature_test", scenario="A1", title="Nature", levels=[level])
         with_theme = self._planner(themes=[theme], theme_scenarios=["A1"], max_set_items=2)
         self.assertEqual(sorted(i for i in with_theme.theme_wants() if i in scene), sorted(scene))
         ids = [i.id for i in with_theme.select_new(8)]
@@ -5615,7 +5615,7 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
         self.assertEqual(answers["vegabref"], "Áttu vegabréf?", "and another part through the pattern it was just taught whole in")
         self.assertEqual(Counter(q["answer"] for q in plan["review"]).most_common(1)[0][1], 1)
         self.assertIn("peysu", sc.meta["met_items"])
-        self.assertIn("attu", sc.meta["met_items"], "taught whole today")
+        self.assertEqual(sc.meta["wholes_taught"]["peysu"]["through"], "attu", "taught whole today")  # #277: the part's later asking credits the part, not the pattern
 
     def test_every_part_has_a_home(self):
         """#215's data side: the 18 vocab items with no frame or phrase now have one («Þetta er blár bíll.», «Hundrað krónur, takk.», «Það er margt fólk hér.»), or are gone
@@ -5699,7 +5699,7 @@ class ListeningTaskTests(unittest.TestCase):
     def test_a_word_gloss_is_a_word_of_the_line_with_both_meanings(self):
         from audiolesson.themes import Level, Theme, Turn, _check
         def theme(gloss):
-            return Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
+            return Theme(scene_line="You are there.", id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
                 Turn(who="partner", say="Þarftu poka?", meaning="Do you need a bag?", variants=[{"say": "Viltu poka?", "meaning": "Do you want a bag?", "meaning_ja": "袋がほしいですか？", "word_glosses": gloss}]),
                 Turn(who="you", say="Nei, takk.", cue="Say no.", items=["nei"]),
             ])])
@@ -5717,7 +5717,7 @@ class ListeningTaskTests(unittest.TestCase):
     @staticmethod
     def _theme(turn):
         from audiolesson.themes import Level, Theme, Turn
-        return Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
+        return Theme(scene_line="You are there.", id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
             turn, Turn(who="you", say="Takk.", cue="Thank her.", items=["takk"]),
         ])])
 
@@ -6957,8 +6957,8 @@ class ShortItemRepetitionTests(unittest.TestCase):
             learner.items[i] = ItemState(due=overdue, successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
         sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1, new_items=0), today=TODAY).build()
         asked = [e.item_ids[0] for e in sc.exercises if e.kind == "recall"]
-        self.assertNotIn("bankinn", asked, "never alone while its sentence can be said")
-        self.assertGreaterEqual(asked.count("hvar_er_bankinn"), 2, "its review is the sentence (besides the sentence's own)")
+        self.assertNotIn("meaning: bankinn", [e.label for e in sc.exercises], "never alone while its sentence can be said (#277: the part may be credited by its sentence)")
+        self.assertGreaterEqual([e.label for e in sc.exercises].count("meaning: Hvar er bankinn?"), 2, "its review is the sentence (besides the sentence's own)")
 
     def test_a_part_is_not_reviewed_by_asking_the_sentence_just_asked(self):
         """#190 review: «Hvenær?» was reviewed by asking «Hvenær leggjum við af stað?» right after that sentence was asked, so the
@@ -7057,8 +7057,8 @@ class ShortItemRepetitionTests(unittest.TestCase):
             learner.items[i] = ItemState(due=overdue, successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
         sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1, new_items=0), today=TODAY).build()
         asked = [e.item_ids[0] for e in sc.exercises if e.kind == "recall"]
-        self.assertNotIn("safnid", asked, "a three-word part is not asked alone while its sentence can be said")
-        self.assertGreaterEqual(asked.count("vil_safnid"), 2)
+        self.assertNotIn("meaning: fara á safnið", [e.label for e in sc.exercises], "a three-word part is not asked alone while its sentence can be said")
+        self.assertGreaterEqual([e.label for e in sc.exercises].count("meaning: Ég vil fara á safnið."), 2)
 
     def test_a_sentence_said_earlier_in_the_lesson_holds_its_part_though_not_yet_known(self):
         """#190 review: «Hvenær leggjum við af stað?» had no durable recall (it hesitated), so it held no part, though the
@@ -7855,13 +7855,13 @@ class ThemeExchangeTests(unittest.TestCase):
         self.assertEqual(dlg.turns[1].scene, "")
         ja = level_dialogue(self._supermarket, 0, known_lang="ja")
         self.assertTrue(ja.turns[1].partner_scene and ja.turns[1].partner_scene != "At the till.")
-        theme = Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
+        theme = Theme(scene_line="You are there.", id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
             Turn(who="you", say="Hæ.", cue="Say hi.", items=["hae"]),
             Turn(who="partner", say="Halló.", meaning="Hello.", scene="Later."),
             Turn(who="you", say="Bless.", cue="Say bye.", items=["bless"]),
         ])])
         self.assertEqual(level_dialogue(theme, 0).turns[0].partner_scene, "Later.")
-        opener = Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
+        opener = Theme(scene_line="You are there.", id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
             Turn(who="partner", say="Hæ.", meaning="Hi.", scene="At the door."),
             Turn(who="you", say="Hæ.", cue="Say hi.", items=["hae"]),
         ])])
@@ -7878,7 +7878,7 @@ class ThemeExchangeTests(unittest.TestCase):
         from audiolesson.content import CurriculumError
 
         def check(*turns):
-            _check(Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=list(turns))]))
+            _check(Theme(scene_line="You are there.", id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=list(turns))]))
 
         you = lambda **kw: Turn(**{"who": "you", "say": "Hæ.", "cue": "Say hi.", "items": ["hae"], **kw})
         check(you())
@@ -7958,7 +7958,7 @@ class ThemeExchangeTests(unittest.TestCase):
         self.assertEqual(level_dialogue(self._supermarket, 0, picks={1: 1}).turns[0].partner, self._supermarket.levels[0].turns[1].variants[0]["say"])
         photo = next(t for t in self._themes if t.id == "tour").levels[1].turns[3]
         self.assertTrue(all(x.say.startswith(("Viltu", "Á ég að")) for x in photo.lines()), "every variant offers the photo: «Já, takk.» answers it")
-        bad = Theme(id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
+        bad = Theme(scene_line="You are there.", id="x", scenario="A3", title="X", levels=[Level(goal="g", turns=[
             Turn(who="partner", say="Hæ.", meaning="Hi.", variants=[{"say": "Hæ."}]),
             Turn(who="you", say="Hæ.", cue="Say hi.", items=["hae"]),
         ])])
@@ -7991,7 +7991,7 @@ class ThemeExchangeTests(unittest.TestCase):
         planner.builder.dialogue(sc, level_dialogue(tour, 0))
         self.assertEqual({g.speaker for g in sc.segments if g.text and g.text.startswith("Góðan daginn öll")}, {"native_a"})
         with self.assertRaises(CurriculumError):
-            _check(Theme(id="x", scenario="A1", title="X", levels=[Level(goal="g", partner_speaker="native_c", turns=[Turn(who="you", say="Takk.", cue="Thank him.", items=["takk"])])]))
+            _check(Theme(scene_line="You are there.", id="x", scenario="A1", title="X", levels=[Level(goal="g", partner_speaker="native_c", turns=[Turn(who="you", say="Takk.", cue="Thank him.", items=["takk"])])]))
 
     def test_the_themes_items_are_credited_and_the_next_lesson_takes_the_next_level(self):
         learner = self._learner(self._known + self._rest + ["eg_er_ad_leita_ad_thing", "hvad_er_thetta_mikid_samtals"])
@@ -8302,16 +8302,16 @@ class ThemeExchangeTests(unittest.TestCase):
 
         good = Turn(who="you", say="Takk.", cue="Thank him.", items=["takk"])
         with self.assertRaises(CurriculumError):
-            _check(Theme(id="x", scenario="A1", title="X", levels=[]))
+            _check(Theme(scene_line="You are there.", id="x", scenario="A1", title="X", levels=[]))
         with self.assertRaises(CurriculumError):
-            _check(Theme(id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[Turn(who="partner", say="Hæ.", meaning="Hi.")])]))
+            _check(Theme(scene_line="You are there.", id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[Turn(who="partner", say="Hæ.", meaning="Hi.")])]))
         with self.assertRaises(CurriculumError):
-            _check(Theme(id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[Turn(who="you", say="Takk.", items=["takk"])])]))
+            _check(Theme(scene_line="You are there.", id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[Turn(who="you", say="Takk.", items=["takk"])])]))
         with self.assertRaises(CurriculumError):
-            _check(Theme(id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[good, Turn(who="partner", say="Hæ.")])]))
+            _check(Theme(scene_line="You are there.", id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[good, Turn(who="partner", say="Hæ.")])]))
         with self.assertRaises(CurriculumError):
-            _check(Theme(id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[Turn(who="him", say="Hæ.")])]))
-        _check(Theme(id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[good])]))
+            _check(Theme(scene_line="You are there.", id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[Turn(who="him", say="Hæ.")])]))
+        _check(Theme(scene_line="You are there.", id="x", scenario="A1", title="X", levels=[Level(goal="g", turns=[good])]))
 
 
 class NoSlotLeakTests(unittest.TestCase):

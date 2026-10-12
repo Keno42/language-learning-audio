@@ -76,6 +76,12 @@ def _norm_utterance(text: str) -> str:
     return text.strip().rstrip(".?!…").strip().lower()
 
 
+def cue_is_answer(item: Item) -> bool:
+    """A question that has no question in it (#277): the spoken cue of ``item`` (its spoken meaning, without the «as in …» tail) is its answer, as a name or «krónur» is."""
+    answers = {_norm_utterance(a) for a in (item.target, item.target_m) if a}
+    return _norm_utterance(item.spoken_meaning) in answers
+
+
 BRIDGE_GLOSS_ENCOUNTERS = 2  # a partner_cue is glossed on the learner's first N hearings of that bridge
 PROMPT_GLOSS_HEARINGS = 2  # a prompt_by line not yet known is glossed on its first N hearings in a lesson
 FORM_SHARE = 0.25  # the most a negative or question form takes of a lesson's generated sentences (#171)

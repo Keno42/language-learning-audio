@@ -16,6 +16,8 @@ title = "Café"
 title_ja = "カフェ"
 setting = "A busy café: order at the counter, find a seat, ask for the bill."
 setting_ja = "混んだカフェ。カウンターで注文し、席を見つけ、会計する。"
+scene_line = "You're at a busy café."
+scene_line_ja = "混んだカフェにいます。"
 topics = ["cafe"]
 
 [[themes.levels]]
@@ -61,6 +63,8 @@ title = "Supermarket"
 title_ja = "スーパー"
 setting = "A supermarket: the shelves, the dairy fridge, the till."
 setting_ja = "スーパー。棚、乳製品の冷蔵棚、レジ。"
+scene_line = "You're in a supermarket."
+scene_line_ja = "スーパーにいます。"
 topics = ["shopping", "food"]
 
 [[themes.levels]]
@@ -95,6 +99,8 @@ title = "Museum"
 title_ja = "博物館"
 setting = "The ticket desk, the cloakroom and the exhibition."
 setting_ja = "チケット窓口、クローク、展示室。"
+scene_line = "You're at a museum."
+scene_line_ja = "博物館にいます。"
 topics = ["travel", "directions"]
 [[themes.levels]]
 goal = "Buy a ticket and pay by card."
@@ -113,6 +119,8 @@ title = "Day tour with a guide"
 title_ja = "ガイド付きの日帰りツアー"
 setting = "A coach tour: the guide talks to the group, stops at a waterfall, points at a volcano."
 setting_ja = "バスツアー。ガイドの説明、滝での休憩、火山の案内。"
+scene_line = "You're on a coach tour."
+scene_line_ja = "バスツアーに参加しています。"
 topics = ["travel", "nature"]
 [[themes.levels]]
 partner_speaker = "native_a"  # the partner is a woman

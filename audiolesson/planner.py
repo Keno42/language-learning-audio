@@ -20,7 +20,7 @@ from datetime import date, timedelta
 from itertools import groupby
 
 from .content import Curriculum, Dialogue, Item
-from .exercises import Builder, _norm_utterance
+from .exercises import Builder, _norm_utterance, cue_is_answer
 from .learner import LearnerState
 from .review_wholes import whole_for
 from .listening_tasks import REPAIR_ITEM, SecondHalfRotation, append_task, catch_unknown, key_of, partner_pick_out
@@ -827,6 +827,10 @@ class Planner:
             "longest_without_scene_s": longest_without_scene,  # #273: the longest stretch with no conversation, pick-out or catch task
             "asked_again_within_spacing": asked_again,  # #273: an item asked again less than ``spacing_report`` after it was last asked
             # #270: a noun asked from its translation alone, in the lesson's own recall (the written review has its own row)
+            # #277: a lesson recall whose spoken cue is its answer and whose answer is the bare part (0 expected; a recall through its sentence is not counted)
+            "trivial_questions": [e.label for e in sc.exercises if e.kind == "recall" and e.stage != "intro" and len(e.item_ids) == 1
+                                  and (it := self.cur.by_id.get(e.item_ids[0])) is not None and it.kind == "vocab" and cue_is_answer(it)
+                                  and any(g.type == "answer" and g.exercise == e.index and _norm_utterance(g.text or "") == _norm_utterance(it.target) for g in sc.segments)],  # a recall through its sentence is the point, not a hit
             "bare_noun_recalls": [e.label for e in sc.exercises if e.kind == "recall" and e.stage in BARE_STAGES and len(e.item_ids) == 1
                                   and (it := self.cur.by_id.get(e.item_ids[0])) is not None and it.noun
                                   and any(g.type == "answer" and g.exercise == e.index and _norm_utterance(g.text or "") == _norm_utterance(it.target) for g in sc.segments)],
@@ -1744,10 +1748,12 @@ class Planner:
                 ladder = self.ladder(item)
                 if "meaning" in ladder and stage_index(ladder, stage) < stage_index(ladder, "meaning"):
                     stage = "meaning"
-            if allow_cap and item.noun and (stage in BARE_STAGES or (stage == "recombine" and b.recombine_status(item) != "novel")) and ask_noun(item):
+            if allow_cap and item.kind == "vocab" and (stage in BARE_STAGES or (stage == "recombine" and b.recombine_status(item) != "novel")) and ask_part(item):
                 return True  # #270: a noun is never a context-free memory question, whatever stage asked it, when a sentence exists
-            if allow_cap and item.noun and (stage in BARE_STAGES or stage == "recombine") and noun_sentence_capped(item):
+            if allow_cap and item.kind == "vocab" and (stage in BARE_STAGES or stage == "recombine") and part_sentence_capped(item):
                 return False  # its sentence has been said as often as a lesson allows: the bare word does not take its place
+            if allow_cap and item.kind == "vocab" and not scene and cue_is_answer(item):
+                return False  # #277: a question whose cue is its own answer asks nothing: the sentence above, or nothing
             if allow_cap and stage in BARE_STAGES and short_today(item) and said_in_sentence(item) and ask_a_sentence(item):
                 return True
             if allow_cap and stage in BARE_STAGES and short_review(item) and ask_a_sentence(item, repeat=True, review=True):
@@ -1849,17 +1855,17 @@ class Planner:
             sentence, or a whole sentence that holds it."""
             return any(e.kind == "generative" and item.id in e.item_ids or e.kind == "recall" and item.id in e.item_ids[1:] for e in sc.exercises)
 
-        def noun_whole(item: Item) -> dict | None:
+        def part_whole(item: Item) -> dict | None:
             """The sentence a noun is asked in: the one it was taught in today, else the one it was taught in before (``learned_wholes``), else a construction or
             phrase the learner has that holds it (``review_wholes.whole_for``, the rule the written review uses)."""
             met = {i for i in self.cur.by_id if self.learner.has_met(i) or i in b.in_lesson}
             taught = b.wholes_taught.get(item.id) or self.learner.learned_wholes.get(item.id)
             return whole_for(self.cur, item, met, self.prompts, taught)
 
-        def ask_noun(item: Item) -> bool:
+        def ask_part(item: Item) -> bool:
             """Ask a noun in its sentence from the sentence's meaning (``Builder.recall_whole``), credited to the noun. False when no sentence exists or it has been said as often as a
             lesson allows: the caller asks it as it would have (#270)."""
-            whole = noun_whole(item)
+            whole = part_whole(item)
             if whole is not None and sc.exercises and (prev := sc.exercises[-1]).kind == "recall" and prev.label == f"meaning: {whole['answer']}" and item.id not in prev.item_ids:
                 prev.item_ids.append(item.id)  # #280: a part of the same line, taken out with the one just asked: that question counts for both, it is not asked again
                 self._record([item.id], "meaning", prev.item_ids)
@@ -1871,9 +1877,9 @@ class Planner:
             touch(item)
             return True
 
-        def noun_sentence_capped(item: Item) -> bool:
+        def part_sentence_capped(item: Item) -> bool:
             """A noun has a sentence but it has been said as often as a lesson allows: nothing more is asked of it, not the bare word in its place (#270)."""
-            whole = noun_whole(item)
+            whole = part_whole(item)
             return whole is not None and bool(b.said_cap) and b.said[_norm_utterance(whole["answer"])] >= b.said_cap
 
         def ask_a_sentence(item: Item, repeat: bool = False, review: bool = False) -> bool:
@@ -2874,7 +2880,7 @@ class Planner:
                     continue  # #192: it was just said as often as a lesson allows; the closing recall would be one more identical drill
                 if (stage in BARE_STAGES or stage == "recombine") and short_today(item) and said_in_sentence(item) and holders_all_capped(item):
                     continue  # asked in a sentence today and every sentence that holds it is at the cap: no bare part in its place
-                if item.noun and (stage in BARE_STAGES or stage == "recombine") and (ask_noun(item) or noun_sentence_capped(item)):
+                if item.kind == "vocab" and (stage in BARE_STAGES or stage == "recombine") and (ask_part(item) or part_sentence_capped(item)):
                     shared = b.wholes_taught.get(item.id)
                     if shared:  # #280: parts taken out of one line share it: the closing asks it once for all of them
                         mates = [o.id for o in order if o.id != item.id and (b.wholes_taught.get(o.id) or {}).get("answer") == shared["answer"]]
@@ -2882,6 +2888,8 @@ class Planner:
                         if sc.exercises and sc.exercises[-1].kind == "recall" and item.id in sc.exercises[-1].item_ids:
                             sc.exercises[-1].item_ids.extend(m for m in mates if m not in sc.exercises[-1].item_ids)  # the one question counts for them all
                     continue  # #270: the closing recall of a noun is its sentence too, or nothing once that has been said enough, never the bare word
+                if item.kind == "vocab" and cue_is_answer(item):
+                    continue  # #277: the closing recall of a part whose cue is its answer asks nothing
                 ex = b.recall(sc, item, stage)
                 self._record([item.id], ex.stage or stage, ex.item_ids)
                 closed.update(i for i in ex.item_ids[:1] if i != item.id)
