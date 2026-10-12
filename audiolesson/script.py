@@ -282,7 +282,20 @@ class Script:
         shown: set[str] = set()
         lines = [f"# {self.title}", ""]
         current = None
+        spaced: list[Segment] = []  # a partner line said word by word (#261) is one line of the transcript, its gaps marked
+
+        def flush() -> None:
+            if spaced:
+                who = {"native_a": "Speaker A", "native_b": "Speaker B"}.get(spaced[0].speaker, spaced[0].speaker)
+                lines.append(f"**{who} (word by word):** " + " · ".join(w.text or "" for w in spaced))
+                spaced.clear()
+
         for s in self.segments:
+            if s.role == "word_gap" or (s.type == "speak" and s.role == "spaced"):
+                if s.type == "speak":  # always after other segments of its exercise (the beat before it), so the exercise heading is out already
+                    spaced.append(s)
+                continue
+            flush()
             if s.exercise is not None and s.exercise != current:
                 current = s.exercise
                 ex = self.exercises[current]
@@ -301,6 +314,7 @@ class Script:
                 who = "You" if s.type == "answer" else {"instructor": "Instructor", "native_a": "Speaker A", "native_b": "Speaker B"}.get(s.speaker, s.speaker)
                 slow = " (slow)" if s.rate < 1 else ""
                 lines.append(f"**{who}{slow}:** {s.text}")
+        flush()
         return "\n".join(lines) + "\n"
 
 
