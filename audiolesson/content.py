@@ -181,6 +181,9 @@ class Item:
     # another sentence of the pattern with other fillers, credited to the pattern and its fillers, never to the phrase.
     instance_of: str = ""
     instance_fill: dict[str, str] = field(default_factory=dict)
+    # #280: the phrase is the pattern's own ``negative`` / ``question`` form filled this way («Er þetta hættulegt?» of «Er þetta {adj}?»): it is introduced
+    # lightly as that form once the plain sentence is known or taught earlier in the lesson, and costs as a form
+    instance_form: str = ""
     # A construction: fills (item ids) that its generated sentences never take although their tags fit a slot: a named
     # exception to the tags («Áttu leigubíl?» is not said; the tags explain nine cases in ten, #192, §9 "Good enough
     # overall"). Not a tagging scheme: an authored fill (example, situation_fill, instance_fill) is still used.
@@ -740,7 +743,7 @@ def validate(cur: Curriculum) -> None:
             for ref in it.exclude_fills:
                 if ref not in cur.by_id or not any(t in cur.by_id[ref].tags for t in it.slots.values()):
                     raise CurriculumError(f"item {it.id!r}: exclude_fills {ref!r} is not a fill with a tag of one of its slots")
-        if it.instance_of or it.instance_fill:
+        if it.instance_of or it.instance_fill or it.instance_form:
             c = cur.by_id.get(it.instance_of)
             if it.kind != "phrase" or c is None or c.kind != "construction":
                 raise CurriculumError(f"item {it.id!r}: instance_of names the construction a phrase is an instance of, not {it.instance_of!r}")
@@ -751,9 +754,11 @@ def validate(cur: Curriculum) -> None:
                 if ref not in ids or c.slots[slot] not in cur.by_id[ref].tags:
                     raise CurriculumError(f"item {it.id!r}: instance_fill {slot!r}={ref!r} is not a fill with tag {c.slots[slot]!r}")
                 fills[slot] = cur.by_id[ref]
-            made = cur.resolve_slots(c, fills)[0]
+            if it.instance_form and it.instance_form not in c.forms:
+                raise CurriculumError(f"item {it.id!r}: instance_form {it.instance_form!r} is not a form of {c.id!r} ({sorted(c.forms)})")
+            made = cur.resolve_slots(c, fills, form=it.instance_form or None)[0]
             if made.strip().casefold() != it.target.strip().casefold():
-                raise CurriculumError(f"item {it.id!r}: the pattern with these fills says {made!r}, not {it.target!r}")
+                raise CurriculumError(f"item {it.id!r}: the pattern with these fills{' in the ' + it.instance_form + ' form' if it.instance_form else ''} says {made!r}, not {it.target!r}")
         if it.prompt_by:
             if it.prompt_by == it.id or it.prompt_by not in ids:
                 raise CurriculumError(f"item {it.id!r}: prompt_by must name another item, not {it.prompt_by!r}")

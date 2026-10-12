@@ -434,7 +434,10 @@ meaning = "Is this dangerous?"
 meaning_ja = "これは危険ですか？"
 difficulty = 3
 topics = ["nature", "emergencies"]
-prereqs = ["haett"]
+prereqs = ["haett", "thetta_er_adj"]
+instance_of = "thetta_er_adj"
+instance_fill = { adj = "haett" }
+instance_form = "question"
 situation = "Waves are crashing over the black beach. Ask the guide if this is dangerous."
 situation_ja = "黒い砂浜に波が打ち上げています。ガイドに危険か聞いてください。"
 

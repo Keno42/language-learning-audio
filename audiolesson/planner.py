@@ -453,6 +453,8 @@ class Planner:
             known, patterns = self._component_base()
         if item.variant_of:
             return self.cfg.form_weight
+        if item.kind == "phrase" and item.instance_form:
+            return self.cfg.form_weight  # #280: a form of a pattern is the same expression turned, not a new item
         if item.kind == "phrase" and self.pattern_instance_of(item) is not None:
             return 0.0
         new = list(dict.fromkeys(w for w in self._fixed_text_words(item) if w not in known))
@@ -1205,7 +1207,9 @@ class Planner:
         if pattern is None or item.id in self.learner.embed_failed or self.learner.has_met(item.id):
             return None
         fills = {slot: self.cur.by_id[ref] for slot, ref in item.instance_fill.items()}
-        if not (self.learner.knows(pattern.id) and all(self.learner.knows(f.id) for f in fills.values())):
+        # a form of a pattern (#280) also follows the plain sentence taught earlier in this lesson, not only one known from before
+        said = (lambda i: self.learner.knows(i) or i in self.builder.in_lesson or i in self.embedded) if item.instance_form else self.learner.knows
+        if not (said(pattern.id) and all(said(f.id) for f in fills.values())):
             return None
         return pattern, fills
 
@@ -1629,6 +1633,12 @@ class Planner:
                 # #262: no known pattern makes a new sentence of the part, but the learner knows a line that holds it («krónur» in «þúsund krónur»):
                 # the part is taken out of that line, not given alone
                 b.modeled_wholes.setdefault(item.id, b.whole_of(source))
+                # #280: the other new parts of the same line are taken out of it in this exercise too, once, not one exercise each
+                together = [s for s in list(new_queue) if s.id != item.id and s.kind == "vocab" and self.embed_source(s) is source and b.generate_with(s, avoid_heard=True) is None]
+                for s in together:
+                    new_queue.remove(s)
+                    b.modeled_wholes.setdefault(s.id, b.modeled_wholes[item.id])
+                b.joint_parts[item.id] = together
                 source = None
             if source is not None:
                 self.embedded.append(item.id)
@@ -1643,7 +1653,7 @@ class Planner:
                 # The practice is credited to the pattern and its fillers (one way, as in sentence_practice); the phrase waits
                 # for the next day's question like an embedded part, and stays in new_items
                 pattern, fills = instance
-                ex = b.pattern_instance(sc, item, pattern, fills)
+                ex = b.pattern_instance(sc, item, pattern, fills, form=item.instance_form or None)
                 credited = [pattern.id, *(f.id for f in fills.values())]
                 self._record(credited, "recombine", credited)
                 self.embedded.append(item.id)
@@ -1655,17 +1665,18 @@ class Planner:
                 mark_delivered_target()
                 return
             ex = b.intro(sc, item, worked_fills)
-            b.in_lesson.add(item.id)
-            introduced.append(item)
-            arc_items.setdefault(current_arc_id, []).append(item)
-            self._record([item.id], "intro", ex.item_ids)
-            touch(item)
+            for part in [item, *b.joint_parts.pop(item.id, [])]:  # #280: parts of one line taken out together are each introduced by this one exercise
+                b.in_lesson.add(part.id)
+                introduced.append(part)
+                arc_items.setdefault(current_arc_id, []).append(part)
+                self._record([part.id], "intro", ex.item_ids)
+                touch(part)
+                ladder = self.ladder(part)
+                for k, after in enumerate(cfg.intro_recall_times):
+                    seq += 1
+                    intro_timeline.append((sc.total_duration + after * (budget - closing_reserve), seq, part, ladder[min(k + 1, len(ladder) - 1)]))
             last_intro = idx
             last_intro_at = sc.total_duration
-            ladder = self.ladder(item)
-            for k, after in enumerate(cfg.intro_recall_times):
-                seq += 1
-                intro_timeline.append((sc.total_duration + after * (budget - closing_reserve), seq, item, ladder[min(k + 1, len(ladder) - 1)]))
             mark_delivered_target()
 
         cheap_used: list[str] = []
@@ -1855,6 +1866,11 @@ class Planner:
             """Ask a noun in its sentence from the sentence's meaning (``Builder.recall_whole``), credited to the noun. False when no sentence exists or it has been said as often as a
             lesson allows: the caller asks it as it would have (#270)."""
             whole = part_whole(item)
+            if whole is not None and sc.exercises and (prev := sc.exercises[-1]).kind == "recall" and prev.label == f"meaning: {whole['answer']}" and item.id not in prev.item_ids:
+                prev.item_ids.append(item.id)  # #280: a part of the same line, taken out with the one just asked: that question counts for both, it is not asked again
+                self._record([item.id], "meaning", prev.item_ids)
+                touch(item)
+                return True
             if whole is None or (ex := b.recall_whole(sc, item, whole)) is None:
                 return False
             self._record([item.id], "meaning", ex.item_ids)
@@ -2865,6 +2881,12 @@ class Planner:
                 if (stage in BARE_STAGES or stage == "recombine") and short_today(item) and said_in_sentence(item) and holders_all_capped(item):
                     continue  # asked in a sentence today and every sentence that holds it is at the cap: no bare part in its place
                 if item.kind == "vocab" and (stage in BARE_STAGES or stage == "recombine") and (ask_part(item) or part_sentence_capped(item)):
+                    shared = b.wholes_taught.get(item.id)
+                    if shared:  # #280: parts taken out of one line share it: the closing asks it once for all of them
+                        mates = [o.id for o in order if o.id != item.id and (b.wholes_taught.get(o.id) or {}).get("answer") == shared["answer"]]
+                        closed.update(mates)
+                        if sc.exercises and sc.exercises[-1].kind == "recall" and item.id in sc.exercises[-1].item_ids:
+                            sc.exercises[-1].item_ids.extend(m for m in mates if m not in sc.exercises[-1].item_ids)  # the one question counts for them all
                     continue  # #270: the closing recall of a noun is its sentence too, or nothing once that has been said enough, never the bare word
                 if item.kind == "vocab" and cue_is_answer(item):
                     continue  # #277: the closing recall of a part whose cue is its answer asks nothing

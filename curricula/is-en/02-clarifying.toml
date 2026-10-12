@@ -102,6 +102,9 @@ meaning_ja = "アイスランド語は話せません。"
 difficulty = 2
 topics = ["clarifying"]
 prereqs = ["eg_tala", "islensku"]
+instance_of = "eg_tala"
+instance_fill = { language = "islensku" }
+instance_form = "negative"
 situations = [
   "A man starts a long story in Icelandic. Tell him you don't speak Icelandic.",
   "A caller starts speaking fast Icelandic on the phone. Tell him you don't speak Icelandic.",
@@ -641,6 +644,9 @@ meaning = "Is this right?"
 meaning_ja = "これで合っていますか？"
 difficulty = 2
 topics = ["clarifying"]
+instance_of = "thetta_er_adj"
+instance_fill = { adj = "rett" }
+instance_form = "question"
 situations = [
   "You've filled in the form. Ask the clerk whether it's right.",
   "You've counted out coins for the bus fare. Ask the driver whether it's right.",
