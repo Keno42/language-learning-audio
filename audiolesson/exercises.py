@@ -146,6 +146,7 @@ class Builder:
     in_lesson: set[str] = field(default_factory=set)  # items introduced this lesson: usable as parts
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
     _situation_texts: dict[str, int] = field(default_factory=dict)  # times each authored situation was narrated in full
+    _recent_situations: list = field(default_factory=list)  # the last situations narrated, newest last: the same one is not narrated again right after (#273)
     _mixed_review_said: bool = False  # «Quick review» is announced once a lesson
     _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
@@ -209,10 +210,12 @@ class Builder:
         variants = list(item.situations) or ([item.situation] if item.situation else [])
         if not variants:
             return None
-        for k in range(len(variants)):
-            text = variants[(base + k) % len(variants)]
-            if self._situation_texts.get(text, 0) < SITUATION_FULL_MAX:
-                return text
+        # a variant not narrated just now first (#273: the same situation twice a minute apart); then any with room
+        for fresh in (True, False):
+            for k in range(len(variants)):
+                text = variants[(base + k) % len(variants)]
+                if self._situation_texts.get(text, 0) < SITUATION_FULL_MAX and not (fresh and text in self._recent_situations[-3:]):
+                    return text
         return item.situation_for(base)
 
     def situation_room(self, item: Item) -> bool:
@@ -275,6 +278,7 @@ class Builder:
         self._situation_uses[item.id] = self._situation_uses.get(item.id, 0) + 1
         if cue:
             self._situation_texts[cue] = self._situation_texts.get(cue, 0) + 1
+            self._recent_situations.append(cue)
         return cue
 
     # ---- the speaker's gender (Item.target_m) -----------------------------

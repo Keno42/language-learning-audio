@@ -81,5 +81,7 @@ class PartsTogetherTests(unittest.TestCase):
         for e in asked[:-1]:
             self.assertEqual(sorted(e.item_ids), ["kronur", "thusund"])
         after_review = [e for e in sc.exercises[[x.label for x in sc.exercises].index("final review"):] if e.kind == "recall"]
-        self.assertEqual([sorted(e.item_ids) for e in after_review], [["kronur", "thusund"]])
+        self.assertLessEqual(len(after_review), 1, "the shared line is asked once in the closing, or counted from an asking within the last minute (#273)")
+        for e in after_review:
+            self.assertEqual(sorted(e.item_ids), ["kronur", "thusund"])
 
