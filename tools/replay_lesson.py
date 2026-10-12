@@ -191,6 +191,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "a sentence asked again within a minute (#273)": m.get("asked_again_within_spacing", 0),
         "review questions asking a part bare although it has a home (#262)": ", ".join(bare_parts_with_a_home(_plan(sc, cur)["review"], cur)) or "–",
         "trivial questions (a cue that is its answer) in the lesson / in the review (#277)": f"{len(m.get('trivial_questions', []))} / {sum(1 for r in _plan(sc, cur)['review_refined'] if r['kind'] == 'trivial')}",
+        "recombine prompts promising a link that is not there (#287)": ", ".join(m.get("unkept_links", [])) or "–",
         "review questions changed to keep each expression once (#239)": ", ".join(f"{r['kind']}:{'+'.join(r['items'])}" for r in _plan(sc, cur)["review_refined"]) or "–",
         "cheap constructions": ", ".join(m.get("cheap_constructions", [])) or "–",
         "refresh sentences": sum((m.get("refresh_sentences") or {}).values()),
