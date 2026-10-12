@@ -256,6 +256,7 @@ class Planner:
         self.listening_untaught: list[str] = []
         self.listening_asked: list[dict] = []  # #179: turns asked because the learner can say the line, not `knows()` it
         self.cheap_placed: list[str] = []  # cheap constructions given a new-item place (#171 B)
+        self.stranded_placed: list[str] = []  # frames brought forward for a known noun with no known frame (#270)
         self.embedded: list[str] = []  # parts heard inside a sentence this lesson (#149)
         self._reset_components()
         self.pattern_instances: list[str] = []  # …of them, linked phrases that came in as a sentence of their known pattern (#192)
@@ -361,6 +362,23 @@ class Planner:
         if not part.variant_of and any(self.learner.has_met(w.id) for w in wholes):
             return True  # a plain part is heard in a phrase it knows (the embed path); only a variant form must be said now
         return not frames and not wholes
+
+    def stranded_frame(self, ready, chosen_ids: set[str] | frozenset[str] = frozenset()) -> Item | None:
+        """A known noun whose only frame is unmet brings that frame forward (#270, admission): the noun is met but nothing the learner has holds it («sturtan» with
+        «{thing} virkar ekki.» not yet taught), so the lesson's recall and the review could ask it only bare. The first such noun's frame that is ready (its other prerequisites
+        known), in course order of the nouns; None when there is none. Nouns only (`Item.noun`): the rule is the noun entries'."""
+        for part in self.cur.items:
+            if part.kind != "vocab" or not part.noun or not self.learner.has_met(part.id) or self.learner.is_open(part.id):
+                continue
+            frames = self.frames_of(part)
+            if not frames or any(self.learner.has_met(c.id) or c.id in chosen_ids for c in frames):
+                continue
+            if any(self.learner.has_met(w.id) for w in self.candidate_wholes(part)):
+                continue  # a phrase it is in is known: it is asked through that
+            frame = next((c for c in frames if ready(c)), None)
+            if frame is not None:
+                return frame
+        return None
 
     def part_waits_for_home(self, part: Item) -> bool:
         """A part with no home in this lesson waits (rather than being given alone) when it has a frame still to come and a known
@@ -576,6 +594,10 @@ class Planner:
             theme_items = sorted((i for i in pool if i.id in order and i.id != promoted_id), key=lambda i: order[i.id])
             pool = [i for i in pool if i.id in front] + theme_items + [i for i in pool if i.id not in order and i.id not in front]
         constructions = [c for c in self.cur.items if c.kind == "construction"]
+        if (stranded := self.stranded_frame(ready, chosen_ids)) is not None and stranded in pool:
+            pool.remove(stranded)  # #270: a known noun whose only frame is unmet: that frame comes first, once per selection
+            pool.insert(0, stranded)
+            pulled.add(stranded.id)
 
         def met_fills(tag: str) -> int:
             return sum(1 for i in self.cur.items_with_tag(tag) if self.learner.has_met(i.id) or i.id in chosen_ids)
@@ -739,6 +761,8 @@ class Planner:
                     # be dropped from arc after arc
                     chosen.pop()
                     chosen_ids.discard(last.id)
+        if stranded is not None and any(i.id == stranded.id for i in chosen):
+            self.stranded_placed.append(stranded.id)
         if promoted_id is not None and any(i.id == promoted_id for i in chosen):
             self.cheap_placed.append(promoted_id)
         if cheap and self.cfg.cheap_place and not any(i.kind == "construction" for i in chosen):
@@ -3026,6 +3050,7 @@ class Planner:
             "pattern_instances": list(self.pattern_instances),
             "intro_skipped": list(intro_skipped),
             "hard_words": [i.id for i in introduced if hard_sounds(i)],  # #212: today's new words that got the slow, split model
+            "stranded_frames": list(self.stranded_placed),  # #270: frames brought forward for a known noun whose only frame was unmet
             "variant_items": [i.id for i in [*introduced, *(self.cur.by_id[e] for e in self.embedded)] if i.variant_of],  # a form comes with a purpose (#218 b1)
             "scene_units_placed": list(scene_units_placed),  # #273: the lesson times at which the interleave step began a scene unit
             "refresh_sentences": dict(refresh_done),
