@@ -384,6 +384,18 @@ class Builder:
     def _beat(self, sc: Script, ex: Exercise) -> None:
         self._pause(sc, ex, self.timing.beat, "beat")
 
+    def _speak_spaced(self, sc: Script, ex: Exercise, text: str, speaker: str, spaced: bool) -> None:
+        """A partner line, and when ``spaced`` (the learner just asked for it slower, #261) said word by word at natural speed with a short gap between the words:
+        gaps, not stretched sounds. The final punctuation stays on the last word; the transcript shows the line once (``Script.transcript``)."""
+        words = text.split()
+        if not spaced or len(words) < 2:
+            self._speak(sc, ex, text, speaker=speaker)
+            return
+        for n, word in enumerate(words):
+            if n:
+                self._pause(sc, ex, self.timing.word_gap, "word_gap", floor=self.timing.word_gap)
+            self._speak(sc, ex, word, speaker=speaker, role="spaced")
+
     def _gap(self, sc: Script, ex: Exercise) -> None:
         self._pause(sc, ex, self.timing.between_exercises, "beat")
 
@@ -1387,7 +1399,7 @@ class Builder:
         self._answer(sc, ex, first_target, speaker=learner_voice)
         self._beat(sc, ex)
         if bridged:
-            self._speak(sc, ex, second.partner_cue, speaker=partner)
+            self._speak_spaced(sc, ex, second.partner_cue, partner, first.slows_partner)
             self._beat(sc, ex)
             if self.translate_partner and self.learner.bridges_heard.get(second.id, 0) < BRIDGE_GLOSS_ENCOUNTERS:
                 # early encounters say what the partner said; later ones rely on comprehension
@@ -1483,7 +1495,8 @@ class Builder:
             self._narr(sc, ex, self.prompts.get("dialogue_start"))  # a scene heard again has the one intro, whichever it is (#272)
         self._narr(sc, ex, dlg.setting)
         self._beat(sc, ex)
-        lines: list[tuple[str, str]] = []
+        lines: list[tuple[str, str, bool]] = []  # (voice, text, said word by word)
+        slow_reply = False  # the learner just asked the partner to speak slower (#261)
         for k, turn in enumerate(turns):
             glossed = translate is True or (translate is not False and k in translate)
             if turn.scene:
@@ -1491,8 +1504,9 @@ class Builder:
             if turn.opener:
                 if k > 0 and not turn.scene:
                     self._beat(sc, ex)  # the previous turn's meaning or line has ended: the next opener is a new line (#241 review)
-                self._speak(sc, ex, turn.opener, speaker=partner)
-                lines.append((partner, turn.opener))
+                self._speak_spaced(sc, ex, turn.opener, partner, slow_reply)
+                lines.append((partner, turn.opener, slow_reply))
+                slow_reply = False
                 if glossed and self.translate_partner and turn.opener_meaning:
                     self._beat(sc, ex)
                     self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=turn.opener_meaning))
@@ -1537,13 +1551,15 @@ class Builder:
                         ids = [i.id for i in made_of]  # a literal line (``expect_text``) made only of words of items the learner has said (#272 review)
                 self._reply_pause(sc, ex, expected, item, ids, heard_play or self._line_known(ids))
                 self._answer(sc, ex, expected, speaker=learner_voice)
-            lines.append((learner_voice, expected))
+            lines.append((learner_voice, expected, False))
+            slow_reply = item is not None and item.slows_partner  # #261: the partner's next line answers a request to speak slower
             if turn.partner:
                 self._beat_after_partner(sc, ex)  # the learner's line has its beat already (a heard line without a meaning ends on one)
                 if turn.partner_scene:
                     self._frame(sc, ex, turn.partner_scene)
-                self._speak(sc, ex, turn.partner, speaker=partner)
-                lines.append((partner, turn.partner))
+                self._speak_spaced(sc, ex, turn.partner, partner, slow_reply)
+                lines.append((partner, turn.partner, slow_reply))
+                slow_reply = False
                 if glossed and self.translate_partner and turn.partner_meaning:
                     self._beat(sc, ex)
                     self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=turn.partner_meaning))
@@ -1552,8 +1568,8 @@ class Builder:
         if replay:
             self._gap(sc, ex)
             self._frame(sc, ex, self.prompts.get("dialogue_replay"))
-            for who, text in lines:
-                self._speak(sc, ex, text, speaker=who)
+            for who, text, spaced in lines:
+                self._speak_spaced(sc, ex, text, who, spaced)
                 self._beat(sc, ex)
         last = sc.segments[-1] if sc.segments else None
         if last is not None and last.type == "pause" and last.role == "beat" and last.exercise == ex.index:

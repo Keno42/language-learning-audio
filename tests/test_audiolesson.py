@@ -1520,7 +1520,15 @@ class CurriculumTests(unittest.TestCase):
         b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
         sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
         b.connect(sc, [first, second])
-        turns = [(s.speaker, s.text) for s in sc.segments if s.type in ("answer", "speak")]
+        turns = []
+        for s in sc.segments:
+            if s.type not in ("answer", "speak"):
+                continue
+            if s.role == "spaced" and turns and turns[-1][0] == s.speaker and turns[-1][2]:  # #261: the line after the request for slower is said word by word
+                turns[-1] = (s.speaker, turns[-1][1] + " " + s.text, True)
+            else:
+                turns.append((s.speaker, s.text, s.role == "spaced"))
+        turns = [(who, text) for who, text, _ in turns]
         # the partner speaks in the bridge's own voice (lesson 8 feedback: match the narration's
         # he/she), the learner's model answers in the other
         partner = second.partner_cue_speaker

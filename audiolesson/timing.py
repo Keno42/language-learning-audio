@@ -33,6 +33,7 @@ class Timing:
     repeat_delay: float = 0.5  # reaction time before repeating something just heard (not recalled)
     beat: float = 0.8  # tiny gap between speech segments
     between_exercises: float = 1.2
+    word_gap: float = 0.3  # a partner who slows down for the learner (#261): the pause between the words of the line, shorter than a beat; the words stay at natural speed
     min_pause: float = 1.5  # floor for repeating what was just heard
     # floors for answer pauses, which include the time to say the answer: recall with nothing
     # given needs time to retrieve as well as speak; a hint or cloze fragment supplies part
