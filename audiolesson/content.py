@@ -153,6 +153,8 @@ class Item:
     # this item, so "A → partner_cue → this" reads as one real exchange. Set both or neither.
     partner_cue: str = ""
     partner_cue_after: str = ""
+    # #261: saying this makes the partner slow down: the partner's next line is spoken word by word with gaps (``Builder._speak_spaced``)
+    slows_partner: bool = False
     # The bridge's scene, required with ``partner_cue``: ``setup`` replaces A's situation,
     # ``meaning`` says what the partner said (narrated only on the first encounters, see
     # LearnerState.bridges_heard), ``situation`` replaces this item's situation.
@@ -768,6 +770,8 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"item {it.id!r}: prompt_by is for a plain phrase (no slots, no speaker-gender forms)")
         if it.partner_cue_speaker not in SPEAKERS:
             raise CurriculumError(f"item {it.id!r}: partner_cue_speaker must be one of {SPEAKERS}, not {it.partner_cue_speaker!r}")
+        if it.slows_partner and it.kind != "phrase":
+            raise CurriculumError(f"item {it.id!r}: slows_partner is for a phrase")
         if it.partner_cue_after and it.partner_cue_after not in ids:
             raise CurriculumError(f"item {it.id!r}: partner_cue_after references unknown item {it.partner_cue_after!r}")
         scene = {"partner_cue_setup": it.partner_cue_setup, "partner_cue_meaning": it.partner_cue_meaning, "partner_cue_situation": it.partner_cue_situation}
