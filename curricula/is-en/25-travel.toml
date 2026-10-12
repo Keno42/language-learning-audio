@@ -426,6 +426,7 @@ requires = ["eg_vil_fara_i_hvalaskodun", "hvad_kostar_ferdin", "hvenaer_leggjum_
 id = "thysku"
 kind = "vocab"
 target = "þýsku"
+syllables = ["þýsk", "u"]
 meaning = "German (the language)"
 meaning_ja = "ドイツ語"
 meaning_spoken = "the German language"

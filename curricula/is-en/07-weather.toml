@@ -123,6 +123,7 @@ meaning_forms_ja = { in_sentence = "雪", neg = "雪は降っていません" }
 id = "skyjad"
 kind = "vocab"
 target = "skýjað"
+syllables = ["ský", "jað"]
 meaning = "cloudy"
 meaning_ja = "曇り"
 meaning_forms_ja = { neg = "曇りではありません" }

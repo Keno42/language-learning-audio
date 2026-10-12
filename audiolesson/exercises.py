@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from .content import Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample, split_note_span
 from .learner import LearnerState
 from .prompts import Prompts
+from .sounds import hard_sounds
 from .script import Exercise, Script, Segment
 from .stages import is_generative
 from .timing import Timing
@@ -610,6 +611,8 @@ class Builder:
                 self._narr(sc, ex, self.prompts.get("natural"))
                 self._speak(sc, ex, item.target)
                 self._repeat_pause(sc, ex, item.target)
+        if not item.is_hard() or item.syllables:
+            self._slow_model_after_hard(sc, ex, item)
         if item.target_m:
             # the words follow the speaker's gender: a man's form too, in the man's voice
             self._narr(sc, ex, self.prompts.get("man_says"))
@@ -714,11 +717,46 @@ class Builder:
             self._narr(sc, ex, self.prompts.get("repeat"))
             self._speak(sc, ex, part.target, speaker=voice)
             self._repeat_pause(sc, ex, part.target)
+            self._slow_model(sc, ex, part, voice)
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(whole["meaning"])))
         self._answer_pause(sc, ex, target, self.cur.by_id[whole["through"]], generative=False)
         self._answer(sc, ex, target, speaker=voice)
         self._gap(sc, ex)
         return ex
+
+    def _slow_model(self, sc: Script, ex: Exercise, item: Item, voice: str | None = None) -> None:
+        """A hard-to-say word (``sounds.hard_sounds``) is heard slowed once at its introduction (#212, H13): cut into its authored syllables, each said slowly and repeated,
+        then at natural speed; without authored syllables the whole word slowly. The speed is the pronunciation rate, not stretched sounds in the word's middle."""
+        if not hard_sounds(item):
+            return
+        if item.syllables:
+            self._narr(sc, ex, self.prompts.get("split_slowly"))
+            for piece in item.syllables:
+                self._speak(sc, ex, piece, speaker=voice or "native_a", rate=self.timing.slow_rate)
+                self._repeat_pause(sc, ex, piece)  # one pause between pieces is enough
+        else:
+            self._narr(sc, ex, self.prompts.get("slowly"))
+            self._speak(sc, ex, item.target, speaker=voice or "native_a", rate=self.timing.slow_rate)
+            self._repeat_pause(sc, ex, item.target)
+        self._narr(sc, ex, self.prompts.get("natural"))
+        self._speak(sc, ex, item.target, speaker=voice or "native_a")
+        self._repeat_pause(sc, ex, item.target)
+
+    def _slow_model_after_hard(self, sc: Script, ex: Exercise, item: Item) -> None:
+        """The generic introduction's slow model for a hard-to-say word (#212): a word that already got a slow whole-word repetition (``is_hard``) only gets the split."""
+        if item.is_hard() and not item.syllables:
+            return
+        if item.is_hard():
+            # slow whole word was given already: only the syllable split and the natural speed after it
+            self._narr(sc, ex, self.prompts.get("split_slowly"))
+            for piece in item.syllables:
+                self._speak(sc, ex, piece, rate=self.timing.slow_rate)
+                self._repeat_pause(sc, ex, piece)
+            self._narr(sc, ex, self.prompts.get("natural"))
+            self._speak(sc, ex, item.target)
+            self._repeat_pause(sc, ex, item.target)
+            return
+        self._slow_model(sc, ex, item)
 
     def _form_contrast(self, sc: Script, ex: Exercise, item: Item, voice: str) -> None:
         """A noun in a form its frame asks is named once against its basic word (#270: «köku» ← «kaka» after «Ég ætla að fá»)."""
@@ -754,6 +792,7 @@ class Builder:
         self._frame(sc, ex, self.prompts.get("embed_part"))
         self._speak(sc, ex, item.target, speaker=voice)
         self._beat(sc, ex)
+        self._slow_model(sc, ex, item, voice)
         self._form_contrast(sc, ex, item, voice)
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(meaning)))
         self._answer_pause(sc, ex, target, item, generative=False)

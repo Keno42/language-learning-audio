@@ -12,6 +12,8 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .sounds import split_breaks_a_cluster
+
 KINDS = ("vocab", "phrase", "construction", "transform")
 GENDERS = ("masc", "fem", "neut")
 
@@ -114,6 +116,7 @@ class Item:
     alternatives: list[str] = field(default_factory=list)
     pronunciation_notes: str = ""
     chunks: list[str] | None = None  # backward-build chunks, shortest first
+    syllables: list[str] | None = None  # #212: a hard-to-say word cut into syllables, authored (never guessed), spoken slowly one at a time at its introduction
     slots: dict[str, str] = field(default_factory=dict)  # construction: slot -> required tag
     example: dict[str, str] = field(default_factory=dict)  # construction: slot -> item id
     # construction: slot -> the fill its situation names ("Ask if she speaks English." only fits
@@ -682,6 +685,13 @@ def validate(cur: Curriculum) -> None:
         for ref in it.components + it.prereqs:
             if ref not in ids:
                 raise CurriculumError(f"item {it.id!r} references unknown item {ref!r}")
+        if it.syllables is not None:
+            joined = "".join(it.syllables).casefold()
+            plain = re.sub(r"[\s.?!,]", "", it.target).casefold()
+            if len(it.syllables) < 2 or it.word_count != 1 or joined != plain:
+                raise CurriculumError(f"item {it.id!r}: syllables are two or more pieces of a one-word target that join to it exactly: {it.syllables!r} vs {it.target!r}")
+            if (cut := split_breaks_a_cluster(it.syllables)) is not None:
+                raise CurriculumError(f"item {it.id!r}: syllables {it.syllables!r} cut the cluster «{cut}» in two; keep it inside one piece (said apart it is an ordinary sound)")
         if bool(it.partner_cue) != bool(it.partner_cue_after):
             raise CurriculumError(f"item {it.id!r}: partner_cue and partner_cue_after must be set together, or not at all")
         if it.target_m and (it.kind == "construction" or it.target_m == it.target):

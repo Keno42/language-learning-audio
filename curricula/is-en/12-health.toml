@@ -167,6 +167,7 @@ meaning_forms_ja = { in_sentence = "いいです" }
 id = "illa"
 kind = "vocab"
 target = "illa"
+syllables = ["ill", "a"]
 meaning = "unwell, badly (how you feel)"
 meaning_ja = "悪い（気分が）"
 meaning_spoken = "unwell, as in how you feel"

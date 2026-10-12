@@ -46,6 +46,7 @@ meaning_forms_ja = { in_sentence = "値段が高い", neg = "値段が高くあ�
 id = "odyrt"
 kind = "vocab"
 target = "ódýrt"
+syllables = ["ó", "dýrt"]
 meaning = "cheap"
 meaning_ja = "安い"
 meaning_forms_ja = { neg = "安くありません" }
@@ -57,6 +58,7 @@ topics = ["adjectives", "money"]
 id = "fallegt"
 kind = "vocab"
 target = "fallegt"
+syllables = ["fall", "egt"]
 meaning = "beautiful"
 meaning_ja = "美しい"
 meaning_forms_ja = { neg = "美しくありません" }
@@ -90,6 +92,7 @@ topics = ["adjectives"]
 id = "erfitt"
 kind = "vocab"
 target = "erfitt"
+syllables = ["er", "fitt"]
 meaning = "difficult"
 meaning_ja = "難しい"
 meaning_forms_ja = { neg = "難しくありません" }
@@ -290,6 +293,7 @@ meaning_forms_ja = { in_sentence = "面白い", neg = "おかしくありませ�
 id = "skrytid"
 kind = "vocab"
 target = "skrýtið"
+syllables = ["skrýt", "ið"]
 meaning = "strange"
 meaning_ja = "変"
 meaning_forms_ja = { neg = "変ではありません" }
@@ -345,6 +349,7 @@ topics = ["adjectives"]
 id = "haett"
 kind = "vocab"
 target = "hættulegt"
+syllables = ["hætt", "u", "legt"]
 meaning = "dangerous"
 meaning_ja = "危険"
 meaning_forms_ja = { neg = "危険ではありません" }
@@ -592,6 +597,7 @@ id = "fallegur"
 kind = "vocab"
 variant_of = "fallegt"
 target = "fallegur"
+syllables = ["fall", "eg", "ur"]
 meaning = "beautiful (of a man)"
 meaning_ja = "美しい（男性について）"
 meaning_spoken = "beautiful, said of a man"
@@ -608,6 +614,7 @@ id = "falleg"
 kind = "vocab"
 variant_of = "fallegt"
 target = "falleg"
+syllables = ["fall", "eg"]
 meaning = "beautiful (of a woman)"
 meaning_ja = "美しい（女性について）"
 meaning_spoken = "beautiful, said of a woman"
