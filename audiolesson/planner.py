@@ -1824,12 +1824,17 @@ class Planner:
                 spacing_deferrals[entry[2].id] += 1
                 seq_later = 10**6 + sum(spacing_deferrals.values())  # unique, after every introduction's own sequence number
                 intro_timeline.append((sc.total_duration + self.cfg.spacing_report, seq_later, entry[2], entry[3]))
+                if first_rung.get(entry[2].id) == entry[1]:
+                    first_rung[entry[2].id] = seq_later  # the deferred entry keeps being the part's first rung (#287)
                 return False
-            stage = entry[3]
-            if first_rung.get(entry[2].id) == entry[1] and b.recombine_status(entry[2]) == "novel":
-                stage = "recombine"  # #287 step 2: the first reactivation of today's new part applies it in a sentence, "now use it in another sentence" (H6: chunk, then pattern, then transfer)
-                self.step2_parts.append(entry[2].id)
-            if do_recall(entry[2], stage):
+            first = first_rung.get(entry[2].id) == entry[1]
+            if do_recall(entry[2], entry[3]):
+                if first and b.recombine_status(entry[2]) == "novel":
+                    # #287 step 2: right after the retrieval, "use it in a sentence" (H6: chunk, then pattern, then transfer). The exercise just before practised the part, so the cue's
+                    # promise is true. Once per part; the rungs and their spacing are as before
+                    before = len(sc.exercises)
+                    if do_recall(entry[2], "recombine") and len(sc.exercises) > before and sc.exercises[-1].kind == "generative":
+                        self.step2_parts.append(entry[2].id)
                 return True
             capped_backlog.append(entry)
             return False

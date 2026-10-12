@@ -98,3 +98,8 @@ class ApplyInASentenceTests(unittest.TestCase):
         self.assertIn("thrja", sc.meta["new_items"])
         self.assertEqual(sc.meta["apply_in_sentence_parts"].count("thrja"), 1, "at most one per new part")
         self.assertTrue(any(e.kind == "generative" and e.item_ids[0] == "thrja" for e in sc.exercises), "applied in a sentence")
+        # right after the part's own retrieval, so «Use it in a sentence.» is true (#291 review)
+        k = next(i for i, e in enumerate(sc.exercises) if e.kind == "generative" and e.item_ids[0] == "thrja")
+        self.assertIn("thrja", sc.exercises[k - 1].item_ids)
+        said = next(g.text for g in sc.segments if g.type == "narrate" and g.exercise == k)
+        self.assertTrue(said.startswith("Use it in a sentence."), said)
