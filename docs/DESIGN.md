@@ -426,7 +426,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
     played scene's (named aloud), then the rest. The question is never guessed from a slot's name.
   - *Catch an unknown word* (`catch_unknown`): a partner line (or variant) of the lesson's scene or a played one whose words hold exactly one
     the learner does not know (counted by occurrence), with an authored meaning in `Turn.word_glosses` (also a variant's); only once
-    `hvad_thydir_thetta` can be said. The learner says the word and asks what it means; the model answers in the other voice.
+    `hvad_thydir_thetta` can be said. The learner says the word and asks what it means; the model answers in the other voice. **The partner answers (#279):** the narrator reports it, not answers it: «He/She tells you:» (`catch_unknown_told`, from the line's speaker), the word in the partner's voice, «means: …» (`catch_unknown_means`), then «Now listen again.» (`catch_unknown_again`) before the line replays. A `paraphrase` in a gloss (the partner rewording it) is the later, data step and is not built.
   - Both are exercise kinds of their own (`pick_out`, `catch_unknown`), not in `PRACTICE_KINDS`, and nothing is `_record`ed: what was only heard
     is not practised, and the next day's review does not ask it. No new item is introduced for them.
   - `meta` / `plan.json` `second_half`: `pick_out_count`, `catch_unknown_count`, `longest_kind_run_after_target` (counted from the target to the closing block, which has its own run of recalls);

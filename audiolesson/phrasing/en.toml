@@ -109,6 +109,10 @@ speaker_he = "he"
 speaker_she = "she"
 catch_unknown_context = "You heard: {context} Ask what the missing word means."
 catch_unknown_pointer = "Ask what {pointer} means."
+# #279: the partner answers the question; the narrator only reports it, then the line is heard again with its meaning known
+catch_unknown_told = "{who} tells you:"
+catch_unknown_means = "means: {meaning}"
+catch_unknown_again = "Now listen again."
 
 [language_names]
 fr = "French"

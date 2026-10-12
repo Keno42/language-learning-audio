@@ -105,6 +105,10 @@ speaker_he = "男性"
 speaker_she = "女性"
 catch_unknown_context = "「{context}」と言っていました。そこに入ることばの意味を聞いてください。"
 catch_unknown_pointer = "{pointer}を表すことばの意味を聞いてください。"
+# #279: 相手が質問に答える。ナレーションはそれを伝え、意味がわかったうえでもう一度聞く
+catch_unknown_told = "{who}が教えてくれました。"
+catch_unknown_means = "「{meaning}」という意味です。"
+catch_unknown_again = "もう一度聞いてみましょう。"
 
 [language_names]
 fr = "フランス語"
