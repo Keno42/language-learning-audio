@@ -76,7 +76,7 @@ class UnknownCueTests(unittest.TestCase):
                 partner = Turn("partner", **line)
             else:
                 getattr(partner, location).append(line)
-            theme = Theme("x", "A3", "X", levels=[Level("g", turns=[partner, Turn("you", "Takk.", cue="Thank them.", items=["takk"])])])
+            theme = Theme("x", "A3", "X", scene_line="You are there.", levels=[Level("g", turns=[partner, Turn("you", "Takk.", cue="Thank them.", items=["takk"])])])
             _check(theme)
         for location in ("canonical", "variants", "listen"):
             for lang in ("en", "ja"):

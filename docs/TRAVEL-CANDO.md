@@ -46,6 +46,8 @@ the same thing, #134); the early (translated) play uses a variant; the late play
 candidates for native-speaker correction. General content only: the private trip profile decides which
 scenarios come first and never appears here.
 
+A theme names its scene twice (#278): `setting` / `setting_ja` is a written synopsis (a list of places or of what happens) and is never spoken; `scene_line` / `scene_line_ja` (required, checked by `validate` like other narration) is the one sentence the narrator says to put the learner there («You're at a busy café.»). Speech uses only `scene_line`: a conversation's scene line, the scene heard again, and the lead-in of a pick-out or catch task from another theme.
+
 A partner line, or one of its variants, may carry `word_glosses = { word = { en, ja } }`: the meaning of a word in it
 the learner may not know (#248). The second half's *catch the unknown word* exercise uses a line whose words hold exactly
 one unknown word with a gloss; the learner says the word and «Hvað þýðir þetta?». A gloss is authored, never guessed
