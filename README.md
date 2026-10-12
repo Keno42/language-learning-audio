@@ -196,12 +196,17 @@ padding. From roughly lesson 5 on, the length is exact.
    natural speed) and immediately retrieved once. Its reactivations are then
    scheduled by time (about 1, 3, 8 and 15 minutes of a 30-minute lesson after the
    introduction), each at a harder stage; a short item (one or two words) is said
-   alone at most three times in a lesson, its other practice being inside sentences.
+   alone at most three times in a lesson, its other practice being inside sentences
+   (a part is not said alone at all once a sentence holds it).
    Reviews of older items fill the gaps, avoiding the same item or topic twice
-   in a row. Every few exercises a dialogue is played if the learner knows all
-   its lines — two turns the first time, one more turn on each later
-   encounter; constructions are recombined with known vocabulary into
-   sentences never heard verbatim. Each batch of new items also gets a
+   in a row. The lesson is built around one scene (a theme level): its exchange
+   plays early with the partner's lines translated and late without. Lines the
+   learner can say are asked; lines they can't are heard with their meaning.
+   About every four minutes a short scene unit comes: a scene heard again, a
+   pick-out (find the price or the time in a partner's line) or an unknown word
+   caught («Hvað þýðir …?»). A part (a word that fills a slot) is introduced and
+   asked inside the sentence that holds it; constructions are recombined with
+   known vocabulary into sentences never heard verbatim. Each batch of new items also gets a
    *connect* exercise: a short exchange with a partner line between two of
    its items when one is authored, otherwise a quick mixed review of two
    separate situations. A long run of isolated recalls is
@@ -232,10 +237,12 @@ The retrieval ladder per item kind (see `audiolesson/stages.py`):
 Stages that an item can't support (no situation text, not in any dialogue,
 nothing to recombine) are skipped.
 
-**Timing.** Pause lengths are computed, never hard-coded: base window by
-answer length (word 2.5 s, short phrase 4 s, sentence 6.5 s, long 8.5 s) ×
-level (A0 1.4 … B2 0.75) × familiarity (few successes 1.15, many 0.85) ×
-difficulty, plus a bonus for generative prompts. Everything is a field of
+**Timing.** Pause lengths are computed, never hard-coded: a moment to recall
+(1 s, plus 1.5 s for a novel combination) × level (A0 1.4 … B2 0.75) ×
+familiarity (few successes 1.15, many 0.85) × difficulty, plus the estimated
+time to say the answer, with a floor of 2.5 s (1.5 s when a hint gives part of
+it). A conversation reply the learner has said before gets no novel-combination
+bonus. Everything is a field of
 `Timing` (`audiolesson/timing.py`); `--pause-multiplier` and the profile's
 `pause_multiplier` scale the result at plan or render time.
 
