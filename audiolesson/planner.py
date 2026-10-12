@@ -831,10 +831,32 @@ class Planner:
             "trivial_questions": [e.label for e in sc.exercises if e.kind == "recall" and e.stage != "intro" and len(e.item_ids) == 1
                                   and (it := self.cur.by_id.get(e.item_ids[0])) is not None and it.kind == "vocab" and cue_is_answer(it)
                                   and any(g.type == "answer" and g.exercise == e.index and _norm_utterance(g.text or "") == _norm_utterance(it.target) for g in sc.segments)],  # a recall through its sentence is the point, not a hit
+            # #287: a recombine prompt that promises a link («Use it in a sentence», «Use the pattern again») to the exercise just before, which did not practise that item (0 expected)
+            "unkept_links": self._unkept_links(sc),
             "bare_noun_recalls": [e.label for e in sc.exercises if e.kind == "recall" and e.stage in BARE_STAGES and len(e.item_ids) == 1
                                   and (it := self.cur.by_id.get(e.item_ids[0])) is not None and it.noun
                                   and any(g.type == "answer" and g.exercise == e.index and _norm_utterance(g.text or "") == _norm_utterance(it.target) for g in sc.segments)],
         }
+
+    def _unkept_links(self, sc: Script) -> list[str]:
+        """The labels of generative recombine exercises whose narration promises a link to the exercise before (#287) that is not there."""
+        promises = tuple(
+            t.split("{meaning}")[0].strip()
+            for key in ("recombine_again", "recombine_vocab_again")
+            for t in ([self.prompts.data[key]] if isinstance(self.prompts.data[key], str) else self.prompts.data[key])
+        )
+        first_narration: dict[int, str] = {}
+        for g in sc.segments:
+            if g.type == "narrate" and g.exercise is not None and g.text:
+                first_narration.setdefault(g.exercise, g.text)
+        out = []
+        for e in sc.exercises:
+            if e.kind != "generative" or e.stage != "recombine" or e.index == 0 or not e.item_ids:
+                continue
+            text = first_narration.get(e.index, "")
+            if any(text.startswith(p) for p in promises) and e.item_ids[0] not in sc.exercises[e.index - 1].item_ids:
+                out.append(e.label)
+        return out
 
     @staticmethod
     def _is_echo(sc: Script, e) -> bool:
