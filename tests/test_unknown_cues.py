@@ -45,7 +45,13 @@ class UnknownCueTests(unittest.TestCase):
                 self.assertNotIn("kjötsúpa", cue)
                 self.assertNotIn(task.meaning, cue)
                 self.assertEqual([g.text for g in sc.segments if g.type == "answer"], ["Hvað þýðir kjötsúpa?"])
-                self.assertEqual([g.text for g in sc.segments if g.type == "speak"], [task.line, task.line])
+                self.assertEqual([g.text for g in sc.segments if g.type == "speak"], [task.line, task.answer, task.line])
+                # #279: the partner answered; the narrator reports it (he/she from the line's speaker), then the line is heard again
+                told = [g.text for g in sc.segments if g.type == "narrate"]
+                who = {"en": "He tells you:", "ja": "男性が教えてくれました。"}[lang]
+                self.assertIn(who, told)
+                self.assertIn({"en": "Now listen again.", "ja": "もう一度聞いてみましょう。"}[lang], told)
+                self.assertTrue(any(task.meaning.lower() in t.lower() for t in told[told.index(who) + 1:]), "the meaning follows the word")
                 self.assertEqual(sc.review_questions(), [])
                 self.assertEqual(b.learner.items, {})
 

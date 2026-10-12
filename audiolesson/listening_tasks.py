@@ -230,8 +230,16 @@ def _build(b, sc: Script, task: ListeningTask) -> None:
     voice = _other_voice(task.speaker) if task.repair else task.speaker
     b._answer(sc, ex, expected, speaker=voice)
     b._beat(sc, ex)
-    b._narr(sc, ex, b._m(task.meaning))
-    b._beat(sc, ex)
+    if task.kind == "catch_unknown":
+        # #279: the partner answered the question; the narrator reports it, the line is then heard again with the meaning known
+        b._narr(sc, ex, b.prompts.get("catch_unknown_told", who=who[:1].upper() + who[1:]))
+        b._speak(sc, ex, task.answer, speaker=task.speaker, role="listening_word")
+        b._narr(sc, ex, b.prompts.get("catch_unknown_means", meaning=b._m(task.meaning)))
+        b._beat(sc, ex)
+        b._frame(sc, ex, b.prompts.get("catch_unknown_again"))
+    else:
+        b._narr(sc, ex, b._m(task.meaning))
+        b._beat(sc, ex)
     b._speak(sc, ex, task.line, speaker=task.speaker, role="listening_replay")
     b._gap(sc, ex)
 
