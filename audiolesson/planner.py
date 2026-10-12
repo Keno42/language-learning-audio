@@ -840,6 +840,7 @@ class Planner:
                                   and any(g.type == "answer" and g.exercise == e.index and _norm_utterance(g.text or "") == _norm_utterance(it.target) for g in sc.segments)],  # a recall through its sentence is the point, not a hit
             # #287: a recombine prompt that promises a link («Use it in a sentence», «Use the pattern again») to the exercise just before, which did not practise that item (0 expected)
             "unkept_links": self._unkept_links(sc),
+            "apply_in_sentence_parts": list(getattr(self, "step2_parts", [])),  # #287 step 2: today's new parts whose first reactivation applied them in a sentence
             "bare_noun_recalls": [e.label for e in sc.exercises if e.kind == "recall" and e.stage in BARE_STAGES and len(e.item_ids) == 1
                                   and (it := self.cur.by_id.get(e.item_ids[0])) is not None and it.noun
                                   and any(g.type == "answer" and g.exercise == e.index and _norm_utterance(g.text or "") == _norm_utterance(it.target) for g in sc.segments)],
@@ -1594,6 +1595,8 @@ class Planner:
         refresh_timeline: list[tuple[float, int, Item]] = []  # a known construction's light review sentences (#171)
         refresh_done: dict[str, int] = {}
         intro_timeline: list[tuple[float, int, Item, str]] = []  # today's items' recalls, by time
+        self.step2_parts = []  # #287: the parts whose first reactivation was made a recombine
+        first_rung: dict[str, int] = {}  # #287: part id → the sequence number of its first timed recall, which becomes a recombine where a known pattern takes the part
         sentence_used: dict[str, set[str]] = {}  # per short item, the sentences practised this lesson
         capped_backlog: list[tuple[float, int, Item, str]] = []  # recalls dropped for want of a sentence
         lapse_short = [None]  # seconds the lesson would have ended short when the bare cap lapsed (for the daily read and tests)
@@ -1703,6 +1706,8 @@ class Planner:
                 ladder = self.ladder(part)
                 for k, after in enumerate(cfg.intro_recall_times):
                     seq += 1
+                    if k == 0 and part.kind == "vocab":
+                        first_rung[part.id] = seq
                     intro_timeline.append((sc.total_duration + after * (budget - closing_reserve), seq, part, ladder[min(k + 1, len(ladder) - 1)]))
             last_intro = idx
             last_intro_at = sc.total_duration
@@ -1820,7 +1825,11 @@ class Planner:
                 seq_later = 10**6 + sum(spacing_deferrals.values())  # unique, after every introduction's own sequence number
                 intro_timeline.append((sc.total_duration + self.cfg.spacing_report, seq_later, entry[2], entry[3]))
                 return False
-            if do_recall(entry[2], entry[3]):
+            stage = entry[3]
+            if first_rung.get(entry[2].id) == entry[1] and b.recombine_status(entry[2]) == "novel":
+                stage = "recombine"  # #287 step 2: the first reactivation of today's new part applies it in a sentence, "now use it in another sentence" (H6: chunk, then pattern, then transfer)
+                self.step2_parts.append(entry[2].id)
+            if do_recall(entry[2], stage):
                 return True
             capped_backlog.append(entry)
             return False
