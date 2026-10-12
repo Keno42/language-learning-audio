@@ -188,7 +188,7 @@ morae that also has a mark English rarely has (a macron, tsu/shi/chi/fu/ji, an
 ending -masu/-desu/-shita, "gozai"), and `ROMAJI_DENIED`, known words that carry
 no such mark (genkan, keigo, onsen…; add the next one a note tempts). The few
 English lookalikes are `ROMAJI_ALLOWED`. The scan runs over a note's text, every
-English field the glossing names (`_GLOSSED_ITEM`, `_GLOSSED_EXAMPLE`, `_GLOSSED_DIALOGUE`, `_GLOSSED_TURN`: items, their examples, dialogues and turns) and a theme's `setting` and turn
+English field the glossing names (`_GLOSSED_ITEM`, `_GLOSSED_EXAMPLE`, `_GLOSSED_DIALOGUE`, `_GLOSSED_TURN`: items, their examples, dialogues and turns) and a theme's `scene_line` and `setting` and turn
 `cue` and `meaning`; only a note can mark a span, so elsewhere reword. The
 reading deck is not scanned («gufuba», from «gufubað», would be a false hit).
 

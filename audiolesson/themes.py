@@ -15,8 +15,10 @@ and ``load_scenes`` only ``[[scenes]]``, so they share the directory)::
     scenario = "A4"                 # the can-do scenario it serves
     title = "Café"
     title_ja = "カフェ"
-    setting = "A busy café: order at the counter."
+    setting = "A busy café: order at the counter."      # the written synopsis, shown but never spoken (#278)
     setting_ja = "混んだカフェ。"
+    scene_line = "You're at a busy café."               # what the narrator says to put the learner there (required)
+    scene_line_ja = "混んだカフェにいます。"
     topics = ["cafe"]
 
     [[themes.levels]]
@@ -131,6 +133,8 @@ class Theme:
     title_ja: str = ""
     setting: str = ""
     setting_ja: str = ""
+    scene_line: str = ""  # #278: the spoken scene, one sentence that puts the learner there; ``setting`` is a written synopsis and is never spoken
+    scene_line_ja: str = ""
     topics: list[str] = field(default_factory=list)
     levels: list = field(default_factory=list)  # list[Level] once loaded
 
@@ -168,6 +172,13 @@ def load_themes(curriculum_dir: str | Path, cur: Curriculum | None = None, scena
 def _check(theme: Theme) -> None:
     if not theme.levels:
         raise CurriculumError(f"theme {theme.id!r}: no levels")
+    if not theme.scene_line.strip():
+        raise CurriculumError(f"theme {theme.id!r}: no scene_line (the sentence the narrator says to put the learner in the scene; `setting` is a written synopsis, never spoken)")
+    for field_name in ("scene_line", "scene_line_ja"):
+        if "{" in getattr(theme, field_name):
+            raise CurriculumError(f"theme {theme.id!r}: {field_name}: no «{{»")
+    for w in unmarked_japanese(theme.scene_line):
+        raise CurriculumError(f"theme {theme.id!r}: scene_line: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
     for w in unmarked_japanese(theme.setting):
         raise CurriculumError(f"theme {theme.id!r}: setting: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
     for n, lv in enumerate(theme.levels, 1):
@@ -306,7 +317,7 @@ def level_dialogue(theme: Theme, n: int, known_lang: str = "en", picks: dict[int
             turn.opener, turn.opener_meaning, turn.scene = opener[0], opener[1], opener_scene
             opener, opener_scene = None, ""
         turns.append(turn)
-    setting = theme.setting_ja if ja and theme.setting_ja else theme.setting
+    setting = theme.scene_line_ja if ja and theme.scene_line_ja else theme.scene_line  # #278: the spoken scene line, never the written synopsis
     return Dialogue(
         id=f"theme:{theme.id}:{n + 1}",
         setting=setting or theme.title,
