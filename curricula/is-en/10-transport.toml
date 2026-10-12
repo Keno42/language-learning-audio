@@ -162,6 +162,7 @@ id = "fjora_acc"
 kind = "vocab"
 variant_of = "fjorir"
 target = "fjóra"
+syllables = ["fjór", "a"]
 meaning = "four, as when ordering tickets"
 meaning_ja = "切符を頼むときの4"
 meaning_forms = { in_sentence = "four", ticket = "four tickets" }

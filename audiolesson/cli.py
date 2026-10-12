@@ -563,6 +563,11 @@ def cmd_validate(args) -> int:
         if args.parts:
             for f in parts:
                 print(f"  #{f['part_order']:<4} {f['part']} is inside #{f['whole_order']} {f['whole']} ({f['gap']} items earlier)")
+    from .sounds import hard_sounds
+
+    unsplit = [i.id for i in cur.items if hard_sounds(i) and not i.syllables]
+    if unsplit:
+        print(f"advisory (not a failure): {len(unsplit)} hard-to-say words have no authored `syllables` (#212); they get a slow whole-word model only: {', '.join(unsplit[:10])}")
     homeless = [i.id for i in cur.items if i.kind == "vocab" and not has_home(cur, i)]
     if homeless:
         print(

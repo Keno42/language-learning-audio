@@ -21,6 +21,7 @@ from itertools import groupby
 
 from .content import Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance, cue_is_answer
+from .sounds import hard_sounds
 from .learner import LearnerState
 from .review_wholes import whole_for
 from .listening_tasks import REPAIR_ITEM, SecondHalfRotation, append_task, catch_unknown, key_of, partner_pick_out
@@ -3010,6 +3011,7 @@ class Planner:
             "embedded_items": list(self.embedded),
             "pattern_instances": list(self.pattern_instances),
             "intro_skipped": list(intro_skipped),
+            "hard_words": [i.id for i in introduced if hard_sounds(i)],  # #212: today's new words that got the slow, split model
             "variant_items": [i.id for i in [*introduced, *(self.cur.by_id[e] for e in self.embedded)] if i.variant_of],  # a form comes with a purpose (#218 b1)
             "scene_units_placed": list(scene_units_placed),  # #273: the lesson times at which the interleave step began a scene unit
             "refresh_sentences": dict(refresh_done),

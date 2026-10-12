@@ -450,6 +450,7 @@ topics = ["time"]
 id = "alltaf"
 kind = "vocab"
 target = "alltaf"
+syllables = ["all", "taf"]
 meaning = "always"
 meaning_ja = "いつも"
 difficulty = 1

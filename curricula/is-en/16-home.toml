@@ -54,6 +54,7 @@ topics = ["home"]
 id = "thvottavelin"
 kind = "vocab"
 target = "þvottavélin"
+syllables = ["þvot", "ta", "vél", "in"]
 meaning = "the washing machine"
 meaning_ja = "洗濯機"
 difficulty = 3
@@ -77,6 +78,7 @@ meaning_forms_ja = { in_sentence = "ごみ箱" }
 id = "lykillinn"
 kind = "vocab"
 target = "lykillinn"
+syllables = ["ly", "kill", "inn"]
 meaning = "the key"
 meaning_ja = "その鍵（〜は・〜が）"
 meaning_spoken_ja = "その鍵が"
