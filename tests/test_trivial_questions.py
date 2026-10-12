@@ -52,6 +52,25 @@ class TrivialQuestionTests(unittest.TestCase):
         sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=1, new_items=3), today=TODAY).build()
         self.assertEqual(sc.meta["trivial_questions"], [])
 
+    def test_a_recall_through_the_sentence_is_not_a_trivial_question(self):
+        """#283 review: «krónur» asked as «þúsund krónur» has a cue equal to the part, but the answer is the sentence: not counted."""
+        cur = curriculum_from_dict({
+            "curriculum": {"name": "t", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "thusund", "kind": "vocab", "target": "þúsund", "meaning": "thousand", "tags": ["n"]},
+                {"id": "kronur", "kind": "vocab", "target": "krónur", "meaning": "krónur", "tags": ["n"]},
+                {"id": "thusund_kronur", "kind": "vocab", "target": "þúsund krónur", "meaning": "a thousand krónur", "tags": ["n"]},
+            ],
+        })
+        learner = LearnerState("is", "en", "A1")
+        learner.items["thusund_kronur"] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3,
+                                                    due="2026-03-06", last_practiced="2026-02-27")
+        learner.lessons_completed = 4
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=10, new_items=2, max_new_items=2, priority=["thusund", "kronur"], seed=3), today=TODAY).build()
+        through = [e for e in sc.exercises if e.kind == "recall" and e.label == "meaning: þúsund krónur" and e.item_ids[0] in ("kronur", "thusund")]
+        self.assertTrue(through, "the parts are recalled through their line")
+        self.assertEqual(sc.meta["trivial_questions"], [])
+
 
 if __name__ == "__main__":
     unittest.main()
