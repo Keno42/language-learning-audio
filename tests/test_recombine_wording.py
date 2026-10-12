@@ -69,3 +69,37 @@ class RecombineWordingTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ApplyInASentenceTests(unittest.TestCase):
+    """#287 step 2: the first reactivation of today's new part applies it in a sentence where a known pattern takes it."""
+
+    def test_a_new_part_with_a_known_pattern_is_first_reactivated_as_a_recombine(self):
+        from audiolesson.content import curriculum_from_dict
+        from audiolesson.learner import ItemState
+
+        cur = curriculum_from_dict({
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "tvo", "kind": "vocab", "target": "tvo", "meaning": "two", "tags": ["c"]},
+                {"id": "thrja", "kind": "vocab", "target": "þrjá", "meaning": "three", "tags": ["c"]},
+                {"id": "fjora", "kind": "vocab", "target": "fjóra", "meaning": "four", "tags": ["c"]},
+                {"id": "pat", "kind": "construction", "target": "{count} miða, takk.", "meaning": "{count} tickets, please.", "slots": {"count": "c"}, "example": {"count": "tvo"}},
+                {"id": "pat2", "kind": "construction", "target": "Ég vil {count} miða.", "meaning": "I want {count} tickets.", "slots": {"count": "c"}, "example": {"count": "tvo"}},
+                *({"id": f"r{n}", "kind": "phrase", "target": f"Rifja {n}.", "meaning": f"Review {n}."} for n in range(10)),
+            ],
+        })
+        learner = LearnerState("is", "en", "A1")
+        for i in ("tvo", "pat", "pat2", *(f"r{n}" for n in range(10))):
+            due = TODAY - timedelta(days=1) if i.startswith("r") else TODAY + timedelta(days=5)
+            learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3, due=due.isoformat(), last_practiced=(TODAY - timedelta(days=8)).isoformat())
+        learner.lessons_completed = 4
+        sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, new_items=1, max_new_items=1, priority=["thrja"], seed=3), today=TODAY).build()
+        self.assertIn("thrja", sc.meta["new_items"])
+        self.assertEqual(sc.meta["apply_in_sentence_parts"].count("thrja"), 1, "at most one per new part")
+        self.assertTrue(any(e.kind == "generative" and e.item_ids[0] == "thrja" for e in sc.exercises), "applied in a sentence")
+        # right after the part's own retrieval, so «Use it in a sentence.» is true (#291 review)
+        k = next(i for i, e in enumerate(sc.exercises) if e.kind == "generative" and e.item_ids[0] == "thrja")
+        self.assertIn("thrja", sc.exercises[k - 1].item_ids)
+        said = next(g.text for g in sc.segments if g.type == "narrate" and g.exercise == k)
+        self.assertTrue(said.startswith("Use it in a sentence."), said)
