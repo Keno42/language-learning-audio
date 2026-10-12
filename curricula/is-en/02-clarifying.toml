@@ -161,6 +161,7 @@ meaning = "Could you speak more slowly?"
 meaning_ja = "もっとゆっくり話してもらえますか？"
 difficulty = 4
 topics = ["clarifying"]
+slows_partner = true
 chunks = ["hægar", "talað hægar", "Gætirðu talað hægar?"]
 situation = "The barista is speaking far too fast. Ask her to speak more slowly."
 situation_ja = "バリスタの話が速すぎます。もっとゆっくり話すよう頼んでください。"
