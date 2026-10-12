@@ -188,7 +188,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "framing lines followed by an example without a beat (#241)": unframed,
         "review questions: a part beside its whole, or one answer asked twice (#239)": parts_outside_their_whole(_plan(sc, cur)["review"], cur),
         "longest stretch without a scene, minutes (#273)": f"{m.get('longest_without_scene_s', 0) / 60:.1f}",
-        "an item asked again within the spacing (#273)": m.get("asked_again_within_spacing", 0),
+        "a sentence asked again within a minute (#273)": m.get("asked_again_within_spacing", 0),
         "review questions asking a part bare although it has a home (#262)": ", ".join(bare_parts_with_a_home(_plan(sc, cur)["review"], cur)) or "–",
         "trivial questions (a cue that is its answer) in the lesson / in the review (#277)": f"{len(m.get('trivial_questions', []))} / {sum(1 for r in _plan(sc, cur)['review_refined'] if r['kind'] == 'trivial')}",
         "review questions changed to keep each expression once (#239)": ", ".join(f"{r['kind']}:{'+'.join(r['items'])}" for r in _plan(sc, cur)["review_refined"]) or "–",

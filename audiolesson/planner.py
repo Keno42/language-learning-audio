@@ -832,7 +832,7 @@ class Planner:
             "longest_kind_run_after_target": kind_run,
             "target_delivered": delivered_at is not None,  # false when the lesson ran out of time before the target's items were all taught
             "longest_without_scene_s": longest_without_scene,  # #273: the longest stretch with no conversation, pick-out or catch task
-            "asked_again_within_spacing": asked_again,  # #273: an item asked again less than ``spacing_report`` after it was last asked
+            "asked_again_within_spacing": asked_again,  # #273: a sentence asked again less than ``spacing_report`` after it was last asked
             # #270: a noun asked from its translation alone, in the lesson's own recall (the written review has its own row)
             # #277: a lesson recall whose spoken cue is its answer and whose answer is the bare part (0 expected; a recall through its sentence is not counted)
             "trivial_questions": [e.label for e in sc.exercises if e.kind == "recall" and e.stage != "intro" and len(e.item_ids) == 1
@@ -1788,11 +1788,11 @@ class Planner:
             whole = part_whole(item) if item.kind == "vocab" else None
             return _norm_utterance(whole["answer"] if whole else item.target) in answered_lately()
 
-        def play_timed(entry: tuple[float, int, Item, str]) -> bool:
+        def play_timed(entry: tuple[float, int, Item, str], force: bool = False) -> bool:
             """A today's-item recall off ``intro_timeline``; one dropped for want of a sentence
             waits in ``capped_backlog`` for the cap to lapse."""
             intro_timeline.remove(entry)
-            if sentence_lately(entry[2]) and spacing_deferrals[entry[2].id] < 2:
+            if not force and sentence_lately(entry[2]) and spacing_deferrals[entry[2].id] < 2:
                 # #273: the sentence this recall would ask was asked within the last minute: it waits a minute (twice at most), so the same words are spaced, not massed
                 spacing_deferrals[entry[2].id] += 1
                 seq_later = 10**6 + sum(spacing_deferrals.values())  # unique, after every introduction's own sequence number
@@ -2523,7 +2523,8 @@ class Planner:
             if kind == "catch_unknown":
                 return any(emit_listening_task(task) for task in catch_unknown_tasks())
             if kind == "today" and last_kinds_same() not in ("recall", "generative"):
-                for it in sorted((i for i in introduced if i.id not in recent), key=lambda i: len(self.exposures.get(i.id, []))):
+                # #273: an item whose sentence was asked in the last minute goes last
+                for it in sorted((i for i in introduced if i.id not in recent), key=lambda i: (sentence_lately(i), len(self.exposures.get(i.id, [])))):
                     stage = self._harder_than_today(it)
                     if stage == "dialogue":
                         stage = self.below_dialogue(it)
@@ -2749,7 +2750,7 @@ class Planner:
                     pick = cand
                     break
                 if pick is None:
-                    pick = next((c for c in reviews if c.id not in recent and not (gen_capped and c.kind == "construction")), None)
+                    pick = next((c for c in reviews if c.id not in recent and not (gen_capped and c.kind == "construction") and not (run_of_open and c.id in open_today)), None)
                 if pick is not None:
                     reviews.remove(pick)
                     first_touch = passes == 1 or pick.id in early_ids
@@ -2791,12 +2792,12 @@ class Planner:
                 )
                 pulled = None  # today's item whose time has not come, taken early when nothing else fits
                 if candidate is None:
-                    pulled = next((e for e in sorted(intro_timeline) if e[2].id not in recent), None)
+                    pulled = next((e for e in sorted(intro_timeline) if e[2].id not in recent and not sentence_lately(e[2])), None)  # #273: not one whose sentence was just asked
                 if candidate is None and pulled is None and [e.kind for e in sc.exercises[-2:]] == ["intro", "intro"]:
                     # never a third introduction in a row (lesson 1 has nothing else to offer):
                     # recall the earlier of the two instead, only the very last item is off limits
                     candidate = next((p for p in sorted(pending) if p.item.id != recent[-1]), None)
-                    pulled = next((e for e in sorted(intro_timeline) if e[2].id != recent[-1]), None)
+                    pulled = next((e for e in sorted(intro_timeline) if e[2].id != recent[-1] and not sentence_lately(e[2])), None)
                 n_introduced = sum(1 for i in introduced if self.component_by_item.get(i.id, 1.0) > 0) if self.components_mode else len(introduced)
                 can_intro = idx - last_intro >= 1 and n_introduced < cfg.resolved_max_new_items()
                 # a later arc was admitted whole (_may_start_arc): its queued items may fill a gap too,
@@ -2822,7 +2823,7 @@ class Planner:
                     p = heapq.heappop(pending)  # a repeat, but not of the very last exercise
                     do_recall(p.item, p.stage)
                 elif (
-                    repeat := next((e for e in sorted(intro_timeline) if e[2].id != (recent[-1] if recent else None) or e[3] == "dialogue"), None)
+                    repeat := next((e for e in sorted(intro_timeline) if (e[2].id != (recent[-1] if recent else None) or e[3] == "dialogue") and not sentence_lately(e[2])), None)
                 ) is not None:
                     # likewise a today's item whose time has not come (its dialogue rung is no repeat
                     # of the last exercise, whatever that was)
@@ -2883,6 +2884,11 @@ class Planner:
                     pass  # nothing else is left: a planned extra or the cheap construction, never a close variant (#218 b1)
                 elif reviews_used and (sub := pick_substitution(scene_only=False)) is not None:
                     do_substitution(sub)  # the very last resort (#238): a known pattern outside the scene, rather than bare words again or a short lesson
+                elif (
+                    late := next((e for e in sorted(intro_timeline) if e[2].id != (recent[-1] if recent else None) or e[3] == "dialogue"), None)
+                ) is not None and open_run() < 3:
+                    # #273: every other filler is spent; a today's entry whose sentence was asked within the last minute comes now rather than the lesson ending short
+                    play_timed(late, force=True)
                 elif hard_cap_held[0] and bare_cap[0] > 0 and remaining < cfg.hard_cap_short_max and (capped_backlog or intro_timeline):
                     break  # the hard cap freed this time: the two caps conflict, so the lesson ends a little short, not bare words again (#206)
                 elif bare_cap[0] > 0 and (capped_backlog or intro_timeline):
