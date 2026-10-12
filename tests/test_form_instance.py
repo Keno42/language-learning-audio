@@ -41,6 +41,8 @@ class FormInstanceTests(unittest.TestCase):
         mine = [e for e in sc.exercises if "ph" in e.item_ids]
         self.assertEqual([e.kind for e in mine], ["embed"])
         self.assertIn("As a question", sc.transcript())
+        speech = [g.text for g in sc.segments if g.type == "speak"]
+        self.assertLess(speech.index("Þetta er hættulegt."), speech.index("Er þetta hættulegt?"), "the plain sentence is said first")
         order = [e.label for e in sc.exercises if e.kind in ("intro", "embed")]
         self.assertLess(next(i for i, l in enumerate(order) if "Þetta er" in l), order.index("pattern: Er þetta hættulegt?"))
 
@@ -58,8 +60,8 @@ class PartsTogetherTests(unittest.TestCase):
         cur = curriculum_from_dict({
             "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
             "items": [
-                {"id": "thusund", "kind": "vocab", "target": "þúsund", "meaning": "thousand", "tags": ["n"]},
-                {"id": "kronur", "kind": "vocab", "target": "krónur", "meaning": "krónur", "tags": ["n"]},
+                {"id": "thusund", "kind": "vocab", "target": "þúsund", "meaning": "thousand", "tags": ["n"], "noun": "thusund", "form": "nom", "gender": "neut"},
+                {"id": "kronur", "kind": "vocab", "target": "krónur", "meaning": "krónur", "tags": ["n"], "noun": "krona", "form": "pl", "gender": "fem"},
                 {"id": "thusund_kronur", "kind": "vocab", "target": "þúsund krónur", "meaning": "a thousand krónur", "tags": ["n"]},
             ],
         })
@@ -73,3 +75,11 @@ class PartsTogetherTests(unittest.TestCase):
         self.assertIn("And this one:", sc.transcript())
         self.assertEqual(sorted(sc.meta["new_items"]), ["kronur", "thusund"])
         self.assertEqual({sc.meta["wholes_taught"][i]["answer"] for i in ("kronur", "thusund")}, {"þúsund krónur"})
+        # asked through the shared line, a question counts for both parts and the closing asks the line once (not once per part)
+        asked = [e for e in sc.exercises if e.kind == "recall" and e.label == "meaning: þúsund krónur"]
+        self.assertTrue(asked)
+        for e in asked[:-1]:
+            self.assertEqual(sorted(e.item_ids), ["kronur", "thusund"])
+        after_review = [e for e in sc.exercises[[x.label for x in sc.exercises].index("final review"):] if e.kind == "recall"]
+        self.assertEqual([sorted(e.item_ids) for e in after_review], [["kronur", "thusund"]])
+

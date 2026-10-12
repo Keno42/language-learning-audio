@@ -1860,6 +1860,11 @@ class Planner:
             """Ask a noun in its sentence from the sentence's meaning (``Builder.recall_whole``), credited to the noun. False when no sentence exists or it has been said as often as a
             lesson allows: the caller asks it as it would have (#270)."""
             whole = noun_whole(item)
+            if whole is not None and sc.exercises and (prev := sc.exercises[-1]).kind == "recall" and prev.label == f"meaning: {whole['answer']}" and item.id not in prev.item_ids:
+                prev.item_ids.append(item.id)  # #280: a part of the same line, taken out with the one just asked: that question counts for both, it is not asked again
+                self._record([item.id], "meaning", prev.item_ids)
+                touch(item)
+                return True
             if whole is None or (ex := b.recall_whole(sc, item, whole)) is None:
                 return False
             self._record([item.id], "meaning", ex.item_ids)
@@ -2870,6 +2875,12 @@ class Planner:
                 if (stage in BARE_STAGES or stage == "recombine") and short_today(item) and said_in_sentence(item) and holders_all_capped(item):
                     continue  # asked in a sentence today and every sentence that holds it is at the cap: no bare part in its place
                 if item.noun and (stage in BARE_STAGES or stage == "recombine") and (ask_noun(item) or noun_sentence_capped(item)):
+                    shared = b.wholes_taught.get(item.id)
+                    if shared:  # #280: parts taken out of one line share it: the closing asks it once for all of them
+                        mates = [o.id for o in order if o.id != item.id and (b.wholes_taught.get(o.id) or {}).get("answer") == shared["answer"]]
+                        closed.update(mates)
+                        if sc.exercises and sc.exercises[-1].kind == "recall" and item.id in sc.exercises[-1].item_ids:
+                            sc.exercises[-1].item_ids.extend(m for m in mates if m not in sc.exercises[-1].item_ids)  # the one question counts for them all
                     continue  # #270: the closing recall of a noun is its sentence too, or nothing once that has been said enough, never the bare word
                 ex = b.recall(sc, item, stage)
                 self._record([item.id], ex.stage or stage, ex.item_ids)

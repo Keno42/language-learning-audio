@@ -519,6 +519,11 @@ class Builder:
         target = item.target if made.strip().casefold() == item.target.strip().casefold() else made
         voice = VOICE_OF[gender or "f"]
         ex = sc.new_exercise("embed", "embed", [item.id], f"pattern: {target}")
+        if form:
+            # the plain sentence first, so «this one» points at something: «You know this one: Þetta er hættulegt. As a question:» (#280 review)
+            self._frame(sc, ex, self._as(gender, self.prompts.get("instance_form_known")))
+            self._speak(sc, ex, self._filled(pattern, fills)[1], speaker=voice)
+            self._beat(sc, ex)
         self._frame(sc, ex, self._as(gender, self.prompts.get(f"instance_form_{form}" if form else "instance_sentence")))
         self._speak(sc, ex, target, speaker=voice, role="embed_sentence")
         self._beat(sc, ex)
