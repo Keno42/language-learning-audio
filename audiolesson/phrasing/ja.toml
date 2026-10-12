@@ -55,6 +55,7 @@ reply = "答えてください。"
 # a part heard in a sentence instead of being introduced on its own (LearnerState.embedded)
 embed_known = "知っているフレーズです："
 embed_part = "この中の単語です："
+embed_part_also = "もう一つはこれです："
 # 文型に合わせて形が変わった名詞 (#270): 基本の形を一度だけ言う
 form_of_base = "この文では単語の形が変わっています。基本の形は："
 embed_sentence = "別の文で聞きます。聞いて、繰り返してください。"
@@ -65,6 +66,8 @@ form_model_question = "疑問文にすると："
 form_model_negative = "否定文にすると："
 form_model_again = "別の単語で、同じ形です。今度はあなたの番です。"
 instance_sentence = "知っている型の文です。聞いて、繰り返してください。"
+instance_form_question = "知っている文を疑問文にします。聞いて、繰り返してください。"
+instance_form_negative = "知っている文を否定文にします。聞いて、繰り返してください。"
 # a near form of something the learner has met (Item.variant_of)
 variant_known = "知っている形です："
 variant_form = "別の形です。「{meaning}」。"

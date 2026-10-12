@@ -57,6 +57,7 @@ reply = "Reply."
 # a part heard in a sentence instead of being introduced on its own (LearnerState.embedded)
 embed_known = "You know this:"
 embed_part = "This word is in it:"
+embed_part_also = "And this one:"
 # a noun in a form its frame asks (#270): the basic word, said once, after the part
 form_of_base = "In this sentence the word changes. The basic word is:"
 embed_sentence = "In another sentence. Listen, then repeat."
@@ -67,6 +68,8 @@ form_model_question = "As a question:"
 form_model_negative = "As a negative:"
 form_model_again = "Now the same form with another word. Your turn."
 instance_sentence = "A sentence from a pattern you know. Listen, then repeat."
+instance_form_question = "You know this one. As a question: listen, then repeat."
+instance_form_negative = "You know this one. As a negative: listen, then repeat."
 # a near form of something the learner has met (Item.variant_of)
 variant_known = "You know this one:"
 variant_form = "Here is another form of it: {meaning}"

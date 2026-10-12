@@ -130,6 +130,7 @@ class Builder:
     heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson
     echo_asked: int = 1  # a line is repeated after the model only for its first asking this lesson (#192)
     said_cap: int = 0  # >0: a sentence said this often in the lesson is not asked again as a part's sentence (#192)
+    joint_parts: dict = field(default_factory=dict)  # part id → the other new parts of the same line taken out of it in the same exercise (#280)
     modeled_wholes: dict = field(default_factory=dict)  # part id → {through, answer, meaning, gender}: the sentence a pattern's worked example modelled with it (#262)
     wholes_taught: dict = field(default_factory=dict)  # part id → {through, answer, meaning}: the sentence it was introduced in (#239), taught whole today, as taught
     novelty_announced: set = field(default_factory=set)  # (construction, form) already announced as «something you haven't heard yet» this lesson (#197)
@@ -506,18 +507,19 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def pattern_instance(self, sc: Script, item: Item, pattern: Item, fills: dict[str, Item]) -> Exercise:
+    def pattern_instance(self, sc: Script, item: Item, pattern: Item, fills: dict[str, Item], form: str | None = None) -> Exercise:
         """A fixed phrase that is an instance of a pattern the learner knows, with fillers they know (#192), presented
         once as a sentence of that pattern, not introduced on its own: «A sentence from a pattern you know. Listen, then
         repeat.», the sentence, what it means, the sentence again and a pause to repeat it. No ladder and no closing
         recall. It writes the same ``embed_sentence`` / ``embed_meaning`` segments as ``embed``, so the next-day question
         asks the phrase in its own form, and what the learner says decides whether it counts as learned
-        (``LearnerState.report``). Nothing is recorded for the phrase here; the caller credits the pattern and its fillers."""
-        gender, made = self._filled(pattern, fills)
+        (``LearnerState.report``). Nothing is recorded for the phrase here; the caller credits the pattern and its fillers. A phrase that is a ``form``
+        of the pattern (#280) is framed as that form («You know this one. As a question:»)."""
+        gender, made = self._filled(pattern, fills, form=form)
         target = item.target if made.strip().casefold() == item.target.strip().casefold() else made
         voice = VOICE_OF[gender or "f"]
         ex = sc.new_exercise("embed", "embed", [item.id], f"pattern: {target}")
-        self._frame(sc, ex, self._as(gender, self.prompts.get("instance_sentence")))
+        self._frame(sc, ex, self._as(gender, self.prompts.get(f"instance_form_{form}" if form else "instance_sentence")))
         self._speak(sc, ex, target, speaker=voice, role="embed_sentence")
         self._beat(sc, ex)
         sc.add(Segment("narrate", "instructor", self.prompts.get("embed_meaning", meaning=self._m(item.spoken_meaning)), self.kl, 1.0,
@@ -669,18 +671,22 @@ class Builder:
         can rebuild with the part (#262)."""
         target, gender = whole["answer"], whole.get("gender")
         voice = VOICE_OF[gender or "f"]
-        self.wholes_taught[item.id] = {k: whole[k] for k in ("through", "answer", "meaning")}
+        parts = [item, *self.joint_parts.get(item.id, [])]  # #280: the other new parts of the same line, taken out in the same exercise
+        for part in parts:
+            self.wholes_taught[part.id] = {k: whole[k] for k in ("through", "answer", "meaning")}
         ex = sc.new_exercise("intro", "intro", [item.id], f"new: {target} ({item.target})")
+        ex.item_ids.extend(p.id for p in parts[1:])
         self.said[_norm_utterance(item.target)] += 1
         self._frame(sc, ex, self.prompts.get("embed_known"))
         self._speak(sc, ex, target, speaker=voice)
         self._beat(sc, ex)
-        self._frame(sc, ex, self.prompts.get("embed_part"))
-        self._speak(sc, ex, item.target, speaker=voice)
-        self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("repeat"))
-        self._speak(sc, ex, item.target, speaker=voice)
-        self._repeat_pause(sc, ex, item.target)
+        for n, part in enumerate(parts):
+            self._frame(sc, ex, self.prompts.get("embed_part" if n == 0 else "embed_part_also"))
+            self._speak(sc, ex, part.target, speaker=voice)
+            self._beat(sc, ex)
+            self._narr(sc, ex, self.prompts.get("repeat"))
+            self._speak(sc, ex, part.target, speaker=voice)
+            self._repeat_pause(sc, ex, part.target)
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(whole["meaning"])))
         self._answer_pause(sc, ex, target, self.cur.by_id[whole["through"]], generative=False)
         self._answer(sc, ex, target, speaker=voice)
