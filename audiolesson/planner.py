@@ -3036,6 +3036,7 @@ class Planner:
                 closed.update(i for i in ex.item_ids[:1] if i != item.id)
         b.closing(sc, n)
 
+        switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same, b.timing.switch_gap_sentence)  # #301: the last pass over the finished script
         sc.retime()
         spare = self._spare_time(sc, introduced, theme_pick, early_ids, delivered_at[0])
         sc.meta = {
@@ -3055,6 +3056,8 @@ class Planner:
             "embedded_items": list(self.embedded),
             "pattern_instances": list(self.pattern_instances),
             "intro_skipped": list(intro_skipped),
+            "switch_pauses": switches,  # #301: pauses put where two speech segments touched; "touching_switches" is what still touches (0)
+            "touching_switches": sc.touching_switches(),
             "hard_words": [i.id for i in introduced if hard_sounds(i)],  # #212: today's new words that got the slow, split model
             "stranded_frames": list(self.stranded_placed),  # #270: frames brought forward for a known noun whose only frame was unmet
             "variant_items": [i.id for i in [*introduced, *(self.cur.by_id[e] for e in self.embedded)] if i.variant_of],  # a form comes with a purpose (#218 b1)

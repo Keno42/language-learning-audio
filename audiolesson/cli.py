@@ -13,7 +13,7 @@ from . import __version__
 from .themes import load_themes, scenario_order
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts
-from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, part_before_whole_report
+from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -564,6 +564,12 @@ def cmd_validate(args) -> int:
         )
         if repeats:
             print(f"  words repeating across dialogues (candidates to introduce earlier, as reusable items): {', '.join(repeats[:10])}")
+    cut = notes_cutting_sentences(cur)
+    if cut:
+        print(
+            f"advisory (not a failure): {len(cut)} notes say an English sentence around more than one inline target fragment (#301): each fragment is a change of voice. "
+            f"Say the sentence whole, then the examples as lines of their own. e.g. {', '.join(list(cut)[:6])}"
+        )
     parts = part_before_whole_report(cur)
     if parts:
         print(
