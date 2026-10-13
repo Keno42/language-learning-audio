@@ -35,10 +35,12 @@ meaning recalls. Hearing an item in its scene again is practice, not a fault, so
 and its `repeated_situation` feedback candidate are gone.
 
 The pace never depends on the departure date. Lessons go on at the learner's pace up to and
-through the trip, and the pace is throttled only by recall reports (言えた / 迷った / 言えなかった).
+through the trip, and the pace is throttled only by what the learner reports: recall (言えた / 迷った / 言えなかった) and
+the feedback form's load rating (LEARNING-DESIGN §9 "Pace").
 
 ## Not yet levers
 
 - Context variety beyond situation variants, such as preferring unused fills on repeats.
   Recombination already avoids sentences heard in the lesson.
-- Dialogue and listening share. This waits for clerk-side listening (#134).
+- Dialogue and listening share. The planner sets it (heard scenes and the second-half rotation, #248); it is not a
+  lever.

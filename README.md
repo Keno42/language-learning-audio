@@ -152,22 +152,21 @@ by three mechanisms, all automatic:
 1. *Calibration* — after every render the measured speech length per language
    is folded into the learner state, so the next plan's time estimates match
    the actual voices (espeak, edge and OpenAI all speak at different rates).
-2. *Fillers, in order* — once the due reviews are done, the lesson takes
-   substitution runs: a pattern met before with other words met before
-   («Talar þú dönsku?» → «… japönsku?»), up to three sentences per pattern,
-   none heard earlier in the lesson; then a second, smaller batch of new items
-   (half the pace: 30 min → 6 + 3, never past about one new item per 3 minutes,
-   so pace 10 takes none); then items not yet due but last practised at least
-   half their interval ago, the longest ago first; then a second pass over
-   today's reviews, one stage harder; then any other item not practised today,
-   again the longest ago first; then more new items, but only while the lesson
-   is under half its length; then today's new items once or twice more. Items
-   that are not due never fill a lesson ahead of those, so a well-known phrase
-   waits for its date instead of coming back every day. A *stable* item (two
-   recalls on or after a due date, a recalled report counting as one, at least
-   eight recalls in all, no failure or hesitation in its last three lessons)
-   is never a filler at all, and when due it is reviewed once (#151). With
-   little left to practise, a lesson can end a few minutes short.
+2. *Spare time* — once the lesson's new material is taught, the second half rotates
+   scene units (#248): a played scene heard again, a pick-out, an unknown word caught,
+   one of today's expressions. When the rotation has nothing to add, the planner
+   takes an aside, a known pattern with other words in the lesson's scene (#151),
+   a fresh arc of new material once the reviews have run out, more to hear (a
+   listening dialogue, a played theme level in its variants), today's new
+   material once more, a second, harder pass over the reviews, items
+   not yet due (the longest rested first, never one the morning's review asked),
+   and as the very last resort a known pattern outside the lesson's scene (#238).
+   The exact order is step 5 of `Planner._build`. A close variant of
+   a known word never fills time (#218 b1). A *stable* item (two recalls on or
+   after a due date, a recalled report counting as one, at least eight recalls in
+   all, no failure or hesitation in its last three lessons) is never a filler at
+   all, and when due it is reviewed once (#151). With little left to practise, a
+   lesson can end a few minutes short.
 3. *Fit at render* — if the file would still run over the target by more than
    a minute (`fit_tolerance`, default 60 s), every pause is shrunk by one
    factor, down to 0.85 (`fit`, `fit_min` in the profile; `--no-fit`,
@@ -193,10 +192,12 @@ padding. From roughly lesson 5 on, the length is exact.
 
 1. **Selection.** Items that are due are ranked by review urgency (overdue ×
    interval, failures, few successes); items not due yet wait for their date
-   unless the lesson has nothing better left (see "Fixed length"). New items are taken in curriculum order,
-   skipping anything whose prerequisites aren't yet solid; a construction pulls
-   a second slot-filler along so the pattern can be shown with two fills.
-   The number of new items is the learner's pace (see "Daily routine and pacing").
+   unless the lesson has nothing better left (see "Fixed length"). New items come
+   first from the lesson theme's next level (#201), then in trip order (`--trip`)
+   or curriculum order, skipping anything whose prerequisites aren't yet solid; a
+   construction pulls a second slot-filler along so the pattern can be shown with
+   two fills. How much is taken is the learner's target in weighted new components
+   (see "Daily routine and pacing").
 2. **Timeline.** Each new item is introduced (listen, repeat; hard phrases are
    built backwards from the last word; a slow rendition is always followed by
    natural speed) and immediately retrieved once. Its reactivations are then
@@ -222,7 +223,9 @@ padding. From roughly lesson 5 on, the length is exact.
 3. **Closing.** The lesson ends by retrieving today's new items once more,
    hardest first so the last thing you do is succeed.
 4. **Learner update.** Every retrieval counts as a presumed success (audio
-   cannot hear you). Intervals grow 1 → 3 → ×ease days. What you confirm
+   cannot hear you). Intervals grow 1 → 3 → ×ease days. A recall confirmed after
+   7 days or more raises the ease by 0.1 and lifts the interval to at least that
+   gap times the ease (#220). What you confirm
    afterwards is stored apart from that (`recalled`, `hesitated`, `failures` per
    item) and moves the schedule: `report --recalled` keeps it, `--hesitated`
    brings the item back at half the interval, `--failed` demotes it and brings
