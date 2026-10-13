@@ -85,6 +85,7 @@ def main(argv: list[str] | None = None) -> int:
     rp.add_argument("--hesitated", default="", help="comma-separated item ids you produced, but only after hesitating")
     rp.add_argument("--recalled", default="", help="comma-separated item ids you confirmed you recalled")
     rp.add_argument("--easy", default="", help="comma-separated item ids that felt too easy")
+    rp.add_argument("--gaps", default="", help="comma-separated ITEM=DAYS: days since each item was last confirmed or practised when the answer was asked (#220); counts the outcome by gap and lets a long-gap recall raise the ease")
     rp.add_argument("--sooner", default="", help="comma-separated item ids the learner does not remember: they come back sooner (due within half their interval), without an outcome being recorded")
     rp.add_argument("--load", choices=LOADS, default=None, help="how heavy the lesson was: light, right or heavy (does not mark the lesson reported on its own)")
     rp.add_argument("--date", default=None)
@@ -443,12 +444,22 @@ def _mmss(seconds: float) -> str:
     return f"{m}:{s:02d}"
 
 
+def _gaps(text: str) -> dict[str, int]:
+    """«a=14,b=7» → {"a": 14, "b": 7}; a malformed pair is skipped."""
+    out: dict[str, int] = {}
+    for pair in _split(text):
+        item, _, days = pair.partition("=")
+        if item and days.strip().lstrip("-").isdigit():
+            out[item.strip()] = int(days)
+    return out
+
+
 def cmd_report(args) -> int:
     learner = LearnerState.load(args.learner)
     today = parse_date(args.date)
     changed = learner.report(
         _split(args.failed), _split(args.easy), today, args.lesson, hesitated=_split(args.hesitated), recalled=_split(args.recalled), sooner=_split(args.sooner),
-        load=args.load,
+        load=args.load, gaps=_gaps(args.gaps),
     )
     learner.save(args.learner)
     if changed["failed"]:
