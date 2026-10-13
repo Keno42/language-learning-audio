@@ -393,6 +393,8 @@ situation_ja = "晴れて風もない、珍しい日です。今日はいい天�
 [[items]]
 id = "eg_tharf_ulpu"
 kind = "phrase"
+instance_of = "eg_tharf"
+instance_fill = { thing = "ulpu" }
 target = "Ég þarf úlpu."
 meaning = "I need a parka."
 meaning_ja = "防寒コートが必要です。"

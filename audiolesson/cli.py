@@ -13,7 +13,7 @@ from . import __version__
 from .themes import load_themes, scenario_order
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts
-from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report
+from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, unlinked_instances
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -405,6 +405,7 @@ def _plan(script: Script, cur) -> dict:
         "theme": meta.get("theme"),  # #149 1b-ii: the lesson's theme and level, and how often its exchange played
         "new_components": meta.get("new_components"),  # #218 b3: the weighted new material, forms apart, and each item's cost (None when counting items)
         "listening_asked": meta.get("listening_asked", []),  # #179: turns asked because the line can be said
+        "repeated_new_sentences": meta.get("repeated_new_sentences", {}),  # #311: a pattern-linked new phrase asked as the same sentence in more than 3 exercises ({} expected)
         "second_half": {k: meta.get(k, 0) for k in ("pick_out_count", "catch_unknown_count", "pick_out_echo_count", "longest_kind_run_after_target", "longest_without_scene_s", "asked_again_within_spacing")},  # #248: the listening rotation
         "listening_tried": meta.get("listening_tried", []),  # #183: turns tried on a part (bonus questions)
         "exposures": meta.get("exposures", {}),
@@ -567,6 +568,11 @@ def cmd_validate(args) -> int:
         )
         if repeats:
             print(f"  words repeating across dialogues (candidates to introduce earlier, as reusable items): {', '.join(repeats[:10])}")
+    unlinked = unlinked_instances(cur)
+    if unlinked:  # #311: a phrase that is a pattern filled with an existing item is taught as a unit with its new word in one sentence only
+        for phrase, pattern, slot, filler, form in unlinked:
+            print(f"error: phrase {phrase!r} is an instance of {pattern!r} with {slot}={filler!r}{' (' + form + ' form)' if form else ''} but is not linked: add instance_of and instance_fill{' and instance_form' if form else ''}", file=sys.stderr)
+        return 1
     cut = notes_cutting_sentences(cur)
     if cut:
         print(

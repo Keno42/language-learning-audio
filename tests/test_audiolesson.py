@@ -6142,6 +6142,17 @@ class PatternInstanceIntroTests(unittest.TestCase):
         self.assertEqual(sc.meta["exposures"]["pat"], ["recombine"], "credited to the pattern")
         self.assertEqual(sc.meta["exposures"]["thrja"], ["recombine"], "and its filler")
 
+    def test_a_pattern_met_but_not_yet_known_is_enough_for_the_new_word_to_be_taught_as_a_word(self):
+        """#316 review: on the real learner a pattern often stays below ``knows`` (two confirmed recalls on a due date) for days after it is in use;
+        the weaker test of #206 (met, not failed at its last report) decides, since the word still gets its own full introduction."""
+        learner = self._learner(("tvo",))
+        learner.items["pat"] = ItemState(stage="recombine", successes=8, durable_successes=1, recalled=3, interval_days=3,
+                                         due=(TODAY + timedelta(days=1)).isoformat(), last_practiced=(TODAY - timedelta(days=1)).isoformat())
+        self.assertFalse(learner.knows("pat"))
+        sc = self._plan(learner)
+        self.assertEqual(sc.meta["pattern_instances"], ["ph"])
+        self.assertIn("thrja", sc.meta["new_items"])
+
     def test_the_next_day_question_asks_the_phrase_in_its_own_form(self):
         qs = [q for q in self._plan(self._learner()).review_questions() if q["items"] == ["ph"]]
         self.assertEqual([(q["prompt"], q["answer"], q["stage"]) for q in qs], [("Three tickets, please.", "Þrjá miða, takk.", "embed")])
@@ -6162,11 +6173,18 @@ class PatternInstanceIntroTests(unittest.TestCase):
         self.assertIn("ph", sc.meta["exposures"], "a normal introduction")
         self.assertTrue(any(e.kind == "intro" and e.item_ids == ["ph"] for e in sc.exercises))
 
-    def test_with_the_pattern_or_a_filler_not_yet_known_the_introduction_is_as_today(self):
-        for known in (("tvo", "thrja"), ("pat", "tvo")):
-            sc = self._plan(self._learner(known))
-            self.assertEqual(sc.meta["pattern_instances"], [], known)
-            self.assertTrue(any(e.kind == "intro" and e.item_ids == ["ph"] for e in sc.exercises), known)
+    def test_with_the_pattern_not_yet_known_the_introduction_is_as_today(self):
+        sc = self._plan(self._learner(("tvo", "thrja")))
+        self.assertEqual(sc.meta["pattern_instances"], [])
+        self.assertTrue(any(e.kind == "intro" and e.item_ids == ["ph"] for e in sc.exercises))
+
+    def test_with_the_pattern_known_and_the_filler_new_the_word_is_taught_and_the_phrase_is_one_pattern_sentence(self):
+        """#311: «Ég þarf úlpu.» of a known pattern with a new word: the word is introduced as a word, the phrase has no ladder of its own."""
+        sc = self._plan(self._learner(("pat", "tvo")))
+        self.assertEqual(sc.meta["pattern_instances"], ["ph"])
+        self.assertIn("thrja", sc.meta["new_items"])
+        self.assertFalse(any(e.kind == "intro" and e.item_ids == ["ph"] for e in sc.exercises), "the phrase is not introduced as a unit")
+        self.assertTrue(any("thrja" in e.item_ids for e in sc.exercises), "the word has its own exercises")
 
     def test_the_real_curriculum_links_the_receipt_and_bill_phrases(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en")

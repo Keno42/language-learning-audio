@@ -333,6 +333,8 @@ situation_ja = "ウェイターが注文を待っています。考え中だと�
 [[items]]
 id = "eg_var_ad_borda"
 kind = "phrase"
+instance_of = "eg_var_ad_inf"
+instance_fill = { inf = "borda" }
 target = "Ég var að borða."
 meaning = "I was just eating. / I've just eaten."
 meaning_ja = "ちょうど食べたところです。"

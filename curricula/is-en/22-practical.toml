@@ -43,6 +43,8 @@ meaning_forms_ja = { te = "電話して", tai = "電話したい", tai_neg = "�
 [[items]]
 id = "ma_eg_hringja"
 kind = "phrase"
+instance_of = "ma_eg_inf"
+instance_fill = { inf = "hringja" }
 target = "Má ég hringja?"
 meaning = "May I make a call?"
 meaning_ja = "電話を借りてもいいですか？"
@@ -100,6 +102,8 @@ situation_ja = "電話に出なかった理由を説明してください：携�
 [[items]]
 id = "attu_hledslutaeki"
 kind = "phrase"
+instance_of = "attu"
+instance_fill = { thing = "hledslutaeki" }
 target = "Áttu hleðslutæki?"
 meaning = "Do you have a charger?"
 meaning_ja = "充電器はありますか？"

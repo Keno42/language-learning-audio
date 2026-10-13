@@ -289,6 +289,8 @@ meaning_forms_ja = { te = "窓を開けて", tai = "窓を開けたい", tai_neg
 [[items]]
 id = "ma_eg_opna_gluggann"
 kind = "phrase"
+instance_of = "ma_eg_inf"
+instance_fill = { inf = "opna_gluggann" }
 target = "Má ég opna gluggann?"
 meaning = "May I open the window?"
 meaning_ja = "窓を開けてもいいですか？"
@@ -317,6 +319,8 @@ meaning_forms_ja = { te = "ドアを閉めて", tai = "ドアを閉めたい", t
 [[items]]
 id = "ma_eg_loka_hurdinni"
 kind = "phrase"
+instance_of = "ma_eg_inf"
+instance_fill = { inf = "loka_hurdinni" }
 target = "Má ég loka hurðinni?"
 meaning = "May I close the door?"
 meaning_ja = "ドアを閉めてもいいですか？"
@@ -424,6 +428,8 @@ situation_ja = "ケーキの二切れ目をすすめられました。丁寧に�
 [[items]]
 id = "hvar_er_klosettid_home"
 kind = "phrase"
+instance_of = "hvar_er"
+instance_fill = { place = "klosettid" }
 target = "Hvar er klósettið?"
 meaning = "Where is the toilet?"
 meaning_ja = "トイレはどこですか？"

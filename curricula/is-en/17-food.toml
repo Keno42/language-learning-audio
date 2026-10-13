@@ -429,6 +429,8 @@ situation_ja = "変わったものを一口すすめられました。味見し�
 [[items]]
 id = "thetta_er_vont"
 kind = "phrase"
+instance_of = "thetta_er_adj"
+instance_fill = { adj = "vont" }
 target = "Þetta er vont."
 meaning = "This tastes bad."
 meaning_ja = "これはまずいです。"
@@ -477,6 +479,8 @@ meaning_forms_ja = { te = "料理して", tai = "料理したい", tai_neg = "�
 [[items]]
 id = "eg_er_ad_elda"
 kind = "phrase"
+instance_of = "eg_er_ad_inf"
+instance_fill = { inf = "elda" }
 target = "Ég er að elda."
 meaning = "I'm cooking."
 meaning_ja = "料理中です。"
@@ -536,6 +540,8 @@ situation_ja = "スープがとてもおいしかったです。おかわりを�
 [[items]]
 id = "takk_fyrir_matinn"
 kind = "phrase"
+instance_of = "takk_fyrir"
+instance_fill = { thing = "matinn" }
 target = "Takk fyrir matinn."
 meaning = "Thank you for the meal."
 meaning_ja = "ごちそうさまでした。"

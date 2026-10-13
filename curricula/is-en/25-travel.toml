@@ -3,6 +3,8 @@
 [[items]]
 id = "eg_vil_boka_ferd"
 kind = "phrase"
+instance_of = "eg_vil"
+instance_fill = { inf = "boka_ferd" }
 target = "Ég vil bóka ferð."
 meaning = "I want to book a tour."
 meaning_ja = "ツアーを予約したいです。"
@@ -176,6 +178,8 @@ meaning_forms_ja = { te = "写真を撮って", tai = "写真を撮りたい", t
 [[items]]
 id = "ma_eg_taka_mynd"
 kind = "phrase"
+instance_of = "ma_eg_inf"
+instance_fill = { inf = "taka_mynd" }
 target = "Má ég taka mynd?"
 meaning = "May I take a photo?"
 meaning_ja = "写真を撮ってもいいですか？"

@@ -98,6 +98,8 @@ situation_ja = "アンナに明日会えるか聞かれました。明日は休�
 [[items]]
 id = "eg_er_ad_vinna"
 kind = "phrase"
+instance_of = "eg_er_ad_inf"
+instance_fill = { inf = "vinna_verb" }
 target = "Ég er að vinna."
 meaning = "I'm working (right now)."
 meaning_ja = "仕事中です。"
@@ -184,6 +186,8 @@ meaning_forms_ja = { te = "メールを送って", tai = "メールを送りた�
 [[items]]
 id = "eg_er_ad_senda_tolvupost"
 kind = "phrase"
+instance_of = "eg_er_ad_inf"
+instance_fill = { inf = "senda_tolvupost" }
 target = "Ég er að senda tölvupóst."
 meaning = "I'm sending an email."
 meaning_ja = "メールを送っています。"

@@ -493,6 +493,8 @@ situations_ja = [
 [[items]]
 id = "sjaumst_seinna"
 kind = "phrase"
+instance_of = "sjaumst_time"
+instance_fill = { time = "seinna" }
 target = "Sjáumst seinna!"
 meaning = "See you later!"
 meaning_ja = "また後で！"
@@ -614,6 +616,8 @@ situations_ja = [
 [[items]]
 id = "eigdu_godan_dag"
 kind = "phrase"
+instance_of = "eigdu_godur"
+instance_fill = { time = "dag_acc" }
 target = "Eigðu góðan dag."
 meaning = "Have a good day."
 meaning_ja = "良い一日を。"
