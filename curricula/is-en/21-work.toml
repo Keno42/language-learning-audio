@@ -303,6 +303,9 @@ situation_ja = "何をしているか聞かれました。退職していると�
 [[items]]
 id = "skolinn"
 kind = "vocab"
+noun = "skoli"
+form = "nom_def"
+gender = "masc"
 target = "skólinn"
 meaning = "the school"
 meaning_ja = "学校"
@@ -313,6 +316,9 @@ topics = ["work"]
 [[items]]
 id = "haskolinn"
 kind = "vocab"
+noun = "haskoli"
+form = "nom_def"
+gender = "masc"
 target = "háskólinn"
 meaning = "the university"
 meaning_ja = "大学"
@@ -323,6 +329,9 @@ topics = ["work"]
 [[items]]
 id = "skrifstofan"
 kind = "vocab"
+noun = "skrifstofa"
+form = "nom_def"
+gender = "fem"
 target = "skrifstofan"
 meaning = "the office"
 meaning_ja = "オフィス"
@@ -333,6 +342,9 @@ topics = ["work"]
 [[items]]
 id = "fundur"
 kind = "vocab"
+noun = "fundur"
+form = "nom"
+gender = "masc"
 target = "fundur"
 meaning = "a meeting"
 meaning_ja = "会議"
@@ -343,6 +355,9 @@ topics = ["work"]
 [[items]]
 id = "verkefni"
 kind = "vocab"
+noun = "verkefni"
+form = "nom"
+gender = "neut"
 target = "verkefni"
 meaning = "a task / project"
 meaning_ja = "作業／プロジェクト"
@@ -355,6 +370,9 @@ meaning_forms_ja = { in_sentence = "プロジェクト" }
 [[items]]
 id = "yfirmadur"
 kind = "vocab"
+noun = "yfirmadur"
+form = "nom"
+gender = "masc"
 target = "yfirmaður"
 meaning = "a boss"
 meaning_ja = "上司"

@@ -318,6 +318,9 @@ situation_ja = "友達が空港へ向かいます。良い旅をと言ってく�
 [[items]]
 id = "farangur"
 kind = "vocab"
+noun = "farangur"
+form = "acc"
+gender = "masc"
 target = "farangur"
 meaning = "luggage"
 meaning_ja = "荷物"
@@ -328,6 +331,9 @@ topics = ["travel"]
 [[items]]
 id = "bokun"
 kind = "vocab"
+noun = "bokun"
+form = "acc"
+gender = "fem"
 target = "bókun"
 meaning = "a booking"
 meaning_ja = "予約"
@@ -338,6 +344,9 @@ topics = ["travel"]
 [[items]]
 id = "bil"
 kind = "vocab"
+noun = "bill"
+form = "acc"
+gender = "masc"
 target = "bíl"
 meaning = "a car"
 meaning_ja = "車（〜を）"
@@ -429,6 +438,9 @@ requires = ["eg_vil_fara_i_hvalaskodun", "hvad_kostar_ferdin", "hvenaer_leggjum_
 [[items]]
 id = "thysku"
 kind = "vocab"
+noun = "thyska"
+form = "acc"
+gender = "fem"
 target = "þýsku"
 syllables = ["þýsk", "u"]
 meaning = "German (the language)"
@@ -443,6 +455,9 @@ meaning_forms_ja = { in_sentence = "ドイツ語" }
 [[items]]
 id = "fronsku"
 kind = "vocab"
+noun = "franska"
+form = "acc"
+gender = "fem"
 target = "frönsku"
 meaning = "French (the language)"
 meaning_ja = "フランス語"
@@ -456,6 +471,9 @@ meaning_forms_ja = { in_sentence = "フランス語" }
 [[items]]
 id = "donsku"
 kind = "vocab"
+noun = "danska"
+form = "acc"
+gender = "fem"
 target = "dönsku"
 meaning = "Danish (the language)"
 meaning_ja = "デンマーク語"
@@ -469,6 +487,9 @@ meaning_forms_ja = { in_sentence = "デンマーク語" }
 [[items]]
 id = "spaensku"
 kind = "vocab"
+noun = "spaenska"
+form = "acc"
+gender = "fem"
 target = "spænsku"
 meaning = "Spanish (the language)"
 meaning_ja = "スペイン語"
