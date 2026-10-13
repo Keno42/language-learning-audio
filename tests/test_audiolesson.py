@@ -3530,8 +3530,10 @@ class LessonStructureTests(unittest.TestCase):
         b.intro(sc, item)
         narrations = [s.text for s in sc.segments if s.type == "narrate"]
         self.assertNotIn(prompts.get("build_up"), narrations)
-        self.assertIn(prompts.get("slowly"), narrations)
-        self.assertIn(prompts.get("natural"), narrations)
+        # #302: no stretched repeat; the word is said once more at natural speed
+        self.assertNotIn(prompts.get("slowly"), narrations)
+        self.assertEqual([g.rate for g in sc.segments if g.type == "speak"], [1.0] * len([g for g in sc.segments if g.type == "speak"]))
+        self.assertGreaterEqual(len([g for g in sc.segments if g.type == "speak" and g.text == item.target]), 2)
 
     def test_dialogue_partner_line_and_its_translation_have_a_beat_between(self):
         """Issue #22: a native line and its known-language translation ran together with no
