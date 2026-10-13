@@ -5838,7 +5838,7 @@ class ListeningTaskTests(unittest.TestCase):
         self.assertIn("At the till.", text)
         self.assertIn("You want to know how much it costs. Listen.", text, "#303: the need is named")
         self.assertLess(text.index("At the till."), text.index("You want to know how much it costs."), "the scene, then the need")
-        self.assertLess(text.index("You want to know how much it costs."), text.index("Það kostar fimm"), "the need before the line")
+        self.assertLess(text.index("You want to know how much it costs."), text.index("**Speaker B:** Það kostar fimm"), "the need before the line")
         sc2 = Script(1, "t", "is", "en")
         from dataclasses import replace as _replace
         append_task(b, sc2, _replace(task, scene="", line="Það kostar tvö þúsund krónur."), 120.0)
