@@ -18,6 +18,7 @@ from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
 from .review_wholes import has_home, refine_review
+from .review_wording import lesson_cue_count, reword_review
 from .script import Script
 from .timing import Timing
 from .reading import load_deck
@@ -392,6 +393,7 @@ def _plan(script: Script, cur) -> dict:
         # #262: retain a part's taught line across lessons; today's teaching takes precedence.
         taught = {**(meta.get("learned_wholes") or {}), **(meta.get("wholes_taught") or {})}
         review, refined = refine_review(review, cur, set(meta["met_items"]), prompts, taught)
+    review = reword_review(review, prompts, cur.target_lang)  # #312: the written review asks in its own words, not the lesson's cue
     return {
         "lesson_number": script.lesson_number,
         "date": meta.get("date"),
@@ -409,6 +411,7 @@ def _plan(script: Script, cur) -> dict:
         "open_items": list(meta.get("open_items", [])),  # #199: the bot brings their questions forward and asks the waiting ones
         "open_not_fitted": list(meta.get("open_not_fitted", [])),
         "review": review,
+        "review_lesson_cues": lesson_cue_count(review, prompts),  # #312: review prompts that still carry a lesson cue (0)
         "review_refined": refined,  # #239: what was changed in the questions, and why (beside_whole, through_whole, no_home, same_answer)
         "review_candidates": script.review_candidates(),
         "exercises": [
@@ -669,7 +672,8 @@ def cmd_refine_review(args) -> int:
         learner = LearnerState.load(Path(args.learner))
         met |= {it.id for it in cur.items if learner.has_met(it.id)}
         taught = learner.learned_wholes
-    review, refined = refine_review(list(data.get("review") or []), cur, met, Prompts.load(cur.known_lang), taught)
+    prompts = Prompts.load(cur.known_lang)
+    review, refined = refine_review(reword_review(list(data.get("review") or []), prompts, cur.target_lang), cur, met, prompts, taught)  # #312: the queue's old questions lose their lesson cues too
     print(json.dumps({"review": review, "refined": refined}, ensure_ascii=False))
     return 0
 
