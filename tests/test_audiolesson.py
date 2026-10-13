@@ -3654,11 +3654,9 @@ class LessonStructureTests(unittest.TestCase):
     def test_hard_phrase_is_built_backwards(self):
         text = self.script.transcript()
         self.assertIn("build it up from the end", text)
-        # Issue #49: each backward-build chunk used to play at natural rate, the one part
-        # of this ladder that never went through slow_rate despite existing specifically
-        # so the learner can hear and imitate a hard phrase piece by piece — "(slow)" is
-        # how the transcript marks a sub-1.0 rate segment (see Script.transcript()).
-        self.assertIn("**Speaker A (slow):** plaît", text)
+        # Issue #49 had the chunks stretched; #302 says them at natural speed (a one-word chunk plain, a longer one word by word): "(slow)" marks a sub-1.0 rate
+        self.assertIn("**Speaker A:** plaît", text)
+        self.assertNotIn("(slow)", text.split("build it up from the end")[1].split("natural")[0])
         # the learner's model answers read as "You", whichever voice models them; every
         # "**You:**" line is an answer and every answer is one
         answers = [seg.text for seg in self.script.segments if seg.type == "answer"]

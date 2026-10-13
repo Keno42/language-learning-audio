@@ -389,17 +389,24 @@ class Builder:
     def _beat(self, sc: Script, ex: Exercise) -> None:
         self._pause(sc, ex, self.timing.beat, "beat")
 
-    def _speak_spaced(self, sc: Script, ex: Exercise, text: str, speaker: str, spaced: bool) -> None:
+    def _speak_spaced(self, sc: Script, ex: Exercise, text: str, speaker: str, spaced: bool, gap: float | None = None) -> None:
         """A partner line, and when ``spaced`` (the learner just asked for it slower, #261) said word by word at natural speed with a short gap between the words:
-        gaps, not stretched sounds. The final punctuation stays on the last word; the transcript shows the line once (``Script.transcript``)."""
+        gaps, not stretched sounds. The final punctuation stays on the last word; the transcript shows the line once (``Script.transcript``).
+        ``gap``: the pause between the words, the timing's ``word_gap`` by default."""
+        gap = self.timing.word_gap if gap is None else gap
         words = text.split()
         if not spaced or len(words) < 2:
             self._speak(sc, ex, text, speaker=speaker)
             return
         for n, word in enumerate(words):
             if n:
-                self._pause(sc, ex, self.timing.word_gap, "word_gap", floor=self.timing.word_gap)
+                self._pause(sc, ex, gap, "word_gap", floor=gap)
             self._speak(sc, ex, word, speaker=speaker, role="spaced")
+
+    def _slow_line(self, sc: Script, ex: Exercise, text: str, speaker: str = "native_a") -> None:
+        """#302: a line of two or more words is modelled «slowly» the way #261's reply is: word by word at natural speed with a gap between the words, never
+        stretched sounds. A single word is just said (the callers keep the stretched rate for nothing)."""
+        self._speak_spaced(sc, ex, text, speaker, True, gap=self.timing.intro_word_gap)
 
     def _gap(self, sc: Script, ex: Exercise) -> None:
         self._pause(sc, ex, self.timing.between_exercises, "beat")
@@ -586,18 +593,15 @@ class Builder:
             self._narr(sc, ex, self.prompts.get("build_up"))
             for chunk in chunks:
                 # slow, with a beat after the learner's repetition to separate the chunks
-                self._speak(sc, ex, chunk, rate=self.timing.slow_rate)
+                self._slow_line(sc, ex, chunk)
                 self._repeat_pause(sc, ex, chunk)
                 self._beat(sc, ex)
             self._narr(sc, ex, self.prompts.get("natural"))
             self._speak(sc, ex, item.target)
             self._repeat_pause(sc, ex, item.target)
         elif item.is_hard():
-            # a long single word: slow whole-word repetition, never a guessed split
-            self._narr(sc, ex, self.prompts.get("slowly"))
-            self._speak(sc, ex, item.target, rate=self.timing.slow_rate)
-            self._repeat_pause(sc, ex, item.target)
-            self._narr(sc, ex, self.prompts.get("natural"))
+            # a long single word: never a guessed split and never a stretched sound (#302): once more at natural speed
+            self._narr(sc, ex, self.prompts.get("repeat"))
             self._speak(sc, ex, item.target)
             self._repeat_pause(sc, ex, item.target)
         else:
@@ -606,7 +610,7 @@ class Builder:
             self._repeat_pause(sc, ex, item.target)
             if item.difficulty >= 2 and item.word_count >= 2:
                 self._narr(sc, ex, self.prompts.get("slowly"))
-                self._speak(sc, ex, item.target, rate=self.timing.slow_rate)
+                self._slow_line(sc, ex, item.target)
                 self._repeat_pause(sc, ex, item.target)
                 self._narr(sc, ex, self.prompts.get("natural"))
                 self._speak(sc, ex, item.target)
@@ -735,9 +739,11 @@ class Builder:
                 self._speak(sc, ex, piece, speaker=voice or "native_a", rate=self.timing.slow_rate)
                 self._repeat_pause(sc, ex, piece)  # one pause between pieces is enough
         else:
-            self._narr(sc, ex, self.prompts.get("slowly"))
-            self._speak(sc, ex, item.target, speaker=voice or "native_a", rate=self.timing.slow_rate)
+            self._narr(sc, ex, self.prompts.get("slowly") if len(item.target.split()) > 1 else self.prompts.get("repeat"))
+            self._slow_line(sc, ex, item.target, speaker=voice or "native_a")
             self._repeat_pause(sc, ex, item.target)
+            if len(item.target.split()) < 2:
+                return  # a single word with no authored split is said once more, not stretched (#302)
         self._narr(sc, ex, self.prompts.get("natural"))
         self._speak(sc, ex, item.target, speaker=voice or "native_a")
         self._repeat_pause(sc, ex, item.target)
@@ -782,9 +788,9 @@ class Builder:
         self._narr(sc, ex, self.prompts.get("repeat"))
         self._speak(sc, ex, target, speaker=voice)
         self._repeat_pause(sc, ex, target)
-        if construction.difficulty >= 2:
+        if construction.difficulty >= 2 and len(target.split()) > 1:
             self._narr(sc, ex, self.prompts.get("slowly"))
-            self._speak(sc, ex, target, speaker=voice, rate=self.timing.slow_rate)
+            self._slow_line(sc, ex, target, speaker=voice)
             self._repeat_pause(sc, ex, target)
             self._narr(sc, ex, self.prompts.get("natural"))
             self._speak(sc, ex, target, speaker=voice)
@@ -863,9 +869,9 @@ class Builder:
             self._narr(sc, ex, self.prompts.get("repeat"))
             self._speak(sc, ex, target)
             self._repeat_pause(sc, ex, target)
-            if item.difficulty >= 2:
+            if item.difficulty >= 2 and len(target.split()) > 1:
                 self._narr(sc, ex, self.prompts.get("slowly"))
-                self._speak(sc, ex, target, rate=self.timing.slow_rate)
+                self._slow_line(sc, ex, target)
                 self._repeat_pause(sc, ex, target)
                 self._narr(sc, ex, self.prompts.get("natural"))
                 self._speak(sc, ex, target)
