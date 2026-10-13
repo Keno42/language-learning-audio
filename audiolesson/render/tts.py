@@ -25,6 +25,10 @@ from pathlib import Path
 from .audio import DEFAULT_RATE, AudioClip, silence, to_pcm, wav_bytes_to_clip
 
 
+class _UseFallback(Exception):
+    """Internal: the edge service refused and the clip goes to the fallback provider (#299)."""
+
+
 class SpeechRefused(RuntimeError):
     """The speech service refused the connection for the whole budget (#296)."""
 
@@ -160,8 +164,21 @@ class EdgeProvider(Provider):
                     chunks.append(chunk["data"])
             return b"".join(chunks)
 
-        data = self._retrying(lambda: asyncio.run(run()))
+        if self._fallback_on and self.fallback is not None:
+            return self.fallback.synthesize(text, lang, voice, rate)
+        try:
+            data = self._retrying(lambda: asyncio.run(run()))
+        except _UseFallback:
+            assert self.fallback is not None
+            return self.fallback.synthesize(text, lang, voice, rate)
         return to_pcm(data, "mp3").trimmed()
+
+    def _switch_to_fallback(self) -> None:
+        """The service refused (403) and a fallback can run: every worker's clips go to it from now on; said once."""
+        with self._cond:
+            if not self._fallback_on:
+                self._fallback_on = True
+                print(f"edge-tts: service refusing (403); using {self.fallback.name}", file=sys.stderr, flush=True)  # type: ignore[union-attr]
 
     # The service now and then answers "no audio", drops the socket or sends a cut-off frame for one clip, and the same request works a
     # moment later (#77): a few retries after a wait, for the errors that look like the service or the network. Decided by family, not by
@@ -185,6 +202,10 @@ class EdgeProvider(Provider):
         self._cond = threading.Condition()
         self._state = "open"  # open | probing | failed
         self._failure: Exception | None = None
+        # #299: a provider that speaks the same voices (Azure's official API), set by the renderer from the profile's ``fallback``. When the service refuses, the
+        # remaining clips go to it at once, with no wait.
+        self.fallback: Provider | None = None
+        self._fallback_on = False
 
     @staticmethod
     def _refused(exc: BaseException) -> bool:
@@ -254,6 +275,9 @@ class EdgeProvider(Provider):
                 raise
             except Exception as exc:
                 if self._refused(exc):
+                    if self.fallback is not None:
+                        self._switch_to_fallback()
+                        raise _UseFallback() from exc
                     kind, result = self._wait_out_refusal(attempt, exc)
                     if kind == "done":
                         return result
@@ -266,6 +290,94 @@ class EdgeProvider(Provider):
 
     def default_voices(self, lang: str) -> list[str]:
         return list(self.VOICES.get(lang.split("-")[0].lower(), []))
+
+
+# ------------------------------------------------------------------------- azure
+
+
+class AzureProvider(Provider):
+    """Azure Speech's official REST API (#299): the same neural voices as edge-tts, with a key. Plain ``urllib``. Reads ``AZURE_SPEECH_KEY`` and
+    ``AZURE_SPEECH_REGION`` from the environment; the key goes in a header only and is never logged, printed or put in a URL."""
+
+    name = "azure"
+    output_format = "mp3"
+    parallel = True
+    OUTPUT = "audio-24khz-48kbitrate-mono-mp3"
+    THROTTLE_RETRIES = 8  # 429s in a row before it gives up (the free tier allows few requests a minute)
+    TRANSIENT_WAITS = (5.0, 20.0, 60.0)  # 5xx, timeouts and dropped connections, like edge's transient errors
+    MAX_RETRY_AFTER = 120.0
+
+    def check(self) -> str | None:
+        missing = [k for k in ("AZURE_SPEECH_KEY", "AZURE_SPEECH_REGION") if not os.environ.get(k)]
+        return f"{' and '.join(missing)} {'is' if len(missing) == 1 else 'are'} not set" if missing else None
+
+    def endpoint(self) -> str:
+        # AZURE_SPEECH_ENDPOINT overrides the URL (a test server, a sovereign cloud); it carries no secret
+        return os.environ.get("AZURE_SPEECH_ENDPOINT") or f"https://{os.environ['AZURE_SPEECH_REGION']}.tts.speech.microsoft.com/cognitiveservices/v1"
+
+    @staticmethod
+    def ssml(text: str, voice: str, rate: float) -> str:
+        from xml.sax.saxutils import escape
+
+        pct = int(round((rate - 1.0) * 100))
+        locale = "-".join(voice.split("-")[:2]) or "en-US"
+        return (
+            f"<speak version='1.0' xml:lang='{locale}'><voice name='{escape(voice)}'><prosody rate='{'+' if pct >= 0 else ''}{pct}%'>{escape(text)}</prosody></voice></speak>"
+        )
+
+    def synthesize(self, text: str, lang: str, voice: str, rate: float = 1.0) -> AudioClip:
+        data = self._post(self.ssml(text, voice, rate).encode("utf-8"))
+        return to_pcm(data, "mp3").trimmed()
+
+    def _post(self, body: bytes) -> bytes:
+        import urllib.error
+
+        headers = {
+            "Ocp-Apim-Subscription-Key": os.environ["AZURE_SPEECH_KEY"],
+            "Content-Type": "application/ssml+xml",
+            "X-Microsoft-OutputFormat": self.OUTPUT,
+            "User-Agent": "audiolesson",
+        }
+        throttled = transient = 0
+        while True:
+            req = urllib.request.Request(self.endpoint(), data=body, headers=headers, method="POST")
+            try:
+                with urllib.request.urlopen(req, timeout=60) as resp:
+                    return resp.read()
+            except urllib.error.HTTPError as exc:
+                if exc.code == 429 and throttled < self.THROTTLE_RETRIES:
+                    throttled += 1
+                    wait = self._retry_after(exc)
+                    print(f"azure-tts: throttled (429), waiting {wait:g} s ({throttled}/{self.THROTTLE_RETRIES})", file=sys.stderr, flush=True)
+                    time.sleep(wait)
+                    continue
+                if exc.code >= 500 and transient < len(self.TRANSIENT_WAITS):
+                    wait = self.TRANSIENT_WAITS[transient]
+                    transient += 1
+                    print(f"azure-tts: HTTP {exc.code}, retrying in {wait:g} s ({transient}/{len(self.TRANSIENT_WAITS)})", file=sys.stderr, flush=True)
+                    time.sleep(wait)
+                    continue
+                if exc.code in (401, 403):
+                    raise RuntimeError(f"Azure Speech refused the request (HTTP {exc.code}): check AZURE_SPEECH_KEY and AZURE_SPEECH_REGION") from None
+                raise RuntimeError(f"Azure Speech failed (HTTP {exc.code})") from None
+            except (urllib.error.URLError, TimeoutError, ConnectionError) as exc:
+                if transient < len(self.TRANSIENT_WAITS):
+                    wait = self.TRANSIENT_WAITS[transient]
+                    transient += 1
+                    print(f"azure-tts: {type(exc).__name__}, retrying in {wait:g} s ({transient}/{len(self.TRANSIENT_WAITS)})", file=sys.stderr, flush=True)
+                    time.sleep(wait)
+                    continue
+                raise RuntimeError(f"Azure Speech unreachable ({type(exc).__name__})") from None
+
+    @classmethod
+    def _retry_after(cls, exc) -> float:
+        try:
+            return max(1.0, min(cls.MAX_RETRY_AFTER, float(exc.headers.get("Retry-After", "5"))))
+        except (TypeError, ValueError, AttributeError):
+            return 5.0
+
+    def default_voices(self, lang: str) -> list[str]:
+        return list(EdgeProvider.VOICES.get(lang.split("-")[0].lower(), []))
 
 
 # ------------------------------------------------------------------------- openai
@@ -332,6 +444,7 @@ PROVIDERS: dict[str, type[Provider]] = {
     "stub": StubProvider,
     "espeak": EspeakProvider,
     "edge": EdgeProvider,
+    "azure": AzureProvider,
     "openai": OpenAIProvider,
     "say": SayProvider,
 }
@@ -344,4 +457,10 @@ def get_provider(name: str) -> Provider:
         raise ValueError(f"unknown TTS provider {name!r}; choose from {sorted(PROVIDERS)}") from None
 
 
-__all__ = ["Provider", "PROVIDERS", "get_provider", "silence"]
+def cache_family(provider: Provider) -> str:
+    """The name a provider's cached clips go under (#299). Edge and Azure speak the same voices, so a clip from one is the other's: both share one cache, and only clips
+    never synthesized before cost anything."""
+    return "edge" if provider.name in ("edge", "azure") else provider.name
+
+
+__all__ = ["Provider", "PROVIDERS", "cache_family", "get_provider", "silence"]

@@ -21,7 +21,7 @@ from pathlib import Path
 
 from ..script import Script
 from .audio import AudioClip, concat, read_wav, silence, to_mp3, write_wav
-from .tts import Provider, get_provider
+from .tts import Provider, cache_family, get_provider
 
 # Spelling substitutions applied only to target-language text sent to the TTS engine; the
 # curriculum, transcript and cues keep the real spelling. "Halló" the greeting is a loanword
@@ -82,6 +82,7 @@ class VoiceProfile:
     mp3: bool = True
     trim: bool = True
     workers: int = 4  # parallel synthesis requests for network providers
+    fallback: str = ""  # a provider with the same voices to move the remaining clips to when the speech service refuses (403), e.g. "azure" (#299)
     refusal_budget_min: float = 15.0  # how long the speech service may refuse the connection (403) before the render fails (#296)
     fit: bool = True  # shrink pauses a little so a long file lands on the requested length
     fit_min: float = 0.85  # bounds on the pause scale used for fitting
@@ -112,6 +113,7 @@ def load_profile(path: str | Path | None, provider: str | None = None) -> VoiceP
         prof.trim = bool(raw.get("trim", True))
         prof.workers = int(raw.get("workers", 4))
         prof.refusal_budget_min = float(raw.get("refusal_budget_min", 15.0))
+        prof.fallback = str(raw.get("fallback", ""))
         prof.fit = bool(raw.get("fit", True))
         prof.fit_min = float(raw.get("fit_min", 0.85))
         prof.fit_max = float(raw.get("fit_max", 1.0))
@@ -152,10 +154,16 @@ def render_script(
     provider = get_provider(profile.provider)
     if hasattr(provider, "refusal_budget_min"):
         provider.refusal_budget_min = profile.refusal_budget_min
+    if profile.fallback and hasattr(provider, "fallback") and profile.fallback != provider.name:
+        backup = get_provider(profile.fallback)
+        if (why := backup.check()) is None:
+            provider.fallback = backup  # type: ignore[attr-defined]
+        else:
+            print(f"fallback {profile.fallback!r} cannot run ({why}); the wait for the speech service stays", file=sys.stderr, flush=True)
     problem = provider.check()
     if problem:
         raise RuntimeError(f"TTS provider {provider.name!r} cannot run: {problem}")
-    cache = Path(cache_dir) if cache_dir else out_path.parent / "cache" / provider.name
+    cache = Path(cache_dir) if cache_dir else out_path.parent / "cache" / cache_family(provider)
     cache.mkdir(parents=True, exist_ok=True)
 
     primary_langs = {script.known_lang.split("-")[0].lower(), script.target_lang.split("-")[0].lower()}
@@ -275,7 +283,7 @@ def render_script(
 
 
 def _cache_path(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool) -> Path:
-    key = hashlib.sha1(f"{provider.name}|{voice}|{rate:.3f}|{lang}|{trim}|{text}".encode()).hexdigest()
+    key = hashlib.sha1(f"{cache_family(provider)}|{voice}|{rate:.3f}|{lang}|{trim}|{text}".encode()).hexdigest()
     return cache / f"{key}.wav"
 
 
