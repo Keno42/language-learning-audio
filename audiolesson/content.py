@@ -612,6 +612,19 @@ def _check_glossed(obj, names: tuple, where: str) -> None:
             raise CurriculumError(f"{where}: {name}: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
 
 
+def notes_cutting_sentences(cur: Curriculum) -> dict[str, int]:
+    """#301: notes with a sentence of English that holds more than one inline target fragment («...»): the sentence is cut around the fragments, each a change of
+    voice. Maps the note id to the number of such sentences. A note says its sentence whole and then its examples as lines of their own."""
+    sentence_break = re.compile(r"(?<=[.?!:])\s+(?=[A-ZÁÐÉÍÓÚÝÞÆÖ§])|(?<=[。！？])")
+    out: dict[str, int] = {}
+    for n in cur.notes:
+        prose = NOTE_TARGET_RE.sub(lambda m: "§. " if m.group(1).rstrip().endswith((".", "?", "!")) else "§", n.text)  # a line ending in a full stop is a sentence of its own
+        cut = sum(1 for sent in sentence_break.split(prose) if sent.count("§") > 1 and re.search(r"[^\W\d_]{2}", sent.replace("§", " ")))
+        if cut:
+            out[n.id] = cut
+    return out
+
+
 def validate(cur: Curriculum) -> None:
     ids = set()
     targets: dict[str, str] = {}
