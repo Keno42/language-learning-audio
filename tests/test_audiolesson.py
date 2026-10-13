@@ -3530,8 +3530,10 @@ class LessonStructureTests(unittest.TestCase):
         b.intro(sc, item)
         narrations = [s.text for s in sc.segments if s.type == "narrate"]
         self.assertNotIn(prompts.get("build_up"), narrations)
-        self.assertIn(prompts.get("slowly"), narrations)
-        self.assertIn(prompts.get("natural"), narrations)
+        # #302: no stretched repeat; the word is said once more at natural speed
+        self.assertNotIn(prompts.get("slowly"), narrations)
+        self.assertEqual([g.rate for g in sc.segments if g.type == "speak"], [1.0] * len([g for g in sc.segments if g.type == "speak"]))
+        self.assertGreaterEqual(len([g for g in sc.segments if g.type == "speak" and g.text == item.target]), 2)
 
     def test_dialogue_partner_line_and_its_translation_have_a_beat_between(self):
         """Issue #22: a native line and its known-language translation ran together with no
@@ -3654,11 +3656,9 @@ class LessonStructureTests(unittest.TestCase):
     def test_hard_phrase_is_built_backwards(self):
         text = self.script.transcript()
         self.assertIn("build it up from the end", text)
-        # Issue #49: each backward-build chunk used to play at natural rate, the one part
-        # of this ladder that never went through slow_rate despite existing specifically
-        # so the learner can hear and imitate a hard phrase piece by piece — "(slow)" is
-        # how the transcript marks a sub-1.0 rate segment (see Script.transcript()).
-        self.assertIn("**Speaker A (slow):** plaît", text)
+        # Issue #49 had the chunks stretched; #302 says them at natural speed (a one-word chunk plain, a longer one word by word): "(slow)" marks a sub-1.0 rate
+        self.assertIn("**Speaker A:** plaît", text)
+        self.assertNotIn("(slow)", text.split("build it up from the end")[1].split("natural")[0])
         # the learner's model answers read as "You", whichever voice models them; every
         # "**You:**" line is an answer and every answer is one
         answers = [seg.text for seg in self.script.segments if seg.type == "answer"]
@@ -5791,7 +5791,7 @@ class ListeningTaskTests(unittest.TestCase):
         self.assertEqual((task.answer, task.pattern, task.pieces), ("tuttugu mínútur", "theme:tour:1:2", 1))
         sc = Script(1, "t", "is", "en")
         ex = append_task(self._builder(), sc, task, 120.0)
-        self.assertIn("How long?", sc.transcript())
+        self.assertIn("You want to know how long. Listen.", sc.transcript())
         self.assertEqual(ex.stage, "single")
 
     def test_the_row_counts_a_single_piece_that_is_most_of_its_line(self):
@@ -5836,11 +5836,14 @@ class ListeningTaskTests(unittest.TestCase):
         self.assertEqual((ex.kind, ex.item_ids), ("pick_out", ["thad_kostar_big"]))
         text = sc.transcript()
         self.assertIn("At the till.", text)
-        self.assertIn("How much does he say it costs?", text, "a scene was named: whose line it was")
+        self.assertIn("You want to know how much it costs. Listen.", text, "#303: the need is named")
+        self.assertLess(text.index("At the till."), text.index("You want to know how much it costs."), "the scene, then the need")
+        self.assertLess(text.index("You want to know how much it costs."), text.index("**Speaker B:** Það kostar fimm"), "the need before the line")
         sc2 = Script(1, "t", "is", "en")
         from dataclasses import replace as _replace
         append_task(b, sc2, _replace(task, scene="", line="Það kostar tvö þúsund krónur."), 120.0)
-        self.assertIn("How much is it?", sc2.transcript(), "no scene: the plain question")
+        self.assertIn("You want to know how much it costs. Listen.", sc2.transcript(), "no scene: the need alone")
+        self.assertNotIn("How much is it?", sc2.transcript())
         self.assertNotIn("partner", sc2.transcript() + text)
         self.assertEqual(len([g for g in sc.segments if g.type == "pause" and g.role == "answer"]), 1)
         self.assertEqual([g.text for g in sc.segments if g.type == "speak"], ["Það kostar fimm þúsund krónur."] * 2, "heard, then again after the answer")

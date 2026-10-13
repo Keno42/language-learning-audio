@@ -216,15 +216,15 @@ def _build(b, sc: Script, task: ListeningTask) -> None:
     ex = sc.new_exercise(task.kind, ("multi" if task.pieces > 1 else "single") if task.kind == "pick_out" else None, list(task.item_ids), task.source)
     if task.scene:
         b._frame(sc, ex, task.scene)
+    who = b.prompts.get("speaker_he" if task.speaker == "native_b" else "speaker_she")
+    if task.kind == "pick_out":
+        # #303: concept 2 is finding the information one needs, so the need is named before the line (after the scene), and the learner listens for it
+        b._narr(sc, ex, b.prompts.get("pick_out_need_ask", ask=task.ask) if task.ask else b.prompts.get(task.prompt_key.replace("pick_out_", "pick_out_need_", 1)))
     b._speak(sc, ex, task.line, speaker=task.speaker, role="listening_line")
     b._beat(sc, ex)
-    # named after the scene it comes from when there is one: whose line it was; otherwise the plain question
-    who = b.prompts.get("speaker_he" if task.speaker == "native_b" else "speaker_she")
     if task.kind == "catch_unknown":
         question = b.prompts.get(task.prompt_key, context=task.cue, pointer=task.cue)
-    else:
-        question = task.ask or (b.prompts.get(task.prompt_key + "_scene", who=who) if task.scene else b.prompts.get(task.prompt_key))
-    b._narr(sc, ex, question)
+        b._narr(sc, ex, question)
     expected = task.repair or task.answer
     b._pause(sc, ex, b.timing.answer_pause(expected, b.tl, generative=True), "answer", floor=b.timing.answer_floor())
     voice = _other_voice(task.speaker) if task.repair else task.speaker
