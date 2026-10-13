@@ -407,6 +407,9 @@ situation_ja = "彼氏と住んでいると言ってください。"
 [[items]]
 id = "madur"
 kind = "vocab"
+noun = "madur"
+form = "nom"
+gender = "masc"
 target = "maður"
 meaning = "a man / a person"
 meaning_ja = "男の人／人"
@@ -419,6 +422,9 @@ meaning_forms = { in_sentence = "a man" }
 [[items]]
 id = "kona"
 kind = "vocab"
+noun = "kona"
+form = "nom"
+gender = "fem"
 target = "kona"
 meaning = "a woman"
 meaning_ja = "女の人"
@@ -450,6 +456,9 @@ prereqs = ["kona"]
 [[items]]
 id = "barn"
 kind = "vocab"
+noun = "barn"
+form = "nom"
+gender = "neut"
 target = "barn"
 meaning = "a child"
 meaning_ja = "子ども"
@@ -460,6 +469,9 @@ topics = ["family"]
 [[items]]
 id = "strakur"
 kind = "vocab"
+noun = "strakur"
+form = "nom"
+gender = "masc"
 target = "strákur"
 meaning = "a boy"
 meaning_ja = "男の子"
@@ -470,6 +482,9 @@ topics = ["family"]
 [[items]]
 id = "stelpa"
 kind = "vocab"
+noun = "stelpa"
+form = "nom"
+gender = "fem"
 target = "stelpa"
 meaning = "a girl"
 meaning_ja = "女の子"
@@ -550,6 +565,8 @@ requires = ["hvad_heitir_hun", "hvad_er_hun_gomul", "thetta_er_person", "brodir_
 [[items]]
 id = "bill"
 kind = "vocab"
+noun = "bill"
+form = "nom"
 target = "bíll"
 meaning = "car"
 meaning_ja = "車（〜は・〜が）"

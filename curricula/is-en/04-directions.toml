@@ -3,6 +3,9 @@
 [[items]]
 id = "sundlaugin"
 kind = "vocab"
+noun = "sundlaug"
+form = "nom_def"
+gender = "fem"
 target = "sundlaugin"
 meaning = "the swimming pool"
 meaning_ja = "プール"
@@ -42,6 +45,9 @@ gender = "neut"
 [[items]]
 id = "hotelid"
 kind = "vocab"
+noun = "hotel"
+form = "nom_def"
+gender = "neut"
 target = "hótelið"
 meaning = "the hotel"
 meaning_ja = "ホテル"
@@ -52,6 +58,9 @@ topics = ["directions", "accommodation"]
 [[items]]
 id = "apotekid"
 kind = "vocab"
+noun = "apotek"
+form = "nom_def"
+gender = "neut"
 target = "apótekið"
 meaning = "the pharmacy"
 meaning_ja = "薬局"
@@ -62,6 +71,9 @@ topics = ["directions", "health"]
 [[items]]
 id = "bankinn"
 kind = "vocab"
+noun = "banki"
+form = "nom_def"
+gender = "masc"
 target = "bankinn"
 meaning = "the bank"
 meaning_ja = "銀行"
@@ -72,6 +84,9 @@ topics = ["directions", "money"]
 [[items]]
 id = "stoppistodin"
 kind = "vocab"
+noun = "stoppistod"
+form = "nom_def"
+gender = "fem"
 target = "stoppistöðin"
 meaning = "the bus stop"
 meaning_ja = "バス停"
@@ -82,6 +97,9 @@ topics = ["directions", "transport"]
 [[items]]
 id = "flugvollurinn"
 kind = "vocab"
+noun = "flugvollur"
+form = "nom_def"
+gender = "masc"
 target = "flugvöllurinn"
 syllables = ["flug", "völl", "ur", "inn"]
 meaning = "the airport"
@@ -93,6 +111,9 @@ topics = ["directions", "transport"]
 [[items]]
 id = "hofnin"
 kind = "vocab"
+noun = "hofn"
+form = "nom_def"
+gender = "fem"
 target = "höfnin"
 meaning = "the harbour"
 meaning_ja = "港"
@@ -103,6 +124,9 @@ topics = ["directions"]
 [[items]]
 id = "midbaerinn"
 kind = "vocab"
+noun = "midbaer"
+form = "nom_def"
+gender = "masc"
 target = "miðbærinn"
 meaning = "the town centre"
 meaning_ja = "町の中心"
@@ -113,6 +137,9 @@ topics = ["directions"]
 [[items]]
 id = "safnid"
 kind = "vocab"
+noun = "safn"
+form = "nom_def"
+gender = "neut"
 target = "safnið"
 meaning = "the museum"
 meaning_ja = "博物館"
@@ -125,6 +152,9 @@ topics = ["directions"]
 [[items]]
 id = "kirkjan"
 kind = "vocab"
+noun = "kirkja"
+form = "nom_def"
+gender = "fem"
 target = "kirkjan"
 meaning = "the church"
 meaning_ja = "教会"
@@ -135,6 +165,9 @@ topics = ["directions"]
 [[items]]
 id = "budin"
 kind = "vocab"
+noun = "bud"
+form = "nom_def"
+gender = "fem"
 target = "búðin"
 meaning = "the shop"
 meaning_ja = "お店"
@@ -145,6 +178,9 @@ topics = ["directions", "shopping"]
 [[items]]
 id = "matvorubudin"
 kind = "vocab"
+noun = "matvorubud"
+form = "nom_def"
+gender = "fem"
 target = "matvörubúðin"
 meaning = "the grocery store"
 meaning_ja = "スーパー"
@@ -157,6 +193,9 @@ topics = ["directions", "shopping"]
 [[items]]
 id = "veitingastadurinn"
 kind = "vocab"
+noun = "veitingastadur"
+form = "nom_def"
+gender = "masc"
 target = "veitingastaðurinn"
 meaning = "the restaurant"
 meaning_ja = "レストラン"
@@ -167,6 +206,9 @@ topics = ["directions", "cafe"]
 [[items]]
 id = "kaffihusid"
 kind = "vocab"
+noun = "kaffihus"
+form = "nom_def"
+gender = "neut"
 target = "kaffihúsið"
 meaning = "the café"
 meaning_ja = "カフェ"
@@ -177,6 +219,9 @@ topics = ["directions", "cafe"]
 [[items]]
 id = "sjukrahusid"
 kind = "vocab"
+noun = "sjukrahus"
+form = "nom_def"
+gender = "neut"
 target = "sjúkrahúsið"
 meaning = "the hospital"
 meaning_ja = "病院"
@@ -187,6 +232,9 @@ topics = ["directions", "health"]
 [[items]]
 id = "logreglustodin"
 kind = "vocab"
+noun = "logreglustod"
+form = "nom_def"
+gender = "fem"
 target = "lögreglustöðin"
 meaning = "the police station"
 meaning_ja = "警察署"
@@ -197,6 +245,9 @@ topics = ["directions", "emergencies"]
 [[items]]
 id = "bokasafnid"
 kind = "vocab"
+noun = "bokasafn"
+form = "nom_def"
+gender = "neut"
 target = "bókasafnið"
 meaning = "the library"
 meaning_ja = "図書館"
@@ -207,6 +258,9 @@ topics = ["directions"]
 [[items]]
 id = "posthusid"
 kind = "vocab"
+noun = "posthus"
+form = "nom_def"
+gender = "neut"
 target = "pósthúsið"
 meaning = "the post office"
 meaning_ja = "郵便局"
@@ -217,6 +271,9 @@ topics = ["directions"]
 [[items]]
 id = "hradbankinn"
 kind = "vocab"
+noun = "hradbanki"
+form = "nom_def"
+gender = "masc"
 target = "hraðbankinn"
 meaning = "the ATM"
 meaning_ja = "ATM"
@@ -227,6 +284,9 @@ topics = ["directions", "money"]
 [[items]]
 id = "bilastaedid"
 kind = "vocab"
+noun = "bilastaedi"
+form = "nom_def"
+gender = "neut"
 target = "bílastæðið"
 meaning = "the car park"
 meaning_ja = "駐車場"
@@ -237,6 +297,9 @@ topics = ["directions", "transport"]
 [[items]]
 id = "strætó"
 kind = "vocab"
+noun = "straeto"
+form = "nom"
+gender = "masc"
 target = "strætó"
 meaning = "the bus"
 meaning_ja = "バス"
@@ -403,6 +466,9 @@ situation_ja = "受付の人がプールは歩ける距離だと言います。�
 [[items]]
 id = "hotelinu"
 kind = "vocab"
+noun = "hotel"
+form = "dat_def"
+gender = "neut"
 variant_of = "hotelid"
 target = "hótelinu"
 meaning = "the hotel (after 'to' / 'for')"
@@ -419,6 +485,9 @@ meaning_forms_ja = { in_sentence = "ホテル" }
 [[items]]
 id = "flugvellinum"
 kind = "vocab"
+noun = "flugvollur"
+form = "dat_def"
+gender = "masc"
 variant_of = "flugvollurinn"
 target = "flugvellinum"
 syllables = ["flug", "vell", "in", "um"]
@@ -436,6 +505,9 @@ meaning_forms_ja = { in_sentence = "空港" }
 [[items]]
 id = "sundlauginni"
 kind = "vocab"
+noun = "sundlaug"
+form = "dat_def"
+gender = "fem"
 variant_of = "sundlaugin"
 target = "sundlauginni"
 meaning = "the swimming pool (after 'to' / 'for')"
@@ -452,6 +524,9 @@ meaning_forms_ja = { in_sentence = "プール" }
 [[items]]
 id = "safninu"
 kind = "vocab"
+noun = "safn"
+form = "dat_def"
+gender = "neut"
 variant_of = "safnid"
 target = "safninu"
 meaning = "the museum (after 'to' / 'for')"
@@ -468,6 +543,9 @@ meaning_forms_ja = { in_sentence = "博物館" }
 [[items]]
 id = "bankanum"
 kind = "vocab"
+noun = "banki"
+form = "dat_def"
+gender = "masc"
 variant_of = "bankinn"
 target = "bankanum"
 meaning = "the bank (after 'to' / 'for')"
@@ -484,6 +562,9 @@ meaning_forms_ja = { in_sentence = "銀行" }
 [[items]]
 id = "stoppistodinni"
 kind = "vocab"
+noun = "stoppistod"
+form = "dat_def"
+gender = "fem"
 variant_of = "stoppistodin"
 target = "stoppistöðinni"
 meaning = "the bus stop (after 'to' / 'for')"

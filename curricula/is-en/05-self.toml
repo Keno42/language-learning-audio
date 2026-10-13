@@ -115,6 +115,9 @@ topics = ["social"]
 [[items]]
 id = "akureyri_dat"
 kind = "vocab"
+noun = "akureyri"
+form = "dat"
+gender = "fem"
 target = "Akureyri"
 meaning = "Akureyri"
 meaning_ja = "アークレイリ"
@@ -125,6 +128,9 @@ topics = ["social"]
 [[items]]
 id = "kopavogi"
 kind = "vocab"
+noun = "kopavogur"
+form = "dat"
+gender = "masc"
 target = "Kópavogi"
 meaning = "Kópavogur (after 'in')"
 meaning_ja = "コーパヴォグル"
