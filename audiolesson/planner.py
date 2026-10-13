@@ -1258,13 +1258,13 @@ class Planner:
         return None
 
     def _repeated_new_sentences(self, sc: Script, introduced: list[Item], limit: int = 3) -> dict[str, int]:
-        """#311, the daily read: a phrase new today that the lesson asked as the same sentence in more than ``limit`` exercises (an answer segment per exercise),
-        {item id: exercises}. A pattern's other sentences do not count; the same sentence over and over does."""
+        """#311, the daily read: a phrase new today and linked to a pattern (``instance_of``: the #311 case; an ordinary new phrase may be asked five times or more,
+        §9 "Identical sentences") that the lesson asked as the same sentence in more than ``limit`` exercises (an answer segment per exercise), {item id: exercises}."""
         asked: Counter[str] = Counter()
         for ex in sc.exercises:
             for text in {_norm_utterance(g.text or "") for g in sc.segments if g.exercise == ex.index and g.type == "answer"}:
                 asked[text] += 1
-        return {i.id: asked[_norm_utterance(i.target)] for i in introduced if i.kind == "phrase" and asked[_norm_utterance(i.target)] > limit}
+        return {i.id: asked[_norm_utterance(i.target)] for i in introduced if i.kind == "phrase" and i.instance_of and asked[_norm_utterance(i.target)] > limit}
 
     def new_filler_of(self, item: Item) -> Item | None:
         """#311: the new word of a fixed phrase that is a sentence of a pattern the learner knows («Ég þarf úlpu.» of «Ég þarf {thing}.», `úlpu` not met yet): the one
@@ -1273,8 +1273,8 @@ class Planner:
         if item.kind != "phrase" or not item.instance_of or not item.instance_fill or item.instance_form or self.learner.has_met(item.id):
             return None
         pattern = self.cur.by_id.get(item.instance_of)
-        if pattern is None or item.id in self.learner.embed_failed or not self.learner.knows(pattern.id):
-            return None
+        if pattern is None or item.id in self.learner.embed_failed or not (self.learner.knows(pattern.id) or self.builder._frame_available(pattern.id)):
+            return None  # the weaker test of #206, not the owner's «known» of #192: the word still gets its own full introduction, so this only decides which sentences it is practised in (#316 review)
         fills = [self.cur.by_id[ref] for ref in item.instance_fill.values()]
         new = [f for f in fills if not self.learner.knows(f.id) and f.id not in self.builder.in_lesson and f.id not in self.embedded]
         if len(new) != 1 or new[0].kind != "vocab" or new[0].variant_of or new[0].target_m or self.learner.has_met(new[0].id):

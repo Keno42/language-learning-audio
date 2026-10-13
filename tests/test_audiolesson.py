@@ -6142,6 +6142,17 @@ class PatternInstanceIntroTests(unittest.TestCase):
         self.assertEqual(sc.meta["exposures"]["pat"], ["recombine"], "credited to the pattern")
         self.assertEqual(sc.meta["exposures"]["thrja"], ["recombine"], "and its filler")
 
+    def test_a_pattern_met_but_not_yet_known_is_enough_for_the_new_word_to_be_taught_as_a_word(self):
+        """#316 review: on the real learner a pattern often stays below ``knows`` (two confirmed recalls on a due date) for days after it is in use;
+        the weaker test of #206 (met, not failed at its last report) decides, since the word still gets its own full introduction."""
+        learner = self._learner(("tvo",))
+        learner.items["pat"] = ItemState(stage="recombine", successes=8, durable_successes=1, recalled=3, interval_days=3,
+                                         due=(TODAY + timedelta(days=1)).isoformat(), last_practiced=(TODAY - timedelta(days=1)).isoformat())
+        self.assertFalse(learner.knows("pat"))
+        sc = self._plan(learner)
+        self.assertEqual(sc.meta["pattern_instances"], ["ph"])
+        self.assertIn("thrja", sc.meta["new_items"])
+
     def test_the_next_day_question_asks_the_phrase_in_its_own_form(self):
         qs = [q for q in self._plan(self._learner()).review_questions() if q["items"] == ["ph"]]
         self.assertEqual([(q["prompt"], q["answer"], q["stage"]) for q in qs], [("Three tickets, please.", "Þrjá miða, takk.", "embed")])

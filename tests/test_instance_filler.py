@@ -32,6 +32,26 @@ class LinkTests(unittest.TestCase):
         self.assertEqual((item.instance_of, item.instance_fill), ("eg_tharf", {"thing": "ulpu"}))
 
 
+class ParallelsTests(unittest.TestCase):
+    def test_no_lesson_gets_more_than_a_few_parallels_of_one_pattern(self):
+        """#316 review (§3, §9 "A pattern is not a lesson's whole supply": about ten is a ceiling, not a target): the thirty links hand a passed phrase's practice to
+        its pattern's other instances (#192), which must not make a run of one pattern with random fillers."""
+        from collections import defaultdict
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner, day = LearnerState("is", "en", "A1"), date(2026, 9, 1)
+        worst = 0
+        for _ in range(70):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_target=8.0), today=day).build()
+            apply_to_learner(sc, learner, day)
+            by = defaultdict(set)
+            for e in sc.exercises:
+                if e.kind == "generative":
+                    by[e.item_ids[0]].add(e.label)
+            worst = max(worst, max((len(v) for v in by.values()), default=0))
+            day += timedelta(days=1)
+        self.assertLessEqual(worst, 10)
+
+
 class IntroductionTests(unittest.TestCase):
     def lesson_with(self, item_id, upto=80):
         cur = load_curriculum(ROOT / "curricula" / "is-en")
