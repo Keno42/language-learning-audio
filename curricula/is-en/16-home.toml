@@ -3,6 +3,9 @@
 [[items]]
 id = "eldhusid"
 kind = "vocab"
+noun = "eldhus"
+form = "nom_def"
+gender = "neut"
 target = "eldhúsið"
 meaning = "the kitchen"
 meaning_ja = "台所"
@@ -13,6 +16,9 @@ topics = ["home"]
 [[items]]
 id = "stofan"
 kind = "vocab"
+noun = "stofa"
+form = "nom_def"
+gender = "fem"
 target = "stofan"
 meaning = "the living room"
 meaning_ja = "居間"
@@ -23,6 +29,9 @@ topics = ["home"]
 [[items]]
 id = "badherbergid"
 kind = "vocab"
+noun = "badherbergi"
+form = "nom_def"
+gender = "neut"
 target = "baðherbergið"
 meaning = "the bathroom"
 meaning_ja = "浴室"
@@ -33,6 +42,9 @@ topics = ["home"]
 [[items]]
 id = "svefnherbergid"
 kind = "vocab"
+noun = "svefnherbergi"
+form = "nom_def"
+gender = "neut"
 target = "svefnherbergið"
 meaning = "the bedroom"
 meaning_ja = "寝室"
@@ -43,6 +55,9 @@ topics = ["home"]
 [[items]]
 id = "isskapurinn"
 kind = "vocab"
+noun = "isskapur"
+form = "nom_def"
+gender = "masc"
 target = "ísskápurinn"
 meaning = "the fridge"
 meaning_ja = "冷蔵庫"
@@ -53,6 +68,9 @@ topics = ["home"]
 [[items]]
 id = "thvottavelin"
 kind = "vocab"
+noun = "thvottavel"
+form = "nom_def"
+gender = "fem"
 target = "þvottavélin"
 syllables = ["þvott", "a", "vél", "in"]
 meaning = "the washing machine"
@@ -64,6 +82,9 @@ topics = ["home"]
 [[items]]
 id = "ruslid"
 kind = "vocab"
+noun = "rusl"
+form = "nom_def"
+gender = "neut"
 target = "ruslið"
 meaning = "the rubbish (bin)"
 meaning_ja = "ごみ箱"
@@ -77,6 +98,9 @@ meaning_forms_ja = { in_sentence = "ごみ箱" }
 [[items]]
 id = "lykillinn"
 kind = "vocab"
+noun = "lykill"
+form = "nom_def"
+gender = "masc"
 target = "lykillinn"
 syllables = ["ly", "kill", "inn"]
 meaning = "the key"
@@ -90,6 +114,9 @@ topics = ["home", "accommodation"]
 [[items]]
 id = "rofinn"
 kind = "vocab"
+noun = "rofi"
+form = "nom_def"
+gender = "masc"
 target = "rofinn"
 meaning = "the light switch"
 meaning_ja = "電気のスイッチ"
@@ -100,6 +127,9 @@ topics = ["home"]
 [[items]]
 id = "ibud"
 kind = "vocab"
+noun = "ibud"
+form = "nom"
+gender = "fem"
 target = "íbúð"
 meaning = "a flat"
 meaning_ja = "アパート"
@@ -110,6 +140,8 @@ topics = ["home"]
 [[items]]
 id = "hus"
 kind = "vocab"
+noun = "hus"
+form = "nom"
 target = "hús"
 meaning = "house"
 meaning_ja = "家"
@@ -129,6 +161,9 @@ situation_ja = "丘の上の家を指さしています。「家」と言って�
 [[items]]
 id = "rum"
 kind = "vocab"
+noun = "rum"
+form = "nom"
+gender = "neut"
 target = "rúm"
 meaning = "a bed"
 meaning_ja = "ベッド"
@@ -139,6 +174,9 @@ topics = ["home"]
 [[items]]
 id = "bord"
 kind = "vocab"
+noun = "bord"
+form = "nom"
+gender = "neut"
 target = "borð"
 meaning = "a table"
 meaning_ja = "テーブル"
@@ -149,6 +187,9 @@ topics = ["home"]
 [[items]]
 id = "stoll"
 kind = "vocab"
+noun = "stoll"
+form = "nom"
+gender = "masc"
 target = "stóll"
 meaning = "a chair"
 meaning_ja = "椅子"
@@ -159,6 +200,9 @@ topics = ["home"]
 [[items]]
 id = "gluggi"
 kind = "vocab"
+noun = "gluggi"
+form = "nom"
+gender = "masc"
 target = "gluggi"
 meaning = "a window"
 meaning_ja = "窓"
@@ -169,6 +213,9 @@ topics = ["home"]
 [[items]]
 id = "hurd"
 kind = "vocab"
+noun = "hurd"
+form = "nom"
+gender = "fem"
 target = "hurð"
 meaning = "a door"
 meaning_ja = "ドア"

@@ -363,6 +363,9 @@ situation_ja = "素敵なゲストハウスをチェックアウトします。�
 [[items]]
 id = "herbergid"
 kind = "vocab"
+noun = "herbergi"
+form = "nom_def"
+gender = "neut"
 target = "herbergið"
 meaning = "the room"
 meaning_ja = "部屋"
@@ -373,6 +376,9 @@ topics = ["accommodation"]
 [[items]]
 id = "lyftan"
 kind = "vocab"
+noun = "lyfta"
+form = "nom_def"
+gender = "fem"
 target = "lyftan"
 meaning = "the lift"
 meaning_ja = "エレベーター"
@@ -383,6 +389,9 @@ topics = ["accommodation"]
 [[items]]
 id = "morgunmaturinn"
 kind = "vocab"
+noun = "morgunmatur"
+form = "nom_def"
+gender = "masc"
 target = "morgunmaturinn"
 meaning = "breakfast (the)"
 meaning_ja = "朝食"
@@ -396,6 +405,9 @@ meaning_forms_ja = { in_sentence = "朝食" }
 [[items]]
 id = "heiti_potturinn"
 kind = "vocab"
+noun = "pottur"
+form = "nom_def"
+gender = "masc"
 target = "heiti potturinn"
 meaning = "the hot tub"
 meaning_ja = "露天の湯船（ホットタブ）"
