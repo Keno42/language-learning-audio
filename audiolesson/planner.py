@@ -1266,6 +1266,21 @@ class Planner:
                 asked[text] += 1
         return {i.id: asked[_norm_utterance(i.target)] for i in introduced if i.kind == "phrase" and i.instance_of and asked[_norm_utterance(i.target)] > limit}
 
+    def filler_taught_today(self, item: Item) -> tuple[Item, dict[str, Item]] | None:
+        """#311 follow-up (lesson 26, «Get ég fengið reikninginn?»): the word of a linked phrase was introduced today, inside this very phrase as its whole
+        (#262: a part comes with the phrase that holds it), so the phrase is not new any more: introduced again as «Something new» two minutes later it was heard
+        twice and laddered. (pattern, fillers) when the pattern is available, every filler is known or taught today and at least one was taught today; else None."""
+        if item.kind != "phrase" or not item.instance_of or not item.instance_fill or item.instance_form or self.learner.has_met(item.id) or item.id in self.learner.embed_failed:
+            return None
+        pattern = self.cur.by_id.get(item.instance_of)
+        if pattern is None or not (self.builder._frame_available(pattern.id) or pattern.id in self.builder.in_lesson):
+            return None
+        fills = {slot: self.cur.by_id[ref] for slot, ref in item.instance_fill.items()}
+        today = [f for f in fills.values() if f.id in self.builder.in_lesson or f.id in self.embedded]
+        if not today or not all(self.learner.knows(f.id) or f in today for f in fills.values()):
+            return None
+        return pattern, fills
+
     def new_filler_of(self, item: Item) -> Item | None:
         """#311: the new word of a fixed phrase that is a sentence of a pattern the learner knows («Ég þarf úlpu.» of «Ég þarf {thing}.», `úlpu` not met yet): the one
         vocab filler of ``instance_fill`` the learner has not met, when the pattern and every other filler are known. None otherwise. The word is then taught as a
@@ -1692,6 +1707,18 @@ class Planner:
                 # next item. Checked here because every path to an introduction ends here, whatever queue it came from
                 intro_skipped.append(item.id)
                 arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
+                return
+            if (taught := self.filler_taught_today(item)) is not None:
+                # #311 follow-up: the phrase's word was taught today inside this very phrase: it is covered as one pattern sentence, never introduced again as new
+                pattern, fills = taught
+                b.pattern_instance(sc, item, pattern, fills)
+                credited = [pattern.id, *(f.id for f in fills.values())]
+                self._record(credited, "recombine", credited)
+                self.embedded.append(item.id)
+                self.pattern_instances.append(item.id)
+                touch(item)
+                arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
+                mark_delivered_target()
                 return
             if (filler := self.new_filler_of(item)) is not None:
                 # #311: «Ég þarf úlpu.» is a sentence of a known pattern with a new word: the word is taught as a word (its own introduction, in the pattern or
