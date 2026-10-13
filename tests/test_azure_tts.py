@@ -202,6 +202,12 @@ class FallbackTests(unittest.TestCase):
             self.assertEqual(load_profile(p).fallback, "azure")
             self.assertEqual(load_profile(None).fallback, "")
 
+    def test_the_shipped_edge_profiles_fall_back_to_azure(self):
+        from pathlib import Path
+        from audiolesson.render.renderer import load_profile
+        for path in sorted(Path("profiles").glob("edge-*.toml")):
+            self.assertEqual(load_profile(path).fallback, "azure", path.name)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,7 @@
 # Icelandic target, English instructor, free neural voices via edge-tts.
 provider = "edge"
+fallback = "azure"
+
 pause_multiplier = 1.0
 mp3 = true
 [speakers]
