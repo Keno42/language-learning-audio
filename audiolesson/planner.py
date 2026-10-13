@@ -1257,6 +1257,30 @@ class Planner:
                 return c, slot
         return None
 
+    def _repeated_new_sentences(self, sc: Script, introduced: list[Item], limit: int = 3) -> dict[str, int]:
+        """#311, the daily read: a phrase new today that the lesson asked as the same sentence in more than ``limit`` exercises (an answer segment per exercise),
+        {item id: exercises}. A pattern's other sentences do not count; the same sentence over and over does."""
+        asked: Counter[str] = Counter()
+        for ex in sc.exercises:
+            for text in {_norm_utterance(g.text or "") for g in sc.segments if g.exercise == ex.index and g.type == "answer"}:
+                asked[text] += 1
+        return {i.id: asked[_norm_utterance(i.target)] for i in introduced if i.kind == "phrase" and asked[_norm_utterance(i.target)] > limit}
+
+    def new_filler_of(self, item: Item) -> Item | None:
+        """#311: the new word of a fixed phrase that is a sentence of a pattern the learner knows («Ég þarf úlpu.» of «Ég þarf {thing}.», `úlpu` not met yet): the one
+        vocab filler of ``instance_fill`` the learner has not met, when the pattern and every other filler are known. None otherwise. The word is then taught as a
+        word (in the pattern, or another frame that takes it), not the phrase as a sentence with a ladder of its own."""
+        if item.kind != "phrase" or not item.instance_of or not item.instance_fill or item.instance_form or self.learner.has_met(item.id):
+            return None
+        pattern = self.cur.by_id.get(item.instance_of)
+        if pattern is None or item.id in self.learner.embed_failed or not self.learner.knows(pattern.id):
+            return None
+        fills = [self.cur.by_id[ref] for ref in item.instance_fill.values()]
+        new = [f for f in fills if not self.learner.knows(f.id) and f.id not in self.builder.in_lesson and f.id not in self.embedded]
+        if len(new) != 1 or new[0].kind != "vocab" or new[0].variant_of or new[0].target_m or self.learner.has_met(new[0].id):
+            return None
+        return new[0]
+
     def pattern_instance_of(self, item: Item) -> tuple[Item, dict[str, Item]] | None:
         """(pattern, fillers) when ``item`` is a fixed phrase that is an instance of a pattern the learner *knows* with fillers
         they all know (#192, the owner's decision after lesson 18: «known»; #206 uses the weaker ``_frame_available``), and the
@@ -1668,6 +1692,23 @@ class Planner:
                 # next item. Checked here because every path to an introduction ends here, whatever queue it came from
                 intro_skipped.append(item.id)
                 arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
+                return
+            if (filler := self.new_filler_of(item)) is not None:
+                # #311: «Ég þarf úlpu.» is a sentence of a known pattern with a new word: the word is taught as a word (its own introduction, in the pattern or
+                # another frame that takes it), and the phrase is covered once as a sentence of the pattern, never a ladder of the same sentence
+                if filler in new_queue:
+                    new_queue.remove(filler)
+                do_intro(filler)
+                pattern = self.cur.by_id[item.instance_of]
+                fills = {slot: self.cur.by_id[ref] for slot, ref in item.instance_fill.items()}
+                if b.is_new_utterance(item.target):
+                    b.pattern_instance(sc, item, pattern, fills)
+                credited = [pattern.id, *(f.id for f in fills.values())]
+                self._record(credited, "recombine", credited)
+                self.embedded.append(item.id)
+                self.pattern_instances.append(item.id)
+                touch(item)
+                mark_delivered_target()
                 return
             # A milestone this item's prereqs complete plays before the intro: a construction's
             # intro speaks its worked example, which must not come before the note naming the
@@ -3067,6 +3108,7 @@ class Planner:
             "pattern_instances": list(self.pattern_instances),
             "intro_skipped": list(intro_skipped),
             "rotation_guard": guard_used[0] and delivered_at[0] is None,  # #294: the second half started because nothing more could be selected, the target not counted as taught
+            "repeated_new_sentences": self._repeated_new_sentences(sc, introduced),  # #311: a new phrase asked as the same sentence in more than 3 exercises ({} expected)
             "switch_pauses": switches,  # #301: pauses put where two speech segments touched; "touching_switches" is what still touches (0)
             "touching_switches": sc.touching_switches(),
             "hard_words": [i.id for i in introduced if hard_sounds(i)],  # #212: today's new words that got the slow, split model

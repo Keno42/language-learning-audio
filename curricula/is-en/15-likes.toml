@@ -367,6 +367,8 @@ situation_ja = "何をしているか聞かれました。特に何もと答え�
 [[items]]
 id = "thad_er_skemmtilegt"
 kind = "phrase"
+instance_of = "thetta_er_adj"
+instance_fill = { adj = "skemmtilegt" }
 target = "Þetta er skemmtilegt."
 meaning = "This is fun."
 meaning_ja = "これは楽しいです。"
@@ -378,6 +380,8 @@ situation_ja = "船でクジラを見ています。楽しいと言ってくだ�
 [[items]]
 id = "thad_er_leidinlegt"
 kind = "phrase"
+instance_of = "thetta_er_adj"
+instance_fill = { adj = "leidinlegt" }
 target = "Þetta er leiðinlegt."
 meaning = "This is boring."
 meaning_ja = "これは退屈です。"

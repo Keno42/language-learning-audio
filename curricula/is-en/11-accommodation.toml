@@ -3,6 +3,8 @@
 [[items]]
 id = "eg_er_med_bokun"
 kind = "phrase"
+instance_of = "eg_er_med_have"
+instance_fill = { thing = "bokun" }
 target = "Ég er með bókun."
 meaning = "I have a reservation."
 meaning_ja = "予約しています。"
@@ -151,6 +153,8 @@ situation_ja = "夜遅くにチェックインしています。朝食は何時�
 [[items]]
 id = "hvar_er_morgunmaturinn"
 kind = "phrase"
+instance_of = "hvar_er"
+instance_fill = { place = "morgunmaturinn" }
 target = "Hvar er morgunmaturinn?"
 meaning = "Where is breakfast served?"
 meaning_ja = "朝食はどこですか？"

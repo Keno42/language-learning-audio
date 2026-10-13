@@ -178,6 +178,8 @@ topics = ["money"]
 [[items]]
 id = "thetta_er_dyrt"
 kind = "phrase"
+instance_of = "thetta_er_adj"
+instance_fill = { adj = "dyrt" }
 target = "Þetta er dýrt."
 meaning = "This is expensive."
 meaning_ja = "これは高いです。"
@@ -197,6 +199,8 @@ partner_cue_situation_ja = "3万クローナだそうです。高いと言って
 [[items]]
 id = "thetta_er_odyrt"
 kind = "phrase"
+instance_of = "thetta_er_adj"
+instance_fill = { adj = "odyrt" }
 target = "Þetta er ódýrt."
 meaning = "This is cheap."
 meaning_ja = "これは安いです。"

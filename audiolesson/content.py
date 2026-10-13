@@ -625,6 +625,36 @@ def notes_cutting_sentences(cur: Curriculum) -> dict[str, int]:
     return out
 
 
+def unlinked_instances(cur: Curriculum) -> list[tuple[str, str, str, str, str]]:
+    """#311: phrases that are an instance of a one-slot pattern but not linked as such. A phrase whose target equals the pattern filled with an existing item
+    of the slot's tag (and, for a pattern's own negative / question form, in that form) is taught as a unit with its new word in one sentence only; linked
+    (``instance_of`` + ``instance_fill``) it is practised through its pattern and its filler. Returns ``(phrase, pattern, slot, filler, form)``."""
+    made: dict[str, list[tuple[str, str, str, str]]] = {}
+    for c in cur.items:
+        if c.kind != "construction" or len(c.slots) != 1:
+            continue
+        (slot, tag), = c.slots.items()
+        for f in cur.items:
+            if f.kind not in ("vocab", "phrase") or tag not in f.tags or f.id in c.exclude_fills:
+                continue
+            for form in (None, *c.forms):
+                try:
+                    text = cur.resolve_slots(c, {slot: f}, form=form)[0]
+                except (KeyError, ValueError, IndexError):
+                    continue
+                if "{" not in text:
+                    made.setdefault(text.strip().casefold(), []).append((c.id, slot, f.id, form or ""))
+    out = []
+    for it in cur.items:
+        if it.kind != "phrase" or it.instance_of:
+            continue
+        for c_id, slot, f_id, form in made.get(it.target.strip().casefold(), []):
+            if f_id != it.id:
+                out.append((it.id, c_id, slot, f_id, form))
+                break
+    return out
+
+
 def validate(cur: Curriculum) -> None:
     ids = set()
     targets: dict[str, str] = {}

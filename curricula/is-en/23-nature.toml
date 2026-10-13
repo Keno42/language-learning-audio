@@ -447,6 +447,8 @@ situation_ja = "黒い砂浜に波が打ち上げています。ガイドに危�
 [[items]]
 id = "eg_er_hraedd"
 kind = "phrase"
+instance_of = "eg_er_state"
+instance_fill = { state = "hraedd_state" }
 target = "Ég er hrædd."
 meaning = "I'm scared."
 meaning_ja = "怖いです。"

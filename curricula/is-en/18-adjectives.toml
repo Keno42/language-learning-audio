@@ -463,6 +463,8 @@ topics = ["adjectives"]
 [[items]]
 id = "thetta_er_betra"
 kind = "phrase"
+instance_of = "thetta_er_adj"
+instance_fill = { adj = "betra" }
 target = "Þetta er betra."
 meaning = "This is better."
 meaning_ja = "こっちのほうがいいです。"

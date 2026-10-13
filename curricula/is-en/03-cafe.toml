@@ -552,6 +552,8 @@ meaning_forms_ja = { te = "カードで払って", tai = "カードで払いた�
 [[items]]
 id = "ma_eg_borga_med_korti"
 kind = "phrase"
+instance_of = "ma_eg_inf"
+instance_fill = { inf = "borga_med_korti" }
 target = "Má ég borga með korti?"
 meaning = "May I pay by card?"
 meaning_ja = "カードで払えますか？"
@@ -601,6 +603,8 @@ situation_fill = { inf = "fara_heim" }
 [[items]]
 id = "eg_er_svong"
 kind = "phrase"
+instance_of = "eg_er_state"
+instance_fill = { state = "svong_state" }
 target = "Ég er svöng."
 meaning = "I'm hungry."
 meaning_ja = "お腹が空きました。"

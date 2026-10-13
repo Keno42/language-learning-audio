@@ -13,7 +13,7 @@ from . import __version__
 from .themes import load_themes, scenario_order
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts
-from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report
+from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, unlinked_instances
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -564,6 +564,11 @@ def cmd_validate(args) -> int:
         )
         if repeats:
             print(f"  words repeating across dialogues (candidates to introduce earlier, as reusable items): {', '.join(repeats[:10])}")
+    unlinked = unlinked_instances(cur)
+    if unlinked:  # #311: a phrase that is a pattern filled with an existing item is taught as a unit with its new word in one sentence only
+        for phrase, pattern, slot, filler, form in unlinked:
+            print(f"error: phrase {phrase!r} is an instance of {pattern!r} with {slot}={filler!r}{' (' + form + ' form)' if form else ''} but is not linked: add instance_of and instance_fill{' and instance_form' if form else ''}", file=sys.stderr)
+        return 1
     cut = notes_cutting_sentences(cur)
     if cut:
         print(

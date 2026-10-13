@@ -114,6 +114,8 @@ topics = ["health"]
 [[items]]
 id = "eg_er_veik"
 kind = "phrase"
+instance_of = "eg_er_state"
+instance_fill = { state = "veik_state" }
 target = "Ég er veik."
 meaning = "I'm ill."
 meaning_ja = "病気です。"
@@ -126,6 +128,8 @@ situation_ja = "会議に行けません。病気だと言ってください。"
 [[items]]
 id = "eg_er_threytt"
 kind = "phrase"
+instance_of = "eg_er_state"
+instance_fill = { state = "threytt_state" }
 target = "Ég er þreytt."
 meaning = "I'm tired."
 meaning_ja = "疲れました。"
@@ -138,6 +142,8 @@ situation_ja = "長いハイキングの後の真夜中です。疲れたと言�
 [[items]]
 id = "mer_lidur_illa"
 kind = "phrase"
+instance_of = "mer_lidur"
+instance_fill = { how = "illa" }
 target = "Mér líður illa."
 meaning = "I feel unwell."
 meaning_ja = "気分が悪いです。"
@@ -469,6 +475,8 @@ situation_ja = "友達が凍った路面に足を踏み出そうとしていま�
 [[items]]
 id = "thad_er_halka"
 kind = "phrase"
+instance_of = "thad_er_weather"
+instance_fill = { weather = "halka" }
 target = "Það er hálka."
 meaning = "It's icy (slippery)."
 meaning_ja = "凍っていて滑ります。"
