@@ -26,6 +26,19 @@ class LongGapTests(unittest.TestCase):
         self.assertGreaterEqual(st.interval_days, 14 * 2.4 - 0.1, "at least the gap bridged, times the ease")
         self.assertGreaterEqual(date.fromisoformat(st.due), TODAY + timedelta(days=int(st.interval_days)))
 
+    def test_the_bots_gap_is_capped_by_the_lessons_own_practice(self):
+        """#298 review: an item a lesson practised 2 days ago with a bot gap of 14 counts as 2: the ease does not change."""
+        l = learner(last_practiced=(TODAY - timedelta(days=2)).isoformat())
+        l.report([], [], TODAY, recalled=["a"], gaps={"a": 14})
+        self.assertEqual((l.items["a"].ease, l.items["a"].interval_days), (2.3, 7.0))
+        self.assertEqual(l.retention, {}, "2 days: in no bucket")
+
+    def test_a_gap_shorter_than_the_practice_is_kept(self):
+        l = learner()  # practised 14 days ago
+        l.report([], [], TODAY, recalled=["a"], gaps={"a": 8})
+        self.assertAlmostEqual(l.items["a"].ease, 2.4)
+        self.assertIn("7", l.retention)
+
     def test_a_short_gap_or_no_gap_changes_nothing_but_the_count(self):
         l = learner()
         l.report([], [], TODAY, recalled=["a", "b"], gaps={"a": 3})
@@ -52,7 +65,7 @@ class RetentionCountTests(unittest.TestCase):
         l.report(["d"], [], TODAY, recalled=["a", "b"], hesitated=["c"], gaps={"a": 3, "b": 8, "c": 14, "d": 15})
         self.assertEqual(l.retention, {"3": [1, 1], "7": [1, 1], "14": [0, 2]})
         report = retention_report(l)
-        self.assertEqual(report["3+ days"], "1/1 (100%)")
+        self.assertEqual(report["3–6 days"], "1/1 (100%)")
         self.assertEqual(report["14+ days"], "0/2 (0%)")
 
     def test_it_is_saved_and_loaded_and_an_old_file_reads_empty(self):
@@ -68,7 +81,7 @@ class RetentionCountTests(unittest.TestCase):
             fresh = LearnerState("is", "en", "A1")
             fresh.save(path)
             self.assertEqual(LearnerState.load(path).retention, {})
-            self.assertEqual(retention_report(fresh)["7+ days"], "–")
+            self.assertEqual(retention_report(fresh)["7–13 days"], "–")
 
     def test_the_cli_reads_gaps(self):
         from audiolesson.cli import _gaps

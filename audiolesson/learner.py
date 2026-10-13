@@ -492,6 +492,10 @@ class LearnerState:
             if (st := state(item_id)) is not None:
                 st.last_reviewed = today.isoformat()
         gaps = {i: int(g) for i, g in (gaps or {}).items() if g is not None}
+        for item_id in list(gaps):  # the bot's number can only shorten the gap, never invent one: it does not know when a lesson last practised the item (#298 review)
+            st = self.items.get(item_id)
+            if st is not None and st.last_practiced:
+                gaps[item_id] = max(0, min(gaps[item_id], (today - date.fromisoformat(st.last_practiced)).days))
 
         def count_retention(item_id: str, ok: bool) -> None:
             gap = gaps.get(item_id)
@@ -676,7 +680,8 @@ __all__ = ["ItemState", "LearnerState", "ladder_for", "next_stage", "stage_index
 def retention_report(learner: "LearnerState") -> dict[str, str]:
     """The confirmed recall rate by gap (#220): «3 days: 8/10 (80%)». Empty buckets read «–»."""
     out = {}
-    for b in RETENTION_BUCKETS:
+    for k, b in enumerate(RETENTION_BUCKETS):
+        label = f"{b}–{RETENTION_BUCKETS[k + 1] - 1} days" if k + 1 < len(RETENTION_BUCKETS) else f"{b}+ days"  # the longest bucket the gap reached: 3–6, 7–13, 14+
         ok, n = learner.retention.get(str(b), [0, 0])
-        out[f"{b}+ days"] = f"{ok}/{n} ({round(100 * ok / n)}%)" if n else "–"
+        out[label] = f"{ok}/{n} ({round(100 * ok / n)}%)" if n else "–"
     return out
