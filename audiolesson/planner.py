@@ -3036,7 +3036,7 @@ class Planner:
                 closed.update(i for i in ex.item_ids[:1] if i != item.id)
         b.closing(sc, n)
 
-        switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same)  # #301: the last pass over the finished script
+        switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same, b.timing.switch_gap_sentence)  # #301: the last pass over the finished script
         sc.retime()
         spare = self._spare_time(sc, introduced, theme_pick, early_ids, delivered_at[0])
         sc.meta = {

@@ -38,6 +38,31 @@ class SeparateSwitchesTests(unittest.TestCase):
         self.assertEqual(sc.separate_switches(0.4, 0.25), 0)
 
 
+    def test_the_same_voice_after_a_whole_sentence_gets_the_sentence_gap(self):
+        sc = self.script(seg("speak", "native_a", "is", "Ég vil fara heim."), seg("speak", "native_a", "is", "Ég verð að fara heim."), seg("speak", "native_a", "is", "Ég er"), seg("speak", "native_a", "is", "svangur"))
+        sc.separate_switches(0.4, 0.25, 0.6)
+        self.assertEqual([s.duration for s in sc.segments if s.type == "pause"], [0.6, 0.6, 0.25])
+
+    def test_the_notes_three_examples_are_far_enough_apart(self):
+        from audiolesson.exercises import Builder
+        from audiolesson.learner import LearnerState
+        from audiolesson.prompts import Prompts
+        from audiolesson.timing import Timing
+        cur = load_curriculum(CUR)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        sc = Script(1, "t", "is", "en")
+        b.note(sc, cur.note_by_id["modal_infinitive"])
+        t = Timing(level="A1")
+        sc.separate_switches(t.switch_gap, t.switch_gap_same, t.switch_gap_sentence)
+        lines = [i for i, s in enumerate(sc.segments) if s.type == "speak" and s.text in ("Ég vil fara heim.", "Ég verð að fara heim.", "Má ég borga með korti?")]
+        self.assertGreaterEqual(len(lines), 3)
+        for i, j in zip(lines, lines[1:]):
+            if j == i + 2:  # two examples one after the other: the pause between them
+                self.assertGreaterEqual(sc.segments[i + 1].duration, 0.5)
+        for i in lines:
+            self.assertFalse(sc.segments[i - 1].type != "pause" and sc.segments[i - 1].speaker == "native_a", "no example touches another line of the target language")
+
+
 class NoteTests(unittest.TestCase):
     def test_the_modal_note_is_said_as_whole_sentences(self):
         self.assertNotIn("modal_infinitive", notes_cutting_sentences(load_curriculum(CUR)))

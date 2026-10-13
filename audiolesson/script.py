@@ -97,16 +97,21 @@ class Script:
     def pause_seconds(self, role: str | None = None) -> float:
         return sum(s.duration for s in self.segments if s.type == "pause" and (role is None or s.role == role))
 
-    def separate_switches(self, switch_gap: float, same_gap: float) -> int:
+    def separate_switches(self, switch_gap: float, same_gap: float, sentence_gap: float | None = None) -> int:
         """#301: wherever two speech segments touch, a pause stands between them (role ``switch``): ``switch_gap`` at a change of voice or language,
-        ``same_gap`` in the same voice. It is its own floor, so fitting the audio to length never shrinks it. Returns the number of pauses inserted."""
+        ``same_gap`` in the same voice, ``sentence_gap`` (when given) in the same voice after a segment that ends a sentence (.?! or 。！？: a whole line is over). It is its own floor, so fitting the audio to length never shrinks it. Returns the number of pauses inserted."""
         speech = ("narrate", "speak", "answer")
         out: list[Segment] = []
         added = 0
         for s in self.segments:
             if out and s.type in speech and out[-1].type in speech:
                 prev = out[-1]
-                seconds = switch_gap if (prev.speaker, prev.lang) != (s.speaker, s.lang) else same_gap
+                if (prev.speaker, prev.lang) != (s.speaker, s.lang):
+                    seconds = switch_gap
+                elif sentence_gap is not None and (prev.text or "").rstrip().rstrip("\"'”’)]»").endswith((".", "?", "!", "。", "！", "？")):
+                    seconds = max(same_gap, sentence_gap)
+                else:
+                    seconds = same_gap
                 ex = prev.exercise if prev.exercise is not None else s.exercise
                 out.append(Segment("pause", None, None, None, 1.0, seconds, "switch", ex, floor=seconds))
                 added += 1
