@@ -2430,8 +2430,18 @@ class Planner:
             if sum(self.component_by_item.get(i, 0.0) for i in taught()) >= cfg.new_target:
                 delivered_at[0] = sc.total_duration
 
+        guard_used = [False]  # #294: the rotation started through the guard, not through the target being taught
+
         def rotation_on() -> bool:
-            return delivered_at[0] is not None and not new_queue
+            if delivered_at[0] is not None:
+                return not new_queue
+            # #294: select_new charges an item when it selects it, mark_delivered_target counts what was taught; an item selected and then not introduced (the time ran
+            # out, a reordering) leaves them apart for the rest of the lesson. Once nothing more can be selected and what is queued can no longer be afforded, the
+            # second half starts anyway: it is what keeps the lesson a scene lesson (H4, H12), whatever the arithmetic of the new-item unit says.
+            if cfg.new_target is not None and self.components_mode and self.components_total >= cfg.new_target and (not new_queue or remaining_time() < need_for_new):
+                guard_used[0] = True
+                return True
+            return False
 
         def scene_levels() -> list[tuple]:
             """The levels a listening exercise may take its scene from: the lesson's own, then those already played."""
@@ -3055,6 +3065,7 @@ class Planner:
             "embedded_items": list(self.embedded),
             "pattern_instances": list(self.pattern_instances),
             "intro_skipped": list(intro_skipped),
+            "rotation_guard": guard_used[0] and delivered_at[0] is None,  # #294: the second half started because nothing more could be selected, the target not counted as taught
             "hard_words": [i.id for i in introduced if hard_sounds(i)],  # #212: today's new words that got the slow, split model
             "stranded_frames": list(self.stranded_placed),  # #270: frames brought forward for a known noun whose only frame was unmet
             "variant_items": [i.id for i in [*introduced, *(self.cur.by_id[e] for e in self.embedded)] if i.variant_of],  # a form comes with a purpose (#218 b1)
