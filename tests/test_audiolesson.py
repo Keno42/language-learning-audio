@@ -8708,11 +8708,12 @@ class FramingBeatTests(unittest.TestCase):
                     checked += a.type == "narrate" and a.text == Prompts.load("en").get("dialogue_start")
         self.assertGreater(checked, 3)
 
-    def test_a_cue_for_the_learners_action_joins_its_line(self):
+    def test_a_cue_for_the_learners_action_is_followed_by_its_line_after_a_switch_gap(self):
+        """#241 had the cue join its line at once; #301 puts the switch pause between them (a change of voice always has a gap)."""
         repeat = Prompts.load("en").get("repeat")
-        joins = [(a, b) for sc in self.lessons for a, b in zip(sc.segments, sc.segments[1:]) if a.type == "narrate" and a.text == repeat]
+        joins = [(a, b, c) for sc in self.lessons for a, b, c in zip(sc.segments, sc.segments[1:], sc.segments[2:]) if a.type == "narrate" and a.text == repeat]
         self.assertTrue(joins)
-        self.assertTrue(all(b.type == "speak" for _, b in joins), "«Repeat.» is followed by the line at once")
+        self.assertTrue(all((b.type, b.role) == ("pause", "switch") and c.type == "speak" for _, b, c in joins), "«Repeat.», a switch gap, then the line")
 
 
 class FailureThinkTimeTests(unittest.TestCase):
