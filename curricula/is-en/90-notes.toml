@@ -448,8 +448,8 @@ milestone = true
 items = ["eg_vil", "eg_verd_ad", "ma_eg_borga_med_korti"]
 transfer_items = ["ma_eg_inf"]
 topics = ["grammar"]
-text = "«Ég vil fara heim», «Ég verð að fara heim», and «Má ég borga með korti?» share one shape: «vil» (want), «verð að» (have to), and «má» (may) are each followed by a second verb in its basic form, the infinitive. «verð» needs «að» before that verb; «vil» and «má» don't. So any verb you know, you can now want, need, or ask permission for."
-text_ja = "«Ég vil fara heim»、«Ég verð að fara heim»、«Má ég borga með korti?» は同じ形をしています。«vil»（〜したい）、«verð að»（〜しなければならない）、«má»（〜してもいい）のあとには、どれも動詞の基本形（不定詞）が続きます。«verð» のあとには «að» が必要ですが、«vil» と «má» には要りません。知っている動詞なら、「したい」「しなければならない」「してもいいか」のどれにも使えます。"
+text = "Here are three lines that share one shape. «Ég vil fara heim.» «Ég verð að fara heim.» «Má ég borga með korti?» Each has a word for want, have to or may, followed by a second verb in its basic form, the infinitive. The word «vil» means want. The word «verð að» means have to. The word «má» means may. Only «verð» needs a little word before that verb. «Ég verð að fara heim.» The other two take the verb straight away. «Ég vil fara heim.» So any verb you know, you can now want, need, or ask permission for."
+text_ja = "同じ形の文が三つあります。«Ég vil fara heim.» «Ég verð að fara heim.» «Má ég borga með korti?» どれも、「したい」「しなければならない」「してもいい」を表す語のあとに、動詞の基本形（不定詞）が続きます。«vil» は「〜したい」です。«verð að» は「〜しなければならない」です。«má» は「〜してもいい」です。動詞の前に小さな語が必要なのは «verð» だけです。«Ég verð að fara heim.» ほかの二つは、すぐに動詞が続きます。«Ég vil fara heim.» 知っている動詞なら、「したい」「しなければならない」「してもいいか」のどれにも使えます。"
 
 [[notes]]
 id = "dative_subject"
