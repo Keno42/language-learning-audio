@@ -83,7 +83,7 @@ topics = ["hobbies", "food"]
 [[items]]
 id = "ferdalogum"
 kind = "vocab"
-noun = "ferdalog"
+noun = "ferdalag"
 form = "dat_pl"
 gender = "neut"
 target = "ferðalögum"

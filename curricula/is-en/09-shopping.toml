@@ -33,7 +33,7 @@ pronunciation_notes = "accusative of úlpa"
 [[items]]
 id = "husfu"
 kind = "vocab"
-noun = "husfa"
+noun = "hufa"
 form = "acc"
 gender = "fem"
 target = "húfu"

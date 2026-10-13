@@ -3,7 +3,7 @@
 [[items]]
 id = "hofudverk"
 kind = "vocab"
-noun = "hofudverk"
+noun = "hofudverkur"
 form = "acc"
 gender = "masc"
 target = "höfuðverk"
