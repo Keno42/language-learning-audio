@@ -23,10 +23,16 @@ Python 3.11+ and no required packages. For real voices you need **one** of:
 | provider | quality | needs | notes |
 |----------|---------|-------|-------|
 | `edge`   | neural, many languages | `pip install edge-tts`, network, ffmpeg | free; recommended |
+| `azure`  | neural, the same voices as `edge` | `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`, network, ffmpeg | Azure Speech's official API (paid beyond its free tier); also edge's fallback, below |
 | `openai` | neural | `OPENAI_API_KEY`, network | paid |
 | `say`    | good | macOS, ffmpeg | built-in Mac voices |
 | `espeak` | robotic | `espeak-ng` | offline; fine for checking a lesson |
 | `stub`   | tones only | nothing | structure/timing checks, tests |
+
+`edge` uses a free, unofficial endpoint that can refuse connections (HTTP 403) for days at a time. The shipped
+`profiles/edge-*.toml` set `fallback = "azure"`: on a refusal, the remaining clips go to Azure Speech with the same
+voices, and the clips already made stay in the shared cache. Without the two `AZURE_SPEECH_*` variables, the render
+waits out the refusal for `refusal_budget_min` (15 by default) and then fails with one clear line.
 
 ```sh
 pip install -e ".[edge]"          # or just run `python -m audiolesson.cli`

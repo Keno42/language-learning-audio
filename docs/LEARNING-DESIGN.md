@@ -1132,34 +1132,37 @@ interleave half); the noun pilot with the tour frame «Mig langar að sjá {…}
   left over behind the day's items.
 - **The bot's reading-card gaps are 0.5 s, each clip's padding trimmed** (site_update_notifier#106, #107).
 
-**To check on the first lesson built on all of the above** (its export, replayed):
-- **By ear:**
-  - «Sex · hundruð · krónur.» sounds like a person speaking slowly, not a list (#261);
-  - a split word («hætt · u · legt») sounds right, and a lone syllable is not mispronounced (#212);
-  - the reading-card gaps and first sounds (bot #106).
-- **Rows:**
-  - a sentence asked again within a minute (#273), between 3 and 11 a lesson on the replays: ordering moves it;
-  - recombine prompts promising a link that is not there (#287), 0;
-  - `apply_in_sentence_parts`, `hard_words` and `stranded_frames` in `plan.json`, read against the transcript.
+**Checked on lesson 24 (§5.20):** the word-by-word reply of #261 was heard and praised; no trivial or bare-noun
+question; 2 sentences asked again within a minute. Not yet heard: a split hard word (#212: none was new in
+lesson 24) and the reading cards' new gaps (bot #106, #113).
 
-**Now, in order (lesson 24's remarks, §5.20; owner: about 80% tomorrow's lesson, 20% the long run):**
-1. **A change of voice always has a gap (#301; PR #304).** 66 touching segments a lesson; the note rewritten as whole
-   sentences, then examples.
-2. **The «Slowly» model: gaps between the words at natural speed (#302),** as in the praised reply of #261.
-3. **The pick-out says what to listen for before the line (#303):** concept 2 is finding the information one needs.
-4. **A lesson keeps its second half when an item counted toward the target is not taught that day (#294).**
-5. **Retention learned from long-gap recalls (#220: #298 with site_update_notifier#118),** each with its review fix.
-6. **The review backlog read, then its intake fixed (site_update_notifier#123, then #220's intake side).** A review on
-   its own (site_update_notifier#124) waits for both.
-7. **#270 step 1:** gender and forms for the remaining nouns, with each scene's frames and the case each asks. #198
-   fits here.
+**Built after lesson 24** (§5.20):
+- **A gap at every change of voice (#301: #304):** 0.4 s, 0.6 s after a whole sentence in the same voice; the modal-verb
+  note said as whole sentences, then examples.
+- **The «Slowly» model word by word at natural speed (#302: #307),** with the repeat pause counting the gaps.
+- **The pick-out names what to listen for before the line (#303: #306).**
+- **A lesson keeps its second half when an item counted toward the target is not taught (#294: #308).**
+- **Retention learned from long-gap recalls (#220: #298; the bot's #118, #128),** and the review backlog's breakdown in
+  the post and the export (the bot's #125).
+
+**To check on the next lesson** (its export, replayed): by ear, the word-by-word models and their 0.4 s gaps, the gaps
+at changes of voice, a split hard word if one is new, and the reading cards' gaps; the pick-outs' «You want to know: …
+Listen.»; `review_backlog.json` (what the due questions are made of) and the retention row by gap.
+
+**Now, in order (owner: about 80% tomorrow's lesson, 20% the long run):**
+1. **The review backlog's intake (#220).** Read the first `review_backlog.json` in an export, then choose: limit what a
+   lesson adds, or defer what the learner state already treats as learned. A review on its own (the bot's #124) waits
+   for it.
+2. **#270 step 1:** gender and forms for the remaining nouns, with each scene's frames and the case each asks. #198 is
+   its first case.
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
 learner say this line", then the planner's build loop. Each step leaves the replays of the lesson-21–23 exports
 byte-identical. Also split `docs/DESIGN.md`'s one-line invariants paragraph into one line per topic. Every PR that
 touched it this round conflicted with the one merged before it.
 
-**Decided by the evidence:** the pace unit stays (lesson 22's next-day recall 10 of 13, above the 60% rule of §5.18).
+**Decided by the evidence:** the pace unit stays (next-day recall 10 of 13 after lessons 22 and 23, above the 60% rule
+of §5.18).
 
 Each "Now" item is done when its row in the daily read (`tools/replay_lesson.py`) reads 0 on the replay, and three
 feedbacks after it carry no remark of the same kind:
@@ -1176,7 +1179,9 @@ feedbacks after it carry no remark of the same kind:
 10. a sentence asked again within a minute (#273: `asked_again_within_spacing`, keyed by the answer; a soft preference, so
     read it as a trend, not a 0);
 11. recombine prompts promising a link that is not there (#287: `unkept_links`);
-12. lessons whose target is not delivered (#294: `target_delivered`; to build as a row).
+12. lessons whose target is not delivered, and whether the second half started through the guard (#294: `meta.target_delivered`,
+    `meta.rotation_guard`; in the script's `meta`, not yet a row of `replay_lesson.py`);
+13. speech segments that touch at a change of voice (#301: `meta.touching_switches`, 0 expected; likewise not yet a row).
 
 **Open issues after "Now", in order:**
 - #236: a one-off reply gets several example answers (owner: low priority).
