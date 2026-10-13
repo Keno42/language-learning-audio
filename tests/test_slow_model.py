@@ -42,6 +42,18 @@ class SlowModelTests(unittest.TestCase):
             stretched = [g.text for g in sc.segments if g.type == "speak" and g.rate < 1 and len(g.text.split()) > 1]
             self.assertEqual(stretched, [], item.id)
 
+    def test_the_repeat_pause_after_a_spaced_model_adds_the_gaps(self):
+        """#302 review: the learner repeats word by word, so the pause is the natural one plus (words − 1) gaps."""
+        item = next(i for i in self.cur.items if i.kind == "phrase" and i.difficulty >= 2 and i.word_count >= 3 and not i.is_hard() and not i.noun)
+        sc = self.intro(item.id)
+        timing = Timing(level="A1")
+        natural = timing.repeat_pause(item.target, "is")
+        gaps = (item.word_count - 1) * timing.intro_word_gap
+        slow_at = max(i for i, g in enumerate(sc.segments) if g.role == "spaced")
+        after = next(g for g in sc.segments[slow_at:] if g.type == "pause" and g.role == "repeat")
+        self.assertAlmostEqual(after.duration, natural + gaps, places=2)
+        self.assertGreaterEqual(after.floor, timing.min_pause + gaps)
+
     def test_a_hard_word_keeps_its_syllable_split(self):
         sc = self.intro("jokull")
         self.assertEqual([g.text for g in sc.segments if g.type == "speak" and g.rate < 1], ["jö", "kull"])
