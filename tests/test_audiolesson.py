@@ -5791,7 +5791,7 @@ class ListeningTaskTests(unittest.TestCase):
         self.assertEqual((task.answer, task.pattern, task.pieces), ("tuttugu mínútur", "theme:tour:1:2", 1))
         sc = Script(1, "t", "is", "en")
         ex = append_task(self._builder(), sc, task, 120.0)
-        self.assertIn("How long?", sc.transcript())
+        self.assertIn("You want to know how long. Listen.", sc.transcript())
         self.assertEqual(ex.stage, "single")
 
     def test_the_row_counts_a_single_piece_that_is_most_of_its_line(self):
@@ -5836,11 +5836,14 @@ class ListeningTaskTests(unittest.TestCase):
         self.assertEqual((ex.kind, ex.item_ids), ("pick_out", ["thad_kostar_big"]))
         text = sc.transcript()
         self.assertIn("At the till.", text)
-        self.assertIn("How much does he say it costs?", text, "a scene was named: whose line it was")
+        self.assertIn("You want to know how much it costs. Listen.", text, "#303: the need is named")
+        self.assertLess(text.index("At the till."), text.index("You want to know how much it costs."), "the scene, then the need")
+        self.assertLess(text.index("You want to know how much it costs."), text.index("Það kostar fimm"), "the need before the line")
         sc2 = Script(1, "t", "is", "en")
         from dataclasses import replace as _replace
         append_task(b, sc2, _replace(task, scene="", line="Það kostar tvö þúsund krónur."), 120.0)
-        self.assertIn("How much is it?", sc2.transcript(), "no scene: the plain question")
+        self.assertIn("You want to know how much it costs. Listen.", sc2.transcript(), "no scene: the need alone")
+        self.assertNotIn("How much is it?", sc2.transcript())
         self.assertNotIn("partner", sc2.transcript() + text)
         self.assertEqual(len([g for g in sc.segments if g.type == "pause" and g.role == "answer"]), 1)
         self.assertEqual([g.text for g in sc.segments if g.type == "speak"], ["Það kostar fimm þúsund krónur."] * 2, "heard, then again after the answer")
