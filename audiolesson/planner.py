@@ -111,6 +111,9 @@ class PlanConfig:
     theme_scenarios: list[str] = field(default_factory=list)
     max_pick_outs_per_pattern: int = 1  # pick-outs one partner turn gives in a lesson, its variants and listening lines counted together (#248 review)
     theme_ready: float = 0.75  # a theme's level plays once the learner can say this share of its turns; the rest are heard (#240)
+    scene_share: float = 2 / 3  # #327: the share of a call's places the day's scene may take ahead of the course order
+    scene_window: int = 150  # #327: the next unmet items a scene may take its items from
+    theme_match_rest: int = 2  # #327: a level whose scene is the topic of the day's new material comes back after this many lessons
     theme_rest_lessons: int = 3  # a level already played comes back no sooner than this many lessons later (#149 step 1)
     # #149 step 2 (H5): a semantic set is not introduced as a block: at most ``max_set_items`` new items a lesson share
     # one of these sets (numbers, colours, languages...); the others wait for another lesson, and the pool goes on. A set
@@ -257,6 +260,8 @@ class Planner:
         self.listening_untaught: list[str] = []
         self.listening_asked: list[dict] = []  # #179: turns asked because the learner can say the line, not `knows()` it
         self.cheap_placed: list[str] = []  # cheap constructions given a new-item place (#171 B)
+        self.day_topic: str | None = None  # #327: the topic the day's new material shares (see ``_group_by_scene``)
+        self._day_topic_chosen = False
         self.stranded_placed: list[str] = []  # frames brought forward for a known noun with no known frame (#270)
         self.embedded: list[str] = []  # parts heard inside a sentence this lesson (#149)
         self._reset_components()
@@ -517,6 +522,71 @@ class Planner:
         return {"total": round(self.components_total, 2), "forms": round(forms, 2), "target": self.cfg.new_target,
                 "by_item": {i: c for i, c in self.component_by_item.items()}}
 
+    def _new_in_scene(self, theme_pick: tuple | None, introduced: list[Item]) -> dict | None:
+        """#327's daily-read row: of the items taught new today (parts of a frame apart), how many belong to the scene the lesson plays:
+        an item of the played level's turns, or one with a topic of the theme."""
+        if not theme_pick:
+            return None
+        theme, n, _ = theme_pick
+        level_items = {r for t in theme.levels[n].turns for r in t.items}
+        new = [i for i in introduced if not i.variant_of]
+        inside = [i.id for i in new if i.id in level_items or set(i.topics) & set(theme.topics)]
+        return {"theme": theme.id, "inside": len(inside), "new": len(new)}
+
+    def themes_exhausted(self) -> bool:
+        """Every ranked theme has played all its levels (#327): there is no next level to take new material from, so the scenes
+        come back as replays and the new items must bring their own scene. False when there are no themes."""
+        rank = set(self.cfg.theme_scenarios)
+        ranked = [t for t in self.cfg.themes if t.scenario in rank]
+        return bool(ranked) and all(self.learner.themes_done.get(t.id, 0) >= len(t.levels) for t in ranked)
+
+    def _group_by_scene(self, pool: list[Item], count: int, keep_first: set[str]) -> list[Item]:
+        """New material as one scene (#327, part 1): when the target theme's next level wants nothing (the themes ran out, or the
+        level is all met), the day's new items are a group that shares a topic, not whatever comes next. The day's topic is
+        the first item's: of its topics, one a theme plays (so the lesson's scene can match it), else the one most of the next items
+        share. Within the trip order's items, and within the rest, the items of that topic come first, in their own order: the trip order
+        still goes before the course order, and a promoted cheap construction keeps its place. Set by the first call of a lesson, so the
+        arcs that follow stay in the scene while it has items. No topic on the first item: the pool as it is. Only once every theme has played all its levels (``themes_exhausted``) and with no topics
+        asked for: until then the course order and the themes' next levels decide, and a ``--topics`` choice is the scene."""
+        head = [i for i in pool if i.id in keep_first]
+        body = [i for i in pool if i.id not in keep_first]
+        if not body:
+            return pool
+        window = body[: self.cfg.scene_window]
+        topic = self.day_topic
+        if topic is None and not self._day_topic_chosen:
+            self._day_topic_chosen = True
+            lead = body[0]
+            now = self.learner.next_lesson_number()
+            replayable = {
+                t for th in self.cfg.themes
+                if self.learner.themes_done.get(th.id, 0) >= 1 and now - self.learner.themes_last.get(th.id, 0) >= self.cfg.theme_match_rest
+                for t in th.topics
+            }
+            near = [t for i in window for t in i.topics if t in replayable]
+            mine = [t for t in lead.topics if t in replayable]
+            if mine:  # the first item already belongs to a scene that can be played
+                topic = max(mine, key=lambda t: (near.count(t), -lead.topics.index(t)))
+            elif near:  # else the scene with most of the next items: they wait behind it no longer than the window
+                topic = max(dict.fromkeys(near), key=near.count)
+            elif lead.topics:
+                topic = lead.topics[0]
+            self.day_topic = topic
+        if topic is None:
+            return pool
+        trip = set(self.cfg.priority)
+        inside = {i.id for i in window}
+        # at most ``scene_share`` of the day's places go ahead of the course order: a topic no theme plays (numbers, money) still comes
+        # in its turn, and the listening that needs it (a price) is not starved
+        room = max(1, round(count * self.cfg.scene_share))
+        front = [i for i in body if i.id in inside and topic in i.topics and i.id not in trip][:room]
+        taken = {i.id for i in front}
+        trip_items = [i for i in body if i.id in trip]
+        trip_front = [i for i in trip_items if i.id in inside and topic in i.topics]
+        trip_rest = [i for i in trip_items if i not in trip_front]
+        rest = [i for i in body if i.id not in trip and i.id not in taken]
+        return head + trip_front + trip_rest + front + rest
+
     def select_new(self, count: int, exclude: set[str] | None = None, cheap: bool = False) -> list[Item]:
         chosen: list[Item] = []
         chosen_ids: set[str] = set(exclude or ())
@@ -594,6 +664,8 @@ class Planner:
             front = [promoted_id] if promoted_id else []
             theme_items = sorted((i for i in pool if i.id in order and i.id != promoted_id), key=lambda i: order[i.id])
             pool = [i for i in pool if i.id in front] + theme_items + [i for i in pool if i.id not in order and i.id not in front]
+        if not wants and not self.cfg.topics and self.themes_exhausted():
+            pool = self._group_by_scene(pool, count, keep_first={promoted_id} if promoted_id else set())
         constructions = [c for c in self.cur.items if c.kind == "construction"]
         if (stranded := self.stranded_frame(ready, chosen_ids)) is not None and stranded in pool:
             # #270: a known noun whose only frame is unmet: the frame takes the place that is left over, behind the day's scene (the theme's items) and the trip order's items
@@ -1523,7 +1595,9 @@ class Planner:
                 continue
             since = now - self.learner.themes_last.get(theme.id, 0)
             rested = since >= self.cfg.theme_rest_lessons
-            key = (not rested, rank[theme.scenario] if rested else -since, order)
+            # #327: the scene the day's new material belongs to is played again even before the rest is over (not the lesson just before)
+            matched = self.day_topic is not None and self.day_topic in theme.topics and since >= self.cfg.theme_match_rest
+            key = (not matched, not rested, rank[theme.scenario] if rested else -since, order)
             if again is None or key < again[0]:
                 again = (key, theme, done - 1)
         if again is None:
@@ -1594,6 +1668,8 @@ class Planner:
         b = self.builder
         b.opening(sc, n, first_lesson=(n == 1))
 
+        self.day_topic = None  # #327: the topic the day's new material shares, set when it is first chosen without a theme level to take it from
+        self._day_topic_chosen = False
         target = self.theme_target()
         wanted_at_start = self.theme_wants()
         first_arc = cfg.new_items_ceiling() if self.components_mode else cfg.resolved_new_items()  # in components, the target stops the arc
@@ -3155,6 +3231,9 @@ class Planner:
                 else None
             ),
             # #149 step 2: the theme new material was chosen for, and the items its next level lacked at the start
+            # #327: how many of today's new items belong to the scene the lesson plays (a topic of the theme, or an item of the level); None: no theme
+            "new_in_scene": self._new_in_scene(theme_pick, introduced),
+            "day_topic": self.day_topic,
             "theme_target": {"id": target[0].id, "level": target[1] + 1, "wanted": wanted_at_start} if target else None,
             "cheap_constructions": list(self.cheap_placed) + list(cheap_used),  # #171 B: taken in a new-item place / beyond the limit
             "forms_modelled": sorted(self.builder.forms_modelled or ()),  # every construction:form modelled so far (#211)

@@ -129,6 +129,13 @@ def main(argv: list[str] | None = None) -> int:
     q.add_argument("--known", default=None)
     q.set_defaults(func=cmd_questions)
 
+    nn = sub.add_parser("nouns", help="the nouns of the curriculum with their forms, and (--scenes) each scene's frames and the case each asks (#270)")
+    nn.add_argument("curriculum")
+    nn.add_argument("--known", default=None)
+    nn.add_argument("--scenes", action="store_true", help="the frames of every theme level's learner turns that say a noun, with the form each noun takes. It shows what the turns' items declare, not every frame a scene uses")
+    nn.add_argument("--met", default=None, help="a learner file: shows which forms of each noun it has met")
+    nn.set_defaults(func=cmd_nouns)
+
     rf = sub.add_parser("refine-review", help="refine review questions (JSON on stdin) as plan.json's review is: each expression once, a part through its whole (#239); for the bot's queue")
     rf.add_argument("curriculum")
     rf.add_argument("-l", "--learner", default=None, help="learner file: what the learner has met decides which wholes may be asked")
@@ -370,6 +377,25 @@ def _review_cues(cur, prompts: Prompts, it) -> list[str]:
     return list(dict.fromkeys(cues))
 
 
+SAVINGS_STAGES = ("meaning", "situation", "hinted", "cloze")  # recalls that ask the item in the form a review asks it (#220); recombine is transfer practice, not counted
+
+
+def review_savings(script: Script) -> dict[str, float]:
+    """#220: the lesson time a 言えた in the review would save, by item: the seconds of this lesson's same-form recalls of an item that is neither new today nor
+    open (a confirmed older item need not be practised again at once). The bot builds the next lesson as a dry run before the review, ranks the older items it
+    could ask by this, and asks the ones that pay first. Items asked once cost about what the check does; the ones asked twice or three times are where a check pays."""
+    script.retime()
+    meta = script.meta
+    skip = set(meta.get("new_items", [])) | set(meta.get("embedded_items", [])) | set(meta.get("open_items", [])) | set(meta.get("open_not_fitted", []))
+    out: dict[str, float] = {}
+    for ex in script.exercises:
+        if ex.kind == "recall" and ex.stage in SAVINGS_STAGES:
+            for i in ex.item_ids[:1]:
+                if i not in skip:
+                    out[i] = out.get(i, 0.0) + ex.duration
+    return {i: round(t, 1) for i, t in sorted(out.items(), key=lambda kv: -kv[1])}
+
+
 def _plan(script: Script, cur) -> dict:
     meta = script.meta
 
@@ -412,6 +438,7 @@ def _plan(script: Script, cur) -> dict:
         "open_items": list(meta.get("open_items", [])),  # #199: the bot brings their questions forward and asks the waiting ones
         "open_not_fitted": list(meta.get("open_not_fitted", [])),
         "review": review,
+        "review_savings": review_savings(script),  # #220: seconds of same-form recall by older item: what a 言えた at the review would cut from this lesson
         "review_lesson_cues": lesson_cue_count(review, prompts),  # #312: review prompts that still carry a lesson cue (0)
         "review_refined": refined,  # #239: what was changed in the questions, and why (beside_whole, through_whole, no_home, same_answer)
         "review_candidates": script.review_candidates(),
@@ -652,6 +679,23 @@ def cmd_reading(args) -> int:
     places = load_trip(args.trip).places if args.trip else []
     cards = load_deck(args.curriculum, places)
     print(json.dumps([c.to_dict() for c in cards], ensure_ascii=False))
+    return 0
+
+
+def cmd_nouns(args) -> int:
+    from .cando import load_cando
+    from .nouns import noun_report, scene_report
+    from .themes import load_themes
+
+    cur = load_curriculum(args.curriculum, known_lang=args.known)
+    if args.met and Path(args.met).exists():
+        print("forms met: " + noun_report(cur, LearnerState.load(Path(args.met))))
+    else:
+        print(f"{len(cur.nouns)} nouns, " + ", ".join(f"{n}: {'+'.join(e['forms'])}" for n, e in list(cur.nouns.items())[:8]) + ", …")
+    if args.scenes:
+        path = Path(args.curriculum)
+        scenarios = load_cando(path, cur) if path.is_dir() else []
+        print(scene_report(cur, load_themes(path, cur, scenarios) if scenarios else []))
     return 0
 
 
