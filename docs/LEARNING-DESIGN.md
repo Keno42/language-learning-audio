@@ -7,7 +7,10 @@ local fix, and the fixes stop adding up to a plan (owner: "#80 looks like a very
 want the overall learning plan to stay in a sensible order", and again after lesson 12).
 
 **Read it before opening an issue, before implementing one, and after every round of
-learner feedback.** Section 1 is the checklist; the rest is what the checklist points at.
+learner feedback.** For a routine task start from the two short briefs, `docs/CURRENT-POLICY.md` (what always holds)
+and `docs/CURRENT-STATUS.md` (built, being evaluated, planned), and read the sections they point at; read all of this for
+a change to learning policy or to the structure of the lessons or the review. If a brief disagrees with this document,
+this document wins and the brief is fixed. Section 1 is the checklist; the rest is what the checklist points at.
 `docs/DESIGN.md` covers the code; this document covers the learning.
 
 Contents: [1 Checklists](#1-checklists) · [2 What the project is](#2-what-the-project-is) ·
