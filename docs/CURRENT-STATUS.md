@@ -9,32 +9,21 @@ Checked against LD §8 on 2026-10-14. If the two differ, LD is the record and th
 
 ## Now (copied from LD §8, verbatim)
 
-**Now (updated 2026-10-14, after a review of all open issues against the long-term plan), in order.** Tomorrow's lesson
-first, the long run alongside (owner: about 80% / 20%). This re-ranking is proposed in the PR that wrote it and is the
-owner's call.
-1. **New material chosen by scene (#327, part 1).** The themes' next levels run out at lesson 28 on the real path, three
-   lessons away. From then on, new items come from the trip and curriculum order whatever scene the lesson plays (3 of
-   112 from the played scene in lessons 25–34). Choose the day's new material as a group from one scene or topic. Make
-   the played scene match it where a theme exists. Give the others a scene line. No new content needed.
-   *Built (the PR of #327, waiting for feedback):* the group by topic and the scene match. Not built: the scene line for
-   items whose topic has no theme; part 2 (theme levels) is authored content. On a simulated course with every theme
-   level played from lesson 21, the new items inside the played scene went from 53 of 261 to 116 of 251 (lessons 21–50),
-   at most two thirds of a call's places going ahead of the course order so that a topic with no theme (numbers) still
-   comes; the rest is limited by themed topics running out of material, which is part 2.
-2. **A word reported hard is practised through its connections (#326).** Its scene, the word in other patterns, and other
-   words of the same pattern, not more of the same sentence (the owner, after lesson 25; «úlpu»).
-   *Built (the PR of #326, waiting for feedback):* for items open or hesitated at their last review, the 2nd to 4th
-   practice of a lesson goes through a scene line, another pattern or the same pattern with other words; the daily
-   read lists the connections per item and the items with none (content gaps). «Sooner» and `report --hard`
-   (an item named) set `reported_hard` and count as hard for 14 days. Not built: the connections across lessons.
-3. **#220, the LLA half of the ranking:** a 言えた on a due item at a real gap extends its interval, and two in a row raise
-   the ease. *Built (the PR of #220's LLA half, 2026-10-14):* `report` with a gap of 1+ day on a due item (or one on a 1–2
-   day interval) extends the interval, two in a row raise the ease; the audio still spends the freed time on early
-   reviews. Before that, a ranked check saved lesson time on its day only. So the bot's ranking (site_update_notifier#139)
-   should keep the retention seats oldest-first, or take at most a third of them. The bot's review on its own (#124)
-   waits for this.
-4. **#198 finished (#323):** the endings said piece by piece, as the owner decided, and no lone «.» narrated in a note.
-   The second is older than #323: `kurteisi` and `tolur_kyn` have it too.
+**Now (updated 2026-10-14, after lesson 26's feedback), in order.** Tomorrow's lesson first, the long run alongside
+(owner: about 80% / 20%). This re-ranking is proposed in the PR that wrote it and is the owner's call. The previous list
+is built and in the table below: new material by scene (#327 part 1), a hard word through its connections (#326), #220's
+LLA half and #198's endings (#323).
+1. **The lesson-26 preview's findings (#333),** all heard in the real lesson 26: «Get ég fengið leigubíl?» not linked to
+   its pattern; a «pattern you know» play of a phrase taught two minutes earlier; «Showing the address:» read as a cue;
+   «Má ég sofa?» (the owner's call: a named exception or a slot tag). Small, and each one is in tomorrow's lesson.
+2. **A word reported hard to say gets its slow, split model again (#337).** The rule also reads the words inside
+   phrases, and adds the sounds this learner has stumbled on, not a phonetics catalogue. It is H13's first real test:
+   the «sooner» items of lesson 26 come back in lesson 27.
+3. **The pick-out marks its turns (#335):** «Listen and answer.», «The answer:», «Listen again.», as the learner wrote
+   it. Wording only.
+4. **A scene's lines that vary in use are taught as a pattern with the scene's fillers (#336),** transport first. It is
+   the cause behind «úlpu» (#311), #333's first point and the bus, in the case where no pattern was written, and it
+   gives #326's connections at the introduction.
 
 #270's step 2 is what the tags already do (#317, #324). The size and price frames once listed here were an example in the
 lesson-25 remark, not a requirement, and #326 replaces them.
