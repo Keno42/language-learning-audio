@@ -1246,8 +1246,8 @@ after it carry no remark of the same kind (the table above). The rows:
     read it as a trend, not a 0);
 11. recombine prompts promising a link that is not there (#287: `unkept_links`);
 12. lessons whose target is not delivered, and whether the second half started through the guard (#294: `meta.target_delivered`,
-    `meta.rotation_guard`; in the script's `meta`, not yet a row of `replay_lesson.py`, #310);
-13. speech segments that touch at a change of voice (#301: `meta.touching_switches`, 0 expected; likewise not yet a row).
+    `meta.rotation_guard`; a row of `replay_lesson.py`: «yes», «guard» or «no», #310);
+13. speech segments that touch at a change of voice (#301: `meta.touching_switches`, 0 expected; a row of `replay_lesson.py`, with the count of gaps inserted next to it, #310).
 
 **Open issues after "Now", in order:**
 - #236: a one-off reply gets several example answers (owner: low priority).
@@ -1255,7 +1255,7 @@ after it carry no remark of the same kind (the table above). The rows:
 - #209: when a fluent speaker is available (G10). It is worth more now that #255, #257, #276 and #292 added authored
   Icelandic, and it holds #279's step 2.
 - #208: a short policy and status brief for coding tasks (documentation; any time).
-- #310: the daily-read rows for #294 and #301 (rows 12 and 13 above; any time).
+- #310: built — the daily-read rows for #294 and #301 (rows 12 and 13 above).
 
 #265 (expression first) and #149 (themes) are the umbrellas the items above belong to; #220 stays open for its ranking
 (item 1 of "Now").
