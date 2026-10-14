@@ -28,7 +28,7 @@ from .listening_tasks import REPAIR_ITEM, SecondHalfRotation, append_task, catch
 from .prompts import Prompts
 from .script import Script
 from .stages import ladder_for, next_stage, stage_index
-from .themes import level_dialogue, pick_variants
+from .themes import Level, level_dialogue, pick_variants
 from .text import WORD, words as _words
 from .timing import Timing
 
@@ -169,6 +169,8 @@ class PlanConfig:
     # not exercise counts: five practices 3-13 exercises apart bunched in the first 8 minutes),
     # interleaved between items.
     max_open_items: int = 5
+    hard_scene_lines: int = 3  # #326: at most this many theme lines (a short exchange around one of the learner's lines) for hard items in a lesson
+    hard_connection_turns: int = 3  # #326: an item reported hard goes through its connections (scene, other pattern, same-slot words) at its 2nd to this many practices of a lesson
     open_item_times: list[float] = field(default_factory=lambda: [0.04, 0.27, 0.48, 0.68, 0.88])
     # the trip ordering (#132): item ids introduced before the rest, in this order (their
     # prereqs included by cando.priority_items); empty keeps curriculum order
@@ -516,6 +518,51 @@ class Planner:
         forms = sum(c for i, c in self.component_by_item.items() if self.cur.by_id[i].variant_of)
         return {"total": round(self.components_total, 2), "forms": round(forms, 2), "target": self.cfg.new_target,
                 "by_item": {i: c for i, c in self.component_by_item.items()}}
+
+    def scene_line_of(self, item: Item, used: set[str]) -> tuple[Dialogue, dict[int, list[str]], str, bool] | None:
+        """A line of ``item``'s scene (#326): the learner's line of a theme level that needs ``item``, with the partner's line before it and the
+        reply after it, as a short exchange with the scene put first and the partner's lines translated. Only a turn whose other items the
+        learner knows (else the line is only heard), and not one already used for this item. None when no theme level holds it."""
+        rank = set(self.cfg.theme_scenarios)
+        for theme in self.cfg.themes:
+            if theme.scenario not in rank:
+                continue
+            for n, level in enumerate(theme.levels):
+                for k, t in enumerate(level.turns):
+                    key = f"{theme.id}:{n + 1}:{k}"
+                    if t.who != "you" or item.id not in t.items or key in used:
+                        continue
+                    asked = all(self.learner.knows(i) or i in self.builder.in_lesson for i in t.items if i != item.id)  # else the line is heard with its meaning (#240)
+                    turns = level.turns[max(0, k - 1) : k + 2]
+                    if turns[0].who == "you" and len(turns) > 1 and turns[0] is not t:
+                        turns = turns[1:]
+                    sub = Level(goal=level.goal, goal_ja=level.goal_ja, partner_speaker=level.partner_speaker, turns=list(turns))
+                    dlg = level_dialogue(dataclasses.replace(theme, levels=[sub]), 0, self.cur.known_lang)
+                    return dlg, {0: list(t.items)}, key, asked
+        return None
+
+    def _hard_report(self, sc: Script, log: dict[str, list[tuple[str, str]]], at: dict[str, list[float]]) -> dict[str, dict]:
+        """#326's daily-read row: for each item reported hard that was practised, how many times, through how many connections (a scene,
+        another pattern, the same pattern with other words) and the most times one sentence of it was asked. Expected: two connections or
+        more once it was practised three times, and no sentence more than three times; the others are the content gaps."""
+        out: dict[str, dict] = {}
+        for item_id in self.hard_items():
+            asked = Counter(
+                _norm_utterance(e.label.split(": ", 1)[-1]) for e in sc.exercises if item_id in e.item_ids and e.kind in ("recall", "generative")
+            )
+            scenes = {("scene", e.label.split(": ", 1)[-1].split(" ")[0]) for e in sc.exercises if e.kind == "dialogue" and item_id in e.item_ids}
+            links = sorted(set(log.get(item_id, [])) | scenes)
+            if not asked and not links:
+                continue
+            out[item_id] = {"practices": sum(asked.values()), "connections": len(links), "kinds": sorted({k for k, _ in links}), "same_sentence_max": max(asked.values(), default=0), "connection_times_s": at.get(item_id, [])}
+        return out
+
+    def hard_items(self) -> list[str]:
+        """The items reported hard (#326): open (failed at the last review, #162) and those that came out with hesitation at their last
+        review. «Sooner» on the feedback form is a request about the date, not kept as an outcome, so it is not among them."""
+        out = [i for i in self.learner.open_items() if i in self.cur.by_id]
+        out += [i for i, st in self.learner.items.items() if st.last_outcome == "hesitated" and i in self.cur.by_id and i not in out]
+        return out
 
     def select_new(self, count: int, exclude: set[str] | None = None, cheap: bool = False) -> list[Item]:
         chosen: list[Item] = []
@@ -1850,10 +1897,77 @@ class Planner:
         def remaining_time() -> float:
             return budget - closing_reserve - sc.total_duration
 
+        hard_ids = set(self.hard_items())
+        hard_calls: Counter = Counter()  # #326: practices of a hard item so far this lesson
+        hard_scene_lines: list[str] = []  # #326: the theme lines played for a hard item this lesson
+        hard_at: dict[str, list[float]] = {}  # #326: when each connection practice of a hard item began
+        hard_log: dict[str, list[tuple[str, str]]] = {}  # #326: per hard item, the connections it was practised through (kind, scene / pattern id)
+
+        def connected_practice(item: Item) -> str:
+            """#326: an item reported hard (open, or hesitated at its last review) is not asked as the same sentence again: its 2nd to
+            ``hard_connection_turns``th practice of a lesson goes through one connection, in turn: a line of its scene (a dialogue that
+            holds it, heard with the exchange), the word in another pattern than it was in, or the same pattern with other words of the slot
+            (contrast, and support). The first practice and the later ones are the ladder's own. "played", or "ladder": nothing connects it, the ladder goes on."""
+            nonlocal since_dialogue
+            done = hard_calls[item.id]
+            hard_calls[item.id] += 1
+            if any(i.id == item.id for i in introduced):
+                return "ladder"
+            if done == 0:
+                return "ladder"
+            if done > cfg.hard_connection_turns:
+                return "ladder"
+            order = ["scene", "pattern", "sibling"] if item.kind == "vocab" else ["scene", "pattern"]
+            log = hard_log.setdefault(item.id, [])
+            t0 = round(sc.total_duration, 1)
+
+            def linked(kind: str, key: str) -> str:
+                log.append((kind, key))
+                hard_at.setdefault(item.id, []).append(t0)  # when each connection practice began: a sibling or a scene line does not name the item
+                return "played"
+            turn = len(log) % len(order)
+            used_patterns = frozenset(key for kind, key in log if kind in ("pattern", "sibling"))
+            for kind in order[turn:] + order[:turn]:
+                if kind == "scene":
+                    if (line := self.scene_line_of(item, {key for k_, key in log if k_ == "scene"})) is not None and len(hard_scene_lines) < cfg.hard_scene_lines:
+                        dlg, turn_items, key, asked = line
+                        ex = b.dialogue(sc, dlg, translate=True, turn_items=turn_items, heard_turns=frozenset() if asked else frozenset({0}))
+                        if asked:
+                            self._record([item.id], "dialogue", ex.item_ids)
+                        touch(item)
+                        hard_scene_lines.append(key)
+                        return linked("scene", key)
+                    dlg = self.eligible_dialogue(prefer_item=item)
+                    if dlg is None:
+                        continue
+                    self._play_dialogue(sc, dlg)
+                    since_dialogue = 0
+                    touch(item)
+                    return linked("scene", dlg.id)
+                if kind == "pattern":
+                    if item.kind != "vocab":
+                        if sentence_practice(item, review=True):
+                            return linked("pattern", "sentence")
+                        continue
+                    ex = b._recombine(sc, item, avoid=used_patterns)
+                    if ex is None:
+                        continue
+                    self._record([item.id], "recombine", ex.item_ids)
+                    touch(item)
+                    return linked("pattern", next((i for i in ex.item_ids[1:] if self.cur.by_id[i].kind == "construction"), "?"))
+                for c, slot in sorted(b.homes_of(item), key=lambda h: (h[0].id in used_patterns, h[0].order)):
+                    if (ex := b.sibling_recall(sc, c, {slot: item})) is not None:
+                        self._record(list(ex.item_ids), ex.stage or "meaning", ex.item_ids)
+                        touch(c)
+                        return linked("sibling", c.id)
+            return "ladder"  # nothing connects it (a content gap, listed by the daily read): the ladder goes on, the dose is not cut
+
         def do_recall(item: Item, stage: str, allow_cap: bool = True) -> bool:
             """Practise ``item`` at ``stage``; False when nothing was played (a capped short item
             with no sentence to go in)."""
             nonlocal since_dialogue
+            if allow_cap and item.id in hard_ids and connected_practice(item) == "played":
+                return True
             if stage == "dialogue":
                 # An item introduced this lesson always tries its dialogue (its arc's connected
                 # use); older review items keep the spacing between dialogues.
@@ -3165,6 +3279,7 @@ class Planner:
             "wholes_taught": dict(self.builder.wholes_taught),  # part → the pattern whose sentence it came in with: usable as a whole for that part only (#262)
             "reviewed_items": reviews_used,
             "open_items": open_today,
+            "hard_connections": self._hard_report(sc, hard_log, hard_at),  # #326
             "open_not_fitted": [i for i in open_ids if i not in open_today],
             "reviewed_early": [i for i in reviews_used if i in early_ids],
             **spare,

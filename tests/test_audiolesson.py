@@ -4512,6 +4512,8 @@ class OpenItemTests(unittest.TestCase):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5), today=day).build()
             for i in sc.meta["open_items"]:
                 spots = [e.start for e in sc.exercises if e.kind in ("recall", "connect", "generative") and i in e.item_ids]
+                # #326: a practice through a connection (a scene line, a sibling sentence) is a practice that does not name the item
+                spots = sorted(spots + sc.meta["hard_connections"].get(i, {}).get("connection_times_s", []))
                 self.assertGreaterEqual(len(spots), 4, (n, i))
                 self.assertGreater(spots[-1], 0.6 * sc.total_duration, (n, i, spots))
                 gaps = [b - a for a, b in zip(spots, spots[1:])]
