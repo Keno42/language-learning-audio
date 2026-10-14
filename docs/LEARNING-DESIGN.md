@@ -230,7 +230,7 @@ changed it).
 | **H1** | Producing a line from memory, after a real gap, builds durable recall better than hearing or repeating it. | Retrieval practice and spacing are among the best-supported findings on learning (Roediger & Karpicke 2006; Cepeda et al. 2006). | Answer pauses; the stage ladder; spacing across days (`learner.py`) | Next-day recall of new lines stays low even at a low pace | adopted |
 | **H2** | Only success after a gap is evidence of learning. Success minutes after the first exposure is practice. | Performance during practice is a poor guide to learning (Soderstrom & Bjork 2015); #27. | `durable_successes`, `knows()`; the review comes the next day, before the lesson | — | adopted |
 | **H3** | A line cued by a *situation* or a partner's line transfers to the real moment better than one cued by a translation. The closer practice is to use, the better. | Transfer-appropriate processing and encoding specificity (Morris et al. 1977; Tulving & Thomson 1973). | `situation` stage, `connect` exchanges, dialogues, scenario cards | Lines practised in situations do no better in scenario cards than lines practised from meanings | testing (no comparison made yet) |
-| **H4** | **A lesson built around one scene's exchange beats a lesson built from an item count.** In such a lesson, today's lines are spread across the lesson and used together in a coherent exchange, again with other fillings, at rising resolution over lessons. The result is more lines said at the right turn, and less felt repetition. | H1 + H3, thematic grouping (H5), and the owner's experience of lesson 12 (§5.6). | Built (#149): the theme exchange played twice, early with the translation and late without it, the cue (the intent) in both (#210) (#186), the partner's lines in variants (#189); a theme in every lesson, a played level replaying after a rest (step 1, #196); new material for the theme's next level, a part with its frame and caps on a semantic set (step 2a–2c: #201, #202, #204, #207); a fixed phrase linked to its pattern (#206). `cando/themes.toml` has four themes, eight levels. Not built: numbers and colours through their scenes (#213), more theme data, the closing block on the theme's lines | Themed scenes don't reach readiness faster than unthemed ones, or the learner finds themed lessons no less repetitive | **bet: the main one.** Lesson 13 (§5.10): the learner calls the lesson an "Anki game" of unrelated expressions. Lessons 15–18 (§5.13–5.14): four themed lessons, and nothing about unrelated items. New material was still mostly the trip order's: the themes' next levels lacked one item in three lessons, so this is the theme as a frame, not yet themed new material. The friction that came back has its own causes: «unclear» is the theme's later play dropping what to say (#210); «repetitive» is a known pattern taught as a new phrase (#192, #206) |
+| **H4** | **A lesson built around one scene's exchange beats a lesson built from an item count.** In such a lesson, today's lines are spread across the lesson and used together in a coherent exchange, again with other fillings, at rising resolution over lessons. The result is more lines said at the right turn, and less felt repetition. | H1 + H3, thematic grouping (H5), and the owner's experience of lesson 12 (§5.6). | Built (#149): the theme exchange played twice, early with the translation and late without it, the cue (the intent) in both (#210) (#186), the partner's lines in variants (#189); a theme in every lesson, a played level replaying after a rest (step 1, #196); new material for the theme's next level, a part with its frame and caps on a semantic set (step 2a–2c: #201, #202, #204, #207); a fixed phrase linked to its pattern (#206). `cando/themes.toml` has four themes, eight levels. Not built: numbers and colours through their scenes (#213), more theme data, the closing block on the theme's lines | Themed scenes don't reach readiness faster than unthemed ones, or the learner finds themed lessons no less repetitive | **bet: the main one.** Lesson 13 (§5.10): the learner calls the lesson an "Anki game" of unrelated expressions. Lessons 15–18 (§5.13–5.14): four themed lessons, and nothing about unrelated items. New material was still mostly the trip order's: the themes' next levels lacked one item in three lessons, so this is the theme as a frame, not yet themed new material. The friction that came back has its own causes: «unclear» is the theme's later play dropping what to say (#210); «repetitive» is a known pattern taught as a new phrase (#192, #206). **Review of 2026-10-14 (#327): the theme frames the lesson, but new material rarely comes from it.** Lessons 23–25 took 0 of 13, 4 of 10 and 0 of 9 new items from the theme. On the lesson-25 replay the 4 themes' 9 levels run out at lesson 28, and 3 of the 112 new items of lessons 25–34 come from the scene the lesson plays. «úlpu» arrived without its scene (§5.21) |
 | **H5** | Group new material by **scene** (bun, coffee, bag, card), not by **semantic set** (numbers 1–10, colours, yes/no). Similar items introduced together get confused; contrasting them pays off once each is known. | Semantic clustering slows L2 vocabulary learning and thematic clustering doesn't (Tinkham 1993, 1997; Waring 1997). Interleaving helps when the task is telling similar things apart (Brunmair & Richter 2019). Lesson 8: "numbers 1–4: masculine and neuter can't be told apart in the English prompts" (§5.2). | Partly: milestone notes contrast known items; #150 plans contrasts for known pairs and series. Nothing keeps a set from being introduced together: the curriculum lists numbers, colours and languages next to each other (§7, G5) | Items introduced as a set fail no more often than others | bet (research-backed). Lesson 15's two forms of one word, introduced together, both failed the next day (§5.14). The other side, a set every scene needs that never moves forward: #213 |
 | **H6** | Chunks first, patterns next, transfer last. A fixed chunk said often becomes fluent (token frequency). A pattern used with many different fillings becomes productive (type frequency). Teach a pattern when two fillings are known, then move it to new words. | Usage-based learning (Bybee 2006); formulaic language (Wray 2002); #29's "capabilities outward". | Constructions with slots and `meaning_forms`; milestones with `transfer_items`; recombination; substitution runs (PR #153) | Substitution drills don't help the learner produce combinations they haven't heard (scenario cards with new fillings) | adopted (principle); testing (substitution). Lesson 16 (§5.14): a construction's question and negative were asked before the learner had heard them (#211). Revised by the concept (owner, after lesson 20; §3, §9 "Good enough overall"): patterns serve target expressions; moving a pattern to new words is limited to the few parallel expressions a target needs. Lesson 25 (§5.21): the converse holds for words. «úlpu», a new filler in a known pattern, was heard in one sentence only and the learner doubted it would stick (#311) |
 | **H7** | Every generated sentence must be plausible in its scene. An implausible one teaches less than it costs. | Owner (after lesson 12: never produce "order a passport at the café"); H3. | Case- and meaning-tagged slots; `opens` (PR #155); scene templates (#152) | — | adopted |
@@ -1079,8 +1079,8 @@ What the learner wrote, by what the lesson and the review did:
 - **A word needs other frames, as a pattern needs other fillings (H6).**
   - The úlpu remark is not about «úlpu». A new word that arrives inside a known pattern is heard in one sentence only,
     because nothing tells the planner that the sentence is a pattern with a filler.
-  - The fix is the link and the frames (#311), not more practice of the sentence. Size and price frames also need the
-    noun's forms (#270).
+  - The fix is the link and the frames (#311), not more practice of the sentence. (Size and price were the owner's
+    example of such connections, not a requirement: #326, 2026-10-14.)
 - **The written review has no rules of its own.** Both review remarks have the same root:
   - it takes the lesson's wording, which is a cue for a moment in the audio (H3: the cue should resemble use);
   - it serves due cards before unseen ones, with no variety rule (H12).
@@ -1160,7 +1160,7 @@ and a regression would show up as the same symptom.
 | id | gap | evidence | outcome / hypothesis | now |
 |---|---|---|---|---|
 | **G1** | **We don't read our signals routinely.** Decisions follow single remarks; there is no weekly comparison of predictions with data, and the readiness summary isn't used in decisions. | §5.3, §5.6 (at the time: one feedback form) | all; §10 | Mostly closed: the daily read after every lesson (§1, `tools/replay_lesson.py`) and `/lesson-week`; «sooner» moves the schedule (#222). Open: retention after a gap has only just started to be measured (#298) |
-| **G2** | **Lessons are assembled from an item count and an urgency queue.** Practice is bunched after each introduction, reviews have no shared scene, and the only coherent chunks are dialogues and exchanges. | §5.4; the owner after L12 | O1, O5; H4 | Mostly closed: a theme in every lesson (#149), scene units through it (#273), expression first (#265) |
+| **G2** | **Lessons are assembled from an item count and an urgency queue.** Practice is bunched after each introduction, reviews have no shared scene, and the only coherent chunks are dialogues and exchanges. | §5.4; the owner after L12 | O1, O5; H4 | Closed for the lesson's exchange: a theme in every lesson (#149), scene units through it (#273), expression first (#265). **Open for new material:** the themes run out at lesson 28, and new items come from the trip and curriculum order whatever scene the lesson plays (#327) |
 | **G3** | **No natural-speed listening in the daily audio.** Partner lines come at one speed and in one wording (since #134 the theme exchange's partner lines vary: each play uses other words). | §5.5; #134 ("now the top pre-trip gap") | O2; H8 | Closed in the audio: partner lines in variants (#189), heard scenes, pick-outs and catch tasks in the second half (#252, #255, #271, #303) |
 | **G4** | **The pace isn't the number of new items.** Extra arcs add up to half the pace again, and before PR #153, without limit when the fillers ran out. The load seems to follow weighted new components (a lead from four lessons, #218). | §5.2, §5.15 | O5; H9 | Closed: weighted new components are the pace's unit (#218, #235) |
 | **G5** | **Semantic sets can arrive together.** The trip ordering and curriculum order can put a whole set (numbers 6–19, colours, languages) into one lesson. | Lesson 8 (numbers); a replay from lesson 12 with a scenario holding numbers 6–19 boosted: five numbers in lesson 12, nine more in lesson 13 (an experiment from PR #154's first version, not in the repository) | O1; H5 | Bunching capped (#204, #207). Numbers come through the pick-outs (#213, folded into #248) |
@@ -1183,14 +1183,24 @@ and a regression would show up as the same symptom.
 Ordered by the expected effect on the outcome, adjusted for cost and for what depends on
 what. Re-rank it when the evidence moves.
 
-**Now (updated 2026-10-14, after #133, #132, #312, #311 and #270 step 1 were built), in order.** Tomorrow's lesson first,
-the long run alongside (owner: about 80% / 20%). This re-ranking is proposed in the PR that wrote it (#322) and is the owner's
-call.
-1. **#220's ranking:** choose the review's checks by the lesson time a 言えた would save, so older items are confirmed where
-   it pays. The review backlog's near-term part is built (site_update_notifier#133); a review on its own (the bot's #124)
+**Now (updated 2026-10-14, after a review of all open issues against the long-term plan), in order.** Tomorrow's lesson
+first, the long run alongside (owner: about 80% / 20%). This re-ranking is proposed in the PR that wrote it and is the
+owner's call.
+1. **New material chosen by scene (#327, part 1).** The themes' next levels run out at lesson 28 on the real path, three
+   lessons away. From then on, new items come from the trip and curriculum order whatever scene the lesson plays (3 of
+   112 from the played scene in lessons 25–34). Choose the day's new material as a group from one scene or topic. Make
+   the played scene match it where a theme exists. Give the others a scene line. No new content needed.
+2. **A word reported hard is practised through its connections (#326).** Its scene, the word in other patterns, and other
+   words of the same pattern, not more of the same sentence (the owner, after lesson 25; «úlpu»).
+3. **#220, the LLA half of the ranking:** a 言えた on a due item at a real gap extends its interval, and two in a row raise
+   the ease. Until then a ranked check saves lesson time on its day only. So the bot's ranking (site_update_notifier#139)
+   should keep the retention seats oldest-first, or take at most a third of them. The bot's review on its own (#124)
    waits for this.
-2. **#270 steps 2–3:** a slot asks for a case and the noun gives the form the learner has or is being taught; each scene lists
-   its frames and the case each asks. #198 («heiti potturinn») is its first case; #311's size and price frames need it.
+4. **#198 finished (#323):** the endings said piece by piece, as the owner decided, and no lone «.» narrated in a note.
+   The second is older than #323: `kurteisi` and `tolur_kyn` have it too.
+
+#270's step 2 is what the tags already do (#317, #324). The size and price frames once listed here were an example in the
+lesson-25 remark, not a requirement, and #326 replaces them.
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
 learner say this line", then the planner's build loop. Each step leaves the replays of the lesson-21–23 exports
@@ -1254,12 +1264,13 @@ after it carry no remark of the same kind (the table above). The rows:
 
 **Open issues after "Now", in order:**
 - #236: a one-off reply gets several example answers (owner: low priority).
-- #142: nature and winter safety inside a theme (content, step 2 of #149).
-- #209: when a fluent speaker is available (G10). It is worth more now that #255, #257, #276 and #292 added authored
-  Icelandic, and it holds #279's step 2.
+- #327 part 2: more theme levels for the scenes that supply the new material: café, directions and town, taxi and bus,
+  small talk, and winter talk with #142 (nature and winter safety). Authored, candidates until native-checked.
+- #209: when a fluent speaker is available (G10). It is worth more now that #255, #257, #276, #292, #317 (genders and
+  forms) and #323 (a grammar note) added authored Icelandic, and it holds #279's step 2.
 
 #265 (expression first) and #149 (themes) are the umbrellas the items above belong to; #220 stays open for its ranking
-(item 1 of "Now").
+(item 3 of "Now").
 
 **The long run: the bets in order.** What each step has built is listed here; the rules it settled are in §9.
 
@@ -1278,7 +1289,8 @@ after it carry no remark of the same kind (the table above). The rows:
    - spare time as more to hear, and the second half's scene units (#247, #252, #273);
    - an open item practised every lesson and asked at the next review until it is recalled (#162, #205, #220).
 
-   **Next** (#149): more theme data; the colours through their scenes; the closing block taking the theme's lines. Still
+   **Next** (#149): new material chosen by scene and more theme data (#327, now in "Now"); the colours through their
+   scenes; the closing block taking the theme's lines. Still
    open from this step: less practice for an easy new item than for a hard one (G11); the English situation dropped
    once the partner's line is known (G12); a word that hearing counts when the previous review had many 言えなかった
    (§5.7, O5).
