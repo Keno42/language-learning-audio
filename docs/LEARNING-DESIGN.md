@@ -1193,7 +1193,9 @@ owner's call.
 2. **A word reported hard is practised through its connections (#326).** Its scene, the word in other patterns, and other
    words of the same pattern, not more of the same sentence (the owner, after lesson 25; «úlpu»).
 3. **#220, the LLA half of the ranking:** a 言えた on a due item at a real gap extends its interval, and two in a row raise
-   the ease. Until then a ranked check saves lesson time on its day only. So the bot's ranking (site_update_notifier#139)
+   the ease. *Built (the PR of #220's LLA half, 2026-10-14):* `report` with a gap of 1+ day on a due item (or one on a 1–2
+   day interval) extends the interval, two in a row raise the ease; the audio still spends the freed time on early
+   reviews. Before that, a ranked check saved lesson time on its day only. So the bot's ranking (site_update_notifier#139)
    should keep the retention seats oldest-first, or take at most a third of them. The bot's review on its own (#124)
    waits for this.
 4. **#198 finished (#323):** the endings said piece by piece, as the owner decided, and no lone «.» narrated in a note.
