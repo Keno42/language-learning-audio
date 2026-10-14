@@ -22,7 +22,7 @@ from itertools import groupby
 from .content import Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance, cue_is_answer
 from .sounds import hard_sounds
-from .learner import LearnerState
+from .learner import REPORTED_HARD_DAYS, LearnerState
 from .review_wholes import whole_for
 from .listening_tasks import REPAIR_ITEM, SecondHalfRotation, append_task, catch_unknown, key_of, partner_pick_out
 from .prompts import Prompts
@@ -524,6 +524,18 @@ class Planner:
         return {"total": round(self.components_total, 2), "forms": round(forms, 2), "target": self.cfg.new_target,
                 "by_item": {i: c for i, c in self.component_by_item.items()}}
 
+    def related_items(self, item: Item) -> list[Item]:
+        """Items that say ``item``'s word in a sentence of their own and that the learner can say (#326): another form of the same noun
+        (``lunda`` for ``lundi``, #317) and the phrases built on it (``prereqs``); not open, not the item. Course order."""
+        found: list[Item] = []
+        if item.noun and item.noun in self.cur.nouns:
+            found += [self.cur.by_id[i] for i in self.cur.nouns[item.noun]["forms"].values() if i in self.cur.by_id and i != item.id]
+        found += [c for c in self.cur.items if item.id in c.prereqs and c.kind in ("phrase", "vocab") and c.id != item.id]
+        return [
+            c for c in {i.id: i for i in found}.values()
+            if self.builder._available(c.id) and not self.learner.is_open(c.id) and not c.variant_of and c.kind != "construction"
+        ]
+
     def scene_line_of(self, item: Item, used: set[str]) -> tuple[Dialogue, dict[int, list[str]], str, bool] | None:
         """A line of ``item``'s scene (#326): the learner's line of a theme level that needs ``item``, with the partner's line before it and the
         reply after it, as a short exchange with the scene put first and the partner's lines translated. Only a turn whose other items the
@@ -564,9 +576,12 @@ class Planner:
 
     def hard_items(self) -> list[str]:
         """The items reported hard (#326): open (failed at the last review, #162) and those that came out with hesitation at their last
-        review. «Sooner» on the feedback form is a request about the date, not kept as an outcome, so it is not among them."""
+        review, and those the learner reported hard (``reported_hard``: the feedback form's «sooner», or named with ``report --hard``) in the last
+        ``REPORTED_HARD_DAYS`` days and not recalled since."""
         out = [i for i in self.learner.open_items() if i in self.cur.by_id]
         out += [i for i, st in self.learner.items.items() if st.last_outcome == "hesitated" and i in self.cur.by_id and i not in out]
+        since = (self.today - timedelta(days=REPORTED_HARD_DAYS)).isoformat()
+        out += [i for i, st in self.learner.items.items() if st.reported_hard and st.reported_hard >= since and i in self.cur.by_id and i not in out]
         return out
 
     def _new_in_scene(self, theme_pick: tuple | None, introduced: list[Item]) -> dict | None:
@@ -1993,7 +2008,7 @@ class Planner:
                 return "ladder"
             if done > cfg.hard_connection_turns:
                 return "ladder"
-            order = ["scene", "pattern", "sibling"] if item.kind == "vocab" else ["scene", "pattern"]
+            order = ["scene", "pattern", "sibling", "form"] if item.kind == "vocab" else ["scene", "pattern", "form"]
             log = hard_log.setdefault(item.id, [])
             t0 = round(sc.total_duration, 1)
 
@@ -2013,13 +2028,23 @@ class Planner:
                         touch(item)
                         hard_scene_lines.append(key)
                         return linked("scene", key)
-                    dlg = self.eligible_dialogue(prefer_item=item)
+                    dlg = self.eligible_dialogue(prefer_item=item) or next((d for c in self.related_items(item) if (d := self.eligible_dialogue(prefer_item=c)) is not None), None)
                     if dlg is None:
                         continue
                     self._play_dialogue(sc, dlg)
                     since_dialogue = 0
                     touch(item)
                     return linked("scene", dlg.id)
+                if kind == "form":
+                    # the word in a sentence of its own: another form of the same noun («lunda» for «lundi»), or a phrase built on it
+                    used_forms = {key for k_, key in log if k_ == "form"}
+                    cand = next((c for c in self.related_items(item) if c.id not in used_forms and not over_hard_cap(c) and not bare_capped(c) and c.id not in recent), None)
+                    if cand is None:
+                        continue
+                    ex = b.recall(sc, cand, "meaning")
+                    self._record([cand.id], ex.stage or "meaning", ex.item_ids)
+                    touch(cand)
+                    return linked("form", cand.id)
                 if kind == "pattern":
                     if item.kind != "vocab":
                         if sentence_practice(item, review=True):

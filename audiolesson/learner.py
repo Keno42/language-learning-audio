@@ -26,6 +26,7 @@ STATE_FORMAT = "audiolesson-learner/1"
 MAX_INTERVAL_DAYS = 180
 LONG_GAP_DAYS = 7  # #220: a recall confirmed after this many days or more is evidence of retention: the ease rises
 RETENTION_BUCKETS = (3, 7, 14)  # the gaps (days) the retention rate is read at
+REPORTED_HARD_DAYS = 14  # #326: an item the learner reported hard (the feedback form's «sooner», or named) stays among the hard items this many days, or until a recall is confirmed
 AUTO_STEP_EVERY = 3  # auto mode: lessons between pace increases
 NEW_TARGET_START = 8.0  # weighted new components a lesson starts at (#218 b3)
 NEW_TARGET_MIN, NEW_TARGET_MAX = 4.0, 12.0
@@ -56,6 +57,7 @@ class ItemState:
     extra_think_time: bool = False
     # the latest lesson that practised the item as an open failure (#149); orders a backlog
     open_practiced: int = 0
+    reported_hard: str = ""  # #326: the day the learner reported it hard (``sooner``, ``hard``); no outcome and no schedule change; cleared by a confirmed recall
     history: list[dict] = field(default_factory=list)  # [{lesson, stages, ok}] compact log
 
     @property
@@ -384,6 +386,7 @@ class LearnerState:
         sooner: list[str] | None = None,
         load: str | None = None,
         gaps: dict[str, int] | None = None,
+        hard: list[str] | None = None,
     ) -> dict:
         """Learner feedback after listening. Returns a summary of what changed.
 
@@ -406,10 +409,13 @@ class LearnerState:
         a ``recalled`` at ``LONG_GAP_DAYS`` or more raises the ease by 0.1 and lifts the interval to at least that gap times the ease (the due date follows
         if it is later), and a failure or hesitation is still handled as before. An item with no gap is handled as before.
 
+        ``hard`` (#326) names items the learner reports hard without an outcome (the «sooner» of the feedback form also sets the flag): ``reported_hard`` is the
+        day, kept ``REPORTED_HARD_DAYS`` days or until a recall is confirmed; the item comes back sooner, as with ``sooner``; no outcome is recorded.
+
         ``load`` (#218) is the learner's rating of the lesson (light / right / heavy), stored as ``lessons[k]["load"]`` for
         the matching number; like ``sooner`` alone, a call with only a load does not mark the lesson reported.
         """
-        only_sooner = bool(sooner or load) and not (failed or easy or hesitated or recalled)
+        only_sooner = bool(sooner or load or hard) and not (failed or easy or hesitated or recalled)
         if lesson_number is None:
             lesson_number = self.lessons_completed
         if lesson_number and lesson_number not in self.reported and not only_sooner:
@@ -419,7 +425,7 @@ class LearnerState:
         failed = list(dict.fromkeys(failed))
         hesitated = [i for i in dict.fromkeys(hesitated or []) if i not in failed]
         recalled = [i for i in dict.fromkeys(recalled or []) if i not in failed and i not in hesitated]
-        changed: dict = {"failed": [], "hesitated": [], "recalled": [], "easy": [], "unknown": [], "lesson": lesson_number, "sooner": [], "sooner_skipped": [], "load": None}
+        changed: dict = {"failed": [], "hesitated": [], "recalled": [], "easy": [], "unknown": [], "lesson": lesson_number, "sooner": [], "sooner_skipped": [], "hard": [], "load": None}
 
         if load is not None:
             for entry in self.lessons:
@@ -543,6 +549,7 @@ class LearnerState:
                 st.interval_days = round(min(MAX_INTERVAL_DAYS, max(st.interval_days, gap * st.ease)), 1)
                 later = (today + timedelta(days=int(st.interval_days))).isoformat()
                 st.due = max(st.due, later) if st.due else later
+            st.reported_hard = ""  # a confirmed recall settles a report of hardness (#326)
             note_outcome(st, "recalled")
             changed["recalled"].append(item_id)
         for item_id in dict.fromkeys(sooner or []):
@@ -553,7 +560,17 @@ class LearnerState:
                 continue
             earlier = (today + timedelta(days=max(1, round(st.interval_days / 2)))).isoformat()
             st.due = min(st.due, earlier) if st.due else earlier
+            st.reported_hard = today.isoformat()  # «I don't remember it»: also a report that it is hard (#326)
             changed["sooner"].append(item_id)
+        for item_id in dict.fromkeys(hard or []):
+            st = self.items.get(item_id)
+            if st is None:
+                changed["sooner_skipped" if item_id in self.embedded or item_id in self.tried else "unknown"].append(item_id)
+                continue
+            earlier = (today + timedelta(days=max(1, round(st.interval_days / 2)))).isoformat()
+            st.due = min(st.due, earlier) if st.due else earlier  # it comes back sooner, as a «sooner» does; the lesson then practises it through its connections
+            st.reported_hard = today.isoformat()  # named by the learner: a flag for the practice, no outcome, ease and history untouched (#326)
+            changed["hard"].append(item_id)
         for item_id in easy:
             if (st := state(item_id)) is None:
                 continue
