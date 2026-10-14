@@ -5106,6 +5106,8 @@ class SoonerRequestTests(unittest.TestCase):
         self.assertEqual(st.due, (TODAY + timedelta(days=3)).isoformat())
         self.assertEqual(changed["sooner"], ["a"])
         before.due = st.due
+        self.assertEqual(st.reported_hard, TODAY.isoformat(), "#326: «I don't remember it» is also a report that it is hard")
+        before.reported_hard = st.reported_hard
         self.assertEqual(st, before, "no hesitation, failure, recall, ease, interval or history entry")
         self.assertEqual(st.interval_days, 6.0, "the next success grows it from where it was")
 

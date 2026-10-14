@@ -88,6 +88,7 @@ def main(argv: list[str] | None = None) -> int:
     rp.add_argument("--easy", default="", help="comma-separated item ids that felt too easy")
     rp.add_argument("--gaps", default="", help="comma-separated ITEM=DAYS: days since each item was last confirmed or practised when the answer was asked (#220); counts the outcome by gap and lets a long-gap recall raise the ease")
     rp.add_argument("--sooner", default="", help="comma-separated item ids the learner does not remember: they come back sooner (due within half their interval), without an outcome being recorded")
+    rp.add_argument("--hard", default="", help="comma-separated item ids the learner reports hard to retain (#326): no outcome recorded, it comes back sooner like a «sooner»; the next lessons practise them through their connections")
     rp.add_argument("--load", choices=LOADS, default=None, help="how heavy the lesson was: light, right or heavy (does not mark the lesson reported on its own)")
     rp.add_argument("--date", default=None)
     rp.set_defaults(func=cmd_report)
@@ -490,7 +491,7 @@ def cmd_report(args) -> int:
     today = parse_date(args.date)
     changed = learner.report(
         _split(args.failed), _split(args.easy), today, args.lesson, hesitated=_split(args.hesitated), recalled=_split(args.recalled), sooner=_split(args.sooner),
-        load=args.load, gaps=_gaps(args.gaps),
+        load=args.load, gaps=_gaps(args.gaps), hard=_split(args.hard),
     )
     learner.save(args.learner)
     if changed["failed"]:
@@ -503,6 +504,8 @@ def cmd_report(args) -> int:
         print(f"marked as easy (longer interval): {', '.join(changed['easy'])}")
     if changed["sooner"]:
         print(f"coming back sooner (due within half the interval; no outcome recorded): {', '.join(changed['sooner'])}")
+    if changed["hard"]:
+        print(f"reported hard (back sooner, practised through their connections; no outcome recorded): {', '.join(changed['hard'])}")
     if changed["sooner_skipped"]:
         print(f"left to the next-day review (embedded or tried): {', '.join(changed['sooner_skipped'])}")
     if changed["load"]:
@@ -511,7 +514,7 @@ def cmd_report(args) -> int:
         print(f"warning: lesson {changed['load_unknown']} is not in the lesson log: its load ({args.load}) was not stored", file=sys.stderr)
     if changed["unknown"]:
         print(f"warning: not in learner state: {', '.join(changed['unknown'])}", file=sys.stderr)
-    if not (changed["failed"] or changed["hesitated"] or changed["recalled"] or changed["easy"] or args.sooner or args.load):
+    if not (changed["failed"] or changed["hesitated"] or changed["recalled"] or changed["easy"] or args.sooner or args.hard or args.load):
         print(f"lesson {changed['lesson']} recorded as all good (pass --failed/--easy item ids from the lesson's .plan.json otherwise)")
     return 0
 

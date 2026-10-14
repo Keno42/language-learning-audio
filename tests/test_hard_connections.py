@@ -37,6 +37,57 @@ class HardConnectionTests(unittest.TestCase):
         l.items["afsakid"] = ItemState(stage="meaning", last_outcome="not_recalled")
         self.assertEqual(sorted(self.planner(l).hard_items()), ["afsakid", "kaffi"], "«a» is not in the curriculum; a recalled item is not hard")
 
+    def known(self, *ids):
+        l = LearnerState("is", "en", "A1")
+        for i in ids:
+            l.items[i] = ItemState(stage="meaning", durable_successes=2, successes=6, interval_days=7, recalled=3, last_outcome="recalled",
+                                   due=(TODAY + timedelta(days=5)).isoformat(), last_practiced=(TODAY - timedelta(days=2)).isoformat())
+        l.lessons_completed = 8
+        return l
+
+    def test_the_phrases_built_on_a_word_and_its_other_forms_connect_it(self):
+        """The review of #330: «lundi» has «Ég vil sjá lunda.» (a phrase built on it), heard in the whale-watching dialogue."""
+        p = self.planner(self.known("lundi", "eg_vil_sja_lunda"))
+        self.assertEqual([c.id for c in p.related_items(self.cur.by_id["lundi"])], ["eg_vil_sja_lunda"])
+        self.assertEqual(self.planner(self.known("lundi")).related_items(self.cur.by_id["lundi"]), [], "a phrase never met connects nothing")
+        recent = self.known("lundi", "eg_vil_sja_lunda")
+        recent.items["eg_vil_sja_lunda"].durable_successes = 0  # met in the lesson before: not yet «known»
+        recent.items["eg_vil_sja_lunda"].successes = 1
+        self.assertEqual([c.id for c in self.planner(recent).related_items(self.cur.by_id["lundi"])], ["eg_vil_sja_lunda"], "met is enough (the review of #332)")
+        recent.items["eg_vil_sja_lunda"].last_outcome = "not_recalled"
+        self.assertEqual(self.planner(recent).related_items(self.cur.by_id["lundi"]), [], "a failed one is open: not used")
+
+    def test_a_word_reported_hard_is_a_hard_item_for_two_weeks_or_until_recalled(self):
+        l = self.known("kaffi", "te", "mjolk")
+        l.report([], [], TODAY, sooner=["kaffi"], hard=["te"])
+        self.assertEqual((l.items["kaffi"].reported_hard, l.items["te"].reported_hard), (TODAY.isoformat(), TODAY.isoformat()))
+        self.assertEqual(l.items["te"].last_outcome, "recalled", "no outcome is recorded")
+        self.assertLessEqual(l.items["te"].due, (TODAY + timedelta(days=4)).isoformat(), "it comes back sooner, as a «sooner» does")
+        self.assertEqual(l.reported, [], "a report of hardness alone does not mark the lesson reported")
+        p = self.planner(l)
+        p.today = TODAY + timedelta(days=3)
+        self.assertEqual(sorted(p.hard_items()), ["kaffi", "te"])
+        p.today = TODAY + timedelta(days=20)
+        self.assertEqual(p.hard_items(), [], "two weeks later it is not hard any more")
+        l.report([], [], TODAY + timedelta(days=4), recalled=["te"])
+        self.assertEqual(l.items["te"].reported_hard, "", "a confirmed recall settles it")
+
+    def test_the_cli_reports_hard_items(self):
+        import io, tempfile
+        from contextlib import redirect_stdout
+
+        from audiolesson.cli import main
+
+        l = self.known("kaffi")
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "learner.json"
+            l.save(path)
+            with redirect_stdout(io.StringIO()) as out:
+                main(["report", "-l", str(path), "--hard", "kaffi,nope", "--date", TODAY.isoformat()])
+            back = LearnerState.load(path)
+        self.assertEqual(back.items["kaffi"].reported_hard, TODAY.isoformat())
+        self.assertIn("reported hard", out.getvalue())
+
     def test_a_line_of_the_scene_is_found_for_an_item_a_theme_level_needs(self):
         l = LearnerState("is", "en", "A1")
         p = self.planner(l)

@@ -25,8 +25,8 @@ owner's call.
    words of the same pattern, not more of the same sentence (the owner, after lesson 25; «úlpu»).
    *Built (the PR of #326, waiting for feedback):* for items open or hesitated at their last review, the 2nd to 4th
    practice of a lesson goes through a scene line, another pattern or the same pattern with other words; the daily
-   read lists the connections per item and the items with none (content gaps). Not built: «sooner» (it is not kept
-   as an outcome), a remark naming an item, the connections across lessons.
+   read lists the connections per item and the items with none (content gaps). «Sooner» and `report --hard`
+   (an item named) set `reported_hard` and count as hard for 14 days. Not built: the connections across lessons.
 3. **#220, the LLA half of the ranking:** a 言えた on a due item at a real gap extends its interval, and two in a row raise
    the ease. *Built (the PR of #220's LLA half, 2026-10-14):* `report` with a gap of 1+ day on a due item (or one on a 1–2
    day interval) extends the interval, two in a row raise the ease; the audio still spends the freed time on early
