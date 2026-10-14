@@ -7,7 +7,10 @@ local fix, and the fixes stop adding up to a plan (owner: "#80 looks like a very
 want the overall learning plan to stay in a sensible order", and again after lesson 12).
 
 **Read it before opening an issue, before implementing one, and after every round of
-learner feedback.** Section 1 is the checklist; the rest is what the checklist points at.
+learner feedback.** For a routine task start from the two short briefs, `docs/CURRENT-POLICY.md` (what always holds)
+and `docs/CURRENT-STATUS.md` (built, being evaluated, planned), and read the sections they point at; read all of this for
+a change to learning policy or to the structure of the lessons or the review. If a brief disagrees with this document,
+this document wins and the brief is fixed. Section 1 is the checklist; the rest is what the checklist points at.
 `docs/DESIGN.md` covers the code; this document covers the learning.
 
 Contents: [1 Checklists](#1-checklists) · [2 What the project is](#2-what-the-project-is) ·
@@ -1180,24 +1183,19 @@ and a regression would show up as the same symptom.
 Ordered by the expected effect on the outcome, adjusted for cost and for what depends on
 what. Re-rank it when the evidence moves.
 
-**Now (after lesson 25, updated 2026-10-14), in order.** Tomorrow's lesson first, the long run alongside (owner: about
-80% / 20%).
-1. **The review backlog (site_update_notifier#133).** A first 言えた waits 3 days, and the bound also defers ok entries
-   answered once. This decides #220's open branch (§5.21). #220 stays open for its ranking (checks chosen by the lesson
-   time a 言えた would save), and a review on its own (the bot's #124) waits for that.
-2. **The written review's own rules (site_update_notifier#132, #312).** Every review gets an unseen scene or reading card
-   while the deck has one, and a reading card's first 言えた waits 3 days. The questions are asked in the review's own
-   words, without the lesson's cues.
-3. **A word met inside a known pattern is heard in other frames (#311).**
-   - Link the unlinked pattern instances (about 29), with a `validate` rule.
-   - Then a new filler gets #280's light introduction and other frames of known patterns.
-4. **#270 step 1:** gender and forms for the remaining nouns, with each scene's frames and the case each asks. #198 is
-   its first case. #311's size and price frames need it.
+**Now (updated 2026-10-14, after #133, #132, #312, #311 and #270 step 1 were built), in order.** Tomorrow's lesson first,
+the long run alongside (owner: about 80% / 20%). This re-ranking is proposed in the PR that wrote it (#322) and is the owner's
+call.
+1. **#220's ranking:** choose the review's checks by the lesson time a 言えた would save, so older items are confirmed where
+   it pays. The review backlog's near-term part is built (site_update_notifier#133); a review on its own (the bot's #124)
+   waits for this.
+2. **#270 steps 2–3:** a slot asks for a case and the noun gives the form the learner has or is being taught; each scene lists
+   its frames and the case each asks. #198 («heiti potturinn») is its first case; #311's size and price frames need it.
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
 learner say this line", then the planner's build loop. Each step leaves the replays of the lesson-21–23 exports
-byte-identical. Also split `docs/DESIGN.md`'s one-line invariants paragraph into one line per topic. Every PR that
-touched it this round conflicted with the one merged before it.
+byte-identical. Built: `docs/DESIGN.md`'s invariants are one line per topic (#320) and the word regex and `norm_utterance` are
+defined once (`audiolesson/text.py`, #321).
 
 **Built, waiting for three feedbacks without the same remark.** A row leaves the table at three; what each change does
 is in the §5 subsection of the lesson it was first heard in. Done this way since lesson 25: the changes built after
@@ -1218,6 +1216,11 @@ lessons 21 and 22 (§5.18, §5.19) have had their three.
 | a gap at every change of voice (#301: #304) | lesson 25 | 1 (25) |
 | the «Slowly» model word by word (#302: #307) | lesson 25 | 1 |
 | the pick-out names what to listen for first (#303: #306) | lesson 25 | 1 |
+| a pattern-linked phrase with a new word teaches the word in other frames; no phrase introduced twice (#311: #316, #318) | lesson 26 | 0 |
+| the written review in its own words, no lesson cue (#312: #314, with the bot's `REFINE_VERSION` 3, site_update_notifier#137) | lesson 26 | 0 |
+| the review backlog: a first 言えた waits 3 days, answered-once entries deferred (site_update_notifier#133: #134) | lesson 26 | 0 |
+| a new scene or reading card every review (site_update_notifier#132: #135) | lesson 26 | 0 |
+| gender and form for every case-tagged noun (#270 step 1: #317) | no remark expected; read in the nouns row | – |
 
 Read from rows, not from remarks: the second half kept when an item counted toward the target is not taught (#294: #308);
 ease learned from long-gap recalls (#220: #298, with site_update_notifier#118, #128); the review backlog's breakdown
@@ -1254,7 +1257,6 @@ after it carry no remark of the same kind (the table above). The rows:
 - #142: nature and winter safety inside a theme (content, step 2 of #149).
 - #209: when a fluent speaker is available (G10). It is worth more now that #255, #257, #276 and #292 added authored
   Icelandic, and it holds #279's step 2.
-- #208: a short policy and status brief for coding tasks (documentation; any time).
 
 #265 (expression first) and #149 (themes) are the umbrellas the items above belong to; #220 stays open for its ranking
 (item 1 of "Now").

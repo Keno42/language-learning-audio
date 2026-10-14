@@ -1,7 +1,10 @@
 # Working on this repository
 
-- **Before opening an issue, proposing a change or implementing one, read
-  `docs/LEARNING-DESIGN.md`** and answer its §1 checklist in the issue or PR: the outcome it
+- **Read `docs/CURRENT-POLICY.md` and `docs/CURRENT-STATUS.md` first** (the short briefs: what the
+  project is for, what always holds, what is built and what is next).
+- **Before opening an issue, proposing a change or implementing one, read the sections of
+  `docs/LEARNING-DESIGN.md` the briefs point at** (all of it for a change to learning policy or to the
+  structure of lessons or review), and answer its §1 checklist in the issue or PR: the outcome it
   serves, the gap it closes, the hypothesis it relies on, the evidence behind it and what it
   predicts. The document also lists the decisions already made (§9) and our known failure
   modes (§11). Above all: don't answer each remark with its own local fix; find the shared
