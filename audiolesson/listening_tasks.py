@@ -31,8 +31,6 @@ from .listening_cues import unknown_cue
 # the phrase that asks what a word means; the catch-an-unknown-word exercise only runs once the learner can say it
 REPAIR_ITEM = "hvad_thydir_thetta"
 
-# the same split as Planner._fixed_text_words (what counts as a word)
-
 
 
 def tokens(text: str) -> list[str]:
