@@ -347,6 +347,12 @@ class Note:
     # has no ``items``; it plays once the learner knows two constructions that have the form, and
     # until it has been heard the form is not used in generated sentences.
     teaches: str = ""
+    # #198: a note about the contrast between two forms of the same words in its ``items`` («heitur pottur» / «heiti potturinn»). It plays once every one of
+    # ``items`` has been met or was introduced earlier in the lesson, and it outranks the other asides on the same items in the notes cap.
+    contrast: bool = False
+    # #198 (the owner's decision): the pieces the note's endings are built from, in groups; after the text each group is said once, slowly and carefully, piece by
+    # piece, the last piece being the whole form («ur», «pottur», «inn», «urinn», «potturinn»), a beat after each group
+    parts: list[list[str]] = field(default_factory=list)
 
 
 @dataclass
