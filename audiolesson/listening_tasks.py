@@ -32,7 +32,6 @@ from .listening_cues import unknown_cue
 REPAIR_ITEM = "hvad_thydir_thetta"
 
 
-
 def tokens(text: str) -> list[str]:
     return WORD.findall(text)
 
