@@ -97,6 +97,14 @@ text = "The hot tub at the pool is where the news gets discussed, like a village
 text_ja = "プールの露天の湯船は、井戸端会議の場です。知らない人同士が話し始めるのが普通で、黙って聞いているだけでもかまいません。"
 
 [[notes]]
+id = "definite_weak_adjective"
+items = ["heiti_potturinn", "er_heitur_pottur_herna"]
+topics = ["grammar"]
+contrast = true
+text = "Here is why the two forms differ. «Heitur pottur» means a hot tub. «Heiti potturinn» means the hot tub. The word for the goes at the end of the noun. Take «pottur». With the word for the, it is «potturinn». An adjective before such a noun takes a softer ending. Take «heitur». Before such a noun, it is «heiti». It works the same way elsewhere. «Góður maður» is a good man. «Góði maðurinn» is the good man."
+text_ja = "二つの形が違う理由です。«Heitur pottur» は「ある露天の湯船」です。«Heiti potturinn» は「その露天の湯船」です。「その」にあたる語は名詞の終わりにつきます。«Pottur» を見てください。「その」がつくと «potturinn» です。そういう名詞の前の形容詞は、やわらかい語尾になります。«Heitur» を見てください。そういう名詞の前では «heiti» です。ほかの語でも同じです。«Góður maður» は「いい男の人」です。«Góði maðurinn» は「そのいい男の人」です。"
+
+[[notes]]
 id = "vedur_smalltalk"
 items = ["hvernig_er_vedrid", "thad_er_svo_kalt", "rok"]
 topics = ["weather"]

@@ -211,6 +211,7 @@ first and the question in a later lesson, one a lesson, and is followed by the f
 constructions. Until it has been heard the form is not used in generated sentences. One note per
 form.
 
+`contrast = true` (#198) marks a note about the contrast between two forms of the same words in its `items` («heitur pottur» / «heiti potturinn»: the definite noun and the weak adjective). It plays once every one of its `items` has been met or was introduced earlier in the lesson, and it outranks the other asides on the same items in the notes cap. Write it as whole sentences with one inline «…» fragment each (`validate` advises).
 ## Languages with cases (Icelandic, German, Russian…)
 
 Slot fills are inserted verbatim, so give each noun in the form the
