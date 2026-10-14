@@ -49,7 +49,13 @@ class HardConnectionTests(unittest.TestCase):
         """The review of #330: «lundi» has «Ég vil sjá lunda.» (a phrase built on it), heard in the whale-watching dialogue."""
         p = self.planner(self.known("lundi", "eg_vil_sja_lunda"))
         self.assertEqual([c.id for c in p.related_items(self.cur.by_id["lundi"])], ["eg_vil_sja_lunda"])
-        self.assertEqual(self.planner(self.known("lundi")).related_items(self.cur.by_id["lundi"]), [], "a phrase the learner cannot say yet connects nothing")
+        self.assertEqual(self.planner(self.known("lundi")).related_items(self.cur.by_id["lundi"]), [], "a phrase never met connects nothing")
+        recent = self.known("lundi", "eg_vil_sja_lunda")
+        recent.items["eg_vil_sja_lunda"].durable_successes = 0  # met in the lesson before: not yet «known»
+        recent.items["eg_vil_sja_lunda"].successes = 1
+        self.assertEqual([c.id for c in self.planner(recent).related_items(self.cur.by_id["lundi"])], ["eg_vil_sja_lunda"], "met is enough (the review of #332)")
+        recent.items["eg_vil_sja_lunda"].last_outcome = "not_recalled"
+        self.assertEqual(self.planner(recent).related_items(self.cur.by_id["lundi"]), [], "a failed one is open: not used")
 
     def test_a_word_reported_hard_is_a_hard_item_for_two_weeks_or_until_recalled(self):
         l = self.known("kaffi", "te", "mjolk")

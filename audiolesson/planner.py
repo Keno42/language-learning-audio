@@ -533,7 +533,7 @@ class Planner:
         found += [c for c in self.cur.items if item.id in c.prereqs and c.kind in ("phrase", "vocab") and c.id != item.id]
         return [
             c for c in {i.id: i for i in found}.values()
-            if self.builder._available(c.id) and not self.learner.is_open(c.id) and not c.variant_of and c.kind != "construction"
+            if (self.builder._available(c.id) or self.learner.has_met(c.id)) and not self.learner.is_open(c.id) and not c.variant_of and c.kind != "construction"
         ]
 
     def scene_line_of(self, item: Item, used: set[str]) -> tuple[Dialogue, dict[int, list[str]], str, bool] | None:
