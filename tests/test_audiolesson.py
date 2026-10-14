@@ -6088,6 +6088,23 @@ class ExcludeFillsTests(unittest.TestCase):
         self.assertIn("Ég þarf leigubíl.", said)
         self.assertIn("Áttu peysu?", said)
 
+    def test_a_sentence_built_for_the_word_never_takes_a_construction_that_excludes_it(self):
+        """The word's own path (``generate_with``: «Use it in a sentence.» after a new word, #287) honours the exception too: the replay of the
+        lesson-25 export gave «Áttu leigubíl?» in lesson 26 through it."""
+        from audiolesson.exercises import Builder
+        cur = curriculum_from_dict(self._raw())
+        learner = fresh()
+        for i in ("peysa", "bil", "attu", "tharf"):
+            learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3)
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), learner)
+        said = set()
+        for seed in range(20):
+            b.rng.seed(seed)
+            g = b.generate_with(cur.by_id["bil"])
+            if g is not None:
+                said.add(g.target)
+        self.assertEqual(said, {"Ég þarf leigubíl."})
+
     def test_validate_rejects_an_unknown_fill_a_wrong_tag_and_a_non_construction(self):
         for bad in ("nope", "tharf"):
             with self.assertRaises(CurriculumError):
