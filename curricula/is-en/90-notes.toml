@@ -101,8 +101,9 @@ id = "definite_weak_adjective"
 items = ["heiti_potturinn", "er_heitur_pottur_herna"]
 topics = ["grammar"]
 contrast = true
-text = "Here is why the two forms differ. «Heitur pottur» means a hot tub. «Heiti potturinn» means the hot tub. The word for the goes at the end of the noun. Take «pottur». With the word for the, it is «potturinn». An adjective before such a noun takes a softer ending. Take «heitur». Before such a noun, it is «heiti». It works the same way elsewhere. «Góður maður» is a good man. «Góði maðurinn» is the good man."
-text_ja = "二つの形が違う理由です。«Heitur pottur» は「ある露天の湯船」です。«Heiti potturinn» は「その露天の湯船」です。「その」にあたる語は名詞の終わりにつきます。«Pottur» を見てください。「その」がつくと «potturinn» です。そういう名詞の前の形容詞は、やわらかい語尾になります。«Heitur» を見てください。そういう名詞の前では «heiti» です。ほかの語でも同じです。«Góður maður» は「いい男の人」です。«Góði maðurinn» は「そのいい男の人」です。"
+parts = [["ur", "pottur", "inn", "urinn", "potturinn"], ["heitur", "heiti"]]
+text = "Here is why the two forms differ. «Heitur pottur» means a hot tub. «Heiti potturinn» means the hot tub. To say the hot tub rather than a hot tub, Icelandic adds an ending to the noun. Start from «pottur». With the ending, it is «potturinn». The adjective before such a noun also takes a softer ending. Start from «heitur». Before such a noun, it is «heiti». It works the same way elsewhere. «Góður maður» is a good man. «Góði maðurinn» is the good man."
+text_ja = "二つの形が違う理由です。«Heitur pottur» は「ある露天の湯船」です。«Heiti potturinn» は「その露天の湯船」です。「ある」ではなく「その」と言うとき、アイスランド語は名詞の終わりに語尾をつけます。«Pottur» から始めます。語尾がつくと «potturinn» です。そういう名詞の前の形容詞も、やわらかい語尾になります。«Heitur» から始めます。そういう名詞の前では «heiti» です。ほかの語でも同じです。«Góður maður» は「いい男の人」です。«Góði maðurinn» は「そのいい男の人」です。"
 
 [[notes]]
 id = "vedur_smalltalk"

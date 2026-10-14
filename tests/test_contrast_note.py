@@ -53,5 +53,49 @@ class ContrastNoteTests(unittest.TestCase):
         self.assertEqual(p._pick_note(list(PAIR)).id, "heiti_potturinn")
 
 
+class SpokenNoteTests(unittest.TestCase):
+    """The review of #323: the pieces are spoken, a lone «.» is not narrated, and the wording survives TTS."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.cur = load_curriculum(ROOT / "curricula" / "is-en")
+
+    def script(self, note):
+        from audiolesson.exercises import Builder
+        from audiolesson.script import Script
+
+        prompts = Prompts.load("en")
+        sc = Script(1, "Lesson 1", self.cur.target_lang, self.cur.known_lang)
+        Builder(self.cur, prompts, Timing(level="A1"), LearnerState("is", "en", "A1")).note(sc, note)
+        return sc, prompts
+
+    def test_the_endings_are_said_piece_by_piece_slowly(self):
+        sc, prompts = self.script(self.cur.note_by_id["definite_weak_adjective"])
+        i = next(k for k, s in enumerate(sc.segments) if s.text == prompts.get("note_pieces"))
+        spoken = [s for s in sc.segments[i:] if s.type == "speak"]
+        self.assertEqual([s.text for s in spoken], ["ur", "pottur", "inn", "urinn", "potturinn", "heitur", "heiti"])
+        self.assertTrue(all(s.rate < 1.0 for s in spoken), "slowly and carefully")
+        idx = [k for k, s in enumerate(sc.segments) if s.type == "speak" and s.text in ("ur", "pottur", "inn", "urinn", "potturinn", "heitur", "heiti")]
+        self.assertTrue(all(sc.segments[k + 1].type == "pause" for k in idx[:-1]), "a gap after each piece")
+
+    def test_no_lone_full_stop_is_narrated_in_any_note(self):
+        for note in self.cur.notes:
+            sc, _ = self.script(note)
+            lone = [s.text for s in sc.segments if s.type == "narrate" and s.text and not any(ch.isalnum() for ch in s.text)]
+            self.assertEqual(lone, [], note.id)
+
+    def test_the_fragment_that_ends_a_sentence_leaves_a_beat_not_a_narration(self):
+        from audiolesson.content import Note
+
+        sc, _ = self.script(Note(id="n", text="Start from «pottur». With the ending, it is «potturinn». Done.", items=[]))
+        self.assertNotIn(".", [s.text for s in sc.segments if s.type == "narrate"])
+
+    def test_the_note_names_no_word_in_quotation_marks_for_speech(self):
+        for lang in ("en", "ja"):
+            note = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang).note_by_id["definite_weak_adjective"]
+            self.assertNotIn('"', note.text)
+            self.assertNotIn("word for the", note.text)
+
+
 if __name__ == "__main__":
     unittest.main()
