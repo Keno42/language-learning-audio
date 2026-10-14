@@ -18,6 +18,7 @@ from .prompts import Prompts
 from .sounds import hard_sounds
 from .script import Exercise, Script, Segment
 from .stages import is_generative
+from .text import WORD, norm_utterance
 from .timing import Timing
 
 
@@ -57,7 +58,7 @@ GENDER_OF = {v: g for g, v in VOICE_OF.items()}
 _SENTENCE_BREAK = re.compile(r"(?<=[.?!:])\s+(?=[A-ZÁÐÉÍÓÚÝÞÆÖ])|(?<=[。！？])")
 _SENTENCE_END = re.compile(r"[.?!。！？][\"'”’)\]]*\s*$")
 _FUNCTION_WORDS = frozenset({"á", "í", "með", "að", "og", "af", "um", "til", "frá", "við", "er", "en", "of", "ég", "þú"})
-_FILL_WORD_RE = re.compile(r"[^\W\d_]+", re.UNICODE)
+_FILL_WORD_RE = WORD
 
 
 def _fills_repeat_a_word(fills: dict[str, Item]) -> bool:
@@ -72,9 +73,7 @@ def _fills_repeat_a_word(fills: dict[str, Item]) -> bool:
     return False
 
 
-def _norm_utterance(text: str) -> str:
-    """Case- and trailing-punctuation-insensitive form of a target-language line."""
-    return text.strip().rstrip(".?!…").strip().lower()
+_norm_utterance = norm_utterance  # the one definition lives in text.py (#281); the old name stays for the modules and tests that import it
 
 
 def cue_is_answer(item: Item) -> bool:
@@ -423,7 +422,7 @@ class Builder:
 
     def _met_items_holding(self, text: str) -> list[Item] | None:
         """The met, not open items whose words cover every word of ``text`` (#272 review): the items a literal line is made of. None when a word is not theirs."""
-        words = [w.lower() for w in re.findall(r"[^\W\d_]+", text)]
+        words = [w.lower() for w in WORD.findall(text)]
         if not words:
             return None
         held: dict[str, Item] = {}
@@ -431,7 +430,7 @@ class Builder:
             if it.kind == "transform" or not self.learner.has_met(it.id) or self.learner.is_open(it.id):
                 continue
             for t in (re.split(r"\{[^}]*\}", it.target) if it.kind == "construction" else [it.target]):
-                for w in re.findall(r"[^\W\d_]+", t):
+                for w in WORD.findall(t):
                     held.setdefault(w.lower(), it)
         if any(w not in held for w in words):
             return None
@@ -640,7 +639,7 @@ class Builder:
         words: set[str] = set()
         for it in self.cur.items:
             if self.learner.has_met(it.id) or it.id in self.in_lesson:
-                words.update(w.lower() for t in re.split(r"\{[^}]*\}", it.target) for w in re.findall(r"[^\W\d_]+", t))
+                words.update(w.lower() for t in re.split(r"\{[^}]*\}", it.target) for w in WORD.findall(t))
         return words
 
     def whole_home(self, item: Item) -> tuple[Item, dict[str, Item]] | None:
@@ -673,7 +672,7 @@ class Builder:
                     break
                 fills[other] = pick
             else:
-                frame = {w.lower() for t in re.split(r"\{[^}]*\}", c.target) for w in re.findall(r"[^\W\d_]+", t)}
+                frame = {w.lower() for t in re.split(r"\{[^}]*\}", c.target) for w in WORD.findall(t)}
                 if len(frame - known) <= 1 and self.is_new_utterance(self._filled(c, fills)[1]):
                     named = item.id in authored.values()
                     options.append(((0 if named else 1, 0 if self._available(c.id) else 1, c.difficulty, c.order), c, fills))
@@ -683,12 +682,12 @@ class Builder:
         """The phrase taught earlier in this lesson that holds a new part's words, the shortest (#262): the part is taken out of it, not given alone."""
         if item.kind != "vocab" or item.variant_of or item.target_m:
             return None
-        words = [w.lower() for w in re.findall(r"[^\W\d_]+", item.target)]
+        words = [w.lower() for w in WORD.findall(item.target)]
         found = []
         for ph in self.cur.items:
             if ph.kind != "phrase" or ph.target_m or ph.id not in self.in_lesson or ph.id == item.id:
                 continue
-            ww = [w.lower() for w in re.findall(r"[^\W\d_]+", ph.target)]
+            ww = [w.lower() for w in WORD.findall(ph.target)]
             if words and len(ww) > len(words) and any(ww[k : k + len(words)] == words for k in range(len(ww) - len(words) + 1)):
                 found.append((len(ww), ph.order, ph))
         return min(found, key=lambda t: t[:2])[2] if found else None

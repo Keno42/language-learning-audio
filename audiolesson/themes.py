@@ -69,6 +69,7 @@ from .cando import Scenario
 from .content import PROBE_KINDS, SPEAKERS, Curriculum, CurriculumError, Dialogue, DialogueTurn, unmarked_japanese
 from .records import check_items, load_records
 from .listening_cues import unknown_cue
+from .text import WORD
 
 WHO = ("you", "partner")
 
@@ -218,7 +219,7 @@ def _check(theme: Theme) -> None:
                     raise CurriculumError(f"{where} turn {k}: a listening line is {{ say, meaning, meaning_ja, probes, word_glosses }}, with at least one probe")
             for line in [*t.lines(), *t.listen_lines()]:
                 _check_probes(where, k, line)
-                words = {w.lower() for w in re.findall(r"[^\W\d_]+", line.say)}
+                words = {w.lower() for w in WORD.findall(line.say)}
                 for word, gloss in line.word_glosses.items():
                     if word.lower() not in words:
                         raise CurriculumError(f"{where} turn {k}: word gloss {word!r} is not a word of {line.say!r}")
@@ -237,13 +238,13 @@ def _check(theme: Theme) -> None:
 def _check_probes(where: str, k: int, line: Turn) -> None:
     """A line's probes (#248 step 2): a known kind, the answer a stretch of the line as written, a meaning in en and ja, and a question of its own
     (``ask`` in en and ja) when the line holds more than one piece."""
-    words = [w.lower() for w in re.findall(r"[^\W\d_]+", line.say)]
+    words = [w.lower() for w in WORD.findall(line.say)]
     for probe in line.probes:
         if not (isinstance(probe, dict) and {"kind", "answer", "meanings"} <= set(probe) and set(probe) <= {"kind", "answer", "meanings", "ask"}):
             raise CurriculumError(f"{where} turn {k}: a probe is {{ kind, answer, meanings, ask }}")
         if probe["kind"] not in PROBE_KINDS:
             raise CurriculumError(f"{where} turn {k}: probe kind must be one of {PROBE_KINDS}, not {probe['kind']!r}")
-        part = [w.lower() for w in re.findall(r"[^\W\d_]+", str(probe["answer"]))]
+        part = [w.lower() for w in WORD.findall(str(probe["answer"]))]
         if not part or not any(words[i : i + len(part)] == part for i in range(len(words))):
             raise CurriculumError(f"{where} turn {k}: probe answer {probe['answer']!r} is not a stretch of {line.say!r}")
         for field_name in ("meanings", "ask"):

@@ -29,6 +29,7 @@ from .prompts import Prompts
 from .script import Script
 from .stages import ladder_for, next_stage, stage_index
 from .themes import level_dialogue, pick_variants
+from .text import WORD, words as _words
 from .timing import Timing
 
 
@@ -210,7 +211,7 @@ class PlanConfig:
         return int(max(3, min(10, round(self.minutes / 5))))
 
 
-_WORD_RE = re.compile(r"[^\W\d_]+", re.UNICODE)
+_WORD_RE = WORD
 NEGATION = frozenset({"ekki", "ekkert", "aldrei", "enginn", "engin"})  # words that turn a held part into its opposite
 OVERSHOOT = 1.0  # components a lesson's last pick may carry the total past its target (#218 b3)
 BARE_STAGES = frozenset({"cloze", "hinted", "meaning", "situation"})  # an item said alone, not in a sentence
@@ -908,7 +909,7 @@ class Planner:
         segs = [s for s in sc.segments if s.exercise == e.index]
         line = next((s.text for s in segs if s.type == "speak"), "")
         answer = next((s.text for s in segs if s.type == "answer"), "")
-        n_line, n_answer = len(re.findall(r"[^\W\d_]+", line)), len(re.findall(r"[^\W\d_]+", answer))
+        n_line, n_answer = len(_words(line)), len(_words(answer))
         return n_line - n_answer <= n_answer
 
     def reviewed_today(self, item_id: str) -> bool:
