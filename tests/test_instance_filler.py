@@ -72,6 +72,15 @@ class IntroductionTests(unittest.TestCase):
         others = spoken - {"Ég þarf úlpu.", "úlpu", "úlpu."}
         self.assertGreaterEqual(len(others), 2, f"úlpu is met in at least two other frames: {others}")
 
+    def test_a_phrase_whose_word_was_taught_inside_it_today_is_not_introduced_again_as_new(self):
+        """Lesson 26 of the replay (#316 review): «reikninginn» is taught inside «Get ég fengið reikninginn?», which then came again as «Something new»."""
+        sc = self.lesson_with("get_eg_fengid_reikninginn")
+        mine = [e for e in sc.exercises if "get_eg_fengid_reikninginn" in e.item_ids]
+        self.assertEqual([e.kind for e in mine if e.kind == "intro"], [], "the phrase has no introduction of its own")
+        self.assertTrue(any(e.kind == "embed" for e in mine), "it is covered once as a sentence of its pattern")
+        self.assertEqual(sum(1 for g in sc.segments if g.type == "narrate" and (g.text or "").startswith("Something new") and "bill" in (g.text or "")), 0)
+        self.assertIn("get_eg_fengid_reikninginn", sc.meta["pattern_instances"])
+
     def test_the_phrase_is_not_asked_as_the_same_sentence_more_than_three_times(self):
         sc = self.lesson_with("eg_tharf_ulpu")
         asked = [e for e in sc.exercises if any(g.type == "answer" and (g.text or "").strip() == "Ég þarf úlpu." for g in sc.segments if g.exercise == e.index)]
