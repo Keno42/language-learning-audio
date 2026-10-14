@@ -1359,7 +1359,7 @@ class Builder:
             if c.kind != "construction" or not self._frame_available(c.id) or c.id in avoid:
                 continue
             for slot, tag in c.slots.items():
-                if tag in vocab.tags:
+                if tag in vocab.tags and vocab.id not in c.exclude_fills:  # a named exception holds on this path too: no «Áttu leigubíl?» (#192)
                     homes.append((c, slot))
         if not homes:
             return None
