@@ -1030,7 +1030,7 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def _recombine(self, sc: Script, item: Item, met_fills: bool = False, form: str | None = None, exclude: dict[str, Item] | None = None) -> Exercise | None:
+    def _recombine(self, sc: Script, item: Item, met_fills: bool = False, form: str | None = None, exclude: dict[str, Item] | None = None, avoid: frozenset[str] = frozenset()) -> Exercise | None:
         """Generative practice: a sentence the learner has not heard in this lesson (issue
         #105). With no such combination left, None: the caller falls back to a plain recall
         rather than replaying a line under a "make a sentence" label."""
@@ -1039,7 +1039,7 @@ class Builder:
                 return None  # the ceiling: about ten generated sentences of one pattern in a lesson (#180)
             gen = self.generate(item, avoid_heard=True, met_fills=met_fills, forms=True, form=form, exclude=exclude)
         else:
-            gen = self.generate_with(item, avoid_heard=True, forms=True)
+            gen = self.generate_with(item, avoid_heard=True, forms=True, avoid=avoid)
         if gen is None:
             return None
         self.used_combos.add(gen.key)
@@ -1179,6 +1179,14 @@ class Builder:
         self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
         self._gap(sc, ex)
         return ex
+
+    def homes_of(self, item: Item) -> list[tuple[Item, str]]:
+        """The available constructions with a slot that takes ``item`` by its tags, with the slot (#326)."""
+        return [
+            (c, slot) for c in self.cur.items
+            if c.kind == "construction" and self._frame_available(c.id)
+            for slot, tag in c.slots.items() if tag in item.tags
+        ]
 
     def recombine_status(self, item: Item, met_fills: bool = False) -> str:
         """Whether a recombine exercise for ``item`` could make a sentence now: "novel" (one
@@ -1341,13 +1349,14 @@ class Builder:
         Its introduction and its timed recalls (not generated sentences) are not held to it."""
         return self.construction_counts.get(c.id, 0) >= CONSTRUCTION_CEILING
 
-    def generate_with(self, vocab: Item, avoid_heard: bool = False, forms: bool = False, ceiling: bool = True) -> Generated | None:
+    def generate_with(self, vocab: Item, avoid_heard: bool = False, forms: bool = False, ceiling: bool = True, avoid: frozenset[str] = frozenset()) -> Generated | None:
         """Find a known construction with a slot that accepts ``vocab`` and fill it.
         ``avoid_heard``: only sentences not yet presented this lesson (None if none is left).
-        ``forms``: the construction's negative or question form may do (#171)."""
+        ``forms``: the construction's negative or question form may do (#171).
+        ``avoid``: constructions not to take (#326: a hard word is practised in another pattern than the ones it was in)."""
         homes = []
         for c in self.cur.items:
-            if c.kind != "construction" or not self._frame_available(c.id):
+            if c.kind != "construction" or not self._frame_available(c.id) or c.id in avoid:
                 continue
             for slot, tag in c.slots.items():
                 if tag in vocab.tags:

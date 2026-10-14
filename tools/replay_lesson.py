@@ -179,6 +179,13 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "«something you haven't heard yet» announcements": sum(1 for t in narrated if "haven't heard yet" in t or "まだ聞いたことのない" in t),
         "narrations with «{»": sum(1 for t in narrated if "{" in t),
         "open items fitted / waiting": f"{len(m.get('open_items', []))} / {len(m.get('open_not_fitted', []))}",
+        "hard items: practised / through connections, fewest (#326)": (
+            f"{len(m.get('hard_connections', {}))} / " + str(min((v['connections'] for v in m.get('hard_connections', {}).values() if v['practices'] >= 3), default="–"))
+        ),
+        "hard items with no connection to practise them through, asked 3+ times (content gaps, #326)": ", ".join(
+            i for i, v in m.get("hard_connections", {}).items() if v["practices"] >= 3 and not v["connections"]
+        ) or "–",
+        "hard items: most times one sentence is asked (#326)": max((v["same_sentence_max"] for v in m.get("hard_connections", {}).values()), default="–"),
         "open item practices, fewest": min(open_practice.values(), default="–"),
         "most appearances of one new item": max((sum(1 for e in exs if i in e.item_ids) for i in m["new_items"]), default=0),
         "generated sentences (plain / negative / question)": f"{sum(forms.values())} ({forms['plain']} / {forms['negative']} / {forms['question']})",
