@@ -767,11 +767,24 @@ class Builder:
             return
         self._slow_model(sc, ex, item)
 
+    def basic_form_of(self, item: Item) -> str | None:
+        """The word a noun form is named against (#270 step 3): the authored basic word (``noun_base``: «kaka» for «köku»), else the target of another form of the
+        same noun the learner has met («bíll» for «bíl»; «hótelið» for «hótelinu»), nominative first. None when there is none, or it is the form itself."""
+        if not item.noun:
+            return None
+        base = item.noun_base
+        if not base:
+            forms = (self.cur.nouns.get(item.noun) or {}).get("forms", {})
+            ranked = sorted((f for f in forms if forms[f] != item.id), key=lambda f: ({"nom": 0, "acc": 1, "nom_def": 2}.get(f, 3), f))
+            base = next((self.cur.by_id[forms[f]].target for f in ranked if self.learner.has_met(forms[f])), "")
+        return base if base and _norm_utterance(base) != _norm_utterance(item.target) else None
+
     def _form_contrast(self, sc: Script, ex: Exercise, item: Item, voice: str) -> None:
-        """A noun in a form its frame asks is named once against its basic word (#270: «köku» ← «kaka» after «Ég ætla að fá»)."""
-        if item.noun and item.noun_base and _norm_utterance(item.noun_base) != _norm_utterance(item.target):
+        """A noun in a form its frame asks is named once against its basic word (#270: «köku» ← «kaka» after «Ég ætla að fá»), or against the form of the same
+        noun the learner has met («bíl» ← «bíll»)."""
+        if (base := self.basic_form_of(item)) is not None:
             self._frame(sc, ex, self.prompts.get("form_of_base"))
-            self._speak(sc, ex, item.noun_base, speaker=voice)
+            self._speak(sc, ex, base, speaker=voice)
             self._beat(sc, ex)
 
     def _intro_in_whole(self, sc: Script, item: Item, construction: Item, fills: dict[str, Item]) -> Exercise:
