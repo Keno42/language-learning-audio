@@ -1255,7 +1255,6 @@ after it carry no remark of the same kind (the table above). The rows:
 - #209: when a fluent speaker is available (G10). It is worth more now that #255, #257, #276 and #292 added authored
   Icelandic, and it holds #279's step 2.
 - #208: a short policy and status brief for coding tasks (documentation; any time).
-- #310: built — the daily-read rows for #294 and #301 (rows 12 and 13 above).
 
 #265 (expression first) and #149 (themes) are the umbrellas the items above belong to; #220 stays open for its ranking
 (item 1 of "Now").
