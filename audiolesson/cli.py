@@ -370,6 +370,25 @@ def _review_cues(cur, prompts: Prompts, it) -> list[str]:
     return list(dict.fromkeys(cues))
 
 
+SAVINGS_STAGES = ("meaning", "situation", "hinted", "cloze")  # recalls that ask the item in the form a review asks it (#220); recombine is transfer practice, not counted
+
+
+def review_savings(script: Script) -> dict[str, float]:
+    """#220: the lesson time a 言えた in the review would save, by item: the seconds of this lesson's same-form recalls of an item that is neither new today nor
+    open (a confirmed older item need not be practised again at once). The bot builds the next lesson as a dry run before the review, ranks the older items it
+    could ask by this, and asks the ones that pay first. Items asked once cost about what the check does; the ones asked twice or three times are where a check pays."""
+    script.retime()
+    meta = script.meta
+    skip = set(meta.get("new_items", [])) | set(meta.get("embedded_items", [])) | set(meta.get("open_items", [])) | set(meta.get("open_not_fitted", []))
+    out: dict[str, float] = {}
+    for ex in script.exercises:
+        if ex.kind == "recall" and ex.stage in SAVINGS_STAGES:
+            for i in ex.item_ids[:1]:
+                if i not in skip:
+                    out[i] = out.get(i, 0.0) + ex.duration
+    return {i: round(t, 1) for i, t in sorted(out.items(), key=lambda kv: -kv[1])}
+
+
 def _plan(script: Script, cur) -> dict:
     meta = script.meta
 
@@ -412,6 +431,7 @@ def _plan(script: Script, cur) -> dict:
         "open_items": list(meta.get("open_items", [])),  # #199: the bot brings their questions forward and asks the waiting ones
         "open_not_fitted": list(meta.get("open_not_fitted", [])),
         "review": review,
+        "review_savings": review_savings(script),  # #220: seconds of same-form recall by older item: what a 言えた at the review would cut from this lesson
         "review_lesson_cues": lesson_cue_count(review, prompts),  # #312: review prompts that still carry a lesson cue (0)
         "review_refined": refined,  # #239: what was changed in the questions, and why (beside_whole, through_whole, no_home, same_answer)
         "review_candidates": script.review_candidates(),
