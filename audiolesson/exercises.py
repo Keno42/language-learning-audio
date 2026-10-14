@@ -1432,6 +1432,9 @@ class Builder:
             else:
                 sentences = [s for s in _SENTENCE_BREAK.split(part) if s.strip()]
                 for k, sentence in enumerate(sentences):
+                    if not any(ch.isalnum() for ch in sentence):
+                        self._beat(sc, ex)  # a lone «.» left over from a span's end is a breath, not a sentence to narrate (#198 review)
+                        continue
                     self._narr(sc, ex, sentence.strip())
                     if k < len(sentences) - 1 or (not last_part and _SENTENCE_END.search(sentence)):
                         self._beat(sc, ex)  # the sentence is over: a breath before the next (a sentence going on into a span gets none)
@@ -1442,6 +1445,15 @@ class Builder:
         ex = sc.new_exercise("note", None, list(note.items), f"note: {note.id}")
         self._frame(sc, ex, self.prompts.get("milestone_intro" if note.milestone or note.teaches else "aside"))
         self._speak_note_text(sc, ex, note.text)
+        if note.parts:
+            self._beat(sc, ex)
+            self._narr(sc, ex, self.prompts.get("note_pieces"))
+            for k, group in enumerate(note.parts):
+                if k:
+                    self._beat(sc, ex)
+                for piece in group:  # built up piece by piece, each once, slowly: gaps between the pieces, not stretched sounds
+                    self._speak(sc, ex, piece, speaker="native_a", rate=self.timing.slow_rate)
+                    self._pause(sc, ex, self.timing.intro_word_gap, "word_gap", floor=self.timing.intro_word_gap)
         self._beat(sc, ex)
         self._narr(sc, ex, self.prompts.get("milestone_end" if note.milestone or note.teaches else "aside_end"))
         self._gap(sc, ex)

@@ -25,6 +25,7 @@ from .stages import ladder_for, next_stage, stage_index
 STATE_FORMAT = "audiolesson-learner/1"
 MAX_INTERVAL_DAYS = 180
 LONG_GAP_DAYS = 7  # #220: a recall confirmed after this many days or more is evidence of retention: the ease rises
+REAL_GAP_DAYS = 1  # #220: a recall confirmed at least this many days after the item was last practised, on a due item (or one on a 1–2 day interval), is a real gap: the interval extends
 RETENTION_BUCKETS = (3, 7, 14)  # the gaps (days) the retention rate is read at
 REPORTED_HARD_DAYS = 14  # #326: an item the learner reported hard (the feedback form's «sooner», or named) stays among the hard items this many days, or until a recall is confirmed
 AUTO_STEP_EVERY = 3  # auto mode: lessons between pace increases
@@ -58,6 +59,7 @@ class ItemState:
     # the latest lesson that practised the item as an open failure (#149); orders a backlog
     open_practiced: int = 0
     reported_hard: str = ""  # #326: the day the learner reported it hard (``sooner``, ``hard``); no outcome and no schedule change; cleared by a confirmed recall
+    gap_streak: int = 0  # #220: confirmed recalls at a real gap in a row; a failure or hesitation resets it; two raise the ease
     history: list[dict] = field(default_factory=list)  # [{lesson, stages, ok}] compact log
 
     @property
@@ -407,7 +409,8 @@ class LearnerState:
         ``gaps`` (#220) maps an item to the days since it was last confirmed or practised when this answer was asked (the bot knows it; the audio's own
         schedule cannot). It is evidence about retention and does three things: every outcome is counted in ``retention`` by gap bucket (3, 7, 14 days),
         a ``recalled`` at ``LONG_GAP_DAYS`` or more raises the ease by 0.1 and lifts the interval to at least that gap times the ease (the due date follows
-        if it is later), and a failure or hesitation is still handled as before. An item with no gap is handled as before.
+        if it is later), a ``recalled`` at ``REAL_GAP_DAYS`` or more (below that) on a due item, or one on a 1–2 day interval, extends the interval (to 3 days, else
+        the larger of interval and gap times the ease) and the second one in a row raises the ease by 0.1, and a failure or hesitation is still handled as before. An item with no gap is handled as before.
 
         ``hard`` (#326) names items the learner reports hard without an outcome (the «sooner» of the feedback form also sets the flag): ``reported_hard`` is the
         day, kept ``REPORTED_HARD_DAYS`` days or until a recall is confirmed; the item comes back sooner, as with ``sooner``; no outcome is recorded.
@@ -516,6 +519,7 @@ class LearnerState:
                 continue
             count_retention(item_id, False)
             st.failures += 1
+            st.gap_streak = 0
             st.successes = max(0, st.successes - 1)
             st.durable_successes = max(0, st.durable_successes - 1)
             st.ease = max(1.3, st.ease - 0.2)
@@ -532,6 +536,7 @@ class LearnerState:
             # it came out, so no demotion; but sooner than a clean recall would come back
             count_retention(item_id, False)
             st.hesitated += 1
+            st.gap_streak = 0
             st.ease = max(1.3, st.ease - 0.1)
             st.interval_days = max(1.0, round(st.interval_days / 2, 1))
             sooner = (today + timedelta(days=int(st.interval_days))).isoformat()
@@ -543,10 +548,21 @@ class LearnerState:
                 continue
             st.recalled += 1  # the presumed success stands: the schedule already grew
             count_retention(item_id, True)
-            if (gap := gaps.get(item_id)) is not None and gap >= LONG_GAP_DAYS:
+            gap = gaps.get(item_id)
+            if gap is not None and gap >= LONG_GAP_DAYS:
                 # a recall confirmed after a long gap is evidence: the ease learns from it and the interval is at least what was just bridged, times the ease (#220)
                 st.ease = min(3.0, st.ease + 0.1)
                 st.interval_days = round(min(MAX_INTERVAL_DAYS, max(st.interval_days, gap * st.ease)), 1)
+                later = (today + timedelta(days=int(st.interval_days))).isoformat()
+                st.due = max(st.due, later) if st.due else later
+                st.gap_streak += 1
+            elif gap is not None and gap >= REAL_GAP_DAYS and (st.interval_days < 3 or (st.due and date.fromisoformat(st.due) <= today)):
+                # a 言えた at a real gap, on a due item or one on a 1–2 day interval (#220, the owner's rule): the interval extends, so the lesson stops
+                # asking it for a while; two such in a row raise the ease. An item not yet due with a longer interval is an early check: no evidence, no change
+                st.gap_streak += 1
+                if st.gap_streak >= 2:
+                    st.ease = min(3.0, st.ease + 0.1)
+                st.interval_days = 3.0 if st.interval_days < 3 else round(min(MAX_INTERVAL_DAYS, max(st.interval_days, gap) * st.ease), 1)
                 later = (today + timedelta(days=int(st.interval_days))).isoformat()
                 st.due = max(st.due, later) if st.due else later
             st.reported_hard = ""  # a confirmed recall settles a report of hardness (#326)

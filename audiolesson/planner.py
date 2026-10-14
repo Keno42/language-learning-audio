@@ -1225,7 +1225,10 @@ class Planner:
             return any(i in self.cur.by_id and self.cur.by_id[i].order <= reached + self.cfg.note_lookahead for i in n.items)
 
         pool = [n for i in related for n in self._notes_by_item.get(i, [])] if related else list(self.cur.notes)
-        pool = [n for n in pool if not n.milestone and not n.teaches and n.id not in self.notes_played and self._note_available(n) and rested(n)]
+        def contrast_ready(n) -> bool:  # #198: the contrast waits until both forms are met or were introduced earlier in this lesson
+            return not n.contrast or all(self.learner.has_met(i) or i in self.exposures or i in self.builder.in_lesson for i in n.items)
+
+        pool = [n for n in pool if not n.milestone and not n.teaches and n.id not in self.notes_played and self._note_available(n) and rested(n) and contrast_ready(n)]
         unheard = [n for n in pool if heard.get(n.id, 0) == 0]
         repeats = [n for n in pool if heard.get(n.id, 0) > 0]
         if related:
@@ -1234,6 +1237,7 @@ class Planner:
             tiers = [[n for n in unheard if met(n)], [n for n in unheard if near(n)], [n for n in repeats if met(n)], repeats]
         for tier in tiers:
             if tier:
+                tier = [n for n in tier if n.contrast] or tier  # #198: a grammar contrast outranks a cultural aside on the same items
                 least = min(heard.get(n.id, 0) for n in tier)
                 return self.rng.choice([n for n in tier if heard.get(n.id, 0) == least])
         return None
