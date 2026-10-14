@@ -767,24 +767,30 @@ class Builder:
             return
         self._slow_model(sc, ex, item)
 
-    def basic_form_of(self, item: Item) -> str | None:
-        """The word a noun form is named against (#270 step 3): the authored basic word (``noun_base``: «kaka» for «köku»), else the target of another form of the
-        same noun the learner has met («bíll» for «bíl»; «hótelið» for «hótelinu»), nominative first. None when there is none, or it is the form itself."""
+    def basic_form_of(self, item: Item) -> tuple[str, str] | None:
+        """The word a noun form is named against (#270 step 3), as ``(word, kind)``: ``"basic"`` for the authored ``noun_base`` («kaka» for «köku») or a met
+        nominative («bíll» for «bíl»), which is the basic word; ``"known"`` for another met form of the same noun («hótelið» for «hótelinu»), which the learner
+        knows but is not the basic word «hótel». None when there is none, or it is the form itself."""
         if not item.noun:
             return None
-        base = item.noun_base
-        if not base:
-            forms = (self.cur.nouns.get(item.noun) or {}).get("forms", {})
-            ranked = sorted((f for f in forms if forms[f] != item.id), key=lambda f: ({"nom": 0, "acc": 1, "nom_def": 2}.get(f, 3), f))
-            base = next((self.cur.by_id[forms[f]].target for f in ranked if self.learner.has_met(forms[f])), "")
-        return base if base and _norm_utterance(base) != _norm_utterance(item.target) else None
+        if item.noun_base:
+            return (item.noun_base, "basic") if _norm_utterance(item.noun_base) != _norm_utterance(item.target) else None
+        forms = (self.cur.nouns.get(item.noun) or {}).get("forms", {})
+        ranked = sorted((f for f in forms if forms[f] != item.id), key=lambda f: ({"nom": 0, "acc": 1, "nom_def": 2}.get(f, 3), f))
+        for f in ranked:
+            if self.learner.has_met(forms[f]):
+                word = self.cur.by_id[forms[f]].target
+                if _norm_utterance(word) != _norm_utterance(item.target):
+                    return word, ("basic" if f == "nom" else "known")
+        return None
 
     def _form_contrast(self, sc: Script, ex: Exercise, item: Item, voice: str) -> None:
         """A noun in a form its frame asks is named once against its basic word (#270: «köku» ← «kaka» after «Ég ætla að fá»), or against the form of the same
-        noun the learner has met («bíl» ← «bíll»)."""
-        if (base := self.basic_form_of(item)) is not None:
-            self._frame(sc, ex, self.prompts.get("form_of_base"))
-            self._speak(sc, ex, base, speaker=voice)
+        noun the learner has met («bíl» ← «bíll»; «hótelinu» ← «hótelið», said as «You know it as:», not as the basic word)."""
+        if (found := self.basic_form_of(item)) is not None:
+            word, kind = found
+            self._frame(sc, ex, self.prompts.get("form_of_base" if kind == "basic" else "form_known_as"))
+            self._speak(sc, ex, word, speaker=voice)
             self._beat(sc, ex)
 
     def _intro_in_whole(self, sc: Script, item: Item, construction: Item, fills: dict[str, Item]) -> Exercise:

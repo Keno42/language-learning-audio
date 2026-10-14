@@ -64,6 +64,7 @@ embed_part = "This word is in it:"
 embed_part_also = "And this one:"
 # a noun in a form its frame asks (#270): the basic word, said once, after the part
 form_of_base = "In this sentence the word changes. The basic word is:"
+form_known_as = "You know it as:"
 embed_sentence = "In another sentence. Listen, then repeat."
 embed_meaning = "{meaning}"
 # a construction's negative or question form modelled before it is asked (#211)

@@ -74,9 +74,17 @@ def scene_syncretisms(rows: list[dict]) -> list[str]:
     return out
 
 
+def scene_unframed(rows: list[dict]) -> list[str]:
+    """Learner turns that say a noun and whose ``items`` list no construction: the table cannot show their frame. A bare answer («Vatn, takk.») is fine; a turn
+    that is a sentence of a pattern («Afsakið, áttu skyr?» is «Áttu {thing}?») should list the construction in its ``items``."""
+    return [f"{r['theme']}:{r['level']} «{r['say']}»" for r in rows if not r["frames"]]
+
+
 def scene_report(cur, themes) -> str:
-    """The lines of ``audiolesson nouns --scenes``: a table of each scene's frames and the form each noun takes in it, then the forms that stand for another case."""
+    """The lines of ``audiolesson nouns --scenes``: a table of each scene's frames and the form each noun takes in it, the turns whose items list no construction (so the table shows no frame for them), and the forms that stand for another case. It shows what the turns' ``items`` declare, not every frame a scene uses."""
     rows = scene_frames(cur, themes)
     lines = [f"{r['theme']}:{r['level']}  «{r['say']}»  " + ", ".join(f"{f['construction']}[{f['slot']}: {f['case'] or '–'}]" for f in r["frames"]) + "  ← " + ", ".join(f"{n['noun']}:{n['form']}" for n in r["nouns"]) for r in rows]
     notes = scene_syncretisms(rows)
+    unframed = scene_unframed(rows)
+    lines += [f"no construction in the turn's items, so no frame is shown ({len(unframed)}; a bare answer is fine, a sentence of a pattern should list it): " + "; ".join(unframed)] if unframed else []
     return "\n".join(lines + ([f"a form standing for another case ({len(notes)}):"] + ["  " + h for h in notes] if notes else ["every frame's case is its noun's form"]))

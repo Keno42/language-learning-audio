@@ -132,7 +132,7 @@ def main(argv: list[str] | None = None) -> int:
     nn = sub.add_parser("nouns", help="the nouns of the curriculum with their forms, and (--scenes) each scene's frames and the case each asks (#270)")
     nn.add_argument("curriculum")
     nn.add_argument("--known", default=None)
-    nn.add_argument("--scenes", action="store_true", help="the frames of every theme level's learner turns that say a noun, with the form each noun takes")
+    nn.add_argument("--scenes", action="store_true", help="the frames of every theme level's learner turns that say a noun, with the form each noun takes. It shows what the turns' items declare, not every frame a scene uses")
     nn.add_argument("--met", default=None, help="a learner file: shows which forms of each noun it has met")
     nn.set_defaults(func=cmd_nouns)
 
