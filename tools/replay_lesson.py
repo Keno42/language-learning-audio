@@ -167,6 +167,10 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "new items for the theme's next level (taken / lacked)": (
             f"{sum(1 for i in m['new_items'] if i in m['theme_target']['wanted'])} / {len(m['theme_target']['wanted'])}" if m.get("theme_target") else "–"
         ),
+        "new items in the scene the lesson plays (#327, inside / new)": (
+            f"{m['new_in_scene']['inside']} / {m['new_in_scene']['new']}" if m.get("new_in_scene") else "–"
+        ),
+        "topic the day's new material shares (#327)": m.get("day_topic") or "–",
         "most new items of one set": max((sum(1 for i in m["new_items"] if g & set(cur.by_id[i].tags)) for g in semantic_set_tags(PlanConfig().semantic_sets)), default=0),
         "most times one sentence is said": most_said,
         "longest gap between introductions (min)": round(max((b - a for a, b in zip(intros, intros[1:])), default=0), 1),
