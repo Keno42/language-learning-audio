@@ -22,7 +22,7 @@ summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wro
 ## Constraints that always hold
 - **The audio cannot hear the learner.** Every retrieval is **presumed** successful until the review says otherwise.
   Presumed success is kept apart from **confirmed** outcomes (the review's 言えた / 迷った / 言えなかった; #119). A confirmed
-  recall after a real gap (7 days or more) is the evidence of retention; success minutes after an exposure is practice (H2).
+  recall after a real gap is the evidence of retention (H2: only success after a gap is evidence; one confirmed after 7 days or more also raises the ease, #298); success minutes after an exposure is practice.
   `knows()` means two recalls on or after a due date.
 - **A lesson is about 30 minutes and uses its time** (the daily dose, owner after lesson 13). The time is filled with
   material that loads the learner: new material to hear, exchanges, failed items brought back. Never with repetition of what
@@ -77,7 +77,7 @@ summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wro
 ## Verification a change needs
 - `python -m unittest` and `python -m audiolesson.cli validate curricula/is-en` pass. The tests pin learner-facing behaviour.
 - Check a behaviour change on **the real learner path**: replay the latest feedback export's `learner.before.json` with its
-  manifest's arguments (`python tools/replay_lesson.py <export> --lessons 3`), not only a simulated course. A simulated course
+  manifest's arguments, which include the trip ordering (`python tools/replay_lesson.py <export> --trip <the private profile> --lessons 3`), not only a simulated course. Without `--trip` the replay builds a different lesson. Do not write where the profile lives. A simulated course
   presumes every recall and hides what the real path shows (#94, #316).
 - A refactoring leaves the replays byte-identical (`script.json`, `plan.json`).
 - Every default reproduces today's behaviour, or the change of behaviour is the point and is stated. The settings that
