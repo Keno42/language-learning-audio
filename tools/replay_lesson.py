@@ -43,9 +43,10 @@ from audiolesson.planner import PlanConfig, Planner, apply_to_learner, semantic_
 from audiolesson.themes import load_themes, scenario_order  # noqa: E402
 from audiolesson.prompts import Prompts  # noqa: E402
 from audiolesson.timing import Timing  # noqa: E402
+from audiolesson.text import WORD  # noqa: E402
 from audiolesson.trip import load_trip  # noqa: E402
 
-_WORD = re.compile(r"[^\W\d_]+", re.UNICODE)
+_WORD = WORD
 _SLOT = re.compile(r"\{[^{}]+\}")
 
 

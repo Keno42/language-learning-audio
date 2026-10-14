@@ -30,6 +30,7 @@ issues; the full history of how each of these came about is in `docs/history/ses
 | what the instructor says for a meaning (`meaning_spoken`, #143) | `Item.spoken_meaning` in `audiolesson/content.py` |
 | planner levers, off by default (#136) | `PlanConfig.late_unhinted_recall`; see `docs/LEVERS.md` |
 | BÍN check of the variants (#218 b2) | `audiolesson/binform.py`, `tools/bin_lookup.py` (reads BÍN's downloaded form list, no network), `curricula/is-en/bin/` (cache + licence); `validate` only warns (advises, never blocks) when the cache or a form is missing or a `variant_of` item and its base are not one BÍN lemma |
+| words and normalised lines | `audiolesson/text.py` | `WORD` (a run of letters, digits and underscores excluded), `words()` and `norm_utterance()` are defined once; the planner, builder, review, themes and `tools/replay_lesson.py` import them (#281). `timing.py` keeps `\w+` where digits count |
 | diagnostics | `audiolesson validate` (gloss coverage, dialogue sequencing report, part-before-whole report `--parts`), `tools/phrase_families.py`, `tools/replay_lesson.py` (a feedback export's lesson rebuilt and continued: the daily-read table, LEARNING-DESIGN §1) |
 
 ## Invariants the tests pin
