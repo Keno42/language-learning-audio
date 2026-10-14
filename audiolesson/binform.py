@@ -19,8 +19,10 @@ import re
 import zipfile
 from pathlib import Path
 
+from .text import WORD
+
 CACHE_NAME = "forms.json"
-_WORD = re.compile(r"[^\W\d_]+", re.UNICODE)
+_WORD = WORD
 TOOL_HINT = "python tools/bin_lookup.py --data SHsnid.csv.zip {form} [--ofl no|so|lo|to…] [--pick <id>]"
 # ASSUMED layout of a row of the downloaded form list (``SHsnid.csv``: one row per form, semicolon-separated), from the owner's reading of
 # BÍN's terms page: lemma; id; word class; domain; form; tag. Check against BÍN's "Sjá skýringar" and adjust here on the first real run.

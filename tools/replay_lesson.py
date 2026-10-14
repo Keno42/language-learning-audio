@@ -43,9 +43,10 @@ from audiolesson.planner import PlanConfig, Planner, apply_to_learner, semantic_
 from audiolesson.themes import load_themes, scenario_order  # noqa: E402
 from audiolesson.prompts import Prompts  # noqa: E402
 from audiolesson.timing import Timing  # noqa: E402
+from audiolesson.text import WORD  # noqa: E402
 from audiolesson.trip import load_trip  # noqa: E402
 
-_WORD = re.compile(r"[^\W\d_]+", re.UNICODE)
+_WORD = WORD
 _SLOT = re.compile(r"\{[^{}]+\}")
 
 
@@ -69,6 +70,11 @@ def form_of(cur, ex) -> str:
         if c.question and _template(c.question).match(text):
             return "question"
     return "plain"
+
+
+def m_guard(sc) -> bool:
+    """#294: the second half started through the guard, the target not counted as taught."""
+    return bool(sc.meta.get("rotation_guard"))
 
 
 def measure(cur, sc, known_constructions: int) -> dict:
@@ -252,7 +258,10 @@ def main(argv: list[str] | None = None) -> int:
         rows.append(measure(cur, sc, known_c))
         apply_to_learner(sc, learner, day)
         rows[-1]["nouns that have met a form (#270)"] = noun_report(cur, learner)
-        rows[-1]["confirmed recall rate by gap, 3 / 7 / 14+ days (#220)"] = " · ".join(f"{k}: {v}" for k, v in retention_report(learner).items())
+        rows[-1]["target delivered / second half by the guard (#294)"] = "guard" if m_guard(sc) else ("yes" if sc.meta.get("target_delivered") else "no")
+        rows[-1]["speech touching at a change of voice (#301)"] = sc.meta.get("touching_switches", "–")
+        rows[-1]["switch gaps inserted (#301)"] = sc.meta.get("switch_pauses", "–")
+        rows[-1]["confirmed recall rate by gap, 3–6 / 7–13 / 14+ days (#220)"] = " · ".join(f"{k}: {v}" for k, v in retention_report(learner).items())
         rows[-1]["nouns asked bare in the lesson's own recall (#270)"] = ", ".join(sc.meta.get("bare_noun_recalls", [])) or "–"
         day += timedelta(days=1)
         m = sc.meta

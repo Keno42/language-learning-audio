@@ -21,8 +21,9 @@ import re
 
 from .exercises import _norm_utterance, cue_is_answer, meaning_prompts
 from .prompts import Prompts
+from .text import WORD
 
-_WORD = re.compile(r"[^\W\d_]+", re.UNICODE)
+_WORD = WORD
 
 
 def _words(text: str) -> list[str]:

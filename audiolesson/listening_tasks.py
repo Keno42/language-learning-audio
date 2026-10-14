@@ -25,13 +25,11 @@ from typing import Callable
 
 from .exercises import _norm_utterance, _other_voice
 from .script import Script
+from .text import WORD
 from .listening_cues import unknown_cue
 
 # the phrase that asks what a word means; the catch-an-unknown-word exercise only runs once the learner can say it
 REPAIR_ITEM = "hvad_thydir_thetta"
-
-# the same split as Planner._fixed_text_words (what counts as a word)
-WORD = re.compile(r"[^\W\d_]+", re.UNICODE)
 
 
 def tokens(text: str) -> list[str]:
