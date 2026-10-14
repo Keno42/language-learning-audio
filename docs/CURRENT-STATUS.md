@@ -16,6 +16,11 @@ owner's call.
    lessons away. From then on, new items come from the trip and curriculum order whatever scene the lesson plays (3 of
    112 from the played scene in lessons 25–34). Choose the day's new material as a group from one scene or topic. Make
    the played scene match it where a theme exists. Give the others a scene line. No new content needed.
+   *Built (the PR of #327, waiting for feedback):* the group by topic and the scene match. Not built: the scene line for
+   items whose topic has no theme; part 2 (theme levels) is authored content. On a simulated course with every theme
+   level played from lesson 21, the new items inside the played scene went from 53 of 261 to 116 of 251 (lessons 21–50),
+   at most two thirds of a call's places going ahead of the course order so that a topic with no theme (numbers) still
+   comes; the rest is limited by themed topics running out of material, which is part 2.
 2. **A word reported hard is practised through its connections (#326).** Its scene, the word in other patterns, and other
    words of the same pattern, not more of the same sentence (the owner, after lesson 25; «úlpu»).
 3. **#220, the LLA half of the ranking:** a 言えた on a due item at a real gap extends its interval, and two in a row raise
