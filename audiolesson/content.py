@@ -751,6 +751,8 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"item {it.id!r}: syllables {it.syllables!r} cut the cluster «{cut}» in two; keep it inside one piece (said apart it is an ordinary sound)")
         for word, pieces in (it.word_syllables or {}).items():
             phrase_words = {w.casefold() for w in _WORD_RE.findall(it.target)}
+            if word != word.casefold():
+                raise CurriculumError(f"item {it.id!r}: word_syllables key {word!r} must be lower case (it is matched against the lower-cased target)")
             if it.kind != "phrase" or word.casefold() not in phrase_words or len(pieces) < 2 or "".join(pieces).casefold() != word.casefold():
                 raise CurriculumError(f"item {it.id!r}: word_syllables {word!r}: a word of a phrase's target, cut into two or more pieces that join to it exactly: {pieces!r}")
             if (cut := split_breaks_a_cluster(pieces)) is not None:

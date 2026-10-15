@@ -56,6 +56,7 @@ REPORTED_SOUNDS = {
     "g": re.compile(rf"(?<=[{_V}])g(?=[{_V}])"),
 }
 _WORDS = re.compile(r"[^\W\d_]+")
+_SLOT = re.compile(r"\{[^{}]*\}")
 
 
 def hard_words_of(item, reported: bool = False) -> list[tuple[str, list[str] | None]]:
@@ -65,6 +66,8 @@ def hard_words_of(item, reported: bool = False) -> list[tuple[str, list[str] | N
     authored). With ``reported`` (the learner reported the item hard) an item with none authored takes the one word of two or more syllables with the most of the
     old and the reported sounds, the longest on a tie. Empty when nothing qualifies.
     """
+    if item.kind not in ("phrase", "vocab"):
+        return []  # a pattern's target holds slot names ({thing}, {language}) that are not words, and is not said bare
     if item.kind == "phrase" and item.word_syllables:
         seen: list[tuple[str, list[str] | None]] = []
         for w in _WORDS.findall(item.target.lower()):
@@ -76,7 +79,7 @@ def hard_words_of(item, reported: bool = False) -> list[tuple[str, list[str] | N
     if not reported:
         return []
     best = None
-    for w in _WORDS.findall(item.target.lower()):
+    for w in _WORDS.findall(_SLOT.sub(" ", item.target).lower()):
         if len(_VOWELS.findall(w)) < 2:
             continue
         hits = sum(1 for rx in (*HARD_SOUNDS.values(), *REPORTED_SOUNDS.values()) if rx.search(w))

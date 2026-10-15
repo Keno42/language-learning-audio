@@ -98,12 +98,26 @@ class HardWordAgainTests(unittest.TestCase):
         late = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY + timedelta(days=40))
         self.assertEqual(late.slow_owed_items(), [])
 
+    def test_a_pattern_is_never_modelled_and_its_slot_names_are_not_words(self):
+        """Review of #342: «Get ég fengið {thing}?» reported hard must not be read out with «{thing}», and «{language}» is not a hard word."""
+        b = self.builder()
+        sc = Script(1, "t", "is", "en")
+        for c in self.cur.items:
+            if c.kind == "construction":
+                self.assertEqual(hard_words_of(c, reported=True), [], c.id)
+        self.assertIsNone(b.slow_word_exercise(sc, self.cur.by_id["get_eg_fengid"]))
+        self.assertNotIn("{", sc.transcript())
+        for i in self.cur.items:
+            for w, _ in hard_words_of(i, reported=True):
+                self.assertNotIn("{", w)
+                self.assertTrue(w in i.target.lower() or w in (i.syllables and "".join(i.syllables) or ""), (i.id, w))
+
     def test_word_syllables_are_checked(self):
         base = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}}
         def make(extra):
             return curriculum_from_dict({**base, "items": [{"id": "a", "kind": "phrase", "target": "Vegurinn er lokaður.", "meaning": "The road is closed.", **extra}]})
         make({"word_syllables": {"vegurinn": ["veg", "ur", "inn"]}})
-        for bad in ({"vegurinn": ["veg", "urinn", "x"]}, {"vegurinn": ["vegurinn"]}, {"nope": ["no", "pe"]}):
+        for bad in ({"vegurinn": ["veg", "urinn", "x"]}, {"vegurinn": ["vegurinn"]}, {"nope": ["no", "pe"]}, {"Vegurinn": ["Veg", "ur", "inn"]}):
             with self.assertRaises(CurriculumError, msg=str(bad)):
                 make({"word_syllables": bad})
 
