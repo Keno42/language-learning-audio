@@ -1273,7 +1273,7 @@ re-ranking is proposed in the PR that wrote it and is the owner's call.
 1. **A word is caught once; the pick-outs rotate across lessons (#339, first part).** The replay of lesson 27 asks
    «sestu», «kjötsúpa», «þarftu» and the same two pick-outs again, as every lesson since 23 and 25. Small: a record in
    the learner state. Its second part, some new words introduced through the catch (the owner's decision, §9
-   "Conversation"), comes after item 4.
+   "Conversation"), comes after item 4, before the open issues below.
 2. **A word reported hard to say gets its slow, split model again (#337).** The «sooner» items of lesson 26 come back in
    lesson 27, so it is H13's first real test. The rule also reads the words inside phrases and adds the sounds this
    learner has stumbled on.
@@ -1282,8 +1282,6 @@ re-ranking is proposed in the PR that wrote it and is the owner's call.
 4. **A scene's lines that vary in use are taught as a pattern with the scene's fillers (#336).** The replay of lesson 27
    says six of its sentences 8 times each in one wording («Ég vakna klukkan sjö.», «Ég kem heim klukkan sex.»), the
    bus's shape. The largest effect on repetition and the largest cost (data); the frames a scene varies first.
-5. **The lesson-26 preview's findings (#333).** None of them is in the replay of lesson 27: the transport phrases come
-   back at their reviews. Small. «Má ég sofa?» waits for the owner's call (a named exception or a slot tag).
 
 **The long run alongside, first:** #327 part 2, the theme levels and a scene line for new items whose topic has no theme.
 The themes' levels run out at lesson 28, and the replay of lesson 27 takes 0 of its 12 new items from the played scene.
@@ -1347,6 +1345,9 @@ after it carry no remark of the same kind (the table above). The rows:
 13. speech segments that touch at a change of voice (#301: `meta.touching_switches`, 0 expected; a row of `replay_lesson.py`, with the count of gaps inserted next to it, #310).
 
 **Open issues after "Now", in order:**
+- #339's second part: some new words introduced through the catch (§9 "Conversation").
+- #333, the lesson-26 preview's findings. None of them is in the replay of lesson 27: the transport phrases come back
+  at their reviews. Small. «Má ég sofa?» waits for the owner's call (a named exception or a slot tag).
 - #327 part 2 (first of the long run, above): more theme levels for the scenes that supply the new material: café,
   directions and town, taxi and bus, small talk, and winter talk with #142 (nature and winter safety). Authored,
   candidates until native-checked.
