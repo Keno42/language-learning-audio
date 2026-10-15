@@ -1854,7 +1854,9 @@ class Planner:
             if (taught := self.filler_taught_today(item)) is not None:
                 # #311 follow-up: the phrase's word was taught today inside this very phrase: it is covered as one pattern sentence, never introduced again as new
                 pattern, fills = taught
-                b.pattern_instance(sc, item, pattern, fills)
+                inside = any(_norm_utterance((b.wholes_taught.get(f.id) or {}).get("answer", "")) == _norm_utterance(item.target) for f in fills.values())
+                if not inside:  # #333: a word introduced inside this very phrase has had the phrase said to it already: covered, not played again as «a sentence from a pattern you know»
+                    b.pattern_instance(sc, item, pattern, fills)
                 credited = [pattern.id, *(f.id for f in fills.values())]
                 self._record(credited, "recombine", credited)
                 self.embedded.append(item.id)
