@@ -575,16 +575,21 @@ class Planner:
             out[item_id] = {"practices": sum(asked.values()), "connections": len(links), "kinds": sorted({k for k, _ in links}), "same_sentence_max": max(asked.values(), default=0), "connection_times_s": at.get(item_id, [])}
         return out
 
-    def caught_seed(self) -> list[str]:
-        """#339: the words a learner file made before ``caught_words`` existed has been asked about. The lessons asked the glossed words of the partner lines of the
-        levels already played, so those are put down as caught, once: «sestu», «kjötsúpa» and «þarftu» do not come a fifth time."""
+    def caught_seed(self, known: set[str]) -> list[str]:
+        """#339: the words a learner file made before ``caught_words`` existed has been asked about. The catch takes a partner line only when exactly one of its words
+        is unknown, so the words it asked are the glossed words of the lines of the levels already played that held that word as their only unknown one. Knowledge only
+        grows: a line that does not qualify under what the learner knows now never did, and its glossed word was never asked (it is still to come, as ``known`` grows)."""
         out: set[str] = set()
         for t in self.cfg.themes:
             for n in range(min(self.learner.themes_done.get(t.id, 0), len(t.levels))):
                 for turn in t.levels[n].turns:
-                    if turn.who == "partner":
-                        for ln in turn.lines():
-                            out.update(w.lower() for w in (ln.word_glosses or {}))
+                    if turn.who != "partner":
+                        continue
+                    for ln in turn.lines():
+                        glossed = {w.lower() for w in (ln.word_glosses or {})}
+                        unknown = [w.lower() for w in WORD.findall(ln.say) if w.lower() not in known]
+                        if len(unknown) == 1 and unknown[0] in glossed:
+                            out.add(unknown[0])
         return sorted(out)
 
     def catch_intro_task(self, item: Item, known: set[str], used_lines: set[str], caught: set[str] | None = None) -> ListeningTask | None:
@@ -2010,7 +2015,7 @@ class Planner:
                     catch_seen["held by a longer new item"] += 1  # «þúsund» in «þúsund krónur»: met inside that whole (#262)
                 elif not (item.noun or b.homes_of(item)):
                     catch_seen["not a content word"] += 1  # a conjunction or a particle is not a word a traveller asks about
-                elif (catch := self.catch_intro_task(item, known_now(), catch_lines)) is None:
+                elif (catch := self.catch_intro_task(item, known_now(), catch_lines, caught_words)) is None:
                     catch_seen["no line holds it as the only unknown"] += 1
                 else:
                     catch_seen["introduced"] += 1
@@ -2076,7 +2081,7 @@ class Planner:
         def remaining_time() -> float:
             return budget - closing_reserve - sc.total_duration
 
-        caught_seed = [] if self.learner.caught_seeded else self.caught_seed()  # lessons before the log asked these words already: they count as caught (#339)
+        caught_seed = [] if self.learner.caught_seeded else self.caught_seed(known_at_start)  # lessons before the log asked these words already: they count as caught (#339)
         caught_words: set[str] = set(self.learner.caught_words) | set(caught_seed)  # one catch per unknown word, ever (#339), whichever line it came from
         caught_now: list[str] = []  # the words caught in this lesson, second half or introduction (#339)
         catch_introduced: list[str] = []  # the new words introduced through the catch (#339)
@@ -2794,7 +2799,7 @@ class Planner:
         rotation = SecondHalfRotation()
         used_listening_tasks: set[tuple[str, str, str]] = set()
         picks_by_pattern: Counter[str] = Counter()  # pick-outs per construction this lesson: the same two frames over and over would be a new boredom
-        pick_outs_heard: list[str] = []  # the pick-outs heard in this lesson, as ``line|answer`` (#339)
+        pick_outs_heard: list[str] = []  # the pick-outs heard in this lesson, as the turn they come from (#339)
         delivered_at: list[float | None] = [None]  # lesson time at which the new material of the target was taught
 
         def known_now() -> set[str]:
@@ -2852,7 +2857,7 @@ class Planner:
             used_listening_tasks.add(key)
             if task.kind == "pick_out":
                 picks_by_pattern[task.pattern] += 1
-                pick_outs_heard.append(key[1])  # the line: for the learner a line is the same line with its other probe (#339 review)
+                pick_outs_heard.append(task.pattern)  # the turn (its wordings and probes): for the learner they are the same question again; the cap per lesson counts the same (#339 review)
             else:
                 caught_words.add(task.answer.lower())
                 caught_now.append(task.answer.lower())
@@ -2871,7 +2876,7 @@ class Planner:
                         continue
                     for v, ln in enumerate([*turn.lines(), *turn.listen_lines()]):
                         for pi, probe in enumerate(ln.probes):
-                            heard_in = self.learner.listening_log.get(_norm_utterance(ln.say), 0)
+                            heard_in = self.learner.listening_log.get(f"theme:{t.id}:{n + 1}:{k}", 0)
                             cands.append(((heard_in, 0 if len(ln.probes) > 1 else 1, 0 if rank == 0 and theme_pick else 1, self.rng.random()), t, n, k, v, pi, ln, probe))
             for _, t, n, k, v, pi, ln, probe in sorted(cands, key=lambda c: c[0]):
                 yield partner_pick_out(

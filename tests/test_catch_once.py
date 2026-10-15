@@ -91,9 +91,12 @@ class CatchOnceTests(unittest.TestCase):
         asked: list[str] = []
         real = Planner.catch_intro_task
 
-        def spy(self_, item, known, used):
+        passed: list[bool] = []
+
+        def spy(self_, item, known, used, caught=None):
             asked.append(item.id)
-            return real(self_, item, known, used)
+            passed.append(caught is not None)  # the build hands over the lesson's caught set (the seed and this lesson's catches), not only the saved one
+            return real(self_, item, known, used, caught)
 
         l = LearnerState("is", "en", "A1")
         day = TODAY
@@ -104,34 +107,55 @@ class CatchOnceTests(unittest.TestCase):
                 l.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
                 day += timedelta(days=1)
         self.assertTrue(asked, "the catch was considered for some words")
+        self.assertTrue(all(passed), "review of #344: the caught set of the lesson is passed at every call")
         self.assertEqual([i for i in asked if hard_sounds(self.cur.by_id[i])], [], "never for a hard-to-say word")
 
-    def test_a_file_made_before_the_log_is_seeded_once_with_the_words_the_played_levels_asked(self):
-        """Review of #344: the lessons before the log had asked «sestu», «kjötsúpa», «þarftu» four times; they must not come a fifth time."""
-        l = LearnerState("is", "en", "A1")
-        for t in self.themes:
-            l.themes_done[t.id] = len(t.levels)
-        l.lessons_completed = 25
-        self.assertFalse(l.caught_seeded)
-        sc = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), self.cfg(), today=TODAY).build()
-        seed = sc.meta["caught_seed"]
-        self.assertTrue({"sestu", "kjötsúpa", "þarftu"} <= set(seed), seed)
-        self.assertFalse(set(seed) & set(sc.meta["caught_words"]), "none of them is caught again in this lesson")
-        apply_to_learner(sc, l, TODAY)
-        self.assertTrue(l.caught_seeded)
-        self.assertTrue({"sestu", "kjötsúpa", "þarftu"} <= set(l.caught_words))
-        again = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), self.cfg(), today=TODAY + timedelta(days=1)).build()
-        self.assertEqual(again.meta["caught_seed"], [], "seeded once")
+    def course_to(self, n):
+        l, day = LearnerState("is", "en", "A1"), TODAY
+        for k in range(1, n + 1):
+            sc = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), self.cfg(), today=day).build()
+            apply_to_learner(sc, l, day)
+            l.report([], [], day + timedelta(days=1), lesson_number=k, recalled=sc.meta["new_items"])
+            day += timedelta(days=1)
+        return l, day
 
-    def test_the_pick_out_log_keys_on_the_line_not_on_the_probe(self):
-        l = LearnerState("is", "en", "A1")
-        for t in self.themes:
-            l.themes_done[t.id] = len(t.levels)
-        l.lessons_completed = 25
-        sc = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), self.cfg(), today=TODAY).build()
-        for key in sc.meta["pick_outs_heard"]:
+    def test_a_file_made_before_the_log_is_seeded_once_with_the_words_that_were_asked(self):
+        """Review of #344: the seed is the glossed words of the played levels' lines that held that word as their only unknown one; the others were never asked."""
+        l, day = self.course_to(22)
+        asked = set(l.caught_words)
+        self.assertTrue(asked, "the course asked some words (a test over an empty list proves nothing)")
+        l.caught_words, l.caught_seeded = [], False  # a file made before the log
+        p = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), self.cfg(), today=day)
+        known = set(p._component_base()[0])
+        seed = p.caught_seed(known)
+        self.assertTrue(seed)
+        self.assertTrue({w for w in asked if w not in known} <= set(seed), "every asked word that is still unknown is seeded")
+        # a glossed word of a line with two unknown words was never asked and is not seeded
+        two = [
+            w.lower()
+            for t in self.themes for n in range(min(l.themes_done.get(t.id, 0), len(t.levels))) for turn in t.levels[n].turns if turn.who == "partner"
+            for ln in turn.lines() for w in (ln.word_glosses or {})
+            if len([x for x in __import__("audiolesson.text", fromlist=["WORD"]).WORD.findall(ln.say) if x.lower() not in known]) >= 2
+        ]
+        self.assertTrue(two, "the data has glossed lines that do not qualify yet")
+        only_two = [w for w in two if not any(w in ln.word_glosses and len([x for x in __import__("audiolesson.text", fromlist=["WORD"]).WORD.findall(ln.say) if x.lower() not in known]) == 1
+                                              for t in self.themes for lv in t.levels for turn in lv.turns if turn.who == "partner" for ln in turn.lines())]
+        self.assertTrue(only_two)
+        self.assertFalse(set(only_two) & set(seed), "never asked, so not seeded")
+        sc = p.build()
+        apply_to_learner(sc, l, day)
+        self.assertTrue(l.caught_seeded)
+        self.assertTrue(set(seed) <= set(l.caught_words))
+        again = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), self.cfg(), today=day + timedelta(days=1)).build()
+        self.assertEqual(again.meta["caught_seed"], [], "seeded once")
+        self.assertFalse(set(seed) & set(again.meta["caught_words"]))
+
+    def test_the_pick_out_log_keys_on_the_turn_so_its_wordings_are_one_question(self):
+        l, _ = self.course_to(22)
+        self.assertTrue(l.listening_log, "pick-outs were heard")
+        for key in l.listening_log:
             self.assertNotIn("|", key)
-        self.assertGreaterEqual(sc.meta["pick_out_pool"], len(sc.meta["pick_outs_heard"]))
+            self.assertTrue(key.startswith("theme:") or key in self.cur.by_id, key)
 
     def test_a_conjunction_is_not_introduced_through_the_catch_and_a_told_word_is_lower_case(self):
         from audiolesson.exercises import Builder
