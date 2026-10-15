@@ -2395,6 +2395,8 @@ class Planner:
             want = _norm_utterance(text)
             return sum(1 for e in sc.exercises if e.kind in ("recall", "connect", "generative") and _norm_utterance(e.label.split(": ", 1)[-1]) == want)
 
+        b.ask_count = sentence_asks
+
         def pattern_spent(c: Item) -> bool:
             """Every sentence the learner can be asked of the pattern ``c`` has been asked ``construction_asks_per_filling`` times (#336): past that the practice
             goes to another pattern, not to more of the same sentences."""

@@ -184,6 +184,29 @@ class OneFillingTests(unittest.TestCase):
         self.assertTrue(counts)
         self.assertLessEqual(max(counts.values()), PlanConfig().construction_asks_per_filling + 1, counts)
 
+    def test_with_every_combination_used_the_ladder_asks_the_filling_asked_fewest_times(self):
+        """The re-review of #346 (13 asks of one sentence): once every combination was used, the ladder asked the example again, whatever its count."""
+        from audiolesson.exercises import Builder, _combo_key
+        from audiolesson.learner import LearnerState
+        from audiolesson.prompts import Prompts
+        from audiolesson.script import Script
+        from audiolesson.timing import Timing
+
+        cur, _ = self.lesson([("á flugvöllinn", "to the airport"), ("í miðbæinn", "to the town centre")])
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        b.in_lesson.update({"f0", "f1"})
+        c = cur.by_id["c"]
+        options = b.filling_options(c)
+        self.assertEqual(len(options), 2)
+        for fills, _, _ in options:
+            b.used_combos.add(_combo_key(c, fills))  # every combination used
+        example, other = options[0][1], options[1][1]  # the example is f0
+        asked = {example: 9, other: 1}
+        b.ask_count = lambda text: asked[text]
+        sc = Script(1, "t", cur.target_lang, cur.known_lang)
+        ex = b.recall(sc, c, "meaning")
+        self.assertEqual(ex.label, f"meaning: {other}", "not the example again")
+
     def test_combos_available_counts_the_fillings_that_can_be_said(self):
         from audiolesson.exercises import Builder
         from audiolesson.learner import LearnerState

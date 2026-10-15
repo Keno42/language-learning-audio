@@ -10,6 +10,7 @@ from __future__ import annotations
 import random
 import re
 from collections import Counter
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from .content import Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample, split_note_span
@@ -144,6 +145,7 @@ class Builder:
     produced: Counter = field(default_factory=Counter)  # how often the learner was asked for each line this lesson: the echo only while it teaches
     recent_answers: list[str] = field(default_factory=list)  # the last two answers said (normalised): a generated sentence is not the one just asked (#190)
     in_lesson: set[str] = field(default_factory=set)  # items introduced this lesson: usable as parts
+    ask_count: Callable[[str], int] | None = None  # how often a sentence was asked this lesson (#336): a pattern with every combination used asks the filling asked fewest times
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
     _situation_texts: dict[str, int] = field(default_factory=dict)  # times each authored situation was narrated in full
     _recent_situations: list = field(default_factory=list)  # the last situations narrated, newest last: the same one is not narrated again right after (#273)
@@ -1356,9 +1358,11 @@ class Builder:
                     if not {_norm_utterance(self.cur.resolve_slots(construction, c, g, f)[0]) for g in "fm"} & set(self.recent_answers)
                 ]
                 picks = fresh or picks
-            if len(picks) > 1 and self.said:  # when every combination was used, the one said fewest times (#192)
+            if len(picks) > 1 and (self.said or self.ask_count is not None):  # when every combination was used, the one said fewest times (#192)
                 def times(pick: tuple[str | None, dict[str, Item]]) -> int:
-                    return max(self.said.get(_norm_utterance(self.cur.resolve_slots(construction, pick[1], g, pick[0])[0]), 0) for g in "fm")
+                    sentences = {self.cur.resolve_slots(construction, pick[1], g, pick[0])[0] for g in "fm"}
+                    # #336: the lesson's count of asks of the sentence, by every path (a pattern's own recall does not add to ``said``, a phrase's does)
+                    return max(max(self.said.get(_norm_utterance(t), 0), self.ask_count(t) if self.ask_count is not None else 0) for t in sentences)
 
                 counts = [times(p) for p in picks]
                 picks = [p for p, n in zip(picks, counts) if n == min(counts)]
@@ -1398,14 +1402,23 @@ class Builder:
             ranked.append((-(desired[f] - actual) + self.rng.random() * 0.01, f))
         return [f for _, f in sorted(ranked, key=lambda t: t[0])] or [None]
 
-    def filling_sentences(self, c: Item) -> list[str]:
-        """The sentences of ``c`` the learner can be asked now: every filling of its slots by the available fillers (#336)."""
+    def filling_options(self, c: Item) -> list[tuple[dict[str, Item], str, str]]:
+        """Every filling of ``c`` by the available fillers: (fills, sentence, meaning) (#336)."""
         import itertools
         slots = list(c.slots.items())
         pools = [[i for i in self.cur.items_with_tag(tag, c) if self._available(i.id)] for _, tag in slots]
         if not slots or any(not p for p in pools):
             return []
-        return [self.cur.resolve_slots(c, {sl: f for (sl, _), f in zip(slots, combo)})[0] for combo in itertools.islice(itertools.product(*pools), 60)]
+        out = []
+        for combo in itertools.islice(itertools.product(*pools), 60):
+            fills = {sl: f for (sl, _), f in zip(slots, combo)}
+            target, meaning = self.cur.resolve_slots(c, fills)
+            out.append((fills, target, meaning))
+        return out
+
+    def filling_sentences(self, c: Item) -> list[str]:
+        """The sentences of ``c`` the learner can be asked now (#336)."""
+        return [t for _, t, _ in self.filling_options(c)]
 
     def combos_available(self, c: Item) -> int:
         """How many different fillings of ``c`` the learner can be asked now (known fillers, or heard this lesson), for every slot together (#336): with one, a
