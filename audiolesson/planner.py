@@ -575,6 +575,18 @@ class Planner:
             out[item_id] = {"practices": sum(asked.values()), "connections": len(links), "kinds": sorted({k for k, _ in links}), "same_sentence_max": max(asked.values(), default=0), "connection_times_s": at.get(item_id, [])}
         return out
 
+    def caught_seed(self) -> list[str]:
+        """#339: the words a learner file made before ``caught_words`` existed has been asked about. The lessons asked the glossed words of the partner lines of the
+        levels already played, so those are put down as caught, once: «sestu», «kjötsúpa» and «þarftu» do not come a fifth time."""
+        out: set[str] = set()
+        for t in self.cfg.themes:
+            for n in range(min(self.learner.themes_done.get(t.id, 0), len(t.levels))):
+                for turn in t.levels[n].turns:
+                    if turn.who == "partner":
+                        for ln in turn.lines():
+                            out.update(w.lower() for w in (ln.word_glosses or {}))
+        return sorted(out)
+
     def catch_intro_task(self, item: Item, known: set[str], used_lines: set[str]) -> ListeningTask | None:
         """#339: a new one-word item that a partner line of a scene holds as its only unknown word, so that the word can be introduced through the catch
         («Hvað þýðir …?»). The meaning is the item's own (no per-line gloss). None when the repair phrase cannot be said, the word was caught before,
@@ -1897,7 +1909,9 @@ class Planner:
             if (taught := self.filler_taught_today(item)) is not None:
                 # #311 follow-up: the phrase's word was taught today inside this very phrase: it is covered as one pattern sentence, never introduced again as new
                 pattern, fills = taught
-                b.pattern_instance(sc, item, pattern, fills)
+                inside = any(_norm_utterance((b.wholes_taught.get(f.id) or {}).get("answer", "")) == _norm_utterance(item.target) for f in fills.values())
+                if not inside:  # #333: a word introduced inside this very phrase has had the phrase said to it already: covered, not played again as «a sentence from a pattern you know»
+                    b.pattern_instance(sc, item, pattern, fills)
                 credited = [pattern.id, *(f.id for f in fills.values())]
                 self._record(credited, "recombine", credited)
                 self.embedded.append(item.id)
@@ -1982,11 +1996,21 @@ class Planner:
                 mark_delivered_target()
                 return
             catch = None
-            if item.kind == "vocab" and worked_fills is None and len(catch_introduced) < cfg.max_catch_intros and b.intro_is_generic(item) and not hard_sounds(item) and not any(
-                x.id != item.id and set(self._fixed_text_words(item)) < set(self._fixed_text_words(x)) for x in new_queue
-            ):
-                # not a hard-to-say word (#212: its slow, split model belongs to the plain introduction, once) and not a word that a longer new item of the lesson holds («þúsund» in «þúsund krónur»): it is met inside that whole (#262), and the two would each be asked for the other's sake
-                catch = self.catch_intro_task(item, known_now(), catch_lines)
+            if item.kind == "vocab" and worked_fills is None and len(catch_introduced) < cfg.max_catch_intros:
+                # why a new word is not introduced through the catch, for the daily read (#339): where the supply runs out
+                longer = any(x.id != item.id and set(self._fixed_text_words(item)) < set(self._fixed_text_words(x)) for x in new_queue)
+                if not b.intro_is_generic(item):
+                    catch_seen["not the plain introduction"] += 1
+                elif hard_sounds(item):
+                    catch_seen["hard to say (keeps the slow model)"] += 1  # #212: the plain introduction holds the slow, split model, once
+                elif longer:
+                    catch_seen["held by a longer new item"] += 1  # «þúsund» in «þúsund krónur»: met inside that whole (#262)
+                elif not (item.noun or b.homes_of(item)):
+                    catch_seen["not a content word"] += 1  # a conjunction or a particle is not a word a traveller asks about
+                elif (catch := self.catch_intro_task(item, known_now(), catch_lines)) is None:
+                    catch_seen["no line holds it as the only unknown"] += 1
+                else:
+                    catch_seen["introduced"] += 1
             if catch is not None:
                 # #339 (the owner's decision): some new words are introduced through the catch, the form that pins down an unknown word in a line of its scene
                 ex = introduce_by_catch(b, sc, catch, item)
@@ -2049,10 +2073,12 @@ class Planner:
         def remaining_time() -> float:
             return budget - closing_reserve - sc.total_duration
 
-        caught_words: set[str] = set(self.learner.caught_words)  # one catch per unknown word, ever (#339), whichever line it came from
+        caught_seed = [] if self.learner.caught_seeded else self.caught_seed()  # lessons before the log asked these words already: they count as caught (#339)
+        caught_words: set[str] = set(self.learner.caught_words) | set(caught_seed)  # one catch per unknown word, ever (#339), whichever line it came from
         caught_now: list[str] = []  # the words caught in this lesson, second half or introduction (#339)
         catch_introduced: list[str] = []  # the new words introduced through the catch (#339)
         catch_lines: set[str] = set()  # the partner lines used for that: each once a lesson
+        catch_seen: Counter = Counter()  # new vocab items by what happened to the catch for them (#339)
 
         hard_ids = set(self.hard_items())
         hard_calls: Counter = Counter()  # #326: practices of a hard item so far this lesson
@@ -2823,7 +2849,7 @@ class Planner:
             used_listening_tasks.add(key)
             if task.kind == "pick_out":
                 picks_by_pattern[task.pattern] += 1
-                pick_outs_heard.append("|".join(key[1:]))
+                pick_outs_heard.append(key[1])  # the line: for the learner a line is the same line with its other probe (#339 review)
             else:
                 caught_words.add(task.answer.lower())
                 caught_now.append(task.answer.lower())
@@ -2842,7 +2868,7 @@ class Planner:
                         continue
                     for v, ln in enumerate([*turn.lines(), *turn.listen_lines()]):
                         for pi, probe in enumerate(ln.probes):
-                            heard_in = self.learner.listening_log.get("|".join(key_of(ListeningTask(kind="pick_out", source="", scene="", line=ln.say, answer=probe["answer"], meaning="", prompt_key=""))[1:]), 0)
+                            heard_in = self.learner.listening_log.get(_norm_utterance(ln.say), 0)
                             cands.append(((heard_in, 0 if len(ln.probes) > 1 else 1, 0 if rank == 0 and theme_pick else 1, self.rng.random()), t, n, k, v, pi, ln, probe))
             for _, t, n, k, v, pi, ln, probe in sorted(cands, key=lambda c: c[0]):
                 yield partner_pick_out(
@@ -3452,9 +3478,12 @@ class Planner:
             "wholes_taught": dict(self.builder.wholes_taught),  # part → the pattern whose sentence it came in with: usable as a whole for that part only (#262)
             "reviewed_items": reviews_used,
             "open_items": open_today,
+            "caught_seed": caught_seed,  # #339: set once, for a learner file made before the log
             "caught_words": list(dict.fromkeys(caught_now)),  # #339: the words asked about in this lesson (second half and introductions); the learner state keeps them
             "pick_outs_heard": list(dict.fromkeys(pick_outs_heard)),  # #339: the pick-outs heard (a listening log)
             "catch_introductions": list(catch_introduced),  # #339: new words introduced through the catch
+            "catch_candidates": dict(catch_seen),  # #339: the new vocab items the catch was considered for, by outcome
+            "pick_out_pool": len({t.line for t in pick_out_tasks() if t is not None}),  # #339: the distinct lines a pick-out can be made from now
             "caught_before": sum(1 for w in caught_now if w in self.learner.caught_words),  # #339: expected 0
             "pick_outs_recent": sum(1 for k in pick_outs_heard if self.learner.listening_log.get(k, -99) >= self.learner.next_lesson_number() - 3),  # #339: heard in one of the last 3 lessons
             "hard_connections": self._hard_report(sc, hard_log, hard_at),  # #326
@@ -3559,6 +3588,9 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
                 learner.tried[item_id] = sc.lesson_number
     for d in sc.meta.get("dialogues", []):
         learner.dialogues_done[d] = learner.dialogues_done.get(d, 0) + 1
+    if not learner.caught_seeded:
+        learner.caught_words = sorted(set(learner.caught_words) | set(sc.meta.get("caught_seed", [])))
+        learner.caught_seeded = True
     learner.caught_words = sorted(set(learner.caught_words) | set(sc.meta.get("caught_words", [])))  # #339: a word asked about is not a catch word again
     for key in sc.meta.get("pick_outs_heard", []):
         learner.listening_log[key] = sc.lesson_number  # #339: the pick-outs rotate across lessons; a log of what was heard, not practice

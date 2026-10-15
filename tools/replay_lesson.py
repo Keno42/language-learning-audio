@@ -182,6 +182,9 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "new words introduced through the catch / words caught before / pick-outs heard in the last 3 lessons (#339)": (
             f"{len(m.get('catch_introductions', []))} / {m.get('caught_before', 0)} / {m.get('pick_outs_recent', 0)} of {len(m.get('pick_outs_heard', []))}"
         ),
+        "catch: new vocab items by outcome / pick-out lines usable now (#339)": (
+            ", ".join(f"{k} {v}" for k, v in m.get("catch_candidates", {}).items()) or "–"
+        ) + f" / {m.get('pick_out_pool', 0)}",
         "hard items: practised / through connections, fewest (#326)": (
             f"{len(m.get('hard_connections', {}))} / " + str(min((v['connections'] for v in m.get('hard_connections', {}).values() if v['practices'] >= 3), default="–"))
         ),

@@ -105,6 +105,66 @@ class CatchOnceTests(unittest.TestCase):
         self.assertTrue(asked, "the catch was considered for some words")
         self.assertEqual([i for i in asked if hard_sounds(self.cur.by_id[i])], [], "never for a hard-to-say word")
 
+    def test_a_file_made_before_the_log_is_seeded_once_with_the_words_the_played_levels_asked(self):
+        """Review of #344: the lessons before the log had asked «sestu», «kjötsúpa», «þarftu» four times; they must not come a fifth time."""
+        l = LearnerState("is", "en", "A1")
+        for t in self.themes:
+            l.themes_done[t.id] = len(t.levels)
+        l.lessons_completed = 25
+        self.assertFalse(l.caught_seeded)
+        sc = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), self.cfg(), today=TODAY).build()
+        seed = sc.meta["caught_seed"]
+        self.assertTrue({"sestu", "kjötsúpa", "þarftu"} <= set(seed), seed)
+        self.assertFalse(set(seed) & set(sc.meta["caught_words"]), "none of them is caught again in this lesson")
+        apply_to_learner(sc, l, TODAY)
+        self.assertTrue(l.caught_seeded)
+        self.assertTrue({"sestu", "kjötsúpa", "þarftu"} <= set(l.caught_words))
+        again = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), self.cfg(), today=TODAY + timedelta(days=1)).build()
+        self.assertEqual(again.meta["caught_seed"], [], "seeded once")
+
+    def test_the_pick_out_log_keys_on_the_line_not_on_the_probe(self):
+        l = LearnerState("is", "en", "A1")
+        for t in self.themes:
+            l.themes_done[t.id] = len(t.levels)
+        l.lessons_completed = 25
+        sc = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), self.cfg(), today=TODAY).build()
+        for key in sc.meta["pick_outs_heard"]:
+            self.assertNotIn("|", key)
+        self.assertGreaterEqual(sc.meta["pick_out_pool"], len(sc.meta["pick_outs_heard"]))
+
+    def test_a_conjunction_is_not_introduced_through_the_catch_and_a_told_word_is_lower_case(self):
+        from audiolesson.exercises import Builder
+        from audiolesson.listening_tasks import ListeningTask, introduce_by_catch
+        from audiolesson.script import Script
+
+        l = LearnerState("is", "en", "A1")
+        for t in self.themes:
+            l.themes_done[t.id] = 1
+        b = Builder(self.cur, Prompts.load("en"), Timing(level="A1"), l)
+        task = ListeningTask("catch_unknown", "x", "A café.", "Og þú talar íslensku?", "Og", "and", "catch_unknown_context", repair="Hvað þýðir og?", cue="Something you speak Icelandic?")
+        sc = Script(1, "t", "is", "en")
+        ex = introduce_by_catch(b, sc, task, self.cur.by_id["og"])
+        self.assertEqual(ex.label, "new (catch): og")
+        told = [g.text for g in sc.segments if g.type == "speak" and g.role == "listening_word"]
+        self.assertEqual(told, ["og"])
+        # the gate: «og» is neither a noun nor the filler of a pattern's slot
+        p = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), self.cfg(), today=TODAY)
+        self.assertFalse(self.cur.by_id["og"].noun or p.builder.homes_of(self.cur.by_id["og"]))
+        self.assertTrue(self.cur.by_id["kaffi"].noun or p.builder.homes_of(self.cur.by_id["kaffi"]))
+
+    def test_the_daily_read_says_where_the_supply_of_catch_introductions_runs_out(self):
+        l = LearnerState("is", "en", "A1")
+        day = TODAY
+        outcomes: set[str] = set()
+        for n in range(1, 21):
+            sc = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), self.cfg(), today=day).build()
+            outcomes |= set(sc.meta["catch_candidates"])
+            apply_to_learner(sc, l, day)
+            l.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
+            day += timedelta(days=1)
+        self.assertIn("no line holds it as the only unknown", outcomes)
+        self.assertTrue(outcomes <= {"not the plain introduction", "hard to say (keeps the slow model)", "held by a longer new item", "not a content word", "no line holds it as the only unknown", "introduced"}, outcomes)
+
 
 if __name__ == "__main__":
     unittest.main()

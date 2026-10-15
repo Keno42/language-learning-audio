@@ -213,7 +213,7 @@ def catch_unknown(
 def _build(b, sc: Script, task: ListeningTask, introduces: str = "") -> None:
     """``introduces`` (#339): the id of a new item this catch introduces; the exercise is then its introduction (kind ``intro``), so the planner records it like one."""
     if introduces:
-        ex = sc.new_exercise("intro", "intro", [introduces], f"new (catch): {task.answer}")
+        ex = sc.new_exercise("intro", "intro", [introduces], f"new (catch): {word_as_asked(task.line, task.answer)}")
     else:
         ex = sc.new_exercise(task.kind, ("multi" if task.pieces > 1 else "single") if task.kind == "pick_out" else None, list(task.item_ids), task.source)
     if task.scene:
@@ -235,7 +235,7 @@ def _build(b, sc: Script, task: ListeningTask, introduces: str = "") -> None:
     if task.kind == "catch_unknown":
         # #279: the partner answered the question; the narrator reports it, the line is then heard again with the meaning known
         b._narr(sc, ex, b.prompts.get("catch_unknown_told", who=who[:1].upper() + who[1:]))
-        b._speak(sc, ex, task.answer, speaker=task.speaker, role="listening_word")
+        b._speak(sc, ex, word_as_asked(task.line, task.answer), speaker=task.speaker, role="listening_word")  # as the learner asked it: «og», not «Og» (the line's capital)
         b._narr(sc, ex, b.prompts.get("catch_unknown_means", meaning=b._m(task.meaning)))
         b._beat(sc, ex)
         b._frame(sc, ex, b.prompts.get("catch_unknown_again"))
