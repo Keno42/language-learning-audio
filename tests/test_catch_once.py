@@ -82,6 +82,25 @@ class CatchOnceTests(unittest.TestCase):
         l.caught_words = ["þúsund"]
         self.assertIsNone(p.catch_intro_task(self.cur.by_id["thusund"], {"tvö", "krónur", "takk"}, set()), "caught once, never again")
 
+    def test_with_no_authored_line_the_sentence_its_introduction_would_teach_is_the_partners_line(self):
+        """The owner (2026-10-15): about one new word in ten is introduced through the catch, the introduction inside its whole included. No authored partner
+        line holds «ljósið» as its only unknown word; the sentence its introduction would have taught it in, «Ljósið virkar ekki.», does once the pattern is known."""
+        l = LearnerState("is", "en", "A1")
+        for i in ("hvad_thydir_thetta", "virkar_ekki", "sturtan"):
+            l.items[i] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=7, last_outcome="recalled", due=(TODAY + timedelta(days=5)).isoformat())
+        p = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), self.cfg(), today=TODAY)
+        self.assertTrue(p.builder.intro_catchable(self.cur.by_id["ljosid"]), "a word with a home sentence may be caught")
+        task = p.catch_intro_task(self.cur.by_id["ljosid"], {"virkar", "ekki", "sturtan"}, set())
+        self.assertIsNotNone(task)
+        self.assertEqual((task.line, task.answer.lower(), task.cue), ("Ljósið virkar ekki.", "ljósið", "something doesn't work."))
+        self.assertTrue(task.source.startswith("home:virkar_ekki"))
+
+    def test_about_one_new_item_in_ten_is_introduced_through_the_catch(self):
+        self.assertEqual(PlanConfig(minutes=30, new_target=10).catch_intros(), 1)
+        self.assertEqual(PlanConfig(minutes=30, new_items=8).catch_intros(), 1)
+        self.assertEqual(PlanConfig(minutes=30, new_target=20).catch_intros(), 2)
+        self.assertEqual(PlanConfig(minutes=15, new_items=3).catch_intros(), 0)
+
     def test_a_hard_to_say_word_keeps_its_plain_introduction_with_the_slow_split_model(self):
         """Review of #344: the slow, split model (#212) lives in the plain introduction; a catch must not take it from «eldfjall» and the like."""
         from unittest import mock
@@ -188,7 +207,7 @@ class CatchOnceTests(unittest.TestCase):
             l.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
             day += timedelta(days=1)
         self.assertIn("no line holds it as the only unknown", outcomes)
-        self.assertTrue(outcomes <= {"not the plain introduction", "hard to say (keeps the slow model)", "held by a longer new item", "not a content word", "no line holds it as the only unknown", "introduced"}, outcomes)
+        self.assertTrue(outcomes <= {"a form of a word met", "hard to say (keeps the slow model)", "held by a longer new item", "not a content word", "no line holds it as the only unknown", "introduced"}, outcomes)
 
     def test_a_word_is_not_caught_twice_in_one_lesson(self):
         from audiolesson.listening_tasks import REPAIR_ITEM

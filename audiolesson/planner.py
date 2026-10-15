@@ -174,7 +174,11 @@ class PlanConfig:
     max_open_items: int = 5
     hard_scene_lines: int = 3  # #326: at most this many theme lines (a short exchange around one of the learner's lines) for hard items in a lesson
     construction_asks_per_filling: int = 4  # #336: a pattern is asked at most this many times a lesson (asked or generated) per filling the learner can say it with (one filling: three times, not fifteen)
-    max_catch_intros: int = 2  # #339: new words a lesson introduces through the catch («Hvað þýðir …?») where a partner line of their scene holds only them as unknown
+    catch_intro_share: float = 0.1  # #339 (the owner, 2026-10-15): about one new item in ten is a word introduced through the catch («Hvað þýðir …?») where a partner line of its scene holds only it as unknown
+
+    def catch_intros(self) -> int:
+        """The new words a lesson introduces through the catch: ``catch_intro_share`` of the new items it plans (its target, else its count)."""
+        return round(self.catch_intro_share * (self.new_target if self.new_target is not None else self.resolved_new_items()))
     slow_models_per_lesson: int = 2  # #337: the slow models of reported-hard words a lesson plays
     slow_model_from: float = 0.1  # ... from this share of the lesson on (after the opening and the first introduction)
     hard_connection_turns: int = 3  # #326: an item reported hard goes through its connections (scene, other pattern, same-slot words) at its 2nd to this many practices of a lesson
@@ -652,6 +656,12 @@ class Planner:
                 for kind, say, said_meaning in (("o", turn.opener, turn.opener_meaning), ("p", turn.partner, turn.partner_meaning)):
                     if say and said_meaning and say not in used_lines:
                         consider(say, said_meaning, f"dialogue:{d.id}:{k}:{kind}", d.setting, d.partner_speaker, d.topics)
+        if not found and (home := self.builder.whole_home(item)) is not None:
+            # #339 (the owner, 2026-10-15: about one new word in ten): with no authored line, the sentence its introduction would have taught it in, said by
+            # the partner («Ég ætla að fá súpu.»): the frame is one the learner has, so the word is the line's only unknown
+            frame, fills = home
+            say, said_meaning = self.cur.resolve_slots(frame, fills)
+            consider(say, said_meaning, f"home:{frame.id}", "", "native_b", list(item.topics))
         if not found:
             return None
         return next((task for in_scene, task in found if in_scene), found[0][1])
@@ -2057,11 +2067,11 @@ class Planner:
                 mark_delivered_target()
                 return
             catch = None
-            if item.kind == "vocab" and worked_fills is None and len(catch_introduced) < cfg.max_catch_intros:
+            if item.kind == "vocab" and worked_fills is None and len(catch_introduced) < cfg.catch_intros():
                 # why a new word is not introduced through the catch, for the daily read (#339): where the supply runs out
                 longer = any(x.id != item.id and set(self._fixed_text_words(item)) < set(self._fixed_text_words(x)) for x in new_queue)
-                if not b.intro_is_generic(item):
-                    catch_seen["not the plain introduction"] += 1
+                if not b.intro_catchable(item):
+                    catch_seen["a form of a word met"] += 1
                 elif hard_sounds(item) or hard_words_of(item):
                     catch_seen["hard to say (keeps the slow model)"] += 1  # #212: the plain introduction holds the slow, split model, once
                 elif longer:

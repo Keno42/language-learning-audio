@@ -573,17 +573,14 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def intro_is_generic(self, item: Item) -> bool:
-        """Whether ``intro`` would fall through to the plain «A new word» introduction (no pattern, variant, home sentence or modelled whole takes it): the
-        one introduction a catch (#339) may replace."""
+    def intro_catchable(self, item: Item) -> bool:
+        """Whether a catch (#339) may take the place of ``intro`` for ``item``: the plain «A new word» introduction and, by the owner's decision
+        (2026-10-15), the one inside the word's whole («Ég elska súpu. (súpu)»); not a construction or a transform, nor a form of a word already met,
+        which is introduced as that form."""
         if item.kind in ("construction", "transform"):
             return False
         base = self.cur.by_id.get(item.variant_of) if item.variant_of else None
-        if base is not None and not item.target_m and (self.learner.has_met(base.id) or base.id in self.in_lesson):
-            return False
-        if self.whole_home(item) is not None or self.phrase_home(item) is not None:
-            return False
-        return not (item.id in self.modeled_wholes and item.id not in self.wholes_taught)
+        return not (base is not None and not item.target_m and (self.learner.has_met(base.id) or base.id in self.in_lesson))
 
     def intro(self, sc: Script, item: Item, worked_fills: dict[str, Item] | None = None) -> Exercise:
         """``worked_fills`` (constructions only): the fill the worked example must use for a slot, a part that is new today and is taken out of the example next (#262)."""
