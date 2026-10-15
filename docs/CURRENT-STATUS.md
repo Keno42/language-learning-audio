@@ -1,11 +1,10 @@
 # Current status (the short brief)
 
-The status is kept in **one** place, `docs/LEARNING-DESIGN.md` (LD) §8: the "Now" list, the table of built changes with the
-number of feedbacks each has had without a remark, and the open issues. This brief does not repeat the table or list changes
-and PRs; read LD §8 for what is built and what is being evaluated, and GitHub for open PRs. §7 has the gaps, §4 the
+The status is kept in `docs/LEARNING-DESIGN.md` (LD) §8: the "Now" list, the table of built changes with the number of
+feedbacks each has had without a remark, and the open issues. This brief copies only "Now" and the paragraph after it,
+verbatim (`tests/test_docs.py` checks it), and points to the rest; GitHub has the open PRs. §7 has the gaps, §4 the
 hypotheses with their status, §5 the evidence lesson by lesson. The learning policy is in `docs/CURRENT-POLICY.md`.
-
-If the two differ, LD is the record and this file is wrong; `tests/test_docs.py` checks that the copy is verbatim.
+If the two differ, LD is the record and this file is wrong.
 
 ## Now (copied from LD §8, verbatim)
 

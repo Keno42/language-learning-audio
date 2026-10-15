@@ -1,8 +1,8 @@
-# Evidence, lessons 1–23 (archive of LEARNING-DESIGN §5.1–§5.19)
+# Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-Moved here unchanged from `docs/LEARNING-DESIGN.md` §5 on 2026-10-15. LEARNING-DESIGN keeps the subsections of the
-last three lessons; an older one moves here when a new one is written, under its own number, so a reference such as
-"§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
+This file holds §5.1–§5.19 (lessons 1–23), moved from `docs/LEARNING-DESIGN.md` §5 on 2026-10-15 with only their
+references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
+own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
 
 ### 5.1 Owner reviews of real lessons

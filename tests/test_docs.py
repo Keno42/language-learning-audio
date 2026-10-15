@@ -15,10 +15,11 @@ EVIDENCE = DOCS / "history" / "evidence.md"
 
 
 def now_block(text: str) -> str:
-    """The "Now" list, from its bold heading to the paragraph that follows the list."""
-    m = re.search(r"^\*\*Now \(updated .*?(?=^\*\*Refactoring alongside)", text, re.M | re.S)
+    """The "Now" list, from its bold heading to the end of the "Refactoring alongside" paragraph after it: what the status
+    brief copies."""
+    m = re.search(r"^\*\*Now \(updated .*?^\*\*Refactoring alongside.*?(?=\n\n)", text, re.M | re.S)
     if m is None:
-        raise AssertionError('no "**Now (updated …" block followed by "**Refactoring alongside"')
+        raise AssertionError('no "**Now (updated …" block followed by a "**Refactoring alongside" paragraph')
     return m.group(0)
 
 
@@ -54,13 +55,18 @@ class DocsTests(unittest.TestCase):
                 self.assertIn(ref, headings, f"{path.name}: §{ref} names no subsection")
 
     def test_every_named_section_reference_resolves(self):
-        """§9 "Repetition" must name something §9 holds (a bold heading or a phrase in it)."""
+        """§9 "Repetition" must name a label §9 holds: a bold label (``**Repetition``) or a heading that starts with the name.
+        Matching anywhere in the text would let a reference inside its own section match itself."""
         secs = sections(self.ld)
         for path in referring_files():
             for num, name in set(re.findall(r'§(\d+) [«"]([^"»]+)["»]', path.read_text(encoding="utf-8"))):
-                if num in secs:
-                    name, text = " ".join(name.lower().split()), " ".join(secs[num].lower().split())
-                    self.assertIn(name, text, f'{path.name}: §{num} "{name}" is not in §{num}')
+                if num not in secs:
+                    continue
+                name = " ".join(name.lower().split())
+                bold = re.findall(r"\*\*(.+?)\*\*", secs[num], re.S)
+                headings = re.findall(r"^#{2,4} (?:\d+(?:\.\d+)*\.? )?(.+)$", secs[num], re.M)
+                labels = [" ".join(lab.lower().split()) for lab in bold + headings]
+                self.assertTrue(any(lab.startswith(name) for lab in labels), f'{path.name}: §{num} "{name}" names no label in §{num}')
 
 
 if __name__ == "__main__":

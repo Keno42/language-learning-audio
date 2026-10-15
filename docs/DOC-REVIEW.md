@@ -11,13 +11,14 @@ settles a disagreement. Run it after every five lessons or so, or when the owner
 
    ```sh
    for f in CLAUDE.md docs/CURRENT-POLICY.md docs/CURRENT-STATUS.md docs/LEARNING-DESIGN.md README.md \
-            docs/DESIGN.md docs/CURRICULUM.md docs/TRAVEL-CANDO.md docs/LEVERS.md; do
+            docs/DESIGN.md docs/CURRICULUM.md docs/TRAVEL-CANDO.md docs/LEVERS.md docs/history/evidence.md; do
      printf '\n\n===== %s =====\n\n' "$f"; cat "$f"
    done > doc-review-bundle.md
    ```
 
-   That is about 260,000 characters. If the model's context is smaller, run two passes: the first five files, then
-   the last four with the first pass's report.
+   That is about 310,000 characters. The last file holds the older §5 subsections that the current sections cite
+   («§5.14»); it is a dated record, read only to check what a citation says. If the model's context is smaller, run
+   two passes: the first five files with the last, then the other four with the first pass's report.
 2. Optional, and worth it: add the list of open and recently closed issues, with their titles, so the reviewer can
    check what the documents say is open or built. Claude Code can produce it on request.
 3. Give the model the prompt below and the bundle. Paste the report into an issue, or give it to Claude Code. Each

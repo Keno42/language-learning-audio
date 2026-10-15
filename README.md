@@ -140,9 +140,9 @@ around 80–85%.
   bother to file one. `--manual` switches back.
 - Spare time is never filled with a close variant of a known word (another case or gender), and a form comes in
   only when a scene, a frame or a contrast asks for it (#218). Once the lesson's new material is taught, the second
-  half rotates (#248): a played scene heard again, *pick out the information* (a sentence heard, then "How much is
-  it?"), *catch the unknown word* (a partner line with one word beyond the learner, said back with «Hvað þýðir
-  þetta?»), and one of today's expressions. What the morning's review asked is not asked again (#238).
+  half rotates (#248): a played scene heard again, *pick out the information* (what to listen for is named first,
+  then the line: «You want to know how much it costs. Listen.»), *catch the unknown word* (a partner line with one word
+  beyond the learner, asked about with «Hvað þýðir {word}?»), and one of today's expressions. What the morning's review asked is not asked again (#238).
 - `--order new-first` (a user option, outside the design) introduces every new item first, back to back, then turns to known material; `spread` (default) is the planner as described here.
 - `--new N` overrides one lesson; `--pace N` resets the ongoing pace.
 
@@ -333,7 +333,7 @@ docs/           CURRENT-POLICY.md / CURRENT-STATUS.md (the short briefs), LEARNI
                 CURRICULUM.md (format), TRAVEL-CANDO.md (scenarios, scenario cards, reading deck, trip
                 profile), LEVERS.md (planner settings), DOC-REVIEW.md (the brief for the independent
                 review of the documents), AUDIT-29.md / AUDIT-48.md (audit tables behind #29 and #48),
-                history/ (session log, evidence of lessons 1–23)
+                history/ (session log, older lessons' evidence)
 ```
 
 ## Development

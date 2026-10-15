@@ -76,7 +76,8 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   **A framing line is followed by a beat (#241).** A line that introduces an example or a scene (`embed_*`, `instance_sentence`,
   `variant_*`, `construction_slot`, `also`, `form_model_*`, `milestone_intro` / `aside`, a turn's `scene` / `partner_scene`,
   `listening_line`, `dialogue_replay`) is said by `Builder._frame` (a narration with role `frame`, then a beat). A cue for the
-  learner's own action («Repeat.», «Slowly.», the reply cue, cloze and hint cues) joins its line at once; Icelandic inside a note's
+  learner's own action («Repeat.», «Slowly.», the reply cue, cloze and hint cues) is followed by its line after the
+  switch gap only, not a beat (#301); Icelandic inside a note's
   prose stays inline. A turn's opener after the first has a beat before it (the previous turn's partner meaning has just ended). The daily read counts any instructor narration followed straight by speech, whatever its role, except the action cues and a note's prose (0). `bare_cap_lapsed_short_s` in the
   meta says how short the lesson would have ended when the bare cap lapsed.
   **A note's prose is read a sentence at a time (#259).** `Builder._speak_note_text` splits each stretch of prose at «. » «? » «! » «: » followed by a capital letter (and at «。» «！» «？» in
@@ -221,8 +222,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   first (variety, not replacement). When plain sentences run out the supply may run short rather
   than the newest form crowd them out. Japanese glosses of a form that depend on the fill's word
   class use a per-fill `meaning_forms_ja` (`neg`, `tai`, `tai_neg`).
-- **A core construction gets a light review every lesson (#171).** `Item.refresh` sentences of a known,
-  not open construction are scheduled across the lesson (`refresh_timeline`, constructions interleaved),
+- **A core construction gets a light review when the lesson's scene uses it (#171, #238).** `Item.refresh` sentences of a
+  known, not open construction of the scene (`scene_constructions`; any, when the lesson has no theme), not asked in the
+  morning's review, are scheduled across the lesson (`refresh_timeline`, constructions interleaved),
   each a recombination with fillers not heard this lesson (`_recombine`, `met_fills`, forms once taught);
   one whose time has come plays when the drill streak allows, an idle lesson and a streak with no relief
   pull them early (`play_refresh`), and a construction with no unheard sentence left is dropped for the
