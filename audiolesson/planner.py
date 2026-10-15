@@ -21,7 +21,7 @@ from itertools import groupby
 
 from .content import Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance, cue_is_answer
-from .sounds import hard_sounds
+from .sounds import hard_sounds, hard_words_of
 from .learner import REPORTED_HARD_DAYS, LearnerState
 from .review_wholes import whole_for
 from .listening_tasks import REPAIR_ITEM, ListeningTask, SecondHalfRotation, append_task, catch_unknown, introduce_by_catch, key_of, partner_pick_out
@@ -174,6 +174,8 @@ class PlanConfig:
     max_open_items: int = 5
     hard_scene_lines: int = 3  # #326: at most this many theme lines (a short exchange around one of the learner's lines) for hard items in a lesson
     max_catch_intros: int = 2  # #339: new words a lesson introduces through the catch («Hvað þýðir …?») where a partner line of their scene holds only them as unknown
+    slow_models_per_lesson: int = 2  # #337: the slow models of reported-hard words a lesson plays
+    slow_model_from: float = 0.1  # ... from this share of the lesson on (after the opening and the first introduction)
     hard_connection_turns: int = 3  # #326: an item reported hard goes through its connections (scene, other pattern, same-slot words) at its 2nd to this many practices of a lesson
     open_item_times: list[float] = field(default_factory=lambda: [0.04, 0.27, 0.48, 0.68, 0.88])
     # the trip ordering (#132): item ids introduced before the rest, in this order (their
@@ -636,6 +638,18 @@ class Planner:
         if not found:
             return None
         return next((task for in_scene, task in found if in_scene), found[0][1])
+
+    def slow_owed_items(self) -> list[str]:
+        """Items the learner reported hard to say (#337) in the last ``REPORTED_HARD_DAYS`` days that hold a hard word to model, oldest report first. Kept apart
+        from ``reported_hard``: a confirmed recall settles the connections of #326, not the pronunciation, so only the model's being played clears it."""
+        since = (self.today - timedelta(days=REPORTED_HARD_DAYS)).isoformat()
+        owed = [(st.slow_owed, i) for i, st in self.learner.items.items() if st.slow_owed and st.slow_owed >= since and i in self.cur.by_id]
+        return [i for _, i in sorted(owed) if hard_words_of(self.cur.by_id[i], reported=True)]
+
+    def reported_hard_items(self) -> list[str]:
+        """The items the learner reported hard in the last ``REPORTED_HARD_DAYS`` days and has not recalled since (#326, #337)."""
+        since = (self.today - timedelta(days=REPORTED_HARD_DAYS)).isoformat()
+        return [i for i, st in self.learner.items.items() if st.reported_hard and st.reported_hard >= since and i in self.cur.by_id]
 
     def hard_items(self) -> list[str]:
         """The items reported hard (#326): open (failed at the last review, #162) and those that came out with hesitation at their last
@@ -1920,6 +1934,19 @@ class Planner:
                 inside = any(_norm_utterance((b.wholes_taught.get(f.id) or {}).get("answer", "")) == _norm_utterance(item.target) for f in fills.values())
                 if not inside:  # #333: a word introduced inside this very phrase has had the phrase said to it already: covered, not played again as «a sentence from a pattern you know»
                     b.pattern_instance(sc, item, pattern, fills)
+                else:
+                    # ... but the phrase still needs its next-day question, or it stays embedded for ever (never selected again, never reported, so never known): the question
+                    # of the word's introduction asks the sentence (``Script.review_questions``), so it covers the phrase too
+                    intro_ex = next(
+                        (e for e in reversed(sc.exercises) if e.kind == "intro" and any(f.id in e.item_ids and _norm_utterance((b.wholes_taught.get(f.id) or {}).get("answer", "")) == _norm_utterance(item.target) for f in fills.values())),
+                        None,
+                    )
+                    if intro_ex is None:
+                        # the word was not the first of the parts taken out of one line together (#280): the exercise names only the first, so nothing would carry the
+                        # phrase's question. Played once as before #333, it gets its own
+                        b.pattern_instance(sc, item, pattern, fills)
+                    elif item.id not in intro_ex.item_ids:
+                        intro_ex.item_ids.append(item.id)
                 credited = [pattern.id, *(f.id for f in fills.values())]
                 self._record(credited, "recombine", credited)
                 self.embedded.append(item.id)
@@ -2009,7 +2036,7 @@ class Planner:
                 longer = any(x.id != item.id and set(self._fixed_text_words(item)) < set(self._fixed_text_words(x)) for x in new_queue)
                 if not b.intro_is_generic(item):
                     catch_seen["not the plain introduction"] += 1
-                elif hard_sounds(item):
+                elif hard_sounds(item) or hard_words_of(item):
                     catch_seen["hard to say (keeps the slow model)"] += 1  # #212: the plain introduction holds the slow, split model, once
                 elif longer:
                     catch_seen["held by a longer new item"] += 1  # «þúsund» in «þúsund krónur»: met inside that whole (#262)
@@ -2089,6 +2116,9 @@ class Planner:
         catch_seen: Counter = Counter()  # new vocab items by what happened to the catch for them (#339)
 
         hard_ids = set(self.hard_items())
+        owed_slow = self.slow_owed_items()  # #337: reported hard to say and not yet given the model of the hard word
+        slow_done: set[str] = set()
+        slow_models: list[str] = []  # reported-hard items given the slow model of their hard word in this lesson
         hard_calls: Counter = Counter()  # #326: practices of a hard item so far this lesson
         hard_scene_lines: list[str] = []  # #326: the theme lines played for a hard item this lesson
         hard_at: dict[str, list[float]] = {}  # #326: when each connection practice of a hard item began
@@ -3128,6 +3158,19 @@ class Planner:
                     acted = True
                     break
 
+            # 0h. the slow, split model of a word the learner reported hard to say (#337): owed in the next lesson, whether or not the item is practised in it
+            if (
+                not acted and not in_new_block() and len(slow_models) < cfg.slow_models_per_lesson
+                and sc.total_duration >= cfg.slow_model_from * (budget - closing_reserve) and remaining >= 60
+            ):
+                for owed_id in owed_slow:
+                    if owed_id not in slow_done:
+                        slow_done.add(owed_id)
+                        if b.slow_word_exercise(sc, self.cur.by_id[owed_id]) is not None:
+                            slow_models.append(owed_id)
+                            acted = True
+                            break
+
             # 0g. the lesson's theme exchange, when its time has come (#149 1b-ii)
             if not acted and theme_pick and not in_new_block() and drill_streak < cfg.drill_streak_limit and theme_due():
                 acted = play_theme()
@@ -3457,6 +3500,8 @@ class Planner:
             "repeated_new_sentences": self._repeated_new_sentences(sc, introduced),  # #311: a new phrase asked as the same sentence in more than 3 exercises ({} expected)
             "switch_pauses": switches,  # #301: pauses put where two speech segments touched; "touching_switches" is what still touches (0)
             "touching_switches": sc.touching_switches(),
+            "slow_models_reported": list(slow_models),  # #337: reported-hard items given the slow model of their hard word
+            "phrase_hard_words": {i.id: [w for w, _ in hard_words_of(i)] for i in introduced if i.kind == "phrase" and hard_words_of(i)},  # #337: authored hard words of today's new phrases (modelled at the introduction)
             "hard_words": [i.id for i in introduced if hard_sounds(i)],  # #212: today's new words that got the slow, split model
             "stranded_frames": list(self.stranded_placed),  # #270: frames brought forward for a known noun whose only frame was unmet
             "variant_items": [i.id for i in [*introduced, *(self.cur.by_id[e] for e in self.embedded)] if i.variant_of],  # a form comes with a purpose (#218 b1)
@@ -3579,6 +3624,9 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
     for item_id in sc.meta.get("open_items", []):
         if item_id in learner.items:
             learner.items[item_id].open_practiced = sc.lesson_number
+    for item_id in sc.meta.get("slow_models_reported", []):
+        if item_id in learner.items:
+            learner.items[item_id].slow_owed = ""  # #337: the model was played; a recall never clears it
     for item_id in sc.meta.get("embedded_items", []):
         learner.embedded[item_id] = sc.lesson_number
     if sc.meta.get("forms_modelled") is not None:

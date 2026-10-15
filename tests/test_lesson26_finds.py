@@ -57,16 +57,21 @@ class Lesson26Finds(unittest.TestCase):
         self.assertNotIn("sofa", [i.id for i in self.cur.items_with_tag("inf", c)])
         from audiolesson.exercises import Builder
 
-        l = known("ma_eg_borga_med_korti", "eg_vil", "fara_heim", "sofa", "kaupa_midi" if "kaupa_midi" in self.cur.by_id else "fara_heim")
+        l = known("ma_eg_borga_med_korti", "eg_vil", "fara_heim", "sofa", "kaupa_mida", "ma_eg_inf")
         b = Builder(self.cur, Prompts.load("en"), Timing(level="A1"), l)
+        made = others = 0
         for seed in range(30):
             b.rng.seed(seed)
             gen = b.generate(c, met_fills=True, forms=True)
             if gen is not None:
+                made += 1
                 self.assertNotIn("sofa", gen.item_ids)
             gen = b.generate_with(self.cur.by_id["sofa"], forms=True)
             if gen is not None:
+                others += 1
                 self.assertNotEqual(gen.construction.id, "ma_eg_inf")
+        self.assertGreater(made, 0, "the pattern does make sentences with the other infinitives: the exclusion is exercised, not vacuous")
+        self.assertGreater(others, 0, "and «sofa» is still said in the other patterns that take it")
 
     def test_a_phrase_whose_word_was_taught_inside_it_is_not_played_again_as_a_pattern_sentence(self):
         l = known("get_eg_fengid", "eg_aetla_ad_fa", "kaffi", "te")
@@ -77,7 +82,39 @@ class Lesson26Finds(unittest.TestCase):
         again = [e for e in sc.exercises if e.kind == "embed" and e.label == f"pattern: {target}"]
         self.assertTrue(intro, "the word is introduced inside the phrase")
         self.assertEqual(again, [], "and the phrase is not played again as «a sentence from a pattern you know»")
-        self.assertIn("get_eg_fengid_reikninginn", sc.meta["new_items"], "but it is covered: a new item with its next-day question")
+        self.assertIn("get_eg_fengid_reikninginn", sc.meta["new_items"], "but it is covered: a new item")
+        # ... with its next-day question, which the learner's answer settles (the review of #345: it stayed embedded for ever, and the cafe dialogue waited for it)
+        questions = [q for q in sc.review_questions() if "get_eg_fengid_reikninginn" in q["items"]]
+        self.assertEqual(len(questions), 1)
+        self.assertEqual(questions[0]["answer"], target)
+        from audiolesson.planner import apply_to_learner
+
+        apply_to_learner(sc, l, TODAY)
+        self.assertIn("get_eg_fengid_reikninginn", l.embedded)
+        l.report([], [], TODAY + timedelta(days=1), lesson_number=sc.lesson_number, recalled=["get_eg_fengid_reikninginn"])
+        self.assertNotIn("get_eg_fengid_reikninginn", l.embedded, "the answer settles it")
+        self.assertIn("get_eg_fengid_reikninginn", l.items)
+
+    def test_a_covered_phrase_whose_word_is_not_named_by_its_introduction_is_played_once_and_asked(self):
+        """Review of #348: the word was the 2nd or later of the parts taken out of one line together, so the introduction exercise does not name it."""
+        from unittest import mock
+
+        from audiolesson.exercises import Builder
+
+        real = Builder._intro_in_whole
+
+        def unnamed(self_, sc, item, construction, fills):
+            ex = real(self_, sc, item, construction, fills)
+            ex.item_ids[:] = ["some_other_part"]  # as if the word were a joint part: the exercise lists only the first
+            return ex
+
+        l = known("get_eg_fengid", "eg_aetla_ad_fa", "kaffi", "te")
+        cfg = PlanConfig(minutes=20, new_items=2, max_new_items=2, seed=1, priority=["reikninginn", "get_eg_fengid_reikninginn"])
+        with mock.patch.object(Builder, "_intro_in_whole", unnamed):
+            sc = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+        target = "Get ég fengið reikninginn?"
+        self.assertEqual([e.label for e in sc.exercises if e.kind == "embed" and "get_eg_fengid_reikninginn" in e.item_ids], [f"pattern: {target}"], "played once")
+        self.assertTrue([q for q in sc.review_questions() if "get_eg_fengid_reikninginn" in q["items"]], "and it has its question")
 
 
 if __name__ == "__main__":

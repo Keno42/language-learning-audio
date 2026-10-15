@@ -86,7 +86,7 @@ class CatchOnceTests(unittest.TestCase):
         """Review of #344: the slow, split model (#212) lives in the plain introduction; a catch must not take it from «eldfjall» and the like."""
         from unittest import mock
 
-        from audiolesson.sounds import hard_sounds
+        from audiolesson.sounds import hard_sounds, hard_words_of
 
         asked: list[str] = []
         real = Planner.catch_intro_task
@@ -108,7 +108,7 @@ class CatchOnceTests(unittest.TestCase):
                 day += timedelta(days=1)
         self.assertTrue(asked, "the catch was considered for some words")
         self.assertTrue(all(passed), "review of #344: the caught set of the lesson is passed at every call")
-        self.assertEqual([i for i in asked if hard_sounds(self.cur.by_id[i])], [], "never for a hard-to-say word")
+        self.assertEqual([i for i in asked if hard_sounds(self.cur.by_id[i]) or hard_words_of(self.cur.by_id[i])], [], "never for a hard-to-say word")
 
     def course_to(self, n):
         l, day = LearnerState("is", "en", "A1"), TODAY

@@ -5111,6 +5111,8 @@ class SoonerRequestTests(unittest.TestCase):
         before.due = st.due
         self.assertEqual(st.reported_hard, TODAY.isoformat(), "#326: «I don't remember it» is also a report that it is hard")
         before.reported_hard = st.reported_hard
+        self.assertEqual(st.slow_owed, TODAY.isoformat(), "#337: and the slow model of its hard word is owed")
+        before.slow_owed = st.slow_owed
         self.assertEqual(st, before, "no hesitation, failure, recall, ease, interval or history entry")
         self.assertEqual(st.interval_days, 6.0, "the next success grows it from where it was")
 

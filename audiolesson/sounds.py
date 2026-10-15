@@ -44,3 +44,45 @@ def split_breaks_a_cluster(syllables: list[str]) -> str | None:
         if pair in CLUSTERS:
             return pair
     return None
+
+
+# #337: sounds Icelandic spells unlike English or Japanese, from the learner's remarks (lesson 26). They are NOT introduction rules (``ð`` alone is in a quarter
+# of the vocabulary, as «-ið» was): they pick the hard word of an item the learner has reported hard, where the signal is the report.
+_V = "aáæeéiíoóöuúyý"
+REPORTED_SOUNDS = {
+    "ei": re.compile(r"ei"),
+    "ng": re.compile(rf"ng(?=[{_V}])"),
+    "ð": re.compile(r"ð"),
+    "g": re.compile(rf"(?<=[{_V}])g(?=[{_V}])"),
+}
+_WORDS = re.compile(r"[^\W\d_]+")
+_SLOT = re.compile(r"\{[^{}]*\}")
+
+
+def hard_words_of(item, reported: bool = False) -> list[tuple[str, list[str] | None]]:
+    """The words of ``item`` to model slowly, each with its authored syllables (None: the word slowly, whole) (#337).
+
+    A phrase with ``word_syllables`` names its hard words itself, in the order of the phrase. A one-word vocab item is its own word (its ``syllables``, when
+    authored). With ``reported`` (the learner reported the item hard) an item with none authored takes the one word of two or more syllables with the most of the
+    old and the reported sounds, the longest on a tie. Empty when nothing qualifies.
+    """
+    if item.kind not in ("phrase", "vocab"):
+        return []  # a pattern's target holds slot names ({thing}, {language}) that are not words, and is not said bare
+    if item.kind == "phrase" and item.word_syllables:
+        seen: list[tuple[str, list[str] | None]] = []
+        for w in _WORDS.findall(item.target.lower()):
+            if w in item.word_syllables and all(w != x for x, _ in seen):
+                seen.append((w, list(item.word_syllables[w])))
+        return seen
+    if item.kind == "vocab" and item.word_count == 1 and item.syllables:
+        return [(item.target.lower().strip(".?!"), list(item.syllables))]
+    if not reported:
+        return []
+    best = None
+    for w in _WORDS.findall(_SLOT.sub(" ", item.target).lower()):
+        if len(_VOWELS.findall(w)) < 2:
+            continue
+        hits = sum(1 for rx in (*HARD_SOUNDS.values(), *REPORTED_SOUNDS.values()) if rx.search(w))
+        if hits and (best is None or (hits, len(w)) > best[0]):
+            best = ((hits, len(w)), w)
+    return [(best[1], None)] if best else []
