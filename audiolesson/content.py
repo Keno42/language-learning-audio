@@ -190,6 +190,7 @@ class Item:
     # #280: the phrase is the pattern's own ``negative`` / ``question`` form filled this way («Er þetta hættulegt?» of «Er þetta {adj}?»): it is introduced
     # lightly as that form once the plain sentence is known or taught earlier in the lesson, and costs as a form
     instance_form: str = ""
+    not_instance: bool = False  # #333: the phrase says what a pattern says by coincidence of text, not by meaning («Ertu með regnhlíf?» is not «Ertu með {condition}?» of an illness): `validate` does not ask for a link
     # A construction: fills (item ids) that its generated sentences never take although their tags fit a slot: a named
     # exception to the tags («Áttu leigubíl?» is not said; the tags explain nine cases in ten, #192, §9 "Good enough
     # overall"). Not a tagging scheme: an authored fill (example, situation_fill, instance_fill) is still used.
@@ -632,6 +633,12 @@ def notes_cutting_sentences(cur: Curriculum) -> dict[str, int]:
     return out
 
 
+def _same_case_tag(slot_tag: str, tags: list[str]) -> bool:
+    """Whether ``tags`` holds another tag of the slot tag's case (``acc_thing`` for a slot of ``acc_request``): the prefix before the first «_» (nom, acc, dat, gen)."""
+    case = slot_tag.split("_", 1)[0]
+    return case in ("nom", "acc", "dat", "gen") and any(t.split("_", 1)[0] == case for t in tags)
+
+
 def unlinked_instances(cur: Curriculum) -> list[tuple[str, str, str, str, str]]:
     """#311: phrases that are an instance of a one-slot pattern but not linked as such. A phrase whose target equals the pattern filled with an existing item
     of the slot's tag (and, for a pattern's own negative / question form, in that form) is taught as a unit with its new word in one sentence only; linked
@@ -642,8 +649,8 @@ def unlinked_instances(cur: Curriculum) -> list[tuple[str, str, str, str, str]]:
             continue
         (slot, tag), = c.slots.items()
         for f in cur.items:
-            if f.kind not in ("vocab", "phrase") or tag not in f.tags or f.id in c.exclude_fills:
-                continue
+            if f.kind not in ("vocab", "phrase") or f.id in c.exclude_fills or not (tag in f.tags or _same_case_tag(tag, f.tags)):
+                continue  # #333: also an item that has a tag of the slot's case but not the slot's own («Get ég fengið leigubíl?»: `acc_thing`, the slot asks `acc_request`)
             for form in (None, *c.forms):
                 try:
                     text = cur.resolve_slots(c, {slot: f}, form=form)[0]
@@ -653,7 +660,7 @@ def unlinked_instances(cur: Curriculum) -> list[tuple[str, str, str, str, str]]:
                     made.setdefault(text.strip().casefold(), []).append((c.id, slot, f.id, form or ""))
     out = []
     for it in cur.items:
-        if it.kind != "phrase" or it.instance_of:
+        if it.kind != "phrase" or it.instance_of or it.not_instance:
             continue
         for c_id, slot, f_id, form in made.get(it.target.strip().casefold(), []):
             if f_id != it.id:
