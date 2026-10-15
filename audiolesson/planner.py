@@ -3513,8 +3513,8 @@ class Planner:
                 words = [w.lower() for w in _WORD_RE.findall(item.target)]
                 for e in (e for e in sc.exercises[closing_from:] if e.kind in ("recall", "generative", "connect")):
                     said = [w.lower() for w in _WORD_RE.findall(e.label.split(": ", 1)[-1])]
-                    if words and any(said[k : k + len(words)] == words for k in range(len(said) - len(words) + 1)):
-                        return e
+                    if words and any(said[k : k + len(words)] == words for k in range(len(said) - len(words) + 1)) and not NEGATION & (set(said) - set(words)):
+                        return e  # «Ég skil ekki.» says the opposite of «Ég skil.»: not its recall (as ``containing_items``)
                 return None
 
             for pos, item in enumerate(order):

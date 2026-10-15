@@ -34,5 +34,16 @@ class ClosingOnce(unittest.TestCase):
             day += timedelta(days=1)
 
 
+    def test_a_negated_sentence_is_not_the_recall_of_its_affirmative(self):
+        """Review of #349: «Ég skil ekki.» holds the words of «Ég skil.» but says the opposite; both keep their own closing recall."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        sc = Planner(cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, priority=["eg_skil", "eg_skil_ekki"]), today=date(2026, 3, 1)).build()
+        self.assertLessEqual({"eg_skil", "eg_skil_ekki"}, set(sc.meta["new_items"]))
+        start = next(i for i, e in enumerate(sc.exercises) if e.kind == "closing")
+        asked = {e.label.split(": ", 1)[-1]: e.item_ids for e in sc.exercises[start + 1 :] if e.kind == "recall"}
+        self.assertIn("Ég skil.", asked)
+        self.assertNotIn("eg_skil", asked.get("Ég skil ekki.", []), "the negative answer is not credited to the affirmative phrase")
+
+
 if __name__ == "__main__":
     unittest.main()
