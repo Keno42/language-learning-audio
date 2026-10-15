@@ -226,6 +226,8 @@ def _build(b, sc: Script, task: ListeningTask) -> None:
     expected = task.repair or task.answer
     b._pause(sc, ex, b.timing.answer_pause(expected, b.tl, generative=True), "answer", floor=b.timing.answer_floor())
     voice = _other_voice(task.speaker) if task.repair else task.speaker
+    if task.kind == "pick_out":
+        b._narr(sc, ex, b.prompts.get("pick_out_answer"))  # #335: the model answer is announced, so it is not heard as the line going on
     b._answer(sc, ex, expected, speaker=voice)
     b._beat(sc, ex)
     if task.kind == "catch_unknown":
@@ -238,6 +240,7 @@ def _build(b, sc: Script, task: ListeningTask) -> None:
     else:
         b._narr(sc, ex, b._m(task.meaning))
         b._beat(sc, ex)
+        b._frame(sc, ex, b.prompts.get("pick_out_again"))  # #335: the replay is announced
     b._speak(sc, ex, task.line, speaker=task.speaker, role="listening_replay")
     b._gap(sc, ex)
 
