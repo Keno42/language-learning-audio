@@ -2084,7 +2084,10 @@ class Planner:
                     catch_seen["introduced"] += 1
             if catch is not None:
                 # #339 (the owner's decision): some new words are introduced through the catch, the form that pins down an unknown word in a line of its scene
+                whole = b.intro_whole(item)  # the sentence the replaced introduction would have taught: kept for the word's practice and next-day question
                 ex = introduce_by_catch(b, sc, catch, item)
+                if whole is not None:
+                    b.wholes_taught[item.id] = whole
                 catch_lines.add(catch.line)
                 catch_introduced.append(item.id)
                 caught_now.append(item.target.lower())

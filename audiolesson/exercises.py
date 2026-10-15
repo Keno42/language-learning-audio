@@ -582,6 +582,20 @@ class Builder:
         base = self.cur.by_id.get(item.variant_of) if item.variant_of else None
         return not (base is not None and not item.target_m and (self.learner.has_met(base.id) or base.id in self.in_lesson))
 
+    def intro_whole(self, item: Item) -> dict | None:
+        """The sentence ``intro`` would teach ``item`` in, as ``wholes_taught`` keeps it (``{through, answer, meaning}``): its home sentence (``whole_home``),
+        else the phrase of this lesson that holds it, else a modelled whole. A catch that takes the place of that introduction (#339) keeps it, so the
+        word's later practice and its next-day question still ask the sentence, not the bare word (review of #350: «Hvað kostar salat?»). None for a plain
+        introduction."""
+        if (home := self.whole_home(item)) is not None:
+            construction, fills = home
+            return {"through": construction.id, "answer": self._filled(construction, fills)[1], "meaning": self.cur.resolve_slots(construction, fills)[1]}
+        if (phrase := self.phrase_home(item)) is not None:
+            return {k: v for k, v in self.whole_of(phrase).items() if k in ("through", "answer", "meaning")}
+        if item.id in self.modeled_wholes and item.id not in self.wholes_taught:
+            return {k: self.modeled_wholes[item.id][k] for k in ("through", "answer", "meaning")}
+        return None
+
     def intro(self, sc: Script, item: Item, worked_fills: dict[str, Item] | None = None) -> Exercise:
         """``worked_fills`` (constructions only): the fill the worked example must use for a slot, a part that is new today and is taken out of the example next (#262)."""
         if item.kind == "construction":

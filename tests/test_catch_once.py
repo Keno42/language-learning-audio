@@ -95,6 +95,20 @@ class CatchOnceTests(unittest.TestCase):
         self.assertEqual((task.line, task.answer.lower(), task.cue), ("Ljósið virkar ekki.", "ljósið", "something doesn't work."))
         self.assertTrue(task.source.startswith("home:virkar_ekki"))
 
+    def test_a_catch_in_place_of_the_introduction_inside_a_whole_keeps_that_sentence(self):
+        """Review of #350: the learner knows «Hvað kostar þetta?», so «salat» is caught in «Hvað kostar salat?», the sentence its introduction would have
+        taught it in. That sentence stays the word's (``wholes_taught``): its practice and its next-day question ask it, not the bare «salat»."""
+        l = LearnerState("is", "en", "A1")
+        for i in ("hvad_thydir_thetta", "hvad_kostar_thetta"):
+            l.items[i] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=7, last_outcome="recalled", due=(TODAY + timedelta(days=5)).isoformat())
+        p = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_target=10, priority=["salat"]), today=TODAY)
+        sc = p.build()
+        self.assertEqual(sc.meta["catch_introductions"], ["salat"])
+        self.assertEqual(p.builder.wholes_taught.get("salat", {}).get("answer"), "Hvað kostar salat?")
+        recalls = [e.label.split(": ", 1)[-1] for e in sc.exercises if "salat" in e.item_ids and e.kind == "recall"]
+        self.assertTrue(recalls and "salat" not in recalls, recalls)
+        self.assertEqual([q["answer"] for q in sc.review_questions() if "salat" in q["items"]], ["Hvað kostar salat?"])
+
     def test_about_one_new_item_in_ten_is_introduced_through_the_catch(self):
         self.assertEqual(PlanConfig(minutes=30, new_target=10).catch_intros(), 1)
         self.assertEqual(PlanConfig(minutes=30, new_items=8).catch_intros(), 1)
