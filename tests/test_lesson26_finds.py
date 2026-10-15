@@ -95,6 +95,27 @@ class Lesson26Finds(unittest.TestCase):
         self.assertNotIn("get_eg_fengid_reikninginn", l.embedded, "the answer settles it")
         self.assertIn("get_eg_fengid_reikninginn", l.items)
 
+    def test_a_covered_phrase_whose_word_is_not_named_by_its_introduction_is_played_once_and_asked(self):
+        """Review of #348: the word was the 2nd or later of the parts taken out of one line together, so the introduction exercise does not name it."""
+        from unittest import mock
+
+        from audiolesson.exercises import Builder
+
+        real = Builder._intro_in_whole
+
+        def unnamed(self_, sc, item, construction, fills):
+            ex = real(self_, sc, item, construction, fills)
+            ex.item_ids[:] = ["some_other_part"]  # as if the word were a joint part: the exercise lists only the first
+            return ex
+
+        l = known("get_eg_fengid", "eg_aetla_ad_fa", "kaffi", "te")
+        cfg = PlanConfig(minutes=20, new_items=2, max_new_items=2, seed=1, priority=["reikninginn", "get_eg_fengid_reikninginn"])
+        with mock.patch.object(Builder, "_intro_in_whole", unnamed):
+            sc = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+        target = "Get ég fengið reikninginn?"
+        self.assertEqual([e.label for e in sc.exercises if e.kind == "embed" and "get_eg_fengid_reikninginn" in e.item_ids], [f"pattern: {target}"], "played once")
+        self.assertTrue([q for q in sc.review_questions() if "get_eg_fengid_reikninginn" in q["items"]], "and it has its question")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1864,7 +1864,11 @@ class Planner:
                         (e for e in reversed(sc.exercises) if e.kind == "intro" and any(f.id in e.item_ids and _norm_utterance((b.wholes_taught.get(f.id) or {}).get("answer", "")) == _norm_utterance(item.target) for f in fills.values())),
                         None,
                     )
-                    if intro_ex is not None and item.id not in intro_ex.item_ids:
+                    if intro_ex is None:
+                        # the word was not the first of the parts taken out of one line together (#280): the exercise names only the first, so nothing would carry the
+                        # phrase's question. Played once as before #333, it gets its own
+                        b.pattern_instance(sc, item, pattern, fills)
+                    elif item.id not in intro_ex.item_ids:
                         intro_ex.item_ids.append(item.id)
                 credited = [pattern.id, *(f.id for f in fills.values())]
                 self._record(credited, "recombine", credited)
