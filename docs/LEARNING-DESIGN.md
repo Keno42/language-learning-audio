@@ -738,6 +738,7 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
   - Before a change, weigh what the learner will notice against the development time it takes.
   - **Named exceptions** are listed here, in one place, so they can be read together and don't grow into mechanisms:
     - «Áttu leigubíl?» is never generated (#192).
+    - «Má ég sofa?» is never generated (`exclude_fills` on `ma_eg_inf`, #333).
 
 - **Pace.**
   - It never depends on the departure date. Lessons go on at the same best-effort pace before and during the trip,
