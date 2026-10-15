@@ -383,7 +383,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   is weak). `suggest_pace`: up at ≤ 15% with a small backlog, hold to 25%, down above. `report --load light|right|heavy` stores
   `lessons[k]["load"]`; like `--sooner` alone it does not mark the lesson reported. Two «light» lessons raise it at ≤ 25% with the same small-backlog condition (< 0.5) as the recall-based rise; an unrated lesson is skipped (it neither breaks nor extends the run); a «heavy» in the
   window blocks a rise; one step a lesson. `report --load` for a lesson not in `lessons[]` warns on stderr.
-- **Spare time serves the scene and the ear (#238, Now 1).** `ItemState.last_reviewed` (set by `report` for failed / hesitated / recalled, not by `--sooner`)
+- **Spare time serves the scene and the ear (#238).** `ItemState.last_reviewed` (set by `report` for failed / hesitated / recalled, not by `--sooner`)
   is the day the learner's own review asked an item; `Planner.reviewed_today` keeps it out of `select_reviews`, `select_early_reviews`, the
   connect pool, substitutions and `refresh`. `Planner.scene_constructions(theme_pick)` = the constructions the learner's turns of the lesson's
   theme level use (and the pattern of a linked phrase): `pick_substitution` and the `refresh` timeline take only those (a parallel of a target

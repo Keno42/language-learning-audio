@@ -139,7 +139,7 @@ around 80–85%.
   the backlog stays small. `report --failed …` still slows it down whenever you
   bother to file one. `--manual` switches back.
 - Spare time is never filled with a close variant of a known word (another case or gender), and a form comes in
-  only when a scene, a frame or a contrast asks for it (#218). Once the lesson's new material is taught, the second
+  only when the theme's next level or a frame asks for it (#218). Once the lesson's new material is taught, the second
   half rotates (#248): a played scene heard again, *pick out the information* (what to listen for is named first,
   then the line: «You want to know how much it costs. Listen.»), *catch the unknown word* (a partner line with one word
   beyond the learner, asked about with «Hvað þýðir {word}?»), and one of today's expressions. What the morning's review asked is not asked again (#238).
