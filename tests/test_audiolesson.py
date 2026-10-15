@@ -3312,6 +3312,9 @@ class LessonStructureTests(unittest.TestCase):
         for i, s in enumerate(segs):
             if s.type == "pause" and s.role == "answer":
                 nxt = next(x for x in segs[i + 1 :] if x.type != "pause")
+                if nxt.type == "narrate" and nxt.text == Prompts.load("en").get("pick_out_answer"):
+                    # #335: a pick-out announces its model answer («The answer:», a framing line with its beat); the answer is the next spoken thing after it
+                    nxt = next(x for x in segs[segs.index(nxt) + 1 :] if x.type != "pause")
                 self.assertEqual(nxt.type, "answer", f"segment {i}: pause not followed by answer but {nxt}")
 
     def test_no_answer_is_spoken_right_before_its_own_prompt_pause(self):

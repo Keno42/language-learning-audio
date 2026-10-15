@@ -56,8 +56,16 @@ class PickOutNeedTests(unittest.TestCase):
                 [p.get("pick_out_need_time"), task.line, p.get("pick_out_answer"), "klukkan fimm", task.meaning, p.get("pick_out_again"), task.line],
                 lang,
             )
-            kinds = [g.type for g in segs]
-            self.assertEqual(kinds[kinds.index("answer") - 2 : kinds.index("answer")][0], "pause", "the learner's turn is a pause before «The answer:»")
+            roles = [(g.type, g.role) for g in segs]
+            at = next(k for k, g in enumerate(segs) if g.type == "pause" and g.role == "answer")
+            self.assertEqual(
+                roles[at : at + 4],
+                [("pause", "answer"), ("narrate", "frame"), ("pause", "beat"), ("answer", None)],
+                f"{lang}: the learner's turn, «The answer:» as a framing line with its beat, then the answer",
+            )
+            again = next(k for k, g in enumerate(segs) if g.text == p.get("pick_out_again"))
+            self.assertEqual((segs[again].role, segs[again + 1].type, segs[again + 1].role), ("frame", "pause", "beat"), "«Listen again.» is a framing line too")
+            self.assertEqual(segs[again + 2].text, task.line)
 
     def test_the_catch_task_is_unchanged(self):
         task = ListeningTask("catch_unknown", "x", "", "Viltu sestu?", "sestu", "sit", "catch_unknown_context", repair="Hvað þýðir sestu?", cue="Do you want to something?")

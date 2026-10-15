@@ -227,7 +227,7 @@ def _build(b, sc: Script, task: ListeningTask) -> None:
     b._pause(sc, ex, b.timing.answer_pause(expected, b.tl, generative=True), "answer", floor=b.timing.answer_floor())
     voice = _other_voice(task.speaker) if task.repair else task.speaker
     if task.kind == "pick_out":
-        b._narr(sc, ex, b.prompts.get("pick_out_answer"))  # #335: the model answer is announced, so it is not heard as the line going on
+        b._frame(sc, ex, b.prompts.get("pick_out_answer"))  # #335: the model answer is announced (a line that leads into an example is a framing line with its beat, #241), so it is not heard as the line going on
     b._answer(sc, ex, expected, speaker=voice)
     b._beat(sc, ex)
     if task.kind == "catch_unknown":
