@@ -247,6 +247,23 @@ class OneFillingTests(unittest.TestCase):
         b.ask_count = lambda text: 0
         self.assertIn(b.sibling_recall(Script(1, "t", cur.target_lang, cur.known_lang), c, {}).label.split(": ", 1)[1], sentences)
 
+    def test_a_recall_moved_to_a_less_asked_filling_is_not_the_sentence_just_said(self):
+        """Review of #346: with the airport sentence just said, asked 0 times against the town centre's 1, `generate` takes the town centre (#190); moving to
+        the least-asked filling must not bring the airport sentence straight back."""
+        from audiolesson.exercises import _norm_utterance
+        from audiolesson.script import Script
+
+        cur, c, b = self.builder_with_two_fillings()
+        airport, centre = (t for _, t, _ in b.filling_options(c))
+        asked = {airport: 0, centre: 1}
+        b.ask_count, b.ask_cap = (lambda text: asked[text]), 4
+        b.recent_answers = [_norm_utterance(airport)]
+        ex = b.recall(Script(1, "t", cur.target_lang, cur.known_lang), c, "meaning")
+        self.assertEqual(ex.label, f"meaning: {centre}", "the sentence just said is not asked again while another one can be")
+        b.recent_answers = []
+        ex = b.recall(Script(1, "t", cur.target_lang, cur.known_lang), c, "meaning")
+        self.assertEqual(ex.label, f"meaning: {airport}", "nothing just said: the filling asked fewest times")
+
     def test_the_fillings_are_the_combinations_generate_allows(self):
         """Review of #346: «Ég ætla að fá mjólk með mjólk.» repeats a word of its own, so `generate` never makes it (`_product`); the fillings a recall or the
         cap counts on must not hold it either, or a fallback picks it and the pattern is never spent."""

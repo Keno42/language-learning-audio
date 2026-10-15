@@ -1079,6 +1079,13 @@ class Builder:
             # #336: ``generate`` draws on learned fillers, so with the others only met inside their phrases (or none) every recall would be the same sentence;
             # a filling the learner can say that was asked fewer times this lesson takes its place, so the per-sentence count holds on this path too
             options = [o for o in self.filling_options(item) if self.ask_count(o[1]) < self.ask_count(gen.target)]
+            recent = set(self.recent_answers)
+
+            def just_said(fills: dict[str, Item]) -> bool:
+                return bool({_norm_utterance(self.cur.resolve_slots(item, fills, g)[0]) for g in "fm"} & recent)
+
+            # not the sentence the learner has just said, when another one is possible (#190, as ``generate``)
+            options = [o for o in options if not just_said(o[0])] or (options if just_said(gen.fills) else [])
             if options:
                 fills, target, meaning = min(options, key=lambda o: self.ask_count(o[1]))
                 gen = Generated(item, fills, target, meaning)
