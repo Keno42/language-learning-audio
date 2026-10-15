@@ -328,11 +328,12 @@ tools/          daily.sh (one day of the routine), derive_fr_ja.py (keeps fr-ja 
                 gloss.py (inserts <field>_<lang> glosses), phrase_families.py (fixed-phrase audit)
 profiles/       voice profiles (provider + voice per speaker)
 tests/          python -m unittest
-docs/           LEARNING-DESIGN.md (purpose, hypotheses, evidence, checklist), DESIGN.md (code map,
-                invariants, decisions), CURRICULUM.md (format),
-                TRAVEL-CANDO.md (scenarios, scenario cards, reading deck, trip profile),
-                LEVERS.md (planner settings), AUDIT-29.md / AUDIT-48.md (audit tables behind #29
-                and #48), history/ (session log)
+docs/           CURRENT-POLICY.md / CURRENT-STATUS.md (the short briefs), LEARNING-DESIGN.md (purpose,
+                hypotheses, evidence, roadmap, checklist), DESIGN.md (code map, invariants, decisions),
+                CURRICULUM.md (format), TRAVEL-CANDO.md (scenarios, scenario cards, reading deck, trip
+                profile), LEVERS.md (planner settings), DOC-REVIEW.md (the brief for the independent
+                review of the documents), AUDIT-29.md / AUDIT-48.md (audit tables behind #29 and #48),
+                history/ (session log, evidence of lessons 1–23)
 ```
 
 ## Development

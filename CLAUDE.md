@@ -10,6 +10,9 @@
   modes (§11). Above all: don't answer each remark with its own local fix; find the shared
   cause and fit it into the roadmap (§8).
 - After a round of learner feedback, update its evidence (§5) and hypothesis statuses (§4).
+- **Documents: replace, don't append** (LEARNING-DESIGN §10). Rewrite a statement that changed rather than adding one
+  after it, keep §5 to the last three lessons (older ones go to `docs/history/evidence.md`), and name in the PR what
+  you replaced or deleted. `docs/DOC-REVIEW.md` is the brief for the independent review.
 - `docs/DESIGN.md` is the code map and the invariants the tests pin; `docs/CURRICULUM.md`
   the content format; `docs/TRAVEL-CANDO.md` the scenarios, cards and trip profile.
 - Check behaviour changes on the real learner path (replay a feedback export's
