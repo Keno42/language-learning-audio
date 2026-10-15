@@ -146,6 +146,7 @@ class Builder:
     recent_answers: list[str] = field(default_factory=list)  # the last two answers said (normalised): a generated sentence is not the one just asked (#190)
     in_lesson: set[str] = field(default_factory=set)  # items introduced this lesson: usable as parts
     ask_count: Callable[[str], int] | None = None  # how often a sentence was asked this lesson (#336): a pattern with every combination used asks the filling asked fewest times
+    ask_cap: int = 0  # #336: a pattern's sentence asked this many times a lesson (any path) is not asked again by a sibling recall; 0: no cap
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
     _situation_texts: dict[str, int] = field(default_factory=dict)  # times each authored situation was narrated in full
     _recent_situations: list = field(default_factory=list)  # the last situations narrated, newest last: the same one is not narrated again right after (#273)
@@ -1067,11 +1068,20 @@ class Builder:
         """Recall of a construction always goes through a filled example; at the situation
         stage, one with the fills the situation names."""
         fixed = self.cur.situation_fills(item) if stage == "situation" and self.situation_usable(item) else {}
+        if fixed and self.ask_cap and self.ask_count is not None and self.ask_count(self.cur.resolve_slots(item, {**self.cur.example_fill(item), **fixed})[0]) >= self.ask_cap:
+            fixed, stage = {}, "meaning"  # #336: the situation names one filling, whose sentence has been asked as often as a pattern's sentence may be: another one, from its meaning
         gen = self.generate(item, fixed=fixed)
         if gen is None:
             fills = {**self.cur.example_fill(item), **fixed}
             target, meaning = self.cur.resolve_slots(item, fills)
             gen = Generated(item, fills, target, meaning)
+        if not fixed and self.ask_count is not None:
+            # #336: ``generate`` draws on learned fillers, so with the others only met inside their phrases (or none) every recall would be the same sentence;
+            # a filling the learner can say that was asked fewer times this lesson takes its place, so the per-sentence count holds on this path too
+            options = [o for o in self.filling_options(item) if self.ask_count(o[1]) < self.ask_count(gen.target)]
+            if options:
+                fills, target, meaning = min(options, key=lambda o: self.ask_count(o[1]))
+                gen = Generated(item, fills, target, meaning)
         self.used_combos.add(gen.key)
         gender, target = self._filled(item, gen.fills)
         ex = sc.new_exercise("recall", stage, gen.item_ids, f"{stage}: {target}")
@@ -1229,6 +1239,8 @@ class Builder:
         if gen is None:
             return None
         gender, target = self._filled(gen.construction, gen.fills, form=gen.form)
+        if self.ask_cap and self.ask_count is not None and self.ask_count(target) >= self.ask_cap:
+            return None  # #336: that sentence has been asked as often as a pattern's sentence may be: another word's practice does not take it again
         self.used_combos.add(gen.key)
         ex = sc.new_exercise("recall", "meaning", list(gen.item_ids), f"meaning: {target}")
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(gen.meaning)))

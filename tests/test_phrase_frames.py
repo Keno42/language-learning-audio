@@ -207,6 +207,46 @@ class OneFillingTests(unittest.TestCase):
         ex = b.recall(sc, c, "meaning")
         self.assertEqual(ex.label, f"meaning: {other}", "not the example again")
 
+    def builder_with_two_fillings(self, situation_fill=False):
+        from audiolesson.exercises import Builder
+        from audiolesson.learner import LearnerState
+        from audiolesson.prompts import Prompts
+        from audiolesson.timing import Timing
+
+        cur, _ = self.lesson([("á flugvöllinn", "to the airport"), ("í miðbæinn", "to the town centre")])
+        c = cur.by_id["c"]
+        if situation_fill:
+            c.situation = "You get on a bus. Ask if it goes to the airport."
+            c.situation_fill = {"dest": "f0"}
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        b.in_lesson.update({"f0", "f1"})
+        return cur, c, b
+
+    def test_a_situation_that_names_a_spent_sentence_asks_another_filling_from_its_meaning(self):
+        """Lesson 26 of the replay (#346): «Á flugvöllinn, takk.»'s situation names the airport, so every situation recall of the taxi pattern was that sentence."""
+        from audiolesson.script import Script
+
+        cur, c, b = self.builder_with_two_fillings(situation_fill=True)
+        airport, centre = (t for _, t, _ in b.filling_options(c))
+        asked = {airport: 4, centre: 1}
+        b.ask_count, b.ask_cap = (lambda text: asked[text]), 4
+        ex = b.recall(Script(1, "t", cur.target_lang, cur.known_lang), c, "situation")
+        self.assertEqual(ex.label, f"meaning: {centre}", "the capped sentence is not asked again; the other filling, from its meaning")
+        asked[airport] = 1
+        ex = b.recall(Script(1, "t", cur.target_lang, cur.known_lang), c, "situation")
+        self.assertEqual(ex.label, f"situation: {airport}", "below the cap the situation keeps its filling")
+
+    def test_a_sibling_recall_does_not_take_a_sentence_asked_up_to_the_cap(self):
+        """Lesson 26 of the replay (#346): 8 of the 13 asks of «Fer þessi strætó á flugvöllinn?» were another word's practice through a sibling sentence."""
+        from audiolesson.script import Script
+
+        cur, c, b = self.builder_with_two_fillings()
+        sentences = [t for _, t, _ in b.filling_options(c)]
+        b.ask_count, b.ask_cap = (lambda text: 4), 4
+        self.assertIsNone(b.sibling_recall(Script(1, "t", cur.target_lang, cur.known_lang), c, {}), "every sentence is at the cap")
+        b.ask_count = lambda text: 0
+        self.assertIn(b.sibling_recall(Script(1, "t", cur.target_lang, cur.known_lang), c, {}).label.split(": ", 1)[1], sentences)
+
     def test_combos_available_counts_the_fillings_that_can_be_said(self):
         from audiolesson.exercises import Builder
         from audiolesson.learner import LearnerState

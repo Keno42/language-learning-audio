@@ -2375,8 +2375,8 @@ class Planner:
             if item.instance_of and item.instance_of in self.cur.by_id and b._frame_available(item.instance_of):
                 limit = min(limit, cfg.max_sentence_utterances + 1)  # a linked phrase hands the rest to its pattern's other instances (#192)
             capped = b.said[_norm_utterance(item.target)] >= limit - reserve
-            if not capped and item.instance_of and item.instance_of in self.cur.by_id and b._frame_available(item.instance_of):
-                capped = sentence_asks(item.target) >= cfg.construction_asks_per_filling - reserve  # #336: the sentence counts whatever path asked it
+            if not capped and item.instance_of and item.instance_of in self.cur.by_id and (b._frame_available(item.instance_of) or item.instance_of in b.in_lesson):
+                capped = sentence_asks(item.target) >= cfg.construction_asks_per_filling - reserve  # #336: the sentence counts whatever path asked it (its pattern taught today too)
             hard_cap_held[0] = hard_cap_held[0] or capped
             return capped
 
@@ -2396,6 +2396,7 @@ class Planner:
             return sum(1 for e in sc.exercises if e.kind in ("recall", "connect", "generative") and _norm_utterance(e.label.split(": ", 1)[-1]) == want)
 
         b.ask_count = sentence_asks
+        b.ask_cap = cfg.construction_asks_per_filling
 
         def pattern_spent(c: Item) -> bool:
             """Every sentence the learner can be asked of the pattern ``c`` has been asked ``construction_asks_per_filling`` times (#336): past that the practice
@@ -2429,7 +2430,7 @@ class Planner:
                 self._record([item.id], "meaning", lately.item_ids)
                 touch(item)
                 return True
-            if whole is None or (ex := b.recall_whole(sc, item, whole)) is None:
+            if whole is None or whole_spent(whole) or (ex := b.recall_whole(sc, item, whole)) is None:
                 return False
             self._record([item.id], "meaning", ex.item_ids)
             touch(item)
@@ -2438,7 +2439,13 @@ class Planner:
         def part_sentence_capped(item: Item) -> bool:
             """A noun has a sentence but it has been said as often as a lesson allows: nothing more is asked of it, not the bare word in its place (#270)."""
             whole = part_whole(item)
-            return whole is not None and bool(b.said_cap) and b.said[_norm_utterance(whole["answer"])] >= b.said_cap
+            return whole is not None and (whole_spent(whole) or bool(b.said_cap) and b.said[_norm_utterance(whole["answer"])] >= b.said_cap)
+
+        def whole_spent(whole: dict) -> bool:
+            """A part's whole that is a pattern's sentence, asked ``construction_asks_per_filling`` times this lesson by any path (#336): the part is not asked
+            through it again (nor bare in its place), so «á flugvöllinn» does not keep its pattern's sentence going past the cap."""
+            through = self.cur.by_id.get(whole.get("through", ""))
+            return bare_cap[0] > 0 and through is not None and through.kind == "construction" and sentence_asks(whole["answer"]) >= cfg.construction_asks_per_filling
 
         def ask_a_sentence(item: Item, repeat: bool = False, review: bool = False) -> bool:
             """A short item already said in a sentence is asked as a sentence from then on (#179):
