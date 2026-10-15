@@ -676,7 +676,7 @@ def phrase_frames(cur: Curriculum, min_frame: int = 2, share: float = 0.4) -> li
     ``(frame, phrase ids)``, largest groups first; advisory (a prompt for a per-case choice, §9 «Good enough overall»: only the frames a scene actually varies)."""
     phrases = [it for it in cur.items if it.kind == "phrase"]
     words = {it.id: [w.casefold() for w in _WORD_RE.findall(it.target)] for it in phrases}
-    plain = {"ég", "þú", "við", "hann", "hún", "það", "þetta", "er", "að", "á", "í", "og", "hvað", "hvar", "ekki", "get", "má", "vil", "þarf", "af", "til", "með", "um", "hér", "hérna", "mér", "mig", "morgun", "lagi"}
+    plain = {"ég", "þú", "við", "hann", "hún", "það", "þetta", "er", "að", "á", "í", "af", "til", "með", "um"}  # pronouns, the copula and prepositions: not a frame by themselves
     frames: dict[tuple[tuple[str, ...], tuple[str, ...]], set[str]] = {}
     for k, a in enumerate(phrases):
         wa = words[a.id]
@@ -695,7 +695,7 @@ def phrase_frames(cur: Curriculum, min_frame: int = 2, share: float = 0.4) -> li
                 frames.setdefault(key, set()).update((a.id, b.id))
     out = []
     for (pre, suf), ids in frames.items():
-        if all(w in plain for w in (*pre, *suf)) or len(ids) > 10:
+        if all(w in plain for w in (*pre, *suf)):
             continue  # a subject, a copula or a preposition alone is not a frame a scene varies
         if len({cur.by_id[i].instance_of for i in ids}) == 1 and cur.by_id[next(iter(ids))].instance_of:
             continue

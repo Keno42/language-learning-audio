@@ -73,10 +73,20 @@ class TransportFrameTests(unittest.TestCase):
             self.assertEqual(text, want)
             self.assertNotIn("{", meaning)
 
-    def test_no_frame_of_the_transport_scene_is_left_as_separate_phrases(self):
-        transport = [(f, ids) for f, ids in phrase_frames(self.cur) if any("transport" in self.cur.by_id[i].topics for i in ids)]
-        self.assertNotIn("fer þessi strætó … ", [f for f, _ in transport])
-        self.assertNotIn("á … takk", [f for f, _ in transport])
+    def test_the_linked_transport_frames_are_not_reported_again(self):
+        """The two frames the issue named are patterns now: «fer þessi strætó …» and «á … takk» are not reported (other frames that hold one of these phrases, such as
+        «… í miðbæinn», still are, with the phrases that are not linked)."""
+        frames = {f.strip() for f, _ in phrase_frames(self.cur)}
+        self.assertNotIn("fer þessi strætó …", frames)
+        self.assertNotIn("á … takk", frames)
+
+    def test_a_frame_with_a_question_word_or_a_modal_is_reported_even_when_it_is_large(self):
+        """Review of #346: «Hvar er …» (13), «Ég þarf …» (7) are frames; only pronouns, the copula and prepositions alone are not."""
+        frames = {f.strip(): ids for f, ids in phrase_frames(self.cur)}
+        self.assertGreaterEqual(len(frames["hvar er …"]), 10)
+        self.assertIn("ég þarf …", frames)
+        self.assertNotIn("ég er …", frames)
+        self.assertNotIn("þetta er …", frames)
 
     def test_the_bus_pattern_does_not_say_the_bus_stop_or_this_hotel(self):
         c = self.cur.by_id["fer_thessi_straeto_dest"]
