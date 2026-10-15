@@ -172,6 +172,18 @@ class OneFillingTests(unittest.TestCase):
         asked = [e for e in sc.exercises if e.kind == "recall" and e.item_ids and e.item_ids[0] == "c"]
         self.assertLessEqual(len(asked), 5, "four by the cap and the closing one, not the ladder over and over")
 
+    def test_no_sentence_of_the_pattern_is_asked_more_than_the_cap_whatever_the_path(self):
+        """The re-review of #346: the ladder's asks of the example and the generated sentences count together, per sentence."""
+        from audiolesson.planner import PlanConfig
+
+        cur, sc = self.lesson([("á flugvöllinn", "to the airport"), ("í miðbæinn", "to the town centre")])
+        counts: dict[str, int] = {}
+        for e in sc.exercises:
+            if e.kind in ("recall", "connect", "generative") and e.item_ids and e.item_ids[0] == "c":
+                counts[e.label.split(": ", 1)[-1]] = counts.get(e.label.split(": ", 1)[-1], 0) + 1
+        self.assertTrue(counts)
+        self.assertLessEqual(max(counts.values()), PlanConfig().construction_asks_per_filling + 1, counts)
+
     def test_combos_available_counts_the_fillings_that_can_be_said(self):
         from audiolesson.exercises import Builder
         from audiolesson.learner import LearnerState

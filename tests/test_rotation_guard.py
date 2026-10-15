@@ -56,7 +56,10 @@ class RotationGuardTests(unittest.TestCase):
         self.assertFalse(sc.meta["target_delivered"], "the two counters disagree, as in the L30 replay")
         self.assertTrue(sc.meta["rotation_guard"], "the guard started the rotation")
         listening = [e.kind for e in sc.exercises if e.kind in ("pick_out", "catch_unknown")]
-        self.assertGreaterEqual(len(listening), 5, "the second half has its listening work (7 here; 3 without the guard)")
+        # #339: a word is caught once, ever, and the pick-outs rotate: after 24 lessons the pool of listening work is small, and the second half is the rest of the
+        # rotation (scene heard again, today's expressions). It must still run: some listening work, and a lesson of its full length.
+        self.assertGreaterEqual(len(listening), 1, "the second half has listening work")
+        self.assertGreaterEqual(sc.total_duration / 60, 27.0, "and the lesson is not cut short")
 
     def test_a_normal_lesson_does_not_use_the_guard(self):
         sc = self.lesson(drop_last_selected=False)
