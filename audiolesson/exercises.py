@@ -1415,15 +1415,14 @@ class Builder:
         return [f for _, f in sorted(ranked, key=lambda t: t[0])] or [None]
 
     def filling_options(self, c: Item) -> list[tuple[dict[str, Item], str, str]]:
-        """Every filling of ``c`` by the available fillers: (fills, sentence, meaning) (#336)."""
-        import itertools
-        slots = list(c.slots.items())
-        pools = [[i for i in self.cur.items_with_tag(tag, c) if self._available(i.id)] for _, tag in slots]
-        if not slots or any(not p for p in pools):
+        """Every filling of ``c`` by the available fillers: (fills, sentence, meaning) (#336). The combinations ``generate`` allows (``_product``: no two fills
+        sharing a word, «Ég ætla að fá mjólk með mjólk.» is not one), so a fallback never picks a sentence the generator would refuse and ``pattern_spent``
+        does not wait on one that can never reach the cap."""
+        options = {sl: [i for i in self.cur.items_with_tag(tag, c) if self._available(i.id)] for sl, tag in c.slots.items()}
+        if not options or any(not p for p in options.values()):
             return []
         out = []
-        for combo in itertools.islice(itertools.product(*pools), 60):
-            fills = {sl: f for (sl, _), f in zip(slots, combo)}
+        for fills in self._product(options, list(options))[:60]:
             target, meaning = self.cur.resolve_slots(c, fills)
             out.append((fills, target, meaning))
         return out

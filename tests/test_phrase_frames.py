@@ -247,6 +247,27 @@ class OneFillingTests(unittest.TestCase):
         b.ask_count = lambda text: 0
         self.assertIn(b.sibling_recall(Script(1, "t", cur.target_lang, cur.known_lang), c, {}).label.split(": ", 1)[1], sentences)
 
+    def test_the_fillings_are_the_combinations_generate_allows(self):
+        """Review of #346: «Ég ætla að fá mjólk með mjólk.» repeats a word of its own, so `generate` never makes it (`_product`); the fillings a recall or the
+        cap counts on must not hold it either, or a fallback picks it and the pattern is never spent."""
+        from audiolesson.exercises import Builder
+        from audiolesson.learner import LearnerState
+        from audiolesson.prompts import Prompts
+        from audiolesson.script import Script
+        from audiolesson.timing import Timing
+
+        cur = load_curriculum("curricula/is-en", known_lang="en")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        b.in_lesson.update({"mjolk", "kaffi", "med_mjolk"})
+        c = cur.by_id["eg_aetla_ad_fa_addon"]
+        sentences = b.filling_sentences(c)
+        self.assertIn("Ég ætla að fá kaffi með mjólk.", sentences)
+        self.assertNotIn("Ég ætla að fá mjólk með mjólk.", sentences)
+        asked = {"Ég ætla að fá kaffi með mjólk.": 9}
+        b.ask_count, b.ask_cap = (lambda text: asked.get(text, 0)), 4
+        ex = b.recall(Script(1, "t", cur.target_lang, cur.known_lang), c, "meaning")
+        self.assertNotIn("mjólk með mjólk", ex.label, "the fallback never takes a combination the generator refuses")
+
     def test_combos_available_counts_the_fillings_that_can_be_said(self):
         from audiolesson.exercises import Builder
         from audiolesson.learner import LearnerState
