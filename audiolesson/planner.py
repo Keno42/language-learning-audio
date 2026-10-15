@@ -3053,7 +3053,7 @@ class Planner:
                     scene_units_placed.append(round(at, 1))
 
             # 0c. a substitution run goes on in its frame before anything else is fitted in (#151)
-            if not acted and not in_new_block() and not listening_available() and (sub := continue_substitution()) is not None:
+            if not acted and generated_run() < cfg.generated_run_max and not in_new_block() and not listening_available() and (sub := continue_substitution()) is not None:
                 do_substitution(sub)
                 acted = True
 
@@ -3287,7 +3287,7 @@ class Planner:
                     pass  # nothing else is left: the light reviews of known constructions come early
                 elif bare_cap[0] > 0 and try_extra():
                     pass  # nothing else is left: a planned extra or the cheap construction, never a close variant (#218 b1)
-                elif reviews_used and (sub := pick_substitution(scene_only=False)) is not None:
+                elif reviews_used and generated_run() < cfg.generated_run_max and (sub := pick_substitution(scene_only=False)) is not None:
                     do_substitution(sub)  # the very last resort (#238): a known pattern outside the scene, rather than bare words again or a short lesson
                 elif (
                     late := next((e for e in sorted(intro_timeline) if e[2].id != (recent[-1] if recent else None) or e[3] == "dialogue"), None)
