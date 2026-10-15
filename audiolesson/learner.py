@@ -680,7 +680,9 @@ class LearnerState:
             forms_modelled=set(raw["forms_modelled"]) if "forms_modelled" in raw else None,
             retention={k: [int(x) for x in v] for k, v in raw.get("retention", {}).items()},
         )
-        ls.items = {k: ItemState(**v) for k, v in raw.get("items", {}).items()}
+        # a file from before ``slow_owed`` (#337): a word reported hard then is owed its slow model, once. Done on load, before the morning review's ``report`` can clear
+        # ``reported_hard`` with a 言えた; the key is saved from then on, so the model is not owed again after it has been played
+        ls.items = {k: ItemState(**({**v, "slow_owed": v.get("reported_hard", "")} if "slow_owed" not in v else v)) for k, v in raw.get("items", {}).items()}
         # a file from before notes_last_heard existed: a note heard back then counts as heard
         # in the latest lesson, so it rests the full repeat gap instead of coming straight back
         for note_id in ls.notes_heard:

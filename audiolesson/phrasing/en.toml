@@ -16,6 +16,7 @@ slowly = "Slowly."
 natural = "And at natural speed."
 split_slowly = "Slowly, in parts. Repeat each part."
 slow_word_intro = "A word in this one is hard to say. First the sentence."
+slow_word_intro_word = "This word is hard to say."
 note_pieces = "Now the pieces, slowly, one at a time."
 
 # issue #59: the meaning comes first, so completing «Ég skil…» is a retrieval of "I don't

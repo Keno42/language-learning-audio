@@ -48,7 +48,7 @@ def split_breaks_a_cluster(syllables: list[str]) -> str | None:
 
 # #337: sounds Icelandic spells unlike English or Japanese, from the learner's remarks (lesson 26). They are NOT introduction rules (``ð`` alone is in a quarter
 # of the vocabulary, as «-ið» was): they pick the hard word of an item the learner has reported hard, where the signal is the report.
-_V = "aáeéiíoóöuúyý"
+_V = "aáæeéiíoóöuúyý"
 REPORTED_SOUNDS = {
     "ei": re.compile(r"ei"),
     "ng": re.compile(rf"ng(?=[{_V}])"),

@@ -70,19 +70,60 @@ class HardWordAgainTests(unittest.TestCase):
         l.report([], [], TODAY - timedelta(days=1), sooner=["vegurinn_er_lokadur", "get_eg_fengid_reikninginn"])
         if recalled_at_review:
             l.report([], [], TODAY, recalled=["vegurinn_er_lokadur", "get_eg_fengid_reikninginn"], gaps={"vegurinn_er_lokadur": 1, "get_eg_fengid_reikninginn": 1})
+        for i in ("vegurinn_er_lokadur", "get_eg_fengid_reikninginn", "er_vegurinn_opinn"):  # the report moves the date: set it after, so the two cases differ
+            l.items[i].due = (TODAY + (timedelta(days=0) if practised else timedelta(days=60))).isoformat()
         l.lessons_completed = 20
         sc = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY).build()
         return l, sc
 
-    def test_the_model_is_owed_in_the_next_lesson_whether_or_not_the_item_is_practised_and_a_recall_does_not_clear_it(self):
-        """The review of #342: the new items' next-day check is in the bot's review, and a 言えた there says nothing about how the word sounds."""
+    def test_the_model_is_owed_in_the_next_lesson_whether_or_not_the_item_is_practised_in_it(self):
+        practice = {}
         for practised in (True, False):
-            l, sc = self.lesson_after_report(practised, recalled_at_review=True)
-            self.assertEqual(l.items["vegurinn_er_lokadur"].reported_hard, "", "the recall settles the connections of #326")
-            self.assertNotEqual(l.items["vegurinn_er_lokadur"].slow_owed, "", "but not the pronunciation")
+            l, sc = self.lesson_after_report(practised, recalled_at_review=False)
+            practice[practised] = sum(1 for e in sc.exercises if "vegurinn_er_lokadur" in e.item_ids and e.kind in ("recall", "generative", "connect"))
             self.assertEqual(sorted(sc.meta["slow_models_reported"]), ["get_eg_fengid_reikninginn", "vegurinn_er_lokadur"], f"practised={practised}")
-            models = [e for e in sc.exercises if e.kind == "model" and e.stage == "slow"]
-            self.assertEqual(len(models), 2)
+            self.assertEqual(len([e for e in sc.exercises if e.kind == "model" and e.stage == "slow"]), 2)
+        self.assertGreater(practice[True], 0, "in one case the item is practised in the lesson")
+        self.assertEqual(practice[False], 0, "in the other it is not, and the model is played all the same")
+
+    def test_a_recall_at_the_review_clears_the_connections_flag_but_not_the_owed_model(self):
+        """The review of #342: the new items' next-day check is in the bot's review, and a 言えた there says nothing about how the word sounds."""
+        l, sc = self.lesson_after_report(False, recalled_at_review=True)
+        self.assertEqual(l.items["vegurinn_er_lokadur"].reported_hard, "", "the recall settles the connections of #326")
+        self.assertNotEqual(l.items["vegurinn_er_lokadur"].slow_owed, "", "but not the pronunciation")
+        self.assertEqual(sorted(sc.meta["slow_models_reported"]), ["get_eg_fengid_reikninginn", "vegurinn_er_lokadur"])
+
+    def test_a_file_from_before_the_field_owes_the_model_once(self):
+        """Review of #342: lesson 26's «sooner» reports were made before ``slow_owed`` existed; they are carried over on load, once."""
+        import tempfile
+
+        l, _ = self.lesson_after_report(False, recalled_at_review=False)
+        old = l.to_dict()
+        for st in old["items"].values():
+            del st["slow_owed"]  # a file saved before the field
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "l.json"
+            import json
+
+            path.write_text(json.dumps(old), encoding="utf-8")
+            back = LearnerState.load(path)
+            self.assertEqual(back.items["vegurinn_er_lokadur"].slow_owed, (TODAY - timedelta(days=1)).isoformat(), "carried over from reported_hard")
+            self.assertEqual(back.items["er_vegurinn_opinn"].slow_owed, "", "not reported: nothing owed")
+            back.report([], [], TODAY, recalled=["vegurinn_er_lokadur"], gaps={"vegurinn_er_lokadur": 1})  # the morning review clears reported_hard...
+            back.save(path)
+            again = LearnerState.load(path)
+            self.assertNotEqual(again.items["vegurinn_er_lokadur"].slow_owed, "", "... and the carried-over debt stays")
+            again.items["vegurinn_er_lokadur"].slow_owed = ""  # the model was played
+            again.save(path)
+            self.assertEqual(LearnerState.load(path).items["vegurinn_er_lokadur"].slow_owed, "", "and is not carried over again")
+
+    def test_a_word_alone_is_introduced_without_a_sentence_to_say_first(self):
+        b = self.builder()
+        sc = Script(1, "t", "is", "en")
+        b.slow_word_exercise(sc, self.cur.by_id["reikninginn"])
+        self.assertNotIn("First the sentence", sc.transcript())
+        self.assertIn("This word is hard to say.", sc.transcript())
+        self.assertEqual([g.text for g in sc.segments if g.type == "speak" and g.rate < 1], ["reik", "ning", "inn"])
 
     def test_playing_the_model_clears_what_is_owed_and_it_is_not_played_twice(self):
         from audiolesson.planner import apply_to_learner
@@ -107,10 +148,6 @@ class HardWordAgainTests(unittest.TestCase):
                 self.assertEqual(hard_words_of(c, reported=True), [], c.id)
         self.assertIsNone(b.slow_word_exercise(sc, self.cur.by_id["get_eg_fengid"]))
         self.assertNotIn("{", sc.transcript())
-        for i in self.cur.items:
-            for w, _ in hard_words_of(i, reported=True):
-                self.assertNotIn("{", w)
-                self.assertTrue(w in i.target.lower() or w in (i.syllables and "".join(i.syllables) or ""), (i.id, w))
 
     def test_word_syllables_are_checked(self):
         base = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}}

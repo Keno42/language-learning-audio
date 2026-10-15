@@ -3050,7 +3050,7 @@ class Planner:
 
             # 0h. the slow, split model of a word the learner reported hard to say (#337): owed in the next lesson, whether or not the item is practised in it
             if (
-                not acted and not in_new_block() and introduced and len(slow_models) < cfg.slow_models_per_lesson
+                not acted and not in_new_block() and len(slow_models) < cfg.slow_models_per_lesson
                 and sc.total_duration >= cfg.slow_model_from * (budget - closing_reserve) and remaining >= 60
             ):
                 for owed_id in owed_slow:

@@ -782,9 +782,12 @@ class Builder:
         if not words:
             return None
         ex = sc.new_exercise("model", "slow", [item.id], f"slow: {item.target}")
-        self._frame(sc, ex, self.prompts.get("slow_word_intro"))
-        self._speak(sc, ex, item.target, speaker="native_a")
-        self._beat(sc, ex)
+        if item.kind == "vocab":
+            self._frame(sc, ex, self.prompts.get("slow_word_intro_word"))  # a word has no sentence to say first
+        else:
+            self._frame(sc, ex, self.prompts.get("slow_word_intro"))
+            self._speak(sc, ex, item.target, speaker="native_a")
+            self._beat(sc, ex)
         for word, syllables in words:
             self._word_model(sc, ex, word, syllables)
             self._beat(sc, ex)
