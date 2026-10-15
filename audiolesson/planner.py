@@ -1857,6 +1857,15 @@ class Planner:
                 inside = any(_norm_utterance((b.wholes_taught.get(f.id) or {}).get("answer", "")) == _norm_utterance(item.target) for f in fills.values())
                 if not inside:  # #333: a word introduced inside this very phrase has had the phrase said to it already: covered, not played again as «a sentence from a pattern you know»
                     b.pattern_instance(sc, item, pattern, fills)
+                else:
+                    # ... but the phrase still needs its next-day question, or it stays embedded for ever (never selected again, never reported, so never known): the question
+                    # of the word's introduction asks the sentence (``Script.review_questions``), so it covers the phrase too
+                    intro_ex = next(
+                        (e for e in reversed(sc.exercises) if e.kind == "intro" and any(f.id in e.item_ids and _norm_utterance((b.wholes_taught.get(f.id) or {}).get("answer", "")) == _norm_utterance(item.target) for f in fills.values())),
+                        None,
+                    )
+                    if intro_ex is not None and item.id not in intro_ex.item_ids:
+                        intro_ex.item_ids.append(item.id)
                 credited = [pattern.id, *(f.id for f in fills.values())]
                 self._record(credited, "recombine", credited)
                 self.embedded.append(item.id)
