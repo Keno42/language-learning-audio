@@ -59,6 +59,7 @@ class ItemState:
     # the latest lesson that practised the item as an open failure (#149); orders a backlog
     open_practiced: int = 0
     reported_hard: str = ""  # #326: the day the learner reported it hard (``sooner``, ``hard``); no outcome and no schedule change; cleared by a confirmed recall
+    slow_owed: str = ""  # #337: the day the learner reported the item hard (sooner, hard) and was owed the slow model of its hard word; cleared when the model is played, never by a recall
     gap_streak: int = 0  # #220: confirmed recalls at a real gap in a row; a failure or hesitation resets it; two raise the ease
     history: list[dict] = field(default_factory=list)  # [{lesson, stages, ok}] compact log
 
@@ -577,6 +578,7 @@ class LearnerState:
             earlier = (today + timedelta(days=max(1, round(st.interval_days / 2)))).isoformat()
             st.due = min(st.due, earlier) if st.due else earlier
             st.reported_hard = today.isoformat()  # «I don't remember it»: also a report that it is hard (#326)
+            st.slow_owed = today.isoformat()
             changed["sooner"].append(item_id)
         for item_id in dict.fromkeys(hard or []):
             st = self.items.get(item_id)
@@ -585,6 +587,7 @@ class LearnerState:
                 continue
             earlier = (today + timedelta(days=max(1, round(st.interval_days / 2)))).isoformat()
             st.due = min(st.due, earlier) if st.due else earlier  # it comes back sooner, as a «sooner» does; the lesson then practises it through its connections
+            st.slow_owed = today.isoformat()
             st.reported_hard = today.isoformat()  # named by the learner: a flag for the practice, no outcome, ease and history untouched (#326)
             changed["hard"].append(item_id)
         for item_id in easy:

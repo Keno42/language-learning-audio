@@ -61,20 +61,42 @@ class HardWordAgainTests(unittest.TestCase):
         plain = next(i for i in self.cur.items if i.kind == "phrase" and not hard_words_of(i, reported=True))
         self.assertIsNone(b.slow_word_exercise(sc, plain), "nothing to model")
 
-    def test_a_phrase_reported_hard_gets_the_model_once_before_its_first_practice(self):
+    def lesson_after_report(self, practised: bool, recalled_at_review: bool):
+        """The real order: the report (the feedback form's «sooner») comes first, the next morning's review after it, then the lesson is built."""
         l = LearnerState("is", "en", "A1")
-        for i in ("vegurinn_er_lokadur", "er_vegurinn_opinn"):
-            l.items[i] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=3, last_outcome="recalled",
-                                   due=TODAY.isoformat(), last_practiced=(TODAY - timedelta(days=3)).isoformat())
-        l.report([], [], TODAY, sooner=["vegurinn_er_lokadur"])
+        for i in ("vegurinn_er_lokadur", "get_eg_fengid_reikninginn", "er_vegurinn_opinn"):
+            l.items[i] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=30, last_outcome="recalled",
+                                   due=(TODAY + (timedelta(days=0) if practised else timedelta(days=60))).isoformat(), last_practiced=(TODAY - timedelta(days=1)).isoformat())
+        l.report([], [], TODAY - timedelta(days=1), sooner=["vegurinn_er_lokadur", "get_eg_fengid_reikninginn"])
+        if recalled_at_review:
+            l.report([], [], TODAY, recalled=["vegurinn_er_lokadur", "get_eg_fengid_reikninginn"], gaps={"vegurinn_er_lokadur": 1, "get_eg_fengid_reikninginn": 1})
         l.lessons_completed = 20
         sc = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY).build()
-        self.assertEqual(sc.meta["slow_models_reported"], ["vegurinn_er_lokadur"])
-        models = [e for e in sc.exercises if e.kind == "model" and e.stage == "slow"]
-        self.assertEqual(len(models), 1)
-        first = min((e.start for e in sc.exercises if "vegurinn_er_lokadur" in e.item_ids and e.kind in ("recall", "generative", "connect")), default=None)
-        if first is not None:
-            self.assertLessEqual(models[0].start, first)
+        return l, sc
+
+    def test_the_model_is_owed_in_the_next_lesson_whether_or_not_the_item_is_practised_and_a_recall_does_not_clear_it(self):
+        """The review of #342: the new items' next-day check is in the bot's review, and a 言えた there says nothing about how the word sounds."""
+        for practised in (True, False):
+            l, sc = self.lesson_after_report(practised, recalled_at_review=True)
+            self.assertEqual(l.items["vegurinn_er_lokadur"].reported_hard, "", "the recall settles the connections of #326")
+            self.assertNotEqual(l.items["vegurinn_er_lokadur"].slow_owed, "", "but not the pronunciation")
+            self.assertEqual(sorted(sc.meta["slow_models_reported"]), ["get_eg_fengid_reikninginn", "vegurinn_er_lokadur"], f"practised={practised}")
+            models = [e for e in sc.exercises if e.kind == "model" and e.stage == "slow"]
+            self.assertEqual(len(models), 2)
+
+    def test_playing_the_model_clears_what_is_owed_and_it_is_not_played_twice(self):
+        from audiolesson.planner import apply_to_learner
+
+        l, sc = self.lesson_after_report(True, recalled_at_review=False)
+        apply_to_learner(sc, l, TODAY)
+        self.assertEqual((l.items["vegurinn_er_lokadur"].slow_owed, l.items["get_eg_fengid_reikninginn"].slow_owed), ("", ""))
+        again = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY + timedelta(days=1)).build()
+        self.assertEqual(again.meta["slow_models_reported"], [])
+
+    def test_an_old_report_is_not_owed(self):
+        l, _ = self.lesson_after_report(True, recalled_at_review=False)
+        late = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY + timedelta(days=40))
+        self.assertEqual(late.slow_owed_items(), [])
 
     def test_word_syllables_are_checked(self):
         base = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}}

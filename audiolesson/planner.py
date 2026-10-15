@@ -173,6 +173,8 @@ class PlanConfig:
     # interleaved between items.
     max_open_items: int = 5
     hard_scene_lines: int = 3  # #326: at most this many theme lines (a short exchange around one of the learner's lines) for hard items in a lesson
+    slow_models_per_lesson: int = 2  # #337: the slow models of reported-hard words a lesson plays
+    slow_model_from: float = 0.1  # ... from this share of the lesson on (after the opening and the first introduction)
     hard_connection_turns: int = 3  # #326: an item reported hard goes through its connections (scene, other pattern, same-slot words) at its 2nd to this many practices of a lesson
     open_item_times: list[float] = field(default_factory=lambda: [0.04, 0.27, 0.48, 0.68, 0.88])
     # the trip ordering (#132): item ids introduced before the rest, in this order (their
@@ -573,6 +575,13 @@ class Planner:
                 continue
             out[item_id] = {"practices": sum(asked.values()), "connections": len(links), "kinds": sorted({k for k, _ in links}), "same_sentence_max": max(asked.values(), default=0), "connection_times_s": at.get(item_id, [])}
         return out
+
+    def slow_owed_items(self) -> list[str]:
+        """Items the learner reported hard to say (#337) in the last ``REPORTED_HARD_DAYS`` days that hold a hard word to model, oldest report first. Kept apart
+        from ``reported_hard``: a confirmed recall settles the connections of #326, not the pronunciation, so only the model's being played clears it."""
+        since = (self.today - timedelta(days=REPORTED_HARD_DAYS)).isoformat()
+        owed = [(st.slow_owed, i) for i, st in self.learner.items.items() if st.slow_owed and st.slow_owed >= since and i in self.cur.by_id]
+        return [i for _, i in sorted(owed) if hard_words_of(self.cur.by_id[i], reported=True)]
 
     def reported_hard_items(self) -> list[str]:
         """The items the learner reported hard in the last ``REPORTED_HARD_DAYS`` days and has not recalled since (#326, #337)."""
@@ -2000,7 +2009,7 @@ class Planner:
             return budget - closing_reserve - sc.total_duration
 
         hard_ids = set(self.hard_items())
-        reported_ids = set(self.reported_hard_items())  # #337: the learner reported them hard (sooner, report --hard)
+        owed_slow = self.slow_owed_items()  # #337: reported hard to say and not yet given the model of the hard word
         slow_done: set[str] = set()
         slow_models: list[str] = []  # reported-hard items given the slow model of their hard word in this lesson
         hard_calls: Counter = Counter()  # #326: practices of a hard item so far this lesson
@@ -2081,10 +2090,6 @@ class Planner:
             """Practise ``item`` at ``stage``; False when nothing was played (a capped short item
             with no sentence to go in)."""
             nonlocal since_dialogue
-            if allow_cap and item.id in reported_ids and item.id not in slow_done and not any(i.id == item.id for i in introduced):
-                slow_done.add(item.id)  # #337: once a lesson, before its first practice: the model of its hard word, a model and not a drill
-                if b.slow_word_exercise(sc, item) is not None:
-                    slow_models.append(item.id)
             if allow_cap and item.id in hard_ids and connected_practice(item) == "played":
                 return True
             if stage == "dialogue":
@@ -3043,6 +3048,19 @@ class Planner:
                     acted = True
                     break
 
+            # 0h. the slow, split model of a word the learner reported hard to say (#337): owed in the next lesson, whether or not the item is practised in it
+            if (
+                not acted and not in_new_block() and introduced and len(slow_models) < cfg.slow_models_per_lesson
+                and sc.total_duration >= cfg.slow_model_from * (budget - closing_reserve) and remaining >= 60
+            ):
+                for owed_id in owed_slow:
+                    if owed_id not in slow_done:
+                        slow_done.add(owed_id)
+                        if b.slow_word_exercise(sc, self.cur.by_id[owed_id]) is not None:
+                            slow_models.append(owed_id)
+                            acted = True
+                            break
+
             # 0g. the lesson's theme exchange, when its time has come (#149 1b-ii)
             if not acted and theme_pick and not in_new_block() and drill_streak < cfg.drill_streak_limit and theme_due():
                 acted = play_theme()
@@ -3488,6 +3506,9 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
     for item_id in sc.meta.get("open_items", []):
         if item_id in learner.items:
             learner.items[item_id].open_practiced = sc.lesson_number
+    for item_id in sc.meta.get("slow_models_reported", []):
+        if item_id in learner.items:
+            learner.items[item_id].slow_owed = ""  # #337: the model was played; a recall never clears it
     for item_id in sc.meta.get("embedded_items", []):
         learner.embedded[item_id] = sc.lesson_number
     if sc.meta.get("forms_modelled") is not None:
