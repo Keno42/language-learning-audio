@@ -543,6 +543,7 @@ situation_ja = "給油ランプがつきました。ガソリンスタンドは�
 id = "er_vegurinn_opinn"
 kind = "phrase"
 target = "Er vegurinn opinn?"
+word_syllables = { vegurinn = ["veg", "ur", "inn"] }
 meaning = "Is the road open?"
 meaning_ja = "道路は通れますか？"
 difficulty = 3
@@ -554,6 +555,7 @@ situation_ja = "一晩中雪でした。受付に道路が通れるか聞いて�
 id = "vegurinn_er_lokadur"
 kind = "phrase"
 target = "Vegurinn er lokaður."
+word_syllables = { vegurinn = ["veg", "ur", "inn"], "lokaður" = ["lok", "að", "ur"] }
 meaning = "The road is closed."
 meaning_ja = "道路は閉鎖されています。"
 difficulty = 3

@@ -410,6 +410,7 @@ noun = "reikningur"
 form = "acc_def"
 gender = "masc"
 target = "reikninginn"
+syllables = ["reik", "ning", "inn"]  # «ng» before «i» is [ŋk]: a candidate for the native check (#209)
 meaning = "the bill"
 meaning_ja = "お会計"
 difficulty = 3
@@ -461,6 +462,7 @@ prereqs = ["matsedilinn"]
 id = "get_eg_fengid_reikninginn"
 kind = "phrase"
 target = "Get ég fengið reikninginn?"
+word_syllables = { reikninginn = ["reik", "ning", "inn"] }
 meaning = "Can I have the bill?"
 meaning_ja = "お会計をお願いできますか？"
 difficulty = 4
