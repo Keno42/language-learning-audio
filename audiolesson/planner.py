@@ -1859,7 +1859,16 @@ class Planner:
             if item.topics:
                 recent_topics.append(item.topics[0])
 
+        introducing: list[str] = []  # the items being introduced right now, outermost first: a part whose phrase is introduced for it is taken out of that phrase (#262)
+
         def do_intro(item: Item, worked_fills: dict[str, Item] | None = None) -> None:
+            introducing.append(item.id)
+            try:
+                _do_intro(item, worked_fills)
+            finally:
+                introducing.pop()
+
+        def _do_intro(item: Item, worked_fills: dict[str, Item] | None = None) -> None:
             nonlocal last_intro, last_intro_at, seq, closing_reserve
             if item.id in self.embedded or any(i.id == item.id for i in introduced):
                 # taught already this lesson (embedded, then queued again: «miða» in lesson 19, #217): its turn goes to the
@@ -1969,7 +1978,7 @@ class Planner:
                     if k == 0 and part.kind == "vocab":
                         first_rung[part.id] = seq
                     intro_timeline.append((sc.total_duration + after * (budget - closing_reserve), seq, part, ladder[min(k + 1, len(ladder) - 1)]))
-            for unit in self.covered_units(item):
+            for unit in [u for u in self.covered_units(item) if u.id not in introducing]:
                 # #336 (the review): a unit that is only the filler of a linked phrase just introduced («á flugvöllinn» in «Á flugvöllinn, takk.») is part of it: met
                 # inside its whole, not introduced again out of it. Its next-day question asks the phrase; once it is known the pattern has its fillers
                 if unit in new_queue:
