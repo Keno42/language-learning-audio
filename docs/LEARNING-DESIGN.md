@@ -797,9 +797,10 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
     the shape such a track repeats (§5.16).
 - **Conversation.**
   - **Catching an unknown word (owner, 2026-10-15; #339).** A word is asked about with «Hvað þýðir …?» about once,
-    not in every lesson. Some of the new words that come after are introduced in this form: the partner's line in the
-    word's scene, the learner asks, the meaning, the line again, then the word's usual practice. The others keep the
-    usual introduction.
+    not in every lesson. About one new word in ten is introduced in this form, in place of its usual introduction, the one
+    inside its whole included (owner, 2026-10-15): the partner's line in the word's scene (else the sentence its
+    introduction would have taught it in), the learner asks, the meaning, the line again, then the word's usual practice.
+    The others keep the usual introduction.
   - An exchange's target-language turns must form a plausible conversation with the
     instructor lane removed (#48).
   - `connect` without an authored bridge is mixed review, and says so (#78).
