@@ -24,7 +24,7 @@ from dataclasses import dataclass, replace
 from typing import Callable
 
 from .exercises import _norm_utterance, _other_voice
-from .script import Script
+from .script import Exercise, Script
 from .text import WORD
 from .listening_cues import unknown_cue
 
@@ -210,8 +210,12 @@ def catch_unknown(
     )
 
 
-def _build(b, sc: Script, task: ListeningTask) -> None:
-    ex = sc.new_exercise(task.kind, ("multi" if task.pieces > 1 else "single") if task.kind == "pick_out" else None, list(task.item_ids), task.source)
+def _build(b, sc: Script, task: ListeningTask, introduces: str = "") -> None:
+    """``introduces`` (#339): the id of a new item this catch introduces; the exercise is then its introduction (kind ``intro``), so the planner records it like one."""
+    if introduces:
+        ex = sc.new_exercise("intro", "intro", [introduces], f"new (catch): {task.answer}")
+    else:
+        ex = sc.new_exercise(task.kind, ("multi" if task.pieces > 1 else "single") if task.kind == "pick_out" else None, list(task.item_ids), task.source)
     if task.scene:
         b._frame(sc, ex, task.scene)
     who = b.prompts.get("speaker_he" if task.speaker == "native_b" else "speaker_she")
@@ -262,3 +266,11 @@ def append_task(b, sc: Script, task: ListeningTask, remaining: float):
 
 def key_of(task: ListeningTask) -> tuple[str, str, str]:
     return (task.kind, _norm_utterance(task.line), _norm_utterance(task.answer))
+
+
+def introduce_by_catch(b, sc: Script, task: ListeningTask, item) -> Exercise:
+    """A new word's introduction through the catch (#339, the owner's decision): the partner's line, the cue through the meaning understood, «Hvað þýðir …?»,
+    what the partner says, the line again; the item's usual ladder follows. Counts as the introduction (said once)."""
+    b.said[_norm_utterance(item.target)] += 1
+    _build(b, sc, task, introduces=item.id)
+    return sc.exercises[-1]

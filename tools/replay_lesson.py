@@ -179,6 +179,9 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "«something you haven't heard yet» announcements": sum(1 for t in narrated if "haven't heard yet" in t or "まだ聞いたことのない" in t),
         "narrations with «{»": sum(1 for t in narrated if "{" in t),
         "open items fitted / waiting": f"{len(m.get('open_items', []))} / {len(m.get('open_not_fitted', []))}",
+        "new words introduced through the catch / words caught before / pick-outs heard in the last 3 lessons (#339)": (
+            f"{len(m.get('catch_introductions', []))} / {m.get('caught_before', 0)} / {m.get('pick_outs_recent', 0)} of {len(m.get('pick_outs_heard', []))}"
+        ),
         "hard items: practised / through connections, fewest (#326)": (
             f"{len(m.get('hard_connections', {}))} / " + str(min((v['connections'] for v in m.get('hard_connections', {}).values() if v['practices'] >= 3), default="–"))
         ),

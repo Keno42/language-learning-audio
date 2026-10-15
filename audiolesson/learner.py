@@ -102,6 +102,8 @@ class LearnerState:
     # #149 1b-ii: theme id → the highest level whose exchange a lesson played. The next lesson takes the next level.
     themes_done: dict[str, int] = field(default_factory=dict)
     themes_last: dict[str, int] = field(default_factory=dict)  # theme -> the lesson that last played one of its levels (#149)
+    caught_words: list[str] = field(default_factory=list)  # #339: words the learner has asked about with «Hvað þýðir …?» (lower case), across lessons: a word is caught once
+    listening_log: dict[str, int] = field(default_factory=dict)  # #339: a pick-out ("line|answer") -> the lesson in which it was last heard; a listening log, not practice
     themes_heard: dict[str, list[str]] = field(default_factory=dict)  # "theme:level" -> "turn:line" partner wordings heard with their meaning (#196)
     # #211: "construction:form" keys whose negative or question form was modelled to the learner ("You know this one… as a question…"). A
     # generated sentence takes a form only once it has been. None: a file from before it existed; the builder seeds it from
@@ -637,6 +639,8 @@ class LearnerState:
             "themes_done": self.themes_done,
             "themes_last": self.themes_last,
             "themes_heard": self.themes_heard,
+            **({"caught_words": sorted(self.caught_words)} if self.caught_words else {}),
+            **({"listening_log": dict(self.listening_log)} if self.listening_log else {}),
             **({"forms_modelled": sorted(self.forms_modelled)} if self.forms_modelled is not None else {}),
             **({"retention": {k: list(v) for k, v in self.retention.items()}} if self.retention else {}),
         }
@@ -674,6 +678,8 @@ class LearnerState:
             themes_done={k: int(v) for k, v in raw.get("themes_done", {}).items()},
             themes_last={k: int(v) for k, v in raw.get("themes_last", {}).items()},
             themes_heard={k: list(v) for k, v in raw.get("themes_heard", {}).items()},
+            caught_words=list(raw.get("caught_words", [])),
+            listening_log={k: int(v) for k, v in raw.get("listening_log", {}).items()},
             forms_modelled=set(raw["forms_modelled"]) if "forms_modelled" in raw else None,
             retention={k: [int(x) for x in v] for k, v in raw.get("retention", {}).items()},
         )
