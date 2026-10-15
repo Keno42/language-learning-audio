@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from .content import Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample, split_note_span
 from .learner import LearnerState
 from .prompts import Prompts
-from .sounds import hard_sounds
+from .sounds import hard_sounds, hard_words_of
 from .script import Exercise, Script, Segment
 from .stages import is_generative
 from .text import WORD, norm_utterance
@@ -620,6 +620,8 @@ class Builder:
                 self._repeat_pause(sc, ex, item.target)
         if not item.is_hard() or item.syllables:
             self._slow_model_after_hard(sc, ex, item)
+        if item.kind == "phrase":
+            self.phrase_word_models(sc, ex, item)  # #337: the hard words a phrase names itself, after its word-by-word model
         if item.target_m:
             # the words follow the speaker's gender: a man's form too, in the man's voice
             self._narr(sc, ex, self.prompts.get("man_says"))
@@ -750,6 +752,44 @@ class Builder:
         self._narr(sc, ex, self.prompts.get("natural"))
         self._speak(sc, ex, item.target, speaker=voice or "native_a")
         self._repeat_pause(sc, ex, item.target)
+
+    def _word_model(self, sc: Script, ex: Exercise, word: str, syllables: list[str] | None, voice: str | None = None) -> None:
+        """#337: one hard word of a phrase, said once: cut into its authored syllables, each said slowly and repeated, then at natural speed; without authored
+        syllables the word once more at natural speed (never stretched, #302)."""
+        if syllables:
+            self._narr(sc, ex, self.prompts.get("split_slowly"))
+            for piece in syllables:
+                self._speak(sc, ex, piece, speaker=voice or "native_a", rate=self.timing.slow_rate)
+                self._repeat_pause(sc, ex, piece)
+            self._narr(sc, ex, self.prompts.get("natural"))
+        else:
+            self._narr(sc, ex, self.prompts.get("repeat"))
+        self._speak(sc, ex, word, speaker=voice or "native_a")
+        self._repeat_pause(sc, ex, word)
+
+    def phrase_word_models(self, sc: Script, ex: Exercise, item: Item, voice: str | None = None, reported: bool = False) -> int:
+        """The slow, split model of a phrase's hard words (#337): at its introduction (the words it names itself), and, with ``reported``, in the practice of a phrase
+        the learner reported hard. Returns how many words were modelled."""
+        words = hard_words_of(item, reported=reported)
+        for word, syllables in words:
+            self._beat(sc, ex)
+            self._word_model(sc, ex, word, syllables, voice)
+        return len(words)
+
+    def slow_word_exercise(self, sc: Script, item: Item) -> Exercise | None:
+        """An item the learner reported hard to say (#337): before its next practice, its hard word said slowly in pieces once. None when no word qualifies."""
+        words = hard_words_of(item, reported=True)
+        if not words:
+            return None
+        ex = sc.new_exercise("model", "slow", [item.id], f"slow: {item.target}")
+        self._frame(sc, ex, self.prompts.get("slow_word_intro"))
+        self._speak(sc, ex, item.target, speaker="native_a")
+        self._beat(sc, ex)
+        for word, syllables in words:
+            self._word_model(sc, ex, word, syllables)
+            self._beat(sc, ex)
+        self._gap(sc, ex)
+        return ex
 
     def _slow_model_after_hard(self, sc: Script, ex: Exercise, item: Item) -> None:
         """The generic introduction's slow model for a hard-to-say word (#212): a word that already got a slow whole-word repetition (``is_hard``) only gets the split."""
