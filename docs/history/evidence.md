@@ -650,7 +650,7 @@ Lesson 23 was generated with LLA `bc8e5fa`. It is the first lesson heard with:
   að sjá {…}.» (#270, #276).
 
 **Lesson 22's next-day review.** 10 of its 13 new items were recalled. «Hvað heitir þetta fjall?» and «Gleðileg jól!» were
-hesitated; «Gleðilega hátíð!» failed. Lesson 21's was 4 of 11. The §8 decision rule (revisit #235's zero cost below about
+hesitated; «Gleðilega hátíð!» failed. Lesson 21's was 4 of 11. §8's 60% rule (revisit #235's zero cost below about
 60%) does not fire: the pace unit stays as it is.
 
 | | lesson 23 |

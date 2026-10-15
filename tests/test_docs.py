@@ -59,7 +59,8 @@ class DocsTests(unittest.TestCase):
         for path in referring_files():
             for num, name in set(re.findall(r'§(\d+) [«"]([^"»]+)["»]', path.read_text(encoding="utf-8"))):
                 if num in secs:
-                    self.assertIn(name.lower(), secs[num].lower(), f'{path.name}: §{num} "{name}" is not in §{num}')
+                    name, text = " ".join(name.lower().split()), " ".join(secs[num].lower().split())
+                    self.assertIn(name, text, f'{path.name}: §{num} "{name}" is not in §{num}')
 
 
 if __name__ == "__main__":
