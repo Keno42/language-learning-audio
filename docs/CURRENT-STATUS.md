@@ -16,12 +16,16 @@ LLA half and #198's endings (#323).
 1. **The lesson-26 preview's findings (#333),** all heard in the real lesson 26: «Get ég fengið leigubíl?» not linked to
    its pattern; a «pattern you know» play of a phrase taught two minutes earlier; «Showing the address:» read as a cue;
    «Má ég sofa?» (the owner's call: a named exception or a slot tag). Small, and each one is in tomorrow's lesson.
-2. **A word reported hard to say gets its slow, split model again (#337).** The rule also reads the words inside
+2. **A word is caught once, and some new words are introduced through the catch (#339).** «sestu», «kjötsúpa» and
+   «þarftu» have been asked in every lesson since lesson 23, and the same two pick-outs since lesson 25: the pool is a
+   few authored lines and nothing remembers what was heard. The owner decided the form (§9 "Repetition"); the pick-outs
+   rotate across lessons.
+3. **A word reported hard to say gets its slow, split model again (#337).** The rule also reads the words inside
    phrases, and adds the sounds this learner has stumbled on, not a phonetics catalogue. It is H13's first real test:
    the «sooner» items of lesson 26 come back in lesson 27.
-3. **The pick-out marks its turns (#335):** «Listen and answer.», «The answer:», «Listen again.», as the learner wrote
+4. **The pick-out marks its turns (#335):** «Listen and answer.», «The answer:», «Listen again.», as the learner wrote
    it. Wording only.
-4. **A scene's lines that vary in use are taught as a pattern with the scene's fillers (#336),** transport first. It is
+5. **A scene's lines that vary in use are taught as a pattern with the scene's fillers (#336),** transport first. It is
    the cause behind «úlpu» (#311), #333's first point and the bus, in the case where no pattern was written, and it
    gives #326's connections at the introduction.
 
