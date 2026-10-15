@@ -388,8 +388,8 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   connect pool, substitutions and `refresh`. `Planner.scene_constructions(theme_pick)` = the constructions the learner's turns of the lesson's
   theme level use (and the pattern of a linked phrase): `pick_substitution` and the `refresh` timeline take only those (a parallel of a target
   expression of the scene), unless the lesson has no theme. In the step-5 chain the order of spare time is: the scene's parallels, a fresh arc,
-  the not-due early tiers and the second pass (kept, as before), the lesson's own theme level heard again (`heard_theme_plays` = 4 in all, own
-  level first), listening dialogues, today's new lines again, and last a substitution outside the scene before the bare cap lapses. A closing
+  the not-due early tiers and the second pass (kept, as before), listening dialogues and the lesson's own theme level heard again (`heard_theme_plays` = 4 in all, own
+  level first; the second half's rotation and a capped run of generated sentences reach both too), today's new lines again, and last a substitution outside the scene before the bare cap lapses. A closing
   recall skips a new item just asked as the holder of another new item's sentence.
   A run of generated sentences is cut at `generated_run_max` (3) while something to hear is left (a theme level to hear again, a listening
   dialogue): a construction's review waits and the ear comes between. The not-due early tiers list the scene's own items

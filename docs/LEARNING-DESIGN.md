@@ -844,13 +844,11 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
   - **One admission rule for a part (owner review of #206).** A part is not introduced alone when a frame or a phrase that holds it can
     come with it, on every path (theme target, trip order, extras, variants) — a variant part (`þrjá`) was drilled bare through the
     extras path, the same shape as the lesson-17 feedback about numbers 1–4 asked without gender or scene.
-  - **Not-due items wait for their date (#94),** with one exception. When a lesson's spare time has run out of the
-    scene's parallels and fresh material, it may take a not-due item early, in two tiers: first those rested at least half
-    their interval, then, once the second review pass is used up too, any item not practised today. In each tier the
-    scene's own items and patterns come first, then the longest rested; never a stable item (#151) or one the morning's
-    review asked (#238). The second half's listening rotation comes before all of this; in the fallback chain the early
-    tiers come before the theme level heard again and the listening dialogues (DESIGN.md "Spare time serves the scene
-    and the ear"). Time on an item outside the scene counts as unserved (§8, row 1).
+  - **Not-due items wait for their date (#94),** with one exception: a not-due item may come early to fill spare time,
+    or to space out the introductions of a later arc of new material. Those rested at least half their interval come
+    first, and the scene's own items before others; never a stable item (#151) or one the morning's review asked
+    (#238). Time on an item outside the scene counts as unserved (§8, row 1). The order of these fillers is in
+    DESIGN.md "Spare time serves the scene and the ear".
   - **Exception: `refresh` (#175; revised after lesson 20).** A known construction that carries `refresh` comes back as a
     light sentence with *changing* parts when it is a parallel of a target expression in the lesson's scene, not as a
     standing share of every lesson. It is not the #94 / H11 bug (já, nei, hæ coming back unchanged): the owner wants
