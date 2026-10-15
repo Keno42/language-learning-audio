@@ -1272,9 +1272,10 @@ alongside (owner: about 80% / 20%). The rank is checked on the replay of the lat
 re-ranking is proposed in the PR that wrote it and is the owner's call.
 1. **A word is caught once, some new words are introduced through the catch, and the pick-outs rotate across lessons
    (#339; the owner's decision, §9 "Conversation").** The replay of lesson 27 asks «sestu», «kjötsúpa», «þarftu» and
-   the same two pick-outs again, as every lesson since 23 and 25. The two parts go together: only three partner lines
-   can be caught today, so «once» alone would leave the second half without a catch within a lesson or two, until new
-   words supply it.
+   the same two pick-outs again, as every lesson since 23 and 25. The two parts go together: the three words have had
+   their catch, so with «once» alone the form would leave the lessons from lesson 27, and the introductions bring it
+   back. The second half catches only words never caught, so it has a catch again only as glossed partner lines are
+   added (8 today, 3 of them usable; #327's theme levels can add more).
 2. **A word reported hard to say gets its slow, split model again (#337).** The «sooner» items of lesson 26 come back in
    lesson 27, so it is H13's first real test. The rule also reads the words inside phrases and adds the sounds this
    learner has stumbled on.
@@ -1285,7 +1286,8 @@ re-ranking is proposed in the PR that wrote it and is the owner's call.
    bus's shape. The largest effect on repetition and the largest cost (data); the frames a scene varies first.
 
 **The long run alongside, started now:** #327, the rest of part 1 (a scene line for new items whose topic has no theme)
-and part 2 (more theme levels). The themes' levels run out at lesson 28, and the replay of lesson 27 takes 0 of its 12
+and part 2 (more theme levels, authored Icelandic, candidates until native-checked). The themes' levels run out at
+lesson 28, and the replay of lesson 27 takes 0 of its 12
 new items from the played scene. The levels are authored Icelandic, so they take longest to start.
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
@@ -1349,7 +1351,7 @@ after it carry no remark of the same kind (the table above). The rows:
 - #333, the lesson-26 preview's findings. None of them is in the replay of lesson 27: the transport phrases come back
   at their reviews. Small. «Má ég sofa?» waits for the owner's call (a named exception or a slot tag).
 - #209: when a fluent speaker is available (G10). It is worth more now that #255, #257, #276, #292, #317 (genders and
-  forms) and #323 (a grammar note) added authored Icelandic, and it holds #279's step 2; #336 and #337 will add more.
+  forms) and #323 (a grammar note) added authored Icelandic, and it holds #279's step 2; #327 part 2, #336 and #337 will add more.
 - #236: a one-off reply gets several example answers (owner: low priority).
 
 #265 (expression first), #149 (themes) and #270 (a noun with its gender and forms; its step 2 is what the tags already
@@ -1366,15 +1368,17 @@ do, #317, #324) are the umbrellas the items above belong to; #220 stays open for
    serve it. Built:
    - the theme exchange played twice, the cue in both plays, the partner's lines in variants at natural speed (#186,
      #189, #210); a theme in every lesson, a played level replaying after a rest (step 1); the theme's next level first
-     for new material (step 2a, #201);
+     for new material (step 2a, #201), and the day's new material grouped by scene with the played scene matched when
+     the level has none (#327 part 1, #329);
    - a part with its frame and inside its whole (#202, #254, #262, #293); a fixed phrase linked to its pattern (#192,
      #206); at most three new items of one semantic set a lesson (#204, #207); `prereqs` across items (G13) is not checked;
    - words in sentences, and today's items coming back by time (#170, #187, #239; the rules in §9 "Repetition");
    - spare time as more to hear, and the second half's scene units (#247, #252, #273);
    - an open item practised every lesson and asked at the next review until it is recalled (#162, #205, #220).
 
-   **Next** (#149): new material chosen by scene and more theme data (#327, the long run in "Now": the scene line and the theme levels for café, directions and town, taxi and bus, small talk, and winter talk with #142); the colours through their
-   scenes; the closing block taking the theme's lines. Still
+   **Next** (#149): a scene line for new items whose topic has no theme, and more theme levels for café, directions and
+   town, taxi and bus, small talk, and winter talk with #142 (#327, the long run alongside "Now"); the colours through
+   their scenes; the closing block taking the theme's lines. Still
    open from this step: less practice for an easy new item than for a hard one (G11); the English situation dropped
    once the partner's line is known (G12); a word that hearing counts when the previous review had many 言えなかった
    (§5.7, O5).
