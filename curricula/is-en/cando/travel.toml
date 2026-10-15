@@ -164,7 +164,7 @@ title = "Taxi and bus"
 title_ja = "タクシーとバス"
 setting = "Getting a taxi or a bus to a destination."
 success = "Names the destination, asks the price and where to get off."
-items = ["get_eg_fengid_leigubil", "a_flugvollinn_takk", "a_thetta_hotel_takk", "strætó", "hvenaer_kemur_straeto", "fer_thessi_straeto_i_midbaeinn", "hvar_a_eg_ad_fara_ut", "hvad_kostar_i_straeto", "geturdu_stoppad_herna"]
+items = ["get_eg_fengid_leigubil", "a_flugvollinn_takk", "a_thetta_hotel_takk", "dest_takk", "strætó", "hvenaer_kemur_straeto", "fer_thessi_straeto_i_midbaeinn", "fer_thessi_straeto_dest", "hvar_a_eg_ad_fara_ut", "hvad_kostar_i_straeto", "geturdu_stoppad_herna"]
 missing = ["«Til …, takk» with the genitive, for the learner's own destinations (#132)"]
 respect = ["greet", "thanks"]
 

@@ -740,6 +740,7 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
     - «Áttu leigubíl?» is never generated (#192).
     - «Má ég sofa?» is never generated (`exclude_fills` on `ma_eg_inf`, #333).
     - «Ertu með regnhlíf?» is not an instance of «Ertu með {condition}?» (`not_instance`, #333): the same words, not the same meaning.
+    - «Fer þessi strætó á stoppistöðina / á þetta hótel?» is never generated (`exclude_fills` on `fer_thessi_straeto_dest`, #336).
 
 - **Pace.**
   - It never depends on the departure date. Lessons go on at the same best-effort pace before and during the trip,

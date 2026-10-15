@@ -173,6 +173,7 @@ class PlanConfig:
     # interleaved between items.
     max_open_items: int = 5
     hard_scene_lines: int = 3  # #326: at most this many theme lines (a short exchange around one of the learner's lines) for hard items in a lesson
+    construction_asks_per_filling: int = 4  # #336: a pattern is asked at most this many times a lesson (asked or generated) per filling the learner can say it with (one filling: three times, not fifteen)
     max_catch_intros: int = 2  # #339: new words a lesson introduces through the catch («Hvað þýðir …?») where a partner line of their scene holds only them as unknown
     slow_models_per_lesson: int = 2  # #337: the slow models of reported-hard words a lesson plays
     slow_model_from: float = 0.1  # ... from this share of the lesson on (after the opening and the first introduction)
@@ -575,6 +576,22 @@ class Planner:
             if not asked and not links:
                 continue
             out[item_id] = {"practices": sum(asked.values()), "connections": len(links), "kinds": sorted({k for k, _ in links}), "same_sentence_max": max(asked.values(), default=0), "connection_times_s": at.get(item_id, [])}
+        return out
+
+    def covered_units(self, phrase: Item) -> list[Item]:
+        """#336: the fillers of a linked phrase's pattern that are part of the phrase itself and not yet met («á flugvöllinn» in «Á flugvöllinn, takk.»), when the
+        pattern is not available yet: they are met inside the phrase as a part is met inside its whole (#262), not introduced again out of it."""
+        if phrase.kind != "phrase" or not phrase.instance_of or not phrase.instance_fill or self.pattern_instance_of(phrase) is not None:
+            return []
+        words = self._fixed_text_words(phrase)
+        out = []
+        for ref in phrase.instance_fill.values():
+            f = self.cur.by_id.get(ref)
+            if f is None or f.kind != "vocab" or self.learner.has_met(f.id) or f.id in self.learner.embedded or f.id in self.embedded or f.id in self.builder.in_lesson:
+                continue
+            fw = self._fixed_text_words(f)
+            if fw and any(words[k : k + len(fw)] == fw for k in range(len(words) - len(fw) + 1)):
+                out.append(f)
         return out
 
     def caught_seed(self, known: set[str]) -> list[str]:
@@ -1920,7 +1937,16 @@ class Planner:
             if item.topics:
                 recent_topics.append(item.topics[0])
 
+        introducing: list[str] = []  # the items being introduced right now, outermost first: a part whose phrase is introduced for it is taken out of that phrase (#262)
+
         def do_intro(item: Item, worked_fills: dict[str, Item] | None = None) -> None:
+            introducing.append(item.id)
+            try:
+                _do_intro(item, worked_fills)
+            finally:
+                introducing.pop()
+
+        def _do_intro(item: Item, worked_fills: dict[str, Item] | None = None) -> None:
             nonlocal last_intro, last_intro_at, seq, closing_reserve
             if item.id in self.embedded or any(i.id == item.id for i in introduced):
                 # taught already this lesson (embedded, then queued again: «miða» in lesson 19, #217): its turn goes to the
@@ -2067,10 +2093,20 @@ class Planner:
                     if k == 0 and part.kind == "vocab":
                         first_rung[part.id] = seq
                     intro_timeline.append((sc.total_duration + after * (budget - closing_reserve), seq, part, ladder[min(k + 1, len(ladder) - 1)]))
+            for unit in [u for u in self.covered_units(item) if u.id not in introducing]:
+                # #336 (the review): a unit that is only the filler of a linked phrase just introduced («á flugvöllinn» in «Á flugvöllinn, takk.») is part of it: met
+                # inside its whole, not introduced again out of it. Its next-day question asks the phrase; once it is known the pattern has its fillers
+                if unit in new_queue:
+                    new_queue.remove(unit)
+                self.embedded.append(unit.id)
+                b.in_lesson.add(unit.id)  # heard inside its phrase this lesson: usable as a filler of the pattern's sentences, so the pattern does not fall back to its example
+                b.wholes_taught[unit.id] = {"through": item.id, "answer": item.target, "meaning": item.spoken_meaning}
+                units_covered.append(unit.id)
             last_intro = idx
             last_intro_at = sc.total_duration
             mark_delivered_target()
 
+        units_covered: list[str] = []  # fillers of a linked phrase met inside it (#336)
         cheap_used: list[str] = []
 
         def try_extra() -> bool:
@@ -2197,6 +2233,8 @@ class Planner:
             """Practise ``item`` at ``stage``; False when nothing was played (a capped short item
             with no sentence to go in)."""
             nonlocal since_dialogue
+            if allow_cap and item.kind == "construction" and pattern_spent(item):
+                return False  # #336: a pattern with one or two fillings known can only be asked as the same one or two sentences: each at most this many times a lesson
             if allow_cap and item.id in hard_ids and connected_practice(item) == "played":
                 return True
             if stage == "dialogue":
@@ -2337,6 +2375,8 @@ class Planner:
             if item.instance_of and item.instance_of in self.cur.by_id and b._frame_available(item.instance_of):
                 limit = min(limit, cfg.max_sentence_utterances + 1)  # a linked phrase hands the rest to its pattern's other instances (#192)
             capped = b.said[_norm_utterance(item.target)] >= limit - reserve
+            if not capped and item.instance_of and item.instance_of in self.cur.by_id and (b._frame_available(item.instance_of) or item.instance_of in b.in_lesson):
+                capped = sentence_asks(item.target) >= cfg.construction_asks_per_filling - reserve  # #336: the sentence counts whatever path asked it (its pattern taught today too)
             hard_cap_held[0] = hard_cap_held[0] or capped
             return capped
 
@@ -2348,6 +2388,21 @@ class Planner:
         def asked_times(whole: Item) -> int:
             """How often ``whole`` was asked (recall or connect) in this lesson."""
             return sum(1 for e in sc.exercises if e.kind in ("recall", "connect") and whole.id in e.item_ids)
+
+        def sentence_asks(text: str) -> int:
+            """How often the sentence ``text`` was asked in this lesson, whatever path it came by (#336): a ladder's recall of a phrase or of a pattern's example, a
+            connection, a generated sentence."""
+            want = _norm_utterance(text)
+            return sum(1 for e in sc.exercises if e.kind in ("recall", "connect", "generative") and _norm_utterance(e.label.split(": ", 1)[-1]) == want)
+
+        b.ask_count = sentence_asks
+        b.ask_cap = cfg.construction_asks_per_filling
+
+        def pattern_spent(c: Item) -> bool:
+            """Every sentence the learner can be asked of the pattern ``c`` has been asked ``construction_asks_per_filling`` times (#336): past that the practice
+            goes to another pattern, not to more of the same sentences."""
+            sentences = b.filling_sentences(c)
+            return bool(sentences) and all(sentence_asks(t) >= cfg.construction_asks_per_filling for t in sentences)
 
         def holds_sentence(item: Item) -> bool:
             """A sentence that can be said holds ``item`` (a known or practised phrase that contains it, not a stable one)."""
@@ -2375,7 +2430,7 @@ class Planner:
                 self._record([item.id], "meaning", lately.item_ids)
                 touch(item)
                 return True
-            if whole is None or (ex := b.recall_whole(sc, item, whole)) is None:
+            if whole is None or whole_spent(whole) or (ex := b.recall_whole(sc, item, whole)) is None:
                 return False
             self._record([item.id], "meaning", ex.item_ids)
             touch(item)
@@ -2384,7 +2439,13 @@ class Planner:
         def part_sentence_capped(item: Item) -> bool:
             """A noun has a sentence but it has been said as often as a lesson allows: nothing more is asked of it, not the bare word in its place (#270)."""
             whole = part_whole(item)
-            return whole is not None and bool(b.said_cap) and b.said[_norm_utterance(whole["answer"])] >= b.said_cap
+            return whole is not None and (whole_spent(whole) or bool(b.said_cap) and b.said[_norm_utterance(whole["answer"])] >= b.said_cap)
+
+        def whole_spent(whole: dict) -> bool:
+            """A part's whole that is a pattern's sentence, asked ``construction_asks_per_filling`` times this lesson by any path (#336): the part is not asked
+            through it again (nor bare in its place), so «á flugvöllinn» does not keep its pattern's sentence going past the cap."""
+            through = self.cur.by_id.get(whole.get("through", ""))
+            return bare_cap[0] > 0 and through is not None and through.kind == "construction" and sentence_asks(whole["answer"]) >= cfg.construction_asks_per_filling
 
         def ask_a_sentence(item: Item, repeat: bool = False, review: bool = False) -> bool:
             """A short item already said in a sentence is asked as a sentence from then on (#179):
@@ -3142,7 +3203,7 @@ class Planner:
                     scene_units_placed.append(round(at, 1))
 
             # 0c. a substitution run goes on in its frame before anything else is fitted in (#151)
-            if not acted and not in_new_block() and not listening_available() and (sub := continue_substitution()) is not None:
+            if not acted and generated_run() < cfg.generated_run_max and not in_new_block() and not listening_available() and (sub := continue_substitution()) is not None:
                 do_substitution(sub)
                 acted = True
 
@@ -3389,7 +3450,7 @@ class Planner:
                     pass  # nothing else is left: the light reviews of known constructions come early
                 elif bare_cap[0] > 0 and try_extra():
                     pass  # nothing else is left: a planned extra or the cheap construction, never a close variant (#218 b1)
-                elif reviews_used and (sub := pick_substitution(scene_only=False)) is not None:
+                elif reviews_used and generated_run() < cfg.generated_run_max and (sub := pick_substitution(scene_only=False)) is not None:
                     do_substitution(sub)  # the very last resort (#238): a known pattern outside the scene, rather than bare words again or a short lesson
                 elif (
                     late := next((e for e in sorted(intro_timeline) if e[2].id != (recent[-1] if recent else None) or e[3] == "dialogue"), None)
@@ -3500,6 +3561,7 @@ class Planner:
             "repeated_new_sentences": self._repeated_new_sentences(sc, introduced),  # #311: a new phrase asked as the same sentence in more than 3 exercises ({} expected)
             "switch_pauses": switches,  # #301: pauses put where two speech segments touched; "touching_switches" is what still touches (0)
             "touching_switches": sc.touching_switches(),
+            "units_covered": list(units_covered),  # #336: fillers of a linked phrase met inside it
             "slow_models_reported": list(slow_models),  # #337: reported-hard items given the slow model of their hard word
             "phrase_hard_words": {i.id: [w for w, _ in hard_words_of(i)] for i in introduced if i.kind == "phrase" and hard_words_of(i)},  # #337: authored hard words of today's new phrases (modelled at the introduction)
             "hard_words": [i.id for i in introduced if hard_sounds(i)],  # #212: today's new words that got the slow, split model

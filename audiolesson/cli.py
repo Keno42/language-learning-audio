@@ -13,7 +13,7 @@ from . import __version__
 from .themes import load_themes, scenario_order
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts
-from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, unlinked_instances
+from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, unlinked_instances
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -619,6 +619,14 @@ def cmd_validate(args) -> int:
         if args.parts:
             for f in parts:
                 print(f"  #{f['part_order']:<4} {f['part']} is inside #{f['whole_order']} {f['whole']} ({f['gap']} items earlier)")
+    frames_found = phrase_frames(cur)
+    if frames_found:
+        print(
+            f"advisory (not a failure): {len(frames_found)} frames are said by fixed phrases that differ in one stretch (#336): a scene's line that varies in use "
+            f"(a destination, an order) is better taught as a pattern with the scene's fillers than as separate phrases. Only the frames a scene actually varies need it (§9)."
+        )
+        for frame, ids in frames_found[:12]:
+            print(f"  «{frame}»: {', '.join(ids[:6])}{' …' if len(ids) > 6 else ''}")
     from .sounds import hard_sounds
 
     unsplit = [i.id for i in cur.items if hard_sounds(i) and not i.syllables]

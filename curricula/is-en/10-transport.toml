@@ -60,6 +60,8 @@ situation_ja = "10分待っています。バスは何時に来るか聞いて�
 id = "fer_thessi_straeto_i_midbaeinn"
 kind = "phrase"
 target = "Fer þessi strætó í miðbæinn?"
+instance_of = "fer_thessi_straeto_dest"
+instance_fill = { dest = "i_midbaeinn" }
 meaning = "Does this bus go to the town centre?"
 meaning_ja = "このバスは町の中心に行きますか？"
 difficulty = 4
@@ -72,6 +74,8 @@ situation_ja = "バスが来ました。運転手に中心街へ行くか聞い�
 id = "fer_thessi_straeto_a_flugvollinn"
 kind = "phrase"
 target = "Fer þessi strætó á flugvöllinn?"
+instance_of = "fer_thessi_straeto_dest"
+instance_fill = { dest = "a_flugvollinn" }
 meaning = "Does this bus go to the airport?"
 meaning_ja = "このバスは空港に行きますか？"
 difficulty = 4
@@ -80,6 +84,93 @@ prereqs = ["fer_thessi_straeto_i_midbaeinn"]
 chunks = ["flugvöllinn", "á flugvöllinn", "Fer þessi strætó á flugvöllinn?"]
 situation = "You're at the terminal with your suitcase. Ask if this bus goes to the airport."
 situation_ja = "スーツケースを持ってターミナルにいます。このバスは空港に行くか聞いてください。"
+
+# issue #336: a scene's fixed phrases that vary in use are taught as a pattern with the scene's fillers, so they come with variations. The destination is a
+# whole unit (the preposition and the case go with the place), as the party is. All wordings are candidates for a native speaker (G10, #209).
+[[items]]
+id = "i_midbaeinn"
+kind = "vocab"
+target = "í miðbæinn"
+meaning = "to the town centre"
+meaning_ja = "町の中心まで"
+difficulty = 2
+tags = ["dest"]
+topics = ["transport", "directions"]
+pronunciation_notes = "í + accusative (movement towards): miðbærinn → miðbæinn"
+
+[[items]]
+id = "a_flugvollinn"
+kind = "vocab"
+target = "á flugvöllinn"
+meaning = "to the airport"
+meaning_ja = "空港まで"
+difficulty = 2
+tags = ["dest"]
+topics = ["transport", "directions"]
+pronunciation_notes = "á + accusative (movement towards): flugvöllurinn → flugvöllinn"
+
+[[items]]
+id = "a_thetta_hotel"
+kind = "vocab"
+target = "á þetta hótel"
+meaning = "to this hotel"
+meaning_ja = "このホテルまで"
+difficulty = 2
+tags = ["dest"]
+topics = ["transport", "accommodation"]
+
+[[items]]
+id = "a_safnid"
+kind = "vocab"
+target = "á safnið"
+meaning = "to the museum"
+meaning_ja = "博物館まで"
+difficulty = 2
+tags = ["dest"]
+topics = ["transport", "directions"]
+pronunciation_notes = "á + accusative (movement towards): safnið is neuter, so the accusative is the same as the nominative"
+
+[[items]]
+id = "a_stoppistodina"
+kind = "vocab"
+target = "á stoppistöðina"
+meaning = "to the bus stop"
+meaning_ja = "バス停まで"
+difficulty = 3
+tags = ["dest"]
+topics = ["transport", "directions"]
+pronunciation_notes = "á + accusative (movement towards): stoppistöðin → stoppistöðina"
+
+[[items]]
+id = "fer_thessi_straeto_dest"
+kind = "construction"
+target = "Fer þessi strætó {dest}?"
+meaning = "Does this bus go {dest}?"
+meaning_ja = "このバスは{dest}行きますか？"
+difficulty = 4
+topics = ["transport"]
+slots = { dest = "dest" }
+exclude_fills = ["a_stoppistodina", "a_thetta_hotel"]  # a bus does not go «to the bus stop» or «to this hotel» (a taxi does): H7, a named exception (#336)
+example = { dest = "a_flugvollinn" }
+prereqs = ["i_midbaeinn", "a_flugvollinn"]
+situation = "A bus pulls up. Ask the driver whether it goes to the museum."
+situation_ja = "バスが来ました。運転手に博物館へ行くか聞いてください。"
+situation_fill = { dest = "a_safnid" }
+
+[[items]]
+id = "dest_takk"
+kind = "construction"
+target = "{dest}, takk."
+meaning = "{dest}, please."
+meaning_ja = "{dest}お願いします。"
+difficulty = 3
+topics = ["transport"]
+slots = { dest = "dest" }
+example = { dest = "a_flugvollinn" }
+prereqs = ["a_flugvollinn", "a_thetta_hotel"]
+situation = "You get into the taxi. Tell the driver: to the airport, please."
+situation_ja = "タクシーに乗りました。運転手に空港までと言ってください。"
+situation_fill = { dest = "a_flugvollinn" }
 
 [[items]]
 id = "hvar_a_eg_ad_fara_ut"
@@ -293,6 +384,8 @@ situation_ja = "夜遅くでバスは終わっています。受付にタクシ�
 id = "a_flugvollinn_takk"
 kind = "phrase"
 target = "Á flugvöllinn, takk."
+instance_of = "dest_takk"
+instance_fill = { dest = "a_flugvollinn" }
 meaning = "To the airport, please."
 meaning_ja = "空港までお願いします。"
 difficulty = 2
@@ -304,6 +397,8 @@ situation_ja = "タクシーに乗りました。運転手に空港までと言�
 id = "a_thetta_hotel_takk"
 kind = "phrase"
 target = "Á þetta hótel, takk."
+instance_of = "dest_takk"
+instance_fill = { dest = "a_thetta_hotel" }
 meaning = "To this hotel, please."
 meaning_ja = "このホテルまでお願いします。"
 difficulty = 2

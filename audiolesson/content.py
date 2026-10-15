@@ -669,6 +669,41 @@ def unlinked_instances(cur: Curriculum) -> list[tuple[str, str, str, str, str]]:
     return out
 
 
+def phrase_frames(cur: Curriculum, min_frame: int = 2, share: float = 0.4) -> list[tuple[str, list[str]]]:
+    """#336: groups of fixed phrases of one scene that say one frame and differ in one stretch (a destination, an order): «Fer þessi strætó í miðbæinn?» /
+    «… á flugvöllinn?», «Á flugvöllinn, takk.» / «Á þetta hótel, takk.». The comparison is of the text, not of slot tags: two phrases that share a topic have a
+    frame when what they share at the start and at the end is at least ``min_frame`` words and ``share`` of the shorter one, each holding a different stretch
+    between. Phrases with the same frame form a group; a group whose phrases are all instances of one pattern is not reported (it is made). Returns
+    ``(frame, phrase ids)``, largest groups first; advisory (a prompt for a per-case choice, §9 «Good enough overall»: only the frames a scene actually varies)."""
+    phrases = [it for it in cur.items if it.kind == "phrase"]
+    words = {it.id: [w.casefold() for w in _WORD_RE.findall(it.target)] for it in phrases}
+    plain = {"ég", "þú", "við", "hann", "hún", "það", "þetta", "er", "að", "á", "í", "af", "til", "með", "um"}  # pronouns, the copula and prepositions: not a frame by themselves
+    frames: dict[tuple[tuple[str, ...], tuple[str, ...]], set[str]] = {}
+    for k, a in enumerate(phrases):
+        wa = words[a.id]
+        for b in phrases[k + 1 :]:
+            wb = words[b.id]
+            if not wa or not wb or wa == wb or not set(a.topics) & set(b.topics):
+                continue
+            pre = 0
+            while pre < min(len(wa), len(wb)) and wa[pre] == wb[pre]:
+                pre += 1
+            suf = 0
+            while suf < min(len(wa), len(wb)) - pre and wa[-1 - suf] == wb[-1 - suf]:
+                suf += 1
+            if pre + suf >= min_frame and pre + suf >= share * min(len(wa), len(wb)) and len(wa) > pre + suf and len(wb) > pre + suf:
+                key = (tuple(wa[:pre]), tuple(wa[len(wa) - suf :]) if suf else ())
+                frames.setdefault(key, set()).update((a.id, b.id))
+    out = []
+    for (pre, suf), ids in frames.items():
+        if all(w in plain for w in (*pre, *suf)):
+            continue  # a subject, a copula or a preposition alone is not a frame a scene varies
+        if len({cur.by_id[i].instance_of for i in ids}) == 1 and cur.by_id[next(iter(ids))].instance_of:
+            continue
+        out.append((" ".join(pre) + " … " + " ".join(suf), sorted(ids)))
+    return sorted(out, key=lambda g: (-len(g[1]), g[0]))
+
+
 def validate(cur: Curriculum) -> None:
     ids = set()
     targets: dict[str, str] = {}
