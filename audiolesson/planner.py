@@ -587,47 +587,50 @@ class Planner:
                             out.update(w.lower() for w in (ln.word_glosses or {}))
         return sorted(out)
 
-    def catch_intro_task(self, item: Item, known: set[str], used_lines: set[str]) -> ListeningTask | None:
+    def catch_intro_task(self, item: Item, known: set[str], used_lines: set[str], caught: set[str] | None = None) -> ListeningTask | None:
         """#339: a new one-word item that a partner line of a scene holds as its only unknown word, so that the word can be introduced through the catch
-        («Hvað þýðir …?»). The meaning is the item's own (no per-line gloss). None when the repair phrase cannot be said, the word was caught before,
-        the item is not a single word, or no line qualifies. Themes in file order, levels in order, the lines as authored."""
+        («Hvað þýðir …?»). The meaning is the item's own (no per-line gloss). None when the repair phrase cannot be said, the word was caught before (``caught``:
+        the learner's and this lesson's), the item is not a single word, or no line qualifies. The word's own scene first (a theme or a dialogue that shares a
+        topic with the item), then the others; within each, themes in file order, levels in order, the lines as authored."""
         words = self._fixed_text_words(item)
+        caught = self.learner.caught_words if caught is None else caught
         repair = self.cur.by_id.get(REPAIR_ITEM)
-        if len(words) != 1 or repair is None or not self.can_say_item(repair.id) or words[0] in self.learner.caught_words:
+        if len(words) != 1 or repair is None or not self.can_say_item(repair.id) or words[0] in caught or words[0] in self.learner.caught_words:
             return None
         word = words[0]
         lang = self.cur.known_lang.split("-")[0].lower()
         meaning = item.spoken_meaning or item.meaning
         rank = set(self.cfg.theme_scenarios)
+        topics = set(item.topics)
+        found: list[tuple[bool, ListeningTask]] = []
+
+        def consider(say: str, line_meaning: str, source: str, scene: str, speaker: str, scene_topics: list[str]) -> None:
+            task = catch_unknown(
+                say, {word: {lang: meaning}}, known - {word}, self.cur.known_lang, repair, repair_known=True,
+                source=source, scene=scene, speaker=speaker, line_meaning=line_meaning,
+            )
+            if task is not None and task.answer.lower() == word:
+                found.append((bool(topics & set(scene_topics)), task))
+
         for t in self.cfg.themes:
             if t.scenario not in rank:
                 continue
             for n, level in enumerate(t.levels):
+                scene = level_dialogue(t, n, self.cur.known_lang).setting
                 for k, turn in enumerate(level.turns):
                     if turn.who != "partner":
                         continue
                     for v, ln in enumerate(turn.lines()):
-                        if ln.say in used_lines:
-                            continue
-                        task = catch_unknown(
-                            ln.say, {word: {lang: meaning}}, known - {word}, self.cur.known_lang, repair, repair_known=True,
-                            source=f"theme:{t.id}:{n + 1}:{k}:{v}", scene=level_dialogue(t, n, self.cur.known_lang).setting, speaker=level.partner_speaker,
-                            line_meaning=ln.meaning_ja if lang == "ja" and ln.meaning_ja else ln.meaning,
-                        )
-                        if task is not None and task.answer.lower() == word:
-                            return task
+                        if ln.say not in used_lines:
+                            consider(ln.say, ln.meaning_ja if lang == "ja" and ln.meaning_ja else ln.meaning, f"theme:{t.id}:{n + 1}:{k}:{v}", scene, level.partner_speaker, t.topics)
         for d in self.cur.dialogues:  # an authored dialogue's partner lines have meanings too (the opener and the reply)
             for k, turn in enumerate(d.turns):
                 for kind, say, said_meaning in (("o", turn.opener, turn.opener_meaning), ("p", turn.partner, turn.partner_meaning)):
-                    if not say or not said_meaning or say in used_lines:
-                        continue
-                    task = catch_unknown(
-                        say, {word: {lang: meaning}}, known - {word}, self.cur.known_lang, repair, repair_known=True,
-                        source=f"dialogue:{d.id}:{k}:{kind}", scene=d.setting, speaker=d.partner_speaker, line_meaning=said_meaning,
-                    )
-                    if task is not None and task.answer.lower() == word:
-                        return task
-        return None
+                    if say and said_meaning and say not in used_lines:
+                        consider(say, said_meaning, f"dialogue:{d.id}:{k}:{kind}", d.setting, d.partner_speaker, d.topics)
+        if not found:
+            return None
+        return next((task for in_scene, task in found if in_scene), found[0][1])
 
     def hard_items(self) -> list[str]:
         """The items reported hard (#326): open (failed at the last review, #162) and those that came out with hesitation at their last

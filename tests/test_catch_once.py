@@ -52,6 +52,7 @@ class CatchOnceTests(unittest.TestCase):
             apply_to_learner(sc, l, day)
             l.report([], [], day + timedelta(days=1), lesson_number=n, recalled=m["new_items"])
             day += timedelta(days=1)
+        self.assertTrue(seen, "the course does catch words (a test that passes with none proves nothing)")
         self.assertEqual(len(seen), len(set(seen)), seen)
         self.assertEqual(set(seen), set(l.caught_words))
 
@@ -164,6 +165,45 @@ class CatchOnceTests(unittest.TestCase):
             day += timedelta(days=1)
         self.assertIn("no line holds it as the only unknown", outcomes)
         self.assertTrue(outcomes <= {"not the plain introduction", "hard to say (keeps the slow model)", "held by a longer new item", "not a content word", "no line holds it as the only unknown", "introduced"}, outcomes)
+
+    def test_a_word_is_not_caught_twice_in_one_lesson(self):
+        from audiolesson.listening_tasks import REPAIR_ITEM
+
+        l = LearnerState("is", "en", "A1")
+        l.items[REPAIR_ITEM] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=7, last_outcome="recalled", due=(TODAY + timedelta(days=5)).isoformat())
+        p = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), self.cfg(), today=TODAY)
+        known = {"tvö", "krónur", "takk"}
+        item = self.cur.by_id["thusund"]
+        self.assertIsNotNone(p.catch_intro_task(item, known, set(), set()))
+        self.assertIsNone(p.catch_intro_task(item, known, set(), {"þúsund"}), "caught earlier in this lesson")
+
+    def test_the_words_own_scene_comes_first(self):
+        from audiolesson.content import curriculum_from_dict
+
+        base = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}}
+        items = [
+            {"id": "repair", "kind": "phrase", "target": "Hvað þýðir þetta?", "meaning": "What does this mean?"},
+            {"id": "kaffi", "kind": "vocab", "target": "kaffi", "meaning": "coffee", "topics": ["cafe"]},
+        ]
+        def turn(line):
+            return {"cue": "x", "expect": "repair", "partner": line, "partner_meaning": "Would you like coffee?"}
+        cur = curriculum_from_dict({**base, "items": items, "dialogues": [
+            {"id": "d_off", "setting": "At a museum.", "topics": ["travel"], "turns": [turn("Viltu kaffi?")]},
+            {"id": "d_cafe", "setting": "At a café.", "topics": ["cafe"], "turns": [turn("Viltu kaffi?")]},
+        ]})
+        l = LearnerState("is", "en", "A1")
+        l.items["repair"] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=7, last_outcome="recalled", due=(TODAY + timedelta(days=5)).isoformat())
+        from audiolesson import planner as planner_mod  # REPAIR_ITEM is a fixed id: point the test's repair phrase at it
+
+        old = planner_mod.REPAIR_ITEM
+        planner_mod.REPAIR_ITEM = "repair"
+        try:
+            p = Planner(cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, themes=[]), today=TODAY)
+            task = p.catch_intro_task(cur.by_id["kaffi"], {"viltu"}, set())
+        finally:
+            planner_mod.REPAIR_ITEM = old
+        self.assertIsNotNone(task)
+        self.assertTrue(task.source.startswith("dialogue:d_cafe:"), task.source)
 
 
 if __name__ == "__main__":
