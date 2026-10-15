@@ -406,6 +406,7 @@ situation_ja = "この風では上着が役に立ちません。防寒コート�
 [[items]]
 id = "ertu_med_regnhlif"
 kind = "phrase"
+not_instance = true  # «Ertu með {condition}?» asks about an illness; the umbrella is only the same words (#333)
 target = "Ertu með regnhlíf?"
 meaning = "Do you have an umbrella?"
 meaning_ja = "傘を持っていますか？"

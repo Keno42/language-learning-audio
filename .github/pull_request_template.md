@@ -15,4 +15,8 @@
 - [ ] Replayed on the real learner path (a feedback export's `learner.before.json` and arguments), or why that doesn't apply
 - [ ] `python -m unittest` and `audiolesson validate curricula/is-en`
 
+## Documents
+
+<!-- If a document changed: what this replaced or deleted, not only what it added (LEARNING-DESIGN §10). -->
+
 ## Not in this PR

@@ -10,7 +10,7 @@ target = "leigubíl"
 meaning = "a taxi"
 meaning_ja = "タクシー"
 difficulty = 2
-tags = ["acc_thing"]
+tags = ["acc_thing", "acc_request"]
 topics = ["transport"]
 pronunciation_notes = "accusative of leigubíll"
 
@@ -284,6 +284,8 @@ meaning_ja = "タクシーを呼んでもらえますか？"
 difficulty = 3
 topics = ["transport"]
 prereqs = ["get_eg_fengid", "leigubil"]
+instance_of = "get_eg_fengid"
+instance_fill = { thing = "leigubil" }
 situation = "It's late and the buses have stopped. Ask the receptionist for a taxi."
 situation_ja = "夜遅くでバスは終わっています。受付にタクシーを頼んでください。"
 
@@ -302,10 +304,8 @@ situation_ja = "タクシーに乗りました。運転手に空港までと言�
 id = "a_thetta_hotel_takk"
 kind = "phrase"
 target = "Á þetta hótel, takk."
-meaning = "To this hotel, please. (showing the address)"
-meaning_ja = "このホテルまでお願いします。（住所を見せながら）"
-meaning_spoken = "showing the address: To this hotel, please."
-meaning_spoken_ja = "住所を見せながら、このホテルまでお願いします。"
+meaning = "To this hotel, please."
+meaning_ja = "このホテルまでお願いします。"
 difficulty = 2
 topics = ["transport", "accommodation"]
 situation = "You show the driver the booking on your phone. Say: to this hotel, please."

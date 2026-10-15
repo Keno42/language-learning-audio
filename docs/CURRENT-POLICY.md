@@ -45,14 +45,14 @@ summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wro
   the lesson and in the review. Bare is the fallback only when no sentence exists. A question whose cue is its answer is
   never asked. One rule decides every learner line in every play mode: sayable → asked, otherwise heard with its meaning.
 - **Similar items apart (H5).** Group new material by scene, not by semantic set (numbers, colours): at most three new items
-  of one set a lesson. A fixed phrase that is an instance of a pattern is linked to it (`instance_of`), and `validate`
+  of one set a lesson, except the items the theme's next level wants and a filler a construction's slot pulls in. A fixed phrase that is an instance of a pattern is linked to it (`instance_of`), and `validate`
   fails for an unlinked one.
 - **Pace (H9).** The unit is weighted new components (#218), not new items; it never depends on the departure date, and is
   throttled only by what the learner reports (recall over the last three lessons, the load rating). Close variants do not
   fill spare time; a form comes with a purpose.
 - **Repetition.** A short item is said alone at most three times a lesson; a fixed sentence at most nine; the same
   situation narrated in full at most twice. A pattern is not a lesson's whole supply (about ten generated sentences). Not-due
-  items wait for their date (#94). An open item (failed) is practised every lesson and asked at the next review until it is
+  items wait for their date (#94), with one exception for spare time (LD §9 "Repetition"). An open item (failed) is practised every lesson and asked at the next review until it is
   recalled.
 - **Spare time and the second half.** Once the lesson has taught what the target asked for, the second half is a rotation
   of the ear and the scene: hear the scene, pick out information, catch an unknown word, use one of today's expressions
@@ -83,5 +83,5 @@ summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wro
 - Every default reproduces today's behaviour, or the change of behaviour is the point and is stated. The settings that
   produced a lesson stay recorded (`plan.json`, the manifest).
 - After a round of learner feedback: replay the export, read the signals, update the evidence (LD §5) and the hypothesis
-  statuses (LD §4), re-rank the roadmap (LD §8). A change is done when its row in the daily read reads 0 and three feedbacks
-  carry no remark of the same kind.
+  statuses (LD §4), re-rank the roadmap (LD §8). A change is done as LD §8 defines it: its daily-read row at its target, and three
+  feedbacks without a remark of the same kind.

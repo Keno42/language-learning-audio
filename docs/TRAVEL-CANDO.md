@@ -50,7 +50,7 @@ A theme names its scene twice (#278): `setting` / `setting_ja` is a written syno
 
 A partner line, or one of its variants, may carry `word_glosses = { word = { en, ja } }`: the meaning of a word in it
 the learner may not know (#248). The second half's *catch the unknown word* exercise uses a line whose words hold exactly
-one unknown word with a gloss; the learner says the word and «Hvað þýðir þetta?». A gloss is authored, never guessed
+one unknown word with a gloss; the learner asks «Hvað þýðir {word}?». A gloss is authored, never guessed
 from the line's translation; `validate` fails a gloss whose word is not in the line.
 
 ## Coverage report
