@@ -81,6 +81,30 @@ class CatchOnceTests(unittest.TestCase):
         l.caught_words = ["þúsund"]
         self.assertIsNone(p.catch_intro_task(self.cur.by_id["thusund"], {"tvö", "krónur", "takk"}, set()), "caught once, never again")
 
+    def test_a_hard_to_say_word_keeps_its_plain_introduction_with_the_slow_split_model(self):
+        """Review of #344: the slow, split model (#212) lives in the plain introduction; a catch must not take it from «eldfjall» and the like."""
+        from unittest import mock
+
+        from audiolesson.sounds import hard_sounds
+
+        asked: list[str] = []
+        real = Planner.catch_intro_task
+
+        def spy(self_, item, known, used):
+            asked.append(item.id)
+            return real(self_, item, known, used)
+
+        l = LearnerState("is", "en", "A1")
+        day = TODAY
+        with mock.patch.object(Planner, "catch_intro_task", spy):
+            for n in range(1, 31):
+                sc = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), self.cfg(), today=day).build()
+                apply_to_learner(sc, l, day)
+                l.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
+                day += timedelta(days=1)
+        self.assertTrue(asked, "the catch was considered for some words")
+        self.assertEqual([i for i in asked if hard_sounds(self.cur.by_id[i])], [], "never for a hard-to-say word")
+
 
 if __name__ == "__main__":
     unittest.main()

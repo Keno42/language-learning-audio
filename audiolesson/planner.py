@@ -1982,10 +1982,10 @@ class Planner:
                 mark_delivered_target()
                 return
             catch = None
-            if item.kind == "vocab" and worked_fills is None and len(catch_introduced) < cfg.max_catch_intros and b.intro_is_generic(item) and not any(
+            if item.kind == "vocab" and worked_fills is None and len(catch_introduced) < cfg.max_catch_intros and b.intro_is_generic(item) and not hard_sounds(item) and not any(
                 x.id != item.id and set(self._fixed_text_words(item)) < set(self._fixed_text_words(x)) for x in new_queue
             ):
-                # not a word that a longer new item of the lesson holds («þúsund» in «þúsund krónur»): it is met inside that whole (#262), and the two would each be asked for the other's sake
+                # not a hard-to-say word (#212: its slow, split model belongs to the plain introduction, once) and not a word that a longer new item of the lesson holds («þúsund» in «þúsund krónur»): it is met inside that whole (#262), and the two would each be asked for the other's sake
                 catch = self.catch_intro_task(item, known_now(), catch_lines)
             if catch is not None:
                 # #339 (the owner's decision): some new words are introduced through the catch, the form that pins down an unknown word in a line of its scene
