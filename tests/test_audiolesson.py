@@ -5795,7 +5795,7 @@ class ListeningTaskTests(unittest.TestCase):
         self.assertEqual((task.answer, task.pattern, task.pieces), ("tuttugu mínútur", "theme:tour:1:2", 1))
         sc = Script(1, "t", "is", "en")
         ex = append_task(self._builder(), sc, task, 120.0)
-        self.assertIn("You want to know how long. Listen.", sc.transcript())
+        self.assertIn("You want to know how long. Listen and answer.", sc.transcript())
         self.assertEqual(ex.stage, "single")
 
     def test_the_row_counts_a_single_piece_that_is_most_of_its_line(self):
