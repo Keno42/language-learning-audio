@@ -574,6 +574,22 @@ class Planner:
             out[item_id] = {"practices": sum(asked.values()), "connections": len(links), "kinds": sorted({k for k, _ in links}), "same_sentence_max": max(asked.values(), default=0), "connection_times_s": at.get(item_id, [])}
         return out
 
+    def covered_units(self, phrase: Item) -> list[Item]:
+        """#336: the fillers of a linked phrase's pattern that are part of the phrase itself and not yet met («á flugvöllinn» in «Á flugvöllinn, takk.»), when the
+        pattern is not available yet: they are met inside the phrase as a part is met inside its whole (#262), not introduced again out of it."""
+        if phrase.kind != "phrase" or not phrase.instance_of or not phrase.instance_fill or self.pattern_instance_of(phrase) is not None:
+            return []
+        words = self._fixed_text_words(phrase)
+        out = []
+        for ref in phrase.instance_fill.values():
+            f = self.cur.by_id.get(ref)
+            if f is None or f.kind != "vocab" or self.learner.has_met(f.id) or f.id in self.learner.embedded or f.id in self.embedded or f.id in self.builder.in_lesson:
+                continue
+            fw = self._fixed_text_words(f)
+            if fw and any(words[k : k + len(fw)] == fw for k in range(len(words) - len(fw) + 1)):
+                out.append(f)
+        return out
+
     def hard_items(self) -> list[str]:
         """The items reported hard (#326): open (failed at the last review, #162) and those that came out with hesitation at their last
         review, and those the learner reported hard (``reported_hard``: the feedback form's «sooner», or named with ``report --hard``) in the last
@@ -1953,10 +1969,19 @@ class Planner:
                     if k == 0 and part.kind == "vocab":
                         first_rung[part.id] = seq
                     intro_timeline.append((sc.total_duration + after * (budget - closing_reserve), seq, part, ladder[min(k + 1, len(ladder) - 1)]))
+            for unit in self.covered_units(item):
+                # #336 (the review): a unit that is only the filler of a linked phrase just introduced («á flugvöllinn» in «Á flugvöllinn, takk.») is part of it: met
+                # inside its whole, not introduced again out of it. Its next-day question asks the phrase; once it is known the pattern has its fillers
+                if unit in new_queue:
+                    new_queue.remove(unit)
+                self.embedded.append(unit.id)
+                b.wholes_taught[unit.id] = {"through": item.id, "answer": item.target, "meaning": item.spoken_meaning}
+                units_covered.append(unit.id)
             last_intro = idx
             last_intro_at = sc.total_duration
             mark_delivered_target()
 
+        units_covered: list[str] = []  # fillers of a linked phrase met inside it (#336)
         cheap_used: list[str] = []
 
         def try_extra() -> bool:
@@ -3360,6 +3385,7 @@ class Planner:
             "repeated_new_sentences": self._repeated_new_sentences(sc, introduced),  # #311: a new phrase asked as the same sentence in more than 3 exercises ({} expected)
             "switch_pauses": switches,  # #301: pauses put where two speech segments touched; "touching_switches" is what still touches (0)
             "touching_switches": sc.touching_switches(),
+            "units_covered": list(units_covered),  # #336: fillers of a linked phrase met inside it
             "hard_words": [i.id for i in introduced if hard_sounds(i)],  # #212: today's new words that got the slow, split model
             "stranded_frames": list(self.stranded_placed),  # #270: frames brought forward for a known noun whose only frame was unmet
             "variant_items": [i.id for i in [*introduced, *(self.cur.by_id[e] for e in self.embedded)] if i.variant_of],  # a form comes with a purpose (#218 b1)

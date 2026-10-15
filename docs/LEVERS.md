@@ -1,6 +1,6 @@
 # Planner levers (issue #136)
 
-Levers are changed by hand, at most two a week, on evidence from the post-lesson feedback
+Levers are changed by hand, at the rate LEARNING-DESIGN §9 "Governance" sets, on evidence from the post-lesson feedback
 (#128) and the scenario cards (#129). Each lever is a setting, so a change never needs a code change. Every default reproduces
 the behaviour from before the lever existed.
 

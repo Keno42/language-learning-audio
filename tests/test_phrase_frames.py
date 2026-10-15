@@ -78,6 +78,65 @@ class TransportFrameTests(unittest.TestCase):
         self.assertNotIn("fer þessi strætó … ", [f for f, _ in transport])
         self.assertNotIn("á … takk", [f for f, _ in transport])
 
+    def test_the_bus_pattern_does_not_say_the_bus_stop_or_this_hotel(self):
+        c = self.cur.by_id["fer_thessi_straeto_dest"]
+        ids = [i.id for i in self.cur.items_with_tag("dest", c)]
+        self.assertEqual(sorted(ids), ["a_flugvollinn", "a_safnid", "i_midbaeinn"])
+        self.assertIn("a_stoppistodina", [i.id for i in self.cur.items_with_tag("dest", self.cur.by_id["dest_takk"])], "a taxi does go there")
+
+    def test_the_japanese_meanings_of_the_destinations_match_the_authored_phrases(self):
+        c = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
+        text, meaning = c.resolve_slots(c.by_id["dest_takk"], {"dest": c.by_id["a_flugvollinn"]})
+        self.assertEqual((text, meaning), ("Á flugvöllinn, takk.", c.by_id["a_flugvollinn_takk"].meaning))
+
+
+class UnitsCoveredTests(unittest.TestCase):
+    """The review of #346: the destinations are met inside the phrases that hold them, not introduced again, and then the patterns come."""
+
+    @classmethod
+    def setUpClass(cls):
+        from audiolesson.cando import load_cando
+        from audiolesson.themes import load_themes, scenario_order
+
+        cls.cur = load_curriculum(ROOT / "curricula" / "is-en")
+        scen = load_cando(ROOT / "curricula" / "is-en")
+        cls.themes = load_themes(ROOT / "curricula" / "is-en", cls.cur, scen)
+        cls.order = scenario_order(scen)
+        cls.priority = next(sc for sc in __import__("tomllib").loads((ROOT / "curricula" / "is-en" / "cando" / "travel.toml").read_text(encoding="utf-8"))["scenarios"] if sc["id"] == "B4")["items"]
+
+    def course(self, n):
+        from datetime import date, timedelta
+
+        from audiolesson.learner import LearnerState
+        from audiolesson.planner import PlanConfig, Planner, apply_to_learner
+        from audiolesson.prompts import Prompts
+        from audiolesson.timing import Timing
+
+        l, day = LearnerState("is", "en", "A1"), date(2026, 3, 1)
+        for k in range(1, n + 1):
+            cfg = PlanConfig(minutes=30, new_target=8, themes=self.themes, theme_scenarios=self.order, priority=self.priority if k >= 24 else [])
+            sc = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), cfg, today=day).build()
+            yield k, sc
+            apply_to_learner(sc, l, day)
+            l.report([], [], day + timedelta(days=1), lesson_number=k, recalled=sc.meta["new_items"])
+            day += timedelta(days=1)
+
+    def test_a_destination_is_met_inside_its_phrase_and_not_introduced_again(self):
+        for k, sc in self.course(26):
+            if "a_flugvollinn_takk" in sc.meta["new_items"]:
+                self.assertIn("a_flugvollinn", sc.meta["units_covered"])
+                self.assertIn("a_flugvollinn", sc.meta["embedded_items"], "met inside the phrase: its next-day question asks the phrase")
+                intros = [e.label for e in sc.exercises if e.kind == "intro" and "(á flugvöllinn)" in e.label]
+                self.assertEqual(intros, [], "no «new: Á flugvöllinn, takk. (á flugvöllinn)»")
+                return
+        self.fail("the taxi phrase was not taught in the course")
+
+    def test_the_patterns_come_and_say_the_other_destinations(self):
+        said = set()
+        for k, sc in self.course(40):
+            said |= {e.label.split(": ", 1)[-1] for e in sc.exercises if "takk" in e.label or "strætó" in e.label}
+        self.assertTrue({"Í miðbæinn, takk.", "Fer þessi strætó á flugvöllinn?"} & said, said)
+
 
 if __name__ == "__main__":
     unittest.main()

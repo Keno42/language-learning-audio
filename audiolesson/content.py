@@ -673,7 +673,7 @@ def phrase_frames(cur: Curriculum, min_frame: int = 2, share: float = 0.4) -> li
     «… á flugvöllinn?», «Á flugvöllinn, takk.» / «Á þetta hótel, takk.». The comparison is of the text, not of slot tags: two phrases that share a topic have a
     frame when what they share at the start and at the end is at least ``min_frame`` words and ``share`` of the shorter one, each holding a different stretch
     between. Phrases with the same frame form a group; a group whose phrases are all instances of one pattern is not reported (it is made). Returns
-    ``(frame, phrase ids)``, largest groups first; advisory (a prompt for a per-case choice, §9: only the frames a scene actually varies)."""
+    ``(frame, phrase ids)``, largest groups first; advisory (a prompt for a per-case choice, §9 «Good enough overall»: only the frames a scene actually varies)."""
     phrases = [it for it in cur.items if it.kind == "phrase"]
     words = {it.id: [w.casefold() for w in _WORD_RE.findall(it.target)] for it in phrases}
     plain = {"ég", "þú", "við", "hann", "hún", "það", "þetta", "er", "að", "á", "í", "og", "hvað", "hvar", "ekki", "get", "má", "vil", "þarf", "af", "til", "með", "um", "hér", "hérna", "mér", "mig", "morgun", "lagi"}
