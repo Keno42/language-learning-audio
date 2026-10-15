@@ -76,7 +76,8 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   **A framing line is followed by a beat (#241).** A line that introduces an example or a scene (`embed_*`, `instance_sentence`,
   `variant_*`, `construction_slot`, `also`, `form_model_*`, `milestone_intro` / `aside`, a turn's `scene` / `partner_scene`,
   `listening_line`, `dialogue_replay`) is said by `Builder._frame` (a narration with role `frame`, then a beat). A cue for the
-  learner's own action («Repeat.», «Slowly.», the reply cue, cloze and hint cues) joins its line at once; Icelandic inside a note's
+  learner's own action («Repeat.», «Slowly.», the reply cue, cloze and hint cues) is followed by its line after the
+  switch gap only, not a beat (#301); Icelandic inside a note's
   prose stays inline. A turn's opener after the first has a beat before it (the previous turn's partner meaning has just ended). The daily read counts any instructor narration followed straight by speech, whatever its role, except the action cues and a note's prose (0). `bare_cap_lapsed_short_s` in the
   meta says how short the lesson would have ended when the bare cap lapsed.
   **A note's prose is read a sentence at a time (#259).** `Builder._speak_note_text` splits each stretch of prose at «. » «? » «! » «: » followed by a capital letter (and at «。» «！» «？» in
@@ -221,8 +222,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   first (variety, not replacement). When plain sentences run out the supply may run short rather
   than the newest form crowd them out. Japanese glosses of a form that depend on the fill's word
   class use a per-fill `meaning_forms_ja` (`neg`, `tai`, `tai_neg`).
-- **A core construction gets a light review every lesson (#171).** `Item.refresh` sentences of a known,
-  not open construction are scheduled across the lesson (`refresh_timeline`, constructions interleaved),
+- **A core construction gets a light review when the lesson's scene uses it (#171, #238).** `Item.refresh` sentences of a
+  known, not open construction of the scene (`scene_constructions`; any, when the lesson has no theme), not asked in the
+  morning's review, are scheduled across the lesson (`refresh_timeline`, constructions interleaved),
   each a recombination with fillers not heard this lesson (`_recombine`, `met_fills`, forms once taught);
   one whose time has come plays when the drill streak allows, an idle lesson and a streak with no relief
   pull them early (`play_refresh`), and a construction with no unheard sentence left is dropped for the
@@ -381,13 +383,13 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   is weak). `suggest_pace`: up at ≤ 15% with a small backlog, hold to 25%, down above. `report --load light|right|heavy` stores
   `lessons[k]["load"]`; like `--sooner` alone it does not mark the lesson reported. Two «light» lessons raise it at ≤ 25% with the same small-backlog condition (< 0.5) as the recall-based rise; an unrated lesson is skipped (it neither breaks nor extends the run); a «heavy» in the
   window blocks a rise; one step a lesson. `report --load` for a lesson not in `lessons[]` warns on stderr.
-- **Spare time serves the scene and the ear (#238, Now 1).** `ItemState.last_reviewed` (set by `report` for failed / hesitated / recalled, not by `--sooner`)
+- **Spare time serves the scene and the ear (#238).** `ItemState.last_reviewed` (set by `report` for failed / hesitated / recalled, not by `--sooner`)
   is the day the learner's own review asked an item; `Planner.reviewed_today` keeps it out of `select_reviews`, `select_early_reviews`, the
   connect pool, substitutions and `refresh`. `Planner.scene_constructions(theme_pick)` = the constructions the learner's turns of the lesson's
   theme level use (and the pattern of a linked phrase): `pick_substitution` and the `refresh` timeline take only those (a parallel of a target
   expression of the scene), unless the lesson has no theme. In the step-5 chain the order of spare time is: the scene's parallels, a fresh arc,
-  the not-due early tiers and the second pass (kept, as before), the lesson's own theme level heard again (`heard_theme_plays` = 4 in all, own
-  level first), listening dialogues, today's new lines again, and last a substitution outside the scene before the bare cap lapses. A closing
+  the not-due early tiers and the second pass (kept, as before), listening dialogues and the lesson's own theme level heard again (`heard_theme_plays` = 4 in all, own
+  level first; the second half's rotation and a capped run of generated sentences reach both too), today's new lines again, and last a substitution outside the scene before the bare cap lapses. A closing
   recall skips a new item just asked as the holder of another new item's sentence.
   A run of generated sentences is cut at `generated_run_max` (3) while something to hear is left (a theme level to hear again, a listening
   dialogue): a construction's review waits and the ear comes between. The not-due early tiers list the scene's own items

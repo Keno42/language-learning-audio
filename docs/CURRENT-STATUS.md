@@ -1,17 +1,15 @@
 # Current status (the short brief)
 
-The status is kept in **one** place, `docs/LEARNING-DESIGN.md` (LD) §8: the "Now" list, the table of built changes with the
-number of feedbacks each has had without a remark, and the open issues. This brief does not repeat the table or list changes
-and PRs; read LD §8 for what is built and what is being evaluated, and GitHub for open PRs. §7 has the gaps, §4 the
+The status is kept in `docs/LEARNING-DESIGN.md` (LD) §8: the "Now" list, the table of built changes with the number of
+feedbacks each has had without a remark, and the open issues. This brief copies only "Now" and the two paragraphs after it
+(the long run alongside, the refactoring), verbatim (`tests/test_docs.py` checks it), and points to the rest; GitHub has the open PRs. §7 has the gaps, §4 the
 hypotheses with their status, §5 the evidence lesson by lesson. The learning policy is in `docs/CURRENT-POLICY.md`.
-
-Checked against LD §8 on 2026-10-15. If the two differ, LD is the record and this file is wrong.
+If the two differ, LD is the record and this file is wrong.
 
 ## Now (copied from LD §8, verbatim)
 
-**Now (updated 2026-10-15, ranked by the effect on the next lesson), in order.** Tomorrow's lesson first, the long run
-alongside (owner: about 80% / 20%). The rank is checked on the replay of the latest export for the next lesson. This
-re-ranking is proposed in the PR that wrote it and is the owner's call.
+**Now (updated 2026-10-15), in order,** ranked by the effect on the next lesson as the replay of the latest export
+shows it (§9 "Governance": about 80% / 20%).
 1. **A word is caught once, some new words are introduced through the catch, and the pick-outs rotate across lessons
    (#339; the owner's decision, §9 "Conversation").** The replay of lesson 27 asks «sestu», «kjötsúpa», «þarftu» and
    the same two pick-outs again, as every lesson since 23 and 25. The two parts go together: the three words have had
@@ -40,7 +38,7 @@ defined once (`audiolesson/text.py`, #321).
 
 ## Where to look
 - **Built, and how many feedbacks it has had:** the table under "Built, waiting for three feedbacks without the same remark"
-  in LD §8. A row leaves the table at three.
+  in LD §8.
 - **Rows read instead of remarks:** LD §8, below the table, and `tools/replay_lesson.py` (the daily read).
 - **Open gaps:** LD §7 (the "now" column).
 - **Open issues after "Now":** LD §8.
