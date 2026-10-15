@@ -117,6 +117,7 @@ class Item:
     pronunciation_notes: str = ""
     chunks: list[str] | None = None  # backward-build chunks, shortest first
     syllables: list[str] | None = None  # #212: a hard-to-say word cut into syllables, authored (never guessed), spoken slowly one at a time at its introduction
+    word_syllables: dict[str, list[str]] | None = None  # #337: a phrase's hard words cut into syllables, authored: word (lower case) -> pieces; said slowly once at the phrase's introduction and when the phrase is reported hard
     slots: dict[str, str] = field(default_factory=dict)  # construction: slot -> required tag
     example: dict[str, str] = field(default_factory=dict)  # construction: slot -> item id
     # construction: slot -> the fill its situation names ("Ask if she speaks English." only fits
@@ -748,6 +749,14 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"item {it.id!r}: syllables are two or more pieces of a one-word target that join to it exactly: {it.syllables!r} vs {it.target!r}")
             if (cut := split_breaks_a_cluster(it.syllables)) is not None:
                 raise CurriculumError(f"item {it.id!r}: syllables {it.syllables!r} cut the cluster «{cut}» in two; keep it inside one piece (said apart it is an ordinary sound)")
+        for word, pieces in (it.word_syllables or {}).items():
+            phrase_words = {w.casefold() for w in _WORD_RE.findall(it.target)}
+            if word != word.casefold():
+                raise CurriculumError(f"item {it.id!r}: word_syllables key {word!r} must be lower case (it is matched against the lower-cased target)")
+            if it.kind != "phrase" or word.casefold() not in phrase_words or len(pieces) < 2 or "".join(pieces).casefold() != word.casefold():
+                raise CurriculumError(f"item {it.id!r}: word_syllables {word!r}: a word of a phrase's target, cut into two or more pieces that join to it exactly: {pieces!r}")
+            if (cut := split_breaks_a_cluster(pieces)) is not None:
+                raise CurriculumError(f"item {it.id!r}: word_syllables {word!r} cut the cluster «{cut}» in two; keep it inside one piece")
         if bool(it.partner_cue) != bool(it.partner_cue_after):
             raise CurriculumError(f"item {it.id!r}: partner_cue and partner_cue_after must be set together, or not at all")
         if it.target_m and (it.kind == "construction" or it.target_m == it.target):

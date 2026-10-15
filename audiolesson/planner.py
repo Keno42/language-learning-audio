@@ -21,7 +21,7 @@ from itertools import groupby
 
 from .content import Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance, cue_is_answer
-from .sounds import hard_sounds
+from .sounds import hard_sounds, hard_words_of
 from .learner import REPORTED_HARD_DAYS, LearnerState
 from .review_wholes import whole_for
 from .listening_tasks import REPAIR_ITEM, SecondHalfRotation, append_task, catch_unknown, key_of, partner_pick_out
@@ -173,6 +173,8 @@ class PlanConfig:
     # interleaved between items.
     max_open_items: int = 5
     hard_scene_lines: int = 3  # #326: at most this many theme lines (a short exchange around one of the learner's lines) for hard items in a lesson
+    slow_models_per_lesson: int = 2  # #337: the slow models of reported-hard words a lesson plays
+    slow_model_from: float = 0.1  # ... from this share of the lesson on (after the opening and the first introduction)
     hard_connection_turns: int = 3  # #326: an item reported hard goes through its connections (scene, other pattern, same-slot words) at its 2nd to this many practices of a lesson
     open_item_times: list[float] = field(default_factory=lambda: [0.04, 0.27, 0.48, 0.68, 0.88])
     # the trip ordering (#132): item ids introduced before the rest, in this order (their
@@ -573,6 +575,18 @@ class Planner:
                 continue
             out[item_id] = {"practices": sum(asked.values()), "connections": len(links), "kinds": sorted({k for k, _ in links}), "same_sentence_max": max(asked.values(), default=0), "connection_times_s": at.get(item_id, [])}
         return out
+
+    def slow_owed_items(self) -> list[str]:
+        """Items the learner reported hard to say (#337) in the last ``REPORTED_HARD_DAYS`` days that hold a hard word to model, oldest report first. Kept apart
+        from ``reported_hard``: a confirmed recall settles the connections of #326, not the pronunciation, so only the model's being played clears it."""
+        since = (self.today - timedelta(days=REPORTED_HARD_DAYS)).isoformat()
+        owed = [(st.slow_owed, i) for i, st in self.learner.items.items() if st.slow_owed and st.slow_owed >= since and i in self.cur.by_id]
+        return [i for _, i in sorted(owed) if hard_words_of(self.cur.by_id[i], reported=True)]
+
+    def reported_hard_items(self) -> list[str]:
+        """The items the learner reported hard in the last ``REPORTED_HARD_DAYS`` days and has not recalled since (#326, #337)."""
+        since = (self.today - timedelta(days=REPORTED_HARD_DAYS)).isoformat()
+        return [i for i, st in self.learner.items.items() if st.reported_hard and st.reported_hard >= since and i in self.cur.by_id]
 
     def hard_items(self) -> list[str]:
         """The items reported hard (#326): open (failed at the last review, #162) and those that came out with hesitation at their last
@@ -2008,6 +2022,9 @@ class Planner:
             return budget - closing_reserve - sc.total_duration
 
         hard_ids = set(self.hard_items())
+        owed_slow = self.slow_owed_items()  # #337: reported hard to say and not yet given the model of the hard word
+        slow_done: set[str] = set()
+        slow_models: list[str] = []  # reported-hard items given the slow model of their hard word in this lesson
         hard_calls: Counter = Counter()  # #326: practices of a hard item so far this lesson
         hard_scene_lines: list[str] = []  # #326: the theme lines played for a hard item this lesson
         hard_at: dict[str, list[float]] = {}  # #326: when each connection practice of a hard item began
@@ -3044,6 +3061,19 @@ class Planner:
                     acted = True
                     break
 
+            # 0h. the slow, split model of a word the learner reported hard to say (#337): owed in the next lesson, whether or not the item is practised in it
+            if (
+                not acted and not in_new_block() and len(slow_models) < cfg.slow_models_per_lesson
+                and sc.total_duration >= cfg.slow_model_from * (budget - closing_reserve) and remaining >= 60
+            ):
+                for owed_id in owed_slow:
+                    if owed_id not in slow_done:
+                        slow_done.add(owed_id)
+                        if b.slow_word_exercise(sc, self.cur.by_id[owed_id]) is not None:
+                            slow_models.append(owed_id)
+                            acted = True
+                            break
+
             # 0g. the lesson's theme exchange, when its time has come (#149 1b-ii)
             if not acted and theme_pick and not in_new_block() and drill_streak < cfg.drill_streak_limit and theme_due():
                 acted = play_theme()
@@ -3373,6 +3403,8 @@ class Planner:
             "repeated_new_sentences": self._repeated_new_sentences(sc, introduced),  # #311: a new phrase asked as the same sentence in more than 3 exercises ({} expected)
             "switch_pauses": switches,  # #301: pauses put where two speech segments touched; "touching_switches" is what still touches (0)
             "touching_switches": sc.touching_switches(),
+            "slow_models_reported": list(slow_models),  # #337: reported-hard items given the slow model of their hard word
+            "phrase_hard_words": {i.id: [w for w, _ in hard_words_of(i)] for i in introduced if i.kind == "phrase" and hard_words_of(i)},  # #337: authored hard words of today's new phrases (modelled at the introduction)
             "hard_words": [i.id for i in introduced if hard_sounds(i)],  # #212: today's new words that got the slow, split model
             "stranded_frames": list(self.stranded_placed),  # #270: frames brought forward for a known noun whose only frame was unmet
             "variant_items": [i.id for i in [*introduced, *(self.cur.by_id[e] for e in self.embedded)] if i.variant_of],  # a form comes with a purpose (#218 b1)
@@ -3487,6 +3519,9 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
     for item_id in sc.meta.get("open_items", []):
         if item_id in learner.items:
             learner.items[item_id].open_practiced = sc.lesson_number
+    for item_id in sc.meta.get("slow_models_reported", []):
+        if item_id in learner.items:
+            learner.items[item_id].slow_owed = ""  # #337: the model was played; a recall never clears it
     for item_id in sc.meta.get("embedded_items", []):
         learner.embedded[item_id] = sc.lesson_number
     if sc.meta.get("forms_modelled") is not None:

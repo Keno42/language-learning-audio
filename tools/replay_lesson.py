@@ -211,6 +211,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "trivial questions (a cue that is its answer) in the lesson / in the review (#277)": f"{len(m.get('trivial_questions', []))} / {sum(1 for r in _plan(sc, cur)['review_refined'] if r['kind'] == 'trivial')}",
         "recombine prompts promising a link that is not there (#287)": ", ".join(m.get("unkept_links", [])) or "–",
         "new words given the slow, split model (#212)": ", ".join(m.get("hard_words", [])) or "–",
+        "new phrases whose hard words are modelled / reported-hard items given the slow model (#337)": f"{', '.join(m.get('phrase_hard_words', {})) or '–'} / {', '.join(m.get('slow_models_reported', [])) or '–'}",
         "review questions changed to keep each expression once (#239)": ", ".join(f"{r['kind']}:{'+'.join(r['items'])}" for r in _plan(sc, cur)["review_refined"]) or "–",
         "cheap constructions": ", ".join(m.get("cheap_constructions", [])) or "–",
         "refresh sentences": sum((m.get("refresh_sentences") or {}).values()),
