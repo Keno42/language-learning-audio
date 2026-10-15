@@ -76,7 +76,7 @@ class IntroductionTests(unittest.TestCase):
         """Lesson 26 of the replay (#316 review): «reikninginn» is taught inside «Get ég fengið reikninginn?», which then came again as «Something new»."""
         sc = self.lesson_with("get_eg_fengid_reikninginn")
         mine = [e for e in sc.exercises if "get_eg_fengid_reikninginn" in e.item_ids]
-        self.assertEqual([e.kind for e in mine if e.kind == "intro"], [], "the phrase has no introduction of its own")
+        self.assertEqual([e.kind for e in mine if e.kind == "intro" and e.item_ids[0] == "get_eg_fengid_reikninginn"], [], "the phrase has no introduction of its own (its word's introduction names it, for the next-day question)")
         self.assertFalse(any(e.kind == "embed" for e in mine), "#333: the word was taught inside this very phrase, so the sentence is not played again as «a sentence from a pattern you know»")
         self.assertEqual(sum(1 for g in sc.segments if g.type == "narrate" and (g.text or "").startswith("Something new") and "bill" in (g.text or "")), 0)
         self.assertIn("get_eg_fengid_reikninginn", sc.meta["pattern_instances"])
