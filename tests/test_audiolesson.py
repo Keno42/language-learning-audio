@@ -3312,6 +3312,9 @@ class LessonStructureTests(unittest.TestCase):
         for i, s in enumerate(segs):
             if s.type == "pause" and s.role == "answer":
                 nxt = next(x for x in segs[i + 1 :] if x.type != "pause")
+                if nxt.type == "narrate" and nxt.text == Prompts.load("en").get("pick_out_answer"):
+                    # #335: a pick-out announces its model answer («The answer:», a framing line with its beat); the answer is the next spoken thing after it
+                    nxt = next(x for x in segs[segs.index(nxt) + 1 :] if x.type != "pause")
                 self.assertEqual(nxt.type, "answer", f"segment {i}: pause not followed by answer but {nxt}")
 
     def test_no_answer_is_spoken_right_before_its_own_prompt_pause(self):
@@ -5797,7 +5800,7 @@ class ListeningTaskTests(unittest.TestCase):
         self.assertEqual((task.answer, task.pattern, task.pieces), ("tuttugu mínútur", "theme:tour:1:2", 1))
         sc = Script(1, "t", "is", "en")
         ex = append_task(self._builder(), sc, task, 120.0)
-        self.assertIn("You want to know how long. Listen.", sc.transcript())
+        self.assertIn("You want to know how long. Listen and answer.", sc.transcript())
         self.assertEqual(ex.stage, "single")
 
     def test_the_row_counts_a_single_piece_that_is_most_of_its_line(self):
@@ -5842,13 +5845,13 @@ class ListeningTaskTests(unittest.TestCase):
         self.assertEqual((ex.kind, ex.item_ids), ("pick_out", ["thad_kostar_big"]))
         text = sc.transcript()
         self.assertIn("At the till.", text)
-        self.assertIn("You want to know how much it costs. Listen.", text, "#303: the need is named")
+        self.assertIn("You want to know how much it costs. Listen and answer.", text, "#303: the need is named")
         self.assertLess(text.index("At the till."), text.index("You want to know how much it costs."), "the scene, then the need")
         self.assertLess(text.index("You want to know how much it costs."), text.index("**Speaker B:** Það kostar fimm"), "the need before the line")
         sc2 = Script(1, "t", "is", "en")
         from dataclasses import replace as _replace
         append_task(b, sc2, _replace(task, scene="", line="Það kostar tvö þúsund krónur."), 120.0)
-        self.assertIn("You want to know how much it costs. Listen.", sc2.transcript(), "no scene: the need alone")
+        self.assertIn("You want to know how much it costs. Listen and answer.", sc2.transcript(), "no scene: the need alone")
         self.assertNotIn("How much is it?", sc2.transcript())
         self.assertNotIn("partner", sc2.transcript() + text)
         self.assertEqual(len([g for g in sc.segments if g.type == "pause" and g.role == "answer"]), 1)
