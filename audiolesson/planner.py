@@ -3515,9 +3515,26 @@ class Planner:
             b.final_block_announce(sc)
             # any reactivation that never came due is folded into the closing recall
             order = sorted(introduced, key=lambda i: -i.difficulty)  # hardest first, easiest last
-            closed: set[str] = set()  # sentences the closing recalls asked for another new item: its holder is not asked again (#238)
+            closed: set[str] = set()  # every item a closing recall made the learner say: its holder (#238), and the pattern or the filler in it, is not asked again
+            closing_from = len(sc.exercises)
+
+            def closing_holder(item: Item):
+                """A recall of the closing whose sentence says ``item`` («Hvenær?» in «Hvenær leggjum við af stað?», «Í miðbæinn, takk.» asked for its pattern):
+                the learner has just said it, so it is not asked again, in that sentence or another (lesson 27: two sentences asked twice in one minute)."""
+                if item.kind == "construction":
+                    return None
+                words = [w.lower() for w in _WORD_RE.findall(item.target)]
+                for e in (e for e in sc.exercises[closing_from:] if e.kind in ("recall", "generative", "connect")):
+                    said = [w.lower() for w in _WORD_RE.findall(e.label.split(": ", 1)[-1])]
+                    if words and any(said[k : k + len(words)] == words for k in range(len(said) - len(words) + 1)) and not NEGATION & (set(said) - set(words)):
+                        return e  # «Ég skil ekki.» says the opposite of «Ég skil.»: not its recall (as ``containing_items``)
+                return None
+
             for pos, item in enumerate(order):
                 if item.id in closed:
+                    continue
+                if (holder := closing_holder(item)) is not None:
+                    holder.item_ids.append(item.id)  # the one question counts for it (#280)
                     continue
                 if self.components_mode and delivered_at[0] is not None and last_kinds_same() == "recall":
                     break_closing_run(budget - sc.total_duration - 14 * (len(order) - pos) - 6)  # a part just asked inside the sentence of another new item (the closing double of «Ein króna.»)
@@ -3529,7 +3546,7 @@ class Planner:
                 if stage == "recombine":
                     stage = self.recombine_or_instead(item)  # no fresh sentence: a meaning recall
                 if (stage in BARE_STAGES or stage == "recombine") and short_today(item) and said_in_sentence(item) and ask_a_sentence(item, repeat=True):
-                    closed.update(i for i in sc.exercises[-1].item_ids[:1] if i != item.id)
+                    closed.update(sc.exercises[-1].item_ids)
                     continue  # #179: said in a sentence today, so asked in one now, not as a bare part
                 if over_hard_cap(item, closing=True):
                     continue  # #192: it was just said as often as a lesson allows; the closing recall would be one more identical drill
@@ -3547,7 +3564,7 @@ class Planner:
                     continue  # #277: the closing recall of a part whose cue is its answer asks nothing
                 ex = b.recall(sc, item, stage)
                 self._record([item.id], ex.stage or stage, ex.item_ids)
-                closed.update(i for i in ex.item_ids[:1] if i != item.id)
+                closed.update(ex.item_ids)  # «Fer þessi strætó í miðbæinn?» for the new pattern says the new destination too: not asked a second time for it (lesson 27)
         b.closing(sc, n)
 
         switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same, b.timing.switch_gap_sentence)  # #301: the last pass over the finished script
