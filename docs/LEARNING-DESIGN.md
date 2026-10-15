@@ -1267,28 +1267,27 @@ and a regression would show up as the same symptom.
 Ordered by the expected effect on the outcome, adjusted for cost and for what depends on
 what. Re-rank it when the evidence moves.
 
-**Now (updated 2026-10-14, after lesson 26's feedback), in order.** Tomorrow's lesson first, the long run alongside
-(owner: about 80% / 20%). This re-ranking is proposed in the PR that wrote it and is the owner's call. The previous list
-is built and in the table below: new material by scene (#327 part 1), a hard word through its connections (#326), #220's
-LLA half and #198's endings (#323).
-1. **The lesson-26 preview's findings (#333),** all heard in the real lesson 26: «Get ég fengið leigubíl?» not linked to
-   its pattern; a «pattern you know» play of a phrase taught two minutes earlier; «Showing the address:» read as a cue;
-   «Má ég sofa?» (the owner's call: a named exception or a slot tag). Small, and each one is in tomorrow's lesson.
-2. **A word is caught once, and some new words are introduced through the catch (#339).** «sestu», «kjötsúpa» and
-   «þarftu» have been asked in every lesson since lesson 23, and the same two pick-outs since lesson 25: the pool is a
-   few authored lines and nothing remembers what was heard. The owner decided the form (§9 "Repetition"); the pick-outs
-   rotate across lessons.
-3. **A word reported hard to say gets its slow, split model again (#337).** The rule also reads the words inside
-   phrases, and adds the sounds this learner has stumbled on, not a phonetics catalogue. It is H13's first real test:
-   the «sooner» items of lesson 26 come back in lesson 27.
-4. **The pick-out marks its turns (#335):** «Listen and answer.», «The answer:», «Listen again.», as the learner wrote
-   it. Wording only.
-5. **A scene's lines that vary in use are taught as a pattern with the scene's fillers (#336),** transport first. It is
-   the cause behind «úlpu» (#311), #333's first point and the bus, in the case where no pattern was written, and it
-   gives #326's connections at the introduction.
+**Now (updated 2026-10-15, ranked by the effect on the next lesson), in order.** Tomorrow's lesson first, the long run
+alongside (owner: about 80% / 20%). The rank is checked on the replay of the latest export for the next lesson. This
+re-ranking is proposed in the PR that wrote it and is the owner's call.
+1. **A word is caught once; the pick-outs rotate across lessons (#339, first part).** The replay of lesson 27 asks
+   «sestu», «kjötsúpa», «þarftu» and the same two pick-outs again, as every lesson since 23 and 25. Small: a record in
+   the learner state. Its second part, some new words introduced through the catch (the owner's decision, §9
+   "Conversation"), comes after item 4.
+2. **A word reported hard to say gets its slow, split model again (#337).** The «sooner» items of lesson 26 come back in
+   lesson 27, so it is H13's first real test. The rule also reads the words inside phrases and adds the sounds this
+   learner has stumbled on.
+3. **The pick-out marks its turns (#335):** «Listen and answer.», «The answer:», «Listen again.», as the learner wrote
+   it. Wording only, and 1–3 pick-outs come in every lesson.
+4. **A scene's lines that vary in use are taught as a pattern with the scene's fillers (#336).** The replay of lesson 27
+   says six of its sentences 8 times each in one wording («Ég vakna klukkan sjö.», «Ég kem heim klukkan sex.»), the
+   bus's shape. The largest effect on repetition and the largest cost (data); the frames a scene varies first.
+5. **The lesson-26 preview's findings (#333).** None of them is in the replay of lesson 27: the transport phrases come
+   back at their reviews. Small. «Má ég sofa?» waits for the owner's call (a named exception or a slot tag).
 
-#270's step 2 is what the tags already do (#317, #324). The size and price frames once listed here were an example in the
-lesson-25 remark, not a requirement, and #326 replaces them.
+**The long run alongside, first:** #327 part 2, the theme levels and a scene line for new items whose topic has no theme.
+The themes' levels run out at lesson 28, and the replay of lesson 27 takes 0 of its 12 new items from the played scene.
+The levels are authored Icelandic, so they take longest to start.
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
 learner say this line", then the planner's build loop. Each step leaves the replays of the lesson-21–23 exports
@@ -1348,10 +1347,9 @@ after it carry no remark of the same kind (the table above). The rows:
 13. speech segments that touch at a change of voice (#301: `meta.touching_switches`, 0 expected; a row of `replay_lesson.py`, with the count of gaps inserted next to it, #310).
 
 **Open issues after "Now", in order:**
-- #327 part 2: more theme levels for the scenes that supply the new material: café, directions and town, taxi and bus,
-  small talk, and winter talk with #142 (nature and winter safety). Authored, candidates until native-checked. With it,
-  part 1's open half: a scene line for new items whose topic has no theme. On the lesson-26 replay no day's new material
-  shares a topic and lessons 27–28 take 0 of 12 and 5 of 12 from the played scene (§5.22).
+- #327 part 2 (first of the long run, above): more theme levels for the scenes that supply the new material: café,
+  directions and town, taxi and bus, small talk, and winter talk with #142 (nature and winter safety). Authored,
+  candidates until native-checked.
 - #209: when a fluent speaker is available (G10). It is worth more now that #255, #257, #276, #292, #317 (genders and
   forms) and #323 (a grammar note) added authored Icelandic, and it holds #279's step 2; #336 and #337 will add more.
 - #236: a one-off reply gets several example answers (owner: low priority).
