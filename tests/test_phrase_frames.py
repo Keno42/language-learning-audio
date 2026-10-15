@@ -170,7 +170,7 @@ class OneFillingTests(unittest.TestCase):
     def test_with_one_filling_the_pattern_is_asked_a_few_times_not_fifteen(self):
         cur, sc = self.lesson([("á flugvöllinn", "to the airport")])
         asked = [e for e in sc.exercises if e.kind == "recall" and e.item_ids and e.item_ids[0] == "c"]
-        self.assertLessEqual(len(asked), 4, "three timed asks and the closing one, not the ladder over and over")
+        self.assertLessEqual(len(asked), 5, "four by the cap and the closing one, not the ladder over and over")
 
     def test_combos_available_counts_the_fillings_that_can_be_said(self):
         from audiolesson.exercises import Builder

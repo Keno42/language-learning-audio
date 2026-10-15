@@ -173,7 +173,7 @@ class PlanConfig:
     # interleaved between items.
     max_open_items: int = 5
     hard_scene_lines: int = 3  # #326: at most this many theme lines (a short exchange around one of the learner's lines) for hard items in a lesson
-    construction_asks_per_filling: int = 3  # #336: a pattern is asked at most this many times a lesson per filling the learner can say it with (one filling: three times, not fifteen)
+    construction_asks_per_filling: int = 4  # #336: a pattern is asked at most this many times a lesson (asked or generated) per filling the learner can say it with (one filling: three times, not fifteen)
     slow_models_per_lesson: int = 2  # #337: the slow models of reported-hard words a lesson plays
     slow_model_from: float = 0.1  # ... from this share of the lesson on (after the opening and the first introduction)
     hard_connection_turns: int = 3  # #326: an item reported hard goes through its connections (scene, other pattern, same-slot words) at its 2nd to this many practices of a lesson
@@ -2139,7 +2139,7 @@ class Planner:
             """Practise ``item`` at ``stage``; False when nothing was played (a capped short item
             with no sentence to go in)."""
             nonlocal since_dialogue
-            if allow_cap and item.kind == "construction" and asked_times(item) >= cfg.construction_asks_per_filling * max(1, b.combos_available(item)):
+            if allow_cap and item.kind == "construction" and pattern_asks(item) >= cfg.construction_asks_per_filling * max(1, b.combos_available(item)):
                 return False  # #336: a pattern with one or two fillings known can only be asked as the same one or two sentences: each at most this many times a lesson
             if allow_cap and item.id in hard_ids and connected_practice(item) == "played":
                 return True
@@ -2292,6 +2292,10 @@ class Planner:
         def asked_times(whole: Item) -> int:
             """How often ``whole`` was asked (recall or connect) in this lesson."""
             return sum(1 for e in sc.exercises if e.kind in ("recall", "connect") and whole.id in e.item_ids)
+
+        def pattern_asks(c: Item) -> int:
+            """How often the pattern ``c`` was asked in this lesson (#336): its recalls and connections and the sentences generated from it (the practised item first)."""
+            return sum(1 for e in sc.exercises if (e.kind in ("recall", "connect") and c.id in e.item_ids) or (e.kind == "generative" and e.item_ids[:1] == [c.id]))
 
         def holds_sentence(item: Item) -> bool:
             """A sentence that can be said holds ``item`` (a known or practised phrase that contains it, not a stable one)."""
