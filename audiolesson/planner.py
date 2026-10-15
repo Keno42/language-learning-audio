@@ -173,6 +173,7 @@ class PlanConfig:
     # interleaved between items.
     max_open_items: int = 5
     hard_scene_lines: int = 3  # #326: at most this many theme lines (a short exchange around one of the learner's lines) for hard items in a lesson
+    construction_asks_per_filling: int = 3  # #336: a pattern is asked at most this many times a lesson per filling the learner can say it with (one filling: three times, not fifteen)
     hard_connection_turns: int = 3  # #326: an item reported hard goes through its connections (scene, other pattern, same-slot words) at its 2nd to this many practices of a lesson
     open_item_times: list[float] = field(default_factory=lambda: [0.04, 0.27, 0.48, 0.68, 0.88])
     # the trip ordering (#132): item ids introduced before the rest, in this order (their
@@ -1984,6 +1985,7 @@ class Planner:
                 if unit in new_queue:
                     new_queue.remove(unit)
                 self.embedded.append(unit.id)
+                b.in_lesson.add(unit.id)  # heard inside its phrase this lesson: usable as a filler of the pattern's sentences, so the pattern does not fall back to its example
                 b.wholes_taught[unit.id] = {"through": item.id, "answer": item.target, "meaning": item.spoken_meaning}
                 units_covered.append(unit.id)
             last_intro = idx
@@ -2107,6 +2109,8 @@ class Planner:
             """Practise ``item`` at ``stage``; False when nothing was played (a capped short item
             with no sentence to go in)."""
             nonlocal since_dialogue
+            if allow_cap and item.kind == "construction" and asked_times(item) >= cfg.construction_asks_per_filling * max(1, b.combos_available(item)):
+                return False  # #336: a pattern with one or two fillings known can only be asked as the same one or two sentences: each at most this many times a lesson
             if allow_cap and item.id in hard_ids and connected_practice(item) == "played":
                 return True
             if stage == "dialogue":

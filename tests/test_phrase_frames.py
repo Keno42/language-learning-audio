@@ -148,5 +148,46 @@ class UnitsCoveredTests(unittest.TestCase):
         self.assertTrue({"Í miðbæinn, takk.", "Fer þessi strætó á flugvöllinn?"} & said, said)
 
 
+class OneFillingTests(unittest.TestCase):
+    """The review of #346: a pattern with one filling known can only be asked as the same sentence."""
+
+    def lesson(self, fillers):
+        from datetime import date
+
+        from audiolesson.learner import LearnerState
+        from audiolesson.planner import PlanConfig, Planner
+        from audiolesson.prompts import Prompts
+        from audiolesson.timing import Timing
+
+        items = [{"id": f"f{k}", "kind": "vocab", "target": t, "meaning": m, "tags": ["dest"]} for k, (t, m) in enumerate(fillers)]
+        items.append({"id": "c", "kind": "construction", "target": "Fer þessi strætó {dest}?", "meaning": "Does this bus go {dest}?", "slots": {"dest": "dest"},
+                      "example": {"dest": "f0"}, "prereqs": ["f0"]})
+        items += [{"id": f"w{n}", "kind": "phrase", "target": f"Ný lína {n}.", "meaning": f"New line {n}."} for n in range(12)]
+        cur = cur_from(items)
+        sc = Planner(cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, new_items=3, max_new_items=3, seed=1, priority=[*(f"f{k}" for k in range(len(fillers))), "c"]), today=date(2026, 3, 1)).build()
+        return cur, sc
+
+    def test_with_one_filling_the_pattern_is_asked_a_few_times_not_fifteen(self):
+        cur, sc = self.lesson([("á flugvöllinn", "to the airport")])
+        asked = [e for e in sc.exercises if e.kind == "recall" and e.item_ids and e.item_ids[0] == "c"]
+        self.assertLessEqual(len(asked), 4, "three timed asks and the closing one, not the ladder over and over")
+
+    def test_combos_available_counts_the_fillings_that_can_be_said(self):
+        from audiolesson.exercises import Builder
+        from audiolesson.learner import LearnerState
+        from audiolesson.prompts import Prompts
+        from audiolesson.timing import Timing
+
+        cur, _ = self.lesson([("á flugvöllinn", "to the airport"), ("í miðbæinn", "to the town centre")])
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        self.assertEqual(b.combos_available(cur.by_id["c"]), 0, "nothing is known or heard yet")
+        b.in_lesson.update({"f0", "f1"})
+        self.assertEqual(b.combos_available(cur.by_id["c"]), 2)
+
+
+def cur_from(items):
+    return curriculum_from_dict({**BASE, "items": items})
+
+
 if __name__ == "__main__":
     unittest.main()

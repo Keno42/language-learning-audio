@@ -1343,6 +1343,14 @@ class Builder:
             ranked.append((-(desired[f] - actual) + self.rng.random() * 0.01, f))
         return [f for _, f in sorted(ranked, key=lambda t: t[0])] or [None]
 
+    def combos_available(self, c: Item) -> int:
+        """How many different fillings of ``c`` the learner can be asked now (known fillers, or heard this lesson), for every slot together (#336): with one, a
+        construction's recalls can only be the same sentence."""
+        total = 1
+        for slot, tag in c.slots.items():
+            total *= sum(1 for i in self.cur.items_with_tag(tag, c) if self._available(i.id))
+        return total
+
     def construction_full(self, c: Item) -> bool:
         """A construction that has had ``CONSTRUCTION_CEILING`` generated sentences this lesson (#180). The
         backstop: it stops a word's sentences, and the pattern's own recombinations, going to that pattern.
