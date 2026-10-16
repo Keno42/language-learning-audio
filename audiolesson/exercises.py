@@ -1081,6 +1081,14 @@ class Builder:
         found = [construction.fill_scenes[f.id] for f in fills.values() if f.id in construction.fill_scenes]
         return found[0] if len(found) == 1 else None
 
+    def sentence_cue(self, gender: str | None, construction: Item, fills: dict[str, Item], meaning: str, form: str | None = None) -> tuple[str, str]:
+        """``(stage, cue)`` for asking a pattern's sentence from its meaning, by whichever path asks it: its scene (``fill_scene``, stage ``situation``) when
+        the plain sentence has one, else the meaning (stage ``meaning``). Every path that asks a judged sentence keeps its scene (review of #352)."""
+        scene = self.fill_scene(construction, fills) if not form else None
+        if scene is not None:
+            return "situation", self._as(gender, self.prompts.get("scene_say", scene=scene, meaning=self._m(meaning)))
+        return "meaning", self._as(gender, self._meaning_prompt(meaning))
+
     def _recall_construction(self, sc: Script, item: Item, stage: str) -> Exercise:
         """Recall of a construction always goes through a filled example; at the situation
         stage, one with the fills the situation names."""
@@ -1159,9 +1167,8 @@ class Builder:
                 self.novelty_announced.add(form_id)
         else:
             key = "recombine_vocab_again" if linked else "recombine_vocab"
-        scene = self.fill_scene(gen.construction, gen.fills) if not gen.form else None
-        if scene is not None:
-            self._narr(sc, ex, self._as(gender, self.prompts.get("scene_say", scene=scene, meaning=self._m(gen.meaning))))  # the scene check's line (owner, 2026-10-16)
+        if self.fill_scene(gen.construction, gen.fills) is not None and not gen.form:
+            self._narr(sc, ex, self.sentence_cue(gender, gen.construction, gen.fills, gen.meaning, gen.form)[1])  # the scene check's line (owner, 2026-10-16)
         else:
             self._narr(sc, ex, self._as(gender, self.prompts.get(key, meaning=self._m(gen.meaning))))
         self._answer_pause(sc, ex, target, item, generative=True)
@@ -1242,8 +1249,9 @@ class Builder:
             return None  # the sentence has been said as often as a lesson allows: no one more identical drill (#192)
         self.used_combos.add(gen.key)  # the construction's own recall does not make the same sentence next (#190 review)
         ids = [item.id] + [i for i in gen.item_ids if i != item.id]
-        ex = sc.new_exercise("recall", "meaning", ids, f"meaning: {target}")
-        self._narr(sc, ex, self._as(gender, self._meaning_prompt(gen.meaning)))
+        stage, cue = self.sentence_cue(gender, gen.construction, gen.fills, gen.meaning, gen.form)
+        ex = sc.new_exercise("recall", stage, ids, f"{stage}: {target}")
+        self._narr(sc, ex, cue)
         self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
         self._gap(sc, ex)
@@ -1256,10 +1264,16 @@ class Builder:
         if self.said_cap and self.said[_norm_utterance(target)] >= self.said_cap:
             return None
         self.said[_norm_utterance(target)] += 1
-        ex = sc.new_exercise("recall", "meaning", [item.id], f"meaning: {target}")
         through = self.cur.by_id.get(whole.get("through", ""))
         gender = self.speaker_gender(through) if through is not None and through.target_m else None  # a sentence that follows the speaker's gender keeps the voice
-        self._narr(sc, ex, whole["prompt"])
+        scene = through.fill_scenes.get(item.id) if through is not None and through.kind == "construction" and len(through.slots) == 1 else None
+        stage = "situation" if scene else "meaning"
+        ex = sc.new_exercise("recall", stage, [item.id], f"{stage}: {target}")
+        if scene:  # the part's sentence is a judged sentence of its pattern: asked with its scene (review of #352)
+            meaning = self.cur.resolve_slots(through, {next(iter(through.slots)): item})[1]  # type: ignore[union-attr]
+            self._narr(sc, ex, self._as(gender, self.prompts.get("scene_say", scene=scene, meaning=self._m(meaning))))
+        else:
+            self._narr(sc, ex, whole["prompt"])
         self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
         self._gap(sc, ex)
@@ -1276,8 +1290,9 @@ class Builder:
         if self.ask_cap and self.ask_count is not None and self.ask_count(target) >= self.ask_cap:
             return None  # #336: that sentence has been asked as often as a pattern's sentence may be: another word's practice does not take it again
         self.used_combos.add(gen.key)
-        ex = sc.new_exercise("recall", "meaning", list(gen.item_ids), f"meaning: {target}")
-        self._narr(sc, ex, self._as(gender, self._meaning_prompt(gen.meaning)))
+        stage, cue = self.sentence_cue(gender, gen.construction, gen.fills, gen.meaning, gen.form)
+        ex = sc.new_exercise("recall", stage, list(gen.item_ids), f"{stage}: {target}")
+        self._narr(sc, ex, cue)
         self._answer_pause(sc, ex, target, pattern, generative=False)
         self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
         self._gap(sc, ex)

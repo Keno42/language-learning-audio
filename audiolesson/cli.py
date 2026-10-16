@@ -570,6 +570,11 @@ def _check_bin(cur, curriculum) -> list[str]:
     return variant_warnings(cur, load_cache(path))
 
 
+def _toml_key(key: str) -> str:
+    """A TOML key as written: bare when it is only ASCII letters, digits, ``_`` and ``-``, else quoted (ids such as «strætó»; review of #352)."""
+    return key if key and all(ch.isascii() and (ch.isalnum() or ch in "_-") for ch in key) else json.dumps(key, ensure_ascii=False)
+
+
 def cmd_scene_check(args) -> int:
     """The scene check's sheet: per pattern a ``[scenes.<pattern>]`` table, a line per fill with its sentence and meaning as a comment, the verdict left to write
     («"a scene in one line"» or ``false``), so the filled table goes into ``95-scenes.toml`` as it is."""
@@ -582,10 +587,10 @@ def cmd_scene_check(args) -> int:
     last = None
     for c, f, target, meaning in rows:
         if c.id != last:
-            print(f"\n[scenes.{c.id}]  # «{c.target}» {c.meaning}")
+            print(f"\n[scenes.{_toml_key(c.id)}]  # «{c.target}» {c.meaning}")
             last = c.id
         verdict = "false" if f.id in c.exclude_fills else json.dumps(c.fill_scenes[f.id], ensure_ascii=False) if f.id in c.fill_scenes else '""'
-        print(f"{f.id} = {verdict}  # «{target}» {meaning}")
+        print(f"{_toml_key(f.id)} = {verdict}  # «{target}» {meaning}")
     print(f"\n# {len(rows)} sentences", file=sys.stderr)
     return 0
 

@@ -596,7 +596,7 @@ def curriculum_from_dict(raw: dict, source: str = "", known_lang: str | None = N
         )
 
     notes = [Note(**_pick_gloss(n, _GLOSSED_NOTE, lang, langs, missing, n.get("id", "note"))) for n in raw.get("notes", [])]
-    _apply_scenes(items, raw.get("scenes", {}), lang)
+    _apply_scenes(items, raw.get("scenes", {}), lang, meta["known_lang"])
 
     cur = Curriculum(
         name=meta["name"],
@@ -614,16 +614,18 @@ def curriculum_from_dict(raw: dict, source: str = "", known_lang: str | None = N
     return cur
 
 
-def _apply_scenes(items: list[Item], scenes: dict, lang: str | None) -> None:
+def _apply_scenes(items: list[Item], scenes: dict, lang: str | None, primary: str) -> None:
     """The scene check's verdicts (``[scenes.<pattern>]``: fill id → a scene line, or ``false``): a line goes to the pattern's ``fill_scenes``, ``false`` to its
-    ``exclude_fills``. A line is in the curriculum's primary language, or a table per language (``{ en = "…", ja = "…" }``); a learner of another language
-    without one gets no scene, only the meaning, as before. ``validate`` checks that each fill is one of the pattern's."""
+    ``exclude_fills``. A line is in the curriculum's primary language (``primary``), or a table per language (``{ en = "…", ja = "…" }``) read by the
+    learner's language; a learner whose language has no line gets no scene, only the meaning, as before. ``validate`` checks that each fill is one of the pattern's."""
     by_id = {i.id: i for i in items}
     for pattern, verdicts in scenes.items():
         item = by_id.get(pattern)
         if item is None or item.kind != "construction" or not isinstance(verdicts, dict):
             raise CurriculumError(f"[scenes.{pattern}] names no construction")
         for fill, verdict in verdicts.items():
+            if verdict == "":
+                continue  # a line of the sheet left as printed: no verdict yet (docs/SCENE-REVIEW.md)
             if verdict is False:
                 if fill not in item.exclude_fills:
                     item.exclude_fills.append(fill)
@@ -631,7 +633,7 @@ def _apply_scenes(items: list[Item], scenes: dict, lang: str | None) -> None:
                 if lang is None:
                     item.fill_scenes[fill] = verdict.strip()
             elif isinstance(verdict, dict) and all(isinstance(v, str) for v in verdict.values()):
-                text = verdict.get(lang) if lang else next(iter(verdict.values()), None)
+                text = verdict.get(lang or primary)  # by language, never by table order (review of #352); none in the learner's: the meaning alone
                 if text:
                     item.fill_scenes[fill] = text.strip()
             else:

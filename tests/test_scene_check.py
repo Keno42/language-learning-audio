@@ -68,6 +68,54 @@ class SceneCheckTests(unittest.TestCase):
         both = curriculum({"nenni": {"fara_ut": {"en": "It's raining hard.", "ja": "大雨です。"}}}, known_lang="ja")
         self.assertEqual(both.by_id["nenni"].fill_scenes, {"fara_ut": "大雨です。"})
 
+    def test_a_line_in_several_languages_is_read_by_language_not_by_order(self):
+        """Review of #352: the primary language took the first value of the table, so an English learner heard the Japanese line."""
+        verdict = {"nenni": {"fara_ut": {"ja": "大雨です。", "en": "It is raining."}}}
+        self.assertEqual(curriculum(verdict).by_id["nenni"].fill_scenes, {"fara_ut": "It is raining."})
+        self.assertEqual(curriculum(verdict, known_lang="ja").by_id["nenni"].fill_scenes, {"fara_ut": "大雨です。"})
+        self.assertEqual(curriculum({"nenni": {"fara_ut": {"ja": "大雨です。"}}}).by_id["nenni"].fill_scenes, {}, "none in the learner's language: the meaning alone")
+
+    def test_every_path_that_asks_a_judged_sentence_gives_its_scene(self):
+        """Review of #352: a sibling's practice and a short item's sentence recall asked the judged sentence from its meaning alone."""
+        cur = curriculum({"nenni": {"fara_ut": "It's raining hard.", "sofa": False, "elda": False}})
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), knows("nenni", "fara_ut", "sofa", "elda"))
+        sc = Script(1, "t", "is", "en")
+        sib = b.sibling_recall(sc, cur.by_id["nenni"], {})
+        self.assertEqual(sib.label, "situation: Ég nenni ekki að fara út.")
+        sent = b.sentence_recall(sc, cur.by_id["fara_ut"])
+        self.assertEqual(sent.label, "situation: Ég nenni ekki að fara út.")
+        self.assertEqual(sc.transcript().count("It's raining hard. Say: I can't be bothered to go out."), 2)
+
+    def test_the_sheet_is_valid_toml_and_a_filled_line_loads_back(self):
+        """Review of #352: ids such as «strætó» were printed as bare keys, which TOML rejects, so the sheet could not be pasted back."""
+        import contextlib
+        import io
+        import tomllib
+        from types import SimpleNamespace
+
+        from audiolesson.cli import cmd_scene_check
+
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            cmd_scene_check(SimpleNamespace(curriculum=str(ROOT / "curricula" / "is-en"), pattern=None, met_learner=None, judged=True))
+        sheet = tomllib.loads(out.getvalue())["scenes"]
+        self.assertTrue(any(not k.isascii() for p in sheet.values() for k in p), "an id with Icelandic letters is in the sheet")
+        self.assertEqual(sheet["eg_nenni_ekki"]["sofa"], False)
+        import shutil
+        import tempfile
+
+        pattern, fills = next((p, f) for p, f in sheet.items() if any(not k.isascii() for k in f) and p not in ("eg_nenni_ekki", "ma_eg_inf", "attu", "fer_thessi_straeto_dest"))
+        word = next(k for k in fills if not k.isascii())
+        lines = out.getvalue().splitlines()
+        head = next(n for n, line in enumerate(lines) if line.startswith("[scenes.") and pattern in line)
+        row = next(line for line in lines[head + 1 :] if line.startswith(f'"{word}" = '))
+        with tempfile.TemporaryDirectory() as td:
+            copy = Path(td) / "is-en"
+            shutil.copytree(ROOT / "curricula" / "is-en", copy)
+            (copy / "96-filled.toml").write_text(lines[head] + "\n" + row.replace('= ""', '= "A scene."', 1) + "\n", encoding="utf-8")
+            filled = load_curriculum(copy)
+        self.assertEqual(filled.by_id[pattern].fill_scenes.get(next(i.id for i in filled.items if i.id == word)), "A scene.", "the filled line loads back")
+
     def test_the_course_never_says_the_sentences_found_by_chance(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         for pattern, fill in (("eg_nenni_ekki", "sofa"), ("ma_eg_inf", "sofa"), ("attu", "leigubil"), ("fer_thessi_straeto_dest", "a_stoppistodina"), ("fer_thessi_straeto_dest", "a_thetta_hotel")):
