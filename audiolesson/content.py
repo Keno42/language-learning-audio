@@ -195,6 +195,11 @@ class Item:
     # exception to the tags («Áttu leigubíl?» is not said; the tags explain nine cases in ten, #192, §9 "Good enough
     # overall"). Not a tagging scheme: an authored fill (example, situation_fill, instance_fill) is still used.
     exclude_fills: list[str] = field(default_factory=list)
+    # A construction: the scene check (owner, 2026-10-16): a fill whose sentence has a scene the learner can picture, with that scene in one line («It's
+    # raining and your friend suggests a walk.»), used as the cue when the sentence is asked. Read from the curriculum's ``[scenes.<pattern>]`` tables
+    # (``95-scenes.toml``), where ``false`` adds the fill to ``exclude_fills``: every verdict on a pattern's sentences in one place.
+    fill_scenes: dict[str, str] = field(default_factory=dict)
+    scene_verdicts: set[str] = field(default_factory=set)  # the fills the scene check has judged (a scene or false), whatever the learner's language
     # A construction: what a learner can listen for in a sentence of it (#248): each probe is {kind, answer, meanings} where ``answer`` is
     # the part of the sentence that carries the information, written with the construction's slots («{count} þúsund krónur»), and
     # ``meanings`` its meaning per known language, with the same slots. The kind (price, time, count, place) picks the question.
@@ -457,6 +462,26 @@ class CurriculumError(ValueError):
 # ---------------------------------------------------------------------------
 
 
+def scene_sheet(cur: Curriculum, patterns: list[str] | None = None, met: set[str] | None = None, judged: bool = False) -> list[tuple[Item, Item, str, str]]:
+    """The scene check's sheet (owner, 2026-10-16; docs/SCENE-REVIEW.md): ``(pattern, fill, sentence, meaning)`` for each fill of a pattern's slots that has no
+    verdict yet (``judged``: those with one too), the other slots filled with the authored example. ``patterns``: only these; ``met``: only patterns and fills
+    in it (what the learner's lessons can generate now), so the check goes where the lessons are going."""
+    rows = []
+    for c in cur.items:
+        if c.kind != "construction" or not c.slots or (patterns and c.id not in patterns) or (met is not None and c.id not in met):
+            continue
+        example = cur.example_fill(c)
+        seen: set[str] = set()
+        for slot, tag in c.slots.items():
+            for f in [*cur.items_with_tag(tag, c), *(cur.by_id[x] for x in c.exclude_fills if judged and x in cur.by_id and tag in cur.by_id[x].tags)]:
+                if f.id in seen or (met is not None and f.id not in met) or (f.id in c.scene_verdicts and not judged):
+                    continue
+                seen.add(f.id)
+                target, meaning = cur.resolve_slots(c, {**example, slot: f})
+                rows.append((c, f, target, meaning))
+    return rows
+
+
 def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curriculum:
     """Load one .toml file, or a directory of them (merged in sorted filename order).
 
@@ -474,7 +499,7 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
         files = sorted(path.glob("*.toml"))
         if not files:
             raise CurriculumError(f"{path}: no .toml files")
-        merged: dict = {"items": [], "dialogues": [], "notes": []}
+        merged: dict = {"items": [], "dialogues": [], "notes": [], "scenes": {}}
         for f in files:
             with f.open("rb") as fh:
                 raw = tomllib.load(fh)
@@ -485,6 +510,10 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
             merged["items"] += raw.get("items", [])
             merged["dialogues"] += raw.get("dialogues", [])
             merged["notes"] += raw.get("notes", [])
+            for pattern, verdicts in raw.get("scenes", {}).items():
+                if pattern in merged["scenes"]:
+                    raise CurriculumError(f"{f}: [scenes.{pattern}] is already defined in another file")
+                merged["scenes"][pattern] = verdicts
         if "curriculum" not in merged:
             raise CurriculumError(f"{path}: no file defines [curriculum]")
         return curriculum_from_dict(merged, source=str(path), known_lang=known_lang)
@@ -567,6 +596,7 @@ def curriculum_from_dict(raw: dict, source: str = "", known_lang: str | None = N
         )
 
     notes = [Note(**_pick_gloss(n, _GLOSSED_NOTE, lang, langs, missing, n.get("id", "note"))) for n in raw.get("notes", [])]
+    _apply_scenes(items, raw.get("scenes", {}), lang, meta["known_lang"])
 
     cur = Curriculum(
         name=meta["name"],
@@ -584,13 +614,40 @@ def curriculum_from_dict(raw: dict, source: str = "", known_lang: str | None = N
     return cur
 
 
+def _apply_scenes(items: list[Item], scenes: dict, lang: str | None, primary: str) -> None:
+    """The scene check's verdicts (``[scenes.<pattern>]``: fill id → a scene line, or ``false``): a line goes to the pattern's ``fill_scenes``, ``false`` to its
+    ``exclude_fills``. A line is in the curriculum's primary language (``primary``), or a table per language (``{ en = "…", ja = "…" }``) read by the
+    learner's language; a learner whose language has no line gets no scene, only the meaning, as before. ``validate`` checks that each fill is one of the pattern's."""
+    by_id = {i.id: i for i in items}
+    for pattern, verdicts in scenes.items():
+        item = by_id.get(pattern)
+        if item is None or item.kind != "construction" or not isinstance(verdicts, dict):
+            raise CurriculumError(f"[scenes.{pattern}] names no construction")
+        for fill, verdict in verdicts.items():
+            if verdict == "":
+                continue  # a line of the sheet left as printed: no verdict yet (docs/SCENE-REVIEW.md)
+            if verdict is False:
+                if fill not in item.exclude_fills:
+                    item.exclude_fills.append(fill)
+            elif isinstance(verdict, str) and verdict.strip():
+                if lang is None:
+                    item.fill_scenes[fill] = verdict.strip()
+            elif isinstance(verdict, dict) and all(isinstance(v, str) for v in verdict.values()):
+                text = verdict.get(lang or primary)  # by language, never by table order (review of #352); none in the learner's: the meaning alone
+                if text:
+                    item.fill_scenes[fill] = text.strip()
+            else:
+                raise CurriculumError(f"[scenes.{pattern}] {fill}: a scene is a line of text (or one per language), or false")
+            item.scene_verdicts.add(fill)
+
+
 def _item_from_dict(entry: dict, order: int) -> Item:
     entry = dict(entry)
     examples = [TransformExample(**e) for e in entry.pop("examples", [])]
     kind = entry.get("kind", "phrase")
     if kind not in KINDS:
         raise CurriculumError(f"item {entry.get('id')!r}: unknown kind {kind!r} (expected one of {KINDS})")
-    known_fields = set(Item.__dataclass_fields__)
+    known_fields = set(Item.__dataclass_fields__) - {"fill_scenes", "scene_verdicts"}  # the scene check's verdicts live in [scenes.<pattern>], in one place
     unknown = set(entry) - known_fields
     if unknown:
         raise CurriculumError(f"item {entry.get('id')!r}: unknown fields {sorted(unknown)}")
@@ -855,6 +912,9 @@ def validate(cur: Curriculum) -> None:
             for ref in it.exclude_fills:
                 if ref not in cur.by_id or not any(t in cur.by_id[ref].tags for t in it.slots.values()):
                     raise CurriculumError(f"item {it.id!r}: exclude_fills {ref!r} is not a fill with a tag of one of its slots")
+        for ref in it.scene_verdicts:
+            if it.kind != "construction" or ref not in cur.by_id or not any(t in cur.by_id[ref].tags for t in it.slots.values()):
+                raise CurriculumError(f"[scenes.{it.id}] {ref!r} is not a fill with a tag of one of its slots")
         if it.instance_of or it.instance_fill or it.instance_form:
             c = cur.by_id.get(it.instance_of)
             if it.kind != "phrase" or c is None or c.kind != "construction":

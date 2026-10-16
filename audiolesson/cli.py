@@ -13,7 +13,7 @@ from . import __version__
 from .themes import load_themes, scenario_order
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts
-from .content import CurriculumError, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, unlinked_instances
+from .content import CurriculumError, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, unlinked_instances
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -112,6 +112,13 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("--paces", default="6,8,10", help="--cando: new items per lesson to simulate, comma-separated (default 6,8,10)")
     v.add_argument("--trip", default=None, help="--cando: simulate with the trip ordering from this private profile (an empty file: the default A-then-B ordering)")
     v.set_defaults(func=cmd_validate)
+
+    sk = sub.add_parser("scene-check", help="the scene check's sheet (docs/SCENE-REVIEW.md): each pattern sentence with no verdict, as [scenes.<pattern>] TOML to fill in")
+    sk.add_argument("curriculum")
+    sk.add_argument("--pattern", action="append", default=None, help="only this pattern (repeatable)")
+    sk.add_argument("--learner", dest="met_learner", default=None, help="only the patterns and fills this learner has met: what the lessons generate now")
+    sk.add_argument("--judged", action="store_true", help="the fills with a verdict too")
+    sk.set_defaults(func=cmd_scene_check)
 
     r = sub.add_parser("reading", help="the reading deck (#133) as JSON, for the Discord review")
     r.add_argument("curriculum")
@@ -563,6 +570,31 @@ def _check_bin(cur, curriculum) -> list[str]:
     return variant_warnings(cur, load_cache(path))
 
 
+def _toml_key(key: str) -> str:
+    """A TOML key as written: bare when it is only ASCII letters, digits, ``_`` and ``-``, else quoted (ids such as «strætó»; review of #352)."""
+    return key if key and all(ch.isascii() and (ch.isalnum() or ch in "_-") for ch in key) else json.dumps(key, ensure_ascii=False)
+
+
+def cmd_scene_check(args) -> int:
+    """The scene check's sheet: per pattern a ``[scenes.<pattern>]`` table, a line per fill with its sentence and meaning as a comment, the verdict left to write
+    («"a scene in one line"» or ``false``), so the filled table goes into ``95-scenes.toml`` as it is."""
+    cur = load_curriculum(args.curriculum)
+    met = None
+    if args.met_learner:
+        learner = LearnerState.load(args.met_learner)
+        met = {i for i in cur.by_id if learner.has_met(i)}
+    rows = scene_sheet(cur, args.pattern, met, args.judged)
+    last = None
+    for c, f, target, meaning in rows:
+        if c.id != last:
+            print(f"\n[scenes.{_toml_key(c.id)}]  # «{c.target}» {c.meaning}")
+            last = c.id
+        verdict = "false" if f.id in c.exclude_fills else json.dumps(c.fill_scenes[f.id], ensure_ascii=False) if f.id in c.fill_scenes else '""'
+        print(f"{_toml_key(f.id)} = {verdict}  # «{target}» {meaning}")
+    print(f"\n# {len(rows)} sentences", file=sys.stderr)
+    return 0
+
+
 def cmd_validate(args) -> int:
     cur = load_curriculum(args.curriculum, known_lang=args.known)
     kinds = {}
@@ -627,6 +659,15 @@ def cmd_validate(args) -> int:
         )
         for frame, ids in frames_found[:12]:
             print(f"  «{frame}»: {', '.join(ids[:6])}{' …' if len(ids) > 6 else ''}")
+    unjudged = scene_sheet(cur)
+    if unjudged:
+        per: dict[str, int] = {}
+        for c, _, _, _ in unjudged:
+            per[c.id] = per.get(c.id, 0) + 1
+        print(
+            f"advisory (not a failure): {len(unjudged)} sentences of {len(per)} patterns have no scene verdict (owner, 2026-10-16): they are generated, but nobody has "
+            f"checked that a learner can picture someone saying them. `audiolesson scene-check` prints the sheet (docs/SCENE-REVIEW.md); the verdicts go to [scenes.<pattern>]."
+        )
     from .sounds import hard_sounds
 
     unsplit = [i.id for i in cur.items if hard_sounds(i) and not i.syllables]
