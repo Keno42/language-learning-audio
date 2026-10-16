@@ -18,7 +18,7 @@ leigubil = false  # «Áttu leigubíl?»: you don't ask someone whether they own
 sofa = false  # «Má ég sofa?»: a traveller does not ask permission to sleep (#333)
 fara_heim = "The workshop runs late, and you ask the organiser."
 kaupa_mida = "You're at the counter, not sure tickets are sold here."
-fara_a_safnid = false  # asking permission to go to the museum: not something a traveller asks
+fara_a_safnid = false  # «Má ég» asks permission: an adult traveller asks whether the museum is open or how to get there, not whether they may go
 
 [scenes.fer_thessi_straeto_dest]
 a_stoppistodina = false  # a bus does not go «to the bus stop» (#336)
@@ -131,7 +131,7 @@ braud = "At the bakery, the assistant asks what you'd like."
 salat = "The waiter asks what you'd like for lunch."
 ost = "At the deli counter, the assistant asks what you'd like."
 egg = "At breakfast, the cook asks what you'd like."
-smjor = false  # butter is asked for with something, not ordered on its own
+smjor = "At the bakery, you have your bread, and the assistant asks if you want anything with it."
 mjolk = "The waiter asks what you'd like to drink."
 epli = "At the market stall, the seller asks what you'd like."
 
@@ -145,26 +145,26 @@ samloku = "It's lunchtime on the road trip, and your friend asks what you want."
 koku = "You pass a bakery window on a grey afternoon."
 pylsu = "You pass the famous hot-dog stand in town."
 skyr = "At breakfast, your friend asks what you want."
-braud = false  # not something one craves on its own
+braud = "Your host asks what you'd like for breakfast."
 salat = "After a heavy dinner yesterday, your friend asks what you'd like."
-ost = false
-egg = false
-smjor = false
-mjolk = false
-epli = false
+ost = "Your host asks what you'd like on your bread."
+egg = "Your host asks what you'd like for breakfast."
+smjor = false  # one wants butter on something, not butter: «Mig langar í brauð.» is the sentence
+mjolk = "Your host asks what you'd like to drink at breakfast."
+epli = "Your friend offers fruit for the journey."
 
 [scenes.eg_elska]  # «Ég elska …» I love …
 supu = "Your host asks if you like her lamb soup."
-samloku = false  # «I love a sandwich»: a sandwich is not something one says one loves
+samloku = false  # one loves sandwiches, not «a sandwich»: the singular is odd in both languages (the plural «samlokur» is not in the course)
 koku = "Your host offers you cake and asks if you like it."
 pylsu = "Your friend asks if you like Icelandic hot dogs."
 skyr = "Your host asks if you like skyr."
 braud = "Your host asks if you like the rye bread."
 salat = "Your host asks if you like salad."
 ost = "Your host asks if you like cheese."
-egg = false
-smjor = false
-mjolk = false
+egg = "Your host asks whether you like eggs."
+smjor = "You taste Icelandic butter on fresh bread, and your host asks how it is."
+mjolk = "Your host asks whether you'd like a glass of milk."
 epli = "Your host offers you an apple and asks if you like them."
 
 [scenes.hvar_er]  # «Hvar er …?» Where is …?
