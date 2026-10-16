@@ -807,7 +807,9 @@ class Builder:
         sofa.» were hard to *hear*): a phrase or a word of two or more words is itself; a pattern is its worked example. None for a single word, which keeps its word
         model."""
         if item.kind == "construction" and item.slots:
-            return self._filled(item, self.worked_example_fills(item))[1]  # the sentence it was introduced with, in words the learner has
+            # the sentence it was introduced with, in words the learner has, in the form the model's voice says (native_a): resolved for that voice, so
+            # asking whether there is a model moves no gender turn and «Ég er glaður.» is never said in the woman's voice (review of #351)
+            return self._filled(item, self.worked_example_fills(item), voice="native_a")[1]
         if item.kind in ("phrase", "vocab") and item.word_count >= 2:
             return item.target
         return None

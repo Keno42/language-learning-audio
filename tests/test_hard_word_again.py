@@ -165,6 +165,21 @@ class HardWordAgainTests(unittest.TestCase):
         self.assertIn("This one was hard.", sc.transcript())
         self.assertIn("Við · erum · fjögur.", sc.transcript(), "word by word")
 
+    def test_a_gendered_pattern_is_heard_in_the_form_of_the_voice_and_asking_moves_no_turn(self):
+        """Review of #351: «Ég er {state}.» with «glöð / glaður»: the check for a model must not take a gender turn, and the model says the woman's form in
+        the woman's voice."""
+        b = self.builder()
+        for i in ("eg_er_state", "glod"):
+            b.learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=7, last_outcome="recalled")
+        pattern = self.cur.by_id["eg_er_state"]
+        self.assertTrue(b.slow_model_possible(pattern))
+        self.assertEqual(b._gender_uses, {}, "no gender turn taken by asking")
+        sc = Script(1, "t", "is", "en")
+        ex = b.slow_word_exercise(sc, pattern)
+        said = {(g.text, g.speaker) for g in sc.segments if g.type == "speak" and g.exercise == ex.index and g.role != "narration"}
+        self.assertIn(("Ég er glöð.", "native_a"), said)
+        self.assertFalse([t for t, _ in said if "glaður" in t], said)
+
     def test_a_reported_pattern_and_a_reported_sentence_are_owed_their_model(self):
         l = LearnerState("is", "en", "A1")
         for i in ("eg_nenni_ekki", "vid_erum_fjogur", "fara_heim"):
