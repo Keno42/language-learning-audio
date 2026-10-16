@@ -228,8 +228,10 @@ def _build(b, sc: Script, task: ListeningTask, introduces: str = "") -> None:
         question = b.prompts.get(task.prompt_key, context=task.cue, pointer=task.cue)
         b._narr(sc, ex, question)
     expected = task.repair or task.answer
-    b._pause(sc, ex, b.timing.answer_pause(expected, b.tl, generative=True), "answer", floor=b.timing.answer_floor())
-    voice = _other_voice(task.speaker) if task.repair else task.speaker
+    # a pick-out's answer is words the learner has just heard, found, not made: a recall's pause, not the generative one (lesson 28: 4.2-4.5 s for «klukkan
+    # fimm» felt long); the catch's question is made, and keeps it
+    b._pause(sc, ex, b.timing.answer_pause(expected, b.tl, generative=task.kind != "pick_out"), "answer", floor=b.timing.answer_floor())
+    voice = _other_voice(task.speaker)  # the learner's answer is never in the voice of the line it answers (lesson 28; the catch's question already was not)
     if task.kind == "pick_out":
         b._frame(sc, ex, b.prompts.get("pick_out_answer"))  # #335: the model answer is announced (a line that leads into an example is a framing line with its beat, #241), so it is not heard as the line going on
     b._answer(sc, ex, expected, speaker=voice)

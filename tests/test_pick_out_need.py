@@ -67,6 +67,22 @@ class PickOutNeedTests(unittest.TestCase):
             self.assertEqual((segs[again].role, segs[again + 1].type, segs[again + 1].role), ("frame", "pause", "beat"), "«Listen again.» is a framing line too")
             self.assertEqual(segs[again + 2].text, task.line)
 
+    def test_the_answer_is_in_the_other_voice_after_a_recall_pause(self):
+        """Lesson 28: the model answer was said by the speaker of the line (as if the partner said it again), after the generative pause (4.2-4.5 s for
+        «klukkan fimm»). It is the learner's answer: the other voice, after a recall's pause; the catch's question keeps its longer pause."""
+        t = Timing(level="A1")
+        for speaker, other in (("native_a", "native_b"), ("native_b", "native_a")):
+            task = ListeningTask("pick_out", "x", "", "Safnið lokar klukkan fimm.", "klukkan fimm", "Five o'clock.", "pick_out_time", speaker=speaker)
+            segs = build("en", task).segments
+            answer = next(g for g in segs if g.type == "answer")
+            self.assertEqual(answer.speaker, other, "not the voice of the line")
+            pause = next(g for g in segs if g.type == "pause" and g.role == "answer")
+            self.assertEqual(pause.duration, t.answer_pause("klukkan fimm", "is"))
+            self.assertLess(pause.duration, t.answer_pause("klukkan fimm", "is", generative=True))
+        catch = ListeningTask("catch_unknown", "x", "", "Viltu sestu?", "sestu", "sit", "catch_unknown_context", repair="Hvað þýðir sestu?", cue="Do you want to something?")
+        pause = next(g for g in build("en", catch).segments if g.type == "pause" and g.role == "answer")
+        self.assertEqual(pause.duration, t.answer_pause("Hvað þýðir sestu?", "is", generative=True), "the question is made: its pause stays")
+
     def test_the_catch_task_is_unchanged(self):
         task = ListeningTask("catch_unknown", "x", "", "Viltu sestu?", "sestu", "sit", "catch_unknown_context", repair="Hvað þýðir sestu?", cue="Do you want to something?")
         texts = [g.text for g in build("en", task).segments if g.type in ("narrate", "speak", "answer")]
