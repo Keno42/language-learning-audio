@@ -240,7 +240,9 @@ class NounRecallTests(unittest.TestCase):
         taught = {"through": "eg_aetla_ad_fa", "answer": "Ég ætla að fá köku.", "meaning": "I'll have a piece of cake."}
         whole = whole_for(cur, item, met | {"koku"}, Prompts.load("en"), taught)
         ex = b.recall_whole(sc, item, whole)
-        self.assertEqual((ex.kind, ex.stage, ex.item_ids, ex.label), ("recall", "meaning", ["koku"], "meaning: Ég ætla að fá köku."))
+        # the sentence has a scene (95-scenes.toml): asked from the scene and its meaning
+        self.assertEqual((ex.kind, ex.stage, ex.item_ids, ex.label), ("recall", "situation", ["koku"], "situation: Ég ætla að fá köku."))
+        self.assertIn("Say: I'll have a piece of cake.", sc.transcript())
         self.assertEqual([g.text for g in sc.segments if g.type == "answer"], ["Ég ætla að fá köku."])
         self.assertEqual([(q["items"], q["answer"]) for q in sc.review_questions()], [(["koku"], "Ég ætla að fá köku.")])
 
