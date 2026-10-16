@@ -52,6 +52,33 @@ class ParallelsTests(unittest.TestCase):
         self.assertLessEqual(worst, 10)
 
 
+class HandoffTests(unittest.TestCase):
+    def test_a_word_brought_in_by_its_phrase_is_not_handed_back_to_the_word(self):
+        """A simulated course, lesson 58: «á flugvöllinn» had no frame, so #262 brought «Á flugvöllinn, takk.» in first (`phrase_first`); #311
+        (`new_filler_of`) handed the phrase's turn back to its new word, which brought the phrase in again, until the recursion limit. The phrase now
+        comes in for the word, and the word is taken out of it."""
+        from unittest import mock
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner, day = LearnerState("is", "en", "A1"), date(2026, 9, 1)
+        for _ in range(3):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_target=8.0), today=day).build()
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_target=8.0), today=day)
+        word, phrase = cur.by_id["a_flugvollinn"], cur.by_id["a_flugvollinn_takk"]
+        real_phrase_first, real_new_filler_of = planner.phrase_first, planner.new_filler_of
+        picks = iter([[word]])
+        with (
+            mock.patch.object(planner, "phrase_first", lambda item, queued=frozenset(): phrase if item is word else real_phrase_first(item, queued)),
+            mock.patch.object(planner, "new_filler_of", lambda item: word if item is phrase else real_new_filler_of(item)),
+            mock.patch.object(planner, "select_new", lambda *a, **k: next(picks, [])),
+        ):
+            sc = planner.build()
+        intros = [e.item_ids for e in sc.exercises if e.kind == "intro" and (word.id in e.item_ids or phrase.id in e.item_ids)]
+        self.assertEqual(intros[:2], [[phrase.id], [word.id]], "the phrase, then the word out of it")
+
+
 class IntroductionTests(unittest.TestCase):
     def lesson_with(self, item_id, upto=80):
         cur = load_curriculum(ROOT / "curricula" / "is-en")

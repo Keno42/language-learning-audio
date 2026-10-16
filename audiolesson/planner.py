@@ -1991,9 +1991,11 @@ class Planner:
                 arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
                 mark_delivered_target()
                 return
-            if (filler := self.new_filler_of(item)) is not None:
+            if (filler := self.new_filler_of(item)) is not None and filler.id not in introducing:
                 # #311: «Ég þarf úlpu.» is a sentence of a known pattern with a new word: the word is taught as a word (its own introduction, in the pattern or
-                # another frame that takes it), and the phrase is covered once as a sentence of the pattern, never a ladder of the same sentence
+                # another frame that takes it), and the phrase is covered once as a sentence of the pattern, never a ladder of the same sentence. Not when the
+                # word is what is being introduced: no frame took it, so #262 brought this phrase in for it (`phrase_first`), and handing the turn back to the
+                # word would bring the phrase in again, for ever (lesson 58 of a simulated course: «á flugvöllinn» and «Á flugvöllinn, takk.»)
                 if filler in new_queue:
                     new_queue.remove(filler)
                 do_intro(filler)
