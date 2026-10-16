@@ -23,6 +23,7 @@ note_pieces = "Now the pieces, slowly, one at a time."
 # understand", not a guess at which authored phrase the course has in mind
 cloze = "Complete the sentence to say: {meaning}"
 hinted = "Say: {meaning} It starts with:"
+scene_say = "{scene} Say: {meaning}"  # the scene check's line, then what to say (owner, 2026-10-16)
 meaning = [
   "How do you say: {meaning}",
   "Say: {meaning}",

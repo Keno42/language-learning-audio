@@ -21,6 +21,7 @@ note_pieces = "では、部分ごとにゆっくり、一つずつ聞きまし�
 # issue #59: 何を言いたいのかを先に示す（「Ég skil…」だけでは「わかりません」か判別できない）
 cloze = "「{meaning}」と言うように、文を完成させてください。"
 hinted = "「{meaning}」と言ってください。最初は…"
+scene_say = "{scene}「{meaning}」と言ってください。"  # the scene check's line, then what to say (owner, 2026-10-16)
 meaning = [
   "「{meaning}」は、何と言いますか？",
   "「{meaning}」と言ってください。",

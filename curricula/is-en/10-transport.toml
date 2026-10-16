@@ -150,7 +150,6 @@ meaning_ja = "このバスは{dest}行きますか？"
 difficulty = 4
 topics = ["transport"]
 slots = { dest = "dest" }
-exclude_fills = ["a_stoppistodina", "a_thetta_hotel"]  # a bus does not go «to the bus stop» or «to this hotel» (a taxi does): H7, a named exception (#336)
 example = { dest = "a_flugvollinn" }
 prereqs = ["i_midbaeinn", "a_flugvollinn"]
 situation = "A bus pulls up. Ask the driver whether it goes to the museum."

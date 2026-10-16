@@ -662,7 +662,6 @@ meaning_ja = "{inf:te}もいいですか？"
 difficulty = 3
 topics = ["grammar", "daily"]
 slots = { inf = "inf" }
-exclude_fills = ["sofa"]  # «Má ég sofa?» is not said: a traveller does not ask permission to sleep (#333)
 example = { inf = "fara_heim" }
 prereqs = ["ma_eg_borga_med_korti", "eg_vil", "fara_heim"]
 situation = "You feel unwell at work. Ask your boss if you may go home."

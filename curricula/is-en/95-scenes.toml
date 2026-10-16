@@ -1,0 +1,49 @@
+# The scene check (owner, 2026-10-16; LEARNING-DESIGN §9 "Good enough overall"; docs/SCENE-REVIEW.md).
+#
+# A pattern makes a sentence with every fill its slot's tag allows. Grammatical is not enough: the learner must be able to picture
+# someone saying it. Each verdict here is on one fill of one pattern:
+#
+#   fill = "a scene in one line"   the sentence has a scene; the lesson uses this line as the cue when it asks the sentence
+#                                  («It's raining and your friend suggests a walk. Say: I can't be bothered to go out.»)
+#   fill = false                   the sentence has no scene a traveller would be in: it is never generated
+#
+# A fill with no verdict is still generated, and `audiolesson validate` counts it; `audiolesson scenes` prints the sheet to judge.
+# A scene is in English (the course's primary language); a learner of another language gets the meaning alone until a
+# per-language line is added ({ en = "…", ja = "…" }).
+
+[scenes.attu]
+leigubil = false  # «Áttu leigubíl?»: you don't ask someone whether they own a taxi (#192)
+
+[scenes.ma_eg_inf]
+sofa = false  # «Má ég sofa?»: a traveller does not ask permission to sleep (#333)
+
+[scenes.fer_thessi_straeto_dest]
+a_stoppistodina = false  # a bus does not go «to the bus stop» (#336)
+a_thetta_hotel = false  # nor «to this hotel» (a taxi does, with a booking shown) (#336)
+i_midbaeinn = "You're waiting at a bus stop on the edge of town and want to go downtown."
+a_flugvollinn = "Your flight leaves in three hours, and a bus pulls up at the stop."
+a_safnid = "You want to see the museum, and a bus pulls up."
+
+[scenes.eg_nenni_ekki]
+# «Ég nenni ekki að …»: I can't be bothered to … (lesson 27: «Ég nenni ekki að sofa.» was hard to picture)
+fara_heim = "It's late, the party is fun and your friend says it's time to leave."
+sofa = false  # when would a traveller say they can't be bothered to sleep?
+borda = "You're too tired after the hike even to go and find food."
+fara_i_sund = "It's cold and windy, and your friend suggests the outdoor pool."
+fara_ut = "It's raining hard, and your friend suggests a walk."
+hvila_mig = false  # resting is what one does when one can't be bothered
+versla = "Your friend wants to go back to the shops for the third time today."
+kaupa_mida = "The queue at the ticket machine is long, and the walk is short."
+hringja_heim = "It's late and you're tired; your friend asks if you've called your family."
+fara_a_safnid = "You've seen three museums today, and your friend suggests a fourth."
+drekka_kaffi = false  # not something one can't be bothered to do
+boka_ferd = "The booking site keeps crashing, and your friend asks if you've booked the tour."
+borga_med_korti = false  # paying is not a chore one skips
+opna_gluggann = "The room is stuffy, but you're comfortable on the bed."
+loka_hurdinni = "Your friend left the door open, and you've just sat down."
+elda = "You've been hiking all day, and the kitchen is downstairs."
+senda_tolvupost = "It's ten at night on holiday, and a work email needs an answer."
+vinna_verb = "It's a sunny Monday and you're on holiday."
+laera = "Your friend asks whether you've done your Icelandic homework tonight."
+hringja = "Your friend asks you to phone the restaurant to book."
+taka_mynd = "Everyone stops for a photo of the same waterfall again."

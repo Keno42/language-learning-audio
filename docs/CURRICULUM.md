@@ -74,7 +74,7 @@ skips anything whose `prereqs` the learner does not know yet.
 | `partner_cue`, `partner_cue_after` | phrase | a partner line spoken between item `partner_cue_after` (A) and this item (B) when `connect()` pairs them in that order |
 | `partner_cue_setup` / `partner_cue_meaning` / `partner_cue_situation` | phrase | required with `partner_cue`, glossed per language: the bridge as **one scene**. The setup replaces A's standalone situation (shared place, roles, reason; asks for A), the meaning glosses the partner line on the learner's first two hearings of that bridge, and the situation replaces B's own (same scene, names the partner's move) |
 | `context` | phrase, vocab | a short sentence in the known language the word is said in («This is good.» for «gott»; `context_ja`). The recall prompts after the introduction say «Say: good, as in: This is good.», so the answer is the form that sentence needs and not any form of the word's family (gott, góður, góðan…); the introduction keeps its own wording. Use the frame of a construction the learner has, with the case the word takes in it |
-| `exclude_fills` | construction | item ids its generated sentences never take although their tag fits a slot (#192): a named exception to the tags, not a tagging scheme (`attu` excludes `leigubil`: «Ég þarf leigubíl.» stays, «Áttu leigubíl?» is not said). Authored fills (`example`, `situation_fill`, `instance_fill`) are still used. `validate` fails for an id that is not an item with a tag of one of the construction's slots |
+| `exclude_fills` | construction | item ids its generated sentences never take although their tag fits a slot. Write the scene check's `false` in `[scenes.<pattern>]` instead (below), so every verdict on a pattern's sentences is in one place; the field stays for a curriculum without it. Authored fills (`example`, `situation_fill`, `instance_fill`) are still used. `validate` fails for an id that is not an item with a tag of one of the construction's slots |
 | `information_probes` | construction | what a listener can pick out of a sentence of the pattern (#248, concept 2): a list of `{ kind, answer, meanings }`. `kind` is `price`, `time`, `count` or `place`; `answer` is the part of the sentence that carries the information, written with the construction's slots («{count} þúsund krónur»); `meanings` has `en` and `ja`, holding the same slots. The second half's *pick out* exercise asks for it. Never inferred from a slot's name: «Hvenær opnar {place}?» has no time in it. `validate` fails a probe that names no slot of the construction or lacks a language |
 | `syllables` | vocab | a one-word target cut into syllables, authored (#212); joined it must make the target. Spoken slowly one by one at the introduction of a hard-to-say word |
 | `word_syllables` | phrase | the hard words of a phrase cut into syllables, authored (#337): `word_syllables = { vegurinn = ["veg", "ur", "inn"] }` (a non-ASCII word is a quoted key). Each word is a word of the target, the pieces join to it exactly and keep a cluster whole. Said slowly in pieces once at the phrase's introduction, and again before the practice of a phrase the learner reported hard |
@@ -106,6 +106,25 @@ skips anything whose `prereqs` the learner does not know yet.
   first letter, so fills stay lowercase.
 - **transform** — a grammatical operation shown by example pairs, then
   practised: the native voice says `source`, the learner produces `result`.
+
+### The scene check: `[scenes.<pattern>]`
+
+A pattern makes a sentence with every fill its slot's tag allows, and grammatical is not enough: the learner must be
+able to picture someone saying it (LEARNING-DESIGN §9 "Good enough overall"). Each fill of a pattern gets one verdict,
+all of them in `curricula/is-en/95-scenes.toml`:
+
+```toml
+[scenes.eg_nenni_ekki]
+fara_ut = "It's raining hard, and your friend suggests a walk."  # a scene: the cue when the sentence is asked
+sofa = false                                                      # no scene a traveller is in: never generated
+```
+
+A scene is one line in the course's primary language, describing where the sentence is said, not what to say: the
+lesson adds «Say: {meaning}». For another learner language write `{ en = "…", ja = "…" }`; without a line in theirs a
+learner gets the meaning alone. A verdict is on one fill; a sentence of a several-slot pattern uses a line only when
+exactly one of its fills has one. A fill with no verdict is still generated: `audiolesson validate` counts them and
+`audiolesson scene-check CURRICULUM [--learner FILE] [--pattern ID]` prints the sheet as TOML to fill in
+(`docs/SCENE-REVIEW.md`).
 
 ## Dialogues
 

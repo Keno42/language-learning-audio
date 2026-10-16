@@ -1075,6 +1075,12 @@ class Builder:
         self._frame(sc, ex, self.prompts.get("also"))
         self._speak(sc, ex, self.rng.choice(item.alternatives), role="alternative")
 
+    def fill_scene(self, construction: Item, fills: dict[str, Item]) -> str | None:
+        """The scene check's line for a pattern's sentence (``Item.fill_scenes``, from ``[scenes.<pattern>]``): the scene of the one fill that has one. None
+        when no fill has a scene, or the fills of a several-slot sentence name two (a verdict is on one fill, not on a combination)."""
+        found = [construction.fill_scenes[f.id] for f in fills.values() if f.id in construction.fill_scenes]
+        return found[0] if len(found) == 1 else None
+
     def _recall_construction(self, sc: Script, item: Item, stage: str) -> Exercise:
         """Recall of a construction always goes through a filled example; at the situation
         stage, one with the fills the situation names."""
@@ -1102,10 +1108,16 @@ class Builder:
                 gen = Generated(item, fills, target, meaning)
         self.used_combos.add(gen.key)
         gender, target = self._filled(item, gen.fills)
+        own_situation = stage == "situation" and item.has_situation and self.situation_room(item) and bool(fixed)
+        scene = self.fill_scene(item, gen.fills) if stage in ("meaning", "situation") and not own_situation else None
+        if scene is not None:
+            stage = "situation"  # the scene check's line is the cue: the learner pictures where the sentence is said (lesson 27: «Ég nenni ekki að sofa.»)
         ex = sc.new_exercise("recall", stage, gen.item_ids, f"{stage}: {target}")
         if stage == "hinted":
             self._narr(sc, ex, self._as(gender, self.prompts.get("hinted", meaning=self._m(gen.meaning))))
             self._speak(sc, ex, target.split()[0].rstrip(".,?!"), role="hint")
+        elif scene is not None:
+            self._narr(sc, ex, self._as(gender, self.prompts.get("scene_say", scene=scene, meaning=self._m(gen.meaning))))
         elif stage == "situation" and item.has_situation and self.situation_room(item):
             self._narr(sc, ex, self._as(gender, self._situation(item)))  # type: ignore[arg-type]
         else:
@@ -1147,7 +1159,11 @@ class Builder:
                 self.novelty_announced.add(form_id)
         else:
             key = "recombine_vocab_again" if linked else "recombine_vocab"
-        self._narr(sc, ex, self._as(gender, self.prompts.get(key, meaning=self._m(gen.meaning))))
+        scene = self.fill_scene(gen.construction, gen.fills) if not gen.form else None
+        if scene is not None:
+            self._narr(sc, ex, self._as(gender, self.prompts.get("scene_say", scene=scene, meaning=self._m(gen.meaning))))  # the scene check's line (owner, 2026-10-16)
+        else:
+            self._narr(sc, ex, self._as(gender, self.prompts.get(key, meaning=self._m(gen.meaning))))
         self._answer_pause(sc, ex, target, item, generative=True)
         self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
         self._gap(sc, ex)
