@@ -802,12 +802,43 @@ class Builder:
             self._word_model(sc, ex, word, syllables, voice)
         return len(words)
 
+    def hearing_sentence(self, item: Item) -> str | None:
+        """The sentence the learner reported hard is modelled as, when it names no hard word of its own (lesson 27: «Við erum fjögur.», «Ég nenni ekki að
+        sofa.» were hard to *hear*): a phrase or a word of two or more words is itself; a pattern is its worked example. None for a single word, which keeps its word
+        model."""
+        if item.kind == "construction" and item.slots:
+            return self._filled(item, self.worked_example_fills(item))[1]  # the sentence it was introduced with, in words the learner has
+        if item.kind in ("phrase", "vocab") and item.word_count >= 2:
+            return item.target
+        return None
+
+    def slow_model_possible(self, item: Item) -> bool:
+        """Whether ``slow_word_exercise`` has something to play for ``item``."""
+        return bool(hard_words_of(item) or self.hearing_sentence(item) or hard_words_of(item, reported=True))
+
     def slow_word_exercise(self, sc: Script, item: Item) -> Exercise | None:
-        """An item the learner reported hard to say (#337): before its next practice, its hard word said slowly in pieces once. None when no word qualifies."""
-        words = hard_words_of(item, reported=True)
-        if not words:
+        """An item the learner reported hard (#337): before its next practice, said slowly once. The words it names hard itself (authored syllables) are cut into
+        pieces; else a sentence is heard and repeated whole, at natural speed, word by word, and at natural speed again (a hard-to-hear «Við erum» is not one word
+        a spelling rule can pick: lesson 27 picked «fjögur»); else a single word is said slowly by itself. None when nothing qualifies."""
+        words = hard_words_of(item)
+        sentence = None if words else self.hearing_sentence(item)
+        if not words and sentence is None:
+            words = hard_words_of(item, reported=True)
+        if not words and sentence is None:
             return None
-        ex = sc.new_exercise("model", "slow", [item.id], f"slow: {item.target}")
+        ex = sc.new_exercise("model", "slow", [item.id], f"slow: {sentence or item.target}")
+        if sentence is not None:
+            self._frame(sc, ex, self.prompts.get("slow_hear_intro"))
+            self._speak(sc, ex, sentence, speaker="native_a")
+            self._beat(sc, ex)
+            self._narr(sc, ex, self.prompts.get("slowly"))
+            self._slow_line(sc, ex, sentence)
+            self._repeat_pause_spaced(sc, ex, sentence)
+            self._narr(sc, ex, self.prompts.get("natural"))
+            self._speak(sc, ex, sentence, speaker="native_a")
+            self._repeat_pause(sc, ex, sentence)
+            self._gap(sc, ex)
+            return ex
         if item.kind == "vocab":
             self._frame(sc, ex, self.prompts.get("slow_word_intro_word"))  # a word has no sentence to say first
         else:
@@ -930,16 +961,21 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def _intro_construction(self, sc: Script, item: Item, worked_fills: dict[str, Item] | None = None) -> Exercise:
-        ex = sc.new_exercise("intro", "intro", [item.id], f"new pattern: {item.target}")
+    def worked_example_fills(self, item: Item, worked_fills: dict[str, Item] | None = None) -> dict[str, Item]:
+        """The fills of a pattern's worked example: the authored example, a part taken out next (``worked_fills``), and, where the authored filler is not one
+        the learner has, a known filler of the slot (the worked example uses words the learner has)."""
         fills = self.cur.example_fill(item)
         fills.update(worked_fills or {})
-        # the worked example uses words the learner has: when the authored one isn't, a known filler of the slot
         for slot, tag in item.slots.items():
             if slot in fills and slot not in (worked_fills or {}) and not self._available(fills[slot].id):
                 known = next((i for i in self.cur.items_with_tag(tag, item) if self._available(i.id)), None)
                 if known is not None:
                     fills[slot] = known
+        return fills
+
+    def _intro_construction(self, sc: Script, item: Item, worked_fills: dict[str, Item] | None = None) -> Exercise:
+        ex = sc.new_exercise("intro", "intro", [item.id], f"new pattern: {item.target}")
+        fills = self.worked_example_fills(item, worked_fills)
         target, meaning = self.cur.resolve_slots(item, fills)
         self.used_combos.add(_combo_key(item, fills))  # the worked example is heard, not new
         ex.item_ids += [f.id for s_, f in fills.items() if f.id not in ex.item_ids and s_ not in (worked_fills or {})]

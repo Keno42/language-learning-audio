@@ -58,8 +58,8 @@ class HardWordAgainTests(unittest.TestCase):
         self.assertEqual((ex.kind, ex.stage), ("model", "slow"))
         slow = [g.text for g in sc.segments if g.type == "speak" and g.rate < 1]
         self.assertEqual(slow, ["reik", "ning", "inn"])
-        plain = next(i for i in self.cur.items if i.kind == "phrase" and not hard_words_of(i, reported=True))
-        self.assertIsNone(b.slow_word_exercise(sc, plain), "nothing to model")
+        plain = next(i for i in self.cur.items if i.kind == "vocab" and i.word_count == 1 and not hard_words_of(i, reported=True))
+        self.assertIsNone(b.slow_word_exercise(sc, plain), "a single word with nothing hard: nothing to model")
 
     def lesson_after_report(self, practised: bool, recalled_at_review: bool):
         """The real order: the report (the feedback form's «sooner») comes first, the next morning's review after it, then the lesson is built."""
@@ -139,15 +139,40 @@ class HardWordAgainTests(unittest.TestCase):
         late = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY + timedelta(days=40))
         self.assertEqual(late.slow_owed_items(), [])
 
-    def test_a_pattern_is_never_modelled_and_its_slot_names_are_not_words(self):
-        """Review of #342: «Get ég fengið {thing}?» reported hard must not be read out with «{thing}», and «{language}» is not a hard word."""
+    def test_a_pattern_is_modelled_through_its_example_and_its_slot_names_are_not_words(self):
+        """Review of #342: «Get ég fengið {thing}?» reported hard must not be read out with «{thing}», and «{language}» is not a hard word. Lesson 27: a pattern
+        reported hard («Ég nenni ekki að …») is heard through the sentence it was introduced with, in words the learner has («fara heim», not the authored
+        «versla»)."""
         b = self.builder()
+        b.learner.items["fara_heim"] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=7, last_outcome="recalled")
         sc = Script(1, "t", "is", "en")
         for c in self.cur.items:
             if c.kind == "construction":
                 self.assertEqual(hard_words_of(c, reported=True), [], c.id)
-        self.assertIsNone(b.slow_word_exercise(sc, self.cur.by_id["get_eg_fengid"]))
+        ex = b.slow_word_exercise(sc, self.cur.by_id["eg_nenni_ekki"])
+        self.assertEqual(ex.label, "slow: Ég nenni ekki að fara heim.")
         self.assertNotIn("{", sc.transcript())
+
+    def test_a_sentence_without_authored_hard_words_is_heard_whole_slowly_then_at_natural_speed(self):
+        """Lesson 27: «Við erum fjögur.» was hard to hear, and the guess by sounds picked «fjögur». A reported sentence that names no hard word of its own is
+        said whole, word by word, and whole again, each repeated."""
+        b = self.builder()
+        sc = Script(1, "t", "is", "en")
+        ex = b.slow_word_exercise(sc, self.cur.by_id["vid_erum_fjogur"])
+        self.assertEqual((ex.kind, ex.stage, ex.label), ("model", "slow", "slow: Við erum fjögur."))
+        spoken = [g.text for g in sc.segments if g.type == "speak" and g.exercise == ex.index and g.role != "narration"]
+        self.assertNotIn("fjögur", spoken, "no single guessed word")
+        self.assertIn("This one was hard.", sc.transcript())
+        self.assertIn("Við · erum · fjögur.", sc.transcript(), "word by word")
+
+    def test_a_reported_pattern_and_a_reported_sentence_are_owed_their_model(self):
+        l = LearnerState("is", "en", "A1")
+        for i in ("eg_nenni_ekki", "vid_erum_fjogur", "fara_heim"):
+            l.items[i] = ItemState(stage="meaning", durable_successes=1, successes=3, recalled=1, interval_days=1, last_outcome="recalled",
+                                   due=(TODAY + timedelta(days=1)).isoformat(), last_practiced=(TODAY - timedelta(days=1)).isoformat())
+        l.report([], [], TODAY - timedelta(days=1), sooner=["eg_nenni_ekki", "vid_erum_fjogur"])
+        p = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY)
+        self.assertEqual(sorted(p.slow_owed_items()), ["eg_nenni_ekki", "vid_erum_fjogur"])
 
     def test_word_syllables_are_checked(self):
         base = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}}

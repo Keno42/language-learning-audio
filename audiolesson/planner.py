@@ -667,11 +667,11 @@ class Planner:
         return next((task for in_scene, task in found if in_scene), found[0][1])
 
     def slow_owed_items(self) -> list[str]:
-        """Items the learner reported hard to say (#337) in the last ``REPORTED_HARD_DAYS`` days that hold a hard word to model, oldest report first. Kept apart
+        """Items the learner reported hard (#337) in the last ``REPORTED_HARD_DAYS`` days that have something to model (a hard word or a sentence), oldest report first. Kept apart
         from ``reported_hard``: a confirmed recall settles the connections of #326, not the pronunciation, so only the model's being played clears it."""
         since = (self.today - timedelta(days=REPORTED_HARD_DAYS)).isoformat()
         owed = [(st.slow_owed, i) for i, st in self.learner.items.items() if st.slow_owed and st.slow_owed >= since and i in self.cur.by_id]
-        return [i for _, i in sorted(owed) if hard_words_of(self.cur.by_id[i], reported=True)]
+        return [i for _, i in sorted(owed) if self.builder.slow_model_possible(self.cur.by_id[i])]
 
     def reported_hard_items(self) -> list[str]:
         """The items the learner reported hard in the last ``REPORTED_HARD_DAYS`` days and has not recalled since (#326, #337)."""
