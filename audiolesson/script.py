@@ -190,7 +190,7 @@ class Script:
             cue: str | None = None
             after_answer_pause = False
             for seg in by_ex.get(ex.index, []):
-                if seg.type == "narrate":
+                if seg.type == "narrate" and seg.role != "example":  # a reply's example answer would give the answer away: the partner's line stays the cue
                     cue = seg.text
                 elif seg.type == "speak" and seg.role == "prompt":
                     cue = seg.text  # the partner's line is itself a written cue (G12)

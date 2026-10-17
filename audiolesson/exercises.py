@@ -256,7 +256,8 @@ class Builder:
     def _partner_cue_recall(self, sc: Script, item: Item, prompt: Item, bare: bool) -> Exercise:
         """A situation recall whose cue is the partner's line, in Icelandic. «Reply.» frames it
         unless the exercise just before was one too; unless ``bare``, the line's meaning follows
-        on its first ``PROMPT_GLOSS_HEARINGS`` hearings in the lesson (the way a bridge does). The partner speaks in the male voice, the model answer in the female one."""
+        on its first ``PROMPT_GLOSS_HEARINGS`` hearings in the lesson (the way a bridge does); then an example answer («For example: All good, thanks.»).
+        The partner speaks in the male voice, the model answer in the female one."""
         follows_cue = bool(sc.exercises) and sc.exercises[-1].index == self._last_partner_cue
         ex = sc.new_exercise("recall", "situation", [item.id], f"situation: {item.target}")
         if not follows_cue:
@@ -266,6 +267,10 @@ class Builder:
             self._prompt_glosses[prompt.id] = self._prompt_glosses.get(prompt.id, 0) + 1
             self._beat(sc, ex)
             self._narr(sc, ex, self.prompts.get("dialogue_partner_said", meaning=self._m(prompt.spoken_meaning)))
+        # lesson 29: after «Reply.» and a line heard often enough to go unglossed, nothing said what to answer. An example answer, worded as one (another
+        # reply is not wrong); the written review keeps the partner's line as its cue (``Script.review_questions`` skips the role)
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("reply_example", meaning=self._m(item.spoken_meaning)), role="example")
         self._answer_pause(sc, ex, item.target, item, generative=True)
         self._answer(sc, ex, item.target, speaker="native_a")
         self._gap(sc, ex)
