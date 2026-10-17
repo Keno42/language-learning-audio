@@ -82,7 +82,9 @@ form = "acc"
 gender = "fem"
 target = "súpu"
 meaning = "soup"
+meaning_forms = { generic = "soup" }
 meaning_ja = "スープ"
+meaning_forms_ja = { generic = "スープ" }
 difficulty = 2
 tags = ["acc_orderable", "acc_food"]
 topics = ["cafe"]
@@ -96,7 +98,9 @@ form = "acc"
 gender = "fem"
 target = "samloku"
 meaning = "a sandwich"
+meaning_forms = { generic = "sandwiches" }
 meaning_ja = "サンドイッチ"
+meaning_forms_ja = { generic = "サンドイッチ" }
 difficulty = 2
 tags = ["acc_orderable", "acc_food"]
 topics = ["cafe"]
@@ -107,7 +111,9 @@ id = "koku"
 kind = "vocab"
 target = "köku"
 meaning = "a piece of cake"
+meaning_forms = { generic = "cake" }
 meaning_ja = "ケーキ"
+meaning_forms_ja = { generic = "ケーキ" }
 difficulty = 2
 tags = ["acc_orderable", "acc_food"]
 topics = ["cafe"]
@@ -125,7 +131,9 @@ form = "acc"
 gender = "fem"
 target = "pylsu"
 meaning = "a hot dog"
+meaning_forms = { generic = "hot dogs" }
 meaning_ja = "ホットドッグ"
+meaning_forms_ja = { generic = "ホットドッグ" }
 difficulty = 2
 tags = ["acc_orderable", "acc_food"]
 topics = ["cafe", "food"]
@@ -147,7 +155,7 @@ meaning_spoken_ja = "スキール、アイスランドの乳製品"
 difficulty = 1
 tags = ["acc_orderable", "nom_item", "acc_food"]
 topics = ["cafe", "food"]
-meaning_forms = { in_sentence = "skyr" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms = { in_sentence = "skyr", generic = "skyr" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
 meaning_forms_ja = { in_sentence = "スキール" }
 
 [[items]]
@@ -158,7 +166,9 @@ form = "acc"
 gender = "neut"
 target = "brauð"
 meaning = "bread"
+meaning_forms = { generic = "bread" }
 meaning_ja = "パン"
+meaning_forms_ja = { generic = "パン" }
 context = "I'd like some bread."
 context_ja = "パンをください。"
 difficulty = 1
@@ -173,7 +183,9 @@ form = "acc"
 gender = "neut"
 target = "salat"
 meaning = "a salad"
+meaning_forms = { generic = "salad" }
 meaning_ja = "サラダ"
+meaning_forms_ja = { generic = "サラダ" }
 difficulty = 1
 tags = ["acc_orderable", "nom_item", "acc_food"]
 topics = ["cafe", "food"]
@@ -186,7 +198,9 @@ form = "acc"
 gender = "masc"
 target = "fisk"
 meaning = "fish"
+meaning_forms = { generic = "fish" }
 meaning_ja = "魚"
+meaning_forms_ja = { generic = "魚" }
 difficulty = 1
 tags = ["acc_orderable", "acc_food"]
 topics = ["cafe", "food"]
@@ -200,7 +214,9 @@ form = "acc"
 gender = "masc"
 target = "kjúkling"
 meaning = "chicken"
+meaning_forms = { generic = "chicken" }
 meaning_ja = "チキン"
+meaning_forms_ja = { generic = "チキン" }
 difficulty = 2
 tags = ["acc_orderable", "acc_food"]
 topics = ["cafe", "food"]
@@ -214,7 +230,9 @@ form = "acc"
 gender = "neut"
 target = "lambakjöt"
 meaning = "lamb"
+meaning_forms = { generic = "lamb" }
 meaning_ja = "ラム肉"
+meaning_forms_ja = { generic = "ラム肉" }
 difficulty = 2
 tags = ["acc_orderable", "nom_item", "acc_food"]
 topics = ["cafe", "food"]
@@ -227,7 +245,9 @@ form = "acc"
 gender = "masc"
 target = "ís"
 meaning = "an ice cream"
+meaning_forms = { generic = "ice cream" }
 meaning_ja = "アイスクリーム"
+meaning_forms_ja = { generic = "アイスクリーム" }
 difficulty = 1
 tags = ["acc_orderable", "nom_item", "acc_food"]
 topics = ["cafe", "food"]

@@ -8,7 +8,9 @@ form = "acc"
 gender = "neut"
 target = "kjöt"
 meaning = "meat"
+meaning_forms = { generic = "meat" }
 meaning_ja = "肉"
+meaning_forms_ja = { generic = "肉" }
 difficulty = 1
 tags = ["acc_food", "acc_orderable", "acc_thing"]
 topics = ["food"]
@@ -17,7 +19,7 @@ topics = ["food"]
 id = "eg_elska"
 kind = "construction"
 target = "Ég elska {food}."
-meaning = "I love {food}."
+meaning = "I love {food:generic}."  # the generic plural or mass noun: not «I love a piece of cake.» (lesson 29)
 meaning_ja = "{food}が大好きです。"
 difficulty = 2
 topics = ["food"]
@@ -29,7 +31,7 @@ prereqs = ["fisk"]
 id = "eg_borda_ekki"
 kind = "construction"
 target = "Ég borða ekki {food}."
-meaning = "I don't eat {food}."
+meaning = "I don't eat {food:generic}."
 meaning_ja = "{food}は食べません。"
 difficulty = 2
 topics = ["food"]
@@ -45,7 +47,9 @@ form = "acc"
 gender = "masc"
 target = "ost"
 meaning = "cheese"
+meaning_forms = { generic = "cheese" }
 meaning_ja = "チーズ"
+meaning_forms_ja = { generic = "チーズ" }
 context = "I'd like some cheese."
 context_ja = "チーズをください。"
 difficulty = 1
@@ -61,7 +65,9 @@ form = "acc_pl"
 gender = "neut"
 target = "egg"
 meaning = "eggs"
+meaning_forms = { generic = "eggs" }
 meaning_ja = "卵"
+meaning_forms_ja = { generic = "卵" }
 context = "I'd like some eggs."
 context_ja = "卵をください。"
 difficulty = 1
@@ -76,7 +82,9 @@ form = "acc"
 gender = "neut"
 target = "smjör"
 meaning = "butter"
+meaning_forms = { generic = "butter" }
 meaning_ja = "バター"
+meaning_forms_ja = { generic = "バター" }
 context = "I'd like some butter."
 context_ja = "バターをください。"
 difficulty = 1
@@ -91,7 +99,9 @@ form = "acc"
 gender = "fem"
 target = "mjólk"
 meaning = "milk"
+meaning_forms = { generic = "milk" }
 meaning_ja = "牛乳"
+meaning_forms_ja = { generic = "牛乳" }
 context = "I'd like some milk."
 context_ja = "牛乳をください。"
 difficulty = 1
@@ -106,7 +116,9 @@ form = "acc_pl"
 gender = "neut"
 target = "epli"
 meaning = "apples"
+meaning_forms = { generic = "apples" }
 meaning_ja = "りんご"
+meaning_forms_ja = { generic = "りんご" }
 context = "I'd like some apples."
 context_ja = "りんごをください。"
 difficulty = 1
@@ -121,7 +133,9 @@ form = "acc_pl"
 gender = "masc"
 target = "banana"
 meaning = "bananas"
+meaning_forms = { generic = "bananas" }
 meaning_ja = "バナナ"
+meaning_forms_ja = { generic = "バナナ" }
 difficulty = 1
 tags = ["acc_food", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
@@ -134,7 +148,9 @@ form = "acc_pl"
 gender = "fem"
 target = "kartöflur"
 meaning = "potatoes"
+meaning_forms = { generic = "potatoes" }
 meaning_ja = "じゃがいも"
+meaning_forms_ja = { generic = "じゃがいも" }
 difficulty = 2
 tags = ["acc_food", "acc_orderable", "acc_thing"]
 topics = ["food"]
@@ -147,7 +163,9 @@ form = "acc"
 gender = "neut"
 target = "grænmeti"
 meaning = "vegetables"
+meaning_forms = { generic = "vegetables" }
 meaning_ja = "野菜"
+meaning_forms_ja = { generic = "野菜" }
 difficulty = 2
 tags = ["acc_food", "acc_orderable", "acc_thing"]
 topics = ["food"]
@@ -160,7 +178,9 @@ form = "acc_pl"
 gender = "masc"
 target = "ávexti"
 meaning = "fruit"
+meaning_forms = { generic = "fruit" }
 meaning_ja = "果物"
+meaning_forms_ja = { generic = "果物" }
 difficulty = 2
 tags = ["acc_food", "acc_orderable", "acc_thing"]
 topics = ["food"]
@@ -173,7 +193,9 @@ form = "acc"
 gender = "neut"
 target = "súkkulaði"
 meaning = "chocolate"
+meaning_forms = { generic = "chocolate" }
 meaning_ja = "チョコレート"
+meaning_forms_ja = { generic = "チョコレート" }
 difficulty = 2
 tags = ["acc_food", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
@@ -192,7 +214,7 @@ difficulty = 2
 tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
 pronunciation_notes = "the infamous one"
-meaning_forms = { in_sentence = "fermented shark" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms = { in_sentence = "fermented shark", generic = "fermented shark" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
 meaning_forms_ja = { in_sentence = "発酵させたサメ" }
 
 [[items]]
@@ -203,7 +225,9 @@ form = "acc"
 gender = "masc"
 target = "harðfisk"
 meaning = "dried fish"
+meaning_forms = { generic = "dried fish" }
 meaning_ja = "干し魚"
+meaning_forms_ja = { generic = "干し魚" }
 difficulty = 2
 tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
@@ -222,7 +246,7 @@ meaning_spoken_ja = "ねじりドーナツ"
 difficulty = 2
 tags = ["acc_food", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
-meaning_forms = { in_sentence = "kleinur" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms = { in_sentence = "kleinur", generic = "kleinur" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
 meaning_forms_ja = { in_sentence = "クレイナ" }
 
 [[items]]
@@ -239,7 +263,7 @@ meaning_spoken_ja = "平たいパン"
 difficulty = 2
 tags = ["acc_food", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
-meaning_forms = { in_sentence = "flatbread" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms = { in_sentence = "flatbread", generic = "flatbread" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
 meaning_forms_ja = { in_sentence = "平たいパン" }
 
 [[items]]
@@ -250,7 +274,9 @@ form = "acc"
 gender = "neut"
 target = "rúgbrauð"
 meaning = "rye bread"
+meaning_forms = { generic = "rye bread" }
 meaning_ja = "ライ麦パン"
+meaning_forms_ja = { generic = "ライ麦パン" }
 difficulty = 2
 tags = ["acc_food", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
@@ -269,7 +295,7 @@ meaning_spoken_ja = "魚のマッシュ煮"
 difficulty = 3
 tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
-meaning_forms = { in_sentence = "plokkfiskur" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms = { in_sentence = "plokkfiskur", generic = "plokkfiskur" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
 meaning_forms_ja = { in_sentence = "魚のマッシュ煮" }
 
 [[items]]
@@ -280,7 +306,9 @@ form = "acc"
 gender = "fem"
 target = "kjötsúpu"
 meaning = "lamb soup"
+meaning_forms = { generic = "lamb soup" }
 meaning_ja = "ラムのスープ"
+meaning_forms_ja = { generic = "ラムのスープ" }
 difficulty = 3
 tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
@@ -293,7 +321,9 @@ form = "acc"
 gender = "masc"
 target = "humar"
 meaning = "langoustine"
+meaning_forms = { generic = "langoustine" }
 meaning_ja = "手長エビ"
+meaning_forms_ja = { generic = "手長エビ" }
 difficulty = 2
 tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
@@ -306,7 +336,9 @@ form = "acc"
 gender = "masc"
 target = "lax"
 meaning = "salmon"
+meaning_forms = { generic = "salmon" }
 meaning_ja = "サーモン"
+meaning_forms_ja = { generic = "サーモン" }
 difficulty = 1
 tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
@@ -319,7 +351,9 @@ form = "acc"
 gender = "masc"
 target = "þorsk"
 meaning = "cod"
+meaning_forms = { generic = "cod" }
 meaning_ja = "タラ"
+meaning_forms_ja = { generic = "タラ" }
 difficulty = 2
 tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
@@ -329,7 +363,9 @@ id = "sushi"
 kind = "vocab"
 target = "sushi"
 meaning = "sushi"
+meaning_forms = { generic = "sushi" }
 meaning_ja = "寿司"
+meaning_forms_ja = { generic = "寿司" }
 difficulty = 1
 tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
@@ -342,7 +378,9 @@ form = "acc"
 gender = "fem"
 target = "pítsu"
 meaning = "pizza"
+meaning_forms = { generic = "pizza" }
 meaning_ja = "ピザ"
+meaning_forms_ja = { generic = "ピザ" }
 difficulty = 1
 tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
@@ -355,7 +393,9 @@ form = "acc"
 gender = "masc"
 target = "hamborgara"
 meaning = "a hamburger"
+meaning_forms = { generic = "hamburgers" }
 meaning_ja = "ハンバーガー"
+meaning_forms_ja = { generic = "ハンバーガー" }
 difficulty = 2
 tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
@@ -373,7 +413,7 @@ meaning_spoken = "chips, or fries"
 difficulty = 1
 tags = ["acc_food", "acc_orderable"]
 topics = ["food"]
-meaning_forms = { in_sentence = "fries" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms = { in_sentence = "fries", generic = "fries" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
 meaning_forms_ja = { in_sentence = "フライドポテト" }
 
 [[items]]
@@ -389,7 +429,7 @@ meaning_spoken_ja = "ご飯、お米"
 difficulty = 2
 tags = ["acc_food", "acc_orderable", "acc_thing"]
 topics = ["food"]
-meaning_forms = { in_sentence = "rice" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
+meaning_forms = { in_sentence = "rice", generic = "rice" }  # sentence prompts drop the recall-only disambiguator (issue #29 audit)
 meaning_forms_ja = { in_sentence = "ご飯" }
 
 [[items]]
@@ -397,7 +437,9 @@ id = "pasta"
 kind = "vocab"
 target = "pasta"
 meaning = "pasta"
+meaning_forms = { generic = "pasta" }
 meaning_ja = "パスタ"
+meaning_forms_ja = { generic = "パスタ" }
 difficulty = 1
 tags = ["acc_food", "acc_orderable", "acc_thing"]
 topics = ["food"]
