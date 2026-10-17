@@ -1206,6 +1206,8 @@ class Builder:
         else:
             key = "recombine_vocab_again" if linked else "recombine_vocab"
         if self.fill_scene(gen.construction, gen.fills) is not None and not gen.form:
+            if f"{key}_lead" in self.prompts.data:  # the scene replaces the cue's «Say: …», not its news or link: «Now something you haven't heard yet.» stays
+                self._narr(sc, ex, self.prompts.get(f"{key}_lead"))
             self._narr(sc, ex, self.sentence_cue(gender, gen.construction, gen.fills, gen.meaning, gen.form)[1])  # the scene check's line (owner, 2026-10-16)
         else:
             self._narr(sc, ex, self._as(gender, self.prompts.get(key, meaning=self._m(gen.meaning))))

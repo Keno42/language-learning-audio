@@ -42,6 +42,10 @@ recombine = [
 recombine_again = "同じパターンでもう一度。「{meaning}」と言ってください。"
 recombine_vocab = "文で言ってください。「{meaning}」。"
 recombine_vocab_again = "文の中で使ってください。「{meaning}」。"
+# the lead of a cue that carries news (#197) or a link (#287), kept before a sentence's scene, which takes the place of the rest
+recombine_new_lead = "まだ聞いたことのない文です。"
+recombine_again_lead = "同じパターンでもう一度。"
+recombine_vocab_again_lead = "文の中で使ってください。"
 also = "こうも言えます。"
 
 construction_intro = "便利なパターンです。「{meaning}」。"

@@ -86,6 +86,24 @@ class SceneCheckTests(unittest.TestCase):
         self.assertEqual(sent.label, "situation: Ég nenni ekki að fara út.")
         self.assertEqual(sc.transcript().count("It's raining hard. Say: I can't be bothered to go out."), 2)
 
+    def test_a_scene_keeps_the_news_that_the_sentence_is_new(self):
+        """CI of #354: with a scene, «Now something you haven't heard yet.» (#197) was dropped with the rest of the cue. The scene takes the place of
+        «Say: …» only; the written review asks from the scene, without the lesson's lead."""
+        cur = curriculum({"nenni": {"fara_ut": "It's raining hard.", "sofa": "You're on a long flight.", "elda": "Your friend offers to cook."}})
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), knows("nenni", "fara_ut", "sofa", "elda"))
+        sc = Script(1, "t", "is", "en")
+        ex = b._recombine(sc, cur.by_id["nenni"], met_fills=True)
+        narr = [g.text for g in sc.segments if g.exercise == ex.index and g.type == "narrate"]
+        self.assertEqual(narr[0], "Now something you haven't heard yet.")
+        self.assertRegex(narr[1], r"\. Say: I can't be bothered to ")
+        self.assertNotIn("haven't heard", sc.review_questions()[-1]["prompt"])
+
+    def test_each_lead_is_how_its_cue_begins(self):
+        for lang in ("en", "ja"):
+            p = Prompts.load(lang)
+            for key in ("recombine_new", "recombine_again", "recombine_vocab_again"):
+                self.assertTrue(p.get(key, meaning="X").startswith(p.get(f"{key}_lead")), (lang, key))
+
     def test_the_sheet_is_valid_toml_and_a_filled_line_loads_back(self):
         """Review of #352: ids such as «strætó» were printed as bare keys, which TOML rejects, so the sheet could not be pasted back."""
         import contextlib
