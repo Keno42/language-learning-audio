@@ -435,6 +435,9 @@ def _plan(script: Script, cur) -> dict:
         "summary": script.summary(),
         "new_items": [describe(i) for i in meta.get("new_items", [])],
         "reviewed_items": [describe(i) for i in meta.get("reviewed_items", [])],
+        # every item an exercise names, described once, in the order first named: a learned item asked only as a link, a partner's line or a pattern's
+        # word is not in reviewed_items, and the bot's form offers what the lesson asked the learner to say (site_update_notifier#151 review)
+        "exercise_items": [describe(i) for i in dict.fromkeys(i for e in script.exercises for i in e.item_ids)],
         "dialogues": meta.get("dialogues", []),
         "theme": meta.get("theme"),  # #149 1b-ii: the lesson's theme and level, and how often its exchange played
         "new_components": meta.get("new_components"),  # #218 b3: the weighted new material, forms apart, and each item's cost (None when counting items)

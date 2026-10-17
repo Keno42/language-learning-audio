@@ -20,6 +20,7 @@ issues; the full history of how each of these came about is in `docs/history/ses
 | script → audio, respellings for TTS | `audiolesson/render/` |
 | written review questions for `plan.json` (`review`) | `audiolesson/script.py` (`Script.review_questions`) |
 | post-lesson feedback candidates for `plan.json` (`review_candidates`, #128) | `audiolesson/script.py` (`Script.review_candidates`) |
+| the items `plan.json` describes (`id`, `target`, `meaning`, `kind`): `new_items`, `reviewed_items` (picked for review), `exercise_items` (every item an exercise names, once, in the order first named: the bot's form offers the learned items the lesson asked, site_update_notifier#151) | `audiolesson/cli.py` (`_plan`); `tests/test_plan_items.py` |
 | travel can-do scenarios and their coverage report (#131) | `curricula/is-en/cando/travel.toml`, `audiolesson/cando.py`, `validate --cando`; see `docs/TRAVEL-CANDO.md` |
 | trip ordering from a private profile (#132) | `audiolesson/trip.py`, `cando.priority_items`, `PlanConfig.priority`, `generate --trip` |
 | scenario cards for the Discord review (#129) | `curricula/is-en/cando/scenes.toml`, `audiolesson/scenes.py`, `audiolesson scenes` |
