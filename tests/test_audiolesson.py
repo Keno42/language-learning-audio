@@ -4741,7 +4741,9 @@ class ScaffoldFadeTests(unittest.TestCase):
         sc, ex = self._recall(learner_items=["q"])
         said = [(s.type, s.speaker, s.text) for s in sc.segments if s.exercise == ex.index and s.type in ("narrate", "speak", "answer")]
         self.assertIn(("speak", "native_b", "Hvaðan ert þú?"), said)
-        self.assertEqual([t for t in said if t[0] == "narrate"], [("narrate", "instructor", "Reply.")])
+        # lesson 29: an example answer follows (the learner's own line, as one possible answer); the partner's line is not put in English
+        self.assertEqual([t for t in said if t[0] == "narrate"], [("narrate", "instructor", "Reply."), ("narrate", "instructor", "For example: I'm from Japan.")])
+        self.assertNotIn("Where are you from?", sc.transcript())
         self.assertEqual(said[-1], ("answer", "native_a", "Ég er frá Japan."))
         self.assertNotIn("Someone asks", sc.transcript())
 
@@ -4789,10 +4791,12 @@ class ScaffoldFadeTests(unittest.TestCase):
         self.assertEqual(sc.transcript().count("Reply."), 2)
 
     def test_the_review_question_for_a_partner_line_cue_is_the_line(self):
+        """Not the example answer that follows it (lesson 29): the review would give its own answer away."""
         sc, ex = self._recall(learner_items=["q"])
         ex.item_ids = ["a"]
         questions = sc.review_questions()
         self.assertEqual([(q["prompt"], q["answer"]) for q in questions], [("Hvaðan ert þú?", "Ég er frá Japan.")])
+        self.assertIn("For example: I'm from Japan.", sc.transcript())
 
     def test_prompt_by_must_name_another_phrase(self):
         base = {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}}

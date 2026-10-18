@@ -65,6 +65,7 @@ milestone_intro = "気づいてほしいパターンがあります。"
 milestone_end = "では、続けましょう。"
 # the partner's line is the cue (Item.prompt_by): frames each such cue, unless the one before was a cue too
 reply = "答えてください。"
+reply_example = "例えば「{meaning}」。"  # after «Reply.» and the partner's line: what to answer, as one possible answer (lesson 29)
 # a part heard in a sentence instead of being introduced on its own (LearnerState.embedded)
 embed_known = "知っているフレーズです："
 embed_part = "この中の単語です："
