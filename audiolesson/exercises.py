@@ -1135,6 +1135,11 @@ class Builder:
             fixed, stage = {}, "meaning"  # #336: the situation names one filling, whose sentence has been asked as often as a pattern's sentence may be: another one, from its meaning
         gen = self.generate(item, fixed=fixed)
         if gen is None:
+            # no filler the learner knows: one they have met, as a substitution drill takes (#151), which `generate` picks apart from the sentence just said.
+            # Lesson 29: «tvo» and «þrjá» were met, not yet learned, so the recall fell to the authored example, «Þrjá miða, takk.», right after a word's
+            # practice had said it
+            gen = self.generate(item, fixed=fixed, met_fills=True)
+        if gen is None:
             fills = {**self.cur.example_fill(item), **fixed}
             target, meaning = self.cur.resolve_slots(item, fills)
             gen = Generated(item, fills, target, meaning)
