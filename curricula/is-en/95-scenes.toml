@@ -99,13 +99,6 @@ sjo = "You and your friend are planning to meet tomorrow."
 atta = "You and your friend are planning to meet tomorrow."
 niu = "You and your friend are planning to meet tomorrow."
 
-[scenes.einn_tvo_thrjar]  # «… krónur.» (small sums: the toy coin game)
-fimm = "A child playing shop asks how much it costs."
-sex = "A child playing shop asks how much it costs."
-sjo = "A child playing shop asks how much it costs."
-atta = "A child playing shop asks how much it costs."
-niu = "A child playing shop asks how much it costs."
-
 [scenes.thad_kostar_big]  # «Það kostar … þúsund krónur.» It costs … thousand krónur.
 eitt = "Your friend asks what the tour costs."
 tvo = "Your friend asks what the tour costs."
@@ -205,3 +198,37 @@ foss = "Your friend asks what you'd like to see today."
 eldfjall = "Your friend asks what you'd like to see today."
 hraun = "Your friend asks what you'd like to see today."
 strond = "Your friend asks what you'd like to see on the south coast."
+
+[scenes.einn_tvo_thrjar]  # «{count} hundruð krónur.» {count} hundred krónur. (owner after lesson 29: prices in hundreds, not the toy coin game)
+eitt = false  # «hundrað» is singular after one: «hundrað krónur» / «eitt hundrað krónur», never «eitt hundruð»
+tvo = "Your friend asks what the postcard at the kiosk costs."
+thrju = "Your friend asks what the chocolate bar at the till costs."
+fjogur = "Your friend asks what a bottle of water at the kiosk costs."
+fimm = "Your friend asks what the coffee costs."
+sex = "Your friend asks what the bus fare is."
+sjo = "Your friend asks what the hot dog costs."
+atta = "Your friend asks what the cinnamon bun at the bakery costs."
+niu = "Your friend asks what the ice cream costs."
+tiu = false  # ten hundred is said «þúsund» («Það kostar … þúsund krónur.» has it)
+ellefu = "Your friend asks what the sandwich costs."
+tolf = "Your friend asks what a beer costs at happy hour."
+threttan = "Your friend asks what the coffee and the cake cost together."
+fjortan = "Your friend asks what the swimming pool costs."
+fimmtan = "Your friend asks what a beer costs."
+sextan = "Your friend asks what the lunch soup costs."
+sautjan = "Your friend asks what the lunch special costs."
+atjan = "Your friend asks what the fish and chips cost."
+nitjan = "Your friend asks what the woollen socks cost."
+
+[scenes.eg_keypti_baekur]  # «Ég keypti {count} bækur.» I bought {count} books.
+tvaer = "You come back from the bookshop with a heavy bag, and your friend asks how many books you bought."
+thrjar = "You come back from the bookshop with a heavy bag, and your friend asks how many books you bought."
+fjorar = "You come back from the bookshop with a heavy bag, and your friend asks how many books you bought."
+fimm = "You come back from the bookshop with a heavy bag, and your friend asks how many books you bought."
+sex = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
+sjo = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
+atta = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
+niu = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
+tiu = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
+ellefu = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
+tolf = "It's the Christmas book flood, and your friend asks how many books you bought as presents."

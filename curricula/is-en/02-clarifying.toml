@@ -1133,7 +1133,7 @@ situation = "Your phone is dead. Ask a passer-by what time it is."
 situation_ja = "携帯の電池が切れました。通行人に時間を聞いてください。"
 
 # Issue #80: each gendered set of 1-4 arrives with the frame that uses it — the neuter with the
-# clock (and "Við erum fjögur" below), the feminine with krónur — instead of all twelve forms
+# clock (and "Við erum fjögur" below), the feminine with books («Ég keypti tvær bækur.», module 15) — instead of all twelve forms
 # as bare words ahead of any use; 5-12, the same in every gender, follow the clock as its fills.
 # Neuter counting forms, 1-4 (issue #29 cluster A, owner review on PR #53): these were already
 # in the curriculum as the clock's own hour words (module 06's klukkan_er), relocated here rather
@@ -1336,107 +1336,24 @@ pronunciation_notes = "Iceland's currency, feminine — plural form (\"a krónur
 noun = "krona"
 form = "pl"
 
-# Feminine counting forms (issue #29 cluster A): Icelandic 1–4 change with the counted
-# noun's gender, the same paradigm godur_noun (module 18) already models for adjectives.
-# "Króna" is feminine, so a genuine "N krónur" construction needs these, not the masculine
-# forms above — same reuse-over-fixed-phrases reasoning as the rest of #29's generative
-# pilots: five separate memorized price phrases ("fimm hundruð krónur", "tvö þúsund
-# krónur", ...) used to be the only way to say an amount; these let one construction
-# generate any of them, and combinations nobody wrote out by hand.
-[[items]]
-id = "ein"
-kind = "vocab"
-target = "ein"
-meaning = "one, as in counting krónur"  # recall-only disambiguator, spoken as-is: 1-4 have three gendered forms
-meaning_ja = "クローナを数えるときの1"
-meaning_forms = { in_sentence = "one" }
-meaning_forms_ja = { in_sentence = "1" }
-difficulty = 2
-gender = "fem"
-topics = ["numbers", "money"]
-# no small_count tag: einn_tvo_thrjar's target text ("{count} krónur.") is fixed plural, but "one" takes the
-# singular noun ("ein króna", not "ein krónur") — the same gap that keeps "hundrað" out of thad_kostar_big's pool
-pronunciation_notes = "the feminine form, for feminine nouns: «ein króna» (one króna). Not the same word as «einn», the counting form."
-
-[[items]]
-id = "tvaer"
-kind = "vocab"
-variant_of = "tveir"
-target = "tvær"
-meaning = "two, as in counting krónur"
-meaning_ja = "クローナを数えるときの2"
-meaning_forms = { in_sentence = "two" }
-meaning_forms_ja = { in_sentence = "2" }
-difficulty = 2
-tags = ["small_count"]
-gender = "fem"
-topics = ["numbers", "money"]
-
-[[items]]
-id = "thrjar"
-kind = "vocab"
-variant_of = "thrir"
-target = "þrjár"
-meaning = "three, as in counting krónur"
-meaning_ja = "クローナを数えるときの3"
-meaning_forms = { in_sentence = "three" }
-meaning_forms_ja = { in_sentence = "3" }
-difficulty = 2
-tags = ["small_count"]
-gender = "fem"
-topics = ["numbers", "money"]
-
-[[items]]
-id = "fjorar"
-kind = "vocab"
-variant_of = "fjorir"
-target = "fjórar"
-syllables = ["fjór", "ar"]
-meaning = "four, as in counting krónur"
-meaning_ja = "クローナを数えるときの4"
-meaning_forms = { in_sentence = "four" }
-meaning_forms_ja = { in_sentence = "4" }
-difficulty = 2
-tags = ["small_count"]
-gender = "fem"
-topics = ["numbers", "money"]
-
-# Issue #80, review on PR #118: «{count} krónur.» is plural, so «ein» never fills it; its first
-# use is the singular, a bare label like the construction below (not after «kostar», which
-# takes the accusative «eina krónu»).
-[[items]]
-id = "ein_krona"
-kind = "phrase"
-target = "Ein króna."
-meaning = "One króna."
-meaning_ja = "1クローナ。"
-difficulty = 1
-topics = ["numbers", "money"]
-situation = "The toy coin game again: say 'one króna'."
-situation_ja = "またおもちゃのコイン遊びです。「1クローナ」と言ってください。"
-
-# Issue #80: moved from module 08 (order ~380) to right after the feminine forms, their first
-# and only frame — they used to be drilled as bare words for ~30 lessons before it.
-# Bare nominative label, not "Það kostar {count} krónur." — "kostar" governs the accusative
-# case, and the feminine count words (ein/tvær/þrjár/fjórar, module 02) are nominative; for
-# count=1 specifically the two forms actually differ ("ein" vs. accusative "eina"), so putting
-# them inside "Það kostar" would generate wrong Icelandic. Staying with the bare label sidesteps
-# the case question entirely, the same way this item's own original fixed phrase always did.
+# Feminine counting forms (issue #29 cluster A): Icelandic 1–4 change with the counted noun's gender, the same paradigm godur_noun (module 18) already
+# models for adjectives. «ein» moved to module 13, before «Ég bý ein.»; tvær, þrjár and fjórar to module 15 with their frame, «Ég keypti {count} bækur.»
+# (owner after lesson 29: a price is never «tvær krónur»).
 [[items]]
 id = "einn_tvo_thrjar"
 kind = "construction"
-target = "{count} krónur."
-meaning = "{count} krónur."
-meaning_ja = "{count}クローナ。"
+target = "{count} hundruð krónur."
+meaning = "{count} hundred krónur."
+meaning_ja = "{count}百クローナ。"
 difficulty = 3
 topics = ["numbers", "money"]
-slots = { count = "small_count" }
-example = { count = "tvaer" }
-prereqs = ["tvaer"]  # issue #80: krónur comes just before; waiting for it to be *learned* held this frame back
-pronunciation_notes = "króna is feminine: ein króna, tvær krónur, þrjár krónur, fjórar krónur"
-situation = "A toy coin game with a child: say 'two krónur'."
-situation_ja = "子どもとおもちゃのコイン遊びをしています。「2クローナ」と言ってください。"
-situation_fill = { count = "tvaer" }  # issue #57: the situation says "two krónur"
+slots = { count = "big_count" }
+example = { count = "tvo" }
+prereqs = ["tvo", "hundrad"]
+pronunciation_notes = "hundrað is neuter, and its plural is hundruð: tvö hundruð, þrjú hundruð, fjögur hundruð; from fimm up the number does not change"
+situation = "At the kiosk, your friend asks what the postcard costs. Say two hundred krónur."
+situation_ja = "キオスクで、友達が絵はがきの値段を聞いています。「200クローナ」と言ってください。"
+situation_fill = { count = "tvo" }
 
 # hundrað/þúsund relocated from module 08 for the same reason as the digits above; krónur
 # is new (issue #29 cluster A) — Iceland's currency was previously only ever named inside
@@ -1544,10 +1461,7 @@ situations_ja = [
 # hundrað") — a real agreement dimension (number, not gender) nothing here models, so a unit
 # slot could only ever have had the one safe filling and that fails the "every construction
 # slot has ≥2 possible fills" invariant (test_directory_curriculum_loads_and_is_large). Amounts
-# in hundreds stay the fixed phrases below (fimm_hundrud_kronur etc.) until that's modeled.
-# The under-100 case (bare "{count} krónur.", no "Það kostar" frame) is einn_tvo_thrjar below —
-# kept separate rather than folded in here because "Það kostar" governs the accusative case,
-# which the feminine count words below (ein/tvær/þrjár/fjórar) are not; see its own note.
+# in hundreds are einn_tvo_thrjar above, «{count} hundruð krónur.», with the plural in its target and «eitt» left out by the scene check.
 [[items]]
 id = "thad_kostar_big"
 kind = "construction"
