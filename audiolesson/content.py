@@ -680,7 +680,9 @@ def _check_glossed(obj, names: tuple, where: str) -> None:
 def notes_cutting_sentences(cur: Curriculum) -> dict[str, int]:
     """#301: notes with a sentence of English that holds more than one inline target fragment («...»): the sentence is cut around the fragments, each a change of
     voice. Maps the note id to the number of such sentences. A note says its sentence whole and then its examples as lines of their own."""
-    sentence_break = re.compile(r"(?<=[.?!:])\s+(?=[A-ZÁÐÉÍÓÚÝÞÆÖ§])|(?<=[。！？])")
+    # a colon ends a sentence only before a capital letter, not before a fragment (review of #359: «Allt í lagi» is 'all in order': «lag» is … is one
+    # sentence cut twice)
+    sentence_break = re.compile(r"(?<=[.?!])\s+(?=[A-ZÁÐÉÍÓÚÝÞÆÖ§])|(?<=:)\s+(?=[A-ZÁÐÉÍÓÚÝÞÆÖ])|(?<=[。！？])")
     out: dict[str, int] = {}
     for n in cur.notes:
         prose = NOTE_TARGET_RE.sub(lambda m: "§. " if m.group(1).rstrip().endswith((".", "?", "!")) else "§", n.text)  # a line ending in a full stop is a sentence of its own

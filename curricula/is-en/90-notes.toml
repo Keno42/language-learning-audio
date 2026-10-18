@@ -126,6 +126,58 @@ topics = ["discourse"]
 text = "«Jæja» does the work of several Japanese words at once: «ja:sate|さて», «ja:yare yare|やれやれ» and «ja:sō ka|そうか». Said with a rising tone it opens a topic; said falling, it politely ends a visit."
 text_ja = "«Jæja»は日本語の「さて」「やれやれ」「そうか」を一語で引き受けます。上がり調子で言えば話題を切り出し、下がり調子で言えば「そろそろお暇します」の合図になります。"
 
+# Idioms said literally (owner, after lesson 29: «Viltu mjólk út í?» sounded odd until looked up; more asides on idioms). Each one gives the
+# literal words, what they mean, and where they are heard, so a line the learner hears is not a puzzle.
+[[notes]]
+id = "ut_i"
+items = ["med_mjolk"]
+topics = ["cafe"]
+text = "A waiter offering milk may ask «Viltu mjólk út í?», literally 'do you want milk out into?'. Icelandic puts what you add 'out into' a drink. Milk in the coffee is «mjólk út í kaffið»."
+text_ja = "ミルクを勧める店員は«Viltu mjólk út í?»と聞くことがあります。直訳は「ミルクを外の中へ欲しい？」。アイスランド語では飲み物に足すものを「外へ・中へ」入れます。コーヒーにミルクを入れるのは«mjólk út í kaffið»です。"
+
+[[notes]]
+id = "allt_i_lagi_idiom"
+items = ["allt_i_lagi", "er_allt_i_lagi"]
+topics = ["discourse"]
+text = "«Allt í lagi» is literally 'all in order'. The word «lag» is order, and also a tune. It covers OK, sure and no problem, and as a question, «Er allt í lagi?», it asks whether you are all right."
+text_ja = "«Allt í lagi»の直訳は「すべて順調に」。«lag»は「秩序」で、「曲」という意味もあります。OK、いいよ、大丈夫、のどれにも使え、«Er allt í lagi?»と聞けば「大丈夫？」です。"
+
+[[notes]]
+id = "gjordu_svo_vel_idiom"
+items = ["gjordu_svo_vel"]
+topics = ["discourse"]
+text = "«Gjörðu svo vel» is literally 'do so well'. You hear it whenever something is handed over: here you are, please, go ahead. Said to two or more people it becomes «gjörið svo vel»."
+text_ja = "«Gjörðu svo vel»の直訳は「そのようにうまくやって」。何かを手渡すときにいつも聞きます。どうぞ、お願いします、お先にどうぞ。二人以上に言うときは«gjörið svo vel»になります。"
+
+[[notes]]
+id = "hvad_segirdu_gott_idiom"
+items = ["hvad_segirdu_gott"]
+requires = ["allt_gott"]
+topics = ["greetings"]
+text = "«Hvað segirðu gott?» is literally 'what do you say good?': the friend asks for good news. So the answer is good news too, «allt gott», all good, rather than how you really slept."
+text_ja = "«Hvað segirðu gott?»の直訳は「何かいいことを言う？」。友達はいい知らせを聞いているので、答えもいい知らせ、«allt gott»（全部いいよ）。本当の寝不足の話はしません。"
+
+[[notes]]
+id = "mig_langar_idiom"
+items = ["mig_langar_i"]
+topics = ["food"]
+text = "«Mig langar í kaffi» is literally 'me longs for coffee'. The one who wants is still the subject, but in the accusative, 'me', instead of «ég». Japanese does something alike: in «ja:kōhī ga hoshii|コーヒーが欲しい», the coffee, not you, is marked."
+text_ja = "«Mig langar í kaffi»の直訳は「私を、コーヒーを求めている」。欲しがる人は主語のままですが、«ég»（私は）ではなく対格の「私を」の形で言います。日本語の「コーヒーが欲しい」で、「が」が付くのがあなたではなくコーヒーなのと少し似ています。"
+
+[[notes]]
+id = "nenna_idiom"
+items = ["eg_nenni_ekki"]
+topics = ["discourse"]
+text = "«Nenna» has no one-word English. «Ég nenni ekki» is 'I can't be bothered'. Icelanders say it lightly about the dishes, a walk in the rain or a fourth museum, and it is not rude."
+text_ja = "«Nenna»にぴったりの英語はありません。«ég nenni ekki»は「面倒でやる気にならない」。皿洗いや雨の中の散歩、四つ目の博物館について軽く言うもので、失礼ではありません。"
+
+[[notes]]
+id = "gangi_ther_vel_idiom"
+items = ["gangi_ther_vel"]
+topics = ["greetings"]
+text = "«Gangi þér vel» is literally 'may it go well for you'. It is the good luck you hear before an exam, a job interview or a long drive, close to Japanese «ja:ganbatte|頑張って» but without asking you to try harder."
+text_ja = "«Gangi þér vel»の直訳は「あなたにとってうまく進みますように」。試験や面接、長いドライブの前にかけられる「幸運を」で、日本語の「頑張って」に近いですが、もっと努力しろという響きはありません。"
+
 [[notes]]
 id = "nofn"
 items = ["eg_heiti", "hvad_heitir_thu", "hae"]
@@ -485,7 +537,7 @@ id = "pron_stress_final"
 milestone = true
 items = ["takk", "bless", "skal"]
 topics = ["pronunciation"]
-text = "Two habits carry across every Icelandic word. The stress is always on the first syllable. And a word ends on its consonant, with no vowel added: «Takk», «Bless», «Skál». In «Takk» the double k also starts with a small breath, like 'tahk'."
+text = "Two habits carry across every Icelandic word. The stress is always on the first syllable. And a word ends on its consonant, with no vowel added. «Takk.» «Bless.» «Skál!» In «Takk» the double k also starts with a small breath, like 'tahk'."
 text_ja = "アイスランド語全体に効く二つのコツです。アクセントはいつも最初の音節にあります。そして語末の子音のあとに母音を足さないこと：«Takk» は「タック」、«Bless» は「ブレッス」で、「タック・ウ」「ブレス・ウ」のように「ウ」を付けません。«Takk» の kk は、直前に小さく息を吐くように「タハク」と聞こえます。"
 
 [[notes]]
@@ -501,7 +553,7 @@ id = "pron_hv"
 milestone = true
 items = ["hvad_segirdu_gott", "hvernig_hefurdu_thad", "hvad_sagdirdu"]
 topics = ["pronunciation"]
-text = "Question words starting with 'hv' are said with a 'kv' sound: «Hvað segirðu gott?», «Hvernig hefurðu það?», «Hvað sagðirðu?». Trust the recording rather than the spelling."
+text = "Question words starting with 'hv' are said with a 'kv' sound. «Hvað segirðu gott?» «Hvernig hefurðu það?» «Hvað sagðirðu?» Trust the recording rather than the spelling."
 text_ja = "「hv」で始まる疑問詞は「クヴ」と発音します：«Hvað segirðu gott?»、«Hvernig hefurðu það?»、«Hvað sagðirðu?»。つづりではなく、録音の音をまねてください。"
 
 [[notes]]
@@ -509,7 +561,7 @@ id = "pron_vowels"
 milestone = true
 items = ["sjaumst", "takk_kaerlega", "goda_nott"]
 topics = ["pronunciation"]
-text = "Three vowels sound like two. 'á' is 'ow' as in 'now': «Sjáumst». 'æ' is 'eye': «Takk kærlega». 'ó' is 'oh', gliding to 'u': «Góða nótt». The accent mark doesn't mean stress; it changes the vowel."
+text = "Three vowels sound like two. The 'á' is 'ow' as in 'now', in «Sjáumst.» The 'æ' is 'eye', in «Takk kærlega.» The 'ó' is 'oh', gliding to 'u', in «Góða nótt.» The accent mark doesn't mean stress; it changes the vowel."
 text_ja = "文字は一つでも、二つの母音のように聞こえるものがあります。「á」は「アウ」（«Sjáumst»）、「æ」は「アイ」（«Takk kærlega»）、「ó」は「オウ」（«Góða nótt»）。アクセント記号は強く読む印ではなく、別の母音を表す印です。"
 
 # issue #79: near-synonyms the early lessons teach side by side, named once they are all met
