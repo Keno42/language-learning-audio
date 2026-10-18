@@ -122,7 +122,8 @@ class SceneCheckTests(unittest.TestCase):
         import shutil
         import tempfile
 
-        pattern, fills = next((p, f) for p, f in sheet.items() if any(not k.isascii() for k in f) and p not in ("eg_nenni_ekki", "ma_eg_inf", "attu", "fer_thessi_straeto_dest"))
+        judged = set(tomllib.loads((ROOT / "curricula" / "is-en" / "95-scenes.toml").read_text(encoding="utf-8"))["scenes"])  # a table may be declared in one file only
+        pattern, fills = next((p, f) for p, f in sheet.items() if any(not k.isascii() for k in f) and p not in judged)
         word = next(k for k in fills if not k.isascii())
         lines = out.getvalue().splitlines()
         head = next(n for n, line in enumerate(lines) if line.startswith("[scenes.") and pattern in line)

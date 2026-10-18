@@ -28,12 +28,12 @@ class PatternRecallFallbackTests(unittest.TestCase):
         self.assertIsNone(b.generate(c), "no filler of the slot is known: the case of lesson 29")
         b.recent_answers = [_norm_utterance("Þrjá miða, takk.")]
         ex = b.recall(Script(1, "t", "is", "en"), c, "meaning")
-        self.assertEqual(ex.label, "meaning: Tvo miða, takk.")
+        self.assertEqual(ex.label.split(": ", 1)[1], "Tvo miða, takk.")  # asked from its scene (lesson 31's verdicts) or its meaning
 
     def test_with_no_filler_met_the_authored_example_stays(self):
         cur, b = self.builder(met=())
         ex = b.recall(Script(1, "t", "is", "en"), cur.by_id["count_mida_takk"], "meaning")
-        self.assertEqual(ex.label, "meaning: Þrjá miða, takk.")
+        self.assertEqual(ex.label.split(": ", 1)[1], "Þrjá miða, takk.")
 
 
 if __name__ == "__main__":
