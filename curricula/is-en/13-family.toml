@@ -381,6 +381,27 @@ situation = "It's your second month abroad. Tell your friend you miss your famil
 situation_ja = "海外生活二か月目です。友達に家族が恋しいと言ってください。"
 
 [[items]]
+id = "ein"
+kind = "vocab"
+target = "ein"
+meaning = "one, the feminine form, as in living alone"  # recall-only disambiguator, spoken as-is: 1-4 have three gendered forms
+meaning_ja = "一人暮らしで言うときの女性形の1"
+meaning_forms = { in_sentence = "one" }
+meaning_forms_ja = { in_sentence = "1" }
+difficulty = 2
+gender = "fem"
+topics = ["numbers", "family"]
+# no small_count tag: «Ég keypti {count} bækur.» is fixed plural, and "one" takes the singular noun (and the accusative «eina bók»). Its frame is the
+# phrase right after, «Ég bý ein.» (owner after lesson 29: «Ein króna.» and its toy coin game are gone)
+pronunciation_notes = "the feminine form: «ég bý ein», a woman living alone, and with feminine nouns, «ein króna». Not the same word as «einn», the counting form."
+
+# Owner after lesson 29: «… krónur.» with one to nine had no scene a traveller is in (lesson 29 asked it from «a child playing shop»); prices are
+# hundreds and thousands. So the pattern counts hundreds: «hundrað» is neuter and takes the plural «hundruð» for any count but one, so the count is
+# the neuter form (big_count: «tvö», «þrjú», «fjögur», «fimm» …) and the plural is part of the target; «eitt hundruð» (wrong: «eitt hundrað») and
+# «tíu hundruð» (said «þúsund») are the scene check's false (95-scenes.toml). A bare label, as before: no «Það kostar» to govern a case.
+# «Ein króna.» and its toy coin game are gone with the small sums; the feminine forms (tvær, þrjár, fjórar) are framed by «Ég keypti {count} bækur.»
+# (module 15), with «bók».
+[[items]]
 id = "eg_bý_ein"
 kind = "phrase"
 target = "Ég bý ein."

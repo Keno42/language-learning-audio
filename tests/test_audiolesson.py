@@ -80,7 +80,7 @@ class CurriculumTests(unittest.TestCase):
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         for i in ("einn", "eitt", "ein", "tveir", "tvo", "tvaer"):
             self.assertFalse(re.search(r"[();]", cur.by_id[i].meaning), cur.by_id[i].meaning)
-        self.assertEqual(cur.by_id["tvaer"].meaning, "two, as in counting krónur")
+        self.assertEqual(cur.by_id["tvaer"].meaning, "two, as in counting books")
         self.assertEqual(load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja").by_id["eitt"].meaning, "時刻を言うときの1")
 
     def test_no_two_items_share_a_recall_prompt(self):
@@ -2737,7 +2737,8 @@ class CurriculumTests(unittest.TestCase):
         use. Each form is *produced* in a context right after its set (review on PR #118:
         checked on the surfaces the learner actually says, not on an item standing nearby) —
         the counting forms by counting and the emergency number, the neuter by the clock, the
-        feminine by krónur. Once the three frames are met a milestone ties them to góður/góð/gott."""
+        feminine by books (owner after lesson 29: not small sums of krónur) and «ein» by «Ég bý ein.». Once the three frames are met a milestone ties
+        them to góður/góð/gott."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         o = {i.id: i.order for i in cur.items}
 
@@ -2755,7 +2756,8 @@ class CurriculumTests(unittest.TestCase):
         sets = [
             ["einn", "tveir", "thrir", "fjorir"],
             ["eitt", "tvo", "thrju", "fjogur"],
-            ["ein", "tvaer", "thrjar", "fjorar"],
+            ["tvaer", "thrjar", "fjorar"],
+            ["ein"],
         ]
         for forms in sets:
             last = max(o[f] for f in forms)
@@ -2763,10 +2765,10 @@ class CurriculumTests(unittest.TestCase):
             said = set().union(*(surfaces(i) for i in contexts))
             for f in forms:
                 self.assertIn(cur.by_id[f].target.lower(), said, f"{f}: never produced right after its set ({[i.id for i in contexts]})")
-        self.assertLess(o["klukkan_er"], o["ein"], "the feminine set comes after the clock, not interleaved")
+        self.assertLess(o["klukkan_er"], o["tvaer"], "the feminine set comes after the clock, not interleaved")
         note = cur.note_by_id["tolur_kyn"]
         self.assertTrue(note.milestone)
-        self.assertEqual(set(note.items), {"einn_einn_tveir", "klukkan_er", "einn_tvo_thrjar"})
+        self.assertEqual(set(note.items), {"einn_einn_tveir", "klukkan_er", "eg_keypti_baekur"})
         self.assertIn("«góður»", note.text)
         self.assertTrue(all(cur.by_id[i].has_situation for i in note.items), "the contrast recalls use situations")
 
@@ -6687,11 +6689,14 @@ class SpreadIntroductionTests(unittest.TestCase):
     second half only repeated them. New material is spread over the lesson."""
 
     def test_introductions_are_spread_over_a_real_course(self):
+        """Lessons 8–24 (8–16 before the owner's change after lesson 29): with the small sums gone, lessons 13–16 no longer introduce «tvær», «ein» and
+        «Ein króna.» late, and a sample of nine lessons moved from 0.52 to 0.56 of new items in the first third; over lessons 8–24 it is 0.50 → 0.53,
+        and 0.505 → 0.525 over 8–32. The sample is widened so the share measures the planner, not which cheap items one stretch of the course has."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         learner = LearnerState("is", "en", "A1")
         day = TODAY
         first_third, intros, worst_gap = 0, 0, 0.0
-        for n in range(1, 17):
+        for n in range(1, 25):
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=5), today=day).build()
             starts = [e.start for e in sc.exercises if e.kind == "intro"]
             if n >= 8 and len(starts) >= 5:

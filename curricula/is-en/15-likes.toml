@@ -375,6 +375,68 @@ topics = ["hobbies"]
 situation = "Anna hands you the book she just finished. Say: book."
 situation_ja = "アンナが読み終えた本を渡してきました。「本」と言ってください。"
 
+# The feminine counting forms of 2–4 with their frame (owner after lesson 29: moved from module 02, where «{count} krónur.» was their frame; a price is
+# hundreds, neuter). «bók» is feminine, plural «bækur», the same in the accusative after «keypti»: «Ég keypti tvær bækur.». 5–12 are the same in
+# every gender and fill the slot too.
+[[items]]
+id = "tvaer"
+kind = "vocab"
+variant_of = "tveir"
+target = "tvær"
+meaning = "two, as in counting books"
+meaning_ja = "本を数えるときの2"
+meaning_forms = { in_sentence = "two" }
+meaning_forms_ja = { in_sentence = "2" }
+difficulty = 2
+tags = ["small_count"]
+gender = "fem"
+topics = ["numbers", "hobbies"]
+
+[[items]]
+id = "thrjar"
+kind = "vocab"
+variant_of = "thrir"
+target = "þrjár"
+meaning = "three, as in counting books"
+meaning_ja = "本を数えるときの3"
+meaning_forms = { in_sentence = "three" }
+meaning_forms_ja = { in_sentence = "3" }
+difficulty = 2
+tags = ["small_count"]
+gender = "fem"
+topics = ["numbers", "hobbies"]
+
+[[items]]
+id = "fjorar"
+kind = "vocab"
+variant_of = "fjorir"
+target = "fjórar"
+syllables = ["fjór", "ar"]
+meaning = "four, as in counting books"
+meaning_ja = "本を数えるときの4"
+meaning_forms = { in_sentence = "four" }
+meaning_forms_ja = { in_sentence = "4" }
+difficulty = 2
+tags = ["small_count"]
+gender = "fem"
+topics = ["numbers", "hobbies"]
+
+[[items]]
+id = "eg_keypti_baekur"
+kind = "construction"
+target = "Ég keypti {count} bækur."
+meaning = "I bought {count} books."
+meaning_ja = "本を{count}冊買いました。"
+difficulty = 3
+topics = ["hobbies", "shopping", "numbers"]
+slots = { count = "small_count" }
+example = { count = "tvaer" }
+prereqs = ["tvaer", "bok"]
+pronunciation_notes = "bók is feminine, plural bækur, so the feminine count: tvær bækur, þrjár bækur, fjórar bækur"
+situation = "You come back from the bookshop with a heavy bag, and your friend asks how many books you bought. Say two."
+situation_ja = "重い袋を持って本屋から戻ると、友達が何冊買ったのか聞いてきました。2冊と言ってください。"
+situation_fill = { count = "tvaer" }
+
 [[items]]
 id = "eg_er_ad_lesa_goda_bok"
 kind = "phrase"
