@@ -68,6 +68,22 @@ class NoteTests(unittest.TestCase):
         self.assertNotIn("modal_infinitive", notes_cutting_sentences(load_curriculum(CUR)))
         self.assertNotIn("modal_infinitive", notes_cutting_sentences(load_curriculum(CUR, known_lang="ja")))
 
+    def test_a_colon_before_a_fragment_does_not_end_the_sentence(self):
+        """Review of #359: «Allt í lagi» is 'all in order': «lag» is order. One sentence, cut twice; the colon before the fragment was taken for a
+        sentence end. A colon still ends one before a capital letter, and a fragment ending in a full stop is a line of its own."""
+        from audiolesson.content import curriculum_from_dict
+
+        def cut(text):
+            cur = curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                                        "items": [{"id": "a", "kind": "phrase", "target": "Já.", "meaning": "Yes."}],
+                                        "notes": [{"id": "n", "text": text}]})
+            return notes_cutting_sentences(cur).get("n", 0)
+
+        self.assertEqual(cut("«Allt í lagi» is literally 'all in order': «lag» is order, and also a tune."), 1)
+        self.assertEqual(cut("«Nenna» has no one-word English: «ég nenni ekki» is 'I can't be bothered'."), 1)
+        self.assertEqual(cut("«Allt í lagi» is literally 'all in order'. The word «lag» is order, and also a tune."), 0)
+        self.assertEqual(cut("Two habits: Words end on a consonant. «Takk.» «Bless.»"), 0)
+
     def test_the_notes_that_still_cut_a_sentence_do_not_grow(self):
         self.assertLessEqual(len(notes_cutting_sentences(load_curriculum(CUR))), 25)
 

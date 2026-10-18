@@ -139,7 +139,7 @@ text_ja = "ミルクを勧める店員は«Viltu mjólk út í?»と聞くこと
 id = "allt_i_lagi_idiom"
 items = ["allt_i_lagi", "er_allt_i_lagi"]
 topics = ["discourse"]
-text = "«Allt í lagi» is literally 'all in order': «lag» is order, and also a tune. It covers OK, sure and no problem, and as a question, «Er allt í lagi?», it asks whether you are all right."
+text = "«Allt í lagi» is literally 'all in order'. The word «lag» is order, and also a tune. It covers OK, sure and no problem, and as a question, «Er allt í lagi?», it asks whether you are all right."
 text_ja = "«Allt í lagi»の直訳は「すべて順調に」。«lag»は「秩序」で、「曲」という意味もあります。OK、いいよ、大丈夫、のどれにも使え、«Er allt í lagi?»と聞けば「大丈夫？」です。"
 
 [[notes]]
@@ -161,14 +161,14 @@ text_ja = "«Hvað segirðu gott?»の直訳は「何かいいことを言う？
 id = "mig_langar_idiom"
 items = ["mig_langar_i"]
 topics = ["food"]
-text = "«Mig langar í kaffi» is literally 'me longs for coffee': the one who wants is not the subject but 'me'. Japanese does something alike: in «ja:kōhī ga hoshii|コーヒーが欲しい», the coffee, not you, is marked."
-text_ja = "«Mig langar í kaffi»の直訳は「私を、コーヒーへ、恋しがらせる」。欲しがる人が主語ではなく「私を」になります。日本語の「コーヒーが欲しい」で、「が」が付くのがあなたではなくコーヒーなのと少し似ています。"
+text = "«Mig langar í kaffi» is literally 'me longs for coffee'. The one who wants is still the subject, but in the accusative, 'me', instead of «ég». Japanese does something alike: in «ja:kōhī ga hoshii|コーヒーが欲しい», the coffee, not you, is marked."
+text_ja = "«Mig langar í kaffi»の直訳は「私を、コーヒーを求めている」。欲しがる人は主語のままですが、«ég»（私は）ではなく対格の「私を」の形で言います。日本語の「コーヒーが欲しい」で、「が」が付くのがあなたではなくコーヒーなのと少し似ています。"
 
 [[notes]]
 id = "nenna_idiom"
 items = ["eg_nenni_ekki"]
 topics = ["discourse"]
-text = "«Nenna» has no one-word English: «ég nenni ekki» is 'I can't be bothered'. Icelanders say it lightly about the dishes, a walk in the rain or a fourth museum, and it is not rude."
+text = "«Nenna» has no one-word English. «Ég nenni ekki» is 'I can't be bothered'. Icelanders say it lightly about the dishes, a walk in the rain or a fourth museum, and it is not rude."
 text_ja = "«Nenna»にぴったりの英語はありません。«ég nenni ekki»は「面倒でやる気にならない」。皿洗いや雨の中の散歩、四つ目の博物館について軽く言うもので、失礼ではありません。"
 
 [[notes]]
@@ -537,7 +537,7 @@ id = "pron_stress_final"
 milestone = true
 items = ["takk", "bless", "skal"]
 topics = ["pronunciation"]
-text = "Two habits carry across every Icelandic word. The stress is always on the first syllable. And a word ends on its consonant, with no vowel added: «Takk», «Bless», «Skál». In «Takk» the double k also starts with a small breath, like 'tahk'."
+text = "Two habits carry across every Icelandic word. The stress is always on the first syllable. And a word ends on its consonant, with no vowel added. «Takk.» «Bless.» «Skál!» In «Takk» the double k also starts with a small breath, like 'tahk'."
 text_ja = "アイスランド語全体に効く二つのコツです。アクセントはいつも最初の音節にあります。そして語末の子音のあとに母音を足さないこと：«Takk» は「タック」、«Bless» は「ブレッス」で、「タック・ウ」「ブレス・ウ」のように「ウ」を付けません。«Takk» の kk は、直前に小さく息を吐くように「タハク」と聞こえます。"
 
 [[notes]]
@@ -553,7 +553,7 @@ id = "pron_hv"
 milestone = true
 items = ["hvad_segirdu_gott", "hvernig_hefurdu_thad", "hvad_sagdirdu"]
 topics = ["pronunciation"]
-text = "Question words starting with 'hv' are said with a 'kv' sound: «Hvað segirðu gott?», «Hvernig hefurðu það?», «Hvað sagðirðu?». Trust the recording rather than the spelling."
+text = "Question words starting with 'hv' are said with a 'kv' sound. «Hvað segirðu gott?» «Hvernig hefurðu það?» «Hvað sagðirðu?» Trust the recording rather than the spelling."
 text_ja = "「hv」で始まる疑問詞は「クヴ」と発音します：«Hvað segirðu gott?»、«Hvernig hefurðu það?»、«Hvað sagðirðu?»。つづりではなく、録音の音をまねてください。"
 
 [[notes]]
@@ -561,7 +561,7 @@ id = "pron_vowels"
 milestone = true
 items = ["sjaumst", "takk_kaerlega", "goda_nott"]
 topics = ["pronunciation"]
-text = "Three vowels sound like two. 'á' is 'ow' as in 'now': «Sjáumst». 'æ' is 'eye': «Takk kærlega». 'ó' is 'oh', gliding to 'u': «Góða nótt». The accent mark doesn't mean stress; it changes the vowel."
+text = "Three vowels sound like two. The 'á' is 'ow' as in 'now', in «Sjáumst.» The 'æ' is 'eye', in «Takk kærlega.» The 'ó' is 'oh', gliding to 'u', in «Góða nótt.» The accent mark doesn't mean stress; it changes the vowel."
 text_ja = "文字は一つでも、二つの母音のように聞こえるものがあります。「á」は「アウ」（«Sjáumst»）、「æ」は「アイ」（«Takk kærlega»）、「ó」は「オウ」（«Góða nótt»）。アクセント記号は強く読む印ではなく、別の母音を表す印です。"
 
 # issue #79: near-synonyms the early lessons teach side by side, named once they are all met
