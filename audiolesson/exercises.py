@@ -1124,11 +1124,27 @@ class Builder:
         found = [construction.fill_scenes[f.id] for f in fills.values() if f.id in construction.fill_scenes]
         return found[0] if len(found) == 1 else None
 
+    def scene_line(self, construction: Item, fills: dict[str, Item]) -> str | None:
+        """``fill_scene``'s line while it may still be narrated now, under the rules of an authored situation (§9 "Repetition"): in full at most
+        ``SITUATION_FULL_MAX`` times in a lesson, and not one of the last situations narrated (#273). None after that: the sentence is asked from its
+        meaning. A line shared by many sentences («Your friend asks what time it is.») was read 14 times in lesson 18 of a simulated course (review of
+        #361)."""
+        line = self.fill_scene(construction, fills)
+        if line is None or self._situation_texts.get(line, 0) >= SITUATION_FULL_MAX or line in self._recent_situations[-3:]:
+            return None
+        return line
+
+    def _spoke_scene(self, line: str) -> None:
+        """A scene line narrated: counted with the authored situations (``scene_line``)."""
+        self._situation_texts[line] = self._situation_texts.get(line, 0) + 1
+        self._recent_situations.append(line)
+
     def sentence_cue(self, gender: str | None, construction: Item, fills: dict[str, Item], meaning: str, form: str | None = None) -> tuple[str, str]:
         """``(stage, cue)`` for asking a pattern's sentence from its meaning, by whichever path asks it: its scene (``fill_scene``, stage ``situation``) when
         the plain sentence has one, else the meaning (stage ``meaning``). Every path that asks a judged sentence keeps its scene (review of #352)."""
-        scene = self.fill_scene(construction, fills) if not form else None
+        scene = self.scene_line(construction, fills) if not form else None
         if scene is not None:
+            self._spoke_scene(scene)  # every caller narrates the cue it gets
             return "situation", self._as(gender, self.prompts.get("scene_say", scene=scene, meaning=self._m(meaning)))
         return "meaning", self._as(gender, self._meaning_prompt(meaning))
 
@@ -1165,7 +1181,7 @@ class Builder:
         self.used_combos.add(gen.key)
         gender, target = self._filled(item, gen.fills)
         own_situation = stage == "situation" and item.has_situation and self.situation_room(item) and bool(fixed)
-        scene = self.fill_scene(item, gen.fills) if stage in ("meaning", "situation") and not own_situation else None
+        scene = self.scene_line(item, gen.fills) if stage in ("meaning", "situation") and not own_situation else None
         if scene is not None:
             stage = "situation"  # the scene check's line is the cue: the learner pictures where the sentence is said (lesson 27: «Ég nenni ekki að sofa.»)
         ex = sc.new_exercise("recall", stage, gen.item_ids, f"{stage}: {target}")
@@ -1173,6 +1189,7 @@ class Builder:
             self._narr(sc, ex, self._as(gender, self.prompts.get("hinted", meaning=self._m(gen.meaning))))
             self._speak(sc, ex, target.split()[0].rstrip(".,?!"), role="hint")
         elif scene is not None:
+            self._spoke_scene(scene)
             self._narr(sc, ex, self._as(gender, self.prompts.get("scene_say", scene=scene, meaning=self._m(gen.meaning))))
         elif stage == "situation" and item.has_situation and self.situation_room(item):
             self._narr(sc, ex, self._as(gender, self._situation(item)))  # type: ignore[arg-type]
@@ -1215,7 +1232,7 @@ class Builder:
                 self.novelty_announced.add(form_id)
         else:
             key = "recombine_vocab_again" if linked else "recombine_vocab"
-        if self.fill_scene(gen.construction, gen.fills) is not None and not gen.form:
+        if self.scene_line(gen.construction, gen.fills) is not None and not gen.form:
             if f"{key}_lead" in self.prompts.data:  # the scene replaces the cue's «Say: …», not its news or link: «Now something you haven't heard yet.» stays
                 self._narr(sc, ex, self.prompts.get(f"{key}_lead"))
             self._narr(sc, ex, self.sentence_cue(gender, gen.construction, gen.fills, gen.meaning, gen.form)[1])  # the scene check's line (owner, 2026-10-16)
@@ -1316,10 +1333,11 @@ class Builder:
         self.said[_norm_utterance(target)] += 1
         through = self.cur.by_id.get(whole.get("through", ""))
         gender = self.speaker_gender(through) if through is not None and through.target_m else None  # a sentence that follows the speaker's gender keeps the voice
-        scene = through.fill_scenes.get(item.id) if through is not None and through.kind == "construction" and len(through.slots) == 1 else None
+        scene = self.scene_line(through, {next(iter(through.slots)): item}) if through is not None and through.kind == "construction" and len(through.slots) == 1 else None
         stage = "situation" if scene else "meaning"
         ex = sc.new_exercise("recall", stage, [item.id], f"{stage}: {target}")
         if scene:  # the part's sentence is a judged sentence of its pattern: asked with its scene (review of #352)
+            self._spoke_scene(scene)
             meaning = self.cur.resolve_slots(through, {next(iter(through.slots)): item})[1]  # type: ignore[union-attr]
             self._narr(sc, ex, self._as(gender, self.prompts.get("scene_say", scene=scene, meaning=self._m(meaning))))
         else:
