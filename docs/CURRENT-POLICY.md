@@ -51,7 +51,7 @@ summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wro
   throttled only by what the learner reports (recall over the last three lessons, the load rating). Close variants do not
   fill spare time; a form comes with a purpose.
 - **Repetition.** A short item is said alone at most three times a lesson; a fixed sentence at most nine; the same
-  situation narrated in full at most twice. A pattern is not a lesson's whole supply (about ten generated sentences). Not-due
+  situation (authored, or a scene check's line) narrated in full at most twice, and not right after itself when the cue has another way. A pattern is not a lesson's whole supply (about ten generated sentences). Not-due
   items wait for their date (#94), with one exception for spare time (LD §9 "Repetition"). An open item (failed) is practised every lesson and asked at the next review until it is
   recalled.
 - **Spare time and the second half.** Once the lesson has taught what the target asked for, the second half is a rotation

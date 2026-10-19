@@ -740,7 +740,7 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
     grammatical is not enough. «Ég nenni ekki að sofa.» (lesson 27), «Má ég sofa?» (#333), «Áttu leigubíl?» (#192) and the
     bus «to the bus stop» (#336) were each found by chance, one at a time. Each fill of a pattern gets a verdict once, all
     in one place (`[scenes.<pattern>]`, `curricula/is-en/95-scenes.toml`): a scene in one line, which the lesson uses as
-    the cue for that sentence, or `false`, never generated. A sentence with no verdict is still generated; `validate`
+    the cue for that sentence under the rule of any situation ("Repetition" below), or `false`, never generated. A sentence with no verdict is still generated; `validate`
     counts them, and `audiolesson scene-check` prints the sheet to judge, the patterns the learner has met first
     (`docs/SCENE-REVIEW.md`). It replaces the named exceptions to generation, which were this check done by chance.
   - **Named exceptions** are listed here, in one place, so they can be read together and don't grow into mechanisms:
@@ -810,9 +810,11 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
   - `connect` without an authored bridge is mixed review, and says so (#78).
 - **Repetition.**
   - New items may repeat within a lesson and are never dropped (#147).
-  - Situation variety is welcome (#148), but the same authored situation is narrated in full at
-    most twice in a lesson; after that the cue is the meaning, or the partner's line (G12;
-    #170).
+  - Situation variety is welcome (#148), but a situation, authored or a scene check's line, is narrated in full at
+    most twice in a lesson; after that the cue is the meaning, or the partner's line (G12; #170). One just narrated
+    (among the last three, #273) is avoided whenever the cue has another way: another variant, or for a scene line the
+    sentence's meaning; an item practised at the situation stage has none and hears it again. One rule for both: a
+    scene line shared by many sentences was read 14 times in a lesson before it counted (review of #361).
   - **Parts against utterances (#187, #190, the owner's decision; revised after lesson 20).** What is not a complete
     utterance is a *part*, whatever its length: «peysu», «kaupa miða», «fara á safnið». The data draws the line: every
     slot filler has `kind = "vocab"` and no `phrase` is one.
