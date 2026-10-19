@@ -742,7 +742,9 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
     in one place (`[scenes.<pattern>]`, `curricula/is-en/95-scenes.toml`): a scene in one line, which the lesson uses as
     the cue for that sentence under the rule of any situation ("Repetition" below), or `false`, never generated. A scene
     that does not depend on the fill («Your friend asks what time it is.» for every hour) is one line for the pattern, which
-    a fill's own verdict overrides; a fill tagged later takes it without a review, and `validate` says how many do. A
+    a fill's own verdict overrides. Every fill without one takes it, a fill tagged later included, without a review: such a
+    line is written only where no fill could change the scene (a time, a price, a language), and a fill-by-fill check of
+    it would be a copy to maintain (review of #363). A
     sentence with no verdict is still generated; `validate` counts them, and `audiolesson scene-check` prints the sheet to judge, the patterns the learner has met first
     (`docs/SCENE-REVIEW.md`). It replaces the named exceptions to generation, which were this check done by chance.
   - **Named exceptions** are listed here, in one place, so they can be read together and don't grow into mechanisms:

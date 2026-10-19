@@ -676,12 +676,6 @@ def cmd_validate(args) -> int:
             f"advisory (not a failure): {len(unjudged)} sentences of {len(per)} patterns have no scene verdict (owner, 2026-10-16): they are generated, but nobody has "
             f"checked that a learner can picture someone saying them. `audiolesson scene-check` prints the sheet (docs/SCENE-REVIEW.md); the verdicts go to [scenes.<pattern>]."
         )
-    covered = [(c, f) for c, f, _, _ in scene_sheet(cur, judged=True) if scene_covered(c, f.id)]
-    if covered:
-        print(
-            f"advisory (not a failure): {len(covered)} sentences of {len({c.id for c, _ in covered})} patterns take their pattern's scene line (\"*\") with no verdict "
-            f"of their own: a fill tagged later is covered without a review. `audiolesson scene-check --judged` lists them as comments."
-        )
     from .sounds import hard_sounds
 
     unsplit = [i.id for i in cur.items if hard_sounds(i) and not i.syllables]

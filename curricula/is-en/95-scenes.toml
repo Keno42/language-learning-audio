@@ -8,7 +8,7 @@
 #   fill = false                   the sentence has no scene a traveller would be in: it is never generated
 #   "*" = "a scene in one line"    the pattern's line, for every fill without a line of its own, when the scene does not depend on
 #                                  the fill («Your friend asks what time it is.» for every hour); a fill's own line or false overrides it.
-#                                  A fill tagged later takes it without a review (`audiolesson validate` counts them).
+#                                  A fill tagged later takes it without a review: write one only where no fill could change the scene.
 #
 # A sentence of several slots takes the line of its one fill that has one, else the pattern's line.
 # A fill with no verdict is still generated, and `audiolesson validate` counts it; `audiolesson scene-check` prints the sheet to judge.

@@ -491,7 +491,7 @@ def scene_sheet(cur: Curriculum, patterns: list[str] | None = None, met: set[str
 
 def scene_covered(c: Item, fill_id: str) -> bool:
     """Whether a fill takes its pattern's line with no verdict of its own: judged by the pattern line alone, so a fill tagged later is covered without a
-    review (``validate`` reports how many)."""
+    review, as the scene check accepts for a line that does not depend on the fill (LEARNING-DESIGN §9 "The scene check")."""
     return PATTERN_SCENE in c.scene_verdicts and fill_id not in c.scene_verdicts
 
 

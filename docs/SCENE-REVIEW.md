@@ -15,7 +15,8 @@ Each verdict is on one word (fill) of one pattern, in `curricula/is-en/95-scenes
 
 When the scene does not depend on the word («Your friend asks what time it is.» for every hour), it is written once for
 the pattern, as `"*"`. A word's own verdict overrides it. A word without one takes it, a word tagged later included, so
-nobody reviews those sentences again: `audiolesson validate` counts them, and the sheet below lists them.
+nobody reviews those sentences again; that is accepted for a scene no word could change (LEARNING-DESIGN §9 "The scene
+check"). The sheet with `--judged` lists them.
 
 A sentence with no verdict is still generated, as before. `audiolesson validate` counts them.
 
