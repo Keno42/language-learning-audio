@@ -13,7 +13,7 @@
 
 [scenes.attu]
 leigubil = false  # «Áttu leigubíl?»: you don't ask someone whether they own a taxi (#192)
-vegabref = "You and your friend are leaving for the airport."
+vegabref = "Your Icelandic friend wants to visit you in Japan next year."  # asks whether one owns a passport (#192's point): so a trip being planned, not the way to the airport («Ertu með vegabréfið?»)
 poka = "At the till, you have no bag."
 peysu = "Your friend is shivering on the boat."
 sundfot = "Your friend wants to come to the pool with you."
@@ -302,13 +302,13 @@ donsku = "Someone at the hostel asks which languages you speak."
 [scenes.eg_er_ad_laera]  # «Ég er að læra {language}.» I'm learning {language}.
 islensku = "The cashier is surprised that you answer in Icelandic."
 ensku = "Someone at the hostel asks what language you are learning."
-japonsku = "Someone at the hostel asks what language you are learning."
+japonsku = false  # this course's learner speaks Japanese (review of #361: the shared line had been copied)
 thysku = "Someone at the hostel asks what language you are learning."
 fronsku = "Someone at the hostel asks what language you are learning."
 donsku = "Someone at the hostel asks what language you are learning."
 
 [scenes.eg_tharf]  # «Ég þarf {thing}.» I need {thing}.
-vegabref = "You are checking in for the flight home, and your friend asks what you are looking for."
+vegabref = false  # a traveller has one; a lost passport is «Ég finn ekki vegabréfið mitt.»
 poka = "At the till you have too much to carry."
 peysu = "The wind picks up on the boat tour."
 sundfot = "Your friend invites you to the hot spring, and you did not pack one."
@@ -351,12 +351,9 @@ dag_acc = "The shop assistant hands you your bag in the morning."
 nott_acc = "Your host is going to bed."
 kvold_acc = "You leave the shop in the evening."
 
-# A sentence of two slots takes a scene only when exactly one fill has one: the addons carry it, so the drinks that take every addon (coffee, tea)
-# are left without a verdict; a drink that takes no addon is false.
+# A sentence of two slots takes a scene only when exactly one fill has one: the addons carry it, so the drinks (coffee, tea: the slot's tag, acc_drink)
+# are left without a verdict.
 [scenes.eg_aetla_ad_fa_addon]  # «Ég ætla að fá {thing} {addon}.» I'll have {thing} {addon}.
-mjolk = false  # lesson 31: «mjólk án mjólkur», milk without milk; nor is milk had with or without sugar
-gos = false  # a soft drink with milk, or with sugar added
-latte = false  # a latte is coffee with milk: «latte með mjólk», «latte án mjólkur»
 med_mjolk = "The waiter asks how you would like it."
 an_sykurs = "The waiter asks how you would like it."
 med_sykri = "The waiter asks how you would like it."

@@ -46,15 +46,9 @@ class RotationGuardTests(unittest.TestCase):
         def select_new(self_, *a, **kw):
             chosen = real(self_, *a, **kw)
             calls.append(len(chosen))
-            if len(calls) > 1 or len(chosen) < 2:
-                return chosen
-            # charged by select_new, never queued: the two counters disagree. Dropped from the end until what is left is below the target, so the target is
-            # not delivered whatever the lesson's selection costs (one item was enough while the selection cost exactly the target; with lesson 31's scene
-            # verdicts the simulated course reaches this lesson with 9 charged against 8)
-            kept = list(chosen)
-            while len(kept) > 1 and sum(self_.component_by_item.get(i.id, 0.0) for i in kept) >= self_.cfg.new_target:
-                kept.pop()
-            return kept
+            # charged by select_new, never queued: the two counters disagree. Only the first is kept, so the target is far from delivered whatever the
+            # selection costs and however the planner counts what it taught
+            return chosen[:1] if len(calls) == 1 and len(chosen) > 1 else chosen
 
         with mock.patch.object(Planner, "select_new", select_new):
             return p.build()

@@ -262,7 +262,7 @@ target = "gos"
 meaning = "a soda"
 meaning_ja = "炭酸飲料"
 difficulty = 1
-tags = ["acc_orderable", "acc_drink", "nom_item"]
+tags = ["acc_orderable", "nom_item"]
 topics = ["cafe"]
 
 [[items]]
@@ -301,7 +301,7 @@ target = "kakó"
 meaning = "hot chocolate"
 meaning_ja = "ココア"
 difficulty = 1
-tags = ["acc_orderable", "acc_drink", "nom_item"]
+tags = ["acc_orderable", "nom_item"]
 topics = ["cafe"]
 
 [[items]]
@@ -312,7 +312,7 @@ syllables = ["latt", "e"]
 meaning = "a latte"
 meaning_ja = "ラテ"
 difficulty = 1
-tags = ["acc_orderable", "acc_drink", "nom_item"]
+tags = ["acc_orderable", "nom_item"]
 topics = ["cafe"]
 
 [[items]]
@@ -365,7 +365,7 @@ meaning = "I'll have {thing} {addon}."
 meaning_ja = "{thing}を{addon}でください。"
 difficulty = 3
 topics = ["cafe"]
-slots = { thing = "acc_drink", addon = "addon" }
+slots = { thing = "acc_drink", addon = "addon" }  # acc_drink is this slot's list: the drinks taken with or without milk or sugar (review of #361: milk, a soft drink, a latte and cocoa were tagged too, and «mjólk án mjólkur» came out)
 example = { thing = "kaffi", addon = "med_mjolk" }
 components = ["eg_aetla_ad_fa", "kaffi", "med_mjolk"]
 prereqs = ["eg_aetla_ad_fa", "med_mjolk"]

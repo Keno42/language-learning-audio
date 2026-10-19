@@ -1579,6 +1579,8 @@ class CurriculumTests(unittest.TestCase):
         break it: no dialogue, no notes, only ``known`` items ready for "situation", padded with
         known words that have no situation cue (review material connect() can't use)."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for it in cur.items:
+            it.fill_scenes = {}  # the padding is known words with no situation cue: a scene line on their patterns' sentences would give them one
         learner = LearnerState("is", "en", "A1")
         padding = ["kaffi", "te", "vatn", "islensku", "ensku", "japonsku", "thysku", "fronsku", "donsku", "vegabref"]
         for i in known + padding:
@@ -1594,10 +1596,7 @@ class CurriculumTests(unittest.TestCase):
         has nothing unused left and must stop the lesson rather than loop back to it."""
         sc = self._real_streak_lesson(["ha", "eg_skil"])
         pairs = [frozenset(ex.item_ids) for ex in sc.exercises if ex.kind == "connect"]
-        # the padding words now have scenes through their patterns' sentences (lesson 31's verdicts: «Talar þú ensku?»), so a mixed review may pair them;
-        # what #55 forbids is a pair played again
-        self.assertEqual(pairs.count(frozenset({"ha", "eg_skil"})), 1, "the lesson-4 pair is played once")
-        self.assertEqual(len(pairs), len(set(pairs)), "the same fallback pair must not be replayed")
+        self.assertEqual(pairs, [frozenset({"ha", "eg_skil"})], "the same fallback pair must not be replayed")
         streak = longest = 0
         for ex in sc.exercises:
             streak = streak + 1 if ex.kind == "recall" else 0
