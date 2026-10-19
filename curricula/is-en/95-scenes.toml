@@ -6,8 +6,12 @@
 #   fill = "a scene in one line"   the sentence has a scene; the lesson uses this line as the cue when it asks the sentence
 #                                  («It's raining and your friend suggests a walk. Say: I can't be bothered to go out.»)
 #   fill = false                   the sentence has no scene a traveller would be in: it is never generated
+#   "*" = "a scene in one line"    the pattern's line, for every fill without a line of its own, when the scene does not depend on
+#                                  the fill («Your friend asks what time it is.» for every hour); a fill's own line or false overrides it.
+#                                  A fill tagged later takes it without a review: write one only where no fill could change the scene.
 #
-# A fill with no verdict is still generated, and `audiolesson validate` counts it; `audiolesson scenes` prints the sheet to judge.
+# A sentence of several slots takes the line of its one fill that has one, else the pattern's line.
+# A fill with no verdict is still generated, and `audiolesson validate` counts it; `audiolesson scene-check` prints the sheet to judge.
 # A scene is in English (the course's primary language); a learner of another language gets the meaning alone until a
 # per-language line is added ({ en = "…", ja = "…" }).
 
@@ -86,52 +90,16 @@ fara_i_sund = false  # swimming is not a duty a traveller announces
 drekka_kaffi = "You slept two hours, and your friend asks why you are heading to the café."
 
 [scenes.klukkan_er]  # «Klukkan er …» It's … o'clock
-eitt = "Your friend asks what time it is."
-tvo = "Your friend asks what time it is."
-thrju = "Your friend asks what time it is."
-fjogur = "Your friend asks what time it is."
-fimm = "Your friend asks what time it is."
-sex = "Your friend asks what time it is."
-sjo = "Your friend asks what time it is."
-atta = "Your friend asks what time it is."
-niu = "Your friend asks what time it is."
-tiu = "Your friend asks what time it is."
+"*" = "Your friend asks what time it is."
 
 [scenes.klukkan_time]  # «klukkan …» at … o'clock
-eitt = "Your friend asks when the tour starts."
-tvo = "Your friend asks when the tour starts."
-thrju = "Your friend asks when the tour starts."
-fjogur = "Your friend asks when the tour starts."
-fimm = "Your friend asks when the tour starts."
-sex = "Your friend asks when the tour starts."
-sjo = "Your friend asks when the tour starts."
-atta = "Your friend asks when the tour starts."
-niu = "Your friend asks when the tour starts."
-tiu = "Your friend asks when the tour starts."
+"*" = "Your friend asks when the tour starts."
 
 [scenes.hittumst_klukkan]  # «Hittumst klukkan …» Let's meet at …
-eitt = "You and your friend are planning to meet tomorrow."
-tvo = "You and your friend are planning to meet tomorrow."
-thrju = "You and your friend are planning to meet tomorrow."
-fjogur = "You and your friend are planning to meet tomorrow."
-fimm = "You and your friend are planning to meet tomorrow."
-sex = "You and your friend are planning to meet tomorrow."
-sjo = "You and your friend are planning to meet tomorrow."
-atta = "You and your friend are planning to meet tomorrow."
-niu = "You and your friend are planning to meet tomorrow."
-tiu = "You and your friend are planning to meet tomorrow."
+"*" = "You and your friend are planning to meet tomorrow."
 
 [scenes.thad_kostar_big]  # «Það kostar … þúsund krónur.» It costs … thousand krónur.
-eitt = "Your friend asks what the tour costs."
-tvo = "Your friend asks what the tour costs."
-thrju = "Your friend asks what the tour costs."
-fjogur = "Your friend asks what the tour costs."
-fimm = "Your friend asks what the tour costs."
-sex = "Your friend asks what the tour costs."
-sjo = "Your friend asks what the tour costs."
-atta = "Your friend asks what the tour costs."
-niu = "Your friend asks what the tour costs."
-tiu = "Your friend asks what the tour costs."
+"*" = "Your friend asks what the tour costs."
 
 [scenes.eg_aetla_ad_fa]  # «Ég ætla að fá …» I'll have …
 kaffi = "The waiter at the café asks what you'd like."
@@ -260,17 +228,11 @@ atjan = "Your friend asks what the fish and chips cost."
 nitjan = "Your friend asks what the woollen socks cost."
 
 [scenes.eg_keypti_baekur]  # «Ég keypti {count} bækur.» I bought {count} books.
+"*" = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
 tvaer = "You come back from the bookshop with a heavy bag, and your friend asks how many books you bought."
 thrjar = "You come back from the bookshop with a heavy bag, and your friend asks how many books you bought."
 fjorar = "You come back from the bookshop with a heavy bag, and your friend asks how many books you bought."
 fimm = "You come back from the bookshop with a heavy bag, and your friend asks how many books you bought."
-sex = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
-sjo = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
-atta = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
-niu = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
-tiu = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
-ellefu = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
-tolf = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
 
 # Lesson 31's patterns (the real path: the lesson-30 export, then lesson 31 rebuilt): every sentence of a pattern the learner has met by then, with the
 # words met by then. Drafted by the course's author for the reviewer (docs/SCENE-REVIEW.md).
@@ -292,20 +254,12 @@ fronsku = "The couple at the next table seem to be speaking French."
 donsku = "An older Icelander tells you she studied in Copenhagen."
 
 [scenes.eg_tala]  # «Ég tala {language}.» I speak {language}.
-islensku = "Someone at the hostel asks which languages you speak."
-ensku = "Someone at the hostel asks which languages you speak."
-japonsku = "Someone at the hostel asks which languages you speak."
-thysku = "Someone at the hostel asks which languages you speak."
-fronsku = "Someone at the hostel asks which languages you speak."
-donsku = "Someone at the hostel asks which languages you speak."
+"*" = "Someone at the hostel asks which languages you speak."
 
 [scenes.eg_er_ad_laera]  # «Ég er að læra {language}.» I'm learning {language}.
+"*" = "Someone at the hostel asks what language you are learning."
 islensku = "The cashier is surprised that you answer in Icelandic."
-ensku = "Someone at the hostel asks what language you are learning."
 japonsku = false  # this course's learner speaks Japanese (review of #361: the shared line had been copied)
-thysku = "Someone at the hostel asks what language you are learning."
-fronsku = "Someone at the hostel asks what language you are learning."
-donsku = "Someone at the hostel asks what language you are learning."
 
 [scenes.eg_tharf]  # «Ég þarf {thing}.» I need {thing}.
 vegabref = false  # a traveller has one; a lost passport is «Ég finn ekki vegabréfið mitt.»
@@ -351,13 +305,8 @@ dag_acc = "The shop assistant hands you your bag in the morning."
 nott_acc = "Your host is going to bed."
 kvold_acc = "You leave the shop in the evening."
 
-# A sentence of two slots takes a scene only when exactly one fill has one: the addons carry it, so the drinks (coffee, tea: the slot's tag, acc_drink_addon)
-# are left without a verdict.
 [scenes.eg_aetla_ad_fa_addon]  # «Ég ætla að fá {thing} {addon}.» I'll have {thing} {addon}.
-med_mjolk = "The waiter asks how you would like it."
-an_sykurs = "The waiter asks how you would like it."
-med_sykri = "The waiter asks how you would like it."
-an_mjolkur = "The waiter asks how you would like it."
+"*" = "The waiter asks how you would like it."
 
 [scenes.get_eg_fengid]  # «Get ég fengið {thing}?» Could I have {thing}?
 poka = "At the till you have too much to carry."

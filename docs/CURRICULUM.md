@@ -117,13 +117,19 @@ all of them in `curricula/is-en/95-scenes.toml`:
 [scenes.eg_nenni_ekki]
 fara_ut = "It's raining hard, and your friend suggests a walk."  # a scene: the cue when the sentence is asked
 sofa = false                                                      # no scene a traveller is in: never generated
+
+[scenes.klukkan_er]
+"*" = "Your friend asks what time it is."                         # the pattern's line: every fill without one of its own
 ```
 
 A scene is one line in the course's primary language, describing where the sentence is said, not what to say: the
 lesson adds «Say: {meaning}». For another learner language write `{ en = "…", ja = "…" }`; without a line in theirs a
-learner gets the meaning alone. A verdict is on one fill; a sentence of a several-slot pattern uses a line only when
-exactly one of its fills has one. A fill with no verdict is still generated: `audiolesson validate` counts them and
-`audiolesson scene-check CURRICULUM [--learner FILE] [--pattern ID]` prints the sheet as TOML to fill in
+learner gets the meaning alone. A verdict is on one fill. When the scene does not depend on the fill, write it once as
+the pattern's line, `"*"`: a fill's own line or `false` overrides it, and every other fill takes it, a fill tagged later
+included, without a review (LEARNING-DESIGN §9 "The scene check"), so write one only where no fill could change the scene. A sentence takes the line of its one fill that has one, else the pattern's line; in a
+several-slot pattern, two fills with lines also give the pattern's line (a verdict is on a fill, not on a combination).
+A fill with no verdict is still generated: `audiolesson validate` counts them and
+`audiolesson scene-check CURRICULUM [--learner FILE] [--pattern ID] [--judged]` prints the sheet as TOML to fill in
 (`docs/SCENE-REVIEW.md`).
 
 ## Dialogues
