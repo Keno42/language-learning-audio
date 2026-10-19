@@ -105,7 +105,7 @@ meaning_forms_ja = { generic = "牛乳" }
 context = "I'd like some milk."
 context_ja = "牛乳をください。"
 difficulty = 1
-tags = ["acc_food", "acc_drink", "acc_orderable", "acc_thing", "acc_request"]
+tags = ["acc_food", "acc_orderable", "acc_thing", "acc_request"]
 topics = ["food"]
 
 [[items]]

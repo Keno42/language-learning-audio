@@ -46,7 +46,9 @@ class RotationGuardTests(unittest.TestCase):
         def select_new(self_, *a, **kw):
             chosen = real(self_, *a, **kw)
             calls.append(len(chosen))
-            return chosen[:-1] if len(calls) == 1 and len(chosen) > 1 else chosen  # charged by select_new, never queued: the two counters disagree
+            # charged by select_new, never queued: the two counters disagree. Only the first is kept, so the target is far from delivered whatever the
+            # selection costs and however the planner counts what it taught
+            return chosen[:1] if len(calls) == 1 and len(chosen) > 1 else chosen
 
         with mock.patch.object(Planner, "select_new", select_new):
             return p.build()

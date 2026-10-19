@@ -13,12 +13,25 @@
 
 [scenes.attu]
 leigubil = false  # «Áttu leigubíl?»: you don't ask someone whether they own a taxi (#192)
+vegabref = "Your Icelandic friend wants to visit you in Japan next year."  # asks whether one owns a passport (#192's point): so a trip being planned, not the way to the airport («Ertu með vegabréfið?»)
+poka = "At the till, you have no bag."
+peysu = "Your friend is shivering on the boat."
+sundfot = "Your friend wants to come to the pool with you."
+mida = "The bus is coming, and your friend is searching her pockets."
+ost = "At the small corner shop, you can't see what you want."
+egg = "At the small corner shop, you can't see what you want."
+smjor = "At the small corner shop, you can't see what you want."
+mjolk = "At the small corner shop, you can't see what you want."
+epli = "At the small corner shop, you can't see what you want."
 
 [scenes.ma_eg_inf]
 sofa = false  # «Má ég sofa?»: a traveller does not ask permission to sleep (#333)
 fara_heim = "The workshop runs late, and you ask the organiser."
 kaupa_mida = "You're at the counter, not sure tickets are sold here."
 fara_a_safnid = false  # «Má ég» asks permission: an adult traveller asks whether the museum is open or how to get there, not whether they may go
+borda = false  # an adult does not ask permission to eat; at a host's table it is «Má ég byrja?»
+fara_i_sund = false  # an adult does not ask permission to go swimming
+drekka_kaffi = false  # one asks for coffee («Get ég fengið kaffi?»), not permission to drink it
 
 [scenes.fer_thessi_straeto_dest]
 a_stoppistodina = false  # a bus does not go «to the bus stop» (#336)
@@ -59,12 +72,18 @@ fara_heim = "It's late, and your friend asks what you're doing now."
 sofa = "It's late and you're yawning; your friend asks what you're doing now."
 kaupa_mida = "The bus is coming, and your friend asks what you're going to do."
 fara_a_safnid = "Your friend asks your plan for the afternoon."
+borda = "Your friend asks what you are doing at noon."
+fara_i_sund = "Your friend asks what your plans are for the evening."
+drekka_kaffi = "You turn into the bakery, and your friend asks where you are going."
 
 [scenes.eg_verd_ad]  # «Ég verð að …» I have to …
 fara_heim = "Your friend wants you to stay longer, but your flight is early tomorrow."
 sofa = "Your friend suggests another drink, but you're getting up at five."
 kaupa_mida = "You're about to get on the bus and have no ticket."
 fara_a_safnid = "The museum closes in an hour, and you haven't seen it yet."
+borda = "You feel dizzy after the long hike."
+fara_i_sund = false  # swimming is not a duty a traveller announces
+drekka_kaffi = "You slept two hours, and your friend asks why you are heading to the café."
 
 [scenes.klukkan_er]  # «Klukkan er …» It's … o'clock
 eitt = "Your friend asks what time it is."
@@ -76,6 +95,7 @@ sex = "Your friend asks what time it is."
 sjo = "Your friend asks what time it is."
 atta = "Your friend asks what time it is."
 niu = "Your friend asks what time it is."
+tiu = "Your friend asks what time it is."
 
 [scenes.klukkan_time]  # «klukkan …» at … o'clock
 eitt = "Your friend asks when the tour starts."
@@ -87,6 +107,7 @@ sex = "Your friend asks when the tour starts."
 sjo = "Your friend asks when the tour starts."
 atta = "Your friend asks when the tour starts."
 niu = "Your friend asks when the tour starts."
+tiu = "Your friend asks when the tour starts."
 
 [scenes.hittumst_klukkan]  # «Hittumst klukkan …» Let's meet at …
 eitt = "You and your friend are planning to meet tomorrow."
@@ -98,6 +119,7 @@ sex = "You and your friend are planning to meet tomorrow."
 sjo = "You and your friend are planning to meet tomorrow."
 atta = "You and your friend are planning to meet tomorrow."
 niu = "You and your friend are planning to meet tomorrow."
+tiu = "You and your friend are planning to meet tomorrow."
 
 [scenes.thad_kostar_big]  # «Það kostar … þúsund krónur.» It costs … thousand krónur.
 eitt = "Your friend asks what the tour costs."
@@ -109,6 +131,7 @@ sex = "Your friend asks what the tour costs."
 sjo = "Your friend asks what the tour costs."
 atta = "Your friend asks what the tour costs."
 niu = "Your friend asks what the tour costs."
+tiu = "Your friend asks what the tour costs."
 
 [scenes.eg_aetla_ad_fa]  # «Ég ætla að fá …» I'll have …
 kaffi = "The waiter at the café asks what you'd like."
@@ -127,6 +150,9 @@ egg = "At breakfast, the cook asks what you'd like."
 smjor = "At the bakery, you have your bread, and the assistant asks if you want anything with it."
 mjolk = "The waiter asks what you'd like to drink."
 epli = "At the market stall, the seller asks what you'd like."
+fisk = "The waiter asks what you would like for dinner."
+kjukling = "The waiter asks what you would like for dinner."
+lambakjot = "The waiter asks what you would like for dinner."
 
 [scenes.mig_langar_i]  # «Mig langar í …» I feel like …
 kaffi = "It's a cold afternoon, and your friend asks what you'd like."
@@ -145,6 +171,9 @@ egg = "Your host asks what you'd like for breakfast."
 smjor = false  # one wants butter on something, not butter: «Mig langar í brauð.» is the sentence
 mjolk = "Your host asks what you'd like to drink at breakfast."
 epli = "Your friend offers fruit for the journey."
+fisk = "Your friend asks what you want for dinner."
+kjukling = "Your friend asks what you want for dinner."
+lambakjot = "Your friend asks what you want for dinner."
 
 [scenes.eg_elska]  # «Ég elska …» I love …
 supu = "Your host asks if you like her lamb soup."
@@ -159,6 +188,9 @@ egg = "Your host asks whether you like eggs."
 smjor = "You taste Icelandic butter on fresh bread, and your host asks how it is."
 mjolk = "Your host asks whether you'd like a glass of milk."
 epli = "Your host offers you an apple and asks if you like them."
+fisk = "Your host asks if you like fish."
+kjukling = "Your host asks if you like chicken."
+lambakjot = "Your host asks if you like Icelandic lamb."
 
 [scenes.hvar_er]  # «Hvar er …?» Where is …?
 sundlaugin = "You're in a new town with your swimsuit in your bag."
@@ -168,18 +200,25 @@ matvorubudin = "You need food for the cottage."
 kaffihusid = "You want a coffee in a town you don't know."
 "strætó" = "You've been waiting at the stop for twenty minutes."
 heiti_potturinn = "You're at the swimming pool in your swimsuit."
+hotelid = "You are lost with your suitcase."
+apotekid = "You have a bad headache."
+bankinn = "You need to change money."
 
 [scenes.hvenaer_opnar]  # «Hvenær opnar …?» When does … open?
 sundlaugin = "You want to swim before breakfast."
 safnid = "You want to be at the museum early."
 matvorubudin = "It's Sunday morning, and you need groceries."
 kaffihusid = "You want breakfast before the tour."
+apotekid = "You need medicine early in the morning."
+bankinn = "You need to change money before the tour."
 
 [scenes.hvenaer_lokar]  # «Hvenær lokar …?» When does … close?
 sundlaugin = "It's evening, and you want a swim after dinner."
 safnid = "It's late afternoon, and you still want to see the museum."
 matvorubudin = "It's evening, and you still need food for dinner."
 kaffihusid = "You'd like to sit and work at the café for a while."
+apotekid = "You need medicine after dinner."
+bankinn = "You need to change money this afternoon."
 
 [scenes.hvenaer_fer]  # «Hvenær fer …?» When does … leave?
 "strætó" = "You're at the bus stop, and the timetable is hard to read."
@@ -232,3 +271,153 @@ niu = "It's the Christmas book flood, and your friend asks how many books you bo
 tiu = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
 ellefu = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
 tolf = "It's the Christmas book flood, and your friend asks how many books you bought as presents."
+
+# Lesson 31's patterns (the real path: the lesson-30 export, then lesson 31 rebuilt): every sentence of a pattern the learner has met by then, with the
+# words met by then. Drafted by the course's author for the reviewer (docs/SCENE-REVIEW.md).
+[scenes.thetta_er_adj]  # «Þetta er {adj}.» This is {adj}.
+frabaert = "You reach the top of the church tower and see the whole town."
+gott = "You taste the soup your host made."
+kalt = "You dip your hand in the sea at the black beach."
+fallegt = "You reach the viewpoint above the fjord."
+opid = "Your friend wonders whether the museum is open, and you see people going in."
+lokad = "You try the shop door, and it does not move."
+haett = "Your friend wants to walk right up to the cliff edge."
+
+[scenes.talar_thu]  # «Talar þú {language}?» Do you speak {language}?
+islensku = "At the hostel you meet a foreigner who has lived here for years."
+ensku = "You need directions, and the passer-by starts in Icelandic."
+japonsku = "At the hostel you hear someone mention Tokyo."
+thysku = "A lost tourist asks you something, and it sounds German."
+fronsku = "The couple at the next table seem to be speaking French."
+donsku = "An older Icelander tells you she studied in Copenhagen."
+
+[scenes.eg_tala]  # «Ég tala {language}.» I speak {language}.
+islensku = "Someone at the hostel asks which languages you speak."
+ensku = "Someone at the hostel asks which languages you speak."
+japonsku = "Someone at the hostel asks which languages you speak."
+thysku = "Someone at the hostel asks which languages you speak."
+fronsku = "Someone at the hostel asks which languages you speak."
+donsku = "Someone at the hostel asks which languages you speak."
+
+[scenes.eg_er_ad_laera]  # «Ég er að læra {language}.» I'm learning {language}.
+islensku = "The cashier is surprised that you answer in Icelandic."
+ensku = "Someone at the hostel asks what language you are learning."
+japonsku = false  # this course's learner speaks Japanese (review of #361: the shared line had been copied)
+thysku = "Someone at the hostel asks what language you are learning."
+fronsku = "Someone at the hostel asks what language you are learning."
+donsku = "Someone at the hostel asks what language you are learning."
+
+[scenes.eg_tharf]  # «Ég þarf {thing}.» I need {thing}.
+vegabref = false  # a traveller has one; a lost passport is «Ég finn ekki vegabréfið mitt.»
+poka = "At the till you have too much to carry."
+peysu = "The wind picks up on the boat tour."
+sundfot = "Your friend invites you to the hot spring, and you did not pack one."
+mida = "The bus driver asks for your ticket, and you have none."
+leigubil = "The last bus has gone, and you call reception."
+ost = "You are writing the shopping list for breakfast with your friend."
+egg = "You are writing the shopping list for breakfast with your friend."
+smjor = "You are writing the shopping list for breakfast with your friend."
+mjolk = "You are writing the shopping list for breakfast with your friend."
+epli = "You are writing the shopping list for breakfast with your friend."
+
+[scenes.takk_fyrir]  # «Takk fyrir {thing}.» Thanks for {thing}.
+hjalpina = "A stranger has just carried your suitcase up the stairs."
+matinn = "You finish dinner at your host's house."
+
+[scenes.eg_vil]  # «Ég vil {inf}.» I want to {inf}.
+fara_heim = "After a long cold day, your friend suggests one more stop."
+sofa = "You have just landed after a night flight, and your friend asks what you want to do."
+borda = "Your friend asks what you want to do first after the hike."
+fara_i_sund = "Your friend asks what you would like to do this afternoon."
+kaupa_mida = "At the bus station, the clerk asks how she can help."
+fara_a_safnid = "It is raining, and your friend asks what you want to do."
+drekka_kaffi = "You arrive at the café after a very early start."
+
+[scenes.viltu]  # «Viltu {inf}?» Do you want to {inf}?
+fara_heim = "Your friend looks tired at the party."
+sofa = "Your friend keeps yawning on the long drive."
+borda = "It is lunchtime, and your friend looks hungry."
+fara_i_sund = "It is a sunny afternoon, and you want company at the pool."
+kaupa_mida = "You and your friend reach the ticket machine."
+fara_a_safnid = "It is raining, and you suggest something indoors."
+drekka_kaffi = "You pass a café with your friend on a cold morning."
+
+[scenes.thad_kostar]  # «Það kostar {price}.» It costs {price}.
+fimm_hundrud_kronur = "A tourist asks you what a coffee costs here."
+thusund_kronur = "Your friend asks what your sandwich cost."
+
+[scenes.eigdu_godur]  # «Eigðu {adj} {time}.» Have a good {time}.
+dag_acc = "The shop assistant hands you your bag in the morning."
+nott_acc = "Your host is going to bed."
+kvold_acc = "You leave the shop in the evening."
+
+# A sentence of two slots takes a scene only when exactly one fill has one: the addons carry it, so the drinks (coffee, tea: the slot's tag, acc_drink_addon)
+# are left without a verdict.
+[scenes.eg_aetla_ad_fa_addon]  # «Ég ætla að fá {thing} {addon}.» I'll have {thing} {addon}.
+med_mjolk = "The waiter asks how you would like it."
+an_sykurs = "The waiter asks how you would like it."
+med_sykri = "The waiter asks how you would like it."
+an_mjolkur = "The waiter asks how you would like it."
+
+[scenes.get_eg_fengid]  # «Get ég fengið {thing}?» Could I have {thing}?
+poka = "At the till you have too much to carry."
+matsedilinn = "You sit down in the restaurant."
+reikninginn = "You have finished eating."
+vatnsglas = "The waiter asks if you would like anything else with your meal."
+kvittun = "You pay for the tour and need proof for expenses."
+leigubil = "You call reception late at night."
+ost = "At breakfast you want something on your bread."
+egg = "At breakfast your host asks what you would like."
+smjor = "Your bread arrives with nothing on it."
+mjolk = "Your coffee is too strong."
+epli = "Your host offers you fruit."
+
+[scenes.hvad_kostar]  # «Hvað kostar {item}?» How much is {item}?
+kaffi = "You stand at the café counter, and there is no price list."
+te = "You stand at the café counter, and there is no price list."
+vatn = "You are thirsty at the kiosk."
+bjor = "You sit down at the bar."
+skyr = "You look at the supermarket fridge."
+braud = "You stand at the bakery counter."
+salat = "You look at the café menu, and the prices are missing."
+lambakjot = "You stand at the butcher's counter."
+
+[scenes.thad_er_weather]  # «Það er {weather}.» It's {weather}.
+kalt = "Your friend asks if they need a coat."
+rok = "Your friend wonders whether the boat tour will go."
+snjor = "You look out at the mountain road."
+halka = "You warn your friend about the pavement."
+
+[scenes.count_mida_takk]  # «{count} miða, takk.» {count:ticket}, please.
+tvo_acc = "You are at the ticket window with a friend."
+thrja_acc = "You are at the ticket window with two friends."
+
+[scenes.partei_takk]  # «{party}, takk.» {party}, please.
+einn_fullordinn = "You are alone at the museum desk."
+tvo_fullordna = "You and your friend are at the pool desk."
+
+[scenes.thetta_er_noun]  # «Þetta er {thing}.» That's {thing}.
+jokull = "On the tour, your friend asks what the huge white mass in the valley is."
+foss = "Your friend asks what the roar ahead is."
+eldfjall = "Your friend points at a cone-shaped mountain."
+hraun = "Your friend asks what the black, rocky ground is."
+strond = "Your friend asks what is at the end of the path."
+lundi = "Your friend points at a small bird with a colourful beak."
+
+[scenes.mer_finnst_gaman_ad]  # «Mér finnst gaman að {inf}.» I like to {inf}.
+fara_heim = false  # «I like to go home»: no one says it of a trip
+sofa = "Your new friend asks what you like doing on holiday."
+borda = "Your new friend asks what you like doing on holiday."
+fara_i_sund = "Your new friend asks what you like doing on holiday."
+kaupa_mida = false  # nobody likes buying a ticket
+fara_a_safnid = "Your new friend asks what you like doing on holiday."
+drekka_kaffi = "Your new friend asks what you like doing on holiday."
+
+[scenes.mer_finnst_thetta]  # «Mér finnst þetta {adj}.» I think this is {adj}.
+frabaert = "Your friend asks what you think of the concert."
+gott = "Your host asks what you think of the dish."
+kalt = "Your friend asks how the sea feels."
+fallegt = "Your friend asks what you think of the sweater."
+opid = false  # whether a place is open is a fact, not an opinion
+lokad = false  # nor whether it is closed
+haett = "Your friend wants to walk on the glacier without a guide."

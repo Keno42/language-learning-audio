@@ -148,14 +148,20 @@ class SceneCheckTests(unittest.TestCase):
         import shutil
         import tempfile
 
-        pattern, fills = next((p, f) for p, f in sheet.items() if any(not k.isascii() for k in f) and p not in ("eg_nenni_ekki", "ma_eg_inf", "attu", "fer_thessi_straeto_dest"))
-        word = next(k for k in fills if not k.isascii())
-        lines = out.getvalue().splitlines()
-        head = next(n for n, line in enumerate(lines) if line.startswith("[scenes.") and pattern in line)
-        row = next(line for line in lines[head + 1 :] if line.startswith(f'"{word}" = '))
+        # the filled line is pasted into a copy with no verdicts at all (95-scenes.toml removed), so the check does not depend on which patterns are judged yet:
+        # a table may be declared in one file only (review of #361)
         with tempfile.TemporaryDirectory() as td:
             copy = Path(td) / "is-en"
             shutil.copytree(ROOT / "curricula" / "is-en", copy)
+            (copy / "95-scenes.toml").unlink()
+            blank = io.StringIO()
+            with contextlib.redirect_stdout(blank), contextlib.redirect_stderr(io.StringIO()):
+                cmd_scene_check(SimpleNamespace(curriculum=str(copy), pattern=None, met_learner=None, judged=False))
+            pattern, fills = next((p, f) for p, f in tomllib.loads(blank.getvalue())["scenes"].items() if any(not k.isascii() for k in f))
+            word = next(k for k in fills if not k.isascii())
+            lines = blank.getvalue().splitlines()
+            head = next(n for n, line in enumerate(lines) if line.startswith(f"[scenes.{pattern}]"))
+            row = next(line for line in lines[head + 1 :] if line.startswith(f'"{word}" = '))
             (copy / "96-filled.toml").write_text(lines[head] + "\n" + row.replace('= ""', '= "A scene."', 1) + "\n", encoding="utf-8")
             filled = load_curriculum(copy)
         self.assertEqual(filled.by_id[pattern].fill_scenes.get(next(i.id for i in filled.items if i.id == word)), "A scene.", "the filled line loads back")

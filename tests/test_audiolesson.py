@@ -1579,6 +1579,8 @@ class CurriculumTests(unittest.TestCase):
         break it: no dialogue, no notes, only ``known`` items ready for "situation", padded with
         known words that have no situation cue (review material connect() can't use)."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for it in cur.items:
+            it.fill_scenes = {}  # the padding is known words with no situation cue: a scene line on their patterns' sentences would give them one
         learner = LearnerState("is", "en", "A1")
         padding = ["kaffi", "te", "vatn", "islensku", "ensku", "japonsku", "thysku", "fronsku", "donsku", "vegabref"]
         for i in known + padding:
