@@ -4,7 +4,7 @@ by chance; the sheet lists the sentences nobody has judged."""
 import unittest
 from pathlib import Path
 
-from audiolesson.content import CurriculumError, curriculum_from_dict, load_curriculum, scene_sheet
+from audiolesson.content import CurriculumError, curriculum_from_dict, load_curriculum, scene_covered, scene_sheet
 from audiolesson.exercises import Builder
 from audiolesson.learner import ItemState, LearnerState
 from audiolesson.prompts import Prompts
@@ -165,6 +165,90 @@ class SceneCheckTests(unittest.TestCase):
             (copy / "96-filled.toml").write_text(lines[head] + "\n" + row.replace('= ""', '= "A scene."', 1) + "\n", encoding="utf-8")
             filled = load_curriculum(copy)
         self.assertEqual(filled.by_id[pattern].fill_scenes.get(next(i.id for i in filled.items if i.id == word)), "A scene.", "the filled line loads back")
+
+    def test_a_pattern_line_is_for_every_fill_without_a_verdict_of_its_own(self):
+        """Review of #361: a scene that does not depend on the fill («Your friend asks what time it is.» for every hour) was copied to each fill. The key
+        ``"*"`` is the pattern's line; a fill's own line or ``false`` overrides it."""
+        cur = curriculum({"nenni": {"*": "You've had a long day.", "fara_ut": "It's raining hard.", "sofa": False}})
+        c = cur.by_id["nenni"]
+        self.assertEqual((c.pattern_scene, c.fill_scenes, c.exclude_fills), ("You've had a long day.", {"fara_ut": "It's raining hard."}, ["sofa"]))
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), knows("nenni", "fara_ut", "elda"))
+        self.assertEqual(b.fill_scene(c, {"inf": cur.by_id["fara_ut"]}), "It's raining hard.", "the fill's own line")
+        self.assertEqual(b.fill_scene(c, {"inf": cur.by_id["elda"]}), "You've had a long day.", "no line of its own: the pattern's")
+        # covered, so not on the sheet to judge; with --judged it is, and validate counts it (a fill tagged later is covered without a review)
+        self.assertEqual(scene_sheet(cur), [])
+        self.assertEqual([f.id for _, f, _, _ in scene_sheet(cur, judged=True)], ["fara_ut", "elda", "sofa"])
+        self.assertEqual([scene_covered(c, f) for f in ("fara_ut", "elda", "sofa")], [False, True, False])
+        self.assertEqual(curriculum({"nenni": {"*": {"ja": "長い一日でした。"}}}, known_lang="ja").by_id["nenni"].pattern_scene, "長い一日でした。", "by language")
+        self.assertEqual(curriculum({"nenni": {"*": {"ja": "長い一日でした。"}}}).by_id["nenni"].pattern_scene, "", "none in the learner's: the meaning alone")
+        with self.assertRaises(CurriculumError):
+            curriculum({"nenni": {"*": False}})  # a sentence nobody would say is false on its own fill
+
+    def test_a_sentence_of_two_slots_takes_its_one_fills_line_else_the_patterns(self):
+        """The rule of ``fill_scene``: the line of the one fill that has one, else the pattern's. Before the pattern line, «Ég ætla að fá {thing} {addon}.» left
+        coffee and tea unjudged on purpose, since a line on them would have cancelled the addons' (#361), and a reviewer filling the sheet would have done that."""
+        items = [
+            {"id": "fa", "kind": "construction", "target": "Ég ætla að fá {thing} {addon}.", "meaning": "I'll have {thing} {addon}.", "slots": {"thing": "drink", "addon": "addon"}, "example": {"thing": "kaffi", "addon": "med_mjolk"}},
+            {"id": "kaffi", "kind": "vocab", "target": "kaffi", "meaning": "coffee", "tags": ["drink"]},
+            {"id": "te", "kind": "vocab", "target": "te", "meaning": "tea", "tags": ["drink"]},
+            {"id": "med_mjolk", "kind": "vocab", "target": "með mjólk", "meaning": "with milk", "tags": ["addon"]},
+            {"id": "an_sykurs", "kind": "vocab", "target": "án sykurs", "meaning": "without sugar", "tags": ["addon"]},
+        ]
+
+        def line(verdicts, thing, addon):
+            cur = curriculum_from_dict({**BASE, "items": items, "scenes": {"fa": verdicts}})
+            b = Builder(cur, Prompts.load("en"), Timing(level="A1"), knows(*cur.by_id))
+            return b.fill_scene(cur.by_id["fa"], {"thing": cur.by_id[thing], "addon": cur.by_id[addon]})
+
+        waiter = "The waiter asks how you would like it."
+        self.assertEqual(line({"*": waiter}, "te", "an_sykurs"), waiter, "no fill has a line")
+        self.assertEqual(line({"*": waiter, "kaffi": "It's a cold morning."}, "kaffi", "med_mjolk"), "It's a cold morning.", "one fill has a line")
+        self.assertEqual(line({"*": waiter, "kaffi": "It's a cold morning."}, "te", "med_mjolk"), waiter)
+        self.assertEqual(line({"*": waiter, "kaffi": "It's a cold morning.", "med_mjolk": "You like it mild."}, "kaffi", "med_mjolk"), waiter, "two: the pattern's")
+        self.assertIsNone(line({"kaffi": "It's a cold morning.", "med_mjolk": "You like it mild."}, "kaffi", "med_mjolk"), "two and no pattern line: none")
+        # the course: coffee and tea are covered by the pattern line, and the sheet has nothing left to judge there
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), knows())
+        c = cur.by_id["eg_aetla_ad_fa_addon"]
+        self.assertEqual({b.fill_scene(c, {"thing": cur.by_id[t], "addon": cur.by_id[a]}) for t in ("kaffi", "te") for a in ("med_mjolk", "an_sykurs")}, {waiter})
+        self.assertEqual(scene_sheet(cur, ["eg_aetla_ad_fa_addon"]), [])
+
+    def test_a_pattern_line_follows_the_rule_of_every_situation(self):
+        """#362's rule holds for a pattern line, which every sentence of the pattern shares: not right after itself, at most twice in a lesson."""
+        line = "You've had a long day."
+        langar = {"id": "langar", "kind": "construction", "target": "Mig langar að {inf}.", "meaning": "I'd like to {inf}.", "slots": {"inf": "inf"}, "example": {"inf": "sofa"}}
+        cur = curriculum_from_dict({**BASE, "items": [dict(i) for i in ITEMS] + [langar], "scenes": {
+            "nenni": {"*": line},
+            "langar": {"fara_ut": "The sun is out.", "sofa": "You're on a night bus.", "elda": "Your friend's kitchen is free."}}})
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), knows("nenni", "langar", "fara_ut", "sofa", "elda"))
+        nenni = cur.by_id["nenni"]
+
+        def ask(c, f):
+            return b.sentence_cue(None, c, {"inf": cur.by_id[f]}, "x")[0]
+
+        def three_others():
+            for f in ("fara_ut", "sofa", "elda"):
+                self.assertEqual(ask(cur.by_id["langar"], f), "situation")
+
+        self.assertEqual([ask(nenni, "fara_ut"), ask(nenni, "sofa")], ["situation", "meaning"], "another sentence of the pattern right after: the meaning")
+        three_others()
+        self.assertEqual(ask(nenni, "elda"), "situation")
+        three_others()
+        self.assertEqual(ask(nenni, "fara_ut"), "meaning", "in full twice in a lesson")
+
+    def test_the_judged_sheet_shows_the_pattern_line_and_what_it_covers_and_loads_back_the_same(self):
+        import contextlib
+        import io
+        import tomllib
+        from types import SimpleNamespace
+
+        from audiolesson.cli import cmd_scene_check
+
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            cmd_scene_check(SimpleNamespace(curriculum=str(ROOT / "curricula" / "is-en"), pattern=["eg_er_ad_laera"], met_learner=None, judged=True))
+        self.assertIn("# ensku: the pattern's line", out.getvalue(), "a covered fill is a comment: pasted back, it stays covered")
+        self.assertEqual(tomllib.loads(out.getvalue())["scenes"]["eg_er_ad_laera"], tomllib.loads((ROOT / "curricula" / "is-en" / "95-scenes.toml").read_text(encoding="utf-8"))["scenes"]["eg_er_ad_laera"])
 
     def test_the_course_never_says_the_sentences_found_by_chance(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en")

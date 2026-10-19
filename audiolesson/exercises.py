@@ -1128,10 +1128,11 @@ class Builder:
         self._speak(sc, ex, self.rng.choice(item.alternatives), role="alternative")
 
     def fill_scene(self, construction: Item, fills: dict[str, Item]) -> str | None:
-        """The scene check's line for a pattern's sentence (``Item.fill_scenes``, from ``[scenes.<pattern>]``): the scene of the one fill that has one. None
-        when no fill has a scene, or the fills of a several-slot sentence name two (a verdict is on one fill, not on a combination)."""
+        """The scene check's line for a pattern's sentence (from ``[scenes.<pattern>]``): the line of the one fill that has one (``Item.fill_scenes``), else
+        the pattern's line (``Item.pattern_scene``): when no fill has a line, or the fills of a several-slot sentence name two (a verdict is on one fill, not
+        on a combination). None when neither."""
         found = [construction.fill_scenes[f.id] for f in fills.values() if f.id in construction.fill_scenes]
-        return found[0] if len(found) == 1 else None
+        return found[0] if len(found) == 1 else construction.pattern_scene or None
 
     def scene_line(self, construction: Item, fills: dict[str, Item]) -> str | None:
         """``fill_scene``'s line while it is free (``situation_rank`` 0, the rule of every situation): a recent line is avoided as an authored

@@ -740,8 +740,10 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
     grammatical is not enough. «Ég nenni ekki að sofa.» (lesson 27), «Má ég sofa?» (#333), «Áttu leigubíl?» (#192) and the
     bus «to the bus stop» (#336) were each found by chance, one at a time. Each fill of a pattern gets a verdict once, all
     in one place (`[scenes.<pattern>]`, `curricula/is-en/95-scenes.toml`): a scene in one line, which the lesson uses as
-    the cue for that sentence under the rule of any situation ("Repetition" below), or `false`, never generated. A sentence with no verdict is still generated; `validate`
-    counts them, and `audiolesson scene-check` prints the sheet to judge, the patterns the learner has met first
+    the cue for that sentence under the rule of any situation ("Repetition" below), or `false`, never generated. A scene
+    that does not depend on the fill («Your friend asks what time it is.» for every hour) is one line for the pattern, which
+    a fill's own verdict overrides; a fill tagged later takes it without a review, and `validate` says how many do. A
+    sentence with no verdict is still generated; `validate` counts them, and `audiolesson scene-check` prints the sheet to judge, the patterns the learner has met first
     (`docs/SCENE-REVIEW.md`). It replaces the named exceptions to generation, which were this check done by chance.
   - **Named exceptions** are listed here, in one place, so they can be read together and don't grow into mechanisms:
     - «Ertu með regnhlíf?» is not an instance of «Ertu með {condition}?» (`not_instance`, #333): the same words, not the same meaning.

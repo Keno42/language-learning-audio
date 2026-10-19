@@ -13,7 +13,7 @@ from . import __version__
 from .themes import load_themes, scenario_order
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts
-from .content import CurriculumError, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, unlinked_instances
+from .content import PATTERN_SCENE, CurriculumError, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, unlinked_instances
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -591,7 +591,12 @@ def cmd_scene_check(args) -> int:
     for c, f, target, meaning in rows:
         if c.id != last:
             print(f"\n[scenes.{_toml_key(c.id)}]  # «{c.target}» {c.meaning}")
+            if c.pattern_scene:  # only with --judged: without it, a pattern with a line has nothing left to judge
+                print(f"{_toml_key(PATTERN_SCENE)} = {json.dumps(c.pattern_scene, ensure_ascii=False)}  # every fill without a line of its own")
             last = c.id
+        if scene_covered(c, f.id):  # the pattern's line, as a comment: pasted back, the fill stays covered; written as a verdict, it overrides
+            print(f"# {_toml_key(f.id)}: the pattern's line  # «{target}» {meaning}")
+            continue
         verdict = "false" if f.id in c.exclude_fills else json.dumps(c.fill_scenes[f.id], ensure_ascii=False) if f.id in c.fill_scenes else '""'
         print(f"{_toml_key(f.id)} = {verdict}  # «{target}» {meaning}")
     print(f"\n# {len(rows)} sentences", file=sys.stderr)
@@ -670,6 +675,12 @@ def cmd_validate(args) -> int:
         print(
             f"advisory (not a failure): {len(unjudged)} sentences of {len(per)} patterns have no scene verdict (owner, 2026-10-16): they are generated, but nobody has "
             f"checked that a learner can picture someone saying them. `audiolesson scene-check` prints the sheet (docs/SCENE-REVIEW.md); the verdicts go to [scenes.<pattern>]."
+        )
+    covered = [(c, f) for c, f, _, _ in scene_sheet(cur, judged=True) if scene_covered(c, f.id)]
+    if covered:
+        print(
+            f"advisory (not a failure): {len(covered)} sentences of {len({c.id for c, _ in covered})} patterns take their pattern's scene line (\"*\") with no verdict "
+            f"of their own: a fill tagged later is covered without a review. `audiolesson scene-check --judged` lists them as comments."
         )
     from .sounds import hard_sounds
 
