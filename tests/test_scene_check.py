@@ -82,6 +82,7 @@ class SceneCheckTests(unittest.TestCase):
         sc = Script(1, "t", "is", "en")
         sib = b.sibling_recall(sc, cur.by_id["nenni"], {})
         self.assertEqual(sib.label, "situation: Ég nenni ekki að fara út.")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), knows("nenni", "fara_ut", "sofa", "elda"))  # a lesson of its own: right after itself the line goes to the meaning (#273)
         sent = b.sentence_recall(sc, cur.by_id["fara_ut"])
         self.assertEqual(sent.label, "situation: Ég nenni ekki að fara út.")
         self.assertEqual(sc.transcript().count("It's raining hard. Say: I can't be bothered to go out."), 2)
@@ -103,6 +104,31 @@ class SceneCheckTests(unittest.TestCase):
             p = Prompts.load(lang)
             for key in ("recombine_new", "recombine_again", "recombine_vocab_again"):
                 self.assertTrue(p.get(key, meaning="X").startswith(p.get(f"{key}_lead")), (lang, key))
+
+    def test_a_scene_line_is_narrated_like_an_authored_situation(self):
+        """Review of #361: a scene line went past the rules of an authored situation (§9 "Repetition"); a line shared by many sentences («Your friend asks what
+        time it is.») was read 14 times in one lesson of a simulated course. In full at most twice in a lesson, and not right after itself (#273); then
+        the sentence is asked from its meaning."""
+        line = "It's raining hard, and your friend suggests a walk."
+        langar = {"id": "langar", "kind": "construction", "target": "Mig langar að {inf}.", "meaning": "I'd like to {inf}.", "slots": {"inf": "inf"}, "example": {"inf": "sofa"}}
+        cur = curriculum_from_dict({**BASE, "items": [dict(i) for i in ITEMS] + [langar], "scenes": {
+            "nenni": {"fara_ut": line, "sofa": line, "elda": line},
+            "langar": {"fara_ut": "The sun is out.", "sofa": "You're on a night bus.", "elda": "Your friend's kitchen is free."}}})
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), knows("nenni", "langar", "fara_ut", "sofa", "elda"))
+        sc = Script(1, "t", "is", "en")
+        stages = []
+        for k in range(3):
+            if k:
+                for f in ("fara_ut", "sofa", "elda"):  # three other scenes between: the line is no longer one of the last narrated (#273), so the cap alone decides
+                    self.assertEqual(b.sentence_cue(None, cur.by_id["langar"], {"inf": cur.by_id[f]}, "x")[0], "situation")
+            stages.append(b.recall(sc, cur.by_id["nenni"], "meaning").stage)
+        self.assertEqual(stages, ["situation", "situation", "meaning"], "in full twice in a lesson")
+        self.assertEqual(sc.transcript().count(line), 2)
+
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), knows("nenni", "fara_ut", "sofa", "elda"))
+        sc = Script(1, "t", "is", "en")
+        first, second = (b.recall(sc, cur.by_id["nenni"], "meaning") for _ in range(2))
+        self.assertEqual((first.stage, second.stage), ("situation", "meaning"), "not right after itself")
 
     def test_the_sheet_is_valid_toml_and_a_filled_line_loads_back(self):
         """Review of #352: ids such as «strætó» were printed as bare keys, which TOML rejects, so the sheet could not be pasted back."""

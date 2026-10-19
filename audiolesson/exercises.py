@@ -91,7 +91,8 @@ FORM_ALL_HARD_CAP = 0.5  # …nor any form that would leave the forms together a
 FORM_CAP_FROM = 6  # …counted from this many generated sentences (before that a share is meaningless)
 CONSTRUCTION_CEILING = 10  # generated sentences one construction may have in a lesson (#180; §9 "about ten uses", extended to patterns)
 FORM_EXTRA_NEW = 2  # sentences in a form taught this lesson, beyond the practice right after its note
-SITUATION_FULL_MAX = 2  # an authored situation is narrated in full at most this often in a lesson (G12)
+SITUATION_FULL_MAX = 2  # a situation (authored, or a scene check's line) is narrated in full at most this often in a lesson (G12)
+SITUATION_RECENT = 3  # and is avoided while it is one of the last this many narrated (#273: the same situation twice a minute apart)
 
 
 def meaning_text(known_lang: str, meaning: str) -> str:
@@ -148,8 +149,8 @@ class Builder:
     ask_count: Callable[[str], int] | None = None  # how often a sentence was asked this lesson (#336): a pattern with every combination used asks the filling asked fewest times
     ask_cap: int = 0  # #336: a pattern's sentence asked this many times a lesson (any path) is not asked again by a sibling recall; 0: no cap
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
-    _situation_texts: dict[str, int] = field(default_factory=dict)  # times each authored situation was narrated in full
-    _recent_situations: list = field(default_factory=list)  # the last situations narrated, newest last: the same one is not narrated again right after (#273)
+    _situation_texts: dict[str, int] = field(default_factory=dict)  # times each situation was narrated in full (``_narrated``)
+    _recent_situations: list = field(default_factory=list)  # the situations narrated, newest last (``situation_rank``)
     _mixed_review_said: bool = False  # «Quick review» is announced once a lesson
     _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
@@ -206,27 +207,36 @@ class Builder:
         puts it at the start of a sentence or after "Say:") and ends with punctuation."""
         return meaning_text(self.kl, meaning)
 
+    def situation_rank(self, text: str) -> int | None:
+        """The one rule for narrating a situation in full, an item's authored one or a scene check's line (§9 "Repetition"). None: no room, narrated
+        ``SITUATION_FULL_MAX`` times this lesson already (G12: the same English situation came back 7–10 times; a scene line shared by many sentences,
+        14 times in a simulated lesson, review of #361); the cue is then the meaning, short, or the partner's line. 1: room, but one of the last
+        ``SITUATION_RECENT`` narrated (#273), so a cue that has another way takes it. 0: free. The cap is a limit and recency a preference: an
+        authored situation recalled at the situation stage has no other way and is narrated again (#273 avoided it with another variant only; a
+        new item's recalls right after its introduction need it), while a scene line has the sentence's meaning (``scene_line``)."""
+        if self._situation_texts.get(text, 0) >= SITUATION_FULL_MAX:
+            return None
+        return 1 if text in self._recent_situations[-SITUATION_RECENT:] else 0
+
+    def _narrated(self, text: str) -> None:
+        """A situation narrated in full: counted for ``situation_rank``. Every path that narrates one calls it."""
+        self._situation_texts[text] = self._situation_texts.get(text, 0) + 1
+        self._recent_situations.append(text)
+
     def _next_situation(self, item: Item) -> str | None:
-        """The next variant by rotation, skipping any narrated in full ``SITUATION_FULL_MAX``
-        times already this lesson; the first one when none has room (``situation_room``)."""
+        """The next variant by rotation with the best ``situation_rank`` (a free one before a recent one); the rotation's own when none has room
+        (callers check ``situation_room`` first)."""
         base = (self.learner.items[item.id].exposures if item.id in self.learner.items else 0) + self._situation_uses.get(item.id, 0)
         variants = list(item.situations) or ([item.situation] if item.situation else [])
         if not variants:
             return None
-        # a variant not narrated just now first (#273: the same situation twice a minute apart); then any with room
-        for fresh in (True, False):
-            for k in range(len(variants)):
-                text = variants[(base + k) % len(variants)]
-                if self._situation_texts.get(text, 0) < SITUATION_FULL_MAX and not (fresh and text in self._recent_situations[-3:]):
-                    return text
-        return item.situation_for(base)
+        ranked = [(r, k) for k in range(len(variants)) if (r := self.situation_rank(variants[(base + k) % len(variants)])) is not None]
+        return variants[(base + min(ranked)[1]) % len(variants)] if ranked else item.situation_for(base)
 
     def situation_room(self, item: Item) -> bool:
-        """Whether some authored situation of ``item`` may still be narrated in full this
-        lesson (G12: the same English situation came back 7–10 times). After that the cue
-        is the meaning, short, or the partner's line when the item has one."""
+        """Whether some authored situation of ``item`` has room this lesson (``situation_rank``)."""
         variants = list(item.situations) or ([item.situation] if item.situation else [])
-        return any(self._situation_texts.get(t, 0) < SITUATION_FULL_MAX for t in variants)
+        return any(self.situation_rank(t) is not None for t in variants)
 
     def _cue(self, item: Item, meaning: str | None = None) -> str | None:
         """A connect() turn's cue: the situation while it may still be narrated in full, else
@@ -285,8 +295,7 @@ class Builder:
         cue = self._next_situation(item)
         self._situation_uses[item.id] = self._situation_uses.get(item.id, 0) + 1
         if cue:
-            self._situation_texts[cue] = self._situation_texts.get(cue, 0) + 1
-            self._recent_situations.append(cue)
+            self._narrated(cue)
         return cue
 
     # ---- the speaker's gender (Item.target_m) -----------------------------
@@ -1124,12 +1133,24 @@ class Builder:
         found = [construction.fill_scenes[f.id] for f in fills.values() if f.id in construction.fill_scenes]
         return found[0] if len(found) == 1 else None
 
+    def scene_line(self, construction: Item, fills: dict[str, Item]) -> str | None:
+        """``fill_scene``'s line while it is free (``situation_rank`` 0, the rule of every situation): a recent line is avoided as an authored
+        situation's recent variant is, the sentence's meaning being its other way; None: the sentence is asked from its meaning."""
+        line = self.fill_scene(construction, fills)
+        return line if line is not None and self.situation_rank(line) == 0 else None
+
+    def _scene_say(self, gender: str | None, scene: str, meaning: str) -> str:
+        """The cue that narrates a scene line («{scene} Say: {meaning}»), counted as narrated. Every path that asks a sentence with its scene says it
+        through this."""
+        self._narrated(scene)
+        return self._as(gender, self.prompts.get("scene_say", scene=scene, meaning=self._m(meaning)))
+
     def sentence_cue(self, gender: str | None, construction: Item, fills: dict[str, Item], meaning: str, form: str | None = None) -> tuple[str, str]:
         """``(stage, cue)`` for asking a pattern's sentence from its meaning, by whichever path asks it: its scene (``fill_scene``, stage ``situation``) when
         the plain sentence has one, else the meaning (stage ``meaning``). Every path that asks a judged sentence keeps its scene (review of #352)."""
-        scene = self.fill_scene(construction, fills) if not form else None
+        scene = self.scene_line(construction, fills) if not form else None
         if scene is not None:
-            return "situation", self._as(gender, self.prompts.get("scene_say", scene=scene, meaning=self._m(meaning)))
+            return "situation", self._scene_say(gender, scene, meaning)  # every caller narrates the cue it gets
         return "meaning", self._as(gender, self._meaning_prompt(meaning))
 
     def _recall_construction(self, sc: Script, item: Item, stage: str) -> Exercise:
@@ -1165,7 +1186,7 @@ class Builder:
         self.used_combos.add(gen.key)
         gender, target = self._filled(item, gen.fills)
         own_situation = stage == "situation" and item.has_situation and self.situation_room(item) and bool(fixed)
-        scene = self.fill_scene(item, gen.fills) if stage in ("meaning", "situation") and not own_situation else None
+        scene = self.scene_line(item, gen.fills) if stage in ("meaning", "situation") and not own_situation else None
         if scene is not None:
             stage = "situation"  # the scene check's line is the cue: the learner pictures where the sentence is said (lesson 27: «Ég nenni ekki að sofa.»)
         ex = sc.new_exercise("recall", stage, gen.item_ids, f"{stage}: {target}")
@@ -1173,7 +1194,7 @@ class Builder:
             self._narr(sc, ex, self._as(gender, self.prompts.get("hinted", meaning=self._m(gen.meaning))))
             self._speak(sc, ex, target.split()[0].rstrip(".,?!"), role="hint")
         elif scene is not None:
-            self._narr(sc, ex, self._as(gender, self.prompts.get("scene_say", scene=scene, meaning=self._m(gen.meaning))))
+            self._narr(sc, ex, self._scene_say(gender, scene, gen.meaning))
         elif stage == "situation" and item.has_situation and self.situation_room(item):
             self._narr(sc, ex, self._as(gender, self._situation(item)))  # type: ignore[arg-type]
         else:
@@ -1215,7 +1236,7 @@ class Builder:
                 self.novelty_announced.add(form_id)
         else:
             key = "recombine_vocab_again" if linked else "recombine_vocab"
-        if self.fill_scene(gen.construction, gen.fills) is not None and not gen.form:
+        if self.scene_line(gen.construction, gen.fills) is not None and not gen.form:
             if f"{key}_lead" in self.prompts.data:  # the scene replaces the cue's «Say: …», not its news or link: «Now something you haven't heard yet.» stays
                 self._narr(sc, ex, self.prompts.get(f"{key}_lead"))
             self._narr(sc, ex, self.sentence_cue(gender, gen.construction, gen.fills, gen.meaning, gen.form)[1])  # the scene check's line (owner, 2026-10-16)
@@ -1316,12 +1337,12 @@ class Builder:
         self.said[_norm_utterance(target)] += 1
         through = self.cur.by_id.get(whole.get("through", ""))
         gender = self.speaker_gender(through) if through is not None and through.target_m else None  # a sentence that follows the speaker's gender keeps the voice
-        scene = through.fill_scenes.get(item.id) if through is not None and through.kind == "construction" and len(through.slots) == 1 else None
+        scene = self.scene_line(through, {next(iter(through.slots)): item}) if through is not None and through.kind == "construction" and len(through.slots) == 1 else None
         stage = "situation" if scene else "meaning"
         ex = sc.new_exercise("recall", stage, [item.id], f"{stage}: {target}")
         if scene:  # the part's sentence is a judged sentence of its pattern: asked with its scene (review of #352)
             meaning = self.cur.resolve_slots(through, {next(iter(through.slots)): item})[1]  # type: ignore[union-attr]
-            self._narr(sc, ex, self._as(gender, self.prompts.get("scene_say", scene=scene, meaning=self._m(meaning))))
+            self._narr(sc, ex, self._scene_say(gender, scene, meaning))
         else:
             self._narr(sc, ex, whole["prompt"])
         self._answer_pause(sc, ex, target, item, generative=False)
