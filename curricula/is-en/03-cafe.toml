@@ -10,7 +10,7 @@ target = "kaffi"
 meaning = "coffee"
 meaning_ja = "コーヒー"
 difficulty = 1
-tags = ["acc_orderable", "acc_drink", "nom_item"]
+tags = ["acc_orderable", "acc_drink_addon", "nom_item"]
 topics = ["cafe"]
 
 [[items]]
@@ -43,7 +43,7 @@ target = "te"
 meaning = "tea"
 meaning_ja = "紅茶"
 difficulty = 1
-tags = ["acc_orderable", "acc_drink", "nom_item"]
+tags = ["acc_orderable", "acc_drink_addon", "nom_item"]
 topics = ["cafe"]
 
 [[items]]
@@ -365,7 +365,7 @@ meaning = "I'll have {thing} {addon}."
 meaning_ja = "{thing}を{addon}でください。"
 difficulty = 3
 topics = ["cafe"]
-slots = { thing = "acc_drink", addon = "addon" }  # acc_drink is this slot's list: the drinks taken with or without milk or sugar (review of #361: milk, a soft drink, a latte and cocoa were tagged too, and «mjólk án mjólkur» came out)
+slots = { thing = "acc_drink_addon", addon = "addon" }  # acc_drink_addon: the drinks taken with or without milk or sugar, named for this slot alone (review of #361: milk, a soft drink, a latte and cocoa were tagged too, and «mjólk án mjólkur» came out)
 example = { thing = "kaffi", addon = "med_mjolk" }
 components = ["eg_aetla_ad_fa", "kaffi", "med_mjolk"]
 prereqs = ["eg_aetla_ad_fa", "med_mjolk"]

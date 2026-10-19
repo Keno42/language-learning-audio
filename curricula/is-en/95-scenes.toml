@@ -351,7 +351,7 @@ dag_acc = "The shop assistant hands you your bag in the morning."
 nott_acc = "Your host is going to bed."
 kvold_acc = "You leave the shop in the evening."
 
-# A sentence of two slots takes a scene only when exactly one fill has one: the addons carry it, so the drinks (coffee, tea: the slot's tag, acc_drink)
+# A sentence of two slots takes a scene only when exactly one fill has one: the addons carry it, so the drinks (coffee, tea: the slot's tag, acc_drink_addon)
 # are left without a verdict.
 [scenes.eg_aetla_ad_fa_addon]  # «Ég ætla að fá {thing} {addon}.» I'll have {thing} {addon}.
 med_mjolk = "The waiter asks how you would like it."
