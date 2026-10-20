@@ -26,10 +26,10 @@ shows it (§9 "Governance": about 80% / 20%).
    says six of its sentences 8 times each in one wording («Ég vakna klukkan sjö.», «Ég kem heim klukkan sex.»), the
    bus's shape. The largest effect on repetition and the largest cost (data); the frames a scene varies first.
 
-**The long run alongside, started now:** #327, the rest of part 1 (a scene line for new items whose topic has no theme)
-and part 2 (more theme levels: authored Icelandic, candidates until native-checked, so they take longest to start).
-The themes' levels run out at lesson 28, and the replay of lesson 27 takes 0 of its 12 new items from the played
-scene.
+**The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
+Icelandic (candidates until native-checked). The town (asking the way) is the first: on the replay of the lesson-30
+export the day's new lines are said in the played exchange in lessons 30 and 31 (2 and 3; before, 0 in nine lessons).
+Next: the goal said at the start and the closing in the exchange's order, then taxi and bus, small talk, winter talk.
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
 learner say this line", then the planner's build loop. Each step leaves the replays of the lesson-21–23 exports
