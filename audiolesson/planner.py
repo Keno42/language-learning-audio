@@ -688,16 +688,21 @@ class Planner:
         out += [i for i, st in self.learner.items.items() if st.reported_hard and st.reported_hard >= since and i in self.cur.by_id and i not in out]
         return out
 
-    def _new_in_scene(self, theme_pick: tuple | None, introduced: list[Item]) -> dict | None:
-        """#327's daily-read row: of the items taught new today (parts of a frame apart), how many belong to the scene the lesson plays:
-        an item of the played level's turns, or one with a topic of the theme."""
+    def _new_in_scene(self, theme_pick: tuple | None, introduced: list[Item], asked: set[str] = frozenset()) -> dict | None:
+        """#327's daily-read rows: of the items taught new today (parts of a frame apart), how many belong to the scene the lesson plays
+        (``inside``: an item of the played level's turns, or one with a topic of the theme), and of all of today's new items (forms and the
+        ones taught inside a sentence, ``embedded``, included) those a play of the lesson's exchange asked the learner to say (``in_turns``,
+        from the plays' ``item_ids``: a turn only heard does not count). A topic shared with the theme is not enough: lesson 36 on the
+        lesson-30 replay read 6 of 6 inside, 0 said."""
         if not theme_pick:
             return None
         theme, n, _ = theme_pick
         level_items = {r for t in theme.levels[n].turns for r in t.items}
         new = [i for i in introduced if not i.variant_of]
         inside = [i.id for i in new if i.id in level_items or set(i.topics) & set(theme.topics)]
-        return {"theme": theme.id, "inside": len(inside), "new": len(new)}
+        today = list(dict.fromkeys([i.id for i in introduced] + list(self.embedded)))
+        in_turns = [i for i in today if i in asked]
+        return {"theme": theme.id, "inside": len(inside), "new": len(new), "in_turns": in_turns}
 
     def themes_exhausted(self) -> bool:
         """Every ranked theme has played all its levels (#327): there is no next level to take new material from, so the scenes
@@ -1577,18 +1582,24 @@ class Planner:
                 found.append((len(ww), whole))
         return [w for _, w in sorted(found, key=lambda t: (t[0], t[1].id))]
 
+    def taught_today(self, item_id: str) -> bool:
+        """Introduced earlier in this lesson, by its own introduction (``builder.in_lesson``) or inside a sentence (``embedded``: a linked
+        phrase said as a sentence of its pattern, a part heard in a known pattern's sentence). Review of #365: an embedded «Get ég fengið
+        reikninginn?» was still only heard in the exchange's late play."""
+        return item_id in self.builder.in_lesson or item_id in self.embedded
+
     def can_say_item(self, item_id: str, practised: bool = True) -> bool:
         """Whether the learner can say an item now (#179): met and not open, or (``practised``)
-        practised or introduced earlier this lesson. ``knows()`` is a scheduling notion (two
+        practised or taught earlier this lesson (``taught_today``). ``knows()`` is a scheduling notion (two
         durable recalls), not "can produce"."""
-        if practised and (item_id in self.builder.in_lesson or item_id in self.exposures):
+        if practised and (self.taught_today(item_id) or item_id in self.exposures):
             return True
         return self.learner.has_met(item_id) and not self.learner.is_open(item_id)
 
     def _say_chunks(self, practised: bool) -> set[tuple[str, ...]]:
         """The word chunks the learner can say (#179): a sayable item's target, a sayable construction's
         fixed text between its slots («Það kostar»). Cached while the lesson's practice is unchanged."""
-        key = (practised, len(self.exposures), len(self.builder.in_lesson), len(self.learner.items))
+        key = (practised, len(self.exposures), len(self.builder.in_lesson), len(self.embedded), len(self.learner.items))
         if self._chunk_cache is not None and self._chunk_cache[0] == key:
             return self._chunk_cache[1]
         chunks: set[tuple[str, ...]] = set()
@@ -1665,7 +1676,7 @@ class Planner:
                 return "ask"
         elif self.can_say_line(items, text):
             return "ask"
-        return "ask" if all(self.learner.has_met(i) or i in self.builder.in_lesson for i in items) else "hear"
+        return "ask" if all(self.learner.has_met(i) or self.taught_today(i) for i in items) else "hear"
 
     def classify_turns(self, dlg: Dialogue) -> tuple[set[str], set[str]]:
         """The turns of a listening dialogue that the learner can't say in full: ``(nothing sayable, partly sayable)``
@@ -1726,7 +1737,7 @@ class Planner:
         never taught can't be said at all). An open item is met: the learner is repairing it, so its line is asked (#199)."""
         return {k for k, t in enumerate(you) if self.line_role(t.items, text=t.say) == "hear"}
 
-    def pick_theme(self) -> tuple | None:
+    def pick_theme(self, coming: set[str] | frozenset = frozenset()) -> tuple | None:
         """The lesson's theme, its level (0-based) and the learner's turns of it that are only heard (#149 1b-ii, #240):
         the lowest level not yet played, among the themes whose next level the learner can say in all but a
         quarter of their turns (``theme_ready``; every item of a turn met and not open), the trip profile's
@@ -1737,7 +1748,12 @@ class Planner:
         first): the last level already played of the highest-ranked theme that has rested ``theme_rest_lessons`` lessons,
         else the one that rested longest (which can be a theme played two lessons ago when none has rested enough), played
         again: its partner lines are not translated, and its early play says only partner wordings already heard with their meaning. None only when no level
-        was ever played and none is ready (a first lesson)."""
+        was ever played and none is ready (a first lesson).
+
+        ``coming`` (#327): the items this lesson has queued to introduce. A turn whose missing items are all coming counts as one the learner
+        can say for readiness: the level is played in the lesson that teaches its lines, heard in the early play and asked in the late one,
+        once they are taught (``play_theme``), instead of in a later lesson whose own new material is another scene's. The turns returned as
+        heard are still those with an item not met yet."""
         rank = {sid: n for n, sid in enumerate(self.cfg.theme_scenarios)}
         best = None
         for order, theme in enumerate(self.cfg.themes):
@@ -1746,7 +1762,8 @@ class Planner:
                 continue
             you = [t for t in theme.levels[level].turns if t.who == "you"]
             untaught = self._untaught_turns(you)
-            if len(untaught) > (1 - self.cfg.theme_ready) * len(you):
+            waiting = {k for k in untaught if all(self.learner.has_met(i) or self.taught_today(i) or i in coming for i in you[k].items)}
+            if len(untaught - waiting) > (1 - self.cfg.theme_ready) * len(you):
                 continue
             key = (level, rank[theme.scenario], order)
             if best is None or key < best[0]:
@@ -2785,7 +2802,7 @@ class Planner:
             schedule_open(self.cur.by_id[item_id], k)
             reviews_used.append(item_id)
         open_timeline.sort(key=lambda t: t[:2])
-        theme_pick = self.pick_theme()
+        theme_pick = self.pick_theme(coming={i.id for i in new_queue} if n > 1 else frozenset())  # #327; the first lesson keeps its rule (§9 "Themes")
         scene_cons = self.scene_constructions(theme_pick)  # spare-time sentences are parallels of these (#238); None: no theme, no restriction
         scene_pref = frozenset(
             (scene_cons or set()) | ({r for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you" for r in t.items} if theme_pick else set())
@@ -2807,6 +2824,7 @@ class Planner:
         theme_marks = (0.15, 0.85) if theme_pick else ()
         theme_replay = bool(theme_pick) and theme_pick[1] < self.learner.themes_done.get(theme_pick[0].id, 0)  # a level already played
         theme_plays = 0
+        theme_asked: set[str] = set()  # the items the lesson's exchange asked, over its plays (#327)
         theme_heard: list[str] = []  # "turn:line" partner wordings the translated play spoke with their meaning (#196)
         theme_lines: list[str] = []  # per play, which variant of each varying partner line was spoken (#134)
         
@@ -2826,6 +2844,7 @@ class Planner:
             heard_now = {k for k in untaught if self.line_role(you[k].items, text=you[k].say) == "hear"}
             ex = b.dialogue(sc, dlg, translate=theme_plays == 0 and not theme_replay, heard_turns=heard_now, turn_items={k: t.items for k, t in enumerate(you)})
             self._record(ex.item_ids, "dialogue", ex.item_ids)
+            theme_asked.update(ex.item_ids)  # #327: what the exchange asked the learner to say, for ``new_in_scene``
             theme_plays += 1
             return True
 
@@ -3609,7 +3628,7 @@ class Planner:
             ),
             # #149 step 2: the theme new material was chosen for, and the items its next level lacked at the start
             # #327: how many of today's new items belong to the scene the lesson plays (a topic of the theme, or an item of the level); None: no theme
-            "new_in_scene": self._new_in_scene(theme_pick, introduced),
+            "new_in_scene": self._new_in_scene(theme_pick, introduced, theme_asked),
             "day_topic": self.day_topic,
             "theme_target": {"id": target[0].id, "level": target[1] + 1, "wanted": wanted_at_start} if target else None,
             "cheap_constructions": list(self.cheap_placed) + list(cheap_used),  # #171 B: taken in a new-item place / beyond the limit

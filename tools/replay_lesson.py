@@ -170,6 +170,9 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "new items in the scene the lesson plays (#327, inside / new)": (
             f"{m['new_in_scene']['inside']} / {m['new_in_scene']['new']}" if m.get("new_in_scene") else "–"
         ),
+        "today's new items said as a turn of the played exchange (#327)": (
+            (", ".join(m["new_in_scene"].get("in_turns", [])) or "0") if m.get("new_in_scene") else "–"
+        ),
         "topic the day's new material shares (#327)": m.get("day_topic") or "–",
         "most new items of one set": max((sum(1 for i in m["new_items"] if g & set(cur.by_id[i].tags)) for g in semantic_set_tags(PlanConfig().semantic_sets)), default=0),
         "most times one sentence is said": most_said,

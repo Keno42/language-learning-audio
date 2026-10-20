@@ -5307,7 +5307,9 @@ class SpareTimeTests(unittest.TestCase):
             apply_to_learner(sc, learner, day)
             learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
             day += timedelta(days=1)
-        self.assertGreaterEqual(checked, 6)
+        # since #327 a level plays in the lesson that teaches its lines, so the levels are played sooner and the ear's four heard plays are
+        # all used from lesson 6 of this course
+        self.assertGreaterEqual(checked, 5)
 
     def test_the_not_due_fillers_start_with_the_scene(self):
         cur, learner, day, extra = self._course_to(9)
@@ -8075,10 +8077,10 @@ class ThemeExchangeTests(unittest.TestCase):
     def test_a_lesson_with_every_level_played_replays_the_most_rested_level_unassisted(self):
         learner = self._learner(self._known + self._rest)
         learner.themes_done = {t.id: len(t.levels) for t in self._themes}
-        learner.themes_last = {"supermarket": 9, "cafe": 3, "museum": 8, "tour": 7}
+        learner.themes_last = {"supermarket": 9, "cafe": 3, "museum": 8, "tour": 7, "town": 9}
         planner = self._planner(learner, self._themes, self._order)
         now = learner.next_lesson_number()
-        learner.themes_last = {"supermarket": now - 1, "cafe": now - 5, "museum": now - 4, "tour": now - 2}
+        learner.themes_last = {"supermarket": now - 1, "cafe": now - 5, "museum": now - 4, "tour": now - 2, "town": now - 1}
         pick = planner.pick_theme()
         self.assertIsNotNone(pick)
         rested = {t.id for t in self._themes if now - learner.themes_last[t.id] >= planner.cfg.theme_rest_lessons}

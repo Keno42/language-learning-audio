@@ -5,7 +5,7 @@ from pathlib import Path
 
 from audiolesson.cando import load_cando
 from audiolesson.content import curriculum_from_dict, load_curriculum
-from audiolesson.learner import LearnerState
+from audiolesson.learner import ItemState, LearnerState
 from audiolesson.planner import PlanConfig, Planner
 from audiolesson.prompts import Prompts
 from audiolesson.themes import Theme, load_themes, scenario_order
@@ -118,6 +118,117 @@ class ThemeMatchTests(unittest.TestCase):
         self.assertNotEqual(p.pick_theme()[0].id, "cafe")
         p.day_topic = "work"  # no theme plays it
         self.assertNotEqual(p.pick_theme()[0].id, "cafe")
+
+
+def town_cur():
+    items = [
+        {"id": "afsakid", "kind": "phrase", "target": "Afsakið.", "meaning": "Excuse me.", "topics": ["directions"]},
+        {"id": "langt", "kind": "phrase", "target": "Er það langt?", "meaning": "Is it far?", "topics": ["directions"]},
+        {"id": "takk", "kind": "phrase", "target": "Takk kærlega.", "meaning": "Thanks a lot.", "topics": ["social"]},
+        {"id": "kaffi", "kind": "phrase", "target": "Kaffi, takk.", "meaning": "Coffee, please.", "topics": ["cafe"]},
+    ]
+    return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+
+
+def town_theme():
+    turns = [
+        {"who": "you", "cue": "Stop someone.", "say": "Afsakið.", "items": ["afsakid"]},
+        {"who": "partner", "say": "Já?", "meaning": "Yes?"},
+        {"who": "you", "cue": "Ask if it's far.", "say": "Er það langt?", "items": ["langt"]},
+        {"who": "partner", "say": "Nei.", "meaning": "No."},
+        {"who": "you", "cue": "Thank them.", "say": "Takk kærlega.", "items": ["takk"]},
+    ]
+    return Theme(id="town", scenario="A8", title="Town", scene_line="You're in town.", topics=["directions"], levels=[{"goal": "Ask the way.", "turns": turns}])
+
+
+class LevelInTheLessonThatTeachesItTests(unittest.TestCase):
+    """#327: a level is played in the lesson that introduces its lines, not in a later lesson whose own new material is another scene's."""
+
+    def learner(self):
+        l = LearnerState("is", "en", "A1")
+        l.lessons_completed = 6
+        l.items["afsakid"] = ItemState(due="2026-03-20", successes=2, durable_successes=2, stage="meaning")
+        return l
+
+    def planner(self, minutes=10, new_items=3):
+        cfg = PlanConfig(minutes=minutes, new_items=new_items, max_new_items=new_items, seed=1, themes=[town_theme()], theme_scenarios=["A8"])
+        return Planner(town_cur(), self.learner(), Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY)
+
+    def test_a_turn_whose_items_are_queued_today_counts_as_sayable_for_readiness(self):
+        p = self.planner()
+        self.assertTrue(p.learner.has_met("afsakid"))
+        self.assertIsNone(p.pick_theme(), "two of three turns lack an item: not ready before the lesson")
+        theme, level, heard = p.pick_theme(coming={"langt", "takk"})
+        self.assertEqual((theme.id, level), ("town", 0))
+        self.assertEqual(heard, {1, 2}, "the turns are still heard until their items are taught")
+        self.assertIsNone(p.pick_theme(coming={"langt"}), "a turn whose item is not coming still keeps the level back")
+
+    def test_the_lesson_that_teaches_the_levels_lines_plays_it_and_asks_them_late(self):
+        sc = self.planner(minutes=12, new_items=2).build()
+        self.assertEqual((sc.meta["theme"]["id"], sc.meta["theme"]["level"]), ("town", 1))
+        self.assertEqual(sorted(sc.meta["new_in_scene"]["in_turns"]), ["langt", "takk"])
+        plays = [e for e in sc.exercises if e.kind == "dialogue" and "theme:town:1" in e.label]
+        self.assertEqual(len(plays), 2)
+        late = plays[-1]
+        intros = {e.item_ids[0]: e.index for e in sc.exercises if e.kind == "intro" and e.item_ids}
+        self.assertTrue(all(intros[i] < late.index for i in ("langt", "takk")), "both lines are taught before the late play")
+        answers = [g.text for g in sc.segments if g.exercise == late.index and g.type == "answer"]
+        self.assertIn("Er það langt?", answers, "the late play asks the line taught today")
+
+
+def bill_cur():
+    """A café level whose second line is a linked phrase of a known pattern: it comes in as one sentence of the pattern (``embedded``), not
+    through its own introduction (review of #365)."""
+    items = [
+        {"id": "afsakid", "kind": "phrase", "target": "Afsakið.", "meaning": "Excuse me.", "topics": ["cafe"]},
+        {"id": "get_eg_fengid", "kind": "construction", "target": "Get ég fengið {thing}?", "meaning": "Could I have {thing}?", "topics": ["cafe"],
+         "slots": {"thing": "acc_request"}, "example": {"thing": "matsedilinn"}},
+        {"id": "matsedilinn", "kind": "vocab", "target": "matseðilinn", "meaning": "the menu", "tags": ["acc_request"], "topics": ["cafe"]},
+        {"id": "reikninginn", "kind": "vocab", "target": "reikninginn", "meaning": "the bill", "tags": ["acc_request"], "topics": ["cafe"]},
+        {"id": "get_eg_fengid_reikninginn", "kind": "phrase", "target": "Get ég fengið reikninginn?", "meaning": "Can I have the bill?", "topics": ["cafe"],
+         "instance_of": "get_eg_fengid", "instance_fill": {"thing": "reikninginn"}},
+    ]
+    return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+
+
+def bill_theme():
+    turns = [
+        {"who": "you", "cue": "Get the waiter's attention.", "say": "Afsakið.", "items": ["afsakid"]},
+        {"who": "partner", "say": "Já?", "meaning": "Yes?"},
+        {"who": "you", "cue": "Ask for the bill.", "say": "Get ég fengið reikninginn?", "items": ["get_eg_fengid_reikninginn"]},
+        {"who": "partner", "say": "Já, auðvitað.", "meaning": "Yes, of course."},
+    ]
+    return Theme(id="bill", scenario="A4", title="Café", scene_line="You're at a café.", topics=["cafe"], levels=[{"goal": "Ask for the bill.", "turns": turns}])
+
+
+class EmbeddedLineInTheExchangeTests(unittest.TestCase):
+    """Review of #365: a line taught today inside a sentence of its pattern (``embedded``, not ``builder.in_lesson``) is asked in the late play,
+    and the daily read counts it."""
+
+    def build(self):
+        l = LearnerState("is", "en", "A1")
+        l.lessons_completed = 6
+        for i in ("afsakid", "get_eg_fengid", "matsedilinn", "reikninginn"):
+            l.items[i] = ItemState(due="2026-03-20", successes=2, durable_successes=2, stage="meaning")
+        cfg = PlanConfig(minutes=12, new_items=1, max_new_items=1, seed=1, themes=[bill_theme()], theme_scenarios=["A4"])
+        p = Planner(bill_cur(), l, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY)
+        return p, p.build()
+
+    def test_an_embedded_line_is_asked_in_the_late_play_and_counted(self):
+        p, sc = self.build()
+        self.assertIn("get_eg_fengid_reikninginn", sc.meta["embedded_items"], "the phrase came in as a sentence of its pattern")
+        self.assertEqual((sc.meta["theme"]["id"], sc.meta["theme"]["level"]), ("bill", 1))
+        plays = [e for e in sc.exercises if e.kind == "dialogue" and "theme:bill:1" in e.label]
+        self.assertEqual(len(plays), 2)
+        self.assertIn("get_eg_fengid_reikninginn", plays[-1].item_ids, "asked in the late play, not only heard")
+        self.assertNotIn("get_eg_fengid_reikninginn", plays[-1].heard_ids)
+        self.assertEqual(sc.meta["new_in_scene"]["in_turns"], ["get_eg_fengid_reikninginn"])
+        self.assertTrue(p.taught_today("get_eg_fengid_reikninginn"))
+
+    def test_a_turn_only_heard_is_not_counted(self):
+        p, sc = self.build()
+        heard = {i for e in sc.exercises if e.kind == "dialogue" and "theme:bill:1" in e.label for i in e.heard_ids}
+        self.assertFalse(heard & set(sc.meta["new_in_scene"]["in_turns"]))
 
 
 if __name__ == "__main__":
