@@ -188,17 +188,23 @@ class Script:
                 continue
             pairs: list[tuple[str, str]] = []
             cue: str | None = None
+            source: str | None = None
             after_answer_pause = False
             for seg in by_ex.get(ex.index, []):
                 if seg.type == "narrate" and seg.role != "example":  # a reply's example answer would give the answer away: the partner's line stays the cue
                     cue = seg.text
                 elif seg.type == "speak" and seg.role == "prompt":
                     cue = seg.text  # the partner's line is itself a written cue (G12)
+                elif seg.type == "speak" and seg.role == "source":
+                    source = seg.text  # a transform's input belongs to its written question too
                 elif seg.type == "speak" and seg.role in ("partial", "hint"):
                     cue = None  # the cue relied on audio
+                    source = None
                 elif seg.type == "answer" and after_answer_pause and cue:
-                    pairs.append((cue, seg.text or ""))
+                    prompt = f"{cue}\n{source}" if source else cue
+                    pairs.append((prompt, seg.text or ""))
                     cue = None
+                    source = None
                 after_answer_pause = seg.type == "pause" and seg.role == "answer"
             if len(pairs) == len(ex.item_ids):
                 groups = [([i], p) for i, p in zip(ex.item_ids, pairs)]
