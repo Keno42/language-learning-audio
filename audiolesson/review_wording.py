@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 
 from .prompts import Prompts
+from .text import norm_utterance
 
 # the prompt keys that are the lesson's cues about how an exercise relates to the one before (and the hint / cloze lead-ins, which rely on audio)
 LESSON_CUE_KEYS = ("recombine_new", "recombine", "recombine_again", "recombine_vocab", "recombine_vocab_again", "hinted", "cloze")
@@ -55,3 +56,45 @@ def reword_review(review: list[dict], prompts: Prompts, target_lang: str) -> lis
 def lesson_cue_count(review: list[dict], prompts: Prompts) -> int:
     """The daily read's row: review prompts that still carry a lesson cue (0 expected)."""
     return sum(1 for q in review if isinstance(q.get("prompt"), str) and lesson_cue_meaning(q["prompt"], prompts) is not None)
+
+
+def restore_transform_sources(review: list[dict], cur, prompts: Prompts) -> tuple[list[dict], list[dict]]:
+    """Repair legacy instruction-only questions using a unique authored input for their saved answer.
+
+    Already complete questions are left alone. Missing or ambiguous matches are reported for
+    inspection; never choose another example's input or change the saved answer.
+    """
+    out, report = [], []
+    for original in review:
+        q = dict(original)
+        out.append(q)
+        prompt, answer = q.get("prompt"), q.get("answer")
+        if q.get("bonus") or not isinstance(prompt, str) or not isinstance(answer, str):
+            continue
+        sources: set[str] = set()
+        matched_instruction = False
+        for item_id in q.get("items", []):
+            item = cur.by_id.get(item_id)
+            if item is None or item.kind != "transform":
+                continue
+            for example in item.examples:
+                genders = ("f", "m") if example.source_m or example.result_m else (None,)
+                for gender in genders:
+                    instruction = item.instruction
+                    if example.result_m:
+                        instruction = prompts.get(f"speak_as_{gender}", prompt=instruction)
+                    if prompt.strip() != instruction.strip():
+                        continue
+                    matched_instruction = True
+                    result = example.result_m if gender == "m" and example.result_m else example.result
+                    if norm_utterance(answer) == norm_utterance(result):
+                        source = example.source_m if gender == "m" and example.source_m else example.source
+                        sources.add(source)
+        if not matched_instruction:
+            continue
+        if len(sources) == 1:
+            q["prompt"] = f"{prompt.rstrip()}\n{next(iter(sources))}"
+            report.append({"items": q["items"], "kind": "transform_source_restored"})
+        else:
+            report.append({"items": q["items"], "kind": "transform_source_unresolved", "matches": len(sources)})
+    return out, report

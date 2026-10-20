@@ -21,6 +21,7 @@ import re
 
 from .exercises import _norm_utterance, cue_is_answer, meaning_prompts
 from .prompts import Prompts
+from .review_wording import restore_transform_sources
 from .text import WORD
 
 _WORD = WORD
@@ -109,8 +110,7 @@ def whole_for(cur, part, met: set[str], prompts: Prompts, taught: dict | None = 
 def refine_review(review: list[dict], cur, met: set[str], prompts: Prompts, wholes_taught: dict[str, dict] | None = None) -> tuple[list[dict], list[dict]]:
     """The review with every part asked through its whole, no part beside its whole and no two questions with one answer; and a report of
     what was changed. Bonus questions are left alone. See the module docstring for the rules."""
-    out = [dict(q) for q in review]
-    report: list[dict] = []
+    out, report = restore_transform_sources(review, cur, prompts)
 
     def part_of(q: dict):
         """The part a bare question asks, or None."""
