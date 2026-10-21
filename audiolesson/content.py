@@ -198,6 +198,13 @@ class Item:
     # exception to the tags («Áttu leigubíl?» is not said; the tags explain nine cases in ten, #192, §9 "Good enough
     # overall"). Not a tagging scheme: an authored fill (example, situation_fill, instance_fill) is still used.
     exclude_fills: list[str] = field(default_factory=list)
+    # A fill whose pronoun refers back to the subject («hvíla mig»: rest myself). Said by the learner about themself, it goes only into a template whose
+    # subject is «ég»: «Viltu hvíla mig?» would be "do you want to rest me?" (lesson 31 on the replay of the lesson-30 export). The learner is not taught
+    # the other person's form («hvíla þig»), so the sentence is not made rather than changed.
+    reflexive: bool = False
+    # A construction: its templates whose subject is the person spoken to («Viltu {inf}?», the question «Ætlarðu að {inf}?»), by form: "plain",
+    # "negative", "question". A ``reflexive`` fill never goes into them.
+    addressee: list[str] = field(default_factory=list)
     # A construction: the scene check (owner, 2026-10-16): a fill whose sentence has a scene the learner can picture, with that scene in one line («It's
     # raining and your friend suggests a walk.»), used as the cue when the sentence is asked. Read from the curriculum's ``[scenes.<pattern>]`` tables
     # (``95-scenes.toml``), where ``false`` adds the fill to ``exclude_fills``: every verdict on a pattern's sentences in one place.
@@ -401,9 +408,16 @@ class Curriculum:
         return self.by_id[item_id]
 
     def items_with_tag(self, tag: str, construction: Item | None = None) -> list[Item]:
-        """The items with ``tag``; for ``construction``'s slot, without the fills its ``exclude_fills`` names."""
+        """The items with ``tag``; for ``construction``'s slot, without the fills its ``exclude_fills`` names, and without a ``reflexive`` fill when the
+        construction's plain template speaks to the other person."""
         skip = construction.exclude_fills if construction is not None else ()
-        return [i for i in self.items if tag in i.tags and i.id not in skip]
+        addressed = construction is not None and "plain" in construction.addressee
+        return [i for i in self.items if tag in i.tags and i.id not in skip and not (addressed and i.reflexive)]
+
+    @staticmethod
+    def fits_form(construction: Item, fills: dict[str, Item], form: str | None) -> bool:
+        """Whether ``fills`` may go into ``construction``'s template of ``form``: no ``reflexive`` fill in a template whose subject is the person spoken to."""
+        return (form or "plain") not in construction.addressee or not any(f.reflexive for f in fills.values())
 
     def resolve_slots(self, construction: Item, fills: dict[str, Item], speaker: str | None = None, form: str | None = None) -> tuple[str, str]:
         """Return (target, meaning) with every slot filled from ``fills``; agreement
@@ -935,6 +949,10 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"{where}: the answer holds the construction's slots (and only those): there must be something to listen for")
             if {"en", "ja"} - set(probe["meanings"]) or not all(isinstance(m, str) and m.strip() and set(_slot_names(m)) == slots for m in probe["meanings"].values()):
                 raise CurriculumError(f"{where}: a meaning in en and ja, each holding the answer's slots")
+        if it.addressee and (it.kind != "construction" or not set(it.addressee) <= {"plain", *it.forms}):
+            raise CurriculumError(f"item {it.id!r}: addressee names a construction's templates whose subject is the person spoken to: plain or one of {it.forms}")
+        if it.reflexive and (it.kind not in ("vocab", "phrase") or not it.tags):
+            raise CurriculumError(f"item {it.id!r}: reflexive is for a slot fill (a vocab or phrase with a tag)")
         if it.exclude_fills:
             if it.kind != "construction":
                 raise CurriculumError(f"item {it.id!r}: exclude_fills is for a construction")

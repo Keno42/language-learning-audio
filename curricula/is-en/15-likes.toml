@@ -226,6 +226,7 @@ question_meaning_ja = "{inf}のが好きですか？"
 difficulty = 3
 topics = ["hobbies"]
 slots = { inf = "inf" }
+addressee = ["question"]  # the question asks the other person: a reflexive fill («hvíla mig») stays out of it
 example = { inf = "fara_i_sund" }
 prereqs = ["fara_i_sund"]
 

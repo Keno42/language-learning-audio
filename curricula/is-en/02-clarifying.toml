@@ -810,6 +810,7 @@ tags = ["inf", "progressive_inf"]
 topics = ["daily"]
 meaning_forms = { ing = "resting" }  # issue #29 pilot 3: for "I'm {inf:ing}."
 meaning_forms_ja = { te = "休んで", tai = "休みたい", tai_neg = "休みたくありません" }
+reflexive = true  # «mig» is the subject: only after «ég» («Ég vil hvíla mig.»), never «Viltu hvíla mig?»
 
 [[items]]
 id = "versla"
@@ -914,6 +915,7 @@ question_meaning_ja = "{inf:tai}ですか？"
 difficulty = 2
 topics = ["daily"]
 slots = { inf = "inf" }
+addressee = ["question"]  # the question asks the other person: a reflexive fill («hvíla mig») stays out of it
 example = { inf = "fara_heim" }
 prereqs = ["fara_heim"]
 pronunciation_notes = "vilja takes the bare infinitive, no 'að'"
@@ -940,6 +942,7 @@ question_meaning_ja = "{inf}つもりですか？"
 difficulty = 2
 topics = ["daily"]
 slots = { inf = "inf" }
+addressee = ["question"]  # the question asks the other person: a reflexive fill («hvíla mig») stays out of it
 example = { inf = "fara_i_sund" }
 prereqs = ["fara_i_sund", "eg_vil"]
 
@@ -953,6 +956,7 @@ meaning_ja = "{inf}のはどうですか？"
 difficulty = 2
 topics = ["daily", "arrangements"]
 slots = { inf = "inf" }
+addressee = ["plain"]  # «Viltu …?»: the subject is the person spoken to
 example = { inf = "fara_ut" }
 prereqs = ["fara_ut", "eg_vil"]
 

@@ -559,6 +559,7 @@ topics = ["grammar", "daily"]
 # general infinitive («Má ég sofa?») but «er að sofa» is not generally accepted («sefur» instead),
 # so the progressive draws on its own progressive_inf pool, a subset of "inf"
 slots = { inf = "progressive_inf" }
+addressee = ["question"]  # the question asks the other person: a reflexive fill («hvíla mig») stays out of it
 example = { inf = "fara_heim" }
 prereqs = ["eg_er_ad_koma", "eg_er_ad_fara", "eg_er_ad_laera", "fara_heim"]
 situation = "Your friend phones while you're on the bus. Tell her you're going home."

@@ -1282,13 +1282,13 @@ class Builder:
         one:» the plain sentence, «As a question:» the same sentence in the form, said and repeated; then «Another word, the same
         form.» with another filler, asked without being spoken first (the form is first produced there). Marks ``construction:form`` as modelled (this lesson, and the learner's state
         through ``apply_to_learner``). None when the construction has no sentence to show (no filler is available)."""
-        first = self.generate(c, met_fills=True)
+        first = self.generate(c, met_fills=True, shown_as=form)
         if first is None or form not in c.forms:
             return None
         gender, plain = self._filled(c, first.fills)
         _, shown = self._filled(c, first.fills, form=form)
         meaning = self.cur.resolve_slots(c, first.fills, form=form)[1]
-        second = self.generate(c, met_fills=True, exclude=dict(first.fills))
+        second = self.generate(c, met_fills=True, exclude=dict(first.fills), shown_as=form)
         voice = VOICE_OF[gender or "f"]
         ids = list(dict.fromkeys([c.id, *first.item_ids, *(second.item_ids if second else [])]))
         ex = sc.new_exercise("model", "form", ids, f"model: {shown}")
@@ -1470,6 +1470,7 @@ class Builder:
         met_fills: bool = False,
         forms: bool = False,
         form: str | None = None,
+        shown_as: str | None = None,
     ) -> Generated | None:
         """Fill a construction with words the learner knows; prefer combos not yet used.
         ``fixed`` pins slots to specific fills (a situation's binding). ``avoid_heard`` drops
@@ -1478,7 +1479,8 @@ class Builder:
         (``_frame_available``), for substitution drills (#151). ``forms`` lets the sentence be
         the construction's negative or question form too, once the note that teaches that form has
         been heard (#171); ``form`` asks for one (None if the construction has none, or it isn't
-        taught yet)."""
+        taught yet). ``shown_as``: the plain sentence will also be said in this form, so its fills must fit that template too
+        (``Curriculum.fits_form``: no reflexive fill where the subject is the person spoken to)."""
         usable = self._frame_available if met_fills else self._available
         options: dict[str, list[Item]] = {}
         for slot, tag in construction.slots.items():
@@ -1494,6 +1496,8 @@ class Builder:
         slots = list(options)
         combos = self._product(options, slots)
         self.rng.shuffle(combos)
+        if shown_as:  # the plain sentence is also to be said in this form (``model_form``): its fills must fit that template too
+            combos = [c for c in combos if self.cur.fits_form(construction, c, shown_as)]
         taught = self.forms_taught()
         if form:
             if form not in construction.forms or form not in taught or not self.form_modelled(construction, form):
@@ -1503,7 +1507,7 @@ class Builder:
             offered = [f for f in construction.forms if f in taught and self.form_modelled(construction, f)]
             order = self._form_order([None] + (offered if forms else []))
         for chosen_form in order:
-            picks = [(chosen_form, c) for c in combos]
+            picks = [(chosen_form, c) for c in combos if self.cur.fits_form(construction, c, chosen_form)]
             if avoid_heard:
                 picks = [
                     (f, c) for f, c in picks
