@@ -589,6 +589,8 @@ topics = ["directions"]
 slots = { place = "dat_place" }
 example = { place = "hotelinu" }
 prereqs = ["hotelinu", "hvar_er"]
+form_reason = "This form comes after «að»."
+form_reason_ja = "«að» のあとでは、この形になります。"
 
 [[items]]
 id = "eg_er_ad_leita_ad"
@@ -601,6 +603,9 @@ topics = ["directions"]
 slots = { place = "dat_place" }
 example = { place = "bankanum" }
 prereqs = ["bankanum"]
+# «leita að», not «að» alone: «Ég er að …» has another «að» that changes nothing (#270)
+form_reason = "This form comes after «leita að»."
+form_reason_ja = "«leita að» のあとでは、この形になります。"
 
 [[items]]
 id = "eg_er_tynd"

@@ -141,6 +141,7 @@ class Builder:
     joint_parts: dict = field(default_factory=dict)  # part id → the other new parts of the same line taken out of it in the same exercise (#280)
     modeled_wholes: dict = field(default_factory=dict)  # part id → {through, answer, meaning, gender}: the sentence a pattern's worked example modelled with it (#262)
     wholes_taught: dict = field(default_factory=dict)  # part id → {through, answer, meaning}: the sentence it was introduced in (#239), taught whole today, as taught
+    form_reasons_said: set = field(default_factory=set)  # constructions whose ``form_reason`` was said this lesson (#270: once a lesson per frame)
     novelty_announced: set = field(default_factory=set)  # (construction, form) already announced as «something you haven't heard yet» this lesson (#197)
     said: Counter = field(default_factory=Counter)  # how often each sentence was said this lesson: model answers, echoes, the intro once, partner lines (#192)
     produced: Counter = field(default_factory=Counter)  # how often the learner was asked for each line this lesson: the echo only while it teaches
@@ -618,6 +619,13 @@ class Builder:
             return self._intro_transform(sc, item)
         base = self.cur.by_id.get(item.variant_of) if item.variant_of else None
         if base is not None and not item.target_m and (self.learner.has_met(base.id) or base.id in self.in_lesson):
+            if item.noun:
+                # #270: a known noun's other form is taught in the frame that asks it, named against the form the learner has and why it changes
+                # (lesson 36 on the lesson-30 replay: «bankanum» was said and asked alone, «To the bank.», 8 minutes before «Ég er að leita að bankanum.»)
+                if item.id in self.modeled_wholes and item.id not in self.wholes_taught:
+                    return self._intro_out_of(sc, item, self.modeled_wholes[item.id])
+                if (home := self.whole_home(item)) is not None:
+                    return self._intro_in_whole(sc, item, *home)
             return self._intro_variant(sc, item, base)
         if (home := self.whole_home(item)) is not None:
             return self._intro_in_whole(sc, item, *home)
@@ -691,8 +699,9 @@ class Builder:
         met, and the sentence is one they have not heard whole. A construction whose authored example or situation names the part comes first, then one
         the learner knows, then the easiest. A pattern that is not introduced yet may be the frame: the sentence is taught whole and the pattern comes
         later as the pattern of a sentence the learner knows. None when the part has no such home: a phrase that holds it is tried next (the planner),
-        else it is introduced as before."""
-        if item.kind != "vocab" or item.variant_of or item.target_m:
+        else it is introduced as before. A form of a known noun («bankanum» of «bankinn», #270) has a home like any part: the frame that asks the form;
+        a near form that is no noun («tvær» for «tveir») has none and keeps ``_intro_variant``."""
+        if item.kind != "vocab" or (item.variant_of and not item.noun) or item.target_m:
             return None
         known = self._known_words()
         options = []
@@ -722,7 +731,7 @@ class Builder:
 
     def phrase_home(self, item: Item) -> Item | None:
         """The phrase taught earlier in this lesson that holds a new part's words, the shortest (#262): the part is taken out of it, not given alone."""
-        if item.kind != "vocab" or item.variant_of or item.target_m:
+        if item.kind != "vocab" or (item.variant_of and not item.noun) or item.target_m:
             return None
         words = [w.lower() for w in WORD.findall(item.target)]
         found = []
@@ -767,6 +776,7 @@ class Builder:
             self._speak(sc, ex, part.target, speaker=voice)
             self._repeat_pause(sc, ex, part.target)
             self._slow_model(sc, ex, part, voice)
+            self._form_contrast(sc, ex, part, voice, self.cur.by_id.get(whole["through"]))  # #270: in every path that introduces a form
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(whole["meaning"])))
         self._answer_pause(sc, ex, target, self.cur.by_id[whole["through"]], generative=False)
         self._answer(sc, ex, target, speaker=voice)
@@ -894,20 +904,26 @@ class Builder:
         forms = (self.cur.nouns.get(item.noun) or {}).get("forms", {})
         ranked = sorted((f for f in forms if forms[f] != item.id), key=lambda f: ({"nom": 0, "acc": 1, "nom_def": 2}.get(f, 3), f))
         for f in ranked:
-            if self.learner.has_met(forms[f]):
+            if self.learner.has_met(forms[f]) or forms[f] in self.in_lesson:  # a form taught earlier in this lesson is one they have too (review of #368)
                 word = self.cur.by_id[forms[f]].target
                 if _norm_utterance(word) != _norm_utterance(item.target):
                     return word, ("basic" if f == "nom" else "known")
         return None
 
-    def _form_contrast(self, sc: Script, ex: Exercise, item: Item, voice: str) -> None:
+    def _form_contrast(self, sc: Script, ex: Exercise, item: Item, voice: str, frame: Item | None = None) -> None:
         """A noun in a form its frame asks is named once against its basic word (#270: «köku» ← «kaka» after «Ég ætla að fá»), or against the form of the same
-        noun the learner has met («bíl» ← «bíll»; «hótelinu» ← «hótelið», said as «You know it as:», not as the basic word)."""
+        noun the learner has met («bíl» ← «bíll»; «hótelinu» ← «hótelið», said as «You know it as:», not as the basic word). Then, once a lesson per
+        frame, why the form changes there, when the frame says it (``form_reason``: «This form comes after «leita að».»): the words that decide,
+        not the translation."""
         if (found := self.basic_form_of(item)) is not None:
             word, kind = found
             self._frame(sc, ex, self.prompts.get("form_of_base" if kind == "basic" else "form_known_as"))
             self._speak(sc, ex, word, speaker=voice)
             self._beat(sc, ex)
+            if frame is not None and frame.form_reason and frame.id not in self.form_reasons_said:
+                self.form_reasons_said.add(frame.id)
+                self._speak_note_text(sc, ex, frame.form_reason)
+                self._beat(sc, ex)
 
     def _intro_in_whole(self, sc: Script, item: Item, construction: Item, fills: dict[str, Item]) -> Exercise:
         """A new part inside the expression that holds it (#239): «A new expression: Thanks for the help.», the sentence said and repeated, «This word is
@@ -937,7 +953,7 @@ class Builder:
         self._speak(sc, ex, item.target, speaker=voice)
         self._beat(sc, ex)
         self._slow_model(sc, ex, item, voice)
-        self._form_contrast(sc, ex, item, voice)
+        self._form_contrast(sc, ex, item, voice, construction)
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(meaning)))
         self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target, speaker=voice)

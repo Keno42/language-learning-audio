@@ -1490,8 +1490,9 @@ class Planner:
         """The pattern of this lesson's queue that a new part is introduced inside (#262: «matseðilinn» in «Get ég fengið matseðilinn?»), with the slot it
         fills: a construction still to come whose slot takes the part and whose other prerequisites are available. Its worked example is made of the part,
         so the pattern comes first and the part is taken out of the sentence just heard. None when the part has a whole already (a sentence it can be in
-        now, a phrase, an embed) or no such pattern is queued."""
-        if item.kind != "vocab" or item.variant_of or item.target_m or self.learner.has_met(item.id) or item.id in self.learner.embed_failed:
+        now, a phrase, an embed) or no such pattern is queued. A form of a known noun («bankanum» of «bankinn», #270) counts as a part: with the frame
+        still to come and two of its words new (no ``whole_home``), it was said and asked alone (review of #368)."""
+        if item.kind != "vocab" or (item.variant_of and not item.noun) or item.target_m or self.learner.has_met(item.id) or item.id in self.learner.embed_failed:
             return None
         if self.embed_source(item) is not None or self.builder.whole_home(item) is not None or self.builder.phrase_home(item) is not None:
             return None
@@ -2736,8 +2737,10 @@ class Planner:
             for c in self.cur.items:
                 if c.kind != "construction" or c.id in recent:
                     continue
-                if self.reviewed_today(c.id) and c.id not in self.exposures:
-                    continue  # the learner's own review asked it this morning (#238)
+                if self.reviewed_today(c.id) and not self.taught_today(c.id):
+                    # the learner's own review asked it this morning (#238). Not unlocked by a part's sentence going through it: «Ég er að leita að
+                    # hótelinu.» (the form's practice, in the frame it was taught in, #270) then made the pattern a substitution run of its own
+                    continue
                 if restrict is not None and c.id not in restrict:
                     continue  # a parallel of a target expression of the lesson's scene, never a run of unrelated known patterns (#238)
                 if substitutions.get(c.id, 0) >= cfg.substitutions_per_construction:

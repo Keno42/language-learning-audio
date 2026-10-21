@@ -630,6 +630,7 @@ lessons 21–23 (§5.18–§5.20) have had their three.
 | a grammar note's endings said piece by piece; no lone «.» narrated (#198: #323) | lesson 26 | 1 |
 | new material grouped by scene, the played scene matched (#327 part 1, without its scene line: #329) | lesson 26 (a replayed level: 0 of 10 inside it) | 1 |
 | the town scene, two levels; a level played in the lesson that teaches its lines (#327) | not yet | – |
+| a known noun's other form taught in its frame, named against the known form, with the frame's reason (#270) | not yet | – |
 | a hard item practised through its connections; «sooner» marks it hard (#326: #330, #332) | lesson 27: the «sooner» items of lesson 26 are its first real case (lesson 26 had one hard item, practised once) | – |
 | a recall at a real gap extends the interval (#220: #331); the bot's ranked seats, at most a third (site_update_notifier#139) | lesson 26 | 1 |
 | gender and form for every case-tagged noun (#270 step 1: #317) | no remark expected; read in the nouns row | – |
