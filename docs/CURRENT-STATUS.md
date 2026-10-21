@@ -27,10 +27,11 @@ shows it (§9 "Governance": about 80% / 20%).
    bus's shape. The largest effect on repetition and the largest cost (data); the frames a scene varies first.
 
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
-Icelandic (candidates until native-checked). The town (asking the way) and small talk (getting to know someone) are
-written: on the replay of the lesson-30 export the day's new lines are said in the played exchange in lessons 30–33 (12;
-before the town, 0 in nine lessons). The goal of the played level is said after the opening, and the closing ends on the
-level's lines in the order of its turns. Next: taxi and bus, winter talk.
+Icelandic (candidates until native-checked). The town (asking the way), small talk (getting to know someone) and the
+clothes shop (what you need, the price, trying it on) are written: on the replay of the lesson-30 export the day's new
+lines are said in the played exchange in lessons 30–35 (17; before the town, 0 in nine lessons). The goal of the played
+level is said after the opening, and the closing ends on the level's lines in the order of its turns. Next: taxi and
+bus, winter talk.
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
 learner say this line", then the planner's build loop. Each step leaves the replays of the lesson-21–23 exports
