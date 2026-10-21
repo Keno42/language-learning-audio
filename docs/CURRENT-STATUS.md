@@ -12,12 +12,12 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 Ranked by the effect on the next lesson as the replay of the latest export shows it (LD §9 "Governance": about 80% /
 20%). The latest export is lesson 30's; the next lesson is 31.
 1. **The coming lessons' sentences get a verdict before they are said (G6; the scene check, LD §9 "Good enough
-   overall").** On the replay of the lesson-30 export, 148 sentences that lessons 30–43 can generate have no verdict.
-   «Ég borða ekki mjólk.» and «Má ég versla?» are among them, and lesson 31 asks the second. The sheet so far was printed
-   for the patterns and words the learner had met, so a word introduced today is generated unjudged the same day, and
-   the negative and question forms are on no sheet. **Next smallest step:** the sheet of the coming material to an
-   outside reviewer (`docs/SCENE-REVIEW.md`), the verdicts in one PR; then the sheet printed from the replay of each new
-   export, the forms included.
+   overall").** On the replay of the lesson-30 export, the sentences that lessons 30–43 can generate were sent to an
+   outside review: it judged «Ég borða ekki mjólk.» false and gave four permission questions their scenes, and 142
+   still have no verdict, «Má ég versla?» among them (lesson 31 asks it). The sheet was printed for the patterns and
+   words the learner had met, so a word introduced today is generated unjudged the same day, and the negative and
+   question forms are on no sheet. **Next smallest step:** scene lines for the 142 from a reviewer (`docs/SCENE-REVIEW.md`),
+   faithful to each sentence's meaning; then the sheet printed from the replay of each new export, the forms included.
 2. **A transform is asked from five sentences, under one instruction (G12, G17).** Lesson 31 introduces «asking for the
    same thing more politely» and asks it 8 more times: «Get ég fengið matseðilinn?» 3 times, and «Say it more politely,
    as a question:» narrated 9 times, where the other lessons of the replay narrate one situation at most 5 times. Its
