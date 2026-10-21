@@ -136,6 +136,9 @@ class Item:
     # written glosses keep ``meaning``.
     meaning_spoken: str = ""
     instruction: str = ""  # transform: known-language instruction, e.g. "Make it negative:"
+    # construction (#270): why a noun takes another form in this frame, in the learner's language, said once a lesson after the form is
+    # named against the one the learner knows («This form comes after «leita að».»). Names the words that decide, never the translation
+    form_reason: str = ""
     examples: list[TransformExample] = field(default_factory=list)  # transform pairs
     order: int = 0
     gender: str | None = None  # noun's grammatical gender ("masc" | "fem" | "neut"), for agreement
@@ -536,7 +539,7 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
 
 
 # fields that may carry per-language glosses (``<field>_<lang>``)
-_GLOSSED_ITEM = ("meaning", "context", "negative_meaning", "question_meaning", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation")
+_GLOSSED_ITEM = ("meaning", "context", "negative_meaning", "question_meaning", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation", "form_reason")
 _GLOSSED_EXAMPLE = ("source_meaning", "result_meaning")
 _GLOSSED_TURN = ("cue", "opener_meaning", "partner_meaning", "expect_meaning", "scene", "partner_scene")
 _GLOSSED_DIALOGUE = ("setting",)
@@ -805,6 +808,8 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"item {it.id!r}: a noun form needs the noun's gender")
             if it.noun_base and it.noun_base.strip().lower() == it.target.strip().lower():
                 raise CurriculumError(f"item {it.id!r}: noun_base is the basic word when it differs from the form ({it.target!r})")
+        if it.form_reason and not (it.kind == "construction" and it.slots):
+            raise CurriculumError(f"item {it.id!r}: form_reason goes on a construction with a slot (#270: the frame that asks the form)")
         if it.gender is not None and it.gender not in GENDERS:
             raise CurriculumError(f"item {it.id!r}: gender {it.gender!r} must be one of {sorted(GENDERS)}")
         if it.kind != "transform" and _UNSPEAKABLE_RE.search(it.spoken_meaning):

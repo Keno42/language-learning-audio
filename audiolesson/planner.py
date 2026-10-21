@@ -2736,8 +2736,10 @@ class Planner:
             for c in self.cur.items:
                 if c.kind != "construction" or c.id in recent:
                     continue
-                if self.reviewed_today(c.id) and c.id not in self.exposures:
-                    continue  # the learner's own review asked it this morning (#238)
+                if self.reviewed_today(c.id) and not self.taught_today(c.id):
+                    # the learner's own review asked it this morning (#238). Not unlocked by a part's sentence going through it: «Ég er að leita að
+                    # hótelinu.» (the form's practice, in the frame it was taught in, #270) then made the pattern a substitution run of its own
+                    continue
                 if restrict is not None and c.id not in restrict:
                     continue  # a parallel of a target expression of the lesson's scene, never a run of unrelated known patterns (#238)
                 if substitutions.get(c.id, 0) >= cfg.substitutions_per_construction:
