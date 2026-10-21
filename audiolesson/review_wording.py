@@ -29,23 +29,38 @@ def _templates(prompts: Prompts) -> list[re.Pattern]:
     return out
 
 
+def speaker_form(prompt: str, prompts: Prompts) -> tuple[str | None, str]:
+    """``(gender, the rest)`` of a prompt that names the speaker's form («As a woman: …»), else ``(None, prompt)``."""
+    for gender in ("f", "m"):
+        template = prompts.data.get(f"speak_as_{gender}")
+        if isinstance(template, str) and "{prompt}" in template:
+            before, after = template.split("{prompt}", 1)
+            if prompt.startswith(before) and prompt.endswith(after) and len(prompt) > len(before) + len(after):
+                return gender, prompt[len(before) : len(prompt) - len(after)]
+    return None, prompt
+
+
 def lesson_cue_meaning(prompt: str, prompts: Prompts) -> str | None:
-    """The meaning inside a prompt that is a lesson cue, else None."""
+    """The meaning inside a prompt that is a lesson cue, else None; behind the speaker's form too («As a man: In a sentence. Say: …»)."""
+    rest = speaker_form(prompt.strip(), prompts)[1]
     for pattern in _templates(prompts):
-        m = pattern.match(prompt.strip())
+        m = pattern.match(rest.strip())
         if m:
             return m.group("meaning")
     return None
 
 
 def review_prompt(prompt: str, prompts: Prompts, target_lang: str) -> str:
-    """The prompt as the review asks it: a lesson cue becomes the meaning in the review's form (the first «meaning» wording, so it is the same every time), anything else is kept."""
+    """The prompt as the review asks it: a lesson cue becomes the meaning in the review's form (the first «meaning» wording, so it is the same every time), anything else is kept.
+    The speaker's form in front of it stays («As a man: How do you say: …»): the answer's words depend on it."""
     meaning = lesson_cue_meaning(prompt, prompts)
     if meaning is None:
         return prompt
     val = prompts.data["meaning"]
     template = val[0] if isinstance(val, list) else val
-    return template.format(meaning=meaning, language=prompts.language_name(target_lang))
+    gender = speaker_form(prompt.strip(), prompts)[0]
+    reworded = template.format(meaning=meaning, language=prompts.language_name(target_lang))
+    return prompts.get(f"speak_as_{gender}", prompt=reworded) if gender else reworded
 
 
 def reword_review(review: list[dict], prompts: Prompts, target_lang: str) -> list[dict]:

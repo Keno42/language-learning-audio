@@ -107,6 +107,24 @@ def meaning_text(known_lang: str, meaning: str) -> str:
     return meaning + "."
 
 
+def speak_as(prompts: Prompts, gender: str | None, prompt: str) -> str:
+    """``prompt`` with «As a man:» / «As a woman:» in front when the answer's words follow the speaker's gender (``gender`` "m" / "f"), else as it is.
+    The lesson and the written review say it the same way: a question whose answer has a woman's and a man's form names the one it expects."""
+    return prompts.get(f"speak_as_{gender}", prompt=prompt) if gender else prompt
+
+
+def answer_gender(answer: str, *items: Item) -> str | None:
+    """Which speaker's form ``answer`` is, from the items it was made of: "m" when it holds an item's ``target_m``, "f" when it holds the ``target`` of an
+    item that has one, None when no item's words follow the speaker's gender."""
+    said = f" {_norm_utterance(answer)} "
+    gendered = [it for it in items if it is not None and it.target_m]
+    if any(f" {_norm_utterance(it.target_m)} " in said for it in gendered):
+        return "m"
+    if any(f" {_norm_utterance(it.target)} " in said for it in gendered):
+        return "f"
+    return None
+
+
 def meaning_prompt(prompts: Prompts, known_lang: str, target_lang: str, meaning: str, context: str = "") -> str:
     """The cue that asks for ``meaning`` in the target language: «Say: …, as in: <context>» when the item has a context
     (a counting form, a bare number), else «How do you say: …». The lesson and the review questions share it."""
@@ -344,7 +362,7 @@ class Builder:
 
     def _as(self, gender: str | None, prompt: str) -> str:
         """``prompt`` with "As a man:" / "As a woman:" in front when the words depend on it."""
-        return self.prompts.get(f"speak_as_{gender}", prompt=prompt) if gender else prompt
+        return speak_as(self.prompts, gender, prompt)
 
     def _meaning_prompt(self, meaning: str, context: str = "") -> str:
         return meaning_prompt(self.prompts, self.kl, self.tl, meaning, context)

@@ -12,7 +12,7 @@ from pathlib import Path
 from . import __version__
 from .themes import load_themes, scenario_order
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
-from .exercises import meaning_prompt, meaning_prompts
+from .exercises import meaning_prompt, meaning_prompts, speak_as
 from .content import PATTERN_SCENE, CurriculumError, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, unlinked_instances
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
@@ -371,9 +371,11 @@ def cmd_generate(args) -> int:
 
 
 def _review_cue(cur, prompts: Prompts, it) -> str:
-    """The review question for a single item: its situation, else the meaning cue (with the item's context, like the lesson)."""
+    """The review question for a single item: its situation, else the meaning cue (with the item's context, like the lesson). The answer is the item's
+    ``target``, so an item with a man's form says it expects the woman's («As a woman: …»), as the lesson does."""
     prompts = Prompts(prompts.data, prompts.lang)  # a fresh generator: an item's cue does not depend on the ones asked before it
-    return it.situation_for(0) or meaning_prompt(prompts, cur.known_lang, cur.target_lang, it.spoken_meaning, it.context)
+    cue = it.situation_for(0) or meaning_prompt(prompts, cur.known_lang, cur.target_lang, it.spoken_meaning, it.context)
+    return speak_as(prompts, "f" if it.target_m else None, cue)
 
 
 def _review_cues(cur, prompts: Prompts, it) -> list[str]:
@@ -382,7 +384,8 @@ def _review_cues(cur, prompts: Prompts, it) -> list[str]:
     prompts = Prompts(prompts.data, prompts.lang)
     cues = list(it.situations or ([it.situation] if it.situation else []))
     cues += meaning_prompts(prompts, cur.known_lang, cur.target_lang, it.spoken_meaning, it.context)  # every template, not one
-    return list(dict.fromkeys(cues))
+    # an item with a man's form is asked with the form named: a stored cue without it is stale, and the bot rewords it
+    return list(dict.fromkeys(speak_as(prompts, "f" if it.target_m else None, c) for c in cues))
 
 
 SAVINGS_STAGES = ("meaning", "situation", "hinted", "cloze")  # recalls that ask the item in the form a review asks it (#220); recombine is transfer practice, not counted
