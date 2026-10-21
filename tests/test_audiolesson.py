@@ -5964,7 +5964,9 @@ class ListeningTaskTests(unittest.TestCase):
 
     def test_the_second_half_of_a_lesson_listens_for_information_and_unknown_words(self):
         from audiolesson.cli import _plan
-        lessons = list(self._course(21))
+        # the pick-outs of this course start around lesson 19: at 21 lessons the count stood at the threshold's edge (4), and #327's goal line,
+        # a few seconds at each lesson's start, shifted the course to 3; three lessons more give 12
+        lessons = list(self._course(24))
         kinds = Counter(e.kind for _, _, sc in lessons for e in sc.exercises)
         self.assertGreater(kinds["pick_out"], 3)
         self.assertGreater(kinds["catch_unknown"], 3)
@@ -7874,7 +7876,8 @@ class ThemeExchangeTests(unittest.TestCase):
         self.assertTrue(all(cue in [g.text for g in segs(e) if g.type == "narrate"] for e in plays), "the cue plays in both")
         asked_first = [g for g in segs(plays[0]) if g.type == "pause" and g.role == "answer"]
         self.assertEqual(len(asked_first), 4)
-        self.assertEqual(sc.meta["theme"], {"id": "supermarket", "scenario": "A3", "level": 1, "plays": 2, "lines": sc.meta["theme"]["lines"], "replay": False, "heard": sc.meta["theme"]["heard"]})
+        self.assertEqual(sc.meta["theme"], {"id": "supermarket", "scenario": "A3", "level": 1, "plays": 2, "lines": sc.meta["theme"]["lines"], "replay": False, "heard": sc.meta["theme"]["heard"],
+                                            "goal": self._supermarket.levels[0].goal})
         self.assertTrue(sc.meta["theme"]["heard"], "the assisted play's variants were heard with their meaning")
         self.assertEqual(len(sc.meta["theme"]["lines"]), 2)
 

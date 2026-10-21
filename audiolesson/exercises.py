@@ -510,6 +510,16 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def theme_goal(self, sc: Script, level) -> Exercise:
+        """#327: the lesson's goal, said once right after the opening: what the exchange the lesson builds to does, from the played level's
+        ``goal`` in the learner's language («Today's goal: Ask where a place is, and understand the way.»). The learner hears at the start what
+        they will be able to do by the end; the exchange, the new lines and the closing are what make it true."""
+        goal = level.goal_ja if self.cur.known_lang == "ja" and level.goal_ja else level.goal
+        ex = sc.new_exercise("opening", None, [], "lesson goal")
+        self._narr(sc, ex, self.prompts.get("lesson_goal", goal=goal))
+        self._gap(sc, ex)
+        return ex
+
     def final_block_announce(self, sc: Script) -> Exercise:
         ex = sc.new_exercise("closing", None, [], "final review")
         self._narr(sc, ex, self.prompts.get("final_block"))

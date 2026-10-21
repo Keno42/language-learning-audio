@@ -2806,6 +2806,8 @@ class Planner:
             reviews_used.append(item_id)
         open_timeline.sort(key=lambda t: t[:2])
         theme_pick = self.pick_theme(coming={i.id for i in new_queue} if n > 1 else frozenset())  # #327; the first lesson keeps its rule (§9 "Themes")
+        if theme_pick is not None:
+            b.theme_goal(sc, theme_pick[0].levels[theme_pick[1]])  # #327: what the lesson builds to, said after the opening
         scene_cons = self.scene_constructions(theme_pick)  # spare-time sentences are parallels of these (#238); None: no theme, no restriction
         scene_pref = frozenset(
             (scene_cons or set()) | ({r for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you" for r in t.items} if theme_pick else set())
@@ -3625,7 +3627,8 @@ class Planner:
             "refresh_sentences": dict(refresh_done),
             # #149 1b-ii: the lesson's theme and level (1-based) and how often its exchange played; None: no theme was ready
             "theme": (
-                {"id": theme_pick[0].id, "scenario": theme_pick[0].scenario, "level": theme_pick[1] + 1, "plays": theme_plays, "lines": theme_lines, "replay": theme_replay, "heard": theme_heard}
+                {"id": theme_pick[0].id, "scenario": theme_pick[0].scenario, "level": theme_pick[1] + 1, "plays": theme_plays, "lines": theme_lines, "replay": theme_replay, "heard": theme_heard,
+                 "goal": theme_pick[0].levels[theme_pick[1]].goal}  # #327: the goal said after the opening (in the learner's language: goal_ja for ja)
                 if theme_pick
                 else None
             ),

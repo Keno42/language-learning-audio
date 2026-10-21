@@ -3,6 +3,7 @@
 
 lesson_open = "Lesson {n}."
 lesson_intro = "Speak your answers out loud during the silences. Don't worry about mistakes."
+lesson_goal = "Today's goal: {goal}"
 lesson_close = "That's the end of lesson {n}. Well done."
 final_block = "To finish, let's go back over today's new material."
 
