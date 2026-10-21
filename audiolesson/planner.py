@@ -4,7 +4,7 @@ Principles it enforces (see README "How a lesson is built"):
 - a few new items, each reactivated at expanding times within the lesson
 - reviews of older material interleaved between them
 - generative recombination and dialogues once enough is known
-- a closing block that ends on successful recall of today's material
+- a closing block that ends on successful recall of today's material, in the scene's order (#327)
 """
 
 from __future__ import annotations
@@ -687,6 +687,18 @@ class Planner:
         since = (self.today - timedelta(days=REPORTED_HARD_DAYS)).isoformat()
         out += [i for i, st in self.learner.items.items() if st.reported_hard and st.reported_hard >= since and i in self.cur.by_id and i not in out]
         return out
+
+    @staticmethod
+    def closing_order(introduced: list[Item], theme_pick: tuple | None) -> list[Item]:
+        """The order the closing block asks today's new items in (#327): the ones outside the lesson's scene first, hardest first, then the ones
+        the played level's learner turns need, in the order of the turns, so the lesson ends on the exchange its goal named. With no theme, hardest
+        first and easiest last, as before. Only the order changes: the closing's rules (one question per sentence, the caps, a part asked in its
+        sentence) apply to it as they did."""
+        if theme_pick is None:
+            return sorted(introduced, key=lambda i: -i.difficulty)
+        theme, level, _ = theme_pick
+        rank = {item_id: n for n, item_id in enumerate(theme.levels[level].items)}
+        return sorted(introduced, key=lambda i: (1, rank[i.id]) if i.id in rank else (0, -i.difficulty))
 
     def _new_in_scene(self, theme_pick: tuple | None, introduced: list[Item], asked: set[str] = frozenset()) -> dict | None:
         """#327's daily-read rows: of the items taught new today (parts of a frame apart), how many belong to the scene the lesson plays
@@ -3540,7 +3552,7 @@ class Planner:
         if introduced:
             b.final_block_announce(sc)
             # any reactivation that never came due is folded into the closing recall
-            order = sorted(introduced, key=lambda i: -i.difficulty)  # hardest first, easiest last
+            order = self.closing_order(introduced, theme_pick)  # #327: the lesson ends in its scene, in the exchange's order
             closed: set[str] = set()  # every item a closing recall made the learner say: its holder (#238), and the pattern or the filler in it, is not asked again
             closing_from = len(sc.exercises)
 

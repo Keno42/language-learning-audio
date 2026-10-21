@@ -29,8 +29,8 @@ shows it (§9 "Governance": about 80% / 20%).
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
 Icelandic (candidates until native-checked). The town (asking the way) is the first: on the replay of the lesson-30
 export the day's new lines are said in the played exchange in lessons 30 and 31 (2 and 3; before, 0 in nine lessons).
-The goal of the played level is said after the opening. Next: the closing in the exchange's order, then taxi and bus, small
-talk, winter talk.
+The goal of the played level is said after the opening, and the closing ends on the level's lines in the order of its
+turns. Next: taxi and bus, small talk, winter talk.
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
 learner say this line", then the planner's build loop. Each step leaves the replays of the lesson-21–23 exports

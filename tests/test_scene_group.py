@@ -208,6 +208,33 @@ class LessonGoalTests(unittest.TestCase):
         self.assertFalse(any(e.label == "lesson goal" for e in sc.exercises))
 
 
+class ClosingOrderTests(unittest.TestCase):
+    """#327: the closing asks the items outside the scene first, hardest first, and ends on the played level's items in the order of its turns."""
+
+    def test_the_order(self):
+        cur = town_cur()
+        by = cur.by_id
+        kaffi, langt, takk = by["kaffi"], by["langt"], by["takk"]
+        kaffi.difficulty, langt.difficulty, takk.difficulty = 1, 3, 1
+        self.assertEqual([i.id for i in Planner.closing_order([takk, kaffi, langt], (town_theme(), 0, set()))], ["kaffi", "langt", "takk"],
+                         "outside the scene first; then the turns' order, not the difficulty")
+        self.assertEqual([i.id for i in Planner.closing_order([takk, kaffi, langt], None)], ["langt", "takk", "kaffi"], "no theme: hardest first, as before")
+
+    def test_a_lesson_ends_on_its_scene(self):
+        l = LearnerState("is", "en", "A1")
+        l.lessons_completed = 6
+        l.items["afsakid"] = ItemState(due="2026-03-20", successes=2, durable_successes=2, stage="meaning")
+        cfg = PlanConfig(minutes=12, new_items=3, max_new_items=3, seed=1, themes=[town_theme()], theme_scenarios=["A8"])
+        sc = Planner(town_cur(), l, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+        start = next(e.index for e in sc.exercises if e.label == "final review")
+        asked = [e.item_ids[0] for e in sc.exercises[start + 1:] if e.kind != "closing" and e.item_ids]
+        self.assertTrue(asked, "the closing asked something")
+        level_items = town_theme().levels[0].items
+        self.assertIn(asked[-1], level_items, f"the last question is a line of the exchange: {asked}")
+        inside = [i for i in asked if i in level_items]
+        self.assertEqual(inside, sorted(inside, key=level_items.index), "in the order of the turns")
+
+
 def bill_cur():
     """A café level whose second line is a linked phrase of a known pattern: it comes in as one sentence of the pattern (``embedded``), not
     through its own introduction (review of #365)."""
