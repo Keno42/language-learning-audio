@@ -246,7 +246,8 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   needs). `Planner.pick_theme` takes, among the themes whose next level the learner can say in all but a quarter of
   their turns (`theme_ready`: every item of a turn met and not open, or queued to be introduced in this lesson, `coming`, #327:
   the level plays in the lesson that teaches its lines, heard early and asked late), the lowest level not yet played, the trip
-  profile's boosted scenarios first (`theme_scenarios`, `scenario_order`), then Tier A, then Tier B, in file order. The level
+  profile's boosted scenarios first (`theme_scenarios`, `scenario_order`), then Tier A, then Tier B, in file order. Its `goal`
+  (`goal_ja`) is said right after the opening (`Builder.theme_goal`, «Today's goal: …»; `plan.json` `theme.goal`, #327). The level
   becomes a `Dialogue` (`level_dialogue`; the learner's lines are literal) played **twice**: at about 15% of the
   lesson's time with the partner's lines translated, and at about 85% without the translation (the cue, the intent,
   and a turn's `scene` line play both times, #210; `play_theme`, step 0g; a lesson that ran out of other material plays what is left before the closing). A

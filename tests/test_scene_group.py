@@ -120,14 +120,14 @@ class ThemeMatchTests(unittest.TestCase):
         self.assertNotEqual(p.pick_theme()[0].id, "cafe")
 
 
-def town_cur():
+def town_cur(known="en"):
     items = [
         {"id": "afsakid", "kind": "phrase", "target": "Afsakið.", "meaning": "Excuse me.", "topics": ["directions"]},
         {"id": "langt", "kind": "phrase", "target": "Er það langt?", "meaning": "Is it far?", "topics": ["directions"]},
         {"id": "takk", "kind": "phrase", "target": "Takk kærlega.", "meaning": "Thanks a lot.", "topics": ["social"]},
         {"id": "kaffi", "kind": "phrase", "target": "Kaffi, takk.", "meaning": "Coffee, please.", "topics": ["cafe"]},
     ]
-    return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+    return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": known}, "items": items})
 
 
 def town_theme():
@@ -174,6 +174,38 @@ class LevelInTheLessonThatTeachesItTests(unittest.TestCase):
         self.assertTrue(all(intros[i] < late.index for i in ("langt", "takk")), "both lines are taught before the late play")
         answers = [g.text for g in sc.segments if g.exercise == late.index and g.type == "answer"]
         self.assertIn("Er það langt?", answers, "the late play asks the line taught today")
+
+
+class LessonGoalTests(unittest.TestCase):
+    """#327: the goal of the level the lesson plays is said right after the opening, in the learner's language; a lesson with no theme has none."""
+
+    def lesson(self, known="en", completed=6):
+        theme = town_theme()
+        theme.levels[0].goal_ja = "道を尋ねる。"
+        l = LearnerState("is", known, "A1")
+        l.lessons_completed = completed
+        l.items["afsakid"] = ItemState(due="2026-03-20", successes=2, durable_successes=2, stage="meaning")
+        cfg = PlanConfig(minutes=12, new_items=2, max_new_items=2, seed=1, themes=[theme], theme_scenarios=["A8"])
+        return Planner(town_cur(known), l, Prompts.load(known), Timing(level="A1"), cfg, today=TODAY).build()
+
+    def narrated(self, sc, ex):
+        return [g.text for g in sc.segments if g.exercise == ex.index and g.type == "narrate"]
+
+    def test_the_goal_is_said_right_after_the_opening(self):
+        sc = self.lesson()
+        self.assertEqual([e.label for e in sc.exercises[:2]], ["opening", "lesson goal"])
+        self.assertEqual(self.narrated(sc, sc.exercises[1]), ["Today's goal: Ask the way."])
+        self.assertEqual(sc.meta["theme"]["goal"], "Ask the way.")
+
+    def test_the_goal_is_in_the_learners_language(self):
+        sc = self.lesson("ja")
+        self.assertEqual(self.narrated(sc, sc.exercises[1]), ["今日の目標：道を尋ねる。"])
+        self.assertEqual(sc.meta["theme"]["goal"], "道を尋ねる。", "plan.json keeps the goal as it was said (review of #369)")
+
+    def test_a_lesson_with_no_theme_has_no_goal(self):
+        sc = self.lesson(completed=0)  # the first lesson keeps its rule: no theme, so no goal
+        self.assertIsNone(sc.meta["theme"])
+        self.assertFalse(any(e.label == "lesson goal" for e in sc.exercises))
 
 
 def bill_cur():
