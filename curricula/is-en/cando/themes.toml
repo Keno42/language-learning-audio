@@ -190,3 +190,41 @@ turns = [
   { who = "you", cue = "Thank them and say goodbye.", cue_ja = "お礼を言って、さようならと言ってください。", say = "Takk kærlega. Bless.", items = ["takk_kaerlega", "bless"] },
   { who = "partner", say = "Bless, bless.", meaning = "Bye-bye.", meaning_ja = "じゃあね。" },
 ]
+
+[[themes]]
+# #327: getting to know someone. From about lesson 38 on the replay of the lesson-30 export, its lines («Ég heiti …», «Hvað heitir þú?»,
+# «Ég bý í …», «Ég er kennari.», «Hvað gerir þú?») are the day's new material, while the lessons replayed the town or the supermarket.
+id = "smalltalk"
+scenario = "B3"
+title = "Getting to know someone"
+title_ja = "知り合いになる"
+setting = "A guesthouse lounge: someone sits down next to you."
+setting_ja = "ゲストハウスのラウンジ。隣に人が座る。"
+scene_line = "Someone sits down next to you and says hello."
+scene_line_ja = "隣に座った人が、あいさつしてきます。"
+topics = ["social"]
+[[themes.levels]]
+goal = "Say your name and where you're from, and ask hers."
+goal_ja = "名前と出身を伝え、相手の名前も聞く。"
+partner_speaker = "native_a"
+turns = [
+  { who = "partner", say = "Hæ!", meaning = "Hi!", meaning_ja = "こんにちは！", variants = [{ say = "Hæ, hæ!", meaning = "Hi there!", meaning_ja = "やあ、こんにちは！" }] },
+  { who = "you", cue = "Say hi, give your name, and ask hers.", cue_ja = "あいさつして名前を言い、相手の名前を聞いてください。", say = "Hæ! Ég heiti Yuki. Hvað heitir þú?", items = ["hae", "eg_heiti", "hvad_heitir_thu"] },
+  { who = "partner", say = "Ég heiti Anna. Hvaðan ert þú?", meaning = "I'm Anna. Where are you from?", meaning_ja = "アンナです。どこから来たんですか？", variants = [{ say = "Ég heiti Anna. Gaman að kynnast þér! Hvaðan ert þú?", meaning = "I'm Anna. Nice to meet you! Where are you from?", meaning_ja = "アンナです。はじめまして！どこから来たんですか？" }] },
+  { who = "you", cue = "Say you're from Japan, and ask her back.", cue_ja = "日本から来たと言い、相手にも聞き返してください。", say = "Ég er frá Japan. En þú?", items = ["eg_er_fra_japan", "en_thu"] },
+  { who = "partner", say = "Ég er frá Akureyri, en ég bý í Reykjavík.", meaning = "I'm from Akureyri, but I live in Reykjavík.", meaning_ja = "アークレイリ出身ですが、レイキャビクに住んでいます。", probes = [{ kind = "place", answer = "Akureyri", meanings = { en = "Akureyri", ja = "アークレイリ" }, ask = { en = "Where is she from?", ja = "彼女はどこの出身ですか？" } }, { kind = "place", answer = "Reykjavík", meanings = { en = "Reykjavík", ja = "レイキャビク" }, ask = { en = "Where does she live?", ja = "彼女はどこに住んでいますか？" } }] },
+  { who = "you", cue = "Say it's nice to meet her.", cue_ja = "会えてうれしいと伝えてください。", say = "Gaman að kynnast þér.", items = ["gaman_ad_kynnast_ther"] },
+]
+[[themes.levels]]
+goal = "Say where you live and what you do, and ask her the same."
+goal_ja = "住んでいる所と仕事を伝え、相手にも同じことを聞く。"
+partner_speaker = "native_a"
+turns = [
+  { who = "partner", say = "Hvar býrð þú?", meaning = "Where do you live?", meaning_ja = "どこに住んでいるんですか？" },
+  { who = "you", cue = "Say you live in Tokyo, and ask her back.", cue_ja = "東京に住んでいると言い、聞き返してください。", say = "Ég bý í Tókýó. En þú?", items = ["eg_by_i", "tokyo_dat", "en_thu"] },
+  { who = "partner", say = "Ég bý í Kópavogi, rétt hjá Reykjavík.", meaning = "I live in Kópavogur, just by Reykjavík.", meaning_ja = "コーパヴォグルに住んでいます。レイキャビクのすぐ近くです。" },
+  { who = "you", cue = "Ask what she does.", cue_ja = "仕事は何か聞いてください。", say = "Hvað gerir þú?", items = ["hvad_gerir_thu"] },
+  { who = "partner", say = "Ég er læknir. En þú?", meaning = "I'm a doctor. And you?", meaning_ja = "医者です。あなたは？", variants = [{ say = "Ég vinn á sjúkrahúsi. En þú?", meaning = "I work at a hospital. And you?", meaning_ja = "病院で働いています。あなたは？" }] },
+  { who = "you", cue = "Say you're a teacher.", cue_ja = "教師だと言ってください。", say = "Ég er kennari.", items = ["eg_er_job", "kennari"] },
+  { who = "partner", say = "Gaman að heyra það.", meaning = "Nice to hear that.", meaning_ja = "それはいいですね。" },
+]
