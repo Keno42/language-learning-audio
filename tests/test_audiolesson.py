@@ -7842,7 +7842,7 @@ class ThemeExchangeTests(unittest.TestCase):
         self.assertEqual((cafe_first[0].id, cafe_first[1]), ("cafe", 0))
         market_first = self._planner(learner, self._themes, ["A3", "A4"]).pick_theme()
         self.assertEqual(market_first[0].id, "supermarket")
-        learner.themes_done = {"supermarket": 1, "cafe": 0, "museum": 1, "tour": 2}
+        learner.themes_done = {"supermarket": 1, "clothes": 1, "cafe": 0, "museum": 1, "tour": 2}
         later = self._planner(learner, self._themes, ["A3", "A4", "B1", "B2"]).pick_theme()
         self.assertEqual((later[0].id, later[1]), ("cafe", 0), "the lowest level not played wins over a boosted theme's next level")
         learner.themes_done = {t.id: len(t.levels) for t in self._themes}
