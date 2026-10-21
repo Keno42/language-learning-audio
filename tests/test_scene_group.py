@@ -200,6 +200,7 @@ class LessonGoalTests(unittest.TestCase):
     def test_the_goal_is_in_the_learners_language(self):
         sc = self.lesson("ja")
         self.assertEqual(self.narrated(sc, sc.exercises[1]), ["今日の目標：道を尋ねる。"])
+        self.assertEqual(sc.meta["theme"]["goal"], "道を尋ねる。", "plan.json keeps the goal as it was said (review of #369)")
 
     def test_a_lesson_with_no_theme_has_no_goal(self):
         sc = self.lesson(completed=0)  # the first lesson keeps its rule: no theme, so no goal

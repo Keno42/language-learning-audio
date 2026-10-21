@@ -3628,7 +3628,7 @@ class Planner:
             # #149 1b-ii: the lesson's theme and level (1-based) and how often its exchange played; None: no theme was ready
             "theme": (
                 {"id": theme_pick[0].id, "scenario": theme_pick[0].scenario, "level": theme_pick[1] + 1, "plays": theme_plays, "lines": theme_lines, "replay": theme_replay, "heard": theme_heard,
-                 "goal": theme_pick[0].levels[theme_pick[1]].goal}  # #327: the goal said after the opening (in the learner's language: goal_ja for ja)
+                 "goal": self.builder.goal_text(theme_pick[0].levels[theme_pick[1]])}  # #327: the goal said after the opening, in the learner's language
                 if theme_pick
                 else None
             ),
