@@ -566,7 +566,7 @@ class Planner:
                     return dlg, {0: list(t.items)}, key, asked
         return None
 
-    def _hard_report(self, sc: Script, log: dict[str, list[tuple[str, str]]], at: dict[str, list[float]]) -> dict[str, dict]:
+    def _hard_report(self, sc: Script, log: dict[str, list[tuple[str, str]]], at: dict[str, list[int]]) -> dict[str, dict]:
         """#326's daily-read row: for each item reported hard that was practised, how many times, through how many connections (a scene,
         another pattern, the same pattern with other words) and the most times one sentence of it was asked. Expected: two connections or
         more once it was practised three times, and no sentence more than three times; the others are the content gaps."""
@@ -579,7 +579,9 @@ class Planner:
             links = sorted(set(log.get(item_id, [])) | scenes)
             if not asked and not links:
                 continue
-            out[item_id] = {"practices": sum(asked.values()), "connections": len(links), "kinds": sorted({k for k, _ in links}), "same_sentence_max": max(asked.values(), default=0), "connection_times_s": at.get(item_id, [])}
+            # the start of each connection's first exercise, read once the script is retimed: the build's running total has no switch gaps yet (#301)
+            times = [round(next((e.start for e in sc.exercises[k:] if e.duration > 0), sc.total_duration), 1) for k in at.get(item_id, [])]
+            out[item_id] = {"practices": sum(asked.values()), "connections": len(links), "kinds": sorted({k for k, _ in links}), "same_sentence_max": max(asked.values(), default=0), "connection_times_s": times}
         return out
 
     def covered_units(self, phrase: Item) -> list[Item]:
@@ -2203,7 +2205,7 @@ class Planner:
         slow_models: list[str] = []  # reported-hard items given the slow model of their hard word in this lesson
         hard_calls: Counter = Counter()  # #326: practices of a hard item so far this lesson
         hard_scene_lines: list[str] = []  # #326: the theme lines played for a hard item this lesson
-        hard_at: dict[str, list[float]] = {}  # #326: when each connection practice of a hard item began
+        hard_at: dict[str, list[int]] = {}  # #326: where each connection practice of a hard item began (the index of its first exercise)
         hard_log: dict[str, list[tuple[str, str]]] = {}  # #326: per hard item, the connections it was practised through (kind, scene / pattern id)
 
         def connected_practice(item: Item) -> str:
@@ -2222,11 +2224,11 @@ class Planner:
                 return "ladder"
             order = ["scene", "pattern", "sibling", "form"] if item.kind == "vocab" else ["scene", "pattern", "form"]
             log = hard_log.setdefault(item.id, [])
-            t0 = round(sc.total_duration, 1)
+            first_ex = len(sc.exercises)
 
             def linked(kind: str, key: str) -> str:
                 log.append((kind, key))
-                hard_at.setdefault(item.id, []).append(t0)  # when each connection practice began: a sibling or a scene line does not name the item
+                hard_at.setdefault(item.id, []).append(first_ex)  # where each connection practice began: a sibling or a scene line does not name the item
                 return "played"
             turn = len(log) % len(order)
             used_patterns = frozenset(key for kind, key in log if kind in ("pattern", "sibling"))
