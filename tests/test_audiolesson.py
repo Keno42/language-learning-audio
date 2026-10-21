@@ -5660,7 +5660,7 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
     def test_the_plan_carries_the_refined_review_and_the_lessons_row_reads_zero(self):
         from audiolesson.cli import _plan
         from audiolesson.review_wholes import parts_outside_their_whole
-        lessons = list(ListeningTaskTests._course(21))
+        lessons = list(ListeningTaskTests._course(24))  # «hjálpina» comes in lesson 22 since #327's small talk took its lines earlier
         changed = 0
         for cur, _, sc in lessons:
             plan = _plan(sc, cur)
@@ -5973,7 +5973,8 @@ class ListeningTaskTests(unittest.TestCase):
         for cur, learner, sc in lessons:
             m = sc.meta
             closing_at = next((e.start for e in sc.exercises if e.kind == "closing"), float("inf"))  # the closing block's own exercises are not counted
-            self.assertEqual(m["pick_out_count"], sum(e.kind == "pick_out" for e in sc.exercises if m["target_reached_s"] <= e.start < closing_at))
+            # counted from the target to the closing block, and 0 in a lesson whose target was not delivered (the row's definition, as the run row below)
+            self.assertEqual(m["pick_out_count"], sum(e.kind == "pick_out" for e in sc.exercises if m["target_reached_s"] <= e.start < closing_at) if m["target_delivered"] else 0)
             self.assertEqual(_plan(sc, cur)["second_half"]["pick_out_count"], m["pick_out_count"])
             self.assertLessEqual(sc.total_duration, 30 * 60 + 120, sc.lesson_number)
             # #248 review: the same two frames and the same word over and over would be a new boredom
@@ -8080,10 +8081,10 @@ class ThemeExchangeTests(unittest.TestCase):
     def test_a_lesson_with_every_level_played_replays_the_most_rested_level_unassisted(self):
         learner = self._learner(self._known + self._rest)
         learner.themes_done = {t.id: len(t.levels) for t in self._themes}
-        learner.themes_last = {"supermarket": 9, "cafe": 3, "museum": 8, "tour": 7, "town": 9}
+        learner.themes_last = {t.id: 9 for t in self._themes} | {"cafe": 3, "museum": 8, "tour": 7}
         planner = self._planner(learner, self._themes, self._order)
         now = learner.next_lesson_number()
-        learner.themes_last = {"supermarket": now - 1, "cafe": now - 5, "museum": now - 4, "tour": now - 2, "town": now - 1}
+        learner.themes_last = {t.id: now - 1 for t in self._themes} | {"cafe": now - 5, "museum": now - 4, "tour": now - 2}  # the others were just played
         pick = planner.pick_theme()
         self.assertIsNotNone(pick)
         rested = {t.id for t in self._themes if now - learner.themes_last[t.id] >= planner.cfg.theme_rest_lessons}
