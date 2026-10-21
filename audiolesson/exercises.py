@@ -904,7 +904,7 @@ class Builder:
         forms = (self.cur.nouns.get(item.noun) or {}).get("forms", {})
         ranked = sorted((f for f in forms if forms[f] != item.id), key=lambda f: ({"nom": 0, "acc": 1, "nom_def": 2}.get(f, 3), f))
         for f in ranked:
-            if self.learner.has_met(forms[f]):
+            if self.learner.has_met(forms[f]) or forms[f] in self.in_lesson:  # a form taught earlier in this lesson is one they have too (review of #368)
                 word = self.cur.by_id[forms[f]].target
                 if _norm_utterance(word) != _norm_utterance(item.target):
                     return word, ("basic" if f == "nom" else "known")

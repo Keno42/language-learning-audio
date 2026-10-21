@@ -1490,8 +1490,9 @@ class Planner:
         """The pattern of this lesson's queue that a new part is introduced inside (#262: «matseðilinn» in «Get ég fengið matseðilinn?»), with the slot it
         fills: a construction still to come whose slot takes the part and whose other prerequisites are available. Its worked example is made of the part,
         so the pattern comes first and the part is taken out of the sentence just heard. None when the part has a whole already (a sentence it can be in
-        now, a phrase, an embed) or no such pattern is queued."""
-        if item.kind != "vocab" or item.variant_of or item.target_m or self.learner.has_met(item.id) or item.id in self.learner.embed_failed:
+        now, a phrase, an embed) or no such pattern is queued. A form of a known noun («bankanum» of «bankinn», #270) counts as a part: with the frame
+        still to come and two of its words new (no ``whole_home``), it was said and asked alone (review of #368)."""
+        if item.kind != "vocab" or (item.variant_of and not item.noun) or item.target_m or self.learner.has_met(item.id) or item.id in self.learner.embed_failed:
             return None
         if self.embed_source(item) is not None or self.builder.whole_home(item) is not None or self.builder.phrase_home(item) is not None:
             return None

@@ -111,11 +111,61 @@ class FormInItsFrameTests(unittest.TestCase):
         ex = b.intro(sc, self.cur.by_id["tvaer"])
         self.assertEqual(self.said(sc, ex)[0], ("narrate", Prompts.load("en").get("variant_known")))
 
+    def test_a_form_taught_today_is_the_one_it_is_named_against(self):
+        """Review of #368: «bankinn» introduced earlier in this lesson, then «bankanum»: the contrast and the reason are said too."""
+        b = builder(self.cur, ["eg_er_ad_koma"])
+        b.in_lesson.add("bankinn")
+        sc = Script(31, "t", "is", "en")
+        ex = b.intro(sc, self.cur.by_id["bankanum"])
+        said = self.said(sc, ex)
+        self.assertIn(("speak", "Ég er að leita að bankanum."), said)
+        self.assertIn(("narrate", "You know it as:"), said)
+        self.assertIn(("speak", "bankinn"), said)
+        self.assertIn(("speak", "leita að"), said)
+
     def test_form_reason_goes_on_a_frame(self):
         from audiolesson.content import CurriculumError, curriculum_from_dict
         items = [{"id": "x", "kind": "phrase", "target": "Já.", "meaning": "Yes.", "form_reason": "Why."}]
         with self.assertRaises(CurriculumError):
             curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+
+
+class FrameFirstForAFormTests(unittest.TestCase):
+    """Review of #368: the frame is new too and two of its words are new, so the form has no home yet (``whole_home``): the frame queued for this
+    lesson comes first, its worked example made of the form, and the form is taken out of that sentence, named against the known form."""
+
+    def cur(self):
+        from audiolesson.content import curriculum_from_dict
+        items = [
+            {"id": "bankinn", "kind": "vocab", "target": "bankinn", "meaning": "the bank", "noun": "banki", "form": "nom_def", "gender": "masc", "tags": ["nom_place"]},
+            {"id": "bankanum", "kind": "vocab", "target": "bankanum", "meaning": "the bank", "meaning_spoken": "to the bank", "noun": "banki", "form": "dat_def", "gender": "masc",
+             "variant_of": "bankinn", "tags": ["dat_place"]},
+            {"id": "leita", "kind": "construction", "target": "Ég er að leita að {place}.", "meaning": "I'm looking for {place}.", "slots": {"place": "dat_place"},
+             "example": {"place": "bankanum"}, "prereqs": ["bankanum"], "form_reason": "This form comes after «leita að»."},
+        ]
+        return curriculum_from_dict({"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "items": items})
+
+    def test_the_frame_comes_first_and_the_form_is_taken_out_of_it(self):
+        from datetime import date
+        from audiolesson.planner import PlanConfig, Planner
+        cur = self.cur()
+        learner = LearnerState("is", "en", "A1")
+        learner.items["bankinn"] = ItemState(stage="meaning", successes=2, recalled=1, due="2026-03-20")
+        learner.lessons_completed = 6
+        p = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=8, new_items=2, max_new_items=2, seed=1), today=date(2026, 3, 1))
+        self.assertIsNone(p.builder.whole_home(cur.by_id["bankanum"]), "«ég», «er», «að», «leita» are new: no home yet")
+        self.assertEqual(p.frame_first(cur.by_id["bankanum"], [cur.by_id["leita"]]), (cur.by_id["leita"], "place"))
+        sc = p.build()
+        intros = [e for e in sc.exercises if e.kind == "intro"]
+        self.assertEqual([e.item_ids[0] for e in intros[:2]], ["leita", "bankanum"], "the pattern first, then the form out of its worked example")
+        form = intros[1]
+        said = [(g.type, g.text) for g in sc.segments if g.exercise == form.index and g.type in ("narrate", "speak", "answer")]
+        self.assertEqual(said[0], ("narrate", Prompts.load("en").get("embed_known")))
+        self.assertIn(("speak", "bankinn"), said)
+        self.assertIn(("speak", "leita að"), said)
+        self.assertEqual([t for k, t in said if k == "answer"], ["Ég er að leita að bankanum."], "the sentence is asked, not the bare form")
+        narrated = [g.text for g in sc.segments if g.type == "narrate"]
+        self.assertFalse(any(t.startswith("Here is another form of it") for t in narrated), "no near-form introduction")
 
 
 if __name__ == "__main__":
