@@ -692,7 +692,8 @@ class Planner:
     def closing_order(introduced: list[Item], theme_pick: tuple | None) -> list[Item]:
         """The order the closing block asks today's new items in (#327): the ones outside the lesson's scene first, hardest first, then the ones
         the played level's learner turns need, in the order of the turns, so the lesson ends on the exchange its goal named. With no theme, hardest
-        first and easiest last, as before. Only the order changes: the closing's rules (one question per sentence, the caps, a part asked in its
+        first and easiest last, as before. Only items introduced on their own: a linked phrase taught as a sentence of its pattern (``embedded``) keeps
+        #192's rule of no closing recall, and the exchange's late play asks it (review of #370). Only the order changes: the closing's rules (one question per sentence, the caps, a part asked in its
         sentence) apply to it as they did."""
         if theme_pick is None:
             return sorted(introduced, key=lambda i: -i.difficulty)

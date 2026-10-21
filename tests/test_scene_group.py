@@ -284,6 +284,15 @@ class EmbeddedLineInTheExchangeTests(unittest.TestCase):
         self.assertEqual(sc.meta["new_in_scene"]["in_turns"], ["get_eg_fengid_reikninginn"])
         self.assertTrue(p.taught_today("get_eg_fengid_reikninginn"))
 
+    def test_an_embedded_line_has_no_closing_recall_and_the_late_play_is_its_last_asking(self):
+        """Review of #370: a linked phrase taught as a sentence of its pattern keeps #192's rule (no closing recall), so a lesson whose only new line of
+        the exchange is one has no closing block; the exchange's late play is where the lesson last asks it."""
+        p, sc = self.build()
+        self.assertFalse(any(e.label == "final review" for e in sc.exercises), "nothing introduced on its own: no closing block")
+        late = [e for e in sc.exercises if e.kind == "dialogue" and "theme:bill:1" in e.label][-1]
+        self.assertIn("get_eg_fengid_reikninginn", late.item_ids)
+        self.assertEqual([e.label for e in sc.exercises if e.index > late.index and "get_eg_fengid_reikninginn" in e.item_ids], [])
+
     def test_a_turn_only_heard_is_not_counted(self):
         p, sc = self.build()
         heard = {i for e in sc.exercises if e.kind == "dialogue" and "theme:bill:1" in e.label for i in e.heard_ids}
