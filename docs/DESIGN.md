@@ -174,7 +174,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   A short item introduced today that has been said inside a sentence in this lesson is asked in a
   sentence from then on, the closing recall included (#179: `ask_a_sentence`, `Builder.sentence_recall`
   with its `context` sentence first), not as a bare part; a short item with no sentence yet keeps the
-  bare recall. The closing asks each sentence once: a new item that an earlier recall of the closing made the learner
+  bare recall. The closing asks today's new items outside the lesson's scene first, hardest first, then the played level's items in the order of its
+  turns, so the lesson ends on its exchange (`Planner.closing_order`, #327; with no theme, hardest first as before). A linked phrase taught as a
+  sentence of its pattern (`embedded`) keeps no closing recall (#192); the exchange's late play asks it. It asks each sentence once: a new item that an earlier recall of the closing made the learner
   say (its holder, the pattern or the filler in that recall's `item_ids`, or its words inside that recall's sentence, not negated there:
   «Ég skil ekki.» is not a recall of «Ég skil.») is credited to that recall and not asked again (lesson 27: «Í miðbæinn, takk.» and «Ljósið virkar ekki.» twice in a minute).
   **Parts and utterances (#187, #190).** The cap is keyed to `Item.kind`, not to length: a *part* (`vocab`: every slot

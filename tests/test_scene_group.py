@@ -208,6 +208,33 @@ class LessonGoalTests(unittest.TestCase):
         self.assertFalse(any(e.label == "lesson goal" for e in sc.exercises))
 
 
+class ClosingOrderTests(unittest.TestCase):
+    """#327: the closing asks the items outside the scene first, hardest first, and ends on the played level's items in the order of its turns."""
+
+    def test_the_order(self):
+        cur = town_cur()
+        by = cur.by_id
+        kaffi, langt, takk = by["kaffi"], by["langt"], by["takk"]
+        kaffi.difficulty, langt.difficulty, takk.difficulty = 1, 3, 1
+        self.assertEqual([i.id for i in Planner.closing_order([takk, kaffi, langt], (town_theme(), 0, set()))], ["kaffi", "langt", "takk"],
+                         "outside the scene first; then the turns' order, not the difficulty")
+        self.assertEqual([i.id for i in Planner.closing_order([takk, kaffi, langt], None)], ["langt", "takk", "kaffi"], "no theme: hardest first, as before")
+
+    def test_a_lesson_ends_on_its_scene(self):
+        l = LearnerState("is", "en", "A1")
+        l.lessons_completed = 6
+        l.items["afsakid"] = ItemState(due="2026-03-20", successes=2, durable_successes=2, stage="meaning")
+        cfg = PlanConfig(minutes=12, new_items=3, max_new_items=3, seed=1, themes=[town_theme()], theme_scenarios=["A8"])
+        sc = Planner(town_cur(), l, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+        start = next(e.index for e in sc.exercises if e.label == "final review")
+        asked = [e.item_ids[0] for e in sc.exercises[start + 1:] if e.kind != "closing" and e.item_ids]
+        self.assertTrue(asked, "the closing asked something")
+        level_items = town_theme().levels[0].items
+        self.assertIn(asked[-1], level_items, f"the last question is a line of the exchange: {asked}")
+        inside = [i for i in asked if i in level_items]
+        self.assertEqual(inside, sorted(inside, key=level_items.index), "in the order of the turns")
+
+
 def bill_cur():
     """A café level whose second line is a linked phrase of a known pattern: it comes in as one sentence of the pattern (``embedded``), not
     through its own introduction (review of #365)."""
@@ -256,6 +283,15 @@ class EmbeddedLineInTheExchangeTests(unittest.TestCase):
         self.assertNotIn("get_eg_fengid_reikninginn", plays[-1].heard_ids)
         self.assertEqual(sc.meta["new_in_scene"]["in_turns"], ["get_eg_fengid_reikninginn"])
         self.assertTrue(p.taught_today("get_eg_fengid_reikninginn"))
+
+    def test_an_embedded_line_has_no_closing_recall_and_the_late_play_is_its_last_asking(self):
+        """Review of #370: a linked phrase taught as a sentence of its pattern keeps #192's rule (no closing recall), so a lesson whose only new line of
+        the exchange is one has no closing block; the exchange's late play is where the lesson last asks it."""
+        p, sc = self.build()
+        self.assertFalse(any(e.label == "final review" for e in sc.exercises), "nothing introduced on its own: no closing block")
+        late = [e for e in sc.exercises if e.kind == "dialogue" and "theme:bill:1" in e.label][-1]
+        self.assertIn("get_eg_fengid_reikninginn", late.item_ids)
+        self.assertEqual([e.label for e in sc.exercises if e.index > late.index and "get_eg_fengid_reikninginn" in e.item_ids], [])
 
     def test_a_turn_only_heard_is_not_counted(self):
         p, sc = self.build()
