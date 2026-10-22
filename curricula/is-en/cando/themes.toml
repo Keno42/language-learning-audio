@@ -262,7 +262,7 @@ goal_ja = "アイスランド人か聞き、日本人で出張中だと伝え、
 partner_speaker = "native_a"
 turns = [
   { who = "you", cue = "Ask if she's Icelandic.", cue_ja = "アイスランド人か聞いてください。", say = "Ert þú íslensk?", items = ["ert_thu_islensk"] },
-  { who = "partner", say = "Já, ég er frá Akureyri. En þú?", meaning = "Yes, I'm from Akureyri. And you?", meaning_ja = "ええ、アークレイリ出身です。あなたは？", variants = [{ say = "Já, alveg. En þú?", meaning = "Yes, I am. And you?", meaning_ja = "ええ、そうです。あなたは？", word_glosses = { "alveg" = { en = "I am", ja = "そうです", pointer = { en = "the word that answers yes", ja = "はいと答えた部分" } } } }] },
+  { who = "partner", say = "Já, ég er frá Akureyri. En þú?", meaning = "Yes, I'm from Akureyri. And you?", meaning_ja = "ええ、アークレイリ出身です。あなたは？", variants = [{ say = "Já, alveg. En þú?", meaning = "Yes, absolutely. And you?", meaning_ja = "ええ、まったくそうです。あなたは？", word_glosses = { "alveg" = { en = "absolutely", ja = "まったく", pointer = { en = "the word that makes the yes stronger", ja = "「はい」を強めた部分" } } } }] },
   { who = "you", cue = "Say you're Japanese.", cue_ja = "日本人だと言ってください。", say = "Ég er japönsk.", say_m = "Ég er japanskur.", items = ["eg_er_japonsk"] },
   { who = "partner", say = "Ertu hér í fríi?", meaning = "Are you here on holiday?", meaning_ja = "休暇で来ているんですか？", word_glosses = { "fríi" = { en = "holiday", ja = "休暇" } }, variants = [{ say = "Ertu í fríi á Íslandi?", meaning = "Are you on holiday in Iceland?", meaning_ja = "アイスランドには休暇で？", word_glosses = { "fríi" = { en = "holiday", ja = "休暇" } } }] },
   { who = "you", cue = "Say you're on a business trip.", cue_ja = "出張中だと言ってください。", say = "Ég er í vinnuferð.", items = ["eg_er_i_vinnuferd"] },
