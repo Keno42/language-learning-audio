@@ -5696,7 +5696,7 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
     def test_the_plan_carries_the_refined_review_and_the_lessons_row_reads_zero(self):
         from audiolesson.cli import _plan
         from audiolesson.review_wholes import parts_outside_their_whole
-        lessons = list(ListeningTaskTests._course(24))  # «hjálpina» comes in lesson 22 since #327's small talk took its lines earlier
+        lessons = list(ListeningTaskTests._course(25))  # «hjálpina» comes in lesson 25 since small talk's third and fourth levels took their lines earlier
         changed = 0
         for cur, _, sc in lessons:
             plan = _plan(sc, cur)
@@ -5705,9 +5705,9 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
             answers = [q["answer"].casefold() for q in plan["review"] if not q.get("bonus")]
             self.assertEqual(len(answers), len(set(answers)), f"lesson {sc.lesson_number}: one answer asked twice")
         self.assertGreater(changed, 10, "the review has something to refine on a real course")
-        # lesson 20's case on the real path: the part comes in with its whole
+        # lesson 20's case on the real path: the part comes in with its whole, introduced in it or caught from the line that holds it (#339)
         labels = [e.label for _, _, sc in lessons for e in sc.exercises if e.kind == "intro"]
-        self.assertIn("new: Takk fyrir hjálpina. (hjálpina)", labels)
+        self.assertTrue({"new: Takk fyrir hjálpina. (hjálpina)", "new (catch): hjálpina"} & set(labels))
         self.assertNotIn("new: hjálpina", labels)
 
 
