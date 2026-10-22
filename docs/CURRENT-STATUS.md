@@ -10,7 +10,7 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 ## Now (updated 2026-10-22, after lesson 33), in order
 
 Ranked by the effect on the next lesson as the replay of the latest export shows it (LD §9 "Governance": about 80% /
-20%). The latest export is lesson 33's; the next lesson is 34. Lesson 33's two remarks are answered in PRs in review:
+20%). The latest export is lesson 33's; the next lesson is 34. Lesson 33's two remarks are answered:
 the review names the speaker's form its answer expects (#375), and «með» / «án» get a milestone and contrasting practice
 (#377) (LD §5.23).
 1. **The coming lessons' sentences get a verdict before they are said (G6; the scene check, LD §9 "Good enough
@@ -20,12 +20,7 @@ the review names the speaker's form its answer expects (#375), and «með» / «
    met, so a word introduced today is generated unjudged the same day, and the negative and question forms are on no
    sheet. **Next smallest step:** scene lines for the 142 from a reviewer (`docs/SCENE-REVIEW.md`), faithful to each
    sentence's meaning; then the sheet printed from the replay of each new export, the forms included.
-2. **An open item asked as one sentence four times a lesson (#326).** «Ég er með ofnæmi fyrir hnetum.» is open; lesson
-   33 said it 6 times in one wording, with nothing connecting it. The café's fourth level now holds it (#379): on the
-   replay of the lesson-33 export it goes through that scene once a lesson in lessons 33–37 and is no longer a content
-   gap, but its other four practices are still the same sentence. **Next smallest step:** the pattern «Ég er með ofnæmi
-   fyrir {…}.» with foods in the dative, so that its other practices are other sentences of the pattern (#192).
-3. **The new material after lesson 36 has no level to play (#327).** With the town, small talk and the clothes shop,
+2. **The new material after lesson 36 has no level to play (#327).** With the town, small talk and the clothes shop,
    «today's new items said as a turn of the played exchange» reads 17 in lessons 30–35 and 0 from lesson 36 on the
    replay of the lesson-30 export. From there the lessons replay town 2, the supermarket's level 2 and the clothes
    shop's level 2 in turn, while the day's material is still the way («Það er til vinstri.», «Hvað er langt þangað?»,
@@ -37,7 +32,7 @@ Icelandic (candidates until native-checked). The town (asking the way), small ta
 clothes shop (what you need, the price, trying it on) are written: on the replay of the lesson-30 export the day's new
 lines are said in the played exchange in lessons 30–35 (17; before the town, 0 in nine lessons). The goal of the played
 level is said after the opening, and the closing ends on the level's lines in the order of its turns. Next: the way
-itself (item 3), then taxi and bus, winter talk.
+itself (item 2), then taxi and bus, winter talk.
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
 learner say this line", then the planner's build loop. Each step leaves the replays of the lesson-21–23 exports
@@ -60,7 +55,8 @@ Each waits for its first feedback in the LD §8 table.
 - **The review:** a transform question keeps its input sentence (#366: #367).
 - **Documents:** a route per task in `CLAUDE.md`, and «Now» in this file only (#364: #374).
 - **The scene check:** the first outside review of the coming lessons' sentences, six verdicts (#376).
-- **Connections (#326):** the allergy line in the café's fourth level, a scene to practise it through (#379).
+- **Connections (#326):** the allergy line in the café's fourth level, a scene to practise it through (#379), and its pattern
+  «Ég er með ofnæmi fyrir {…}.» with nouns in the dative, so its other practices are other sentences (#CHANGE).
 
 ## Open issues after "Now", in order
 - **An item counted toward the target when it is selected, not when it is taught.** On the replay, lesson 30's second

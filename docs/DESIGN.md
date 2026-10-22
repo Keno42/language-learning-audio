@@ -279,7 +279,8 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   whose every holder sentence is at the cap gets no bare part in its place at the closing. Like the bare cap it holds only while
   the caps do (`bare_cap_lapsed`: nothing else is left).
   A fixed phrase linked to a pattern (`Item.instance_of`, `instance_fill`, #192): in `sentence_practice`, past
-  `max_sentence_utterances` and once the pattern is available (`Builder._frame_available`), the phrase is practised through
+  `max_sentence_utterances` and once the pattern is available (`Builder._frame_available`) and the learner's review did not ask it today
+  (`reviewed_today`, #238; the hard phrase's `pattern` connection goes through here too), the phrase is practised through
   `Builder._recombine(pattern, met_fills=True, exclude=<its own fills>)` (another sentence of the pattern), else `Builder.sibling_recall`
   (a plain meaning recall of the sentence of another filler said fewest times, a heard line may repeat). `_record` credits the
   pattern and its fillers (`ex.item_ids`), never the phrase.
