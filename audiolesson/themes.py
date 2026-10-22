@@ -78,6 +78,9 @@ WHO = ("you", "partner")
 class Turn:
     who: str
     say: str
+    # a learner's line whose words follow the speaker's gender (an item of it has a ``target_m``): the man's form. The line is said in the form of
+    # the learner's voice, the one opposite the partner's, and the cue names it («As a man: …»), as every review question does (#375)
+    say_m: str = ""
     cue: str = ""
     cue_ja: str = ""
     meaning: str = ""
@@ -162,12 +165,28 @@ def load_themes(curriculum_dir: str | Path, cur: Curriculum | None = None, scena
         _check(theme)
     if cur is not None:
         check_items([(t.id, i) for t in out for lv in t.levels for i in lv.items], cur.by_id, "themes")
+        check_gendered_lines(out, cur)
     if scenarios is not None:
         known = {s.id for s in scenarios}
         bad = [(t.id, t.scenario) for t in out if t.scenario not in known]
         if bad:
             raise CurriculumError(f"themes name unknown can-do scenarios: {bad}")
     return out
+
+
+
+def check_gendered_lines(themes: list[Theme], cur: Curriculum) -> None:
+    """A learner's line has its man's form (``say_m``) exactly when one of its items has one (``target_m``): the line is said in the form of
+    the learner's voice and the cue names it (#375), never one form unannounced."""
+    for theme in themes:
+        for n, lv in enumerate(theme.levels, 1):
+            for k, turn in enumerate(lv.turns, 1):
+                gendered = turn.who == "you" and any(cur.by_id[i].target_m for i in turn.items)
+                if gendered != bool(turn.say_m):
+                    raise CurriculumError(
+                        f"theme {theme.id!r} level {n} turn {k}: "
+                        + ("an item's words follow the speaker's gender: the line needs its man's form, say_m" if gendered else "say_m, but no item of the line has a man's form")
+                    )
 
 
 def _check(theme: Theme) -> None:
@@ -201,6 +220,8 @@ def _check(theme: Theme) -> None:
                 raise CurriculumError(f"{where} turn {k}: cue: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
             if t.who == "you" and not (t.cue.strip() and t.items):
                 raise CurriculumError(f"{where} turn {k}: a learner's line needs a cue (the intent, played every time) and the items it needs")
+            if t.say_m and (t.who != "you" or t.say_m == t.say):
+                raise CurriculumError(f"{where} turn {k}: say_m is the man's form of a learner's line and must differ from it")
             if t.scene and t.who != "partner":
                 raise CurriculumError(f"{where} turn {k}: a scene goes on a partner's line (a learner's turn has its cue)")
             for w in unmarked_japanese(t.scene):
@@ -313,7 +334,7 @@ def level_dialogue(theme: Theme, n: int, known_lang: str = "en", picks: dict[int
             else:
                 opener, opener_scene = (t.say, meaning), scene
             continue
-        turn = DialogueTurn(cue=(t.cue_ja if ja and t.cue_ja else t.cue), expect_text=t.say)
+        turn = DialogueTurn(cue=(t.cue_ja if ja and t.cue_ja else t.cue), expect_text=t.say, expect_text_m=t.say_m or None)
         if opener is not None:
             turn.opener, turn.opener_meaning, turn.scene = opener[0], opener[1], opener_scene
             opener, opener_scene = None, ""

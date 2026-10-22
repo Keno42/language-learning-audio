@@ -203,10 +203,12 @@ turns = [
   { who = "partner", say = "Bless, bless.", meaning = "Bye-bye.", meaning_ja = "じゃあね。" },
 ]
 [[themes.levels]]
-goal = "Ask the way to a restaurant: left or right, how far, and on the map."
-goal_ja = "レストランへの道を尋ねる。右か左か、どのくらいかかるか、地図ではどこか。"
+goal = "Say you're lost and ask the way to a restaurant: left or right, how far, and on the map."
+goal_ja = "道に迷ったと伝え、レストランへの道を尋ねる。右か左か、どのくらいかかるか、地図ではどこか。"
 turns = [
-  { who = "you", cue = "Stop someone and ask where the restaurant is.", cue_ja = "人を呼び止めて、レストランがどこか聞いてください。", say = "Afsakið, hvar er veitingastaðurinn?", items = ["afsakid", "hvar_er", "veitingastadurinn"] },
+  { who = "you", cue = "Stop someone and say you're lost.", cue_ja = "人を呼び止めて、道に迷ったと言ってください。", say = "Afsakið, ég er týnd.", say_m = "Afsakið, ég er týndur.", items = ["afsakid", "eg_er_tynd"] },
+  { who = "partner", say = "Hvert ertu að fara?", meaning = "Where are you going?", meaning_ja = "どこへ行くんですか？", word_glosses = { "hvert" = { en = "where to", ja = "どこへ", pointer = { en = "the word asking where you're going", ja = "行き先を尋ねた部分" } } } },
+  { who = "you", cue = "Ask where the restaurant is.", cue_ja = "レストランがどこか聞いてください。", say = "Hvar er veitingastaðurinn?", items = ["hvar_er", "veitingastadurinn"] },
   { who = "partner", say = "Beint áfram og svo til hægri.", meaning = "Straight ahead, and then right.", meaning_ja = "まっすぐ行って、それから右です。", variants = [{ say = "Hann er til hægri, við höfnina.", meaning = "It's on the right, by the harbour.", meaning_ja = "右側、港のそばです。", word_glosses = { "höfnina" = { en = "the harbour", ja = "港" } } }] },
   { who = "you", cue = "Check: to the right?", cue_ja = "右ですか、と確かめてください。", say = "Til hægri?", items = ["til_haegri"] },
   { who = "partner", say = "Já, til hægri. Ekki til vinstri.", meaning = "Yes, to the right. Not to the left.", meaning_ja = "はい、右です。左ではありません。" },

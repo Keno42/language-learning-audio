@@ -245,7 +245,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   other known fillers, in `cheap_construction` and in `select_new`'s `ready()`.
 - **The lesson's theme exchange (#149 1b-ii).** A theme (`audiolesson/themes.py`, `cando/themes.toml`) is a
   scene of a trip as an exchange, at rising levels (partner and learner turns; a learner turn lists the items it
-  needs). `Planner.pick_theme` takes, among the themes whose next level the learner can say in all but a quarter of
+  needs; a gendered learner line has its man's form, `Turn.say_m`, which `level_dialogue` passes on as `expect_text_m`, so the line is
+  said in the form of the learner's voice, opposite the partner's, and `Builder.dialogue` names it in the cue; `check_gendered_lines`
+  requires it exactly on lines with a `target_m` item, `tests/test_theme_levels.py`). `Planner.pick_theme` takes, among the themes whose next level the learner can say in all but a quarter of
   their turns (`theme_ready`: every item of a turn met and not open, or queued to be introduced in this lesson, `coming`, #327:
   the level plays in the lesson that teaches its lines, heard early and asked late), the lowest level not yet played, the trip
   profile's boosted scenarios first (`theme_scenarios`, `scenario_order`), then Tier A, then Tier B, in file order. Its `goal`
