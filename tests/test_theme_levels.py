@@ -59,5 +59,17 @@ class ThemeLevelTests(unittest.TestCase):
         self.assertTrue(any(p["kind"] == "duration" for p in probes), "how long it takes is picked out of the partner's answer")
 
 
+    def test_small_talks_third_and_fourth_levels_say_the_lines_of_getting_to_know_someone(self):
+        """After lesson 38 of the lesson-33 replay the day's new items were getting to know someone (nationality, work; age, married) and
+        no level said them. Small talk's partner stays a woman, as the learner's questions to her are («Ert þú íslensk?», «Hvað ertu
+        gömul?»): the learner's voice is then a man's, and the gendered lines are said «As a man:» in the man's form."""
+        levels = self.themes["smalltalk"].levels
+        said = [{i for turn in lv.turns if turn.who == "you" for i in turn.items} for lv in levels[2:4]]
+        self.assertLessEqual({"ert_thu_islensk", "eg_er_japonsk", "eg_er_i_vinnuferd", "eg_vinn_hja"}, said[0])
+        self.assertLessEqual({"hvad_ertu_gomul", "eg_er_ara", "eg_er_gift"}, said[1])
+        self.assertEqual({lv.partner_speaker for lv in levels}, {"native_a"})
+        dlg = level_dialogue(self.themes["smalltalk"], 2, "en")
+        self.assertEqual(next(t.expect_text_m for t in dlg.turns if t.expect_text == "Ég er japönsk."), "Ég er japanskur.")
+
 if __name__ == "__main__":
     unittest.main()

@@ -163,6 +163,16 @@ class LevelInTheLessonThatTeachesItTests(unittest.TestCase):
         self.assertEqual(heard, {1, 2}, "the turns are still heard until their items are taught")
         self.assertIsNone(p.pick_theme(coming={"langt"}), "a turn whose item is not coming still keeps the level back")
 
+    def test_a_level_whose_lines_come_today_beats_a_ready_level_that_teaches_nothing(self):
+        """Lesson 40 of the lesson-33 replay: café 4 (every line known, scenario ranked first) and small talk 4 (its lines taught that lesson)
+        were both ready at the same level; café 4 was played and small talk 4's lines, taught that day, had no scene until the next lesson."""
+        known = Theme(id="cafe", scenario="A4", title="Café", scene_line="You're at a café.", topics=["cafe"], levels=[
+            {"goal": "Say sorry.", "turns": [{"who": "you", "cue": "Say sorry.", "say": "Afsakið.", "items": ["afsakid"]}, {"who": "partner", "say": "Já?", "meaning": "Yes?"}]}])
+        cfg = PlanConfig(minutes=10, new_items=3, max_new_items=3, seed=1, themes=[known, town_theme()], theme_scenarios=["A4", "A8"])
+        p = Planner(town_cur(), self.learner(), Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY)
+        self.assertEqual(p.pick_theme()[0].id, "cafe", "nothing coming: the ranked scenario, as before")
+        self.assertEqual(p.pick_theme(coming={"langt", "takk"})[0].id, "town", "the level whose lines this lesson teaches")
+
     def test_the_lesson_that_teaches_the_levels_lines_plays_it_and_asks_them_late(self):
         sc = self.planner(minutes=12, new_items=2).build()
         self.assertEqual((sc.meta["theme"]["id"], sc.meta["theme"]["level"]), ("town", 1))

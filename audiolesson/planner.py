@@ -1782,7 +1782,9 @@ class Planner:
             waiting = {k for k in untaught if all(self.learner.has_met(i) or self.taught_today(i) or i in coming for i in you[k].items)}
             if len(untaught - waiting) > (1 - self.cfg.theme_ready) * len(you):
                 continue
-            key = (level, rank[theme.scenario], order)
+            # a level whose lines this lesson teaches comes first (#327): another ready level, all of it known, would leave today's lines without
+            # their scene (lesson 40 of the lesson-33 replay: café 4, rank A4, over small talk 4, whose lines that lesson taught)
+            key = (not waiting, level, rank[theme.scenario], order)
             if best is None or key < best[0]:
                 best = (key, theme, level, untaught)
         if best is not None:
