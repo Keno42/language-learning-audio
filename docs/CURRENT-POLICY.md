@@ -1,7 +1,7 @@
 # Current policy (the short brief)
 
-Read this first for a routine task, then the sections of `docs/LEARNING-DESIGN.md` (LD) it points at. A change to learning
-policy, to the structure of the lessons or of the review, or a new kind of exercise still needs LD in full. This file
+Read this first, then the sources `CLAUDE.md` "Read for the task" names for the kind of task. A change to project-wide
+learning policy, or a design change across several areas, needs `docs/LEARNING-DESIGN.md` (LD) in full. This file
 summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wrong and gets fixed. Last checked against LD on
 2026-10-14. It states decisions; hypotheses are bets and are marked so. Status of the work is in `docs/CURRENT-STATUS.md`.
 
@@ -83,5 +83,5 @@ summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wro
 - Every default reproduces today's behaviour, or the change of behaviour is the point and is stated. The settings that
   produced a lesson stay recorded (`plan.json`, the manifest).
 - After a round of learner feedback: replay the export, read the signals, update the evidence (LD §5) and the hypothesis
-  statuses (LD §4), re-rank the roadmap (LD §8). A change is done as LD §8 defines it: its daily-read row at its target, and three
+  statuses (LD §4), re-rank "Now" (`docs/CURRENT-STATUS.md`). A change is done as LD §8 defines it: its daily-read row at its target, and three
   feedbacks without a remark of the same kind.

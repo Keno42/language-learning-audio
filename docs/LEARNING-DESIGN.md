@@ -8,9 +8,9 @@ want the overall learning plan to stay in a sensible order", and again after les
 
 **Read it before opening an issue, before implementing one, and after every round of
 learner feedback.** For a routine task start from the two short briefs, `docs/CURRENT-POLICY.md` (what always holds)
-and `docs/CURRENT-STATUS.md` ("Now", copied from §8, and where to look for the rest), and read the sections they point
-at; read all of this for
-a change to learning policy or to the structure of the lessons or the review. If a brief disagrees with this document,
+and `docs/CURRENT-STATUS.md` ("Now", which lives only there, and where to look for the rest), then the sections
+`CLAUDE.md` "Read for the task" names; read all of this for a change to project-wide learning policy or a design change
+across several areas. If a brief disagrees with this document,
 this document wins and the brief is fixed. Section 1 is the checklist; the rest is what the checklist points at.
 `docs/DESIGN.md` covers the code; this document covers the learning.
 
@@ -28,10 +28,12 @@ Contents: [1 Checklists](#1-checklists) · [2 What the project is](#2-what-the-p
 
 ### Before opening an issue
 
-Answer these in the issue. If one has no answer yet, say so; that is information too.
+Answer these in the issue (`.github/ISSUE_TEMPLATE/change.md` holds them, below the issue's "Built / Left / Next
+smallest step", which is rewritten in place when the state changes). If one has no answer yet, say so; that is
+information too.
 
 1. **Concept and outcome.** Which of the four things in §3 "The concept" does it serve, and how (and which outcome,
-   O1–O5)? Will the learner notice? If §8 "Now" still lists a twenty-point part, why does this come first (§9 "Good
+   O1–O5)? Will the learner notice? If "Now" (`docs/CURRENT-STATUS.md`) still lists a twenty-point part, why does this come first (§9 "Good
    enough overall")?
 2. **Gap.** Which gap in §7 does it close, or which new gap does it reveal? Is that gap the
    most limiting one right now (§8)? If not, what makes it worth doing first?
@@ -95,11 +97,11 @@ after **every** lesson, the next day; once they settle, weekly.
    have added up. **The slow reads gate the decisions that depend on them, never the work:**
    development and merges go on while they accumulate.
 5. Record the lesson's evidence in a new §5 subsection (a dated record: later edits fix only its references). Rewrite the status column
-   in §4 and §8 to say where things stand, not extended (§10 "Documents"); re-rank §8 if the evidence moved it.
+   in §4 and §8 to say where things stand, not extended (§10 "Documents"); re-rank "Now" (`docs/CURRENT-STATUS.md`) if the evidence moved it.
 6. Ask the learner when a signal is ambiguous (§6.2). Don't guess from the data alone.
 7. **Sort each remark into one of three** (§9 "Good enough overall"):
-   - **A twenty-point part.** The learner names something boring, confusing or contradictory. It goes into §8
-     "Now", which holds three or four items at most.
+   - **A twenty-point part.** The learner names something boring, confusing or contradictory. It goes into "Now"
+     (`docs/CURRENT-STATUS.md`), which holds three or four items at most.
    - **A precision problem.** A line not quite right, a rare case. It becomes a named exception, or it waits.
    - **A mechanism idea.** It waits as an issue, outside "Now" (§8 "Not now" lists the kinds), unless it fixes a
      twenty-point part.
@@ -582,38 +584,10 @@ and a regression would show up as the same symptom.
 
 ## 8. Roadmap by expected impact
 
-The long run below is ordered by the expected effect on the outcome, adjusted for cost and for what depends on what;
-"Now" is ranked as its heading says. Re-rank both when the evidence moves.
-
-**Now (updated 2026-10-15), in order,** ranked by the effect on the next lesson as the replay of the latest export
-shows it (§9 "Governance": about 80% / 20%).
-1. **A word is caught once, some new words are introduced through the catch, and the pick-outs rotate across lessons
-   (#339; the owner's decision, §9 "Conversation").** The replay of lesson 27 asks «sestu», «kjötsúpa», «þarftu» and
-   the same two pick-outs again, as every lesson since 23 and 25. The two parts go together: the three words have had
-   their catch, so with «once» alone the form would leave the lessons from lesson 27, and the introductions bring it
-   back. The second half catches only words never caught. Of the 8 glossed partner lines, the 3 usable today are
-   those words; the other 5 become usable as the learner learns their other words, and #327's theme levels can add
-   more.
-2. **A word reported hard to say gets its slow, split model again (#337).** The «sooner» items of lesson 26 come back in
-   lesson 27, so it is H13's first real test. The rule also reads the words inside phrases and adds the sounds this
-   learner has stumbled on.
-3. **The pick-out marks its turns (#335):** «Listen and answer.», «The answer:», «Listen again.», as the learner wrote
-   it. Wording only, and 1–3 pick-outs come in every lesson.
-4. **A scene's lines that vary in use are taught as a pattern with the scene's fillers (#336).** The replay of lesson 27
-   says six of its sentences 8 times each in one wording («Ég vakna klukkan sjö.», «Ég kem heim klukkan sex.»), the
-   bus's shape. The largest effect on repetition and the largest cost (data); the frames a scene varies first.
-
-**The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
-Icelandic (candidates until native-checked). The town (asking the way), small talk (getting to know someone) and the
-clothes shop (what you need, the price, trying it on) are written: on the replay of the lesson-30 export the day's new
-lines are said in the played exchange in lessons 30–35 (17; before the town, 0 in nine lessons). The goal of the played
-level is said after the opening, and the closing ends on the level's lines in the order of its turns. Next: taxi and
-bus, winter talk.
-
-**Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
-learner say this line", then the planner's build loop. Each step leaves the replays of the lesson-21–23 exports
-byte-identical. Built: `docs/DESIGN.md`'s invariants are one line per topic (#320) and the word regex and `norm_utterance` are
-defined once (`audiolesson/text.py`, #321).
+The long run below is ordered by the expected effect on the outcome, adjusted for cost and for what depends on what.
+**"Now"**, the three or four items ranked by the effect on the next lesson, lives in `docs/CURRENT-STATUS.md` with
+the long run alongside it, the refactoring alongside it and the open issues after it; this section keeps the long run,
+the table of built changes waiting for feedback and the rows. Re-rank both when the evidence moves.
 
 **Built, waiting for three feedbacks without the same remark** (the rule for "done" is below the table). What each
 change does is in the §5 subsection of the lesson it was first heard in. Done this way since lesson 25: the changes built after
@@ -674,17 +648,6 @@ after it carry no remark of the same kind (the table above). The rows:
 12. lessons whose target is not delivered, and whether the second half started through the guard (#294: `meta.target_delivered`,
     `meta.rotation_guard`; a row of `replay_lesson.py`: «yes», «guard» or «no», #310);
 13. speech segments that touch at a change of voice (#301: `meta.touching_switches`, 0 expected; a row of `replay_lesson.py`, with the count of gaps inserted next to it, #310).
-
-**Open issues after "Now", in order:**
-- #333, the lesson-26 preview's findings. None of them is in the replay of lesson 27: the transport phrases come back
-  at their reviews. Small. «Má ég sofa?» waits for the owner's call (a named exception or a slot tag).
-- #209: when a fluent speaker is available (G10). It is worth more now that #255, #257, #276, #292, #317 (genders and
-  forms) and #323 (a grammar note) added authored Icelandic, and it holds #279's step 2; #327 part 2, #336 and #337 will add more.
-- #236: a one-off reply gets several example answers (owner: low priority).
-
-#265 (expression first), #149 (themes) and #270 (a noun with its gender and forms; its step 2 is what the tags already
-do, #317, #324) are the umbrellas the items above belong to; #220 stays open for its ranking
-(the bot's review on its own, site_update_notifier#124, waits for it); #326 for the connections across lessons.
 
 **The long run: the bets in order.** What each step has built is listed here; the rules it settled are in §9.
 
@@ -928,8 +891,8 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
     already fixed coming back (length, a short item alone at most three times, open items
     practised). Slow signals (recall rates, phrase length, readiness) gate only the decisions
     that depend on them, not development. Back to the weekly rule once the lessons settle.
-  - **Priorities (owner, 2026-10-14).** About 80% of the work goes to the next lesson and 20% to the long run. §8
-    "Now" is ranked by the effect on the next lesson, checked on the replay of the latest export; the owner approves a
+  - **Priorities (owner, 2026-10-14).** About 80% of the work goes to the next lesson and 20% to the long run.
+    "Now" (`docs/CURRENT-STATUS.md`) is ranked by the effect on the next lesson, checked on the replay of the latest export; the owner approves a
     re-ranking by merging the PR that makes it.
   - Every change states its hypothesis, lever, expected outcome and check week.
   - A human approves every change, and nothing changes the learner model or the planner
