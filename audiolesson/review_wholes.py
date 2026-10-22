@@ -19,9 +19,9 @@ from __future__ import annotations
 
 import re
 
-from .exercises import _norm_utterance, cue_is_answer, meaning_prompts
+from .exercises import _norm_utterance, answer_gender, cue_is_answer, meaning_prompts, speak_as
 from .prompts import Prompts
-from .review_wording import restore_transform_sources
+from .review_wording import restore_transform_sources, speaker_form
 from .text import WORD
 
 _WORD = WORD
@@ -65,9 +65,15 @@ def whole_for(cur, part, met: set[str], prompts: Prompts, taught: dict | None = 
     fills the learner has met for its other slots) comes first, the one whose authored situation or example names the part before the rest;
     then the shortest phrase that holds the part's words. ``taught`` is the sentence the part came in with today (``Builder.wholes_taught``): when its
     pattern is not met yet it is asked exactly as taught, never rebuilt with other words (#262 review); and when nothing else holds the part (a line
-    such as «þúsund krónur» is neither a pattern nor a phrase), it is asked as taught too."""
+    such as «þúsund krónur» is neither a pattern nor a phrase), it is asked as taught too. A sentence whose words follow the speaker's gender names the
+    form it expects («As a woman: …»), as the lesson does."""
+
+    def ask(meaning: str, answer: str, *made_of) -> str:
+        prompt = meaning_prompts(Prompts(prompts.data, prompts.lang), cur.known_lang, cur.target_lang, meaning)[0]
+        return speak_as(prompts, answer_gender(answer, part, *made_of), prompt)
+
     as_taught = lambda: {
-        "prompt": meaning_prompts(Prompts(prompts.data, prompts.lang), cur.known_lang, cur.target_lang, taught["meaning"])[0],
+        "prompt": ask(taught["meaning"], taught["answer"], cur.by_id.get(taught["through"])),
         "answer": taught["answer"],
         "through": taught["through"],
     }
@@ -93,18 +99,17 @@ def whole_for(cur, part, met: set[str], prompts: Prompts, taught: dict | None = 
         else:
             rank = 0 if part.id in c.situation_fill.values() else 1 if part.id in c.example.values() else 2
             target, meaning = cur.resolve_slots(c, fills)
-            options.append(((rank, c.difficulty, c.order), target, meaning, c.id))
+            options.append(((rank, c.difficulty, c.order), target, meaning, c.id, list(fills.values())))
     if options:
-        _, target, meaning, through = min(options, key=lambda o: o[0])
+        _, target, meaning, through, made_of = min(options, key=lambda o: o[0])
     else:
         part_words = _words(part.target)
         phrases = [p for p in cur.items if p.kind == "phrase" and p.id in met and _phrase_holds(_words(p.target), part_words)]
         if not phrases:
             return as_taught() if taught else None
         phrase = min(phrases, key=lambda p: (len(_words(p.target)), p.order))
-        target, meaning, through = phrase.target, phrase.spoken_meaning, phrase.id
-    prompt = meaning_prompts(Prompts(prompts.data, prompts.lang), cur.known_lang, cur.target_lang, meaning)[0]
-    return {"prompt": prompt, "answer": target, "through": through}
+        target, meaning, through, made_of = phrase.target, phrase.spoken_meaning, phrase.id, [phrase]
+    return {"prompt": ask(meaning, target, *made_of), "answer": target, "through": through}
 
 
 def refine_review(review: list[dict], cur, met: set[str], prompts: Prompts, wholes_taught: dict[str, dict] | None = None) -> tuple[list[dict], list[dict]]:
@@ -168,6 +173,18 @@ def refine_review(review: list[dict], cur, met: set[str], prompts: Prompts, whol
         first["items"] = list(dict.fromkeys([*first["items"], *q["items"]]))
         out.remove(q)
         report.append({"items": q["items"], "kind": "same_answer", "answer": q["answer"]})
+
+    # 4. the speaker's form the answer expects, on every question whose answer has a woman's and a man's form, the stored ones included («How do you
+    # say: I'm hungry.» → «Ég er svöng.» kept from an earlier lesson): from its items, the sentence it was asked through and its answer (lesson 33, review of #375)
+    for k, q in enumerate(out):
+        prompt, answer = q.get("prompt"), q.get("answer")
+        if not isinstance(prompt, str) or not isinstance(answer, str):
+            continue
+        gender = answer_gender(answer, *(cur.by_id.get(i) for i in [*q.get("items", []), q.get("through") or ""]))
+        named, rest = speaker_form(prompt, prompts)
+        if gender is not None and named != gender:
+            out[k] = {**q, "prompt": speak_as(prompts, gender, rest)}
+            report.append({"items": q.get("items", []), "kind": "speaker_form", "form": gender})
     return out, report
 
 
