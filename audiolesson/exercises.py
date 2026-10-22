@@ -561,9 +561,15 @@ class Builder:
         it:» the part, «In another sentence. Listen, then repeat.», the sentence, what it means,
         the sentence again and a pause to repeat it. Nothing is recorded for the part: the next
         review asks the sentence, and what the learner says decides whether it counts as learned
-        (``LearnerState.report``). None when no known pattern takes the part: the caller
-        introduces it the usual way."""
-        gen = self.generate_with(item, avoid_heard=True)
+        (``LearnerState.report``). None when no known pattern takes the part in a sentence other than ``source``
+        itself: the caller introduces it the usual way. «Another sentence» is never the one just said (lesson 34: «Á þetta
+        hótel, takk.» is a sentence of «{dest}, takk.», and the pattern with «á þetta hótel» made it again)."""
+        own = {_norm_utterance(t) for t in (source.target, source.target_m) if t} - self.heard
+        self.heard |= own
+        try:
+            gen = self.generate_with(item, avoid_heard=True)
+        finally:
+            self.heard -= own
         if gen is None:
             return None
         self.used_combos.add(gen.key)

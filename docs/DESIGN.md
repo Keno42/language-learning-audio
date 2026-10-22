@@ -113,7 +113,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   sentence) whose words sit inside an item the learner has met (not open), or met earlier in the
   lesson, is not introduced on its own (`Planner.embed_source`, the shortest such item):
   «You know this:» the phrase, «This word is in it:» the part, «In another sentence. Listen, then
-  repeat.», the sentence, its meaning, the sentence again, a pause to repeat (`embed`). Nothing is
+  repeat.», the sentence, its meaning, the sentence again, a pause to repeat (`embed`). The other sentence is never the phrase
+  itself (lesson 34: «Á þetta hótel, takk.» is «{dest}, takk.» with the part, and was said again as «another sentence»); with no
+  other, `embed` returns None and the part is taken out of the phrase (#262, below). Nothing is
   recorded: `LearnerState.embedded` holds it until the review asks the sentence (`review_questions`,
   stage `embed`; the plan lists the part in `new_items` and `embedded_items`). Said back it is
   its first recall on a due date (one durable success, next in three days; `knows()` still takes
