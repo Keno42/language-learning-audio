@@ -7,30 +7,30 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 (§7), the hypotheses with their status (§4), the evidence lesson by lesson (§5). The learning policy is in
 `docs/CURRENT-POLICY.md`.
 
-## Now (updated 2026-10-22), in order
+## Now (updated 2026-10-22, after lesson 33), in order
 
 Ranked by the effect on the next lesson as the replay of the latest export shows it (LD §9 "Governance": about 80% /
-20%). The latest export is lesson 30's; the next lesson is 31.
+20%). The latest export is lesson 33's; the next lesson is 34. Lesson 33's two remarks are answered in PRs in review:
+the review names the speaker's form its answer expects (#375), and «með» / «án» get a milestone and contrasting practice
+(#377) (LD §5.23).
 1. **The coming lessons' sentences get a verdict before they are said (G6; the scene check, LD §9 "Good enough
    overall").** On the replay of the lesson-30 export, the sentences that lessons 30–43 can generate were sent to an
    outside review: it judged «Ég borða ekki mjólk.» false and gave four permission questions their scenes, and 142
-   still have no verdict, «Má ég versla?» among them (lesson 31 asks it). The sheet was printed for the patterns and
-   words the learner had met, so a word introduced today is generated unjudged the same day, and the negative and
-   question forms are on no sheet. **Next smallest step:** scene lines for the 142 from a reviewer (`docs/SCENE-REVIEW.md`),
-   faithful to each sentence's meaning; then the sheet printed from the replay of each new export, the forms included.
-2. **A transform is asked from five sentences, under one instruction (G12, G17).** Lesson 31 introduces «asking for the
-   same thing more politely» and asks it 8 more times: «Get ég fengið matseðilinn?» 3 times, and «Say it more politely,
-   as a question:» narrated 9 times, where the other lessons of the replay narrate one situation at most 5 times. Its
-   examples are 5 authored pairs. Its two patterns («Ég ætla að fá {thing}.», «Get ég fengið {thing}?») share 10
-   fillers by their tags, and «kaffi», «te» and «matseðilinn» are not among them. **Next smallest step:** choose between
-   more authored pairs and pairs made from the two patterns (the tags aligned first, which also changes the scene
-   check's sheets), and shorten the instruction after its second ask.
+   still have no verdict, «Má ég versla?» among them. The sheet was printed for the patterns and words the learner had
+   met, so a word introduced today is generated unjudged the same day, and the negative and question forms are on no
+   sheet. **Next smallest step:** scene lines for the 142 from a reviewer (`docs/SCENE-REVIEW.md`), faithful to each
+   sentence's meaning; then the sheet printed from the replay of each new export, the forms included.
+2. **An open item with no other sentence is said six times a lesson in one wording (#326's content gap).** «Ég er með
+   ofnæmi fyrir hnetum.» is open; lesson 33 says it 6 times, and so do lessons 34 and 35 on the replay, each time the
+   same sentence: nothing connects it (no pattern, sibling or scene line holds it). The daily read lists it as a content
+   gap three lessons running. **Next smallest step:** its connections as data: «Ég er með ofnæmi fyrir {…}» with the
+   foods the learner knows, and a line in a café or restaurant level.
 3. **The new material after lesson 36 has no level to play (#327).** With the town, small talk and the clothes shop,
-   «today's new items said as a turn of the played exchange» reads 17 in lessons 30–35 and 0 from lesson 36. From there
-   the lessons replay town 2, the supermarket's level 2 and the clothes shop's level 2 in turn, while the day's
-   material is still the way («Það er til vinstri.», «Hvað er langt þangað?», «Ég er týnd.», «Geturðu sýnt mér á
-   kortinu?», «Það tekur {duration}.») and getting to know someone (age, job, family). **Next smallest step:** a third
-   town level for the way itself: left and right, how long it takes, the map.
+   «today's new items said as a turn of the played exchange» reads 17 in lessons 30–35 and 0 from lesson 36 on the
+   replay of the lesson-30 export. From there the lessons replay town 2, the supermarket's level 2 and the clothes
+   shop's level 2 in turn, while the day's material is still the way («Það er til vinstri.», «Hvað er langt þangað?»,
+   «Ég er týnd.», «Geturðu sýnt mér á kortinu?», «Það tekur {duration}.») and getting to know someone (age, job,
+   family). **Next smallest step:** a third town level for the way itself: left and right, how long it takes, the map.
 
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
 Icelandic (candidates until native-checked). The town (asking the way), small talk (getting to know someone) and the
@@ -58,11 +58,16 @@ Each waits for its first feedback in the LD §8 table.
   #350); a hard word modelled slowly and split (#337: #342, #351); the pick-out's turns (#335: #343, #353); the
   transport frames as patterns (#336: #346); the closing asks each sentence once (#349).
 - **The review:** a transform question keeps its input sentence (#366: #367).
+- **Documents:** a route per task in `CLAUDE.md`, and «Now» in this file only (#364: #374).
+- **The scene check:** the first outside review of the coming lessons' sentences, six verdicts (#376).
 
 ## Open issues after "Now", in order
 - **An item counted toward the target when it is selected, not when it is taught.** On the replay, lesson 30's second
   half starts through #294's guard: an arc selected «Ég vil hvíla mig.» at minute 17 and the item was taught in lesson
   31 (7 of 8 components taught). The guard keeps the second half (#308); the cause is not fixed.
+- **A transform asked from its few authored pairs, under one instruction (G12, G17).** Lesson 31 asked «asking for the same
+  thing more politely» 8 times from 5 pairs, its instruction narrated 9 times. It does not recur in lessons 33–35; it
+  will with the next transform introduced.
 - #336: the other scenes' frames that vary in use, as each scene comes (`validate` lists the candidates; only the frames
   a scene varies).
 - #270: the other frames (accusative orders, `dat_town`, `dat_hobby`), after the dative place forms' first feedback.
