@@ -45,7 +45,7 @@ defined once (`audiolesson/text.py`, #321).
 Each waits for its first feedback in the LD §8 table.
 - **Scenes (#327):** the town (#365, its third level #381), small talk (#371, its third and fourth levels #383) and the clothes shop (#372); a gendered learner
   line said in the form of the learner's voice, named in the cue (#382); an authored dialogue that repeats the lesson's
-  scene is not played (#CHANGE); a level played in
+  scene is not played (#384); a level played in
   the lesson that teaches its lines (#365); the level's goal said after the opening (#369); the closing ends on the
   level's lines in the order of its turns (#370).
 - **Forms:** a known noun's other form taught in its frame, against the form the learner knows, with why it changes
