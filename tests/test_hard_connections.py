@@ -113,6 +113,21 @@ class HardConnectionTests(unittest.TestCase):
         self.assertEqual(dlg.turns[0].expect_text, "Ég er með ofnæmi fyrir hnetum.")
         self.assertTrue(dlg.turns[0].opener and dlg.turns[0].partner, "the partner's line before it and the reply after it")
 
+    def test_the_open_allergy_line_goes_through_its_pattern_unless_the_review_asked_the_pattern_today(self):
+        """«Ég er með ofnæmi fyrir hnetum.» is a sentence of «Ég er með ofnæmi fyrir {allergen}.» (#326): once the pattern is known, a connection
+        practice of the open line is another allergen. Not on a day the learner's own review asked the pattern (#238)."""
+        def lesson(reviewed: bool):
+            l = self.known("ofnaemi_fyrir", "hnetum", "fiski", "eg_er_med_ofnaemi_fyrir_hnetum", "eg_aetla_ad_fa", "koku", "ja", "takk")
+            l.items["eg_er_med_ofnaemi_fyrir_hnetum"].last_outcome = "not_recalled"
+            if reviewed:
+                l.items["ofnaemi_fyrir"].last_reviewed = TODAY.isoformat()
+            return self.planner(l).build().meta
+        free = lesson(False)
+        self.assertIn("pattern", free["hard_connections"]["eg_er_med_ofnaemi_fyrir_hnetum"]["kinds"])
+        asked = lesson(True)
+        self.assertNotIn("pattern", asked["hard_connections"]["eg_er_med_ofnaemi_fyrir_hnetum"]["kinds"])
+        self.assertNotIn("ofnaemi_fyrir", asked["asked_after_review"])
+
     def test_the_pattern_connection_avoids_the_patterns_it_was_in(self):
         l = LearnerState("is", "en", "A1")
         for i in ("eg_aetla_ad_fa", "kaffi", "te", "mjolk", "sykur"):

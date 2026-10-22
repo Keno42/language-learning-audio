@@ -569,6 +569,8 @@ meaning = "I'm allergic to nuts."
 meaning_ja = "ナッツアレルギーがあります。"
 difficulty = 4
 topics = ["cafe", "health"]
+instance_of = "ofnaemi_fyrir"  # one sentence of the allergy pattern (#192, #326): its later practices are other allergens
+instance_fill = { allergen = "hnetum" }
 chunks = ["hnetum", "fyrir hnetum", "ofnæmi fyrir hnetum", "Ég er með ofnæmi fyrir hnetum."]
 situations = [
   "Before ordering dessert, tell the waiter you're allergic to nuts.",
@@ -578,6 +580,88 @@ situations_ja = [
   "デザートを頼む前に、ナッツアレルギーがあるとウェイターに伝えてください。",
   "ホストがアーモンドケーキを勧めてくれました。ナッツアレルギーがあると伝えてください。",
 ]
+
+# The allergy pattern (#326): the open line «Ég er með ofnæmi fyrir hnetum.» was asked as one sentence
+# four times a lesson after lesson 33. «fyrir» here takes the dative: «fiski», «eggjum» are the dative
+# forms of nouns the learner knows in the accusative («fisk», «egg»). Candidates until native-checked (#209).
+
+[[items]]
+id = "hnetum"
+kind = "vocab"
+noun = "hneta"
+form = "dat_pl"
+noun_base = "hneta"
+gender = "fem"
+target = "hnetum"
+meaning = "nuts"
+meaning_ja = "ナッツ"
+context = "I'm allergic to nuts."
+context_ja = "ナッツアレルギーがあります。"
+difficulty = 2
+tags = ["dat_allergen"]
+topics = ["cafe", "health"]
+pronunciation_notes = "dative plural of hneta"
+
+[[items]]
+id = "ofnaemi_fyrir"
+kind = "construction"
+target = "Ég er með ofnæmi fyrir {allergen}."
+meaning = "I'm allergic to {allergen}."
+meaning_ja = "{allergen}アレルギーがあります。"
+negative = "Ég er ekki með ofnæmi fyrir {allergen}."
+negative_meaning = "I'm not allergic to {allergen}."
+negative_meaning_ja = "{allergen}アレルギーはありません。"
+question = "Ertu með ofnæmi fyrir {allergen}?"
+question_meaning = "Are you allergic to {allergen}?"
+question_meaning_ja = "{allergen}アレルギーがありますか？"
+difficulty = 3
+topics = ["cafe", "health"]
+slots = { allergen = "dat_allergen" }
+example = { allergen = "hnetum" }
+prereqs = ["hnetum"]
+form_reason = "This form comes after «fyrir»."
+form_reason_ja = "«fyrir» のあとでは、この形になります。"
+situation = "The waiter asks if you have any allergies. Tell him what you're allergic to."
+situation_ja = "ウェイターにアレルギーがあるか聞かれました。何のアレルギーか伝えてください。"
+pronunciation_notes = "literally 'I am with allergy for'"
+
+[[items]]
+id = "fiski"
+kind = "vocab"
+noun = "fiskur"
+form = "dat"
+gender = "masc"
+variant_of = "fisk"
+target = "fiski"
+meaning = "fish (after 'allergic to')"
+meaning_ja = "魚（〜アレルギー）"
+meaning_spoken = "fish, as in: I'm allergic to fish"
+meaning_spoken_ja = "魚、「魚アレルギーです」の魚"
+meaning_forms = { in_sentence = "fish" }
+meaning_forms_ja = { in_sentence = "魚" }
+difficulty = 2
+tags = ["dat_allergen"]
+topics = ["cafe", "health"]
+pronunciation_notes = "dative of fiskur"
+
+[[items]]
+id = "eggjum"
+kind = "vocab"
+noun = "egg"
+form = "dat_pl"
+gender = "neut"
+variant_of = "egg"
+target = "eggjum"
+meaning = "eggs (after 'allergic to')"
+meaning_ja = "卵（〜アレルギー）"
+meaning_spoken = "eggs, as in: I'm allergic to eggs"
+meaning_spoken_ja = "卵、「卵アレルギーです」の卵"
+meaning_forms = { in_sentence = "eggs" }
+meaning_forms_ja = { in_sentence = "卵" }
+difficulty = 2
+tags = ["dat_allergen"]
+topics = ["cafe", "health"]
+pronunciation_notes = "dative plural of egg"
 
 [[items]]
 id = "thetta_var_gott"

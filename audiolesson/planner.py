@@ -2530,7 +2530,9 @@ class Planner:
             a known pattern with a slot for it, else a known item whose words contain it.
             False when there is none (the item stops at its bare uses)."""
             used = sentence_used.setdefault(item.id, set())
-            if item.instance_of and (pattern := self.cur.by_id.get(item.instance_of)) is not None and b._frame_available(pattern.id):
+            if item.instance_of and (pattern := self.cur.by_id.get(item.instance_of)) is not None and b._frame_available(pattern.id) and not (
+                self.reviewed_today(pattern.id) and not self.taught_today(pattern.id)
+            ):  # the learner's own review asked the pattern this morning (#238): not another of its sentences for the phrase
                 # a fixed phrase that is an instance of a known pattern (#192): another sentence of the pattern with other
                 # fillers. It is credited to the pattern and its fillers, never to the phrase, whose own review stays in its own form
                 own = {slot: self.cur.by_id[ref] for slot, ref in item.instance_fill.items()}
