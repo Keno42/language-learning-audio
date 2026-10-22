@@ -406,9 +406,9 @@ class Planner:
         return bool(part.variant_of) and bool(frames) and not any(self.learner.has_met(c.id) for c in frames) and any(self.learner.has_met(w.id) for w in self.candidate_wholes(part))
 
     def theme_target(self) -> tuple | None:
-        """The theme and level (0-based) new material is chosen for (#149 step 2): the first by the order
-        ``pick_theme`` ranks themes in (lowest level, then boosted scenarios, Tier A, Tier B, file order), whether or
-        not the learner can say it yet. None when every level is played or no theme is ranked."""
+        """The theme and level (0-based) new material is chosen for (#149 step 2): the lowest next level, then the boosted
+        scenarios, Tier A, Tier B, file order, whether or not the learner can say it yet. Unlike ``pick_theme`` it has no
+        lines coming to prefer: it decides which level's lines come. None when every level is played or no theme is ranked."""
         rank = {sid: n for n, sid in enumerate(self.cfg.theme_scenarios)}
         best = None
         for order, theme in enumerate(self.cfg.themes):
@@ -1755,10 +1755,10 @@ class Planner:
         return {k for k, t in enumerate(you) if self.line_role(t.items, text=t.say) == "hear"}
 
     def pick_theme(self, coming: set[str] | frozenset = frozenset()) -> tuple | None:
-        """The lesson's theme, its level (0-based) and the learner's turns of it that are only heard (#149 1b-ii, #240):
-        the lowest level not yet played, among the themes whose next level the learner can say in all but a
-        quarter of their turns (``theme_ready``; every item of a turn met and not open), the trip profile's
-        boosted scenarios first, then Tier A, then Tier B, in file order. A turn with an item they lack is *heard*, as in a listening
+        """The lesson's theme, its level (0-based) and the learner's turns of it that are only heard (#149 1b-ii, #240).
+        Among the themes whose next level the learner can say in all but a quarter of their turns (``theme_ready``; every item
+        of a turn met and not open), a level whose lines this lesson teaches comes first (#327, below), then the lowest level
+        not yet played, then the trip profile's boosted scenarios, Tier A, Tier B, in file order. A turn with an item they lack is *heard*, as in a listening
         scene (#183).
 
         When no next level is ready the lesson still has a theme (#149 step 1, the owner's decision: the theme comes
@@ -1782,7 +1782,9 @@ class Planner:
             waiting = {k for k in untaught if all(self.learner.has_met(i) or self.taught_today(i) or i in coming for i in you[k].items)}
             if len(untaught - waiting) > (1 - self.cfg.theme_ready) * len(you):
                 continue
-            key = (level, rank[theme.scenario], order)
+            # a level whose lines this lesson teaches comes first (#327): another ready level, all of it known, would leave today's lines without
+            # their scene (lesson 40 of the lesson-33 replay: café 4, rank A4, over small talk 4, whose lines that lesson taught)
+            key = (not waiting, level, rank[theme.scenario], order)
             if best is None or key < best[0]:
                 best = (key, theme, level, untaught)
         if best is not None:

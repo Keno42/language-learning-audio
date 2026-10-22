@@ -256,6 +256,32 @@ turns = [
   { who = "you", cue = "Say you're a teacher.", cue_ja = "教師だと言ってください。", say = "Ég er kennari.", items = ["eg_er_job", "kennari"] },
   { who = "partner", say = "Gaman að heyra það.", meaning = "Nice to hear that.", meaning_ja = "それはいいですね。" },
 ]
+[[themes.levels]]
+goal = "Ask if she's Icelandic, say you're Japanese and here on business, and where you work."
+goal_ja = "アイスランド人か聞き、日本人で出張中だと伝え、勤め先も言う。"
+partner_speaker = "native_a"
+turns = [
+  { who = "you", cue = "Ask if she's Icelandic.", cue_ja = "アイスランド人か聞いてください。", say = "Ert þú íslensk?", items = ["ert_thu_islensk"] },
+  { who = "partner", say = "Já, ég er frá Akureyri. En þú?", meaning = "Yes, I'm from Akureyri. And you?", meaning_ja = "ええ、アークレイリ出身です。あなたは？", variants = [{ say = "Já, alveg. En þú?", meaning = "Yes, absolutely. And you?", meaning_ja = "ええ、まったくそうです。あなたは？", word_glosses = { "alveg" = { en = "absolutely", ja = "まったく", pointer = { en = "the word that makes the yes stronger", ja = "「はい」を強めた部分" } } } }] },
+  { who = "you", cue = "Say you're Japanese.", cue_ja = "日本人だと言ってください。", say = "Ég er japönsk.", say_m = "Ég er japanskur.", items = ["eg_er_japonsk"] },
+  { who = "partner", say = "Ertu hér í fríi?", meaning = "Are you here on holiday?", meaning_ja = "休暇で来ているんですか？", word_glosses = { "fríi" = { en = "holiday", ja = "休暇" } }, variants = [{ say = "Ertu í fríi á Íslandi?", meaning = "Are you on holiday in Iceland?", meaning_ja = "アイスランドには休暇で？", word_glosses = { "fríi" = { en = "holiday", ja = "休暇" } } }] },
+  { who = "you", cue = "Say you're on a business trip.", cue_ja = "出張中だと言ってください。", say = "Ég er í vinnuferð.", items = ["eg_er_i_vinnuferd"] },
+  { who = "partner", say = "Nú já! Hvar vinnur þú?", meaning = "Oh, I see! Where do you work?", meaning_ja = "そうなんですね！どこで働いているんですか？", word_glosses = { "vinnur" = { en = "work", ja = "働いて", pointer = { en = "the word asking what you do there", ja = "そこで何をしているか尋ねた部分" } } } },
+  { who = "you", cue = "Say you work at a small company.", cue_ja = "小さな会社で働いていると言ってください。", say = "Ég vinn hjá litlu fyrirtæki.", items = ["eg_vinn_hja"] },
+  { who = "partner", say = "Gaman að heyra það.", meaning = "Nice to hear that.", meaning_ja = "それはいいですね。" },
+]
+[[themes.levels]]
+goal = "Ask her age, say yours, and say whether you're married."
+goal_ja = "相手の年齢を聞き、自分の年齢と、結婚しているかを伝える。"
+partner_speaker = "native_a"
+turns = [
+  { who = "you", cue = "Ask how old she is.", cue_ja = "何歳か聞いてください。", say = "Hvað ertu gömul?", items = ["hvad_ertu_gomul"] },
+  { who = "partner", say = "Ég er þrjátíu ára. En þú?", meaning = "I'm thirty. And you?", meaning_ja = "30歳です。あなたは？" },
+  { who = "you", cue = "Say you're twenty.", cue_ja = "20歳だと言ってください。", say = "Ég er tuttugu ára.", items = ["eg_er_ara", "tuttugu_ara"] },
+  { who = "partner", say = "Ég er einhleyp. En þú?", meaning = "I'm single. And you?", meaning_ja = "私は独身です。あなたは？", word_glosses = { "einhleyp" = { en = "single", ja = "独身" } }, variants = [{ say = "Ég er einhleyp og bý ein. En þú?", meaning = "I'm single and live alone. And you?", meaning_ja = "独身で、一人暮らしです。あなたは？", word_glosses = { "ein" = { en = "alone", ja = "一人", pointer = { en = "the word for how she lives", ja = "どう暮らしているかを表す部分" } } } }] },
+  { who = "you", cue = "Say you're married.", cue_ja = "結婚していると言ってください。", say = "Ég er gift.", say_m = "Ég er giftur.", items = ["eg_er_gift"] },
+  { who = "partner", say = "Gaman að spjalla við þig!", meaning = "Nice chatting with you!", meaning_ja = "お話しできてよかったです！", word_glosses = { "spjalla" = { en = "chatting", ja = "お話し" } } },
+]
 
 [[themes]]
 # #327: a clothes shop. Before it, on the replay of the lesson-30 export, its lines («Ég þarf húfu.», «Það er of dýrt.», «Er afsláttur?»,
