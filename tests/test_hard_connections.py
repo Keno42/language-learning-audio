@@ -96,10 +96,22 @@ class HardConnectionTests(unittest.TestCase):
         dlg, turn_items, key, _ = found
         self.assertEqual(turn_items, {0: ["er_thetta_saeti_laust"]})
         self.assertTrue(key.startswith("cafe:"))
+        self.assertEqual(dlg.id, "theme:" + key.rsplit(":", 1)[0], "the exchange is named by the level the line is from, so the daily read counts the scene once")
         self.assertEqual(len(dlg.turns), 1)
         self.assertEqual(dlg.turns[0].expect_text, "Er þetta sæti laust?")
         again = p.scene_line_of(self.cur.by_id["er_thetta_saeti_laust"], {key})
         self.assertTrue(again is None or again[2] != key, "a line used for this item is not used again")
+
+    def test_the_allergy_line_has_a_scene(self):
+        """Lesson 33: «Ég er með ofnæmi fyrir hnetum.» was asked five times a lesson as one sentence, with nothing connecting it (#326's
+        content gap). The café's fourth level holds it, with the partner's line before it and the reply after it."""
+        found = self.planner(LearnerState("is", "en", "A1")).scene_line_of(self.cur.by_id["eg_er_med_ofnaemi_fyrir_hnetum"], set())
+        self.assertIsNotNone(found)
+        dlg, turn_items, key, asked = found
+        self.assertEqual((dlg.id, turn_items), ("theme:cafe:4", {0: ["eg_er_med_ofnaemi_fyrir_hnetum"]}))
+        self.assertTrue(asked, "the line holds no other item, so it is asked, not only heard")
+        self.assertEqual(dlg.turns[0].expect_text, "Ég er með ofnæmi fyrir hnetum.")
+        self.assertTrue(dlg.turns[0].opener and dlg.turns[0].partner, "the partner's line before it and the reply after it")
 
     def test_the_pattern_connection_avoids_the_patterns_it_was_in(self):
         l = LearnerState("is", "en", "A1")

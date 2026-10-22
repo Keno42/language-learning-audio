@@ -563,6 +563,7 @@ class Planner:
                         turns = turns[1:]
                     sub = Level(goal=level.goal, goal_ja=level.goal_ja, partner_speaker=level.partner_speaker, turns=list(turns))
                     dlg = level_dialogue(dataclasses.replace(theme, levels=[sub]), 0, self.cur.known_lang)
+                    dlg.id = f"theme:{theme.id}:{n + 1}"  # the level the line is from, not the cut-out's own number: the label, and the scene the daily read counts
                     return dlg, {0: list(t.items)}, key, asked
         return None
 
@@ -2205,6 +2206,7 @@ class Planner:
         slow_models: list[str] = []  # reported-hard items given the slow model of their hard word in this lesson
         hard_calls: Counter = Counter()  # #326: practices of a hard item so far this lesson
         hard_scene_lines: list[str] = []  # #326: the theme lines played for a hard item this lesson
+        hard_scene_turns: dict[str, set[str]] = {}  # #326: per hard item, the theme turns (``theme:level:turn``) already played for it this lesson
         hard_at: dict[str, list[int]] = {}  # #326: where each connection practice of a hard item began (the index of its first exercise)
         hard_log: dict[str, list[tuple[str, str]]] = {}  # #326: per hard item, the connections it was practised through (kind, scene / pattern id)
 
@@ -2234,14 +2236,15 @@ class Planner:
             used_patterns = frozenset(key for kind, key in log if kind in ("pattern", "sibling"))
             for kind in order[turn:] + order[:turn]:
                 if kind == "scene":
-                    if (line := self.scene_line_of(item, {key for k_, key in log if k_ == "scene"})) is not None and len(hard_scene_lines) < cfg.hard_scene_lines:
+                    if (line := self.scene_line_of(item, hard_scene_turns.setdefault(item.id, set()))) is not None and len(hard_scene_lines) < cfg.hard_scene_lines:
                         dlg, turn_items, key, asked = line
                         ex = b.dialogue(sc, dlg, translate=True, turn_items=turn_items, heard_turns=frozenset() if asked else frozenset({0}))
                         if asked:
                             self._record([item.id], "dialogue", ex.item_ids)
                         touch(item)
                         hard_scene_lines.append(key)
-                        return linked("scene", key)
+                        hard_scene_turns[item.id].add(key)
+                        return linked("scene", dlg.id)  # the scene as its exercise names it, so the daily read counts it once
                     dlg = self.eligible_dialogue(prefer_item=item) or next((d for c in self.related_items(item) if (d := self.eligible_dialogue(prefer_item=c)) is not None), None)
                     if dlg is None:
                         continue
