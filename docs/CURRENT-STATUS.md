@@ -22,7 +22,7 @@ the review names the speaker's form its answer expects (#375), and «með» / «
    sentence's meaning; then the sheet printed from the replay of each new export, the forms included.
 2. **The new material after lesson 40 has no level to play (#327).** On the replay of the lesson-33 export, «today's new
    items said as a turn of the played exchange» reads 2 to 5 in every lesson from 33 to 40, with the town's third level
-   (the way, #381) in lesson 38 and small talk's third and fourth (nationality and work, age and married; #CHANGE) in
+   (the way, #381) in lesson 38 and small talk's third and fourth (nationality and work, age and married; #383) in
    lessons 39 and 40; from lesson 41 it is 0. The day's material is then making arrangements («á morgun», «í kvöld», «Ég
    fer {time}.», «Hentar það?», «Það hentar vel.», «Ég er sein.», «Ég kem eftir tíu mínútur.») and more of the way
    («Hvernig kemst ég að …?», «á horninu», «hinum megin við götuna», «hálftíma»). **Next smallest step:** a level for
@@ -43,7 +43,7 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
-- **Scenes (#327):** the town (#365, its third level #381), small talk (#371, its third and fourth levels #CHANGE) and the clothes shop (#372); a gendered learner
+- **Scenes (#327):** the town (#365, its third level #381), small talk (#371, its third and fourth levels #383) and the clothes shop (#372); a gendered learner
   line said in the form of the learner's voice, named in the cue (#382); a level played in
   the lesson that teaches its lines (#365); the level's goal said after the opening (#369); the closing ends on the
   level's lines in the order of its turns (#370).
