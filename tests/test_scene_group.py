@@ -141,6 +141,54 @@ def town_theme():
     return Theme(id="town", scenario="A8", title="Town", scene_line="You're in town.", topics=["directions"], levels=[{"goal": "Ask the way.", "turns": turns}])
 
 
+
+class DialogueRepeatsTheSceneTests(unittest.TestCase):
+    """Lesson 34 of the lesson-33 replay: «kynning» (introduced to Anna at a friend's table: your name, from Japan; Anna from Akureyri) was
+    played two minutes before small talk 1, which says the same lines with the same Anna. An authored dialogue that says two or more
+    lines of the lesson's scene is not played in that lesson."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.cur = load_curriculum(IS_EN)
+        scen = load_cando(IS_EN, cls.cur)
+        cls.themes = {t.id: t for t in load_themes(IS_EN, cls.cur, scen)}
+        cls.order = scenario_order(scen)
+
+    def planner(self, theme_id, level):
+        cfg = PlanConfig(minutes=30, themes=list(self.themes.values()), theme_scenarios=self.order)
+        p = Planner(self.cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY)
+        p.scene_turns = [t for t in self.themes[theme_id].levels[level].turns if t.who == "you"]
+        return p
+
+    def test_a_dialogue_saying_two_of_the_scenes_lines_repeats_it(self):
+        kynning = next(d for d in self.cur.dialogues if d.id == "kynning")
+        self.assertTrue(self.planner("smalltalk", 0).repeats_scene(kynning), "«Ég heiti Yuki.» and «Ég er frá Japan. En þú?»")
+        self.assertFalse(self.planner("cafe", 0).repeats_scene(kynning), "another scene")
+        self.assertFalse(self.planner("smalltalk", 3).repeats_scene(kynning), "small talk 4 shares none of its lines")
+        no_scene = self.planner("smalltalk", 0)
+        no_scene.scene_turns = []
+        self.assertFalse(no_scene.repeats_scene(kynning), "no scene, nothing repeated")
+
+    def test_one_shared_line_is_not_a_repeat(self):
+        kaffihus = next(d for d in self.cur.dialogues if d.id == "kaffihus")
+        self.assertFalse(self.planner("cafe", 0).repeats_scene(kaffihus), "«Takk.» alone")
+
+    def test_one_level_turn_said_by_two_dialogue_turns_is_one_shared_line(self):
+        """Review of #384: supermarket 2's one turn «Nei, takk.» (items «nei», «takk») matched both «kaffihus»'s «Nei, takk.» and its
+        «Takk.», and the café dialogue was dropped for two shared lines. Each dialogue turn is paired with a level turn of its own."""
+        kaffihus = next(d for d in self.cur.dialogues if d.id == "kaffihus")
+        self.assertFalse(self.planner("supermarket", 1).repeats_scene(kaffihus))
+
+    def test_the_lesson_that_plays_small_talk_1_does_not_play_kynning(self):
+        l = LearnerState("is", "en", "A1")
+        l.lessons_completed = 8
+        for i in ("hae", "eg_heiti", "hvad_heitir_thu", "eg_er_fra_japan", "en_thu", "gaman_ad_kynnast_ther", "ja", "eg_er_i_frii", "takk"):
+            l.items[i] = ItemState(due="2026-03-20", successes=2, durable_successes=2, stage="meaning")
+        cfg = PlanConfig(minutes=30, themes=[self.themes["smalltalk"]], theme_scenarios=["B3"], seed=1)
+        sc = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build()
+        self.assertEqual((sc.meta["theme"]["id"], sc.meta["theme"]["level"]), ("smalltalk", 1))
+        self.assertFalse([e for e in sc.exercises if e.kind == "dialogue" and "kynning" in e.label])
+
 class LevelInTheLessonThatTeachesItTests(unittest.TestCase):
     """#327: a level is played in the lesson that introduces its lines, not in a later lesson whose own new material is another scene's."""
 
