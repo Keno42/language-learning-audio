@@ -22,7 +22,7 @@ the review names the speaker's form its answer expects (#375), and «með» / «
    sentence's meaning; then the sheet printed from the replay of each new export, the forms included.
 2. **The new material after lesson 38 has no level to play (#327).** On the replay of the lesson-33 export, «today's new
    items said as a turn of the played exchange» reads 2 to 5 in lessons 33–37 and, with the town's third level (the
-   way: left or right, how far, the map; #CHANGE), 4 in lesson 38; from lesson 39 it is 0 again. The lessons then
+   way: left or right, how far, the map; #381), 4 in lesson 38; from lesson 39 it is 0 again. The lessons then
    replay café 4, town 3 and the supermarket's level 2, while the day's material is more places («sjúkrahúsið»,
    «lögreglustöðin», «pósthúsið», «hraðbankinn»…) and getting to know someone (nationality, work, age, married or
    single, children). **Next smallest step:** a third small-talk level for those lines. Several are gendered («Ég er
@@ -44,7 +44,7 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
-- **Scenes (#327):** the town (#365, its third level #CHANGE), small talk (#371) and the clothes shop (#372); a level played in
+- **Scenes (#327):** the town (#365, its third level #381), small talk (#371) and the clothes shop (#372); a level played in
   the lesson that teaches its lines (#365); the level's goal said after the opening (#369); the closing ends on the
   level's lines in the order of its turns (#370).
 - **Forms:** a known noun's other form taught in its frame, against the form the learner knows, with why it changes
