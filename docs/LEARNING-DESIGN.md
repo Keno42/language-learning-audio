@@ -525,7 +525,7 @@ What the learner wrote, by what the lesson did:
 | After the bump to #153: does any reviewed item come back three times or more in a lesson, and do the forms still say "repetitive"? | H11 | `/lesson-week` «レッスンの中身»; the forms |
 | Do phrases of three or more words keep failing more often than short ones? | G9 | Failures by phrase length |
 | Does the learner use «迷った» when unsure? At first no (§5.7); since lesson 14 it is used, though not in every review (§5.12–§5.20) | H10 | Review outcomes per lesson |
-| Is recall confirmed after a real gap (7 and 14 days) about as good as next-day recall? 8 of 8 so far at 3–13 days, none yet at 14+ (§5.22) | H1, H2 | The daily read's retention row by gap (#298) |
+| Is recall confirmed after a real gap (7 and 14 days) about as good as next-day recall? The latest count is in the newest §5 subsection (§5.23) | H1, H2 | The daily read's retention row by gap (#298) |
 | Are lines practised in situations rated better in scenario cards than lines practised only from meanings? | H3 | Scenario cards against each line's stage history |
 | Once lessons are built around a scene, does "repetitive" go away, and do themed scenes reach readiness sooner? | H4 | Feedback forms; readiness per scenario, themed or not |
 | Do respond cards with unknown partner words improve over the weeks, and does the learner find them useful or discouraging? | H8 | Scenario cards; ask |
