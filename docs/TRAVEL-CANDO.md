@@ -39,8 +39,11 @@ The default tiers suit a budget traveller: supermarket and café before restaura
 
 `curricula/is-en/cando/themes.toml` (`audiolesson/themes.py` documents the format) holds the scenes a lesson can
 consolidate: per theme (`scenario`: the can-do scenario it serves), levels of an exchange, each a list of `partner`
-turns (with their meaning) and `you` turns (a cue, the model line, the `items` it needs, optional `alts`). `validate`
-checks every item and scenario. The lesson picks one (`Planner.pick_theme`; H4 in docs/LEARNING-DESIGN.md) and plays
+turns (with their meaning) and `you` turns (a cue, the model line, the `items` it needs, optional `alts`). A `you` line whose words
+follow the speaker's gender (an item of it has a `target_m`) carries its man's form, `say_m` («Afsakið, ég er týnd.» / «Afsakið, ég er
+týndur.»): the learner's voice is the one opposite the partner's, the line is said in that voice's form, and the cue names it («As a
+woman: …», owner after #381, as the review does, #375). `validate` checks every item and scenario, and that a gendered line has its
+`say_m` and only such a line does. The lesson picks one (`Planner.pick_theme`; H4 in docs/LEARNING-DESIGN.md) and plays
 its exchange twice; `plan.json` names the theme and level. A partner line carries 1–2 `variants` (how another clerk says
 the same thing, #134); the early (translated) play uses a variant; the late play says the line as written; the transcript marks the lines used. The wordings are
 candidates for native-speaker correction. General content only: the private trip profile decides which

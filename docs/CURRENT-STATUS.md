@@ -26,8 +26,8 @@ the review names the speaker's form its answer expects (#375), and «með» / «
    replay café 4, town 3 and the supermarket's level 2, while the day's material is more places («sjúkrahúsið»,
    «lögreglustöðin», «pósthúsið», «hraðbankinn»…) and getting to know someone (nationality, work, age, married or
    single, children). **Next smallest step:** a third small-talk level for those lines. Several are gendered («Ég er
-   japönsk.», «Ég er gift.»), and a theme turn says one form with no man's form and no announcement: that needs
-   deciding first (the review names the form, #375).
+   japönsk.», «Ég er gift.»): a theme line now has its man's form and is said in the form of the learner's voice, named in
+   the cue (owner, after #381: #CHANGE).
 
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
 Icelandic (candidates until native-checked). The town (asking the way), small talk (getting to know someone) and the
@@ -44,7 +44,8 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
-- **Scenes (#327):** the town (#365, its third level #381), small talk (#371) and the clothes shop (#372); a level played in
+- **Scenes (#327):** the town (#365, its third level #381), small talk (#371) and the clothes shop (#372); a gendered learner
+  line said in the form of the learner's voice, named in the cue (#CHANGE); a level played in
   the lesson that teaches its lines (#365); the level's goal said after the opening (#369); the closing ends on the
   level's lines in the order of its turns (#370).
 - **Forms:** a known noun's other form taught in its frame, against the form the learner knows, with why it changes
