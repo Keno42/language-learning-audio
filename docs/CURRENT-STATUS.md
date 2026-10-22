@@ -21,7 +21,7 @@ the review names the speaker's form its answer expects (#375), and «með» / «
    sheet. **Next smallest step:** scene lines for the 142 from a reviewer (`docs/SCENE-REVIEW.md`), faithful to each
    sentence's meaning; then the sheet printed from the replay of each new export, the forms included.
 2. **An open item asked as one sentence four times a lesson (#326).** «Ég er með ofnæmi fyrir hnetum.» is open; lesson
-   33 said it 6 times in one wording, with nothing connecting it. The café's fourth level now holds it (#CHANGE): on the
+   33 said it 6 times in one wording, with nothing connecting it. The café's fourth level now holds it (#379): on the
    replay of the lesson-33 export it goes through that scene once a lesson in lessons 33–37 and is no longer a content
    gap, but its other four practices are still the same sentence. **Next smallest step:** the pattern «Ég er með ofnæmi
    fyrir {…}.» with foods in the dative, so that its other practices are other sentences of the pattern (#192).
@@ -60,7 +60,7 @@ Each waits for its first feedback in the LD §8 table.
 - **The review:** a transform question keeps its input sentence (#366: #367).
 - **Documents:** a route per task in `CLAUDE.md`, and «Now» in this file only (#364: #374).
 - **The scene check:** the first outside review of the coming lessons' sentences, six verdicts (#376).
-- **Connections (#326):** the allergy line in the café's fourth level, a scene to practise it through (#CHANGE).
+- **Connections (#326):** the allergy line in the café's fourth level, a scene to practise it through (#379).
 
 ## Open issues after "Now", in order
 - **An item counted toward the target when it is selected, not when it is taught.** On the replay, lesson 30's second
