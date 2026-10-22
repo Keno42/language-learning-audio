@@ -373,7 +373,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (`_connect_turn`, #178), never its template. **No narrated or spoken segment of a built lesson contains
   a slot placeholder** (`NoSlotLeakTests`, a 20-lesson course).
 - **Notes.** Milestones fire deterministically once their `items` are met or exposed, and
-  are followed by discrimination practice over examples whose situation is usable now. A
+  are followed by discrimination practice: two examples, by their situation when it is usable now, the second sharing no
+  word with the first when one can («með sykri», then «án mjólkur»; lesson 33), a part asked in its sentence (`ask_part`,
+  #270), never an item the learner's review asked this morning (#238). A
   note waits for what it recommends saying (`requires`). As filler, an aside is about met
   material or material within `note_lookahead` items; an unheard note about distant
   material is never spent early, and a heard one rests `note_repeat_gap` lessons (#81).
