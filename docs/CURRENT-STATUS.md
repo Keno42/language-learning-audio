@@ -20,11 +20,11 @@ the review names the speaker's form its answer expects (#375), and «með» / «
    met, so a word introduced today is generated unjudged the same day, and the negative and question forms are on no
    sheet. **Next smallest step:** scene lines for the 142 from a reviewer (`docs/SCENE-REVIEW.md`), faithful to each
    sentence's meaning; then the sheet printed from the replay of each new export, the forms included.
-2. **An open item with no other sentence is said six times a lesson in one wording (#326's content gap).** «Ég er með
-   ofnæmi fyrir hnetum.» is open; lesson 33 says it 6 times, and so do lessons 34 and 35 on the replay, each time the
-   same sentence: nothing connects it (no pattern, sibling or scene line holds it). The daily read lists it as a content
-   gap three lessons running. **Next smallest step:** its connections as data: «Ég er með ofnæmi fyrir {…}» with the
-   foods the learner knows, and a line in a café or restaurant level.
+2. **An open item asked as one sentence four times a lesson (#326).** «Ég er með ofnæmi fyrir hnetum.» is open; lesson
+   33 said it 6 times in one wording, with nothing connecting it. The café's fourth level now holds it (#CHANGE): on the
+   replay of the lesson-33 export it goes through that scene once a lesson in lessons 33–37 and is no longer a content
+   gap, but its other four practices are still the same sentence. **Next smallest step:** the pattern «Ég er með ofnæmi
+   fyrir {…}.» with foods in the dative, so that its other practices are other sentences of the pattern (#192).
 3. **The new material after lesson 36 has no level to play (#327).** With the town, small talk and the clothes shop,
    «today's new items said as a turn of the played exchange» reads 17 in lessons 30–35 and 0 from lesson 36 on the
    replay of the lesson-30 export. From there the lessons replay town 2, the supermarket's level 2 and the clothes
@@ -60,6 +60,7 @@ Each waits for its first feedback in the LD §8 table.
 - **The review:** a transform question keeps its input sentence (#366: #367).
 - **Documents:** a route per task in `CLAUDE.md`, and «Now» in this file only (#364: #374).
 - **The scene check:** the first outside review of the coming lessons' sentences, six verdicts (#376).
+- **Connections (#326):** the allergy line in the café's fourth level, a scene to practise it through (#CHANGE).
 
 ## Open issues after "Now", in order
 - **An item counted toward the target when it is selected, not when it is taught.** On the replay, lesson 30's second

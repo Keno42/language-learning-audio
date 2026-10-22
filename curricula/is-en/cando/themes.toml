@@ -56,6 +56,18 @@ turns = [
   { who = "partner", say = "Takk fyrir það!", meaning = "Thank you!", meaning_ja = "ありがとうございます！", variants = [{ say = "Gaman að heyra!", meaning = "Nice to hear!", meaning_ja = "それはよかったです！", word_glosses = { "gaman" = { en = "nice", ja = "うれしい", pointer = { en = "the word expressing the reaction to what you said", ja = "あなたの話への反応を表す部分" } }, "heyra" = { en = "to hear", ja = "聞く", pointer = { en = "the last word in the reaction to what you said", ja = "あなたの話への返事の最後の部分" } } } }, { say = "Takk fyrir komuna!", meaning = "Thanks for coming!", meaning_ja = "ご来店ありがとうございました！", word_glosses = { "komuna" = { en = "the visit", ja = "ご来店", pointer = { en = "the word for what the speaker thanked you for", ja = "何についてお礼を言ったかを表す部分" } } } }] },
 ]
 
+[[themes.levels]]
+partner_speaker = "native_a"  # the partner is a woman
+goal = "Order a piece of cake, say you're allergic to nuts, and take what she suggests instead."
+goal_ja = "ケーキを頼み、ナッツアレルギーだと伝え、代わりにすすめられたものを頼む。"
+turns = [
+  { who = "you", cue = "Order a piece of cake.", cue_ja = "ケーキを注文してください。", say = "Ég ætla að fá köku.", items = ["eg_aetla_ad_fa", "koku"] },
+  { who = "partner", say = "Það eru hnetur í kökunni.", meaning = "There are nuts in the cake.", meaning_ja = "ケーキにはナッツが入っています。", word_glosses = { "hnetur" = { en = "nuts", ja = "ナッツ" } }, variants = [{ say = "Það eru hnetur í henni.", meaning = "There are nuts in it.", meaning_ja = "ナッツが入っています。", word_glosses = { "hnetur" = { en = "nuts", ja = "ナッツ" } } }] },
+  { who = "you", cue = "Tell her you're allergic to nuts.", cue_ja = "ナッツアレルギーがあると伝えてください。", say = "Ég er með ofnæmi fyrir hnetum.", items = ["eg_er_med_ofnaemi_fyrir_hnetum"] },
+  { who = "partner", say = "Viltu frekar skyr?", meaning = "Would you rather have skyr?", meaning_ja = "代わりにスキールはいかがですか？", word_glosses = { "frekar" = { en = "rather", ja = "代わりに", pointer = { en = "the word that offers something instead", ja = "代わりのものをすすめた部分" } } }, variants = [{ say = "Ekkert mál. Viltu frekar skyr?", meaning = "No problem. Would you rather have skyr?", meaning_ja = "大丈夫ですよ。代わりにスキールはいかがですか？", word_glosses = { "mál" = { en = "problem", ja = "問題", pointer = { en = "the word in the reply to your allergy", ja = "アレルギーへの返事の中のことば" } } } }] },
+  { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", say = "Já, takk.", items = ["ja", "takk"] },
+]
+
 [[themes]]
 id = "supermarket"
 scenario = "A3"
