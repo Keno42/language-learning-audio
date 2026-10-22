@@ -64,6 +64,11 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   to go unglossed, nothing said what to answer (lesson 29). The partner's line itself is never put in English once known. The review
   question for it is the line itself (or its meaning), never the example (`Script.review_questions` skips the role). No authored
   situation starts by restating what the learner said.
+- **An authored dialogue does not repeat the lesson's scene.** `Planner.repeats_scene`: two or more of a dialogue's learner lines are
+  lines of the level the lesson plays (the item a turn expects is one a turn of the level asks, or its literal line is one of the
+  level's, `Planner.scene_turns`). `eligible_dialogue` and `listening_dialogue` skip such a dialogue in that lesson: the scene's
+  exchange already says those lines (lesson 34 of the lesson-33 replay played «kynning», Anna from Akureyri, two minutes before
+  small talk 1, whose Anna is from Akureyri too). One shared line («Takk.») is not a repeat. `tests/test_scene_group.py`.
 - **Listening dialogues (#149 step 3).** With nothing else left (step 5, before today's items
   are repeated, or as the last drill-streak relief), a dialogue lacking one or two required
   items (`Planner.listening_dialogue`) plays whole: the turn for a missing item is «Here you

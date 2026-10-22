@@ -271,6 +271,7 @@ class Planner:
         self.listening_asked: list[dict] = []  # #179: turns asked because the learner can say the line, not `knows()` it
         self.cheap_placed: list[str] = []  # cheap constructions given a new-item place (#171 B)
         self.day_topic: str | None = None  # #327: the topic the day's new material shares (see ``_group_by_scene``)
+        self.scene_turns: list = []  # the learner's turns of the level the lesson plays (``repeats_scene``)
         self._day_topic_chosen = False
         self.stranded_placed: list[str] = []  # frames brought forward for a known noun with no known frame (#270)
         self.embedded: list[str] = []  # parts heard inside a sentence this lesson (#149)
@@ -1449,6 +1450,8 @@ class Planner:
                 continue
             if self._dialogue_resting(d):
                 continue
+            if self.repeats_scene(d):
+                continue
             times = self.learner.dialogues_done.get(d.id, 0)
             cands.append((times, d))
         if not cands:
@@ -1456,6 +1459,18 @@ class Planner:
         cands.sort(key=lambda t: t[0])
         least = [d for t, d in cands if t == cands[0][0]]
         return self.rng.choice(least)
+
+    def repeats_scene(self, d: Dialogue) -> bool:
+        """Two or more of the dialogue's learner lines are lines of the level the lesson plays: the item a turn expects is one a
+        turn of the level asks, or its literal line is one of the level's. The scene's exchange already says them; the dialogue
+        would say them again in another setting (lesson 34 of the lesson-33 replay: «kynning», Anna from Akureyri, two
+        minutes before small talk 1, whose Anna is from Akureyri too). One shared line («Takk.») is not a repeat."""
+        if not self.scene_turns:
+            return False
+        items = {i for t in self.scene_turns for i in t.items}
+        lines = {_norm_utterance(t.say) for t in self.scene_turns} | {_norm_utterance(t.say_m) for t in self.scene_turns if t.say_m}
+        shared = sum(1 for t in d.turns if (t.expect and t.expect in items) or (t.expect_text and _norm_utterance(t.expect_text) in lines))
+        return shared >= 2
 
     def embed_source(self, item: Item) -> Item | None:
         """The item ``item`` is taken out of, when it is introduced inside an easy sentence, not
@@ -1718,7 +1733,7 @@ class Planner:
         now = self.learner.next_lesson_number()
         cands = []
         for d in self.cur.dialogues:
-            if d.id in self.dialogues_played or d.id in self.dialogues_listened:
+            if d.id in self.dialogues_played or d.id in self.dialogues_listened or self.repeats_scene(d):
                 continue
             # the required items the learner can't say, less those of a turn whose line they can say
             missing = {i for i in d.required_items if not self.can_say_item(i)}
@@ -1871,6 +1886,7 @@ class Planner:
         b.opening(sc, n, first_lesson=(n == 1))
 
         self.day_topic = None  # #327: the topic the day's new material shares, set when it is first chosen without a theme level to take it from
+        self.scene_turns = []
         self._day_topic_chosen = False
         target = self.theme_target()
         wanted_at_start = self.theme_wants()
@@ -2840,6 +2856,7 @@ class Planner:
         theme_pick = self.pick_theme(coming={i.id for i in new_queue} if n > 1 else frozenset())  # #327; the first lesson keeps its rule (§9 "Themes")
         if theme_pick is not None:
             b.theme_goal(sc, theme_pick[0].levels[theme_pick[1]])  # #327: what the lesson builds to, said after the opening
+            self.scene_turns = [t for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you"]
         scene_cons = self.scene_constructions(theme_pick)  # spare-time sentences are parallels of these (#238); None: no theme, no restriction
         scene_pref = frozenset(
             (scene_cons or set()) | ({r for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you" for r in t.items} if theme_pick else set())
