@@ -21,7 +21,7 @@ import re
 
 from .exercises import _norm_utterance, answer_gender, cue_is_answer, meaning_prompts, speak_as
 from .prompts import Prompts
-from .review_wording import restore_transform_sources
+from .review_wording import restore_transform_sources, speaker_form
 from .text import WORD
 
 _WORD = WORD
@@ -173,6 +173,18 @@ def refine_review(review: list[dict], cur, met: set[str], prompts: Prompts, whol
         first["items"] = list(dict.fromkeys([*first["items"], *q["items"]]))
         out.remove(q)
         report.append({"items": q["items"], "kind": "same_answer", "answer": q["answer"]})
+
+    # 4. the speaker's form the answer expects, on every question whose answer has a woman's and a man's form, the stored ones included («How do you
+    # say: I'm hungry.» → «Ég er svöng.» kept from an earlier lesson): from its items, the sentence it was asked through and its answer (lesson 33, review of #375)
+    for k, q in enumerate(out):
+        prompt, answer = q.get("prompt"), q.get("answer")
+        if not isinstance(prompt, str) or not isinstance(answer, str):
+            continue
+        gender = answer_gender(answer, *(cur.by_id.get(i) for i in [*q.get("items", []), q.get("through") or ""]))
+        named, rest = speaker_form(prompt, prompts)
+        if gender is not None and named != gender:
+            out[k] = {**q, "prompt": speak_as(prompts, gender, rest)}
+            report.append({"items": q.get("items", []), "kind": "speaker_form", "form": gender})
     return out, report
 
 

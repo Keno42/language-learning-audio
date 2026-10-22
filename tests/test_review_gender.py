@@ -6,6 +6,7 @@ rewording (`audiolesson questions`) and for an open item, and a part asked throu
 import json
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -13,7 +14,7 @@ from audiolesson.cli import _review_cue, _review_cues
 from audiolesson.content import load_curriculum
 from audiolesson.exercises import answer_gender, speak_as
 from audiolesson.prompts import Prompts
-from audiolesson.review_wholes import whole_for
+from audiolesson.review_wholes import refine_review, whole_for
 from audiolesson.review_wording import lesson_cue_count, review_prompt
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -72,6 +73,31 @@ class ReviewNamesTheSpeakersFormTests(unittest.TestCase):
                          "As a woman: Your host offers a third helping. Say you're full.", "a situation stays")
         self.assertEqual(lesson_cue_count([{"prompt": "As a man: In a sentence. Say: I'm full."}], self.prompts), 1)
 
+
+    def test_a_stored_whole_sentence_question_gets_its_form_when_the_review_is_refined(self):
+        """Review of #375: a question kept from an earlier lesson as a whole sentence («How do you say: I'm hungry.» → «Ég er svöng.», items
+        `svong_state`) never goes back through `whole_for`, and the bot's wording refresh does not match it (its answer is not the bare word). Refining
+        the review names the form, the woman's and the man's alike, and corrects a wrong one; one already named, or with one form for both, is left as it is."""
+        met = {"svong_state", "eg_er_state", "eg_er_svong", "bankinn", "hvar_er"}
+        for prompt, answer, items, expected in (
+            ("How do you say: I'm hungry.", "Ég er svöng.", ["svong_state"], "As a woman: How do you say: I'm hungry."),
+            ("How do you say: I'm hungry.", "Ég er svangur.", ["svong_state"], "As a man: How do you say: I'm hungry."),
+            ("As a man: Say: I'm hungry.", "Ég er svöng.", ["eg_er_svong"], "As a woman: Say: I'm hungry."),
+            ("As a woman: Say: I'm hungry.", "Ég er svöng.", ["eg_er_svong"], "As a woman: Say: I'm hungry."),
+            ("How do you say: Where is the bank?", "Hvar er bankinn?", ["bankinn"], "How do you say: Where is the bank?"),
+        ):
+            out, report = refine_review([{"items": items, "prompt": prompt, "answer": answer}], self.cur, met, self.prompts)
+            self.assertEqual(out[0]["prompt"], expected, (prompt, answer))
+            self.assertEqual(any(r["kind"] == "speaker_form" for r in report), expected != prompt, report)
+
+    def test_the_bots_refine_review_command_names_the_form_of_its_stored_questions(self):
+        stdin = json.dumps({"review": [{"items": ["svong_state"], "prompt": "How do you say: I'm hungry.", "answer": "Ég er svangur."}], "met": ["svong_state", "eg_er_state"]})
+        with tempfile.TemporaryDirectory() as tmp:  # the bot passes its learner file; a missing one adds nothing to what `met` says
+            out = subprocess.run([sys.executable, "-m", "audiolesson.cli", "refine-review", str(ROOT / "curricula" / "is-en"), "--learner", str(Path(tmp) / "learner.json")],
+                                 input=stdin, capture_output=True, text=True, check=True, cwd=ROOT)
+        data = json.loads(out.stdout)
+        self.assertEqual(data["review"][0]["prompt"], "As a man: How do you say: I'm hungry.")
+        self.assertIn("speaker_form", [r["kind"] for r in data["refined"]])
 
 if __name__ == "__main__":
     unittest.main()
