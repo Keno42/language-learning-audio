@@ -266,8 +266,8 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (`LearnerState.themes_last`: theme → lesson that last played it), else the longest rested; a replay is not assisted, and its early play says only partner wordings already heard with their meaning
   (`LearnerState.themes_heard`: `theme:level` → `turn:line`, recorded from `theme.heard` of the assisted first play;
   none heard: the line as written). The fallback can replay a theme heard two lessons ago when none has rested enough.
-  New material is chosen for the theme (#149 step 2): `Planner.theme_target()` is the theme and level `pick_theme` would
-  rank first whether or not the learner can say it yet, `theme_wants()` the items its turns lack, each behind its unmet
+  New material is chosen for the theme (#149 step 2): `Planner.theme_target()` is the lowest next level, then the scenario
+  rank, whether or not the learner can say it yet (`pick_theme`'s order without its first key, a level whose lines are coming: the target decides which lines come), `theme_wants()` the items its turns lack, each behind its unmet
   prerequisites, and `select_new` puts them first in its pool, ahead of the trip order (a promoted cheap construction keeps
   its place). The pace is unchanged: it decides how many, the theme which. `plan.json` has `theme_target`: `{id, level, wanted}`
   (the items the level lacked at the start).
