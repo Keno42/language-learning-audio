@@ -2166,13 +2166,21 @@ class CurriculumTests(unittest.TestCase):
                     item = cur.by_id[ex.item_ids[0]]
                     texts = {t for t in ([item.situation] if item.situation else []) + list(item.situations)}
                     told = sum(1 for sg in sc.segments if sg.type == "narrate" and sg.text in texts and sg.exercise is not None and sg.exercise < ex.index)
-                    allowed = {("recall", "situation")} | ({("recall", "meaning")} if told >= SITUATION_FULL_MAX else set())
+                    # a part («bíll», «með sykri») is asked in its sentence, from the sentence's meaning, as every other path asks a part (#270, #277)
+                    allowed = {("recall", "situation")} | ({("recall", "meaning")} if told >= SITUATION_FULL_MAX or item.kind == "vocab" else set())
                     self.assertIn((ex.kind, ex.stage), allowed, (note_id, ex.item_ids, told))
+                    if item.kind == "vocab" and ex.stage == "meaning":
+                        answer = next(sg.text for sg in sc.segments if sg.exercise == ex.index and sg.type == "answer")
+                        self.assertGreater(len(answer.split()), len(item.target.split()), f"{note_id}: {item.id} asked bare ({answer!r}), not in its sentence")
                     # a construction's recall also lists the fill it was generated with (support
                     # exposure); the practised item itself is always first
                     self.assertTrue(len(ex.item_ids) == 1 or cur.by_id[ex.item_ids[0]].kind == "construction", ex.item_ids)
                     self.assertIn(ex.item_ids[0], gate_ids)
                 self.assertNotEqual(first.item_ids[0], second.item_ids[0])
+                if note_id == "med_an_case":
+                    # lesson 33: the two examples contrast «með» with «án», not two of one kind
+                    words = [{w.lower() for w in cur.by_id[ex.item_ids[0]].target.split()} for ex in (first, second)]
+                    self.assertFalse(words[0] & words[1], (first.item_ids, second.item_ids))
                 checked.add(note_id)
             # the next day's review: a real learner says the embedded parts and pattern sentences back (#149, #192), so they are met
             learner.report([], [], day, recalled=list(learner.embedded))
@@ -2238,6 +2246,34 @@ class CurriculumTests(unittest.TestCase):
         first, second = sc.exercises[note_idx + 1], sc.exercises[note_idx + 2]
         discriminated = {first.item_ids[0], second.item_ids[0]}
         self.assertIn("t", discriminated, f"discrimination ignored a known transfer item: {discriminated}")
+
+    def test_discrimination_contrasts_its_two_examples_and_skips_what_the_review_asked(self):
+        """Lesson 33: the learner found choosing between «með» and «án» hard, and the milestone that names them was followed by «með sykri» and «með mjólk»,
+        which contrast nothing. The second example shares no word with the first when one can; and an item the learner's review asked this morning is not
+        asked again (#238), a milestone's follow-up included."""
+        raw = {
+            "curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+            "items": [
+                {"id": "w1", "kind": "phrase", "target": "Með sykri.", "meaning": "With sugar.", "situation": "Situation one."},
+                {"id": "w2", "kind": "phrase", "target": "Með mjólk.", "meaning": "With milk.", "situation": "Situation two."},
+                {"id": "o1", "kind": "phrase", "target": "Án sykurs.", "meaning": "Without sugar.", "situation": "Situation three."},
+                {"id": "o2", "kind": "phrase", "target": "Án mjólkur.", "meaning": "Without milk.", "situation": "Situation four."},
+            ],
+            "notes": [{"id": "contrast_pair", "milestone": True, "items": ["w1", "w2", "o1", "o2"], "text": "A milestone note."}],
+        }
+        cur = curriculum_from_dict(raw)
+        for reviewed in ((), ("o1",)):
+            learner = LearnerState("is", "en", "A1")
+            for iid in ("w1", "w2", "o1", "o2"):
+                learner.items[iid] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="situation")
+            for iid in reviewed:
+                learner.items[iid].last_reviewed = TODAY.isoformat()
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY).build()
+            note_idx = next(i for i, ex in enumerate(sc.exercises) if ex.kind == "note" and ex.label == "note: contrast_pair")
+            pair = [sc.exercises[note_idx + k].item_ids[0] for k in (1, 2)]
+            words = [{w.lower().strip(".") for w in cur.by_id[i].target.split()} for i in pair]
+            self.assertFalse(words[0] & words[1], f"two examples of one kind: {pair}")
+            self.assertFalse(set(pair) & set(reviewed), f"asked again after the review: {pair}")
 
     def test_godur_gender_nominative_is_explicit_about_case_not_just_gender(self):
         """Issue #29, owner review round 2 (blocker): the first cut of a gender-transfer

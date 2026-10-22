@@ -2616,13 +2616,23 @@ class Planner:
             nonlocal idx, since_dialogue
             just_touched = recent[-1] if recent else None
             known_transfer = [i for i in note.transfer_items if self.learner.has_met(i) or i in self.exposures]
-            others = list(dict.fromkeys(i for i in known_transfer + note.items if i != just_touched and i in self.cur.by_id))
+            # not one the learner's own review asked this morning (#238): the audio does not ask it again, a milestone's follow-up included
+            others = list(dict.fromkeys(i for i in known_transfer + note.items if i != just_touched and i in self.cur.by_id and not self.reviewed_today(i)))
             # a situation already narrated in full twice (G12) would come back as a bare meaning cue: prefer the others
             by_situation = [i for i in others if b.situation_usable(self.cur.by_id[i]) and b.situation_room(self.cur.by_id[i])]
             by_meaning = [i for i in others if i not in by_situation]
             picks = [(i, "situation") for i in by_situation] + [(i, "meaning") for i in by_meaning]
+            if len(picks) > 2:
+                # the second example contrasts with the first: one that shares no word with it, when there is one («með sykri», then «án mjólkur», not «með mjólk»;
+                # lesson 33: the learner found choosing between the two forms hard, and two «með» examples contrast nothing)
+                first = {w.lower() for w in _WORD_RE.findall(self.cur.by_id[picks[0][0]].target)}
+                other = next((p for p in picks[1:] if not first & {w.lower() for w in _WORD_RE.findall(self.cur.by_id[p[0]].target)}), None)
+                if other is not None:
+                    picks = [picks[0], other]
             for item_id, stage in picks[:2]:
-                do_recall(self.cur.by_id[item_id], stage, allow_cap=False)
+                item = self.cur.by_id[item_id]
+                if not (item.kind == "vocab" and ask_part(item)):  # a part is asked in its sentence, as every other path asks it (#270, #277)
+                    do_recall(item, stage, allow_cap=False)
                 idx += 1
                 since_dialogue += 1
 
