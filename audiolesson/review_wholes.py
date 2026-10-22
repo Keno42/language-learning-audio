@@ -175,18 +175,29 @@ def refine_review(review: list[dict], cur, met: set[str], prompts: Prompts, whol
         report.append({"items": q["items"], "kind": "same_answer", "answer": q["answer"]})
 
     # 4. the speaker's form the answer expects, on every question whose answer has a woman's and a man's form, the stored ones included («How do you
-    # say: I'm hungry.» → «Ég er svöng.» kept from an earlier lesson): from its items, the sentence it was asked through and its answer (lesson 33, review of #375)
+    # say: I'm hungry.» → «Ég er svöng.» kept from an earlier lesson): from its items, the sentence it was asked through, the fillers of a pattern it
+    # names, and its answer (lesson 33, review of #375; lesson 34: a pattern sentence stored with the pattern alone, «Ég er svangur.» of «Ég er {state}.»)
     for k, q in enumerate(out):
         prompt, answer = q.get("prompt"), q.get("answer")
         if not isinstance(prompt, str) or not isinstance(answer, str):
             continue
-        gender = answer_gender(answer, *(cur.by_id.get(i) for i in [*q.get("items", []), q.get("through") or ""]))
+        gender = answer_gender(answer, *made_of(cur, [*q.get("items", []), q.get("through") or ""]))
         named, rest = speaker_form(prompt, prompts)
         if gender is not None and named != gender:
             out[k] = {**q, "prompt": speak_as(prompts, gender, rest)}
             report.append({"items": q.get("items", []), "kind": "speaker_form", "form": gender})
     return out, report
 
+
+
+def made_of(cur, ids: list[str]) -> list:
+    """The items a question's answer can be made of: its own items, and for a pattern among them, the fillers of its slots. A question stored with
+    the pattern alone («Ég er {state}.» for «Ég er svangur.») still shows which filler, and so which speaker's form, its answer holds."""
+    found = [cur.by_id[i] for i in ids if i in cur.by_id]
+    for it in list(found):
+        if it.kind == "construction":
+            found += [f for tag in it.slots.values() for f in cur.items_with_tag(tag, it)]
+    return found
 
 def parts_outside_their_whole(review: list[dict], cur) -> int:
     """The daily read's row 5: questions whose answer is a part asked next to the whole that holds it, or that share an answer with another."""

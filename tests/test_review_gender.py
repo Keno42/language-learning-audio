@@ -90,6 +90,18 @@ class ReviewNamesTheSpeakersFormTests(unittest.TestCase):
             self.assertEqual(out[0]["prompt"], expected, (prompt, answer))
             self.assertEqual(any(r["kind"] == "speaker_form" for r in report), expected != prompt, report)
 
+    def test_a_pattern_sentence_stored_with_the_pattern_alone_gets_its_form(self):
+        """Lesson 34: «svangur» was the answer and the question did not say a man's answer was wanted. A sentence of a pattern is stored with the
+        pattern alone (items `eg_er_state`, as the plan stores «Mér finnst þetta dýrt.» under `mer_finnst_thetta`): the form is read from the
+        pattern's fillers the answer holds. A filler with one form for both («einmana») names none."""
+        for answer, expected in (
+            ("Ég er svangur.", "As a man: In a sentence. Say: I'm hungry."),
+            ("Ég er svöng.", "As a woman: In a sentence. Say: I'm hungry."),
+            ("Ég er einmana.", "In a sentence. Say: I'm hungry."),
+        ):
+            out, _ = refine_review([{"items": ["eg_er_state"], "prompt": "In a sentence. Say: I'm hungry.", "answer": answer}], self.cur, {"eg_er_state"}, self.prompts)
+            self.assertEqual(out[0]["prompt"], expected, answer)
+
     def test_the_bots_refine_review_command_names_the_form_of_its_stored_questions(self):
         stdin = json.dumps({"review": [{"items": ["svong_state"], "prompt": "How do you say: I'm hungry.", "answer": "Ég er svangur."}], "met": ["svong_state", "eg_er_state"]})
         with tempfile.TemporaryDirectory() as tmp:  # the bot passes its learner file; a missing one adds nothing to what `met` says
