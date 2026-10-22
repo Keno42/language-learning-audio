@@ -43,7 +43,7 @@ lodging or personal places.
 >    a count, a "next" or "not yet" that a later section reports done, or a pointer to a section or issue that says
 >    something else.
 > 3. **Duplicates:** the same rule or fact stated in two places, so that one copy will drift. Say which copy should
->    stay. The designed copy is LEARNING-DESIGN §8 "Now" and its verbatim copy in CURRENT-STATUS.md.
+>    stay. "Now" has one home, CURRENT-STATUS.md; a copy of it elsewhere is a duplicate.
 > 4. **Accretion:** a paragraph or table cell that has become a chain of dated additions, where one sentence saying
 >    how things stand would do.
 > 5. **Rules that conflict:** two decisions (LEARNING-DESIGN §9, DESIGN.md, CURRENT-POLICY.md) that would ask for
@@ -71,5 +71,5 @@ lodging or personal places.
 ## After the review
 - **Accepted findings:** fixed in one PR. The PR names, per finding, what it replaced or deleted.
 - **Rejected findings:** answered in the issue with the reason. The owner settles a disagreement.
-- **A finding that keeps coming back:** a rule gets a mechanical check in `tests/test_docs.py`, as "Now"'s copy and the
-  §5 references have now.
+- **A finding that keeps coming back:** a rule gets a mechanical check in `tests/test_docs.py`, as "Now"'s home and size,
+  the §5 references and the paths in `CLAUDE.md`'s reading table have now.
