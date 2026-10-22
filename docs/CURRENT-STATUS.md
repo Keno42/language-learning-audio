@@ -56,7 +56,7 @@ Each waits for its first feedback in the LD §8 table.
 - **Documents:** a route per task in `CLAUDE.md`, and «Now» in this file only (#364: #374).
 - **The scene check:** the first outside review of the coming lessons' sentences, six verdicts (#376).
 - **Connections (#326):** the allergy line in the café's fourth level, a scene to practise it through (#379), and its pattern
-  «Ég er með ofnæmi fyrir {…}.» with nouns in the dative, so its other practices are other sentences (#CHANGE).
+  «Ég er með ofnæmi fyrir {…}.» with nouns in the dative, so its other practices are other sentences (#380).
 
 ## Open issues after "Now", in order
 - **An item counted toward the target when it is selected, not when it is taught.** On the replay, lesson 30's second
