@@ -20,19 +20,21 @@ the review names the speaker's form its answer expects (#375), and «með» / «
    met, so a word introduced today is generated unjudged the same day, and the negative and question forms are on no
    sheet. **Next smallest step:** scene lines for the 142 from a reviewer (`docs/SCENE-REVIEW.md`), faithful to each
    sentence's meaning; then the sheet printed from the replay of each new export, the forms included.
-2. **The new material after lesson 36 has no level to play (#327).** With the town, small talk and the clothes shop,
-   «today's new items said as a turn of the played exchange» reads 17 in lessons 30–35 and 0 from lesson 36 on the
-   replay of the lesson-30 export. From there the lessons replay town 2, the supermarket's level 2 and the clothes
-   shop's level 2 in turn, while the day's material is still the way («Það er til vinstri.», «Hvað er langt þangað?»,
-   «Ég er týnd.», «Geturðu sýnt mér á kortinu?», «Það tekur {duration}.») and getting to know someone (age, job,
-   family). **Next smallest step:** a third town level for the way itself: left and right, how long it takes, the map.
+2. **The new material after lesson 38 has no level to play (#327).** On the replay of the lesson-33 export, «today's new
+   items said as a turn of the played exchange» reads 2 to 5 in lessons 33–37 and, with the town's third level (the
+   way: left or right, how far, the map; #CHANGE), 4 in lesson 38; from lesson 39 it is 0 again. The lessons then
+   replay café 4, town 3 and the supermarket's level 2, while the day's material is more places («sjúkrahúsið»,
+   «lögreglustöðin», «pósthúsið», «hraðbankinn»…) and getting to know someone (nationality, work, age, married or
+   single, children). **Next smallest step:** a third small-talk level for those lines. Several are gendered («Ég er
+   japönsk.», «Ég er gift.»), and a theme turn says one form with no man's form and no announcement: that needs
+   deciding first (the review names the form, #375).
 
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
 Icelandic (candidates until native-checked). The town (asking the way), small talk (getting to know someone) and the
 clothes shop (what you need, the price, trying it on) are written: on the replay of the lesson-30 export the day's new
 lines are said in the played exchange in lessons 30–35 (17; before the town, 0 in nine lessons). The goal of the played
-level is said after the opening, and the closing ends on the level's lines in the order of its turns. Next: the way
-itself (item 2), then taxi and bus, winter talk.
+level is said after the opening, and the closing ends on the level's lines in the order of its turns. The town has a third
+level for the way itself. Next: small talk's third level (item 2), then taxi and bus, winter talk.
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
 learner say this line", then the planner's build loop. Each step leaves the replays of the lesson-21–23 exports
@@ -42,7 +44,7 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
-- **Scenes (#327):** the town (#365), small talk (#371) and the clothes shop (#372), two levels each; a level played in
+- **Scenes (#327):** the town (#365, its third level #CHANGE), small talk (#371) and the clothes shop (#372); a level played in
   the lesson that teaches its lines (#365); the level's goal said after the opening (#369); the closing ends on the
   level's lines in the order of its turns (#370).
 - **Forms:** a known noun's other form taught in its frame, against the form the learner knows, with why it changes
