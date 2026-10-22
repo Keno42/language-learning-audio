@@ -692,3 +692,61 @@ What the learner wrote, by what the lesson did:
   nouns only (hérna, lundi in lesson 24), nothing stops a question whose cue is its answer, and a written synopsis is
   spoken. The fixes widen a rule that exists (#277) or replace data meant for the eye (#278), not new mechanisms.
 - **Recall recovered.** 10 of 13, with 4.8 uses per new item before the closing. The "watch" of §5.18 closes.
+
+### 5.20 Lesson 24: the first lesson on #277–#293, after the speech-synthesis outage
+
+Lesson 24 was generated with LLA `7976fa2`. It is the first lesson heard with:
+- a part asked through its sentence, and no question whose cue is its answer (#277);
+- a spoken scene line (#278), a catch task that reports the partner's answer (#279), light introductions (#280);
+- the partner speaking word by word after «Gætirðu talað hægar?» (#261);
+- no sentence asked twice within a minute (#273's spacing half);
+- «Use it in a sentence.» only when true, and a new part applied in another sentence right after its retrieval (#287);
+- a slow, split model for hard words (#212), and a frame brought forward for a stranded noun (#270).
+
+**The bot's generations failed from 2026-10-12.** The free endpoint behind edge-tts refused connections from the bot's
+location (403; upstream rany2/edge-tts#490 reports it from 2026-10-10). Every generation failed until Azure Speech's official API, with the
+same voices, became the fallback (#296, #297, #299, #300). The key reached the bot through sealed repository secrets
+(site_update_notifier#119). A failed generation is now retried without a second review (site_update_notifier#110, #116).
+
+**Lesson 23's next-day review.** 10 of its 13 new items were recalled; «Gleðilegt nýtt ár!», «hérna» and «Ég er hér í
+viku.» were hesitated, none failed. That is above §8's 60% rule for the second lesson running: the pace unit stays.
+
+| | lesson 24 |
+|---|---|
+| length | 28.3 min, 116 exercises |
+| new items; new components, weighted | 10; 11 |
+| target reached | 19:12 |
+| longest stretch without a scene | 5.5 min |
+| a sentence asked again within a minute | 2 |
+| trivial questions; bare nouns in the lesson's recall | 0; 0 |
+| new words given the split model | none (no hard word among the new items) |
+| speech segments touching with no pause between | 66 (43 English cue → Icelandic) |
+| feedback form: load; friction | **right**; pacing, other |
+| review queue | «確認待ち 146件» |
+
+The rebuilt lesson 24 on main is identical to the export (116 exercises, 28.3 min), so the replay is the real path.
+
+What the learner wrote, by what the lesson did:
+
+- **"Some utterances came too fast, with no pause before them."** Two speech segments touched 66 times, and after the
+  renderer's trim they play about 0.12 s apart: «Repeat.» → «Mig langar í kaffi.», «It starts with:» → «Ég». Nothing in
+  the script decides what happens at a change of voice (#301).
+- **"The explanation of verð að / vil / mig langar að had so little gap around the English that it was confusing."**
+  The note cut one English sentence around five Icelandic fragments: 18 changes of voice in 30 seconds, none with a gap
+  (#301).
+- **"The word-by-word slow speech was very good. The ordinary introduction's slow model should work the same way."**
+  The partner's reply after «Gætirðu talað hægar?» (#261) is the first merged change named and praised in a feedback.
+  The introductions still stretch whole sentences at `slow_rate`, 11 times (#302).
+- **(The owner, on the pick-outs.)** «When does it close?» after the opening-hours line is good, but here the
+  information is what one goes to find, so the question belongs before the line (#303).
+
+**Reading.**
+- **What did not come back.** None of lesson 23's remarks returned: no setting read aloud, no obvious name question,
+  no narrator answering for the partner. Load «right» for the fourth lesson running.
+- **One cause behind both pacing remarks.** The script has no rule at a change of voice. It is one rule for all
+  exercises (#301), not a pause added to each.
+- **Gaps, not stretched sounds (H8).** The praised reply and the remarked introduction differ only in that: the same
+  words at natural speed with gaps between them, against a stretched line. This supports H8's segmentation reading and
+  #261's design; #302 applies it to the introductions.
+- **The review queue is unread.** 146 due, with #109's cap able to defer only well-known entries. Which part is growing
+  is unknown until site_update_notifier#123 shows it; #220's intake side is decided from that.
