@@ -173,6 +173,12 @@ class DialogueRepeatsTheSceneTests(unittest.TestCase):
         kaffihus = next(d for d in self.cur.dialogues if d.id == "kaffihus")
         self.assertFalse(self.planner("cafe", 0).repeats_scene(kaffihus), "«Takk.» alone")
 
+    def test_one_level_turn_said_by_two_dialogue_turns_is_one_shared_line(self):
+        """Review of #384: supermarket 2's one turn «Nei, takk.» (items «nei», «takk») matched both «kaffihus»'s «Nei, takk.» and its
+        «Takk.», and the café dialogue was dropped for two shared lines. Each dialogue turn is paired with a level turn of its own."""
+        kaffihus = next(d for d in self.cur.dialogues if d.id == "kaffihus")
+        self.assertFalse(self.planner("supermarket", 1).repeats_scene(kaffihus))
+
     def test_the_lesson_that_plays_small_talk_1_does_not_play_kynning(self):
         l = LearnerState("is", "en", "A1")
         l.lessons_completed = 8

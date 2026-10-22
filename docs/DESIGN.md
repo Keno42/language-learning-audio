@@ -65,8 +65,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   question for it is the line itself (or its meaning), never the example (`Script.review_questions` skips the role). No authored
   situation starts by restating what the learner said.
 - **An authored dialogue does not repeat the lesson's scene.** `Planner.repeats_scene`: two or more of a dialogue's learner lines are
-  lines of the level the lesson plays (the item a turn expects is one a turn of the level asks, or its literal line is one of the
-  level's, `Planner.scene_turns`). `eligible_dialogue` and `listening_dialogue` skip such a dialogue in that lesson: the scene's
+  each a different line of the level the lesson plays (a dialogue turn says a level turn when the item it expects is one that turn
+  asks, or its literal line is that turn's, `Planner.scene_turns`; each dialogue turn is paired with a level turn of its own, so one
+  level turn such as «Nei, takk.» counts once however many dialogue turns it matches, review of #384). `eligible_dialogue` and `listening_dialogue` skip such a dialogue in that lesson: the scene's
   exchange already says those lines (lesson 34 of the lesson-33 replay played «kynning», Anna from Akureyri, two minutes before
   small talk 1, whose Anna is from Akureyri too). One shared line («Takk.») is not a repeat. `tests/test_scene_group.py`.
 - **Listening dialogues (#149 step 3).** With nothing else left (step 5, before today's items

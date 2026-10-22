@@ -1461,16 +1461,32 @@ class Planner:
         return self.rng.choice(least)
 
     def repeats_scene(self, d: Dialogue) -> bool:
-        """Two or more of the dialogue's learner lines are lines of the level the lesson plays: the item a turn expects is one a
-        turn of the level asks, or its literal line is one of the level's. The scene's exchange already says them; the dialogue
-        would say them again in another setting (lesson 34 of the lesson-33 replay: «kynning», Anna from Akureyri, two
-        minutes before small talk 1, whose Anna is from Akureyri too). One shared line («Takk.») is not a repeat."""
+        """Two or more of the dialogue's learner lines are each a different line of the level the lesson plays: a dialogue turn
+        says a level turn when the item it expects is one that turn asks, or its literal line is that turn's. The scene's exchange
+        already says them; the dialogue would say them again in another setting (lesson 34 of the lesson-33 replay: «kynning»,
+        Anna from Akureyri, two minutes before small talk 1, whose Anna is from Akureyri too). One shared line («Takk.») is not a
+        repeat, and neither is one level turn said by two dialogue turns (review of #384: supermarket 2's «Nei, takk.» against
+        «kaffihus»'s «Nei, takk.» and «Takk.»): each dialogue turn is paired with a level turn of its own."""
         if not self.scene_turns:
             return False
-        items = {i for t in self.scene_turns for i in t.items}
-        lines = {_norm_utterance(t.say) for t in self.scene_turns} | {_norm_utterance(t.say_m) for t in self.scene_turns if t.say_m}
-        shared = sum(1 for t in d.turns if (t.expect and t.expect in items) or (t.expect_text and _norm_utterance(t.expect_text) in lines))
-        return shared >= 2
+
+        def says(t, s) -> bool:
+            lines = {_norm_utterance(s.say)} | ({_norm_utterance(s.say_m)} if s.say_m else set())
+            return bool((t.expect and t.expect in s.items) or (t.expect_text and _norm_utterance(t.expect_text) in lines))
+
+        options = [[k for k, s in enumerate(self.scene_turns) if says(t, s)] for t in d.turns]
+        paired: dict[int, int] = {}  # level turn → dialogue turn (a bipartite matching: each level turn counted once)
+
+        def pair(j: int, seen: set[int]) -> bool:
+            for k in options[j]:
+                if k not in seen:
+                    seen.add(k)
+                    if k not in paired or pair(paired[k], seen):
+                        paired[k] = j
+                        return True
+            return False
+
+        return sum(pair(j, set()) for j in range(len(d.turns)) if options[j]) >= 2
 
     def embed_source(self, item: Item) -> Item | None:
         """The item ``item`` is taken out of, when it is introduced inside an easy sentence, not
