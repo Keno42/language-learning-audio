@@ -137,15 +137,16 @@ text_ja = "ミルクを勧める店員は«Viltu mjólk út í?»と聞くこと
 
 # After lesson 33 the learner wrote that choosing the right case after «með» and «án» is hard. The four units are taught whole («með sykri», «án sykurs»,
 # «með mjólk», «án mjólkur»), and nothing said why the word changes: the same word, the forms side by side, the reason, then the units asked again
-# (#270's principle; a milestone is followed by two of its items recalled back to back). Candidate wording, to be native-checked (#209).
+# (#270's principle; a milestone is followed by two of its items recalled back to back). «með» takes the dative only in this use: «Ég er með kort.»
+# is accusative (review of #377). Candidate wording, to be native-checked (#209).
 [[notes]]
 id = "med_an_case"
 milestone = true
 items = ["med_sykri", "an_sykurs", "med_mjolk", "an_mjolkur"]
 topics = ["grammar", "cafe"]
 parts = [["sykur", "með sykri", "án sykurs"], ["mjólk", "með mjólk", "án mjólkur"]]  # the word, then with it, then without it
-text = "With and without change the ending of the word after them. After «með», with, the word takes the dative. After «án», without, it always takes the genitive."
-text_ja = "「〜入り」と「〜なし」では、あとに来る単語の語尾が変わります。«með»（〜入り）のあとでは、単語は与格になります。«án»（〜なし）のあとでは、いつも属格になります。"
+text = "With and without change the ending of the word after them. In these drink orders, «með», with, takes the dative. After «án», without, the word always takes the genitive."
+text_ja = "「〜入り」と「〜なし」では、あとに来る単語の語尾が変わります。飲み物に砂糖やミルクを加えるこの用法では、«með»（〜入り）のあとは与格になります。«án»（〜なし）のあとでは、いつも属格になります。"
 
 [[notes]]
 id = "allt_i_lagi_idiom"
