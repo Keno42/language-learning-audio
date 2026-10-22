@@ -36,6 +36,10 @@ fara_a_safnid = false  # «Má ég» asks permission: an adult traveller asks wh
 borda = false  # an adult does not ask permission to eat; at a host's table it is «Má ég byrja?»
 fara_i_sund = false  # an adult does not ask permission to go swimming
 drekka_kaffi = false  # one asks for coffee («Get ég fengið kaffi?»), not permission to drink it
+hvila_mig = "You are tired on a guided hike."  # review of the coming lessons' sheet (2026-10-22): asked of the guide
+hringja_heim = "You want to call home from your host's phone."
+fara_ut = "During a guided visit, you need some fresh air."
+borga_med_korti = "At the till, you have no cash."
 
 [scenes.fer_thessi_straeto_dest]
 a_stoppistodina = false  # a bus does not go «to the bus stop» (#336)
@@ -361,6 +365,7 @@ fara_i_sund = "Your new friend asks what you like doing on holiday."
 kaupa_mida = false  # nobody likes buying a ticket
 fara_a_safnid = "Your new friend asks what you like doing on holiday."
 drekka_kaffi = "Your new friend asks what you like doing on holiday."
+borga_med_korti = false  # review of the coming lessons' sheet (2026-10-22), provisional: enjoying paying is not finding the card convenient
 
 [scenes.mer_finnst_thetta]  # «Mér finnst þetta {adj}.» I think this is {adj}.
 frabaert = "Your friend asks what you think of the concert."
@@ -370,3 +375,6 @@ fallegt = "Your friend asks what you think of the sweater."
 opid = false  # whether a place is open is a fact, not an opinion
 lokad = false  # nor whether it is closed
 haett = "Your friend wants to walk on the glacier without a guide."
+
+[scenes.eg_borda_ekki]  # «Ég borða ekki {food}.» I don't eat {food}.
+mjolk = false  # milk is drunk, not eaten: «Ég drekk ekki mjólk.» (review of the coming lessons' sheet, 2026-10-22)
