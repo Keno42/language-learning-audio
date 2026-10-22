@@ -7940,10 +7940,13 @@ class ThemeExchangeTests(unittest.TestCase):
 
     def test_no_turn_of_a_continuing_exchange_drops_its_cue_in_any_play(self):
         """#230 review (owner): the partner's line never decides the reply, so every learner turn of every theme level keeps its cue,
-        the second play and a replay included, the tour's «Greet her back.» too."""
+        the second play and a replay included, the tour's «Greet her back.» too. A gendered line's cue names the form first («As a woman:
+        …», owner after #381)."""
+        from audiolesson.exercises import speak_as
         from audiolesson.themes import level_dialogue
 
         planner = self._planner(self._learner(self._known + self._rest + ["godan_daginn"]), self._themes, self._order)
+        prompts = planner.builder.prompts
         for theme in self._themes:
             for n, level in enumerate(theme.levels):
                 dlg = level_dialogue(theme, n)
@@ -7952,7 +7955,8 @@ class ThemeExchangeTests(unittest.TestCase):
                     planner.builder.dialogue(sc, dlg, translate=translate)
                     narrated = [g.text for g in sc.segments if g.type == "narrate"]
                     for turn in dlg.turns:
-                        self.assertIn(turn.cue, narrated, (theme.id, n + 1, translate))
+                        cues = {turn.cue} | ({speak_as(prompts, g, turn.cue) for g in ("f", "m")} if turn.expect_text_m else set())
+                        self.assertTrue(cues & set(narrated), (theme.id, n + 1, translate, turn.cue))
         self.assertIn("Greet her back.", [t.cue for t in level_dialogue(next(t for t in self._themes if t.id == "tour"), 0).turns])
 
     def test_a_scene_line_on_a_partner_turn_is_narrated_before_its_line_in_every_play(self):
