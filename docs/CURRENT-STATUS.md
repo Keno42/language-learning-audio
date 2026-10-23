@@ -85,7 +85,8 @@ Each waits for its first feedback in the LD §8 table.
 - #336: the other scenes' frames that vary in use, as each scene comes (`validate` lists the candidates; only the frames
   a scene varies).
 - #270: the other frames (accusative orders, `dat_town`, `dat_hobby`), after the dative place forms' first feedback.
-- #209: when a fluent speaker is available (G10). Every scene added since lesson 30 adds authored Icelandic to it.
+- #209: when a fluent speaker is available (G10), starting from the lines the lessons say most (`tools/top_lines.py` on the
+  exported scripts). Every scene added since lesson 30 adds authored Icelandic to it.
 
 #265 (expression first) and #270 (a noun with its gender and forms) are the umbrellas the items above belong to; #326
 for the connections across lessons.
