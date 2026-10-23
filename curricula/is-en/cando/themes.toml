@@ -214,6 +214,8 @@ turns = [
   { who = "partner", say = "Já, til hægri. Ekki til vinstri.", meaning = "Yes, to the right. Not to the left.", meaning_ja = "はい、右です。左ではありません。" },
   { who = "you", cue = "Ask how far it is.", cue_ja = "どのくらいの距離か聞いてください。", say = "Hvað er langt þangað?", items = ["hvad_er_langt_thangad"] },
   { who = "partner", say = "Það tekur svona tíu mínútur.", meaning = "It takes about ten minutes.", meaning_ja = "10分くらいかかります。", probes = [{ kind = "duration", answer = "tíu mínútur", meanings = { en = "ten minutes", ja = "10分" } }], variants = [{ say = "Svona tíu mínútur að ganga.", meaning = "About ten minutes on foot.", meaning_ja = "歩いて10分くらいです。", word_glosses = { "ganga" = { en = "to walk", ja = "歩く", pointer = { en = "the word for how you get there", ja = "どうやって行くかを表す部分" } } }, probes = [{ kind = "duration", answer = "tíu mínútur", meanings = { en = "ten minutes", ja = "10分" } }] }] },
+  { who = "you", cue = "He spoke too fast. Say sorry, you don't understand, and ask him to speak more slowly.", cue_ja = "話が速すぎました。ごめんなさい、わかりませんと言って、もっとゆっくり話してくれるよう頼んでください。", say = "Fyrirgefðu, ég skil ekki. Gætirðu talað hægar?", items = ["fyrirgefdu", "eg_skil_ekki", "gaetirdu_talad_haegar"] },
+  { who = "partner", repeat = true },
   { who = "you", cue = "Ask him to show you on the map.", cue_ja = "地図で見せてくれるよう頼んでください。", say = "Geturðu sýnt mér á kortinu?", items = ["geturdu_synt_mer_a_kortinu"] },
   { who = "partner", say = "Já, auðvitað. Við erum hérna.", meaning = "Yes, of course. We're here.", meaning_ja = "ええ、もちろん。今ここにいます。", word_glosses = { "auðvitað" = { en = "of course", ja = "もちろん" } } },
   { who = "you", cue = "Thank him warmly.", cue_ja = "心をこめてお礼を言ってください。", say = "Takk kærlega.", items = ["takk_kaerlega"] },
