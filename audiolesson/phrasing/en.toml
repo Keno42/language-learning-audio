@@ -54,6 +54,7 @@ also = "You could also say:"
 construction_intro = "Here is a useful pattern. {meaning}"
 intro_whole = "A new expression. {meaning}"
 construction_of_known = "It is a pattern: you can say it with other words."
+construction_of_known_later = "It is a pattern: other words can go in its place. You will meet them later."  # no other known filler yet: no swap is promised now (lesson 34, «hnetum»)
 construction_slot = "You can put other words in the same place."
 slot_word = "something"
 

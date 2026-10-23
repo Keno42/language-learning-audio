@@ -434,6 +434,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
     The exercise stays an `intro` of the part (`item_ids = [part]`), so `Script.review_questions` asks the sentence next day. A part without such a home is introduced as before.
   - *A pattern whose example is known.* `_intro_construction` checks the worked example with `is_new_utterance`; when it is not new («Eigðu góðan dag.», or the
     sentence the part came in with) it says «You know this:», the sentence and `construction_of_known` («It is a pattern: you can say it with other words.») instead of «Here is a useful pattern».
+    That line is said only when a second example with another known filler follows it; with none, the same sentence is asked next, so it says
+    `construction_of_known_later` («It is a pattern: other words can go in its place. You will meet them later.»; lesson 34: «hnetum» was said
+    to be swappable and no swap came for minutes, `tests/test_instance_filler.py`).
   - *In the review* (`audiolesson/review_wholes.py`, applied in `cli._plan` to `plan.json` `review`; the bot is unchanged). `refine_review(review, cur, met, prompts)`:
     (1) a part's question whose part sits in another question's answer is dropped and credited to that question (`beside_whole`); (2) a bare part with a whole
     the learner knows (a construction filled with the part and met fills, the one whose authored fill names it first, else the shortest phrase that holds it) is

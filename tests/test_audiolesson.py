@@ -5559,7 +5559,8 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
         b.intro(sc, self.cur.by_id["eigdu_godur"])
         text = sc.transcript()
         self.assertIn("You know this:", text)
-        self.assertIn("It is a pattern: you can say it with other words.", text)
+        # no other filler is known, so no other sentence follows: the swap is promised for later (lesson 34, «hnetum»)
+        self.assertIn("It is a pattern: other words can go in its place. You will meet them later.", text)
         self.assertNotIn("Here is a useful pattern", text)
         # a pattern whose example is not known is still introduced as before
         fresh = self._builder(met=["hjalpina"])

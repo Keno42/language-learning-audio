@@ -115,8 +115,35 @@ class IntroductionTests(unittest.TestCase):
         self.assertNotIn("eg_tharf_ulpu", sc.meta["repeated_new_sentences"])
 
 
-if __name__ == "__main__":
-    unittest.main()
+
+class PatternOfAKnownPhrasePromisesOnlyWhatComesTests(unittest.TestCase):
+    """Lesson 34's feedback: «hnetum» was said to be swappable («It is a pattern: you can say it with other words.») and no swap followed: the
+    same sentence was asked again, and «fiski» came minutes later. With no other filler known the line says the other words come later; with
+    one, the second example shows the swap at once."""
+
+    def lines(self, known):
+        from audiolesson.learner import ItemState
+        from audiolesson.script import Script
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        l = LearnerState("is", "en", "A1")
+        today = date(2026, 3, 1)
+        for i in known:
+            l.items[i] = ItemState(stage="meaning", durable_successes=2, successes=6, interval_days=7, recalled=3, last_outcome="recalled",
+                                   due=(today + timedelta(days=5)).isoformat(), last_practiced=(today - timedelta(days=2)).isoformat())
+        b = Planner(cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30), today=today).builder
+        sc = Script(1, "t", "is", "en")
+        ex = b.intro(sc, cur.by_id["ofnaemi_fyrir"])
+        return [s.text for s in sc.segments if s.exercise == ex.index and s.text]
+
+    def test_no_other_filler_known_promises_them_later(self):
+        said = self.lines(("eg_er_med_ofnaemi_fyrir_hnetum", "hnetum"))
+        self.assertIn("It is a pattern: other words can go in its place. You will meet them later.", said)
+        self.assertNotIn("It is a pattern: you can say it with other words.", said)
+
+    def test_another_filler_known_is_shown_at_once(self):
+        said = self.lines(("eg_er_med_ofnaemi_fyrir_hnetum", "hnetum", "fiski"))
+        self.assertIn("It is a pattern: you can say it with other words.", said)
+        self.assertIn("Ég er með ofnæmi fyrir fiski.", said, "the swap follows the promise")
 
 
 class EmbedNeverRepeatsItsSourceTests(unittest.TestCase):
@@ -140,3 +167,7 @@ class EmbedNeverRepeatsItsSourceTests(unittest.TestCase):
         self.assertTrue(ex is None or "Á þetta hótel, takk." not in said, said)
         self.assertIsNone(ex, "«{dest}, takk.» makes only the source, and the bus pattern excludes this hotel: no other sentence, so no embed")
         self.assertEqual(b.heard, heard_before, "the source is excluded only for the choice, not marked heard")
+
+
+if __name__ == "__main__":
+    unittest.main()

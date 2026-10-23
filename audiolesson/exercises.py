@@ -1056,7 +1056,10 @@ class Builder:
             self._frame(sc, ex, self.prompts.get("embed_known"))
             self._speak(sc, ex, target)
             self._beat(sc, ex)
-            self._frame(sc, ex, self.prompts.get("construction_of_known"))
+            # «you can say it with other words» is shown at once by a second sentence with another known filler; with none yet, the same sentence
+            # is asked next, so the line says the other words come later (lesson 34: «Ég er með ofnæmi fyrir hnetum.», and no swap for minutes)
+            other = self.generate(item, exclude=fills) is not None
+            self._frame(sc, ex, self.prompts.get("construction_of_known" if other else "construction_of_known_later"))
         else:
             self._narr(sc, ex, self.prompts.get("construction_intro", meaning=self._m(meaning)))
             self._beat(sc, ex)
