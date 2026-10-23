@@ -9,10 +9,13 @@ from __future__ import annotations
 
 import re
 import tomllib
+from collections.abc import Iterable
 from dataclasses import dataclass, field
+from itertools import product
 from pathlib import Path
 
 from .sounds import split_breaks_a_cluster
+from .text import norm_utterance
 
 KINDS = ("vocab", "phrase", "construction", "transform")
 GENDERS = ("masc", "fem", "neut")
@@ -517,6 +520,31 @@ def scene_covered(c: Item, fill_id: str) -> bool:
     """Whether a fill takes its pattern's line with no verdict of its own: judged by the pattern line alone, so a fill tagged later is covered without a
     review, as the scene check accepts for a line that does not depend on the fill (LEARNING-DESIGN §9 "The scene check")."""
     return PATTERN_SCENE in c.scene_verdicts and fill_id not in c.scene_verdicts
+
+
+def said_scene_rows(cur: Curriculum, lines: Iterable[str]) -> list[tuple[str, str, str | None, str, str]]:
+    """The scene check on what the lessons say (G6): ``(pattern, fill, form, sentence, meaning)`` for each of ``lines`` (the target-language lines lessons
+    said, spoken or as a model answer) that a pattern with slots makes, in its plain form (``form`` None), its negative or its question, once for each fill of
+    the sentence with no verdict of its own, in a pattern with no ``"*"`` line (which judges every such fill, ``scene_covered``). Sorted, each once.
+    ``scene_sheet`` lists what the patterns can make; this, what lessons said: a word introduced today and the forms included (the replay's sheet)."""
+    said = {norm_utterance(t) for t in lines}
+    rows: set[tuple[str, str, str | None, str, str]] = set()
+    for c in cur.items:
+        if c.kind != "construction" or not c.slots or PATTERN_SCENE in c.scene_verdicts:
+            continue
+        for combo in product(*(cur.items_with_tag(tag, c) for tag in c.slots.values())):
+            unjudged = [f.id for f in combo if f.id not in c.scene_verdicts]
+            if not unjudged:
+                continue
+            fills = dict(zip(c.slots, combo))
+            for form in (None, *c.forms):
+                if not cur.fits_form(c, fills, form):
+                    continue
+                for speaker in (None, "m"):  # a fill's man's form (``target_m``) is said in a man's voice
+                    target, meaning = cur.resolve_slots(c, fills, speaker, form)
+                    if norm_utterance(target) in said:
+                        rows.update((c.id, f, form, target, meaning) for f in unjudged)
+    return sorted(rows, key=lambda r: (r[0], r[1], r[2] or "", r[3]))
 
 
 def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curriculum:

@@ -22,6 +22,10 @@ It lists the model replies and the curriculum items the first reply needs:
 - ``repair``: the partner line is deliberately beyond the learner; the goal is to keep the
   conversation going («Ég skil ekki», «Gætirðu talað hægar?»).
 
+A card may name the theme level whose goal it asks, ``level = "cafe:2"`` (``"<theme>:<n>"``,
+``n`` from 1; #327). ``validate`` fails a level that does not exist and lists the levels no
+card asks.
+
 Cards live in ``<curriculum>/cando/scenes.toml`` (``load_cando`` reads only
 ``[[scenarios]]``, so the files can share the directory). A card is shown only once the
 learner has met every item in ``items``; a partner line may go beyond the course (the
@@ -36,6 +40,7 @@ from pathlib import Path
 from .cando import Scenario
 from .content import Curriculum, CurriculumError
 from .records import check_items, load_records
+from .themes import Theme
 
 KINDS = ("respond", "initiate", "repair")
 
@@ -54,6 +59,7 @@ class Scene:
     items: list[str] = field(default_factory=list)
     note_ja: str = ""
     season: str | None = None  # only in that season (the trip profile's, #132)
+    level: str = ""  # "<theme>:<n>": the theme level whose goal this card asks (#327)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -92,6 +98,23 @@ def uncovered(scenes: list[Scene], scenarios: list[Scenario], tier: str = "A") -
     """The scenarios of ``tier`` that have no card."""
     covered = {s.scenario for s in scenes}
     return [s.id for s in scenarios if s.tier == tier and s.id not in covered]
+
+
+def theme_levels(themes: list[Theme]) -> list[str]:
+    """Every theme level as a card names it, ``"<theme>:<n>"`` with ``n`` from 1 (the planner's key for a level)."""
+    return [f"{t.id}:{n}" for t in themes for n in range(1, len(t.levels) + 1)]
+
+
+def unknown_levels(scenes: list[Scene], themes: list[Theme]) -> list[tuple[str, str]]:
+    """(card, level) for each card whose ``level`` names no theme level."""
+    known = set(theme_levels(themes))
+    return [(s.id, s.level) for s in scenes if s.level and s.level not in known]
+
+
+def unasked_levels(scenes: list[Scene], themes: list[Theme]) -> list[str]:
+    """The theme levels no card asks (#327): a level's goal the review never checks."""
+    asked = {s.level for s in scenes}
+    return [lv for lv in theme_levels(themes) if lv not in asked]
 
 
 def available(

@@ -22,16 +22,23 @@ A sentence with no verdict is still generated, as before. `audiolesson validate`
 
 ## How to run it
 
-1. Print the sheet. The patterns and words the learner has met first, since those are what the lessons generate now:
+1. Print the sheet from the replay of each new export: the pattern sentences the coming lessons say with no verdict, a
+   word introduced that day and the negative and question forms included, so each is judged before the lessons reach it
+   (G6). With the trip profile, as for the daily read: without `--trip` the replay builds other lessons.
 
    ```sh
-   python -m audiolesson.cli scene-check curricula/is-en --learner LEARNER.json > scene-sheet.toml
+   python tools/replay_lesson.py EXPORT_DIR --trip PROFILE --lessons 7 --scene-sheet > scene-sheet.toml
    ```
 
-   Without `--learner`, every pattern; `--pattern ID` for one. Each line is a fill with its sentence and meaning as a
-   comment, and an empty verdict (`""`) to write. A fill its pattern's `"*"` line covers is not on it.
-   `--judged` prints the verdicts already given too: the pattern's `"*"` line first, and each fill it covers as a comment
-   (`# kaffi: the pattern's line`), so the table pasted back leaves them covered.
+   Its row «pattern sentences said with no scene verdict (G6)» counts the same sentences lesson by lesson. The lessons
+   after the exported one are the replay's continuation, so the next export's sheet checks them again. Each line is a
+   fill, with an empty verdict (`""`) to write and the sentences said as a comment: the plain sentence first, since a
+   scene line is the cue of the plain sentence only (a fill said only as a negative or a question gets its plain sentence
+   too), then each form said. A fill its pattern's `"*"` line covers is not on it.
+   `python -m audiolesson.cli scene-check curricula/is-en` prints every sentence the patterns can make instead, a fill's
+   with the other slots filled with the example (`--learner LEARNER.json`: the patterns and words the learner has met;
+   `--pattern ID`: one). Its `--judged` prints the verdicts already given too: the pattern's `"*"` line first, and each
+   fill it covers as a comment (`# kaffi: the pattern's line`), so the table pasted back leaves them covered.
 2. Give the sheet and the prompt below to a reviewer: the owner, or a model (another company's, as for
    `docs/DOC-REVIEW.md`, so the author of the patterns does not judge its own sentences).
 3. Paste the filled tables into `95-scenes.toml` in one PR. `validate` checks that each fill is one of the pattern's.
@@ -42,11 +49,12 @@ The sheet holds no trip profile: only course sentences.
 ## The prompt
 
 > You are checking sentences for a course of daily audio lessons in Icelandic, for one adult learner preparing for a
-> trip to Iceland. Each line of the attached TOML is one sentence a pattern makes, as a comment: the Icelandic and its
-> English meaning.
+> trip to Iceland. Each line of the attached TOML is one word of a pattern, with the sentences it makes as a comment: the
+> Icelandic and its English meaning, the plain sentence first, then its negative or question where the lessons say one.
 >
-> For each line, decide whether a traveller in Iceland (or someone talking with Icelanders) could plausibly say this
-> sentence, and where:
+> For each line, decide whether a traveller in Iceland (or someone talking with Icelanders) could plausibly say the first
+> sentence, and where (a verdict holds for every sentence of the line: `false` drops them all; if only a negative or a
+> question is implausible, write the scene and say so in a comment):
 >
 > - If yes, replace `""` with **one short line describing the scene** in English, where the sentence would be said, in
 >   the second person and present tense, without saying the sentence itself. Example: for «Ég nenni ekki að fara út.»
