@@ -10,7 +10,7 @@ from datetime import date
 from pathlib import Path
 
 from . import __version__
-from .themes import load_themes, scenario_order
+from .themes import load_themes, scenario_coverage, scenario_order, unranked_themes
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts, speak_as
 from .content import PATTERN_SCENE, CurriculumError, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, unlinked_instances
@@ -22,7 +22,7 @@ from .review_wording import lesson_cue_count, reword_review
 from .script import Script
 from .timing import Timing
 from .reading import load_deck
-from .scenes import available, load_scenes, uncovered
+from .scenes import available, load_scenes, unasked_levels, uncovered, unknown_levels
 from .trip import load_trip
 
 
@@ -714,8 +714,24 @@ def cmd_validate(args) -> int:
             raise CurriculumError(f"Tier A scenarios without a scenario card (#129): {missing}")
         print(f"{len(scenes)} scenario cards (#129); every Tier A scenario has one")
     themes = load_themes(args.curriculum, cur, scenarios) if scenarios else []
+    bad_levels = unknown_levels(scenes, themes)
+    if bad_levels:
+        raise CurriculumError(f"scenario cards name theme levels that do not exist (`level` is \"<theme>:<n>\", n from 1; #327): {bad_levels}")
     if themes:
         print(f"{len(themes)} lesson themes (#149), {sum(len(t.levels) for t in themes)} levels")
+        # #327: the outcome, not the items taught: how much of what the Tier A/B scenarios need a played level's learner line says
+        rows = scenario_coverage(themes, scenarios)
+        said = {i for _, yes, _ in rows for i in yes}
+        needed = {i for _, yes, no in rows for i in yes + no}
+        silent = [sid for sid, yes, no in rows if no and not yes]
+        print(f"{len(said)} of {len(needed)} Tier A/B scenario items said in a theme level" + (f"; none yet: {', '.join(silent)}" if silent else ""))
+        unranked = unranked_themes(themes, scenarios)
+        if unranked:
+            print(f"warning: {len(unranked)} themes serve a scenario outside Tier A/B and are played only when a trip profile boosts it (`scenario_order`): "
+                  + ", ".join(f"{t.id} ({t.scenario})" for t in unranked), file=sys.stderr)
+        unasked = unasked_levels(scenes, themes)
+        if unasked:
+            print(f"advisory (not a failure): {len(unasked)} theme levels have no scenario card asking their goal (a card's `level`, #327): {', '.join(unasked)}")
     if args.cando:
         if not scenarios:
             print("no can-do scenarios (<curriculum>/cando/*.toml)")

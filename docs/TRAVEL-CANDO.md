@@ -43,7 +43,10 @@ turns (with their meaning) and `you` turns (a cue, the model line, the `items` i
 follow the speaker's gender (an item of it has a `target_m`) carries its man's form, `say_m` («Afsakið, ég er týnd.» / «Afsakið, ég er
 týndur.»): the learner's voice is the one opposite the partner's, the line is said in that voice's form, and the cue names it («As a
 woman: …», owner after #381, as the review does, #375). `validate` checks every item and scenario, and that a gendered line has its
-`say_m` and only such a line does. The lesson picks one (`Planner.pick_theme`; H4 in docs/LEARNING-DESIGN.md) and plays
+`say_m` and only such a line does. It also prints how many of the Tier A and B scenarios' `items` a `you` line says in some level of
+a theme that serves a Tier A or B scenario, naming the scenarios none of whose items is said yet (#327), and warns about a theme whose
+scenario is Tier C: `scenario_order` ranks it only when the trip profile boosts that scenario, so without one it is never played. The
+lesson picks one theme (`Planner.pick_theme`; H4 in docs/LEARNING-DESIGN.md) and plays
 its exchange twice; `plan.json` names the theme and level. A partner line carries 1–2 `variants` (how another clerk says
 the same thing, #134); the early (translated) play uses a variant; the late play says the line as written; the transcript marks the lines used. The wordings are
 candidates for native-speaker correction. General content only: the private trip profile decides which
@@ -118,13 +121,15 @@ reads only `[[scenarios]]`, so the files share the directory).
 | `replies` | model replies, the first being the one `items` describes |
 | `items` | curriculum items the first reply needs: the card is shown only once the learner has met them all |
 | `note_ja`, `season` | an optional note; a seasonal card appears only for that trip-profile season |
+| `level` | optional: the theme level whose goal the card asks, `"<theme>:<n>"` with `n` from 1 (`"cafe:2"`; #327) |
 
 A partner line may go beyond the course: clerks say «Viltu poka?» whether or not the
 lesson taught it, and the clerk-side lines (#134) are exactly what these cards practise.
 Its meaning is revealed with the answer.
 
-`validate` checks every card's items and scenario, and that every Tier A scenario has a
-card. `python -m audiolesson.cli scenes curricula/is-en [--learner <learner.json>]
+`validate` checks every card's items, scenario and `level` (a level that does not exist fails),
+and that every Tier A scenario has a card; it lists the theme levels no card asks, as an
+advisory. `python -m audiolesson.cli scenes curricula/is-en [--learner <learner.json>]
 [--trip <profile>]` prints, as JSON, the cards the learner can take now: every item met,
 the season applied. Each card comes with its scenario's tier and title.
 
