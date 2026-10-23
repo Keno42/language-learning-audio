@@ -113,6 +113,20 @@ class HardConnectionTests(unittest.TestCase):
         self.assertEqual(dlg.turns[0].expect_text, "Ég er með ofnæmi fyrir hnetum.")
         self.assertTrue(dlg.turns[0].opener and dlg.turns[0].partner, "the partner's line before it and the reply after it")
 
+    def test_a_scene_line_is_asked_as_line_role_decides_on_its_other_items(self):
+        """#265: one rule decides every learner line. «Ég ætla að fá kaffi.» for an open «kaffi»: the pattern met but not yet known is enough
+        to ask it, as the theme's own play does (#263); never met, the line is heard with its meaning (#240)."""
+        l = self.known("kaffi")
+        l.items["kaffi"].last_outcome = "not_recalled"
+        _, turn_items, key, asked = self.planner(l).scene_line_of(self.cur.by_id["kaffi"], set())
+        self.assertEqual((key, turn_items), ("cafe:1:1", {0: ["eg_aetla_ad_fa", "kaffi"]}))
+        self.assertFalse(asked, "the pattern never met: heard")
+        l.items["eg_aetla_ad_fa"] = ItemState(stage="meaning", successes=1, last_outcome="recalled", due=(TODAY + timedelta(days=1)).isoformat(),
+                                               last_practiced=(TODAY - timedelta(days=1)).isoformat())
+        self.assertFalse(l.knows("eg_aetla_ad_fa"))
+        _, _, _, asked = self.planner(l).scene_line_of(self.cur.by_id["kaffi"], set())
+        self.assertTrue(asked, "met, not known: asked")
+
     def test_the_open_allergy_line_goes_through_its_pattern_unless_the_review_asked_the_pattern_today(self):
         """«Ég er með ofnæmi fyrir hnetum.» is a sentence of «Ég er með ofnæmi fyrir {allergen}.» (#326): once the pattern is known, a connection
         practice of the open line is another allergen. Not on a day the learner's own review asked the pattern (#238)."""
