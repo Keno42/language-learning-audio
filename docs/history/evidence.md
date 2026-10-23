@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.19 (lessons 1–23), moved from `docs/LEARNING-DESIGN.md` §5 on 2026-10-15 with only their
+This file holds §5.1–§5.21 (lessons 1–25), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -750,3 +750,71 @@ What the learner wrote, by what the lesson did:
   #261's design; #302 applies it to the introductions.
 - **The review queue is unread.** 146 due, with #109's cap able to defer only well-known entries. Which part is growing
   is unknown until site_update_notifier#123 shows it; #220's intake side is decided from that.
+
+### 5.21 Lesson 25: the first lesson on #301–#308
+
+Lesson 25 was generated with LLA `58e1b7a`. It is the first lesson heard with:
+- a gap at every change of voice (#301);
+- the «Slowly» model said word by word (#302);
+- the pick-out naming what to listen for before the line (#303);
+- the second-half guard (#294);
+- ease learned from long-gap recalls (#298).
+
+It is also the first export with the review backlog's breakdown (site_update_notifier#125).
+
+**Lesson 24's next-day review.** All 10 of its new items were recalled. That is the third lesson running above §8's
+60% rule.
+
+**Retention by gap**, all of it so far, since the bot began reporting gaps (site_update_notifier#118):
+- 3–6 days: 2 of 2;
+- 7–13 days: 3 of 3;
+- 14+ days: none yet.
+
+| | lesson 25 |
+|---|---|
+| length | 28.5 min, 132 exercises |
+| new items; new components, weighted | 9; 10 |
+| target reached | 16:00 |
+| longest stretch without a scene | 4.3 min |
+| a sentence asked again within a minute | 1 |
+| speech segments touching at a change of voice | **0** (64 gaps placed; lesson 24: 66 touching) |
+| lines said word by word; pick-outs cued before the line | 11; 3 |
+| new words given the split model | none (no hard word among the new items) |
+| feedback form: load; friction | **right**; other |
+| review queue | 151 due of 199: answered 言えた once 109, 言えた twice or more 18, 迷った/言えなかった 13, new-item check 9, never asked 2 |
+
+The rebuilt lesson 25 on main is identical to the export (132 exercises, 28.5 min).
+
+What the learner wrote, by what the lesson and the review did:
+
+- **"Only one expression with úlpu came up, so I'm not sure it will stick. Widen it, to size or price."**
+  - The lesson asked «Ég þarf úlpu.» in 8 exercises, always the same sentence.
+  - «Ég þarf {thing}.» is known (lesson 22), but the item is not linked to it, so the planner sees a fixed sentence, not
+    the pattern with a new filler. «úlpa» was never met as a word.
+  - About 29 pattern instances in the curriculum are unlinked like this one (#311).
+- **"In the review, the same scenes and readings come up again and again. I want new ones."**
+  - The bot's cards put due cards first; unseen ones only fill the seats that are left.
+  - A reading card's first 言えた brings it back the next day; a scene card's waits 3 days (site_update_notifier#95).
+  - Fix filed as site_update_notifier#132.
+- **"The review says «Put it together…». It needn't ask the way the lesson does."**
+  - 17 of the 52 review questions carry a lesson cue: «In a sentence» 11, «Put it together» 3, «Use the pattern again» 2,
+    «Your turn» 1.
+  - These are instructions for a moment in the audio, copied into a written card (#312).
+
+**Reading.**
+- **What did not come back.** No remark on pacing, gaps or the slow models. This is the first of the three feedbacks
+  §8 asks for after #301, #302 and #303. Load «right» for the fifth lesson running.
+- **A word needs other frames, as a pattern needs other fillings (H6).**
+  - The úlpu remark is not about «úlpu». A new word that arrives inside a known pattern is heard in one sentence only,
+    because nothing tells the planner that the sentence is a pattern with a filler.
+  - The fix is the link and the frames (#311), not more practice of the sentence. (Size and price were the owner's
+    example of such connections, not a requirement: #326, 2026-10-14.)
+- **The written review has no rules of its own.** Both review remarks have the same root:
+  - it takes the lesson's wording, which is a cue for a moment in the audio (H3: the cue should resemble use);
+  - it serves due cards before unseen ones, with no variety rule (H12).
+  - #312 and site_update_notifier#132 give it its own wording and a seat for something new.
+- **The backlog is the answered-once questions, not the intake.**
+  - Only 2 of 151 were never asked; 109 were answered 言えた once, mostly the next-day check of a new item.
+  - The ok ladder brings them back the next day, and the bound defers only entries with two confirmations.
+  - This decides #220's open branch: site_update_notifier#133 (a first 言えた waits 3 days; the bound also defers
+    answered-once entries). #220's ranking by lesson time saved remains the longer-term rule.

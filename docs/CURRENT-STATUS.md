@@ -7,12 +7,14 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 (§7), the hypotheses with their status (§4), the evidence lesson by lesson (§5). The learning policy is in
 `docs/CURRENT-POLICY.md`.
 
-## Now (updated 2026-10-22, after lesson 33), in order
+## Now (updated 2026-10-23, after lesson 34), in order
 
 Ranked by the effect on the next lesson as the replay of the latest export shows it (LD §9 "Governance": about 80% /
-20%). The latest export is lesson 33's; the next lesson is 34. Lesson 33's two remarks are answered:
-the review names the speaker's form its answer expects (#375), and «með» / «án» get a milestone and contrasting practice
-(#377) (LD §5.23).
+20%). The latest export is lesson 34's; the next lesson is 35. Lesson 34's four remarks are answered in review (LD
+§5.24): a stored pattern question names its form (#385, then the bot's `REFINE_VERSION` 6), an embed's «other sentence»
+is never its own phrase (#386), a pick-out that a drill follows ends with «Back to speaking.» (#387), and a pattern's
+introduction promises a swap only when one follows (#388). Three of them share a cause: a framing line said for the
+general case, without looking at what follows.
 1. **The coming lessons' sentences get a verdict before they are said (G6; the scene check, LD §9 "Good enough
    overall").** On the replay of the lesson-30 export, the sentences that lessons 30–43 can generate were sent to an
    outside review: it judged «Ég borða ekki mjólk.» false and gave four permission questions their scenes, and 142
@@ -27,6 +29,12 @@ the review names the speaker's form its answer expects (#375), and «með» / «
    fer {time}.», «Hentar það?», «Það hentar vel.», «Ég er sein.», «Ég kem eftir tíu mínútur.») and more of the way
    («Hvernig kemst ég að …?», «á horninu», «hinum megin við götuna», «hálftíma»). **Next smallest step:** a level for
    arranging to meet (when, whether it suits, being late); no can-do scenario names it yet.
+3. **The feedback form says what a load answer will change.** Another learner, on 15-minute lessons: «15分レッスンも4つ
+   くらい新出表現がほしい», and «変わらなかったから最近フィードバックしてなかった». A «light» answer raises the next
+   lesson's target only after two in a row (with at most 25% of new items failed and a small backlog), and «heavy» only
+   blocks a rise (`suggest_target`, LD §9 "Pace"); the form says none of it, so a single answer looks as if it changed
+   nothing, and the signal the pace depends on (H9) stops. **Next smallest step:** an LLA command that prints the next
+   lesson's target for each load answer, and the bot shows it beside the choice (the owner's proposal).
 
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
 Icelandic (candidates until native-checked). The town (asking the way), small talk (getting to know someone) and the
@@ -62,6 +70,10 @@ Each waits for its first feedback in the LD §8 table.
   «Ég er með ofnæmi fyrir {…}.» with nouns in the dative, so its other practices are other sentences (#380).
 
 ## Open issues after "Now", in order
+- **The reading deck has had no outside review.** Another learner: its cards ask to read words no lesson has taught, and
+  a hint such as «allt は例外的に「アルト」» sounds wrong to them. It is: «allt» is [al̥t], a voiceless «l» with no vowel
+  after it, and «ル» gives both a voice and a vowel. Katakana hints add vowels throughout the deck. The corner becomes
+  «読んでみよう», read without a rating (site_update_notifier#165); the hints need a reviewer, as the scenes do.
 - **An item counted toward the target when it is selected, not when it is taught.** On the replay, lesson 30's second
   half starts through #294's guard: an arc selected «Ég vil hvíla mig.» at minute 17 and the item was taught in lesson
   31 (7 of 8 components taught). The guard keeps the second half (#308); the cause is not fixed.

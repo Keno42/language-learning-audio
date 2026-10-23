@@ -234,16 +234,16 @@ changed it).
 | **H1** | Producing a line from memory, after a real gap, builds durable recall better than hearing or repeating it. | Retrieval practice and spacing are among the best-supported findings on learning (Roediger & Karpicke 2006; Cepeda et al. 2006). | Answer pauses; the stage ladder; spacing across days (`learner.py`) | Next-day recall of new lines stays low even at a low pace | adopted |
 | **H2** | Only success after a gap is evidence of learning. Success minutes after the first exposure is practice. | Performance during practice is a poor guide to learning (Soderstrom & Bjork 2015); #27. | `durable_successes`, `knows()`; the review comes the next day, before the lesson | — | adopted |
 | **H3** | A line cued by a *situation* or a partner's line transfers to the real moment better than one cued by a translation. The closer practice is to use, the better. | Transfer-appropriate processing and encoding specificity (Morris et al. 1977; Tulving & Thomson 1973). | `situation` stage, `connect` exchanges, dialogues, scenario cards | Lines practised in situations do no better in scenario cards than lines practised from meanings | testing (no comparison made yet) |
-| **H4** | **A lesson built around one scene's exchange beats a lesson built from an item count.** In such a lesson, today's lines are spread across the lesson and used together in a coherent exchange, again with other fillings, at rising resolution over lessons. The result is more lines said at the right turn, and less felt repetition. | H1 + H3, thematic grouping (H5), and the owner's experience of lesson 12 (§5.6). | Built (#149): the theme exchange played twice, early with the translation and late without it, the cue in both and the partner's lines in variants (#186, #189, #210); a theme in every lesson, a played level replaying after a rest (#196); new material from the theme's next level, and grouped by scene when it has none (#201, #329); a part with its frame, caps on a semantic set (#202, #204, #207); a fixed phrase linked to its pattern (#206, #311). Numbers are heard and picked out in scene lines (#213, folded into #248). `cando/themes.toml` has 7 themes, 19 levels; the town (asking the way), small talk (getting to know someone) and the clothes shop (what you need, the price, trying it on) are written for the material the path brings once the levels ran out, and a level plays in the lesson that teaches its lines, heard early and asked late; the level's goal is said after the opening, and the closing ends on the level's lines in the order of its turns (#327). Not built: the scenes of the other topics that supply new material (#327), colours through their scenes | Themed scenes don't reach readiness faster than unthemed ones, or the learner finds themed lessons no less repetitive | **bet: the main one.** The theme frames every lesson, and the «Anki game» remark of lesson 13 has not come back (§5.10; history in `docs/history/evidence.md`). New material rarely came from the scene once the levels ran out at lesson 28. On the replay of the lesson-30 export, none of the day's new items was said in the played exchange in lessons 30–38; with the town, small talk and the clothes shop, 17 are, in lessons 30–35 (G2, #327). Lesson 33, the first feedback on a level played in the lesson that teaches its lines (small talk), says its two new lines in the exchange, with load «right» and no «repetitive» tick (§5.23) |
+| **H4** | **A lesson built around one scene's exchange beats a lesson built from an item count.** In such a lesson, today's lines are spread across the lesson and used together in a coherent exchange, again with other fillings, at rising resolution over lessons. The result is more lines said at the right turn, and less felt repetition. | H1 + H3, thematic grouping (H5), and the owner's experience of lesson 12 (§5.6). | Built (#149): the theme exchange played twice, early with the translation and late without it, the cue in both and the partner's lines in variants (#186, #189, #210); a theme in every lesson, a played level replaying after a rest (#196); new material from the theme's next level, and grouped by scene when it has none (#201, #329); a part with its frame, caps on a semantic set (#202, #204, #207); a fixed phrase linked to its pattern (#206, #311). Numbers are heard and picked out in scene lines (#213, folded into #248). `cando/themes.toml` has 7 themes, 19 levels; the town (asking the way), small talk (getting to know someone) and the clothes shop (what you need, the price, trying it on) are written for the material the path brings once the levels ran out, and a level plays in the lesson that teaches its lines, heard early and asked late; the level's goal is said after the opening, and the closing ends on the level's lines in the order of its turns (#327). Not built: the scenes of the other topics that supply new material (#327), colours through their scenes | Themed scenes don't reach readiness faster than unthemed ones, or the learner finds themed lessons no less repetitive | **bet: the main one.** The theme frames every lesson, and the «Anki game» remark of lesson 13 has not come back (§5.10; history in `docs/history/evidence.md`). New material rarely came from the scene once the levels ran out at lesson 28. On the replay of the lesson-30 export, none of the day's new items was said in the played exchange in lessons 30–38; with the town, small talk and the clothes shop, 17 are, in lessons 30–35 (G2, #327). Lessons 33 and 34, the first feedbacks on a level played in the lesson that teaches its lines (small talk, the clothes shop), say two and three of the day's new lines in the exchange, with load «right» and no «repetitive» tick (§5.23, §5.24) |
 | **H5** | Group new material by **scene** (bun, coffee, bag, card), not by **semantic set** (numbers 1–10, colours, yes/no). Similar items introduced together get confused; contrasting them pays off once each is known. | Semantic clustering slows L2 vocabulary learning and thematic clustering doesn't (Tinkham 1993, 1997; Waring 1997). Interleaving helps when the task is telling similar things apart (Brunmair & Richter 2019). Lesson 8: "numbers 1–4: masculine and neuter can't be told apart in the English prompts" (§5.2). | Partly: milestone notes contrast known items; #150 plans contrasts for known pairs and series; at most three new items of one semantic set come in a lesson, except the items the theme's next level wants and a filler a construction's slot pulls in, although the curriculum lists numbers, colours and languages next to each other (#204, #207; G5) | Items introduced as a set fail no more often than others | bet (research-backed). Lesson 15's two forms of one word, introduced together, both failed the next day (§5.14). The other side, a set every scene needs that never moves forward: #213 |
 | **H6** | Chunks first, patterns next, transfer last. A fixed chunk said often becomes fluent (token frequency). A pattern used with many different fillings becomes productive (type frequency). Teach a pattern when two fillings are known, then move it to new words. | Usage-based learning (Bybee 2006); formulaic language (Wray 2002); #29's "capabilities outward". | Constructions with slots and `meaning_forms`; milestones with `transfer_items`; recombination; substitution runs (PR #153) | Substitution drills don't help the learner produce combinations they haven't heard (scenario cards with new fillings) | adopted (principle); testing (substitution). By the concept, patterns serve target expressions, and moving a pattern to new words is limited to the parallel expressions a target needs (§9 "Good enough overall"). The converse holds for words and for lines that vary in use: a word heard in one sentence only («úlpu», lesson 25, #311) and a line authored as a fixed phrase (the bus, lesson 26, #336) are repeated where the learner expected variety (§5.21, §5.22). A form is modelled before it is asked (#211) |
 | **H7** | Every generated sentence must be plausible in its scene. An implausible one teaches less than it costs. | Owner (after lesson 12: never produce "order a passport at the café"); H3. | Case- and meaning-tagged slots; `opens` (PR #155); scene templates (#152) | — | adopted |
 | **H8** | Natural-speed partner lines with some unknown words (the owner suggests 10–20%), in a familiar scene, build the tolerance needed to get through real exchanges. | The owner's hypothesis, and their preference for more listening time over shorter lessons (§5.7); the #129 pilots (common clerk lines were not understood). **Caveat:** detailed comprehension needs about 95% of the words to be known when listening and 98% when reading (van Zeeland & Schmitt 2013; Hu & Nation 2000). At 80–90%, expect gist from context, not learning of the unknown words. So the scene must carry the meaning. | Scenario cards (partner lines may go beyond the course); partner turns in themes, in variants (#155, #189); the second half: a heard scene, *pick out* the information and *catch the unknown word* through the meaning (#252, #271, #303) | Respond and repair cards with unknown words stay at 言えなかった, or the learner finds them discouraging rather than useful | bet. No discouragement so far, and the partner slowing down word by word was praised (lesson 24, #261). The remarks are about the exercises: pick-outs too easy (lesson 21), the unknown word pointed to through the meaning (lesson 22, #271), the need named before the line (lesson 25, #303), the turns marked (lesson 26, #335). The unknown words were the same three in every lesson from 23 to 26: by the owner's decision a word is caught about once, and some new words are introduced through the catch (#339; §5.22) |
 | **H9** | The amount of new material, counted in weighted new components (§9 "Pace", #218), throttled by recall reports (over the last three lessons) and by the learner's load rating, keeps the load right. It aims at about 8 a lesson to start (#218) and about 80–85% next-day success. | README "Pacing"; desirable difficulties (Bjork 1994): too easy wastes time, too hard fails. | `suggest_pace` | The load rating drifts to "heavy", or next-day failures stay above 25% (the top of the pace's hold band, §9 "Pace"), at the pace actually used | **revised (#218):** the pace's unit is weighted new components over a three-lesson window, with the load rating as an input (§9 "Pace"; #229, #233, #235; #234, the BÍN check, open). The number of new items was not the pace: lessons 18–19 were «light» at 81–100% next-day success. Since then the load has been «right» for six lessons running, and next-day recall has stayed at 10 of 13 or better since lesson 22 (§6.3) |
 | **H10** | Self-reports are informative when they are made the next day, with the answer hidden until the learner has tried. They are noisy, lean towards success and must never be produced by an LLM. | Delayed judgements of learning are far more accurate than immediate ones (Nelson & Dunlosky 1991); #129 (GPT transcripts did not match what was said). | The bot's review (answer revealed only after trying; 3-point scale); the feedback form | The ratings stop telling recalled lines from guessed or failed ones | **revised:** «迷った» is a third value. The learner usually commits at once (§5.7), and uses «迷った» in some reviews: for 2 and 3 new items after lessons 22 and 23, none after lessons 24 and 25, when all were recalled (§5.19–§5.22). The pace counts it as half a failure |
-| **H11** | Practice spent on items the learner plainly knows is waste, and the learner notices it. A known item should wait for its date, and is taken early only as the exception in §9 "Repetition" allows. | Spacing (H1); #94; the owner after lesson 12 (já, nei, hæ every lesson although reported 言えた). | Not-due items wait (#94); stable items never fill (PR #153) | — | adopted. Not-due items wait, with the one exception in §9 "Repetition" (#94), stable items never fill (#151, #153), an open item is asked at every review until recalled (#205, #220), and a recall at a real gap extends the interval and raises the ease (#298, #331). Retention so far: 3 of 3 at 3–6 days, 5 of 5 at 7–13, none yet at 14+; the review queue fell from 151 to 114 due once a first 言えた began waiting 3 days (site_update_notifier#133; §5.22) |
+| **H11** | Practice spent on items the learner plainly knows is waste, and the learner notices it. A known item should wait for its date, and is taken early only as the exception in §9 "Repetition" allows. | Spacing (H1); #94; the owner after lesson 12 (já, nei, hæ every lesson although reported 言えた). | Not-due items wait (#94); stable items never fill (PR #153) | — | adopted. Not-due items wait, with the one exception in §9 "Repetition" (#94), stable items never fill (#151, #153), an open item is asked at every review until recalled (#205, #220), and a recall at a real gap extends the interval and raises the ease (#298, #331). Retention by gap is in the newest §5 subsection. The review queue fell from 151 to 114 due once a first 言えた began waiting 3 days (site_update_notifier#133; §5.22), and stays near 110 (§5.24) |
 | **H12** | Variety, coherence and visible progress keep a daily routine alive. Boredom ("a game of memorizing") is the biggest threat to every other outcome. | Owner, #12 and after lesson 12; Nation's four strands (Nation 2007), whose message is that a course should not be all drill. | Dialogues, exchanges, notes, scenes, reading cards | The routine continues and the learner reports no boredom with a drill-heavy lesson | adopted (value). Boredom came from easy recombination and reviews filling the time (lesson 20, §5.16) and from the same cards and lines coming back (lessons 25–26: site_update_notifier#132, #336, #339). A pattern's varied fillers are praised (lesson 26, §5.22) |
-| **H13** | Hearing a hard-to-say word slowed and split by syllable, once at its introduction and once more when the learner reports it hard, lowers pronunciation anxiety at little cost in time. | The learner's requests after lessons 15 and 16 (§5.13, §5.14); no study cited. | `Item.syllables`: an authored split, said slowly piece by piece at the introduction (#212: #292). Again for a word reported hard, and for words inside phrases: #337, not built | Anxiety remarks continue on words that got the slow model, or those words fail next day no less than others | bet, **not yet heard.** The rule flagged none of the words the learner found hard in lesson 26 (§5.22); #337 widens it. Lesson 27's «sooner» items get both #326's connections and #337's split: read pronunciation remarks for #337 and next-day recall for #326 |
+| **H13** | Hearing a hard-to-say word slowed and split by syllable, once at its introduction and once more when the learner reports it hard, lowers pronunciation anxiety at little cost in time. | The learner's requests after lessons 15 and 16 (§5.13, §5.14); no study cited. | `Item.syllables`: an authored split, said slowly piece by piece at the introduction (#212: #292). Again for a word reported hard, and for words inside phrases (#337: #342, #351) | Anxiety remarks continue on words that got the slow model, or those words fail next day no less than others | bet, **first heard in lesson 34:** «hringja heim», reported hard after lesson 33, was said whole, word by word and whole again, with no remark (§5.24). Read pronunciation remarks, and the phrase's next recall, on the next words reported hard |
 
 ### What the hypotheses imply for a lesson
 
@@ -282,74 +282,6 @@ a dated record: a statement about what was built or open holds for its lesson; �
 
 **Older lessons are in `docs/history/evidence.md`** (§10 "Documents"), under their own numbers, so a reference such as
 "§5.14" finds its subsection there.
-
-### 5.21 Lesson 25: the first lesson on #301–#308
-
-Lesson 25 was generated with LLA `58e1b7a`. It is the first lesson heard with:
-- a gap at every change of voice (#301);
-- the «Slowly» model said word by word (#302);
-- the pick-out naming what to listen for before the line (#303);
-- the second-half guard (#294);
-- ease learned from long-gap recalls (#298).
-
-It is also the first export with the review backlog's breakdown (site_update_notifier#125).
-
-**Lesson 24's next-day review.** All 10 of its new items were recalled. That is the third lesson running above §8's
-60% rule.
-
-**Retention by gap**, all of it so far, since the bot began reporting gaps (site_update_notifier#118):
-- 3–6 days: 2 of 2;
-- 7–13 days: 3 of 3;
-- 14+ days: none yet.
-
-| | lesson 25 |
-|---|---|
-| length | 28.5 min, 132 exercises |
-| new items; new components, weighted | 9; 10 |
-| target reached | 16:00 |
-| longest stretch without a scene | 4.3 min |
-| a sentence asked again within a minute | 1 |
-| speech segments touching at a change of voice | **0** (64 gaps placed; lesson 24: 66 touching) |
-| lines said word by word; pick-outs cued before the line | 11; 3 |
-| new words given the split model | none (no hard word among the new items) |
-| feedback form: load; friction | **right**; other |
-| review queue | 151 due of 199: answered 言えた once 109, 言えた twice or more 18, 迷った/言えなかった 13, new-item check 9, never asked 2 |
-
-The rebuilt lesson 25 on main is identical to the export (132 exercises, 28.5 min).
-
-What the learner wrote, by what the lesson and the review did:
-
-- **"Only one expression with úlpu came up, so I'm not sure it will stick. Widen it, to size or price."**
-  - The lesson asked «Ég þarf úlpu.» in 8 exercises, always the same sentence.
-  - «Ég þarf {thing}.» is known (lesson 22), but the item is not linked to it, so the planner sees a fixed sentence, not
-    the pattern with a new filler. «úlpa» was never met as a word.
-  - About 29 pattern instances in the curriculum are unlinked like this one (#311).
-- **"In the review, the same scenes and readings come up again and again. I want new ones."**
-  - The bot's cards put due cards first; unseen ones only fill the seats that are left.
-  - A reading card's first 言えた brings it back the next day; a scene card's waits 3 days (site_update_notifier#95).
-  - Fix filed as site_update_notifier#132.
-- **"The review says «Put it together…». It needn't ask the way the lesson does."**
-  - 17 of the 52 review questions carry a lesson cue: «In a sentence» 11, «Put it together» 3, «Use the pattern again» 2,
-    «Your turn» 1.
-  - These are instructions for a moment in the audio, copied into a written card (#312).
-
-**Reading.**
-- **What did not come back.** No remark on pacing, gaps or the slow models. This is the first of the three feedbacks
-  §8 asks for after #301, #302 and #303. Load «right» for the fifth lesson running.
-- **A word needs other frames, as a pattern needs other fillings (H6).**
-  - The úlpu remark is not about «úlpu». A new word that arrives inside a known pattern is heard in one sentence only,
-    because nothing tells the planner that the sentence is a pattern with a filler.
-  - The fix is the link and the frames (#311), not more practice of the sentence. (Size and price were the owner's
-    example of such connections, not a requirement: #326, 2026-10-14.)
-- **The written review has no rules of its own.** Both review remarks have the same root:
-  - it takes the lesson's wording, which is a cue for a moment in the audio (H3: the cue should resemble use);
-  - it serves due cards before unseen ones, with no variety rule (H12).
-  - #312 and site_update_notifier#132 give it its own wording and a seat for something new.
-- **The backlog is the answered-once questions, not the intake.**
-  - Only 2 of 151 were never asked; 109 were answered 言えた once, mostly the next-day check of a new item.
-  - The ok ladder brings them back the next day, and the bound defers only entries with two confirmations.
-  - This decides #220's open branch: site_update_notifier#133 (a first 言えた waits 3 days; the bound also defers
-    answered-once entries). #220's ranking by lesson time saved remains the longer-term rule.
 
 ### 5.22 Lesson 26: the first lesson on #311–#332
 
@@ -472,6 +404,50 @@ What the learner wrote, by what the lesson did:
 - **No remark on the scene, its goal or the closing,** and no «repetitive» tick: the first of the three feedbacks for
   #365, #369, #370 and #371.
 
+### 5.24 Lesson 34: the first feedback on #379–#384
+
+Lesson 34 was generated with LLA `1c9ec29`, the bot at site_update_notifier `edc9128`. It is the first feedback on:
+- the clothes shop (#372), whose level 1 it played;
+- the allergy line's pattern «Ég er með ofnæmi fyrir {…}.» (#380): «hnetum» and «fiski» came in as its fillers;
+- a phrase reported hard said whole, word by word and whole again (#337): «hringja heim», lesson 33's «sooner» item.
+
+| | lesson 34 |
+|---|---|
+| length | 28.3 min, 117 exercises |
+| new items; new components, weighted (target) | 12; 7.5 (7) |
+| theme (level); today's new items said as a turn of the played exchange | the clothes shop (1); «húfu», «Það er of dýrt.», «Er afsláttur?» |
+| target reached | 18.6 min |
+| longest stretch without a scene | 5.0 min |
+| a sentence asked again within a minute | 0 |
+| most narrations of one situation | 3 |
+| hard items with no connection to practise them through, asked 3+ times | none (lesson 33: «Ég er með ofnæmi fyrir hnetum.», 6 times) |
+| feedback form: load; friction | **right**; other |
+| «sooner» | none |
+| review queue | **109 due** of 286: answered once 73, 迷った/言えなかった 22, new 10, never asked 3, 言えた twice or more 1 |
+| retention by gap | 3–6 days 8 of 10; 7–13 days 13 of 13; 14+ days 4 of 4 |
+
+What the learner wrote, by what the lesson did:
+
+- **"The way «á þetta hótel» was taught was redundant."** «You know this: «Á þetta hótel, takk.» — This word is in it —
+  In another sentence.» and then the same sentence: the only pattern that takes the part is the one the phrase was made
+  from. **Answered, in review:** the other sentence is never the phrase the part is taken out of; with none, the part is
+  taken out of the phrase as for «krónur» (#386).
+- **"When «svangur» was the answer, it did not say to answer as a man."** The lesson named the form; the bot's stored
+  question «Ég er svangur.» was kept with its pattern alone («Ég er {state}.»), so nothing told which form it expects.
+  **Answered, in review:** the fillers of a pattern a question names decide its form too (#385); the bot rewrites its
+  stored questions when its `REFINE_VERSION` is raised after the submodule carries it.
+- **"Right after being told «hnetum» could be swapped, no swap came."** The pattern's introduction from a known example
+  said «you can say it with other words», and the same sentence followed: no other filler was known yet. **Answered, in
+  review:** the swap is promised only when one follows, else «You will meet them later.» (#388).
+- **"After a pick-out and the line heard again, the switch to the next question always feels a little abrupt."** The
+  pick-out ended on the partner's line, and the next drill's cue came after the usual gap. **Answered, in review:** a
+  pick-out or catch that a drill follows ends with «Back to speaking.» (#387).
+- **The shared cause of three:** a framing line said for the general case, without looking at what follows: «In
+  another sentence» before the same sentence, «other words» before none, and a change of task with no line at all. The
+  review's missing form is lesson 33's remark again, on the questions the bot had stored (§5.23).
+- **No remark on the clothes shop, the allergy pattern's sentences or the slow «hringja heim»,** and no «repetitive»
+  tick.
+
 ---
 
 ## 6. Signals: what each can and cannot tell us
@@ -525,7 +501,7 @@ What the learner wrote, by what the lesson did:
 | After the bump to #153: does any reviewed item come back three times or more in a lesson, and do the forms still say "repetitive"? | H11 | `/lesson-week` «レッスンの中身»; the forms |
 | Do phrases of three or more words keep failing more often than short ones? | G9 | Failures by phrase length |
 | Does the learner use «迷った» when unsure? At first no (§5.7); since lesson 14 it is used, though not in every review (§5.12–§5.20) | H10 | Review outcomes per lesson |
-| Is recall confirmed after a real gap (7 and 14 days) about as good as next-day recall? The latest count is in the newest §5 subsection (§5.23) | H1, H2 | The daily read's retention row by gap (#298) |
+| Is recall confirmed after a real gap (7 and 14 days) about as good as next-day recall? The latest count is in the newest §5 subsection (§5.24) | H1, H2 | The daily read's retention row by gap (#298) |
 | Are lines practised in situations rated better in scenario cards than lines practised only from meanings? | H3 | Scenario cards against each line's stage history |
 | Once lessons are built around a scene, does "repetitive" go away, and do themed scenes reach readiness sooner? | H4 | Feedback forms; readiness per scenario, themed or not |
 | Do respond cards with unknown partner words improve over the weeks, and does the learner find them useful or discouraging? | H8 | Scenario cards; ask |
@@ -574,22 +550,25 @@ lessons 21–23 (§5.18–§5.20) have had their three.
 
 | built (issue: PR) | first heard | feedbacks without its remark |
 |---|---|---|
-| a hard word's slow, split model (#212: #292) | not yet: the words the learner found hard in lesson 26 were not flagged (#337) | – |
+| a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351) | lesson 34 («hringja heim», reported hard) | 1 (34) |
 | a gap at every change of voice (#301: #304) | lesson 25 | 2 (25, 26) |
 | the «Slowly» model word by word (#302: #307) | lesson 25 | 2 |
-| the pick-out names what to listen for first (#303: #306) | lesson 25 | 1; lesson 26 remarked on the pick-out's flow, the turns after the line (#335) |
+| the pick-out names what to listen for first (#303: #306) | lesson 25 | 1; lesson 26 remarked on the turns after the line (#335), lesson 34 on the switch to the next drill after the line heard again (#387) |
 | a pattern-linked phrase with a new word teaches the word in other frames; no phrase introduced twice (#311: #316, #318) | lesson 26 | 0: the same family came back as the bus with one destination, a phrase with no pattern to link (#336) |
 | the written review in its own words, no lesson cue (#312: #314, with the bot's `REFINE_VERSION` 3, site_update_notifier#137) | lesson 26 | 1 (26) |
 | the review backlog: a first 言えた waits 3 days, answered-once entries deferred (site_update_notifier#133: site_update_notifier#134) | lesson 26 | 1; due 151 → 114 |
 | a new scene or reading card every review (site_update_notifier#132: site_update_notifier#135) | lesson 26 | 1 |
 | a grammar note's endings said piece by piece; no lone «.» narrated (#198: #323) | lesson 26 | 1 |
 | new material grouped by scene, the played scene matched (#327 part 1, without its scene line: #329) | lesson 26 (a replayed level: 0 of 10 inside it) | 1 |
-| the town scene, two levels; a level played in the lesson that teaches its lines (#327) | lesson 33 (the rule, on small talk; the town's levels not yet) | 1 (33) |
+| the town scene, two levels; a level played in the lesson that teaches its lines (#327) | lesson 33 (the rule, on small talk; in lesson 34 on the clothes shop; the town's levels not yet) | 2 (33, 34) |
 | a known noun's other form taught in its frame, named against the known form, with the frame's reason (#270) | not yet | – |
-| the played level's goal said after the opening (#327) | lesson 33 | 1 (33) |
-| the closing ends on the played level's lines, in the order of its turns (#327) | lesson 33 | 1 (33) |
+| the played level's goal said after the opening (#327) | lesson 33 | 2 (33, 34) |
+| the closing ends on the played level's lines, in the order of its turns (#327) | lesson 33 | 2 (33, 34) |
 | small talk, two levels (#327) | lesson 33 (level 1) | 1 (33) |
-| the clothes shop, two levels (#327) | not yet | – |
+| the clothes shop, two levels (#327) | lesson 34 (level 1) | 1 (34) |
+| the town's third level, small talk's third and fourth (#327: #381, #383); a gendered learner line in a level said in the voice's form, named in the cue (#382) | not yet | – |
+| the allergy line's scene, the café's fourth level, and its pattern (#326: #379, #380) | lesson 34 (the pattern; the scene not yet) | 0: the pattern's introduction promised other words and none followed (#388) |
+| an authored dialogue that repeats the lesson's scene is not played (#384) | lesson 34 | 1 (34) |
 | a hard item practised through its connections; «sooner» marks it hard (#326: #330, #332) | lesson 27: the «sooner» items of lesson 26 are its first real case (lesson 26 had one hard item, practised once) | – |
 | a recall at a real gap extends the interval (#220: #331); the bot's ranked seats, at most a third (site_update_notifier#139) | lesson 26 | 1 |
 | gender and form for every case-tagged noun (#270 step 1: #317) | no remark expected; read in the nouns row | – |
@@ -599,10 +578,13 @@ ease learned from long-gap recalls (#220: #298, with site_update_notifier#118, #
 (site_update_notifier#125).
 
 **To check on the next lessons:**
-- A split hard word: the «sooner» items of lesson 26 (#337).
-- The review backlog: 114 due after one day of site_update_notifier#133; about 100 expected, and the 3–6 day retention
-  count growing.
-- A sentence asked again within a minute: 6 in lesson 26 (lesson 25: 1), a trend to read, not a 0.
+- A phrase reported hard: «hringja heim» said word by word in lesson 34 (#337); its next recall in the review.
+- The review backlog: 109 due after lesson 34 (114 after one day of site_update_notifier#133); about 100 expected.
+- A sentence asked again within a minute: 0 in lesson 34, 2 on the replay's lessons 35 and 36 (lesson 26: 6), a trend
+  to read, not a 0.
+- Row 1 on the replay of the lesson-34 export: 4.7 minutes of lesson 35 serve neither a target expression nor a scene,
+  the due reviews of known lines after the pick-outs (lesson 34: 0.2). The replay assumes every new item recalled; read
+  the real lesson 35.
 
 **Decided by the evidence:** the pace unit stays. **The 60% rule** (revisit #235's zero cost for a new phrase made of known words if
 next-day recall fell below about 60%) was set for lesson 22, after lesson 21's 4 of 11 (#264). It never fired (§6.3 has
