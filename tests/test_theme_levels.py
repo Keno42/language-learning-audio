@@ -52,18 +52,35 @@ class ThemeLevelTests(unittest.TestCase):
     def test_asked_to_speak_more_slowly_the_partner_says_the_line_again_word_by_word(self):
         """#261 in a theme level (scenario A7's repair): after «Það tekur svona tíu mínútur.» the learner says «Fyrirgefðu, ég skil ekki.
         Gætirðu talað hægar?» and the passer-by says the line again, word by word. A theme's line is literal, so the request is read from
-        the turn's items (`gaetirdu_talad_haegar`, `slows_partner`); before, only an authored dialogue's turn could ask it."""
+        the turn's items (`gaetirdu_talad_haegar`, `slows_partner`). The repeat says the line as it was played, the variant included (review of
+        #393: a fixed repeat said «Það tekur …» after «Svona tíu mínútur að ganga.», so the learner never heard the missed words slowly)."""
         town = self.themes["town"]
-        you = [t for t in town.levels[2].turns if t.who == "you"]
-        ask = next(k for k, t in enumerate(you) if "gaetirdu_talad_haegar" in t.items)
-        sc = Script(1, "t", self.cur.target_lang, self.cur.known_lang)
+        level = town.levels[2]
+        you = [t for t in level.turns if t.who == "you"]
+        ask = next(k for k, t in enumerate(level.turns) if "gaetirdu_talad_haegar" in t.items)
+        said = ask - 1  # the partner line the learner did not catch
+        self.assertTrue(level.turns[said].variants and level.turns[ask + 1].repeat)
         builder = Planner(self.cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30)).builder
-        ex = builder.dialogue(sc, level_dialogue(town, 2, "en"), translate=True, turn_items={k: t.items for k, t in enumerate(you)})
-        segs = [s for s in sc.segments if s.exercise == ex.index]
-        request = next(n for n, s in enumerate(segs) if s.text == "Fyrirgefðu, ég skil ekki. Gætirðu talað hægar?")
-        spaced = [s.text for s in segs[request:] if s.role == "spaced"]
-        self.assertEqual(" ".join(spaced).rstrip("."), "Það tekur svona tíu mínútur", "the line again, one word at a time")
-        self.assertFalse(any(s.role == "spaced" for s in segs[:request]), "only the line after the request is slowed")
+        for pick, line in enumerate(t.say for t in level.turns[said].lines()):
+            with self.subTest(line=line):
+                sc = Script(1, "t", self.cur.target_lang, self.cur.known_lang)
+                ex = builder.dialogue(sc, level_dialogue(town, 2, "en", {said: pick}), translate=True, turn_items={k: t.items for k, t in enumerate(you)})
+                segs = [s for s in sc.segments if s.exercise == ex.index]
+                request = next(n for n, s in enumerate(segs) if s.text == "Fyrirgefðu, ég skil ekki. Gætirðu talað hægar?")
+                self.assertIn(line, [s.text for s in segs[:request]], "the line as played")
+                spaced = [s.text for s in segs[request:] if s.role == "spaced"]
+                self.assertEqual(" ".join(spaced).rstrip("."), line.rstrip("."), "the same line again, one word at a time")
+                self.assertFalse(any(s.role == "spaced" for s in segs[:request]), "only the line after the request is slowed")
+
+    def test_a_repeat_turn_has_no_line_of_its_own_and_follows_a_partner_line(self):
+        town = copy.deepcopy(self.themes["town"])
+        rep = next(t for t in town.levels[2].turns if t.repeat)
+        self.assertEqual(rep.say, "Það tekur svona tíu mínútur.", "the line before it, copied on load")
+        bad = copy.deepcopy(self.themes["town"])
+        bad.levels[2].turns.insert(0, type(rep)("partner", repeat=True))
+        from audiolesson.themes import _resolve_repeats
+        with self.assertRaisesRegex(CurriculumError, "after another partner turn"):
+            _resolve_repeats(bad)
 
     def test_the_towns_third_level_is_the_way_itself(self):
         """After lesson 38 of the lesson-33 replay the day's new items were the way (left or right, how far, the map) and no level said

@@ -56,6 +56,10 @@ the learner may not know (#248). The second half's *catch the unknown word* exer
 one unknown word with a gloss; the learner asks «Hvað þýðir {word}?». A gloss is authored, never guessed
 from the line's translation; `validate` fails a gloss whose word is not in the line.
 
+A partner turn `{ who = "partner", repeat = true }` says again the partner line before it, as it was played (the variant
+picked included), with no line of its own; after the learner asks to speak slower («Gætirðu talað hægar?», #261) it is said
+word by word. `validate` fails a repeat with a line of its own or with no partner line before it.
+
 ## Coverage report
 
 ```sh
