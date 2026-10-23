@@ -117,6 +117,15 @@ def refine_review(review: list[dict], cur, met: set[str], prompts: Prompts, whol
     what was changed. Bonus questions are left alone. See the module docstring for the rules."""
     out, report = restore_transform_sources(review, cur, prompts)
 
+    # 0. a sentence to the person spoken to in the form its meaning names: «Ertu þreyttur?», made before #385's review as «As a man: To a woman: …»,
+    # is «Ertu þreytt?» (review of #385). Found from the answer itself: the bot stores no ``through``.
+    for k, q in enumerate(out):
+        answer = q.get("answer")
+        fixed = addressee_answer(cur, answer) if isinstance(answer, str) else answer
+        if fixed != answer:
+            out[k] = {**q, "answer": fixed}
+            report.append({"items": q.get("items", []), "kind": "addressee_form", "was": answer, "now": fixed})
+
     def part_of(q: dict):
         """The part a bare question asks, or None."""
         if q.get("bonus") or not q.get("items"):
@@ -187,7 +196,7 @@ def refine_review(review: list[dict], cur, met: set[str], prompts: Prompts, whol
         if gender is not None and named != gender:
             out[k] = {**q, "prompt": speak_as(prompts, gender, rest)}
             report.append({"items": q.get("items", []), "kind": "speaker_form", "form": gender})
-        elif gender is None and named is not None and _addressed_fills(cur, answer, [cur.by_id[i] for i in ids if i in cur.by_id]):
+        elif gender is None and named is not None and _addressed_fills(cur, answer):
             # «As a woman: …» on «Ertu þreytt?»: the form follows the woman asked, whom the cue already names (review of #385)
             out[k] = {**q, "prompt": rest}
             report.append({"items": q.get("items", []), "kind": "speaker_form", "form": None})
@@ -206,22 +215,32 @@ def _template_form(construction, answer: str) -> str | None:
     return None
 
 
-def _addressed_fills(cur, answer: str, items: list) -> set[str]:
-    """The fills of a pattern among ``items`` whose template ``answer`` is, when its subject is the person spoken to: their man's or woman's form
-    follows that person, not the speaker («Ertu þreytt?» asks a woman; review of #385)."""
-    out: set[str] = set()
-    for c in items:
-        if c is None or c.kind != "construction":
-            continue
-        form = _template_form(c, answer)
-        if form is not None and not cur.speaker_agrees(c, form):
-            out |= {f.id for tag in c.slots.values() for f in cur.items_with_tag(tag, c)}
-    return out
+def _addressed(cur, answer: str) -> list:
+    """The patterns whose subject is the person spoken to and whose template of that kind ``answer`` is («Ertu þreytt?» of «Ertu {state}?»). Read from
+    the answer, not from the question's items: the bot stores no ``through``, and a part's question names only the part (review of #385)."""
+    return [c for c in cur.items if c.kind == "construction" and c.addressee and (form := _template_form(c, answer)) is not None and not cur.speaker_agrees(c, form)]
+
+
+def _addressed_fills(cur, answer: str) -> set[str]:
+    """The fills of the patterns ``_addressed`` finds: their man's or woman's form follows the person spoken to, not the speaker («Ertu þreytt?» asks a
+    woman)."""
+    return {f.id for c in _addressed(cur, answer) for tag in c.slots.values() for f in cur.items_with_tag(tag, c)}
+
+
+def addressee_answer(cur, answer: str) -> str:
+    """``answer`` in the form its pattern's meaning names, when it is a sentence to the person spoken to: a fill said in its man's form there
+    («Ertu þreyttur?», made before #385's review alternated it) takes the stored form («Ertu þreytt?», «To a woman: Are you tired?»)."""
+    for c in _addressed(cur, answer):
+        for f in (f for tag in c.slots.values() for f in cur.items_with_tag(tag, c) if f.target_m):
+            fixed = re.sub(rf"(?<!\w){re.escape(f.target_m)}(?!\w)", f.target, answer, flags=re.IGNORECASE)
+            if fixed != answer:
+                return fixed
+    return answer
 
 
 def speaker_items(cur, answer: str, items: list) -> list:
     """``items`` without the fills whose form follows the person spoken to: what ``answer_gender`` reads the speaker's form from."""
-    drop = _addressed_fills(cur, answer, items)
+    drop = _addressed_fills(cur, answer)
     return [it for it in items if it is not None and it.id not in drop]
 
 

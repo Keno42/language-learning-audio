@@ -116,6 +116,30 @@ class ReviewNamesTheSpeakersFormTests(unittest.TestCase):
         out, _ = refine_review([{"items": ["eg_er_state"], "prompt": "In a sentence. Say: I'm tired.", "answer": "Ég er þreyttur."}], self.cur, {"eg_er_state"}, self.prompts)
         self.assertEqual(out[0]["prompt"], "As a man: In a sentence. Say: I'm tired.")
 
+    def test_the_form_holds_through_the_bots_store(self):
+        """Second review of #385: the bot stores a question's items, prompt and answer, not ``through``. «Ertu þreytt?» asked through its pattern
+        (`whole_for`) and stored as the bot keeps it, then refined again by `refine-review` as the bot does each morning, gets no «As a woman:».
+        The pattern is found from the answer."""
+        whole = whole_for(self.cur, self.cur.by_id["threytt_state"], {"ertu_state", "threytt_state"}, self.prompts)
+        stored = {"items": ["threytt_state"], "prompt": whole["prompt"], "answer": whole["answer"]}  # what the bot's queue keeps of it
+        stdin = json.dumps({"review": [stored], "met": ["ertu_state", "threytt_state"]})
+        with tempfile.TemporaryDirectory() as tmp:
+            out = subprocess.run([sys.executable, "-m", "audiolesson.cli", "refine-review", str(ROOT / "curricula" / "is-en"), "--learner", str(Path(tmp) / "learner.json")],
+                                 input=stdin, capture_output=True, text=True, check=True, cwd=ROOT)
+        q = json.loads(out.stdout)["review"][0]
+        self.assertEqual((q["prompt"], q["answer"]), ("How do you say: To a woman: Are you tired?", "Ertu þreytt?"))
+
+    def test_a_mans_form_made_before_the_fix_is_repaired_to_the_form_the_meaning_names(self):
+        """Second review of #385: before it, the lesson alternated «Ertu {state}?» and stored «As a man: To a woman: Are you tired?» → «Ertu
+        þreyttur?». Taking the form off the cue leaves a man's form answering «To a woman»: the answer takes the stored form too."""
+        cue = "How do you say: To a woman: Are you tired?"
+        for items in (["ertu_state"], ["threytt_state"], ["threytt_state", "ertu_state"]):
+            out, report = refine_review([{"items": items, "prompt": "As a man: " + cue, "answer": "Ertu þreyttur?"}], self.cur, {"ertu_state", "threytt_state"}, self.prompts)
+            self.assertEqual((out[0]["prompt"], out[0]["answer"]), (cue, "Ertu þreytt?"), items)
+            self.assertIn("addressee_form", [r["kind"] for r in report])
+        out, _ = refine_review([{"items": ["eg_er_state"], "prompt": "As a man: Say: I'm tired.", "answer": "Ég er þreyttur."}], self.cur, {"eg_er_state"}, self.prompts)
+        self.assertEqual(out[0]["answer"], "Ég er þreyttur.", "a sentence that follows the speaker keeps its man's form")
+
     def test_the_lesson_asks_a_sentence_to_the_person_spoken_to_in_one_form(self):
         """The same cause in the lesson: «Ertu {state}?» alternated «Ertu þreytt?» with «As a man:» «Ertu þreyttur?», a man's form said to a
         woman, and its introduction added «A man says: Ertu þreyttur?». A pattern whose subject is the person spoken to (`addressee`) keeps
