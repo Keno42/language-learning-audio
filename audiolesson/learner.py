@@ -16,6 +16,7 @@ recalled keeps it, hesitated brings the item back sooner, failed demotes it to t
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from dataclasses import asdict, dataclass, field
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -228,6 +229,28 @@ class LearnerState:
         if changed:
             self.target_changed_at = self.lessons_completed
         return float(new_target), "; ".join(reasons)
+
+    def load_preview(self, minutes: float, today: date) -> dict[str, dict]:
+        """What each answer to the feedback form's load question makes the next lesson's target (CURRENT-STATUS «Now» 3): for each of
+        ``LOADS``, the rate ``generate`` would save (``suggest_target`` at ``NEW_TARGET_MINUTES``, #242), the share a lesson of ``minutes``
+        plans (``lesson_target``) and why, each worked out on a copy: this learner is unchanged. ``today`` is the day of the next lesson.
+        The form is answered before the morning review, and until that review the pace waits (``recall_rate`` is None, H2), so each copy
+        also presumes the review says 言えた to every new item of the latest lesson, at the gap since that lesson, as the bot reports it: a
+        failure or a hesitation among them can only hold or lower the target. The rest of the review (open and due items) is left as it
+        stands, and a latest lesson already reported keeps its outcomes."""
+        last = self.lessons[-1] if self.lessons else None
+        preview: dict[str, dict] = {}
+        for load in LOADS:
+            learner = deepcopy(self)
+            if last is not None:
+                learner.report([], [], today, last["number"], load=load)
+                if last["number"] not in learner.reported:
+                    new = list(last.get("new_items", []))
+                    gap = (today - date.fromisoformat(last["date"])).days if last.get("date") else None
+                    learner.report([], [], today, last["number"], recalled=new, gaps=None if gap is None else dict.fromkeys(new, gap))
+            rate, why = learner.suggest_target(NEW_TARGET_MINUTES, today)
+            preview[load] = {"rate": rate, "target": lesson_target(rate, minutes), "why": why}
+        return preview
 
     def _pace_rules(self, pace: float, lo: float, hi: float, minutes: float, today: date, changed_at: int, label: str, slots_items: float) -> tuple[float, list[str], bool]:
         reasons: list[str] = []
@@ -709,6 +732,12 @@ class LearnerState:
                 )
             return ls
         return cls(target_lang=target_lang, known_lang=known_lang, level=level)
+
+
+def lesson_target(rate: float, minutes: float) -> float:
+    """The target of weighted new components a lesson of ``minutes`` plans from the learner's rate per ``NEW_TARGET_MINUTES``: its
+    share, at least 1 (#242)."""
+    return max(1.0, rate * minutes / NEW_TARGET_MINUTES)
 
 
 def today_iso() -> str:

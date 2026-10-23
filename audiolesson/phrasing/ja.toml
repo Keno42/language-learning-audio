@@ -54,11 +54,13 @@ intro_whole = "新しい表現です。「{meaning}」。"
 construction_of_known = "これはパターンです。ほかの言葉でも言えます。"
 construction_of_known_later = "これはパターンです。この部分には、ほかの言葉も入ります。それはあとで出てきます。"
 construction_slot = "同じ場所に、ほかの言葉を入れることができます。"
+construction_slot_later = "同じ場所には、ほかの言葉も入ります。それはあとで出てきます。"
 slot_word = "なにか"
 
 transform_intro = "文がどう変わるか、聞いてください。"
 transform_becomes = "こうなります。"
 transform_try = "では、やってみましょう。"
+transform_same = "同じように変えてください。"
 
 dialogue_partner_said = "「{meaning}」"
 aside = "ちょっとした話です。"

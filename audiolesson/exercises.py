@@ -170,6 +170,8 @@ class Builder:
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
     _situation_texts: dict[str, int] = field(default_factory=dict)  # times each situation was narrated in full (``_narrated``)
     _recent_situations: list = field(default_factory=list)  # the situations narrated, newest last (``situation_rank``)
+    _examples_said: list = field(default_factory=list)  # a transform's pairs shown or asked this lesson («item:source»), oldest first (``_pick_example``)
+    _last_instruction: str | None = None  # the transform instruction asked last: «Same change:» refers back to it only (``_transform_prompt``)
     _mixed_review_said: bool = False  # «Quick review» is announced once a lesson
     _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
@@ -237,10 +239,13 @@ class Builder:
             return None
         return 1 if text in self._recent_situations[-SITUATION_RECENT:] else 0
 
-    def _narrated(self, text: str) -> None:
-        """A situation narrated in full: counted for ``situation_rank``. Every path that narrates one calls it."""
+    def _narrated(self, text: str, recent: bool = True) -> None:
+        """A situation narrated in full: counted for ``situation_rank``. Every path that narrates one calls it. ``recent=False``: a transform's
+        instruction, under the cap only; it is no situation a cue could pick instead, so it does not push a situation out of the last
+        ``SITUATION_RECENT`` (#273)."""
         self._situation_texts[text] = self._situation_texts.get(text, 0) + 1
-        self._recent_situations.append(text)
+        if recent:
+            self._recent_situations.append(text)
 
     def _next_situation(self, item: Item) -> str | None:
         """The next variant by rotation with the best ``situation_rank`` (a free one before a recent one); the rotation's own when none has room
@@ -1060,6 +1065,7 @@ class Builder:
             # is asked next, so the line says the other words come later (lesson 34: «Ég er með ofnæmi fyrir hnetum.», and no swap for minutes)
             other = self.generate(item, exclude=fills) is not None
             self._frame(sc, ex, self.prompts.get("construction_of_known" if other else "construction_of_known_later"))
+            gen = self.generate(item, exclude=fills)
         else:
             self._narr(sc, ex, self.prompts.get("construction_intro", meaning=self._m(meaning)))
             self._beat(sc, ex)
@@ -1081,9 +1087,11 @@ class Builder:
                 self._narr(sc, ex, self.prompts.get("man_says"))
                 self._speak(sc, ex, target_m, speaker=VOICE_OF["m"])
                 self._repeat_pause(sc, ex, target_m)
-            self._frame(sc, ex, self.prompts.get("construction_slot"))
+            # «other words in the same place» only when a second example with another filler follows; with none the same sentence is asked
+            # next (the remark of lesson 34 on a known example, #388, found here by the claims check on a new one)
+            gen = self.generate(item, exclude=fills)
+            self._frame(sc, ex, self.prompts.get("construction_slot" if gen is not None else "construction_slot_later"))
         # a second example with a known fill, as the first retrieval
-        gen = self.generate(item, exclude=fills)
         if gen is None:
             gender, target = self._filled(item, fills)
             self._narr(sc, ex, self._as(gender, self._meaning_prompt(meaning)))
@@ -1109,7 +1117,7 @@ class Builder:
             self._narr(sc, ex, self.prompts.get("transform_becomes"))
             self._speak(sc, ex, exm.result)
             self._beat(sc, ex)
-            self.used_examples.add(item.id + ":" + exm.source)
+            self._examples_said.append(item.id + ":" + exm.source)
         self._narr(sc, ex, self.prompts.get("transform_try"))
         exm = self._pick_example(item)
         self._transform_prompt(sc, ex, item, exm)
@@ -1465,24 +1473,41 @@ class Builder:
         """When the example's words follow the speaker's gender, alternate forms like any
         gendered item: the source in that voice, and — only when the learner's own answer
         changes («Ég var þreyttur í gær.») — an announcement and the answer in that voice.
-        A result about someone else («Hún er glöð.») stays as it is."""
+        A result about someone else («Hún er glöð.») stays as it is.
+        The instruction is narrated in full under the cap of any situation (``situation_rank``:
+        ``SITUATION_FULL_MAX`` times a lesson; lesson 31 narrated «Say it more politely, as a
+        question:» 9 times, G12), then «Same change:» while the transform asked last had the same
+        instruction; after another one it would name the wrong change, and the instruction is
+        said in full again."""
         gender = self.speaker_gender(item, gendered=bool(exm.source_m or exm.result_m))
         man = gender == "m"
         source = exm.source_m if man and exm.source_m else exm.source
         result = exm.result_m if man and exm.result_m else exm.result
         answer_gender = gender if exm.result_m else None
-        self._narr(sc, ex, self._as(answer_gender, item.instruction))
+        if self.situation_rank(item.instruction) is None and self._last_instruction == item.instruction:
+            self._narr(sc, ex, self._as(answer_gender, self.prompts.get("transform_same")), role="short_instruction")
+        else:
+            self._narr(sc, ex, self._as(answer_gender, item.instruction))
+            self._narrated(item.instruction, recent=False)
+        self._last_instruction = item.instruction
         self._speak(sc, ex, source, role="source", speaker=VOICE_OF[gender or "f"])
         if hint:
             self._speak(sc, ex, result.split()[0].rstrip(".,?!"), role="hint")
         self._answer_pause(sc, ex, result, item, generative=True, supported=hint)
         self._answer(sc, ex, result, speaker=VOICE_OF[answer_gender or "f"])
-        self.used_examples.add(item.id + ":" + exm.source)
+        self._examples_said.append(item.id + ":" + exm.source)
 
     def _pick_example(self, item: Item) -> TransformExample:
-        fresh = [e for e in item.examples if item.id + ":" + e.source not in self.used_examples]
-        pool = fresh or item.examples
-        return self.rng.choice(pool)
+        """The pair said least this lesson (a pair shown in the introduction counts), and of pairs said as often, the one said longest ago (G17;
+        lesson 31 asked «asking for the same thing more politely» 8 times from 5 pairs: once every pair had come, any could come again, the one just
+        asked included). Pairs not said yet are drawn from as before."""
+        said = self._examples_said
+        uses = {e.source: said.count(item.id + ":" + e.source) for e in item.examples}
+        fresh = [e for e in item.examples if not uses[e.source]]
+        if fresh:
+            return self.rng.choice(fresh)
+        last = {key: i for i, key in enumerate(said)}
+        return min(item.examples, key=lambda e: (uses[e.source], last[item.id + ":" + e.source]))
 
     # ------------------------------------------------------------ generation
 

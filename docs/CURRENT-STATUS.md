@@ -21,7 +21,8 @@ general case, without looking at what follows.
    still have no verdict, «Má ég versla?» among them. The sheet was printed for the patterns and words the learner had
    met, so a word introduced today is generated unjudged the same day, and the negative and question forms are on no
    sheet. **Next smallest step:** scene lines for the 142 from a reviewer (`docs/SCENE-REVIEW.md`), faithful to each
-   sentence's meaning; then the sheet printed from the replay of each new export, the forms included.
+   sentence's meaning; then, from each new export, the sheet its replay prints (`--scene-sheet`: the sentences the coming
+   lessons say, the forms included), until the replay's row «pattern sentences said with no scene verdict» reads 0.
 2. **The new material after lesson 40 has no level to play (#327).** On the replay of the lesson-33 export, «today's new
    items said as a turn of the played exchange» reads 2 to 5 in every lesson from 33 to 40, with the town's third level
    (the way, #381) in lesson 38 and small talk's third and fourth (nationality and work, age and married; #383) in
@@ -33,8 +34,9 @@ general case, without looking at what follows.
    くらい新出表現がほしい», and «変わらなかったから最近フィードバックしてなかった». A «light» answer raises the next
    lesson's target only after two in a row (with at most 25% of new items failed and a small backlog), and «heavy» only
    blocks a rise (`suggest_target`, LD §9 "Pace"); the form says none of it, so a single answer looks as if it changed
-   nothing, and the signal the pace depends on (H9) stops. **Next smallest step:** an LLA command that prints the next
-   lesson's target for each load answer, and the bot shows it beside the choice (the owner's proposal).
+   nothing, and the signal the pace depends on (H9) stops. **Next smallest step:** the bot shows each answer's target
+   beside the choice (the owner's proposal), from `audiolesson load-preview`, which presumes the morning review recalls
+   the lesson's new items.
 
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
 Icelandic (candidates until native-checked). The town (asking the way), small talk (getting to know someone) and the
@@ -44,8 +46,9 @@ level is said after the opening, and the closing ends on the level's lines in th
 level for the way itself, and small talk a third and fourth. Next: arranging to meet (item 2), then taxi and bus, winter talk.
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
-learner say this line", then the planner's build loop. Each step leaves the replays of the lesson-21–23 exports
-byte-identical. Built: `docs/DESIGN.md`'s invariants are one line per topic (#320) and the word regex and `norm_utterance` are
+learner say this line", then the planner's build loop. Each step leaves every lesson `tools/same_lessons.py` builds
+identical; the owner's replays of the lesson-21–23 exports, byte-identical, stay the check on the real learner path.
+Built: `docs/DESIGN.md`'s invariants are one line per topic (#320) and the word regex and `norm_utterance` are
 defined once (`audiolesson/text.py`, #321).
 
 ## Built since the last update (2026-10-15)
@@ -83,16 +86,23 @@ Each waits for its first feedback in the LD §8 table.
 - #336: the other scenes' frames that vary in use, as each scene comes (`validate` lists the candidates; only the frames
   a scene varies).
 - #270: the other frames (accusative orders, `dat_town`, `dat_hobby`), after the dative place forms' first feedback.
-- #209: when a fluent speaker is available (G10). Every scene added since lesson 30 adds authored Icelandic to it.
-- #364: the issue template's use, and the measured comparison of reading before and after the route per task.
-- #236: a one-off reply gets several example answers (owner: low priority).
+- #209: when a fluent speaker is available (G10), starting from the lines the lessons say most (`tools/top_lines.py` on the
+  exported scripts). Every scene added since lesson 30 adds authored Icelandic to it.
 
-#265 (expression first), #149 (themes) and #270 (a noun with its gender and forms) are the umbrellas the items above
-belong to; #220 stays open for its ranking; #326 for the connections across lessons. The bot's review on its own
-(site_update_notifier#124) is closed (2026-10-23): what it waited for is built (site_update_notifier#133, #139; #331),
-lesson 34's queue held 3 never-asked entries of 109 due, and recalls at 7 and 14+ days are recorded. It reopens if the
-records show older lines no longer confirmed by the usual review, or if the learner asks for a short review apart from
-the lesson; the last lesson's new items are then still checked the next day, never earlier.
+#265 (expression first) and #270 (a noun with its gender and forms) are the umbrellas the items above belong to; #326
+for the connections across lessons.
+
+**Closed on 2026-10-23, each with the condition that reopens it** (the owner, after a structural review: an umbrella that
+never closes collects work without a finish line):
+- #149 (themes): every step merged. Reopens if a lesson plays no theme, or a feedback calls the lesson unrelated items again.
+- #220 (retention after the first day): after lesson 34, recall at 7–13 days 13 of 13, at 14+ days 4 of 4, and 109 due with
+  3 never asked. Reopens if the retention rows stop growing, or the queue grows past about 150 due again.
+- site_update_notifier#124 (the bot's review on its own): closed on the same evidence. Reopens if the records show older
+  lines no longer confirmed by the usual review, or if the learner asks for a short review apart from the lesson; the last
+  lesson's new items are then still checked the next day, never earlier.
+- #364 (a route per task, «Now» in one home): built by #374. Reopens if less reading comes with more misses.
+- #236 (a one-off reply with several example answers): low priority, never asked for. Reopens on a learner remark that a
+  good reply was treated as wrong.
 
 ## Where to look
 - **Built, and how many feedbacks it has had:** the table under "Built, waiting for three feedbacks without the same remark"

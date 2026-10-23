@@ -8649,7 +8649,7 @@ class ReplayToolTests(unittest.TestCase):
         self.assertIn("| | lesson 4 | lesson 5 |", text)
         for row in ("| minutes |", "| short new item alone, most |", "| bare_cap_lapsed |", "| tried lines / bonus questions |", "| lines a listening scene asks for that were never taught (#240) |", "| theme (level) / plays |",
                     "| target delivered / second half by the guard (#294) |", "| speech touching at a change of voice (#301) |", "| switch gaps inserted (#301) |",
-                    "| confirmed recall rate by gap, 3–6 / 7–13 / 14+ days (#220) |"):
+                    "| confirmed recall rate by gap, 3–6 / 7–13 / 14+ days (#220) |", "| pattern sentences said with no scene verdict (G6) |"):
             self.assertIn(row, text)
         rows = {line.split("|")[1].strip(): [c.strip() for c in line.split("|")[2:-1]] for line in text.splitlines() if line.startswith("| ") and line.count("|") >= 4}
         self.assertEqual(rows["target delivered / second half by the guard (#294)"], ["yes", "yes"])
@@ -8822,6 +8822,55 @@ class FramingBeatTests(unittest.TestCase):
         joins = [(a, b, c) for sc in self.lessons for a, b, c in zip(sc.segments, sc.segments[1:], sc.segments[2:]) if a.type == "narrate" and a.text == repeat]
         self.assertTrue(joins)
         self.assertTrue(all((b.type, b.role) == ("pause", "switch") and c.type == "speak" for _, b, c in joins), "«Repeat.», a switch gap, then the line")
+
+
+class FramingClaimTests(unittest.TestCase):
+    """A framing line that promises something («other words», «another sentence», «again», «something new») keeps the promise. The remark came
+    back one prompt key at a time (#197, #287, #335, #386, #388); ``audiolesson/claims.py`` lists every promising key with what must hold for it."""
+
+    PROMISE = re.compile(r"\b(another|other|again|new|haven't|later|same)\b", re.I)
+
+    @classmethod
+    def setUpClass(cls):
+        cls.lessons = [sc for _, sc in ShortItemRepetitionTests._course(12)]
+
+    def test_no_framing_line_of_a_simulated_course_promises_what_does_not_follow(self):
+        from audiolesson.claims import claim_of
+        prompts = Prompts.load("en")
+        claimed = 0
+        for sc in self.lessons:
+            self.assertEqual(sc.meta["unkept_claims"], [], f"lesson {sc.lesson_number}")
+            claimed += sum(1 for g in sc.segments if g.type == "narrate" and g.text and claim_of(g.text, prompts))
+        self.assertGreater(claimed, 50, "the course has promising lines to check")
+
+    def test_every_promising_line_of_the_phrasing_is_checked_or_reviewed(self):
+        from audiolesson.claims import CLAIMS, NO_CLAIM
+        en = Prompts.load("en").data
+        promising = {k for k, v in en.items() if isinstance(v, (str, list)) and any(self.PROMISE.search(t) for t in ([v] if isinstance(v, str) else v))}
+        self.assertEqual(sorted(promising - set(CLAIMS) - set(NO_CLAIM)), [], "a line that promises: what must hold in CLAIMS, or why nothing can in NO_CLAIM")
+        self.assertEqual(sorted((set(CLAIMS) | set(NO_CLAIM)) - set(en)), [], "every key of the table is a line of en.toml")
+        self.assertEqual(set(CLAIMS) & set(NO_CLAIM), set())
+
+    def test_a_promise_that_does_not_follow_is_found(self):
+        """Main before the new-pattern fix: «You can put other words in the same place.», then the worked example asked again. The gender label in
+        front of a line does not hide its promise (lesson 34: «In another sentence» was the phrase just said, #386)."""
+        from audiolesson.claims import unkept_claims
+        from audiolesson.exercises import speak_as
+        en = Prompts.load("en")
+        sc = Script(1, "t", "is", "en")
+
+        def exercise(label, *lines, kind="intro"):
+            ex = sc.new_exercise(kind, "intro", [label], label)
+            for t in lines:  # «>» marks an Icelandic line
+                tl = t.startswith(">")
+                sc.add(Segment("speak" if tl else "narrate", "native_a" if tl else "instructor", t.lstrip(">"), "is" if tl else "en", 1.0, 1.0, None, ex.index))
+
+        slot, another = en.get("construction_slot"), speak_as(en, "f", en.get("embed_sentence"))
+        exercise("hnetum", "Here is a useful pattern. I'm allergic to nuts.", ">Ég er með ofnæmi fyrir hnetum.", slot, ">Ég er með ofnæmi fyrir hnetum.")
+        exercise("fiski", "Here is a useful pattern. I'm allergic to fish.", ">Ég er með ofnæmi fyrir fiski.", slot, ">Ég er með ofnæmi fyrir hnetum.")
+        exercise("hotel", en.get("embed_known"), ">Á þetta hótel, takk.", another, ">Á þetta hótel, takk.", kind="embed")
+        exercise("hotel", "Something new. To this hotel.", ">Á þetta hótel.")
+        self.assertEqual(unkept_claims(sc, en), [f"hnetum: {slot}", f"hotel: {another}", "hotel: Something new. To this hotel."])
 
 
 class FailureThinkTimeTests(unittest.TestCase):
