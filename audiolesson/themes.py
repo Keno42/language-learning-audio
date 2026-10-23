@@ -77,7 +77,7 @@ WHO = ("you", "partner")
 @dataclass
 class Turn:
     who: str
-    say: str
+    say: str = ""  # required, except on a ``repeat`` turn, which takes the line before it (``_check``)
     # a learner's line whose words follow the speaker's gender (an item of it has a ``target_m``): the man's form. The line is said in the form of
     # the learner's voice, the one opposite the partner's, and the cue names it («As a man: …»), as every review question does (#375)
     say_m: str = ""
@@ -100,6 +100,9 @@ class Turn:
     # a partner turn: lines that are never played in the exchange, only heard in a listening exercise of the scene, each {say, meaning, meaning_ja, probes,
     # word_glosses}: wording the learner hasn't drilled, with two or more pieces of information for the question to pick between (#248 step 2)
     listen: list[dict] = field(default_factory=list)
+    # a partner turn: says again the line the partner turn before it said, the variant played included (``say`` and ``meaning`` are copied from
+    # that turn on load). After a request to speak slower it is said word by word (#261), so the learner hears the same words slowly
+    repeat: bool = False
 
     def lines(self) -> list[Turn]:
         """The partner's line and its variants, the line as written first: any of them fits the learner's reply."""
@@ -162,6 +165,7 @@ def load_themes(curriculum_dir: str | Path, cur: Curriculum | None = None, scena
     id must exist in it; with ``scenarios``, every theme's scenario must."""
     out = [t for _, t in load_records(Path(curriculum_dir) / "cando", "themes", Theme, "theme")]
     for theme in out:
+        _resolve_repeats(theme)
         _check(theme)
     if cur is not None:
         check_items([(t.id, i) for t in out for lv in t.levels for i in lv.items], cur.by_id, "themes")
@@ -187,6 +191,22 @@ def check_gendered_lines(themes: list[Theme], cur: Curriculum) -> None:
                         f"theme {theme.id!r} level {n} turn {k}: "
                         + ("an item's words follow the speaker's gender: the line needs its man's form, say_m" if gendered else "say_m, but no item of the line has a man's form")
                     )
+
+
+def _resolve_repeats(theme: Theme) -> None:
+    """A partner turn with ``repeat`` takes the line and meaning of the partner turn before it; it has none of its own."""
+    for n, lv in enumerate(theme.levels, 1):
+        before = None
+        for k, t in enumerate(lv.turns, 1):
+            if t.repeat:
+                where = f"theme {theme.id!r} level {n} turn {k}"
+                if t.who != "partner" or before is None:
+                    raise CurriculumError(f"{where}: repeat goes on a partner turn after another partner turn")
+                if t.say or t.meaning or t.meaning_ja or t.variants or t.probes or t.listen or t.word_glosses:
+                    raise CurriculumError(f"{where}: a repeat says the line before it, with nothing of its own")
+                t.say, t.meaning, t.meaning_ja = before.say, before.meaning, before.meaning_ja
+            elif t.who == "partner":
+                before = t
 
 
 def _check(theme: Theme) -> None:
@@ -339,10 +359,12 @@ def level_dialogue(theme: Theme, n: int, known_lang: str = "en", picks: dict[int
     turns: list[DialogueTurn] = []
     opener: tuple[str, str] | None = None
     opener_scene = ""
+    said: Turn | None = None  # the partner's last line as played, the variant picked included: what a ``repeat`` says
     for k, t in enumerate(level.turns):
         scene = t.scene_ja if ja and t.scene_ja else t.scene
         if t.who == "partner":
-            t = t.lines()[(picks or {}).get(k, 0)]
+            t = said if t.repeat and said is not None else t.lines()[(picks or {}).get(k, 0)]
+            said = t
         meaning = (t.meaning_ja if ja and t.meaning_ja else t.meaning)
         if t.who == "partner":
             if turns and turns[-1].partner is None:

@@ -1,10 +1,11 @@
-"""#294: an item selected for the target and left untaught still lets the second half start."""
+"""#294: an item selected for the target and left untaught still lets the second half start, and its charge is given back."""
 import unittest
 from datetime import date, timedelta
 from pathlib import Path
 from unittest import mock
 
 from audiolesson.cando import load_cando
+from audiolesson.cli import _plan
 from audiolesson.content import load_curriculum
 from audiolesson.learner import LearnerState
 from audiolesson.planner import PlanConfig, Planner, apply_to_learner
@@ -63,10 +64,36 @@ class RotationGuardTests(unittest.TestCase):
         self.assertGreaterEqual(len(listening), 1, "the second half has listening work")
         self.assertGreaterEqual(sc.total_duration / 60, 27.0, "and the lesson is not cut short")
 
+    def test_what_was_charged_and_not_taught_is_given_back(self):
+        sc = self.lesson(drop_last_selected=True)
+        nc, back, taught = sc.meta["new_components"], sc.meta.get("charge_given_back"), set(sc.meta["new_items"])
+        self.assertTrue(back, "the items charged at their selection and never taught are named")
+        self.assertFalse(set(back) & taught, "only items the lesson did not teach")
+        self.assertLessEqual(set(nc["by_item"]), taught, "new_components counts what the lesson taught")
+        self.assertEqual(nc["total"], round(sum(nc["by_item"].values()), 2))
+        self.assertLess(nc["total"], nc["target"], "«X of a target Y» says the target was not taught, as target_delivered does")
+        self.assertEqual(_plan(sc, self.cur)["new_components"], nc, "plan.json says the same")
+
+    def test_a_taught_item_that_shared_words_with_an_untaught_one_costs_what_it_brought(self):
+        """Review of #404: «Ég er svöng.» charged first (ég, er, svöng, svangur: 4), «Ég er þyrst.» after it (þyrst, þyrstur: 2, «ég er» counted
+        as known). When only the second is taught, its words «ég» and «er» are new after all: giving back the first's 4 left 2 where the
+        lesson taught 4. The taught items are charged again from what the learner knew when the lesson began."""
+        from audiolesson.timing import Timing
+        cur = load_curriculum(Path(__file__).resolve().parent.parent / "curricula" / "is-en")
+        p = Planner(cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_target=8))
+        first, second = cur.by_id["eg_er_svong"], cur.by_id["eg_er_thyrst"]
+        self.assertEqual((p._charge(first), p._charge(second)), (4.0, 2.0))
+        back = p._give_back_untaught({second.id})
+        self.assertEqual(back, {first.id: 4.0})
+        self.assertEqual((p.components_total, p.component_by_item), (4.0, {second.id: 4.0}))
+        self.assertEqual(p._give_back_untaught({second.id}), {}, "nothing more to give back: the total stays")
+        self.assertEqual(p.components_total, 4.0)
+
     def test_a_normal_lesson_does_not_use_the_guard(self):
         sc = self.lesson(drop_last_selected=False)
         self.assertTrue(sc.meta["target_delivered"])
         self.assertFalse(sc.meta["rotation_guard"])
+        self.assertNotIn("charge_given_back", sc.meta, "everything charged was taught: nothing to give back")
 
 
 if __name__ == "__main__":
