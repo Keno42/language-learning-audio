@@ -32,6 +32,7 @@ issues; the full history of how each of these came about is in `docs/history/ses
 | planner levers, off by default (#136) | `PlanConfig.late_unhinted_recall`; see `docs/LEVERS.md` |
 | BÍN check of the variants (#218 b2) | `audiolesson/binform.py`, `tools/bin_lookup.py` (reads BÍN's downloaded form list, no network), `curricula/is-en/bin/` (cache + licence); `validate` only warns (advises, never blocks) when the cache or a form is missing or a `variant_of` item and its base are not one BÍN lemma |
 | words and normalised lines | `audiolesson/text.py` | `WORD` (a run of letters, digits and underscores excluded), `words()` and `norm_utterance()` are defined once; the planner, builder, review, themes and `tools/replay_lesson.py` import them (#281). `timing.py` keeps `\w+` where digits count |
+| behaviour unchanged (#281) | `tools/same_lessons.py REV`: 30 simulated lessons from an empty learner in three configs (30 min target 8, 15 min target 4, 30 min counting items; every seventh new item reported failed), built on `git archive REV` and on the working tree, `script.json` and `plan.json` compared by sha256; public data only. The owner's replay of an export stays the real-path check |
 | diagnostics | `audiolesson validate` (gloss coverage, dialogue sequencing report, part-before-whole report `--parts`), `tools/phrase_families.py`, `tools/replay_lesson.py` (a feedback export's lesson rebuilt and continued: the daily-read table, LEARNING-DESIGN §1) |
 
 ## Invariants the tests pin

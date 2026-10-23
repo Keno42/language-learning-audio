@@ -29,7 +29,7 @@
 | Form guidance (a word's forms, a part in its sentence) | LEARNING-DESIGN §9 "Parts against utterances"; `docs/CURRICULUM.md`; `audiolesson/exercises.py`, `audiolesson/nouns.py` |
 | Content (a scene, items, scene verdicts) | LEARNING-DESIGN §9 "Good enough overall" and its scene check; `docs/CURRICULUM.md`, `docs/TRAVEL-CANDO.md`, `docs/SCENE-REVIEW.md` |
 | Review scheduling (intervals, the written review) | LEARNING-DESIGN §6 and §9 "Evidence"; `audiolesson/learner.py`, `audiolesson/review_wording.py`; the related bot issue |
-| Refactoring (behaviour unchanged) | the relevant `docs/DESIGN.md` sections; #281's criterion: the replays stay byte-identical |
+| Refactoring (behaviour unchanged) | the relevant `docs/DESIGN.md` sections; #281's criterion: `tools/same_lessons.py` against `origin/main` finds every simulated lesson identical, and the owner's replays stay byte-identical (the real learner path) |
 | Documents | LEARNING-DESIGN §10; `docs/DOC-REVIEW.md` |
 
 Read the history (`docs/history/`) when a current decision or finding needs it.
