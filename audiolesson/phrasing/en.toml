@@ -56,6 +56,7 @@ intro_whole = "A new expression. {meaning}"
 construction_of_known = "It is a pattern: you can say it with other words."
 construction_of_known_later = "It is a pattern: other words can go in its place. You will meet them later."  # no other known filler yet: no swap is promised now (lesson 34, «hnetum»)
 construction_slot = "You can put other words in the same place."
+construction_slot_later = "Other words can go in the same place. You will meet them later."  # no other known filler yet: the swap is promised for later (the claims check)
 slot_word = "something"
 
 transform_intro = "Listen to how the sentence changes."
