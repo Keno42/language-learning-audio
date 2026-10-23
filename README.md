@@ -133,7 +133,8 @@ around 80–85%.
 - Pace + 1 only on evidence: the window at ≤ 15% failures and the backlog small, or the
   last two rated lessons both «light» (`report --load light|right|heavy`) at ≤ 25% with a small backlog. A lesson with no rating is skipped: it neither breaks nor extends the run. Any «heavy»
   in the window blocks a rise; one step a lesson at most. In manual mode, without `report` the
-  pace never rises. A load-only report does not mark the lesson reported.
+  pace never rises. A load-only report does not mark the lesson reported. `load-preview` prints, as JSON, the next lesson's
+  target for each load answer, presuming the review recalls the latest lesson's new items.
 - **Auto mode** (`--auto`, persists; `AUTO=1` for `tools/daily.sh`): an unreported
   lesson counts as "all good", and the pace steps up once every 3 lessons while
   the backlog stays small. `report --failed …` still slows it down whenever you

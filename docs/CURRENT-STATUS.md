@@ -33,8 +33,9 @@ general case, without looking at what follows.
    くらい新出表現がほしい», and «変わらなかったから最近フィードバックしてなかった». A «light» answer raises the next
    lesson's target only after two in a row (with at most 25% of new items failed and a small backlog), and «heavy» only
    blocks a rise (`suggest_target`, LD §9 "Pace"); the form says none of it, so a single answer looks as if it changed
-   nothing, and the signal the pace depends on (H9) stops. **Next smallest step:** an LLA command that prints the next
-   lesson's target for each load answer, and the bot shows it beside the choice (the owner's proposal).
+   nothing, and the signal the pace depends on (H9) stops. **Next smallest step:** the bot shows each answer's target
+   beside the choice (the owner's proposal), from `audiolesson load-preview`, which presumes the morning review recalls
+   the lesson's new items.
 
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
 Icelandic (candidates until native-checked). The town (asking the way), small talk (getting to know someone) and the
