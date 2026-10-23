@@ -88,8 +88,11 @@ Each waits for its first feedback in the LD §8 table.
 - #236: a one-off reply gets several example answers (owner: low priority).
 
 #265 (expression first), #149 (themes) and #270 (a noun with its gender and forms) are the umbrellas the items above
-belong to; #220 stays open for its ranking (the bot's review on its own, site_update_notifier#124, waits for it); #326
-for the connections across lessons.
+belong to; #220 stays open for its ranking; #326 for the connections across lessons. The bot's review on its own
+(site_update_notifier#124) is closed (2026-10-23): what it waited for is built (site_update_notifier#133, #139; #331),
+lesson 34's queue held 3 never-asked entries of 109 due, and recalls at 7 and 14+ days are recorded. It reopens if the
+records show older lines no longer confirmed by the usual review, or if the learner asks for a short review apart from
+the lesson; the last lesson's new items are then still checked the next day, never earlier.
 
 ## Where to look
 - **Built, and how many feedbacks it has had:** the table under "Built, waiting for three feedbacks without the same remark"
