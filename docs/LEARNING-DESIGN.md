@@ -79,8 +79,9 @@ information too.
 
 ### After each round of learner feedback (daily while the design is moving)
 
-While the lessons are still being reshaped (§9 "Governance": the fix-up phase), this is done
-after **every** lesson, the next day; once they settle, weekly.
+During the fix-up phase (§9 "Governance"), this is done after **every** lesson, the next day; once the phase has ended,
+weekly. Either way the lesson's remarks go into `docs/feedback/ledger.toml` the next day, since the end of the phase and
+§8's "done" are counted from it.
 
 1. Replay the export of the lesson just heard: `python tools/replay_lesson.py <lesson-NNN>
    --trip <profile> --lessons 3`. The first column is that lesson rebuilt with the current code
@@ -851,7 +852,15 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
     batch is judged as one change (§5.11). A change merges when the daily replay shows nothing
     already fixed coming back (length, a short item alone at most three times, open items
     practised). Slow signals (recall rates, phrase length, readiness) gate only the decisions
-    that depend on them, not development. Back to the weekly rule once the lessons settle.
+    that depend on them, not development.
+  - **The end of the fix-up phase.** The phase ends after three feedback lessons in a row with no remark of a new cause
+    family, no twenty-point remark and load «right»: the settled run of `tools/ledger.py` reads 3
+    (`docs/feedback/ledger.toml`, §8). A lesson with no feedback breaks the run. After it:
+    - at most two behaviour PRs between one lesson and the next; a data PR (a scene, its lines or verdicts, a native
+      correction) is not counted;
+    - the week's precision remarks are answered in one PR, after the weekly round (§1);
+    - one #281 step per weekly round;
+    - the lever rule above applies again.
   - **Priorities (owner, 2026-10-14).** About 80% of the work goes to the next lesson and 20% to the long run.
     "Now" (`docs/CURRENT-STATUS.md`) is ranked by the effect on the next lesson, checked on the replay of the latest export; the owner approves a
     re-ranking by merging the PR that makes it.
@@ -871,8 +880,8 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
   should move in which signal (§6) and when it will be checked. At the check, keep the
   change, revert it or extend it, and write down which.
 - **Few changes at a time.** With one learner, two simultaneous changes can't be told apart.
-  The lever rule in §9 applies to behaviour changes generally, not only to levers, except in
-  the fix-up phase (§9 "Governance"), where a batch is judged as one change.
+  §9 "Governance" sets the rate: in the fix-up phase a batch is judged as one change; after it, at most two behaviour
+  PRs between lessons, and two lever changes a week.
 - **Waiting is not a task.** A read that needs several lessons of data never sits in the queue
   of work ahead of development; it accumulates alongside the daily read (§1).
 - **An owner request is evidence of a need.** Restate the need in terms of §3 and §4, look
