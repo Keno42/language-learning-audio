@@ -46,8 +46,9 @@ level is said after the opening, and the closing ends on the level's lines in th
 level for the way itself, and small talk a third and fourth. Next: arranging to meet (item 2), then taxi and bus, winter talk.
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
-learner say this line", then the planner's build loop. Each step leaves the replays of the lesson-21–23 exports
-byte-identical. Built: `docs/DESIGN.md`'s invariants are one line per topic (#320) and the word regex and `norm_utterance` are
+learner say this line", then the planner's build loop. Each step leaves every lesson `tools/same_lessons.py` builds
+identical; the owner's replays of the lesson-21–23 exports, byte-identical, stay the check on the real learner path.
+Built: `docs/DESIGN.md`'s invariants are one line per topic (#320) and the word regex and `norm_utterance` are
 defined once (`audiolesson/text.py`, #321).
 
 ## Built since the last update (2026-10-15)
