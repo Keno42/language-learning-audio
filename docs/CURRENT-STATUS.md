@@ -21,7 +21,8 @@ general case, without looking at what follows.
    still have no verdict, «Má ég versla?» among them. The sheet was printed for the patterns and words the learner had
    met, so a word introduced today is generated unjudged the same day, and the negative and question forms are on no
    sheet. **Next smallest step:** scene lines for the 142 from a reviewer (`docs/SCENE-REVIEW.md`), faithful to each
-   sentence's meaning; then the sheet printed from the replay of each new export, the forms included.
+   sentence's meaning; then, from each new export, the sheet its replay prints (`--scene-sheet`: the sentences the coming
+   lessons say, the forms included), until the replay's row «pattern sentences said with no scene verdict» reads 0.
 2. **The new material after lesson 40 has no level to play (#327).** On the replay of the lesson-33 export, «today's new
    items said as a turn of the played exchange» reads 2 to 5 in every lesson from 33 to 40, with the town's third level
    (the way, #381) in lesson 38 and small talk's third and fourth (nationality and work, age and married; #383) in

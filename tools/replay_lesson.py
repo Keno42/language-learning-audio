@@ -8,7 +8,7 @@ continues for ``--lessons`` lessons in all, and prints one table of the figures 
 length, short items said alone, sentence uses, narration repeats, open items, generated sentences by
 form, listening scenes, and the planner's own records.
 
-    python tools/replay_lesson.py EXPORT_DIR [--trip PROFILE] [--lessons 3] [--curriculum curricula/is-en]
+    python tools/replay_lesson.py EXPORT_DIR [--trip PROFILE] [--lessons 3] [--curriculum curricula/is-en] [--scene-sheet]
 
 ``EXPORT_DIR`` is the ``lesson-NNN`` folder of an export. ``--trip`` is the private trip profile
 (the channel topic's TOML), if the lesson was generated with ``--trip``: it orders the new items
@@ -18,6 +18,9 @@ The first column is the exported lesson rebuilt: when the code is the export's o
 reproduces the lesson exactly (the script reports the exported lesson's own size beside it). The
 later columns are continuations under a stated assumption about the next day's review: every new
 item recalled; open items asked are recalled, except those of ``--fail-words`` words or more.
+
+``--scene-sheet`` prints, instead of the table, the scene check's sheet of the pattern sentences the
+replayed lessons said with no verdict (G6, docs/SCENE-REVIEW.md), as TOML to fill in.
 """
 
 from __future__ import annotations
@@ -32,12 +35,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from audiolesson.cli import _plan  # noqa: E402
+from audiolesson.cli import _plan, _toml_key  # noqa: E402
 from audiolesson.learner import retention_report  # noqa: E402
 from audiolesson.nouns import noun_report  # noqa: E402
 from audiolesson.review_wholes import bare_parts_with_a_home, parts_outside_their_whole  # noqa: E402
 from audiolesson.cando import for_season, load_cando, priority_items  # noqa: E402
-from audiolesson.content import load_curriculum  # noqa: E402
+from audiolesson.content import load_curriculum, said_scene_rows, scene_sheet  # noqa: E402
 from audiolesson.learner import LearnerState  # noqa: E402
 from audiolesson.planner import PlanConfig, Planner, apply_to_learner, semantic_set_tags  # noqa: E402
 from audiolesson.themes import load_themes, scenario_order  # noqa: E402
@@ -70,6 +73,33 @@ def form_of(cur, ex) -> str:
         if c.question and _template(c.question).match(text):
             return "question"
     return "plain"
+
+
+def said_lines(sc) -> list[str]:
+    """The target-language lines a lesson says, spoken or as a model answer: what the scene check judges (G6)."""
+    return [s.text for s in sc.segments if s.type in ("speak", "answer") and s.lang == sc.target_lang and s.text]
+
+
+def print_scene_sheet(cur, said: list[str], heading: str) -> int:
+    """``--scene-sheet`` (G6, docs/SCENE-REVIEW.md): the pattern sentences in ``said`` with no verdict (``said_scene_rows``), as ``[scenes.<pattern>]`` tables to
+    fill in: a line per fill, its sentences as a comment. The plain sentence comes first, since a scene line is the cue of the plain sentence only; a fill said
+    only as a negative or a question gets its plain sentence from ``scene_sheet``, so the scene written is never one for the form alone."""
+    rows = said_scene_rows(cur, said)
+    per_fill: dict[tuple[str, str], list[tuple[str | None, str, str]]] = {}
+    for pattern, fill, form, sentence, meaning in rows:
+        per_fill.setdefault((pattern, fill), []).append((form, sentence, meaning))
+    print(f"# {heading}")
+    last = None
+    for (pattern, fill), sentences in per_fill.items():
+        if pattern != last:
+            c = cur.by_id[pattern]
+            print(f"\n[scenes.{_toml_key(pattern)}]  # «{c.target}» {c.meaning}")
+            last = pattern
+        if all(form for form, _, _ in sentences):
+            sentences = [(None, s, m) for _, _, s, m in scene_sheet(cur, [pattern], {pattern, fill})] + sentences
+        print(f'{_toml_key(fill)} = ""  # ' + " · ".join(f"«{s}» {m}" for _, s, m in sentences))
+    print(f"\n# {len({(r[0], r[3]) for r in rows})} sentences, {len(per_fill)} fills", file=sys.stderr)
+    return 0
 
 
 def m_guard(sc) -> bool:
@@ -198,6 +228,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "open item practices, fewest": min(open_practice.values(), default="–"),
         "most appearances of one new item": max((sum(1 for e in exs if i in e.item_ids) for i in m["new_items"]), default=0),
         "generated sentences (plain / negative / question)": f"{sum(forms.values())} ({forms['plain']} / {forms['negative']} / {forms['question']})",
+        "pattern sentences said with no scene verdict (G6)": len({(r[0], r[3]) for r in said_scene_rows(cur, said_lines(sc))}),
         "most sentences of one construction": max(per_construction.values(), default=0),
         "forms modelled this lesson (#211)": ", ".join(m.get("forms_modelled_now", [])) or "–",
         "theme (level) / plays": f"{m['theme']['id']} ({m['theme']['level']}) / {m['theme']['plays']}" if m.get("theme") else "–",
@@ -236,6 +267,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--lessons", type=int, default=3, help="lessons to build, the exported one included (default 3)")
     ap.add_argument("--curriculum", default="curricula/is-en")
     ap.add_argument("--fail-words", type=int, default=3, help="continuation: open items of this many words or more fail again")
+    ap.add_argument("--scene-sheet", action="store_true", help="print the scene check's sheet of the sentences said with no verdict (TOML), not the table")
     args = ap.parse_args(argv)
 
     manifest = json.loads((args.export / "manifest.json").read_text(encoding="utf-8"))
@@ -270,6 +302,7 @@ def main(argv: list[str] | None = None) -> int:
             exported = (len(ex), round(max(e["start"] + e["duration"] for e in ex) / 60, 1))
 
     rows: list[dict] = []
+    said: list[str] = []
     for _ in range(args.lessons):
         known_c = sum(1 for c in cur.items if c.kind == "construction" and learner.knows(c.id))
         pace, _why = learner.suggest_pace(minutes, day)
@@ -277,6 +310,7 @@ def main(argv: list[str] | None = None) -> int:
         timing = Timing(level=learner.level or cur.level, speech_ratio=dict(learner.speech_calibration))
         sc = Planner(cur, learner, prompts, timing, PlanConfig(minutes=minutes, new_items=pace, new_target=target, priority=priority, themes=themes, theme_scenarios=theme_scenarios), today=day).build()
         rows.append(measure(cur, sc, known_c))
+        said += said_lines(sc)
         apply_to_learner(sc, learner, day)
         rows[-1]["nouns that have met a form (#270)"] = noun_report(cur, learner)
         rows[-1]["target delivered / second half by the guard (#294)"] = "guard" if m_guard(sc) else ("yes" if sc.meta.get("target_delivered") else "no")
@@ -291,6 +325,10 @@ def main(argv: list[str] | None = None) -> int:
         learner.report(failed, [], day, lesson_number=sc.lesson_number,
                        recalled=[i for i in m["new_items"] + asked if i not in failed])
 
+    if args.scene_sheet:
+        # the sheet in the course's primary language, as `audiolesson scene-check` prints it: the scenes are written in it
+        return print_scene_sheet(load_curriculum(args.curriculum), said, f"The scene check's sheet (docs/SCENE-REVIEW.md): the pattern sentences lessons "
+                                 f"{rows[0]['lesson']}–{rows[-1]['lesson']} said with no verdict, on the replay of {args.export.name}.")
     print(f"Replay of {args.export.name} (exported LLA {manifest.get('revisions', {}).get('lla', '?')[:7]}), "
           f"--minutes {minutes:g}, trip ordering {'on' if priority else 'off'}")
     if exported:
