@@ -169,6 +169,7 @@ topics = ["feelings"]
 slots = { state = "state_f" }
 example = { state = "threytt_state" }
 prereqs = ["eg_er_state"]
+addressee = ["plain"]  # the adjective agrees with the woman asked, not the speaker: no «As a man:» form
 
 [[items]]
 id = "eg_er_i_godu_skapi"

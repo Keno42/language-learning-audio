@@ -203,7 +203,8 @@ class Item:
     # the other person's form («hvíla þig»), so the sentence is not made rather than changed.
     reflexive: bool = False
     # A construction: its templates whose subject is the person spoken to («Viltu {inf}?», the question «Ætlarðu að {inf}?»), by form: "plain",
-    # "negative", "question". A ``reflexive`` fill never goes into them.
+    # "negative", "question". A ``reflexive`` fill never goes into them, and a fill with a man's form agrees there with the person spoken to, not
+    # with the speaker («Ertu þreytt?» asks a woman): no speaker's form is named for it (``speaker_agrees``).
     addressee: list[str] = field(default_factory=list)
     # A construction: the scene check (owner, 2026-10-16): a fill whose sentence has a scene the learner can picture, with that scene in one line («It's
     # raining and your friend suggests a walk.»), used as the cue when the sentence is asked. Read from the curriculum's ``[scenes.<pattern>]`` tables
@@ -413,6 +414,12 @@ class Curriculum:
         skip = construction.exclude_fills if construction is not None else ()
         addressed = construction is not None and "plain" in construction.addressee
         return [i for i in self.items if tag in i.tags and i.id not in skip and not (addressed and i.reflexive)]
+
+    @staticmethod
+    def speaker_agrees(construction: Item, form: str | None = None) -> bool:
+        """Whether a fill's man's form in ``construction``'s template of ``form`` follows the speaker («Ég er {state}.»): not in a template whose
+        subject is the person spoken to (``addressee``), where it follows that person («Ertu {state}?», to a woman)."""
+        return (form or "plain") not in construction.addressee
 
     @staticmethod
     def fits_form(construction: Item, fills: dict[str, Item], form: str | None) -> bool:

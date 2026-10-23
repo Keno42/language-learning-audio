@@ -90,6 +90,74 @@ class ReviewNamesTheSpeakersFormTests(unittest.TestCase):
             self.assertEqual(out[0]["prompt"], expected, (prompt, answer))
             self.assertEqual(any(r["kind"] == "speaker_form" for r in report), expected != prompt, report)
 
+    def test_a_pattern_sentence_stored_with_the_pattern_alone_gets_its_form(self):
+        """Lesson 34: «svangur» was the answer and the question did not say a man's answer was wanted. A sentence of a pattern is stored with the
+        pattern alone (items `eg_er_state`, as the plan stores «Mér finnst þetta dýrt.» under `mer_finnst_thetta`): the form is read from the
+        pattern's fillers the answer holds. A filler with one form for both («einmana») names none."""
+        for answer, expected in (
+            ("Ég er svangur.", "As a man: In a sentence. Say: I'm hungry."),
+            ("Ég er svöng.", "As a woman: In a sentence. Say: I'm hungry."),
+            ("Ég er einmana.", "In a sentence. Say: I'm hungry."),
+        ):
+            out, _ = refine_review([{"items": ["eg_er_state"], "prompt": "In a sentence. Say: I'm hungry.", "answer": answer}], self.cur, {"eg_er_state"}, self.prompts)
+            self.assertEqual(out[0]["prompt"], expected, answer)
+
+    def test_a_sentence_that_agrees_with_the_person_asked_names_no_speakers_form(self):
+        """Review of #385: «Ertu þreytt?» agrees with the woman asked, not with the speaker. Stored with the pattern alone, with its filler, or
+        asked through the pattern, it gets no «As a woman:», and a stale one comes off; the cue names who is asked («To a woman: Are you
+        tired?»). «Ég er {state}.» still names the speaker's form."""
+        cue = "How do you say: To a woman: Are you tired?"
+        for items in (["ertu_state"], ["threytt_state", "ertu_state"]):
+            for prompt in (cue, "As a woman: " + cue, "As a man: " + cue):
+                out, _ = refine_review([{"items": items, "prompt": prompt, "answer": "Ertu þreytt?"}], self.cur, {"ertu_state", "threytt_state"}, self.prompts)
+                self.assertEqual(out[0]["prompt"], cue, (items, prompt))
+        whole = whole_for(self.cur, self.cur.by_id["threytt_state"], {"ertu_state", "threytt_state"}, self.prompts)
+        self.assertEqual((whole["answer"], whole["prompt"]), ("Ertu þreytt?", cue))
+        out, _ = refine_review([{"items": ["eg_er_state"], "prompt": "In a sentence. Say: I'm tired.", "answer": "Ég er þreyttur."}], self.cur, {"eg_er_state"}, self.prompts)
+        self.assertEqual(out[0]["prompt"], "As a man: In a sentence. Say: I'm tired.")
+
+    def test_the_form_holds_through_the_bots_store(self):
+        """Second review of #385: the bot stores a question's items, prompt and answer, not ``through``. «Ertu þreytt?» asked through its pattern
+        (`whole_for`) and stored as the bot keeps it, then refined again by `refine-review` as the bot does each morning, gets no «As a woman:».
+        The pattern is found from the answer."""
+        whole = whole_for(self.cur, self.cur.by_id["threytt_state"], {"ertu_state", "threytt_state"}, self.prompts)
+        stored = {"items": ["threytt_state"], "prompt": whole["prompt"], "answer": whole["answer"]}  # what the bot's queue keeps of it
+        stdin = json.dumps({"review": [stored], "met": ["ertu_state", "threytt_state"]})
+        with tempfile.TemporaryDirectory() as tmp:
+            out = subprocess.run([sys.executable, "-m", "audiolesson.cli", "refine-review", str(ROOT / "curricula" / "is-en"), "--learner", str(Path(tmp) / "learner.json")],
+                                 input=stdin, capture_output=True, text=True, check=True, cwd=ROOT)
+        q = json.loads(out.stdout)["review"][0]
+        self.assertEqual((q["prompt"], q["answer"]), ("How do you say: To a woman: Are you tired?", "Ertu þreytt?"))
+
+    def test_a_mans_form_made_before_the_fix_is_repaired_to_the_form_the_meaning_names(self):
+        """Second review of #385: before it, the lesson alternated «Ertu {state}?» and stored «As a man: To a woman: Are you tired?» → «Ertu
+        þreyttur?». Taking the form off the cue leaves a man's form answering «To a woman»: the answer takes the stored form too."""
+        cue = "How do you say: To a woman: Are you tired?"
+        for items in (["ertu_state"], ["threytt_state"], ["threytt_state", "ertu_state"]):
+            out, report = refine_review([{"items": items, "prompt": "As a man: " + cue, "answer": "Ertu þreyttur?"}], self.cur, {"ertu_state", "threytt_state"}, self.prompts)
+            self.assertEqual((out[0]["prompt"], out[0]["answer"]), (cue, "Ertu þreytt?"), items)
+            self.assertIn("addressee_form", [r["kind"] for r in report])
+        out, _ = refine_review([{"items": ["eg_er_state"], "prompt": "As a man: Say: I'm tired.", "answer": "Ég er þreyttur."}], self.cur, {"eg_er_state"}, self.prompts)
+        self.assertEqual(out[0]["answer"], "Ég er þreyttur.", "a sentence that follows the speaker keeps its man's form")
+
+    def test_the_lesson_asks_a_sentence_to_the_person_spoken_to_in_one_form(self):
+        """The same cause in the lesson: «Ertu {state}?» alternated «Ertu þreytt?» with «As a man:» «Ertu þreyttur?», a man's form said to a
+        woman, and its introduction added «A man says: Ertu þreyttur?». A pattern whose subject is the person spoken to (`addressee`) keeps
+        the form its meaning names; «Ég er {state}.» still alternates."""
+        from audiolesson.learner import LearnerState
+        from audiolesson.planner import PlanConfig, Planner
+        from audiolesson.script import Script
+        from audiolesson.timing import Timing
+        b = Planner(self.cur, LearnerState("is", "en", "A1"), self.prompts, Timing(level="A1"), PlanConfig(minutes=30)).builder
+        tired = {"state": self.cur.by_id["threytt_state"]}
+        self.assertEqual({b._filled(self.cur.by_id["ertu_state"], tired) for _ in range(4)}, {(None, "Ertu þreytt?")})
+        self.assertEqual({b._filled(self.cur.by_id["eg_er_state"], tired) for _ in range(4)}, {("f", "Ég er þreytt."), ("m", "Ég er þreyttur.")})
+        sc = Script(1, "t", "is", "en")
+        b.intro(sc, self.cur.by_id["ertu_state"])
+        said = [s.text for s in sc.segments if s.text]
+        self.assertNotIn("A man says:", said)
+        self.assertFalse(any("þreyttur" in t for t in said), said)
+
     def test_the_bots_refine_review_command_names_the_form_of_its_stored_questions(self):
         stdin = json.dumps({"review": [{"items": ["svong_state"], "prompt": "How do you say: I'm hungry.", "answer": "Ég er svangur."}], "met": ["svong_state", "eg_er_state"]})
         with tempfile.TemporaryDirectory() as tmp:  # the bot passes its learner file; a missing one adds nothing to what `met` says
