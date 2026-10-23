@@ -19,6 +19,7 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 from itertools import groupby
 
+from .claims import unkept_claims
 from .content import Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance, cue_is_answer
 from .sounds import hard_sounds, hard_words_of
@@ -547,8 +548,9 @@ class Planner:
 
     def scene_line_of(self, item: Item, used: set[str]) -> tuple[Dialogue, dict[int, list[str]], str, bool] | None:
         """A line of ``item``'s scene (#326): the learner's line of a theme level that needs ``item``, with the partner's line before it and the
-        reply after it, as a short exchange with the scene put first and the partner's lines translated. Only a turn whose other items the
-        learner knows (else the line is only heard), and not one already used for this item. None when no theme level holds it."""
+        reply after it, as a short exchange with the scene put first and the partner's lines translated. The line is asked or heard as ``line_role``
+        decides on the turn's other items (#265: the item itself is the one practised), and a turn already used for this item is not used again.
+        None when no theme level holds it."""
         rank = set(self.cfg.theme_scenarios)
         for theme in self.cfg.themes:
             if theme.scenario not in rank:
@@ -558,7 +560,7 @@ class Planner:
                     key = f"{theme.id}:{n + 1}:{k}"
                     if t.who != "you" or item.id not in t.items or key in used:
                         continue
-                    asked = all(self.learner.knows(i) or i in self.builder.in_lesson for i in t.items if i != item.id)  # else the line is heard with its meaning (#240)
+                    asked = self.line_role([i for i in t.items if i != item.id], text=t.say) == "ask"  # else the line is heard with its meaning (#240)
                     turns = level.turns[max(0, k - 1) : k + 2]
                     if turns[0].who == "you" and len(turns) > 1 and turns[0] is not t:
                         turns = turns[1:]
@@ -1132,6 +1134,8 @@ class Planner:
                                   and any(g.type == "answer" and g.exercise == e.index and _norm_utterance(g.text or "") == _norm_utterance(it.target) for g in sc.segments)],  # a recall through its sentence is the point, not a hit
             # #287: a recombine prompt that promises a link («Use it in a sentence», «Use the pattern again») to the exercise just before, which did not practise that item (0 expected)
             "unkept_links": self._unkept_links(sc),
+            # a framing line whose promise does not hold («other words», «again», «something new»; ``audiolesson/claims.py``, 0 expected)
+            "unkept_claims": unkept_claims(sc, self.prompts),
             "apply_in_sentence_parts": list(getattr(self, "step2_parts", [])),  # #287 step 2: today's new parts whose first reactivation applied them in a sentence
             "bare_noun_recalls": [e.label for e in sc.exercises if e.kind == "recall" and e.stage in BARE_STAGES and len(e.item_ids) == 1
                                   and (it := self.cur.by_id.get(e.item_ids[0])) is not None and it.noun
@@ -2051,6 +2055,25 @@ class Planner:
             finally:
                 introducing.pop()
 
+        def taught_inside(item: Item, instance: tuple[Item, dict[str, Item]] | None = None, stamp: bool = True, count: bool = True) -> None:
+            """The bookkeeping of an item taught inside a sentence rather than introduced, as ``_do_intro``'s embed exits leave it: ``instance`` the
+            pattern and fillers that sentence practised (#192, #311), ``stamp`` the time of the last introduction, ``count`` the item's turn of its arc."""
+            nonlocal last_intro, last_intro_at
+            if instance is not None:
+                pattern, fills = instance
+                credited = [pattern.id, *(f.id for f in fills.values())]
+                self._record(credited, "recombine", credited)
+            self.embedded.append(item.id)
+            if instance is not None:
+                self.pattern_instances.append(item.id)
+            touch(item)
+            if stamp:
+                last_intro = idx
+                last_intro_at = sc.total_duration
+            if count:
+                arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
+            mark_delivered_target()
+
         def _do_intro(item: Item, worked_fills: dict[str, Item] | None = None) -> None:
             nonlocal last_intro, last_intro_at, seq, closing_reserve
             if item.id in self.embedded or any(i.id == item.id for i in introduced):
@@ -2078,13 +2101,7 @@ class Planner:
                         b.pattern_instance(sc, item, pattern, fills)
                     elif item.id not in intro_ex.item_ids:
                         intro_ex.item_ids.append(item.id)
-                credited = [pattern.id, *(f.id for f in fills.values())]
-                self._record(credited, "recombine", credited)
-                self.embedded.append(item.id)
-                self.pattern_instances.append(item.id)
-                touch(item)
-                arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
-                mark_delivered_target()
+                taught_inside(item, (pattern, fills), stamp=False)
                 return
             if (filler := self.new_filler_of(item)) is not None and filler.id not in introducing:
                 # #311: «Ég þarf úlpu.» is a sentence of a known pattern with a new word: the word is taught as a word (its own introduction, in the pattern or
@@ -2098,12 +2115,7 @@ class Planner:
                 fills = {slot: self.cur.by_id[ref] for slot, ref in item.instance_fill.items()}
                 if b.is_new_utterance(item.target):
                     b.pattern_instance(sc, item, pattern, fills)
-                credited = [pattern.id, *(f.id for f in fills.values())]
-                self._record(credited, "recombine", credited)
-                self.embedded.append(item.id)
-                self.pattern_instances.append(item.id)
-                touch(item)
-                mark_delivered_target()
+                taught_inside(item, (pattern, fills), stamp=False, count=False)
                 return
             # A milestone this item's prereqs complete plays before the intro: a construction's
             # intro speaks its worked example, which must not come before the note naming the
@@ -2140,28 +2152,15 @@ class Planner:
                 b.joint_parts[item.id] = together
                 source = None
             if source is not None:
-                self.embedded.append(item.id)
-                touch(item)
-                last_intro = idx
-                last_intro_at = sc.total_duration
-                arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
-                mark_delivered_target()
+                taught_inside(item)
                 return
             if (instance := self.pattern_instance_of(item)) is not None:
                 # a linked phrase of a known pattern and fillers (#192): one sentence of the pattern, no ladder, no closing recall.
                 # The practice is credited to the pattern and its fillers (one way, as in sentence_practice); the phrase waits
                 # for the next day's question like an embedded part, and stays in new_items
                 pattern, fills = instance
-                ex = b.pattern_instance(sc, item, pattern, fills, form=item.instance_form or None)
-                credited = [pattern.id, *(f.id for f in fills.values())]
-                self._record(credited, "recombine", credited)
-                self.embedded.append(item.id)
-                self.pattern_instances.append(item.id)
-                touch(item)
-                last_intro = idx
-                last_intro_at = sc.total_duration
-                arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
-                mark_delivered_target()
+                b.pattern_instance(sc, item, pattern, fills, form=item.instance_form or None)
+                taught_inside(item, instance)
                 return
             catch = None
             if item.kind == "vocab" and worked_fills is None and len(catch_introduced) < cfg.catch_intros():

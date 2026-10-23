@@ -286,6 +286,22 @@ def scenario_order(scenarios: list[Scenario], boost: list[str] | tuple[str, ...]
     return out
 
 
+def scenario_coverage(themes: list[Theme], scenarios: list[Scenario], tiers: tuple[str, ...] = ("A", "B")) -> list[tuple[str, list[str], list[str]]]:
+    """Per scenario of ``tiers``, in file order: its id, the items of it a learner's line of some theme level says, and the items no
+    level says yet (#327: a scene's outcome is said in an exchange, not only taught). Only the levels of a theme whose scenario is of
+    ``tiers`` count, the ones ``scenario_order`` ranks without a trip profile; the scenario's ``items``, not its seasonal ones."""
+    ranked = {s.id for s in scenarios if s.tier in tiers}
+    said = {i for t in themes if t.scenario in ranked for lv in t.levels for i in lv.items}
+    return [(s.id, [i for i in s.items if i in said], [i for i in s.items if i not in said]) for s in scenarios if s.tier in tiers]
+
+
+def unranked_themes(themes: list[Theme], scenarios: list[Scenario], tiers: tuple[str, ...] = ("A", "B")) -> list[Theme]:
+    """The themes whose scenario is outside ``tiers``: ``scenario_order`` ranks them only when a trip profile boosts their scenario,
+    so without one they are never played."""
+    tier = {s.id: s.tier for s in scenarios}
+    return [t for t in themes if tier.get(t.scenario) not in tiers]
+
+
 def pick_variants(level: Level, rng: random.Random, canonical: bool = False, heard: set[tuple[int, int]] | None = None) -> dict[int, int]:
     """Which line each partner turn with variants says (index into ``Turn.lines()``, keyed by the turn's place in the
     level). The lesson's two plays split the work (#134, review): the early, translated play takes a variant at random,

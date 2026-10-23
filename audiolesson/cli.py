@@ -6,15 +6,15 @@ import argparse
 import json
 import os
 import sys
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 from . import __version__
-from .themes import load_themes, scenario_order
+from .themes import load_themes, scenario_coverage, scenario_order, unranked_themes
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts, speak_as
 from .content import PATTERN_SCENE, CurriculumError, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, unlinked_instances
-from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, parse_date
+from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, lesson_target, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
 from .review_wholes import has_home, refine_review
@@ -22,7 +22,7 @@ from .review_wording import lesson_cue_count, reword_review
 from .script import Script
 from .timing import Timing
 from .reading import load_deck
-from .scenes import available, load_scenes, uncovered
+from .scenes import available, load_scenes, unasked_levels, uncovered, unknown_levels
 from .trip import load_trip
 
 
@@ -92,6 +92,13 @@ def main(argv: list[str] | None = None) -> int:
     rp.add_argument("--load", choices=LOADS, default=None, help="how heavy the lesson was: light, right or heavy (does not mark the lesson reported on its own)")
     rp.add_argument("--date", default=None)
     rp.set_defaults(func=cmd_report)
+
+    lp = sub.add_parser("load-preview", help="for each answer to the feedback form's load question, the next lesson's target of weighted new components and why, as JSON, for the Discord review")
+    add_user_args(lp)
+    lp.add_argument("--learner", "-l", default=None)
+    lp.add_argument("--minutes", "-m", type=float, default=None, help="the next lesson's length (default 15, remembered per --user, as for generate)")
+    lp.add_argument("--date", default=None, help="the day of the next lesson, when its review is answered (default: the day after the latest lesson, or today if later)")
+    lp.set_defaults(func=cmd_load_preview)
 
     st = sub.add_parser("status", help="show learner progress and what is due")
     add_user_args(st)
@@ -285,7 +292,7 @@ def cmd_generate(args) -> int:
     themes = load_themes(args.curriculum, cur, scenarios) if scenarios else []
     theme_scenarios = scenario_order(for_season(scenarios, trip.season) if trip else scenarios, trip.boost if trip else ()) if themes else []
     # the learner's target is a rate per 30 minutes; this lesson plans its share of it (the rate is what is saved)
-    plan_target = None if new_target is None else max(1.0, new_target * args.minutes / NEW_TARGET_MINUTES)
+    plan_target = None if new_target is None else lesson_target(new_target, args.minutes)
     cfg = PlanConfig(
         minutes=args.minutes,
         new_items=new_items,
@@ -532,6 +539,17 @@ def cmd_report(args) -> int:
     return 0
 
 
+def cmd_load_preview(args) -> int:
+    """CURRENT-STATUS «Now» 3: the feedback form says what a load answer will change (``LearnerState.load_preview``)."""
+    learner = LearnerState.load(args.learner)
+    minutes = 15.0 if args.minutes is None else args.minutes  # generate's default
+    last = learner.lessons[-1].get("date") if learner.lessons else None
+    today = parse_date(args.date) if args.date or not last else max(date.today(), date.fromisoformat(last) + timedelta(days=1))  # lessons are daily
+    print(json.dumps({"next_lesson": learner.next_lesson_number(), "date": today.isoformat(), "minutes": minutes, "rate": learner.new_target,
+                      "answers": learner.load_preview(minutes, today)}, ensure_ascii=False, indent=1))
+    return 0
+
+
 def cmd_status(args) -> int:
     learner = LearnerState.load(args.learner)
     today = parse_date(args.date)
@@ -714,8 +732,24 @@ def cmd_validate(args) -> int:
             raise CurriculumError(f"Tier A scenarios without a scenario card (#129): {missing}")
         print(f"{len(scenes)} scenario cards (#129); every Tier A scenario has one")
     themes = load_themes(args.curriculum, cur, scenarios) if scenarios else []
+    bad_levels = unknown_levels(scenes, themes)
+    if bad_levels:
+        raise CurriculumError(f"scenario cards name theme levels that do not exist (`level` is \"<theme>:<n>\", n from 1; #327): {bad_levels}")
     if themes:
         print(f"{len(themes)} lesson themes (#149), {sum(len(t.levels) for t in themes)} levels")
+        # #327: the outcome, not the items taught: how much of what the Tier A/B scenarios need a played level's learner line says
+        rows = scenario_coverage(themes, scenarios)
+        said = {i for _, yes, _ in rows for i in yes}
+        needed = {i for _, yes, no in rows for i in yes + no}
+        silent = [sid for sid, yes, no in rows if no and not yes]
+        print(f"{len(said)} of {len(needed)} Tier A/B scenario items said in a theme level" + (f"; none yet: {', '.join(silent)}" if silent else ""))
+        unranked = unranked_themes(themes, scenarios)
+        if unranked:
+            print(f"warning: {len(unranked)} themes serve a scenario outside Tier A/B and are played only when a trip profile boosts it (`scenario_order`): "
+                  + ", ".join(f"{t.id} ({t.scenario})" for t in unranked), file=sys.stderr)
+        unasked = unasked_levels(scenes, themes)
+        if unasked:
+            print(f"advisory (not a failure): {len(unasked)} theme levels have no scenario card asking their goal (a card's `level`, #327): {', '.join(unasked)}")
     if args.cando:
         if not scenarios:
             print("no can-do scenarios (<curriculum>/cando/*.toml)")
