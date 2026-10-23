@@ -74,6 +74,21 @@ class RotationGuardTests(unittest.TestCase):
         self.assertLess(nc["total"], nc["target"], "«X of a target Y» says the target was not taught, as target_delivered does")
         self.assertEqual(_plan(sc, self.cur)["new_components"], nc, "plan.json says the same")
 
+    def test_a_taught_item_that_shared_words_with_an_untaught_one_costs_what_it_brought(self):
+        """Review of #404: «Ég er svöng.» charged first (ég, er, svöng, svangur: 4), «Ég er þyrst.» after it (þyrst, þyrstur: 2, «ég er» counted
+        as known). When only the second is taught, its words «ég» and «er» are new after all: giving back the first's 4 left 2 where the
+        lesson taught 4. The taught items are charged again from what the learner knew when the lesson began."""
+        from audiolesson.timing import Timing
+        cur = load_curriculum(Path(__file__).resolve().parent.parent / "curricula" / "is-en")
+        p = Planner(cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_target=8))
+        first, second = cur.by_id["eg_er_svong"], cur.by_id["eg_er_thyrst"]
+        self.assertEqual((p._charge(first), p._charge(second)), (4.0, 2.0))
+        back = p._give_back_untaught({second.id})
+        self.assertEqual(back, {first.id: 4.0})
+        self.assertEqual((p.components_total, p.component_by_item), (4.0, {second.id: 4.0}))
+        self.assertEqual(p._give_back_untaught({second.id}), {}, "nothing more to give back: the total stays")
+        self.assertEqual(p.components_total, 4.0)
+
     def test_a_normal_lesson_does_not_use_the_guard(self):
         sc = self.lesson(drop_last_selected=False)
         self.assertTrue(sc.meta["target_delivered"])

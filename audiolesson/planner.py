@@ -460,6 +460,7 @@ class Planner:
         self.component_by_item: dict[str, float] = {}
         self._known_words: set[str] | None = None
         self._known_patterns: list[frozenset[str]] = []
+        self._start_known: tuple[set[str], list[frozenset[str]]] | None = None  # the words and patterns known when the lesson began
 
     def _component_base(self) -> tuple[set[str], list[frozenset[str]]]:
         """(words known, word sets of known patterns): a word is known when it appears in an item the learner has met, has heard embedded
@@ -477,6 +478,7 @@ class Planner:
                 if it.kind == "construction" and ws:
                     patterns.append(frozenset(ws))
             self._known_words, self._known_patterns = words, patterns
+            self._start_known = (set(words), list(patterns))
         return self._known_words, self._known_patterns
 
     def component_cost(self, item: Item, known: set[str] | None = None, patterns: list[frozenset[str]] | None = None) -> float:
@@ -528,12 +530,26 @@ class Planner:
         return cost
 
     def _give_back_untaught(self, taught: set[str]) -> dict[str, float]:
-        """#294: the charges of the items charged and never taught (selected, then the time ran out or a reordering left them), taken off
-        the lesson's total once nothing more can be taught; what was given back, by item."""
+        """#294: once nothing more can be taught, the items charged and never taught (selected, then the time ran out or a reordering left
+        them) leave the lesson's total; what was given back, by item. The taught items are charged again, in their order, from what the
+        learner knew when the lesson began: an item charged less because an untaught one before it held its words («Ég er» of «Ég er
+        svöng.» before «Ég er þyrst.») costs what it really brought (review of #404)."""
         back = {i: c for i, c in self.component_by_item.items() if i not in taught}
-        for i, c in back.items():
-            self.components_total -= c
-            del self.component_by_item[i]
+        if not back:
+            return back
+        self._component_base()
+        known, patterns = set(self._start_known[0]), list(self._start_known[1])
+        by_item: dict[str, float] = {}
+        for i in self.component_by_item:
+            if i in back:
+                continue
+            item = self.cur.by_id[i]
+            by_item[i] = self.component_cost(item, known, patterns)
+            known.update(self._fixed_text_words(item))
+            if item.kind == "construction":
+                patterns.append(frozenset(self._fixed_text_words(item)))
+        self.component_by_item = by_item
+        self.components_total = sum(by_item.values())
         return back
 
     def components_meta(self) -> dict:
