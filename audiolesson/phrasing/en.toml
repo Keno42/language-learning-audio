@@ -65,6 +65,7 @@ transform_try = "Now you try."
 dialogue_partner_said = "{meaning}"
 aside = "A quick aside."
 aside_end = "Back to the lesson."
+listening_back = "Back to speaking."  # after a pick-out or a catch, when a drill follows: the listening is over (lesson 34: the switch felt abrupt)
 milestone_intro = "Here's a pattern worth noticing."
 milestone_end = "Let's continue."
 # the partner's line is the cue (Item.prompt_by): frames each such cue, unless the one before was a cue too

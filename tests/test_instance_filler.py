@@ -115,9 +115,6 @@ class IntroductionTests(unittest.TestCase):
         self.assertNotIn("eg_tharf_ulpu", sc.meta["repeated_new_sentences"])
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 class PatternOfAKnownPhrasePromisesOnlyWhatComesTests(unittest.TestCase):
     """Lesson 34's feedback: «hnetum» was said to be swappable («It is a pattern: you can say it with other words.») and no swap followed: the
@@ -147,3 +144,30 @@ class PatternOfAKnownPhrasePromisesOnlyWhatComesTests(unittest.TestCase):
         said = self.lines(("eg_er_med_ofnaemi_fyrir_hnetum", "hnetum", "fiski"))
         self.assertIn("It is a pattern: you can say it with other words.", said)
         self.assertIn("Ég er með ofnæmi fyrir fiski.", said, "the swap follows the promise")
+
+
+class EmbedNeverRepeatsItsSourceTests(unittest.TestCase):
+    """Lesson 34's feedback: «á þetta hótel» was taught redundantly. «You know this: Á þetta hótel, takk. This word is in it: á þetta hótel. In
+    another sentence: Á þetta hótel, takk.» The phrase is a sentence of «{dest}, takk.», and the embed made the pattern with the part again."""
+
+    def test_the_other_sentence_is_never_the_source(self):
+        from audiolesson.learner import ItemState
+        from audiolesson.script import Script
+        cur = load_curriculum(Path(__file__).resolve().parent.parent / "curricula" / "is-en")
+        l = LearnerState("is", "en", "A1")
+        today = date(2026, 3, 1)
+        for i in ("dest_takk", "a_thetta_hotel_takk", "fer_thessi_straeto_dest", "a_flugvollinn", "i_midbaeinn"):
+            l.items[i] = ItemState(stage="meaning", durable_successes=2, successes=6, interval_days=7, recalled=3, last_outcome="recalled",
+                                   due=(today + timedelta(days=5)).isoformat(), last_practiced=(today - timedelta(days=2)).isoformat())
+        b = Planner(cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30), today=today).builder
+        heard_before = set(b.heard)
+        sc = Script(1, "t", "is", "en")
+        ex = b.embed(sc, cur.by_id["a_thetta_hotel"], cur.by_id["a_thetta_hotel_takk"])
+        said = [s.text for s in sc.segments if s.role == "embed_sentence"]
+        self.assertTrue(ex is None or "Á þetta hótel, takk." not in said, said)
+        self.assertIsNone(ex, "«{dest}, takk.» makes only the source, and the bus pattern excludes this hotel: no other sentence, so no embed")
+        self.assertEqual(b.heard, heard_before, "the source is excluded only for the choice, not marked heard")
+
+
+if __name__ == "__main__":
+    unittest.main()

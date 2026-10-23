@@ -26,7 +26,7 @@ from .learner import REPORTED_HARD_DAYS, LearnerState
 from .review_wholes import whole_for
 from .listening_tasks import REPAIR_ITEM, ListeningTask, SecondHalfRotation, append_task, catch_unknown, introduce_by_catch, key_of, partner_pick_out
 from .prompts import Prompts
-from .script import Script
+from .script import Script, Segment
 from .stages import ladder_for, next_stage, stage_index
 from .themes import Level, level_dialogue, pick_variants
 from .text import WORD, words as _words
@@ -1459,6 +1459,33 @@ class Planner:
         cands.sort(key=lambda t: t[0])
         least = [d for t, d in cands if t == cands[0][0]]
         return self.rng.choice(least)
+
+    @staticmethod
+    def _is_listening(e) -> bool:
+        return e.kind in ("pick_out", "catch_unknown") or (e.kind == "intro" and e.label.startswith("new (catch)"))
+
+    def _close_listening(self, sc: Script) -> int:
+        """Lesson 34's feedback: after a pick-out, the line heard again and then the next question «always feels a little abrupt». A listening
+        exercise (a pick-out, a catch) that a drill follows ends with «Back to speaking.» after its replay, as an aside ends with «Back to the
+        lesson.». Not before another listening exercise, a conversation or an aside (each opens with its own line) or the closing. Run on the finished
+        script, where the next exercise is known. Returns how many were closed."""
+        spoken = {s.exercise for s in sc.segments if s.exercise is not None and s.duration > 0}
+        order = [e for e in sc.exercises if e.index in spoken]
+        closing = {e.index for e, nxt in zip(order, order[1:]) if self._is_listening(e) and not (self._is_listening(nxt) or nxt.kind in ("dialogue", "note", "closing"))}
+        if not closing:
+            return 0
+        text = self.prompts.get("listening_back")
+        kl = self.cur.known_lang
+        out: list = []
+        for k, s in enumerate(sc.segments):
+            out.append(s)
+            if s.exercise in closing and s.type in ("speak", "narrate", "answer") and not any(
+                t.exercise == s.exercise and t.type in ("speak", "narrate", "answer") for t in sc.segments[k + 1 :]
+            ):
+                out.append(Segment("pause", None, None, None, 1.0, self.builder.timing.beat, "beat", s.exercise))
+                out.append(Segment("narrate", "instructor", text, kl, 1.0, self.builder.timing.speech_estimate(text, kl), "listening_back", s.exercise))
+        sc.segments = out
+        return len(closing)
 
     def repeats_scene(self, d: Dialogue) -> bool:
         """Two or more of the dialogue's learner lines are each a different line of the level the lesson plays: a dialogue turn
@@ -3658,6 +3685,7 @@ class Planner:
                 closed.update(ex.item_ids)  # «Fer þessi strætó í miðbæinn?» for the new pattern says the new destination too: not asked a second time for it (lesson 27)
         b.closing(sc, n)
 
+        listening_closed = self._close_listening(sc)
         switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same, b.timing.switch_gap_sentence)  # #301: the last pass over the finished script
         sc.retime()
         spare = self._spare_time(sc, introduced, theme_pick, early_ids, delivered_at[0])
@@ -3680,6 +3708,7 @@ class Planner:
             "intro_skipped": list(intro_skipped),
             "rotation_guard": guard_used[0] and delivered_at[0] is None,  # #294: the second half started because nothing more could be selected, the target not counted as taught
             "repeated_new_sentences": self._repeated_new_sentences(sc, introduced),  # #311: a new phrase asked as the same sentence in more than 3 exercises ({} expected)
+            "listening_closed": listening_closed,  # pick-outs and catches followed by a drill, closed with «Back to speaking.» (lesson 34)
             "switch_pauses": switches,  # #301: pauses put where two speech segments touched; "touching_switches" is what still touches (0)
             "touching_switches": sc.touching_switches(),
             "units_covered": list(units_covered),  # #336: fillers of a linked phrase met inside it
