@@ -76,7 +76,9 @@ Each waits for its first feedback in the LD §8 table.
   «読んでみよう», read without a rating (site_update_notifier#165); the hints need a reviewer, as the scenes do.
 - **An item counted toward the target when it is selected, not when it is taught.** On the replay, lesson 30's second
   half starts through #294's guard: an arc selected «Ég vil hvíla mig.» at minute 17 and the item was taught in lesson
-  31 (7 of 8 components taught). The guard keeps the second half (#308); the cause is not fixed.
+  31 (7 of 8 components taught). The guard keeps the second half (#308), and once the lesson is built the charge of an
+  item never taught is given back: `new_components` (the CLI's «X of a target Y», the replay's row) says what was taught,
+  `charge_given_back` what was not. Within the build an item still counts from its selection, which is what stops the selection.
 - **A transform asked from its few authored pairs, under one instruction (G12, G17).** Lesson 31 asked «asking for the same
   thing more politely» 8 times from 5 pairs, its instruction narrated 9 times. It does not recur in lessons 33–35; it
   will with the next transform introduced.

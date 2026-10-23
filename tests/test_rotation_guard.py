@@ -1,10 +1,11 @@
-"""#294: an item selected for the target and left untaught still lets the second half start."""
+"""#294: an item selected for the target and left untaught still lets the second half start, and its charge is given back."""
 import unittest
 from datetime import date, timedelta
 from pathlib import Path
 from unittest import mock
 
 from audiolesson.cando import load_cando
+from audiolesson.cli import _plan
 from audiolesson.content import load_curriculum
 from audiolesson.learner import LearnerState
 from audiolesson.planner import PlanConfig, Planner, apply_to_learner
@@ -63,10 +64,21 @@ class RotationGuardTests(unittest.TestCase):
         self.assertGreaterEqual(len(listening), 1, "the second half has listening work")
         self.assertGreaterEqual(sc.total_duration / 60, 27.0, "and the lesson is not cut short")
 
+    def test_what_was_charged_and_not_taught_is_given_back(self):
+        sc = self.lesson(drop_last_selected=True)
+        nc, back, taught = sc.meta["new_components"], sc.meta.get("charge_given_back"), set(sc.meta["new_items"])
+        self.assertTrue(back, "the items charged at their selection and never taught are named")
+        self.assertFalse(set(back) & taught, "only items the lesson did not teach")
+        self.assertLessEqual(set(nc["by_item"]), taught, "new_components counts what the lesson taught")
+        self.assertEqual(nc["total"], round(sum(nc["by_item"].values()), 2))
+        self.assertLess(nc["total"], nc["target"], "«X of a target Y» says the target was not taught, as target_delivered does")
+        self.assertEqual(_plan(sc, self.cur)["new_components"], nc, "plan.json says the same")
+
     def test_a_normal_lesson_does_not_use_the_guard(self):
         sc = self.lesson(drop_last_selected=False)
         self.assertTrue(sc.meta["target_delivered"])
         self.assertFalse(sc.meta["rotation_guard"])
+        self.assertNotIn("charge_given_back", sc.meta, "everything charged was taught: nothing to give back")
 
 
 if __name__ == "__main__":

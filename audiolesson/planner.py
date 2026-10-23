@@ -527,6 +527,15 @@ class Planner:
             patterns.append(frozenset(self._fixed_text_words(item)))
         return cost
 
+    def _give_back_untaught(self, taught: set[str]) -> dict[str, float]:
+        """#294: the charges of the items charged and never taught (selected, then the time ran out or a reordering left them), taken off
+        the lesson's total once nothing more can be taught; what was given back, by item."""
+        back = {i: c for i, c in self.component_by_item.items() if i not in taught}
+        for i, c in back.items():
+            self.components_total -= c
+            del self.component_by_item[i]
+        return back
+
     def components_meta(self) -> dict:
         """``plan.json`` ``new_components``: the weighted total, how much of it is forms, and the cost of each item."""
         forms = sum(c for i, c in self.component_by_item.items() if self.cur.by_id[i].variant_of)
@@ -3038,16 +3047,21 @@ class Planner:
 
         guard_used = [False]  # #294: the rotation started through the guard, not through the target being taught
 
-        def rotation_on() -> bool:
+        def new_material_done() -> bool:
+            """No more new material comes today: the target taught and nothing queued, or (#294) nothing more can be selected and what is queued can
+            no longer be afforded."""
             if delivered_at[0] is not None:
                 return not new_queue
             # #294: select_new charges an item when it selects it, mark_delivered_target counts what was taught; an item selected and then not introduced (the time ran
-            # out, a reordering) leaves them apart for the rest of the lesson. Once nothing more can be selected and what is queued can no longer be afforded, the
-            # second half starts anyway: it is what keeps the lesson a scene lesson (H4, H12), whatever the arithmetic of the new-item unit says.
-            if cfg.new_target is not None and self.components_mode and self.components_total >= cfg.new_target and (not new_queue or remaining_time() < need_for_new):
-                guard_used[0] = True
-                return True
-            return False
+            # out, a reordering) leaves them apart until the build gives the charge back at its end. Once nothing more can be selected and what is queued can no longer
+            # be afforded, the second half starts anyway: it is what keeps the lesson a scene lesson (H4, H12), whatever the arithmetic of the new-item unit says.
+            return self.components_mode and self.components_total >= cfg.new_target and (not new_queue or remaining_time() < need_for_new)
+
+        def rotation_on() -> bool:
+            done = new_material_done()
+            if done and delivered_at[0] is None:
+                guard_used[0] = True  # the second half started through the guard, the target not counted as taught
+            return done
 
         def scene_levels() -> list[tuple]:
             """The levels a listening exercise may take its scene from: the lesson's own, then those already played."""
@@ -3689,6 +3703,9 @@ class Planner:
         switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same, b.timing.switch_gap_sentence)  # #301: the last pass over the finished script
         sc.retime()
         spare = self._spare_time(sc, introduced, theme_pick, early_ids, delivered_at[0])
+        # #294: the lesson is built; what was charged and not taught is given back, so ``new_components`` (plan.json, the CLI's «X of a target Y»,
+        # the replay's row) says what this lesson taught, as mark_delivered_target counts it
+        given_back = self._give_back_untaught(taught())
         sc.meta = {
             "date": self.today.isoformat(),
             "config": {
@@ -3735,6 +3752,7 @@ class Planner:
             "forms_modelled": sorted(self.builder.forms_modelled or ()),  # every construction:form modelled so far (#211)
             "forms_modelled_now": list(self.builder.models_now),
             "new_components": self.components_meta() if self.components_mode else None,  # the weighted total of new material, forms apart (#218 b3)
+            **({"charge_given_back": given_back} if given_back else {}),  # #294: item → the cost charged at its selection and given back, never taught
             "forms_taught": [self.cur.note_by_id[n].teaches for n in self.notes_played if self.cur.note_by_id[n].teaches],
             "bare_cap_lapsed_short_s": lapse_short[0],  # how short the lesson would have ended then
             "bare_cap_lapsed": cfg.max_bare_uses > 0 and bare_cap[0] == 0,  # nothing else was left: short items were said alone again
