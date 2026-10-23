@@ -71,7 +71,8 @@ Each waits for its first feedback in the LD §8 table.
 
 ## Open issues after "Now", in order
 - **The reading deck has had no outside review.** Another learner: its cards ask to read words no lesson has taught, and
-  a hint such as «allt は例外的に「アルト」» sounds wrong to them (it is right: «ll» before «t» is [l]). The corner becomes
+  a hint such as «allt は例外的に「アルト」» sounds wrong to them. It is: «allt» is [al̥t], a voiceless «l» with no vowel
+  after it, and «ル» gives both a voice and a vowel. Katakana hints add vowels throughout the deck. The corner becomes
   «読んでみよう», read without a rating (site_update_notifier#165); the hints need a reviewer, as the scenes do.
 - **An item counted toward the target when it is selected, not when it is taught.** On the replay, lesson 30's second
   half starts through #294's guard: an arc selected «Ég vil hvíla mig.» at minute 17 and the item was taught in lesson
