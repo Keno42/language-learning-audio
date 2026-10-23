@@ -108,7 +108,7 @@ stage = "letters"
 text = "Fjall · Gullfoss · Allt í lagi"
 meaning = "ll sounds like 'tl'"
 meaning_ja = "ll は「トル」のような音"
-hint_ja = "フィャトル・グトルフォス・アルト イ ライイ（allt は例外的に「アルト」）"
+hint_ja = "フィャトル・グトルフォス・アスティ ライイ（allt の ll は「ス」に近く聞こえるが、舌先は l の位置（上の歯の裏）のまま、声を出さずに舌の両脇から息を出す。í とつながって「アスティ」）"
 words = [["Fjall", "山"], ["Gullfoss", "グトルフォス（黄金の滝）"], ["Allt í lagi", "大丈夫"]]
 graphemes = ["ll"]
 
