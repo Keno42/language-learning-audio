@@ -605,7 +605,8 @@ after it carry no remark of the same kind (the table above). The rows:
 9. questions whose cue is their answer, in the lesson and in the review (#277: `trivial_questions` in the lesson, `trivial` in `review_refined`);
 10. a sentence asked again within a minute (#273: `asked_again_within_spacing`, keyed by the answer; a soft preference, so
     read it as a trend, not a 0);
-11. recombine prompts promising a link that is not there (#287: `unkept_links`);
+11. recombine prompts promising a link that is not there (#287: `unkept_links`), and any framing line whose promise does not
+    hold («other words», «again», «something new»: `unkept_claims`, the keys and what each needs in `audiolesson/claims.py`);
 12. lessons whose target is not delivered, and whether the second half started through the guard (#294: `meta.target_delivered`,
     `meta.rotation_guard`; a row of `replay_lesson.py`: «yes», «guard» or «no», #310);
 13. speech segments that touch at a change of voice (#301: `meta.touching_switches`, 0 expected; a row of `replay_lesson.py`, with the count of gaps inserted next to it, #310).

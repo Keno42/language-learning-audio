@@ -146,6 +146,26 @@ class PatternOfAKnownPhrasePromisesOnlyWhatComesTests(unittest.TestCase):
         self.assertIn("Ég er með ofnæmi fyrir fiski.", said, "the swap follows the promise")
 
 
+class NewPatternPromisesOnlyWhatComesTests(unittest.TestCase):
+    """The same promise after a new pattern's example: «You can put other words in the same place.» was said whatever followed, and with no other
+    filler known the same sentence was asked next («Ég nenni ekki að …» in lesson 10 of the 12-lesson simulated course; the claims check found it).
+    It is said only when a second example with another filler follows; with none the other words are promised for later, as for a known phrase."""
+
+    lines = PatternOfAKnownPhrasePromisesOnlyWhatComesTests.lines
+
+    def test_no_other_filler_known_promises_them_later(self):
+        said = self.lines(())
+        self.assertIn("Here is a useful pattern. I'm allergic to nuts.", said)
+        self.assertIn("Other words can go in the same place. You will meet them later.", said)
+        self.assertNotIn("You can put other words in the same place.", said)
+
+    def test_another_filler_known_is_shown_at_once(self):
+        said = self.lines(("hnetum", "fiski"))
+        self.assertIn("Here is a useful pattern. I'm allergic to nuts.", said)
+        self.assertIn("You can put other words in the same place.", said)
+        self.assertIn("Ég er með ofnæmi fyrir fiski.", said, "the swap follows the promise")
+
+
 class EmbedNeverRepeatsItsSourceTests(unittest.TestCase):
     """Lesson 34's feedback: «á þetta hótel» was taught redundantly. «You know this: Á þetta hótel, takk. This word is in it: á þetta hótel. In
     another sentence: Á þetta hótel, takk.» The phrase is a sentence of «{dest}, takk.», and the embed made the pattern with the part again."""
