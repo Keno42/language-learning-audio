@@ -170,6 +170,7 @@ class Builder:
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
     _situation_texts: dict[str, int] = field(default_factory=dict)  # times each situation was narrated in full (``_narrated``)
     _recent_situations: list = field(default_factory=list)  # the situations narrated, newest last (``situation_rank``)
+    _examples_said: list = field(default_factory=list)  # a transform's pairs shown or asked this lesson («item:source»), oldest first (``_pick_example``)
     _mixed_review_said: bool = False  # «Quick review» is announced once a lesson
     _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
@@ -1112,7 +1113,7 @@ class Builder:
             self._narr(sc, ex, self.prompts.get("transform_becomes"))
             self._speak(sc, ex, exm.result)
             self._beat(sc, ex)
-            self.used_examples.add(item.id + ":" + exm.source)
+            self._examples_said.append(item.id + ":" + exm.source)
         self._narr(sc, ex, self.prompts.get("transform_try"))
         exm = self._pick_example(item)
         self._transform_prompt(sc, ex, item, exm)
@@ -1480,12 +1481,19 @@ class Builder:
             self._speak(sc, ex, result.split()[0].rstrip(".,?!"), role="hint")
         self._answer_pause(sc, ex, result, item, generative=True, supported=hint)
         self._answer(sc, ex, result, speaker=VOICE_OF[answer_gender or "f"])
-        self.used_examples.add(item.id + ":" + exm.source)
+        self._examples_said.append(item.id + ":" + exm.source)
 
     def _pick_example(self, item: Item) -> TransformExample:
-        fresh = [e for e in item.examples if item.id + ":" + e.source not in self.used_examples]
-        pool = fresh or item.examples
-        return self.rng.choice(pool)
+        """The pair said least this lesson (a pair shown in the introduction counts), and of pairs said as often, the one said longest ago (G17;
+        lesson 31 asked «asking for the same thing more politely» 8 times from 5 pairs: once every pair had come, any could come again, the one just
+        asked included). Pairs not said yet are drawn from as before."""
+        said = self._examples_said
+        uses = {e.source: said.count(item.id + ":" + e.source) for e in item.examples}
+        fresh = [e for e in item.examples if not uses[e.source]]
+        if fresh:
+            return self.rng.choice(fresh)
+        last = {key: i for i, key in enumerate(said)}
+        return min(item.examples, key=lambda e: (uses[e.source], last[item.id + ":" + e.source]))
 
     # ------------------------------------------------------------ generation
 
