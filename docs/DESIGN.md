@@ -375,7 +375,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
 - **A situation is narrated in full twice a lesson, and not right after itself when the cue has another way.** One rule
   for an authored situation and a scene check's line (`Builder.situation_rank`, counted by `_narrated`): no room after
   `SITUATION_FULL_MAX` (2) narrations this lesson, and then the cue is the meaning, short (or the partner's line, G12);
-  one of the last `SITUATION_RECENT` (3) narrated (#273) is a preference to avoid. `_next_situation` takes a free variant
+  one of the last `SITUATION_RECENT` (3) narrated (#273) is a preference to avoid. A transform's instruction is under the same cap
+  (`_narrated(…, recent=False)`: not in the recent ones, which are situations a cue could pick instead); past it the cue is `transform_same`
+  («Same change:») while the transform asked last had the same instruction, else the instruction again (G12; lesson 31: 9 times in full), and
+  the written review asks from an asking with it in full (`short_instruction`). `_next_situation` takes a free variant
   before a recent one, in rotation; `situation_room` is whether any has room; a scene line is used only when free
   (`scene_line`: the sentence's meaning is its other way). Avoiding a recent authored situation always (tried in the review
   of #361) left a new item's recalls right after its introduction with no room, so they dropped out;

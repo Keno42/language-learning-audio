@@ -170,6 +170,7 @@ class Builder:
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
     _situation_texts: dict[str, int] = field(default_factory=dict)  # times each situation was narrated in full (``_narrated``)
     _recent_situations: list = field(default_factory=list)  # the situations narrated, newest last (``situation_rank``)
+    _last_instruction: str | None = None  # the transform instruction asked last: «Same change:» refers back to it only (``_transform_prompt``)
     _mixed_review_said: bool = False  # «Quick review» is announced once a lesson
     _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
@@ -237,10 +238,13 @@ class Builder:
             return None
         return 1 if text in self._recent_situations[-SITUATION_RECENT:] else 0
 
-    def _narrated(self, text: str) -> None:
-        """A situation narrated in full: counted for ``situation_rank``. Every path that narrates one calls it."""
+    def _narrated(self, text: str, recent: bool = True) -> None:
+        """A situation narrated in full: counted for ``situation_rank``. Every path that narrates one calls it. ``recent=False``: a transform's
+        instruction, under the cap only; it is no situation a cue could pick instead, so it does not push a situation out of the last
+        ``SITUATION_RECENT`` (#273)."""
         self._situation_texts[text] = self._situation_texts.get(text, 0) + 1
-        self._recent_situations.append(text)
+        if recent:
+            self._recent_situations.append(text)
 
     def _next_situation(self, item: Item) -> str | None:
         """The next variant by rotation with the best ``situation_rank`` (a free one before a recent one); the rotation's own when none has room
@@ -1465,13 +1469,23 @@ class Builder:
         """When the example's words follow the speaker's gender, alternate forms like any
         gendered item: the source in that voice, and — only when the learner's own answer
         changes («Ég var þreyttur í gær.») — an announcement and the answer in that voice.
-        A result about someone else («Hún er glöð.») stays as it is."""
+        A result about someone else («Hún er glöð.») stays as it is.
+        The instruction is narrated in full under the cap of any situation (``situation_rank``:
+        ``SITUATION_FULL_MAX`` times a lesson; lesson 31 narrated «Say it more politely, as a
+        question:» 9 times, G12), then «Same change:» while the transform asked last had the same
+        instruction; after another one it would name the wrong change, and the instruction is
+        said in full again."""
         gender = self.speaker_gender(item, gendered=bool(exm.source_m or exm.result_m))
         man = gender == "m"
         source = exm.source_m if man and exm.source_m else exm.source
         result = exm.result_m if man and exm.result_m else exm.result
         answer_gender = gender if exm.result_m else None
-        self._narr(sc, ex, self._as(answer_gender, item.instruction))
+        if self.situation_rank(item.instruction) is None and self._last_instruction == item.instruction:
+            self._narr(sc, ex, self._as(answer_gender, self.prompts.get("transform_same")), role="short_instruction")
+        else:
+            self._narr(sc, ex, self._as(answer_gender, item.instruction))
+            self._narrated(item.instruction, recent=False)
+        self._last_instruction = item.instruction
         self._speak(sc, ex, source, role="source", speaker=VOICE_OF[gender or "f"])
         if hint:
             self._speak(sc, ex, result.split()[0].rstrip(".,?!"), role="hint")

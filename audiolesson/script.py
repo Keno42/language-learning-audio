@@ -191,7 +191,9 @@ class Script:
             source: str | None = None
             after_answer_pause = False
             for seg in by_ex.get(ex.index, []):
-                if seg.type == "narrate" and seg.role != "example":  # a reply's example answer would give the answer away: the partner's line stays the cue
+                if seg.type == "narrate" and seg.role == "short_instruction":
+                    cue = None  # «Same change:» leans on the instruction heard before it: the written question is an asking with it in full
+                elif seg.type == "narrate" and seg.role != "example":  # a reply's example answer would give the answer away: the partner's line stays the cue
                     cue = seg.text
                 elif seg.type == "speak" and seg.role == "prompt":
                     cue = seg.text  # the partner's line is itself a written cue (G12)
