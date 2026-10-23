@@ -84,15 +84,21 @@ Each waits for its first feedback in the LD §8 table.
   a scene varies).
 - #270: the other frames (accusative orders, `dat_town`, `dat_hobby`), after the dative place forms' first feedback.
 - #209: when a fluent speaker is available (G10). Every scene added since lesson 30 adds authored Icelandic to it.
-- #364: the issue template's use, and the measured comparison of reading before and after the route per task.
-- #236: a one-off reply gets several example answers (owner: low priority).
 
-#265 (expression first), #149 (themes) and #270 (a noun with its gender and forms) are the umbrellas the items above
-belong to; #220 stays open for its ranking; #326 for the connections across lessons. The bot's review on its own
-(site_update_notifier#124) is closed (2026-10-23): what it waited for is built (site_update_notifier#133, #139; #331),
-lesson 34's queue held 3 never-asked entries of 109 due, and recalls at 7 and 14+ days are recorded. It reopens if the
-records show older lines no longer confirmed by the usual review, or if the learner asks for a short review apart from
-the lesson; the last lesson's new items are then still checked the next day, never earlier.
+#265 (expression first) and #270 (a noun with its gender and forms) are the umbrellas the items above belong to; #326
+for the connections across lessons.
+
+**Closed on 2026-10-23, each with the condition that reopens it** (the owner, after a structural review: an umbrella that
+never closes collects work without a finish line):
+- #149 (themes): every step merged. Reopens if a lesson plays no theme, or a feedback calls the lesson unrelated items again.
+- #220 (retention after the first day): after lesson 34, recall at 7–13 days 13 of 13, at 14+ days 4 of 4, and 109 due with
+  3 never asked. Reopens if the retention rows stop growing, or the queue grows past about 150 due again.
+- site_update_notifier#124 (the bot's review on its own): closed on the same evidence. Reopens if the records show older
+  lines no longer confirmed by the usual review, or if the learner asks for a short review apart from the lesson; the last
+  lesson's new items are then still checked the next day, never earlier.
+- #364 (a route per task, «Now» in one home): built by #374. Reopens if less reading comes with more misses.
+- #236 (a one-off reply with several example answers): low priority, never asked for. Reopens on a learner remark that a
+  good reply was treated as wrong.
 
 ## Where to look
 - **Built, and how many feedbacks it has had:** the table under "Built, waiting for three feedbacks without the same remark"
