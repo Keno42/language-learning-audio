@@ -1922,7 +1922,8 @@ class Builder:
                 self._reply_pause(sc, ex, expected, item, ids, heard_play or self._line_known(ids))
                 self._answer(sc, ex, expected, speaker=learner_voice)
             lines.append((learner_voice, expected, False))
-            slow_reply = item is not None and item.slows_partner  # #261: the partner's next line answers a request to speak slower
+            line_items = [item] if item is not None else [self.cur.by_id[i] for i in (turn_items or {}).get(k, []) if i in self.cur.by_id]
+            slow_reply = any(i.slows_partner for i in line_items)  # #261: the partner's next line answers a request to speak slower; a theme's literal line asks it through its items
             if turn.partner:
                 self._beat_after_partner(sc, ex)  # the learner's line has its beat already (a heard line without a meaning ends on one)
                 if turn.partner_scene:

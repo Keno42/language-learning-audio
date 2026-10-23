@@ -49,6 +49,22 @@ class ThemeLevelTests(unittest.TestCase):
             self.assertIn(("instructor", f"As a {gender}: Stop someone and say you're lost."), spoken)
             self.assertIn((voice, line), spoken)
 
+    def test_asked_to_speak_more_slowly_the_partner_says_the_line_again_word_by_word(self):
+        """#261 in a theme level (scenario A7's repair): after «Það tekur svona tíu mínútur.» the learner says «Fyrirgefðu, ég skil ekki.
+        Gætirðu talað hægar?» and the passer-by says the line again, word by word. A theme's line is literal, so the request is read from
+        the turn's items (`gaetirdu_talad_haegar`, `slows_partner`); before, only an authored dialogue's turn could ask it."""
+        town = self.themes["town"]
+        you = [t for t in town.levels[2].turns if t.who == "you"]
+        ask = next(k for k, t in enumerate(you) if "gaetirdu_talad_haegar" in t.items)
+        sc = Script(1, "t", self.cur.target_lang, self.cur.known_lang)
+        builder = Planner(self.cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30)).builder
+        ex = builder.dialogue(sc, level_dialogue(town, 2, "en"), translate=True, turn_items={k: t.items for k, t in enumerate(you)})
+        segs = [s for s in sc.segments if s.exercise == ex.index]
+        request = next(n for n, s in enumerate(segs) if s.text == "Fyrirgefðu, ég skil ekki. Gætirðu talað hægar?")
+        spaced = [s.text for s in segs[request:] if s.role == "spaced"]
+        self.assertEqual(" ".join(spaced).rstrip("."), "Það tekur svona tíu mínútur", "the line again, one word at a time")
+        self.assertFalse(any(s.role == "spaced" for s in segs[:request]), "only the line after the request is slowed")
+
     def test_the_towns_third_level_is_the_way_itself(self):
         """After lesson 38 of the lesson-33 replay the day's new items were the way (left or right, how far, the map) and no level said
         them: the town's third level does."""
