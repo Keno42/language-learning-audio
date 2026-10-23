@@ -8649,7 +8649,7 @@ class ReplayToolTests(unittest.TestCase):
         self.assertIn("| | lesson 4 | lesson 5 |", text)
         for row in ("| minutes |", "| short new item alone, most |", "| bare_cap_lapsed |", "| tried lines / bonus questions |", "| lines a listening scene asks for that were never taught (#240) |", "| theme (level) / plays |",
                     "| target delivered / second half by the guard (#294) |", "| speech touching at a change of voice (#301) |", "| switch gaps inserted (#301) |",
-                    "| confirmed recall rate by gap, 3–6 / 7–13 / 14+ days (#220) |"):
+                    "| confirmed recall rate by gap, 3–6 / 7–13 / 14+ days (#220) |", "| pattern sentences said with no scene verdict (G6) |"):
             self.assertIn(row, text)
         rows = {line.split("|")[1].strip(): [c.strip() for c in line.split("|")[2:-1]] for line in text.splitlines() if line.startswith("| ") and line.count("|") >= 4}
         self.assertEqual(rows["target delivered / second half by the guard (#294)"], ["yes", "yes"])

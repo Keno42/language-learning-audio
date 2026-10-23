@@ -609,7 +609,8 @@ after it carry no remark of the same kind (the table above). The rows:
     hold («other words», «again», «something new»: `unkept_claims`, the keys and what each needs in `audiolesson/claims.py`);
 12. lessons whose target is not delivered, and whether the second half started through the guard (#294: `meta.target_delivered`,
     `meta.rotation_guard`; a row of `replay_lesson.py`: «yes», «guard» or «no», #310);
-13. speech segments that touch at a change of voice (#301: `meta.touching_switches`, 0 expected; a row of `replay_lesson.py`, with the count of gaps inserted next to it, #310).
+13. speech segments that touch at a change of voice (#301: `meta.touching_switches`, 0 expected; a row of `replay_lesson.py`, with the count of gaps inserted next to it, #310);
+14. pattern sentences said with no scene verdict (G6: `content.said_scene_rows`; a row of `replay_lesson.py`, whose `--scene-sheet` prints them to judge).
 
 **The long run: the bets in order.** What each step has built is listed here; the rules it settled are in §9.
 
@@ -678,8 +679,8 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
     a fill's own verdict overrides. Every fill without one takes it, a fill tagged later included, without a review: such a
     line is written only where no fill could change the scene (a time, a price, a language), and a fill-by-fill check of
     it would be a copy to maintain (review of #363). A
-    sentence with no verdict is still generated; `validate` counts them, and `audiolesson scene-check` prints the sheet to judge, the patterns the learner has met first
-    (`docs/SCENE-REVIEW.md`). It replaces the named exceptions to generation, which were this check done by chance.
+    sentence with no verdict is still generated; `validate` counts them. The sheet to judge is printed from the replay of each new export: the sentences the
+    coming lessons say, a word introduced that day and the negative and question forms included (`tools/replay_lesson.py --scene-sheet`, `docs/SCENE-REVIEW.md`). The check replaces the named exceptions to generation, which were this check done by chance.
   - **Named exceptions** are listed here, in one place, so they can be read together and don't grow into mechanisms:
     - «Ertu með regnhlíf?» is not an instance of «Ertu með {condition}?» (`not_instance`, #333): the same words, not the same meaning.
 

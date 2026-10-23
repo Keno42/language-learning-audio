@@ -4,7 +4,7 @@ by chance; the sheet lists the sentences nobody has judged."""
 import unittest
 from pathlib import Path
 
-from audiolesson.content import CurriculumError, curriculum_from_dict, load_curriculum, scene_covered, scene_sheet
+from audiolesson.content import CurriculumError, curriculum_from_dict, load_curriculum, said_scene_rows, scene_covered, scene_sheet
 from audiolesson.exercises import Builder
 from audiolesson.learner import ItemState, LearnerState
 from audiolesson.prompts import Prompts
@@ -257,6 +257,51 @@ class SceneCheckTests(unittest.TestCase):
             self.assertNotIn(fill, [f.id for f in cur.items_with_tag(next(iter(c.slots.values())), c)], (pattern, fill))
         self.assertIn("fara_ut", cur.by_id["eg_nenni_ekki"].fill_scenes)
         self.assertEqual([r for r in scene_sheet(cur, ["eg_nenni_ekki"])], [], "every fill of «Ég nenni ekki að …» has its verdict")
+
+
+class SaidSceneRowsTests(unittest.TestCase):
+    """G6 (CURRENT-STATUS «Now» 1): the sheet printed for the patterns and words the learner had met left a word introduced today, and every negative and
+    question, on no sheet, so the check did not converge. The replay's sheet judges what the lessons say."""
+
+    AETLA = {"id": "aetla", "kind": "construction", "target": "Ég ætla að {inf}.", "meaning": "I'm going to {inf}.", "slots": {"inf": "inf"}, "example": {"inf": "fara_ut"},
+             "negative": "Ég ætla ekki að {inf}.", "negative_meaning": "I'm not going to {inf}.", "question": "Ætlarðu að {inf}?", "question_meaning": "Are you going to {inf}?"}
+    MORE = [
+        {"id": "synda", "kind": "vocab", "target": "synda", "meaning": "swim", "meaning_spoken": "to swim", "tags": ["inf"]},
+        {"id": "er", "kind": "construction", "target": "Ég er {state}.", "meaning": "I'm {state}.", "slots": {"state": "state"}},
+        {"id": "threytt", "kind": "vocab", "target": "þreytt", "target_m": "þreyttur", "meaning": "tired", "tags": ["state"]},
+    ]
+    SAID = ["Ég nenni ekki að elda.", "Ég ætla að fara út.", "Ég ætla ekki að fara út.", "Ég ætla að elda.", "ætlarðu að elda", "Ég ætla ekki að synda.",
+            "Ég er þreyttur.", "Ég ætla."]
+
+    def curriculum(self):
+        return curriculum_from_dict({**BASE, "items": [dict(i) for i in ITEMS] + [self.AETLA, *self.MORE],
+                                     "scenes": {"nenni": {"*": "You've had a long day."}, "aetla": {"fara_ut": "The sun is out.", "sofa": False}}})
+
+    def test_the_rows_are_the_said_sentences_of_fills_with_no_verdict_the_forms_included(self):
+        self.assertEqual(said_scene_rows(self.curriculum(), self.SAID), [
+            ("aetla", "elda", None, "Ég ætla að elda.", "I'm going to cook."),
+            ("aetla", "elda", "question", "Ætlarðu að elda?", "Are you going to cook?"),  # case and the final mark aside
+            ("aetla", "synda", "negative", "Ég ætla ekki að synda.", "I'm not going to swim."),
+            ("er", "threytt", None, "Ég er þreyttur.", "I'm tired."),  # a man's form
+        ], "«nenni» has its pattern line; «fara út» its verdict, which holds for every form; a line no pattern makes is not a row")
+
+    def test_the_replays_sheet_is_valid_toml_with_the_plain_sentence_first(self):
+        import contextlib
+        import importlib.util
+        import io
+        import tomllib
+
+        spec = importlib.util.spec_from_file_location("replay_lesson", ROOT / "tools" / "replay_lesson.py")
+        tool = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(tool)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(tool.print_scene_sheet(self.curriculum(), self.SAID, "the sheet"), 0)
+        self.assertEqual(tomllib.loads(out.getvalue())["scenes"], {"aetla": {"elda": "", "synda": ""}, "er": {"threytt": ""}})
+        lines = out.getvalue().splitlines()
+        self.assertIn('elda = ""  # «Ég ætla að elda.» I\'m going to cook. · «Ætlarðu að elda?» Are you going to cook?', lines)
+        self.assertIn('synda = ""  # «Ég ætla að synda.» I\'m going to swim. · «Ég ætla ekki að synda.» I\'m not going to swim.', lines,
+                      "said only as a negative: the plain sentence first, since a scene line is the cue of the plain sentence only")
 
 
 if __name__ == "__main__":
