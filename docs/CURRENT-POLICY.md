@@ -79,7 +79,8 @@ summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wro
 - Check a behaviour change on **the real learner path**: replay the latest feedback export's `learner.before.json` with its
   manifest's arguments, which include the trip ordering (`python tools/replay_lesson.py <export> --trip <the private profile> --lessons 3`), not only a simulated course. Without `--trip` the replay builds a different lesson. Do not write where the profile lives. A simulated course
   presumes every recall and hides what the real path shows (#94, #316).
-- A refactoring leaves the replays byte-identical (`script.json`, `plan.json`).
+- A refactoring leaves every lesson `tools/same_lessons.py origin/main` builds identical, and the replays byte-identical
+  (`script.json`, `plan.json`).
 - Every default reproduces today's behaviour, or the change of behaviour is the point and is stated. The settings that
   produced a lesson stay recorded (`plan.json`, the manifest).
 - After a round of learner feedback: replay the export, read the signals, update the evidence (LD §5) and the hypothesis
