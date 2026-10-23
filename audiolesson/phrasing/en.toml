@@ -62,6 +62,7 @@ slot_word = "something"
 transform_intro = "Listen to how the sentence changes."
 transform_becomes = "becomes"
 transform_try = "Now you try."
+transform_same = "Same change:"  # a transform's instruction after its two narrations in full, while the transform asked last had it (G12; lesson 31: 9 times)
 
 dialogue_partner_said = "{meaning}"
 aside = "A quick aside."

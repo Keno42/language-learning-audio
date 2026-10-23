@@ -51,6 +51,7 @@ NO_CLAIM = {
     "listening_intro": "«a few new expressions»: the dialogue's lines the learner has not learned, which the learner's state holds, not the script (H8)",
     "listening_intro_some_asked": "the same, with lines the learner knows asked (#240)",
     "listening_intro_known": "«The conversation again.»: a scene played in an earlier lesson (#263), which one lesson's script does not show",
+    "transform_same": "«Same change:»: refers back to the instruction of the transform asked last (#405), which the builder tracks (``_last_instruction``); no CLAIMS kind checks it",
 }
 
 _SPEECH_EXCEPT = ("partial", "hint", "spaced")  # a cloze fragment, a first-word hint, a line said word by word: not a line of their own
