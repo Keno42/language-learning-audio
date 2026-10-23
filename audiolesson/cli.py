@@ -6,7 +6,7 @@ import argparse
 import json
 import os
 import sys
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 from . import __version__
@@ -14,7 +14,7 @@ from .themes import load_themes, scenario_order
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts, speak_as
 from .content import PATTERN_SCENE, CurriculumError, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, unlinked_instances
-from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, parse_date
+from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, lesson_target, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
 from .review_wholes import has_home, refine_review
@@ -92,6 +92,13 @@ def main(argv: list[str] | None = None) -> int:
     rp.add_argument("--load", choices=LOADS, default=None, help="how heavy the lesson was: light, right or heavy (does not mark the lesson reported on its own)")
     rp.add_argument("--date", default=None)
     rp.set_defaults(func=cmd_report)
+
+    lp = sub.add_parser("load-preview", help="for each answer to the feedback form's load question, the next lesson's target of weighted new components and why, as JSON, for the Discord review")
+    add_user_args(lp)
+    lp.add_argument("--learner", "-l", default=None)
+    lp.add_argument("--minutes", "-m", type=float, default=None, help="the next lesson's length (default 15, remembered per --user, as for generate)")
+    lp.add_argument("--date", default=None, help="the day of the next lesson, when its review is answered (default: the day after the latest lesson, or today if later)")
+    lp.set_defaults(func=cmd_load_preview)
 
     st = sub.add_parser("status", help="show learner progress and what is due")
     add_user_args(st)
@@ -285,7 +292,7 @@ def cmd_generate(args) -> int:
     themes = load_themes(args.curriculum, cur, scenarios) if scenarios else []
     theme_scenarios = scenario_order(for_season(scenarios, trip.season) if trip else scenarios, trip.boost if trip else ()) if themes else []
     # the learner's target is a rate per 30 minutes; this lesson plans its share of it (the rate is what is saved)
-    plan_target = None if new_target is None else max(1.0, new_target * args.minutes / NEW_TARGET_MINUTES)
+    plan_target = None if new_target is None else lesson_target(new_target, args.minutes)
     cfg = PlanConfig(
         minutes=args.minutes,
         new_items=new_items,
@@ -529,6 +536,17 @@ def cmd_report(args) -> int:
         print(f"warning: not in learner state: {', '.join(changed['unknown'])}", file=sys.stderr)
     if not (changed["failed"] or changed["hesitated"] or changed["recalled"] or changed["easy"] or args.sooner or args.hard or args.load):
         print(f"lesson {changed['lesson']} recorded as all good (pass --failed/--easy item ids from the lesson's .plan.json otherwise)")
+    return 0
+
+
+def cmd_load_preview(args) -> int:
+    """CURRENT-STATUS «Now» 3: the feedback form says what a load answer will change (``LearnerState.load_preview``)."""
+    learner = LearnerState.load(args.learner)
+    minutes = 15.0 if args.minutes is None else args.minutes  # generate's default
+    last = learner.lessons[-1].get("date") if learner.lessons else None
+    today = parse_date(args.date) if args.date or not last else max(date.today(), date.fromisoformat(last) + timedelta(days=1))  # lessons are daily
+    print(json.dumps({"next_lesson": learner.next_lesson_number(), "date": today.isoformat(), "minutes": minutes, "rate": learner.new_target,
+                      "answers": learner.load_preview(minutes, today)}, ensure_ascii=False, indent=1))
     return 0
 
 
