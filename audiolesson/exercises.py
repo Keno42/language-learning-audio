@@ -340,16 +340,16 @@ class Builder:
     def _gendered(item: Item, gender: str | None) -> str:
         return item.target_m if gender == "m" and item.target_m else item.target
 
-    @staticmethod
-    def _fills_gendered(fills: dict[str, Item]) -> bool:
+    def _fills_gendered(self, construction: Item, fills: dict[str, Item], form: str | None = None) -> bool:
         """Whether a filled construction's words follow the speaker's gender: a fill has a
-        man's form («glöð» / «glaður»); «einmana» is the same for both."""
-        return any(f.target_m for f in fills.values())
+        man's form («glöð» / «glaður»); «einmana» is the same for both. Not in a template whose subject is the person
+        spoken to: «Ertu þreytt?» follows the woman asked, whom the meaning names (``Curriculum.speaker_agrees``)."""
+        return self.cur.speaker_agrees(construction, form) and any(f.target_m for f in fills.values())
 
     def _filled(self, construction: Item, fills: dict[str, Item], voice: str | None = None, form: str | None = None) -> tuple[str | None, str]:
         """(speaker gender or None, target) for ``construction`` filled with ``fills``: when a
         fill has a man's form, pick which form this exercise asks for (``speaker_gender``)."""
-        gender = self.speaker_gender(construction, voice, gendered=self._fills_gendered(fills))
+        gender = self.speaker_gender(construction, voice, gendered=self._fills_gendered(construction, fills, form))
         return gender, self.cur.resolve_slots(construction, fills, gender, form)[0]
 
     def forms_taught(self) -> set[str]:
@@ -1066,7 +1066,7 @@ class Builder:
                 self._narr(sc, ex, self.prompts.get("natural"))
                 self._speak(sc, ex, target)
                 self._repeat_pause(sc, ex, target)
-            if self._fills_gendered(fills):
+            if self._fills_gendered(item, fills):
                 # the words follow the speaker's gender: a man's form too, in the man's voice
                 target_m = self.cur.resolve_slots(item, fills, "m")[0]
                 self._narr(sc, ex, self.prompts.get("man_says"))

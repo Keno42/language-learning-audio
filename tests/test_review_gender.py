@@ -102,6 +102,38 @@ class ReviewNamesTheSpeakersFormTests(unittest.TestCase):
             out, _ = refine_review([{"items": ["eg_er_state"], "prompt": "In a sentence. Say: I'm hungry.", "answer": answer}], self.cur, {"eg_er_state"}, self.prompts)
             self.assertEqual(out[0]["prompt"], expected, answer)
 
+    def test_a_sentence_that_agrees_with_the_person_asked_names_no_speakers_form(self):
+        """Review of #385: «Ertu þreytt?» agrees with the woman asked, not with the speaker. Stored with the pattern alone, with its filler, or
+        asked through the pattern, it gets no «As a woman:», and a stale one comes off; the cue names who is asked («To a woman: Are you
+        tired?»). «Ég er {state}.» still names the speaker's form."""
+        cue = "How do you say: To a woman: Are you tired?"
+        for items in (["ertu_state"], ["threytt_state", "ertu_state"]):
+            for prompt in (cue, "As a woman: " + cue, "As a man: " + cue):
+                out, _ = refine_review([{"items": items, "prompt": prompt, "answer": "Ertu þreytt?"}], self.cur, {"ertu_state", "threytt_state"}, self.prompts)
+                self.assertEqual(out[0]["prompt"], cue, (items, prompt))
+        whole = whole_for(self.cur, self.cur.by_id["threytt_state"], {"ertu_state", "threytt_state"}, self.prompts)
+        self.assertEqual((whole["answer"], whole["prompt"]), ("Ertu þreytt?", cue))
+        out, _ = refine_review([{"items": ["eg_er_state"], "prompt": "In a sentence. Say: I'm tired.", "answer": "Ég er þreyttur."}], self.cur, {"eg_er_state"}, self.prompts)
+        self.assertEqual(out[0]["prompt"], "As a man: In a sentence. Say: I'm tired.")
+
+    def test_the_lesson_asks_a_sentence_to_the_person_spoken_to_in_one_form(self):
+        """The same cause in the lesson: «Ertu {state}?» alternated «Ertu þreytt?» with «As a man:» «Ertu þreyttur?», a man's form said to a
+        woman, and its introduction added «A man says: Ertu þreyttur?». A pattern whose subject is the person spoken to (`addressee`) keeps
+        the form its meaning names; «Ég er {state}.» still alternates."""
+        from audiolesson.learner import LearnerState
+        from audiolesson.planner import PlanConfig, Planner
+        from audiolesson.script import Script
+        from audiolesson.timing import Timing
+        b = Planner(self.cur, LearnerState("is", "en", "A1"), self.prompts, Timing(level="A1"), PlanConfig(minutes=30)).builder
+        tired = {"state": self.cur.by_id["threytt_state"]}
+        self.assertEqual({b._filled(self.cur.by_id["ertu_state"], tired) for _ in range(4)}, {(None, "Ertu þreytt?")})
+        self.assertEqual({b._filled(self.cur.by_id["eg_er_state"], tired) for _ in range(4)}, {("f", "Ég er þreytt."), ("m", "Ég er þreyttur.")})
+        sc = Script(1, "t", "is", "en")
+        b.intro(sc, self.cur.by_id["ertu_state"])
+        said = [s.text for s in sc.segments if s.text]
+        self.assertNotIn("A man says:", said)
+        self.assertFalse(any("þreyttur" in t for t in said), said)
+
     def test_the_bots_refine_review_command_names_the_form_of_its_stored_questions(self):
         stdin = json.dumps({"review": [{"items": ["svong_state"], "prompt": "How do you say: I'm hungry.", "answer": "Ég er svangur."}], "met": ["svong_state", "eg_er_state"]})
         with tempfile.TemporaryDirectory() as tmp:  # the bot passes its learner file; a missing one adds nothing to what `met` says

@@ -70,7 +70,7 @@ def whole_for(cur, part, met: set[str], prompts: Prompts, taught: dict | None = 
 
     def ask(meaning: str, answer: str, *made_of) -> str:
         prompt = meaning_prompts(Prompts(prompts.data, prompts.lang), cur.known_lang, cur.target_lang, meaning)[0]
-        return speak_as(prompts, answer_gender(answer, part, *made_of), prompt)
+        return speak_as(prompts, answer_gender(answer, *speaker_items(cur, answer, [part, *made_of])), prompt)
 
     as_taught = lambda: {
         "prompt": ask(taught["meaning"], taught["answer"], cur.by_id.get(taught["through"])),
@@ -99,7 +99,7 @@ def whole_for(cur, part, met: set[str], prompts: Prompts, taught: dict | None = 
         else:
             rank = 0 if part.id in c.situation_fill.values() else 1 if part.id in c.example.values() else 2
             target, meaning = cur.resolve_slots(c, fills)
-            options.append(((rank, c.difficulty, c.order), target, meaning, c.id, list(fills.values())))
+            options.append(((rank, c.difficulty, c.order), target, meaning, c.id, [c, *fills.values()]))
     if options:
         _, target, meaning, through, made_of = min(options, key=lambda o: o[0])
     else:
@@ -181,23 +181,59 @@ def refine_review(review: list[dict], cur, met: set[str], prompts: Prompts, whol
         prompt, answer = q.get("prompt"), q.get("answer")
         if not isinstance(prompt, str) or not isinstance(answer, str):
             continue
-        gender = answer_gender(answer, *made_of(cur, [*q.get("items", []), q.get("through") or ""]))
+        ids = [*q.get("items", []), q.get("through") or ""]
+        gender = answer_gender(answer, *made_of(cur, ids, answer))
         named, rest = speaker_form(prompt, prompts)
         if gender is not None and named != gender:
             out[k] = {**q, "prompt": speak_as(prompts, gender, rest)}
             report.append({"items": q.get("items", []), "kind": "speaker_form", "form": gender})
+        elif gender is None and named is not None and _addressed_fills(cur, answer, [cur.by_id[i] for i in ids if i in cur.by_id]):
+            # «As a woman: …» on «Ertu þreytt?»: the form follows the woman asked, whom the cue already names (review of #385)
+            out[k] = {**q, "prompt": rest}
+            report.append({"items": q.get("items", []), "kind": "speaker_form", "form": None})
     return out, report
 
 
 
-def made_of(cur, ids: list[str]) -> list:
-    """The items a question's answer can be made of: its own items, and for a pattern among them, the fillers of its slots. A question stored with
-    the pattern alone («Ég er {state}.» for «Ég er svangur.») still shows which filler, and so which speaker's form, its answer holds."""
+def _template_form(construction, answer: str) -> str | None:
+    """The form of ``construction`` whose template ``answer`` is («Ertu þreytt?» of «Ertu {state}?»: "plain"), or None."""
+    said = answer.strip().lower()
+    for form in (None, *construction.forms):
+        template = construction.form_templates(form)[0]
+        pattern = re.sub(r"\\\{[^}]*\\\}", "(.+?)", re.escape(template.strip().lower()))
+        if re.fullmatch(pattern, said):
+            return form or "plain"
+    return None
+
+
+def _addressed_fills(cur, answer: str, items: list) -> set[str]:
+    """The fills of a pattern among ``items`` whose template ``answer`` is, when its subject is the person spoken to: their man's or woman's form
+    follows that person, not the speaker («Ertu þreytt?» asks a woman; review of #385)."""
+    out: set[str] = set()
+    for c in items:
+        if c is None or c.kind != "construction":
+            continue
+        form = _template_form(c, answer)
+        if form is not None and not cur.speaker_agrees(c, form):
+            out |= {f.id for tag in c.slots.values() for f in cur.items_with_tag(tag, c)}
+    return out
+
+
+def speaker_items(cur, answer: str, items: list) -> list:
+    """``items`` without the fills whose form follows the person spoken to: what ``answer_gender`` reads the speaker's form from."""
+    drop = _addressed_fills(cur, answer, items)
+    return [it for it in items if it is not None and it.id not in drop]
+
+
+def made_of(cur, ids: list[str], answer: str = "") -> list:
+    """The items a question's answer can be made of, as far as they follow the speaker: its own items, and for a pattern among them, the fillers of
+    its slots. A question stored with the pattern alone («Ég er {state}.» for «Ég er svangur.») still shows which filler, and so which speaker's
+    form, its answer holds. A pattern whose subject is the person spoken to («Ertu {state}?») gives none, and takes its fillers out (review of #385)."""
     found = [cur.by_id[i] for i in ids if i in cur.by_id]
     for it in list(found):
         if it.kind == "construction":
             found += [f for tag in it.slots.values() for f in cur.items_with_tag(tag, it)]
-    return found
+    return speaker_items(cur, answer, found)
 
 def parts_outside_their_whole(review: list[dict], cur) -> int:
     """The daily read's row 5: questions whose answer is a part asked next to the whole that holds it, or that share an answer with another."""
