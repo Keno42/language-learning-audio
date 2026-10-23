@@ -1060,6 +1060,7 @@ class Builder:
             # is asked next, so the line says the other words come later (lesson 34: «Ég er með ofnæmi fyrir hnetum.», and no swap for minutes)
             other = self.generate(item, exclude=fills) is not None
             self._frame(sc, ex, self.prompts.get("construction_of_known" if other else "construction_of_known_later"))
+            gen = self.generate(item, exclude=fills)
         else:
             self._narr(sc, ex, self.prompts.get("construction_intro", meaning=self._m(meaning)))
             self._beat(sc, ex)
@@ -1081,9 +1082,11 @@ class Builder:
                 self._narr(sc, ex, self.prompts.get("man_says"))
                 self._speak(sc, ex, target_m, speaker=VOICE_OF["m"])
                 self._repeat_pause(sc, ex, target_m)
-            self._frame(sc, ex, self.prompts.get("construction_slot"))
+            # «other words in the same place» only when a second example with another filler follows; with none the same sentence is asked
+            # next (the remark of lesson 34 on a known example, #388, found here by the claims check on a new one)
+            gen = self.generate(item, exclude=fills)
+            self._frame(sc, ex, self.prompts.get("construction_slot" if gen is not None else "construction_slot_later"))
         # a second example with a known fill, as the first retrieval
-        gen = self.generate(item, exclude=fills)
         if gen is None:
             gender, target = self._filled(item, fills)
             self._narr(sc, ex, self._as(gender, self._meaning_prompt(meaning)))

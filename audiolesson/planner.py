@@ -19,6 +19,7 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 from itertools import groupby
 
+from .claims import unkept_claims
 from .content import Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance, cue_is_answer
 from .sounds import hard_sounds, hard_words_of
@@ -1132,6 +1133,8 @@ class Planner:
                                   and any(g.type == "answer" and g.exercise == e.index and _norm_utterance(g.text or "") == _norm_utterance(it.target) for g in sc.segments)],  # a recall through its sentence is the point, not a hit
             # #287: a recombine prompt that promises a link («Use it in a sentence», «Use the pattern again») to the exercise just before, which did not practise that item (0 expected)
             "unkept_links": self._unkept_links(sc),
+            # a framing line whose promise does not hold («other words», «again», «something new»; ``audiolesson/claims.py``, 0 expected)
+            "unkept_claims": unkept_claims(sc, self.prompts),
             "apply_in_sentence_parts": list(getattr(self, "step2_parts", [])),  # #287 step 2: today's new parts whose first reactivation applied them in a sentence
             "bare_noun_recalls": [e.label for e in sc.exercises if e.kind == "recall" and e.stage in BARE_STAGES and len(e.item_ids) == 1
                                   and (it := self.cur.by_id.get(e.item_ids[0])) is not None and it.noun
