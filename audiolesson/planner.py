@@ -547,8 +547,9 @@ class Planner:
 
     def scene_line_of(self, item: Item, used: set[str]) -> tuple[Dialogue, dict[int, list[str]], str, bool] | None:
         """A line of ``item``'s scene (#326): the learner's line of a theme level that needs ``item``, with the partner's line before it and the
-        reply after it, as a short exchange with the scene put first and the partner's lines translated. Only a turn whose other items the
-        learner knows (else the line is only heard), and not one already used for this item. None when no theme level holds it."""
+        reply after it, as a short exchange with the scene put first and the partner's lines translated. The line is asked or heard as ``line_role``
+        decides on the turn's other items (#265: the item itself is the one practised), and a turn already used for this item is not used again.
+        None when no theme level holds it."""
         rank = set(self.cfg.theme_scenarios)
         for theme in self.cfg.themes:
             if theme.scenario not in rank:
@@ -558,7 +559,7 @@ class Planner:
                     key = f"{theme.id}:{n + 1}:{k}"
                     if t.who != "you" or item.id not in t.items or key in used:
                         continue
-                    asked = all(self.learner.knows(i) or i in self.builder.in_lesson for i in t.items if i != item.id)  # else the line is heard with its meaning (#240)
+                    asked = self.line_role([i for i in t.items if i != item.id], text=t.say) == "ask"  # else the line is heard with its meaning (#240)
                     turns = level.turns[max(0, k - 1) : k + 2]
                     if turns[0].who == "you" and len(turns) > 1 and turns[0] is not t:
                         turns = turns[1:]
