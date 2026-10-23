@@ -2055,6 +2055,25 @@ class Planner:
             finally:
                 introducing.pop()
 
+        def taught_inside(item: Item, instance: tuple[Item, dict[str, Item]] | None = None, stamp: bool = True, count: bool = True) -> None:
+            """The bookkeeping of an item taught inside a sentence rather than introduced, as ``_do_intro``'s embed exits leave it: ``instance`` the
+            pattern and fillers that sentence practised (#192, #311), ``stamp`` the time of the last introduction, ``count`` the item's turn of its arc."""
+            nonlocal last_intro, last_intro_at
+            if instance is not None:
+                pattern, fills = instance
+                credited = [pattern.id, *(f.id for f in fills.values())]
+                self._record(credited, "recombine", credited)
+            self.embedded.append(item.id)
+            if instance is not None:
+                self.pattern_instances.append(item.id)
+            touch(item)
+            if stamp:
+                last_intro = idx
+                last_intro_at = sc.total_duration
+            if count:
+                arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
+            mark_delivered_target()
+
         def _do_intro(item: Item, worked_fills: dict[str, Item] | None = None) -> None:
             nonlocal last_intro, last_intro_at, seq, closing_reserve
             if item.id in self.embedded or any(i.id == item.id for i in introduced):
@@ -2082,13 +2101,7 @@ class Planner:
                         b.pattern_instance(sc, item, pattern, fills)
                     elif item.id not in intro_ex.item_ids:
                         intro_ex.item_ids.append(item.id)
-                credited = [pattern.id, *(f.id for f in fills.values())]
-                self._record(credited, "recombine", credited)
-                self.embedded.append(item.id)
-                self.pattern_instances.append(item.id)
-                touch(item)
-                arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
-                mark_delivered_target()
+                taught_inside(item, (pattern, fills), stamp=False)
                 return
             if (filler := self.new_filler_of(item)) is not None and filler.id not in introducing:
                 # #311: «Ég þarf úlpu.» is a sentence of a known pattern with a new word: the word is taught as a word (its own introduction, in the pattern or
@@ -2102,12 +2115,7 @@ class Planner:
                 fills = {slot: self.cur.by_id[ref] for slot, ref in item.instance_fill.items()}
                 if b.is_new_utterance(item.target):
                     b.pattern_instance(sc, item, pattern, fills)
-                credited = [pattern.id, *(f.id for f in fills.values())]
-                self._record(credited, "recombine", credited)
-                self.embedded.append(item.id)
-                self.pattern_instances.append(item.id)
-                touch(item)
-                mark_delivered_target()
+                taught_inside(item, (pattern, fills), stamp=False, count=False)
                 return
             # A milestone this item's prereqs complete plays before the intro: a construction's
             # intro speaks its worked example, which must not come before the note naming the
@@ -2144,28 +2152,15 @@ class Planner:
                 b.joint_parts[item.id] = together
                 source = None
             if source is not None:
-                self.embedded.append(item.id)
-                touch(item)
-                last_intro = idx
-                last_intro_at = sc.total_duration
-                arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
-                mark_delivered_target()
+                taught_inside(item)
                 return
             if (instance := self.pattern_instance_of(item)) is not None:
                 # a linked phrase of a known pattern and fillers (#192): one sentence of the pattern, no ladder, no closing recall.
                 # The practice is credited to the pattern and its fillers (one way, as in sentence_practice); the phrase waits
                 # for the next day's question like an embedded part, and stays in new_items
                 pattern, fills = instance
-                ex = b.pattern_instance(sc, item, pattern, fills, form=item.instance_form or None)
-                credited = [pattern.id, *(f.id for f in fills.values())]
-                self._record(credited, "recombine", credited)
-                self.embedded.append(item.id)
-                self.pattern_instances.append(item.id)
-                touch(item)
-                last_intro = idx
-                last_intro_at = sc.total_duration
-                arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
-                mark_delivered_target()
+                b.pattern_instance(sc, item, pattern, fills, form=item.instance_form or None)
+                taught_inside(item, instance)
                 return
             catch = None
             if item.kind == "vocab" and worked_fills is None and len(catch_introduced) < cfg.catch_intros():
