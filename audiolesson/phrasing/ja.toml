@@ -5,6 +5,7 @@ lesson_intro = "無音の間に、声に出して答えてください。間違�
 lesson_goal = "今日の目標：{goal}"
 lesson_close = "レッスン{n}はこれで終わりです。お疲れさまでした。"
 final_block = "最後に、今日の新しい表現をもう一度確認しましょう。"
+final_block_some = "最後に、今日の新しい表現のいくつかをもう一度確認しましょう。"
 
 intro_new = "新しい表現です。「{meaning}」。"
 listen = "聞いてください。"

@@ -552,6 +552,13 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def final_block_some(self, sc: Script, ex: Exercise) -> None:
+        """The announcement says «some of today's new material» once the closing is built and leaves some of today's new items out (lesson 35:
+        «go back over today's new material», then three of six)."""
+        seg = next(s for s in sc.segments if s.exercise == ex.index and s.type == "narrate")
+        seg.text = self.prompts.get("final_block_some")
+        seg.duration = self.timing.speech_estimate(seg.text, self.kl)
+
     def closing(self, sc: Script, n: int) -> Exercise:
         ex = sc.new_exercise("closing", None, [], "closing")
         self._narr(sc, ex, self.prompts.get("lesson_close", n=n))
@@ -1179,9 +1186,11 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def _maybe_alternative(self, sc: Script, ex: Exercise, item: Item, stage: str) -> None:
-        """Once an item is past the hint stages, sometimes mention another acceptable answer."""
-        if not item.alternatives or stage in ("intro", "cloze", "hinted"):
+    def _maybe_alternative(self, sc: Script, ex: Exercise, item: Item, stage: str, said: list[str] | None = None, speaker: str | None = None) -> None:
+        """Once an item is past the hint stages, sometimes mention another acceptable answer (once a lesson): a construction's
+        ``said``, its alternatives filled as the sentence just answered was."""
+        alternatives = item.alternatives if said is None else said
+        if not alternatives or stage in ("intro", "cloze", "hinted"):
             return
         key = item.id + ":alt"
         if key in self.used_examples or self.rng.random() > 0.5:
@@ -1189,7 +1198,7 @@ class Builder:
         self.used_examples.add(key)
         self._beat(sc, ex)
         self._frame(sc, ex, self.prompts.get("also"))
-        self._speak(sc, ex, self.rng.choice(item.alternatives), role="alternative")
+        self._speak(sc, ex, self.rng.choice(alternatives), speaker=speaker or "native_a", role="alternative")
 
     def fill_scene(self, construction: Item, fills: dict[str, Item]) -> str | None:
         """The scene check's line for a pattern's sentence (from ``[scenes.<pattern>]``): the line of the one fill that has one (``Item.fill_scenes``), else
@@ -1266,6 +1275,7 @@ class Builder:
             self._narr(sc, ex, self._as(gender, self._meaning_prompt(gen.meaning)))
         self._answer_pause(sc, ex, target, item, generative=is_generative(stage), supported=stage == "hinted")
         self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
+        self._maybe_alternative(sc, ex, item, stage, self.cur.resolve_alternatives(item, gen.fills, gender), VOICE_OF[gender or "f"])
         self._gap(sc, ex)
         return ex
 
@@ -1309,6 +1319,9 @@ class Builder:
             self._narr(sc, ex, self._as(gender, self.prompts.get(key, meaning=self._m(gen.meaning))))
         self._answer_pause(sc, ex, target, item, generative=True)
         self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
+        if not gen.form:  # an alternative is of the plain sentence
+            c = gen.construction
+            self._maybe_alternative(sc, ex, c, "recombine", self.cur.resolve_alternatives(c, gen.fills, gender), VOICE_OF[gender or "f"])
         self._gap(sc, ex)
         return ex
 

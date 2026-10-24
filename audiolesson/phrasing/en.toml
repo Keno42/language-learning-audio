@@ -6,6 +6,7 @@ lesson_intro = "Speak your answers out loud during the silences. Don't worry abo
 lesson_goal = "Today's goal: {goal}"
 lesson_close = "That's the end of lesson {n}. Well done."
 final_block = "To finish, let's go back over today's new material."
+final_block_some = "To finish, let's go back over some of today's new material."  # the closing leaves some of today's new items out (each said as often as a lesson allows; lesson 35)
 
 intro_new = "Something new. {meaning}"
 listen = "Listen."

@@ -45,7 +45,8 @@ CLAIMS = {
 }
 
 NO_CLAIM = {
-    "final_block": "names the closing block («today's new material»), not a line",
+    "final_block": "names the closing block («today's new material»), not a line; said only when the closing asks every one of today's new items (``meta.closing_left`` empty, lesson 35)",
+    "final_block_some": "the same block when the closing leaves some of today's new items out (``meta.closing_left``)",
     "construction_of_known_later": "the line said when no other word follows: the other words are promised for later lessons (#388)",
     "construction_slot_later": "the same for a new pattern: no other word follows, so the other words are promised for later lessons",
     "listening_intro": "«a few new expressions»: the dialogue's lines the learner has not learned, which the learner's state holds, not the script (H8)",

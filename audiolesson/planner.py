@@ -3658,8 +3658,9 @@ class Planner:
             play_theme()  # a lesson that ran out of other material, or never reached the mark: the exchange still comes
 
         # ---- closing block: end on success with today's new material -----
+        closing_left: list[str] = []
         if introduced:
-            b.final_block_announce(sc)
+            announce = b.final_block_announce(sc)
             # any reactivation that never came due is folded into the closing recall
             order = self.closing_order(introduced, theme_pick)  # #327: the lesson ends in its scene, in the exchange's order
             closed: set[str] = set()  # every item a closing recall made the learner say: its holder (#238), and the pattern or the filler in it, is not asked again
@@ -3712,6 +3713,11 @@ class Planner:
                 ex = b.recall(sc, item, stage)
                 self._record([item.id], ex.stage or stage, ex.item_ids)
                 closed.update(ex.item_ids)  # «Fer þessi strætó í miðbæinn?» for the new pattern says the new destination too: not asked a second time for it (lesson 27)
+            asked = {i for e in sc.exercises[closing_from:] for i in e.item_ids}
+            # today's new material as plan.json lists it: the items introduced and those taught inside a sentence (`embedded`, which keep no closing recall, #192)
+            closing_left = [i for i in dict.fromkeys([i.id for i in introduced] + list(self.embedded)) if i not in asked]
+            if closing_left:
+                b.final_block_some(sc, announce)
         b.closing(sc, n)
 
         listening_closed = self._close_listening(sc)
@@ -3740,6 +3746,7 @@ class Planner:
             "intro_skipped": list(intro_skipped),
             "rotation_guard": guard_used[0] and delivered_at[0] is None,  # #294: the second half started because nothing more could be selected, the target not counted as taught
             "repeated_new_sentences": self._repeated_new_sentences(sc, introduced),  # #311: a new phrase asked as the same sentence in more than 3 exercises ({} expected)
+            "closing_left": closing_left,  # today's new items (`new_items`, the embedded ones included) the closing did not ask; the announcement then says «some of» (lesson 35)
             "listening_closed": listening_closed,  # pick-outs and catches followed by a drill, closed with «Back to speaking.» (lesson 34)
             "switch_pauses": switches,  # #301: pauses put where two speech segments touched; "touching_switches" is what still touches (0)
             "touching_switches": sc.touching_switches(),
