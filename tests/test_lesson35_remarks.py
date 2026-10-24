@@ -5,10 +5,15 @@ import unittest
 from dataclasses import replace
 from pathlib import Path
 
+from datetime import timedelta
+
 from audiolesson.content import CurriculumError, load_curriculum, validate
+from audiolesson.learner import LearnerState
+from audiolesson.planner import PlanConfig, Planner, apply_to_learner
 from audiolesson.prompts import Prompts
+from audiolesson.timing import Timing
 from audiolesson.sounds import hard_sounds
-from tests.test_audiolesson import course
+from tests.test_audiolesson import TODAY, course
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -27,10 +32,26 @@ class ClosingAnnouncementTests(unittest.TestCase):
             left = sc.meta["closing_left"]
             self.assertEqual(text, some if left else whole, left)
             asked = {i for e in sc.exercises[ann[0].index + 1 :] for i in e.item_ids}
-            new = [i for i in sc.meta["new_items"] if i not in sc.meta["embedded_items"]]
-            self.assertEqual(sorted(i for i in new if i not in asked), sorted(left))
+            self.assertEqual(sorted(i for i in sc.meta["new_items"] if i not in asked), sorted(left))
             said.add(text)
         self.assertEqual(said, {whole, some}, "the simulated course has both kinds of closing")
+
+    def test_a_phrase_taught_inside_a_sentence_counts_as_new_material(self):
+        """Review of #407: «Ég tala ekki íslensku.» taught as a sentence of its pattern (`embedded`) keeps no closing recall (#192); the closing
+        asked «Ég tala íslensku.» and the announcement still said «today's new material»."""
+        cur = load_curriculum(ROOT / "curricula/is-en", known_lang="en")
+        learner, day, found = LearnerState("is", "en", "A1"), TODAY, []
+        for _ in range(20):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=day).build()
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+            ann = [e for e in sc.exercises if e.label == "final review"]
+            asked = {i for e in sc.exercises[ann[0].index + 1 :] for i in e.item_ids} if ann else set()
+            found += [i for i in sc.meta["embedded_items"] if i not in asked and ann]
+            for i in sc.meta["embedded_items"]:
+                if ann and i not in asked:
+                    self.assertIn(i, sc.meta["closing_left"])
+        self.assertTrue(found, "the course has a phrase taught inside a sentence and left out of the closing")
 
 
 class FamiliarSoundTests(unittest.TestCase):
