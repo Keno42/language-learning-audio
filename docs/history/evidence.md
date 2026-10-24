@@ -818,3 +818,87 @@ What the learner wrote, by what the lesson and the review did:
   - The ok ladder brings them back the next day, and the bound defers only entries with two confirmations.
   - This decides #220's open branch: site_update_notifier#133 (a first 言えた waits 3 days; the bound also defers
     answered-once entries). #220's ranking by lesson time saved remains the longer-term rule.
+
+### 5.22 Lesson 26: the first lesson on #311–#332
+
+Lesson 26 was generated with LLA `0eb8905`, the bot at site_update_notifier `c685d2d`. It is the first lesson heard with:
+- a pattern-linked phrase with a new word taught in other frames (#311: #316, #318);
+- the written review in its own words (#312: #314);
+- the review backlog's first 言えた waiting 3 days (site_update_notifier#133: site_update_notifier#134), and a new card every
+  review (site_update_notifier#132: site_update_notifier#135);
+- the endings said piece by piece in a note (#323), new material grouped by scene (#327: #329), a hard item practised
+  through its connections (#326: #330, #332), and a recall at a real gap extending the interval (#220: #331);
+- no «Áttu leigubíl?» on the word's own sentence path (#334).
+
+**Lesson 25's next-day review.** All 9 of its new items were recalled: the fourth lesson running above §8's 60% rule.
+
+**Retention by gap**, all of it so far (site_update_notifier#118):
+- 3–6 days: 3 of 3;
+- 7–13 days: 5 of 5;
+- 14+ days: none yet.
+
+| | lesson 26 |
+|---|---|
+| length | 28.9 min, 119 exercises |
+| new items; new components, weighted | 11; 10 |
+| theme (level); new items inside the played scene | museum (1), a replay; 0 of 10 (the 11 less a variant of a known item) |
+| target reached | 18.7 min |
+| longest stretch without a scene | 4.8 min |
+| a sentence asked again within a minute | **6** (lesson 25: 1) |
+| speech segments touching at a change of voice | 0 (78 gaps placed) |
+| new words given the split model | none (the rule flagged none, see below) |
+| feedback form: load; friction | **right**; other |
+| «sooner» | «Vegurinn er lokaður.», «Get ég fengið reikninginn?» |
+| review queue | **114 due** of 207 (lesson 25: 151): answered 言えた once 75, twice or more 14, 迷った/言えなかった 13, new-item check 10, never asked 2 |
+
+The rebuilt lesson 26 on main is identical to the export apart from pronunciation-note lines (119 exercises, 28.9 min).
+The lesson-26 preview's findings (#333) were still in it: «Showing the address: To this hotel, please.» read as a cue
+7 times, «Má ég sofa?», and «Get ég fengið reikninginn?» played as «a sentence from a pattern you know» two minutes after
+it was taught. «Áttu leigubíl?» was not (#334).
+
+What the learner wrote, by what the lesson did:
+
+- **"reikninginn, vegurinn and lokaður were hard to remember, and I wasn't sure how to say them."**
+  - None of the three got the slow, split model. `sounds.hard_sounds` flags one-word vocab items with ll, tt, fj or ý;
+    «reikninginn» has none of those, and «vegurinn», «lokaður» are words inside phrases, which the rule never reads.
+  - What they heard was the phrase word by word (#302), which places the words but doesn't model a long one.
+  - #337: a word reported hard gets its split model again; the rule reads inside phrases and adds the sounds this
+    learner has stumbled on («ei», «ng», «ð», «g» between vowels).
+- **"The 'listen for yy' exercise flows oddly."** The learner wrote the target format themselves: «Listen and answer.»,
+  the line, a pause, «the answer is», the answer and its meaning, «Now listen again.», the line.
+  - The pick-out says «Listen.» but wants an answer, and the model answer and the replay come unannounced. The other
+    exercises mark their turns; this one doesn't.
+  - #335, wording only.
+- **"«Ég elska» had many foods, which was good, but the bus only went to the town centre."** (The destinations they
+  listed are examples.)
+  - «Ég elska {food}.» is a construction, said with 7 foods. The transport set is all fixed phrases: «Fer þessi strætó í
+    miðbæinn?» was said 8–9 times identically, and «Fer þessi strætó á flugvöllinn?» is a separate item for later.
+  - #336: where a scene's line varies in use, author it as a pattern with the scene's fillers.
+- **The owner, after lesson 26: "The 'ask what the missing word means' practice with sestu, kjötsúpa keeps repeating.
+  Shouldn't the course's other new words take this form?"**
+  - The catch task asked «sestu», «kjötsúpa» and «þarftu» in every lesson from 23 to 26, and the replay keeps them in
+    27 and 28. The pick-outs «When do we leave?» and «When does it close?» come in every lesson from 25.
+  - Only 8 partner lines carry a gloss, three of them qualify, and the rotation's memory lasts one lesson.
+  - #339, with the owner's decision (2026-10-15): a word is caught about once, and some of the new words that come
+    after are introduced through the catch (§9 "Conversation"). The pick-outs rotate across lessons.
+
+**Reading.**
+- **What did not come back.** No remark on gaps, the slow models, the review's wording, repeated review cards or the
+  backlog; load «right» for the sixth lesson running. The changes heard first in lesson 24 have their three feedbacks (§8).
+- **The «úlpu» shape, a third time.** Lesson 25's úlpu (#311), the preview's «Get ég fengið leigubíl?» (#333) and now
+  the bus have one cause: a line the learner will need in several versions is authored as a fixed phrase, so the planner
+  can only repeat it. #311 linked phrases to patterns that exist; #336 is the case where no pattern was written. The
+  learner's own contrast, «Ég elska» against the bus, is H6 seen from the learner's side.
+- **H13's first real test is a miss of the rule, not of the model.** The words the learner found hard were never
+  flagged, so the slow model was not heard. The rule was built from earlier remarks (ll, tt, fj, ý) and is narrower than
+  what this learner finds hard.
+- **The backlog fell from 151 to 114 due** in one day of site_update_notifier#133, toward §8's «about 100».
+- **Repetition across lessons is the theme of this round.** The bus phrase within a lesson (#336) and the same catch
+  words and pick-outs in every lesson (#339) are one complaint at two scales: where variety was expected, the material
+  had one version. The within-lesson rows (`asked_again_within_spacing`, the caps) could not see the second, because no
+  row compares lessons; #339 adds one.
+- **Watch:** 6 sentences asked again within a minute (lesson 25: 1). It is a soft preference, read as a trend; the
+  transport phrases' repetition is where it comes from, which #336 addresses.
+- **#327 on the real path:** the museum level was a replay, so none of the 10 new items came from the played scene. The
+  replay rows for lessons 27–28 read 0 of 12 and 5 of 12, and no day's new material shares a topic: part 1 groups what
+  the order offers, and part 2 (theme levels) and the scene line are what supply the rest.

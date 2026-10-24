@@ -54,6 +54,7 @@ cause = "A form or an idiom comes without why it is so, or without which form is
 
 [families.framing-general]
 cause = "A framing line said for the general case, without looking at what follows: «In another sentence» before the same sentence, «other words» before none (§5.24)."
+structural_pr = "#397"  # every promising line checked against what follows; lesson 35's closing announcement was on its list of lines that promise nothing
 
 [families.hard-item]
 cause = "An item the learner finds hard gets the same practice as any other, in the same sentence (#326)."
@@ -67,6 +68,9 @@ structural_pr = "#352"
 
 [families.load-answer]
 cause = "The feedback form does not say what a load answer changes, so a single answer looks as if it changed nothing and the pace's signal stops (H9)."
+
+[families.other-answer]
+cause = "A right answer other than the model is never acknowledged: other answers exist only for fixed phrases, and no review asks what else a native would answer to the cue."
 
 [families.reading-deck]
 cause = "The reading deck has had no outside review: cards ask for words no lesson taught, and katakana hints add vowels."
@@ -290,7 +294,33 @@ family = "reading-deck"
 class = "precision"
 answered_by = ["#390"]
 
-# Built changes: the rows of the §8 table after lesson 34, in its order
+[[lesson]]
+n = 35
+form = true
+load = "light"
+
+[[lesson.remarks]]
+who = "main"
+text = "«Let's go back over today's new material», and then only part of the day's new material is covered."
+family = "framing-general"
+class = "precision"
+answered_by = ["#407"]
+
+[[lesson.remarks]]
+who = "main"
+text = "«latte» needs no slow, split pronunciation: it is no exception, and as a loanword it sounds much as in Japanese or English."
+family = "hard-word"
+class = "precision"
+answered_by = ["#407"]
+
+[[lesson.remarks]]
+who = "main"
+text = "Asked «It's twelve o'clock», the answer is «Klukkan er tólf», but «Hún er …» should do too; I think so every time (the owner, outside the form)."
+family = "other-answer"
+class = "precision"
+answered_by = ["#407"]
+
+# Built changes: the rows of the §8 table after lesson 35, in its order
 
 [[change]]
 title = "a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351)"
@@ -463,12 +493,16 @@ title = "an embed's «other sentence» is never the phrase it is taken out of (#
 issue = []
 pr = ["#386"]
 family = "framing-general"
+first_heard = 35
+heard = "«In another sentence» before «Ég verð að borga með korti.», «borga með korti» taken out of another line"
 
 [[change]]
 title = "a pick-out or catch that a drill follows ends with «Back to speaking.» (#387)"
 issue = []
 pr = ["#387"]
 family = "pick-out-turns"
+first_heard = 35
+heard = "«Back to speaking.» 4 times"
 
 [[change]]
 title = "a pattern's introduction promises a swap only when one follows (#388)"
@@ -481,3 +515,23 @@ title = "the reading corner «読んでみよう», read without a rating; the �
 issue = []
 pr = ["site_update_notifier#165", "#390"]
 family = "reading-deck"
+
+[[change]]
+title = "a hard item's scene line asked or heard by line_role (#265: #392)"
+issue = ["#265"]
+pr = ["#392"]
+family = "hard-item"
+
+[[change]]
+title = "a transform asks the pair said least this lesson (G17: #394), its instruction narrated in full twice a lesson, then «Same change:» (G12: #405)"
+issue = []
+pr = ["#394", "#405"]
+family = "one-version"
+first_heard = 35
+heard = "one transform, «Say it more politely, as a question:» in full"
+
+[[change]]
+title = "the town's third level: he is asked to speak more slowly, and says his line again word by word (#261, #327: #393)"
+issue = ["#261", "#327"]
+pr = ["#393"]
+family = "scene-first"
