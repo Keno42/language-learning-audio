@@ -7,36 +7,29 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 (§7), the hypotheses with their status (§4), the evidence lesson by lesson (§5). The learning policy is in
 `docs/CURRENT-POLICY.md`.
 
-## Now (updated 2026-10-23, after lesson 34), in order
+## Now (updated 2026-10-24, after lesson 35), in order
 
-Ranked by the effect on the next lesson as the replay of the latest export shows it (LD §9 "Governance": about 80% /
-20%). The latest export is lesson 34's; the next lesson is 35. Lesson 34's four remarks are answered in review (LD
-§5.24): a stored pattern question names its form (#385, then the bot's `REFINE_VERSION` 6), an embed's «other sentence»
-is never its own phrase (#386), a pick-out that a drill follows ends with «Back to speaking.» (#387), and a pattern's
-introduction promises a swap only when one follows (#388). Three of them share a cause: a framing line said for the
-general case, without looking at what follows.
-1. **The coming lessons' sentences get a verdict before they are said (G6; the scene check, LD §9 "Good enough
-   overall").** On the replay of the lesson-30 export, the sentences that lessons 30–43 can generate were sent to an
-   outside review: it judged «Ég borða ekki mjólk.» false and gave four permission questions their scenes, and 142
-   still have no verdict, «Má ég versla?» among them. The sheet was printed for the patterns and words the learner had
-   met, so a word introduced today is generated unjudged the same day, and the negative and question forms are on no
-   sheet. **Next smallest step:** scene lines for the 142 from a reviewer (`docs/SCENE-REVIEW.md`), faithful to each
-   sentence's meaning; then, from each new export, the sheet its replay prints (`--scene-sheet`: the sentences the coming
-   lessons say, the forms included), until the replay's row «pattern sentences said with no scene verdict» reads 0.
-2. **The new material after lesson 40 has no level to play (#327).** On the replay of the lesson-33 export, «today's new
-   items said as a turn of the played exchange» reads 2 to 5 in every lesson from 33 to 40, with the town's third level
-   (the way, #381) in lesson 38 and small talk's third and fourth (nationality and work, age and married; #383) in
-   lessons 39 and 40; from lesson 41 it is 0. The day's material is then making arrangements («á morgun», «í kvöld», «Ég
-   fer {time}.», «Hentar það?», «Það hentar vel.», «Ég er sein.», «Ég kem eftir tíu mínútur.») and more of the way
-   («Hvernig kemst ég að …?», «á horninu», «hinum megin við götuna», «hálftíma»). **Next smallest step:** a level for
-   arranging to meet (when, whether it suits, being late); no can-do scenario names it yet.
-3. **The feedback form says what a load answer will change.** Another learner, on 15-minute lessons: «15分レッスンも4つ
-   くらい新出表現がほしい», and «変わらなかったから最近フィードバックしてなかった». A «light» answer raises the next
-   lesson's target only after two in a row (with at most 25% of new items failed and a small backlog), and «heavy» only
-   blocks a rise (`suggest_target`, LD §9 "Pace"); the form says none of it, so a single answer looks as if it changed
-   nothing, and the signal the pace depends on (H9) stops. **Next smallest step:** the bot shows each answer's target
-   beside the choice (the owner's proposal), from `audiolesson load-preview`, which presumes the morning review recalls
-   the lesson's new items.
+Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% by what may change a long-term decision, each
+remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
+35's; the next lesson is 36. Lesson 35 brought three precision remarks and no twenty-point one (LD §5.25), answered in
+review in one PR (#407): the closing's announcement says «some of» when it leaves new items out, a loanword gets no slow
+split, and the clock's sentence takes «Hún er …». Until lesson 36's feedback, no other behaviour change: lesson 35 was the
+first to play the fifteen changes merged on 2026-10-23, and the next feedbacks are what tell them apart.
+1. **The new material from lesson 40 has no level to play (#327).** On the replay of the lesson-35 export, «today's new
+   items said as a turn of the played exchange» reads 2 to 5 in every lesson from 35 to 39 and 0 in lesson 40, the first
+   lesson that replays the café. The day's material is then making arrangements («á morgun», «í kvöld», «Ég fer
+   {time}.», «Hentar það?», «Það hentar vel.», «Ég er sein.», «Ég kem eftir tíu mínútur.») and more of the way («Hvernig
+   kemst ég að …?», «á horninu», «hinum megin við götuna», «hálftíma»). It weighs on both sides: a lesson of unrelated
+   items is the «Anki game» the learner left (H4, the main bet), and without a level the bet stops being tested.
+   **Next smallest step:** a level for arranging to meet (when, whether it suits, being late), a data PR (authored
+   Icelandic, a candidate until native-checked), in place before lesson 40.
+2. **The coming lessons' sentences get a verdict before they are said (G6; the scene check, LD §9 "Good enough
+   overall").** On the replay, lessons 35–40 say 16 to 27 pattern sentences with no scene verdict each. **Next smallest
+   step:** the sheet the lesson-35 replay prints (`--scene-sheet`) to a reviewer (`docs/SCENE-REVIEW.md`), the verdicts
+   back as a data PR; the owner decides when a review round is worth its cost.
+3. **The feedback form says what a load answer will change.** Lesson 35's «light» changes nothing until a second one, and
+   the form does not say so (the other learner stopped answering for that reason, LD §5.24). **Next smallest step:** the
+   bot shows each answer's target beside the choice, from `audiolesson load-preview`.
 
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
 Icelandic (candidates until native-checked). The town (asking the way), small talk (getting to know someone) and the
@@ -54,6 +47,11 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
+- **Merged on 2026-10-23 (first heard in lesson 35 unless named):** a transform's pair (#394) and its instruction (#405);
+  every promising framing line checked against what follows (#397); the town's slower reply (#393, lesson 38); a hard
+  item's scene line by `line_role` (#392); the charge of an item never taught given back (#404); and tools: the feedback
+  ledger (#399), the scene sheet of the replay (#402), `load-preview` (#401), `same_lessons.py` (#403), `top_lines.py`
+  (#396), scenario coverage in `validate` (#395). The end of the fix-up phase is a §9 decision (#406).
 - **Scenes (#327):** the town (#365, its third level #381), small talk (#371, its third and fourth levels #383) and the clothes shop (#372); a gendered learner
   line said in the form of the learner's voice, named in the cue (#382); an authored dialogue that repeats the lesson's
   scene is not played (#384); a level played in
