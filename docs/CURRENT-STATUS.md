@@ -7,29 +7,25 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 (§7), the hypotheses with their status (§4), the evidence lesson by lesson (§5). The learning policy is in
 `docs/CURRENT-POLICY.md`.
 
-## Now (updated 2026-10-24, after lesson 35), in order
+## Now (updated 2026-10-24, after lesson 36), in order
 
 Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% by what may change a long-term decision, each
 remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
-35's; the next lesson is 36. Lesson 35 brought three precision remarks and no twenty-point one (LD §5.25), answered in
-review in one PR (#407): the closing's announcement says «some of» when it leaves new items out, a loanword gets no slow
-split, and the clock's sentence takes «Hún er …». Until lesson 36's feedback, no other behaviour change: lesson 35 was the
-first to play the fifteen changes merged on 2026-10-23, and the next feedbacks are what tell them apart.
-1. **The new material from lesson 40 has no level to play (#327).** On the replay of the lesson-35 export, «today's new
-   items said as a turn of the played exchange» reads 2 to 5 in every lesson from 35 to 39 and 0 in lesson 40, the first
-   lesson that replays the café. The day's material is then making arrangements («á morgun», «í kvöld», «Ég fer
-   {time}.», «Hentar það?», «Það hentar vel.», «Ég er sein.», «Ég kem eftir tíu mínútur.») and more of the way («Hvernig
-   kemst ég að …?», «á horninu», «hinum megin við götuna», «hálftíma»). It weighs on both sides: a lesson of unrelated
-   items is the «Anki game» the learner left (H4, the main bet), and without a level the bet stops being tested.
-   **Next smallest step:** a level for arranging to meet (when, whether it suits, being late), a data PR (authored
-   Icelandic, a candidate until native-checked), in place before lesson 40.
-2. **The coming lessons' sentences get a verdict before they are said (G6; the scene check, LD §9 "Good enough
-   overall").** On the replay, lessons 35–40 say 16 to 27 pattern sentences with no scene verdict each. **Next smallest
-   step:** the sheet the lesson-35 replay prints (`--scene-sheet`) to a reviewer (`docs/SCENE-REVIEW.md`), the verdicts
-   back as a data PR; the owner decides when a review round is worth its cost.
-3. **The feedback form says what a load answer will change.** Lesson 35's «light» changes nothing until a second one, and
-   the form does not say so (the other learner stopped answering for that reason, LD §5.24). **Next smallest step:** the
-   bot shows each answer's target beside the choice, from `audiolesson load-preview`.
+36's; the next lesson is 37. Lesson 36 brought three remarks (LD §5.26), two answered in review (#411).
+1. **A cue says the learner's action first (#409).** Every pick-out opened with «You want to know …» and named the task
+   last, eight a lesson, and «Your turn.» came a line before its task. **Built, in review:** «Listen, then answer: …»,
+   «Listen for the price, then say it.», no «Your turn.» in the form model (#411).
+2. **The new material from lesson 40 has no level to play (#327).** On the replay of the lesson-36 export «today's new
+   items said as a turn of the played exchange» reads 3 to 5 in lessons 36–39 and 0 in lesson 40 (41 on a replay that
+   stores the pace as `generate` does, #410). The day's material is then making arrangements and more of the way.
+   **Next smallest step:** a level for arranging to meet (when, whether it suits, being late), a data PR in place before
+   lesson 40; #410 first, a small tool fix, so the date is read as production would build it.
+3. **Two units of one scene back to back (#273, reopened).** Lesson 36 asked two pick-outs of the clothes shop 23 seconds
+   apart, each narrating the scene line. **Next smallest step:** find why the rotation took them back to back; a unit
+   right after another of the same scene does not narrate the scene again, or the rotation takes another scene's unit.
+
+**Alongside:** the scene verdicts for the coming lessons' sentences (15–24 a lesson without one on the replay, G6), and the
+load answer's preview in the bot.
 
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
 Icelandic (candidates until native-checked). The town (asking the way), small talk (getting to know someone) and the
@@ -47,6 +43,7 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
+- **Lesson 35's remarks (#407):** a loanword gets no slow split; the closing says «some of» when it leaves new items out; a pattern's other answers («Hún er …») and an aside on «hún».
 - **Merged on 2026-10-23 (first heard in lesson 35 unless named):** a transform's pair (#394) and its instruction (#405);
   every promising framing line checked against what follows (#397); the town's slower reply (#393, lesson 38); a hard
   item's scene line by `line_role` (#392); the charge of an item never taught given back (#404); and tools: the feedback

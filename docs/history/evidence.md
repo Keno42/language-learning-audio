@@ -902,3 +902,40 @@ What the learner wrote, by what the lesson did:
 - **#327 on the real path:** the museum level was a replay, so none of the 10 new items came from the played scene. The
   replay rows for lessons 27–28 read 0 of 12 and 5 of 12, and no day's new material shares a topic: part 1 groups what
   the order offers, and part 2 (theme levels) and the scene line are what supply the rest.
+
+### 5.23 Lesson 33: the first feedback on #365–#371
+
+Lesson 33 was generated with LLA `fad041f`, the bot at site_update_notifier `2fc64d2`. Lessons 27–32 have no subsection:
+their findings went into issues and PRs directly (#339, #337, #335, #336, #327). Lesson 33 is the first feedback on:
+- small talk, the getting-to-know-you scene (#371), whose level 1 it played;
+- the played level's goal said after the opening (#369) and the closing in the order of its turns (#370);
+- a level played in the lesson that teaches its lines (#365).
+
+| | lesson 33 |
+|---|---|
+| length | 29.2 min, 122 exercises |
+| new items; new components, weighted (target) | 9; 8 (7) |
+| theme (level); today's new items said as a turn of the played exchange | small talk (1); «Ég heiti Yuki.», «Hvað heitir þú?» |
+| target reached | 18.7 min |
+| longest stretch without a scene | 4.1 min |
+| a sentence asked again within a minute | 0 |
+| most narrations of one situation | 2 |
+| hard items with no connection to practise them through, asked 3+ times | «Ég er með ofnæmi fyrir hnetum.» (open), said 6 times |
+| feedback form: load; friction | **right**; other |
+| «sooner» | «hringja heim» (hard to say) |
+| review queue | **115 due** of 276: answered once 78, 迷った/言えなかった 22, new 8, never asked 3, 言えた twice or more 3, open 1 |
+| retention by gap | 3–6 days 7 of 9; 7–13 days 10 of 10; 14+ days 4 of 4 |
+
+What the learner wrote, by what the lesson did:
+
+- **"In the review there was a question where it was unclear whether «svangur» or «svöng» was the answer."** The audio
+  names the form before every gendered answer, and so did the lesson's own review questions. The bot's queue lost it:
+  its wording refresh took a stored «As a woman: …» question for stale and wrote it again without the form, and a
+  question kept as a whole sentence never had one. **Answered, in review:** every review question names the form its answer expects
+  (#375; the owner: a voice that doesn't match is fine, the instruction must say which answer is expected).
+- **"Choosing the right case after «með» and «án» is hard."** The four units («með sykri», «án sykurs», «með mjólk», «án
+  mjólkur») were taught whole, and nothing said why the word changes; the practice after a milestone asked parts bare
+  and could pair two «með». **Answered, in review:** a milestone names the two cases with the forms side by side, and the practice
+  after any milestone contrasts its two examples, in sentences (#377).
+- **No remark on the scene, its goal or the closing,** and no «repetitive» tick: the first of the three feedbacks for
+  #365, #369, #370 and #371.

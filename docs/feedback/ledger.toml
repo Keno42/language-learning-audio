@@ -72,6 +72,9 @@ cause = "The feedback form does not say what a load answer changes, so a single 
 [families.other-answer]
 cause = "A right answer other than the model is never acknowledged: other answers exist only for fixed phrases, and no review asks what else a native would answer to the cue."
 
+[families.scene-spacing]
+cause = "Two units of one scene come back to back, each narrating its scene line: the spacing of #273 covers authored situations and a scene check's line, not a theme's scene line."
+
 [families.reading-deck]
 cause = "The reading deck has had no outside review: cards ask for words no lesson taught, and katakana hints add vowels."
 
@@ -320,7 +323,33 @@ family = "other-answer"
 class = "precision"
 answered_by = ["#407"]
 
-# Built changes: the rows of the §8 table after lesson 35, in its order
+[[lesson]]
+n = 36
+form = true
+load = "light"
+
+[[lesson.remarks]]
+who = "main"
+text = "A pick-out opens with «You want to know …», so I start building the question in my head; only then comes «Listen and answer»."
+family = "pick-out-turns"
+class = "twenty"
+answered_by = ["#411"]
+
+[[lesson.remarks]]
+who = "main"
+text = "«Your turn» sounded unnatural."
+family = "framing-general"
+class = "precision"
+answered_by = ["#411"]
+
+[[lesson.remarks]]
+who = "main"
+text = "The same kind of situation is sometimes practised twice in a row, such as looking for something warm."
+family = "scene-spacing"
+class = "precision"
+answered_by = []
+
+# Built changes: the rows of the §8 table after lesson 36, in its order
 
 [[change]]
 title = "a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351)"
@@ -535,3 +564,25 @@ title = "the town's third level: he is asked to speak more slowly, and says his 
 issue = ["#261", "#327"]
 pr = ["#393"]
 family = "scene-first"
+
+[[change]]
+title = "the closing's announcement says «some of today's new material» when the closing leaves a new item out, embedded phrases included (#407)"
+issue = []
+pr = ["#407"]
+family = "framing-general"
+first_heard = 36
+heard = "«today's new material», every new item asked"
+
+[[change]]
+title = "a loanword or a name said as in English or Japanese gets no slow, split model (`sounds_familiar`: «latte», «Tókýó»; #407)"
+issue = []
+pr = ["#407"]
+family = "hard-word"
+
+[[change]]
+title = "a pattern's other answers filled as its sentence: the clock's «Hún er …», and an aside on why «hún» (#407)"
+issue = []
+pr = ["#407"]
+family = "other-answer"
+first_heard = 36
+heard = "the aside after a pick-out answered «klukkan tíu»; the alternative not offered"
