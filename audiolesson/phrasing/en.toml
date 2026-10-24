@@ -87,7 +87,7 @@ embed_meaning = "{meaning}"
 form_model_known = "You know this one:"
 form_model_question = "As a question:"
 form_model_negative = "As a negative:"
-form_model_again = "Now the same form with another word. Your turn."
+form_model_again = "Now the same form with another word."  # the cue follows: no «Your turn.» ahead of its task (lesson 36, #409)
 instance_sentence = "A sentence from a pattern you know. Listen, then repeat."
 instance_form_known = "You know this one:"
 instance_form_question = "As a question: listen, then repeat."
@@ -121,12 +121,13 @@ man_says = "A man says:"
 # a listening exercise of the second half (#248): the question after a sentence heard, and the unknown word to catch
 # the same, when the scene was named: whose line it is
 # a pick-out (#303): the need comes first, after the scene, and the line is heard for it
-pick_out_need_price = "You want to know how much it costs. Listen and answer."
-pick_out_need_time = "You want to know the time. Listen and answer."
-pick_out_need_count = "You want to know how many. Listen and answer."
-pick_out_need_place = "You want to know where it is. Listen and answer."
-pick_out_need_duration = "You want to know how long. Listen and answer."
-pick_out_need_ask = "You want to know: {ask} Listen and answer."
+# #409: the action first, then what to listen for, still before the line (#303): «You want to know …» opened like a speaking task (lesson 36)
+pick_out_need_price = "Listen for the price, then say it."
+pick_out_need_time = "Listen for the time, then say it."
+pick_out_need_count = "Listen for how many, then say it."
+pick_out_need_place = "Listen for where it is, then say it."
+pick_out_need_duration = "Listen for how long it takes, then say it."
+pick_out_need_ask = "Listen, then answer: {ask}"
 pick_out_answer = "The answer:"
 pick_out_again = "Listen again."
 speaker_he = "he"
