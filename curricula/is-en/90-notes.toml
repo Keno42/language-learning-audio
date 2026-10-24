@@ -415,6 +415,16 @@ topics = ["hobbies"]
 text = "Most books are published in November for the «jólabókaflóð», the Christmas book flood. The traditional gift on Christmas Eve is a book, read that same night in bed, ideally with chocolate."
 text_ja = "本の多くは11月に出版され、「クリスマスの本の洪水」«jólabókaflóð»（ヨウラボウカフロウズ）と呼ばれます。クリスマスイブの定番の贈り物は本で、その夜のうちにベッドで、できればチョコレートと一緒に読みます。"
 
+# The owner kept wondering whether «Hún er tólf.» counts as an answer to «It's twelve o'clock» (2026-10-23): it does, and
+# the clock's sentence now offers it (`alternatives`); this says why «hún».
+[[notes]]
+id = "hun_er_klukkan"
+milestone = true
+items = ["hvad_er_klukkan", "klukkan_er"]
+topics = ["time", "grammar"]
+text = "To «Hvað er klukkan?» Icelanders often answer «Hún er þrjú.» The word «hún» means she: it stands for the feminine word «klukkan». «Klukkan er þrjú.» is just as right."
+text_ja = "«Hvað er klukkan?» には «Hún er þrjú.» と答える人もよくいます。«hún» は「彼女」で、女性名詞の «klukkan»（時計）を指しています。«Klukkan er þrjú.» でももちろん正解です。"
+
 [[notes]]
 id = "timi"
 items = ["eg_er_sein", "klukkan_hvad", "eg_kem_eftir_tiu_minutur"]

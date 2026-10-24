@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 import tomllib
 from collections.abc import Iterable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from itertools import product
 from pathlib import Path
 
@@ -116,9 +116,10 @@ class Item:
     situation: str | None = None  # known-language cue for situational recall
     # alternative cues, rotated on repeat retrieval; override ``situation`` when non-empty
     situations: list[str] = field(default_factory=list)
-    alternatives: list[str] = field(default_factory=list)
+    alternatives: list[str] = field(default_factory=list)  # other acceptable answers; a construction's take its slots («Hún er {hour}.»), filled as its sentence is
     pronunciation_notes: str = ""
     chunks: list[str] | None = None  # backward-build chunks, shortest first
+    sounds_familiar: bool = False  # a loanword or a name said much as in English or Japanese («latte», «Tókýó»): no slow, split model, whatever its letters (lesson 35)
     syllables: list[str] | None = None  # #212: a hard-to-say word cut into syllables, authored (never guessed), spoken slowly one at a time at its introduction
     word_syllables: dict[str, list[str]] | None = None  # #337: a phrase's hard words cut into syllables, authored: word (lower case) -> pieces; said slowly once at the phrase's introduction and when the phrase is reported hard
     slots: dict[str, str] = field(default_factory=dict)  # construction: slot -> required tag
@@ -428,6 +429,10 @@ class Curriculum:
     def fits_form(construction: Item, fills: dict[str, Item], form: str | None) -> bool:
         """Whether ``fills`` may go into ``construction``'s template of ``form``: no ``reflexive`` fill in a template whose subject is the person spoken to."""
         return (form or "plain") not in construction.addressee or not any(f.reflexive for f in fills.values())
+
+    def resolve_alternatives(self, construction: Item, fills: dict[str, Item], speaker: str | None = None) -> list[str]:
+        """A construction's other acceptable answers for the sentence ``fills`` make, filled as its target is: «Klukkan er tólf.» → «Hún er tólf.»."""
+        return [self.resolve_slots(replace(construction, target=alt), fills, speaker)[0] for alt in construction.alternatives]
 
     def resolve_slots(self, construction: Item, fills: dict[str, Item], speaker: str | None = None, form: str | None = None) -> tuple[str, str]:
         """Return (target, meaning) with every slot filled from ``fills``; agreement
@@ -912,6 +917,8 @@ def validate(cur: Curriculum) -> None:
         for ref in it.components + it.prereqs:
             if ref not in ids:
                 raise CurriculumError(f"item {it.id!r} references unknown item {ref!r}")
+        if it.sounds_familiar and (it.syllables or it.kind != "vocab"):
+            raise CurriculumError(f"item {it.id!r}: sounds_familiar is for a vocab word said as in the learner's languages, so it has no syllables")
         if it.syllables is not None:
             joined = "".join(it.syllables).casefold()
             plain = re.sub(r"[\s.?!,]", "", it.target).casefold()
@@ -956,6 +963,9 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"item {it.id!r}: an Icelandic negative contains «ekki»: {template!r}")
             if form == "question" and not template.rstrip().endswith("?"):
                 raise CurriculumError(f"item {it.id!r}: a question ends with «?»: {template!r}")
+        for alt in it.alternatives:
+            if sorted(_ANY_SLOT_RE.findall(alt)) != sorted(_ANY_SLOT_RE.findall(it.target)):
+                raise CurriculumError(f"item {it.id!r}: an alternative uses the item's slots, as {it.target!r} does: {alt!r}")
         if it.context and it.kind not in ("phrase", "vocab"):
             raise CurriculumError(f"item {it.id!r}: context is for a phrase or vocab item (a construction is recalled through a filled sentence)")
         if it.context and _UNSPEAKABLE_RE.search(it.context):

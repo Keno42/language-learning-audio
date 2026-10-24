@@ -1210,6 +1210,8 @@ meaning_ja = "今{hour}時です。"
 question = "Er klukkan {hour}?"
 question_meaning = "Is it {hour} o'clock?"
 question_meaning_ja = "今{hour}時ですか？"
+# the answer to «Hvað er klukkan?» more often starts with «hún» (= «klukkan», feminine): the learner kept wondering whether it counts
+alternatives = ["Hún er {hour}."]
 difficulty = 2
 topics = ["time"]
 slots = { hour = "hour" }
