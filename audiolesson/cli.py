@@ -276,10 +276,9 @@ def cmd_generate(args) -> int:
     elif args.pace is not None:
         new_items, why = learner.suggest_pace(args.minutes, today)  # an explicit pace in items: this lesson counts items (#218 b3)
     else:
-        new_items, items_why = learner.suggest_pace(args.minutes, today)
         # the target is a rate per 30 minutes, so its rules (the backlog's review slots included) run at 30 minutes: at 5, the slots
         # are about 0 and the backlog rule would lower the rate every lesson (#242)
-        new_target, why = learner.suggest_target(NEW_TARGET_MINUTES, today)
+        new_items, items_why, new_target, why = learner.plan_pace(args.minutes, today)
         why += f" (≈ {new_items} items)"
     priority: list[str] = []
     scenarios = load_cando(args.curriculum, cur) if Path(args.curriculum).is_dir() else []
@@ -367,10 +366,7 @@ def cmd_generate(args) -> int:
     else:
         apply_to_learner(script, learner, today, presume_success=cfg.presume_success)
         learner.level = level
-        if args.new is None:
-            learner.pace = new_items
-        if new_target is not None:
-            learner.new_target = new_target
+        learner.keep_pace(new_items if args.new is None else None, new_target)
         learner.save(args.learner)
         _save_user_settings(args)
         print(f"  learner state updated: {args.learner} (use `{_learner_hint(args, ' --failed id,id')}` after listening if some items failed)")
