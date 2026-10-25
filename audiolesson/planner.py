@@ -112,6 +112,7 @@ class PlanConfig:
     theme_scenarios: list[str] = field(default_factory=list)
     max_pick_outs_per_pattern: int = 1  # pick-outs one partner turn gives in a lesson, its variants and listening lines counted together (#248 review)
     theme_ready: float = 0.75  # a theme's level plays once the learner can say this share of its turns; the rest are heard (#240)
+    theme_heard_one: int = 3  # a level with at least this many learner turns may play with one of them heard, whatever its share (#327: small talk 4, 2 of 3)
     scene_share: float = 2 / 3  # #327: the share of a call's places the day's scene may take ahead of the course order
     scene_window: int = 150  # #327: the next unmet items a scene may take its items from
     theme_match_rest: int = 2  # #327: a level whose scene is the topic of the day's new material comes back after this many lessons
@@ -1843,7 +1844,8 @@ class Planner:
 
     def pick_theme(self, coming: set[str] | frozenset = frozenset()) -> tuple | None:
         """The lesson's theme, its level (0-based) and the learner's turns of it that are only heard (#149 1b-ii, #240).
-        Among the themes whose next level the learner can say in all but a quarter of their turns (``theme_ready``; every item
+        Among the themes whose next level the learner can say in all but a quarter of their turns, or all but one in a level of three or more
+        (``theme_ready``, ``theme_heard_one``; every item
         of a turn met and not open), a level whose lines this lesson teaches comes first (#327, below), then the lowest level
         not yet played, then the trip profile's boosted scenarios, Tier A, Tier B, in file order. A turn with an item they lack is *heard*, as in a listening
         scene (#183).
@@ -1867,7 +1869,9 @@ class Planner:
             you = [t for t in theme.levels[level].turns if t.who == "you"]
             untaught = self._untaught_turns(you)
             waiting = {k for k in untaught if all(self.learner.has_met(i) or self.taught_today(i) or i in coming for i in you[k].items)}
-            if len(untaught - waiting) > (1 - self.cfg.theme_ready) * len(you):
+            # a quarter of the turns may be heard, and one in a level of three or more (#327: on the lesson-36 replay, lesson 40 taught two of small talk 4's
+            # three lines and the third the next day, so the level waited and the café was played again over today's lines)
+            if len(untaught - waiting) > max((1 - self.cfg.theme_ready) * len(you), 1 if len(you) >= self.cfg.theme_heard_one else 0):
                 continue
             # a level whose lines this lesson teaches comes first (#327): another ready level, all of it known, would leave today's lines without
             # their scene (lesson 40 of the lesson-33 replay: café 4, rank A4, over small talk 4, whose lines that lesson taught)
