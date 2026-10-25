@@ -209,7 +209,12 @@ class LevelInTheLessonThatTeachesItTests(unittest.TestCase):
         theme, level, heard = p.pick_theme(coming={"langt", "takk"})
         self.assertEqual((theme.id, level), ("town", 0))
         self.assertEqual(heard, {1, 2}, "the turns are still heard until their items are taught")
-        self.assertIsNone(p.pick_theme(coming={"langt"}), "a turn whose item is not coming still keeps the level back")
+        # premise changed (#327, `theme_heard_one`): a level of three learner turns may play with one heard, so one turn whose item is not
+        # coming no longer keeps it back; two still do (above), and without the allowance one does
+        theme, level, heard = p.pick_theme(coming={"langt"})
+        self.assertEqual((theme.id, level, heard), ("town", 0, {1, 2}))
+        p.cfg.theme_heard_one = 99
+        self.assertIsNone(p.pick_theme(coming={"langt"}), "without the allowance a turn whose item is not coming keeps the level back")
 
     def test_a_level_whose_lines_come_today_beats_a_ready_level_that_teaches_nothing(self):
         """Lesson 40 of the lesson-33 replay: café 4 (every line known, scenario ranked first) and small talk 4 (its lines taught that lesson)
