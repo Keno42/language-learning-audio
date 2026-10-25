@@ -36,7 +36,7 @@ class PickOutNeedTests(unittest.TestCase):
     def test_a_line_with_several_pieces_names_the_one_asked_for(self):
         task = ListeningTask("pick_out", "x", "", "Safnið opnar klukkan tíu og lokar klukkan fimm.", "klukkan fimm", "five", "pick_out_time", ask="When does it close?", pieces=2)
         spoken = [g.text for g in build("en", task).segments if g.type in ("narrate", "speak")]
-        self.assertEqual(spoken[0], "You want to know: When does it close? Listen and answer.")
+        self.assertEqual(spoken[0], "Listen, then answer: When does it close?")
         self.assertEqual(spoken[1], task.line)
 
     def test_the_question_is_not_asked_after_the_line(self):
@@ -92,3 +92,18 @@ class PickOutNeedTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ActionFirstTests(unittest.TestCase):
+    """#409 (lesson 36): «You want to know: When does it close? Listen and answer.» opened like a speaking task, and «Now the same form with another
+    word. Your turn.» gave the turn a line before its task. A cue's first words say what the learner is to do."""
+
+    def test_every_pick_out_need_opens_with_listening(self):
+        for lang, opening in (("en", "Listen"), ("ja", "聞いて")):
+            p = Prompts.load(lang)
+            for kind in (*KINDS, "ask"):
+                self.assertTrue(p.get(f"pick_out_need_{kind}", ask="X?").startswith(opening), (lang, kind))
+
+    def test_the_form_model_gives_no_turn_ahead_of_its_task(self):
+        self.assertNotIn("turn", Prompts.load("en").get("form_model_again").lower())
+        self.assertNotIn("番", Prompts.load("ja").get("form_model_again"))
