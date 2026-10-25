@@ -230,6 +230,22 @@ class LearnerState:
             self.target_changed_at = self.lessons_completed
         return float(new_target), "; ".join(reasons)
 
+    def plan_pace(self, minutes: float, today: date) -> tuple[int, str, float, str]:
+        """The next lesson's pace in items and its target rate of weighted components, with why, as ``generate`` works them out: the rate
+        per ``NEW_TARGET_MINUTES`` (#242), so a lesson of ``minutes`` plans ``lesson_target(rate, minutes)``. ``keep_pace`` stores them once
+        the lesson is built; the replay calls both, so it plans each later lesson as production would (#410)."""
+        items, items_why = self.suggest_pace(minutes, today)
+        rate, why = self.suggest_target(NEW_TARGET_MINUTES, today)
+        return items, items_why, rate, why
+
+    def keep_pace(self, items: int | None, rate: float | None) -> None:
+        """Store what the lesson was planned from (``plan_pace``), as ``generate`` saves it in the learner file: the next lesson's rules
+        start from it. None leaves that one as it is (an explicit ``--new``, or a lesson that counts items)."""
+        if items is not None:
+            self.pace = items
+        if rate is not None:
+            self.new_target = rate
+
     def load_preview(self, minutes: float, today: date) -> dict[str, dict]:
         """What each answer to the feedback form's load question makes the next lesson's target (CURRENT-STATUS «Now» 3): for each of
         ``LOADS``, the rate ``generate`` would save (``suggest_target`` at ``NEW_TARGET_MINUTES``, #242), the share a lesson of ``minutes``

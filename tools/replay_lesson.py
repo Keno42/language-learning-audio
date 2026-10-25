@@ -36,7 +36,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from audiolesson.cli import _plan, _toml_key  # noqa: E402
-from audiolesson.learner import retention_report  # noqa: E402
+from audiolesson.learner import lesson_target, retention_report  # noqa: E402
 from audiolesson.nouns import noun_report  # noqa: E402
 from audiolesson.review_wholes import bare_parts_with_a_home, parts_outside_their_whole  # noqa: E402
 from audiolesson.cando import for_season, load_cando, priority_items  # noqa: E402
@@ -306,13 +306,16 @@ def main(argv: list[str] | None = None) -> int:
     said: list[str] = []
     for _ in range(args.lessons):
         known_c = sum(1 for c in cur.items if c.kind == "construction" and learner.knows(c.id))
-        pace, _why = learner.suggest_pace(minutes, day)
-        target, _twhy = learner.suggest_target(minutes, day)  # the lesson plans from its target of weighted components (#218 b3)
+        # as `generate`: the pace and the target rate worked out, the lesson's share planned, both stored once it is built (#410)
+        pace, _why, rate, _twhy = learner.plan_pace(minutes, day)
+        target = lesson_target(rate, minutes)  # the lesson plans from its target of weighted components (#218 b3)
         timing = Timing(level=learner.level or cur.level, speech_ratio=dict(learner.speech_calibration))
         sc = Planner(cur, learner, prompts, timing, PlanConfig(minutes=minutes, new_items=pace, new_target=target, priority=priority, themes=themes, theme_scenarios=theme_scenarios), today=day).build()
         rows.append(measure(cur, sc, known_c))
         said += said_lines(sc)
         apply_to_learner(sc, learner, day)
+        learner.keep_pace(pace, rate)
+        rows[-1]["target, weighted components (#410: stored as `generate` stores it)"] = f"{target:g}"
         rows[-1]["nouns that have met a form (#270)"] = noun_report(cur, learner)
         rows[-1]["target delivered / second half by the guard (#294)"] = "guard" if m_guard(sc) else ("yes" if sc.meta.get("target_delivered") else "no")
         rows[-1]["speech touching at a change of voice (#301)"] = sc.meta.get("touching_switches", "–")
