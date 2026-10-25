@@ -436,6 +436,8 @@ title = "a known noun's other form taught in its frame, named against the known 
 issue = ["#270"]
 pr = ["#368"]
 family = "form-why"
+first_heard = 36
+heard = "«Ég er að leita að bankanum.»: «You know it as: bankinn», «This form comes after leita að», the sentence asked; «hótelinu» the same way"
 
 [[change]]
 title = "the played level's goal said after the opening (#327)"

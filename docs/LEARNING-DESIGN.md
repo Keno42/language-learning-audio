@@ -519,7 +519,7 @@ lessons 21–23 (§5.18–§5.20) have had their three.
 | a grammar note's endings said piece by piece; no lone «.» narrated (#198: #323) | lesson 26 | **done**: 5 (26, 33, 34, 35, 36; 27–32 no record) |
 | new material grouped by scene, the played scene matched (#327 part 1, without its scene line: #329) | lesson 26 (a replayed level: 0 of 10 inside it) | **done**: 5 (26, 33, 34, 35, 36; 27–32 no record) |
 | the town scene, two levels; a level played in the lesson that teaches its lines (#327) | lesson 33 (the rule, on small talk; in lesson 34 on the clothes shop; the town's levels not yet) | **done**: 4 (33, 34, 35, 36) |
-| a known noun's other form taught in its frame, named against the known form, with the frame's reason (#270) | not yet | – |
+| a known noun's other form taught in its frame, named against the known form, with the frame's reason (#270) | lesson 36 («Ég er að leita að bankanum.»: «You know it as: bankinn», «This form comes after leita að», the sentence asked; «hótelinu» the same way) | 1 (36) |
 | the played level's goal said after the opening (#327) | lesson 33 | **done**: 4 (33, 34, 35, 36) |
 | the closing ends on the played level's lines, in the order of its turns (#327) | lesson 33 | **done**: 4 (33, 34, 35, 36) |
 | small talk, two levels (#327) | lesson 33 (level 1) | **done**: 4 (33, 34, 35, 36) |
