@@ -939,3 +939,47 @@ What the learner wrote, by what the lesson did:
   after any milestone contrasts its two examples, in sentences (#377).
 - **No remark on the scene, its goal or the closing,** and no «repetitive» tick: the first of the three feedbacks for
   #365, #369, #370 and #371.
+
+### 5.24 Lesson 34: the first feedback on #379–#384
+
+Lesson 34 was generated with LLA `1c9ec29`, the bot at site_update_notifier `edc9128`. It is the first feedback on:
+- the clothes shop (#372), whose level 1 it played;
+- the allergy line's pattern «Ég er með ofnæmi fyrir {…}.» (#380): «hnetum» and «fiski» came in as its fillers;
+- a phrase reported hard said whole, word by word and whole again (#337): «hringja heim», lesson 33's «sooner» item.
+
+| | lesson 34 |
+|---|---|
+| length | 28.3 min, 117 exercises |
+| new items; new components, weighted (target) | 12; 7.5 (7) |
+| theme (level); today's new items said as a turn of the played exchange | the clothes shop (1); «húfu», «Það er of dýrt.», «Er afsláttur?» |
+| target reached | 18.6 min |
+| longest stretch without a scene | 5.0 min |
+| a sentence asked again within a minute | 0 |
+| most narrations of one situation | 3 |
+| hard items with no connection to practise them through, asked 3+ times | none (lesson 33: «Ég er með ofnæmi fyrir hnetum.», 6 times) |
+| feedback form: load; friction | **right**; other |
+| «sooner» | none |
+| review queue | **109 due** of 286: answered once 73, 迷った/言えなかった 22, new 10, never asked 3, 言えた twice or more 1 |
+| retention by gap | 3–6 days 8 of 10; 7–13 days 13 of 13; 14+ days 4 of 4 |
+
+What the learner wrote, by what the lesson did:
+
+- **"The way «á þetta hótel» was taught was redundant."** «You know this: «Á þetta hótel, takk.» — This word is in it —
+  In another sentence.» and then the same sentence: the only pattern that takes the part is the one the phrase was made
+  from. **Answered, in review:** the other sentence is never the phrase the part is taken out of; with none, the part is
+  taken out of the phrase as for «krónur» (#386).
+- **"When «svangur» was the answer, it did not say to answer as a man."** The lesson named the form; the bot's stored
+  question «Ég er svangur.» was kept with its pattern alone («Ég er {state}.»), so nothing told which form it expects.
+  **Answered, in review:** the fillers of a pattern a question names decide its form too (#385); the bot rewrites its
+  stored questions when its `REFINE_VERSION` is raised after the submodule carries it.
+- **"Right after being told «hnetum» could be swapped, no swap came."** The pattern's introduction from a known example
+  said «you can say it with other words», and the same sentence followed: no other filler was known yet. **Answered, in
+  review:** the swap is promised only when one follows, else «You will meet them later.» (#388).
+- **"After a pick-out and the line heard again, the switch to the next question always feels a little abrupt."** The
+  pick-out ended on the partner's line, and the next drill's cue came after the usual gap. **Answered, in review:** a
+  pick-out or catch that a drill follows ends with «Back to speaking.» (#387).
+- **The shared cause of three:** a framing line said for the general case, without looking at what follows: «In
+  another sentence» before the same sentence, «other words» before none, and a change of task with no line at all. The
+  review's missing form is lesson 33's remark again, on the questions the bot had stored (§5.23).
+- **No remark on the clothes shop, the allergy pattern's sentences or the slow «hringja heim»,** and no «repetitive»
+  tick.

@@ -349,7 +349,33 @@ family = "scene-spacing"
 class = "precision"
 answered_by = []
 
-# Built changes: the rows of the §8 table after lesson 36, in its order
+[[lesson]]
+n = 37
+form = true
+load = "light"
+
+[[lesson.remarks]]
+who = "main"
+text = "After a conversation, the way back to speaking practice is sometimes unclear: the café order, then a question about something else entirely."
+family = "pick-out-turns"
+class = "precision"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "The «could you speak more slowly» dialogue has come back so often that I know it: it feels redundant."
+family = "one-version"
+class = "precision"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "The listening question on «stop for so many minutes and leave at …» always asks the time, and the time never changes; the other pick-outs have no variety either."
+family = "one-version"
+class = "twenty"
+answered_by = ["#417"]
+
+# Built changes: the rows of the §8 table after lesson 37, in its order
 
 [[change]]
 title = "a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351)"
@@ -580,6 +606,8 @@ title = "a loanword or a name said as in English or Japanese gets no slow, split
 issue = []
 pr = ["#407"]
 family = "hard-word"
+first_heard = 37
+heard = "«Tókýó» introduced in «Ég bý í Tókýó.» with no slow, split model"
 
 [[change]]
 title = "a pattern's other answers filled as its sentence: the clock's «Hún er …», and an aside on why «hún» (#407)"
@@ -588,3 +616,17 @@ pr = ["#407"]
 family = "other-answer"
 first_heard = 36
 heard = "the aside after a pick-out answered «klukkan tíu»; the alternative not offered"
+
+[[change]]
+title = "a cue says the learner's action first: «Listen, then answer: …», no «Your turn.» ahead of its task (#409: #411)"
+issue = ["#409"]
+pr = ["#411"]
+family = "pick-out-turns"
+first_heard = 37
+heard = "eight pick-outs, each opening «Listen…»; the form model without «Your turn.»"
+
+[[change]]
+title = "a theme level of three or more learner turns plays with one of them heard (#327: #414)"
+issue = ["#327"]
+pr = ["#414"]
+family = "scene-first"
