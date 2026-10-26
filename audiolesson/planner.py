@@ -3050,6 +3050,7 @@ class Planner:
         used_listening_tasks: set[tuple[str, str, str]] = set()
         picks_by_pattern: Counter[str] = Counter()  # pick-outs per construction this lesson: the same two frames over and over would be a new boredom
         pick_outs_heard: list[str] = []  # the pick-outs heard in this lesson, as the turn they come from (#339)
+        pick_out_answers_heard: list[str] = []  # and as the line and piece asked («…:v:pi»): within a turn, the one heard least recently comes next (#339, lesson 37)
         delivered_at: list[float | None] = [None]  # lesson time at which the new material of the target was taught
 
         def known_now() -> set[str]:
@@ -3113,6 +3114,7 @@ class Planner:
             if task.kind == "pick_out":
                 picks_by_pattern[task.pattern] += 1
                 pick_outs_heard.append(task.pattern)  # the turn (its wordings and probes): for the learner they are the same question again; the cap per lesson counts the same (#339 review)
+                pick_out_answers_heard.append(task.source)
             else:
                 caught_words.add(task.answer.lower())
                 caught_now.append(task.answer.lower())
@@ -3132,7 +3134,10 @@ class Planner:
                     for v, ln in enumerate([*turn.lines(), *turn.listen_lines()]):
                         for pi, probe in enumerate(ln.probes):
                             heard_in = self.learner.listening_log.get(f"theme:{t.id}:{n + 1}:{k}", 0)
-                            cands.append(((heard_in, 0 if len(ln.probes) > 1 else 1, 0 if rank == 0 and theme_pick else 1, self.rng.random()), t, n, k, v, pi, ln, probe))
+                            # within the turn, the line and piece heard least recently: its other values and its other piece come in turn (#339, lesson 37:
+                            # «klukkan hálf þrjú» every time, so the answer was remembered, not heard)
+                            answer_in = self.learner.listening_log.get(f"theme:{t.id}:{n + 1}:{k}:{v}:{pi}", 0)
+                            cands.append(((heard_in, answer_in, 0 if len(ln.probes) > 1 else 1, 0 if rank == 0 and theme_pick else 1, self.rng.random()), t, n, k, v, pi, ln, probe))
             for _, t, n, k, v, pi, ln, probe in sorted(cands, key=lambda c: c[0]):
                 yield partner_pick_out(
                     ln, probe, known, self.cur.known_lang, source=f"theme:{t.id}:{n + 1}:{k}:{v}:{pi}", scene=level_scene(t, n), speaker=t.levels[n].partner_speaker
@@ -3791,6 +3796,7 @@ class Planner:
             "caught_seed": caught_seed,  # #339: set once, for a learner file made before the log
             "caught_words": list(dict.fromkeys(caught_now)),  # #339: the words asked about in this lesson (second half and introductions); the learner state keeps them
             "pick_outs_heard": list(dict.fromkeys(pick_outs_heard)),  # #339: the pick-outs heard (a listening log)
+            "pick_out_answers_heard": list(dict.fromkeys(pick_out_answers_heard)),  # #339: the same, as the line and piece asked
             "catch_introductions": list(catch_introduced),  # #339: new words introduced through the catch
             "catch_candidates": dict(catch_seen),  # #339: the new vocab items the catch was considered for, by outcome
             "pick_out_pool": len({t.line for t in pick_out_tasks() if t is not None}),  # #339: the distinct lines a pick-out can be made from now
@@ -3905,7 +3911,7 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
         learner.caught_words = sorted(set(learner.caught_words) | set(sc.meta.get("caught_seed", [])))
         learner.caught_seeded = True
     learner.caught_words = sorted(set(learner.caught_words) | set(sc.meta.get("caught_words", [])))  # #339: a word asked about is not a catch word again
-    for key in sc.meta.get("pick_outs_heard", []):
+    for key in [*sc.meta.get("pick_outs_heard", []), *sc.meta.get("pick_out_answers_heard", [])]:
         learner.listening_log[key] = sc.lesson_number  # #339: the pick-outs rotate across lessons; a log of what was heard, not practice
     for n in sc.meta.get("notes", []):
         learner.notes_heard[n] = learner.notes_heard.get(n, 0) + 1
