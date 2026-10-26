@@ -389,8 +389,10 @@ What the learner wrote, by what the lesson did:
   («tuttugu mínútur») was never asked, its words not yet taught. The rotation worked on the turn; within it the line was
   drawn at random from one. On the replay of lessons 37–44, from lesson 38 4 to 10 pick-outs a lesson repeat a line and answer
   heard in the three lessons before. **Answered, in review:** each pick-out turn has lines with other values the learner can say,
-  and within a turn the line and piece heard least recently come first; on the replay, 0 repeats in lessons 37–44
-  (#339, reopened: #417).
+  and within a turn the answer's value heard least recently comes first, then its line; on the replay of lessons
+  37–44, a pick-out repeating a question and value of the three lessons before: 9 in all (main 56), and a line and
+  answer: 5 (main 51); a turn never gives the same value on two draws in a row. The rest is turns with two to four values drawn
+  every lesson (#339, reopened: #417).
 - **"The «could you speak more slowly» dialogue has come back so often that I know it."** `tungumal`, played whole in
   lesson 37, its eighth play, every four lessons since it was played whole. **Open:** #416.
 - **"After a conversation, the way back to speaking practice is sometimes unclear."** The café's first level heard again,
