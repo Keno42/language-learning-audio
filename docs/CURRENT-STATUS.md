@@ -15,8 +15,9 @@ remark by how often its cause recurs on the replay of the latest export and what
 from a conversation was unmarked, a known dialogue came back whole.
 1. **A pick-out's answer changes (#339, reopened).** Eight pick-outs a lesson, each from one line with fixed values, so
    the answer was remembered, not heard (O2). **Built, in review (#417):** lines with other values in each pick-out turn,
-   and the line and piece heard least recently first; on the replay of lessons 37–44, no pick-out repeats a line and
-   answer of the three lessons before (main: 4 to 10 a lesson from lesson 38).
+   and the answer's value heard least recently first; on the replay of lessons 37–44, pick-outs repeating a question and
+   value of the three lessons before fall from 56 to 9 (0 to 2 a lesson), and a turn never gives the same value twice in a
+   row.
 2. **The way back from a conversation to single drills is marked (#415).** Four exits a lesson with no line between the
    conversation and the drill; #387 marked the way back after a pick-out only. **Next smallest step:** extend #387's rule
    to conversations.
