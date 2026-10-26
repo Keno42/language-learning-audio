@@ -90,8 +90,17 @@ class RotationGuardTests(unittest.TestCase):
         self.assertEqual(p.components_total, 4.0)
 
     def test_a_normal_lesson_does_not_use_the_guard(self):
-        sc = self.lesson(drop_last_selected=False)
-        self.assertTrue(sc.meta["target_delivered"])
+        # premise changed (#339's pick-out values): which simulated lesson delivers its target depends on the course's path (the 25th now
+        # runs out at 7.5 of 8), so the normal lesson is the first of the next few that delivers it
+        import copy
+        learner, day = copy.deepcopy(self.learner), self.day
+        for _ in range(5):
+            sc = planner(self.cur, learner, self.extra, day).build()
+            if sc.meta["target_delivered"]:
+                break
+            apply_to_learner(sc, learner, day)
+            day += timedelta(days=1)
+        self.assertTrue(sc.meta["target_delivered"], "one of five lessons delivers its target")
         self.assertFalse(sc.meta["rotation_guard"])
         self.assertNotIn("charge_given_back", sc.meta, "everything charged was taught: nothing to give back")
 

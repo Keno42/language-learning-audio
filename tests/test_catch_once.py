@@ -190,6 +190,33 @@ class CatchOnceTests(unittest.TestCase):
             self.assertNotIn("|", key)
             self.assertTrue(key.startswith("theme:") or key in self.cur.by_id, key)
 
+    def test_a_turn_drawn_again_gives_the_answer_heard_least_recently(self):
+        """#339 (lesson 37): «klukkan hálf þrjú» was the answer every time the tour's line was drawn, so it was remembered, not heard. A turn
+        rotates across lessons as before, and within it the answer's value heard least recently comes first, whatever line says it (review of
+        #417: «Það tekur svona tíu mínútur.» and «Svona tíu mínútur að ganga.» are one answer): a turn drawn again never gives the value it gave
+        last while it has another it can give."""
+        from collections import defaultdict
+
+        from audiolesson.planner import pick_out_answer_key
+
+        self.assertEqual(pick_out_answer_key("theme:t:1:2", "klukkan tíu"), pick_out_answer_key("theme:t:1:2", "tíu"))
+        self.assertEqual(pick_out_answer_key("theme:t:1:2", "þrjú þúsund krónur"), pick_out_answer_key("theme:t:1:2", "þrjú þúsund"))
+        l, day = LearnerState("is", "en", "A1"), TODAY
+        drawn = defaultdict(list)
+        for k in range(1, 31):
+            sc = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), self.cfg(), today=day).build()
+            for key in sc.meta["pick_out_answers_heard"]:
+                if ":answer=" in key:
+                    drawn[key.split(":answer=")[0]].append(key)
+            apply_to_learner(sc, l, day)
+            l.report([], [], day + timedelta(days=1), lesson_number=k, recalled=sc.meta["new_items"])
+            day += timedelta(days=1)
+        self.assertTrue(any(":answer=" in key for key in l.listening_log), "the answer's value is logged beside the turn")
+        varied = {turn: keys for turn, keys in drawn.items() if len(set(keys)) > 1}
+        self.assertTrue(varied, "some turns gave more than one value")
+        for turn, keys in varied.items():
+            self.assertFalse([a for a, b in zip(keys, keys[1:]) if a == b], f"{turn}: the same value twice in a row: {keys}")
+
     def test_a_conjunction_is_not_introduced_through_the_catch_and_a_told_word_is_lower_case(self):
         from audiolesson.exercises import Builder
         from audiolesson.listening_tasks import ListeningTask, introduce_by_catch
