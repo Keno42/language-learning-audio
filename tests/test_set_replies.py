@@ -1,13 +1,15 @@
 """#416 (lesson 38: «"nei, takk." や "takk." を何度も言う… 言わされすぎ»): in an exchange played again (a scene heard again, the lesson's own
 exchange's late play) a set reply the learner plainly knows is said in the model voice, not asked. A limited exception to "sayable → asked"
-(#263): two words at most, every item learned and not weak, not taught today, and a reply due for review keeps one ask."""
+(#263): every item of the line a named set reply (``Item.set_reply``: a thanks, a yes, a no), two words at most, learned and not weak, not
+taught today; a reply due for review keeps one ask. The first play of the lesson's own exchange asks every line, and the opening says what
+is asked and what is played (review of #422)."""
 import unittest
 from dataclasses import replace
 from datetime import date, timedelta
 from pathlib import Path
 
 from audiolesson.cando import load_cando
-from audiolesson.content import load_curriculum
+from audiolesson.content import CurriculumError, load_curriculum, validate
 from audiolesson.learner import ItemState, LearnerState
 from audiolesson.planner import PlanConfig, Planner
 from audiolesson.prompts import Prompts
@@ -16,6 +18,8 @@ from audiolesson.timing import Timing
 
 ROOT = Path(__file__).resolve().parent.parent
 TODAY = date(2026, 3, 1)
+PROMPTS = Prompts.load("en")
+GUIDES = {PROMPTS.get("listening_intro_known_voiced"), PROMPTS.get("dialogue_voiced_note")}
 
 
 class SetReplyTests(unittest.TestCase):
@@ -25,82 +29,144 @@ class SetReplyTests(unittest.TestCase):
         scenarios = load_cando(ROOT / "curricula" / "is-en", cls.cur)
         cls.themes = load_themes(ROOT / "curricula" / "is-en", cls.cur, scenarios)
         cls.order = scenario_order(scenarios)
+        cls.supermarket = next(t for t in cls.themes if t.id == "supermarket")
 
-    def learner(self):
-        """Every item learned and not due; every theme level played."""
+    def learner(self, **changes):
+        """Every item learned and not due (``changes`` overrides an item's state); every theme level played."""
         learner = LearnerState("is", "en", "A1")
         for i in self.cur.by_id:
             learner.items[i] = ItemState(due=(TODAY + timedelta(days=20)).isoformat(), successes=6, durable_successes=3, stage="dialogue", recalled=2,
                                          last_outcome="recalled", interval_days=20, last_practiced=(TODAY - timedelta(days=3)).isoformat())
+        for i, change in changes.items():
+            learner.items[i] = replace(learner.items[i], **change)
         for t in self.themes:
             learner.themes_done[t.id] = len(t.levels)
             learner.themes_last[t.id] = 1
         return learner
 
-    def planner(self, learner=None, **cfg):
-        return Planner(self.cur, learner or self.learner(), Prompts.load("en"), Timing(level="A1"),
-                       PlanConfig(minutes=30, themes=self.themes, theme_scenarios=self.order, **cfg), today=TODAY)
+    def planner(self, learner=None, themes=None, **cfg):
+        themes = themes if themes is not None else self.themes
+        order = self.order if themes is self.themes else [t.scenario for t in themes]
+        return Planner(self.cur, learner or self.learner(), PROMPTS, Timing(level="A1"),
+                       PlanConfig(minutes=30, themes=themes, theme_scenarios=order, **cfg), today=TODAY)
 
-    def test_the_conditions(self):
+    # ---------------------------------------------------------------- which lines
+
+    def test_only_named_set_replies_of_two_words_at_most(self):
         p = self.planner()
-        self.assertTrue(p.known_set_reply(["takk"], "Takk."))
-        self.assertTrue(p.known_set_reply(["nei", "takk"], "Nei, takk."))
-        self.assertFalse(p.known_set_reply(["gjordu_svo_vel"], "Gjörðu svo vel."), "three words: asked")
+        for items, say in ((["takk"], "Takk."), (["nei", "takk"], "Nei, takk."), (["ja", "takk"], "Já, takk."), (["takk_kaerlega"], "Takk kærlega.")):
+            self.assertTrue(p.known_set_reply(items, say), say)
+        # lines that do the scene's work (the review of #422; «Til hægri?» was voiced in lesson 44 of a continued replay)
+        for items, say in ((["vatn", "takk"], "Vatn, takk."), (["til_haegri"], "Til hægri?"), (["er_afslattur"], "Er afsláttur?"),
+                           (["gjordu_svo_vel"], "Gjörðu svo vel."), (["takk_kaerlega", "bless"], "Takk kærlega. Bless.")):
+            self.assertFalse(p.known_set_reply(items, say), say)
         self.assertFalse(self.planner(set_reply_words=0).known_set_reply(["takk"], "Takk."), "0 asks every line")
+
+    def test_a_weak_or_new_reply_is_asked(self):
         for change in ({"last_outcome": "hesitated"}, {"durable_successes": 1}, {"due": TODAY.isoformat()}):
-            learner = self.learner()
-            learner.items["takk"] = replace(learner.items["takk"], **change)
-            self.assertFalse(self.planner(learner).known_set_reply(["takk"], "Takk."), change)
+            self.assertFalse(self.planner(self.learner(takk=change)).known_set_reply(["takk"], "Takk."), change)
+        p = self.planner()
         p.builder.in_lesson.add("takk")
         self.assertFalse(p.known_set_reply(["takk"], "Takk."), "taught today: asked")
 
     def test_a_due_reply_keeps_one_ask(self):
-        learner = self.learner()
-        learner.items["takk"] = replace(learner.items["takk"], due=TODAY.isoformat())
-        p = self.planner(learner)
+        p = self.planner(self.learner(takk={"due": TODAY.isoformat()}))
         self.assertFalse(p.known_set_reply(["takk"], "Takk."))
         p.exposures["takk"] = ["dialogue"]  # asked once in this lesson: its review is done
         self.assertTrue(p.known_set_reply(["takk"], "Takk."))
 
-    def test_a_play_of_voiced_replies_only_keeps_them_asked(self):
-        p = self.planner()
-        you = [t for t in self.themes[0].levels[0].turns if t.who == "you"]
-        replies = [t for t in you if len(t.say.split()) <= 2 and p.known_set_reply(t.items, t.say)]
-        self.assertTrue(replies)
-        self.assertEqual(p.voiced_replies(replies, set()), set(), "nothing would be asked")
-        self.assertEqual(p.voiced_replies(replies, {99}), set(range(len(replies))), "a line heard: the play announces it")
+    def test_set_reply_marks_a_phrase(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        word = next(i for i in cur.items if i.kind == "vocab")
+        cur.items[cur.items.index(word)] = cur.by_id[word.id] = replace(word, set_reply=True)
+        with self.assertRaisesRegex(CurriculumError, "set_reply marks a fixed phrase"):
+            validate(cur)
 
-    def voiced_segments(self, sc):
-        """For each learner line of a theme play, (label, text, asked): asked when an answer pause comes before it."""
+    def test_a_play_that_would_ask_nothing_keeps_its_replies_asked(self):
+        p = self.planner()
+        replies = [t for t in self.supermarket.levels[0].turns if t.who == "you" and p.known_set_reply(t.items, t.say)]
+        self.assertEqual([t.say for t in replies], ["Takk.", "Já, takk."])
+        self.assertEqual(p.voiced_replies(replies, set()), set(), "nothing would be asked")
+        you = [t for t in self.supermarket.levels[0].turns if t.who == "you"]
+        self.assertEqual({you[k].say for k in p.voiced_replies(you, set())}, {"Takk.", "Já, takk."})
+
+    # ---------------------------------------------------------------- a built lesson
+
+    @staticmethod
+    def lines(sc, ex):
+        """The learner's lines of exercise ``ex`` in order: (text, how) with how «asked» (an answer pause before it), «heard» («Here you would
+        say:») or «voiced» (neither: said as the exchange goes); and the cue narrated just before each asked line."""
+        segs = [s for s in sc.segments if s.exercise == ex.index]
         out = []
-        for k, s in enumerate(sc.segments):
-            if s.type != "answer" or s.exercise is None:
+        for k, s in enumerate(segs):
+            if s.type != "answer":
                 continue
-            ex = sc.exercises[s.exercise]
-            if "theme:" not in ex.label:
-                continue
-            prev = sc.segments[k - 1]
-            out.append((ex.label, s.text, prev.type == "pause" and prev.role == "answer"))
+            if segs[k - 1].type == "pause" and segs[k - 1].role == "answer":
+                cue = next(g.text for g in reversed(segs[:k]) if g.type == "narrate")
+                out.append((s.text, "asked", cue))
+            elif next(g.text for g in reversed(segs[:k]) if g.type != "pause") == PROMPTS.get("listening_line"):
+                out.append((s.text, "heard", None))
+            else:
+                out.append((s.text, "voiced", None))
         return out
 
-    def test_a_lesson_voices_known_replies_in_plays_again_only(self):
+    def own_plays(self, sc):
+        """The plays of the lesson's own exchange, in the order they were played (its label repeats, so the order tells them apart)."""
+        theme = sc.meta["theme"]
+        plays = sorted((e for e in sc.exercises if e.label.startswith(f"dialogue: theme:{theme['id']}:{theme['level']}")), key=lambda e: e.index)
+        self.assertEqual(len(plays), 2)
+        return plays
+
+    def build_supermarket(self, **changes):
+        """A lesson whose own exchange is the supermarket's second level, played for the first time («Ég er bara að skoða.», «Hvað er þetta mikið
+        samtals?», «Nei, takk.»)."""
+        learner = self.learner(**changes)
+        learner.themes_done = {"supermarket": 1}
+        sc = self.planner(learner, themes=[self.supermarket]).build()
+        self.assertEqual((sc.meta["theme"]["id"], sc.meta["theme"]["level"]), ("supermarket", 2))
+        return sc
+
+    def test_the_first_play_asks_every_line_and_the_late_play_voices_only_known_replies(self):
+        sc = self.build_supermarket()
+        first, late = self.own_plays(sc)
+        self.assertLess(first.index, late.index)
+        you = [t for t in self.supermarket.levels[1].turns if t.who == "you"]
+        self.assertEqual([(text, how) for text, how, _ in self.lines(sc, first)], [(t.say, "asked") for t in you], "the first play asks every line")
+        late_lines = self.lines(sc, late)
+        self.assertEqual([text for text, how, _ in late_lines if how == "voiced"], ["Nei, takk."])
+        for t, (text, how, cue) in zip(you, late_lines):
+            if how == "asked":
+                self.assertEqual(cue, t.cue, "a line asked keeps its cue")
+        self.assertEqual({text for text, how, _ in late_lines if how == "asked"}, {"Ég er bara að skoða.", "Hvað er þetta mikið samtals?"}, "the target lines are asked")
+        self.assertIn("supermarket:2:3", sc.meta["voiced_replies"])
+
+    def test_a_weak_reply_keeps_its_ask_in_the_late_play(self):
+        sc = self.build_supermarket(takk={"last_outcome": "hesitated"})
+        _, late = self.own_plays(sc)
+        lines = self.lines(sc, late)
+        self.assertIn(("Nei, takk.", "asked", "No need."), lines)
+        self.assertNotIn("voiced", [how for _, how, _ in lines])
+
+    def test_the_opening_says_what_is_asked_and_what_is_played(self):
         sc = self.planner().build()
-        voiced = sc.meta["voiced_replies"]
-        self.assertTrue(voiced, "an all-known learner hears set replies again")
-        lines = self.voiced_segments(sc)
-        said = [(label, text) for label, text, asked in lines if not asked and text in {"Takk.", "Já, takk.", "Nei, takk.", "Takk kærlega."}]
-        self.assertTrue(said)
-        first = next((e.label for e in sc.exercises if e.label.startswith("dialogue: theme:")), None)
-        for label, text in said:
-            self.assertTrue(label.startswith("heard: ") or label != first or [e.label for e in sc.exercises].count(label) > 1, (label, text))
-        for k, s in enumerate(sc.segments):
-            if s.type == "answer" and s.text == said[0][1] and sc.exercises[s.exercise].label == said[0][0]:
-                self.assertNotEqual(sc.segments[k - 1].text, "Here you would say:")
-                break
-        # the same lesson without the exception asks every one of them
-        plain = self.planner(set_reply_words=0).build()
-        self.assertEqual(plain.meta["voiced_replies"], [])
-        self.assertTrue(all(asked for _, text, asked in self.voiced_segments(plain) if text in {"Takk.", "Já, takk.", "Nei, takk."}))
+        played = [e for e in sc.exercises if "theme:" in e.label and e.kind == "dialogue"]
+        voicing = [e for e in played if any(how == "voiced" for _, how, _ in self.lines(sc, e))]
+        self.assertTrue(voicing, "an all-known learner hears set replies played again")
+        for e in played:
+            narrated = {s.text for s in sc.segments if s.exercise == e.index and s.type == "narrate"}
+            if e in voicing:
+                self.assertEqual(len(narrated & GUIDES), 1, e.label)
+                self.assertNotIn(PROMPTS.get("listening_intro_known"), narrated, "«say them when it's your turn» is not said when some are played")
+                self.assertTrue(any(how == "asked" for _, how, _ in self.lines(sc, e)), "a play that voices replies still asks")
+            else:
+                self.assertFalse(narrated & GUIDES, e.label)
+
+    def test_without_the_exception_every_reply_is_asked(self):
+        sc = self.planner(set_reply_words=0).build()
+        self.assertEqual(sc.meta["voiced_replies"], [])
+        for e in sc.exercises:
+            if "theme:" in e.label and e.kind == "dialogue":
+                self.assertNotIn("voiced", [how for _, how, _ in self.lines(sc, e)], e.label)
 
 
 if __name__ == "__main__":

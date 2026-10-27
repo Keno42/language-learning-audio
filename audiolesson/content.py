@@ -119,6 +119,7 @@ class Item:
     alternatives: list[str] = field(default_factory=list)  # other acceptable answers; a construction's take its slots («Hún er {hour}.»), filled as its sentence is
     pronunciation_notes: str = ""
     chunks: list[str] | None = None  # backward-build chunks, shortest first
+    set_reply: bool = False  # #416: a set reply («Takk.», «Já, takk.», «Nei.»): once learned, voiced rather than asked in an exchange played again (``Planner.known_set_reply``)
     sounds_familiar: bool = False  # a loanword or a name said much as in English or Japanese («latte», «Tókýó»): no slow, split model, whatever its letters (lesson 35)
     syllables: list[str] | None = None  # #212: a hard-to-say word cut into syllables, authored (never guessed), spoken slowly one at a time at its introduction
     word_syllables: dict[str, list[str]] | None = None  # #337: a phrase's hard words cut into syllables, authored: word (lower case) -> pieces; said slowly once at the phrase's introduction and when the phrase is reported hard
@@ -917,6 +918,8 @@ def validate(cur: Curriculum) -> None:
         for ref in it.components + it.prereqs:
             if ref not in ids:
                 raise CurriculumError(f"item {it.id!r} references unknown item {ref!r}")
+        if it.set_reply and it.kind != "phrase":
+            raise CurriculumError(f"item {it.id!r}: set_reply marks a fixed phrase (a thanks, a yes or a no)")
         if it.sounds_familiar and (it.syllables or it.kind != "vocab"):
             raise CurriculumError(f"item {it.id!r}: sounds_familiar is for a vocab word said as in the learner's languages, so it has no syllables")
         if it.syllables is not None:

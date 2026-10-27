@@ -67,7 +67,8 @@ class PlanConfig:
     spacing_report: float = 60.0  # #273: the daily read counts an item asked again less than this many seconds after it was last asked
     heard_theme_plays: int = 4  # spare time is more to hear: the lesson's own theme level first, then others (#218 b1, #238)
     # #416: in an exchange played again (a scene heard again, the lesson's own exchange's late play) a set reply the learner plainly knows
-    # («Takk.», «Já, takk.»), this many words at most, is said in the model voice, not asked (``Planner.known_set_reply``); 0 asks every line
+    # (every item ``Item.set_reply``: «Takk.», «Já, takk.»), and this many words at most, is said in the model voice, not asked
+    # (``Planner.known_set_reply``); 0 asks every line
     set_reply_words: int = 2
     # #171 B: a construction whose every slot already has ``cheap_min_fillers`` known fillers is cheap:
     # it adds sentences at once. One takes the place of the last non-trip item of a lesson's new
@@ -1798,15 +1799,16 @@ class Planner:
 
     def known_set_reply(self, items, text: str) -> bool:
         """#416, a limited exception to "sayable → asked" (#263, LD §9 "Parts against utterances"): a learner line of an exchange played
-        again that is a set reply the learner plainly knows is voiced, not asked. It is one: ``set_reply_words`` words at most; every item
-        of it learned (two recalls at a due date, ``is_learned``), not reported hard or hesitated or open (``hard_items``), not taught today;
-        and not due for review unless already asked in this lesson (a due reply keeps one ask, its review)."""
+        again that is a set reply the learner plainly knows is voiced, not asked. It is one: every item of it a set reply (``Item.set_reply``:
+        a thanks, a yes, a no; a line that does the scene's work, «Vatn, takk.», «Til hægri?», is never one) and ``set_reply_words`` words at
+        most; every item learned (two recalls at a due date, ``is_learned``), not reported hard or hesitated or open (``hard_items``), not taught
+        today; and not due for review unless already asked in this lesson (a due reply keeps one ask, its review)."""
         if self.cfg.set_reply_words <= 0 or not items or len(_WORD_RE.findall(text)) > self.cfg.set_reply_words:
             return False
         hard = set(self.hard_items())
         for i in items:
             st = self.learner.items.get(i)
-            if i not in self.cur.by_id or st is None or not st.is_learned or i in hard or self.taught_today(i):
+            if i not in self.cur.by_id or not self.cur.by_id[i].set_reply or st is None or not st.is_learned or i in hard or self.taught_today(i):
                 return False
             if i not in self.exposures and st.due and st.due <= self.today.isoformat():
                 return False
@@ -1814,9 +1816,9 @@ class Planner:
 
     def voiced_replies(self, you: list, heard: set[int]) -> set[int]:
         """#416: the learner's turns of an exchange played again that are voiced (``known_set_reply``), not those already heard. A play
-        made only of voiced replies would ask nothing and announce nothing new; there they stay asked."""
+        that would then ask nothing keeps them asked: its opening tells the learner to answer when told what to say."""
         voiced = {k for k, t in enumerate(you) if k not in heard and self.known_set_reply(t.items, t.say)}
-        return voiced if heard or len(voiced) < len(you) else set()
+        return voiced if len(voiced) + len(heard) < len(you) else set()
 
     def classify_turns(self, dlg: Dialogue) -> tuple[set[str], set[str]]:
         """The turns of a listening dialogue that the learner can't say in full: ``(nothing sayable, partly sayable)``

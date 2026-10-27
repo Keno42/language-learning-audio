@@ -22,6 +22,7 @@ situations_ja = [
 [[items]]
 id = "takk"
 kind = "phrase"
+set_reply = true
 target = "Takk."
 meaning = "Thanks."
 meaning_ja = "ありがとう。"
@@ -274,6 +275,7 @@ partner_cue_situation_ja = "友達も行かなければなりません。また�
 [[items]]
 id = "takk_kaerlega"
 kind = "phrase"
+set_reply = true
 target = "Takk kærlega."
 meaning = "Thanks a lot."
 meaning_ja = "本当にありがとう。"
@@ -322,6 +324,7 @@ partner_cue_situation_ja = "心からお礼を言われました。どういた�
 [[items]]
 id = "ja"
 kind = "phrase"
+set_reply = true
 target = "Já."
 meaning = "Yes."
 meaning_ja = "はい"
@@ -333,6 +336,7 @@ situation_ja = "店員にコーヒーのおかわりはいかがと聞かれま�
 [[items]]
 id = "nei"
 kind = "phrase"
+set_reply = true
 target = "Nei."
 meaning = "No."
 meaning_ja = "いいえ"

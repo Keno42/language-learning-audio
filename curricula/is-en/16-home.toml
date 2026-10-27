@@ -404,6 +404,7 @@ situation_ja = "お客さんが座りました。コーヒーをすすめてく�
 [[items]]
 id = "ja_takk"
 kind = "phrase"
+set_reply = true
 target = "Já, takk."
 meaning = "Yes, please."
 meaning_ja = "はい、お願いします。"
@@ -416,6 +417,7 @@ situation_ja = "コーヒーをすすめられました。受けてください�
 [[items]]
 id = "nei_takk"
 kind = "phrase"
+set_reply = true
 target = "Nei, takk."
 meaning = "No, thanks."
 meaning_ja = "いいえ、結構です。"

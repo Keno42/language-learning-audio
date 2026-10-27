@@ -1901,11 +1901,15 @@ class Builder:
                 asked = [k for k in range(len(turns)) if k not in heard_turns]
                 new_heard = [k for k in range(len(turns)) if k in heard_turns and k not in voiced_turns]  # a voiced set reply is known, not new (#416)
                 key = "listening_intro" if not asked else "listening_intro_known" if not new_heard else "listening_intro_some_asked"
+                if voiced_turns and key == "listening_intro_known":
+                    key = "listening_intro_known_voiced"  # #416 review: what is asked and what is played, said before it starts
             else:
                 key = "listening_intro_some_asked" if any(not t.expect or t.expect not in listening for t in turns) else "listening_intro"
             self._narr(sc, ex, self.prompts.get(key))
         if not heard_play:
             self._narr(sc, ex, self.prompts.get("dialogue_start"))  # a scene heard again has the one intro, whichever it is (#272)
+        if voiced_turns and not (heard_play and key == "listening_intro_known_voiced"):
+            self._narr(sc, ex, self.prompts.get("dialogue_voiced_note"))  # #416 review: the learner answers when told what to say; the short replies are played
         self._narr(sc, ex, dlg.setting)
         self._beat(sc, ex)
         lines: list[tuple[str, str, bool]] = []  # (voice, text, said word by word)
