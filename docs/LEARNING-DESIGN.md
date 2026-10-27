@@ -804,6 +804,13 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
     can say in full is asked with its pause. A line with an untaught part is heard, with its meaning, and not tried
     (lesson 20's bus scene, §5.16); the same holds in a theme's play (owner, 2026-10-09: an untaught line can't be said
     at all). #183's tried lines and their next-day bonus questions are retired; the daily read's row stays at 0.
+  - **A known set reply in an exchange played again is voiced, not asked (#416, lesson 38; an exception to "sayable → asked"
+    that needs the owner's approval).** In a scene heard again and in the late play of the lesson's own exchange, a learner
+    line of at most two words («Takk.», «Já, takk.», «Nei, takk.», «Takk kærlega.») whose items are all learned (two recalls
+    at a due date), not hesitated, open or reported hard, and not taught today is said in the learner's model voice as the
+    exchange goes, with no cue and no pause (`PlanConfig.set_reply_words`). A reply due for review keeps one ask in the
+    lesson. The first play of the lesson's own exchange asks every sayable line. Lesson 38 asked such replies seven times,
+    on the replay of its export 24 times in five lessons; with the exception, 3.
 - **Generation and audio.**
   - Only plausible sentences in plausible scenes (owner after L12).
   - No pause stretching to fill a short lesson (owner after L12).
