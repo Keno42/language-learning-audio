@@ -1853,6 +1853,7 @@ class Builder:
         heard_turns: frozenset[int] | set[int] = frozenset(),
         heard_play: bool = False,
         turn_items: dict[int, list[str]] | None = None,
+        voiced_turns: frozenset[int] | set[int] = frozenset(),
     ) -> Exercise:
         """Play a dialogue; ``max_turns`` lets early encounters stop after a few turns.
 
@@ -1870,6 +1871,9 @@ class Builder:
         at all, so it is never asked): the cue (the intent) stays, then «Here you would say:», the line and its meaning. A
         theme level's turn with an item the learner has never met; the theme exchange's lines are literal, so they have no
         item to name.
+
+        ``voiced_turns`` (#416): among ``heard_turns``, a set reply the learner plainly knows («Takk.», «Já, takk.») in an exchange played
+        again: the line is said in the learner's model voice, as the exchange goes, with no cue, no «Here you would say:» and no meaning.
 
         ``translate`` gives the partner's lines their meaning: ``True`` for every turn, or the indices of the turns
         whose lines are heard for the first time (the opener before a turn and the reply after it). Only the
@@ -1895,12 +1899,17 @@ class Builder:
             # the framing says what follows (#240, #263): «just hear it» only when nothing is asked of the learner
             if heard_play:
                 asked = [k for k in range(len(turns)) if k not in heard_turns]
-                key = "listening_intro" if not asked else "listening_intro_known" if len(asked) == len(turns) else "listening_intro_some_asked"
+                new_heard = [k for k in range(len(turns)) if k in heard_turns and k not in voiced_turns]  # a voiced set reply is known, not new (#416)
+                key = "listening_intro" if not asked else "listening_intro_known" if not new_heard else "listening_intro_some_asked"
+                if voiced_turns and key == "listening_intro_known":
+                    key = "listening_intro_known_voiced"  # #416 review: what is asked and what is played, said before it starts
             else:
                 key = "listening_intro_some_asked" if any(not t.expect or t.expect not in listening for t in turns) else "listening_intro"
             self._narr(sc, ex, self.prompts.get(key))
         if not heard_play:
             self._narr(sc, ex, self.prompts.get("dialogue_start"))  # a scene heard again has the one intro, whichever it is (#272)
+        if voiced_turns and not (heard_play and key == "listening_intro_known_voiced"):
+            self._narr(sc, ex, self.prompts.get("dialogue_voiced_note"))  # #416 review: the learner answers when told what to say; the short replies are played
         self._narr(sc, ex, dlg.setting)
         self._beat(sc, ex)
         lines: list[tuple[str, str, bool]] = []  # (voice, text, said word by word)
@@ -1940,11 +1949,13 @@ class Builder:
                 gender = GENDER_OF[learner_voice] if turn.expect_text_m else None
                 expected = (turn.expect_text_m if gender == "m" else turn.expect_text) or ""
             line_heard = k in heard_turns or (item is not None and item.id in listening)
-            if line_heard and k not in heard_turns:
-                pass  # a listening scene's line: no task cue, nothing is asked
+            if line_heard and (k not in heard_turns or k in voiced_turns):
+                pass  # a listening scene's line, or a known set reply voiced (#416): no task cue, nothing is asked
             else:
                 self._narr(sc, ex, self._as(gender, turn.cue))
-            if line_heard:
+            if k in voiced_turns and k in heard_turns:
+                self._answer(sc, ex, expected, speaker=learner_voice)
+            elif line_heard:
                 self._frame(sc, ex, self.prompts.get("listening_line"))
                 self._answer(sc, ex, expected, speaker=learner_voice)
                 self._beat(sc, ex)

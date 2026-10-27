@@ -66,6 +66,10 @@ class PlanConfig:
     scene_unit_interval: float = 240.0  # #273: seconds of single exercises after which a scene unit (a pick-out, a catch task, a scene heard again) comes, before or after the target
     spacing_report: float = 60.0  # #273: the daily read counts an item asked again less than this many seconds after it was last asked
     heard_theme_plays: int = 4  # spare time is more to hear: the lesson's own theme level first, then others (#218 b1, #238)
+    # #416: in an exchange played again (a scene heard again, the lesson's own exchange's late play) a set reply the learner plainly knows
+    # (every item ``Item.set_reply``: «Takk.», «Já, takk.»), and this many words at most, is said in the model voice, not asked
+    # (``Planner.known_set_reply``); 0 asks every line
+    set_reply_words: int = 2
     # #171 B: a construction whose every slot already has ``cheap_min_fillers`` known fillers is cheap:
     # it adds sentences at once. One takes the place of the last non-trip item of a lesson's new
     # items (``cheap_place``; a trip item is never displaced), and, when a lesson has time left, up
@@ -1793,6 +1797,29 @@ class Planner:
             return "ask"
         return "ask" if all(self.learner.has_met(i) or self.taught_today(i) for i in items) else "hear"
 
+    def known_set_reply(self, items, text: str) -> bool:
+        """#416, a limited exception to "sayable → asked" (#263, LD §9 "Parts against utterances"): a learner line of an exchange played
+        again that is a set reply the learner plainly knows is voiced, not asked. It is one: every item of it a set reply (``Item.set_reply``:
+        a thanks, a yes, a no; a line that does the scene's work, «Vatn, takk.», «Til hægri?», is never one) and ``set_reply_words`` words at
+        most; every item learned (two recalls at a due date, ``is_learned``), not reported hard or hesitated or open (``hard_items``), not taught
+        today; and not due for review unless already asked in this lesson (a due reply keeps one ask, its review)."""
+        if self.cfg.set_reply_words <= 0 or not items or len(_WORD_RE.findall(text)) > self.cfg.set_reply_words:
+            return False
+        hard = set(self.hard_items())
+        for i in items:
+            st = self.learner.items.get(i)
+            if i not in self.cur.by_id or not self.cur.by_id[i].set_reply or st is None or not st.is_learned or i in hard or self.taught_today(i):
+                return False
+            if i not in self.exposures and st.due and st.due <= self.today.isoformat():
+                return False
+        return True
+
+    def voiced_replies(self, you: list, heard: set[int]) -> set[int]:
+        """#416: the learner's turns of an exchange played again that are voiced (``known_set_reply``), not those already heard. A play
+        that would then ask nothing keeps them asked: its opening tells the learner to answer when told what to say."""
+        voiced = {k for k, t in enumerate(you) if k not in heard and self.known_set_reply(t.items, t.say)}
+        return voiced if len(voiced) + len(heard) < len(you) else set()
+
     def classify_turns(self, dlg: Dialogue) -> tuple[set[str], set[str]]:
         """The turns of a listening dialogue that the learner can't say in full: ``(nothing sayable, partly sayable)``
         as sets of turn items. A turn they can say in full, or whose items are all met (an open item being repaired),
@@ -2962,6 +2989,7 @@ class Planner:
         theme_asked: set[str] = set()  # the items the lesson's exchange asked, over its plays (#327)
         theme_heard: list[str] = []  # "turn:line" partner wordings the translated play spoke with their meaning (#196)
         theme_lines: list[str] = []  # per play, which variant of each varying partner line was spoken (#134)
+        voiced_lines: list[str] = []  # #416: "theme:level:turn" learner set replies voiced, not asked, in an exchange played again
         
         def play_theme() -> bool:
             nonlocal theme_plays
@@ -2977,7 +3005,13 @@ class Planner:
             # a turn is heard while one of its items is untaught: never met before and not introduced earlier in this lesson
             # (#240). One taught by now (the theme's next level brings its items in, #201) is asked in this play.
             heard_now = {k for k in untaught if self.line_role(you[k].items, text=you[k].say) == "hear"}
-            ex = b.dialogue(sc, dlg, translate=theme_plays == 0 and not theme_replay, heard_turns=heard_now, turn_items={k: t.items for k, t in enumerate(you)})
+            # #416: the late play is the exchange again; a set reply the learner plainly knows is voiced, not asked a second time
+            voiced = self.voiced_replies(you, heard_now) if theme_plays > 0 else set()
+            voiced_lines.extend(f"{key}:{k + 1}" for k in sorted(voiced))
+            ex = b.dialogue(
+                sc, dlg, translate=theme_plays == 0 and not theme_replay, heard_turns=heard_now | voiced, voiced_turns=voiced,
+                turn_items={k: t.items for k, t in enumerate(you)},
+            )
             self._record(ex.item_ids, "dialogue", ex.item_ids)
             theme_asked.update(ex.item_ids)  # #327: what the exchange asked the learner to say, for ``new_in_scene``
             theme_plays += 1
@@ -3004,8 +3038,12 @@ class Planner:
             dlg = level_dialogue(theme, n, self.cur.known_lang, pick_variants(theme.levels[n], self.rng))
             you = [t for t in theme.levels[n].turns if t.who == "you"]
             hear = {k for k, t in enumerate(you) if self.line_role(t.items, text=t.say) == "hear"}
-            # the scene again (#263): the partner is heard, the learner's lines they can say are asked, the others heard
-            ex = b.dialogue(sc, dlg, translate=False, heard_play=True, heard_turns=hear, turn_items={k: t.items for k, t in enumerate(you)})
+            voiced = self.voiced_replies(you, hear)  # #416
+            voiced_lines.extend(f"{theme.id}:{n + 1}:{k + 1}" for k in sorted(voiced))
+            # the scene again (#263): the partner is heard, the learner's lines they can say are asked (a known set reply voiced, #416), the others heard
+            ex = b.dialogue(
+                sc, dlg, translate=False, heard_play=True, heard_turns=hear | voiced, voiced_turns=voiced, turn_items={k: t.items for k, t in enumerate(you)},
+            )
             self._record(ex.item_ids, "dialogue", ex.item_ids)
             heard_plays.append(f"{theme.id}:{n + 1}")
             since_dialogue = 0
@@ -3835,6 +3873,7 @@ class Planner:
             "partner_exchanges": len(self.dialogues_played) + sum(1 for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"),
             "recombinations": sum(1 for e in sc.exercises if e.kind == "connect" and e.stage != "exchange"),
             "heard_themes": list(heard_plays),  # levels heard again as spare time (#218 b1)
+            "voiced_replies": list(voiced_lines),  # #416: known set replies said in the model voice in an exchange played again
             "heard_utterances": sorted(self.builder.heard),
             "think_time_boosted": sorted(self.builder.boosted),
             "bridges": [e.item_ids[1] for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"],
