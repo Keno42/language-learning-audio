@@ -7839,6 +7839,9 @@ class ThemeExchangeTests(unittest.TestCase):
 
     def _planner(self, learner, themes, order, **cfg):
         cur = self._cur
+        # these tests pin the one rule (#263: sayable → asked; #210: every turn keeps its cue); the exception for a known set reply voiced in an exchange
+        # played again (#416) is off here and pinned in tests/test_set_replies.py
+        cfg.setdefault("set_reply_words", 0)
         return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_items=0, themes=themes, theme_scenarios=order, **cfg), today=TODAY)
 
     def setUp(self):
