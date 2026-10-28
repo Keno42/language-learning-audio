@@ -7,28 +7,26 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 (§7), the hypotheses with their status (§4), the evidence lesson by lesson (§5). The learning policy is in
 `docs/CURRENT-POLICY.md`.
 
-## Now (updated 2026-10-26, after lesson 37), in order
+## Now (updated 2026-10-28, after lesson 39), in order
 
 Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% by what may change a long-term decision, each
 remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
-37's; the next lesson is 38. Lesson 37 brought three remarks (LD §5.27): the listening task had become recall, the way back
-from a conversation was unmarked, a known dialogue came back whole.
-1. **A pick-out's answer changes (#339, reopened).** Eight pick-outs a lesson, each from one line with fixed values, so
-   the answer was remembered, not heard (O2). **Built, in review (#417):** lines with other values in each pick-out turn,
-   and the answer's value heard least recently first; on the replay of lessons 37–44, pick-outs repeating a question and
-   value of the three lessons before fall from 56 to 9 (0 to 2 a lesson), and a turn never gives the same value twice in a
-   row.
-2. **The way back from a conversation to single drills is marked (#415).** Four exits a lesson with no line between the
-   conversation and the drill; #387 marked the way back after a pick-out only. **Next smallest step:** extend #387's rule
-   to conversations.
-3. **Scenes for the material after lesson 40 (#327), in parallel.** On the replay of the lesson-37 export, «today's new
-   items said as a turn of the played exchange» reads 5, 5, 4, 4 in lessons 37–40 and 0 in 41–44: every authored level
-   has been played. **Next smallest step:** the scenes for lessons 41–50 as one data PR (the owner's option F), the
-   arranging-to-meet level among them.
-4. **A dialogue heard many times is not played whole again (#416).** `tungumal`, the eighth play in lesson 37.
+39's; the next lesson is 40. Lessons 38 and 39 brought five remarks (LD §5.28, §5.29); set replies asked too often (lesson 38)
+is answered by #422, and lesson 39, its first feedback, has no such remark.
+1. **The way back from a conversation to single drills is marked (#415).** Remarked in lessons 37 and 39; 11 of lesson 39's
+   12 conversations were followed by a drill with no line between. **Built, in review (#425):** «That's the end of the
+   conversation.», inside the lesson's 30 minutes.
+2. **The closing reviews today's new material as one block (#421).** Lesson 38's closing held a pick-out; the replay shows the
+   same in lesson 44. **Next smallest step:** no listening task, conversation or aside between the closing's announcement and
+   its end; their time goes before it.
+3. **Scenes for the material after lesson 40 (#327), in parallel.** On the replay of the lesson-39 export, «today's new items
+   said as a turn of the played exchange» reads 4, 5 and 0 in lessons 39–41. **Next smallest step:** the scenes for lessons
+   41–50 as one data PR (the owner's option F), the arranging-to-meet level among them.
+4. **A dialogue heard many times is not played whole again (#416, its other half).** `tungumal`, every four lessons.
 
-**Alongside:** two units of one scene back to back (#273, still in lesson 37: the clothes shop twice); the scene verdicts
-for the coming lessons' sentences; the load answer's preview (load «light» three times in a row).
+**Alongside:** two units of one scene back to back (#273); «Mér finnst gaman að hringja heim» and its meaning (#209); the
+written review's 🔊 replies named by card (site_update_notifier#176, to confirm on Discord). Load «light» five lessons in a
+row: the difficulty is not raised while the interaction fixes land; the next-day recall of the reported sentences decides.
 
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
 Icelandic (candidates until native-checked). The town (asking the way), small talk (getting to know someone) and the
@@ -46,6 +44,7 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
+- **After lessons 38 and 39:** a pick-out turn's lines carry other values (#417); a known set reply in an exchange played again is voiced (#422); a sentence reported hard is tried again from its meaning first (#424); in review: a conversation's end is marked (#425), the review's 🔊 replies named by card (site_update_notifier#176).
 - **After lessons 36 and 37:** a cue says the learner's action first (#411); the replay plans the coming lessons as production does (#413); a theme level of three or more turns plays with one heard (#414).
 - **Lesson 35's remarks (#407):** a loanword gets no slow split; the closing says «some of» when it leaves new items out; a pattern's other answers («Hún er …») and an aside on «hún».
 - **Merged on 2026-10-23 (first heard in lesson 35 unless named):** a transform's pair (#394) and its instruction (#405);
