@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.21 (lessons 1–25), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.26 (lessons 1–36), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -983,3 +983,81 @@ What the learner wrote, by what the lesson did:
   review's missing form is lesson 33's remark again, on the questions the bot had stored (§5.23).
 - **No remark on the clothes shop, the allergy pattern's sentences or the slow «hringja heim»,** and no «repetitive»
   tick.
+
+### 5.25 Lesson 35: the first feedback on #386, #387 and #394/#405
+
+Lesson 35 was generated with LLA `abc1af2` (main with #392–#406), the bot at site_update_notifier `b8a0917`. It is the
+first feedback on an embed's «other sentence» never being its own phrase (#386: «In another sentence» before «Ég verð að
+borga með korti.»), «Back to speaking.» after a pick-out (#387, 4 times) and a transform's pair and instruction (#394, #405:
+one transform, its instruction in full). The town's slower reply (#393) comes in lesson 38 on the replay.
+
+| | lesson 35 |
+|---|---|
+| length | 29.5 min, 132 exercises |
+| new items; new components, weighted (target) | 6; 7 (7) |
+| theme (level); today's new items said as a turn of the played exchange | the clothes shop (2); «Má ég máta þetta?», «Hvar er mátunarklefinn?» |
+| target reached | 15.2 min |
+| longest stretch without a scene | 4.3 min |
+| a sentence asked again within a minute | **2** (lesson 34: 0) |
+| most narrations of one situation | **5**: the clothes shop's scene line (lesson 34: 3) |
+| feedback form: load; friction | **light**; other |
+| «sooner» | «Hvar er mátunarklefinn?», «Ég er södd.», «Ég er þyrst.» (to say) |
+
+What the learner wrote, by what the lesson did:
+
+- **"«Let's go back over today's new material», and then only part of it is covered."** The closing asked three of the
+  six new items: the others had been said as often as a lesson allows. On the replay, lessons 35–37 all leave items out.
+  **Answered, in review:** the announcement says «some of today's new material» when the built closing leaves a new item
+  out (`meta.closing_left`, #407). The course-wide check of promising lines (#397) had listed the announcement as a line
+  that promises nothing: the cause is the family of lesson 34, and the check's hole is closed with it.
+- **"«latte» needs no slow, split pronunciation."** The sound rule reads letters (`tt`), so it split a loanword the learner
+  already says; on the replay it would split «Tókýó» in lesson 37. **Answered, in review:** a loanword or a name said much
+  as in English or Japanese is `sounds_familiar`, outside the rule (#407).
+- **"«Hún er tólf» should do too" (the owner, outside the form).** It does: «hún» stands for «klukkan». Other answers
+  existed only for fixed phrases. **Answered, in review:** a pattern's `alternatives` take its slots, the clock offers «Hún
+  er {hour}.» after its sentence, and a note says why «hún» (#407). On the replay of lessons 35–40 the clock is asked once
+  (lesson 37), so the note carries most of the answer.
+- **No twenty-point remark, for the first time in the ledger** (lessons 24–35), and no remark on the fifteen changes merged
+  the day before. Load «light» after three «right»: the target rises only after two in a row (§9 "Pace").
+- **Done** (three feedbacks without their family): the town's first levels and the played level's goal and closing
+  (#365, #369, #370, #371), the scene-matched rest (#329), the first contrast note (#323) and the hard items' connections
+  (#330, #332).
+
+### 5.26 Lesson 36: the first feedback on #407
+
+Lesson 36 was generated with LLA `05490fe` (main with #407 and #408), the bot at site_update_notifier `535ddaa`. It is the
+first feedback on the closing's announcement and the aside on «hún» (#407, the aside after a pick-out answered «klukkan
+tíu»; the closing asked every new item, so it said «today's new material»), and on the dative place forms in their frames
+(#368): «Ég er að leita að bankanum.», then «This word is in it: bankanum — You know it as: bankinn — This form comes after
+leita að», then the sentence asked; «hótelinu» the same way. The lesson rebuilt from its export is identical.
+
+| | lesson 36 |
+|---|---|
+| length | 29.5 min, 111 exercises |
+| new items; new components, weighted (target) | 9; 8 (8: raised from 7 on recall, 2 of 27 new items failed over three lessons) |
+| theme (level); today's new items said as a turn of the played exchange | the town (2); «bankanum», «Ég er að leita að …», «Er hægt að ganga þangað?» |
+| target reached | 16.7 min |
+| longest stretch without a scene | 4.1 min |
+| a sentence asked again within a minute | 0 |
+| most narrations of one situation | 4 |
+| feedback form: load; friction | **light** (the second in a row); other |
+| «sooner» | none |
+
+What the learner wrote, by what the lesson did:
+
+- **"A pick-out opens with «You want to know …», so I start building the question; only then comes «Listen and
+  answer»."** All eight pick-outs opened with the need and named the task last («You want to know: When does the bank
+  open? Listen and answer.»); elsewhere a cue that opens with what the learner wants is a speaking task («You want
+  breakfast before the tour. Say: …»). **Answered, in review:** the cue says the action first, «Listen, then answer:
+  When does it close?», «Listen for the price, then say it.» (#409: #411).
+- **"«Your turn» sounded unnatural."** «Now the same form with another word. Your turn.», then the cue itself («In
+  Icelandic, say: That isn't a waterfall.»): the turn given a line before its task. **Answered, in review:** «Your turn.»
+  goes from the form model (#411). The cause of the two: a cue's first words do not say what the learner is to do.
+- **"The same kind of situation is sometimes practised twice in a row (looking for something warm)."** Two pick-outs of
+  the clothes shop's first level, 23 seconds apart, each with the scene line «You're in a clothes shop, looking for
+  something warm.» and the same need; #273's spacing covers situations, not a theme's scene line. **Open:** #273,
+  reopened.
+- **No remark on the dative forms, the aside on «hún» or the closing.** Load «light» a second time: the target had already
+  risen to 8 on recall; lesson 37's export shows what the rule did with the two answers.
+- **The replay's pace:** the replay recomputes the pace and target every lesson without storing them, as `generate` does;
+  on a replay that stores them, the played exchange stops holding new items in lesson 41 rather than 40 (#410).

@@ -31,7 +31,7 @@ cause = "What the learner finds hard to say got no slow, split model: the sound 
 structural_pr = "#342"
 
 [families.pick-out-turns]
-cause = "The pick-out does not mark its turns as the other exercises do: what to listen for, when to answer, whose voice answers, the way back to speaking. Each remark got its own fix."
+cause = "The turns between tasks are not marked as an exercise's own turns are: what to listen for, when to answer, whose voice answers, the way back from a pick-out or a conversation, a block that holds another task. Each remark got its own fix."
 
 [families.one-version]
 cause = "A line the learner needs in several versions has one: a phrase not linked to its pattern, a frame authored as a fixed phrase, the same catch words every lesson (G17)."
@@ -77,6 +77,15 @@ cause = "Two units of one scene come back to back, each narrating its scene line
 
 [families.reading-deck]
 cause = "The reading deck has had no outside review: cards ask for words no lesson taught, and katakana hints add vowels."
+
+[families.known-repeat]
+cause = "Known material comes back by a rule that never asks what the learner still gains from it: a set reply asked in every exchange played again, a whole dialogue every four lessons (H11, #416)."
+
+[families.meaning-gloss]
+cause = "An authored sentence's English meaning leaves its sense open (whom «hringja heim» calls): no check reads the meanings as a learner would (#209)."
+
+[families.review-audio]
+cause = "The written review's 🔊 reply carried no text of its own, and Discord's preview of the review message shows the card on screen now (site_update_notifier#175)."
 
 # Lessons
 
@@ -364,7 +373,7 @@ answered_by = []
 [[lesson.remarks]]
 who = "main"
 text = "The «could you speak more slowly» dialogue has come back so often that I know it: it feels redundant."
-family = "one-version"
+family = "known-repeat"
 class = "precision"
 answered_by = []
 
@@ -375,7 +384,52 @@ family = "one-version"
 class = "twenty"
 answered_by = ["#417"]
 
-# Built changes: the rows of the §8 table after lesson 37, in its order
+[[lesson]]
+n = 38
+form = true
+load = "light"
+
+[[lesson.remarks]]
+who = "main"
+text = "In the conversations I say «Nei, takk.» and «Takk.» so many times: I am made to say them too often."
+family = "known-repeat"
+class = "twenty"
+answered_by = ["#422"]
+
+[[lesson.remarks]]
+who = "main"
+text = "In the closing part that covers today's new material, a listening question started: it felt nested."
+family = "pick-out-turns"
+class = "precision"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "«Mér finnst gaman að hringja heim» (I like calling home): does it mean I like talking to my parents?"
+family = "meaning-gloss"
+class = "precision"
+answered_by = []
+
+[[lesson]]
+n = 39
+form = true
+load = "light"
+
+[[lesson.remarks]]
+who = "main"
+text = "At the end of a conversation part, where I expect more of the same kind of question, a question of another kind comes abruptly."
+family = "pick-out-turns"
+class = "precision"
+answered_by = ["#425"]
+
+[[lesson.remarks]]
+who = "main"
+text = "In the written review, every audio-check message I have not dismissed follows the review's progress, so I can't tell when each was sent."
+family = "review-audio"
+class = "precision"
+answered_by = ["site_update_notifier#176"]
+
+# Built changes: the rows of the §8 table after lesson 39, in its order
 
 [[change]]
 title = "a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351)"
@@ -496,10 +550,34 @@ first_heard = 34
 heard = "level 1"
 
 [[change]]
-title = "the town's third level, small talk's third and fourth (#327: #381, #383); a gendered learner line in a level said in the voice's form, named in the cue (#382)"
-issue = ["#327", "#382"]
-pr = ["#381", "#383"]
+title = "the town's third level, the way itself (#327: #381)"
+issue = ["#327"]
+pr = ["#381"]
 family = "scene-first"
+first_heard = 38
+heard = "the day's exchange in lesson 38, played twice"
+
+[[change]]
+title = "small talk's third level (#327: #383)"
+issue = ["#327"]
+pr = ["#383"]
+family = "scene-first"
+first_heard = 39
+heard = "the day's exchange in lesson 39, played twice"
+
+[[change]]
+title = "small talk's fourth level (#327: #383)"
+issue = ["#327"]
+pr = ["#383"]
+family = "scene-first"
+
+[[change]]
+title = "a gendered learner line in a level said in the voice's form, named in the cue (#382)"
+issue = ["#382"]
+pr = ["#382"]
+family = "scene-first"
+first_heard = 38
+heard = "«As a woman: Stop someone and say you're lost.» in the town's third level; «As a man: Say you're Japanese.» in small talk's third (lesson 39)"
 
 [[change]]
 title = "the allergy line's scene, the café's fourth level, and its pattern (#326: #379, #380)"
@@ -630,3 +708,37 @@ title = "a theme level of three or more learner turns plays with one of them hea
 issue = ["#327"]
 pr = ["#414"]
 family = "scene-first"
+
+[[change]]
+title = "a pick-out turn's lines carry other values, and the value heard least recently comes first (#339: #417)"
+issue = ["#339"]
+pr = ["#417"]
+family = "one-version"
+first_heard = 38
+heard = "ten pick-outs in lesson 38 and ten in 39, drawn across values"
+
+[[change]]
+title = "a known set reply («Takk.», «Já, takk.») in an exchange played again is voiced, not asked, and the opening says so (#416: #422)"
+issue = ["#416"]
+pr = ["#422"]
+family = "known-repeat"
+first_heard = 39
+heard = "four set replies voiced in scenes heard again, none asked there"
+
+[[change]]
+title = "a sentence reported hard is tried again from its meaning, then the model and the slow practice (#423: #424)"
+issue = ["#423"]
+pr = ["#424"]
+family = "hard-word"
+
+[[change]]
+title = "a conversation that a drill follows ends with «That's the end of the conversation.» (#415: #425)"
+issue = ["#415"]
+pr = ["#425"]
+family = "pick-out-turns"
+
+[[change]]
+title = "each 🔊 reply of the written review names its card and the text spoken (site_update_notifier#175: #176)"
+issue = ["site_update_notifier#175"]
+pr = ["site_update_notifier#176"]
+family = "review-audio"
