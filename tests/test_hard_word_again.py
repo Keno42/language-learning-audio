@@ -155,14 +155,14 @@ class HardWordAgainTests(unittest.TestCase):
 
     def test_a_sentence_without_authored_hard_words_is_heard_whole_slowly_then_at_natural_speed(self):
         """Lesson 27: «Við erum fjögur.» was hard to hear, and the guess by sounds picked «fjögur». A reported sentence that names no hard word of its own is
-        said whole, word by word, and whole again, each repeated."""
+        tried from its meaning (#423), said word by word, and whole again, each repeated."""
         b = self.builder()
         sc = Script(1, "t", "is", "en")
         ex = b.slow_word_exercise(sc, self.cur.by_id["vid_erum_fjogur"])
         self.assertEqual((ex.kind, ex.stage, ex.label), ("model", "slow", "slow: Við erum fjögur."))
         spoken = [g.text for g in sc.segments if g.type == "speak" and g.exercise == ex.index and g.role != "narration"]
         self.assertNotIn("fjögur", spoken, "no single guessed word")
-        self.assertIn("This one was hard.", sc.transcript())
+        self.assertIn("Let's try to say this sentence in Icelandic again: There are four of us.", sc.transcript())
         self.assertIn("Við · erum · fjögur.", sc.transcript(), "word by word")
 
     def test_a_gendered_pattern_is_heard_in_the_form_of_the_voice_and_asking_moves_no_turn(self):
