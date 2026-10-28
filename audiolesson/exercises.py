@@ -875,17 +875,25 @@ class Builder:
             self._word_model(sc, ex, word, syllables, voice)
         return len(words)
 
-    def hearing_sentence(self, item: Item) -> str | None:
-        """The sentence the learner reported hard is modelled as, when it names no hard word of its own (lesson 27: «Við erum fjögur.», «Ég nenni ekki að
-        sofa.» were hard to *hear*): a phrase or a word of two or more words is itself; a pattern is its worked example. None for a single word, which keeps its word
-        model."""
+    def hearing_line(self, item: Item) -> tuple[str, str, str | None] | None:
+        """``(sentence, meaning, gender)`` of the sentence the learner reported hard, when it names no hard word of its own (lesson 27: «Við erum fjögur.», «Ég
+        nenni ekki að sofa.» were hard to *hear*): a phrase or a word of two or more words is itself; a pattern is its worked example, its meaning filled the same
+        way (#423: the cue gives the meaning of the very sentence modelled). ``gender``: the form the model's voice says, for «As a woman:». None for a single
+        word, which keeps its word model."""
         if item.kind == "construction" and item.slots:
             # the sentence it was introduced with, in words the learner has, in the form the model's voice says (native_a): resolved for that voice, so
             # asking whether there is a model moves no gender turn and «Ég er glaður.» is never said in the woman's voice (review of #351)
-            return self._filled(item, self.worked_example_fills(item), voice="native_a")[1]
+            fills = self.worked_example_fills(item)
+            gender, sentence = self._filled(item, fills, voice="native_a")
+            return sentence, self.cur.resolve_slots(item, fills, gender)[1], gender
         if item.kind in ("phrase", "vocab") and item.word_count >= 2:
-            return item.target
+            return item.target, item.spoken_meaning, self.speaker_gender(item, "native_a")
         return None
+
+    def hearing_sentence(self, item: Item) -> str | None:
+        """The sentence of ``hearing_line``, or None."""
+        line = self.hearing_line(item)
+        return line[0] if line else None
 
     def slow_model_possible(self, item: Item) -> bool:
         """Whether ``slow_word_exercise`` has something to play for ``item``."""
@@ -893,18 +901,23 @@ class Builder:
 
     def slow_word_exercise(self, sc: Script, item: Item) -> Exercise | None:
         """An item the learner reported hard (#337): before its next practice, said slowly once. The words it names hard itself (authored syllables) are cut into
-        pieces; else a sentence is heard and repeated whole, at natural speed, word by word, and at natural speed again (a hard-to-hear «Við erum» is not one word
-        a spelling rule can pick: lesson 27 picked «fjögur»); else a single word is said slowly by itself. None when nothing qualifies."""
+        pieces; else a sentence is tried again from its meaning («Let's try to say this sentence in Icelandic again: There are four of us.», an answer pause, the
+        model; #423), then repeated word by word and at natural speed (a hard-to-hear «Við erum» is not one word a spelling rule can pick: lesson 27 picked
+        «fjögur»); else a single word is said slowly by itself. None when nothing qualifies."""
         words = hard_words_of(item)
-        sentence = None if words else self.hearing_sentence(item)
+        line = None if words else self.hearing_line(item)
+        sentence = line[0] if line else None
         if not words and sentence is None:
             words = hard_words_of(item, reported=True)
         if not words and sentence is None:
             return None
         ex = sc.new_exercise("model", "slow", [item.id], f"slow: {sentence or item.target}")
         if sentence is not None:
-            self._frame(sc, ex, self.prompts.get("slow_hear_intro"))
-            self._speak(sc, ex, sentence, speaker="native_a")
+            _, meaning, gender = line
+            cue = self.prompts.get("slow_hear_intro", meaning=self._m(meaning), language=self.prompts.language_name(self.tl))
+            self._narr(sc, ex, self._as(gender, cue))
+            self._answer_pause(sc, ex, sentence, item, generative=False)
+            self._answer(sc, ex, sentence, speaker="native_a")
             self._beat(sc, ex)
             self._narr(sc, ex, self.prompts.get("slowly"))
             self._slow_line(sc, ex, sentence)

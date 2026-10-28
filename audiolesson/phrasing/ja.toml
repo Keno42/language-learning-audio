@@ -18,7 +18,7 @@ natural = "自然な速さで。"
 split_slowly = "ゆっくり、区切って言います。それぞれ繰り返してください。"
 slow_word_intro = "この文には言いにくい単語があります。まず文から。"
 slow_word_intro_word = "この単語は言いにくいですね。"
-slow_hear_intro = "これは難しかったですね。ゆっくり、それから自然な速さで。まず全体を。"
+slow_hear_intro = "この文を、もう一度{language}で言ってみましょう。「{meaning}」"
 note_pieces = "では、部分ごとにゆっくり、一つずつ聞きましょう。"
 
 # issue #59: 何を言いたいのかを先に示す（「Ég skil…」だけでは「わかりません」か判別できない）
