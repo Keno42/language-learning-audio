@@ -273,7 +273,7 @@ class Planner:
         seed = cfg.seed if cfg.seed is not None else learner.next_lesson_number()
         self.rng = random.Random(seed)
         prompts.rng = self.rng
-        self.builder = Builder(cur, prompts, timing, learner, self.rng, translate_partner=cfg.translate_partner, said_cap=cfg.max_sentence_hard)
+        self.builder = Builder(cur, prompts, timing, learner, self.rng, translate_partner=cfg.translate_partner, said_cap=cfg.max_sentence_hard, close_conversations=True)
         self.exposures: dict[str, list[str]] = {}
         self.support: dict[str, int] = {}
         self.dialogues_played: list[str] = []
@@ -1508,28 +1508,45 @@ class Planner:
     def _is_listening(e) -> bool:
         return e.kind in ("pick_out", "catch_unknown") or (e.kind == "intro" and e.label.startswith("new (catch)"))
 
-    def _close_listening(self, sc: Script) -> int:
-        """Lesson 34's feedback: after a pick-out, the line heard again and then the next question «always feels a little abrupt». A listening
-        exercise (a pick-out, a catch) that a drill follows ends with «Back to speaking.» after its replay, as an aside ends with «Back to the
-        lesson.». Not before another listening exercise, a conversation or an aside (each opens with its own line) or the closing. Run on the finished
-        script, where the next exercise is known. Returns how many were closed."""
+    def _close_tasks(self, sc: Script) -> tuple[int, int]:
+        """The way back to single drills is marked. Lesson 34's feedback: after a pick-out, the line heard again and then the next question «always feels a
+        little abrupt»; a listening exercise (a pick-out, a catch) that a drill follows ends with «Back to speaking.» after its replay, as an aside ends with
+        «Back to the lesson.». Lessons 37 and 39 (#415): a conversation (an authored dialogue, a theme level played or heard again) followed at once by a
+        drill on another scene («Ert þú íslensk?» … then «The directions are getting long.») left the learner expecting the exchange to go on; it ends with
+        «That's the end of the conversation.». That line is built into every conversation (``Builder.close_conversations``), so
+        the lesson's time counts it, and dropped here where it is not wanted. Neither line comes before another listening exercise, a conversation or an
+        aside (each opens with its own line) or the closing. Run on the finished script, where the next exercise is known. Returns how many listening
+        exercises and conversations were closed."""
         spoken = {s.exercise for s in sc.segments if s.exercise is not None and s.duration > 0}
         order = [e for e in sc.exercises if e.index in spoken]
-        closing = {e.index for e, nxt in zip(order, order[1:]) if self._is_listening(e) and not (self._is_listening(nxt) or nxt.kind in ("dialogue", "note", "closing"))}
-        if not closing:
-            return 0
-        text = self.prompts.get("listening_back")
+        role: dict[int, str] = {}
+        for e, nxt in zip(order, order[1:]):
+            if self._is_listening(nxt) or nxt.kind in ("dialogue", "note", "closing"):
+                continue
+            if self._is_listening(e):
+                role[e.index] = "listening_back"
+            elif e.kind == "dialogue":
+                role[e.index] = "conversation_back"
         kl = self.cur.known_lang
         out: list = []
         for k, s in enumerate(sc.segments):
+            if s.role == "conversation_back":
+                if role.get(s.exercise) != "conversation_back":
+                    if out and out[-1].type == "pause" and out[-1].role == "beat" and out[-1].exercise == s.exercise:
+                        out.pop()  # its beat goes with it
+                    continue
+                out.append(s)
+                continue
             out.append(s)
-            if s.exercise in closing and s.type in ("speak", "narrate", "answer") and not any(
+            if role.get(s.exercise) == "listening_back" and s.type in ("speak", "narrate", "answer") and not any(
                 t.exercise == s.exercise and t.type in ("speak", "narrate", "answer") for t in sc.segments[k + 1 :]
             ):
+                text = self.prompts.get("listening_back")
                 out.append(Segment("pause", None, None, None, 1.0, self.builder.timing.beat, "beat", s.exercise))
                 out.append(Segment("narrate", "instructor", text, kl, 1.0, self.builder.timing.speech_estimate(text, kl), "listening_back", s.exercise))
         sc.segments = out
-        return len(closing)
+        roles = list(role.values())
+        return roles.count("listening_back"), roles.count("conversation_back")
 
     def repeats_scene(self, d: Dialogue) -> bool:
         """Two or more of the dialogue's learner lines are each a different line of the level the lesson plays: a dialogue turn
@@ -3384,8 +3401,10 @@ class Planner:
                         if it.id not in recent and len(sentence_used.get(it.id, ())) < cfg.max_sentence_uses and sentence_practice(it):
                             acted = True
                             break
-                if not acted:
-                    break
+                if not acted and remaining >= 40:
+                    break  # nothing breaks the streak: the lesson ends here
+                # under 40 s before the closing, nothing above may start (each needs 40 s); the streak goes on rather than the lesson ending
+                # short and today's last reactivations lost (#425: a conversation's closing line moved a 15-minute first lesson past the mark)
 
             # 0b. an arc's own connected-use moment, once every item of the arc is ready for a
             #     situation: an authored exchange if one fits, else a mixed review of its items.
@@ -3779,7 +3798,7 @@ class Planner:
                 b.final_block_some(sc, announce)
         b.closing(sc, n)
 
-        listening_closed = self._close_listening(sc)
+        listening_closed, conversations_closed = self._close_tasks(sc)
         switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same, b.timing.switch_gap_sentence)  # #301: the last pass over the finished script
         sc.retime()
         spare = self._spare_time(sc, introduced, theme_pick, early_ids, delivered_at[0])
@@ -3807,6 +3826,7 @@ class Planner:
             "repeated_new_sentences": self._repeated_new_sentences(sc, introduced),  # #311: a new phrase asked as the same sentence in more than 3 exercises ({} expected)
             "closing_left": closing_left,  # today's new items (`new_items`, the embedded ones included) the closing did not ask; the announcement then says «some of» (lesson 35)
             "listening_closed": listening_closed,  # pick-outs and catches followed by a drill, closed with «Back to speaking.» (lesson 34)
+            "conversations_closed": conversations_closed,  # conversations followed by a drill, closed with «That's the end of the conversation.» (#415)
             "switch_pauses": switches,  # #301: pauses put where two speech segments touched; "touching_switches" is what still touches (0)
             "touching_switches": sc.touching_switches(),
             "units_covered": list(units_covered),  # #336: fillers of a linked phrase met inside it

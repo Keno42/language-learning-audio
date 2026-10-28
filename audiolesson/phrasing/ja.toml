@@ -67,6 +67,7 @@ dialogue_partner_said = "「{meaning}」"
 aside = "ちょっとした話です。"
 aside_end = "では、レッスンに戻りましょう。"
 listening_back = "では、話す練習に戻りましょう。"
+conversation_back = "会話はここまでです。"
 milestone_intro = "気づいてほしいパターンがあります。"
 milestone_end = "では、続けましょう。"
 # the partner's line is the cue (Item.prompt_by): frames each such cue, unless the one before was a cue too

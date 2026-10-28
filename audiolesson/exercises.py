@@ -151,6 +151,9 @@ class Builder:
     learner: LearnerState
     rng: random.Random = field(default_factory=lambda: random.Random(0))
     translate_partner: bool = True  # narrate the meaning of partner lines in dialogues
+    # #415: a conversation ends with «That's the end of the conversation.», built in so the lesson's time counts it; the planner
+    # drops it where a listening task, another conversation, an aside or the closing follows (``Planner._close_tasks``)
+    close_conversations: bool = False
     used_combos: set[str] = field(default_factory=set)
     used_examples: set[str] = field(default_factory=set)
     heard: set[str] = field(default_factory=set)  # normalised target-language lines presented this lesson
@@ -2004,6 +2007,11 @@ class Builder:
             for who, text, spaced in lines:
                 self._speak_spaced(sc, ex, text, who, spaced)
                 self._beat(sc, ex)
+        if self.close_conversations:
+            last = sc.segments[-1] if sc.segments else None
+            if not (last is not None and last.type == "pause" and last.exercise == ex.index):
+                self._beat(sc, ex)
+            self._narr(sc, ex, self.prompts.get("conversation_back"), role="conversation_back")
         last = sc.segments[-1] if sc.segments else None
         if last is not None and last.type == "pause" and last.role == "beat" and last.exercise == ex.index:
             sc.segments.pop()  # the exercise gap follows the last line: not a beat and a gap one after the other (#272 review)
