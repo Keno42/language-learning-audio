@@ -3401,8 +3401,10 @@ class Planner:
                         if it.id not in recent and len(sentence_used.get(it.id, ())) < cfg.max_sentence_uses and sentence_practice(it):
                             acted = True
                             break
-                if not acted:
-                    break
+                if not acted and remaining >= 40:
+                    break  # nothing breaks the streak: the lesson ends here
+                # under 40 s before the closing, nothing above may start (each needs 40 s); the streak goes on rather than the lesson ending
+                # short and today's last reactivations lost (#425: a conversation's closing line moved a 15-minute first lesson past the mark)
 
             # 0b. an arc's own connected-use moment, once every item of the arc is ready for a
             #     situation: an authored exchange if one fits, else a mixed review of its items.
