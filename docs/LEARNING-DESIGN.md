@@ -360,7 +360,7 @@ What the learner wrote, by what the lesson did:
 
 Lesson 39 was generated with LLA `5b822c2` (main with #422), the bot at site_update_notifier `68036e1`; rebuilt from its export it
 says the same (the written notes aside). It is the first feedback on set replies voiced in exchanges played again (#422: four
-voiced, «Takk.», «Já, takk.» twice and «Takk kærlega.», none asked there) and the second on #417's pick-outs (eleven).
+voiced, «Takk.», «Já, takk.» twice and «Takk kærlega.», none asked there) and the second on #417's pick-outs (ten, with one catch).
 
 | | lesson 39 |
 |---|---|
@@ -504,7 +504,10 @@ lessons 21–23 (§5.18–§5.20) have had their three.
 | the closing ends on the played level's lines, in the order of its turns (#327) | lesson 33 | **done**: 7 (33, 34, 35, 36, 37, 38, 39) |
 | small talk, two levels (#327) | lesson 33 (level 1) | **done**: 7 (33, 34, 35, 36, 37, 38, 39) |
 | the clothes shop, two levels (#327) | lesson 34 (level 1) | **done**: 6 (34, 35, 36, 37, 38, 39) |
-| the town's third level, small talk's third and fourth (#327: #381, #383); a gendered learner line in a level said in the voice's form, named in the cue (#382) | not yet | – |
+| the town's third level, the way itself (#327: #381) | lesson 38 (the day's exchange in lesson 38, played twice) | 2 (38, 39) |
+| small talk's third level (#327: #383) | lesson 39 (the day's exchange in lesson 39, played twice) | 1 (39) |
+| small talk's fourth level (#327: #383) | not yet | – |
+| a gendered learner line in a level said in the voice's form, named in the cue (#382) | lesson 38 («As a woman: Stop someone and say you're lost.» in the town's third level; «As a man: Say you're Japanese.» in small talk's third (lesson 39)) | 2 (38, 39) |
 | the allergy line's scene, the café's fourth level, and its pattern (#326: #379, #380) | lesson 34 (the pattern; the scene not yet) | **done**: 6 (34, 35, 36, 37, 38, 39) |
 | an authored dialogue that repeats the lesson's scene is not played (#384) | lesson 34 | **done**: 6 (34, 35, 36, 37, 38, 39) |
 | a hard item practised through its connections; «sooner» marks it hard (#326: #330, #332) | lesson 27 (the «sooner» items of lesson 26 are its first real case; lesson 26 had one hard item, practised once) | **done**: 7 (33, 34, 35, 36, 37, 38, 39; 27–32 no record) |
@@ -523,7 +526,7 @@ lessons 21–23 (§5.18–§5.20) have had their three.
 | a pattern's other answers filled as its sentence: the clock's «Hún er …», and an aside on why «hún» (#407) | lesson 36 (the aside after a pick-out answered «klukkan tíu»; the alternative not offered) | **done**: 4 (36, 37, 38, 39) |
 | a cue says the learner's action first: «Listen, then answer: …», no «Your turn.» ahead of its task (#409: #411) | lesson 37 (eight pick-outs, each opening «Listen…»; the form model without «Your turn.») | 0; its family remarked in 37, 38, 39 (#425) |
 | a theme level of three or more learner turns plays with one of them heard (#327: #414) | not yet | – |
-| a pick-out turn's lines carry other values, and the value heard least recently comes first (#339: #417) | lesson 38 (ten pick-outs in lesson 38 and eleven in 39, drawn across values) | 2 (38, 39) |
+| a pick-out turn's lines carry other values, and the value heard least recently comes first (#339: #417) | lesson 38 (ten pick-outs in lesson 38 and ten in 39, drawn across values) | 2 (38, 39) |
 | a known set reply («Takk.», «Já, takk.») in an exchange played again is voiced, not asked, and the opening says so (#416: #422) | lesson 39 (four set replies voiced in scenes heard again, none asked there) | 1 (39) |
 | a sentence reported hard is tried again from its meaning, then the model and the slow practice (#423: #424) | not yet | – |
 | a conversation that a drill follows ends with «That's the end of the conversation.» (#415: #425) | not yet | – |
