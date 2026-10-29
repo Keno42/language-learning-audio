@@ -454,8 +454,8 @@ meaning_ja = "結婚しています。"
 difficulty = 2
 topics = ["social", "family"]
 target_m = "Ég er giftur."  # a man says this; lessons practise both forms, announced
-situation = "She asks if you're here with your family. Say you're married."
-situation_ja = "家族と来ているのか聞かれました。結婚していると答えてください。"
+situation = "She asks whether you're married. Say you are."
+situation_ja = "結婚しているか聞かれました。していると答えてください。"
 
 [[items]]
 id = "eg_er_einhleyp"
@@ -483,8 +483,8 @@ situation_ja = "子どもがいるか聞かれました。二人いると答え�
 partner_cue = "Áttu börn?"
 partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "eg_er_gift"
-partner_cue_setup = "A new acquaintance asks about your family. Say you're married."
-partner_cue_setup_ja = "知り合ったばかりの人に家族のことを聞かれました。結婚していると言ってください。"
+partner_cue_setup = "A new acquaintance asks whether you're married. Say you are."
+partner_cue_setup_ja = "知り合ったばかりの人に結婚しているか聞かれました。していると言ってください。"
 partner_cue_meaning = "Do you have children?"
 partner_cue_meaning_ja = "お子さんはいますか？"
 partner_cue_situation = "She asked if you have children. Say you have two."
@@ -512,12 +512,12 @@ difficulty = 3
 topics = ["social"]
 situation = "He asks how long you're staying. Say a week."
 situation_ja = "どのくらい滞在するか聞かれました。一週間と答えてください。"
-partner_cue = "Velkomin! Hversu lengi verður þú hér?"
+partner_cue = "Frábært! Hversu lengi verður þú hér?"  # #427: not «Velkomin!», which agrees with a woman (the learner's voice may be a man's)
 partner_cue_after = "eg_er_her_i_fyrsta_sinn"
 partner_cue_setup = "In the taxi from the airport, the driver asks if you've been to Iceland before. Say it's your first time."
 partner_cue_setup_ja = "空港からのタクシーで、運転手にアイスランドは初めてか聞かれました。初めてだと言ってください。"
-partner_cue_meaning = "Welcome! How long will you be here?"
-partner_cue_meaning_ja = "ようこそ！どのくらい滞在するんですか？"
+partner_cue_meaning = "Great! How long will you be here?"
+partner_cue_meaning_ja = "いいですね！どのくらい滞在するんですか？"
 partner_cue_situation = "He welcomed you and asked how long you're staying. Say a week."
 partner_cue_situation_ja = "歓迎してくれて、滞在期間を聞かれました。一週間だと言ってください。"
 
@@ -588,9 +588,9 @@ requires = ["eg_heiti", "eg_er_fra_japan", "en_thu", "ja", "eg_er_i_frii", "takk
   expect_text = "Já, ég er í fríi."
   expect_meaning = "Yes, I'm on holiday."
   expect_meaning_ja = "はい、休暇中です。"
-  partner = "Velkomin!"
-  partner_meaning = "Welcome!"
-  partner_meaning_ja = "ようこそ！"
+  partner = "Frábært!"  # #427 (lesson 40): «Velkomin!» agreed with a woman, said to the learner's line in a man's voice
+  partner_meaning = "Great!"
+  partner_meaning_ja = "いいですね！"
 
   [[dialogues.turns]]
   cue = "Thank her."

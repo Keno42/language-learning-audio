@@ -588,11 +588,13 @@ class Planner:
             if (self.builder._available(c.id) or self.learner.has_met(c.id)) and not self.learner.is_open(c.id) and not c.variant_of and c.kind != "construction"
         ]
 
-    def scene_line_of(self, item: Item, used: set[str]) -> tuple[Dialogue, dict[int, list[str]], str, bool] | None:
+    def scene_line_of(self, item: Item, used: set[str]) -> tuple[Dialogue, dict[int, list[str]], str, bool, dict[int, bool]] | None:
         """A line of ``item``'s scene (#326): the learner's line of a theme level that needs ``item``, with the partner's line before it and the
         reply after it, as a short exchange with the scene put first and the partner's lines translated. The line is asked or heard as ``line_role``
         decides on the turn's other items (#265: the item itself is the one practised), and a turn already used for this item is not used again.
-        None when no theme level holds it."""
+        A partner's line inside the conversation answers the learner's line before it («Nú já! Hvar vinnur þú?» after «Ég er í vinnuferð.»), so
+        that line comes first, as the lead-in (#427, lesson 40: «Oh, I see!» answered nothing): the last value maps its turn to True when it is
+        voiced (known: said as the exchange goes) or False when it is heard with its meaning; never asked. None when no theme level holds it."""
         rank = set(self.cfg.theme_scenarios)
         for theme in self.cfg.themes:
             if theme.scenario not in rank:
@@ -603,13 +605,19 @@ class Planner:
                     if t.who != "you" or item.id not in t.items or key in used:
                         continue
                     asked = self.line_role([i for i in t.items if i != item.id], text=t.say) == "ask"  # else the line is heard with its meaning (#240)
-                    turns = level.turns[max(0, k - 1) : k + 2]
-                    if turns[0].who == "you" and len(turns) > 1 and turns[0] is not t:
-                        turns = turns[1:]
+                    start = max(0, k - 1)
+                    if level.turns[start].who == "you" and start != k:
+                        start = k  # two learner lines in a row: the line itself opens
+                    elif start >= 1 and level.turns[start].who == "partner" and level.turns[start - 1].who == "you":
+                        start -= 1  # the learner's line the partner answers (#427)
+                    turns = level.turns[start : k + 2]
                     sub = Level(goal=level.goal, goal_ja=level.goal_ja, partner_speaker=level.partner_speaker, turns=list(turns))
                     dlg = level_dialogue(dataclasses.replace(theme, levels=[sub]), 0, self.cur.known_lang)
                     dlg.id = f"theme:{theme.id}:{n + 1}"  # the level the line is from, not the cut-out's own number: the label, and the scene the daily read counts
-                    return dlg, {0: list(t.items)}, key, asked
+                    if turns[0].who != "you" or turns[0] is t:
+                        return dlg, {0: list(t.items)}, key, asked, {}
+                    lead = turns[0]
+                    return dlg, {0: list(lead.items), 1: list(t.items)}, key, asked, {0: self.line_role(list(lead.items), text=lead.say) == "ask"}
         return None
 
     def _hard_report(self, sc: Script, log: dict[str, list[tuple[str, str]]], at: dict[str, list[int]]) -> dict[str, dict]:
@@ -2414,8 +2422,11 @@ class Planner:
             for kind in order[turn:] + order[:turn]:
                 if kind == "scene":
                     if (line := self.scene_line_of(item, hard_scene_turns.setdefault(item.id, set()))) is not None and len(hard_scene_lines) < cfg.hard_scene_lines:
-                        dlg, turn_items, key, asked = line
-                        ex = b.dialogue(sc, dlg, translate=True, turn_items=turn_items, heard_turns=frozenset() if asked else frozenset({0}))
+                        dlg, turn_items, key, asked, lead = line
+                        target = len(lead)
+                        heard = set(lead) | (set() if asked else {target})
+                        ex = b.dialogue(sc, dlg, translate=True, turn_items=turn_items, heard_turns=frozenset(heard),
+                                        lead_turns=frozenset(k for k, voiced in lead.items() if voiced))
                         if asked:
                             self._record([item.id], "dialogue", ex.item_ids)
                         touch(item)
@@ -3191,9 +3202,9 @@ class Planner:
             return out
 
         def level_scene(theme, n: int) -> str:
-            """What the narrator says to name a scene taken from elsewhere than the lesson's own; nothing for the lesson's own."""
-            if theme_pick and (theme.id, n) == (theme_pick[0].id, theme_pick[1]):
-                return ""
+            """What the narrator says to name the scene a listening task's line is taken from. The lesson's own scene is named too (#427, lesson 40:
+            a catch task opened on small talk's closing «Gaman að spjalla við þig!» with nothing before it): a line taken out of its exchange needs
+            its place, whichever scene it comes from."""
             return level_dialogue(theme, n, self.cur.known_lang).setting
 
         def emit_listening_task(task, room: float | None = None) -> bool:
