@@ -2085,9 +2085,10 @@ class Planner:
             return max(0, cfg.new_items_ceiling() - costed) if capped else cfg.new_items_ceiling()
 
         def closing_cost(n: int) -> float:
-            """Seconds kept for the closing block of ``n`` new items: a recall each (~14 s) and the announcement. A run of recalls is broken by a
-            short listening exercise after every third (#248), kept for here too."""
-            return 8 + 14 * n + (12 * (max(0, n - 1) // 3) if self.components_mode else 0)
+            """Seconds kept for the closing block of ``n`` new items: a recall each (~14 s) and the announcement. Nothing else comes inside it
+            (#421, lesson 38: a pick-out that broke its run of recalls felt nested), so no time is kept for a listening task there: it comes
+            before the closing."""
+            return 8 + 14 * n
 
         recent: deque[str] = deque(maxlen=2)  # item ids of the last exercises
         recent_topics: deque[str] = deque(maxlen=2)
@@ -3363,10 +3364,6 @@ class Planner:
             tail = [e.kind for e in sc.exercises if e.kind != "opening"][-k:]
             return tail[0] if len(tail) == k and len(set(tail)) == 1 else None
 
-        def break_closing_run(room: float) -> bool:
-            """The closing block's recalls run on as the new items do: a short listening exercise after every third (#248), within ``room`` seconds."""
-            return any(emit_listening_task(t, room) for t in pick_out_tasks()) or any(emit_listening_task(t, room) for t in catch_unknown_tasks())
-
         def emit_second_half(kind: str) -> bool:
             if kind == "heard":
                 if remaining_time() >= 90 and (ht := pick_heard_theme()) is not None:
@@ -3820,14 +3817,12 @@ class Planner:
                         return e  # «Ég skil ekki.» says the opposite of «Ég skil.»: not its recall (as ``containing_items``)
                 return None
 
-            for pos, item in enumerate(order):
+            for item in order:
                 if item.id in closed:
                     continue
                 if (holder := closing_holder(item)) is not None:
                     holder.item_ids.append(item.id)  # the one question counts for it (#280)
                     continue
-                if self.components_mode and delivered_at[0] is not None and last_kinds_same() == "recall":
-                    break_closing_run(budget - sc.total_duration - 14 * (len(order) - pos) - 6)  # a part just asked inside the sentence of another new item (the closing double of «Ein króna.»)
                 stage = self._harder_than_today(item)
                 if stage == "dialogue":
                     stage = self.below_dialogue(item)
