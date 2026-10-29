@@ -374,7 +374,7 @@ What the learner wrote, and what the owner found in the transcript and asked for
   Small talk 4 opened «Someone sits down next to you and says hello.», then «Ask how old she is.», and the partner went on
   «Ég er einhleyp og bý ein. En þú?». The scene check reads generated sentences; nothing read an authored level's order.
   **Answered, in review (#433):** the level opens with «Ég á afmæli í dag!», so the age has a reason, and the partner's line
-  before «Ég er gift.» ends on her own marriage: «… Ég hef verið gift í tíu ár. En þú?».
+  before «Ég er gift.» is her own marriage, in words the learner knows: «Ég er gift. En þú?».
 - **The owner: a cue its answer does not answer, and a partner's reply in the wrong form.** «She asks if you're here with
   your family. Say you're married.» («Ég er gift» does not say whether you came with your family), and «Velkomin!», the
   woman's form, said twice in `kynning` to the learner's line in a man's voice. **Answered, in review (#433):** the cue asks
