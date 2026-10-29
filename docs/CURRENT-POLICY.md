@@ -54,7 +54,8 @@ summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wro
 - **Repetition.** A short item is said alone at most three times a lesson; a fixed sentence at most nine; the same
   situation (authored, or a scene check's line) narrated in full at most twice, and not right after itself when the cue has another way. A pattern is not a lesson's whole supply (about ten generated sentences). Not-due
   items wait for their date (#94), with one exception for spare time (LD §9 "Repetition"). An open item (failed) is practised every lesson and asked at the next review until it is
-  recalled.
+  recalled. A fixed authored dialogue stops returning after four complete plays when all its required items are learned;
+  new material and items failed, hesitated or reported hard keep their scene (#416). Due items remain available for individual review.
 - **Spare time and the second half.** Once the lesson has taught what the target asked for, the second half is a rotation
   of the ear and the scene: hear the scene, pick out information, catch an unknown word, use one of today's expressions
   (concepts 2 and 3, #248). Not recombination of known patterns for its own sake.

@@ -102,6 +102,7 @@ class PlanConfig:
     # few dialogues eligible, the same full dialogue otherwise played in every lesson
     # (simulated lessons 7-12). One still growing a turn per encounter does not wait.
     dialogue_rest_lessons: int = 3
+    dialogue_full_play_limit: int = 4  # #416: stop repeating a learned fixed script after this many full plays; 0 disables
     max_dialogues: int | None = None  # per lesson (default: one per 10 minutes, at least 2)
     # Issue #149 step 3 (lesson 13: 23.6 of 30 minutes, the last 5 repeating today's items): with
     # nothing else left, a dialogue lacking one or two required items is played as listening
@@ -1493,7 +1494,7 @@ class Planner:
                 continue
             if prefer_item and prefer_item.id not in d.required_items:
                 continue
-            if self._dialogue_resting(d):
+            if self._dialogue_resting(d) or self._dialogue_familiar(d):
                 continue
             if self.repeats_scene(d):
                 continue
@@ -1878,7 +1879,7 @@ class Planner:
         now = self.learner.next_lesson_number()
         cands = []
         for d in self.cur.dialogues:
-            if d.id in self.dialogues_played or d.id in self.dialogues_listened or self.repeats_scene(d):
+            if d.id in self.dialogues_played or d.id in self.dialogues_listened or self.repeats_scene(d) or self._dialogue_familiar(d):
                 continue
             # the required items the learner can't say, less those of a turn whose line they can say
             missing = {i for i in d.required_items if not self.can_say_item(i)}
@@ -1981,6 +1982,21 @@ class Planner:
             {"items": list(t["items"]), "prompt": t["prompt"], "answer": t["answer"], "stage": "bonus", "bonus": True}
             for _, t in order[: self.cfg.max_bonus_questions]
         ]
+
+    def _dialogue_familiar(self, d: Dialogue) -> bool:
+        """#416: a fixed dialogue already played in full often enough adds nothing when its required items are learned.
+
+        Earlier encounters grow one turn at a time, so those partial plays do not count toward the limit. New material
+        and items still needing repair keep their scene, even when their old durable-success count says learned.
+        Individual due items can still be reviewed outside the fixed script.
+        """
+        limit = self.cfg.dialogue_full_play_limit
+        partial_plays = max(0, len(d.turns) - self.cfg.dialogue_first_turns)
+        full_plays = self.learner.dialogues_done.get(d.id, 0) - partial_plays
+        if limit <= 0 or full_plays < limit or not d.required_items:
+            return False
+        hard = set(self.hard_items())
+        return all(self.learner.knows(i) and i not in hard and not self.taught_today(i) for i in d.required_items)
 
     def _dialogue_resting(self, d: Dialogue) -> bool:
         """Heard in full at its last encounter, and that was fewer than
@@ -3829,7 +3845,7 @@ class Planner:
                 "new_items": cfg.resolved_new_items(),
                 "topics": cfg.topics,
                 "priority_items": len(cfg.priority),  # a count only: the list may reflect a private profile
-                "levers": {"late_unhinted_recall": cfg.late_unhinted_recall},
+                "levers": {"late_unhinted_recall": cfg.late_unhinted_recall, "dialogue_full_play_limit": cfg.dialogue_full_play_limit},
                 "order": cfg.order,
                 "seed": cfg.seed,
                 "level": self.timing.level,
