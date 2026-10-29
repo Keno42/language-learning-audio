@@ -588,9 +588,9 @@ requires = ["eg_heiti", "eg_er_fra_japan", "en_thu", "ja", "eg_er_i_frii", "takk
   expect_text = "Já, ég er í fríi."
   expect_meaning = "Yes, I'm on holiday."
   expect_meaning_ja = "はい、休暇中です。"
-  partner = "Góða skemmtun!"  # #427 (lesson 40): «Velkomin!» agreed with a woman, said to the learner's line in a man's voice
-  partner_meaning = "Have fun!"
-  partner_meaning_ja = "楽しんでくださいね！"
+  partner = "Frábært!"  # #427 (lesson 40): «Velkomin!» agreed with a woman, said to the learner's line in a man's voice
+  partner_meaning = "Great!"
+  partner_meaning_ja = "いいですね！"
 
   [[dialogues.turns]]
   cue = "Thank her."
