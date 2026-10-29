@@ -123,6 +123,16 @@ class Lesson40ContextTests(unittest.TestCase):
             for line in t.lines():
                 self.assertFalse(words(line.say) - taught - {w.lower() for w in line.word_glosses}, line.say)
 
+    def test_a_lead_in_can_be_the_levels_first_line(self):
+        """Review of #433: «Já, ég er frá Akureyri. En þú?» answers the learner's opening «Ert þú íslensk?»; without it «Yes» answers a
+        question never heard."""
+        l, today = self.known("eg_er_japonsk", "ert_thu_islensk")
+        dlg, turn_items, _, _, lead = self.planner(l, today).scene_line_of(self.cur.by_id["eg_er_japonsk"], set())
+        self.assertEqual(dlg.id, "theme:smalltalk:3")
+        self.assertEqual(dlg.turns[0].expect_text, "Ert þú íslensk?")
+        self.assertTrue(dlg.turns[0].partner.startswith("Já, ég er frá Akureyri"))
+        self.assertEqual((lead, turn_items[1]), ({0: True}, ["eg_er_japonsk"]))
+
 
 if __name__ == "__main__":
     unittest.main()

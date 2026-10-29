@@ -608,7 +608,7 @@ class Planner:
                     start = max(0, k - 1)
                     if level.turns[start].who == "you" and start != k:
                         start = k  # two learner lines in a row: the line itself opens
-                    elif start >= 2 and level.turns[start].who == "partner" and level.turns[start - 1].who == "you":
+                    elif start >= 1 and level.turns[start].who == "partner" and level.turns[start - 1].who == "you":
                         start -= 1  # the learner's line the partner answers (#427)
                     turns = level.turns[start : k + 2]
                     sub = Level(goal=level.goal, goal_ja=level.goal_ja, partner_speaker=level.partner_speaker, turns=list(turns))

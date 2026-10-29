@@ -104,14 +104,16 @@ class HardConnectionTests(unittest.TestCase):
 
     def test_the_allergy_line_has_a_scene(self):
         """Lesson 33: «Ég er með ofnæmi fyrir hnetum.» was asked five times a lesson as one sentence, with nothing connecting it (#326's
-        content gap). The café's fourth level holds it, with the partner's line before it and the reply after it."""
+        content gap). The café's fourth level holds it, with the partner's line before it and the reply after it; the order that line answers
+        («Það eru hnetur í kökunni.» after «Ég ætla að fá köku.») leads in (#427)."""
         found = self.planner(LearnerState("is", "en", "A1")).scene_line_of(self.cur.by_id["eg_er_med_ofnaemi_fyrir_hnetum"], set())
         self.assertIsNotNone(found)
-        dlg, turn_items, key, asked, _ = found
-        self.assertEqual((dlg.id, turn_items), ("theme:cafe:4", {0: ["eg_er_med_ofnaemi_fyrir_hnetum"]}))
+        dlg, turn_items, key, asked, lead = found
+        self.assertEqual((dlg.id, turn_items), ("theme:cafe:4", {0: ["eg_aetla_ad_fa", "koku"], 1: ["eg_er_med_ofnaemi_fyrir_hnetum"]}))
+        self.assertEqual(lead, {0: False}, "the order, never met by this learner: heard, not asked")
         self.assertTrue(asked, "the line holds no other item, so it is asked, not only heard")
-        self.assertEqual(dlg.turns[0].expect_text, "Ég er með ofnæmi fyrir hnetum.")
-        self.assertTrue(dlg.turns[0].opener and dlg.turns[0].partner, "the partner's line before it and the reply after it")
+        self.assertEqual([t.expect_text for t in dlg.turns], ["Ég ætla að fá köku.", "Ég er með ofnæmi fyrir hnetum."])
+        self.assertTrue(dlg.turns[0].partner and dlg.turns[1].partner, "the partner's line before it and the reply after it")
 
     def test_a_scene_line_is_asked_as_line_role_decides_on_its_other_items(self):
         """#265: one rule decides every learner line. «Ég ætla að fá kaffi.» for an open «kaffi»: the pattern met but not yet known is enough
