@@ -23,7 +23,7 @@ is answered by #422, and lesson 39, its first feedback, has no such remark.
    said as a turn of the played exchange» read 4 in lesson 40 and 0 in each of lessons 41–49. **In review:** the batch for
    lessons 41–50 (the owner's option F): arranging to meet (three levels), the town's fourth and fifth (telling a tourist the
    way), small talk's fifth (a coach ride), the clothes shop's third (size and colour) and the weather (one level); on the
-   same replay, 22 of the day's new items said in the played exchange in lessons 40–49, 0 in two of them.
+   same replay, 14 of the day's new items said in the played exchange in lessons 40–49, 0 in three of them.
 4. **A dialogue heard many times is not played whole again (#416).** Built (#431): after four complete plays, a fixed script
    whose required items are learned stops returning unless it holds new material or an item needing repair. #430 already
    voices known set replies in authored dialogues. Left: skip an exchange whose replies would all be voiced.

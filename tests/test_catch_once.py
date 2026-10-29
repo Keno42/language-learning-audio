@@ -190,6 +190,24 @@ class CatchOnceTests(unittest.TestCase):
             self.assertNotIn("|", key)
             self.assertTrue(key.startswith("theme:") or key in self.cur.by_id, key)
 
+    def test_every_pick_out_turn_has_more_than_one_answer_value(self):
+        """Review of #432: the meeting's «klukkan átta» and «klukkan sjö» had one value each, so the answer could be remembered, not heard (lesson
+        37's remark); the rotation test below reads only turns that give more than one value, so the data itself is checked here: every partner turn
+        with a probe has lines (its own, its variants, `listen`) with at least two answer values."""
+        from audiolesson.planner import pick_out_answer_key
+
+        single = []
+        for t in self.themes:
+            for n, level in enumerate(t.levels):
+                for k, turn in enumerate(level.turns):
+                    if turn.who != "partner":
+                        continue
+                    key = f"theme:{t.id}:{n + 1}:{k}"
+                    values = {pick_out_answer_key(key, p["answer"]) for ln in [*turn.lines(), *turn.listen_lines()] for p in ln.probes}
+                    if len(values) == 1:
+                        single.append(key)
+        self.assertEqual(single, [], "a pick-out turn with one answer value")
+
     def test_a_turn_drawn_again_gives_the_answer_heard_least_recently(self):
         """#339 (lesson 37): «klukkan hálf þrjú» was the answer every time the tour's line was drawn, so it was remembered, not heard. A turn
         rotates across lessons as before, and within it the answer's value heard least recently comes first, whatever line says it (review of
