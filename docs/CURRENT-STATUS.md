@@ -19,9 +19,11 @@ is answered by #422, and lesson 39, its first feedback, has no such remark.
 2. **The closing reviews today's new material as one block (#421).** Lesson 38's closing held a pick-out; the replay shows the
    same in lesson 44. **Next smallest step:** no listening task, conversation or aside between the closing's announcement and
    its end; their time goes before it.
-3. **Scenes for the material after lesson 40 (#327), in parallel.** On the replay of the lesson-39 export, «today's new items
-   said as a turn of the played exchange» reads 4, 5 and 0 in lessons 39–41. **Next smallest step:** the scenes for lessons
-   41–50 as one data PR (the owner's option F), the arranging-to-meet level among them.
+3. **Scenes for the material after lesson 40 (#327), in parallel.** On the replay of the lesson-40 export, «today's new items
+   said as a turn of the played exchange» read 4 in lesson 40 and 0 in each of lessons 41–49. **In review:** the batch for
+   lessons 41–50 (the owner's option F): arranging to meet (three levels), the town's fourth and fifth (telling a tourist the
+   way), small talk's fifth (a coach ride), the clothes shop's third (size and colour) and the weather (one level); on the
+   same replay, 22 of the day's new items said in the played exchange in lessons 40–49, 0 in two of them.
 4. **A dialogue heard many times is not played whole again (#416, its other half).** `tungumal`, every four lessons.
 
 **Alongside:** two units of one scene back to back (#273); «Mér finnst gaman að hringja heim» and its meaning (#209); the
@@ -33,7 +35,9 @@ Icelandic (candidates until native-checked). The town (asking the way), small ta
 clothes shop (what you need, the price, trying it on) are written: on the replay of the lesson-30 export the day's new
 lines are said in the played exchange in lessons 30–35 (17; before the town, 0 in nine lessons). The goal of the played
 level is said after the opening, and the closing ends on the level's lines in the order of its turns. The town has a third
-level for the way itself, and small talk a third and fourth. Next: arranging to meet (item 2), then taxi and bus, winter talk.
+level for the way itself, and small talk a third and fourth; the batch for lessons 41–50 adds arranging to meet and the
+weather, and more levels for the town, small talk and the clothes shop (item 3). Next: taxi and bus, the weather's further
+levels.
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
 learner say this line", then the planner's build loop. Each step leaves every lesson `tools/same_lessons.py` builds

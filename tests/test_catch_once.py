@@ -215,7 +215,12 @@ class CatchOnceTests(unittest.TestCase):
         varied = {turn: keys for turn, keys in drawn.items() if len(set(keys)) > 1}
         self.assertTrue(varied, "some turns gave more than one value")
         for turn, keys in varied.items():
-            self.assertFalse([a for a, b in zip(keys, keys[1:]) if a == b], f"{turn}: the same value twice in a row: {keys}")
+            # a value never heard sorts first within its turn (`answer_in` 0), so a value repeated before the turn's first other one means no other
+            # was sayable yet (the course's numbers come later: «klukkan fjögur» alone, then «tíu mínútur»); from the first other value on, the
+            # turn has another it can give, and never repeats
+            first_other = next(k for k, key in enumerate(keys) if key != keys[0])
+            after = keys[first_other - 1 :]
+            self.assertFalse([a for a, b in zip(after, after[1:]) if a == b], f"{turn}: the same value twice in a row: {keys}")
 
     def test_a_conjunction_is_not_introduced_through_the_catch_and_a_told_word_is_lower_case(self):
         from audiolesson.exercises import Builder
