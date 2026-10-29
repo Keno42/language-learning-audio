@@ -7,39 +7,42 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 (§7), the hypotheses with their status (§4), the evidence lesson by lesson (§5). The learning policy is in
 `docs/CURRENT-POLICY.md`.
 
-## Now (updated 2026-10-28, after lesson 39), in order
+## Now (updated 2026-10-29, after lesson 40), in order
 
 Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% by what may change a long-term decision, each
 remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
-39's; the next lesson is 40. Lessons 38 and 39 brought five remarks (LD §5.28, §5.29); set replies asked too often (lesson 38)
-is answered by #422, and lesson 39, its first feedback, has no such remark.
-1. **The way back from a conversation to single drills is marked (#415).** Remarked in lessons 37 and 39; 11 of lesson 39's
-   12 conversations were followed by a drill with no line between. **Built, in review (#425):** «That's the end of the
-   conversation.», inside the lesson's 30 minutes.
-2. **The closing reviews today's new material as one block (#421).** Lesson 38's closing held a pick-out; the replay shows the
-   same in lesson 44. **Next smallest step:** no listening task, conversation or aside between the closing's announcement and
-   its end; their time goes before it.
-3. **Scenes for the material after lesson 40 (#327), in parallel.** On the replay of the lesson-40 export, «today's new items
-   said as a turn of the played exchange» read 4 in lesson 40 and 0 in each of lessons 41–49. **In review:** the batch for
-   lessons 41–50 (the owner's option F): arranging to meet (three levels), the town's fourth and fifth (telling a tourist the
-   way), small talk's fifth (a coach ride), the clothes shop's third (size and colour) and the weather (one level); on the
-   same replay, 14 of the day's new items said in the played exchange in lessons 40–49, 0 in three of them.
-4. **A dialogue heard many times is not played whole again (#416).** Built (#431): after four complete plays, a fixed script
-   whose required items are learned stops returning unless it holds new material or an item needing repair. #430 already
-   voices known set replies in authored dialogues. Left: skip an exchange whose replies would all be voiced.
+40's; the next lesson is 41. Lesson 40 brought one remark from the learner and two from the owner's reading of the
+transcript, all of one cause: an authored line the scene check does not read (LD §5.30). It brought no remark on the way back
+from a conversation (#425), set replies (#422) or the review's 🔊 replies (site_update_notifier#176), and load «right» after five
+«light».
+1. **Lesson 40's contexts (#427).** Age and marital status straight after a greeting, a cue its answer does not answer,
+   «Velkomin!» in the woman's form to a man's voice, a catch with no scene named. **Built, in review (#433):** small talk 4
+   opens with a birthday, the cue asks whether you're married, «Góða skemmtun!» and «Frábært!» in place of «Velkomin!», and
+   every listening task opens with its scene line. Left: a `validate` rule for gendered partner replies; the lines are
+   candidates until #209.
+2. **The closing reviews today's new material as one block (#421).** Lesson 38's closing held a pick-out; lessons 39 and 40
+   had none, and the replay shows one in lesson 44. **Next smallest step:** no listening task, conversation or aside between
+   the closing's announcement and its end; their time goes before it.
+3. **Help on an expression apart from the review's outcomes (site_update_notifier#179).** **Built, in review
+   (site_update_notifier#180):** a «解説を頼む» button on the feedback form asks for pronunciation or grammar help on chosen
+   expressions, saved apart and explained when the explainer is configured; no outcome, load or schedule changes. Left: the
+   same during the written review's recall check, and kinds for listening and use.
+4. **Scenes for the material after lesson 50 (#327), in parallel.** Built (#432): the batch for lessons 41–50; on the replay
+   of the lesson-40 export, 14 of the day's new items are said in the played exchange in lessons 40–49 (4 before it). Next: taxi
+   and bus, the weather's further levels.
 
-**Alongside:** two units of one scene back to back (#273); «Mér finnst gaman að hringja heim» and its meaning (#209); the
-written review's 🔊 replies named by card (site_update_notifier#176, to confirm on Discord). Load «light» five lessons in a
-row: the difficulty is not raised while the interaction fixes land; the next-day recall of the reported sentences decides.
+**Alongside:** two units of one scene back to back (#273); «Mér finnst gaman að hringja heim» and its meaning (#209). #416's
+remainder (an exchange whose replies would all be voiced) occurs 0 times on the replay and is not built. Load «right» in
+lesson 40 after five «light», at a target of 10 weighted components (lesson 39: 9).
 
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
 Icelandic (candidates until native-checked). The town (asking the way), small talk (getting to know someone) and the
 clothes shop (what you need, the price, trying it on) are written: on the replay of the lesson-30 export the day's new
 lines are said in the played exchange in lessons 30–35 (17; before the town, 0 in nine lessons). The goal of the played
 level is said after the opening, and the closing ends on the level's lines in the order of its turns. The town has a third
-level for the way itself, and small talk a third and fourth; the batch for lessons 41–50 adds arranging to meet and the
-weather, and more levels for the town, small talk and the clothes shop (item 3). Next: taxi and bus, the weather's further
-levels.
+level for the way itself, and small talk a third and fourth; the batch for lessons 41–50 (#432) added arranging to meet and
+the weather, and more levels for the town, small talk and the clothes shop (item 4). Next: taxi and bus, the weather's
+further levels.
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
 learner say this line", then the planner's build loop. Each step leaves every lesson `tools/same_lessons.py` builds
@@ -50,7 +53,8 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
-- **After lessons 38 and 39:** a pick-out turn's lines carry other values (#417); a known set reply in an exchange played again is voiced (#422); a sentence reported hard is tried again from its meaning first (#424); in review: a conversation's end is marked (#425), the review's 🔊 replies named by card (site_update_notifier#176).
+- **After lesson 40:** an authored dialogue played before voices the known set replies too (#430); a fixed dialogue played whole four times is not played whole again (#431); scenes for lessons 41–50 (#432); in review: lesson 40's contexts (#433), help on an expression (site_update_notifier#180).
+- **After lessons 38 and 39:** a pick-out turn's lines carry other values (#417); a known set reply in an exchange played again is voiced (#422); a sentence reported hard is tried again from its meaning first (#424); a conversation's end is marked (#425); the review's 🔊 replies named by card (site_update_notifier#176).
 - **After lessons 36 and 37:** a cue says the learner's action first (#411); the replay plans the coming lessons as production does (#413); a theme level of three or more turns plays with one heard (#414).
 - **Lesson 35's remarks (#407):** a loanword gets no slow split; the closing says «some of» when it leaves new items out; a pattern's other answers («Hún er …») and an aside on «hún».
 - **Merged on 2026-10-23 (first heard in lesson 35 unless named):** a transform's pair (#394) and its instruction (#405);
