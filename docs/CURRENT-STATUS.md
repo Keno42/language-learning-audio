@@ -22,7 +22,9 @@ is answered by #422, and lesson 39, its first feedback, has no such remark.
 3. **Scenes for the material after lesson 40 (#327), in parallel.** On the replay of the lesson-39 export, «today's new items
    said as a turn of the played exchange» reads 4, 5 and 0 in lessons 39–41. **Next smallest step:** the scenes for lessons
    41–50 as one data PR (the owner's option F), the arranging-to-meet level among them.
-4. **A dialogue heard many times is not played whole again (#416, its other half).** `tungumal`, every four lessons.
+4. **A dialogue heard many times is not played whole again (#416).** In review: after four complete plays, a fixed script
+   whose required items are learned stops returning unless it holds new material or an item needing repair. #430 already
+   voices known set replies in authored dialogues. Left: skip an exchange whose replies would all be voiced.
 
 **Alongside:** two units of one scene back to back (#273); «Mér finnst gaman að hringja heim» and its meaning (#209); the
 written review's 🔊 replies named by card (site_update_notifier#176, to confirm on Discord). Load «light» five lessons in a
