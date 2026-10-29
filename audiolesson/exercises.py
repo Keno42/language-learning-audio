@@ -1904,13 +1904,22 @@ class Builder:
         for k, its in (turn_items or {}).items():
             if k < len(turns):
                 (heard_ids if k in heard_turns else ids).extend(i for i in its if i in self.cur.by_id)
-        if turn_items is None:
-            # an authored dialogue's turn heard or voiced (#416) names no practice: its item goes with the heard ones
-            for k in heard_turns:
-                if k < len(turns) and turns[k].expect:
-                    heard_ids.extend([turns[k].expect, *turns[k].expect_fill.values()])
-            asked = {i for k, t in enumerate(turns) if k not in heard_turns and t.expect for i in (t.expect, *t.expect_fill.values())}
-            ids = [i for i in ids if i in asked or i not in heard_ids]
+        if turn_items is None and heard_turns:
+            # an authored dialogue's turn heard or voiced (#416) names no practice: its items go with the heard ones, unless another turn asks them.
+            # A turn's items: the item it expects and its fills, or for a literal line («Nei, takk.») the dialogue's required items whose words are all
+            # in it («nei», «takk»; review of #430: «nei» stayed practised)
+            def items_of(t) -> set[str]:
+                if t.expect:
+                    return {t.expect, *t.expect_fill.values()}
+                said = {w.lower() for w in WORD.findall(t.expect_text or "")}
+                return {
+                    r for r in dlg.requires
+                    if r in self.cur.by_id and (ws := {w.lower() for w in WORD.findall(self.cur.by_id[r].target)}) and ws <= said
+                }
+            asked = set().union(*(items_of(t) for k, t in enumerate(turns) if k not in heard_turns))
+            only_heard = set().union(*(items_of(t) for k, t in enumerate(turns) if k in heard_turns)) - asked
+            heard_ids.extend(i for i in ids if i in only_heard)
+            ids = [i for i in ids if i not in only_heard]
         ids = list(dict.fromkeys(ids))
         heard_ids = [i for i in dict.fromkeys(heard_ids) if i not in ids]
         ex = sc.new_exercise("dialogue", "dialogue", ids, label)

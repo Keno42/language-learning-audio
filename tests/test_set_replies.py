@@ -205,6 +205,11 @@ class AuthoredDialogueReplyTests(unittest.TestCase):
         self.assertIn(PROMPTS.get("dialogue_voiced_note"), narrated, "the opening says the short replies are played")
         self.assertNotIn("Thank her.", narrated)
         self.assertNotIn("takk", p.exposures, "a voiced line earns no practice")
+        # review of #430: the dialogue's required «nei» and «takk», said only in voiced lines, are heard, not practised
+        self.assertFalse({"nei", "takk"} & set(ex.item_ids), ex.item_ids)
+        self.assertTrue({"nei", "takk"} <= set(ex.heard_ids), ex.heard_ids)
+        self.assertNotIn("nei", p.support)
+        self.assertTrue({"godan_daginn", "eg_aetla_ad_fa", "kaffi"} <= set(ex.item_ids), "the asked lines' items stay practised")
 
     def test_the_first_encounter_and_a_weak_reply_keep_their_asks(self):
         _, _, _, first = self.play(self.learner(), times=0)
