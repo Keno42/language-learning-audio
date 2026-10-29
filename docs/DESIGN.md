@@ -176,7 +176,11 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (G14, §9 "Repetition").** The recalls of a new item are scheduled at `intro_recall_times`
   (fractions of the lesson's time after its introduction, about 1, 3, 8 and 15 minutes of 30:
   `intro_timeline`, like `open_timeline`), played when due and never as the fifth recall in a
-  row; an idle lesson pulls them early (step 5). An item of at most `short_item_words` words
+  row; an idle lesson pulls them early (step 5). Practice is shared (#439, lesson 41: four items, four sentences, 20 asks): a rung whose item
+  another item's recall said since its own last practice is not asked (`said_since_own`), nor a pattern's whose sentences its fillers' practice
+  already said once each on average (`saturated`: a substitution, not a new frame); its later rungs keep their times, and the second half's
+  «today» recall passes over a saturated pattern too. Never an item's first rung, nor an item reported hard; a phrase is passed over only when
+  another recall said it. `shared_recalls` in `plan.json`. An item of at most `short_item_words` words
   (not a construction or transform) introduced today has `max_bare_uses` bare uses
   (introduction, one early recall, the closing recall); every other practice of it is a
   sentence (`sentence_practice`): a known pattern with a slot for it (`recombine`), else a known

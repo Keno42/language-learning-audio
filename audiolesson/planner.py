@@ -2138,6 +2138,9 @@ class Planner:
         refresh_timeline: list[tuple[float, int, Item]] = []  # a known construction's light review sentences (#171)
         refresh_done: dict[str, int] = {}
         intro_timeline: list[tuple[float, int, Item, str]] = []  # today's items' recalls, by time
+        shared_recalls: list[str] = []  # #439: today's items whose timed recall another recall's sentence stood for
+        first_timed: dict[str, int] = {}  # #439: each of today's items' first timed recall (its sequence number)
+        own_practice: dict[str, int] = {}  # #439: the exercise index of each of today's items' own last practice (its introduction, its rungs)
         self.step2_parts = []  # #287: the parts whose first reactivation was made a recombine
         first_rung: dict[str, int] = {}  # #287: part id → the sequence number of its first timed recall, which becomes a recombine where a known pattern takes the part
         sentence_used: dict[str, set[str]] = {}  # per short item, the sentences practised this lesson
@@ -2322,10 +2325,13 @@ class Planner:
                 introduced.append(part)
                 arc_items.setdefault(current_arc_id, []).append(part)
                 self._record([part.id], "intro", ex.item_ids)
+                own_practice[part.id] = len(sc.exercises) - 1
                 touch(part)
                 ladder = self.ladder(part)
                 for k, after in enumerate(cfg.intro_recall_times):
                     seq += 1
+                    if k == 0:
+                        first_timed[part.id] = seq  # #439: the first rung of every item is asked, shared practice or not
                     if k == 0 and part.kind == "vocab":
                         first_rung[part.id] = seq
                     intro_timeline.append((sc.total_duration + after * (budget - closing_reserve), seq, part, ladder[min(k + 1, len(ladder) - 1)]))
@@ -2539,10 +2545,58 @@ class Planner:
             whole = part_whole(item) if item.kind == "vocab" else None
             return _norm_utterance(whole["answer"] if whole else item.target) in answered_lately()
 
+        def item_sentences(item: Item) -> list[str]:
+            """The sentences a recall of ``item`` can ask now: a one-slot pattern's with each filler the learner has (met or taught today), a part's
+            sentence, else its own line. [] for a pattern with more slots or none: not counted."""
+            if item.kind == "construction":
+                if len(item.slots) != 1:
+                    return []
+                (slot, tag), = item.slots.items()
+                fills = [f for f in self.cur.items_with_tag(tag, item) if self.learner.has_met(f.id) or f.id in b.in_lesson]
+                return [self.cur.resolve_slots(item, {slot: f})[0] for f in fills]
+            if item.kind == "transform":
+                return []
+            whole = part_whole(item) if item.kind == "vocab" else None
+            return [whole["answer"] if whole else item.target]
+
+        def saturated(item: Item) -> bool:
+            """#439 (lesson 41: «Ég fer/kem á morgun/í kvöld.», 20 asks of four sentences): a pattern whose sentences were said in other items'
+            practice (its fillers' introductions and recalls: «Ég fer á morgun.» was «á morgun»'s sentence), once each on average: practising it
+            is a substitution, not a new frame, so its later timed and «today» recalls pass. A pattern whose sentences only its own practice said
+            keeps its ladder, and so do phrases and words."""
+            if item.kind != "construction":
+                return False
+            sentences = {_norm_utterance(t) for t in item_sentences(item)}
+            if not sentences:
+                return False
+            others = sum(
+                1 for e in sc.exercises
+                if e.kind in ("intro", "recall", "generative", "connect") and e.item_ids and e.item_ids[0] != item.id
+                and _norm_utterance(re.sub(r"\s*\([^()]*\)\s*$", "", e.label.split(": ", 1)[-1])) in sentences
+            )
+            return others >= len(sentences)
+
+        def said_since_own(item: Item) -> bool:
+            """#439 (lesson 41: «Ég fer/kem á morgun/í kvöld.», four new items, 20 asks of four sentences): the learner said ``item`` in a recall of
+            another of today's items since its own last practice: «Ég kem á morgun.» asked for «Ég kem {time}.» is a retrieval of «á morgun» too."""
+            since = own_practice.get(item.id, -1)
+            return any(
+                item.id in e.item_ids and e.item_ids[0] != item.id
+                for e in sc.exercises[since + 1 :]
+                if e.kind in ("recall", "generative")
+            )
+
         def play_timed(entry: tuple[float, int, Item, str], force: bool = False) -> bool:
             """A today's-item recall off ``intro_timeline``; one dropped for want of a sentence
-            waits in ``capped_backlog`` for the cap to lapse."""
+            waits in ``capped_backlog`` for the cap to lapse. A rung whose item was said in another item's recall since its own last practice is
+            that practice (#439), and so is one whose sentences were said enough (``saturated``): it is not asked again, its later rungs keep
+            their times; never an item's first rung (a part's is #287's too), nor an item reported hard (#326)."""
             intro_timeline.remove(entry)
+            item = entry[2]
+            if not force and first_timed.get(item.id) != entry[1] and item.id not in self.hard_items() and (said_since_own(item) or saturated(item)):
+                own_practice[item.id] = len(sc.exercises) - 1
+                shared_recalls.append(item.id)
+                return False
             if not force and sentence_lately(entry[2]) and spacing_deferrals[entry[2].id] < 2:
                 # #273: the sentence this recall would ask was asked within the last minute: it waits a minute (twice at most), so the same words are spaced, not massed
                 spacing_deferrals[entry[2].id] += 1
@@ -2550,9 +2604,12 @@ class Planner:
                 intro_timeline.append((sc.total_duration + self.cfg.spacing_report, seq_later, entry[2], entry[3]))
                 if first_rung.get(entry[2].id) == entry[1]:
                     first_rung[entry[2].id] = seq_later  # the deferred entry keeps being the part's first rung (#287)
+                if first_timed.get(entry[2].id) == entry[1]:
+                    first_timed[entry[2].id] = seq_later  # and the item's first rung (#439)
                 return False
             first = first_rung.get(entry[2].id) == entry[1]
             if do_recall(entry[2], entry[3]):
+                own_practice[entry[2].id] = len(sc.exercises) - 1
                 if first and b.recombine_status(entry[2]) == "novel":
                     # #287 step 2: right after the retrieval, "use it in a sentence" (H6: chunk, then pattern, then transfer). The exercise just before practised the part, so the cue's
                     # promise is true. Once per part; the rungs and their spacing are as before
@@ -3381,7 +3438,7 @@ class Planner:
                 return any(emit_listening_task(task) for task in catch_unknown_tasks())
             if kind == "today" and last_kinds_same() not in ("recall", "generative"):
                 # #273: an item whose sentence was asked in the last minute goes last
-                for it in sorted((i for i in introduced if i.id not in recent), key=lambda i: (sentence_lately(i), len(self.exposures.get(i.id, [])))):
+                for it in sorted((i for i in introduced if i.id not in recent and not saturated(i)), key=lambda i: (sentence_lately(i), len(self.exposures.get(i.id, [])))):
                     stage = self._harder_than_today(it)
                     if stage == "dialogue":
                         stage = self.below_dialogue(it)
@@ -3898,7 +3955,8 @@ class Planner:
             "intro_skipped": list(intro_skipped),
             "rotation_guard": guard_used[0] and delivered_at[0] is None,  # #294: the second half started because nothing more could be selected, the target not counted as taught
             "repeated_new_sentences": self._repeated_new_sentences(sc, introduced),  # #311: a new phrase asked as the same sentence in more than 3 exercises ({} expected)
-            "closing_left": closing_left,  # today's new items (`new_items`, the embedded ones included) the closing did not ask; the announcement then says «some of» (lesson 35)
+            "closing_left": closing_left,
+            "shared_recalls": shared_recalls,  # #439: today's items whose timed recall another recall's sentence stood for  # today's new items (`new_items`, the embedded ones included) the closing did not ask; the announcement then says «some of» (lesson 35)
             "listening_closed": listening_closed,  # pick-outs and catches followed by a drill, closed with «Back to speaking.» (lesson 34)
             "conversations_closed": conversations_closed,  # conversations followed by a drill, closed with «That's the end of the conversation.» (#415)
             "switch_pauses": switches,  # #301: pauses put where two speech segments touched; "touching_switches" is what still touches (0)
