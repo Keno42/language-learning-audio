@@ -190,6 +190,24 @@ class CatchOnceTests(unittest.TestCase):
             self.assertNotIn("|", key)
             self.assertTrue(key.startswith("theme:") or key in self.cur.by_id, key)
 
+    def test_every_pick_out_turn_has_more_than_one_answer_value(self):
+        """Review of #432: the meeting's «klukkan átta» and «klukkan sjö» had one value each, so the answer could be remembered, not heard (lesson
+        37's remark); the rotation test below reads only turns that give more than one value, so the data itself is checked here: every partner turn
+        with a probe has lines (its own, its variants, `listen`) with at least two answer values."""
+        from audiolesson.planner import pick_out_answer_key
+
+        single = []
+        for t in self.themes:
+            for n, level in enumerate(t.levels):
+                for k, turn in enumerate(level.turns):
+                    if turn.who != "partner":
+                        continue
+                    key = f"theme:{t.id}:{n + 1}:{k}"
+                    values = {pick_out_answer_key(key, p["answer"]) for ln in [*turn.lines(), *turn.listen_lines()] for p in ln.probes}
+                    if len(values) == 1:
+                        single.append(key)
+        self.assertEqual(single, [], "a pick-out turn with one answer value")
+
     def test_a_turn_drawn_again_gives_the_answer_heard_least_recently(self):
         """#339 (lesson 37): «klukkan hálf þrjú» was the answer every time the tour's line was drawn, so it was remembered, not heard. A turn
         rotates across lessons as before, and within it the answer's value heard least recently comes first, whatever line says it (review of
@@ -215,7 +233,12 @@ class CatchOnceTests(unittest.TestCase):
         varied = {turn: keys for turn, keys in drawn.items() if len(set(keys)) > 1}
         self.assertTrue(varied, "some turns gave more than one value")
         for turn, keys in varied.items():
-            self.assertFalse([a for a, b in zip(keys, keys[1:]) if a == b], f"{turn}: the same value twice in a row: {keys}")
+            # a value never heard sorts first within its turn (`answer_in` 0), so a value repeated before the turn's first other one means no other
+            # was sayable yet (the course's numbers come later: «klukkan fjögur» alone, then «tíu mínútur»); from the first other value on, the
+            # turn has another it can give, and never repeats
+            first_other = next(k for k, key in enumerate(keys) if key != keys[0])
+            after = keys[first_other - 1 :]
+            self.assertFalse([a for a, b in zip(after, after[1:]) if a == b], f"{turn}: the same value twice in a row: {keys}")
 
     def test_a_conjunction_is_not_introduced_through_the_catch_and_a_told_word_is_lower_case(self):
         from audiolesson.exercises import Builder

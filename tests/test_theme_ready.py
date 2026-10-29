@@ -35,7 +35,7 @@ class ThemeHeardOneTests(unittest.TestCase):
                 learner.items[i] = ItemState(due=(TODAY + timedelta(days=3)).isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2,
                                              last_outcome="recalled", interval_days=3, last_practiced=(TODAY - timedelta(days=1)).isoformat())
         for t in self.themes:
-            learner.themes_done[t.id] = len(t.levels) - (1 if t.id == "smalltalk" else 0)
+            learner.themes_done[t.id] = 3 if t.id == "smalltalk" else len(t.levels)  # small talk's fourth level is the next
             learner.themes_last[t.id] = 1
         return learner
 
