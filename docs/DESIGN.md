@@ -488,7 +488,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
     exchange: wording for the ear, two pieces of information, each probe with its own `ask`: «How much is the sandwich?»). `partner_pick_out`; the learner must be
     able to say the answer (every word of it known), the rest of the line may hold unknown words. Two-piece lines come first; a single piece is asked only when the words outside it outnumber it
     («Hér stoppum við í tuttugu mínútur.», not «Það gera tvö þúsund krónur.»: that is lesson 21's echo); one pick-out per partner turn a lesson (its variants and listening
-    lines count as one, and a two-piece line gives one question: the other piece waits for another lesson); the lesson's own scene before the others (named aloud).
+    lines count as one, and a two-piece line gives one question: the other piece waits for another lesson); the lesson's own scene before the others; every one opens with its scene line, the lesson's own included (#427, lesson 40: a catch on small talk's closing line had no place).
     The exercise's `stage` is `multi` or `single`. `plan.json` `second_half.pick_out_echo_count` and the replay's row 6 count a pick-out
     whose line is only a drilled frame plus its answer, or a single piece that is most of its line (`Planner._is_echo`, read from the script; 0: the planner takes none). `generated_pick_out` (a sentence of a construction with
     `Item.information_probes`) stays for sentences that hold more than the frame (#213), and is not used by the planner.

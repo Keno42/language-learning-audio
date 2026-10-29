@@ -303,14 +303,17 @@ turns = [
   { who = "partner", say = "Gaman að heyra það.", meaning = "Nice to hear that.", meaning_ja = "それはいいですね。" },
 ]
 [[themes.levels]]
+# #427 (lesson 40: «is it normal to ask someone's age straight away, or to say you're single and live alone?»): her birthday opens the
+# age, and her husband coming for dinner opens whether you're married; she no longer volunteers «einhleyp og bý ein»
 goal = "Ask her age, say yours, and say whether you're married."
 goal_ja = "相手の年齢を聞き、自分の年齢と、結婚しているかを伝える。"
 partner_speaker = "native_a"
 turns = [
-  { who = "you", cue = "Ask how old she is.", cue_ja = "何歳か聞いてください。", say = "Hvað ertu gömul?", items = ["hvad_ertu_gomul"] },
+  { who = "partner", say = "Ég á afmæli í dag!", meaning = "It's my birthday today!", meaning_ja = "今日は私の誕生日なんです！", word_glosses = { "afmæli" = { en = "birthday", ja = "誕生日" } } },
+  { who = "you", cue = "Ask how old she is.", cue_ja = "何歳になったか聞いてください。", say = "Hvað ertu gömul?", items = ["hvad_ertu_gomul"] },
   { who = "partner", say = "Ég er þrjátíu ára. En þú?", meaning = "I'm thirty. And you?", meaning_ja = "30歳です。あなたは？" },
   { who = "you", cue = "Say you're twenty.", cue_ja = "20歳だと言ってください。", say = "Ég er tuttugu ára.", items = ["eg_er_ara", "tuttugu_ara"] },
-  { who = "partner", say = "Ég er einhleyp. En þú?", meaning = "I'm single. And you?", meaning_ja = "私は独身です。あなたは？", word_glosses = { "einhleyp" = { en = "single", ja = "独身" } }, variants = [{ say = "Ég er einhleyp og bý ein. En þú?", meaning = "I'm single and live alone. And you?", meaning_ja = "独身で、一人暮らしです。あなたは？", word_glosses = { "ein" = { en = "alone", ja = "一人", pointer = { en = "the word for how she lives", ja = "どう暮らしているかを表す部分" } } } }] },
+  { who = "partner", say = "Maðurinn minn kemur í kvöld, við ætlum út að borða. En þú?", meaning = "My husband is coming this evening; we're going out to eat. And you?", meaning_ja = "夫が今夜来て、一緒に食事に行くんです。あなたは？", variants = [{ say = "Kærastinn minn kemur í kvöld, við ætlum út að borða. En þú?", meaning = "My boyfriend is coming this evening; we're going out to eat. And you?", meaning_ja = "彼氏が今夜来て、一緒に食事に行くんです。あなたは？" }] },
   { who = "you", cue = "Say you're married.", cue_ja = "結婚していると言ってください。", say = "Ég er gift.", say_m = "Ég er giftur.", items = ["eg_er_gift"] },
   { who = "partner", say = "Gaman að spjalla við þig!", meaning = "Nice chatting with you!", meaning_ja = "お話しできてよかったです！", word_glosses = { "spjalla" = { en = "chatting", ja = "お話し" } } },
 ]

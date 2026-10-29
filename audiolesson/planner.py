@@ -3191,9 +3191,9 @@ class Planner:
             return out
 
         def level_scene(theme, n: int) -> str:
-            """What the narrator says to name a scene taken from elsewhere than the lesson's own; nothing for the lesson's own."""
-            if theme_pick and (theme.id, n) == (theme_pick[0].id, theme_pick[1]):
-                return ""
+            """What the narrator says to name the scene a listening task's line is taken from. The lesson's own scene is named too (#427, lesson 40:
+            a catch task opened on small talk's closing «Gaman að spjalla við þig!» with nothing before it): a line taken out of its exchange needs
+            its place, whichever scene it comes from."""
             return level_dialogue(theme, n, self.cur.known_lang).setting
 
         def emit_listening_task(task, room: float | None = None) -> bool:
