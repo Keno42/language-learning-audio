@@ -390,10 +390,11 @@ What the learner wrote, and what the owner found in the transcript and asked for
   too (#430), and a fixed dialogue played whole four times is not played whole again (#431). #416 keeps what is left.
 - **The owner: a listening question asks what the conversation just said.** The tour's first level, heard again at 22:52,
   says «Hér stoppum við í tuttugu mínútur.»; the pick-out at 23:27 asks «How long do we stop?». **Open:** #339, with #273.
-- **The owner asked for help on parts of a line apart from the review's outcomes:** how «einhleyp» and «afsláttur» are said,
-  how the age pattern works, with no failure and no extra practice; «tuttugu» is comfortable and needs no breakdown. **In
-  review (site_update_notifier#180):** a request button on the feedback form, for pronunciation and grammar, outcome and load
-  unchanged; the same during the review's recall check, and kinds for listening and use, are left.
+- **The owner asked for optional help apart from the review's outcomes:** pronunciation or grammar help on the expressions the
+  learner chooses, with no failure and no extra practice (pronunciation: «einhleyp», «afsláttur»). Nothing is explained where it
+  is not needed: «tuttugu» is comfortable, and the age pattern is plain. **In review (site_update_notifier#180):** a request button
+  on the feedback form, for pronunciation and grammar, outcome and load unchanged; the same during the review's recall check,
+  and kinds for listening and use, are left.
 - **The owner's ideas, as issues:** the learner's own name and age in lessons and the review (#428); instructions moved to
   Icelandic gradually, from two commands (#429).
 - **No remark on the way back from a conversation** (#425's first feedback; lessons 37 and 39 remarked it) **or on the

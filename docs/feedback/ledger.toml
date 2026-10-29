@@ -483,7 +483,7 @@ answered_by = ["#431"]
 
 [[lesson.remarks]]
 who = "main"
-text = "(The owner.) I want to ask for help on a part of a line (how «einhleyp» and «afsláttur» are said, how the age pattern works) without it counting as a failure or more practice; «tuttugu» is comfortable and needs no breakdown."
+text = "(The owner.) Optional pronunciation and grammar help on the expressions I choose, without it counting as a failure or more practice (pronunciation: «einhleyp», «afsláttur»); no explanation added where none is needed («tuttugu» is comfortable, the age pattern is plain)."
 family = "support-request"
 class = "precision"
 answered_by = ["site_update_notifier#180"]
