@@ -11,14 +11,16 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 
 Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% by what may change a long-term decision, each
 remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
-40's; the next lesson is 41. Lesson 40 brought one remark from the learner and two from the owner's reading of the
-transcript, all of one cause: an authored line the scene check does not read (LD §5.30). It brought no remark on the way back
-from a conversation (#425), set replies (#422) or the review's 🔊 replies (site_update_notifier#176), and load «right» after five
-«light».
+40's; the next lesson is 41. Lesson 40 brought one remark from the learner and the owner's notes on the transcript (LD §5.30).
+Three share one cause, an authored line the scene check does not read (item 1). «Takk.» and «Nei, takk.» were still asked in
+authored dialogues, lesson 38's remark in another play mode, answered since by #430 and #431. The owner asked for help on
+parts of a line apart from the review's outcomes (item 3). There was no remark on the way back from a conversation (#425) or
+the review's 🔊 replies (site_update_notifier#176), and load was «right» after five «light».
 1. **Lesson 40's contexts (#427).** Age and marital status straight after a greeting, a cue its answer does not answer,
-   «Velkomin!» in the woman's form to a man's voice, a catch with no scene named. **Built, in review (#433):** small talk 4
-   opens with a birthday, the cue asks whether you're married, «Frábært!» in place of «Velkomin!», and
-   every listening task opens with its scene line. Left: a `validate` rule for gendered partner replies; the lines are
+   «Velkomin!» in the woman's form to a man's voice, an exchange cut from the middle with nothing before it. **Built, in review
+   (#433):** small talk 4 opens with a birthday and asks about marriage before «I'm married», the cue asks whether you're
+   married, «Frábært!» in place of «Velkomin!», every listening task opens with its scene line, and a scene line cut from the
+   middle leads in with the line its partner answers. Left: a `validate` rule for gendered partner replies; the lines are
    candidates until #209.
 2. **The closing reviews today's new material as one block (#421).** Lesson 38's closing held a pick-out; lessons 39 and 40
    had none, and the replay shows one in lesson 44. **Next smallest step:** no listening task, conversation or aside between
@@ -31,8 +33,10 @@ from a conversation (#425), set replies (#422) or the review's 🔊 replies (sit
    of the lesson-40 export, 14 of the day's new items are said in the played exchange in lessons 40–49 (4 before it). Next: taxi
    and bus, the weather's further levels.
 
-**Alongside:** two units of one scene back to back (#273); «Mér finnst gaman að hringja heim» and its meaning (#209). #416's
-remainder (an exchange whose replies would all be voiced) occurs 0 times on the replay and is not built. Load «right» in
+**Alongside:** a listening question on what the conversation just said (#339, with #273: lesson 40's tour, «tuttugu mínútur»
+heard, then asked); two units of one scene back to back (#273); «Mér finnst gaman að hringja heim» and its meaning (#209). #416's remainder (an exchange whose replies
+would all be voiced) occurs 0 times on the replay and is not built. The learner's own name and age (#428) and Icelandic
+instructions (#429) wait as issues, each to start small. Load «right» in
 lesson 40 after five «light», at a target of 10 weighted components (lesson 39: 9).
 
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
