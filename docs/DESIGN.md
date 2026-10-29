@@ -480,9 +480,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   level at natural speed) → pick out information × 2 → catch an unknown word → use one of today's expressions*; a kind that cannot be added passes
   to the next. It sits ahead of the not-due reviews, the second pass, a substitution outside the scene and `try_extra` (step 4b), and the
   substitution run (0c) and refresh sentences (0f) wait while it is on; scheduled work (open items, the theme, today's timed recalls, due
-  reviews) is unchanged, but after three exercises of one kind the rotation comes in between. A short pick-out or unknown-word exercise also follows
-  every third recall of the closing block when time allows (`closing_cost` keeps the seconds; on the lesson-20 replay it did not fire, the closing's
-  room being too small).
+  reviews) is unchanged, but after three exercises of one kind the rotation comes in between. The closing block is the exception: from its
+  announcement to its end it reviews today's new material only, with no listening task, conversation or aside inside it (#421, lesson 38: a pick-out
+  that broke its run of recalls felt nested); `closing_cost` keeps a recall's time per new item and the announcement, nothing for a listening task.
   - *Pick out information* (step 2, #248: the learner has to **find** it; the answer stays Icelandic): a line of a scene's partner with `Turn.probes`
     (`{kind, answer, meanings, ask}`; `answer` a stretch of the line, `kind` price / time / count / place / duration) or a `listen` line of the turn (never played in the
     exchange: wording for the ear, two pieces of information, each probe with its own `ask`: «How much is the sandwich?»). `partner_pick_out`; the learner must be
