@@ -17,7 +17,7 @@ from a conversation (#425), set replies (#422) or the review's 🔊 replies (sit
 «light».
 1. **Lesson 40's contexts (#427).** Age and marital status straight after a greeting, a cue its answer does not answer,
    «Velkomin!» in the woman's form to a man's voice, a catch with no scene named. **Built, in review (#433):** small talk 4
-   opens with a birthday, the cue asks whether you're married, «Góða skemmtun!» and «Frábært!» in place of «Velkomin!», and
+   opens with a birthday, the cue asks whether you're married, «Frábært!» in place of «Velkomin!», and
    every listening task opens with its scene line. Left: a `validate` rule for gendered partner replies; the lines are
    candidates until #209.
 2. **The closing reviews today's new material as one block (#421).** Lesson 38's closing held a pick-out; lessons 39 and 40

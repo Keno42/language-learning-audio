@@ -377,7 +377,7 @@ What the learner wrote, and what the owner found in the transcript, by what the 
 - **The owner: a cue its answer does not answer, and a partner's reply in the wrong form.** «She asks if you're here with
   your family. Say you're married.» («Ég er gift» does not say whether you came with your family), and «Velkomin!», the
   woman's form, said twice in `kynning` to the learner's line in a man's voice. **Answered, in review (#433):** the cue asks
-  whether you're married; «Velkomin!» after the learner's own line becomes «Góða skemmtun!» and «Frábært!». A `validate` rule
+  whether you're married; «Velkomin!» after the learner's own line becomes «Frábært!». A `validate` rule
   for gendered partner replies is not built.
 - **The owner: a conversation played from its middle opens on a line that needs what came before.** In lesson 40 a catch on
   small talk's closing line followed with no scene named. **Answered, in review (#433):** every listening task opens with its
