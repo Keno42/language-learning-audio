@@ -1,13 +1,20 @@
 """#427 (lesson 40): conversational contexts and cue–answer pairs. «Is it normal to ask someone's age straight away, or to say you're single
 and live alone?»; «here with your family?» answered by «I'm married»; «Velkomin!» said to the learner's line in a man's voice; a catch task
 opening on small talk's closing line with nothing before it."""
+import re
 import unittest
+from datetime import date, timedelta
 from pathlib import Path
 
 import tests.test_audiolesson as course
 from audiolesson.cando import load_cando
 from audiolesson.content import load_curriculum
-from audiolesson.themes import load_themes
+from audiolesson.learner import ItemState, LearnerState
+from audiolesson.planner import PlanConfig, Planner
+from audiolesson.prompts import Prompts
+from audiolesson.script import Script
+from audiolesson.themes import load_themes, scenario_order
+from audiolesson.timing import Timing
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -16,7 +23,9 @@ class Lesson40ContextTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.cur = load_curriculum(ROOT / "curricula" / "is-en")
-        cls.themes = load_themes(ROOT / "curricula" / "is-en", cls.cur, load_cando(ROOT / "curricula" / "is-en", cls.cur))
+        scenarios = load_cando(ROOT / "curricula" / "is-en", cls.cur)
+        cls.themes = load_themes(ROOT / "curricula" / "is-en", cls.cur, scenarios)
+        cls.order = scenario_order(scenarios)
 
     def test_the_married_cues_ask_whether_you_are_married(self):
         gift = self.cur.by_id["eg_er_gift"]
@@ -49,6 +58,57 @@ class Lesson40ContextTests(unittest.TestCase):
                 self.assertEqual(first.type, "narrate", (sc.lesson_number, e.label, first.text))
                 named += 1
         self.assertGreater(named, 5)
+
+    def test_the_line_before_the_married_answer_asks_about_marriage(self):
+        """Review of #433: after «we're going out to eat», «En þú?» asked about your plans. In every variant the sentence just before «En þú?»
+        is about her marriage, so «Ég er gift.» answers it."""
+        level = next(t for t in self.themes if t.id == "smalltalk").levels[3]
+        k = next(k for k, t in enumerate(level.turns) if "eg_er_gift" in t.items)
+        for line in level.turns[k - 1].lines():
+            sentences = [x for x in re.split(r"(?<=[.!?])\s+", line.say) if x]
+            self.assertEqual(sentences[-1], "En þú?", line.say)
+            self.assertIn("gift", sentences[-2], line.say)
+
+    def known(self, *ids):
+        today = date(2026, 3, 1)
+        l = LearnerState("is", "en", "A1")
+        for i in ids:
+            l.items[i] = ItemState(stage="meaning", durable_successes=2, successes=6, interval_days=7, recalled=3, last_outcome="recalled",
+                                   due=(today + timedelta(days=5)).isoformat(), last_practiced=(today - timedelta(days=2)).isoformat())
+        l.lessons_completed = 8
+        return l, today
+
+    def planner(self, learner, today):
+        cfg = PlanConfig(minutes=30, new_target=8, themes=self.themes, theme_scenarios=self.order)
+        return Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=today)
+
+    def test_a_scene_line_cut_from_the_middle_opens_on_the_line_its_partner_answers(self):
+        """Review of #433 (lesson 40's learner): a hard «Ég vinn hjá litlu fyrirtæki.» was played from «Nú já! Hvar vinnur þú?», whose «Oh, I
+        see!» answered nothing. The learner's line before it leads in, voiced when known, heard with its meaning when not; it is never asked."""
+        l, today = self.known("eg_vinn_hja", "eg_er_i_vinnuferd")
+        dlg, turn_items, key, asked, lead = self.planner(l, today).scene_line_of(self.cur.by_id["eg_vinn_hja"], set())
+        self.assertEqual(dlg.id, "theme:smalltalk:3")
+        self.assertEqual([t.expect_text for t in dlg.turns], ["Ég er í vinnuferð.", "Ég vinn hjá litlu fyrirtæki."])
+        self.assertTrue(dlg.turns[0].partner.startswith("Nú já!"), "the partner's line answers the lead-in")
+        self.assertEqual(turn_items, {0: ["eg_er_i_vinnuferd"], 1: ["eg_vinn_hja"]})
+        self.assertEqual(lead, {0: True}, "known: voiced")
+        sc = Script(title="t", lesson_number=1, known_lang="en", target_lang="is")
+        p = self.planner(l, today)
+        ex = p.builder.dialogue(sc, dlg, translate=True, turn_items=turn_items, heard_turns=frozenset({0}), lead_turns=frozenset({0}))
+        self.assertEqual(ex.item_ids, ["eg_vinn_hja"], "the lead-in is never practice")
+        texts = [s.text for s in sc.segments if s.exercise == ex.index and s.type != "pause"]
+        self.assertLess(texts.index("Ég er í vinnuferð."), texts.index("Nú já! Hvar vinnur þú?"))
+        self.assertNotIn(Prompts.load("en").get("dialogue_voiced_note"), texts, "not a set reply: no note")
+        self.assertNotIn(Prompts.load("en").get("listening_line"), texts[: texts.index("Ég er í vinnuferð.")], "voiced: no «Here you would say:»")
+        new, today = self.known("eg_vinn_hja")
+        _, _, _, _, lead = self.planner(new, today).scene_line_of(self.cur.by_id["eg_vinn_hja"], set())
+        self.assertEqual(lead, {0: False}, "never met: heard with its meaning")
+
+    def test_a_scene_line_that_opens_its_level_has_no_lead_in(self):
+        l, today = self.known("hvad_ertu_gomul")
+        dlg, turn_items, _, _, lead = self.planner(l, today).scene_line_of(self.cur.by_id["hvad_ertu_gomul"], set())
+        self.assertEqual((lead, list(turn_items)), ({}, [0]))
+        self.assertTrue(dlg.turns[0].opener.startswith("Ég á afmæli"))
 
 
 if __name__ == "__main__":

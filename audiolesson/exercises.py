@@ -1870,6 +1870,7 @@ class Builder:
         heard_play: bool = False,
         turn_items: dict[int, list[str]] | None = None,
         voiced_turns: frozenset[int] | set[int] = frozenset(),
+        lead_turns: frozenset[int] | set[int] = frozenset(),
     ) -> Exercise:
         """Play a dialogue; ``max_turns`` lets early encounters stop after a few turns.
 
@@ -1891,10 +1892,15 @@ class Builder:
         ``voiced_turns`` (#416): among ``heard_turns``, a set reply the learner plainly knows («Takk.», «Já, takk.») in an exchange played
         again: the line is said in the learner's model voice, as the exchange goes, with no cue, no «Here you would say:» and no meaning.
 
+        ``lead_turns`` (#427): among ``heard_turns``, a known line that leads into a short exchange cut from a level, the line the partner's
+        next line answers: voiced as ``voiced_turns`` are, without their note (it is not a set reply).
+
         ``translate`` gives the partner's lines their meaning: ``True`` for every turn, or the indices of the turns
         whose lines are heard for the first time (the opener before a turn and the reply after it). Only the
         translation fades (#210). The cue, the intent, plays in every encounter, for every turn: no turn of an exchange
         that goes on drops it (the partner's line never decides the reply)."""
+        note_voiced = bool(voiced_turns)
+        voiced_turns = frozenset(voiced_turns) | frozenset(lead_turns)
         turns = dlg.turns if max_turns is None else dlg.turns[: max(1, max_turns)]
         ids = [t.expect for t in turns if t.expect] + [r for r in dlg.requires if r not in {t.expect for t in turns}]
         label = ("heard: " if heard_play else "dialogue: ") + dlg.id + ("" if len(turns) == len(dlg.turns) else f" ({len(turns)}/{len(dlg.turns)} turns)")
@@ -1940,7 +1946,7 @@ class Builder:
             self._narr(sc, ex, self.prompts.get(key))
         if not heard_play:
             self._narr(sc, ex, self.prompts.get("dialogue_start"))  # a scene heard again has the one intro, whichever it is (#272)
-        if voiced_turns and not (heard_play and key == "listening_intro_known_voiced"):
+        if note_voiced and not (heard_play and key == "listening_intro_known_voiced"):
             self._narr(sc, ex, self.prompts.get("dialogue_voiced_note"))  # #416 review: the learner answers when told what to say; the short replies are played
         self._narr(sc, ex, dlg.setting)
         self._beat(sc, ex)
