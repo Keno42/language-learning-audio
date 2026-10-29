@@ -277,6 +277,7 @@ class Planner:
         self.exposures: dict[str, list[str]] = {}
         self.support: dict[str, int] = {}
         self.dialogues_played: list[str] = []
+        self.voiced_lines: list[str] = []  # #416: learner set replies voiced, not asked, in an exchange played again: "theme:level:turn" or "dialogue:turn"
         self.dialogues_listened: list[str] = []
         self._chunk_cache: tuple[tuple, set[tuple[str, ...]]] | None = None
         # #183's tried lines, the bonus questions of the next review: since #240 nothing tries a line, so this stays empty
@@ -1832,10 +1833,27 @@ class Planner:
         return True
 
     def voiced_replies(self, you: list, heard: set[int]) -> set[int]:
-        """#416: the learner's turns of an exchange played again that are voiced (``known_set_reply``), not those already heard. A play
-        that would then ask nothing keeps them asked: its opening tells the learner to answer when told what to say."""
-        voiced = {k for k, t in enumerate(you) if k not in heard and self.known_set_reply(t.items, t.say)}
-        return voiced if len(voiced) + len(heard) < len(you) else set()
+        """#416: the learner's turns of an exchange played again that are voiced (``known_set_reply``), not those already heard. ``you``: a theme
+        level's learner turns, or ``(items, text)`` pairs (an authored dialogue's turns, ``dialogue_turn_reply``). A play that would then ask
+        nothing keeps them asked: its opening tells the learner to answer when told what to say."""
+        pairs = [t if isinstance(t, tuple) else (t.items, t.say) for t in you]
+        voiced = {k for k, (items, text) in enumerate(pairs) if k not in heard and items and self.known_set_reply(items, text)}
+        return voiced if len(voiced) + len(heard) < len(pairs) else set()
+
+    def dialogue_turn_reply(self, turn) -> tuple[list[str], str]:
+        """An authored dialogue turn as ``(items, text)`` for ``known_set_reply`` (#416, lesson 40: `kynning` and `kaffihus` asked «Takk.»): the
+        item it expects and its fills, or, for a literal line («Nei, takk.»), the set reply whose target it is; no items otherwise."""
+        if turn.expect:
+            item = self.cur.by_id.get(turn.expect)
+            return [turn.expect, *turn.expect_fill.values()], item.target if item else ""
+        text = turn.expect_text or ""
+        replies = {_norm_utterance(i.target): i.id for i in self.cur.items if i.set_reply}
+        whole = replies.get(_norm_utterance(text))
+        if whole is not None and self.learner.has_met(whole):
+            return [whole], text
+        # word by word, as a theme's literal line names them («Nei, takk.»: «nei», «takk»), when the phrase itself was never met
+        words = [replies.get(w) for w in _words(text, lower=True)]
+        return ([w for w in words if w] if words and all(words) else []), text
 
     def classify_turns(self, dlg: Dialogue) -> tuple[set[str], set[str]]:
         """The turns of a listening dialogue that the learner can't say in full: ``(nothing sayable, partly sayable)``
@@ -3006,7 +3024,6 @@ class Planner:
         theme_asked: set[str] = set()  # the items the lesson's exchange asked, over its plays (#327)
         theme_heard: list[str] = []  # "turn:line" partner wordings the translated play spoke with their meaning (#196)
         theme_lines: list[str] = []  # per play, which variant of each varying partner line was spoken (#134)
-        voiced_lines: list[str] = []  # #416: "theme:level:turn" learner set replies voiced, not asked, in an exchange played again
         
         def play_theme() -> bool:
             nonlocal theme_plays
@@ -3024,7 +3041,7 @@ class Planner:
             heard_now = {k for k in untaught if self.line_role(you[k].items, text=you[k].say) == "hear"}
             # #416: the late play is the exchange again; a set reply the learner plainly knows is voiced, not asked a second time
             voiced = self.voiced_replies(you, heard_now) if theme_plays > 0 else set()
-            voiced_lines.extend(f"{key}:{k + 1}" for k in sorted(voiced))
+            self.voiced_lines.extend(f"{key}:{k + 1}" for k in sorted(voiced))
             ex = b.dialogue(
                 sc, dlg, translate=theme_plays == 0 and not theme_replay, heard_turns=heard_now | voiced, voiced_turns=voiced,
                 turn_items={k: t.items for k, t in enumerate(you)},
@@ -3056,7 +3073,7 @@ class Planner:
             you = [t for t in theme.levels[n].turns if t.who == "you"]
             hear = {k for k, t in enumerate(you) if self.line_role(t.items, text=t.say) == "hear"}
             voiced = self.voiced_replies(you, hear)  # #416
-            voiced_lines.extend(f"{theme.id}:{n + 1}:{k + 1}" for k in sorted(voiced))
+            self.voiced_lines.extend(f"{theme.id}:{n + 1}:{k + 1}" for k in sorted(voiced))
             # the scene again (#263): the partner is heard, the learner's lines they can say are asked (a known set reply voiced, #416), the others heard
             ex = b.dialogue(
                 sc, dlg, translate=False, heard_play=True, heard_turns=hear | voiced, voiced_turns=voiced, turn_items={k: t.items for k, t in enumerate(you)},
@@ -3893,7 +3910,7 @@ class Planner:
             "partner_exchanges": len(self.dialogues_played) + sum(1 for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"),
             "recombinations": sum(1 for e in sc.exercises if e.kind == "connect" and e.stage != "exchange"),
             "heard_themes": list(heard_plays),  # levels heard again as spare time (#218 b1)
-            "voiced_replies": list(voiced_lines),  # #416: known set replies said in the model voice in an exchange played again
+            "voiced_replies": list(self.voiced_lines),  # #416: known set replies said in the model voice in an exchange played again
             "heard_utterances": sorted(self.builder.heard),
             "think_time_boosted": sorted(self.builder.boosted),
             "bridges": [e.item_ids[1] for e in sc.exercises if e.kind == "connect" and e.stage == "exchange"],
@@ -3908,8 +3925,12 @@ class Planner:
         full = max_turns >= len(dlg.turns)
         # a turn's meaning is given the first time that turn is heard (#210): turn k comes in at encounter k + 1 - first_turns
         new_turns = frozenset(k for k in range(max_turns) if max(0, k + 1 - self.cfg.dialogue_first_turns) == times)
-        ex = self.builder.dialogue(sc, dlg, replay=(times > 0 and full), max_turns=max_turns, translate=new_turns)
-        primary = [t.expect for t in dlg.turns[:max_turns] if t.expect]
+        # #416 (lesson 40): a dialogue played before voices the set replies the learner plainly knows, as a theme played again does; a voiced
+        # line earns no practice
+        voiced = self.voiced_replies([self.dialogue_turn_reply(t) for t in dlg.turns[:max_turns]], set()) if times > 0 else set()
+        self.voiced_lines.extend(f"{dlg.id}:{k + 1}" for k in sorted(voiced))
+        ex = self.builder.dialogue(sc, dlg, replay=(times > 0 and full), max_turns=max_turns, translate=new_turns, heard_turns=voiced, voiced_turns=voiced)
+        primary = [t.expect for k, t in enumerate(dlg.turns[:max_turns]) if t.expect and k not in voiced]
         self._record(primary, "dialogue", ex.item_ids)
         self.dialogues_played.append(dlg.id)
 

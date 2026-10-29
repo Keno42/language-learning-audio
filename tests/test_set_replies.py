@@ -171,3 +171,58 @@ class SetReplyTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AuthoredDialogueReplyTests(unittest.TestCase):
+    """Lesson 40 (#416 rescoped): authored dialogues bypassed the theme's selection, so `kynning` asked «Thank her.» → «Takk.» and `kaffihus»
+    asked «Say: no, thanks.» → «Nei, takk.» and «Takk.». A dialogue played before voices the set replies the learner plainly knows."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.cur = load_curriculum(ROOT / "curricula" / "is-en")
+        cls.themes = []  # no theme here: a dialogue alone
+        cls.cafe = next(d for d in cls.cur.dialogues if d.id == "kaffihus")
+
+    def learner(self, **changes):
+        return SetReplyTests.learner(self, **changes)
+
+    def play(self, learner, times):
+        from audiolesson.script import Script
+
+        learner.dialogues_done["kaffihus"] = times
+        p = Planner(self.cur, learner, PROMPTS, Timing(level="A1"), PlanConfig(minutes=30), today=TODAY)
+        sc = Script(1, "t", "is", "en")
+        p._play_dialogue(sc, self.cafe)
+        ex = sc.exercises[-1]
+        return p, sc, ex, SetReplyTests.lines(sc, ex)
+
+    def test_a_dialogue_played_before_voices_the_known_replies_and_asks_the_rest(self):
+        p, sc, ex, lines = self.play(self.learner(), times=5)
+        self.assertEqual([t for t, how, _ in lines if how == "voiced"], ["Nei, takk.", "Takk."])
+        self.assertIn(("Gætirðu talað hægar?", "asked", "You didn't catch that. Ask her to speak more slowly."), lines)
+        self.assertEqual(p.voiced_lines, ["kaffihus:2", "kaffihus:4"])
+        narrated = {s.text for s in sc.segments if s.exercise == ex.index and s.type == "narrate"}
+        self.assertIn(PROMPTS.get("dialogue_voiced_note"), narrated, "the opening says the short replies are played")
+        self.assertNotIn("Thank her.", narrated)
+        self.assertNotIn("takk", p.exposures, "a voiced line earns no practice")
+        # review of #430: the dialogue's required «nei» and «takk», said only in voiced lines, are heard, not practised
+        self.assertFalse({"nei", "takk"} & set(ex.item_ids), ex.item_ids)
+        self.assertTrue({"nei", "takk"} <= set(ex.heard_ids), ex.heard_ids)
+        self.assertNotIn("nei", p.support)
+        self.assertTrue({"godan_daginn", "eg_aetla_ad_fa", "kaffi"} <= set(ex.item_ids), "the asked lines' items stay practised")
+
+    def test_the_first_encounter_and_a_weak_reply_keep_their_asks(self):
+        _, _, _, first = self.play(self.learner(), times=0)
+        self.assertNotIn("voiced", [how for _, how, _ in first], "a dialogue met for the first time asks every line")
+        _, _, _, weak = self.play(self.learner(takk={"last_outcome": "hesitated"}), times=5)
+        self.assertIn(("Takk.", "asked", "Thank her."), weak, "a hesitated «takk» keeps «Takk.» asked")
+        self.assertEqual([t for t, how, _ in weak if how == "voiced"], ["Nei, takk."], "«Nei, takk.» is its own learned phrase, «nei_takk»")
+
+    def test_a_literal_line_is_read_word_by_word_when_its_phrase_was_never_met(self):
+        learner = self.learner()
+        del learner.items["nei_takk"]
+        p = Planner(self.cur, learner, PROMPTS, Timing(level="A1"), PlanConfig(minutes=30), today=TODAY)
+        turn = next(t for t in self.cafe.turns if t.expect_text == "Nei, takk.")
+        self.assertEqual(p.dialogue_turn_reply(turn), (["nei", "takk"], "Nei, takk."))
+        other = next(t for t in self.cafe.turns if t.expect_text and t.expect_text.startswith("Góðan daginn"))
+        self.assertEqual(p.dialogue_turn_reply(other)[0], [], "a line with other words is not a set reply")

@@ -352,7 +352,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   take variants. Spare time goes to listening dialogues, then to up to `heard_theme_plays` (2) heard-only plays of a theme level already
   played again (`Builder.dialogue(heard_play=True)`, label `heard: theme:…`: partner lines in variants; #263: the learner's lines they can say are **asked** with the cue,
   the pause and the model, and only a line with an untaught item is heard with «Here you would say:»; the opening follows: `listening_intro_known` when all are asked
-  or voiced; `heard_themes` in `plan.json`). **Voiced set replies (#416):** in a scene heard again and in the late play of the lesson's own exchange,
+  or voiced; `heard_themes` in `plan.json`). **Voiced set replies (#416):** in a scene heard again, in the late play of the lesson's own exchange and in an authored dialogue played before (`_play_dialogue`, a turn read as items and text by `dialogue_turn_reply`: its item, or a literal line's set reply, word by word when the phrase was never met),
   `Planner.voiced_replies` picks the learner turns that `known_set_reply` passes (every item `Item.set_reply`, at most `set_reply_words` words, every item
   `is_learned`, not in `hard_items`, not `taught_today`, not due unless already asked this lesson); `Builder.dialogue(voiced_turns=…)` says them in the
   learner's model voice with no cue, frame, pause or meaning, and names their items in `heard_ids`. A play that would then ask nothing keeps them asked.
