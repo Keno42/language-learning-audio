@@ -482,7 +482,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   substitution run (0c) and refresh sentences (0f) wait while it is on; scheduled work (open items, the theme, today's timed recalls, due
   reviews) is unchanged, but after three exercises of one kind the rotation comes in between. The closing block is the exception: from its
   announcement to its end it reviews today's new material only, with no listening task, conversation or aside inside it (#421, lesson 38: a pick-out
-  that broke its run of recalls felt nested); `closing_cost` keeps a recall's time per new item and the announcement, nothing for a listening task.
+  that broke its run of recalls felt nested); `closing_cost` keeps a recall's time per new item and the announcement. The listening the closing's
+  run used to hold (one after every third recall) comes in the last stretch before it: once the time left before the closing is within 24 s per
+  such task, the main loop takes a pick-out or a catch first, never two in a row, and goes on as before when there is nothing to hear (review of #435).
   - *Pick out information* (step 2, #248: the learner has to **find** it; the answer stays Icelandic): a line of a scene's partner with `Turn.probes`
     (`{kind, answer, meanings, ask}`; `answer` a stretch of the line, `kind` price / time / count / place / duration) or a `listen` line of the turn (never played in the
     exchange: wording for the ear, two pieces of information, each probe with its own `ask`: «How much is the sandwich?»). `partner_pick_out`; the learner must be

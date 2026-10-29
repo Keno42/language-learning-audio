@@ -3383,8 +3383,18 @@ class Planner:
             )
             return remaining >= 90 and (heard_left or self.listening_dialogue() is not None)
 
+        pre_closing_listening: list[int | None] = [None]  # #421: listening tasks still to come before the closing (None: not counted yet)
         while sc.total_duration < budget - closing_reserve:
             remaining = budget - closing_reserve - sc.total_duration
+            if self.components_mode and delivered_at[0] is not None and introduced and remaining <= 24 * ((len(introduced) - 1) // 3):
+                # the listening the closing's run of recalls used to hold (#248: one after every third), now in the last stretch before it (#421,
+                # lesson 38: inside the closing it felt nested); with nothing to hear, the lesson goes on as before
+                if pre_closing_listening[0] is None:
+                    pre_closing_listening[0] = (len(introduced) - 1) // 3
+                if pre_closing_listening[0] > 0 and last_kinds_same(1) not in ("pick_out", "catch_unknown"):
+                    pre_closing_listening[0] -= 1
+                    if any(emit_listening_task(t) for t in pick_out_tasks()) or any(emit_listening_task(t) for t in catch_unknown_tasks()):
+                        continue
             gen_capped = theme_pick is not None and generated_run() >= cfg.generated_run_max and ear_alternative(remaining)  # a lesson with a scene
             due = [p for p in pending if p.due <= idx]
             due.sort()
