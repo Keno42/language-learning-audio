@@ -398,7 +398,7 @@ What the learner wrote, and what the owner found in the transcript and asked for
   Icelandic gradually, from two commands (#429).
 - **No remark on the way back from a conversation** (#425's first feedback; lessons 37 and 39 remarked it) **or on the
   review's 🔊 replies** (site_update_notifier#176). Lesson 40's closing held no listening task (#421; on the replay, lesson 44
-  does). Load «right» after five «light»; the ledger does not count the lesson settled (one twenty-point remark, three new
+  does). Load «right» after five «light»; the ledger does not count the lesson settled (one twenty-point remark, four new
   families).
 
 ## 6. Signals: what each can and cannot tell us
@@ -522,7 +522,7 @@ lessons 21–23 (§5.18–§5.20) have had their three.
 | small talk's fourth level (#327: #383) | lesson 40 (the day's exchange in lesson 40, played twice) | 1 (40) |
 | a gendered learner line in a level said in the voice's form, named in the cue (#382) | lesson 38 («As a woman: Stop someone and say you're lost.» in the town's third level; «As a man: Say you're Japanese.» in small talk's third (lesson 39)) | **done**: 3 (38, 39, 40) |
 | the allergy line's scene, the café's fourth level, and its pattern (#326: #379, #380) | lesson 34 (the pattern; the scene not yet) | **done**: 7 (34, 35, 36, 37, 38, 39, 40) |
-| an authored dialogue that repeats the lesson's scene is not played (#384) | lesson 34 | 6 (34, 35, 36, 37, 38, 39); its family remarked in 40 |
+| an authored dialogue that repeats the lesson's scene is not played (#384) | lesson 34 | **done**: 7 (34, 35, 36, 37, 38, 39, 40) |
 | a hard item practised through its connections; «sooner» marks it hard (#326: #330, #332) | lesson 27 (the «sooner» items of lesson 26 are its first real case; lesson 26 had one hard item, practised once) | **done**: 8 (33, 34, 35, 36, 37, 38, 39, 40; 27–32 no record) |
 | a recall at a real gap extends the interval (#220: #331); the bot's ranked seats, at most a third (site_update_notifier#139) | lesson 26 | **done**: 9 (26, 33, 34, 35, 36, 37, 38, 39, 40; 27–32 no record) |
 | gender and form for every case-tagged noun (#270 step 1: #317) | no remark expected; read in the nouns row | – |

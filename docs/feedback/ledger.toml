@@ -60,7 +60,7 @@ structural_pr = "#397"  # every promising line checked against what follows; les
 cause = "An item the learner finds hard gets the same practice as any other, in the same sentence (#326)."
 
 [families.repeat-in-lesson]
-cause = "One lesson asks again what it has just played: the same exchange from an authored dialogue and the played level (#384), a listening question on what a conversation just said (#339)."
+cause = "One lesson plays the same exchange from two places: an authored dialogue and the played level (#384)."
 
 [families.scene-plausibility]
 cause = "A sentence has no scene the learner can picture or believe, generated or authored: each was found by chance, one at a time. The scene check reads generated sentences, not the order of an authored exchange or whether a cue's answer answers it (G6, H7)."
@@ -83,6 +83,9 @@ cause = "Known material comes back by a rule that never asks what the learner st
 
 [families.meaning-gloss]
 cause = "An authored sentence's English meaning leaves its sense open (whom «hringja heim» calls): no check reads the meanings as a learner would (#209)."
+
+[families.listening-just-heard]
+cause = "A listening question is drawn without looking at what the lesson has just played: it asks for information a conversation gave a minute before (#339, with #273)."
 
 [families.support-request]
 cause = "Asking for help and asking for practice are one answer («sooner»): no way to ask how a word is said or why a form is so without changing its schedule or its load (site_update_notifier#179)."
@@ -488,7 +491,7 @@ answered_by = ["site_update_notifier#180"]
 [[lesson.remarks]]
 who = "main"
 text = "(The owner, from the transcript.) A listening question asks what the conversation just said: the tour's exchange, then the same question on how long."
-family = "repeat-in-lesson"
+family = "listening-just-heard"
 class = "precision"
 answered_by = []
 
