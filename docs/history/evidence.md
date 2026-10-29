@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.26 (lessons 1–36), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.27 (lessons 1–37), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1061,3 +1061,44 @@ What the learner wrote, by what the lesson did:
   risen to 8 on recall; lesson 37's export shows what the rule did with the two answers.
 - **The replay's pace:** the replay recomputes the pace and target every lesson without storing them, as `generate` does;
   on a replay that stores them, the played exchange stops holding new items in lesson 41 rather than 40 (#410).
+
+---
+
+### 5.27 Lesson 37: the first feedback on #411
+
+Lesson 37 was generated with LLA `4261704` (main with #411–#414), the bot at site_update_notifier `0555fd5`; rebuilt from its
+export it is identical. It is the first feedback on the cue that says the action first (#411: eight pick-outs, each opening
+«Listen…»; the form model without «Your turn.») and on a loanword with no slow split («Tókýó», #407). Small talk 4 played with
+a heard turn (#414) comes in lesson 40 on the replay.
+
+| | lesson 37 |
+|---|---|
+| length | 29.1 min, 120 exercises |
+| new items; new components, weighted (target) | 9; 8 (8) |
+| theme (level); today's new items said as a turn of the played exchange | small talk (2); «Ég bý í Tókýó.», «Hvað gerir þú?», «Ég er kennari.» |
+| target reached | 18.8 min |
+| longest stretch without a scene | 4.1 min |
+| a sentence asked again within a minute | 1 |
+| most narrations of one situation | 4 |
+| feedback form: load; friction | **light** (the third in a row); other |
+| «sooner» | none |
+
+What the learner wrote, by what the lesson did:
+
+- **"The listening question always asks the time, and the time never changes; the other pick-outs have no variety
+  either."** All eight pick-outs came from turns heard in the last three lessons, each one line with fixed values («Við
+  stoppum hérna í tuttugu mínútur og förum svo klukkan hálf þrjú.» → «klukkan hálf þrjú»); the line's other piece
+  («tuttugu mínútur») was never asked, its words not yet taught. The rotation worked on the turn; within it the line was
+  drawn at random from one. On the replay of lessons 37–44, from lesson 38 4 to 10 pick-outs a lesson repeat a line and answer
+  heard in the three lessons before. **Answered, in review:** each pick-out turn has lines with other values the learner can say,
+  and within a turn the answer's value heard least recently comes first, then its line; on the replay of lessons
+  37–44, a pick-out repeating a question and value of the three lessons before: 9 in all (main 56), and a line and
+  answer: 5 (main 51); a turn never gives the same value on two draws in a row. The rest is turns with two to four values drawn
+  every lesson (#339, reopened: #417).
+- **"The «could you speak more slowly» dialogue has come back so often that I know it."** `tungumal`, played whole in
+  lesson 37, its eighth play, every four lessons since it was played whole. **Open:** #416.
+- **"After a conversation, the way back to speaking practice is sometimes unclear."** The café's first level heard again,
+  then at once «Say: What do you do for a living?»; four such exits in lesson 37. #387 marked the way back after a pick-out
+  only. **Open:** #415.
+- **No remark on the cue's wording** (#409's remark, «You want to know …» read as a speaking task) or on «Tókýó».
+  Load «light» a third time in a row.

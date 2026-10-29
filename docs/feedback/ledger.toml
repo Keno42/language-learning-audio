@@ -63,7 +63,7 @@ cause = "An item the learner finds hard gets the same practice as any other, in 
 cause = "One lesson plays the same exchange from two places: an authored dialogue and the played level (#384)."
 
 [families.scene-plausibility]
-cause = "A generated sentence has no scene the learner can picture; each was found by chance, one at a time (G6, H7)."
+cause = "A sentence has no scene the learner can picture or believe, generated or authored: each was found by chance, one at a time. The scene check reads generated sentences, not the order of an authored exchange or whether a cue's answer answers it (G6, H7)."
 structural_pr = "#352"
 
 [families.load-answer]
@@ -83,6 +83,18 @@ cause = "Known material comes back by a rule that never asks what the learner st
 
 [families.meaning-gloss]
 cause = "An authored sentence's English meaning leaves its sense open (whom «hringja heim» calls): no check reads the meanings as a learner would (#209)."
+
+[families.listening-just-heard]
+cause = "A listening question is drawn without looking at what the lesson has just played: it asks for information a conversation gave a minute before (#339, with #273)."
+
+[families.support-request]
+cause = "Asking for help and asking for practice are one answer («sooner»): no way to ask how a word is said or why a form is so without changing its schedule or its load (site_update_notifier#179)."
+
+[families.personal-details]
+cause = "Lines about oneself use the course's fixed name and age, not the learner's own: a self-introduction practised is not the one the learner will say (#428)."
+
+[families.instruction-language]
+cause = "Every instruction is in the known language: the Icelandic the learner will hear as instructions is never practised (#429)."
 
 [families.review-audio]
 cause = "The written review's 🔊 reply carried no text of its own, and Discord's preview of the review message shows the card on screen now (site_update_notifier#175)."
@@ -429,7 +441,75 @@ family = "review-audio"
 class = "precision"
 answered_by = ["site_update_notifier#176"]
 
-# Built changes: the rows of the §8 table after lesson 39, in its order
+[[lesson]]
+n = 40
+form = true
+load = "right"
+
+[[lesson.remarks]]
+who = "main"
+text = "Is it normal in Iceland to ask someone's age out of the blue, or to introduce yourself as single and living alone?"
+family = "scene-plausibility"
+class = "precision"
+answered_by = ["#433"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner, from the transcript.) A cue its answer does not answer («Say you're married» to a question about your family), and «Velkomin!», a woman's form, said to the learner's line in a man's voice."
+family = "scene-plausibility"
+class = "precision"
+answered_by = ["#433"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner, from the transcript.) A conversation played from its middle opens on a line that needs what came before."
+family = "scene-plausibility"
+class = "precision"
+answered_by = ["#433"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner, from the transcript.) «Thank her.» → «Takk.» and «Say: no, thanks.» → «Nei, takk.» are still asked as tasks in the authored dialogues (exercises 12 and 28)."
+family = "known-repeat"
+class = "twenty"
+answered_by = ["#430"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner, from the transcript.) Familiar dialogues are still played as complete scripts."
+family = "known-repeat"
+class = "precision"
+answered_by = ["#431"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner.) Optional pronunciation and grammar help on the expressions I choose, without it counting as a failure or more practice (pronunciation: «einhleyp», «afsláttur»); no explanation added where none is needed («tuttugu» is comfortable, the age pattern is plain)."
+family = "support-request"
+class = "precision"
+answered_by = ["site_update_notifier#180"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner, from the transcript.) A listening question asks what the conversation just said: the tour's exchange, then the same question on how long."
+family = "listening-just-heard"
+class = "precision"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner.) Introductions use a fixed name and age, not mine."
+family = "personal-details"
+class = "mechanism"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner.) Instructions could move to Icelandic gradually, starting with two commands."
+family = "instruction-language"
+class = "mechanism"
+answered_by = []
+
+# Built changes: the rows of the §8 table after lesson 40, in its order
 
 [[change]]
 title = "a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351)"
@@ -570,6 +650,8 @@ title = "small talk's fourth level (#327: #383)"
 issue = ["#327"]
 pr = ["#383"]
 family = "scene-first"
+first_heard = 40
+heard = "the day's exchange in lesson 40, played twice"
 
 [[change]]
 title = "a gendered learner line in a level said in the voice's form, named in the cue (#382)"
@@ -730,15 +812,45 @@ title = "a sentence reported hard is tried again from its meaning, then the mode
 issue = ["#423"]
 pr = ["#424"]
 family = "hard-word"
+first_heard = 40
+heard = "«Ég vinn hjá litlu fyrirtæki.», reported hard after lesson 39: «Let's try to say this sentence in Icelandic again: …»"
 
 [[change]]
 title = "a conversation that a drill follows ends with «That's the end of the conversation.» (#415: #425)"
 issue = ["#415"]
 pr = ["#425"]
 family = "pick-out-turns"
+first_heard = 40
+heard = "«That's the end of the conversation.» eight times"
 
 [[change]]
 title = "each 🔊 reply of the written review names its card and the text spoken (site_update_notifier#175: #176)"
 issue = ["site_update_notifier#175"]
 pr = ["site_update_notifier#176"]
 family = "review-audio"
+first_heard = 40
+heard = "the written review before lesson 40"
+
+[[change]]
+title = "an authored dialogue played before voices the known set replies too, its items counted from its lines (#416: #430)"
+issue = ["#416"]
+pr = ["#430"]
+family = "known-repeat"
+
+[[change]]
+title = "a fixed dialogue played whole four times, its required items learned, is not played whole again unless it holds new material or an item needing repair (#416: #431)"
+issue = ["#416"]
+pr = ["#431"]
+family = "known-repeat"
+
+[[change]]
+title = "scenes for lessons 41–50: arranging to meet, the town's fourth and fifth levels (telling a tourist the way), small talk's fifth (a coach ride), the clothes shop's third (size and colour), the weather (#327: #432)"
+issue = ["#327"]
+pr = ["#432"]
+family = "scene-first"
+
+[[change]]
+title = "lesson 40's contexts: the married cue, no «Velkomin!» to a man's voice, small talk's fourth level opens with a birthday, every listening task names its scene (#427: #433)"
+issue = ["#427"]
+pr = ["#433"]
+family = "scene-plausibility"
