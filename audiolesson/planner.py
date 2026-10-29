@@ -3209,6 +3209,8 @@ class Planner:
             its place, whichever scene it comes from."""
             return level_dialogue(theme, n, self.cur.known_lang).setting
 
+        turns_heard_lately: set[str] = set()  # pick-out turns whose next value was said aloud lately (#339)
+
         def heard_lately(answer: str) -> bool:
             """#339 (lesson 40): the tour's level heard again said «Hér stoppum við í tuttugu mínútur.», and 35 s later a pick-out asked «How long do
             we stop?»: the answer was remembered, not found. True when a line spoken in the last ``pick_out_heard_window_s`` seconds holds ``answer``."""
@@ -3232,7 +3234,10 @@ class Planner:
             key = key_of(task)
             if key in used_listening_tasks:
                 return False
-            if task.kind == "pick_out" and heard_lately(task.answer):
+            if task.kind == "pick_out" and (task.pattern in turns_heard_lately or heard_lately(task.answer)):
+                # the turn's value heard least recently comes first (#417): when it was just said aloud, the turn sits this lesson out rather than
+                # give a value it gave before, the one it gave last perhaps (a turn never gives one value twice in a row)
+                turns_heard_lately.add(task.pattern)
                 return False
             if task.kind == "pick_out" and picks_by_pattern[task.pattern] >= cfg.max_pick_outs_per_pattern:
                 return False
