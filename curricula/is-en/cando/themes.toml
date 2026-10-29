@@ -305,7 +305,8 @@ turns = [
 [[themes.levels]]
 # #427 (lesson 40: «is it normal to ask someone's age straight away, or to say you're single and live alone?»): her birthday opens the
 # age, and her own marriage, said just before «En þú?», asks whether you're married (review of #433: after «we're going out to eat»,
-# «And you?» asked about your plans); she no longer volunteers «einhleyp og bý ein»
+# «And you?» asked about your plans); she no longer volunteers «einhleyp og bý ein». Her lines use words taught by the level's own
+# items or before them (the owner, on «Maðurinn minn … hef verið … í tíu ár»: none of it taught by lesson 40)
 goal = "Ask her age, say yours, and say whether you're married."
 goal_ja = "相手の年齢を聞き、自分の年齢と、結婚しているかを伝える。"
 partner_speaker = "native_a"
@@ -314,7 +315,7 @@ turns = [
   { who = "you", cue = "Ask how old she is.", cue_ja = "何歳になったか聞いてください。", say = "Hvað ertu gömul?", items = ["hvad_ertu_gomul"] },
   { who = "partner", say = "Ég er þrjátíu ára. En þú?", meaning = "I'm thirty. And you?", meaning_ja = "30歳です。あなたは？" },
   { who = "you", cue = "Say you're twenty.", cue_ja = "20歳だと言ってください。", say = "Ég er tuttugu ára.", items = ["eg_er_ara", "tuttugu_ara"] },
-  { who = "partner", say = "Maðurinn minn kemur í kvöld. Ég hef verið gift í tíu ár. En þú?", meaning = "My husband is coming this evening. I've been married for ten years. And you?", meaning_ja = "夫が今夜来るんです。結婚して10年になります。あなたは？", variants = [{ say = "Kærastinn minn kemur í kvöld. Við erum ekki gift. En þú?", meaning = "My boyfriend is coming this evening. We're not married. And you?", meaning_ja = "彼氏が今夜来るんです。私たちは結婚していません。あなたは？" }] },
+  { who = "partner", say = "Ég er gift. En þú?", meaning = "I'm married. And you?", meaning_ja = "私は結婚しています。あなたは？", variants = [{ say = "Ég er ekki gift. En þú?", meaning = "I'm not married. And you?", meaning_ja = "私は結婚していません。あなたは？" }] },
   { who = "you", cue = "Say you're married.", cue_ja = "結婚していると言ってください。", say = "Ég er gift.", say_m = "Ég er giftur.", items = ["eg_er_gift"] },
   { who = "partner", say = "Gaman að spjalla við þig!", meaning = "Nice chatting with you!", meaning_ja = "お話しできてよかったです！", word_glosses = { "spjalla" = { en = "chatting", ja = "お話し" } } },
 ]

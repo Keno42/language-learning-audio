@@ -110,6 +110,19 @@ class Lesson40ContextTests(unittest.TestCase):
         self.assertEqual((lead, list(turn_items)), ({}, [0]))
         self.assertTrue(dlg.turns[0].opener.startswith("Ég á afmæli"))
 
+    def test_small_talk_fours_partner_lines_use_taught_words(self):
+        """The owner, on «Maðurinn minn kemur í kvöld. Ég hef verið gift í tíu ár.»: «maðurinn», «minn» and «verið» are taught by no item
+        before the level. Every word of her lines (a glossed word aside) is in an item no later than the level's own items."""
+        level = next(t for t in self.themes if t.id == "smalltalk").levels[3]
+        last = max(self.cur.by_id[i].order for t in level.turns for i in t.items)
+        words = lambda text: {w.lower() for w in re.findall(r"[^\W\d_]+", text)}
+        taught = set().union(*(words(i.target) | words(i.target_m or "") for i in self.cur.items if i.order <= last))
+        for t in level.turns:
+            if t.who != "partner":
+                continue
+            for line in t.lines():
+                self.assertFalse(words(line.say) - taught - {w.lower() for w in line.word_glosses}, line.say)
+
 
 if __name__ == "__main__":
     unittest.main()
