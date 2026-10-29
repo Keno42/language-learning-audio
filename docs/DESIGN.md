@@ -72,6 +72,11 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   level turn such as «Nei, takk.» counts once however many dialogue turns it matches, review of #384). `eligible_dialogue` and `listening_dialogue` skip such a dialogue in that lesson: the scene's
   exchange already says those lines (lesson 34 of the lesson-33 replay played «kynning», Anna from Akureyri, two minutes before
   small talk 1, whose Anna is from Akureyri too). One shared line («Takk.») is not a repeat. `tests/test_scene_group.py`.
+- **Familiar fixed dialogues (#416).** Both `eligible_dialogue` and `listening_dialogue` exclude a dialogue after
+  `dialogue_full_play_limit` (4) full plays when every required item is learned, none is hard (`hard_items`), and none was
+  taught today (including embedded material). `_dialogue_familiar` subtracts the partial encounters that grow one turn
+  at a time from `dialogues_done`; a due item still has its ordinary review outside this fixed script. Zero disables the
+  limit for comparisons; its value is saved in the plan's `config.levers`.
 - **Listening dialogues (#149 step 3).** With nothing else left (step 5, before today's items
   are repeated, or as the last drill-streak relief), a dialogue lacking one or two required
   items (`Planner.listening_dialogue`) plays whole: the turn for a missing item is «Here you

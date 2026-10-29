@@ -707,6 +707,10 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
   - `connect` without an authored bridge is mixed review, and says so (#78).
 - **Repetition.**
   - New items may repeat within a lesson and are never dropped (#147).
+  - **A familiar fixed dialogue stops returning (#416).** After four complete plays, an authored dialogue whose required
+    items are all learned no longer fills the lesson. Partial encounters do not count. An item taught today, failed,
+    hesitated or reported hard keeps its scene; due items still receive their ordinary individual review. Four is a
+    starting threshold to check against the next three feedbacks, not evidence that four plays ensure mastery (H11, H12).
   - Situation variety is welcome (#148), but a situation, authored or a scene check's line, is narrated in full at
     most twice in a lesson; after that the cue is the meaning, or the partner's line (G12; #170). One just narrated
     (among the last three, #273) is avoided whenever the cue has another way: another variant, or for a scene line the

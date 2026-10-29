@@ -24,7 +24,9 @@ is answered by #422, and lesson 39, its first feedback, has no such remark.
    lessons 41–50 (the owner's option F): arranging to meet (three levels), the town's fourth and fifth (telling a tourist the
    way), small talk's fifth (a coach ride), the clothes shop's third (size and colour) and the weather (one level); on the
    same replay, 22 of the day's new items said in the played exchange in lessons 40–49, 0 in two of them.
-4. **A dialogue heard many times is not played whole again (#416, its other half).** `tungumal`, every four lessons.
+4. **A dialogue heard many times is not played whole again (#416).** Built (#431): after four complete plays, a fixed script
+   whose required items are learned stops returning unless it holds new material or an item needing repair. #430 already
+   voices known set replies in authored dialogues. Left: skip an exchange whose replies would all be voiced.
 
 **Alongside:** two units of one scene back to back (#273); «Mér finnst gaman að hringja heim» and its meaning (#209); the
 written review's 🔊 replies named by card (site_update_notifier#176, to confirm on Discord). Load «light» five lessons in a
