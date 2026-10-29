@@ -497,7 +497,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
     `pick_out_<kind>` (plain: «How much is it?»; with a scene named, `pick_out_<kind>_scene`: «How much does he say it costs?»), the learner
     pauses, the answer fragment, its meaning and the sentence again follow. At most `max_pick_outs_per_pattern` (3) a lesson from one construction,
     and one unknown word caught once, whichever line it came from (#248 review: the same two frames and «Þarftu» five times). The scene's constructions come first, then a
-    played scene's (named aloud), then the rest. The question is never guessed from a slot's name.
+    played scene's (named aloud), then the rest. The question is never guessed from a slot's name. A pick-out whose answer was said aloud in
+    the last `pick_out_heard_window_s` (300 s) is not taken: it would be remembered, not found (#339, lesson 40: «tuttugu mínútur» heard in the
+    tour's level, asked 35 s later).
   - *Catch an unknown word* (`catch_unknown`): a partner line (or variant) of the lesson's scene or a played one whose words hold exactly one
     the learner does not know (counted by occurrence), with an authored meaning in `Turn.word_glosses` (also a variant's); only once
     `hvad_thydir_thetta` can be said. The learner says the word and asks what it means; the model answers in the other voice. **The partner answers (#279):** the narrator reports it, not answers it: «He/She tells you:» (`catch_unknown_told`, from the line's speaker), the word in the partner's voice, «means: …» (`catch_unknown_means`), then «Now listen again.» (`catch_unknown_again`) before the line replays. A `paraphrase` in a gloss (the partner rewording it) is the later, data step and is not built.

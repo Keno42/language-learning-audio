@@ -116,6 +116,7 @@ class PlanConfig:
     themes: list = field(default_factory=list)
     theme_scenarios: list[str] = field(default_factory=list)
     max_pick_outs_per_pattern: int = 1  # pick-outs one partner turn gives in a lesson, its variants and listening lines counted together (#248 review)
+    pick_out_heard_window_s: float = 300.0  # #339 (lesson 40): a pick-out whose answer was said aloud this long before is answered from memory, not found
     theme_ready: float = 0.75  # a theme's level plays once the learner can say this share of its turns; the rest are heard (#240)
     theme_heard_one: int = 3  # a level with at least this many learner turns may play with one of them heard, whatever its share (#327: small talk 4, 2 of 3)
     scene_share: float = 2 / 3  # #327: the share of a call's places the day's scene may take ahead of the course order
@@ -3208,11 +3209,35 @@ class Planner:
             its place, whichever scene it comes from."""
             return level_dialogue(theme, n, self.cur.known_lang).setting
 
+        turns_heard_lately: set[str] = set()  # pick-out turns whose next value was said aloud lately (#339)
+
+        def heard_lately(answer: str) -> bool:
+            """#339 (lesson 40): the tour's level heard again said «Hér stoppum við í tuttugu mínútur.», and 35 s later a pick-out asked «How long do
+            we stop?»: the answer was remembered, not found. True when a line spoken in the last ``pick_out_heard_window_s`` seconds holds ``answer``."""
+            words = [w.lower() for w in _WORD_RE.findall(answer)]
+            if not words:
+                return False
+            back = 0.0
+            for seg in reversed(sc.segments):
+                if back > cfg.pick_out_heard_window_s:
+                    break
+                back += seg.duration
+                if seg.type in ("speak", "answer") and seg.text:
+                    said = [w.lower() for w in _WORD_RE.findall(seg.text)]
+                    if any(said[k : k + len(words)] == words for k in range(len(said) - len(words) + 1)):
+                        return True
+            return False
+
         def emit_listening_task(task, room: float | None = None) -> bool:
             if task is None:
                 return False
             key = key_of(task)
             if key in used_listening_tasks:
+                return False
+            if task.kind == "pick_out" and (task.pattern in turns_heard_lately or heard_lately(task.answer)):
+                # the turn's value heard least recently comes first (#417): when it was just said aloud, the turn sits this lesson out rather than
+                # give a value it gave before, the one it gave last perhaps (a turn never gives one value twice in a row)
+                turns_heard_lately.add(task.pattern)
                 return False
             if task.kind == "pick_out" and picks_by_pattern[task.pattern] >= cfg.max_pick_outs_per_pattern:
                 return False
