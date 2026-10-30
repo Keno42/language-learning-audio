@@ -36,9 +36,9 @@ tier = "C"
 title = "Farewell"
 items = ["bless"]
 """
-ORDER = '{ who = "you", cue = "Order a coffee.", say = "Kaffi.", items = ["kaffi"] }'
-THANK = '{ who = "you", cue = "Thank her.", say = "Takk.", items = ["takk"] }'
-LEAVE = '{ who = "you", cue = "Say hi and bye.", say = "Hæ, bless.", items = ["hae", "bless"] }'
+ORDER = '{ who = "you", cue = "Order a coffee.", aim = "order a coffee", aim_ja = "コーヒーを注文する", say = "Kaffi.", items = ["kaffi"] }'
+THANK = '{ who = "you", cue = "Thank her.", aim = "thank her", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] }'
+LEAVE = '{ who = "you", cue = "Say hi and bye.", aim = "say hi and bye", aim_ja = "あいさつする", say = "Hæ, bless.", items = ["hae", "bless"] }'
 
 
 def themes_toml(cafe_levels: list[str]) -> str:
