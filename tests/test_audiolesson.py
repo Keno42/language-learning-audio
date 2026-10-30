@@ -2946,7 +2946,7 @@ class CurriculumTests(unittest.TestCase):
         """CURRICULUM.md documents pronunciation_notes as 'for the transcript' — make sure that's true."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         hallo = cur.item("hallo")
-        self.assertIn("aspirat", hallo.pronunciation_notes)  # matches "pre-aspirated"/"pre-aspiration" either way
+        self.assertIn("pre-stopped", hallo.pronunciation_notes)  # #443: the sound of a native «ll» is pre-stopping, not pre-aspiration
         learner = LearnerState("is", "en", "A1")
         sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY).build()
         notes = {i.id: i.pronunciation_notes for i in cur.items if i.pronunciation_notes}
@@ -2955,7 +2955,7 @@ class CurriculumTests(unittest.TestCase):
         self.assertIn(hallo.pronunciation_notes, text)
         self.assertEqual(text.count(hallo.pronunciation_notes), 1, "printed once, not on every later review of the item")
         # without the dict, behaviour is unchanged (no notes section, no crash)
-        self.assertNotIn("pre-aspirated", sc.transcript())
+        self.assertNotIn("pre-stopped", sc.transcript())
 
     def test_japanese_instructor_lesson_from_the_icelandic_course(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
