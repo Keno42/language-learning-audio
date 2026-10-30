@@ -28,6 +28,8 @@ from .script import Exercise, Script
 from .text import WORD
 from .listening_cues import unknown_cue
 
+CATCH_INTRO = "new (catch)"  # the label of an intro made through a catch (#339): the catch's own turn (``transitions.mode``)
+
 # the phrase that asks what a word means; the catch-an-unknown-word exercise only runs once the learner can say it
 REPAIR_ITEM = "hvad_thydir_thetta"
 
@@ -213,7 +215,7 @@ def catch_unknown(
 def _build(b, sc: Script, task: ListeningTask, introduces: str = "") -> None:
     """``introduces`` (#339): the id of a new item this catch introduces; the exercise is then its introduction (kind ``intro``), so the planner records it like one."""
     if introduces:
-        ex = sc.new_exercise("intro", "intro", [introduces], f"new (catch): {word_as_asked(task.line, task.answer)}")
+        ex = sc.new_exercise("intro", "intro", [introduces], f"{CATCH_INTRO}: {word_as_asked(task.line, task.answer)}")
     else:
         ex = sc.new_exercise(task.kind, ("multi" if task.pieces > 1 else "single") if task.kind == "pick_out" else None, list(task.item_ids), task.source)
     if task.scene:

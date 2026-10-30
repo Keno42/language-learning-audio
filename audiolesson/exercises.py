@@ -152,7 +152,7 @@ class Builder:
     rng: random.Random = field(default_factory=lambda: random.Random(0))
     translate_partner: bool = True  # narrate the meaning of partner lines in dialogues
     # #415: a conversation ends with «That's the end of the conversation.», built in so the lesson's time counts it; the planner
-    # drops it where a listening task, another conversation, an aside or the closing follows (``Planner._close_tasks``)
+    # drops it where a listening task, another conversation, an aside or the closing follows (``transitions.close_tasks``)
     close_conversations: bool = False
     used_combos: set[str] = field(default_factory=set)
     used_examples: set[str] = field(default_factory=set)

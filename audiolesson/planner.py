@@ -27,11 +27,12 @@ from .learner import REPORTED_HARD_DAYS, LearnerState
 from .review_wholes import whole_for
 from .listening_tasks import REPAIR_ITEM, ListeningTask, SecondHalfRotation, append_task, catch_unknown, introduce_by_catch, key_of, partner_pick_out
 from .prompts import Prompts
-from .script import Script, Segment
+from .script import Script
 from .stages import ladder_for, next_stage, stage_index
 from .themes import Level, level_dialogue, pick_variants
 from .text import WORD, words as _words
 from .timing import Timing
+from .transitions import close_tasks
 
 
 @dataclass
@@ -1519,50 +1520,6 @@ class Planner:
         cands.sort(key=lambda t: t[0])
         least = [d for t, d in cands if t == cands[0][0]]
         return self.rng.choice(least)
-
-    @staticmethod
-    def _is_listening(e) -> bool:
-        return e.kind in ("pick_out", "catch_unknown") or (e.kind == "intro" and e.label.startswith("new (catch)"))
-
-    def _close_tasks(self, sc: Script) -> tuple[int, int]:
-        """The way back to single drills is marked. Lesson 34's feedback: after a pick-out, the line heard again and then the next question «always feels a
-        little abrupt»; a listening exercise (a pick-out, a catch) that a drill follows ends with «Back to speaking.» after its replay, as an aside ends with
-        «Back to the lesson.». Lessons 37 and 39 (#415): a conversation (an authored dialogue, a theme level played or heard again) followed at once by a
-        drill on another scene («Ert þú íslensk?» … then «The directions are getting long.») left the learner expecting the exchange to go on; it ends with
-        «That's the end of the conversation.». That line is built into every conversation (``Builder.close_conversations``), so
-        the lesson's time counts it, and dropped here where it is not wanted. Neither line comes before another listening exercise, a conversation or an
-        aside (each opens with its own line) or the closing. Run on the finished script, where the next exercise is known. Returns how many listening
-        exercises and conversations were closed."""
-        spoken = {s.exercise for s in sc.segments if s.exercise is not None and s.duration > 0}
-        order = [e for e in sc.exercises if e.index in spoken]
-        role: dict[int, str] = {}
-        for e, nxt in zip(order, order[1:]):
-            if self._is_listening(nxt) or nxt.kind in ("dialogue", "note", "closing"):
-                continue
-            if self._is_listening(e):
-                role[e.index] = "listening_back"
-            elif e.kind == "dialogue":
-                role[e.index] = "conversation_back"
-        kl = self.cur.known_lang
-        out: list = []
-        for k, s in enumerate(sc.segments):
-            if s.role == "conversation_back":
-                if role.get(s.exercise) != "conversation_back":
-                    if out and out[-1].type == "pause" and out[-1].role == "beat" and out[-1].exercise == s.exercise:
-                        out.pop()  # its beat goes with it
-                    continue
-                out.append(s)
-                continue
-            out.append(s)
-            if role.get(s.exercise) == "listening_back" and s.type in ("speak", "narrate", "answer") and not any(
-                t.exercise == s.exercise and t.type in ("speak", "narrate", "answer") for t in sc.segments[k + 1 :]
-            ):
-                text = self.prompts.get("listening_back")
-                out.append(Segment("pause", None, None, None, 1.0, self.builder.timing.beat, "beat", s.exercise))
-                out.append(Segment("narrate", "instructor", text, kl, 1.0, self.builder.timing.speech_estimate(text, kl), "listening_back", s.exercise))
-        sc.segments = out
-        roles = list(role.values())
-        return roles.count("listening_back"), roles.count("conversation_back")
 
     def repeats_scene(self, d: Dialogue) -> bool:
         """Two or more of the dialogue's learner lines are each a different line of the level the lesson plays: a dialogue turn
@@ -3951,7 +3908,7 @@ class Planner:
 
         if goal_ex is not None and theme_plays and late_heard:
             goal_said[0] = b.goal_heard(sc, goal_ex, [t for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you"], set(late_heard))  # #327 (lesson 42: «Say you can't tomorrow …», whose line was heard in both plays)
-        listening_closed, conversations_closed = self._close_tasks(sc)
+        listening_closed, conversations_closed = close_tasks(sc, self.prompts, b.timing, self.cur.known_lang)  # the way back between tasks (#387, #415)
         switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same, b.timing.switch_gap_sentence)  # #301: the last pass over the finished script
         sc.retime()
         spare = self._spare_time(sc, introduced, theme_pick, early_ids, delivered_at[0])

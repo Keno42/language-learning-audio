@@ -55,7 +55,7 @@ class Exercise:
     """Bookkeeping for one prompt→pause→answer unit (or a dialogue)."""
 
     index: int
-    kind: str  # opening | intro | recall | generative | connect | dialogue | note | closing
+    kind: str  # every kind the code builds, with its mode: ``transitions.MODES``
     stage: str | None
     item_ids: list[str] = field(default_factory=list)  # the items asked or practised
     label: str = ""
