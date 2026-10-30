@@ -3082,6 +3082,7 @@ class Planner:
             schedule_open(self.cur.by_id[item_id], k)
             reviews_used.append(item_id)
         open_timeline.sort(key=lambda t: t[:2])
+        goal_said: list[str | None] = [None]  # the goal as said when it was narrowed (#327, review of #448: plan.json records the goal spoken)
         goal_ex = None  # the goal's exercise: its line names the exchange's lines the late play only lets the learner hear (#327)
         theme_pick = self.pick_theme(coming={i.id for i in new_queue} if n > 1 else frozenset())  # #327; the first lesson keeps its rule (§9 "Themes")
         if theme_pick is not None:
@@ -3933,7 +3934,7 @@ class Planner:
         b.closing(sc, n)
 
         if goal_ex is not None and theme_plays and late_heard:
-            b.goal_heard(sc, goal_ex, [t for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you"], set(late_heard))  # #327 (lesson 42: «Say you can't tomorrow …», whose line was heard in both plays)
+            goal_said[0] = b.goal_heard(sc, goal_ex, [t for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you"], set(late_heard))  # #327 (lesson 42: «Say you can't tomorrow …», whose line was heard in both plays)
         listening_closed, conversations_closed = self._close_tasks(sc)
         switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same, b.timing.switch_gap_sentence)  # #301: the last pass over the finished script
         sc.retime()
@@ -3977,7 +3978,7 @@ class Planner:
             # #149 1b-ii: the lesson's theme and level (1-based) and how often its exchange played; None: no theme was ready
             "theme": (
                 {"id": theme_pick[0].id, "scenario": theme_pick[0].scenario, "level": theme_pick[1] + 1, "plays": theme_plays, "lines": theme_lines, "replay": theme_replay, "heard": theme_heard, "goal_heard": len(late_heard) if theme_plays else 0,
-                 "goal": self.builder.goal_text(theme_pick[0].levels[theme_pick[1]])}  # #327: the goal said after the opening, in the learner's language
+                 "goal": goal_said[0] or self.builder.goal_text(theme_pick[0].levels[theme_pick[1]])}  # #327: the goal said after the opening, in the learner's language
                 if theme_pick
                 else None
             ),

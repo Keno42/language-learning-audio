@@ -550,23 +550,26 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def goal_heard(self, sc: Script, ex: Exercise, you: list, heard: set[int]) -> None:
+    def goal_heard(self, sc: Script, ex: Exercise, you: list, heard: set[int]) -> str:
         """#327: the goal said after the opening names the whole exchange, but the learner's turns ``heard`` (indices into ``you``) are only heard in its
         last play (an item of theirs is not taught yet: lesson 42, «Say you can't tomorrow …», whose «Ég get ekki á morgun.» waits for «á morgun» to be
         learned). Once the lesson is built and the plays are known, the goal is said again from the turns' authored aims: the lines the learner says, then
-        the ones to listen to («Today's goal: Say you'll come this evening and say see you this evening. Listen for how to say you can't tomorrow.»)."""
+        the ones to listen to («Today's goal: Say you'll come this evening and say see you this evening. Listen for how to say you can't tomorrow.»). Returns
+        the goal as said, without «Today's goal:», for ``plan.json`` ``theme.goal``."""
         ja = self.cur.known_lang.split("-")[0].lower() == "ja"
         aim = lambda t: (t.aim_ja if ja and t.aim_ja else t.aim) or (t.cue_ja if ja and t.cue_ja else t.cue).rstrip(".。")  # the curriculum's turns all have aims (``load_themes``)
         said = [aim(t) for k, t in enumerate(you) if k not in heard]
         listen = [aim(t) for k, t in enumerate(you) if k in heard]
-        seg = next(g for g in sc.segments if g.exercise == ex.index and g.type == "narrate")
         heard_text = "」「".join(listen) if ja else self._join_aims(listen)
         if said:
             said_text = "。".join(said) if ja else self._join_aims(said)
-            seg.text = self.prompts.get("lesson_goal_parts", said=said_text if ja else said_text[:1].upper() + said_text[1:], listen=heard_text)
+            goal = self.prompts.get("lesson_goal_parts", said=said_text if ja else said_text[:1].upper() + said_text[1:], listen=heard_text)
         else:
-            seg.text = self.prompts.get("lesson_goal_listen_only", listen=heard_text)
+            goal = self.prompts.get("lesson_goal_listen_only", listen=heard_text)
+        seg = next(g for g in sc.segments if g.exercise == ex.index and g.type == "narrate")
+        seg.text = self.prompts.get("lesson_goal", goal=goal)
         seg.duration = self.timing.speech_estimate(seg.text, self.kl)
+        return goal
 
     @staticmethod
     def _join_aims(aims: list[str]) -> str:

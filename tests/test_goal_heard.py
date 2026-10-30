@@ -20,6 +20,9 @@ class GoalHeardTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.lessons = [(cur, sc) for cur, _, sc in course.ListeningTaskTests._course(30)]
+        from audiolesson.themes import load_themes
+
+        cls.themes = {t.id: t for t in load_themes(ROOT / "curricula" / "is-en")}
 
     @staticmethod
     def goal_line(sc):
@@ -37,8 +40,9 @@ class GoalHeardTests(unittest.TestCase):
                 self.assertNotIn(LISTEN, line, f"lesson {sc.lesson_number}: every line asked, the authored goal as it is")
                 continue
             narrowed += 1
+            self.assertEqual(Prompts.load("en").get("lesson_goal", goal=theme["goal"]), line, "review of #448: plan.json records the goal said")
             said, _, heard = line.partition(LISTEN)
-            self.assertNotIn(theme["goal"], line, f"lesson {sc.lesson_number}: the whole goal is not promised")
+            self.assertNotIn(self.themes[theme["id"]].levels[theme["level"] - 1].goal, line, f"lesson {sc.lesson_number}: the whole goal is not promised")
             own = f"theme:{theme['id']}:{theme['level']}"
             last = [e for e in sc.exercises if e.kind == "dialogue" and e.label.split(" ")[1] == own][-1]
             narr = [g.text for g in sc.segments if g.exercise == last.index and g.type == "narrate"]
