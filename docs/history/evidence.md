@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.27 (lessons 1–37), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.28 (lessons 1–38), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1102,3 +1102,34 @@ What the learner wrote, by what the lesson did:
   only. **Open:** #415.
 - **No remark on the cue's wording** (#409's remark, «You want to know …» read as a speaking task) or on «Tókýó».
   Load «light» a third time in a row.
+
+### 5.28 Lesson 38: the first feedback on #417
+
+Lesson 38 was generated with LLA `ef59bdd` (main with #417 and #418), the bot at site_update_notifier `edbf4c8`; rebuilt from its
+export it says the same (the transcript's written pronunciation notes aside). It is the first feedback on pick-out lines with other
+values (#417: ten pick-outs, drawn across values).
+
+| | lesson 38 |
+|---|---|
+| length | 29.9 min, 109 exercises |
+| new items; new components, weighted (target) | 9; 8 (8) |
+| theme (level); today's new items said as a turn of the played exchange | the town (3); «Ég er týnd.», «Hvar er veitingastaðurinn?», «Til hægri?», «Hvað er langt þangað?», «Geturðu sýnt mér á kortinu?» |
+| target reached | 14.5 min |
+| longest stretch without a scene | 4.5 min |
+| a sentence asked again within a minute | 1 |
+| most narrations of one situation | 4 |
+| feedback form: load; friction | **light** (the fourth in a row); other |
+| «sooner» | none |
+
+What the learner wrote, by what the lesson did:
+
+- **"In the conversations I say «Nei, takk.» and «Takk.» so many times: I am made to say them too often."** Seven asks of
+  four set replies, five of them in the supermarket's and café's levels heard again, two in the town's two plays; on the replay
+  of lessons 38–44, 34. Every sayable line was asked (#263). **Answered (#422):** in an exchange played again, a named set reply
+  the learner plainly knows is voiced, not asked, and the opening says so; on the replay, 34 asks fall to 5, each in the first
+  play of the day's exchange. A limited exception to "sayable → asked" (§9).
+- **"In the closing part that covers today's new material, a listening question started: it felt nested."** At 28:42 a
+  clothes-shop pick-out inside the closing, put there by the rule that breaks long runs. **Open:** #421.
+- **"«Mér finnst gaman að hringja heim» (I like calling home): does it mean I like talking to my parents?"** The meaning
+  leaves open whom one calls. **Open:** #209 (the authored line and its meaning, with a fluent speaker).
+- **No remark on the pick-outs' answers** (lesson 37's remark that the time never changed). Load «light» a fourth time.
