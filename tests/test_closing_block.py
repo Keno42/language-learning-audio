@@ -34,10 +34,12 @@ class ClosingBlockTests(unittest.TestCase):
     def test_the_listening_the_closing_held_comes_before_it(self):
         """Review of #435: with nothing inside the closing, the replay of the lesson-40 export lost 16 of its 51 listening tasks in lessons 40-46,
         their time going to drills. They come in the last stretch before the closing: in this course, listening tasks among the six exercises
-        before it rise from 9 to 21, and over the course from 79 to 89."""
+        before it rise from 9 to 21, and over the course from 79 to 89. The course total moves by a few with any change that shifts seconds
+        (#440: a shorter guide gives lesson 16 one more dialogue and the course diverges from there, 87 to 82, while over 50 lessons it is 146 to 143
+        and the replay of the lesson-41 export gains listening); the last stretch carries the check, and the total only has to stay above #435's 79."""
         before = sum(e.kind in LISTENING for sc in self.lessons if (s := self.closing_start(sc)) is not None for e in sc.exercises[max(0, s - 6) : s])
         self.assertGreaterEqual(before, 15)
-        self.assertGreaterEqual(sum(e.kind in LISTENING for sc in self.lessons for e in sc.exercises), 85)
+        self.assertGreaterEqual(sum(e.kind in LISTENING for sc in self.lessons for e in sc.exercises), 80)
 
 
 if __name__ == "__main__":

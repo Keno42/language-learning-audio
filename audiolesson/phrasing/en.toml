@@ -105,6 +105,8 @@ listening_intro_some_asked = "A conversation to listen to. It has a few new expr
 listening_intro_known = "The conversation again. You know your lines: say them when it's your turn."
 # the same, with the learner's short set replies played in the model voice (#416): what is asked and what is played
 listening_intro_known_voiced = "The conversation again. Answer when you're told what to say. Short replies like yes, no and thanks are played for you."
+# #438: a scene heard again once the lesson has said that short replies are played
+listening_intro_again = "The conversation again."
 # any other exchange played again with short set replies played for the learner (#416)
 dialogue_voiced_note = "Answer when you're told what to say. Short replies like yes, no and thanks are played for you."
 listening_line = "Here you would say:"
