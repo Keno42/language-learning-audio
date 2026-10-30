@@ -454,6 +454,8 @@ def _plan(script: Script, cur) -> dict:
         "second_half": {k: meta.get(k, 0) for k in ("pick_out_count", "catch_unknown_count", "pick_out_echo_count", "longest_kind_run_after_target", "longest_without_scene_s", "asked_again_within_spacing")},  # #248: the listening rotation
         "listening_tried": meta.get("listening_tried", []),  # #183: turns tried on a part (bonus questions)
         "exposures": meta.get("exposures", {}),
+        "slow_models_reported": list(meta.get("slow_models_reported", [])),  # #337: reported items given the slow model (apply_to_learner clears their debt)
+        "hear_supports_reported": list(meta.get("hear_supports_reported", [])),  # #444: reported-hard-to-hear items given listening support
         "open_items": list(meta.get("open_items", [])),  # #199: the bot brings their questions forward and asks the waiting ones
         "open_not_fitted": list(meta.get("open_not_fitted", [])),
         "review": review,

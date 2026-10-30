@@ -68,6 +68,10 @@ class HearSupportTests(unittest.TestCase):
         self.assertEqual(sc.meta["slow_models_reported"], [])
         self.assertEqual(len([e for e in sc.exercises if e.kind == "model" and e.stage == "hear"]), 2)
         self.assertNotIn("hard to say", sc.transcript())
+        from audiolesson.cli import _plan
+
+        self.assertEqual(sorted(_plan(sc, self.cur)["hear_supports_reported"]), sorted([WORD, LINE]), "review of #447: plan.json lists them too")
+        self.assertEqual(_plan(sc, self.cur)["slow_models_reported"], [])
         apply_to_learner(sc, l, TODAY)
         self.assertEqual((l.items[WORD].hear_owed, l.items[LINE].hear_owed), ("", ""))
 
