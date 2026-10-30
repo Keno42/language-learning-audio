@@ -4,6 +4,8 @@
 lesson_open = "Lesson {n}."
 lesson_intro = "Speak your answers out loud during the silences. Don't worry about mistakes."
 lesson_goal = "Today's goal: {goal}"
+lesson_goal_heard_one = "One of its lines you'll just listen to today."
+lesson_goal_heard_some = "Some of its lines you'll just listen to today."
 lesson_close = "That's the end of lesson {n}. Well done."
 final_block = "To finish, let's go back over today's new material."
 final_block_some = "To finish, let's go back over some of today's new material."  # the closing leaves some of today's new items out (each said as often as a lesson allows; lesson 35)

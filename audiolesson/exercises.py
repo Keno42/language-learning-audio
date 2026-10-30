@@ -550,6 +550,14 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def goal_heard(self, sc: Script, ex: Exercise, count: int) -> None:
+        """#327: the goal said after the opening names the whole exchange, but ``count`` of the learner's lines are only heard in its last play (an item of
+        theirs is not taught yet: lesson 42, «Say you can't tomorrow …», whose «Ég get ekki á morgun.» waits for «á morgun» to be learned). The goal's line
+        says so, once the lesson is built and the plays are known, so it promises nothing the lesson does not ask."""
+        seg = next(g for g in sc.segments if g.exercise == ex.index and g.type == "narrate")
+        seg.text = f"{seg.text} {self.prompts.get('lesson_goal_heard_one' if count == 1 else 'lesson_goal_heard_some')}"
+        seg.duration = self.timing.speech_estimate(seg.text, self.kl)
+
     def final_block_announce(self, sc: Script) -> Exercise:
         ex = sc.new_exercise("closing", None, [], "final review")
         self._narr(sc, ex, self.prompts.get("final_block"))
