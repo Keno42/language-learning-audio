@@ -449,6 +449,7 @@ def _plan(script: Script, cur) -> dict:
         "new_components": meta.get("new_components"),  # #218 b3: the weighted new material, forms apart, and each item's cost (None when counting items)
         "listening_asked": meta.get("listening_asked", []),  # #179: turns asked because the line can be said
         "repeated_new_sentences": meta.get("repeated_new_sentences", {}),  # #311: a pattern-linked new phrase asked as the same sentence in more than 3 exercises ({} expected)
+        "shared_recalls": list(meta.get("shared_recalls", [])),  # #439: today's items whose timed recall another recall's sentence stood for
         "second_half": {k: meta.get(k, 0) for k in ("pick_out_count", "catch_unknown_count", "pick_out_echo_count", "longest_kind_run_after_target", "longest_without_scene_s", "asked_again_within_spacing")},  # #248: the listening rotation
         "listening_tried": meta.get("listening_tried", []),  # #183: turns tried on a part (bonus questions)
         "exposures": meta.get("exposures", {}),

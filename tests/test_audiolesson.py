@@ -3658,7 +3658,10 @@ class LessonStructureTests(unittest.TestCase):
         exposures = self.script.meta["exposures"]
         for item_id in self.script.meta["new_items"]:
             stages = exposures[item_id]
-            self.assertGreaterEqual(len(stages), 3, item_id)  # intro + reactivations + closing
+            # intro + reactivations + closing; the closing may ask it inside another item's sentence (#280: «Je voudrais une bière.» for the
+            # pattern holds the late new «une bière», and the one question counts for both), so every recall that says it counts (#439)
+            said = [e for e in self.script.exercises if item_id in (e.item_ids or []) and e.kind in ("intro", "recall", "generative", "connect")]
+            self.assertGreaterEqual(len(said), 3, item_id)
             self.assertEqual(stages[0], "intro")
             positions = [e.index for e in self.script.exercises if e.item_ids and e.item_ids[0] == item_id]
             gaps = [b - a for a, b in zip(positions, positions[1:])]
