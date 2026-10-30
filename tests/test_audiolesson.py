@@ -7921,7 +7921,7 @@ class ThemeExchangeTests(unittest.TestCase):
         asked_first = [g for g in segs(plays[0]) if g.type == "pause" and g.role == "answer"]
         self.assertEqual(len(asked_first), 4)
         self.assertEqual(sc.meta["theme"], {"id": "supermarket", "scenario": "A3", "level": 1, "plays": 2, "lines": sc.meta["theme"]["lines"], "replay": False, "heard": sc.meta["theme"]["heard"],
-                                            "goal": self._supermarket.levels[0].goal})
+                                            "goal_heard": 0, "goal": self._supermarket.levels[0].goal})  # #327: every line asked in the last play
         self.assertTrue(sc.meta["theme"]["heard"], "the assisted play's variants were heard with their meaning")
         self.assertEqual(len(sc.meta["theme"]["lines"]), 2)
 
