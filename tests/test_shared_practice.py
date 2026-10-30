@@ -24,6 +24,14 @@ class SharedPracticeTests(unittest.TestCase):
         self.assertTrue(own and own[0].stage == "hinted", "the pattern's first recall is asked")
         self.assertTrue(any(e.stage == "meaning" for e in own[1:]), "and a later unhinted one")
 
+    def test_plan_json_lists_the_shared_recalls(self):
+        """Review of #442: the field reached the script's metadata only; ``plan.json`` is built field by field (``cli._plan``)."""
+        from audiolesson.cli import _plan
+
+        cur, sc = self.lessons[-1]
+        self.assertEqual(_plan(sc, cur)["shared_recalls"], sc.meta["shared_recalls"])
+        self.assertIn("eg_fer", _plan(sc, cur)["shared_recalls"])
+
     def test_a_phrase_is_passed_over_only_when_another_recall_said_it(self):
         """A phrase's own rungs are its spaced practice: no sentence count passes them; only a recall that said it for another item does
         («Hvenær?» inside «Hvenær leggjum við af stað?», as the closing counts it, #280)."""
