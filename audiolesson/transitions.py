@@ -1,9 +1,13 @@
-"""What each kind of exercise is to the learner, and the way back after a task.
+"""What each kind of exercise is to the learner, and the way in and back between tasks.
 
 - ``MODES``: the mode of each exercise kind (a listening task, a conversation, an aside, a drill …). A test keeps every kind the code builds in
   it, so a new kind is classified the day it is written.
 - The way back (lesson 34, #387; lessons 37 and 39, #415, #425): ``WAY_BACK`` is the line that ends a listening task or a conversation where a
-  drill follows, and ``close_tasks`` says it on the finished script, where the next exercise is known.
+  drill follows. The way in (#427, #433): ``WAY_IN`` opens a listening task that would start with its target-language line, a catch with no
+  scene. ``close_tasks`` says both on the finished script, where the next exercise is known and the time they take moves nothing the lesson
+  holds.
+- The check: ``unmarked_turns`` lists every change of task whose line is missing or out of place, an aside's end line included (``END_LINES``),
+  as ``claims.unkept_claims`` does for promises (0 expected; a row of ``tools/replay_lesson.py`` and a test over a simulated course).
 - The kinds the lesson's rhythm counts, from ``MODES``: the scene units (#273) and the listening tasks (#421).
 
 The ledger's family «pick-out-turns» (the turns between and inside tasks) was remarked in eight lessons from 24 to 39, each turn fixed on its
@@ -14,6 +18,7 @@ whatever follows.
 
 from __future__ import annotations
 
+from .claims import _templates
 from .listening_tasks import CATCH_INTRO
 from .prompts import Prompts
 from .script import Exercise, Script, Segment
@@ -42,6 +47,12 @@ WAY_BACK = {"listening": "listening_back", "conversation": "conversation_back"}
 # the ways back the builder writes into every exercise of their mode, so the lesson's time counts them (``Builder.close_conversations``);
 # ``close_tasks`` drops them where they are not wanted, and inserts the others where they are
 BUILT_IN = {"conversation_back"}
+# the line that opens a mode when its exercise would otherwise start with a target-language line straight after the task before: a catch with no
+# scene to frame it, such as one that introduces a word through its home sentence (``Builder.whole_home``); a pick-out always opens with its need
+WAY_IN = {"listening": "listen"}
+# the lines the builder says at the end of every exercise of a mode, whatever follows: an aside ends «Back to the lesson.» or, for a milestone,
+# «Let's continue.» (``Builder.note``). Whether they should follow ``WAY_BACK``'s rule (none before a task that opens with its own line) is open
+END_LINES = {"aside": ("aside_end", "milestone_end")}
 SPOKEN = ("speak", "narrate", "answer")
 # the kinds the lesson's rhythm counts: a scene unit (#273: no fifteen minutes without one) and a listening task (the stretch before the closing
 # holds one at a time, #421). From ``MODES`` by kind, so a catch that introduces a new word (#339, kind ``intro``, a listening task to ``mode``)
@@ -71,13 +82,51 @@ def ways_back(order: list[Exercise]) -> dict[int, str]:
     return out
 
 
+def as_spoken(sc: Script) -> list[Exercise]:
+    """The exercises in the order the learner hears them: those with a segment that takes time."""
+    timed = {s.exercise for s in sc.segments if s.exercise is not None and s.duration > 0}
+    return [e for e in sc.exercises if e.index in timed]
+
+
+def _spoken(sc: Script) -> dict[int, list[int]]:
+    """Exercise index → the positions of its spoken segments in ``sc.segments``."""
+    out: dict[int, list[int]] = {}
+    for k, s in enumerate(sc.segments):
+        if s.exercise is not None and s.type in SPOKEN and s.duration > 0:
+            out.setdefault(s.exercise, []).append(k)
+    return out
+
+
+def _instructor(s: Segment) -> bool:
+    return s.type == "narrate" and s.speaker == "instructor"
+
+
+def ways_in(sc: Script, order: list[Exercise]) -> dict[int, str]:
+    """Exercise index → the prompt key of the line it opens with (``WAY_IN``), for an exercise after the first whose first spoken line is a
+    target-language one."""
+    spoken = _spoken(sc)
+    out: dict[int, str] = {}
+    for k, e in enumerate(order):
+        line = WAY_IN.get(mode(e))
+        if k and line and e.index in spoken and not _instructor(sc.segments[spoken[e.index][0]]):
+            out[e.index] = line
+    return out
+
+
 def close_tasks(sc: Script, prompts: Prompts, timing: Timing, known_lang: str) -> tuple[int, int]:
-    """Each way back where it is wanted, on the finished script: a built-in one (``BUILT_IN``) is kept or dropped with its beat, any other is
-    said after the exercise's last spoken line, after a beat. Returns how many listening exercises and conversations were closed."""
-    spoken = {s.exercise for s in sc.segments if s.exercise is not None and s.duration > 0}
-    roles = ways_back([e for e in sc.exercises if e.index in spoken])
+    """Each way in and way back where it is wanted, on the finished script: a way in (``WAY_IN``) is said before the exercise's first line, with
+    a beat; a built-in way back (``BUILT_IN``) is kept or dropped with its beat, any other is said after the exercise's last spoken line, after a
+    beat. Returns how many listening exercises and conversations were closed."""
+    order = as_spoken(sc)
+    roles = ways_back(order)
+    opens = ways_in(sc, order)
+    first = {i: ks[0] for i, ks in _spoken(sc).items()}
     out: list[Segment] = []
     for k, s in enumerate(sc.segments):
+        if s.exercise in opens and first.get(s.exercise) == k:
+            text = prompts.get(opens[s.exercise])
+            out.append(Segment("narrate", "instructor", text, known_lang, 1.0, timing.speech_estimate(text, known_lang), opens[s.exercise], s.exercise))
+            out.append(Segment("pause", None, None, None, 1.0, timing.beat, "beat", s.exercise))
         if s.role in BUILT_IN:
             if roles.get(s.exercise) == s.role:
                 out.append(s)
@@ -95,3 +144,30 @@ def close_tasks(sc: Script, prompts: Prompts, timing: Timing, known_lang: str) -
     sc.segments = out
     said = [s.role for s in out]  # what is said, not what was wanted: a builder that writes no built-in line closes nothing
     return said.count("listening_back"), said.count("conversation_back")
+
+
+def unmarked_turns(sc: Script, prompts: Prompts) -> list[str]:
+    """The changes of task on a finished script whose line is missing or out of place, «label: what is wrong» (0 expected):
+    - a way back the table wants that is not the exercise's last spoken line («no way back»), or one said where it wants none («a way back
+      where …»);
+    - an aside that does not end with its end line («no end line»);
+    - a task that opens with its own line whose first spoken line is a target-language one («opens with …»)."""
+    spoken = _spoken(sc)
+    order = as_spoken(sc)  # the order ``close_tasks`` reads
+    wanted = ways_back(order)
+    backs = set(WAY_BACK.values())
+    out: list[str] = []
+    for k, e in enumerate(order):
+        lines = [sc.segments[j] for j in spoken.get(e.index, [])]
+        if e.index in wanted and (not lines or lines[-1].role != wanted[e.index]):
+            out.append(f"{e.label}: no way back before {order[k + 1].kind}")
+        if e.index not in wanted and any(s.role in backs for s in lines):
+            out.append(f"{e.label}: a way back where the next task opens with its own line, or none follows")
+        if not lines:
+            continue
+        ends = END_LINES.get(mode(e))
+        if ends and not any(lines[-1].text in _templates(prompts, key) for key in ends):
+            out.append(f"{e.label}: no end line")
+        if k and mode(e) in OPENS_WITH_ITS_OWN_LINE and not _instructor(lines[0]):
+            out.append(f"{e.label}: opens with «{lines[0].text}» straight after {order[k - 1].kind}")
+    return out

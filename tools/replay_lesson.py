@@ -46,6 +46,7 @@ from audiolesson.planner import PlanConfig, Planner, apply_to_learner, semantic_
 from audiolesson.themes import load_themes, scenario_order  # noqa: E402
 from audiolesson.prompts import Prompts  # noqa: E402
 from audiolesson.timing import Timing  # noqa: E402
+from audiolesson.transitions import unmarked_turns  # noqa: E402
 from audiolesson.text import WORD  # noqa: E402
 from audiolesson.trip import load_trip  # noqa: E402
 
@@ -251,6 +252,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "trivial questions (a cue that is its answer) in the lesson / in the review (#277)": f"{len(m.get('trivial_questions', []))} / {sum(1 for r in _plan(sc, cur)['review_refined'] if r['kind'] == 'trivial')}",
         "recombine prompts promising a link that is not there (#287)": ", ".join(m.get("unkept_links", [])) or "–",
         "framing lines whose claim does not hold (target 0)": "; ".join(m.get("unkept_claims", [])) or "–",
+        "turns between tasks with no line, or one out of place (target 0)": "; ".join(unmarked_turns(sc, prompts)) or "–",
         "new words given the slow, split model (#212)": ", ".join(m.get("hard_words", [])) or "–",
         "new phrases whose hard words are modelled / reported-hard items given the slow model (#337)": f"{', '.join(m.get('phrase_hard_words', {})) or '–'} / {', '.join(m.get('slow_models_reported', [])) or '–'}",
         "review questions changed to keep each expression once (#239)": ", ".join(f"{r['kind']}:{'+'.join(r['items'])}" for r in _plan(sc, cur)["review_refined"]) or "–",
