@@ -245,6 +245,26 @@ partner_cue_situation = "She wished you the same and said bye. Say bye."
 partner_cue_situation_ja = "あなたもと返され、さようならと言われました。さようならと言ってください。"
 
 [[items]]
+# lesson 42 (#265): «og» was asked alone, «How do you say: And.», because no expression the learner has holds it. The everyday sign-off holds it
+# in words the learner knows («takk», «bless»), so a due review of «og» is asked as this line, as a part is asked through its whole.
+id = "takk_og_bless"
+kind = "phrase"
+target = "Takk og bless!"
+meaning = "Thanks, bye!"
+meaning_ja = "ありがとう、じゃあね！"
+difficulty = 1
+topics = ["greetings"]
+prereqs = ["takk", "bless", "og"]
+situations = [
+  "You've booked a table on the phone, and you're hanging up. Thank them and say bye.",
+  "The kiosk cashier hands you your change. Thank him and say bye as you leave.",
+]
+situations_ja = [
+  "電話でテーブルを予約し終えて、電話を切ります。お礼を言って、さようならと言ってください。",
+  "売店で店員がおつりを渡してくれました。お礼を言って、さようならと言って店を出てください。",
+]
+
+[[items]]
 id = "sjaumst"
 kind = "phrase"
 target = "Sjáumst!"
