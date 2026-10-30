@@ -730,6 +730,11 @@ class Planner:
         owed = [(st.slow_owed, i) for i, st in self.learner.items.items() if st.slow_owed and st.slow_owed >= since and i in self.cur.by_id]
         return [i for _, i in sorted(owed) if self.builder.slow_model_possible(self.cur.by_id[i])]
 
+    def hear_owed_items(self) -> list[str]:
+        """Items the learner reported hard to hear (#444) in the last ``REPORTED_HARD_DAYS`` days and not yet given listening support, oldest report first."""
+        since = (self.today - timedelta(days=REPORTED_HARD_DAYS)).isoformat()
+        return [i for _, i in sorted((st.hear_owed, i) for i, st in self.learner.items.items() if st.hear_owed and st.hear_owed >= since and i in self.cur.by_id)]
+
     def reported_hard_items(self) -> list[str]:
         """The items the learner reported hard in the last ``REPORTED_HARD_DAYS`` days and has not recalled since (#326, #337)."""
         since = (self.today - timedelta(days=REPORTED_HARD_DAYS)).isoformat()
@@ -2395,6 +2400,8 @@ class Planner:
 
         hard_ids = set(self.hard_items())
         owed_slow = self.slow_owed_items()  # #337: reported hard to say and not yet given the model of the hard word
+        owed_hear = self.hear_owed_items()  # #444: reported hard to hear and not yet given listening support
+        hear_supports: list[str] = []  # reported-hard-to-hear items given listening support in this lesson
         slow_done: set[str] = set()
         slow_models: list[str] = []  # reported-hard items given the slow model of their hard word in this lesson
         hard_calls: Counter = Counter()  # #326: practices of a hard item so far this lesson
@@ -3592,7 +3599,7 @@ class Planner:
 
             # 0h. the slow, split model of a word the learner reported hard to say (#337): owed in the next lesson, whether or not the item is practised in it
             if (
-                not acted and not in_new_block() and len(slow_models) < cfg.slow_models_per_lesson
+                not acted and not in_new_block() and len(slow_models) + len(hear_supports) < cfg.slow_models_per_lesson
                 and sc.total_duration >= cfg.slow_model_from * (budget - closing_reserve) and remaining >= 60
             ):
                 for owed_id in owed_slow:
@@ -3602,6 +3609,15 @@ class Planner:
                             slow_models.append(owed_id)
                             acted = True
                             break
+                # #444: one reported hard to hear is listened to, in a sentence the learner has, in the same slot and under the same ration
+                for owed_id in ([] if acted else owed_hear):
+                    if owed_id not in hear_supports:
+                        item = self.cur.by_id[owed_id]
+                        whole = part_whole(item) if b.hearing_line(item) is None else None
+                        b.hear_support_exercise(sc, item, whole["answer"] if whole else None)
+                        hear_supports.append(owed_id)
+                        acted = True
+                        break
 
             # 0g. the lesson's theme exchange, when its time has come (#149 1b-ii)
             if not acted and theme_pick and not in_new_block() and drill_streak < cfg.drill_streak_limit and theme_due():
@@ -3963,6 +3979,7 @@ class Planner:
             "touching_switches": sc.touching_switches(),
             "units_covered": list(units_covered),  # #336: fillers of a linked phrase met inside it
             "slow_models_reported": list(slow_models),  # #337: reported-hard items given the slow model of their hard word
+            "hear_supports_reported": list(hear_supports),  # #444: reported-hard-to-hear items given listening support
             "phrase_hard_words": {i.id: [w for w, _ in hard_words_of(i)] for i in introduced if i.kind == "phrase" and hard_words_of(i)},  # #337: authored hard words of today's new phrases (modelled at the introduction)
             "hard_words": [i.id for i in introduced if hard_sounds(i)],  # #212: today's new words that got the slow, split model
             "stranded_frames": list(self.stranded_placed),  # #270: frames brought forward for a known noun whose only frame was unmet
@@ -4097,6 +4114,9 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
     for item_id in sc.meta.get("slow_models_reported", []):
         if item_id in learner.items:
             learner.items[item_id].slow_owed = ""  # #337: the model was played; a recall never clears it
+    for item_id in sc.meta.get("hear_supports_reported", []):
+        if item_id in learner.items:
+            learner.items[item_id].hear_owed = ""  # #444: the listening support was played
     for item_id in sc.meta.get("embedded_items", []):
         learner.embedded[item_id] = sc.lesson_number
     if sc.meta.get("forms_modelled") is not None:

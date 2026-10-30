@@ -21,6 +21,10 @@ slow_word_intro = "A word in this one is hard to say. First the sentence."
 slow_word_intro_word = "This word is hard to say."
 # a sentence the learner reported hard (#337, #423): tried again from its meaning, then the model, then slowly and at natural speed
 slow_hear_intro = "Let's try to say this sentence in {language} again: {meaning}"
+hear_support_sentence = "You found this one hard to catch. Listen."
+hear_support_word = "You found this word hard to catch. Listen."
+hear_support_find = "Now listen for it in a sentence, and say it when you have heard it."
+hear_support_again = "The whole sentence once more."
 note_pieces = "Now the pieces, slowly, one at a time."
 
 # issue #59: the meaning comes first, so completing «Ég skil…» is a retrieval of "I don't

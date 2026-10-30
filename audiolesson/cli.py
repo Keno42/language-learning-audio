@@ -89,6 +89,7 @@ def main(argv: list[str] | None = None) -> int:
     rp.add_argument("--gaps", default="", help="comma-separated ITEM=DAYS: days since each item was last confirmed or practised when the answer was asked (#220); counts the outcome by gap and lets a long-gap recall raise the ease")
     rp.add_argument("--sooner", default="", help="comma-separated item ids the learner does not remember: they come back sooner (due within half their interval), without an outcome being recorded")
     rp.add_argument("--hard", default="", help="comma-separated item ids the learner reports hard to retain (#326): no outcome recorded, it comes back sooner like a «sooner»; the next lessons practise them through their connections")
+    rp.add_argument("--sooner-reasons", default=None, help="comma-separated reasons the learner gave for the --sooner items (say, hear, scene, remember; #444): hear owes listening support, say the slow model; without it every --sooner item is owed the slow model, as before")
     rp.add_argument("--load", choices=LOADS, default=None, help="how heavy the lesson was: light, right or heavy (does not mark the lesson reported on its own)")
     rp.add_argument("--date", default=None)
     rp.set_defaults(func=cmd_report)
@@ -453,6 +454,8 @@ def _plan(script: Script, cur) -> dict:
         "second_half": {k: meta.get(k, 0) for k in ("pick_out_count", "catch_unknown_count", "pick_out_echo_count", "longest_kind_run_after_target", "longest_without_scene_s", "asked_again_within_spacing")},  # #248: the listening rotation
         "listening_tried": meta.get("listening_tried", []),  # #183: turns tried on a part (bonus questions)
         "exposures": meta.get("exposures", {}),
+        "slow_models_reported": list(meta.get("slow_models_reported", [])),  # #337: reported items given the slow model (apply_to_learner clears their debt)
+        "hear_supports_reported": list(meta.get("hear_supports_reported", [])),  # #444: reported-hard-to-hear items given listening support
         "open_items": list(meta.get("open_items", [])),  # #199: the bot brings their questions forward and asks the waiting ones
         "open_not_fitted": list(meta.get("open_not_fitted", [])),
         "review": review,
@@ -508,7 +511,7 @@ def cmd_report(args) -> int:
     today = parse_date(args.date)
     changed = learner.report(
         _split(args.failed), _split(args.easy), today, args.lesson, hesitated=_split(args.hesitated), recalled=_split(args.recalled), sooner=_split(args.sooner),
-        load=args.load, gaps=_gaps(args.gaps), hard=_split(args.hard),
+        load=args.load, gaps=_gaps(args.gaps), hard=_split(args.hard), sooner_reasons=None if args.sooner_reasons is None else _split(args.sooner_reasons),
     )
     learner.save(args.learner)
     if changed["failed"]:

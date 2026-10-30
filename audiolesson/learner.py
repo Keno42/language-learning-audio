@@ -34,6 +34,7 @@ NEW_TARGET_START = 8.0  # weighted new components a lesson starts at (#218 b3)
 NEW_TARGET_MIN, NEW_TARGET_MAX = 4.0, 12.0
 NEW_TARGET_MINUTES = 30.0  # new_target is a rate per this many minutes; a lesson of m minutes plans m/30 of it (#242)
 PACE_WINDOW = 3  # reported lessons the recall rate is taken over (#218)
+SOONER_REASONS = ("say", "hear", "scene", "remember")  # #444: the feedback form's reasons for «sooner» (site_update_notifier ``REASONS``)
 LOADS = ("light", "right", "heavy")  # the learner's rating of a lesson's load (#218)
 
 
@@ -61,6 +62,7 @@ class ItemState:
     open_practiced: int = 0
     reported_hard: str = ""  # #326: the day the learner reported it hard (``sooner``, ``hard``); no outcome and no schedule change; cleared by a confirmed recall
     slow_owed: str = ""  # #337: the day the learner reported the item hard (sooner, hard) and was owed the slow model of its hard word; cleared when the model is played, never by a recall
+    hear_owed: str = ""  # #444: the day the learner reported the item hard to hear (a «sooner» with the reason ``hear``); owed listening support, not the slow model; cleared when it is played
     gap_streak: int = 0  # #220: confirmed recalls at a real gap in a row; a failure or hesitation resets it; two raise the ease
     history: list[dict] = field(default_factory=list)  # [{lesson, stages, ok}] compact log
 
@@ -432,6 +434,7 @@ class LearnerState:
         load: str | None = None,
         gaps: dict[str, int] | None = None,
         hard: list[str] | None = None,
+        sooner_reasons: list[str] | None = None,
     ) -> dict:
         """Learner feedback after listening. Returns a summary of what changed.
 
@@ -458,9 +461,14 @@ class LearnerState:
         ``hard`` (#326) names items the learner reports hard without an outcome (the «sooner» of the feedback form also sets the flag): ``reported_hard`` is the
         day, kept ``REPORTED_HARD_DAYS`` days or until a recall is confirmed; the item comes back sooner, as with ``sooner``; no outcome is recorded.
 
+        ``sooner_reasons`` (#444) are the feedback form's reasons for its «sooner» items (``SOONER_REASONS``). Without them a «sooner» item is owed the slow model
+        of #337, as before; with them it is owed the slow model only for ``say`` (hard to say), and listening support (``hear_owed``) for ``hear`` (hard to hear).
+
         ``load`` (#218) is the learner's rating of the lesson (light / right / heavy), stored as ``lessons[k]["load"]`` for
         the matching number; like ``sooner`` alone, a call with only a load does not mark the lesson reported.
         """
+        if sooner_reasons is not None and (unknown := set(sooner_reasons) - set(SOONER_REASONS)):
+            raise ValueError(f"sooner reasons must be among {', '.join(SOONER_REASONS)}, not {', '.join(sorted(unknown))}")
         only_sooner = bool(sooner or load or hard) and not (failed or easy or hesitated or recalled)
         if lesson_number is None:
             lesson_number = self.lessons_completed
@@ -620,7 +628,10 @@ class LearnerState:
             earlier = (today + timedelta(days=max(1, round(st.interval_days / 2)))).isoformat()
             st.due = min(st.due, earlier) if st.due else earlier
             st.reported_hard = today.isoformat()  # «I don't remember it»: also a report that it is hard (#326)
-            st.slow_owed = today.isoformat()
+            if sooner_reasons is None or "say" in sooner_reasons:
+                st.slow_owed = today.isoformat()  # #337; without reasons (an older bot, the CLI alone) every «sooner» item, as before
+            if sooner_reasons is not None and "hear" in sooner_reasons:
+                st.hear_owed = today.isoformat()  # #444: hard to hear is answered by listening, not by a pronunciation model
             changed["sooner"].append(item_id)
         for item_id in dict.fromkeys(hard or []):
             st = self.items.get(item_id)
