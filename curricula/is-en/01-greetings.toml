@@ -123,7 +123,7 @@ situations_ja = [
   "知らない番号からの電話に出ます。「もしもし」と言ってください。",
   "友達の部屋に入りましたが、誰もいないようです。「こんにちは」と呼びかけてください。",
 ]
-pronunciation_notes = "'Halló' is a Danish loanword (in use since the 1600s) and is pronounced with a plain 'l', close to the familiar 'hello' — not the pre-aspirated click that native double-'l' words get (e.g. 'fjall', mountain; 'jökull', glacier), which this course pronounces properly wherever it genuinely occurs."
+pronunciation_notes = "'Halló' is a Danish loanword (in use since the 1600s) and is pronounced with a plain 'l', close to the familiar 'hello' — not the pre-stopped 'tl' sound that native double-'l' words get (e.g. 'fjall', mountain; 'jökull', glacier), which this course pronounces properly wherever it genuinely occurs."
 
 [[items]]
 id = "allt_gott"

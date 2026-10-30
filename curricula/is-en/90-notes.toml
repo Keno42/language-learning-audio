@@ -58,8 +58,8 @@ text_ja = "«Afsakið» は人の注意を引いたり、「すみません」�
 id = "tvo_l"
 items = ["fjall", "eldfjall", "jokull"]
 topics = ["clarifying", "nature"]
-text = "That 't'-like click you'll start noticing before some 'l' sounds is not a synthesis error: double 'll' in Icelandic is pre-aspirated, so a short voiceless sound lands just before the 'l'. It happens throughout the language wherever you see 'll' or 'nn' — «fjall» (mountain), «gull» (gold), «allt» (everything) — so the more it surprises you, the more Icelandic you are learning to hear."
-text_ja = "これから「l」の前に聞こえてくる「t」のような音は、合成音声の不具合ではありません。アイスランド語の二重子音「ll」には前気音化という現象があり、「l」の直前に軽い無声の音が入るのが標準的な発音です。«fjall»（山）や«gull»（金）、«allt»（すべて）でも同じことが起こります。「ll」や「nn」が出てくるたびに聞こえてくるので、驚くほど、それはアイスランド語の耳が育っている証です。"
+text = "That 't'-like click you'll start noticing before some 'l' sounds is not a synthesis error. In most Icelandic words, double 'll' is said with a short stop and then a breathy 'l', almost like 't' and 'l' together, as in «fjall» (mountain). Before a 't' there is no stop, only the breathy 'l', as in «allt» (everything). Double 'nn' takes the same stop only after a long vowel or a vowel pair, as in «seinn» (late). After a short vowel it stays a plain long 'n', as in «inn» (in). The breath before the 'kk' of «takk» is a different thing, called pre-aspiration."
+text_ja = "これから「l」の前に聞こえてくる「t」のような音は、合成音声の不具合ではありません。アイスランド語の多くの単語では、二重の「ll」を、短く息を止めてから息の抜ける「l」で発音するので、«fjall»（山）のように「t」と「l」が続いたように聞こえます。「t」の前では息を止めず、«allt»（すべて）のように息の抜ける「l」だけになります。「nn」に同じ音が入るのは長い母音や二重母音の後だけで、«seinn»（遅れた）がその例です。短い母音の後では、«inn»（中へ）のように普通の長い「n」です。«takk»の「kk」の前に入る息は別の現象で、前気音化と呼ばれます。"
 
 [[notes]]
 id = "pylsa"
