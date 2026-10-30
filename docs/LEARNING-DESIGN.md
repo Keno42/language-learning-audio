@@ -855,11 +855,14 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
     already fixed coming back (length, a short item alone at most three times, open items
     practised). Slow signals (recall rates, phrase length, readiness) gate only the decisions
     that depend on them, not development.
-  - **The end of the fix-up phase (owner, 2026-10-23; #406).** The phase ends after three feedback lessons in a row with no remark of a new cause
-    family, no twenty-point remark and load «right»: the settled run of `tools/ledger.py` reads 3
-    (`docs/feedback/ledger.toml`, §8). A lesson with no feedback breaks the run. After it:
+  - **The end of the fix-up phase (owner, 2026-10-23; #406; the rule restated after lesson 41).** The phase ends after three settled
+    feedback lessons in a row: the settled run of `tools/ledger.py` reads 3 (`docs/feedback/ledger.toml`, §8). A settled lesson has a
+    form, load not «heavy», and no twenty-point remark of a recurring family: it counts whether the structural fixes hold. A new family
+    of any class does not break the run (new material brings new kinds of remark; lessons 35–41 each brought one), and neither does
+    «light» (the pace answers it, H9). A lesson with no feedback breaks the run. After it:
     - at most two behaviour PRs between one lesson and the next; a data PR (a scene, its lines or verdicts, a native
-      correction) is not counted;
+      correction) is not counted. The ledger's `built` lists the behaviour PRs each lesson is the first built with (from
+      lesson 35), and `tools/ledger.py` flags more than two, as an advisory;
     - the week's precision remarks are answered in one PR, after the weekly round (§1);
     - one #281 step per weekly round;
     - the lever rule above applies again.

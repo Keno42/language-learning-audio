@@ -1,11 +1,12 @@
 # The feedback ledger: each lesson's remarks by cause, and the built changes waiting for three feedbacks without a remark
 # of the same kind (LEARNING-DESIGN §8). `python tools/ledger.py` computes each change's status, the families new and
-# recurring in each lesson and the settled run; `--table` prints the §8 table with its third column computed.
+# recurring in each lesson, the settled run and the behaviour PRs each lesson is the first built with (§9
+# "Governance"); `--table` prints the §8 table with its third column computed.
 #
-# After a round of feedback: add the lesson (its form, load and remarks, each sorted as §1 says), a row for each change
-# built since the last round, and `first_heard` on the rows this lesson was the first to play. A family is a cause, not a
-# symptom: a remark whose cause is listed takes its family, and only a new cause gets a new one (§1, §11 "Local fixes for a
-# global problem").
+# After a round of feedback: add the lesson (its form, load, built and remarks, each remark sorted as §1 says), a row for
+# each change built since the last round, and `first_heard` on the rows this lesson was the first to play. A family is a
+# cause, not a symptom: a remark whose cause is listed takes its family, and only a new cause gets a new one (§1, §11
+# "Local fixes for a global problem").
 #
 # Seeded from LEARNING-DESIGN §5.22–§5.24 and docs/history/evidence.md §5.20–§5.21 (lessons 24–26, 33, 34) and the §8
 # table after lesson 34. Lessons 27–32 have no §5 subsection: their form is "unknown", and their remarks are the ones the
@@ -13,8 +14,11 @@
 # lesson 24 counts as new at its first remark here. A lesson holds the remarks of its round, another learner's included.
 #
 # lesson: n; form = true (a feedback form), false (none) or "unknown" (no record); load ("light", "right", "heavy") when
-#   form = true; remarks: who ("main": the learner, the owner; "other": another learner in the channel), text, family,
-#   class ("twenty", "precision", "mechanism": §1, §9 "Good enough overall"), answered_by (the PRs that answered it).
+#   form = true; built (from lesson 35): this repository's behaviour PRs the lesson is the first built with, from git (main
+#   between the previous lesson's revision and its own, both named in §5), not counting a data PR (a scene, its lines or
+#   verdicts, a native correction) or one that leaves the lessons as they were (a tool, a report, a #281 step); remarks:
+#   who ("main": the learner, the owner; "other": another learner in the channel), text, family, class ("twenty",
+#   "precision", "mechanism": §1, §9 "Good enough overall"), answered_by (the PRs that answered it).
 # change: title (the §8 row), issue and pr (lists), family, first_heard (a lesson; absent while not heard), heard (what
 #   the row says about where it was heard).
 
@@ -328,6 +332,7 @@ answered_by = ["#390"]
 n = 35
 form = true
 load = "light"
+built = ["#385", "#386", "#387", "#388", "#392", "#393", "#394", "#397", "#405"]
 
 [[lesson.remarks]]
 who = "main"
@@ -354,6 +359,7 @@ answered_by = ["#407"]
 n = 36
 form = true
 load = "light"
+built = ["#407"]
 
 [[lesson.remarks]]
 who = "main"
@@ -380,6 +386,7 @@ answered_by = []
 n = 37
 form = true
 load = "light"
+built = ["#411", "#414"]
 
 [[lesson.remarks]]
 who = "main"
@@ -406,6 +413,7 @@ answered_by = ["#417"]
 n = 38
 form = true
 load = "light"
+built = ["#417"]
 
 [[lesson.remarks]]
 who = "main"
@@ -432,6 +440,7 @@ answered_by = []
 n = 39
 form = true
 load = "light"
+built = ["#422"]
 
 [[lesson.remarks]]
 who = "main"
@@ -451,6 +460,7 @@ answered_by = ["site_update_notifier#176"]
 n = 40
 form = true
 load = "right"
+built = ["#424", "#425"]
 
 [[lesson.remarks]]
 who = "main"
@@ -519,6 +529,7 @@ answered_by = []
 n = 41
 form = true
 load = "light"
+built = ["#430", "#431", "#433", "#435", "#436", "#437"]
 
 [[lesson.remarks]]
 who = "main"

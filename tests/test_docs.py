@@ -129,6 +129,7 @@ class LedgerTests(unittest.TestCase):
             self.assertEqual("load" in lesson, lesson["form"] is True, f"lesson {lesson['n']}: a load comes with a form")
             if lesson["form"] is True:
                 self.assertIn(lesson["load"], ("light", "right", "heavy"))
+            self.assertTrue(all(ref.match(b) for b in lesson.get("built", [])), f"lesson {lesson['n']}: {lesson.get('built')}")
             for remark in lesson.get("remarks", []):
                 self.assertIn(remark["who"], ("main", "other"))
                 self.assertIn(remark["class"], ("twenty", "precision", "mechanism"))
@@ -147,11 +148,12 @@ class LedgerTests(unittest.TestCase):
 
 class LedgerToolTests(unittest.TestCase):
     """`tools/ledger.py`'s rule on a ledger of five lessons: three clean feedbacks make a change done, a remark of its
-    family in its first lesson or later makes it recurred, a lesson with no record never counts as clean, and a family is
-    not new once a change of it has been heard."""
+    family in its first lesson or later makes it recurred, a lesson with no record never counts as clean, a family is
+    not new once a change of it has been heard, and the settled run (§9 "Governance") ends only at a lesson with no form,
+    a «heavy» load or a twenty-point remark of a recurring family."""
 
     LEDGER = {
-        "families": {"a": {"cause": "x"}, "b": {"cause": "y"}},
+        "families": {"a": {"cause": "x"}, "b": {"cause": "y"}, "c": {"cause": "z"}},
         "lesson": [
             {"n": 1, "form": True, "load": "right"},
             {"n": 2, "form": "unknown"},
@@ -183,16 +185,51 @@ class LedgerToolTests(unittest.TestCase):
         st = ledger_tool().change_status({"family": "b", "first_heard": 2}, self.LEDGER["lesson"])
         self.assertEqual((st.clean, st.unknown), ([3], [2]))
 
-    def test_the_settled_run_ends_at_a_new_family_or_a_twenty_point_remark(self):
+    def settled_run(self, *more, changes=()):
+        """The settled run of the five lessons and ``more`` after them."""
         tool = ledger_tool()
-        self.assertEqual(tool.settled_run(tool.read_lessons(self.LEDGER["lesson"])), 1, "lesson 4 brings family b")
-        twenty = [*self.LEDGER["lesson"], {"n": 6, "form": True, "load": "right", "remarks": [{"family": "a", "class": "twenty"}]}]
-        self.assertEqual(tool.settled_run(tool.read_lessons(twenty)), 0)
-        heavy = [*self.LEDGER["lesson"], {"n": 6, "form": True, "load": "heavy"}]
-        self.assertEqual(tool.settled_run(tool.read_lessons(heavy)), 0)
+        return tool.settled_run(tool.read_lessons([*self.LEDGER["lesson"], *more], changes))
+
+    def test_a_new_family_does_not_break_the_settled_run(self):
+        """Lessons 3 and 4 each bring a new precision family; lesson 2, with no record, ends the run."""
+        self.assertEqual(self.settled_run(), 3)
         played = [{"family": "b", "first_heard": 4}]
-        self.assertEqual(tool.read_lessons(self.LEDGER["lesson"], played)[3].new, [], "a change of b was heard by lesson 4")
-        self.assertEqual(tool.settled_run(tool.read_lessons(self.LEDGER["lesson"], played)), 2, "lesson 3 brings family a")
+        self.assertEqual(ledger_tool().read_lessons(self.LEDGER["lesson"], played)[3].new, [], "a change of b was heard by lesson 4")
+        mechanism = {"n": 6, "form": True, "load": "right", "remarks": [{"family": "c", "class": "mechanism"}]}
+        self.assertEqual(self.settled_run(mechanism), 4, "a request of a new family")
+
+    def test_a_twenty_point_remark_breaks_the_run_only_from_a_recurring_family(self):
+        recurring = {"n": 6, "form": True, "load": "right", "remarks": [{"family": "a", "class": "twenty"}]}
+        self.assertEqual(self.settled_run(recurring), 0, "family a was remarked in lesson 3")
+        self.assertEqual(ledger_tool().read_lessons([*self.LEDGER["lesson"], recurring])[-1].why_not_settled(), ["twenty-point of a"])
+        new = {"n": 6, "form": True, "load": "right", "remarks": [{"family": "c", "class": "twenty"}]}
+        self.assertEqual(self.settled_run(new), 4, "family c is remarked for the first time")
+        self.assertEqual(self.settled_run(new, changes=[{"family": "c", "first_heard": 5}]), 0, "a change of c was heard: its fix did not hold")
+        precision = {"n": 6, "form": True, "load": "right", "remarks": [{"family": "a", "class": "precision"}]}
+        self.assertEqual(self.settled_run(precision), 4, "a recurring family's precision remark")
+
+    def test_light_does_not_break_the_run_and_heavy_does(self):
+        self.assertEqual(self.settled_run({"n": 6, "form": True, "load": "light"}), 4)
+        self.assertEqual(self.settled_run({"n": 6, "form": True, "load": "heavy"}), 0)
+
+    def test_a_lesson_with_no_form_breaks_the_run(self):
+        self.assertEqual(self.settled_run({"n": 6, "form": False}), 0)
+        self.assertEqual(self.settled_run({"n": 6, "form": "unknown"}), 0)
+        self.assertEqual(self.settled_run({"n": 6, "form": False}, {"n": 7, "form": True, "load": "right"}), 1)
+
+    def test_more_than_two_behaviour_prs_in_a_lesson_is_flagged(self):
+        """An advisory: a lesson first built with three behaviour PRs is named, one with two is not, and one the ledger
+        holds no `built` for is never named."""
+        tool = ledger_tool()
+        ls = [{"n": 6, "form": True, "load": "right", "built": ["#1", "#2"]},
+              {"n": 7, "form": True, "load": "right", "built": ["#3", "#4", "#5"]},
+              {"n": 8, "form": True, "load": "right", "built": []}]
+        reads = tool.read_lessons([*self.LEDGER["lesson"], *ls])
+        self.assertEqual(tool.too_many_built(reads), [7])
+        self.assertEqual(self.settled_run(*ls), 6, "the advisory does not touch the settled run")
+        text = tool.report({**self.LEDGER, "lesson": [*self.LEDGER["lesson"], *ls], "change": []})
+        self.assertIn("  7     3   #3, #4, #5  [more than 2]", text)
+        self.assertIn("  8     0   -", text)
 
     def test_the_table_has_the_section_8_columns_and_a_row_per_change(self):
         tool = ledger_tool()

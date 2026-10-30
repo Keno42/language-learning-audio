@@ -11,8 +11,10 @@ family and the lesson it was first heard in, and computes:
   replay (``tools/replay_lesson.py``);
 - per lesson: the remarks, and which families are new or recurring. A family is known once a lesson remarks it or
   plays a change of it (``first_heard``): a cause something was built for is not a new one when it is first remarked;
-- the **settled run**: consecutive feedback lessons, up to the latest, with a form, load «right», no twenty-point remark
-  and no new family (§1's three kinds of remark).
+- the **settled run** (§9 "Governance"): settled lessons in a row, up to the latest. A settled lesson has a form, load
+  not «heavy», and no twenty-point remark of a recurring family: the structural fixes hold. A new family of any class
+  does not break the run (new material brings new kinds of remark), and neither does «light» (the pace answers it, H9);
+- per lesson, as an advisory: the behaviour PRs it is the first built with (``built``), flagged past two (§9 "Governance").
 
     python tools/ledger.py [--ledger docs/feedback/ledger.toml] [--table]
 
@@ -29,6 +31,7 @@ from pathlib import Path
 
 LEDGER = Path(__file__).resolve().parent.parent / "docs" / "feedback" / "ledger.toml"
 CLEAN_FEEDBACKS = 3  # LD §8: three feedbacks without a remark of the same kind
+MAX_BUILT = 2  # LD §9 "Governance": at most two behaviour PRs between one lesson and the next
 
 
 def load(path: Path = LEDGER) -> dict:
@@ -90,21 +93,22 @@ class LessonRead:
     twenty: int
     new: list[str]
     recurring: list[str]
+    twenty_recurring: list[str] = field(default_factory=list)  # the families of its twenty-point remarks that were known
+    built: list[str] | None = None  # the behaviour PRs it is the first built with; None where the ledger does not say
 
     @property
     def settled(self) -> bool:
-        return self.form is True and self.load == "right" and not self.twenty and not self.new
+        """A form, load not «heavy», no twenty-point remark of a recurring family; new families and «light» allowed."""
+        return self.form is True and self.load != "heavy" and not self.twenty_recurring
 
     def why_not_settled(self) -> list[str]:
         why = []
         if self.form is not True:
             why.append("no form" if self.form is False else "no record")
-        elif self.load != "right":
-            why.append(f"load {self.load}")
-        if self.twenty:
-            why.append(f"{self.twenty} twenty-point")
-        if self.new:
-            why.append("new family")
+        elif self.load == "heavy":
+            why.append("load heavy")
+        if self.twenty_recurring:
+            why.append(f"twenty-point of {', '.join(self.twenty_recurring)}")
         return why
 
 
@@ -114,9 +118,10 @@ def read_lessons(ls: list[dict], changes: list[dict] = ()) -> list[LessonRead]:
     for lesson in ls:
         seen.update(c["family"] for c in changes if c.get("first_heard", lesson["n"] + 1) <= lesson["n"])
         families = list(dict.fromkeys(r["family"] for r in remarks(lesson)))
-        out.append(LessonRead(lesson["n"], lesson["form"], lesson.get("load"), len(remarks(lesson)),
-                              sum(r["class"] == "twenty" for r in remarks(lesson)),
-                              [f for f in families if f not in seen], [f for f in families if f in seen]))
+        twenty = [r["family"] for r in remarks(lesson) if r["class"] == "twenty"]
+        out.append(LessonRead(lesson["n"], lesson["form"], lesson.get("load"), len(remarks(lesson)), len(twenty),
+                              [f for f in families if f not in seen], [f for f in families if f in seen],
+                              list(dict.fromkeys(f for f in twenty if f in seen)), lesson.get("built")))
         seen.update(families)
     return out
 
@@ -129,6 +134,11 @@ def settled_run(reads: list[LessonRead]) -> int:
             break
         run += 1
     return run
+
+
+def too_many_built(reads: list[LessonRead]) -> list[int]:
+    """The lessons that are the first built with more than ``MAX_BUILT`` behaviour PRs (advisory: nothing fails on it)."""
+    return [r.n for r in reads if r.built is not None and len(r.built) > MAX_BUILT]
 
 
 def spans(ns: list[int]) -> str:
@@ -184,6 +194,14 @@ def report(ledger: dict) -> str:
     run = settled_run(reads)
     out.append("")
     out.append(f"settled run: {run} lesson{'s' if run != 1 else ''} up to lesson {reads[-1].n}" if reads else "settled run: no lessons")
+    recorded = [r for r in reads if r.built is not None]
+    if recorded:
+        over = set(too_many_built(reads))
+        out.append(f"behaviour PRs a lesson is the first built with, at most {MAX_BUILT} "
+                   f"(advisory; lessons {spans([r.n for r in recorded])}):")
+        for r in recorded:
+            flag = f"  [more than {MAX_BUILT}]" if r.n in over else ""
+            out.append(f"  {r.n:<5} {len(r.built):<3} {', '.join(r.built) or '-'}{flag}")
     statuses = [(change, change_status(change, ls)) for change in ledger.get("change", [])]
     counts = {s: sum(st.status == s for _, st in statuses) for s in ("done", "waiting", "recurred", "not heard")}
     out.append("changes: " + ", ".join(f"{v} {k}" for k, v in counts.items()))
