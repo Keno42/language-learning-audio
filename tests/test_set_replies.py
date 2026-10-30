@@ -148,18 +148,25 @@ class SetReplyTests(unittest.TestCase):
         self.assertNotIn("voiced", [how for _, how, _ in lines])
 
     def test_the_opening_says_what_is_asked_and_what_is_played(self):
+        """The first play that voices a reply says so; later ones don't repeat it (#438, lesson 41: three times, about 19 s): a scene heard again
+        says «The conversation again.», an authored dialogue its usual opening."""
         sc = self.planner().build()
-        played = [e for e in sc.exercises if "theme:" in e.label and e.kind == "dialogue"]
+        played = [e for e in sc.exercises if e.kind == "dialogue"]
         voicing = [e for e in played if any(how == "voiced" for _, how, _ in self.lines(sc, e))]
-        self.assertTrue(voicing, "an all-known learner hears set replies played again")
+        self.assertGreater(len(voicing), 1, "an all-known learner hears set replies played again, more than once")
+        guided = []
         for e in played:
             narrated = {s.text for s in sc.segments if s.exercise == e.index and s.type == "narrate"}
+            if narrated & GUIDES:
+                guided.append(e)
             if e in voicing:
-                self.assertEqual(len(narrated & GUIDES), 1, e.label)
                 self.assertNotIn(PROMPTS.get("listening_intro_known"), narrated, "«say them when it's your turn» is not said when some are played")
                 self.assertTrue(any(how == "asked" for _, how, _ in self.lines(sc, e)), "a play that voices replies still asks")
-            else:
-                self.assertFalse(narrated & GUIDES, e.label)
+        self.assertEqual(guided, voicing[:1], "the guide once a lesson, at the first play that voices a reply")
+        later = [e for e in voicing[1:] if e.label.startswith("heard: ")]
+        for e in later:
+            narrated = [s.text for s in sc.segments if s.exercise == e.index and s.type == "narrate"]
+            self.assertIn(PROMPTS.get("listening_intro_again"), narrated, e.label)
 
     def test_without_the_exception_every_reply_is_asked(self):
         sc = self.planner(set_reply_words=0).build()

@@ -93,6 +93,12 @@ cause = "Asking for help and asking for practice are one answer («sooner»): no
 [families.personal-details]
 cause = "Lines about oneself use the course's fixed name and age, not the learner's own: a self-introduction practised is not the one the learner will say (#428)."
 
+[families.easy-substitution]
+cause = "New items that combine into a few sentences each run their own ladder: one sentence practises two of them, and the few sentences come back many times (G11, #439)."
+
+[families.guide-repeat]
+cause = "An instruction is said in full every time its case comes, not once a lesson: nothing remembers that the lesson has said it (#438)."
+
 [families.instruction-language]
 cause = "Every instruction is in the known language: the Icelandic the learner will hear as instructions is never practised (#429)."
 
@@ -509,7 +515,26 @@ family = "instruction-language"
 class = "mechanism"
 answered_by = []
 
-# Built changes: the rows of the §8 table after lesson 40, in its order
+[[lesson]]
+n = 41
+form = true
+load = "light"
+
+[[lesson.remarks]]
+who = "main"
+text = "The four combinations of kem/fer and í kvöld/á morgun are mere substitutions: as learning, the four together feel very light."
+family = "easy-substitution"
+class = "twenty"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "The guide that simple replies are played, not asked, is repeated too often."
+family = "guide-repeat"
+class = "precision"
+answered_by = ["#440"]
+
+# Built changes: the rows of the §8 table after lesson 41, in its order
 
 [[change]]
 title = "a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351)"
@@ -836,6 +861,8 @@ title = "an authored dialogue played before voices the known set replies too, it
 issue = ["#416"]
 pr = ["#430"]
 family = "known-repeat"
+first_heard = 41
+heard = "«straeto», an authored dialogue, with its short replies voiced"
 
 [[change]]
 title = "a fixed dialogue played whole four times, its required items learned, is not played whole again unless it holds new material or an item needing repair (#416: #431)"
@@ -848,9 +875,41 @@ title = "scenes for lessons 41–50: arranging to meet, the town's fourth and fi
 issue = ["#327"]
 pr = ["#432"]
 family = "scene-first"
+first_heard = 41
+heard = "arranging to meet, the day's exchange in lesson 41"
 
 [[change]]
 title = "lesson 40's contexts: the married cue, no «Velkomin!» to a man's voice, small talk's fourth level opens with a birthday, every listening task names its scene (#427: #433)"
 issue = ["#427"]
 pr = ["#433"]
 family = "scene-plausibility"
+first_heard = 41
+heard = "nine pick-outs and catches, each opening with its scene line"
+
+[[change]]
+title = "the closing reviews today's new material as one block, no listening task inside it (#421: #435), and the listening it held comes in the last stretch before it (#437)"
+issue = ["#421"]
+pr = ["#435", "#437"]
+family = "pick-out-turns"
+first_heard = 41
+heard = "a closing of nine recalls, nothing else; no listening task in the stretch before it (17 recalls of known material)"
+
+[[change]]
+title = "a pick-out whose answer was said aloud in the last five minutes is not taken (#339: #436)"
+issue = ["#339"]
+pr = ["#436"]
+family = "listening-just-heard"
+first_heard = 41
+heard = "nine pick-outs, none on an answer heard in the five minutes before"
+
+[[change]]
+title = "help on an expression apart from the review's outcomes, and a new expression heard and asked about from the new-expression list (site_update_notifier#179: #180, #183)"
+issue = ["site_update_notifier#179"]
+pr = ["site_update_notifier#180", "site_update_notifier#183"]
+family = "support-request"
+
+[[change]]
+title = "the voiced-reply guide said once a lesson; later plays keep only their scene (#438: #440)"
+issue = ["#438"]
+pr = ["#440"]
+family = "guide-repeat"

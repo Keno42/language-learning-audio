@@ -102,6 +102,8 @@ listening_intro_some_asked = "聞くための会話です。新しい表現が�
 listening_intro_known = "もう一度、同じ会話です。あなたの番の表現は知っているものです。番が来たら言ってください。"
 # the same, with the learner's short set replies played in the model voice (#416)
 listening_intro_known_voiced = "もう一度、同じ会話です。言うことの指示が出たら、答えてください。「はい」「いいえ」「ありがとう」などの短い返事は、音声で流れます。"
+# #438: a scene heard again once the lesson has said that short replies are played
+listening_intro_again = "もう一度、同じ会話です。"
 dialogue_voiced_note = "言うことの指示が出たら、答えてください。「はい」「いいえ」「ありがとう」などの短い返事は、音声で流れます。"
 listening_line = "ここでは、こう言います。"
 dialogue_start = "ここからは短い会話です。"

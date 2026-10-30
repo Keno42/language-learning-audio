@@ -175,6 +175,7 @@ class Builder:
     _recent_situations: list = field(default_factory=list)  # the situations narrated, newest last (``situation_rank``)
     _examples_said: list = field(default_factory=list)  # a transform's pairs shown or asked this lesson («item:source»), oldest first (``_pick_example``)
     _last_instruction: str | None = None  # the transform instruction asked last: «Same change:» refers back to it only (``_transform_prompt``)
+    voiced_guide_said: bool = False  # #438: the lesson has said once that short replies are played; later plays don't repeat it
     _mixed_review_said: bool = False  # «Quick review» is announced once a lesson
     _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
     boosted: set[str] = field(default_factory=set)  # items whose answer pauses got the after-failure time
@@ -1940,14 +1941,18 @@ class Builder:
                 new_heard = [k for k in range(len(turns)) if k in heard_turns and k not in voiced_turns]  # a voiced set reply is known, not new (#416)
                 key = "listening_intro" if not asked else "listening_intro_known" if not new_heard else "listening_intro_some_asked"
                 if voiced_turns and key == "listening_intro_known":
-                    key = "listening_intro_known_voiced"  # #416 review: what is asked and what is played, said before it starts
+                    # #416 review: what is asked and what is played, said before it starts; once a lesson (#438, lesson 41: three times,
+                    # about 19 s), then only «The conversation again.»
+                    key = "listening_intro_again" if self.voiced_guide_said else "listening_intro_known_voiced"
+                    self.voiced_guide_said = True
             else:
                 key = "listening_intro_some_asked" if any(not t.expect or t.expect not in listening for t in turns) else "listening_intro"
             self._narr(sc, ex, self.prompts.get(key))
         if not heard_play:
             self._narr(sc, ex, self.prompts.get("dialogue_start"))  # a scene heard again has the one intro, whichever it is (#272)
-        if note_voiced and not (heard_play and key == "listening_intro_known_voiced"):
+        if note_voiced and not (heard_play and key in ("listening_intro_known_voiced", "listening_intro_again")) and not self.voiced_guide_said:
             self._narr(sc, ex, self.prompts.get("dialogue_voiced_note"))  # #416 review: the learner answers when told what to say; the short replies are played
+            self.voiced_guide_said = True  # #438: said once a lesson
         self._narr(sc, ex, dlg.setting)
         self._beat(sc, ex)
         lines: list[tuple[str, str, bool]] = []  # (voice, text, said word by word)
