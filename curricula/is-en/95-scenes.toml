@@ -378,3 +378,21 @@ haett = "Your friend wants to walk on the glacier without a guide."
 
 [scenes.eg_borda_ekki]  # «Ég borða ekki {food}.» I don't eat {food}.
 mjolk = false  # milk is drunk, not eaten: «Ég drekk ekki mjólk.» (review of the coming lessons' sheet, 2026-10-22)
+
+[scenes.sjaumst_time]  # #445 (lesson 42: «Sjáumst núna!» had no setting)
+a_morgun = "You're saying goodbye to a friend you'll meet again tomorrow."
+i_kvold = "You've just arranged dinner tonight with a friend, and you're hanging up."
+i_dag = "On the phone this morning, you've agreed to meet your friend after lunch."
+i_fyrramalid = "The tour leaves early tomorrow morning, and you're saying goodnight to the guide."
+um_helgina = "A colleague has invited you to a barbecue at the weekend, and you're leaving work on Friday."
+i_naestu_viku = "You're parting from your language-exchange partner, whom you meet every week."
+a_manudaginn = "You've agreed to meet again on Monday, and you're saying goodbye."
+a_thridjudaginn = "You've agreed to meet again on Tuesday, and you're saying goodbye."
+a_midvikudaginn = "You've agreed to meet again on Wednesday, and you're saying goodbye."
+a_fimmtudaginn = "You've agreed to meet again on Thursday, and you're saying goodbye."
+a_fostudaginn = "You've agreed to meet again on Friday, and you're saying goodbye."
+a_laugardaginn = "You've agreed to meet again on Saturday, and you're saying goodbye."
+a_sunnudaginn = "You've agreed to meet again on Sunday, and you're saying goodbye."
+nuna = false  # «See you now!»: one says «see you» on parting, never with «now»; on the way to meet, it is «Ég kem núna.» (#445)
+seinna = "You're leaving the café, and your friend will join you at the pool later."
+"brádum" = "You're saying goodbye to a friend you'll see again in a few days."
