@@ -83,6 +83,10 @@ class Turn:
     say_m: str = ""
     cue: str = ""
     cue_ja: str = ""
+    # a learner's line: what it does, as a part of the level's goal («say you can't tomorrow» / «明日は無理だと伝える»; #327). When the last play leaves
+    # some lines heard, the goal is said from these: the lines asked, then the ones only to listen to (``Builder.goal_heard``)
+    aim: str = ""
+    aim_ja: str = ""
     meaning: str = ""
     meaning_ja: str = ""
     items: list[str] = field(default_factory=list)
@@ -167,6 +171,10 @@ def load_themes(curriculum_dir: str | Path, cur: Curriculum | None = None, scena
     for theme in out:
         _resolve_repeats(theme)
         _check(theme)
+        for n, lv in enumerate(theme.levels, 1):
+            for k, t in enumerate(lv.turns, 1):
+                if t.who == "you" and not (t.aim.strip() and t.aim_ja.strip()):
+                    raise CurriculumError(f"theme {theme.id!r} level {n} turn {k}: a learner's line has its aim and aim_ja (its part of the goal, #327)")
     if cur is not None:
         check_items([(t.id, i) for t in out for lv in t.levels for i in lv.items], cur.by_id, "themes")
         check_gendered_lines(out, cur)
@@ -240,6 +248,8 @@ def _check(theme: Theme) -> None:
                 raise CurriculumError(f"{where} turn {k}: cue: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
             if t.who == "you" and not (t.cue.strip() and t.items):
                 raise CurriculumError(f"{where} turn {k}: a learner's line needs a cue (the intent, played every time) and the items it needs")
+            if t.who != "you" and (t.aim or t.aim_ja):
+                raise CurriculumError(f"{where} turn {k}: an aim is a learner's line's part of the goal (#327)")
             if t.say_m and (t.who != "you" or t.say_m == t.say):
                 raise CurriculumError(f"{where} turn {k}: say_m is the man's form of a learner's line and must differ from it")
             if t.scene and t.who != "partner":

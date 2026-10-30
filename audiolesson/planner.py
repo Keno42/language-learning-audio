@@ -3089,9 +3089,11 @@ class Planner:
             schedule_open(self.cur.by_id[item_id], k)
             reviews_used.append(item_id)
         open_timeline.sort(key=lambda t: t[:2])
+        goal_said: list[str | None] = [None]  # the goal as said when it was narrowed (#327, review of #448: plan.json records the goal spoken)
+        goal_ex = None  # the goal's exercise: its line names the exchange's lines the late play only lets the learner hear (#327)
         theme_pick = self.pick_theme(coming={i.id for i in new_queue} if n > 1 else frozenset())  # #327; the first lesson keeps its rule (§9 "Themes")
         if theme_pick is not None:
-            b.theme_goal(sc, theme_pick[0].levels[theme_pick[1]])  # #327: what the lesson builds to, said after the opening
+            goal_ex = b.theme_goal(sc, theme_pick[0].levels[theme_pick[1]])  # #327: what the lesson builds to, said after the opening
             self.scene_turns = [t for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you"]
         scene_cons = self.scene_constructions(theme_pick)  # spare-time sentences are parallels of these (#238); None: no theme, no restriction
         scene_pref = frozenset(
@@ -3117,6 +3119,7 @@ class Planner:
         theme_asked: set[str] = set()  # the items the lesson's exchange asked, over its plays (#327)
         theme_heard: list[str] = []  # "turn:line" partner wordings the translated play spoke with their meaning (#196)
         theme_lines: list[str] = []  # per play, which variant of each varying partner line was spoken (#134)
+        late_heard: list[int] = []  # the learner's turns the last play of the exchange let them hear, not say (#327: the goal must not promise them)
         
         def play_theme() -> bool:
             nonlocal theme_plays
@@ -3132,6 +3135,7 @@ class Planner:
             # a turn is heard while one of its items is untaught: never met before and not introduced earlier in this lesson
             # (#240). One taught by now (the theme's next level brings its items in, #201) is asked in this play.
             heard_now = {k for k in untaught if self.line_role(you[k].items, text=you[k].say) == "hear"}
+            late_heard[:] = sorted(heard_now)
             # #416: the late play is the exchange again; a set reply the learner plainly knows is voiced, not asked a second time
             voiced = self.voiced_replies(you, heard_now) if theme_plays > 0 else set()
             self.voiced_lines.extend(f"{key}:{k + 1}" for k in sorted(voiced))
@@ -3945,6 +3949,8 @@ class Planner:
                 b.final_block_some(sc, announce)
         b.closing(sc, n)
 
+        if goal_ex is not None and theme_plays and late_heard:
+            goal_said[0] = b.goal_heard(sc, goal_ex, [t for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you"], set(late_heard))  # #327 (lesson 42: «Say you can't tomorrow …», whose line was heard in both plays)
         listening_closed, conversations_closed = self._close_tasks(sc)
         switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same, b.timing.switch_gap_sentence)  # #301: the last pass over the finished script
         sc.retime()
@@ -3988,8 +3994,8 @@ class Planner:
             "refresh_sentences": dict(refresh_done),
             # #149 1b-ii: the lesson's theme and level (1-based) and how often its exchange played; None: no theme was ready
             "theme": (
-                {"id": theme_pick[0].id, "scenario": theme_pick[0].scenario, "level": theme_pick[1] + 1, "plays": theme_plays, "lines": theme_lines, "replay": theme_replay, "heard": theme_heard,
-                 "goal": self.builder.goal_text(theme_pick[0].levels[theme_pick[1]])}  # #327: the goal said after the opening, in the learner's language
+                {"id": theme_pick[0].id, "scenario": theme_pick[0].scenario, "level": theme_pick[1] + 1, "plays": theme_plays, "lines": theme_lines, "replay": theme_replay, "heard": theme_heard, "goal_heard": len(late_heard) if theme_plays else 0,
+                 "goal": goal_said[0] or self.builder.goal_text(theme_pick[0].levels[theme_pick[1]])}  # #327: the goal said after the opening, in the learner's language
                 if theme_pick
                 else None
             ),

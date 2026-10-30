@@ -39,7 +39,7 @@ The default tiers suit a budget traveller: supermarket and café before restaura
 
 `curricula/is-en/cando/themes.toml` (`audiolesson/themes.py` documents the format) holds the scenes a lesson can
 consolidate: per theme (`scenario`: the can-do scenario it serves), levels of an exchange, each a list of `partner`
-turns (with their meaning) and `you` turns (a cue, the model line, the `items` it needs, optional `alts`). A `you` line whose words
+turns (with their meaning) and `you` turns (a cue, its `aim`/`aim_ja`: its part of the goal, said when the lesson leaves the line heard, #327; the model line, the `items` it needs, optional `alts`). A `you` line whose words
 follow the speaker's gender (an item of it has a `target_m`) carries its man's form, `say_m` («Afsakið, ég er týnd.» / «Afsakið, ég er
 týndur.»): the learner's voice is the one opposite the partner's, the line is said in that voice's form, and the cue names it («As a
 woman: …», owner after #381, as the review does, #375). `validate` checks every item and scenario, and that a gendered line has its

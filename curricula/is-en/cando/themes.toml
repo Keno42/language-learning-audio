@@ -25,24 +25,24 @@ goal = "Order a coffee and answer the milk question."
 goal_ja = "コーヒーを注文し、ミルクがいるかに答える。"
 turns = [
   { who = "partner", say = "Hæ! Hvað má bjóða þér?", meaning = "Hi! What can I get you?", meaning_ja = "こんにちは！何にしますか？", variants = [{ say = "Góðan daginn! Hvað má bjóða þér?", meaning = "Good morning! What can I get you?", meaning_ja = "おはようございます！何にしますか？" }, { say = "Hæ! Hvað viltu fá?", meaning = "Hi! What would you like?", meaning_ja = "こんにちは！何にしますか？" }] },
-  { who = "you", cue = "Order a coffee.", cue_ja = "コーヒーを注文してください。", say = "Ég ætla að fá kaffi.", items = ["eg_aetla_ad_fa", "kaffi"], alts = ["Kaffi, takk."] },
+  { who = "you", cue = "Order a coffee.", cue_ja = "コーヒーを注文してください。", aim = "order a coffee", aim_ja = "コーヒーを注文する", say = "Ég ætla að fá kaffi.", items = ["eg_aetla_ad_fa", "kaffi"], alts = ["Kaffi, takk."] },
   { who = "partner", say = "Með mjólk?", meaning = "With milk?", meaning_ja = "ミルクは入れますか？", variants = [{ say = "Viltu mjólk út í?", meaning = "Do you want milk in it?", meaning_ja = "ミルクを入れますか？" }] },
-  { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", say = "Já, takk.", items = ["ja", "takk"] },
+  { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", aim = "say yes to milk", aim_ja = "ミルクを頼む", say = "Já, takk.", items = ["ja", "takk"] },
   { who = "partner", say = "Gjörðu svo vel.", meaning = "Here you go.", meaning_ja = "どうぞ。" },
-  { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
+  { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", aim = "thank him", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
 ]
 
 [[themes.levels]]
 goal = "Find a free seat, ask for the menu, order the soup and a drink."
 goal_ja = "空いた席を見つけ、メニューをもらい、スープと飲み物を頼む。"
 turns = [
-  { who = "you", cue = "The café is crowded. Ask a stranger if the seat next to them is free.", cue_ja = "カフェが混んでいます。隣の席が空いているか、知らない人に聞いてください。", say = "Er þetta sæti laust?", items = ["er_thetta_saeti_laust"] },
+  { who = "you", cue = "The café is crowded. Ask a stranger if the seat next to them is free.", cue_ja = "カフェが混んでいます。隣の席が空いているか、知らない人に聞いてください。", aim = "ask if a seat is free", aim_ja = "席が空いているか聞く", say = "Er þetta sæti laust?", items = ["er_thetta_saeti_laust"] },
   { who = "partner", say = "Já, gjörðu svo vel.", meaning = "Yes, go ahead.", meaning_ja = "ええ、どうぞ。", variants = [{ say = "Já, það er laust.", meaning = "Yes, it's free.", meaning_ja = "ええ、空いていますよ。", word_glosses = { "laust" = { en = "free", ja = "空いています" } } }, { say = "Já, sestu bara.", meaning = "Yes, just sit down.", meaning_ja = "ええ、どうぞ座ってください。", word_glosses = { "sestu" = { en = "sit down", ja = "座ってください", pointer = { en = "the action you were invited to do", ja = "相手がするように勧めたこと" } }, "bara" = { en = "just", ja = "ただ", pointer = { en = "the word alongside the invitation to sit down", ja = "座るよう勧めたときに添えたことば" } } } }] },
-  { who = "you", cue = "At the counter, ask for the menu.", cue_ja = "カウンターでメニューをもらってください。", say = "Get ég fengið matseðilinn?", items = ["get_eg_fengid", "matsedilinn"] },
+  { who = "you", cue = "At the counter, ask for the menu.", cue_ja = "カウンターでメニューをもらってください。", aim = "ask for the menu", aim_ja = "メニューをもらう", say = "Get ég fengið matseðilinn?", items = ["get_eg_fengid", "matsedilinn"] },
   { who = "partner", say = "Já. Súpa dagsins er kjötsúpa.", meaning = "Sure. The soup of the day is lamb soup.", meaning_ja = "はい。本日のスープはラム肉のスープです。", word_glosses = { "dagsins" = { en = "of the day", ja = "今日の", pointer = { en = "the word describing which day the soup is for", ja = "スープがいつのものかを説明した部分" } }, "kjötsúpa" = { en = "lamb soup", ja = "ラム肉のスープ" } }, variants = [{ say = "Auðvitað. Í dag er kjötsúpa.", meaning = "Of course. Today there's lamb soup.", meaning_ja = "もちろん。今日はラム肉のスープです。", word_glosses = { "auðvitað" = { en = "of course", ja = "もちろん" }, "kjötsúpa" = { en = "lamb soup", ja = "ラム肉のスープ" } } }] },
-  { who = "you", cue = "Order the soup.", cue_ja = "スープを注文してください。", say = "Ég ætla að fá súpu.", items = ["eg_aetla_ad_fa", "supu"] },
+  { who = "you", cue = "Order the soup.", cue_ja = "スープを注文してください。", aim = "order the soup", aim_ja = "スープを注文する", say = "Ég ætla að fá súpu.", items = ["eg_aetla_ad_fa", "supu"] },
   { who = "partner", say = "Eitthvað að drekka?", meaning = "Anything to drink?", meaning_ja = "お飲み物は？", variants = [{ say = "Viltu eitthvað að drekka?", meaning = "Would you like something to drink?", meaning_ja = "何かお飲みになりますか？" }, { say = "Hvað má bjóða þér að drekka?", meaning = "What can I get you to drink?", meaning_ja = "お飲み物は何にしますか？" }] },
-  { who = "you", cue = "Just water.", cue_ja = "水だけでいいです。", say = "Vatn, takk.", items = ["vatn", "takk"] },
+  { who = "you", cue = "Just water.", cue_ja = "水だけでいいです。", aim = "ask for just water", aim_ja = "水だけ頼む", say = "Vatn, takk.", items = ["vatn", "takk"] },
 ]
 
 [[themes.levels]]
@@ -50,9 +50,9 @@ partner_speaker = "native_a"  # the partner is a woman
 goal = "Ask for the bill and say it was good."
 goal_ja = "会計を頼み、おいしかったと伝える。"
 turns = [
-  { who = "you", cue = "You've finished. Ask for the bill.", cue_ja = "食べ終わりました。お会計を頼んでください。", say = "Get ég fengið reikninginn?", items = ["get_eg_fengid_reikninginn"] },
+  { who = "you", cue = "You've finished. Ask for the bill.", cue_ja = "食べ終わりました。お会計を頼んでください。", aim = "ask for the bill", aim_ja = "お会計を頼む", say = "Get ég fengið reikninginn?", items = ["get_eg_fengid_reikninginn"] },
   { who = "partner", say = "Já, ég kem strax.", meaning = "Yes, I'll be right there.", meaning_ja = "はい、すぐ伺います。", variants = [{ say = "Já, augnablik.", meaning = "Yes, one moment.", meaning_ja = "はい、少々お待ちください。", word_glosses = { "augnablik" = { en = "a moment", ja = "少しの間", pointer = { en = "the word used when asking you to wait", ja = "待つように言った部分" } } } }, { say = "Já, ég kem með reikninginn.", meaning = "Yes, I'll bring the bill.", meaning_ja = "はい、お会計をお持ちします。", word_glosses = { "kem" = { en = "I come", ja = "来ます", pointer = { en = "the word for what the speaker will do with the bill", ja = "お会計をどうすると言ったかを表す部分" } }, "reikninginn" = { en = "the bill", ja = "お会計" } } }], listen = [{ say = "Kaffið kostar fimm hundruð krónur og samlokan kostar þúsund krónur.", meaning = "The coffee costs five hundred krónur and the sandwich costs a thousand krónur.", meaning_ja = "コーヒーは500クローナ、サンドイッチは1000クローナです。", probes = [{ kind = "price", answer = "fimm hundruð krónur", meanings = { en = "five hundred krónur", ja = "500クローナ" }, ask = { en = "How much is the coffee?", ja = "コーヒーはいくらですか？" } }, { kind = "price", answer = "þúsund krónur", meanings = { en = "a thousand krónur", ja = "1000クローナ" }, ask = { en = "How much is the sandwich?", ja = "サンドイッチはいくらですか？" } }] }, { say = "Kaffið kostar sex hundruð krónur og samlokan kostar níu hundruð krónur.", meaning = "The coffee costs six hundred krónur and the sandwich costs nine hundred krónur.", meaning_ja = "コーヒーは600クローナ、サンドイッチは900クローナです。", probes = [{ kind = "price", answer = "sex hundruð krónur", meanings = { en = "six hundred krónur", ja = "600クローナ" }, ask = { en = "How much is the coffee?", ja = "コーヒーはいくらですか？" } }, { kind = "price", answer = "níu hundruð krónur", meanings = { en = "nine hundred krónur", ja = "900クローナ" }, ask = { en = "How much is the sandwich?", ja = "サンドイッチはいくらですか？" } }] }, { say = "Kaffið kostar fjögur hundruð krónur og samlokan kostar átta hundruð krónur.", meaning = "The coffee costs four hundred krónur and the sandwich costs eight hundred krónur.", meaning_ja = "コーヒーは400クローナ、サンドイッチは800クローナです。", probes = [{ kind = "price", answer = "fjögur hundruð krónur", meanings = { en = "four hundred krónur", ja = "400クローナ" }, ask = { en = "How much is the coffee?", ja = "コーヒーはいくらですか？" } }, { kind = "price", answer = "átta hundruð krónur", meanings = { en = "eight hundred krónur", ja = "800クローナ" }, ask = { en = "How much is the sandwich?", ja = "サンドイッチはいくらですか？" } }] }] },
-  { who = "you", cue = "Tell her it was good.", cue_ja = "おいしかったと伝えてください。", say = "Þetta var gott.", items = ["thetta_var_gott"], alts = ["Þetta var ljúffengt."] },
+  { who = "you", cue = "Tell her it was good.", cue_ja = "おいしかったと伝えてください。", aim = "say it was good", aim_ja = "おいしかったと伝える", say = "Þetta var gott.", items = ["thetta_var_gott"], alts = ["Þetta var ljúffengt."] },
   { who = "partner", say = "Takk fyrir það!", meaning = "Thank you!", meaning_ja = "ありがとうございます！", variants = [{ say = "Gaman að heyra!", meaning = "Nice to hear!", meaning_ja = "それはよかったです！", word_glosses = { "gaman" = { en = "nice", ja = "うれしい", pointer = { en = "the word expressing the reaction to what you said", ja = "あなたの話への反応を表す部分" } }, "heyra" = { en = "to hear", ja = "聞く", pointer = { en = "the last word in the reaction to what you said", ja = "あなたの話への返事の最後の部分" } } } }, { say = "Takk fyrir komuna!", meaning = "Thanks for coming!", meaning_ja = "ご来店ありがとうございました！", word_glosses = { "komuna" = { en = "the visit", ja = "ご来店", pointer = { en = "the word for what the speaker thanked you for", ja = "何についてお礼を言ったかを表す部分" } } } }] },
 ]
 
@@ -61,11 +61,11 @@ partner_speaker = "native_a"  # the partner is a woman
 goal = "Order a piece of cake, say you're allergic to nuts, and take what she suggests instead."
 goal_ja = "ケーキを頼み、ナッツアレルギーだと伝え、代わりにすすめられたものを頼む。"
 turns = [
-  { who = "you", cue = "Order a piece of cake.", cue_ja = "ケーキを注文してください。", say = "Ég ætla að fá köku.", items = ["eg_aetla_ad_fa", "koku"] },
+  { who = "you", cue = "Order a piece of cake.", cue_ja = "ケーキを注文してください。", aim = "order a piece of cake", aim_ja = "ケーキを注文する", say = "Ég ætla að fá köku.", items = ["eg_aetla_ad_fa", "koku"] },
   { who = "partner", say = "Það eru hnetur í kökunni.", meaning = "There are nuts in the cake.", meaning_ja = "ケーキにはナッツが入っています。", word_glosses = { "hnetur" = { en = "nuts", ja = "ナッツ" } }, variants = [{ say = "Það eru hnetur í henni.", meaning = "There are nuts in it.", meaning_ja = "ナッツが入っています。", word_glosses = { "hnetur" = { en = "nuts", ja = "ナッツ" } } }] },
-  { who = "you", cue = "Tell her you're allergic to nuts.", cue_ja = "ナッツアレルギーがあると伝えてください。", say = "Ég er með ofnæmi fyrir hnetum.", items = ["eg_er_med_ofnaemi_fyrir_hnetum"] },
+  { who = "you", cue = "Tell her you're allergic to nuts.", cue_ja = "ナッツアレルギーがあると伝えてください。", aim = "say you're allergic to nuts", aim_ja = "ナッツアレルギーだと伝える", say = "Ég er með ofnæmi fyrir hnetum.", items = ["eg_er_med_ofnaemi_fyrir_hnetum"] },
   { who = "partner", say = "Viltu frekar skyr?", meaning = "Would you rather have skyr?", meaning_ja = "代わりにスキールはいかがですか？", word_glosses = { "frekar" = { en = "rather", ja = "代わりに", pointer = { en = "the word that offers something instead", ja = "代わりのものをすすめた部分" } } }, variants = [{ say = "Ekkert mál. Viltu frekar skyr?", meaning = "No problem. Would you rather have skyr?", meaning_ja = "大丈夫ですよ。代わりにスキールはいかがですか？", word_glosses = { "mál" = { en = "problem", ja = "問題", pointer = { en = "the word in the reply to your allergy", ja = "アレルギーへの返事の中のことば" } } } }] },
-  { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", say = "Já, takk.", items = ["ja", "takk"] },
+  { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", aim = "take what she suggests", aim_ja = "すすめられたものを頼む", say = "Já, takk.", items = ["ja", "takk"] },
 ]
 
 [[themes]]
@@ -83,13 +83,13 @@ topics = ["shopping", "food"]
 goal = "Ask staff for something you can't find, answer the bag question, pay."
 goal_ja = "見つからない物を店員に聞き、袋がいるかに答えて払う。"
 turns = [
-  { who = "you", cue = "You can't find skyr. Ask a member of staff if they have it.", cue_ja = "スキールが見つかりません。店員にあるか聞いてください。", say = "Afsakið, áttu skyr?", items = ["afsakid", "attu", "skyr"] },
+  { who = "you", cue = "You can't find skyr. Ask a member of staff if they have it.", cue_ja = "スキールが見つかりません。店員にあるか聞いてください。", aim = "ask staff if they have skyr", aim_ja = "スキールがあるか店員に聞く", say = "Afsakið, áttu skyr?", items = ["afsakid", "attu", "skyr"] },
   { who = "partner", say = "Já, það er þarna, í kælinum.", meaning = "Yes, it's over there, in the fridge.", meaning_ja = "はい、あちらの冷蔵棚です。", word_glosses = { "kælinum" = { en = "the fridge", ja = "冷蔵庫", pointer = { en = "the word naming where the item is", ja = "品物がある場所を表す部分" } } }, variants = [{ say = "Já, það er í kælinum þarna.", meaning = "Yes, it's in the fridge over there.", meaning_ja = "はい、あそこの冷蔵棚にあります。", word_glosses = { "kælinum" = { en = "the fridge", ja = "冷蔵庫", pointer = { en = "the word naming where the item is", ja = "品物がある場所を表す部分" } } } }, { say = "Já, skyrið er hjá mjólkinni.", meaning = "Yes, the skyr is next to the milk.", meaning_ja = "はい、スキールは牛乳の隣です。", word_glosses = { "hjá" = { en = "next to", ja = "そばに", pointer = { en = "the word describing where the skyr is in relation to the milk", ja = "スキールが牛乳のどこにあるかを表す部分" } }, "mjólkinni" = { en = "the milk", ja = "牛乳" } } }] },
-  { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
+  { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", aim = "thank him", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
   { who = "partner", scene = "At the till.", scene_ja = "レジです。", say = "Viltu poka?", meaning = "Would you like a bag?", meaning_ja = "袋はいりますか？", variants = [{ say = "Þarftu poka?", meaning = "Do you need a bag?", meaning_ja = "袋は必要ですか？", word_glosses = { "þarftu" = { en = "do you need", ja = "必要ですか", pointer = { en = "the word used in the question about a bag", ja = "袋についての質問で使ったことば" } }, "poka" = { en = "a bag", ja = "袋" } } }, { say = "Viltu poka með því?", meaning = "Would you like a bag with that?", meaning_ja = "袋をおつけしますか？", word_glosses = { "viltu" = { en = "do you want", ja = "ほしいですか", pointer = { en = "the word used to ask whether you would like the item offered", ja = "品物がいるかどうかを聞いた部分" } }, "poka" = { en = "a bag", ja = "袋" } } }] },
-  { who = "you", cue = "Yes, you need one.", cue_ja = "はい、いります。", say = "Já, takk.", items = ["ja", "takk"] },
+  { who = "you", cue = "Yes, you need one.", cue_ja = "はい、いります。", aim = "say you need a bag", aim_ja = "袋がいると答える", say = "Já, takk.", items = ["ja", "takk"] },
   { who = "partner", say = "Það gera tvö þúsund krónur.", meaning = "That's two thousand krónur.", meaning_ja = "2000クローナです。", probes = [{ kind = "price", answer = "tvö þúsund krónur", meanings = { en = "two thousand krónur", ja = "2000クローナ" } }], variants = [{ say = "Það eru tvö þúsund krónur.", meaning = "It's two thousand krónur.", meaning_ja = "2000クローナです。", probes = [{ kind = "price", answer = "tvö þúsund krónur", meanings = { en = "two thousand krónur", ja = "2000クローナ" } }] }, { say = "Tvö þúsund krónur, takk.", meaning = "Two thousand krónur, please.", meaning_ja = "2000クローナお願いします。", probes = [{ kind = "price", answer = "tvö þúsund krónur", meanings = { en = "two thousand krónur", ja = "2000クローナ" } }] }], listen = [{ say = "Það gera þrjú þúsund krónur.", meaning = "That's three thousand krónur.", meaning_ja = "3000クローナです。", probes = [{ kind = "price", answer = "þrjú þúsund krónur", meanings = { en = "three thousand krónur", ja = "3000クローナ" } }] }, { say = "Það eru fjögur þúsund krónur.", meaning = "That's four thousand krónur.", meaning_ja = "4000クローナです。", probes = [{ kind = "price", answer = "fjögur þúsund krónur", meanings = { en = "four thousand krónur", ja = "4000クローナ" } }] }] },
-  { who = "you", cue = "Hand over your card.", cue_ja = "カードを渡します。", say = "Gjörðu svo vel.", items = ["gjordu_svo_vel"] },
+  { who = "you", cue = "Hand over your card.", cue_ja = "カードを渡します。", aim = "hand over your card", aim_ja = "カードを渡す", say = "Gjörðu svo vel.", items = ["gjordu_svo_vel"] },
 ]
 
 [[themes.levels]]
@@ -97,11 +97,11 @@ goal = "Say you're just looking, ask for the total, decline the receipt."
 goal_ja = "見ているだけと伝え、合計を聞き、レシートを断る。"
 turns = [
   { who = "partner", say = "Get ég aðstoðað?", meaning = "Can I help?", meaning_ja = "何かお探しですか？", variants = [{ say = "Get ég hjálpað þér?", meaning = "Can I help you?", meaning_ja = "お手伝いしましょうか？" }, { say = "Vantar þig aðstoð?", meaning = "Do you need help?", meaning_ja = "何かお困りですか？", word_glosses = { "vantar" = { en = "lacks, needs", ja = "必要としている", pointer = { en = "the first word in the question about help", ja = "手助けについて聞いた質問の最初の部分" } }, "aðstoð" = { en = "help", ja = "手助け", pointer = { en = "the word naming what the speaker is offering", ja = "何を申し出たかを表す部分" } } } }] },
-  { who = "you", cue = "You're just looking.", cue_ja = "見ているだけです。", say = "Ég er bara að skoða.", items = ["eg_er_ad_leita_ad_thing"] },
-  { who = "you", cue = "At the till, ask how much it is in total.", cue_ja = "レジで合計がいくらか聞いてください。", say = "Hvað er þetta mikið samtals?", items = ["hvad_er_thetta_mikid_samtals"] },
+  { who = "you", cue = "You're just looking.", cue_ja = "見ているだけです。", aim = "say you're just looking", aim_ja = "見ているだけと伝える", say = "Ég er bara að skoða.", items = ["eg_er_ad_leita_ad_thing"] },
+  { who = "you", cue = "At the till, ask how much it is in total.", cue_ja = "レジで合計がいくらか聞いてください。", aim = "ask for the total", aim_ja = "合計を聞く", say = "Hvað er þetta mikið samtals?", items = ["hvad_er_thetta_mikid_samtals"] },
   { who = "partner", say = "Þrjú þúsund og fimm hundruð.", meaning = "Three thousand five hundred.", meaning_ja = "3500です。", probes = [{ kind = "price", answer = "þrjú þúsund og fimm hundruð", meanings = { en = "three thousand five hundred", ja = "3500" } }], variants = [{ say = "Það gera þrjú þúsund og fimm hundruð krónur.", meaning = "That's three thousand five hundred krónur.", meaning_ja = "3500クローナです。", probes = [{ kind = "price", answer = "þrjú þúsund og fimm hundruð krónur", meanings = { en = "three thousand five hundred krónur", ja = "3500クローナ" } }] }, { say = "Þrjú þúsund og fimm hundruð krónur, takk.", meaning = "Three thousand five hundred krónur, please.", meaning_ja = "3500クローナお願いします。", probes = [{ kind = "price", answer = "þrjú þúsund og fimm hundruð krónur", meanings = { en = "three thousand five hundred krónur", ja = "3500クローナ" } }] }], listen = [{ say = "Skyrið kostar fimm hundruð krónur og mjólkin kostar tvö hundruð krónur.", meaning = "The skyr costs five hundred krónur and the milk costs two hundred krónur.", meaning_ja = "スキールは500クローナ、牛乳は200クローナです。", probes = [{ kind = "price", answer = "fimm hundruð krónur", meanings = { en = "five hundred krónur", ja = "500クローナ" }, ask = { en = "How much is the skyr?", ja = "スキールはいくらですか？" } }, { kind = "price", answer = "tvö hundruð krónur", meanings = { en = "two hundred krónur", ja = "200クローナ" }, ask = { en = "How much is the milk?", ja = "牛乳はいくらですか？" } }] }, { say = "Skyrið kostar fjögur hundruð krónur og mjólkin kostar þrjú hundruð krónur.", meaning = "The skyr costs four hundred krónur and the milk costs three hundred krónur.", meaning_ja = "スキールは400クローナ、牛乳は300クローナです。", probes = [{ kind = "price", answer = "fjögur hundruð krónur", meanings = { en = "four hundred krónur", ja = "400クローナ" }, ask = { en = "How much is the skyr?", ja = "スキールはいくらですか？" } }, { kind = "price", answer = "þrjú hundruð krónur", meanings = { en = "three hundred krónur", ja = "300クローナ" }, ask = { en = "How much is the milk?", ja = "牛乳はいくらですか？" } }] }, { say = "Skyrið kostar sex hundruð krónur og mjólkin kostar hundrað krónur.", meaning = "The skyr costs six hundred krónur and the milk costs a hundred krónur.", meaning_ja = "スキールは600クローナ、牛乳は100クローナです。", probes = [{ kind = "price", answer = "sex hundruð krónur", meanings = { en = "six hundred krónur", ja = "600クローナ" }, ask = { en = "How much is the skyr?", ja = "スキールはいくらですか？" } }, { kind = "price", answer = "hundrað krónur", meanings = { en = "a hundred krónur", ja = "100クローナ" }, ask = { en = "How much is the milk?", ja = "牛乳はいくらですか？" } }] }] },
   { who = "partner", say = "Viltu kvittun?", meaning = "Would you like the receipt?", meaning_ja = "レシートはいりますか？", variants = [{ say = "Viltu fá kvittun?", meaning = "Do you want a receipt?", meaning_ja = "レシートが欲しいですか？", word_glosses = { "viltu" = { en = "do you want", ja = "ほしいですか", pointer = { en = "the word used to ask whether you would like the item offered", ja = "品物がいるかどうかを聞いた部分" } }, "kvittun" = { en = "a receipt", ja = "レシート" } } }, { say = "Þarftu kvittun?", meaning = "Do you need a receipt?", meaning_ja = "レシートは必要ですか？", word_glosses = { "þarftu" = { en = "do you need", ja = "必要ですか", pointer = { en = "the word used in the question about a receipt", ja = "レシートについての質問で使ったことば" } }, "kvittun" = { en = "a receipt", ja = "レシート" } } }] },
-  { who = "you", cue = "No need.", cue_ja = "いりません。", say = "Nei, takk.", items = ["nei", "takk"] },
+  { who = "you", cue = "No need.", cue_ja = "いりません。", aim = "decline the receipt", aim_ja = "レシートを断る", say = "Nei, takk.", items = ["nei", "takk"] },
 ]
 
 [[themes]]
@@ -119,9 +119,9 @@ topics = ["travel"]
 goal = "Buy a ticket and pay by card."
 goal_ja = "チケットを買ってカードで払う。"
 turns = [
-  { who = "you", cue = "At the museum desk, greet and ask for one adult ticket.", cue_ja = "博物館の窓口であいさつし、大人1枚と頼んでください。", say = "Góðan daginn. Einn fullorðinn, takk.", items = ["godan_daginn", "einn_fullordinn_takk"] },
+  { who = "you", cue = "At the museum desk, greet and ask for one adult ticket.", cue_ja = "博物館の窓口であいさつし、大人1枚と頼んでください。", aim = "ask for one adult ticket", aim_ja = "大人1枚と頼む", say = "Góðan daginn. Einn fullorðinn, takk.", items = ["godan_daginn", "einn_fullordinn_takk"] },
   { who = "partner", say = "Það eru tvö þúsund og fimm hundruð krónur.", meaning = "That's two thousand five hundred krónur.", meaning_ja = "2500クローナです。", probes = [{ kind = "price", answer = "tvö þúsund og fimm hundruð krónur", meanings = { en = "two thousand five hundred krónur", ja = "2500クローナ" } }], variants = [{ say = "Það gera tvö þúsund og fimm hundruð krónur.", meaning = "That's two thousand five hundred krónur.", meaning_ja = "2500クローナです。", probes = [{ kind = "price", answer = "tvö þúsund og fimm hundruð krónur", meanings = { en = "two thousand five hundred krónur", ja = "2500クローナ" } }] }, { say = "Tvö þúsund og fimm hundruð, takk.", meaning = "Two thousand five hundred, please.", meaning_ja = "2500お願いします。", probes = [{ kind = "price", answer = "tvö þúsund og fimm hundruð", meanings = { en = "two thousand five hundred", ja = "2500" } }] }], listen = [{ say = "Safnið opnar klukkan tíu og lokar klukkan fimm.", meaning = "The museum opens at ten and closes at five.", meaning_ja = "博物館は10時に開き、5時に閉まります。", probes = [{ kind = "time", answer = "klukkan tíu", meanings = { en = "ten o'clock", ja = "10時" }, ask = { en = "When does the museum open?", ja = "博物館は何時に開きますか？" } }, { kind = "time", answer = "klukkan fimm", meanings = { en = "five o'clock", ja = "5時" }, ask = { en = "When does it close?", ja = "何時に閉まりますか？" } }] }, { say = "Safnið opnar klukkan níu og lokar klukkan sex.", meaning = "The museum opens at nine and closes at six.", meaning_ja = "博物館は9時に開き、6時に閉まります。", probes = [{ kind = "time", answer = "klukkan níu", meanings = { en = "nine o'clock", ja = "9時" }, ask = { en = "When does the museum open?", ja = "博物館は何時に開きますか？" } }, { kind = "time", answer = "klukkan sex", meanings = { en = "six o'clock", ja = "6時" }, ask = { en = "When does it close?", ja = "何時に閉まりますか？" } }] }, { say = "Safnið opnar klukkan ellefu og lokar klukkan fjögur.", meaning = "The museum opens at eleven and closes at four.", meaning_ja = "博物館は11時に開き、4時に閉まります。", probes = [{ kind = "time", answer = "klukkan ellefu", meanings = { en = "eleven o'clock", ja = "11時" }, ask = { en = "When does the museum open?", ja = "博物館は何時に開きますか？" } }, { kind = "time", answer = "klukkan fjögur", meanings = { en = "four o'clock", ja = "4時" }, ask = { en = "When does it close?", ja = "何時に閉まりますか？" } }] }] },
-  { who = "you", cue = "Ask if you can pay by card.", cue_ja = "カードで払えるか聞いてください。", say = "Má ég borga með korti?", items = ["ma_eg_borga_med_korti"] },
+  { who = "you", cue = "Ask if you can pay by card.", cue_ja = "カードで払えるか聞いてください。", aim = "ask if you can pay by card", aim_ja = "カードで払えるか聞く", say = "Má ég borga með korti?", items = ["ma_eg_borga_med_korti"] },
   { who = "partner", say = "Já, auðvitað.", meaning = "Yes, of course.", meaning_ja = "はい、もちろん。", variants = [{ say = "Já, það er í lagi.", meaning = "Yes, that's fine.", meaning_ja = "はい、大丈夫ですよ。" }, { say = "Já, að sjálfsögðu.", meaning = "Yes, of course.", meaning_ja = "はい、もちろんです。" }] },
 ]
 
@@ -141,21 +141,21 @@ goal = "Greet the guide and find out when the coach leaves."
 goal_ja = "ガイドにあいさつし、バスの出発時刻を確かめる。"
 turns = [
   { who = "partner", say = "Góðan daginn öll! Ég heiti Anna og ég er leiðsögumaðurinn ykkar í dag.", meaning = "Good morning, everyone! I'm Anna, and I'm your guide today.", meaning_ja = "皆さんおはようございます！今日のガイドのアンナです。" },
-  { who = "you", cue = "Greet her back.", cue_ja = "あいさつを返してください。", say = "Góðan daginn.", items = ["godan_daginn"] },
+  { who = "you", cue = "Greet her back.", cue_ja = "あいさつを返してください。", aim = "greet the guide", aim_ja = "ガイドにあいさつを返す", say = "Góðan daginn.", items = ["godan_daginn"] },
   { who = "partner", say = "Við stoppum hérna í tuttugu mínútur.", meaning = "We'll stop here for twenty minutes.", meaning_ja = "ここで20分休憩します。", probes = [{ kind = "duration", answer = "tuttugu mínútur", meanings = { en = "twenty minutes", ja = "20分" } }], variants = [{ say = "Við verðum hérna í tuttugu mínútur.", meaning = "We'll be here for twenty minutes.", meaning_ja = "ここに20分います。", probes = [{ kind = "duration", answer = "tuttugu mínútur", meanings = { en = "twenty minutes", ja = "20分" } }] }, { say = "Hér stoppum við í tuttugu mínútur.", meaning = "Here we stop for twenty minutes.", meaning_ja = "ここで20分止まります。", probes = [{ kind = "duration", answer = "tuttugu mínútur", meanings = { en = "twenty minutes", ja = "20分" } }] }], listen = [{ say = "Við stoppum hérna í tuttugu mínútur og förum svo klukkan hálf þrjú.", meaning = "We'll stop here for twenty minutes, and then we leave at half past two.", meaning_ja = "ここで20分休憩して、2時半に出発します。", probes = [{ kind = "duration", answer = "tuttugu mínútur", meanings = { en = "twenty minutes", ja = "20分" }, ask = { en = "How long do we stop?", ja = "何分休憩しますか？" } }, { kind = "time", answer = "klukkan hálf þrjú", meanings = { en = "half past two", ja = "2時半" }, ask = { en = "When do we leave?", ja = "何時に出発しますか？" } }] }, { say = "Við stoppum hérna í fimm mínútur og förum svo klukkan fjögur.", meaning = "We stop here for five minutes and then leave at four.", meaning_ja = "ここで5分休憩して、4時に出発します。", probes = [{ kind = "duration", answer = "fimm mínútur", meanings = { en = "five minutes", ja = "5分" }, ask = { en = "How long do we stop?", ja = "何分休憩しますか？" } }, { kind = "time", answer = "klukkan fjögur", meanings = { en = "four o'clock", ja = "4時" }, ask = { en = "When do we leave?", ja = "何時に出発しますか？" } }] }, { say = "Við stoppum hérna í tíu mínútur og förum svo klukkan hálf fimm.", meaning = "We stop here for ten minutes and then leave at half past four.", meaning_ja = "ここで10分休憩して、4時半に出発します。", probes = [{ kind = "duration", answer = "tíu mínútur", meanings = { en = "ten minutes", ja = "10分" }, ask = { en = "How long do we stop?", ja = "何分休憩しますか？" } }, { kind = "time", answer = "klukkan hálf fimm", meanings = { en = "half past four", ja = "4時半" }, ask = { en = "When do we leave?", ja = "何時に出発しますか？" } }] }] },
-  { who = "you", cue = "Ask when you're leaving.", cue_ja = "いつ出発するか聞いてください。", say = "Hvenær leggjum við af stað?", items = ["hvenaer_leggjum_vid_af_stad"] },
+  { who = "you", cue = "Ask when you're leaving.", cue_ja = "いつ出発するか聞いてください。", aim = "ask when you're leaving", aim_ja = "いつ出発するか聞く", say = "Hvenær leggjum við af stað?", items = ["hvenaer_leggjum_vid_af_stad"] },
   { who = "partner", say = "Klukkan hálf þrjú.", meaning = "At half past two.", meaning_ja = "2時半です。", probes = [{ kind = "time", answer = "klukkan hálf þrjú", meanings = { en = "half past two", ja = "2時半" } }], variants = [{ say = "Við förum klukkan hálf þrjú.", meaning = "We leave at half past two.", meaning_ja = "2時半に出発します。", probes = [{ kind = "time", answer = "klukkan hálf þrjú", meanings = { en = "half past two", ja = "2時半" } }] }, { say = "Rútan fer klukkan hálf þrjú.", meaning = "The coach leaves at half past two.", meaning_ja = "バスは2時半に出ます。", probes = [{ kind = "time", answer = "klukkan hálf þrjú", meanings = { en = "half past two", ja = "2時半" } }] }], listen = [{ say = "Rútan fer klukkan þrjú.", meaning = "The bus leaves at three.", meaning_ja = "バスは3時に出ます。", probes = [{ kind = "time", answer = "klukkan þrjú", meanings = { en = "three o'clock", ja = "3時" } }] }, { say = "Við förum klukkan hálf fimm.", meaning = "We leave at half past four.", meaning_ja = "4時半に出発します。", probes = [{ kind = "time", answer = "klukkan hálf fimm", meanings = { en = "half past four", ja = "4時半" } }] }] },
-  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
 ]
 [[themes.levels]]
 goal = "Ask the name of a mountain, react to the view, accept a photo."
 goal_ja = "山の名前を聞き、景色に反応し、写真を撮ってもらう。"
 turns = [
-  { who = "you", cue = "Point at a mountain and ask its name.", cue_ja = "山を指して名前を聞いてください。", say = "Hvað heitir þetta fjall?", items = ["hvad_er_thetta_fjall"] },
+  { who = "you", cue = "Point at a mountain and ask its name.", cue_ja = "山を指して名前を聞いてください。", aim = "ask the name of a mountain", aim_ja = "山の名前を聞く", say = "Hvað heitir þetta fjall?", items = ["hvad_er_thetta_fjall"] },
   { who = "partner", say = "Þetta er Hekla. Hún er eldfjall.", meaning = "That's Hekla. It's a volcano.", meaning_ja = "ヘクラ山です。火山ですよ。", variants = [{ say = "Þetta er Hekla, eldfjall.", meaning = "That's Hekla, a volcano.", meaning_ja = "ヘクラ山、火山です。" }, { say = "Þarna er Hekla. Hún er eldfjall.", meaning = "There's Hekla. It's a volcano.", meaning_ja = "あれがヘクラ山です。火山ですよ。" }] },
-  { who = "you", cue = "React to the view.", cue_ja = "景色に反応してください。", say = "Vá! Útsýnið er fallegt.", items = ["vaa", "utsynid_er_fallegt"] },
+  { who = "you", cue = "React to the view.", cue_ja = "景色に反応してください。", aim = "react to the view", aim_ja = "景色に反応する", say = "Vá! Útsýnið er fallegt.", items = ["vaa", "utsynid_er_fallegt"] },
   { who = "partner", say = "Viltu að ég taki mynd af ykkur?", meaning = "Shall I take a photo of you?", meaning_ja = "写真を撮りましょうか？", variants = [{ say = "Á ég að taka mynd af ykkur?", meaning = "Shall I take a picture of you?", meaning_ja = "写真を撮りましょうか？" }, { say = "Viltu að ég taki mynd?", meaning = "Do you want me to take a photo?", meaning_ja = "写真を撮りましょうか？" }] },
-  { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", say = "Já, takk.", items = ["ja", "takk"] },
+  { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", aim = "accept a photo", aim_ja = "写真を撮ってもらう", say = "Já, takk.", items = ["ja", "takk"] },
 ]
 [[themes.levels]]
 partner_speaker = "native_a"  # the partner is a woman
@@ -163,9 +163,9 @@ goal = "Say what you'd like to see."
 goal_ja = "見たいものを伝える。"
 turns = [
   { who = "partner", say = "Hvað langar ykkur að sjá?", meaning = "What would you like to see?", meaning_ja = "何が見たいですか？", variants = [{ say = "Hvað viljið þið sjá?", meaning = "What do you want to see?", meaning_ja = "何を見たいですか？" }] },
-  { who = "you", cue = "Say you'd like to see a volcano.", cue_ja = "火山が見たいと言ってください。", say = "Mig langar að sjá eldfjall.", items = ["mig_langar_ad_sja", "eldfjall"], alts = ["Mig langar að sjá jökul."] },
+  { who = "you", cue = "Say you'd like to see a volcano.", cue_ja = "火山が見たいと言ってください。", aim = "say you'd like to see a volcano", aim_ja = "火山が見たいと伝える", say = "Mig langar að sjá eldfjall.", items = ["mig_langar_ad_sja", "eldfjall"], alts = ["Mig langar að sjá jökul."] },
   { who = "partner", say = "Já, það er hægt.", meaning = "Yes, that's possible.", meaning_ja = "ええ、できますよ。" },
-  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
 ]
 
 [[themes]]
@@ -184,41 +184,41 @@ topics = ["directions"]
 goal = "Ask where a place is, and understand the way."
 goal_ja = "場所を尋ねて、道順を聞き取る。"
 turns = [
-  { who = "you", cue = "Stop someone in the street and ask where the bank is.", cue_ja = "通りで人を呼び止めて、銀行がどこか聞いてください。", say = "Afsakið, hvar er bankinn?", items = ["afsakid", "hvar_er", "bankinn"] },
+  { who = "you", cue = "Stop someone in the street and ask where the bank is.", cue_ja = "通りで人を呼び止めて、銀行がどこか聞いてください。", aim = "ask where the bank is", aim_ja = "銀行がどこか聞く", say = "Afsakið, hvar er bankinn?", items = ["afsakid", "hvar_er", "bankinn"] },
   { who = "partner", say = "Hann er þarna, til vinstri.", meaning = "It's over there, on the left.", meaning_ja = "あそこ、左側です。", variants = [{ say = "Beint áfram og svo til vinstri.", meaning = "Straight ahead, and then left.", meaning_ja = "まっすぐ行って、それから左です。" }, { say = "Hann er til hægri, við kirkjuna.", meaning = "It's on the right, by the church.", meaning_ja = "右側、教会のそばです。" }] },
-  { who = "you", cue = "Ask if it's far.", cue_ja = "遠いか聞いてください。", say = "Er það langt?", items = ["er_thad_langt"] },
+  { who = "you", cue = "Ask if it's far.", cue_ja = "遠いか聞いてください。", aim = "ask if it's far", aim_ja = "遠いか聞く", say = "Er það langt?", items = ["er_thad_langt"] },
   { who = "partner", say = "Nei, það er nálægt. Bara fimm mínútur.", meaning = "No, it's close. Just five minutes.", meaning_ja = "いいえ、近いですよ。5分だけです。", probes = [{ kind = "duration", answer = "fimm mínútur", meanings = { en = "five minutes", ja = "5分" } }], variants = [{ say = "Nei, það tekur bara fimm mínútur að ganga.", meaning = "No, it's only a five-minute walk.", meaning_ja = "いいえ、歩いて5分だけです。", probes = [{ kind = "duration", answer = "fimm mínútur", meanings = { en = "five minutes", ja = "5分" } }] }], listen = [{ say = "Nei, það er nálægt. Bara sjö mínútur.", meaning = "No, it's close. Only seven minutes.", meaning_ja = "いいえ、近いですよ。たった7分です。", probes = [{ kind = "duration", answer = "sjö mínútur", meanings = { en = "seven minutes", ja = "7分" } }] }, { say = "Nei, það tekur bara átta mínútur að ganga.", meaning = "No, it only takes eight minutes to walk.", meaning_ja = "いいえ、歩いてたった8分です。", probes = [{ kind = "duration", answer = "átta mínútur", meanings = { en = "eight minutes", ja = "8分" } }] }, { say = "Nei, bara sex mínútur.", meaning = "No, only six minutes.", meaning_ja = "いいえ、たった6分です。", probes = [{ kind = "duration", answer = "sex mínútur", meanings = { en = "six minutes", ja = "6分" } }] }] },
-  { who = "you", cue = "Thank them warmly.", cue_ja = "心をこめてお礼を言ってください。", say = "Takk kærlega.", items = ["takk_kaerlega"] },
+  { who = "you", cue = "Thank them warmly.", cue_ja = "心をこめてお礼を言ってください。", aim = "thank them warmly", aim_ja = "心をこめてお礼を言う", say = "Takk kærlega.", items = ["takk_kaerlega"] },
   { who = "partner", say = "Ekkert að þakka.", meaning = "You're welcome.", meaning_ja = "どういたしまして。", variants = [{ say = "Ekkert mál.", meaning = "No problem.", meaning_ja = "いえいえ。" }] },
 ]
 [[themes.levels]]
 goal = "Say what you're looking for, and ask if you can walk there."
 goal_ja = "探している場所を伝え、歩いて行けるか聞く。"
 turns = [
-  { who = "you", cue = "Stop someone and say you're looking for the bank.", cue_ja = "人を呼び止めて、銀行を探していると言ってください。", say = "Afsakið, ég er að leita að bankanum.", items = ["afsakid", "eg_er_ad_leita_ad", "bankanum"] },
+  { who = "you", cue = "Stop someone and say you're looking for the bank.", cue_ja = "人を呼び止めて、銀行を探していると言ってください。", aim = "say you're looking for the bank", aim_ja = "銀行を探していると伝える", say = "Afsakið, ég er að leita að bankanum.", items = ["afsakid", "eg_er_ad_leita_ad", "bankanum"] },
   { who = "partner", say = "Bankanum? Hann er í miðbænum, beint áfram.", meaning = "The bank? It's in the town centre, straight ahead.", meaning_ja = "銀行ですか？中心街にあります。まっすぐです。" },
-  { who = "you", cue = "Ask if you can walk there.", cue_ja = "歩いて行けるか聞いてください。", say = "Er hægt að ganga þangað?", items = ["er_haegt_ad_ganga_thangad"] },
+  { who = "you", cue = "Ask if you can walk there.", cue_ja = "歩いて行けるか聞いてください。", aim = "ask if you can walk there", aim_ja = "歩いて行けるか聞く", say = "Er hægt að ganga þangað?", items = ["er_haegt_ad_ganga_thangad"] },
   { who = "partner", say = "Já, það tekur um tíu mínútur.", meaning = "Yes, it takes about ten minutes.", meaning_ja = "はい、10分くらいかかります。", probes = [{ kind = "duration", answer = "tíu mínútur", meanings = { en = "ten minutes", ja = "10分" } }], variants = [{ say = "Já, já. Svona tíu mínútur.", meaning = "Oh yes. About ten minutes.", meaning_ja = "ええ、10分くらいです。", probes = [{ kind = "duration", answer = "tíu mínútur", meanings = { en = "ten minutes", ja = "10分" } }] }], listen = [{ say = "Gakktu beint áfram í fimm mínútur. Bankinn opnar klukkan tíu.", meaning = "Walk straight ahead for five minutes. The bank opens at ten.", meaning_ja = "まっすぐ5分歩いてください。銀行は10時に開きます。", probes = [{ kind = "duration", answer = "fimm mínútur", meanings = { en = "five minutes", ja = "5分" }, ask = { en = "How long do you walk straight ahead?", ja = "まっすぐ何分歩きますか？" } }, { kind = "time", answer = "klukkan tíu", meanings = { en = "ten o'clock", ja = "10時" }, ask = { en = "When does the bank open?", ja = "銀行は何時に開きますか？" } }] }, { say = "Gakktu beint áfram í tíu mínútur. Bankinn opnar klukkan níu.", meaning = "Walk straight ahead for ten minutes. The bank opens at nine.", meaning_ja = "まっすぐ10分歩いてください。銀行は9時に開きます。", probes = [{ kind = "duration", answer = "tíu mínútur", meanings = { en = "ten minutes", ja = "10分" }, ask = { en = "How long do you walk straight ahead?", ja = "まっすぐ何分歩きますか？" } }, { kind = "time", answer = "klukkan níu", meanings = { en = "nine o'clock", ja = "9時" }, ask = { en = "When does the bank open?", ja = "銀行は何時に開きますか？" } }] }, { say = "Gakktu beint áfram í fimm mínútur. Bankinn opnar klukkan ellefu.", meaning = "Walk straight ahead for five minutes. The bank opens at eleven.", meaning_ja = "まっすぐ5分歩いてください。銀行は11時に開きます。", probes = [{ kind = "duration", answer = "fimm mínútur", meanings = { en = "five minutes", ja = "5分" }, ask = { en = "How long do you walk straight ahead?", ja = "まっすぐ何分歩きますか？" } }, { kind = "time", answer = "klukkan ellefu", meanings = { en = "eleven o'clock", ja = "11時" }, ask = { en = "When does the bank open?", ja = "銀行は何時に開きますか？" } }] }] },
-  { who = "you", cue = "Thank them and say goodbye.", cue_ja = "お礼を言って、さようならと言ってください。", say = "Takk kærlega. Bless.", items = ["takk_kaerlega", "bless"] },
+  { who = "you", cue = "Thank them and say goodbye.", cue_ja = "お礼を言って、さようならと言ってください。", aim = "thank them and say goodbye", aim_ja = "お礼を言ってさようならと言う", say = "Takk kærlega. Bless.", items = ["takk_kaerlega", "bless"] },
   { who = "partner", say = "Bless, bless.", meaning = "Bye-bye.", meaning_ja = "じゃあね。" },
 ]
 [[themes.levels]]
 goal = "Say you're lost and ask the way to a restaurant: left or right, how far, and on the map."
 goal_ja = "道に迷ったと伝え、レストランへの道を尋ねる。右か左か、どのくらいかかるか、地図ではどこか。"
 turns = [
-  { who = "you", cue = "Stop someone and say you're lost.", cue_ja = "人を呼び止めて、道に迷ったと言ってください。", say = "Afsakið, ég er týnd.", say_m = "Afsakið, ég er týndur.", items = ["afsakid", "eg_er_tynd"] },
+  { who = "you", cue = "Stop someone and say you're lost.", cue_ja = "人を呼び止めて、道に迷ったと言ってください。", aim = "say you're lost", aim_ja = "道に迷ったと伝える", say = "Afsakið, ég er týnd.", say_m = "Afsakið, ég er týndur.", items = ["afsakid", "eg_er_tynd"] },
   { who = "partner", say = "Hvert ertu að fara?", meaning = "Where are you going?", meaning_ja = "どこへ行くんですか？", word_glosses = { "hvert" = { en = "where to", ja = "どこへ", pointer = { en = "the word asking where you're going", ja = "行き先を尋ねた部分" } } } },
-  { who = "you", cue = "Ask where the restaurant is.", cue_ja = "レストランがどこか聞いてください。", say = "Hvar er veitingastaðurinn?", items = ["hvar_er", "veitingastadurinn"] },
+  { who = "you", cue = "Ask where the restaurant is.", cue_ja = "レストランがどこか聞いてください。", aim = "ask where the restaurant is", aim_ja = "レストランがどこか聞く", say = "Hvar er veitingastaðurinn?", items = ["hvar_er", "veitingastadurinn"] },
   { who = "partner", say = "Beint áfram og svo til hægri.", meaning = "Straight ahead, and then right.", meaning_ja = "まっすぐ行って、それから右です。", variants = [{ say = "Hann er til hægri, við höfnina.", meaning = "It's on the right, by the harbour.", meaning_ja = "右側、港のそばです。", word_glosses = { "höfnina" = { en = "the harbour", ja = "港" } } }] },
-  { who = "you", cue = "Check: to the right?", cue_ja = "右ですか、と確かめてください。", say = "Til hægri?", items = ["til_haegri"] },
+  { who = "you", cue = "Check: to the right?", cue_ja = "右ですか、と確かめてください。", aim = "check it's to the right", aim_ja = "右か確かめる", say = "Til hægri?", items = ["til_haegri"] },
   { who = "partner", say = "Já, til hægri. Ekki til vinstri.", meaning = "Yes, to the right. Not to the left.", meaning_ja = "はい、右です。左ではありません。" },
-  { who = "you", cue = "Ask how far it is.", cue_ja = "どのくらいの距離か聞いてください。", say = "Hvað er langt þangað?", items = ["hvad_er_langt_thangad"] },
+  { who = "you", cue = "Ask how far it is.", cue_ja = "どのくらいの距離か聞いてください。", aim = "ask how far it is", aim_ja = "どのくらいの距離か聞く", say = "Hvað er langt þangað?", items = ["hvad_er_langt_thangad"] },
   { who = "partner", say = "Það tekur svona tíu mínútur.", meaning = "It takes about ten minutes.", meaning_ja = "10分くらいかかります。", probes = [{ kind = "duration", answer = "tíu mínútur", meanings = { en = "ten minutes", ja = "10分" } }], variants = [{ say = "Svona tíu mínútur að ganga.", meaning = "About ten minutes on foot.", meaning_ja = "歩いて10分くらいです。", word_glosses = { "ganga" = { en = "to walk", ja = "歩く", pointer = { en = "the word for how you get there", ja = "どうやって行くかを表す部分" } } }, probes = [{ kind = "duration", answer = "tíu mínútur", meanings = { en = "ten minutes", ja = "10分" } }] }], listen = [{ say = "Það tekur svona tólf mínútur.", meaning = "It takes about twelve minutes.", meaning_ja = "12分くらいかかります。", probes = [{ kind = "duration", answer = "tólf mínútur", meanings = { en = "twelve minutes", ja = "12分" } }] }, { say = "Svona níu mínútur að ganga.", meaning = "About nine minutes on foot.", meaning_ja = "歩いて9分くらいです。", probes = [{ kind = "duration", answer = "níu mínútur", meanings = { en = "nine minutes", ja = "9分" } }] }, { say = "Það tekur svona sex mínútur.", meaning = "It takes about six minutes.", meaning_ja = "6分くらいかかります。", probes = [{ kind = "duration", answer = "sex mínútur", meanings = { en = "six minutes", ja = "6分" } }] }] },
-  { who = "you", cue = "He spoke too fast. Say sorry, you don't understand, and ask him to speak more slowly.", cue_ja = "話が速すぎました。ごめんなさい、わかりませんと言って、もっとゆっくり話してくれるよう頼んでください。", say = "Fyrirgefðu, ég skil ekki. Gætirðu talað hægar?", items = ["fyrirgefdu", "eg_skil_ekki", "gaetirdu_talad_haegar"] },
+  { who = "you", cue = "He spoke too fast. Say sorry, you don't understand, and ask him to speak more slowly.", cue_ja = "話が速すぎました。ごめんなさい、わかりませんと言って、もっとゆっくり話してくれるよう頼んでください。", aim = "ask him to speak more slowly", aim_ja = "もっとゆっくり話してくれるよう頼む", say = "Fyrirgefðu, ég skil ekki. Gætirðu talað hægar?", items = ["fyrirgefdu", "eg_skil_ekki", "gaetirdu_talad_haegar"] },
   { who = "partner", repeat = true },
-  { who = "you", cue = "Ask him to show you on the map.", cue_ja = "地図で見せてくれるよう頼んでください。", say = "Geturðu sýnt mér á kortinu?", items = ["geturdu_synt_mer_a_kortinu"] },
+  { who = "you", cue = "Ask him to show you on the map.", cue_ja = "地図で見せてくれるよう頼んでください。", aim = "ask him to show you on the map", aim_ja = "地図で見せてくれるよう頼む", say = "Geturðu sýnt mér á kortinu?", items = ["geturdu_synt_mer_a_kortinu"] },
   { who = "partner", say = "Já, auðvitað. Við erum hérna.", meaning = "Yes, of course. We're here.", meaning_ja = "ええ、もちろん。今ここにいます。", word_glosses = { "auðvitað" = { en = "of course", ja = "もちろん" } } },
-  { who = "you", cue = "Thank him warmly.", cue_ja = "心をこめてお礼を言ってください。", say = "Takk kærlega.", items = ["takk_kaerlega"] },
+  { who = "you", cue = "Thank him warmly.", cue_ja = "心をこめてお礼を言ってください。", aim = "thank him warmly", aim_ja = "心をこめてお礼を言う", say = "Takk kærlega.", items = ["takk_kaerlega"] },
 ]
 [[themes.levels]]
 # #327 batch (lessons 41–50): the places' positions are the day's new lines from lesson 42 on («Það er á horninu.», «… nálægt.», «… hinum
@@ -228,13 +228,13 @@ goal_ja = "ほかの旅行者に道を聞かれて、場所を教える。"
 partner_speaker = "native_a"
 turns = [
   { who = "partner", scene = "A tourist stops you and asks the way.", scene_ja = "旅行者に呼び止められて、道を聞かれます。", say = "Afsakið, hvar er hraðbankinn?", meaning = "Excuse me, where's the cash machine?", meaning_ja = "すみません、ATMはどこですか？" },
-  { who = "you", cue = "Say it's on the corner.", cue_ja = "角にあると言ってください。", say = "Það er á horninu.", items = ["thad_er_direction", "a_horninu"] },
+  { who = "you", cue = "Say it's on the corner.", cue_ja = "角にあると言ってください。", aim = "say it's on the corner", aim_ja = "角にあると教える", say = "Það er á horninu.", items = ["thad_er_direction", "a_horninu"] },
   { who = "partner", say = "Á horninu? Er það langt?", meaning = "On the corner? Is it far?", meaning_ja = "角ですか？遠いですか？" },
-  { who = "you", cue = "Say no, it's near.", cue_ja = "いいえ、近いと言ってください。", say = "Nei, það er nálægt.", items = ["nei", "thad_er_direction", "naelagt"] },
+  { who = "you", cue = "Say no, it's near.", cue_ja = "いいえ、近いと言ってください。", aim = "say it's near", aim_ja = "近いと教える", say = "Nei, það er nálægt.", items = ["nei", "thad_er_direction", "naelagt"] },
   { who = "partner", say = "Frábært. En pósthúsið?", meaning = "Great. And the post office?", meaning_ja = "よかった。郵便局は？", variants = [{ say = "Takk. Og pósthúsið?", meaning = "Thanks. And the post office?", meaning_ja = "ありがとう。郵便局は？" }] },
-  { who = "you", cue = "Say it's across the street.", cue_ja = "通りの向こう側だと言ってください。", say = "Það er hinum megin við götuna.", items = ["thad_er_direction", "hinum_megin_vid_gotuna"] },
+  { who = "you", cue = "Say it's across the street.", cue_ja = "通りの向こう側だと言ってください。", aim = "say it's across the street", aim_ja = "通りの向こう側だと教える", say = "Það er hinum megin við götuna.", items = ["thad_er_direction", "hinum_megin_vid_gotuna"] },
   { who = "partner", say = "Takk kærlega!", meaning = "Thank you very much!", meaning_ja = "本当にありがとう！" },
-  { who = "you", cue = "Say you're welcome.", cue_ja = "どういたしましてと言ってください。", say = "Ekkert að þakka.", items = ["ekkert_ad_thakka"] },
+  { who = "you", cue = "Say you're welcome.", cue_ja = "どういたしましてと言ってください。", aim = "say you're welcome", aim_ja = "どういたしましてと言う", say = "Ekkert að þakka.", items = ["ekkert_ad_thakka"] },
 ]
 [[themes.levels]]
 # #327 batch: in front of, behind, and how long it takes (lessons 44–45 of the lesson-40 replay).
@@ -243,11 +243,11 @@ goal_ja = "旅行者に駐車場とバス停の場所、歩いてどのくらい
 partner_speaker = "native_b"
 turns = [
   { who = "partner", scene = "A tourist with a car stops you and asks the way.", scene_ja = "車で来た旅行者に呼び止められて、道を聞かれます。", say = "Fyrirgefðu, veistu hvar bílastæðið er?", meaning = "Sorry, do you know where the car park is?", meaning_ja = "すみません、駐車場がどこか知っていますか？" },
-  { who = "you", cue = "Say it's in front of the hotel.", cue_ja = "ホテルの前だと言ってください。", say = "Það er fyrir framan hótelið.", items = ["thad_er_direction", "fyrir_framan_hotelid"] },
+  { who = "you", cue = "Say it's in front of the hotel.", cue_ja = "ホテルの前だと言ってください。", aim = "say it's in front of the hotel", aim_ja = "ホテルの前だと教える", say = "Það er fyrir framan hótelið.", items = ["thad_er_direction", "fyrir_framan_hotelid"] },
   { who = "partner", say = "Takk. Og strætóstoppistöðin?", meaning = "Thanks. And the bus stop?", meaning_ja = "ありがとう。バス停は？", variants = [{ say = "Frábært. En strætóstoppistöðin?", meaning = "Great. And the bus stop?", meaning_ja = "よかった。バス停は？" }] },
-  { who = "you", cue = "Say it's behind the church.", cue_ja = "教会の裏だと言ってください。", say = "Það er fyrir aftan kirkjuna.", items = ["thad_er_direction", "fyrir_aftan_kirkjuna"] },
+  { who = "you", cue = "Say it's behind the church.", cue_ja = "教会の裏だと言ってください。", aim = "say it's behind the church", aim_ja = "教会の裏だと教える", say = "Það er fyrir aftan kirkjuna.", items = ["thad_er_direction", "fyrir_aftan_kirkjuna"] },
   { who = "partner", say = "Hvað er langt að ganga þangað?", meaning = "How far is it to walk there?", meaning_ja = "そこまで歩いてどのくらいですか？" },
-  { who = "you", cue = "Say it takes half an hour.", cue_ja = "30分かかると言ってください。", say = "Það tekur hálftíma.", items = ["thad_tekur", "halftima"] },
+  { who = "you", cue = "Say it takes half an hour.", cue_ja = "30分かかると言ってください。", aim = "say it takes half an hour", aim_ja = "30分かかると教える", say = "Það tekur hálftíma.", items = ["thad_tekur", "halftima"] },
   { who = "partner", say = "Hálftíma! Þá tek ég leigubíl.", meaning = "Half an hour! Then I'll take a taxi.", meaning_ja = "30分も！じゃあタクシーにします。" },
 ]
 
@@ -269,11 +269,11 @@ goal_ja = "名前と出身を伝え、相手の名前も聞く。"
 partner_speaker = "native_a"
 turns = [
   { who = "partner", say = "Hæ!", meaning = "Hi!", meaning_ja = "こんにちは！", variants = [{ say = "Hæ, hæ!", meaning = "Hi there!", meaning_ja = "やあ、こんにちは！" }] },
-  { who = "you", cue = "Say hi, give your name, and ask hers.", cue_ja = "あいさつして名前を言い、相手の名前を聞いてください。", say = "Hæ! Ég heiti Yuki. Hvað heitir þú?", items = ["hae", "eg_heiti", "hvad_heitir_thu"] },
+  { who = "you", cue = "Say hi, give your name, and ask hers.", cue_ja = "あいさつして名前を言い、相手の名前を聞いてください。", aim = "give your name and ask hers", aim_ja = "名前を言い、相手の名前を聞く", say = "Hæ! Ég heiti Yuki. Hvað heitir þú?", items = ["hae", "eg_heiti", "hvad_heitir_thu"] },
   { who = "partner", say = "Ég heiti Anna. Hvaðan ert þú?", meaning = "I'm Anna. Where are you from?", meaning_ja = "アンナです。どこから来たんですか？", variants = [{ say = "Ég heiti Anna. Gaman að kynnast þér! Hvaðan ert þú?", meaning = "I'm Anna. Nice to meet you! Where are you from?", meaning_ja = "アンナです。はじめまして！どこから来たんですか？" }] },
-  { who = "you", cue = "Say you're from Japan, and ask her back.", cue_ja = "日本から来たと言い、相手にも聞き返してください。", say = "Ég er frá Japan. En þú?", items = ["eg_er_fra_japan", "en_thu"] },
+  { who = "you", cue = "Say you're from Japan, and ask her back.", cue_ja = "日本から来たと言い、相手にも聞き返してください。", aim = "say you're from Japan and ask her back", aim_ja = "日本から来たと言い、聞き返す", say = "Ég er frá Japan. En þú?", items = ["eg_er_fra_japan", "en_thu"] },
   { who = "partner", say = "Ég er frá Akureyri, en ég bý í Reykjavík.", meaning = "I'm from Akureyri, but I live in Reykjavík.", meaning_ja = "アークレイリ出身ですが、レイキャビクに住んでいます。", probes = [{ kind = "place", answer = "Akureyri", meanings = { en = "Akureyri", ja = "アークレイリ" }, ask = { en = "Where is she from?", ja = "彼女はどこの出身ですか？" } }, { kind = "place", answer = "Reykjavík", meanings = { en = "Reykjavík", ja = "レイキャビク" }, ask = { en = "Where does she live?", ja = "彼女はどこに住んでいますか？" } }], listen = [{ say = "Ég er frá Reykjavík, en ég bý á Akureyri.", meaning = "I'm from Reykjavík, but I live in Akureyri.", meaning_ja = "レイキャビク出身ですが、アークレイリに住んでいます。", probes = [{ kind = "place", answer = "Reykjavík", meanings = { en = "Reykjavík", ja = "レイキャビク" }, ask = { en = "Where is she from?", ja = "彼女はどこの出身ですか？" } }, { kind = "place", answer = "Akureyri", meanings = { en = "Akureyri", ja = "アークレイリ" }, ask = { en = "Where does she live?", ja = "彼女はどこに住んでいますか？" } }] }] },
-  { who = "you", cue = "Say it's nice to meet her.", cue_ja = "会えてうれしいと伝えてください。", say = "Gaman að kynnast þér.", items = ["gaman_ad_kynnast_ther"] },
+  { who = "you", cue = "Say it's nice to meet her.", cue_ja = "会えてうれしいと伝えてください。", aim = "say it's nice to meet her", aim_ja = "会えてうれしいと伝える", say = "Gaman að kynnast þér.", items = ["gaman_ad_kynnast_ther"] },
 ]
 [[themes.levels]]
 goal = "Say where you live and what you do, and ask her the same."
@@ -281,11 +281,11 @@ goal_ja = "住んでいる所と仕事を伝え、相手にも同じことを聞
 partner_speaker = "native_a"
 turns = [
   { who = "partner", say = "Hvar býrð þú?", meaning = "Where do you live?", meaning_ja = "どこに住んでいるんですか？" },
-  { who = "you", cue = "Say you live in Tokyo, and ask her back.", cue_ja = "東京に住んでいると言い、聞き返してください。", say = "Ég bý í Tókýó. En þú?", items = ["eg_by_i", "tokyo_dat", "en_thu"] },
+  { who = "you", cue = "Say you live in Tokyo, and ask her back.", cue_ja = "東京に住んでいると言い、聞き返してください。", aim = "say you live in Tokyo and ask her back", aim_ja = "東京に住んでいると言い、聞き返す", say = "Ég bý í Tókýó. En þú?", items = ["eg_by_i", "tokyo_dat", "en_thu"] },
   { who = "partner", say = "Ég bý í Kópavogi, rétt hjá Reykjavík.", meaning = "I live in Kópavogur, just by Reykjavík.", meaning_ja = "コーパヴォグルに住んでいます。レイキャビクのすぐ近くです。" },
-  { who = "you", cue = "Ask what she does.", cue_ja = "仕事は何か聞いてください。", say = "Hvað gerir þú?", items = ["hvad_gerir_thu"] },
+  { who = "you", cue = "Ask what she does.", cue_ja = "仕事は何か聞いてください。", aim = "ask what she does", aim_ja = "仕事は何か聞く", say = "Hvað gerir þú?", items = ["hvad_gerir_thu"] },
   { who = "partner", say = "Ég er læknir. En þú?", meaning = "I'm a doctor. And you?", meaning_ja = "医者です。あなたは？", variants = [{ say = "Ég vinn á sjúkrahúsi. En þú?", meaning = "I work at a hospital. And you?", meaning_ja = "病院で働いています。あなたは？" }] },
-  { who = "you", cue = "Say you're a teacher.", cue_ja = "教師だと言ってください。", say = "Ég er kennari.", items = ["eg_er_job", "kennari"] },
+  { who = "you", cue = "Say you're a teacher.", cue_ja = "教師だと言ってください。", aim = "say you're a teacher", aim_ja = "教師だと言う", say = "Ég er kennari.", items = ["eg_er_job", "kennari"] },
   { who = "partner", say = "Gaman að heyra það.", meaning = "Nice to hear that.", meaning_ja = "それはいいですね。" },
 ]
 [[themes.levels]]
@@ -293,13 +293,13 @@ goal = "Ask if she's Icelandic, say you're Japanese and here on business, and wh
 goal_ja = "アイスランド人か聞き、日本人で出張中だと伝え、勤め先も言う。"
 partner_speaker = "native_a"
 turns = [
-  { who = "you", cue = "Ask if she's Icelandic.", cue_ja = "アイスランド人か聞いてください。", say = "Ert þú íslensk?", items = ["ert_thu_islensk"] },
+  { who = "you", cue = "Ask if she's Icelandic.", cue_ja = "アイスランド人か聞いてください。", aim = "ask if she's Icelandic", aim_ja = "アイスランド人か聞く", say = "Ert þú íslensk?", items = ["ert_thu_islensk"] },
   { who = "partner", say = "Já, ég er frá Akureyri. En þú?", meaning = "Yes, I'm from Akureyri. And you?", meaning_ja = "ええ、アークレイリ出身です。あなたは？", variants = [{ say = "Já, alveg. En þú?", meaning = "Yes, absolutely. And you?", meaning_ja = "ええ、まったくそうです。あなたは？", word_glosses = { "alveg" = { en = "absolutely", ja = "まったく", pointer = { en = "the word that makes the yes stronger", ja = "「はい」を強めた部分" } } } }] },
-  { who = "you", cue = "Say you're Japanese.", cue_ja = "日本人だと言ってください。", say = "Ég er japönsk.", say_m = "Ég er japanskur.", items = ["eg_er_japonsk"] },
+  { who = "you", cue = "Say you're Japanese.", cue_ja = "日本人だと言ってください。", aim = "say you're Japanese", aim_ja = "日本人だと言う", say = "Ég er japönsk.", say_m = "Ég er japanskur.", items = ["eg_er_japonsk"] },
   { who = "partner", say = "Ertu hér í fríi?", meaning = "Are you here on holiday?", meaning_ja = "休暇で来ているんですか？", word_glosses = { "fríi" = { en = "holiday", ja = "休暇" } }, variants = [{ say = "Ertu í fríi á Íslandi?", meaning = "Are you on holiday in Iceland?", meaning_ja = "アイスランドには休暇で？", word_glosses = { "fríi" = { en = "holiday", ja = "休暇" } } }] },
-  { who = "you", cue = "Say you're on a business trip.", cue_ja = "出張中だと言ってください。", say = "Ég er í vinnuferð.", items = ["eg_er_i_vinnuferd"] },
+  { who = "you", cue = "Say you're on a business trip.", cue_ja = "出張中だと言ってください。", aim = "say you're on a business trip", aim_ja = "出張中だと言う", say = "Ég er í vinnuferð.", items = ["eg_er_i_vinnuferd"] },
   { who = "partner", say = "Nú já! Hvar vinnur þú?", meaning = "Oh, I see! Where do you work?", meaning_ja = "そうなんですね！どこで働いているんですか？", word_glosses = { "vinnur" = { en = "work", ja = "働いて", pointer = { en = "the word asking what you do there", ja = "そこで何をしているか尋ねた部分" } } } },
-  { who = "you", cue = "Say you work at a small company.", cue_ja = "小さな会社で働いていると言ってください。", say = "Ég vinn hjá litlu fyrirtæki.", items = ["eg_vinn_hja"] },
+  { who = "you", cue = "Say you work at a small company.", cue_ja = "小さな会社で働いていると言ってください。", aim = "say you work at a small company", aim_ja = "小さな会社で働いていると言う", say = "Ég vinn hjá litlu fyrirtæki.", items = ["eg_vinn_hja"] },
   { who = "partner", say = "Gaman að heyra það.", meaning = "Nice to hear that.", meaning_ja = "それはいいですね。" },
 ]
 [[themes.levels]]
@@ -312,11 +312,11 @@ goal_ja = "相手の年齢を聞き、自分の年齢と、結婚しているか
 partner_speaker = "native_a"
 turns = [
   { who = "partner", say = "Ég á afmæli í dag!", meaning = "It's my birthday today!", meaning_ja = "今日は私の誕生日なんです！", word_glosses = { "afmæli" = { en = "birthday", ja = "誕生日" } } },
-  { who = "you", cue = "Ask how old she is.", cue_ja = "何歳になったか聞いてください。", say = "Hvað ertu gömul?", items = ["hvad_ertu_gomul"] },
+  { who = "you", cue = "Ask how old she is.", cue_ja = "何歳になったか聞いてください。", aim = "ask how old she is", aim_ja = "相手の年齢を聞く", say = "Hvað ertu gömul?", items = ["hvad_ertu_gomul"] },
   { who = "partner", say = "Ég er þrjátíu ára. En þú?", meaning = "I'm thirty. And you?", meaning_ja = "30歳です。あなたは？" },
-  { who = "you", cue = "Say you're twenty.", cue_ja = "20歳だと言ってください。", say = "Ég er tuttugu ára.", items = ["eg_er_ara", "tuttugu_ara"] },
+  { who = "you", cue = "Say you're twenty.", cue_ja = "20歳だと言ってください。", aim = "say your age", aim_ja = "自分の年齢を言う", say = "Ég er tuttugu ára.", items = ["eg_er_ara", "tuttugu_ara"] },
   { who = "partner", say = "Ég er gift. En þú?", meaning = "I'm married. And you?", meaning_ja = "私は結婚しています。あなたは？", variants = [{ say = "Ég er ekki gift. En þú?", meaning = "I'm not married. And you?", meaning_ja = "私は結婚していません。あなたは？" }] },
-  { who = "you", cue = "Say you're married.", cue_ja = "結婚していると言ってください。", say = "Ég er gift.", say_m = "Ég er giftur.", items = ["eg_er_gift"] },
+  { who = "you", cue = "Say you're married.", cue_ja = "結婚していると言ってください。", aim = "say you're married", aim_ja = "結婚していると言う", say = "Ég er gift.", say_m = "Ég er giftur.", items = ["eg_er_gift"] },
   { who = "partner", say = "Gaman að spjalla við þig!", meaning = "Nice chatting with you!", meaning_ja = "お話しできてよかったです！", word_glosses = { "spjalla" = { en = "chatting", ja = "お話し" } } },
 ]
 [[themes.levels]]
@@ -327,15 +327,15 @@ goal_ja = "長いバス旅行で、隣の人に前にも来たこと、住んで
 partner_speaker = "native_a"
 turns = [
   { who = "partner", say = "Fallegt, er það ekki? Hefurðu komið hingað áður?", meaning = "Beautiful, isn't it? Have you been here before?", meaning_ja = "きれいですね。前にも来たことがありますか？" },
-  { who = "you", cue = "Say yes, you've been here before.", cue_ja = "はい、前にも来たことがあると言ってください。", say = "Já, ég hef verið hér áður.", items = ["ja", "eg_hef_verid_her_adur"] },
+  { who = "you", cue = "Say yes, you've been here before.", cue_ja = "はい、前にも来たことがあると言ってください。", aim = "say you've been here before", aim_ja = "前にも来たことがあると言う", say = "Já, ég hef verið hér áður.", items = ["ja", "eg_hef_verid_her_adur"] },
   { who = "partner", say = "Nú já! Gaman að heyra.", meaning = "Oh! Nice to hear.", meaning_ja = "そうなんですね！" },
-  { who = "you", cue = "Ask where she lives.", cue_ja = "どこに住んでいるか聞いてください。", say = "Hvar býrð þú?", items = ["hvar_byrd_thu"] },
+  { who = "you", cue = "Ask where she lives.", cue_ja = "どこに住んでいるか聞いてください。", aim = "ask where she lives", aim_ja = "どこに住んでいるか聞く", say = "Hvar býrð þú?", items = ["hvar_byrd_thu"] },
   { who = "partner", say = "Á Selfossi. En þú?", meaning = "In Selfoss. And you?", meaning_ja = "セルフォスです。あなたは？" },
-  { who = "you", cue = "Say you live in Osaka.", cue_ja = "大阪に住んでいると言ってください。", say = "Ég bý í Ósaka.", items = ["eg_by_i", "osaka_dat"] },
+  { who = "you", cue = "Say you live in Osaka.", cue_ja = "大阪に住んでいると言ってください。", aim = "say you live in Osaka", aim_ja = "大阪に住んでいると言う", say = "Ég bý í Ósaka.", items = ["eg_by_i", "osaka_dat"] },
   { who = "partner", say = "Og hvað gerir þú?", meaning = "And what do you do?", meaning_ja = "お仕事は何ですか？", variants = [{ say = "Og við hvað vinnur þú?", meaning = "And what do you work as?", meaning_ja = "お仕事は何をしていますか？" }] },
-  { who = "you", cue = "Say you're a doctor.", cue_ja = "医者だと言ってください。", say = "Ég er læknir.", items = ["eg_er_job", "laeknir"] },
+  { who = "you", cue = "Say you're a doctor.", cue_ja = "医者だと言ってください。", aim = "say you're a doctor", aim_ja = "医者だと言う", say = "Ég er læknir.", items = ["eg_er_job", "laeknir"] },
   { who = "partner", say = "Áttu börn?", meaning = "Do you have children?", meaning_ja = "お子さんはいますか？" },
-  { who = "you", cue = "Say yes, you have two children.", cue_ja = "はい、子どもが二人いると言ってください。", say = "Já, ég á tvö börn.", items = ["ja", "eg_a_tvo_born"] },
+  { who = "you", cue = "Say yes, you have two children.", cue_ja = "はい、子どもが二人いると言ってください。", aim = "say you have two children", aim_ja = "子どもが二人いると言う", say = "Já, ég á tvö börn.", items = ["ja", "eg_a_tvo_born"] },
   { who = "partner", say = "Ég líka!", meaning = "Me too!", meaning_ja = "私もです！" },
 ]
 
@@ -357,11 +357,11 @@ goal_ja = "必要な物を伝え、値段に反応する。"
 partner_speaker = "native_a"
 turns = [
   { who = "partner", say = "Góðan daginn! Get ég aðstoðað?", meaning = "Hello! Can I help you?", meaning_ja = "こんにちは！何かお探しですか？", variants = [{ say = "Halló! Vantar þig eitthvað?", meaning = "Hi! Do you need anything?", meaning_ja = "こんにちは！何か必要ですか？" }] },
-  { who = "you", cue = "Say yes, you need a hat.", cue_ja = "はい、帽子が要ると言ってください。", say = "Já, ég þarf húfu.", items = ["ja", "eg_tharf", "husfu"] },
+  { who = "you", cue = "Say yes, you need a hat.", cue_ja = "はい、帽子が要ると言ってください。", aim = "say you need a hat", aim_ja = "帽子が要ると言う", say = "Já, ég þarf húfu.", items = ["ja", "eg_tharf", "husfu"] },
   { who = "partner", say = "Þessi er mjög hlý. Hún kostar sex þúsund krónur.", meaning = "This one is very warm. It costs six thousand krónur.", meaning_ja = "これはとても暖かいです。6000クローナです。", probes = [{ kind = "price", answer = "sex þúsund krónur", meanings = { en = "six thousand krónur", ja = "6000クローナ" } }], listen = [{ say = "Þessi er mjög hlý. Hún kostar sjö þúsund krónur.", meaning = "This one is very warm. It costs seven thousand krónur.", meaning_ja = "これはとても暖かいです。7000クローナです。", probes = [{ kind = "price", answer = "sjö þúsund krónur", meanings = { en = "seven thousand krónur", ja = "7000クローナ" } }] }, { say = "Þessi er hlý og kostar fimm þúsund krónur.", meaning = "This one is warm and costs five thousand krónur.", meaning_ja = "これは暖かくて、5000クローナです。", probes = [{ kind = "price", answer = "fimm þúsund krónur", meanings = { en = "five thousand krónur", ja = "5000クローナ" } }] }, { say = "Hún kostar átta þúsund krónur og er mjög hlý.", meaning = "It costs eight thousand krónur and is very warm.", meaning_ja = "8000クローナで、とても暖かいです。", probes = [{ kind = "price", answer = "átta þúsund krónur", meanings = { en = "eight thousand krónur", ja = "8000クローナ" } }] }] },
-  { who = "you", cue = "Say it's too expensive.", cue_ja = "高すぎると言ってください。", say = "Það er of dýrt.", items = ["thad_er_of_dyrt"] },
+  { who = "you", cue = "Say it's too expensive.", cue_ja = "高すぎると言ってください。", aim = "say it's too expensive", aim_ja = "高すぎると言う", say = "Það er of dýrt.", items = ["thad_er_of_dyrt"] },
   { who = "partner", say = "Þessi er ódýrari, bara þrjú þúsund.", meaning = "This one is cheaper, only three thousand.", meaning_ja = "こちらは安いですよ。3000だけです。", probes = [{ kind = "price", answer = "þrjú þúsund", meanings = { en = "three thousand", ja = "3000" } }], variants = [{ say = "Þessi kostar bara þrjú þúsund.", meaning = "This one is only three thousand.", meaning_ja = "こちらは3000だけです。", probes = [{ kind = "price", answer = "þrjú þúsund", meanings = { en = "three thousand", ja = "3000" } }] }], listen = [{ say = "Þessi er ódýrari, bara fjögur þúsund.", meaning = "This one is cheaper, only four thousand.", meaning_ja = "こちらのほうが安くて、4000だけです。", probes = [{ kind = "price", answer = "fjögur þúsund", meanings = { en = "four thousand", ja = "4000" } }] }, { say = "Þessi kostar bara tvö þúsund.", meaning = "This one costs only two thousand.", meaning_ja = "これは2000だけです。", probes = [{ kind = "price", answer = "tvö þúsund", meanings = { en = "two thousand", ja = "2000" } }] }] },
-  { who = "you", cue = "Ask if there's a discount.", cue_ja = "割引があるか聞いてください。", say = "Er afsláttur?", items = ["er_afslattur"] },
+  { who = "you", cue = "Ask if there's a discount.", cue_ja = "割引があるか聞いてください。", aim = "ask if there's a discount", aim_ja = "割引があるか聞く", say = "Er afsláttur?", items = ["er_afslattur"] },
   { who = "partner", say = "Já, tíu prósent í dag.", meaning = "Yes, ten percent today.", meaning_ja = "はい、今日は10パーセント引きです。" },
 ]
 [[themes.levels]]
@@ -370,11 +370,11 @@ goal_ja = "試着していいか聞き、試着室の場所を聞く。"
 partner_speaker = "native_a"
 turns = [
   { who = "partner", say = "Gjörðu svo vel, hér er hún.", meaning = "Here you are, here it is.", meaning_ja = "どうぞ、こちらです。" },
-  { who = "you", cue = "Ask if you can try it on.", cue_ja = "試着していいか聞いてください。", say = "Má ég máta þetta?", items = ["ma_eg_mata_thetta"] },
+  { who = "you", cue = "Ask if you can try it on.", cue_ja = "試着していいか聞いてください。", aim = "ask if you can try it on", aim_ja = "試着していいか聞く", say = "Má ég máta þetta?", items = ["ma_eg_mata_thetta"] },
   { who = "partner", say = "Já, auðvitað.", meaning = "Yes, of course.", meaning_ja = "はい、もちろん。", variants = [{ say = "Já, endilega.", meaning = "Yes, please do.", meaning_ja = "ええ、どうぞ。" }] },
-  { who = "you", cue = "Ask where the fitting room is.", cue_ja = "試着室はどこか聞いてください。", say = "Hvar er mátunarklefinn?", items = ["hvar_er_matunarklefinn"] },
+  { who = "you", cue = "Ask where the fitting room is.", cue_ja = "試着室はどこか聞いてください。", aim = "ask where the fitting room is", aim_ja = "試着室はどこか聞く", say = "Hvar er mátunarklefinn?", items = ["hvar_er_matunarklefinn"] },
   { who = "partner", say = "Hann er þarna, við hliðina á speglinum.", meaning = "It's over there, next to the mirror.", meaning_ja = "あちらの、鏡の横です。" },
-  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", say = "Takk.", items = ["takk"] },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
 ]
 [[themes.levels]]
 # #327 batch: a jacket that doesn't fit, a bigger one, another colour (lessons 47–48 of the lesson-40 replay).
@@ -383,13 +383,13 @@ goal_ja = "必要な物を伝え、小さすぎると言い、大きいサイズ
 partner_speaker = "native_a"
 turns = [
   { who = "partner", say = "Góðan daginn! Get ég aðstoðað?", meaning = "Hello! Can I help you?", meaning_ja = "こんにちは！何かお探しですか？" },
-  { who = "you", cue = "Say yes, you need a jacket.", cue_ja = "はい、ジャケットが要ると言ってください。", say = "Já, ég þarf jakka.", items = ["ja", "eg_tharf", "jakka"] },
+  { who = "you", cue = "Say yes, you need a jacket.", cue_ja = "はい、ジャケットが要ると言ってください。", aim = "say you need a jacket", aim_ja = "ジャケットが要ると言う", say = "Já, ég þarf jakka.", items = ["ja", "eg_tharf", "jakka"] },
   { who = "partner", say = "Þessi er mjög hlýr. Mátaðu hann.", meaning = "This one is very warm. Try it on.", meaning_ja = "これはとても暖かいです。着てみてください。" },
-  { who = "you", cue = "You try it on. Say it's too small.", cue_ja = "着てみました。小さすぎると言ってください。", say = "Þetta er of lítið.", items = ["thetta_er_of_litid"] },
+  { who = "you", cue = "You try it on. Say it's too small.", cue_ja = "着てみました。小さすぎると言ってください。", aim = "say it's too small", aim_ja = "小さすぎると言う", say = "Þetta er of lítið.", items = ["thetta_er_of_litid"] },
   { who = "partner", say = "Æ, leiðinlegt.", meaning = "Oh, that's a pity.", meaning_ja = "あら、残念。", variants = [{ say = "Æ, en leiðinlegt.", meaning = "Oh, what a pity.", meaning_ja = "あら、それは残念。" }] },
-  { who = "you", cue = "Ask if she has it in a bigger size.", cue_ja = "大きいサイズがあるか聞いてください。", say = "Áttu þetta í stærra?", items = ["attu_thetta_i_staerra"] },
+  { who = "you", cue = "Ask if she has it in a bigger size.", cue_ja = "大きいサイズがあるか聞いてください。", aim = "ask for a bigger size", aim_ja = "大きいサイズがあるか聞く", say = "Áttu þetta í stærra?", items = ["attu_thetta_i_staerra"] },
   { who = "partner", say = "Já, gjörðu svo vel.", meaning = "Yes, here you are.", meaning_ja = "はい、どうぞ。" },
-  { who = "you", cue = "Ask if she has it in another colour.", cue_ja = "別の色があるか聞いてください。", say = "Áttu þetta í öðrum lit?", items = ["attu_thetta_i_odrum_lit"] },
+  { who = "you", cue = "Ask if she has it in another colour.", cue_ja = "別の色があるか聞いてください。", aim = "ask for another colour", aim_ja = "別の色があるか聞く", say = "Áttu þetta í öðrum lit?", items = ["attu_thetta_i_odrum_lit"] },
   { who = "partner", say = "Já, í bláu og rauðu.", meaning = "Yes, in blue and red.", meaning_ja = "はい、青と赤があります。" },
 ]
 
@@ -412,11 +412,11 @@ goal_ja = "出発する日を伝え、時間を聞いて、その時間で大丈
 partner_speaker = "native_a"
 turns = [
   { who = "partner", say = "Eigum við að hittast á morgun?", meaning = "Shall we meet tomorrow?", meaning_ja = "明日会いませんか？", word_glosses = { "hittast" = { en = "meet", ja = "会い" } } },
-  { who = "you", cue = "Say you're leaving tomorrow.", cue_ja = "明日は出発すると言ってください。", say = "Ég fer á morgun.", items = ["eg_fer", "a_morgun"] },
+  { who = "you", cue = "Say you're leaving tomorrow.", cue_ja = "明日は出発すると言ってください。", aim = "say you're leaving tomorrow", aim_ja = "明日出発すると伝える", say = "Ég fer á morgun.", items = ["eg_fer", "a_morgun"] },
   { who = "partner", say = "Nú, en í kvöld?", meaning = "Oh, how about this evening?", meaning_ja = "そうですか、じゃあ今夜は？", variants = [{ say = "Æ, en í kvöld þá?", meaning = "Oh, this evening then?", meaning_ja = "ああ、じゃあ今夜は？" }] },
-  { who = "you", cue = "Ask at what time.", cue_ja = "何時か聞いてください。", say = "Klukkan hvað?", items = ["klukkan_hvad"] },
+  { who = "you", cue = "Ask at what time.", cue_ja = "何時か聞いてください。", aim = "ask at what time", aim_ja = "何時か聞く", say = "Klukkan hvað?", items = ["klukkan_hvad"] },
   { who = "partner", say = "Klukkan átta, á kaffihúsinu. Hentar það?", meaning = "At eight, at the café. Does that suit you?", meaning_ja = "8時に、カフェで。都合はどうですか？", probes = [{ kind = "time", answer = "klukkan átta", meanings = { en = "eight o'clock", ja = "8時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }], listen = [{ say = "Klukkan sjö, á kaffihúsinu. Hentar það?", meaning = "At seven, at the café. Does that suit you?", meaning_ja = "7時に、カフェで。都合はどうですか？", probes = [{ kind = "time", answer = "klukkan sjö", meanings = { en = "seven o'clock", ja = "7時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] }, { say = "Klukkan níu, á kaffihúsinu. Hentar það?", meaning = "At nine, at the café. Does that suit you?", meaning_ja = "9時に、カフェで。都合はどうですか？", probes = [{ kind = "time", answer = "klukkan níu", meanings = { en = "nine o'clock", ja = "9時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] }, { say = "Klukkan sex, á kaffihúsinu. Hentar það?", meaning = "At six, at the café. Does that suit you?", meaning_ja = "6時に、カフェで。都合はどうですか？", probes = [{ kind = "time", answer = "klukkan sex", meanings = { en = "six o'clock", ja = "6時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] }] },
-  { who = "you", cue = "Say that suits you well.", cue_ja = "それで大丈夫だと言ってください。", say = "Það hentar vel.", items = ["thad_hentar_vel"] },
+  { who = "you", cue = "Say that suits you well.", cue_ja = "それで大丈夫だと言ってください。", aim = "say the time suits you", aim_ja = "その時間で大丈夫と言う", say = "Það hentar vel.", items = ["thad_hentar_vel"] },
   { who = "partner", say = "Frábært! Sjáumst í kvöld.", meaning = "Great! See you this evening.", meaning_ja = "よかった！じゃあ今夜。" },
 ]
 [[themes.levels]]
@@ -425,11 +425,11 @@ goal_ja = "明日は無理だと伝え、今夜行くと言って、じゃあま
 partner_speaker = "native_a"
 turns = [
   { who = "partner", say = "Viltu koma í sund á morgun?", meaning = "Do you want to come swimming tomorrow?", meaning_ja = "明日プールに行きませんか？" },
-  { who = "you", cue = "Say you can't tomorrow.", cue_ja = "明日は無理だと言ってください。", say = "Ég get ekki á morgun.", items = ["eg_get_ekki_a_morgun"] },
+  { who = "you", cue = "Say you can't tomorrow.", cue_ja = "明日は無理だと言ってください。", aim = "say you can't tomorrow", aim_ja = "明日は無理だと伝える", say = "Ég get ekki á morgun.", items = ["eg_get_ekki_a_morgun"] },
   { who = "partner", say = "Allt í lagi. En í kvöld?", meaning = "All right. And this evening?", meaning_ja = "わかりました。今夜は？", variants = [{ say = "Ekkert mál. En í kvöld?", meaning = "No problem. And this evening?", meaning_ja = "大丈夫です。今夜は？" }] },
-  { who = "you", cue = "Say yes, you'll come this evening.", cue_ja = "はい、今夜行くと言ってください。", say = "Já, ég kem í kvöld.", items = ["ja", "eg_kem", "i_kvold"] },
+  { who = "you", cue = "Say yes, you'll come this evening.", cue_ja = "はい、今夜行くと言ってください。", aim = "say you'll come this evening", aim_ja = "今夜行くと言う", say = "Já, ég kem í kvöld.", items = ["ja", "eg_kem", "i_kvold"] },
   { who = "partner", say = "Frábært. Klukkan sjö, við sundlaugina.", meaning = "Great. At seven, by the pool.", meaning_ja = "よかった。7時に、プールのところで。", probes = [{ kind = "time", answer = "klukkan sjö", meanings = { en = "seven o'clock", ja = "7時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }], listen = [{ say = "Frábært. Klukkan átta, við sundlaugina.", meaning = "Great. At eight, by the pool.", meaning_ja = "よかった。8時に、プールのところで。", probes = [{ kind = "time", answer = "klukkan átta", meanings = { en = "eight o'clock", ja = "8時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] }, { say = "Frábært. Klukkan sex, við sundlaugina.", meaning = "Great. At six, by the pool.", meaning_ja = "よかった。6時に、プールのところで。", probes = [{ kind = "time", answer = "klukkan sex", meanings = { en = "six o'clock", ja = "6時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] }, { say = "Frábært. Klukkan níu, við sundlaugina.", meaning = "Great. At nine, by the pool.", meaning_ja = "よかった。9時に、プールのところで。", probes = [{ kind = "time", answer = "klukkan níu", meanings = { en = "nine o'clock", ja = "9時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] }] },
-  { who = "you", cue = "Say see you this evening.", cue_ja = "じゃあ今夜、と言ってください。", say = "Sjáumst í kvöld!", items = ["sjaumst_time", "i_kvold"] },
+  { who = "you", cue = "Say see you this evening.", cue_ja = "じゃあ今夜、と言ってください。", aim = "say see you this evening", aim_ja = "じゃあ今夜、と言う", say = "Sjáumst í kvöld!", items = ["sjaumst_time", "i_kvold"] },
 ]
 [[themes.levels]]
 goal = "Say you're late, and when you'll be there."
@@ -437,9 +437,9 @@ goal_ja = "遅れていることと、いつ着くかを伝える。"
 partner_speaker = "native_a"
 turns = [
   { who = "partner", say = "Hæ, hvar ertu?", meaning = "Hi, where are you?", meaning_ja = "もしもし、どこにいるの？" },
-  { who = "you", cue = "You're running late. Say sorry, you're late.", cue_ja = "遅れています。ごめんなさい、遅れていますと言ってください。", say = "Fyrirgefðu, ég er sein.", say_m = "Fyrirgefðu, ég er seinn.", items = ["fyrirgefdu", "eg_er_sein"] },
+  { who = "you", cue = "You're running late. Say sorry, you're late.", cue_ja = "遅れています。ごめんなさい、遅れていますと言ってください。", aim = "say sorry, you're late", aim_ja = "遅れていると謝る", say = "Fyrirgefðu, ég er sein.", say_m = "Fyrirgefðu, ég er seinn.", items = ["fyrirgefdu", "eg_er_sein"] },
   { who = "partner", say = "Ekkert mál. Hvenær kemur þú?", meaning = "No problem. When will you come?", meaning_ja = "大丈夫。いつ来る？", variants = [{ say = "Allt í lagi. Hvenær kemurðu?", meaning = "All right. When are you coming?", meaning_ja = "わかった。いつ来るの？" }] },
-  { who = "you", cue = "Say you'll be there in ten minutes.", cue_ja = "10分後に着くと言ってください。", say = "Ég kem eftir tíu mínútur.", items = ["eg_kem_eftir_tiu_minutur"] },
+  { who = "you", cue = "Say you'll be there in ten minutes.", cue_ja = "10分後に着くと言ってください。", aim = "say you'll be there in ten minutes", aim_ja = "10分後に着くと伝える", say = "Ég kem eftir tíu mínútur.", items = ["eg_kem_eftir_tiu_minutur"] },
   { who = "partner", say = "Allt í lagi, ég bíð hérna.", meaning = "All right, I'll wait here.", meaning_ja = "わかった、ここで待ってるね。", word_glosses = { "bíð" = { en = "wait", ja = "待って" } } },
 ]
 
@@ -461,10 +461,10 @@ goal_ja = "今日はいい天気だと言い、明日の天気を聞いて、傘
 partner_speaker = "native_b"
 turns = [
   { who = "partner", say = "Góðan daginn! Ætlarðu út í dag?", meaning = "Good morning! Are you going out today?", meaning_ja = "おはようございます！今日はお出かけですか？" },
-  { who = "you", cue = "Say yes: the weather is good today.", cue_ja = "はい、今日はいい天気ですねと言ってください。", say = "Já, veðrið er gott í dag.", items = ["ja", "vedrid_er_gott_i_dag"] },
+  { who = "you", cue = "Say yes: the weather is good today.", cue_ja = "はい、今日はいい天気ですねと言ってください。", aim = "say the weather is good today", aim_ja = "今日はいい天気だと言う", say = "Já, veðrið er gott í dag.", items = ["ja", "vedrid_er_gott_i_dag"] },
   { who = "partner", say = "Já, en það breytist fljótt hér.", meaning = "Yes, but it changes fast here.", meaning_ja = "ええ、でもここではすぐ変わりますよ。", variants = [{ say = "Já, en það breytist fljótt á Íslandi.", meaning = "Yes, but it changes fast in Iceland.", meaning_ja = "ええ、でもアイスランドではすぐ変わりますよ。" }] },
-  { who = "you", cue = "Ask what the weather will be like tomorrow.", cue_ja = "明日の天気はどうか聞いてください。", say = "Hvernig verður veðrið á morgun?", items = ["hvernig_verdur_vedrid_a_morgun"] },
+  { who = "you", cue = "Ask what the weather will be like tomorrow.", cue_ja = "明日の天気はどうか聞いてください。", aim = "ask about tomorrow's weather", aim_ja = "明日の天気を聞く", say = "Hvernig verður veðrið á morgun?", items = ["hvernig_verdur_vedrid_a_morgun"] },
   { who = "partner", say = "Það á að rigna allan daginn.", meaning = "It's supposed to rain all day.", meaning_ja = "一日中雨の予報です。" },
-  { who = "you", cue = "Say you need an umbrella.", cue_ja = "傘が要ると言ってください。", say = "Ég þarf regnhlíf.", items = ["eg_tharf", "regnhlif"] },
+  { who = "you", cue = "Say you need an umbrella.", cue_ja = "傘が要ると言ってください。", aim = "say you need an umbrella", aim_ja = "傘が要ると言う", say = "Ég þarf regnhlíf.", items = ["eg_tharf", "regnhlif"] },
   { who = "partner", say = "Þú mátt fá mína lánaða.", meaning = "You can borrow mine.", meaning_ja = "私のを貸してあげますよ。" },
 ]

@@ -3,6 +3,8 @@
 lesson_open = "レッスン{n}。"
 lesson_intro = "無音の間に、声に出して答えてください。間違えても大丈夫です。"
 lesson_goal = "今日の目標：{goal}"
+lesson_goal_parts = "{said}。「{listen}」の言い方は、今日は聞くだけです。"
+lesson_goal_listen_only = "「{listen}」の言い方を聞き取る。"
 lesson_close = "レッスン{n}はこれで終わりです。お疲れさまでした。"
 final_block = "最後に、今日の新しい表現をもう一度確認しましょう。"
 final_block_some = "最後に、今日の新しい表現のいくつかをもう一度確認しましょう。"
