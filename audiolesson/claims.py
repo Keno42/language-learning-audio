@@ -53,6 +53,8 @@ NO_CLAIM = {
     "listening_intro_some_asked": "the same, with lines the learner knows asked (#240)",
     "listening_intro_known": "«The conversation again.»: a scene played in an earlier lesson (#263), which one lesson's script does not show",
     "slow_hear_intro": "«try to say this sentence … again»: a sentence the learner reported hard after an earlier lesson (#337, #423), which one lesson's script does not show",
+    "hear_support_sentence": "«you found this one hard to catch»: a line the learner reported hard to hear after an earlier lesson (#444), which one lesson's script does not show",
+    "hear_support_word": "«you found this word hard to catch»: a word the learner reported hard to hear after an earlier lesson (#444), which one lesson's script does not show",
     "listening_intro_known_voiced": "the same, with the learner's known set replies played (#416)",
     "listening_intro_again": "«The conversation again.»: a scene played in an earlier lesson, once the lesson has said that short replies are played (#438)",
     "transform_same": "«Same change:»: refers back to the instruction of the transform asked last (#405), which the builder tracks (``_last_instruction``); no CLAIMS kind checks it",

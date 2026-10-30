@@ -19,6 +19,10 @@ split_slowly = "ゆっくり、区切って言います。それぞれ繰り返�
 slow_word_intro = "この文には言いにくい単語があります。まず文から。"
 slow_word_intro_word = "この単語は言いにくいですね。"
 slow_hear_intro = "この文を、もう一度{language}で言ってみましょう。「{meaning}」"
+hear_support_sentence = "聞き取りにくかった文です。聞いてください。"
+hear_support_word = "聞き取りにくかった単語です。聞いてください。"
+hear_support_find = "次の文の中からこの単語を聞き取って、言ってください。"
+hear_support_again = "もう一度、文全体を聞いてください。"
 note_pieces = "では、部分ごとにゆっくり、一つずつ聞きましょう。"
 
 # issue #59: 何を言いたいのかを先に示す（「Ég skil…」だけでは「わかりません」か判別できない）

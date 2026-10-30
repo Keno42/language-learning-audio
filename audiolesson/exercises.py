@@ -943,6 +943,43 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def hear_support_exercise(self, sc: Script, item: Item, sentence: str | None) -> Exercise:
+        """An item the learner reported hard to *hear* (#444): listening, not a pronunciation model. A line of two or more words (``hearing_line``) is heard,
+        its meaning given, then heard word by word and again at natural speed. A single word is heard alone with its meaning, then found in ``sentence`` (a
+        sentence the learner has that holds it): the learner says the word they heard, and the sentence is played once more. Without a sentence the word is
+        heard once more. The learner speaks only the word they picked out."""
+        line = self.hearing_line(item)
+        ex = sc.new_exercise("model", "hear", [item.id], f"hear: {line[0] if line else item.target}")
+        if line is not None:
+            text, meaning, _ = line
+            self._frame(sc, ex, self.prompts.get("hear_support_sentence"))
+            self._speak(sc, ex, text, speaker="native_a")
+            self._narr(sc, ex, self._m(meaning))
+            self._beat(sc, ex)
+            self._narr(sc, ex, self.prompts.get("slowly"))
+            self._slow_line(sc, ex, text)
+            self._narr(sc, ex, self.prompts.get("natural"))
+            self._speak(sc, ex, text, speaker="native_a")
+            self._gap(sc, ex)
+            return ex
+        self._frame(sc, ex, self.prompts.get("hear_support_word"))
+        self._speak(sc, ex, item.target, speaker="native_a")
+        self._narr(sc, ex, self._m(item.spoken_meaning))
+        self._beat(sc, ex)
+        if sentence:
+            self._frame(sc, ex, self.prompts.get("hear_support_find"))
+            self._speak(sc, ex, sentence, speaker="native_a")
+            self._answer_pause(sc, ex, item.target, item, generative=False)
+            self._answer(sc, ex, item.target, speaker="native_a")
+            self._beat(sc, ex)
+            self._frame(sc, ex, self.prompts.get("hear_support_again"))
+            self._speak(sc, ex, sentence, speaker="native_a")
+        else:
+            self._frame(sc, ex, self.prompts.get("once_more"))
+            self._speak(sc, ex, item.target, speaker="native_a")
+        self._gap(sc, ex)
+        return ex
+
     def _slow_model_after_hard(self, sc: Script, ex: Exercise, item: Item) -> None:
         """The generic introduction's slow model for a hard-to-say word (#212): a word that already got a slow whole-word repetition (``is_hard``) only gets the split."""
         if item.is_hard() and not item.syllables:
