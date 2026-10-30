@@ -3933,7 +3933,7 @@ class Planner:
         b.closing(sc, n)
 
         if goal_ex is not None and theme_plays and late_heard:
-            b.goal_heard(sc, goal_ex, len(late_heard))  # #327 (lesson 42: «Say you can't tomorrow …», whose line was heard in both plays)
+            b.goal_heard(sc, goal_ex, [t for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you"], set(late_heard))  # #327 (lesson 42: «Say you can't tomorrow …», whose line was heard in both plays)
         listening_closed, conversations_closed = self._close_tasks(sc)
         switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same, b.timing.switch_gap_sentence)  # #301: the last pass over the finished script
         sc.retime()
