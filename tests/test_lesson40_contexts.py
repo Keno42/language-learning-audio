@@ -70,8 +70,8 @@ class Lesson40ContextTests(unittest.TestCase):
         self.assertEqual(level_dialogue(theme, 0).setting, theme.scene_line, "the other levels keep the theme's")
         k = next(k for k, t in enumerate(level.turns) if "eg_er_gift" in t.items)
         self.assertIn("hring", level.turns[k - 1].say, "her remark on the ring leads to whether you're married")
-        asked_back = [t.say for t in level.turns if t.who == "partner" and "En þú?" in t.say]
-        self.assertEqual(asked_back, ["Takk! Ég er þrjátíu ára. En þú?"])
+        asked_back = [line.say for t in level.turns if t.who == "partner" for line in t.lines() if "En þú?" in line.say]
+        self.assertEqual(asked_back, ["Takk! Ég er þrjátíu ára. En þú?", "Takk! Þrjátíu ára í dag. En þú?"])
         a = next(k for k, t in enumerate(level.turns) if "hvad_ertu_gomul" in t.items)
         self.assertIn("afmæli", level.turns[a - 1].say, "her birthday leads to the age")
 

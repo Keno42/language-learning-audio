@@ -316,7 +316,7 @@ scene_line_ja = "ゲストハウスで知り合ったアンナと、カフェで
 turns = [
   { who = "partner", say = "Ég á afmæli í dag!", meaning = "It's my birthday today!", meaning_ja = "今日は私の誕生日なんです！", word_glosses = { "afmæli" = { en = "birthday", ja = "誕生日" } } },
   { who = "you", cue = "Congratulate her, and ask how old she is.", cue_ja = "お祝いを言って、何歳になったか聞いてください。", aim = "congratulate her and ask how old she is", aim_ja = "お祝いを言い、年齢を聞く", say = "Til hamingju! Hvað ertu gömul?", items = ["til_hamingju", "hvad_ertu_gomul"] },
-  { who = "partner", say = "Takk! Ég er þrjátíu ára. En þú?", meaning = "Thanks! I'm thirty. And you?", meaning_ja = "ありがとう！30歳です。あなたは？" },
+  { who = "partner", say = "Takk! Ég er þrjátíu ára. En þú?", meaning = "Thanks! I'm thirty. And you?", meaning_ja = "ありがとう！30歳です。あなたは？", variants = [{ say = "Takk! Þrjátíu ára í dag. En þú?", meaning = "Thanks! Thirty today. And you?", meaning_ja = "ありがとう！今日で30歳。あなたは？" }] },
   { who = "you", cue = "Say you're twenty.", cue_ja = "20歳だと言ってください。", aim = "say your age", aim_ja = "自分の年齢を言う", say = "Ég er tuttugu ára.", items = ["eg_er_ara", "tuttugu_ara"] },
   { who = "partner", say = "Þú ert með hring!", meaning = "You're wearing a ring!", meaning_ja = "指輪をしているんですね！", word_glosses = { "hring" = { en = "ring", ja = "指輪" } } },
   { who = "you", cue = "Thank her, and say you're married.", cue_ja = "お礼を言って、結婚していると言ってください。", aim = "say you're married", aim_ja = "結婚していると言う", say = "Takk! Ég er gift.", say_m = "Takk! Ég er giftur.", items = ["takk", "eg_er_gift"] },
