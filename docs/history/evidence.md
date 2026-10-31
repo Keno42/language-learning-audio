@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.29 (lessons 1–39), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.30 (lessons 1–40), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1165,3 +1165,58 @@ What the learner wrote, by what the lesson did:
 - **«Ég vinn hjá litlu fyrirtæki.» was hard to hear.** Its next practice opens with the retry cue of #424 («Let's try to say this
   sentence in Icelandic again: …»), its first real case.
 - **No remark on set replies** (#422's first feedback) **or on the pick-outs.** Load «light» a fifth time.
+
+### 5.30 Lesson 40: the first feedback on #424, #425 and site_update_notifier#176
+
+Lesson 40 was generated with LLA `2d9c671` (main with #424 and #425), the bot at site_update_notifier `379104c` (with #176);
+rebuilt from its export it is identical (102 exercises, 29.5 minutes). It is the first feedback on the line that ends a
+conversation (#425: «That's the end of the conversation.» eight times), on the retry cue (#424: «Ég vinn hjá litlu
+fyrirtæki.», reported hard after lesson 39) and on the review's 🔊 replies named by card (site_update_notifier#176), and the
+second on set replies voiced in exchanges played again (#422). Small talk's fourth level was the day's exchange. The owner's
+notes on the transcript, sent with the feedback, count as remarks of this round.
+
+| | lesson 40 |
+|---|---|
+| length | 29.5 min, 102 exercises |
+| new items; new components, weighted (target) | 8; 11 (10) |
+| theme (level); today's new items said as a turn of the played exchange | small talk (4); «Hvað ertu gömul?», «Ég er tuttugu ára.», «Ég er giftur.» |
+| target reached | 17.6 min |
+| longest stretch without a scene | 4.2 min |
+| a sentence asked again within a minute | 2 |
+| most narrations of one situation | 8 |
+| feedback form: load; friction | **right** (after five «light»); other |
+| «sooner» | none |
+
+What the learner wrote, and what the owner found in the transcript and asked for, by what the lesson did:
+
+- **"Is it normal in Iceland to ask someone's age out of the blue, or to introduce yourself as single and living alone?"**
+  Small talk 4 opened «Someone sits down next to you and says hello.», then «Ask how old she is.», and the partner went on
+  «Ég er einhleyp og bý ein. En þú?». The scene check reads generated sentences; nothing read an authored level's order.
+  **Answered (#433):** the level opens with «Ég á afmæli í dag!», so the age has a reason, and the partner's line
+  before «Ég er gift.» is her own marriage, in words the learner knows: «Ég er gift. En þú?».
+- **The owner: a cue its answer does not answer, and a partner's reply in the wrong form.** «She asks if you're here with
+  your family. Say you're married.» («Ég er gift» does not say whether you came with your family), and «Velkomin!», the
+  woman's form, said twice in `kynning` to the learner's line in a man's voice. **Answered (#433):** the cue asks
+  whether you're married; «Velkomin!» after the learner's own line becomes «Frábært!». A `validate` rule for gendered partner
+  replies is not built.
+- **The owner: a conversation played from its middle opens on a line that needs what came before.** In lesson 40 a catch on
+  small talk's closing line followed with no scene named; on the replay of the export, a hard item's scene line opens on «Nú
+  já! Hvar vinnur þú?» with nothing for «Oh, I see!» to answer. **Answered (#433):** every listening task opens with
+  its scene line, and a scene line cut from the middle leads in with the learner's line its partner answers.
+- **The owner: «Thank her.» → «Takk.» and «Say: no, thanks.» → «Nei, takk.» are still asked as tasks** in the authored
+  dialogues (exercises 12 and 28), and familiar dialogues are still played whole. #422 voiced known set replies in theme
+  exchanges only; lesson 38's remark recurs in another play mode. **Answered after the lesson:** authored dialogues voice them
+  too (#430), and a fixed dialogue played whole four times is not played whole again (#431). #416 keeps what is left.
+- **The owner: a listening question asks what the conversation just said.** The tour's first level, heard again at 22:52,
+  says «Hér stoppum við í tuttugu mínútur.»; the pick-out at 23:27 asks «How long do we stop?». **Open:** #339, with #273.
+- **The owner asked for optional help apart from the review's outcomes:** pronunciation or grammar help on the expressions the
+  learner chooses, with no failure and no extra practice (pronunciation: «einhleyp», «afsláttur»). Nothing is explained where it
+  is not needed: «tuttugu» is comfortable, and the age pattern is plain. **In review (site_update_notifier#180):** a request button
+  on the feedback form, for pronunciation and grammar, outcome and load unchanged; the same during the review's recall check,
+  and kinds for listening and use, are left.
+- **The owner's ideas, as issues:** the learner's own name and age in lessons and the review (#428); instructions moved to
+  Icelandic gradually, from two commands (#429).
+- **No remark on the way back from a conversation** (#425's first feedback; lessons 37 and 39 remarked it) **or on the
+  review's 🔊 replies** (site_update_notifier#176). Lesson 40's closing held no listening task (#421; on the replay, lesson 44
+  does). Load «right» after five «light»; the ledger does not count the lesson settled (one twenty-point remark, four new
+  families).
