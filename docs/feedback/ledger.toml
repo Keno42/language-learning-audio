@@ -103,6 +103,12 @@ cause = "New items that combine into a few sentences each run their own ladder: 
 [families.guide-repeat]
 cause = "An instruction is said in full every time its case comes, not once a lesson: nothing remembers that the lesson has said it (#438)."
 
+[families.audio-defect]
+cause = "A synthesized clip can end early without an error: the cache keeps it, and every lesson that says the line plays it cut off (#462)."
+
+[families.prompt-recognition]
+cause = "A level is ready when the learner can say every reply; nothing checks that the partner's line before it can be understood, so a question worded unlike its known reply plays untranslated (#327, #265)."
+
 [families.instruction-language]
 cause = "Every instruction is in the known language: the Icelandic the learner will hear as instructions is never practised (#429)."
 
@@ -572,7 +578,34 @@ family = "scene-plausibility"
 class = "precision"
 answered_by = []
 
-# Built changes: the rows of the §8 table after lesson 42, in its order
+[[lesson]]
+n = 43
+form = true
+load = "right"
+built = ["#455", "#459"]
+
+[[lesson.remarks]]
+who = "main"
+text = "«Same change» is said again and again with gaps in between, and that it means «turn ég into hún» is too high-context."
+family = "framing-general"
+class = "twenty"
+answered_by = ["#463"]
+
+[[lesson.remarks]]
+who = "main"
+text = "The audio of «Ask where she lives.» is broken and cuts off midway."
+family = "audio-defect"
+class = "precision"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "«hef komið» and «hingað» were never explained, and there is a place where only the answer is asked, with no translation."
+family = "prompt-recognition"
+class = "twenty"
+answered_by = ["#464"]
+
+# Built changes: the rows of the §8 table after lesson 43, in its order
 
 [[change]]
 title = "a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351)"
@@ -979,9 +1012,21 @@ title = "a listening task with nothing to frame it opens with «Listen.», and e
 issue = ["#427"]
 pr = ["#455"]
 family = "pick-out-turns"
+first_heard = 43
+heard = "«Listen.» once, before a catch with nothing to frame it"
 
 [[change]]
 title = "a word the learner reports hard to say is always modelled: a one-word item no sound rule reads is its own word, and «regnhlíf» is split (#457: #459)"
 issue = ["#457"]
 pr = ["#459"]
 family = "hard-word"
+first_heard = 43
+heard = "«vatnsglas» and «versla», the requests dropped before, modelled"
+
+[[change]]
+title = "small talk 4 is a coffee with Anna, each question with its reason; a level has its own scene line, the coach ride's too (#427: #458)"
+issue = ["#427"]
+pr = ["#458"]
+family = "scene-plausibility"
+first_heard = 43
+heard = "the coach ride opened with its own scene line"
