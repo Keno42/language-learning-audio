@@ -1,5 +1,5 @@
 """Lesson 31: «asking for the same thing more politely» was asked 8 times, its instruction narrated 9 times (G12). The instruction is narrated
-in full under the cap of any situation (twice a lesson), then «Same change:» while the transform asked last had it."""
+in full under the cap of any situation (twice a lesson), then «Same change:» only right after the same transform (lesson 43)."""
 import random
 import unittest
 from pathlib import Path
@@ -54,6 +54,16 @@ class TransformInstructionTests(unittest.TestCase):
             [t for t, _ in self.cues(sc)],
             [polite.instruction, polite.instruction, short, opposite.instruction, polite.instruction, short],
         )
+
+    def test_after_any_other_exercise_the_instruction_is_said_in_full_again(self):
+        """Lesson 43: «Same change:» six times, each between other tasks, once four minutes after the last transform; the learner could not tell it
+        meant «Ég → Hún». Only a transform right after the same one says it; after a recall of something else the instruction is said in full."""
+        cur, b, sc = self.lesson()
+        polite, other = cur.by_id[POLITE], cur.by_id["takk"]
+        for item in (polite, polite, polite, other, polite, polite, other, polite):
+            b.recall(sc, item, "meaning")
+        short = Prompts.load("en").get("transform_same")
+        self.assertEqual([t for t, _ in self.cues(sc)], [polite.instruction] * 2 + [short] + [polite.instruction, short, polite.instruction])
 
     def test_the_short_form_names_the_speakers_form_like_the_instruction(self):
         cur, b, sc = self.lesson()

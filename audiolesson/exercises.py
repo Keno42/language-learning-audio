@@ -175,6 +175,7 @@ class Builder:
     _recent_situations: list = field(default_factory=list)  # the situations narrated, newest last (``situation_rank``)
     _examples_said: list = field(default_factory=list)  # a transform's pairs shown or asked this lesson («item:source»), oldest first (``_pick_example``)
     _last_instruction: str | None = None  # the transform instruction asked last: «Same change:» refers back to it only (``_transform_prompt``)
+    _last_instruction_ex: int | None = None  # the exercise it was asked in: «Same change:» only right after it (lesson 43)
     voiced_guide_said: bool = False  # #438: the lesson has said once that short replies are played; later plays don't repeat it
     _mixed_review_said: bool = False  # «Quick review» is announced once a lesson
     _gender_uses: dict[str, int] = field(default_factory=dict)  # speaker-gendered recalls this lesson, per item
@@ -1570,20 +1571,22 @@ class Builder:
         A result about someone else («Hún er glöð.») stays as it is.
         The instruction is narrated in full under the cap of any situation (``situation_rank``:
         ``SITUATION_FULL_MAX`` times a lesson; lesson 31 narrated «Say it more politely, as a
-        question:» 9 times, G12), then «Same change:» while the transform asked last had the same
-        instruction; after another one it would name the wrong change, and the instruction is
-        said in full again."""
+        question:» 9 times, G12), then «Same change:» only when the exercise just before was the same
+        transform. After any other exercise the instruction is said in full again: lesson 43 heard «Same
+        change:» six times, between other tasks and once four minutes after the last transform, and «égをhunに»
+        was too much to keep in mind; after another transform it would name the wrong change."""
         gender = self.speaker_gender(item, gendered=bool(exm.source_m or exm.result_m))
         man = gender == "m"
         source = exm.source_m if man and exm.source_m else exm.source
         result = exm.result_m if man and exm.result_m else exm.result
         answer_gender = gender if exm.result_m else None
-        if self.situation_rank(item.instruction) is None and self._last_instruction == item.instruction:
+        before = sc.exercises[-2].index if len(sc.exercises) >= 2 and sc.exercises[-1] is ex else None
+        if self.situation_rank(item.instruction) is None and self._last_instruction == item.instruction and self._last_instruction_ex == before:
             self._narr(sc, ex, self._as(answer_gender, self.prompts.get("transform_same")), role="short_instruction")
         else:
             self._narr(sc, ex, self._as(answer_gender, item.instruction))
             self._narrated(item.instruction, recent=False)
-        self._last_instruction = item.instruction
+        self._last_instruction, self._last_instruction_ex = item.instruction, ex.index
         self._speak(sc, ex, source, role="source", speaker=VOICE_OF[gender or "f"])
         if hint:
             self._speak(sc, ex, result.split()[0].rstrip(".,?!"), role="hint")
