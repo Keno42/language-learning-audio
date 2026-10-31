@@ -7,31 +7,30 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 (§7), the hypotheses with their status (§4), the evidence lesson by lesson (§5). The learning policy is in
 `docs/CURRENT-POLICY.md`.
 
-## Now (updated 2026-10-31, after lesson 42), in order
+## Now (updated 2026-11-01, after lesson 43), in order
 
 Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% by what may change a long-term decision, each
 remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
-42's; the next lesson is 43. Lesson 42 brought one remark and one request (LD §5.32): marriage and age with someone met by
-chance still felt out of place (a recurrence of lesson 40's, so the lesson is not settled), and «regnhlíf», reported hard to
-say, could not be modelled. Load «light» a second time: two «light» ratings raise the target only with a small review backlog
-(fewer due than half the review slots, LD §9 "Pace"). On the replay 47 items are due against about 64 slots, so lesson 43 stays
-at 9 (lesson 42 was already lowered from 10 to 9 by 53 due).
-1. **Conversational contexts (#427).** **In review (#458, a data PR):** small talk 4 is a coffee with Anna, the friend made at
-   the guesthouse, by its own scene line; her birthday leads to the age and her remark on your ring to marriage. Accepted on the
-   whole progression, partial plays included. **Next:** a catch line that opens on a reply to something not heard («Frábært. En
-   pósthúsið?», lesson 42).
-2. **Practice allocation after #442 (#439).** «Ertu með regnhlíf?» 9 model answers, «Ég er sein/seinn.» 5 + 5, with load «light»
-   twice. **Next:** read lessons 41 and 42 together on the replay from current main, and adjust allocation per item before any
-   global weight. The second behaviour PR before lesson 43 (§9 "The change rate"; #459 is the first).
-3. **Today's new expressions in the main exchange (#327).** Lesson 42: 2 of 10 new items in the played scene, none said as a turn;
-   the replay from current main reads 0, 3, 1, 0, 0, 2 in lessons 42–47, against the criterion of two. **Next:** find, lesson by
-   lesson, whether the theme picked or the material picked misses it; scene data alongside (taxi and bus, the town's further levels).
+43's; the next lesson is 44. Lesson 43 was rated «right» (after «light» twice) and brought two remarks on clarity and one audio
+defect (LD §5.33): the priority moves from repetition to clarity, before more new material or new instruction styles.
+1. **Self-contained transform instructions (#461).** «Same change:» six times between other tasks lost what it meant («ég → hún»).
+   **In review (#463):** «Same change:» only right after the same transform, else the instruction in full (about 4 s a lesson).
+2. **The cut-off «Ask where she lives.» (#462).** One cached clip, played three times. **Next:** the owner checks the clip on the
+   server and deletes it to regenerate if cut off; a guard (a clip far shorter than its text's estimate is retried) only once the
+   failure is known.
+3. **Understanding a partner's prompt, not only saying the reply (#327, with #265).** «Hefurðu komið hingað áður?» played untranslated
+   because its reply was known. **In review (#464, a data PR):** a note bridges «komið hingað» to «verið hér». **Next:** the general
+   check, a partner line whose words the learner hasn't met, piloted on this question and measured on the replay.
+4. **Scene coherence (#327).** Lesson 43 said three of its new items as turns of the exchange; the replay from current main reads 1, 0,
+   0 in lessons 44–46, against the criterion of two.
 
-**Alongside:** a word asked for is always modelled (#457: **built, #459**; «vatnsglas» and «versla» had been dropped the same
-way). Larger numbers for prices heard (#451), and the listening pool's variety (#339) with it. Waiting: the learner's own name
-and age (#428), Icelandic instructions (#429; a small pilot after the items above), two units of one scene back to back (#273;
-its longest stretch without a scene was 4.4 minutes in lesson 42), «Mér finnst gaman að hringja heim» and its meaning (#209).
-The 15- against 30-minute comparison waits for the second learner's state.
+**Alongside:** «bílastæðið» and «langt í burtu», reported hard to hear and to remember, take the listening support already built
+(#447). Repetition (#439) stays open for selective cases: the load «right» is evidence against changing global weights.
+
+**Longer term, in order:** prices and larger numbers (#451) with the listening pool's variety (#339: ten of lesson 43's eleven
+pick-outs had been heard in the three lessons before); expressions usable in exchanges (#327, #265); winter and safety scenes
+(#142), as one bounded batch; a fluent speaker's review of the most-heard exchanges (#209), a small selection first; then the
+learner's own details (#428) and Icelandic instructions (#429), once task cues and audio are reliable.
 
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
 Icelandic (candidates until native-checked). The town (asking the way), small talk (getting to know someone) and the
@@ -51,7 +50,8 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
-- **After lesson 42:** a word asked for always modelled (#459); in review: small talk 4 as a coffee with a friend, a level's own scene line (#458).
+- **After lesson 43:** in review: «Same change:» only right after the same transform (#463); a note bridging «komið hingað» to «verið hér» (#464).
+- **After lesson 42:** a word asked for always modelled (#459); small talk 4 as a coffee with a friend, a level's own scene line (#458).
 - **After lesson 41:** the voiced-reply guide once a lesson (#440); practice shared across a pattern and the fillers taught with it (#442); a «sooner» report keeps its reason, hard to hear gets listening support (#447, site_update_notifier#187); the goal says the lines the exchange asks (#448); «Takk og bless!» gives «og» a sentence (#450); «Sjáumst {time}!» judged sentence by sentence (#449); the ll/nn note corrected (#446); a listening task with nothing to frame it opens with «Listen.» (#455); the change rate and the end of the fix-up phase (owner decision, #456); `transitions.py` (#281: #453, #454).
 - **After lesson 40:** an authored dialogue played before voices the known set replies too (#430); a fixed dialogue played whole four times is not played whole again (#431); scenes for lessons 41–50 (#432); lesson 40's contexts (#433); the closing as one block, its listening just before it (#435, #437); no pick-out on an answer just heard (#436); help on an expression from the feedback form, and a new expression heard and asked about from the new-expression list (site_update_notifier#180, #183).
 - **After lessons 38 and 39:** a pick-out turn's lines carry other values (#417); a known set reply in an exchange played again is voiced (#422); a sentence reported hard is tried again from its meaning first (#424); a conversation's end is marked (#425); the review's 🔊 replies named by card (site_update_notifier#176).
