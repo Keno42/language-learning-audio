@@ -545,7 +545,34 @@ family = "guide-repeat"
 class = "precision"
 answered_by = ["#440"]
 
-# Built changes: the rows of the §8 table after lesson 41, in its order
+[[lesson]]
+n = 42
+form = true
+load = "light"
+built = ["#442", "#447", "#448"]
+
+[[lesson.remarks]]
+who = "main"
+text = "Still odd to talk about marriage and age with another customer at a café, out of the blue."
+family = "scene-plausibility"
+class = "twenty"
+answered_by = ["#458"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The form.) «regnhlíf» reported «sooner», hard to say: the request was saved, and no model could be built for it (nor for «vatnsglas» and «versla» before it)."
+family = "hard-word"
+class = "precision"
+answered_by = ["#459"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner's review of the export.) A catch line that answers something not heard: «You're in town.» → «Frábært. En pósthúsið?» (07:33)."
+family = "scene-plausibility"
+class = "precision"
+answered_by = []
+
+# Built changes: the rows of the §8 table after lesson 42, in its order
 
 [[change]]
 title = "a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351)"
@@ -924,3 +951,31 @@ title = "the voiced-reply guide said once a lesson; later plays keep only their 
 issue = ["#438"]
 pr = ["#440"]
 family = "guide-repeat"
+first_heard = 42
+heard = "the guide once, then «The conversation again.» three times"
+
+[[change]]
+title = "a recall whose sentence says a pattern and a filler taught with it advances both ladders (#439: #442)"
+issue = ["#439"]
+pr = ["#442"]
+family = "easy-substitution"
+
+[[change]]
+title = "a «sooner» report keeps its reason: hard to say owes the slow model, hard to hear owes listening support (#444: #447, site_update_notifier#187)"
+issue = ["#444"]
+pr = ["#447", "site_update_notifier#187"]
+family = "support-request"
+
+[[change]]
+title = "the lesson's goal says the lines the exchange asks, and names the ones only heard (#327: #448)"
+issue = ["#327"]
+pr = ["#448"]
+family = "scene-first"
+first_heard = 42
+heard = "«Say you'll come this evening and say see you this evening. Listen for how to say you can't tomorrow.»"
+
+[[change]]
+title = "a listening task with nothing to frame it opens with «Listen.», and every change of task is checked for its line (#427, #433: #455)"
+issue = ["#427"]
+pr = ["#455"]
+family = "pick-out-turns"
