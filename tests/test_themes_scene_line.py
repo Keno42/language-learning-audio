@@ -26,8 +26,17 @@ class SceneLineTests(unittest.TestCase):
             for lang in ("en", "ja"):
                 for n in range(len(t.levels)):
                     d = level_dialogue(t, n, lang)
-                    self.assertEqual(d.setting, t.scene_line_ja if lang == "ja" else t.scene_line)
+                    lv = t.levels[n]
+                    own = lv.scene_line_ja if lang == "ja" else lv.scene_line  # #427: a level's own scene line, where it has one
+                    self.assertEqual(d.setting, own or (t.scene_line_ja if lang == "ja" else t.scene_line))
                     self.assertNotIn(d.setting, (t.setting, t.setting_ja))
+
+    def test_a_levels_own_scene_line_is_in_both_languages(self):
+        own = [(t.id, n) for t in self.themes for n, lv in enumerate(t.levels, 1) if lv.scene_line]
+        self.assertIn(("smalltalk", 4), own)
+        for t in self.themes:
+            for lv in t.levels:
+                self.assertEqual(bool(lv.scene_line), bool(lv.scene_line_ja), t.id)
 
     def test_a_theme_without_a_scene_line_fails_validation(self):
         t = self.themes[0]

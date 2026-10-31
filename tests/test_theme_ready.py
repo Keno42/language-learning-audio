@@ -49,11 +49,13 @@ class ThemeHeardOneTests(unittest.TestCase):
         self.assertEqual((theme.id, level), ("smalltalk", 3), "small talk 4, whose lines this lesson teaches")
         you = [t for t in theme.levels[level].turns if t.who == "you"]
         # the turns not met yet: today's two are asked once taught (`play_theme`); the one whose line comes tomorrow stays heard
-        self.assertEqual([you[k].say for k in sorted(heard) if not set(you[k].items) & COMING], ["Ég er gift."])
+        self.assertEqual([you[k].say for k in sorted(heard) if not set(you[k].items) & COMING], ["Takk! Ég er gift."])
 
     def test_without_the_allowance_the_level_waits_for_a_replay(self):
-        theme, level, _ = self.pick(theme_heard_one=99)
-        self.assertNotEqual(theme.id, "smalltalk", "the old rule: all but a quarter of three is three, so another theme is played again")
+        """Since lesson 42 (#427) the level has four learner turns, so a quarter of them is one and the share alone lets it play; with no share
+        either, the turn heard is what the allowance gives."""
+        theme, level, _ = self.pick(theme_heard_one=99, theme_ready=1.0)
+        self.assertNotEqual(theme.id, "smalltalk", "every turn sayable, none heard: another theme is played again")
 
 
 if __name__ == "__main__":

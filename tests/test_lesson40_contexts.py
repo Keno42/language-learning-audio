@@ -13,7 +13,7 @@ from audiolesson.learner import ItemState, LearnerState
 from audiolesson.planner import PlanConfig, Planner
 from audiolesson.prompts import Prompts
 from audiolesson.script import Script
-from audiolesson.themes import load_themes, scenario_order
+from audiolesson.themes import level_dialogue, load_themes, scenario_order
 from audiolesson.timing import Timing
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -59,15 +59,21 @@ class Lesson40ContextTests(unittest.TestCase):
                 named += 1
         self.assertGreater(named, 5)
 
-    def test_the_line_before_the_married_answer_asks_about_marriage(self):
-        """Review of #433: after «we're going out to eat», «En þú?» asked about your plans. In every variant the sentence just before «En þú?»
-        is about her marriage, so «Ég er gift.» answers it."""
-        level = next(t for t in self.themes if t.id == "smalltalk").levels[3]
+    def test_each_question_of_small_talk_four_has_its_reason(self):
+        """Lesson 42, after #433: «still odd to talk about marriage and age with another customer at a café, out of the blue». The level is a
+        coffee with the friend made in the lounge, said by its own scene line; her birthday leads to the age, and her remark on your ring to
+        «Ég er gift.»: «En þú?» follows only her age, the one thing it asks back."""
+        theme = next(t for t in self.themes if t.id == "smalltalk")
+        level = theme.levels[3]
+        self.assertIn("Anna", level.scene_line)
+        self.assertEqual(level_dialogue(theme, 3).setting, level.scene_line, "the level's scene, not «Someone sits down next to you»")
+        self.assertEqual(level_dialogue(theme, 0).setting, theme.scene_line, "the other levels keep the theme's")
         k = next(k for k, t in enumerate(level.turns) if "eg_er_gift" in t.items)
-        for line in level.turns[k - 1].lines():
-            sentences = [x for x in re.split(r"(?<=[.!?])\s+", line.say) if x]
-            self.assertEqual(sentences[-1], "En þú?", line.say)
-            self.assertIn("gift", sentences[-2], line.say)
+        self.assertIn("hring", level.turns[k - 1].say, "her remark on the ring leads to whether you're married")
+        asked_back = [t.say for t in level.turns if t.who == "partner" and "En þú?" in t.say]
+        self.assertEqual(asked_back, ["Takk! Ég er þrjátíu ára. En þú?"])
+        a = next(k for k, t in enumerate(level.turns) if "hvad_ertu_gomul" in t.items)
+        self.assertIn("afmæli", level.turns[a - 1].say, "her birthday leads to the age")
 
     def known(self, *ids):
         today = date(2026, 3, 1)
