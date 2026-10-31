@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from ..script import Script
+from ..timing import Timing
 from .audio import AudioClip, concat, read_wav, silence, to_mp3, write_wav
 from .tts import Provider, cache_family, get_provider
 
@@ -132,6 +133,20 @@ def load_profile(path: str | Path | None, provider: str | None = None) -> VoiceP
 _DEFAULT_INDEX = {"instructor": 0, "native_a": 0, "native_b": 1}
 
 
+def speech_request(script: Script, seg, profile: VoiceProfile, provider: Provider) -> tuple[str, str, str, float]:
+    """``(text, lang, voice, rate)`` a speech segment is synthesized from, and cached under: the text as the engine hears it."""
+    primary_langs = {script.known_lang.split("-")[0].lower(), script.target_lang.split("-")[0].lower()}
+    speaker = seg.speaker or "native_a"
+    lang = seg.lang or (script.known_lang if speaker == "instructor" else script.target_lang)
+    # a third language (a Japanese example in English narration) must not inherit the
+    # speaker's configured voice: an unconfigured key falls through to the provider's
+    # default voice for ``lang``
+    profile_key = speaker if lang.split("-")[0].lower() in primary_langs else f"{speaker}:{lang}"
+    sv = profile.voice_for(profile_key, lang, provider, _DEFAULT_INDEX.get(speaker, 0))
+    spoken = seg.speech_text or seg.text or ""
+    return (_speak_tildes(_speak_slashes(_respell(spoken, lang), lang), lang), lang, sv.voice, seg.rate * sv.rate)
+
+
 def render_script(
     script: Script,
     profile: VoiceProfile,
@@ -166,25 +181,16 @@ def render_script(
     cache = Path(cache_dir) if cache_dir else out_path.parent / "cache" / cache_family(provider)
     cache.mkdir(parents=True, exist_ok=True)
 
-    primary_langs = {script.known_lang.split("-")[0].lower(), script.target_lang.split("-")[0].lower()}
-
     def request_for(seg) -> tuple[str, str, str, float]:
-        speaker = seg.speaker or "native_a"
-        lang = seg.lang or (script.known_lang if speaker == "instructor" else script.target_lang)
-        # a third language (a Japanese example in English narration) must not inherit the
-        # speaker's configured voice: an unconfigured key falls through to the provider's
-        # default voice for ``lang``
-        profile_key = speaker if lang.split("-")[0].lower() in primary_langs else f"{speaker}:{lang}"
-        sv = profile.voice_for(profile_key, lang, provider, _DEFAULT_INDEX.get(speaker, 0))
-        spoken = seg.speech_text or seg.text or ""
-        return (_speak_tildes(_speak_slashes(_respell(spoken, lang), lang), lang), lang, sv.voice, seg.rate * sv.rate)
+        return speech_request(script, seg, profile, provider)
 
+    held: dict[Path, AudioClip] = {}  # clips this render keeps out of the cache (``_cached``)
     # warm the cache in parallel for providers that talk to a network
     unique = {request_for(seg) for seg in script.segments if seg.type != "pause"}
     todo = [r for r in unique if not _cache_path(provider, cache, *r, profile.trim).exists()]
     if todo and provider.parallel and profile.workers > 1:
         with ThreadPoolExecutor(max_workers=profile.workers) as pool:
-            for i, _ in enumerate(pool.map(lambda r: _cached(provider, cache, *r, profile.trim), todo), 1):
+            for i, _ in enumerate(pool.map(lambda r: _cached(provider, cache, *r, profile.trim, held), todo), 1):
                 if progress and (i % 10 == 0 or i == len(todo)):
                     print(f"  synthesized {i}/{len(todo)} new lines", file=sys.stderr, end="\r")
 
@@ -198,7 +204,7 @@ def render_script(
         if seg.type == "pause":
             clips.append(None)
             continue
-        clip = _cached(provider, cache, *request_for(seg), profile.trim)
+        clip = _cached(provider, cache, *request_for(seg), profile.trim, held)
         clips.append(clip)
         lang = request_for(seg)[1].split("-")[0].lower()
         est[lang] = est.get(lang, 0.0) + seg.duration
@@ -287,13 +293,47 @@ def _cache_path(provider: Provider, cache: Path, text: str, lang: str, voice: st
     return cache / f"{key}.wav"
 
 
-def _cached(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool) -> AudioClip:
+# #462 (lesson 43): the speech service can end a clip's stream early without an error. «Ask where she lives.» was cached as a valid WAV of
+# 0.57 s, about half the sentence, and played cut off three times in the lesson. A clip of a line of several words far shorter than the
+# script's estimate for it is taken as cut off: synthesized once more, and not cached while it stays short. Only for a provider that calls
+# a service (``parallel``): a local engine's short clip is its own speech. The estimate is generous (Aria says a line in about 0.6 of it),
+# so the ratio leaves room; a line of one or two words is left out, where the estimate's floor dominates.
+CUT_OFF_RATIO = 0.4
+CUT_OFF_MIN_WORDS = 3
+_TIMING = Timing()
+
+
+def looks_cut_off(clip: AudioClip, text: str, lang: str, rate: float = 1.0) -> bool:
+    """Whether ``clip`` is far too short for ``text``: a line of ``CUT_OFF_MIN_WORDS`` words or more that lasts less than ``CUT_OFF_RATIO`` of
+    the script's estimate (``Timing.speech_estimate`` at no calibration)."""
+    if len(re.findall(r"[^\W\d_]+", text)) < CUT_OFF_MIN_WORDS:
+        return False
+    return clip.seconds < CUT_OFF_RATIO * _TIMING.speech_estimate(text, lang, rate)
+
+
+def _cached(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool, held: dict[Path, AudioClip] | None = None) -> AudioClip:
+    """The clip for a request: from the cache, else synthesized and cached. ``held`` (one render's) keeps a clip left out of the cache
+    because it still looks cut off, so the render asks the service for it once, not at every line that says it (review of #466)."""
     path = _cache_path(provider, cache, text, lang, voice, rate, trim)
     if path.exists():
         return read_wav(path)
-    clip = provider.synthesize(text, lang, voice, rate)
-    if trim:
-        clip = clip.trimmed()
+    if held is not None and path in held:
+        return held[path]
+
+    def synth() -> AudioClip:
+        clip = provider.synthesize(text, lang, voice, rate)
+        return clip.trimmed() if trim else clip
+
+    clip = synth()
+    if provider.parallel and looks_cut_off(clip, text, lang, rate):
+        again = synth()
+        clip = max(clip, again, key=lambda c: c.seconds)
+        if looks_cut_off(clip, text, lang, rate):
+            # used this once, never cached: the next render asks the service again
+            print(f"warning: {text!r} came back cut off twice ({clip.seconds:.2f} s); not cached", file=sys.stderr, flush=True)
+            if held is not None:
+                held[path] = clip
+            return clip
     # write then rename: a cache shared between learners (generate --cache) may be read
     # by another run meanwhile, and a crash must not leave a truncated clip behind
     tmp = path.with_name(f"{path.stem}.{os.getpid()}.{threading.get_ident()}.tmp")
