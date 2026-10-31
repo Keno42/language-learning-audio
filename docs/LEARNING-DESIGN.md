@@ -855,7 +855,7 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
     the daily replay shows nothing already fixed coming back (length, a short item alone at
     most three times, open items practised). Slow signals (recall rates, phrase length,
     readiness) gate only the decisions that depend on them, not development.
-  - **The change rate (owner decision pending; proposed after lesson 41).** In the fix-up phase and after it, so that each
+  - **The change rate (owner, 2026-10-31; after lesson 41).** In the fix-up phase and after it, so that each
     lesson's feedback can tell its changes apart (§10):
     - at most two behaviour PRs between one lesson and the next, taken in this order: first a structural fix for a
       twenty-point remark of a recurring family (in one place, or one check across the course, as
@@ -867,7 +867,7 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
     - a request (a mechanism remark that asks for something new, such as #428 and #429) becomes an issue, ranked in the
       weekly round and never built the same week;
     - one #281 step per weekly round.
-  - **The end of the fix-up phase (owner decision pending; proposed after lesson 41).** The phase ends after three
+  - **The end of the fix-up phase (owner, 2026-10-31; after lesson 41).** The phase ends after three
     settled lessons in a row: the settled run of `tools/ledger.py` reads 3 (`docs/feedback/ledger.toml`, §8). A settled
     lesson has a feedback form, load not «heavy», and no twenty-point remark of a recurring family (one remarked before,
     or one a change already heard was built for): the structural fixes hold. A new family of any class does not break
