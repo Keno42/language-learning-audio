@@ -152,6 +152,7 @@ target = "regnhlíf"
 meaning = "an umbrella"
 meaning_ja = "傘"
 difficulty = 2
+syllables = ["regn", "hlíf"]  # lesson 42: reported hard to say; «hl» is a voiceless l (#209: a candidate for the native check)
 tags = ["acc_thing"]
 topics = ["shopping", "weather"]
 

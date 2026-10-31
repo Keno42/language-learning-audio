@@ -933,7 +933,8 @@ class Builder:
         """An item the learner reported hard (#337): before its next practice, said slowly once. The words it names hard itself (authored syllables) are cut into
         pieces; else a sentence is tried again from its meaning («Let's try to say this sentence in Icelandic again: There are four of us.», an answer pause, the
         model; #423), then repeated word by word and at natural speed (a hard-to-hear «Við erum» is not one word a spelling rule can pick: lesson 27 picked
-        «fjögur»); else a single word is said slowly by itself. None when nothing qualifies."""
+        «fjögur»); else a single word is said slowly by itself, split when authored and else once more at natural speed (#457: a request is never dropped).
+        None when nothing qualifies."""
         words = hard_words_of(item)
         line = None if words else self.hearing_line(item)
         sentence = line[0] if line else None

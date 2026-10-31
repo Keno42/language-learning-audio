@@ -65,7 +65,8 @@ def hard_words_of(item, reported: bool = False) -> list[tuple[str, list[str] | N
 
     A phrase with ``word_syllables`` names its hard words itself, in the order of the phrase. A one-word vocab item is its own word (its ``syllables``, when
     authored). With ``reported`` (the learner reported the item hard) an item with none authored takes the one word of two or more syllables with the most of the
-    old and the reported sounds, the longest on a tie. Empty when nothing qualifies.
+    old and the reported sounds, the longest on a tie; an item of one word that holds none of them is its own word, so an explicit request is never dropped
+    (lesson 42: «regnhlíf» reported hard to say got nothing). Empty when nothing qualifies (a pattern; a sentence, which ``Builder.hearing_line`` models whole).
     """
     if item.kind not in ("phrase", "vocab"):
         return []  # a pattern's target holds slot names ({thing}, {language}) that are not words, and is not said bare
@@ -86,4 +87,7 @@ def hard_words_of(item, reported: bool = False) -> list[tuple[str, list[str] | N
         hits = sum(1 for rx in (*HARD_SOUNDS.values(), *REPORTED_SOUNDS.values()) if rx.search(w))
         if hits and (best is None or (hits, len(w)) > best[0]):
             best = ((hits, len(w)), w)
-    return [(best[1], None)] if best else []
+    if best:
+        return [(best[1], None)]
+    words = _WORDS.findall(_SLOT.sub(" ", item.target).lower())
+    return [(words[0], None)] if len(words) == 1 else []
