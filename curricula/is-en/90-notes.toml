@@ -656,10 +656,10 @@ text_ja = "「はい・いいえ」で答えられる質問では、動詞を先
 
 # Lesson 43: «hef komið と hingað は説明を受けてないが訳も出ず回答だけ言わされる場面がある». The coach ride (small talk 5) asks «Hefurðu
 # komið hingað áður?» and the learner answers with «Ég hef verið hér áður.», taught with other words: knowing the reply is not
-# recognising the question. One bridge, once, after a practice of the reply: the question's two words against the reply's two.
+# recognising the question. One bridge after a practice of the reply: the question's two words against the reply's two. An ordinary note,
+# not a milestone: a milestone is followed by two examples of its pattern to tell apart (#34), and this one names a single reply.
 [[notes]]
 id = "komid_hingad"
-milestone = true
 items = ["eg_hef_verid_her_adur"]
 topics = ["grammar", "social"]
 text = "«Hefurðu komið hingað áður?» asks whether you have come here before. «Komið» is a form of the verb to come. «Hingað» is here, as the place you come to. You answer with the line you know: «Ég hef verið hér áður.» In it, «verið» is a form of the verb to be. And «hér» is here, the place where you are."
