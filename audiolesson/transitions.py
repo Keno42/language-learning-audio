@@ -1,11 +1,15 @@
-"""The way back after a task: the line that ends a listening task or a conversation where a drill follows.
+"""What each kind of exercise is to the learner, and the way back after a task.
+
+- ``MODES``: the mode of each exercise kind (a listening task, a conversation, an aside, a drill …). A test keeps every kind the code builds in
+  it, so a new kind is classified the day it is written.
+- The way back (lesson 34, #387; lessons 37 and 39, #415, #425): ``WAY_BACK`` is the line that ends a listening task or a conversation where a
+  drill follows, and ``close_tasks`` says it on the finished script, where the next exercise is known.
+- The kinds the lesson's rhythm counts, from ``MODES``: the scene units (#273) and the listening tasks (#421).
 
 The ledger's family «pick-out-turns» (the turns between and inside tasks) was remarked in eight lessons from 24 to 39, each turn fixed on its
-own. This module homes one part of it, the way back (lesson 34, #387; lessons 37 and 39, #415, #425): every exercise kind has a mode
-(``MODES``), the line that ends a mode is ``WAY_BACK``, and ``close_tasks`` says it on the finished script, where the next exercise is known.
-A test keeps every kind the code builds in ``MODES``, so whether a way back comes after or before a new kind is decided the day it is written.
-Not here: the turns inside a pick-out (``listening_tasks._build``: #306, #343, #353, #411), the closing block's content (#421, #435, #437), and
-an aside's end («Back to the lesson.», «Let's continue.»), which ``Builder.note`` says whatever follows.
+own; this is one home for its part between tasks. Not here: the turns inside a pick-out (``listening_tasks._build``: #306, #343, #353, #411),
+the closing block's content (#421, #435, #437), and an aside's end («Back to the lesson.», «Let's continue.»), which ``Builder.note`` says
+whatever follows.
 """
 
 from __future__ import annotations
@@ -39,6 +43,11 @@ WAY_BACK = {"listening": "listening_back", "conversation": "conversation_back"}
 # ``close_tasks`` drops them where they are not wanted, and inserts the others where they are
 BUILT_IN = {"conversation_back"}
 SPOKEN = ("speak", "narrate", "answer")
+# the kinds the lesson's rhythm counts: a scene unit (#273: no fifteen minutes without one) and a listening task (the stretch before the closing
+# holds one at a time, #421). From ``MODES`` by kind, so a catch that introduces a new word (#339, kind ``intro``, a listening task to ``mode``)
+# is left out of both, as before
+SCENE_UNIT_KINDS = frozenset(k for k, m in MODES.items() if m in ("listening", "conversation"))
+LISTENING_TASK_KINDS = frozenset(k for k, m in MODES.items() if m == "listening")
 
 
 def mode(e: Exercise) -> str:

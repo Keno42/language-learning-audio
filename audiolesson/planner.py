@@ -32,7 +32,7 @@ from .stages import ladder_for, next_stage, stage_index
 from .themes import Level, level_dialogue, pick_variants
 from .text import WORD, words as _words
 from .timing import Timing
-from .transitions import close_tasks
+from .transitions import LISTENING_TASK_KINDS, SCENE_UNIT_KINDS, close_tasks
 
 
 @dataclass
@@ -1149,12 +1149,11 @@ class Planner:
         after = (
             [e for e in sc.exercises if delivered_at <= e.start < closing_at and e.kind not in ("opening", "closing")] if delivered_at is not None else []
         )
-        scene_kinds = ("dialogue", "pick_out", "catch_unknown")
         lesson_end = next((e.start for e in sc.exercises if e.kind == "closing"), sc.total_duration)
         edge = 0.0
         longest_without_scene = 0.0
         for e in sc.exercises:
-            if e.kind in scene_kinds:
+            if e.kind in SCENE_UNIT_KINDS:
                 longest_without_scene = max(longest_without_scene, e.start - edge)
                 edge = e.start + e.duration
         longest_without_scene = round(max(longest_without_scene, lesson_end - edge))
@@ -3345,7 +3344,7 @@ class Planner:
         def last_scene_end() -> float:
             """The lesson time at which the last scene unit ended (a conversation, a pick-out, a catch task); 0 when there was none. Read from the segments, which are
             always current: an exercise's ``start`` and ``duration`` are only filled in by ``retime()`` when the lesson is done (#275 review)."""
-            scene = {e.index for e in sc.exercises if e.kind in ("dialogue", "pick_out", "catch_unknown")}
+            scene = {e.index for e in sc.exercises if e.kind in SCENE_UNIT_KINDS}
             t = end = 0.0
             for seg in sc.segments:
                 t += seg.duration
@@ -3441,7 +3440,7 @@ class Planner:
                 # lesson 38: inside the closing it felt nested); with nothing to hear, the lesson goes on as before
                 if pre_closing_listening[0] is None:
                     pre_closing_listening[0] = (len(introduced) - 1) // 3
-                if pre_closing_listening[0] > 0 and last_kinds_same(1) not in ("pick_out", "catch_unknown"):
+                if pre_closing_listening[0] > 0 and last_kinds_same(1) not in LISTENING_TASK_KINDS:
                     pre_closing_listening[0] -= 1
                     if any(emit_listening_task(t) for t in pick_out_tasks()) or any(emit_listening_task(t) for t in catch_unknown_tasks()):
                         continue
