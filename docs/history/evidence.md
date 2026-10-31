@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.28 (lessons 1–38), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.29 (lessons 1–39), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1133,3 +1133,35 @@ What the learner wrote, by what the lesson did:
 - **"«Mér finnst gaman að hringja heim» (I like calling home): does it mean I like talking to my parents?"** The meaning
   leaves open whom one calls. **Open:** #209 (the authored line and its meaning, with a fluent speaker).
 - **No remark on the pick-outs' answers** (lesson 37's remark that the time never changed). Load «light» a fourth time.
+
+### 5.29 Lesson 39: the first feedback on #422
+
+Lesson 39 was generated with LLA `5b822c2` (main with #422), the bot at site_update_notifier `68036e1`; rebuilt from its export it
+says the same (the written notes aside). It is the first feedback on set replies voiced in exchanges played again (#422: four
+voiced, «Takk.», «Já, takk.» twice and «Takk kærlega.», none asked there) and the second on #417's pick-outs (ten, with one catch).
+
+| | lesson 39 |
+|---|---|
+| length | 30.1 min, 115 exercises |
+| new items; new components, weighted (target) | 5; 9 (9) |
+| theme (level); today's new items said as a turn of the played exchange | small talk (3); «Ert þú íslensk?», «Ég er japönsk.», «Ég er í vinnuferð.», «Ég vinn hjá litlu fyrirtæki.» |
+| target reached | 15.6 min |
+| longest stretch without a scene | 4.5 min |
+| a sentence asked again within a minute | 0 |
+| most narrations of one situation | 7 |
+| feedback form: load; friction | **light** (the fifth in a row); other |
+| «sooner» | «Ég vinn hjá litlu fyrirtæki.», reason: hard to hear |
+
+What the learner wrote, by what the lesson did:
+
+- **"At the end of a conversation part, where I expect more of the same kind of question, a question of another kind comes
+  abruptly."** At 25:13 small talk 3 ends «Gaman að heyra það.» and at 26:06 «The directions are getting long. Hand over your
+  map…» follows; 11 of the lesson's 12 conversations were followed by a drill with no line between. Lesson 37's remark again
+  (#415). **Answered (#425):** a conversation that a drill follows ends with «That's the end of the conversation.», built into
+  the lesson's time (about 30 minutes on the replay).
+- **"In the written review, every audio-check message I have not dismissed follows the review's progress."** The 🔊 reply held
+  only `reading.mp3`; Discord's preview of the review message shows the card on screen now. **Answered
+  (site_update_notifier#176):** each reply names its card and the text spoken, fixed when 🔊 is pressed; to be confirmed on Discord.
+- **«Ég vinn hjá litlu fyrirtæki.» was hard to hear.** Its next practice opens with the retry cue of #424 («Let's try to say this
+  sentence in Icelandic again: …»), its first real case.
+- **No remark on set replies** (#422's first feedback) **or on the pick-outs.** Load «light» a fifth time.
