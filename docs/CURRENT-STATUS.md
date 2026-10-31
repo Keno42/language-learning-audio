@@ -13,7 +13,9 @@ Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% 
 remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
 42's; the next lesson is 43. Lesson 42 brought one remark and one request (LD §5.32): marriage and age with someone met by
 chance still felt out of place (a recurrence of lesson 40's, so the lesson is not settled), and «regnhlíf», reported hard to
-say, could not be modelled. Load «light» a second time: the pace waits for a third.
+say, could not be modelled. Load «light» a second time: two «light» ratings raise the target only with a small review backlog
+(fewer due than half the review slots, LD §9 "Pace"). On the replay 47 items are due against about 64 slots, so lesson 43 stays
+at 9 (lesson 42 was already lowered from 10 to 9 by 53 due).
 1. **Conversational contexts (#427).** **In review (#458, a data PR):** small talk 4 is a coffee with Anna, the friend made at
    the guesthouse, by its own scene line; her birthday leads to the age and her remark on your ring to marriage. Accepted on the
    whole progression, partial plays included. **Next:** a catch line that opens on a reply to something not heard («Frábært. En

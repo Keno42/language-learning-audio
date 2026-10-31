@@ -386,7 +386,7 @@ pattern taught with its filler to share practice across, and #447 had no report 
 | | lesson 42 |
 |---|---|
 | length | 29.4 min, 129 exercises |
-| new items; new components, weighted (target) | 10; 9 (9) |
+| new items; new components, weighted (target) | 10; 9 (9, lowered from 10: 53 items due against about 64 review slots) |
 | theme (level); today's new items said as a turn of the played exchange | arranging to meet (2); none (2 of 10 in the played scene) |
 | target reached | 19.3 min |
 | longest stretch without a scene | 4.4 min |
@@ -414,7 +414,9 @@ What the learner wrote, by what the lesson did:
     exchange about this evening (#327). On the replay from current main, today's new items said as a turn are 0, 3, 1, 0, 0, 2 in lessons
     42–47.
   - Easy substitutions still take many answers: «Ertu með regnhlíf?» 9 model answers, «Ég er sein/seinn.» 5 + 5 (#439, read again after #442).
-- Load «light» a second time: H9's rule waits for a third before it raises the pace.
+- Load «light» a second time. Two «light» ratings raise the target by H9's rule when the window's failures are at most 25% and the
+  review backlog is small (fewer due than half the review slots). The failures hold (2 of 29); the backlog does not: on the replay
+  with lesson 42 rated «light», 47 items are due against about 64 slots before lesson 43, so its target stays at 9.
 
 ## 6. Signals: what each can and cannot tell us
 
