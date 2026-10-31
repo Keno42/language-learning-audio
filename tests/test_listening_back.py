@@ -85,6 +85,67 @@ class WayBackTableTests(unittest.TestCase):
         with self.assertRaises(KeyError):
             ways_back(order("pick_out", "a_kind_not_in_the_table"))
 
+    def test_a_listening_task_with_nothing_to_frame_it_opens_with_listen(self):
+        """#427, #433 (lesson 40: «every listening task opens with its scene line»): a catch with no scene, such as one that introduces a word
+        through its home sentence, started with its target-language line straight after the task before. ``close_tasks`` opens it with
+        «Listen.», on the finished script; a pick-out, which opens with its need, and the lesson's first exercise get nothing."""
+        from audiolesson.prompts import Prompts
+        from audiolesson.script import Script, Segment
+        from audiolesson.timing import Timing
+        from audiolesson.transitions import close_tasks
+
+        sc = Script(1, "t", "is", "en")
+        for kind, lines in (("catch_unknown", [("speak", "native_b", "Hvar er bankinn?"), ("narrate", "instructor", "Ask what it means.")]),
+                            ("recall", [("narrate", "instructor", "Say: thanks."), ("answer", "native_a", "Takk.")]),
+                            ("catch_unknown", [("speak", "native_b", "Mig langar í súpu."), ("narrate", "instructor", "Ask what it means.")]),
+                            ("pick_out", [("narrate", "instructor", "Listen for the price, then say it."), ("speak", "native_b", "Það kostar þúsund.")])):
+            ex = sc.new_exercise(kind, None, [], kind)
+            for typ, who, text in lines:
+                sc.add(Segment(typ, who, text, "en" if who == "instructor" else "is", 1.0, 1.0, None, ex.index))
+        close_tasks(sc, Prompts.load("en"), Timing(level="A1"), "en")
+        heard = [(s.exercise, s.text) for s in sc.segments if s.type != "pause"]
+        self.assertEqual(heard[0], (0, "Hvar er bankinn?"), "the lesson's first exercise")
+        self.assertEqual([t for i, t in heard if i == 2][:2], ["Listen.", "Mig langar í súpu."])
+        self.assertEqual(sum(t == "Listen." for _, t in heard), 1, "not before a pick-out, which opens with its need")
+
+    def test_no_turn_between_tasks_goes_unmarked_over_the_course(self):
+        """``transitions.unmarked_turns`` reads 0 on every lesson of the course: each way back where the table wants it, each aside ending with
+        its end line, and each task that opens with its own line opening with the instructor's."""
+        from audiolesson.prompts import Prompts
+        from audiolesson.transitions import unmarked_turns
+
+        prompts = Prompts.load("en")
+        for cur, _, sc in course.ListeningTaskTests._course(20):
+            self.assertEqual(unmarked_turns(sc, prompts), [], sc.lesson_number)
+
+    def test_each_kind_of_unmarked_turn_is_found(self):
+        from audiolesson.prompts import Prompts
+        from audiolesson.script import Script, Segment
+        from audiolesson.transitions import unmarked_turns
+
+        prompts = Prompts.load("en")
+
+        def found(*exercises):
+            sc = Script(1, "t", "is", "en")
+            for kind, label, lines in exercises:
+                ex = sc.new_exercise(kind, None, [], label)
+                for typ, who, text, role in lines:
+                    sc.add(Segment(typ, who, text, "is" if who != "instructor" else "en", 1.0, 1.0, role, ex.index))
+            return unmarked_turns(sc, prompts)
+
+        listen = ("narrate", "instructor", "Listen.", None)
+        line = ("speak", "native_a", "Hvað kostar kaffi?", "listening_line")
+        back = ("narrate", "instructor", "Back to speaking.", "listening_back")
+        drill = ("recall", "recall: x", [("narrate", "instructor", "Say: thanks.", None), ("answer", "native_a", "Takk.", None)])
+        aside_end = ("narrate", "instructor", "Back to the lesson.", None)
+        self.assertEqual(found(drill, ("pick_out", "p", [listen, line, back]), drill), [])
+        self.assertEqual(found(drill, ("pick_out", "p", [listen, line]), drill), ["p: no way back before recall"])
+        self.assertEqual(found(drill, ("pick_out", "p", [listen, back, line]), drill), ["p: no way back before recall"], "said, but not last")
+        self.assertEqual(found(drill, ("pick_out", "p", [listen, line, back]), ("note", "n", [listen, aside_end])),
+                         ["p: a way back where the next task opens with its own line, or none follows"])
+        self.assertEqual(found(drill, ("note", "n", [listen]), drill), ["n: no end line"])
+        self.assertEqual(found(drill, ("catch_unknown", "c", [line, back]), drill), ["c: opens with «Hvað kostar kaffi?» straight after recall"])
+
 
 if __name__ == "__main__":
     unittest.main()
