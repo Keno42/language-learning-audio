@@ -979,3 +979,9 @@ title = "a listening task with nothing to frame it opens with «Listen.», and e
 issue = ["#427"]
 pr = ["#455"]
 family = "pick-out-turns"
+
+[[change]]
+title = "a word the learner reports hard to say is always modelled: a one-word item no sound rule reads is its own word, and «regnhlíf» is split (#457: #459)"
+issue = ["#457"]
+pr = ["#459"]
+family = "hard-word"

@@ -573,6 +573,7 @@ lessons 21–23 (§5.18–§5.20) have had their three.
 | a «sooner» report keeps its reason: hard to say owes the slow model, hard to hear owes listening support (#444: #447, site_update_notifier#187) | not yet | – |
 | the lesson's goal says the lines the exchange asks, and names the ones only heard (#327: #448) | lesson 42 («Say you'll come this evening and say see you this evening. Listen for how to say you can't tomorrow.») | 1 (42) |
 | a listening task with nothing to frame it opens with «Listen.», and every change of task is checked for its line (#427, #433: #455) | not yet | – |
+| a word the learner reports hard to say is always modelled: a one-word item no sound rule reads is its own word, and «regnhlíf» is split (#457: #459) | not yet | – |
 
 Read from rows, not from remarks: the second half kept when an item counted toward the target is not taught (#294: #308);
 ease learned from long-gap recalls (#220: #298, with site_update_notifier#118, #128); the review backlog's breakdown

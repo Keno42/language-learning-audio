@@ -27,7 +27,7 @@ at 9 (lesson 42 was already lowered from 10 to 9 by 53 due).
    the replay from current main reads 0, 3, 1, 0, 0, 2 in lessons 42–47, against the criterion of two. **Next:** find, lesson by
    lesson, whether the theme picked or the material picked misses it; scene data alongside (taxi and bus, the town's further levels).
 
-**Alongside:** a word asked for is always modelled (#457: **in review, #459**; «vatnsglas» and «versla» had been dropped the same
+**Alongside:** a word asked for is always modelled (#457: **built, #459**; «vatnsglas» and «versla» had been dropped the same
 way). Larger numbers for prices heard (#451), and the listening pool's variety (#339) with it. Waiting: the learner's own name
 and age (#428), Icelandic instructions (#429; a small pilot after the items above), two units of one scene back to back (#273;
 its longest stretch without a scene was 4.4 minutes in lesson 42), «Mér finnst gaman að hringja heim» and its meaning (#209).
@@ -51,7 +51,7 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
-- **After lesson 42:** in review: small talk 4 as a coffee with a friend, a level's own scene line (#458); a word asked for always modelled (#459).
+- **After lesson 42:** a word asked for always modelled (#459); in review: small talk 4 as a coffee with a friend, a level's own scene line (#458).
 - **After lesson 41:** the voiced-reply guide once a lesson (#440); practice shared across a pattern and the fillers taught with it (#442); a «sooner» report keeps its reason, hard to hear gets listening support (#447, site_update_notifier#187); the goal says the lines the exchange asks (#448); «Takk og bless!» gives «og» a sentence (#450); «Sjáumst {time}!» judged sentence by sentence (#449); the ll/nn note corrected (#446); a listening task with nothing to frame it opens with «Listen.» (#455); the change rate and the end of the fix-up phase (owner decision, #456); `transitions.py` (#281: #453, #454).
 - **After lesson 40:** an authored dialogue played before voices the known set replies too (#430); a fixed dialogue played whole four times is not played whole again (#431); scenes for lessons 41–50 (#432); lesson 40's contexts (#433); the closing as one block, its listening just before it (#435, #437); no pick-out on an answer just heard (#436); help on an expression from the feedback form, and a new expression heard and asked about from the new-expression list (site_update_notifier#180, #183).
 - **After lessons 38 and 39:** a pick-out turn's lines carry other values (#417); a known set reply in an exchange played again is voiced (#422); a sentence reported hard is tried again from its meaning first (#424); a conversation's end is marked (#425); the review's 🔊 replies named by card (site_update_notifier#176).
