@@ -48,7 +48,10 @@ def main(argv: list[str] | None = None) -> int:
     found = rows(args.scripts, args.cache, args.profile)
     flagged = [r for r in found if r["cut_off"]]
     print(f"{len(found)} cached clips read; {len(flagged)} look cut off")
-    for r in found[: max(args.top, len(flagged))]:
+    # every flagged clip first, then the shortest of the others up to --top: a word of one or two words (never flagged) can be shorter
+    # against its estimate than a cut-off line, and must not push it off the list (review of #466)
+    others = [r for r in found if not r["cut_off"]]
+    for r in flagged + others[: max(0, args.top - len(flagged))]:
         print(f"{'CUT ' if r['cut_off'] else '    '}{r['ratio']:.2f}  {r['seconds']:.2f}s/{r['estimate']:.2f}s  {r['lang']}  {r['file']}  {r['text']}")
     return 1 if flagged else 0
 

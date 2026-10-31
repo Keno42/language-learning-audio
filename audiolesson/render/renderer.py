@@ -184,12 +184,13 @@ def render_script(
     def request_for(seg) -> tuple[str, str, str, float]:
         return speech_request(script, seg, profile, provider)
 
+    held: dict[Path, AudioClip] = {}  # clips this render keeps out of the cache (``_cached``)
     # warm the cache in parallel for providers that talk to a network
     unique = {request_for(seg) for seg in script.segments if seg.type != "pause"}
     todo = [r for r in unique if not _cache_path(provider, cache, *r, profile.trim).exists()]
     if todo and provider.parallel and profile.workers > 1:
         with ThreadPoolExecutor(max_workers=profile.workers) as pool:
-            for i, _ in enumerate(pool.map(lambda r: _cached(provider, cache, *r, profile.trim), todo), 1):
+            for i, _ in enumerate(pool.map(lambda r: _cached(provider, cache, *r, profile.trim, held), todo), 1):
                 if progress and (i % 10 == 0 or i == len(todo)):
                     print(f"  synthesized {i}/{len(todo)} new lines", file=sys.stderr, end="\r")
 
@@ -203,7 +204,7 @@ def render_script(
         if seg.type == "pause":
             clips.append(None)
             continue
-        clip = _cached(provider, cache, *request_for(seg), profile.trim)
+        clip = _cached(provider, cache, *request_for(seg), profile.trim, held)
         clips.append(clip)
         lang = request_for(seg)[1].split("-")[0].lower()
         est[lang] = est.get(lang, 0.0) + seg.duration
@@ -310,10 +311,14 @@ def looks_cut_off(clip: AudioClip, text: str, lang: str, rate: float = 1.0) -> b
     return clip.seconds < CUT_OFF_RATIO * _TIMING.speech_estimate(text, lang, rate)
 
 
-def _cached(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool) -> AudioClip:
+def _cached(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool, held: dict[Path, AudioClip] | None = None) -> AudioClip:
+    """The clip for a request: from the cache, else synthesized and cached. ``held`` (one render's) keeps a clip left out of the cache
+    because it still looks cut off, so the render asks the service for it once, not at every line that says it (review of #466)."""
     path = _cache_path(provider, cache, text, lang, voice, rate, trim)
     if path.exists():
         return read_wav(path)
+    if held is not None and path in held:
+        return held[path]
 
     def synth() -> AudioClip:
         clip = provider.synthesize(text, lang, voice, rate)
@@ -326,6 +331,8 @@ def _cached(provider: Provider, cache: Path, text: str, lang: str, voice: str, r
         if looks_cut_off(clip, text, lang, rate):
             # used this once, never cached: the next render asks the service again
             print(f"warning: {text!r} came back cut off twice ({clip.seconds:.2f} s); not cached", file=sys.stderr, flush=True)
+            if held is not None:
+                held[path] = clip
             return clip
     # write then rename: a cache shared between learners (generate --cache) may be read
     # by another run meanwhile, and a crash must not leave a truncated clip behind
