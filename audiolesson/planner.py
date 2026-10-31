@@ -29,7 +29,7 @@ from .listening_tasks import REPAIR_ITEM, ListeningTask, SecondHalfRotation, app
 from .prompts import Prompts
 from .script import Script
 from .stages import ladder_for, next_stage, stage_index
-from .themes import Level, level_dialogue, pick_variants
+from .themes import level_dialogue, pick_variants
 from .text import WORD, words as _words
 from .timing import Timing
 from .transitions import LISTENING_TASK_KINDS, SCENE_UNIT_KINDS, close_tasks
@@ -613,7 +613,7 @@ class Planner:
                     elif start >= 1 and level.turns[start].who == "partner" and level.turns[start - 1].who == "you":
                         start -= 1  # the learner's line the partner answers (#427)
                     turns = level.turns[start : k + 2]
-                    sub = Level(goal=level.goal, goal_ja=level.goal_ja, partner_speaker=level.partner_speaker, turns=list(turns))
+                    sub = dataclasses.replace(level, turns=list(turns))  # the level's own fields kept, its scene line included (review of #458)
                     dlg = level_dialogue(dataclasses.replace(theme, levels=[sub]), 0, self.cur.known_lang)
                     dlg.id = f"theme:{theme.id}:{n + 1}"  # the level the line is from, not the cut-out's own number: the label, and the scene the daily read counts
                     if turns[0].who != "you" or turns[0] is t:

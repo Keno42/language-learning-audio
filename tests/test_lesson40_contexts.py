@@ -129,6 +129,22 @@ class Lesson40ContextTests(unittest.TestCase):
             for line in t.lines():
                 self.assertFalse(words(line.say) - taught - {w.lower() for w in line.word_glosses}, line.say)
 
+    def test_a_scene_line_cut_from_a_level_keeps_the_levels_own_scene(self):
+        """Review of #458: ``scene_line_of`` rebuilt the level from its goal and speaker only, so an excerpt of small talk 4 or 5 still said «Someone sits
+        down next to you and says hello.» The excerpt keeps the level's own scene line, in both languages."""
+        for lang in ("en", "ja"):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            themes = load_themes(ROOT / "curricula" / "is-en", cur, load_cando(ROOT / "curricula" / "is-en", cur))
+            smalltalk = next(t for t in themes if t.id == "smalltalk")
+            for item_id, n in (("eg_er_gift", 3), ("eg_hef_verid_her_adur", 4)):
+                l, today = self.known(item_id, "eg_er_ara", "tuttugu_ara", "takk", "ja")
+                p = Planner(cur, l, Prompts.load(lang), Timing(level="A1"),
+                            PlanConfig(minutes=30, new_target=8, themes=themes, theme_scenarios=self.order), today=today)
+                dlg, *_ = p.scene_line_of(cur.by_id[item_id], set())
+                level = smalltalk.levels[n]
+                self.assertEqual(dlg.id, f"theme:smalltalk:{n + 1}", (lang, item_id))
+                self.assertEqual(dlg.setting, level.scene_line_ja if lang == "ja" else level.scene_line, (lang, item_id))
+
     def test_a_lead_in_can_be_the_levels_first_line(self):
         """Review of #433: «Já, ég er frá Akureyri. En þú?» answers the learner's opening «Ert þú íslensk?»; without it «Yes» answers a
         question never heard."""
