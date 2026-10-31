@@ -13,7 +13,7 @@ from audiolesson.learner import ItemState, LearnerState
 from audiolesson.planner import PlanConfig, Planner
 from audiolesson.prompts import Prompts
 from audiolesson.script import Script
-from audiolesson.themes import load_themes, scenario_order
+from audiolesson.themes import level_dialogue, load_themes, scenario_order
 from audiolesson.timing import Timing
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -59,15 +59,21 @@ class Lesson40ContextTests(unittest.TestCase):
                 named += 1
         self.assertGreater(named, 5)
 
-    def test_the_line_before_the_married_answer_asks_about_marriage(self):
-        """Review of #433: after «we're going out to eat», «En þú?» asked about your plans. In every variant the sentence just before «En þú?»
-        is about her marriage, so «Ég er gift.» answers it."""
-        level = next(t for t in self.themes if t.id == "smalltalk").levels[3]
+    def test_each_question_of_small_talk_four_has_its_reason(self):
+        """Lesson 42, after #433: «still odd to talk about marriage and age with another customer at a café, out of the blue». The level is a
+        coffee with the friend made in the lounge, said by its own scene line; her birthday leads to the age, and her remark on your ring to
+        «Ég er gift.»: «En þú?» follows only her age, the one thing it asks back."""
+        theme = next(t for t in self.themes if t.id == "smalltalk")
+        level = theme.levels[3]
+        self.assertIn("Anna", level.scene_line)
+        self.assertEqual(level_dialogue(theme, 3).setting, level.scene_line, "the level's scene, not «Someone sits down next to you»")
+        self.assertEqual(level_dialogue(theme, 0).setting, theme.scene_line, "the other levels keep the theme's")
         k = next(k for k, t in enumerate(level.turns) if "eg_er_gift" in t.items)
-        for line in level.turns[k - 1].lines():
-            sentences = [x for x in re.split(r"(?<=[.!?])\s+", line.say) if x]
-            self.assertEqual(sentences[-1], "En þú?", line.say)
-            self.assertIn("gift", sentences[-2], line.say)
+        self.assertIn("hring", level.turns[k - 1].say, "her remark on the ring leads to whether you're married")
+        asked_back = [line.say for t in level.turns if t.who == "partner" for line in t.lines() if "En þú?" in line.say]
+        self.assertEqual(asked_back, ["Takk! Ég er þrjátíu ára. En þú?", "Takk! Þrjátíu ára í dag. En þú?"])
+        a = next(k for k, t in enumerate(level.turns) if "hvad_ertu_gomul" in t.items)
+        self.assertIn("afmæli", level.turns[a - 1].say, "her birthday leads to the age")
 
     def known(self, *ids):
         today = date(2026, 3, 1)
@@ -122,6 +128,22 @@ class Lesson40ContextTests(unittest.TestCase):
                 continue
             for line in t.lines():
                 self.assertFalse(words(line.say) - taught - {w.lower() for w in line.word_glosses}, line.say)
+
+    def test_a_scene_line_cut_from_a_level_keeps_the_levels_own_scene(self):
+        """Review of #458: ``scene_line_of`` rebuilt the level from its goal and speaker only, so an excerpt of small talk 4 or 5 still said «Someone sits
+        down next to you and says hello.» The excerpt keeps the level's own scene line, in both languages."""
+        for lang in ("en", "ja"):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            themes = load_themes(ROOT / "curricula" / "is-en", cur, load_cando(ROOT / "curricula" / "is-en", cur))
+            smalltalk = next(t for t in themes if t.id == "smalltalk")
+            for item_id, n in (("eg_er_gift", 3), ("eg_hef_verid_her_adur", 4)):
+                l, today = self.known(item_id, "eg_er_ara", "tuttugu_ara", "takk", "ja")
+                p = Planner(cur, l, Prompts.load(lang), Timing(level="A1"),
+                            PlanConfig(minutes=30, new_target=8, themes=themes, theme_scenarios=self.order), today=today)
+                dlg, *_ = p.scene_line_of(cur.by_id[item_id], set())
+                level = smalltalk.levels[n]
+                self.assertEqual(dlg.id, f"theme:smalltalk:{n + 1}", (lang, item_id))
+                self.assertEqual(dlg.setting, level.scene_line_ja if lang == "ja" else level.scene_line, (lang, item_id))
 
     def test_a_lead_in_can_be_the_levels_first_line(self):
         """Review of #433: «Já, ég er frá Akureyri. En þú?» answers the learner's opening «Ert þú íslensk?»; without it «Yes» answers a

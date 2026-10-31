@@ -37,6 +37,8 @@ and ``load_scenes`` only ``[[scenes]]``, so they share the directory)::
   decides the reply.
 - A partner turn can carry ``scene`` / ``scene_ja``: a line the narrator says every time before the partner's line
   («At the till.»), where the setting changes. (A learner's turn has its cue for that; a scene on one fails validation.)
+- A level can carry ``scene_line`` / ``scene_line_ja``: its own spoken scene, said in place of the theme's wherever the level is
+  played or a line is taken from it, when the level happens elsewhere or with someone the theme's line doesn't name (#427).
 - A ``partner`` turn is what the other person says, with its meaning. It may go beyond the
   course: a learner who gets the gist of 80-90% of what is said is where they should be. It is spoken at
   natural speed, and may carry ``variants = [{ say, meaning, meaning_ja }, ...]``: other ways a real
@@ -129,6 +131,10 @@ class Level:
     goal_ja: str = ""
     partner_speaker: str = "native_b"  # "native_a" is voiced female, "native_b" male: the partner's, when the cues say «her»
     turns: list[Turn] = field(default_factory=list)
+    # the level's own spoken scene, in place of the theme's ``scene_line``, where the level happens elsewhere or with someone the theme's line
+    # doesn't name (#427, lesson 42: small talk 4 is a coffee with a friend, not «Someone sits down next to you»)
+    scene_line: str = ""
+    scene_line_ja: str = ""
 
     @property
     def items(self) -> list[str]:
@@ -235,6 +241,13 @@ def _check(theme: Theme) -> None:
             raise CurriculumError(f"{where}: no goal")
         if lv.partner_speaker not in SPEAKERS:
             raise CurriculumError(f"{where}: partner_speaker must be one of {SPEAKERS}, not {lv.partner_speaker!r}")
+        if lv.scene_line_ja and not lv.scene_line:
+            raise CurriculumError(f"{where}: scene_line_ja without scene_line")
+        for field_name in ("scene_line", "scene_line_ja"):
+            if "{" in getattr(lv, field_name):
+                raise CurriculumError(f"{where}: {field_name}: no «{{»")
+        for w in unmarked_japanese(lv.scene_line):
+            raise CurriculumError(f"{where}: scene_line: romanized Japanese read by the English voice (only a note can mark it «ja:…»; reword): {w!r}")
         if not any(t.who == "you" for t in lv.turns):
             raise CurriculumError(f"{where}: no turn for the learner")
         for k, t in enumerate(lv.turns, 1):
@@ -387,7 +400,9 @@ def level_dialogue(theme: Theme, n: int, known_lang: str = "en", picks: dict[int
             turn.opener, turn.opener_meaning, turn.scene = opener[0], opener[1], opener_scene
             opener, opener_scene = None, ""
         turns.append(turn)
-    setting = theme.scene_line_ja if ja and theme.scene_line_ja else theme.scene_line  # #278: the spoken scene line, never the written synopsis
+    # #278: the spoken scene line, never the written synopsis; the level's own where it has one (#427)
+    own = (level.scene_line_ja or level.scene_line) if ja else level.scene_line
+    setting = own or (theme.scene_line_ja if ja and theme.scene_line_ja else theme.scene_line)
     return Dialogue(
         id=f"theme:{theme.id}:{n + 1}",
         setting=setting or theme.title,
