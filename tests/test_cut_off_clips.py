@@ -40,6 +40,15 @@ class CutOffTests(unittest.TestCase):
         self.assertFalse(looks_cut_off(clip(1.2), LINE, "en"))
         self.assertFalse(looks_cut_off(clip(0.3), "Já, takk.", "is"), "two words: the estimate's floor, left out")
 
+    def test_the_servers_whole_icelandic_clips_are_not_flagged(self):
+        """Review of the flat 0.4: on the server's cache (351 clips) seven whole Icelandic lines sat at 0.35–0.40 of their estimate, inside a
+        continuous spread. The threshold is per language: these are whole, and lesson 43's English clip is still cut off."""
+        for text, seconds in (("Ég á tvö börn.", 0.83), ("Ég ætla að fá te.", 1.02), ("Ég er hér í fyrsta sinn.", 1.24), ("Þú ert með hring!", 0.93),
+                              ("Og hvað gerir þú?", 0.93)):
+            self.assertFalse(looks_cut_off(clip(seconds), text, "is"), text)
+        self.assertTrue(looks_cut_off(clip(0.574), LINE, "en"))
+        self.assertTrue(looks_cut_off(clip(0.45), "Ég á tvö börn.", "is"), "about half the Icelandic line")
+
     def test_a_cut_off_clip_is_synthesized_again_and_the_whole_one_cached(self):
         with tempfile.TemporaryDirectory() as td:
             service = Service(0.57, 1.2)
@@ -111,9 +120,9 @@ class CutOffTests(unittest.TestCase):
                 write_wav(clip(seconds), _cache_path(edge, cache, text, "en", "en-US-AriaNeural", 1.0, load_profile(profile).trim))
             with contextlib.redirect_stdout(io.StringIO()) as out:
                 code = tool.main(["--cache", str(cache), "--profile", profile, "--top", "1", str(cache / "lesson.script.json")])
-            lines = out.getvalue().splitlines()
+            listed = [l for l in out.getvalue().splitlines() if not l.startswith("  ")][1:]  # the clips, after the summary and its spread lines
             self.assertEqual(code, 1)
-            self.assertTrue(lines[1].startswith("CUT ") and LINE in lines[1], lines)
+            self.assertTrue(listed[0].startswith("CUT ") and LINE in listed[0], listed)
 
 
 if __name__ == "__main__":

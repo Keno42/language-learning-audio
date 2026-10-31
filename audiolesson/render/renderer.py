@@ -294,21 +294,32 @@ def _cache_path(provider: Provider, cache: Path, text: str, lang: str, voice: st
 
 
 # #462 (lesson 43): the speech service can end a clip's stream early without an error. «Ask where she lives.» was cached as a valid WAV of
-# 0.57 s, about half the sentence, and played cut off three times in the lesson. A clip of a line of several words far shorter than the
-# script's estimate for it is taken as cut off: synthesized once more, and not cached while it stays short. Only for a provider that calls
-# a service (``parallel``): a local engine's short clip is its own speech. The estimate is generous (Aria says a line in about 0.6 of it),
-# so the ratio leaves room; a line of one or two words is left out, where the estimate's floor dominates.
-CUT_OFF_RATIO = 0.4
+# 0.57 s, about half the sentence, and played cut off three times in the lesson. A clip of a line of several words far shorter than its
+# language usually takes against the script's estimate is taken as cut off: synthesized once more, and not cached while it stays short.
+# Only for a provider that calls a service (``parallel``): a local engine's short clip is its own speech. A line of one or two words is
+# left out, where the estimate's floor dominates.
+# The share is per language (review of the first threshold, a flat 0.4 of the estimate): the server's cache of 351 clips had its Icelandic
+# lines from 0.35 of their estimate up, a continuous spread with no gap, so 0.4 flagged seven whole clips. ``TYPICAL_SHARE`` is what the
+# voices take on average (the learner's speech calibration, 2026-11-01); a clip under ``CUT_OFF_SHARE`` of that is cut off: Icelandic under
+# 0.26 of the estimate, English under 0.33 («Ask where she lives.» was at 0.29).
+TYPICAL_SHARE = {"is": 0.57, "en": 0.74, "ja": 0.72}
+TYPICAL_SHARE_DEFAULT = 0.65
+CUT_OFF_SHARE = 0.45
 CUT_OFF_MIN_WORDS = 3
 _TIMING = Timing()
 
 
+def cut_off_threshold(lang: str) -> float:
+    """The share of the script's estimate under which a clip in ``lang`` looks cut off."""
+    return CUT_OFF_SHARE * TYPICAL_SHARE.get(lang.split("-")[0].lower(), TYPICAL_SHARE_DEFAULT)
+
+
 def looks_cut_off(clip: AudioClip, text: str, lang: str, rate: float = 1.0) -> bool:
-    """Whether ``clip`` is far too short for ``text``: a line of ``CUT_OFF_MIN_WORDS`` words or more that lasts less than ``CUT_OFF_RATIO`` of
-    the script's estimate (``Timing.speech_estimate`` at no calibration)."""
+    """Whether ``clip`` is far too short for ``text``: a line of ``CUT_OFF_MIN_WORDS`` words or more that lasts less than
+    ``cut_off_threshold(lang)`` of the script's estimate (``Timing.speech_estimate`` at no calibration)."""
     if len(re.findall(r"[^\W\d_]+", text)) < CUT_OFF_MIN_WORDS:
         return False
-    return clip.seconds < CUT_OFF_RATIO * _TIMING.speech_estimate(text, lang, rate)
+    return clip.seconds < cut_off_threshold(lang) * _TIMING.speech_estimate(text, lang, rate)
 
 
 def _cached(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool, held: dict[Path, AudioClip] | None = None) -> AudioClip:

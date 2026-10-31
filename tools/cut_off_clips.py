@@ -13,7 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from audiolesson.render.audio import read_wav  # noqa: E402
-from audiolesson.render.renderer import _TIMING, _cache_path, load_profile, looks_cut_off, speech_request  # noqa: E402
+from audiolesson.render.renderer import _TIMING, _cache_path, cut_off_threshold, load_profile, looks_cut_off, speech_request  # noqa: E402
 from audiolesson.render.tts import get_provider  # noqa: E402
 from audiolesson.script import Script  # noqa: E402
 
@@ -48,6 +48,10 @@ def main(argv: list[str] | None = None) -> int:
     found = rows(args.scripts, args.cache, args.profile)
     flagged = [r for r in found if r["cut_off"]]
     print(f"{len(found)} cached clips read; {len(flagged)} look cut off")
+    # the spread per language, against the threshold: a cut-off clip sits apart below it, a whole one inside the spread
+    for lang in sorted({r["lang"] for r in found}):
+        ratios = sorted(r["ratio"] for r in found if r["lang"] == lang)
+        print(f"  {lang}: {len(ratios)} clips, ratio min {ratios[0]:.2f}, median {ratios[len(ratios) // 2]:.2f}; cut off under {cut_off_threshold(lang):.2f}")
     # every flagged clip first, then the shortest of the others up to --top: a word of one or two words (never flagged) can be shorter
     # against its estimate than a cut-off line, and must not push it off the list (review of #466)
     others = [r for r in found if not r["cut_off"]]
