@@ -58,8 +58,42 @@ class HardWordAgainTests(unittest.TestCase):
         self.assertEqual((ex.kind, ex.stage), ("model", "slow"))
         slow = [g.text for g in sc.segments if g.type == "speak" and g.rate < 1]
         self.assertEqual(slow, ["reik", "ning", "inn"])
-        plain = next(i for i in self.cur.items if i.kind == "vocab" and i.word_count == 1 and not hard_words_of(i, reported=True))
-        self.assertIsNone(b.slow_word_exercise(sc, plain), "a single word with nothing hard: nothing to model")
+
+    def test_a_word_asked_for_is_modelled_whatever_its_letters(self):
+        """Lesson 42: «regnhlíf» was reported hard to say, and with no authored split and none of the sound rules in it nothing was modelled: the
+        request was saved and dropped. A one-word item reported hard is always its own word: split when authored («regn · hlíf»), else said once
+        more at natural speed (#302: never stretched). The same holds for a word of one syllable and one no rule reads."""
+        from audiolesson.sounds import HARD_SOUNDS, REPORTED_SOUNDS
+
+        rules = (*HARD_SOUNDS.values(), *REPORTED_SOUNDS.values())
+        self.assertEqual(hard_words_of(self.cur.by_id["regnhlif"], reported=True), [("regnhlíf", ["regn", "hlíf"])])
+        plain = [i for i in self.cur.items if i.kind == "vocab" and i.word_count == 1 and not i.syllables and not any(rx.search(i.target.lower()) for rx in rules)]
+        short = next(i for i in plain if len(i.target.strip(".?!")) <= 3)
+        long_ = next(i for i in plain if len(i.target) >= 6)
+        for item in (short, long_):
+            word = item.target.lower().strip(".?!")
+            self.assertEqual(hard_words_of(item, reported=True), [(word, None)], item.id)
+            sc = Script(1, "t", "is", "en")
+            ex = self.builder().slow_word_exercise(sc, item)
+            self.assertIsNotNone(ex, item.id)
+            spoken = [g for g in sc.segments if g.exercise == ex.index and g.type == "speak"]
+            self.assertEqual([g.text for g in spoken], [item.target], f"{item.id}: said once more")
+            self.assertTrue(all(g.rate == 1 for g in spoken), "never stretched (#302)")
+        self.assertEqual(hard_words_of(self.cur.by_id["regnhlif"]), [("regnhlíf", ["regn", "hlíf"])], "authored: also at its introduction")
+
+    def test_a_say_request_from_the_form_reaches_the_next_lesson(self):
+        """The real order (lesson 42): the word is taught, the form reports it «sooner» with the reason «say», and the next lesson plays its model."""
+        l = LearnerState("is", "en", "A1")
+        l.items["regnhlif"] = ItemState(stage="meaning", successes=3, recalled=1, interval_days=1, last_outcome="recalled",
+                                        due=(TODAY + timedelta(days=1)).isoformat(), last_practiced=(TODAY - timedelta(days=1)).isoformat())
+        l.lessons_completed = 20
+        l.report([], [], TODAY - timedelta(days=1), sooner=["regnhlif"], sooner_reasons=["say"])
+        planner = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY)
+        self.assertEqual(planner.slow_owed_items(), ["regnhlif"])
+        sc = planner.build()
+        self.assertEqual(sc.meta["slow_models_reported"], ["regnhlif"])
+        ex = next(e for e in sc.exercises if e.kind == "model" and e.stage == "slow")
+        self.assertEqual([g.text for g in sc.segments if g.exercise == ex.index and g.type == "speak" and g.rate < 1], ["regn", "hlíf"])
 
     def lesson_after_report(self, practised: bool, recalled_at_review: bool):
         """The real order: the report (the feedback form's «sooner») comes first, the next morning's review after it, then the lesson is built."""
