@@ -80,8 +80,9 @@ information too.
 ### After each round of learner feedback (daily while the design is moving)
 
 During the fix-up phase (§9 "Governance"), this is done after **every** lesson, the next day; once the phase has ended,
-weekly. Either way the lesson's remarks go into `docs/feedback/ledger.toml` the next day, since the end of the phase and
-§8's "done" are counted from it.
+it may be weekly. Once a week the round also takes the week's precision remarks and requests: this is the weekly round
+that §9 "Governance" names. Either way the lesson's remarks go into `docs/feedback/ledger.toml` the next day, since the
+settled run that ends the phase and §8's "done" are counted from it.
 
 1. Replay the export of the lesson just heard: `python tools/replay_lesson.py <lesson-NNN>
    --trip <profile> --lessons 3`. The first column is that lesson rebuilt with the current code
@@ -850,22 +851,28 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
   - At most two lever changes a week, and only on a pattern across three or more items or
     two consecutive weeks. **Suspended during the fix-up phase (owner, after lesson 14):**
     while lessons are being reshaped after the lesson-13 failure, each lesson is read the next
-    day (§1), faults are fixed in batches and checked by replaying the latest export, and the
-    batch is judged as one change (§5.11). A change merges when the daily replay shows nothing
-    already fixed coming back (length, a short item alone at most three times, open items
-    practised). Slow signals (recall rates, phrase length, readiness) gate only the decisions
-    that depend on them, not development.
-  - **The end of the fix-up phase (owner, 2026-10-23; #406; the rule restated after lesson 41).** The phase ends after three settled
-    feedback lessons in a row: the settled run of `tools/ledger.py` reads 3 (`docs/feedback/ledger.toml`, §8). A settled lesson has a
-    form, load not «heavy», and no twenty-point remark of a recurring family: it counts whether the structural fixes hold. A new family
-    of any class does not break the run (new material brings new kinds of remark; lessons 35–41 each brought one), and neither does
-    «light» (the pace answers it, H9). A lesson with no feedback breaks the run. After it:
-    - at most two behaviour PRs between one lesson and the next; a data PR (a scene, its lines or verdicts, a native
-      correction) is not counted. The ledger's `built` lists the behaviour PRs each lesson is the first built with (from
-      lesson 35), and `tools/ledger.py` flags more than two, as an advisory;
+    day (§1) and each change is checked by replaying the latest export. A change merges when
+    the daily replay shows nothing already fixed coming back (length, a short item alone at
+    most three times, open items practised). Slow signals (recall rates, phrase length,
+    readiness) gate only the decisions that depend on them, not development.
+  - **The change rate (owner, 2026-10-31; after lesson 41).** In the fix-up phase and after it, so that each
+    lesson's feedback can tell its changes apart (§10):
+    - at most two behaviour PRs between one lesson and the next, taken in this order: first a structural fix for a
+      twenty-point remark of a recurring family (in one place, or one check across the course, as
+      `audiolesson/claims.py` is for framing lines, #397); then the fix for a new twenty-point remark, checked on the
+      replay; nothing else. A data PR (a scene, its lines or verdicts, a native correction) is not counted. Nor is the
+      fix for a regression (something already fixed coming back on the replay), which is made at once. The ledger lists
+      the behaviour PRs each lesson is the first built with (`built`), and `tools/ledger.py` flags more than two;
     - the week's precision remarks are answered in one PR, after the weekly round (§1);
-    - one #281 step per weekly round;
-    - the lever rule above applies again.
+    - a request (a mechanism remark that asks for something new, such as #428 and #429) becomes an issue, ranked in the
+      weekly round and never built the same week;
+    - one #281 step per weekly round.
+  - **The end of the fix-up phase (owner, 2026-10-31; after lesson 41).** The phase ends after three
+    settled lessons in a row: the settled run of `tools/ledger.py` reads 3 (`docs/feedback/ledger.toml`, §8). A settled
+    lesson has a feedback form, load not «heavy», and no twenty-point remark of a recurring family (one remarked before,
+    or one a change already heard was built for): the structural fixes hold. A new family of any class does not break
+    the run, since new material brings new kinds of remark; nor does «light», which the pace answers (H9). A lesson with
+    no feedback breaks it. After the phase the lever rule above applies again, and the round may be weekly (§1).
   - **Priorities (owner, 2026-10-14; restated 2026-10-24).** The aim is the learner's largest learning effect over the long run, and the
     daily lesson and its feedback are what keep it going. So about 80% of the weight goes to how the next lessons feel (enjoyable, nothing
     jarring) and 20% to what may change a long-term decision. A remark is ranked by how often its cause will recur on the replay and what a
@@ -889,8 +896,8 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
   should move in which signal (§6) and when it will be checked. At the check, keep the
   change, revert it or extend it, and write down which.
 - **Few changes at a time.** With one learner, two simultaneous changes can't be told apart.
-  §9 "Governance" sets the rate: in the fix-up phase a batch is judged as one change; after it, at most two behaviour
-  PRs between lessons, and two lever changes a week.
+  §9 "Governance" sets the rate: at most two behaviour PRs between one lesson and the next, in the fix-up phase and
+  after it, and two lever changes a week once the phase has ended.
 - **Waiting is not a task.** A read that needs several lessons of data never sits in the queue
   of work ahead of development; it accumulates alongside the daily read (§1).
 - **An owner request is evidence of a need.** Restate the need in terms of §3 and §4, look
