@@ -653,3 +653,17 @@ teaches = "question"
 topics = ["grammar"]
 text = "For a question you can answer with yes or no, put the verb first. «Þú talar íslensku» becomes «Talar þú íslensku?», and «Það er kalt» becomes «Er kalt?». When you ask the other person, the verb often changes with the person too: «Ég vil kaffi» turns into «Viltu kaffi?»."
 text_ja = "「はい・いいえ」で答えられる質問では、動詞を先頭に置きます。«Þú talar íslensku» は «Talar þú íslensku?» に、«Það er kalt» は «Er kalt?» になります。相手に尋ねるときは、人称に合わせて動詞の形も変わることがよくあります。«Ég vil kaffi» は «Viltu kaffi?» になります。"
+
+# Lesson 43: «hef komið と hingað は説明を受けてないが訳も出ず回答だけ言わされる場面がある». The coach ride (small talk 5) asks «Hefurðu
+# komið hingað áður?» and the learner answers with «Ég hef verið hér áður.», taught with other words: knowing the reply is not
+# recognising the question. One bridge after a practice of the reply: the question's two words against the reply's two. An ordinary note,
+# not a milestone: a milestone is followed by two examples of its pattern to tell apart (#34), and this one names a single reply. A
+# contrast (#198: «komið hingað» against «verið hér»): it waits until the reply has been met, so it is never spent as filler before, and
+# it does not wait for the reply to be learned (lesson 43 needs it while the reply is still new).
+[[notes]]
+id = "komid_hingad"
+items = ["eg_hef_verid_her_adur"]
+contrast = true
+topics = ["grammar", "social"]
+text = "«Hefurðu komið hingað áður?» asks whether you have come here before. «Komið» is a form of the verb to come. «Hingað» is here, as the place you come to. You answer with the line you know: «Ég hef verið hér áður.» In it, «verið» is a form of the verb to be. And «hér» is here, the place where you are."
+text_ja = "«Hefurðu komið hingað áður?» と聞かれることがあります。「前にここに来たことがありますか？」という意味です。«komið» は「来る」という動詞の形です。«hingað» は「ここへ」、来る先としての「ここ」です。答えは知っている文で言えます。«Ég hef verið hér áður.» この文の «verið» は「いる」という動詞の形です。そして «hér» は「ここに」、今いる場所としての「ここ」です。"
