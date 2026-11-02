@@ -125,7 +125,7 @@ class Item:
     word_syllables: dict[str, list[str]] | None = None  # #337: a phrase's hard words cut into syllables, authored: word (lower case) -> pieces; said slowly once at the phrase's introduction and when the phrase is reported hard
     slots: dict[str, str] = field(default_factory=dict)  # construction: slot -> required tag
     example: dict[str, str] = field(default_factory=dict)  # construction: slot -> item id
-    # construction: slot -> the fill its situation names ("Ask if she speaks English." only fits
+    # construction: slot -> the fill its situation names ("Ask her if she speaks English." only fits
     # «Talar þú ensku?»). Exercises that narrate the situation use it; others generate freely.
     situation_fill: dict[str, str] = field(default_factory=dict)
     # slot filler: other known-language renderings of ``meaning`` ("go home" / "going home"),
@@ -776,6 +776,33 @@ def _same_case_tag(slot_tag: str, tags: list[str]) -> bool:
     """Whether ``tags`` holds another tag of the slot tag's case (``acc_thing`` for a slot of ``acc_request``): the prefix before the first «_» (nom, acc, dat, gen)."""
     case = slot_tag.split("_", 1)[0]
     return case in ("nom", "acc", "dat", "gen") and any(t.split("_", 1)[0] == case for t in tags)
+
+
+# lesson 44: «Ask if she's Icelandic.» was answered «Ert þú íslensk?»: an instruction to ask someone about themselves names them as the object of
+# «ask» («Ask her if she's Icelandic.», «Ask the receptionist if she speaks English.»), so the learner knows the question is put to her (þú) and
+# which form the adjective takes; with no object, «she» reads as a third person («Er hún íslensk?»). A question about someone else names who it is
+# about («Ask what the girl is called.»).
+_ASK_BARE_RE = re.compile(r"\b[Aa]sk (?:if|whether|where|what|how|when|who|why|which)\b([^.;!?]*)")
+_PERSON_RE = re.compile(r"\b(?:she|he|they|her|him|his|them|their)\b", re.IGNORECASE)
+
+
+def ask_without_addressee(texts: Iterable[tuple[str, str]]) -> list[tuple[str, str]]:
+    """The ``(where, text)`` cues that tell the learner to ask with no one named after «ask» while the question is about a person («Ask where she
+    lives.»): they read as a question about her, not to her."""
+    return [(where, t) for where, t in texts if t and any(_PERSON_RE.search(m.group(1)) for m in _ASK_BARE_RE.finditer(t))]
+
+
+def cue_texts(cur: Curriculum) -> list[tuple[str, str]]:
+    """Every instruction in the primary known language that tells the learner what to say: items' situations and scene cues, and dialogue turns'
+    cues, as ``(where, text)``."""
+    out: list[tuple[str, str]] = []
+    for it in cur.items:
+        for name in ("situation", "partner_cue_setup", "partner_cue_situation"):
+            out.append((f"{it.id}.{name}", getattr(it, name) or ""))
+        out += [(f"{it.id}.situations", t) for t in it.situations or []]
+    for d in cur.dialogues:
+        out += [(f"dialogue {d.id}", t.cue) for t in d.turns if t.cue]
+    return out
 
 
 def unlinked_instances(cur: Curriculum) -> list[tuple[str, str, str, str, str]]:

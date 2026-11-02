@@ -421,7 +421,7 @@ partner_cue_setup = "Your friend just came in from outside, and you're about to 
 partner_cue_setup_ja = "友達が外から戻ってきました。あなたはこれから出かけます。天気はどうか聞いてください。"
 partner_cue_meaning = "It's raining a lot."
 partner_cue_meaning_ja = "すごく雨が降ってるよ。"
-partner_cue_situation = "She says it's pouring. Ask if she has an umbrella."
+partner_cue_situation = "She says it's pouring. Ask her if she has an umbrella."
 partner_cue_situation_ja = "土砂降りだそうです。傘を持っているか聞いてください。"
 
 [[items]]

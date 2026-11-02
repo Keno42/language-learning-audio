@@ -289,7 +289,7 @@ meaning = "Does that suit you?"
 meaning_ja = "都合はいいですか？"
 difficulty = 2
 topics = ["arrangements"]
-situation = "You've suggested meeting at seven. Ask if that suits her."
+situation = "You've suggested meeting at seven. Ask her if that suits her."
 situation_ja = "7時に会おうと提案しました。都合がいいか聞いてください。"
 
 [[items]]

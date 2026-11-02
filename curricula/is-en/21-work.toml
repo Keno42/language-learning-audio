@@ -57,7 +57,7 @@ meaning_ja = "何を勉強しているの？"
 difficulty = 3
 topics = ["work"]
 prereqs = ["eg_er_i_haskola"]
-situation = "Anna says she's at university. Ask what she's studying."
+situation = "Anna says she's at university. Ask her what she's studying."
 situation_ja = "アンナが大学生だと言いました。何を勉強しているか聞いてください。"
 
 [[items]]

@@ -50,8 +50,8 @@ difficulty = 3
 topics = ["greetings", "social"]
 chunks = ["gott", "segirðu gott", "Hvað segirðu gott?"]
 situations = [
-  "You bump into your neighbour. Ask how she is.",
-  "Your friend picks up the phone. Ask how she is, the casual way.",
+  "You bump into your neighbour. Ask her how she is.",
+  "Your friend picks up the phone. Ask her how she is, the casual way.",
 ]
 situations_ja = [
   "近所の人にばったり会いました。元気か聞いてください。",
@@ -163,8 +163,8 @@ difficulty = 3
 topics = ["greetings", "social"]
 chunks = ["það", "hefurðu það", "Hvernig hefurðu það?"]
 situations = [
-  "You meet a colleague you haven't seen for a week. Ask how she's doing.",
-  "You call your aunt for the first time in months. Ask how she's doing.",
+  "You meet a colleague you haven't seen for a week. Ask her how she's doing.",
+  "You call your aunt for the first time in months. Ask her how she's doing.",
 ]
 situations_ja = [
   "一週間ぶりに同僚に会いました。調子を聞いてください。",
@@ -932,7 +932,7 @@ situations_ja = [
 partner_cue = "Mér líður miklu betur, takk."  # issue #48: the partner line between hvad_segirdu_gott and this item in connect()
 partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "hvad_segirdu_gott"
-partner_cue_setup = "Your friend was ill last week. You bump into her. Ask how she is."
+partner_cue_setup = "Your friend was ill last week. You bump into her. Ask her how she is."
 partner_cue_setup_ja = "先週具合が悪かった友達にばったり会いました。元気か聞いてください。"
 partner_cue_meaning = "I feel much better, thanks."
 partner_cue_meaning_ja = "ずっと良くなったよ、ありがとう。"
@@ -948,7 +948,7 @@ topics = ["greetings", "social"]
 requires = ["godan_daginn", "hvad_segirdu_gott", "allt_gott", "en_thu", "sjaumst"]
 
   [[dialogues.turns]]
-  cue = "Greet her with good day and ask how she is."
+  cue = "Greet her with good day and ask her how she is."
   cue_ja = "こんにちはとあいさつして、元気か聞いてください。"
   expect_text = "Góðan daginn. Hvað segirðu gott?"
   expect_meaning = "Good day. How are you?"

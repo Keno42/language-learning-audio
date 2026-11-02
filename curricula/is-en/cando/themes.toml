@@ -283,7 +283,7 @@ turns = [
   { who = "partner", say = "Hvar býrð þú?", meaning = "Where do you live?", meaning_ja = "どこに住んでいるんですか？" },
   { who = "you", cue = "Say you live in Tokyo, and ask her back.", cue_ja = "東京に住んでいると言い、聞き返してください。", aim = "say you live in Tokyo and ask her back", aim_ja = "東京に住んでいると言い、聞き返す", say = "Ég bý í Tókýó. En þú?", items = ["eg_by_i", "tokyo_dat", "en_thu"] },
   { who = "partner", say = "Ég bý í Kópavogi, rétt hjá Reykjavík.", meaning = "I live in Kópavogur, just by Reykjavík.", meaning_ja = "コーパヴォグルに住んでいます。レイキャビクのすぐ近くです。" },
-  { who = "you", cue = "Ask what she does.", cue_ja = "仕事は何か聞いてください。", aim = "ask what she does", aim_ja = "仕事は何か聞く", say = "Hvað gerir þú?", items = ["hvad_gerir_thu"] },
+  { who = "you", cue = "Ask her what she does.", cue_ja = "仕事は何か聞いてください。", aim = "ask what she does", aim_ja = "仕事は何か聞く", say = "Hvað gerir þú?", items = ["hvad_gerir_thu"] },
   { who = "partner", say = "Ég er læknir. En þú?", meaning = "I'm a doctor. And you?", meaning_ja = "医者です。あなたは？", variants = [{ say = "Ég vinn á sjúkrahúsi. En þú?", meaning = "I work at a hospital. And you?", meaning_ja = "病院で働いています。あなたは？" }] },
   { who = "you", cue = "Say you're a teacher.", cue_ja = "教師だと言ってください。", aim = "say you're a teacher", aim_ja = "教師だと言う", say = "Ég er kennari.", items = ["eg_er_job", "kennari"] },
   { who = "partner", say = "Gaman að heyra það.", meaning = "Nice to hear that.", meaning_ja = "それはいいですね。" },
@@ -293,7 +293,7 @@ goal = "Ask if she's Icelandic, say you're Japanese and here on business, and wh
 goal_ja = "アイスランド人か聞き、日本人で出張中だと伝え、勤め先も言う。"
 partner_speaker = "native_a"
 turns = [
-  { who = "you", cue = "Ask if she's Icelandic.", cue_ja = "アイスランド人か聞いてください。", aim = "ask if she's Icelandic", aim_ja = "アイスランド人か聞く", say = "Ert þú íslensk?", items = ["ert_thu_islensk"] },
+  { who = "you", cue = "Ask her if she's Icelandic.", cue_ja = "アイスランド人か聞いてください。", aim = "ask if she's Icelandic", aim_ja = "アイスランド人か聞く", say = "Ert þú íslensk?", items = ["ert_thu_islensk"] },
   { who = "partner", say = "Já, ég er frá Akureyri. En þú?", meaning = "Yes, I'm from Akureyri. And you?", meaning_ja = "ええ、アークレイリ出身です。あなたは？", variants = [{ say = "Já, alveg. En þú?", meaning = "Yes, absolutely. And you?", meaning_ja = "ええ、まったくそうです。あなたは？", word_glosses = { "alveg" = { en = "absolutely", ja = "まったく", pointer = { en = "the word that makes the yes stronger", ja = "「はい」を強めた部分" } } } }] },
   { who = "you", cue = "Say you're Japanese.", cue_ja = "日本人だと言ってください。", aim = "say you're Japanese", aim_ja = "日本人だと言う", say = "Ég er japönsk.", say_m = "Ég er japanskur.", items = ["eg_er_japonsk"] },
   { who = "partner", say = "Ertu hér í fríi?", meaning = "Are you here on holiday?", meaning_ja = "休暇で来ているんですか？", word_glosses = { "fríi" = { en = "holiday", ja = "休暇" } }, variants = [{ say = "Ertu í fríi á Íslandi?", meaning = "Are you on holiday in Iceland?", meaning_ja = "アイスランドには休暇で？", word_glosses = { "fríi" = { en = "holiday", ja = "休暇" } } }] },
@@ -315,7 +315,7 @@ scene_line = "You're having coffee with Anna, whom you met at the guesthouse."
 scene_line_ja = "ゲストハウスで知り合ったアンナと、カフェでお茶をしています。"
 turns = [
   { who = "partner", say = "Ég á afmæli í dag!", meaning = "It's my birthday today!", meaning_ja = "今日は私の誕生日なんです！", word_glosses = { "afmæli" = { en = "birthday", ja = "誕生日" } } },
-  { who = "you", cue = "Congratulate her, and ask how old she is.", cue_ja = "お祝いを言って、何歳になったか聞いてください。", aim = "congratulate her and ask how old she is", aim_ja = "お祝いを言い、年齢を聞く", say = "Til hamingju! Hvað ertu gömul?", items = ["til_hamingju", "hvad_ertu_gomul"] },
+  { who = "you", cue = "Congratulate her, and ask her how old she is.", cue_ja = "お祝いを言って、何歳になったか聞いてください。", aim = "congratulate her and ask how old she is", aim_ja = "お祝いを言い、年齢を聞く", say = "Til hamingju! Hvað ertu gömul?", items = ["til_hamingju", "hvad_ertu_gomul"] },
   { who = "partner", say = "Takk! Ég er þrjátíu ára. En þú?", meaning = "Thanks! I'm thirty. And you?", meaning_ja = "ありがとう！30歳です。あなたは？", variants = [{ say = "Takk! Þrjátíu ára í dag. En þú?", meaning = "Thanks! Thirty today. And you?", meaning_ja = "ありがとう！今日で30歳。あなたは？" }] },
   { who = "you", cue = "Say you're twenty.", cue_ja = "20歳だと言ってください。", aim = "say your age", aim_ja = "自分の年齢を言う", say = "Ég er tuttugu ára.", items = ["eg_er_ara", "tuttugu_ara"] },
   { who = "partner", say = "Þú ert með hring!", meaning = "You're wearing a ring!", meaning_ja = "指輪をしているんですね！", word_glosses = { "hring" = { en = "ring", ja = "指輪" } } },
@@ -336,7 +336,7 @@ turns = [
   { who = "partner", say = "Fallegt, er það ekki? Hefurðu komið hingað áður?", meaning = "Beautiful, isn't it? Have you been here before?", meaning_ja = "きれいですね。前にも来たことがありますか？" },
   { who = "you", cue = "Say yes, you've been here before.", cue_ja = "はい、前にも来たことがあると言ってください。", aim = "say you've been here before", aim_ja = "前にも来たことがあると言う", say = "Já, ég hef verið hér áður.", items = ["ja", "eg_hef_verid_her_adur"] },
   { who = "partner", say = "Nú já! Gaman að heyra.", meaning = "Oh! Nice to hear.", meaning_ja = "そうなんですね！" },
-  { who = "you", cue = "Ask where she lives.", cue_ja = "どこに住んでいるか聞いてください。", aim = "ask where she lives", aim_ja = "どこに住んでいるか聞く", say = "Hvar býrð þú?", items = ["hvar_byrd_thu"] },
+  { who = "you", cue = "Ask her where she lives.", cue_ja = "どこに住んでいるか聞いてください。", aim = "ask where she lives", aim_ja = "どこに住んでいるか聞く", say = "Hvar býrð þú?", items = ["hvar_byrd_thu"] },
   { who = "partner", say = "Á Selfossi. En þú?", meaning = "In Selfoss. And you?", meaning_ja = "セルフォスです。あなたは？" },
   { who = "you", cue = "Say you live in Osaka.", cue_ja = "大阪に住んでいると言ってください。", aim = "say you live in Osaka", aim_ja = "大阪に住んでいると言う", say = "Ég bý í Ósaka.", items = ["eg_by_i", "osaka_dat"] },
   { who = "partner", say = "Og hvað gerir þú?", meaning = "And what do you do?", meaning_ja = "お仕事は何ですか？", variants = [{ say = "Og við hvað vinnur þú?", meaning = "And what do you work as?", meaning_ja = "お仕事は何をしていますか？" }] },
@@ -394,9 +394,9 @@ turns = [
   { who = "partner", say = "Þessi er mjög hlýr. Mátaðu hann.", meaning = "This one is very warm. Try it on.", meaning_ja = "これはとても暖かいです。着てみてください。" },
   { who = "you", cue = "You try it on. Say it's too small.", cue_ja = "着てみました。小さすぎると言ってください。", aim = "say it's too small", aim_ja = "小さすぎると言う", say = "Þetta er of lítið.", items = ["thetta_er_of_litid"] },
   { who = "partner", say = "Æ, leiðinlegt.", meaning = "Oh, that's a pity.", meaning_ja = "あら、残念。", variants = [{ say = "Æ, en leiðinlegt.", meaning = "Oh, what a pity.", meaning_ja = "あら、それは残念。" }] },
-  { who = "you", cue = "Ask if she has it in a bigger size.", cue_ja = "大きいサイズがあるか聞いてください。", aim = "ask for a bigger size", aim_ja = "大きいサイズがあるか聞く", say = "Áttu þetta í stærra?", items = ["attu_thetta_i_staerra"] },
+  { who = "you", cue = "Ask her if she has it in a bigger size.", cue_ja = "大きいサイズがあるか聞いてください。", aim = "ask for a bigger size", aim_ja = "大きいサイズがあるか聞く", say = "Áttu þetta í stærra?", items = ["attu_thetta_i_staerra"] },
   { who = "partner", say = "Já, gjörðu svo vel.", meaning = "Yes, here you are.", meaning_ja = "はい、どうぞ。" },
-  { who = "you", cue = "Ask if she has it in another colour.", cue_ja = "別の色があるか聞いてください。", aim = "ask for another colour", aim_ja = "別の色があるか聞く", say = "Áttu þetta í öðrum lit?", items = ["attu_thetta_i_odrum_lit"] },
+  { who = "you", cue = "Ask her if she has it in another colour.", cue_ja = "別の色があるか聞いてください。", aim = "ask for another colour", aim_ja = "別の色があるか聞く", say = "Áttu þetta í öðrum lit?", items = ["attu_thetta_i_odrum_lit"] },
   { who = "partner", say = "Já, í bláu og rauðu.", meaning = "Yes, in blue and red.", meaning_ja = "はい、青と赤があります。" },
 ]
 

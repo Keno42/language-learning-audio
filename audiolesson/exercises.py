@@ -1815,7 +1815,7 @@ class Builder:
 
     def situation_usable(self, item: Item) -> bool:
         """Whether ``item``'s situation can be practised now: every fill it names is available
-        ("Ask if she speaks German." waits until þýsku is known)."""
+        ("Ask her if she speaks German." waits until þýsku is known)."""
         return (item.has_situation
                 and all(self._available(f.id) for f in self.cur.situation_fills(item).values()))
 
