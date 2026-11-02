@@ -115,6 +115,7 @@ listening_intro_again = "もう一度、同じ会話です。"
 dialogue_voiced_note = "言うことの指示が出たら、答えてください。「はい」「いいえ」「ありがとう」などの短い返事は、音声で流れます。"
 listening_line = "ここでは、こう言います。"
 dialogue_start = "ここからは短い会話です。"
+dialogue_start_another = "続けて、もう一つ短い会話です。"  # 会話の直後の会話 (owner, lesson 45)
 dialogue_replay = "では、会話全体を通して聞きましょう。"
 # 作成済みのやりとり：一つの場面で、二つの答えの間に相手のせりふが入る
 connect_intro = "いくつかつなげてみましょう。"

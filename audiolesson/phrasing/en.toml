@@ -119,6 +119,7 @@ listening_intro_again = "The conversation again."
 dialogue_voiced_note = "Answer when you're told what to say. Short replies like yes, no and thanks are played for you."
 listening_line = "Here you would say:"
 dialogue_start = "Now a short conversation."
+dialogue_start_another = "Now another short conversation."  # right after another conversation (owner, lesson 45)
 dialogue_replay = "Now the whole conversation, without pauses."
 # an authored exchange: one scene, with a partner line between the two answers
 connect_intro = "Let's put a couple of things together."
