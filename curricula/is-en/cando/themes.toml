@@ -58,13 +58,13 @@ turns = [
 
 [[themes.levels]]
 partner_speaker = "native_a"  # the partner is a woman
-goal = "Order a piece of cake, say you're allergic to nuts, and take what she suggests instead."
-goal_ja = "ケーキを頼み、ナッツアレルギーだと伝え、代わりにすすめられたものを頼む。"
+goal = "Ask for a cake without nuts, say you're allergic to nuts, and take what she suggests instead."
+goal_ja = "ナッツなしのケーキを頼み、ナッツアレルギーだと伝え、代わりにすすめられたものを頼む。"
 turns = [
-  { who = "you", cue = "Order a piece of cake.", cue_ja = "ケーキを注文してください。", aim = "order a piece of cake", aim_ja = "ケーキを注文する", say = "Ég ætla að fá köku.", items = ["eg_aetla_ad_fa", "koku"] },
-  { who = "partner", say = "Það eru hnetur í kökunni.", meaning = "There are nuts in the cake.", meaning_ja = "ケーキにはナッツが入っています。", word_glosses = { "hnetur" = { en = "nuts", ja = "ナッツ" } }, variants = [{ say = "Það eru hnetur í henni.", meaning = "There are nuts in it.", meaning_ja = "ナッツが入っています。", word_glosses = { "hnetur" = { en = "nuts", ja = "ナッツ" } } }] },
+  { who = "you", cue = "Ask for a cake without nuts.", cue_ja = "ナッツなしのケーキを頼んでください。", aim = "ask for a cake without nuts", aim_ja = "ナッツなしのケーキを頼む", say = "Get ég fengið köku án hnetna?", items = ["get_eg_fengid_koku_an_hnetna"], alts = ["Áttu köku án hnetna?"] },
+  { who = "partner", say = "Án hnetna?", meaning = "Without nuts?", meaning_ja = "ナッツなしですか？" },
   { who = "you", cue = "Tell her you're allergic to nuts.", cue_ja = "ナッツアレルギーがあると伝えてください。", aim = "say you're allergic to nuts", aim_ja = "ナッツアレルギーだと伝える", say = "Ég er með ofnæmi fyrir hnetum.", items = ["eg_er_med_ofnaemi_fyrir_hnetum"] },
-  { who = "partner", say = "Viltu frekar skyr?", meaning = "Would you rather have skyr?", meaning_ja = "代わりにスキールはいかがですか？", word_glosses = { "frekar" = { en = "rather", ja = "代わりに", pointer = { en = "the word that offers something instead", ja = "代わりのものをすすめた部分" } } }, variants = [{ say = "Ekkert mál. Viltu frekar skyr?", meaning = "No problem. Would you rather have skyr?", meaning_ja = "大丈夫ですよ。代わりにスキールはいかがですか？", word_glosses = { "mál" = { en = "problem", ja = "問題", pointer = { en = "the word in the reply to your allergy", ja = "アレルギーへの返事の中のことば" } } } }] },
+  { who = "partner", say = "Því miður. Viltu frekar skyr?", meaning = "Sorry, no. Would you rather have skyr?", meaning_ja = "申し訳ありません。代わりにスキールはいかがですか？", word_glosses = { "frekar" = { en = "rather", ja = "代わりに", pointer = { en = "the word that offers something instead", ja = "代わりのものをすすめた部分" } } }, variants = [{ say = "Nei, því miður. Viltu frekar skyr?", meaning = "No, sorry. Would you rather have skyr?", meaning_ja = "いいえ、申し訳ありません。代わりにスキールはいかがですか？", word_glosses = { "frekar" = { en = "rather", ja = "代わりに", pointer = { en = "the word that offers something instead", ja = "代わりのものをすすめた部分" } } } }] },
   { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", aim = "take what she suggests", aim_ja = "すすめられたものを頼む", say = "Já, takk.", items = ["ja", "takk"] },
 ]
 

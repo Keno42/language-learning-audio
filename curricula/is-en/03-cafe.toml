@@ -581,6 +581,23 @@ situations_ja = [
   "ホストがアーモンドケーキを勧めてくれました。ナッツアレルギーがあると伝えてください。",
 ]
 
+# Owner, after lesson 44: at a café one asks first, and says why («Get ég fengið köku án hnetna? Ég er með ofnæmi fyrir hnetum.»); the
+# server does not warn of nuts unprompted. «án» takes the genitive, as in «án sykurs», «án mjólkur»: «hnetna», where «fyrir» takes «hnetum».
+
+[[items]]
+id = "get_eg_fengid_koku_an_hnetna"
+kind = "phrase"
+target = "Get ég fengið köku án hnetna?"
+meaning = "Can I have a cake without nuts?"
+meaning_ja = "ナッツなしのケーキをいただけますか？"
+difficulty = 4
+topics = ["cafe", "health"]
+prereqs = ["get_eg_fengid", "koku"]
+pronunciation_notes = "án + genitive: hnetna (after fyrir: hnetum)"
+chunks = ["án hnetna", "köku án hnetna", "Get ég fengið köku án hnetna?"]
+situation = "You're allergic to nuts. At the café counter, ask for a cake without nuts."
+situation_ja = "ナッツアレルギーがあります。カフェのカウンターで、ナッツなしのケーキを頼んでください。"
+
 # The allergy pattern (#326): the open line «Ég er með ofnæmi fyrir hnetum.» was asked as one sentence
 # four times a lesson after lesson 33. «fyrir» here takes the dative: «fiski», «eggjum» are the dative
 # forms of nouns the learner knows in the accusative («fisk», «egg»). Candidates until native-checked (#209).
