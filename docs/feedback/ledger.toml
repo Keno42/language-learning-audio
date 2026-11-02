@@ -109,6 +109,12 @@ cause = "A synthesized clip can end early without an error: the cache keeps it, 
 [families.prompt-recognition]
 cause = "A level is ready when the learner can say every reply; nothing checks that the partner's line before it can be understood, so a question worded unlike its known reply plays untranslated (#327, #265)."
 
+[families.part-ladder]
+cause = "A part met only inside one sentence missed what an item met alone gets: the bare cap counted its own sentence as said alone, so with no other sentence its rungs were dropped, and its introduction inside the sentence had no build-up (#469)."
+
+[families.cue-addressee]
+cause = "A cue to ask a person named no one after «ask», so «she» read as a third person and the answer's adjective form was unclear; the same wording also served a real third-person question (#470)."
+
 [families.instruction-language]
 cause = "Every instruction is in the known language: the Icelandic the learner will hear as instructions is never practised (#429)."
 
@@ -605,7 +611,69 @@ family = "prompt-recognition"
 class = "twenty"
 answered_by = ["#464"]
 
-# Built changes: the rows of the §8 table after lesson 43, in its order
+[[lesson]]
+n = 44
+form = true
+load = "right"
+built = ["#463"]
+
+[[lesson.remarks]]
+who = "main"
+text = "When the part that says a hard word piece by piece began, it did not say which word it was about («regnhlíf»)."
+family = "hard-word"
+class = "precision"
+answered_by = ["#468"]
+
+[[lesson.remarks]]
+who = "main"
+text = "The four-word expression new as one («hinum megin við götuna», across the street) was not practised enough, and (the owner) not piece by piece."
+family = "part-ladder"
+class = "twenty"
+answered_by = ["#469"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner.) «Ask if she …» in the review is answered «Ert þú …», not «Er hún …»; «say \"Are you …\"» would leave the adjective's gender open."
+family = "cue-addressee"
+class = "twenty"
+answered_by = ["#470"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner.) In the café scene the server warns of nuts unprompted, and «Ekkert mál» answers an allergy; one would ask for a cake without nuts and say why."
+family = "scene-plausibility"
+class = "precision"
+answered_by = ["#471"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner.) The late call opens «Anna … wants to meet again.», and the cue adds that the meeting is arranged, the call is on and you are late."
+family = "scene-plausibility"
+class = "precision"
+answered_by = ["#475"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner.) What does «In a sentence.» mean in «In a sentence. Say: It's on the corner.»?"
+family = "framing-general"
+class = "precision"
+answered_by = ["#474"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner, on lesson 45 as generated.) A conversation that the next one follows has no end line, and the next opens «Now a short conversation.»; and one opens with the learner answering a question no one asked."
+family = "pick-out-turns"
+class = "precision"
+answered_by = ["#473", "#472"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner.) «Ég er …», «Ég er ekki …», «Ertu …» bring nothing extra, no m/f/n and no other case: a task for later."
+family = "easy-substitution"
+class = "mechanism"
+answered_by = []
+
+# Built changes: the rows of the §8 table after lesson 44, in its order
 
 [[change]]
 title = "a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351)"
@@ -1030,3 +1098,73 @@ pr = ["#458"]
 family = "scene-plausibility"
 first_heard = 43
 heard = "the coach ride opened with its own scene line"
+
+[[change]]
+title = "«Same change:» only right after a transform with the same instruction (#461: #463)"
+issue = ["#461"]
+pr = ["#463"]
+family = "framing-general"
+
+[[change]]
+title = "an aside sets «komið hingað» against «verið hér», after the coach ride (#327: #464, data)"
+issue = ["#327"]
+pr = ["#464"]
+family = "prompt-recognition"
+first_heard = 44
+heard = "the aside at 06:47, before the coach ride's question"
+
+[[change]]
+title = "a clip the speech service cut off is synthesized again and not cached; the threshold is per language (#462: #466, #467)"
+issue = ["#462"]
+pr = ["#466", "#467"]
+family = "audio-defect"
+first_heard = 44
+heard = "«Ask where she lives.» three times, no remark"
+
+[[change]]
+title = "a word reported hard to say is first asked from its meaning, then broken down (lesson 44: #468)"
+issue = []
+pr = ["#468"]
+family = "hard-word"
+
+[[change]]
+title = "a part only its own sentence holds keeps its four rungs; a part of three words or more is built up from its end inside its sentence (lesson 44: #469)"
+issue = []
+pr = ["#469"]
+family = "part-ladder"
+
+[[change]]
+title = "a cue that asks a person names them after «ask»; validate fails one that does not (lesson 44: #470)"
+issue = []
+pr = ["#470"]
+family = "cue-addressee"
+
+[[change]]
+title = "the café's fourth level: the learner asks for a cake without nuts and says why (lesson 44: #471, data)"
+issue = []
+pr = ["#471"]
+family = "scene-plausibility"
+
+[[change]]
+title = "a scene line's lead-in comes after the question it answers (#427: #472)"
+issue = ["#427"]
+pr = ["#472"]
+family = "pick-out-turns"
+
+[[change]]
+title = "a conversation right after another opens «Now another short conversation.» (#415: #473)"
+issue = []
+pr = ["#473"]
+family = "pick-out-turns"
+
+[[change]]
+title = "a part's generated sentence is cued by its meaning, not «In a sentence.» (#287: #474)"
+issue = []
+pr = ["#474"]
+family = "framing-general"
+
+[[change]]
+title = "the late call to Anna has its own scene line (#458: #475, data)"
+issue = []
+pr = ["#475"]
+family = "scene-plausibility"

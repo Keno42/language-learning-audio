@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.30 (lessons 1–40), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.31 (lessons 1–41), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1220,3 +1220,38 @@ What the learner wrote, and what the owner found in the transcript and asked for
   review's 🔊 replies** (site_update_notifier#176). Lesson 40's closing held no listening task (#421; on the replay, lesson 44
   does). Load «right» after five «light»; the ledger does not count the lesson settled (one twenty-point remark, four new
   families).
+
+### 5.31 Lesson 41: the first feedback on #430, #432, #433 and #435–#437
+
+Lesson 41 was generated with LLA `2df0e37` (main with #430–#437), the bot at site_update_notifier `c72150b` (with #180 and #183);
+rebuilt from its export it is identical (127 exercises, 29.5 minutes). It is the first feedback on known replies voiced in an
+authored dialogue (#430), the batch for lessons 41–50 (#432: arranging to meet), every listening task naming its scene (#433), the
+closing as one block (#435, #437) and no pick-out on an answer just heard (#436).
+
+| | lesson 41 |
+|---|---|
+| length | 29.5 min, 127 exercises |
+| new items; new components, weighted (target) | 10; 10 (10) |
+| theme (level); today's new items said as a turn of the played exchange | arranging to meet (1); «Ég fer á morgun.», «Það hentar vel.» |
+| target reached | 16.1 min (3.8 min after it serving neither a target expression nor a scene) |
+| longest stretch without a scene | 4.2 min |
+| a sentence asked again within a minute | 1 |
+| most narrations of one situation | 4 |
+| feedback form: load; friction | **light** (after «right» in lesson 40); other |
+| «sooner» | «lögreglustöðin», reason: hard to hear |
+
+What the learner wrote, by what the lesson did:
+
+- **"The four combinations of kem/fer and í kvöld/á morgun are mere substitutions: as learning, the four together feel very
+  light."** `á morgun`, `í kvöld`, «Ég fer {time}.» and «Ég kem {time}.» cost 3 weighted components (1 + 0 + 1 + 1), and got 19
+  exercises and 20 model answers on four sentences («Ég fer á morgun.» 6, «Ég fer í kvöld.» 4, «Ég kem á morgun.» 5, «Ég kem í
+  kvöld.» 5): each item ran its own ladder although one sentence practises two of them, and two time words make only four
+  sentences. **Open:** #439 (practice shared across the items a sentence says; not a change of the components' weights).
+- **"The guide that simple replies are played, not asked, is repeated too often."** «Short replies like yes, no and thanks are
+  played for you.» at 02:00, 17:38 and 21:13, about 19 s. Not a recurrence of lesson 38's remark: the replies voiced stay voiced.
+  **Answered, in review (#440):** the guide once a lesson, then «The conversation again.».
+- **The closing held nothing but today's new material** (nine recalls), and no pick-out asked an answer heard in the five minutes
+  before (nine pick-outs and catches). The stretch before the closing was 17 recalls of known material, with no listening task
+  (#437 found none to give there): the 3.8 minutes after the target that serve neither a target expression nor a scene.
+- **«lögreglustöðin» hard to hear:** a «sooner» report; listening help apart from the review is site_update_notifier#179's.
+  Load «light» after one «right»: H9's rule does not raise the pace on one rating.
