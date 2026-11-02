@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.31 (lessons 1–41), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.32 (lessons 1–42), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1255,3 +1255,46 @@ What the learner wrote, by what the lesson did:
   (#437 found none to give there): the 3.8 minutes after the target that serve neither a target expression nor a scene.
 - **«lögreglustöðin» hard to hear:** a «sooner» report; listening help apart from the review is site_update_notifier#179's.
   Load «light» after one «right»: H9's rule does not raise the pace on one rating.
+
+### 5.32 Lesson 42: the first feedback on #440 and #448
+
+Lesson 42 was generated with LLA `90122e1` (main with #442, #447 and #448), the bot at site_update_notifier `b74ccf3`; rebuilt
+from its export it is the same (129 exercises, 29.4 minutes; the written notes aside). It is the first feedback on the voiced-reply
+guide said once a lesson (#440: once, then «The conversation again.» three times) and on the goal narrowed to the lines the exchange
+asks (#448: «Say you'll come this evening and say see you this evening. Listen for how to say you can't tomorrow.»). #442 had no
+pattern taught with its filler to share practice across, and #447 had no report with its reason yet.
+
+| | lesson 42 |
+|---|---|
+| length | 29.4 min, 129 exercises |
+| new items; new components, weighted (target) | 10; 9 (9, lowered from 10: 53 items due against about 64 review slots) |
+| theme (level); today's new items said as a turn of the played exchange | arranging to meet (2); none (2 of 10 in the played scene) |
+| target reached | 19.3 min |
+| longest stretch without a scene | 4.4 min |
+| a sentence asked again within a minute | 1 |
+| most narrations of one situation | 4 |
+| confirmed recall by gap, 3–6 / 7–13 / 14+ days | 28/30 · 39/43 · 9/9 |
+| feedback form: load; friction | **light** (a second time, after lesson 41); other |
+| «sooner» | «regnhlíf», reason: hard to say |
+
+What the learner wrote, by what the lesson did:
+
+- **"Still odd to talk about marriage and age with another customer at a café, out of the blue."** Small talk 4 heard again at 24:40:
+  «Someone sits down next to you and says hello.», a stranger's birthday, her age, then «Ég er ekki gift. En þú?». #433 had made
+  «En þú?» ask the right thing, and the birthday gave the age a reason; nothing gave marriage one, and the scene line named no one
+  the learner knew. A recurrence of lesson 40's remark (§5.30), so the lesson is not settled. **Answered, in review (#458, a data PR):**
+  a coffee with Anna, the friend made at the guesthouse, said by the level's own scene line; her birthday leads to «Til hamingju! Hvað
+  ertu gömul?», her remark on your ring to «Takk! Ég er gift.», and the level ends on «Skál!». On the replay of the export the
+  level is heard whole in lessons 44 and 46, every line with its reason.
+- **«regnhlíf», hard to say:** the request was saved and nothing could model it: no authored split, none of the sound rules, a single
+  word. The replay shows two earlier requests dropped the same way, «vatnsglas» and «versla». **Answered, in review (#459, #457):** a
+  one-word item reported hard is its own word, and «regnhlíf» is split («regn · hlíf»); on the replay lesson 43 plays it.
+- **The owner's review of the export.**
+  - A catch line answered something never heard: «You're in town.» → «Frábært. En pósthúsið?» (07:33). Open in #427.
+  - The day's new material was not what the played exchange lets the learner do: directions, the umbrella and being late around an
+    exchange about this evening (#327). On the replay from current main, today's new items said as a turn are 0, 3, 1, 0, 0, 2 in lessons
+    42–47.
+  - Easy substitutions still take many answers: «Ertu með regnhlíf?» 9 model answers, «Ég er sein/seinn.» 5 + 5 (#439, read again after #442).
+- Load «light» a second time. Two «light» ratings raise the target by H9's rule when the window's failures are at most 25% and the
+  review backlog is small (fewer due than half the review slots). The failures hold (2 of 29); the backlog does not: on the replay
+  with lesson 42 rated «light», 47 items are due against about 64 slots before lesson 43, so its target stays at 9.

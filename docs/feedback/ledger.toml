@@ -115,6 +115,9 @@ cause = "A part met only inside one sentence missed what an item met alone gets:
 [families.cue-addressee]
 cause = "A cue to ask a person named no one after «ask», so «she» read as a third person and the answer's adjective form was unclear; the same wording also served a real third-person question (#470)."
 
+[families.pick-out-answer]
+cause = "A pick-out's answer is authored as the bare value of the line, so what qualifies it is dropped: «svona tíu mínútur» answered «tíu mínútur» (#477)."
+
 [families.instruction-language]
 cause = "Every instruction is in the known language: the Icelandic the learner will hear as instructions is never practised (#429)."
 
@@ -673,7 +676,20 @@ family = "easy-substitution"
 class = "mechanism"
 answered_by = []
 
-# Built changes: the rows of the §8 table after lesson 44, in its order
+[[lesson]]
+n = 45
+form = true
+load = "light"
+built = ["#468", "#469", "#470", "#472", "#473", "#474"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner.) After «Það tekur svona tíu mínútur.» the time it takes is «svona tíu mínútur», not «tíu mínútur»."
+family = "pick-out-answer"
+class = "precision"
+answered_by = ["#477"]
+
+# Built changes: the rows of the §8 table after lesson 45, in its order
 
 [[change]]
 title = "a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351)"
@@ -1132,6 +1148,8 @@ title = "a part only its own sentence holds keeps its four rungs; a part of thre
 issue = []
 pr = ["#469"]
 family = "part-ladder"
+first_heard = 45
+heard = "«við hliðina á bankanum» and «fyrir framan hótelið» built up from their end and asked four times"
 
 [[change]]
 title = "a cue that asks a person names them after «ask»; validate fails one that does not (lesson 44: #470)"
@@ -1144,6 +1162,8 @@ title = "the café's fourth level: the learner asks for a cake without nuts and 
 issue = []
 pr = ["#471"]
 family = "scene-plausibility"
+first_heard = 45
+heard = "the café's fourth level played twice, «Án hnetna?» after the request"
 
 [[change]]
 title = "a scene line's lead-in comes after the question it answers (#427: #472)"
@@ -1162,9 +1182,25 @@ title = "a part's generated sentence is cued by its meaning, not «In a sentence
 issue = []
 pr = ["#474"]
 family = "framing-general"
+first_heard = 45
+heard = "nine generated sentences of parts cued by their meaning, «Use it in a sentence.» once after the same part"
 
 [[change]]
 title = "the late call to Anna has its own scene line (#458: #475, data)"
 issue = []
 pr = ["#475"]
 family = "scene-plausibility"
+first_heard = 45
+heard = "the late call opened with its own scene line"
+
+[[change]]
+title = "a pick-out on an approximate time keeps «svona»: «svona tíu mínútur», about ten minutes (lesson 45: #477, data)"
+issue = []
+pr = ["#477"]
+family = "pick-out-answer"
+
+[[change]]
+title = "when the due reviews cannot fit, today's new items give up a middle rung to them (#439: #478)"
+issue = ["#439"]
+pr = ["#478"]
+family = "easy-substitution"
