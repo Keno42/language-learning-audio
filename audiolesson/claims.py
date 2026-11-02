@@ -23,6 +23,7 @@ NEW = "new"  # the line is none of those said earlier in the lesson (#197)
 # the exercise's item was not practised earlier in the lesson: a scene's line only heard («Here you would say:», ``heard_ids``, #263) and a note that names
 # the item are not practice; the theme's first play comes before the lesson teaches its lines on purpose (LEARNING-DESIGN §9 "Themes")
 NEW_ITEM = "new item"
+AFTER_CONVERSATION = "after a conversation"  # the exercise heard just before is a conversation («Now another short conversation.», lesson 45)
 
 CLAIMS = {
     "construction_of_known": ANOTHER,
@@ -41,6 +42,7 @@ CLAIMS = {
     "recombine_new": NEW,
     "recombine_new_lead": NEW,
     "intro_new": NEW_ITEM,
+    "dialogue_start_another": AFTER_CONVERSATION,
     "intro_whole": NEW,  # «A new expression»: the whole is new; its part may have been practised as a pattern's filler (lesson 19 of a simulated course: «eldfjall»)
 }
 
@@ -115,6 +117,10 @@ def unkept_claims(sc: Script, prompts: Prompts) -> list[str]:
         need = CLAIMS[key]
         if need == AGAIN:
             kept = ex.index > 0 and bool(ex.item_ids) and ex.item_ids[0] in sc.exercises[ex.index - 1].item_ids
+        elif need == AFTER_CONVERSATION:
+            timed = {s.exercise for s in segs[:k] if s.exercise is not None and s.exercise != ex.index and s.duration > 0}
+            prev = max(timed, default=None)  # the exercise heard just before, the one with time before this line
+            kept = prev is not None and sc.exercises[prev].kind == "dialogue"
         elif need == NEW_ITEM:
             kept = bool(ex.item_ids) and not any(ex.item_ids[0] in e.item_ids for e in sc.exercises[:ex.index] if e.kind != "note")
         else:
