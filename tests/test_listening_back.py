@@ -47,6 +47,29 @@ class ListeningEndsWithAWayBackTests(unittest.TestCase):
         self.assertGreater(kept, 0, "and conversations followed by another task that opens with its own line")
 
 
+    def test_a_conversation_right_after_another_says_another(self):
+        """Lesson 45 (owner): a conversation that ends where another begins says no «That's the end of the conversation.», so the next one opens
+        «Now another short conversation.»; one after anything else opens «Now a short conversation.»."""
+        from audiolesson.prompts import Prompts
+
+        prompts = Prompts.load("en")
+        start, another = prompts.get("dialogue_start"), prompts.get("dialogue_start_another")
+        pairs = 0
+        for cur, _, sc in course.ListeningTaskTests._course(20):
+            spoken = {s.exercise for s in sc.segments if s.exercise is not None and s.duration > 0}
+            order = [e for e in sc.exercises if e.index in spoken]
+            for prev, e in zip(order, order[1:]):
+                said = [s.text for s in sc.segments if s.exercise == e.index and s.type == "narrate"]
+                if e.kind != "dialogue" or not ({start, another} & set(said)):
+                    self.assertNotIn(another, said, (sc.lesson_number, e.label))
+                    continue
+                after_one = prev.kind == "dialogue"
+                self.assertIn(another if after_one else start, said, (sc.lesson_number, prev.label, e.label))
+                self.assertNotIn(start if after_one else another, said, (sc.lesson_number, prev.label, e.label))
+                pairs += after_one
+        self.assertGreater(pairs, 0, "the course has a conversation right after another")
+
+
 class WayBackTableTests(unittest.TestCase):
     """The way between two tasks is one table (``audiolesson/transitions.py``): every kind of exercise has a mode, and a change of mode says
     what the table says."""

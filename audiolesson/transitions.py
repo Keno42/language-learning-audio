@@ -18,6 +18,8 @@ whatever follows.
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from .claims import _templates
 from .listening_tasks import CATCH_INTRO
 from .prompts import Prompts
@@ -116,13 +118,20 @@ def ways_in(sc: Script, order: list[Exercise]) -> dict[int, str]:
 def close_tasks(sc: Script, prompts: Prompts, timing: Timing, known_lang: str) -> tuple[int, int]:
     """Each way in and way back where it is wanted, on the finished script: a way in (``WAY_IN``) is said before the exercise's first line, with
     a beat; a built-in way back (``BUILT_IN``) is kept or dropped with its beat, any other is said after the exercise's last spoken line, after a
-    beat. Returns how many listening exercises and conversations were closed."""
+    beat. A conversation right after another opens «Now another short conversation.» (``dialogue_start_another``). Returns how many listening
+    exercises and conversations were closed."""
     order = as_spoken(sc)
     roles = ways_back(order)
     opens = ways_in(sc, order)
     first = {i: ks[0] for i, ks in _spoken(sc).items()}
+    # a conversation right after another one says so (owner, lesson 45: «Now a short conversation.» after a conversation that ended with no
+    # «That's the end of the conversation.», which is not said before a task that opens with its own line)
+    another = {e.index for prev, e in zip(order, order[1:]) if mode(prev) == "conversation" and mode(e) == "conversation"}
+    start, start_another = prompts.get("dialogue_start"), prompts.get("dialogue_start_another")
     out: list[Segment] = []
     for k, s in enumerate(sc.segments):
+        if s.exercise in another and _instructor(s) and s.text == start:
+            s = replace(s, text=start_another, duration=timing.speech_estimate(start_another, known_lang))
         if s.exercise in opens and first.get(s.exercise) == k:
             text = prompts.get(opens[s.exercise])
             out.append(Segment("narrate", "instructor", text, known_lang, 1.0, timing.speech_estimate(text, known_lang), opens[s.exercise], s.exercise))
