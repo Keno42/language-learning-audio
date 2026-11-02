@@ -115,6 +115,19 @@ class HardConnectionTests(unittest.TestCase):
         self.assertEqual([t.expect_text for t in dlg.turns], ["Ég ætla að fá köku.", "Ég er með ofnæmi fyrir hnetum."])
         self.assertTrue(dlg.turns[0].partner and dlg.turns[1].partner, "the partner's line before it and the reply after it")
 
+    def test_a_lead_in_line_comes_after_the_question_it_answers(self):
+        """Lesson 45: the exchange cut out of smalltalk's fifth level for «Hvar býrð þú?» opened with the learner's «Já, ég hef verið hér áður.», an
+        answer to a question no one had asked. The learner's line that leads in (#427) comes after the partner's line it answers, when there is one."""
+        p, used = self.planner(LearnerState("is", "en", "A1")), set()
+        while (found := p.scene_line_of(self.cur.by_id["hvar_byrd_thu"], used)) is not None and found[0].id != "theme:smalltalk:5":
+            used.add(found[2])
+        self.assertIsNotNone(found)
+        dlg, turn_items, _, _, lead = found
+        self.assertEqual(turn_items, {0: ["ja", "eg_hef_verid_her_adur"], 1: ["hvar_byrd_thu"]})
+        self.assertEqual(dlg.turns[0].opener, "Fallegt, er það ekki? Hefurðu komið hingað áður?", "the question comes first")
+        self.assertEqual([t.expect_text for t in dlg.turns], ["Já, ég hef verið hér áður.", "Hvar býrð þú?"])
+        self.assertEqual(set(lead), {0})
+
     def test_a_scene_line_is_asked_as_line_role_decides_on_its_other_items(self):
         """#265: one rule decides every learner line. «Ég ætla að fá kaffi.» for an open «kaffi»: the pattern met but not yet known is enough
         to ask it, as the theme's own play does (#263); never met, the line is heard with its meaning (#240)."""
