@@ -442,9 +442,13 @@ turns = [
 goal = "Say you're late, and when you'll be there."
 goal_ja = "遅れていることと、いつ着くかを伝える。"
 partner_speaker = "native_a"
+# Its own scene line (owner, after lesson 44): the theme's «Anna … wants to meet again.» set up an arrangement to come, and the level is a call
+# after it, already late; «You're running late.» in the cue was the only hint.
+scene_line = "You've arranged to meet Anna, and you're running late. She calls you."
+scene_line_ja = "アンナと待ち合わせをしていますが、遅れています。アンナから電話がかかってきました。"
 turns = [
   { who = "partner", say = "Hæ, hvar ertu?", meaning = "Hi, where are you?", meaning_ja = "もしもし、どこにいるの？" },
-  { who = "you", cue = "You're running late. Say sorry, you're late.", cue_ja = "遅れています。ごめんなさい、遅れていますと言ってください。", aim = "say sorry, you're late", aim_ja = "遅れていると謝る", say = "Fyrirgefðu, ég er sein.", say_m = "Fyrirgefðu, ég er seinn.", items = ["fyrirgefdu", "eg_er_sein"] },
+  { who = "you", cue = "Say sorry, you're late.", cue_ja = "ごめんなさい、遅れていますと言ってください。", aim = "say sorry, you're late", aim_ja = "遅れていると謝る", say = "Fyrirgefðu, ég er sein.", say_m = "Fyrirgefðu, ég er seinn.", items = ["fyrirgefdu", "eg_er_sein"] },
   { who = "partner", say = "Ekkert mál. Hvenær kemur þú?", meaning = "No problem. When will you come?", meaning_ja = "大丈夫。いつ来る？", variants = [{ say = "Allt í lagi. Hvenær kemurðu?", meaning = "All right. When are you coming?", meaning_ja = "わかった。いつ来るの？" }] },
   { who = "you", cue = "Say you'll be there in ten minutes.", cue_ja = "10分後に着くと言ってください。", aim = "say you'll be there in ten minutes", aim_ja = "10分後に着くと伝える", say = "Ég kem eftir tíu mínútur.", items = ["eg_kem_eftir_tiu_minutur"] },
   { who = "partner", say = "Allt í lagi, ég bíð hérna.", meaning = "All right, I'll wait here.", meaning_ja = "わかった、ここで待ってるね。", word_glosses = { "bíð" = { en = "wait", ja = "待って" } } },
