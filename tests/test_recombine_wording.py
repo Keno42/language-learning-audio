@@ -38,7 +38,8 @@ class RecombineWordingTests(unittest.TestCase):
                 {"id": "hae", "kind": "phrase", "target": "Halló.", "meaning": "Hello."},
             ],
         })
-        for lang, plain, linked in (("en", "In a sentence.", "Use it in a sentence."), ("ja", "文で言ってください。", "文の中で使ってください。")):
+        for lang, linked in (("en", "Use it in a sentence."), ("ja", "文の中で使ってください。")):
+            plain = tuple(t.split("{meaning}")[0] for t in Prompts.load(lang).data["meaning"])  # the plain meaning cue: «In a sentence.» named nothing new (lesson 44)
             learner = LearnerState("is", lang, "A1")
             for i in ("tvo", "thrja", "fjora", "pat", "pat2", "hae"):
                 learner.items[i] = ItemState(stage="meaning", durable_successes=2, successes=8, interval_days=7, recalled=3, due=(TODAY + timedelta(days=5)).isoformat(), last_practiced=(TODAY - timedelta(days=2)).isoformat())
