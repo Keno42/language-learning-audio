@@ -50,6 +50,7 @@ class PlanConfig:
     # within two minutes of its introduction, all at the same stage): fractions of the lesson's
     # time after the introduction (about 1, 3, 8 and 15 minutes of 30), plus the closing block.
     intro_recall_times: list[float] = field(default_factory=lambda: [1 / 30, 1 / 10, 4 / 15, 1 / 2])
+    starved_skip_rung: int | None = 1  # #439: the rung a new item gives up when the due reviews cannot fit (an index into intro_recall_times); None keeps all
     # A short item (``short_item_words`` words or fewer) is said alone at most this often in a
     # lesson, the introduction and the closing recall included (§9 "Repetition"); the rest of
     # its practice is inside sentences, a different one where possible.
@@ -1196,6 +1197,7 @@ class Planner:
             "unkept_links": self._unkept_links(sc),
             # a framing line whose promise does not hold («other words», «again», «something new»; ``audiolesson/claims.py``, 0 expected)
             "unkept_claims": unkept_claims(sc, self.prompts),
+            "reviews_starved": getattr(self, "reviews_starved", False),  # #439: today's new items gave up a middle rung to the due reviews
             "apply_in_sentence_parts": list(getattr(self, "step2_parts", [])),  # #287 step 2: today's new parts whose first reactivation applied them in a sentence
             "bare_noun_recalls": [e.label for e in sc.exercises if e.kind == "recall" and e.stage in BARE_STAGES and len(e.item_ids) == 1
                                   and (it := self.cur.by_id.get(e.item_ids[0])) is not None and it.noun
@@ -2110,6 +2112,13 @@ class Planner:
         first_rung: dict[str, int] = {}  # #287: part id → the sequence number of its first timed recall, which becomes a recombine where a known pattern takes the part
         sentence_used: dict[str, set[str]] = {}  # per short item, the sentences practised this lesson
         capped_backlog: list[tuple[float, int, Item, str]] = []  # recalls dropped for want of a sentence
+        # #439 (lesson 45: 19 of 48 due reviews asked, the rest carried over, while today's new sentences came back four or five times and the
+        # load was «light»): when the reviews due cannot fit beside today's new items, each new item gives up its second rung (1/10 of the lesson),
+        # so its rungs still widen (1/30, 4/15, 1/2) and the time goes to the reviews; the slots are the pace rule's estimate (``_pace_rules``)
+        due_now = len(reviews) + len(open_today)
+        review_slots = max(0, int(cfg.minutes * 60 / 16) - len(new_queue) * 6)
+        reviews_starved_skip = {cfg.starved_skip_rung} if cfg.starved_skip_rung is not None and due_now > review_slots else set()
+        self.reviews_starved = bool(reviews_starved_skip)
         lapse_short = [None]  # seconds the lesson would have ended short when the bare cap lapsed (for the daily read and tests)
         bare_cap = [cfg.max_bare_uses]  # lapses to 0 when nothing else is left (step 5)
 
@@ -2294,6 +2303,8 @@ class Planner:
                 touch(part)
                 ladder = self.ladder(part)
                 for k, after in enumerate(cfg.intro_recall_times):
+                    if k in reviews_starved_skip:
+                        continue  # #439 (lesson 45): the due reviews cannot fit, so a new item gives up a middle rung to them
                     seq += 1
                     if k == 0:
                         first_timed[part.id] = seq  # #439: the first rung of every item is asked, shared practice or not

@@ -239,6 +239,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         "pick-out / unknown-word exercises after the target (#248)": f"{m.get('pick_out_count', 0)} / {m.get('catch_unknown_count', 0)}",
         "pick-outs whose line holds nothing but a drilled frame and the answer (#248 step 2)": m.get("pick_out_echo_count", 0),
         "longest run of one kind of exercise after the target (#248)": m.get("longest_kind_run_after_target", 0),
+        "new items' middle rung given to the due reviews, which could not fit (#439)": "yes" if m.get("reviews_starved") else "no",
         "items asked again after the learner's review today (#238)": ", ".join(m.get("asked_after_review", [])) or "0",
         "theme levels heard again (#218 b1)": ", ".join(m.get("heard_themes", [])) or "–",
         "heard-only lines": narrated.count(Prompts.load(cur.known_lang).get("listening_line")),
