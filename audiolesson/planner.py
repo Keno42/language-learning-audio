@@ -2467,9 +2467,11 @@ class Planner:
                 return False  # no other sentence holds it and it has been said as often as a lesson allows (#192, the owner's rule: never ten)
             scene = stage == "situation" and b.situation_usable(item) and b.situation_room(item)  # not the short meaning cue it falls back to
             if allow_cap and (stage in BARE_STAGES or stage == "recombine") and (is_part(item) or not scene) and bare_capped(item):
-                # another sentence that holds it, else its own sentence again from the meaning (#270): lesson 44's «hinum megin við götuna», whose
-                # only sentence is the one it was taught in, lost every rung after its first and was asked 3 times in 29 minutes
-                return sentence_practice(item) or (item.kind == "vocab" and ask_part(item))
+                # another sentence that holds it, else, for a part introduced today that only one sentence can ever hold, that sentence again from the
+                # meaning (#270): lesson 44's «hinum megin við götuna» («Það er {direction}.» is its one frame) lost every rung after its first and was asked 3
+                # times in 29 minutes. A part with other frames keeps its own sentence's cap and waits for another sentence («Ég þarf úlpu.»), and an older
+                # item's extra rung is still dropped (its open ladder's rungs can bunch up: the same sentence twice a minute apart is a drill)
+                return sentence_practice(item) or (item.kind == "vocab" and one_sentence_part(item) and ask_part(item))
             if allow_cap and stage in BARE_STAGES and bare_short(item) and bare_uses(item) == bare_cap[0] - 2:
                 # the one bare recall a short item gets between its introduction and the closing:
                 # at "meaning" at least, since a hint of one word is the whole answer, and it
@@ -2698,6 +2700,15 @@ class Planner:
             self._record([item.id], "meaning", ex.item_ids)
             touch(item)
             return True
+
+        def one_sentence_part(item: Item) -> bool:
+            """A part introduced today that no sentence but its own can hold (one frame, no phrase containing it), whose sentence was not asked within the
+            last minute: ``ask_part`` then plays the sentence again. One asked within the minute would be credited without taking time, and a caller that
+            fills the lesson until its time is up would ask it for ever."""
+            if not any(i.id == item.id for i in introduced) or len(self.homes_of(item)) > 1 or self.candidate_wholes(item):
+                return False
+            whole = part_whole(item)
+            return whole is not None and asked_lately_as(whole["answer"]) is None
 
         def part_sentence_capped(item: Item) -> bool:
             """A noun has a sentence but it has been said as often as a lesson allows: nothing more is asked of it, not the bare word in its place (#270)."""
