@@ -7,25 +7,26 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 (§7), the hypotheses with their status (§4), the evidence lesson by lesson (§5). The learning policy is in
 `docs/CURRENT-POLICY.md`.
 
-## Now (updated 2026-11-01, after lesson 43), in order
+## Now (updated 2026-11-02, after lesson 44), in order
 
 Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% by what may change a long-term decision, each
 remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
-43's; the next lesson is 44. Lesson 43 was rated «right» (after «light» twice) and brought two remarks on clarity and one audio
-defect (LD §5.33): the priority moves from repetition to clarity, before more new material or new instruction styles.
-1. **Self-contained transform instructions (#461).** «Same change:» six times between other tasks lost what it meant («ég → hún»).
-   **In review (#463):** «Same change:» only right after the same transform, else the instruction in full (about 4 s a lesson).
-2. **The cut-off «Ask where she lives.» (#462).** One cached clip, played three times. **Next:** the owner checks the clip on the
-   server and deletes it to regenerate if cut off; a guard (a clip far shorter than its text's estimate is retried) only once the
-   failure is known.
-3. **Understanding a partner's prompt, not only saying the reply (#327, with #265).** «Hefurðu komið hingað áður?» played untranslated
-   because its reply was known. **In review (#464, a data PR):** a note bridges «komið hingað» to «verið hér». **Next:** the general
-   check, a partner line whose words the learner hasn't met, piloted on this question and measured on the replay.
-4. **Scene coherence (#327).** Lesson 43 said three of its new items as turns of the exchange; the replay from current main reads 1, 0,
-   0 in lessons 44–46, against the criterion of two.
+44's; the next lesson is 45. Lesson 44 was rated «right» a second time; its remarks were on practice that a part missed and on
+cues and scenes that said too little or too much (LD §5.34), all answered by #468–#475. Their cost is the first thing to watch.
+1. **Review time against today's new practice (H9, H11).** A part that only its own sentence holds now gets its four rungs, and a
+   long part is built up (#469): lesson 45 as generated from main reviews 27 of its 53 due items (19 carried over), against 47
+   before. **Next:** read lesson 45's load and next-day recall; on the replay, check that the pace rule's backlog test lowers the
+   new target as the due items pile up, and lower it if it does not.
+2. **Scene coherence (#327).** Lesson 44 said one of its new items as a turn of the exchange («Ég kem eftir tíu mínútur.»), against
+   the criterion of two; lesson 45 brings the café's new request (#471) with its level.
+3. **Understanding a partner's prompt, not only saying the reply (#327, with #265).** The aside on «komið hingað» (#464) was heard in
+   lesson 44 with no remark. **Next:** the general check, a partner line whose words the learner hasn't met, piloted on that
+   question and measured on the replay.
+4. **Substitutions that teach a form (#439, with #270).** «Ég er …», «Ég er ekki …», «Ertu …» bring no gender and no case (the owner,
+   lesson 44): a variation that changes a form where the pattern allows one, once #439's shared practice frees the time.
 
-**Alongside:** «bílastæðið» and «langt í burtu», reported hard to hear and to remember, take the listening support already built
-(#447). Repetition (#439) stays open for selective cases: the load «right» is evidence against changing global weights.
+**Alongside:** «á horninu», «hinum megin við götuna», «alltaf», «stundum» and «aldrei», reported hard to remember after lesson 44,
+come back sooner. The bot's submodule follows main by Renovate's PR.
 
 **Longer term, in order:** prices and larger numbers (#451) with the listening pool's variety (#339: ten of lesson 43's eleven
 pick-outs had been heard in the three lessons before); expressions usable in exchanges (#327, #265); winter and safety scenes
@@ -50,7 +51,8 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
-- **After lesson 43:** in review: «Same change:» only right after the same transform (#463); a note bridging «komið hingað» to «verið hér» (#464).
+- **After lesson 44:** a word reported hard to say first asked from its meaning, then broken down (#468); a part only its own sentence holds keeps its rungs, a long part built up from its end inside its sentence (#469); a cue that asks a person names them, checked by `validate` (#470); the café's fourth level asks for a cake without nuts (#471); a scene line's lead-in after the question it answers (#472); «Now another short conversation.» (#473); a part's generated sentence cued by its meaning (#474); the late call's own scene line (#475).
+- **After lesson 43:** «Same change:» only right after the same transform (#463); a note bridging «komið hingað» to «verið hér» (#464); a cut-off clip synthesized again and not cached, the threshold per language (#466, #467).
 - **After lesson 42:** a word asked for always modelled (#459); small talk 4 as a coffee with a friend, a level's own scene line (#458).
 - **After lesson 41:** the voiced-reply guide once a lesson (#440); practice shared across a pattern and the fillers taught with it (#442); a «sooner» report keeps its reason, hard to hear gets listening support (#447, site_update_notifier#187); the goal says the lines the exchange asks (#448); «Takk og bless!» gives «og» a sentence (#450); «Sjáumst {time}!» judged sentence by sentence (#449); the ll/nn note corrected (#446); a listening task with nothing to frame it opens with «Listen.» (#455); the change rate and the end of the fix-up phase (owner decision, #456); `transitions.py` (#281: #453, #454).
 - **After lesson 40:** an authored dialogue played before voices the known set replies too (#430); a fixed dialogue played whole four times is not played whole again (#431); scenes for lessons 41–50 (#432); lesson 40's contexts (#433); the closing as one block, its listening just before it (#435, #437); no pick-out on an answer just heard (#436); help on an expression from the feedback form, and a new expression heard and asked about from the new-expression list (site_update_notifier#180, #183).
