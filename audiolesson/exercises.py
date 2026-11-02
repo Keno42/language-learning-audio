@@ -1411,13 +1411,15 @@ class Builder:
                     key = "recombine_again" if linked else "recombine"
                 self.novelty_announced.add(form_id)
         else:
-            key = "recombine_vocab_again" if linked else "recombine_vocab"
+            # a part right after an exercise that practised it is used «in a sentence» (#287); after anything else the cue is the plain meaning: every part is
+            # asked through a sentence (#270), so «In a sentence.» named nothing new and not which word (owner, after lesson 44)
+            key = "recombine_vocab_again" if linked else None
         if self.scene_line(gen.construction, gen.fills) is not None and not gen.form:
-            if f"{key}_lead" in self.prompts.data:  # the scene replaces the cue's «Say: …», not its news or link: «Now something you haven't heard yet.» stays
+            if key and f"{key}_lead" in self.prompts.data:  # the scene replaces the cue's «Say: …», not its news or link: «Now something you haven't heard yet.» stays
                 self._narr(sc, ex, self.prompts.get(f"{key}_lead"))
             self._narr(sc, ex, self.sentence_cue(gender, gen.construction, gen.fills, gen.meaning, gen.form)[1])  # the scene check's line (owner, 2026-10-16)
         else:
-            self._narr(sc, ex, self._as(gender, self.prompts.get(key, meaning=self._m(gen.meaning))))
+            self._narr(sc, ex, self._as(gender, self.prompts.get(key, meaning=self._m(gen.meaning)) if key else self._meaning_prompt(gen.meaning)))
         self._answer_pause(sc, ex, target, item, generative=True)
         self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
         if not gen.form:  # an alternative is of the plain sentence

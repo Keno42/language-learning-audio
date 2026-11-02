@@ -49,7 +49,8 @@ recombine = [
 ]
 # #287: 前の練習が同じパターン・項目のときだけ、つながりを言う
 recombine_again = "同じパターンでもう一度。「{meaning}」と言ってください。"
-recombine_vocab = "文で言ってください。「{meaning}」。"
+# lesson 44 までの部品の生成文のきっかけ («文で言ってください。»)。bot の待ち行列の問題を言い換えるために残す (review_wording)
+recombine_vocab_was = "文で言ってください。「{meaning}」。"
 recombine_vocab_again = "文の中で使ってください。「{meaning}」。"
 # the lead of a cue that carries news (#197) or a link (#287), kept before a sentence's scene, which takes the place of the rest
 recombine_new_lead = "まだ聞いたことのない文です。"

@@ -52,7 +52,8 @@ recombine = [
 ]
 # #287: a link is promised only when the exercise just before practised the same pattern / item
 recombine_again = "Use the pattern again. Say: {meaning}"
-recombine_vocab = "In a sentence. Say: {meaning}"
+# the cue a part's generated sentence had until lesson 44 («In a sentence.»), kept so the bot's queued questions are still reworded (review_wording)
+recombine_vocab_was = "In a sentence. Say: {meaning}"
 recombine_vocab_again = "Use it in a sentence. Say: {meaning}"
 # the lead of a cue that carries news (#197) or a link (#287), kept before a sentence's scene, which takes the place of the rest
 recombine_new_lead = "Now something you haven't heard yet."

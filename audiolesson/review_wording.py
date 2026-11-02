@@ -14,7 +14,7 @@ from .prompts import Prompts
 from .text import norm_utterance
 
 # the prompt keys that are the lesson's cues about how an exercise relates to the one before (and the hint / cloze lead-ins, which rely on audio)
-LESSON_CUE_KEYS = ("recombine_new", "recombine", "recombine_again", "recombine_vocab", "recombine_vocab_again", "hinted", "cloze")
+LESSON_CUE_KEYS = ("recombine_new", "recombine", "recombine_again", "recombine_vocab_was", "recombine_vocab_again", "hinted", "cloze")  # «_was»: a cue no longer said, still in queued questions
 
 
 def _templates(prompts: Prompts) -> list[re.Pattern]:
