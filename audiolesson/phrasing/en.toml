@@ -19,8 +19,9 @@ build_up = "Let's build it up from the end. Repeat each part."
 slowly = "Slowly."
 natural = "And at natural speed."
 split_slowly = "Slowly, in parts. Repeat each part."
-slow_word_intro = "A word in this one is hard to say. First the sentence."
-slow_word_intro_word = "This word is hard to say."
+# an item the learner reported hard to say, its hard words cut into pieces (lesson 44): first tried from its meaning, then broken down
+slow_word_recall = "Do you remember how to say this? {meaning}"
+slow_word_break_down = "Let's break down the pronunciation. Repeat each part."
 # a sentence the learner reported hard (#337, #423): tried again from its meaning, then the model, then slowly and at natural speed
 slow_hear_intro = "Let's try to say this sentence in {language} again: {meaning}"
 hear_support_sentence = "You found this one hard to catch. Listen."

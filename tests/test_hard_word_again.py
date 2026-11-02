@@ -155,8 +155,7 @@ class HardWordAgainTests(unittest.TestCase):
         b = self.builder()
         sc = Script(1, "t", "is", "en")
         b.slow_word_exercise(sc, self.cur.by_id["reikninginn"])
-        self.assertNotIn("First the sentence", sc.transcript())
-        self.assertIn("This word is hard to say.", sc.transcript())
+        self.assertIn("Do you remember how to say this? The bill.", sc.transcript(), "a word has no sentence to say first: it is asked from its meaning")
         self.assertEqual([g.text for g in sc.segments if g.type == "speak" and g.rate < 1], ["reik", "ning", "inn"])
 
     def test_playing_the_model_clears_what_is_owed_and_it_is_not_played_twice(self):

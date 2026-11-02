@@ -883,11 +883,11 @@ class Builder:
         self._speak(sc, ex, item.target, speaker=voice or "native_a")
         self._repeat_pause(sc, ex, item.target)
 
-    def _word_model(self, sc: Script, ex: Exercise, word: str, syllables: list[str] | None, voice: str | None = None) -> None:
+    def _word_model(self, sc: Script, ex: Exercise, word: str, syllables: list[str] | None, voice: str | None = None, split_cue: str | None = None) -> None:
         """#337: one hard word of a phrase, said once: cut into its authored syllables, each said slowly and repeated, then at natural speed; without authored
-        syllables the word once more at natural speed (never stretched, #302)."""
+        syllables the word once more at natural speed (never stretched, #302). ``split_cue`` replaces «Slowly, in parts.» before the pieces."""
         if syllables:
-            self._narr(sc, ex, self.prompts.get("split_slowly"))
+            self._narr(sc, ex, split_cue or self.prompts.get("split_slowly"))
             for piece in syllables:
                 self._speak(sc, ex, piece, speaker=voice or "native_a", rate=self.timing.slow_rate)
                 self._repeat_pause(sc, ex, piece)
@@ -935,6 +935,8 @@ class Builder:
         pieces; else a sentence is tried again from its meaning («Let's try to say this sentence in Icelandic again: There are four of us.», an answer pause, the
         model; #423), then repeated word by word and at natural speed (a hard-to-hear «Við erum» is not one word a spelling rule can pick: lesson 27 picked
         «fjögur»); else a single word is said slowly by itself, split when authored and else once more at natural speed (#457: a request is never dropped).
+        A word or phrase with hard words is tried from its meaning first too (lesson 44): «Do you remember how to say this? An umbrella.», an answer pause,
+        the model, then the word models, the first split announced «Let's break down the pronunciation. Repeat each part.».
         None when nothing qualifies."""
         words = hard_words_of(item)
         line = None if words else self.hearing_line(item)
@@ -959,15 +961,17 @@ class Builder:
             self._repeat_pause(sc, ex, sentence)
             self._gap(sc, ex)
             return ex
-        if item.kind == "vocab":
-            self._frame(sc, ex, self.prompts.get("slow_word_intro_word"))  # a word has no sentence to say first
-        else:
-            self._frame(sc, ex, self.prompts.get("slow_word_intro"))
-            self._speak(sc, ex, item.target, speaker="native_a")
+        # lesson 44: «This word is hard to say.» and the pieces at once asked nothing; the owner's flow tries the item from its meaning first, as the
+        # sentence above does: «Do you remember how to say this? An umbrella.», an answer pause, the model as the answer, then «Let's break down the
+        # pronunciation.» and the pieces
+        cue = self.prompts.get("slow_word_recall", meaning=self._m(item.spoken_meaning))
+        self._narr(sc, ex, self._as(self.speaker_gender(item, "native_a"), cue))
+        self._answer_pause(sc, ex, item.target, item, generative=False)
+        self._answer(sc, ex, item.target, speaker="native_a")
+        for n, (word, syllables) in enumerate(words):
             self._beat(sc, ex)
-        for word, syllables in words:
-            self._word_model(sc, ex, word, syllables)
-            self._beat(sc, ex)
+            # the first split is announced as the breakdown, in place of «Slowly, in parts.»; a word with no authored split is said once more (#302)
+            self._word_model(sc, ex, word, syllables, split_cue=None if n else self.prompts.get("slow_word_break_down"))
         self._gap(sc, ex)
         return ex
 
