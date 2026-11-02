@@ -5422,6 +5422,36 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
             met = {"thetta_er_noun", "bok", "bill", part}
             self.assertEqual(whole_for(self.cur, self.cur.by_id[part], met - {taught["through"]}, self.en, taught)["answer"], taught["answer"])
 
+    def test_a_part_of_three_words_is_built_up_from_its_end_inside_its_sentence(self):
+        """Lesson 44: «hinum megin við götuna» was said once inside «Það er hinum megin við götuna.» and the sentence word by word, never built up as a plain
+        introduction builds a long line. «These words are in it:», then the part from its end, then at natural speed, in place of the sentence's slow line."""
+        part = self.cur.by_id["hinum_megin_vid_gotuna"]
+        b = self._builder(met=[i.id for i in self.cur.items if i.order < part.order and i.kind != "construction" or i.id == "thad_er_direction"])
+        sc = Script(1, "t", "is", "en")
+        ex = b.intro(sc, part)
+        self.assertEqual(ex.label, "new: Það er hinum megin við götuna. (hinum megin við götuna)")
+        narr = [g.text for g in sc.segments if g.type == "narrate"]
+        self.assertIn(self.en.get("embed_part_words"), narr)
+        self.assertNotIn(self.en.get("embed_part"), narr)
+        self.assertIn(self.en.get("build_up"), narr)
+        tx = sc.transcript()
+        steps = [tx.index(line) for line in ("götuna", "við · götuna", "megin · við · götuna", "hinum · megin · við · götuna")]
+        self.assertEqual(steps, sorted(steps), "built up from the end, one word more each time")
+        self.assertNotIn("Það · er", tx, "the built-up part replaces the sentence's word-by-word line")
+        self.assertNotIn(self.en.get("slowly"), narr)
+        speech = [g.text for g in sc.segments if g.type in ("speak", "answer")]
+        self.assertEqual(speech[-1], "Það er hinum megin við götuna.", "the first retrieval still asks the whole")
+
+    def test_a_part_of_two_words_is_named_as_words_but_not_built_up(self):
+        """Lesson 44: «á horninu» is two words, «These words are in it:», and too short to build up."""
+        part = self.cur.by_id["a_horninu"]
+        b = self._builder(met=[i.id for i in self.cur.items if i.order < part.order and i.kind != "construction" or i.id == "thad_er_direction"])
+        sc = Script(1, "t", "is", "en")
+        b.intro(sc, part)
+        narr = [g.text for g in sc.segments if g.type == "narrate"]
+        self.assertIn(self.en.get("embed_part_words"), narr)
+        self.assertNotIn(self.en.get("build_up"), narr)
+
     def test_a_part_after_the_phrase_it_is_in_is_taken_out_of_it(self):
         """#262: «matinn» right after «Takk fyrir matinn.» in the same lesson is not a new bare word: «You know this: …», «This word is in it: …»."""
         b = self._builder(met=["takk"])
@@ -7024,6 +7054,21 @@ class ShortItemRepetitionTests(unittest.TestCase):
             failed = new[:2] if n in (3, 4, 6, 7, 12) else []
             learner.report(failed, [], day + timedelta(days=1), lesson_number=n, recalled=[i for i in new if i not in failed])
             day += timedelta(days=1)
+
+    def test_a_new_part_taught_in_its_sentence_keeps_its_practice_rungs(self):
+        """Lesson 44: a part whose only sentence is the one it was taught in lost every rung after its first to the bare cap («hinum megin við götuna»
+        asked 3 times in 29 minutes): once said alone enough, it is asked through its sentence from the sentence's meaning (#270)."""
+        checked = 0
+        for cur, sc in self._course(12):
+            for e in sc.exercises:
+                m = re.fullmatch(r"new: .* \((.*)\)", e.label)
+                if e.kind != "intro" or not m or len(e.item_ids) != 1 or cur.by_id[e.item_ids[0]].kind != "vocab":
+                    continue
+                i = e.item_ids[0]
+                later = [x for x in sc.exercises if x.index > e.index and i in x.item_ids]
+                self.assertGreaterEqual(len(later), 3, f"lesson {sc.lesson_number}: {i} asked {len(later)} times after its introduction")
+                checked += 1
+        self.assertGreater(checked, 10)
 
     def test_a_part_or_short_utterance_is_said_alone_at_most_three_times(self):
         """A part (a ``vocab`` item, whatever its length) is said alone at most three times: any bare practice counts, a

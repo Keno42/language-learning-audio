@@ -85,6 +85,7 @@ reply_example = "For example: {meaning}"  # after «Reply.» and the partner's l
 # a part heard in a sentence instead of being introduced on its own (LearnerState.embedded)
 embed_known = "You know this:"
 embed_part = "This word is in it:"
+embed_part_words = "These words are in it:"
 embed_part_also = "And this one:"
 # a noun in a form its frame asks (#270): the basic word, said once, after the part
 form_of_base = "In this sentence the word changes. The basic word is:"
