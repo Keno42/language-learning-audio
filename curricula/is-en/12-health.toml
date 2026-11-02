@@ -228,7 +228,7 @@ situation_fill = { how = "vel" }
 partner_cue = "Mér líður betur, takk. En þér?"
 partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "hvernig_lidur_ther"
-partner_cue_setup = "Your friend was ill yesterday. You meet her at the café. Ask how she feels."
+partner_cue_setup = "Your friend was ill yesterday. You meet her at the café. Ask her how she feels."
 partner_cue_setup_ja = "友達は昨日具合が悪かったそうです。カフェで会いました。気分はどうか聞いてください。"
 partner_cue_meaning = "I feel better, thanks. And you?"
 partner_cue_meaning_ja = "良くなったよ、ありがとう。あなたは？"
@@ -271,7 +271,7 @@ meaning = "How do you feel?"
 meaning_ja = "気分はどうですか？"
 difficulty = 3
 topics = ["feelings", "health"]
-situation = "Your friend was ill yesterday. Ask how she feels."
+situation = "Your friend was ill yesterday. Ask her how she feels."
 situation_ja = "友達が昨日病気でした。気分はどうか聞いてください。"
 
 [[items]]
@@ -317,7 +317,7 @@ difficulty = 4
 topics = ["health"]
 prereqs = ["attu", "hofudverk"]
 chunks = ["höfuðverk", "við höfuðverk", "eitthvað við höfuðverk", "Áttu eitthvað við höfuðverk?"]
-situation = "At the pharmacy counter. Ask if they have something for a headache."
+situation = "At the pharmacy counter. Ask the pharmacist if she has something for a headache."
 situation_ja = "薬局のカウンターです。頭痛に効くものがあるか聞いてください。"
 
 [[items]]
@@ -548,7 +548,7 @@ requires = ["eg_er_med", "hofudverk", "attu_eitthvad_vid_hofudverk", "hvad_kosta
   partner_meaning_ja = "熱もありますか？"
 
   [[dialogues.turns]]
-  cue = "Say no, and ask if she has something for a headache."
+  cue = "Say no, and ask her if she has something for a headache."
   cue_ja = "いいえと言って、頭痛に効くものがあるか聞いてください。"
   expect_text = "Nei. Áttu eitthvað við höfuðverk?"
   expect_meaning = "No. Do you have something for a headache?"

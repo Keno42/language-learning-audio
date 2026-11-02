@@ -144,8 +144,8 @@ meaning_ja = "おすすめは何ですか？"
 difficulty = 4
 topics = ["travel", "cafe"]
 chunks = ["með", "mælir þú með", "Hverju mælir þú með?"]
-situation = "Too many tours to choose from. Ask what she recommends."
-situation_ja = "ツアーが多すぎて選べません。おすすめを聞いてください。"
+situation = "Too many tours to choose from. Ask the woman at the tour desk what she recommends."
+situation_ja = "ツアーが多すぎて選べません。ツアー窓口の女性におすすめを聞いてください。"
 
 [[items]]
 id = "eg_maeli_med_thessu"

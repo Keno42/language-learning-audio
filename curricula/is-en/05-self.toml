@@ -53,8 +53,8 @@ meaning_ja = "どちらのご出身ですか？"
 alternatives = ["Hvaðan ertu?"]
 difficulty = 3
 topics = ["social"]
-situation = "Ask where she is from."
-situation_ja = "相手の出身を聞いてください。"
+situation = "Ask the woman you've just met where she is from."
+situation_ja = "知り合ったばかりの女性に、出身を聞いてください。"
 
 [[items]]
 id = "eg_er_i_frii"
@@ -181,8 +181,8 @@ meaning_ja = "どこに住んでいますか？"
 difficulty = 3
 topics = ["social"]
 prereqs = ["eg_by_i"]
-situation = "Ask where she lives."
-situation_ja = "相手はどこに住んでいるか聞いてください。"
+situation = "Ask the woman you're chatting with where she lives."
+situation_ja = "話している女性に、どこに住んでいるか聞いてください。"
 
 [[items]]
 id = "eg_er_japonsk"
@@ -198,7 +198,7 @@ situation_ja = "中国人だと思われました。日本人だと伝えてく�
 partner_cue = "Já, ég er íslensk. Ert þú kínversk?"
 partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "ert_thu_islensk"
-partner_cue_setup = "The woman next to you on the plane speaks perfect Icelandic. Ask if she's Icelandic."
+partner_cue_setup = "The woman next to you on the plane speaks perfect Icelandic. Ask her if she's Icelandic."
 partner_cue_setup_ja = "飛行機で隣の女性が完璧なアイスランド語を話しています。アイスランド人か聞いてください。"
 partner_cue_meaning = "Yes, I'm Icelandic. Are you Chinese?"
 partner_cue_meaning_ja = "ええ、アイスランド人です。あなたは中国人ですか？"
@@ -216,7 +216,7 @@ meaning_spoken_ja = "女性に、アイスランド人ですか？"
 difficulty = 2
 topics = ["social"]
 pronunciation_notes = "to a man: Ert þú íslenskur?"
-situation = "The woman next to you speaks perfect Icelandic. Ask if she's Icelandic."
+situation = "The woman next to you speaks perfect Icelandic. Ask her if she's Icelandic."
 situation_ja = "隣の女性が完璧なアイスランド語を話しています。アイスランド人か聞いてください。"
 
 [[items]]
@@ -336,8 +336,8 @@ meaning_ja = "お仕事は何ですか？"
 meaning_spoken = "What do you do for a living?"
 difficulty = 2
 topics = ["work", "social"]
-situation = "Ask what she does."
-situation_ja = "相手の仕事を聞いてください。"
+situation = "Ask the woman you've just been introduced to what she does."
+situation_ja = "紹介された女性に、仕事を聞いてください。"
 
 [[items]]
 id = "eg_vinn_hja"
@@ -353,7 +353,7 @@ situation_ja = "どこで働いているか聞かれました。小さな会社�
 partner_cue = "Ég er kennari. Hvar vinnur þú?"
 partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "hvad_gerir_thu"
-partner_cue_setup = "You're chatting with a new acquaintance over coffee. Ask what she does."
+partner_cue_setup = "You're chatting with a new acquaintance over coffee. Ask her what she does."
 partner_cue_setup_ja = "コーヒーを飲みながら知り合ったばかりの人と話しています。仕事は何か聞いてください。"
 partner_cue_meaning = "I'm a teacher. Where do you work?"
 partner_cue_meaning_ja = "私は教師です。あなたはどこで働いているんですか？"
@@ -442,8 +442,8 @@ meaning_spoken_ja = "女性に、何歳ですか？"
 difficulty = 3
 topics = ["social"]
 pronunciation_notes = "to a man: Hvað ertu gamall?"
-situation = "You're chatting with a new friend. Ask how old she is."
-situation_ja = "新しい友達と話しています。何歳か聞いてください。"
+situation = "You're chatting with a new friend. Ask her how old she is."
+situation_ja = "新しい女友達と話しています。何歳か聞いてください。"
 
 [[items]]
 id = "eg_er_gift"

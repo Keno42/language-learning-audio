@@ -13,7 +13,7 @@ from . import __version__
 from .themes import load_themes, scenario_coverage, scenario_order, unranked_themes
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts, speak_as
-from .content import PATTERN_SCENE, CurriculumError, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, unlinked_instances
+from .content import PATTERN_SCENE, CurriculumError, ask_without_addressee, cue_texts, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, unlinked_instances
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, lesson_target, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -735,6 +735,11 @@ def cmd_validate(args) -> int:
     bad_levels = unknown_levels(scenes, themes)
     if bad_levels:
         raise CurriculumError(f"scenario cards name theme levels that do not exist (`level` is \"<theme>:<n>\", n from 1; #327): {bad_levels}")
+    theme_cues = [(f"{t.id}:{n}", turn.cue) for t in themes for n, lv in enumerate(t.levels, 1) for turn in lv.turns if turn.who == "you"]
+    unaddressed = ask_without_addressee(cue_texts(cur) + theme_cues)
+    if unaddressed:  # lesson 44: «Ask if she's Icelandic.» reads as a question about her; «Ask her if …» is put to her
+        raise CurriculumError("cues that tell the learner to ask a person with no one named after «ask» (write «Ask her if …», «Ask the receptionist if …», "
+                              "or name who the question is about): " + "; ".join(f"{w}: {t!r}" for w, t in unaddressed))
     if themes:
         print(f"{len(themes)} lesson themes (#149), {sum(len(t.levels) for t in themes)} levels")
         # #327: the outcome, not the items taught: how much of what the Tier A/B scenarios need a played level's learner line says

@@ -298,7 +298,7 @@ meaning_ja = "昼間は何をしていますか？"
 difficulty = 3
 topics = ["daily"]
 prereqs = ["hvad_gerir_thu"]
-situation = "Anna is between jobs. Ask what she does during the day."
+situation = "Anna is between jobs. Ask her what she does during the day."
 situation_ja = "アンナは仕事の合間です。昼間は何をしているか聞いてください。"
 
 [[items]]
@@ -366,7 +366,7 @@ requires = ["eg_vakna", "eg_fer_i_vinnuna", "eg_fer_i_sund", "eg_elda_kvoldmat",
   partner_meaning_ja = "何時に寝るの？"
 
   [[dialogues.turns]]
-  cue = "Say you go to bed at eleven, then ask what she does at weekends."
+  cue = "Say you go to bed at eleven, then ask her what she does at weekends."
   cue_ja = "11時に寝ると言って、週末は何をしているか聞いてください。"
   expect_text = "Ég fer að sofa klukkan ellefu. Hvað gerir þú um helgar?"
   expect_meaning = "I go to bed at eleven. What do you do at weekends?"

@@ -217,7 +217,7 @@ meaning = "Do you take cards?"
 meaning_ja = "カードは使えますか？"
 difficulty = 2
 topics = ["money", "shopping"]
-situation = "At a small market stall. Ask whether they take cards."
+situation = "At a small market stall. Ask the stallholder whether she takes cards."
 situation_ja = "小さな市場の屋台です。カードが使えるか聞いてください。"
 
 [[items]]
@@ -234,7 +234,7 @@ situation_ja = "屋台は現金のみです。現金がないと言ってくだ�
 partner_cue = "Nei, bara reiðufé."
 partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "tekurdu_kort"
-partner_cue_setup = "At a small market stall you want to buy a scarf. Ask whether they take cards."
+partner_cue_setup = "At a small market stall you want to buy a scarf. Ask the stallholder whether she takes cards."
 partner_cue_setup_ja = "小さな市場の露店でマフラーを買いたいです。カードが使えるか聞いてください。"
 partner_cue_meaning = "No, cash only."
 partner_cue_meaning_ja = "いいえ、現金だけです。"
@@ -471,7 +471,7 @@ requires = ["hvad_kostar_thetta", "thad_er_of_dyrt", "tekurdu_kort", "eg_er_ekki
   partner_meaning_ja = "あなたには、1万5千で。"
 
   [[dialogues.turns]]
-  cue = "Ask if he takes cards."
+  cue = "Ask him if he takes cards."
   cue_ja = "カードが使えるか聞いてください。"
   expect = "tekurdu_kort"
   partner = "Nei, bara reiðufé."

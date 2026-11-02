@@ -268,7 +268,7 @@ meaning = "What do you think?"
 meaning_ja = "どう思う？"
 difficulty = 2
 topics = ["discourse"]
-situation = "You've shown Anna two sweaters. Ask what she thinks."
+situation = "You've shown Anna two sweaters. Ask her what she thinks."
 situation_ja = "アンナにセーターを二枚見せました。どう思うか聞いてください。"
 
 [[items]]

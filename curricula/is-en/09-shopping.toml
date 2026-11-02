@@ -377,7 +377,7 @@ partner_cue_setup = "An orange sweater looks handmade. Ask the assistant if it's
 partner_cue_setup_ja = "オレンジ色のセーターが手編みのようです。店員にウールか聞いてください。"
 partner_cue_meaning = "Yes, it's Icelandic wool."
 partner_cue_meaning_ja = "ええ、アイスランドの羊毛です。"
-partner_cue_situation = "It's Icelandic wool, but you don't like the orange. Ask if she has it in another colour."
+partner_cue_situation = "It's Icelandic wool, but you don't like the orange. Ask her if she has it in another colour."
 partner_cue_situation_ja = "アイスランドの羊毛ですが、オレンジ色は好みではありません。ほかの色があるか聞いてください。"
 
 [[items]]
@@ -622,7 +622,7 @@ requires = ["eg_er_ad_leita_ad_thing", "attu", "peysu", "ma_eg_mata_thetta", "th
   opener = "Get ég hjálpað?"
   opener_meaning = "Can I help you?"
   opener_meaning_ja = "何かお探しですか？"
-  cue = "Ask if she has a sweater."
+  cue = "Ask her if she has a sweater."
   cue_ja = "セーターはあるか聞いてください。"
   expect_text = "Áttu peysu?"
   expect_meaning = "Do you have a sweater?"

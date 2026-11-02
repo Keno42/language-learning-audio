@@ -197,7 +197,7 @@ meaning_ja = "きょうだいはいますか？"
 difficulty = 3
 topics = ["family"]
 prereqs = ["attu"]
-situation = "You're getting to know Anna. Ask if she has siblings."
+situation = "You're getting to know Anna. Ask her if she has siblings."
 situation_ja = "アンナと親しくなってきました。きょうだいがいるか聞いてください。"
 
 [[items]]
@@ -226,7 +226,7 @@ situation_ja = "姉が二人いると言ってください。"
 partner_cue = "Já, ég á einn bróður. En þú?"
 partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "attu_systkini"
-partner_cue_setup = "Over coffee, you're getting to know Anna better. Ask if she has siblings."
+partner_cue_setup = "Over coffee, you're getting to know Anna better. Ask her if she has siblings."
 partner_cue_setup_ja = "アンナと親しくなってきました。兄弟姉妹がいるか聞いてください。"
 partner_cue_meaning = "Yes, I have one brother. And you?"
 partner_cue_meaning_ja = "ええ、兄弟が一人います。あなたは？"
@@ -247,7 +247,7 @@ situation_ja = "子どもについて聞かれました。いないと答えて�
 partner_cue = "Hún er fimm ára. En þú, áttu börn?"
 partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "hvad_er_hun_gomul"
-partner_cue_setup = "Anna shows you a photo of her daughter on her phone. Ask how old she is."
+partner_cue_setup = "Anna shows you a photo of her daughter on her phone. Ask how old the girl is."
 partner_cue_setup_ja = "アンナが娘さんの写真を見せてくれました。何歳か聞いてください。"
 partner_cue_meaning = "She's five. And you, do you have children?"
 partner_cue_meaning_ja = "5歳です。あなたは、お子さんは？"
@@ -275,7 +275,7 @@ meaning_ja = "彼女の名前は？"
 difficulty = 2
 topics = ["family", "social"]
 prereqs = ["hvad_heitir_thu"]
-situation = "Anna mentions her daughter. Ask what her name is."
+situation = "Anna mentions her daughter. Ask what the girl is called."
 situation_ja = "アンナが娘の話をしました。名前を聞いてください。"
 partner_cue = "Já, ég á eina dóttur."
 partner_cue_speaker = "native_a"  # the narration says she
@@ -284,7 +284,7 @@ partner_cue_setup = "Over coffee, ask your new friend whether she has children."
 partner_cue_setup_ja = "コーヒーを飲みながら、新しい友達に子どもがいるか聞いてください。"
 partner_cue_meaning = "Yes, I have one daughter."
 partner_cue_meaning_ja = "ええ、娘が一人います。"
-partner_cue_situation = "She has a daughter. Ask what her name is."
+partner_cue_situation = "She has a daughter. Ask what the girl is called."
 partner_cue_situation_ja = "娘さんがいるそうです。名前を聞いてください。"
 
 [[items]]
@@ -296,7 +296,7 @@ meaning_ja = "彼の名前は？"
 difficulty = 2
 topics = ["family", "social"]
 prereqs = ["hvad_heitir_hun"]
-situation = "Anna's brother waves from across the room. Ask what his name is."
+situation = "Anna's brother waves from across the room. Ask Anna what he's called."
 situation_ja = "アンナの兄が部屋の向こうで手を振っています。名前を聞いてください。"
 
 [[items]]
@@ -308,16 +308,16 @@ meaning_ja = "彼女は何歳ですか？"
 difficulty = 3
 topics = ["family"]
 prereqs = ["hvad_ertu_gomul"]
-situation = "Anna shows you a photo of her daughter. Ask how old she is."
+situation = "Anna shows you a photo of her daughter. Ask how old the girl is."
 situation_ja = "アンナが娘の写真を見せてくれました。何歳か聞いてください。"
 partner_cue = "Hún heitir Sóley."
 partner_cue_speaker = "native_a"  # the narration says she
 partner_cue_after = "hvad_heitir_hun"
-partner_cue_setup = "Over lunch, Anna mentions her daughter. Ask what her name is."
+partner_cue_setup = "Over lunch, Anna mentions her daughter. Ask what the girl is called."
 partner_cue_setup_ja = "アンナが娘さんの話をしました。名前を聞いてください。"
 partner_cue_meaning = "Her name is Sóley."
 partner_cue_meaning_ja = "ソウレイといいます。"
-partner_cue_situation = "Her daughter is called Sóley. Ask how old she is."
+partner_cue_situation = "Her daughter is called Sóley. Ask how old Sóley is."
 partner_cue_situation_ja = "娘さんの名前はソウレイだそうです。何歳か聞いてください。"
 
 [[items]]
@@ -546,7 +546,7 @@ requires = ["hvad_heitir_hun", "hvad_er_hun_gomul", "thetta_er_person", "brodir_
   opener = "Sjáðu, þetta er dóttir mín."
   opener_meaning = "Look, this is my daughter."
   opener_meaning_ja = "見て、これが私の娘。"
-  cue = "Ask what her name is."
+  cue = "Ask what the girl is called."
   cue_ja = "彼女の名前を聞いてください。"
   expect = "hvad_heitir_hun"
   partner = "Hún heitir Sóley."
@@ -554,7 +554,7 @@ requires = ["hvad_heitir_hun", "hvad_er_hun_gomul", "thetta_er_person", "brodir_
   partner_meaning_ja = "ソウレイっていうの。"
 
   [[dialogues.turns]]
-  cue = "Ask how old she is."
+  cue = "Ask how old Sóley is."
   cue_ja = "何歳か聞いてください。"
   expect = "hvad_er_hun_gomul"
   partner = "Hún er lítil. Áttu börn?"

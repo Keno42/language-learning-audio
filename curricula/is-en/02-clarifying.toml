@@ -47,7 +47,7 @@ slots = { language = "acc_language" }
 example = { language = "ensku" }
 components = ["ensku"]
 prereqs = ["ensku"]
-situation = "You're not sure the receptionist understands you. Ask if she speaks English."
+situation = "You're not sure the receptionist understands you. Ask her if she speaks English."
 situation_ja = "受付の人に通じているか不安です。英語を話せるか聞いてください。"
 situation_fill = { language = "ensku" }  # issue #57: the situation says "English"
 
@@ -428,7 +428,7 @@ topics = ["clarifying"]
 situations = [
   "You've explained the way to the pool in slow Icelandic. Check she understood.",
   "You've shown your friend how to use the coffee machine. Check she understood.",
-  "You've explained the rules of a card game to a child. Ask if he understands.",
+  "You've explained the rules of a card game to a child. Ask him if he understands.",
 ]
 situations_ja = [
   "プールへの道をゆっくりしたアイスランド語で説明しました。通じたか確かめてください。",
@@ -445,8 +445,8 @@ meaning_ja = "何と言いましたか？"
 difficulty = 3
 topics = ["clarifying"]
 situations = [
-  "The bus driver said something over the engine noise. Ask what he said.",
-  "Your friend said something while you were putting your headphones on. Ask what she said.",
+  "The bus driver said something over the engine noise. Ask him what he said.",
+  "Your friend said something while you were putting your headphones on. Ask her what she said.",
 ]
 situations_ja = [
   "エンジン音の中でバスの運転手が何か言いました。何と言ったか聞いてください。",
@@ -1009,7 +1009,7 @@ requires = ["talar_thu", "ensku", "eg_tala_sma_islensku", "gaetirdu_talad_haegar
   opener = "Góðan daginn, hvað get ég gert fyrir þig?"
   opener_meaning = "Good day, what can I do for you?"
   opener_meaning_ja = "こんにちは、どのようなご用件ですか？"
-  cue = "Ask if she speaks English."
+  cue = "Ask her if she speaks English."
   cue_ja = "英語を話すか聞いてください。"
   expect_text = "Talar þú ensku?"
   expect_meaning = "Do you speak English?"

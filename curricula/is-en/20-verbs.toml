@@ -384,5 +384,5 @@ meaning_spoken_ja = "女性に、終わった？"
 difficulty = 2
 topics = ["grammar"]
 prereqs = ["eg_er_buin"]
-situation = "Your friend has been in the changing room a while. Ask if she's done."
-situation_ja = "友達が試着室に長くいます。終わったか聞いてください。"
+situation = "Your friend has been in the changing room a while. Ask her if she's done."
+situation_ja = "女友達が試着室に長くいます。終わったか聞いてください。"

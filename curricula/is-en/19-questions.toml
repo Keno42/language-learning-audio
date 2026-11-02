@@ -121,7 +121,7 @@ meaning_ja = "あなたは誰ですか？"
 difficulty = 2
 topics = ["questions"]
 prereqs = ["hver"]
-situation = "Someone lets themselves into the shared flat. Ask who they are."
+situation = "Someone lets themselves into the shared flat. Ask him who he is."
 situation_ja = "誰かが勝手にシェアハウスに入ってきました。誰か聞いてください。"
 
 [[items]]
@@ -133,7 +133,7 @@ meaning_ja = "どこへ行くの？"
 difficulty = 3
 topics = ["questions", "transport"]
 prereqs = ["hvert"]
-situation = "Your friend grabs her coat. Ask where she's going."
+situation = "Your friend grabs her coat. Ask her where she's going."
 situation_ja = "友達がコートを手に取りました。どこへ行くか聞いてください。"
 
 [[items]]

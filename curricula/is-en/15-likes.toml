@@ -309,7 +309,7 @@ meaning_ja = "一番好きな食べ物は何ですか？"
 difficulty = 4
 topics = ["hobbies", "food"]
 chunks = ["þinn", "maturinn þinn", "uppáhaldsmaturinn þinn", "Hvað er uppáhaldsmaturinn þinn?"]
-situation = "You're planning to cook for Anna. Ask what her favourite food is."
+situation = "You're planning to cook for Anna. Ask her what her favourite food is."
 situation_ja = "アンナに料理を作る予定です。一番好きな食べ物を聞いてください。"
 
 [[items]]
@@ -457,7 +457,7 @@ meaning = "What are you doing?"
 meaning_ja = "何をしているの？"
 difficulty = 2
 topics = ["hobbies", "daily"]
-situation = "You call a friend on Saturday afternoon. Ask what she's doing."
+situation = "You call a friend on Saturday afternoon. Ask her what she's doing."
 situation_ja = "土曜の午後に友達に電話します。何をしているか聞いてください。"
 
 [[items]]
@@ -545,7 +545,7 @@ requires = ["eg_hef_gaman_af", "sundi", "gonguferdum", "hefur_thu_gaman_af", "me
   partner_meaning_ja = "私も！毎日泳ぎに行くの。"
 
   [[dialogues.turns]]
-  cue = "Ask if she enjoys films."
+  cue = "Ask her if she enjoys films."
   cue_ja = "映画は好きか聞いてください。"
   expect_text = "Hefur þú gaman af kvikmyndum?"
   expect_meaning = "Do you enjoy films?"
