@@ -72,11 +72,31 @@ class RetryCueTests(unittest.TestCase):
         self.assertEqual(segs[0].text, "この文を、もう一度アイスランド語で言ってみましょう。「四人です」", "the meaning as the other Japanese cues quote it")
         self.assertEqual((segs[1].role, segs[2].text), ("answer", "Við erum fjögur."))
 
-    def test_a_single_word_keeps_its_word_model(self):
+    def test_a_single_word_is_tried_from_its_meaning_then_broken_down(self):
+        """Lesson 44: «This word is hard to say.» and the pieces at once asked nothing. The owner's flow: «Do you remember how to say this? The bill.», an
+        answer pause, the word as the answer, «Let's break down the pronunciation. Repeat each part.», the pieces and the word at natural speed."""
         _, segs = self.played(self.builder(), "reikninginn")
-        self.assertEqual(segs[0].text, "This word is hard to say.")
-        self.assertNotIn("answer", [s.role for s in segs if s.type == "pause"])
+        self.assertEqual((segs[0].type, segs[0].text), ("narrate", "Do you remember how to say this? The bill."))
+        self.assertEqual((segs[1].type, segs[1].role), ("pause", "answer"))
+        self.assertEqual((segs[2].type, segs[2].text), ("answer", "reikninginn"))
+        said = [s.text for s in segs if s.type in ("narrate", "speak")]
+        self.assertEqual(said[1:], ["Let's break down the pronunciation. Repeat each part.", "reik", "ning", "inn", "And at natural speed.", "reikninginn"])
         self.assertEqual([s.text for s in segs if s.type == "speak" and s.rate < 1], ["reik", "ning", "inn"])
+
+    def test_a_phrase_with_a_hard_word_is_tried_whole_then_the_word_broken_down(self):
+        b = self.builder()
+        phrase = next(i for i in b.cur.items if i.kind == "phrase" and i.target == "Get ég fengið reikninginn?")
+        _, segs = self.played(b, phrase.id)
+        self.assertEqual(segs[0].text, "Do you remember how to say this? Can I have the bill?")
+        self.assertEqual((segs[2].type, segs[2].text), ("answer", "Get ég fengið reikninginn?"))
+        self.assertIn("Let's break down the pronunciation. Repeat each part.", [s.text for s in segs])
+        self.assertNotIn("Slowly, in parts. Repeat each part.", [s.text for s in segs], "one cue for the breakdown")
+
+    def test_the_word_cue_follows_the_configured_languages(self):
+        ja = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
+        _, segs = self.played(self.builder(ja, "ja"), "regnhlif")
+        self.assertEqual(segs[0].text, "「傘」は何と言うか覚えていますか？")
+        self.assertEqual((segs[2].type, segs[2].text), ("answer", "regnhlíf"))
 
 
 if __name__ == "__main__":
