@@ -660,6 +660,19 @@ difficulty = 1
 tags = ["duration"]
 topics = ["directions", "time"]
 
+# Owner, lesson 45: «Það tekur svona tíu mínútur.» was answered «tíu mínútur», «Ten minutes.»: the time it takes is «svona tíu mínútur», about
+# ten minutes. The approximate duration is a filler of its own, so «svona» is a word the learner knows and a pick-out can ask it.
+[[items]]
+id = "svona_tiu_minutur"
+kind = "vocab"
+target = "svona tíu mínútur"
+meaning = "about ten minutes"
+meaning_ja = "10分くらい"
+difficulty = 2
+tags = ["duration"]
+topics = ["directions", "time"]
+pronunciation_notes = "svona: about, roughly (before a number)"
+
 [[items]]
 id = "korter"
 kind = "vocab"
