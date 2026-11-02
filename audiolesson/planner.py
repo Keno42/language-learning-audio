@@ -595,7 +595,8 @@ class Planner:
         reply after it, as a short exchange with the scene put first and the partner's lines translated. The line is asked or heard as ``line_role``
         decides on the turn's other items (#265: the item itself is the one practised), and a turn already used for this item is not used again.
         A partner's line inside the conversation answers the learner's line before it («Nú já! Hvar vinnur þú?» after «Ég er í vinnuferð.»), so
-        that line comes first, as the lead-in (#427, lesson 40: «Oh, I see!» answered nothing): the last value maps its turn to True when it is
+        that line comes first, as the lead-in (#427, lesson 40: «Oh, I see!» answered nothing), after the partner's line it answers, if any (lesson 45:
+        «Já, ég hef verið hér áður.» opened the exchange with no «Hefurðu komið hingað áður?» before it): the last value maps its turn to True when it is
         voiced (known: said as the exchange goes) or False when it is heard with its meaning; never asked. None when no theme level holds it."""
         rank = set(self.cfg.theme_scenarios)
         for theme in self.cfg.themes:
@@ -612,13 +613,16 @@ class Planner:
                         start = k  # two learner lines in a row: the line itself opens
                     elif start >= 1 and level.turns[start].who == "partner" and level.turns[start - 1].who == "you":
                         start -= 1  # the learner's line the partner answers (#427)
+                        if start >= 1 and level.turns[start - 1].who == "partner":
+                            start -= 1  # and the partner's line that learner's line answers (lesson 45: «Já, ég hef verið hér áður.» opened with no question)
                     turns = level.turns[start : k + 2]
                     sub = dataclasses.replace(level, turns=list(turns))  # the level's own fields kept, its scene line included (review of #458)
                     dlg = level_dialogue(dataclasses.replace(theme, levels=[sub]), 0, self.cur.known_lang)
                     dlg.id = f"theme:{theme.id}:{n + 1}"  # the level the line is from, not the cut-out's own number: the label, and the scene the daily read counts
-                    if turns[0].who != "you" or turns[0] is t:
+                    mine = [x for x in turns if x.who == "you"]  # the learner's lines, in the cut-out's turn order
+                    if len(mine) == 1:
                         return dlg, {0: list(t.items)}, key, asked, {}
-                    lead = turns[0]
+                    lead = mine[0]
                     return dlg, {0: list(lead.items), 1: list(t.items)}, key, asked, {0: self.line_role(list(lead.items), text=lead.say) == "ask"}
         return None
 
