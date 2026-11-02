@@ -92,6 +92,7 @@ FORM_CAP_FROM = 6  # …counted from this many generated sentences (before that 
 CONSTRUCTION_CEILING = 10  # generated sentences one construction may have in a lesson (#180; §9 "about ten uses", extended to patterns)
 FORM_EXTRA_NEW = 2  # sentences in a form taught this lesson, beyond the practice right after its note
 SITUATION_FULL_MAX = 2  # a situation (authored, or a scene check's line) is narrated in full at most this often in a lesson (G12)
+PART_BUILD_UP_WORDS = 3  # lesson 44: a part of this many words or more, introduced in its sentence, is built up from its end
 SITUATION_RECENT = 3  # and is avoided while it is one of the last this many narrated (#273: the same situation twice a minute apart)
 
 
@@ -1062,7 +1063,8 @@ class Builder:
 
     def _intro_in_whole(self, sc: Script, item: Item, construction: Item, fills: dict[str, Item]) -> Exercise:
         """A new part inside the expression that holds it (#239): «A new expression: Thanks for the help.», the sentence said and repeated, «This word is
-        in it:» the part, and a first retrieval of the whole from its meaning. The part is said alone afterwards, never first; the next-day question
+        in it:» the part (a part of ``PART_BUILD_UP_WORDS`` words or more: «These words are in it:» and built up from its end, lesson 44), and a first
+        retrieval of the whole from its meaning. The part is said alone afterwards, never first; the next-day question
         asks the sentence (``Script.review_questions`` reads the intro's cue and answer)."""
         gender, target = self._filled(construction, fills)
         meaning = self.cur.resolve_slots(construction, fills)[1]
@@ -1077,17 +1079,30 @@ class Builder:
         self._narr(sc, ex, self.prompts.get("repeat"))
         self._speak(sc, ex, target, speaker=voice)
         self._repeat_pause(sc, ex, target)
-        if construction.difficulty >= 2 and len(target.split()) > 1:
+        build_up = item.word_count >= PART_BUILD_UP_WORDS
+        if construction.difficulty >= 2 and len(target.split()) > 1 and not build_up:
             self._narr(sc, ex, self.prompts.get("slowly"))
             self._slow_line(sc, ex, target, speaker=voice)
             self._repeat_pause_spaced(sc, ex, target)
             self._narr(sc, ex, self.prompts.get("natural"))
             self._speak(sc, ex, target, speaker=voice)
             self._repeat_pause(sc, ex, target)
-        self._frame(sc, ex, self.prompts.get("embed_part"))
+        self._frame(sc, ex, self.prompts.get("embed_part_words" if item.word_count > 1 else "embed_part"))
         self._speak(sc, ex, item.target, speaker=voice)
         self._beat(sc, ex)
-        self._slow_model(sc, ex, item, voice)
+        if build_up:
+            # lesson 44: «hinum megin við götuna» was said word by word inside its sentence and never built up, as a plain introduction builds a
+            # long line from its end: the part of three words or more is built up here, in place of the sentence's word-by-word model
+            self._narr(sc, ex, self.prompts.get("build_up"))
+            for chunk in item.backward_chunks():
+                self._slow_line(sc, ex, chunk, speaker=voice)
+                self._repeat_pause_spaced(sc, ex, chunk)
+                self._beat(sc, ex)
+            self._narr(sc, ex, self.prompts.get("natural"))
+            self._speak(sc, ex, item.target, speaker=voice)
+            self._repeat_pause(sc, ex, item.target)
+        if not build_up or item.syllables:
+            self._slow_model(sc, ex, item, voice)  # a built-up part was already said slowly, piece by piece
         self._form_contrast(sc, ex, item, voice, construction)
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(meaning)))
         self._answer_pause(sc, ex, target, item, generative=False)

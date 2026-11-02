@@ -5422,6 +5422,36 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
             met = {"thetta_er_noun", "bok", "bill", part}
             self.assertEqual(whole_for(self.cur, self.cur.by_id[part], met - {taught["through"]}, self.en, taught)["answer"], taught["answer"])
 
+    def test_a_part_of_three_words_is_built_up_from_its_end_inside_its_sentence(self):
+        """Lesson 44: «hinum megin við götuna» was said once inside «Það er hinum megin við götuna.» and the sentence word by word, never built up as a plain
+        introduction builds a long line. «These words are in it:», then the part from its end, then at natural speed, in place of the sentence's slow line."""
+        part = self.cur.by_id["hinum_megin_vid_gotuna"]
+        b = self._builder(met=[i.id for i in self.cur.items if i.order < part.order and i.kind != "construction" or i.id == "thad_er_direction"])
+        sc = Script(1, "t", "is", "en")
+        ex = b.intro(sc, part)
+        self.assertEqual(ex.label, "new: Það er hinum megin við götuna. (hinum megin við götuna)")
+        narr = [g.text for g in sc.segments if g.type == "narrate"]
+        self.assertIn(self.en.get("embed_part_words"), narr)
+        self.assertNotIn(self.en.get("embed_part"), narr)
+        self.assertIn(self.en.get("build_up"), narr)
+        tx = sc.transcript()
+        steps = [tx.index(line) for line in ("götuna", "við · götuna", "megin · við · götuna", "hinum · megin · við · götuna")]
+        self.assertEqual(steps, sorted(steps), "built up from the end, one word more each time")
+        self.assertNotIn("Það · er", tx, "the built-up part replaces the sentence's word-by-word line")
+        self.assertNotIn(self.en.get("slowly"), narr)
+        speech = [g.text for g in sc.segments if g.type in ("speak", "answer")]
+        self.assertEqual(speech[-1], "Það er hinum megin við götuna.", "the first retrieval still asks the whole")
+
+    def test_a_part_of_two_words_is_named_as_words_but_not_built_up(self):
+        """Lesson 44: «á horninu» is two words, «These words are in it:», and too short to build up."""
+        part = self.cur.by_id["a_horninu"]
+        b = self._builder(met=[i.id for i in self.cur.items if i.order < part.order and i.kind != "construction" or i.id == "thad_er_direction"])
+        sc = Script(1, "t", "is", "en")
+        b.intro(sc, part)
+        narr = [g.text for g in sc.segments if g.type == "narrate"]
+        self.assertIn(self.en.get("embed_part_words"), narr)
+        self.assertNotIn(self.en.get("build_up"), narr)
+
     def test_a_part_after_the_phrase_it_is_in_is_taken_out_of_it(self):
         """#262: «matinn» right after «Takk fyrir matinn.» in the same lesson is not a new bare word: «You know this: …», «This word is in it: …»."""
         b = self._builder(met=["takk"])
@@ -7025,10 +7055,34 @@ class ShortItemRepetitionTests(unittest.TestCase):
             learner.report(failed, [], day + timedelta(days=1), lesson_number=n, recalled=[i for i in new if i not in failed])
             day += timedelta(days=1)
 
+    def test_a_new_part_taught_in_its_sentence_keeps_its_practice_rungs(self):
+        """Lesson 44: a part that only its own sentence can hold lost every rung after its first to the bare cap («hinum megin við götuna», whose one
+        frame is «Það er {direction}.», asked 3 times in 29 minutes): it is asked through its sentence again from the sentence's meaning (#270), at
+        each of its four rungs, spread over the lesson."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        learner, day = LearnerState("is", "en", "A1"), TODAY
+        parts = {"a_horninu", "hinum_megin_vid_gotuna", "vid_hlidina_a_bankanum"}
+        seen = set()
+        for _ in range(40):
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_target=8.0), today=day).build()
+            apply_to_learner(sc, learner, day)
+            for i in parts & set(sc.meta["new_items"]):
+                intro = next(e for e in sc.exercises if e.kind == "intro" and e.item_ids == [i])
+                starts = [intro.start] + [e.start for e in sc.exercises if e.index > intro.index and i in e.item_ids]
+                self.assertGreaterEqual(len(starts), 5, f"lesson {sc.lesson_number}: {i} asked {len(starts) - 1} times after its introduction")
+                self.assertGreater(starts[4] - starts[0], 300, f"{i}: its rungs are spread over the lesson, not drilled")
+                seen.add(i)
+            if seen == parts:
+                break
+            day += timedelta(days=1)
+        self.assertEqual(seen, parts)
+
     def test_a_part_or_short_utterance_is_said_alone_at_most_three_times(self):
         """A part (a ``vocab`` item, whatever its length) is said alone at most three times: any bare practice counts, a
         mixed-review turn included (#187). A short utterance (a ``phrase``) is a complete thing to say, so a scene is its proper
-        use (the owner's decision on #190): only its meaning-cued bare practices count."""
+        use (the owner's decision on #190): only its meaning-cued bare practices count. A part's recall that asks its own sentence (#270: «Þetta er
+        frábært.» for «frábært») says the sentence, not the part alone, and is not counted (lesson 44: counting it held «hinum megin við götuna» to
+        three asks in all)."""
         bare = {"intro", "cloze", "hinted", "meaning", "situation"}
         cued = {"intro", "cloze", "hinted", "meaning"}
         checked = utterances = lapsed = in_sentences = 0
@@ -7042,7 +7096,10 @@ class ShortItemRepetitionTests(unittest.TestCase):
                 if i in sc.meta["embedded_items"] or it.kind in ("construction", "transform") or (not part and it.word_count > 2):
                     continue
                 ex = [e for e in sc.exercises if i in e.item_ids]
-                alone = sum(1 for e in ex if e.item_ids[0] == i and e.kind in ("intro", "recall") and e.stage in (bare if part else cued))
+                answers = {e.index: {_norm_utterance(g.text) for g in sc.segments if g.exercise == e.index and g.type == "answer"} for e in ex}
+                own = {_norm_utterance(t) for t in (it.target, it.target_m) if t}
+                said_alone = lambda e: e.kind == "intro" or not part or bool(answers[e.index] & own)  # noqa: E731
+                alone = sum(1 for e in ex if e.item_ids[0] == i and e.kind in ("intro", "recall") and e.stage in (bare if part else cued) and said_alone(e))
                 if part:
                     alone += sum(1 for e in ex if e.kind == "connect")  # a pair's situation turns say each part alone
                 self.assertLessEqual(alone, 3, (sc.lesson_number, i, alone))
