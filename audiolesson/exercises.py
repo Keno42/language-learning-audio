@@ -931,14 +931,19 @@ class Builder:
         """Whether ``slow_word_exercise`` has something to play for ``item``."""
         return bool(hard_words_of(item) or self.hearing_sentence(item) or hard_words_of(item, reported=True))
 
-    def slow_word_exercise(self, sc: Script, item: Item) -> Exercise | None:
+    def slow_word_exercise(self, sc: Script, item: Item, whole: dict | None = None) -> Exercise | None:
         """An item the learner reported hard (#337): before its next practice, said slowly once. The words it names hard itself (authored syllables) are cut into
         pieces; else a sentence is tried again from its meaning («Let's try to say this sentence in Icelandic again: There are four of us.», an answer pause, the
         model; #423), then repeated word by word and at natural speed (a hard-to-hear «Við erum» is not one word a spelling rule can pick: lesson 27 picked
         «fjögur»); else a single word is said slowly by itself, split when authored and else once more at natural speed (#457: a request is never dropped).
         A word or phrase with hard words is tried from its meaning first too (lesson 44): «Do you remember how to say this? An umbrella.», an answer pause,
         the model, then the word models, the first split announced «Let's break down the pronunciation. Repeat each part.».
+        A part of two words or more with the sentence it is asked in (``whole``, the planner's ``part_whole``) is tried as that sentence (lesson 46 as
+        generated: «Let's try to say this sentence … Across the street.» asked «hinum megin við götuna» alone), then «These words are in it:» the part,
+        built up from its end when it has ``PART_BUILD_UP_WORDS`` words or more, else word by word, and at natural speed.
         None when nothing qualifies."""
+        if whole is not None and item.kind == "vocab" and item.word_count >= 2 and not hard_words_of(item):
+            return self._slow_part_in_whole(sc, item, whole)
         words = hard_words_of(item)
         line = None if words else self.hearing_line(item)
         sentence = line[0] if line else None
@@ -973,6 +978,38 @@ class Builder:
             self._beat(sc, ex)
             # the first split is announced as the breakdown, in place of «Slowly, in parts.»; a word with no authored split is said once more (#302)
             self._word_model(sc, ex, word, syllables, split_cue=None if n else self.prompts.get("slow_word_break_down"))
+        self._gap(sc, ex)
+        return ex
+
+    def _slow_part_in_whole(self, sc: Script, item: Item, whole: dict) -> Exercise:
+        """``slow_word_exercise`` for a part with its sentence: the sentence tried again from its meaning, then the part built up from its end."""
+        sentence = whole["answer"]
+        gender = answer_gender(sentence, item)
+        voice = VOICE_OF[gender or "f"]
+        ex = sc.new_exercise("model", "slow", [item.id], f"slow: {sentence} ({item.target})")
+        if whole.get("meaning"):  # the sentence as it was taught: «Let's try to say this sentence … again: It's across the street.»
+            self._narr(sc, ex, self._as(gender, self.prompts.get("slow_hear_intro", meaning=self._m(whole["meaning"]), language=self.prompts.language_name(self.tl))))
+        else:  # a sentence the learner has that holds it (``review_wholes.whole_for``): its own cue, the speaker's form named
+            self._narr(sc, ex, whole["prompt"])
+        self._answer_pause(sc, ex, sentence, item, generative=False)
+        self._answer(sc, ex, sentence, speaker=voice)
+        self._beat(sc, ex)
+        self._frame(sc, ex, self.prompts.get("embed_part_words"))
+        self._speak(sc, ex, item.target, speaker=voice)
+        self._beat(sc, ex)
+        if item.word_count >= PART_BUILD_UP_WORDS:
+            self._narr(sc, ex, self.prompts.get("build_up"))
+            for chunk in item.backward_chunks():
+                self._slow_line(sc, ex, chunk, speaker=voice)
+                self._repeat_pause_spaced(sc, ex, chunk)
+                self._beat(sc, ex)
+        else:
+            self._narr(sc, ex, self.prompts.get("slowly"))
+            self._slow_line(sc, ex, item.target, speaker=voice)
+            self._repeat_pause_spaced(sc, ex, item.target)
+        self._narr(sc, ex, self.prompts.get("natural"))
+        self._speak(sc, ex, sentence, speaker=voice)
+        self._repeat_pause(sc, ex, sentence)
         self._gap(sc, ex)
         return ex
 

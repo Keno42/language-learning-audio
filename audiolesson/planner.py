@@ -3578,11 +3578,14 @@ class Planner:
             if (
                 not acted and not in_new_block() and len(slow_models) + len(hear_supports) < cfg.slow_models_per_lesson
                 and sc.total_duration >= cfg.slow_model_from * (budget - closing_reserve) and remaining >= 60
+                and not (sc.exercises and sc.exercises[-1].kind == "model")  # lesson 46 as generated: two slow models back to back
             ):
                 for owed_id in owed_slow:
                     if owed_id not in slow_done:
                         slow_done.add(owed_id)
-                        if b.slow_word_exercise(sc, self.cur.by_id[owed_id]) is not None:
+                        owed = self.cur.by_id[owed_id]
+                        whole = (b.wholes_taught.get(owed_id) or self.learner.learned_wholes.get(owed_id) or part_whole(owed)) if owed.kind == "vocab" else None
+                        if b.slow_word_exercise(sc, owed, whole) is not None:
                             slow_models.append(owed_id)
                             acted = True
                             break
