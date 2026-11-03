@@ -176,7 +176,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (G14, §9 "Repetition").** The recalls of a new item are scheduled at `intro_recall_times`
   (fractions of the lesson's time after its introduction, about 1, 3, 8 and 15 minutes of 30:
   `intro_timeline`, like `open_timeline`), played when due and never as the fifth recall in a
-  row; an idle lesson pulls them early (step 5). Practice is shared (#439, lesson 41: four items, four sentences, 20 asks): a rung whose item
+  row; an idle lesson pulls them early (step 5). When the reviews due cannot fit beside today's new items (more than the pace rule's review
+  slots, ``_pace_rules``: 16 s an exercise, 6 for a new item), each new item gives up its second rung (`starved_skip_rung`, 1/10 of the
+  lesson) and keeps 1/30, 4/15 and 1/2 (#439, lesson 45: 19 of 48 due reviews asked while the load was «light»; on its replay 34; `meta.reviews_starved`).
+  Practice is shared (#439, lesson 41: four items, four sentences, 20 asks): a rung whose item
   another item's recall said since its own last practice is not asked (`said_since_own`), nor a pattern's whose sentences its fillers' practice
   already said once each on average (`saturated`: a substitution, not a new frame); its later rungs keep their times, and the second half's
   «today» recall passes over a saturated pattern too. Never an item's first rung, nor an item reported hard; a phrase is passed over only when
