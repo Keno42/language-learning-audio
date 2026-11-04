@@ -805,12 +805,14 @@ def _meaning_key(text: str) -> str:
 def same_meaning_answers(cur: Curriculum) -> list[tuple[str, list[str]]]:
     """Lesson 47: the meanings that cue two different answers. A cue built from a meaning («How do you say: It's raining.») cannot tell the learner
     which one is asked when two sentences share it («Það rignir.» and the pattern's «Það er rigning.»). Read in ``cur``'s known language: each
-    fixed sentence's meaning, and each sentence a pattern makes with one slot's fill varied (``scene_sheet``, the other slots their example).
-    Returns ``(meaning, [answer (id), …])``."""
+    fixed sentence's meaning, written and as the instructor says it (``spoken_meaning``: a cue speaks ``meaning_spoken`` where there is one), and
+    each sentence a pattern makes with one slot's fill varied (``scene_sheet``, the other slots their example; ``resolve_slots`` gives the spoken
+    form). Returns ``(meaning, [answer (id), …])``."""
     by: dict[str, dict[str, str]] = {}
     for it in cur.items:
         if it.kind != "construction" and "{" not in it.target and it.meaning:
-            by.setdefault(_meaning_key(it.meaning), {}).setdefault(_meaning_key(it.target), f"{it.target} ({it.id})")
+            for said in dict.fromkeys((it.meaning, it.spoken_meaning)):
+                by.setdefault(_meaning_key(said), {}).setdefault(_meaning_key(it.target), f"{it.target} ({it.id})")
     for c, f, target, meaning in scene_sheet(cur, judged=True):
         if f.id in c.exclude_fills:
             continue

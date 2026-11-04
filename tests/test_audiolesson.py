@@ -10826,7 +10826,7 @@ class SpokenMeaningTests(unittest.TestCase):
     def test_the_spoken_form_is_per_language_and_never_borrowed(self):
         en = load_curriculum(ROOT / "curricula" / "is-en")
         ja = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
-        self.assertEqual(en.by_id["hotelinu"].spoken_meaning, "to the hotel")
+        self.assertEqual(en.by_id["hotelinu"].spoken_meaning, "the hotel, as after to or for")  # review of #484: «to the hotel» is the destination
         self.assertEqual(en.by_id["hotelinu"].meaning, "the hotel (after 'to' / 'for')")
         self.assertEqual(ja.by_id["hotelinu"].spoken_meaning, "ホテルへ")
         self.assertEqual(en.by_id["ensku"].spoken_meaning, "the English language")

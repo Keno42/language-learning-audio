@@ -36,6 +36,15 @@ class SameMeaningTests(unittest.TestCase):
         excluded[1]["exclude_fills"] = ["rigning"]
         self.assertEqual(same_meaning_answers(cur(excluded)), [])
 
+    def test_a_spoken_meaning_is_the_cue_and_is_compared_too(self):
+        """Review of #484: two phrases with different written glosses and one ``meaning_spoken`` were both cued «Say: It's raining.»."""
+        spoken = [
+            {"id": "a", "kind": "phrase", "target": "Það rignir.", "meaning": "It's raining (now).", "meaning_spoken": "It's raining."},
+            {"id": "b", "kind": "phrase", "target": "Það er rigning.", "meaning": "It's raining (rain).", "meaning_spoken": "It's raining."},
+        ]
+        found = same_meaning_answers(cur(spoken))
+        self.assertEqual([m for m, _ in found], ["it's raining"], found)
+
     def test_the_same_answer_twice_is_not_a_clash(self):
         twice = WEATHER[:3] + [{"id": "thad_er_kalt", "kind": "phrase", "target": "Það er kalt.", "meaning": "It's cold."}]
         self.assertEqual(same_meaning_answers(cur(twice)), [])
