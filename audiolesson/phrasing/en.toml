@@ -28,7 +28,7 @@ hear_support_sentence = "You found this one hard to catch. Listen."
 hear_support_word = "You found this word hard to catch. Listen."
 hear_support_find = "Now listen for it in a sentence, and say it when you have heard it."
 hear_support_again = "The whole sentence once more."
-note_pieces = "Now the pieces, slowly. Repeat each one."
+note_pieces = "Now the pieces, slowly: repeat each one."
 
 # issue #59: the meaning comes first, so completing «Ég skil…» is a retrieval of "I don't
 # understand", not a guess at which authored phrase the course has in mind
