@@ -13,7 +13,7 @@ from . import __version__
 from .themes import load_themes, scenario_coverage, scenario_order, unranked_themes
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts, speak_as
-from .content import PATTERN_SCENE, CurriculumError, ask_without_addressee, cue_texts, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, unlinked_instances
+from .content import PATTERN_SCENE, CurriculumError, ask_without_addressee, cue_texts, same_meaning_answers, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, unlinked_instances
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, lesson_target, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -740,6 +740,11 @@ def cmd_validate(args) -> int:
     if unaddressed:  # lesson 44: «Ask if she's Icelandic.» reads as a question about her; «Ask her if …» is put to her
         raise CurriculumError("cues that tell the learner to ask a person with no one named after «ask» (write «Ask her if …», «Ask the receptionist if …», "
                               "or name who the question is about): " + "; ".join(f"{w}: {t!r}" for w, t in unaddressed))
+    shared = [(lang, m, answers) for lang in dict.fromkeys(cur.known_langs or [cur.known_lang]) for m, answers in
+              same_meaning_answers(load_curriculum(args.curriculum, known_lang=lang))]  # fmt: skip
+    if shared:  # lesson 47: «It's raining.» cued both «Það rignir.» and «Það er rigning.»; the learner cannot tell which is asked
+        raise CurriculumError("meanings that cue two different answers (make each meaning say what tells its answer apart, or drop the fill with "
+                              "`exclude_fills`): " + "; ".join(f"{lang} {m!r}: {' / '.join(a)}" for lang, m, a in shared))
     if themes:
         print(f"{len(themes)} lesson themes (#149), {sum(len(t.levels) for t in themes)} levels")
         # #327: the outcome, not the items taught: how much of what the Tier A/B scenarios need a played level's learner line says

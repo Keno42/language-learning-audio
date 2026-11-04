@@ -372,7 +372,7 @@ id = "mig_langar_ad_sja"
 kind = "construction"
 target = "Mig langar að sjá {thing}."
 meaning = "I'd like to see {thing}."
-meaning_ja = "{thing}が見たいです。"
+meaning_ja = "{thing}を見てみたいです。"  # «…が見たいです» is «Ég vil sjá …»
 difficulty = 3
 topics = ["nature"]
 slots = { thing = "acc_sight" }

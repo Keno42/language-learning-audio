@@ -798,6 +798,26 @@ def ask_without_addressee(texts: Iterable[tuple[str, str]]) -> list[tuple[str, s
     return [(where, t) for where, t in texts if t and any(_PERSON_RE.search(m.group(1)) for m in _ASK_BARE_RE.finditer(t))]
 
 
+def _meaning_key(text: str) -> str:
+    return re.sub(r"[^\w']+", " ", text.casefold()).strip()
+
+
+def same_meaning_answers(cur: Curriculum) -> list[tuple[str, list[str]]]:
+    """Lesson 47: the meanings that cue two different answers. A cue built from a meaning («How do you say: It's raining.») cannot tell the learner
+    which one is asked when two sentences share it («Það rignir.» and the pattern's «Það er rigning.»). Read in ``cur``'s known language: each
+    fixed sentence's meaning, and each sentence a pattern makes with one slot's fill varied (``scene_sheet``, the other slots their example).
+    Returns ``(meaning, [answer (id), …])``."""
+    by: dict[str, dict[str, str]] = {}
+    for it in cur.items:
+        if it.kind != "construction" and "{" not in it.target and it.meaning:
+            by.setdefault(_meaning_key(it.meaning), {}).setdefault(_meaning_key(it.target), f"{it.target} ({it.id})")
+    for c, f, target, meaning in scene_sheet(cur, judged=True):
+        if f.id in c.exclude_fills:
+            continue
+        by.setdefault(_meaning_key(meaning), {}).setdefault(_meaning_key(target), f"{target} ({c.id} + {f.id})")
+    return sorted((m, sorted(v.values())) for m, v in by.items() if m and len(v) > 1)
+
+
 def cue_texts(cur: Curriculum) -> list[tuple[str, str]]:
     """Every instruction in the primary known language that tells the learner what to say: items' situations and scene cues, and dialogue turns'
     cues, as ``(where, text)``."""
