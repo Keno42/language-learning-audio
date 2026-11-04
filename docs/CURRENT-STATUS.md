@@ -24,7 +24,7 @@ a grammar note's pieces hard to follow by ear, a precision problem answered in r
    criterion of two.
 
 **Alongside:** lesson 46 was the first built with #478 and #480 and is settled in the ledger (44–46); lesson 47's remarks are read
-against both and against the note's pieces (NOTE_PR).
+against both and against the note's pieces (#481).
 
 **Longer term, in order:** understanding a partner's prompt, not only saying the reply (#327, #265: the aside on «komið hingað», #464, heard in lesson 44 with no remark); substitutions that teach a form (#439, #270); prices and larger numbers (#451) with the listening pool's variety (#339: ten of lesson 43's eleven
 pick-outs had been heard in the three lessons before); expressions usable in exchanges (#327, #265); winter and safety scenes
@@ -49,7 +49,7 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
-- **After lesson 46:** in review: a grammar note's pieces led by what each group builds, each repeated, the whole at natural speed (NOTE_PR).
+- **After lesson 46:** in review: a grammar note's pieces led by what each group builds, each repeated, the whole at natural speed (#481).
 - **After lesson 45:** the due reviews keep their time when they cannot fit (#478); «svona tíu mínútur» in pick-outs (#477); a part reported hard tried as its sentence, then built up from its end, and no two slow models in a row (#480).
 - **After lesson 44:** a word reported hard to say first asked from its meaning, then broken down (#468); a part only its own sentence holds keeps its rungs, a long part built up from its end inside its sentence (#469); a cue that asks a person names them, checked by `validate` (#470); the café's fourth level asks for a cake without nuts (#471); a scene line's lead-in after the question it answers (#472); «Now another short conversation.» (#473); a part's generated sentence cued by its meaning (#474); the late call's own scene line (#475).
 - **After lesson 43:** «Same change:» only right after the same transform (#463); a note bridging «komið hingað» to «verið hér» (#464); a cut-off clip synthesized again and not cached, the threshold per language (#466, #467).

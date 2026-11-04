@@ -700,7 +700,7 @@ who = "main"
 text = "The grammar note on «heitur pottur» / «heiti potturinn» is careful but takes effort to recognise by ear: «ur», «pottur», «inn», «urinn», «potturinn» play in a row at one even gap."
 family = "note-by-ear"
 class = "precision"
-answered_by = ["NOTE_PR"]
+answered_by = ["#481"]
 
 # Built changes: the rows of the §8 table after lesson 46, in its order
 
@@ -1229,7 +1229,7 @@ first_heard = 46
 heard = "«hinum megin við götuna» and «við hliðina á bankanum», reported hard after lesson 45"
 
 [[change]]
-title = "a grammar note's pieces: each group led by what it builds, each piece repeated, the whole at natural speed (#198, lesson 46: NOTE_PR)"
+title = "a grammar note's pieces: each group led by what it builds, each piece repeated, the whole at natural speed (#198, lesson 46: #481)"
 issue = ["#198"]
-pr = ["NOTE_PR"]
+pr = ["#481"]
 family = "note-by-ear"
