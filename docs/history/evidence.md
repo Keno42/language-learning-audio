@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.32 (lessons 1–42), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.33 (lessons 1–43), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1298,3 +1298,38 @@ What the learner wrote, by what the lesson did:
 - Load «light» a second time. Two «light» ratings raise the target by H9's rule when the window's failures are at most 25% and the
   review backlog is small (fewer due than half the review slots). The failures hold (2 of 29); the backlog does not: on the replay
   with lesson 42 rated «light», 47 items are due against about 64 slots before lesson 43, so its target stays at 9.
+
+### 5.33 Lesson 43: the first feedback on #455, #458 and #459
+
+Lesson 43 was generated with LLA `a466b6e` (main with #455 and #458–#460), the bot at site_update_notifier `42d9676`; rebuilt from its
+export with the trip profile it is the same (115 exercises, 29.4 minutes; the written notes aside). It is the first feedback on the
+«Listen.» way in (#455: once), a level's own scene line (#458: the coach ride's) and a word asked for always modelled (#459: «vatnsglas»
+and «versla», dropped before, modelled). «Takk og bless!» (#450) is among its new items.
+
+| | lesson 43 |
+|---|---|
+| length | 29.4 min, 115 exercises |
+| new items; new components, weighted (target) | 11; 9 (9) |
+| theme (level); today's new items said as a turn of the played exchange | small talk (5, the coach ride); «Ég bý í Ósaka.», «Hvar býrð þú?», «læknir» |
+| longest stretch without a scene | 4.2 min |
+| pick-outs heard in the last three lessons | 10 of 11 |
+| feedback form: load; friction | **right** (after «light» in 41 and 42); other, unclear |
+| «sooner» | «bílastæðið», «langt í burtu»; reasons: hard to hear, hard to remember |
+
+What the learner wrote, by what the lesson did (the learner's remarks; the reviewer's measurements and diagnoses after them, labelled):
+
+- **"«Same change» is said again and again with gaps in between; that it means «turn ég into hún» is too high-context."**
+  *Reviewer:* «Say it about her:» in full twice (15:19, 16:18), then «Same change:» six times between other tasks, once more than four
+  minutes after the last transform. The builder said it whenever the transform asked last had the same instruction (#405): G12 again,
+  information cut that the learner needed. **Answered, in review (#463, #461):** «Same change:» only right after the same transform.
+- **"The audio of «Ask where she lives.» is broken and cuts off midway."** *Reviewer:* the transcript has the full text three times
+  (04:11, 23:15, 24:02), one cached clip; the export holds no audio. **Open (#462):** the clip is checked on the server, regenerated if
+  cut off; a guard only once the failure is known.
+- **"«hef komið» and «hingað» were never explained; one place asks only the answer, with no translation."** *Reviewer:* the coach ride
+  asks «Hefurðu komið hingað áður?», translated in the first play, not in the late one (24:02); its reply «Ég hef verið hér áður.» is
+  known, so the level is ready, and nothing asks whether the question is understood. **Answered in part, in review (#464, a data PR):**
+  one note sets «komið hingað» against «verið hér», after the coach ride; the general check is #327's, with #265.
+- *Reviewer:* the scene coherence improves to three of today's new items said as a turn; the replay from current main reads 1, 0, 0 in
+  lessons 44–46 (#327). Ten of eleven pick-outs had been heard in the three lessons before (#339, with #451).
+- Load «right» after two «light», with no remark on repetition: evidence against changing the components' weights (#439, kept for
+  selective cases). One «right» does not settle the pace.

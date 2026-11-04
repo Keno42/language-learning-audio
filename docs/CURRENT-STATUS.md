@@ -7,24 +7,24 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 (§7), the hypotheses with their status (§4), the evidence lesson by lesson (§5). The learning policy is in
 `docs/CURRENT-POLICY.md`.
 
-## Now (updated 2026-11-03, after lesson 45), in order
+## Now (updated 2026-11-04, after lesson 46), in order
 
 Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% by what may change a long-term decision, each
 remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
-45's; the next lesson is 46. Lesson 45 was rated «light» with no remark, and asked 19 of its 48 due reviews (LD §5.35): the review
-time comes first, before more new material.
-1. **Review time against today's new practice (#439, H9, H11).** **In review (#478):** when the due reviews cannot fit, each new item
-   gives up its second rung; on the replay of the lesson-45 export 34 of 48 reviewed. **Next:** read lesson 46's reviews asked, its
-   load and next-day recall; the written review's queue (128 due) is read with it.
-2. **Long parts that do not stick (#469's family).** «við hliðina á bankanum» and «hinum megin við götuna» were reported hard to remember
-   and to say after four rungs and a build-up. **Next:** lesson 46 plays the retry from the meaning, word by word, for both (#424);
-   read their next-day recall before adding practice.
-3. **Pick-out answers say what was said (#477, in review).** «svona tíu mínútur», about ten minutes; a check that every pick-out answer
-   keeps its line's qualifiers is not built.
-4. **Scene coherence (#327).** Lesson 45 said one of its new items as a turn of the exchange (the café's request), against the criterion
-   of two.
+46's; the next lesson is 47. Lesson 46 was rated «light», reviewed 42 of its 64 due items (lesson 45: 19 of 48), and had one remark,
+a grammar note's pieces hard to follow by ear, a precision problem answered in review (LD §5.36).
+1. **Review time against today's new practice (#439, H9, H11).** Built (#478): lesson 46 reviewed 42 of 64 due, each new item giving up
+   its second rung, with no remark. **Next:** read the next-day recall of lesson 46's new items against the lessons before #478; the
+   written review's queue (130 due) is read with it.
+2. **Long parts that do not stick (#469's family).** Built (#480): lesson 46 tried «við hliðina á bankanum» and «hinum megin við götuna»
+   as their sentence and built them up from their end, with no remark. **Next:** read their next-day recall before adding practice.
+3. **Pick-out answers say what was said (#477).** «svona tíu mínútur» was taught in lesson 46, with no pick-out on it yet; a check that
+   every pick-out answer keeps its line's qualifiers is not built.
+4. **Scene coherence (#327).** Lesson 46 said none of its ten new items as a turn of the played exchange (the town, level 4), against the
+   criterion of two.
 
-**Alongside:** lesson 45 was the first built with six behaviour PRs (#468–#470, #472–#474), and four of them had nothing to play in it; lesson 46's remarks are read against each of them too.
+**Alongside:** lesson 46 was the first built with #478 and #480 and is settled in the ledger (44–46); lesson 47's remarks are read
+against both and against the note's pieces (NOTE_PR).
 
 **Longer term, in order:** understanding a partner's prompt, not only saying the reply (#327, #265: the aside on «komið hingað», #464, heard in lesson 44 with no remark); substitutions that teach a form (#439, #270); prices and larger numbers (#451) with the listening pool's variety (#339: ten of lesson 43's eleven
 pick-outs had been heard in the three lessons before); expressions usable in exchanges (#327, #265); winter and safety scenes
@@ -49,7 +49,8 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
-- **After lesson 45:** in review: the due reviews keep their time when they cannot fit (#478); «svona tíu mínútur» in pick-outs (#477).
+- **After lesson 46:** in review: a grammar note's pieces led by what each group builds, each repeated, the whole at natural speed (NOTE_PR).
+- **After lesson 45:** the due reviews keep their time when they cannot fit (#478); «svona tíu mínútur» in pick-outs (#477); a part reported hard tried as its sentence, then built up from its end, and no two slow models in a row (#480).
 - **After lesson 44:** a word reported hard to say first asked from its meaning, then broken down (#468); a part only its own sentence holds keeps its rungs, a long part built up from its end inside its sentence (#469); a cue that asks a person names them, checked by `validate` (#470); the café's fourth level asks for a cake without nuts (#471); a scene line's lead-in after the question it answers (#472); «Now another short conversation.» (#473); a part's generated sentence cued by its meaning (#474); the late call's own scene line (#475).
 - **After lesson 43:** «Same change:» only right after the same transform (#463); a note bridging «komið hingað» to «verið hér» (#464); a cut-off clip synthesized again and not cached, the threshold per language (#466, #467).
 - **After lesson 42:** a word asked for always modelled (#459); small talk 4 as a coffee with a friend, a level's own scene line (#458).
