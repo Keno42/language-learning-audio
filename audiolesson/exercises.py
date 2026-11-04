@@ -1908,9 +1908,14 @@ class Builder:
             for k, group in enumerate(note.parts):
                 if k:
                     self._beat(sc, ex)
-                for piece in group:  # built up piece by piece, each once, slowly: gaps between the pieces, not stretched sounds
+                if note.parts_lead:  # what this group builds (lesson 46: «ur», «pottur», «inn», «urinn», «potturinn» in a row was hard to follow)
+                    self._speak_note_text(sc, ex, note.parts_lead[k])
+                for piece in group:  # built up piece by piece, each once, slowly, then the learner's repeat: as a hard word's split (``_slow_model``)
                     self._speak(sc, ex, piece, speaker="native_a", rate=self.timing.slow_rate)
-                    self._pause(sc, ex, self.timing.intro_word_gap, "word_gap", floor=self.timing.intro_word_gap)
+                    self._repeat_pause(sc, ex, piece)
+                self._narr(sc, ex, self.prompts.get("natural"))  # the group's whole form, as the lesson says it
+                self._speak(sc, ex, group[-1], speaker="native_a")
+                self._repeat_pause(sc, ex, group[-1])
         self._beat(sc, ex)
         self._narr(sc, ex, self.prompts.get("milestone_end" if note.milestone or note.teaches else "aside_end"))
         self._gap(sc, ex)
