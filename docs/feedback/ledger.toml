@@ -689,7 +689,27 @@ family = "pick-out-answer"
 class = "precision"
 answered_by = ["#477"]
 
-# Built changes: the rows of the §8 table after lesson 45, in its order
+[[lesson]]
+n = 46
+form = true
+load = "light"
+built = ["#478", "#480"]
+
+[[lesson.remarks]]
+who = "main"
+text = "The grammar note on «heitur pottur» / «heiti potturinn» is careful but takes effort to recognise by ear: «ur», «pottur», «inn», «urinn», «potturinn» play in a row at one even gap."
+family = "note-by-ear"
+class = "precision"
+answered_by = ["#481"]
+
+[[lesson.remarks]]
+who = "other"
+text = "(After their lesson 26, 15-minute lessons.) The same conversation comes lesson after lesson: «skyr» in the fridge and «… costs 500 kr» every time; other things, lamb or everyday goods, are asked for."
+family = "known-repeat"
+class = "twenty"
+answered_by = []
+
+# Built changes: the rows of the §8 table after lesson 46, in its order
 
 [[change]]
 title = "a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351)"
@@ -1204,3 +1224,19 @@ title = "when the due reviews cannot fit, today's new items give up a middle run
 issue = ["#439"]
 pr = ["#478"]
 family = "easy-substitution"
+first_heard = 46
+heard = "42 items reviewed against 19 in lesson 45; each new item gave up its middle rung"
+
+[[change]]
+title = "a part reported hard to say is tried as its sentence, then built up from its end; two slow models not in a row (lesson 45: #480)"
+issue = []
+pr = ["#480"]
+family = "part-ladder"
+first_heard = 46
+heard = "«hinum megin við götuna» and «við hliðina á bankanum», reported hard after lesson 45"
+
+[[change]]
+title = "a grammar note's pieces: each group led by what it builds, each piece repeated, the whole at natural speed (#198, lesson 46: #481)"
+issue = ["#198"]
+pr = ["#481"]
+family = "note-by-ear"
