@@ -12,19 +12,21 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% by what may change a long-term decision, each
 remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
 46's; the next lesson is 47. Lesson 46 was rated «light», reviewed 42 of its 64 due items (lesson 45: 19 of 48), and had one remark,
-a grammar note's pieces hard to follow by ear, a precision problem answered in review (LD §5.36).
+a grammar note's pieces hard to follow by ear, a precision problem answered in review. Another learner's remark, the first read through
+the feedback sync, names the same exchange heard lesson after lesson (LD §5.36).
 1. **Review time against today's new practice (#439, H9, H11).** Built (#478): lesson 46 reviewed 42 of 64 due, each new item giving up
    its second rung, with no remark. **Next:** read the next-day recall of lesson 46's new items against the lessons before #478; the
    written review's queue (130 due) is read with it.
 2. **Long parts that do not stick (#469's family).** Built (#480): lesson 46 tried «við hliðina á bankanum» and «hinum megin við götuna»
    as their sentence and built them up from their end, with no remark. **Next:** read their next-day recall before adding practice.
-3. **Pick-out answers say what was said (#477).** «svona tíu mínútur» was taught in lesson 46, with no pick-out on it yet; a check that
-   every pick-out answer keeps its line's qualifiers is not built.
+3. **A level heard again rests across lessons (#483).** Another learner, on 15-minute lessons, heard the supermarket's first level in 19
+   of 20 lessons and found it boring: a level heard again (#218 b1) is drawn at random each lesson. **Next:** the rest, checked on the
+   replay of their lesson-30 export; then the supermarket's lines with other things (#336).
 4. **Scene coherence (#327).** Lesson 46 said none of its ten new items as a turn of the played exchange (the town, level 4), against the
    criterion of two.
 
-**Alongside:** lesson 46 was the first built with #478 and #480 and is settled in the ledger (44–46); lesson 47's remarks are read
-against both and against the note's pieces (#481).
+**Alongside:** lesson 46 was the first built with #478 and #480; lesson 47's remarks are read against both and against the note's
+pieces (#481). The other learners' notes now arrive with the owner's, through the feedback sync (site_update_notifier#197).
 
 **Longer term, in order:** understanding a partner's prompt, not only saying the reply (#327, #265: the aside on «komið hingað», #464, heard in lesson 44 with no remark); substitutions that teach a form (#439, #270); prices and larger numbers (#451) with the listening pool's variety (#339: ten of lesson 43's eleven
 pick-outs had been heard in the three lessons before); expressions usable in exchanges (#327, #265); winter and safety scenes

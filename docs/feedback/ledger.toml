@@ -702,6 +702,13 @@ family = "note-by-ear"
 class = "precision"
 answered_by = ["#481"]
 
+[[lesson.remarks]]
+who = "other"
+text = "(After their lesson 26, 15-minute lessons.) The same conversation comes lesson after lesson: «skyr» in the fridge and «… costs 500 kr» every time; other things, lamb or everyday goods, are asked for."
+family = "known-repeat"
+class = "twenty"
+answered_by = []
+
 # Built changes: the rows of the §8 table after lesson 46, in its order
 
 [[change]]

@@ -403,9 +403,15 @@ What the learner wrote, by what the lesson did:
   loses two exercises.
 - **Two older lines, hard to remember:** «Til að taka með, takk.» (last asked in lesson 34) and «Mér finnst leiðinlegt að …» (lessons 39
   and 41). Both were recalled at a long gap for the first time; the «sooner» report already brings them back at half their interval.
+- **Another learner (15-minute lessons), after their lesson 26: the same conversation comes lesson after lesson, «skyr» in the fridge and
+  «… costs 500 kr» every time; they ask for other things.** It reached us through the feedback sync (site_update_notifier#197). Their
+  records: the supermarket's first level was heard again in 19 of their lessons 11–30, and its price pick-out, about skyr and milk only,
+  in 8 of 11 lessons from 20. A level heard again (#218 b1) rests only within a lesson, and a path with few levels done draws the same
+  ones every lesson; the owner's path, with 27 levels, does not show it. **Open (#483):** a level heard again rests across lessons, and
+  the supermarket's lines name other things (#336).
 - **No remark on the reviews (#478) or on the two long parts (#480).** The lesson reviewed 42 items, rated «light». Both long parts were
   tried as their sentence and built up from their end (02:50, 04:07) and asked again at 06:27 and 28:01. Their next-day recall is the
-  read. The ledger counts the lesson settled: the run is 44–46.
+  read. The ledger does not count the lesson settled: the other learner's remark is a twenty-point part (#483).
 
 ## 6. Signals: what each can and cannot tell us
 
@@ -546,11 +552,11 @@ lessons 21–23 (§5.18–§5.20) have had their three.
 | a cue says the learner's action first: «Listen, then answer: …», no «Your turn.» ahead of its task (#409: #411) | lesson 37 (eight pick-outs, each opening «Listen…»; the form model without «Your turn.») | 0; its family remarked in 37, 38, 39 (#425), 44 (#473, #472) |
 | a theme level of three or more learner turns plays with one of them heard (#327: #414) | not yet | – |
 | a pick-out turn's lines carry other values, and the value heard least recently comes first (#339: #417) | lesson 38 (ten pick-outs in lesson 38 and ten in 39, drawn across values) | **done**: 9 (38, 39, 40, 41, 42, 43, 44, 45, 46) |
-| a known set reply («Takk.», «Já, takk.») in an exchange played again is voiced, not asked, and the opening says so (#416: #422) | lesson 39 (four set replies voiced in scenes heard again, none asked there) | 1 (39); its family remarked in 40 (#430, #431) |
+| a known set reply («Takk.», «Já, takk.») in an exchange played again is voiced, not asked, and the opening says so (#416: #422) | lesson 39 (four set replies voiced in scenes heard again, none asked there) | 1 (39); its family remarked in 40 (#430, #431), 46 |
 | a sentence reported hard is tried again from its meaning, then the model and the slow practice (#423: #424) | lesson 40 («Ég vinn hjá litlu fyrirtæki.», reported hard after lesson 39: «Let's try to say this sentence in Icelandic again: …») | 2 (40, 41); its family remarked in 42 (#459), 44 (#468) |
 | a conversation that a drill follows ends with «That's the end of the conversation.» (#415: #425) | lesson 40 («That's the end of the conversation.» eight times) | 4 (40, 41, 42, 43); its family remarked in 44 (#473, #472) |
 | each 🔊 reply of the written review names its card and the text spoken (site_update_notifier#175: #176) | lesson 40 (the written review before lesson 40) | **done**: 7 (40, 41, 42, 43, 44, 45, 46) |
-| an authored dialogue played before voices the known set replies too, its items counted from its lines (#416: #430) | lesson 41 («straeto», an authored dialogue, with its short replies voiced) | **done**: 6 (41, 42, 43, 44, 45, 46) |
+| an authored dialogue played before voices the known set replies too, its items counted from its lines (#416: #430) | lesson 41 («straeto», an authored dialogue, with its short replies voiced) | 5 (41, 42, 43, 44, 45); its family remarked in 46 |
 | a fixed dialogue played whole four times, its required items learned, is not played whole again unless it holds new material or an item needing repair (#416: #431) | not yet | – |
 | scenes for lessons 41–50: arranging to meet, the town's fourth and fifth levels (telling a tourist the way), small talk's fifth (a coach ride), the clothes shop's third (size and colour), the weather (#327: #432) | lesson 41 (arranging to meet, the day's exchange in lesson 41) | **done**: 6 (41, 42, 43, 44, 45, 46) |
 | lesson 40's contexts: the married cue, no «Velkomin!» to a man's voice, small talk's fourth level opens with a birthday, every listening task names its scene (#427: #433) | lesson 41 (nine pick-outs and catches, each opening with its scene line) | 1 (41); its family remarked in 42 (#458), 44 (#471, #475) |
