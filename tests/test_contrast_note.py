@@ -73,10 +73,43 @@ class SpokenNoteTests(unittest.TestCase):
         sc, prompts = self.script(self.cur.note_by_id["definite_weak_adjective"])
         i = next(k for k, s in enumerate(sc.segments) if s.text == prompts.get("note_pieces"))
         spoken = [s for s in sc.segments[i:] if s.type == "speak"]
-        self.assertEqual([s.text for s in spoken], ["ur", "pottur", "inn", "urinn", "potturinn", "heitur", "heiti"])
-        self.assertTrue(all(s.rate < 1.0 for s in spoken), "slowly and carefully")
-        idx = [k for k, s in enumerate(sc.segments) if s.type == "speak" and s.text in ("ur", "pottur", "inn", "urinn", "potturinn", "heitur", "heiti")]
-        self.assertTrue(all(sc.segments[k + 1].type == "pause" for k in idx[:-1]), "a gap after each piece")
+        slow = [s.text for s in spoken if s.rate < 1.0]
+        self.assertEqual(slow, ["ur", "pottur", "inn", "urinn", "potturinn", "heitur", "heiti"], "slowly and carefully, in order")
+        idx = [k for k, s in enumerate(sc.segments) if s.type == "speak" and k > i]
+        self.assertTrue(all(sc.segments[k + 1].type == "pause" and sc.segments[k + 1].role == "repeat" for k in idx), "the learner repeats each piece")
+
+    def test_each_group_says_what_it_builds_and_ends_on_its_whole_form_at_natural_speed(self):
+        """Lesson 46: «ur», «pottur», «inn», «urinn», «potturinn» at one even gap took effort to follow. Each group is led by what it builds, and its
+        whole form is said again at natural speed, as a hard word's split is (``_slow_model``)."""
+        for lang in ("en", "ja"):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            note = cur.note_by_id["definite_weak_adjective"]
+            self.assertEqual(len(note.parts_lead), len(note.parts), lang)
+            from audiolesson.exercises import Builder
+            from audiolesson.script import Script
+
+            prompts = Prompts.load(lang)
+            sc = Script(1, "Lesson 1", cur.target_lang, cur.known_lang)
+            Builder(cur, prompts, Timing(level="A1"), LearnerState("is", lang, "A1")).note(sc, note)
+            segs = sc.segments
+            start = next(k for k, s in enumerate(segs) if s.text == prompts.get("note_pieces"))
+            narrated = [s.text for s in segs[start:] if s.type == "narrate"]
+            for lead in note.parts_lead:
+                self.assertIn(lead, narrated, lang)
+            natural = [s.text for s in segs[start:] if s.type == "speak" and s.rate >= 1.0]
+            self.assertEqual(natural, [g[-1] for g in note.parts], lang)
+            for group, lead in zip(note.parts, note.parts_lead):
+                at = next(k for k, s in enumerate(segs) if s.text == lead)
+                first = next(k for k, s in enumerate(segs) if k > at and s.type == "speak")
+                self.assertEqual(segs[first].text, group[0], "the lead comes right before its group")
+
+    def test_a_lead_per_group_or_none(self):
+        from audiolesson.content import CurriculumError, curriculum_from_dict
+
+        raw = {"curriculum": {"name": "t", "target_lang": "is", "known_lang": "en"}, "items": [],
+               "notes": [{"id": "n", "text": "x", "parts": [["a", "b"], ["c"]], "parts_lead": ["one"]}]}  # fmt: skip
+        with self.assertRaises(CurriculumError):
+            curriculum_from_dict(raw)
 
     def test_no_lone_full_stop_is_narrated_in_any_note(self):
         for note in self.cur.notes:

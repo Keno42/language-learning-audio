@@ -377,8 +377,11 @@ class Note:
     # ``items`` has been met or was introduced earlier in the lesson, and it outranks the other asides on the same items in the notes cap.
     contrast: bool = False
     # #198 (the owner's decision): the pieces the note's endings are built from, in groups; after the text each group is said once, slowly and carefully, piece by
-    # piece, the last piece being the whole form («ur», «pottur», «inn», «urinn», «potturinn»), a beat after each group
+    # piece, the last piece being the whole form («ur», «pottur» / «inn», «urinn», «potturinn»), a beat after each group. Lesson 46: each piece gets the
+    # learner's repeat, and each group ends on its whole form at natural speed, as a hard word's split does (``Builder._slow_model``)
     parts: list[list[str]] = field(default_factory=list)
+    # lesson 46: one line per group of ``parts``, said before it, naming what the group builds (a run of bare endings is not recognisable by ear)
+    parts_lead: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -598,7 +601,7 @@ _GLOSSED_ITEM = ("meaning", "context", "negative_meaning", "question_meaning", "
 _GLOSSED_EXAMPLE = ("source_meaning", "result_meaning")
 _GLOSSED_TURN = ("cue", "opener_meaning", "partner_meaning", "expect_meaning", "scene", "partner_scene")
 _GLOSSED_DIALOGUE = ("setting",)
-_GLOSSED_NOTE = ("text",)
+_GLOSSED_NOTE = ("text", "parts_lead")
 _GLOSSED_META = ("name",)
 
 
@@ -667,6 +670,9 @@ def curriculum_from_dict(raw: dict, source: str = "", known_lang: str | None = N
         )
 
     notes = [Note(**_pick_gloss(n, _GLOSSED_NOTE, lang, langs, missing, n.get("id", "note"))) for n in raw.get("notes", [])]
+    for n in notes:
+        if n.parts_lead and len(n.parts_lead) != len(n.parts):
+            raise CurriculumError(f"note {n.id!r}: parts_lead has {len(n.parts_lead)} lines for {len(n.parts)} groups of parts")
     _apply_scenes(items, raw.get("scenes", {}), lang, meta["known_lang"])
 
     cur = Curriculum(
