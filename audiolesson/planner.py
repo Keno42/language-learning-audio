@@ -125,7 +125,6 @@ class PlanConfig:
     scene_window: int = 150  # #327: the next unmet items a scene may take its items from
     theme_match_rest: int = 2  # #327: a level whose scene is the topic of the day's new material comes back after this many lessons
     theme_rest_lessons: int = 3  # a level already played comes back no sooner than this many lessons later (#149 step 1)
-    heard_rest_lessons: int = 3  # #483: a level heard again as spare time is not heard again within this many lessons (another learner heard one in 19 of 20)
     # #149 step 2 (H5): a semantic set is not introduced as a block: at most ``max_set_items`` new items a lesson share
     # one of these sets (numbers, colours, languages...); the others wait for another lesson, and the pool goes on. A set
     # is a tag, or several tags joined by «|» that count as one: the adjectives, whatever gender their form is (owner)
@@ -3136,22 +3135,19 @@ class Planner:
         heard_plays: list[str] = []  # "theme:level" levels already played, heard again this lesson as spare time (#218 b1)
 
         def heard_candidates() -> list[tuple]:
-            """The other levels already played that may be heard again now: not the lesson's own, not one heard earlier in it, and not one
-            played or heard within ``heard_rest_lessons`` lessons (#483: another learner, with few levels done, heard the supermarket's first
-            level in 19 of 20 lessons)."""
+            """The other levels already played that may be heard again now: not the lesson's own, nor one heard earlier in it."""
             own = (theme_pick[0].id, theme_pick[1]) if theme_pick else None
-            now = self.learner.next_lesson_number()
-            last = self.learner.levels_last
             return [
                 (t, n) for t in cfg.themes for n in range(min(self.learner.themes_done.get(t.id, 0), len(t.levels)))
                 if (t.id, n) != own and f"{t.id}:{n + 1}" not in heard_plays
-                and not (f"{t.id}:{n + 1}" in last and now - last[f"{t.id}:{n + 1}"] < cfg.heard_rest_lessons)
             ]
 
         def pick_heard_theme() -> tuple | None:
             """A theme level already played, to hear again (spare time is more to hear, #218 b1): the lesson's own scene first once both its
-            plays are done, else among ``heard_candidates`` the one played or heard longest ago (#483), at random among equals (a level never
-            recorded counts as oldest, so a learner with no record picks as before)."""
+            plays are done, else among ``heard_candidates`` the one played or heard longest ago, at random among equals (a level never recorded
+            counts as oldest, so a learner with no record picks as before). #483: drawn at random each lesson, another learner with few levels
+            done heard the supermarket's first level in 19 of 20 lessons. No level is barred outright: with few levels done a rest left nothing
+            to hear, and spare time went back to asking today's sentences again (#439's family test)."""
             if len(heard_plays) >= cfg.heard_theme_plays:
                 return None
             own = (theme_pick[0].id, theme_pick[1]) if theme_pick else None
