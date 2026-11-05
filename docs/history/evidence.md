@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.33 (lessons 1–43), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.34 (lessons 1–44), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1333,3 +1333,53 @@ What the learner wrote, by what the lesson did (the learner's remarks; the revie
   lessons 44–46 (#327). Ten of eleven pick-outs had been heard in the three lessons before (#339, with #451).
 - Load «right» after two «light», with no remark on repetition: evidence against changing the components' weights (#439, kept for
   selective cases). One «right» does not settle the pace.
+
+### 5.34 Lesson 44: the first feedback on #464 and #466
+
+Lesson 44 was generated with LLA `122b7a1` (main with #463, #464, #466 and #467), the bot at site_update_notifier `1a85272`; rebuilt from
+its export with the trip profile it is identical (106 exercises, 29.5 minutes). It is the first feedback on the aside that sets «komið
+hingað» against «verið hér» (#464, before the coach ride's question) and on the guard against cut-off clips (#466, #467: «Ask where she
+lives.» three times). No transform was asked, so «Same change:» (#463) is not heard yet. The owner's notes on the transcript, and on
+lesson 45 as generated from this export, count as remarks of this round.
+
+| | lesson 44 |
+|---|---|
+| length | 29.5 min, 106 exercises |
+| new items; new components, weighted (target) | 11; 10 (9) |
+| theme (level); today's new items said as a turn of the played exchange | arranging to meet (3, the late call); «Ég kem eftir tíu mínútur.» |
+| target reached | 17.5 min |
+| longest stretch without a scene | 4.4 min |
+| a sentence asked again within a minute | 2 |
+| pick-outs heard in the last three lessons | 4 of 4 |
+| feedback form: load; friction | **right** (a second time); other |
+| «sooner» | «á horninu», «hinum megin við götuna», «alltaf», «stundum», «aldrei»; reason: hard to remember |
+
+What the learner wrote, and what the owner found and asked for, by what the lesson did:
+
+- **"When the part that says a hard word piece by piece began, it did not say which word («regnhlíf»)."** The slow model opened
+  «This word is hard to say.» and went to the pieces. The owner's flow: the word asked from its meaning, the answer, then the
+  breakdown. **Answered (#468):** «Do you remember how to say this? An umbrella.», an answer pause, «regnhlíf», «Let's break down the
+  pronunciation. Repeat each part.», the pieces and natural speed.
+- **"The four-word expression new as one («hinum megin við götuna») was not practised enough"**, and the owner asked why it was not
+  practised piece by piece. *Replay:* introduced at 03:48, then asked twice; its rungs after the first were dropped, because the bare cap
+  counted its own sentence as said alone and no other sentence holds it; and a part introduced inside its sentence had no build-up.
+  **Answered (#469):** a part that one frame alone holds keeps its four rungs (5 asks in all on the replay), and a part of three words
+  or more is built up from its end. Cost: on the replay generated sentences go 18 → 7 and situations 19 → 10 in lesson 44; lesson 45 as
+  generated from main after this round reviews 27 of its 53 due items (19 carried over), against 47 before it, the three build-ups and
+  the café's new phrase included. The review backlog (§5.32) grows by them.
+- **The owner: «Ask if she …» is answered «Ert þú …», not «Er hún …».** 53 cues asked a person with no one named after «ask», and the
+  same wording served a real third-person question («Ask what her name is.» → «Hvað heitir hún?»). **Answered (#470):** «Ask her if
+  she's Icelandic.», «Ask the receptionist if …», «Ask what the girl is called.»; `validate` fails a cue that asks a person with no one
+  named.
+- **The owner on the scenes:** the café server warned of nuts unprompted and answered an allergy with «Ekkert mál» (**answered, #471:**
+  the learner asks «Get ég fengið köku án hnetna?» and says why); the late call opened with the theme's «Anna … wants to meet again.»,
+  so the cue had to say that the meeting was arranged and that you were late (**answered, #475:** its own scene line).
+- **The owner on lesson 45 as generated:** a conversation followed by another had no end line and the next opened «Now a short
+  conversation.» (**answered, #473:** «Now another short conversation.»; #415's rule kept); a scene line opened with the learner's
+  «Já, ég hef verið hér áður.» before any question (**answered, #472:** #427's lead-in comes after the question it answers); and
+  «In a sentence.» named nothing once every part is asked through a sentence (**answered, #474:** the plain meaning cue).
+- **The owner: «Ég er …», «Ég er ekki …», «Ertu …» bring nothing extra**, no gender and no other case. A task for later, recorded on
+  #439 with #270.
+- Load «right» a second time. The ledger counts the lesson settled: its twenty-point remarks are of two new families (`part-ladder`,
+  `cue-addressee`). The owner classed #468 and #469 as bug fixes, not behaviour changes; with #470, #472–#474 lesson 45 will be the
+  first built with six behaviour PRs, past the advisory two (§9 "Governance").

@@ -709,7 +709,20 @@ family = "known-repeat"
 class = "twenty"
 answered_by = []
 
-# Built changes: the rows of the §8 table after lesson 46, in its order
+[[lesson]]
+n = 47
+form = true
+load = "light"
+built = ["#481"]
+
+[[lesson.remarks]]
+who = "main"
+text = "«kem» / «að koma» and «rigning» / «rignir» are hard to tell apart from the English: «It's raining.» cued «Það rignir.» in lesson 46 and «Það er rigning.» in 47, «I'm coming» both «Ég er að koma!» and «Ég kem …»."
+family = "meaning-gloss"
+class = "twenty"
+answered_by = ["#484"]
+
+# Built changes: the rows of the §8 table after lesson 47, in its order
 
 [[change]]
 title = "a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351)"
@@ -1240,3 +1253,9 @@ title = "a grammar note's pieces: each group led by what it builds, each piece r
 issue = ["#198"]
 pr = ["#481"]
 family = "note-by-ear"
+
+[[change]]
+title = "two different answers never share a cue meaning, written or spoken, in any language: validate checks it, nine told apart (lesson 47: #484)"
+issue = []
+pr = ["#484"]
+family = "meaning-gloss"
