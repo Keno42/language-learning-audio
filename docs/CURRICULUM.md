@@ -55,7 +55,7 @@ skips anything whose `prereqs` the learner does not know yet.
 | `id` | all | unique, `snake_case`; used in learner state and `report --failed` |
 | `kind` | all | `vocab`, `phrase`, `construction`, `transform` |
 | `target` | all | the target-language text spoken by the native voice |
-| `meaning` | all | known-language gloss the instructor reads out |
+| `meaning` | all | known-language gloss the instructor reads out. It is also the cue «How do you say: …», so two different answers never share one: «It's raining.» is «Það rignir.», and the weather pattern's «Það er rigning.» says «It's rainy.» (lesson 47). `validate` fails for a meaning, in any of the file's languages, that two sentences share: two fixed sentences, or a fixed sentence and one a pattern makes with one fill varied. Say what tells them apart in the meaning («Do you have an umbrella with you?» against the shop's «Do you have an umbrella?»), or leave the fill out of the pattern (`exclude_fills`: «Ég kem núna.» is «Ég er að koma!») |
 | `difficulty` | all | 1–5; ≥4 (or ≥5 words, or `chunks`, or a single word with 3+ syllables) triggers backward build; lengthens pauses |
 | `topics` | all | free tags for `--topics`; first topic is used for interleaving |
 | `tags` | vocab | which construction slots accept this item (e.g. `orderable`, `place`) |

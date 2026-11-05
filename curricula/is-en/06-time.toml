@@ -161,12 +161,13 @@ prereqs = ["a_morgun"]
 id = "eg_kem"
 kind = "construction"
 target = "Ég kem {time}."
-meaning = "I'm coming {time}."
+meaning = "I'll come {time}."  # lesson 47: «I'm coming!» is «Ég er að koma!»
 meaning_ja = "{time}行きます。"
 difficulty = 2
 topics = ["arrangements"]
 slots = { time = "time" }
 example = { time = "i_kvold" }
+exclude_fills = ["nuna"]  # lesson 47: «Ég kem núna.» is «Ég er að koma!» in other words (今行きます)
 prereqs = ["i_kvold", "eg_fer"]
 
 [[items]]
