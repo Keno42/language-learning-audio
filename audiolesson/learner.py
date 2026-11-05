@@ -110,6 +110,8 @@ class LearnerState:
     caught_words: list[str] = field(default_factory=list)  # #339: words the learner has asked about with «Hvað þýðir …?» (lower case), across lessons: a word is caught once
     listening_log: dict[str, int] = field(default_factory=dict)  # #339: a pick-out (its turn, and its line and piece) -> the lesson in which it was last heard; a listening log, not practice
     themes_heard: dict[str, list[str]] = field(default_factory=dict)  # "theme:level" -> "turn:line" partner wordings heard with their meaning (#196)
+    # #483: "theme:level" -> the lesson that last played that level or heard it again; a level heard again as spare time rests by it
+    levels_last: dict[str, int] = field(default_factory=dict)
     # #211: "construction:form" keys whose negative or question form was modelled to the learner ("You know this one… as a question…"). A
     # generated sentence takes a form only once it has been. None: a file from before it existed; the builder seeds it from
     # ``heard_utterances`` (a form sentence already said or heard counts as modelled) and the next lesson saves it.
@@ -693,6 +695,7 @@ class LearnerState:
             "themes_done": self.themes_done,
             "themes_last": self.themes_last,
             "themes_heard": self.themes_heard,
+            **({"levels_last": dict(self.levels_last)} if self.levels_last else {}),
             **({"caught_words": sorted(self.caught_words)} if self.caught_words else {}),
             **({"caught_seeded": True} if self.caught_seeded else {}),
             **({"listening_log": dict(self.listening_log)} if self.listening_log else {}),
@@ -733,6 +736,7 @@ class LearnerState:
             themes_done={k: int(v) for k, v in raw.get("themes_done", {}).items()},
             themes_last={k: int(v) for k, v in raw.get("themes_last", {}).items()},
             themes_heard={k: list(v) for k, v in raw.get("themes_heard", {}).items()},
+            levels_last={k: int(v) for k, v in raw.get("levels_last", {}).items()},
             caught_words=list(raw.get("caught_words", [])),
             caught_seeded=bool(raw.get("caught_seeded", False)),
             listening_log={k: int(v) for k, v in raw.get("listening_log", {}).items()},

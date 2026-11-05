@@ -125,6 +125,7 @@ class PlanConfig:
     scene_window: int = 150  # #327: the next unmet items a scene may take its items from
     theme_match_rest: int = 2  # #327: a level whose scene is the topic of the day's new material comes back after this many lessons
     theme_rest_lessons: int = 3  # a level already played comes back no sooner than this many lessons later (#149 step 1)
+    heard_rest_lessons: int = 3  # #483: a level heard again as spare time is not heard again within this many lessons (another learner heard one in 19 of 20)
     # #149 step 2 (H5): a semantic set is not introduced as a block: at most ``max_set_items`` new items a lesson share
     # one of these sets (numbers, colours, languages...); the others wait for another lesson, and the pool goes on. A set
     # is a tag, or several tags joined by «|» that count as one: the adjectives, whatever gender their form is (owner)
@@ -3134,19 +3135,34 @@ class Planner:
 
         heard_plays: list[str] = []  # "theme:level" levels already played, heard again this lesson as spare time (#218 b1)
 
+        def heard_candidates() -> list[tuple]:
+            """The other levels already played that may be heard again now: not the lesson's own, not one heard earlier in it, and not one
+            played or heard within ``heard_rest_lessons`` lessons (#483: another learner, with few levels done, heard the supermarket's first
+            level in 19 of 20 lessons)."""
+            own = (theme_pick[0].id, theme_pick[1]) if theme_pick else None
+            now = self.learner.next_lesson_number()
+            last = self.learner.levels_last
+            return [
+                (t, n) for t in cfg.themes for n in range(min(self.learner.themes_done.get(t.id, 0), len(t.levels)))
+                if (t.id, n) != own and f"{t.id}:{n + 1}" not in heard_plays
+                and not (f"{t.id}:{n + 1}" in last and now - last[f"{t.id}:{n + 1}"] < cfg.heard_rest_lessons)
+            ]
+
         def pick_heard_theme() -> tuple | None:
-            """A theme level already played, to hear again (spare time is more to hear, #218 b1): not the lesson's own and not one heard
-            earlier in it, at random among the rest."""
+            """A theme level already played, to hear again (spare time is more to hear, #218 b1): the lesson's own scene first once both its
+            plays are done, else among ``heard_candidates`` the one played or heard longest ago (#483), at random among equals (a level never
+            recorded counts as oldest, so a learner with no record picks as before)."""
             if len(heard_plays) >= cfg.heard_theme_plays:
                 return None
             own = (theme_pick[0].id, theme_pick[1]) if theme_pick else None
             if own is not None and own[1] < self.learner.themes_done.get(own[0], 0) and f"{own[0]}:{own[1] + 1}" not in heard_plays and theme_plays >= len(theme_marks):
                 return next((t, own[1]) for t in cfg.themes if t.id == own[0])  # the lesson's own scene first (#238), once both plays are done
-            cands = [
-                (t, n) for t in cfg.themes for n in range(min(self.learner.themes_done.get(t.id, 0), len(t.levels)))
-                if (t.id, n) != own and f"{t.id}:{n + 1}" not in heard_plays
-            ]
-            return self.rng.choice(cands) if cands else None
+            cands = heard_candidates()
+            if not cands:
+                return None
+            age = [self.learner.levels_last.get(f"{t.id}:{n + 1}", -1) for t, n in cands]
+            oldest = min(age)
+            return self.rng.choice([c for c, a in zip(cands, age) if a == oldest])
 
         def play_heard_theme(theme, n: int) -> None:
             nonlocal since_dialogue
@@ -3353,9 +3369,7 @@ class Planner:
             substitution run and the refresh sentences wait for it. With nothing to hear they go on, as before, so the lesson does not end short."""
             if not rotation_on():
                 return False
-            if remaining_time() >= 90 and len(heard_plays) < cfg.heard_theme_plays and any(
-                self.learner.themes_done.get(t.id, 0) > 0 and f"{t.id}:1" not in heard_plays for t in cfg.themes
-            ):
+            if remaining_time() >= 90 and len(heard_plays) < cfg.heard_theme_plays and heard_candidates():
                 return True
             def fresh(tasks) -> bool:
                 return any(
@@ -3455,9 +3469,7 @@ class Planner:
 
         def ear_alternative(remaining: float) -> bool:
             """Something to put between generated sentences (#238): a theme level to hear again or a listening dialogue."""
-            heard_left = len(heard_plays) < cfg.heard_theme_plays and any(
-                self.learner.themes_done.get(t.id, 0) > 0 and f"{t.id}:1" not in heard_plays for t in cfg.themes
-            )
+            heard_left = len(heard_plays) < cfg.heard_theme_plays and bool(heard_candidates())
             return remaining >= 90 and (heard_left or self.listening_dialogue() is not None)
 
         pre_closing_listening: list[int | None] = [None]  # #421: listening tasks still to come before the closing (None: not counted yet)
@@ -4115,9 +4127,12 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
     if sc.meta.get("forms_modelled") is not None:
         learner.forms_modelled = (learner.forms_modelled or set()) | set(sc.meta["forms_modelled"])
     theme = sc.meta.get("theme")
+    for key in sc.meta.get("heard_themes", []):
+        learner.levels_last[key] = sc.lesson_number  # #483: a level heard again rests
     if theme and theme.get("plays"):
         learner.themes_done[theme["id"]] = max(learner.themes_done.get(theme["id"], 0), theme["level"])
         learner.themes_last[theme["id"]] = sc.lesson_number
+        learner.levels_last[f"{theme['id']}:{theme['level']}"] = sc.lesson_number
         if theme.get("heard"):
             key = f"{theme['id']}:{theme['level']}"
             learner.themes_heard[key] = sorted(set(learner.themes_heard.get(key, [])) | set(theme["heard"]))

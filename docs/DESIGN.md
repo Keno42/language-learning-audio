@@ -445,7 +445,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   theme level use (and the pattern of a linked phrase): `pick_substitution` and the `refresh` timeline take only those (a parallel of a target
   expression of the scene), unless the lesson has no theme. In the step-5 chain the order of spare time is: the scene's parallels, a fresh arc,
   the not-due early tiers and the second pass (kept, as before), listening dialogues and the lesson's own theme level heard again (`heard_theme_plays` = 4 in all, own
-  level first; the second half's rotation and a capped run of generated sentences reach both too), today's new lines again, and last a substitution outside the scene before the bare cap lapses. A closing
+  level first, then the other levels played, the one played or heard longest ago first, none played or heard within `heard_rest_lessons` (3) lessons:
+  `LearnerState.levels_last`, "theme:level" → the lesson, set by `apply_to_learner` from the level played and `heard_themes`; a level never
+  recorded counts as oldest, so a learner with no record picks as before; #483: on 15-minute lessons another learner heard the supermarket's
+  first level in 19 of 20 lessons; `tests/test_heard_rest.py`); the second half's rotation and a capped run of generated sentences reach both too), today's new lines again, and last a substitution outside the scene before the bare cap lapses. A closing
   recall skips a new item just asked as the holder of another new item's sentence.
   A run of generated sentences is cut at `generated_run_max` (3) while something to hear is left (a theme level to hear again, a listening
   dialogue): a construction's review waits and the ear comes between. The not-due early tiers list the scene's own items
