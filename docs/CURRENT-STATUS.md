@@ -12,8 +12,9 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% by what may change a long-term decision, each
 remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
 47's, the first that arrived through the feedback sync; the next lesson is 48. Lesson 47 was rated «light» (the third in a row), reviewed
-57 of its 73 due items with room for all of them, and had one remark: two answers whose English cue was the same, answered by a
-`validate` check and nine meanings told apart (#484, merged; LD §5.37).
+57 of its 73 due items (the capacity estimate did not trigger #478's rung reduction; why the other 16 were not reviewed is not
+established), and had one remark: two answers whose English cue was the same, answered by a `validate` check and nine meanings told
+apart (#484, merged; LD §5.37).
 1. **Review time against today's new practice (#439, H9, H11).** Built (#478): lessons 46 and 47 reviewed 42 of 64 and 57 of 73 due, with
    no remark. **Next:** read the next-day recall of their new items against the lessons before #478; the written review's queue (125 due)
    is read with it.

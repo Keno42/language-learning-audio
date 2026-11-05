@@ -376,7 +376,7 @@ feedback sync (site_update_notifier#197), with no manual export.
 | new items; new components, weighted (target) | 6; 8 (8) |
 | theme (level); today's new items said as a turn of the played exchange | town (5); 0 |
 | target reached | 18.6 min |
-| items reviewed / due | 57 / 73 (lesson 46: 42 / 64); the due reviews fit, no new item gave up a rung (#478) |
+| items reviewed / due | 57 / 73 (lesson 46: 42 / 64); the capacity estimate did not trigger the rung reduction (#478) |
 | written review's queue | 125 due |
 | longest stretch without a scene | 4.2 min |
 | a sentence asked again within a minute | 0 |
@@ -393,7 +393,8 @@ What the learner wrote, by what the lesson did:
   on `main`, and each is told apart: «It's rainy.», «I'll come later.» (and no «Ég kem núna.»), «Do you have an umbrella with you?», «私は寒い
   です。», «私は暑いです。», «…を見てみたいです。», and the six dative place forms spoken «the airport, as after to or for». On the replay of
   the export the lesson keeps its length and asks «It's rainy.» and «I'll come later.».
-- **No remark on the reviews.** The lesson reviewed 57 of 73 due, all fitting, rated «light». The written review's queue is 125 due.
+- **No remark on the reviews.** The lesson reviewed 57 of 73 due, rated «light». The capacity estimate did not trigger the rung
+  reduction (#478, `reviews_starved` false); why the other 16 were not reviewed is not established. The written review's queue is 125 due.
 
 ## 6. Signals: what each can and cannot tell us
 
