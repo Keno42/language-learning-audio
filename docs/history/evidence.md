@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.34 (lessons 1–44), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.35 (lessons 1–45), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1383,3 +1383,39 @@ What the learner wrote, and what the owner found and asked for, by what the less
 - Load «right» a second time. The ledger counts the lesson settled: its twenty-point remarks are of two new families (`part-ladder`,
   `cue-addressee`). The owner classed #468 and #469 as bug fixes, not behaviour changes; with #470, #472–#474 lesson 45 will be the
   first built with six behaviour PRs, past the advisory two (§9 "Governance").
+
+### 5.35 Lesson 45: the first feedback on #469, #471, #474 and #475
+
+Lesson 45 was generated with LLA `fc0b69c` (main with #468–#476), the bot at site_update_notifier `f18c7c6`; rebuilt from its export with
+the trip profile it is identical (117 exercises, 29.0 minutes). It is the first feedback on a part's rungs kept and a long part built up
+from its end (#469: «við hliðina á bankanum», «fyrir framan hótelið»), the café's new request (#471, played twice), a part's generated
+sentence cued by its meaning (#474: nine times, «Use it in a sentence.» once) and the late call's own scene line (#475). #468, #470,
+#472 and #473 had nothing to play. It is the first lesson built with six behaviour PRs (§9 "Governance"; the owner classed #468 and #469 as
+bug fixes).
+
+| | lesson 45 |
+|---|---|
+| length | 29.0 min, 117 exercises |
+| new items; new components, weighted (target) | 12; 9 (9) |
+| theme (level); today's new items said as a turn of the played exchange | café (4); «Get ég fengið köku án hnetna?» |
+| target reached | 21.2 min |
+| due reviews asked / carried over | 19 / 23 of 48 |
+| longest stretch without a scene | 4.3 min |
+| a sentence asked again within a minute | 0 |
+| feedback form: load; friction | **light** (after «right» in 43 and 44); none |
+| «sooner» | «við hliðina á bankanum», «hinum megin við götuna»; reasons: hard to remember, hard to say |
+
+What the learner wrote, and what the owner found and asked for, by what the lesson did:
+
+- **No remark, load «light».** *Reviewer:* the lesson asked 19 of its 48 due reviews and carried 23 over (the written review's queue
+  has 128 due), while today's new sentences came back four to six times: «Get ég fengið köku án hnetna?» 6, the two long parts 4 each
+  after their introduction. The pace rule lowers the next target (9 → 8) after such a lesson; inside it, every new item kept its four
+  rungs. **Answered, in review (#478):** when the due reviews cannot fit, each new item gives up its second rung; on the replay 34 of 48
+  reviewed, 10 carried over, each new item asked at most once less.
+- **«við hliðina á bankanum» and «hinum megin við götuna», hard to remember and to say**, after #469 gave them four rungs and a
+  build-up: more asks in one lesson did not make them stick. The «say» reason owes the sentence's retry from its meaning, word by
+  word (#424), in lesson 46: its first real case for a part. Read next-day recall before adding practice.
+- **The owner: after «Það tekur svona tíu mínútur.» the time is «svona tíu mínútur», not «tíu mínútur».** The pick-out's answer was the
+  bare value; «svona» was not a word the learner knew, and the answer would have been most of the line. **Answered, in review (#477, a
+  data PR):** «svona tíu mínútur» is a duration filler of its own, and the town's duration lines answer with it.
+- No remark on the build-ups, the café scene or the cues (#469, #471, #474, #475, first heard). The ledger counts the lesson settled.

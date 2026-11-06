@@ -48,7 +48,7 @@ structural_pr = "#314"
 cause = "The written review brings back what was just answered before anything new: due cards first, a first 言えた back the next day."
 
 [families.note-by-ear]
-cause = "A grammar note written for the eye: endings run together, a lone full stop narrated (#198)."
+cause = "Narration written for the eye: a grammar note's endings run together, a lone full stop narrated (#198), several sentences said in one breath (an aside, #259; the lesson's goal, lesson 48)."
 
 [families.scene-first]
 cause = "The lesson is heard as items, not a scene: the day's new material outside the played exchange, the exchange's goal unsaid, the closing out of its order (H4; the «Anki game» of lesson 13)."
@@ -722,7 +722,20 @@ family = "meaning-gloss"
 class = "twenty"
 answered_by = ["#484"]
 
-# Built changes: the rows of the §8 table after lesson 47, in its order
+[[lesson]]
+n = 48
+form = true
+load = "light"
+built = ["#484"]
+
+[[lesson.remarks]]
+who = "main"
+text = "The goal at the start of the lesson runs together and is hard to follow: «Today's goal: Ask about tomorrow's weather and say you need an umbrella. Listen for how to say the weather is good today.» in one narration."
+family = "note-by-ear"
+class = "twenty"
+answered_by = ["#488"]
+
+# Built changes: the rows of the §8 table after lesson 48, in its order
 
 [[change]]
 title = "a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351)"
@@ -1259,3 +1272,23 @@ title = "two different answers never share a cue meaning, written or spoken, in 
 issue = []
 pr = ["#484"]
 family = "meaning-gloss"
+first_heard = 48
+heard = "«I'll come soon.» for «Ég kem fljótlega.», «Tell her it's raining.» for «Það rignir.»"
+
+[[change]]
+title = "the theme levels heard again take turns, the one played or heard longest ago first (#483: #486)"
+issue = ["#483"]
+pr = ["#486"]
+family = "known-repeat"
+
+[[change]]
+title = "the supermarket asks about other things: price lines about other items, a third level for lamb (#483: #487, data)"
+issue = ["#483"]
+pr = ["#487"]
+family = "known-repeat"
+
+[[change]]
+title = "the lesson's goal said sentence by sentence, a beat between them (lesson 48: #488)"
+issue = []
+pr = ["#488"]
+family = "note-by-ear"
