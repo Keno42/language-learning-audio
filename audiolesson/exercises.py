@@ -548,9 +548,18 @@ class Builder:
         ``goal`` in the learner's language («Today's goal: Ask where a place is, and understand the way.»). The learner hears at the start what
         they will be able to do by the end; the exchange, the new lines and the closing are what make it true."""
         ex = sc.new_exercise("opening", None, [], "lesson goal")
-        self._narr(sc, ex, self.prompts.get("lesson_goal", goal=self.goal_text(level)))
+        self._say_goal(sc, ex, self.prompts.get("lesson_goal", goal=self.goal_text(level)))
         self._gap(sc, ex)
         return ex
+
+    def _say_goal(self, sc: Script, ex: Exercise, text: str) -> None:
+        """The goal sentence by sentence, a beat between them, as a note's prose is (#259; lesson 48: «Today's goal: Ask about tomorrow's weather and
+        say you need an umbrella. Listen for how to say the weather is good today.» in one breath was hard to follow). «Today's goal:» is a sentence
+        of its own (``_SENTENCE_BREAK`` breaks at «: » before a capital); the Japanese goal breaks at «。»."""
+        for k, sentence in enumerate(s.strip() for s in _SENTENCE_BREAK.split(text) if s.strip()):
+            if k:
+                self._beat(sc, ex)
+            self._narr(sc, ex, sentence)
 
     def goal_heard(self, sc: Script, ex: Exercise, you: list, heard: set[int]) -> str:
         """#327: the goal said after the opening names the whole exchange, but the learner's turns ``heard`` (indices into ``you``) are only heard in its
@@ -568,9 +577,13 @@ class Builder:
             goal = self.prompts.get("lesson_goal_parts", said=said_text if ja else said_text[:1].upper() + said_text[1:], listen=heard_text)
         else:
             goal = self.prompts.get("lesson_goal_listen_only", listen=heard_text)
-        seg = next(g for g in sc.segments if g.exercise == ex.index and g.type == "narrate")
-        seg.text = self.prompts.get("lesson_goal", goal=goal)
-        seg.duration = self.timing.speech_estimate(seg.text, self.kl)
+        # the goal said again in place: its sentences and beats replace the ones ``theme_goal`` said, before the exercise's closing gap
+        own = [k for k, g in enumerate(sc.segments) if g.exercise == ex.index]
+        start = len(sc.segments)
+        self._say_goal(sc, ex, self.prompts.get("lesson_goal", goal=goal))
+        said = sc.segments[start:]
+        del sc.segments[start:]
+        sc.segments[own[0]:own[-1]] = said
         return goal
 
     @staticmethod

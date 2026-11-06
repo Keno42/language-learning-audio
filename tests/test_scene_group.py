@@ -257,7 +257,7 @@ class LessonGoalTests(unittest.TestCase):
     def test_the_goal_is_said_right_after_the_opening(self):
         sc = self.lesson()
         self.assertEqual([e.label for e in sc.exercises[:2]], ["opening", "lesson goal"])
-        self.assertEqual(self.narrated(sc, sc.exercises[1]), ["Today's goal: Ask the way."])
+        self.assertEqual(self.narrated(sc, sc.exercises[1]), ["Today's goal:", "Ask the way."], "each sentence its own narration (lesson 48)")
         self.assertEqual(sc.meta["theme"]["goal"], "Ask the way.")
 
     def test_the_goal_is_in_the_learners_language(self):
