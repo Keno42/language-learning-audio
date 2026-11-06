@@ -26,8 +26,10 @@ class GoalHeardTests(unittest.TestCase):
 
     @staticmethod
     def goal_line(sc):
+        """The goal as said, its sentences joined (lesson 48: each is a narration of its own, a beat between them)."""
         ex = next(e for e in sc.exercises if e.label == "lesson goal")
-        return next(g.text for g in sc.segments if g.exercise == ex.index and g.type == "narrate")
+        said = [g.text for g in sc.segments if g.exercise == ex.index and g.type == "narrate"]
+        return ("" if sc.known_lang == "ja" else " ").join(said)
 
     def test_the_goal_names_the_lines_said_and_then_the_lines_only_heard(self):
         narrowed = 0
@@ -66,6 +68,24 @@ class GoalHeardTests(unittest.TestCase):
             ex = b.theme_goal(sc, meet.levels[1])
             b.goal_heard(sc, ex, [t for t in meet.levels[1].turns if t.who == "you"], {0})
             self.assertEqual(self.goal_line(sc), want)
+
+    def test_the_goal_is_said_sentence_by_sentence_with_a_beat_between(self):
+        """Lesson 48: «Today's goal: Ask about tomorrow's weather and say you need an umbrella. Listen for how to say the weather is good today.» in one
+        narration ran together. Each sentence is a narration of its own, a beat between them, before and after ``goal_heard`` rewrites it."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        from audiolesson.themes import load_themes
+
+        meet = next(t for t in load_themes(ROOT / "curricula" / "is-en", cur) if t.id == "meet")
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        sc = Script(42, "t", "is", "en")
+        ex = b.theme_goal(sc, meet.levels[1])
+        b.goal_heard(sc, ex, [t for t in meet.levels[1].turns if t.who == "you"], {0})
+        segs = [g for g in sc.segments if g.exercise == ex.index]
+        self.assertEqual([g.text for g in segs if g.type == "narrate"],
+                         ["Today's goal:", "Say you'll come this evening and say see you this evening.", "Listen for how to say you can't tomorrow."])
+        kinds = [(g.type, g.role) if g.type == "pause" else g.type for g in segs]
+        self.assertEqual(kinds, ["narrate", ("pause", "beat"), "narrate", ("pause", "beat"), "narrate", ("pause", "beat")], "a beat between the sentences, the gap after")
+        self.assertEqual(len(sc.segments), len(segs), "the goal said again replaces the first wording, nothing is left over")
 
     def test_a_learners_line_without_its_aim_is_refused(self):
         import tempfile
