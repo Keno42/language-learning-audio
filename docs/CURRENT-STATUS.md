@@ -7,27 +7,25 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 (§7), the hypotheses with their status (§4), the evidence lesson by lesson (§5). The learning policy is in
 `docs/CURRENT-POLICY.md`.
 
-## Now (updated 2026-11-05, after lesson 47), in order
+## Now (updated 2026-11-06, after lesson 48), in order
 
 Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% by what may change a long-term decision, each
 remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
-47's, the first that arrived through the feedback sync; the next lesson is 48. Lesson 47 was rated «light» (the third in a row), reviewed
-57 of its 73 due items (the capacity estimate did not trigger #478's rung reduction; why the other 16 were not reviewed is not
-established), and had one remark: two answers whose English cue was the same, answered by a `validate` check and nine meanings told
-apart (#484, merged; LD §5.37).
-1. **Review time against today's new practice (#439, H9, H11).** Built (#478): lessons 46 and 47 reviewed 42 of 64 and 57 of 73 due, with
-   no remark. **Next:** read the next-day recall of their new items against the lessons before #478; the written review's queue (125 due)
-   is read with it.
-2. **A level heard again rests across lessons (#483).** Another learner, on 15-minute lessons, heard the supermarket's first level in 19
-   of 20 lessons and found it boring: a level heard again (#218 b1) is drawn at random each lesson. **Next:** the rest, checked on the
-   replay of their lesson-30 export; then the supermarket's lines with other things (#336).
+48's; the next lesson is 49. Lesson 48 was rated «light» (the fourth in a row), reviewed 42 of its 47 due items, played #484's cues with no
+remark, and had one remark: the goal at the start ran together, answered in review by saying it sentence by sentence (#488; LD §5.38).
+1. **Review time against today's new practice (#439, H9, H11).** Built (#478): lessons 46, 47 and 48 reviewed 42 of 64, 57 of 73 and 42 of 47
+   due, with no remark. **Next:** read the next-day recall of their new items against the lessons before #478; the written review's queue
+   (125 due) is read with it.
+2. **The same exchange heard lesson after lesson (#483).** Built: the levels heard again take turns (#486), and the supermarket asks about
+   other things, with a third level for lamb (#487). **Next:** the other learner's next feedback; the learner's own line in a scene that
+   varies in use («Áttu {item}?») needs the theme format to take a pattern (#336).
 3. **Long parts that do not stick (#469's family).** Built (#480): lesson 46 tried «við hliðina á bankanum» and «hinum megin við götuna»
    as their sentence and built them up from their end, with no remark. **Next:** read their next-day recall before adding practice.
-4. **Scene coherence (#327).** Lessons 46 and 47 said none of their new items as a turn of the played exchange (the town, levels 4 and 5),
-   against the criterion of two.
+4. **Scene coherence (#327).** Lesson 48 said one of its nine new items as a turn of the played exchange (the weather, level 1), after none
+   in lessons 46 and 47, against the criterion of two.
 
-**Alongside:** lesson 48 is the first with #484's cues («It's rainy.», «I'll come later.»), once the bot takes LLA `588c646`; its remarks
-are read against them and against the note's pieces (#481), which have not played yet.
+**Alongside:** lesson 49 is the first with #486 and #487 (and #488 once merged), when the bot takes LLA `main`; its remarks are read against
+them, and against the note's pieces (#481), which have not played yet.
 
 **Longer term, in order:** understanding a partner's prompt, not only saying the reply (#327, #265: the aside on «komið hingað», #464, heard in lesson 44 with no remark); substitutions that teach a form (#439, #270); prices and larger numbers (#451) with the listening pool's variety (#339: ten of lesson 43's eleven
 pick-outs had been heard in the three lessons before); expressions usable in exchanges (#327, #265); winter and safety scenes
@@ -52,7 +50,8 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
-- **After lesson 47:** two different answers never share a cue meaning, written or spoken, in any language: `validate` checks it, and nine meanings are told apart (#484).
+- **After lesson 48:** in review: the lesson's goal said sentence by sentence, a beat between them (#488).
+- **After lesson 47:** two different answers never share a cue meaning, written or spoken, in any language: `validate` checks it, and nine meanings are told apart (#484); the theme levels heard again take turns, the one heard longest ago first (#486); the supermarket asks about other things, with a third level for lamb (#487).
 - **After lesson 46:** a grammar note's pieces led by what each group builds, each repeated, the whole at natural speed (#481).
 - **After lesson 45:** the due reviews keep their time when they cannot fit (#478); «svona tíu mínútur» in pick-outs (#477); a part reported hard tried as its sentence, then built up from its end, and no two slow models in a row (#480).
 - **After lesson 44:** a word reported hard to say first asked from its meaning, then broken down (#468); a part only its own sentence holds keeps its rungs, a long part built up from its end inside its sentence (#469); a cue that asks a person names them, checked by `validate` (#470); the café's fourth level asks for a cake without nuts (#471); a scene line's lead-in after the question it answers (#472); «Now another short conversation.» (#473); a part's generated sentence cued by its meaning (#474); the late call's own scene line (#475).
