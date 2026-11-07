@@ -6005,7 +6005,7 @@ class ListeningTaskTests(unittest.TestCase):
             return True
         for _ in range(7):
             r.play(emit)
-        self.assertEqual(asked, ["heard", "pick_out", "pick_out", "catch_unknown", "today", "heard", "pick_out"])
+        self.assertEqual(asked, ["heard", "pick_out", "pick_out", "catch_unknown", "today", "number_choice", "heard"])  # number_choice: #439 step 1b
         r = SecondHalfRotation()
         asked.clear()
         self.assertTrue(r.play(lambda k: asked.append(k) or k == "today"))

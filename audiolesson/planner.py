@@ -24,7 +24,7 @@ from .content import Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance, cue_is_answer
 from .sounds import hard_sounds, hard_words_of
 from .learner import REPORTED_HARD_DAYS, LearnerState
-from .numbers import plain_number
+from .numbers import choice_lines, noun_gender, pick_choice, plain_number, value_of
 from .review_wholes import whole_for
 from .listening_tasks import REPAIR_ITEM, ListeningTask, SecondHalfRotation, append_task, catch_unknown, introduce_by_catch, key_of, partner_pick_out
 from .prompts import Prompts
@@ -1481,6 +1481,29 @@ class Planner:
                 return n
         return None
 
+    def number_choice_candidates(self) -> list[tuple]:
+        """#439 step 1b: the sentences the learner knows whose form of 1–4 agrees with a noun they name (``Item.counts``), as ``numbers.choice_lines``
+        takes them: a phrase (its pattern's noun when it is an instance of one), or a pattern of one slot filled with a form of 1–4 the learner knows.
+        A gendered phrase is left out: its line would need the speaker's form too."""
+        b = self.builder
+        out = []
+        for it in self.cur.items:
+            if not self.learner.knows(it.id):
+                continue
+            if it.kind == "phrase" and not it.target_m:
+                counts = it.counts or (self.cur.by_id[it.instance_of].counts if it.instance_of in self.cur.by_id else "")
+                if counts:
+                    out.append((it.target, it.spoken_meaning, noun_gender(self.cur, counts), [it.id], None))
+            elif it.kind == "construction" and it.counts and len(it.slots) == 1:
+                ((slot, tag),) = it.slots.items()
+                for f in self.cur.items_with_tag(tag, it):
+                    # one is left to the phrases: a price says «þúsund krónur», not «eitt þúsund krónur»
+                    if value_of(f.target.strip(".?!")) in (None, 1) or not self.learner.knows(f.id):
+                        continue
+                    gender, sentence = b._filled(it, {slot: f})
+                    out.append((sentence, self.cur.resolve_slots(it, {slot: f})[1], noun_gender(self.cur, it.counts), [it.id, f.id], gender))
+        return out
+
     def recombine_or_instead(self, item: Item) -> str:
         """Issue #105: recombine only when it can make a sentence not yet heard this lesson.
         Otherwise practise the item at the hardest stage it already reached today (or
@@ -2386,6 +2409,7 @@ class Planner:
         owed_slow = self.slow_owed_items()  # #337: reported hard to say and not yet given the model of the hard word
         owed_hear = self.hear_owed_items()  # #444: reported hard to hear and not yet given listening support
         hear_supports: list[str] = []  # reported-hard-to-hear items given listening support in this lesson
+        number_choices: list[str] = []  # #439 step 1b: the choice exercise played this lesson (its label), at most one
         hear_settled: list[str] = []  # ... whose slow model already played the line by ear: no second exercise (lesson 49)
         slow_done: set[str] = set()
         slow_models: list[str] = []  # reported-hard items given the slow model of their hard word in this lesson
@@ -3446,6 +3470,16 @@ class Planner:
             return tail[0] if len(tail) == k and len(set(tail)) == 1 else None
 
         def emit_second_half(kind: str) -> bool:
+            if kind == "number_choice":
+                # #439 step 1b: once a lesson, one number's known lines of different genders side by side, the form said as the noun's choice
+                if number_choices or remaining_time() < 75:
+                    return False
+                lines = pick_choice(choice_lines(self.number_choice_candidates()), sc.lesson_number)
+                if not lines:
+                    return False
+                ex = b.number_choice(sc, lines)
+                number_choices.append(ex.label)
+                return True
             if kind == "heard":
                 if remaining_time() >= 90 and (ht := pick_heard_theme()) is not None:
                     play_heard_theme(*ht)
@@ -3998,6 +4032,7 @@ class Planner:
             "switch_pauses": switches,  # #301: pauses put where two speech segments touched; "touching_switches" is what still touches (0)
             "touching_switches": sc.touching_switches(),
             "units_covered": list(units_covered),  # #336: fillers of a linked phrase met inside it
+            "number_choices": list(number_choices),  # #439 step 1b: the forms of 1–4 practised as a choice this lesson
             "slow_models_reported": list(slow_models),  # #337: reported-hard items given the slow model of their hard word
             "hear_supports_reported": list(hear_supports) + list(hear_settled),  # #444: reported-hard-to-hear items given listening support
             "phrase_hard_words": {i.id: [w for w, _ in hard_words_of(i)] for i in introduced if i.kind == "phrase" and hard_words_of(i)},  # #337: authored hard words of today's new phrases (modelled at the introduction)

@@ -374,6 +374,7 @@ prereqs = ["eg_aetla_ad_fa", "med_mjolk"]
 id = "eina_pylsu_med_ollu"
 kind = "phrase"
 target = "Eina pylsu með öllu."
+counts = "pylsa"  # #439 step 1b: the noun its form of 1–4 agrees with
 meaning = "One hot dog with everything."
 meaning_ja = "ホットドッグを一つ、全部乗せで。"
 difficulty = 3

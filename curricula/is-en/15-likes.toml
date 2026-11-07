@@ -426,6 +426,7 @@ topics = ["numbers", "hobbies"]
 id = "eg_keypti_baekur"
 kind = "construction"
 target = "Ég keypti {count} bækur."
+counts = "bok"  # #439 step 1b: the noun its form of 1–4 agrees with
 meaning = "I bought {count} books."
 meaning_ja = "本を{count}冊買いました。"
 difficulty = 3

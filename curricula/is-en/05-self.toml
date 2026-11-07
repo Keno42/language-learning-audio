@@ -473,6 +473,7 @@ situation_ja = "パートナーについて聞かれました。独身だと答�
 id = "eg_a_tvo_born"
 kind = "phrase"
 target = "Ég á tvö börn."
+counts = "barn"  # #439 step 1b: the noun its form of 1–4 agrees with
 meaning = "I have two children."
 meaning_ja = "子どもが二人います。"
 difficulty = 3
