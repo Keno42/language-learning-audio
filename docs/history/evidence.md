@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.35 (lessons 1–45), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.36 (lessons 1–46), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1419,3 +1419,45 @@ What the learner wrote, and what the owner found and asked for, by what the less
   bare value; «svona» was not a word the learner knew, and the answer would have been most of the line. **Answered, in review (#477, a
   data PR):** «svona tíu mínútur» is a duration filler of its own, and the town's duration lines answer with it.
 - No remark on the build-ups, the café scene or the cues (#469, #471, #474, #475, first heard). The ledger counts the lesson settled.
+
+### 5.36 Lesson 46: the first feedback on #478 and #480
+
+Lesson 46 was generated with LLA `1cf6716` (main with #477–#480), the bot at site_update_notifier `15e4975`; rebuilt from its export with
+the trip profile it is identical (132 exercises, 29.9 minutes). It is the first feedback on the due reviews keeping their time when they
+cannot fit (#478) and on a part reported hard tried as its sentence, then built up from its end (#480: «hinum megin við götuna», «við
+hliðina á bankanum»). «svona tíu mínútur» (#477) was introduced as a new item and asked twice from its meaning; no pick-out played on it.
+It is the first lesson built with two behaviour PRs (#478, #480).
+
+| | lesson 46 |
+|---|---|
+| length | 29.9 min, 132 exercises |
+| new items; new components, weighted (target) | 10; 8 (8) |
+| theme (level); today's new items said as a turn of the played exchange | town (4); 0 |
+| target reached | 19.2 min |
+| items reviewed / due | 42 / 64 (lesson 45: 19 / 48); each new item gave up its middle rung (#478) |
+| recall confirmed by gap, 3–6 / 7–13 / 14+ days | 29/31, 42/46, 9/9 |
+| written review's queue | 130 due |
+| longest stretch without a scene | 4.2 min |
+| a sentence asked again within a minute | 0 |
+| feedback form: load; friction | **light** (after «light» in 45); other (the note below) |
+| «sooner» | «Til að taka með, takk.», «Mér finnst leiðinlegt að …»; reason: hard to remember |
+
+What the learner wrote, by what the lesson did:
+
+- **The grammar note on «heitur pottur» / «heiti potturinn» is careful, but recognising it by ear takes effort: «ur», «pottur», «inn»,
+  «urinn», «potturinn» play in a row at one even gap.** *Reviewer:* the note's text is fine; its pieces (#198: #323) were five fragments
+  at a 0.4 s gap, with no task and no word of what each group builds, while every other piece-by-piece model in a lesson asks the learner
+  to repeat each part and ends on the whole at natural speed (`_slow_model`). **Answered, in review (#481):** a note's pieces follow
+  that convention, and each group is led by what it builds («First a hot tub, from its end.»); the note is 32 s longer, and the replay
+  loses two exercises.
+- **Two older lines, hard to remember:** «Til að taka með, takk.» (last asked in lesson 34) and «Mér finnst leiðinlegt að …» (lessons 39
+  and 41). Both were recalled at a long gap for the first time; the «sooner» report already brings them back at half their interval.
+- **Another learner (15-minute lessons), after their lesson 26: the same conversation comes lesson after lesson, «skyr» in the fridge and
+  «… costs 500 kr» every time; they ask for other things.** It reached us through the feedback sync (site_update_notifier#197). Their
+  records: the supermarket's first level was heard again in 19 of their lessons 11–30, and its price pick-out, about skyr and milk only,
+  in 8 of 11 lessons from 20. A level heard again (#218 b1) rests only within a lesson, and a path with few levels done draws the same
+  ones every lesson; the owner's path, with 27 levels, does not show it. **Open (#483):** a level heard again rests across lessons, and
+  the supermarket's lines name other things (#336).
+- **No remark on the reviews (#478) or on the two long parts (#480).** The lesson reviewed 42 items, rated «light». Both long parts were
+  tried as their sentence and built up from their end (02:50, 04:07) and asked again at 06:27 and 28:01. Their next-day recall is the
+  read. The ledger does not count the lesson settled: the other learner's remark is a twenty-point part (#483).
