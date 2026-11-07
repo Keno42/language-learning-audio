@@ -24,6 +24,7 @@ from .content import Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance, cue_is_answer
 from .sounds import hard_sounds, hard_words_of
 from .learner import REPORTED_HARD_DAYS, LearnerState
+from .numbers import plain_number
 from .review_wholes import whole_for
 from .listening_tasks import REPAIR_ITEM, ListeningTask, SecondHalfRotation, append_task, catch_unknown, introduce_by_catch, key_of, partner_pick_out
 from .prompts import Prompts
@@ -50,6 +51,7 @@ class PlanConfig:
     # within two minutes of its introduction, all at the same stage): fractions of the lesson's
     # time after the introduction (about 1, 3, 8 and 15 minutes of 30), plus the closing block.
     intro_recall_times: list[float] = field(default_factory=lambda: [1 / 30, 1 / 10, 4 / 15, 1 / 2])
+    plain_recall_time: float = 4 / 15  # #439 step 1a: a plain number's one timed recall, at the third rung's time
     starved_skip_rung: int | None = 1  # #439: the rung a new item gives up when the due reviews cannot fit (an index into intro_recall_times); None keeps all
     # A short item (``short_item_words`` words or fewer) is said alone at most this often in a
     # lesson, the introduction and the closing recall included (§9 "Repetition"); the rest of
@@ -308,9 +310,11 @@ class Planner:
     # ------------------------------------------------------------------ ladder
 
     def ladder(self, item: Item) -> list[str]:
+        # #439 step 1a (the owner after lesson 49: «50を習いましたね、じゃあ50を他の文章で使ってみましょう» is not needed): a plain number is not moved to new
+        # sentences; it is asked in the expression it was taught in, and heard in the scene lines it is picked out of
         recombinable = (
             item.kind in ("construction", "transform")
-            or (item.kind == "vocab" and any(t in c.slots.values() for c in self.cur.items if c.kind == "construction" for t in item.tags))
+            or (item.kind == "vocab" and not plain_number(item, self.cur) and any(t in c.slots.values() for c in self.cur.items if c.kind == "construction" for t in item.tags))
         )
         return ladder_for(
             item.kind,
@@ -2186,6 +2190,8 @@ class Planner:
                 intro_skipped.append(item.id)
                 arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
                 return
+            if plain_number(item, self.cur):
+                b.plain.add(item.id)  # #439 step 1a: introduced plainly, whichever path introduces it
             if (taught := self.filler_taught_today(item)) is not None:
                 # #311 follow-up: the phrase's word was taught today inside this very phrase: it is covered as one pattern sentence, never introduced again as new
                 pattern, fills = taught
@@ -2302,6 +2308,13 @@ class Planner:
                 own_practice[part.id] = len(sc.exercises) - 1
                 touch(part)
                 ladder = self.ladder(part)
+                if part.id in b.plain:
+                    # #439 step 1a (lesson 49: «sextán», «tvö þúsund krónur» each recalled four times, «use it in another sentence» included): a plain number
+                    # is asked once more, from its meaning, after a real gap; it comes back as it is used, in its expression and in the scene's pick-outs
+                    seq += 1
+                    first_timed[part.id] = seq
+                    intro_timeline.append((sc.total_duration + cfg.plain_recall_time * (budget - closing_reserve), seq, part, ladder[min(1, len(ladder) - 1)]))
+                    continue
                 for k, after in enumerate(cfg.intro_recall_times):
                     if k in reviews_starved_skip:
                         continue  # #439 (lesson 45): the due reviews cannot fit, so a new item gives up a middle rung to them
