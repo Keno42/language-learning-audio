@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 
 from .content import Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample, split_note_span
 from .learner import LearnerState
+from .numbers import plain_number
 from .prompts import Prompts
 from .sounds import hard_sounds, hard_words_of
 from .script import Exercise, Script, Segment
@@ -169,6 +170,7 @@ class Builder:
     produced: Counter = field(default_factory=Counter)  # how often the learner was asked for each line this lesson: the echo only while it teaches
     recent_answers: list[str] = field(default_factory=list)  # the last two answers said (normalised): a generated sentence is not the one just asked (#190)
     in_lesson: set[str] = field(default_factory=set)  # items introduced this lesson: usable as parts
+    plain: set[str] = field(default_factory=set)  # #439 step 1a: items introduced plainly (a plain number): heard, repeated once, said once, no slow model
     ask_count: Callable[[str], int] | None = None  # how often a sentence was asked this lesson (#336): a pattern with every combination used asks the filling asked fewest times
     ask_cap: int = 0  # #336: a pattern's sentence asked this many times a lesson (any path) is not asked again by a sibling recall; 0: no cap
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
@@ -733,7 +735,8 @@ class Builder:
         self._beat(sc, ex)
         self._speak(sc, ex, item.target)
         self._beat(sc, ex)
-        chunks = item.backward_chunks() if item.is_hard() else []
+        plain = item.id in self.plain
+        chunks = item.backward_chunks() if item.is_hard() and not plain else []
         if len(chunks) > 1:
             self._narr(sc, ex, self.prompts.get("build_up"))
             for chunk in chunks:
@@ -753,14 +756,14 @@ class Builder:
             self._narr(sc, ex, self.prompts.get("repeat"))
             self._speak(sc, ex, item.target)
             self._repeat_pause(sc, ex, item.target)
-            if item.difficulty >= 2 and item.word_count >= 2:
+            if item.difficulty >= 2 and item.word_count >= 2 and not plain:
                 self._narr(sc, ex, self.prompts.get("slowly"))
                 self._slow_line(sc, ex, item.target)
                 self._repeat_pause_spaced(sc, ex, item.target)
                 self._narr(sc, ex, self.prompts.get("natural"))
                 self._speak(sc, ex, item.target)
                 self._repeat_pause(sc, ex, item.target)
-        if not item.is_hard() or item.syllables:
+        if (not item.is_hard() or item.syllables) and not plain:
             self._slow_model_after_hard(sc, ex, item)
         if item.kind == "phrase":
             self.phrase_word_models(sc, ex, item)  # #337: the hard words a phrase names itself, after its word-by-word model
@@ -869,7 +872,8 @@ class Builder:
             self._narr(sc, ex, self.prompts.get("repeat"))
             self._speak(sc, ex, part.target, speaker=voice)
             self._repeat_pause(sc, ex, part.target)
-            self._slow_model(sc, ex, part, voice)
+            if part.id not in self.plain:
+                self._slow_model(sc, ex, part, voice)
             self._form_contrast(sc, ex, part, voice, self.cur.by_id.get(whole["through"]))  # #270: in every path that introduces a form
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(whole["meaning"])))
         self._answer_pause(sc, ex, target, self.cur.by_id[whole["through"]], generative=False)
@@ -1136,8 +1140,9 @@ class Builder:
         self._narr(sc, ex, self.prompts.get("repeat"))
         self._speak(sc, ex, target, speaker=voice)
         self._repeat_pause(sc, ex, target)
-        build_up = item.word_count >= PART_BUILD_UP_WORDS
-        if construction.difficulty >= 2 and len(target.split()) > 1 and not build_up:
+        plain = item.id in self.plain  # #439 step 1a: a plain number is heard in its sentence and said, with no slow model
+        build_up = item.word_count >= PART_BUILD_UP_WORDS and not plain
+        if construction.difficulty >= 2 and len(target.split()) > 1 and not build_up and not plain:
             self._narr(sc, ex, self.prompts.get("slowly"))
             self._slow_line(sc, ex, target, speaker=voice)
             self._repeat_pause_spaced(sc, ex, target)
@@ -1158,7 +1163,7 @@ class Builder:
             self._narr(sc, ex, self.prompts.get("natural"))
             self._speak(sc, ex, item.target, speaker=voice)
             self._repeat_pause(sc, ex, item.target)
-        if not build_up or item.syllables:
+        if (not build_up or item.syllables) and not plain:
             self._slow_model(sc, ex, item, voice)  # a built-up part was already said slowly, piece by piece
         self._form_contrast(sc, ex, item, voice, construction)
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(meaning)))
@@ -1440,7 +1445,10 @@ class Builder:
     def _recombine(self, sc: Script, item: Item, met_fills: bool = False, form: str | None = None, exclude: dict[str, Item] | None = None, avoid: frozenset[str] = frozenset()) -> Exercise | None:
         """Generative practice: a sentence the learner has not heard in this lesson (issue
         #105). With no such combination left, None: the caller falls back to a plain recall
-        rather than replaying a line under a "make a sentence" label."""
+        rather than replaying a line under a "make a sentence" label. A plain number is never moved to a new sentence (#439 step 1a): None, and the
+        caller asks it in the expression it was taught in."""
+        if item.kind != "construction" and plain_number(item, self.cur):
+            return None
         if item.kind == "construction":
             if self.construction_full(item):
                 return None  # the ceiling: about ten generated sentences of one pattern in a lesson (#180)
@@ -1618,8 +1626,10 @@ class Builder:
     def recombine_status(self, item: Item, met_fills: bool = False) -> str:
         """Whether a recombine exercise for ``item`` could make a sentence now: "novel" (one
         not yet heard this lesson), "heard" (only already-presented sentences are possible)
-        or "impossible" (no known fills at all). No side effects: the generator's random
-        state is restored."""
+        or "impossible" (no known fills at all, or a plain number, which is never moved to a new sentence: #439 step 1a). No side effects: the
+        generator's random state is restored."""
+        if item.kind != "construction" and plain_number(item, self.cur):
+            return "impossible"
         state = self.rng.getstate()
         try:
             def gen(it: Item, avoid_heard: bool = False) -> Generated | None:
