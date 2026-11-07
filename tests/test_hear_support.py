@@ -94,6 +94,26 @@ class HearSupportTests(unittest.TestCase):
         self.assertEqual(sc.meta["hear_supports_reported"], [])
         self.assertIn(LINE, sc.meta["slow_models_reported"])
 
+    def test_a_line_hard_to_say_and_to_hear_gets_one_model(self):
+        """Lesson 49: «Hvernig verður veðrið á morgun?», reported hard to say and to hear, was played slowly twice, as the slow model and as the
+        listening support. The slow model of a line already plays it by ear, word by word and at natural speed: it settles both debts. A single word keeps
+        both, since its listening support finds it in a sentence, which its model does not."""
+        sentence = "hvernig_verdur_vedrid_a_morgun"
+        l = LearnerState("is", "en", "A1")
+        for i in ("hvar_er_place", WORD, sentence):
+            l.items[i] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=30, last_outcome="recalled",
+                                   due=(TODAY + timedelta(days=60)).isoformat(), last_practiced=(TODAY - timedelta(days=1)).isoformat())
+        l.report([], [], TODAY - timedelta(days=1), sooner=[sentence, WORD], sooner_reasons=["remember", "hear", "say"])
+        l.lessons_completed = 20
+        sc = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, slow_models_per_lesson=3), today=TODAY).build()
+        models = [e for e in sc.exercises if e.kind == "model" and sentence in e.item_ids]
+        self.assertEqual([e.stage for e in models], ["slow"], "one model for the line, not a slow model and a listening support")
+        self.assertIn(sentence, sc.meta["slow_models_reported"])
+        self.assertIn(sentence, sc.meta["hear_supports_reported"])
+        self.assertEqual(sorted(e.stage for e in sc.exercises if e.kind == "model" and WORD in e.item_ids), ["hear", "slow"])
+        apply_to_learner(sc, l, TODAY)
+        self.assertEqual((l.items[sentence].slow_owed, l.items[sentence].hear_owed), ("", ""))
+
 
 if __name__ == "__main__":
     unittest.main()

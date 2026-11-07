@@ -2373,6 +2373,7 @@ class Planner:
         owed_slow = self.slow_owed_items()  # #337: reported hard to say and not yet given the model of the hard word
         owed_hear = self.hear_owed_items()  # #444: reported hard to hear and not yet given listening support
         hear_supports: list[str] = []  # reported-hard-to-hear items given listening support in this lesson
+        hear_settled: list[str] = []  # ... whose slow model already played the line by ear: no second exercise (lesson 49)
         slow_done: set[str] = set()
         slow_models: list[str] = []  # reported-hard items given the slow model of their hard word in this lesson
         hard_calls: Counter = Counter()  # #326: practices of a hard item so far this lesson
@@ -3606,11 +3607,15 @@ class Planner:
                         whole = (b.wholes_taught.get(owed_id) or self.learner.learned_wholes.get(owed_id) or part_whole(owed)) if owed.kind == "vocab" else None
                         if b.slow_word_exercise(sc, owed, whole) is not None:
                             slow_models.append(owed_id)
+                            if owed_id in owed_hear and b.slow_model_plays_line(owed, whole):
+                                # lesson 49: reported hard to say and to hear, «Hvernig verður veðrið á morgun?» was played slowly twice; the model
+                                # already plays the line by ear, word by word and at natural speed, so it settles the listening support too
+                                hear_settled.append(owed_id)
                             acted = True
                             break
                 # #444: one reported hard to hear is listened to, in a sentence the learner has, in the same slot and under the same ration
                 for owed_id in ([] if acted else owed_hear):
-                    if owed_id not in hear_supports:
+                    if owed_id not in hear_supports and owed_id not in hear_settled:
                         item = self.cur.by_id[owed_id]
                         whole = part_whole(item) if b.hearing_line(item) is None else None
                         b.hear_support_exercise(sc, item, whole["answer"] if whole else None)
@@ -3980,7 +3985,7 @@ class Planner:
             "touching_switches": sc.touching_switches(),
             "units_covered": list(units_covered),  # #336: fillers of a linked phrase met inside it
             "slow_models_reported": list(slow_models),  # #337: reported-hard items given the slow model of their hard word
-            "hear_supports_reported": list(hear_supports),  # #444: reported-hard-to-hear items given listening support
+            "hear_supports_reported": list(hear_supports) + list(hear_settled),  # #444: reported-hard-to-hear items given listening support
             "phrase_hard_words": {i.id: [w for w, _ in hard_words_of(i)] for i in introduced if i.kind == "phrase" and hard_words_of(i)},  # #337: authored hard words of today's new phrases (modelled at the introduction)
             "hard_words": [i.id for i in introduced if hard_sounds(i)],  # #212: today's new words that got the slow, split model
             "stranded_frames": list(self.stranded_placed),  # #270: frames brought forward for a known noun whose only frame was unmet
