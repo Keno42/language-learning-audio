@@ -186,7 +186,8 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   `tests/test_plain_number.py`).
   The forms of 1–4 go the other way (#439 step 1b): once a lesson, when the learner knows one number in lines of two genders or more (`Item.counts`
   names the noun a line's form agrees with; `Planner.number_choice_candidates`, `numbers.choice_lines`), the second half plays `Builder.number_choice`
-  (kind `model`, stage `choice`, a turn of `SecondHalfRotation`): the lines heard, the reason named («miða» is masculine, so: «tvo».), then each asked
+  (kind `model`, stage `choice`, a turn of `SecondHalfRotation`): the lines heard, the reason named («þúsund» is neuter, so: «tvö».; a form that is not the nominative names its case and the nominative it comes
+  from, «miða» is masculine and in the accusative here: «tveir» becomes «tvo».), then each asked
   again in another order; the numbers take turns by lesson. It is practice of the choice, not a recall, so no item's schedule moves
   (`tests/test_number_choice.py`).
   Practice is shared (#439, lesson 41: four items, four sentences, 20 asks): a rung whose item

@@ -1085,7 +1085,12 @@ class Builder:
         for line in lines:
             self._speak(sc, ex, line.sentence, speaker=VOICE_OF[line.voice or "f"])
             self._beat(sc, ex)
-            reason = self.prompts.get("number_choice_gender", word=line.word.lower(), form=line.form.lower(), gender=self.prompts.get(f"gender_{line.gender}"))
+            gender = self.prompts.get(f"gender_{line.gender}")
+            if line.case != "nom":  # «miða» is masculine and in the accusative here: «þrír» becomes «þrjá».
+                reason = self.prompts.get("number_choice_gender_case", word=line.word.lower(), form=line.form.lower(), gender=gender,
+                                          case=self.prompts.get(f"case_{line.case}"), nominative=line.nominative)
+            else:
+                reason = self.prompts.get("number_choice_gender", word=line.word.lower(), form=line.form.lower(), gender=gender)
             self._speak_note_text(sc, ex, reason)
             if not (sc.segments and sc.segments[-1].type == "pause"):
                 self._beat(sc, ex)  # a breath before the next line; in English the lone «.» after «{form}» already gave one (``_speak_note_text``)
