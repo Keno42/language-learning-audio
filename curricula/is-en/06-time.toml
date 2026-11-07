@@ -48,6 +48,7 @@ situation_ja = "アイスランドにいつ着いたか聞かれました。昨�
 id = "i_fyrramalid"
 kind = "vocab"
 target = "í fyrramálið"
+word_syllables = { "fyrramálið" = ["fyrr", "a", "mál", "ið"] }  # lesson 49: asked for a syllable breakdown; split as «þvott·a·vél·in» (#439 step 4)
 meaning = "tomorrow morning"
 meaning_ja = "明日の朝"
 difficulty = 3

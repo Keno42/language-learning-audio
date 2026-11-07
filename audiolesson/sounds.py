@@ -63,14 +63,14 @@ _SLOT = re.compile(r"\{[^{}]*\}")
 def hard_words_of(item, reported: bool = False) -> list[tuple[str, list[str] | None]]:
     """The words of ``item`` to model slowly, each with its authored syllables (None: the word slowly, whole) (#337).
 
-    A phrase with ``word_syllables`` names its hard words itself, in the order of the phrase. A one-word vocab item is its own word (its ``syllables``, when
+    A phrase, or a vocab item of two words or more, with ``word_syllables`` names its hard words itself, in the order of its words. A one-word vocab item is its own word (its ``syllables``, when
     authored). With ``reported`` (the learner reported the item hard) an item with none authored takes the one word of two or more syllables with the most of the
     old and the reported sounds, the longest on a tie; an item of one word that holds none of them is its own word, so an explicit request is never dropped
     (lesson 42: «regnhlíf» reported hard to say got nothing). Empty when nothing qualifies (a pattern; a sentence, which ``Builder.hearing_line`` models whole).
     """
     if item.kind not in ("phrase", "vocab"):
         return []  # a pattern's target holds slot names ({thing}, {language}) that are not words, and is not said bare
-    if item.kind == "phrase" and item.word_syllables:
+    if item.word_syllables and (item.kind == "phrase" or item.word_count >= 2):  # a vocab item of two words or more too (lesson 49: «fyrramálið» in «í fyrramálið»)
         seen: list[tuple[str, list[str] | None]] = []
         for w in _WORDS.findall(item.target.lower()):
             if w in item.word_syllables and all(w != x for x, _ in seen):
@@ -91,3 +91,22 @@ def hard_words_of(item, reported: bool = False) -> list[tuple[str, list[str] | N
         return [(best[1], None)]
     words = _WORDS.findall(_SLOT.sub(" ", item.target).lower())
     return [(words[0], None)] if len(words) == 1 else []
+
+
+LONG_WORD_SYLLABLES = 4  # #439 step 4: a word this long, inside an item of two words or more, is listed by ``validate`` until its split is authored
+
+
+def unsplit_long_words(cur, min_syllables: int = LONG_WORD_SYLLABLES) -> list[tuple[str, str]]:
+    """``(item id, word)`` for each word of ``min_syllables`` vowel groups or more in the target of a phrase or a vocab item of two words or more that has
+    no authored split (``word_syllables``) for it (lesson 49: «fyrramálið» in «í fyrramálið» was asked for in syllables and had none). A split is authored,
+    never guessed: a rule matched half of the 38 authored splits (#439), since they follow the parts of a word («flug·völl·ur·inn»). A loanword or a name
+    said as in English or Japanese (``sounds_familiar``) is left out."""
+    out: list[tuple[str, str]] = []
+    for it in cur.items:
+        if it.kind not in ("phrase", "vocab") or it.word_count < 2 or it.sounds_familiar:
+            continue
+        for w in dict.fromkeys(_WORDS.findall(_SLOT.sub(" ", it.target).lower())):
+            if len(_VOWELS.findall(w)) >= min_syllables and w not in (it.word_syllables or {}):
+                out.append((it.id, w))
+    return out
+

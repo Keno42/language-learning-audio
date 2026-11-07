@@ -122,7 +122,7 @@ class Item:
     set_reply: bool = False  # #416: a set reply («Takk.», «Já, takk.», «Nei.»): once learned, voiced rather than asked in an exchange played again (``Planner.known_set_reply``)
     sounds_familiar: bool = False  # a loanword or a name said much as in English or Japanese («latte», «Tókýó»): no slow, split model, whatever its letters (lesson 35)
     syllables: list[str] | None = None  # #212: a hard-to-say word cut into syllables, authored (never guessed), spoken slowly one at a time at its introduction
-    word_syllables: dict[str, list[str]] | None = None  # #337: a phrase's hard words cut into syllables, authored: word (lower case) -> pieces; said slowly once at the phrase's introduction and when the phrase is reported hard
+    word_syllables: dict[str, list[str]] | None = None  # #337: a phrase's hard words cut into syllables, authored: word (lower case) -> pieces; said slowly once at the phrase's introduction and when the phrase is reported hard. A vocab item of two words or more takes it too («í fyrramálið», #439 step 4)
     slots: dict[str, str] = field(default_factory=dict)  # construction: slot -> required tag
     example: dict[str, str] = field(default_factory=dict)  # construction: slot -> item id
     # construction: slot -> the fill its situation names ("Ask her if she speaks English." only fits
@@ -1013,8 +1013,8 @@ def validate(cur: Curriculum) -> None:
             phrase_words = {w.casefold() for w in _WORD_RE.findall(it.target)}
             if word != word.casefold():
                 raise CurriculumError(f"item {it.id!r}: word_syllables key {word!r} must be lower case (it is matched against the lower-cased target)")
-            if it.kind != "phrase" or word.casefold() not in phrase_words or len(pieces) < 2 or "".join(pieces).casefold() != word.casefold():
-                raise CurriculumError(f"item {it.id!r}: word_syllables {word!r}: a word of a phrase's target, cut into two or more pieces that join to it exactly: {pieces!r}")
+            if not (it.kind == "phrase" or (it.kind == "vocab" and it.word_count >= 2)) or word.casefold() not in phrase_words or len(pieces) < 2 or "".join(pieces).casefold() != word.casefold():
+                raise CurriculumError(f"item {it.id!r}: word_syllables {word!r}: a word of the target of a phrase or a vocab item of two words or more, cut into two or more pieces that join to it exactly: {pieces!r}")
             if (cut := split_breaks_a_cluster(pieces)) is not None:
                 raise CurriculumError(f"item {it.id!r}: word_syllables {word!r} cut the cluster «{cut}» in two; keep it inside one piece")
         if bool(it.partner_cue) != bool(it.partner_cue_after):

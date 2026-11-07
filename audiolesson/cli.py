@@ -697,11 +697,16 @@ def cmd_validate(args) -> int:
             f"advisory (not a failure): {len(unjudged)} sentences of {len(per)} patterns have no scene verdict (owner, 2026-10-16): they are generated, but nobody has "
             f"checked that a learner can picture someone saying them. `audiolesson scene-check` prints the sheet (docs/SCENE-REVIEW.md); the verdicts go to [scenes.<pattern>]."
         )
-    from .sounds import hard_sounds
+    from .sounds import LONG_WORD_SYLLABLES, hard_sounds, unsplit_long_words
 
     unsplit = [i.id for i in cur.items if hard_sounds(i) and not i.syllables]
     if unsplit:
         print(f"advisory (not a failure): {len(unsplit)} hard-to-say words have no authored `syllables` (#212); they get a slow whole-word model only: {', '.join(unsplit[:10])}")
+    long_words = unsplit_long_words(cur)
+    if long_words:
+        words = list(dict.fromkeys(w for _, w in long_words))
+        print(f"advisory (not a failure): {len(words)} words of {LONG_WORD_SYLLABLES} syllables or more, inside items of two words or more, have no authored "
+              f"`word_syllables` (#439 step 4); reported hard, they are said whole: {', '.join(words[:12])}")
     homeless = [i.id for i in cur.items if i.kind == "vocab" and not has_home(cur, i)]
     if homeless:
         print(
