@@ -765,8 +765,8 @@ class Builder:
                 self._repeat_pause(sc, ex, item.target)
         if (not item.is_hard() or item.syllables) and not plain:
             self._slow_model_after_hard(sc, ex, item)
-        if item.kind == "phrase":
-            self.phrase_word_models(sc, ex, item)  # #337: the hard words a phrase names itself, after its word-by-word model
+        if item.kind == "phrase" or item.word_syllables:
+            self.phrase_word_models(sc, ex, item)  # #337: the hard words a phrase (or a vocab item of two words or more) names itself, after its word-by-word model
         if item.target_m:
             # the words follow the speaker's gender: a man's form too, in the man's voice
             self._narr(sc, ex, self.prompts.get("man_says"))
@@ -874,6 +874,8 @@ class Builder:
             self._repeat_pause(sc, ex, part.target)
             if part.id not in self.plain:
                 self._slow_model(sc, ex, part, voice)
+            if part.word_syllables:
+                self.phrase_word_models(sc, ex, part, voice)  # #439 step 4: the hard words a part of two words or more names («fyrramálið»)
             self._form_contrast(sc, ex, part, voice, self.cur.by_id.get(whole["through"]))  # #270: in every path that introduces a form
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(whole["meaning"])))
         self._answer_pause(sc, ex, target, self.cur.by_id[whole["through"]], generative=False)
@@ -1198,6 +1200,8 @@ class Builder:
             self._repeat_pause(sc, ex, item.target)
         if (not build_up or item.syllables) and not plain:
             self._slow_model(sc, ex, item, voice)  # a built-up part was already said slowly, piece by piece
+        if item.word_syllables:
+            self.phrase_word_models(sc, ex, item, voice)  # #439 step 4: the hard words a part of two words or more names («fyrramálið»)
         self._form_contrast(sc, ex, item, voice, construction)
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(meaning)))
         self._answer_pause(sc, ex, target, item, generative=False)
