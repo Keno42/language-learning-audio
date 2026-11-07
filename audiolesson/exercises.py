@@ -944,6 +944,13 @@ class Builder:
         """Whether ``slow_word_exercise`` has something to play for ``item``."""
         return bool(hard_words_of(item) or self.hearing_sentence(item) or hard_words_of(item, reported=True))
 
+    def slow_model_plays_line(self, item: Item, whole: dict | None = None) -> bool:
+        """Whether ``slow_word_exercise`` plays what ``hear_support_exercise`` would: the line heard at natural speed, word by word and at natural speed
+        again (a sentence tried again, or a part in its sentence). A model of hard words in pieces does not: it gives the word, not the line by ear."""
+        if whole is not None and item.kind == "vocab" and item.word_count >= 2 and not hard_words_of(item):
+            return True
+        return not hard_words_of(item) and self.hearing_line(item) is not None
+
     def slow_word_exercise(self, sc: Script, item: Item, whole: dict | None = None) -> Exercise | None:
         """An item the learner reported hard (#337): before its next practice, said slowly once. The words it names hard itself (authored syllables) are cut into
         pieces; else a sentence is tried again from its meaning («Let's try to say this sentence in Icelandic again: There are four of us.», an answer pause, the
