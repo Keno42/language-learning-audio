@@ -377,8 +377,8 @@ meaning = "It'll work out."
 meaning_ja = "なんとかなるさ。"
 difficulty = 3
 topics = ["discourse"]
-situation = "Your friend worries the road will be closed by snow. Reassure her it'll work out."
-situation_ja = "友達が雪で道路が閉まるのを心配しています。なんとかなると励ましてください。"
+situation = "Your friend worries the café you picked will be full. Reassure her it'll work out."  # lesson 50 as drafted: a closed road is no place for «Þetta reddast»
+situation_ja = "友達が、選んだカフェが満席かもしれないと心配しています。なんとかなると励ましてください。"
 
 [[items]]
 id = "vedrid_er_gott_i_dag"
