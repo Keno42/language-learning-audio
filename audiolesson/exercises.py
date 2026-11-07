@@ -1085,9 +1085,10 @@ class Builder:
         for line in lines:
             self._speak(sc, ex, line.sentence, speaker=VOICE_OF[line.voice or "f"])
             self._beat(sc, ex)
-            # the closing «.» after «{form}» is the breath before the next line (``_speak_note_text``)
             reason = self.prompts.get("number_choice_gender", word=line.word.lower(), form=line.form.lower(), gender=self.prompts.get(f"gender_{line.gender}"))
             self._speak_note_text(sc, ex, reason)
+            if not (sc.segments and sc.segments[-1].type == "pause"):
+                self._beat(sc, ex)  # a breath before the next line; in English the lone «.» after «{form}» already gave one (``_speak_note_text``)
             self.heard.add(_norm_utterance(line.sentence))
         self._narr(sc, ex, self.prompts.get("number_choice_say"))
         order = lines[1:] + lines[:1]
