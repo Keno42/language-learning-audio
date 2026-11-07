@@ -31,6 +31,7 @@ FORMS = {
     4: {"masc": ("fjórir", "fjóra", "fjórum", "fjögurra"), "fem": ("fjórar", "fjórar", "fjórum", "fjögurra"), "neut": ("fjögur", "fjögur", "fjórum", "fjögurra")},
 }
 GENDER_ORDER = ("masc", "fem", "neut")
+CASES = ("nom", "acc", "dat", "gen")  # the order of each gender's forms in ``FORMS``
 
 # every form of 1–4 (and «einan», «one» as «alone»): a one-word item that is one of them changes with its noun, so it is never plain
 ONE_TO_FOUR = frozenset({f for genders in FORMS.values() for forms in genders.values() for f in forms} | {"einan"})
@@ -87,6 +88,10 @@ class ChoiceLine:
     gender: str  # that noun's gender
     item_ids: tuple[str, ...]  # the items the sentence is made of (the phrase, or the pattern and its filler)
     voice: str | None = None  # the speaker's gender the sentence is said in, for a gendered line
+    # the case the form shows when it is not the nominative («þrjá»: acc), with the nominative it is told from («þrír»; lesson 50 as drafted: «miða
+    # is masculine, so: þrjá» left out why not «þrír»); "nom" when the form is also the nominative («tvö», «einn»)
+    case: str = "nom"
+    nominative: str = ""
 
 
 def choice_lines(candidates) -> dict[int, dict[str, list[ChoiceLine]]]:
@@ -100,7 +105,9 @@ def choice_lines(candidates) -> dict[int, dict[str, list[ChoiceLine]]]:
         form, value, word = found
         if not agrees(form, value, gender):
             continue
-        out.setdefault(value, {}).setdefault(gender, []).append(ChoiceLine(sentence, meaning, value, form, word, gender, tuple(ids), voice))
+        forms = FORMS[value][gender]
+        case = CASES[forms.index(form.lower())]
+        out.setdefault(value, {}).setdefault(gender, []).append(ChoiceLine(sentence, meaning, value, form, word, gender, tuple(ids), voice, case, forms[0]))
     return out
 
 

@@ -94,6 +94,23 @@ class NumberChoiceTests(unittest.TestCase):
         p = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY)
         self.assertEqual(pick_choice(choice_lines(p.number_choice_candidates()), 1), [])
 
+    def test_a_form_that_is_not_the_nominative_names_its_case(self):
+        """Lesson 50 as drafted: «miða is masculine, so: þrjá» left out why not «þrír». A form that is not the nominative names the case and the
+        nominative it comes from; a form that is also the nominative («tvö», «einn») names the gender only."""
+        groups = choice_lines([("Þrjá miða, takk.", "Three tickets, please.", "masc", ["thrja_mida"], None),
+                               ("Það kostar þrjú þúsund krónur.", "It costs three thousand krónur.", "neut", ["thad_kostar_big"], None)])
+        lines = pick_choice(groups, 0)
+        self.assertEqual([(line.case, line.nominative) for line in lines], [("acc", "þrír"), ("nom", "þrjú")])
+        for lang, case_words in (("en", "in the accusative here:"), ("ja", "ここでは対格なので、")):
+            b = Builder(self.cur, Prompts.load(lang), Timing(level="A1"), LearnerState("is", lang, "A1"))
+            sc = Script(1, "t", "is", lang)
+            b.number_choice(sc, lines)
+            narrated = [g.text for g in sc.segments if g.type == "narrate"]
+            spoken = [g.text for g in sc.segments if g.type == "speak"]
+            self.assertTrue(any(case_words in t for t in narrated), (lang, narrated))
+            self.assertEqual(spoken[spoken.index("miða") + 1 : spoken.index("miða") + 3], ["þrír", "þrjá"], lang)
+            self.assertEqual(sum(case_words in t for t in narrated), 1, f"{lang}: «þrjú» before «þúsund» is also the nominative: no case")
+
 
 if __name__ == "__main__":
     unittest.main()
