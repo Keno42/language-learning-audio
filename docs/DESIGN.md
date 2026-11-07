@@ -180,8 +180,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   slots, ``_pace_rules``: 16 s an exercise, 6 for a new item), each new item gives up its second rung (`starved_skip_rung`, 1/10 of the
   lesson) and keeps 1/30, 4/15 and 1/2 (#439, lesson 45: 19 of 48 due reviews asked while the load was «light»; on its replay 34; `meta.reviews_starved`).
   A plain number (`numbers.plain_number`: a number, age, count or price that is no form of 1–4) has one rung, from its meaning at `plain_recall_time`
-  (4/15), its introduction has no slow model (`Builder.plain`: heard, repeated once, said once), and its ladder has no recombine, so it is never moved to
-  new sentences (#439 step 1a, lesson 49: «sextán», «tvö þúsund krónur» introduced and recalled as words; `tests/test_plain_number.py`).
+  (4/15), its introduction has no slow model (`Builder.plain`: heard, repeated once, said once), its ladder has no recombine and the builder makes no
+  new sentence for it (`Builder._recombine` None, `recombine_status` «impossible»), so every path asks it in the expression it was taught in; the second
+  half's practice of today's items leaves it to the closing (#439 step 1a, lesson 49: «sextán», «tvö þúsund krónur» introduced and recalled as words;
+  `tests/test_plain_number.py`).
   Practice is shared (#439, lesson 41: four items, four sentences, 20 asks): a rung whose item
   another item's recall said since its own last practice is not asked (`said_since_own`), nor a pattern's whose sentences its fillers' practice
   already said once each on average (`saturated`: a substitution, not a new frame); its later rungs keep their times, and the second half's

@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 
 from .content import Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample, split_note_span
 from .learner import LearnerState
+from .numbers import plain_number
 from .prompts import Prompts
 from .sounds import hard_sounds, hard_words_of
 from .script import Exercise, Script, Segment
@@ -1444,7 +1445,10 @@ class Builder:
     def _recombine(self, sc: Script, item: Item, met_fills: bool = False, form: str | None = None, exclude: dict[str, Item] | None = None, avoid: frozenset[str] = frozenset()) -> Exercise | None:
         """Generative practice: a sentence the learner has not heard in this lesson (issue
         #105). With no such combination left, None: the caller falls back to a plain recall
-        rather than replaying a line under a "make a sentence" label."""
+        rather than replaying a line under a "make a sentence" label. A plain number is never moved to a new sentence (#439 step 1a): None, and the
+        caller asks it in the expression it was taught in."""
+        if item.kind != "construction" and plain_number(item, self.cur):
+            return None
         if item.kind == "construction":
             if self.construction_full(item):
                 return None  # the ceiling: about ten generated sentences of one pattern in a lesson (#180)
@@ -1622,8 +1626,10 @@ class Builder:
     def recombine_status(self, item: Item, met_fills: bool = False) -> str:
         """Whether a recombine exercise for ``item`` could make a sentence now: "novel" (one
         not yet heard this lesson), "heard" (only already-presented sentences are possible)
-        or "impossible" (no known fills at all). No side effects: the generator's random
-        state is restored."""
+        or "impossible" (no known fills at all, or a plain number, which is never moved to a new sentence: #439 step 1a). No side effects: the
+        generator's random state is restored."""
+        if item.kind != "construction" and plain_number(item, self.cur):
+            return "impossible"
         state = self.rng.getstate()
         try:
             def gen(it: Item, avoid_heard: bool = False) -> Generated | None:

@@ -3456,8 +3456,9 @@ class Planner:
             if kind == "catch_unknown":
                 return any(emit_listening_task(task) for task in catch_unknown_tasks())
             if kind == "today" and last_kinds_same() not in ("recall", "generative"):
-                # #273: an item whose sentence was asked in the last minute goes last
-                for it in sorted((i for i in introduced if i.id not in recent and not saturated(i)), key=lambda i: (sentence_lately(i), len(self.exposures.get(i.id, [])))):
+                # #273: an item whose sentence was asked in the last minute goes last. A plain number has had its one recall and waits for the closing
+                # (#439 step 1a, lesson 49 as reviewed: «sextán» asked again here as «It costs sixteen thousand krónur.» and «Are you sixteen years old?»)
+                for it in sorted((i for i in introduced if i.id not in recent and not saturated(i) and i.id not in b.plain), key=lambda i: (sentence_lately(i), len(self.exposures.get(i.id, [])))):
                     stage = self._harder_than_today(it)
                     if stage == "dialogue":
                         stage = self.below_dialogue(it)

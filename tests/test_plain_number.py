@@ -67,6 +67,24 @@ class PlainNumberTests(unittest.TestCase):
             intro = next(e for e in sc.exercises if e.kind == "intro" and i in e.item_ids)
             self.assertFalse(any(g.text == "Slowly." for g in sc.segments if g.exercise == intro.index), i)
 
+    def test_an_age_number_is_never_asked_in_a_new_sentence_later_in_the_lesson(self):
+        """Review of #492 on lesson 49's replay: «sextán» was asked again in the second half as «It costs sixteen thousand krónur.» and «Are you
+        sixteen years old?», through the second half's practice of today's items and a sentence practice that asked for a recombination directly."""
+        learner = LearnerState("is", "en", "A1")
+        for i in self.cur.items:
+            if i.order < self.cur.by_id["sextan"].order:
+                learner.items[i.id] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=30, last_outcome="recalled",
+                                                due=(TODAY + timedelta(days=60)).isoformat(), last_practiced=(TODAY - timedelta(days=5)).isoformat())
+        learner.lessons_completed = 30
+        for seed in (1, 2, 3):
+            sc = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=seed), today=TODAY).build()
+            stages = sc.meta["exposures"].get("sextan")
+            self.assertTrue(stages, "the course order brings «sextán» in")
+            self.assertEqual(stages, ["intro", "meaning", "meaning"], f"seed {seed}: the introduction, one timed recall and the closing's")
+            self.assertFalse([e.label for e in sc.exercises if e.kind == "generative" and "sextan" in e.item_ids], f"seed {seed}")
+        b = Builder(self.cur, Prompts.load("en"), Timing(level="A1"), learner)
+        self.assertEqual(b.recombine_status(self.cur.by_id["sextan"]), "impossible", "no path moves a plain number to a new sentence")
+
 
 if __name__ == "__main__":
     unittest.main()
