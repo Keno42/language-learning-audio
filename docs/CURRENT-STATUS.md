@@ -7,27 +7,31 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 (§7), the hypotheses with their status (§4), the evidence lesson by lesson (§5). The learning policy is in
 `docs/CURRENT-POLICY.md`.
 
-## Now (updated 2026-11-06, after lesson 48), in order
+## Now (updated 2026-11-07, after lesson 49), in order
 
 Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% by what may change a long-term decision, each
 remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
-48's; the next lesson is 49. Lesson 48 was rated «light» (the fourth in a row), reviewed 42 of its 47 due items, played #484's cues with no
-remark, and had one remark: the goal at the start ran together, answered in review by saying it sentence by sentence (#488; LD §5.38).
-1. **Review time against today's new practice (#439, H9, H11).** Built (#478): lessons 46, 47 and 48 reviewed 42 of 64, 57 of 73 and 42 of 47
-   due, with no remark. **Next:** read the next-day recall of their new items against the lessons before #478; the written review's queue
-   (125 due) is read with it.
-2. **The same exchange heard lesson after lesson (#483).** Built: the levels heard again take turns (#486), and the supermarket asks about
-   other things, with a third level for lamb (#487). **Next:** the other learner's next feedback; the learner's own line in a scene that
-   varies in use («Áttu {item}?») needs the theme format to take a pattern (#336).
+49's; the next lesson is 50. Lesson 49 was rated «light» (the fifth in a row), reviewed 27 of its 43 due items, and had two remarks: numbers
+drilled as words while the forms of 1–4 get no practice as a choice, and a sentence reported hard played slowly twice (LD §5.39).
+1. **Practice by what is hard in an item, not its kind (#439, G11, H11).** The third remark with this cause (lessons 41, 44/45, 49). In lesson
+   49 nine numbers had come in three lessons as words, the new items with no new word took about five minutes, «fyrramálið» (a compound) got
+   no split, and the forms of 1–4 are never practised as the choice a noun's gender and case make. **Next:** step 1, numbers. Plain numbers
+   are introduced in the expression that needs them, with no ladder of their own. The forms of 1–4, and of the numbers ending in 1–4, are
+   practised with nouns of other genders and cases. Then adjective gender, case through #270's frames, and the hard side. #451 keeps the
+   larger numbers to the ear.
+2. **The same exchange heard lesson after lesson (#483).** Built: the levels heard again take turns (#486, first built in lesson 49, whose
+   learner state had no record yet: the turns read from lesson 50), and the supermarket's third level for lamb played (#487). **Next:** the
+   other learner's next feedback (their lessons 29 and 30 were built before both); the learner's own line that varies in use («Áttu
+   {item}?») needs the theme format to take a pattern (#336).
 3. **Long parts that do not stick (#469's family).** Built (#480): lesson 46 tried «við hliðina á bankanum» and «hinum megin við götuna»
    as their sentence and built them up from their end, with no remark. **Next:** read their next-day recall before adding practice.
-4. **Scene coherence (#327).** Lesson 48 said one of its nine new items as a turn of the played exchange (the weather, level 1), after none
-   in lessons 46 and 47, against the criterion of two.
+4. **Scene coherence (#327).** Lesson 49 said none of its twelve new items as a turn of the played exchange (the supermarket, level 3), after
+   one in lesson 48, against the criterion of two.
 
-**Alongside:** lesson 49 is the first with #486 and #487 (and #488 once merged), when the bot takes LLA `main`; its remarks are read against
-them, and against the note's pieces (#481), which have not played yet.
+**Alongside:** a slow model that plays a line by ear settles its listening support too (#490, in review). The note's pieces (#481) have not
+played yet.
 
-**Longer term, in order:** understanding a partner's prompt, not only saying the reply (#327, #265: the aside on «komið hingað», #464, heard in lesson 44 with no remark); substitutions that teach a form (#439, #270); prices and larger numbers (#451) with the listening pool's variety (#339: ten of lesson 43's eleven
+**Longer term, in order:** understanding a partner's prompt, not only saying the reply (#327, #265: the aside on «komið hingað», #464, heard in lesson 44 with no remark); the larger numbers by ear (#451) with the listening pool's variety (#339: ten of lesson 43's eleven
 pick-outs had been heard in the three lessons before); expressions usable in exchanges (#327, #265); winter and safety scenes
 (#142), as one bounded batch; a fluent speaker's review of the most-heard exchanges (#209), a small selection first; then the
 learner's own details (#428) and Icelandic instructions (#429), once task cues and audio are reliable.
@@ -50,7 +54,8 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
-- **After lesson 48:** in review: the lesson's goal said sentence by sentence, a beat between them (#488).
+- **After lesson 49:** in review: a slow model that plays a line by ear settles its listening support too (#490).
+- **After lesson 48:** the lesson's goal said sentence by sentence, a beat between them (#488).
 - **After lesson 47:** two different answers never share a cue meaning, written or spoken, in any language: `validate` checks it, and nine meanings are told apart (#484); the theme levels heard again take turns, the one heard longest ago first (#486); the supermarket asks about other things, with a third level for lamb (#487).
 - **After lesson 46:** a grammar note's pieces led by what each group builds, each repeated, the whole at natural speed (#481).
 - **After lesson 45:** the due reviews keep their time when they cannot fit (#478); «svona tíu mínútur» in pick-outs (#477); a part reported hard tried as its sentence, then built up from its end, and no two slow models in a row (#480).
