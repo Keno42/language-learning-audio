@@ -106,6 +106,13 @@ instance_form_negative = "As a negative: listen, then repeat."
 # a near form of something the learner has met (Item.variant_of)
 variant_known = "You know this one:"
 variant_form = "Here is another form of it: {meaning}"
+# #439 step 1b: one number's lines of different genders side by side, the reason named once, then each asked again
+number_choice_intro = "One number, different forms: it follows the word it counts."
+number_choice_gender = "«{word}» is {gender}, so: «{form}»."
+number_choice_say = "Now say each one."
+gender_masc = "masculine"
+gender_fem = "feminine"
+gender_neut = "neuter"
 # a dialogue with an expression or two the learner hasn't learned, played as listening (H8)
 listening_intro = "A conversation to listen to. It has a few new expressions in it. You don't need to remember them: just hear how it goes."
 # the same, when some of the learner's lines in it are ones they know and will be asked for (#240)

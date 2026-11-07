@@ -1074,6 +1074,33 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def number_choice(self, sc: Script, lines: list) -> Exercise:
+        """#439 step 1b (the owner after lesson 49: the forms of 1–4 lack practice to use them right): one number in sentences the learner knows, a
+        noun of another gender in each («Tvo miða, takk.», «Ég á tvö börn.»). Each is heard with the reason named once («miða» is masculine, so:
+        «tvo».), then each is asked again from its meaning, in another order, so the form is said as the choice its noun makes. ``lines``:
+        ``numbers.ChoiceLine``."""
+        ids = list(dict.fromkeys(i for line in lines for i in line.item_ids))
+        ex = sc.new_exercise("model", "choice", ids, "choice: " + " / ".join(line.sentence for line in lines))
+        self._frame(sc, ex, self.prompts.get("number_choice_intro"))
+        for line in lines:
+            self._speak(sc, ex, line.sentence, speaker=VOICE_OF[line.voice or "f"])
+            self._beat(sc, ex)
+            # the closing «.» after «{form}» is the breath before the next line (``_speak_note_text``)
+            reason = self.prompts.get("number_choice_gender", word=line.word.lower(), form=line.form.lower(), gender=self.prompts.get(f"gender_{line.gender}"))
+            self._speak_note_text(sc, ex, reason)
+            self.heard.add(_norm_utterance(line.sentence))
+        self._narr(sc, ex, self.prompts.get("number_choice_say"))
+        order = lines[1:] + lines[:1]
+        for n, line in enumerate(order):
+            item = self.cur.by_id[line.item_ids[0]]
+            self._narr(sc, ex, self._as(line.voice, self._meaning_prompt(line.meaning)))
+            self._answer_pause(sc, ex, line.sentence, item, generative=False)
+            self._answer(sc, ex, line.sentence, speaker=VOICE_OF[line.voice or "f"])
+            if n < len(order) - 1:
+                self._beat(sc, ex)
+        self._gap(sc, ex)
+        return ex
+
     def _slow_model_after_hard(self, sc: Script, ex: Exercise, item: Item) -> None:
         """The generic introduction's slow model for a hard-to-say word (#212): a word that already got a slow whole-word repetition (``is_hard``) only gets the split."""
         if item.is_hard() and not item.syllables:

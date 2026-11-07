@@ -103,6 +103,13 @@ instance_form_negative = "否定文にします。聞いて、繰り返してく
 # a near form of something the learner has met (Item.variant_of)
 variant_known = "知っている形です："
 variant_form = "別の形です。「{meaning}」。"
+# #439 step 1b: one number's lines of different genders side by side, the reason named once, then each asked again
+number_choice_intro = "同じ数でも、数える名詞によって形が変わります。"
+number_choice_gender = "«{word}»は{gender}なので«{form}»です。"
+number_choice_say = "では、それぞれ言ってみましょう。"
+gender_masc = "男性名詞"
+gender_fem = "女性名詞"
+gender_neut = "中性名詞"
 # a dialogue with an expression or two the learner hasn't learned, played as listening (H8)
 listening_intro = "聞くための会話です。新しい表現が少し出てきますが、覚えなくて大丈夫です。流れを聞いてください。"
 # the same, when some of the learner's lines in it are ones they know and will be asked for (#240)

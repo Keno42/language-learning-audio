@@ -1472,6 +1472,7 @@ situations_ja = [
 id = "thad_kostar_big"
 kind = "construction"
 target = "Það kostar {count} þúsund krónur."
+counts = "thusund"  # #439 step 1b: the noun its form of 1–4 agrees with
 meaning = "It costs {count} thousand krónur."
 meaning_ja = "{count}千クローナです。"
 difficulty = 3

@@ -144,6 +144,9 @@ class Item:
     # construction (#270): why a noun takes another form in this frame, in the learner's language, said once a lesson after the form is
     # named against the one the learner knows («This form comes after «leita að».»). Names the words that decide, never the translation
     form_reason: str = ""
+    # #439 step 1b: the noun (its ``noun`` key) a form of 1–4 in this phrase, or in this construction's sentences, agrees with («midi» for «Tvo miða,
+    # takk.»): a line that names it is one the lesson can set beside a line of another gender, so the form is practised as the noun's choice
+    counts: str = ""
     examples: list[TransformExample] = field(default_factory=list)  # transform pairs
     order: int = 0
     gender: str | None = None  # noun's grammatical gender ("masc" | "fem" | "neut"), for agreement
@@ -898,6 +901,28 @@ def phrase_frames(cur: Curriculum, min_frame: int = 2, share: float = 0.4) -> li
     return sorted(out, key=lambda g: (-len(g[1]), g[0]))
 
 
+def _check_counts(cur: Curriculum, it: Item) -> None:
+    """#439 step 1b: ``counts`` names a noun with a gender, on a phrase whose form of 1–4 agrees with it, or on a construction of one slot whose fillers
+    that are forms of 1–4 all agree with it."""
+    from .numbers import agrees, noun_gender, number_in, value_of  # numbers reads items; imported here so content stays importable on its own
+
+    gender = noun_gender(cur, it.counts)
+    if gender is None:
+        raise CurriculumError(f"item {it.id!r}: counts names a noun with a gender (an item's noun key), not {it.counts!r}")
+    if it.kind == "phrase":
+        found = number_in(it.target)
+        if found is None or not agrees(found[0], found[1], gender):
+            raise CurriculumError(f"item {it.id!r}: counts {it.counts!r} ({gender}), but its form of 1–4 does not agree with it: {it.target!r}")
+        return
+    if it.kind != "construction" or len(it.slots) != 1:
+        raise CurriculumError(f"item {it.id!r}: counts goes on a phrase or a construction of one slot")
+    (tag,) = it.slots.values()
+    for f in cur.items_with_tag(tag, it):
+        value = value_of(f.target.strip(".?!"))
+        if value is not None and not agrees(f.target.strip(".?!"), value, gender):
+            raise CurriculumError(f"item {it.id!r}: counts {it.counts!r} ({gender}), but its filler {f.id!r} ({f.target!r}) does not agree with it")
+
+
 def validate(cur: Curriculum) -> None:
     ids = set()
     targets: dict[str, str] = {}
@@ -1065,6 +1090,8 @@ def validate(cur: Curriculum) -> None:
         for ref in it.scene_verdicts - {PATTERN_SCENE}:
             if it.kind != "construction" or ref not in cur.by_id or not any(t in cur.by_id[ref].tags for t in it.slots.values()):
                 raise CurriculumError(f"[scenes.{it.id}] {ref!r} is not a fill with a tag of one of its slots")
+        if it.counts:
+            _check_counts(cur, it)
         if it.instance_of or it.instance_fill or it.instance_form:
             c = cur.by_id.get(it.instance_of)
             if it.kind != "phrase" or c is None or c.kind != "construction":

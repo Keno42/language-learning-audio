@@ -184,6 +184,11 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   new sentence for it (`Builder._recombine` None, `recombine_status` «impossible»), so every path asks it in the expression it was taught in; the second
   half's practice of today's items leaves it to the closing (#439 step 1a, lesson 49: «sextán», «tvö þúsund krónur» introduced and recalled as words;
   `tests/test_plain_number.py`).
+  The forms of 1–4 go the other way (#439 step 1b): once a lesson, when the learner knows one number in lines of two genders or more (`Item.counts`
+  names the noun a line's form agrees with; `Planner.number_choice_candidates`, `numbers.choice_lines`), the second half plays `Builder.number_choice`
+  (kind `model`, stage `choice`, a turn of `SecondHalfRotation`): the lines heard, the reason named («miða» is masculine, so: «tvo».), then each asked
+  again in another order; the numbers take turns by lesson. It is practice of the choice, not a recall, so no item's schedule moves
+  (`tests/test_number_choice.py`).
   Practice is shared (#439, lesson 41: four items, four sentences, 20 asks): a rung whose item
   another item's recall said since its own last practice is not asked (`said_since_own`), nor a pattern's whose sentences its fillers' practice
   already said once each on average (`saturated`: a substitution, not a new frame); its later rungs keep their times, and the second half's
