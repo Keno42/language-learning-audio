@@ -746,7 +746,7 @@ who = "main"
 text = "Numbers are asked the same way as other words, and their fine pronunciation practice was not needed; «fyrramálið» could have had syllable-by-syllable practice. The owner: a plain number needs no word's practice («you learnt 50, now use 50 in another sentence»), while the forms of 1–4 and of the numbers ending in 1–4 lack practice to use them right."
 family = "easy-substitution"
 class = "twenty"
-answered_by = []
+answered_by = ["#492", "#493", "#496"]
 
 [[lesson.remarks]]
 who = "main"
@@ -755,7 +755,55 @@ family = "repeat-in-lesson"
 class = "precision"
 answered_by = ["#490"]
 
-# Built changes: the rows of the §8 table after lesson 49, in its order
+[[lesson.remarks]]
+who = "main"
+text = "(The owner, on lesson 50 as drafted.) All nine pick-out lines were heard within the three lessons before: the tasks risk testing remembered answers rather than listening."
+family = "one-version"
+class = "twenty"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner, on lesson 50 as drafted.) The requested breakdown of «fyrramálið» only separated «í» and «fyrramálið»."
+family = "hard-word"
+class = "precision"
+answered_by = ["#496"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner, on lesson 50 as drafted.) «miða is masculine, so: þrjá» leaves out the case: why «þrjá», not «þrír»."
+family = "form-why"
+class = "precision"
+answered_by = ["#495"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner, on lesson 50 as drafted.) «Mér finnst snjórinn fallegur» appears in five exercises, the same neighbour situation twice."
+family = "hard-item"
+class = "precision"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner, on lesson 50 as drafted.) Reassuring someone about a road closed by snow is an awkward setting for «Þetta reddast.»."
+family = "scene-plausibility"
+class = "precision"
+answered_by = ["#494"]
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner, on lesson 50 as drafted.) The fictional teenage ages stay detached from what the learner would say about themselves."
+family = "personal-details"
+class = "precision"
+answered_by = []
+
+[[lesson]]
+n = 50
+form = true
+load = "light"
+built = ["#490", "#492", "#493", "#495", "#496"]
+
+# Built changes: the rows of the §8 table after lesson 50, in its order
 
 [[change]]
 title = "a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351)"
@@ -1324,3 +1372,41 @@ title = "a slow model that plays a line by ear settles its listening support too
 issue = []
 pr = ["#490"]
 family = "repeat-in-lesson"
+
+[[change]]
+title = "a plain number introduced plainly, asked once more, never moved to new sentences (#439: #492)"
+issue = ["#439"]
+pr = ["#492"]
+family = "easy-substitution"
+
+[[change]]
+title = "the forms of 1–4 practised as a choice: one number's known lines of different genders side by side (#439: #493)"
+issue = ["#439"]
+pr = ["#493"]
+family = "easy-substitution"
+first_heard = 50
+heard = "«Þrjá miða, takk.» / «Það kostar þrjú þúsund krónur.»"
+
+[[change]]
+title = "«Þetta reddast» reassures about a full café (lesson 50 as drafted: #494, data)"
+issue = []
+pr = ["#494"]
+family = "scene-plausibility"
+first_heard = 50
+heard = "«Your friend worries the café you picked will be full.»"
+
+[[change]]
+title = "the number choice names the case when the form is not the nominative (lesson 50 as drafted: #495)"
+issue = ["#439"]
+pr = ["#495"]
+family = "form-why"
+first_heard = 50
+heard = "«miða» is masculine and in the accusative here: «þrír» becomes «þrjá»"
+
+[[change]]
+title = "a long word in a vocab item of two words or more gets its syllable split (#439: #496)"
+issue = ["#439"]
+pr = ["#496"]
+family = "hard-word"
+first_heard = 50
+heard = "«í fyrramálið», reported: fyrr · a · mál · ið"

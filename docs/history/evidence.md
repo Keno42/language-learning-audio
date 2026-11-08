@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.36 (lessons 1–46), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.37 (lessons 1–47), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1461,3 +1461,36 @@ What the learner wrote, by what the lesson did:
 - **No remark on the reviews (#478) or on the two long parts (#480).** The lesson reviewed 42 items, rated «light». Both long parts were
   tried as their sentence and built up from their end (02:50, 04:07) and asked again at 06:27 and 28:01. Their next-day recall is the
   read. The ledger does not count the lesson settled: the other learner's remark is a twenty-point part (#483).
+
+### 5.37 Lesson 47: the first lesson built with #481
+
+Lesson 47 was generated with LLA `127f73d` (main with #481 and #482), the bot at site_update_notifier `1459026`; rebuilt from its export with
+the trip profile it is identical (125 exercises, 29.9 minutes). It is the first lesson built with #481 (a grammar note's pieces led and
+repeated); neither note with pieces played, so #481 has had no feedback yet. It is the first lesson whose feedback arrived through the
+feedback sync (site_update_notifier#197), with no manual export.
+
+| | lesson 47 |
+|---|---|
+| length | 29.9 min, 125 exercises |
+| new items; new components, weighted (target) | 6; 8 (8) |
+| theme (level); today's new items said as a turn of the played exchange | town (5); 0 |
+| target reached | 18.6 min |
+| items reviewed / due | 57 / 73 (lesson 46: 42 / 64); the capacity estimate did not trigger the rung reduction (#478) |
+| written review's queue | 125 due |
+| longest stretch without a scene | 4.2 min |
+| a sentence asked again within a minute | 0 |
+| feedback form: load; friction | **light** (the third in a row); other (the remark below) |
+| «sooner» | none |
+
+What the learner wrote, by what the lesson did:
+
+- **«kem» / «að koma» and «rigning» / «rignir» are hard to tell apart from the English.** *Reviewer:* the cues gave two answers one
+  meaning. «It's raining.» asked for «Það rignir.» in lesson 46 and for the weather pattern's «Það er rigning.» in lesson 47 (`rigning`
+  glossed «raining»); «Shout that you're coming.» asked for «Ég er að koma!» and «I'm coming now.» / «I'm coming later.» for «Ég kem …».
+  No check read the meanings against each other (the meaning-gloss family, after «hringja heim» in lesson 38). **Answered (#484, merged):**
+  `validate` fails for a cue meaning, written or spoken, in any of the file's languages, that two different sentences share. It found nine
+  on `main`, and each is told apart: «It's rainy.», «I'll come later.» (and no «Ég kem núna.»), «Do you have an umbrella with you?», «私は寒い
+  です。», «私は暑いです。», «…を見てみたいです。», and the six dative place forms spoken «the airport, as after to or for». On the replay of
+  the export the lesson keeps its length and asks «It's rainy.» and «I'll come later.».
+- **No remark on the reviews.** The lesson reviewed 57 of 73 due, rated «light». The capacity estimate did not trigger the rung
+  reduction (#478, `reviews_starved` false); why the other 16 were not reviewed is not established. The written review's queue is 125 due.
