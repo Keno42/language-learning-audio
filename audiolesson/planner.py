@@ -3524,9 +3524,11 @@ class Planner:
                     ex = b.number_choice(sc, lines)
                     number_choices.append(ex.label)
                     return True
-            if kind == "today" and not said_of_choices and remaining_time() >= 60 and (said_of := self.said_of_candidates()):
+            if (kind == "today" and not said_of_choices and remaining_time() >= 60 and last_kinds_same() not in ("recall", "generative")
+                    and any(i.id not in recent and not saturated(i) and i.id not in b.plain for i in introduced) and (said_of := self.said_of_candidates())):
                 # #439 step 2: once a lesson, a gendered word the learner knows said of him and of her, in a today's-items turn the number choice
-                # did not take (it comes first: the owner asked for the forms of 1–4 first)
+                # did not take (it comes first: the owner asked for the forms of 1–4 first). Only where a drill of today's items would play: a turn
+                # that has none passes to the listening (a simulated course lost 4 of its 80 listening tasks to it)
                 ex = b.said_of_choice(sc, said_of[sc.lesson_number % len(said_of)])
                 said_of_choices.append(ex.label)
                 return True
