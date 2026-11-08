@@ -540,8 +540,8 @@ meaning_ja = "アイスランドは美しいと思います。"
 difficulty = 4
 topics = ["social"]
 chunks = ["fallegt", "Ísland fallegt", "Mér finnst Ísland fallegt."]
-situation = "The driver asks how you like Iceland. Say you think it's beautiful."
-situation_ja = "運転手にアイスランドはどうかと聞かれました。美しいと思うと答えてください。"
+situation = "The driver asks how you like Iceland. Say you think Iceland is beautiful."
+situation_ja = "運転手にアイスランドはどうかと聞かれました。アイスランドは美しいと思うと答えてください。"
 
 [[items]]
 id = "kynning_transform_hann_hun"

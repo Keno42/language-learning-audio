@@ -1388,7 +1388,7 @@ meaning_ja = "100クローナ、お願いします。"
 difficulty = 2
 topics = ["money"]
 prereqs = ["hundrad"]
-situation = "A kiosk sells a small bag for a hundred krónur. Ask for it, naming the price."
+situation = "A kiosk sells a small bag for a hundred krónur. Ask for one, naming the price."
 situation_ja = "キオスクで小さな袋が100クローナです。金額を言って、お願いしてください。"
 
 [[items]]

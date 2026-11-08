@@ -13,7 +13,7 @@ from . import __version__
 from .themes import load_themes, scenario_coverage, scenario_order, unranked_themes
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts, speak_as
-from .content import PATTERN_SCENE, CurriculumError, ask_without_addressee, cue_texts, same_meaning_answers, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, unlinked_instances
+from .content import PATTERN_SCENE, CurriculumError, ask_without_addressee, cue_texts, same_meaning_answers, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, pronoun_cues, unlinked_instances
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, lesson_target, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -700,6 +700,9 @@ def cmd_validate(args) -> int:
     from .sounds import LONG_WORD_SYLLABLES, hard_sounds, unsplit_long_words
 
     unsplit = [i.id for i in cur.items if hard_sounds(i) and not i.syllables]
+    if (vague := pronoun_cues(cur)):
+        print(f"advisory (not a failure): {len(vague)} situations say «it» for a thing their answer names (lesson 51): name it in the instruction: "
+              + "; ".join(f"{i} ({', '.join(w)})" for i, _, w in vague[:10]))
     if unsplit:
         print(f"advisory (not a failure): {len(unsplit)} hard-to-say words have no authored `syllables` (#212); they get a slow whole-word model only: {', '.join(unsplit[:10])}")
     long_words = unsplit_long_words(cur)
