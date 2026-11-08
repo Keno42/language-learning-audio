@@ -11,6 +11,8 @@ final_block = "To finish, let's go back over today's new material."
 final_block_some = "To finish, let's go back over some of today's new material."  # the closing leaves some of today's new items out (each said as often as a lesson allows; lesson 35)
 
 intro_new = "Something new. {meaning}"
+# lesson 51: a plain number made only of known words, asked as a use of them, not introduced as new
+from_known = "Made of words you know."
 listen = "Listen."
 listen_again = "Listen again."
 repeat = "Repeat."

@@ -10,6 +10,8 @@ final_block = "最後に、今日の新しい表現をもう一度確認しま�
 final_block_some = "最後に、今日の新しい表現のいくつかをもう一度確認しましょう。"
 
 intro_new = "新しい表現です。「{meaning}」。"
+# lesson 51: a plain number made only of known words, asked as a use of them, not introduced as new
+from_known = "知っている言葉だけでできています。"
 listen = "聞いてください。"
 listen_again = "もう一度聞いてください。"
 repeat = "繰り返してください。"
