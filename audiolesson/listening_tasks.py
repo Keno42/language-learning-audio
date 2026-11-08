@@ -52,7 +52,7 @@ class SecondHalfRotation:
     """The order the second half takes its exercises in. ``play`` offers each kind in turn; one that cannot be added (nothing to
     hear, no time) passes to the next, and the cursor moves on either way, so the rotation never sticks on a kind."""
 
-    order = ("heard", "pick_out", "pick_out", "catch_unknown", "today", "number_choice")  # number_choice: #439 step 1b, at most once a lesson
+    order = ("heard", "pick_out", "pick_out", "catch_unknown", "today")  # «today» also carries the number choice once a lesson (#439 step 1b)
 
     def __init__(self) -> None:
         self.cursor = 0
