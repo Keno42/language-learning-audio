@@ -138,7 +138,7 @@ class CacheKeptTests(unittest.TestCase):
     def test_clips_synthesized_before_the_refusal_stay_in_the_cache(self):
         import tempfile
 
-        from audiolesson.render.audio import silence
+        from audiolesson.render.audio import AudioClip
         from audiolesson.render.renderer import _cache_path, _cached
 
         class Fake(EdgeProvider):
@@ -147,7 +147,7 @@ class CacheKeptTests(unittest.TestCase):
             def synthesize(self, text, lang, voice, rate=1.0):
                 if text == "b":
                     raise SpeechRefused("speech service refused (403) for 15 min; cached clips kept")
-                return silence(0.2)
+                return AudioClip(b"\x10\x27" * 4800, 24000)  # 0.2 s of sound: silence is not cached (lesson 51)
 
         with tempfile.TemporaryDirectory() as td:
             cache = Path(td)
