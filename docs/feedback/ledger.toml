@@ -104,7 +104,7 @@ cause = "Practice follows an item's kind, not what is hard in it: new items that
 cause = "An instruction is said in full every time its case comes, not once a lesson: nothing remembers that the lesson has said it (#438)."
 
 [families.audio-defect]
-cause = "A synthesized clip can end early without an error: the cache keeps it, and every lesson that says the line plays it cut off (#462)."
+cause = "A synthesized clip can end early, or hold only silence, without an error: the cache keeps it, and every lesson that says the line plays it cut off (#462; lesson 51: «lin», 0.06 s)."
 
 [families.prompt-recognition]
 cause = "A level is ready when the learner can say every reply; nothing checks that the partner's line before it can be understood, so a question worded unlike its known reply plays untranslated (#327, #265)."
@@ -821,7 +821,7 @@ who = "main"
 text = "The clip of «lin» (vett · lin · ga) is broken."
 family = "audio-defect"
 class = "precision"
-answered_by = []
+answered_by = ["#503"]
 
 [[lesson.remarks]]
 who = "main"
@@ -1480,3 +1480,9 @@ title = "a plain number made only of known words is asked as a use of them, not 
 issue = ["#439"]
 pr = ["#502"]
 family = "easy-substitution"
+
+[[change]]
+title = "a silent clip counts as cut off whatever its words: synthesized again, not cached (lesson 51: #503)"
+issue = ["#462"]
+pr = ["#503"]
+family = "audio-defect"

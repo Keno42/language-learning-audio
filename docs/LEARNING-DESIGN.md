@@ -410,8 +410,10 @@ What the lesson played, by change, and what the learner wrote:
   **Answered, in review (#500):** each instruction names it, and `validate` lists any that does not.
 - **«Sjáumst í dag!»**, asked for agreeing in the morning to meet after lunch: the learner asked whether it is natural. One says «Sjáumst á
   eftir!». **Answered, in review (#501, data):** «í dag» is no fill of «Sjáumst {time}!».
-- **The clip of «lin»** in the split vett · lin · ga is broken. A syllable synthesized alone; it could not be heard from the development
-  environment, which does not reach the speech service. Open, with the owner's description of the fault.
+- **The clip of «lin»** in the split vett · lin · ga is broken. The owner's run of `tools/cut_off_clips.py` on the server's cache found it at
+  0.06 s against an estimate of 1.18 s: the margins the trimmer keeps around a clip with no sound. The service had answered silence, and the
+  cut-off check (#462) left out lines of one or two words. **Answered, in review (#503):** a clip shorter than 0.15 s looks cut off whatever its
+  words. The cached clip is renamed by hand on the server for the next render to synthesize it again.
 - **The pace.** The target rose from 7 to 8 with every due review fitted, as §9 "Pace" says: the reviews no longer fail to fit, so the rule
   that lowered it no longer acts. Lessons 52 and 53 are read before any change to the rule.
 - **The listening.** Five of the six pick-outs had been heard in the three lessons before (#339; lesson 50: 8 of 8).
@@ -576,7 +578,7 @@ lessons 21–23 (§5.18–§5.20) have had their three.
 | small talk 4 is a coffee with Anna, each question with its reason; a level has its own scene line, the coach ride's too (#427: #458) | lesson 43 (the coach ride opened with its own scene line) | 1 (43); its family remarked in 44 (#471, #475), 49 (#494), 51 (#501) |
 | «Same change:» only right after a transform with the same instruction (#461: #463) | not yet | – |
 | an aside sets «komið hingað» against «verið hér», after the coach ride (#327: #464, data) | lesson 44 (the aside at 06:47, before the coach ride's question) | **done**: 8 (44, 45, 46, 47, 48, 49, 50, 51) |
-| a clip the speech service cut off is synthesized again and not cached; the threshold is per language (#462: #466, #467) | lesson 44 («Ask where she lives.» three times, no remark) | 7 (44, 45, 46, 47, 48, 49, 50); its family remarked in 51 |
+| a clip the speech service cut off is synthesized again and not cached; the threshold is per language (#462: #466, #467) | lesson 44 («Ask where she lives.» three times, no remark) | 7 (44, 45, 46, 47, 48, 49, 50); its family remarked in 51 (#503) |
 | a word reported hard to say is first asked from its meaning, then broken down (lesson 44: #468) | not yet | – |
 | a part only its own sentence holds keeps its four rungs; a part of three words or more is built up from its end inside its sentence (lesson 44: #469) | lesson 45 («við hliðina á bankanum» and «fyrir framan hótelið» built up from their end and asked four times) | **done**: 7 (45, 46, 47, 48, 49, 50, 51) |
 | a cue that asks a person names them after «ask»; validate fails one that does not (lesson 44: #470) | not yet | – |
@@ -604,6 +606,7 @@ lessons 21–23 (§5.18–§5.20) have had their three.
 | a situation's instruction names what its answer names; validate lists one that says «it» for it (lesson 51: #500) | not yet | – |
 | «Sjáumst í dag!» never generated (lesson 51: #501, data) | not yet | – |
 | a plain number made only of known words is asked as a use of them, not introduced as new (lesson 51: #502) | not yet | – |
+| a silent clip counts as cut off whatever its words: synthesized again, not cached (lesson 51: #503) | not yet | – |
 
 Read from rows, not from remarks: the second half kept when an item counted toward the target is not taught (#294: #308);
 ease learned from long-gap recalls (#220: #298, with site_update_notifier#118, #128); the review backlog's breakdown

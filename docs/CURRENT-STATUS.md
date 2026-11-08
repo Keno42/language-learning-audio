@@ -13,7 +13,7 @@ Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% 
 remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
 51's; the next lesson is 52. Lesson 51 was rated «light» (the seventh in a row), fitted all 40 of its due reviews, played the number choice and
 a gendered word said of him and of her without a remark, and drew four remarks: prices made of known words announced as new, a cue that
-said «it» for the snow, «Sjáumst í dag», and a broken clip of «lin» (LD §5.41).
+said «it» for the snow, «Sjáumst í dag», and a silent clip of «lin» (LD §5.41).
 1. **Practice by what is hard in an item, not its kind (#439, G11, H11).** Built: plain numbers introduced plainly (#492); the forms of 1–4 as
    a choice (#493), naming the case (#495), with its feminine side brought forward (#498); a long word inside an item of two words split (#496);
    a gendered word said of him and of her (#499). In review: a plain number made only of known words asked as a use of them, not introduced
@@ -30,8 +30,8 @@ said «it» for the snow, «Sjáumst í dag», and a broken clip of «lin» (LD 
 
 **Alongside:** long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
 before adding practice. Scene coherence (#327): lesson 50 said four of its six new items as turns of the played exchange, lesson 51 none of its
-ten (its exchange was a level played again). The note's pieces (#481) have not played yet. Cues that leave their answer open (#500) and «Sjáumst í dag» (#501) are in review. The broken
-clip of «lin» waits for the owner's description of the fault: the development environment does not reach the speech service.
+ten (its exchange was a level played again). The note's pieces (#481) have not played yet. Cues that leave their answer open (#500), «Sjáumst í dag» (#501) and a silent clip taken as cut off
+(#503, the syllable «lin») are in review.
 
 **Longer term, in order:** understanding a partner's prompt, not only saying the reply (#327, #265: the aside on «komið hingað», #464, heard in lesson 44 with no remark); the larger numbers by ear (#451), with the listening pool's variety in «Now» (#339: ten of lesson 43's eleven
 pick-outs had been heard in the three lessons before); expressions usable in exchanges (#327, #265); winter and safety scenes
@@ -56,7 +56,7 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
-- **After lesson 51:** in review: a situation's instruction names what its answer names, checked by `validate` (#500); «Sjáumst í dag!» never generated (#501); a plain number made only of known words asked as a use of them (#502).
+- **After lesson 51:** in review: a situation's instruction names what its answer names, checked by `validate` (#500); «Sjáumst í dag!» never generated (#501); a plain number made only of known words asked as a use of them (#502); a silent clip counts as cut off whatever its words (#503).
 - **After lesson 50:** the number choice grows its feminine side, a line that adds a missing gender coming forward (#498); a gendered word said of him and of her (#499).
 - **After lesson 49:** a slow model that plays a line by ear settles its listening support too (#490); a plain number introduced plainly, asked once more, never moved to new sentences (#492); the forms of 1–4 as a choice (#493), naming the case (#495); «Þetta reddast» with a full café (#494); a long word inside an item of two words split, «fyrr·a·mál·ið» (#496).
 - **After lesson 48:** the lesson's goal said sentence by sentence, a beat between them (#488).
