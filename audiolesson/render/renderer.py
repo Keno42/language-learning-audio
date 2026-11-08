@@ -306,6 +306,10 @@ TYPICAL_SHARE = {"is": 0.57, "en": 0.74, "ja": 0.72}
 TYPICAL_SHARE_DEFAULT = 0.65
 CUT_OFF_SHARE = 0.45
 CUT_OFF_MIN_WORDS = 3
+# Lesson 51: the syllable «lin» of vett · lin · ga was cached as 0.06 s, the 60 ms either side that ``AudioClip.trimmed`` keeps around a clip
+# with no sample above its threshold: the service had answered silence. A line of one or two words was left out of the check above, so it
+# was cached and played as nothing. A clip shorter than ``SILENT_CLIP_S`` holds no speech, whatever its words: it is cut off too.
+SILENT_CLIP_S = 0.15
 _TIMING = Timing()
 
 
@@ -315,9 +319,13 @@ def cut_off_threshold(lang: str) -> float:
 
 
 def looks_cut_off(clip: AudioClip, text: str, lang: str, rate: float = 1.0) -> bool:
-    """Whether ``clip`` is far too short for ``text``: a line of ``CUT_OFF_MIN_WORDS`` words or more that lasts less than
-    ``cut_off_threshold(lang)`` of the script's estimate (``Timing.speech_estimate`` at no calibration)."""
-    if len(re.findall(r"[^\W\d_]+", text)) < CUT_OFF_MIN_WORDS:
+    """Whether ``clip`` is far too short for ``text``: shorter than ``SILENT_CLIP_S`` (no speech in it, a line of any length), or a line of
+    ``CUT_OFF_MIN_WORDS`` words or more that lasts less than ``cut_off_threshold(lang)`` of the script's estimate (``Timing.speech_estimate``
+    at no calibration)."""
+    words = len(re.findall(r"[^\W\d_]+", text))
+    if words and clip.seconds < SILENT_CLIP_S:
+        return True
+    if words < CUT_OFF_MIN_WORDS:
         return False
     return clip.seconds < cut_off_threshold(lang) * _TIMING.speech_estimate(text, lang, rate)
 
