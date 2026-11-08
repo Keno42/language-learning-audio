@@ -76,7 +76,10 @@ class NumberChoiceTests(unittest.TestCase):
                 learner.items[i.id] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=30, last_outcome="recalled",
                                                 due=(TODAY + timedelta(days=60)).isoformat(), last_practiced=(TODAY - timedelta(days=5)).isoformat())
         learner.lessons_completed = 30
-        sc = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY).build()
+        # a small target, so the second half (whose turn of today's items carries the choice) comes; with the default, this learner's pool keeps it
+        # bringing new material to the end
+        sc = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, new_items=2, new_target=2.0), today=TODAY).build()
+        self.assertTrue(sc.meta["target_delivered"])
         choices = [e for e in sc.exercises if e.stage == "choice"]
         self.assertEqual(len(choices), 1, sc.meta["number_choices"])
         self.assertEqual(sc.meta["number_choices"], [choices[0].label])

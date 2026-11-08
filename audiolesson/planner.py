@@ -1496,7 +1496,9 @@ class Planner:
             if not it.counts or self.learner.has_met(it.id) or it.target_m or not (it.kind == "phrase" or (it.kind == "vocab" and it.word_count >= 2)):
                 continue
             found, gender = number_in(it.target), noun_gender(self.cur, it.counts)
-            if found is None or gender is None or found[1] not in groups or gender in groups[found[1]]:
+            # only for a number the choice already plays (two genders known): the line completes a choice the learner hears, and early in a course,
+            # with one gender known, it would take a place the day's scene needs (the scene's lines and pick-outs)
+            if found is None or gender is None or len(groups.get(found[1], {})) < 2 or gender in groups[found[1]]:
                 continue
             key = (-len(groups[found[1]]), it.order, it.id)
             if best is None or key < best:
@@ -3499,16 +3501,6 @@ class Planner:
             return tail[0] if len(tail) == k and len(set(tail)) == 1 else None
 
         def emit_second_half(kind: str) -> bool:
-            if kind == "number_choice":
-                # #439 step 1b: once a lesson, one number's known lines of different genders side by side, the form said as the noun's choice
-                if number_choices or remaining_time() < 75:
-                    return False
-                lines = pick_choice(choice_lines(self.number_choice_candidates()), sc.lesson_number)
-                if not lines:
-                    return False
-                ex = b.number_choice(sc, lines)
-                number_choices.append(ex.label)
-                return True
             if kind == "heard":
                 if remaining_time() >= 90 and (ht := pick_heard_theme()) is not None:
                     play_heard_theme(*ht)
@@ -3518,6 +3510,14 @@ class Planner:
                 return any(emit_listening_task(task) for task in pick_out_tasks())
             if kind == "catch_unknown":
                 return any(emit_listening_task(task) for task in catch_unknown_tasks())
+            if kind == "today" and not number_choices and remaining_time() >= 75:
+                # #439 step 1b: once a lesson, today's-items turn first plays one number's known lines of different genders side by side, the form said
+                # as the noun's choice; a drill in a drill's turn, so the listening the rotation brings is untouched
+                lines = pick_choice(choice_lines(self.number_choice_candidates()), sc.lesson_number)
+                if lines:
+                    ex = b.number_choice(sc, lines)
+                    number_choices.append(ex.label)
+                    return True
             if kind == "today" and last_kinds_same() not in ("recall", "generative"):
                 # #273: an item whose sentence was asked in the last minute goes last. A plain number has had its one recall and waits for the closing
                 # (#439 step 1a, lesson 49 as reviewed: «sextán» asked again here as «It costs sixteen thousand krónur.» and «Are you sixteen years old?»)
