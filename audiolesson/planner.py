@@ -24,7 +24,7 @@ from .content import Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance, cue_is_answer
 from .sounds import hard_sounds, hard_words_of
 from .learner import REPORTED_HARD_DAYS, LearnerState
-from .numbers import choice_lines, noun_gender, pick_choice, plain_number, value_of
+from .numbers import choice_lines, noun_gender, number_in, pick_choice, plain_number, value_of
 from .review_wholes import whole_for
 from .listening_tasks import REPAIR_ITEM, ListeningTask, SecondHalfRotation, append_task, catch_unknown, introduce_by_catch, key_of, partner_pick_out
 from .prompts import Prompts
@@ -922,6 +922,11 @@ class Planner:
             pool = [i for i in pool if i.id in front] + theme_items + [i for i in pool if i.id not in order and i.id not in front]
         if not wants and not self.cfg.topics and self.themes_exhausted():
             pool = self._group_by_scene(pool, count, keep_first={promoted_id} if promoted_id else set())
+        if (choice := set(self.choice_wants())):
+            # #439 step 1b: after the theme's items and a promoted construction, the line that gives the number choice a missing gender
+            ahead = set(wants or ()) | ({promoted_id} if promoted_id else set())
+            k = next((n for n, i in enumerate(pool) if i.id not in ahead), len(pool))
+            pool = pool[:k] + [i for i in pool[k:] if i.id in choice] + [i for i in pool[k:] if i.id not in choice]
         constructions = [c for c in self.cur.items if c.kind == "construction"]
         if (stranded := self.stranded_frame(ready, chosen_ids)) is not None and stranded in pool:
             # #270: a known noun whose only frame is unmet: the frame takes the place that is left over, behind the day's scene (the theme's items) and the trip order's items
@@ -1481,24 +1486,48 @@ class Planner:
                 return n
         return None
 
+    def choice_wants(self) -> list[str]:
+        """#439 step 1b: a line not met yet that would give the number choice a gender it lacks («fyrir tvær nætur» once «tvo miða» and «tvö þúsund»
+        are known: lesson 50 still set masculine against neuter only), for the number with the most genders known; the first in course order, one at a
+        time, so the choice grows a gender with new material the path would have brought later anyway."""
+        groups = choice_lines(self.number_choice_candidates())
+        best: tuple[int, int, str] | None = None
+        for it in self.cur.items:
+            if not it.counts or self.learner.has_met(it.id) or it.target_m or not (it.kind == "phrase" or (it.kind == "vocab" and it.word_count >= 2)):
+                continue
+            found, gender = number_in(it.target), noun_gender(self.cur, it.counts)
+            if found is None or gender is None or found[1] not in groups or gender in groups[found[1]]:
+                continue
+            key = (-len(groups[found[1]]), it.order, it.id)
+            if best is None or key < best:
+                best = key
+        return [best[2]] if best else []
+
     def number_choice_candidates(self) -> list[tuple]:
-        """#439 step 1b: the sentences the learner knows whose form of 1–4 agrees with a noun they name (``Item.counts``), as ``numbers.choice_lines``
+        """#439 step 1b: the sentences the learner has met and is not failing whose form of 1–4 agrees with a noun they name (``Item.counts``), as ``numbers.choice_lines``
         takes them: a phrase (its pattern's noun when it is an instance of one), or a pattern of one slot filled with a form of 1–4 the learner knows.
         A gendered phrase is left out: its line would need the speaker's form too."""
         b = self.builder
         out = []
+
+        def usable(item_id: str) -> bool:  # met in an earlier lesson and not failing now: the choice is practice, not a check (lesson 50: «fyrir tvær nætur»)
+            return self.learner.has_met(item_id) and not self.learner.is_open(item_id)
+
         for it in self.cur.items:
-            if not self.learner.knows(it.id):
+            if not usable(it.id):
                 continue
-            if it.kind == "phrase" and not it.target_m:
+            if (it.kind == "phrase" or (it.kind == "vocab" and it.word_count >= 2)) and not it.target_m:
                 counts = it.counts or (self.cur.by_id[it.instance_of].counts if it.instance_of in self.cur.by_id else "")
                 if counts:
-                    out.append((it.target, it.spoken_meaning, noun_gender(self.cur, counts), [it.id], None))
+                    # a part is said in the sentence it was taught in («Ég vil herbergi fyrir tvær nætur.»), never bare (G14)
+                    whole = self.learner.learned_wholes.get(it.id) if it.kind == "vocab" else None
+                    sentence, meaning = (whole["answer"], whole.get("meaning") or it.spoken_meaning) if whole and whole.get("answer") else (it.target, it.spoken_meaning)
+                    out.append((sentence, meaning, noun_gender(self.cur, counts), [it.id], None))
             elif it.kind == "construction" and it.counts and len(it.slots) == 1:
                 ((slot, tag),) = it.slots.items()
                 for f in self.cur.items_with_tag(tag, it):
                     # one is left to the phrases: a price says «þúsund krónur», not «eitt þúsund krónur»
-                    if value_of(f.target.strip(".?!")) in (None, 1) or not self.learner.knows(f.id):
+                    if value_of(f.target.strip(".?!")) in (None, 1) or not usable(f.id):
                         continue
                     gender, sentence = b._filled(it, {slot: f})
                     out.append((sentence, self.cur.resolve_slots(it, {slot: f})[1], noun_gender(self.cur, it.counts), [it.id, f.id], gender))

@@ -111,6 +111,29 @@ class NumberChoiceTests(unittest.TestCase):
             self.assertEqual(spoken[spoken.index("miða") + 1 : spoken.index("miða") + 3], ["þrír", "þrjá"], lang)
             self.assertEqual(sum(case_words in t for t in narrated), 1, f"{lang}: «þrjú» before «þúsund» is also the nominative: no case")
 
+    def _met(self, ids):
+        learner = LearnerState("is", "en", "A1")
+        for i in ids:
+            learner.items[i] = ItemState(stage="meaning", durable_successes=1, successes=3, recalled=1, interval_days=3, last_outcome="recalled",
+                                         due=(TODAY + timedelta(days=3)).isoformat(), last_practiced=(TODAY - timedelta(days=1)).isoformat())
+        return learner
+
+    def test_a_line_that_adds_a_missing_gender_is_brought_forward(self):
+        """Lesson 50 still set «tvo» (masculine) against «tvö» (neuter): the feminine forms of 2–4 had not come. A line not met yet that gives a known
+        number its missing gender («fyrir tvær nætur») goes after the theme's items in the order of new material."""
+        learner = self._met(["count_mida_takk", "tvo_acc", "midi", "mida", "thad_kostar_big", "tvo", "thusund", "kronur"])
+        p = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+        self.assertEqual(p.choice_wants(), ["fyrir_tvaer_naetur"])
+        _check_counts(self.cur, self.cur.by_id["fyrir_tvaer_naetur"])  # a vocab item of two words or more may carry counts
+        learner.items["fyrir_tvaer_naetur"] = learner.items["tvo"]
+        learner.learned_wholes["fyrir_tvaer_naetur"] = {"through": "x", "answer": "Ég vil herbergi fyrir tvær nætur.", "meaning": "I'd like a room for two nights."}
+        p = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+        self.assertNotIn("fyrir_tvaer_naetur", p.choice_wants())
+        lines = pick_choice(choice_lines(p.number_choice_candidates()), 0)
+        two = [line for line in lines if line.value == 2] or pick_choice({2: choice_lines(p.number_choice_candidates())[2]}, 0)
+        self.assertEqual([line.gender for line in two], ["masc", "fem", "neut"])
+        self.assertIn("Ég vil herbergi fyrir tvær nætur.", [line.sentence for line in two], "a part is said in the sentence it was taught in")
+
 
 if __name__ == "__main__":
     unittest.main()

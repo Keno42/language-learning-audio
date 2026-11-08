@@ -188,7 +188,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   names the noun a line's form agrees with; `Planner.number_choice_candidates`, `numbers.choice_lines`), the second half plays `Builder.number_choice`
   (kind `model`, stage `choice`, a turn of `SecondHalfRotation`): the lines heard, the reason named («þúsund» is neuter, so: «tvö».; a form that is not the nominative names its case and the nominative it comes
   from, «miða» is masculine and in the accusative here: «tveir» becomes «tvo».), then each asked
-  again in another order; the numbers take turns by lesson. It is practice of the choice, not a recall, so no item's schedule moves
+  again in another order; the numbers take turns by lesson. The lines are the ones met in an earlier lesson and not failing, a part in the sentence it
+  was taught in; a line not met yet that gives a known number its missing gender goes after the theme's items in the order of new material
+  (`Planner.choice_wants`: «fyrir tvær nætur», lesson 50). It is practice of the choice, not a recall, so no item's schedule moves
   (`tests/test_number_choice.py`).
   Practice is shared (#439, lesson 41: four items, four sentences, 20 asks): a rung whose item
   another item's recall said since its own last practice is not asked (`said_since_own`), nor a pattern's whose sentences its fillers' practice

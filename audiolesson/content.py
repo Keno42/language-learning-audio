@@ -909,13 +909,13 @@ def _check_counts(cur: Curriculum, it: Item) -> None:
     gender = noun_gender(cur, it.counts)
     if gender is None:
         raise CurriculumError(f"item {it.id!r}: counts names a noun with a gender (an item's noun key), not {it.counts!r}")
-    if it.kind == "phrase":
+    if it.kind == "phrase" or (it.kind == "vocab" and it.word_count >= 2):  # «fyrir tvær nætur» too
         found = number_in(it.target)
         if found is None or not agrees(found[0], found[1], gender):
             raise CurriculumError(f"item {it.id!r}: counts {it.counts!r} ({gender}), but its form of 1–4 does not agree with it: {it.target!r}")
         return
     if it.kind != "construction" or len(it.slots) != 1:
-        raise CurriculumError(f"item {it.id!r}: counts goes on a phrase or a construction of one slot")
+        raise CurriculumError(f"item {it.id!r}: counts goes on a phrase, a vocab item of two words or more, or a construction of one slot")
     (tag,) = it.slots.values()
     for f in cur.items_with_tag(tag, it):
         value = value_of(f.target.strip(".?!"))
