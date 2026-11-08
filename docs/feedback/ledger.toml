@@ -86,7 +86,7 @@ cause = "The reading deck has had no outside review: cards ask for words no less
 cause = "Known material comes back by a rule that never asks what the learner still gains from it: a set reply asked in every exchange played again, a whole dialogue every four lessons (H11, #416)."
 
 [families.meaning-gloss]
-cause = "An authored sentence's English meaning leaves its sense open (whom «hringja heim» calls): no check reads the meanings as a learner would (#209)."
+cause = "An authored cue leaves its answer open: a sentence's English meaning (whom «hringja heim» calls), a situation's instruction that says «it» for what the answer names (lesson 51: the snow). No check read the cues as a learner would (#209)."
 
 [families.listening-just-heard]
 cause = "A listening question is drawn without looking at what the lesson has just played: it asks for information a conversation gave a minute before (#339, with #273)."
@@ -803,6 +803,40 @@ form = true
 load = "light"
 built = ["#490", "#492", "#493", "#495", "#496"]
 
+[[lesson]]
+n = 51
+form = true
+load = "light"
+built = ["#498", "#499"]
+
+[[lesson.remarks]]
+who = "main"
+text = "«fimm þúsund krónur» and «tíu þúsund krónur» treated as new expressions feels wrong."
+family = "easy-substitution"
+class = "twenty"
+answered_by = ["#502"]
+
+[[lesson.remarks]]
+who = "main"
+text = "The clip of «lin» (vett · lin · ga) is broken."
+family = "audio-defect"
+class = "precision"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "Is «Sjáumst í dag» a natural expression?"
+family = "scene-plausibility"
+class = "precision"
+answered_by = ["#501"]
+
+[[lesson.remarks]]
+who = "main"
+text = "«I think it's beautiful» answered by «Mér finnst snjórinn fallegur» is an unhelpful instruction."
+family = "meaning-gloss"
+class = "precision"
+answered_by = ["#500"]
+
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
 [[change]]
@@ -1378,6 +1412,8 @@ title = "a plain number introduced plainly, asked once more, never moved to new 
 issue = ["#439"]
 pr = ["#492"]
 family = "easy-substitution"
+first_heard = 51
+heard = "«átján» introduced plainly in «Ég er átján ára.»; «fimm þúsund krónur» and «tíu þúsund krónur», every word known, still announced new"
 
 [[change]]
 title = "the forms of 1–4 practised as a choice: one number's known lines of different genders side by side (#439: #493)"
@@ -1410,3 +1446,37 @@ pr = ["#496"]
 family = "hard-word"
 first_heard = 50
 heard = "«í fyrramálið», reported: fyrr · a · mál · ið"
+
+[[change]]
+title = "the number choice grows its feminine side: a line that adds a missing gender comes forward (#439: #498)"
+issue = ["#439"]
+pr = ["#498"]
+family = "easy-substitution"
+first_heard = 51
+heard = "«Ég vil herbergi fyrir tvær nætur.» introduced; the choice played «Einn miða» / «Eina pylsu»"
+
+[[change]]
+title = "a gendered word said of him and of her, side by side: «Hann er svangur.» / «Hún er svöng.» (#439: #499)"
+issue = ["#439"]
+pr = ["#499"]
+family = "easy-substitution"
+first_heard = 51
+heard = "«Hann er týndur.» / «Hún er týnd.»"
+
+[[change]]
+title = "a situation's instruction names what its answer names; validate lists one that says «it» for it (lesson 51: #500)"
+issue = []
+pr = ["#500"]
+family = "meaning-gloss"
+
+[[change]]
+title = "«Sjáumst í dag!» never generated (lesson 51: #501, data)"
+issue = []
+pr = ["#501"]
+family = "scene-plausibility"
+
+[[change]]
+title = "a plain number made only of known words is asked as a use of them, not introduced as new (lesson 51: #502)"
+issue = ["#439"]
+pr = ["#502"]
+family = "easy-substitution"

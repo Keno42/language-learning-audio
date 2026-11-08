@@ -7,28 +7,31 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 (§7), the hypotheses with their status (§4), the evidence lesson by lesson (§5). The learning policy is in
 `docs/CURRENT-POLICY.md`.
 
-## Now (updated 2026-11-08, after lesson 50), in order
+## Now (updated 2026-11-09, after lesson 51), in order
 
 Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% by what may change a long-term decision, each
 remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
-50's; the next lesson is 51. Lesson 50 was rated «light» (the sixth in a row), reviewed 46 of its 58 due items, played the breakdown of
-«fyrramálið», the number choice with its case and the new «Þetta reddast» cue, and had no remark (LD §5.40).
+51's; the next lesson is 52. Lesson 51 was rated «light» (the seventh in a row), fitted all 40 of its due reviews, played the number choice and
+a gendered word said of him and of her without a remark, and drew four remarks: prices made of known words announced as new, a cue that
+said «it» for the snow, «Sjáumst í dag», and a broken clip of «lin» (LD §5.41).
 1. **Practice by what is hard in an item, not its kind (#439, G11, H11).** Built: plain numbers introduced plainly (#492); the forms of 1–4 as
-   a choice (#493), naming the case (#495); a long word inside an item of two words split (#496). In review: the choice grows its feminine side,
-   a line that adds a missing gender coming forward («fyrir tvær nætur»). **Next:** adjective gender (step 2), then case through #270's frames;
+   a choice (#493), naming the case (#495), with its feminine side brought forward (#498); a long word inside an item of two words split (#496);
+   a gendered word said of him and of her (#499). In review: a plain number made only of known words asked as a use of them, not introduced
+   as new (#502). **Next:** case through #270's frames (step 3); the person spoken to («Ertu svöng?» to a woman) if #499 is not felt as a drill;
    the 43 long words `validate` lists get their splits as the path brings them.
-2. **The listening pool's sameness (#339).** All eight of lesson 50's pick-outs had been heard in the three lessons before, and spare time
-   goes partly to pick-outs. **Next:** a pick-out rotates by line, and a line heard recently is left for another.
-3. **The same exchange heard lesson after lesson (#483).** Built: the levels heard again take turns (#486, read from lesson 50), the
-   supermarket's third level (#487). **Next:** the other learner's next feedback; the learner's own line that varies in use («Áttu {item}?»)
-   needs the theme format to take a pattern (#336).
-4. **The pace while «light» (H9).** The target fell from 9 to 7 over six «light» lessons by §9's rule that unfitted reviews slow the pace.
-   **Next:** read lessons 51–53: with the reviews fitting (46 of 58 in lesson 50), the pace should rise; if it does not, the rule is the
-   owner's call.
+2. **The listening pool's sameness (#339).** Five of lesson 51's six pick-outs had been heard in the three lessons before (lesson 50: 8 of 8).
+   **Next:** a pick-out rotates by line, and a line heard recently is left for another.
+3. **The same exchange heard lesson after lesson (#483).** Built: the levels heard again take turns (#486), the supermarket's third level
+   (#487). **Next:** the other learner's next feedback; the learner's own line that varies in use («Áttu {item}?») needs the theme format to
+   take a pattern (#336).
+4. **The pace while «light» (H9).** The target fell from 9 to 7 over lessons 45–50 by §9's rule that unfitted reviews slow the pace, and rose to
+   8 in lesson 51 with every due review fitted. **Next:** read lessons 52 and 53; if the load stays «light» with the reviews fitting, the rule is
+   the owner's call.
 
 **Alongside:** long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
-before adding practice. Scene coherence (#327): lesson 50 said four of its six new items as turns of the played exchange, the criterion met
-once. The note's pieces (#481) have not played yet.
+before adding practice. Scene coherence (#327): lesson 50 said four of its six new items as turns of the played exchange, lesson 51 none of its
+ten (its exchange was a level played again). The note's pieces (#481) have not played yet. Cues that leave their answer open (#500) and «Sjáumst í dag» (#501) are in review. The broken
+clip of «lin» waits for the owner's description of the fault: the development environment does not reach the speech service.
 
 **Longer term, in order:** understanding a partner's prompt, not only saying the reply (#327, #265: the aside on «komið hingað», #464, heard in lesson 44 with no remark); the larger numbers by ear (#451), with the listening pool's variety in «Now» (#339: ten of lesson 43's eleven
 pick-outs had been heard in the three lessons before); expressions usable in exchanges (#327, #265); winter and safety scenes
@@ -53,7 +56,8 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
-- **After lesson 50:** in review: the number choice grows its feminine side, a line that adds a missing gender coming forward.
+- **After lesson 51:** in review: a situation's instruction names what its answer names, checked by `validate` (#500); «Sjáumst í dag!» never generated (#501); a plain number made only of known words asked as a use of them (#502).
+- **After lesson 50:** the number choice grows its feminine side, a line that adds a missing gender coming forward (#498); a gendered word said of him and of her (#499).
 - **After lesson 49:** a slow model that plays a line by ear settles its listening support too (#490); a plain number introduced plainly, asked once more, never moved to new sentences (#492); the forms of 1–4 as a choice (#493), naming the case (#495); «Þetta reddast» with a full café (#494); a long word inside an item of two words split, «fyrr·a·mál·ið» (#496).
 - **After lesson 48:** the lesson's goal said sentence by sentence, a beat between them (#488).
 - **After lesson 47:** two different answers never share a cue meaning, written or spoken, in any language: `validate` checks it, and nine meanings are told apart (#484); the theme levels heard again take turns, the one heard longest ago first (#486); the supermarket asks about other things, with a third level for lamb (#487).
