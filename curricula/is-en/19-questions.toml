@@ -145,8 +145,8 @@ meaning_ja = "このバスはどこへ行きますか？"
 difficulty = 3
 topics = ["questions", "transport"]
 prereqs = ["hvert", "strætó"]
-situation = "A bus without a sign stops. Ask where it goes."
-situation_ja = "行き先表示のないバスが止まりました。どこへ行くか聞いてください。"
+situation = "A bus without a sign stops. Ask where this bus goes."
+situation_ja = "行き先表示のないバスが止まりました。このバスはどこへ行くか聞いてください。"
 
 [[items]]
 id = "af_hverju_ekki"

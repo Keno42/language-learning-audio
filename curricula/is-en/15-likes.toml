@@ -322,8 +322,8 @@ difficulty = 4
 topics = ["hobbies", "food"]
 prereqs = ["hvad_er_uppahaldsmaturinn_thinn"]
 chunks = ["fiskur", "er fiskur", "minn er fiskur", "Uppáhaldsmaturinn minn er fiskur."]
-situation = "Anna asks your favourite food. Say it's fish."
-situation_ja = "アンナに一番好きな食べ物を聞かれました。魚だと答えてください。"
+situation = "Anna asks your favourite food. Say your favourite food is fish."
+situation_ja = "アンナに一番好きな食べ物を聞かれました。一番好きな食べ物は魚だと答えてください。"
 
 [[items]]
 id = "eg_spila_fotbolta"

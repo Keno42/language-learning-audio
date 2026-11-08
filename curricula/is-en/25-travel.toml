@@ -278,8 +278,8 @@ meaning = "The trip was great."
 meaning_ja = "ツアーはすばらしかったです。"
 difficulty = 2
 topics = ["travel"]
-situation = "Back at the hostel, someone asks about the tour. Say it was great."
-situation_ja = "ホステルに戻ると、ツアーについて聞かれました。すばらしかったと言ってください。"
+situation = "Back at the hostel, someone asks about your day trip. Say the trip was great."
+situation_ja = "ホステルに戻ると、日帰り旅行について聞かれました。旅はすばらしかったと言ってください。"
 
 [[items]]
 id = "eg_er_a_leidinni"

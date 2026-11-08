@@ -67,8 +67,8 @@ meaning_ja = "このバスは町の中心に行きますか？"
 difficulty = 4
 topics = ["transport"]
 chunks = ["miðbæinn", "í miðbæinn", "strætó í miðbæinn", "Fer þessi strætó í miðbæinn?"]
-situation = "A bus pulls up. Ask the driver whether it goes to the centre."
-situation_ja = "バスが来ました。運転手に中心街へ行くか聞いてください。"
+situation = "A bus pulls up. Ask the driver whether this bus goes to the centre."
+situation_ja = "バスが来ました。運転手にこのバスは中心街へ行くか聞いてください。"
 
 [[items]]
 id = "fer_thessi_straeto_a_flugvollinn"

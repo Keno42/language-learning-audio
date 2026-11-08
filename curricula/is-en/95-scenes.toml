@@ -382,7 +382,7 @@ mjolk = false  # milk is drunk, not eaten: «Ég drekk ekki mjólk.» (review of
 [scenes.sjaumst_time]  # #445 (lesson 42: «Sjáumst núna!» had no setting)
 a_morgun = "You're saying goodbye to a friend you'll meet again tomorrow."
 i_kvold = "You've just arranged dinner tonight with a friend, and you're hanging up."
-i_dag = "On the phone this morning, you've agreed to meet your friend after lunch."
+i_dag = false  # «Sjáumst í dag!»: parting before meeting again the same day, one says «Sjáumst á eftir!» (lesson 51: «Sjáumst í dag って自然な表現？»)
 i_fyrramalid = "The tour leaves early tomorrow morning, and you're saying goodnight to the guide."
 um_helgina = "A colleague has invited you to a barbecue at the weekend, and you're leaving work on Friday."
 i_naestu_viku = "You're parting from your language-exchange partner, whom you meet every week."

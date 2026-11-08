@@ -171,6 +171,9 @@ class Builder:
     recent_answers: list[str] = field(default_factory=list)  # the last two answers said (normalised): a generated sentence is not the one just asked (#190)
     in_lesson: set[str] = field(default_factory=set)  # items introduced this lesson: usable as parts
     plain: set[str] = field(default_factory=set)  # #439 step 1a: items introduced plainly (a plain number): heard, repeated once, said once, no slow model
+    # lesson 51 (the owner: «fimm þúsund krónur / tíu… が新出フレーズ扱いになるのは違和感がある»): a plain number made only of words the learner has
+    # is not introduced as new: it is asked once as a use of what they know, the model after it (``_intro_from_known``)
+    from_known: set[str] = field(default_factory=set)
     ask_count: Callable[[str], int] | None = None  # how often a sentence was asked this lesson (#336): a pattern with every combination used asks the filling asked fewest times
     ask_cap: int = 0  # #336: a pattern's sentence asked this many times a lesson (any path) is not asked again by a sibling recall; 0: no cap
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
@@ -713,6 +716,8 @@ class Builder:
             return self._intro_construction(sc, item, worked_fills)
         if item.kind == "transform":
             return self._intro_transform(sc, item)
+        if item.id in self.from_known:
+            return self._intro_from_known(sc, item)
         base = self.cur.by_id.get(item.variant_of) if item.variant_of else None
         if base is not None and not item.target_m and (self.learner.has_met(base.id) or base.id in self.in_lesson):
             if item.noun:
@@ -1182,6 +1187,27 @@ class Builder:
                 self.form_reasons_said.add(frame.id)
                 self._speak_note_text(sc, ex, frame.form_reason)
                 self._beat(sc, ex)
+
+    def _intro_from_known(self, sc: Script, item: Item) -> Exercise:
+        """Lesson 51: «fimm þúsund krónur» and «tíu þúsund krónur», every word known, were announced «Something new.» and «A new expression.». A plain
+        number made only of words the learner has is asked as a use of them: «Made of words you know.», its sentence asked from its meaning (the
+        expression that needs it, as a part is taught: «Það kostar tíu þúsund krónur.»), the answer after. Not named new, no repetition before."""
+        home = self.whole_home(item)
+        if home is not None:
+            construction, fills = home
+            gender, target = self._filled(construction, fills)
+            meaning = self.cur.resolve_slots(construction, fills)[1]
+            self.wholes_taught[item.id] = {"through": construction.id, "answer": target, "meaning": meaning}
+        else:
+            gender, target, meaning = None, item.target, item.spoken_meaning
+        ex = sc.new_exercise("intro", "intro", [item.id], f"from known words: {target}")
+        self.said[_norm_utterance(target)] += 1
+        self._frame(sc, ex, self.prompts.get("from_known"))
+        self._narr(sc, ex, self._as(gender, self._meaning_prompt(meaning)))
+        self._answer_pause(sc, ex, target, item, generative=False)
+        self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
+        self._gap(sc, ex)
+        return ex
 
     def _intro_in_whole(self, sc: Script, item: Item, construction: Item, fills: dict[str, Item]) -> Exercise:
         """A new part inside the expression that holds it (#239): «A new expression: Thanks for the help.», the sentence said and repeated, «This word is

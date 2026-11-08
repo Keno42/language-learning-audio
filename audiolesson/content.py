@@ -938,6 +938,35 @@ def said_of_words(it: Item) -> tuple[str, str] | None:
     return " ".join(m for _, m in changed), " ".join(f for f, _ in changed)
 
 
+_CUE_FUNCTION_WORDS = frozenset(
+    "a an the this that these those it it's its i i'm i'd i'll me my you you're your he she him her his we us our they them their is are was were be "
+    "do does did can could to of in on at for from with and or not no yes so very what how where who why when here there please say says think".split()
+)
+
+
+def pronoun_cues(cur: Curriculum) -> list[tuple[str, str, list[str]]]:
+    """Lesson 51 («Your neighbour complains about the snow. Say you think it's beautiful.» asked for «Mér finnst snjórinn fallegur.»): a situation whose
+    instruction says «it» for a thing its setup named, while the answer names that thing, admits another answer («Mér finnst það fallegt.»). As (item id,
+    situation, the words of the meaning named in the setup only). ``validate`` lists them as an advisory: the instruction should name what the answer
+    names. English situations only (the course's primary language)."""
+    words = lambda text: re.findall(r"[^\W\d_]+(?:'[a-z]+)?", re.sub(r"\([^)]*\)", "", text).lower())
+    out = []
+    for it in cur.items:
+        if it.kind not in ("phrase", "vocab"):
+            continue
+        for situation in [it.situation, *it.situations, it.partner_cue_situation]:
+            if not isinstance(situation, str) or not situation:
+                continue
+            *setup, instruction = re.split(r"(?<=[.!?:])\s+", situation.strip())
+            said = set(words(instruction))
+            if not said & {"it", "it's"}:
+                continue
+            missing = [w for w in dict.fromkeys(words(it.meaning)) if w not in _CUE_FUNCTION_WORDS and w not in said and w in set(words(" ".join(setup)))]
+            if missing:
+                out.append((it.id, situation, missing))
+    return out
+
+
 def _check_said_of(it: Item) -> None:
     """#439 step 2: ``said_of`` goes on a gendered phrase (``target_m``), with a line for him («Hann …») and for her («Hún …») and a meaning for each;
     the line for him says the word ``target_m`` changes, the line for her that word of ``target``."""

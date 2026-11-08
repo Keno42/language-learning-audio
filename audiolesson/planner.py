@@ -2251,6 +2251,9 @@ class Planner:
                 return
             if plain_number(item, self.cur):
                 b.plain.add(item.id)  # #439 step 1a: introduced plainly, whichever path introduces it
+                cost = self.component_by_item.get(item.id)
+                if (self.component_cost(item) if cost is None else cost) == 0:
+                    b.from_known.add(item.id)  # lesson 51: made only of words the learner has: asked as a use of them, not named new
             if (taught := self.filler_taught_today(item)) is not None:
                 # #311 follow-up: the phrase's word was taught today inside this very phrase: it is covered as one pattern sentence, never introduced again as new
                 pattern, fills = taught
@@ -3984,7 +3987,9 @@ class Planner:
         if introduced:
             announce = b.final_block_announce(sc)
             # any reactivation that never came due is folded into the closing recall
-            order = self.closing_order(introduced, theme_pick)  # #327: the lesson ends in its scene, in the exchange's order
+            # #327: the lesson ends in its scene, in the exchange's order. An item made only of known words was no new material (lesson 51): its one
+            # later recall is enough, and the closing goes back over what was new
+            order = [i for i in self.closing_order(introduced, theme_pick) if i.id not in b.from_known]
             closed: set[str] = set()  # every item a closing recall made the learner say: its holder (#238), and the pattern or the filler in it, is not asked again
             closing_from = len(sc.exercises)
 

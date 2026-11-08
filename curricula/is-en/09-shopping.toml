@@ -564,8 +564,8 @@ meaning = "Where is the till?"
 meaning_ja = "レジはどこですか？"
 difficulty = 2
 topics = ["shopping"]
-situation = "You're ready to pay but can't see the till. Ask where it is."
-situation_ja = "払う準備はできましたがレジが見当たりません。どこか聞いてください。"
+situation = "You're ready to pay but can't see the till. Ask where the till is."
+situation_ja = "払う準備はできましたがレジが見当たりません。レジはどこか聞いてください。"
 
 [[items]]
 id = "er_thetta_ull"

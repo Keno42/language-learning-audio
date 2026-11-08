@@ -129,8 +129,8 @@ meaning_ja = "会議は10時です。"
 difficulty = 3
 topics = ["work", "time"]
 prereqs = ["klukkan_time", "tiu"]
-situation = "A colleague asks when the meeting is. Say it's at ten."
-situation_ja = "同僚に会議は何時か聞かれました。10時だと答えてください。"
+situation = "A colleague asks when the meeting is. Say the meeting is at ten."
+situation_ja = "同僚に会議は何時か聞かれました。会議は10時だと答えてください。"
 
 [[items]]
 id = "get_eg_fengid_fri"
