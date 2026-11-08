@@ -149,6 +149,9 @@ meaning_ja = "病気です。"
 difficulty = 2
 topics = ["health"]
 target_m = "Ég er veikur."  # a man says this; lessons practise both forms, announced
+said_of = { m = "Hann er veikur.", f = "Hún er veik." }  # #439 step 2: the word said of him and of her
+said_of_meaning = { m = "He's ill.", f = "She's ill." }
+said_of_meaning_ja = { m = "彼は病気です。", f = "彼女は病気です。" }
 situation = "You can't come to the meeting. Say you're ill."
 situation_ja = "会議に行けません。病気だと言ってください。"
 
@@ -163,6 +166,9 @@ meaning_ja = "疲れました。"
 difficulty = 2
 topics = ["health", "feelings"]
 target_m = "Ég er þreyttur."  # a man says this; lessons practise both forms, announced
+said_of = { m = "Hann er þreyttur.", f = "Hún er þreytt." }  # #439 step 2: the word said of him and of her
+said_of_meaning = { m = "He's tired.", f = "She's tired." }
+said_of_meaning_ja = { m = "彼は疲れています。", f = "彼女は疲れています。" }
 situation = "It's midnight after a long hike. Say you're tired."
 situation_ja = "長いハイキングの後の真夜中です。疲れたと言ってください。"
 

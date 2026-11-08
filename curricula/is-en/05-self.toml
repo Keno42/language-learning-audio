@@ -193,6 +193,9 @@ meaning_ja = "私は日本人です。"
 difficulty = 2
 topics = ["social"]
 target_m = "Ég er japanskur."  # a man says this; lessons practise both forms, announced
+said_of = { m = "Hann er japanskur.", f = "Hún er japönsk." }  # #439 step 2: the word said of him and of her
+said_of_meaning = { m = "He's Japanese.", f = "She's Japanese." }
+said_of_meaning_ja = { m = "彼は日本人です。", f = "彼女は日本人です。" }
 situation = "The man guesses you're Chinese. Tell him you're Japanese."
 situation_ja = "中国人だと思われました。日本人だと伝えてください。"
 partner_cue = "Já, ég er íslensk. Ert þú kínversk?"
@@ -454,6 +457,9 @@ meaning_ja = "結婚しています。"
 difficulty = 2
 topics = ["social", "family"]
 target_m = "Ég er giftur."  # a man says this; lessons practise both forms, announced
+said_of = { m = "Hann er giftur.", f = "Hún er gift." }  # #439 step 2: the word said of him and of her
+said_of_meaning = { m = "He's married.", f = "She's married." }
+said_of_meaning_ja = { m = "彼は結婚しています。", f = "彼女は結婚しています。" }
 situation = "She asks whether you're married. Say you are."
 situation_ja = "結婚しているか聞かれました。していると答えてください。"
 
@@ -466,6 +472,9 @@ meaning_ja = "独身です。"
 difficulty = 3
 topics = ["social", "family"]
 target_m = "Ég er einhleypur."  # a man says this; lessons practise both forms, announced
+said_of = { m = "Hann er einhleypur.", f = "Hún er einhleyp." }  # #439 step 2: the word said of him and of her
+said_of_meaning = { m = "He's single.", f = "She's single." }
+said_of_meaning_ja = { m = "彼は独身です。", f = "彼女は独身です。" }
 situation = "Someone asks about your partner. Say you're single."
 situation_ja = "パートナーについて聞かれました。独身だと答えてください。"
 

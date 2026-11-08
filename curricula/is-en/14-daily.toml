@@ -274,6 +274,9 @@ meaning_ja = "忙しいです。"
 difficulty = 3
 topics = ["daily", "work"]
 target_m = "Ég er upptekinn."  # a man says this; lessons practise both forms, announced
+said_of = { m = "Hann er upptekinn.", f = "Hún er upptekin." }  # #439 step 2: the word said of him and of her
+said_of_meaning = { m = "He's busy.", f = "She's busy." }
+said_of_meaning_ja = { m = "彼は忙しいです。", f = "彼女は忙しいです。" }
 situation = "A friend wants to talk but you're in the middle of work. Say you're busy."
 situation_ja = "友達が話したがっていますが仕事の最中です。忙しいと言ってください。"
 

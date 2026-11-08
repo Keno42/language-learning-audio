@@ -147,6 +147,10 @@ class Item:
     # #439 step 1b: the noun (its ``noun`` key) a form of 1–4 in this phrase, or in this construction's sentences, agrees with («midi» for «Tvo miða,
     # takk.»): a line that names it is one the lesson can set beside a line of another gender, so the form is practised as the noun's choice
     counts: str = ""
+    # #439 step 2: a gendered line's word said of him and of her ({"m": "Hann er svangur.", "f": "Hún er svöng."}), with their meanings
+    # (``said_of_meaning``, per language): a lesson sets the two side by side, so the form is practised as the person's choice, not only the speaker's
+    said_of: dict[str, str] = field(default_factory=dict)
+    said_of_meaning: dict[str, str] = field(default_factory=dict)
     examples: list[TransformExample] = field(default_factory=list)  # transform pairs
     order: int = 0
     gender: str | None = None  # noun's grammatical gender ("masc" | "fem" | "neut"), for agreement
@@ -600,7 +604,7 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
 
 
 # fields that may carry per-language glosses (``<field>_<lang>``)
-_GLOSSED_ITEM = ("meaning", "context", "negative_meaning", "question_meaning", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation", "form_reason")
+_GLOSSED_ITEM = ("meaning", "context", "negative_meaning", "question_meaning", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation", "form_reason", "said_of_meaning")
 _GLOSSED_EXAMPLE = ("source_meaning", "result_meaning")
 _GLOSSED_TURN = ("cue", "opener_meaning", "partner_meaning", "expect_meaning", "scene", "partner_scene")
 _GLOSSED_DIALOGUE = ("setting",)
@@ -923,6 +927,33 @@ def _check_counts(cur: Curriculum, it: Item) -> None:
             raise CurriculumError(f"item {it.id!r}: counts {it.counts!r} ({gender}), but its filler {f.id!r} ({f.target!r}) does not agree with it")
 
 
+def said_of_words(it: Item) -> tuple[str, str] | None:
+    """#439 step 2: the words a gendered line changes, as (his, hers): («svangur», «svöng») for «Ég er svöng.» / «Ég er svangur.»; None when
+    ``target`` and ``target_m`` do not differ word for word."""
+    words = lambda text: re.findall(r"[^\W\d_]+", text)
+    fem, masc = words(it.target), words(it.target_m)
+    changed = [(f, m) for f, m in zip(fem, masc) if f != m]
+    if len(fem) != len(masc) or not changed:
+        return None
+    return " ".join(m for _, m in changed), " ".join(f for f, _ in changed)
+
+
+def _check_said_of(it: Item) -> None:
+    """#439 step 2: ``said_of`` goes on a gendered phrase (``target_m``), with a line for him («Hann …») and for her («Hún …») and a meaning for each;
+    the line for him says the word ``target_m`` changes, the line for her that word of ``target``."""
+    if it.kind != "phrase" or not it.target_m:
+        raise CurriculumError(f"item {it.id!r}: said_of goes on a phrase with target_m")
+    if sorted(it.said_of) != ["f", "m"] or sorted(it.said_of_meaning) != ["f", "m"]:
+        raise CurriculumError(f"item {it.id!r}: said_of and said_of_meaning each need a line for m and for f")
+    found = said_of_words(it)
+    if found is None:
+        raise CurriculumError(f"item {it.id!r}: said_of needs target and target_m to differ word for word")
+    for g, pronoun, own in (("m", "hann", found[0]), ("f", "hún", found[1])):
+        line = re.findall(r"[^\W\d_]+", it.said_of[g].lower())
+        if not line or line[0] != pronoun or not set(own.lower().split()) <= set(line):
+            raise CurriculumError(f"item {it.id!r}: said_of {g} starts with «{pronoun.capitalize()}» and says «{own}»: {it.said_of[g]!r}")
+
+
 def validate(cur: Curriculum) -> None:
     ids = set()
     targets: dict[str, str] = {}
@@ -1092,6 +1123,8 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"[scenes.{it.id}] {ref!r} is not a fill with a tag of one of its slots")
         if it.counts:
             _check_counts(cur, it)
+        if it.said_of or it.said_of_meaning:
+            _check_said_of(it)
         if it.instance_of or it.instance_fill or it.instance_form:
             c = cur.by_id.get(it.instance_of)
             if it.kind != "phrase" or c is None or c.kind != "construction":

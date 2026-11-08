@@ -801,6 +801,9 @@ meaning_ja = "お腹が空きました。"
 difficulty = 2
 topics = ["cafe", "feelings"]
 target_m = "Ég er svangur."  # a man says this; lessons practise both forms, announced
+said_of = { m = "Hann er svangur.", f = "Hún er svöng." }  # #439 step 2: the word said of him and of her
+said_of_meaning = { m = "He's hungry.", f = "She's hungry." }
+said_of_meaning_ja = { m = "彼はお腹が空いています。", f = "彼女はお腹が空いています。" }
 situations = [
   "It's one o'clock and you haven't eaten. Tell your friend you're hungry.",
   "Your host asks if you'd like to eat now. You skipped lunch. Say you're hungry.",
@@ -819,6 +822,9 @@ meaning_ja = "喉が渇きました。"
 difficulty = 2
 topics = ["cafe", "feelings"]
 target_m = "Ég er þyrstur."  # a man says this; lessons practise both forms, announced
+said_of = { m = "Hann er þyrstur.", f = "Hún er þyrst." }  # #439 step 2: the word said of him and of her
+said_of_meaning = { m = "He's thirsty.", f = "She's thirsty." }
+said_of_meaning_ja = { m = "彼は喉が渇いています。", f = "彼女は喉が渇いています。" }
 situations = [
   "After the hike you need a drink. Say you're thirsty.",
   "It's a hot day and you've been walking around town for hours. Say you're thirsty.",
@@ -837,6 +843,9 @@ meaning_ja = "お腹いっぱいです。"
 difficulty = 2
 topics = ["cafe", "feelings"]
 target_m = "Ég er saddur."  # a man says this; lessons practise both forms, announced
+said_of = { m = "Hann er saddur.", f = "Hún er södd." }  # #439 step 2: the word said of him and of her
+said_of_meaning = { m = "He's full.", f = "She's full." }
+said_of_meaning_ja = { m = "彼はお腹いっぱいです。", f = "彼女はお腹いっぱいです。" }
 situation = "Your host offers a third helping. Say you're full."
 situation_ja = "ホストが三杯目をすすめます。お腹いっぱいだと言ってください。"
 

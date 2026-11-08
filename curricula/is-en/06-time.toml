@@ -394,6 +394,9 @@ meaning_ja = "遅れています。"
 difficulty = 2
 topics = ["arrangements", "time"]
 target_m = "Ég er seinn."  # a man says this; lessons practise both forms, announced
+said_of = { m = "Hann er seinn.", f = "Hún er sein." }  # #439 step 2: the word said of him and of her
+said_of_meaning = { m = "He's late.", f = "She's late." }
+said_of_meaning_ja = { m = "彼は遅れています。", f = "彼女は遅れています。" }
 situation = "You call your friend from the bus. Tell her you're late."
 situation_ja = "バスの中から友達に電話します。遅れていると伝えてください。"
 

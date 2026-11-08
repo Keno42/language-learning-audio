@@ -616,6 +616,9 @@ meaning_ja = "道に迷いました。"
 difficulty = 2
 topics = ["directions"]
 target_m = "Ég er týndur."  # a man says this; lessons practise both forms, announced
+said_of = { m = "Hann er týndur.", f = "Hún er týnd." }  # #439 step 2: the word said of him and of her
+said_of_meaning = { m = "He's lost.", f = "She's lost." }
+said_of_meaning_ja = { m = "彼は道に迷っています。", f = "彼女は道に迷っています。" }
 situation = "You've taken a wrong turn twice. Tell a passer-by you're lost."
 situation_ja = "二度も道を間違えました。通行人に迷ったと伝えてください。"
 
