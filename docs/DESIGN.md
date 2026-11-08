@@ -183,7 +183,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (4/15), its introduction has no slow model (`Builder.plain`: heard, repeated once, said once), its ladder has no recombine and the builder makes no
   new sentence for it (`Builder._recombine` None, `recombine_status` «impossible»), so every path asks it in the expression it was taught in; the second
   half's practice of today's items leaves it to the closing (#439 step 1a, lesson 49: «sextán», «tvö þúsund krónur» introduced and recalled as words;
-  `tests/test_plain_number.py`).
+  `tests/test_plain_number.py`). A plain number made only of words the learner has (component cost 0: «tíu þúsund krónur» once «tíu», «þúsund» and
+  «krónur» are known) is not introduced as new: `Builder._intro_from_known` says «Made of words you know.» and asks its sentence from its meaning, the
+  model after it, and the closing leaves it out (`Builder.from_known`; lesson 51: two such prices announced «A new expression.» and asked four times;
+  `tests/test_from_known.py`).
   The forms of 1–4 go the other way (#439 step 1b): once a lesson, when the learner knows one number in lines of two genders or more (`Item.counts`
   names the noun a line's form agrees with; `Planner.number_choice_candidates`, `numbers.choice_lines`), the second half plays `Builder.number_choice`
   (kind `model`, stage `choice`, in the turn of today's items of `SecondHalfRotation`, so the listening it brings is untouched): the lines heard, the reason named («þúsund» is neuter, so: «tvö».; a form that is not the nominative names its case and the nominative it comes
