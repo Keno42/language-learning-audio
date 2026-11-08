@@ -192,6 +192,12 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   was taught in; a line not met yet that gives a known number its missing gender goes after the theme's items in the order of new material
   (`Planner.choice_wants`: «fyrir tvær nætur», lesson 50). It is practice of the choice, not a recall, so no item's schedule moves
   (`tests/test_number_choice.py`).
+  A gendered word goes the same way (#439 step 2, the owner after lessons 44/45: «Ég er …», «Ég er ekki …», «Ertu …» teach no gender): a gendered
+  line's word said of him and of her is authored on it (`Item.said_of`, «Hann er svangur.» / «Hún er svöng.», with `said_of_meaning`), and once a
+  lesson, in a turn of today's items the number choice did not take, `Builder.said_of_choice` (kind `model`, stage `said_of`) plays the two lines in
+  one voice, each with whom it is said of («Said of a man: «svangur».»), then asks each from its meaning in the other order. The learner had the two
+  forms only as the speaker's own («As a man: …»). The lines are those met in an earlier lesson and not failing (`Planner.said_of_candidates`),
+  taking turns by lesson; no item's schedule moves (`tests/test_said_of.py`).
   Practice is shared (#439, lesson 41: four items, four sentences, 20 asks): a rung whose item
   another item's recall said since its own last practice is not asked (`said_since_own`), nor a pattern's whose sentences its fillers' practice
   already said once each on average (`saturated`: a substitution, not a new frame); its later rungs keep their times, and the second half's

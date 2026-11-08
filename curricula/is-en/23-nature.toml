@@ -506,6 +506,9 @@ meaning_ja = "怖いです。"
 difficulty = 2
 topics = ["nature", "feelings"]
 target_m = "Ég er hræddur."  # a man says this; lessons practise both forms, announced
+said_of = { m = "Hann er hræddur.", f = "Hún er hrædd." }  # #439 step 2: the word said of him and of her
+said_of_meaning = { m = "He's scared.", f = "She's scared." }
+said_of_meaning_ja = { m = "彼は怖がっています。", f = "彼女は怖がっています。" }
 situation = "The bridge sways over the gorge. Admit you're scared."
 situation_ja = "橋が渓谷の上で揺れています。怖いと認めてください。"
 

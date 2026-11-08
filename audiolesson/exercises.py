@@ -13,7 +13,7 @@ from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
-from .content import Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample, split_note_span
+from .content import Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample, said_of_words, split_note_span
 from .learner import LearnerState
 from .numbers import plain_number
 from .prompts import Prompts
@@ -1105,6 +1105,32 @@ class Builder:
             self._answer_pause(sc, ex, line.sentence, item, generative=False)
             self._answer(sc, ex, line.sentence, speaker=VOICE_OF[line.voice or "f"])
             if n < len(order) - 1:
+                self._beat(sc, ex)
+        self._gap(sc, ex)
+        return ex
+
+    def said_of_choice(self, sc: Script, item: Item) -> Exercise:
+        """#439 step 2 (the owner after lessons 44/45: «Ég er …», «Ég er ekki …», «Ertu …» teach no gender): a gendered line the learner knows, its
+        word said of him and of her («Hann er svangur.», «Hún er svöng.»), each with whom it is said of («Said of a man: «svangur».»), then each asked
+        again from its meaning, in the other order. The learner had the two forms only as the speaker's own («As a man: …»); here the form follows the
+        person talked about. Both lines in one voice, so the speaker's gender is not what changes."""
+        his, hers = said_of_words(item)
+        lines = [("m", his), ("f", hers)]
+        ex = sc.new_exercise("model", "said_of", [item.id], "said of: " + " / ".join(item.said_of[g] for g, _ in lines))
+        self._frame(sc, ex, self.prompts.get("said_of_intro"))
+        for g, form in lines:
+            self._speak(sc, ex, item.said_of[g])
+            self._beat(sc, ex)
+            self._speak_note_text(sc, ex, self.prompts.get(f"said_of_{g}", form=form))
+            if not (sc.segments and sc.segments[-1].type == "pause"):
+                self._beat(sc, ex)
+            self.heard.add(_norm_utterance(item.said_of[g]))
+        self._narr(sc, ex, self.prompts.get("number_choice_say"))
+        for n, (g, _) in enumerate(reversed(lines)):
+            self._narr(sc, ex, self._meaning_prompt(item.said_of_meaning[g]))
+            self._answer_pause(sc, ex, item.said_of[g], item, generative=False)
+            self._answer(sc, ex, item.said_of[g])
+            if n == 0:
                 self._beat(sc, ex)
         self._gap(sc, ex)
         return ex
