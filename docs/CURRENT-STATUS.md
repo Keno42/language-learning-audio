@@ -7,10 +7,29 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 (§7), the hypotheses with their status (§4), the evidence lesson by lesson (§5). The learning policy is in
 `docs/CURRENT-POLICY.md`.
 
+## The long run: one step every round
+
+What the project is for is the learner's accomplishment over the long run (LD §9 "Governance", owner 2026-11-09): their time is limited,
+and a lesson that only answers yesterday's remarks spends it on how lessons feel, not on what they will be able to do. Every round builds
+one step of the long run, whatever the remarks say; only the owner waives it, with a reason, in the ledger (`long_run_waived`).
+`tests/test_docs.py` fails from lesson 53 on a lesson that names neither its long-run PR nor a waiver. Lessons 35–51 built none.
+
+In order:
+1. **Instructions in Icelandic (#429, O2, H8).** A pilot of two commands, «Hlustaðu.» (listen) and «Endurtaktu.» (repeat): taught as
+   material, said in an Icelandic voice with the English beside them, the English faded as the learner shows they recognise them; then more
+   commands the same way.
+2. **Numbers in varied situations (#451, owner 2026-11-09).** Numbers met where a traveller meets them (a room number, a floor, a bus
+   number, an address, how many things, how many people), mostly by ear, rotated so no situation and no number word comes back within a few
+   lessons; plain numbers stop entering as age items by course order.
+3. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
+4. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
+
+**This round:** the #429 pilot.
+
 ## Now (updated 2026-11-09, after lesson 51), in order
 
-Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% by what may change a long-term decision, each
-remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
+The remarks' half of each round (LD §9 "Governance"): each remark ranked by how often its cause recurs on the replay of the latest export and
+what a fix costs. The latest export is lesson
 51's; the next lesson is 52. Lesson 51 was rated «light» (the seventh in a row), asked 35 of its 40 due reviews, played the number choice and
 a gendered word said of him and of her without a remark, and drew four remarks: prices made of known words announced as new, a cue that
 said «it» for the snow, «Sjáumst í dag», and a silent clip of «lin» (LD §5.41).
@@ -34,10 +53,7 @@ before adding practice. Scene coherence (#327): lesson 50 said four of its six n
 ten (its exchange was a level played again). The note's pieces (#481) have not played yet. Cues that leave their answer open (#500) and «Sjáumst í dag» (#501) are built; a silent clip taken
 as cut off (#503, the syllable «lin», synthesized again by hand on the server) is in review.
 
-**Longer term, in order:** understanding a partner's prompt, not only saying the reply (#327, #265: the aside on «komið hingað», #464, heard in lesson 44 with no remark); the larger numbers by ear (#451), with the listening pool's variety in «Now» (#339: ten of lesson 43's eleven
-pick-outs had been heard in the three lessons before); expressions usable in exchanges (#327, #265); winter and safety scenes
-(#142), as one bounded batch; a fluent speaker's review of the most-heard exchanges (#209), a small selection first; then the
-learner's own details (#428) and Icelandic instructions (#429), once task cues and audio are reliable.
+**Longer term:** the long run above holds the order; what is not in it waits there as an issue. Remaining after its four: understanding a partner's prompt, not only saying the reply (#327, #265, #464); expressions usable in exchanges (#327, #265); winter and safety scenes (#142), as one bounded batch.
 
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
 Icelandic (candidates until native-checked). The town (asking the way), small talk (getting to know someone) and the

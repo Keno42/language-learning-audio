@@ -18,7 +18,8 @@
 #   between the previous lesson's revision and its own, both named in §5), not counting a data PR (a scene, its lines or
 #   verdicts, a native correction) or one that leaves the lessons as they were (a tool, a report, a #281 step); remarks:
 #   who ("main": the learner, the owner; "other": another learner in the channel), text, family, class ("twenty",
-#   "precision", "mechanism": §1, §9 "Good enough overall"), answered_by (the PRs that answered it).
+#   "precision", "mechanism": §1, §9 "Good enough overall"), answered_by (the PRs that answered it); from lesson 53 (§9 "Governance",
+#   owner 2026-11-09): long_run (the long-run PR among built) or long_run_waived (the owner's reason), one of them on every lesson.
 # change: title (the §8 row), issue and pr (lists), family, first_heard (a lesson; absent while not heard), heard (what
 #   the row says about where it was heard).
 

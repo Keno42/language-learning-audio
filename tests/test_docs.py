@@ -121,6 +121,30 @@ class LedgerTests(unittest.TestCase):
         for change in self.ledger["change"]:
             self.assertIn(change["family"], self.ledger["families"], change["title"])
 
+    def test_the_long_run_moves_every_round(self):
+        """LD §9 "Governance" (owner, 2026-11-09: «so as long as a user keeps sending feedback, the longer goal is ignored»): lessons 35–51 spent every
+        PR on remarks, and #429, #428, #451 and #339 never moved. From lesson 53 every lesson names its long-run PR, one of the behaviour PRs it is the
+        first built with, or the owner's waiver with a reason; the round's docs do not pass with neither."""
+        tool = ledger_tool()
+        ls = tool.lessons(self.ledger)
+        self.assertEqual(tool.long_run_gaps(ls), [], "name the lesson's long-run PR (long_run) or the owner's waiver (long_run_waived)")
+        for lesson in ls:
+            if lesson.get("long_run"):
+                self.assertTrue(set(lesson["long_run"]) <= set(lesson.get("built", [])), f"lesson {lesson['n']}: a long-run PR is one it is built with")
+            if "long_run_waived" in lesson:
+                self.assertTrue(lesson["long_run_waived"].strip(), f"lesson {lesson['n']}: a waiver says why")
+        fake = [{"n": tool.LONG_RUN_FROM, "form": True, "built": ["#1"]}, {"n": tool.LONG_RUN_FROM + 1, "form": True, "long_run_waived": "owner: travel week"},
+                {"n": tool.LONG_RUN_FROM + 2, "form": True, "built": ["#2"], "long_run": ["#2"]}]
+        self.assertEqual(tool.long_run_gaps(fake), [tool.LONG_RUN_FROM])
+
+    def test_the_status_names_the_long_runs_step(self):
+        """«Now» keeps a fixed position for the long run, above the remarks, naming its order and the step this round builds."""
+        status = (DOCS / "CURRENT-STATUS.md").read_text(encoding="utf-8")
+        m = re.search(r"^## The long run.*?\n(.*?)(?=^## )", status, re.M | re.S)
+        self.assertIsNotNone(m, "docs/CURRENT-STATUS.md has a «The long run» section")
+        self.assertRegex(m.group(1), r"#\d+", "it names the long-run issues in order")
+        self.assertIn("**This round:**", m.group(1), "and the step this round builds")
+
     def test_the_fields_take_their_values(self):
         ref = re.compile(r"^(site_update_notifier)?#\d+$")
         ns = {lesson["n"] for lesson in self.ledger["lesson"]}

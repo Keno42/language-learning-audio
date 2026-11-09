@@ -1,5 +1,9 @@
 # Working on this repository
 
+- **The learner's long-term accomplishment comes first.** Their time and life are limited; what they can do at the end is what the
+  lessons are for. Every round of feedback builds one step of the long run named in `docs/CURRENT-STATUS.md` («The long run»),
+  whatever the remarks say; only the owner waives it, with a reason recorded in the ledger (`long_run_waived`). `tests/test_docs.py`
+  fails on a lesson that names neither (LEARNING-DESIGN §9 "Governance"). Answering remarks alone is the drift this rule exists to stop.
 - **Start with `docs/CURRENT-POLICY.md` and `docs/CURRENT-STATUS.md`** (the short briefs: what the project is for and
   what always holds; what we work on now, what was built since the last update, and where to look for the rest).
 - **Then read the sources for the task** (the table below), and answer `docs/LEARNING-DESIGN.md` §1's checklist in the

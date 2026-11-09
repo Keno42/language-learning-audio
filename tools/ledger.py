@@ -14,7 +14,10 @@ family and the lesson it was first heard in, and computes:
 - the **settled run** (§9 "Governance"): settled lessons in a row, up to the latest. A settled lesson has a form, load
   not «heavy», and no twenty-point remark of a recurring family: the structural fixes hold. A new family of any class
   does not break the run (new material brings new kinds of remark), and neither does «light» (the pace answers it, H9);
-- per lesson, as an advisory: the behaviour PRs it is the first built with (``built``), flagged past two (§9 "Governance").
+- per lesson, as an advisory: the behaviour PRs it is the first built with (``built``), flagged past two (§9 "Governance");
+- per lesson from ``LONG_RUN_FROM``: the long-run PR it is the first built with (``long_run``) or the owner's waiver
+  (``long_run_waived``). A lesson with neither is a gap (``long_run_gaps``), and ``tests/test_docs.py`` fails on it: the long
+  run moves every round unless the owner says why not (§9 "Governance", owner 2026-11-09).
 
     python tools/ledger.py [--ledger docs/feedback/ledger.toml] [--table]
 
@@ -32,6 +35,9 @@ from pathlib import Path
 LEDGER = Path(__file__).resolve().parent.parent / "docs" / "feedback" / "ledger.toml"
 CLEAN_FEEDBACKS = 3  # LD §8: three feedbacks without a remark of the same kind
 MAX_BUILT = 2  # LD §9 "Governance": at most two behaviour PRs between one lesson and the next
+# LD §9 "Governance" (owner, 2026-11-09): one of them advances the long run. From this lesson on, every lesson names its long-run PR or the
+# owner's waiver; lessons 35–51 spent every PR on remarks and the long run moved in none of them
+LONG_RUN_FROM = 53
 
 
 def load(path: Path = LEDGER) -> dict:
@@ -141,6 +147,11 @@ def too_many_built(reads: list[LessonRead]) -> list[int]:
     return [r.n for r in reads if r.built is not None and len(r.built) > MAX_BUILT]
 
 
+def long_run_gaps(ls: list[dict]) -> list[int]:
+    """The lessons from ``LONG_RUN_FROM`` that name neither a long-run PR (``long_run``) nor the owner's waiver (``long_run_waived``)."""
+    return [lesson["n"] for lesson in ls if lesson["n"] >= LONG_RUN_FROM and not lesson.get("long_run") and not lesson.get("long_run_waived")]
+
+
 def spans(ns: list[int]) -> str:
     """[27, 28, 29, 33] -> "27–29, 33"."""
     out: list[str] = []
@@ -202,6 +213,10 @@ def report(ledger: dict) -> str:
         for r in recorded:
             flag = f"  [more than {MAX_BUILT}]" if r.n in over else ""
             out.append(f"  {r.n:<5} {len(r.built):<3} {', '.join(r.built) or '-'}{flag}")
+    out.append(f"the long run (one PR a lesson from lesson {LONG_RUN_FROM}, or the owner's waiver):")
+    for lesson in (lesson for lesson in ls if lesson["n"] >= LONG_RUN_FROM):
+        said = ", ".join(lesson.get("long_run", [])) or (f"waived: {lesson['long_run_waived']}" if lesson.get("long_run_waived") else "MISSING")
+        out.append(f"  {lesson['n']:<5} {said}")
     statuses = [(change, change_status(change, ls)) for change in ledger.get("change", [])]
     counts = {s: sum(st.status == s for _, st in statuses) for s in ("done", "waiting", "recurred", "not heard")}
     out.append("changes: " + ", ".join(f"{v} {k}" for k, v in counts.items()))
