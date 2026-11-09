@@ -11,7 +11,8 @@ class ListeningEndsWithAWayBackTests(unittest.TestCase):
 
     def test_a_listening_exercise_before_a_drill_ends_with_back_to_speaking_and_only_then(self):
         closed = 0
-        for cur, _, sc in course.ListeningTaskTests._course(20):  # pick-outs and catches start around lesson 15
+        for cur, _, sc in course.ListeningTaskTests._course(22):  # pick-outs and catches start around lesson 15; 22, not 20: the hotel and bus scenes (#451 step 2c) take two lessons
+            # the simulated course spent on replays, and the second levels that bring most listening come two lessons later
             spoken = {s.exercise for s in sc.segments if s.exercise is not None and s.duration > 0}
             order = [e for e in sc.exercises if e.index in spoken]
             for e, nxt in zip(order, order[1:]):

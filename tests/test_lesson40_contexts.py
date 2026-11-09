@@ -50,7 +50,8 @@ class Lesson40ContextTests(unittest.TestCase):
 
     def test_every_listening_task_names_its_scene_the_lessons_own_included(self):
         named = 0
-        for _, _, sc in course.ListeningTaskTests._course(20):
+        # 22 lessons, not 20: the hotel and bus scenes (#451 step 2c) push the second levels, which bring most listening, two lessons later
+        for _, _, sc in course.ListeningTaskTests._course(22):
             for e in sc.exercises:
                 if e.kind not in ("pick_out", "catch_unknown"):
                     continue
