@@ -25,7 +25,8 @@ In order:
 3. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 4. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
-**This round:** the #429 pilot.
+**This round:** the #429 pilot (#507): «Endurtaktu.» and «Hlustaðu.» taught one a lesson from the tenth lesson, on top of the day's material,
+then said in Icelandic with the English after them until the review has recalled each twice.
 
 ## Now (updated 2026-11-09, after lesson 51), in order
 

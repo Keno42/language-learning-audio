@@ -52,6 +52,9 @@ class PlanConfig:
     # time after the introduction (about 1, 3, 8 and 15 minutes of 30), plus the closing block.
     intro_recall_times: list[float] = field(default_factory=lambda: [1 / 30, 1 / 10, 4 / 15, 1 / 2])
     plain_recall_time: float = 4 / 15  # #439 step 1a: a plain number's one timed recall, at the third rung's time
+    # #429 (the long run): the lessons a learner has completed before the instructions in Icelandic are taught; until then every instruction is
+    # in their own language, the first steps being hard enough
+    commands_from: int = 10
     starved_skip_rung: int | None = 1  # #439: the rung a new item gives up when the due reviews cannot fit (an index into intro_recall_times); None keeps all
     # A short item (``short_item_words`` words or fewer) is said alone at most this often in a
     # lesson, the introduction and the closing recall included (§9 "Repetition"); the rest of
@@ -514,6 +517,8 @@ class Planner:
         anything made only of known words 0."""
         if known is None or patterns is None:
             known, patterns = self._component_base()
+        if item.command:
+            return 0.0  # #429: an instruction comes on top of the day's new material, never in its place (``next_command``)
         if item.variant_of:
             return self.cfg.form_weight
         if item.kind == "phrase" and item.instance_form:
@@ -922,6 +927,7 @@ class Planner:
             pool = [i for i in pool if i.id in front] + theme_items + [i for i in pool if i.id not in order and i.id not in front]
         if not wants and not self.cfg.topics and self.themes_exhausted():
             pool = self._group_by_scene(pool, count, keep_first={promoted_id} if promoted_id else set())
+        pool = [i for i in pool if not i.command]  # #429: an instruction is taught by its own slot (``next_command``), never in a new-item place
         if (choice := set(self.choice_wants())):
             # #439 step 1b: after the theme's items and a promoted construction, the line that gives the number choice a missing gender
             ahead = set(wants or ()) | ({promoted_id} if promoted_id else set())
@@ -1485,6 +1491,14 @@ class Planner:
             if len(known) >= self.cfg.forms_after_constructions:
                 return n
         return None
+
+    def next_command(self) -> Item | None:
+        """#429 (the long run): the instruction in Icelandic this lesson teaches, one a lesson in course order («Endurtaktu.», then «Hlustaðu.»),
+        once the learner has completed ``PlanConfig.commands_from`` lessons; None when all are taught. It is taught first, on top of the day's new
+        material: its component cost is 0, so it takes no place among them (a simulated lesson lost a planned item to it)."""
+        if self.learner.lessons_completed < self.cfg.commands_from:
+            return None
+        return next((i for i in self.cur.items if i.command and not self.learner.has_met(i.id) and i.id not in self.learner.embedded), None)
 
     def choice_wants(self) -> list[str]:
         """#439 step 1b: a line not met yet that would give the number choice a gender it lacks («fyrir tvær nætur» once «tvo miða» and «tvö þúsund»
@@ -2095,6 +2109,11 @@ class Planner:
         wanted_at_start = self.theme_wants()
         first_arc = cfg.new_items_ceiling() if self.components_mode else cfg.resolved_new_items()  # in components, the target stops the arc
         new_queue = deque(self.select_new(first_arc, cheap=True))
+        if (command := self.next_command()) is not None:
+            # #429 (the long run): one instruction in Icelandic a lesson, first, on top of the day's new material. Charged (at 0) so the caps that
+            # read ``component_by_item`` see it as costing nothing, not as a missing item counted as 1 (review of #507)
+            self._charge(command)
+            new_queue.appendleft(command)
         open_ids = self.learner.open_items()
         open_ids = [i for i in open_ids if i in self.cur.by_id]
         open_today = open_ids[: cfg.max_open_items]
@@ -2249,6 +2268,8 @@ class Planner:
                 intro_skipped.append(item.id)
                 arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
                 return
+            if item.command:
+                b.plain.add(item.id)  # #429: an instruction is asked once more later, then heard in every exercise that says it
             if plain_number(item, self.cur):
                 b.plain.add(item.id)  # #439 step 1a: introduced plainly, whichever path introduces it
                 cost = self.component_by_item.get(item.id)
@@ -3851,7 +3872,9 @@ class Planner:
                     # recall the earlier of the two instead, only the very last item is off limits
                     candidate = next((p for p in sorted(pending) if p.item.id != recent[-1]), None)
                     pulled = next((e for e in sorted(intro_timeline) if e[2].id != recent[-1] and not sentence_lately(e[2])), None)
-                n_introduced = sum(1 for i in introduced if self.component_by_item.get(i.id, 1.0) > 0) if self.components_mode else len(introduced)
+                # #429: an instruction in Icelandic is on top of the day's new material, never counted against its cap
+                n_introduced = (sum(1 for i in introduced if self.component_by_item.get(i.id, 1.0) > 0) if self.components_mode
+                                else sum(1 for i in introduced if not i.command))
                 can_intro = idx - last_intro >= 1 and n_introduced < cfg.resolved_max_new_items()
                 # a later arc was admitted whole (_may_start_arc): its queued items may fill a gap too,
                 # though not as a third introduction in a row
@@ -4048,6 +4071,12 @@ class Planner:
         if goal_ex is not None and theme_plays and late_heard:
             goal_said[0] = b.goal_heard(sc, goal_ex, [t for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you"], set(late_heard))  # #327 (lesson 42: «Say you can't tomorrow …», whose line was heard in both plays)
         listening_closed, conversations_closed = close_tasks(sc, self.prompts, b.timing, self.cur.known_lang)  # the way back between tasks (#387, #415)
+        # #429: the way in («Listen.», written on the finished script) in Icelandic once «Hlustaðu.» is taught
+        segs = []
+        for seg in sc.segments:
+            said = b.command_segments("listen", seg.exercise) if seg.type == "narrate" and seg.role == "listen" else None
+            segs.extend(said if said else [seg])
+        sc.segments = segs
         switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same, b.timing.switch_gap_sentence)  # #301: the last pass over the finished script
         sc.retime()
         spare = self._spare_time(sc, introduced, theme_pick, early_ids, delivered_at[0])

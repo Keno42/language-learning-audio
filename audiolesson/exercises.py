@@ -53,6 +53,9 @@ def _other_voice(speaker: str) -> str:
 
 
 VOICE_OF = {"f": "native_a", "m": "native_b"}  # every profile voices native_a female, native_b male
+# #429: the voice an instruction in the target language is said in, the other native voice than the models' (native_a), so «Endurtaktu.» is not
+# heard as the line it introduces
+COMMAND_VOICE = "native_b"
 GENDER_OF = {v: g for g, v in VOICE_OF.items()}
 
 
@@ -390,6 +393,62 @@ class Builder:
     def _narr(self, sc: Script, ex: Exercise, text: str, role: str | None = None) -> None:
         sc.add(Segment("narrate", "instructor", text, self.kl, 1.0, self.timing.speech_estimate(text, self.kl), role, ex.index))
 
+    def command_item(self, key: str) -> Item | None:
+        """#429: the phrase that says the instruction ``key`` in the target language, once the learner has it (met before, or taught in this
+        lesson); None while they do not, and the instruction is said in their language."""
+        return next((i for i in self.cur.items if i.command == key and (self.learner.has_met(i.id) or i.id in self.in_lesson)), None)
+
+    def command_support(self, item: Item) -> bool:
+        """#429: whether the instruction in the learner's language follows the target-language one. It does until the learner's review has
+        recalled the phrase twice (recognition shown, not a lesson count), and again after a failure (``is_open``)."""
+        st = self.learner.items.get(item.id)
+        return not (st and st.recalled >= 2 and not self.learner.is_open(item.id))
+
+    def _instruct(self, sc: Script, ex: Exercise, key: str) -> None:
+        """An instruction (``key``, a phrasing key): in the target language once taught («Endurtaktu.»), with the learner's own after it while
+        ``command_support`` holds («Endurtaktu.» «Repeat.»); alone, a beat keeps it apart from the line it introduces. Before it is taught,
+        the learner's own, as always."""
+        item = self.command_item(key)
+        if item is None:
+            self._narr(sc, ex, self.prompts.get(key))
+            return
+        self._speak(sc, ex, item.target, speaker=COMMAND_VOICE, role="command")
+        if self.command_support(item):
+            self._narr(sc, ex, self.prompts.get(key), role="command_support")
+        else:
+            self._beat(sc, ex)
+
+    def _intro_command(self, sc: Script, item: Item) -> Exercise:
+        """#429: an instruction taught as material. «From now on, this instruction is in Icelandic:» «Endurtaktu.» «It means: Repeat.», said after
+        the model, and a first retrieval from its meaning, which the next day's review asks too."""
+        ex = sc.new_exercise("intro", "intro", [item.id], f"new instruction: {item.target}")
+        self.said[_norm_utterance(item.target)] += 1
+        self._frame(sc, ex, self.prompts.get("command_intro"))
+        self._speak(sc, ex, item.target, speaker=COMMAND_VOICE)
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("command_means", meaning=self._m(self.prompts.get(item.command))))
+        self._beat(sc, ex)
+        self._narr(sc, ex, self.prompts.get("repeat"))
+        self._speak(sc, ex, item.target, speaker=COMMAND_VOICE)
+        self._repeat_pause(sc, ex, item.target)
+        self._narr(sc, ex, self._meaning_prompt(item.spoken_meaning))
+        self._answer_pause(sc, ex, item.target, item, generative=False)
+        self._answer(sc, ex, item.target, speaker=COMMAND_VOICE)
+        self._gap(sc, ex)
+        return ex
+
+    def command_segments(self, key: str, ex_index: int) -> list[Segment] | None:
+        """#429: the segments of the instruction ``key`` said in the target language, for a line written after the lesson was built (the way
+        in, «Listen.», ``transitions.close_tasks``); None while it is not taught."""
+        item = self.command_item(key)
+        if item is None:
+            return None
+        out = [Segment("speak", COMMAND_VOICE, item.target, self.tl, 1.0, self.timing.speech_estimate(item.target, self.tl), "command", ex_index)]
+        if self.command_support(item):
+            text = self.prompts.get(key)
+            out.append(Segment("narrate", "instructor", text, self.kl, 1.0, self.timing.speech_estimate(text, self.kl), "command_support", ex_index))
+        return out
+
     def _frame(self, sc: Script, ex: Exercise, text: str) -> None:
         """A framing line that introduces an example or a scene, then a beat before the target-language line (#241, lesson
         20: «sometimes no pause between the instructor's line and the example»). A cue for the learner's own action
@@ -650,7 +709,7 @@ class Builder:
         sc.add(Segment("narrate", "instructor", self.prompts.get("embed_meaning", meaning=self._m(gen.meaning)), self.kl, 1.0,
                        self.timing.speech_estimate(gen.meaning, self.kl), "embed_meaning", ex.index))
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("repeat"))
+        self._instruct(sc, ex, "repeat")
         self._speak(sc, ex, target, speaker=voice)
         self._repeat_pause(sc, ex, target)
         self.heard.add(_norm_utterance(target))
@@ -680,7 +739,7 @@ class Builder:
         sc.add(Segment("narrate", "instructor", self.prompts.get("embed_meaning", meaning=self._m(item.spoken_meaning)), self.kl, 1.0,
                        self.timing.speech_estimate(item.spoken_meaning, self.kl), "embed_meaning", ex.index))
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("repeat"))
+        self._instruct(sc, ex, "repeat")
         self._speak(sc, ex, target, speaker=voice)
         self._repeat_pause(sc, ex, target)
         self.heard.add(_norm_utterance(target))
@@ -716,6 +775,8 @@ class Builder:
             return self._intro_construction(sc, item, worked_fills)
         if item.kind == "transform":
             return self._intro_transform(sc, item)
+        if item.command:
+            return self._intro_command(sc, item)
         if item.id in self.from_known:
             return self._intro_from_known(sc, item)
         base = self.cur.by_id.get(item.variant_of) if item.variant_of else None
@@ -754,11 +815,11 @@ class Builder:
             self._repeat_pause(sc, ex, item.target)
         elif item.is_hard():
             # a long single word: never a guessed split and never a stretched sound (#302): once more at natural speed
-            self._narr(sc, ex, self.prompts.get("repeat"))
+            self._instruct(sc, ex, "repeat")
             self._speak(sc, ex, item.target)
             self._repeat_pause(sc, ex, item.target)
         else:
-            self._narr(sc, ex, self.prompts.get("repeat"))
+            self._instruct(sc, ex, "repeat")
             self._speak(sc, ex, item.target)
             self._repeat_pause(sc, ex, item.target)
             if item.difficulty >= 2 and item.word_count >= 2 and not plain:
@@ -874,7 +935,7 @@ class Builder:
             self._frame(sc, ex, self.prompts.get("embed_part" if n == 0 else "embed_part_also"))
             self._speak(sc, ex, part.target, speaker=voice)
             self._beat(sc, ex)
-            self._narr(sc, ex, self.prompts.get("repeat"))
+            self._instruct(sc, ex, "repeat")
             self._speak(sc, ex, part.target, speaker=voice)
             self._repeat_pause(sc, ex, part.target)
             if part.id not in self.plain:
@@ -899,7 +960,10 @@ class Builder:
                 self._speak(sc, ex, piece, speaker=voice or "native_a", rate=self.timing.slow_rate)
                 self._repeat_pause(sc, ex, piece)  # one pause between pieces is enough
         else:
-            self._narr(sc, ex, self.prompts.get("slowly") if len(item.target.split()) > 1 else self.prompts.get("repeat"))
+            if len(item.target.split()) > 1:
+                self._narr(sc, ex, self.prompts.get("slowly"))
+            else:
+                self._instruct(sc, ex, "repeat")
             self._slow_line(sc, ex, item.target, speaker=voice or "native_a")
             self._repeat_pause_spaced(sc, ex, item.target)
             if len(item.target.split()) < 2:
@@ -918,7 +982,7 @@ class Builder:
                 self._repeat_pause(sc, ex, piece)
             self._narr(sc, ex, self.prompts.get("natural"))
         else:
-            self._narr(sc, ex, self.prompts.get("repeat"))
+            self._instruct(sc, ex, "repeat")
         self._speak(sc, ex, word, speaker=voice or "native_a")
         self._repeat_pause(sc, ex, word)
 
@@ -1224,7 +1288,7 @@ class Builder:
         self._beat(sc, ex)
         self._speak(sc, ex, target, speaker=voice)
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("repeat"))
+        self._instruct(sc, ex, "repeat")
         self._speak(sc, ex, target, speaker=voice)
         self._repeat_pause(sc, ex, target)
         plain = item.id in self.plain  # #439 step 1a: a plain number is heard in its sentence and said, with no slow model
@@ -1272,7 +1336,7 @@ class Builder:
         self._frame(sc, ex, self.prompts.get("variant_form", meaning=self._m(item.spoken_meaning)))
         self._speak(sc, ex, item.target)
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("repeat"))
+        self._instruct(sc, ex, "repeat")
         self._speak(sc, ex, item.target)
         self._repeat_pause(sc, ex, item.target)
         gen = self.generate_with(item, avoid_heard=True)
@@ -1330,7 +1394,7 @@ class Builder:
             self._beat(sc, ex)
             self._speak(sc, ex, target)
             self._beat(sc, ex)
-            self._narr(sc, ex, self.prompts.get("repeat"))
+            self._instruct(sc, ex, "repeat")
             self._speak(sc, ex, target)
             self._repeat_pause(sc, ex, target)
             if item.difficulty >= 2 and len(target.split()) > 1:
@@ -1605,7 +1669,7 @@ class Builder:
         self._beat(sc, ex)
         self._narr(sc, ex, self.prompts.get("embed_meaning", meaning=self._m(meaning)))
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("repeat"))
+        self._instruct(sc, ex, "repeat")
         self._speak(sc, ex, shown, speaker=voice)
         self._repeat_pause(sc, ex, shown)
         self.heard.update({_norm_utterance(plain), _norm_utterance(shown)})
