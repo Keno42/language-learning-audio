@@ -186,6 +186,17 @@ setting = "Cold, wind, ice, darkness, closed roads."
 success = "Comments on the weather and understands warnings about ice and closures."
 items = ["kalt", "rok", "snjor", "halka", "thad_snjoar", "thad_er_svo_kalt", "mer_er_kalt", "thad_er_dimmt_uti", "thad_er_halka", "er_vegurinn_opinn", "vegurinn_er_lokadur", "eg_tharf_ulpu"]
 
+[[scenarios]]
+id = "B7"
+tier = "B"
+title = "Hotel desk"
+title_ja = "ホテルのフロント"
+setting = "Checking in and out: the room, the floor, breakfast, the Wi-Fi password."
+success = "Checks in under a booking, catches the room number and breakfast hours, asks the check-out time and the Wi-Fi password, and takes the code down."
+items = ["eg_er_med_bokun", "a_nafninu_yuki", "get_eg_fengid_lykilinn", "hvenaer_er_utritun", "hvad_er_lykilordid", "herbergi_numer_tolf"]
+clerk_lines = ["Á hvaða nafni?", "Herbergið er á annarri hæð.", "Útritun er klukkan ellefu."]
+respect = ["greet", "thanks"]
+
 # ---------------------------------------------------------------- Tier C: nice to have
 
 [[scenarios]]

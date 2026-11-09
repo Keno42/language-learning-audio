@@ -764,7 +764,7 @@ def _slot_names(text: str) -> list[str]:
 
 
 COMMAND_KEYS = ("repeat", "listen")  # #429: the instructions a phrase may say in the target language (their phrasing keys)
-PROBE_KINDS = ("price", "time", "count", "place", "duration")  # what an information probe asks to listen for (#248)
+PROBE_KINDS = ("price", "time", "count", "place", "duration", "number")  # what an information probe asks to listen for (#248); "number": a number used as a name, a room, a bus, a code (#451 step 2c)
 FORMS = ("negative", "question")  # a construction's authored forms besides the plain one (#171)
 
 SPEAKERS = ("native_a", "native_b")  # native_a is voiced female, native_b male, in every profile

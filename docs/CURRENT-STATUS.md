@@ -22,8 +22,8 @@ In order:
 2. **Numbers in varied situations (#451, owner 2026-11-09).** Numbers where a traveller meets them, sorted into eight kinds in #451
    (money, time, dates, counts and people, numbers as names, weather and roads, contacts and codes, about oneself), mostly by ear,
    rotated so no kind and no number word comes back within a few lessons. Merged: step 1 (#508, a plain number enters where it is used,
-   not by course order) and step 2a (#509, money and time by ear). Step 2b (counts and people) is in review: two scene levels (hot dogs for
-   a group, family tickets) give each of 2–4 a line in every gender for #439's number choice.
+   not by course order), 2a (#509, money and time by ear) and 2b (#510, counts and people: each of 2–4 in every gender). Step 2c is in
+   review: a hotel desk and a bus theme (room and bus numbers, a code digit by digit, breakfast and check-out times, the fare).
 3. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 4. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
