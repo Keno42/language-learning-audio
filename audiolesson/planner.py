@@ -3424,7 +3424,7 @@ class Planner:
                 picks_by_pattern[task.pattern] += 1
                 pick_outs_heard.append(task.pattern)  # the turn (its wordings and probes): for the learner they are the same question again; the cap per lesson counts the same (#339 review)
                 pick_out_answers_heard.extend([pick_out_answer_key(task.pattern, task.answer), task.source])
-                numbers_heard.extend(number_words(task.answer))
+                numbers_heard.extend(number_words(task.line))
             else:
                 caught_words.add(task.answer.lower())
                 caught_now.append(task.answer.lower())
@@ -3443,7 +3443,9 @@ class Planner:
             # «Reykjavík», was asked six lessons running)
             lesson_now = self.learner.next_lesson_number()
             recent = {k.removeprefix("number:") for k, at in self.learner.listening_log.items() if k.startswith("number:") and at >= lesson_now - cfg.number_rest_lessons}
-            heard_now = Counter(numbers_heard)
+            # in this lesson: every time a number word was said so far, by any voice and in any exercise (the reviews' prices, the number choice, a
+            # dialogue), not only as a pick-out's answer: the pick-outs are the part of the lesson that can choose, so they avoid what the rest has said
+            heard_now = Counter(w for g in sc.segments if g.type in ("speak", "answer") and g.text and g.lang == self.cur.target_lang for w in number_words(g.text))
             for rank, (t, n) in enumerate(scene_levels()):
                 level = t.levels[n]
                 for k, turn in enumerate(level.turns):
@@ -3457,7 +3459,7 @@ class Planner:
                             # wordings of «tíu mínútur» are the same answer)
                             answer_in = self.learner.listening_log.get(pick_out_answer_key(f"theme:{t.id}:{n + 1}:{k}", probe["answer"]), 0)
                             line_in = self.learner.listening_log.get(f"theme:{t.id}:{n + 1}:{k}:{v}:{pi}", 0)  # then, for one value, the line heard least recently
-                            tired = sum(heard_now[w] + (w in recent) for w in number_words(probe["answer"]))
+                            tired = sum(heard_now[w] + (w in recent) for w in number_words(ln.say))  # the whole line the learner hears, not only the answer
                             cands.append(((tired, (t.id, n, k), heard_in, answer_in, line_in, 0 if len(ln.probes) > 1 else 1, 0 if rank == 0 and theme_pick else 1, self.rng.random()), t, n, k, v, pi, ln, probe))
             # Within a turn, #339's rule stands: never the value it gave last while it has another the learner can be asked (review: «hundrað» twice in a row);
             # among the others, the least tired, then the one heard least recently. A turn is as tired as the value it would give, and a value that cannot be
