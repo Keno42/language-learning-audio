@@ -402,7 +402,8 @@ kind = "vocab"
 target = "lítið"
 meaning = "little / small"
 meaning_ja = "少し／小さい"
-meaning_forms_ja = { neg = "小さくありません" }
+meaning_forms = { in_sentence = "small" }  # draft of lesson 52: «Þetta er lítið.» was glossed «This is little / small.»
+meaning_forms_ja = { in_sentence = "小さい", neg = "小さくありません" }
 difficulty = 1
 tags = ["adj_neut"]
 topics = ["numbers", "adjectives"]
@@ -437,14 +438,16 @@ meaning = "answering a price question"
 meaning_ja = "値段の質問に答える"
 difficulty = 2
 topics = ["grammar", "money"]
-instruction = "Answer: it costs a thousand krónur."
-instruction_ja = "答えてください：1000クローナです。"
+answers = true
+# the prices vary, in number words the learner has (draft of lesson 52: every answer was «þúsund krónur», five times)
+instruction = "Answer: {result_meaning}"
+instruction_ja = "答えてください：{result_meaning}"
 prereqs = ["thad_kostar", "hvad_kostar"]
 examples = [
-  { source = "Hvað kostar kaffi?", source_meaning = "How much is a coffee?", source_meaning_ja = "コーヒーはいくらですか？", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur.", result_meaning_ja = "1000クローナです。" },
-  { source = "Hvað kostar te?", source_meaning = "How much is a tea?", source_meaning_ja = "紅茶はいくらですか？", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur.", result_meaning_ja = "1000クローナです。" },
-  { source = "Hvað kostar þetta?", source_meaning = "How much is this?", source_meaning_ja = "これはいくらですか？", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur.", result_meaning_ja = "1000クローナです。" },
-  { source = "Hvað kostar bjór?", source_meaning = "How much is a beer?", source_meaning_ja = "ビールはいくらですか？", result = "Það kostar þúsund krónur.", result_meaning = "It costs a thousand krónur.", result_meaning_ja = "1000クローナです。" },
+  { source = "Hvað kostar kaffi?", source_meaning = "How much is a coffee?", source_meaning_ja = "コーヒーはいくらですか？", result = "Það kostar sex hundruð krónur.", result_meaning = "It costs six hundred krónur.", result_meaning_ja = "600クローナです。" },
+  { source = "Hvað kostar te?", source_meaning = "How much is a tea?", source_meaning_ja = "紅茶はいくらですか？", result = "Það kostar fjögur hundruð krónur.", result_meaning = "It costs four hundred krónur.", result_meaning_ja = "400クローナです。" },
+  { source = "Hvað kostar þetta?", source_meaning = "How much is this?", source_meaning_ja = "これはいくらですか？", result = "Það kostar átta hundruð krónur.", result_meaning = "It costs eight hundred krónur.", result_meaning_ja = "800クローナです。" },
+  { source = "Hvað kostar bjór?", source_meaning = "How much is a beer?", source_meaning_ja = "ビールはいくらですか？", result = "Það kostar tólf hundruð krónur.", result_meaning = "It costs twelve hundred krónur.", result_meaning_ja = "1200クローナです。" },
 ]
 
 [[dialogues]]

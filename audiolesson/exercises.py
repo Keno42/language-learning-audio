@@ -1369,11 +1369,11 @@ class Builder:
 
     def _intro_transform(self, sc: Script, item: Item) -> Exercise:
         ex = sc.new_exercise("intro", "intro", [item.id], f"new: {item.meaning}")
-        self._narr(sc, ex, self.prompts.get("transform_intro"))
+        self._narr(sc, ex, self.prompts.get("transform_intro_answer" if item.answers else "transform_intro"))
         shown = item.examples[:2]
         for exm in shown:
             self._speak(sc, ex, exm.source)
-            self._narr(sc, ex, self.prompts.get("transform_becomes"))
+            self._narr(sc, ex, self.prompts.get("transform_answer" if item.answers else "transform_becomes"))
             self._speak(sc, ex, exm.result)
             self._beat(sc, ex)
             self._examples_said.append(item.id + ":" + exm.source)
@@ -1761,7 +1761,9 @@ class Builder:
         if self.situation_rank(item.instruction) is None and self._last_instruction == item.instruction and self._last_instruction_ex == before:
             self._narr(sc, ex, self._as(answer_gender, self.prompts.get("transform_same")), role="short_instruction")
         else:
-            self._narr(sc, ex, self._as(answer_gender, item.instruction))
+            # an answer drill names the answer it asks for (``Item.answers``): «Answer: It costs six hundred krónur.»
+            instruction = item.instruction.format(result_meaning=self._m(exm.result_meaning)) if item.answers else item.instruction
+            self._narr(sc, ex, self._as(answer_gender, instruction))
             self._narrated(item.instruction, recent=False)
         self._last_instruction, self._last_instruction_ex = item.instruction, ex.index
         self._speak(sc, ex, source, role="source", speaker=VOICE_OF[gender or "f"])
