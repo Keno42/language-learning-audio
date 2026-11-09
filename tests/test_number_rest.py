@@ -41,6 +41,30 @@ class NumberWordsTests(unittest.TestCase):
         self.assertEqual([c.sentence for c in pick_choice(groups, 1)], ["Þrjá miða, takk.", "Það kostar þrjú þúsund krónur."])
 
 
+class FormGenderTests(unittest.TestCase):
+    """#451 step 3c (the owner: the same load, a second purpose): a number heard for its information also practises the form of 1–4 its noun's gender asks."""
+
+    def test_the_gender_a_form_of_one_to_four_shows(self):
+        from audiolesson.numbers import form_genders
+
+        self.assertEqual(form_genders("Nei, það tekur bara tvær mínútur að ganga."), ["fem"])
+        self.assertEqual(form_genders("Tvo fullorðna og tvö börn, takk."), ["masc", "neut"])
+        self.assertEqual(form_genders("Það kostar fimm hundruð krónur."), [], "«fimm» has one form")
+        self.assertEqual(form_genders("með tveimur"), [], "a form all genders share says nothing")
+
+    def test_the_towns_walking_times_have_feminine_values_beside_the_round_ones(self):
+        """Adding, not replacing: on a course from the start the town comes before «tvær» and «þrjár» are known, and a turn whose values cannot be asked
+        sends the pick-outs back to turns heard lately (#339's measure rose from 41 to 50 of about 155 over 60 simulated lessons when they replaced «fimm»)."""
+        from audiolesson.numbers import form_genders
+
+        cur = load_curriculum(IS_EN)
+        town = next(t for t in load_themes(IS_EN, cur, load_cando(IS_EN)) if t.id == "town")
+        for n in (0, 1):
+            answers = [p["answer"] for turn in town.levels[n].turns if turn.who == "partner" for ln in [*turn.lines(), *turn.listen_lines()] for p in ln.probes]
+            self.assertTrue(any("fem" in form_genders(a) for a in answers), f"town {n + 1}: {answers}")
+            self.assertTrue(any(a.split()[-2:-1] and a.split()[-2] in ("fimm", "tíu") for a in answers), f"town {n + 1} keeps a round value")
+
+
 class NumberRestTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

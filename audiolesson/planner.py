@@ -3500,7 +3500,8 @@ class Planner:
                 key = ct[0][0]
                 if turn_heard_lately(key[2]):
                     return (1, (0, (1, 0)), key[2], within(ct[0]), *key[6:])  # all heard lately: #339's order alone, least recently heard first
-                return (0, turn_tired.get(key[1], (0, (1, 0))), key[2], within(ct[0]), *key[6:])
+                tired, need = turn_tired.get(key[1], (0, (1, 0)))
+                return (0, tired, key[2], need, within(ct[0]), *key[6:])  # the form a turn says only after #339's recency between turns
 
             for c, task in sorted(tasks, key=order):
                 yield task
