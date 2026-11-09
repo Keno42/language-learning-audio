@@ -528,6 +528,36 @@ turns = [
   { who = "partner", say = "Þú mátt fá mína lánaða.", meaning = "You can borrow mine.", meaning_ja = "私のを貸してあげますよ。" },
 ]
 
+[[themes.levels]]
+# #451 step 2d: a temperature said by the learner as a whole sentence (its words become theirs inside it), one heard back from home. Candidates until native-checked (#209).
+goal = "A friend at home calls: say how cold it is, catch how warm it is there, and say you like the snow."
+goal_ja = "家にいる友達から電話。こちらの気温を言い、向こうの気温を聞き取り、雪が気に入っていると言う。"
+partner_speaker = "native_a"  # the partner is a woman
+scene_line = "A friend calls you from home and asks about the weather in Iceland."
+scene_line_ja = "家にいる友達から電話があり、アイスランドの天気を聞かれます。"
+turns = [
+  { who = "partner", say = "Hæ! Hvernig er veðrið hjá þér?", meaning = "Hi! How's the weather where you are?", meaning_ja = "もしもし！そっちの天気はどう？", variants = [{ say = "Hæ! Er kalt hjá þér?", meaning = "Hi! Is it cold where you are?", meaning_ja = "もしもし！そっちは寒い？" }] },
+  { who = "you", cue = "Say it's minus three degrees.", cue_ja = "マイナス3度だと言ってください。", aim = "say how cold it is", aim_ja = "気温を言う", say = "Það eru mínus þrjár gráður.", items = ["thad_eru_minus_thrjar_gradur"] },
+  { who = "partner", say = "Vá! Hér eru tuttugu gráður.", meaning = "Wow! It's twenty degrees here.", meaning_ja = "わあ！こっちは20度だよ。", probes = [{ kind = "temperature", answer = "tuttugu gráður", meanings = { en = "twenty degrees", ja = "20度" } }], variants = [{ say = "Vá! Hér eru tólf gráður.", meaning = "Wow! It's twelve degrees here.", meaning_ja = "わあ！こっちは12度だよ。", probes = [{ kind = "temperature", answer = "tólf gráður", meanings = { en = "twelve degrees", ja = "12度" } }] }], listen = [{ say = "Vá, það er kalt! Hér eru þrjátíu gráður og sól.", meaning = "Wow, that's cold! It's thirty degrees and sunny here.", meaning_ja = "わあ、寒いね！こっちは30度で晴れてるよ。", probes = [{ kind = "temperature", answer = "þrjátíu gráður", meanings = { en = "thirty degrees", ja = "30度" } }] }] },
+  { who = "you", cue = "Say you think the snow is beautiful.", cue_ja = "雪がきれいだと思うと言ってください。", aim = "say you like the snow", aim_ja = "雪が気に入っていると言う", say = "Mér finnst snjórinn fallegur.", items = ["mer_finnst_snjorinn_fallegur"] },
+  { who = "partner", say = "Gott! Farðu varlega í hálkunni.", meaning = "Good! Be careful on the ice.", meaning_ja = "よかった！凍った道に気をつけてね。" },
+  { who = "you", cue = "Thank her and say goodbye.", cue_ja = "お礼を言ってさようならと言ってください。", aim = "thank her and say goodbye", aim_ja = "お礼を言って別れる", say = "Takk og bless!", items = ["takk_og_bless"] },
+]
+[[themes.levels]]
+# #451 step 2d: the morning forecast by ear (the temperature, the wind) and the road. The wind's «metrar á sekúndu» is only heard. Candidates
+# until native-checked (#209).
+goal = "At breakfast, ask about the weather, catch the temperature, and ask if the road is open."
+goal_ja = "朝食で天気を聞き、気温を聞き取り、道が通れるか聞く。"
+turns = [
+  { who = "you", cue = "Ask what the weather is like.", cue_ja = "天気はどうか聞いてください。", aim = "ask about the weather", aim_ja = "天気を聞く", say = "Hvernig er veðrið?", items = ["hvernig_er_vedrid"] },
+  { who = "partner", say = "Kalt. Það eru mínus fjórar gráður og rok.", meaning = "Cold. It's minus four degrees, and windy.", meaning_ja = "寒いですよ。マイナス4度で、風が強いです。", probes = [{ kind = "temperature", answer = "mínus fjórar gráður", meanings = { en = "minus four degrees", ja = "マイナス4度" } }], variants = [{ say = "Kalt. Það eru mínus tvær gráður og rok.", meaning = "Cold. It's minus two degrees, and windy.", meaning_ja = "寒いですよ。マイナス2度で、風が強いです。", probes = [{ kind = "temperature", answer = "mínus tvær gráður", meanings = { en = "minus two degrees", ja = "マイナス2度" } }] }], listen = [{ say = "Það eru mínus fjórar gráður núna og vindurinn er tuttugu metrar á sekúndu.", meaning = "It's minus four degrees now, and the wind is twenty metres a second.", meaning_ja = "今マイナス4度で、風は秒速20メートルです。", probes = [{ kind = "temperature", answer = "mínus fjórar gráður", meanings = { en = "minus four degrees", ja = "マイナス4度" } }] }, { say = "Það á að vera mínus tvær gráður í dag, en það lygnir seinnipartinn.", meaning = "It should be minus two degrees today, but the wind drops in the afternoon.", meaning_ja = "今日はマイナス2度の予報ですが、午後には風がおさまります。", probes = [{ kind = "temperature", answer = "mínus tvær gráður", meanings = { en = "minus two degrees", ja = "マイナス2度" } }] }] },
+  { who = "you", cue = "Say it's so cold!", cue_ja = "すごく寒いですねと言ってください。", aim = "say it's so cold", aim_ja = "すごく寒いと言う", say = "Það er svo kalt!", items = ["thad_er_svo_kalt"] },
+  { who = "partner", say = "Já, og það er hálka á veginum.", meaning = "Yes, and the road is icy.", meaning_ja = "ええ、それに道が凍っています。", variants = [{ say = "Já, og það er hálka úti.", meaning = "Yes, and it's icy outside.", meaning_ja = "ええ、それに外は凍っています。" }] },
+  { who = "you", cue = "Ask if the road is open.", cue_ja = "道は通れるか聞いてください。", aim = "ask if the road is open", aim_ja = "道が通れるか聞く", say = "Er vegurinn opinn?", items = ["er_vegurinn_opinn"] },
+  { who = "partner", say = "Já, en farðu varlega.", meaning = "Yes, but be careful.", meaning_ja = "ええ、でも気をつけてください。", variants = [{ say = "Já, en keyrðu varlega.", meaning = "Yes, but drive carefully.", meaning_ja = "ええ、でも慎重に運転してください。" }] },
+  { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", aim = "thank him", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
+]
+
 # #451 step 2c: numbers as names (a room, a floor, a bus, a code) and the times a hotel and a bus give. Mostly heard: the room number, the
 # breakfast hours, the code read digit by digit, the bus number and its wait. A generic hotel, no one's real lodging. Candidates until
 # native-checked (#209).

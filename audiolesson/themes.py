@@ -48,7 +48,7 @@ and ``load_scenes`` only ``[[scenes]]``, so they share the directory)::
   must fit the learner's reply that follows: it asks the same thing.
 - A partner line (and a variant) may carry ``probes`` and ``word_glosses``, and a partner turn ``listen`` lines (#248): what the second half's
   listening exercises use. A *probe* is ``{ kind, answer, meanings = { en, ja }, ask = { en, ja } }``: ``answer`` a stretch of the line as written
-  («tuttugu mínútur»), ``kind`` price / time / count / place / duration / number (a number used as a name: a room, a bus, a code; #451 step 2c); the learner finds it and says it in Icelandic. A line with two or more probes
+  («tuttugu mínútur»), ``kind`` price / time / count / place / duration / number (a number used as a name: a room, a bus, a code; #451 step 2c) / temperature; the learner finds it and says it in Icelandic. A line with two or more probes
   gives each an ``ask`` («How long do we stop?»). A ``listen`` line ``{ say, meaning, meaning_ja, probes, word_glosses }`` is never played in the
   exchange: it is wording for the listening exercises only, with two pieces of information for the question to pick between.
   ``word_glosses = { word = { en, ja, pointer = { en, ja } } }`` is the meaning of a word in the line the learner may not know.
