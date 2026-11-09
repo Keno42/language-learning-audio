@@ -12,7 +12,8 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 What the project is for is the learner's accomplishment over the long run (LD §9 "Governance", owner 2026-11-09): their time is limited,
 and a lesson that only answers yesterday's remarks spends it on how lessons feel, not on what they will be able to do. Every round builds
 one step of the long run, whatever the remarks say; only the owner waives it, with a reason, in the ledger (`long_run_waived`).
-`tests/test_docs.py` fails from lesson 53 on a lesson that names neither its long-run PR nor a waiver. Lessons 35–51 built none.
+`tests/test_docs.py` fails from lesson 53 on a round that names neither its long-run PR nor a waiver, or on more than seven lessons
+in a row without one. Lessons 35–51 built none.
 
 In order:
 1. **Instructions in Icelandic (#429, O2, H8).** A pilot of two commands, «Hlustaðu.» (listen) and «Endurtaktu.» (repeat): taught as

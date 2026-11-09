@@ -917,8 +917,9 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
       `audiolesson/claims.py` is for framing lines, #397); then the fix for a new twenty-point remark, checked on the replay. A data PR
       (a scene, its lines or verdicts, a native correction) is not counted. Nor is the fix for a regression (something already fixed
       coming back on the replay), which is made at once. The ledger lists the behaviour PRs each lesson is the first built with
-      (`built`), and `tools/ledger.py` flags more than two. From lesson 53 each lesson names its long-run PR (`long_run`) or the
-      owner's waiver with its reason (`long_run_waived`), and `tests/test_docs.py` fails on a lesson with neither: the round's docs
+      (`built`), and `tools/ledger.py` flags more than two. From lesson 53 each round (the lesson first built with its PRs) names its
+      long-run PR (`long_run`) or the owner's waiver with its reason (`long_run_waived`), and no more than seven lessons pass in a row
+      without one, so a weekly round is allowed and a week with none is not; `tests/test_docs.py` fails otherwise: the round's docs
       cannot merge until the long run has moved or the owner has said why not. Lessons 35–51 spent every PR on remarks: #429, #428,
       #451 and #339 never moved, while the ranking said 20% went to them;
     - the week's precision remarks are answered in one PR, after the weekly round (§1);

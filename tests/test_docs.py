@@ -123,8 +123,9 @@ class LedgerTests(unittest.TestCase):
 
     def test_the_long_run_moves_every_round(self):
         """LD §9 "Governance" (owner, 2026-11-09: «so as long as a user keeps sending feedback, the longer goal is ignored»): lessons 35–51 spent every
-        PR on remarks, and #429, #428, #451 and #339 never moved. From lesson 53 every lesson names its long-run PR, one of the behaviour PRs it is the
-        first built with, or the owner's waiver with a reason; the round's docs do not pass with neither."""
+        PR on remarks, and #429, #428, #451 and #339 never moved. From lesson 53 every development round (a lesson first built with behaviour PRs)
+        names its long-run PR among them, or the owner's waiver with a reason, and no more than a week of lessons passes without one; the round's
+        docs do not pass otherwise."""
         tool = ledger_tool()
         ls = tool.lessons(self.ledger)
         self.assertEqual(tool.long_run_gaps(ls), [], "name the lesson's long-run PR (long_run) or the owner's waiver (long_run_waived)")
@@ -133,9 +134,16 @@ class LedgerTests(unittest.TestCase):
                 self.assertTrue(set(lesson["long_run"]) <= set(lesson.get("built", [])), f"lesson {lesson['n']}: a long-run PR is one it is built with")
             if "long_run_waived" in lesson:
                 self.assertTrue(lesson["long_run_waived"].strip(), f"lesson {lesson['n']}: a waiver says why")
-        fake = [{"n": tool.LONG_RUN_FROM, "form": True, "built": ["#1"]}, {"n": tool.LONG_RUN_FROM + 1, "form": True, "long_run_waived": "owner: travel week"},
-                {"n": tool.LONG_RUN_FROM + 2, "form": True, "built": ["#2"], "long_run": ["#2"]}]
-        self.assertEqual(tool.long_run_gaps(fake), [tool.LONG_RUN_FROM])
+        start = tool.LONG_RUN_FROM
+        daily = [{"n": start, "form": True, "built": ["#1"]}, {"n": start + 1, "form": True, "long_run_waived": "owner: travel week"},
+                 {"n": start + 2, "form": True, "built": ["#2"], "long_run": ["#2"]}]
+        self.assertEqual(tool.long_run_gaps(daily), [start], "a round built with PRs and no long-run PR or waiver")
+        # review of #505: a weekly round is allowed; the lessons between rounds, built with no PR, need nothing
+        weekly = [{"n": start, "form": True, "built": ["#3", "#4"], "long_run": ["#4"]}] + [{"n": start + k, "form": True} for k in range(1, 7)]
+        weekly.append({"n": start + 7, "form": True, "built": ["#5"], "long_run": ["#5"]})
+        self.assertEqual(tool.long_run_gaps(weekly), [])
+        quiet = [{"n": start + k, "form": True} for k in range(tool.LONG_RUN_SPAN + 1)]
+        self.assertEqual(tool.long_run_gaps(quiet), [start + tool.LONG_RUN_SPAN], "no more than a week without the long run moving")
 
     def test_the_status_names_the_long_runs_step(self):
         """«Now» keeps a fixed position for the long run, above the remarks, naming its order and the step this round builds."""
