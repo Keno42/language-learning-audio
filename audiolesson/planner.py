@@ -517,6 +517,8 @@ class Planner:
         anything made only of known words 0."""
         if known is None or patterns is None:
             known, patterns = self._component_base()
+        if item.command:
+            return 0.0  # #429: an instruction comes on top of the day's new material, never in its place (``next_command``)
         if item.variant_of:
             return self.cfg.form_weight
         if item.kind == "phrase" and item.instance_form:
@@ -1493,7 +1495,7 @@ class Planner:
     def next_command(self) -> Item | None:
         """#429 (the long run): the instruction in Icelandic this lesson teaches, one a lesson in course order («Endurtaktu.», then «Hlustaðu.»),
         once the learner has completed ``PlanConfig.commands_from`` lessons; None when all are taught. It is taught first, on top of the day's new
-        material, and charged like any new item."""
+        material: its component cost is 0, so it takes no place among them (a simulated lesson lost a planned item to it)."""
         if self.learner.lessons_completed < self.cfg.commands_from:
             return None
         return next((i for i in self.cur.items if i.command and not self.learner.has_met(i.id) and i.id not in self.learner.embedded), None)

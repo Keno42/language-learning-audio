@@ -177,6 +177,7 @@ def unmarked_turns(sc: Script, prompts: Prompts) -> list[str]:
         ends = END_LINES.get(mode(e))
         if ends and not any(lines[-1].text in _templates(prompts, key) for key in ends):
             out.append(f"{e.label}: no end line")
-        if k and mode(e) in OPENS_WITH_ITS_OWN_LINE and not _instructor(lines[0]):
+        # #429: an instruction said in the target language («Hlustaðu.», role ``command``) is the instructor's line in the voice that teaches it
+        if k and mode(e) in OPENS_WITH_ITS_OWN_LINE and not _instructor(lines[0]) and lines[0].role != "command":
             out.append(f"{e.label}: opens with «{lines[0].text}» straight after {order[k - 1].kind}")
     return out

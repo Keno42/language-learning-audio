@@ -1,14 +1,14 @@
 # 28 — instructions in Icelandic (#429, the long run: O2, H8)
 # The instructor's most frequent commands, said in Icelandic once taught: «Endurtaktu.» for «Repeat.», «Hlustaðu.» for «Listen.».
-# Each is taught as material (it counts toward the lesson's new items), then said in an Icelandic voice with the English after it,
+# Each is taught as material, on top of the day's new items (it takes no place among them), then said in an Icelandic voice with the English after it,
 # until the learner's review has recalled it twice; a failure brings the English back. `command` names the instruction it replaces.
 
 [[items]]
 id = "endurtaktu"
 kind = "phrase"
 target = "Endurtaktu."
-meaning = "Repeat. (the instruction)"
-meaning_ja = "繰り返してください。（指示）"
+meaning = "Repeat, as an instruction"
+meaning_ja = "指示の「繰り返してください」"
 meaning_spoken = "Repeat, as an instruction"
 meaning_spoken_ja = "指示の「繰り返してください」"
 difficulty = 1
@@ -19,8 +19,8 @@ command = "repeat"
 id = "hlustadu"
 kind = "phrase"
 target = "Hlustaðu."
-meaning = "Listen. (the instruction)"
-meaning_ja = "聞いてください。（指示）"
+meaning = "Listen, as an instruction"
+meaning_ja = "指示の「聞いてください」"
 meaning_spoken = "Listen, as an instruction"
 meaning_spoken_ja = "指示の「聞いてください」"
 difficulty = 1
