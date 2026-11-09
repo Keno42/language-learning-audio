@@ -478,6 +478,8 @@ difficulty = 2
 topics = ["weather", "numbers"]
 pronunciation_notes = "plural of gráða, feminine: tvær gráður, þrjár gráður"
 
+# #451 step 3b (the owner after lesson 52: «mínus þrjár gráður» far too often, always three): the pattern takes 2–12 (`small_count`: the feminine forms of
+# 2–4, and «fimm» to «tólf», which have one form), so the sentence's later recalls say other temperatures
 [[items]]
 id = "thad_eru_minus_count_gradur"
 kind = "construction"
@@ -487,7 +489,7 @@ meaning = "It's minus {count} degrees."
 meaning_ja = "マイナス{count}度です。"
 difficulty = 3
 topics = ["weather", "numbers"]
-slots = { count = "count_fem" }
+slots = { count = "small_count" }
 example = { count = "thrjar" }
 prereqs = ["thad_eru_minus_thrjar_gradur"]
 situation = "A friend at home asks how cold it is where you are. Say it's minus three degrees."

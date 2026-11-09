@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 
 from .content import Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample, said_of_words, split_note_span
 from .learner import LearnerState
-from .numbers import plain_number
+from .numbers import NUMBER_TAGS, number_in, plain_number, value_of
 from .prompts import Prompts
 from .sounds import hard_sounds, hard_words_of
 from .script import Exercise, Script, Segment
@@ -1466,6 +1466,13 @@ class Builder:
             stage = "hinted"
         if item.kind == "construction" and stage in ("cloze", "hinted", "meaning", "situation"):
             return self._recall_construction(sc, item, stage)
+        if stage in ("meaning", "situation") and (pattern := self.number_pattern(item)) is not None:
+            # #451 step 3b (the owner after lesson 52: «mínus þrjár gráður» far too often, always three): the sentence's frame is what is learned, its number
+            # what varies. After the introduction, the cloze and the hint, it is asked as its pattern's sentence with the number the learner has said least
+            # (`_recall_construction`'s per-sentence count), from its meaning: the phrase's situation names its own number
+            ex = self._recall_construction(sc, pattern, "meaning")
+            ex.item_ids[:] = [item.id] + [i for i in ex.item_ids if i not in (item.id, pattern.id)]  # the phrase's practice; the pattern is not met through it
+            return ex
 
         if stage == "situation" and (cue := self.prompt_item(item)) is not None:
             return self._partner_cue_recall(sc, item, *cue)
@@ -1960,6 +1967,18 @@ class Builder:
                     continue  # at its share: the supply may run short rather than the forms crowd out the plain sentences
             ranked.append((-(desired[f] - actual) + self.rng.random() * 0.01, f))
         return [f for _, f in sorted(ranked, key=lambda t: t[0])] or [None]
+
+    def number_pattern(self, item: Item) -> Item | None:
+        """#451 step 3b: the pattern of a fixed phrase whose one filler is a number («Það eru mínus þrjár gráður.» of «Það eru mínus {count} gráður.»), when the
+        learner can say it with another number now; None for any other item. Such a phrase is taught whole (§9 "Parts against utterances") and practised
+        through its pattern's values (``recall``)."""
+        if item.kind != "phrase" or not item.instance_of or not item.instance_fill or len(item.instance_fill) != 1 or item.instance_form:
+            return None
+        pattern = self.cur.by_id.get(item.instance_of)
+        own = self.cur.by_id.get(next(iter(item.instance_fill.values())))
+        if pattern is None or own is None or len(pattern.slots) != 1 or not (set(own.tags) & NUMBER_TAGS or value_of(own.target) is not None or number_in(own.target)):
+            return None
+        return pattern if self.combos_available(pattern) >= 2 else None
 
     def filling_options(self, c: Item) -> list[tuple[dict[str, Item], str, str]]:
         """Every filling of ``c`` by the available fillers: (fills, sentence, meaning) (#336). The combinations ``generate`` allows (``_product``: no two fills
