@@ -8228,13 +8228,13 @@ class ThemeExchangeTests(unittest.TestCase):
             self.assertEqual("new expressions" in " ".join(texts), here > 0, "«new expressions» only when a line is only heard")
             self.assertTrue(sum(1 for g in segs if g.type == "narrate") >= 3, "the cues stay")
 
-    def _replays(self, met):
+    def _replays(self, met, seed: int = 1):
         """The scenes heard again in a lesson of a learner who has met ``met`` and played every theme level: for each, the expectation computed from the
-        theme's own turns (a line is asked when all its items are met) and what the exercise did."""
+        theme's own turns (a line is asked when all its items are met) and what the exercise did. ``seed``: the lesson's draw of which levels are heard."""
         learner = self._learner(met)
         learner.themes_done = {t.id: len(t.levels) for t in self._themes}
         learner.themes_last = {"supermarket": 1, "cafe": 1, "museum": 1, "tour": 1}
-        planner = self._planner(learner, self._themes, self._order)
+        planner = self._planner(learner, self._themes, self._order, seed=seed)
         sc = planner.build()
         out = []
         for e in sc.exercises:
@@ -8281,7 +8281,10 @@ class ThemeExchangeTests(unittest.TestCase):
         prompts = Prompts.load("en")
         met = ["takk", "ja"]
         mixed = 0
-        for you, asked, e, segs, texts, planner in self._replays(met):
+        # the levels heard again are drawn at random among those heard longest ago (#483); a few lessons' draws, so that one holds a mixed level
+        # whatever the number of levels (#451 step 2e added two, and seed 1 alone no longer drew one)
+        replays = [r for seed in (1, 2, 3, 4) for r in self._replays(met, seed)]
+        for you, asked, e, segs, texts, planner in replays:
             if not asked or len(asked) == len(you):
                 continue
             mixed += 1

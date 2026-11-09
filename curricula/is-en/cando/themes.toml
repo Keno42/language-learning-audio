@@ -216,6 +216,35 @@ turns = [
   { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
 ]
 
+[[themes.levels]]
+# #451 step 2e: a day (said inside «Ég fer …», never bare), a booking number read digit by digit, the departure time. Full dates (ordinals,
+# months) are not in the course yet. Candidates until native-checked (#209).
+partner_speaker = "native_a"  # the partner is a woman, as the cues say
+goal = "At the tour desk, book a tour for Thursday, and catch the booking number and when the coach leaves."
+goal_ja = "ツアーデスクで木曜日のツアーを予約し、予約番号とバスの出発時刻を聞き取る。"
+scene_line = "You're at the tour desk in town."
+scene_line_ja = "町のツアーデスクにいます。"
+turns = [
+  { who = "you", cue = "Say you'd like to book a tour.", cue_ja = "ツアーを予約したいと言ってください。", aim = "say you'd like to book a tour", aim_ja = "ツアーを予約したいと伝える", say = "Ég vil bóka ferð.", items = ["eg_vil_boka_ferd"] },
+  { who = "partner", say = "Já. Hvaða dag?", meaning = "Yes. Which day?", meaning_ja = "はい。何曜日ですか？", variants = [{ say = "Já, auðvitað. Fyrir hvaða dag?", meaning = "Yes, of course. For which day?", meaning_ja = "はい、もちろん。何曜日にしますか？" }] },
+  { who = "you", cue = "Say you're going on Thursday.", cue_ja = "木曜日に行くと言ってください。", aim = "say the day", aim_ja = "曜日を言う", say = "Ég fer á fimmtudaginn.", items = ["eg_fer", "a_fimmtudaginn"] },
+  { who = "partner", say = "Bókunarnúmerið er sex, fjórir, níu, tveir, og rútan fer klukkan átta.", meaning = "The booking number is six, four, nine, two, and the coach leaves at eight.", meaning_ja = "予約番号は6、4、9、2で、バスは8時に出ます。", probes = [{ kind = "number", answer = "sex, fjórir, níu, tveir", meanings = { en = "six, four, nine, two", ja = "6、4、9、2" }, ask = { en = "What's the booking number?", ja = "予約番号は？" } }, { kind = "time", answer = "klukkan átta", meanings = { en = "eight o'clock", ja = "8時" }, ask = { en = "When does the coach leave?", ja = "バスは何時に出ますか？" } }], variants = [{ say = "Bókunarnúmerið er þrír, sjö, einn, átta, og rútan fer klukkan hálf átta.", meaning = "The booking number is three, seven, one, eight, and the coach leaves at half past seven.", meaning_ja = "予約番号は3、7、1、8で、バスは7時半に出ます。", probes = [{ kind = "number", answer = "þrír, sjö, einn, átta", meanings = { en = "three, seven, one, eight", ja = "3、7、1、8" }, ask = { en = "What's the booking number?", ja = "予約番号は？" } }, { kind = "time", answer = "klukkan hálf átta", meanings = { en = "half past seven", ja = "7時半" }, ask = { en = "When does the coach leave?", ja = "バスは何時に出ますか？" } }] }] },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk fyrir.", items = ["takk_fyrir"] },
+]
+[[themes.levels]]
+# #451 step 2e: how long you stay (about oneself), and a phone number read digit by digit with the emergency number. Candidates until
+# native-checked (#209).
+partner_speaker = "native_a"  # the partner is a woman, as the cues say
+goal = "On the coach, say how long you're staying, ask the guide's phone number, and catch it and the emergency number."
+goal_ja = "バスの中で滞在期間を言い、ガイドの電話番号を聞いて、その番号と緊急番号を聞き取る。"
+turns = [
+  { who = "partner", say = "Hvað verðurðu lengi á Íslandi?", meaning = "How long will you be in Iceland?", meaning_ja = "アイスランドにはどのくらいいるんですか？", variants = [{ say = "Hvað ertu lengi hérna?", meaning = "How long are you here for?", meaning_ja = "こちらにはどのくらいいるんですか？" }] },
+  { who = "you", cue = "Say you're here for a week.", cue_ja = "1週間いると言ってください。", aim = "say how long you're staying", aim_ja = "滞在期間を言う", say = "Ég er hér í viku.", items = ["eg_er_her_i_viku"] },
+  { who = "partner", say = "Gaman! Ef þú villist, hringdu í mig.", meaning = "Nice! If you get lost, call me.", meaning_ja = "いいですね！迷ったら電話してください。" },
+  { who = "you", cue = "Ask her what her phone number is.", cue_ja = "電話番号を聞いてください。", aim = "ask her phone number", aim_ja = "電話番号を聞く", say = "Hvað er símanúmerið þitt?", items = ["hvad_er_simanumerid_thitt"] },
+  { who = "partner", say = "Síminn minn er átta, sex, sjö, tveir, þrír, níu, einn. Í neyð hringirðu í einn, einn, tveir.", meaning = "My phone is eight, six, seven, two, three, nine, one. In an emergency, you call one, one, two.", meaning_ja = "私の電話は8、6、7、2、3、9、1です。緊急時は1、1、2に電話してください。", probes = [{ kind = "number", answer = "átta, sex, sjö, tveir, þrír, níu, einn", meanings = { en = "eight, six, seven, two, three, nine, one", ja = "8、6、7、2、3、9、1" }, ask = { en = "What's her phone number?", ja = "ガイドの電話番号は？" } }, { kind = "number", answer = "einn, einn, tveir", meanings = { en = "one, one, two", ja = "1、1、2" }, ask = { en = "What do you call in an emergency?", ja = "緊急時は何番に電話しますか？" } }], variants = [{ say = "Síminn minn er sjö, sjö, átta, fjórir, einn, sex, tveir. Í neyð hringirðu í einn, einn, tveir.", meaning = "My phone is seven, seven, eight, four, one, six, two. In an emergency, you call one, one, two.", meaning_ja = "私の電話は7、7、8、4、1、6、2です。緊急時は1、1、2に電話してください。", probes = [{ kind = "number", answer = "sjö, sjö, átta, fjórir, einn, sex, tveir", meanings = { en = "seven, seven, eight, four, one, six, two", ja = "7、7、8、4、1、6、2" }, ask = { en = "What's her phone number?", ja = "ガイドの電話番号は？" } }, { kind = "number", answer = "einn, einn, tveir", meanings = { en = "one, one, two", ja = "1、1、2" }, ask = { en = "What do you call in an emergency?", ja = "緊急時は何番に電話しますか？" } }] }] },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk fyrir.", items = ["takk_fyrir"] },
+]
 [[themes]]
 # #327: the town and asking the way. From lesson 30 on, its lines («Hvar er bankinn?», «Er það langt?», «Ég er að leita að bankanum.»)
 # are the largest supply of new material, and before this theme they came in lessons that replayed the museum's ticket desk.

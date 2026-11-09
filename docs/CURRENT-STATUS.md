@@ -23,7 +23,8 @@ In order:
    (money, time, dates, counts and people, numbers as names, weather and roads, contacts and codes, about oneself), mostly by ear,
    rotated so no kind and no number word comes back within a few lessons. Merged: step 1 (#508, a plain number enters where it is used,
    not by course order), 2a (#509, money and time by ear), 2b (#510, counts and people: each of 2–4 in every gender) and 2c (#511, a hotel
-   desk and a bus: numbers used as names). Step 2d is in review: temperatures (one said, the others heard), the wind and the road.
+   desk and a bus: numbers used as names) and 2d (#512, temperatures, the wind and the road). Step 2e is in review: a day said inside a
+   sentence, a booking number and a phone number read digit by digit, 112, how long you stay.
 3. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 4. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
