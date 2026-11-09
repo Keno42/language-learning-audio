@@ -3456,19 +3456,29 @@ class Planner:
                             line_in = self.learner.listening_log.get(f"theme:{t.id}:{n + 1}:{k}:{v}:{pi}", 0)  # then, for one value, the line heard least recently
                             tired = sum(heard_now[w] + (w in recent) for w in number_words(probe["answer"]))
                             cands.append(((tired, (t.id, n, k), heard_in, answer_in, line_in, 0 if len(ln.probes) > 1 else 1, 0 if rank == 0 and theme_pick else 1, self.rng.random()), t, n, k, v, pi, ln, probe))
-            # a turn is as tired as the value #339 would have it give next among those the learner can be asked (its answer heard least recently, then its
-            # line): within the turn that order stands, so a turn never gives the value it gave last for one with fewer number words (review: «hundrað» twice
-            # in a row), and a value that cannot be asked yet does not speak for the turn
+            # Within a turn, #339's rule stands: never the value it gave last while it has another the learner can be asked (review: «hundrað» twice in a row);
+            # among the others, the least tired, then the one heard least recently. A turn is as tired as the value it would give, and a value that cannot be
+            # asked yet (a word the learner does not know) does not speak for it
             tasks = [
                 (c, partner_pick_out(c[6], c[7], known, self.cur.known_lang, source=f"theme:{c[1].id}:{c[2] + 1}:{c[3]}:{c[4]}:{c[5]}", scene=level_scene(c[1], c[2]),
                                      speaker=c[1].levels[c[2]].partner_speaker))
                 for c in cands
             ]
+            values: dict[tuple, set[int]] = {}
+            for c, task in tasks:
+                if task is not None:
+                    values.setdefault(c[0][1], set()).add(c[0][3])
+            last = {turn: max(vs) for turn, vs in values.items() if len(vs) > 1 and max(vs) > 0}
+
+            def within(c) -> tuple:
+                (tired, turn, _, answer_in, line_in, *_rest) = c[0]
+                return (answer_in == last.get(turn), tired, answer_in, line_in)
+
             turn_tired: dict[tuple, int] = {}
-            for c, task in sorted(tasks, key=lambda ct: (ct[0][0][1], ct[0][0][3], ct[0][0][4])):
+            for c, task in sorted(tasks, key=lambda ct: (ct[0][0][1], within(ct[0]))):
                 if task is not None:
                     turn_tired.setdefault(c[0][1], c[0][0])
-            for c, task in sorted(tasks, key=lambda ct: (turn_tired.get(ct[0][0][1], 0), *ct[0][0][2:])):
+            for c, task in sorted(tasks, key=lambda ct: (turn_tired.get(ct[0][0][1], 0), ct[0][0][2], within(ct[0]), *ct[0][0][5:])):
                 yield task
 
         def catch_unknown_tasks():
