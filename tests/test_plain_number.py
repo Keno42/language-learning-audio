@@ -56,10 +56,10 @@ class PlainNumberTests(unittest.TestCase):
                 learner.items[i.id] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=30, last_outcome="recalled",
                                                 due=(TODAY + timedelta(days=60)).isoformat(), last_practiced=(TODAY - timedelta(days=5)).isoformat())
         learner.lessons_completed = 30
-        sc = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1, topics=["money"]), today=TODAY).build()
+        sc = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1, priority=list(PRICES)), today=TODAY).build()
         exposures = sc.meta["exposures"]
         introduced = [i for i in PRICES if i in exposures]
-        self.assertTrue(introduced, "the money topic brings a price in")
+        self.assertTrue(introduced, "a price asked for by name comes in (#451 step 1: the course order no longer brings it)")
         for i in introduced:
             self.assertEqual(exposures[i][0], "intro")
             self.assertNotIn("recombine", exposures[i], i)
@@ -77,13 +77,33 @@ class PlainNumberTests(unittest.TestCase):
                                                 due=(TODAY + timedelta(days=60)).isoformat(), last_practiced=(TODAY - timedelta(days=5)).isoformat())
         learner.lessons_completed = 30
         for seed in (1, 2, 3):
-            sc = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=seed), today=TODAY).build()
+            sc = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=seed, priority=["sextan"]), today=TODAY).build()
             stages = sc.meta["exposures"].get("sextan")
-            self.assertTrue(stages, "the course order brings «sextán» in")
+            self.assertTrue(stages, "«sextán» asked for by name comes in")
             self.assertEqual(stages, ["intro", "meaning", "meaning"], f"seed {seed}: the introduction, one timed recall and the closing's")
             self.assertFalse([e.label for e in sc.exercises if e.kind == "generative" and "sextan" in e.item_ids], f"seed {seed}")
         b = Builder(self.cur, Prompts.load("en"), Timing(level="A1"), learner)
         self.assertEqual(b.recombine_status(self.cur.by_id["sextan"]), "impossible", "no path moves a plain number to a new sentence")
+
+
+    def test_the_course_order_brings_no_plain_number(self):
+        """#451 step 1 (the owner, 2026-11-09: «practicing numbers only with ages is not sophisticated enough»; «þúsund, fimm and tíu appeared too
+        many times»): the numbers module brought each number as an age («Ég er nítján ára») or a price by course order. A plain number now enters
+        only where it is used: a theme level's line, an item that needs it, a word caught by ear, or an item asked for by name."""
+        learner = LearnerState("is", "en", "A1")
+        for i in self.cur.items:
+            if i.order < self.cur.by_id["sextan"].order:
+                learner.items[i.id] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=30, last_outcome="recalled",
+                                                due=(TODAY + timedelta(days=60)).isoformat(), last_practiced=(TODAY - timedelta(days=5)).isoformat())
+        learner.lessons_completed = 30
+        p = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+        chosen = p.select_new(8)
+        self.assertTrue(chosen)
+        self.assertEqual([i.id for i in chosen if plain_number(i, self.cur)], [], [i.id for i in chosen])
+        for seed in (1, 2):
+            sc = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=seed), today=TODAY).build()
+            new_ages = [e.label for e in sc.exercises if e.kind == "intro" and "ára" in e.label]
+            self.assertEqual(new_ages, [], f"seed {seed}: no age introduced")
 
 
 if __name__ == "__main__":
