@@ -398,8 +398,9 @@ What the lesson played, by change, and what the learner wrote:
   50 (#495) and recurs here, a twenty-point part. The course names why a form changes only for a known noun's other form (#270), and «nafn»
   was not known. **Open:** #439 step 3, case through #270's frames, covers a new noun met in a form other than its nominative.
 - **«mínus þrjár gráður», always three.** The owner, after the lesson: far too often, always three. The sentence came new for weather 2 (#512)
-  and was said 19 times, all with «þrjár» (the introduction, cloze, hint, six meaning recalls, four situations); on the replay it comes back
-  with «þrjár» in lessons 54 and 56. The value is fixed in a line the learner says, the cause of the «þúsund» remark after lesson 51 (the
+  and was heard 19 times and said 9, all with «þrjár» (the introduction, two clozes, a hint, three meaning recalls, two situations); on the
+  replay the learner says it again in lesson 54 (a situation) and 56 (a meaning recall, and the number choice of 3, whose only feminine line
+  it is). The value is fixed in a line the learner says, the cause of the «þúsund» remark after lesson 51 (the
   family one-version), and its pattern, which would vary it, comes only once the sentence is known, with 2–4 only. #451 step 3 rotates the
   numbers the learner hears, not the ones they say. **Open:** #451 step 3b, a number line the learner says is practised over the values they
   know once introduced.
