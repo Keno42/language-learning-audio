@@ -11,7 +11,7 @@ makes it. Everything else is in LD: the long run and the table of built changes 
 
 Ranked as LD §9 "Governance" says: about 80% by how the next lessons feel, 20% by what may change a long-term decision, each
 remark by how often its cause recurs on the replay of the latest export and what a fix costs. The latest export is lesson
-51's; the next lesson is 52. Lesson 51 was rated «light» (the seventh in a row), fitted all 40 of its due reviews, played the number choice and
+51's; the next lesson is 52. Lesson 51 was rated «light» (the seventh in a row), asked 35 of its 40 due reviews, played the number choice and
 a gendered word said of him and of her without a remark, and drew four remarks: prices made of known words announced as new, a cue that
 said «it» for the snow, «Sjáumst í dag», and a silent clip of «lin» (LD §5.41).
 1. **Practice by what is hard in an item, not its kind (#439, G11, H11).** Built: plain numbers introduced plainly (#492); the forms of 1–4 as
@@ -25,8 +25,9 @@ said «it» for the snow, «Sjáumst í dag», and a silent clip of «lin» (LD 
    (#487). **Next:** the other learner's next feedback; the learner's own line that varies in use («Áttu {item}?») needs the theme format to
    take a pattern (#336).
 4. **The pace while «light» (H9).** The target fell from 9 to 7 over lessons 45–50 by §9's rule that unfitted reviews slow the pace, and rose to
-   8 in lesson 51 with every due review fitted. **Next:** read lessons 52 and 53; if the load stays «light» with the reviews fitting, the rule is
-   the owner's call.
+   8 for lesson 51: lesson 50's unasked reviews were under the rule's quarter, and two lessons were rated «light». Lesson 51 left four due items
+   unpractised but recorded none as not fitted, which the rule reads. **Next:** find why those four were left and not recorded; read lessons
+   52 and 53; if the load stays «light» with the reviews fitting, the rule is the owner's call.
 
 **Alongside:** long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
 before adding practice. Scene coherence (#327): lesson 50 said four of its six new items as turns of the played exchange, lesson 51 none of its
