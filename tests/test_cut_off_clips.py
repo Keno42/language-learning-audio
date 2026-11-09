@@ -40,6 +40,19 @@ class CutOffTests(unittest.TestCase):
         self.assertFalse(looks_cut_off(clip(1.2), LINE, "en"))
         self.assertFalse(looks_cut_off(clip(0.3), "Já, takk.", "is"), "two words: the estimate's floor, left out")
 
+    def test_a_silent_clip_of_one_syllable_looks_cut_off(self):
+        """Lesson 51: «lin» (vett · lin · ga) was cached as 0.06 s, what the trimmer keeps of a clip with no sound; the word count left it out."""
+        self.assertTrue(looks_cut_off(clip(0.06), "lin", "is"))
+        self.assertTrue(looks_cut_off(clip(0.06), "Já, takk.", "is"))
+        self.assertFalse(looks_cut_off(clip(0.35), "lin", "is"), "a syllable said is longer than the trim's margins")
+        self.assertFalse(looks_cut_off(clip(0.2), "ga", "is"))
+
+    def test_a_silent_syllable_is_synthesized_again(self):
+        with tempfile.TemporaryDirectory() as td:
+            service = Service(0.06, 0.4)
+            got = _cached(service, Path(td), "lin", "is", "is-IS-GudrunNeural", 0.7, True)
+            self.assertEqual((service.calls, round(got.seconds, 2)), (2, 0.4))
+
     def test_the_servers_whole_icelandic_clips_are_not_flagged(self):
         """Review of the flat 0.4: on the server's cache (351 clips) seven whole Icelandic lines sat at 0.35–0.40 of their estimate, inside a
         continuous spread. The threshold is per language: these are whole, and lesson 43's English clip is still cut off."""
@@ -107,7 +120,7 @@ class CutOffTests(unittest.TestCase):
             self.assertEqual([(r["text"], r["cut_off"]) for r in rows], [(LINE, True), ("Say you live in Osaka.", False)])
 
     def test_the_tools_list_shows_every_flagged_clip_whatever_its_top(self):
-        """Review of #466: «Hi.» (one word, never flagged) sorts ahead of a cut-off line; with --top 1 the cut-off line was not shown."""
+        """Review of #466: «Hi.» (one word, said: never flagged) sorts ahead of a cut-off line; with --top 1 the cut-off line was not shown."""
         import tools.cut_off_clips as tool
 
         with tempfile.TemporaryDirectory() as td:
@@ -116,7 +129,7 @@ class CutOffTests(unittest.TestCase):
             sc.save(cache / "lesson.script.json")
             profile = str(Path(__file__).resolve().parent.parent / "profiles" / "edge-is-en.toml")
             edge = Service(1.0)
-            for text, seconds in ((LINE, 0.57), ("Hi.", 0.1)):
+            for text, seconds in ((LINE, 0.57), ("Hi.", 0.2)):
                 write_wav(clip(seconds), _cache_path(edge, cache, text, "en", "en-US-AriaNeural", 1.0, load_profile(profile).trim))
             with contextlib.redirect_stdout(io.StringIO()) as out:
                 code = tool.main(["--cache", str(cache), "--profile", profile, "--top", "1", str(cache / "lesson.script.json")])

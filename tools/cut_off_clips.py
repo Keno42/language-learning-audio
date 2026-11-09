@@ -52,7 +52,7 @@ def main(argv: list[str] | None = None) -> int:
     for lang in sorted({r["lang"] for r in found}):
         ratios = sorted(r["ratio"] for r in found if r["lang"] == lang)
         print(f"  {lang}: {len(ratios)} clips, ratio min {ratios[0]:.2f}, median {ratios[len(ratios) // 2]:.2f}; cut off under {cut_off_threshold(lang):.2f}")
-    # every flagged clip first, then the shortest of the others up to --top: a word of one or two words (never flagged) can be shorter
+    # every flagged clip first, then the shortest of the others up to --top: a word of one or two words (flagged only when silent) can be shorter
     # against its estimate than a cut-off line, and must not push it off the list (review of #466)
     others = [r for r in found if not r["cut_off"]]
     for r in flagged + others[: max(0, args.top - len(flagged))]:
