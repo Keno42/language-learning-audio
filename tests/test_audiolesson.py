@@ -6711,7 +6711,9 @@ class PartWithItsFrameTests(unittest.TestCase):
         self.cur = load_curriculum(ROOT / "curricula" / "is-en")
         self.learner = LearnerState("is", "en", "A1")
         for i in self.cur.items:
-            if i.order < self.cur.by_id["virkar_ekki"].order and i.id not in ("sturtan", "ljosid"):
+            # the feminine «þrjár» line is known too: without it #439's number choice brings it ahead of the trip order («Þrjá miða» and «þrjú
+            # þúsund» are known), which is the choice's own rule, not what these tests are about
+            if (i.order < self.cur.by_id["virkar_ekki"].order and i.id not in ("sturtan", "ljosid")) or i.id == "thad_eru_minus_thrjar_gradur":
                 self.learner.items[i.id] = ItemState(due=(TODAY + timedelta(days=3)).isoformat(), successes=2, durable_successes=2, stage="meaning",
                                                      recalled=2, last_outcome="recalled", interval_days=3, last_practiced=(TODAY - timedelta(days=1)).isoformat())
 
