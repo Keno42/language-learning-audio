@@ -24,7 +24,7 @@ from .content import Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance, cue_is_answer
 from .sounds import hard_sounds, hard_words_of
 from .learner import REPORTED_HARD_DAYS, LearnerState
-from .numbers import choice_lines, noun_gender, number_in, number_words, pick_choice, plain_number, value_of
+from .numbers import choice_lines, form_genders, noun_gender, number_in, number_words, pick_choice, plain_number, value_of
 from .review_wholes import whole_for
 from .listening_tasks import REPAIR_ITEM, ListeningTask, SecondHalfRotation, append_task, catch_unknown, introduce_by_catch, key_of, partner_pick_out
 from .prompts import Prompts
@@ -3445,7 +3445,15 @@ class Planner:
             recent = {k.removeprefix("number:") for k, at in self.learner.listening_log.items() if k.startswith("number:") and at >= lesson_now - cfg.number_rest_lessons}
             # in this lesson: every time a number word was said so far, by any voice and in any exercise (the reviews' prices, the number choice, a
             # dialogue), not only as a pick-out's answer: the pick-outs are the part of the lesson that can choose, so they avoid what the rest has said
-            heard_now = Counter(w for g in sc.segments if g.type in ("speak", "answer") and g.text and g.lang == self.cur.target_lang for w in number_words(g.text))
+            said_now = [g.text for g in sc.segments if g.type in ("speak", "answer") and g.text and g.lang == self.cur.target_lang]
+            heard_now = Counter(w for text in said_now for w in number_words(text))
+            # #451 step 3c (the owner: the same load, a second purpose): among lines equally tired, one whose 1–4 form shows the gender the lesson has said
+            # least comes first, then any other line with a form of 1–4, then a line with none: a number heard for its information also practises the form
+            genders_now = Counter(gd for text in said_now for gd in form_genders(text))
+
+            def form_need(say: str) -> tuple[int, int]:
+                genders = form_genders(say)
+                return (0, min(genders_now[gd] for gd in genders)) if genders else (1, 0)
             for rank, (t, n) in enumerate(scene_levels()):
                 level = t.levels[n]
                 for k, turn in enumerate(level.turns):
@@ -3460,7 +3468,7 @@ class Planner:
                             answer_in = self.learner.listening_log.get(pick_out_answer_key(f"theme:{t.id}:{n + 1}:{k}", probe["answer"]), 0)
                             line_in = self.learner.listening_log.get(f"theme:{t.id}:{n + 1}:{k}:{v}:{pi}", 0)  # then, for one value, the line heard least recently
                             tired = sum(heard_now[w] + (w in recent) for w in number_words(ln.say))  # the whole line the learner hears, not only the answer
-                            cands.append(((tired, (t.id, n, k), heard_in, answer_in, line_in, 0 if len(ln.probes) > 1 else 1, 0 if rank == 0 and theme_pick else 1, self.rng.random()), t, n, k, v, pi, ln, probe))
+                            cands.append(((tired, (t.id, n, k), heard_in, answer_in, line_in, form_need(ln.say), 0 if len(ln.probes) > 1 else 1, 0 if rank == 0 and theme_pick else 1, self.rng.random()), t, n, k, v, pi, ln, probe))
             # Within a turn, #339's rule stands: never the value it gave last while it has another the learner can be asked (review: «hundrað» twice in a row);
             # among the others, the least tired, then the one heard least recently. A turn is as tired as the value it would give, and a value that cannot be
             # asked yet (a word the learner does not know) does not speak for it
@@ -3476,13 +3484,13 @@ class Planner:
             last = {turn: max(vs) for turn, vs in values.items() if len(vs) > 1 and max(vs) > 0}
 
             def within(c) -> tuple:
-                (tired, turn, _, answer_in, line_in, *_rest) = c[0]
-                return (answer_in == last.get(turn), tired, answer_in, line_in)
+                (tired, turn, _, answer_in, line_in, need, *_rest) = c[0]
+                return (answer_in == last.get(turn), tired, need, answer_in, line_in)
 
             turn_tired: dict[tuple, int] = {}
             for c, task in sorted(tasks, key=lambda ct: (ct[0][0][1], within(ct[0]))):
                 if task is not None:
-                    turn_tired.setdefault(c[0][1], c[0][0])
+                    turn_tired.setdefault(c[0][1], (c[0][0], c[0][5]))  # the value the turn would give: how tired, and what form of 1–4 it says
             rested_from = lesson_now - cfg.pick_out_rested_lessons
 
             def turn_heard_lately(heard_in: int) -> bool:
@@ -3491,8 +3499,8 @@ class Planner:
             def order(ct) -> tuple:
                 key = ct[0][0]
                 if turn_heard_lately(key[2]):
-                    return (1, 0, key[2], within(ct[0]), *key[5:])  # all heard lately: #339's order alone, least recently heard first
-                return (0, turn_tired.get(key[1], 0), key[2], within(ct[0]), *key[5:])
+                    return (1, (0, (1, 0)), key[2], within(ct[0]), *key[6:])  # all heard lately: #339's order alone, least recently heard first
+                return (0, turn_tired.get(key[1], (0, (1, 0))), key[2], within(ct[0]), *key[6:])
 
             for c, task in sorted(tasks, key=order):
                 yield task

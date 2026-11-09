@@ -46,6 +46,21 @@ NUMBER_WORDS = ONE_TO_FOUR | frozenset({
 })
 
 
+# a form of 1–4 that belongs to one gender only («tvær»: feminine; «tvo»: masculine; «tvö»: neuter), for #451 step 3c; «tveimur», «eins» and the like
+# are shared and say nothing about the gender
+_GENDER_OF: dict[str, str] = {}
+for _genders in FORMS.values():
+    for _gender, _forms in _genders.items():
+        for _form in _forms:
+            _GENDER_OF[_form] = _gender if _GENDER_OF.get(_form, _gender) == _gender else ""
+GENDER_OF = {form: gender for form, gender in _GENDER_OF.items() if gender}
+
+
+def form_genders(text: str) -> list[str]:
+    """The genders the forms of 1–4 in ``text`` show, each once, in their order (#451 step 3c: «tvær mínútur» feminine, «tvo miða» masculine)."""
+    return list(dict.fromkeys(GENDER_OF[w] for w in (w.lower() for w in _WORD.findall(text)) if w in GENDER_OF))
+
+
 def number_words(text: str) -> list[str]:
     """The number words in ``text``, lower case, each once, in their order (#451 step 3)."""
     return list(dict.fromkeys(w for w in (w.lower() for w in _WORD.findall(text)) if w in NUMBER_WORDS))
