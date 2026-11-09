@@ -13,6 +13,10 @@ summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wro
   what is around them, and show respect. Outcomes **O1** say it when it is needed; **O2** get through what locals say; **O3**
   read and enjoy (the reading cards, in Discord); **O4** show respect; **O5** keep going: not boring, not overloading
   (LD §3). O5 is what every other outcome depends on.
+- **The long run comes first (owner, 2026-11-09).** The learner's accomplishment over the long run is what the project is
+  for: their time and life are limited. Every round builds one step of the long run that `docs/CURRENT-STATUS.md` names
+  («The long run»), whatever the remarks say; only the owner waives it, with the reason in the ledger. Answering remarks keeps
+  lessons going but does not set the agenda alone (LD §9 "Governance"); lessons 35–51 answered remarks only.
 - **The concept (owner, after lesson 20):** not an app for any natural Icelandic sentence. Each scene has **target
   expressions**, with only as many parallel expressions as help the target come out quickly. The lessons should leave the
   learner able to (1) use the ear for Icelandic and answer the set scenes, (2) find the information they need in what is
@@ -85,6 +89,6 @@ summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wro
   (`script.json`, `plan.json`).
 - Every default reproduces today's behaviour, or the change of behaviour is the point and is stated. The settings that
   produced a lesson stay recorded (`plan.json`, the manifest).
-- After a round of learner feedback: replay the export, read the signals, update the evidence (LD §5) and the hypothesis
-  statuses (LD §4), re-rank "Now" (`docs/CURRENT-STATUS.md`). A change is done as LD §8 defines it: its daily-read row at its target, and three
+- After a round of learner feedback: first name the round's long-run step and build it (below), then replay the export, read the
+  signals, update the evidence (LD §5) and the hypothesis statuses (LD §4), re-rank "Now" (`docs/CURRENT-STATUS.md`). A change is done as LD §8 defines it: its daily-read row at its target, and three
   feedbacks without a remark of the same kind.

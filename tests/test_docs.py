@@ -121,6 +121,38 @@ class LedgerTests(unittest.TestCase):
         for change in self.ledger["change"]:
             self.assertIn(change["family"], self.ledger["families"], change["title"])
 
+    def test_the_long_run_moves_every_round(self):
+        """LD §9 "Governance" (owner, 2026-11-09: «so as long as a user keeps sending feedback, the longer goal is ignored»): lessons 35–51 spent every
+        PR on remarks, and #429, #428, #451 and #339 never moved. From lesson 53 every development round (a lesson first built with behaviour PRs)
+        names its long-run PR among them, or the owner's waiver with a reason, and no more than a week of lessons passes without one; the round's
+        docs do not pass otherwise."""
+        tool = ledger_tool()
+        ls = tool.lessons(self.ledger)
+        self.assertEqual(tool.long_run_gaps(ls), [], "name the lesson's long-run PR (long_run) or the owner's waiver (long_run_waived)")
+        for lesson in ls:
+            if lesson.get("long_run"):
+                self.assertTrue(set(lesson["long_run"]) <= set(lesson.get("built", [])), f"lesson {lesson['n']}: a long-run PR is one it is built with")
+            if "long_run_waived" in lesson:
+                self.assertTrue(lesson["long_run_waived"].strip(), f"lesson {lesson['n']}: a waiver says why")
+        start = tool.LONG_RUN_FROM
+        daily = [{"n": start, "form": True, "built": ["#1"]}, {"n": start + 1, "form": True, "long_run_waived": "owner: travel week"},
+                 {"n": start + 2, "form": True, "built": ["#2"], "long_run": ["#2"]}]
+        self.assertEqual(tool.long_run_gaps(daily), [start], "a round built with PRs and no long-run PR or waiver")
+        # review of #505: a weekly round is allowed; the lessons between rounds, built with no PR, need nothing
+        weekly = [{"n": start, "form": True, "built": ["#3", "#4"], "long_run": ["#4"]}] + [{"n": start + k, "form": True} for k in range(1, 7)]
+        weekly.append({"n": start + 7, "form": True, "built": ["#5"], "long_run": ["#5"]})
+        self.assertEqual(tool.long_run_gaps(weekly), [])
+        quiet = [{"n": start + k, "form": True} for k in range(tool.LONG_RUN_SPAN + 1)]
+        self.assertEqual(tool.long_run_gaps(quiet), [start + tool.LONG_RUN_SPAN], "no more than a week without the long run moving")
+
+    def test_the_status_names_the_long_runs_step(self):
+        """«Now» keeps a fixed position for the long run, above the remarks, naming its order and the step this round builds."""
+        status = (DOCS / "CURRENT-STATUS.md").read_text(encoding="utf-8")
+        m = re.search(r"^## The long run.*?\n(.*?)(?=^## )", status, re.M | re.S)
+        self.assertIsNotNone(m, "docs/CURRENT-STATUS.md has a «The long run» section")
+        self.assertRegex(m.group(1), r"#\d+", "it names the long-run issues in order")
+        self.assertIn("**This round:**", m.group(1), "and the step this round builds")
+
     def test_the_fields_take_their_values(self):
         ref = re.compile(r"^(site_update_notifier)?#\d+$")
         ns = {lesson["n"] for lesson in self.ledger["lesson"]}

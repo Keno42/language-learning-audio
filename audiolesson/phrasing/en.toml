@@ -76,6 +76,9 @@ slot_word = "something"
 
 transform_intro = "Listen to how the sentence changes."
 transform_becomes = "becomes"
+# a transform whose results answer its sources (Item.answers)
+transform_intro_answer = "Listen: a question, and its answer."
+transform_answer = "The answer:"
 transform_try = "Now you try."
 transform_same = "Same change:"  # a transform's instruction after its two narrations in full, while the transform asked last had it (G12; lesson 31: 9 times)
 

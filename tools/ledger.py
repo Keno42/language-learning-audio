@@ -14,7 +14,10 @@ family and the lesson it was first heard in, and computes:
 - the **settled run** (§9 "Governance"): settled lessons in a row, up to the latest. A settled lesson has a form, load
   not «heavy», and no twenty-point remark of a recurring family: the structural fixes hold. A new family of any class
   does not break the run (new material brings new kinds of remark), and neither does «light» (the pace answers it, H9);
-- per lesson, as an advisory: the behaviour PRs it is the first built with (``built``), flagged past two (§9 "Governance").
+- per lesson, as an advisory: the behaviour PRs it is the first built with (``built``), flagged past two (§9 "Governance");
+- per development round from ``LONG_RUN_FROM``: a lesson first built with behaviour PRs names its long-run PR (``long_run``) or the
+  owner's waiver (``long_run_waived``), and no more than ``LONG_RUN_SPAN`` lessons pass in a row without one (``long_run_gaps``);
+  ``tests/test_docs.py`` fails on a gap: the long run moves every round unless the owner says why not (§9 "Governance", owner 2026-11-09).
 
     python tools/ledger.py [--ledger docs/feedback/ledger.toml] [--table]
 
@@ -32,6 +35,10 @@ from pathlib import Path
 LEDGER = Path(__file__).resolve().parent.parent / "docs" / "feedback" / "ledger.toml"
 CLEAN_FEEDBACKS = 3  # LD §8: three feedbacks without a remark of the same kind
 MAX_BUILT = 2  # LD §9 "Governance": at most two behaviour PRs between one lesson and the next
+# LD §9 "Governance" (owner, 2026-11-09): one of them advances the long run. From this lesson on, every lesson names its long-run PR or the
+# owner's waiver; lessons 35–51 spent every PR on remarks and the long run moved in none of them
+LONG_RUN_FROM = 53
+LONG_RUN_SPAN = 7  # the weekly round (§1): at most this many lessons in a row without the long run moving or the owner's waiver
 
 
 def load(path: Path = LEDGER) -> dict:
@@ -141,6 +148,23 @@ def too_many_built(reads: list[LessonRead]) -> list[int]:
     return [r.n for r in reads if r.built is not None and len(r.built) > MAX_BUILT]
 
 
+def long_run_gaps(ls: list[dict]) -> list[int]:
+    """The lessons from ``LONG_RUN_FROM`` that break the long-run rule, counted by development round, not by lesson (review of #505: a weekly
+    round is allowed): a lesson that is the first built with behaviour PRs (``built``) is a round's, and names its long-run PR (``long_run``)
+    or the owner's waiver (``long_run_waived``); a lesson built with none needs neither, but no more than ``LONG_RUN_SPAN`` lessons in a row pass
+    without one, so a week with no round at all is caught too."""
+    gaps: list[int] = []
+    since = 0
+    for lesson in ls:
+        if lesson["n"] < LONG_RUN_FROM:
+            continue
+        moved = bool(lesson.get("long_run") or lesson.get("long_run_waived"))
+        since = 0 if moved else since + 1
+        if (lesson.get("built") and not moved) or since > LONG_RUN_SPAN:
+            gaps.append(lesson["n"])
+    return gaps
+
+
 def spans(ns: list[int]) -> str:
     """[27, 28, 29, 33] -> "27–29, 33"."""
     out: list[str] = []
@@ -202,6 +226,12 @@ def report(ledger: dict) -> str:
         for r in recorded:
             flag = f"  [more than {MAX_BUILT}]" if r.n in over else ""
             out.append(f"  {r.n:<5} {len(r.built):<3} {', '.join(r.built) or '-'}{flag}")
+    out.append(f"the long run (a PR in every round from lesson {LONG_RUN_FROM}, or the owner's waiver; at most {LONG_RUN_SPAN} lessons without one):")
+    gaps = set(long_run_gaps(ls))
+    for lesson in (lesson for lesson in ls if lesson["n"] >= LONG_RUN_FROM):
+        said = ", ".join(lesson.get("long_run", [])) or (f"waived: {lesson['long_run_waived']}" if lesson.get("long_run_waived") else
+                                                         ("MISSING" if lesson["n"] in gaps else "no round"))
+        out.append(f"  {lesson['n']:<5} {said}")
     statuses = [(change, change_status(change, ls)) for change in ledger.get("change", [])]
     counts = {s: sum(st.status == s for _, st in statuses) for s in ("done", "waiting", "recurred", "not heard")}
     out.append("changes: " + ", ".join(f"{v} {k}" for k, v in counts.items()))
