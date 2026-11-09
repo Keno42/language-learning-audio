@@ -18,7 +18,7 @@ Milestones are relative to departure, with one lesson a day:
 | tier | meaning | items met by |
 |---|---|---|
 | A | must: greetings incl. the season's, thanks, supermarket, café, bar, public pool, staying in the conversation, excuse me / toilet, essential signs, place names | T−7 weeks |
-| B | should: museum, day tours, small talk, taxi and bus, numbers by ear, winter talk and safety | T−4 weeks |
+| B | should: museum, day tours, small talk, taxi and bus, numbers by ear, winter talk and safety, the hotel desk | T−4 weeks |
 | C | nice to have: place-name parts, holiday traditions, restaurant basics, emergencies, farewell | no milestone |
 
 The default tiers suit a budget traveller: supermarket and café before restaurant.

@@ -2,7 +2,7 @@
 import unittest
 from pathlib import Path
 
-from audiolesson.content import load_curriculum
+from audiolesson.content import PROBE_KINDS, load_curriculum
 from audiolesson.listening_tasks import ListeningTask, _build
 from audiolesson.exercises import Builder
 from audiolesson.learner import LearnerState
@@ -11,7 +11,7 @@ from audiolesson.script import Script
 from audiolesson.timing import Timing
 
 ROOT = Path(__file__).resolve().parent.parent
-KINDS = ("price", "time", "count", "place", "duration")
+KINDS = PROBE_KINDS  # every kind a probe may name has its need in both languages ("number": a room, a bus, a code; #451 step 2c)
 
 
 def build(lang, task):
