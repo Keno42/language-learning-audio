@@ -3455,7 +3455,13 @@ class Planner:
                             answer_in = self.learner.listening_log.get(pick_out_answer_key(f"theme:{t.id}:{n + 1}:{k}", probe["answer"]), 0)
                             line_in = self.learner.listening_log.get(f"theme:{t.id}:{n + 1}:{k}:{v}:{pi}", 0)  # then, for one value, the line heard least recently
                             tired = sum(heard_now[w] + (w in recent) for w in number_words(probe["answer"]))
-                            cands.append(((tired, heard_in, answer_in, line_in, 0 if len(ln.probes) > 1 else 1, 0 if rank == 0 and theme_pick else 1, self.rng.random()), t, n, k, v, pi, ln, probe))
+                            cands.append(((tired, (t.id, n, k), heard_in, answer_in, line_in, 0 if len(ln.probes) > 1 else 1, 0 if rank == 0 and theme_pick else 1, self.rng.random()), t, n, k, v, pi, ln, probe))
+            # a turn is as tired as the value #339 would have it give next (its answer heard least recently, then its line): within the turn that order
+            # stands, so a turn never gives the value it gave last for one with fewer number words (review: «hundrað» twice in a row)
+            turn_tired: dict[tuple, int] = {}
+            for key, *_ in sorted(cands, key=lambda c: (c[0][1], c[0][3], c[0][4])):
+                turn_tired.setdefault(key[1], key[0])
+            cands = [((turn_tired[c[0][1]], *c[0][2:]), *c[1:]) for c in cands]
             for _, t, n, k, v, pi, ln, probe in sorted(cands, key=lambda c: c[0]):
                 yield partner_pick_out(
                     ln, probe, known, self.cur.known_lang, source=f"theme:{t.id}:{n + 1}:{k}:{v}:{pi}", scene=level_scene(t, n), speaker=t.levels[n].partner_speaker
