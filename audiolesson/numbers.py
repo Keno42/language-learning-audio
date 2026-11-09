@@ -38,6 +38,18 @@ ONE_TO_FOUR = frozenset({f for genders in FORMS.values() for forms in genders.va
 
 _WORD = re.compile(r"[^\W\d_]+")
 
+# the words a number is said with past 1–4 (#451 step 3): the units, the teens, the tens, «hundrað» and «þúsund». With ``ONE_TO_FOUR`` they are what
+# rests between lessons («þúsund», «fimm» and «tíu» in every lesson: the owner after lesson 51)
+NUMBER_WORDS = ONE_TO_FOUR | frozenset({
+    "fimm", "sex", "sjö", "átta", "níu", "tíu", "ellefu", "tólf", "þrettán", "fjórtán", "fimmtán", "sextán", "sautján", "átján", "nítján",
+    "tuttugu", "þrjátíu", "fjörutíu", "fimmtíu", "sextíu", "sjötíu", "áttatíu", "níutíu", "hundrað", "hundruð", "þúsund",
+})
+
+
+def number_words(text: str) -> list[str]:
+    """The number words in ``text``, lower case, each once, in their order (#451 step 3)."""
+    return list(dict.fromkeys(w for w in (w.lower() for w in _WORD.findall(text)) if w in NUMBER_WORDS))
+
 
 def plain_number(item, cur) -> bool:
     """Whether ``item`` is a plain number (#439 step 1a): see the module's docstring."""
@@ -113,9 +125,11 @@ def choice_lines(candidates) -> dict[int, dict[str, list[ChoiceLine]]]:
 
 def pick_choice(groups: dict[int, dict[str, list[ChoiceLine]]], turn: int) -> list[ChoiceLine]:
     """One number's lines of different genders, one line each (masculine, feminine, neuter): the numbers with two genders or more take turns by
-    ``turn`` (the lesson number). Empty when no number has two genders yet."""
+    ``turn`` (the lesson number). Empty when no number has two genders yet. A gender with several lines takes them in turn too, each time its number
+    comes round (#451 step 3: the neuter of 2 was «Það kostar tvö þúsund krónur.» every time, with «Tvö börn» known beside it)."""
     values = sorted(v for v, g in groups.items() if len(g) >= 2)
     if not values:
         return []
     value = values[turn % len(values)]
-    return [groups[value][g][0] for g in GENDER_ORDER if g in groups[value]]
+    round_ = turn // len(values)
+    return [groups[value][g][round_ % len(groups[value][g])] for g in GENDER_ORDER if g in groups[value]]
