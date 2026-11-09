@@ -19,9 +19,10 @@ In order:
 1. **Instructions in Icelandic (#429, O2, H8).** A pilot of two commands, «Hlustaðu.» (listen) and «Endurtaktu.» (repeat): taught as
    material, said in an Icelandic voice with the English beside them, the English faded as the learner shows they recognise them; then more
    commands the same way.
-2. **Numbers in varied situations (#451, owner 2026-11-09).** Numbers met where a traveller meets them (a room number, a floor, a bus
-   number, an address, how many things, how many people), mostly by ear, rotated so no situation and no number word comes back within a few
-   lessons. Step 1 in review (#508): a plain number no longer enters by course order (no new ages), it is met where it is used.
+2. **Numbers in varied situations (#451, owner 2026-11-09).** Numbers where a traveller meets them, sorted into eight kinds in #451
+   (money, time, dates, counts and people, numbers as names, weather and roads, contacts and codes, about oneself), mostly by ear,
+   rotated so no kind and no number word comes back within a few lessons. Step 1 (#508) is merged: a plain number enters where it is used,
+   not by course order. Step 2a (money and time) is in review: partner lines with compound prices, tens 20–50 and «hálf»/«korter».
 3. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 4. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
