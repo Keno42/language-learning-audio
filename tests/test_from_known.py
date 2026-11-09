@@ -43,9 +43,9 @@ class FromKnownTests(unittest.TestCase):
                 learner.items[i.id] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=30, last_outcome="recalled",
                                                 due=(TODAY + timedelta(days=60)).isoformat(), last_practiced=(TODAY - timedelta(days=5)).isoformat())
         learner.lessons_completed = 30
-        sc = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1, topics=["money"]), today=TODAY).build()
+        sc = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1, priority=["tvo_thusund_kronur"]), today=TODAY).build()
         intro = next((e for e in sc.exercises if e.kind == "intro" and "tvo_thusund_kronur" in e.item_ids), None)
-        self.assertIsNotNone(intro, "the money topic brings the price in")
+        self.assertIsNotNone(intro, "the price asked for by name comes in")
         self.assertTrue(intro.label.startswith("from known words"), intro.label)
         self.assertLessEqual(len(sc.meta["exposures"]["tvo_thusund_kronur"]), 2, sc.meta["exposures"]["tvo_thusund_kronur"])
 

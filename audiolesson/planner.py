@@ -898,6 +898,12 @@ class Planner:
         pulling = {p for i in pool if not i.variant_of for p in i.prereqs}
         in_scene = set(self.theme_wants())
         pool = [i for i in pool if not i.variant_of or i.id in pulling or i.id in in_scene]
+        # #451 step 1 (the owner, 2026-11-09: numbers practised only as ages is not enough, and «fimm», «tíu», «þúsund» came back too often): a plain
+        # number does not enter by the course or trip order, where the numbers module brings each as an age («Ég er nítján ára») or a price. It is
+        # met where it is used: a theme level's line that needs it, an item that needs it, a word caught by ear (the catch), or an item asked for
+        # by name (``PlanConfig.priority``)
+        asked = set(self.cfg.priority)
+        pool = [i for i in pool if not plain_number(i, self.cur) or i.id in pulling or i.id in in_scene or i.id in asked]
         if self.cfg.topics:
             preferred = [i for i in pool if set(i.topics) & set(self.cfg.topics)]
             rest = [i for i in pool if i not in preferred]

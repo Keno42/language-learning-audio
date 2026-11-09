@@ -179,7 +179,9 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   row; an idle lesson pulls them early (step 5). When the reviews due cannot fit beside today's new items (more than the pace rule's review
   slots, ``_pace_rules``: 16 s an exercise, 6 for a new item), each new item gives up its second rung (`starved_skip_rung`, 1/10 of the
   lesson) and keeps 1/30, 4/15 and 1/2 (#439, lesson 45: 19 of 48 due reviews asked while the load was «light»; on its replay 34; `meta.reviews_starved`).
-  A plain number (`numbers.plain_number`: a number, age, count or price that is no form of 1–4) has one rung, from its meaning at `plain_recall_time`
+  A plain number (`numbers.plain_number`: a number, age, count or price that is no form of 1–4) does not enter by the course or trip order
+  (`Planner.select_new`, #451 step 1: the numbers module brought each as an age or a price); it comes where it is used, a theme level's line, an
+  item that needs it, a word caught by ear or an item asked for by name (`PlanConfig.priority`). Introduced, it has one rung, from its meaning at `plain_recall_time`
   (4/15), its introduction has no slow model (`Builder.plain`: heard, repeated once, said once), its ladder has no recombine and the builder makes no
   new sentence for it (`Builder._recombine` None, `recombine_status` «impossible»), so every path asks it in the expression it was taught in; the second
   half's practice of today's items leaves it to the closing (#439 step 1a, lesson 49: «sextán», «tvö þúsund krónur» introduced and recalled as words;
