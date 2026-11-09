@@ -84,24 +84,26 @@ it may be weekly. Once a week the round also takes the week's precision remarks 
 that §9 "Governance" names. Either way the lesson's remarks go into `docs/feedback/ledger.toml` the next day, since the
 settled run that ends the phase and §8's "done" are counted from it.
 
-1. Replay the export of the lesson just heard: `python tools/replay_lesson.py <lesson-NNN>
+1. **The long run first.** Name the round's long-run step («The long run» in `docs/CURRENT-STATUS.md`): it is built this round,
+   whatever the remarks below say, unless the owner waives it (§9 "Governance"). The round's ledger entry names its PR or the waiver.
+2. Replay the export of the lesson just heard: `python tools/replay_lesson.py <lesson-NNN>
    --trip <profile> --lessons 3`. The first column is that lesson rebuilt with the current code
    (exact on the export's own revision); the next two continue it under a stated assumption.
    Compare with the previous day's table.
-2. Read the signals in §6: review outcomes, scenario readiness, reading cards, feedback
+3. Read the signals in §6: review outcomes, scenario readiness, reading cards, feedback
    forms, owner notes. A fault the learner heard, or the table shows, becomes an issue the
    same day.
-3. Compare them with the predictions of the changes merged since the last round. Keep a
+4. Compare them with the predictions of the changes merged since the last round. Keep a
    change, revert it or give it more time; write down which and why.
-4. **Two speeds.** What one lesson shows (length, a word said alone, a repeated narration, a
+5. **Two speeds.** What one lesson shows (length, a word said alone, a repeated narration, a
    bug, the form's load and friction) is read daily. What needs volume (next-day recall rates,
    long phrases against short, «迷った», scenario readiness) is read once three to five lessons
    have added up. **The slow reads gate the decisions that depend on them, never the work:**
    development and merges go on while they accumulate.
-5. Record the lesson's evidence in a new §5 subsection (a dated record: later edits fix only its references). Rewrite the status column
+6. Record the lesson's evidence in a new §5 subsection (a dated record: later edits fix only its references). Rewrite the status column
    in §4 and §8 to say where things stand, not extended (§10 "Documents"); re-rank "Now" (`docs/CURRENT-STATUS.md`) if the evidence moved it.
-6. Ask the learner when a signal is ambiguous (§6.2). Don't guess from the data alone.
-7. **Sort each remark into one of three** (§9 "Good enough overall"):
+7. Ask the learner when a signal is ambiguous (§6.2). Don't guess from the data alone.
+8. **Sort each remark into one of three** (§9 "Good enough overall"):
    - **A twenty-point part.** The learner names something boring, confusing or contradictory. It goes into "Now"
      (`docs/CURRENT-STATUS.md`), which holds three or four items at most.
    - **A precision problem.** A line not quite right, a rare case. It becomes a named exception, or it waits.
@@ -909,12 +911,17 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
     readiness) gate only the decisions that depend on them, not development.
   - **The change rate (owner, 2026-10-31; after lesson 41).** In the fix-up phase and after it, so that each
     lesson's feedback can tell its changes apart (§10):
-    - at most two behaviour PRs between one lesson and the next, taken in this order: first a structural fix for a
-      twenty-point remark of a recurring family (in one place, or one check across the course, as
-      `audiolesson/claims.py` is for framing lines, #397); then the fix for a new twenty-point remark, checked on the
-      replay; nothing else. A data PR (a scene, its lines or verdicts, a native correction) is not counted. Nor is the
-      fix for a regression (something already fixed coming back on the replay), which is made at once. The ledger lists
-      the behaviour PRs each lesson is the first built with (`built`), and `tools/ledger.py` flags more than two;
+    - at most two behaviour PRs between one lesson and the next. **One advances the long run** (owner, 2026-11-09): the step
+      `docs/CURRENT-STATUS.md` names in «The long run», built whatever the remarks say. The other answers the remarks: first a
+      structural fix for a twenty-point remark of a recurring family (in one place, or one check across the course, as
+      `audiolesson/claims.py` is for framing lines, #397); then the fix for a new twenty-point remark, checked on the replay. A data PR
+      (a scene, its lines or verdicts, a native correction) is not counted. Nor is the fix for a regression (something already fixed
+      coming back on the replay), which is made at once. The ledger lists the behaviour PRs each lesson is the first built with
+      (`built`), and `tools/ledger.py` flags more than two. From lesson 53 each round (the lesson first built with its PRs) names its
+      long-run PR (`long_run`) or the owner's waiver with its reason (`long_run_waived`), and no more than seven lessons pass in a row
+      without one, so a weekly round is allowed and a week with none is not; `tests/test_docs.py` fails otherwise: the round's docs
+      cannot merge until the long run has moved or the owner has said why not. Lessons 35–51 spent every PR on remarks: #429, #428,
+      #451 and #339 never moved, while the ranking said 20% went to them;
     - the week's precision remarks are answered in one PR, after the weekly round (§1);
     - a request (a mechanism remark that asks for something new, such as #428 and #429) becomes an issue, ranked in the
       weekly round and never built the same week;
@@ -925,13 +932,15 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
     or one a change already heard was built for): the structural fixes hold. A new family of any class does not break
     the run, since new material brings new kinds of remark; nor does «light», which the pace answers (H9). A lesson with
     no feedback breaks it. After the phase the lever rule above applies again, and the round may be weekly (§1).
-  - **Priorities (owner, 2026-10-14; restated 2026-10-24).** The aim is the learner's largest learning effect over the long run, and the
-    daily lesson and its feedback are what keep it going. So about 80% of the weight goes to how the next lessons feel (enjoyable, nothing
-    jarring) and 20% to what may change a long-term decision. A remark is ranked by how often its cause will recur on the replay and what a
-    fix costs, not by its place in the feedback: the first remark is not always the largest. The owner's proposals are checked against the
-    same aim, and so are the learner's, which may be short-term. Effort (and model tokens) goes first to changes whose result tests a
-    hypothesis that matters. "Now" (`docs/CURRENT-STATUS.md`) is ranked this way, checked on the replay of the latest export; the owner
-    approves a re-ranking by merging the PR that makes it.
+  - **Priorities (owner, 2026-10-14; restated 2026-11-09).** The aim is the learner's accomplishment over the long run: their time and
+    life are limited, and what they can do at the end is what the lessons are for. The daily lesson and its feedback keep it going, and a
+    lesson that jars loses the learner, so the remarks are answered; but they do not set the agenda alone. Each round builds one step of
+    the long run (the change rate above) and answers the remarks with the other. A remark is ranked by how often its cause will recur on
+    the replay and what a fix costs, not by its place in the feedback: the first remark is not always the largest. The owner's proposals
+    are checked against the same aim, and so are the learner's, which may be short-term. Effort (and model tokens) goes first to changes
+    whose result tests a hypothesis that matters. "Now" (`docs/CURRENT-STATUS.md`) holds the long run's order and step, then the
+    remarks' ranking, checked on the replay of the latest export; the owner approves a re-ranking by merging the PR that makes it. A
+    stated share that nothing counts is not a rule: the "about 20%" the ranking named from 2026-10-14 was 0% in practice.
   - Every change states its hypothesis, lever, expected outcome and check week.
   - A human approves every change, and nothing changes the learner model or the planner
     automatically (#129, #136).
@@ -948,8 +957,8 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
   should move in which signal (§6) and when it will be checked. At the check, keep the
   change, revert it or extend it, and write down which.
 - **Few changes at a time.** With one learner, two simultaneous changes can't be told apart.
-  §9 "Governance" sets the rate: at most two behaviour PRs between one lesson and the next, in the fix-up phase and
-  after it, and two lever changes a week once the phase has ended.
+  §9 "Governance" sets the rate: at most two behaviour PRs between one lesson and the next, one of them the long run's,
+  in the fix-up phase and after it, and two lever changes a week once the phase has ended.
 - **Waiting is not a task.** A read that needs several lessons of data never sits in the queue
   of work ahead of development; it accumulates alongside the daily read (§1).
 - **An owner request is evidence of a need.** Restate the need in terms of §3 and §4, look
