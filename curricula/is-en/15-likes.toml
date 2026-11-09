@@ -458,6 +458,51 @@ situation = "You're at the hot-dog stand with two friends. Order three with ever
 situation_ja = "友達二人とホットドッグ屋台にいます。全部乗せを三本頼んでください。"
 situation_fill = { count = "thrjar" }
 
+# #451 step 2d (weather and roads): a temperature below zero, «gráða» is feminine, so «mínus tvær / þrjár / fjórar gráður». The learner says one
+# (a friend asks about the weather) so that the words are theirs, and catches the others by ear in the forecast. Only 2–4 fill it, as with the hot
+# dogs: a generated «mínus fimm gráður» would bring back «fimm» (#451). Candidates until a fluent speaker checks them (#209).
+[[items]]
+id = "gradur"
+kind = "vocab"
+target = "gráður"
+noun = "grada"
+form = "pl"
+gender = "fem"
+meaning = "degrees, of temperature"
+meaning_ja = "気温の度"
+meaning_forms = { in_sentence = "degrees" }
+meaning_forms_ja = { in_sentence = "度" }
+difficulty = 2
+topics = ["weather", "numbers"]
+pronunciation_notes = "plural of gráða, feminine: tvær gráður, þrjár gráður"
+
+[[items]]
+id = "minus"
+kind = "vocab"
+target = "mínus"
+meaning = "minus, below zero"
+meaning_ja = "マイナス、氷点下"
+meaning_forms = { in_sentence = "minus" }
+meaning_forms_ja = { in_sentence = "マイナス" }
+difficulty = 1
+topics = ["weather", "numbers"]
+
+[[items]]
+id = "thad_eru_minus_count_gradur"
+kind = "construction"
+target = "Það eru mínus {count} gráður."
+counts = "grada"  # #439 step 1b: the noun its form of 1–4 agrees with
+meaning = "It's minus {count} degrees."
+meaning_ja = "マイナス{count}度です。"
+difficulty = 3
+topics = ["weather", "numbers"]
+slots = { count = "count_fem" }
+example = { count = "thrjar" }
+prereqs = ["minus", "gradur", "thrjar"]
+situation = "A friend at home asks how cold it is where you are. Say it's minus three degrees."
+situation_ja = "家にいる友達に、そちらはどのくらい寒いか聞かれました。マイナス3度だと答えてください。"
+situation_fill = { count = "thrjar" }
+
 [[items]]
 id = "eg_er_ad_lesa_goda_bok"
 kind = "phrase"
