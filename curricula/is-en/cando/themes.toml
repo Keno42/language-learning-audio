@@ -529,7 +529,7 @@ turns = [
 ]
 
 [[themes.levels]]
-# #451 step 2d: a temperature said by the learner (the words become theirs), one heard back from home. Candidates until native-checked (#209).
+# #451 step 2d: a temperature said by the learner as a whole sentence (its words become theirs inside it), one heard back from home. Candidates until native-checked (#209).
 goal = "A friend at home calls: say how cold it is, catch how warm it is there, and say you like the snow."
 goal_ja = "家にいる友達から電話。こちらの気温を言い、向こうの気温を聞き取り、雪が気に入っていると言う。"
 partner_speaker = "native_a"  # the partner is a woman
@@ -537,7 +537,7 @@ scene_line = "A friend calls you from home and asks about the weather in Iceland
 scene_line_ja = "家にいる友達から電話があり、アイスランドの天気を聞かれます。"
 turns = [
   { who = "partner", say = "Hæ! Hvernig er veðrið hjá þér?", meaning = "Hi! How's the weather where you are?", meaning_ja = "もしもし！そっちの天気はどう？", variants = [{ say = "Hæ! Er kalt hjá þér?", meaning = "Hi! Is it cold where you are?", meaning_ja = "もしもし！そっちは寒い？" }] },
-  { who = "you", cue = "Say it's minus three degrees.", cue_ja = "マイナス3度だと言ってください。", aim = "say how cold it is", aim_ja = "気温を言う", say = "Það eru mínus þrjár gráður.", items = ["thad_eru_minus_count_gradur", "thrjar"] },
+  { who = "you", cue = "Say it's minus three degrees.", cue_ja = "マイナス3度だと言ってください。", aim = "say how cold it is", aim_ja = "気温を言う", say = "Það eru mínus þrjár gráður.", items = ["thad_eru_minus_thrjar_gradur"] },
   { who = "partner", say = "Vá! Hér eru tuttugu gráður.", meaning = "Wow! It's twenty degrees here.", meaning_ja = "わあ！こっちは20度だよ。", probes = [{ kind = "temperature", answer = "tuttugu gráður", meanings = { en = "twenty degrees", ja = "20度" } }], variants = [{ say = "Vá! Hér eru tólf gráður.", meaning = "Wow! It's twelve degrees here.", meaning_ja = "わあ！こっちは12度だよ。", probes = [{ kind = "temperature", answer = "tólf gráður", meanings = { en = "twelve degrees", ja = "12度" } }] }], listen = [{ say = "Vá, það er kalt! Hér eru þrjátíu gráður og sól.", meaning = "Wow, that's cold! It's thirty degrees and sunny here.", meaning_ja = "わあ、寒いね！こっちは30度で晴れてるよ。", probes = [{ kind = "temperature", answer = "þrjátíu gráður", meanings = { en = "thirty degrees", ja = "30度" } }] }] },
   { who = "you", cue = "Say you think the snow is beautiful.", cue_ja = "雪がきれいだと思うと言ってください。", aim = "say you like the snow", aim_ja = "雪が気に入っていると言う", say = "Mér finnst snjórinn fallegur.", items = ["mer_finnst_snjorinn_fallegur"] },
   { who = "partner", say = "Gott! Farðu varlega í hálkunni.", meaning = "Good! Be careful on the ice.", meaning_ja = "よかった！凍った道に気をつけてね。" },
