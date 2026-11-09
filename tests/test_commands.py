@@ -69,7 +69,8 @@ class CommandTests(unittest.TestCase):
                 learner.items[i.id] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=30, last_outcome="recalled",
                                                 due=(TODAY + timedelta(days=60)).isoformat(), last_practiced=(TODAY - timedelta(days=5)).isoformat())
         learner.lessons_completed = completed
-        return Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY).build()
+        self.planner = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+        return self.planner.build()
 
     def test_one_a_lesson_first_from_the_tenth_lesson_then_heard(self):
         sc = self.lesson(30)
@@ -80,6 +81,8 @@ class CommandTests(unittest.TestCase):
         after = [g for g in sc.segments if g.exercise is not None and g.exercise > intros[0].index]
         self.assertTrue(any(g.role == "command" and g.text == "Endurtaktu." for g in after), "then heard where «Repeat.» was said")
         self.assertFalse(any(g.type == "narrate" and g.text == "Repeat." and g.role != "command_support" for g in after), "never «Repeat.» alone")
+        # review of #507: charged at 0, so the caps that read the charged costs (``arc_size``, the new-item cap) do not count it as 1
+        self.assertEqual(self.planner.component_by_item.get("endurtaktu"), 0.0)
         self.assertFalse(any(e.label.startswith("new instruction") for e in self.lesson(5).exercises), "not before the tenth lesson")
 
 

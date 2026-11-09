@@ -2110,7 +2110,10 @@ class Planner:
         first_arc = cfg.new_items_ceiling() if self.components_mode else cfg.resolved_new_items()  # in components, the target stops the arc
         new_queue = deque(self.select_new(first_arc, cheap=True))
         if (command := self.next_command()) is not None:
-            new_queue.appendleft(command)  # #429 (the long run): one instruction in Icelandic a lesson, first, on top of the day's new material
+            # #429 (the long run): one instruction in Icelandic a lesson, first, on top of the day's new material. Charged (at 0) so the caps that
+            # read ``component_by_item`` see it as costing nothing, not as a missing item counted as 1 (review of #507)
+            self._charge(command)
+            new_queue.appendleft(command)
         open_ids = self.learner.open_items()
         open_ids = [i for i in open_ids if i in self.cur.by_id]
         open_today = open_ids[: cfg.max_open_items]
