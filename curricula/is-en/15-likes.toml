@@ -384,12 +384,12 @@ id = "tvaer"
 kind = "vocab"
 variant_of = "tveir"
 target = "tvær"
-meaning = "two, as in counting books"
-meaning_ja = "本を数えるときの2"
+meaning = "two, as in counting books or hot dogs"
+meaning_ja = "本やホットドッグを数えるときの2"
 meaning_forms = { in_sentence = "two" }
 meaning_forms_ja = { in_sentence = "2" }
 difficulty = 2
-tags = ["small_count"]
+tags = ["small_count", "count_fem"]
 gender = "fem"
 topics = ["numbers", "hobbies"]
 
@@ -398,12 +398,12 @@ id = "thrjar"
 kind = "vocab"
 variant_of = "thrir"
 target = "þrjár"
-meaning = "three, as in counting books"
-meaning_ja = "本を数えるときの3"
+meaning = "three, as in counting books or hot dogs"
+meaning_ja = "本やホットドッグを数えるときの3"
 meaning_forms = { in_sentence = "three" }
 meaning_forms_ja = { in_sentence = "3" }
 difficulty = 2
-tags = ["small_count"]
+tags = ["small_count", "count_fem"]
 gender = "fem"
 topics = ["numbers", "hobbies"]
 
@@ -413,12 +413,12 @@ kind = "vocab"
 variant_of = "fjorir"
 target = "fjórar"
 syllables = ["fjór", "ar"]
-meaning = "four, as in counting books"
-meaning_ja = "本を数えるときの4"
+meaning = "four, as in counting books or hot dogs"
+meaning_ja = "本やホットドッグを数えるときの4"
 meaning_forms = { in_sentence = "four" }
 meaning_forms_ja = { in_sentence = "4" }
 difficulty = 2
-tags = ["small_count"]
+tags = ["small_count", "count_fem"]
 gender = "fem"
 topics = ["numbers", "hobbies"]
 
@@ -438,6 +438,25 @@ pronunciation_notes = "bók is feminine, plural bækur, so the feminine count: t
 situation = "You come back from the bookshop with a heavy bag, and your friend asks how many books you bought. Say two."
 situation_ja = "重い袋を持って本屋から戻ると、友達が何冊買ったのか聞いてきました。2冊と言ってください。"
 situation_fill = { count = "tvaer" }
+
+# #451 step 2b (counts and people): an order for a group at the hot-dog stand, the feminine forms of 2–4 («tvær, þrjár, fjórar pylsur») beside
+# «Eina pylsu með öllu.». It gives #439's number choice a feminine line for 2–4. Only those fill it (`count_fem`): a generated «Fimm pylsur…»
+# would bring back the «fimm» the owner heard too often (#451). A candidate until a fluent speaker checks it (#209).
+[[items]]
+id = "count_pylsur_med_ollu"
+kind = "construction"
+target = "{count} pylsur með öllu, takk."
+counts = "pylsa"  # #439 step 1b: the noun its form of 1–4 agrees with
+meaning = "{count} hot dogs with everything, please."
+meaning_ja = "ホットドッグを{count}本、全部乗せでお願いします。"
+difficulty = 3
+topics = ["cafe", "food", "numbers"]
+slots = { count = "count_fem" }
+example = { count = "thrjar" }
+prereqs = ["eina_pylsu_med_ollu", "thrjar"]
+situation = "You're at the hot-dog stand with two friends. Order three with everything."
+situation_ja = "友達二人とホットドッグ屋台にいます。全部乗せを三本頼んでください。"
+situation_fill = { count = "thrjar" }
 
 [[items]]
 id = "eg_er_ad_lesa_goda_bok"
