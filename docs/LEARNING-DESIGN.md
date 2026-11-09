@@ -967,6 +967,10 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
   requests, and fit it into §8. If it is a principle
   ("never implausible"), record it in §9. If the request conflicts with a hypothesis or the
   evidence, say so before building it. Agreement is not the goal; the learner's outcome is.
+- **The same load, a second purpose (owner, 2026-11-10).** A choice the course makes anyway is made for a second gain where one costs
+  nothing more: a scene's number is a form of 1–4 in the gender its noun asks («tvær mínútur», «tvo daga») rather than a round «fimm» or
+  «tíu», so a line heard for its information also practises the form. Before a value, a wording or a filler is fixed, ask what else it could
+  teach at the same cost.
 - **Acceptance criteria describe the learner's experience** and are checked on the real
   path (§1).
 - **Keep this document true.** §1 says when §4, §5 and §8 are updated; §9 changes when a decision is made. Write
