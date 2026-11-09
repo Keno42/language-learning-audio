@@ -125,6 +125,7 @@ class PlanConfig:
     # #451 step 3: a number word a pick-out's answer said rests this many lessons after, and for the rest of its own lesson: a pick-out whose answer
     # holds fewer number words heard that recently comes first («þúsund» in four of five lessons from the clothes shop's two price turns alone)
     number_rest_lessons: int = 2
+    pick_out_rested_lessons: int = 3  # #339: a pick-out turn heard in the last three lessons waits for the others (the daily read's `pick_outs_recent`)
     max_pick_outs_per_pattern: int = 1  # pick-outs one partner turn gives in a lesson, its variants and listening lines counted together (#248 review)
     pick_out_heard_window_s: float = 300.0  # #339 (lesson 40): a pick-out whose answer was said aloud this long before is answered from memory, not found
     theme_ready: float = 0.75  # a theme's level plays once the learner can say this share of its turns; the rest are heard (#240)
@@ -3436,8 +3437,10 @@ class Planner:
             known = known_now()
             cands = []
             # #451 step 3: how tired an answer's number words are: each counts the times it was an answer this lesson, and one more when it was an answer in the
-            # last ``number_rest_lessons``. The least tired comes first, before #339's turn rotation, which keeps a turn's own values in turn but not the same
-            # word across turns and scenes. A lesson asks some sixteen pick-outs, most of them numbers, so within it the count spreads the words
+            # last ``number_rest_lessons``. #339's turn rotation keeps a turn's own values in turn but not the same word across turns and scenes, and a lesson
+            # asks some sixteen pick-outs, most of them numbers. Among the turns not heard in the last ``pick_out_rested_lessons``, the least tired comes first;
+            # a turn heard that recently comes after all of them, whatever its numbers (review of #515: ordered by tiredness alone, a turn with no number,
+            # «Reykjavík», was asked six lessons running)
             lesson_now = self.learner.next_lesson_number()
             recent = {k.removeprefix("number:") for k, at in self.learner.listening_log.items() if k.startswith("number:") and at >= lesson_now - cfg.number_rest_lessons}
             heard_now = Counter(numbers_heard)
@@ -3478,7 +3481,18 @@ class Planner:
             for c, task in sorted(tasks, key=lambda ct: (ct[0][0][1], within(ct[0]))):
                 if task is not None:
                     turn_tired.setdefault(c[0][1], c[0][0])
-            for c, task in sorted(tasks, key=lambda ct: (turn_tired.get(ct[0][0][1], 0), ct[0][0][2], within(ct[0]), *ct[0][0][5:])):
+            rested_from = lesson_now - cfg.pick_out_rested_lessons
+
+            def turn_heard_lately(heard_in: int) -> bool:
+                return heard_in > 0 and heard_in >= rested_from
+
+            def order(ct) -> tuple:
+                key = ct[0][0]
+                if turn_heard_lately(key[2]):
+                    return (1, 0, key[2], within(ct[0]), *key[5:])  # all heard lately: #339's order alone, least recently heard first
+                return (0, turn_tired.get(key[1], 0), key[2], within(ct[0]), *key[5:])
+
+            for c, task in sorted(tasks, key=order):
                 yield task
 
         def catch_unknown_tasks():
