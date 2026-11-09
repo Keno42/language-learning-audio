@@ -80,7 +80,7 @@ class CurriculumTests(unittest.TestCase):
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         for i in ("einn", "eitt", "ein", "tveir", "tvo", "tvaer"):
             self.assertFalse(re.search(r"[();]", cur.by_id[i].meaning), cur.by_id[i].meaning)
-        self.assertEqual(cur.by_id["tvaer"].meaning, "two, as in counting books")
+        self.assertEqual(cur.by_id["tvaer"].meaning, "two, as in counting books or hot dogs")
         self.assertEqual(load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja").by_id["eitt"].meaning, "時刻を言うときの1")
 
     def test_no_two_items_share_a_recall_prompt(self):

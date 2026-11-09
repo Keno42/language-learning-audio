@@ -137,6 +137,18 @@ class NumberChoiceTests(unittest.TestCase):
         self.assertEqual([line.gender for line in two], ["masc", "fem", "neut"])
         self.assertIn("Ég vil herbergi fyrir tvær nætur.", [line.sentence for line in two], "a part is said in the sentence it was taught in")
 
+    def test_two_to_four_have_a_line_in_each_gender(self):
+        """#451 step 2b: the course says each of 2–4 in all three genders, in lines a traveller says: tickets («miða», masculine), hot dogs for a
+        group («pylsur», feminine) and prices («þúsund», neuter). Lesson 53 on the replay set «Þrjá miða / Þrjár pylsur / þrjú þúsund» side by side."""
+        _check_counts(self.cur, self.cur.by_id["count_pylsur_med_ollu"])
+        learner = self._met(["count_mida_takk", "midi", "mida", "count_pylsur_med_ollu", "pylsu", "thad_kostar_big", "thusund", "kronur",
+                             "tvo_acc", "thrja_acc", "fjora_acc", "tvaer", "thrjar", "fjorar", "tvo", "thrju", "fjogur"])
+        p = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+        groups = choice_lines(p.number_choice_candidates())
+        for value in (2, 3, 4):
+            self.assertEqual(sorted(groups.get(value, {})), ["fem", "masc", "neut"], value)
+        self.assertIn("Þrjár pylsur með öllu, takk.", [line.sentence for line in groups[3]["fem"]])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -68,6 +68,22 @@ turns = [
   { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", aim = "take what she suggests", aim_ja = "すすめられたものを頼む", say = "Já, takk.", items = ["ja", "takk"] },
 ]
 
+[[themes.levels]]
+# #451 step 2b: an order for a group, the feminine forms of 2–4 (the hot dog is «pylsa»). The price is said per hot dog, not as a total in
+# thousands (#451: «þúsund» far less often); the total is a listening line. Candidates until native-checked (#209).
+goal = "At the hot-dog stand, order three hot dogs with everything for you and your friends, say no to a drink, and pay."
+goal_ja = "ホットドッグ屋台で、自分と友達の分の全部乗せを三本頼み、飲み物は断って払う。"
+scene_line = "You're at the hot-dog stand with two friends."
+scene_line_ja = "友達二人とホットドッグ屋台にいます。"
+turns = [
+  { who = "partner", say = "Hæ! Hvað má bjóða ykkur?", meaning = "Hi! What can I get you all?", meaning_ja = "こんにちは！皆さん何にしますか？", variants = [{ say = "Góðan daginn! Hvað má bjóða ykkur?", meaning = "Hello! What can I get you all?", meaning_ja = "こんにちは！皆さん何にしますか？" }] },
+  { who = "you", cue = "Order three hot dogs with everything.", cue_ja = "全部乗せのホットドッグを三本頼んでください。", aim = "order three hot dogs with everything", aim_ja = "全部乗せを三本頼む", say = "Þrjár pylsur með öllu, takk.", items = ["count_pylsur_med_ollu", "thrjar"] },
+  { who = "partner", say = "Þrjár með öllu. Eitthvað að drekka?", meaning = "Three with everything. Anything to drink?", meaning_ja = "全部乗せを三本ですね。お飲み物は？", word_glosses = { "drekka" = { en = "to drink", ja = "飲み物" } }, variants = [{ say = "Þrjár með öllu. Viljið þið eitthvað að drekka?", meaning = "Three with everything. Would you like anything to drink?", meaning_ja = "全部乗せを三本ですね。お飲み物はいかがですか？", word_glosses = { "drekka" = { en = "to drink", ja = "飲み物" } } }] },
+  { who = "you", cue = "No, thanks.", cue_ja = "いいえ、結構です。", aim = "say no to a drink", aim_ja = "飲み物を断る", say = "Nei, takk.", items = ["nei", "takk"] },
+  { who = "partner", say = "Sjö hundruð krónur stykkið.", meaning = "Seven hundred krónur each.", meaning_ja = "1本700クローナです。", word_glosses = { "stykkið" = { en = "each", ja = "1本" } }, probes = [{ kind = "price", answer = "sjö hundruð krónur", meanings = { en = "seven hundred krónur", ja = "700クローナ" } }], listen = [{ say = "Pylsan kostar sjö hundruð krónur, svo þetta eru tvö þúsund og eitt hundrað.", meaning = "A hot dog is seven hundred krónur, so that's two thousand one hundred.", meaning_ja = "ホットドッグは1本700クローナなので、2100クローナです。", probes = [{ kind = "price", answer = "sjö hundruð krónur", meanings = { en = "seven hundred krónur", ja = "700クローナ" }, ask = { en = "How much is one hot dog?", ja = "ホットドッグ1本はいくらですか？" } }, { kind = "price", answer = "tvö þúsund og eitt hundrað", meanings = { en = "two thousand one hundred", ja = "2100" }, ask = { en = "How much is it altogether?", ja = "全部でいくらですか？" } }] }] },
+  { who = "you", cue = "Hand over your card.", cue_ja = "カードを渡します。", aim = "hand over your card", aim_ja = "カードを渡す", say = "Gjörðu svo vel.", items = ["gjordu_svo_vel"] },
+]
+
 [[themes]]
 id = "supermarket"
 scenario = "A3"
@@ -138,6 +154,23 @@ turns = [
   { who = "partner", say = "Það eru tvö þúsund og fimm hundruð krónur.", meaning = "That's two thousand five hundred krónur.", meaning_ja = "2500クローナです。", probes = [{ kind = "price", answer = "tvö þúsund og fimm hundruð krónur", meanings = { en = "two thousand five hundred krónur", ja = "2500クローナ" } }], variants = [{ say = "Það gera tvö þúsund og fimm hundruð krónur.", meaning = "That's two thousand five hundred krónur.", meaning_ja = "2500クローナです。", probes = [{ kind = "price", answer = "tvö þúsund og fimm hundruð krónur", meanings = { en = "two thousand five hundred krónur", ja = "2500クローナ" } }] }, { say = "Tvö þúsund og fimm hundruð, takk.", meaning = "Two thousand five hundred, please.", meaning_ja = "2500お願いします。", probes = [{ kind = "price", answer = "tvö þúsund og fimm hundruð", meanings = { en = "two thousand five hundred", ja = "2500" } }] }], listen = [{ say = "Safnið opnar klukkan hálf ellefu og lokar klukkan sex.", meaning = "The museum opens at half past ten and closes at six.", meaning_ja = "博物館は10時半に開き、6時に閉まります。", probes = [{ kind = "time", answer = "klukkan hálf ellefu", meanings = { en = "half past ten", ja = "10時半" }, ask = { en = "When does the museum open?", ja = "博物館は何時に開きますか？" } }, { kind = "time", answer = "klukkan sex", meanings = { en = "six o'clock", ja = "6時" }, ask = { en = "When does it close?", ja = "何時に閉まりますか？" } }] }, { say = "Safnið opnar klukkan tíu og lokar klukkan fimm.", meaning = "The museum opens at ten and closes at five.", meaning_ja = "博物館は10時に開き、5時に閉まります。", probes = [{ kind = "time", answer = "klukkan tíu", meanings = { en = "ten o'clock", ja = "10時" }, ask = { en = "When does the museum open?", ja = "博物館は何時に開きますか？" } }, { kind = "time", answer = "klukkan fimm", meanings = { en = "five o'clock", ja = "5時" }, ask = { en = "When does it close?", ja = "何時に閉まりますか？" } }] }, { say = "Safnið opnar klukkan níu og lokar klukkan sex.", meaning = "The museum opens at nine and closes at six.", meaning_ja = "博物館は9時に開き、6時に閉まります。", probes = [{ kind = "time", answer = "klukkan níu", meanings = { en = "nine o'clock", ja = "9時" }, ask = { en = "When does the museum open?", ja = "博物館は何時に開きますか？" } }, { kind = "time", answer = "klukkan sex", meanings = { en = "six o'clock", ja = "6時" }, ask = { en = "When does it close?", ja = "何時に閉まりますか？" } }] }, { say = "Safnið opnar klukkan ellefu og lokar klukkan fjögur.", meaning = "The museum opens at eleven and closes at four.", meaning_ja = "博物館は11時に開き、4時に閉まります。", probes = [{ kind = "time", answer = "klukkan ellefu", meanings = { en = "eleven o'clock", ja = "11時" }, ask = { en = "When does the museum open?", ja = "博物館は何時に開きますか？" } }, { kind = "time", answer = "klukkan fjögur", meanings = { en = "four o'clock", ja = "4時" }, ask = { en = "When does it close?", ja = "何時に閉まりますか？" } }] }] },
   { who = "you", cue = "Ask if you can pay by card.", cue_ja = "カードで払えるか聞いてください。", aim = "ask if you can pay by card", aim_ja = "カードで払えるか聞く", say = "Má ég borga með korti?", items = ["ma_eg_borga_med_korti"] },
   { who = "partner", say = "Já, auðvitað.", meaning = "Yes, of course.", meaning_ja = "はい、もちろん。", variants = [{ say = "Já, það er í lagi.", meaning = "Yes, that's fine.", meaning_ja = "はい、大丈夫ですよ。" }, { say = "Já, að sjálfsögðu.", meaning = "Yes, of course.", meaning_ja = "はい、もちろんです。" }] },
+]
+
+[[themes.levels]]
+# #451 step 2b: how many you are, and tickets by age, two forms of «two» side by side («tvo fullorðna», «tvö börn»). No total is said:
+# level 1 has the ticket price, and a family's total would add another «þúsund» (#451). Candidates until native-checked (#209).
+goal = "Say how many you are, ask for two adults and two children, and pay by card."
+goal_ja = "何人か答え、大人2名と子ども2名を頼み、カードで払う。"
+scene_line = "You're at the museum desk with a friend and two children."
+scene_line_ja = "友人と子ども二人と博物館の窓口にいます。"
+turns = [
+  { who = "partner", say = "Góðan daginn. Hvað eruð þið mörg?", meaning = "Hello. How many of you are there?", meaning_ja = "こんにちは。何名様ですか？", word_glosses = { "mörg" = { en = "how many", ja = "何名" } } },
+  { who = "you", cue = "Say there are four of you.", cue_ja = "四人だと答えてください。", aim = "say how many you are", aim_ja = "何人か答える", say = "Við erum fjögur.", items = ["vid_erum_fjogur"] },
+  { who = "partner", say = "Fullorðnir eða börn?", meaning = "Adults or children?", meaning_ja = "大人ですか、子どもですか？" },
+  { who = "you", cue = "Ask for two adults and two children.", cue_ja = "大人2名と子ども2名を頼んでください。", aim = "ask for two adults and two children", aim_ja = "大人2名と子ども2名を頼む", say = "Tvo fullorðna og tvö börn, takk.", items = ["tvo_fullordna_og_tvo_born_takk"] },
+  { who = "partner", say = "Það er frítt fyrir börn.", meaning = "It's free for children.", meaning_ja = "子どもは無料です。", word_glosses = { "frítt" = { en = "free", ja = "無料" } } },
+  { who = "you", cue = "Ask if you can pay by card.", cue_ja = "カードで払えるか聞いてください。", aim = "ask if you can pay by card", aim_ja = "カードで払えるか聞く", say = "Má ég borga með korti?", items = ["ma_eg_borga_med_korti"] },
+  { who = "partner", say = "Já, auðvitað.", meaning = "Yes, of course.", meaning_ja = "はい、もちろん。", variants = [{ say = "Já, að sjálfsögðu.", meaning = "Yes, of course.", meaning_ja = "はい、もちろんです。" }] },
 ]
 
 [[themes]]

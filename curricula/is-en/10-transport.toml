@@ -331,6 +331,20 @@ tags = ["party"]
 topics = ["transport", "daily"]
 pronunciation_notes = "neuter plural: the accusative is the same as the nominative"
 
+# #451 step 2b (counts and people): tickets for a family, two forms of «two» side by side: «tvo» for adults (masculine, the accusative of
+# «tveir»), «tvö» for children (neuter). A candidate until a fluent speaker checks it (#209).
+[[items]]
+id = "tvo_fullordna_og_tvo_born_takk"
+kind = "phrase"
+target = "Tvo fullorðna og tvö börn, takk."
+meaning = "Two adults and two children, please."
+meaning_ja = "大人2名と子ども2名、お願いします。"
+difficulty = 3
+topics = ["daily", "transport", "numbers"]
+prereqs = ["tvo_fullordna", "tvo_born"]
+situation = "You're at the museum desk with a friend and two children. Ask for your tickets."
+situation_ja = "友人と子ども二人と博物館の窓口にいます。チケットを頼んでください。"
+
 [[items]]
 id = "partei_takk"
 kind = "construction"
