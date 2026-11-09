@@ -150,6 +150,10 @@ class Item:
     # #439 step 2: a gendered line's word said of him and of her ({"m": "Hann er svangur.", "f": "Hún er svöng."}), with their meanings
     # (``said_of_meaning``, per language): a lesson sets the two side by side, so the form is practised as the person's choice, not only the speaker's
     said_of: dict[str, str] = field(default_factory=dict)
+    # #429 (the long run): the instructor's instruction this phrase says in the target language, by its phrasing key («repeat» for «Endurtaktu.»):
+    # once taught it replaces the instruction, said in a native voice, with the instruction after it until the learner's review has recalled it
+    # twice (``Builder.command_support``)
+    command: str = ""
     said_of_meaning: dict[str, str] = field(default_factory=dict)
     examples: list[TransformExample] = field(default_factory=list)  # transform pairs
     order: int = 0
@@ -755,6 +759,7 @@ def _slot_names(text: str) -> list[str]:
     return [m[1:-1].split(":")[0] for m in _ANY_SLOT_RE.findall(text)]
 
 
+COMMAND_KEYS = ("repeat", "listen")  # #429: the instructions a phrase may say in the target language (their phrasing keys)
 PROBE_KINDS = ("price", "time", "count", "place", "duration")  # what an information probe asks to listen for (#248)
 FORMS = ("negative", "question")  # a construction's authored forms besides the plain one (#171)
 
@@ -1154,6 +1159,8 @@ def validate(cur: Curriculum) -> None:
             _check_counts(cur, it)
         if it.said_of or it.said_of_meaning:
             _check_said_of(it)
+        if it.command and (it.kind != "phrase" or it.command not in COMMAND_KEYS):
+            raise CurriculumError(f"item {it.id!r}: command names an instruction the lessons say ({', '.join(COMMAND_KEYS)}), on a phrase")
         if it.instance_of or it.instance_fill or it.instance_form:
             c = cur.by_id.get(it.instance_of)
             if it.kind != "phrase" or c is None or c.kind != "construction":
