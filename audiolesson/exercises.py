@@ -94,6 +94,10 @@ FORM_HARD_CAP = 0.35  # a form is not chosen at all if it would pass this share 
 FORM_ALL_HARD_CAP = 0.5  # …nor any form that would leave the forms together above this share
 FORM_CAP_FROM = 6  # …counted from this many generated sentences (before that a share is meaningless)
 CONSTRUCTION_CEILING = 10  # generated sentences one construction may have in a lesson (#180; §9 "about ten uses", extended to patterns)
+# #451 step 3b (the owner, on its review: one frame, one budget): a sentence whose one filler is a number and its pattern are one frame, asked in a lesson about
+# as often as one new sentence's ladder (lesson 52 asked each of its new sentences 8–9 times). The pattern's generated sentences stop there; the
+# sentence's own rungs and the pattern's introduction are not held to it
+FRAME_BUDGET = 9
 FORM_EXTRA_NEW = 2  # sentences in a form taught this lesson, beyond the practice right after its note
 SITUATION_FULL_MAX = 2  # a situation (authored, or a scene check's line) is narrated in full at most this often in a lesson (G12)
 PART_BUILD_UP_WORDS = 3  # lesson 44: a part of this many words or more, introduced in its sentence, is built up from its end
@@ -170,6 +174,7 @@ class Builder:
     form_reasons_said: set = field(default_factory=set)  # constructions whose ``form_reason`` was said this lesson (#270: once a lesson per frame)
     novelty_announced: set = field(default_factory=set)  # (construction, form) already announced as «something you haven't heard yet» this lesson (#197)
     said: Counter = field(default_factory=Counter)  # how often each sentence was said this lesson: model answers, echoes, the intro once, partner lines (#192)
+    _frames: dict | None = None  # #451 step 3b: pattern id -> its number frame (the pattern and its number phrases), built once
     produced: Counter = field(default_factory=Counter)  # how often the learner was asked for each line this lesson: the echo only while it teaches
     recent_answers: list[str] = field(default_factory=list)  # the last two answers said (normalised): a generated sentence is not the one just asked (#190)
     in_lesson: set[str] = field(default_factory=set)  # items introduced this lesson: usable as parts
@@ -1610,11 +1615,12 @@ class Builder:
         if item.kind != "construction" and plain_number(item, self.cur):
             return None
         if item.kind == "construction":
-            if self.construction_full(item):
+            if self.construction_full(item) or self.frame_spent(sc, item):
                 return None  # the ceiling: about ten generated sentences of one pattern in a lesson (#180)
             gen = self.generate(item, avoid_heard=True, met_fills=met_fills, forms=True, form=form, exclude=exclude)
         else:
-            gen = self.generate_with(item, avoid_heard=True, forms=True, avoid=avoid)
+            spent = frozenset(c for c in self._number_frames() if self.frame_spent(sc, self.cur.by_id[c]))
+            gen = self.generate_with(item, avoid_heard=True, forms=True, avoid=avoid | spent)
         if gen is None:
             return None
         self.used_combos.add(gen.key)
@@ -1968,17 +1974,41 @@ class Builder:
             ranked.append((-(desired[f] - actual) + self.rng.random() * 0.01, f))
         return [f for _, f in sorted(ranked, key=lambda t: t[0])] or [None]
 
-    def number_pattern(self, item: Item) -> Item | None:
-        """#451 step 3b: the pattern of a fixed phrase whose one filler is a number («Það eru mínus þrjár gráður.» of «Það eru mínus {count} gráður.»), when the
-        learner can say it with another number now; None for any other item. Such a phrase is taught whole (§9 "Parts against utterances") and practised
-        through its pattern's values (``recall``)."""
+    def _number_frame(self, item: Item) -> Item | None:
+        """The pattern of a fixed phrase whose one filler is a number, whatever the learner knows (#451 step 3b); None otherwise."""
         if item.kind != "phrase" or not item.instance_of or not item.instance_fill or len(item.instance_fill) != 1 or item.instance_form:
             return None
         pattern = self.cur.by_id.get(item.instance_of)
         own = self.cur.by_id.get(next(iter(item.instance_fill.values())))
         if pattern is None or own is None or len(pattern.slots) != 1 or not (set(own.tags) & NUMBER_TAGS or value_of(own.target) is not None or number_in(own.target)):
             return None
-        return pattern if self.combos_available(pattern) >= 2 else None
+        return pattern
+
+    def _number_frames(self) -> dict[str, frozenset[str]]:
+        """Pattern id -> the ids of its frame: the pattern and its number phrases (#451 step 3b)."""
+        if self._frames is None:
+            frames: dict[str, set[str]] = {}
+            for it in self.cur.items:
+                if (pattern := self._number_frame(it)) is not None:
+                    frames.setdefault(pattern.id, {pattern.id}).add(it.id)
+            self._frames = {k: frozenset(v) for k, v in frames.items()}
+        return self._frames
+
+    def number_frame_of(self, item: Item) -> Item | None:
+        """The pattern whose number frame ``item`` belongs to (the pattern itself, or one of its number phrases); None for any other item."""
+        return next((self.cur.by_id[c] for c, ids in self._number_frames().items() if item.id in ids), None)
+
+    def frame_spent(self, sc: Script, c: Item) -> bool:
+        """#451 step 3b: the lesson has asked ``c``'s frame (the pattern and its number phrases) ``FRAME_BUDGET`` times: no more of its generated sentences."""
+        ids = self._number_frames().get(c.id)
+        return bool(ids) and sum(1 for e in sc.exercises if ids & set(e.item_ids)) >= FRAME_BUDGET
+
+    def number_pattern(self, item: Item) -> Item | None:
+        """#451 step 3b: the pattern of a fixed phrase whose one filler is a number («Það eru mínus þrjár gráður.» of «Það eru mínus {count} gráður.»), when the
+        learner can say it with another number now; None for any other item. Such a phrase is taught whole (§9 "Parts against utterances") and practised
+        through its pattern's values (``recall``)."""
+        pattern = self._number_frame(item)
+        return pattern if pattern is not None and self.combos_available(pattern) >= 2 else None
 
     def filling_options(self, c: Item) -> list[tuple[dict[str, Item], str, str]]:
         """Every filling of ``c`` by the available fillers: (fills, sentence, meaning) (#336). The combinations ``generate`` allows (``_product``: no two fills

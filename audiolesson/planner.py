@@ -2565,6 +2565,8 @@ class Planner:
             nonlocal since_dialogue
             if allow_cap and item.kind == "construction" and pattern_spent(item):
                 return False  # #336: a pattern with one or two fillings known can only be asked as the same one or two sentences: each at most this many times a lesson
+            if allow_cap and (frame := b.number_frame_of(item)) is not None and b.frame_spent(sc, frame):
+                return False  # #451 step 3b: a number sentence and its pattern are one frame, asked about as often as one new sentence's ladder
             if allow_cap and item.id in hard_ids and connected_practice(item) == "played":
                 return True
             if stage == "dialogue":

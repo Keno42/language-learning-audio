@@ -58,6 +58,20 @@ class NumberSaidTests(unittest.TestCase):
         cloze = planner.builder.recall(sc, item, "cloze")
         self.assertIn("þrjár", cloze.label, "the cloze and the hint keep the sentence as taught")
 
+    def test_the_sentence_and_its_pattern_share_one_budget(self):
+        """Review of #516: with 2–12 the pattern, taught in the same lesson, took the frame from 12 exercises to 19 («mínus tíu», «mínus tólf» …); the
+        owner: one frame, one budget. Past ``FRAME_BUDGET`` the lesson asks the frame no more (the sentence's own early rungs aside)."""
+        from audiolesson.exercises import FRAME_BUDGET
+
+        planner, sc = self.lesson()
+        ids = planner.builder._number_frames()["thad_eru_minus_count_gradur"]
+        asked = [e for e in sc.exercises if ids & set(e.item_ids)]
+        self.assertLessEqual(len(asked), FRAME_BUDGET + 2, [e.label for e in asked])
+        spent_at = next((k for k, e in enumerate(sc.exercises) if sum(1 for x in sc.exercises[: k + 1] if ids & set(x.item_ids)) >= FRAME_BUDGET), None)
+        if spent_at is not None:
+            late = [e.label for e in sc.exercises[spent_at + 1 :] if e.kind == "generative" and ids & set(e.item_ids)]
+            self.assertEqual(late, [], "no generated sentence of the frame once its budget is spent")
+
     def test_only_a_phrase_whose_filler_is_a_number_takes_its_patterns_values(self):
         planner, _ = self.lesson()
         b = planner.builder
