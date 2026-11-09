@@ -1758,7 +1758,8 @@ class Builder:
         result = exm.result_m if man and exm.result_m else exm.result
         answer_gender = gender if exm.result_m else None
         before = sc.exercises[-2].index if len(sc.exercises) >= 2 and sc.exercises[-1] is ex else None
-        if self.situation_rank(item.instruction) is None and self._last_instruction == item.instruction and self._last_instruction_ex == before:
+        # an answer drill's instruction names the answer, which differs from pair to pair: never shortened to «Same change:» (review of #506)
+        if not item.answers and self.situation_rank(item.instruction) is None and self._last_instruction == item.instruction and self._last_instruction_ex == before:
             self._narr(sc, ex, self._as(answer_gender, self.prompts.get("transform_same")), role="short_instruction")
         else:
             # an answer drill names the answer it asks for (``Item.answers``): «Answer: It costs six hundred krónur.»

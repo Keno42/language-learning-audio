@@ -30,6 +30,17 @@ class AnswerTransformTests(unittest.TestCase):
             exm = next(e for e in item.examples if e.result == answer)
             self.assertIn(exm.result_meaning.rstrip("。."), asked, "the instruction names the price the answer says")
 
+    def test_each_ask_names_its_price_never_same_change(self):
+        """Review of #506: after two full instructions the third ask in a row said «Same change:» and expected a price it never named."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        item = cur.by_id["numbers_price_transform"]
+        b = Builder(cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        sc = Script(1, "t", "is", "en")
+        for exm in item.examples:
+            b._transform_prompt(sc, sc.new_exercise("recall", "meaning", [item.id], "x"), item, exm)
+        asked = [g.text for g in sc.segments if g.type == "narrate"]
+        self.assertEqual(asked, [f"Answer: {e.result_meaning}" for e in item.examples])
+
     def test_the_prices_vary(self):
         item = load_curriculum(ROOT / "curricula" / "is-en").by_id["numbers_price_transform"]
         self.assertEqual(len({e.result for e in item.examples}), len(item.examples))
