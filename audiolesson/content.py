@@ -152,6 +152,10 @@ class Item:
     said_of: dict[str, str] = field(default_factory=dict)
     said_of_meaning: dict[str, str] = field(default_factory=dict)
     examples: list[TransformExample] = field(default_factory=list)  # transform pairs
+    # transform: each result answers its source (a question and its answer, «Hvað kostar kaffi?» → «Það kostar sex hundruð krónur.»), so the pairs are
+    # introduced as a question and its answer, not «becomes», and ``instruction`` may name the answer's meaning as ``{result_meaning}`` (draft of lesson 52:
+    # «Hvað kostar … ?» «becomes» «Það kostar þúsund krónur.» for coffee, tea, beer and «this», asked five times)
+    answers: bool = False
     order: int = 0
     gender: str | None = None  # noun's grammatical gender ("masc" | "fem" | "neut"), for agreement
     # #270, a noun is one entry whose forms are items: ``noun`` names the noun this item is a form of, ``form`` which form («nom», «acc», «dat», «nom_def»,

@@ -440,15 +440,15 @@ situation_ja = "山の上に緑の光が現れました。友達にオーロラ�
 
 [[dialogues]]
 id = "vedur"
-setting = "You meet your neighbour outside. It's blowing a gale."
-setting_ja = "外で近所の人に会いました。強風が吹いています。"
+setting = "You meet your neighbour outside on a freezing morning."
+setting_ja = "凍えるような朝、外で近所の人に会いました。"
 topics = ["weather", "arrangements"]
 requires = ["ja", "thad_er_weather", "kalt", "allt_i_lagi", "sjaumst_time", "a_morgun"]
 
   [[dialogues.turns]]
-  opener = "Það er rok í dag!"
-  opener_meaning = "It's windy today!"
-  opener_meaning_ja = "今日は風が強いね！"
+  opener = "Það er kalt í dag!"  # draft of lesson 52: «Það er rok í dag!» was «agreed» with «Já, það er kalt.»
+  opener_meaning = "It's cold today!"
+  opener_meaning_ja = "今日は寒いね！"
   cue = "Agree: yes, it's cold."
   cue_ja = "同意して、ええ、寒いですね、と言ってください。"
   expect_text = "Já, það er kalt."

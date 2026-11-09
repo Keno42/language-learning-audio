@@ -70,6 +70,9 @@ slot_word = "なにか"
 
 transform_intro = "文がどう変わるか、聞いてください。"
 transform_becomes = "こうなります。"
+# a transform whose results answer its sources (Item.answers)
+transform_intro_answer = "質問と、その答えを聞いてください。"
+transform_answer = "答え："
 transform_try = "では、やってみましょう。"
 transform_same = "同じように変えてください。"
 
