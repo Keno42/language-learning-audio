@@ -3869,7 +3869,9 @@ class Planner:
                     # recall the earlier of the two instead, only the very last item is off limits
                     candidate = next((p for p in sorted(pending) if p.item.id != recent[-1]), None)
                     pulled = next((e for e in sorted(intro_timeline) if e[2].id != recent[-1] and not sentence_lately(e[2])), None)
-                n_introduced = sum(1 for i in introduced if self.component_by_item.get(i.id, 1.0) > 0) if self.components_mode else len(introduced)
+                # #429: an instruction in Icelandic is on top of the day's new material, never counted against its cap
+                n_introduced = (sum(1 for i in introduced if self.component_by_item.get(i.id, 1.0) > 0) if self.components_mode
+                                else sum(1 for i in introduced if not i.command))
                 can_intro = idx - last_intro >= 1 and n_introduced < cfg.resolved_max_new_items()
                 # a later arc was admitted whole (_may_start_arc): its queued items may fill a gap too,
                 # though not as a third introduction in a row
