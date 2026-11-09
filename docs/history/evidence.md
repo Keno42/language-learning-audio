@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.37 (lessons 1–47), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.38 (lessons 1–48), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1494,3 +1494,35 @@ What the learner wrote, by what the lesson did:
   the export the lesson keeps its length and asks «It's rainy.» and «I'll come later.».
 - **No remark on the reviews.** The lesson reviewed 57 of 73 due, rated «light». The capacity estimate did not trigger the rung
   reduction (#478, `reviews_starved` false); why the other 16 were not reviewed is not established. The written review's queue is 125 due.
+
+### 5.38 Lesson 48: the first feedback on #484
+
+Lesson 48 was generated with LLA `588c646` (main with #484), the bot at site_update_notifier `4f970b6`; rebuilt from its export with the trip
+profile it is identical (123 exercises, 30.0 minutes). It is the first feedback on two answers never sharing a cue meaning (#484): «I'll come
+soon.» asked for «Ég kem fljótlega.» and «Tell her it's raining.» for «Það rignir.», with no remark. #486 (the levels heard again take turns)
+and #487 (the supermarket's other items) were merged after it was built.
+
+| | lesson 48 |
+|---|---|
+| length | 30.0 min, 123 exercises |
+| new items; new components, weighted | 9; 7 |
+| theme (level); today's new items said as a turn of the played exchange | weather (1); «Hvernig verður veðrið á morgun?» |
+| target reached | 20.2 min |
+| items reviewed / due | 42 / 47 (lesson 47: 57 / 73); the capacity estimate did not trigger the rung reduction (#478) |
+| written review's queue | 125 due |
+| longest stretch without a scene | 4.3 min |
+| a sentence asked again within a minute | 0 |
+| feedback form: load; friction | **light** (the fourth in a row); other (the remark below) |
+| «sooner» | «Hvernig verður veðrið á morgun?»; reasons: hard to remember, to hear and to say |
+| help asked | how «ð» sounds in it, when it is heard and when it fades, and how it links to its neighbours |
+
+What the learner wrote, by what the lesson did:
+
+- **The goal at the start runs together and is hard to follow.** *Reviewer:* the goal was one narration of three sentences,
+  «Today's goal: Ask about tomorrow's weather and say you need an umbrella. Listen for how to say the weather is good today.», the second
+  and third each naming a part of the exchange. A note's prose is said sentence by sentence with a beat between them (#259); the goal,
+  said in every lesson with a theme, was not. **Answered, in review (#488):** the goal is said sentence by sentence, a beat between them,
+  in both languages; the narrowed goal said again keeps them. The replay is otherwise identical.
+- **«Hvernig verður veðrið á morgun?», hard to remember, hear and say**, with a help request on «ð». It was introduced built up from its end
+  and said as a turn of the played exchange, the first lesson since 45 to say a new item as one. The «sooner» report brings it back at
+  half its interval, and the help request is answered by the bot's explanation. Read its next-day recall before adding practice.
