@@ -21,7 +21,7 @@ In order:
    commands the same way.
 2. **Numbers in varied situations (#451, owner 2026-11-09).** Numbers met where a traveller meets them (a room number, a floor, a bus
    number, an address, how many things, how many people), mostly by ear, rotated so no situation and no number word comes back within a few
-   lessons; plain numbers stop entering as age items by course order.
+   lessons. Step 1 in review (#508): a plain number no longer enters by course order (no new ages), it is met where it is used.
 3. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 4. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
