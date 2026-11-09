@@ -219,6 +219,7 @@ turns = [
 [[themes.levels]]
 # #451 step 2e: a day (said inside «Ég fer …», never bare), a booking number read digit by digit, the departure time. Full dates (ordinals,
 # months) are not in the course yet. Candidates until native-checked (#209).
+partner_speaker = "native_a"  # the partner is a woman, as the cues say
 goal = "At the tour desk, book a tour for Thursday, and catch the booking number and when the coach leaves."
 goal_ja = "ツアーデスクで木曜日のツアーを予約し、予約番号とバスの出発時刻を聞き取る。"
 scene_line = "You're at the tour desk in town."
@@ -233,6 +234,7 @@ turns = [
 [[themes.levels]]
 # #451 step 2e: how long you stay (about oneself), and a phone number read digit by digit with the emergency number. Candidates until
 # native-checked (#209).
+partner_speaker = "native_a"  # the partner is a woman, as the cues say
 goal = "On the coach, say how long you're staying, ask the guide's phone number, and catch it and the emergency number."
 goal_ja = "バスの中で滞在期間を言い、ガイドの電話番号を聞いて、その番号と緊急番号を聞き取る。"
 turns = [

@@ -150,9 +150,14 @@ class SetReplyTests(unittest.TestCase):
     def test_the_opening_says_what_is_asked_and_what_is_played(self):
         """The first play that voices a reply says so; later ones don't repeat it (#438, lesson 41: three times, about 19 s): a scene heard again
         says «The conversation again.», an authored dialogue its usual opening."""
-        sc = self.planner().build()
-        played = [e for e in sc.exercises if e.kind == "dialogue"]
-        voicing = [e for e in played if any(how == "voiced" for _, how, _ in self.lines(sc, e))]
+        # the scenes heard again are a random draw among those heard longest ago (#483): the first of a few lessons' draws that voices replies in more
+        # than one play (#451 step 2e added two tour levels, and seed 1's draw then held one)
+        for seed in (1, 2, 3, 4):
+            sc = self.planner(seed=seed).build()
+            played = [e for e in sc.exercises if e.kind == "dialogue"]
+            voicing = [e for e in played if any(how == "voiced" for _, how, _ in self.lines(sc, e))]
+            if len(voicing) > 1:
+                break
         self.assertGreater(len(voicing), 1, "an all-known learner hears set replies played again, more than once")
         guided = []
         for e in played:
