@@ -25,14 +25,16 @@ In order:
    not by course order) and step 2, scenes for every kind (#509–#513: money and time by ear; counts and people, each of 2–4 in every gender;
    a hotel desk and a bus; temperatures, the wind and the road; a day, a booking and a phone number, how long you stay). **Next, step 3:**
    the rotation. In lesson 52 every «þúsund» (16) was in an older line with a fixed value, the number choice's price and the scenes heard
-   again (LD §5.42). Step 3 (#515) rests a number word heard in a pick-out and takes the number choice's lines in turn; step 3b (#516) varies
-   the number in a line the learner says. The scenes heard again keep their wording draw, and the reviews of the learner's price items their
+   again (LD §5.42). Step 3 (#515) rests the number words a pick-out's line says, takes the number choice's lines in turn and gives the scenes'
+   numbers a form of 1–4 in their noun's gender (step 3c); step 3b (#516) varies the number in a line the learner says. The scenes heard again keep their wording draw, and the reviews of the learner's price items their
    schedule.
 3. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 4. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
-**This round:** #451 step 3, the rotation: a number word heard in a pick-out rests between lessons, and the number choice takes its lines in
-turn; then step 3b, a number line the learner says («Það eru mínus þrjár gráður.», said 9 times in lesson 52, every time with «þrjár») practised over the values they know.
+**This round:** #451 step 3 (#515), the rotation: a pick-out avoids the number words the lesson and the lessons before have said, the number
+choice takes its lines in turn, and a scene's number carries a form of 1–4 in its noun's gender (step 3c, the owner's «the same load, a second
+purpose», folded in to keep two behaviour PRs); and step 3b (#516, merged), a number line the learner says («Það eru mínus þrjár gráður.»,
+said 9 times in lesson 52, every time with «þrjár») practised over the values they know.
 
 ## Now (updated 2026-11-10, after lesson 52), in order
 
