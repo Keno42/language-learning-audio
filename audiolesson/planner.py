@@ -122,8 +122,8 @@ class PlanConfig:
     # can-do scenarios to take one from (the trip profile's boosted first). No themes: no theme exchange.
     themes: list = field(default_factory=list)
     theme_scenarios: list[str] = field(default_factory=list)
-    # #451 step 3: a number word a pick-out's answer said rests this many lessons after, and for the rest of its own lesson: a pick-out whose answer
-    # holds fewer number words heard that recently comes first («þúsund» in four of five lessons from the clothes shop's two price turns alone)
+    # #451 step 3: a number word a pick-out's line said rests this many lessons after: a pick-out whose line holds fewer number words heard that
+    # recently, or already said in this lesson, comes first («þúsund» in four of five lessons from the clothes shop's two price turns alone)
     number_rest_lessons: int = 2
     pick_out_rested_lessons: int = 3  # #339: a pick-out turn heard in the last three lessons waits for the others (the daily read's `pick_outs_recent`)
     max_pick_outs_per_pattern: int = 1  # pick-outs one partner turn gives in a lesson, its variants and listening lines counted together (#248 review)
@@ -3334,7 +3334,7 @@ class Planner:
         used_listening_tasks: set[tuple[str, str, str]] = set()
         picks_by_pattern: Counter[str] = Counter()  # pick-outs per construction this lesson: the same two frames over and over would be a new boredom
         pick_outs_heard: list[str] = []  # the pick-outs heard in this lesson, as the turn they come from (#339)
-        numbers_heard: list[str] = []  # #451 step 3: the number words the pick-outs' answers said in this lesson
+        numbers_heard: list[str] = []  # #451 step 3: the number words of the pick-out lines heard in this lesson (the log for the lessons after)
         pick_out_answers_heard: list[str] = []  # and as the answer's value («…:answer=fimm») and its line («…:v:pi»): within a turn, the value heard least recently comes next, then its line (#339, lesson 37)
         delivered_at: list[float | None] = [None]  # lesson time at which the new material of the target was taught
 
@@ -3436,8 +3436,8 @@ class Planner:
             an echo and is not a pick-out."""
             known = known_now()
             cands = []
-            # #451 step 3: how tired an answer's number words are: each counts the times it was an answer this lesson, and one more when it was an answer in the
-            # last ``number_rest_lessons``. #339's turn rotation keeps a turn's own values in turn but not the same word across turns and scenes, and a lesson
+            # #451 step 3: how tired a line's number words are: each counts the times the lesson has said it so far (below), and one more when it was in a
+            # pick-out line in the last ``number_rest_lessons``. #339's turn rotation keeps a turn's own values in turn but not the same word across turns and scenes, and a lesson
             # asks some sixteen pick-outs, most of them numbers. Among the turns not heard in the last ``pick_out_rested_lessons``, the least tired comes first;
             # a turn heard that recently comes after all of them, whatever its numbers (review of #515: ordered by tiredness alone, a turn with no number,
             # «Reykjavík», was asked six lessons running)
@@ -4203,7 +4203,7 @@ class Planner:
             "caught_words": list(dict.fromkeys(caught_now)),  # #339: the words asked about in this lesson (second half and introductions); the learner state keeps them
             "pick_outs_heard": list(dict.fromkeys(pick_outs_heard)),  # #339: the pick-outs heard (a listening log)
             "pick_out_answers_heard": list(dict.fromkeys(pick_out_answers_heard)),  # #339: the same, as the answer's value and its line
-            "numbers_heard": list(dict.fromkeys(numbers_heard)),  # #451 step 3: the number words the pick-outs' answers said
+            "numbers_heard": list(dict.fromkeys(numbers_heard)),  # #451 step 3: the number words of the pick-out lines heard
             "catch_introductions": list(catch_introduced),  # #339: new words introduced through the catch
             "catch_candidates": dict(catch_seen),  # #339: the new vocab items the catch was considered for, by outcome
             "pick_out_pool": len({t.line for t in pick_out_tasks() if t is not None}),  # #339: the distinct lines a pick-out can be made from now
