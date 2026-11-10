@@ -56,9 +56,27 @@ for _genders in FORMS.values():
 GENDER_OF = {form: gender for form, gender in _GENDER_OF.items() if gender}
 
 
+_FIXED_AFTER = frozenset({"þúsund", "hundruð", "hundrað"})  # «tvö þúsund»: the form is fixed by the noun, not chosen (``plain_number``)
+_FIXED_BEFORE = frozenset({"klukkan", "hálf"})  # «klukkan tvö», «hálf þrjú»: the hour is always said in the neuter
+
+
 def form_genders(text: str) -> list[str]:
-    """The genders the forms of 1–4 in ``text`` show, each once, in their order (#451 step 3c: «tvær mínútur» feminine, «tvo miða» masculine)."""
-    return list(dict.fromkeys(GENDER_OF[w] for w in (w.lower() for w in _WORD.findall(text)) if w in GENDER_OF))
+    """The genders the forms of 1–4 in ``text`` show as a choice, each once, in their order (#451 step 3c: «tvær mínútur» feminine, «tvo miða»
+    masculine). Not a choice, so left out (review of #517): a form in a string of numbers, the counting form of a code or a phone number («sex, fjórir,
+    níu, tveir»); a form before «þúsund» or «hundruð»; an hour («klukkan tvö», «hálf þrjú», «korter í fjögur»)."""
+    words = [w.lower() for w in _WORD.findall(text)]
+    out = []
+    for k, w in enumerate(words):
+        if w not in GENDER_OF:
+            continue
+        before = words[k - 1] if k else ""
+        after = words[k + 1] if k + 1 < len(words) else ""
+        if after in _FIXED_AFTER or before in _FIXED_BEFORE or (before in ("í", "yfir") and k >= 2 and words[k - 2] == "korter"):
+            continue
+        if before in NUMBER_WORDS or after in NUMBER_WORDS:
+            continue  # a string of numbers: «einn, einn, tveir»
+        out.append(GENDER_OF[w])
+    return list(dict.fromkeys(out))
 
 
 def number_words(text: str) -> list[str]:

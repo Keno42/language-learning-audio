@@ -51,6 +51,11 @@ class FormGenderTests(unittest.TestCase):
         self.assertEqual(form_genders("Tvo fullorðna og tvö börn, takk."), ["masc", "neut"])
         self.assertEqual(form_genders("Það kostar fimm hundruð krónur."), [], "«fimm» has one form")
         self.assertEqual(form_genders("með tveimur"), [], "a form all genders share says nothing")
+        # review of #517: not a choice of form, so not practice of it
+        self.assertEqual(form_genders("Síminn minn er átta, sex, sjö, tveir, þrír, níu, einn."), [], "a phone number's counting forms")
+        self.assertEqual(form_genders("Það kostar tvö þúsund krónur."), [], "a form fixed by «þúsund»")
+        self.assertEqual(form_genders("Klukkan tvö, eða korter í fjögur."), [], "an hour")
+        self.assertEqual(form_genders("Góðan daginn. Herbergi fyrir tvo?"), ["masc"])
 
     def test_the_towns_walking_times_have_feminine_values_beside_the_round_ones(self):
         """Adding, not replacing: on a course from the start the town comes before «tvær» and «þrjár» are known, and a turn whose values cannot be asked
