@@ -3485,7 +3485,7 @@ class Planner:
 
             def within(c) -> tuple:
                 (tired, turn, _, answer_in, line_in, need, *_rest) = c[0]
-                return (answer_in == last.get(turn), tired, need, answer_in, line_in)
+                return (answer_in == last.get(turn), tired, answer_in, need, line_in)
 
             turn_tired: dict[tuple, int] = {}
             for c, task in sorted(tasks, key=lambda ct: (ct[0][0][1], within(ct[0]))):
