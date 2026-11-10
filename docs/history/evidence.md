@@ -1526,3 +1526,61 @@ What the learner wrote, by what the lesson did:
 - **«Hvernig verður veðrið á morgun?», hard to remember, hear and say**, with a help request on «ð». It was introduced built up from its end
   and said as a turn of the played exchange, the first lesson since 45 to say a new item as one. The «sooner» report brings it back at
   half its interval, and the help request is answered by the bot's explanation. Read its next-day recall before adding practice.
+
+### 5.39 Lesson 49: the first lesson built with #486 and #488
+
+Lesson 49 was generated with LLA `9bace0d` (main with #486–#489), the bot at site_update_notifier `4347129`. Rebuilt from its export with the
+trip profile it is identical (107 exercises, 29.5 minutes). It is the first lesson built with:
+- the levels heard again taking turns (#486);
+- the supermarket's third level, for lamb, and its other price lines (#487, data);
+- the goal said sentence by sentence (#488).
+
+The learner state held no record of when a level was last heard before this lesson, so #486's turns read from lesson 50 on. Lesson 49 heard
+small talk 5 and town 4 again, as lesson 47 had. The goal, one sentence after «Today's goal:», drew no remark. No note with pieces played (#481).
+
+| | lesson 49 |
+|---|---|
+| length | 29.5 min, 107 exercises |
+| new items; new components, weighted (target) | 12; 7 (7) |
+| theme (level); today's new items said as a turn of the played exchange | supermarket (3); 0 |
+| target reached | 21.2 min |
+| items reviewed / due | 27 / 43 (lesson 48: 42 / 47); the capacity estimate did not trigger the rung reduction (#478) |
+| recall confirmed by gap, 3–6 / 7–13 / 14+ days | 32/34, 44/49, 11/12 |
+| written review's queue | 125 due |
+| longest stretch without a scene | 4.2 min |
+| a sentence asked again within a minute | 2 |
+| feedback form: load; friction | **light** (the fifth in a row); other (the note below) |
+| «sooner» | «í fyrramálið»; no reason given |
+
+What the learner wrote, by what the lesson did:
+
+- **«fyrramálið» could have had syllable-by-syllable practice; the fine pronunciation practice of numbers was not needed; numbers asked
+  the same way as other words feels wrong.**
+  - *Reviewer, the numbers:* once the trip ordering ran out (181 of its 182 items met), the course order reached the numbers module.
+    Lessons 47–49 introduced nine numbers as words: 40 and 50; 13, 14, 15 and 16; «fimmtán hundruð», «tvö þúsund» and «þrjú þúsund krónur».
+    Each got the introduction, «Say: …» recalls and recombination («Ertu fimmtíu ára?»). Number exercises went from 5–13 a lesson in
+    41–46 to 19, 19 and 22.
+  - *Reviewer, the easy items:* the new items with no new word (component cost 0) took 308 s together: «Veðrið er gott í dag.» 105 s,
+    «í dag» 63 s, the two prices 62 and 57 s, «fimmtán» 21 s. Each item with a new word took 58–88 s.
+  - *Reviewer, the hard word:* «fyrramálið», a four-syllable compound inside a two-word item, took 58 s, word by word with no split. The
+    hard-word rule reads one-word items only.
+  - *The owner, on the cause:* a plain number needs no word's practice, «you learnt 50, now use 50 in another sentence» included. What is
+    hard to retain, a hard concept, an idiom or a compound earns repetition from several sides. The forms of 1–4, and of the numbers ending
+    in 1–4 («tuttugu og einn / ein / eitt»), are the reverse: their practice is short. The learner has each form through one frame
+    (counting, prices and hours, tickets, living alone). No exercise asks for the form a noun's gender and case choose, and the feminine
+    «tvær», «þrjár», «fjórar» have not come.
+  - *The owner's lead of lessons 44/45 is the same cause:* substitutions that teach no gender or case. Lesson 41's «only substitution» is
+    too. Ranked «later» then, it is now the first item of «Now».
+  - **Open (#439, rewritten):** practice follows what is hard in an item, not its kind, in steps. Step 1 is numbers: plain ones introduced
+    in the expression that needs them, with no ladder of their own; the forms of 1–4 practised as the choice a noun's gender and case make.
+    Then adjective gender, then case through #270's frames, then the hard side (a compound inside a phrase split by its parts). #451 now
+    keeps the larger numbers to the ear. No local fix was made for «fyrramálið» (owner).
+- **«Hvernig verður veðrið á morgun?» was played slowly twice** (the owner, after the lesson). Lesson 48's report gave three reasons: hard
+  to remember, to hear and to say. «say» owed the slow model and «hear» the listening support, and each played its own exercise (03:16 and
+  04:00). Both said the sentence, word by word and at natural speed. **Answered, in review (#490):** a slow model that already plays the line
+  by ear settles the listening support too. On the replay of the export the lesson drops the second exercise and fits two others (109
+  exercises, 29.3 minutes). A single word reported both ways keeps both, since its listening support finds it in a sentence.
+- **No remark on the reviews.** The lesson reviewed 27 of its 43 due items, rated «light». The capacity estimate did not trigger the rung
+  reduction (#478), while the items with no new word took five minutes.
+- **Another learner's lessons 29 and 30** were built before #486 and #487, rated «light», with no remark. Their lesson 31, built with
+  `588c646`, has no feedback yet.

@@ -189,6 +189,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   «krónur» are known) is not introduced as new: `Builder._intro_from_known` says «Made of words you know.» and asks its sentence from its meaning, the
   model after it, and the closing leaves it out (`Builder.from_known`; lesson 51: two such prices announced «A new expression.» and asked four times;
   `tests/test_from_known.py`).
+  A fixed phrase whose one filler is a number goes the other way (#451 step 3b, the owner after lesson 52: «mínus þrjár gráður» far too often, always
+  three): taught whole, introduced, clozed and hinted with its own number, then each recall (meaning or situation, in the lesson and after it) asks
+  its pattern's sentence with the number the learner has said least, from its meaning, recorded as the phrase's practice and not the pattern's
+  (`Builder.number_pattern`, `Builder.recall`; «Það eru mínus {count} gráður.» takes 2–12, `small_count`). The sentence and its pattern are one frame, asked in a lesson about as often as one new sentence's ladder (`FRAME_BUDGET`, 9; `Builder.frame_spent`): past it the pattern has no more generated sentences, a word's sentence goes to another pattern, and `do_recall` passes over both (review of #516: with 2–12 the pattern took 19 exercises in a lesson where it had 12; `tests/test_number_said.py`).
   The forms of 1–4 go the other way (#439 step 1b): once a lesson, when the learner knows one number in lines of two genders or more (`Item.counts`
   names the noun a line's form agrees with; `Planner.number_choice_candidates`, `numbers.choice_lines`), the second half plays `Builder.number_choice`
   (kind `model`, stage `choice`, in the turn of today's items of `SecondHalfRotation`, so the listening it brings is untouched): the lines heard, the reason named («þúsund» is neuter, so: «tvö».; a form that is not the nominative names its case and the nominative it comes
