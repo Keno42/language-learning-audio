@@ -839,6 +839,27 @@ family = "meaning-gloss"
 class = "precision"
 answered_by = ["#500"]
 
+[[lesson]]
+n = 52
+form = true
+load = "light"
+built = ["#502", "#503", "#506", "#507", "#508", "#511", "#512"]
+long_run = ["#507", "#508", "#511", "#512"]
+
+[[lesson.remarks]]
+who = "main"
+text = "Getting used to the changing endings, «nafninu», «bókun», is hard. (Both came new in «Á nafninu Yuki.» and «Ég er með bókun.», with no word on their form.)"
+family = "form-why"
+class = "twenty"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "(The owner, after lesson 52.) «mínus þrjár gráður» far too often, always three. Lesson 52 played it 19 times and the learner said it 9 times, all with «þrjár»; its reviews say «þrjár» again."
+family = "one-version"
+class = "twenty"
+answered_by = []
+
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
 [[change]]
@@ -1470,6 +1491,8 @@ title = "a situation's instruction names what its answer names; validate lists o
 issue = []
 pr = ["#500"]
 family = "meaning-gloss"
+first_heard = 52
+heard = "«Complete the sentence to say: I think the snow is beautiful.»"
 
 [[change]]
 title = "«Sjáumst í dag!» never generated (lesson 51: #501, data)"
@@ -1488,3 +1511,63 @@ title = "a silent clip counts as cut off whatever its words: synthesized again, 
 issue = ["#462"]
 pr = ["#503"]
 family = "audio-defect"
+
+[[change]]
+title = "lesson 52 as drafted: varied price answers framed as question and answer, a weather opener the reply agrees with, «small» in sentences (#506)"
+issue = []
+pr = ["#506"]
+family = "scene-plausibility"
+first_heard = 52
+heard = "«Það er kalt í dag!» before «Sjáumst á morgun?»; «Say it's too small.»"
+
+[[change]]
+title = "instructions in Icelandic, a pilot: «Endurtaktu.» and «Hlustaðu.» taught, then said with the English after them, faded by the review (#429: #507)"
+issue = ["#429"]
+pr = ["#507"]
+family = "instruction-language"
+first_heard = 52
+heard = "«Endurtaktu.» introduced, then said before «Repeat.» in the day's introductions"
+
+[[change]]
+title = "a plain number enters where it is used, not by the course order (#451 step 1: #508)"
+issue = ["#451"]
+pr = ["#508"]
+family = "easy-substitution"
+first_heard = 52
+heard = "«þrjár» met in «Það eru mínus þrjár gráður.»"
+
+[[change]]
+title = "money and time in the partners' listening lines (#451 step 2a: #509, data)"
+issue = ["#451"]
+pr = ["#509"]
+family = "one-version"
+first_heard = 52
+heard = "«korter í fjögur»"
+
+[[change]]
+title = "counts and people: hot dogs for a group and family tickets, each of 2–4 in every gender (#451 step 2b: #510, data)"
+issue = ["#451", "#439"]
+pr = ["#510"]
+family = "one-version"
+
+[[change]]
+title = "a hotel desk and a bus theme: numbers used as names, the probe kind «number» (#451 step 2c: #511)"
+issue = ["#451"]
+pr = ["#511"]
+family = "one-version"
+first_heard = 52
+heard = "bus 1 played: «Númer sex …», «Sex hundruð og þrjátíu krónur.»"
+
+[[change]]
+title = "weather and roads: «Það eru mínus þrjár gráður.» said whole, other temperatures heard, the probe kind «temperature» (#451 step 2d: #512)"
+issue = ["#451"]
+pr = ["#512"]
+family = "one-version"
+first_heard = 52
+heard = "the sentence introduced whole; «mínus» and «gráður» never asked bare"
+
+[[change]]
+title = "dates, contacts and codes, about oneself: a day inside a sentence, a booking and a phone number digit by digit (#451 step 2e: #513, data)"
+issue = ["#451"]
+pr = ["#513"]
+family = "one-version"
