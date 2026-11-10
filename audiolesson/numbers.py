@@ -38,6 +38,51 @@ ONE_TO_FOUR = frozenset({f for genders in FORMS.values() for forms in genders.va
 
 _WORD = re.compile(r"[^\W\d_]+")
 
+# the words a number is said with past 1–4 (#451 step 3): the units, the teens, the tens, «hundrað» and «þúsund». With ``ONE_TO_FOUR`` they are what
+# rests between lessons («þúsund», «fimm» and «tíu» in every lesson: the owner after lesson 51)
+NUMBER_WORDS = ONE_TO_FOUR | frozenset({
+    "fimm", "sex", "sjö", "átta", "níu", "tíu", "ellefu", "tólf", "þrettán", "fjórtán", "fimmtán", "sextán", "sautján", "átján", "nítján",
+    "tuttugu", "þrjátíu", "fjörutíu", "fimmtíu", "sextíu", "sjötíu", "áttatíu", "níutíu", "hundrað", "hundruð", "þúsund",
+})
+
+
+# a form of 1–4 that belongs to one gender only («tvær»: feminine; «tvo»: masculine; «tvö»: neuter), for #451 step 3c; «tveimur», «eins» and the like
+# are shared and say nothing about the gender
+_GENDER_OF: dict[str, str] = {}
+for _genders in FORMS.values():
+    for _gender, _forms in _genders.items():
+        for _form in _forms:
+            _GENDER_OF[_form] = _gender if _GENDER_OF.get(_form, _gender) == _gender else ""
+GENDER_OF = {form: gender for form, gender in _GENDER_OF.items() if gender}
+
+
+_FIXED_AFTER = frozenset({"þúsund", "hundruð", "hundrað"})  # «tvö þúsund»: the form is fixed by the noun, not chosen (``plain_number``)
+_FIXED_BEFORE = frozenset({"klukkan", "hálf"})  # «klukkan tvö», «hálf þrjú»: the hour is always said in the neuter
+
+
+def form_genders(text: str) -> list[str]:
+    """The genders the forms of 1–4 in ``text`` show as a choice, each once, in their order (#451 step 3c: «tvær mínútur» feminine, «tvo miða»
+    masculine). Not a choice, so left out (review of #517): a form in a string of numbers, the counting form of a code or a phone number («sex, fjórir,
+    níu, tveir»); a form before «þúsund» or «hundruð»; an hour («klukkan tvö», «hálf þrjú», «korter í fjögur»)."""
+    words = [w.lower() for w in _WORD.findall(text)]
+    out = []
+    for k, w in enumerate(words):
+        if w not in GENDER_OF:
+            continue
+        before = words[k - 1] if k else ""
+        after = words[k + 1] if k + 1 < len(words) else ""
+        if after in _FIXED_AFTER or before in _FIXED_BEFORE or (before in ("í", "yfir") and k >= 2 and words[k - 2] == "korter"):
+            continue
+        if before in NUMBER_WORDS or after in NUMBER_WORDS:
+            continue  # a string of numbers: «einn, einn, tveir»
+        out.append(GENDER_OF[w])
+    return list(dict.fromkeys(out))
+
+
+def number_words(text: str) -> list[str]:
+    """The number words in ``text``, lower case, each once, in their order (#451 step 3)."""
+    return list(dict.fromkeys(w for w in (w.lower() for w in _WORD.findall(text)) if w in NUMBER_WORDS))
+
 
 def plain_number(item, cur) -> bool:
     """Whether ``item`` is a plain number (#439 step 1a): see the module's docstring."""
@@ -113,9 +158,11 @@ def choice_lines(candidates) -> dict[int, dict[str, list[ChoiceLine]]]:
 
 def pick_choice(groups: dict[int, dict[str, list[ChoiceLine]]], turn: int) -> list[ChoiceLine]:
     """One number's lines of different genders, one line each (masculine, feminine, neuter): the numbers with two genders or more take turns by
-    ``turn`` (the lesson number). Empty when no number has two genders yet."""
+    ``turn`` (the lesson number). Empty when no number has two genders yet. A gender with several lines takes them in turn too, each time its number
+    comes round (#451 step 3: the neuter of 2 was «Það kostar tvö þúsund krónur.» every time, with «Tvö börn» known beside it)."""
     values = sorted(v for v, g in groups.items() if len(g) >= 2)
     if not values:
         return []
     value = values[turn % len(values)]
-    return [groups[value][g][0] for g in GENDER_ORDER if g in groups[value]]
+    round_ = turn // len(values)
+    return [groups[value][g][round_ % len(groups[value][g])] for g in GENDER_ORDER if g in groups[value]]

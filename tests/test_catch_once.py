@@ -188,7 +188,7 @@ class CatchOnceTests(unittest.TestCase):
         self.assertTrue(l.listening_log, "pick-outs were heard")
         for key in l.listening_log:
             self.assertNotIn("|", key)
-            self.assertTrue(key.startswith("theme:") or key in self.cur.by_id, key)
+            self.assertTrue(key.startswith(("theme:", "number:")) or key in self.cur.by_id, key)  # «number:»: #451 step 3
 
     def test_every_pick_out_turn_has_more_than_one_answer_value(self):
         """Review of #432: the meeting's «klukkan átta» and «klukkan sjö» had one value each, so the answer could be remembered, not heard (lesson
