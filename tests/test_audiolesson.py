@@ -4198,7 +4198,8 @@ class CourseTests(unittest.TestCase):
         self.assertEqual(eligible(both, {4: ["short", "long"]}, 4), {"long"}, "the full one rests, the growing one continues")
         self.assertEqual(eligible(both, {1: ["short", "long"]}, 3), {"long"})
         self.assertEqual(eligible(both, {1: ["short", "long"]}, 4), {"short", "long"}, "rested three lessons")
-        self.assertEqual(eligible({"short": 3}, {}, 4), {"short", "long"}, "no record of when: never held back")
+        self.assertEqual(eligible({"short": 1}, {}, 4), {"short", "long"}, "no record of when: never held back")
+        self.assertEqual(eligible({"short": 2}, {}, 4), {"long"}, "heard in full twice: retired (lesson 53)")
 
     def test_topics_are_preferred(self):
         sc = build(fresh(), topics=["directions"])
