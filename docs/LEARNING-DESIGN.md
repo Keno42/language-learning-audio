@@ -243,7 +243,7 @@ changed it).
 | **H6** | Chunks first, patterns next, transfer last. A fixed chunk said often becomes fluent (token frequency). A pattern used with many different fillings becomes productive (type frequency). Teach a pattern when two fillings are known, then move it to new words. | Usage-based learning (Bybee 2006); formulaic language (Wray 2002); #29's "capabilities outward". | Constructions with slots and `meaning_forms`; milestones with `transfer_items`; recombination; substitution runs (PR #153) | Substitution drills don't help the learner produce combinations they haven't heard (scenario cards with new fillings) | adopted (principle); testing (substitution). By the concept, patterns serve target expressions, and moving a pattern to new words is limited to the parallel expressions a target needs (§9 "Good enough overall"). The converse holds for words and for lines that vary in use: a word heard in one sentence only («úlpu», lesson 25, #311) and a line authored as a fixed phrase (the bus, lesson 26, #336) are repeated where the learner expected variety (§5.21, §5.22). A form is modelled before it is asked (#211) |
 | **H7** | Every sentence, generated or authored, must be plausible in its scene, and a cue's answer must answer it. An implausible one teaches less than it costs. | Owner (after lesson 12: never produce "order a passport at the café"); H3. | Case- and meaning-tagged slots; `opens` (PR #155); scene templates (#152); the scene check's verdicts on generated sentences (#352) | — | adopted. Lessons 40 and 42 found authored lines the scene check does not read: age and marital status asked of a stranger, a cue its answer does not answer, a partner's «Velkomin!» in the woman's form to a man's voice, a catch line that answers something not heard (#427: #433; §5.30). Fitting each line was not enough: lesson 42 still found the conversation out of place, so a level is now judged as a whole progression, with a scene line that says who the partner is (#458; §5.32) |
 | **H8** | Natural-speed partner lines with some unknown words (the owner suggests 10–20%), in a familiar scene, build the tolerance needed to get through real exchanges. | The owner's hypothesis, and their preference for more listening time over shorter lessons (§5.7); the #129 pilots (common clerk lines were not understood). **Caveat:** detailed comprehension needs about 95% of the words to be known when listening and 98% when reading (van Zeeland & Schmitt 2013; Hu & Nation 2000). At 80–90%, expect gist from context, not learning of the unknown words. So the scene must carry the meaning. | Scenario cards (partner lines may go beyond the course); partner turns in themes, in variants (#155, #189); the second half: a heard scene, *pick out* the information and *catch the unknown word* through the meaning (#252, #271, #303) | Respond and repair cards with unknown words stay at 言えなかった, or the learner finds them discouraging rather than useful | bet. No discouragement so far, and the partner slowing down word by word was praised (lesson 24, #261). The remarks are about the exercises: pick-outs too easy (lesson 21), the unknown word pointed to through the meaning (lesson 22, #271), the need named before the line (lesson 25, #303), the turns marked (lesson 26, #335). The unknown words were the same three in every lesson from 23 to 26: by the owner's decision a word is caught about once, and some new words are introduced through the catch (#339; §5.22) |
-| **H9** | The amount of new material, counted in weighted new components (§9 "Pace", #218), throttled by recall reports (over the last three lessons) and by the learner's load rating, keeps the load right. It aims at about 8 a lesson to start (#218) and about 80–85% next-day success. | README "Pacing"; desirable difficulties (Bjork 1994): too easy wastes time, too hard fails. | `suggest_pace` | The load rating drifts to "heavy", or next-day failures stay above 25% (the top of the pace's hold band, §9 "Pace"), at the pace actually used | **revised (#218):** the pace's unit is weighted new components over a three-lesson window, with the load rating as an input (§9 "Pace"; #229, #233, #235; #234, the BÍN check, open). The number of new items was not the pace: lessons 18–19 were «light» at 81–100% next-day success. The load was «right» in every recorded lesson from 24 to 34, «light» in lessons 35–39 while the difficulty was held, «right» in lesson 40 (§5.30), «light» in 41 and 42 (four new items made of two verbs and two time words felt light as learning, §5.31, #439), «right» in 43 and 44 and «light» in 45–52 (§5.33–§5.42); next-day recall has stayed at 10 of 13 or better since lesson 22 (§6.3). Lesson 45 asked 19 of its 48 due reviews while rated «light»; within a lesson whose reviews cannot fit the new items now give up a rung (#478), lesson 46 reviewed 42 of 64 and lesson 47 57 of 73, both rated «light». The light lessons spend their time by an item's kind, not by what is hard in it (G11, #439): in lesson 49 the new items with no new word took about five minutes, and the lesson reviewed 27 of 43 due. The target fell from 9 to 7 over 45–50 by the rule that a lesson whose reviews do not fit slows down; lesson 50, with #492, reviewed 46 of 58 due, and the target rose to 8 for lesson 51 (lesson 50's reviews fitted under the rule's quarter, two lessons rated «light»); lessons 51 and 52 asked every due item they could (35 of 40, 30 of 45): the others had been asked by the written review that morning, or were no longer in the course, which `due_at_start` still counts; both «light» |
+| **H9** | The amount of new material, counted in weighted new components (§9 "Pace", #218), throttled by recall reports (over the last three lessons) and by the learner's load rating, keeps the load right. It aims at about 8 a lesson to start (#218) and about 80–85% next-day success. | README "Pacing"; desirable difficulties (Bjork 1994): too easy wastes time, too hard fails. | `suggest_pace` | The load rating drifts to "heavy", or next-day failures stay above 25% (the top of the pace's hold band, §9 "Pace"), at the pace actually used | **revised (#218):** the pace's unit is weighted new components over a three-lesson window, with the load rating as an input (§9 "Pace"; #229, #233, #235; #234, the BÍN check, open). The number of new items was not the pace: lessons 18–19 were «light» at 81–100% next-day success. The load was «right» in every recorded lesson from 24 to 34, «light» in lessons 35–39 while the difficulty was held, «right» in lesson 40 (§5.30), «light» in 41 and 42 (four new items made of two verbs and two time words felt light as learning, §5.31, #439), «right» in 43 and 44, «light» in 45–52 and «right» in 53 (§5.33–§5.43); next-day recall has stayed at 10 of 13 or better since lesson 22 (§6.3). Lesson 45 asked 19 of its 48 due reviews while rated «light»; within a lesson whose reviews cannot fit the new items now give up a rung (#478), lesson 46 reviewed 42 of 64 and lesson 47 57 of 73, both rated «light». The light lessons spend their time by an item's kind, not by what is hard in it (G11, #439): in lesson 49 the new items with no new word took about five minutes, and the lesson reviewed 27 of 43 due. The target fell from 9 to 7 over 45–50 by the rule that a lesson whose reviews do not fit slows down; lesson 50, with #492, reviewed 46 of 58 due, and the target rose to 8 for lesson 51 (lesson 50's reviews fitted under the rule's quarter, two lessons rated «light»); lessons 51 and 52 asked every due item they could (35 of 40, 30 of 45): the others had been asked by the written review that morning, or were no longer in the course, which `due_at_start` still counts; both «light». Lesson 53 was «right» at a target of 8 with 14 new items, while 20 of the 45 due items it could ask did not fit and about 8 minutes went to conversations played again (§5.43, #519): the target holds, and the next read is whether the reviews fit once those minutes are free |
 | **H10** | Self-reports are informative when they are made the next day, with the answer hidden until the learner has tried. They are noisy, lean towards success and must never be produced by an LLM. | Delayed judgements of learning are far more accurate than immediate ones (Nelson & Dunlosky 1991); #129 (GPT transcripts did not match what was said). | The bot's review (answer revealed only after trying; 3-point scale); the feedback form | The ratings stop telling recalled lines from guessed or failed ones | **revised:** «迷った» is a third value. The learner usually commits at once (§5.7), and uses «迷った» in some reviews: for 2 and 3 new items after lessons 22 and 23, none after lessons 24 and 25, when all were recalled (§5.19–§5.22). The pace counts it as half a failure |
 | **H11** | Practice spent on items the learner plainly knows is waste, and the learner notices it. A known item should wait for its date, and is taken early only as the exception in §9 "Repetition" allows. | Spacing (H1); #94; the owner after lesson 12 (já, nei, hæ every lesson although reported 言えた). | Not-due items wait (#94); stable items never fill (PR #153) | — | adopted. Not-due items wait, with the one exception in §9 "Repetition" (#94), stable items never fill (#151, #153), an open item is asked at every review until recalled (#205, #220), and a recall at a real gap extends the interval and raises the ease (#298, #331). Lessons 37–38 found known material asked by rule, not need (a whole dialogue every four lessons, set replies in every exchange played again: #416); in an exchange played again a known set reply is now voiced (#422; no remark in lesson 39, §5.29). Lesson 40 found «Takk.» and «Nei, takk.» still asked in authored dialogues, and familiar dialogues still played whole (§5.30): authored dialogues voice them too (#430), and a fixed dialogue played whole four times, its items learned, is not played whole again (#431). Retention by gap is in the newest §5 subsection. The review queue fell from 151 to 114 due once a first 言えた began waiting 3 days (site_update_notifier#133; §5.22), and stays near 110 (§5.24) |
 | **H12** | Variety, coherence and visible progress keep a daily routine alive. Boredom ("a game of memorizing") is the biggest threat to every other outcome. | Owner, #12 and after lesson 12; Nation's four strands (Nation 2007), whose message is that a course should not be all drill. | Dialogues, exchanges, notes, scenes, reading cards | The routine continues and the learner reports no boredom with a drill-heavy lesson | adopted (value). Boredom came from easy recombination and reviews filling the time (lesson 20, §5.16) and from the same cards and lines coming back (lessons 25–26: site_update_notifier#132, #336, #339). A pattern's varied fillers are praised (lesson 26, §5.22) |
@@ -286,41 +286,6 @@ a dated record: a statement about what was built or open holds for its lesson; �
 
 **Older lessons are in `docs/history/evidence.md`** (§10 "Documents"), under their own numbers, so a reference such as
 "§5.14" finds its subsection there.
-
-### 5.40 Lesson 50: the first lesson built with #490 and #492–#496
-
-Lesson 50 was generated with LLA `ffaac54` (main with #490–#496), the bot at site_update_notifier `5479f96`. Rebuilt from its export with the trip
-profile it is identical (120 exercises, 29.7 minutes). Before it was played, the owner reviewed a draft of it from main `13f3a71` and the lesson-49
-record; the remarks are lesson 49's round in the ledger, and three were answered before the lesson was built (#494, #495, #496).
-
-| | lesson 50 |
-|---|---|
-| length | 29.7 min, 120 exercises |
-| new items; new components, weighted (target) | 6; 7 (7) |
-| theme (level); today's new items said as a turn of the played exchange | clothes (3); 4 of 6 («jakka», «Þetta er of lítið.», «Áttu þetta í stærra?», «Áttu þetta í öðrum lit?») |
-| target reached | 18.3 min |
-| items reviewed / due | 61 / 58, 46 of them due (lesson 49: 27 / 43, 26 due) |
-| written review's queue | 126 due |
-| pick-outs whose line was heard in the three lessons before | 8 of 8 |
-| feedback form: load; friction | **light** (the sixth in a row); none |
-| «sooner» | «Áttu þetta í stærra?», «Áttu þetta í öðrum lit?»; reason: hard to say |
-
-What the lesson played, by change, and what the learner wrote:
-
-- **No remark.** The form carried no note.
-- **Played:** «í fyrramálið», reported after lesson 49, was asked from its meaning and broken down as fyrr · a · mál · ið (#496). The number
-  choice set «Þrjá miða, takk.» against «Það kostar þrjú þúsund krónur.», naming the accusative: «þrír» becomes «þrjá» (#493, #495). «Þetta
-  reddast» was cued with the full café (#494). No new number came, so #492 had nothing to change. No line was reported both ways, so #490 did
-  not act.
-- **The scene:** four of the six new items were said as turns of the played exchange, after one in lesson 48 and none in 49, against the
-  criterion of two (#327).
-- **The pace.** The target fell from 9 to 7 over lessons 45–50 while every lesson was rated «light». The rule of §9 "Pace" is doing what it
-  says: a lesson whose due reviews do not fit lowers the pace (lesson 49 asked 26 of its 43 due), and «light» raises it only with a small
-  backlog. Lesson 50 asked 46 of 58 due, with the time #492 freed. Read whether the pace rises once the reviews fit, before any change to the
-  rule.
-- **The listening.** All eight pick-outs had been heard in the three lessons before (#339, the owner's remark on the draft). The time freed in
-  lesson 49's replay went partly to pick-outs, so the pool's sameness weighs more now.
-- **Another learner** sent no new feedback.
 
 ### 5.41 Lesson 51: the first lesson built with #498 and #499
 
@@ -415,6 +380,67 @@ What the lesson played, by change, and what the learner wrote:
   takk.», the clothes shop's «átta þúsund» and «fjögur þúsund», the supermarket's lamb at «tvö þúsund»). That is #451 step 3's work.
 - **The listening.** Eleven of the sixteen pick-outs had been heard in the three lessons before (#339; lesson 51: 5 of 6).
 - **Another learner** sent no new feedback.
+
+### 5.43 Lesson 53: the first lesson built with #515 and #516
+
+Lesson 53 was generated with LLA `ffeb41c` (main with #515 and #516), the bot at site_update_notifier `5e82b83`. Rebuilt from its export with the
+trip profile it is identical (110 exercises, 29.4 minutes).
+
+| | lesson 53 |
+|---|---|
+| length | 29.4 min, 110 exercises |
+| new items; new components, weighted (target) | 14; 8 (8) |
+| theme (level) | hotel (1), new (#511); its lines taught in lesson 52 |
+| target reached | 22.9 min |
+| items reviewed / due | 52 due: one, «ein króna», is gone from the course and 6 had been asked by the written review that morning, so the lesson could ask 45. It practised 25 of them; 20 did not fit (`reviews_starved`). `reviewed_items` is 29: 27 due and 2 not due |
+| conversations | 9, seven in the first thirteen minutes, 8.4 minutes: three fixed dialogues whole, five exchanges of two levels, one level heard again |
+| pick-outs whose line was heard in the three lessons before | 2 of 4 |
+| written review's queue | 123 due |
+| feedback form: load; friction | **right** (the first after eight «light»); other |
+| «sooner» | «Hvenær er útritun?», «Aðeins eitt, takk.», «trefil», «buxur», all hard to hear; a question on how «Aðeins eitt» is linked |
+
+What the lesson played, by change, and what the learner wrote:
+
+- **The long run:** «Hlustaðu.» introduced and said before «Listen.» (#507); the hotel desk as the day's exchange (#511); four pick-outs
+  with four values, none of them «þúsund», «fimm» or «tíu» (#515: «klukkan sjö», «númer þrjú hundruð og fjögur», «sex hundruð og fimmtíu
+  krónur», «þrjár mínútur»); price answers of 600, 400, 1,200, 5,000, 10,000 and 800 krónur. The number choice and «Það eru mínus … gráður.»
+  over its values (#516) did not play. No remark on any of them.
+- **«The same conversations repeat a lot.»** Three fixed dialogues were played whole for the fifth, sixth and seventh time («tynd»,
+  «kynning», «veitingastadur»): the limit of four complete plays (#431) had not been reached by any, since the plays that grow a dialogue
+  turn by turn do not count, and it never applied while an item was failed or reported hard. The hotel desk was heard three times (its two
+  plays and an exchange cut from it for «Á nafninu Yuki.», failed in the review) and the clothes shop's third level twice (one exchange for
+  each of «Áttu þetta í stærra?» and «Áttu þetta í öðrum lit?», reported after lesson 50). The cause is the one of lessons 37, 38, 40 and 46
+  (known-repeat): a conversation is the vehicle for repeating a line. Meanwhile 20 of the 45 due items the lesson could ask did not fit.
+- **«Where the speaking practice sits and where a conversation ends sometimes felt off.»** The exchange cut for «Áttu þetta í öðrum lit?»
+  opened on «Æ, leiðinlegt.», a reaction to «Þetta er of lítið.», which was not in it; the one cut from the hotel desk opened with «Góðan
+  daginn. Ég er með bókun.» in the model voice, with no word before it, and closed «That's the end of the conversation.» at the room
+  number, with the key still to ask for. #427 and #472 each moved the opening one line back; the rule had no end.
+- **Lesson 52's endings, confirmed by the review.** Of lesson 52's new lines, «Á nafninu Yuki.» and «Ég er með bókun.» were not recalled the
+  next day; the other five asked were. They are the two the learner named («nafninu», «bókun»). #439 step 3 stands.
+- **The load.** «Right» at a target of 8 with 14 new items, the reviews not fitting. H9's question after lesson 52 (the load stays «light»
+  with the reviews fitting) did not arise.
+- **Hard to hear.** Four of the day's new items, one reason. No listening support had been owed, so none played; by #447 it is owed for lesson 54 (not checked in the bot's state).
+  The slow model says «Aðeins · eitt, · takk.» word by word, which takes out the linking the learner asked about.
+- **The numbers of the exchanges.** «herbergi tvö hundruð og tólf» in each of the hotel desk's three exchanges, and on the replay in each
+  of the next four lessons: #515 rotates the pick-outs' numbers and leaves the exchanges' as written.
+
+**Built in this round:** a fixed dialogue retires after two complete plays, and a hard item's scene line is cut once a level, never from
+the lesson's own, opening on a question or the learner's own cue and closed as a part when its level goes on (#519); the long run's step,
+#451 step 3d, the number an exchange says rotates, with other rooms, hours, codes and fares for the hotel desk and the bus (#520).
+
+On the replay of the export, lesson 53 by revision (the lesson could ask 45 of its 52 due items, above):
+
+| | conversations; their time | due items practised of the 45; left | `reviewed_items` |
+|---|---|---|---|
+| main | 9; 8.4 min | 25; 20 | 29 |
+| #519 alone | 5; 4.8 min | 41; 4 («Ég vil sjá lunda.», «{count} miða, takk.» and the two dative town names) | 45 |
+| #519 and #520 | 5; 4.5 min | 43; 2 (the two dative town names) | 48 |
+
+Neither asks every due item, and why the lesson fits two more with #520 was not traced. With #519 the target stays at 8 in the two lessons after (7 without it, the reviews not fitting). **The freed minutes
+of the lessons after go to listening:** 7 and 14 pick-outs after the target in lessons 54 and 55 (2 and 3 without #519), 8 of 8 and 13 of
+14 of them on a line heard in the three lessons before. That is #339's sameness, larger. With #520 the room is 115 and 212 in lesson 53,
+then 306, 115, 212, 306 (212 in every exchange without it).
+
 
 ## 6. Signals: what each can and cannot tell us
 
@@ -517,29 +543,29 @@ lessons 21–23 (§5.18–§5.20) have had their three.
 | built (issue: PR) | first heard | feedbacks without its remark |
 |---|---|---|
 | a hard word's slow, split model; a word or phrase reported hard said word by word (#212: #292; #337: #342, #351) | lesson 34 («hringja heim», reported hard) | 1 (34); its family remarked in 35 (#407), 42 (#459), 44 (#468), 49 (#496) |
-| a gap at every change of voice (#301: #304) | lesson 25 | **done**: 22 (25, 26, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52; 27–32 no record) |
-| the «Slowly» model word by word (#302: #307) | lesson 25 | **done**: 22 (25, 26, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52; 27–32 no record) |
+| a gap at every change of voice (#301: #304) | lesson 25 | **done**: 23 (25, 26, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53; 27–32 no record) |
+| the «Slowly» model word by word (#302: #307) | lesson 25 | **done**: 23 (25, 26, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53; 27–32 no record) |
 | the pick-out names what to listen for first (#303: #306) | lesson 25 | 1 (25); its family remarked in 26 (#343), 28 (#353), 34 (#387), 36 (#411), 37, 38, 39 (#425), 44 (#473, #472) |
-| a pattern-linked phrase with a new word teaches the word in other frames; no phrase introduced twice (#311: #316, #318) | lesson 26 | 0; its family remarked in 26 (#346, #344, #350), 37 (#417), 49, 52 |
+| a pattern-linked phrase with a new word teaches the word in other frames; no phrase introduced twice (#311: #316, #318) | lesson 26 | 0; its family remarked in 26 (#346, #344, #350), 37 (#417), 49, 52 (#515, #516) |
 | the written review in its own words, no lesson cue (#312: #314, with the bot's `REFINE_VERSION` 3, site_update_notifier#137) | lesson 26 | 1 (26; 27–32 no record); its family remarked in 33 (#375), 34 (#385) |
-| the review backlog: a first 言えた waits 3 days, answered-once entries deferred (site_update_notifier#133: site_update_notifier#134) | lesson 26 | **done**: 21 (26, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52; 27–32 no record) |
-| a new scene or reading card every review (site_update_notifier#132: site_update_notifier#135) | lesson 26 | **done**: 21 (26, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52; 27–32 no record) |
+| the review backlog: a first 言えた waits 3 days, answered-once entries deferred (site_update_notifier#133: site_update_notifier#134) | lesson 26 | **done**: 22 (26, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53; 27–32 no record) |
+| a new scene or reading card every review (site_update_notifier#132: site_update_notifier#135) | lesson 26 | **done**: 22 (26, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53; 27–32 no record) |
 | a grammar note's endings said piece by piece; no lone «.» narrated (#198: #323) | lesson 26 | 14 (26, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45; 27–32 no record); its family remarked in 46 (#481), 48 (#488) |
-| new material grouped by scene, the played scene matched (#327 part 1, without its scene line: #329) | lesson 26 (a replayed level: 0 of 10 inside it) | **done**: 21 (26, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52; 27–32 no record) |
-| the town scene, two levels; a level played in the lesson that teaches its lines (#327) | lesson 33 (the rule, on small talk; in lesson 34 on the clothes shop; the town's levels not yet) | **done**: 20 (33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52) |
+| new material grouped by scene, the played scene matched (#327 part 1, without its scene line: #329) | lesson 26 (a replayed level: 0 of 10 inside it) | **done**: 22 (26, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53; 27–32 no record) |
+| the town scene, two levels; a level played in the lesson that teaches its lines (#327) | lesson 33 (the rule, on small talk; in lesson 34 on the clothes shop; the town's levels not yet) | **done**: 21 (33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
 | a known noun's other form taught in its frame, named against the known form, with the frame's reason (#270) | lesson 36 («Ég er að leita að bankanum.»: «You know it as: bankinn», «This form comes after leita að», the sentence asked; «hótelinu» the same way) | 13 (36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48); its family remarked in 49 (#495), 52 |
-| the played level's goal said after the opening (#327) | lesson 33 | **done**: 20 (33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52) |
-| the closing ends on the played level's lines, in the order of its turns (#327) | lesson 33 | **done**: 20 (33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52) |
-| small talk, two levels (#327) | lesson 33 (level 1) | **done**: 20 (33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52) |
-| the clothes shop, two levels (#327) | lesson 34 (level 1) | **done**: 19 (34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52) |
-| the town's third level, the way itself (#327: #381) | lesson 38 (the day's exchange in lesson 38, played twice) | **done**: 15 (38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52) |
-| small talk's third level (#327: #383) | lesson 39 (the day's exchange in lesson 39, played twice) | **done**: 14 (39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52) |
-| small talk's fourth level (#327: #383) | lesson 40 (the day's exchange in lesson 40, played twice) | **done**: 13 (40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52) |
-| a gendered learner line in a level said in the voice's form, named in the cue (#382) | lesson 38 («As a woman: Stop someone and say you're lost.» in the town's third level; «As a man: Say you're Japanese.» in small talk's third (lesson 39)) | **done**: 15 (38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52) |
+| the played level's goal said after the opening (#327) | lesson 33 | **done**: 21 (33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
+| the closing ends on the played level's lines, in the order of its turns (#327) | lesson 33 | **done**: 21 (33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
+| small talk, two levels (#327) | lesson 33 (level 1) | **done**: 21 (33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
+| the clothes shop, two levels (#327) | lesson 34 (level 1) | **done**: 20 (34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
+| the town's third level, the way itself (#327: #381) | lesson 38 (the day's exchange in lesson 38, played twice) | **done**: 16 (38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
+| small talk's third level (#327: #383) | lesson 39 (the day's exchange in lesson 39, played twice) | **done**: 15 (39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
+| small talk's fourth level (#327: #383) | lesson 40 (the day's exchange in lesson 40, played twice) | **done**: 14 (40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
+| a gendered learner line in a level said in the voice's form, named in the cue (#382) | lesson 38 («As a woman: Stop someone and say you're lost.» in the town's third level; «As a man: Say you're Japanese.» in small talk's third (lesson 39)) | **done**: 16 (38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
 | the allergy line's scene, the café's fourth level, and its pattern (#326: #379, #380) | lesson 34 (the pattern; the scene not yet) | 15 (34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48); its family remarked in 49 |
 | an authored dialogue that repeats the lesson's scene is not played (#384) | lesson 34 | 15 (34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48); its family remarked in 49 (#490) |
 | a hard item practised through its connections; «sooner» marks it hard (#326: #330, #332) | lesson 27 (the «sooner» items of lesson 26 are its first real case; lesson 26 had one hard item, practised once) | 16 (33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48; 27–32 no record); its family remarked in 49 |
-| a recall at a real gap extends the interval (#220: #331); the bot's ranked seats, at most a third (site_update_notifier#139) | lesson 26 | **done**: 21 (26, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52; 27–32 no record) |
+| a recall at a real gap extends the interval (#220: #331); the bot's ranked seats, at most a third (site_update_notifier#139) | lesson 26 | **done**: 22 (26, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53; 27–32 no record) |
 | gender and form for every case-tagged noun (#270 step 1: #317) | no remark expected; read in the nouns row | – |
 | a pattern sentence stored with the pattern alone names its form; a sentence to the person spoken to names none (#385, with the bot's REFINE_VERSION 6, site_update_notifier#168) | not yet | – |
 | an embed's «other sentence» is never the phrase it is taken out of (#386) | lesson 35 («In another sentence» before «Ég verð að borga með korti.», «borga með korti» taken out of another line) | 0; its family remarked in 35 (#407), 36 (#411), 43 (#463), 44 (#474) |
@@ -547,71 +573,75 @@ lessons 21–23 (§5.18–§5.20) have had their three.
 | a pattern's introduction promises a swap only when one follows (#388) | not yet | – |
 | the reading corner «読んでみよう», read without a rating; the «allt» hint (site_update_notifier#165, #390) | not yet | – |
 | a hard item's scene line asked or heard by line_role (#265: #392) | not yet | – |
-| a transform asks the pair said least this lesson (G17: #394), its instruction narrated in full twice a lesson, then «Same change:» (G12: #405) | lesson 35 (one transform, «Say it more politely, as a question:» in full) | 2 (35, 36); its family remarked in 37 (#417), 49, 52 |
+| a transform asks the pair said least this lesson (G17: #394), its instruction narrated in full twice a lesson, then «Same change:» (G12: #405) | lesson 35 (one transform, «Say it more politely, as a question:» in full) | 2 (35, 36); its family remarked in 37 (#417), 49, 52 (#515, #516) |
 | the town's third level: he is asked to speak more slowly, and says his line again word by word (#261, #327: #393) | not yet | – |
 | the closing's announcement says «some of today's new material» when the closing leaves a new item out, embedded phrases included (#407) | lesson 36 («today's new material», every new item asked) | 0; its family remarked in 36 (#411), 43 (#463), 44 (#474) |
 | a loanword or a name said as in English or Japanese gets no slow, split model (`sounds_familiar`: «latte», «Tókýó»; #407) | lesson 37 («Tókýó» introduced in «Ég bý í Tókýó.» with no slow, split model) | 5 (37, 38, 39, 40, 41); its family remarked in 42 (#459), 44 (#468), 49 (#496) |
-| a pattern's other answers filled as its sentence: the clock's «Hún er …», and an aside on why «hún» (#407) | lesson 36 (the aside after a pick-out answered «klukkan tíu»; the alternative not offered) | **done**: 17 (36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52) |
+| a pattern's other answers filled as its sentence: the clock's «Hún er …», and an aside on why «hún» (#407) | lesson 36 (the aside after a pick-out answered «klukkan tíu»; the alternative not offered) | **done**: 18 (36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
 | a cue says the learner's action first: «Listen, then answer: …», no «Your turn.» ahead of its task (#409: #411) | lesson 37 (eight pick-outs, each opening «Listen…»; the form model without «Your turn.») | 0; its family remarked in 37, 38, 39 (#425), 44 (#473, #472) |
 | a theme level of three or more learner turns plays with one of them heard (#327: #414) | not yet | – |
-| a pick-out turn's lines carry other values, and the value heard least recently comes first (#339: #417) | lesson 38 (ten pick-outs in lesson 38 and ten in 39, drawn across values) | 11 (38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48); its family remarked in 49, 52 |
-| a known set reply («Takk.», «Já, takk.») in an exchange played again is voiced, not asked, and the opening says so (#416: #422) | lesson 39 (four set replies voiced in scenes heard again, none asked there) | 1 (39); its family remarked in 40 (#430, #431), 46 |
+| a pick-out turn's lines carry other values, and the value heard least recently comes first (#339: #417) | lesson 38 (ten pick-outs in lesson 38 and ten in 39, drawn across values) | 11 (38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48); its family remarked in 49, 52 (#515, #516) |
+| a known set reply («Takk.», «Já, takk.») in an exchange played again is voiced, not asked, and the opening says so (#416: #422) | lesson 39 (four set replies voiced in scenes heard again, none asked there) | 1 (39); its family remarked in 40 (#430, #431), 46, 53 (#519) |
 | a sentence reported hard is tried again from its meaning, then the model and the slow practice (#423: #424) | lesson 40 («Ég vinn hjá litlu fyrirtæki.», reported hard after lesson 39: «Let's try to say this sentence in Icelandic again: …») | 2 (40, 41); its family remarked in 42 (#459), 44 (#468), 49 (#496) |
 | a conversation that a drill follows ends with «That's the end of the conversation.» (#415: #425) | lesson 40 («That's the end of the conversation.» eight times) | 4 (40, 41, 42, 43); its family remarked in 44 (#473, #472) |
-| each 🔊 reply of the written review names its card and the text spoken (site_update_notifier#175: #176) | lesson 40 (the written review before lesson 40) | **done**: 13 (40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52) |
-| an authored dialogue played before voices the known set replies too, its items counted from its lines (#416: #430) | lesson 41 («straeto», an authored dialogue, with its short replies voiced) | 5 (41, 42, 43, 44, 45); its family remarked in 46 |
+| each 🔊 reply of the written review names its card and the text spoken (site_update_notifier#175: #176) | lesson 40 (the written review before lesson 40) | **done**: 14 (40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
+| an authored dialogue played before voices the known set replies too, its items counted from its lines (#416: #430) | lesson 41 («straeto», an authored dialogue, with its short replies voiced) | 5 (41, 42, 43, 44, 45); its family remarked in 46, 53 (#519) |
 | a fixed dialogue played whole four times, its required items learned, is not played whole again unless it holds new material or an item needing repair (#416: #431) | not yet | – |
-| scenes for lessons 41–50: arranging to meet, the town's fourth and fifth levels (telling a tourist the way), small talk's fifth (a coach ride), the clothes shop's third (size and colour), the weather (#327: #432) | lesson 41 (arranging to meet, the day's exchange in lesson 41) | **done**: 12 (41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52) |
-| lesson 40's contexts: the married cue, no «Velkomin!» to a man's voice, small talk's fourth level opens with a birthday, every listening task names its scene (#427: #433) | lesson 41 (nine pick-outs and catches, each opening with its scene line) | 1 (41); its family remarked in 42 (#458), 44 (#471, #475), 49 (#494), 51 (#501) |
+| scenes for lessons 41–50: arranging to meet, the town's fourth and fifth levels (telling a tourist the way), small talk's fifth (a coach ride), the clothes shop's third (size and colour), the weather (#327: #432) | lesson 41 (arranging to meet, the day's exchange in lesson 41) | **done**: 13 (41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
+| lesson 40's contexts: the married cue, no «Velkomin!» to a man's voice, small talk's fourth level opens with a birthday, every listening task names its scene (#427: #433) | lesson 41 (nine pick-outs and catches, each opening with its scene line) | 1 (41); its family remarked in 42 (#458), 44 (#471, #475), 49 (#494), 51 (#501), 53 (#519) |
 | the closing reviews today's new material as one block, no listening task inside it (#421: #435), and the listening it held comes in the last stretch before it (#437) | lesson 41 (a closing of nine recalls, nothing else; no listening task in the stretch before it (17 recalls of known material)) | 3 (41, 42, 43); its family remarked in 44 (#473, #472) |
-| a pick-out whose answer was said aloud in the last five minutes is not taken (#339: #436) | lesson 41 (nine pick-outs, none on an answer heard in the five minutes before) | **done**: 12 (41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52) |
+| a pick-out whose answer was said aloud in the last five minutes is not taken (#339: #436) | lesson 41 (nine pick-outs, none on an answer heard in the five minutes before) | **done**: 13 (41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
 | help on an expression apart from the review's outcomes, and a new expression heard and asked about from the new-expression list (site_update_notifier#179: #180, #183) | not yet | – |
-| the voiced-reply guide said once a lesson; later plays keep only their scene (#438: #440) | lesson 42 (the guide once, then «The conversation again.» three times) | **done**: 11 (42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52) |
+| the voiced-reply guide said once a lesson; later plays keep only their scene (#438: #440) | lesson 42 (the guide once, then «The conversation again.» three times) | **done**: 12 (42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
 | a recall whose sentence says a pattern and a filler taught with it advances both ladders (#439: #442) | not yet | – |
 | a «sooner» report keeps its reason: hard to say owes the slow model, hard to hear owes listening support (#444: #447, site_update_notifier#187) | not yet | – |
-| the lesson's goal says the lines the exchange asks, and names the ones only heard (#327: #448) | lesson 42 («Say you'll come this evening and say see you this evening. Listen for how to say you can't tomorrow.») | **done**: 11 (42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52) |
+| the lesson's goal says the lines the exchange asks, and names the ones only heard (#327: #448) | lesson 42 («Say you'll come this evening and say see you this evening. Listen for how to say you can't tomorrow.») | **done**: 12 (42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
 | a listening task with nothing to frame it opens with «Listen.», and every change of task is checked for its line (#427, #433: #455) | lesson 43 («Listen.» once, before a catch with nothing to frame it) | 1 (43); its family remarked in 44 (#473, #472) |
 | a word the learner reports hard to say is always modelled: a one-word item no sound rule reads is its own word, and «regnhlíf» is split (#457: #459) | lesson 43 («vatnsglas» and «versla», the requests dropped before, modelled) | 1 (43); its family remarked in 44 (#468), 49 (#496) |
-| small talk 4 is a coffee with Anna, each question with its reason; a level has its own scene line, the coach ride's too (#427: #458) | lesson 43 (the coach ride opened with its own scene line) | 1 (43); its family remarked in 44 (#471, #475), 49 (#494), 51 (#501) |
+| small talk 4 is a coffee with Anna, each question with its reason; a level has its own scene line, the coach ride's too (#427: #458) | lesson 43 (the coach ride opened with its own scene line) | 1 (43); its family remarked in 44 (#471, #475), 49 (#494), 51 (#501), 53 (#519) |
 | «Same change:» only right after a transform with the same instruction (#461: #463) | not yet | – |
-| an aside sets «komið hingað» against «verið hér», after the coach ride (#327: #464, data) | lesson 44 (the aside at 06:47, before the coach ride's question) | **done**: 9 (44, 45, 46, 47, 48, 49, 50, 51, 52) |
+| an aside sets «komið hingað» against «verið hér», after the coach ride (#327: #464, data) | lesson 44 (the aside at 06:47, before the coach ride's question) | **done**: 10 (44, 45, 46, 47, 48, 49, 50, 51, 52, 53) |
 | a clip the speech service cut off is synthesized again and not cached; the threshold is per language (#462: #466, #467) | lesson 44 («Ask where she lives.» three times, no remark) | 7 (44, 45, 46, 47, 48, 49, 50); its family remarked in 51 (#503) |
 | a word reported hard to say is first asked from its meaning, then broken down (lesson 44: #468) | not yet | – |
-| a part only its own sentence holds keeps its four rungs; a part of three words or more is built up from its end inside its sentence (lesson 44: #469) | lesson 45 («við hliðina á bankanum» and «fyrir framan hótelið» built up from their end and asked four times) | **done**: 8 (45, 46, 47, 48, 49, 50, 51, 52) |
+| a part only its own sentence holds keeps its four rungs; a part of three words or more is built up from its end inside its sentence (lesson 44: #469) | lesson 45 («við hliðina á bankanum» and «fyrir framan hótelið» built up from their end and asked four times) | **done**: 9 (45, 46, 47, 48, 49, 50, 51, 52, 53) |
 | a cue that asks a person names them after «ask»; validate fails one that does not (lesson 44: #470) | not yet | – |
-| the café's fourth level: the learner asks for a cake without nuts and says why (lesson 44: #471, data) | lesson 45 (the café's fourth level played twice, «Án hnetna?» after the request) | 4 (45, 46, 47, 48); its family remarked in 49 (#494), 51 (#501) |
+| the café's fourth level: the learner asks for a cake without nuts and says why (lesson 44: #471, data) | lesson 45 (the café's fourth level played twice, «Án hnetna?» after the request) | 4 (45, 46, 47, 48); its family remarked in 49 (#494), 51 (#501), 53 (#519) |
 | a scene line's lead-in comes after the question it answers (#427: #472) | not yet | – |
 | a conversation right after another opens «Now another short conversation.» (#415: #473) | not yet | – |
-| a part's generated sentence is cued by its meaning, not «In a sentence.» (#287: #474) | lesson 45 (nine generated sentences of parts cued by their meaning, «Use it in a sentence.» once after the same part) | **done**: 8 (45, 46, 47, 48, 49, 50, 51, 52) |
-| the late call to Anna has its own scene line (#458: #475, data) | lesson 45 (the late call opened with its own scene line) | 4 (45, 46, 47, 48); its family remarked in 49 (#494), 51 (#501) |
+| a part's generated sentence is cued by its meaning, not «In a sentence.» (#287: #474) | lesson 45 (nine generated sentences of parts cued by their meaning, «Use it in a sentence.» once after the same part) | **done**: 9 (45, 46, 47, 48, 49, 50, 51, 52, 53) |
+| the late call to Anna has its own scene line (#458: #475, data) | lesson 45 (the late call opened with its own scene line) | 4 (45, 46, 47, 48); its family remarked in 49 (#494), 51 (#501), 53 (#519) |
 | a pick-out on an approximate time keeps «svona»: «svona tíu mínútur», about ten minutes (lesson 45: #477, data) | not yet | – |
 | when the due reviews cannot fit, today's new items give up a middle rung to them (#439: #478) | lesson 46 (42 items reviewed against 19 in lesson 45; each new item gave up its middle rung) | 3 (46, 47, 48); its family remarked in 49 (#492, #493, #496), 51 (#502) |
-| a part reported hard to say is tried as its sentence, then built up from its end; two slow models not in a row (lesson 45: #480) | lesson 46 («hinum megin við götuna» and «við hliðina á bankanum», reported hard after lesson 45) | **done**: 7 (46, 47, 48, 49, 50, 51, 52) |
+| a part reported hard to say is tried as its sentence, then built up from its end; two slow models not in a row (lesson 45: #480) | lesson 46 («hinum megin við götuna» and «við hliðina á bankanum», reported hard after lesson 45) | **done**: 8 (46, 47, 48, 49, 50, 51, 52, 53) |
 | a grammar note's pieces: each group led by what it builds, each piece repeated, the whole at natural speed (#198, lesson 46: #481) | not yet | – |
 | two different answers never share a cue meaning, written or spoken, in any language: validate checks it, nine told apart (lesson 47: #484) | lesson 48 («I'll come soon.» for «Ég kem fljótlega.», «Tell her it's raining.» for «Það rignir.») | 3 (48, 49, 50); its family remarked in 51 (#500) |
-| the theme levels heard again take turns, the one played or heard longest ago first (#483: #486) | lesson 49 (no record before lesson 49, so small talk 5 and town 4 were heard again as in lesson 47; the turns read from lesson 50) | **done**: 4 (49, 50, 51, 52) |
-| the supermarket asks about other things: price lines about other items, a third level for lamb (#483: #487, data) | lesson 49 (the lamb level played twice, its goal said after the opening) | **done**: 4 (49, 50, 51, 52) |
-| the lesson's goal said sentence by sentence, a beat between them (lesson 48: #488) | lesson 49 («Today's goal:», a beat, then the goal's one sentence) | **done**: 4 (49, 50, 51, 52) |
+| the theme levels heard again take turns, the one played or heard longest ago first (#483: #486) | lesson 49 (no record before lesson 49, so small talk 5 and town 4 were heard again as in lesson 47; the turns read from lesson 50) | 4 (49, 50, 51, 52); its family remarked in 53 (#519) |
+| the supermarket asks about other things: price lines about other items, a third level for lamb (#483: #487, data) | lesson 49 (the lamb level played twice, its goal said after the opening) | 4 (49, 50, 51, 52); its family remarked in 53 (#519) |
+| the lesson's goal said sentence by sentence, a beat between them (lesson 48: #488) | lesson 49 («Today's goal:», a beat, then the goal's one sentence) | **done**: 5 (49, 50, 51, 52, 53) |
 | a slow model that plays a line by ear settles its listening support too (lesson 49: #490) | not yet | – |
 | a plain number introduced plainly, asked once more, never moved to new sentences (#439: #492) | lesson 51 («átján» introduced plainly in «Ég er átján ára.»; «fimm þúsund krónur» and «tíu þúsund krónur», every word known, still announced new) | 0; its family remarked in 51 (#502) |
 | the forms of 1–4 practised as a choice: one number's known lines of different genders side by side (#439: #493) | lesson 50 («Þrjá miða, takk.» / «Það kostar þrjú þúsund krónur.») | 1 (50); its family remarked in 51 (#502) |
-| «Þetta reddast» reassures about a full café (lesson 50 as drafted: #494, data) | lesson 50 («Your friend worries the café you picked will be full.») | 1 (50); its family remarked in 51 (#501) |
+| «Þetta reddast» reassures about a full café (lesson 50 as drafted: #494, data) | lesson 50 («Your friend worries the café you picked will be full.») | 1 (50); its family remarked in 51 (#501), 53 (#519) |
 | the number choice names the case when the form is not the nominative (lesson 50 as drafted: #495) | lesson 50 («miða» is masculine and in the accusative here: «þrír» becomes «þrjá») | 2 (50, 51); its family remarked in 52 |
-| a long word in a vocab item of two words or more gets its syllable split (#439: #496) | lesson 50 («í fyrramálið», reported: fyrr · a · mál · ið) | **done**: 3 (50, 51, 52) |
+| a long word in a vocab item of two words or more gets its syllable split (#439: #496) | lesson 50 («í fyrramálið», reported: fyrr · a · mál · ið) | **done**: 4 (50, 51, 52, 53) |
 | the number choice grows its feminine side: a line that adds a missing gender comes forward (#439: #498) | lesson 51 («Ég vil herbergi fyrir tvær nætur.» introduced; the choice played «Einn miða» / «Eina pylsu») | 0; its family remarked in 51 (#502) |
 | a gendered word said of him and of her, side by side: «Hann er svangur.» / «Hún er svöng.» (#439: #499) | lesson 51 («Hann er týndur.» / «Hún er týnd.») | 0; its family remarked in 51 (#502) |
-| a situation's instruction names what its answer names; validate lists one that says «it» for it (lesson 51: #500) | lesson 52 («Complete the sentence to say: I think the snow is beautiful.») | 1 (52) |
+| a situation's instruction names what its answer names; validate lists one that says «it» for it (lesson 51: #500) | lesson 52 («Complete the sentence to say: I think the snow is beautiful.») | 2 (52, 53) |
 | «Sjáumst í dag!» never generated (lesson 51: #501, data) | not yet | – |
 | a plain number made only of known words is asked as a use of them, not introduced as new (lesson 51: #502) | not yet | – |
 | a silent clip counts as cut off whatever its words: synthesized again, not cached (lesson 51: #503) | not yet | – |
-| lesson 52 as drafted: varied price answers framed as question and answer, a weather opener the reply agrees with, «small» in sentences (#506) | lesson 52 («Það er kalt í dag!» before «Sjáumst á morgun?»; «Say it's too small.») | 1 (52) |
-| instructions in Icelandic, a pilot: «Endurtaktu.» and «Hlustaðu.» taught, then said with the English after them, faded by the review (#429: #507) | lesson 52 («Endurtaktu.» introduced, then said before «Repeat.» in the day's introductions) | 1 (52) |
-| a plain number enters where it is used, not by the course order (#451 step 1: #508) | lesson 52 («þrjár» met in «Það eru mínus þrjár gráður.») | 1 (52) |
-| money and time in the partners' listening lines (#451 step 2a: #509, data) | lesson 52 («korter í fjögur») | 0; its family remarked in 52 |
+| lesson 52 as drafted: varied price answers framed as question and answer, a weather opener the reply agrees with, «small» in sentences (#506) | lesson 52 («Það er kalt í dag!» before «Sjáumst á morgun?»; «Say it's too small.») | 1 (52); its family remarked in 53 (#519) |
+| instructions in Icelandic, a pilot: «Endurtaktu.» and «Hlustaðu.» taught, then said with the English after them, faded by the review (#429: #507) | lesson 52 («Endurtaktu.» introduced, then said before «Repeat.» in the day's introductions) | 2 (52, 53) |
+| a plain number enters where it is used, not by the course order (#451 step 1: #508) | lesson 52 («þrjár» met in «Það eru mínus þrjár gráður.») | 2 (52, 53) |
+| money and time in the partners' listening lines (#451 step 2a: #509, data) | lesson 52 («korter í fjögur») | 0; its family remarked in 52 (#515, #516) |
 | counts and people: hot dogs for a group and family tickets, each of 2–4 in every gender (#451 step 2b: #510, data) | not yet | – |
-| a hotel desk and a bus theme: numbers used as names, the probe kind «number» (#451 step 2c: #511) | lesson 52 (bus 1 played: «Númer sex …», «Sex hundruð og þrjátíu krónur.») | 0; its family remarked in 52 |
-| weather and roads: «Það eru mínus þrjár gráður.» said whole, other temperatures heard, the probe kind «temperature» (#451 step 2d: #512) | lesson 52 (the sentence introduced whole; «mínus» and «gráður» never asked bare) | 0; its family remarked in 52 |
+| a hotel desk and a bus theme: numbers used as names, the probe kind «number» (#451 step 2c: #511) | lesson 52 (bus 1 played: «Númer sex …», «Sex hundruð og þrjátíu krónur.») | 0; its family remarked in 52 (#515, #516) |
+| weather and roads: «Það eru mínus þrjár gráður.» said whole, other temperatures heard, the probe kind «temperature» (#451 step 2d: #512) | lesson 52 (the sentence introduced whole; «mínus» and «gráður» never asked bare) | 0; its family remarked in 52 (#515, #516) |
 | dates, contacts and codes, about oneself: a day inside a sentence, a booking and a phone number digit by digit (#451 step 2e: #513, data) | not yet | – |
+| a number word rests between lessons in the pick-outs; the number choice takes its lines in turn; a scene's number carries a form of 1–4 in its noun's gender (#451 step 3: #515) | lesson 53 (four pick-outs, four values: «klukkan sjö», «númer þrjú hundruð og fjögur», «sex hundruð og fimmtíu krónur», «þrjár mínútur») | 1 (53) |
+| a sentence the learner says with a number is practised over its pattern's values (#451 step 3b: #516) | not yet | – |
+| a fixed dialogue retires after two whole plays; a hard item's scene line is cut once a level, never from the lesson's own, opens on a question or its own cue, and a part is closed as a part (lesson 53: #519) | not yet | – |
+| the number a scene's exchange says rotates; the hotel desk and the bus have other rooms, hours, codes and fares (#451 step 3d: #520) | not yet | – |
 
 Read from rows, not from remarks: the second half kept when an item counted toward the target is not taught (#294: #308);
 ease learned from long-gap recalls (#220: #298, with site_update_notifier#118, #128); the review backlog's breakdown
