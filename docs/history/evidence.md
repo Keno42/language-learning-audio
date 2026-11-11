@@ -1619,3 +1619,47 @@ What the lesson played, by change, and what the learner wrote:
 - **The listening.** All eight pick-outs had been heard in the three lessons before (#339, the owner's remark on the draft). The time freed in
   lesson 49's replay went partly to pick-outs, so the pool's sameness weighs more now.
 - **Another learner** sent no new feedback.
+
+### 5.41 Lesson 51: the first lesson built with #498 and #499
+
+Lesson 51 was generated with LLA `1ed8830` (main with #498 and #499), the bot at site_update_notifier `f5bf9e1`. Rebuilt from its export with the
+trip profile it is identical (122 exercises, 29.8 minutes).
+
+| | lesson 51 |
+|---|---|
+| length | 29.8 min, 122 exercises |
+| new items; new components, weighted (target) | 11; 9 (8) |
+| theme (level) | supermarket (3), played again |
+| target reached | 17.3 min |
+| items reviewed / due | 40 / 40: 35 of the 40 due, and 5 not due; one more due item practised in another exercise, 4 not practised (lesson 50: 46 of 58 due) |
+| written review's queue | 132 due |
+| pick-outs whose line was heard in the three lessons before | 5 of 6 |
+| feedback form: load; friction | **light** (the seventh in a row); other |
+| «sooner» | none |
+
+What the lesson played, by change, and what the learner wrote:
+
+- **Played without a remark:** the number choice «Einn miða, takk.» / «Eina pylsu með öllu.» (#493); «Ég vil herbergi fyrir tvær nætur.»
+  brought forward for the feminine side of 2 (#498); a gendered word said of him and of her, «Hann er týndur.» / «Hún er týnd.» (#499); «átján»
+  introduced plainly in «Ég er átján ára.» (#492).
+- **The prices.** «fimm þúsund krónur» and «tíu þúsund krónur», every word known (component cost 0), were announced «Something new.» and «A
+  new expression.» and asked four times each. The owner: being treated as new expressions feels wrong. #492 had made them light but still
+  new; lesson 49's «tvö / þrjú þúsund krónur» came the same way. Four of the eleven new items were numbers (17, 18, 5,000, 10,000).
+  **Answered, in review (#502):** a plain number made only of known words is asked as a use of them («Made of words you know.»), the model
+  after it, once more later, and not in the closing. On the replay each is asked twice instead of four times.
+- **A cue that leaves its answer open.** The written review asked «Your neighbour complains about the snow. Say you think it's beautiful.» for
+  «Mér finnst snjórinn fallegur.»; «Mér finnst það fallegt.» answers it too. Eight situations said «it» for what their answer names.
+  **Answered, in review (#500):** each instruction names it, and `validate` lists any that does not.
+- **«Sjáumst í dag!»**, asked for agreeing in the morning to meet after lunch: the learner asked whether it is natural. One says «Sjáumst á
+  eftir!». **Answered, in review (#501, data):** «í dag» is no fill of «Sjáumst {time}!».
+- **The clip of «lin»** in the split vett · lin · ga is broken. The owner's run of `tools/cut_off_clips.py` on the server's cache found it at
+  0.06 s against an estimate of 1.18 s: the margins the trimmer keeps around a clip with no sound. The service had answered silence, and the
+  cut-off check (#462) left out lines of one or two words. **Answered, in review (#503):** a clip shorter than 0.15 s looks cut off whatever its
+  words. The cached clip is renamed by hand on the server for the next render to synthesize it again.
+- **The pace.** The target rose from 7 to 8 before lesson 51 was built, by §9 "Pace": lesson 50 left 12 of its 58 due reviews unasked, under
+  the quarter that lowers the pace, and the last two lessons were rated «light» (the recorded reason). Lesson 51 asked 35 of its 40 due items;
+  four («ein króna», «jakka», «Mér finnst snjórinn fallegur», «Þetta er of lítið») were not practised at all, yet the lesson recorded no due
+  review as not fitted (`due_not_fitted` empty), so the rule will read lesson 51 as fitting every due item. Why the four were left, and the
+  record with them, is not established. Lessons 52 and 53 are read before any change to the rule.
+- **The listening.** Five of the six pick-outs had been heard in the three lessons before (#339; lesson 50: 8 of 8).
+- **Another learner** sent no new feedback.

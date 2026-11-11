@@ -881,6 +881,27 @@ family = "scene-plausibility"
 class = "twenty"
 answered_by = ["#519"]
 
+[[lesson]]
+n = 54
+form = true
+load = "light"
+built = ["#519", "#520"]
+long_run = ["#520"]
+
+[[lesson.remarks]]
+who = "main"
+text = "The practice of «two adults and two children» is too thick. («Tvo fullorðna og tvö börn, takk.», every word of it known, was introduced as new, built up from its end and said nine times.)"
+family = "easy-substitution"
+class = "twenty"
+answered_by = ["#523"]
+
+[[lesson.remarks]]
+who = "main"
+text = "The instructions in Icelandic did not increase. (The pilot's two were taught in lessons 52 and 53; more waited for their English to fade, which needs two recalls of each.)"
+family = "instruction-language"
+class = "mechanism"
+answered_by = ["#524"]
+
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
 [[change]]
@@ -1606,15 +1627,31 @@ title = "a sentence the learner says with a number is practised over its pattern
 issue = ["#451"]
 pr = ["#516"]
 family = "one-version"
+first_heard = 54
+heard = "«Það eru mínus ellefu gráður.» asked from its meaning"
 
 [[change]]
 title = "a fixed dialogue retires after two whole plays; a hard item's scene line is cut once a level, never from the lesson's own, opens on a question or its own cue, and a part is closed as a part (lesson 53: #519)"
 issue = ["#416", "#483"]
 pr = ["#519"]
 family = "known-repeat"
+first_heard = 54
+heard = "four conversations: the museum's two plays and two levels heard again; no fixed dialogue, no exchange cut from a level"
 
 [[change]]
 title = "the number a scene's exchange says rotates; the hotel desk and the bus have other rooms, hours, codes and fares (#451 step 3d: #520)"
 issue = ["#451"]
 pr = ["#520"]
 family = "one-version"
+
+[[change]]
+title = "a new phrase made of words the learner says is asked as a use of them, once more after a gap, and in its scene (#518: #523)"
+issue = ["#518", "#439"]
+pr = ["#523"]
+family = "easy-substitution"
+
+[[change]]
+title = "instructions in Icelandic, the second step: «Hægt.» for «Slowly.», «Hlustaðu aftur.» for a pick-out's «Listen again.» (#429: #524)"
+issue = ["#429"]
+pr = ["#524"]
+family = "instruction-language"
