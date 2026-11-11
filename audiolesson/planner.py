@@ -551,6 +551,21 @@ class Planner:
             return cost
         return 1.0 if new else 0.0
 
+    def made_of_known_words(self, item: Item) -> bool:
+        """#518, lesson 54 («the practice of two adults and two children is too thick»): a new fixed phrase every word of which the learner
+        already says: each is a word of an item met before this lesson and not failing now (or embedded in an earlier one). «Tvo fullorðna og
+        tvö börn, takk.» after «Tvo fullorðna, takk.» and «Ég á tvö börn.» was introduced as new, built up from its end and said nine times.
+        Such a phrase is a use of what the learner has, as a plain number of known words is (#502): asked once from its meaning, once more
+        after a gap, in its scene, and in the closing (a sentence keeps its late recall without a hint). Not a pattern's instance or form, which have their own paths, nor an instruction; a phrase with a
+        word first met today, a part taught inside it included («aðeins» in «Aðeins eitt, takk.»), is new."""
+        if item.kind != "phrase" or item.command or item.variant_of or item.instance_form or self.pattern_instance_of(item) is not None:
+            return False
+        if getattr(self, "_said_words", None) is None:
+            had = [i for i in self.learner.items if self.learner.has_met(i) and not self.learner.is_open(i)] + list(self.learner.embedded)
+            self._said_words = {w for i in had if i in self.cur.by_id for w in self._fixed_text_words(self.cur.by_id[i])}
+        words = self._fixed_text_words(item)
+        return bool(words) and all(w in self._said_words for w in words)
+
     def _chunk_runs(self) -> list[tuple[str, ...]]:
         """The word runs of the curriculum's multi-word vocab items («taka mynd»), longest first."""
         if getattr(self, "_chunks", None) is None:
@@ -2303,6 +2318,9 @@ class Planner:
                 cost = self.component_by_item.get(item.id)
                 if (self.component_cost(item) if cost is None else cost) == 0:
                     b.from_known.add(item.id)  # lesson 51: made only of words the learner has: asked as a use of them, not named new
+            if self.made_of_known_words(item):
+                b.plain.add(item.id)  # #518: one timed recall, as a plain number
+                b.from_known.add(item.id)  # asked as a use of known words, the model after it; not named new, not built up
             if (taught := self.filler_taught_today(item)) is not None:
                 # #311 follow-up: the phrase's word was taught today inside this very phrase: it is covered as one pattern sentence, never introduced again as new
                 pattern, fills = taught
@@ -4138,7 +4156,9 @@ class Planner:
             # any reactivation that never came due is folded into the closing recall
             # #327: the lesson ends in its scene, in the exchange's order. An item made only of known words was no new material (lesson 51): its one
             # later recall is enough, and the closing goes back over what was new
-            order = [i for i in self.closing_order(introduced, theme_pick) if i.id not in b.from_known]
+            # a plain number made of known words is left out (lesson 51); a phrase made of them is a sentence the learner says, and keeps its
+            # late recall without a hint (#518)
+            order = [i for i in self.closing_order(introduced, theme_pick) if i.id not in b.from_known or not plain_number(i, self.cur)]
             closed: set[str] = set()  # every item a closing recall made the learner say: its holder (#238), and the pattern or the filler in it, is not asked again
             closing_from = len(sc.exercises)
 

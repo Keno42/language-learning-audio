@@ -188,7 +188,11 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   `tests/test_plain_number.py`). A plain number made only of words the learner has (component cost 0: «tíu þúsund krónur» once «tíu», «þúsund» and
   «krónur» are known) is not introduced as new: `Builder._intro_from_known` says «Made of words you know.» and asks its sentence from its meaning, the
   model after it, and the closing leaves it out (`Builder.from_known`; lesson 51: two such prices announced «A new expression.» and asked four times;
-  `tests/test_from_known.py`).
+  `tests/test_from_known.py`). The same holds for a new fixed phrase every word of which the learner already says (`Planner.made_of_known_words`: a
+  word of an item met before this lesson and not failing, or embedded in an earlier one; not a pattern's instance or form, nor an instruction): it
+  is plain and from known words, so it is asked once from its meaning, once more after a gap (`plain_recall_time`), in its scene and in the closing, which leaves out only a plain number (#518, lesson
+  54: «Tvo fullorðna og tvö börn, takk.» built up from its end and said nine times). A phrase with a word first met today is new, the part taught
+  inside it included.
   A fixed phrase whose one filler is a number goes the other way (#451 step 3b, the owner after lesson 52: «mínus þrjár gráður» far too often, always
   three): taught whole, introduced, clozed and hinted with its own number, then each recall (meaning or situation, in the lesson and after it) asks
   its pattern's sentence with the number the learner has said least, from its meaning, recorded as the phrase's practice and not the pattern's
