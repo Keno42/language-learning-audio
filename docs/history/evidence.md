@@ -1584,3 +1584,38 @@ What the learner wrote, by what the lesson did:
   reduction (#478), while the items with no new word took five minutes.
 - **Another learner's lessons 29 and 30** were built before #486 and #487, rated «light», with no remark. Their lesson 31, built with
   `588c646`, has no feedback yet.
+
+### 5.40 Lesson 50: the first lesson built with #490 and #492–#496
+
+Lesson 50 was generated with LLA `ffaac54` (main with #490–#496), the bot at site_update_notifier `5479f96`. Rebuilt from its export with the trip
+profile it is identical (120 exercises, 29.7 minutes). Before it was played, the owner reviewed a draft of it from main `13f3a71` and the lesson-49
+record; the remarks are lesson 49's round in the ledger, and three were answered before the lesson was built (#494, #495, #496).
+
+| | lesson 50 |
+|---|---|
+| length | 29.7 min, 120 exercises |
+| new items; new components, weighted (target) | 6; 7 (7) |
+| theme (level); today's new items said as a turn of the played exchange | clothes (3); 4 of 6 («jakka», «Þetta er of lítið.», «Áttu þetta í stærra?», «Áttu þetta í öðrum lit?») |
+| target reached | 18.3 min |
+| items reviewed / due | 61 / 58, 46 of them due (lesson 49: 27 / 43, 26 due) |
+| written review's queue | 126 due |
+| pick-outs whose line was heard in the three lessons before | 8 of 8 |
+| feedback form: load; friction | **light** (the sixth in a row); none |
+| «sooner» | «Áttu þetta í stærra?», «Áttu þetta í öðrum lit?»; reason: hard to say |
+
+What the lesson played, by change, and what the learner wrote:
+
+- **No remark.** The form carried no note.
+- **Played:** «í fyrramálið», reported after lesson 49, was asked from its meaning and broken down as fyrr · a · mál · ið (#496). The number
+  choice set «Þrjá miða, takk.» against «Það kostar þrjú þúsund krónur.», naming the accusative: «þrír» becomes «þrjá» (#493, #495). «Þetta
+  reddast» was cued with the full café (#494). No new number came, so #492 had nothing to change. No line was reported both ways, so #490 did
+  not act.
+- **The scene:** four of the six new items were said as turns of the played exchange, after one in lesson 48 and none in 49, against the
+  criterion of two (#327).
+- **The pace.** The target fell from 9 to 7 over lessons 45–50 while every lesson was rated «light». The rule of §9 "Pace" is doing what it
+  says: a lesson whose due reviews do not fit lowers the pace (lesson 49 asked 26 of its 43 due), and «light» raises it only with a small
+  backlog. Lesson 50 asked 46 of 58 due, with the time #492 freed. Read whether the pace rises once the reviews fit, before any change to the
+  rule.
+- **The listening.** All eight pick-outs had been heard in the three lessons before (#339, the owner's remark on the draft). The time freed in
+  lesson 49's replay went partly to pick-outs, so the pool's sameness weighs more now.
+- **Another learner** sent no new feedback.

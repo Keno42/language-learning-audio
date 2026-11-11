@@ -858,7 +858,28 @@ who = "main"
 text = "(The owner, after lesson 52.) «mínus þrjár gráður» far too often, always three. Lesson 52 played it 19 times and the learner said it 9 times, all with «þrjár»; its reviews say «þrjár» again."
 family = "one-version"
 class = "twenty"
-answered_by = []
+answered_by = ["#515", "#516"]
+
+[[lesson]]
+n = 53
+form = true
+load = "right"
+built = ["#515", "#516"]
+long_run = ["#515", "#516"]
+
+[[lesson.remarks]]
+who = "main"
+text = "The same conversations repeat a lot. (Nine conversations, seven in the first thirteen minutes: three fixed dialogues whole for the fifth, sixth and seventh time; the hotel desk three times, the clothes shop's third level twice.)"
+family = "known-repeat"
+class = "twenty"
+answered_by = ["#519"]
+
+[[lesson.remarks]]
+who = "main"
+text = "Where the speaking practice sits and where a conversation ends sometimes felt off. (An exchange cut from the clothes shop opened on «Æ, leiðinlegt.», answering a line no one had said; one cut from the hotel desk opened in the model voice with no word before it and ended «That's the end of the conversation.» at the room number.)"
+family = "scene-plausibility"
+class = "twenty"
+answered_by = ["#519"]
 
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
@@ -1570,4 +1591,30 @@ heard = "the sentence introduced whole; «mínus» and «gráður» never asked 
 title = "dates, contacts and codes, about oneself: a day inside a sentence, a booking and a phone number digit by digit (#451 step 2e: #513, data)"
 issue = ["#451"]
 pr = ["#513"]
+family = "one-version"
+
+[[change]]
+title = "a number word rests between lessons in the pick-outs; the number choice takes its lines in turn; a scene's number carries a form of 1–4 in its noun's gender (#451 step 3: #515)"
+issue = ["#451", "#439"]
+pr = ["#515"]
+family = "one-version"
+first_heard = 53
+heard = "four pick-outs, four values: «klukkan sjö», «númer þrjú hundruð og fjögur», «sex hundruð og fimmtíu krónur», «þrjár mínútur»"
+
+[[change]]
+title = "a sentence the learner says with a number is practised over its pattern's values (#451 step 3b: #516)"
+issue = ["#451"]
+pr = ["#516"]
+family = "one-version"
+
+[[change]]
+title = "a fixed dialogue retires after two whole plays; a hard item's scene line is cut once a level, never from the lesson's own, opens on a question or its own cue, and a part is closed as a part (lesson 53: #519)"
+issue = ["#416", "#483"]
+pr = ["#519"]
+family = "known-repeat"
+
+[[change]]
+title = "the number a scene's exchange says rotates; the hotel desk and the bus have other rooms, hours, codes and fares (#451 step 3d: #520)"
+issue = ["#451"]
+pr = ["#520"]
 family = "one-version"
