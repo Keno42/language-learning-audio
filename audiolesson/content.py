@@ -764,7 +764,8 @@ def _slot_names(text: str) -> list[str]:
     return [m[1:-1].split(":")[0] for m in _ANY_SLOT_RE.findall(text)]
 
 
-COMMAND_KEYS = ("repeat", "listen")  # #429: the instructions a phrase may say in the target language (their phrasing keys)
+# #429: the instructions a phrase may say in the target language (their phrasing keys): «Repeat.», «Listen.», «Slowly.», a pick-out's «Listen again.»
+COMMAND_KEYS = ("repeat", "listen", "slowly", "pick_out_again")
 PROBE_KINDS = ("price", "time", "count", "place", "duration", "number", "temperature")  # what an information probe asks to listen for (#248); "number": a number used as a name, a room, a bus, a code (#451 step 2c); "temperature" (#451 step 2d)
 FORMS = ("negative", "question")  # a construction's authored forms besides the plain one (#171)
 

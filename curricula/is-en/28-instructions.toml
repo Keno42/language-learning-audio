@@ -2,6 +2,9 @@
 # The instructor's most frequent commands, said in Icelandic once taught: «Endurtaktu.» for «Repeat.», «Hlustaðu.» for «Listen.».
 # Each is taught as material, on top of the day's new items (it takes no place among them), then said in an Icelandic voice with the English after it,
 # until the learner's review has recalled it twice; a failure brings the English back. `command` names the instruction it replaces.
+# Step 2 (lesson 54: «the instructions in Icelandic did not increase»): «Hægt.» for «Slowly.» and «Hlustaðu aftur.» for a pick-out's «Listen
+# again.», the two said most after the first pair (four times each in lesson 54). One a lesson, in this order. Candidates until
+# native-checked (#209).
 
 [[items]]
 id = "endurtaktu"
@@ -26,3 +29,27 @@ meaning_spoken_ja = "指示の「聞いてください」"
 difficulty = 1
 topics = ["instructions"]
 command = "listen"
+
+[[items]]
+id = "haegt_command"
+kind = "phrase"
+target = "Hægt."
+meaning = "Slowly, as an instruction"
+meaning_ja = "指示の「ゆっくり」"
+meaning_spoken = "Slowly, as an instruction"
+meaning_spoken_ja = "指示の「ゆっくり」"
+difficulty = 1
+topics = ["instructions"]
+command = "slowly"
+
+[[items]]
+id = "hlustadu_aftur"
+kind = "phrase"
+target = "Hlustaðu aftur."
+meaning = "Listen again, as an instruction"
+meaning_ja = "指示の「もう一度聞いてください」"
+meaning_spoken = "Listen again, as an instruction"
+meaning_spoken_ja = "指示の「もう一度聞いてください」"
+difficulty = 1
+topics = ["instructions"]
+command = "pick_out_again"

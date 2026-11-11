@@ -248,7 +248,7 @@ def _build(b, sc: Script, task: ListeningTask, introduces: str = "") -> None:
     else:
         b._narr(sc, ex, b._m(task.meaning))
         b._beat(sc, ex)
-        b._frame(sc, ex, b.prompts.get("pick_out_again"))  # #335: the replay is announced
+        b._instruct(sc, ex, "pick_out_again", frame=True)  # #335: the replay is announced; «Hlustaðu aftur.» once taught (#429)
     b._speak(sc, ex, task.line, speaker=task.speaker, role="listening_replay")
     b._gap(sc, ex)
 

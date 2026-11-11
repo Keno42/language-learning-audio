@@ -208,11 +208,12 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   one voice, each with whom it is said of («Said of a man: «svangur».»), then asks each from its meaning in the other order. The learner had the two
   forms only as the speaker's own («As a man: …»). The lines are those met in an earlier lesson and not failing (`Planner.said_of_candidates`),
   taking turns by lesson; no item's schedule moves (`tests/test_said_of.py`).
-  Instructions in Icelandic (#429, the long run's first step): a phrase with `Item.command` («Endurtaktu.»: `repeat`, «Hlustaðu.»: `listen`) is
+  Instructions in Icelandic (#429, the long run's first step): a phrase with `Item.command` («Endurtaktu.»: `repeat`, «Hlustaðu.»: `listen`, «Hægt.»: `slowly`, «Hlustaðu aftur.»: `pick_out_again`, a pick-out's «Listen again.») is
   taught one a lesson, first and on top of the day's new material, once the learner has completed `PlanConfig.commands_from` (10) lessons
   (`Planner.next_command`; never in a new-item place), by `Builder._intro_command`. From then on `Builder._instruct` says it in place of the
   instruction, in `COMMAND_VOICE` (native_b, not the models' voice), with the instruction in the learner's language after it while
-  `Builder.command_support` holds: until the review has recalled the phrase twice, and again after a failure (`is_open`). The way in written on
+  `Builder.command_support` holds: until the review has recalled the phrase twice, and again after a failure (`is_open`). An instruction that is
+  a framing line («Listen again.», `_instruct(frame=True)`) keeps the beat after it in either language. The way in written on
   the finished script («Listen.») is replaced the same way (`Builder.command_segments`). It is asked once more later in the lesson, as a plain
   number is (`tests/test_commands.py`).
   Practice is shared (#439, lesson 41: four items, four sentences, 20 asks): a rung whose item
