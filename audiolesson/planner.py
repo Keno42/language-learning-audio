@@ -556,7 +556,7 @@ class Planner:
         already says: each is a word of an item met before this lesson and not failing now (or embedded in an earlier one). «Tvo fullorðna og
         tvö börn, takk.» after «Tvo fullorðna, takk.» and «Ég á tvö börn.» was introduced as new, built up from its end and said nine times.
         Such a phrase is a use of what the learner has, as a plain number of known words is (#502): asked once from its meaning, once more
-        after a gap, and in its scene. Not a pattern's instance or form, which have their own paths, nor an instruction; a phrase with a
+        after a gap, in its scene, and in the closing (a sentence keeps its late recall without a hint). Not a pattern's instance or form, which have their own paths, nor an instruction; a phrase with a
         word first met today, a part taught inside it included («aðeins» in «Aðeins eitt, takk.»), is new."""
         if item.kind != "phrase" or item.command or item.variant_of or item.instance_form or self.pattern_instance_of(item) is not None:
             return False
@@ -4156,7 +4156,9 @@ class Planner:
             # any reactivation that never came due is folded into the closing recall
             # #327: the lesson ends in its scene, in the exchange's order. An item made only of known words was no new material (lesson 51): its one
             # later recall is enough, and the closing goes back over what was new
-            order = [i for i in self.closing_order(introduced, theme_pick) if i.id not in b.from_known]
+            # a plain number made of known words is left out (lesson 51); a phrase made of them is a sentence the learner says, and keeps its
+            # late recall without a hint (#518)
+            order = [i for i in self.closing_order(introduced, theme_pick) if i.id not in b.from_known or not plain_number(i, self.cur)]
             closed: set[str] = set()  # every item a closing recall made the learner say: its holder (#238), and the pattern or the filler in it, is not asked again
             closing_from = len(sc.exercises)
 
