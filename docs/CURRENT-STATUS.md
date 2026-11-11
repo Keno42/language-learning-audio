@@ -40,13 +40,14 @@ lesson 53's export the room is 115 and 212 in lesson 53, then 306, 115, 212, 306
 
 The remarks' half of each round (LD §9 "Governance"): each remark ranked by how often its cause recurs on the replay of the latest export and
 what a fix costs. The latest export is lesson 53's; the next lesson is 54. Lesson 53 was rated «right» (the first after eight «light»), with
-20 of its 52 due items not fitted, played the long run's steps (#507, #511, #515) without a remark, and drew one note with two remarks: the
+20 of the 45 due items it could ask not fitted, played the long run's steps (#507, #511, #515) without a remark, and drew one note with two remarks: the
 same conversations repeat a lot, and where the speaking practice sits and where a conversation ends sometimes felt off (LD §5.43). Four new
 items were reported hard to hear.
 1. **A conversation once (#416, #483).** Built this round (#519): a fixed dialogue retires after two complete plays, whatever the state of
    its items (the owner: retire the whole replay and keep single lines); a hard item's scene line is cut once a level, never from the
    level the lesson plays, opens on a question or the learner's own cue, and is closed as a part when its level goes on. On the replay,
-   lesson 53's nine conversations become five (8.4 minutes, 4.8) and it reviews 45 of its 52 due items, not 29. **Next:** read lesson 54:
+   lesson 53's nine conversations become five (8.4 minutes, 4.8), and of the 45 due items the lesson could ask it practises 41, not 25
+   (43 with #520; LD §5.43). **Next:** read lesson 54:
    the conversations, and where the freed minutes go (item 2).
 2. **The listening pool's sameness (#339).** Two of lesson 53's four pick-outs had been heard in the three lessons before (lesson 52: 11
    of 16). It moves up because #519 feeds it: on the replay the minutes the conversations free go to pick-outs, 7 and 14 after the target
