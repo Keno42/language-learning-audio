@@ -64,6 +64,7 @@ from __future__ import annotations
 
 import random
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -71,6 +72,7 @@ from .cando import Scenario
 from .content import PROBE_KINDS, SPEAKERS, Curriculum, CurriculumError, Dialogue, DialogueTurn, unmarked_japanese
 from .records import check_items, load_records
 from .listening_cues import unknown_cue
+from .numbers import number_words
 from .text import WORD
 
 WHO = ("you", "partner")
@@ -345,25 +347,46 @@ def unranked_themes(themes: list[Theme], scenarios: list[Scenario], tiers: tuple
     return [t for t in themes if tier.get(t.scenario) not in tiers]
 
 
-def pick_variants(level: Level, rng: random.Random, canonical: bool = False, heard: set[tuple[int, int]] | None = None) -> dict[int, int]:
+def pick_variants(
+    level: Level, rng: random.Random, canonical: bool = False, heard: set[tuple[int, int]] | None = None, tired: Callable[[str], int] | None = None,
+    as_written_too: bool = False,
+) -> dict[int, int]:
     """Which line each partner turn with variants says (index into ``Turn.lines()``, keyed by the turn's place in the
     level). The lesson's two plays split the work (#134, review): the early, translated play takes a variant at random,
     heard with its meaning; the late one (``canonical``) says every line as written, the familiar cue when only the
     partner's line is given, and the wording the review cards ask. A replay passes ``heard`` (turn, line) pairs already
     heard with their meaning: its early play takes only those, so no wording comes untranslated (#196).
     A heard-only play (spare time, #218 b1) takes any variant, untranslated, with neither ``canonical`` nor ``heard``: natural-speed
-    exposure to wordings in a familiar scene, on purpose (H8; the owner's decision on the review of #233), unlike a replay's early play."""
+    exposure to wordings in a familiar scene, on purpose (H8; the owner's decision on the review of #233), unlike a replay's early play.
+
+    ``tired`` (#451 step 3d) says how tired a line's number words are (said in this lesson, or in the lessons just before). A turn whose lines
+    say different numbers takes the least tired of the lines the play may say, at random among equals, and a heard-only play
+    (``as_written_too``) may say such a turn as written: lesson 53 said «herbergi tvö hundruð og tólf» in each of the hotel desk's three exchanges. A turn whose lines say
+    the same numbers, or none, is picked as before."""
     if canonical:
         return {}
-    if heard is not None:
-        picks = {}
-        for k, t in enumerate(level.turns):
-            if t.who == "partner" and t.variants:
-                known = sorted(i for (turn, i) in heard if turn == k)
-                if known:
-                    picks[k] = rng.choice(known)
-        return picks
-    return {k: rng.randrange(1, len(t.lines())) for k, t in enumerate(level.turns) if t.who == "partner" and t.variants}
+
+    def rested(turn: Turn, among: list[int]) -> int | None:
+        """The least tired of the lines ``among``, when the turn's lines differ by their numbers."""
+        lines = turn.lines()
+        if tired is None or len({tuple(number_words(ln.say)) for ln in lines}) < 2:
+            return None
+        least = min(tired(lines[i].say) for i in among)
+        return rng.choice([i for i in among if tired(lines[i].say) == least])
+
+    picks = {}
+    for k, t in enumerate(level.turns):
+        if t.who != "partner" or not t.variants:
+            continue
+        if heard is not None:
+            known = sorted(i for (turn, i) in heard if turn == k)
+            if known:
+                pick = rested(t, known)
+                picks[k] = rng.choice(known) if pick is None else pick
+            continue
+        pick = rested(t, list(range(0 if as_written_too else 1, len(t.lines()))))
+        picks[k] = rng.randrange(1, len(t.lines())) if pick is None else pick
+    return picks
 
 
 def variant_label(level: Level, picks: dict[int, int]) -> str:
