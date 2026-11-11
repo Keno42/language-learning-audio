@@ -383,10 +383,8 @@ What the lesson played, by change, and what the learner wrote:
 
 ### 5.43 Lesson 53: the first lesson built with #515 and #516
 
-Lesson 53 was generated with LLA `ffeb41c` (main with #515 and #516), the bot at site_update_notifier `5e82b83`. The round replayed its
-export without the trip profile, which was not at hand: the rebuilt lesson's new items differ from the lesson heard (116 exercises, 29.3
-minutes, against 110 and 29.4), so the figures below are read from the exported plan and transcript, and the replay is used only to compare
-before and after a change.
+Lesson 53 was generated with LLA `ffeb41c` (main with #515 and #516), the bot at site_update_notifier `5e82b83`. Rebuilt from its export with the
+trip profile it is identical (110 exercises, 29.4 minutes).
 
 | | lesson 53 |
 |---|---|
@@ -395,7 +393,8 @@ before and after a change.
 | theme (level) | hotel (1), new (#511); its lines taught in lesson 52 |
 | target reached | 22.9 min |
 | items reviewed / due | 29 / 52: 20 due items not fitted (`reviews_starved`) |
-| conversations | 9, seven in the first thirteen minutes, about 8 minutes: three fixed dialogues whole (4.1 min), six exchanges of two levels |
+| conversations | 9, seven in the first thirteen minutes, 8.4 minutes: three fixed dialogues whole, five exchanges of two levels, one level heard again |
+| pick-outs whose line was heard in the three lessons before | 2 of 4 |
 | written review's queue | 123 due |
 | feedback form: load; friction | **right** (the first after eight «light»); other |
 | «sooner» | «Hvenær er útritun?», «Aðeins eitt, takk.», «trefil», «buxur», all hard to hear; a question on how «Aðeins eitt» is linked |
@@ -426,9 +425,14 @@ What the lesson played, by change, and what the learner wrote:
   of the next four lessons: #515 rotates the pick-outs' numbers and leaves the exchanges' as written.
 
 **Built in this round:** a fixed dialogue retires after two complete plays, and a hard item's scene line is cut once a level, never from
-the lesson's own, opening on a question or the learner's own cue and closed as a part when its level goes on (#519; on the replay nine
-conversations become six, 8.0 minutes 5.2, and all 52 due items are asked); the long run's step, #451 step 3d, the number an exchange says
-rotates, with other rooms, hours, codes and fares for the hotel desk and the bus (#520).
+the lesson's own, opening on a question or the learner's own cue and closed as a part when its level goes on (#519); the long run's step,
+#451 step 3d, the number an exchange says rotates, with other rooms, hours, codes and fares for the hotel desk and the bus (#520).
+
+On the replay of the export with #519, lesson 53 has five conversations in 4.8 minutes where it had nine in 8.4, and reviews 45 of its 52
+due items where it reviewed 29; the target stays at 8 in the two lessons after (7 without it, the reviews not fitting). **The freed minutes
+of the lessons after go to listening:** 7 and 14 pick-outs after the target in lessons 54 and 55 (2 and 3 without #519), 8 of 8 and 13 of
+14 of them on a line heard in the three lessons before. That is #339's sameness, larger. With #520 the room is 115 and 212 in lesson 53,
+then 306, 115, 212, 306 (212 in every exchange without it).
 
 
 ## 6. Signals: what each can and cannot tell us

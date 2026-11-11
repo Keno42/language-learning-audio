@@ -33,8 +33,8 @@ In order:
 4. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
 **This round:** #451 step 3d (#520), above: the early play of a level, a level heard again and an exchange cut for a hard item take the
-line whose number words have rested longest; the late play stays as written. On the replay of lesson 53's export the room is 115 and 212
-in lesson 53, then 306, 115, 306, 306, where it was 212 seven times in the five lessons.
+line an exchange said longest ago, then the one whose number words have rested longest; the late play stays as written. On the replay of
+lesson 53's export the room is 115 and 212 in lesson 53, then 306, 115, 212, 306, where it was 212 in every exchange.
 
 ## Now (updated 2026-11-11, after lesson 53), in order
 
@@ -46,16 +46,18 @@ items were reported hard to hear.
 1. **A conversation once (#416, #483).** Built this round (#519): a fixed dialogue retires after two complete plays, whatever the state of
    its items (the owner: retire the whole replay and keep single lines); a hard item's scene line is cut once a level, never from the
    level the lesson plays, opens on a question or the learner's own cue, and is closed as a part when its level goes on. On the replay,
-   nine conversations become six and all 52 due items are asked. **Next:** read lesson 54: the conversations, and where the freed minutes
-   go. In the continuation they go to more pick-outs and levels heard again, which is item 3's ground.
-2. **Practice by what is hard in an item, not its kind (#439, G11, H11).** Built: plain numbers (#492, #502), the forms of 1–4 as a choice
+   lesson 53's nine conversations become five (8.4 minutes, 4.8) and it reviews 45 of its 52 due items, not 29. **Next:** read lesson 54:
+   the conversations, and where the freed minutes go (item 2).
+2. **The listening pool's sameness (#339).** Two of lesson 53's four pick-outs had been heard in the three lessons before (lesson 52: 11
+   of 16). It moves up because #519 feeds it: on the replay the minutes the conversations free go to pick-outs, 7 and 14 after the target
+   in lessons 54 and 55 (2 and 3 before), 8 of 8 and 13 of 14 on a line heard in the three lessons before. **Next:** a pick-out rotates
+   by line, a line heard recently is left for another, and a lesson's pick-outs have a ceiling.
+3. **Practice by what is hard in an item, not its kind (#439, G11, H11).** Built: plain numbers (#492, #502), the forms of 1–4 as a choice
    (#493, #495, #498), a long word split (#496), a gendered word of him and of her (#499). **Next:** case through #270's frames (step 3).
    Lesson 52's remark is confirmed by the review: «Á nafninu Yuki.» and «Ég er með bókun.», the two the learner named, were the two of
    lesson 52's new lines not recalled the next day. A new noun met in a form other than its nominative gets a word on its form. #518
    (the dose by difficulty) waits for the owner's three decisions; with the load «right», its case is less drilling of what is easy, not
    room for more.
-3. **The listening pool's sameness (#339).** Two of lesson 53's pick-outs had been heard in the three lessons before (lesson 52: 11
-   of 16). **Next:** a pick-out rotates by line, and a line heard recently is left for another.
 4. **Hard to hear (#447).** «Hvenær er útritun?», «Aðeins eitt, takk.», «trefil» and «buxur», all new in lesson 53. The listening support
    should play in lesson 54 (#447; not checked in the bot's state). **Next:** read lesson 54 before building; the one gap seen is that the slow model, word by word, takes
    out the linking of «Aðeins eitt» the learner asked about.
