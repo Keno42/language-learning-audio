@@ -39,6 +39,19 @@ class SceneNumberTests(unittest.TestCase):
             for ln in turn.lines():
                 self.assertTrue(ln.probes and ln.meaning and ln.meaning_ja, ln.say)
 
+    def test_every_answer_of_a_scene_line_is_made_of_words_the_course_teaches(self):
+        """Review of #520: the second code said «núll», a word of no item, so `partner_pick_out` could never ask it. An answer the learner is to say
+        back holds only words some item teaches, in every line of every scene (as written, a variant, a listening line)."""
+        from audiolesson.text import WORD
+
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        taught = {w.lower() for i in cur.items for text in (i.target, i.target_m or "") for w in WORD.findall(text)}
+        untaught = [
+            (t.id, n + 1, p["answer"]) for t in self.themes for n, level in enumerate(t.levels) for turn in level.turns if turn.who == "partner"
+            for ln in [*turn.lines(), *turn.listen_lines()] for p in ln.probes if any(w.lower() not in taught for w in WORD.findall(p["answer"]))
+        ]
+        self.assertEqual(untaught, [])
+
     def test_an_exchange_says_the_number_whose_words_have_rested(self):
         level = self.level("hotel", 0)
         for seed in range(8):
