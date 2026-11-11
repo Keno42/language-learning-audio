@@ -45,6 +45,16 @@ class SceneNumberTests(unittest.TestCase):
             self.assertIn("hundrað og fimmtán", self.room(pick_variants(level, random.Random(seed), tired=tired_of("þrjú", "sex"))), seed)
             self.assertIn("þrjú hundruð og sex", self.room(pick_variants(level, random.Random(seed), tired=tired_of("hundrað", "fimmtán"))), seed)
 
+    def test_a_turns_own_last_value_rests_before_its_words_are_weighed(self):
+        """On the replay of lesson 53's export with words alone, «herbergi hundrað og fimmtán» came four lessons running: «þrjú», «hundruð» and
+        «sex» are said all through a lesson, «fimmtán» hardly. The line an exchange said longest ago comes first, then the words."""
+        level = self.level("hotel", 0)
+        last = {"fimmtán": 54, "sex": 53, "tólf": 55}  # the lesson an exchange last said each room
+        words = tired_of("þrjú", "hundruð", "sex")
+        tired = lambda say: (next((at for w, at in last.items() if w in say), 0), words(say))
+        for seed in range(8):
+            self.assertIn("þrjú hundruð og sex", self.room(pick_variants(level, random.Random(seed), tired=tired, as_written_too=True)), seed)
+
     def test_the_early_play_never_says_the_line_as_written_and_a_play_heard_again_may(self):
         """The lesson's late play says the lines as written (#134), so its early play takes another value however tired; a level heard again as
         spare time has no late play, and says the line as written when its numbers have rested longest."""

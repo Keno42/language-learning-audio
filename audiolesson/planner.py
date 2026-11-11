@@ -3246,14 +3246,28 @@ class Planner:
             heard_now = Counter(w for g in sc.segments if g.type in ("speak", "answer") and g.text and g.lang == self.cur.target_lang for w in number_words(g.text))
             return lambda say: sum(heard_now[w] + (w in recent) for w in number_words(say))
 
+        exchange_lines: list[str] = []  # #451 step 3d: the number lines the exchanges' partners said in this lesson (the log for the lessons after)
+
+        def line_tired() -> Callable[[str], tuple]:
+            """#451 step 3d: how tired a line of an exchange is, least first: the lesson an exchange last said it (this one counts as the latest, never
+            as 0), then its number words. Its words alone would say the line with the rarest words every time: on the replay of lesson 53's export
+            «herbergi hundrað og fimmtán» came in four lessons running, since «þrjú», «hundruð» and «sex» are said all through a lesson."""
+            words = number_tired()
+            now = self.learner.next_lesson_number()
+            return lambda say: (now if say in exchange_lines else self.learner.listening_log.get(f"exchange:{say}", 0), words(say))
+
         def log_numbers(level, picks: dict[int, int]) -> None:
-            """#451 step 3d: the number words an exchange's partner said, so they rest in the lessons after as a pick-out's do."""
+            """#451 step 3d: the number words an exchange's partner said, so they rest in the lessons after as a pick-out's do, and the lines
+            themselves, for the turn's other values to come first."""
             for k, t in enumerate(level.turns):
                 if t.who == "partner" and not t.repeat:
-                    numbers_heard.extend(number_words(t.lines()[picks.get(k, 0)].say))
+                    say = t.lines()[picks.get(k, 0)].say
+                    numbers_heard.extend(number_words(say))
+                    if len({tuple(number_words(ln.say)) for ln in t.lines()}) > 1:
+                        exchange_lines.append(say)
 
         def cut_out_picks(level) -> dict[int, int]:
-            picks = pick_variants(level, self.rng, tired=number_tired(), as_written_too=True) if any(
+            picks = pick_variants(level, self.rng, tired=line_tired(), as_written_too=True) if any(
                 len({tuple(number_words(ln.say)) for ln in t.lines()}) > 1 for t in level.turns if t.who == "partner"
             ) else {}  # a level with no number to vary is said as written, as before
             log_numbers(level, picks)
@@ -3267,7 +3281,7 @@ class Planner:
             key = f"{theme.id}:{n + 1}"
             heard = {tuple(map(int, h.split(":"))) for h in self.learner.themes_heard.get(key, [])} if theme_replay else None
             # #451 step 3d: a turn whose lines say different numbers takes the one whose number words have rested longest
-            picks = pick_variants(theme.levels[n], self.rng, canonical=theme_plays > 0, heard=heard, tired=number_tired())
+            picks = pick_variants(theme.levels[n], self.rng, canonical=theme_plays > 0, heard=heard, tired=line_tired())
             log_numbers(theme.levels[n], picks)
             if theme_plays == 0 and not theme_replay:
                 theme_heard.extend(f"{k}:{i}" for k, i in picks.items())
@@ -3320,7 +3334,7 @@ class Planner:
 
         def play_heard_theme(theme, n: int) -> None:
             nonlocal since_dialogue
-            picks = pick_variants(theme.levels[n], self.rng, tired=number_tired(), as_written_too=True)  # #451 step 3d
+            picks = pick_variants(theme.levels[n], self.rng, tired=line_tired(), as_written_too=True)  # #451 step 3d
             log_numbers(theme.levels[n], picks)
             dlg = level_dialogue(theme, n, self.cur.known_lang, picks)
             you = [t for t in theme.levels[n].turns if t.who == "you"]
@@ -4261,6 +4275,7 @@ class Planner:
             "caught_words": list(dict.fromkeys(caught_now)),  # #339: the words asked about in this lesson (second half and introductions); the learner state keeps them
             "pick_outs_heard": list(dict.fromkeys(pick_outs_heard)),  # #339: the pick-outs heard (a listening log)
             "pick_out_answers_heard": list(dict.fromkeys(pick_out_answers_heard)),  # #339: the same, as the answer's value and its line
+            "exchange_lines": list(dict.fromkeys(exchange_lines)),  # #451 step 3d: the number lines the exchanges' partners said
             "numbers_heard": list(dict.fromkeys(numbers_heard)),  # #451 step 3: the number words of the pick-out lines heard, and of the exchanges' partner lines (step 3d)
             "catch_introductions": list(catch_introduced),  # #339: new words introduced through the catch
             "catch_candidates": dict(catch_seen),  # #339: the new vocab items the catch was considered for, by outcome
@@ -4387,7 +4402,7 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
         learner.caught_words = sorted(set(learner.caught_words) | set(sc.meta.get("caught_seed", [])))
         learner.caught_seeded = True
     learner.caught_words = sorted(set(learner.caught_words) | set(sc.meta.get("caught_words", [])))  # #339: a word asked about is not a catch word again
-    for key in [*sc.meta.get("pick_outs_heard", []), *sc.meta.get("pick_out_answers_heard", []), *(f"number:{w}" for w in sc.meta.get("numbers_heard", []))]:
+    for key in [*sc.meta.get("pick_outs_heard", []), *sc.meta.get("pick_out_answers_heard", []), *(f"number:{w}" for w in sc.meta.get("numbers_heard", [])), *(f"exchange:{ln}" for ln in sc.meta.get("exchange_lines", []))]:
         learner.listening_log[key] = sc.lesson_number  # #339: the pick-outs rotate across lessons; a log of what was heard, not practice
     for n in sc.meta.get("notes", []):
         learner.notes_heard[n] = learner.notes_heard.get(n, 0) + 1

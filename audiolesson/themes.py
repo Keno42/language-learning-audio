@@ -348,7 +348,7 @@ def unranked_themes(themes: list[Theme], scenarios: list[Scenario], tiers: tuple
 
 
 def pick_variants(
-    level: Level, rng: random.Random, canonical: bool = False, heard: set[tuple[int, int]] | None = None, tired: Callable[[str], int] | None = None,
+    level: Level, rng: random.Random, canonical: bool = False, heard: set[tuple[int, int]] | None = None, tired: Callable[[str], tuple | int] | None = None,
     as_written_too: bool = False,
 ) -> dict[int, int]:
     """Which line each partner turn with variants says (index into ``Turn.lines()``, keyed by the turn's place in the
@@ -359,7 +359,8 @@ def pick_variants(
     A heard-only play (spare time, #218 b1) takes any variant, untranslated, with neither ``canonical`` nor ``heard``: natural-speed
     exposure to wordings in a familiar scene, on purpose (H8; the owner's decision on the review of #233), unlike a replay's early play.
 
-    ``tired`` (#451 step 3d) says how tired a line's number words are (said in this lesson, or in the lessons just before). A turn whose lines
+    ``tired`` (#451 step 3d) says how tired a line is, least first: when an exchange last said it, then how tired its number words are (said in
+    this lesson, or in the lessons just before). A turn whose lines
     say different numbers takes the least tired of the lines the play may say, at random among equals, and a heard-only play
     (``as_written_too``) may say such a turn as written: lesson 53 said «herbergi tvö hundruð og tólf» in each of the hotel desk's three exchanges. A turn whose lines say
     the same numbers, or none, is picked as before."""
