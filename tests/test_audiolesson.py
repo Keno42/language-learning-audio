@@ -4198,7 +4198,8 @@ class CourseTests(unittest.TestCase):
         self.assertEqual(eligible(both, {4: ["short", "long"]}, 4), {"long"}, "the full one rests, the growing one continues")
         self.assertEqual(eligible(both, {1: ["short", "long"]}, 3), {"long"})
         self.assertEqual(eligible(both, {1: ["short", "long"]}, 4), {"short", "long"}, "rested three lessons")
-        self.assertEqual(eligible({"short": 3}, {}, 4), {"short", "long"}, "no record of when: never held back")
+        self.assertEqual(eligible({"short": 1}, {}, 4), {"short", "long"}, "no record of when: never held back")
+        self.assertEqual(eligible({"short": 2}, {}, 4), {"long"}, "heard in full twice: retired (lesson 53)")
 
     def test_topics_are_preferred(self):
         sc = build(fresh(), topics=["directions"])
@@ -10808,7 +10809,7 @@ class LeverTests(unittest.TestCase):
     def test_late_unhinted_recall_closes_every_new_item_without_a_hint(self):
         late, sc = self._candidates(late_unhinted_recall=True)
         self.assertEqual(late["no_late_recall"] + late["early_last_appearance"], 0)
-        self.assertEqual(sc.meta["config"]["levers"], {"late_unhinted_recall": True, "dialogue_full_play_limit": 4})
+        self.assertEqual(sc.meta["config"]["levers"], {"late_unhinted_recall": True, "dialogue_full_play_limit": 2})
 
     def test_levers_pass_through_the_cli(self):
         import contextlib
@@ -10820,7 +10821,7 @@ class LeverTests(unittest.TestCase):
                 main(["generate", "-c", str(ROOT / "curricula" / "is-en"), "-l", str(Path(td) / "l.json"), "-o", td,
                       "-m", "10", "--no-audio", "--date", "2026-09-18", "--late-unhinted-recall"])
             levers = json.loads((Path(td) / "lesson-001.plan.json").read_text("utf-8"))["config"]["levers"]
-        self.assertEqual(levers, {"late_unhinted_recall": True, "dialogue_full_play_limit": 4})
+        self.assertEqual(levers, {"late_unhinted_recall": True, "dialogue_full_play_limit": 2})
 
 
 class SpokenMeaningTests(unittest.TestCase):

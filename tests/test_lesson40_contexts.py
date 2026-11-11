@@ -154,7 +154,50 @@ class Lesson40ContextTests(unittest.TestCase):
         self.assertEqual(dlg.id, "theme:smalltalk:3")
         self.assertEqual(dlg.turns[0].expect_text, "Ert þú íslensk?")
         self.assertTrue(dlg.turns[0].partner.startswith("Já, ég er frá Akureyri"))
-        self.assertEqual((lead, turn_items[1]), ({0: True}, ["eg_er_japonsk"]))
+        self.assertEqual((lead, turn_items[1]), ({0: False}, ["eg_er_japonsk"]), "it opens the exchange: heard with its cue, not voiced (lesson 53)")
+
+    def test_a_reaction_to_a_line_no_one_said_opens_no_exchange(self):
+        """Lesson 53: the exchange cut from the clothes shop's third level for «Áttu þetta í öðrum lit?» opened with «Æ, leiðinlegt.», an answer
+        to «Þetta er of lítið.», which was not in it. The partner's line before the lead-in opens the exchange only when it asks something or is the
+        level's first line; otherwise the lead-in opens it, heard with its cue (the model voice said it with no word before it)."""
+        l, today = self.known("attu_thetta_i_odrum_lit", "attu_thetta_i_staerra")
+        dlg, turn_items, _, _, lead = self.planner(l, today).scene_line_of(self.cur.by_id["attu_thetta_i_odrum_lit"], set())
+        self.assertEqual(dlg.id, "theme:clothes:3")
+        self.assertEqual([t.expect_text for t in dlg.turns], ["Áttu þetta í stærra?", "Áttu þetta í öðrum lit?"])
+        self.assertIsNone(dlg.turns[0].opener)
+        self.assertEqual(lead, {0: False})
+        self.assertFalse(dlg.part, "it ends where its level ends")
+        sc = Script(title="t", lesson_number=1, known_lang="en", target_lang="is")
+        p = self.planner(l, today)
+        p.builder.close_conversations = True
+        p.builder.dialogue(sc, dlg, translate=True, turn_items=turn_items, heard_turns=frozenset({0}), lead_turns=frozenset())
+        texts = [s.text for s in sc.segments if s.type != "pause"]
+        en = Prompts.load("en")
+        self.assertEqual(texts[0], en.get("dialogue_start"))
+        self.assertLess(texts.index(en.get("listening_line")), texts.index("Áttu þetta í stærra?"))
+        self.assertEqual(texts[-1], en.get("conversation_back"))
+
+    def test_an_exchange_that_stops_before_its_level_ends_is_announced_and_closed_as_a_part(self):
+        """Lesson 53: «That's the end of the conversation.» after the room number, with the key still to ask for."""
+        l, today = self.known("attu_thetta_i_staerra", "thetta_er_of_litid")
+        for lang in ("en", "ja"):
+            p = Planner(self.cur, l, Prompts.load(lang), Timing(level="A1"), PlanConfig(minutes=30, new_target=8, themes=self.themes, theme_scenarios=self.order), today=today)
+            dlg, turn_items, _, _, lead = p.scene_line_of(self.cur.by_id["attu_thetta_i_staerra"], set())
+            self.assertTrue(dlg.part)
+            sc = Script(title="t", lesson_number=1, known_lang=lang, target_lang="is")
+            p.builder.close_conversations = True
+            p.builder.dialogue(sc, dlg, translate=True, turn_items=turn_items, heard_turns=frozenset(lead), lead_turns=frozenset(k for k, v in lead.items() if v))
+            texts = [s.text for s in sc.segments if s.type != "pause"]
+            self.assertEqual((texts[0], texts[-1]), (Prompts.load(lang).get("dialogue_start_part"), Prompts.load(lang).get("conversation_part_back")), lang)
+            self.assertEqual([s.role for s in sc.segments if s.type != "pause"][-1], "conversation_back", "the same way back, kept or dropped by what follows")
+
+    def test_no_line_is_cut_from_a_level_the_lesson_has_played(self):
+        """Lesson 53: the hotel desk was heard three times (its two plays and an exchange cut from it for «Á nafninu Yuki.») and the clothes shop's
+        third level twice (one exchange for each of two hard items). The level the lesson plays, and a level a line was cut from, give no other."""
+        l, today = self.known("attu_thetta_i_odrum_lit", "attu_thetta_i_staerra")
+        p = self.planner(l, today)
+        self.assertIsNotNone(p.scene_line_of(self.cur.by_id["attu_thetta_i_odrum_lit"], set()))
+        self.assertIsNone(p.scene_line_of(self.cur.by_id["attu_thetta_i_odrum_lit"], set(), {"clothes:3"}))
 
 
 if __name__ == "__main__":

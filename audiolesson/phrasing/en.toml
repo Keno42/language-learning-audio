@@ -86,6 +86,7 @@ dialogue_partner_said = "{meaning}"
 aside = "A quick aside."
 aside_end = "Back to the lesson."
 listening_back = "Back to speaking."  # after a pick-out or a catch, when a drill follows: the listening is over (lesson 34: the switch felt abrupt)
+conversation_part_back = "That's enough of that conversation."  # after a part of one (lesson 53: the scene does not end there)
 conversation_back = "That's the end of the conversation."  # after a conversation, when a drill follows (#415: lessons 37 and 39)
 milestone_intro = "Here's a pattern worth noticing."
 milestone_end = "Let's continue."
@@ -143,6 +144,7 @@ listening_intro_again = "The conversation again."
 dialogue_voiced_note = "Answer when you're told what to say. Short replies like yes, no and thanks are played for you."
 listening_line = "Here you would say:"
 dialogue_start = "Now a short conversation."
+dialogue_start_part = "Now part of a conversation."  # a short exchange cut from a scene that goes on after it (lesson 53)
 dialogue_start_another = "Now another short conversation."  # right after another conversation (owner, lesson 45)
 dialogue_replay = "Now the whole conversation, without pauses."
 # an authored exchange: one scene, with a partner line between the two answers

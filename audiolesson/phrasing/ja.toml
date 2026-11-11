@@ -83,6 +83,7 @@ dialogue_partner_said = "「{meaning}」"
 aside = "ちょっとした話です。"
 aside_end = "では、レッスンに戻りましょう。"
 listening_back = "では、話す練習に戻りましょう。"
+conversation_part_back = "この会話はここまでにします。"  # 会話の一部の後 (lesson 53)
 conversation_back = "会話はここまでです。"
 milestone_intro = "気づいてほしいパターンがあります。"
 milestone_end = "では、続けましょう。"
@@ -139,6 +140,7 @@ listening_intro_again = "もう一度、同じ会話です。"
 dialogue_voiced_note = "言うことの指示が出たら、答えてください。「はい」「いいえ」「ありがとう」などの短い返事は、音声で流れます。"
 listening_line = "ここでは、こう言います。"
 dialogue_start = "ここからは短い会話です。"
+dialogue_start_part = "ここからは会話の一部です。"  # 続きのある場面から切り出した短いやり取り (lesson 53)
 dialogue_start_another = "続けて、もう一つ短い会話です。"  # 会話の直後の会話 (owner, lesson 45)
 dialogue_replay = "では、会話全体を通して聞きましょう。"
 # 作成済みのやりとり：一つの場面で、二つの答えの間に相手のせりふが入る

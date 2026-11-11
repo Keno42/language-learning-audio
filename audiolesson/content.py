@@ -352,6 +352,7 @@ class Dialogue:
     partner_speaker: str = "native_b"
     variant: str = ""  # a theme exchange: which variant of each varying partner line is spoken (#134), for the label
     requires: list[str] = field(default_factory=list)  # extra items the expect_text turns rely on
+    part: bool = False  # a short exchange cut from a theme level that goes on after it (a hard item's scene line): announced and closed as a part
 
     @property
     def required_items(self) -> list[str]:

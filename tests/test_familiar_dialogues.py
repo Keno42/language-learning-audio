@@ -1,4 +1,4 @@
-"""#416: a familiar fixed conversation must not keep returning just because its rest is over."""
+"""#416, lesson 53: a fixed conversation played whole twice does not return; its lines are practised one at a time."""
 import unittest
 from dataclasses import replace
 from datetime import date, timedelta
@@ -35,8 +35,10 @@ class FamiliarDialogueTests(unittest.TestCase):
         learner.lessons = [{"number": 10, "dialogues": ["familiar"]}]
         return Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, **cfg), today=TODAY)
 
-    def test_four_complete_plays_stop_a_learned_script_and_leave_other_scenes_available(self):
-        p = self.planner()
+    def test_two_complete_plays_retire_a_script_and_leave_other_scenes_available(self):
+        """Lesson 53 (the owner: retire the whole replay and keep single lines): «tynd», «kynning» and «veitingastadur» were played whole for the
+        fifth, sixth and seventh time in the lesson's first thirteen minutes."""
+        p = self.planner(plays=4)  # four turns: encounters 1 and 2 are partial, 3 and 4 complete
         self.assertIsNone(p.eligible_dialogue())
         self.assertIsNone(p.eligible_dialogue(prefer_item=p.cur.by_id["hello"]))
         self.assertIsNone(p.listening_dialogue())
@@ -44,44 +46,35 @@ class FamiliarDialogueTests(unittest.TestCase):
         self.assertEqual(p.eligible_dialogue().id, "another_scene")
 
     def test_partial_encounters_do_not_count_as_complete_plays(self):
-        # Four turns: encounters 1 and 2 give only 2 and 3 turns; encounters 3–6 give the full script.
-        for plays in (0, 1, 2, 3, 4, 5):
+        # Four turns: encounters 1 and 2 give only 2 and 3 turns; encounters 3 and 4 give the full script.
+        for plays in (0, 1, 2, 3):
             with self.subTest(plays=plays):
                 self.assertIsNotNone(self.planner(plays=plays).eligible_dialogue())
-        self.assertIsNone(self.planner(plays=6).eligible_dialogue())
+        self.assertIsNone(self.planner(plays=4).eligible_dialogue())
         # A longer dialogue is still growing after four encounters.
         self.assertIsNotNone(self.planner(turns=8, plays=4).eligible_dialogue())
 
     def test_short_scripts_count_from_the_first_complete_encounter(self):
-        self.assertIsNotNone(self.planner(turns=2, plays=3).eligible_dialogue())
-        self.assertIsNone(self.planner(turns=2, plays=4).eligible_dialogue())
-        self.assertIsNotNone(self.planner(turns=4, plays=4, dialogue_first_turns=1).eligible_dialogue())
+        self.assertIsNotNone(self.planner(turns=2, plays=1).eligible_dialogue())
+        self.assertIsNone(self.planner(turns=2, plays=2).eligible_dialogue())
+        self.assertIsNotNone(self.planner(turns=4, plays=2, dialogue_first_turns=1).eligible_dialogue())
 
-    def test_failed_hesitated_and_reported_hard_items_keep_their_scene(self):
+    def test_a_failed_hesitated_or_reported_hard_item_does_not_bring_the_whole_script_back(self):
+        """Until lesson 53 such an item kept its script returning for good; it is practised as a line of its own."""
         for change in ({"last_outcome": "not_recalled"}, {"last_outcome": "hesitated"}, {"reported_hard": TODAY.isoformat()}):
             with self.subTest(change=change):
                 p = self.planner()
                 p.learner.items["hello"] = replace(p.learner.items["hello"], **change)
-                self.assertEqual(p.eligible_dialogue().id, "familiar")
+                self.assertIsNone(p.eligible_dialogue())
+                self.assertIsNone(p.eligible_dialogue(prefer_item=p.cur.by_id["hello"]))
 
-    def test_new_or_embedded_material_keeps_its_scene(self):
-        for where in ("intro", "embedded"):
-            with self.subTest(where=where):
-                p = self.planner()
-                if where == "intro":
-                    p.builder.in_lesson.add("hello")
-                else:
-                    p.embedded.append("hello")
-                self.assertEqual(p.eligible_dialogue().id, "familiar")
-
-    def test_a_literal_turns_required_item_must_also_be_learned(self):
+    def test_an_item_not_yet_learned_does_not_bring_the_whole_script_back(self):
         p = self.planner()
         p.learner.items["thanks"].durable_successes = 1
-        self.assertFalse(p._dialogue_familiar(p.cur.dialogues[0]))
-        # A met, not-yet-learned item can still put the scene on the listening route.
-        self.assertEqual(p.listening_dialogue()[0].id, "familiar")
+        self.assertTrue(p._dialogue_familiar(p.cur.dialogues[0]))
+        self.assertIsNone(p.eligible_dialogue())
 
-    def test_a_due_item_does_not_force_the_whole_familiar_script_back(self):
+    def test_a_due_item_is_reviewed_as_a_line_of_its_own(self):
         p = self.planner()
         p.learner.items["hello"].due = TODAY.isoformat()
         self.assertIsNone(p.eligible_dialogue())
@@ -89,7 +82,6 @@ class FamiliarDialogueTests(unittest.TestCase):
 
     def test_zero_disables_the_limit_for_comparisons(self):
         self.assertIsNotNone(self.planner(dialogue_full_play_limit=0).eligible_dialogue())
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -109,7 +109,7 @@ class PlanConfig:
     # few dialogues eligible, the same full dialogue otherwise played in every lesson
     # (simulated lessons 7-12). One still growing a turn per encounter does not wait.
     dialogue_rest_lessons: int = 3
-    dialogue_full_play_limit: int = 4  # #416: stop repeating a learned fixed script after this many full plays; 0 disables
+    dialogue_full_play_limit: int = 2  # #416, lesson 53: a fixed script does not return after this many full plays, whatever its items; 0 disables
     max_dialogues: int | None = None  # per lesson (default: one per 10 minutes, at least 2)
     # Issue #149 step 3 (lesson 13: 23.6 of 30 minutes, the last 5 repeating today's items): with
     # nothing else left, a dialogue lacking one or two required items is played as listening
@@ -302,6 +302,7 @@ class Planner:
         self.cheap_placed: list[str] = []  # cheap constructions given a new-item place (#171 B)
         self.day_topic: str | None = None  # #327: the topic the day's new material shares (see ``_group_by_scene``)
         self.scene_turns: list = []  # the learner's turns of the level the lesson plays (``repeats_scene``)
+        self.scene_level = ""  # ``theme:level`` of the level the lesson plays: a hard item's scene line is not cut from it (lesson 53)
         self._day_topic_chosen = False
         self.stranded_placed: list[str] = []  # frames brought forward for a known noun with no known frame (#270)
         self.embedded: list[str] = []  # parts heard inside a sentence this lesson (#149)
@@ -604,19 +605,28 @@ class Planner:
             if (self.builder._available(c.id) or self.learner.has_met(c.id)) and not self.learner.is_open(c.id) and not c.variant_of and c.kind != "construction"
         ]
 
-    def scene_line_of(self, item: Item, used: set[str]) -> tuple[Dialogue, dict[int, list[str]], str, bool, dict[int, bool]] | None:
+    def scene_line_of(self, item: Item, used: set[str], levels_played: frozenset[str] | set[str] = frozenset()) -> tuple[Dialogue, dict[int, list[str]], str, bool, dict[int, bool]] | None:
         """A line of ``item``'s scene (#326): the learner's line of a theme level that needs ``item``, with the partner's line before it and the
         reply after it, as a short exchange with the scene put first and the partner's lines translated. The line is asked or heard as ``line_role``
         decides on the turn's other items (#265: the item itself is the one practised), and a turn already used for this item is not used again.
         A partner's line inside the conversation answers the learner's line before it («Nú já! Hvar vinnur þú?» after «Ég er í vinnuferð.»), so
         that line comes first, as the lead-in (#427, lesson 40: «Oh, I see!» answered nothing), after the partner's line it answers, if any (lesson 45:
         «Já, ég hef verið hér áður.» opened the exchange with no «Hefurðu komið hingað áður?» before it): the last value maps its turn to True when it is
-        voiced (known: said as the exchange goes) or False when it is heard with its meaning; never asked. None when no theme level holds it."""
+        voiced (known: said as the exchange goes) or False when it is heard with its meaning; never asked. None when no theme level holds it.
+
+        Lesson 53 («the same conversations repeat a lot, and where the speaking practice sits and where a conversation ends felt off»): no line is cut
+        from a level in ``levels_played`` (``theme:level``: the level the lesson plays, whose plays are the item's scene already, and a level a line
+        was cut from this lesson: the hotel desk was heard three times, the clothes shop twice). The partner's line before the lead-in opens the
+        exchange only when it asks something or is the level's first line: «Æ, leiðinlegt.» opened one, a reaction to a line no one had said; the
+        lead-in then opens it, heard with its cue and its meaning, not voiced. And
+        an exchange that stops before its level ends is a part (``Dialogue.part``): it is announced and closed as one."""
         rank = set(self.cfg.theme_scenarios)
         for theme in self.cfg.themes:
             if theme.scenario not in rank:
                 continue
             for n, level in enumerate(theme.levels):
+                if f"{theme.id}:{n + 1}" in levels_played:
+                    continue
                 for k, t in enumerate(level.turns):
                     key = f"{theme.id}:{n + 1}:{k}"
                     if t.who != "you" or item.id not in t.items or key in used:
@@ -627,17 +637,23 @@ class Planner:
                         start = k  # two learner lines in a row: the line itself opens
                     elif start >= 1 and level.turns[start].who == "partner" and level.turns[start - 1].who == "you":
                         start -= 1  # the learner's line the partner answers (#427)
-                        if start >= 1 and level.turns[start - 1].who == "partner":
-                            start -= 1  # and the partner's line that learner's line answers (lesson 45: «Já, ég hef verið hér áður.» opened with no question)
+                        if start >= 1 and level.turns[start - 1].who == "partner" and (start == 1 or "?" in level.turns[start - 1].say):
+                            # and the partner's line that learner's line answers (lesson 45: «Já, ég hef verið hér áður.» opened with no question):
+                            # a question, or the level's opening; a reaction to what came before it opens nothing (lesson 53)
+                            start -= 1
                     turns = level.turns[start : k + 2]
                     sub = dataclasses.replace(level, turns=list(turns))  # the level's own fields kept, its scene line included (review of #458)
                     dlg = level_dialogue(dataclasses.replace(theme, levels=[sub]), 0, self.cur.known_lang)
                     dlg.id = f"theme:{theme.id}:{n + 1}"  # the level the line is from, not the cut-out's own number: the label, and the scene the daily read counts
+                    dlg.part = k + 2 < len(level.turns)  # the level goes on after the cut-out
                     mine = [x for x in turns if x.who == "you"]  # the learner's lines, in the cut-out's turn order
                     if len(mine) == 1:
                         return dlg, {0: list(t.items)}, key, asked, {}
                     lead = mine[0]
-                    return dlg, {0: list(lead.items), 1: list(t.items)}, key, asked, {0: self.line_role(list(lead.items), text=lead.say) == "ask"}
+                    # voiced only after a partner's line: a lead-in that opens the exchange is heard with its cue and its meaning, which say where
+                    # the exchange is (lesson 53: «Góðan daginn. Ég er með bókun.» opened one in the model voice, with no word before it)
+                    voiced = turns[0].who == "partner" and self.line_role(list(lead.items), text=lead.say) == "ask"
+                    return dlg, {0: list(lead.items), 1: list(t.items)}, key, asked, {0: voiced}
         return None
 
     def _hard_report(self, sc: Script, log: dict[str, list[tuple[str, str]]], at: dict[str, list[int]]) -> dict[str, dict]:
@@ -2047,19 +2063,16 @@ class Planner:
         ]
 
     def _dialogue_familiar(self, d: Dialogue) -> bool:
-        """#416: a fixed dialogue already played in full often enough adds nothing when its required items are learned.
+        """#416, lesson 53 (the owner: retire the whole replay and keep single lines): a fixed dialogue played in full
+        ``dialogue_full_play_limit`` times does not return, whatever the state of its items.
 
-        Earlier encounters grow one turn at a time, so those partial plays do not count toward the limit. New material
-        and items still needing repair keep their scene, even when their old durable-success count says learned.
-        Individual due items can still be reviewed outside the fixed script.
+        Earlier encounters grow one turn at a time, so those partial plays do not count toward the limit. An item of it that is due, failed or
+        reported hard is practised as a line of its own (the review, the open items, a hard item's connections), not by playing the script again:
+        lesson 53 played three such scripts whole, for the fifth, sixth and seventh time, in its first thirteen minutes.
         """
         limit = self.cfg.dialogue_full_play_limit
         partial_plays = max(0, len(d.turns) - self.cfg.dialogue_first_turns)
-        full_plays = self.learner.dialogues_done.get(d.id, 0) - partial_plays
-        if limit <= 0 or full_plays < limit or not d.required_items:
-            return False
-        hard = set(self.hard_items())
-        return all(self.learner.knows(i) and i not in hard and not self.taught_today(i) for i in d.required_items)
+        return limit > 0 and self.learner.dialogues_done.get(d.id, 0) - partial_plays >= limit
 
     def _dialogue_resting(self, d: Dialogue) -> bool:
         """Heard in full at its last encounter, and that was fewer than
@@ -2114,6 +2127,7 @@ class Planner:
 
         self.day_topic = None  # #327: the topic the day's new material shares, set when it is first chosen without a theme level to take it from
         self.scene_turns = []
+        self.scene_level = ""
         self._day_topic_chosen = False
         target = self.theme_target()
         wanted_at_start = self.theme_wants()
@@ -2516,7 +2530,9 @@ class Planner:
             used_patterns = frozenset(key for kind, key in log if kind in ("pattern", "sibling"))
             for kind in order[turn:] + order[:turn]:
                 if kind == "scene":
-                    if (line := self.scene_line_of(item, hard_scene_turns.setdefault(item.id, set()))) is not None and len(hard_scene_lines) < cfg.hard_scene_lines:
+                    if len(hard_scene_lines) < cfg.hard_scene_lines and (line := self.scene_line_of(
+                        item, hard_scene_turns.setdefault(item.id, set()), {self.scene_level} | {k.rsplit(":", 1)[0] for k in hard_scene_lines}
+                    )) is not None:
                         dlg, turn_items, key, asked, lead = line
                         target = len(lead)
                         heard = set(lead) | (set() if asked else {target})
@@ -3190,6 +3206,7 @@ class Planner:
         if theme_pick is not None:
             goal_ex = b.theme_goal(sc, theme_pick[0].levels[theme_pick[1]])  # #327: what the lesson builds to, said after the opening
             self.scene_turns = [t for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you"]
+            self.scene_level = f"{theme_pick[0].id}:{theme_pick[1] + 1}"
         scene_cons = self.scene_constructions(theme_pick)  # spare-time sentences are parallels of these (#238); None: no theme, no restriction
         scene_pref = frozenset(
             (scene_cons or set()) | ({r for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you" for r in t.items} if theme_pick else set())
