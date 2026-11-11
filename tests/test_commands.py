@@ -58,7 +58,7 @@ class CommandTests(unittest.TestCase):
 
     def test_a_command_names_an_instruction_the_lessons_say(self):
         import dataclasses
-        bad = dataclasses.replace(self.cur, items=[dataclasses.replace(i, command="slowly") if i.id == "endurtaktu" else i for i in self.cur.items])
+        bad = dataclasses.replace(self.cur, items=[dataclasses.replace(i, command="natural") if i.id == "endurtaktu" else i for i in self.cur.items])
         with self.assertRaises(CurriculumError):
             validate(bad)
 
@@ -84,6 +84,39 @@ class CommandTests(unittest.TestCase):
         # review of #507: charged at 0, so the caps that read the charged costs (``arc_size``, the new-item cap) do not count it as 1
         self.assertEqual(self.planner.component_by_item.get("endurtaktu"), 0.0)
         self.assertFalse(any(e.label.startswith("new instruction") for e in self.lesson(5).exercises), "not before the tenth lesson")
+
+    def test_slowly_and_listen_again_are_said_in_icelandic_once_taught(self):
+        """Lesson 54 («アイスランド語の指示文が増えなかった»): #429's second step. «Hægt.» where «Slowly.» was, joined to its line; «Hlustaðu aftur.» where a
+        pick-out said «Listen again.», a framing line, so a beat follows it with the English after it or without."""
+        learner = LearnerState("is", "en", "A1")
+        for i, recalled in (("haegt_command", 0), ("hlustadu_aftur", 2)):
+            learner.items[i] = ItemState(stage="meaning", successes=2, recalled=recalled, last_outcome="recalled", due=(TODAY + timedelta(days=3)).isoformat())
+        b = Builder(self.cur, Prompts.load("en"), Timing(level="A1"), learner)
+        sc = Script(1, "t", "is", "en")
+        ex = sc.new_exercise("intro", "intro", [], "t")
+        b._instruct(sc, ex, "slowly")
+        self.assertEqual([(g.type, g.text, g.role) for g in sc.segments], [("speak", "Hægt.", "command"), ("narrate", "Slowly.", "command_support")])
+        sc = Script(1, "t", "is", "en")
+        ex = sc.new_exercise("intro", "intro", [], "t")
+        b._instruct(sc, ex, "pick_out_again", frame=True)
+        self.assertEqual([(g.type, g.text) for g in sc.segments[:1]], [("speak", "Hlustaðu aftur.")])
+        self.assertEqual([g.type for g in sc.segments], ["speak", "pause"], "recalled twice: the English has faded, a beat before the line")
+        fresh = Builder(self.cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
+        sc = Script(1, "t", "is", "en")
+        ex = sc.new_exercise("intro", "intro", [], "t")
+        fresh._instruct(sc, ex, "pick_out_again", frame=True)
+        self.assertEqual([(g.type, g.text, g.role) for g in sc.segments if g.type != "pause"], [("narrate", "Listen again.", "frame")], "not taught: as before")
+        self.assertEqual(sc.segments[-1].type, "pause")
+
+    def test_the_commands_come_one_a_lesson_in_their_order(self):
+        order = [i.id for i in self.cur.items if i.command]
+        self.assertEqual(order, ["endurtaktu", "hlustadu", "haegt_command", "hlustadu_aftur"])
+        learner = LearnerState("is", "en", "A1")
+        for i in ("endurtaktu", "hlustadu"):
+            learner.items[i] = ItemState(stage="meaning", successes=2, recalled=1, last_outcome="recalled", due=(TODAY + timedelta(days=3)).isoformat())
+        learner.lessons_completed = 54
+        planner = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+        self.assertEqual(planner.next_command().id, "haegt_command")
 
 
 if __name__ == "__main__":

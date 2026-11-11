@@ -409,17 +409,23 @@ class Builder:
         st = self.learner.items.get(item.id)
         return not (st and st.recalled >= 2 and not self.learner.is_open(item.id))
 
-    def _instruct(self, sc: Script, ex: Exercise, key: str) -> None:
+    def _instruct(self, sc: Script, ex: Exercise, key: str, frame: bool = False) -> None:
         """An instruction (``key``, a phrasing key): in the target language once taught («Endurtaktu.»), with the learner's own after it while
         ``command_support`` holds («Endurtaktu.» «Repeat.»); alone, a beat keeps it apart from the line it introduces. Before it is taught,
-        the learner's own, as always."""
+        the learner's own, as always. ``frame``: the instruction is a framing line («Listen again.», ``_frame``), so a beat follows it in
+        either language."""
         item = self.command_item(key)
         if item is None:
-            self._narr(sc, ex, self.prompts.get(key))
+            if frame:
+                self._frame(sc, ex, self.prompts.get(key))
+            else:
+                self._narr(sc, ex, self.prompts.get(key))
             return
         self._speak(sc, ex, item.target, speaker=COMMAND_VOICE, role="command")
         if self.command_support(item):
             self._narr(sc, ex, self.prompts.get(key), role="command_support")
+            if frame:
+                self._beat(sc, ex)
         else:
             self._beat(sc, ex)
 
@@ -828,7 +834,7 @@ class Builder:
             self._speak(sc, ex, item.target)
             self._repeat_pause(sc, ex, item.target)
             if item.difficulty >= 2 and item.word_count >= 2 and not plain:
-                self._narr(sc, ex, self.prompts.get("slowly"))
+                self._instruct(sc, ex, "slowly")
                 self._slow_line(sc, ex, item.target)
                 self._repeat_pause_spaced(sc, ex, item.target)
                 self._narr(sc, ex, self.prompts.get("natural"))
@@ -966,7 +972,7 @@ class Builder:
                 self._repeat_pause(sc, ex, piece)  # one pause between pieces is enough
         else:
             if len(item.target.split()) > 1:
-                self._narr(sc, ex, self.prompts.get("slowly"))
+                self._instruct(sc, ex, "slowly")
             else:
                 self._instruct(sc, ex, "repeat")
             self._slow_line(sc, ex, item.target, speaker=voice or "native_a")
@@ -1059,7 +1065,7 @@ class Builder:
             self._answer_pause(sc, ex, sentence, item, generative=False)
             self._answer(sc, ex, sentence, speaker="native_a")
             self._beat(sc, ex)
-            self._narr(sc, ex, self.prompts.get("slowly"))
+            self._instruct(sc, ex, "slowly")
             self._slow_line(sc, ex, sentence)
             self._repeat_pause_spaced(sc, ex, sentence)
             self._narr(sc, ex, self.prompts.get("natural"))
@@ -1104,7 +1110,7 @@ class Builder:
                 self._repeat_pause_spaced(sc, ex, chunk)
                 self._beat(sc, ex)
         else:
-            self._narr(sc, ex, self.prompts.get("slowly"))
+            self._instruct(sc, ex, "slowly")
             self._slow_line(sc, ex, item.target, speaker=voice)
             self._repeat_pause_spaced(sc, ex, item.target)
         self._narr(sc, ex, self.prompts.get("natural"))
@@ -1126,7 +1132,7 @@ class Builder:
             self._speak(sc, ex, text, speaker="native_a")
             self._narr(sc, ex, self._m(meaning))
             self._beat(sc, ex)
-            self._narr(sc, ex, self.prompts.get("slowly"))
+            self._instruct(sc, ex, "slowly")
             self._slow_line(sc, ex, text)
             self._narr(sc, ex, self.prompts.get("natural"))
             self._speak(sc, ex, text, speaker="native_a")
@@ -1299,7 +1305,7 @@ class Builder:
         plain = item.id in self.plain  # #439 step 1a: a plain number is heard in its sentence and said, with no slow model
         build_up = item.word_count >= PART_BUILD_UP_WORDS and not plain
         if construction.difficulty >= 2 and len(target.split()) > 1 and not build_up and not plain:
-            self._narr(sc, ex, self.prompts.get("slowly"))
+            self._instruct(sc, ex, "slowly")
             self._slow_line(sc, ex, target, speaker=voice)
             self._repeat_pause_spaced(sc, ex, target)
             self._narr(sc, ex, self.prompts.get("natural"))
@@ -1403,7 +1409,7 @@ class Builder:
             self._speak(sc, ex, target)
             self._repeat_pause(sc, ex, target)
             if item.difficulty >= 2 and len(target.split()) > 1:
-                self._narr(sc, ex, self.prompts.get("slowly"))
+                self._instruct(sc, ex, "slowly")
                 self._slow_line(sc, ex, target)
                 self._repeat_pause_spaced(sc, ex, target)
                 self._narr(sc, ex, self.prompts.get("natural"))
