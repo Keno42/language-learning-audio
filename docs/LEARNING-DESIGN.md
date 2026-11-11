@@ -439,8 +439,8 @@ What the lesson played, by change, and what the learner wrote:
   items due vs ~76 review slots». But 16 of the 72 were not the lesson's to ask (15 asked by the written review that morning, one gone from
   the course), so it could ask 56 and fitted 54. The rule read a denominator a quarter too large (§5.42 saw the same on lessons 51 and 52).
 
-**Built in this round:** a new phrase made of words the learner says is asked as a use of them, once more after a gap, and in its scene
-(#523: on the replay the tickets sentence is said five times, not nine; it reaches two of the fourteen new phrases of lessons 54–58, and
+**Built in this round:** a new phrase made of words the learner says is asked as a use of them, once more after a gap, in its scene and in the
+closing (#523: on the replay the tickets sentence is said six times, not nine; it reaches two of the fourteen new phrases of lessons 54–58, and
 the short ones with one new word keep nine, which is the rest of #518); the long run's step, #429's second: «Hægt.» for «Slowly.» and
 «Hlustaðu aftur.» for a pick-out's «Listen again.», one a lesson (#524).
 

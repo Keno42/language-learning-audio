@@ -44,7 +44,7 @@ could ask, played four conversations without a remark (#519), and drew two remar
 thick, and the instructions in Icelandic did not increase (LD §5.44). The learner also asked what case «á mánudaginn» is.
 1. **Practice by what is hard in an item, not its kind (#439, #518, G11, H11).** The remark of lessons 41, 44, 49, 51 and 54, and the
    owner's on #516. Built this round (#523): a new phrase made of words the learner says is asked as a use of them, once more after a gap,
-   and in its scene (the tickets sentence five times, not nine). It reaches two of the fourteen new phrases of lessons 54–58; a short
+   in its scene and in the closing (the tickets sentence six times, not nine). It reaches two of the fourteen new phrases of lessons 54–58; a short
    one with one new word («Er þetta ull?») is still said nine times. **Next, two steps:** (a) #439 step 3, a new noun met in a form
    other than its nominative gets a word on its form: lesson 52's «nafninu» and «bókun» failed in the review, and lesson 54's question
    is on «mánudaginn»; (b) the rest of #518, a dose for every new item, which waits for the owner's three decisions.
