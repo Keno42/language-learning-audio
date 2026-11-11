@@ -2314,7 +2314,7 @@ class Builder:
                 key = "listening_intro_some_asked" if any(not t.expect or t.expect not in listening for t in turns) else "listening_intro"
             self._narr(sc, ex, self.prompts.get(key))
         if not heard_play:
-            self._narr(sc, ex, self.prompts.get("dialogue_start"))  # a scene heard again has the one intro, whichever it is (#272)
+            self._narr(sc, ex, self.prompts.get("dialogue_start_part" if dlg.part else "dialogue_start"))  # a scene heard again has the one intro, whichever it is (#272)
         if note_voiced and not (heard_play and key in ("listening_intro_known_voiced", "listening_intro_again")) and not self.voiced_guide_said:
             self._narr(sc, ex, self.prompts.get("dialogue_voiced_note"))  # #416 review: the learner answers when told what to say; the short replies are played
             self.voiced_guide_said = True  # #438: said once a lesson
@@ -2403,7 +2403,8 @@ class Builder:
             last = sc.segments[-1] if sc.segments else None
             if not (last is not None and last.type == "pause" and last.exercise == ex.index):
                 self._beat(sc, ex)
-            self._narr(sc, ex, self.prompts.get("conversation_back"), role="conversation_back")
+            # a part of a level says so (lesson 53: «That's the end of the conversation.» after the room number, with the key still to ask for)
+            self._narr(sc, ex, self.prompts.get("conversation_part_back" if dlg.part else "conversation_back"), role="conversation_back")
         last = sc.segments[-1] if sc.segments else None
         if last is not None and last.type == "pause" and last.role == "beat" and last.exercise == ex.index:
             sc.segments.pop()  # the exercise gap follows the last line: not a beat and a gap one after the other (#272 review)
