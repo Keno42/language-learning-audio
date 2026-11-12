@@ -148,13 +148,13 @@ pronunciation_notes = "same form for all genders"
 [[items]]
 id = "rugluð"
 kind = "vocab"
-target = "rugluð"
+target = "ringluð"  # native check (2026-11-12): «rugluð» is wrong here; confused is «ringluð», «ringlaður»
 meaning = "confused"
 meaning_ja = "混乱している"
 difficulty = 2
 tags = ["state_f"]
 topics = ["feelings"]
-target_m = "ruglaður"  # a man says this
+target_m = "ringlaður"  # a man says this
 
 [[items]]
 id = "ertu_state"

@@ -581,16 +581,16 @@ meaning_forms_ja = { in_sentence = "バス停" }
 [[items]]
 id = "hvernig_kemst_eg_ad"
 kind = "construction"
-target = "Hvernig kemst ég að {place}?"
-meaning = "How do I get to {place}?"
-meaning_ja = "{place}へはどう行けばいいですか？"
+# native check (2026-11-12): «Hvernig kemst ég að hótelinu?» is understood, but one asks «Hvernig kemst ég á hótelið / á flugvöllinn?»: the
+# destination with «á» or «í», as a taxi is told it (`dest`)
+target = "Hvernig kemst ég {dest}?"
+meaning = "How do I get {dest}?"
+meaning_ja = "{dest}どう行けばいいですか？"
 difficulty = 3
 topics = ["directions"]
-slots = { place = "dat_place" }
-example = { place = "hotelinu" }
-prereqs = ["hotelinu", "hvar_er"]
-form_reason = "This form comes after «að»."
-form_reason_ja = "«að» のあとでは、この形になります。"
+slots = { dest = "dest" }
+example = { dest = "a_flugvollinn" }
+prereqs = ["a_flugvollinn", "hvar_er"]
 
 [[items]]
 id = "eg_er_ad_leita_ad"

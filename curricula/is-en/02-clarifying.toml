@@ -574,7 +574,7 @@ example = { thing = "vegabref" }
 prereqs = ["poka"]
 
 # Issue #29: «Takk fyrir …» as a pattern, not only as three fixed phrases hundreds of items
-# apart (dvölina, matinn, kvöldið): accusative definite nouns after «fyrir», first «hjálpina»,
+# apart (matinn, kvöldið): accusative definite nouns after «fyrir», first «hjálpina»,
 # right after «Ég þarf hjálp.»/«Geturðu hjálpað mér?». The later fixed phrases stay for their
 # situations and dialogues.
 [[items]]
