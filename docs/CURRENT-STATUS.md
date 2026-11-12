@@ -24,10 +24,11 @@ In order:
    speaking.» and the catch's «Now listen again.», once these two have had their feedback.
 2. **Forms as choices (#528, owner 2026-11-12).** «New material should not be more numbers, colours and words to memorise; I want to feel a
    coach who makes me choose the right case and the right verb form.» The course itself is one-sided: of 256 sentences that open with a
-   subject pronoun, 207 say «ég»; «vilja», «þurfa» and «eiga» exist in one form; the learner has two forms of three nouns. **Next, its
-   first step:** the verb by its subject on sentences the learner already says («Ég fer á morgun.» → «Við förum á morgun.»), as a
-   choice, with the forms authored for the verbs they use most. Then the noun by its frame, the lesson saying what it trains, and the
-   pace counting a form set as a choice as new material (#528's steps 2–4).
+   subject pronoun, 207 say «ég»; «vilja», «þurfa» and «eiga» exist in one form; the learner has two forms of three nouns. **Built, step 1 (this PR):** the
+   verb by its subject. Eight sentences the learner says («Ég fer á morgun.», «Ég þarf hjálp.», «Ég er í fríi.» …) are held with «við»,
+   «hún» and «þú»; once a lesson, at about minute 14, one is said with two other subjects, the verb's form named, and each asked. **Next:**
+   the lesson says what it trains (its goal and closing name the form work), then the noun by its frame and the pace counting a form set
+   as a choice as new material (#528's steps 2–4).
 3. **Numbers in varied situations (#451, owner 2026-11-09).** Numbers where a traveller meets them, sorted into eight kinds in #451
    (money, time, dates, counts and people, numbers as names, weather and roads, contacts and codes, about oneself), mostly by ear,
    rotated so no kind and no number word comes back within a few lessons. Merged: step 1 (#508), step 2, scenes for every kind
@@ -152,6 +153,15 @@ Each waits for its first feedback in the LD §8 table.
 
 #265 (expression first) and #270 (a noun with its gender and forms) are the umbrellas the items above belong to; #326
 for the connections across lessons.
+
+**Closed on 2026-11-12, each with the condition that reopens it** (their steps are merged; the owner asked for the list of open issues
+to come down):
+- #416 (one ask / voice / hear policy for conversations played again): built by #422, #430, #431 and #519. Reopens on a remark that a
+  known conversation or reply is asked again (the family known-repeat).
+- #427 (lesson 40's contexts and cue–answer mismatches): built by #433, #458, #471, #472, #475 and #519's opening rule. Reopens on a
+  remark that a line answers nothing or a cue does not match its answer; the native check stays with #209.
+- #273 (no fifteen minutes without a scene): the daily read's row stands at 4.2–4.4 minutes on the replays of lessons 53 and 54.
+  Reopens if the row passes about 5 minutes.
 
 **Closed on 2026-10-23, each with the condition that reopens it** (the owner, after a structural review: an umbrella that
 never closes collects work without a finish line):

@@ -59,6 +59,7 @@ NO_CLAIM = {
     "hear_support_word": "«you found this word hard to catch»: a word the learner reported hard to hear after an earlier lesson (#444), which one lesson's script does not show",
     "listening_intro_known_voiced": "the same, with the learner's known set replies played (#416)",
     "listening_intro_again": "«The conversation again.»: a scene played in an earlier lesson, once the lesson has said that short replies are played (#438)",
+    "subjects_intro": "«other subjects»: the sentences with them follow in the same exercise, which is built from them (``Builder.subject_choice``, #528); no line of a lesson's script could fail to keep it",
     "transform_same": "«Same change:»: refers back to the instruction of the transform asked in the exercise just before (#405; lesson 43), which the builder tracks (``_last_instruction``, ``_last_instruction_ex``); no CLAIMS kind checks it",
 }
 

@@ -21,7 +21,7 @@ from datetime import date, timedelta
 from itertools import groupby
 
 from .claims import unkept_claims
-from .content import Curriculum, Dialogue, Item
+from .content import SUBJECTS, Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance, cue_is_answer
 from .sounds import hard_sounds, hard_words_of
 from .learner import REPORTED_HARD_DAYS, LearnerState
@@ -56,6 +56,9 @@ class PlanConfig:
     # #429 (the long run): the lessons a learner has completed before the instructions in Icelandic are taught; until then every instruction is
     # in their own language, the first steps being hard enough
     commands_from: int = 10
+    # #528 step 1: the share of the lesson's time after which the day's subject choice plays, whatever else is waiting. It is the long run's
+    # work, so it is scheduled: as a spare-time turn it played in two lessons of four on the replay, and in none of a lesson that is full
+    subject_choice_at: float = 0.45
     starved_skip_rung: int | None = 1  # #439: the rung a new item gives up when the due reviews cannot fit (an index into intro_recall_times); None keeps all
     # A short item (``short_item_words`` words or fewer) is said alone at most this often in a
     # lesson, the introduction and the closing recall included (§9 "Repetition"); the rest of
@@ -1564,6 +1567,22 @@ class Planner:
                 best = key
         return [best[2]] if best else []
 
+    def subject_candidates(self) -> list[tuple[Item, list[str]]]:
+        """#528 step 1: the sentences the learner says with «ég» that the course holds with other subjects (``Item.subjects``), in course order,
+        each with the subjects that can be set now: the item met and not failing, every word of its «ég» sentence one the learner says, and the
+        subject's pronoun too. An item with fewer than two such subjects waits."""
+        known = self.builder._known_words()
+        out = []
+        for it in self.cur.items:
+            if not it.subjects or not self.learner.has_met(it.id) or self.learner.is_open(it.id):
+                continue
+            if not all(w.lower() in known for w in _WORD_RE.findall(it.subjects_base)):
+                continue
+            keys = [k for k in it.subjects if SUBJECTS[k] in known]
+            if len(keys) >= 2:
+                out.append((it, keys))
+        return out
+
     def said_of_candidates(self) -> list[Item]:
         """#439 step 2: the gendered lines the learner has met in an earlier lesson and is not failing that say their word of him and of her
         (``Item.said_of``), in course order."""
@@ -2516,6 +2535,7 @@ class Planner:
         owed_hear = self.hear_owed_items()  # #444: reported hard to hear and not yet given listening support
         hear_supports: list[str] = []  # reported-hard-to-hear items given listening support in this lesson
         number_choices: list[str] = []  # #439 step 1b: the choice exercise played this lesson (its label), at most one
+        subject_choices: list[str] = []  # #528 step 1: a sentence said with other subjects this lesson (its label), at most one
         said_of_choices: list[str] = []  # #439 step 2: a gendered word said of him and of her this lesson (its label), at most one
         hear_settled: list[str] = []  # ... whose slow model already played the line by ear: no second exercise (lesson 49)
         slow_done: set[str] = set()
@@ -3684,6 +3704,13 @@ class Planner:
                 return any(emit_listening_task(task) for task in pick_out_tasks())
             if kind == "catch_unknown":
                 return any(emit_listening_task(task) for task in catch_unknown_tasks())
+            if (kind == "today" and not subject_choices and remaining_time() >= 60 and (subjects := self.subject_candidates())):
+                # #528 step 1 (the long run's second item): once a lesson, a sentence the learner says with «ég» said with two other subjects. It
+                # takes the first today's-items turn, ahead of the number choice and the word said of him and of her: on the replay of lesson 54's
+                # export the number choice took the only such turn of two lessons in four. The sentences take turns across lessons, and so do
+                # the pairs of subjects
+                play_subject_choice(subjects)
+                return True
             if kind == "today" and not number_choices and remaining_time() >= 75:
                 # #439 step 1b: once a lesson, today's-items turn first plays one number's known lines of different genders side by side, the form said
                 # as the noun's choice; a drill in a drill's turn, so the listening the rotation brings is untouched
@@ -3729,8 +3756,20 @@ class Planner:
             return remaining >= 90 and (heard_left or self.listening_dialogue() is not None)
 
         pre_closing_listening: list[int | None] = [None]  # #421: listening tasks still to come before the closing (None: not counted yet)
+        def play_subject_choice(subjects: list) -> None:
+            """#528 step 1: the sentences take turns across lessons, and so do the pairs of subjects."""
+            turn = sc.lesson_number
+            item, keys = subjects[turn % len(subjects)]
+            start = turn % len(keys)
+            ex = b.subject_choice(sc, item, [keys[start], keys[(start + 1) % len(keys)]])
+            subject_choices.append(ex.label)
+
         while sc.total_duration < budget - closing_reserve:
             remaining = budget - closing_reserve - sc.total_duration
+            if (not subject_choices and sc.total_duration >= cfg.subject_choice_at * budget and remaining >= 60 and not in_new_block()
+                    and last_kinds_same(1) != "model" and (subjects := self.subject_candidates())):
+                play_subject_choice(subjects)  # scheduled, not left to spare time (``subject_choice_at``)
+                continue
             if self.components_mode and delivered_at[0] is not None and introduced and remaining <= 24 * ((len(introduced) - 1) // 3):
                 # the listening the closing's run of recalls used to hold (#248: one after every third), now in the last stretch before it (#421,
                 # lesson 38: inside the closing it felt nested); with nothing to hear, the lesson goes on as before
@@ -4256,6 +4295,7 @@ class Planner:
             "touching_switches": sc.touching_switches(),
             "units_covered": list(units_covered),  # #336: fillers of a linked phrase met inside it
             "number_choices": list(number_choices),  # #439 step 1b: the forms of 1–4 practised as a choice this lesson
+            "subject_choices": list(subject_choices),  # #528 step 1: a sentence said with other subjects this lesson
             "said_of_choices": list(said_of_choices),  # #439 step 2: a gendered word said of him and of her this lesson
             "slow_models_reported": list(slow_models),  # #337: reported-hard items given the slow model of their hard word
             "hear_supports_reported": list(hear_supports) + list(hear_settled),  # #444: reported-hard-to-hear items given listening support
