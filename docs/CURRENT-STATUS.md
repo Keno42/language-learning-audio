@@ -147,14 +147,12 @@ Each waits for its first feedback in the LD §8 table.
   will with the next transform introduced.
 - #336: the other scenes' frames that vary in use, as each scene comes (`validate` lists the candidates; only the frames
   a scene varies).
-- #270: the other frames (accusative orders, `dat_town`, `dat_hobby`), after the dative place forms' first feedback.
 - #209: the packet for a fluent speaker is ready (`tools/export_scene_review.py --scenario A2 --out review-A2.json`: one scenario's cards
   with their situation, partner line, replies and items, corrected by card and field). What is left needs a person (G10): the review itself,
   starting from the lines the lessons say most (`tools/top_lines.py` on the exported scripts). Every scene added since lesson 30 adds
   authored Icelandic to it.
 
-#265 (expression first) and #270 (a noun with its gender and forms) are the umbrellas the items above belong to; #326
-for the connections across lessons.
+#326 holds the connections across lessons. The frames a noun takes its other forms in (#270's remainder) are #528's second step.
 
 **Closed on 2026-11-12, each with the condition that reopens it** (their steps are merged; the owner asked for the list of open issues
 to come down):
@@ -164,6 +162,20 @@ to come down):
   remark that a line answers nothing or a cue does not match its answer; the native check stays with #209.
 - #273 (no fifteen minutes without a scene): the daily read's row stands at 4.2–4.4 minutes on the replays of lessons 53 and 54.
   Reopens if the row passes about 5 minutes.
+- #439 (practice by what is hard in an item, not its kind): its steps are built (plain numbers #492, #502; the forms of 1–4 as a choice
+  #493, #495, #498; a gendered word of him and of her #499; a long word split #496; a new phrase's noun named against its basic word
+  #527). What it began goes on in #518 (the dose) and #528 (forms as choices). Reopens if neither holds a remark of the family
+  easy-substitution or form-why.
+- #265 (expression first, the umbrella): one rule decides every learner line (#263), a part is introduced inside its expression (#262),
+  and the pace's unit is weighted components (#218). Reopens on a part introduced or asked before an expression that holds it, or a
+  line the learner can say withheld.
+- #483 (a level heard again with no rest; another learner): built by #486 and #487. Their lessons 29 and 30 since were rated «light»
+  with no remark. Reopens on a remark from either learner that the same exchange comes lesson after lesson.
+- #270 (a known word in a new form, the umbrella): the dative place forms and the naming of a form against its basic word are built
+  (#368, #527). The frames left (accusative orders, `dat_town`, `dat_hobby`) are #528's second step, the noun by its frame. Reopens if
+  #528 drops that step.
+- #209 (a packet for a fluent speaker): the tool is built (#532). The review itself needs a person; when one is available, a new issue
+  takes the corrections.
 
 **Closed on 2026-10-23, each with the condition that reopens it** (the owner, after a structural review: an umbrella that
 never closes collects work without a finish line):
