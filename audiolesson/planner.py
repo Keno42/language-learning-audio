@@ -2535,6 +2535,7 @@ class Planner:
         owed_hear = self.hear_owed_items()  # #444: reported hard to hear and not yet given listening support
         hear_supports: list[str] = []  # reported-hard-to-hear items given listening support in this lesson
         number_choices: list[str] = []  # #439 step 1b: the choice exercise played this lesson (its label), at most one
+        subject_played: list[tuple[Item, list[str]]] = []  # #528 step 3: the sentence and the subjects set, for the goal and the closing
         subject_choices: list[str] = []  # #528 step 1: a sentence said with other subjects this lesson (its label), at most one
         said_of_choices: list[str] = []  # #439 step 2: a gendered word said of him and of her this lesson (its label), at most one
         hear_settled: list[str] = []  # ... whose slow model already played the line by ear: no second exercise (lesson 49)
@@ -3770,8 +3771,10 @@ class Planner:
             turn = sc.lesson_number
             item, keys = subjects[turn % len(subjects)]
             start = turn % len(keys)
-            ex = b.subject_choice(sc, item, [keys[start], keys[(start + 1) % len(keys)]])
+            pair = [keys[start], keys[(start + 1) % len(keys)]]
+            ex = b.subject_choice(sc, item, pair)
             subject_choices.append(ex.label)
+            subject_played.append((item, pair))
 
         while sc.total_duration < budget - closing_reserve:
             remaining = budget - closing_reserve - sc.total_duration
@@ -4260,10 +4263,17 @@ class Planner:
             closing_left = [i for i in dict.fromkeys([i.id for i in introduced] + list(self.embedded)) if i not in asked]
             if closing_left:
                 b.final_block_some(sc, announce)
+        if subject_played:
+            # #528 step 3: the closing asks the day's form work once more: the subject whose verb changes, when one does
+            item, pair = subject_played[0]
+            own = item.subject_verbs["i"].lower()
+            b.subject_again(sc, item, next((k for k in pair if item.subject_verbs[k].lower() != own), pair[0]))
         b.closing(sc, n)
 
         if goal_ex is not None and theme_plays and late_heard:
             goal_said[0] = b.goal_heard(sc, goal_ex, [t for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you"], set(late_heard))  # #327 (lesson 42: «Say you can't tomorrow …», whose line was heard in both plays)
+        if goal_ex is not None and subject_played:
+            b.goal_form_work(sc, goal_ex)  # #528 step 3: the goal names the day's form work, once it is known to have played
         listening_closed, conversations_closed = close_tasks(sc, self.prompts, b.timing, self.cur.known_lang)  # the way back between tasks (#387, #415)
         # #429: the way in («Listen.», written on the finished script) in Icelandic once «Hlustaðu.» is taught
         segs = []

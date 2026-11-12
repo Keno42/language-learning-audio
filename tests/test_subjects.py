@@ -65,14 +65,21 @@ class SubjectTests(unittest.TestCase):
             self.assertEqual([g.text for g in sc.segments if g.type == "answer"], ["Hún fer á morgun.", "Við förum á morgun."], "each asked, in the other order")
             self.assertEqual(sum(1 for g in sc.segments if g.type == "pause" and g.role == "answer"), 2)
 
-    def lesson(self, completed: int, known_until: str = "tvaer"):
+    def lesson(self, completed: int, known_until: str = "tvaer", themes: bool = False):
         learner = LearnerState("is", "en", "A1")
         for i in self.cur.items:
             if i.order < self.cur.by_id[known_until].order and not i.command:
                 learner.items[i.id] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=30, last_outcome="recalled",
                                                 due=(TODAY + timedelta(days=60)).isoformat(), last_practiced=(TODAY - timedelta(days=5)).isoformat())
         learner.lessons_completed = completed
-        return Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+        cfg = PlanConfig(minutes=30, seed=1)
+        if themes:  # as `generate` plans: a theme's exchange, whose goal is said after the opening
+            from audiolesson.cando import load_cando
+            from audiolesson.themes import load_themes, scenario_order
+
+            scenarios = load_cando(ROOT / "curricula" / "is-en", self.cur)
+            cfg = PlanConfig(minutes=30, seed=1, themes=load_themes(ROOT / "curricula" / "is-en", self.cur, scenarios), theme_scenarios=scenario_order(scenarios, ()))
+        return Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY)
 
     def test_a_lesson_plays_one_and_the_sentences_and_subjects_take_turns(self):
         seen = []
@@ -86,6 +93,34 @@ class SubjectTests(unittest.TestCase):
             self.assertEqual(sc.meta["subject_choices"], [played[0].label])
             seen.append(played[0].label)
         self.assertEqual(len(set(seen)), 3, seen)
+
+    def test_the_goal_names_the_form_work_and_the_closing_asks_it_once_more(self):
+        """#528 step 3 (the owner: «a coach who applies the right load»): the intent is said, not only practised. The goal exercise ends on the
+        day's form work, and the last question before the lesson's closing words is one of the choice's sentences, the one whose verb changes."""
+        planner = self.lesson(30, themes=True)
+        sc = planner.build()
+        (choice,) = [e for e in sc.exercises if e.stage == "subjects"]
+        goal = next(e for e in sc.exercises if e.label == "lesson goal")
+        said = [g.text for g in sc.segments if g.exercise == goal.index and g.type == "narrate"]
+        self.assertEqual(said[-2:], ["Today's form work:", "One sentence you know, said of someone else."], said)
+        self.assertEqual(sc.segments[max(k for k, g in enumerate(sc.segments) if g.exercise == goal.index)].type, "pause", "the goal still ends on its gap")
+        (again,) = [e for e in sc.exercises if e.stage == "subjects_again"]
+        self.assertGreater(again.index, choice.index)
+        self.assertEqual(sc.exercises[again.index + 1].kind, "closing")
+        item = self.cur.by_id[again.item_ids[0]]
+        sentence = again.label.removeprefix("subjects: ")
+        self.assertIn(sentence, choice.label)
+        key = next(k for k, v in item.subjects.items() if v == sentence)
+        changing = [k for k, v in item.subjects.items() if v in choice.label and item.subject_verbs[k].lower() != item.subject_verbs["i"].lower()]
+        self.assertTrue(not changing or key in changing, (sentence, changing))
+        answers = [g.text for g in sc.segments if g.exercise == again.index and g.type == "answer"]
+        self.assertEqual(answers, [sentence])
+
+    def test_a_lesson_with_no_subject_choice_says_no_form_work(self):
+        fresh = Planner(self.cur, LearnerState("is", "en", "A1"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+        sc = fresh.build()
+        self.assertEqual([e for e in sc.exercises if e.stage in ("subjects", "subjects_again")], [])
+        self.assertFalse(any(g.text and "form work" in g.text for g in sc.segments if g.type == "narrate"))
 
     def test_only_a_sentence_the_learner_says_is_set(self):
         planner = self.lesson(30)
