@@ -61,7 +61,7 @@ class PlanConfig:
     # about 1 and 8 minutes of 30). Heavy: all of them, for an item with a trait whose new items the next-day review found weak at more than
     # ``dose_heavy_rate`` (a failure 1, a hesitation ½) over the latest ``dose_window`` new items, the trait having ``dose_min_samples`` of
     # them or more. H9 aims at 80–85% next-day success: a trait below it gets the practice back. () for the rungs keeps every recall
-    middle_recall_rungs: tuple[int, ...] = (0, 2)
+    middle_recall_rungs: tuple[int, ...] | None = None
     # the most times a new fixed phrase is said in the lesson that teaches it, by its dose (``max_sentence_hard`` is the heavy one's): lesson
     # 54's remark was on a sentence said nine times, and dropping timed recalls alone left a middle item at eight or nine, since spare time asks
     # today's sentences again
@@ -604,8 +604,6 @@ class Planner:
         Heavy needs evidence: a trait of the item whose new items were weak the next day at more than ``dose_heavy_rate``."""
         if item.command or plain_number(item, self.cur) or self.made_of_known_words(item):
             return "light"
-        if not self.cfg.middle_recall_rungs:
-            return "heavy"
         rates = self.trait_rates()
         failing = [t for t in self.item_traits(item) if t in rates and rates[t][1] >= self.cfg.dose_min_samples and rates[t][0] > self.cfg.dose_heavy_rate]
         return "heavy" if failing else "middle"
@@ -2513,7 +2511,7 @@ class Planner:
                 for k, after in enumerate(cfg.intro_recall_times):
                     if k in reviews_starved_skip:
                         continue  # #439 (lesson 45): the due reviews cannot fit, so a new item gives up a middle rung to them
-                    if level == "middle" and k not in cfg.middle_recall_rungs:
+                    if level == "middle" and cfg.middle_recall_rungs is not None and k not in cfg.middle_recall_rungs:
                         continue  # #518: the default dose; the other rungs come back for a kind of item the reviews find weak
                     seq += 1
                     if k == 0:
