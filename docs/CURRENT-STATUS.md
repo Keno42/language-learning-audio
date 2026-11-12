@@ -48,9 +48,11 @@ thick, and the instructions in Icelandic did not increase (LD §5.44). The learn
    one with one new word («Er þetta ull?») is still said nine times. **Next, two steps:** (a) #439 step 3, a new noun met in a form
    other than its nominative gets a word on its form: lesson 52's «nafninu» and «bókun» failed in the review, and lesson 54's question
    is on «mánudaginn»; (b) the rest of #518, a dose for every new item, which waits for the owner's three decisions.
-2. **The pace counts what the lesson cannot ask (H9).** Lesson 54's target fell from 8 to 7 because 72 items were due against about 76
-   review slots; 16 of the 72 were not the lesson's to ask (15 asked by the written review that morning, one gone from the course). The
-   lesson was «light» again. **Next:** the pace's backlog rule counts the due items the lesson can ask.
+2. **The pace cannot rise while the reviews fit (H9).** Lesson 54 was «light» at a target of 7. Built (#526): the backlog counts the due
+   items a lesson can ask (lesson 54: 56, not 72), and each unfitted item once. It would not have changed lesson 54: the target fell
+   by lesson 53's unfitted reviews (20 of 45), rightly. What holds it at 7 is the rise's «small backlog», due items under half the
+   review slots: on the replay 43–56 are due each day against 82 slots, and every lesson fits them. **Next:** the owner's call on
+   whether a rise reads «the last lesson's due reviews fitted» in its place (LD §9 "Pace").
 3. **The listening pool's sameness (#339).** All four of lesson 54's pick-outs were on a line heard in the three lessons before. On the
    replay lesson 56 has 14 pick-outs after its target. **Next:** a pick-out rotates by line, a line heard recently is left for another,
    and a lesson's pick-outs have a ceiling.

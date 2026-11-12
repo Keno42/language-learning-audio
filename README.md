@@ -129,7 +129,8 @@ around 80–85%.
 - The recall rate is taken over the last three *reported* lessons (a failed new item counts 1,
   a hesitated one ½, `report --hesitated` here and below; an embedded new item that failed
   counts too): above 25% failures, pace − 1; 15–25% holds.
-- If the items due for review exceed ~80% of the lesson's review slots, pace − 1.
+- If the due items the lesson can ask (due by date, in the course, not asked by the learner's own review today) exceed ~80% of the
+  lesson's review slots, pace − 1.
 - Pace + 1 only on evidence: the window at ≤ 15% failures and the backlog small, or the
   last two rated lessons both «light» (`report --load light|right|heavy`) at ≤ 25% with a small backlog. A lesson with no rating is skipped: it neither breaks nor extends the run. Any «heavy»
   in the window blocks a rise; one step a lesson at most. In manual mode, without `report` the
