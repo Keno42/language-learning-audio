@@ -91,6 +91,8 @@ class SubjectTests(unittest.TestCase):
             played = [e for e in sc.exercises if e.stage == "subjects"]
             self.assertEqual(len(played), 1, completed)
             self.assertEqual(sc.meta["subject_choices"], [played[0].label])
+            # review of #531: a spare today's-items turn played it at 6:35, before its scheduled time (13:30 of 30 minutes)
+            self.assertGreaterEqual(played[0].start, PlanConfig().subject_choice_at * 30 * 60, completed)
             seen.append(played[0].label)
         self.assertEqual(len(set(seen)), 3, seen)
 
@@ -121,6 +123,16 @@ class SubjectTests(unittest.TestCase):
         sc = fresh.build()
         self.assertEqual([e for e in sc.exercises if e.stage in ("subjects", "subjects_again")], [])
         self.assertFalse(any(g.text and "form work" in g.text for g in sc.segments if g.type == "narrate"))
+
+    def test_a_spare_turn_never_plays_it_before_its_scheduled_time(self):
+        """Review of #531: the today's-items turn of spare time played the subject choice with no look at the clock (6:35 in the reviewer's lesson;
+        here, with a small target of new material, 13:10 and 13:04 of a 13:30 schedule). The turn waits for the time the main loop waits for."""
+        for completed in (30, 31):
+            planner = self.lesson(completed)
+            planner.cfg = dataclasses.replace(planner.cfg, new_items=1, new_target=2.0)
+            sc = planner.build()
+            (played,) = [e for e in sc.exercises if e.stage == "subjects"]
+            self.assertGreaterEqual(played.start, planner.cfg.subject_choice_at * 30 * 60, completed)
 
     def test_only_a_sentence_the_learner_says_is_set(self):
         planner = self.lesson(30)

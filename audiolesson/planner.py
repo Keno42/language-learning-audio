@@ -3714,11 +3714,12 @@ class Planner:
                 return any(emit_listening_task(task) for task in pick_out_tasks())
             if kind == "catch_unknown":
                 return any(emit_listening_task(task) for task in catch_unknown_tasks())
-            if (kind == "today" and not subject_choices and remaining_time() >= 60 and (subjects := self.subject_candidates())):
-                # #528 step 1 (the long run's second item): once a lesson, a sentence the learner says with «ég» said with two other subjects. It
-                # takes the first today's-items turn, ahead of the number choice and the word said of him and of her: on the replay of lesson 54's
-                # export the number choice took the only such turn of two lessons in four. The sentences take turns across lessons, and so do
-                # the pairs of subjects
+            if (kind == "today" and not subject_choices and sc.total_duration >= cfg.subject_choice_at * budget and remaining_time() >= 60
+                    and (subjects := self.subject_candidates())):
+                # #528 step 1 (the long run's second item): once a lesson, a sentence the learner says with «ég» said with two other subjects. Past
+                # its scheduled time (``subject_choice_at``) it takes a today's-items turn, ahead of the number choice and the word said of him and
+                # of her, when the main loop has not placed it (a new block, a model just before). Never earlier: review of #531, a today's turn
+                # at 6:35 played it seven minutes before its time. The sentences take turns across lessons, and so do the pairs of subjects
                 play_subject_choice(subjects)
                 return True
             if kind == "today" and not number_choices and remaining_time() >= 75:
