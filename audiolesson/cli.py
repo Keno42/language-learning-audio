@@ -275,11 +275,11 @@ def cmd_generate(args) -> int:
     if args.new is not None:
         new_items, why = args.new, f"--new {args.new}"
     elif args.pace is not None:
-        new_items, why = learner.suggest_pace(args.minutes, today)  # an explicit pace in items: this lesson counts items (#218 b3)
+        new_items, why = learner.suggest_pace(args.minutes, today, frozenset(cur.by_id))  # an explicit pace in items: this lesson counts items (#218 b3)
     else:
         # the target is a rate per 30 minutes, so its rules (the backlog's review slots included) run at 30 minutes: at 5, the slots
         # are about 0 and the backlog rule would lower the rate every lesson (#242)
-        new_items, items_why, new_target, why = learner.plan_pace(args.minutes, today)
+        new_items, items_why, new_target, why = learner.plan_pace(args.minutes, today, frozenset(cur.by_id))
         why += f" (≈ {new_items} items)"
     priority: list[str] = []
     scenarios = load_cando(args.curriculum, cur) if Path(args.curriculum).is_dir() else []

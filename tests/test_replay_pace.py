@@ -44,8 +44,8 @@ class ReplayStoresThePaceTests(unittest.TestCase):
         planned, kept = [], []
         real_plan, real_keep = LearnerState.plan_pace, LearnerState.keep_pace
 
-        def plan(self, minutes, today):
-            out = real_plan(self, minutes, today)
+        def plan(self, minutes, today, course=None):
+            out = real_plan(self, minutes, today, course)
             planned.append((out[0], out[2]))
             return out
 
