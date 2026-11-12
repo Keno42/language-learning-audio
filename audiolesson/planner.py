@@ -56,6 +56,19 @@ class PlanConfig:
     # #429 (the long run): the lessons a learner has completed before the instructions in Icelandic are taught; until then every instruction is
     # in their own language, the first steps being hard enough
     commands_from: int = 10
+    # #518 (owner, 2026-11-12): the dose of a new item in the lesson that teaches it has three levels. Light: one timed recall (a plain number,
+    # a phrase made of known words). Middle, the default: the timed recalls of ``middle_recall_rungs`` (indices into ``intro_recall_times``:
+    # about 1 and 8 minutes of 30). Heavy: all of them, for an item with a trait whose new items the next-day review found weak at more than
+    # ``dose_heavy_rate`` (a failure 1, a hesitation ½) over the latest ``dose_window`` new items, the trait having ``dose_min_samples`` of
+    # them or more. H9 aims at 80–85% next-day success: a trait below it gets the practice back. () for the rungs keeps every recall
+    middle_recall_rungs: tuple[int, ...] = (0, 2)
+    # the most times a new fixed phrase is said in the lesson that teaches it, by its dose (``max_sentence_hard`` is the heavy one's): lesson
+    # 54's remark was on a sentence said nine times, and dropping timed recalls alone left a middle item at eight or nine, since spare time asks
+    # today's sentences again
+    dose_ceiling: dict = field(default_factory=lambda: {"light": 4, "middle": 6})
+    dose_window: int = 120
+    dose_min_samples: int = 8
+    dose_heavy_rate: float = 0.2
     starved_skip_rung: int | None = 1  # #439: the rung a new item gives up when the due reviews cannot fit (an index into intro_recall_times); None keeps all
     # A short item (``short_item_words`` words or fewer) is said alone at most this often in a
     # lesson, the introduction and the closing recall included (§9 "Repetition"); the rest of
@@ -550,6 +563,52 @@ class Planner:
                     fresh -= set(chunk)
             return cost
         return 1.0 if new else 0.0
+
+    @staticmethod
+    def item_traits(item: Item) -> list[str]:
+        """What may make a new item hard to keep, read from the item alone (#518): the traits the dose's feedback loop keeps a rate for."""
+        traits = []
+        if item.word_count >= 5:
+            traits.append("five words or more")
+        if item.word_count == 1 and item.is_hard():
+            traits.append("a long word")
+        if item.difficulty >= 3:
+            traits.append("difficulty 3 or more")
+        if item.kind == "construction":
+            traits.append("a pattern")
+        if (item.noun and item.form and item.form != "nom") or getattr(item, "form_base", ""):
+            traits.append("a noun in another form")
+        return traits
+
+    def trait_rates(self) -> dict[str, tuple[float, int]]:
+        """#518's feedback loop: for each trait, (the share of its new items the next-day review found weak, how many it had), over the latest
+        ``dose_window`` new items that have an outcome for the lesson that taught them. A failure counts 1, a hesitation ½, as the pace counts."""
+        if getattr(self, "_trait_rates", None) is None:
+            seen = []
+            for item_id, st in self.learner.items.items():
+                item = self.cur.by_id.get(item_id)
+                entry = next((h for h in st.history if h.get("lesson") == st.introduced_lesson and h.get("outcome")), None)
+                if item is not None and entry is not None:
+                    seen.append((st.introduced_lesson, item_id, item, {"recalled": 0.0, "hesitated": 0.5}.get(entry["outcome"], 1.0)))
+            seen.sort(key=lambda t: (-t[0], t[1]))
+            rates: dict[str, list[float]] = {}
+            for _, _, item, weak in seen[: self.cfg.dose_window]:
+                for trait in self.item_traits(item):
+                    rates.setdefault(trait, []).append(weak)
+            self._trait_rates = {t: (sum(v) / len(v), len(v)) for t, v in rates.items()}
+        return self._trait_rates
+
+    def dose(self, item: Item) -> str:
+        """``light``, ``middle`` or ``heavy`` (#518): how much a new item is practised in the lesson that teaches it. The owner, 2026-11-12: start
+        every item on less, and let the reviews say which kinds need more: «it cannot be judged before the lesson is taken and the review tried».
+        Heavy needs evidence: a trait of the item whose new items were weak the next day at more than ``dose_heavy_rate``."""
+        if item.command or plain_number(item, self.cur) or self.made_of_known_words(item):
+            return "light"
+        if not self.cfg.middle_recall_rungs:
+            return "heavy"
+        rates = self.trait_rates()
+        failing = [t for t in self.item_traits(item) if t in rates and rates[t][1] >= self.cfg.dose_min_samples and rates[t][0] > self.cfg.dose_heavy_rate]
+        return "heavy" if failing else "middle"
 
     def made_of_known_words(self, item: Item) -> bool:
         """#518, lesson 54 («the practice of two adults and two children is too thick»): a new fixed phrase every word of which the learner
@@ -1257,6 +1316,8 @@ class Planner:
             "unkept_links": self._unkept_links(sc),
             # a framing line whose promise does not hold («other words», «again», «something new»; ``audiolesson/claims.py``, 0 expected)
             "unkept_claims": unkept_claims(sc, self.prompts),
+            "doses": dict(getattr(self, "doses_given", {})),  # #518: each new item's dose in this lesson (light / middle / heavy)
+            "trait_rates": {t: [round(r, 2), n] for t, (r, n) in sorted(self.trait_rates().items())},  # #518: next-day weak rate and count, by trait
             "reviews_starved": getattr(self, "reviews_starved", False),  # #439: today's new items gave up a middle rung to the due reviews
             "apply_in_sentence_parts": list(getattr(self, "step2_parts", [])),  # #287 step 2: today's new parts whose first reactivation applied them in a sentence
             "bare_noun_recalls": [e.label for e in sc.exercises if e.kind == "recall" and e.stage in BARE_STAGES and len(e.item_ids) == 1
@@ -2244,6 +2305,8 @@ class Planner:
         review_slots = max(0, int(cfg.minutes * 60 / 16) - len(new_queue) * 6)
         reviews_starved_skip = {cfg.starved_skip_rung} if cfg.starved_skip_rung is not None and due_now > review_slots else set()
         self.reviews_starved = bool(reviews_starved_skip)
+        doses: dict[str, str] = {}  # #518: each new item's dose (light / middle / heavy)
+        self.doses_given = doses
         lapse_short = [None]  # seconds the lesson would have ended short when the bare cap lapsed (for the daily read and tests)
         bare_cap = [cfg.max_bare_uses]  # lapses to 0 when nothing else is left (step 5)
 
@@ -2438,15 +2501,20 @@ class Planner:
                 touch(part)
                 ladder = self.ladder(part)
                 if part.id in b.plain:
+                    doses[part.id] = "light"
                     # #439 step 1a (lesson 49: «sextán», «tvö þúsund krónur» each recalled four times, «use it in another sentence» included): a plain number
                     # is asked once more, from its meaning, after a real gap; it comes back as it is used, in its expression and in the scene's pick-outs
                     seq += 1
                     first_timed[part.id] = seq
                     intro_timeline.append((sc.total_duration + cfg.plain_recall_time * (budget - closing_reserve), seq, part, ladder[min(1, len(ladder) - 1)]))
                     continue
+                level = self.dose(part)
+                doses[part.id] = level
                 for k, after in enumerate(cfg.intro_recall_times):
                     if k in reviews_starved_skip:
                         continue  # #439 (lesson 45): the due reviews cannot fit, so a new item gives up a middle rung to them
+                    if level == "middle" and k not in cfg.middle_recall_rungs:
+                        continue  # #518: the default dose; the other rungs come back for a kind of item the reviews find weak
                     seq += 1
                     if k == 0:
                         first_timed[part.id] = seq  # #439: the first rung of every item is asked, shared practice or not
@@ -2800,7 +2868,7 @@ class Planner:
             if item.kind != "phrase" or cfg.max_sentence_hard <= 0 or bare_cap[0] <= 0:
                 return False
             reserve = 0 if closing or not any(i.id == item.id for i in introduced) else 1
-            limit = cfg.max_sentence_hard
+            limit = min(cfg.max_sentence_hard, cfg.dose_ceiling.get(doses.get(item.id, ""), cfg.max_sentence_hard))  # #518: a new item's dose
             if item.instance_of and item.instance_of in self.cur.by_id and b._frame_available(item.instance_of):
                 limit = min(limit, cfg.max_sentence_utterances + 1)  # a linked phrase hands the rest to its pattern's other instances (#192)
             capped = b.said[_norm_utterance(item.target)] >= limit - reserve
