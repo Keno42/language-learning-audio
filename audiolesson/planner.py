@@ -56,6 +56,9 @@ class PlanConfig:
     # #429 (the long run): the lessons a learner has completed before the instructions in Icelandic are taught; until then every instruction is
     # in their own language, the first steps being hard enough
     commands_from: int = 10
+    # #528 step 1: the share of the lesson's time after which the day's subject choice plays, whatever else is waiting. It is the long run's
+    # work, so it is scheduled: as a spare-time turn it played in two lessons of four on the replay, and in none of a lesson that is full
+    subject_choice_at: float = 0.45
     starved_skip_rung: int | None = 1  # #439: the rung a new item gives up when the due reviews cannot fit (an index into intro_recall_times); None keeps all
     # A short item (``short_item_words`` words or fewer) is said alone at most this often in a
     # lesson, the introduction and the closing recall included (§9 "Repetition"); the rest of
@@ -3701,6 +3704,13 @@ class Planner:
                 return any(emit_listening_task(task) for task in pick_out_tasks())
             if kind == "catch_unknown":
                 return any(emit_listening_task(task) for task in catch_unknown_tasks())
+            if (kind == "today" and not subject_choices and remaining_time() >= 60 and (subjects := self.subject_candidates())):
+                # #528 step 1 (the long run's second item): once a lesson, a sentence the learner says with «ég» said with two other subjects. It
+                # takes the first today's-items turn, ahead of the number choice and the word said of him and of her: on the replay of lesson 54's
+                # export the number choice took the only such turn of two lessons in four. The sentences take turns across lessons, and so do
+                # the pairs of subjects
+                play_subject_choice(subjects)
+                return True
             if kind == "today" and not number_choices and remaining_time() >= 75:
                 # #439 step 1b: once a lesson, today's-items turn first plays one number's known lines of different genders side by side, the form said
                 # as the noun's choice; a drill in a drill's turn, so the listening the rotation brings is untouched
@@ -3709,16 +3719,6 @@ class Planner:
                     ex = b.number_choice(sc, lines)
                     number_choices.append(ex.label)
                     return True
-            if (kind == "today" and not subject_choices and remaining_time() >= 60 and last_kinds_same() not in ("recall", "generative")
-                    and any(i.id not in recent and not saturated(i) and i.id not in b.plain for i in introduced) and (subjects := self.subject_candidates())):
-                # #528 step 1: once a lesson, a sentence the learner says with «ég» said with two other subjects, after the number choice and before
-                # the word said of him and of her. The sentences take turns across lessons, and so do the pairs of subjects
-                turn = sc.lesson_number
-                item, keys = subjects[turn % len(subjects)]
-                start = (turn // len(subjects)) % len(keys)
-                ex = b.subject_choice(sc, item, [keys[start], keys[(start + 1) % len(keys)]])
-                subject_choices.append(ex.label)
-                return True
             if (kind == "today" and not said_of_choices and remaining_time() >= 60 and last_kinds_same() not in ("recall", "generative")
                     and any(i.id not in recent and not saturated(i) and i.id not in b.plain for i in introduced) and (said_of := self.said_of_candidates())):
                 # #439 step 2: once a lesson, a gendered word the learner knows said of him and of her, in a today's-items turn the number choice
@@ -3756,8 +3756,20 @@ class Planner:
             return remaining >= 90 and (heard_left or self.listening_dialogue() is not None)
 
         pre_closing_listening: list[int | None] = [None]  # #421: listening tasks still to come before the closing (None: not counted yet)
+        def play_subject_choice(subjects: list) -> None:
+            """#528 step 1: the sentences take turns across lessons, and so do the pairs of subjects."""
+            turn = sc.lesson_number
+            item, keys = subjects[turn % len(subjects)]
+            start = turn % len(keys)
+            ex = b.subject_choice(sc, item, [keys[start], keys[(start + 1) % len(keys)]])
+            subject_choices.append(ex.label)
+
         while sc.total_duration < budget - closing_reserve:
             remaining = budget - closing_reserve - sc.total_duration
+            if (not subject_choices and sc.total_duration >= cfg.subject_choice_at * budget and remaining >= 60 and not in_new_block()
+                    and last_kinds_same(1) != "model" and (subjects := self.subject_candidates())):
+                play_subject_choice(subjects)  # scheduled, not left to spare time (``subject_choice_at``)
+                continue
             if self.components_mode and delivered_at[0] is not None and introduced and remaining <= 24 * ((len(introduced) - 1) // 3):
                 # the listening the closing's run of recalls used to hold (#248: one after every third), now in the last stretch before it (#421,
                 # lesson 38: inside the closing it felt nested); with nothing to hear, the lesson goes on as before
