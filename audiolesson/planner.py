@@ -4306,8 +4306,12 @@ class Planner:
             "open_not_fitted": [i for i in open_ids if i not in open_today],
             "reviewed_early": [i for i in reviews_used if i in early_ids],
             **spare,
-            "due_at_start": self.learner.due_count(self.today),
-            "due_not_fitted": [i.id for i in reviews if i.id not in self.exposures and self.learner.review_priority(i.id, self.today) >= 1.0],
+            # H9, lesson 54: the due items this lesson could ask (in the course, not asked by the learner's review today): what the pace's
+            # rules read. ``due_by_date`` keeps every item due by its date, the figure before
+            "due_at_start": self.learner.due_count(self.today, frozenset(self.cur.by_id)),
+            "due_by_date": sum(1 for i in self.learner.items if self.learner.review_priority(i, self.today) >= 1.0),
+            # each item once: the queue can hold an item twice, and the pace's rule counts this list (lesson 53: 20 items, listed 31 times)
+            "due_not_fitted": list(dict.fromkeys(i.id for i in reviews if i.id not in self.exposures and self.learner.review_priority(i.id, self.today) >= 1.0)),
             "dialogues": list(self.dialogues_played),
             "dialogues_listened": list(self.dialogues_listened),
             "listening_tried": list(self.listening_tried),

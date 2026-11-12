@@ -310,7 +310,7 @@ def main(argv: list[str] | None = None) -> int:
     for _ in range(args.lessons):
         known_c = sum(1 for c in cur.items if c.kind == "construction" and learner.knows(c.id))
         # as `generate`: the pace and the target rate worked out, the lesson's share planned, both stored once it is built (#410)
-        pace, _why, rate, _twhy = learner.plan_pace(minutes, day)
+        pace, _why, rate, _twhy = learner.plan_pace(minutes, day, frozenset(cur.by_id))
         target = lesson_target(rate, minutes)  # the lesson plans from its target of weighted components (#218 b3)
         timing = Timing(level=learner.level or cur.level, speech_ratio=dict(learner.speech_calibration))
         sc = Planner(cur, learner, prompts, timing, PlanConfig(minutes=minutes, new_items=pace, new_target=target, priority=priority, themes=themes, theme_scenarios=theme_scenarios), today=day).build()
