@@ -21,7 +21,7 @@ from datetime import date, timedelta
 from itertools import groupby
 
 from .claims import unkept_claims
-from .content import Curriculum, Dialogue, Item
+from .content import SUBJECTS, Curriculum, Dialogue, Item
 from .exercises import Builder, _norm_utterance, cue_is_answer
 from .sounds import hard_sounds, hard_words_of
 from .learner import REPORTED_HARD_DAYS, LearnerState
@@ -1564,6 +1564,22 @@ class Planner:
                 best = key
         return [best[2]] if best else []
 
+    def subject_candidates(self) -> list[tuple[Item, list[str]]]:
+        """#528 step 1: the sentences the learner says with «ég» that the course holds with other subjects (``Item.subjects``), in course order,
+        each with the subjects that can be set now: the item met and not failing, every word of its «ég» sentence one the learner says, and the
+        subject's pronoun too. An item with fewer than two such subjects waits."""
+        known = self.builder._known_words()
+        out = []
+        for it in self.cur.items:
+            if not it.subjects or not self.learner.has_met(it.id) or self.learner.is_open(it.id):
+                continue
+            if not all(w.lower() in known for w in _WORD_RE.findall(it.subjects_base)):
+                continue
+            keys = [k for k in it.subjects if SUBJECTS[k] in known]
+            if len(keys) >= 2:
+                out.append((it, keys))
+        return out
+
     def said_of_candidates(self) -> list[Item]:
         """#439 step 2: the gendered lines the learner has met in an earlier lesson and is not failing that say their word of him and of her
         (``Item.said_of``), in course order."""
@@ -2516,6 +2532,7 @@ class Planner:
         owed_hear = self.hear_owed_items()  # #444: reported hard to hear and not yet given listening support
         hear_supports: list[str] = []  # reported-hard-to-hear items given listening support in this lesson
         number_choices: list[str] = []  # #439 step 1b: the choice exercise played this lesson (its label), at most one
+        subject_choices: list[str] = []  # #528 step 1: a sentence said with other subjects this lesson (its label), at most one
         said_of_choices: list[str] = []  # #439 step 2: a gendered word said of him and of her this lesson (its label), at most one
         hear_settled: list[str] = []  # ... whose slow model already played the line by ear: no second exercise (lesson 49)
         slow_done: set[str] = set()
@@ -3692,6 +3709,16 @@ class Planner:
                     ex = b.number_choice(sc, lines)
                     number_choices.append(ex.label)
                     return True
+            if (kind == "today" and not subject_choices and remaining_time() >= 60 and last_kinds_same() not in ("recall", "generative")
+                    and any(i.id not in recent and not saturated(i) and i.id not in b.plain for i in introduced) and (subjects := self.subject_candidates())):
+                # #528 step 1: once a lesson, a sentence the learner says with «ég» said with two other subjects, after the number choice and before
+                # the word said of him and of her. The sentences take turns across lessons, and so do the pairs of subjects
+                turn = sc.lesson_number
+                item, keys = subjects[turn % len(subjects)]
+                start = (turn // len(subjects)) % len(keys)
+                ex = b.subject_choice(sc, item, [keys[start], keys[(start + 1) % len(keys)]])
+                subject_choices.append(ex.label)
+                return True
             if (kind == "today" and not said_of_choices and remaining_time() >= 60 and last_kinds_same() not in ("recall", "generative")
                     and any(i.id not in recent and not saturated(i) and i.id not in b.plain for i in introduced) and (said_of := self.said_of_candidates())):
                 # #439 step 2: once a lesson, a gendered word the learner knows said of him and of her, in a today's-items turn the number choice
@@ -4256,6 +4283,7 @@ class Planner:
             "touching_switches": sc.touching_switches(),
             "units_covered": list(units_covered),  # #336: fillers of a linked phrase met inside it
             "number_choices": list(number_choices),  # #439 step 1b: the forms of 1–4 practised as a choice this lesson
+            "subject_choices": list(subject_choices),  # #528 step 1: a sentence said with other subjects this lesson
             "said_of_choices": list(said_of_choices),  # #439 step 2: a gendered word said of him and of her this lesson
             "slow_models_reported": list(slow_models),  # #337: reported-hard items given the slow model of their hard word
             "hear_supports_reported": list(hear_supports) + list(hear_settled),  # #444: reported-hard-to-hear items given listening support

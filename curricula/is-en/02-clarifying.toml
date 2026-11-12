@@ -69,6 +69,12 @@ meaning_forms_ja = { in_sentence = "日本語" }
 
 [[items]]
 id = "eg_tala"
+# #528 step 1: the sentence with other subjects; the verb is the subject's choice (candidates until native-checked, #209)
+subjects_base = "Ég tala ensku."
+subjects = { we = "Við tölum ensku.", she = "Hún talar ensku.", you = "Þú talar ensku." }
+subjects_meaning = { we = "We speak English.", she = "She speaks English.", you = "You speak English." }
+subjects_meaning_ja = { we = "私たちは英語を話します。", she = "彼女は英語を話します。", you = "あなたは英語を話します。" }
+subject_verbs = { i = "tala", we = "tölum", she = "talar", you = "talar" }
 kind = "construction"
 target = "Ég tala {language}."
 meaning = "I speak {language}."
@@ -545,6 +551,12 @@ pronunciation_notes = "accusative of poki"
 # sentence the pattern's own introduction speaks.
 [[items]]
 id = "eg_tharf"
+# #528 step 1: the sentence with other subjects; the verb is the subject's choice (candidates until native-checked, #209)
+subjects_base = "Ég þarf hjálp."
+subjects = { we = "Við þurfum hjálp.", she = "Hún þarf hjálp.", you = "Þú þarft hjálp." }
+subjects_meaning = { we = "We need help.", she = "She needs help.", you = "You need help." }
+subjects_meaning_ja = { we = "私たちは助けが必要です。", she = "彼女は助けが必要です。", you = "あなたは助けが必要です。" }
+subject_verbs = { i = "þarf", we = "þurfum", she = "þarf", you = "þarft" }
 kind = "construction"
 target = "Ég þarf {thing}."
 meaning = "I need {thing}."
@@ -902,6 +914,12 @@ meaning_forms_ja = { te = "ツアーを予約して", tai = "ツアーを予約�
 
 [[items]]
 id = "eg_vil"
+# #528 step 1: the sentence with other subjects; the verb is the subject's choice (candidates until native-checked, #209)
+subjects_base = "Ég vil fara heim."
+subjects = { we = "Við viljum fara heim.", she = "Hún vill fara heim.", you = "Þú vilt fara heim." }
+subjects_meaning = { we = "We want to go home.", she = "She wants to go home.", you = "You want to go home." }
+subjects_meaning_ja = { we = "私たちは家に帰りたいです。", she = "彼女は家に帰りたがっています。", you = "あなたは家に帰りたいのですね。" }
+subject_verbs = { i = "vil", we = "viljum", she = "vill", you = "vilt" }
 kind = "construction"
 target = "Ég vil {inf}."
 meaning = "I want to {inf}."
@@ -928,6 +946,12 @@ situation_fill = { inf = "fara_heim" }
 
 [[items]]
 id = "eg_aetla_ad"
+# #528 step 1: the sentence with other subjects; the verb is the subject's choice (candidates until native-checked, #209)
+subjects_base = "Ég ætla að fara í sund."
+subjects = { we = "Við ætlum að fara í sund.", she = "Hún ætlar að fara í sund.", you = "Þú ætlar að fara í sund." }
+subjects_meaning = { we = "We're going to go swimming.", she = "She's going to go swimming.", you = "You're going to go swimming." }
+subjects_meaning_ja = { we = "私たちは泳ぎに行くつもりです。", she = "彼女は泳ぎに行くつもりです。", you = "あなたは泳ぎに行くつもりですね。" }
+subject_verbs = { i = "ætla", we = "ætlum", she = "ætlar", you = "ætlar" }
 kind = "construction"
 refresh = 3  # a light review every lesson once known (#171)
 target = "Ég ætla að {inf}."

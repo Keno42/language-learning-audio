@@ -58,6 +58,12 @@ situation_ja = "知り合ったばかりの女性に、出身を聞いてくだ�
 
 [[items]]
 id = "eg_er_i_frii"
+# #528 step 1: the sentence with other subjects; the verb is the subject's choice (candidates until native-checked, #209)
+subjects_base = "Ég er í fríi."
+subjects = { we = "Við erum í fríi.", she = "Hún er í fríi.", you = "Þú ert í fríi." }
+subjects_meaning = { we = "We're on holiday.", she = "She's on holiday.", you = "You're on holiday." }
+subjects_meaning_ja = { we = "私たちは休暇中です。", she = "彼女は休暇中です。", you = "あなたは休暇中です。" }
+subject_verbs = { i = "er", we = "erum", she = "er", you = "ert" }
 kind = "phrase"
 target = "Ég er í fríi."
 meaning = "I'm on holiday."
@@ -155,6 +161,12 @@ topics = ["social"]
 
 [[items]]
 id = "eg_by_i"
+# #528 step 1: the sentence with other subjects; the verb is the subject's choice (candidates until native-checked, #209)
+subjects_base = "Ég bý í Reykjavík."
+subjects = { we = "Við búum í Reykjavík.", she = "Hún býr í Reykjavík.", you = "Þú býrð í Reykjavík." }
+subjects_meaning = { we = "We live in Reykjavík.", she = "She lives in Reykjavík.", you = "You live in Reykjavík." }
+subjects_meaning_ja = { we = "私たちはレイキャビクに住んでいます。", she = "彼女はレイキャビクに住んでいます。", you = "あなたはレイキャビクに住んでいます。" }
+subject_verbs = { i = "bý", we = "búum", she = "býr", you = "býrð" }
 kind = "construction"
 target = "Ég bý í {town}."
 meaning = "I live in {town}."

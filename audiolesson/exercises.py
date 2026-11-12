@@ -13,7 +13,7 @@ from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
-from .content import Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample, said_of_words, split_note_span
+from .content import SUBJECTS, Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample, said_of_words, split_note_span
 from .learner import LearnerState
 from .numbers import NUMBER_TAGS, number_in, plain_number, value_of
 from .prompts import Prompts
@@ -1187,6 +1187,36 @@ class Builder:
             self._answer_pause(sc, ex, line.sentence, item, generative=False)
             self._answer(sc, ex, line.sentence, speaker=VOICE_OF[line.voice or "f"])
             if n < len(order) - 1:
+                self._beat(sc, ex)
+        self._gap(sc, ex)
+        return ex
+
+    def subject_choice(self, sc: Script, item: Item, keys: list[str]) -> Exercise:
+        """#528 step 1 (the owner, 2026-11-12: new material as numbers, colours and words is a memory game; «I want to feel a coach who makes me
+        choose the right verb form»; four sentences in five of the course say «ég»). A sentence the learner says with «ég», said with two other
+        subjects (``keys``): the «ég» sentence first, then each subject's with the verb's form named, the same form said so when it does not
+        change («Hún fer»: «The verb stays «fer».»), then each asked from its meaning, in the other order. One voice throughout."""
+        ex = sc.new_exercise("model", "subjects", [item.id], "subjects: " + " / ".join(item.subjects[k] for k in keys))
+        self._frame(sc, ex, self.prompts.get("subjects_intro"))
+        self._speak(sc, ex, item.subjects_base)
+        self._beat(sc, ex)
+        own = item.subject_verbs["i"]
+        for k in keys:
+            self._speak_note_text(sc, ex, self.prompts.get(f"subject_{k}"))
+            self._beat(sc, ex)
+            self._speak(sc, ex, item.subjects[k])
+            self._beat(sc, ex)
+            same = item.subject_verbs[k].lower() == own.lower()
+            self._speak_note_text(sc, ex, self.prompts.get("subject_verb_same" if same else "subject_verb", form=item.subject_verbs[k]))
+            if not (sc.segments and sc.segments[-1].type == "pause"):
+                self._beat(sc, ex)
+            self.heard.add(_norm_utterance(item.subjects[k]))
+        self._narr(sc, ex, self.prompts.get("number_choice_say"))
+        for n, k in enumerate(reversed(keys)):
+            self._narr(sc, ex, self._meaning_prompt(item.subjects_meaning[k]))
+            self._answer_pause(sc, ex, item.subjects[k], item, generative=False)
+            self._answer(sc, ex, item.subjects[k])
+            if n == 0:
                 self._beat(sc, ex)
         self._gap(sc, ex)
         return ex

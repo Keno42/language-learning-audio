@@ -161,6 +161,15 @@ class Item:
     # twice (``Builder.command_support``)
     command: str = ""
     said_of_meaning: dict[str, str] = field(default_factory=dict)
+    # #528 step 1 (the owner, 2026-11-12: «I want to feel a coach who makes me choose the right verb form»): a sentence the learner says with
+    # «ég», said with other subjects. ``subjects_base`` is the «ég» sentence («Ég fer á morgun.»; for a pattern, one of its sentences),
+    # ``subjects`` the same sentence for ``we`` / ``she`` / ``he`` / ``you`` / ``they`` («Við förum á morgun.»), ``subjects_meaning`` what each
+    # means (per language), ``subject_verbs`` the verb's form for ``i`` and for each subject («fer», «förum»). A lesson sets them side by side
+    # and asks each: the verb is practised as the subject's choice
+    subjects_base: str = ""
+    subjects: dict[str, str] = field(default_factory=dict)
+    subjects_meaning: dict[str, str] = field(default_factory=dict)
+    subject_verbs: dict[str, str] = field(default_factory=dict)
     examples: list[TransformExample] = field(default_factory=list)  # transform pairs
     # transform: each result answers its source (a question and its answer, «Hvað kostar kaffi?» → «Það kostar sex hundruð krónur.»), so the pairs are
     # introduced as a question and its answer, not «becomes», and ``instruction`` may name the answer's meaning as ``{result_meaning}`` (draft of lesson 52:
@@ -619,7 +628,7 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
 
 
 # fields that may carry per-language glosses (``<field>_<lang>``)
-_GLOSSED_ITEM = ("meaning", "context", "negative_meaning", "question_meaning", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation", "form_reason", "said_of_meaning")
+_GLOSSED_ITEM = ("meaning", "context", "negative_meaning", "question_meaning", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation", "form_reason", "said_of_meaning", "subjects_meaning")
 _GLOSSED_EXAMPLE = ("source_meaning", "result_meaning")
 _GLOSSED_TURN = ("cue", "opener_meaning", "partner_meaning", "expect_meaning", "scene", "partner_scene")
 _GLOSSED_DIALOGUE = ("setting",)
@@ -984,6 +993,28 @@ def pronoun_cues(cur: Curriculum) -> list[tuple[str, str, list[str]]]:
     return out
 
 
+SUBJECTS = {"we": "við", "she": "hún", "he": "hann", "you": "þú", "they": "þau"}  # #528: the subjects a sentence may be said with, and their pronoun
+
+
+def _check_subjects(it: Item) -> None:
+    """#528 step 1: ``subjects`` goes on a phrase or a pattern, with its «ég» sentence, two subjects or more, a meaning for each, and the verb's
+    form for «ég» and for each subject; each line opens with its pronoun and holds its verb form."""
+    if it.kind not in ("phrase", "construction"):
+        raise CurriculumError(f"item {it.id!r}: subjects goes on a phrase or a pattern")
+    words = lambda text: re.findall(r"[^\W\d_]+", text.lower())
+    if len(it.subjects) < 2 or set(it.subjects) - set(SUBJECTS):
+        raise CurriculumError(f"item {it.id!r}: subjects needs two or more of {', '.join(SUBJECTS)}")
+    if set(it.subjects_meaning) != set(it.subjects) or set(it.subject_verbs) != set(it.subjects) | {"i"}:
+        raise CurriculumError(f"item {it.id!r}: subjects_meaning needs a line for each subject, and subject_verbs one for each and for «i»")
+    base = words(it.subjects_base)
+    if not base or base[0] != "ég" or it.subject_verbs["i"].lower() not in base:
+        raise CurriculumError(f"item {it.id!r}: subjects_base is the «ég» sentence and holds its verb ({it.subjects_base!r})")
+    for key, line in it.subjects.items():
+        said = words(line)
+        if not said or said[0] != SUBJECTS[key] or it.subject_verbs[key].lower() not in said:
+            raise CurriculumError(f"item {it.id!r}: subjects {key} opens with «{SUBJECTS[key].capitalize()}» and holds «{it.subject_verbs[key]}»: {line!r}")
+
+
 def _check_said_of(it: Item) -> None:
     """#439 step 2: ``said_of`` goes on a gendered phrase (``target_m``), with a line for him («Hann …») and for her («Hún …») and a meaning for each;
     the line for him says the word ``target_m`` changes, the line for her that word of ``target``."""
@@ -1180,6 +1211,8 @@ def validate(cur: Curriculum) -> None:
             _check_counts(cur, it)
         if it.said_of or it.said_of_meaning:
             _check_said_of(it)
+        if it.subjects or it.subjects_base or it.subject_verbs or it.subjects_meaning:
+            _check_subjects(it)
         if it.command and (it.kind != "phrase" or it.command not in COMMAND_KEYS):
             raise CurriculumError(f"item {it.id!r}: command names an instruction the lessons say ({', '.join(COMMAND_KEYS)}), on a phrase")
         if it.instance_of or it.instance_fill or it.instance_form:

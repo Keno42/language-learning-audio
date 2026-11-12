@@ -176,6 +176,12 @@ topics = ["time"]
 
 [[items]]
 id = "eg_fer"
+# #528 step 1: the sentence with other subjects; the verb is the subject's choice (candidates until native-checked, #209)
+subjects_base = "Ég fer á morgun."
+subjects = { we = "Við förum á morgun.", she = "Hún fer á morgun.", you = "Þú ferð á morgun." }
+subjects_meaning = { we = "We're leaving tomorrow.", she = "She's leaving tomorrow.", you = "You're leaving tomorrow." }
+subjects_meaning_ja = { we = "私たちは明日出発します。", she = "彼女は明日出発します。", you = "あなたは明日出発します。" }
+subject_verbs = { i = "fer", we = "förum", she = "fer", you = "ferð" }
 kind = "construction"
 target = "Ég fer {time}."
 meaning = "I'm leaving {time}."
@@ -189,6 +195,12 @@ prereqs = ["a_morgun"]
 
 [[items]]
 id = "eg_kem"
+# #528 step 1: the sentence with other subjects; the verb is the subject's choice (candidates until native-checked, #209)
+subjects_base = "Ég kem í kvöld."
+subjects = { we = "Við komum í kvöld.", she = "Hún kemur í kvöld.", you = "Þú kemur í kvöld." }
+subjects_meaning = { we = "We'll come this evening.", she = "She'll come this evening.", you = "You'll come this evening." }
+subjects_meaning_ja = { we = "私たちは今晩来ます。", she = "彼女は今晩来ます。", you = "あなたは今晩来ます。" }
+subject_verbs = { i = "kem", we = "komum", she = "kemur", you = "kemur" }
 kind = "construction"
 target = "Ég kem {time}."
 meaning = "I'll come {time}."  # lesson 47: «I'm coming!» is «Ég er að koma!»
