@@ -393,7 +393,7 @@ def pick_variants(
 def written_value_lines(themes: list[Theme]) -> frozenset[str]:
     """The lines of the partner turns that say the number their turn says as written: the line as written and its other wordings. A level's late
     play says every line as written, so a learner who has played the level has heard that value, whatever the log of the exchanges' lines holds:
-    it began with #520, and the turns outside the hotel desk and the bus had one value until #533. The planner lets such a line with no record
+    it began with #520, and the turns outside the hotel desk and the bus had one value until #534. The planner lets such a line with no record
     rest behind the turn's other values (``Planner`` ``line_tired``): on the replay of lesson 54's export, before this, seven of the ten number
     lines the heard exchanges said kept the old value, since a value never said tied with it."""
 
