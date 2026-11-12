@@ -144,6 +144,12 @@ class Item:
     # construction (#270): why a noun takes another form in this frame, in the learner's language, said once a lesson after the form is
     # named against the one the learner knows («This form comes after «leita að».»). Names the words that decide, never the translation
     form_reason: str = ""
+    # a phrase or a chunk that holds a noun in a form other than its basic word, when the noun has no item of its own (#439 step 3; lessons 52
+    # and 54: «nafninu» in «Á nafninu Yuki.», «mánudaginn» in «á mánudaginn»): ``form_base`` is the basic word («nafn», «mánudagur»), ``form_word``
+    # the word of the target that changed (the target itself when it is one word). The introduction names the form against its basic word, then says
+    # ``form_reason`` once a lesson: which form it is and the words that decide it
+    form_word: str = ""
+    form_base: str = ""
     # #439 step 1b: the noun (its ``noun`` key) a form of 1–4 in this phrase, or in this construction's sentences, agrees with («midi» for «Tvo miða,
     # takk.»): a line that names it is one the lesson can set beside a line of another gender, so the form is practised as the noun's choice
     counts: str = ""
@@ -1014,8 +1020,17 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"item {it.id!r}: a noun form needs the noun's gender")
             if it.noun_base and it.noun_base.strip().lower() == it.target.strip().lower():
                 raise CurriculumError(f"item {it.id!r}: noun_base is the basic word when it differs from the form ({it.target!r})")
-        if it.form_reason and not (it.kind == "construction" and it.slots):
-            raise CurriculumError(f"item {it.id!r}: form_reason goes on a construction with a slot (#270: the frame that asks the form)")
+        if it.form_reason and not (it.kind == "construction" and it.slots) and not it.form_base:
+            raise CurriculumError(f"item {it.id!r}: form_reason goes on a construction with a slot (#270: the frame that asks the form), or on an item with form_base")
+        if it.form_base or it.form_word:
+            words = [w.lower() for w in _WORD_RE.findall(it.target)]
+            word = (it.form_word or (words[0] if len(words) == 1 else "")).lower()
+            if it.kind not in ("phrase", "vocab") or it.noun:
+                raise CurriculumError(f"item {it.id!r}: form_base goes on a phrase or a chunk whose noun has no item of its own (a noun form has noun_base, #270)")
+            if not it.form_base or not word or word not in words:
+                raise CurriculumError(f"item {it.id!r}: form_base names the basic word of form_word, a word of the target ({it.target!r})")
+            if it.form_base.strip().lower() == word:
+                raise CurriculumError(f"item {it.id!r}: form_base is the basic word when it differs from the form ({word!r})")
         if it.gender is not None and it.gender not in GENDERS:
             raise CurriculumError(f"item {it.id!r}: gender {it.gender!r} must be one of {sorted(GENDERS)}")
         if it.kind != "transform" and _UNSPEAKABLE_RE.search(it.spoken_meaning):

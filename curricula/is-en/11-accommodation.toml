@@ -19,6 +19,11 @@ kind = "phrase"
 target = "Á nafninu Yuki."
 meaning = "Under the name Yuki."
 meaning_ja = "ユキの名前で。"
+# #439 step 3 (lesson 52: «nafninu» came with no word on its form, and the line failed the next day)
+form_word = "nafninu"
+form_base = "nafn"
+form_reason = "The ending adds \"the\". It is the dative: the form after «á» here."
+form_reason_ja = "語尾に定冠詞が付いた与格です。ここでは «á» のあとなので、この形になります。"
 difficulty = 3
 topics = ["accommodation"]
 situation = "The receptionist asks what name the booking is under. Say: under the name Yuki."

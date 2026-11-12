@@ -849,6 +849,8 @@ class Builder:
             self._narr(sc, ex, self.prompts.get("man_says"))
             self._speak(sc, ex, item.target_m, speaker=VOICE_OF["m"])
             self._repeat_pause(sc, ex, item.target_m)
+        if item.form_base:
+            self._word_form(sc, ex, item)  # #439 step 3: before the first retrieval, the word whose form is not its basic one
         # end the introduction with a first real retrieval
         gender = self.speaker_gender(item)
         target = self._gendered(item, gender)
@@ -1253,6 +1255,9 @@ class Builder:
         noun the learner has met («bíl» ← «bíll»; «hótelinu» ← «hótelið», said as «You know it as:», not as the basic word). Then, once a lesson per
         frame, why the form changes there, when the frame says it (``form_reason``: «This form comes after «leita að».»): the words that decide,
         not the translation."""
+        if item.form_base:
+            self._word_form(sc, ex, item)  # #439 step 3: a chunk whose noun has no item of its own («á mánudaginn»)
+            return
         if (found := self.basic_form_of(item)) is not None:
             word, kind = found
             self._frame(sc, ex, self.prompts.get("form_of_base" if kind == "basic" else "form_known_as"))
@@ -1262,6 +1267,20 @@ class Builder:
                 self.form_reasons_said.add(frame.id)
                 self._speak_note_text(sc, ex, frame.form_reason)
                 self._beat(sc, ex)
+
+    def _word_form(self, sc: Script, ex: Exercise, item: Item) -> None:
+        """#439 step 3 (lesson 52: «nafninu» and «bókun», new in the hotel's lines, came with no word on their form and failed the next day; lesson 54:
+        «what case is ~daginn?»): a new phrase or chunk whose noun is in a form other than its basic word, the noun having no item of its own, names
+        the form against the basic word («nafninu» is a form of «nafn».), then says which form it is and what decides it (``form_reason``), once a
+        lesson for the same reason: three days taught in one lesson share theirs."""
+        words = WORD.findall(item.target)
+        word = item.form_word or (words[0] if words else item.target)
+        self._speak_note_text(sc, ex, self.prompts.get("form_word_of", word=word, base=item.form_base))
+        self._beat(sc, ex)
+        if item.form_reason and item.form_reason not in self.form_reasons_said:
+            self.form_reasons_said.add(item.form_reason)
+            self._speak_note_text(sc, ex, item.form_reason)
+            self._beat(sc, ex)
 
     def _intro_from_known(self, sc: Script, item: Item) -> Exercise:
         """Lesson 51: «fimm þúsund krónur» and «tíu þúsund krónur», every word known, were announced «Something new.» and «A new expression.». A plain
