@@ -22,7 +22,13 @@ In order:
    increase: waiting for the fade held the item still. **This round's step (#524):** «Hægt.» for «Slowly.» and «Hlustaðu aftur.» for a
    pick-out's «Listen again.», one a lesson, with no wait for the fade. **Next:** «And at natural speed.», «The answer:», «Back to
    speaking.» and the catch's «Now listen again.», once these two have had their feedback.
-2. **Numbers in varied situations (#451, owner 2026-11-09).** Numbers where a traveller meets them, sorted into eight kinds in #451
+2. **Forms as choices (#528, owner 2026-11-12).** «New material should not be more numbers, colours and words to memorise; I want to feel a
+   coach who makes me choose the right case and the right verb form.» The course itself is one-sided: of 256 sentences that open with a
+   subject pronoun, 207 say «ég»; «vilja», «þurfa» and «eiga» exist in one form; the learner has two forms of three nouns. **Next, its
+   first step:** the verb by its subject on sentences the learner already says («Ég fer á morgun.» → «Við förum á morgun.»), as a
+   choice, with the forms authored for the verbs they use most. Then the noun by its frame, the lesson saying what it trains, and the
+   pace counting a form set as a choice as new material (#528's steps 2–4).
+3. **Numbers in varied situations (#451, owner 2026-11-09).** Numbers where a traveller meets them, sorted into eight kinds in #451
    (money, time, dates, counts and people, numbers as names, weather and roads, contacts and codes, about oneself), mostly by ear,
    rotated so no kind and no number word comes back within a few lessons. Merged: step 1 (#508), step 2, scenes for every kind
    (#509–#513), step 3, the rotation of the pick-outs and of what the learner says (#515, #516), and step 3d, the number an exchange's
@@ -30,8 +36,8 @@ In order:
    gráður.»; #520 has not played (the museum's lines have one value). **Next:** variants for the 18 other partner turns whose exchange
    says one value (data, scene by scene), and #451's acceptance restated for what a scene says: «no number word in more than two of five
    lessons» counts the reviews and the number choice too, and is not met.
-3. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
-4. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
+4. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
+5. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
 **This round:** #429's second step (#524), above. On the replay of lesson 54's export the next lesson teaches «Hægt.» and the one after
 «Hlustaðu aftur.», each said four times or more with its English after it.
@@ -48,11 +54,10 @@ thick, and the instructions in Icelandic did not increase (LD §5.44). The learn
    one with one new word («Er þetta ull?») is still said nine times. **Next, two steps:** (a) #439 step 3, a new noun met in a form
    other than its nominative gets a word on its form: lesson 52's «nafninu» and «bókun» failed in the review, and lesson 54's question
    is on «mánudaginn»; (b) the rest of #518, a dose for every new item, which waits for the owner's three decisions.
-2. **The pace cannot rise while the reviews fit (H9).** Lesson 54 was «light» at a target of 7. Built (#526): the backlog counts the due
-   items a lesson can ask (lesson 54: 56, not 72), and each unfitted item once. It would not have changed lesson 54: the target fell
-   by lesson 53's unfitted reviews (20 of 45), rightly. What holds it at 7 is the rise's «small backlog», due items under half the
-   review slots: on the replay 43–56 are due each day against 82 slots, and every lesson fits them. **Next:** the owner's call on
-   whether a rise reads «the last lesson's due reviews fitted» in its place (LD §9 "Pace").
+2. **The pace rises when the reviews fit (H9).** Lesson 54 was «light» at a target of 7. Built: the backlog counts the due items a
+   lesson can ask, and each unfitted item once (#526); a rise reads whether the last lesson's due reviews fitted, not an estimate of the
+   backlog (the owner, 2026-11-12). On the replay the target rises by one a lesson while every new item is recalled and the lessons are
+   rated «light». **Next:** read the load rating as it rises; a «right» does not stop a rise, a «heavy» does.
 3. **The listening pool's sameness (#339).** All four of lesson 54's pick-outs were on a line heard in the three lessons before. On the
    replay lesson 56 has 14 pick-outs after its target. **Next:** a pick-out rotates by line, a line heard recently is left for another,
    and a lesson's pick-outs have a ceiling.
@@ -64,7 +69,7 @@ thick, and the instructions in Icelandic did not increase (LD §5.44). The learn
 before adding practice. Scene coherence (#327): lesson 50 said four of its six new items as turns of the played exchange, lesson 51 none of its
 ten (its exchange was a level played again). The note's pieces (#481) have not played yet. A silent clip taken as cut off (#503) is built; «vettlinga», whose syllable «lin» it was found on, has not played since.
 
-**Longer term:** the long run above holds the order; what is not in it waits there as an issue. Remaining after its four: understanding a partner's prompt, not only saying the reply (#327, #265, #464); expressions usable in exchanges (#327, #265); winter and safety scenes (#142), as one bounded batch.
+**Longer term:** the long run above holds the order; what is not in it waits there as an issue. Remaining after its five: understanding a partner's prompt, not only saying the reply (#327, #265, #464); expressions usable in exchanges (#327, #265); winter and safety scenes (#142), as one bounded batch.
 
 **The long run alongside:** #327, one scene at a time for the new material the path brings, each a data PR of authored
 Icelandic (candidates until native-checked). The town (asking the way), small talk (getting to know someone) and the
