@@ -31,7 +31,7 @@ from .listening_tasks import REPAIR_ITEM, ListeningTask, SecondHalfRotation, app
 from .prompts import Prompts
 from .script import Script
 from .stages import ladder_for, next_stage, stage_index
-from .themes import level_dialogue, pick_variants
+from .themes import level_dialogue, pick_variants, written_value_lines
 from .text import WORD, words as _words
 from .timing import Timing
 from .transitions import LISTENING_TASK_KINDS, SCENE_UNIT_KINDS, close_tasks
@@ -3284,15 +3284,24 @@ class Planner:
             heard_now = Counter(w for g in sc.segments if g.type in ("speak", "answer") and g.text and g.lang == self.cur.target_lang for w in number_words(g.text))
             return lambda say: sum(heard_now[w] + (w in recent) for w in number_words(say))
 
+        written_values = written_value_lines(cfg.themes or [])
         exchange_lines: list[str] = []  # #451 step 3d: the number lines the exchanges' partners said in this lesson (the log for the lessons after)
 
         def line_tired() -> Callable[[str], tuple]:
             """#451 step 3d: how tired a line of an exchange is, least first: the lesson an exchange last said it (this one counts as the latest, never
-            as 0), then its number words. Its words alone would say the line with the rarest words every time: on the replay of lesson 53's export
+            as 0), then whether it is the turn's number as written with no record (heard before the
+            record began), then its number words. Its words alone would say the line with the rarest words every time: on the replay of lesson 53's export
             «herbergi hundrað og fimmtán» came in four lessons running, since «þrjú», «hundruð» and «sex» are said all through a lesson."""
             words = number_tired()
             now = self.learner.next_lesson_number()
-            return lambda say: (now if say in exchange_lines else self.learner.listening_log.get(f"exchange:{say}", 0), words(say))
+
+            def tired(say: str) -> tuple:
+                said = now if say in exchange_lines else self.learner.listening_log.get(f"exchange:{say}", 0)
+                # a line with no record that says its turn's number as written was said before the record began (the level's late play): it rests
+                # behind the turn's values never said, ahead of the ones on record
+                return (said, not said and say in written_values, words(say))
+
+            return tired
 
         def log_numbers(level, picks: dict[int, int]) -> None:
             """#451 step 3d: the number words an exchange's partner said, so they rest in the lessons after as a pick-out's do, and the lines

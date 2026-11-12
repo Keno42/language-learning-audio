@@ -47,8 +47,8 @@ woman: …», owner after #381, as the review does, #375). `validate` checks eve
 a theme that serves a Tier A or B scenario, naming the scenarios none of whose items is said yet (#327), and warns about a theme whose
 scenario is Tier C: `scenario_order` ranks it only when the trip profile boosts that scenario, so without one it is never played. The
 lesson picks one theme (`Planner.pick_theme`; H4 in docs/LEARNING-DESIGN.md) and plays
-its exchange twice; `plan.json` names the theme and level. A partner line carries 1–2 `variants` (how another clerk says
-the same thing, #134); the early (translated) play uses a variant; the late play says the line as written; the transcript marks the lines used. The wordings are
+its exchange twice; `plan.json` names the theme and level. A partner line carries `variants`: one or two other wordings (how another clerk says
+the same thing, #134) and, where it says a number, two other values (another price, time or length of a walk, #451: every number a partner says in an exchange has them, except a line that says the learner's own order back); the early (translated) play uses a variant; the late play says the line as written; the transcript marks the lines used. The wordings are
 candidates for native-speaker correction. General content only: the private trip profile decides which
 scenarios come first and never appears here.
 
