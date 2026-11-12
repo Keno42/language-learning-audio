@@ -52,6 +52,36 @@ class DueAskableTests(unittest.TestCase):
         self.assertEqual(target, 7.0)
         self.assertIn("70 items due", why)
 
+    def rising(self, lessons):
+        """A learner at a target of 7 whose latest new items were all recalled, with 50 items due (a backlog over half the review slots)."""
+        learner = LearnerState("is", "en", "A1")
+        learner.new_target = 7.0
+        learner.lessons_completed = len(lessons)
+        learner.lessons = lessons
+        learner.reported = [le["number"] for le in lessons]
+        for le in lessons:
+            for i in le["new_items"]:
+                learner.items[i] = ItemState(stage="meaning", successes=3, recalled=1, last_outcome="recalled", introduced_lesson=le["number"],
+                                             due=(TODAY + timedelta(days=20)).isoformat(), history=[{"lesson": le["number"], "stages": ["intro"], "ok": True, "outcome": "recalled"}])
+        for k in range(50):
+            learner.items[f"d{k}"] = due()
+        return learner
+
+    def lesson(self, n, **record):
+        return {"number": n, "date": (TODAY - timedelta(days=4 - n)).isoformat(), "new_items": [f"n{n}_{k}" for k in range(8)], **record}
+
+    def test_a_rise_reads_whether_the_last_lessons_due_reviews_fitted(self):
+        """The owner, 2026-11-12. Lesson 54 was «light» at a target of 7 and fitted 54 of its 56 due reviews; a rise waited for the due items to
+        fall under half the review slots, which about fifty due a day never do. What the last lesson did decides: its reviews fitted."""
+        fitted = self.rising([self.lesson(1), self.lesson(2), self.lesson(3, due_at_start=56, due_not_fitted=2)])
+        target, why = fitted.suggest_target(30, TODAY)
+        self.assertEqual(target, 8.0, why)
+        self.assertIn("the last lesson's due reviews fitted", why)
+        left = self.rising([self.lesson(1), self.lesson(2), self.lesson(3, due_at_start=56, due_not_fitted=9)])
+        self.assertEqual(left.suggest_target(30, TODAY)[0], 7.0, "nine of 56 left: more than a tenth, no rise (and under a quarter, no fall)")
+        old = self.rising([self.lesson(1), self.lesson(2), self.lesson(3)])
+        self.assertEqual(old.suggest_target(30, TODAY)[0], 7.0, "no record of what fitted: the estimate stands, and 50 due is over half the slots")
+
     def test_a_lesson_records_what_it_could_ask_and_each_unfitted_item_once(self):
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         learner = LearnerState("is", "en", "A1")
