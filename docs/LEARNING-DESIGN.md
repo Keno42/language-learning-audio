@@ -823,6 +823,14 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
   - `connect` without an authored bridge is mixed review, and says so (#78).
 - **Repetition.**
   - New items may repeat within a lesson and are never dropped (#147).
+  - **Three doses, raised by the reviews (#518; owner, 2026-11-12).** «Reduce the first lesson's practice for every item, and raise it for
+    the kinds the feedback shows need more: it cannot be judged before the lesson is taken and the review tried, so use a feedback loop.»
+    A new item is light (a plain number, a phrase made of known words, an instruction: one timed recall, four says at most), middle
+    (the default: two timed recalls, at about 1 and 8 minutes of 30, six says at most) or heavy (the four recalls and nine says every item
+    had before). Heavy needs evidence: a trait of the item (five words or more, a long word, difficulty 3 or more, a pattern, a noun in
+    another form) whose new items the next-day review found weak at more than 20% over the latest 120, with eight of them or more. H9 aims
+    at 80–85% next-day success; the learner's 423 new items stood at 93% recalled on the old dose, no trait above 14% weak. An item that
+    fails is practised as before (open, hard): the loop is for the items still to come. No word is marked easy by hand.
   - **A fixed dialogue retires after two complete plays (#416; owner after lesson 53: «retire the whole replay and keep
     single lines»).** Partial encounters do not count. Its lines stay as single lines: a due, failed, hesitated or
     reported-hard item is practised on its own (the review, the open items, a hard item's connections), never by playing
