@@ -55,7 +55,10 @@ summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wro
 - **Pace (H9).** The unit is weighted new components (#218), not new items; it never depends on the departure date, and is
   throttled only by what the learner reports (recall over the last three lessons, the load rating). Close variants do not
   fill spare time; a form comes with a purpose.
-- **Repetition.** A short item is said alone at most three times a lesson; a fixed sentence at most nine; the same
+- **Repetition.** A new item's practice in the lesson that teaches it has three doses (#518, owner 2026-11-12): every item starts on the
+  middle one (two timed recalls, a new sentence said six times at most); light for a plain number or a phrase made of known words; heavy
+  (four recalls, nine times) only for a kind of item the next-day reviews find weak. A short item is said alone at most three times a
+  lesson; a fixed sentence at most nine; the same
   situation (authored, or a scene check's line) narrated in full at most twice, and not right after itself when the cue has another way. A pattern is not a lesson's whole supply (about ten generated sentences). Not-due
   items wait for their date (#94), with one exception for spare time (LD §9 "Repetition"). An open item (failed) is practised every lesson and asked at the next review until it is
   recalled. A fixed authored dialogue retires after two complete plays, whatever the state of its items; its lines
