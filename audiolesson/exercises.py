@@ -1235,8 +1235,9 @@ class Builder:
 
     def subject_again(self, sc: Script, item: Item, key: str) -> Exercise:
         """#528 step 3: the closing asks the day's form work once more, as it asks the day's new lines: one of the sentences the subject choice
-        set, from its meaning."""
-        ex = sc.new_exercise("model", "subjects_again", [item.id], "subjects: " + item.subjects[key])
+        set, from its meaning. A recall of the closing block, which holds nothing but the day's material (#435); it names no item, so the
+        sentence's «ég» item is not counted as asked or reviewed by it."""
+        ex = sc.new_exercise("recall", "subjects_again", [], "subjects: " + item.subjects[key])
         self._frame(sc, ex, self.prompts.get("closing_form_work"))
         self._narr(sc, ex, self._meaning_prompt(item.subjects_meaning[key]))
         self._answer_pause(sc, ex, item.subjects[key], item, generative=False)

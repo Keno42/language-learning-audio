@@ -109,7 +109,8 @@ class SubjectTests(unittest.TestCase):
         (again,) = [e for e in sc.exercises if e.stage == "subjects_again"]
         self.assertGreater(again.index, choice.index)
         self.assertEqual(sc.exercises[again.index + 1].kind, "closing")
-        item = self.cur.by_id[again.item_ids[0]]
+        self.assertEqual((again.kind, again.item_ids), ("recall", []), "the closing block's kind (#435); the «ég» item is not counted as asked")
+        item = self.cur.by_id[choice.item_ids[0]]
         sentence = again.label.removeprefix("subjects: ")
         self.assertIn(sentence, choice.label)
         key = next(k for k, v in item.subjects.items() if v == sentence)
