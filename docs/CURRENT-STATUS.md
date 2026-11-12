@@ -43,7 +43,7 @@ In order:
    says the same number line in two of the six. **#451's acceptance, restated for what a scene says:** no exchange's number line in two of
    five lessons (met), and no remark over three feedbacks that numbers repeat or come from one situation (lessons 53 and 54 had none).
    «No number word in more than two of five lessons» is dropped as a count: the reviews and the number choice say the forms of 1–4 by
-   their own schedule, in every lesson.
+   their own schedule, in every lesson. The issue is closed (owner, 2026-11-12); what reopens it is below.
 4. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 5. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
@@ -181,6 +181,8 @@ to come down):
 - #270 (a known word in a new form, the umbrella): the dative place forms and the naming of a form against its basic word are built
   (#368, #527). The frames left (accusative orders, `dat_town`, `dat_hobby`) are #528's second step, the noun by its frame. Reopens if
   #528 drops that step.
+- #451 (numbers where a traveller meets them): its steps are merged (#508–#513, #515, #516, #520, #534). Reopens on a remark that
+  numbers repeat or come from one situation.
 - #209 (a packet for a fluent speaker): the tool is built (#532). The review itself needs a person; when one is available, a new issue
   takes the corrections.
 
