@@ -131,8 +131,9 @@ around 80–85%.
   counts too): above 25% failures, pace − 1; 15–25% holds.
 - If the due items the lesson can ask (due by date, in the course, not asked by the learner's own review today) exceed ~80% of the
   lesson's review slots, pace − 1.
-- Pace + 1 only on evidence: the window at ≤ 15% failures and the backlog small, or the
-  last two rated lessons both «light» (`report --load light|right|heavy`) at ≤ 25% with a small backlog. A lesson with no rating is skipped: it neither breaks nor extends the run. Any «heavy»
+- Pace + 1 only on evidence, with room for it: the window at ≤ 15% failures, or the
+  last two rated lessons both «light» (`report --load light|right|heavy`) at ≤ 25%. Room: the last lesson's due reviews fitted (no more than a
+  tenth of the due items it could ask were left); without that record, the due items under half the review slots. A lesson with no rating is skipped: it neither breaks nor extends the run. Any «heavy»
   in the window blocks a rise; one step a lesson at most. In manual mode, without `report` the
   pace never rises. A load-only report does not mark the lesson reported. `load-preview` prints, as JSON, the next lesson's
   target for each load answer, presuming the review recalls the latest lesson's new items.
