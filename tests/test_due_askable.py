@@ -63,6 +63,12 @@ class DueAskableTests(unittest.TestCase):
         sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY).build()
         self.assertEqual((sc.meta["due_at_start"], sc.meta["due_by_date"]), (8, 13))
         self.assertEqual(len(sc.meta["due_not_fitted"]), len(set(sc.meta["due_not_fitted"])))
+        # review of #526: the description promised both counts in plan.json; ``_plan`` exported neither
+        from audiolesson.cli import _plan
+
+        plan = _plan(sc, cur)
+        self.assertEqual((plan["due_at_start"], plan["due_by_date"]), (8, 13))
+        self.assertEqual(plan["due_not_fitted"], sc.meta["due_not_fitted"])
 
 
 if __name__ == "__main__":
