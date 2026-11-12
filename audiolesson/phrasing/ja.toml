@@ -124,6 +124,9 @@ number_choice_say = "では、それぞれ言ってみましょう。"
 # #439 step 2: a gendered word said of him and of her, side by side, then each asked again
 # #528 step 1: «ég» で言える文を、ほかの主語で言う。動詞の形は主語で決まる
 subjects_intro = "同じ動詞でも、主語によって形が変わります。あなたが言うときは："
+# #528 step 3: the goal names the day's form work, and the closing asks it once more
+lesson_goal_subjects = "今日の形の練習：知っている文を、ほかの人を主語にして言います。"
+closing_form_work = "今日の形の練習を、もう一度。"
 subject_we = "«við»、私たちのときは："
 subject_she = "«hún»、彼女のときは："
 subject_he = "«hann»、彼のときは："

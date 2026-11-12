@@ -26,9 +26,11 @@ In order:
    coach who makes me choose the right case and the right verb form.» The course itself is one-sided: of 256 sentences that open with a
    subject pronoun, 207 say «ég»; «vilja», «þurfa» and «eiga» exist in one form; the learner has two forms of three nouns. **Built, step 1 (#531):** the
    verb by its subject. Eight sentences the learner says («Ég fer á morgun.», «Ég þarf hjálp.», «Ég er í fríi.» …) are held with «við»,
-   «hún» and «þú»; once a lesson, at about minute 14, one is said with two other subjects, the verb's form named, and each asked. **Next:**
-   the lesson says what it trains (its goal and closing name the form work), then the noun by its frame and the pace counting a form set
-   as a choice as new material (#528's steps 2–4).
+   «hún» and «þú»; once a lesson, at about minute 14, one is said with two other subjects, the verb's form named, and each asked. **Built, step 3 (#535):**
+   the lesson says what it trains. The goal after the opening ends on «Today's form work: One sentence you know, said of someone else.»,
+   and the last question before the lesson's closing words asks one of the choice's sentences again, the one whose verb changes («Today's
+   form work, once more.»). On the replay of lesson 54's export each of the next three lessons says both. **Next:** the noun by its frame,
+   and the pace counting a form set as a choice as new material (#528's steps 2 and 4).
 3. **Numbers in varied situations (#451, owner 2026-11-09).** Numbers where a traveller meets them, sorted into eight kinds in #451
    (money, time, dates, counts and people, numbers as names, weather and roads, contacts and codes, about oneself), mostly by ear,
    rotated so no kind and no number word comes back within a few lessons. Merged: step 1 (#508), step 2, scenes for every kind
@@ -41,7 +43,7 @@ In order:
    says the same number line in two of the six. **#451's acceptance, restated for what a scene says:** no exchange's number line in two of
    five lessons (met), and no remark over three feedbacks that numbers repeat or come from one situation (lessons 53 and 54 had none).
    «No number word in more than two of five lessons» is dropped as a count: the reviews and the number choice say the forms of 1–4 by
-   their own schedule, in every lesson.
+   their own schedule, in every lesson. The issue is closed (owner, 2026-11-12); what reopens it is below.
 4. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 5. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
@@ -95,7 +97,7 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
-- **After lesson 54:** a new phrase made of words the learner says is asked as a use of them (#518: #523); the long run: «Hægt.» and «Hlustaðu aftur.» taught as instructions (#429: #524); a new noun's form named against its basic word (#439 step 3: #527); the pace counts the due items a lesson can ask, and a rise reads whether the last lesson's reviews fitted (#526, #530); the verb by its subject (#528 step 1: #531); every number a partner says in an exchange has other values, the old one resting behind them (#451: #534).
+- **After lesson 54:** a new phrase made of words the learner says is asked as a use of them (#518: #523); the long run: «Hægt.» and «Hlustaðu aftur.» taught as instructions (#429: #524); a new noun's form named against its basic word (#439 step 3: #527); the pace counts the due items a lesson can ask, and a rise reads whether the last lesson's reviews fitted (#526, #530); the verb by its subject, named in the lesson's goal and asked once more in its closing (#528 steps 1 and 3: #531, #535); every number a partner says in an exchange has other values, the old one resting behind them (#451: #534).
 - **After lesson 53:** a fixed dialogue retires after two whole plays, and a hard item's scene line is cut once a level, never from the lesson's own (#519); the long run: the number a scene's exchange says rotates, with other rooms, hours, codes and fares (#451 step 3d: #520).
 - **Before lesson 53, the long run:** #451 step 3, a number word rests between lessons in the pick-outs, the number choice takes its lines in turn, a scene's number carries a form of 1–4 (#515); a number line the learner says is practised over its values (#516).
 - **Before lesson 52, the long run:** «Endurtaktu.» and «Hlustaðu.» in Icelandic, the English faded by the review (#429: #507); #451's numbers, a plain number entering where it is used (#508), and scenes for every kind of number: money and time by ear (#509), hot dogs for a group and family tickets (#510), a hotel desk and a bus (#511), a temperature said whole, the wind and the road (#512), a tour desk and the guide's phone number (#513).
@@ -180,6 +182,8 @@ to come down):
 - #270 (a known word in a new form, the umbrella): the dative place forms and the naming of a form against its basic word are built
   (#368, #527). The frames left (accusative orders, `dat_town`, `dat_hobby`) are #528's second step, the noun by its frame. Reopens if
   #528 drops that step.
+- #451 (numbers where a traveller meets them): its steps are merged (#508–#513, #515, #516, #520, #534). Reopens on a remark that
+  numbers repeat or come from one situation.
 - #209 (a packet for a fluent speaker): the tool is built (#532). The review itself needs a person; when one is available, a new issue
   takes the corrections.
 

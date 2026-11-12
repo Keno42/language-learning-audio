@@ -127,6 +127,9 @@ number_choice_say = "Now say each one."
 # #439 step 2: a gendered word said of him and of her, side by side, then each asked again
 # #528 step 1: a sentence the learner says with «ég», said with other subjects; the verb's form is the subject's choice
 subjects_intro = "One verb, other subjects: its form follows who does it. You say:"
+# #528 step 3: the goal names the day's form work, and the closing asks it once more
+lesson_goal_subjects = "Today's form work: One sentence you know, said of someone else."
+closing_form_work = "Today's form work, once more."
 subject_we = "With «við», we:"
 subject_she = "With «hún», she:"
 subject_he = "With «hann», he:"

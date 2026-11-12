@@ -1221,6 +1221,30 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def goal_form_work(self, sc: Script, ex: Exercise) -> None:
+        """#528 step 3 (the owner, 2026-11-12: «a coach who applies the right load»; the intent is said, not only practised): the lesson's goal names
+        the form work of the day after the scene's («Today's form work: One sentence you know, said of someone else.»). Said in place once the
+        lesson is built and a subject choice has played, as ``goal_heard`` says the goal again: before the goal exercise's closing gap."""
+        last = max(k for k, g in enumerate(sc.segments) if g.exercise == ex.index)
+        start = len(sc.segments)
+        self._beat(sc, ex)
+        self._say_goal(sc, ex, self.prompts.get("lesson_goal_subjects"))
+        said = sc.segments[start:]
+        del sc.segments[start:]
+        sc.segments[last:last] = said
+
+    def subject_again(self, sc: Script, item: Item, key: str) -> Exercise:
+        """#528 step 3: the closing asks the day's form work once more, as it asks the day's new lines: one of the sentences the subject choice
+        set, from its meaning. A recall of the closing block, which holds nothing but the day's material (#435); it names no item, so the
+        sentence's «ég» item is not counted as asked or reviewed by it."""
+        ex = sc.new_exercise("recall", "subjects_again", [], "subjects: " + item.subjects[key])
+        self._frame(sc, ex, self.prompts.get("closing_form_work"))
+        self._narr(sc, ex, self._meaning_prompt(item.subjects_meaning[key]))
+        self._answer_pause(sc, ex, item.subjects[key], item, generative=False)
+        self._answer(sc, ex, item.subjects[key])
+        self._gap(sc, ex)
+        return ex
+
     def said_of_choice(self, sc: Script, item: Item) -> Exercise:
         """#439 step 2 (the owner after lessons 44/45: «Ég er …», «Ég er ekki …», «Ertu …» teach no gender): a gendered line the learner knows, its
         word said of him and of her («Hann er svangur.», «Hún er svöng.»), each with whom it is said of («Said of a man: «svangur».»), then each asked
