@@ -52,12 +52,12 @@ situation_ja = "受付が首をかしげています。部屋を予約してあ�
 [[items]]
 id = "hafid_thid_laust_herbergi"
 kind = "phrase"
-target = "Hafið þið laust herbergi?"
+target = "Eruð þið með laust herbergi?"  # native check (2026-11-12): «Hafið þið …?» is not how it is asked
 meaning = "Do you have a room available?"
 meaning_ja = "空いている部屋はありますか？"
 difficulty = 4
 topics = ["accommodation"]
-chunks = ["herbergi", "laust herbergi", "þið laust herbergi", "Hafið þið laust herbergi?"]
+chunks = ["herbergi", "laust herbergi", "með laust herbergi", "Eruð þið með laust herbergi?"]
 situation = "You walk into a guesthouse without a booking. Ask the staff if they have a room."
 situation_ja = "予約なしでゲストハウスに入りました。部屋があるか聞いてください。"
 
@@ -359,17 +359,8 @@ partner_cue_situation = "Check-out is at eleven, hours before your flight. Ask i
 partner_cue_situation_ja = "チェックアウトは11時で、飛行機まで何時間もあります。荷物を預けられるか聞いてください。"
 
 # eg_er_ad_fara moved to module 06 (issue #29 pilot 3, aspect) — see that module.
-[[items]]
-id = "takk_fyrir_dvolina"
-kind = "phrase"
-target = "Takk fyrir dvölina."
-meaning = "Thank you for the stay."
-meaning_ja = "お世話になりました。"
-difficulty = 3
-topics = ["accommodation"]
-chunks = ["dvölina", "fyrir dvölina", "Takk fyrir dvölina."]
-situation = "You're checking out of a lovely guesthouse. Thank them for the stay."
-situation_ja = "素敵なゲストハウスをチェックアウトします。滞在のお礼を言ってください。"
+# native check (2026-11-12): «Takk fyrir dvölina.» is what the staff say to a leaving guest, not the guest's line; the guest says «Takk fyrir mig.»
+# (or «Takk fyrir okkur.»), `takk_fyrir_mig`. The item is retired.
 
 [[items]]
 id = "herbergid"

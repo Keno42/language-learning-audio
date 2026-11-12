@@ -2861,7 +2861,7 @@ class CurriculumTests(unittest.TestCase):
         self.assertIn("Something new. A receipt.", [s.text for s in sc.segments if s.type == "narrate"])
         informative = {
             "a_thetta_hotel_takk", "eg_er_a_bil", "einn_tvo_thrjar", "ert_thu_islensk", "ertu_buin", "ertu_state",
-            "farid_varlega_a_isnum", "gerdu_thig_heimakomna", "ha", "hvad_ertu_gomul", "hvar_er_thetta", "hvers_vegna",
+            "farid_varlega_a_isnum", "ha", "hvad_ertu_gomul", "hvar_er_thetta", "hvers_vegna",
             "takk_fyrir_sidast",
         }
         trailing = {it.id for it in cur.items if re.search(r"[.?!]\s*\(", it.meaning)}
@@ -3165,7 +3165,6 @@ class CurriculumTests(unittest.TestCase):
         reply = cur.by_id["verdi_ther_ad_godu"]
         self.assertEqual((reply.partner_cue, reply.partner_cue_after), ("Takk fyrir matinn!", "gjordu_svo_vel"))
         self.assertLess(cur.by_id["takk_fyrir"].order - cur.by_id["eg_tharf_hjalp"].order, 10)
-        self.assertLess(cur.by_id["takk_fyrir"].order, cur.by_id["takk_fyrir_dvolina"].order)
         for fill in ("borga_med_korti", "opna_gluggann", "loka_hurdinni", "hringja", "taka_mynd"):
             self.assertIn("inf", cur.by_id[fill].tags)
 

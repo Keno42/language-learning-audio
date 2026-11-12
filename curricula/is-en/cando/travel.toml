@@ -245,5 +245,5 @@ title = "Farewell to the country"
 title_ja = "旅の終わりの挨拶"
 setting = "Leaving the lodging, the last day."
 success = "Thanks the host as a guest and says it will come back."
-items = ["takk_fyrir_dvolina", "eg_mun_koma_aftur", "goda_ferd", "bless", "takk_fyrir_mig"]
+items = ["takk_fyrir_mig", "eg_mun_koma_aftur", "goda_ferd", "bless"]
 respect = ["thanks", "farewell"]

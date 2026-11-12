@@ -190,14 +190,16 @@ topics = ["adjectives"]
 
 [[items]]
 id = "haegt"
-kind = "vocab"
-target = "hægt"
-meaning = "slow"
-meaning_ja = "遅い"
-meaning_forms_ja = { neg = "遅くありません" }
-difficulty = 1
-tags = ["adj_neut"]
+# native check (2026-11-12): «Þetta er hægt.» means "this is possible", not "this is slow", so «hægt» fills no «Þetta er {adj}.»; something going
+# slowly is «Þetta gengur hægt.»
+kind = "phrase"
+target = "Þetta gengur hægt."
+meaning = "It's going slowly."
+meaning_ja = "なかなか進みません。"
+difficulty = 2
 topics = ["adjectives"]
+situation = "The queue at the ticket office has not moved for ten minutes. Say it's going slowly."
+situation_ja = "チケット売り場の列が10分も動いていません。なかなか進まないと言ってください。"
 
 [[items]]
 id = "hreint"

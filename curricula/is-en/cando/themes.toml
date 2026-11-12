@@ -238,7 +238,7 @@ partner_speaker = "native_a"  # the partner is a woman, as the cues say
 goal = "On the coach, say how long you're staying, ask the guide's phone number, and catch it and the emergency number."
 goal_ja = "バスの中で滞在期間を言い、ガイドの電話番号を聞いて、その番号と緊急番号を聞き取る。"
 turns = [
-  { who = "partner", say = "Hvað verðurðu lengi á Íslandi?", meaning = "How long will you be in Iceland?", meaning_ja = "アイスランドにはどのくらいいるんですか？", variants = [{ say = "Hvað ertu lengi hérna?", meaning = "How long are you here for?", meaning_ja = "こちらにはどのくらいいるんですか？" }] },
+  { who = "partner", say = "Hvað verðurðu lengi á Íslandi?", meaning = "How long will you be in Iceland?", meaning_ja = "アイスランドにはどのくらいいるんですか？", variants = [{ say = "Hvað verðurðu lengi hérna?", meaning = "How long will you be here?", meaning_ja = "こちらにはどのくらいいるんですか？" }] },
   { who = "you", cue = "Say you're here for a week.", cue_ja = "1週間いると言ってください。", aim = "say how long you're staying", aim_ja = "滞在期間を言う", say = "Ég er hér í viku.", items = ["eg_er_her_i_viku"] },
   { who = "partner", say = "Gaman! Ef þú villist, hringdu í mig.", meaning = "Nice! If you get lost, call me.", meaning_ja = "いいですね！迷ったら電話してください。" },
   { who = "you", cue = "Ask her what her phone number is.", cue_ja = "電話番号を聞いてください。", aim = "ask her phone number", aim_ja = "電話番号を聞く", say = "Hvað er símanúmerið þitt?", items = ["hvad_er_simanumerid_thitt"] },

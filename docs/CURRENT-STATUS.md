@@ -155,9 +155,10 @@ Each waits for its first feedback in the LD §8 table.
 - #336: the other scenes' frames that vary in use, as each scene comes (`validate` lists the candidates; only the frames
   a scene varies).
 - #209: the packet for a fluent speaker is ready (`tools/export_scene_review.py --scenario A2 --out review-A2.json`: one scenario's cards
-  with their situation, partner line, replies and items, corrected by card and field). What is left needs a person (G10): the review itself,
-  starting from the lines the lessons say most (`tools/top_lines.py` on the exported scripts). Every scene added since lesson 30 adds
-  authored Icelandic to it.
+  with their situation, partner line, replies and items, corrected by card and field). A first native check (the owner, 2026-11-12) read 22
+  of the learner's lines and marked 12 wrong or not what is said: each is corrected, or retired where a correct line already exists. What is
+  left needs a person (G10): the review of the rest, starting from the lines the lessons say most (`tools/top_lines.py` on the exported
+  scripts). Every scene added since lesson 30 adds authored Icelandic to it.
 
 #326 holds the connections across lessons. The frames a noun takes its other forms in (#270's remainder) are #528's second step.
 
