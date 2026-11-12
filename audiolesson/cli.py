@@ -458,6 +458,9 @@ def _plan(script: Script, cur) -> dict:
         "hear_supports_reported": list(meta.get("hear_supports_reported", [])),  # #444: reported-hard-to-hear items given listening support
         "open_items": list(meta.get("open_items", [])),  # #199: the bot brings their questions forward and asks the waiting ones
         "open_not_fitted": list(meta.get("open_not_fitted", [])),
+        # #518: each new item's dose in this lesson (light / middle / heavy), and the next-day weak rate and count of each trait the dose reads
+        "doses": dict(meta.get("doses", {})),
+        "trait_rates": dict(meta.get("trait_rates", {})),
         "review": review,
         "review_savings": review_savings(script),  # #220: seconds of same-form recall by older item: what a 言えた at the review would cut from this lesson
         "review_lesson_cues": lesson_cue_count(review, prompts),  # #312: review prompts that still carry a lesson cue (0)

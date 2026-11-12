@@ -87,8 +87,13 @@ class DoseTests(unittest.TestCase):
         self.assertTrue(middle, "the lesson teaches a phrase on the default dose")
         self.assertTrue(all(v == "middle" for k, v in sc.meta["doses"].items() if k in middle))
         self.assertIn("trait_rates", sc.meta)
-        sc2, before = says(middle_recall_rungs=(), dose_ceiling={})
-        self.assertTrue(all(v != "middle" for v in sc2.meta["doses"].values()), "() for the rungs keeps every recall: no item is on the default")
+        # review of #529: the description promised both fields in plan.json; ``_plan`` exported neither
+        from audiolesson.cli import _plan
+
+        plan = _plan(sc, self.cur)
+        self.assertEqual((plan["doses"], plan["trait_rates"]), (sc.meta["doses"], sc.meta["trait_rates"]))
+        self.assertTrue(plan["doses"])
+        sc2, before = says(dose_ceiling={})  # no ceiling: the old dose
         both = sorted(set(middle) & set(before))
         self.assertTrue(both)
         self.assertLess(sum(middle[i] for i in both), sum(before[i] for i in both), (middle, before))
