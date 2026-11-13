@@ -1614,6 +1614,29 @@ class Planner:
                 out.append(list(lines.values())[:3])
         return out
 
+    def noun_choice_wants(self) -> list[str]:
+        """#528 step 4, a form set as a choice is new material: the next form the noun choice could set. A form not met of a noun the learner
+        has in another form (met, not failing), that a frame the learner knows takes (a slot of a known pattern asks one of its tags:
+        «sundlauginni» for «Ég er að leita að {place}.», beside «sundlaugin» of «Hvar er {place}?»), and whose word differs from the forms
+        met. One a lesson, the earliest in the course: the lesson adds it after its first batch of new items, past the rule that holds a
+        close variant back (#218 b1: a form comes in with a purpose, and the choice is one), in no item's place. On the replay of lesson
+        55's export the noun choice had three nouns (the bank, fish, the hotel) and nothing brought a fourth."""
+        frames = {tag for c in self.cur.items if c.kind == "construction" and self.learner.knows(c.id) for tag in c.slots.values()}
+        out = []
+        for entry in self.cur.nouns.values():
+            forms = [self.cur.by_id[i] for i in entry["forms"].values() if i in self.cur.by_id]
+            have = [f for f in forms if self.learner.has_met(f.id) and not self.learner.is_open(f.id)]
+            if not have:
+                continue
+            said = {_norm_utterance(f.target) for f in forms if self.learner.has_met(f.id)}
+            cases = {f.form.split("_")[0] for f in have}  # «kaffið» beside «kaffi» is the same case: no choice of a case between them
+            out += [
+                f for f in forms
+                if not self.learner.has_met(f.id) and f.id not in self.learner.embedded and not f.target_m and set(f.tags) & frames
+                and _norm_utterance(f.target) not in said and f.form.split("_")[0] in NOUN_CASES and f.form.split("_")[0] not in cases
+            ]
+        return [min(out, key=lambda f: f.order).id] if out else []
+
     def number_choice_candidates(self) -> list[tuple]:
         """#439 step 1b: the sentences the learner has met and is not failing whose form of 1–4 agrees with a noun they name (``Item.counts``), as ``numbers.choice_lines``
         takes them: a phrase (its pattern's noun when it is an instance of one), or a pattern of one slot filled with a form of 1–4 the learner knows.
@@ -2197,6 +2220,15 @@ class Planner:
         wanted_at_start = self.theme_wants()
         first_arc = cfg.new_items_ceiling() if self.components_mode else cfg.resolved_new_items()  # in components, the target stops the arc
         new_queue = deque(self.select_new(first_arc, cheap=True))
+        # #528 step 4: the form the noun choice could set next joins the lesson's first batch of new items, after them. It takes no item's
+        # place (``select_new`` is as before: a first version that brought it forward there pushed a part's frame and the trip's item out)
+        for wanted in self.noun_choice_wants():
+            form = self.cur.by_id[wanted]
+            queued = {i.id for i in new_queue}
+            if wanted not in queued and all(self._prereq_met(form, p, lambda i: self.learner.knows(i) or i in queued) for p in form.prereqs):
+                if wanted not in self.component_by_item:
+                    self._charge(form)  # at the form weight: it is new material of the day, in the total and by item (review of #541)
+                new_queue.append(form)
         if (command := self.next_command()) is not None:
             # #429 (the long run): one instruction in Icelandic a lesson, first, on top of the day's new material. Charged (at 0) so the caps that
             # read ``component_by_item`` see it as costing nothing, not as a missing item counted as 1 (review of #507)
@@ -3764,6 +3796,13 @@ class Planner:
                 # #528 step 2 (the long run): once a lesson, a noun the learner has in two forms said in the sentence of each, the case named, then
                 # each asked, in a today's-items turn the number choice did not take and before the word said of him and of her (the owner, #528:
                 # «a coach who makes me choose the right case»). Only where a drill of today's items would play, as for the word said of him and her
+                # #528 step 4: the noun whose form is newest to the learner first (``ItemState.introduced_lesson``: the form brought in the
+                # lesson before is set as a choice the day after), while one was introduced in the last three lessons; else the nouns take
+                # turns by lesson, as before
+                newest = lambda lines: max(st.introduced_lesson if (st := self.learner.items.get(it.id)) else 0 for it, *_ in lines)  # noqa: E731
+                latest = max(newest(c) for c in nouns)
+                if latest >= sc.lesson_number - 3:
+                    nouns = [c for c in nouns if newest(c) == latest]
                 ex = b.noun_choice(sc, nouns[sc.lesson_number % len(nouns)])
                 noun_choices.append(ex.label)
                 return True

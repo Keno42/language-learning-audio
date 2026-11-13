@@ -34,8 +34,13 @@ In order:
    goes back to the usual practice after the form work (LD §5.45; «Now» item 1). **Built, step 2 (#539):** the noun by its frame. A noun the
    learner has in two forms is said in the sentence of each, the case named («Hvar er bankinn?» / «Ég er að leita að bankanum.»), then each
    asked; on the replay of lesson 55's export it plays in lessons 56–58 (the bank, fish, the hotel: the three nouns the learner has in two
-   forms). **Next:** the pace counting a form set as a choice as new material (step 4), and more nouns with a second form in a frame the
-   learner has (#270's accusative orders, «í» with a town, «á» with a day).
+   forms). **Built, step 4 (#541):** a form the choice could set comes in as new material. A form not met, of another case than the forms
+   the learner has of its noun, that a pattern they know takes («sundlauginni» for «Ég er að leita að {place}.»), is brought in one a
+   lesson at the form weight, past the rule that holds a close variant back; the noun whose form is newest is set as the choice first. On
+   the replay of lesson 55's export lessons 55–59 bring «eggjum», «flugvellinum», «sundlauginni», «safninu» and «stoppistöðinni», and the
+   nouns the choice can set go from three to seven. **Next:** more nouns with a second form in a frame the learner has (#270's accusative
+   orders against a nominative, «í» with a town, «á» with a day): the course holds two forms of fifteen nouns, and the learner knows 43
+   only in the accusative.
 3. **Numbers in varied situations (#451, owner 2026-11-09).** Numbers where a traveller meets them, sorted into eight kinds in #451
    (money, time, dates, counts and people, numbers as names, weather and roads, contacts and codes, about oneself), mostly by ear,
    rotated so no kind and no number word comes back within a few lessons. Merged: step 1 (#508), step 2, scenes for every kind
