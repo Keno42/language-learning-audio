@@ -62,8 +62,8 @@ usual practice after the form work (LD §5.45).
 1. **The way back after the form work (the family pick-out-turns).** The subject choice and the number choice open with their own line and
    end on the learner's last answer, the next question straight after, where a note, a pick-out and a conversation each end with a way back
    (`audiolesson/transitions.py`). On the replay of lesson 55's export each of lessons 55–59 has the subject choice, four of the five the
-   number choice and lesson 56 the gender choice too («Hann er svangur.» / «Hún er svöng.»): two or three such switches a lesson. **Next:** the form work as a mode of its own, with a way back where a drill follows; one rule for every block that
-   opens with its own line, the gender choice (#499) included.
+   number choice and lesson 56 the gender choice too («Hann er svangur.» / «Hún er svöng.»): two or three such switches a lesson. **In review (#538):** the form work as a mode of its own (`transitions.py`), ending «That's the end of the form work.»
+   where a drill follows, the gender choice (#499) included; on the replay it is said in four of lessons 55–59.
 2. **Practice by what is hard in an item, not its kind (#439, #518, G11, H11).** The remark of lessons 41, 44, 49, 51 and 54, and the
    owner's on #516. Built: a new phrase made of words the learner says is asked as a use of them (#523; it did not play in lesson 55, none
    of whose new phrases is made only of known words), and a new noun's form named against its basic word (#527: «fimmtudaginn is a form of

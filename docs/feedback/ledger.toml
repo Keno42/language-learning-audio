@@ -914,7 +914,7 @@ who = "main"
 text = "After the practice of a number's and a verb's forms by gender and person, say something when the lesson goes back to the usual practice. (The subject choice at 14:09, «Ég kem í kvöld.» said with «hún» and «þú», and the number choice at 22:44, «Tvo miða» / «tvær nætur» / «tvö þúsund», each opened with its own line and ended on the learner's last answer, the next question straight after; a note ends «Back to the lesson.», a pick-out «Back to speaking.», a conversation «That's the end of the conversation.».)"
 family = "pick-out-turns"
 class = "twenty"
-answered_by = []
+answered_by = ["#538"]
 
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
