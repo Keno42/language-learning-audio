@@ -523,6 +523,26 @@ class Curriculum:
         return list(seen)
 
 
+INSTRUCTION_MODES = ("gradual", "off", "pending")
+
+
+def for_instructions(cur: Curriculum, learner, mode: str = "gradual") -> tuple[Curriculum, str, list[str]]:
+    """#429 (owner, 2026-11-14): whether the lessons replace their instructions with Icelandic ones, the learner's choice, asked once by the
+    bot. ``gradual``: one a lesson (``Planner.next_command``), the English after each in the lesson that teaches it and the next. ``off``: the
+    instruction phrases leave the course, so none is taught or said, and their items, kept in the learner's state, are not reviewed (the
+    pace counts only the course's items, #526); the bot drops their written-review cards (plan.json ``withdrawn_items``). ``pending``, not
+    answered yet: ``off`` for a learner who has met no instruction phrase, ``gradual`` for one who has (the learner the question came after).
+    Returns the curriculum the lesson uses, the mode resolved and the ids withdrawn."""
+    if mode not in INSTRUCTION_MODES:
+        raise ValueError(f"instructions must be one of {', '.join(INSTRUCTION_MODES)}, not {mode!r}")
+    commands = [i.id for i in cur.items if i.command]
+    if mode == "pending":
+        mode = "gradual" if any(learner.has_met(i) for i in commands) else "off"
+    if mode == "gradual" or not commands:
+        return cur, mode, []
+    return replace(cur, items=[i for i in cur.items if not i.command]), mode, commands
+
+
 class CurriculumError(ValueError):
     pass
 

@@ -13,7 +13,7 @@ from . import __version__
 from .themes import load_themes, scenario_coverage, scenario_order, unranked_themes
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts, speak_as
-from .content import PATTERN_SCENE, CurriculumError, ask_without_addressee, cue_texts, same_meaning_answers, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, pronoun_cues, unlinked_instances
+from .content import INSTRUCTION_MODES, PATTERN_SCENE, CurriculumError, for_instructions, ask_without_addressee, cue_texts, same_meaning_answers, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, pronoun_cues, unlinked_instances
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, lesson_target, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -64,6 +64,8 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--no-fit", action="store_true", help="don't scale pauses to land on --minutes")
     g.add_argument("--fit-tolerance", type=float, default=None, help="seconds of slack before pauses are scaled (default 60)")
     g.add_argument("--dry-run", action="store_true", help="don't update the learner state")
+    g.add_argument("--instructions", choices=INSTRUCTION_MODES, default="gradual",
+                   help="#429: instructions in Icelandic: gradual (one a lesson, the default), off (none; their review is withdrawn), pending (not asked yet: off until one is met)")
     g.set_defaults(func=cmd_generate)
 
     r = sub.add_parser("render", help="render an existing script to audio (different voices / pauses / provider)")
@@ -260,6 +262,7 @@ def _load(path: str, known: str | None, allow_fallback: bool = False):
 def cmd_generate(args) -> int:
     cur = _load(args.curriculum, args.known, args.allow_fallback)
     learner = LearnerState.load_or_create(args.learner, cur.target_lang, cur.known_lang, cur.level)
+    cur, instructions, withdrawn = for_instructions(cur, learner, args.instructions)  # #429: the learner's choice, before the pace reads the course
     level = args.level or learner.level or cur.level
     today = parse_date(args.date)
     timing = Timing(level=level, speech_ratio=dict(learner.speech_calibration)).with_overrides(global_pause_multiplier=args.pause_multiplier)
@@ -311,6 +314,7 @@ def cmd_generate(args) -> int:
         print(f"warning: topics not in curriculum: {unknown_topics}; available: {cur.topics()}", file=sys.stderr)
 
     script = Planner(cur, learner, prompts, timing, cfg, today=today).build()
+    script.meta["instructions"], script.meta["withdrawn_items"] = instructions, withdrawn
     n = script.lesson_number
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -464,6 +468,8 @@ def _plan(script: Script, cur) -> dict:
         "due_not_fitted": list(meta.get("due_not_fitted", [])),
         # the form work played (each its label, at most one a lesson): #439 step 1b, #439 step 2, #528 steps 1 and 2
         **{k: list(meta.get(k, [])) for k in ("number_choices", "said_of_choices", "subject_choices", "noun_choices")},
+        "instructions": meta.get("instructions", "gradual"),  # #429: the learner's choice, resolved (a «pending» one is gradual or off)
+        "withdrawn_items": list(meta.get("withdrawn_items", [])),  # #429: items the written review no longer asks (the instruction phrases, when off)
         "review": review,
         "review_savings": review_savings(script),  # #220: seconds of same-form recall by older item: what a 言えた at the review would cut from this lesson
         "review_lesson_cues": lesson_cue_count(review, prompts),  # #312: review prompts that still carry a lesson cue (0)
