@@ -1631,10 +1631,11 @@ class Planner:
             if not have:
                 continue
             said = {_norm_utterance(f.target) for f in forms if self.learner.has_met(f.id)}
+            cases = {f.form.split("_")[0] for f in have}  # «kaffið» beside «kaffi» is the same case: no choice of a case between them
             out += [
                 f for f in forms
                 if not self.learner.has_met(f.id) and f.id not in self.learner.embedded and not f.target_m and set(f.tags) & frames
-                and _norm_utterance(f.target) not in said
+                and _norm_utterance(f.target) not in said and f.form.split("_")[0] in NOUN_CASES and f.form.split("_")[0] not in cases
             ]
         return [min(out, key=lambda f: f.order).id] if out else []
 
@@ -3788,6 +3789,11 @@ class Planner:
                 # #528 step 2 (the long run): once a lesson, a noun the learner has in two forms said in the sentence of each, the case named, then
                 # each asked, in a today's-items turn the number choice did not take and before the word said of him and of her (the owner, #528:
                 # «a coach who makes me choose the right case»). Only where a drill of today's items would play, as for the word said of him and her
+                # #528 step 4: the noun whose form is newest to the learner first (the fewest successes of any of its forms: the form brought in
+                # the lesson before is set as a choice the day after); among equals the nouns take turns by lesson, as before
+                fresh = lambda lines: min(st.successes if (st := self.learner.items.get(it.id)) else 0 for it, *_ in lines)  # noqa: E731
+                least = min(fresh(c) for c in nouns)
+                nouns = [c for c in nouns if fresh(c) == least]
                 ex = b.noun_choice(sc, nouns[sc.lesson_number % len(nouns)])
                 noun_choices.append(ex.label)
                 return True

@@ -98,6 +98,24 @@ class NounChoiceTests(unittest.TestCase):
         self.assertEqual(" ".join(g.text for g in sc.segments if g.exercise == again.index and g.text).count("leita að"), 2,
                          "the reason once a lesson per frame: the second time only the sentence and its answer say «leita að»")
 
+    def test_the_next_form_the_choice_could_set_comes_in_as_new_material(self):
+        """#528 step 4: on the replay of lesson 55's export the noun choice had three nouns and nothing brought a fourth, since a close variant
+        waits for a scene or a frame to pull it (#218 b1). A form not met, of another case than the forms the learner has of its noun, that a
+        known pattern takes, is wanted: one a lesson, the earliest in the course, and the day's new items hold it."""
+        learner = self.learner()
+        places = ["flugvellinum", "sundlauginni", "safninu", "stoppistodinni"]
+        for item_id in places:
+            del learner.items[item_id]
+        planner = self.planner(learner)
+        self.assertEqual(planner.noun_choice_wants(), ["flugvellinum"], "the earliest in the course, one a lesson")
+        self.assertIn("flugvellinum", [i.id for i in planner.select_new(6)], "behind the theme's items, among the day's new ones")
+        learner.items["flugvollurinn"].last_outcome = "not_recalled"
+        self.assertEqual(self.planner(learner).noun_choice_wants(), ["sundlauginni"], "a noun whose known form is failing gets no second form yet")
+        learner.items.pop("eg_er_ad_leita_ad")
+        self.assertNotIn(self.planner(learner).noun_choice_wants(), [[p] for p in places], "no known frame takes the dative: nothing to set it in")
+        wanted = self.planner(self.learner(stop="eg_aetla_ad_fa")).noun_choice_wants()
+        self.assertNotIn("kaffid", wanted, "«kaffið» beside «kaffi» is the same case: no choice of a case")
+
     def test_a_lesson_sets_one_noun_choice_once_the_learner_has_one(self):
         sc = self.planner(self.learner()).build()
         self.assertLessEqual(len(sc.meta["noun_choices"]), 1)
