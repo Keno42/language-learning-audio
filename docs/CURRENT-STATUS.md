@@ -31,8 +31,11 @@ In order:
    the lesson says what it trains. The goal after the opening ends on «Today's form work: One sentence you know, said of someone else.»,
    and the last question before the lesson's closing words asks one of the choice's sentences again, the one whose verb changes («Today's
    form work, once more.»). Lesson 55 played both («Ég kem í kvöld.» with «hún» and «þú»), and its remark asks for a word when the lesson
-   goes back to the usual practice after the form work (LD §5.45; «Now» item 1). **Next:** the noun by its frame (step 2, this round),
-   and the pace counting a form set as a choice as new material (step 4).
+   goes back to the usual practice after the form work (LD §5.45; «Now» item 1). **Built, step 2 (#539):** the noun by its frame. A noun the
+   learner has in two forms is said in the sentence of each, the case named («Hvar er bankinn?» / «Ég er að leita að bankanum.»), then each
+   asked; on the replay of lesson 55's export it plays in lessons 56–58 (the bank, fish, the hotel: the three nouns the learner has in two
+   forms). **Next:** the pace counting a form set as a choice as new material (step 4), and more nouns with a second form in a frame the
+   learner has (#270's accusative orders, «í» with a town, «á» with a day).
 3. **Numbers in varied situations (#451, owner 2026-11-09).** Numbers where a traveller meets them, sorted into eight kinds in #451
    (money, time, dates, counts and people, numbers as names, weather and roads, contacts and codes, about oneself), mostly by ear,
    rotated so no kind and no number word comes back within a few lessons. Merged: step 1 (#508), step 2, scenes for every kind
@@ -50,8 +53,8 @@ In order:
 4. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 5. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
-**This round:** #528 step 2, the noun by its frame (item 2 above). Beside it, the remark's answer, the way back after the form work («Now»
-item 1): the round's two behaviour PRs (LD §9 "Governance"). Lesson 55 was built with eight; it is read change by change (LD §5.45).
+**This round:** #528 step 2, the noun by its frame (item 2 above, #539). Beside it, the remark's answer, the way back after the form work
+(«Now» item 1, #538, merged): the round's two behaviour PRs (LD §9 "Governance"). Lesson 55 was built with eight; it is read change by change (LD §5.45).
 
 ## Now (updated 2026-11-13, after lesson 55), in order
 
@@ -62,7 +65,7 @@ usual practice after the form work (LD §5.45).
 1. **The way back after the form work (the family pick-out-turns).** The subject choice and the number choice open with their own line and
    end on the learner's last answer, the next question straight after, where a note, a pick-out and a conversation each end with a way back
    (`audiolesson/transitions.py`). On the replay of lesson 55's export each of lessons 55–59 has the subject choice, four of the five the
-   number choice and lesson 56 the gender choice too («Hann er svangur.» / «Hún er svöng.»): two or three such switches a lesson. **In review (#538):** the form work as a mode of its own (`transitions.py`), ending «That's the end of the form work.»
+   number choice and lesson 56 the gender choice too («Hann er svangur.» / «Hún er svöng.»): two or three such switches a lesson. **Built (#538):** the form work as a mode of its own (`transitions.py`), ending «That's the end of the form work.»
    where a drill follows, the gender choice (#499) included; on the replay it is said in four of lessons 55–59.
 2. **Practice by what is hard in an item, not its kind (#439, #518, G11, H11).** The remark of lessons 41, 44, 49, 51 and 54, and the
    owner's on #516. Built: a new phrase made of words the learner says is asked as a use of them (#523; it did not play in lesson 55, none

@@ -22,7 +22,7 @@ from itertools import groupby
 
 from .claims import unkept_claims
 from .content import SUBJECTS, Curriculum, Dialogue, Item
-from .exercises import Builder, _norm_utterance, cue_is_answer
+from .exercises import NOUN_CASES, Builder, _norm_utterance, cue_is_answer
 from .sounds import hard_sounds, hard_words_of
 from .learner import REPORTED_HARD_DAYS, LearnerState
 from .numbers import choice_lines, form_genders, noun_gender, number_in, number_words, pick_choice, plain_number, value_of
@@ -1588,6 +1588,32 @@ class Planner:
         (``Item.said_of``), in course order."""
         return [it for it in self.cur.items if it.said_of and self.learner.has_met(it.id) and not self.learner.is_open(it.id)]
 
+    def noun_choice_candidates(self) -> list[list[tuple]]:
+        """#528 step 2, the noun by its frame: each noun the learner has met in two forms or more, each form in a sentence the learner knows that
+        holds it, read from the current curriculum as the written review reads it (``review_wholes.whole_for``: «Hvar er bankinn?», «Ég er að
+        leita að bankanum.»), as ``Builder.noun_choice`` takes them: ``(item, case, sentence, prompt, frame)`` per form, at most one a case, the
+        nominative first. Not the stored ``learned_wholes`` text: a sentence a native check corrected since («Hvernig kemst ég að hótelinu?», #533)
+        would come back (review of #539). A form not met in an earlier lesson, open (failing), with no sentence or said by the speaker's gender is
+        left out; a noun with fewer than two forms that differ in their word waits."""
+        rank = {c: n for n, c in enumerate(NOUN_CASES)}
+        met = {i for i in self.cur.by_id if self.learner.has_met(i)}
+        out = []
+        for entry in self.cur.nouns.values():
+            lines: dict[str, tuple] = {}
+            for form, item_id in sorted(entry["forms"].items(), key=lambda f: (rank.get(f[0].split("_")[0], 9), f[0])):
+                case, it = form.split("_")[0], self.cur.by_id.get(item_id)
+                if case not in rank or case in lines or it is None or it.target_m or item_id not in met or self.learner.is_open(item_id):
+                    continue
+                if any(_norm_utterance(it.target) == _norm_utterance(other[0].target) for other in lines.values()):
+                    continue  # «eldfjall» is the nominative and the accusative alike: no choice between them
+                whole = whole_for(self.cur, it, met, self.prompts)
+                if whole is None or _norm_utterance(it.target) not in _norm_utterance(whole["answer"]).split():
+                    continue
+                lines[case] = (it, case, whole["answer"], whole["prompt"], self.cur.by_id.get(whole["through"]))
+            if len(lines) >= 2:
+                out.append(list(lines.values())[:3])
+        return out
+
     def number_choice_candidates(self) -> list[tuple]:
         """#439 step 1b: the sentences the learner has met and is not failing whose form of 1–4 agrees with a noun they name (``Item.counts``), as ``numbers.choice_lines``
         takes them: a phrase (its pattern's noun when it is an instance of one), or a pattern of one slot filled with a form of 1–4 the learner knows.
@@ -2538,6 +2564,7 @@ class Planner:
         subject_played: list[tuple[Item, list[str]]] = []  # #528 step 3: the sentence and the subjects set, for the goal and the closing
         subject_choices: list[str] = []  # #528 step 1: a sentence said with other subjects this lesson (its label), at most one
         said_of_choices: list[str] = []  # #439 step 2: a gendered word said of him and of her this lesson (its label), at most one
+        noun_choices: list[str] = []  # #528 step 2: a noun said in the frames of its forms this lesson (its label), at most one
         hear_settled: list[str] = []  # ... whose slow model already played the line by ear: no second exercise (lesson 49)
         slow_done: set[str] = set()
         slow_models: list[str] = []  # reported-hard items given the slow model of their hard word in this lesson
@@ -3086,6 +3113,8 @@ class Planner:
                     continue  # said as often as a lesson allows: not in a scene either (#192)
                 if connect_item_uses.get(it.id) and self._stable(it):
                     continue  # a stable item takes part in one connect a lesson (#151)
+                if (frame := b.number_frame_of(it)) is not None and b.frame_spent(sc, frame):
+                    continue  # #451 step 3b: a number frame asked as often as a lesson allows is not asked in a scene either (review of #539)
                 seen.add(it.id)
                 valid.append(it)
             def search(cands: list[Item]) -> tuple | None:
@@ -3730,6 +3759,14 @@ class Planner:
                     ex = b.number_choice(sc, lines)
                     number_choices.append(ex.label)
                     return True
+            if (kind == "today" and not noun_choices and remaining_time() >= 60 and last_kinds_same() not in ("recall", "generative")
+                    and any(i.id not in recent and not saturated(i) and i.id not in b.plain for i in introduced) and (nouns := self.noun_choice_candidates())):
+                # #528 step 2 (the long run): once a lesson, a noun the learner has in two forms said in the sentence of each, the case named, then
+                # each asked, in a today's-items turn the number choice did not take and before the word said of him and of her (the owner, #528:
+                # «a coach who makes me choose the right case»). Only where a drill of today's items would play, as for the word said of him and her
+                ex = b.noun_choice(sc, nouns[sc.lesson_number % len(nouns)])
+                noun_choices.append(ex.label)
+                return True
             if (kind == "today" and not said_of_choices and remaining_time() >= 60 and last_kinds_same() not in ("recall", "generative")
                     and any(i.id not in recent and not saturated(i) and i.id not in b.plain for i in introduced) and (said_of := self.said_of_candidates())):
                 # #439 step 2: once a lesson, a gendered word the learner knows said of him and of her, in a today's-items turn the number choice
@@ -4317,6 +4354,7 @@ class Planner:
             "number_choices": list(number_choices),  # #439 step 1b: the forms of 1–4 practised as a choice this lesson
             "subject_choices": list(subject_choices),  # #528 step 1: a sentence said with other subjects this lesson
             "said_of_choices": list(said_of_choices),  # #439 step 2: a gendered word said of him and of her this lesson
+            "noun_choices": list(noun_choices),  # #528 step 2: a noun said in the frames of its forms this lesson
             "slow_models_reported": list(slow_models),  # #337: reported-hard items given the slow model of their hard word
             "hear_supports_reported": list(hear_supports) + list(hear_settled),  # #444: reported-hard-to-hear items given listening support
             "phrase_hard_words": {i.id: [w for w, _ in hard_words_of(i)] for i in introduced if i.kind == "phrase" and hard_words_of(i)},  # #337: authored hard words of today's new phrases (modelled at the introduction)

@@ -41,10 +41,10 @@ MODES = {
     "generative": "drill",
     "connect": "drill",
 }
-# the form work (#493, #499, #531): a model exercise of these stages is a block of its own, opened with its own line («One number, different
+# the form work (#493, #499, #531, #528 step 2): a model exercise of these stages is a block of its own, opened with its own line («One number, different
 # forms: …», «One word, two forms: …», «One verb, other subjects: …») and ended on the learner's last answer. Lesson 55: «say something when the
 # lesson goes back to the usual practice», so it has a way back as a conversation has
-FORM_WORK_STAGES = frozenset({"choice", "said_of", "subjects"})
+FORM_WORK_STAGES = frozenset({"choice", "noun_choice", "said_of", "subjects"})
 # the modes that open with their own line («Listen …», a conversation's setting, «A note:», the closing): no way back comes before them
 OPENS_WITH_ITS_OWN_LINE = {"listening", "conversation", "aside", "closing"}
 # the line that ends a mode when the next exercise does not open with its own (#387: «Back to speaking.», as an aside ends with «Back to the

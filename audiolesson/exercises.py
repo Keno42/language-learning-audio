@@ -98,6 +98,7 @@ CONSTRUCTION_CEILING = 10  # generated sentences one construction may have in a 
 # as often as one new sentence's ladder (lesson 52 asked each of its new sentences 8–9 times). The pattern's generated sentences stop there; the
 # sentence's own rungs and the pattern's introduction are not held to it
 FRAME_BUDGET = 9
+NOUN_CASES = ("nom", "acc", "dat", "gen")  # #528 step 2: the cases a noun choice sets side by side, in the order it says them
 FORM_EXTRA_NEW = 2  # sentences in a form taught this lesson, beyond the practice right after its note
 SITUATION_FULL_MAX = 2  # a situation (authored, or a scene check's line) is narrated in full at most this often in a lesson (G12)
 PART_BUILD_UP_WORDS = 3  # lesson 44: a part of this many words or more, introduced in its sentence, is built up from its end
@@ -1186,6 +1187,39 @@ class Builder:
             self._narr(sc, ex, self._as(line.voice, self._meaning_prompt(line.meaning)))
             self._answer_pause(sc, ex, line.sentence, item, generative=False)
             self._answer(sc, ex, line.sentence, speaker=VOICE_OF[line.voice or "f"])
+            if n < len(order) - 1:
+                self._beat(sc, ex)
+        self._gap(sc, ex)
+        return ex
+
+    def noun_choice(self, sc: Script, lines: list[tuple]) -> Exercise:
+        """#528 step 2, the noun by its frame (the owner, 2026-11-12: «I want to feel a coach who makes me choose the right case»): one noun the
+        learner has in two forms or more, each in the sentence it was taught in («Hvar er bankinn?», «Ég er að leita að bankanum.»). Each sentence is
+        heard, then which form the noun takes there and its case («Here it is «bankanum», in the dative.»), with why when its frame says it
+        (``form_reason``, once a lesson per frame); then each is asked again from its meaning, in another order, so the form is said as the choice
+        its frame makes. ``lines``: ``(item, case, sentence, prompt, frame)``, as ``Planner.noun_choice_candidates`` gives them; ``prompt`` asks the
+        sentence from its meaning, as the written review asks it (``review_wholes.whole_for``)."""
+        ids = list(dict.fromkeys(i for it, *_, frame in lines for i in (it.id, *([frame.id] if frame is not None else []))))
+        ex = sc.new_exercise("model", "noun_choice", ids, "noun choice: " + " / ".join(sentence for _, _, sentence, _, _ in lines))
+        self._frame(sc, ex, self.prompts.get("noun_choice_intro"))
+        for it, case, sentence, _, frame in lines:
+            self._speak(sc, ex, sentence)
+            self._beat(sc, ex)
+            self._speak_note_text(sc, ex, self.prompts.get("noun_choice_form", form=it.target, case=self.prompts.get(f"case_{case}")))
+            if not (sc.segments and sc.segments[-1].type == "pause"):
+                self._beat(sc, ex)
+            if frame is not None and frame.form_reason and frame.id not in self.form_reasons_said:
+                self.form_reasons_said.add(frame.id)
+                self._speak_note_text(sc, ex, frame.form_reason)
+                if not (sc.segments and sc.segments[-1].type == "pause"):
+                    self._beat(sc, ex)
+            self.heard.add(_norm_utterance(sentence))
+        self._narr(sc, ex, self.prompts.get("number_choice_say"))
+        order = lines[1:] + lines[:1]
+        for n, (it, _, sentence, prompt, _) in enumerate(order):
+            self._narr(sc, ex, prompt)
+            self._answer_pause(sc, ex, sentence, it, generative=False)
+            self._answer(sc, ex, sentence)
             if n < len(order) - 1:
                 self._beat(sc, ex)
         self._gap(sc, ex)

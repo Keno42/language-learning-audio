@@ -462,6 +462,8 @@ def _plan(script: Script, cur) -> dict:
         "due_at_start": meta.get("due_at_start", 0),
         "due_by_date": meta.get("due_by_date", 0),
         "due_not_fitted": list(meta.get("due_not_fitted", [])),
+        # the form work played (each its label, at most one a lesson): #439 step 1b, #439 step 2, #528 steps 1 and 2
+        **{k: list(meta.get(k, [])) for k in ("number_choices", "said_of_choices", "subject_choices", "noun_choices")},
         "review": review,
         "review_savings": review_savings(script),  # #220: seconds of same-form recall by older item: what a 言えた at the review would cut from this lesson
         "review_lesson_cues": lesson_cue_count(review, prompts),  # #312: review prompts that still carry a lesson cue (0)
