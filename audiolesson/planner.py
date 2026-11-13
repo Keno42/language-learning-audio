@@ -3113,6 +3113,8 @@ class Planner:
                     continue  # said as often as a lesson allows: not in a scene either (#192)
                 if connect_item_uses.get(it.id) and self._stable(it):
                     continue  # a stable item takes part in one connect a lesson (#151)
+                if (frame := b.number_frame_of(it)) is not None and b.frame_spent(sc, frame):
+                    continue  # #451 step 3b: a number frame asked as often as a lesson allows is not asked in a scene either (review of #539)
                 seen.add(it.id)
                 valid.append(it)
             def search(cands: list[Item]) -> tuple | None:
