@@ -1589,25 +1589,27 @@ class Planner:
         return [it for it in self.cur.items if it.said_of and self.learner.has_met(it.id) and not self.learner.is_open(it.id)]
 
     def noun_choice_candidates(self) -> list[list[tuple]]:
-        """#528 step 2, the noun by its frame: each noun the learner has met in two forms or more, each form in the sentence it was taught in
-        (``LearnerState.learned_wholes``: «Hvar er bankinn?», «Ég er að leita að bankanum.»), as ``Builder.noun_choice`` takes them:
-        ``(item, case, sentence, meaning, frame)`` per form, at most one a case, the nominative first. A form not met in an earlier lesson, open
-        (failing), with no sentence (or a stored one that no longer says the form) or said by the speaker's gender is left out; a noun with
-        fewer than two forms that differ in their word waits."""
+        """#528 step 2, the noun by its frame: each noun the learner has met in two forms or more, each form in a sentence the learner knows that
+        holds it, read from the current curriculum as the written review reads it (``review_wholes.whole_for``: «Hvar er bankinn?», «Ég er að
+        leita að bankanum.»), as ``Builder.noun_choice`` takes them: ``(item, case, sentence, prompt, frame)`` per form, at most one a case, the
+        nominative first. Not the stored ``learned_wholes`` text: a sentence a native check corrected since («Hvernig kemst ég að hótelinu?», #533)
+        would come back (review of #539). A form not met in an earlier lesson, open (failing), with no sentence or said by the speaker's gender is
+        left out; a noun with fewer than two forms that differ in their word waits."""
         rank = {c: n for n, c in enumerate(NOUN_CASES)}
+        met = {i for i in self.cur.by_id if self.learner.has_met(i)}
         out = []
         for entry in self.cur.nouns.values():
             lines: dict[str, tuple] = {}
             for form, item_id in sorted(entry["forms"].items(), key=lambda f: (rank.get(f[0].split("_")[0], 9), f[0])):
                 case, it = form.split("_")[0], self.cur.by_id.get(item_id)
-                whole = self.learner.learned_wholes.get(item_id) or {}
-                if (case not in rank or case in lines or it is None or it.target_m or not whole.get("answer")
-                        or _norm_utterance(it.target) not in _norm_utterance(whole["answer"]).split()
-                        or not self.learner.has_met(item_id) or self.learner.is_open(item_id)):
+                if case not in rank or case in lines or it is None or it.target_m or item_id not in met or self.learner.is_open(item_id):
                     continue
                 if any(_norm_utterance(it.target) == _norm_utterance(other[0].target) for other in lines.values()):
                     continue  # «eldfjall» is the nominative and the accusative alike: no choice between them
-                lines[case] = (it, case, whole["answer"], whole.get("meaning") or it.spoken_meaning, self.cur.by_id.get(whole.get("through", "")))
+                whole = whole_for(self.cur, it, met, self.prompts)
+                if whole is None or _norm_utterance(it.target) not in _norm_utterance(whole["answer"]).split():
+                    continue
+                lines[case] = (it, case, whole["answer"], whole["prompt"], self.cur.by_id.get(whole["through"]))
             if len(lines) >= 2:
                 out.append(list(lines.values())[:3])
         return out

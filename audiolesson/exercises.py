@@ -1197,7 +1197,8 @@ class Builder:
         learner has in two forms or more, each in the sentence it was taught in («Hvar er bankinn?», «Ég er að leita að bankanum.»). Each sentence is
         heard, then which form the noun takes there and its case («Here it is «bankanum», in the dative.»), with why when its frame says it
         (``form_reason``, once a lesson per frame); then each is asked again from its meaning, in another order, so the form is said as the choice
-        its frame makes. ``lines``: ``(item, case, sentence, meaning, frame)``, as ``Planner.noun_choice_candidates`` gives them."""
+        its frame makes. ``lines``: ``(item, case, sentence, prompt, frame)``, as ``Planner.noun_choice_candidates`` gives them; ``prompt`` asks the
+        sentence from its meaning, as the written review asks it (``review_wholes.whole_for``)."""
         ids = list(dict.fromkeys(i for it, *_, frame in lines for i in (it.id, *([frame.id] if frame is not None else []))))
         ex = sc.new_exercise("model", "noun_choice", ids, "noun choice: " + " / ".join(sentence for _, _, sentence, _, _ in lines))
         self._frame(sc, ex, self.prompts.get("noun_choice_intro"))
@@ -1215,8 +1216,8 @@ class Builder:
             self.heard.add(_norm_utterance(sentence))
         self._narr(sc, ex, self.prompts.get("number_choice_say"))
         order = lines[1:] + lines[:1]
-        for n, (it, _, sentence, meaning, _) in enumerate(order):
-            self._narr(sc, ex, self._meaning_prompt(meaning))
+        for n, (it, _, sentence, prompt, _) in enumerate(order):
+            self._narr(sc, ex, prompt)
             self._answer_pause(sc, ex, sentence, it, generative=False)
             self._answer(sc, ex, sentence)
             if n < len(order) - 1:
