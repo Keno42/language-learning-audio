@@ -83,6 +83,7 @@ dialogue_partner_said = "「{meaning}」"
 aside = "ちょっとした話です。"
 aside_end = "では、レッスンに戻りましょう。"
 listening_back = "では、話す練習に戻りましょう。"
+form_back = "形の練習はここまでです。"  # 数・性・主語の練習の後、通常の練習に戻るとき (lesson 55)
 conversation_part_back = "この会話はここまでにします。"  # 会話の一部の後 (lesson 53)
 conversation_back = "会話はここまでです。"
 milestone_intro = "気づいてほしいパターンがあります。"

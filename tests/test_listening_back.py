@@ -48,6 +48,30 @@ class ListeningEndsWithAWayBackTests(unittest.TestCase):
         self.assertGreater(kept, 0, "and conversations followed by another task that opens with its own line")
 
 
+    def test_the_form_work_before_a_drill_ends_with_its_line_and_only_then(self):
+        """Lesson 55: «after the practice of forms by gender and person, say something when the lesson goes back to the usual practice». The
+        number choice, the gender choice and the subject choice open with their own line; where a drill follows, each ends «That's the end of
+        the form work.», and no other exercise says it."""
+        from audiolesson.prompts import Prompts
+
+        line = Prompts.load("en").get("form_back")
+        closed = 0
+        stages = set()
+        for cur, _, sc in course.ListeningTaskTests._course(40):
+            spoken = {s.exercise for s in sc.segments if s.exercise is not None and s.duration > 0}
+            order = [e for e in sc.exercises if e.index in spoken]
+            for e, nxt in zip(order, order[1:]):
+                said = [s.text for s in sc.segments if s.exercise == e.index and s.type in ("speak", "narrate", "answer")]
+                form = e.kind == "model" and e.stage in ("choice", "said_of", "subjects")
+                next_listening = nxt.kind in ("pick_out", "catch_unknown") or (nxt.kind == "intro" and nxt.label.startswith("new (catch)"))
+                wants = form and not (next_listening or nxt.kind in ("dialogue", "note", "closing"))
+                self.assertEqual(said[-1:] == [line], wants, (sc.lesson_number, e.label, nxt.kind))
+                self.assertEqual(said.count(line), int(wants), (sc.lesson_number, e.label))
+                closed += wants
+                stages |= {e.stage} if wants else set()
+        self.assertGreater(closed, 3, "the course has form work followed by drills")
+        self.assertGreater(len(stages), 1, f"of more than one kind: {stages}")
+
     def test_a_conversation_right_after_another_says_another(self):
         """Lesson 45 (owner): a conversation that ends where another begins says no «That's the end of the conversation.», so the next one opens
         «Now another short conversation.»; one after anything else opens «Now a short conversation.»."""
@@ -103,6 +127,10 @@ class WayBackTableTests(unittest.TestCase):
         self.assertEqual(ways_back(order("pick_out", "recall")), {0: "listening_back"})
         self.assertEqual(ways_back(order(("intro", "new (catch): x"), "recall")), {0: "listening_back"}, "a word introduced through the catch")
         self.assertEqual(ways_back(order("dialogue", "generative")), {0: "conversation_back"})
+        form = [Exercise(0, "model", "subjects", label="subjects: x"), Exercise(1, "recall", "meaning", label="y")]
+        self.assertEqual(ways_back(form), {0: "form_back"}, "lesson 55: the form work ends with a way back")
+        self.assertEqual(ways_back([Exercise(0, "model", "intro", label="x"), Exercise(1, "recall", "meaning", label="y")]), {},
+                         "a model exercise of no form stage is a drill")
         self.assertEqual(ways_back(order("catch_unknown", "pick_out", "dialogue", "note", "recall", "closing")), {},
                          "no way back before a task that opens with its own line, and none after a drill or an aside")
         self.assertEqual(ways_back(order("pick_out")), {}, "the last exercise hands over to nothing")

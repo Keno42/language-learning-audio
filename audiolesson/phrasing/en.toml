@@ -86,6 +86,7 @@ dialogue_partner_said = "{meaning}"
 aside = "A quick aside."
 aside_end = "Back to the lesson."
 listening_back = "Back to speaking."  # after a pick-out or a catch, when a drill follows: the listening is over (lesson 34: the switch felt abrupt)
+form_back = "That's the end of the form work."  # after the number, gender or subject choice, when a drill follows (lesson 55: say when the usual practice comes back)
 conversation_part_back = "That's enough of that conversation."  # after a part of one (lesson 53: the scene does not end there)
 conversation_back = "That's the end of the conversation."  # after a conversation, when a drill follows (#415: lessons 37 and 39)
 milestone_intro = "Here's a pattern worth noticing."

@@ -2,8 +2,8 @@
 
 - ``MODES``: the mode of each exercise kind (a listening task, a conversation, an aside, a drill …). A test keeps every kind the code builds in
   it, so a new kind is classified the day it is written.
-- The way back (lesson 34, #387; lessons 37 and 39, #415, #425): ``WAY_BACK`` is the line that ends a listening task or a conversation where a
-  drill follows. The way in (#427, #433): ``WAY_IN`` opens a listening task that would start with its target-language line, a catch with no
+- The way back (lesson 34, #387; lessons 37 and 39, #415, #425; lesson 55): ``WAY_BACK`` is the line that ends a listening task, a conversation
+  or the form work where a drill follows. The way in (#427, #433): ``WAY_IN`` opens a listening task that would start with its target-language line, a catch with no
   scene. ``close_tasks`` says both on the finished script, where the next exercise is known and the time they take moves nothing the lesson
   holds.
 - The check: ``unmarked_turns`` lists every change of task whose line is missing or out of place, an aside's end line included (``END_LINES``),
@@ -41,11 +41,15 @@ MODES = {
     "generative": "drill",
     "connect": "drill",
 }
+# the form work (#493, #499, #531): a model exercise of these stages is a block of its own, opened with its own line («One number, different
+# forms: …», «One word, two forms: …», «One verb, other subjects: …») and ended on the learner's last answer. Lesson 55: «say something when the
+# lesson goes back to the usual practice», so it has a way back as a conversation has
+FORM_WORK_STAGES = frozenset({"choice", "said_of", "subjects"})
 # the modes that open with their own line («Listen …», a conversation's setting, «A note:», the closing): no way back comes before them
 OPENS_WITH_ITS_OWN_LINE = {"listening", "conversation", "aside", "closing"}
 # the line that ends a mode when the next exercise does not open with its own (#387: «Back to speaking.», as an aside ends with «Back to the
 # lesson.»; #415: «That's the end of the conversation.»)
-WAY_BACK = {"listening": "listening_back", "conversation": "conversation_back"}
+WAY_BACK = {"listening": "listening_back", "conversation": "conversation_back", "form": "form_back"}
 # the ways back the builder writes into every exercise of their mode, so the lesson's time counts them (``Builder.close_conversations``);
 # ``close_tasks`` drops them where they are not wanted, and inserts the others where they are
 BUILT_IN = {"conversation_back"}
@@ -68,6 +72,8 @@ def mode(e: Exercise) -> str:
     guess: a listening kind taken for a drill would get «Back to speaking.» before it."""
     if e.kind == "intro" and e.label.startswith(CATCH_INTRO):
         return "listening"
+    if e.kind == "model" and e.stage in FORM_WORK_STAGES:
+        return "form"
     return MODES[e.kind]
 
 
