@@ -109,9 +109,6 @@ class LearnerState:
     themes_last: dict[str, int] = field(default_factory=dict)  # theme -> the lesson that last played one of its levels (#149)
     caught_seeded: bool = False  # #339: the words the lessons before the log had already asked about were put in ``caught_words`` once
     caught_words: list[str] = field(default_factory=list)  # #339: words the learner has asked about with «Hvað þýðir …?» (lower case), across lessons: a word is caught once
-    # #429 (owner, 2026-11-14: «receiving no complaint should be treated as understood»): an instruction phrase -> how often it has been said as
-    # the instructor's instruction in past lessons (``Builder.command_support``). An instruction taught before the count began has no key: heard enough
-    commands_heard: dict[str, int] = field(default_factory=dict)
     listening_log: dict[str, int] = field(default_factory=dict)  # #339: a pick-out (its turn, and its line and piece) -> the lesson in which it was last heard; a listening log, not practice
     themes_heard: dict[str, list[str]] = field(default_factory=dict)  # "theme:level" -> "turn:line" partner wordings heard with their meaning (#196)
     # #483: "theme:level" -> the lesson that last played that level or heard it again; a level heard again as spare time rests by it
@@ -724,7 +721,6 @@ class LearnerState:
             **({"caught_words": sorted(self.caught_words)} if self.caught_words else {}),
             **({"caught_seeded": True} if self.caught_seeded else {}),
             **({"listening_log": dict(self.listening_log)} if self.listening_log else {}),
-            **({"commands_heard": dict(self.commands_heard)} if self.commands_heard else {}),
             **({"forms_modelled": sorted(self.forms_modelled)} if self.forms_modelled is not None else {}),
             **({"retention": {k: list(v) for k, v in self.retention.items()}} if self.retention else {}),
         }
@@ -766,7 +762,6 @@ class LearnerState:
             caught_words=list(raw.get("caught_words", [])),
             caught_seeded=bool(raw.get("caught_seeded", False)),
             listening_log={k: int(v) for k, v in raw.get("listening_log", {}).items()},
-            commands_heard={k: int(v) for k, v in raw.get("commands_heard", {}).items()},
             forms_modelled=set(raw["forms_modelled"]) if "forms_modelled" in raw else None,
             retention={k: [int(x) for x in v] for k, v in raw.get("retention", {}).items()},
         )

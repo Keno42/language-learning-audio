@@ -98,7 +98,7 @@ CONSTRUCTION_CEILING = 10  # generated sentences one construction may have in a 
 # as often as one new sentence's ladder (lesson 52 asked each of its new sentences 8–9 times). The pattern's generated sentences stop there; the
 # sentence's own rungs and the pattern's introduction are not held to it
 FRAME_BUDGET = 9
-COMMAND_SUPPORT_HEARINGS = 2  # #429 (owner, 2026-11-14): an instruction in Icelandic is said with its English the first two times after it is taught
+COMMAND_SUPPORT_LESSONS = 2  # #429 (owner, 2026-11-14): an instruction in Icelandic has its English in the lesson that teaches it and the next
 NOUN_CASES = ("nom", "acc", "dat", "gen")  # #528 step 2: the cases a noun choice sets side by side, in the order it says them
 FORM_EXTRA_NEW = 2  # sentences in a form taught this lesson, beyond the practice right after its note
 SITUATION_FULL_MAX = 2  # a situation (authored, or a scene check's line) is narrated in full at most this often in a lesson (G12)
@@ -152,12 +152,6 @@ def meaning_prompts(prompts: Prompts, known_lang: str, target_lang: str, meaning
         key, fmt = "meaning", {"meaning": meaning_text(known_lang, meaning), "language": prompts.language_name(target_lang)}
     val = prompts.data[key]
     return [t.format(**fmt) for t in (val if isinstance(val, list) else [val])]
-
-
-def commands_said(sc: Script, item: Item) -> int:
-    """#429: how often ``sc`` says the instruction phrase ``item`` as the instruction (role ``command``), its introduction aside. Read from the
-    script, not counted as exercises are built: a build tried and dropped would count a hearing the learner never has."""
-    return sum(1 for g in sc.segments if g.role == "command" and g.text == item.target)
 
 
 @dataclass
@@ -411,41 +405,15 @@ class Builder:
         lesson); None while they do not, and the instruction is said in their language."""
         return next((i for i in self.cur.items if i.command == key and (self.learner.has_met(i.id) or i.id in self.in_lesson)), None)
 
-    def command_support(self, item: Item, said: int) -> bool:
-        """#429: whether the instruction in the learner's language follows the target-language one, when this lesson has said it ``said`` times
-        before: for its first ``COMMAND_SUPPORT_HEARINGS`` hearings as an instruction after it was taught, across lessons
-        (``LearnerState.commands_heard``), and again after a failure (``is_open``). The owner, after lesson 56 («the instructions in both
-        languages never end»): no complaint is understanding, so the English goes at the third hearing. Before, it waited for two recalls in the
-        written review, which «Endurtaktu.» had not had four lessons after it was taught. An instruction taught before the count began (met, with
-        no key in ``commands_heard``) has been heard more than enough."""
-        if self.learner.is_open(item.id):
-            return True
-        if item.id not in self.learner.commands_heard and self.learner.has_met(item.id):
-            return False
-        return self.learner.commands_heard.get(item.id, 0) + said < COMMAND_SUPPORT_HEARINGS
-
-    def settle_command_support(self, sc: Script) -> None:
-        """#429: on the finished script, the English after each instruction where ``command_support`` wants it in the order the learner hears
-        them. The build decides as it goes, from the instructions said so far; the way in («Listen.»), written on the finished script, can come
-        before instructions decided earlier, so a hearing past the second may still carry its English: it is dropped here, a beat kept."""
-        by_target = {i.target: i for i in self.cur.items if i.command}
-        heard: Counter = Counter()
-        out: list[Segment] = []
-        segs = sc.segments
-        k = 0
-        while k < len(segs):
-            g = segs[k]
-            out.append(g)
-            item = by_target.get(g.text) if g.role == "command" else None
-            if item is not None:
-                support = self.command_support(item, heard[item.id])
-                heard[item.id] += 1
-                if not support and k + 1 < len(segs) and segs[k + 1].role == "command_support":
-                    k += 1
-                    if not (k + 1 < len(segs) and segs[k + 1].type == "pause"):
-                        out.append(Segment("pause", None, None, None, 1.0, self.timing.beat, "beat", g.exercise))
-            k += 1
-        sc.segments = out
+    def command_support(self, item: Item) -> bool:
+        """#429: whether the instruction in the learner's language follows the target-language one: in the lesson that teaches it and the next
+        (``COMMAND_SUPPORT_LESSONS``), and again after a failure (``is_open``). The owner, after lesson 56 («the instructions in both languages
+        never end»): no complaint is understanding, and a complaint can only come in a lesson's feedback, so the English goes from the third
+        lesson. Before, it waited for two recalls in the written review, which «Endurtaktu.» had not had four lessons after it was taught."""
+        st = self.learner.items.get(item.id)
+        if st is None or not st.introduced_lesson or self.learner.is_open(item.id):
+            return True  # taught in this lesson, or failing
+        return self.learner.next_lesson_number() - st.introduced_lesson < COMMAND_SUPPORT_LESSONS
 
     def _instruct(self, sc: Script, ex: Exercise, key: str, frame: bool = False) -> None:
         """An instruction (``key``, a phrasing key): in the target language once taught («Endurtaktu.»), with the learner's own after it while
@@ -459,9 +427,8 @@ class Builder:
             else:
                 self._narr(sc, ex, self.prompts.get(key))
             return
-        support = self.command_support(item, commands_said(sc, item))
         self._speak(sc, ex, item.target, speaker=COMMAND_VOICE, role="command")
-        if support:
+        if self.command_support(item):
             self._narr(sc, ex, self.prompts.get(key), role="command_support")
             if frame:
                 self._beat(sc, ex)
@@ -494,7 +461,7 @@ class Builder:
         if item is None:
             return None
         out = [Segment("speak", COMMAND_VOICE, item.target, self.tl, 1.0, self.timing.speech_estimate(item.target, self.tl), "command", ex_index)]
-        if self.command_support(item, 0):  # with its English when it may have it at all: ``settle_command_support`` drops it past the second hearing
+        if self.command_support(item):
             text = self.prompts.get(key)
             out.append(Segment("narrate", "instructor", text, self.kl, 1.0, self.timing.speech_estimate(text, self.kl), "command_support", ex_index))
         return out

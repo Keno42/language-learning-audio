@@ -157,7 +157,7 @@ class Item:
     # (``said_of_meaning``, per language): a lesson sets the two side by side, so the form is practised as the person's choice, not only the speaker's
     said_of: dict[str, str] = field(default_factory=dict)
     # #429 (the long run): the instructor's instruction this phrase says in the target language, by its phrasing key («repeat» for «Endurtaktu.»):
-    # once taught it replaces the instruction, said in a native voice, with the instruction after it for its first two hearings after it is taught
+    # once taught it replaces the instruction, said in a native voice, with the instruction after it in the lesson that teaches it and the next
     # (``Builder.command_support``)
     command: str = ""
     said_of_meaning: dict[str, str] = field(default_factory=dict)

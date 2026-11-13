@@ -22,7 +22,7 @@ from itertools import groupby
 
 from .claims import unkept_claims
 from .content import SUBJECTS, Curriculum, Dialogue, Item
-from .exercises import NOUN_CASES, Builder, _norm_utterance, commands_said, cue_is_answer
+from .exercises import NOUN_CASES, Builder, _norm_utterance, cue_is_answer
 from .sounds import hard_sounds, hard_words_of
 from .learner import REPORTED_HARD_DAYS, LearnerState
 from .numbers import choice_lines, form_genders, noun_gender, number_in, number_words, pick_choice, plain_number, value_of
@@ -4358,7 +4358,6 @@ class Planner:
             said = b.command_segments("listen", seg.exercise) if seg.type == "narrate" and seg.role == "listen" else None
             segs.extend(said if said else [seg])
         sc.segments = segs
-        b.settle_command_support(sc)  # #429: the English after an instruction only on its first two hearings, in the order they are heard
         switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same, b.timing.switch_gap_sentence)  # #301: the last pass over the finished script
         sc.retime()
         spare = self._spare_time(sc, introduced, theme_pick, early_ids, delivered_at[0])
@@ -4396,9 +4395,6 @@ class Planner:
             "said_of_choices": list(said_of_choices),  # #439 step 2: a gendered word said of him and of her this lesson
             "noun_choices": list(noun_choices),  # #528 step 2: a noun said in the frames of its forms this lesson
             "slow_models_reported": list(slow_models),  # #337: reported-hard items given the slow model of their hard word
-            # #429: each instruction phrase taught -> how often this lesson said it as the instruction (0 for one introduced and not yet heard)
-            "commands_heard": {i.id: commands_said(sc, i) for i in self.cur.items if i.command and (i.id in b.in_lesson or self.learner.has_met(i.id))
-                               and (i.id in b.in_lesson or i.id in self.learner.commands_heard)},
             "hear_supports_reported": list(hear_supports) + list(hear_settled),  # #444: reported-hard-to-hear items given listening support
             "phrase_hard_words": {i.id: [w for w, _ in hard_words_of(i)] for i in introduced if i.kind == "phrase" and hard_words_of(i)},  # #337: authored hard words of today's new phrases (modelled at the introduction)
             "hard_words": [i.id for i in introduced if hard_sounds(i)],  # #212: today's new words that got the slow, split model
@@ -4543,8 +4539,6 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
     for item_id in sc.meta.get("hear_supports_reported", []):
         if item_id in learner.items:
             learner.items[item_id].hear_owed = ""  # #444: the listening support was played
-    for item_id, n in sc.meta.get("commands_heard", {}).items():
-        learner.commands_heard[item_id] = learner.commands_heard.get(item_id, 0) + n  # #429: the English fades by these (``Builder.command_support``)
     for item_id in sc.meta.get("embedded_items", []):
         learner.embedded[item_id] = sc.lesson_number
     if sc.meta.get("forms_modelled") is not None:
