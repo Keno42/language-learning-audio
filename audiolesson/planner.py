@@ -2226,6 +2226,8 @@ class Planner:
             form = self.cur.by_id[wanted]
             queued = {i.id for i in new_queue}
             if wanted not in queued and all(self._prereq_met(form, p, lambda i: self.learner.knows(i) or i in queued) for p in form.prereqs):
+                if wanted not in self.component_by_item:
+                    self._charge(form)  # at the form weight: it is new material of the day, in the total and by item (review of #541)
                 new_queue.append(form)
         if (command := self.next_command()) is not None:
             # #429 (the long run): one instruction in Icelandic a lesson, first, on top of the day's new material. Charged (at 0) so the caps that
