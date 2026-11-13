@@ -3794,11 +3794,13 @@ class Planner:
                 # #528 step 2 (the long run): once a lesson, a noun the learner has in two forms said in the sentence of each, the case named, then
                 # each asked, in a today's-items turn the number choice did not take and before the word said of him and of her (the owner, #528:
                 # «a coach who makes me choose the right case»). Only where a drill of today's items would play, as for the word said of him and her
-                # #528 step 4: the noun whose form is newest to the learner first (the fewest successes of any of its forms: the form brought in
-                # the lesson before is set as a choice the day after); among equals the nouns take turns by lesson, as before
-                fresh = lambda lines: min(st.successes if (st := self.learner.items.get(it.id)) else 0 for it, *_ in lines)  # noqa: E731
-                least = min(fresh(c) for c in nouns)
-                nouns = [c for c in nouns if fresh(c) == least]
+                # #528 step 4: the noun whose form is newest to the learner first (``ItemState.introduced_lesson``: the form brought in the
+                # lesson before is set as a choice the day after), while one was introduced in the last three lessons; else the nouns take
+                # turns by lesson, as before
+                newest = lambda lines: max(st.introduced_lesson if (st := self.learner.items.get(it.id)) else 0 for it, *_ in lines)  # noqa: E731
+                latest = max(newest(c) for c in nouns)
+                if latest >= sc.lesson_number - 3:
+                    nouns = [c for c in nouns if newest(c) == latest]
                 ex = b.noun_choice(sc, nouns[sc.lesson_number % len(nouns)])
                 noun_choices.append(ex.label)
                 return True
