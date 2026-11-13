@@ -1663,3 +1663,53 @@ What the lesson played, by change, and what the learner wrote:
   record with them, is not established. Lessons 52 and 53 are read before any change to the rule.
 - **The listening.** Five of the six pick-outs had been heard in the three lessons before (#339; lesson 50: 8 of 8).
 - **Another learner** sent no new feedback.
+
+### 5.42 Lesson 52: the first lesson built with #502–#512
+
+Lesson 52 was generated with LLA `dbe39f1` (main with #502–#513), the bot at site_update_notifier `4e01489`. Rebuilt from its export with the
+trip profile it is identical (113 exercises, 30.2 minutes).
+
+| | lesson 52 |
+|---|---|
+| length | 30.2 min, 113 exercises |
+| new items; new components, weighted (target) | 9; 8 (8) |
+| theme (level) | bus (1), new (#511) |
+| target reached | 15.2 min |
+| items reviewed / due | 36 / 45: 30 of the 45 due, and 6 not due. Of the 15 others, 14 had been asked by the learner's own written review that morning (#238: the audio does not ask them again), and one, «ein króna», is no longer in the course |
+| written review's queue | 130 due |
+| pick-outs whose line was heard in the three lessons before | 11 of 16 |
+| feedback form: load; friction | **light** (the eighth in a row); other |
+| «sooner» | none |
+
+What the lesson played, by change, and what the learner wrote:
+
+- **The long run, first played:** «Endurtaktu.» introduced, then said before «Repeat.» in the day's introductions (#507); the bus at the stop,
+  «Númer sex …» and «Sex hundruð og þrjátíu krónur» heard (#511); «Það eru mínus þrjár gráður.» introduced whole, «mínus» and «gráður» never
+  asked bare (#512); «korter í fjögur» in a partner's listening line (#509); «þrjár» met in the temperature, not by course order (#508). The
+  hot-dog stand and family tickets (#510) and the tour desk (#513) did not play.
+- **Played without a remark:** the number choice «Tvo miða, takk.» / «Það kostar tvö þúsund krónur.» (#493); «Hann er japanskur.» / «Hún er
+  japönsk.» (#499); the weather opener the reply agrees with, «Það er kalt í dag!» (#506); «Say you think the snow is beautiful.» (#500).
+  «Made of words you know» (#502) did not play: no plain number was new.
+- **The endings.** «Getting used to the changing endings, «nafninu», «bókun», is hard.» Both came new inside the hotel's lines, «Á nafninu
+  Yuki.» and «Ég er með bókun.», modelled and split word by word, with no word on their form: «nafninu» is «nafn» with «-inu», «the name»
+  after «á»; «bókun» has no ending at all. The family (a form without why it is so, form-why) was answered for the number choice in lesson
+  50 (#495) and recurs here, a twenty-point part. The course names why a form changes only for a known noun's other form (#270), and «nafn»
+  was not known. **Open:** #439 step 3, case through #270's frames, covers a new noun met in a form other than its nominative.
+- **«mínus þrjár gráður», always three.** The owner, after the lesson: far too often, always three. The sentence came new for weather 2 (#512)
+  and was heard 19 times and said 9, all with «þrjár» (the introduction, two clozes, a hint, three meaning recalls, two situations); on the
+  replay the learner says it again in lesson 54 (a situation) and 56 (a meaning recall, and the number choice of 3, whose only feminine line
+  it is). The value is fixed in a line the learner says, the cause of the «þúsund» remark after lesson 51 (the
+  family one-version), and its pattern, which would vary it, comes only once the sentence is known, with 2–4 only. #451 step 3 rotates the
+  numbers the learner hears, not the ones they say. **Open:** #451 step 3b, a number line the learner says is practised over the values they
+  know once introduced.
+- **The pace and the due reviews.** §5.41 left open why lesson 51 left four due items unpractised and recorded none as not fitted. Read on
+  lessons 51 and 52: three of lesson 51's four, and 14 of lesson 52's 15, had been asked by the written review the same morning, and the
+  fourth each time is «ein króna», gone from the course after lesson 29 yet still counted due. Both lessons asked every due item they could,
+  so `due_not_fitted` empty is right; `due_at_start` counts items the lesson cannot ask, so the rule's quarter is read against a larger
+  number than the lesson had. Lesson 51's new items in the written review: 8 recalled, «vettlinga» hesitated, «fyrir tvær nætur» not
+  recalled (lesson 52 asked it three times, a hard item with no other sentence to practise it through, #326).
+- **The numbers.** «þúsund» 16 times, «tíu» 2, «fimm» 4. Every «þúsund» is in an older line with a fixed value: the number choice's «Það
+  kostar tvö þúsund krónur.», «þúsund krónur» reviewed, and the scenes heard again with their pick-outs (the café's «Tvö þúsund krónur,
+  takk.», the clothes shop's «átta þúsund» and «fjögur þúsund», the supermarket's lamb at «tvö þúsund»). That is #451 step 3's work.
+- **The listening.** Eleven of the sixteen pick-outs had been heard in the three lessons before (#339; lesson 51: 5 of 6).
+- **Another learner** sent no new feedback.

@@ -902,6 +902,20 @@ family = "instruction-language"
 class = "mechanism"
 answered_by = ["#524"]
 
+[[lesson]]
+n = 55
+form = true
+load = "light"
+built = ["#523", "#524", "#526", "#527", "#530", "#531", "#534", "#535"]
+long_run = ["#524", "#531", "#534", "#535"]
+
+[[lesson.remarks]]
+who = "main"
+text = "After the practice of a number's and a verb's forms by gender and person, say something when the lesson goes back to the usual practice. (The subject choice at 14:09, «Ég kem í kvöld.» said with «hún» and «þú», and the number choice at 22:44, «Tvo miða» / «tvær nætur» / «tvö þúsund», each opened with its own line and ended on the learner's last answer, the next question straight after; a note ends «Back to the lesson.», a pick-out «Back to speaking.», a conversation «That's the end of the conversation.».)"
+family = "pick-out-turns"
+class = "twenty"
+answered_by = ["#538"]
+
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
 [[change]]
@@ -1655,3 +1669,37 @@ title = "instructions in Icelandic, the second step: «Hægt.» for «Slowly.»,
 issue = ["#429"]
 pr = ["#524"]
 family = "instruction-language"
+first_heard = 55
+heard = "«Hægt.» taught, then said before «Slowly.» in five slow models"
+
+[[change]]
+title = "the pace counts the due items a lesson can ask, and each unfitted item once; a rise reads whether the last lesson's due reviews fitted (H9, lesson 54: #526, #530)"
+issue = ["#526"]
+pr = ["#526", "#530"]
+family = "load-answer"
+first_heard = 55
+heard = "the target rose from 7 to 8: lesson 54 fitted 54 of the 56 due items it could ask"
+
+[[change]]
+title = "a new phrase's noun in a form other than its basic word is named against it, with which form it is, once a lesson (#439 step 3: #527)"
+issue = ["#439"]
+pr = ["#527"]
+family = "form-why"
+first_heard = 55
+heard = "«fimmtudaginn» is a form of «fimmtudagur»: the ending adds «the», the accusative a day takes after «á»"
+
+[[change]]
+title = "the verb by its subject: a sentence the learner says with «ég» said with two other subjects, once a lesson, named in the lesson's goal and asked once more in its closing (#528 steps 1 and 3: #531, #535)"
+issue = ["#528"]
+pr = ["#531", "#535"]
+family = "easy-substitution"
+first_heard = 55
+heard = "«Ég kem í kvöld.» with «hún» and «þú» at 14:09, each asked; «Today's form work» in the goal, «Hún kemur í kvöld.» before the closing"
+
+[[change]]
+title = "every number a partner says in an exchange has other values, and the old one rests behind them (#451: #534)"
+issue = ["#451"]
+pr = ["#534"]
+family = "one-version"
+first_heard = 55
+heard = "the tour desk's first play «þrír, sjö, einn, átta … hálf átta», its second the written «sex, fjórir, níu, tveir … átta»; meeting 2 heard again with «hálf átta» for «sjö»"
