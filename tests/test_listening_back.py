@@ -50,7 +50,7 @@ class ListeningEndsWithAWayBackTests(unittest.TestCase):
 
     def test_the_form_work_before_a_drill_ends_with_its_line_and_only_then(self):
         """Lesson 55: «after the practice of forms by gender and person, say something when the lesson goes back to the usual practice». The
-        number choice, the gender choice and the subject choice open with their own line; where a drill follows, each ends «That's the end of
+        number choice, the gender choice, the noun choice (#528 step 2) and the subject choice open with their own line; where a drill follows, each ends «That's the end of
         the form work.», and no other exercise says it."""
         from audiolesson.prompts import Prompts
 
@@ -62,7 +62,7 @@ class ListeningEndsWithAWayBackTests(unittest.TestCase):
             order = [e for e in sc.exercises if e.index in spoken]
             for e, nxt in zip(order, order[1:]):
                 said = [s.text for s in sc.segments if s.exercise == e.index and s.type in ("speak", "narrate", "answer")]
-                form = e.kind == "model" and e.stage in ("choice", "said_of", "subjects")
+                form = e.kind == "model" and e.stage in ("choice", "noun_choice", "said_of", "subjects")
                 next_listening = nxt.kind in ("pick_out", "catch_unknown") or (nxt.kind == "intro" and nxt.label.startswith("new (catch)"))
                 wants = form and not (next_listening or nxt.kind in ("dialogue", "note", "closing"))
                 self.assertEqual(said[-1:] == [line], wants, (sc.lesson_number, e.label, nxt.kind))
