@@ -108,7 +108,8 @@ class NounChoiceTests(unittest.TestCase):
             del learner.items[item_id]
         planner = self.planner(learner)
         self.assertEqual(planner.noun_choice_wants(), ["flugvellinum"], "the earliest in the course, one a lesson")
-        self.assertIn("flugvellinum", [i.id for i in planner.select_new(6)], "behind the theme's items, among the day's new ones")
+        self.assertNotIn("flugvellinum", [i.id for i in planner.select_new(6)], "the selection is as before: the form takes no item's place")
+        self.assertIn("flugvellinum", planner.build().meta["new_items"], "the lesson adds it to its first batch of new items")
         learner.items["flugvollurinn"].last_outcome = "not_recalled"
         self.assertEqual(self.planner(learner).noun_choice_wants(), ["sundlauginni"], "a noun whose known form is failing gets no second form yet")
         learner.items.pop("eg_er_ad_leita_ad")

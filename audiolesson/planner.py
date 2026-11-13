@@ -939,8 +939,7 @@ class Planner:
         fill_pool = list(pool)
         pulling = {p for i in pool if not i.variant_of for p in i.prereqs}
         in_scene = set(self.theme_wants())
-        noun_wants = set(self.noun_choice_wants())  # #528 step 4: the form the noun choice would set next comes in as new material
-        pool = [i for i in pool if not i.variant_of or i.id in pulling or i.id in in_scene or i.id in noun_wants]
+        pool = [i for i in pool if not i.variant_of or i.id in pulling or i.id in in_scene]
         # #451 step 1 (the owner, 2026-11-09: numbers practised only as ages is not enough, and «fimm», «tíu», «þúsund» came back too often): a plain
         # number does not enter by the course or trip order, where the numbers module brings each as an age («Ég er nítján ára») or a price. It is
         # met where it is used: a theme level's line that needs it, an item that needs it, a word caught by ear (the catch), or an item asked for
@@ -977,9 +976,8 @@ class Planner:
         if not wants and not self.cfg.topics and self.themes_exhausted():
             pool = self._group_by_scene(pool, count, keep_first={promoted_id} if promoted_id else set())
         pool = [i for i in pool if not i.command]  # #429: an instruction is taught by its own slot (``next_command``), never in a new-item place
-        if (choice := set(self.choice_wants()) | noun_wants):
+        if (choice := set(self.choice_wants())):
             # #439 step 1b: after the theme's items and a promoted construction, the line that gives the number choice a missing gender
-            # and the form the noun choice would set next (#528 step 4)
             ahead = set(wants or ()) | ({promoted_id} if promoted_id else set())
             k = next((n for n, i in enumerate(pool) if i.id not in ahead), len(pool))
             pool = pool[:k] + [i for i in pool[k:] if i.id in choice] + [i for i in pool[k:] if i.id not in choice]
@@ -1620,8 +1618,8 @@ class Planner:
         """#528 step 4, a form set as a choice is new material: the next form the noun choice could set. A form not met of a noun the learner
         has in another form (met, not failing), that a frame the learner knows takes (a slot of a known pattern asks one of its tags:
         «sundlauginni» for «Ég er að leita að {place}.», beside «sundlaugin» of «Hvar er {place}?»), and whose word differs from the forms
-        met. One a lesson, the earliest in the course: ``select_new`` lets it past the rule that holds a close variant back (#218 b1: a form
-        comes in with a purpose, and the choice is one) and brings it forward as it does the number choice's line. On the replay of lesson
+        met. One a lesson, the earliest in the course: the lesson adds it after its first batch of new items, past the rule that holds a
+        close variant back (#218 b1: a form comes in with a purpose, and the choice is one), in no item's place. On the replay of lesson
         55's export the noun choice had three nouns (the bank, fish, the hotel) and nothing brought a fourth."""
         frames = {tag for c in self.cur.items if c.kind == "construction" and self.learner.knows(c.id) for tag in c.slots.values()}
         out = []
@@ -2222,6 +2220,13 @@ class Planner:
         wanted_at_start = self.theme_wants()
         first_arc = cfg.new_items_ceiling() if self.components_mode else cfg.resolved_new_items()  # in components, the target stops the arc
         new_queue = deque(self.select_new(first_arc, cheap=True))
+        # #528 step 4: the form the noun choice could set next joins the lesson's first batch of new items, after them. It takes no item's
+        # place (``select_new`` is as before: a first version that brought it forward there pushed a part's frame and the trip's item out)
+        for wanted in self.noun_choice_wants():
+            form = self.cur.by_id[wanted]
+            queued = {i.id for i in new_queue}
+            if wanted not in queued and all(self._prereq_met(form, p, lambda i: self.learner.knows(i) or i in queued) for p in form.prereqs):
+                new_queue.append(form)
         if (command := self.next_command()) is not None:
             # #429 (the long run): one instruction in Icelandic a lesson, first, on top of the day's new material. Charged (at 0) so the caps that
             # read ``component_by_item`` see it as costing nothing, not as a missing item counted as 1 (review of #507)
