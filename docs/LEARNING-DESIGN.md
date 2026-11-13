@@ -793,8 +793,9 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
     lesson is full.
   - **Close variants** (`Item.variant_of`: another case, another gender of something the learner knows) no longer fill
     spare time (#218 b1, owner 2026-10-09; before, up to four came in beyond the pace, #170). A form comes in only
-    when the theme's next level wants it (#201) or a frame or phrase pulls it (#202); the trip and course orders don't
-    take it. They are listed apart in `plan.json` (`variant_items`).
+    with a purpose: the theme's next level wants it (#201), a frame or phrase pulls it (#202), or the noun choice could set
+    it against a form the learner has (#528 step 4, owner 2026-11-12: one a lesson, of another case, in a pattern they know);
+    the trip and course orders don't take it. They are listed apart in `plan.json` (`variant_items`).
   - A heard-only play of a played theme level (spare time) takes any variant of a partner line, untranslated, as
     natural-speed exposure (H8); a replay's early play still takes only wordings heard with their meaning (#196).
 - **Evidence.**
