@@ -1,5 +1,13 @@
 name: ci
-on: [push, pull_request]
+# One run per commit: a push to main (after a merge), and a pull request opened, pushed to or reopened. Both events fired on a PR
+# branch's push before, so every PR commit ran the suite twice. A newer push to a PR cancels the run it replaces; main's runs all finish.
+on:
+  push:
+    branches: [main]
+  pull_request:
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   test:
     runs-on: ubuntu-latest
