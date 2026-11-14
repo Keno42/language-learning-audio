@@ -53,6 +53,9 @@ WAY_BACK = {"listening": "listening_back", "conversation": "conversation_back", 
 # the ways back the builder writes into every exercise of their mode, so the lesson's time counts them (``Builder.close_conversations``);
 # ``close_tasks`` drops them where they are not wanted, and inserts the others where they are
 BUILT_IN = {"conversation_back"}
+# #429 step 1 (lesson 57): the ways back said in the target language once taught («Aftur að tala.», «Samtalinu er lokið.»), on the finished
+# script after ``close_tasks``; a part's «That's enough of that conversation.» is not one of them
+WAYS_BACK_SAID = ("listening_back", "conversation_back")
 # the line that opens a mode when its exercise would otherwise start with a target-language line straight after the task before: a catch with no
 # scene to frame it, such as one that introduces a word through its home sentence (``Builder.whole_home``); a pick-out always opens with its need
 WAY_IN = {"listening": "listen"}
