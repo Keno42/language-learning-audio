@@ -22,8 +22,10 @@ In order:
    Lessons 52 and 53 taught them; each was recalled the next day. Lesson 54 taught none, and the learner wrote that the instructions did not
    increase: waiting for the fade held the item still. **Built (#524):** «Hægt.» for «Slowly.» and «Hlustaðu aftur.» for a
    pick-out's «Listen again.», one a lesson, with no wait for the fade; lesson 55 taught «Hægt.» and said it before «Slowly.» in five
-   slow models, with no remark. **Next:** «And at natural speed.», «The answer:», «Back to
-   speaking.» and the catch's «Now listen again.», once these two have had their feedback.
+   slow models, with no remark. Lesson 57 taught none: the four authored phrases were all taught in lessons 52–56, and the learner wrote that
+   without one a lesson the switch will not progress (LD §5.47). **This round (step 1):** the next phrases, in order of how often a lesson
+   says them: «And at natural speed.», «The answer:», «Back to speaking.», the conversation's start and end. **Then:** a taught instruction
+   inside a longer English line («Listen, then repeat.», lesson 56), and the question frame «How do you say: …».
 2. **Forms as choices (#528, owner 2026-11-12).** «New material should not be more numbers, colours and words to memorise; I want to feel a
    coach who makes me choose the right case and the right verb form.» The course itself is one-sided: of 256 sentences that open with a
    subject pronoun, 207 say «ég»; «vilja», «þurfa» and «eiga» exist in one form; the learner has two forms of three nouns. **Built, step 1 (#531):** the
@@ -39,9 +41,10 @@ In order:
    the learner has of its noun, that a pattern they know takes («sundlauginni» for «Ég er að leita að {place}.»), is brought in one a
    lesson at the form weight, past the rule that holds a close variant back; the noun whose form is newest is set as the choice first. On
    the replay of lesson 55's export lessons 55–59 bring «eggjum», «flugvellinum», «sundlauginni», «safninu» and «stoppistöðinni», and the
-   nouns the choice can set go from three to seven. **Next:** more nouns with a second form in a frame the learner has (#270's accusative
-   orders against a nominative, «í» with a town, «á» with a day): the course holds two forms of fifteen nouns, and the learner knows 43
-   only in the accusative.
+   nouns the choice can set go from three to seven. Lessons 56 and 57 played all four steps without a remark on them. #528 is closed
+   (2026-11-14). More nouns with a second form in a frame the learner has (#270's accusative orders against a nominative, «í» with a
+   town, «á» with a day) come as data, each through #368's introduction and #541. It reopens on a remark that new material is words of a
+   set again, or that a form choice is a drill with no scene.
 3. **Numbers in varied situations (#451, owner 2026-11-09).** Numbers where a traveller meets them, sorted into eight kinds in #451
    (money, time, dates, counts and people, numbers as names, weather and roads, contacts and codes, about oneself), mostly by ear,
    rotated so no kind and no number word comes back within a few lessons. Merged: step 1 (#508), step 2, scenes for every kind
@@ -59,33 +62,30 @@ In order:
 4. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 5. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
-**This round:** #528 step 2, the noun by its frame (item 2 above, #539). Beside it, the remark's answer, the way back after the form work
-(«Now» item 1, #538, merged): the round's two behaviour PRs (LD §9 "Governance"). Lesson 55 was built with eight; it is read change by change (LD §5.45).
+**This round:** #429 step 1, the next instruction phrases, so a lesson teaches one again (item 1 above): the long-run step and lesson 57's
+twenty-point part. Beside it, #544, the noun forms' glosses named by their case (data).
 
-## Now (updated 2026-11-13, after lesson 55), in order
+## Now (updated 2026-11-14, after lesson 57), in order
 
 The remarks' half of each round (LD §9 "Governance"): each remark ranked by how often its cause recurs on the replay of the latest export and
-what a fix costs. The latest export is lesson 55's; the next lesson is 56. Lesson 55 was rated «light» at a target of 8, fitted 46 of the 48
-due items it could ask, played the long run's three steps without a remark, and drew one: say something when the lesson goes back to the
-usual practice after the form work (LD §5.45).
-1. **The way back after the form work (the family pick-out-turns).** The subject choice and the number choice open with their own line and
-   end on the learner's last answer, the next question straight after, where a note, a pick-out and a conversation each end with a way back
-   (`audiolesson/transitions.py`). On the replay of lesson 55's export each of lessons 55–59 has the subject choice, four of the five the
-   number choice and lesson 56 the gender choice too («Hann er svangur.» / «Hún er svöng.»): two or three such switches a lesson. **Built (#538):** the form work as a mode of its own (`transitions.py`), ending «That's the end of the form work.»
-   where a drill follows, the gender choice (#499) included; on the replay it is said in four of lessons 55–59.
+what a fix costs. The latest export is lesson 57's; the next lesson is 58. Lessons 56 and 57 were rated «right» at targets of 9 and 10, and
+each practised every due item it could ask. Lesson 55's remark (the way back after the form work) did not come back once #538 was built.
+Their remarks are about the instructions in Icelandic, and one gloss (LD §5.46, §5.47).
+1. **The instructions in Icelandic (#429, the family instruction-language).** Three remarks in two lessons:
+   - the English never ended: built (#542), the English goes from the third lesson after an instruction is taught;
+   - «repeat» still said in English inside a longer line (lesson 56);
+   - no new instruction in lesson 57: the four authored phrases are all taught.
+   The learner's choice to keep the instructions in English is built (#543, site_update_notifier#224). **Next:** the next phrases (this
+   round), then a taught instruction inside a longer line.
 2. **Practice by what is hard in an item, not its kind (#439, #518, G11, H11).** The remark of lessons 41, 44, 49, 51 and 54, and the
-   owner's on #516. Built: a new phrase made of words the learner says is asked as a use of them (#523; it did not play in lesson 55, none
-   of whose new phrases is made only of known words), and a new noun's form named against its basic word (#527: «fimmtudaginn is a form of
-   fimmtudagur … the accusative a day takes after á», in lesson 55). **Next:** the rest of #518, a dose for every new item, which waits for
-   the owner's three decisions.
-3. **The pace rises when the reviews fit (H9).** Lesson 55, the first lesson whose target was set by the rule (#530), was at 8 and «light».
-   On the replay the target rises by one a lesson while every new item is recalled. **Next:** read the load rating as it rises; a «right»
-   does not stop a rise, a «heavy» does.
-4. **The listening pool's sameness (#339).** Three of lesson 55's four pick-outs were on a line heard in the three lessons before. On the
-   replay lesson 56 has 10 pick-outs after its target. **Next:** a pick-out rotates by line, a line heard recently is left for another,
-   and a lesson's pick-outs have a ceiling.
+   owner's on #516. Built: a new phrase made of words the learner says is asked as a use of them (#523), and a new noun's form named against
+   its basic word (#527). Lesson 56's new items were recalled 10 of 12: «Get ég skilað þessu?» was not. **Next:** the rest of #518, a
+   dose for every new item, which waits for the owner's three decisions.
+3. **The pace rises when the reviews fit (H9).** The target rose to 9 and 10, and lessons 56 and 57 were «right». **Next:** read whether
+   «right» holds at 10 and above; a «heavy» stops a rise. The other learner's lesson 32 (15 minutes) had 81 items due and 38 not fitted.
+   It is the first of their lessons to record this, so their trend is read from the next exports.
 
-**Alongside:** a conversation once (#519): lessons 54 and 55 had four and seven conversations (in 55, three fixed dialogues cut to two or three turns, which the retirement does not count) and no remark; one more feedback to read. Hard to hear (#447): the listening support played in lesson 55 for «Hvenær er útritun?» and «trefil», the two that had none in lesson 54. Two due items no lesson fits: the town names as dative fillers (`reykjavik_dat`, `akureyri_dat`), left in lessons 53–55. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
+**Alongside:** a conversation once (#519): lessons 54–57 had four to eight conversations and no remark, four feedbacks. Hard to hear (#447): lesson 57 played the listening support for «eggjum» and «hleðslutæki», reported after lesson 56. The listening pool's sameness (#339): none of lesson 56's or 57's pick-outs was on a line heard in the three lessons before (0 of 8, 0 of 6; lesson 55: 3 of 4). A noun form's gloss by its case, not an English preposition (#544, lesson 57). The town names as dative fillers, left unfitted in lessons 53–55, were fitted in 56 and 57. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
 before adding practice. Scene coherence (#327): lesson 50 said four of its six new items as turns of the played exchange, lesson 51 none of its
 ten (its exchange was a level played again). The note's pieces (#481) have not played yet. A silent clip taken as cut off (#503) is built; «vettlinga», whose syllable «lin» it was found on, has not played since.
 
@@ -109,6 +109,10 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
+- **After lesson 56:** an instruction's English only in the lesson that teaches it and the next (#429: #542); the instructions in
+  Icelandic the learner's choice, asked once by the bot (#429: #543, site_update_notifier#224).
+- **After lesson 55:** the way back after the form work (#538); the long run: the noun by its frame (#528 step 2: #539), a form the choice
+  could set as new material (#528 step 4: #541).
 - **After lesson 54:** a new phrase made of words the learner says is asked as a use of them (#518: #523); the long run: «Hægt.» and «Hlustaðu aftur.» taught as instructions (#429: #524); a new noun's form named against its basic word (#439 step 3: #527); the pace counts the due items a lesson can ask, and a rise reads whether the last lesson's reviews fitted (#526, #530); the verb by its subject, named in the lesson's goal and asked once more in its closing (#528 steps 1 and 3: #531, #535); every number a partner says in an exchange has other values, the old one resting behind them (#451: #534).
 - **After lesson 53:** a fixed dialogue retires after two whole plays, and a hard item's scene line is cut once a level, never from the lesson's own (#519); the long run: the number a scene's exchange says rotates, with other rooms, hours, codes and fares (#451 step 3d: #520).
 - **Before lesson 53, the long run:** #451 step 3, a number word rests between lessons in the pick-outs, the number choice takes its lines in turn, a scene's number carries a form of 1–4 (#515); a number line the learner says is practised over its values (#516).
@@ -172,7 +176,15 @@ Each waits for its first feedback in the LD §8 table.
   left needs a person (G10): the review of the rest, starting from the lines the lessons say most (`tools/top_lines.py` on the exported
   scripts). Every scene added since lesson 30 adds authored Icelandic to it.
 
-#326 holds the connections across lessons. The frames a noun takes its other forms in (#270's remainder) are #528's second step.
+#326 holds the connections across lessons. The frames a noun takes its other forms in (#270's remainder) come as data, each form through
+#368's introduction and #541 (#528, closed below).
+
+**Closed on 2026-11-14:**
+- #528 (forms as choices): its four steps are built (#531, #539, #535, #541). Reopens on a remark that new material is words of a set
+  again, or that a form choice is a drill with no scene.
+- site_update_notifier#179 (a support request apart from the review): its first step is built (support requests, the «sooner» reasons;
+  #187). The owner wants the form simpler, not more kinds. Reopens on a remark that asking for help changed an expression's schedule, or
+  that the help did not come.
 
 **Closed on 2026-11-12, each with the condition that reopens it** (their steps are merged; the owner asked for the list of open issues
 to come down):
@@ -192,8 +204,8 @@ to come down):
 - #483 (a level heard again with no rest; another learner): built by #486 and #487. Their lessons 29 and 30 since were rated «light»
   with no remark. Reopens on a remark from either learner that the same exchange comes lesson after lesson.
 - #270 (a known word in a new form, the umbrella): the dative place forms and the naming of a form against its basic word are built
-  (#368, #527). The frames left (accusative orders, `dat_town`, `dat_hobby`) are #528's second step, the noun by its frame. Reopens if
-  #528 drops that step.
+  (#368, #527), and the noun is set in the frames of its forms as a choice (#539, #541). The frames left (accusative orders, `dat_town`,
+  `dat_hobby`) come as data. Reopens if a frame's form comes with no word on its case.
 - #451 (numbers where a traveller meets them): its steps are merged (#508–#513, #515, #516, #520, #534). Reopens on a remark that
   numbers repeat or come from one situation.
 - #209 (a packet for a fluent speaker): the tool is built (#532). The review itself needs a person; when one is available, a new issue
