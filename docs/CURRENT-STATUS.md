@@ -18,7 +18,7 @@ in a row without one. Lessons 35–51 built none; lesson 52 was the first built 
 In order:
 1. **Instructions in Icelandic (#429, O2, H8).** The learner's choice, asked once by the bot around the tenth lesson: replace them gradually, or not
    at all (owner, 2026-11-14; #543, `generate --instructions`). The pilot of two commands, «Endurtaktu.» (repeat) and «Hlustaðu.» (listen), is built
-   (#507): taught as material, said in an Icelandic voice with the English after them, the English faded as the review recalls each twice.
+   (#507): taught as material, said in an Icelandic voice with the English after them. The English follows it in the lesson that teaches it and the next, and is gone from the third (owner, after lesson 56: «no complaint should be treated as understood», and feedback comes only after a lesson; #542), where it waited for two recalls in the written review.
    Lessons 52 and 53 taught them; each was recalled the next day. Lesson 54 taught none, and the learner wrote that the instructions did not
    increase: waiting for the fade held the item still. **Built (#524):** «Hægt.» for «Slowly.» and «Hlustaðu aftur.» for a
    pick-out's «Listen again.», one a lesson, with no wait for the fade; lesson 55 taught «Hægt.» and said it before «Slowly.» in five

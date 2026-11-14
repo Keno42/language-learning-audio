@@ -98,6 +98,7 @@ CONSTRUCTION_CEILING = 10  # generated sentences one construction may have in a 
 # as often as one new sentence's ladder (lesson 52 asked each of its new sentences 8–9 times). The pattern's generated sentences stop there; the
 # sentence's own rungs and the pattern's introduction are not held to it
 FRAME_BUDGET = 9
+COMMAND_SUPPORT_LESSONS = 2  # #429 (owner, 2026-11-14): an instruction in Icelandic has its English in the lesson that teaches it and the next
 NOUN_CASES = ("nom", "acc", "dat", "gen")  # #528 step 2: the cases a noun choice sets side by side, in the order it says them
 FORM_EXTRA_NEW = 2  # sentences in a form taught this lesson, beyond the practice right after its note
 SITUATION_FULL_MAX = 2  # a situation (authored, or a scene check's line) is narrated in full at most this often in a lesson (G12)
@@ -405,10 +406,14 @@ class Builder:
         return next((i for i in self.cur.items if i.command == key and (self.learner.has_met(i.id) or i.id in self.in_lesson)), None)
 
     def command_support(self, item: Item) -> bool:
-        """#429: whether the instruction in the learner's language follows the target-language one. It does until the learner's review has
-        recalled the phrase twice (recognition shown, not a lesson count), and again after a failure (``is_open``)."""
+        """#429: whether the instruction in the learner's language follows the target-language one: in the lesson that teaches it and the next
+        (``COMMAND_SUPPORT_LESSONS``), and again after a failure (``is_open``). The owner, after lesson 56 («the instructions in both languages
+        never end»): no complaint is understanding, and a complaint can only come in a lesson's feedback, so the English goes from the third
+        lesson. Before, it waited for two recalls in the written review, which «Endurtaktu.» had not had four lessons after it was taught."""
         st = self.learner.items.get(item.id)
-        return not (st and st.recalled >= 2 and not self.learner.is_open(item.id))
+        if st is None or not st.introduced_lesson or self.learner.is_open(item.id):
+            return True  # taught in this lesson, or failing
+        return self.learner.next_lesson_number() - st.introduced_lesson < COMMAND_SUPPORT_LESSONS
 
     def _instruct(self, sc: Script, ex: Exercise, key: str, frame: bool = False) -> None:
         """An instruction (``key``, a phrasing key): in the target language once taught («Endurtaktu.»), with the learner's own after it while
