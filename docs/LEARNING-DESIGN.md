@@ -400,7 +400,7 @@ exercises, 29.6 minutes).
 | target reached | 17.8 min |
 | items reviewed / due | 55 due by date, 43 the lesson could ask; it practised all 43, and 44 in all |
 | conversations | 6, 4.8 minutes: the weather's two plays, two fixed dialogues, two levels heard again |
-| pick-outs | 5 |
+| pick-outs | 6: one before the target was reached, five after |
 | written review's queue | 130 due |
 | feedback form: load; friction | **right**; other |
 | «sooner» | none |
