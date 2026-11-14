@@ -134,9 +134,9 @@ class Item:
     # ("English (the language)") stays out of sentence prompts.
     meaning_forms: dict[str, str] = field(default_factory=dict)
     # what the instructor says for ``meaning`` when it names the item alone ("Say: …"): a
-    # recall disambiguator written in brackets («the hotel (after 'to' / 'for')», «本（〜は・〜が）»)
+    # recall disambiguator written in brackets («eggs (after 'allergic to')», «本（〜は・〜が）»)
     # reads as a note on the page but is spoken verbatim, so the spoken form folds it into
-    # natural speech ("to the hotel", «本が»). Per language (``meaning_spoken_ja``), never
+    # natural speech ("eggs, as in: I'm allergic to eggs", «本が»). Per language (``meaning_spoken_ja``), never
     # borrowed from another: without one the plain ``meaning`` is spoken. The transcript's
     # written glosses keep ``meaning``.
     meaning_spoken: str = ""

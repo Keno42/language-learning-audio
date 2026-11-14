@@ -1353,7 +1353,7 @@ class CurriculumTests(unittest.TestCase):
 
     def test_generated_sentence_prompts_carry_no_recall_disambiguators(self):
         """Issue #29 audit finding: a fill's gloss can carry a disambiguator meant for isolated
-        recall ("English (the language)", "the hotel (after 'to' / 'for')", "work (to work)"),
+        recall ("English (the language)", "eggs (after 'allergic to')", "work (to work)"),
         and constructions pasted it into sentence prompts — "Say: Do you speak English (the
         language)?" in most simulated lessons. A fill's ``in_sentence`` form is used instead.
         Every construction × fill, in both instructor languages, now resolves without a
@@ -10831,9 +10831,11 @@ class SpokenMeaningTests(unittest.TestCase):
     def test_the_spoken_form_is_per_language_and_never_borrowed(self):
         en = load_curriculum(ROOT / "curricula" / "is-en")
         ja = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
-        self.assertEqual(en.by_id["hotelinu"].spoken_meaning, "the hotel, as after to or for")  # review of #484: «to the hotel» is the destination
-        self.assertEqual(en.by_id["hotelinu"].meaning, "the hotel (after 'to' / 'for')")
-        self.assertEqual(ja.by_id["hotelinu"].spoken_meaning, "ホテルへ")
+        # #544 (lesson 57): a form every frame shares is glossed by its case, not by the first frames' preposition
+        self.assertEqual(en.by_id["hotelinu"].spoken_meaning, "the hotel, in the dative")
+        self.assertEqual(en.by_id["hotelinu"].meaning, "the hotel (dative)")
+        self.assertEqual(ja.by_id["hotelinu"].spoken_meaning, "ホテル、与格")
+        self.assertEqual(en.by_id["eggjum"].spoken_meaning, "eggs, as in: I'm allergic to eggs")
         self.assertEqual(en.by_id["ensku"].spoken_meaning, "the English language")
         # English's spoken form never reaches a Japanese instruction: 英語 is unambiguous
         self.assertEqual(ja.by_id["ensku"].spoken_meaning, "英語")
@@ -10861,7 +10863,7 @@ class SpokenMeaningTests(unittest.TestCase):
         for stage in ("hinted", "meaning"):
             b.recall(sc, cur.by_id["hotelinu"], stage)
         spoken = " ".join(s.text for s in sc.segments if s.type == "narrate")
-        self.assertIn("ホテルへ", spoken)
+        self.assertIn("ホテル、与格", spoken)
         self.assertNotIn("〜", spoken)
         self.assertNotIn("（", spoken)
 
