@@ -7071,6 +7071,13 @@ class ShortItemRepetitionTests(unittest.TestCase):
             for i in parts & set(sc.meta["new_items"]):
                 intro = next(e for e in sc.exercises if e.kind == "intro" and e.item_ids == [i])
                 starts = [intro.start] + [e.start for e in sc.exercises if e.index > intro.index and i in e.item_ids]
+                if intro.start > sc.total_duration / 2:
+                    # introduced after the lesson's middle (review of #546: the simulated course moved «hinum megin við götuna» to 21:58 of lesson 32):
+                    # its last rung, half a lesson after the introduction, falls past the lesson's end, for any item (main's «fyrir framan hótelið» at
+                    # 21:48 of its lesson 33 too); the rungs before it are still asked, the closing's recall the last
+                    self.assertGreaterEqual(len(starts), 4, f"lesson {sc.lesson_number}: {i} asked {len(starts) - 1} times after its introduction")
+                    seen.add(i)
+                    continue
                 self.assertGreaterEqual(len(starts), 5, f"lesson {sc.lesson_number}: {i} asked {len(starts) - 1} times after its introduction")
                 self.assertGreater(starts[4] - starts[0], 300, f"{i}: its rungs are spread over the lesson, not drilled")
                 seen.add(i)
