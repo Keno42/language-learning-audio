@@ -1,7 +1,7 @@
 """#429, the long run's first step (the owner, 2026-11-09: «when in the hell the questions become Icelandic?»): every instruction was in the learner's
 language. A pilot teaches two instructions in Icelandic, «Endurtaktu.» (repeat) and «Hlustaðu.» (listen), one a lesson from the tenth lesson on, as
-material; then each is said in an Icelandic voice in every exercise that says it, with the learner's own after it until their review has recalled
-it twice, and again after a failure."""
+material; then each is said in an Icelandic voice in every exercise that says it, with the learner's own after it in the lesson that teaches it and
+the next (the owner after lesson 56: no complaint, which comes only in a lesson's feedback, is understanding), and again after a failure."""
 import unittest
 from datetime import date, timedelta
 from pathlib import Path
@@ -39,9 +39,10 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(self.instruct(in_lesson=["endurtaktu"]), [("speak", COMMAND_VOICE, "Endurtaktu."), ("narrate", "instructor", "Repeat.")],
                          "taught: in Icelandic, the English after it")
         learner = LearnerState("is", "en", "A1")
-        learner.items["endurtaktu"] = ItemState(stage="meaning", recalled=2, last_outcome="recalled")
-        self.assertEqual(self.instruct(learner), [("speak", COMMAND_VOICE, "Endurtaktu.")], "recalled twice in the review: Icelandic alone")
-        learner.items["endurtaktu"] = ItemState(stage="meaning", recalled=2, failures=1, last_outcome="not_recalled")
+        learner.lessons_completed = 11
+        learner.items["endurtaktu"] = ItemState(stage="meaning", recalled=0, last_outcome="recalled", introduced_lesson=10)
+        self.assertEqual(self.instruct(learner), [("speak", COMMAND_VOICE, "Endurtaktu.")], "the third lesson from the one that taught it: Icelandic alone")
+        learner.items["endurtaktu"] = ItemState(stage="meaning", recalled=2, failures=1, last_outcome="not_recalled", introduced_lesson=10)
         self.assertEqual(len(self.instruct(learner)), 2, "a failure brings the English back")
 
     def test_it_is_taught_as_material(self):
@@ -89,8 +90,10 @@ class CommandTests(unittest.TestCase):
         """Lesson 54 («アイスランド語の指示文が増えなかった»): #429's second step. «Hægt.» where «Slowly.» was, joined to its line; «Hlustaðu aftur.» where a
         pick-out said «Listen again.», a framing line, so a beat follows it with the English after it or without."""
         learner = LearnerState("is", "en", "A1")
-        for i, recalled in (("haegt_command", 0), ("hlustadu_aftur", 2)):
-            learner.items[i] = ItemState(stage="meaning", successes=2, recalled=recalled, last_outcome="recalled", due=(TODAY + timedelta(days=3)).isoformat())
+        learner.lessons_completed = 56
+        for i, taught in (("haegt_command", 56), ("hlustadu_aftur", 55)):
+            learner.items[i] = ItemState(stage="meaning", successes=2, recalled=0, last_outcome="recalled", due=(TODAY + timedelta(days=3)).isoformat(),
+                                         introduced_lesson=taught)
         b = Builder(self.cur, Prompts.load("en"), Timing(level="A1"), learner)
         sc = Script(1, "t", "is", "en")
         ex = sc.new_exercise("intro", "intro", [], "t")
@@ -100,13 +103,25 @@ class CommandTests(unittest.TestCase):
         ex = sc.new_exercise("intro", "intro", [], "t")
         b._instruct(sc, ex, "pick_out_again", frame=True)
         self.assertEqual([(g.type, g.text) for g in sc.segments[:1]], [("speak", "Hlustaðu aftur.")])
-        self.assertEqual([g.type for g in sc.segments], ["speak", "pause"], "recalled twice: the English has faded, a beat before the line")
+        self.assertEqual([g.type for g in sc.segments], ["speak", "pause"], "taught two lessons before: the English has faded, a beat before the line")
         fresh = Builder(self.cur, Prompts.load("en"), Timing(level="A1"), LearnerState("is", "en", "A1"))
         sc = Script(1, "t", "is", "en")
         ex = sc.new_exercise("intro", "intro", [], "t")
         fresh._instruct(sc, ex, "pick_out_again", frame=True)
         self.assertEqual([(g.type, g.text, g.role) for g in sc.segments if g.type != "pause"], [("narrate", "Listen again.", "frame")], "not taught: as before")
         self.assertEqual(sc.segments[-1].type, "pause")
+
+    def test_the_english_goes_from_the_third_lesson_after_the_one_that_teaches_it(self):
+        """The owner after lesson 56 («the instructions in both languages never end»; «no complaint should be treated as understood … the third
+        lesson, because there is no feedback given during a lesson»): «Hlustaðu aftur.», taught in lesson 56, has its English in lessons 56 and
+        57 and is said alone from lesson 58, whatever the written review has recalled. Lesson 56 had said «Endurtaktu. / Repeat.» seven times,
+        four lessons after lesson 52 taught it: the fade waited for two recalls in the review."""
+        self.assertEqual(len(self.instruct(in_lesson=["endurtaktu"])), 2, "the lesson that teaches it")
+        for lesson, said in ((53, 2), (54, 1), (60, 1)):
+            learner = LearnerState("is", "en", "A1")
+            learner.lessons_completed = lesson - 1
+            learner.items["endurtaktu"] = ItemState(stage="meaning", successes=2, recalled=0, last_outcome="recalled", introduced_lesson=52)
+            self.assertEqual(len(self.instruct(learner)), said, f"lesson {lesson}, taught in 52")
 
     def test_the_commands_come_one_a_lesson_in_their_order(self):
         order = [i.id for i in self.cur.items if i.command]

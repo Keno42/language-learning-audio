@@ -218,7 +218,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   taught one a lesson, first and on top of the day's new material, once the learner has completed `PlanConfig.commands_from` (10) lessons
   (`Planner.next_command`; never in a new-item place), by `Builder._intro_command`. From then on `Builder._instruct` says it in place of the
   instruction, in `COMMAND_VOICE` (native_b, not the models' voice), with the instruction in the learner's language after it while
-  `Builder.command_support` holds: until the review has recalled the phrase twice, and again after a failure (`is_open`). An instruction that is
+  `Builder.command_support` holds: in the lesson that teaches it and the next (`COMMAND_SUPPORT_LESSONS`, 2, from `ItemState.introduced_lesson`), and again after a failure (`is_open`). Before lesson 56 it waited for two recalls in the written review (owner: no complaint is understanding, and a complaint comes only in a lesson's feedback). An instruction that is
   a framing line («Listen again.», `_instruct(frame=True)`) keeps the beat after it in either language. The way in written on
   the finished script («Listen.») is replaced the same way (`Builder.command_segments`). It is asked once more later in the lesson, as a plain
   number is (`tests/test_commands.py`).
