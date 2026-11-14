@@ -224,7 +224,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   number is (`tests/test_commands.py`). Whether the lessons do this at all is the learner's choice, asked once by the bot around the tenth lesson
   (owner, 2026-11-14): `generate --instructions gradual|off|pending`, read by `content.for_instructions` (also in `tools/replay_lesson.py`, from
   the manifest). `off` takes the instruction phrases out of the course for the lesson, so none is taught, said or asked, and lists them in
-  `plan.json` `withdrawn_items` for the bot to drop their written-review cards; `pending` (not answered yet) is `off` for a learner who has met
+  `plan.json` `withdrawn_items` for the bot to drop their written-review cards (and `audiolesson instructions CURRICULUM` lists them, so the bot drops them before its review, ahead of any plan made with `off`); `pending` (not answered yet) is `off` for a learner who has met
   none, `gradual` for one who has. `plan.json` `instructions` keeps the mode resolved (`tests/test_instruction_choice.py`).
   Practice is shared (#439, lesson 41: four items, four sentences, 20 asks): a rung whose item
   another item's recall said since its own last practice is not asked (`said_since_own`), nor a pattern's whose sentences its fillers' practice

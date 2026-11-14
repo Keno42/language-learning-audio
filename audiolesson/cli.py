@@ -160,6 +160,10 @@ def main(argv: list[str] | None = None) -> int:
     rf.add_argument("--known", default=None)
     rf.set_defaults(func=cmd_refine_review)
 
+    ins = sub.add_parser("instructions", help="#429: the instruction phrases of a curriculum, as JSON ({\"items\": [ids]}): the bot drops their written-review cards when the learner chose --instructions off")
+    ins.add_argument("curriculum")
+    ins.set_defaults(func=cmd_instructions)
+
     vo = sub.add_parser("voices", help="list default voices a provider offers for a language")
     vo.add_argument("--provider", default="edge")
     vo.add_argument("--lang", default="fr")
@@ -835,6 +839,14 @@ def cmd_questions(args) -> int:
         if it is not None and it.kind != "construction":
             out[i] = {"prompt": _review_cue(cur, prompts, it), "answer": it.target, "cues": _review_cues(cur, prompts, it)}
     print(json.dumps(out, ensure_ascii=False))
+    return 0
+
+
+def cmd_instructions(args) -> int:
+    """#429: the items ``--instructions off`` withdraws, before any lesson is generated with it: the bot reads them at the start of
+    ``/lesson``, ahead of its written review (review of site_update_notifier#224: the cards stayed until the next plan.json said so)."""
+    cur = load_curriculum(args.curriculum)
+    print(json.dumps({"items": [i.id for i in cur.items if i.command]}))
     return 0
 
 

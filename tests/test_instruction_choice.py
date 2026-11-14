@@ -76,6 +76,19 @@ class InstructionChoiceTests(unittest.TestCase):
             plan = json.loads(next(Path(d).glob("*.plan.json")).read_text(encoding="utf-8"))
             self.assertEqual((plan["instructions"], plan["withdrawn_items"]), ("off", COMMANDS))
 
+    def test_the_cli_lists_the_instruction_phrases_for_the_bot(self):
+        """Review of site_update_notifier#224: «off» chosen, the written review before the next lesson still asked «Repeat.» → «Endurtaktu.»;
+        the bot reads the phrases before its review, not from the next plan."""
+        import contextlib
+        import io
+
+        from audiolesson.cli import main
+
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(main(["instructions", str(ROOT / "curricula" / "is-en")]), 0)
+        self.assertEqual(json.loads(out.getvalue()), {"items": COMMANDS})
+
 
 if __name__ == "__main__":
     unittest.main()
