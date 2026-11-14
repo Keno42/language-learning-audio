@@ -40,7 +40,7 @@ from audiolesson.learner import lesson_target, retention_report  # noqa: E402
 from audiolesson.nouns import noun_report  # noqa: E402
 from audiolesson.review_wholes import bare_parts_with_a_home, parts_outside_their_whole  # noqa: E402
 from audiolesson.cando import for_season, load_cando, priority_items  # noqa: E402
-from audiolesson.content import load_curriculum, said_scene_rows, scene_sheet  # noqa: E402
+from audiolesson.content import for_instructions, load_curriculum, said_scene_rows, scene_sheet  # noqa: E402
 from audiolesson.learner import LearnerState  # noqa: E402
 from audiolesson.planner import PlanConfig, Planner, apply_to_learner, semantic_set_tags  # noqa: E402
 from audiolesson.themes import load_themes, scenario_order  # noqa: E402
@@ -286,6 +286,7 @@ def main(argv: list[str] | None = None) -> int:
     known = arg("--known")
     cur = load_curriculum(args.curriculum, known_lang=known)
     learner = LearnerState.load(args.export / "learner.before.json")
+    cur, _mode, _withdrawn = for_instructions(cur, learner, arg("--instructions", "gradual"))  # #429: the learner's choice, as `generate` reads it
     priority: list[str] = []
     scenarios = load_cando(args.curriculum, cur) if Path(args.curriculum).is_dir() else []
     trip = load_trip(args.trip) if args.trip else None
