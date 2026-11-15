@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.38 (lessons 1–48), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.45 (lessons 1–55), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1820,3 +1820,63 @@ What the lesson played, by change, and what the learner wrote:
 closing (#523: on the replay the tickets sentence is said six times, not nine; it reaches two of the fourteen new phrases of lessons 54–58, and
 the short ones with one new word keep nine, which is the rest of #518); the long run's step, #429's second: «Hægt.» for «Slowly.» and
 «Hlustaðu aftur.» for a pick-out's «Listen again.», one a lesson (#524).
+
+### 5.45 Lesson 55: the first lesson built with #523–#535
+
+Lesson 55 was generated with LLA `b68faa3` (main with #523–#535), the bot at site_update_notifier `1dfea4b`. Rebuilt from its export it is
+identical (134 exercises, 30.1 minutes; the trip profile is not in the replay's container, and the new items are the same without it).
+
+| | lesson 55 |
+|---|---|
+| length | 30.1 min, 134 exercises |
+| new items; new components, weighted (target) | 9; 8 (8) |
+| theme (level) | tour (4), new |
+| target reached | 21.6 min |
+| items reviewed / due | 58 due by date, 48 the lesson could ask (#526: the others asked by the written review that morning). It practised 46; the two left are the town names as dative fillers (`reykjavik_dat`, `akureyri_dat`), left in lessons 53 and 54 too. `reviewed_items` is 66 |
+| conversations | 7, 4.5 minutes: the tour desk's two plays, two levels heard again (meeting 2, small talk 4), three fixed dialogues cut to two or three turns; four of the seven in the first seven minutes |
+| pick-outs whose line was heard in the three lessons before | 3 of 4 |
+| written review's queue | 119 due |
+| feedback form: load; friction | **light**; other |
+| «sooner» | none |
+
+Lesson 55 is the first built with eight behaviour PRs (#523, #524, #526, #527, #530, #531, #534, #535), against the two between lessons
+that §9 "Governance" allows. So what it shows is read change by change from the transcript. The feedback cannot tell them apart: it is one
+form and one remark for all eight.
+
+What the lesson played, by change, and what the learner wrote:
+
+- **The long run: three steps played, with no remark on them.**
+  - #429's second step (#524): «Hægt.» was taught at the start, then said before «Slowly.» in five slow models.
+  - #528 steps 1 and 3 (#531, #535): the goal ended on «Today's form work: One sentence you know, said of someone else.». At 14:09,
+    «Ég kem í kvöld.» was said with «hún» and «þú», the verb named, and each asked. «Hún kemur í kvöld.» was the last question
+    before the closing («Today's form work, once more.»).
+  - #451 (#534): the tour desk's first play gave the booking number «þrír, sjö, einn, átta» and the coach «klukkan hálf átta»; the
+    second gave the written «sex, fjórir, níu, tveir» and «klukkan átta». Meeting 2, heard again, said «hálf átta» for its written «sjö».
+- **The remark: «After the practice of forms by gender and person, say something when the lesson goes back to the usual
+  practice.»**
+  - The subject choice (14:09) and the number choice (22:44: «Tvo miða, takk.» / «Ég vil herbergi fyrir tvær nætur.» / «Það kostar
+    tvö þúsund krónur.») each open with their own line: «One verb, other subjects: its form follows who does it.» and «One number,
+    different forms: it follows the word it counts.».
+  - Each ends on the learner's last answer. The next question follows with nothing between: «How do you say: I don't need a key.» and
+    «How do you say: I'm leaving on Saturday.».
+  - Every other block that opens with its own line has a way back where a drill follows: a note says «Back to the lesson.» (twice), a
+    pick-out «Back to speaking.» (four times), a conversation «That's the end of the conversation.» (seven times).
+  - The family is pick-out-turns, the turns between tasks (`audiolesson/transitions.py`, #387, #415). The form work is a block of its
+    own, but `MODES` counts it as a drill.
+  - A twenty-point part: the learner names a switch that was not clear.
+- **#527 played.** «fimmtudaginn is a form of fimmtudagur. The ending adds "the". It is the accusative: the form a day takes after á.»
+  The same was said for «föstudaginn» and «laugardaginn». Lesson 54's question on «á mánudaginn» did not come back.
+- **The pace (#526, #530).** The target rose from 7 to 8, since lesson 54 had fitted 54 of the 56 due items it could ask. «Light» again.
+- **#523 did not play.** None of the nine new items is a phrase made only of words the learner says: «Get ég fengið frí á
+  föstudaginn?» came with «frí» and «á föstudaginn» new.
+- **Seven conversations and no remark.** Lesson 53 had nine, and the remark that they repeat (#519). Here three fixed dialogues were cut
+  to two or three turns, not played whole, and #519's retirement does not count a cut play.
+- **Lesson 54's new items in the review:** 10 of 10 recalled.
+- **Hard to hear.** The listening support played for «Hvenær er útritun?» and «trefil», the two that had none in lesson 54. No item was
+  reported after lesson 55.
+
+**This round:**
+- the long run's step: #528 step 2, the noun by its frame;
+- the remark's answer: the way back after the form work, as one rule in `transitions.py` for every block that opens with its own line.
+
+These are the round's two behaviour PRs.
