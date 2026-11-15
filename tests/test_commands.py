@@ -153,6 +153,11 @@ class CommandTests(unittest.TestCase):
             self.assertTrue(any(g.speaker == COMMAND_VOICE and g.text == item.target for g in sc.segments), key)
             self.assertFalse(any(g.type == "narrate" and g.text == en.get(key) for g in sc.segments), f"never «{en.get(key)}» once taught, twenty lessons ago")
         self.assertEqual(unmarked_turns(sc, en), [], "a way back in Icelandic is still the task's last line")
+        # #429 step 2 (lesson 56): no line says a taught instruction inside its English («… Listen, then repeat.», «… Repeat each part.»)
+        whole = {en.get(k) for k in ("build_up", "split_slowly", "slow_word_break_down", "note_pieces", "embed_sentence", "instance_sentence",
+                                     "instance_form_question", "instance_form_negative")}
+        self.assertFalse([g.text for g in sc.segments if g.type == "narrate" and g.text in whole])
+        self.assertTrue(any(g.text == en.get("build_up_lead") for g in sc.segments), "the lesson builds a sentence up, its lead in English")
         b = Builder(self.cur, en, Timing(level="A1"), learner)
         pick = Script(1, "t", "is", "en")
         _build(b, pick, ListeningTask("pick_out", "x", "", "Safnið lokar klukkan fimm.", "klukkan fimm", "Five o'clock.", "pick_out_time"))
@@ -162,6 +167,27 @@ class CommandTests(unittest.TestCase):
         intro = Script(1, "t", "is", "en")
         builder(self.cur).intro(intro, self.cur.by_id["svarid_command"])
         self.assertIn("It means: The answer.", [g.text for g in intro.segments], "not «The answer:.»")
+
+    def test_a_line_that_ends_on_an_instruction_says_it_as_a_line_of_its_own(self):
+        """#429 step 2, lesson 56: «"Repeat" was learned in Icelandic, but some instructions still say it only in English» («A sentence from a
+        pattern you know. Listen, then repeat.», «Let's build it up from the end. Repeat each part.»). Once taught, the lead is said in English
+        and the instruction in Icelandic; before, the line as it was."""
+        def said(learner, whole_key, key, frame):
+            b = builder(self.cur, learner=learner)
+            sc = Script(1, "t", "is", "en")
+            b._lead_instruct(sc, sc.new_exercise("model", "intro", [], "x"), whole_key, key, frame=frame)
+            return [(g.type, g.text) for g in sc.segments]
+
+        en = Prompts.load("en")
+        self.assertEqual(said(None, "build_up", "repeat", False), [("narrate", en.get("build_up"))], "not taught: as before")
+        self.assertEqual(said(None, "instance_sentence", "listen", True), [("narrate", en.get("instance_sentence")), ("pause", None)])
+        learner = LearnerState("is", "en", "A1")
+        learner.lessons_completed = 60
+        for i in ("endurtaktu", "hlustadu"):
+            learner.items[i] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", introduced_lesson=52)
+        self.assertEqual(said(learner, "build_up", "repeat", False), [("narrate", "Let's build it up from the end."), ("speak", "Endurtaktu."), ("pause", None)])
+        self.assertEqual(said(learner, "instance_sentence", "listen", True), [("narrate", "A sentence from a pattern you know."), ("speak", "Hlustaðu."),
+                                                                               ("pause", None)], "a framing line keeps its beat")
 
     def test_the_commands_come_one_a_lesson_in_their_order(self):
         order = [i.id for i in self.cur.items if i.command]

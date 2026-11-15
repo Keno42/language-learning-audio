@@ -435,6 +435,22 @@ class Builder:
         else:
             self._beat(sc, ex)
 
+    def _lead_instruct(self, sc: Script, ex: Exercise, whole_key: str, key: str, frame: bool = False, gender: str | None = None) -> None:
+        """#429 step 2 (lesson 56: «"Repeat" was learned in Icelandic, but some instructions still say it only in English»): a line that ends
+        on an instruction («A sentence from a pattern you know. Listen, then repeat.», «Let's build it up from the end. Repeat each part.»)
+        says its lead in the learner's language (``<whole_key>_lead``) and the instruction ``key`` as a line of its own, through
+        ``_instruct``, once that is taught («Hlustaðu.», «Endurtaktu.»). Before, the whole line as it was. ``frame``: the line is a framing
+        line (``_frame``), so a beat follows it in either form."""
+        if self.command_item(key) is None:
+            text = self._as(gender, self.prompts.get(whole_key))
+            if frame:
+                self._frame(sc, ex, text)
+            else:
+                self._narr(sc, ex, text)
+            return
+        self._narr(sc, ex, self._as(gender, self.prompts.get(f"{whole_key}_lead")))
+        self._instruct(sc, ex, key, frame=frame)
+
     def _intro_command(self, sc: Script, item: Item) -> Exercise:
         """#429: an instruction taught as material. «From now on, this instruction is in Icelandic:» «Endurtaktu.» «It means: Repeat.», said after
         the model, and a first retrieval from its meaning, which the next day's review asks too."""
@@ -445,7 +461,7 @@ class Builder:
         self._beat(sc, ex)
         self._narr(sc, ex, self.prompts.get("command_means", meaning=self._m(self.prompts.get(item.command).rstrip(":："))))  # «It means: The answer.», not «The answer:.»
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("repeat"))
+        self._instruct(sc, ex, "repeat")
         self._speak(sc, ex, item.target, speaker=COMMAND_VOICE)
         self._repeat_pause(sc, ex, item.target)
         self._narr(sc, ex, self._meaning_prompt(item.spoken_meaning))
@@ -722,7 +738,7 @@ class Builder:
         self._frame(sc, ex, self.prompts.get("embed_part"))
         self._speak(sc, ex, item.target, speaker=voice)
         self._beat(sc, ex)
-        self._frame(sc, ex, self._as(gender, self.prompts.get("embed_sentence")))
+        self._lead_instruct(sc, ex, "embed_sentence", "listen", frame=True, gender=gender)
         self._speak(sc, ex, target, speaker=voice, role="embed_sentence")
         self._beat(sc, ex)
         sc.add(Segment("narrate", "instructor", self.prompts.get("embed_meaning", meaning=self._m(gen.meaning)), self.kl, 1.0,
@@ -752,7 +768,7 @@ class Builder:
             self._frame(sc, ex, self._as(gender, self.prompts.get("instance_form_known")))
             self._speak(sc, ex, self._filled(pattern, fills)[1], speaker=voice)
             self._beat(sc, ex)
-        self._frame(sc, ex, self._as(gender, self.prompts.get(f"instance_form_{form}" if form else "instance_sentence")))
+        self._lead_instruct(sc, ex, f"instance_form_{form}" if form else "instance_sentence", "listen", frame=True, gender=gender)
         self._speak(sc, ex, target, speaker=voice, role="embed_sentence")
         self._beat(sc, ex)
         sc.add(Segment("narrate", "instructor", self.prompts.get("embed_meaning", meaning=self._m(item.spoken_meaning)), self.kl, 1.0,
@@ -823,7 +839,7 @@ class Builder:
         plain = item.id in self.plain
         chunks = item.backward_chunks() if item.is_hard() and not plain else []
         if len(chunks) > 1:
-            self._narr(sc, ex, self.prompts.get("build_up"))
+            self._lead_instruct(sc, ex, "build_up", "repeat")
             for chunk in chunks:
                 # slow, with a beat after the learner's repetition to separate the chunks
                 self._slow_line(sc, ex, chunk)
@@ -976,7 +992,7 @@ class Builder:
         if not hard_sounds(item):
             return
         if item.syllables:
-            self._narr(sc, ex, self.prompts.get("split_slowly"))
+            self._lead_instruct(sc, ex, "split_slowly", "repeat")
             for piece in item.syllables:
                 self._speak(sc, ex, piece, speaker=voice or "native_a", rate=self.timing.slow_rate)
                 self._repeat_pause(sc, ex, piece)  # one pause between pieces is enough
@@ -995,9 +1011,9 @@ class Builder:
 
     def _word_model(self, sc: Script, ex: Exercise, word: str, syllables: list[str] | None, voice: str | None = None, split_cue: str | None = None) -> None:
         """#337: one hard word of a phrase, said once: cut into its authored syllables, each said slowly and repeated, then at natural speed; without authored
-        syllables the word once more at natural speed (never stretched, #302). ``split_cue`` replaces «Slowly, in parts.» before the pieces."""
+        syllables the word once more at natural speed (never stretched, #302). ``split_cue``, a phrasing key, replaces «Slowly, in parts.» before the pieces."""
         if syllables:
-            self._narr(sc, ex, split_cue or self.prompts.get("split_slowly"))
+            self._lead_instruct(sc, ex, split_cue or "split_slowly", "repeat")
             for piece in syllables:
                 self._speak(sc, ex, piece, speaker=voice or "native_a", rate=self.timing.slow_rate)
                 self._repeat_pause(sc, ex, piece)
@@ -1093,7 +1109,7 @@ class Builder:
         for n, (word, syllables) in enumerate(words):
             self._beat(sc, ex)
             # the first split is announced as the breakdown, in place of «Slowly, in parts.»; a word with no authored split is said once more (#302)
-            self._word_model(sc, ex, word, syllables, split_cue=None if n else self.prompts.get("slow_word_break_down"))
+            self._word_model(sc, ex, word, syllables, split_cue=None if n else "slow_word_break_down")
         self._gap(sc, ex)
         return ex
 
@@ -1114,7 +1130,7 @@ class Builder:
         self._speak(sc, ex, item.target, speaker=voice)
         self._beat(sc, ex)
         if item.word_count >= PART_BUILD_UP_WORDS:
-            self._narr(sc, ex, self.prompts.get("build_up"))
+            self._lead_instruct(sc, ex, "build_up", "repeat")
             for chunk in item.backward_chunks():
                 self._slow_line(sc, ex, chunk, speaker=voice)
                 self._repeat_pause_spaced(sc, ex, chunk)
@@ -1318,7 +1334,7 @@ class Builder:
             return
         if item.is_hard():
             # slow whole word was given already: only the syllable split and the natural speed after it
-            self._narr(sc, ex, self.prompts.get("split_slowly"))
+            self._lead_instruct(sc, ex, "split_slowly", "repeat")
             for piece in item.syllables:
                 self._speak(sc, ex, piece, rate=self.timing.slow_rate)
                 self._repeat_pause(sc, ex, piece)
@@ -1431,7 +1447,7 @@ class Builder:
         if build_up:
             # lesson 44: «hinum megin við götuna» was said word by word inside its sentence and never built up, as a plain introduction builds a
             # long line from its end: the part of three words or more is built up here, in place of the sentence's word-by-word model
-            self._narr(sc, ex, self.prompts.get("build_up"))
+            self._lead_instruct(sc, ex, "build_up", "repeat")
             for chunk in item.backward_chunks():
                 self._slow_line(sc, ex, chunk, speaker=voice)
                 self._repeat_pause_spaced(sc, ex, chunk)
@@ -1469,7 +1485,7 @@ class Builder:
             self.used_combos.add(gen.key)
             gender, sentence = self._filled(gen.construction, gen.fills)
             voice = VOICE_OF[gender or "f"]
-            self._frame(sc, ex, self._as(gender, self.prompts.get("embed_sentence")))
+            self._lead_instruct(sc, ex, "embed_sentence", "listen", frame=True, gender=gender)
             self._speak(sc, ex, sentence, speaker=voice)
             self._beat(sc, ex)
             self._narr(sc, ex, self.prompts.get("embed_meaning", meaning=self._m(gen.meaning)))
@@ -2259,7 +2275,7 @@ class Builder:
         self._speak_note_text(sc, ex, note.text)
         if note.parts:
             self._beat(sc, ex)
-            self._narr(sc, ex, self.prompts.get("note_pieces"))
+            self._lead_instruct(sc, ex, "note_pieces", "repeat")
             for k, group in enumerate(note.parts):
                 if k:
                     self._beat(sc, ex)

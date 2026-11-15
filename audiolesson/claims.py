@@ -29,6 +29,7 @@ CLAIMS = {
     "construction_of_known": ANOTHER,
     "construction_slot": ANOTHER,
     "embed_sentence": ANOTHER,
+    "embed_sentence_lead": ANOTHER,  # its lead, once «Hlustaðu.» is taught (#429 step 2)
     "form_model_again": ANOTHER,
     "variant_form": ANOTHER,
     "connect_next": ANOTHER,
