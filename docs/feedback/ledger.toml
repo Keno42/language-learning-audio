@@ -916,6 +916,48 @@ family = "pick-out-turns"
 class = "twenty"
 answered_by = ["#538"]
 
+[[lesson]]
+n = 56
+form = true
+load = "right"
+built = ["#538", "#539", "#541"]
+long_run = ["#539", "#541"]
+
+[[lesson.remarks]]
+who = "main"
+text = "«Repeat» was learned in Icelandic, but some instructions still say it only in English. (The new instruction's introduction «… It means: Listen again. Repeat.», «A sentence from a pattern you know. Listen, then repeat.» and «Let's build it up from the end. Repeat each part.»: a taught instruction is said in Icelandic only where it is a line of its own.)"
+family = "instruction-language"
+class = "twenty"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "The instructions in Icelandic and English together never end: is the full switch not coming yet? («Endurtaktu. / Repeat.» seven times in lesson 56, four lessons after lesson 52 taught it: the English waited for two recalls in the written review, and «Endurtaktu.» had had one.)"
+family = "instruction-language"
+class = "twenty"
+answered_by = ["#542"]
+
+[[lesson]]
+n = 57
+form = true
+load = "right"
+built = ["#542", "#543"]
+long_run = ["#542", "#543"]
+
+[[lesson.remarks]]
+who = "main"
+text = "The new expressions list glosses «flugvellinum» «the airport (after 'to' / 'for')»; «dative» alone would be more accurate. (Six dative place forms carry the gloss of the first frames that took them; «á flugvellinum» is at the airport, «við hliðina á bankanum» beside the bank: #544.)"
+family = "form-why"
+class = "precision"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "No new Icelandic instruction came; without about one each lesson the switch will not progress. (The four authored instruction phrases were taught in lessons 52–56; the curriculum holds no fifth, so the mechanism that teaches one a lesson has nothing to teach.)"
+family = "instruction-language"
+class = "twenty"
+answered_by = []
+
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
 [[change]]
@@ -1703,3 +1745,42 @@ pr = ["#534"]
 family = "one-version"
 first_heard = 55
 heard = "the tour desk's first play «þrír, sjö, einn, átta … hálf átta», its second the written «sex, fjórir, níu, tveir … átta»; meeting 2 heard again with «hálf átta» for «sjö»"
+
+[[change]]
+title = "the form work ends «That's the end of the form work.» where a drill follows (lesson 55: #538)"
+pr = ["#538"]
+family = "pick-out-turns"
+first_heard = 56
+heard = "once, after the number choice; the subject choice and the noun choice handed over to a task that opens with its own line"
+
+[[change]]
+title = "the noun by its frame: a noun the learner has in two forms said in a sentence holding each, the case named, then each asked (#528 step 2: #539)"
+issue = ["#528"]
+pr = ["#539"]
+family = "easy-substitution"
+first_heard = 56
+heard = "«Hvar er bankinn?» / «Ég er að leita að bankanum.»: «Here it is «bankanum», in the dative.»"
+
+[[change]]
+title = "a form the noun choice could set comes in as new material, one a lesson, at the form weight (#528 step 4: #541)"
+issue = ["#528"]
+pr = ["#541"]
+family = "easy-substitution"
+first_heard = 56
+heard = "«eggjum» in lesson 56, «flugvellinum» in 57, each charged 0.5"
+
+[[change]]
+title = "an instruction's English only in the lesson that teaches it and the next (#429: #542)"
+issue = ["#429"]
+pr = ["#542"]
+family = "instruction-language"
+first_heard = 57
+heard = "26 instructions in Icelandic; the 6 with English are «Hlustaðu aftur.», taught in lesson 56"
+
+[[change]]
+title = "instructions in Icelandic are the learner's choice, asked once by the bot; «off» withdraws the phrases and their review cards (#429: #543, site_update_notifier#224)"
+issue = ["#429"]
+pr = ["#543", "site_update_notifier#224"]
+family = "instruction-language"
+first_heard = 57
+heard = "generated with --instructions pending, resolved gradual: the learner had met the phrases"
