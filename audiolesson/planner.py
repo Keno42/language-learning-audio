@@ -34,7 +34,7 @@ from .stages import ladder_for, next_stage, stage_index
 from .themes import level_dialogue, pick_variants, written_value_lines
 from .text import WORD, words as _words
 from .timing import Timing
-from .transitions import LISTENING_TASK_KINDS, SCENE_UNIT_KINDS, close_tasks
+from .transitions import LISTENING_TASK_KINDS, SCENE_UNIT_KINDS, WAYS_BACK_SAID, close_tasks
 
 
 @dataclass
@@ -4352,10 +4352,15 @@ class Planner:
         if goal_ex is not None and subject_played:
             b.goal_form_work(sc, goal_ex)  # #528 step 3: the goal names the day's form work, once it is known to have played
         listening_closed, conversations_closed = close_tasks(sc, self.prompts, b.timing, self.cur.known_lang)  # the way back between tasks (#387, #415)
-        # #429: the way in («Listen.», written on the finished script) in Icelandic once «Hlustaðu.» is taught
+        # #429: the way in («Listen.») and the ways back («Back to speaking.», «That's the end of the conversation.»), written on the finished
+        # script, in Icelandic once taught
         segs = []
         for seg in sc.segments:
-            said = b.command_segments("listen", seg.exercise) if seg.type == "narrate" and seg.role == "listen" else None
+            said = None
+            if seg.type == "narrate" and seg.role == "listen":
+                said = b.command_segments("listen", seg.exercise)
+            elif seg.type == "narrate" and seg.role in WAYS_BACK_SAID and seg.text == self.prompts.get(seg.role):
+                said = b.command_segments(seg.role, seg.exercise, role=seg.role)
             segs.extend(said if said else [seg])
         sc.segments = segs
         switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same, b.timing.switch_gap_sentence)  # #301: the last pass over the finished script

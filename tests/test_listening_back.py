@@ -20,9 +20,13 @@ class ListeningEndsWithAWayBackTests(unittest.TestCase):
                 last = [s.text for s in sc.segments if s.exercise == e.index and s.type in ("speak", "narrate", "answer")][-1:]
                 next_listening = nxt.kind in ("pick_out", "catch_unknown") or (nxt.kind == "intro" and nxt.label.startswith("new (catch)"))
                 wants = listening and not (next_listening or nxt.kind in ("dialogue", "note", "closing"))
-                self.assertEqual(last == ["Back to speaking."], wants, (sc.lesson_number, e.label, nxt.kind))
+                # «Aftur að tala.» once taught (#429); the way back by its role, not its text alone: the instruction's own lesson teaches the words
+                said = ["Back to speaking."], [next(i.target for i in cur.items if i.command == "listening_back")]
+                role = [s.role for s in sc.segments if s.exercise == e.index and s.type in ("speak", "narrate", "answer")][-1:]
+                self.assertEqual(last in said and role == ["listening_back"], wants, (sc.lesson_number, e.label, nxt.kind))
                 closed += wants
-            self.assertEqual(sc.meta["listening_closed"], sum(1 for s in sc.segments if s.role == "listening_back"), sc.lesson_number)
+            # one way back an exercise, said in one segment or two (in Icelandic with its English after it)
+            self.assertEqual(sc.meta["listening_closed"], len({s.exercise for s in sc.segments if s.role == "listening_back"}), sc.lesson_number)
         self.assertGreater(closed, 5, "the course has pick-outs and catches followed by drills")
 
     def test_a_conversation_before_a_drill_ends_with_its_line_and_only_then(self):
@@ -31,19 +35,22 @@ class ListeningEndsWithAWayBackTests(unittest.TestCase):
         line = Prompts.load("en").get("conversation_back")
         closed = kept = 0
         for cur, _, sc in course.ListeningTaskTests._course(20):
+            said = [line], [next(i.target for i in cur.items if i.command == "conversation_back")]  # «Samtalinu er lokið.» once taught (#429)
             spoken = {s.exercise for s in sc.segments if s.exercise is not None and s.duration > 0}
             order = [e for e in sc.exercises if e.index in spoken]
             for e, nxt in zip(order, order[1:]):
                 if e.kind != "dialogue":
+                    self.assertFalse(any(s.role == "conversation_back" for s in sc.segments if s.exercise == e.index), e.label)
                     self.assertNotIn(line, [s.text for s in sc.segments if s.exercise == e.index], e.label)
                     continue
                 last = [s.text for s in sc.segments if s.exercise == e.index and s.type in ("speak", "narrate", "answer")][-1:]
                 next_listening = nxt.kind in ("pick_out", "catch_unknown") or (nxt.kind == "intro" and nxt.label.startswith("new (catch)"))
                 wants = not (next_listening or nxt.kind in ("dialogue", "note", "closing"))
-                self.assertEqual(last == [line], wants, (sc.lesson_number, e.label, nxt.kind, nxt.label))
+                role = [s.role for s in sc.segments if s.exercise == e.index and s.type in ("speak", "narrate", "answer")][-1:]
+                self.assertEqual(last in said and role == ["conversation_back"], wants, (sc.lesson_number, e.label, nxt.kind, nxt.label))
                 closed += wants
                 kept += not wants
-            self.assertEqual(sc.meta["conversations_closed"], sum(1 for s in sc.segments if s.role == "conversation_back"), sc.lesson_number)
+            self.assertEqual(sc.meta["conversations_closed"], len({s.exercise for s in sc.segments if s.role == "conversation_back"}), sc.lesson_number)
         self.assertGreater(closed, 10, "the course has conversations followed by drills")
         self.assertGreater(kept, 0, "and conversations followed by another task that opens with its own line")
 

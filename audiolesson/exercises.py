@@ -443,7 +443,7 @@ class Builder:
         self._frame(sc, ex, self.prompts.get("command_intro"))
         self._speak(sc, ex, item.target, speaker=COMMAND_VOICE)
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("command_means", meaning=self._m(self.prompts.get(item.command))))
+        self._narr(sc, ex, self.prompts.get("command_means", meaning=self._m(self.prompts.get(item.command).rstrip(":："))))  # «It means: The answer.», not «The answer:.»
         self._beat(sc, ex)
         self._narr(sc, ex, self.prompts.get("repeat"))
         self._speak(sc, ex, item.target, speaker=COMMAND_VOICE)
@@ -454,16 +454,18 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def command_segments(self, key: str, ex_index: int) -> list[Segment] | None:
+    def command_segments(self, key: str, ex_index: int, role: str | None = None) -> list[Segment] | None:
         """#429: the segments of the instruction ``key`` said in the target language, for a line written after the lesson was built (the way
-        in, «Listen.», ``transitions.close_tasks``); None while it is not taught."""
+        in, «Listen.», and the ways back, ``transitions.close_tasks``); None while it is not taught. ``role``: the line keeps its role on both
+        segments (a way back, which ``transitions.unmarked_turns`` wants as the exercise's last spoken line), else ``command`` and
+        ``command_support``."""
         item = self.command_item(key)
         if item is None:
             return None
-        out = [Segment("speak", COMMAND_VOICE, item.target, self.tl, 1.0, self.timing.speech_estimate(item.target, self.tl), "command", ex_index)]
+        out = [Segment("speak", COMMAND_VOICE, item.target, self.tl, 1.0, self.timing.speech_estimate(item.target, self.tl), role or "command", ex_index)]
         if self.command_support(item):
             text = self.prompts.get(key)
-            out.append(Segment("narrate", "instructor", text, self.kl, 1.0, self.timing.speech_estimate(text, self.kl), "command_support", ex_index))
+            out.append(Segment("narrate", "instructor", text, self.kl, 1.0, self.timing.speech_estimate(text, self.kl), role or "command_support", ex_index))
         return out
 
     def _frame(self, sc: Script, ex: Exercise, text: str) -> None:
@@ -827,7 +829,7 @@ class Builder:
                 self._slow_line(sc, ex, chunk)
                 self._repeat_pause_spaced(sc, ex, chunk)
                 self._beat(sc, ex)
-            self._narr(sc, ex, self.prompts.get("natural"))
+            self._instruct(sc, ex, "natural")
             self._speak(sc, ex, item.target)
             self._repeat_pause(sc, ex, item.target)
         elif item.is_hard():
@@ -843,7 +845,7 @@ class Builder:
                 self._instruct(sc, ex, "slowly")
                 self._slow_line(sc, ex, item.target)
                 self._repeat_pause_spaced(sc, ex, item.target)
-                self._narr(sc, ex, self.prompts.get("natural"))
+                self._instruct(sc, ex, "natural")
                 self._speak(sc, ex, item.target)
                 self._repeat_pause(sc, ex, item.target)
         if (not item.is_hard() or item.syllables) and not plain:
@@ -987,7 +989,7 @@ class Builder:
             self._repeat_pause_spaced(sc, ex, item.target)
             if len(item.target.split()) < 2:
                 return  # a single word with no authored split is said once more, not stretched (#302)
-        self._narr(sc, ex, self.prompts.get("natural"))
+        self._instruct(sc, ex, "natural")
         self._speak(sc, ex, item.target, speaker=voice or "native_a")
         self._repeat_pause(sc, ex, item.target)
 
@@ -999,7 +1001,7 @@ class Builder:
             for piece in syllables:
                 self._speak(sc, ex, piece, speaker=voice or "native_a", rate=self.timing.slow_rate)
                 self._repeat_pause(sc, ex, piece)
-            self._narr(sc, ex, self.prompts.get("natural"))
+            self._instruct(sc, ex, "natural")
         else:
             self._instruct(sc, ex, "repeat")
         self._speak(sc, ex, word, speaker=voice or "native_a")
@@ -1076,7 +1078,7 @@ class Builder:
             self._instruct(sc, ex, "slowly")
             self._slow_line(sc, ex, sentence)
             self._repeat_pause_spaced(sc, ex, sentence)
-            self._narr(sc, ex, self.prompts.get("natural"))
+            self._instruct(sc, ex, "natural")
             self._speak(sc, ex, sentence, speaker="native_a")
             self._repeat_pause(sc, ex, sentence)
             self._gap(sc, ex)
@@ -1121,7 +1123,7 @@ class Builder:
             self._instruct(sc, ex, "slowly")
             self._slow_line(sc, ex, item.target, speaker=voice)
             self._repeat_pause_spaced(sc, ex, item.target)
-        self._narr(sc, ex, self.prompts.get("natural"))
+        self._instruct(sc, ex, "natural")
         self._speak(sc, ex, sentence, speaker=voice)
         self._repeat_pause(sc, ex, sentence)
         self._gap(sc, ex)
@@ -1142,7 +1144,7 @@ class Builder:
             self._beat(sc, ex)
             self._instruct(sc, ex, "slowly")
             self._slow_line(sc, ex, text)
-            self._narr(sc, ex, self.prompts.get("natural"))
+            self._instruct(sc, ex, "natural")
             self._speak(sc, ex, text, speaker="native_a")
             self._gap(sc, ex)
             return ex
@@ -1320,7 +1322,7 @@ class Builder:
             for piece in item.syllables:
                 self._speak(sc, ex, piece, rate=self.timing.slow_rate)
                 self._repeat_pause(sc, ex, piece)
-            self._narr(sc, ex, self.prompts.get("natural"))
+            self._instruct(sc, ex, "natural")
             self._speak(sc, ex, item.target)
             self._repeat_pause(sc, ex, item.target)
             return
@@ -1420,7 +1422,7 @@ class Builder:
             self._instruct(sc, ex, "slowly")
             self._slow_line(sc, ex, target, speaker=voice)
             self._repeat_pause_spaced(sc, ex, target)
-            self._narr(sc, ex, self.prompts.get("natural"))
+            self._instruct(sc, ex, "natural")
             self._speak(sc, ex, target, speaker=voice)
             self._repeat_pause(sc, ex, target)
         self._frame(sc, ex, self.prompts.get("embed_part_words" if item.word_count > 1 else "embed_part"))
@@ -1434,7 +1436,7 @@ class Builder:
                 self._slow_line(sc, ex, chunk, speaker=voice)
                 self._repeat_pause_spaced(sc, ex, chunk)
                 self._beat(sc, ex)
-            self._narr(sc, ex, self.prompts.get("natural"))
+            self._instruct(sc, ex, "natural")
             self._speak(sc, ex, item.target, speaker=voice)
             self._repeat_pause(sc, ex, item.target)
         if (not build_up or item.syllables) and not plain:
@@ -1524,7 +1526,7 @@ class Builder:
                 self._instruct(sc, ex, "slowly")
                 self._slow_line(sc, ex, target)
                 self._repeat_pause_spaced(sc, ex, target)
-                self._narr(sc, ex, self.prompts.get("natural"))
+                self._instruct(sc, ex, "natural")
                 self._speak(sc, ex, target)
                 self._repeat_pause(sc, ex, target)
             if self._fills_gendered(item, fills):
@@ -2266,7 +2268,7 @@ class Builder:
                 for piece in group:  # built up piece by piece, each once, slowly, then the learner's repeat: as a hard word's split (``_slow_model``)
                     self._speak(sc, ex, piece, speaker="native_a", rate=self.timing.slow_rate)
                     self._repeat_pause(sc, ex, piece)
-                self._narr(sc, ex, self.prompts.get("natural"))  # the group's whole form, as the lesson says it
+                self._instruct(sc, ex, "natural")  # the group's whole form, as the lesson says it
                 self._speak(sc, ex, group[-1], speaker="native_a")
                 self._repeat_pause(sc, ex, group[-1])
         self._beat(sc, ex)
