@@ -416,6 +416,37 @@ class Note:
 
 
 @dataclass
+class ContrastLine:
+    """One sentence of a ``Contrast``: the noun's form in it (``word``), the question that asks for it by its meaning («Where are you going?»), the
+    answer («Á flugvöllinn.»), and ``like``: an item the learner knows whose sentence has the same form or the same deciding word («fyrir framan
+    hótelið»), said after it as a link to what they have."""
+
+    target: str
+    word: str
+    ask: str
+    answer: str
+    like: str = ""
+
+
+@dataclass
+class Contrast:
+    """#548 (lesson 58: «the reason a case is chosen is not explained, and no practice nearby uses another case of the same word»; the owner,
+    2026-11-16: no case names, «going there and being there change the form», linked to what the learner knows): one noun in two sentences whose
+    forms differ, and what changes the form, said in ``lead`` in the learner's language with no grammatical term. ``by``: "meaning" (going there /
+    being there, «á flugvöllinn» / «á flugvellinum») or "word" (the verb or preposition before it, «elska fisk» / «ofnæmi fyrir fiski»). It plays
+    once every item of ``requires`` is met and not failing (``Planner.form_choice_pool``)."""
+
+    id: str
+    lead: str
+    lines: list[ContrastLine]
+    by: str = "meaning"
+    requires: list[str] = field(default_factory=list)
+
+
+CONTRAST_BY = ("meaning", "word")
+
+
+@dataclass
 class Curriculum:
     name: str
     target_lang: str
@@ -425,6 +456,7 @@ class Curriculum:
     level: str = "A1"
     source: str = ""
     notes: list[Note] = field(default_factory=list)
+    contrasts: list[Contrast] = field(default_factory=list)  # #548: a noun in two forms and what changes it
     known_langs: list[str] = field(default_factory=list)  # languages the file carries glosses for
     missing_glosses: list[str] = field(default_factory=list)  # ids without a gloss in the requested known_lang
 
@@ -624,7 +656,7 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
         files = sorted(path.glob("*.toml"))
         if not files:
             raise CurriculumError(f"{path}: no .toml files")
-        merged: dict = {"items": [], "dialogues": [], "notes": [], "scenes": {}}
+        merged: dict = {"items": [], "dialogues": [], "notes": [], "contrasts": [], "scenes": {}}
         for f in files:
             with f.open("rb") as fh:
                 raw = tomllib.load(fh)
@@ -635,6 +667,7 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
             merged["items"] += raw.get("items", [])
             merged["dialogues"] += raw.get("dialogues", [])
             merged["notes"] += raw.get("notes", [])
+            merged["contrasts"] += raw.get("contrasts", [])
             for pattern, verdicts in raw.get("scenes", {}).items():
                 if pattern in merged["scenes"]:
                     raise CurriculumError(f"{f}: [scenes.{pattern}] is already defined in another file")
@@ -653,6 +686,8 @@ _GLOSSED_EXAMPLE = ("source_meaning", "result_meaning")
 _GLOSSED_TURN = ("cue", "opener_meaning", "partner_meaning", "expect_meaning", "scene", "partner_scene")
 _GLOSSED_DIALOGUE = ("setting",)
 _GLOSSED_NOTE = ("text", "parts_lead")
+_GLOSSED_CONTRAST = ("lead",)
+_GLOSSED_CONTRAST_LINE = ("ask",)
 _GLOSSED_META = ("name",)
 
 
@@ -724,6 +759,12 @@ def curriculum_from_dict(raw: dict, source: str = "", known_lang: str | None = N
     for n in notes:
         if n.parts_lead and len(n.parts_lead) != len(n.parts):
             raise CurriculumError(f"note {n.id!r}: parts_lead has {len(n.parts_lead)} lines for {len(n.parts)} groups of parts")
+    contrasts = []
+    for c in raw.get("contrasts", []):
+        label = c.get("id", "contrast")
+        c = _pick_gloss(c, _GLOSSED_CONTRAST, lang, langs, missing, label)
+        lines = [ContrastLine(**_pick_gloss(ln, _GLOSSED_CONTRAST_LINE, lang, langs, missing, f"{label}.line")) for ln in c.pop("lines", [])]
+        contrasts.append(Contrast(lines=lines, **c))
     _apply_scenes(items, raw.get("scenes", {}), lang, meta["known_lang"])
 
     cur = Curriculum(
@@ -735,6 +776,7 @@ def curriculum_from_dict(raw: dict, source: str = "", known_lang: str | None = N
         dialogues=dialogues,
         source=source,
         notes=notes,
+        contrasts=contrasts,
         known_langs=langs,
         missing_glosses=missing,
     )
@@ -1109,6 +1151,26 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"dialogue {d.id!r}: expect_text_m is the man's form of expect_text and must differ from it")
         if d.partner_speaker not in SPEAKERS:
             raise CurriculumError(f"dialogue {d.id!r}: partner_speaker must be one of {SPEAKERS}, not {d.partner_speaker!r}")
+    seen_contrasts: set[str] = set()
+    for c in cur.contrasts:
+        if c.id in seen_contrasts:
+            raise CurriculumError(f"duplicate contrast id {c.id!r}")
+        seen_contrasts.add(c.id)
+        if c.by not in CONTRAST_BY:
+            raise CurriculumError(f"contrast {c.id!r}: by must be one of {CONTRAST_BY}, not {c.by!r}")
+        if len(c.lines) < 2:
+            raise CurriculumError(f"contrast {c.id!r}: two lines or more, each with the noun in another form")
+        if len({norm_utterance(ln.word) for ln in c.lines}) < len(c.lines):
+            raise CurriculumError(f"contrast {c.id!r}: each line's word is another form")
+        for ref in c.requires + [ln.like for ln in c.lines if ln.like]:
+            if ref not in ids:
+                raise CurriculumError(f"contrast {c.id!r} references unknown item {ref!r}")
+        for ln in c.lines:
+            for text in (ln.target, ln.answer):
+                if norm_utterance(ln.word) not in norm_utterance(text).split():
+                    raise CurriculumError(f"contrast {c.id!r}: «{ln.word}» is not a word of «{text}»")
+            if not ln.ask:
+                raise CurriculumError(f"contrast {c.id!r}: a line without its question ({ln.target!r})")
     seen_notes: set[str] = set()
     for n in cur.notes:
         if n.id in seen_notes:

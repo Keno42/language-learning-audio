@@ -1620,6 +1620,30 @@ class Planner:
                 out.append(list(lines.values())[:3])
         return out
 
+    def form_choice_pool(self) -> list[tuple]:
+        """#548: what the noun choice can set this lesson. An authored contrast (``Curriculum.contrasts``: «Ég fer á flugvöllinn.» / «Ég er á
+        flugvellinum.», what changes the form said with no grammatical term) once every item it requires is met and not failing, as
+        ``("contrast", contrast, likes)``, ``likes`` the sentence each line links to (``ContrastLine.like``) or None while that is not known; then a
+        noun's forms in their frames (``noun_choice_candidates``) as ``("noun", lines)``."""
+        out: list[tuple] = []
+        ok = lambda i: self.learner.has_met(i) and not self.learner.is_open(i)  # noqa: E731
+        met = {i for i in self.cur.by_id if self.learner.has_met(i)}
+        for c in self.cur.contrasts:
+            if not all(ok(i) for i in c.requires):
+                continue
+            likes = []
+            for ln in c.lines:
+                like = self.cur.by_id.get(ln.like) if ln.like else None
+                text = None
+                if like is not None and ok(like.id):
+                    whole = whole_for(self.cur, like, met, self.prompts) if like.kind == "vocab" and like.word_count < 2 else None
+                    text = whole["answer"] if whole else (None if like.kind == "construction" else like.target)
+                likes.append(text if text and _norm_utterance(text) != _norm_utterance(ln.target) else None)
+            out.append(("contrast", c, likes))
+        covered = {i for entry in out for i in entry[1].requires}  # a noun an authored contrast sets is set by it, not by its frames' sentences
+        out += [("noun", lines) for lines in self.noun_choice_candidates() if not any(it.id in covered for it, *_ in lines)]
+        return out
+
     def noun_choice_wants(self) -> list[str]:
         """#528 step 4, a form set as a choice is new material: the next form the noun choice could set. A form not met of a noun the learner
         has in another form (met, not failing), that a frame the learner knows takes (a slot of a known pattern asks one of its tags:
@@ -3790,7 +3814,7 @@ class Planner:
                 play_subject_choice(subjects)
                 return True
             if (kind == "today" and not noun_choices and sc.total_duration >= cfg.noun_choice_at * budget and remaining_time() >= 60
-                    and (nouns := self.noun_choice_candidates())):
+                    and (nouns := self.form_choice_pool())):
                 # #528 step 2 (the long run): once a lesson, a noun the learner has in two forms said in the sentence of each, the case named, then
                 # each asked (the owner, #528: «a coach who makes me choose the right case»). #548 step 1: past its scheduled time
                 # (``noun_choice_at``) it takes a today's-items turn, ahead of the number choice, when the main loop has not placed it; never earlier
@@ -3848,13 +3872,18 @@ class Planner:
             return True
 
         def play_noun_choice(nouns: list) -> None:
-            """#528 step 4: the noun whose form is newest to the learner first (``ItemState.introduced_lesson``: the form brought in the lesson
-            before is set as a choice the day after), while one was introduced in the last three lessons; else the nouns take turns by lesson."""
-            newest = lambda lines: max(st.introduced_lesson if (st := self.learner.items.get(it.id)) else 0 for it, *_ in lines)  # noqa: E731
+            """#528 step 4: the choice whose form is newest to the learner first (``ItemState.introduced_lesson``: the form brought in the lesson
+            before is set as a choice the day after), while one was introduced in the last three lessons; else they take turns by lesson. ``nouns``:
+            ``form_choice_pool``'s entries, an authored contrast (#548) or a noun's forms in their frames (#539)."""
+            def newest(entry) -> int:
+                ids = entry[1].requires if entry[0] == "contrast" else [it.id for it, *_ in entry[1]]
+                return max((st.introduced_lesson if (st := self.learner.items.get(i)) else 0) for i in ids)
+
             latest = max(newest(c) for c in nouns)
             if latest >= sc.lesson_number - 3:
                 nouns = [c for c in nouns if newest(c) == latest]
-            ex = b.noun_choice(sc, nouns[sc.lesson_number % len(nouns)])
+            entry = nouns[sc.lesson_number % len(nouns)]
+            ex = b.contrast_choice(sc, entry[1], entry[2]) if entry[0] == "contrast" else b.noun_choice(sc, entry[1])
             noun_choices.append(ex.label)
 
         def play_subject_choice(subjects: list) -> None:
@@ -3874,7 +3903,7 @@ class Planner:
                 play_subject_choice(subjects)  # scheduled, not left to spare time (``subject_choice_at``)
                 continue
             if (not noun_choices and sc.total_duration >= cfg.noun_choice_at * budget and remaining >= 60 and not in_new_block()
-                    and last_kinds_same(1) != "model" and (nouns := self.noun_choice_candidates())):
+                    and last_kinds_same(1) != "model" and (nouns := self.form_choice_pool())):
                 play_noun_choice(nouns)  # #548 step 1: scheduled, as the subject choice is (``noun_choice_at``)
                 continue
             if (not number_choices and sc.total_duration >= cfg.number_choice_by * budget and remaining >= 75 and not in_new_block()

@@ -45,6 +45,32 @@ A form that differs from its `noun_base`, or from a form of the noun the learner
 
 **All the nouns (#270 step 1).** Every vocab item with a case tag (`nom_*`, `acc_*`, `dat_*`) is a form of a noun: `noun`, `form` and `gender`, 191 items added to the pilot's. The form names are `nom`, `acc`, `dat`, the article forms `nom_def`, `acc_def`, `dat_def`, and the plural forms `pl`, `acc_pl`, `dat_pl`, `pl_def`; the form's case must be one of the item's tag cases (a test). Items whose forms are different words keep their ids and are grouped by `noun` («bíll» `nom` / «bíl» `acc`, «kaffi» `acc` / «kaffið» `acc_def`, «lykill» `acc` / «lykillinn» `nom_def`); a form not in the data is not yet taught, and nothing derives one (#171). Not nouns, on purpose: «latte», «sushi», «pasta» (borrowed, no gender asserted) and the dative of «Tókýó» and «Ósaka». The genders and forms are authored Icelandic: candidates until native-checked (#209). The planner's admission rule (a known noun whose only frame is unmet brings that frame forward) reads `Item.noun`, so it now covers these nouns; on a 70-lesson simulation the lessons are unchanged until lesson 61. `tests/test_noun_entries.py`.
 
+### Contrasts: one noun in two forms, and what changes it (#548)
+
+`[[contrasts]]` (`curricula/is-en/29-contrasts.toml`) sets a noun's forms side by side in the noun choice's place, with what changes the form said
+in the learner's language and no grammatical term (the owner, 2026-11-16: «going there and being there change the form»; not «accusative»,
+«dative»):
+
+```toml
+[[contrasts]]
+id = "hotel_going_being"
+by = "meaning"               # meaning (going there / being there) | word (the verb or preposition before it)
+lead = "Going there and being there: the word changes."   # lead_ja …; «…» spans are said by the Icelandic voice
+requires = ["hotelid", "hotelinu", "fyrir_framan_hotelid", "eg_fer"]   # all met and not failing before it plays
+
+[[contrasts.lines]]
+target = "Ég fer á hótelið."   # each line has the noun in another form
+word = "hótelið"
+ask = "Where are you going?"   # ask_ja …: asks for the line by its meaning, never «How do you say»
+answer = "Á hótelið."          # holds `word`
+like = "fyrir_framan_hotelid"  # optional: an item whose sentence has the same form or the same deciding word, said «Like «fyrir framan hótelið».»
+```
+
+The lesson says the lead, each line and the sentence it is like (a single-word form is linked through the sentence it was taught in), then asks
+each line by its question in another order. A noun a contrast sets is not set again from its frames (#539). `validate` rejects a contrast with fewer
+than two lines, two lines with the same word, a word missing from its line or answer, a line without a question, an unknown `by` and an unknown
+item. The sentences are made of words the learner knows; the ones the course does not hold elsewhere are candidates until native-checked (#209).
+
 ## Items
 
 Listed in the default order of introduction. The planner keeps this order but
