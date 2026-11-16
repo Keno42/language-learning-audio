@@ -59,6 +59,12 @@ class PlanConfig:
     # #528 step 1: the share of the lesson's time after which the day's subject choice plays, whatever else is waiting. It is the long run's
     # work, so it is scheduled: as a spare-time turn it played in two lessons of four on the replay, and in none of a lesson that is full
     subject_choice_at: float = 0.45
+    # #548 step 1 (lesson 58: «no practice nearby uses another case of the same word»): the noun choice is scheduled too. As a today's-items turn
+    # the number choice left, it played in neither lesson 57 nor 58, with four nouns ready
+    noun_choice_at: float = 0.6
+    # and the number choice, which plays in a today's-items turn whenever one comes, is played by the main loop past this share when no such turn
+    # has (on the replay of lesson 58 the scheduled noun choice took the turn that had held it)
+    number_choice_by: float = 0.75
     starved_skip_rung: int | None = 1  # #439: the rung a new item gives up when the due reviews cannot fit (an index into intro_recall_times); None keeps all
     # A short item (``short_item_words`` words or fewer) is said alone at most this often in a
     # lesson, the introduction and the closing recall included (§9 "Repetition"); the rest of
@@ -3783,29 +3789,18 @@ class Planner:
                 # at 6:35 played it seven minutes before its time. The sentences take turns across lessons, and so do the pairs of subjects
                 play_subject_choice(subjects)
                 return True
+            if (kind == "today" and not noun_choices and sc.total_duration >= cfg.noun_choice_at * budget and remaining_time() >= 60
+                    and (nouns := self.noun_choice_candidates())):
+                # #528 step 2 (the long run): once a lesson, a noun the learner has in two forms said in the sentence of each, the case named, then
+                # each asked (the owner, #528: «a coach who makes me choose the right case»). #548 step 1: past its scheduled time
+                # (``noun_choice_at``) it takes a today's-items turn, ahead of the number choice, when the main loop has not placed it; never earlier
+                play_noun_choice(nouns)
+                return True
             if kind == "today" and not number_choices and remaining_time() >= 75:
                 # #439 step 1b: once a lesson, today's-items turn first plays one number's known lines of different genders side by side, the form said
                 # as the noun's choice; a drill in a drill's turn, so the listening the rotation brings is untouched
-                lines = pick_choice(choice_lines(self.number_choice_candidates()), sc.lesson_number)
-                if lines:
-                    ex = b.number_choice(sc, lines)
-                    number_choices.append(ex.label)
+                if play_number_choice():
                     return True
-            if (kind == "today" and not noun_choices and remaining_time() >= 60 and last_kinds_same() not in ("recall", "generative")
-                    and any(i.id not in recent and not saturated(i) and i.id not in b.plain for i in introduced) and (nouns := self.noun_choice_candidates())):
-                # #528 step 2 (the long run): once a lesson, a noun the learner has in two forms said in the sentence of each, the case named, then
-                # each asked, in a today's-items turn the number choice did not take and before the word said of him and of her (the owner, #528:
-                # «a coach who makes me choose the right case»). Only where a drill of today's items would play, as for the word said of him and her
-                # #528 step 4: the noun whose form is newest to the learner first (``ItemState.introduced_lesson``: the form brought in the
-                # lesson before is set as a choice the day after), while one was introduced in the last three lessons; else the nouns take
-                # turns by lesson, as before
-                newest = lambda lines: max(st.introduced_lesson if (st := self.learner.items.get(it.id)) else 0 for it, *_ in lines)  # noqa: E731
-                latest = max(newest(c) for c in nouns)
-                if latest >= sc.lesson_number - 3:
-                    nouns = [c for c in nouns if newest(c) == latest]
-                ex = b.noun_choice(sc, nouns[sc.lesson_number % len(nouns)])
-                noun_choices.append(ex.label)
-                return True
             if (kind == "today" and not said_of_choices and remaining_time() >= 60 and last_kinds_same() not in ("recall", "generative")
                     and any(i.id not in recent and not saturated(i) and i.id not in b.plain for i in introduced) and (said_of := self.said_of_candidates())):
                 # #439 step 2: once a lesson, a gendered word the learner knows said of him and of her, in a today's-items turn the number choice
@@ -3843,6 +3838,25 @@ class Planner:
             return remaining >= 90 and (heard_left or self.listening_dialogue() is not None)
 
         pre_closing_listening: list[int | None] = [None]  # #421: listening tasks still to come before the closing (None: not counted yet)
+        def play_number_choice() -> bool:
+            """#439 step 1b: one number's known lines of different genders side by side; False when no number has them."""
+            lines = pick_choice(choice_lines(self.number_choice_candidates()), sc.lesson_number)
+            if not lines:
+                return False
+            ex = b.number_choice(sc, lines)
+            number_choices.append(ex.label)
+            return True
+
+        def play_noun_choice(nouns: list) -> None:
+            """#528 step 4: the noun whose form is newest to the learner first (``ItemState.introduced_lesson``: the form brought in the lesson
+            before is set as a choice the day after), while one was introduced in the last three lessons; else the nouns take turns by lesson."""
+            newest = lambda lines: max(st.introduced_lesson if (st := self.learner.items.get(it.id)) else 0 for it, *_ in lines)  # noqa: E731
+            latest = max(newest(c) for c in nouns)
+            if latest >= sc.lesson_number - 3:
+                nouns = [c for c in nouns if newest(c) == latest]
+            ex = b.noun_choice(sc, nouns[sc.lesson_number % len(nouns)])
+            noun_choices.append(ex.label)
+
         def play_subject_choice(subjects: list) -> None:
             """#528 step 1: the sentences take turns across lessons, and so do the pairs of subjects."""
             turn = sc.lesson_number
@@ -3859,6 +3873,13 @@ class Planner:
                     and last_kinds_same(1) != "model" and (subjects := self.subject_candidates())):
                 play_subject_choice(subjects)  # scheduled, not left to spare time (``subject_choice_at``)
                 continue
+            if (not noun_choices and sc.total_duration >= cfg.noun_choice_at * budget and remaining >= 60 and not in_new_block()
+                    and last_kinds_same(1) != "model" and (nouns := self.noun_choice_candidates())):
+                play_noun_choice(nouns)  # #548 step 1: scheduled, as the subject choice is (``noun_choice_at``)
+                continue
+            if (not number_choices and sc.total_duration >= cfg.number_choice_by * budget and remaining >= 75 and not in_new_block()
+                    and last_kinds_same(1) != "model" and play_number_choice()):
+                continue  # #548 step 1: no today's-items turn has played it by ``number_choice_by``
             if self.components_mode and delivered_at[0] is not None and introduced and remaining <= 24 * ((len(introduced) - 1) // 3):
                 # the listening the closing's run of recalls used to hold (#248: one after every third), now in the last stretch before it (#421,
                 # lesson 38: inside the closing it felt nested); with nothing to hear, the lesson goes on as before
