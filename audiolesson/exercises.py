@@ -1250,6 +1250,33 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def contrast_choice(self, sc: Script, contrast, likes: list) -> Exercise:
+        """#548 (lesson 58: «why the dative in «Fluginu er seinkað.»?»; the owner, 2026-11-16: «going there and being there change the form», no
+        grammatical term, linked to what the learner knows): what changes the form (``Contrast.lead``), each sentence, and after it the sentence
+        it is like when the learner knows it («Like «Ég er að leita að flugvellinum.».»); then each line asked by its meaning («Where are you
+        going?» «Á flugvöllinn.»), in another order, so the form is chosen by what the question means. A form-work block, as the noun choice."""
+        ex = sc.new_exercise("model", "noun_choice", list(contrast.requires), "contrast: " + " / ".join(ln.target for ln in contrast.lines))
+        self._speak_note_text(sc, ex, contrast.lead)
+        self._beat(sc, ex)
+        for ln, like in zip(contrast.lines, likes):
+            self._speak(sc, ex, ln.target)
+            self._beat(sc, ex)
+            if like:
+                self._speak_note_text(sc, ex, self.prompts.get("contrast_like", like=like))
+                if not (sc.segments and sc.segments[-1].type == "pause"):
+                    self._beat(sc, ex)
+            self.heard.add(_norm_utterance(ln.target))
+        self._narr(sc, ex, self.prompts.get("contrast_answer"))
+        order = contrast.lines[1:] + contrast.lines[:1]
+        for n, ln in enumerate(order):
+            self._narr(sc, ex, ln.ask)
+            self._answer_pause(sc, ex, ln.answer, None, generative=False)
+            self._answer(sc, ex, ln.answer)
+            if n < len(order) - 1:
+                self._beat(sc, ex)
+        self._gap(sc, ex)
+        return ex
+
     def subject_choice(self, sc: Script, item: Item, keys: list[str]) -> Exercise:
         """#528 step 1 (the owner, 2026-11-12: new material as numbers, colours and words is a memory game; «I want to feel a coach who makes me
         choose the right verb form»; four sentences in five of the course say «ég»). A sentence the learner says with «ég», said with two other
