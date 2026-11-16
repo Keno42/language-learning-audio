@@ -13,7 +13,7 @@
 ## Checked
 
 - [ ] Replayed on the real learner path (a feedback export's `learner.before.json` and arguments), or why that doesn't apply
-- [ ] `python -m unittest` and `audiolesson validate curricula/is-en`
+- [ ] `python tools/partest.py` (the tests of `python -m unittest`, in parallel) and `audiolesson validate curricula/is-en`
 
 ## Documents
 

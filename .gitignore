@@ -10,3 +10,5 @@ cache/
 *.wav
 *.mp3
 doc-review-bundle.md
+# each test's time in the last run of tools/partest.py: the slow tests start first
+.partest-times.json

@@ -11,16 +11,25 @@ concurrency:
   group: ci-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 jobs:
+  # The suite is hundreds of independent simulated courses, a second to a minute of one CPU each: `python -m unittest` ran them one after
+  # another on one core for 20 to 60 minutes. `tools/partest.py` runs the same tests on every core of the runner, and the matrix runs four
+  # parts of the suite on four runners at once (every fourth test each, so the slow tests of one class are spread over the parts).
   test:
+    name: test ${{ matrix.part }}/4
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false  # a failure in one part does not hide what the other parts find
+      matrix:
+        part: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: sudo apt-get update && sudo apt-get install -y -qq espeak-ng ffmpeg
-      - run: python -m unittest -v
+      - run: python tools/partest.py --shard ${{ matrix.part }}/4 --slowest 10
       - name: smoke lesson with espeak
+        if: matrix.part == 1
         run: |
           python -m audiolesson.cli generate -c curricula/fr-en-a1.toml -l /tmp/l.json -m 3 --profile profiles/espeak.toml --date 2026-01-01
           python -m audiolesson.cli generate -c curricula/fr-ja-a1.toml -l /tmp/j.json -m 3 --provider espeak --date 2026-01-01
