@@ -435,21 +435,23 @@ class Builder:
         else:
             self._beat(sc, ex)
 
-    def _lead_instruct(self, sc: Script, ex: Exercise, whole_key: str, key: str, frame: bool = False, gender: str | None = None) -> None:
+    def _lead_instruct(self, sc: Script, ex: Exercise, whole_key: str, key: str, frame: bool = False, gender: str | None = None) -> bool:
         """#429 step 2 (lesson 56: «"Repeat" was learned in Icelandic, but some instructions still say it only in English»): a line that ends
         on an instruction («A sentence from a pattern you know. Listen, then repeat.», «Let's build it up from the end. Repeat each part.»)
         says its lead in the learner's language (``<whole_key>_lead``) and the instruction ``key`` as a line of its own, through
         ``_instruct``, once that is taught («Hlustaðu.», «Endurtaktu.»). Before, the whole line as it was. ``frame``: the line is a framing
-        line (``_frame``), so a beat follows it in either form."""
+        line (``_frame``), so a beat follows it in either form. True when it was split: «Listen, then repeat.» is then «Hlustaðu.» alone, and
+        the caller says «Endurtaktu.» where the repetition comes, if nothing else in the exercise does."""
         if self.command_item(key) is None:
             text = self._as(gender, self.prompts.get(whole_key))
             if frame:
                 self._frame(sc, ex, text)
             else:
                 self._narr(sc, ex, text)
-            return
+            return False
         self._narr(sc, ex, self._as(gender, self.prompts.get(f"{whole_key}_lead")))
         self._instruct(sc, ex, key, frame=frame)
+        return True
 
     def _intro_command(self, sc: Script, item: Item) -> Exercise:
         """#429: an instruction taught as material. «From now on, this instruction is in Icelandic:» «Endurtaktu.» «It means: Repeat.», said after
@@ -1485,11 +1487,13 @@ class Builder:
             self.used_combos.add(gen.key)
             gender, sentence = self._filled(gen.construction, gen.fills)
             voice = VOICE_OF[gender or "f"]
-            self._lead_instruct(sc, ex, "embed_sentence", "listen", frame=True, gender=gender)
+            split = self._lead_instruct(sc, ex, "embed_sentence", "listen", frame=True, gender=gender)
             self._speak(sc, ex, sentence, speaker=voice)
             self._beat(sc, ex)
             self._narr(sc, ex, self.prompts.get("embed_meaning", meaning=self._m(gen.meaning)))
             self._beat(sc, ex)
+            if split:
+                self._instruct(sc, ex, "repeat")  # review of #551: «Listen, then repeat.» became «Hlustaðu.», and nothing here said repeat
             self._speak(sc, ex, sentence, speaker=voice)
             self._repeat_pause(sc, ex, sentence)
             self.heard.add(_norm_utterance(sentence))

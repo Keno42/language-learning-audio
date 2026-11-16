@@ -189,6 +189,29 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(said(learner, "instance_sentence", "listen", True), [("narrate", "A sentence from a pattern you know."), ("speak", "Hlustaðu."),
                                                                                ("pause", None)], "a framing line keeps its beat")
 
+    def test_a_variant_introduction_still_says_repeat_before_its_sentence_is_repeated(self):
+        """Review of #551: «In another sentence. Listen, then repeat.» became «In another sentence.» «Hlustaðu.», and ``_intro_variant``
+        (unlike ``embed`` and ``pattern_instance``) says no repeat before the sentence comes again for the learner to repeat. It says
+        «Endurtaktu.» there once the line is split; before, the line as it was, with nothing added."""
+        item = self.cur.by_id["god"]
+
+        def said(taught):
+            learner = LearnerState("is", "en", "A1")
+            learner.lessons_completed = 60
+            for i in self.cur.items:
+                if i.order < item.order or (taught and i.command):
+                    learner.items[i.id] = ItemState(stage="meaning", successes=6, recalled=3, last_outcome="recalled", introduced_lesson=20)
+            sc = Script(1, "t", "is", "en")
+            builder(self.cur, learner=learner)._intro_variant(sc, item, self.cur.by_id[item.variant_of])
+            return [g.text for g in sc.segments if g.type != "pause"]
+
+        lines = said(True)
+        sentence = lines.index("Hlustaðu.") + 1
+        self.assertEqual(lines[sentence + 2 : sentence + 4], ["Endurtaktu.", lines[sentence]], "repeat, then the sentence to repeat")
+        plain = said(False)
+        self.assertIn(Prompts.load("en").get("embed_sentence"), plain, "not taught: «In another sentence. Listen, then repeat.» as before")
+        self.assertNotIn("Repeat.", plain[plain.index(Prompts.load("en").get("embed_sentence")):], "and nothing added")
+
     def test_the_commands_come_one_a_lesson_in_their_order(self):
         order = [i.id for i in self.cur.items if i.command]
         self.assertEqual(order, ["endurtaktu", "hlustadu", "haegt_command", "hlustadu_aftur", "edlilegum_hrada_command", "svarid_command",
