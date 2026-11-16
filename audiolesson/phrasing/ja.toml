@@ -20,18 +20,22 @@ command_intro = "これからは、この指示をアイスランド語で言い
 command_means = "意味は「{meaning}」です。"
 once_more = "もう一度。"
 build_up = "後ろから組み立てましょう。それぞれ繰り返してください。"
+build_up_lead = "後ろから組み立てましょう。"  # #429 step 2: the line before its instruction, once that is taught («Endurtaktu.», «Hlustaðu.»)
 slowly = "ゆっくり。"
 natural = "自然な速さで。"
 split_slowly = "ゆっくり、区切って言います。それぞれ繰り返してください。"
+split_slowly_lead = "ゆっくり、区切って言います。"
 # 言いにくいと報告された項目 (lesson 44): まず意味から言ってもらい、それから区切って練習する
 slow_word_recall = "「{meaning}」は何と言うか覚えていますか？"
 slow_word_break_down = "発音を区切って練習しましょう。それぞれ繰り返してください。"
+slow_word_break_down_lead = "発音を区切って練習しましょう。"
 slow_hear_intro = "この文を、もう一度{language}で言ってみましょう。「{meaning}」"
 hear_support_sentence = "聞き取りにくかった文です。聞いてください。"
 hear_support_word = "聞き取りにくかった単語です。聞いてください。"
 hear_support_find = "次の文の中からこの単語を聞き取って、言ってください。"
 hear_support_again = "もう一度、文全体を聞いてください。"
 note_pieces = "では部分ごとにゆっくり言うので、それぞれ繰り返してください。"
+note_pieces_lead = "では部分ごとにゆっくり言います。"
 
 # issue #59: 何を言いたいのかを先に示す（「Ég skil…」だけでは「わかりません」か判別できない）
 cloze = "「{meaning}」と言うように、文を完成させてください。"
@@ -101,6 +105,7 @@ form_of_base = "この文では単語の形が変わっています。基本の�
 form_known_as = "もう知っている形は："
 form_word_of = "«{word}» は «{base}» の形が変わったものです。"  # 新しい表現の中の、基本の形ではない名詞 (#439 step 3)
 embed_sentence = "別の文で聞きます。聞いて、繰り返してください。"
+embed_sentence_lead = "別の文で聞きます。"
 embed_meaning = "「{meaning}」"
 # 疑問・否定の形を、出題の前に一度見せる (#211)
 form_model_known = "知っている文です："
@@ -108,9 +113,12 @@ form_model_question = "疑問文にすると："
 form_model_negative = "否定文にすると："
 form_model_again = "別の単語で、同じ形です。"
 instance_sentence = "知っている型の文です。聞いて、繰り返してください。"
+instance_sentence_lead = "知っている型の文です。"
 instance_form_known = "知っている文です："
 instance_form_question = "疑問文にします。聞いて、繰り返してください。"
+instance_form_question_lead = "疑問文にします。"
 instance_form_negative = "否定文にします。聞いて、繰り返してください。"
+instance_form_negative_lead = "否定文にします。"
 # a near form of something the learner has met (Item.variant_of)
 variant_known = "知っている形です："
 variant_form = "別の形です。「{meaning}」。"

@@ -21,12 +21,15 @@ command_intro = "From now on, this instruction is in Icelandic:"
 command_means = "It means: {meaning}"
 once_more = "Once more."
 build_up = "Let's build it up from the end. Repeat each part."
+build_up_lead = "Let's build it up from the end."  # #429 step 2: the line before its instruction, once that is taught («Endurtaktu.», «Hlustaðu.»)
 slowly = "Slowly."
 natural = "And at natural speed."
 split_slowly = "Slowly, in parts. Repeat each part."
+split_slowly_lead = "Slowly, in parts."
 # an item the learner reported hard to say, its hard words cut into pieces (lesson 44): first tried from its meaning, then broken down
 slow_word_recall = "Do you remember how to say this? {meaning}"
 slow_word_break_down = "Let's break down the pronunciation. Repeat each part."
+slow_word_break_down_lead = "Let's break down the pronunciation."
 # a sentence the learner reported hard (#337, #423): tried again from its meaning, then the model, then slowly and at natural speed
 slow_hear_intro = "Let's try to say this sentence in {language} again: {meaning}"
 hear_support_sentence = "You found this one hard to catch. Listen."
@@ -34,6 +37,7 @@ hear_support_word = "You found this word hard to catch. Listen."
 hear_support_find = "Now listen for it in a sentence, and say it when you have heard it."
 hear_support_again = "The whole sentence once more."
 note_pieces = "Now the pieces, slowly: repeat each one."
+note_pieces_lead = "Now the pieces, slowly."
 
 # issue #59: the meaning comes first, so completing «Ég skil…» is a retrieval of "I don't
 # understand", not a guess at which authored phrase the course has in mind
@@ -104,6 +108,7 @@ form_of_base = "In this sentence the word changes. The basic word is:"
 form_known_as = "You know it as:"
 form_word_of = "«{word}» is a form of «{base}»."  # a new phrase's noun in a form other than its basic word (#439 step 3)
 embed_sentence = "In another sentence. Listen, then repeat."
+embed_sentence_lead = "In another sentence."
 embed_meaning = "{meaning}"
 # a construction's negative or question form modelled before it is asked (#211)
 form_model_known = "You know this one:"
@@ -111,9 +116,12 @@ form_model_question = "As a question:"
 form_model_negative = "As a negative:"
 form_model_again = "Now the same form with another word."  # the cue follows: no «Your turn.» ahead of its task (lesson 36, #409)
 instance_sentence = "A sentence from a pattern you know. Listen, then repeat."
+instance_sentence_lead = "A sentence from a pattern you know."
 instance_form_known = "You know this one:"
 instance_form_question = "As a question: listen, then repeat."
+instance_form_question_lead = "As a question."
 instance_form_negative = "As a negative: listen, then repeat."
+instance_form_negative_lead = "As a negative."
 # a near form of something the learner has met (Item.variant_of)
 variant_known = "You know this one:"
 variant_form = "Here is another form of it: {meaning}"

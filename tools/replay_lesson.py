@@ -124,7 +124,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         raw = prompts.data[key]
         return [re.compile("^" + re.sub(r"\\\{\w+\\\}", ".*", re.escape(t)) + "$", re.S) for t in (raw if isinstance(raw, list) else [raw])]
 
-    cue_res = [r for k in ("repeat", "slowly", "natural", "build_up", "reply", "cloze", "hinted") for r in _cue_re(k)]
+    cue_res = [r for k in ("repeat", "slowly", "natural", "build_up", "build_up_lead", "reply", "cloze", "hinted") for r in _cue_re(k)]
     note_ex = {e.index for e in exs if e.kind == "note"}
     unframed = sum(
         1 for a, b in zip(sc.segments, sc.segments[1:])

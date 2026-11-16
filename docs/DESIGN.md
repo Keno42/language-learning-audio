@@ -219,7 +219,10 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (`Planner.next_command`; never in a new-item place), by `Builder._intro_command`. From then on `Builder._instruct` says it in place of the
   instruction, in `COMMAND_VOICE` (native_b, not the models' voice), with the instruction in the learner's language after it while
   `Builder.command_support` holds: in the lesson that teaches it and the next (`COMMAND_SUPPORT_LESSONS`, 2, from `ItemState.introduced_lesson`), and again after a failure (`is_open`). Before lesson 56 it waited for two recalls in the written review (owner: no complaint is understanding, and a complaint comes only in a lesson's feedback). An instruction that is
-  a framing line («Listen again.», `_instruct(frame=True)`) keeps the beat after it in either language. The way in and the ways back written on
+  a framing line («Listen again.», `_instruct(frame=True)`) keeps the beat after it in either language. A line that ends on an instruction
+  («A sentence from a pattern you know. Listen, then repeat.», «Let's build it up from the end. Repeat each part.», the breakdowns, a note's
+  pieces) says its lead (`<key>_lead`) in the learner's language and the instruction as a line of its own once taught («Hlustaðu.»,
+  «Endurtaktu.»; `Builder._lead_instruct`, #429 step 2, lesson 56), and the whole line as before until then. The way in and the ways back written on
   the finished script («Listen.», `transitions.WAYS_BACK_SAID`: «Back to speaking.», «That's the end of the conversation.») are replaced the same way (`Builder.command_segments`, after `close_tasks`); a way back keeps its role on both segments, so `unmarked_turns` still finds it as its task's last line. It is asked once more later in the lesson, as a plain
   number is (`tests/test_commands.py`). Whether the lessons do this at all is the learner's choice, asked once by the bot around the tenth lesson
   (owner, 2026-11-14): `generate --instructions gradual|off|pending`, read by `content.for_instructions` (also in `tools/replay_lesson.py`, from
