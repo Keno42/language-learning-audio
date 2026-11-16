@@ -8,6 +8,7 @@ from pathlib import Path
 from audiolesson.cando import load_cando
 from audiolesson.content import load_curriculum
 from audiolesson.learner import ItemState, LearnerState
+from audiolesson.numbers import choice_lines, pick_choice
 from audiolesson.planner import PlanConfig, Planner
 from audiolesson.prompts import Prompts
 from audiolesson.script import Script
@@ -133,6 +134,22 @@ class NounChoiceTests(unittest.TestCase):
         self.assertEqual(_plan(sc, self.cur)["noun_choices"], sc.meta["noun_choices"], "review of #539: plan.json keeps it")
         none = self.planner(self.learner(stop="takk")).build()
         self.assertEqual(none.meta["noun_choices"], [], "no noun in two forms with their sentences: no choice")
+
+    def test_the_noun_choice_has_a_time_of_its_own_and_the_number_choice_still_plays(self):
+        """#548 step 1 (lesson 58: «no practice nearby uses another case of the same word»): as a today's-items turn the number choice left, the
+        noun choice played in neither lesson 57 nor 58, with four nouns ready. It plays at ``noun_choice_at``, never before; the number choice it
+        may take the turn from is played by the main loop past ``number_choice_by`` (the replay of lesson 58 lost it once)."""
+        for completed in (40, 41, 42):
+            learner = self.learner(stop="adeins")  # a learner with a number in two genders too
+            learner.lessons_completed = completed
+            planner = self.planner(learner)
+            sc = planner.build()
+            budget = planner.cfg.minutes * 60
+            played = [e for e in sc.exercises if e.stage == "noun_choice"]
+            self.assertEqual(len(played), 1, completed)
+            self.assertGreaterEqual(played[0].start, planner.cfg.noun_choice_at * budget - 1, "never before its time")
+            if pick_choice(choice_lines(planner.number_choice_candidates()), sc.lesson_number):
+                self.assertEqual(len(sc.meta["number_choices"]), 1, f"lesson {completed + 1}: the number choice still plays")
 
 
 if __name__ == "__main__":
