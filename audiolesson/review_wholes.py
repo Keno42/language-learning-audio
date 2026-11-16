@@ -53,7 +53,7 @@ def has_home(cur, part) -> bool:
         if c.id == part.id:
             continue
         if c.kind == "construction":
-            if part.id in c.prereqs or any(part in cur.items_with_tag(tag, c) for tag in c.slots.values()):
+            if part.id in c.prereqs or any(cur.takes(tag, c, part) for tag in c.slots.values()):
                 return True
         elif c.kind == "phrase" and _phrase_holds(_words(c.target), part_words):
             return True
@@ -83,7 +83,7 @@ def whole_for(cur, part, met: set[str], prompts: Prompts, taught: dict | None = 
     for c in cur.items:
         if c.kind != "construction" or not (c.id in met) or not c.slots:
             continue
-        slot = next((s for s, tag in c.slots.items() if part in cur.items_with_tag(tag, c)), None)
+        slot = next((s for s, tag in c.slots.items() if cur.takes(tag, c, part)), None)
         if slot is None:
             continue
         fills = {slot: part}

@@ -328,9 +328,10 @@ audiolesson/
 curricula/      learning material: fr-en-a1, fr-ja-a1 (files), is-en/ (27 modules, plus cando/ and
                 reading/ for the travel scenarios, scenario cards and reading deck)
 tools/          daily.sh (one day of the routine), derive_fr_ja.py (keeps fr-ja in sync with fr-en),
-                gloss.py (inserts <field>_<lang> glosses), phrase_families.py (fixed-phrase audit)
+                gloss.py (inserts <field>_<lang> glosses), phrase_families.py (fixed-phrase audit),
+                partest.py (the tests on every core), same_lessons.py (a refactoring builds the same lessons)
 profiles/       voice profiles (provider + voice per speaker)
-tests/          python -m unittest
+tests/          python tools/partest.py (what python -m unittest runs, on every core)
 docs/           CURRENT-POLICY.md / CURRENT-STATUS.md (the short briefs), LEARNING-DESIGN.md (purpose,
                 hypotheses, evidence, roadmap, checklist), DESIGN.md (code map, invariants, decisions),
                 CURRICULUM.md (format), TRAVEL-CANDO.md (scenarios, scenario cards, reading deck, trip
@@ -350,7 +351,7 @@ behind them.
 ### How to check your change
 
 ```sh
-python -m unittest -v
+python tools/partest.py   # the tests `python -m unittest` runs, on every core: minutes, not tens of minutes
 python -m audiolesson.cli validate curricula/is-en
 python - <<'EOF'
 # ten-lesson simulation: one line per lesson, letters = exercise kinds

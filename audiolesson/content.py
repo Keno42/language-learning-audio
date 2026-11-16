@@ -486,6 +486,15 @@ class Curriculum:
         addressed = construction is not None and "plain" in construction.addressee
         return [i for i in self.items if tag in i.tags and i.id not in skip and not (addressed and i.reflexive)]
 
+    def takes(self, tag: str, construction: Item | None, item: Item) -> bool:
+        """``item in self.items_with_tag(tag, construction)``, asked of the item alone. The planner asks it of every pattern of the course whenever it
+        looks for a sentence that holds a part; building the list each time (every item of the course read, then compared with the part field by
+        field) was more than half of the time a lesson takes to build."""
+        own = self.by_id.get(item.id)  # ids are unique (``validate``): the one item of the course that can equal ``item``
+        if own is None or not (own is item or own == item) or tag not in own.tags:
+            return False
+        return construction is None or (own.id not in construction.exclude_fills and not ("plain" in construction.addressee and own.reflexive))
+
     @staticmethod
     def speaker_agrees(construction: Item, form: str | None = None) -> bool:
         """Whether a fill's man's form in ``construction``'s template of ``form`` follows the speaker («Ég er {state}.»): not in a template whose

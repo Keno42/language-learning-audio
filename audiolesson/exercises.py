@@ -910,7 +910,7 @@ class Builder:
         for c in self.cur.items:
             if c.kind != "construction" or not c.slots:
                 continue
-            slot = next((s for s, tag in c.slots.items() if item in self.cur.items_with_tag(tag, c)), None)
+            slot = next((s for s, tag in c.slots.items() if self.cur.takes(tag, c, item)), None)
             if slot is None:
                 continue
             authored = {**c.example, **c.situation_fill}
