@@ -1832,7 +1832,7 @@ class Planner:
         for c in queue:
             if c.kind != "construction" or not c.slots or self.learner.has_met(c.id) or c.id in self.learner.embedded:
                 continue
-            slot = next((sl for sl, tag in c.slots.items() if item in self.cur.items_with_tag(tag, c)), None)
+            slot = next((sl for sl, tag in c.slots.items() if self.cur.takes(tag, c, item)), None)
             if slot is None or len(c.slots) != 1:
                 continue
             if all(p == item.id or self.learner.knows(p) or p in self.builder.in_lesson for p in c.prereqs):
