@@ -1,6 +1,7 @@
 """#518 (the owner, 2026-11-12): every new item starts on less practice, and the reviews say which kinds need more. «It cannot be judged before the
-lesson is taken and the review tried, so use a feedback loop.» Three doses: light (made of known words, a plain number), middle (the default: two
-timed recalls and at most six says), heavy (all four and nine), for an item with a trait whose new items the next-day review found weak."""
+lesson is taken and the review tried, so use a feedback loop.» Three doses: light (an instruction, a plain number, a phrase made of known words: one
+timed recall), middle (the default: the timed recalls, the hinted one given to the due reviews when they cannot fit, #478) and heavy (every recall,
+whatever the reviews), for an item with a trait whose new items the next-day review found weak."""
 import unittest
 from datetime import date, timedelta
 from pathlib import Path
@@ -66,39 +67,58 @@ class DoseTests(unittest.TestCase):
         self.assertEqual(p.dose(self.cur.by_id["endurtaktu"]), "light")
         self.assertEqual(p.dose(self.cur.by_id["sextan"]), "light")
 
-    def test_a_lesson_says_a_middle_item_less_often(self):
+    def lesson(self, weak: bool):
+        """A lesson for a learner who knows the course up to «tvær», every item due today: more reviews than a lesson holds. ``weak``: ten of
+        their sentences of five words or more were not recalled the day after the lesson that taught them."""
         learner = LearnerState("is", "en", "A1")
         for i in self.cur.items:
             if i.order < self.cur.by_id["tvaer"].order:
                 learner.items[i.id] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=30, last_outcome="recalled",
-                                                due=(TODAY + timedelta(days=60)).isoformat(), last_practiced=(TODAY - timedelta(days=5)).isoformat())
+                                                due=TODAY.isoformat(), last_practiced=(TODAY - timedelta(days=5)).isoformat())
+        if weak:
+            for i in [i for i in self.long if i.id in learner.items][:10]:
+                learner.items[i.id].introduced_lesson = 20
+                learner.items[i.id].history = [{"lesson": 20, "stages": ["intro"], "ok": True, "outcome": "not_recalled"}]
         learner.lessons_completed = 30
+        return Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY).build()
 
-        def says(**cfg):
-            sc = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, **cfg), today=TODAY).build()
-            new = [self.cur.by_id[i] for i in sc.meta["new_items"]]
-            out = {}
-            for it in new:
-                if it.kind == "phrase" and sc.meta["doses"].get(it.id) in ("middle", "heavy"):
-                    out[it.id] = sum(1 for g in sc.segments if g.type == "answer" and g.text == it.target)
-            return sc, out
+    @staticmethod
+    def recalls(sc, item_id: str) -> list[str]:
+        """The stages of the item's own recalls, in the lesson's order."""
+        return [e.stage for e in sc.exercises if e.kind == "recall" and e.item_ids[:1] == [item_id]]
 
-        sc, middle = says()
-        self.assertTrue(middle, "the lesson teaches a phrase on the default dose")
-        self.assertTrue(all(v == "middle" for k, v in sc.meta["doses"].items() if k in middle))
-        self.assertIn("trait_rates", sc.meta)
-        # review of #529: the description promised both fields in plan.json; ``_plan`` exported neither
+    def hinted(self, sc, item_id: str) -> bool:
+        """Whether a sentence's recall at about three minutes was asked: the rung a lesson gives to reviews that cannot fit (a sentence's
+        ladder goes cloze, hinted, meaning)."""
+        return "hinted" in self.recalls(sc, item_id)
+
+    def test_a_heavy_item_keeps_the_recall_a_full_lesson_takes_from_the_others(self):
+        """Lessons 46, 53 and 56-58 could not fit their due reviews, and every new item gave them its hinted recall (#478), a kind that fails
+        the next day as much as one that does not. The loop gives it back to the kind the reviews find weak."""
+        fine, weak = self.lesson(weak=False), self.lesson(weak=True)
+        self.assertTrue(fine.meta["reviews_starved"] and weak.meta["reviews_starved"])
+        self.assertEqual(fine.meta["new_items"], weak.meta["new_items"], "the same lesson, but for the dose")
+        long_new = [i for i in weak.meta["new_items"] if self.cur.by_id[i].kind == "phrase" and self.cur.by_id[i].word_count >= 5 and weak.meta["doses"][i] != "light"]
+        self.assertTrue(long_new, "the lesson teaches a sentence of five words or more")
+        self.assertEqual(weak.meta["trait_rates"]["five words or more"], [1.0, 10])
+        for i in long_new:
+            self.assertEqual((fine.meta["doses"][i], self.hinted(fine, i)), ("middle", False), i)
+            self.assertEqual((weak.meta["doses"][i], self.hinted(weak, i)), ("heavy", True), i)
+        others = [i for i, d in weak.meta["doses"].items() if d == "middle"]
+        self.assertTrue(others, "a kind the reviews do not find weak stays on the default")
+        for i in others:
+            self.assertEqual(self.recalls(weak, i), self.recalls(fine, i), f"{i}: and is asked as in the other lesson, its recall given to the reviews")
+
+    def test_plan_json_holds_the_doses_and_the_trait_rates(self):
+        """Review of #529: the description promised both fields in plan.json; ``_plan`` exported neither."""
         from audiolesson.cli import _plan
 
+        sc = self.lesson(weak=True)
         plan = _plan(sc, self.cur)
         self.assertEqual((plan["doses"], plan["trait_rates"]), (sc.meta["doses"], sc.meta["trait_rates"]))
-        self.assertTrue(plan["doses"])
-        sc2, before = says(dose_ceiling={})  # no ceiling: the old dose
-        both = sorted(set(middle) & set(before))
-        self.assertTrue(both)
-        self.assertLess(sum(middle[i] for i in both), sum(before[i] for i in both), (middle, before))
-        # its own recalls stop at six; a play of its scene or its pattern's sentence may say it once more
-        self.assertLessEqual(max(middle.values()), 7, middle)
+        self.assertEqual(set(plan["doses"].values()), {"light", "middle", "heavy"} & set(plan["doses"].values()))
+        self.assertTrue(set(plan["doses"]) <= set(sc.meta["new_items"]))
+        self.assertIn("heavy", plan["doses"].values())
 
 
 if __name__ == "__main__":

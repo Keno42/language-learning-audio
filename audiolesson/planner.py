@@ -56,16 +56,12 @@ class PlanConfig:
     # #429 (the long run): the lessons a learner has completed before the instructions in Icelandic are taught; until then every instruction is
     # in their own language, the first steps being hard enough
     commands_from: int = 10
-    # #518 (owner, 2026-11-12): the dose of a new item in the lesson that teaches it has three levels. Light: one timed recall (a plain number,
-    # a phrase made of known words). Middle, the default: the timed recalls of ``middle_recall_rungs`` (indices into ``intro_recall_times``:
-    # about 1 and 8 minutes of 30). Heavy: all of them, for an item with a trait whose new items the next-day review found weak at more than
-    # ``dose_heavy_rate`` (a failure 1, a hesitation ½) over the latest ``dose_window`` new items, the trait having ``dose_min_samples`` of
-    # them or more. H9 aims at 80–85% next-day success: a trait below it gets the practice back. () for the rungs keeps every recall
-    middle_recall_rungs: tuple[int, ...] | None = None
-    # the most times a new fixed phrase is said in the lesson that teaches it, by its dose (``max_sentence_hard`` is the heavy one's): lesson
-    # 54's remark was on a sentence said nine times, and dropping timed recalls alone left a middle item at eight or nine, since spare time asks
-    # today's sentences again
-    dose_ceiling: dict = field(default_factory=lambda: {"light": 4, "middle": 6})
+    # #518 (owner, 2026-11-12: «reduce the first lesson's practice for every item, and raise it by feedback for the kinds that need more»): a new
+    # item's dose in the lesson that teaches it. Light: one timed recall (an instruction, a plain number, a phrase made of known words). Middle,
+    # the default: the timed recalls of ``intro_recall_times``, the hinted one given to the due reviews when they cannot fit
+    # (``starved_skip_rung``), which is most lessons at the pace the reviews set (#530). Heavy: every recall, whatever the reviews, for an item
+    # with a trait whose new items the next-day review found weak at more than ``dose_heavy_rate`` (a failure 1, a hesitation ½) over the
+    # latest ``dose_window`` new items, the trait having ``dose_min_samples`` of them or more. H9 aims at 80-85% next-day success
     dose_window: int = 120
     dose_min_samples: int = 8
     dose_heavy_rate: float = 0.2
@@ -2613,13 +2609,13 @@ class Planner:
                     first_timed[part.id] = seq
                     intro_timeline.append((sc.total_duration + cfg.plain_recall_time * (budget - closing_reserve), seq, part, ladder[min(1, len(ladder) - 1)]))
                     continue
-                level = self.dose(part)
+                level = "heavy" if self.dose(part) == "heavy" else "middle"  # light is the one recall above; a part taught inside it has the ladder
                 doses[part.id] = level
                 for k, after in enumerate(cfg.intro_recall_times):
-                    if k in reviews_starved_skip:
-                        continue  # #439 (lesson 45): the due reviews cannot fit, so a new item gives up a middle rung to them
-                    if level == "middle" and cfg.middle_recall_rungs is not None and k not in cfg.middle_recall_rungs:
-                        continue  # #518: the default dose; the other rungs come back for a kind of item the reviews find weak
+                    if k in reviews_starved_skip and level != "heavy":
+                        # #439 (lesson 45): the due reviews cannot fit, so a new item gives up a middle rung to them. #518: not an item of a
+                        # kind the next-day reviews find weak, which costs more as a failure than one review left for tomorrow
+                        continue
                     seq += 1
                     if k == 0:
                         first_timed[part.id] = seq  # #439: the first rung of every item is asked, shared practice or not
@@ -2976,7 +2972,7 @@ class Planner:
             if item.kind != "phrase" or cfg.max_sentence_hard <= 0 or bare_cap[0] <= 0:
                 return False
             reserve = 0 if closing or not any(i.id == item.id for i in introduced) else 1
-            limit = min(cfg.max_sentence_hard, cfg.dose_ceiling.get(doses.get(item.id, ""), cfg.max_sentence_hard))  # #518: a new item's dose
+            limit = cfg.max_sentence_hard
             if item.instance_of and item.instance_of in self.cur.by_id and b._frame_available(item.instance_of):
                 limit = min(limit, cfg.max_sentence_utterances + 1)  # a linked phrase hands the rest to its pattern's other instances (#192)
             capped = b.said[_norm_utterance(item.target)] >= limit - reserve

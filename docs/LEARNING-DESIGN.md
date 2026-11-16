@@ -811,12 +811,22 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
   - New items may repeat within a lesson and are never dropped (#147).
   - **Three doses, raised by the reviews (#518; owner, 2026-11-12).** «Reduce the first lesson's practice for every item, and raise it for
     the kinds the feedback shows need more: it cannot be judged before the lesson is taken and the review tried, so use a feedback loop.»
-    A new item is light (a plain number, a phrase made of known words, an instruction: one timed recall, four says at most), middle
-    (the default: two timed recalls, at about 1 and 8 minutes of 30, six says at most) or heavy (the four recalls and nine says every item
-    had before). Heavy needs evidence: a trait of the item (five words or more, a long word, difficulty 3 or more, a pattern, a noun in
-    another form) whose new items the next-day review found weak at more than 20% over the latest 120, with eight of them or more. H9 aims
-    at 80–85% next-day success; the learner's 423 new items stood at 93% recalled on the old dose, no trait above 14% weak. An item that
-    fails is practised as before (open, hard): the loop is for the items still to come. No word is marked easy by hand.
+    - **Light:** an instruction, a plain number, a phrase made of known words. One timed recall.
+    - **Middle, the default:** the four timed recalls (about 1, 3, 8 and 15 minutes of 30), the second given to the due reviews when they
+      cannot fit (#478). At the pace the reviews set (#530) that is most lessons: seven of eight on the replay of lesson 58's export. As
+      heard: in lessons 56–58, whose reviews could not fit, a new sentence was said six times at most but for one said seven; in lessons
+      52, 54 and 55, whose reviews fitted, eight or nine. The new sentences of the lessons that gave the recall up were recalled the next
+      day 18 of 20; those of the lessons that kept it, 24 of 27 (lessons 44–57).
+    - **Heavy:** every recall, whatever the reviews. It needs evidence: a trait of the item (five words or more, a long word, difficulty 3
+      or more, a pattern, a noun in another form) whose new items the next-day review found weak at more than 20% (a failure 1, a
+      hesitation ½) over the latest 120, with eight of them or more. H9 aims at 80–85% next-day success. After lesson 58 no trait is above
+      17%, so no item is heavy; a rate that falls back under 20% puts the kind on the middle dose again.
+    - An item that fails is practised as before (open, hard): the loop is for the items still to come. No word is marked easy by hand.
+    - **Not a count of says.** A ceiling of six says for a new sentence was tried on the replay of lesson 58's export (#529's first
+      design). Every say of a new sentence there is its own ladder's or its scene's, none is spare time's. So the ceiling took the recalls
+      that came last, the ones furthest from the introduction: the one from the meaning at 8 minutes, the one from the situation at 15, the
+      closing's. It kept the two said a minute after the introduction. On the simulated course of 38 lessons it cost 16 of the 54
+      exercises that use a new item with another one in a scene.
   - **A fixed dialogue retires after two complete plays (#416; owner after lesson 53: «retire the whole replay and keep
     single lines»).** Partial encounters do not count. Its lines stay as single lines: a due, failed, hesitated or
     reported-hard item is practised on its own (the review, the open items, a hard item's connections), never by playing
