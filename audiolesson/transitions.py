@@ -56,6 +56,10 @@ BUILT_IN = {"conversation_back"}
 # #429 step 1 (lesson 57): the ways back said in the target language once taught («Aftur að tala.», «Samtalinu er lokið.»), on the finished
 # script after ``close_tasks``; a part's «That's enough of that conversation.» is not one of them
 WAYS_BACK_SAID = ("listening_back", "conversation_back")
+# #429 step 3: a conversation's opening («Now a short conversation.», ``Builder.dialogue``) said in the target language once taught («Nú kemur
+# stutt samtal.»), on the finished script after ``close_tasks``, which reads the line by its text to say «Now another short conversation.» right
+# after a conversation. That line and a part's «Now part of a conversation.» are not it: they stay in the learner's language
+OPENING_SAID = "dialogue_start"
 # the line that opens a mode when its exercise would otherwise start with a target-language line straight after the task before: a catch with no
 # scene to frame it, such as one that introduces a word through its home sentence (``Builder.whole_home``); a pick-out always opens with its need
 WAY_IN = {"listening": "listen"}

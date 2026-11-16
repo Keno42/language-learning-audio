@@ -27,7 +27,9 @@ In order:
    says them: «Og á eðlilegum hraða.» (And at natural speed.), «Svarið:» (The answer:), «Aftur að tala.» (Back to speaking.) and «Samtalinu
    er lokið.» (That's the end of the conversation.); lesson 58 taught the first and said it 11 times, 29 instructor lines in Icelandic in all,
    with no remark (LD §5.48). **This round (step 2):** a taught instruction inside a longer English line («Listen, then repeat.», «Repeat each
-   part.», lesson 56). **Then:** «Now a short conversation.», and the question frame «How do you say: …».
+   part.», lesson 56). **Built ahead of its round (step 3):** «Nú kemur stutt samtal.» for a conversation's opening, «Now a short conversation.»,
+   the next line by how often a lesson says it (about three times); it is taught after «Svarið:», «Aftur að tala.» and «Samtalinu er lokið.», one a
+   lesson, so the lessons before it do not change. **Then:** the question frame «How do you say: …».
 2. **Forms as choices (#528, owner 2026-11-12).** «New material should not be more numbers, colours and words to memorise; I want to feel a
    coach who makes me choose the right case and the right verb form.» The course itself is one-sided: of 256 sentences that open with a
    subject pronoun, 207 say «ég»; «vilja», «þurfa» and «eiga» exist in one form; the learner has two forms of three nouns. **Built, step 1 (#531):** the

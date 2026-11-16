@@ -123,17 +123,11 @@ class CommandTests(unittest.TestCase):
             learner.items["endurtaktu"] = ItemState(stage="meaning", successes=2, recalled=0, last_outcome="recalled", introduced_lesson=52)
             self.assertEqual(len(self.instruct(learner)), said, f"lesson {lesson}, taught in 52")
 
-    def test_the_next_lines_are_said_in_icelandic_once_taught(self):
-        """Lesson 57 (all four taught: «no new Icelandic instruction came; without about one each lesson the switch will not progress»): #429
-        step 1, the lines said most after them. «Og á eðlilegum hraða.» where a slow model said «And at natural speed.», «Svarið:» before a
-        pick-out's answer, and the ways back «Aftur að tala.» and «Samtalinu er lokið.», written on the finished script, each still the last
-        line of its task (``unmarked_turns``)."""
+    def themed_lesson(self, taught_in: int = 20, completed: int = 40):
+        """A themed lesson of a learner who knows the course up to «Ég er að leita að …» and was taught every instruction in lesson ``taught_in``."""
         from audiolesson.cando import load_cando
-        from audiolesson.listening_tasks import ListeningTask, _build
         from audiolesson.themes import load_themes, scenario_order
-        from audiolesson.transitions import unmarked_turns
 
-        en = Prompts.load("en")
         learner = LearnerState("is", "en", "A1")
         upto = self.cur.by_id["eg_er_ad_leita_ad"].order
         for i in self.cur.items:
@@ -142,12 +136,23 @@ class CommandTests(unittest.TestCase):
                                                 due=(TODAY + timedelta(days=60)).isoformat(), last_practiced=(TODAY - timedelta(days=5)).isoformat())
             if i.command:
                 learner.items[i.id] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", due=(TODAY + timedelta(days=30)).isoformat(),
-                                                introduced_lesson=20)
-        learner.lessons_completed = 40
+                                                introduced_lesson=taught_in)
+        learner.lessons_completed = completed
         path = ROOT / "curricula" / "is-en"
         scenarios = load_cando(path, self.cur)
         cfg = PlanConfig(minutes=30, seed=1, new_target=8, themes=load_themes(path, self.cur, scenarios), theme_scenarios=scenario_order(scenarios))
-        sc = Planner(self.cur, learner, en, Timing(level="A1"), cfg, today=TODAY).build()
+        return Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=TODAY).build(), learner
+
+    def test_the_next_lines_are_said_in_icelandic_once_taught(self):
+        """Lesson 57 (all four taught: «no new Icelandic instruction came; without about one each lesson the switch will not progress»): #429
+        step 1, the lines said most after them. «Og á eðlilegum hraða.» where a slow model said «And at natural speed.», «Svarið:» before a
+        pick-out's answer, and the ways back «Aftur að tala.» and «Samtalinu er lokið.», written on the finished script, each still the last
+        line of its task (``unmarked_turns``)."""
+        from audiolesson.listening_tasks import ListeningTask, _build
+        from audiolesson.transitions import unmarked_turns
+
+        en = Prompts.load("en")
+        sc, learner = self.themed_lesson()
         for key in ("natural", "listening_back", "conversation_back"):
             item = next(i for i in self.cur.items if i.command == key)
             self.assertTrue(any(g.speaker == COMMAND_VOICE and g.text == item.target for g in sc.segments), key)
@@ -167,6 +172,54 @@ class CommandTests(unittest.TestCase):
         intro = Script(1, "t", "is", "en")
         builder(self.cur).intro(intro, self.cur.by_id["svarid_command"])
         self.assertIn("It means: The answer.", [g.text for g in intro.segments], "not «The answer:.»")
+
+    def test_a_conversation_opens_in_icelandic_once_taught(self):
+        """#429 step 3: «Now a short conversation.» is the next line of #429's list by how often a lesson says it (lesson 57: 4 times). Once
+        «Nú kemur stutt samtal.» is taught a conversation opens with it: with the English after it in the lesson that teaches it and the
+        next, then alone, a beat before the scene's setting. «Now another short conversation.» and «Now part of a conversation.» are not
+        it, and stay as they were."""
+        from audiolesson.transitions import unmarked_turns
+
+        en = Prompts.load("en")
+        start, others = en.get("dialogue_start"), {en.get("dialogue_start_another"), en.get("dialogue_start_part")}
+        item = next(i for i in self.cur.items if i.command == "dialogue_start")
+        self.assertEqual(item.target, "Nú kemur stutt samtal.")
+
+        def openings(sc):
+            """Each conversation the lesson opens with the line: the segments from the line to the scene's setting, pauses by their role."""
+            out = []
+            for e in (e for e in sc.exercises if e.kind == "dialogue"):
+                segs = [g for g in sc.segments if g.exercise == e.index]
+                k = next((k for k, g in enumerate(segs) if g.text in (start, item.target)), None)
+                if k is not None:
+                    self.assertEqual(k, 0, f"{e.label}: the conversation's first line")
+                    out.append([(g.type, g.role if g.type == "pause" else g.text, g.speaker) for g in segs[: k + 4]])
+            return out
+
+        alone, _ = self.themed_lesson()  # taught twenty lessons ago
+        opened = openings(alone)
+        self.assertGreater(len(opened), 1, "the lesson opens conversations")
+        for segs in opened:
+            self.assertEqual(segs[:2], [("speak", item.target, COMMAND_VOICE), ("pause", "beat", None)], "in Icelandic alone, then a beat")
+            self.assertEqual((segs[2][0], segs[2][2]), ("narrate", "instructor"), "then the setting, in the learner's language")
+        self.assertFalse(any(g.text == start for g in alone.segments), "never «Now a short conversation.» once taught, twenty lessons ago")
+        self.assertEqual(unmarked_turns(alone, en), [], "a conversation that opens in Icelandic still opens with its own line")
+
+        supported, _ = self.themed_lesson(taught_in=40)  # taught in the lesson before
+        opened = openings(supported)
+        self.assertGreater(len(opened), 1)
+        for segs in opened:
+            self.assertEqual([s for s in segs if s[0] != "pause"][:2], [("speak", item.target, COMMAND_VOICE), ("narrate", start, "instructor")],
+                             "the lesson after the one that teaches it: the English after it")
+        self.assertFalse(any(g.text == start and g.role != "command_support" for g in supported.segments))
+
+        for sc in (alone, supported):
+            self.assertFalse(any(g.type != "narrate" for g in sc.segments if g.text in others), "the other openings stay in the learner's language")
+
+        learner = LearnerState("is", "en", "A1")
+        learner.lessons_completed = 40
+        untaught = Builder(self.cur, en, Timing(level="A1"), learner)
+        self.assertIsNone(untaught.command_segments("dialogue_start", 0), "not taught: the line as it was")
 
     def test_a_line_that_ends_on_an_instruction_says_it_as_a_line_of_its_own(self):
         """#429 step 2, lesson 56: «"Repeat" was learned in Icelandic, but some instructions still say it only in English» («A sentence from a
@@ -215,7 +268,8 @@ class CommandTests(unittest.TestCase):
     def test_the_commands_come_one_a_lesson_in_their_order(self):
         order = [i.id for i in self.cur.items if i.command]
         self.assertEqual(order, ["endurtaktu", "hlustadu", "haegt_command", "hlustadu_aftur", "edlilegum_hrada_command", "svarid_command",
-                                 "aftur_ad_tala_command", "samtalinu_lokid_command"], "lesson 54's then lesson 57's, by how often the lessons say them")
+                                 "aftur_ad_tala_command", "samtalinu_lokid_command", "stutt_samtal_command"],
+                         "lesson 54's then lesson 57's, by how often the lessons say them")
         learner = LearnerState("is", "en", "A1")
         for i in ("endurtaktu", "hlustadu"):
             learner.items[i] = ItemState(stage="meaning", successes=2, recalled=1, last_outcome="recalled", due=(TODAY + timedelta(days=3)).isoformat())

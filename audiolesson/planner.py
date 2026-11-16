@@ -29,12 +29,12 @@ from .numbers import choice_lines, form_genders, noun_gender, number_in, number_
 from .review_wholes import whole_for
 from .listening_tasks import REPAIR_ITEM, ListeningTask, SecondHalfRotation, append_task, catch_unknown, introduce_by_catch, key_of, partner_pick_out
 from .prompts import Prompts
-from .script import Script
+from .script import Script, Segment
 from .stages import ladder_for, next_stage, stage_index
 from .themes import level_dialogue, pick_variants, written_value_lines
 from .text import WORD, words as _words
 from .timing import Timing
-from .transitions import LISTENING_TASK_KINDS, SCENE_UNIT_KINDS, WAYS_BACK_SAID, close_tasks
+from .transitions import LISTENING_TASK_KINDS, OPENING_SAID, SCENE_UNIT_KINDS, WAYS_BACK_SAID, close_tasks
 
 
 @dataclass
@@ -4402,8 +4402,9 @@ class Planner:
         if goal_ex is not None and subject_played:
             b.goal_form_work(sc, goal_ex)  # #528 step 3: the goal names the day's form work, once it is known to have played
         listening_closed, conversations_closed = close_tasks(sc, self.prompts, b.timing, self.cur.known_lang)  # the way back between tasks (#387, #415)
-        # #429: the way in («Listen.») and the ways back («Back to speaking.», «That's the end of the conversation.»), written on the finished
-        # script, in Icelandic once taught
+        # #429: the way in («Listen.»), the ways back («Back to speaking.», «That's the end of the conversation.») and a conversation's opening
+        # («Now a short conversation.»), written on the finished script, in Icelandic once taught
+        opening = self.prompts.get(OPENING_SAID)
         segs = []
         for seg in sc.segments:
             said = None
@@ -4411,6 +4412,11 @@ class Planner:
                 said = b.command_segments("listen", seg.exercise)
             elif seg.type == "narrate" and seg.role in WAYS_BACK_SAID and seg.text == self.prompts.get(seg.role):
                 said = b.command_segments(seg.role, seg.exercise, role=seg.role)
+            elif seg.type == "narrate" and seg.speaker == "instructor" and seg.role is None and seg.text == opening:
+                said = b.command_segments(OPENING_SAID, seg.exercise)
+                if said and len(said) == 1:
+                    # alone, a beat keeps it apart from the scene's setting, which follows in the learner's language (as ``Builder._instruct``)
+                    said.append(Segment("pause", None, None, None, 1.0, b.timing.beat, "beat", seg.exercise))
             segs.extend(said if said else [seg])
         sc.segments = segs
         switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same, b.timing.switch_gap_sentence)  # #301: the last pass over the finished script
