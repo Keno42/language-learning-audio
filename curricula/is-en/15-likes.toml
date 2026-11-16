@@ -257,7 +257,7 @@ situation_ja = "新しい友達に何が楽しいか聞いてください。"
 [[items]]
 id = "mer_likar_thad"
 kind = "phrase"
-target = "Mér líkar það."
+target = "Ég fíla það."  # native check (2026-11-12): «Mér líkar það.» is not said; «Ég fíla það.» (or «Ég elska það.»)
 meaning = "I like it."
 meaning_ja = "気に入りました。"
 difficulty = 2
@@ -268,7 +268,7 @@ situation_ja = "アンナが曲を聴かせて感想を聞きました。気に�
 [[items]]
 id = "mer_likar_thad_ekki"
 kind = "phrase"
-target = "Mér líkar það ekki."
+target = "Ég fíla það ekki."  # native check: also «Ég er ekki hrifin af því.»
 meaning = "I don't like it."
 meaning_ja = "好きではありません。"
 difficulty = 2

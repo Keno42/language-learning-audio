@@ -21,8 +21,8 @@ from datetime import date, timedelta
 from itertools import groupby
 
 from .claims import unkept_claims
-from .content import Curriculum, Dialogue, Item
-from .exercises import Builder, _norm_utterance, cue_is_answer
+from .content import SUBJECTS, Curriculum, Dialogue, Item
+from .exercises import NOUN_CASES, Builder, _norm_utterance, cue_is_answer
 from .sounds import hard_sounds, hard_words_of
 from .learner import REPORTED_HARD_DAYS, LearnerState
 from .numbers import choice_lines, form_genders, noun_gender, number_in, number_words, pick_choice, plain_number, value_of
@@ -31,10 +31,10 @@ from .listening_tasks import REPAIR_ITEM, ListeningTask, SecondHalfRotation, app
 from .prompts import Prompts
 from .script import Script
 from .stages import ladder_for, next_stage, stage_index
-from .themes import level_dialogue, pick_variants
+from .themes import level_dialogue, pick_variants, written_value_lines
 from .text import WORD, words as _words
 from .timing import Timing
-from .transitions import LISTENING_TASK_KINDS, SCENE_UNIT_KINDS, close_tasks
+from .transitions import LISTENING_TASK_KINDS, SCENE_UNIT_KINDS, WAYS_BACK_SAID, close_tasks
 
 
 @dataclass
@@ -69,6 +69,15 @@ class PlanConfig:
     dose_window: int = 120
     dose_min_samples: int = 8
     dose_heavy_rate: float = 0.2
+    # #528 step 1: the share of the lesson's time after which the day's subject choice plays, whatever else is waiting. It is the long run's
+    # work, so it is scheduled: as a spare-time turn it played in two lessons of four on the replay, and in none of a lesson that is full
+    subject_choice_at: float = 0.45
+    # #548 step 1 (lesson 58: «no practice nearby uses another case of the same word»): the noun choice is scheduled too. As a today's-items turn
+    # the number choice left, it played in neither lesson 57 nor 58, with four nouns ready
+    noun_choice_at: float = 0.6
+    # and the number choice, which plays in a today's-items turn whenever one comes, is played by the main loop past this share when no such turn
+    # has (on the replay of lesson 58 the scheduled noun choice took the turn that had held it)
+    number_choice_by: float = 0.75
     starved_skip_rung: int | None = 1  # #439: the rung a new item gives up when the due reviews cannot fit (an index into intro_recall_times); None keeps all
     # A short item (``short_item_words`` words or fewer) is said alone at most this often in a
     # lesson, the introduction and the closing recall included (§9 "Repetition"); the rest of
@@ -1623,10 +1632,99 @@ class Planner:
                 best = key
         return [best[2]] if best else []
 
+    def subject_candidates(self) -> list[tuple[Item, list[str]]]:
+        """#528 step 1: the sentences the learner says with «ég» that the course holds with other subjects (``Item.subjects``), in course order,
+        each with the subjects that can be set now: the item met and not failing, every word of its «ég» sentence one the learner says, and the
+        subject's pronoun too. An item with fewer than two such subjects waits."""
+        known = self.builder._known_words()
+        out = []
+        for it in self.cur.items:
+            if not it.subjects or not self.learner.has_met(it.id) or self.learner.is_open(it.id):
+                continue
+            if not all(w.lower() in known for w in _WORD_RE.findall(it.subjects_base)):
+                continue
+            keys = [k for k in it.subjects if SUBJECTS[k] in known]
+            if len(keys) >= 2:
+                out.append((it, keys))
+        return out
+
     def said_of_candidates(self) -> list[Item]:
         """#439 step 2: the gendered lines the learner has met in an earlier lesson and is not failing that say their word of him and of her
         (``Item.said_of``), in course order."""
         return [it for it in self.cur.items if it.said_of and self.learner.has_met(it.id) and not self.learner.is_open(it.id)]
+
+    def noun_choice_candidates(self) -> list[list[tuple]]:
+        """#528 step 2, the noun by its frame: each noun the learner has met in two forms or more, each form in a sentence the learner knows that
+        holds it, read from the current curriculum as the written review reads it (``review_wholes.whole_for``: «Hvar er bankinn?», «Ég er að
+        leita að bankanum.»), as ``Builder.noun_choice`` takes them: ``(item, case, sentence, prompt, frame)`` per form, at most one a case, the
+        nominative first. Not the stored ``learned_wholes`` text: a sentence a native check corrected since («Hvernig kemst ég að hótelinu?», #533)
+        would come back (review of #539). A form not met in an earlier lesson, open (failing), with no sentence or said by the speaker's gender is
+        left out; a noun with fewer than two forms that differ in their word waits."""
+        rank = {c: n for n, c in enumerate(NOUN_CASES)}
+        met = {i for i in self.cur.by_id if self.learner.has_met(i)}
+        out = []
+        for entry in self.cur.nouns.values():
+            lines: dict[str, tuple] = {}
+            for form, item_id in sorted(entry["forms"].items(), key=lambda f: (rank.get(f[0].split("_")[0], 9), f[0])):
+                case, it = form.split("_")[0], self.cur.by_id.get(item_id)
+                if case not in rank or case in lines or it is None or it.target_m or item_id not in met or self.learner.is_open(item_id):
+                    continue
+                if any(_norm_utterance(it.target) == _norm_utterance(other[0].target) for other in lines.values()):
+                    continue  # «eldfjall» is the nominative and the accusative alike: no choice between them
+                whole = whole_for(self.cur, it, met, self.prompts)
+                if whole is None or _norm_utterance(it.target) not in _norm_utterance(whole["answer"]).split():
+                    continue
+                lines[case] = (it, case, whole["answer"], whole["prompt"], self.cur.by_id.get(whole["through"]))
+            if len(lines) >= 2:
+                out.append(list(lines.values())[:3])
+        return out
+
+    def form_choice_pool(self) -> list[tuple]:
+        """#548: what the noun choice can set this lesson. An authored contrast (``Curriculum.contrasts``: «Ég fer á flugvöllinn.» / «Ég er á
+        flugvellinum.», what changes the form said with no grammatical term) once every item it requires is met and not failing, as
+        ``("contrast", contrast, likes)``, ``likes`` the sentence each line links to (``ContrastLine.like``) or None while that is not known; then a
+        noun's forms in their frames (``noun_choice_candidates``) as ``("noun", lines)``."""
+        out: list[tuple] = []
+        ok = lambda i: self.learner.has_met(i) and not self.learner.is_open(i)  # noqa: E731
+        met = {i for i in self.cur.by_id if self.learner.has_met(i)}
+        for c in self.cur.contrasts:
+            if not all(ok(i) for i in c.requires):
+                continue
+            likes = []
+            for ln in c.lines:
+                like = self.cur.by_id.get(ln.like) if ln.like else None
+                text = None
+                if like is not None and ok(like.id):
+                    whole = whole_for(self.cur, like, met, self.prompts) if like.kind == "vocab" and like.word_count < 2 else None
+                    text = whole["answer"] if whole else (None if like.kind == "construction" else like.target)
+                likes.append(text if text and _norm_utterance(text) != _norm_utterance(ln.target) else None)
+            out.append(("contrast", c, likes))
+        covered = {i for entry in out for i in entry[1].requires}  # a noun an authored contrast sets is set by it, not by its frames' sentences
+        out += [("noun", lines) for lines in self.noun_choice_candidates() if not any(it.id in covered for it, *_ in lines)]
+        return out
+
+    def noun_choice_wants(self) -> list[str]:
+        """#528 step 4, a form set as a choice is new material: the next form the noun choice could set. A form not met of a noun the learner
+        has in another form (met, not failing), that a frame the learner knows takes (a slot of a known pattern asks one of its tags:
+        «sundlauginni» for «Ég er að leita að {place}.», beside «sundlaugin» of «Hvar er {place}?»), and whose word differs from the forms
+        met. One a lesson, the earliest in the course: the lesson adds it after its first batch of new items, past the rule that holds a
+        close variant back (#218 b1: a form comes in with a purpose, and the choice is one), in no item's place. On the replay of lesson
+        55's export the noun choice had three nouns (the bank, fish, the hotel) and nothing brought a fourth."""
+        frames = {tag for c in self.cur.items if c.kind == "construction" and self.learner.knows(c.id) for tag in c.slots.values()}
+        out = []
+        for entry in self.cur.nouns.values():
+            forms = [self.cur.by_id[i] for i in entry["forms"].values() if i in self.cur.by_id]
+            have = [f for f in forms if self.learner.has_met(f.id) and not self.learner.is_open(f.id)]
+            if not have:
+                continue
+            said = {_norm_utterance(f.target) for f in forms if self.learner.has_met(f.id)}
+            cases = {f.form.split("_")[0] for f in have}  # «kaffið» beside «kaffi» is the same case: no choice of a case between them
+            out += [
+                f for f in forms
+                if not self.learner.has_met(f.id) and f.id not in self.learner.embedded and not f.target_m and set(f.tags) & frames
+                and _norm_utterance(f.target) not in said and f.form.split("_")[0] in NOUN_CASES and f.form.split("_")[0] not in cases
+            ]
+        return [min(out, key=lambda f: f.order).id] if out else []
 
     def number_choice_candidates(self) -> list[tuple]:
         """#439 step 1b: the sentences the learner has met and is not failing whose form of 1–4 agrees with a noun they name (``Item.counts``), as ``numbers.choice_lines``
@@ -1793,7 +1891,7 @@ class Planner:
         for c in queue:
             if c.kind != "construction" or not c.slots or self.learner.has_met(c.id) or c.id in self.learner.embedded:
                 continue
-            slot = next((sl for sl, tag in c.slots.items() if item in self.cur.items_with_tag(tag, c)), None)
+            slot = next((sl for sl, tag in c.slots.items() if self.cur.takes(tag, c, item)), None)
             if slot is None or len(c.slots) != 1:
                 continue
             if all(p == item.id or self.learner.knows(p) or p in self.builder.in_lesson for p in c.prereqs):
@@ -2211,6 +2309,15 @@ class Planner:
         wanted_at_start = self.theme_wants()
         first_arc = cfg.new_items_ceiling() if self.components_mode else cfg.resolved_new_items()  # in components, the target stops the arc
         new_queue = deque(self.select_new(first_arc, cheap=True))
+        # #528 step 4: the form the noun choice could set next joins the lesson's first batch of new items, after them. It takes no item's
+        # place (``select_new`` is as before: a first version that brought it forward there pushed a part's frame and the trip's item out)
+        for wanted in self.noun_choice_wants():
+            form = self.cur.by_id[wanted]
+            queued = {i.id for i in new_queue}
+            if wanted not in queued and all(self._prereq_met(form, p, lambda i: self.learner.knows(i) or i in queued) for p in form.prereqs):
+                if wanted not in self.component_by_item:
+                    self._charge(form)  # at the form weight: it is new material of the day, in the total and by item (review of #541)
+                new_queue.append(form)
         if (command := self.next_command()) is not None:
             # #429 (the long run): one instruction in Icelandic a lesson, first, on top of the day's new material. Charged (at 0) so the caps that
             # read ``component_by_item`` see it as costing nothing, not as a missing item counted as 1 (review of #507)
@@ -2582,7 +2689,10 @@ class Planner:
         owed_hear = self.hear_owed_items()  # #444: reported hard to hear and not yet given listening support
         hear_supports: list[str] = []  # reported-hard-to-hear items given listening support in this lesson
         number_choices: list[str] = []  # #439 step 1b: the choice exercise played this lesson (its label), at most one
+        subject_played: list[tuple[Item, list[str]]] = []  # #528 step 3: the sentence and the subjects set, for the goal and the closing
+        subject_choices: list[str] = []  # #528 step 1: a sentence said with other subjects this lesson (its label), at most one
         said_of_choices: list[str] = []  # #439 step 2: a gendered word said of him and of her this lesson (its label), at most one
+        noun_choices: list[str] = []  # #528 step 2: a noun said in the frames of its forms this lesson (its label), at most one
         hear_settled: list[str] = []  # ... whose slow model already played the line by ear: no second exercise (lesson 49)
         slow_done: set[str] = set()
         slow_models: list[str] = []  # reported-hard items given the slow model of their hard word in this lesson
@@ -3131,6 +3241,8 @@ class Planner:
                     continue  # said as often as a lesson allows: not in a scene either (#192)
                 if connect_item_uses.get(it.id) and self._stable(it):
                     continue  # a stable item takes part in one connect a lesson (#151)
+                if (frame := b.number_frame_of(it)) is not None and b.frame_spent(sc, frame):
+                    continue  # #451 step 3b: a number frame asked as often as a lesson allows is not asked in a scene either (review of #539)
                 seen.add(it.id)
                 valid.append(it)
             def search(cands: list[Item]) -> tuple | None:
@@ -3330,15 +3442,24 @@ class Planner:
             heard_now = Counter(w for g in sc.segments if g.type in ("speak", "answer") and g.text and g.lang == self.cur.target_lang for w in number_words(g.text))
             return lambda say: sum(heard_now[w] + (w in recent) for w in number_words(say))
 
+        written_values = written_value_lines(cfg.themes or [])
         exchange_lines: list[str] = []  # #451 step 3d: the number lines the exchanges' partners said in this lesson (the log for the lessons after)
 
         def line_tired() -> Callable[[str], tuple]:
             """#451 step 3d: how tired a line of an exchange is, least first: the lesson an exchange last said it (this one counts as the latest, never
-            as 0), then its number words. Its words alone would say the line with the rarest words every time: on the replay of lesson 53's export
+            as 0), then whether it is the turn's number as written with no record (heard before the
+            record began), then its number words. Its words alone would say the line with the rarest words every time: on the replay of lesson 53's export
             «herbergi hundrað og fimmtán» came in four lessons running, since «þrjú», «hundruð» and «sex» are said all through a lesson."""
             words = number_tired()
             now = self.learner.next_lesson_number()
-            return lambda say: (now if say in exchange_lines else self.learner.listening_log.get(f"exchange:{say}", 0), words(say))
+
+            def tired(say: str) -> tuple:
+                said = now if say in exchange_lines else self.learner.listening_log.get(f"exchange:{say}", 0)
+                # a line with no record that says its turn's number as written was said before the record began (the level's late play): it rests
+                # behind the turn's values never said, ahead of the ones on record
+                return (said, not said and say in written_values, words(say))
+
+            return tired
 
         def log_numbers(level, picks: dict[int, int]) -> None:
             """#451 step 3d: the number words an exchange's partner said, so they rest in the lessons after as a pick-out's do, and the lines
@@ -3750,13 +3871,25 @@ class Planner:
                 return any(emit_listening_task(task) for task in pick_out_tasks())
             if kind == "catch_unknown":
                 return any(emit_listening_task(task) for task in catch_unknown_tasks())
+            if (kind == "today" and not subject_choices and sc.total_duration >= cfg.subject_choice_at * budget and remaining_time() >= 60
+                    and (subjects := self.subject_candidates())):
+                # #528 step 1 (the long run's second item): once a lesson, a sentence the learner says with «ég» said with two other subjects. Past
+                # its scheduled time (``subject_choice_at``) it takes a today's-items turn, ahead of the number choice and the word said of him and
+                # of her, when the main loop has not placed it (a new block, a model just before). Never earlier: review of #531, a today's turn
+                # at 6:35 played it seven minutes before its time. The sentences take turns across lessons, and so do the pairs of subjects
+                play_subject_choice(subjects)
+                return True
+            if (kind == "today" and not noun_choices and sc.total_duration >= cfg.noun_choice_at * budget and remaining_time() >= 60
+                    and (nouns := self.form_choice_pool())):
+                # #528 step 2 (the long run): once a lesson, a noun the learner has in two forms said in the sentence of each, the case named, then
+                # each asked (the owner, #528: «a coach who makes me choose the right case»). #548 step 1: past its scheduled time
+                # (``noun_choice_at``) it takes a today's-items turn, ahead of the number choice, when the main loop has not placed it; never earlier
+                play_noun_choice(nouns)
+                return True
             if kind == "today" and not number_choices and remaining_time() >= 75:
                 # #439 step 1b: once a lesson, today's-items turn first plays one number's known lines of different genders side by side, the form said
                 # as the noun's choice; a drill in a drill's turn, so the listening the rotation brings is untouched
-                lines = pick_choice(choice_lines(self.number_choice_candidates()), sc.lesson_number)
-                if lines:
-                    ex = b.number_choice(sc, lines)
-                    number_choices.append(ex.label)
+                if play_number_choice():
                     return True
             if (kind == "today" and not said_of_choices and remaining_time() >= 60 and last_kinds_same() not in ("recall", "generative")
                     and any(i.id not in recent and not saturated(i) and i.id not in b.plain for i in introduced) and (said_of := self.said_of_candidates())):
@@ -3795,8 +3928,53 @@ class Planner:
             return remaining >= 90 and (heard_left or self.listening_dialogue() is not None)
 
         pre_closing_listening: list[int | None] = [None]  # #421: listening tasks still to come before the closing (None: not counted yet)
+        def play_number_choice() -> bool:
+            """#439 step 1b: one number's known lines of different genders side by side; False when no number has them."""
+            lines = pick_choice(choice_lines(self.number_choice_candidates()), sc.lesson_number)
+            if not lines:
+                return False
+            ex = b.number_choice(sc, lines)
+            number_choices.append(ex.label)
+            return True
+
+        def play_noun_choice(nouns: list) -> None:
+            """#528 step 4: the choice whose form is newest to the learner first (``ItemState.introduced_lesson``: the form brought in the lesson
+            before is set as a choice the day after), while one was introduced in the last three lessons; else they take turns by lesson. ``nouns``:
+            ``form_choice_pool``'s entries, an authored contrast (#548) or a noun's forms in their frames (#539)."""
+            def newest(entry) -> int:
+                ids = entry[1].requires if entry[0] == "contrast" else [it.id for it, *_ in entry[1]]
+                return max((st.introduced_lesson if (st := self.learner.items.get(i)) else 0) for i in ids)
+
+            latest = max(newest(c) for c in nouns)
+            if latest >= sc.lesson_number - 3:
+                nouns = [c for c in nouns if newest(c) == latest]
+            entry = nouns[sc.lesson_number % len(nouns)]
+            ex = b.contrast_choice(sc, entry[1], entry[2]) if entry[0] == "contrast" else b.noun_choice(sc, entry[1])
+            noun_choices.append(ex.label)
+
+        def play_subject_choice(subjects: list) -> None:
+            """#528 step 1: the sentences take turns across lessons, and so do the pairs of subjects."""
+            turn = sc.lesson_number
+            item, keys = subjects[turn % len(subjects)]
+            start = turn % len(keys)
+            pair = [keys[start], keys[(start + 1) % len(keys)]]
+            ex = b.subject_choice(sc, item, pair)
+            subject_choices.append(ex.label)
+            subject_played.append((item, pair))
+
         while sc.total_duration < budget - closing_reserve:
             remaining = budget - closing_reserve - sc.total_duration
+            if (not subject_choices and sc.total_duration >= cfg.subject_choice_at * budget and remaining >= 60 and not in_new_block()
+                    and last_kinds_same(1) != "model" and (subjects := self.subject_candidates())):
+                play_subject_choice(subjects)  # scheduled, not left to spare time (``subject_choice_at``)
+                continue
+            if (not noun_choices and sc.total_duration >= cfg.noun_choice_at * budget and remaining >= 60 and not in_new_block()
+                    and last_kinds_same(1) != "model" and (nouns := self.form_choice_pool())):
+                play_noun_choice(nouns)  # #548 step 1: scheduled, as the subject choice is (``noun_choice_at``)
+                continue
+            if (not number_choices and sc.total_duration >= cfg.number_choice_by * budget and remaining >= 75 and not in_new_block()
+                    and last_kinds_same(1) != "model" and play_number_choice()):
+                continue  # #548 step 1: no today's-items turn has played it by ``number_choice_by``
             if self.components_mode and delivered_at[0] is not None and introduced and remaining <= 24 * ((len(introduced) - 1) // 3):
                 # the listening the closing's run of recalls used to hold (#248: one after every third), now in the last stretch before it (#421,
                 # lesson 38: inside the closing it felt nested); with nothing to hear, the lesson goes on as before
@@ -4278,15 +4456,27 @@ class Planner:
             closing_left = [i for i in dict.fromkeys([i.id for i in introduced] + list(self.embedded)) if i not in asked]
             if closing_left:
                 b.final_block_some(sc, announce)
+        if subject_played:
+            # #528 step 3: the closing asks the day's form work once more: the subject whose verb changes, when one does
+            item, pair = subject_played[0]
+            own = item.subject_verbs["i"].lower()
+            b.subject_again(sc, item, next((k for k in pair if item.subject_verbs[k].lower() != own), pair[0]))
         b.closing(sc, n)
 
         if goal_ex is not None and theme_plays and late_heard:
             goal_said[0] = b.goal_heard(sc, goal_ex, [t for t in theme_pick[0].levels[theme_pick[1]].turns if t.who == "you"], set(late_heard))  # #327 (lesson 42: «Say you can't tomorrow …», whose line was heard in both plays)
+        if goal_ex is not None and subject_played:
+            b.goal_form_work(sc, goal_ex)  # #528 step 3: the goal names the day's form work, once it is known to have played
         listening_closed, conversations_closed = close_tasks(sc, self.prompts, b.timing, self.cur.known_lang)  # the way back between tasks (#387, #415)
-        # #429: the way in («Listen.», written on the finished script) in Icelandic once «Hlustaðu.» is taught
+        # #429: the way in («Listen.») and the ways back («Back to speaking.», «That's the end of the conversation.»), written on the finished
+        # script, in Icelandic once taught
         segs = []
         for seg in sc.segments:
-            said = b.command_segments("listen", seg.exercise) if seg.type == "narrate" and seg.role == "listen" else None
+            said = None
+            if seg.type == "narrate" and seg.role == "listen":
+                said = b.command_segments("listen", seg.exercise)
+            elif seg.type == "narrate" and seg.role in WAYS_BACK_SAID and seg.text == self.prompts.get(seg.role):
+                said = b.command_segments(seg.role, seg.exercise, role=seg.role)
             segs.extend(said if said else [seg])
         sc.segments = segs
         switches = sc.separate_switches(b.timing.switch_gap, b.timing.switch_gap_same, b.timing.switch_gap_sentence)  # #301: the last pass over the finished script
@@ -4322,7 +4512,9 @@ class Planner:
             "touching_switches": sc.touching_switches(),
             "units_covered": list(units_covered),  # #336: fillers of a linked phrase met inside it
             "number_choices": list(number_choices),  # #439 step 1b: the forms of 1–4 practised as a choice this lesson
+            "subject_choices": list(subject_choices),  # #528 step 1: a sentence said with other subjects this lesson
             "said_of_choices": list(said_of_choices),  # #439 step 2: a gendered word said of him and of her this lesson
+            "noun_choices": list(noun_choices),  # #528 step 2: a noun said in the frames of its forms this lesson
             "slow_models_reported": list(slow_models),  # #337: reported-hard items given the slow model of their hard word
             "hear_supports_reported": list(hear_supports) + list(hear_settled),  # #444: reported-hard-to-hear items given listening support
             "phrase_hard_words": {i.id: [w for w, _ in hard_words_of(i)] for i in introduced if i.kind == "phrase" and hard_words_of(i)},  # #337: authored hard words of today's new phrases (modelled at the introduction)
@@ -4372,8 +4564,12 @@ class Planner:
             "open_not_fitted": [i for i in open_ids if i not in open_today],
             "reviewed_early": [i for i in reviews_used if i in early_ids],
             **spare,
-            "due_at_start": self.learner.due_count(self.today),
-            "due_not_fitted": [i.id for i in reviews if i.id not in self.exposures and self.learner.review_priority(i.id, self.today) >= 1.0],
+            # H9, lesson 54: the due items this lesson could ask (in the course, not asked by the learner's review today): what the pace's
+            # rules read. ``due_by_date`` keeps every item due by its date, the figure before
+            "due_at_start": self.learner.due_count(self.today, frozenset(self.cur.by_id)),
+            "due_by_date": sum(1 for i in self.learner.items if self.learner.review_priority(i, self.today) >= 1.0),
+            # each item once: the queue can hold an item twice, and the pace's rule counts this list (lesson 53: 20 items, listed 31 times)
+            "due_not_fitted": list(dict.fromkeys(i.id for i in reviews if i.id not in self.exposures and self.learner.review_priority(i.id, self.today) >= 1.0)),
             "dialogues": list(self.dialogues_played),
             "dialogues_listened": list(self.dialogues_listened),
             "listening_tried": list(self.listening_tried),

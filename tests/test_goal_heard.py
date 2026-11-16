@@ -42,7 +42,10 @@ class GoalHeardTests(unittest.TestCase):
                 self.assertNotIn(LISTEN, line, f"lesson {sc.lesson_number}: every line asked, the authored goal as it is")
                 continue
             narrowed += 1
-            self.assertEqual(Prompts.load("en").get("lesson_goal", goal=theme["goal"]), line, "review of #448: plan.json records the goal said")
+            said_goal = Prompts.load("en").get("lesson_goal", goal=theme["goal"])
+            if sc.meta.get("subject_choices"):  # #528 step 3: the goal ends on the day's form work once a subject choice has played
+                said_goal += " " + Prompts.load("en").get("lesson_goal_subjects")
+            self.assertEqual(said_goal, line, "review of #448: plan.json records the goal said")
             said, _, heard = line.partition(LISTEN)
             self.assertNotIn(self.themes[theme["id"]].levels[theme["level"] - 1].goal, line, f"lesson {sc.lesson_number}: the whole goal is not promised")
             own = f"theme:{theme['id']}:{theme['level']}"

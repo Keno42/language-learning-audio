@@ -72,7 +72,10 @@ class Lesson40ContextTests(unittest.TestCase):
         k = next(k for k, t in enumerate(level.turns) if "eg_er_gift" in t.items)
         self.assertIn("hring", level.turns[k - 1].say, "her remark on the ring leads to whether you're married")
         asked_back = [line.say for t in level.turns if t.who == "partner" for line in t.lines() if "En þú?" in line.say]
-        self.assertEqual(asked_back, ["Takk! Ég er þrjátíu ára. En þú?", "Takk! Þrjátíu ára í dag. En þú?"])
+        self.assertEqual(asked_back, [
+            "Takk! Ég er þrjátíu ára. En þú?", "Takk! Þrjátíu ára í dag. En þú?",
+            "Takk! Ég er tuttugu og sex ára. En þú?", "Takk! Ég er fjörutíu ára. En þú?",  # #534: her age has other values; each is still her age
+        ])
         a = next(k for k, t in enumerate(level.turns) if "hvad_ertu_gomul" in t.items)
         self.assertIn("afmæli", level.turns[a - 1].say, "her birthday leads to the age")
 

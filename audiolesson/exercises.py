@@ -13,7 +13,7 @@ from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
-from .content import Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample, said_of_words, split_note_span
+from .content import SUBJECTS, Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample, said_of_words, split_note_span
 from .learner import LearnerState
 from .numbers import NUMBER_TAGS, number_in, plain_number, value_of
 from .prompts import Prompts
@@ -98,6 +98,8 @@ CONSTRUCTION_CEILING = 10  # generated sentences one construction may have in a 
 # as often as one new sentence's ladder (lesson 52 asked each of its new sentences 8–9 times). The pattern's generated sentences stop there; the
 # sentence's own rungs and the pattern's introduction are not held to it
 FRAME_BUDGET = 9
+COMMAND_SUPPORT_LESSONS = 2  # #429 (owner, 2026-11-14): an instruction in Icelandic has its English in the lesson that teaches it and the next
+NOUN_CASES = ("nom", "acc", "dat", "gen")  # #528 step 2: the cases a noun choice sets side by side, in the order it says them
 FORM_EXTRA_NEW = 2  # sentences in a form taught this lesson, beyond the practice right after its note
 SITUATION_FULL_MAX = 2  # a situation (authored, or a scene check's line) is narrated in full at most this often in a lesson (G12)
 PART_BUILD_UP_WORDS = 3  # lesson 44: a part of this many words or more, introduced in its sentence, is built up from its end
@@ -404,10 +406,14 @@ class Builder:
         return next((i for i in self.cur.items if i.command == key and (self.learner.has_met(i.id) or i.id in self.in_lesson)), None)
 
     def command_support(self, item: Item) -> bool:
-        """#429: whether the instruction in the learner's language follows the target-language one. It does until the learner's review has
-        recalled the phrase twice (recognition shown, not a lesson count), and again after a failure (``is_open``)."""
+        """#429: whether the instruction in the learner's language follows the target-language one: in the lesson that teaches it and the next
+        (``COMMAND_SUPPORT_LESSONS``), and again after a failure (``is_open``). The owner, after lesson 56 («the instructions in both languages
+        never end»): no complaint is understanding, and a complaint can only come in a lesson's feedback, so the English goes from the third
+        lesson. Before, it waited for two recalls in the written review, which «Endurtaktu.» had not had four lessons after it was taught."""
         st = self.learner.items.get(item.id)
-        return not (st and st.recalled >= 2 and not self.learner.is_open(item.id))
+        if st is None or not st.introduced_lesson or self.learner.is_open(item.id):
+            return True  # taught in this lesson, or failing
+        return self.learner.next_lesson_number() - st.introduced_lesson < COMMAND_SUPPORT_LESSONS
 
     def _instruct(self, sc: Script, ex: Exercise, key: str, frame: bool = False) -> None:
         """An instruction (``key``, a phrasing key): in the target language once taught («Endurtaktu.»), with the learner's own after it while
@@ -429,6 +435,24 @@ class Builder:
         else:
             self._beat(sc, ex)
 
+    def _lead_instruct(self, sc: Script, ex: Exercise, whole_key: str, key: str, frame: bool = False, gender: str | None = None) -> bool:
+        """#429 step 2 (lesson 56: «"Repeat" was learned in Icelandic, but some instructions still say it only in English»): a line that ends
+        on an instruction («A sentence from a pattern you know. Listen, then repeat.», «Let's build it up from the end. Repeat each part.»)
+        says its lead in the learner's language (``<whole_key>_lead``) and the instruction ``key`` as a line of its own, through
+        ``_instruct``, once that is taught («Hlustaðu.», «Endurtaktu.»). Before, the whole line as it was. ``frame``: the line is a framing
+        line (``_frame``), so a beat follows it in either form. True when it was split: «Listen, then repeat.» is then «Hlustaðu.» alone, and
+        the caller says «Endurtaktu.» where the repetition comes, if nothing else in the exercise does."""
+        if self.command_item(key) is None:
+            text = self._as(gender, self.prompts.get(whole_key))
+            if frame:
+                self._frame(sc, ex, text)
+            else:
+                self._narr(sc, ex, text)
+            return False
+        self._narr(sc, ex, self._as(gender, self.prompts.get(f"{whole_key}_lead")))
+        self._instruct(sc, ex, key, frame=frame)
+        return True
+
     def _intro_command(self, sc: Script, item: Item) -> Exercise:
         """#429: an instruction taught as material. «From now on, this instruction is in Icelandic:» «Endurtaktu.» «It means: Repeat.», said after
         the model, and a first retrieval from its meaning, which the next day's review asks too."""
@@ -437,9 +461,9 @@ class Builder:
         self._frame(sc, ex, self.prompts.get("command_intro"))
         self._speak(sc, ex, item.target, speaker=COMMAND_VOICE)
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("command_means", meaning=self._m(self.prompts.get(item.command))))
+        self._narr(sc, ex, self.prompts.get("command_means", meaning=self._m(self.prompts.get(item.command).rstrip(":："))))  # «It means: The answer.», not «The answer:.»
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("repeat"))
+        self._instruct(sc, ex, "repeat")
         self._speak(sc, ex, item.target, speaker=COMMAND_VOICE)
         self._repeat_pause(sc, ex, item.target)
         self._narr(sc, ex, self._meaning_prompt(item.spoken_meaning))
@@ -448,16 +472,18 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def command_segments(self, key: str, ex_index: int) -> list[Segment] | None:
+    def command_segments(self, key: str, ex_index: int, role: str | None = None) -> list[Segment] | None:
         """#429: the segments of the instruction ``key`` said in the target language, for a line written after the lesson was built (the way
-        in, «Listen.», ``transitions.close_tasks``); None while it is not taught."""
+        in, «Listen.», and the ways back, ``transitions.close_tasks``); None while it is not taught. ``role``: the line keeps its role on both
+        segments (a way back, which ``transitions.unmarked_turns`` wants as the exercise's last spoken line), else ``command`` and
+        ``command_support``."""
         item = self.command_item(key)
         if item is None:
             return None
-        out = [Segment("speak", COMMAND_VOICE, item.target, self.tl, 1.0, self.timing.speech_estimate(item.target, self.tl), "command", ex_index)]
+        out = [Segment("speak", COMMAND_VOICE, item.target, self.tl, 1.0, self.timing.speech_estimate(item.target, self.tl), role or "command", ex_index)]
         if self.command_support(item):
             text = self.prompts.get(key)
-            out.append(Segment("narrate", "instructor", text, self.kl, 1.0, self.timing.speech_estimate(text, self.kl), "command_support", ex_index))
+            out.append(Segment("narrate", "instructor", text, self.kl, 1.0, self.timing.speech_estimate(text, self.kl), role or "command_support", ex_index))
         return out
 
     def _frame(self, sc: Script, ex: Exercise, text: str) -> None:
@@ -714,7 +740,7 @@ class Builder:
         self._frame(sc, ex, self.prompts.get("embed_part"))
         self._speak(sc, ex, item.target, speaker=voice)
         self._beat(sc, ex)
-        self._frame(sc, ex, self._as(gender, self.prompts.get("embed_sentence")))
+        self._lead_instruct(sc, ex, "embed_sentence", "listen", frame=True, gender=gender)
         self._speak(sc, ex, target, speaker=voice, role="embed_sentence")
         self._beat(sc, ex)
         sc.add(Segment("narrate", "instructor", self.prompts.get("embed_meaning", meaning=self._m(gen.meaning)), self.kl, 1.0,
@@ -744,7 +770,7 @@ class Builder:
             self._frame(sc, ex, self._as(gender, self.prompts.get("instance_form_known")))
             self._speak(sc, ex, self._filled(pattern, fills)[1], speaker=voice)
             self._beat(sc, ex)
-        self._frame(sc, ex, self._as(gender, self.prompts.get(f"instance_form_{form}" if form else "instance_sentence")))
+        self._lead_instruct(sc, ex, f"instance_form_{form}" if form else "instance_sentence", "listen", frame=True, gender=gender)
         self._speak(sc, ex, target, speaker=voice, role="embed_sentence")
         self._beat(sc, ex)
         sc.add(Segment("narrate", "instructor", self.prompts.get("embed_meaning", meaning=self._m(item.spoken_meaning)), self.kl, 1.0,
@@ -815,13 +841,13 @@ class Builder:
         plain = item.id in self.plain
         chunks = item.backward_chunks() if item.is_hard() and not plain else []
         if len(chunks) > 1:
-            self._narr(sc, ex, self.prompts.get("build_up"))
+            self._lead_instruct(sc, ex, "build_up", "repeat")
             for chunk in chunks:
                 # slow, with a beat after the learner's repetition to separate the chunks
                 self._slow_line(sc, ex, chunk)
                 self._repeat_pause_spaced(sc, ex, chunk)
                 self._beat(sc, ex)
-            self._narr(sc, ex, self.prompts.get("natural"))
+            self._instruct(sc, ex, "natural")
             self._speak(sc, ex, item.target)
             self._repeat_pause(sc, ex, item.target)
         elif item.is_hard():
@@ -837,7 +863,7 @@ class Builder:
                 self._instruct(sc, ex, "slowly")
                 self._slow_line(sc, ex, item.target)
                 self._repeat_pause_spaced(sc, ex, item.target)
-                self._narr(sc, ex, self.prompts.get("natural"))
+                self._instruct(sc, ex, "natural")
                 self._speak(sc, ex, item.target)
                 self._repeat_pause(sc, ex, item.target)
         if (not item.is_hard() or item.syllables) and not plain:
@@ -849,6 +875,8 @@ class Builder:
             self._narr(sc, ex, self.prompts.get("man_says"))
             self._speak(sc, ex, item.target_m, speaker=VOICE_OF["m"])
             self._repeat_pause(sc, ex, item.target_m)
+        if item.form_base:
+            self._word_form(sc, ex, item)  # #439 step 3: before the first retrieval, the word whose form is not its basic one
         # end the introduction with a first real retrieval
         gender = self.speaker_gender(item)
         target = self._gendered(item, gender)
@@ -882,7 +910,7 @@ class Builder:
         for c in self.cur.items:
             if c.kind != "construction" or not c.slots:
                 continue
-            slot = next((s for s, tag in c.slots.items() if item in self.cur.items_with_tag(tag, c)), None)
+            slot = next((s for s, tag in c.slots.items() if self.cur.takes(tag, c, item)), None)
             if slot is None:
                 continue
             authored = {**c.example, **c.situation_fill}
@@ -966,7 +994,7 @@ class Builder:
         if not hard_sounds(item):
             return
         if item.syllables:
-            self._narr(sc, ex, self.prompts.get("split_slowly"))
+            self._lead_instruct(sc, ex, "split_slowly", "repeat")
             for piece in item.syllables:
                 self._speak(sc, ex, piece, speaker=voice or "native_a", rate=self.timing.slow_rate)
                 self._repeat_pause(sc, ex, piece)  # one pause between pieces is enough
@@ -979,19 +1007,19 @@ class Builder:
             self._repeat_pause_spaced(sc, ex, item.target)
             if len(item.target.split()) < 2:
                 return  # a single word with no authored split is said once more, not stretched (#302)
-        self._narr(sc, ex, self.prompts.get("natural"))
+        self._instruct(sc, ex, "natural")
         self._speak(sc, ex, item.target, speaker=voice or "native_a")
         self._repeat_pause(sc, ex, item.target)
 
     def _word_model(self, sc: Script, ex: Exercise, word: str, syllables: list[str] | None, voice: str | None = None, split_cue: str | None = None) -> None:
         """#337: one hard word of a phrase, said once: cut into its authored syllables, each said slowly and repeated, then at natural speed; without authored
-        syllables the word once more at natural speed (never stretched, #302). ``split_cue`` replaces «Slowly, in parts.» before the pieces."""
+        syllables the word once more at natural speed (never stretched, #302). ``split_cue``, a phrasing key, replaces «Slowly, in parts.» before the pieces."""
         if syllables:
-            self._narr(sc, ex, split_cue or self.prompts.get("split_slowly"))
+            self._lead_instruct(sc, ex, split_cue or "split_slowly", "repeat")
             for piece in syllables:
                 self._speak(sc, ex, piece, speaker=voice or "native_a", rate=self.timing.slow_rate)
                 self._repeat_pause(sc, ex, piece)
-            self._narr(sc, ex, self.prompts.get("natural"))
+            self._instruct(sc, ex, "natural")
         else:
             self._instruct(sc, ex, "repeat")
         self._speak(sc, ex, word, speaker=voice or "native_a")
@@ -1068,7 +1096,7 @@ class Builder:
             self._instruct(sc, ex, "slowly")
             self._slow_line(sc, ex, sentence)
             self._repeat_pause_spaced(sc, ex, sentence)
-            self._narr(sc, ex, self.prompts.get("natural"))
+            self._instruct(sc, ex, "natural")
             self._speak(sc, ex, sentence, speaker="native_a")
             self._repeat_pause(sc, ex, sentence)
             self._gap(sc, ex)
@@ -1083,7 +1111,7 @@ class Builder:
         for n, (word, syllables) in enumerate(words):
             self._beat(sc, ex)
             # the first split is announced as the breakdown, in place of «Slowly, in parts.»; a word with no authored split is said once more (#302)
-            self._word_model(sc, ex, word, syllables, split_cue=None if n else self.prompts.get("slow_word_break_down"))
+            self._word_model(sc, ex, word, syllables, split_cue=None if n else "slow_word_break_down")
         self._gap(sc, ex)
         return ex
 
@@ -1104,7 +1132,7 @@ class Builder:
         self._speak(sc, ex, item.target, speaker=voice)
         self._beat(sc, ex)
         if item.word_count >= PART_BUILD_UP_WORDS:
-            self._narr(sc, ex, self.prompts.get("build_up"))
+            self._lead_instruct(sc, ex, "build_up", "repeat")
             for chunk in item.backward_chunks():
                 self._slow_line(sc, ex, chunk, speaker=voice)
                 self._repeat_pause_spaced(sc, ex, chunk)
@@ -1113,7 +1141,7 @@ class Builder:
             self._instruct(sc, ex, "slowly")
             self._slow_line(sc, ex, item.target, speaker=voice)
             self._repeat_pause_spaced(sc, ex, item.target)
-        self._narr(sc, ex, self.prompts.get("natural"))
+        self._instruct(sc, ex, "natural")
         self._speak(sc, ex, sentence, speaker=voice)
         self._repeat_pause(sc, ex, sentence)
         self._gap(sc, ex)
@@ -1134,7 +1162,7 @@ class Builder:
             self._beat(sc, ex)
             self._instruct(sc, ex, "slowly")
             self._slow_line(sc, ex, text)
-            self._narr(sc, ex, self.prompts.get("natural"))
+            self._instruct(sc, ex, "natural")
             self._speak(sc, ex, text, speaker="native_a")
             self._gap(sc, ex)
             return ex
@@ -1189,6 +1217,120 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
+    def noun_choice(self, sc: Script, lines: list[tuple]) -> Exercise:
+        """#528 step 2, the noun by its frame (the owner, 2026-11-12: «I want to feel a coach who makes me choose the right case»): one noun the
+        learner has in two forms or more, each in the sentence it was taught in («Hvar er bankinn?», «Ég er að leita að bankanum.»). Each sentence is
+        heard, then which form the noun takes there and its case («Here it is «bankanum», in the dative.»), with why when its frame says it
+        (``form_reason``, once a lesson per frame); then each is asked again from its meaning, in another order, so the form is said as the choice
+        its frame makes. ``lines``: ``(item, case, sentence, prompt, frame)``, as ``Planner.noun_choice_candidates`` gives them; ``prompt`` asks the
+        sentence from its meaning, as the written review asks it (``review_wholes.whole_for``)."""
+        ids = list(dict.fromkeys(i for it, *_, frame in lines for i in (it.id, *([frame.id] if frame is not None else []))))
+        ex = sc.new_exercise("model", "noun_choice", ids, "noun choice: " + " / ".join(sentence for _, _, sentence, _, _ in lines))
+        self._frame(sc, ex, self.prompts.get("noun_choice_intro"))
+        for it, case, sentence, _, frame in lines:
+            self._speak(sc, ex, sentence)
+            self._beat(sc, ex)
+            self._speak_note_text(sc, ex, self.prompts.get("noun_choice_form", form=it.target, case=self.prompts.get(f"case_{case}")))
+            if not (sc.segments and sc.segments[-1].type == "pause"):
+                self._beat(sc, ex)
+            if frame is not None and frame.form_reason and frame.id not in self.form_reasons_said:
+                self.form_reasons_said.add(frame.id)
+                self._speak_note_text(sc, ex, frame.form_reason)
+                if not (sc.segments and sc.segments[-1].type == "pause"):
+                    self._beat(sc, ex)
+            self.heard.add(_norm_utterance(sentence))
+        self._narr(sc, ex, self.prompts.get("number_choice_say"))
+        order = lines[1:] + lines[:1]
+        for n, (it, _, sentence, prompt, _) in enumerate(order):
+            self._narr(sc, ex, prompt)
+            self._answer_pause(sc, ex, sentence, it, generative=False)
+            self._answer(sc, ex, sentence)
+            if n < len(order) - 1:
+                self._beat(sc, ex)
+        self._gap(sc, ex)
+        return ex
+
+    def contrast_choice(self, sc: Script, contrast, likes: list) -> Exercise:
+        """#548 (lesson 58: «why the dative in «Fluginu er seinkað.»?»; the owner, 2026-11-16: «going there and being there change the form», no
+        grammatical term, linked to what the learner knows): what changes the form (``Contrast.lead``), each sentence, and after it the sentence
+        it is like when the learner knows it («Like «Ég er að leita að flugvellinum.».»); then each line asked by its meaning («Where are you
+        going?» «Á flugvöllinn.»), in another order, so the form is chosen by what the question means. A form-work block, as the noun choice."""
+        ex = sc.new_exercise("model", "noun_choice", list(contrast.requires), "contrast: " + " / ".join(ln.target for ln in contrast.lines))
+        self._speak_note_text(sc, ex, contrast.lead)
+        self._beat(sc, ex)
+        for ln, like in zip(contrast.lines, likes):
+            self._speak(sc, ex, ln.target)
+            self._beat(sc, ex)
+            if like:
+                self._speak_note_text(sc, ex, self.prompts.get("contrast_like", like=like))
+                if not (sc.segments and sc.segments[-1].type == "pause"):
+                    self._beat(sc, ex)
+            self.heard.add(_norm_utterance(ln.target))
+        self._narr(sc, ex, self.prompts.get("contrast_answer"))
+        order = contrast.lines[1:] + contrast.lines[:1]
+        for n, ln in enumerate(order):
+            self._narr(sc, ex, ln.ask)
+            self._answer_pause(sc, ex, ln.answer, None, generative=False)
+            self._answer(sc, ex, ln.answer)
+            if n < len(order) - 1:
+                self._beat(sc, ex)
+        self._gap(sc, ex)
+        return ex
+
+    def subject_choice(self, sc: Script, item: Item, keys: list[str]) -> Exercise:
+        """#528 step 1 (the owner, 2026-11-12: new material as numbers, colours and words is a memory game; «I want to feel a coach who makes me
+        choose the right verb form»; four sentences in five of the course say «ég»). A sentence the learner says with «ég», said with two other
+        subjects (``keys``): the «ég» sentence first, then each subject's with the verb's form named, the same form said so when it does not
+        change («Hún fer»: «The verb stays «fer».»), then each asked from its meaning, in the other order. One voice throughout."""
+        ex = sc.new_exercise("model", "subjects", [item.id], "subjects: " + " / ".join(item.subjects[k] for k in keys))
+        self._frame(sc, ex, self.prompts.get("subjects_intro"))
+        self._speak(sc, ex, item.subjects_base)
+        self._beat(sc, ex)
+        own = item.subject_verbs["i"]
+        for k in keys:
+            self._speak_note_text(sc, ex, self.prompts.get(f"subject_{k}"))
+            self._beat(sc, ex)
+            self._speak(sc, ex, item.subjects[k])
+            self._beat(sc, ex)
+            same = item.subject_verbs[k].lower() == own.lower()
+            self._speak_note_text(sc, ex, self.prompts.get("subject_verb_same" if same else "subject_verb", form=item.subject_verbs[k]))
+            if not (sc.segments and sc.segments[-1].type == "pause"):
+                self._beat(sc, ex)
+            self.heard.add(_norm_utterance(item.subjects[k]))
+        self._narr(sc, ex, self.prompts.get("number_choice_say"))
+        for n, k in enumerate(reversed(keys)):
+            self._narr(sc, ex, self._meaning_prompt(item.subjects_meaning[k]))
+            self._answer_pause(sc, ex, item.subjects[k], item, generative=False)
+            self._answer(sc, ex, item.subjects[k])
+            if n == 0:
+                self._beat(sc, ex)
+        self._gap(sc, ex)
+        return ex
+
+    def goal_form_work(self, sc: Script, ex: Exercise) -> None:
+        """#528 step 3 (the owner, 2026-11-12: «a coach who applies the right load»; the intent is said, not only practised): the lesson's goal names
+        the form work of the day after the scene's («Today's form work: One sentence you know, said of someone else.»). Said in place once the
+        lesson is built and a subject choice has played, as ``goal_heard`` says the goal again: before the goal exercise's closing gap."""
+        last = max(k for k, g in enumerate(sc.segments) if g.exercise == ex.index)
+        start = len(sc.segments)
+        self._beat(sc, ex)
+        self._say_goal(sc, ex, self.prompts.get("lesson_goal_subjects"))
+        said = sc.segments[start:]
+        del sc.segments[start:]
+        sc.segments[last:last] = said
+
+    def subject_again(self, sc: Script, item: Item, key: str) -> Exercise:
+        """#528 step 3: the closing asks the day's form work once more, as it asks the day's new lines: one of the sentences the subject choice
+        set, from its meaning. A recall of the closing block, which holds nothing but the day's material (#435); it names no item, so the
+        sentence's «ég» item is not counted as asked or reviewed by it."""
+        ex = sc.new_exercise("recall", "subjects_again", [], "subjects: " + item.subjects[key])
+        self._frame(sc, ex, self.prompts.get("closing_form_work"))
+        self._narr(sc, ex, self._meaning_prompt(item.subjects_meaning[key]))
+        self._answer_pause(sc, ex, item.subjects[key], item, generative=False)
+        self._answer(sc, ex, item.subjects[key])
+        self._gap(sc, ex)
+        return ex
+
     def said_of_choice(self, sc: Script, item: Item) -> Exercise:
         """#439 step 2 (the owner after lessons 44/45: «Ég er …», «Ég er ekki …», «Ertu …» teach no gender): a gendered line the learner knows, its
         word said of him and of her («Hann er svangur.», «Hún er svöng.»), each with whom it is said of («Said of a man: «svangur».»), then each asked
@@ -1221,11 +1363,11 @@ class Builder:
             return
         if item.is_hard():
             # slow whole word was given already: only the syllable split and the natural speed after it
-            self._narr(sc, ex, self.prompts.get("split_slowly"))
+            self._lead_instruct(sc, ex, "split_slowly", "repeat")
             for piece in item.syllables:
                 self._speak(sc, ex, piece, rate=self.timing.slow_rate)
                 self._repeat_pause(sc, ex, piece)
-            self._narr(sc, ex, self.prompts.get("natural"))
+            self._instruct(sc, ex, "natural")
             self._speak(sc, ex, item.target)
             self._repeat_pause(sc, ex, item.target)
             return
@@ -1253,6 +1395,9 @@ class Builder:
         noun the learner has met («bíl» ← «bíll»; «hótelinu» ← «hótelið», said as «You know it as:», not as the basic word). Then, once a lesson per
         frame, why the form changes there, when the frame says it (``form_reason``: «This form comes after «leita að».»): the words that decide,
         not the translation."""
+        if item.form_base:
+            self._word_form(sc, ex, item)  # #439 step 3: a chunk whose noun has no item of its own («á mánudaginn»)
+            return
         if (found := self.basic_form_of(item)) is not None:
             word, kind = found
             self._frame(sc, ex, self.prompts.get("form_of_base" if kind == "basic" else "form_known_as"))
@@ -1262,6 +1407,20 @@ class Builder:
                 self.form_reasons_said.add(frame.id)
                 self._speak_note_text(sc, ex, frame.form_reason)
                 self._beat(sc, ex)
+
+    def _word_form(self, sc: Script, ex: Exercise, item: Item) -> None:
+        """#439 step 3 (lesson 52: «nafninu» and «bókun», new in the hotel's lines, came with no word on their form and failed the next day; lesson 54:
+        «what case is ~daginn?»): a new phrase or chunk whose noun is in a form other than its basic word, the noun having no item of its own, names
+        the form against the basic word («nafninu» is a form of «nafn».), then says which form it is and what decides it (``form_reason``), once a
+        lesson for the same reason: three days taught in one lesson share theirs."""
+        words = WORD.findall(item.target)
+        word = item.form_word or (words[0] if words else item.target)
+        self._speak_note_text(sc, ex, self.prompts.get("form_word_of", word=word, base=item.form_base))
+        self._beat(sc, ex)
+        if item.form_reason and item.form_reason not in self.form_reasons_said:
+            self.form_reasons_said.add(item.form_reason)
+            self._speak_note_text(sc, ex, item.form_reason)
+            self._beat(sc, ex)
 
     def _intro_from_known(self, sc: Script, item: Item) -> Exercise:
         """Lesson 51: «fimm þúsund krónur» and «tíu þúsund krónur», every word known, were announced «Something new.» and «A new expression.». A plain
@@ -1308,7 +1467,7 @@ class Builder:
             self._instruct(sc, ex, "slowly")
             self._slow_line(sc, ex, target, speaker=voice)
             self._repeat_pause_spaced(sc, ex, target)
-            self._narr(sc, ex, self.prompts.get("natural"))
+            self._instruct(sc, ex, "natural")
             self._speak(sc, ex, target, speaker=voice)
             self._repeat_pause(sc, ex, target)
         self._frame(sc, ex, self.prompts.get("embed_part_words" if item.word_count > 1 else "embed_part"))
@@ -1317,12 +1476,12 @@ class Builder:
         if build_up:
             # lesson 44: «hinum megin við götuna» was said word by word inside its sentence and never built up, as a plain introduction builds a
             # long line from its end: the part of three words or more is built up here, in place of the sentence's word-by-word model
-            self._narr(sc, ex, self.prompts.get("build_up"))
+            self._lead_instruct(sc, ex, "build_up", "repeat")
             for chunk in item.backward_chunks():
                 self._slow_line(sc, ex, chunk, speaker=voice)
                 self._repeat_pause_spaced(sc, ex, chunk)
                 self._beat(sc, ex)
-            self._narr(sc, ex, self.prompts.get("natural"))
+            self._instruct(sc, ex, "natural")
             self._speak(sc, ex, item.target, speaker=voice)
             self._repeat_pause(sc, ex, item.target)
         if (not build_up or item.syllables) and not plain:
@@ -1355,11 +1514,13 @@ class Builder:
             self.used_combos.add(gen.key)
             gender, sentence = self._filled(gen.construction, gen.fills)
             voice = VOICE_OF[gender or "f"]
-            self._frame(sc, ex, self._as(gender, self.prompts.get("embed_sentence")))
+            split = self._lead_instruct(sc, ex, "embed_sentence", "listen", frame=True, gender=gender)
             self._speak(sc, ex, sentence, speaker=voice)
             self._beat(sc, ex)
             self._narr(sc, ex, self.prompts.get("embed_meaning", meaning=self._m(gen.meaning)))
             self._beat(sc, ex)
+            if split:
+                self._instruct(sc, ex, "repeat")  # review of #551: «Listen, then repeat.» became «Hlustaðu.», and nothing here said repeat
             self._speak(sc, ex, sentence, speaker=voice)
             self._repeat_pause(sc, ex, sentence)
             self.heard.add(_norm_utterance(sentence))
@@ -1412,7 +1573,7 @@ class Builder:
                 self._instruct(sc, ex, "slowly")
                 self._slow_line(sc, ex, target)
                 self._repeat_pause_spaced(sc, ex, target)
-                self._narr(sc, ex, self.prompts.get("natural"))
+                self._instruct(sc, ex, "natural")
                 self._speak(sc, ex, target)
                 self._repeat_pause(sc, ex, target)
             if self._fills_gendered(item, fills):
@@ -2145,7 +2306,7 @@ class Builder:
         self._speak_note_text(sc, ex, note.text)
         if note.parts:
             self._beat(sc, ex)
-            self._narr(sc, ex, self.prompts.get("note_pieces"))
+            self._lead_instruct(sc, ex, "note_pieces", "repeat")
             for k, group in enumerate(note.parts):
                 if k:
                     self._beat(sc, ex)
@@ -2154,7 +2315,7 @@ class Builder:
                 for piece in group:  # built up piece by piece, each once, slowly, then the learner's repeat: as a hard word's split (``_slow_model``)
                     self._speak(sc, ex, piece, speaker="native_a", rate=self.timing.slow_rate)
                     self._repeat_pause(sc, ex, piece)
-                self._narr(sc, ex, self.prompts.get("natural"))  # the group's whole form, as the lesson says it
+                self._instruct(sc, ex, "natural")  # the group's whole form, as the lesson says it
                 self._speak(sc, ex, group[-1], speaker="native_a")
                 self._repeat_pause(sc, ex, group[-1])
         self._beat(sc, ex)

@@ -61,7 +61,8 @@ class TransportFrameTests(unittest.TestCase):
 
     def test_a_destination_shared_by_both_patterns_connects_them(self):
         shared = [c.id for c in self.cur.items if c.kind == "construction" and "dest" in c.slots.values() and "a_flugvollinn" in c.prereqs + list(c.example.values())]
-        self.assertEqual(sorted(shared), ["dest_takk", "fer_thessi_straeto_dest"])
+        # native check (2026-11-12): «Hvernig kemst ég á flugvöllinn?» takes the same destinations, not «að flugvellinum»
+        self.assertEqual(sorted(shared), ["dest_takk", "fer_thessi_straeto_dest", "hvernig_kemst_eg_ad"])
 
     def test_the_patterns_say_the_new_destinations(self):
         for ctor, fill, want in (

@@ -39,6 +39,50 @@ class SceneNumberTests(unittest.TestCase):
             for ln in turn.lines():
                 self.assertTrue(ln.probes and ln.meaning and ln.meaning_ja, ln.say)
 
+    def test_every_number_a_partner_says_in_an_exchange_has_another_value(self):
+        """#451's remaining data: eighteen partner turns said one value in every play («Það gera tvö þúsund krónur.», «svona tíu mínútur», «klukkan
+        átta»), so the rotation of #520 had nothing to rotate outside the hotel desk and the bus. Every partner turn that says a number has a line
+        with another, except the one that says the learner's own order back (three hot dogs stay three); a `repeat` says the line before it,
+        as picked."""
+        echo = {("cafe", 5, "Þrjár með öllu. Eitthvað að drekka?")}
+        one_value = [
+            (t.id, n + 1, turn.say) for t in self.themes for n, level in enumerate(t.levels) for turn in level.turns
+            if turn.who == "partner" and not turn.repeat and number_words(turn.say)
+            and len({tuple(number_words(ln.say)) for ln in turn.lines()}) < 2
+        ]
+        self.assertEqual(set(one_value), echo)
+
+    def test_the_cheaper_hat_is_cheaper_whatever_the_two_prices_said(self):
+        """The clothes shop's two prices rotate apart: «Þessi er ódýrari» must hold for every pair, so the first hat is six thousand or more and the
+        second under four."""
+        level = self.level("clothes", 0)
+        first = next(t for t in level.turns if "mjög hlý" in t.say)
+        second = next(t for t in level.turns if "ódýrari" in t.say)
+        thousands = {"tvö": 2, "þrjú": 3, "sex": 6, "átta": 8, "níu": 9}
+        for a in first.lines():
+            for b in second.lines():
+                self.assertGreater(thousands[number_words(a.say)[0]], thousands[number_words(b.say)[0]] + 1, (a.say, b.say))
+
+    def test_a_turns_number_as_written_rests_behind_its_values_never_said(self):
+        """On the replay of lesson 54's export seven of the ten number lines the heard exchanges said kept the old value: the record of the
+        exchanges' lines began with #520, so a value never said tied with the one every late play had said. The lines that say their turn's number
+        as written are known (the line as written, its other wordings; «hálf sjö» is not «sjö»), and the planner ranks one with no record
+        behind the turn's other values."""
+        from audiolesson.themes import written_value_lines
+
+        written = written_value_lines(self.themes)
+        self.assertIn("Það gera tvö þúsund krónur.", written)
+        self.assertIn("Tvö þúsund krónur, takk.", written)
+        self.assertNotIn("Það gera níu hundruð og fimmtíu krónur.", written)
+        self.assertIn("Frábært. Klukkan sjö, við sundlaugina.", written)
+        self.assertNotIn("Frábært. Klukkan hálf sjö, við sundlaugina.", written)
+        level = self.level("supermarket", 0)
+        k = next(k for k, t in enumerate(level.turns) if "tvö þúsund" in t.say)
+        tired = lambda say: (0, say in written, 0)  # noqa: E731  (the planner's key for lines with no record and rested words)
+        for seed in range(20):
+            say = level.turns[k].lines()[pick_variants(level, random.Random(seed), tired=tired, as_written_too=True)[k]].say
+            self.assertNotIn("tvö þúsund", say.lower(), seed)
+
     def test_every_answer_of_a_scene_line_is_made_of_words_the_course_teaches(self):
         """Review of #520: the second code said «núll», a word of no item, so `partner_pick_out` could never ask it. An answer the learner is to say
         back holds only words some item teaches, in every line of every scene (as written, a variant, a listening line)."""

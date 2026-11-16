@@ -390,6 +390,22 @@ def pick_variants(
     return picks
 
 
+def written_value_lines(themes: list[Theme]) -> frozenset[str]:
+    """The lines of the partner turns that say the number their turn says as written: the line as written and its other wordings. A level's late
+    play says every line as written, so a learner who has played the level has heard that value, whatever the log of the exchanges' lines holds:
+    it began with #520, and the turns outside the hotel desk and the bus had one value until #534. The planner lets such a line with no record
+    rest behind the turn's other values (``Planner`` ``line_tired``): on the replay of lesson 54's export, before this, seven of the ten number
+    lines the heard exchanges said kept the old value, since a value never said tied with it."""
+
+    def value(say: str) -> tuple:
+        return (tuple(number_words(say)), "hálf" in say.lower().split())  # «klukkan hálf sjö» is not «klukkan sjö»
+
+    return frozenset(
+        ln.say for theme in themes for level in theme.levels for t in level.turns if t.who == "partner" and not t.repeat and number_words(t.say)
+        for ln in t.lines() if value(ln.say) == value(t.say)
+    )
+
+
 def variant_label(level: Level, picks: dict[int, int]) -> str:
     """The picks as the transcript and plan.json name them: the 1-based line (1 = as written) of each varying turn."""
     return ",".join(str(picks.get(k, 0) + 1) for k, t in enumerate(level.turns) if t.who == "partner" and t.variants)

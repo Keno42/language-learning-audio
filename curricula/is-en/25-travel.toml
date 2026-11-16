@@ -54,13 +54,14 @@ situation_ja = "一日ツアーです。食事が含まれているか聞いて�
 [[items]]
 id = "hvar_er_saekt"
 kind = "phrase"
-target = "Hvar er sótt?"
-meaning = "Where is the pick-up?"
-meaning_ja = "送迎の集合場所はどこですか？"
+# native check (2026-11-12): «Hvar er sótt?» is not said; «Hvar verðum við sótt?» (a group; «sóttir» for men only) or «Hvar verð ég sótt/sóttur?»
+target = "Hvar verðum við sótt?"
+meaning = "Where will we be picked up?"
+meaning_ja = "どこで迎えに来てもらえますか？"
 difficulty = 3
 topics = ["travel"]
-situation = "The tour includes hotel pick-up. Ask where you're picked up."
-situation_ja = "ホテル送迎付きのツアーです。どこで迎えに来るか聞いてください。"
+situation = "The tour includes hotel pick-up for you and your friend. Ask where you'll be picked up."
+situation_ja = "あなたと友達のツアーにはホテル送迎が付いています。どこで迎えに来てもらえるか聞いてください。"
 
 [[items]]
 id = "eg_vil_fara_i_blaa_lonid"
@@ -415,9 +416,9 @@ requires = ["eg_vil_fara_i_hvalaskodun", "hvad_kostar_ferdin", "hvenaer_leggjum_
   [[dialogues.turns]]
   cue = "Ask when you set off, and where the pick-up is."
   cue_ja = "出発は何時か、集合場所はどこか聞いてください。"
-  expect_text = "Hvenær leggjum við af stað? Hvar er sótt?"
-  expect_meaning = "When do we set off? Where is the pick-up?"
-  expect_meaning_ja = "出発は何時ですか？送迎の集合場所はどこですか？"
+  expect_text = "Hvenær leggjum við af stað? Hvar verðum við sótt?"
+  expect_meaning = "When do we set off? Where will we be picked up?"
+  expect_meaning_ja = "出発は何時ですか？どこで迎えに来てもらえますか？"
   partner = "Klukkan níu, hérna."
   partner_meaning = "At nine, here."
   partner_meaning_ja = "9時、ここでです。"

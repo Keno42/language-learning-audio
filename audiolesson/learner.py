@@ -30,6 +30,7 @@ REAL_GAP_DAYS = 1  # #220: a recall confirmed at least this many days after the 
 RETENTION_BUCKETS = (3, 7, 14)  # the gaps (days) the retention rate is read at
 REPORTED_HARD_DAYS = 14  # #326: an item the learner reported hard (the feedback form's «sooner», or named) stays among the hard items this many days, or until a recall is confirmed
 AUTO_STEP_EVERY = 3  # auto mode: lessons between pace increases
+FITTED_SHARE = 0.1  # a lesson's due reviews fitted when no more than this share of the due items it could ask were left (the room for a rise)
 NEW_TARGET_START = 8.0  # weighted new components a lesson starts at (#218 b3)
 NEW_TARGET_MIN, NEW_TARGET_MAX = 4.0, 12.0
 NEW_TARGET_MINUTES = 30.0  # new_target is a rate per this many minutes; a lesson of m minutes plans m/30 of it (#242)
@@ -160,8 +161,16 @@ class LearnerState:
     def next_lesson_number(self) -> int:
         return self.lessons_completed + 1
 
-    def due_count(self, today: date) -> int:
-        return sum(1 for i in self.items if self.review_priority(i, today) >= 1.0)
+    def due_count(self, today: date, course: set[str] | frozenset[str] | None = None) -> int:
+        """The due items a lesson of ``today`` can ask (H9, lesson 54): due by their date, still in the course (``course``: its item ids, when
+        given), and not asked by the learner's own review today, which the lesson does not ask again (#238). Lesson 54 counted 72 due against
+        about 76 review slots and lowered its target; 15 of the 72 had been asked that morning and one was gone from the course, so it could
+        ask 56, fitted 54, and was rated «light»."""
+        day = today.isoformat()
+        return sum(
+            1 for i, st in self.items.items()
+            if self.review_priority(i, today) >= 1.0 and (course is None or i in course) and st.last_reviewed != day
+        )
 
     def _lesson_weakness(self, lesson: dict) -> tuple[float, int]:
         """(weak new items, new items) of one lesson. A failed item counts 1, a hesitated one ½: "it came out,
@@ -201,7 +210,7 @@ class LearnerState:
             total += n
         return weak, total
 
-    def suggest_pace(self, minutes: float, today: date) -> tuple[int, str]:
+    def suggest_pace(self, minutes: float, today: date, course: set[str] | frozenset[str] | None = None) -> tuple[int, str]:
         """Decide how many new items the next lesson should introduce, and say why. ``pace`` keeps its meaning in items:
         ``--pace`` / ``--new``, the simulations, ``cando.simulate_reach`` and the coverage report use it. A lesson is planned
         from ``suggest_target`` (weighted new components, #218 b3) unless the number of items is given.
@@ -219,27 +228,28 @@ class LearnerState:
         """
         default = int(min(10, max(3, round(minutes / 5))))
         pace = self.pace or default
-        new_pace, reasons, changed = self._pace_rules(pace, 3, 10, minutes, today, self.pace_changed_at, "pace", pace)
+        new_pace, reasons, changed = self._pace_rules(pace, 3, 10, minutes, today, self.pace_changed_at, "pace", pace, course)
         if changed:
             self.pace_changed_at = self.lessons_completed
         return int(new_pace), "; ".join(reasons)
 
-    def suggest_target(self, minutes: float, today: date) -> tuple[float, str]:
+    def suggest_target(self, minutes: float, today: date, course: set[str] | frozenset[str] | None = None) -> tuple[float, str]:
         """The lesson's target of weighted new components (#218 b3), and why: the same rules as ``suggest_pace`` (the three-lesson
         recall window, the load rating, the backlog) move it by one a lesson, within ``NEW_TARGET_MIN``–``NEW_TARGET_MAX``."""
         # the backlog estimate reserves review slots for new *items*, so it takes the item pace, not the component target
         items = self.pace or int(min(10, max(3, round(minutes / 5))))
-        new_target, reasons, changed = self._pace_rules(self.new_target, NEW_TARGET_MIN, NEW_TARGET_MAX, minutes, today, self.target_changed_at, "new-component target", items)
+        new_target, reasons, changed = self._pace_rules(self.new_target, NEW_TARGET_MIN, NEW_TARGET_MAX, minutes, today, self.target_changed_at, "new-component target", items, course)
         if changed:
             self.target_changed_at = self.lessons_completed
         return float(new_target), "; ".join(reasons)
 
-    def plan_pace(self, minutes: float, today: date) -> tuple[int, str, float, str]:
+    def plan_pace(self, minutes: float, today: date, course: set[str] | frozenset[str] | None = None) -> tuple[int, str, float, str]:
         """The next lesson's pace in items and its target rate of weighted components, with why, as ``generate`` works them out: the rate
         per ``NEW_TARGET_MINUTES`` (#242), so a lesson of ``minutes`` plans ``lesson_target(rate, minutes)``. ``keep_pace`` stores them once
-        the lesson is built; the replay calls both, so it plans each later lesson as production would (#410)."""
-        items, items_why = self.suggest_pace(minutes, today)
-        rate, why = self.suggest_target(NEW_TARGET_MINUTES, today)
+        the lesson is built; the replay calls both, so it plans each later lesson as production would (#410). ``course``: the curriculum's
+        item ids, so the backlog counts only what the lesson can ask (``due_count``)."""
+        items, items_why = self.suggest_pace(minutes, today, course)
+        rate, why = self.suggest_target(NEW_TARGET_MINUTES, today, course)
         return items, items_why, rate, why
 
     def keep_pace(self, items: int | None, rate: float | None) -> None:
@@ -250,7 +260,7 @@ class LearnerState:
         if rate is not None:
             self.new_target = rate
 
-    def load_preview(self, minutes: float, today: date) -> dict[str, dict]:
+    def load_preview(self, minutes: float, today: date, course: set[str] | frozenset[str] | None = None) -> dict[str, dict]:
         """What each answer to the feedback form's load question makes the next lesson's target (CURRENT-STATUS «Now» 3): for each of
         ``LOADS``, the rate ``generate`` would save (``suggest_target`` at ``NEW_TARGET_MINUTES``, #242), the share a lesson of ``minutes``
         plans (``lesson_target``) and why, each worked out on a copy: this learner is unchanged. ``today`` is the day of the next lesson.
@@ -268,13 +278,16 @@ class LearnerState:
                     new = list(last.get("new_items", []))
                     gap = (today - date.fromisoformat(last["date"])).days if last.get("date") else None
                     learner.report([], [], today, last["number"], recalled=new, gaps=None if gap is None else dict.fromkeys(new, gap))
-            rate, why = learner.suggest_target(NEW_TARGET_MINUTES, today)
+            rate, why = learner.suggest_target(NEW_TARGET_MINUTES, today, course)
             preview[load] = {"rate": rate, "target": lesson_target(rate, minutes), "why": why}
         return preview
 
-    def _pace_rules(self, pace: float, lo: float, hi: float, minutes: float, today: date, changed_at: int, label: str, slots_items: float) -> tuple[float, list[str], bool]:
+    def _pace_rules(
+        self, pace: float, lo: float, hi: float, minutes: float, today: date, changed_at: int, label: str, slots_items: float,
+        course: set[str] | frozenset[str] | None = None,
+    ) -> tuple[float, list[str], bool]:
         reasons: list[str] = []
-        due = self.due_count(today)
+        due = self.due_count(today, course)  # what the lesson can ask, not everything due by date (lesson 54)
         # rough capacity: one exercise ≈ 16 s; a new item costs ≈ 6 exercises
         review_slots = max(0, int(minutes * 60 / 16) - round(slots_items) * 6)
         backlog_ratio = due / review_slots if review_slots else 1.0
@@ -298,21 +311,30 @@ class LearnerState:
         recent = self.reported_window()
         if last and last not in recent:
             recent.append(last)
+        # room for a rise (owner, 2026-11-12; lesson 54 was «light» at a target the estimate would not raise): what the last lesson did, not an
+        # estimate. Its due reviews fitted when no more than ``FITTED_SHARE`` of the due items it could ask were left. Without that record (an
+        # early lesson, an older learner file) the estimate stands: the due items under half the review slots
+        if last is not None and "due_at_start" in last:
+            room = last.get("due_not_fitted", 0) <= FITTED_SHARE * last["due_at_start"]
+            room_why = "the last lesson's due reviews fitted"
+        else:
+            room = backlog_ratio < 0.5
+            room_why = "backlog small"
         heavy = any(le.get("load") == "heavy" for le in recent)
         rated = [le for le in self.lessons if le.get("load") in LOADS][-2:]
         two_light = len(rated) == 2 and all(le["load"] == "light" for le in rated)
-        if new_pace == pace and heavy and fail_rate is not None and fail_rate <= 0.15 and backlog_ratio < 0.5:
+        if new_pace == pace and heavy and fail_rate is not None and fail_rate <= 0.15 and room:
             reasons.append("a lesson in the window was rated heavy — not speeding up")
-        elif new_pace == pace and not heavy and fail_rate is not None and fail_rate <= 0.15 and backlog_ratio < 0.5 and not auto_assumed:
+        elif new_pace == pace and not heavy and fail_rate is not None and fail_rate <= 0.15 and room and not auto_assumed:
             new_pace += 1
-            reasons.append(f"{fb[0]:g}/{fb[1]} new items failed over the last {len(self.reported_window())} lessons, backlog small")
-        elif new_pace == pace and not heavy and two_light and fail_rate is not None and fail_rate <= 0.25 and backlog_ratio < 0.5 and not auto_assumed:
+            reasons.append(f"{fb[0]:g}/{fb[1]} new items failed over the last {len(self.reported_window())} lessons, {room_why}")
+        elif new_pace == pace and not heavy and two_light and fail_rate is not None and fail_rate <= 0.25 and room and not auto_assumed:
             new_pace += 1
             reasons.append(f"the last two lessons were rated light ({fb[0]:g}/{fb[1]} failed)")
-        elif new_pace == pace and not heavy and fail_rate is not None and fail_rate <= 0.15 and backlog_ratio < 0.5 and auto_assumed:
+        elif new_pace == pace and not heavy and fail_rate is not None and fail_rate <= 0.15 and room and auto_assumed:
             if self.lessons_completed - changed_at >= AUTO_STEP_EVERY:
                 new_pace += 1
-                reasons.append(f"auto: {AUTO_STEP_EVERY} lessons without reported failures, backlog small")
+                reasons.append(f"auto: {AUTO_STEP_EVERY} lessons without reported failures, {room_why}")
             else:
                 reasons.append(f"auto: next step after lesson {changed_at + AUTO_STEP_EVERY}")
         if auto_assumed and fb[1] == 0:

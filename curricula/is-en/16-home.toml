@@ -377,15 +377,13 @@ situation_ja = "お客さんが泥だらけのブーツで入ってきました�
 [[items]]
 id = "gerdu_thig_heimakomna"
 kind = "phrase"
-target = "Gerðu þig heimakomna."
-meaning = "Make yourself at home. (to a woman)"
-meaning_ja = "くつろいでね。（女性に）"
-meaning_spoken = "to a woman: Make yourself at home."
-meaning_spoken_ja = "女性に、くつろいでね。"
+# native check (2026-11-12): «Gerðu þig heimakomna» is understood but not what a host says; «Láttu eins og þú sért heima hjá þér.», to anyone
+target = "Láttu eins og þú sért heima hjá þér."
+meaning = "Make yourself at home."
+meaning_ja = "くつろいでね。"
 difficulty = 4
 topics = ["home"]
-pronunciation_notes = "to a man: Gerðu þig heimakominn."
-chunks = ["heimakomna", "þig heimakomna", "Gerðu þig heimakomna."]
+chunks = ["heima hjá þér", "þú sért heima hjá þér", "Láttu eins og þú sért heima hjá þér."]
 situation = "Anna has come to stay. Tell her to make herself at home."
 situation_ja = "アンナが泊まりに来ました。くつろぐよう言ってください。"
 

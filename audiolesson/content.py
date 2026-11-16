@@ -134,9 +134,9 @@ class Item:
     # ("English (the language)") stays out of sentence prompts.
     meaning_forms: dict[str, str] = field(default_factory=dict)
     # what the instructor says for ``meaning`` when it names the item alone ("Say: …"): a
-    # recall disambiguator written in brackets («the hotel (after 'to' / 'for')», «本（〜は・〜が）»)
+    # recall disambiguator written in brackets («eggs (after 'allergic to')», «本（〜は・〜が）»)
     # reads as a note on the page but is spoken verbatim, so the spoken form folds it into
-    # natural speech ("to the hotel", «本が»). Per language (``meaning_spoken_ja``), never
+    # natural speech ("eggs, as in: I'm allergic to eggs", «本が»). Per language (``meaning_spoken_ja``), never
     # borrowed from another: without one the plain ``meaning`` is spoken. The transcript's
     # written glosses keep ``meaning``.
     meaning_spoken: str = ""
@@ -144,6 +144,12 @@ class Item:
     # construction (#270): why a noun takes another form in this frame, in the learner's language, said once a lesson after the form is
     # named against the one the learner knows («This form comes after «leita að».»). Names the words that decide, never the translation
     form_reason: str = ""
+    # a phrase or a chunk that holds a noun in a form other than its basic word, when the noun has no item of its own (#439 step 3; lessons 52
+    # and 54: «nafninu» in «Á nafninu Yuki.», «mánudaginn» in «á mánudaginn»): ``form_base`` is the basic word («nafn», «mánudagur»), ``form_word``
+    # the word of the target that changed (the target itself when it is one word). The introduction names the form against its basic word, then says
+    # ``form_reason`` once a lesson: which form it is and the words that decide it
+    form_word: str = ""
+    form_base: str = ""
     # #439 step 1b: the noun (its ``noun`` key) a form of 1–4 in this phrase, or in this construction's sentences, agrees with («midi» for «Tvo miða,
     # takk.»): a line that names it is one the lesson can set beside a line of another gender, so the form is practised as the noun's choice
     counts: str = ""
@@ -151,10 +157,19 @@ class Item:
     # (``said_of_meaning``, per language): a lesson sets the two side by side, so the form is practised as the person's choice, not only the speaker's
     said_of: dict[str, str] = field(default_factory=dict)
     # #429 (the long run): the instructor's instruction this phrase says in the target language, by its phrasing key («repeat» for «Endurtaktu.»):
-    # once taught it replaces the instruction, said in a native voice, with the instruction after it until the learner's review has recalled it
-    # twice (``Builder.command_support``)
+    # once taught it replaces the instruction, said in a native voice, with the instruction after it in the lesson that teaches it and the next
+    # (``Builder.command_support``)
     command: str = ""
     said_of_meaning: dict[str, str] = field(default_factory=dict)
+    # #528 step 1 (the owner, 2026-11-12: «I want to feel a coach who makes me choose the right verb form»): a sentence the learner says with
+    # «ég», said with other subjects. ``subjects_base`` is the «ég» sentence («Ég fer á morgun.»; for a pattern, one of its sentences),
+    # ``subjects`` the same sentence for ``we`` / ``she`` / ``he`` / ``you`` / ``they`` («Við förum á morgun.»), ``subjects_meaning`` what each
+    # means (per language), ``subject_verbs`` the verb's form for ``i`` and for each subject («fer», «förum»). A lesson sets them side by side
+    # and asks each: the verb is practised as the subject's choice
+    subjects_base: str = ""
+    subjects: dict[str, str] = field(default_factory=dict)
+    subjects_meaning: dict[str, str] = field(default_factory=dict)
+    subject_verbs: dict[str, str] = field(default_factory=dict)
     examples: list[TransformExample] = field(default_factory=list)  # transform pairs
     # transform: each result answers its source (a question and its answer, «Hvað kostar kaffi?» → «Það kostar sex hundruð krónur.»), so the pairs are
     # introduced as a question and its answer, not «becomes», and ``instruction`` may name the answer's meaning as ``{result_meaning}`` (draft of lesson 52:
@@ -401,6 +416,37 @@ class Note:
 
 
 @dataclass
+class ContrastLine:
+    """One sentence of a ``Contrast``: the noun's form in it (``word``), the question that asks for it by its meaning («Where are you going?»), the
+    answer («Á flugvöllinn.»), and ``like``: an item the learner knows whose sentence has the same form or the same deciding word («fyrir framan
+    hótelið»), said after it as a link to what they have."""
+
+    target: str
+    word: str
+    ask: str
+    answer: str
+    like: str = ""
+
+
+@dataclass
+class Contrast:
+    """#548 (lesson 58: «the reason a case is chosen is not explained, and no practice nearby uses another case of the same word»; the owner,
+    2026-11-16: no case names, «going there and being there change the form», linked to what the learner knows): one noun in two sentences whose
+    forms differ, and what changes the form, said in ``lead`` in the learner's language with no grammatical term. ``by``: "meaning" (going there /
+    being there, «á flugvöllinn» / «á flugvellinum») or "word" (the verb or preposition before it, «elska fisk» / «ofnæmi fyrir fiski»). It plays
+    once every item of ``requires`` is met and not failing (``Planner.form_choice_pool``)."""
+
+    id: str
+    lead: str
+    lines: list[ContrastLine]
+    by: str = "meaning"
+    requires: list[str] = field(default_factory=list)
+
+
+CONTRAST_BY = ("meaning", "word")
+
+
+@dataclass
 class Curriculum:
     name: str
     target_lang: str
@@ -410,6 +456,7 @@ class Curriculum:
     level: str = "A1"
     source: str = ""
     notes: list[Note] = field(default_factory=list)
+    contrasts: list[Contrast] = field(default_factory=list)  # #548: a noun in two forms and what changes it
     known_langs: list[str] = field(default_factory=list)  # languages the file carries glosses for
     missing_glosses: list[str] = field(default_factory=list)  # ids without a gloss in the requested known_lang
 
@@ -438,6 +485,15 @@ class Curriculum:
         skip = construction.exclude_fills if construction is not None else ()
         addressed = construction is not None and "plain" in construction.addressee
         return [i for i in self.items if tag in i.tags and i.id not in skip and not (addressed and i.reflexive)]
+
+    def takes(self, tag: str, construction: Item | None, item: Item) -> bool:
+        """``item in self.items_with_tag(tag, construction)``, asked of the item alone. The planner asks it of every pattern of the course whenever it
+        looks for a sentence that holds a part; building the list each time (every item of the course read, then compared with the part field by
+        field) was more than half of the time a lesson takes to build."""
+        own = self.by_id.get(item.id)  # ids are unique (``validate``): the one item of the course that can equal ``item``
+        if own is None or not (own is item or own == item) or tag not in own.tags:
+            return False
+        return construction is None or (own.id not in construction.exclude_fills and not ("plain" in construction.addressee and own.reflexive))
 
     @staticmethod
     def speaker_agrees(construction: Item, form: str | None = None) -> bool:
@@ -506,6 +562,26 @@ class Curriculum:
             for t in i.topics:
                 seen.setdefault(t, None)
         return list(seen)
+
+
+INSTRUCTION_MODES = ("gradual", "off", "pending")
+
+
+def for_instructions(cur: Curriculum, learner, mode: str = "gradual") -> tuple[Curriculum, str, list[str]]:
+    """#429 (owner, 2026-11-14): whether the lessons replace their instructions with Icelandic ones, the learner's choice, asked once by the
+    bot. ``gradual``: one a lesson (``Planner.next_command``), the English after each in the lesson that teaches it and the next. ``off``: the
+    instruction phrases leave the course, so none is taught or said, and their items, kept in the learner's state, are not reviewed (the
+    pace counts only the course's items, #526); the bot drops their written-review cards (plan.json ``withdrawn_items``). ``pending``, not
+    answered yet: ``off`` for a learner who has met no instruction phrase, ``gradual`` for one who has (the learner the question came after).
+    Returns the curriculum the lesson uses, the mode resolved and the ids withdrawn."""
+    if mode not in INSTRUCTION_MODES:
+        raise ValueError(f"instructions must be one of {', '.join(INSTRUCTION_MODES)}, not {mode!r}")
+    commands = [i.id for i in cur.items if i.command]
+    if mode == "pending":
+        mode = "gradual" if any(learner.has_met(i) for i in commands) else "off"
+    if mode == "gradual" or not commands:
+        return cur, mode, []
+    return replace(cur, items=[i for i in cur.items if not i.command]), mode, commands
 
 
 class CurriculumError(ValueError):
@@ -589,7 +665,7 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
         files = sorted(path.glob("*.toml"))
         if not files:
             raise CurriculumError(f"{path}: no .toml files")
-        merged: dict = {"items": [], "dialogues": [], "notes": [], "scenes": {}}
+        merged: dict = {"items": [], "dialogues": [], "notes": [], "contrasts": [], "scenes": {}}
         for f in files:
             with f.open("rb") as fh:
                 raw = tomllib.load(fh)
@@ -600,6 +676,7 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
             merged["items"] += raw.get("items", [])
             merged["dialogues"] += raw.get("dialogues", [])
             merged["notes"] += raw.get("notes", [])
+            merged["contrasts"] += raw.get("contrasts", [])
             for pattern, verdicts in raw.get("scenes", {}).items():
                 if pattern in merged["scenes"]:
                     raise CurriculumError(f"{f}: [scenes.{pattern}] is already defined in another file")
@@ -613,11 +690,13 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
 
 
 # fields that may carry per-language glosses (``<field>_<lang>``)
-_GLOSSED_ITEM = ("meaning", "context", "negative_meaning", "question_meaning", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation", "form_reason", "said_of_meaning")
+_GLOSSED_ITEM = ("meaning", "context", "negative_meaning", "question_meaning", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation", "form_reason", "said_of_meaning", "subjects_meaning")
 _GLOSSED_EXAMPLE = ("source_meaning", "result_meaning")
 _GLOSSED_TURN = ("cue", "opener_meaning", "partner_meaning", "expect_meaning", "scene", "partner_scene")
 _GLOSSED_DIALOGUE = ("setting",)
 _GLOSSED_NOTE = ("text", "parts_lead")
+_GLOSSED_CONTRAST = ("lead",)
+_GLOSSED_CONTRAST_LINE = ("ask",)
 _GLOSSED_META = ("name",)
 
 
@@ -689,6 +768,12 @@ def curriculum_from_dict(raw: dict, source: str = "", known_lang: str | None = N
     for n in notes:
         if n.parts_lead and len(n.parts_lead) != len(n.parts):
             raise CurriculumError(f"note {n.id!r}: parts_lead has {len(n.parts_lead)} lines for {len(n.parts)} groups of parts")
+    contrasts = []
+    for c in raw.get("contrasts", []):
+        label = c.get("id", "contrast")
+        c = _pick_gloss(c, _GLOSSED_CONTRAST, lang, langs, missing, label)
+        lines = [ContrastLine(**_pick_gloss(ln, _GLOSSED_CONTRAST_LINE, lang, langs, missing, f"{label}.line")) for ln in c.pop("lines", [])]
+        contrasts.append(Contrast(lines=lines, **c))
     _apply_scenes(items, raw.get("scenes", {}), lang, meta["known_lang"])
 
     cur = Curriculum(
@@ -700,6 +785,7 @@ def curriculum_from_dict(raw: dict, source: str = "", known_lang: str | None = N
         dialogues=dialogues,
         source=source,
         notes=notes,
+        contrasts=contrasts,
         known_langs=langs,
         missing_glosses=missing,
     )
@@ -764,8 +850,10 @@ def _slot_names(text: str) -> list[str]:
     return [m[1:-1].split(":")[0] for m in _ANY_SLOT_RE.findall(text)]
 
 
-# #429: the instructions a phrase may say in the target language (their phrasing keys): «Repeat.», «Listen.», «Slowly.», a pick-out's «Listen again.»
-COMMAND_KEYS = ("repeat", "listen", "slowly", "pick_out_again")
+# #429: the instructor's lines a phrase may say in the target language (their phrasing keys): «Repeat.», «Listen.», «Slowly.», a pick-out's «Listen
+# again.»; step 1 after lesson 57: «And at natural speed.», a pick-out's «The answer:», and the ways back «Back to speaking.» and «That's the end
+# of the conversation.» (``transitions.WAYS_BACK_SAID``)
+COMMAND_KEYS = ("repeat", "listen", "slowly", "pick_out_again", "natural", "pick_out_answer", "listening_back", "conversation_back")
 PROBE_KINDS = ("price", "time", "count", "place", "duration", "number", "temperature")  # what an information probe asks to listen for (#248); "number": a number used as a name, a room, a bus, a code (#451 step 2c); "temperature" (#451 step 2d)
 FORMS = ("negative", "question")  # a construction's authored forms besides the plain one (#171)
 
@@ -978,6 +1066,28 @@ def pronoun_cues(cur: Curriculum) -> list[tuple[str, str, list[str]]]:
     return out
 
 
+SUBJECTS = {"we": "við", "she": "hún", "he": "hann", "you": "þú", "they": "þau"}  # #528: the subjects a sentence may be said with, and their pronoun
+
+
+def _check_subjects(it: Item) -> None:
+    """#528 step 1: ``subjects`` goes on a phrase or a pattern, with its «ég» sentence, two subjects or more, a meaning for each, and the verb's
+    form for «ég» and for each subject; each line opens with its pronoun and holds its verb form."""
+    if it.kind not in ("phrase", "construction"):
+        raise CurriculumError(f"item {it.id!r}: subjects goes on a phrase or a pattern")
+    words = lambda text: re.findall(r"[^\W\d_]+", text.lower())
+    if len(it.subjects) < 2 or set(it.subjects) - set(SUBJECTS):
+        raise CurriculumError(f"item {it.id!r}: subjects needs two or more of {', '.join(SUBJECTS)}")
+    if set(it.subjects_meaning) != set(it.subjects) or set(it.subject_verbs) != set(it.subjects) | {"i"}:
+        raise CurriculumError(f"item {it.id!r}: subjects_meaning needs a line for each subject, and subject_verbs one for each and for «i»")
+    base = words(it.subjects_base)
+    if not base or base[0] != "ég" or it.subject_verbs["i"].lower() not in base:
+        raise CurriculumError(f"item {it.id!r}: subjects_base is the «ég» sentence and holds its verb ({it.subjects_base!r})")
+    for key, line in it.subjects.items():
+        said = words(line)
+        if not said or said[0] != SUBJECTS[key] or it.subject_verbs[key].lower() not in said:
+            raise CurriculumError(f"item {it.id!r}: subjects {key} opens with «{SUBJECTS[key].capitalize()}» and holds «{it.subject_verbs[key]}»: {line!r}")
+
+
 def _check_said_of(it: Item) -> None:
     """#439 step 2: ``said_of`` goes on a gendered phrase (``target_m``), with a line for him («Hann …») and for her («Hún …») and a meaning for each;
     the line for him says the word ``target_m`` changes, the line for her that word of ``target``."""
@@ -1014,8 +1124,17 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"item {it.id!r}: a noun form needs the noun's gender")
             if it.noun_base and it.noun_base.strip().lower() == it.target.strip().lower():
                 raise CurriculumError(f"item {it.id!r}: noun_base is the basic word when it differs from the form ({it.target!r})")
-        if it.form_reason and not (it.kind == "construction" and it.slots):
-            raise CurriculumError(f"item {it.id!r}: form_reason goes on a construction with a slot (#270: the frame that asks the form)")
+        if it.form_reason and not (it.kind == "construction" and it.slots) and not it.form_base:
+            raise CurriculumError(f"item {it.id!r}: form_reason goes on a construction with a slot (#270: the frame that asks the form), or on an item with form_base")
+        if it.form_base or it.form_word:
+            words = [w.lower() for w in _WORD_RE.findall(it.target)]
+            word = (it.form_word or (words[0] if len(words) == 1 else "")).lower()
+            if it.kind not in ("phrase", "vocab") or it.noun:
+                raise CurriculumError(f"item {it.id!r}: form_base goes on a phrase or a chunk whose noun has no item of its own (a noun form has noun_base, #270)")
+            if not it.form_base or not word or word not in words:
+                raise CurriculumError(f"item {it.id!r}: form_base names the basic word of form_word, a word of the target ({it.target!r})")
+            if it.form_base.strip().lower() == word:
+                raise CurriculumError(f"item {it.id!r}: form_base is the basic word when it differs from the form ({word!r})")
         if it.gender is not None and it.gender not in GENDERS:
             raise CurriculumError(f"item {it.id!r}: gender {it.gender!r} must be one of {sorted(GENDERS)}")
         if it.kind != "transform" and _UNSPEAKABLE_RE.search(it.spoken_meaning):
@@ -1041,6 +1160,26 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"dialogue {d.id!r}: expect_text_m is the man's form of expect_text and must differ from it")
         if d.partner_speaker not in SPEAKERS:
             raise CurriculumError(f"dialogue {d.id!r}: partner_speaker must be one of {SPEAKERS}, not {d.partner_speaker!r}")
+    seen_contrasts: set[str] = set()
+    for c in cur.contrasts:
+        if c.id in seen_contrasts:
+            raise CurriculumError(f"duplicate contrast id {c.id!r}")
+        seen_contrasts.add(c.id)
+        if c.by not in CONTRAST_BY:
+            raise CurriculumError(f"contrast {c.id!r}: by must be one of {CONTRAST_BY}, not {c.by!r}")
+        if len(c.lines) < 2:
+            raise CurriculumError(f"contrast {c.id!r}: two lines or more, each with the noun in another form")
+        if len({norm_utterance(ln.word) for ln in c.lines}) < len(c.lines):
+            raise CurriculumError(f"contrast {c.id!r}: each line's word is another form")
+        for ref in c.requires + [ln.like for ln in c.lines if ln.like]:
+            if ref not in ids:
+                raise CurriculumError(f"contrast {c.id!r} references unknown item {ref!r}")
+        for ln in c.lines:
+            for text in (ln.target, ln.answer):
+                if norm_utterance(ln.word) not in norm_utterance(text).split():
+                    raise CurriculumError(f"contrast {c.id!r}: «{ln.word}» is not a word of «{text}»")
+            if not ln.ask:
+                raise CurriculumError(f"contrast {c.id!r}: a line without its question ({ln.target!r})")
     seen_notes: set[str] = set()
     for n in cur.notes:
         if n.id in seen_notes:
@@ -1165,6 +1304,8 @@ def validate(cur: Curriculum) -> None:
             _check_counts(cur, it)
         if it.said_of or it.said_of_meaning:
             _check_said_of(it)
+        if it.subjects or it.subjects_base or it.subject_verbs or it.subjects_meaning:
+            _check_subjects(it)
         if it.command and (it.kind != "phrase" or it.command not in COMMAND_KEYS):
             raise CurriculumError(f"item {it.id!r}: command names an instruction the lessons say ({', '.join(COMMAND_KEYS)}), on a phrase")
         if it.instance_of or it.instance_fill or it.instance_form:

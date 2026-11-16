@@ -401,7 +401,7 @@ situation_ja = "お客さんが座りました。コーヒーか紅茶か聞い�
 [[items]]
 id = "eg_ekki"
 kind = "phrase"
-target = "Ég ekki."
+target = "Ekki ég."  # native check (2026-11-12): «Ég ekki.» is not said
 meaning = "Not me."
 meaning_ja = "私は違う。"
 difficulty = 1

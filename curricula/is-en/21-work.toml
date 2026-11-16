@@ -258,7 +258,7 @@ situation_ja = "同僚が難しい仕事を終えました。よくやったと�
 [[items]]
 id = "hvad_er_kaupid"
 kind = "phrase"
-target = "Hvað eru launin?"
+target = "Hver eru launin?"  # native check (2026-11-12): «Hvað eru launin?» is wrong
 meaning = "What's the salary?"
 meaning_ja = "給料はいくらですか？"
 difficulty = 3

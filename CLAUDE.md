@@ -22,8 +22,8 @@
   `learner.before.json` with its manifest's arguments), not only on simulated courses.
 - **Privacy:** never write trip dates, itinerary, lodging or personal places into the
   repository, issues, PRs or exports.
-- One PR per change; the owner merges. Checks: `python -m unittest` and
-  `python -m audiolesson.cli validate curricula/is-en`.
+- One PR per change; the owner merges. Checks: `python tools/partest.py` (the tests `python -m unittest` runs, on every
+  core: minutes, not tens of minutes) and `python -m audiolesson.cli validate curricula/is-en`.
 
 ## Read for the task
 

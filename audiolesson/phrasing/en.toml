@@ -21,12 +21,15 @@ command_intro = "From now on, this instruction is in Icelandic:"
 command_means = "It means: {meaning}"
 once_more = "Once more."
 build_up = "Let's build it up from the end. Repeat each part."
+build_up_lead = "Let's build it up from the end."  # #429 step 2: the line before its instruction, once that is taught («Endurtaktu.», «Hlustaðu.»)
 slowly = "Slowly."
 natural = "And at natural speed."
 split_slowly = "Slowly, in parts. Repeat each part."
+split_slowly_lead = "Slowly, in parts."
 # an item the learner reported hard to say, its hard words cut into pieces (lesson 44): first tried from its meaning, then broken down
 slow_word_recall = "Do you remember how to say this? {meaning}"
 slow_word_break_down = "Let's break down the pronunciation. Repeat each part."
+slow_word_break_down_lead = "Let's break down the pronunciation."
 # a sentence the learner reported hard (#337, #423): tried again from its meaning, then the model, then slowly and at natural speed
 slow_hear_intro = "Let's try to say this sentence in {language} again: {meaning}"
 hear_support_sentence = "You found this one hard to catch. Listen."
@@ -34,6 +37,7 @@ hear_support_word = "You found this word hard to catch. Listen."
 hear_support_find = "Now listen for it in a sentence, and say it when you have heard it."
 hear_support_again = "The whole sentence once more."
 note_pieces = "Now the pieces, slowly: repeat each one."
+note_pieces_lead = "Now the pieces, slowly."
 
 # issue #59: the meaning comes first, so completing «Ég skil…» is a retrieval of "I don't
 # understand", not a guess at which authored phrase the course has in mind
@@ -86,6 +90,7 @@ dialogue_partner_said = "{meaning}"
 aside = "A quick aside."
 aside_end = "Back to the lesson."
 listening_back = "Back to speaking."  # after a pick-out or a catch, when a drill follows: the listening is over (lesson 34: the switch felt abrupt)
+form_back = "That's the end of the form work."  # after the number, gender or subject choice, when a drill follows (lesson 55: say when the usual practice comes back)
 conversation_part_back = "That's enough of that conversation."  # after a part of one (lesson 53: the scene does not end there)
 conversation_back = "That's the end of the conversation."  # after a conversation, when a drill follows (#415: lessons 37 and 39)
 milestone_intro = "Here's a pattern worth noticing."
@@ -101,7 +106,9 @@ embed_part_also = "And this one:"
 # a noun in a form its frame asks (#270): the basic word, said once, after the part
 form_of_base = "In this sentence the word changes. The basic word is:"
 form_known_as = "You know it as:"
+form_word_of = "«{word}» is a form of «{base}»."  # a new phrase's noun in a form other than its basic word (#439 step 3)
 embed_sentence = "In another sentence. Listen, then repeat."
+embed_sentence_lead = "In another sentence."
 embed_meaning = "{meaning}"
 # a construction's negative or question form modelled before it is asked (#211)
 form_model_known = "You know this one:"
@@ -109,9 +116,12 @@ form_model_question = "As a question:"
 form_model_negative = "As a negative:"
 form_model_again = "Now the same form with another word."  # the cue follows: no «Your turn.» ahead of its task (lesson 36, #409)
 instance_sentence = "A sentence from a pattern you know. Listen, then repeat."
+instance_sentence_lead = "A sentence from a pattern you know."
 instance_form_known = "You know this one:"
 instance_form_question = "As a question: listen, then repeat."
+instance_form_question_lead = "As a question."
 instance_form_negative = "As a negative: listen, then repeat."
+instance_form_negative_lead = "As a negative."
 # a near form of something the learner has met (Item.variant_of)
 variant_known = "You know this one:"
 variant_form = "Here is another form of it: {meaning}"
@@ -119,11 +129,29 @@ variant_form = "Here is another form of it: {meaning}"
 number_choice_intro = "One number, different forms: it follows the word it counts."
 number_choice_gender = "«{word}» is {gender}, so: «{form}»."
 number_choice_gender_case = "«{word}» is {gender} and in {case} here: «{nominative}» becomes «{form}»."
+case_nom = "the nominative"
 case_acc = "the accusative"
 case_dat = "the dative"
 case_gen = "the genitive"
 number_choice_say = "Now say each one."
 # #439 step 2: a gendered word said of him and of her, side by side, then each asked again
+# #528 step 1: a sentence the learner says with «ég», said with other subjects; the verb's form is the subject's choice
+subjects_intro = "One verb, other subjects: its form follows who does it. You say:"
+# #528 step 3: the goal names the day's form work, and the closing asks it once more
+lesson_goal_subjects = "Today's form work: One sentence you know, said of someone else."
+closing_form_work = "Today's form work, once more."
+subject_we = "With «við», we:"
+subject_she = "With «hún», she:"
+subject_he = "With «hann», he:"
+subject_you = "With «þú», you:"
+subject_they = "With «þau», they:"
+subject_verb = "The verb is «{form}»."
+subject_verb_same = "The verb stays «{form}»."
+# #528 step 2: the noun by its frame
+noun_choice_intro = "One noun, different forms: its form follows the words around it."
+noun_choice_form = "Here it is «{form}»."  # the owner, 2026-11-16: the form, no grammatical term
+contrast_like = "Like «{like}»."  # #548: the sentence a contrast's line is like, one the learner knows
+contrast_answer = "Now answer."
 said_of_intro = "One word, two forms: it follows the person it is said of."
 said_of_m = "Said of a man: «{form}»."
 said_of_f = "Said of a woman: «{form}»."

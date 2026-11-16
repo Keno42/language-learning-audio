@@ -84,7 +84,7 @@ summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wro
 3. State acceptance about the learner (what they hear, say or can do), not only about code paths.
 
 ## Verification a change needs
-- `python -m unittest` and `python -m audiolesson.cli validate curricula/is-en` pass. The tests pin learner-facing behaviour.
+- The tests (`python tools/partest.py`: what `python -m unittest` runs, on every core) and `python -m audiolesson.cli validate curricula/is-en` pass. The tests pin learner-facing behaviour.
 - Check a behaviour change on **the real learner path**: replay the latest feedback export's `learner.before.json` with its
   manifest's arguments, which include the trip ordering (`python tools/replay_lesson.py <export> --trip <the private profile> --lessons 3`), not only a simulated course. Without `--trip` the replay builds a different lesson. Do not write where the profile lives. A simulated course
   presumes every recall and hides what the real path shows (#94, #316).

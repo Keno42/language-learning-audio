@@ -40,7 +40,7 @@ from audiolesson.learner import lesson_target, retention_report  # noqa: E402
 from audiolesson.nouns import noun_report  # noqa: E402
 from audiolesson.review_wholes import bare_parts_with_a_home, parts_outside_their_whole  # noqa: E402
 from audiolesson.cando import for_season, load_cando, priority_items  # noqa: E402
-from audiolesson.content import load_curriculum, said_scene_rows, scene_sheet  # noqa: E402
+from audiolesson.content import for_instructions, load_curriculum, said_scene_rows, scene_sheet  # noqa: E402
 from audiolesson.learner import LearnerState  # noqa: E402
 from audiolesson.planner import PlanConfig, Planner, apply_to_learner, semantic_set_tags  # noqa: E402
 from audiolesson.themes import load_themes, scenario_order  # noqa: E402
@@ -124,7 +124,7 @@ def measure(cur, sc, known_constructions: int) -> dict:
         raw = prompts.data[key]
         return [re.compile("^" + re.sub(r"\\\{\w+\\\}", ".*", re.escape(t)) + "$", re.S) for t in (raw if isinstance(raw, list) else [raw])]
 
-    cue_res = [r for k in ("repeat", "slowly", "natural", "build_up", "reply", "cloze", "hinted") for r in _cue_re(k)]
+    cue_res = [r for k in ("repeat", "slowly", "natural", "build_up", "build_up_lead", "reply", "cloze", "hinted") for r in _cue_re(k)]
     note_ex = {e.index for e in exs if e.kind == "note"}
     unframed = sum(
         1 for a, b in zip(sc.segments, sc.segments[1:])
@@ -286,6 +286,7 @@ def main(argv: list[str] | None = None) -> int:
     known = arg("--known")
     cur = load_curriculum(args.curriculum, known_lang=known)
     learner = LearnerState.load(args.export / "learner.before.json")
+    cur, _mode, _withdrawn = for_instructions(cur, learner, arg("--instructions", "gradual"))  # #429: the learner's choice, as `generate` reads it
     priority: list[str] = []
     scenarios = load_cando(args.curriculum, cur) if Path(args.curriculum).is_dir() else []
     trip = load_trip(args.trip) if args.trip else None
@@ -310,7 +311,7 @@ def main(argv: list[str] | None = None) -> int:
     for _ in range(args.lessons):
         known_c = sum(1 for c in cur.items if c.kind == "construction" and learner.knows(c.id))
         # as `generate`: the pace and the target rate worked out, the lesson's share planned, both stored once it is built (#410)
-        pace, _why, rate, _twhy = learner.plan_pace(minutes, day)
+        pace, _why, rate, _twhy = learner.plan_pace(minutes, day, frozenset(cur.by_id))
         target = lesson_target(rate, minutes)  # the lesson plans from its target of weighted components (#218 b3)
         timing = Timing(level=learner.level or cur.level, speech_ratio=dict(learner.speech_calibration))
         sc = Planner(cur, learner, prompts, timing, PlanConfig(minutes=minutes, new_items=pace, new_target=target, priority=priority, themes=themes, theme_scenarios=theme_scenarios), today=day).build()

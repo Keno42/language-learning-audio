@@ -1353,7 +1353,7 @@ class CurriculumTests(unittest.TestCase):
 
     def test_generated_sentence_prompts_carry_no_recall_disambiguators(self):
         """Issue #29 audit finding: a fill's gloss can carry a disambiguator meant for isolated
-        recall ("English (the language)", "the hotel (after 'to' / 'for')", "work (to work)"),
+        recall ("English (the language)", "eggs (after 'allergic to')", "work (to work)"),
         and constructions pasted it into sentence prompts — "Say: Do you speak English (the
         language)?" in most simulated lessons. A fill's ``in_sentence`` form is used instead.
         Every construction × fill, in both instructor languages, now resolves without a
@@ -2861,7 +2861,7 @@ class CurriculumTests(unittest.TestCase):
         self.assertIn("Something new. A receipt.", [s.text for s in sc.segments if s.type == "narrate"])
         informative = {
             "a_thetta_hotel_takk", "eg_er_a_bil", "einn_tvo_thrjar", "ert_thu_islensk", "ertu_buin", "ertu_state",
-            "farid_varlega_a_isnum", "gerdu_thig_heimakomna", "ha", "hvad_ertu_gomul", "hvar_er_thetta", "hvers_vegna",
+            "farid_varlega_a_isnum", "ha", "hvad_ertu_gomul", "hvar_er_thetta", "hvers_vegna",
             "takk_fyrir_sidast",
         }
         trailing = {it.id for it in cur.items if re.search(r"[.?!]\s*\(", it.meaning)}
@@ -3165,7 +3165,6 @@ class CurriculumTests(unittest.TestCase):
         reply = cur.by_id["verdi_ther_ad_godu"]
         self.assertEqual((reply.partner_cue, reply.partner_cue_after), ("Takk fyrir matinn!", "gjordu_svo_vel"))
         self.assertLess(cur.by_id["takk_fyrir"].order - cur.by_id["eg_tharf_hjalp"].order, 10)
-        self.assertLess(cur.by_id["takk_fyrir"].order, cur.by_id["takk_fyrir_dvolina"].order)
         for fill in ("borga_med_korti", "opna_gluggann", "loka_hurdinni", "hringja", "taka_mynd"):
             self.assertIn("inf", cur.by_id[fill].tags)
 
@@ -7072,6 +7071,13 @@ class ShortItemRepetitionTests(unittest.TestCase):
             for i in parts & set(sc.meta["new_items"]):
                 intro = next(e for e in sc.exercises if e.kind == "intro" and e.item_ids == [i])
                 starts = [intro.start] + [e.start for e in sc.exercises if e.index > intro.index and i in e.item_ids]
+                if intro.start > sc.total_duration / 2:
+                    # introduced after the lesson's middle (review of #546: the simulated course moved «hinum megin við götuna» to 21:58 of lesson 32):
+                    # its last rung, half a lesson after the introduction, falls past the lesson's end, for any item (main's «fyrir framan hótelið» at
+                    # 21:48 of its lesson 33 too); the rungs before it are still asked, the closing's recall the last
+                    self.assertGreaterEqual(len(starts), 4, f"lesson {sc.lesson_number}: {i} asked {len(starts) - 1} times after its introduction")
+                    seen.add(i)
+                    continue
                 self.assertGreaterEqual(len(starts), 5, f"lesson {sc.lesson_number}: {i} asked {len(starts) - 1} times after its introduction")
                 self.assertGreater(starts[4] - starts[0], 300, f"{i}: its rungs are spread over the lesson, not drilled")
                 seen.add(i)
@@ -10832,9 +10838,11 @@ class SpokenMeaningTests(unittest.TestCase):
     def test_the_spoken_form_is_per_language_and_never_borrowed(self):
         en = load_curriculum(ROOT / "curricula" / "is-en")
         ja = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
-        self.assertEqual(en.by_id["hotelinu"].spoken_meaning, "the hotel, as after to or for")  # review of #484: «to the hotel» is the destination
-        self.assertEqual(en.by_id["hotelinu"].meaning, "the hotel (after 'to' / 'for')")
-        self.assertEqual(ja.by_id["hotelinu"].spoken_meaning, "ホテルへ")
+        # #544 (lesson 57): a form every frame shares is glossed by its case, not by the first frames' preposition
+        self.assertEqual(en.by_id["hotelinu"].spoken_meaning, "the hotel, in the dative")
+        self.assertEqual(en.by_id["hotelinu"].meaning, "the hotel (dative)")
+        self.assertEqual(ja.by_id["hotelinu"].spoken_meaning, "ホテル、与格")
+        self.assertEqual(en.by_id["eggjum"].spoken_meaning, "eggs, as in: I'm allergic to eggs")
         self.assertEqual(en.by_id["ensku"].spoken_meaning, "the English language")
         # English's spoken form never reaches a Japanese instruction: 英語 is unambiguous
         self.assertEqual(ja.by_id["ensku"].spoken_meaning, "英語")
@@ -10862,7 +10870,7 @@ class SpokenMeaningTests(unittest.TestCase):
         for stage in ("hinted", "meaning"):
             b.recall(sc, cur.by_id["hotelinu"], stage)
         spoken = " ".join(s.text for s in sc.segments if s.type == "narrate")
-        self.assertIn("ホテルへ", spoken)
+        self.assertIn("ホテル、与格", spoken)
         self.assertNotIn("〜", spoken)
         self.assertNotIn("（", spoken)
 

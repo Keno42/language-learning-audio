@@ -500,24 +500,8 @@ topics = ["transport"]
 situation = "At check-in you're asked about luggage. Say you have one bag."
 situation_ja = "チェックインで荷物について聞かれました。一つだと答えてください。"
 
-[[items]]
-id = "eg_a_bokun"
-kind = "phrase"
-target = "Ég á bókun."
-meaning = "I have a booking."
-meaning_ja = "予約があります。"
-difficulty = 2
-topics = ["transport", "accommodation"]
-situation = "At the car rental desk. Say you have a booking."
-situation_ja = "レンタカーのカウンターです。予約があると言ってください。"
-partner_cue = "Ertu með bókun?"
-partner_cue_after = "eg_vil_leigja_bil"
-partner_cue_setup = "You walk up to the car rental counter. Say you want to rent a car."
-partner_cue_setup_ja = "レンタカーのカウンターに来ました。車を借りたいと言ってください。"
-partner_cue_meaning = "Do you have a booking?"
-partner_cue_meaning_ja = "ご予約はありますか？"
-partner_cue_situation = "The clerk asked if you have a booking. Say you do."
-partner_cue_situation_ja = "予約があるか聞かれました。予約していると言ってください。"
+# native check (2026-11-12): «Ég á bókun.» is not said; «Ég er með bókun.» (`eg_er_med_bokun`, the hotel desk) is. The item is retired, and the
+# airport check-in asks that one.
 
 [[items]]
 id = "eg_er_a_bil"
@@ -713,7 +697,7 @@ id = "flugvollur"
 setting = "At the check-in desk at Keflavík airport."
 setting_ja = "ケプラヴィーク空港のチェックインカウンターにいます。"
 topics = ["transport"]
-requires = ["eg_a_bokun", "eg_er_med_eina_tosku", "hvar_er_hlidid", "hvenaer_fer", "takk"]
+requires = ["eg_er_med_bokun", "eg_er_med_eina_tosku", "hvar_er_hlidid", "hvenaer_fer", "takk"]
 
   [[dialogues.turns]]
   opener = "Góðan daginn. Vegabréf, takk."
@@ -721,7 +705,7 @@ requires = ["eg_a_bokun", "eg_er_med_eina_tosku", "hvar_er_hlidid", "hvenaer_fer
   opener_meaning_ja = "こんにちは。パスポートをお願いします。"
   cue = "Hand it over and say you have a booking."
   cue_ja = "パスポートを渡して、予約があると言ってください。"
-  expect = "eg_a_bokun"
+  expect = "eg_er_med_bokun"
   partner = "Takk. Ertu með farangur?"
   partner_meaning = "Thanks. Do you have luggage?"
   partner_meaning_ja = "ありがとうございます。お荷物はありますか？"

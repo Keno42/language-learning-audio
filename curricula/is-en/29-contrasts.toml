@@ -1,0 +1,341 @@
+# 29 — contrasts: one noun in two forms, and what changes it (#548)
+# Lesson 58: «for each sentence the reason its case is chosen is not explained, and no practice nearby uses another case of the same word».
+# The owner (2026-11-16): no grammatical term («accusative», «dative»), only what changes the form: going there and being there («á
+# flugvöllinn» / «á flugvellinum»), or the word before it («elska fisk» / «ofnæmi fyrir fiski»); each line asked by its meaning («Where are
+# you going?» / «Where are you now?»), and linked to something the learner knows with the same form or the same deciding word (`like`).
+# `by`: "meaning" or "word". A contrast plays in the noun choice's place once every item of `requires` is met and not failing
+# (`Planner.form_choice_pool`). The sentences are made of words the learner knows; the new ones («Ég er á flugvellinum.», «Hittumst við
+# sundlaugina.») are candidates until native-checked (#209).
+
+# --- by meaning: going there (á / í + accusative) and being there (á / í + dative) ---
+
+[[contrasts]]
+id = "flugvollur_going_being"
+by = "meaning"
+lead = "Going there and being there: the word changes."
+lead_ja = "そこへ行くときと、そこにいるときで、形が変わります。"
+requires = ["a_flugvollinn", "flugvellinum", "eg_fer"]
+
+[[contrasts.lines]]
+target = "Ég fer á flugvöllinn."
+word = "flugvöllinn"
+ask = "Where are you going?"
+ask_ja = "どこへ行きますか？"
+answer = "Á flugvöllinn."
+like = "a_flugvollinn_takk"
+
+[[contrasts.lines]]
+target = "Ég er á flugvellinum."
+word = "flugvellinum"
+ask = "Where are you now?"
+ask_ja = "今どこにいますか？"
+answer = "Á flugvellinum."
+like = "flugvellinum"
+
+[[contrasts]]
+id = "safn_going_being"
+by = "meaning"
+lead = "Going there and being there: the word changes."
+lead_ja = "そこへ行くときと、そこにいるときで、形が変わります。"
+requires = ["a_safnid", "safninu", "eg_fer"]
+
+[[contrasts.lines]]
+target = "Ég fer á safnið."
+word = "safnið"
+ask = "Where are you going?"
+ask_ja = "どこへ行きますか？"
+answer = "Á safnið."
+like = "fara_a_safnid"
+
+[[contrasts.lines]]
+target = "Ég er á safninu."
+word = "safninu"
+ask = "Where are you now?"
+ask_ja = "今どこにいますか？"
+answer = "Á safninu."
+like = "safninu"
+
+[[contrasts]]
+id = "stoppistod_going_being"
+by = "meaning"
+lead = "Going there and being there: the word changes."
+lead_ja = "そこへ行くときと、そこにいるときで、形が変わります。"
+requires = ["a_stoppistodina", "stoppistodinni", "eg_fer"]
+
+[[contrasts.lines]]
+target = "Ég fer á stoppistöðina."
+word = "stoppistöðina"
+ask = "Where are you going?"
+ask_ja = "どこへ行きますか？"
+answer = "Á stoppistöðina."
+
+[[contrasts.lines]]
+target = "Ég er á stoppistöðinni."
+word = "stoppistöðinni"
+ask = "Where are you now?"
+ask_ja = "今どこにいますか？"
+answer = "Á stoppistöðinni."
+like = "stoppistodinni"
+
+[[contrasts]]
+id = "hotel_going_being"
+by = "meaning"
+lead = "Going there and being there: the word changes."
+lead_ja = "そこへ行くときと、そこにいるときで、形が変わります。"
+requires = ["hotelid", "hotelinu", "fyrir_framan_hotelid", "eg_fer"]
+
+[[contrasts.lines]]
+target = "Ég fer á hótelið."
+word = "hótelið"
+ask = "Where are you going?"
+ask_ja = "どこへ行きますか？"
+answer = "Á hótelið."
+like = "fyrir_framan_hotelid"
+
+[[contrasts.lines]]
+target = "Ég er á hótelinu."
+word = "hótelinu"
+ask = "Where are you now?"
+ask_ja = "今どこにいますか？"
+answer = "Á hótelinu."
+like = "hotelinu"
+
+# --- by the word before it: a verb or a preposition decides the form ---
+
+[[contrasts]]
+id = "fiskur_elska_fyrir"
+by = "word"
+lead = "After «elska» and after «fyrir», the word changes."
+lead_ja = "«elska» のあとと «fyrir» のあとで、形が変わります。"
+requires = ["eg_elska", "fisk", "fiski", "ofnaemi_fyrir"]
+
+[[contrasts.lines]]
+target = "Ég elska fisk."
+word = "fisk"
+ask = "What food do you love?"
+ask_ja = "大好きな食べ物は？"
+answer = "Ég elska fisk."
+
+[[contrasts.lines]]
+target = "Ég er með ofnæmi fyrir fiski."
+word = "fiski"
+ask = "What are you allergic to?"
+ask_ja = "何のアレルギーがありますか？"
+answer = "Ég er með ofnæmi fyrir fiski."
+like = "eggjum"
+
+[[contrasts]]
+id = "egg_tharf_fyrir"
+by = "word"
+lead = "After «þarf» and after «fyrir», the word changes."
+lead_ja = "«þarf» のあとと «fyrir» のあとで、形が変わります。"
+requires = ["eg_tharf", "egg", "eggjum", "ofnaemi_fyrir"]
+
+[[contrasts.lines]]
+target = "Ég þarf egg."
+word = "egg"
+ask = "What do you need from the shop?"
+ask_ja = "お店で何が要りますか？"
+answer = "Ég þarf egg."
+like = "eg_tharf_hjalp"
+
+[[contrasts.lines]]
+target = "Ég er með ofnæmi fyrir eggjum."
+word = "eggjum"
+ask = "What are you allergic to?"
+ask_ja = "何のアレルギーがありますか？"
+answer = "Ég er með ofnæmi fyrir eggjum."
+like = "eg_er_med_ofnaemi_fyrir_hnetum"
+
+[[contrasts]]
+id = "flug_seinkad"
+by = "word"
+lead = "With «seinkað», the word changes, even before it."
+lead_ja = "«seinkað» があると、その前でも形が変わります。"
+requires = ["flugid", "flugid_er_seinkad", "eg_fer"]
+
+[[contrasts.lines]]
+target = "Flugið fer klukkan sex."
+word = "flugið"
+ask = "When does the flight leave?"
+ask_ja = "飛行機は何時に出ますか？"
+answer = "Flugið fer klukkan sex."
+
+[[contrasts.lines]]
+target = "Fluginu er seinkað."
+word = "fluginu"
+ask = "You read the board. What does it say about the flight?"
+ask_ja = "掲示板を見ました。飛行機はどうなっていますか？"
+answer = "Fluginu er seinkað."
+
+[[contrasts]]
+id = "sundlaug_leita_vid"
+by = "word"
+lead = "After «leita að» and after «við», the word changes."
+lead_ja = "«leita að» のあとと «við» のあとで、形が変わります。"
+requires = ["sundlauginni", "eg_er_ad_leita_ad", "hittumst_klukkan"]
+
+[[contrasts.lines]]
+target = "Ég er að leita að sundlauginni."
+word = "sundlauginni"
+ask = "What are you looking for?"
+ask_ja = "何を探していますか？"
+answer = "Ég er að leita að sundlauginni."
+
+[[contrasts.lines]]
+target = "Hittumst við sundlaugina."
+word = "sundlaugina"
+ask = "Where shall we meet?"
+ask_ja = "どこで会いましょうか？"
+answer = "Hittumst við sundlaugina."
+
+# --- by the word before it: «Hvar er …?» and «Ég er að leita að …» ---
+
+[[contrasts]]
+id = "banki_hvar_leita"
+by = "word"
+lead = "After «leita að», the word changes."
+lead_ja = "«leita að» のあとで、形が変わります。"
+requires = ["bankinn", "bankanum", "hvar_er", "eg_er_ad_leita_ad"]
+
+[[contrasts.lines]]
+target = "Hvar er bankinn?"
+word = "bankinn"
+ask = "Ask where the bank is."
+ask_ja = "銀行がどこか聞いてください。"
+answer = "Hvar er bankinn?"
+
+[[contrasts.lines]]
+target = "Ég er að leita að bankanum."
+word = "bankanum"
+ask = "What are you looking for?"
+ask_ja = "何を探していますか？"
+answer = "Ég er að leita að bankanum."
+like = "vid_hlidina_a_bankanum"
+
+[[contrasts]]
+id = "sundlaug_hvar_leita"
+by = "word"
+lead = "After «leita að», the word changes."
+lead_ja = "«leita að» のあとで、形が変わります。"
+requires = ["sundlaugin", "sundlauginni", "hvar_er", "eg_er_ad_leita_ad"]
+
+[[contrasts.lines]]
+target = "Hvar er sundlaugin?"
+word = "sundlaugin"
+ask = "Ask where the swimming pool is."
+ask_ja = "プールがどこか聞いてください。"
+answer = "Hvar er sundlaugin?"
+
+[[contrasts.lines]]
+target = "Ég er að leita að sundlauginni."
+word = "sundlauginni"
+ask = "What are you looking for?"
+ask_ja = "何を探していますか？"
+answer = "Ég er að leita að sundlauginni."
+
+[[contrasts]]
+id = "stoppistod_hvar_leita"
+by = "word"
+lead = "After «leita að», the word changes."
+lead_ja = "«leita að» のあとで、形が変わります。"
+requires = ["stoppistodin", "stoppistodinni", "hvar_er", "eg_er_ad_leita_ad"]
+
+[[contrasts.lines]]
+target = "Hvar er stoppistöðin?"
+word = "stoppistöðin"
+ask = "Ask where the bus stop is."
+ask_ja = "バス停がどこか聞いてください。"
+answer = "Hvar er stoppistöðin?"
+
+[[contrasts.lines]]
+target = "Ég er að leita að stoppistöðinni."
+word = "stoppistöðinni"
+ask = "What are you looking for?"
+ask_ja = "何を探していますか？"
+answer = "Ég er að leita að stoppistöðinni."
+
+[[contrasts]]
+id = "safn_hvar_leita"
+by = "word"
+lead = "After «leita að», the word changes."
+lead_ja = "«leita að» のあとで、形が変わります。"
+requires = ["safnid", "safninu", "hvar_er", "eg_er_ad_leita_ad"]
+
+[[contrasts.lines]]
+target = "Hvar er safnið?"
+word = "safnið"
+ask = "Ask where the museum is."
+ask_ja = "博物館がどこか聞いてください。"
+answer = "Hvar er safnið?"
+
+[[contrasts.lines]]
+target = "Ég er að leita að safninu."
+word = "safninu"
+ask = "What are you looking for?"
+ask_ja = "何を探していますか？"
+answer = "Ég er að leita að safninu."
+
+[[contrasts]]
+id = "hotel_hvar_leita"
+by = "word"
+lead = "After «leita að», the word changes."
+lead_ja = "«leita að» のあとで、形が変わります。"
+requires = ["hotelid", "hotelinu", "hvar_er", "eg_er_ad_leita_ad"]
+
+[[contrasts.lines]]
+target = "Hvar er hótelið?"
+word = "hótelið"
+ask = "Ask where the hotel is."
+ask_ja = "ホテルがどこか聞いてください。"
+answer = "Hvar er hótelið?"
+
+[[contrasts.lines]]
+target = "Ég er að leita að hótelinu."
+word = "hótelinu"
+ask = "What are you looking for?"
+ask_ja = "何を探していますか？"
+answer = "Ég er að leita að hótelinu."
+
+[[contrasts]]
+id = "flugvollur_hvar_leita"
+by = "word"
+lead = "After «leita að», the word changes."
+lead_ja = "«leita að» のあとで、形が変わります。"
+requires = ["flugvollurinn", "flugvellinum", "hvar_er", "eg_er_ad_leita_ad"]
+
+[[contrasts.lines]]
+target = "Hvar er flugvöllurinn?"
+word = "flugvöllurinn"
+ask = "Ask where the airport is."
+ask_ja = "空港がどこか聞いてください。"
+answer = "Hvar er flugvöllurinn?"
+
+[[contrasts.lines]]
+target = "Ég er að leita að flugvellinum."
+word = "flugvellinum"
+ask = "What are you looking for?"
+ask_ja = "何を探していますか？"
+answer = "Ég er að leita að flugvellinum."
+
+[[contrasts]]
+id = "lykill_hvar_tharf"
+by = "word"
+lead = "After «þarf», the word changes."
+lead_ja = "«þarf» のあとで、形が変わります。"
+requires = ["lykillinn", "lykil", "hvar_er", "eg_tharf"]
+
+[[contrasts.lines]]
+target = "Hvar er lykillinn?"
+word = "lykillinn"
+ask = "Ask where the key is."
+ask_ja = "鍵がどこか聞いてください。"
+answer = "Hvar er lykillinn?"
+
+[[contrasts.lines]]
+target = "Ég þarf lykil."
+word = "lykil"
+ask = "What do you need for your room?"
+ask_ja = "部屋に何が要りますか？"
+answer = "Ég þarf lykil."
+like = "eg_tharf_hjalp"

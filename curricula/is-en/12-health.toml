@@ -337,17 +337,84 @@ topics = ["health"]
 situation = "The doctor asks about medication. Say you take some."
 situation_ja = "医者に薬について聞かれました。飲んでいると答えてください。"
 
+# Native-checked (#209, 2026-11): the doctor's two questions where it hurts, and their answers. «Mér er illt hérna.» replaces «Það er sárt
+# hérna.» (the id is kept, so the learner's history carries over); «Hérna.» alone answers either question. Like «líða» (above), «illt» takes
+# its experiencer in the dative: «mér», «þér».
 [[items]]
-id = "thad_er_sart_herna"
+id = "hvar_er_ther_illt"
 kind = "phrase"
-target = "Það er sárt hérna."
-meaning = "It hurts here."
-meaning_ja = "ここが痛いです。"
+target = "Hvar er þér illt?"
+meaning = "Where does it hurt?"
+meaning_ja = "どこが痛いですか？"
 difficulty = 3
 topics = ["health"]
 prereqs = ["herna"]
+situation = "Your friend slipped on the ice and is holding her leg. Ask her where it hurts."
+situation_ja = "友達が氷で滑って足を押さえています。どこが痛いか聞いてください。"
+
+[[items]]
+id = "thad_er_sart_herna"
+kind = "phrase"
+target = "Mér er illt hérna."
+meaning = "It hurts here."
+meaning_ja = "ここが痛いです。"
+alternatives = ["Hérna."]
+difficulty = 3
+topics = ["health"]
+prereqs = ["herna"]
+prompt_by = "hvar_er_ther_illt"
 situation = "The doctor asks where it hurts. Point and say it hurts here."
 situation_ja = "医者にどこが痛いか聞かれました。指さして、ここが痛いと言ってください。"
+
+[[items]]
+id = "hvar_er_verkurinn"
+kind = "phrase"
+target = "Hvar er verkurinn?"
+meaning = "Where is the pain?"
+meaning_ja = "痛みはどこですか？"
+difficulty = 3
+topics = ["health"]
+situation = "Your friend says he has a pain. Ask him where the pain is."
+situation_ja = "友達がどこかが痛いと言っています。痛みはどこか聞いてください。"
+
+[[items]]
+id = "hann_er_herna"
+kind = "phrase"
+target = "Hann er hérna."
+meaning = "The pain is here."
+meaning_ja = "痛みはここです。"
+alternatives = ["Hérna."]
+difficulty = 2
+topics = ["health"]
+prereqs = ["herna"]
+prompt_by = "hvar_er_verkurinn"
+pronunciation_notes = "«hann»: «verkurinn» (the pain) is masculine"
+situation = "The nurse asks where the pain is. Point and say the pain is here."
+situation_ja = "看護師に痛みはどこか聞かれました。指さして、痛みはここだと言ってください。"
+
+[[items]]
+id = "mer_er_ekki_illt_herna_heldur_herna"
+kind = "phrase"
+target = "Mér er ekki illt hérna, heldur hérna."
+meaning = "It doesn't hurt here, but here."
+meaning_ja = "ここではなく、ここが痛いです。"
+difficulty = 4
+topics = ["health"]
+prereqs = ["thad_er_sart_herna"]
+situation = "The doctor presses the wrong spot. Say it doesn't hurt there, point, and say it hurts here."
+situation_ja = "医者が違う所を押しています。そこではなく、ここが痛いと指さして言ってください。"
+
+[[items]]
+id = "mer_er_illt_i_hofdinu"
+kind = "phrase"
+target = "Mér er illt í höfðinu."
+meaning = "My head hurts."
+meaning_ja = "頭が痛いです。"
+difficulty = 3
+topics = ["health"]
+word_syllables = { "höfðinu" = ["höf", "ðin", "u"] }
+situation = "At the pharmacy, the pharmacist asks what's wrong. Say your head hurts."
+situation_ja = "薬局で、どうしたのか聞かれました。頭が痛いと言ってください。"
 
 [[items]]
 id = "eg_datt"
@@ -602,7 +669,7 @@ requires = ["mer_lidur_illa", "eg_er_med", "hita", "halsbolgu", "thad_er_sart_he
   [[dialogues.turns]]
   cue = "Say yes, and say it hurts here."
   cue_ja = "はいと言って、ここが痛いと言ってください。"
-  expect_text = "Já. Það er sárt hérna."
+  expect_text = "Já. Mér er illt hérna."
   expect_meaning = "Yes. It hurts here."
   expect_meaning_ja = "はい。ここが痛いです。"
   partner = "Ég skil."

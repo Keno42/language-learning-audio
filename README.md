@@ -129,9 +129,11 @@ around 80–85%.
 - The recall rate is taken over the last three *reported* lessons (a failed new item counts 1,
   a hesitated one ½, `report --hesitated` here and below; an embedded new item that failed
   counts too): above 25% failures, pace − 1; 15–25% holds.
-- If the items due for review exceed ~80% of the lesson's review slots, pace − 1.
-- Pace + 1 only on evidence: the window at ≤ 15% failures and the backlog small, or the
-  last two rated lessons both «light» (`report --load light|right|heavy`) at ≤ 25% with a small backlog. A lesson with no rating is skipped: it neither breaks nor extends the run. Any «heavy»
+- If the due items the lesson can ask (due by date, in the course, not asked by the learner's own review today) exceed ~80% of the
+  lesson's review slots, pace − 1.
+- Pace + 1 only on evidence, with room for it: the window at ≤ 15% failures, or the
+  last two rated lessons both «light» (`report --load light|right|heavy`) at ≤ 25%. Room: the last lesson's due reviews fitted (no more than a
+  tenth of the due items it could ask were left); without that record, the due items under half the review slots. A lesson with no rating is skipped: it neither breaks nor extends the run. Any «heavy»
   in the window blocks a rise; one step a lesson at most. In manual mode, without `report` the
   pace never rises. A load-only report does not mark the lesson reported. `load-preview` prints, as JSON, the next lesson's
   target for each load answer, presuming the review recalls the latest lesson's new items.
@@ -326,9 +328,10 @@ audiolesson/
 curricula/      learning material: fr-en-a1, fr-ja-a1 (files), is-en/ (27 modules, plus cando/ and
                 reading/ for the travel scenarios, scenario cards and reading deck)
 tools/          daily.sh (one day of the routine), derive_fr_ja.py (keeps fr-ja in sync with fr-en),
-                gloss.py (inserts <field>_<lang> glosses), phrase_families.py (fixed-phrase audit)
+                gloss.py (inserts <field>_<lang> glosses), phrase_families.py (fixed-phrase audit),
+                partest.py (the tests on every core), same_lessons.py (a refactoring builds the same lessons)
 profiles/       voice profiles (provider + voice per speaker)
-tests/          python -m unittest
+tests/          python tools/partest.py (what python -m unittest runs, on every core)
 docs/           CURRENT-POLICY.md / CURRENT-STATUS.md (the short briefs), LEARNING-DESIGN.md (purpose,
                 hypotheses, evidence, roadmap, checklist), DESIGN.md (code map, invariants, decisions),
                 CURRICULUM.md (format), TRAVEL-CANDO.md (scenarios, scenario cards, reading deck, trip
@@ -348,7 +351,7 @@ behind them.
 ### How to check your change
 
 ```sh
-python -m unittest -v
+python tools/partest.py   # the tests `python -m unittest` runs, on every core: minutes, not tens of minutes
 python -m audiolesson.cli validate curricula/is-en
 python - <<'EOF'
 # ten-lesson simulation: one line per lesson, letters = exercise kinds
