@@ -79,7 +79,7 @@ class NounChoiceTests(unittest.TestCase):
                 learner.items.pop(it.id, None)
         self.assertNotIn("banki", self.nouns(learner))
 
-    def test_each_sentence_is_heard_with_its_case_then_asked_from_its_meaning(self):
+    def test_each_sentence_is_heard_with_its_form_then_asked_from_its_meaning(self):
         planner = self.planner(self.learner())
         b = planner.builder
         bank = next(lines for lines in planner.noun_choice_candidates() if lines[0][0].noun == "banki")
@@ -89,9 +89,10 @@ class NounChoiceTests(unittest.TestCase):
         said = [g.text for g in sc.segments if g.exercise == ex.index and g.type in ("speak", "narrate", "answer")]
         self.assertEqual(said[0], "One noun, different forms: its form follows the words around it.")
         joined = " ".join(said)
-        for word, case in (("bankinn", "nominative"), ("bankanum", "dative")):
+        for word in ("bankinn", "bankanum"):
             self.assertIn(word, said)
-            self.assertIn(f", in the {case}.", joined)
+        for term in ("nominative", "accusative", "dative", "genitive"):
+            self.assertNotIn(term, joined, "the owner, 2026-11-16: the form and what changes it, no grammatical term")
         self.assertIn("leita að", said, "the frame's reason: «This form comes after «leita að».»")
         answers = [g.text for g in sc.segments if g.exercise == ex.index and g.type == "answer"]
         self.assertEqual(answers, ["Ég er að leita að bankanum.", "Hvar er bankinn?"], "each asked, in another order")
@@ -150,6 +151,32 @@ class NounChoiceTests(unittest.TestCase):
             self.assertGreaterEqual(played[0].start, planner.cfg.noun_choice_at * budget - 1, "never before its time")
             if pick_choice(choice_lines(planner.number_choice_candidates()), sc.lesson_number):
                 self.assertEqual(len(sc.meta["number_choices"]), 1, f"lesson {completed + 1}: the number choice still plays")
+
+    def test_a_contrast_says_what_changes_the_form_and_asks_each_line_by_its_meaning(self):
+        """#548 (lesson 58: «why the dative in «Fluginu er seinkað.»?»; the owner, 2026-11-16: «going there and being there change the form», no
+        «accusative» or «dative», a link to what the learner knows): an authored contrast plays in the noun choice's place, its lead says what
+        changes the form, each line is followed by the sentence it is like, and each is asked by a question about its meaning."""
+        learner = self.learner(stop="adeins")
+        for i in ("hotelid", "hotelinu", "fyrir_framan_hotelid", "eg_fer"):
+            self.assertTrue(learner.has_met(i), i)
+        planner = self.planner(learner)
+        pool = planner.form_choice_pool()
+        hotel = next(e for e in pool if e[0] == "contrast" and e[1].id == "hotel_going_being")
+        self.assertEqual(hotel[2], ["fyrir framan hótelið", "Ég er að leita að hótelinu."], "each line linked to a sentence the learner knows")
+        self.assertFalse([e for e in pool if e[0] == "noun" and e[1][0][0].noun == "hotel"], "the noun a contrast sets is not set again by its frames")
+        sc = Script(41, "t", "is", "en")
+        ex = planner.builder.contrast_choice(sc, hotel[1], hotel[2])
+        self.assertEqual(mode(ex), "form")
+        said = [(g.type, g.text) for g in sc.segments if g.exercise == ex.index and g.type in ("speak", "narrate", "answer")]
+        self.assertEqual(said[0], ("narrate", "Going there and being there: the word changes."))
+        self.assertIn(("speak", "fyrir framan hótelið"), said, "«Like «fyrir framan hótelið».»")
+        joined = " ".join(t for _, t in said)
+        for term in ("accusative", "dative"):
+            self.assertNotIn(term, joined)
+        asked = [(said[k][1], said[k + 1][1]) for k in range(len(said) - 1) if said[k + 1][0] == "answer"]
+        self.assertEqual(asked, [("Where are you now?", "Á hótelinu."), ("Where are you going?", "Á hótelið.")], "by its meaning, in another order")
+        sc = planner.build()
+        self.assertEqual(len([e for e in sc.exercises if e.stage == "noun_choice"]), 1, "a lesson sets one, contrast or noun")
 
 
 if __name__ == "__main__":
