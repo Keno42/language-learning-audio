@@ -466,6 +466,9 @@ def _plan(script: Script, cur) -> dict:
         "hear_supports_reported": list(meta.get("hear_supports_reported", [])),  # #444: reported-hard-to-hear items given listening support
         "open_items": list(meta.get("open_items", [])),  # #199: the bot brings their questions forward and asks the waiting ones
         "open_not_fitted": list(meta.get("open_not_fitted", [])),
+        # #518: each new item's dose in this lesson (light / middle / heavy), and the next-day weak rate and count of each trait the dose reads
+        "doses": dict(meta.get("doses", {})),
+        "trait_rates": dict(meta.get("trait_rates", {})),
         # H9 (#526): what the pace reads. ``due_at_start``: the due items this lesson could ask; ``due_by_date``: every item due by its date
         "due_at_start": meta.get("due_at_start", 0),
         "due_by_date": meta.get("due_by_date", 0),

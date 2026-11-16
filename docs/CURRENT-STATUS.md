@@ -83,8 +83,11 @@ it. Its remark is about the case of a noun in a sentence (LD §5.48).
    `validate` advisory that counts the ones left.
 2. **Practice by what is hard in an item, not its kind (#439, #518, G11, H11).** The remark of lessons 41, 44, 49, 51 and 54, and the
    owner's on #516. Built: a new phrase made of words the learner says is asked as a use of them (#523), and a new noun's form named against
-   its basic word (#527). Lesson 56's new items were recalled 10 of 12: «Get ég skilað þessu?» was not. **Next:** the rest of #518, a
-   dose for every new item, which waits for the owner's three decisions.
+   its basic word (#527). Lesson 56's new items were recalled 10 of 12: «Get ég skilað þessu?» was not. **Built ahead of its round (#529):**
+   the three doses the owner decided on 2026-11-12. The reduction is what a lesson whose reviews cannot fit does already (#478; seven of
+   eight lessons on the replay of lesson 58's export): a new sentence said six times, not eight or nine. #529 adds the loop: a kind of
+   item the next-day reviews find weak keeps every recall, whatever the reviews. No kind is over 17% after lesson 58, so no lesson changes
+   until one is. **Next:** read `trait_rates` in each plan; the first kind over 20% is the first heavy one.
 3. **The pace rises when the reviews fit (H9).** The target rose to 9, 10 and 11, and lessons 56–58 were «right»; lesson 58 left 6 of
    its 51 askable due items unfitted, so it stops the next rise. **Next:** read whether «right» holds at 11; a «heavy» stops a rise. The other learner's lesson 32 (15 minutes) had 81 items due and 38 not fitted.
    It is the first of their lessons to record this, so their trend is read from the next exports.
