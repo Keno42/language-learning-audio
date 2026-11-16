@@ -4,7 +4,8 @@
 # an Icelandic voice with the English after it in the lesson that teaches it and the next; from the third lesson it is said alone, and a
 # failure brings the English back (`Builder.command_support`). `command` names the line it replaces (`content.COMMAND_KEYS`).
 # The order is how often the lessons say them: lesson 54 for «Hægt.» and «Hlustaðu aftur.»; lesson 57 (all four taught, «no new Icelandic
-# instruction came») for «Og á eðlilegum hraða.» (9 times), «Svarið:» (6), «Aftur að tala.» (6) and «Samtalinu er lokið.» (5).
+# instruction came») for «Og á eðlilegum hraða.» (9 times), «Svarið:» (6), «Aftur að tala.» (6), «Samtalinu er lokið.» (5) and «Nú kemur
+# stutt samtal.» (4: a conversation's opening, «Now a short conversation.»).
 # Candidates until native-checked (#209).
 
 [[items]]
@@ -102,3 +103,15 @@ meaning_spoken_ja = "会話の後の「会話はここまでです」"
 difficulty = 1
 topics = ["instructions"]
 command = "conversation_back"
+
+[[items]]
+id = "stutt_samtal_command"
+kind = "phrase"
+target = "Nú kemur stutt samtal."
+meaning = "Now a short conversation, before a conversation"
+meaning_ja = "会話の前の「ここからは短い会話です」"
+meaning_spoken = "Now a short conversation, before a conversation"
+meaning_spoken_ja = "会話の前の「ここからは短い会話です」"
+difficulty = 1
+topics = ["instructions"]
+command = "dialogue_start"
