@@ -94,7 +94,7 @@ it. Its remark is about the case of a noun in a sentence (LD §5.48).
    its 51 askable due items unfitted, so it stops the next rise. **Next:** read whether «right» holds at 11; a «heavy» stops a rise. The other learner's lesson 32 (15 minutes) had 81 items due and 38 not fitted.
    It is the first of their lessons to record this, so their trend is read from the next exports.
 
-**Alongside:** a conversation once (#519): lessons 54–58 had four to eight conversations and no remark, five feedbacks. Hard to hear (#447): lesson 57 played the listening support for «eggjum» and «hleðslutæki», reported after lesson 56; nothing was reported after 57 or 58. The listening pool's sameness (#339): none of lesson 56's, 57's or 58's pick-outs was on a line heard in the three lessons before (0 of 8, 0 of 6, 0 of 6; lesson 55: 3 of 4). The town names as dative fillers, left unfitted in lessons 53–55, were fitted in 56 and 57. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
+**Alongside:** a conversation once (#519): lessons 54–58 had four to eight conversations and no remark, five feedbacks. Hard to hear (#447): lesson 57 played the listening support for «eggjum» and «hleðslutæki», reported after lesson 56; nothing was reported after 57 or 58. The listening pool's sameness (#339): none of lesson 56's, 57's or 58's pick-outs was on a line heard in the three lessons before (0 of 8, 0 of 6, 0 of 6; lesson 55: 3 of 4). On the replay of lesson 58's export it comes back in lesson 70, when few lines are left that were not heard lately: 12 of 19 pick-outs; 6 of 16 with the batch after lesson 58; at most 1 when C4's four levels play as well. The town names as dative fillers, left unfitted in lessons 53–55, were fitted in 56 and 57. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
 before adding practice. Scene coherence (#327): lesson 50 said four of its six new items as turns of the played exchange, lesson 51 none of its
 ten (its exchange was a level played again). The note's pieces (#481) have not played yet. A silent clip taken as cut off (#503) is built; «vettlinga», whose syllable «lin» it was found on, has not played since.
 
@@ -107,7 +107,14 @@ lines are said in the played exchange in lessons 30–35 (17; before the town, 0
 level is said after the opening, and the closing ends on the level's lines in the order of its turns. The town has a third
 level for the way itself, and small talk a third and fourth; the batch for lessons 41–50 (#432) added arranging to meet and
 the weather, and more levels for the town, small talk and the clothes shop (item 3). #451 step 2 added the bus, the hotel desk and the
-weather's second and third levels (#511, #512). Next: a taxi.
+weather's second and third levels (#511, #512). **The batch after lesson 58:** on the replay of its export the learner had three levels
+left (lessons 59–61), and from lesson 62 the lesson's exchange was one already played (the supermarket's third level in 18 of the lessons
+62–96). Written: the hotel's levels 3–6 (a room for a night, breakfast and Wi-Fi, a lost key and a cold room, the last morning), a missed
+bus (the town's sixth), the path's ice and early dark (the tour's sixth, with #142's lines), the family (small talk's sixth and seventh),
+and two themes of Tier C's emergency basics, the pharmacy and an accident, played for a learner whose trip profile boosts C4. A new level
+plays in every lesson to 69 (to 73 with C4 boosted). The day's new items are turns of it in two to four of those lessons only: what a
+later level wants is taught before its lesson, as the rest of a day's pace. **Next:** a waiting level's items kept for its lesson (a
+change to how new material is chosen, measured on the replay first), and the next batch from the next export (a taxi, daily life).
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
 learner say this line", then the planner's build loop. Each step leaves every lesson `tools/same_lessons.py` builds
