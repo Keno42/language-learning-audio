@@ -144,6 +144,27 @@ def meaning_prompt(prompts: Prompts, known_lang: str, target_lang: str, meaning:
     return prompts.get("meaning", meaning=meaning_text(known_lang, meaning), language=prompts.language_name(target_lang))
 
 
+# #429 step 4: the exercises whose cue may open with a frame said in Icelandic («Say:», «How do you say:»); not a note, whose prose stays as written
+CUE_FRAME_KINDS = frozenset({"recall", "generative", "intro", "model", "embed", "connect"})
+
+
+def cue_frames(prompts: Prompts, known_lang: str, target_lang: str) -> list[tuple[str, "re.Pattern"]]:
+    """#429 step 4: the frames of a cue that asks the learner to say something, each with its instruction's phrasing key: «How do you say: …»
+    (``how_say_frame``) and «Say: …», «In Icelandic, say: …» (``say_frame``), in the learner's language. A match has ``lead`` (the cue's words
+    before the frame: «Now something you haven't heard yet.») and ``rest`` (what to say: «I'm looking for the bank.»), so the frame can be said
+    by the taught phrase between them («Segðu:», «Hvernig segir maður:»)."""
+    lang = re.escape(prompts.language_name(target_lang))
+    if known_lang.split("-")[0] == "ja":
+        return [
+            ("how_say_frame", re.compile(r"^(?P<lead>.*?)(?P<rest>「[^」]+」)は、何と言いますか？$", re.S)),
+            ("say_frame", re.compile(rf"^(?P<lead>.*?)(?:{lang}で)?(?P<rest>「[^」]+」)と言ってください。(?P<tail>.*)$", re.S)),
+        ]
+    return [
+        ("how_say_frame", re.compile(r"^(?P<lead>)How do you say: (?P<rest>.+)$", re.S)),
+        ("say_frame", re.compile(rf"^(?P<lead>.*?)(?:In {lang}, say|Say): (?P<rest>.+)$", re.S)),
+    ]
+
+
 def meaning_prompts(prompts: Prompts, known_lang: str, target_lang: str, meaning: str, context: str = "") -> list[str]:
     """Every wording ``meaning_prompt`` can give for this item (the prompts file lists several templates per key)."""
     if context:
@@ -174,6 +195,7 @@ class Builder:
     modeled_wholes: dict = field(default_factory=dict)  # part id → {through, answer, meaning, gender}: the sentence a pattern's worked example modelled with it (#262)
     wholes_taught: dict = field(default_factory=dict)  # part id → {through, answer, meaning}: the sentence it was introduced in (#239), taught whole today, as taught
     form_reasons_said: set = field(default_factory=set)  # constructions whose ``form_reason`` was said this lesson (#270: once a lesson per frame)
+    _cue_frame_rx: list | None = None  # #429 step 4: ``cue_frames`` for the learner's language, built on first use
     novelty_announced: set = field(default_factory=set)  # (construction, form) already announced as «something you haven't heard yet» this lesson (#197)
     said: Counter = field(default_factory=Counter)  # how often each sentence was said this lesson: model answers, echoes, the intro once, partner lines (#192)
     _frames: dict | None = None  # #451 step 3b: pattern id -> its number frame (the pattern and its number phrases), built once
@@ -398,7 +420,36 @@ class Builder:
         return st.successes if st else 0
 
     def _narr(self, sc: Script, ex: Exercise, text: str, role: str | None = None) -> None:
+        if role is None and ex.kind in CUE_FRAME_KINDS and self._framed_cue(sc, ex, text):
+            return
         sc.add(Segment("narrate", "instructor", text, self.kl, 1.0, self.timing.speech_estimate(text, self.kl), role, ex.index))
+
+    def _framed_cue(self, sc: Script, ex: Exercise, text: str) -> bool:
+        """#429 step 4 (lesson 59: «Say: …» 40 times and «How do you say: …» 18 times, the English lines left): a cue that asks the learner to
+        say something («Now something you haven't heard yet. Say: I'm looking for the bank.») said with its frame in Icelandic once taught: the
+        lead in the learner's language, the frame («Segðu:», with «Say:» after it while ``command_support`` holds), then what to say, which
+        stays in the learner's language. Said as the cue is built, so the lesson's time counts it. False (the cue as it was) when no frame
+        (``cue_frames``) matches, it is not taught, or the exercise asks for the frame's own phrase (the cue would say the answer)."""
+        if self._cue_frame_rx is None:
+            self._cue_frame_rx = cue_frames(self.prompts, self.kl, self.tl)
+        for key, rx in self._cue_frame_rx:
+            m = rx.match(text)
+            if not m:
+                continue
+            item = self.command_item(key)
+            if item is None or item.id in ex.item_ids:
+                return False
+            lead = m.group("lead").strip()
+            rest = (m.group("rest") + (m.groupdict().get("tail") or "")).strip()
+            if lead:
+                sc.add(Segment("narrate", "instructor", lead, self.kl, 1.0, self.timing.speech_estimate(lead, self.kl), None, ex.index))
+            self._speak(sc, ex, item.target, speaker=COMMAND_VOICE, role="command")
+            if self.command_support(item):
+                support = self.prompts.get(key)
+                sc.add(Segment("narrate", "instructor", support, self.kl, 1.0, self.timing.speech_estimate(support, self.kl), "command_support", ex.index))
+            sc.add(Segment("narrate", "instructor", rest, self.kl, 1.0, self.timing.speech_estimate(rest, self.kl), None, ex.index))
+            return True
+        return False
 
     def command_item(self, key: str) -> Item | None:
         """#429: the phrase that says the instruction ``key`` in the target language, once the learner has it (met before, or taught in this

@@ -265,10 +265,38 @@ class CommandTests(unittest.TestCase):
         self.assertIn(Prompts.load("en").get("embed_sentence"), plain, "not taught: «In another sentence. Listen, then repeat.» as before")
         self.assertNotIn("Repeat.", plain[plain.index(Prompts.load("en").get("embed_sentence")):], "and nothing added")
 
+    def test_a_cue_s_frame_is_said_in_icelandic_once_taught(self):
+        """#429 step 4 (lesson 59: «Say: …» 40 times and «How do you say: …» 18 times, the English lines left; the authored phrases run out in
+        lesson 62): the cue's frame between its lead and what to say, «Segðu:» and «Hvernig segir maður:»; what to say stays in the learner's
+        language. Not in the exercise that asks for the frame's own phrase, whose cue would say the answer."""
+        def framed(lang, text, taught=("segdu_command", "hvernig_segir_madur_command"), asked=()):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            learner = LearnerState("is", lang, "A1")
+            learner.lessons_completed = 60
+            for i in taught:
+                learner.items[i] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", introduced_lesson=50)
+            b = builder(cur, lang, learner)
+            sc = Script(1, "t", "is", lang)
+            b._narr(sc, sc.new_exercise("recall", "meaning", list(asked), "x"), text)
+            out = [(g.type, g.text) for g in sc.segments]
+            return None if out == [("narrate", text)] else out
+
+        self.assertEqual(framed("en", "Now something you haven't heard yet. Say: I'm looking for the bank."),
+                         [("narrate", "Now something you haven't heard yet."), ("speak", "Segðu:"), ("narrate", "I'm looking for the bank.")])
+        self.assertEqual(framed("en", "In Icelandic, say: It's minus eight degrees."), [("speak", "Segðu:"), ("narrate", "It's minus eight degrees.")])
+        self.assertEqual(framed("en", "How do you say: Where is the gate?"), [("speak", "Hvernig segir maður:"), ("narrate", "Where is the gate?")])
+        self.assertEqual(framed("ja", "アイスランド語で「門はどこですか」と言ってください。"), [("speak", "Segðu:"), ("narrate", "「門はどこですか」")])
+        self.assertEqual(framed("ja", "「門はどこですか」は、何と言いますか？"), [("speak", "Hvernig segir maður:"), ("narrate", "「門はどこですか」")])
+        self.assertIsNone(framed("en", "Complete the sentence to say: I have one bag."), "a cloze's frame is not «Say:»")
+        self.assertIsNone(framed("en", "Say: Hi.", taught=()), "not taught: the cue as it was")
+        self.assertIsNone(framed("en", "Say: Say, before what to say.", asked=("segdu_command",)), "«Segðu:» would say the answer")
+        self.assertEqual(framed("en", "How do you say: Say, before what to say.", asked=("segdu_command",))[0], ("speak", "Hvernig segir maður:"),
+                         "another frame gives nothing away")
+
     def test_the_commands_come_one_a_lesson_in_their_order(self):
         order = [i.id for i in self.cur.items if i.command]
         self.assertEqual(order, ["endurtaktu", "hlustadu", "haegt_command", "hlustadu_aftur", "edlilegum_hrada_command", "svarid_command",
-                                 "aftur_ad_tala_command", "samtalinu_lokid_command", "stutt_samtal_command"],
+                                 "aftur_ad_tala_command", "samtalinu_lokid_command", "stutt_samtal_command", "segdu_command", "hvernig_segir_madur_command"],
                          "lesson 54's then lesson 57's, by how often the lessons say them")
         learner = LearnerState("is", "en", "A1")
         for i in ("endurtaktu", "hlustadu"):
