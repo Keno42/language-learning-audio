@@ -293,6 +293,25 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(framed("en", "How do you say: Say, before what to say.", asked=("segdu_command",))[0], ("speak", "Hvernig segir maður:"),
                          "another frame gives nothing away")
 
+    def test_a_framed_cue_keeps_its_claim_about_the_sentence(self):
+        """Review of #557: once «Segðu:» had played, «Now something you haven't heard yet.» «Segðu:» «I need a taxi.» failed the novelty check,
+        the instruction taken for the sentence the claim points at. An instruction said in Icelandic is not a line of the lesson."""
+        from audiolesson.claims import unkept_claims
+
+        learner = LearnerState("is", "en", "A1")
+        learner.lessons_completed = 60
+        learner.items["segdu_command"] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", introduced_lesson=50)
+        b = builder(self.cur, learner=learner)
+        en = Prompts.load("en")
+        sc = Script(1, "t", "is", "en")
+        for sentence, meaning in (("Ég þarf hjálp.", "I need help."), ("Ég þarf leigubíl.", "I need a taxi.")):
+            ex = sc.new_exercise("generative", "recombine", [], sentence)
+            b._narr(sc, ex, en.get("recombine_new", meaning=meaning))
+            b._answer_pause(sc, ex, sentence, None, generative=True)
+            b._answer(sc, ex, sentence)
+        self.assertEqual([g.text for g in sc.segments if g.role == "command"], ["Segðu:", "Segðu:"])
+        self.assertEqual(unkept_claims(sc, en), [], "each sentence is new; «Segðu:» was heard before, and is no sentence")
+
     def test_the_commands_come_one_a_lesson_in_their_order(self):
         order = [i.id for i in self.cur.items if i.command]
         self.assertEqual(order, ["endurtaktu", "hlustadu", "haegt_command", "hlustadu_aftur", "edlilegum_hrada_command", "svarid_command",
