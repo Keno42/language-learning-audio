@@ -5,7 +5,9 @@
 # failure brings the English back (`Builder.command_support`). `command` names the line it replaces (`content.COMMAND_KEYS`).
 # The order is how often the lessons say them: lesson 54 for «Hægt.» and «Hlustaðu aftur.»; lesson 57 (all four taught, «no new Icelandic
 # instruction came») for «Og á eðlilegum hraða.» (9 times), «Svarið:» (6), «Aftur að tala.» (6), «Samtalinu er lokið.» (5) and «Nú kemur
-# stutt samtal.» (4: a conversation's opening, «Now a short conversation.»).
+# stutt samtal.» (4: a conversation's opening, «Now a short conversation.»); lesson 59 (the lines left run out in lesson 62) for the frames of
+# a cue, «Segðu:» («Say:», «In Icelandic, say:»: 40 times) and «Hvernig segir maður:» («How do you say:»: 18), said between the cue's lead
+# and what to say, which stays in the learner's language (`exercises.cue_frames`).
 # Candidates until native-checked (#209).
 
 [[items]]
@@ -115,3 +117,27 @@ meaning_spoken_ja = "会話の前の「ここからは短い会話です」"
 difficulty = 1
 topics = ["instructions"]
 command = "dialogue_start"
+
+[[items]]
+id = "segdu_command"
+kind = "phrase"
+target = "Segðu:"
+meaning = "Say, before what to say"
+meaning_ja = "言うことの前の「言ってください」"
+meaning_spoken = "Say, before what to say"
+meaning_spoken_ja = "言うことの前の「言ってください」"
+difficulty = 1
+topics = ["instructions"]
+command = "say_frame"
+
+[[items]]
+id = "hvernig_segir_madur_command"
+kind = "phrase"
+target = "Hvernig segir maður:"
+meaning = "How do you say, before what to say"
+meaning_ja = "言うことの前の「何と言いますか」"
+meaning_spoken = "How do you say, before what to say"
+meaning_spoken_ja = "言うことの前の「何と言いますか」"
+difficulty = 1
+topics = ["instructions"]
+command = "how_say_frame"

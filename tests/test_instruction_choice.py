@@ -15,7 +15,7 @@ from audiolesson.timing import Timing
 TODAY = date(2026, 3, 1)
 ROOT = Path(__file__).resolve().parent.parent
 COMMANDS = ["endurtaktu", "hlustadu", "haegt_command", "hlustadu_aftur", "edlilegum_hrada_command", "svarid_command", "aftur_ad_tala_command",
-            "samtalinu_lokid_command", "stutt_samtal_command"]
+            "samtalinu_lokid_command", "stutt_samtal_command", "segdu_command", "hvernig_segir_madur_command"]
 
 
 class InstructionChoiceTests(unittest.TestCase):

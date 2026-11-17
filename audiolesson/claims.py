@@ -66,7 +66,9 @@ NO_CLAIM = {
     "transform_same": "«Same change:»: refers back to the instruction of the transform asked in the exercise just before (#405; lesson 43), which the builder tracks (``_last_instruction``, ``_last_instruction_ex``); no CLAIMS kind checks it",
 }
 
-_SPEECH_EXCEPT = ("partial", "hint", "spaced")  # a cloze fragment, a first-word hint, a line said word by word: not a line of their own
+# a cloze fragment, a first-word hint, a line said word by word, an instruction said in Icelandic («Segðu:», #429; review of #557: it was taken
+# for the sentence a novelty claim points at): not a line of their own
+_SPEECH_EXCEPT = ("partial", "hint", "spaced", "command")
 
 
 def _pattern(template: str) -> re.Pattern:
