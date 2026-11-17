@@ -928,7 +928,7 @@ who = "main"
 text = "«Repeat» was learned in Icelandic, but some instructions still say it only in English. (The new instruction's introduction «… It means: Listen again. Repeat.», «A sentence from a pattern you know. Listen, then repeat.» and «Let's build it up from the end. Repeat each part.»: a taught instruction is said in Icelandic only where it is a line of its own.)"
 family = "instruction-language"
 class = "twenty"
-answered_by = []
+answered_by = ["#551"]
 
 [[lesson.remarks]]
 who = "main"
@@ -970,7 +970,14 @@ who = "main"
 text = "For each sentence the reason its case is chosen is not explained, and no practice nearby uses another case of the same word, so it stays vague: why the dative in «Fluginu er seinkað.», why the accusative in «klukkan sex á sundlaugina»? («seinka» takes the dative; the hotel exchange's partner line is «Klukkan sex, við sundlaugina.», the accusative after «við». No phrase with a case form carries its reason, only frames and eight phrases do; the noun choice, four nouns ready, played in neither lesson 57 nor 58: #548.)"
 family = "form-why"
 class = "twenty"
-answered_by = []
+answered_by = ["#550", "#552"]
+
+[[lesson]]
+n = 59
+form = true
+load = "right"
+built = ["#529", "#550", "#551", "#552", "#554", "#555"]
+long_run = ["#551", "#554", "#555"]
 
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
@@ -1806,3 +1813,41 @@ pr = ["#546"]
 family = "instruction-language"
 first_heard = 58
 heard = "«Og á eðlilegum hraða.» taught at 00:15, then said 11 times with its English; 29 instructions in Icelandic"
+
+[[change]]
+title = "a new item keeps every recall when the next-day reviews find its kind weak (#518: #529)"
+issue = ["#518"]
+pr = ["#529"]
+family = "easy-substitution"
+first_heard = 59
+heard = "lesson 58's new items recalled 2 of 12 in the written review before it"
+
+[[change]]
+title = "the form work at times of its own: the noun choice at 0.6 of the lesson, the number choice by 0.75 (#548: #550)"
+issue = ["#548"]
+pr = ["#550"]
+family = "form-why"
+first_heard = 59
+heard = "the subject choice at 14:00, the contrast at 18:42, the number choice at 22:05"
+
+[[change]]
+title = "a noun's forms set by what changes them, asked by their meaning, with no grammatical term; authored contrasts (#548: #552)"
+issue = ["#548"]
+pr = ["#552"]
+family = "form-why"
+first_heard = 59
+heard = "«After «þarf» and after «fyrir», the word changes.» «Ég þarf egg.» / «Ég er með ofnæmi fyrir eggjum.», each asked by its meaning"
+
+[[change]]
+title = "a taught instruction inside a longer English line said as a line of its own (#429 step 2: #551)"
+issue = ["#429"]
+pr = ["#551"]
+family = "instruction-language"
+first_heard = 59
+heard = "«Let's build it up from the end.» «Endurtaktu.» three times; no «Listen, then repeat.» or «Repeat each part.» left"
+
+[[change]]
+title = "a conversation opens in Icelandic once taught: «Nú kemur stutt samtal.» (#429 step 3: #554, #555)"
+issue = ["#429"]
+pr = ["#554", "#555"]
+family = "instruction-language"
