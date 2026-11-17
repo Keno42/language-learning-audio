@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.45 (lessons 1–55), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.46 (lessons 1–56), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1880,3 +1880,42 @@ What the lesson played, by change, and what the learner wrote:
 - the remark's answer: the way back after the form work, as one rule in `transitions.py` for every block that opens with its own line.
 
 These are the round's two behaviour PRs.
+
+### 5.46 Lesson 56: the first lesson built with #538, #539 and #541
+
+Lesson 56 was generated with LLA `c90f448` (main with #536–#541), the bot at site_update_notifier `19a247d`. Rebuilt from its export it is
+identical (119 exercises, 30.1 minutes).
+
+| | lesson 56 |
+|---|---|
+| length | 30.1 min, 119 exercises |
+| new items; new components, weighted (target) | 12; 10.5 (9) |
+| theme (level) | bus (2), new |
+| items reviewed / due | 57 due by date, 46 the lesson could ask; it practised all 46 |
+| conversations | 8, 4.9 minutes: the bus's two plays, the clothes shop's third level, two fixed dialogues cut to three or four turns, three levels heard again |
+| written review's queue | 125 due |
+| feedback form: load; friction | **right**; none |
+| «sooner» | «hleðslutæki», «vatnsflösku», «eggjum», hard to hear |
+
+Three behaviour PRs, one more than §9 "Governance" allows between lessons. As with lesson 55, the lesson is read change by change from the
+transcript.
+
+- **The long run.**
+  - #539 (the noun by its frame): «Hvar er bankinn?» / «Ég er að leita að bankanum.», «Here it is «bankanum», in the dative.»
+  - #541 (a form the noun choice could set comes in as new material): «eggjum», charged at the form weight, 0.5.
+- **#538 (the way back after the form work):** «That's the end of the form work.» once, after the number choice. The subject choice and the
+  noun choice handed over to tasks that open with their own line. Lesson 55's remark did not come back.
+- **Remark 1: «"Repeat" was learned in Icelandic, but some instructions still say it only in English.»**
+  - Three lines say it: the new instruction's own introduction («… It means: Listen again. Repeat.»), «A sentence from a pattern you know.
+    Listen, then repeat.» and «Let's build it up from the end. Repeat each part.».
+  - A taught instruction was said in Icelandic only where it is a line of its own (`Builder._instruct`). Inside a longer English line it
+    stayed English.
+  - Family instruction-language; a twenty-point part, open (#429 step 2).
+- **Remark 2: «The instructions in Icelandic and English together never end: is the full switch not coming yet?»**
+  - «Endurtaktu. / Repeat.» was said seven times, four lessons after lesson 52 taught it, and 22 instructions in all came with their English.
+  - The English waited for two recalls in the written review, and «Endurtaktu.» had had one (an interval of 3 days).
+  - The owner: no complaint, given after a lesson, is understanding. The English now goes from the third lesson (#542).
+  - Asked how a learner who is not ready says so, the owner chose one setting asked once by the bot over feedback on each instruction (#543,
+    site_update_notifier#224).
+- **Lesson 55's new items in the review:** 9 of 9 recalled.
+- **Hard to hear:** three of the day's new words were reported. The next lesson played the listening support for two of them.

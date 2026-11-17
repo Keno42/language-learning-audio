@@ -26,10 +26,14 @@ In order:
    without one a lesson the switch will not progress (LD §5.47). **Built, step 1 (#546):** the next four, in order of how often a lesson
    says them: «Og á eðlilegum hraða.» (And at natural speed.), «Svarið:» (The answer:), «Aftur að tala.» (Back to speaking.) and «Samtalinu
    er lokið.» (That's the end of the conversation.); lesson 58 taught the first and said it 11 times, 29 instructor lines in Icelandic in all,
-   with no remark (LD §5.48). **This round (step 2):** a taught instruction inside a longer English line («Listen, then repeat.», «Repeat each
-   part.», lesson 56). **Built ahead of its round (step 3):** «Nú kemur stutt samtal.» for a conversation's opening, «Now a short conversation.»,
-   the next line by how often a lesson says it (about three times); it is taught after «Svarið:», «Aftur að tala.» and «Samtalinu er lokið.», one a
-   lesson, so the lessons before it do not change. **Then:** the question frame «How do you say: …».
+   with no remark (LD §5.48). **Built, step 2 (#551):** a taught instruction inside a longer English line said as a line of its own («Let's
+   build it up from the end.» «Endurtaktu.»); lesson 59 left no «Listen, then repeat.» or «Repeat each part.» (LD §5.49). **Built, step 3
+   (#554, #555):** «Nú kemur stutt samtal.» for a conversation's opening, taught after «Aftur að tala.» and «Samtalinu er lokið.» (lesson 62 on the
+   replay of lesson 59's export); the authored phrases then run out. **This round (step 4, #557):** a cue's frame, «Segðu:» for «Say:» and «In
+   Icelandic, say:» (40 a lesson) and «Hvernig segir maður:» for «How do you say:» (18), said between the cue's lead and what to say, which
+   stays in the learner's language; on the replay lessons 63 and 64 teach them and from lesson 65 about 115 instructor lines a lesson are in
+   Icelandic (44 in lesson 62). **Then:** the instructor's remaining English, by how often a lesson says it («Something new.», «Make it a
+   question:»).
 2. **Forms as choices (#528, owner 2026-11-12).** «New material should not be more numbers, colours and words to memorise; I want to feel a
    coach who makes me choose the right case and the right verb form.» The course itself is one-sided: of 256 sentences that open with a
    subject pronoun, 207 say «ég»; «vilja», «þurfa» and «eiga» exist in one form; the learner has two forms of three nouns. **Built, step 1 (#531):** the
@@ -68,33 +72,31 @@ In order:
 4. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 5. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
-**This round:** #429 step 2, a taught instruction said inside a longer English line (item 1 above), the long-run step; beside it, #548
-step 1, lesson 58's twenty-point part («Now» item 1).
+**This round:** #429 step 4, a cue's frame in Icelandic (item 1 above, #557), the long-run step. Lesson 59 had no remark; its pace signal
+(«Now» item 1) is read on the next two lessons before anything is built for it.
 
-## Now (updated 2026-11-15, after lesson 58), in order
+## Now (updated 2026-11-17, after lesson 59), in order
 
 The remarks' half of each round (LD §9 "Governance"): each remark ranked by how often its cause recurs on the replay of the latest export and
-what a fix costs. The latest export is lesson 58's; the next lesson is 59. Lessons 56–58 were rated «right» at targets of 9, 10 and 11.
-Lesson 57's remarks (no new instruction, a gloss by a preposition) were answered by #546 and #547; lesson 58 played #546 with no remark on
-it. Its remark is about the case of a noun in a sentence (LD §5.48).
-1. **A noun's case with the word that decides it, and its other case near it (#548, the family form-why).** Two remarks in two lessons
-   (lesson 57's gloss, #547; lesson 58's «why the dative, why the accusative»). The reason is said for frames and eight phrases only; 51 phrases
-   with a case form say none, and a partner's line has no place for one. The noun choice, which sets a noun's two cases side by side, takes a
-   today's-items turn the number choice left: lessons 57 and 58 played none, with four nouns ready. **This round:** step 1, the noun choice
-   at a time of its own, setting the noun whose form the lesson brings. **Then:** the phrases' reasons as data, native-checked (#209), with a
-   `validate` advisory that counts the ones left.
-2. **Practice by what is hard in an item, not its kind (#439, #518, G11, H11).** The remark of lessons 41, 44, 49, 51 and 54, and the
+what a fix costs. The latest export is lesson 59's; the next lesson is 60. Lessons 56–59 were rated «right». Lesson 58's remark (why a case)
+was answered by #550 and #552; lesson 59 played both, and #551, with no remark (LD §5.49).
+1. **The pace after a failed day (H9).** Lesson 58's new items, at a target of 11, were recalled 2 of 12 in the written review (lesson 57's:
+   10 of 12). The rule took the target to 9; lesson 59 still left 22 of the 50 due items it could ask, and was «right». **Next:** read lesson
+   60's next-day recall and fit before changing the rule; if recall stays under 80%, a «right» should not let the target rise past where the
+   next day fails.
+2. **A noun's case with what decides it (#548, the family form-why).** Built: the form work at times of its own (#550) and the authored
+   contrasts, what changes the form said with no grammatical term and each line asked by its meaning (#552); lesson 59 played the egg's,
+   with no remark. **Next:** step 2, the reasons of the 51 phrases with a case form, as data, native-checked (#209).
+3. **Practice by what is hard in an item, not its kind (#439, #518, G11, H11).** The remark of lessons 41, 44, 49, 51 and 54, and the
    owner's on #516. Built: a new phrase made of words the learner says is asked as a use of them (#523), and a new noun's form named against
    its basic word (#527). Lesson 56's new items were recalled 10 of 12: «Get ég skilað þessu?» was not. **Built ahead of its round (#529):**
    the three doses the owner decided on 2026-11-12. The reduction is what a lesson whose reviews cannot fit does already (#478; seven of
    eight lessons on the replay of lesson 58's export): a new sentence said six times, not eight or nine. #529 adds the loop: a kind of
    item the next-day reviews find weak keeps every recall, whatever the reviews. No kind is over 17% after lesson 58, so no lesson changes
    until one is. **Next:** read `trait_rates` in each plan; the first kind over 20% is the first heavy one.
-3. **The pace rises when the reviews fit (H9).** The target rose to 9, 10 and 11, and lessons 56–58 were «right»; lesson 58 left 6 of
-   its 51 askable due items unfitted, so it stops the next rise. **Next:** read whether «right» holds at 11; a «heavy» stops a rise. The other learner's lesson 32 (15 minutes) had 81 items due and 38 not fitted.
-   It is the first of their lessons to record this, so their trend is read from the next exports.
+   The other learner's lesson 32 (15 minutes) had 81 items due and 38 not fitted; their trend is read from their next exports (item 1).
 
-**Alongside:** a conversation once (#519): lessons 54–58 had four to eight conversations and no remark, five feedbacks. Hard to hear (#447): lesson 57 played the listening support for «eggjum» and «hleðslutæki», reported after lesson 56; nothing was reported after 57 or 58. The listening pool's sameness (#339): none of lesson 56's, 57's or 58's pick-outs was on a line heard in the three lessons before (0 of 8, 0 of 6, 0 of 6; lesson 55: 3 of 4). On the replay of lesson 58's export it comes back in lesson 70, when few lines are left that were not heard lately: 12 of 19 pick-outs; 6 of 16 with the batch after lesson 58; at most 1 when C4's four levels play as well. The town names as dative fillers, left unfitted in lessons 53–55, were fitted in 56 and 57. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
+**Alongside:** a conversation once (#519): lessons 54–59 had four to eight conversations and no remark, six feedbacks. Hard to hear (#447): «Ég missti af strætó.» and «Hafið þið laust herbergi?» were reported after lesson 59. The listening pool's sameness (#339): none of lesson 56's, 57's or 58's pick-outs was on a line heard in the three lessons before (0 of 8, 0 of 6, 0 of 6; lesson 55: 3 of 4). On the replay of lesson 58's export it comes back in lesson 70, when few lines are left that were not heard lately: 12 of 19 pick-outs; 6 of 16 with the batch after lesson 58; at most 1 when C4's four levels play as well. The town names as dative fillers, left unfitted in lessons 53–55, were fitted in 56 and 57. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
 before adding practice. Scene coherence (#327): lesson 50 said four of its six new items as turns of the played exchange, lesson 51 none of its
 ten (its exchange was a level played again). The note's pieces (#481) have not played yet. A silent clip taken as cut off (#503) is built; «vettlinga», whose syllable «lin» it was found on, has not played since.
 
@@ -125,6 +127,9 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
+- **After lesson 58:** the long run: a taught instruction inside a longer English line (#429 step 2: #551), a conversation's opening (#429
+  step 3: #554, #555); the form work at times of its own and the authored contrasts, no grammatical term (#548: #550, #552); three doses for a
+  new item (#518: #529); the tests on every core (#553, behaviour unchanged); data: the scenes after lesson 58 (#327: #556).
 - **After lesson 57:** the long run: the next instructions in Icelandic, one a lesson again (#429 step 1: #546); data: six dative place forms
   glossed by their case, «the airport (dative)» (#544: #547).
 - **After lesson 56:** an instruction's English only in the lesson that teaches it and the next (#429: #542); the instructions in
