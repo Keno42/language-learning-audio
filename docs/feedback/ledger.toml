@@ -88,7 +88,7 @@ cause = "The reading deck has had no outside review: cards ask for words no less
 cause = "Known material comes back by a rule that never asks what the learner still gains from it: a set reply asked in every exchange played again, a whole dialogue every four lessons (H11, #416)."
 
 [families.meaning-gloss]
-cause = "An authored cue leaves its answer open: a sentence's English meaning (whom «hringja heim» calls), a situation's instruction that says «it» for what the answer names (lesson 51: the snow). No check read the cues as a learner would (#209)."
+cause = "An authored cue leaves its answer open: a sentence's English meaning (whom «hringja heim» calls), a situation's instruction that says «it» for what the answer names (lesson 51: the snow), a «you» that does not tell «ég» from «við» (lesson 60: the bus). `validate` lists the «it» and fails on the subject (#559); the rest needs a reader (#209)."
 
 [families.listening-just-heard]
 cause = "A listening question is drawn without looking at what the lesson has just played: it asks for information a conversation gave a minute before (#339, with #273)."
@@ -979,6 +979,18 @@ load = "right"
 built = ["#529", "#550", "#551", "#552", "#554", "#555"]
 long_run = ["#551", "#554", "#555"]
 
+[[lesson]]
+n = 60
+form = true
+load = "right"
+
+[[lesson.remarks]]
+who = "main"
+text = "In the written review «Your friend suggests a taxi. Say you'll go by bus instead.» asked for «Við förum með strætó.»: the answer depends too much on the context to tell. (The English «you» does not tell «ég» from «við», and the course holds both: «Ég fer á morgun.» and «Við förum á morgun.» had the same instruction, «Say you're leaving tomorrow.». Four cues left their answer's subject open: #559.)"
+family = "meaning-gloss"
+class = "twenty"
+answered_by = ["#559"]
+
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
 [[change]]
@@ -1851,3 +1863,29 @@ title = "a conversation opens in Icelandic once taught: «Nú kemur stutt samtal
 issue = ["#429"]
 pr = ["#554", "#555"]
 family = "instruction-language"
+
+[[change]]
+title = "the scenes after lesson 58: the hotel's levels 3–6, a missed bus, the icy path, the family, the pharmacy and an accident (#327: #556)"
+issue = ["#327"]
+pr = ["#556"]
+family = "scene-first"
+first_heard = 60
+heard = "the hotel's third level: 4 of 11 new items said as its turns, 8 inside the scene"
+
+[[change]]
+title = "a cue's frame in Icelandic once taught: «Segðu:» and «Hvernig segir maður:» (#429 step 4: #557)"
+issue = ["#429"]
+pr = ["#557"]
+family = "instruction-language"
+
+[[change]]
+title = "a cloze's and a new item's frame in Icelandic once taught: «Kláraðu setninguna:» and «Eitthvað nýtt.» (#429 step 5: #560)"
+issue = ["#429"]
+pr = ["#560"]
+family = "instruction-language"
+
+[[change]]
+title = "a cue names its answer's subject: a «Við» answer the group, a «Þú» answer said to the person; `validate` checks it (#427: #559)"
+issue = ["#427"]
+pr = ["#559"]
+family = "meaning-gloss"
