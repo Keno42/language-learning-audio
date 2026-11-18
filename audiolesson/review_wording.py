@@ -4,6 +4,10 @@ A plan's ``review`` question takes its prompt from the lesson exercise that prac
 («Put it together yourself. Say: …», «In a sentence. Say: …», «Use the pattern again. Say: …», «Your turn. Say: …»). Those cues tell the listener how the
 exercise relates to the one before it; read the next morning one question at a time there is no exercise before, and the cue is noise or a false link.
 So every prompt that is a lesson cue becomes the meaning in the review's own form («How do you say: …»); a situation, and any other prompt, is kept.
+
+A situation is kept with its literal meaning after it (lesson 60, the owner on #559): «Your friend suggests a taxi. Say you'll go by bus instead.» asked
+for «Við förum með strætó.», and with no scene around it the next morning the learner could not tell what to say. Where the instruction does not
+already hold the meaning's words, the review adds «Literally: We'll go by bus.».
 """
 
 from __future__ import annotations
@@ -50,6 +54,46 @@ def lesson_cue_meaning(prompt: str, prompts: Prompts) -> str | None:
     return None
 
 
+# a meaning's words that need not be in the instruction; its pronouns must («Say you'll go by bus.» does not say «We'll go by bus.»)
+_ARTICLES = frozenset({"a", "an", "the"})
+
+
+def _holds_meaning(situation: str, meaning: str, lang: str) -> bool:
+    """Whether the situation already says the meaning: in English every word of the meaning but an article is in it; in another
+    language (no spaces to split on) the meaning itself is."""
+    if lang != "en":
+        return meaning.strip().rstrip("。.!?！？") in situation
+    words = lambda text: re.findall(r"[^\W\d_]+(?:'[a-z]+)?", text.casefold())
+    said = set(words(situation))
+    return all(w in said for w in words(meaning) if w not in _ARTICLES)
+
+
+def with_literal(situation: str, item, prompts: Prompts) -> str:
+    """``situation`` as the written review asks it: with the item's literal meaning after it, unless it already says it (lesson 60)."""
+    meaning = (getattr(item, "meaning", "") or "").strip()
+    if not meaning or "{" in meaning or _holds_meaning(situation, meaning, prompts.lang):
+        return situation
+    return prompts.get("review_literal", situation=situation.rstrip(), meaning=meaning)
+
+
+def _situations(item) -> list[str]:
+    return [s for s in [item.situation, *(item.situations or []), getattr(item, "partner_cue_situation", "")] if isinstance(s, str) and s]
+
+
+def literal_prompt(question: dict, cur, prompts: Prompts) -> str:
+    """A question about one item whose prompt is one of the item's situations (behind the speaker's form, «As a woman: …») gets the literal
+    meaning; any other prompt is kept."""
+    prompt, items = question.get("prompt"), question.get("items") or []
+    item = cur.by_id.get(items[0]) if cur is not None and len(items) == 1 else None
+    if item is None or not isinstance(prompt, str):
+        return prompt
+    gender, rest = speaker_form(prompt.strip(), prompts)
+    if rest.strip() not in [s.strip() for s in _situations(item)]:
+        return prompt
+    literal = with_literal(rest.strip(), item, prompts)
+    return prompts.get(f"speak_as_{gender}", prompt=literal) if gender else literal
+
+
 def review_prompt(prompt: str, prompts: Prompts, target_lang: str) -> str:
     """The prompt as the review asks it: a lesson cue becomes the meaning in the review's form (the first «meaning» wording, so it is the same every time), anything else is kept.
     The speaker's form in front of it stays («As a man: How do you say: …»): the answer's words depend on it."""
@@ -63,9 +107,11 @@ def review_prompt(prompt: str, prompts: Prompts, target_lang: str) -> str:
     return prompts.get(f"speak_as_{gender}", prompt=reworded) if gender else reworded
 
 
-def reword_review(review: list[dict], prompts: Prompts, target_lang: str) -> list[dict]:
-    """``review`` with every lesson-cue prompt in the review's own words (new dicts; the input is not changed)."""
-    return [{**q, "prompt": review_prompt(q["prompt"], prompts, target_lang)} if isinstance(q.get("prompt"), str) else q for q in review]
+def reword_review(review: list[dict], prompts: Prompts, target_lang: str, cur=None) -> list[dict]:
+    """``review`` with every lesson-cue prompt in the review's own words, and with ``cur`` a situation with its literal meaning (new dicts; the
+    input is not changed)."""
+    out = [{**q, "prompt": review_prompt(q["prompt"], prompts, target_lang)} if isinstance(q.get("prompt"), str) else q for q in review]
+    return [{**q, "prompt": literal_prompt(q, cur, prompts)} if cur is not None and isinstance(q.get("prompt"), str) else q for q in out]
 
 
 def lesson_cue_count(review: list[dict], prompts: Prompts) -> int:
