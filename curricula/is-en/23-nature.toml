@@ -439,8 +439,8 @@ meaning = "We'll walk up."
 meaning_ja = "歩いて登りましょう。"
 difficulty = 2
 topics = ["nature"]
-situation = "Your friend eyes the chairlift. Say you'll walk up."
-situation_ja = "友達がリフトを見ています。歩いて登ろうと言ってください。"
+situation = "Your friend eyes the chairlift. Say you'll both walk up."
+situation_ja = "友達がリフトを見ています。二人で歩いて登ろうと言ってください。"
 
 [[items]]
 id = "utsynid_er_fallegt"

@@ -13,7 +13,7 @@ from . import __version__
 from .themes import load_themes, scenario_coverage, scenario_order, unranked_themes
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts, speak_as
-from .content import INSTRUCTION_MODES, PATTERN_SCENE, CurriculumError, for_instructions, ask_without_addressee, cue_texts, same_meaning_answers, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, pronoun_cues, unlinked_instances
+from .content import INSTRUCTION_MODES, PATTERN_SCENE, CurriculumError, for_instructions, ask_without_addressee, cue_texts, same_meaning_answers, subject_unnamed, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, pronoun_cues, unlinked_instances
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, lesson_target, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -767,6 +767,11 @@ def cmd_validate(args) -> int:
     if unaddressed:  # lesson 44: «Ask if she's Icelandic.» reads as a question about her; «Ask her if …» is put to her
         raise CurriculumError("cues that tell the learner to ask a person with no one named after «ask» (write «Ask her if …», «Ask the receptionist if …», "
                               "or name who the question is about): " + "; ".join(f"{w}: {t!r}" for w, t in unaddressed))
+    unnamed = subject_unnamed(cur, [(f"{t.id}:{n}", turn.say, turn.cue) for t in themes for n, lv in enumerate(t.levels, 1) for turn in lv.turns
+                                    if turn.who == "you"])
+    if unnamed:  # lesson 60: «Say you'll go by bus instead.» asked for «Við förum með strætó.»; the English «you» does not tell «ég» from «við»
+        raise CurriculumError("cues whose answer's subject the cue does not name (a «Við» answer names the group: «you two», «both», «the four of "
+                              "you»; a «Þú» answer is said to the person: «Tell him he may.»): " + "; ".join(f"{w}: {c!r} → {a!r}" for w, a, c in unnamed))
     shared = [(lang, m, answers) for lang in dict.fromkeys(cur.known_langs or [cur.known_lang]) for m, answers in
               same_meaning_answers(load_curriculum(args.curriculum, known_lang=lang))]  # fmt: skip
     if shared:  # lesson 47: «It's raining.» cued both «Það rignir.» and «Það er rigning.»; the learner cannot tell which is asked

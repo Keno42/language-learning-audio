@@ -906,6 +906,30 @@ def ask_without_addressee(texts: Iterable[tuple[str, str]]) -> list[tuple[str, s
     return [(where, t) for where, t in texts if t and any(_PERSON_RE.search(m.group(1)) for m in _ASK_BARE_RE.finditer(t))]
 
 
+# lesson 60: «Your friend suggests a taxi. Say you'll go by bus instead.» was answered «Við förum með strætó.»: the English «you» does not tell «ég»
+# from «við», and the course holds both («Ég fer á morgun.» / «Við förum á morgun.», #528). A cue whose answer opens with «Við» names the group
+# («you two», «both», «the four of you», «we»), and one whose answer opens with «Þú» is said to the person («Tell him he may.»), not about them.
+_WE_RE = re.compile(r"\b(?:we|we'll|we're|we'd|we've|us|our|let's|both|together)\b|\byou (?:two|both|all)\b|\b(?:two|three|four|five|six) of you\b|"
+                    r"\bhow many\b", re.IGNORECASE)
+_YOU_RE = re.compile(r"\btell (?:him|her|them)\b|\byou\b", re.IGNORECASE)
+_SUBJECT_CUE = {"við": _WE_RE, "þú": _YOU_RE}
+
+
+def subject_unnamed(cur: Curriculum, more: Iterable[tuple[str, str, str]] = ()) -> list[tuple[str, str, str]]:
+    """The cues whose answer opens with a subject the English «you» does not name: «Við …» with no group in the cue («Say you'll walk up.»),
+    «Þú …» with the cue about the person, not to them («Say he may.»). Read on items' situations, dialogue turns' cues and ``more`` (where,
+    answer, cue), a theme level's turns. As (where, answer, cue)."""
+    pairs = [(it.id, it.target, cue) for it in cur.items for cue in [it.situation, *it.situations, it.partner_cue_situation]]
+    pairs += [(f"dialogue {d.id}", t.expect_text or "", t.cue) for d in cur.dialogues for t in d.turns]
+    out = []
+    for where, answer, cue in [*pairs, *more]:
+        first = re.match(r"[^\W\d_]+", answer or "")
+        rule = _SUBJECT_CUE.get(first.group(0).casefold()) if first else None
+        if rule is not None and isinstance(cue, str) and cue and not rule.search(cue):
+            out.append((where, answer, cue))
+    return out
+
+
 def _meaning_key(text: str) -> str:
     return re.sub(r"[^\w']+", " ", text.casefold()).strip()
 

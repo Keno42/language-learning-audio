@@ -572,8 +572,8 @@ meaning_ja = "バスで行きましょう。"
 difficulty = 3
 topics = ["transport"]
 prereqs = ["strætó"]
-situation = "Your friend suggests a taxi. Say you'll go by bus instead."
-situation_ja = "友達がタクシーを提案します。代わりにバスで行こうと言ってください。"
+situation = "Your friend suggests a taxi. Say you'll both go by bus instead."
+situation_ja = "友達がタクシーを提案します。代わりに二人でバスで行こうと言ってください。"
 
 [[items]]
 id = "eg_geng"
