@@ -47,7 +47,7 @@ class CueNamesTheSubjectTests(unittest.TestCase):
         themes = load_themes(path, cur, load_cando(path))
         more = [(f"{t.id}:{n}", turn.say, turn.cue) for t in themes for n, lv in enumerate(t.levels, 1) for turn in lv.turns if turn.who == "you"]
         self.assertEqual(subject_unnamed(cur, more), [])
-        self.assertIn("both", cur.by_id["vid_forum_med_straeto"].situation)
+        self.assertIn("literally, we'll go by bus", cur.by_id["vid_forum_med_straeto"].situation)
 
 
 if __name__ == "__main__":
