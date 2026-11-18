@@ -13,6 +13,7 @@ from pathlib import Path
 from audiolesson.cli import _review_cue, _review_cues
 from audiolesson.content import load_curriculum
 from audiolesson.exercises import answer_gender, speak_as
+from audiolesson.review_wording import with_literal
 from audiolesson.prompts import Prompts
 from audiolesson.review_wholes import refine_review, whole_for
 from audiolesson.review_wording import lesson_cue_count, review_prompt
@@ -37,7 +38,7 @@ class ReviewNamesTheSpeakersFormTests(unittest.TestCase):
     def test_an_items_review_cue_names_the_womans_form_it_expects(self):
         by = self.cur.by_id
         cue = _review_cue(self.cur, self.prompts, by["eg_er_svong"])
-        self.assertEqual(cue, speak_as(self.prompts, "f", by["eg_er_svong"].situation_for(0)))
+        self.assertEqual(cue, speak_as(self.prompts, "f", with_literal(by["eg_er_svong"].situation_for(0), by["eg_er_svong"], self.prompts)))  # lesson 60: with its literal meaning
         self.assertTrue(cue.startswith("As a woman: "), cue)
         self.assertFalse(_review_cue(self.cur, self.prompts, by["bankinn"]).startswith("As a "), "no form to name")
 

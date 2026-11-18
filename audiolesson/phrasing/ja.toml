@@ -180,6 +180,7 @@ mixed_review_intro = "ここで復習です。別々の場面を二つ続けま�
 connect_next = "次は、別の場面です。"
 
 # the words follow the speaker's gender (Item.target_m): say which one is asked for
+review_literal = "{situation}\n直訳：{meaning}"  # lesson 60: the written review asks a situation with its literal meaning (`review_wording.with_literal`)
 speak_as_f = "女性として：{prompt}"
 speak_as_m = "男性として：{prompt}"
 speak_as_f_alone = "女性として答えてください。"

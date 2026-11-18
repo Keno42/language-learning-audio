@@ -18,7 +18,7 @@ from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, lesson_target, par
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
 from .review_wholes import has_home, refine_review
-from .review_wording import lesson_cue_count, reword_review
+from .review_wording import lesson_cue_count, reword_review, with_literal
 from .script import Script
 from .timing import Timing
 from .reading import load_deck
@@ -386,7 +386,8 @@ def _review_cue(cur, prompts: Prompts, it) -> str:
     """The review question for a single item: its situation, else the meaning cue (with the item's context, like the lesson). The answer is the item's
     ``target``, so an item with a man's form says it expects the woman's («As a woman: …»), as the lesson does."""
     prompts = Prompts(prompts.data, prompts.lang)  # a fresh generator: an item's cue does not depend on the ones asked before it
-    cue = it.situation_for(0) or meaning_prompt(prompts, cur.known_lang, cur.target_lang, it.spoken_meaning, it.context)
+    situation = it.situation_for(0)
+    cue = with_literal(situation, it, prompts) if situation else meaning_prompt(prompts, cur.known_lang, cur.target_lang, it.spoken_meaning, it.context)
     return speak_as(prompts, "f" if it.target_m else None, cue)
 
 
@@ -394,7 +395,7 @@ def _review_cues(cur, prompts: Prompts, it) -> list[str]:
     """Every cue the bare item is asked with now: each situation, else the meaning cue. The bot rewords only a stored
     bare question whose prompt is none of these (it is stale), not one that is another current cue (#220)."""
     prompts = Prompts(prompts.data, prompts.lang)
-    cues = list(it.situations or ([it.situation] if it.situation else []))
+    cues = [with_literal(c, it, prompts) for c in (it.situations or ([it.situation] if it.situation else []))]  # lesson 60: a situation with its literal meaning
     cues += meaning_prompts(prompts, cur.known_lang, cur.target_lang, it.spoken_meaning, it.context)  # every template, not one
     # an item with a man's form is asked with the form named: a stored cue without it is stale, and the bot rewords it
     return list(dict.fromkeys(speak_as(prompts, "f" if it.target_m else None, c) for c in cues))
@@ -442,7 +443,7 @@ def _plan(script: Script, cur) -> dict:
         # #262: retain a part's taught line across lessons; today's teaching takes precedence.
         taught = {**(meta.get("learned_wholes") or {}), **(meta.get("wholes_taught") or {})}
         review, refined = refine_review(review, cur, set(meta["met_items"]), prompts, taught)
-    review = reword_review(review, prompts, cur.target_lang)  # #312: the written review asks in its own words, not the lesson's cue
+    review = reword_review(review, prompts, cur.target_lang, cur)  # #312: the written review asks in its own words, not the lesson's cue
     return {
         "lesson_number": script.lesson_number,
         "date": meta.get("date"),
@@ -870,7 +871,7 @@ def cmd_refine_review(args) -> int:
         met |= {it.id for it in cur.items if learner.has_met(it.id)}
         taught = learner.learned_wholes
     prompts = Prompts.load(cur.known_lang)
-    review, refined = refine_review(reword_review(list(data.get("review") or []), prompts, cur.target_lang), cur, met, prompts, taught)  # #312: the queue's old questions lose their lesson cues too
+    review, refined = refine_review(reword_review(list(data.get("review") or []), prompts, cur.target_lang, cur), cur, met, prompts, taught)  # #312: the queue's old questions lose their lesson cues too
     print(json.dumps({"review": review, "refined": refined}, ensure_ascii=False))
     return 0
 

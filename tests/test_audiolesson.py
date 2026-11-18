@@ -6577,7 +6577,10 @@ class OpenItemsInThePlanTests(unittest.TestCase):
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
             main(["questions", str(ROOT / "curricula" / "is-en"), "--ids", with_situations.id])
-        self.assertTrue(set(with_situations.situations) <= set(json.loads(out.getvalue())[with_situations.id]["cues"]))
+        from audiolesson.review_wording import with_literal  # lesson 60: a situation is asked with its literal meaning after it
+
+        asked = {with_literal(s, with_situations, prompts) for s in with_situations.situations}
+        self.assertTrue(asked <= set(json.loads(out.getvalue())[with_situations.id]["cues"]))
 
     def test_an_open_item_without_a_written_question_gets_one_from_its_situation_or_meaning(self):
         from audiolesson.cli import _plan
