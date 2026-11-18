@@ -33,8 +33,8 @@ meaning_ja = "私たちは明日出発します。"
 difficulty = 2
 topics = ["grammar", "arrangements"]
 prereqs = ["eg_fer"]
-situation = "The host asks how long you're staying. Say you're leaving tomorrow."
-situation_ja = "ホストにいつまで滞在するか聞かれました。明日出発すると答えてください。"
+situation = "The host asks how long you two are staying. Say you're leaving tomorrow."
+situation_ja = "ホストに二人がいつまで滞在するか聞かれました。二人とも明日出発すると答えてください。"
 
 [[items]]
 id = "vid_viljum_bord"
@@ -314,7 +314,7 @@ meaning_ja = "いいですよ。"
 difficulty = 2
 topics = ["grammar"]
 prereqs = ["eg_maetti_thad"]
-situation = "Your guest asks if he may open the window. Say he may."
+situation = "Your guest asks if he may open the window. Tell him he may."
 situation_ja = "お客さんが窓を開けていいか聞きました。いいですよと言ってください。"
 
 # eg_er_ad_koma moved to module 06 (issue #29 cluster B, PR #53 follow-up) — see that module's
