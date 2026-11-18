@@ -43,6 +43,7 @@ CLAIMS = {
     "recombine_new": NEW,
     "recombine_new_lead": NEW,
     "intro_new": NEW_ITEM,
+    "new_frame": NEW_ITEM,  # «Something new.» as the English after «Eitthvað nýtt.» (#429 step 5), in the intro of a new item
     "dialogue_start_another": AFTER_CONVERSATION,
     "intro_whole": NEW,  # «A new expression»: the whole is new; its part may have been practised as a pattern's filler (lesson 19 of a simulated course: «eldfjall»)
 }
