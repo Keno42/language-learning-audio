@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.46 (lessons 1–56), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.47 (lessons 1–57), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1919,3 +1919,49 @@ transcript.
     site_update_notifier#224).
 - **Lesson 55's new items in the review:** 9 of 9 recalled.
 - **Hard to hear:** three of the day's new words were reported. The next lesson played the listening support for two of them.
+
+### 5.47 Lesson 57: the first lesson built with #542 and #543
+
+Lesson 57 was generated with LLA `ac6eb9b` (main with #542 and #543), the bot at site_update_notifier `8f074a9` (with #224):
+`--instructions pending`, resolved `gradual`, since the learner had met the phrases. Rebuilt from its export it is identical (120
+exercises, 29.6 minutes).
+
+| | lesson 57 |
+|---|---|
+| length | 29.6 min, 120 exercises |
+| new items; new components, weighted (target) | 12; 10.5 (10) |
+| theme (level) | weather (2) |
+| target reached | 17.8 min |
+| items reviewed / due | 55 due by date, 43 the lesson could ask; it practised all 43, and 44 in all |
+| conversations | 6, 4.8 minutes: the weather's two plays, two fixed dialogues, two levels heard again |
+| pick-outs | 6: one before the target was reached, five after |
+| written review's queue | 130 due |
+| feedback form: load; friction | **right**; other |
+| «sooner» | none |
+
+- **The long run, #429 (#542, #543):** 26 instructions in Icelandic. The 6 with their English are «Hlustaðu aftur.», taught in lesson 56;
+  «Endurtaktu.», «Hlustaðu.» and «Hægt.» were said alone. No remark on the English being gone.
+- **Remark 1: «No new Icelandic instruction came; without about one each lesson the switch will not progress.»**
+  - The four authored instruction phrases were taught in lessons 52–56. The curriculum holds no fifth
+    (`curricula/is-en/28-instructions.toml`), so the mechanism that teaches one a lesson had nothing to teach.
+  - On the replay, lessons 58 and 59 teach none either.
+  - By how often lesson 57 said them, the next instructions are «And at natural speed.» (9), «The answer:» (6), «Back to speaking.» (6),
+    «That's the end of the conversation.» (5) and «Now a short conversation.» (4).
+  - Family instruction-language; a twenty-point part, the long run's next step (#429 step 1).
+- **Remark 2: «flugvellinum» is glossed «the airport (after 'to' / 'for')»; «dative» alone would be more accurate.**
+  - Six dative place forms carry the gloss of the first frames that took them («Hvernig kemst ég að …?», «Ég er að leita að …»). It is
+    wrong for the others: «á flugvellinum» is at the airport, «við hliðina á bankanum» beside the bank.
+  - Since #527 and #539 the lessons name a form by its case. The gloss is the one place left that describes the form by an English
+    preposition.
+  - A precision problem, family form-why (#544).
+- **Lesson 56's new items in the review:** 10 of 12 recalled. «Get ég skilað þessu?» was not recalled, and «Áttu hleðslutæki?» has no
+  outcome yet.
+- **Hard to hear (#447):** the listening support played for «eggjum» and «hleðslutæki», reported after lesson 56. «Vatnsflösku», the
+  third, was recalled in the review.
+- **The noun choice did not play.** No today's-items turn was left after the number choice.
+- **Another learner (lesson 32, 15-minute lessons, the bot before #224):** «light», no remark.
+  - «Endurtaktu.» was taught.
+  - 81 items were due and 38 did not fit. Lesson 32 is the first of theirs to record it, so the trend is not yet known (H9).
+
+**This round:** #429 step 1, the next instruction phrases, so a lesson teaches one again: the long-run step and lesson 57's twenty-point
+part. Beside it, #544's glosses (data).
