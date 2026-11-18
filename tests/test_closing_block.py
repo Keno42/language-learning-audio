@@ -36,10 +36,13 @@ class ClosingBlockTests(unittest.TestCase):
         their time going to drills. They come in the last stretch before the closing: in this course, listening tasks among the six exercises
         before it rise from 9 to 21, and over the course from 79 to 89. The course total moves by a few with any change that shifts seconds
         (#440: a shorter guide gives lesson 16 one more dialogue and the course diverges from there, 87 to 82, while over 50 lessons it is 146 to 143
-        and the replay of the lesson-41 export gains listening); the last stretch carries the check, and the total only has to stay above #435's 79."""
+        and the replay of the lesson-41 export gains listening); the last stretch carries the check. The total gives way to the instructions taught
+        in Icelandic (#429), each taught on top of a lesson's material: 86 before step 4, 80 after it, 75 after step 5 («Kláraðu setninguna:» in
+        lesson 22 of this course, one listening task fewer, «Eitthvað nýtt.» in lesson 23, two fewer; the replay of lesson 60's export keeps
+        every pick-out); it only has to stay near #435's 79."""
         before = sum(e.kind in LISTENING for sc in self.lessons if (s := self.closing_start(sc)) is not None for e in sc.exercises[max(0, s - 6) : s])
         self.assertGreaterEqual(before, 15)
-        self.assertGreaterEqual(sum(e.kind in LISTENING for sc in self.lessons for e in sc.exercises), 80)
+        self.assertGreaterEqual(sum(e.kind in LISTENING for sc in self.lessons for e in sc.exercises), 75)
 
 
 if __name__ == "__main__":

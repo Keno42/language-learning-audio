@@ -144,23 +144,29 @@ def meaning_prompt(prompts: Prompts, known_lang: str, target_lang: str, meaning:
     return prompts.get("meaning", meaning=meaning_text(known_lang, meaning), language=prompts.language_name(target_lang))
 
 
-# #429 step 4: the exercises whose cue may open with a frame said in Icelandic («Say:», «How do you say:»); not a note, whose prose stays as written
+# #429 step 4: the exercises whose cue may open with a frame said in Icelandic («Say:», «How do you say:»; step 5: a cloze's «Complete the sentence
+# to say:», a new item's «Something new.»); not a note, whose prose stays as written
 CUE_FRAME_KINDS = frozenset({"recall", "generative", "intro", "model", "embed", "connect"})
 
 
 def cue_frames(prompts: Prompts, known_lang: str, target_lang: str) -> list[tuple[str, "re.Pattern"]]:
     """#429 step 4: the frames of a cue that asks the learner to say something, each with its instruction's phrasing key: «How do you say: …»
-    (``how_say_frame``) and «Say: …», «In Icelandic, say: …» (``say_frame``), in the learner's language. A match has ``lead`` (the cue's words
-    before the frame: «Now something you haven't heard yet.») and ``rest`` (what to say: «I'm looking for the bank.»), so the frame can be said
-    by the taught phrase between them («Segðu:», «Hvernig segir maður:»)."""
+    (``how_say_frame``) and «Say: …», «In Icelandic, say: …» (``say_frame``), in the learner's language; step 5: a cloze's «Complete the
+    sentence to say: …» (``cloze_frame``) and a new item's «Something new. …» (``new_frame``). A match has ``lead`` (the cue's words before
+    the frame: «Now something you haven't heard yet.») and ``rest`` (what to say: «I'm looking for the bank.»), so the frame can be said by
+    the taught phrase between them («Segðu:», «Hvernig segir maður:», «Kláraðu setninguna:», «Eitthvað nýtt.»)."""
     lang = re.escape(prompts.language_name(target_lang))
     if known_lang.split("-")[0] == "ja":
         return [
             ("how_say_frame", re.compile(r"^(?P<lead>.*?)(?P<rest>「[^」]+」)は、何と言いますか？$", re.S)),
+            ("cloze_frame", re.compile(r"^(?P<lead>.*?)(?P<rest>「[^」]+」)と言うように、文を完成させてください。$", re.S)),
+            ("new_frame", re.compile(r"^(?P<lead>)新しい表現です。(?P<rest>.+)$", re.S)),
             ("say_frame", re.compile(rf"^(?P<lead>.*?)(?:{lang}で)?(?P<rest>「[^」]+」)と言ってください。(?P<tail>.*)$", re.S)),
         ]
     return [
         ("how_say_frame", re.compile(r"^(?P<lead>)How do you say: (?P<rest>.+)$", re.S)),
+        ("cloze_frame", re.compile(r"^(?P<lead>.*?)Complete the sentence to say: (?P<rest>.+)$", re.S)),
+        ("new_frame", re.compile(r"^(?P<lead>)Something new\. (?P<rest>.+)$", re.S)),
         ("say_frame", re.compile(rf"^(?P<lead>.*?)(?:In {lang}, say|Say): (?P<rest>.+)$", re.S)),
     ]
 

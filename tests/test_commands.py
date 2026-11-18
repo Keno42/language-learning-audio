@@ -312,10 +312,64 @@ class CommandTests(unittest.TestCase):
         self.assertEqual([g.text for g in sc.segments if g.role == "command"], ["Segðu:", "Segðu:"])
         self.assertEqual(unkept_claims(sc, en), [], "each sentence is new; «Segðu:» was heard before, and is no sentence")
 
+    def test_a_cloze_and_a_new_item_say_their_frame_in_icelandic_once_taught(self):
+        """#429 step 5 (lessons 63–67 on the replay of lesson 60's export, «Segðu:» and «Hvernig segir maður:» taught: a cloze's «Complete the
+        sentence to say: …» 5–13 times a lesson and a new item's «Something new. …» 2–6, the most frequent English instructions left): the frame
+        in Icelandic once taught, «Kláraðu setninguna:» and «Eitthvað nýtt.», and what to say still in the learner's language."""
+        def framed(lang, text, taught=("klaradu_setninguna_command", "eitthvad_nytt_command"), asked=(), kind="recall"):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            learner = LearnerState("is", lang, "A1")
+            learner.lessons_completed = 66
+            for i in taught:
+                learner.items[i] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", introduced_lesson=60)
+            b = builder(cur, lang, learner)
+            sc = Script(1, "t", "is", lang)
+            b._narr(sc, sc.new_exercise(kind, "cloze", list(asked), "x"), text)
+            out = [(g.type, g.text) for g in sc.segments]
+            return None if out == [("narrate", text)] else out
+
+        self.assertEqual(framed("en", "Complete the sentence to say: I'm doing well."), [("speak", "Kláraðu setninguna:"), ("narrate", "I'm doing well.")])
+        self.assertEqual(framed("en", "As a woman: Complete the sentence to say: I'm tired."),
+                         [("narrate", "As a woman:"), ("speak", "Kláraðu setninguna:"), ("narrate", "I'm tired.")], "the speaker's form stays first")
+        self.assertEqual(framed("en", "Something new. Nice to see you.", kind="intro"), [("speak", "Eitthvað nýtt."), ("narrate", "Nice to see you.")])
+        self.assertEqual(framed("ja", "「元気です」と言うように、文を完成させてください。"), [("speak", "Kláraðu setninguna:"), ("narrate", "「元気です」")])
+        self.assertEqual(framed("ja", "新しい表現です。「会えてうれしいです」。", kind="intro"), [("speak", "Eitthvað nýtt."), ("narrate", "「会えてうれしいです」。")])
+        self.assertIsNone(framed("en", "Complete the sentence to say: I'm doing well.", taught=()), "not taught: the cue as it was")
+        self.assertIsNone(framed("en", "Something new. Nice to see you.", taught=("klaradu_setninguna_command",), kind="intro"), "each frame by its own phrase")
+        self.assertIsNone(framed("en", "Complete the sentence to say: Complete the sentence, before what to say.", asked=("klaradu_setninguna_command",)),
+                          "«Kláraðu setninguna:» would say the answer")
+
+    def test_a_cloze_and_a_new_item_in_the_lesson(self):
+        """#429 step 5, as a lesson says them: the new item's model and the cloze's fragment follow the Icelandic frame and its meaning; the English
+        frame after it in the lesson that teaches it and the next, gone from the third."""
+        def lesson(introduced):
+            learner = LearnerState("is", "en", "A1")
+            learner.lessons_completed = 66
+            for i in ("klaradu_setninguna_command", "eitthvad_nytt_command"):
+                learner.items[i] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", introduced_lesson=introduced)
+            b = builder(self.cur, learner=learner)
+            sc = Script(67, "t", "is", "en")
+            b.intro(sc, self.cur.by_id["gaman_ad_sja_thig"])
+            b.recall(sc, self.cur.by_id["eg_hef_thad_gott"], "cloze")
+            return [(g.type, g.text) for g in sc.segments if g.type != "pause"]
+
+        alone = lesson(60)
+        self.assertEqual(alone[:3], [("speak", "Eitthvað nýtt."), ("narrate", "Nice to see you."), ("speak", "Gaman að sjá þig.")])
+        cloze = alone.index(("speak", "Kláraðu setninguna:"))
+        self.assertEqual(alone[cloze + 1:cloze + 3], [("narrate", "I'm doing well."), ("speak", "Ég hef það…")])
+        self.assertNotIn(("narrate", "Something new."), alone, "from the third lesson, the Icelandic alone")
+        self.assertFalse(any(t and t.startswith("Complete the sentence") for _, t in alone))
+        supported = lesson(66)
+        self.assertEqual(supported[:3], [("speak", "Eitthvað nýtt."), ("narrate", "Something new."), ("narrate", "Nice to see you.")])
+        cloze = supported.index(("speak", "Kláraðu setninguna:"))
+        self.assertEqual(supported[cloze + 1:cloze + 3], [("narrate", "Complete the sentence:"), ("narrate", "I'm doing well.")],
+                         "the lesson after the one that teaches it: the English after it")
+
     def test_the_commands_come_one_a_lesson_in_their_order(self):
         order = [i.id for i in self.cur.items if i.command]
         self.assertEqual(order, ["endurtaktu", "hlustadu", "haegt_command", "hlustadu_aftur", "edlilegum_hrada_command", "svarid_command",
-                                 "aftur_ad_tala_command", "samtalinu_lokid_command", "stutt_samtal_command", "segdu_command", "hvernig_segir_madur_command"],
+                                 "aftur_ad_tala_command", "samtalinu_lokid_command", "stutt_samtal_command", "segdu_command", "hvernig_segir_madur_command",
+                                 "klaradu_setninguna_command", "eitthvad_nytt_command"],
                          "lesson 54's then lesson 57's, by how often the lessons say them")
         learner = LearnerState("is", "en", "A1")
         for i in ("endurtaktu", "hlustadu"):

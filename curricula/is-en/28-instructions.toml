@@ -7,7 +7,9 @@
 # instruction came») for «Og á eðlilegum hraða.» (9 times), «Svarið:» (6), «Aftur að tala.» (6), «Samtalinu er lokið.» (5) and «Nú kemur
 # stutt samtal.» (4: a conversation's opening, «Now a short conversation.»); lesson 59 (the lines left run out in lesson 62) for the frames of
 # a cue, «Segðu:» («Say:», «In Icelandic, say:»: 40 times) and «Hvernig segir maður:» («How do you say:»: 18), said between the cue's lead
-# and what to say, which stays in the learner's language (`exercises.cue_frames`).
+# and what to say, which stays in the learner's language (`exercises.cue_frames`); lessons 63–67 on the replay of lesson 60's export (those
+# two taught, the lines left run out in lesson 64) for the next frames, «Kláraðu setninguna:» (a cloze's «Complete the sentence to say:»: 5–13
+# a lesson) and «Eitthvað nýtt.» (a new item's «Something new.»: 2–6), said the same way.
 # Candidates until native-checked (#209).
 
 [[items]]
@@ -141,3 +143,27 @@ meaning_spoken_ja = "言うことの前の「何と言いますか」"
 difficulty = 1
 topics = ["instructions"]
 command = "how_say_frame"
+
+[[items]]
+id = "klaradu_setninguna_command"
+kind = "phrase"
+target = "Kláraðu setninguna:"
+meaning = "Complete the sentence, before what to say"
+meaning_ja = "言うことの前の「文を完成させてください」"
+meaning_spoken = "Complete the sentence, before what to say"
+meaning_spoken_ja = "言うことの前の「文を完成させてください」"
+difficulty = 1
+topics = ["instructions"]
+command = "cloze_frame"
+
+[[items]]
+id = "eitthvad_nytt_command"
+kind = "phrase"
+target = "Eitthvað nýtt."
+meaning = "Something new, before a new expression"
+meaning_ja = "新しい表現の前の「新しい表現です」"
+meaning_spoken = "Something new, before a new expression"
+meaning_spoken_ja = "新しい表現の前の「新しい表現です」"
+difficulty = 1
+topics = ["instructions"]
+command = "new_frame"
