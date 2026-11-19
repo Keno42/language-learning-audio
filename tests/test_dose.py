@@ -106,8 +106,11 @@ class DoseTests(unittest.TestCase):
             self.assertEqual((weak.meta["doses"][i], self.hinted(weak, i)), ("heavy", True), i)
         others = [i for i, d in weak.meta["doses"].items() if d == "middle"]
         self.assertTrue(others, "a kind the reviews do not find weak stays on the default")
+        # a recall from the meaning is cued by the scene check's line when the sentence it picks has one, and is then labelled «situation»
+        # (``Builder._recall_construction``, lesson 27): «Ég elska ís.» in one lesson, «Ég elska súpu.» in the other. Either is the same unhinted rung.
+        unhinted = lambda stages: ["meaning" if s == "situation" else s for s in stages]
         for i in others:
-            self.assertEqual(self.recalls(weak, i), self.recalls(fine, i), f"{i}: and is asked as in the other lesson, its recall given to the reviews")
+            self.assertEqual(unhinted(self.recalls(weak, i)), unhinted(self.recalls(fine, i)), f"{i}: and is asked as in the other lesson, its recall given to the reviews")
 
     def test_plan_json_holds_the_doses_and_the_trait_rates(self):
         """Review of #529: the description promised both fields in plan.json; ``_plan`` exported neither."""
