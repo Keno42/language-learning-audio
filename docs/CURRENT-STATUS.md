@@ -31,11 +31,13 @@ In order:
    (#554, #555):** «Nú kemur stutt samtal.» for a conversation's opening, taught after «Aftur að tala.» and «Samtalinu er lokið.» (lesson 62 on the
    replay of lesson 59's export); the authored phrases then run out. **Built, step 4 (#557):** a cue's frame, «Segðu:» for «Say:» and «In
    Icelandic, say:» and «Hvernig segir maður:» for «How do you say:», said between the cue's lead and what to say, which stays in the
-   learner's language; first built in lesson 61, taught in lessons 63 and 64 on the replay of lesson 60's export. **This round (step 5, #560):**
-   «Kláraðu setninguna:» for a cloze's «Complete the sentence to say:» (5–13 a lesson) and «Eitthvað nýtt.» for «Something new.» (2–6),
-   taught in lessons 65 and 66 on the replay; from lesson 67 about 111 instructor lines a lesson are in Icelandic (90 without them). «Make it a
-   question:», named before, was not said in lessons 60–67. **Then:** the instructor's remaining English, by how often a lesson says it
-   («That's the end of the form work.», «Now part of a conversation.», «That's enough of that conversation.»: about 3 a lesson each).
+   learner's language. **Built, step 5 (#560):** «Kláraðu setninguna:» for a cloze's «Complete the sentence to say:» (5–13 a lesson) and
+   «Eitthvað nýtt.» for «Something new.» (2–6); from lesson 67 on the replay of lesson 60's export about 111 instructor lines a lesson are in
+   Icelandic (90 without them). **Neither has reached the learner:** lessons 60 and 61 were built with LLA `5562255`, and the bot's bump
+   (site_update_notifier#229) still points at `d14416b`, which holds step 4 only (§5.51). On the replay of lesson 61's export «Segðu:» is taught
+   in lesson 63. **Then (step 6):** the instructor's remaining English, by how often a lesson says it («That's the end of the form work.», «Now
+   part of a conversation.», «That's enough of that conversation.»: about 3 a lesson each), once steps 4 and 5 have been heard. Lesson 61's
+   remark asks for the instructions' own voice (#563).
 2. **Forms as choices (#528, owner 2026-11-12).** «New material should not be more numbers, colours and words to memorise; I want to feel a
    coach who makes me choose the right case and the right verb form.» The course itself is one-sided: of 256 sentences that open with a
    subject pronoun, 207 say «ég»; «vilja», «þurfa» and «eiga» exist in one form; the learner has two forms of three nouns. **Built, step 1 (#531):** the
@@ -74,31 +76,30 @@ In order:
 4. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 5. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
-**This round:** #429 step 5, a cloze's and a new item's frame in Icelandic (item 1 above, #560), the long-run step. Lesson 60's remark, a
-review cue that leaves «ég» or «við» open, is answered by one check across the course (#559, data and `validate`). The pace (H9) is read on
-lesson 60's new items before its rule changes.
+**This round:** after lesson 61, no PR changes the lessons. Lesson 61 was built with lesson 60's revision, so #557, #560 and #562 are still
+unheard and come together in the next lesson the bot builds with current main; a step 6 or a remark's answer now would make that four
+behaviour PRs (LD §9 "Governance"). The long run's step this round is #560's, waiting for the bot's bump. The remarks wait as issues (#563,
+#265) and the pace's lever as the owner's decision (#564).
 
-## Now (updated 2026-11-18, after lesson 60), in order
+## Now (updated 2026-11-19, after lesson 61), in order
 
 The remarks' half of each round (LD §9 "Governance"): each remark ranked by how often its cause recurs on the replay of the latest export and
-what a fix costs. The latest export is lesson 60's; the next lesson is 61. Lessons 56–60 were rated «right». Lesson 60's remark (a review cue,
-«Say you'll go by bus instead.», that leaves «ég» or «við» open) is answered by one check across the course, which found four such cues (#559, #427).
-1. **The pace after a failed day (H9).** Lesson 58's new items, at a target of 11, were recalled 2 of 12 in the written review; lesson 59's, at
-   9, 5 of 11. Three of those four failures had #529's heavy dose, and two were reported hard to hear. The rule took the target to 8, and lesson
-   60 still left 18 of the 52 due items it could ask. **Next:** read lesson 60's new items (at 8) in lesson 61's export. If recall is under 80%
-   a third time, the lever (the target's floor, the dose, or holding back new lines that are hard to hear) is the owner's call, with the options
-   written in an issue first.
-2. **A noun's case with what decides it (#548, the family form-why).** Built: the form work at times of its own (#550) and the authored
-   contrasts, what changes the form said with no grammatical term and each line asked by its meaning (#552); lessons 59 and 60 played them
-   with no remark. **Next:** step 2, the reasons of the 51 phrases with a case form, as data, native-checked (#209).
-3. **Practice by what is hard in an item, not its kind (#439, #518, G11, H11).** The remark of lessons 41, 44, 49, 51 and 54, and the
-   owner's on #516. Built: a new phrase made of words the learner says is asked as a use of them (#523), a new noun's form named against its
-   basic word (#527), and the three doses (#529): a kind of item the next-day reviews find weak keeps every recall. Lesson 60's plan reads
-   «a long word» at 33% (of 9), the first kind over 20%, and two of its new items had the heavy dose. Lesson 59's heavy-dose items were recalled
-   2 of 7 (3 failed, 2 hesitated), so the dose alone did not hold them (item 1). **Next:** read the heavy-dose items' recall over the next two
-   lessons. The other learner's lesson 32 (15 minutes) had 81 items due and 38 not fitted; their trend is read from their next exports.
+what a fix costs. The latest export is lesson 61's; the next lesson is 62. Lessons 56–61 were rated «right». **Before anything else:** the
+bot's bump to current main (site_update_notifier#229, to `c2a8b82` or later), without which no PR merged since lesson 59 reaches the learner.
+1. **The pace (H9), the owner's call (#564).** Next-day recall of the new items was under 80% for a third lesson: 2 of 12, 5 of 11, 5 of 10
+   (lessons 58–60), the load «right» throughout. The failures recover at the next ask, and lesson 60's had more practice than its recalled
+   items; three were among seven lines of one desk that share a word (H5). The target is at 7. **Recommended:** keep the rule and read
+   lessons 61 and 62; then similar lines apart inside a scene if the failures cluster again, a floor for the target if they do not.
+2. **A line the learner can say, heard as an example (#265, lesson 61).** «Hvar er morgunmaturinn?» was heard twice in the hotel's fourth
+   level after the written review had asked it that morning: a phrase's check reads its item, not its text. **Next:** a line is sayable when
+   its text is the learner's sentence for an item they have met, or an instance of a pattern they say with a fill they say; one behaviour PR
+   after lesson 62's feedback, the row «heard-only lines» on the replay.
+3. **The instructions' own voice (#563, lesson 61).** Every instruction in Icelandic is said by the partner's default voice; it grows with
+   #429. **Next:** the owner's choice of option (recommended: a third speaker, Gunnar at a fixed lower pitch, checked by ear), then one PR.
+4. **A noun's case with what decides it (#548, the family form-why).** Built: #550, #552; lessons 59–61 played them with no remark. **Next:**
+   the owner's answer on the four anchor frames proposed on #548 (once in all, with one noun, recommended), then step 2 as data.
 
-**Alongside:** a conversation once (#519): lessons 54–60 had four to eight conversations and no remark, seven feedbacks. Hard to hear (#447): «Ég missti af strætó.» and «Hafið þið laust herbergi?», reported after lesson 59, were both not recalled the next day. The listening pool's sameness (#339): none of lesson 56's, 57's or 58's pick-outs was on a line heard in the three lessons before (0 of 8, 0 of 6, 0 of 6; lesson 55: 3 of 4). On the replay of lesson 58's export it comes back in lesson 70, when few lines are left that were not heard lately: 12 of 19 pick-outs; 6 of 16 with the batch after lesson 58; at most 1 when C4's four levels play as well. The town names as dative fillers, left unfitted in lessons 53–55, were fitted in 56 and 57. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
+**Alongside:** practice by what is hard in an item (#518, #439, G11): lesson 60's two heavy-dose items were hesitated and not recalled, lesson 59's 2 of 7 recalled; the dose alone does not hold them, and #564 reads it with the pace. A conversation once (#519): lessons 54–61 had four to eight conversations and no remark on their number, eight feedbacks. Hard to hear (#447): «Ég missti af strætó.» and «Hafið þið laust herbergi?», reported after lesson 59, were not recalled the next day and recalled at their next ask. The listening pool's sameness (#339): none of lesson 56's, 57's or 58's pick-outs was on a line heard in the three lessons before (0 of 8, 0 of 6, 0 of 6; lesson 55: 3 of 4). On the replay of lesson 58's export it comes back in lesson 70, when few lines are left that were not heard lately: 12 of 19 pick-outs; 6 of 16 with the batch after lesson 58; at most 1 when C4's four levels play as well. The town names as dative fillers, left unfitted in lessons 53–55, were fitted in 56 and 57. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
 before adding practice. Scene coherence (#327): lesson 50 said four of its six new items as turns of the played exchange, lesson 51 none of its
 ten (its exchange was a level played again). The note's pieces (#481) have not played yet. A silent clip taken as cut off (#503) is built; «vettlinga», whose syllable «lin» it was found on, has not played since.
 
