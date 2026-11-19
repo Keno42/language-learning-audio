@@ -345,17 +345,18 @@ turns = [
   { who = "partner", say = "Hálftíma! Þá tek ég leigubíl.", meaning = "Half an hour! Then I'll take a taxi.", meaning_ja = "30分も！じゃあタクシーにします。" },
 ]
 [[themes.levels]]
-# #327, the batch after lesson 58: module 10's «Ég missti af strætó.», «Hvar er rútustöðin?» and «Ég geng.» in an exchange (native check:
-# the coach station is «rútustöðin»; «Strætó» is the city bus company).
+# #327, the batch after lesson 58: module 10's «Ég missti af strætó.» and «Ég geng.» in an exchange, with «Hvað er langt þangað?». A city bus
+# missed on the way to the centre: the walk is the way out. Not «Hvar er rútustöðin?» (review of #566: after the native check it is the
+# long-distance coach station, which a missed city bus does not lead to).
 # Candidates until native-checked (#209).
-goal = "Say you missed the bus, ask where the coach station is, and say you'll walk; catch how long it takes."
-goal_ja = "バスに乗り遅れたと言い、長距離バスのターミナルの場所を聞き、歩くと言う。どのくらいかかるかを聞き取る。"
-scene_line = "You've just missed your bus, and you stop a passer-by."
-scene_line_ja = "バスに乗り遅れて、通りがかりの人を呼び止めます。"
+goal = "Say you missed the bus, ask how far it is, and say you'll walk; catch how long it takes."
+goal_ja = "バスに乗り遅れたと言い、どのくらい遠いか聞いて、歩くと言う。どのくらいかかるかを聞き取る。"
+scene_line = "You've just missed your bus to the centre, and you stop a passer-by."
+scene_line_ja = "中心街へ行くバスに乗り遅れて、通りがかりの人を呼び止めます。"
 turns = [
   { who = "you", cue = "Excuse yourself and say you missed the bus.", cue_ja = "声をかけて、バスに乗り遅れたと言ってください。", aim = "say you missed the bus", aim_ja = "バスに乗り遅れたと伝える", say = "Afsakið, ég missti af strætó.", items = ["afsakid", "eg_missti_af_straeto"] },
   { who = "partner", say = "Æ, æ. Næsti kemur eftir hálftíma.", meaning = "Oh dear. The next one comes in half an hour.", meaning_ja = "あらら。次は30分後ですよ。", probes = [{ kind = "duration", answer = "hálftíma", meanings = { en = "half an hour", ja = "30分" } }], variants = [{ say = "Æ, æ. Næsti kemur eftir tuttugu mínútur.", meaning = "Oh dear. The next one comes in twenty minutes.", meaning_ja = "あらら。次は20分後ですよ。", probes = [{ kind = "duration", answer = "tuttugu mínútur", meanings = { en = "twenty minutes", ja = "20分" } }] }, { say = "Æ, æ. Næsti kemur eftir fjörutíu mínútur.", meaning = "Oh dear. The next one comes in forty minutes.", meaning_ja = "あらら。次は40分後ですよ。", probes = [{ kind = "duration", answer = "fjörutíu mínútur", meanings = { en = "forty minutes", ja = "40分" } }] }] },
-  { who = "you", cue = "Ask where the coach station is.", cue_ja = "長距離バスのターミナルはどこか聞いてください。", aim = "ask where the coach station is", aim_ja = "長距離バスのターミナルの場所を聞く", say = "Hvar er rútustöðin?", items = ["hvar_er_strætóstöðin"] },
+  { who = "you", cue = "Ask how far it is to the centre.", cue_ja = "中心街までどのくらい遠いか聞いてください。", aim = "ask how far it is", aim_ja = "どのくらい遠いか聞く", say = "Hvað er langt þangað?", items = ["hvad_er_langt_thangad"] },
   { who = "partner", say = "Beint áfram. Það tekur svona tíu mínútur að ganga.", meaning = "Straight ahead. It takes about ten minutes to walk.", meaning_ja = "まっすぐです。歩いて10分くらいです。", probes = [{ kind = "duration", answer = "tíu mínútur", meanings = { en = "ten minutes", ja = "10分" } }], variants = [{ say = "Beint áfram. Það tekur svona fimm mínútur að ganga.", meaning = "Straight ahead. It takes about five minutes to walk.", meaning_ja = "まっすぐです。歩いて5分くらいです。", probes = [{ kind = "duration", answer = "fimm mínútur", meanings = { en = "five minutes", ja = "5分" } }] }, { say = "Beint áfram. Það tekur svona fimmtán mínútur að ganga.", meaning = "Straight ahead. It takes about fifteen minutes to walk.", meaning_ja = "まっすぐです。歩いて15分くらいです。", probes = [{ kind = "duration", answer = "fimmtán mínútur", meanings = { en = "fifteen minutes", ja = "15分" } }] }] },
   { who = "you", cue = "Say OK, you'll walk.", cue_ja = "わかりました、歩きますと言ってください。", aim = "say you'll walk", aim_ja = "歩くと言う", say = "Allt í lagi. Ég geng.", items = ["allt_i_lagi", "eg_geng"] },
   { who = "partner", say = "Gangi þér vel!", meaning = "Good luck!", meaning_ja = "お気をつけて！", variants = [{ say = "Góða ferð!", meaning = "Have a good trip!", meaning_ja = "よい旅を！" }] },
