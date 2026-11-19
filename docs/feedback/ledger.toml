@@ -126,6 +126,12 @@ cause = "Every instruction is in the known language: the Icelandic the learner w
 [families.review-audio]
 cause = "The written review's 🔊 reply carried no text of its own, and Discord's preview of the review message shows the card on screen now (site_update_notifier#175)."
 
+[families.instruction-voice]
+cause = "An instruction in Icelandic is said in a voice the scenes also use: nothing marks the instructor's Icelandic as the instructor's, so it sounds like a line of the conversation (#563)."
+
+[families.sayable-heard]
+cause = "Whether a learner line of an exchange is asked is judged on its item, not on its text: a sentence the learner says for another item, or an instance of a pattern they say with a fill they say, is heard as if never taught (#265)."
+
 # Lessons
 
 [[lesson]]
@@ -990,6 +996,25 @@ text = "In the written review «Your friend suggests a taxi. Say you'll go by bu
 family = "meaning-gloss"
 class = "twenty"
 answered_by = ["#559"]
+
+[[lesson]]
+n = 61
+form = true
+load = "right"
+
+[[lesson.remarks]]
+who = "main"
+text = "«Samtalinu er lokið.» and «Aftur að tala.» are said in the same male voice as the conversation; please make them different if possible. (Every instruction in Icelandic is said by Gunnar, the partner's default voice; «Samtalinu er lokið.» ended 7 conversations in his voice, 4 of them just after his own line as the partner: #563.)"
+family = "instruction-voice"
+class = "twenty"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "In a conversation, an expression I know, and not so easy as to be trivial, is sometimes played as an example instead of being given to practise. (The hotel's fourth level, played twice, heard «Hvar er morgunmaturinn?» after «Here you would say:», the sentence the written review had asked for «morgunmaturinn» that morning: its phrase item was never taught, and a phrase's check reads the item, not the text: #265.)"
+family = "sayable-heard"
+class = "twenty"
+answered_by = []
 
 # Built changes: the rows of the §8 table after lesson 50, in its order
 

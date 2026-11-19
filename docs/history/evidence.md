@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.47 (lessons 1–57), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.48 (lessons 1–58), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -1965,3 +1965,45 @@ exercises, 29.6 minutes).
 
 **This round:** #429 step 1, the next instruction phrases, so a lesson teaches one again: the long-run step and lesson 57's twenty-point
 part. Beside it, #544's glosses (data).
+
+### 5.48 Lesson 58: the first lesson built with #546
+
+Lesson 58 was generated with LLA `16f64f2` (main with #546 and #547), the bot at site_update_notifier `ca4fcf6`, `--instructions
+gradual`. Rebuilt from its export it is identical (122 exercises, 30.2 minutes).
+
+| | lesson 58 |
+|---|---|
+| length | 30.2 min, 122 exercises |
+| new items; new components, weighted (target) | 12; 11.5 (11) |
+| theme (level) | hotel (2) |
+| target reached | 17.4 min |
+| items reviewed / due | 62 due by date, 51 the lesson could ask; 6 not fitted («Hlustaðu.» among them); 45 practised, and new items' middle rung given to the reviews |
+| conversations | 4, 2.9 minutes: the hotel desk's two plays, two levels heard again |
+| pick-outs | 6, four of them after the target was reached |
+| written review's queue | 128 due |
+| feedback form: load; friction | **right**; other |
+| «sooner» | none |
+
+- **The long run, #429 step 1 (#546):**
+  - «Og á eðlilegum hraða.» was taught first, at 00:15, then said 11 times with «And at natural speed.» after it.
+  - With «Endurtaktu.», «Hægt.» and «Hlustaðu aftur.» (6 each), 29 instructor lines were in Icelandic.
+  - No remark on the instructions.
+- **The remark: «For each sentence the reason its case is chosen is not explained, and no practice nearby uses another case of the same
+  word, so it stays vague: why the dative in «Fluginu er seinkað.», why the accusative in «klukkan sex á sundlaugina»?»**
+  - «fluginu» is dative because «seinka» takes the dative and the passive keeps it. The second is the hotel exchange's partner line
+    «Klukkan sex, við sundlaugina.» (its hour rotates, #534), accusative after «við». The lesson said neither reason.
+  - The reason is said in three places only: a frame's `form_reason`, the eight phrases with `form_base` (#439 step 3), and the noun
+    choice (#539). 51 phrases hold a non-nominative form of a noun the course has an item for, and none has a reason; «fluginu» is a form no
+    item marks; a partner's line has no place for one.
+  - The contrast did not play: the noun choice takes a today's-items turn the number choice left, and lessons 57 and 58 had none, with four
+    nouns ready (fish, egg, hotel, bank). Lesson 58 brought in «sundlauginni» for the choice (#541) and set none.
+  - Family form-why, as lesson 57's gloss remark (#544, built: #547); a twenty-point part (#548).
+- **Lesson 57's new items in the review:** 10 of 12 recalled. «flugvellinum» was not recalled, and «Fer þessi strætó á flugvöllinn?» has no
+  outcome yet (lesson 58 asked it again).
+- **No «sooner» report** and no word reported hard to hear.
+
+**This round:**
+- the long run's step: #429 step 2, a taught instruction said inside a longer English line;
+- the remark's answer: #548 step 1, the noun choice at a time of its own, setting the noun whose form the lesson brings.
+
+These are the round's two behaviour PRs.
