@@ -1615,6 +1615,7 @@ topics = ["greetings", "grammar"]
 slots = { time = "acc_wish_time" }
 agreement = { adj = { from = "time", masc = "góðan", fem = "góða", neut = "gott" } }
 example = { time = "dag_acc" }
+exclude_fills = ["nott_acc"]  # native check (2026-11-18): one does not wish «Eigðu góða nótt»; one says «Sofðu vel.» (sofdu_vel)
 # gated on godur_gender's three greetings (so the gender note fires first) and the worked
 # example's fill only — gating on every fill kept the arc from reaching the pattern until all
 # three words were durable, i.e. several lessons of isolated «dag»/«nótt»/«kvöld» drills

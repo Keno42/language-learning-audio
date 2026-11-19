@@ -41,7 +41,7 @@ title = "Supermarket"
 title_ja = "スーパー"
 setting = "Finding a few groceries and paying at the till or a self-checkout."
 success = "Finds an item by asking, answers the clerk's questions (bag, receipt), pays by card."
-items = ["hvar_er", "matvorubudin", "attu", "eg_er_ad_leita_ad_thing", "hvad_kostar_thetta", "thad_kostar", "tekurdu_kort", "ma_eg_borga_med_korti", "poka", "ja", "nei", "get_eg_fengid_kvittun", "hvar_er_kassinn", "mjolk", "ost", "smjor", "egg", "braud", "skyr", "vatn", "epli"]
+items = ["hvar_er", "matvorubudin", "erud_thid_med", "eg_er_ad_leita_ad_thing", "hvad_kostar_thetta", "thad_kostar", "ma_eg_borga_med_korti", "poka", "ja", "nei", "get_eg_fengid_kvittun", "hvar_er_kassinn", "mjolk", "ost", "smjor", "egg", "braud", "skyr", "vatn", "epli"]
 missing = [
   "«Viltu poka?» and «Eitthvað fleira?» as lines to understand and answer (#134)",
 ]

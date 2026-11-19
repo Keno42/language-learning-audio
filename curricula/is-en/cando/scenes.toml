@@ -108,8 +108,8 @@ scenario = "A3"
 kind = "initiate"
 situation = "In the supermarket you can't find the milk. Ask a member of staff."
 situation_ja = "スーパーで牛乳が見つかりません。店員に聞きます。"
-replies = ["Áttu mjólk?"]
-items = ["attu", "mjolk"]
+replies = ["Eruð þið með mjólk?", "Ertu með mjólk?"]  # native check: shop staff are not asked «Áttu …?»
+items = ["erud_thid_med", "mjolk"]
 
 [[scenes]]
 id = "a3_bag"
@@ -154,7 +154,7 @@ scenario = "A3"
 kind = "initiate"
 situation = "Time to pay. Ask whether you can pay by card."
 situation_ja = "支払いです。カードで払えるか聞きます。"
-replies = ["Má ég borga með korti?", "Tekurðu kort?"]
+replies = ["Má ég borga með korti?"]
 items = ["ma_eg_borga_med_korti"]
 
 # ---------------------------------------------------------------- A4 café

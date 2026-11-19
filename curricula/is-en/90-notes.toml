@@ -232,7 +232,7 @@ text_ja = "アイスランドにはチップの習慣がなく、日本と同じ
 
 [[notes]]
 id = "kort"
-items = ["tekurdu_kort", "eg_er_ekki_med_reidufe", "ma_eg_borga_med_korti"]
+items = ["eg_er_ekki_med_reidufe", "ma_eg_borga_med_korti"]
 topics = ["money"]
 text = "Iceland is nearly cashless. Even the hot dog stand takes cards, and many Icelanders have not touched a coin in years. It is the opposite of Japan, where cash still rules in small places."
 text_ja = "アイスランドはほぼキャッシュレスです。ホットドッグの屋台でもカードが使え、何年も硬貨に触っていない人が大勢います。小さな店ほど現金が幅を利かせる日本とは逆です。"

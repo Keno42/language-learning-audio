@@ -114,10 +114,10 @@ topics = ["home", "accommodation"]
 [[items]]
 id = "rofinn"
 kind = "vocab"
-noun = "rofi"
+noun = "ljosrofi"
 form = "nom_def"
 gender = "masc"
-target = "rofinn"
+target = "ljósrofinn"  # native check (2026-11-18): «rofi» is any switch; the light switch is «ljósrofinn»
 meaning = "the light switch"
 meaning_ja = "電気のスイッチ"
 difficulty = 2

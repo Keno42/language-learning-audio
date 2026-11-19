@@ -964,9 +964,9 @@ topics = ["cafe", "clarifying"]
 requires = ["godan_daginn", "eg_aetla_ad_fa", "kaffi", "nei", "takk", "gaetirdu_talad_haegar"]
 
   [[dialogues.turns]]
-  opener = "Góðan daginn. Hvað viltu?"
-  opener_meaning = "Good day. What do you want?"
-  opener_meaning_ja = "こんにちは。ご注文は？"
+  opener = "Góðan daginn."  # native check (2026-11-18): not «Hvað viltu?», which sounds a bit rude from a barista («Hvað má bjóða þér?»)
+  opener_meaning = "Good day."
+  opener_meaning_ja = "こんにちは。"
   cue = "Greet her and say you'll have a coffee."
   cue_ja = "あいさつして、コーヒーをくださいと言ってください。"
   expect_text = "Góðan daginn. Ég ætla að fá kaffi."
@@ -1018,9 +1018,9 @@ requires = ["bord_fyrir_tvo", "eg_aetla_ad_fa", "fisk", "vatn", "get_eg_fengid_r
   expect = "bord_fyrir_tvo"
   # issue #48 audit: was "Hérna er matseðilinn" — accusative after «er»; the nominative
   # «matseðillinn» isn't taught anywhere, so the menu clause is dropped instead
-  partner = "Gjörðu svo vel. Hvað viltu drekka?"
-  partner_meaning = "Here you are. What do you want to drink?"
-  partner_meaning_ja = "こちらへどうぞ。お飲み物は何にしますか？"
+  partner = "Gjörðu svo vel. Og að drekka?"  # native check (2026-11-18): staff do not ask «Hvað viltu drekka?» (a bit rude)
+  partner_meaning = "Here you are. And to drink?"
+  partner_meaning_ja = "こちらへどうぞ。お飲み物は？"
 
   [[dialogues.turns]]
   cue = "Say you'll have water."

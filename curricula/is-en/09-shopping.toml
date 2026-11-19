@@ -244,7 +244,8 @@ topics = ["shopping"]
 [[items]]
 id = "attu"
 kind = "construction"
-target = "Áttu {thing}?"
+target = "Áttu {thing}?"  # native check (2026-11-18): asks whether someone has one of their own (a friend); shop staff are asked «Ertu með
+# peysur?» or «Selurðu peysur?» (the dialogue «peysubud»), not «Áttu peysu?»
 meaning = "Do you have {thing}?"
 meaning_ja = "{thing}はありますか？"
 difficulty = 2
@@ -253,6 +254,21 @@ slots = { thing = "acc_thing" }
 example = { thing = "peysu" }
 prereqs = ["peysu"]
 pronunciation_notes = "átt þú → áttu"
+
+[[items]]
+# native check (2026-11-18): shop staff are not asked «Áttu …?» (whether one owns it) but «Ertu með / Selurðu peysur?»; «Eruð þið með …?»
+# asks the shop, as «Eruð þið með laust herbergi?» (#533). Candidates until native-checked (#209).
+id = "erud_thid_med"
+kind = "construction"
+target = "Eruð þið með {thing}?"
+meaning = "Do you sell {thing}?"
+meaning_ja = "{thing}は置いてありますか？"
+difficulty = 2
+topics = ["shopping"]
+slots = { thing = "acc_thing" }
+exclude_fills = ["vegabref", "lykil", "bil", "leigubil"]  # a shop is not asked for a passport, a key, a car or a taxi
+example = { thing = "mjolk" }
+prereqs = ["mjolk"]
 
 [[items]]
 id = "eg_er_ad_leita_ad_thing"
@@ -619,14 +635,14 @@ topics = ["shopping"]
 requires = ["eg_er_ad_leita_ad_thing", "attu", "peysu", "ma_eg_mata_thetta", "thetta_er_of_litid", "attu_thetta_i_staerra", "thetta_passar", "eg_aetla_ad_taka_thetta"]
 
   [[dialogues.turns]]
-  opener = "Get ég hjálpað?"
-  opener_meaning = "Can I help you?"
-  opener_meaning_ja = "何かお探しですか？"
-  cue = "Ask her if she has a sweater."
-  cue_ja = "セーターはあるか聞いてください。"
-  expect_text = "Áttu peysu?"
-  expect_meaning = "Do you have a sweater?"
-  expect_meaning_ja = "セーターはありますか？"
+  opener = "Góðan daginn."  # native check (2026-11-18): shop staff offer «Get ég aðstoðað?», not «Get ég hjálpað?»
+  opener_meaning = "Good day."
+  opener_meaning_ja = "こんにちは。"
+  cue = "Ask her if they have sweaters."
+  cue_ja = "セーターを置いているか聞いてください。"
+  expect_text = "Ertu með peysur?"  # native check (2026-11-18): to shop staff, not «Áttu peysu?»
+  expect_meaning = "Do you have sweaters?"
+  expect_meaning_ja = "セーターは置いていますか？"
   partner = "Já, þessi er góð."
   partner_meaning = "Yes, this one is good."
   partner_meaning_ja = "はい、これはいいですよ。"

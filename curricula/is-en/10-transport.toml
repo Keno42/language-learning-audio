@@ -600,13 +600,14 @@ situation_ja = "友達にどうやって来たか聞かれました。自転車�
 [[items]]
 id = "hvar_er_strætóstöðin"
 kind = "phrase"
-target = "Hvar er strætóstöðin?"
-meaning = "Where is the bus station?"
-meaning_ja = "バスターミナルはどこですか？"
+target = "Hvar er rútustöðin?"  # native check (2026-11-18): Strætó is the city bus company; the station for long-distance buses of
+# several companies (BSÍ) is «rútustöðin»
+meaning = "Where is the coach station?"
+meaning_ja = "長距離バスのターミナルはどこですか？"
 difficulty = 3
 topics = ["transport", "directions"]
 prereqs = ["hvar_er"]
-situation = "You need the long-distance bus. Ask where the bus station is."
+situation = "You need a long-distance bus. Ask where the coach station is."
 situation_ja = "長距離バスに乗りたいです。バスターミナルはどこか聞いてください。"
 
 [[items]]
@@ -722,8 +723,8 @@ requires = ["eg_er_med_bokun", "eg_er_med_eina_tosku", "hvar_er_hlidid", "hvenae
   cue = "Ask where the gate is."
   cue_ja = "搭乗口はどこか聞いてください。"
   expect = "hvar_er_hlidid"
-  partner = "Hliðið er tólf. Beint áfram."
-  partner_meaning = "The gate is twelve. Straight ahead."
+  partner = "Hliðið er númer tólf. Beint áfram."  # native check (2026-11-18): a gate is «númer tólf», or «hlið (númer) tólf»
+  partner_meaning = "It's gate number twelve. Straight ahead."
   partner_meaning_ja = "12番ゲート、まっすぐです。"
 
   [[dialogues.turns]]

@@ -110,8 +110,8 @@ meaning_ja = "充電器はありますか？"
 difficulty = 3
 topics = ["practical"]
 prereqs = ["attu", "hledslutaeki"]
-situation = "Ask the café staff if they have a charger."
-situation_ja = "カフェの店員に充電器があるか聞いてください。"
+situation = "Your phone is dying at a friend's place. Ask her if she has a charger."  # native check (2026-11-18): «Áttu …?» is asked of a person, not the café's staff
+situation_ja = "友達の家で携帯の電池が切れそうです。充電器があるか聞いてください。"
 
 [[items]]
 id = "hvar_get_eg_hladid_simann"
@@ -150,12 +150,11 @@ situation_ja = "新しい知り合いにメールアドレスを聞いてくだ�
 [[items]]
 id = "eg_tharf_simkort"
 kind = "phrase"
-target = "Ég þarf símkort."
+target = "Mig vantar símkort."  # native check (2026-11-18): something you lack and need to obtain is «Mig vantar …», not «Ég þarf …»
 meaning = "I need a SIM card."
 meaning_ja = "SIMカードが必要です。"
 difficulty = 2
 topics = ["practical", "shopping"]
-prereqs = ["eg_tharf"]
 situation = "At the phone shop. Say you need a SIM card."
 situation_ja = "携帯ショップです。SIMカードが必要だと言ってください。"
 
