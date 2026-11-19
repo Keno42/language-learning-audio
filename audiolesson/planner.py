@@ -2021,13 +2021,26 @@ class Planner:
     def can_say_line(self, items, text: str, practised: bool = True) -> bool:
         """The one policy on whether a line can be said, whichever play mode asks (#263 review): every item of it can be said; or, when a construction is
         among them, its filled line is covered by chunks the learner can say. A phrase or a word is a unit with its own introduction: pieces
-        that happen to cover it do not make it sayable, in a dialogue or in a theme alike."""
+        that happen to cover it do not make it sayable, in a dialogue or in a theme alike. A phrase that is an instance of a pattern the learner can
+        say, with fills they can say (``says_as_instance``), is not pieces: it is that pattern's sentence (#265, lesson 61: «Hvar er
+        morgunmaturinn?», asked in the written review for «morgunmaturinn», was heard in the hotel's fourth level)."""
         ids = [i for i in items if i in self.cur.by_id]
-        if ids and all(self.can_say_item(i, practised) for i in ids):
+        if ids and all(self.can_say_item(i, practised) or self.says_as_instance(i, practised) for i in ids):
             return True
         if not text or not any(self.cur.by_id[i].kind == "construction" for i in ids):
             return False
         return self._covered(text, practised)
+
+    def says_as_instance(self, item_id: str, practised: bool = True) -> bool:
+        """Whether a phrase is the sentence of a pattern the learner can say with fills they can say (``instance_of``, ``instance_fill``): «Hvar er
+        morgunmaturinn?» is «Hvar er {place}?» with «morgunmaturinn». A form of a pattern (``instance_form``, #280) changes the pattern's words, so it is
+        not one: it keeps its own introduction."""
+        item = self.cur.by_id.get(item_id)
+        if item is None or item.kind != "phrase" or not item.instance_of or not item.instance_fill or item.instance_form:
+            return False
+        if item.instance_of not in self.cur.by_id or not self.can_say_item(item.instance_of, practised):
+            return False
+        return all(f in self.cur.by_id and self.can_say_item(f, practised) for f in item.instance_fill.values())
 
     def _covered(self, text: str, practised: bool = True) -> bool:
         """Whether ``text`` is covered, in order, by chunks the learner can say."""

@@ -196,3 +196,30 @@ class HardConnectionTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SayableInstanceTests(unittest.TestCase):
+    """#265, reopened after lesson 61: «Hvar er morgunmaturinn?», the sentence the written review asked for «morgunmaturinn», was heard in the
+    hotel's fourth level because its own phrase had not been taught. A phrase that is an instance of a pattern the learner says, with a fill
+    they say, is that pattern's sentence, not pieces: it is asked."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.cur = load_curriculum(IS_EN)
+
+    def planner(self, *met):
+        l = LearnerState("is", "en", "A1")
+        for i in met:
+            l.items[i] = ItemState(stage="meaning", last_outcome="recalled", durable_successes=2)
+        return Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30), today=TODAY)
+
+    def test_an_instance_of_a_said_pattern_with_a_said_fill_is_asked(self):
+        line = ["hvar_er_morgunmaturinn"], "Hvar er morgunmaturinn?"
+        self.assertEqual(self.planner("hvar_er", "morgunmaturinn").line_role(*line[:1], text=line[1]), "ask")
+        self.assertEqual(self.planner("hvar_er").line_role(*line[:1], text=line[1]), "hear", "the fill never met: heard (#240)")
+        self.assertEqual(self.planner("morgunmaturinn").line_role(*line[:1], text=line[1]), "hear", "the pattern never met: heard")
+
+    def test_a_form_of_a_pattern_is_not_its_sentence(self):
+        form = next(i for i in self.cur.items if i.kind == "phrase" and i.instance_of and i.instance_fill and i.instance_form)
+        p = self.planner(form.instance_of, *form.instance_fill.values())
+        self.assertFalse(p.says_as_instance(form.id), f"{form.id}: its words differ from the pattern's")
