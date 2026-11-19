@@ -176,6 +176,7 @@ setting = "You are in a café. There is one free chair at a table where a woman 
 topics = ["cafe", "social"]
 requires = ["oui", "je_suis_en_vacances"]   # items the expect_text lines rely on
 partner_speaker = "native_a"                # the woman: native_a is the female voice (default native_b, male); the learner's lines take the other voice
+superseded_by = ["cafe:1"]                  # optional: theme levels that play this scene with varying partner lines; once one has played, the script does not return
 
   [[dialogues.turns]]
   opener = "Bonjour. Vous désirez ?"        # optional: partner speaks first

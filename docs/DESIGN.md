@@ -73,10 +73,13 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   level turn such as «Nei, takk.» counts once however many dialogue turns it matches, review of #384). `eligible_dialogue` and `listening_dialogue` skip such a dialogue in that lesson: the scene's
   exchange already says those lines (lesson 34 of the lesson-33 replay played «kynning», Anna from Akureyri, two minutes before
   small talk 1, whose Anna is from Akureyri too). One shared line («Takk.») is not a repeat. `tests/test_scene_group.py`.
-- **A fixed dialogue retires (#416, lesson 53).** Both `eligible_dialogue` and `listening_dialogue` exclude a dialogue after
-  `dialogue_full_play_limit` (2) full plays, whatever the state of its items. `_dialogue_familiar` subtracts the partial
-  encounters that grow one turn at a time from `dialogues_done`; an item of it that is due, failed or reported hard is
-  practised as a line of its own (the review, the open items, a hard item's connections). Zero disables the limit for
+- **A fixed dialogue retires (#416, lesson 53; the owner, 2026-11-19).** Both `eligible_dialogue` and `listening_dialogue` exclude a
+  dialogue after `dialogue_full_play_limit` (1) whole plays, whatever the state of its items, and once a theme level that plays its scene
+  has played (`Dialogue.superseded_by`, «pharmacy:1» for «apotek», read from `LearnerState.levels_last`). A script whose every line the
+  learner can say (`can_say_turn`) is played whole at its first encounter, not grown a turn at a time. Whole plays are recorded in
+  `LearnerState.dialogues_whole` (from `sc.meta["dialogues_whole"]`); for a dialogue played before that, `_dialogue_whole_plays` subtracts
+  the partial encounters from `dialogues_done`. An item of it that is due, failed or reported hard is practised as a line of its own (the
+  review, the open items, a hard item's connections). Zero disables the limit for
   comparisons; its value is saved in the plan's `config.levers`. `tests/test_familiar_dialogues.py`.
 - **Listening dialogues (#149 step 3).** With nothing else left (step 5, before today's items
   are repeated, or as the last drill-streak relief), a dialogue lacking one or two required

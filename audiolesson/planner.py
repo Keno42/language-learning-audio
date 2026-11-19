@@ -128,7 +128,9 @@ class PlanConfig:
     # few dialogues eligible, the same full dialogue otherwise played in every lesson
     # (simulated lessons 7-12). One still growing a turn per encounter does not wait.
     dialogue_rest_lessons: int = 3
-    dialogue_full_play_limit: int = 2  # #416, lesson 53: a fixed script does not return after this many full plays, whatever its items; 0 disables
+    # #416, lesson 53: a fixed script does not return after this many full plays, whatever its items; 0 disables. The owner, 2026-11-19 (a simple
+    # dialogue played four or five times, «every time I was fed up»): one; and a script whose every line the learner can say is played whole at once
+    dialogue_full_play_limit: int = 1
     max_dialogues: int | None = None  # per lesson (default: one per 10 minutes, at least 2)
     # Issue #149 step 3 (lesson 13: 23.6 of 30 minutes, the last 5 repeating today's items): with
     # nothing else left, a dialogue lacking one or two required items is played as listening
@@ -309,6 +311,7 @@ class Planner:
         self.exposures: dict[str, list[str]] = {}
         self.support: dict[str, int] = {}
         self.dialogues_played: list[str] = []
+        self.dialogues_whole_played: dict[str, int] = {}  # a fixed dialogue played whole this lesson -> its whole plays with it (``LearnerState.dialogues_whole``)
         self.voiced_lines: list[str] = []  # #416: learner set replies voiced, not asked, in an exchange played again: "theme:level:turn" or "dialogue:turn"
         self.dialogues_listened: list[str] = []
         self._chunk_cache: tuple[tuple, set[tuple[str, ...]]] | None = None
@@ -2242,9 +2245,17 @@ class Planner:
         reported hard is practised as a line of its own (the review, the open items, a hard item's connections), not by playing the script again:
         lesson 53 played three such scripts whole, for the fifth, sixth and seventh time, in its first thirteen minutes.
         """
+        if any(key in self.learner.levels_last for key in d.superseded_by):
+            return True  # the owner, 2026-11-19: a theme level that plays its scene, its partner lines varying, has played
         limit = self.cfg.dialogue_full_play_limit
-        partial_plays = max(0, len(d.turns) - self.cfg.dialogue_first_turns)
-        return limit > 0 and self.learner.dialogues_done.get(d.id, 0) - partial_plays >= limit
+        return limit > 0 and self._dialogue_whole_plays(d) >= limit
+
+    def _dialogue_whole_plays(self, d: Dialogue) -> int:
+        """How often ``d`` was played whole: ``LearnerState.dialogues_whole``; for a dialogue played before that was recorded, its plays less
+        the ones that grew it a turn at a time (#416's count)."""
+        if d.id in self.learner.dialogues_whole:
+            return self.learner.dialogues_whole[d.id]
+        return max(0, self.learner.dialogues_done.get(d.id, 0) - max(0, len(d.turns) - self.cfg.dialogue_first_turns))
 
     def _dialogue_resting(self, d: Dialogue) -> bool:
         """Heard in full at its last encounter, and that was fewer than
@@ -4447,6 +4458,14 @@ class Planner:
                 ex = b.recall(sc, item, stage)
                 self._record([item.id], ex.stage or stage, ex.item_ids)
                 closed.update(ex.item_ids)  # «Fer þessi strætó í miðbæinn?» for the new pattern says the new destination too: not asked a second time for it (lesson 27)
+            if cfg.late_unhinted_recall:
+                # the lever closes every new item unhinted (#136): one taught inside a sentence (`embedded`) is asked through that sentence. It
+                # had leant on a fixed dialogue saying it late, which happened less once a script retires after one whole play (owner, 2026-11-19)
+                for item_id in self.embedded:
+                    item = self.cur.by_id.get(item_id)
+                    if item is not None and item_id not in closed and not any(item_id in e.item_ids for e in sc.exercises[closing_from:]):
+                        if ask_a_sentence(item, repeat=True):
+                            closed.update(sc.exercises[-1].item_ids)
             asked = {i for e in sc.exercises[closing_from:] for i in e.item_ids}
             # today's new material as plan.json lists it: the items introduced and those taught inside a sentence (`embedded`, which keep no closing recall, #192)
             closing_left = [i for i in dict.fromkeys([i.id for i in introduced] + list(self.embedded)) if i not in asked]
@@ -4573,6 +4592,7 @@ class Planner:
             # each item once: the queue can hold an item twice, and the pace's rule counts this list (lesson 53: 20 items, listed 31 times)
             "due_not_fitted": list(dict.fromkeys(i.id for i in reviews if i.id not in self.exposures and self.learner.review_priority(i.id, self.today) >= 1.0)),
             "dialogues": list(self.dialogues_played),
+            "dialogues_whole": dict(self.dialogues_whole_played),
             "dialogues_listened": list(self.dialogues_listened),
             "listening_tried": list(self.listening_tried),
             "listening_untaught": list(self.listening_untaught),
@@ -4599,9 +4619,12 @@ class Planner:
         lines are translated only the first time that turn is heard (#210)."""
         times = self.learner.dialogues_done.get(dlg.id, 0)
         max_turns = min(len(dlg.turns), self.cfg.dialogue_first_turns + times)
+        if all(self.can_say_turn(t) for t in dlg.turns):
+            max_turns = len(dlg.turns)  # the owner, 2026-11-19: every line known, the script is played whole, not grown over four lessons
         full = max_turns >= len(dlg.turns)
-        # a turn's meaning is given the first time that turn is heard (#210): turn k comes in at encounter k + 1 - first_turns
-        new_turns = frozenset(k for k in range(max_turns) if max(0, k + 1 - self.cfg.dialogue_first_turns) == times)
+        # a turn's meaning is given the first time that turn is heard (#210): the turns past those heard at the encounters before
+        heard_before = min(len(dlg.turns), self.cfg.dialogue_first_turns + times - 1) if times else 0
+        new_turns = frozenset(range(heard_before, max_turns))
         # #416 (lesson 40): a dialogue played before voices the set replies the learner plainly knows, as a theme played again does; a voiced
         # line earns no practice
         voiced = self.voiced_replies([self.dialogue_turn_reply(t) for t in dlg.turns[:max_turns]], set()) if times > 0 else set()
@@ -4610,6 +4633,8 @@ class Planner:
         primary = [t.expect for k, t in enumerate(dlg.turns[:max_turns]) if t.expect and k not in voiced]
         self._record(primary, "dialogue", ex.item_ids)
         self.dialogues_played.append(dlg.id)
+        if full:
+            self.dialogues_whole_played[dlg.id] = self._dialogue_whole_plays(dlg) + 1
 
     def _play_listening(self, sc: Script, dlg: Dialogue, missing: set[str]) -> None:
         """The whole dialogue as listening (#149 step 3). A line the learner can say in full is asked as usual (#179).
@@ -4682,6 +4707,7 @@ def apply_to_learner(sc: Script, learner: LearnerState, today: date, presume_suc
                 learner.tried[item_id] = sc.lesson_number
     for d in sc.meta.get("dialogues", []):
         learner.dialogues_done[d] = learner.dialogues_done.get(d, 0) + 1
+    learner.dialogues_whole.update(sc.meta.get("dialogues_whole", {}))
     if not learner.caught_seeded:
         learner.caught_words = sorted(set(learner.caught_words) | set(sc.meta.get("caught_seed", [])))
         learner.caught_seeded = True

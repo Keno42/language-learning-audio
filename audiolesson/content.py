@@ -368,6 +368,9 @@ class Dialogue:
     variant: str = ""  # a theme exchange: which variant of each varying partner line is spoken (#134), for the label
     requires: list[str] = field(default_factory=list)  # extra items the expect_text turns rely on
     part: bool = False  # a short exchange cut from a theme level that goes on after it (a hard item's scene line): announced and closed as a part
+    # the owner, 2026-11-19 («the "20000 kr is too expensive" dialogue: simple lines, and every time I was fed up»): the theme levels that play this
+    # dialogue's scene, with partner lines that vary («pharmacy:1» for «apotek»); once one has played, the fixed script does not return
+    superseded_by: list[str] = field(default_factory=list)
 
     @property
     def required_items(self) -> list[str]:
@@ -761,6 +764,7 @@ def curriculum_from_dict(raw: dict, source: str = "", known_lang: str | None = N
                 topics=list(entry.get("topics", [])),
                 partner_speaker=entry.get("partner_speaker", "native_b"),
                 requires=list(entry.get("requires", [])),
+                superseded_by=list(entry.get("superseded_by", [])),
             )
         )
 

@@ -82,6 +82,9 @@ class LearnerState:
     lessons_completed: int = 0
     items: dict[str, ItemState] = field(default_factory=dict)
     dialogues_done: dict[str, int] = field(default_factory=dict)  # id -> times practised
+    # id -> times played whole (the owner, 2026-11-19); absent for a dialogue played before it was recorded, read from ``dialogues_done`` then
+    # (``Planner._dialogue_whole_plays``)
+    dialogues_whole: dict[str, int] = field(default_factory=dict)
     lessons: list[dict] = field(default_factory=list)  # lesson log
     pace: int | None = None  # new items per lesson, adjusted from feedback (None = default for the length)
     reported: list[int] = field(default_factory=list)  # lesson numbers the learner gave feedback on
@@ -698,6 +701,7 @@ class LearnerState:
             "lessons_completed": self.lessons_completed,
             "items": {k: asdict(v) for k, v in self.items.items()},
             "dialogues_done": self.dialogues_done,
+            **({"dialogues_whole": dict(self.dialogues_whole)} if self.dialogues_whole else {}),
             "lessons": self.lessons,
             "pace": self.pace,
             "reported": self.reported,
@@ -739,6 +743,7 @@ class LearnerState:
             level=raw.get("level", "A1"),
             lessons_completed=raw.get("lessons_completed", 0),
             dialogues_done=raw.get("dialogues_done", {}),
+            dialogues_whole={k: int(v) for k, v in raw.get("dialogues_whole", {}).items()},
             lessons=raw.get("lessons", []),
             pace=raw.get("pace"),
             reported=list(raw.get("reported", [])),

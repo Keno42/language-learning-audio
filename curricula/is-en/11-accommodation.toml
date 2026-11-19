@@ -435,6 +435,7 @@ situation_ja = "田舎のゲストハウスです。露天の湯船があるか�
 
 [[dialogues]]
 id = "innritun"
+superseded_by = ["hotel:1"]  # the theme level that plays this scene with varying partner lines (owner, 2026-11-19)
 setting = "Evening, at the hotel reception. The receptionist looks up."
 setting_ja = "夜、ホテルの受付。受付の人が顔を上げます。"
 partner_speaker = "native_a"  # the narration says she
@@ -480,6 +481,7 @@ requires = ["talar_thu", "ensku", "eg_er_med_bokun", "a_nafninu_yuki", "er_morgu
 
 [[dialogues]]
 id = "vandamal"
+superseded_by = ["hotel:6"]  # the theme level that plays this scene with varying partner lines (owner, 2026-11-19)
 setting = "Next morning. You call reception from your room."
 setting_ja = "翌朝。部屋から受付に電話します。"
 partner_speaker = "native_a"  # the narration says she

@@ -440,6 +440,7 @@ situation_ja = "山の上に緑の光が現れました。友達にオーロラ�
 
 [[dialogues]]
 id = "vedur"
+superseded_by = ["weather:1"]  # the theme level that plays this scene with varying partner lines (owner, 2026-11-19)
 setting = "You meet your neighbour outside on a freezing morning."
 setting_ja = "凍えるような朝、外で近所の人に会いました。"
 topics = ["weather", "arrangements"]
@@ -467,6 +468,7 @@ requires = ["ja", "thad_er_weather", "kalt", "allt_i_lagi", "sjaumst_time", "a_m
 
 [[dialogues]]
 id = "gonguferd"
+superseded_by = ["weather:1"]  # the theme level that plays this scene with varying partner lines (owner, 2026-11-19)
 setting = "You're planning a hike with a friend from the hostel."
 setting_ja = "ホステルの友達とハイキングを計画しています。"
 topics = ["weather", "arrangements"]

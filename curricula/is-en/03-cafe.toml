@@ -957,6 +957,7 @@ situation_ja = "レジの人にサンドイッチを持ち帰るか聞かれま�
 
 [[dialogues]]
 id = "kaffihus"
+superseded_by = ["cafe:1"]  # the theme level that plays this scene with varying partner lines (owner, 2026-11-19)
 setting = "You're at a café counter in Reykjavík. The barista looks up."
 setting_ja = "レイキャビクのカフェのカウンターにいます。バリスタが顔を上げます。"
 partner_speaker = "native_a"  # the narration says she
@@ -1004,6 +1005,7 @@ requires = ["godan_daginn", "eg_aetla_ad_fa", "kaffi", "nei", "takk", "gaetirdu_
 
 [[dialogues]]
 id = "veitingastadur"
+superseded_by = ["cafe:2"]  # the theme level that plays this scene with varying partner lines (owner, 2026-11-19)
 setting = "A restaurant on Laugavegur. A waiter comes to your table."
 setting_ja = "ロイガヴェーグル通りのレストラン。ウェイターがテーブルに来ます。"
 topics = ["cafe", "food"]

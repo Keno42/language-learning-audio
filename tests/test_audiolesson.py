@@ -4179,7 +4179,7 @@ class CourseTests(unittest.TestCase):
         }
         cur = curriculum_from_dict(raw)
 
-        def eligible(done: dict[str, int], played: dict[int, list[str]], last: int) -> set[str]:
+        def eligible(done: dict[str, int], played: dict[int, list[str]], last: int, limit: int = 2) -> set[str]:
             learner = LearnerState("is", "en", "A1")
             for i in range(3):
                 learner.items[f"w{i}"] = ItemState(due=TODAY.isoformat(), successes=3, durable_successes=3, stage="meaning")
@@ -4188,7 +4188,7 @@ class CourseTests(unittest.TestCase):
             learner.lessons_completed = last
             out = set()
             for _ in range(2):
-                planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1), today=TODAY)
+                planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, seed=1, dialogue_full_play_limit=limit), today=TODAY)
                 planner.dialogues_played = sorted(out)  # ask again without what it already gave
                 d = planner.eligible_dialogue()
                 if d is None:
@@ -4202,6 +4202,9 @@ class CourseTests(unittest.TestCase):
         self.assertEqual(eligible(both, {1: ["short", "long"]}, 4), {"short", "long"}, "rested three lessons")
         self.assertEqual(eligible({"short": 1}, {}, 4), {"short", "long"}, "no record of when: never held back")
         self.assertEqual(eligible({"short": 2}, {}, 4), {"long"}, "heard in full twice: retired (lesson 53)")
+        # the owner, 2026-11-19: by default a script heard in full once does not return (``dialogue_full_play_limit`` 1); the rest above is
+        # for a limit of two or more
+        self.assertEqual(eligible(both, {1: ["short", "long"]}, 4, limit=1), {"long"}, "heard in full once: retired")
 
     def test_topics_are_preferred(self):
         sc = build(fresh(), topics=["directions"])
@@ -10821,7 +10824,7 @@ class LeverTests(unittest.TestCase):
     def test_late_unhinted_recall_closes_every_new_item_without_a_hint(self):
         late, sc = self._candidates(late_unhinted_recall=True)
         self.assertEqual(late["no_late_recall"] + late["early_last_appearance"], 0)
-        self.assertEqual(sc.meta["config"]["levers"], {"late_unhinted_recall": True, "dialogue_full_play_limit": 2})
+        self.assertEqual(sc.meta["config"]["levers"], {"late_unhinted_recall": True, "dialogue_full_play_limit": 1})
 
     def test_levers_pass_through_the_cli(self):
         import contextlib
@@ -10833,7 +10836,7 @@ class LeverTests(unittest.TestCase):
                 main(["generate", "-c", str(ROOT / "curricula" / "is-en"), "-l", str(Path(td) / "l.json"), "-o", td,
                       "-m", "10", "--no-audio", "--date", "2026-09-18", "--late-unhinted-recall"])
             levers = json.loads((Path(td) / "lesson-001.plan.json").read_text("utf-8"))["config"]["levers"]
-        self.assertEqual(levers, {"late_unhinted_recall": True, "dialogue_full_play_limit": 2})
+        self.assertEqual(levers, {"late_unhinted_recall": True, "dialogue_full_play_limit": 1})
 
 
 class SpokenMeaningTests(unittest.TestCase):
