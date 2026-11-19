@@ -2,6 +2,7 @@
 lesson is taken and the review tried, so use a feedback loop.» Three doses: light (an instruction, a plain number, a phrase made of known words: one
 timed recall), middle (the default: the timed recalls, the hinted one given to the due reviews when they cannot fit, #478) and heavy (every recall,
 whatever the reviews), for an item with a trait whose new items the next-day review found weak."""
+import re
 import unittest
 from datetime import date, timedelta
 from pathlib import Path
@@ -87,6 +88,19 @@ class DoseTests(unittest.TestCase):
         """The stages of the item's own recalls, in the lesson's order."""
         return [e.stage for e in sc.exercises if e.kind == "recall" and e.item_ids[:1] == [item_id]]
 
+    @staticmethod
+    def rungs(sc, item_id: str) -> list[str]:
+        """``recalls``, with a recall from the meaning that the scene check's line cues read as ``meaning``: ``Builder.sentence_cue`` and
+        ``_recall_construction`` label it «situation» when the sentence they pick has a scene line («Ég elska súpu.»; «Ég elska ís.» has none),
+        but its cue is the scene line and the meaning (``scene_say``), never the item's own situation. A recall from the item's own situation
+        stays «situation»."""
+        template = Prompts.load("en").data["scene_say"]
+        cued = re.compile(".*".join(re.escape(p) for p in re.split(r"\{[^}]*\}", template)))
+        def rung(e) -> str:
+            said = [g.text or "" for g in sc.segments if g.exercise == e.index and g.type == "narrate"]
+            return "meaning" if e.stage == "situation" and any(cued.search(t) for t in said) else e.stage
+        return [rung(e) for e in sc.exercises if e.kind == "recall" and e.item_ids[:1] == [item_id]]
+
     def hinted(self, sc, item_id: str) -> bool:
         """Whether a sentence's recall at about three minutes was asked: the rung a lesson gives to reviews that cannot fit (a sentence's
         ladder goes cloze, hinted, meaning)."""
@@ -106,11 +120,8 @@ class DoseTests(unittest.TestCase):
             self.assertEqual((weak.meta["doses"][i], self.hinted(weak, i)), ("heavy", True), i)
         others = [i for i, d in weak.meta["doses"].items() if d == "middle"]
         self.assertTrue(others, "a kind the reviews do not find weak stays on the default")
-        # a recall from the meaning is cued by the scene check's line when the sentence it picks has one, and is then labelled «situation»
-        # (``Builder._recall_construction``, lesson 27): «Ég elska ís.» in one lesson, «Ég elska súpu.» in the other. Either is the same unhinted rung.
-        unhinted = lambda stages: ["meaning" if s == "situation" else s for s in stages]
         for i in others:
-            self.assertEqual(unhinted(self.recalls(weak, i)), unhinted(self.recalls(fine, i)), f"{i}: and is asked as in the other lesson, its recall given to the reviews")
+            self.assertEqual(self.rungs(weak, i), self.rungs(fine, i), f"{i}: and is asked as in the other lesson, its recall given to the reviews")
 
     def test_plan_json_holds_the_doses_and_the_trait_rates(self):
         """Review of #529: the description promised both fields in plan.json; ``_plan`` exported neither."""
