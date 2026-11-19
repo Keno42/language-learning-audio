@@ -577,6 +577,7 @@ examples = [
 
 [[dialogues]]
 id = "kynning"
+superseded_by = ["smalltalk:1"]  # the theme level that plays this scene with varying partner lines (owner, 2026-11-19)
 setting = "At a friend's kitchen table you're introduced to Anna."
 setting_ja = "友達の家の食卓で、アンナを紹介されました。"
 partner_speaker = "native_a"  # the narration says she

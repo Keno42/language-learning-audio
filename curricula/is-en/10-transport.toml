@@ -658,6 +658,7 @@ examples = [
 
 [[dialogues]]
 id = "straeto"
+superseded_by = ["bus:1"]  # the theme level that plays this scene with varying partner lines (owner, 2026-11-19)
 setting = "A bus pulls up at the stop. You step up to the driver."
 setting_ja = "バスが停留所に来ました。運転手のところへ進みます。"
 topics = ["transport"]

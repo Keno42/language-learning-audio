@@ -628,6 +628,7 @@ partner_cue_situation_ja = "あるそうで、サイズを聞かれました。M
 
 [[dialogues]]
 id = "peysubud"
+superseded_by = ["clothes:3"]  # the theme level that plays this scene with varying partner lines (owner, 2026-11-19)
 setting = "In a wool shop. A shop assistant approaches."
 setting_ja = "ウール製品の店。店員が近づいてきます。"
 partner_speaker = "native_a"  # the narration says she

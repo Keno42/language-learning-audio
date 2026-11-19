@@ -389,6 +389,7 @@ prereqs = ["eg_er_med_have"]
 
 [[dialogues]]
 id = "ferdaskrifstofa"
+superseded_by = ["tour:4"]  # the theme level that plays this scene with varying partner lines (owner, 2026-11-19)
 setting = "At a tour desk in the town centre."
 setting_ja = "町の中心のツアーデスクです。"
 topics = ["travel"]

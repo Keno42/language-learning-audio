@@ -732,6 +732,7 @@ situation_ja = "博物館は町の反対側です。歩いて行けるか聞い�
 
 [[dialogues]]
 id = "sundlaug"
+superseded_by = ["town:1"]  # the theme level that plays this scene with varying partner lines (owner, 2026-11-19)
 setting = "You want to go swimming. You stop a man in the street."
 setting_ja = "泳ぎに行きたいです。道で男性を呼び止めます。"
 topics = ["directions"]
@@ -764,6 +765,7 @@ requires = ["afsakid", "hvar_er", "sundlaugin", "er_thad_langt", "takk", "bless"
 
 [[dialogues]]
 id = "tynd"
+superseded_by = ["town:3"]  # the theme level that plays this scene with varying partner lines (owner, 2026-11-19)
 setting = "You are lost near the harbour with a paper map. A woman is waiting at a crossing."
 setting_ja = "紙の地図を手に港の近くで迷いました。横断歩道で女性が待っています。"
 partner_speaker = "native_a"  # the narration says she

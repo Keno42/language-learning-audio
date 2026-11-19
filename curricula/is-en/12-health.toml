@@ -601,6 +601,7 @@ situation_ja = "診療所で支払いについて聞かれました。健康保�
 
 [[dialogues]]
 id = "apotek"
+superseded_by = ["pharmacy:1"]  # the theme level that plays this scene with varying partner lines (owner, 2026-11-19)
 setting = "At the pharmacy. The pharmacist greets you."
 setting_ja = "薬局です。薬剤師があいさつします。"
 partner_speaker = "native_a"  # the narration says she
