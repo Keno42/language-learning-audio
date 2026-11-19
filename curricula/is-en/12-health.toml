@@ -316,13 +316,14 @@ situation_ja = "鎮痛剤が必要です。一番近い薬局はどこか聞い�
 [[items]]
 id = "attu_eitthvad_vid_hofudverk"
 kind = "phrase"
-target = "Áttu eitthvað við höfuðverk?"
+target = "Ertu með eitthvað við höfuðverk?"  # native check (2026-11-18, review of #566): «Áttu …?» asks whether a person owns one; a
+# pharmacist is asked «Ertu með …?», as the teacher's «Ertu með peysur?»
 meaning = "Do you have something for a headache?"
 meaning_ja = "頭痛に効くものはありますか？"
 difficulty = 4
 topics = ["health"]
-prereqs = ["attu", "hofudverk"]
-chunks = ["höfuðverk", "við höfuðverk", "eitthvað við höfuðverk", "Áttu eitthvað við höfuðverk?"]
+prereqs = ["eg_er_med", "hofudverk"]  # «Ertu með …?» asks «Ég er með …» of someone
+chunks = ["höfuðverk", "við höfuðverk", "eitthvað við höfuðverk", "Ertu með eitthvað við höfuðverk?"]
 situation = "At the pharmacy counter. Ask the pharmacist if she has something for a headache."
 situation_ja = "薬局のカウンターです。頭痛に効くものがあるか聞いてください。"
 
@@ -623,7 +624,7 @@ requires = ["eg_er_med", "hofudverk", "attu_eitthvad_vid_hofudverk", "hvad_kosta
   [[dialogues.turns]]
   cue = "Say no, and ask her if she has something for a headache."
   cue_ja = "いいえと言って、頭痛に効くものがあるか聞いてください。"
-  expect_text = "Nei. Áttu eitthvað við höfuðverk?"
+  expect_text = "Nei. Ertu með eitthvað við höfuðverk?"
   expect_meaning = "No. Do you have something for a headache?"
   expect_meaning_ja = "いいえ。頭痛に効くものはありますか？"
   partner = "Já, þetta hérna."
