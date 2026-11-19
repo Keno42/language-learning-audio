@@ -18,15 +18,18 @@
 [scenes.attu]
 leigubil = false  # «Áttu leigubíl?»: you don't ask someone whether they own a taxi (#192)
 vegabref = "Your Icelandic friend wants to visit you in Japan next year."  # asks whether one owns a passport (#192's point): so a trip being planned, not the way to the airport («Ertu með vegabréfið?»)
-poka = "At the till, you have no bag."
+poka = "Your friend is carrying her shopping in her arms."  # native check (2026-11-18): «Áttu …?» is asked of a person, not shop staff
 peysu = "Your friend is shivering on the boat."
 sundfot = "Your friend wants to come to the pool with you."
 mida = "The bus is coming, and your friend is searching her pockets."
-ost = "At the small corner shop, you can't see what you want."
-egg = "At the small corner shop, you can't see what you want."
-smjor = "At the small corner shop, you can't see what you want."
-mjolk = "At the small corner shop, you can't see what you want."
-epli = "At the small corner shop, you can't see what you want."
+ost = "You're cooking at your friend's flat."
+egg = "You're cooking at your friend's flat."
+smjor = "You're cooking at your friend's flat."
+mjolk = "You're cooking at your friend's flat."
+epli = "You're cooking at your friend's flat."
+
+[scenes.erud_thid_med]
+"*" = "In a shop, you can't see what you want."
 
 [scenes.ma_eg_inf]
 sofa = false  # «Má ég sofa?»: a traveller does not ask permission to sleep (#333)

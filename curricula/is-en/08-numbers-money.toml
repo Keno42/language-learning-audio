@@ -209,16 +209,8 @@ topics = ["money", "shopping"]
 situation = "The skyr is on sale. Say it's cheap."
 situation_ja = "スキールが特売です。安いと言ってください。"
 
-[[items]]
-id = "tekurdu_kort"
-kind = "phrase"
-target = "Tekurðu kort?"
-meaning = "Do you take cards?"
-meaning_ja = "カードは使えますか？"
-difficulty = 2
-topics = ["money", "shopping"]
-situation = "At a small market stall. Ask the stallholder whether she takes cards."
-situation_ja = "小さな市場の屋台です。カードが使えるか聞いてください。"
+# native check (2026-11-18): «Tekurðu kort?» (tekurdu_kort) is retired: everybody takes cards, so the question is not asked; one says
+# «Má ég borga með korti?» (ma_eg_borga_med_korti). The flea-market dialogue «markadur», built on a stall that took cash only, is removed.
 
 [[items]]
 id = "eg_er_ekki_med_reidufe"
@@ -229,17 +221,8 @@ meaning_ja = "現金を持っていません。"
 difficulty = 3
 topics = ["money"]
 chunks = ["reiðufé", "með reiðufé", "ekki með reiðufé", "Ég er ekki með reiðufé."]
-situation = "The stall only takes cash. Say you don't have cash."
-situation_ja = "屋台は現金のみです。現金がないと言ってください。"
-partner_cue = "Nei, bara reiðufé."
-partner_cue_speaker = "native_a"  # the narration says she
-partner_cue_after = "tekurdu_kort"
-partner_cue_setup = "At a small market stall you want to buy a scarf. Ask the stallholder whether she takes cards."
-partner_cue_setup_ja = "小さな市場の露店でマフラーを買いたいです。カードが使えるか聞いてください。"
-partner_cue_meaning = "No, cash only."
-partner_cue_meaning_ja = "いいえ、現金だけです。"
-partner_cue_situation = "She said cash only. Say you don't have any cash."
-partner_cue_situation_ja = "この店は現金だけです。現金を持っていないと言ってください。"
+situation = "Your friend asks if you can pay her back in cash. Say you don't have cash."
+situation_ja = "友達に現金で返せるか聞かれました。現金を持っていないと言ってください。"
 
 [[items]]
 id = "hvar_er_naesti_hradbanki"
@@ -449,54 +432,6 @@ examples = [
   { source = "Hvað kostar þetta?", source_meaning = "How much is this?", source_meaning_ja = "これはいくらですか？", result = "Það kostar átta hundruð krónur.", result_meaning = "It costs eight hundred krónur.", result_meaning_ja = "800クローナです。" },
   { source = "Hvað kostar bjór?", source_meaning = "How much is a beer?", source_meaning_ja = "ビールはいくらですか？", result = "Það kostar tólf hundruð krónur.", result_meaning = "It costs twelve hundred krónur.", result_meaning_ja = "1200クローナです。" },
 ]
-
-[[dialogues]]
-id = "markadur"
-setting = "At the flea market. You've found a wool sweater."
-setting_ja = "フリーマーケットで、ウールのセーターを見つけました。"
-topics = ["money", "shopping"]
-requires = ["hvad_kostar_thetta", "thad_er_of_dyrt", "tekurdu_kort", "eg_er_ekki_med_reidufe", "hvar_er_naesti_hradbanki", "takk"]
-
-  [[dialogues.turns]]
-  cue = "Ask how much this is."
-  cue_ja = "これはいくらか聞いてください。"
-  expect = "hvad_kostar_thetta"
-  partner = "Tuttugu þúsund krónur."
-  partner_meaning = "Twenty thousand krónur."
-  partner_meaning_ja = "2万クローナです。"
-
-  [[dialogues.turns]]
-  cue = "Say that's too expensive."
-  cue_ja = "高すぎると言ってください。"
-  expect = "thad_er_of_dyrt"
-  partner = "Fyrir þig: fimmtán þúsund."
-  partner_meaning = "For you: fifteen thousand."
-  partner_meaning_ja = "あなたには、1万5千で。"
-
-  [[dialogues.turns]]
-  cue = "Ask him if he takes cards."
-  cue_ja = "カードが使えるか聞いてください。"
-  expect = "tekurdu_kort"
-  partner = "Nei, bara reiðufé."
-  partner_meaning = "No, cash only."
-  partner_meaning_ja = "いいえ、現金だけです。"
-
-  [[dialogues.turns]]
-  cue = "Say you don't have cash, and ask where the nearest ATM is."
-  cue_ja = "現金がないと言って、一番近いATMはどこか聞いてください。"
-  expect_text = "Ég er ekki með reiðufé. Hvar er næsti hraðbanki?"
-  expect_meaning = "I don't have cash. Where is the nearest ATM?"
-  expect_meaning_ja = "現金を持っていません。一番近いATMはどこですか？"
-  # issue #48 audit: the seller used to add "Ég er með peysu fyrir þig." ("I have a sweater for
-  # you") — a line copied from gonguferd that doesn't follow an ATM question
-  partner = "Hinum megin við götuna."
-  partner_meaning = "Across the street."
-  partner_meaning_ja = "通りの向かいです。"
-
-  [[dialogues.turns]]
-  cue = "Thank him."
-  cue_ja = "お礼を言ってください。"
-  expect = "takk"
 
 # issue #48 (still open after session 30): session 26's number constructions were only ever
 # *safe* inside connect(), never used in a partner-driven transaction. Here the learner is the

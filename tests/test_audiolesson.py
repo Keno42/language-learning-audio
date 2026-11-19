@@ -1385,7 +1385,7 @@ class CurriculumTests(unittest.TestCase):
         """Issue #29 (owner comment on Lesson 3: grammar noticed but not transferred): «Eigðu
         góðan dag» was one more fixed string. ``eigdu_godur`` applies godur_gender's accusative
         agreement in the «Eigðu …» wish frame to the three nouns whose genders that note names,
-        generating «Eigðu góða nótt.» / «Eigðu gott kvöld.» (never authored), in both instructor
+        generating «Eigðu gott kvöld.» (never authored; not «Eigðu góða nótt»: a native says «Sofðu vel.»), in both instructor
         languages; and a learner who has learned everything before it gets the fills and the
         pattern in the same lesson, not several lessons of isolated «dag»/«nótt» drills."""
         expected = {
@@ -1402,8 +1402,11 @@ class CurriculumTests(unittest.TestCase):
         sc, cur = self._lesson_introducing("dag_acc")
         new = sc.meta["new_items"]
         self.assertIn("eigdu_godur", new, new)
+        self.assertIn("nott_acc", cur.by_id["eigdu_godur"].exclude_fills, "native check: a good night is «Sofðu vel.»")
+        sc, cur = self._lesson_introducing("eigdu_godur")  # its three fills met: the pattern moves to a new noun
         generated = {ex.label.split(": ", 1)[1] for ex in sc.exercises if "eigdu_godur" in ex.item_ids and ex.kind != "intro"}
         self.assertTrue(generated - {"Eigðu góðan dag."}, generated)
+        self.assertNotIn("Eigðu góða nótt.", generated)
 
     def test_recombination_connect_does_not_imply_one_scene(self):
         """Issue #69: a recombination-only connect pairs two independent situations — the owner's
@@ -6512,7 +6515,7 @@ class OpenItemsInThePlanTests(unittest.TestCase):
     def test_the_plan_lists_open_items_and_every_practised_one_has_a_question(self):
         from audiolesson.cli import _plan
 
-        for i in ("skyr", "attu"):
+        for i in ("skyr", "erud_thid_med"):
             self._open(i)
         sc = self._planner().build()
         plan = _plan(sc, self.cur)
@@ -6940,11 +6943,11 @@ class SayableLineTests(unittest.TestCase):
 
     def test_a_line_with_a_word_from_a_known_line_is_heard_on_the_real_curriculum(self):
         """#183 re-check (owner): the learner's words live inside longer known lines («þarf» in «Ég þarf hjálp.»), so a
-        part is judged at word level, and «Ég þarf símkort.» is partly sayable for one who has «Ég þarf hjálp.». Since
+        part is judged at word level, and «Mig vantar símkort.» is partly sayable for one who has «Takk fyrir mig.». Since
         #240 a listening scene hears it all the same; a line they can say whole is asked."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         dlg = next(d for d in cur.dialogues if d.id == "simabud")
-        known = Planner(cur, self._learner(["eg_tharf_hjalp"]), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15), today=TODAY)
+        known = Planner(cur, self._learner(["takk_fyrir_mig"]), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15), today=TODAY)
         heard, partly = known.classify_turns(dlg)
         self.assertIn("eg_tharf_simkort", partly)
         self.assertNotIn("eg_tharf_simkort", heard)
@@ -8384,18 +8387,18 @@ class ThemeExchangeTests(unittest.TestCase):
             self.assertEqual(LearnerState.load(Path(tmp) / "l.json").themes_heard, fresh.themes_heard)
 
     def test_new_material_is_chosen_for_the_themes_next_level_before_the_trip_order(self):
-        missing = [i for i in self._known if i not in ("skyr", "attu")]
+        missing = [i for i in self._known if i not in ("skyr", "erud_thid_med")]
         learner = self._learner(missing + self._rest)
         def planner(themes, **cfg):
             return Planner(self._cur, learner, Prompts.load("en"), Timing(level="A1"),
                            PlanConfig(minutes=30, new_items=2, themes=themes, theme_scenarios=["A3"], seed=1, **cfg), today=TODAY)
 
         trip_first = planner([]).select_new(2)[0].id  # what the course order would teach first
-        self.assertNotIn(trip_first, ("skyr", "attu"))
+        self.assertNotIn(trip_first, ("skyr", "erud_thid_med"))
         p = planner([self._supermarket], priority=[trip_first])
         self.assertEqual(p.theme_target()[:2], (self._supermarket, 0))
         wants = p.theme_wants()
-        self.assertEqual({"skyr", "attu"} - set(wants), set(), "the items the level lacks")
+        self.assertEqual({"skyr", "erud_thid_med"} - set(wants), set(), "the items the level lacks")
         self.assertTrue(all(w in self._cur.by_id and not learner.has_met(w) for w in wants))
         chosen = [i.id for i in p.select_new(2)]
         self.assertEqual(chosen, [w for w in wants if w in chosen][:2], "the theme's items first, in the order of its turns")
@@ -8527,13 +8530,13 @@ class NoSlotLeakTests(unittest.TestCase):
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         learner = LearnerState("is", "en", "A1")
         for i in cur.by_id:
-            if i in ("klukkan_er", "thrju", "eitt", "tvo", "tekurdu_kort", "kort"):
+            if i in ("klukkan_er", "thrju", "eitt", "tvo", "ma_eg_borga_med_korti", "kort"):
                 learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
         planner = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30), today=TODAY)
         b = planner.builder
         b._situation_texts.update({t: 99 for t in ([cur.by_id["klukkan_er"].situation] if cur.by_id["klukkan_er"].situation else []) + list(cur.by_id["klukkan_er"].situations)})
         sc = Script(1, "t", "is", "en")
-        b.connect(sc, [cur.by_id["klukkan_er"], cur.by_id["tekurdu_kort"]])
+        b.connect(sc, [cur.by_id["klukkan_er"], cur.by_id["ma_eg_borga_med_korti"]])
         self.assertEqual(self._leaks(sc), [])
         self.assertIn("o'clock", sc.transcript())
         # the cue's fill is the answer's: «It's three o'clock.» is answered «Klukkan er þrjú.»

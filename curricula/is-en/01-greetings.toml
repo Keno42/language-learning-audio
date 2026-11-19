@@ -537,7 +537,8 @@ situations_ja = [
 [[items]]
 id = "velkomin"
 kind = "phrase"
-target = "Velkomin."
+target = "Velkomin."  # native check (2026-11-18): «velkominn / velkomin / velkomið» to one man / woman / neuter; «velkomnir / velkomnar / velkomin» to a
+# group, the neuter «velkomin» when it is (or may be) mixed. Its situations welcome a woman or a group.
 meaning = "Welcome."
 meaning_ja = "ようこそ。"
 difficulty = 2
@@ -545,7 +546,7 @@ topics = ["greetings"]
 situations = [
   "Friends arrive at your door. Welcome them in.",
   "A guest has just arrived at your home. Welcome her.",
-  "Someone is visiting you for the first time. Welcome them.",
+  "Two friends are visiting you for the first time. Welcome them.",
 ]
 situations_ja = [
   "友人たちが玄関に着きました。家に迎え入れてください。",

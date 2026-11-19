@@ -257,7 +257,7 @@ topics = ["work", "health"]
 [[items]]
 id = "nemandi"
 kind = "vocab"
-target = "nemandi"
+target = "nemandi"  # native check (2026-11-18): «nemandi» / «nemi» is any student; a university student is «stúdent»
 meaning = "a student"
 meaning_ja = "学生"
 difficulty = 2

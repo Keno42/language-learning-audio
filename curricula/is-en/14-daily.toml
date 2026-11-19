@@ -377,3 +377,16 @@ requires = ["eg_vakna", "eg_fer_i_vinnuna", "eg_fer_i_sund", "eg_elda_kvoldmat",
   partner = "Ég fer út að ganga."
   partner_meaning = "I go for a walk."
   partner_meaning_ja = "散歩に出かけるの。"
+
+[[items]]
+# native check (2026-11-18): a good night is wished with «Sofðu vel.» (sleep well), not «Eigðu góða nótt» (eigdu_godur leaves «nótt» out)
+id = "sofdu_vel"
+kind = "phrase"
+target = "Sofðu vel."
+meaning = "Sleep well."
+meaning_ja = "よく眠ってね。"
+difficulty = 2
+topics = ["greetings"]
+prereqs = ["goda_nott"]
+situation = "Your friend is off to bed after a long hike. Wish her a good night's sleep."
+situation_ja = "長いハイキングの後、友達が寝に行きます。ぐっすり眠れるように声をかけてください。"
