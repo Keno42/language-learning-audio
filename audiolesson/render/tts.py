@@ -421,22 +421,17 @@ class OpenAIProvider(Provider):
 # ------------------------------------------------------------------ OpenAI realtime
 
 
-# The owner's instructions for the voice that says the lesson's instructions in the target language (#563, 2026-11-20), tried on a Mac
-# with «Endurtaktu. Samtalinu er lokið. Segðu hverja setningu.» before it was chosen
+# The owner's instructions for the voice that says the lesson's instructions in the target language (#563). The first, a «friendly, engaged
+# instructor» with «a clear, bright, confident tone», sounded staged on a dry-run lesson (the owner, 2026-11-20: «the intonation feels
+# artificial; maybe it is made to speak too clearly»), most of all on a one-word cue («Endurtaktu.»); the owner chose this plain one, tried on
+# a Mac. A change here makes new clips (``OpenAIRealtimeProvider.cache_tag``)
 REALTIME_INSTRUCTIONS = """
 Read the user's text aloud exactly as written. Do not add any words.
 
-Speak Icelandic with natural, accurate Icelandic pronunciation.
-You are a friendly, engaged instructor guiding an adult through
-an audio language lesson.
-
-Speak at a brisk, natural conversational pace, with moderate energy
-and a clear, bright, confident tone. Keep pauses between short
-sentences brief. Articulate clearly without stretching syllables
-or speaking slowly for beginners.
-
-Sound encouraging and matter-of-fact, like a guide cueing the
-learner to act. Avoid sounding sleepy, soothing, or theatrical.
+Speak Icelandic as a native speaker would in everyday speech.
+Use plain, natural intonation with no emphasis or emotion.
+Do not over-articulate. Say it the way a teacher says a routine
+cue in passing, at a normal conversational pace.
 """
 
 
