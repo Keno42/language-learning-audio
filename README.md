@@ -34,6 +34,12 @@ Python 3.11+ and no required packages. For real voices you need **one** of:
 voices, and the clips already made stay in the shared cache. Without the two `AZURE_SPEECH_*` variables, the render
 waits out the refusal for `refusal_budget_min` (15 by default) and then fails with one clear line.
 
+The instructions said in Icelandic («Endurtaktu.», #429) are the `command` speaker's. The Icelandic profiles give it a provider of its
+own, `openai-realtime` (OpenAI's realtime model, voice `cedar`; needs `OPENAI_API_KEY` and `pip install -e ".[openai-realtime]"`), so they
+are not heard in a scene's voice (#563). Its clips are brought to the loudness of the lesson's native voices, and a line the model does not
+say as written (its own transcript differs, three tries) is said in `native_b`'s voice, as is every instruction when the provider cannot
+run.
+
 ```sh
 pip install -e ".[edge]"          # or just run `python -m audiolesson.cli`
 

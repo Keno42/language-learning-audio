@@ -41,6 +41,11 @@ class Provider:
     def synthesize(self, text: str, lang: str, voice: str, rate: float = 1.0) -> AudioClip:
         raise NotImplementedError
 
+    def cache_tag(self) -> str:
+        """What else, beyond the voice and the text, decides how a clip sounds (a model, a prompt): part of the clip's cache key, so a
+        change to it makes new clips. "" when nothing does (the key is then as it always was)."""
+        return ""
+
     def default_voices(self, lang: str) -> list[str]:
         """Candidate voices for a language, best first. Return [] if unknown."""
         return []
@@ -408,6 +413,117 @@ class OpenAIProvider(Provider):
         return ["nova", "onyx", "shimmer"]
 
 
+# ------------------------------------------------------------------ OpenAI realtime
+
+
+# The owner's instructions for the voice that says the lesson's instructions in the target language (#563, 2026-11-20), tried on a Mac
+# with «Endurtaktu. Samtalinu er lokið. Segðu hverja setningu.» before it was chosen
+REALTIME_INSTRUCTIONS = """
+Read the user's text aloud exactly as written. Do not add any words.
+
+Speak Icelandic with natural, accurate Icelandic pronunciation.
+You are a friendly, engaged instructor guiding an adult through
+an audio language lesson.
+
+Speak at a brisk, natural conversational pace, with moderate energy
+and a clear, bright, confident tone. Keep pauses between short
+sentences brief. Articulate clearly without stretching syllables
+or speaking slowly for beginners.
+
+Sound encouraging and matter-of-fact, like a guide cueing the
+learner to act. Avoid sounding sleepy, soothing, or theatrical.
+"""
+
+
+def _words(text: str) -> list[str]:
+    import re
+
+    return re.findall(r"[^\W\d_]+", text.casefold())
+
+
+class RealtimeMismatch(RuntimeError):
+    """The realtime model said something other than the text (its own transcript differs), every try."""
+
+
+class OpenAIRealtimeProvider(Provider):
+    """#563 (lessons 61 and 62: «the instructions in Icelandic are said in the conversation's male voice»): OpenAI's realtime model reading
+    a line aloud, for the speaker that says the instructions in the target language (``command``), a voice no scene uses. Needs
+    OPENAI_API_KEY and the ``websockets`` package (``pip install websockets``).
+
+    A conversational model can add or change words, so each clip is checked against the model's own transcript of what it said
+    (``response.output_audio_transcript``): the words must be the text's. A line said otherwise is asked again, up to ``TRIES`` times, then
+    refused (``RealtimeMismatch``); the renderer then says it in the profile's own voice for the speaker it stands in for."""
+
+    name = "openai-realtime"
+    parallel = True
+    MODEL = os.environ.get("AUDIOLESSON_OPENAI_REALTIME_MODEL", "gpt-realtime-2.1-mini")
+    URL = "wss://api.openai.com/v1/realtime?model={model}"
+    TRIES = 3
+
+    def check(self) -> str | None:
+        if not os.environ.get("OPENAI_API_KEY"):
+            return "OPENAI_API_KEY is not set"
+        try:
+            import websockets.sync.client  # noqa: F401
+        except ImportError:
+            return "the websockets package is not installed (pip install websockets)"
+        return None
+
+    def _once(self, text: str, voice: str) -> tuple[bytes, str]:
+        """One response: the PCM (24 kHz, 16-bit mono) and the model's transcript of it."""
+        import base64
+
+        from websockets.sync.client import connect
+
+        audio = bytearray()
+        said: list[str] = []
+        headers = {"Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}"}
+        with connect(self.URL.format(model=self.MODEL), additional_headers=headers, open_timeout=30, close_timeout=5, max_size=None) as ws:
+            ws.send(json.dumps({"type": "session.update", "session": {
+                "type": "realtime",
+                "output_modalities": ["audio"],
+                "instructions": REALTIME_INSTRUCTIONS,
+                "audio": {"output": {"voice": voice or "cedar", "format": {"type": "audio/pcm", "rate": DEFAULT_RATE}}},
+            }}))
+            ws.send(json.dumps({"type": "conversation.item.create", "item": {
+                "type": "message", "role": "user", "content": [{"type": "input_text", "text": text}],
+            }}))
+            ws.send(json.dumps({"type": "response.create"}))
+            while True:
+                event = json.loads(ws.recv(timeout=120))
+                kind = event.get("type")
+                if kind == "response.output_audio.delta":
+                    audio.extend(base64.b64decode(event["delta"]))
+                elif kind == "response.output_audio_transcript.delta":
+                    said.append(event.get("delta", ""))
+                elif kind == "error":
+                    raise RuntimeError(f"realtime error: {event.get('error')}")
+                elif kind == "response.done":
+                    status = (event.get("response") or {}).get("status")
+                    if status != "completed":
+                        raise RuntimeError(f"realtime response {status}: {event.get('response')}")
+                    break
+        return bytes(audio), "".join(said)
+
+    def synthesize(self, text: str, lang: str, voice: str, rate: float = 1.0) -> AudioClip:
+        heard = ""
+        for _ in range(self.TRIES):
+            pcm, heard = self._once(text, voice)
+            if pcm and _words(heard) == _words(text):
+                return AudioClip(pcm, DEFAULT_RATE)
+        raise RealtimeMismatch(f"the realtime model did not say {text!r} as written (last: {heard!r})")
+
+    def cache_tag(self) -> str:
+        """The model and a fingerprint of ``REALTIME_INSTRUCTIONS`` (review of #575): another model
+        (``AUDIOLESSON_OPENAI_REALTIME_MODEL``) or another prompt is another clip, not the cached one."""
+        import hashlib
+
+        return f"{self.MODEL}|{hashlib.sha1(REALTIME_INSTRUCTIONS.encode()).hexdigest()[:12]}"
+
+    def default_voices(self, lang: str) -> list[str]:
+        return ["cedar", "marin"]
+
+
 # ------------------------------------------------------------------------- macOS
 
 
@@ -446,6 +562,7 @@ PROVIDERS: dict[str, type[Provider]] = {
     "edge": EdgeProvider,
     "azure": AzureProvider,
     "openai": OpenAIProvider,
+    "openai-realtime": OpenAIRealtimeProvider,
     "say": SayProvider,
 }
 
@@ -463,4 +580,4 @@ def cache_family(provider: Provider) -> str:
     return "edge" if provider.name in ("edge", "azure") else provider.name
 
 
-__all__ = ["Provider", "PROVIDERS", "cache_family", "get_provider", "silence"]
+__all__ = ["Provider", "PROVIDERS", "RealtimeMismatch", "cache_family", "get_provider", "silence"]
