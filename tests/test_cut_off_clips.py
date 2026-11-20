@@ -137,6 +137,27 @@ class CutOffTests(unittest.TestCase):
             self.assertEqual(code, 1)
             self.assertTrue(listed[0].startswith("CUT ") and LINE in listed[0], listed)
 
+    def test_the_tool_reads_the_instructions_own_voice_against_the_profile_s(self):
+        """#563, the owner's dry-run lesson 63: «Hlustaðu.» said as «staðu» by the realtime voice, 0.40 s against Gunnar's 0.64 s. The tool
+        read the profile's clip of the line instead (the realtime clip has its own key), and a line of one word was never flagged."""
+        import tools.cut_off_clips as tool
+        from audiolesson.render.renderer import speech_request
+        from audiolesson.render.tts import get_provider
+
+        with tempfile.TemporaryDirectory() as td:
+            cache, sc = Path(td), Script(63, "t", "is", "en")
+            sc.segments = [Segment("speak", "command", "Hlustaðu.", "is", 1.0, 1.0), Segment("speak", "command", "Hægt.", "is", 1.0, 1.0)]
+            sc.save(cache / "lesson.script.json")
+            profile_path = str(Path(__file__).resolve().parent.parent / "profiles" / "edge-is-en.toml")
+            profile = load_profile(profile_path)
+            edge, realtime = get_provider("edge"), get_provider("openai-realtime")
+            for seg, gunnar, own in ((sc.segments[0], 0.64, 0.40), (sc.segments[1], 0.55, 0.47)):
+                text, lang, voice, rate = speech_request(sc, seg, profile, edge)
+                write_wav(clip(gunnar), _cache_path(edge, cache, text, lang, voice, rate, profile.trim))
+                write_wav(clip(own), _cache_path(realtime, cache, text, lang, "cedar", seg.rate, profile.trim))
+            rows = tool.rows([cache / "lesson.script.json"], cache, profile_path)
+            self.assertEqual([(r["text"], r["ratio"], r["cut_off"], r["own"]) for r in rows], [("Hlustaðu.", 0.62, True, True), ("Hægt.", 0.85, False, True)])
+
 
 if __name__ == "__main__":
     unittest.main()

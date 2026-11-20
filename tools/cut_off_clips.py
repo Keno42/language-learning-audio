@@ -2,6 +2,10 @@
 against the script's estimate, shortest first. A clip `looks_cut_off` flags is marked; the others show the spread the threshold sits in.
 Nothing is changed: a cut-off clip is renamed by hand (`mv X.wav X.wav.bad`) and the next render synthesizes it again.
 
+A speaker with a provider of its own (#563: the instructions' realtime voice, ``command``) is read from that provider's clips, and measured
+against the same line in the profile's voice, the one it falls back to (``OWN_VOICE_MIN_SHARE``): «Hlustaðu.» said as «staðu» was 0.63 of it,
+a line of one word the estimate cannot judge. Its row shows that ratio, marked «own».
+
     python tools/cut_off_clips.py --cache DIR [--profile profiles/edge-is-en.toml] [--top 20] SCRIPT.json [SCRIPT.json ...]
 """
 from __future__ import annotations
@@ -13,7 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from audiolesson.render.audio import read_wav  # noqa: E402
-from audiolesson.render.renderer import _TIMING, _cache_path, cut_off_threshold, load_profile, looks_cut_off, speech_request  # noqa: E402
+from audiolesson.render.renderer import OWN_VOICE_MIN_SHARE, _TIMING, _cache_path, cut_off_threshold, load_profile, looks_cut_off, speech_request  # noqa: E402
 from audiolesson.render.tts import get_provider  # noqa: E402
 from audiolesson.script import Script  # noqa: E402
 
@@ -29,6 +33,18 @@ def rows(scripts: list[Path], cache: Path, profile_path: str | None) -> list[dic
                 continue
             text, lang, voice, rate = speech_request(script, seg, profile, provider)
             clip_path = _cache_path(provider, cache, text, lang, voice, rate, profile.trim)
+            sv = profile.speakers.get(seg.speaker or "")
+            if sv is not None and sv.provider and sv.provider != provider.name:
+                # the speaker's own provider's clip, against the profile's clip of the same line (``clip_path``), the voice it falls back to
+                own_path = _cache_path(get_provider(sv.provider), cache, text, lang, sv.voice, seg.rate * sv.rate, profile.trim)
+                if own_path in seen or not own_path.exists():
+                    continue
+                clip = read_wav(own_path)
+                ref = read_wav(clip_path).seconds if clip_path.exists() else 0.0
+                ratio = clip.seconds / ref if ref else 0.0
+                seen[own_path] = {"file": own_path.name, "text": text, "lang": lang, "seconds": round(clip.seconds, 2), "estimate": round(ref, 2),
+                                  "ratio": round(ratio, 2), "cut_off": bool(ref) and ratio < OWN_VOICE_MIN_SHARE, "own": True}
+                continue
             if clip_path in seen or not clip_path.exists():
                 continue
             clip = read_wav(clip_path)
@@ -49,14 +65,22 @@ def main(argv: list[str] | None = None) -> int:
     flagged = [r for r in found if r["cut_off"]]
     print(f"{len(found)} cached clips read; {len(flagged)} look cut off")
     # the spread per language, against the threshold: a cut-off clip sits apart below it, a whole one inside the spread
-    for lang in sorted({r["lang"] for r in found}):
-        ratios = sorted(r["ratio"] for r in found if r["lang"] == lang)
+    for lang in sorted({r["lang"] for r in found if not r.get("own")}):
+        ratios = sorted(r["ratio"] for r in found if r["lang"] == lang and not r.get("own"))
         print(f"  {lang}: {len(ratios)} clips, ratio min {ratios[0]:.2f}, median {ratios[len(ratios) // 2]:.2f}; cut off under {cut_off_threshold(lang):.2f}")
     # every flagged clip first, then the shortest of the others up to --top: a word of one or two words (flagged only when silent) can be shorter
     # against its estimate than a cut-off line, and must not push it off the list (review of #466)
-    others = [r for r in found if not r["cut_off"]]
-    for r in flagged + others[: max(0, args.top - len(flagged))]:
-        print(f"{'CUT ' if r['cut_off'] else '    '}{r['ratio']:.2f}  {r['seconds']:.2f}s/{r['estimate']:.2f}s  {r['lang']}  {r['file']}  {r['text']}")
+    own = [r for r in found if r.get("own")]
+    if own:
+        ratios = sorted(r["ratio"] for r in own if r["ratio"])
+        if ratios:
+            print(f"  own voices: {len(own)} clips, ratio to the profile's voice min {ratios[0]:.2f}, median {ratios[len(ratios) // 2]:.2f}; "
+                  f"cut off under {OWN_VOICE_MIN_SHARE:.2f}")
+    others = [r for r in found if not r["cut_off"] and not r.get("own")]
+    shown = flagged + [r for r in own if not r["cut_off"]] + others[: max(0, args.top - len(flagged))]
+    for r in shown:
+        kind = "own " if r.get("own") else ""
+        print(f"{'CUT ' if r['cut_off'] else '    '}{kind}{r['ratio']:.2f}  {r['seconds']:.2f}s/{r['estimate']:.2f}s  {r['lang']}  {r['file']}  {r['text']}")
     return 1 if flagged else 0
 
 
