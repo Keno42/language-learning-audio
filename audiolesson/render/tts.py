@@ -37,6 +37,9 @@ class Provider:
     name = "base"
     output_format = "wav"  # what synthesize_raw returns
     parallel = False  # safe and worthwhile to call synthesize() from several threads
+    # an engine on this machine, no speech service (stub, espeak, say): a profile whose provider is replaced by one says every voice with it,
+    # a speaker's own provider included, so it calls no service and costs nothing (review of #576)
+    local = False
 
     def synthesize(self, text: str, lang: str, voice: str, rate: float = 1.0) -> AudioClip:
         raise NotImplementedError
@@ -66,6 +69,7 @@ class StubProvider(Provider):
     """
 
     name = "stub"
+    local = True
 
     def synthesize(self, text: str, lang: str, voice: str, rate: float = 1.0) -> AudioClip:
         from ..timing import Timing
@@ -99,6 +103,7 @@ class EspeakProvider(Provider):
     """espeak-ng: offline, robotic, available everywhere. Fine for checking a lesson."""
 
     name = "espeak"
+    local = True
 
     def check(self) -> str | None:
         return None if shutil.which("espeak-ng") or shutil.which("espeak") else "espeak-ng is not installed (apt install espeak-ng / brew install espeak-ng)"
@@ -531,6 +536,7 @@ class SayProvider(Provider):
     """macOS built-in voices via ``say``. Needs ffmpeg for the AIFF → WAV step."""
 
     name = "say"
+    local = True
     output_format = "aiff"
 
     def check(self) -> str | None:

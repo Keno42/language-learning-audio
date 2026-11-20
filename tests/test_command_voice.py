@@ -68,35 +68,56 @@ class CommandVoiceTests(unittest.TestCase):
         self.assertNotIn("cannot run", err.getvalue())
         self.assertNotIn("said in the profile's voice", err.getvalue())
 
-    def test_a_provider_remembered_for_the_user_keeps_the_instructions_voice(self):
-        """Review of #576: «--provider» named on this command line says every voice; one restored from the user's settings.json replaces the
-        profile's provider only, so the ``command`` speaker keeps OpenAI's voice (and its fallback warning when that cannot run)."""
+    def user_args(self, td, **given):
+        """``generate --user yuki`` with ``given`` on the command line, the rest from the user's settings.json (``cli._apply_user``)."""
         import argparse
+
+        from audiolesson import cli
+
+        ns = argparse.Namespace(cmd="generate", user="yuki", root=td, learner=None, out=None, curriculum=None, known=None, profile=None,
+                                provider=None, minutes=None, level=None)
+        for k, v in given.items():
+            setattr(ns, k, v)
+        cli._apply_user(ns)
+        return ns
+
+    def test_a_remembered_service_keeps_the_instructions_voice(self):
+        """Review of #576: a learner with «"provider": "edge"» saved from an earlier run, generating without --provider, keeps the
+        ``command`` speaker's realtime voice (and its warning when that cannot run); edge replaces the profile's provider only."""
         import json
 
         from audiolesson import cli
 
-        profile = str(ROOT / "profiles" / "edge-is-en.toml")
         with tempfile.TemporaryDirectory() as td:
             (Path(td) / "yuki").mkdir()
-            (Path(td) / "yuki" / "settings.json").write_text(json.dumps({"curriculum": "curricula/is-en", "profile": profile, "provider": "edge"}))
-
-            def args(**given):
-                ns = argparse.Namespace(cmd="generate", user="yuki", root=td, learner=None, out=None, curriculum=None, known=None, profile=None,
-                                        provider=None, minutes=None, level=None)
-                for k, v in given.items():
-                    setattr(ns, k, v)
-                cli._apply_user(ns)
-                return ns
-
-            remembered = args()
+            (Path(td) / "yuki" / "settings.json").write_text(json.dumps({"curriculum": "curricula/is-en", "profile": str(ROOT / "profiles" / "edge-is-en.toml"),
+                                                                        "provider": "edge"}))
+            remembered = self.user_args(td)
             self.assertEqual(remembered.provider, "edge", "restored from settings.json")
             got = cli._profile(remembered)
-            self.assertEqual(got.provider, "edge")
-            self.assertEqual(got.speakers["command"].provider, "openai-realtime", "the instructions keep their own voice")
-            explicit = cli._profile(args(provider="stub"))
-            self.assertEqual(explicit.provider, "stub")
-            self.assertNotIn("command", explicit.speakers, "named on the command line: every voice")
+            self.assertEqual((got.provider, got.speakers["command"].provider), ("edge", "openai-realtime"))
+
+    def test_a_stub_run_and_the_next_that_remembers_it_call_no_service(self):
+        """Review of #576: «--provider stub» is saved for the user; the next run, with no --provider and an OpenAI key present, is a stub
+        render too: no speaker keeps a provider of its own, and nothing calls the realtime model."""
+        from audiolesson import cli
+
+        with tempfile.TemporaryDirectory() as td:
+            first = self.user_args(td, curriculum="curricula/is-en", profile=str(ROOT / "profiles" / "edge-is-en.toml"), provider="stub")
+            cli._save_user_settings(first)
+            second = self.user_args(td)
+            self.assertEqual(second.provider, "stub", "remembered")
+            for run in (first, second):
+                profile = cli._profile(run)
+                self.assertNotIn("command", profile.speakers)
+                sc = Script(1, "t", "is", "en")
+                sc.segments = [Segment("speak", "command", "Endurtaktu.", "is", 1.0, 1.0)]
+                with mock.patch.dict("os.environ", {"OPENAI_API_KEY": "sk-test"}), \
+                        mock.patch.object(OpenAIRealtimeProvider, "_once", side_effect=AssertionError("a stub render called OpenAI")), \
+                        mock.patch.object(OpenAIRealtimeProvider, "check", return_value=None), \
+                        contextlib.redirect_stderr(io.StringIO()) as err, mock.patch.object(renderer, "to_mp3", lambda *a: False):
+                    renderer.render_script(sc, profile, Path(td) / "out.wav", Path(td) / "cache", progress=False)
+                self.assertNotIn("said in the profile's voice", err.getvalue())
 
     def render(self, main, other, profile_text):
         sc = Script(1, "t", "is", "en")

@@ -214,11 +214,9 @@ def _apply_user(args) -> None:
     base.mkdir(parents=True, exist_ok=True)
     settings_path = base / "settings.json"
     saved = json.loads(settings_path.read_text(encoding="utf-8")) if settings_path.exists() else {}
-    args.restored = set()  # the settings taken from settings.json, not this command line (``_profile``)
     for key in USER_SETTINGS:
         if hasattr(args, key) and getattr(args, key) is None and key in saved:
             setattr(args, key, saved[key])
-            args.restored.add(key)
     if args.cmd == "generate":
         if args.minutes is None:
             args.minutes = 15.0
@@ -230,12 +228,11 @@ def _apply_user(args) -> None:
 
 
 def _profile(args):
-    """The voice profile for this run. A ``--provider`` given on this command line says every voice; one remembered in the user's
-    settings.json replaces only the profile's own provider, so a speaker with a provider of its own (#563's instruction voice) keeps it
-    (review of #576)."""
+    """The voice profile for this run: the profile, its provider replaced by ``--provider`` or the one remembered for the user
+    (``load_profile`` says when a speaker's own provider stays)."""
     from .render import load_profile
 
-    return load_profile(args.profile, args.provider, every_speaker="provider" not in getattr(args, "restored", ()))
+    return load_profile(args.profile, args.provider)
 
 
 def _learner_hint(args, extra: str = "") -> str:
