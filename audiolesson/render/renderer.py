@@ -135,7 +135,11 @@ def load_profile(path: str | Path | None, provider: str | None = None) -> VoiceP
             else:
                 prof.speakers[name] = SpeakerVoice(voice=spec.get("voice", ""), rate=float(spec.get("rate", 1.0)), provider=str(spec.get("provider", "")))
     if provider:
+        # «--provider stub» is every voice by that provider: a speaker's own provider (#563's realtime voice) gives way too, so a stub
+        # render calls no service and needs no key (the bot's end-to-end tests: language-learning-audio as its submodule at #575)
+        # (its voice is a name only its own provider knows, «cedar»: the speaker is left out, and takes its stand-in's voice, ``STANDS_IN``)
         prof.provider = provider
+        prof.speakers = {name: sv for name, sv in prof.speakers.items() if not sv.provider}
     return prof
 
 

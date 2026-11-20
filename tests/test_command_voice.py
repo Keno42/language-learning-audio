@@ -50,6 +50,24 @@ class CommandVoiceTests(unittest.TestCase):
         sc.add(Segment("speak", "command", "Endurtaktu.", "is", 1.0, 1.0))
         self.assertIn("**Instruction:** Endurtaktu.", sc.transcript())
 
+    def test_a_provider_given_on_the_command_line_says_every_speaker(self):
+        """«--provider stub»: no speaker keeps a provider of its own, so the instructions are the stub's too (native_b's voice), and a
+        stub render needs no OpenAI key."""
+        from audiolesson.render.tts import get_provider
+
+        profile = load_profile(ROOT / "profiles" / "edge-is-en.toml", "stub")
+        self.assertEqual(profile.provider, "stub")
+        self.assertNotIn("command", profile.speakers, "its voice («cedar») is the realtime provider's own")
+        stub = get_provider("stub")
+        self.assertEqual(profile.voice_for("command", "is", stub, 0).voice, "is-IS-GunnarNeural")
+        sc = Script(1, "t", "is", "en")
+        sc.segments = [Segment("speak", "command", "Endurtaktu.", "is", 1.0, 1.0)]
+        with tempfile.TemporaryDirectory() as td, mock.patch.dict("os.environ", {}, clear=True), \
+                contextlib.redirect_stderr(io.StringIO()) as err, mock.patch.object(renderer, "to_mp3", lambda *a: False):
+            renderer.render_script(sc, profile, Path(td) / "out.wav", Path(td) / "cache", progress=False)
+        self.assertNotIn("cannot run", err.getvalue())
+        self.assertNotIn("said in the profile's voice", err.getvalue())
+
     def render(self, main, other, profile_text):
         sc = Script(1, "t", "is", "en")
         sc.segments = [Segment("speak", "native_a", "Góðan daginn.", "is", 1.0, 1.0), Segment("speak", "command", "Endurtaktu.", "is", 1.0, 1.0),
