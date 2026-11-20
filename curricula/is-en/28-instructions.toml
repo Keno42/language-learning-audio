@@ -9,7 +9,9 @@
 # a cue, «Segðu:» («Say:», «In Icelandic, say:»: 40 times) and «Hvernig segir maður:» («How do you say:»: 18), said between the cue's lead
 # and what to say, which stays in the learner's language (`exercises.cue_frames`); lessons 63–67 on the replay of lesson 60's export (those
 # two taught, the lines left run out in lesson 64) for the next frames, «Kláraðu setninguna:» (a cloze's «Complete the sentence to say:»: 5–13
-# a lesson) and «Eitthvað nýtt.» (a new item's «Something new.»: 2–6), said the same way.
+# a lesson) and «Eitthvað nýtt.» (a new item's «Something new.»: 2–6), said the same way; lessons 63–69 on the replay of lesson 62's export
+# (the frames taught, the lines left run out in lesson 66) for the form work's own lines, «Segðu hverja setningu.» («Now say each one.»: 26
+# times in eight lessons) and «Æfingunni er lokið.» (its way back, «That's the end of the form work.»: 15, said as «Samtalinu er lokið.» is).
 # Candidates until native-checked (#209).
 
 [[items]]
@@ -167,3 +169,27 @@ meaning_spoken_ja = "新しい表現の前の「新しい表現です」"
 difficulty = 1
 topics = ["instructions"]
 command = "new_frame"
+
+[[items]]
+id = "segdu_hverja_setningu_command"
+kind = "phrase"
+target = "Segðu hverja setningu."
+meaning = "Now say each one, in the form work"
+meaning_ja = "形の練習の「それぞれ言ってみましょう」"
+meaning_spoken = "Now say each one, in the form work"
+meaning_spoken_ja = "形の練習の「それぞれ言ってみましょう」"
+difficulty = 1
+topics = ["instructions"]
+command = "number_choice_say"
+
+[[items]]
+id = "aefingunni_lokid_command"
+kind = "phrase"
+target = "Æfingunni er lokið."
+meaning = "That's the end of the form work"
+meaning_ja = "「形の練習はここまでです」"
+meaning_spoken = "That's the end of the form work"
+meaning_spoken_ja = "「形の練習はここまでです」"
+difficulty = 1
+topics = ["instructions"]
+command = "form_back"

@@ -365,11 +365,49 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(supported[cloze + 1:cloze + 3], [("narrate", "Complete the sentence:"), ("narrate", "I'm doing well.")],
                          "the lesson after the one that teaches it: the English after it")
 
+    def test_the_form_work_says_its_own_lines_in_icelandic_once_taught(self):
+        """#429 step 6 (lessons 63–69 on the replay of lesson 62's export, the frames of steps 4 and 5 taught: «Now say each one.» 26 times in
+        eight lessons and «That's the end of the form work.» 15, the most frequent English instructions left with «A quick aside.» and «Back to
+        the lesson.»): the form work's turn to the learner, «Segðu hverja setningu.», and its way back, «Æfingunni er lokið.», as «Samtalinu er
+        lokið.» ends a conversation; each still the last line of its block (``unmarked_turns``), never the English once taught."""
+        from audiolesson.transitions import unmarked_turns
+
+        en = Prompts.load("en")
+        say = next(i for i in self.cur.items if i.command == "number_choice_say")
+        back = next(i for i in self.cur.items if i.command == "form_back")
+        self.assertEqual((say.target, back.target), ("Segðu hverja setningu.", "Æfingunni er lokið."))
+        for lesson in range(40, 46):  # the form work takes turns by lesson number
+            sc, _ = self.themed_lesson(completed=lesson)
+            blocks = [e for e in sc.exercises if e.stage in ("choice", "noun_choice", "said_of", "subjects")]
+            if not blocks:
+                continue
+            texts = [g.text for g in sc.segments]
+            self.assertNotIn(en.get("number_choice_say"), texts, f"lesson {lesson + 1}: never «Now say each one.» once taught")
+            self.assertNotIn(en.get("form_back"), texts, f"lesson {lesson + 1}: never «That's the end of the form work.» once taught")
+            said = [g for g in sc.segments if g.text == say.target]
+            self.assertTrue(said and all(g.speaker == COMMAND_VOICE for g in said))
+            self.assertEqual(unmarked_turns(sc, en), [], "a way back in Icelandic is still the block's last line")
+            break
+        else:
+            self.fail("no themed lesson played the form work")
+
+        def block(introduced):
+            learner = LearnerState("is", "en", "A1")
+            learner.lessons_completed = 68
+            learner.items[say.id] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", introduced_lesson=introduced)
+            b = builder(self.cur, learner=learner)
+            sc = Script(69, "t", "is", "en")
+            b._instruct(sc, sc.new_exercise("model", "choice", [], "x"), "number_choice_say")
+            return [(g.type, g.text) for g in sc.segments if g.type != "pause"]
+
+        self.assertEqual(block(60), [("speak", "Segðu hverja setningu.")], "from the third lesson, the Icelandic alone")
+        self.assertEqual(block(68), [("speak", "Segðu hverja setningu."), ("narrate", "Now say each one.")], "the English after it the lesson after")
+
     def test_the_commands_come_one_a_lesson_in_their_order(self):
         order = [i.id for i in self.cur.items if i.command]
         self.assertEqual(order, ["endurtaktu", "hlustadu", "haegt_command", "hlustadu_aftur", "edlilegum_hrada_command", "svarid_command",
                                  "aftur_ad_tala_command", "samtalinu_lokid_command", "stutt_samtal_command", "segdu_command", "hvernig_segir_madur_command",
-                                 "klaradu_setninguna_command", "eitthvad_nytt_command"],
+                                 "klaradu_setninguna_command", "eitthvad_nytt_command", "segdu_hverja_setningu_command", "aefingunni_lokid_command"],
                          "lesson 54's then lesson 57's, by how often the lessons say them")
         learner = LearnerState("is", "en", "A1")
         for i in ("endurtaktu", "hlustadu"):
