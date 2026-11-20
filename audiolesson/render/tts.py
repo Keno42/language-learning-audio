@@ -41,6 +41,11 @@ class Provider:
     def synthesize(self, text: str, lang: str, voice: str, rate: float = 1.0) -> AudioClip:
         raise NotImplementedError
 
+    def cache_tag(self) -> str:
+        """What else, beyond the voice and the text, decides how a clip sounds (a model, a prompt): part of the clip's cache key, so a
+        change to it makes new clips. "" when nothing does (the key is then as it always was)."""
+        return ""
+
     def default_voices(self, lang: str) -> list[str]:
         """Candidate voices for a language, best first. Return [] if unknown."""
         return []
@@ -507,6 +512,13 @@ class OpenAIRealtimeProvider(Provider):
             if pcm and _words(heard) == _words(text):
                 return AudioClip(pcm, DEFAULT_RATE)
         raise RealtimeMismatch(f"the realtime model did not say {text!r} as written (last: {heard!r})")
+
+    def cache_tag(self) -> str:
+        """The model and a fingerprint of ``REALTIME_INSTRUCTIONS`` (review of #575): another model
+        (``AUDIOLESSON_OPENAI_REALTIME_MODEL``) or another prompt is another clip, not the cached one."""
+        import hashlib
+
+        return f"{self.MODEL}|{hashlib.sha1(REALTIME_INSTRUCTIONS.encode()).hexdigest()[:12]}"
 
     def default_voices(self, lang: str) -> list[str]:
         return ["cedar", "marin"]

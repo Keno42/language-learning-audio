@@ -117,6 +117,27 @@ class RealtimeTests(unittest.TestCase):
         with mock.patch.object(p, "_once", return_value=(pcm, "Endurtaktu núna.")), self.assertRaises(RealtimeMismatch):
             p.synthesize("Endurtaktu.", "is", "cedar")
 
+    def test_another_model_or_prompt_is_another_clip(self):
+        """Review of #575: the cache key holds the realtime model and a fingerprint of its instructions, so changing either makes new
+        clips; a provider with no tag keeps the key it always had."""
+        from audiolesson.render import tts
+        from audiolesson.render.renderer import _cache_path
+
+        cache = Path("/c")
+        path = lambda p: _cache_path(p, cache, "Endurtaktu.", "is", "cedar", 1.0, True)  # noqa: E731
+        base = path(OpenAIRealtimeProvider())
+        other_model = OpenAIRealtimeProvider()
+        other_model.MODEL = "gpt-realtime-other"
+        self.assertNotEqual(path(other_model), base)
+        with mock.patch.object(tts, "REALTIME_INSTRUCTIONS", tts.REALTIME_INSTRUCTIONS + "\nSpeak a little slower."):
+            self.assertNotEqual(path(OpenAIRealtimeProvider()), base)
+        self.assertEqual(path(OpenAIRealtimeProvider()), base, "the same model and prompt: the cached clip")
+        import hashlib
+
+        edge = tts.get_provider("edge")
+        self.assertEqual(_cache_path(edge, cache, "Takk.", "is", "v", 1.0, True).name,
+                         hashlib.sha1("edge|v|1.000|is|True|Takk.".encode()).hexdigest() + ".wav", "an edge clip's key is unchanged")
+
     def test_it_needs_a_key(self):
         with mock.patch.dict("os.environ", {}, clear=True):
             self.assertEqual(OpenAIRealtimeProvider().check(), "OPENAI_API_KEY is not set")

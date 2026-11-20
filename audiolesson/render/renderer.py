@@ -376,7 +376,8 @@ def match_loudness(script: Script, clips: list, from_own: list[int]) -> list:
 
 
 def _cache_path(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool) -> Path:
-    key = hashlib.sha1(f"{cache_family(provider)}|{voice}|{rate:.3f}|{lang}|{trim}|{text}".encode()).hexdigest()
+    tag = provider.cache_tag()  # a model or prompt the clip depends on (``Provider.cache_tag``); "" keeps every existing key as it was
+    key = hashlib.sha1(f"{cache_family(provider)}{'|' + tag if tag else ''}|{voice}|{rate:.3f}|{lang}|{trim}|{text}".encode()).hexdigest()
     return cache / f"{key}.wav"
 
 
