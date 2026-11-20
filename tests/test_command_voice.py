@@ -266,7 +266,8 @@ class ShortOwnVoiceTests(unittest.TestCase):
             later = Lengths("realtime", 2000, [0.6])
             err = self.render(no_ref, later, cache)
             self.assertEqual(len(later.asked), 1, "the short clip is not found again: the line is asked anew")
-            self.assertIn("could not be checked against the profile's voice", err)
+            # the form the bot reads (site_update_notifier ``lesson.voice_fallbacks``): one line, at its start
+            self.assertRegex(err, r"(?m)^warning: realtime could not check 'Hlustaðu\.' against the profile's voice \(.*\); used unchecked$")
 
     def test_a_clip_as_short_as_the_shortest_whole_one_is_kept(self):
         with tempfile.TemporaryDirectory() as td:

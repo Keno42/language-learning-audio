@@ -245,7 +245,9 @@ def render_script(
                 except Exception as e:  # noqa: BLE001: the profile's voice cannot say the line, so it cannot stand in for it either
                     # review of #578: said, never silently; the clip is used unchecked (there is no other voice to say it), and a short one
                     # was put aside when a render could check it
-                    print(f"warning: {req[0]!r} in {prov.name}'s voice could not be checked against the profile's voice ({e}); used unchecked",
+                    # one line, in the form the bot reads (site_update_notifier ``lesson.voice_fallbacks``), as «could not say … ; said in the
+                    # profile's voice» is (review of #578: an unchecked instruction must reach the owner, not stderr alone)
+                    print(f"warning: {prov.name} could not check {req[0]!r} against the profile's voice ({e}); used unchecked",
                           file=sys.stderr, flush=True)
                     ref.append(0.0)
             return bool(ref[0]) and clip.seconds < OWN_VOICE_MIN_SHARE * ref[0]
