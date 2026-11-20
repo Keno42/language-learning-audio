@@ -86,15 +86,19 @@ waits for the owner's choice; it is the second remark of its family in two lesso
 The remarks' half of each round (LD §9 "Governance"): each remark ranked by how often its cause recurs on the replay of the latest export and
 what a fix costs. The latest export is lesson 62's; the next lesson is 63. Lessons 56–62 were rated «right».
 1. **The instructions' own voice (#563, lessons 61 and 62).** Every instruction in Icelandic is said by the partner's default voice, Gunnar; the
-   learner remarked it after both lessons, and it grows with #429 (about 120 lines a lesson from lesson 64 on the replay). **Next:** the owner's
-   choice of option (recommended: a third speaker, Gunnar at a fixed lower pitch, checked by ear on two or three samples), then one PR.
-2. **The form work's turns (pick-out-turns, lesson 62).** Built: #573 (the contrast's opening line, and the check over every form-work block).
-   **Next:** three feedbacks without a remark on how a block starts or ends. The number choice still names a word's gender and case
-   («is masculine and in the accusative here»), against the owner's rule of no grammatical term (2026-11-16): the next form-work step.
-3. **The pace (H9), the owner's call (#564).** Lesson 61's new items were recalled 6 of 7 at a target of 7, after three lessons under 80%.
-   **Recommended:** keep the rule; lesson 62's, at 6, are read next, and #564 closes on a second lesson of three at 80%.
-4. **A noun's case with what decides it (#548, the family form-why).** Built: #550, #552; lessons 59–62 played them. **Next:** the owner's
-   answer on the four anchor frames proposed on #548 (once in all, with one noun, recommended), then step 2 as data.
+   learner remarked it after both lessons, and it grows with #429 (about 120 lines a lesson from lesson 64 on the replay). Edge and Azure have
+   two Icelandic voices; the owner asked for another service (2026-11-20). The candidates are on #563: Tiro (Reykjavík University voices,
+   unverified as still served), Amazon Polly's Karl and Dóra (standard voices), ElevenLabs, or Gunnar at a lower pitch. **Next:** the owner's
+   choice of which to sample, by ear; a profile speaker with a provider of its own, then one PR.
+2. **The form work's turns, and its explanation (lesson 62; #548, the owner 2026-11-20).** Built: #573 (the contrast's opening line, and the
+   check over every form-work block). The owner: grammatical explanation should not take audio time, and the four anchor frames go to the bot
+   as text. **Next:** the explanation out of the audio, a block keeping its opening line, its model sentences and its asks: first the number
+   choice's terms (#571); then the anchor card in the bot, and each case form's frame as data (#548's proposal, the owner's choice of when the
+   card comes).
+3. **Three feedbacks without a remark** on how a form-work block starts or ends (#573), and on the form work's lines in Icelandic (#572).
+
+The pace (H9): the owner kept the rule (#564, closed 2026-11-20). Lesson 61's new items were recalled 6 of 7 at a target of 7; recall is read
+each round, and a lever comes back as an issue if it falls under 80% again at a target of 7 or less.
 
 **Alongside:** practice by what is hard in an item (#518, #439, G11): lesson 60's two heavy-dose items were hesitated and not recalled, lesson 59's 2 of 7 recalled; the dose alone does not hold them, and #564 reads it with the pace. A conversation once (#519): lessons 54–61 had four to eight conversations and no remark on their number, eight feedbacks. Hard to hear (#447): «Ég missti af strætó.» and «Hafið þið laust herbergi?», reported after lesson 59, were not recalled the next day and recalled at their next ask. The listening pool's sameness (#339): none of lesson 56's, 57's or 58's pick-outs was on a line heard in the three lessons before (0 of 8, 0 of 6, 0 of 6; lesson 55: 3 of 4). On the replay of lesson 58's export it comes back in lesson 70, when few lines are left that were not heard lately: 12 of 19 pick-outs; 6 of 16 with the batch after lesson 58; at most 1 when C4's four levels play as well. The town names as dative fillers, left unfitted in lessons 53–55, were fitted in 56 and 57. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
 before adding practice. Scene coherence (#327): lesson 50 said four of its six new items as turns of the played exchange, lesson 51 none of its
