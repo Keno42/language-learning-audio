@@ -1313,6 +1313,9 @@ class Builder:
         it is like when the learner knows it («Like «Ég er að leita að flugvellinum.».»); then each line asked by its meaning («Where are you
         going?» «Á flugvöllinn.»), in another order, so the form is chosen by what the question means. A form-work block, as the noun choice."""
         ex = sc.new_exercise("model", "noun_choice", list(contrast.requires), "contrast: " + " / ".join(ln.target for ln in contrast.lines))
+        # lesson 62 («the explanation of the forms seemed to start abruptly»): the block opens with a line of its own, as the number, noun and
+        # subject choices do («One number, different forms: …»), before what changes the form («After «þarf», the word changes.»)
+        self._frame(sc, ex, self.prompts.get("contrast_intro"))
         self._speak_note_text(sc, ex, contrast.lead)
         self._beat(sc, ex)
         for ln, like in zip(contrast.lines, likes):

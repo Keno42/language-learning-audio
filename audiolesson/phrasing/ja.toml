@@ -147,6 +147,7 @@ subject_verb_same = "動詞は«{form}»のままです。"
 # #528 step 2: the noun by its frame
 noun_choice_intro = "同じ名詞でも、まわりの言葉によって形が変わります。"
 noun_choice_form = "ここでは «{form}» です。"  # the owner, 2026-11-16: the form, no grammatical term
+contrast_intro = "同じ名詞の、二つの形です。"  # lesson 62: the contrast opens with a line of its own, as the other form work does
 contrast_like = "«{like}» と同じです。"  # #548: the sentence a contrast's line is like, one the learner knows
 contrast_answer = "答えてください。"
 said_of_intro = "同じ言葉でも、誰のことを言うかで形が変わります。"

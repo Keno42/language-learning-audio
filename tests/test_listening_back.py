@@ -215,6 +215,21 @@ class WayBackTableTests(unittest.TestCase):
         self.assertEqual(found(drill, ("note", "n", [listen]), drill), ["n: no end line"])
         self.assertEqual(found(drill, ("catch_unknown", "c", [line, back]), drill), ["c: opens with «Hvað kostar kaffi?» straight after recall"])
 
+        def form(first_role):
+            """Lesson 62 («the explanation seemed to start abruptly»): a form-work block opens with its framing line («One noun, two forms.»),
+            not with what changes the form («After «þarf», the word changes.»)."""
+            sc = Script(1, "t", "is", "en")
+            d = sc.new_exercise("recall", None, [], "recall: x")
+            sc.add(Segment("narrate", "instructor", "Say: thanks.", "en", 1.0, 1.0, None, d.index))
+            sc.add(Segment("answer", "native_a", "Takk.", "is", 1.0, 1.0, None, d.index))
+            ex = sc.new_exercise("model", "noun_choice", [], "contrast: c")
+            sc.add(Segment("narrate", "instructor", "After", "en", 1.0, 1.0, first_role, ex.index))
+            sc.add(Segment("answer", "native_a", "Ég þarf lykil.", "is", 1.0, 1.0, None, ex.index))
+            return unmarked_turns(sc, prompts)
+
+        self.assertEqual(form(None), ["contrast: c: the form work opens with no line of its own"])
+        self.assertEqual(form("frame"), [])
+
 
 if __name__ == "__main__":
     unittest.main()
