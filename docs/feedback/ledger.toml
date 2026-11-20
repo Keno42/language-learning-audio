@@ -1016,6 +1016,27 @@ family = "sayable-heard"
 class = "twenty"
 answered_by = []
 
+[[lesson]]
+n = 62
+form = true
+load = "right"
+built = ["#557", "#560", "#562", "#567", "#570"]
+long_run = ["#557", "#560"]
+
+[[lesson.remarks]]
+who = "main"
+text = "The male Icelandic voice of the conversations and the voice of the Icelandic instructions are the same, so the switch between them is hard to hear. (Every instruction in Icelandic is said by Gunnar, the partner's default voice: 42 lines in lesson 62, «Samtalinu er lokið.» right after a conversation in his voice; lesson 61's remark, the same cause: #563.)"
+family = "instruction-voice"
+class = "twenty"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "The explanation of how a word's form changes with the word before it seemed to start abruptly. (The authored contrast at 18:25 opened on its lead, «After «þarf», the word changes.», straight after a recombine; the number, noun and subject choices each open with a line of their own, «One number, different forms: …», and the contrast had none.)"
+family = "pick-out-turns"
+class = "twenty"
+answered_by = ["#573"]
+
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
 [[change]]
@@ -1888,6 +1909,8 @@ title = "a conversation opens in Icelandic once taught: «Nú kemur stutt samtal
 issue = ["#429"]
 pr = ["#554", "#555"]
 family = "instruction-language"
+first_heard = 62
+heard = "taught at 00:17; it opened two of lesson 62's conversations, with «Now a short conversation.» after it"
 
 [[change]]
 title = "the scenes after lesson 58: the hotel's levels 3–6, a missed bus, the icy path, the family, the pharmacy and an accident (#327: #556)"
@@ -1914,3 +1937,25 @@ title = "a cue names its answer's subject: a «Við» answer the group, a «Þú
 issue = ["#427"]
 pr = ["#559"]
 family = "meaning-gloss"
+
+[[change]]
+title = "the written review asks a situation with its literal meaning after it (lesson 60, the owner on #559: #562)"
+issue = ["#559"]
+pr = ["#562"]
+family = "meaning-gloss"
+
+[[change]]
+title = "fixed dialogues played whole when known, retired after one whole play or once their scene's theme level has played (#567)"
+issue = ["#416"]
+pr = ["#567"]
+family = "known-repeat"
+first_heard = 62
+heard = "no fixed dialogue (lesson 61: three); lesson 62 asked all 70 of its askable due items (lesson 61: 32 of 66)"
+
+[[change]]
+title = "a pattern's sentence is asked when the learner says its pattern and fills (#265: #570)"
+issue = ["#265"]
+pr = ["#570"]
+family = "sayable-heard"
+first_heard = 62
+heard = "«Hvar er morgunmaturinn?» asked at 04:05; heard-only lines 0 on the rebuild"
