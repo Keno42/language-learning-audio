@@ -53,9 +53,10 @@ def _other_voice(speaker: str) -> str:
 
 
 VOICE_OF = {"f": "native_a", "m": "native_b"}  # every profile voices native_a female, native_b male
-# #429: the voice an instruction in the target language is said in, the other native voice than the models' (native_a), so «Endurtaktu.» is not
-# heard as the line it introduces
-COMMAND_VOICE = "native_b"
+# #429: the voice an instruction in the target language is said in. #563 (lessons 61 and 62: «the conversation's male voice and the
+# instructions' voice are the same, so the switch is hard to hear»): a speaker of its own, ``command``, which a profile voices apart from the
+# scenes (the owner, 2026-11-20: OpenAI's realtime voice), and which falls back to native_b's voice where it does not (``renderer.STANDS_IN``)
+COMMAND_VOICE = "command"
 GENDER_OF = {v: g for g, v in VOICE_OF.items()}
 
 

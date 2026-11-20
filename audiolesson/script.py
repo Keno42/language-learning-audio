@@ -28,10 +28,14 @@ LATE_RECALL_SHARE = 2 / 3
 EARLY_LAST_SHARE = 0.5
 
 
+# the transcript's name for each speaker; ``command`` says the instructions in the target language («Endurtaktu.», #429, #563)
+SPEAKER_LABEL = {"instructor": "Instructor", "native_a": "Speaker A", "native_b": "Speaker B", "command": "Instruction"}
+
+
 @dataclass
 class Segment:
     type: str  # narrate | speak | pause | answer
-    speaker: str | None = None  # instructor | native_a | native_b
+    speaker: str | None = None  # instructor | native_a | native_b | command
     text: str | None = None
     lang: str | None = None
     rate: float = 1.0  # 1.0 = natural speed; Timing.slow_rate for pronunciation demos
@@ -324,7 +328,7 @@ class Script:
 
         def flush() -> None:
             if spaced:
-                who = {"native_a": "Speaker A", "native_b": "Speaker B"}.get(spaced[0].speaker, spaced[0].speaker)
+                who = SPEAKER_LABEL.get(spaced[0].speaker, spaced[0].speaker)
                 lines.append(f"**{who} (word by word):** " + " · ".join(w.text or "" for w in spaced))
                 spaced.clear()
 
@@ -349,7 +353,7 @@ class Script:
                 lines.append(f"    … {s.duration:.1f}s {s.role or ''}".rstrip())
             else:
                 # an answer is what the learner should have said, whichever voice models it
-                who = "You" if s.type == "answer" else {"instructor": "Instructor", "native_a": "Speaker A", "native_b": "Speaker B"}.get(s.speaker, s.speaker)
+                who = "You" if s.type == "answer" else SPEAKER_LABEL.get(s.speaker, s.speaker)
                 slow = " (slow)" if s.rate < 1 else ""
                 lines.append(f"**{who}{slow}:** {s.text}")
         flush()

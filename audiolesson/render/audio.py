@@ -45,6 +45,29 @@ class AudioClip:
         return AudioClip(samples[start:end].tobytes(), self.rate)
 
 
+def loudness(clip: AudioClip, floor: int = 500) -> float:
+    """The clip's RMS level over its voiced samples (those above ``floor``), so a clip's silences do not lower it; 0 for silence."""
+    import array
+
+    samples = array.array("h")
+    samples.frombytes(clip.pcm)
+    voiced = [x for x in samples if abs(x) > floor]
+    return (sum(x * x for x in voiced) / len(voiced)) ** 0.5 if voiced else 0.0
+
+
+def scaled(clip: AudioClip, factor: float) -> AudioClip:
+    """The clip ``factor`` times as loud, held under full scale: a factor that would clip the peak is lowered to the peak's headroom."""
+    import array
+
+    samples = array.array("h")
+    samples.frombytes(clip.pcm)
+    peak = max((abs(x) for x in samples), default=0)
+    if peak:
+        factor = min(factor, 32000 / peak)
+    out = array.array("h", (int(round(x * factor)) for x in samples))
+    return AudioClip(out.tobytes(), clip.rate)
+
+
 def silence(seconds: float, rate: int = DEFAULT_RATE) -> AudioClip:
     n = max(0, int(round(seconds * rate)))
     return AudioClip(b"\x00\x00" * n, rate)

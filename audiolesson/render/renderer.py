@@ -21,7 +21,7 @@ from pathlib import Path
 
 from ..script import Script
 from ..timing import Timing
-from .audio import AudioClip, concat, read_wav, silence, to_mp3, write_wav
+from .audio import AudioClip, concat, loudness, read_wav, scaled, silence, to_mp3, write_wav
 from .tts import Provider, cache_family, get_provider
 
 # Spelling substitutions applied only to target-language text sent to the TTS engine; the
@@ -73,6 +73,14 @@ def _speak_tildes(text: str, lang: str) -> str:
 class SpeakerVoice:
     voice: str = ""
     rate: float = 1.0  # multiplier on top of the script's per-segment rate
+    # a provider of the speaker's own, other than the profile's (#563: the instructions in the target language in a voice no scene uses,
+    # «command = { provider = "openai-realtime", voice = "cedar" }»); "" for the profile's
+    provider: str = ""
+
+
+# #563: a speaker a profile may leave out, and the speaker whose voice it then takes: the instructions said in the target language
+# («Endurtaktu.») are the ``command`` speaker's, voiced as the male native voice when the profile gives it none, as before
+STANDS_IN = {"command": "native_b"}
 
 
 @dataclass
@@ -94,8 +102,10 @@ class VoiceProfile:
 
     def voice_for(self, speaker: str, lang: str, provider: Provider, idx_hint: int) -> SpeakerVoice:
         sv = self.speakers.get(speaker)
-        if sv and sv.voice:
+        if sv and sv.voice and not sv.provider:
             return sv
+        if speaker in STANDS_IN:  # not voiced by the profile's provider: the voice of the speaker it stands in for
+            return self.voice_for(STANDS_IN[speaker], lang, provider, _DEFAULT_INDEX.get(STANDS_IN[speaker], idx_hint))
         defaults = provider.default_voices(lang)
         if not defaults:
             raise ValueError(f"profile has no voice for speaker {speaker!r} and provider {provider.name!r} has no default for language {lang!r}")
@@ -123,7 +133,7 @@ def load_profile(path: str | Path | None, provider: str | None = None) -> VoiceP
             if isinstance(spec, str):
                 prof.speakers[name] = SpeakerVoice(voice=spec)
             else:
-                prof.speakers[name] = SpeakerVoice(voice=spec.get("voice", ""), rate=float(spec.get("rate", 1.0)))
+                prof.speakers[name] = SpeakerVoice(voice=spec.get("voice", ""), rate=float(spec.get("rate", 1.0)), provider=str(spec.get("provider", "")))
     if provider:
         prof.provider = provider
     return prof
@@ -184,13 +194,55 @@ def render_script(
     def request_for(seg) -> tuple[str, str, str, float]:
         return speech_request(script, seg, profile, provider)
 
+    # #563: a speaker with a provider of its own (the instructions' voice), when that provider can run; otherwise, and for a line it fails
+    # to say as written, the speaker is said in the profile's voice for the speaker it stands in for (``STANDS_IN``)
+    own: dict[str, Provider] = {}
+    for name, sv in profile.speakers.items():
+        if sv.provider and sv.provider != provider.name:
+            other = get_provider(sv.provider)
+            if (why := other.check()) is None:
+                own[name] = other
+            else:
+                print(f"speaker {name!r}: provider {sv.provider!r} cannot run ({why}); said in the profile's voice", file=sys.stderr, flush=True)
+    failed: set[tuple] = set()  # own-provider requests that failed in this render: said in the profile's voice
+    lock = threading.Lock()
+
+    def route(seg) -> tuple[Provider, tuple[str, str, str, float]]:
+        """The provider and request a speech segment is said by."""
+        req = request_for(seg)
+        speaker = seg.speaker or "native_a"
+        if speaker in own:
+            sv = profile.speakers[speaker]
+            mine = (req[0], req[1], sv.voice, seg.rate * sv.rate)
+            if (own[speaker].name, *mine) not in failed:
+                return own[speaker], mine
+        return provider, req
+
+    def clip_for(seg) -> tuple[AudioClip, bool]:
+        """The segment's clip, and whether a speaker's own provider said it (its loudness is then matched to the lesson's)."""
+        prov, req = route(seg)
+        if prov is provider:
+            return _cached(provider, cache, *req, profile.trim, held), False
+        try:
+            return _cached(prov, cache, *req, profile.trim, held), True
+        except Exception as e:  # noqa: BLE001: a lesson is never lost to the instructions' voice
+            with lock:
+                failed.add((prov.name, *req))
+            print(f"warning: {prov.name} could not say {req[0]!r} ({e}); said in the profile's voice", file=sys.stderr, flush=True)
+            return _cached(provider, cache, *request_for(seg), profile.trim, held), False
+
     held: dict[Path, AudioClip] = {}  # clips this render keeps out of the cache (``_cached``)
     # warm the cache in parallel for providers that talk to a network
-    unique = {request_for(seg) for seg in script.segments if seg.type != "pause"}
-    todo = [r for r in unique if not _cache_path(provider, cache, *r, profile.trim).exists()]
+    firsts: dict[tuple, object] = {}
+    for seg in script.segments:
+        if seg.type != "pause":
+            prov, req = route(seg)
+            firsts.setdefault((prov.name, *req), seg)
+    todo = [seg for (name, *req), seg in firsts.items()
+            if not _cache_path(own_or(provider, own, name), cache, *req, profile.trim).exists()]
     if todo and provider.parallel and profile.workers > 1:
         with ThreadPoolExecutor(max_workers=profile.workers) as pool:
-            for i, _ in enumerate(pool.map(lambda r: _cached(provider, cache, *r, profile.trim, held), todo), 1):
+            for i, _ in enumerate(pool.map(clip_for, todo), 1):
                 if progress and (i % 10 == 0 or i == len(todo)):
                     print(f"  synthesized {i}/{len(todo)} new lines", file=sys.stderr, end="\r")
 
@@ -200,11 +252,14 @@ def render_script(
     done = 0
     est: dict[str, float] = {}
     meas: dict[str, float] = {}
+    from_own: list[int] = []  # the clips a speaker's own provider said
     for seg in script.segments:
         if seg.type == "pause":
             clips.append(None)
             continue
-        clip = _cached(provider, cache, *request_for(seg), profile.trim, held)
+        clip, mine = clip_for(seg)
+        if mine:
+            from_own.append(len(clips))
         clips.append(clip)
         lang = request_for(seg)[1].split("-")[0].lower()
         est[lang] = est.get(lang, 0.0) + seg.duration
@@ -215,6 +270,8 @@ def render_script(
     if progress:
         print(file=sys.stderr)
     calibration = {lang: round(meas[lang] / est[lang], 3) for lang in est if est[lang] > 0}
+    if from_own:
+        clips = match_loudness(script, clips, from_own)
 
     # 2. pauses: the script's lengths × profile multiplier, then a small uniform scale to hit the target
     speech_total = sum(c.seconds for c in clips if c is not None)
@@ -286,6 +343,36 @@ def render_script(
         ],
         "segments": cues,
     }
+
+
+def own_or(provider: Provider, own: dict[str, Provider], name: str) -> Provider:
+    """The provider called ``name``: the profile's, or a speaker's own."""
+    return next((p for p in own.values() if p.name == name), provider)
+
+
+# #563 (the owner, 2026-11-20: «not sure if the volume matches the other parts»): a voice from another provider is brought to the level of
+# the lesson's native voices, the median of up to ``LOUDNESS_SAMPLE`` of their clips, so an instruction is neither louder nor softer than
+# the lines around it
+LOUDNESS_SAMPLE = 40
+
+
+def match_loudness(script: Script, clips: list, from_own: list[int]) -> list:
+    """``clips`` with each clip at an index of ``from_own`` scaled to the median loudness of the native voices' clips."""
+    natives = [c for c, seg in zip(clips, script.segments) if c is not None and seg.speaker in ("native_a", "native_b")]
+    step = max(1, len(natives) // LOUDNESS_SAMPLE)
+    levels = sorted(x for x in (loudness(c) for c in natives[::step]) if x > 0)
+    if not levels:
+        return clips
+    target = levels[len(levels) // 2]
+    out = list(clips)
+    memo: dict[int, AudioClip] = {}
+    for k in from_own:
+        clip = out[k]
+        if id(clip) not in memo:
+            level = loudness(clip)
+            memo[id(clip)] = scaled(clip, target / level) if level > 0 else clip
+        out[k] = memo[id(clip)]
+    return out
 
 
 def _cache_path(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool) -> Path:

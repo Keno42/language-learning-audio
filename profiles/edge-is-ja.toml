@@ -6,3 +6,6 @@ fallback = "azure"
 instructor = { voice = "ja-JP-NanamiNeural" }
 native_a = { voice = "is-IS-GudrunNeural" }
 native_b = { voice = "is-IS-GunnarNeural" }
+# #563: the instructions in Icelandic («Endurtaktu.») in a voice no scene uses: OpenAI's realtime model (OPENAI_API_KEY and the
+# websockets package); without them, Gunnar says them, as native_b
+command = { provider = "openai-realtime", voice = "cedar" }
