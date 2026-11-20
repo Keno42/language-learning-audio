@@ -15,6 +15,7 @@ import re
 import sys
 import threading
 import tomllib
+from typing import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -232,8 +233,20 @@ def render_script(
         prov, req = route(seg)
         if prov is provider:
             return _cached(provider, cache, *req, profile.trim, held), False
+        fallback = request_for(seg)
+        ref: list[float] = []
+
+        def short(clip: AudioClip) -> bool:
+            """Too short against the same line in the profile's voice, the one it falls back to (``OWN_VOICE_MIN_SHARE``)."""
+            if not ref:
+                try:
+                    ref.append(_cached(provider, cache, *fallback, profile.trim, held).seconds)
+                except Exception:  # noqa: BLE001: no reference, no comparison
+                    ref.append(0.0)
+            return clip.seconds < OWN_VOICE_MIN_SHARE * ref[0]
+
         try:
-            return _cached(prov, cache, *req, profile.trim, held), True
+            return _cached(prov, cache, *req, profile.trim, held, short=short), True
         except Exception as e:  # noqa: BLE001: a lesson is never lost to the instructions' voice
             with lock:
                 failed.add((prov.name, *req))
@@ -354,6 +367,13 @@ def render_script(
     }
 
 
+# #563 (the owner's dry-run lesson 63, 2026-11-20): the realtime voice said «Hlustaðu.» as «staðu», 0.40 s, and its own transcript said
+# «Hlustaðu.», so the words check passed. Measured against the same line in the profile's voice (Gunnar, the voice it falls back to), the
+# realtime voice's whole clips of the lesson's instructions ran 0.86 («Hægt.») to 1.59 of Gunnar's, median 1.34; the cut one was 0.63. A clip
+# under this share of the profile's is synthesized again, then said in the profile's voice
+OWN_VOICE_MIN_SHARE = 0.75
+
+
 def own_or(provider: Provider, own: dict[str, Provider], name: str) -> Provider:
     """The provider called ``name``: the profile's, or a speaker's own."""
     return next((p for p in own.values() if p.name == name), provider)
@@ -427,24 +447,40 @@ def looks_cut_off(clip: AudioClip, text: str, lang: str, rate: float = 1.0) -> b
     return clip.seconds < cut_off_threshold(lang) * _TIMING.speech_estimate(text, lang, rate)
 
 
-def _cached(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool, held: dict[Path, AudioClip] | None = None) -> AudioClip:
+class ShortClip(RuntimeError):
+    """A speaker's own provider said a line far shorter than the profile's voice says it, twice (``OWN_VOICE_MIN_SHARE``)."""
+
+
+def _cached(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool, held: dict[Path, AudioClip] | None = None,
+            short: Callable[[AudioClip], bool] | None = None) -> AudioClip:
     """The clip for a request: from the cache, else synthesized and cached. ``held`` (one render's) keeps a clip left out of the cache
-    because it still looks cut off, so the render asks the service for it once, not at every line that says it (review of #466)."""
+    because it still looks cut off, so the render asks the service for it once, not at every line that says it (review of #466).
+
+    ``short`` (a speaker's own provider, ``OWN_VOICE_MIN_SHARE``): whether a clip is too short against the profile's voice. A cached clip it
+    flags is synthesized again; a line it flags twice raises ``ShortClip`` and is not cached."""
     path = _cache_path(provider, cache, text, lang, voice, rate, trim)
     if path.exists():
-        return read_wav(path)
-    if held is not None and path in held:
+        clip = read_wav(path)
+        if short is None or not short(clip):
+            return clip
+        print(f"warning: the cached {text!r} ({clip.seconds:.2f} s) is too short against the profile's voice; synthesized again", file=sys.stderr, flush=True)
+    elif held is not None and path in held:
         return held[path]
 
     def synth() -> AudioClip:
         clip = provider.synthesize(text, lang, voice, rate)
         return clip.trimmed() if trim else clip
 
+    def bad(clip: AudioClip) -> bool:
+        return (provider.parallel and looks_cut_off(clip, text, lang, rate)) or (short is not None and short(clip))
+
     clip = synth()
-    if provider.parallel and looks_cut_off(clip, text, lang, rate):
+    if bad(clip):
         again = synth()
         clip = max(clip, again, key=lambda c: c.seconds)
-        if looks_cut_off(clip, text, lang, rate):
+        if short is not None and short(clip):
+            raise ShortClip(f"{text!r} came back too short against the profile's voice twice ({clip.seconds:.2f} s)")
+        if provider.parallel and looks_cut_off(clip, text, lang, rate):
             # used this once, never cached: the next render asks the service again
             print(f"warning: {text!r} came back cut off twice ({clip.seconds:.2f} s); not cached", file=sys.stderr, flush=True)
             if held is not None:

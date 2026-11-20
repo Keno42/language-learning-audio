@@ -145,7 +145,8 @@ command = { provider = "realtime", voice = "cedar" }
         main, realtime = Voice("main", 8000), Voice("realtime", 2000)
         cues, mix, _ = self.render(main, realtime, self.PROFILE)
         self.assertEqual(realtime.asked, [("Endurtaktu.", "cedar")], "only the instruction, in its own voice")
-        self.assertEqual(sorted(main.asked), [("Góðan daginn.", "A"), ("Takk.", "B")])
+        # the profile's voice says the instruction too, as the length its own voice's clip is checked against (``OWN_VOICE_MIN_SHARE``)
+        self.assertEqual(sorted(main.asked), [("Endurtaktu.", "B"), ("Góðan daginn.", "A"), ("Takk.", "B")])
         # the instruction's clip is brought from 2000 to the native voices' 8000
         start = next(c for c in cues["segments"] if c["text"] == "Endurtaktu.")["t"]
         rate = mix.rate
@@ -173,6 +174,79 @@ command = { provider = "realtime", voice = "cedar" }
         main2 = Voice("main", 8000)
         self.render(main2, Voice("realtime", 1), 'provider = "main"\n[speakers]\nnative_a = { voice = "A" }\nnative_b = { voice = "B" }\n')
         self.assertIn(("Endurtaktu.", "B"), main2.asked, "a profile with no command speaker: native_b's voice")
+
+
+class Lengths(Voice):
+    """A provider whose clips last ``lengths`` seconds in turn, the last one repeated."""
+
+    def __init__(self, name: str, level: int, lengths: list[float]):
+        super().__init__(name, level)
+        self.lengths = lengths
+
+    def synthesize(self, text, lang, voice, rate=1.0):
+        self.asked.append((text, voice))
+        return tone(self.level, self.lengths[min(len(self.asked), len(self.lengths)) - 1])
+
+
+class ShortOwnVoiceTests(unittest.TestCase):
+    """The owner's dry-run lesson 63: the realtime voice said «Hlustaðu.» as «staðu» (0.40 s; Gunnar's clip 0.64 s), its transcript said
+    «Hlustaðu.». A clip of the instructions' own voice under ``OWN_VOICE_MIN_SHARE`` of the same line in the profile's voice is synthesized
+    again, then said in the profile's voice; the whole clips measured ran 0.86 to 1.59 of Gunnar's."""
+
+    def render(self, main, realtime, cache: Path):
+        sc = Script(1, "t", "is", "en")
+        sc.segments = [Segment("speak", "native_a", "Góðan daginn.", "is", 1.0, 1.0), Segment("speak", "command", "Hlustaðu.", "is", 1.0, 1.0)]
+        path = cache.parent / "p.toml"
+        path.write_text(CommandVoiceTests.PROFILE, encoding="utf-8")
+        providers = {main.name: main, realtime.name: realtime}
+        with mock.patch.object(renderer, "get_provider", lambda name: providers[name]), mock.patch.object(renderer, "to_mp3", lambda *a: False), \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            renderer.render_script(sc, load_profile(path), cache.parent / "out.wav", cache, progress=False)
+        return err.getvalue()
+
+    def test_the_share_sits_between_the_cut_clip_and_the_shortest_whole_one(self):
+        self.assertTrue(0.40 / 0.64 < renderer.OWN_VOICE_MIN_SHARE < 0.47 / 0.55)
+
+    def test_a_clip_too_short_against_the_profile_s_voice_is_synthesized_again(self):
+        with tempfile.TemporaryDirectory() as td:
+            main, realtime = Voice("main", 8000), Lengths("realtime", 2000, [0.3, 0.6])
+            err = self.render(main, realtime, Path(td) / "cache")
+            self.assertEqual(realtime.asked, [("Hlustaðu.", "cedar")] * 2, "0.3 s against 0.5 s: asked again")
+            self.assertNotIn("could not say", err)
+            again = Lengths("realtime", 2000, [0.6])
+            self.render(Voice("main", 8000), again, Path(td) / "cache")
+            self.assertEqual(again.asked, [], "the whole one was cached")
+
+    def test_a_clip_short_twice_is_said_in_the_profile_s_voice_and_not_cached(self):
+        with tempfile.TemporaryDirectory() as td:
+            main, realtime = Voice("main", 8000), Lengths("realtime", 2000, [0.3])
+            err = self.render(main, realtime, Path(td) / "cache")
+            self.assertEqual(len(realtime.asked), 2)
+            self.assertIn(("Hlustaðu.", "B"), main.asked, "native_b's voice")
+            self.assertIn("could not say 'Hlustaðu.'", err)
+            later = Lengths("realtime", 2000, [0.6])
+            self.render(Voice("main", 8000), later, Path(td) / "cache")
+            self.assertEqual(len(later.asked), 1, "nothing short was cached: the next render asks again")
+
+    def test_a_short_clip_already_cached_is_synthesized_again(self):
+        with tempfile.TemporaryDirectory() as td:
+            cache = Path(td) / "cache"
+            self.render(Voice("main", 8000), Lengths("realtime", 2000, [0.3, 0.3]), cache)  # leaves nothing cached
+            # a short clip cached before this check existed
+            realtime = Lengths("realtime", 2000, [0.6])
+            key = renderer._cache_path(realtime, cache, "Hlustaðu.", "is", "cedar", 1.0, True)
+            renderer.write_wav(tone(2000, 0.3), key)
+            err = self.render(Voice("main", 8000), realtime, cache)
+            self.assertEqual(len(realtime.asked), 1)
+            self.assertIn("too short against the profile's voice", err)
+            self.assertAlmostEqual(renderer.read_wav(key).seconds, 0.6, places=2)
+
+    def test_a_clip_as_short_as_the_shortest_whole_one_is_kept(self):
+        with tempfile.TemporaryDirectory() as td:
+            realtime = Lengths("realtime", 2000, [0.43])  # 0.86 of 0.5 s, as «Hægt.»
+            err = self.render(Voice("main", 8000), realtime, Path(td) / "cache")
+            self.assertEqual(len(realtime.asked), 1)
+            self.assertNotIn("could not say", err)
 
 
 class RealtimeTests(unittest.TestCase):
