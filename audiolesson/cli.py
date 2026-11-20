@@ -214,9 +214,11 @@ def _apply_user(args) -> None:
     base.mkdir(parents=True, exist_ok=True)
     settings_path = base / "settings.json"
     saved = json.loads(settings_path.read_text(encoding="utf-8")) if settings_path.exists() else {}
+    args.restored = set()  # the settings taken from settings.json, not this command line (``_profile``)
     for key in USER_SETTINGS:
         if hasattr(args, key) and getattr(args, key) is None and key in saved:
             setattr(args, key, saved[key])
+            args.restored.add(key)
     if args.cmd == "generate":
         if args.minutes is None:
             args.minutes = 15.0
@@ -225,6 +227,15 @@ def _apply_user(args) -> None:
         args.out = str(base)
     args.learner = str(base / "learner.json")
     args.user_settings_path = settings_path
+
+
+def _profile(args):
+    """The voice profile for this run. A ``--provider`` given on this command line says every voice; one remembered in the user's
+    settings.json replaces only the profile's own provider, so a speaker with a provider of its own (#563's instruction voice) keeps it
+    (review of #576)."""
+    from .render import load_profile
+
+    return load_profile(args.profile, args.provider, every_speaker="provider" not in getattr(args, "restored", ()))
 
 
 def _learner_hint(args, extra: str = "") -> str:
@@ -350,10 +361,10 @@ def cmd_generate(args) -> int:
     print(f"  wrote {stem}.script.json, .transcript.md, .plan.json")
 
     if not args.no_audio:
-        from .render import load_profile, render_script
+        from .render import render_script
         from .render.renderer import save_cues
 
-        profile = load_profile(args.profile, args.provider)
+        profile = _profile(args)
         if args.no_fit:
             profile.fit = False
         if args.fit_tolerance is not None:
@@ -491,11 +502,11 @@ def _plan(script: Script, cur) -> dict:
 
 
 def cmd_render(args) -> int:
-    from .render import load_profile, render_script
+    from .render import render_script
     from .render.renderer import save_cues
 
     script = Script.load(args.script)
-    profile = load_profile(args.profile, args.provider)
+    profile = _profile(args)
     if args.pause_multiplier is not None:
         profile.pause_multiplier = args.pause_multiplier
     src = Path(args.script)

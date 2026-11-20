@@ -113,7 +113,11 @@ class VoiceProfile:
         return SpeakerVoice(voice=voice, rate=sv.rate if sv else 1.0)
 
 
-def load_profile(path: str | Path | None, provider: str | None = None) -> VoiceProfile:
+def load_profile(path: str | Path | None, provider: str | None = None, *, every_speaker: bool = True) -> VoiceProfile:
+    """The profile at ``path``, its provider replaced by ``provider`` when given. ``every_speaker``: ``provider`` was asked for on this
+    command line, so it says every voice (a speaker's own provider gives way); False for a provider only remembered from an earlier run
+    (``settings.json``), which replaces the profile's provider and leaves a speaker's own (review of #576: a remembered «edge» must not
+    silently take the instructions' voice away)."""
     prof = VoiceProfile()
     if path:
         with Path(path).open("rb") as fh:
@@ -139,7 +143,8 @@ def load_profile(path: str | Path | None, provider: str | None = None) -> VoiceP
         # render calls no service and needs no key (the bot's end-to-end tests: language-learning-audio as its submodule at #575)
         # (its voice is a name only its own provider knows, «cedar»: the speaker is left out, and takes its stand-in's voice, ``STANDS_IN``)
         prof.provider = provider
-        prof.speakers = {name: sv for name, sv in prof.speakers.items() if not sv.provider}
+        if every_speaker:
+            prof.speakers = {name: sv for name, sv in prof.speakers.items() if not sv.provider}
     return prof
 
 

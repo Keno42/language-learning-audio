@@ -68,6 +68,36 @@ class CommandVoiceTests(unittest.TestCase):
         self.assertNotIn("cannot run", err.getvalue())
         self.assertNotIn("said in the profile's voice", err.getvalue())
 
+    def test_a_provider_remembered_for_the_user_keeps_the_instructions_voice(self):
+        """Review of #576: «--provider» named on this command line says every voice; one restored from the user's settings.json replaces the
+        profile's provider only, so the ``command`` speaker keeps OpenAI's voice (and its fallback warning when that cannot run)."""
+        import argparse
+        import json
+
+        from audiolesson import cli
+
+        profile = str(ROOT / "profiles" / "edge-is-en.toml")
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "yuki").mkdir()
+            (Path(td) / "yuki" / "settings.json").write_text(json.dumps({"curriculum": "curricula/is-en", "profile": profile, "provider": "edge"}))
+
+            def args(**given):
+                ns = argparse.Namespace(cmd="generate", user="yuki", root=td, learner=None, out=None, curriculum=None, known=None, profile=None,
+                                        provider=None, minutes=None, level=None)
+                for k, v in given.items():
+                    setattr(ns, k, v)
+                cli._apply_user(ns)
+                return ns
+
+            remembered = args()
+            self.assertEqual(remembered.provider, "edge", "restored from settings.json")
+            got = cli._profile(remembered)
+            self.assertEqual(got.provider, "edge")
+            self.assertEqual(got.speakers["command"].provider, "openai-realtime", "the instructions keep their own voice")
+            explicit = cli._profile(args(provider="stub"))
+            self.assertEqual(explicit.provider, "stub")
+            self.assertNotIn("command", explicit.speakers, "named on the command line: every voice")
+
     def render(self, main, other, profile_text):
         sc = Script(1, "t", "is", "en")
         sc.segments = [Segment("speak", "native_a", "Góðan daginn.", "is", 1.0, 1.0), Segment("speak", "command", "Endurtaktu.", "is", 1.0, 1.0),
