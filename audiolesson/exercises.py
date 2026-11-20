@@ -1262,7 +1262,7 @@ class Builder:
             if not (sc.segments and sc.segments[-1].type == "pause"):
                 self._beat(sc, ex)  # a breath before the next line; in English the lone «.» after «{form}» already gave one (``_speak_note_text``)
             self.heard.add(_norm_utterance(line.sentence))
-        self._narr(sc, ex, self.prompts.get("number_choice_say"))
+        self._instruct(sc, ex, "number_choice_say")  # #429 step 6: «Segðu hverja setningu.» once taught
         order = lines[1:] + lines[:1]
         for n, line in enumerate(order):
             item = self.cur.by_id[line.item_ids[0]]
@@ -1296,7 +1296,7 @@ class Builder:
                 if not (sc.segments and sc.segments[-1].type == "pause"):
                     self._beat(sc, ex)
             self.heard.add(_norm_utterance(sentence))
-        self._narr(sc, ex, self.prompts.get("number_choice_say"))
+        self._instruct(sc, ex, "number_choice_say")  # #429 step 6: «Segðu hverja setningu.» once taught
         order = lines[1:] + lines[:1]
         for n, (it, _, sentence, prompt, _) in enumerate(order):
             self._narr(sc, ex, prompt)
@@ -1354,7 +1354,7 @@ class Builder:
             if not (sc.segments and sc.segments[-1].type == "pause"):
                 self._beat(sc, ex)
             self.heard.add(_norm_utterance(item.subjects[k]))
-        self._narr(sc, ex, self.prompts.get("number_choice_say"))
+        self._instruct(sc, ex, "number_choice_say")  # #429 step 6: «Segðu hverja setningu.» once taught
         for n, k in enumerate(reversed(keys)):
             self._narr(sc, ex, self._meaning_prompt(item.subjects_meaning[k]))
             self._answer_pause(sc, ex, item.subjects[k], item, generative=False)
@@ -1404,7 +1404,7 @@ class Builder:
             if not (sc.segments and sc.segments[-1].type == "pause"):
                 self._beat(sc, ex)
             self.heard.add(_norm_utterance(item.said_of[g]))
-        self._narr(sc, ex, self.prompts.get("number_choice_say"))
+        self._instruct(sc, ex, "number_choice_say")  # #429 step 6: «Segðu hverja setningu.» once taught
         for n, (g, _) in enumerate(reversed(lines)):
             self._narr(sc, ex, self._meaning_prompt(item.said_of_meaning[g]))
             self._answer_pause(sc, ex, item.said_of[g], item, generative=False)

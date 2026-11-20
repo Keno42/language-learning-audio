@@ -62,22 +62,29 @@ class ListeningEndsWithAWayBackTests(unittest.TestCase):
         from audiolesson.prompts import Prompts
 
         line = Prompts.load("en").get("form_back")
-        closed = 0
+        closed = taught = english = 0
         stages = set()
         for cur, _, sc in course.ListeningTaskTests._course(40):
             spoken = {s.exercise for s in sc.segments if s.exercise is not None and s.duration > 0}
             order = [e for e in sc.exercises if e.index in spoken]
             for e, nxt in zip(order, order[1:]):
-                said = [s.text for s in sc.segments if s.exercise == e.index and s.type in ("speak", "narrate", "answer")]
+                # by its role: once taught (#429 step 6) the way back is «Æfingunni er lokið.», with the English after it for two lessons, and
+                # the lesson that teaches it says «That's the end of the form work.» as its meaning
+                said = [s.role for s in sc.segments if s.exercise == e.index and s.type in ("speak", "narrate", "answer")]
                 form = e.kind == "model" and e.stage in ("choice", "noun_choice", "said_of", "subjects")
                 next_listening = nxt.kind in ("pick_out", "catch_unknown") or (nxt.kind == "intro" and nxt.label.startswith("new (catch)"))
                 wants = form and not (next_listening or nxt.kind in ("dialogue", "note", "closing"))
-                self.assertEqual(said[-1:] == [line], wants, (sc.lesson_number, e.label, nxt.kind))
-                self.assertEqual(said.count(line), int(wants), (sc.lesson_number, e.label))
+                self.assertEqual(said[-1:] == ["form_back"], wants, (sc.lesson_number, e.label, nxt.kind))
+                self.assertEqual(bool(said.count("form_back")), wants, (sc.lesson_number, e.label))
+                if wants:
+                    taught += any(s.text == "Æfingunni er lokið." for s in sc.segments if s.exercise == e.index)
+                    english += any(s.text == line for s in sc.segments if s.exercise == e.index)
                 closed += wants
                 stages |= {e.stage} if wants else set()
         self.assertGreater(closed, 3, "the course has form work followed by drills")
         self.assertGreater(len(stages), 1, f"of more than one kind: {stages}")
+        self.assertGreater(taught, 0, "#429 step 6: «Æfingunni er lokið.» once taught")
+        self.assertGreater(english, 0, "«That's the end of the form work.» before")
 
     def test_a_conversation_right_after_another_says_another(self):
         """Lesson 45 (owner): a conversation that ends where another begins says no «That's the end of the conversation.», so the next one opens
