@@ -22,7 +22,7 @@ from pathlib import Path
 from ..script import Script
 from ..timing import Timing
 from .audio import AudioClip, concat, loudness, read_wav, scaled, silence, to_mp3, write_wav
-from .tts import Provider, cache_family, get_provider
+from .tts import PROVIDERS, Provider, cache_family, get_provider
 
 # Spelling substitutions applied only to target-language text sent to the TTS engine; the
 # curriculum, transcript and cues keep the real spelling. "Halló" the greeting is a loanword
@@ -114,6 +114,11 @@ class VoiceProfile:
 
 
 def load_profile(path: str | Path | None, provider: str | None = None) -> VoiceProfile:
+    """The profile at ``path``, its provider replaced by ``provider`` when given (``--provider``, or the one remembered in the user's
+    settings.json). A local engine (``Provider.local``: stub, espeak, say) says every voice, a speaker's own provider included, so it calls
+    no service; a service (edge, azure, openai) replaces the profile's provider only, and a speaker's own stays (#563's instruction voice).
+    Reviews of #576: «--provider stub» must call no service, on its run and on a later one that remembers it, and a remembered «edge» must
+    not take the instructions' voice away."""
     prof = VoiceProfile()
     if path:
         with Path(path).open("rb") as fh:
@@ -136,6 +141,10 @@ def load_profile(path: str | Path | None, provider: str | None = None) -> VoiceP
                 prof.speakers[name] = SpeakerVoice(voice=spec.get("voice", ""), rate=float(spec.get("rate", 1.0)), provider=str(spec.get("provider", "")))
     if provider:
         prof.provider = provider
+        if getattr(PROVIDERS.get(provider), "local", False):
+            # a speaker with a provider of its own is left out: its voice («cedar») is a name only that provider knows, so it takes its
+            # stand-in's (``STANDS_IN``). The bot's end-to-end tests render with «--provider stub» and no key
+            prof.speakers = {name: sv for name, sv in prof.speakers.items() if not sv.provider}
     return prof
 
 

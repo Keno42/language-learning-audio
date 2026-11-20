@@ -227,6 +227,14 @@ def _apply_user(args) -> None:
     args.user_settings_path = settings_path
 
 
+def _profile(args):
+    """The voice profile for this run: the profile, its provider replaced by ``--provider`` or the one remembered for the user
+    (``load_profile`` says when a speaker's own provider stays)."""
+    from .render import load_profile
+
+    return load_profile(args.profile, args.provider)
+
+
 def _learner_hint(args, extra: str = "") -> str:
     """How to point another audiolesson command at this same learner, for messages."""
     base = f"audiolesson report -u {args.user}" if getattr(args, "user", None) else f"audiolesson report -l {args.learner}"
@@ -350,10 +358,10 @@ def cmd_generate(args) -> int:
     print(f"  wrote {stem}.script.json, .transcript.md, .plan.json")
 
     if not args.no_audio:
-        from .render import load_profile, render_script
+        from .render import render_script
         from .render.renderer import save_cues
 
-        profile = load_profile(args.profile, args.provider)
+        profile = _profile(args)
         if args.no_fit:
             profile.fit = False
         if args.fit_tolerance is not None:
@@ -491,11 +499,11 @@ def _plan(script: Script, cur) -> dict:
 
 
 def cmd_render(args) -> int:
-    from .render import load_profile, render_script
+    from .render import render_script
     from .render.renderer import save_cues
 
     script = Script.load(args.script)
-    profile = load_profile(args.profile, args.provider)
+    profile = _profile(args)
     if args.pause_multiplier is not None:
         profile.pause_multiplier = args.pause_multiplier
     src = Path(args.script)
