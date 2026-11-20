@@ -168,7 +168,9 @@ class NounChoiceTests(unittest.TestCase):
         ex = planner.builder.contrast_choice(sc, hotel[1], hotel[2])
         self.assertEqual(mode(ex), "form")
         said = [(g.type, g.text) for g in sc.segments if g.exercise == ex.index and g.type in ("speak", "narrate", "answer")]
-        self.assertEqual(said[0], ("narrate", "Going there and being there: the word changes."))
+        self.assertEqual(said[:2], [("narrate", "One noun, two forms."), ("narrate", "Going there and being there: the word changes.")],
+                         "lesson 62 («it seemed to start abruptly»): a line of its own opens the block, as the other form work's do")
+        self.assertEqual(sc.segments[1].type, "pause", "a beat after the opening line")
         self.assertIn(("speak", "fyrir framan hótelið"), said, "«Like «fyrir framan hótelið».»")
         joined = " ".join(t for _, t in said)
         for term in ("accusative", "dative"):

@@ -54,8 +54,9 @@ WAY_BACK = {"listening": "listening_back", "conversation": "conversation_back", 
 # ``close_tasks`` drops them where they are not wanted, and inserts the others where they are
 BUILT_IN = {"conversation_back"}
 # #429 step 1 (lesson 57): the ways back said in the target language once taught («Aftur að tala.», «Samtalinu er lokið.»), on the finished
-# script after ``close_tasks``; a part's «That's enough of that conversation.» is not one of them
-WAYS_BACK_SAID = ("listening_back", "conversation_back")
+# script after ``close_tasks``; a part's «That's enough of that conversation.» is not one of them. Step 6 (lesson 62): the form work's «That's the
+# end of the form work.» («Æfingunni er lokið.»)
+WAYS_BACK_SAID = ("listening_back", "conversation_back", "form_back")
 # #429 step 3: a conversation's opening («Now a short conversation.», ``Builder.dialogue``) said in the target language once taught («Nú kemur
 # stutt samtal.»), on the finished script after ``close_tasks``, which reads the line by its text to say «Now another short conversation.» right
 # after a conversation. That line and a part's «Now part of a conversation.» are not it: they stay in the learner's language
@@ -173,7 +174,9 @@ def unmarked_turns(sc: Script, prompts: Prompts) -> list[str]:
     - a way back the table wants that is not the exercise's last spoken line («no way back»), or one said where it wants none («a way back
       where …»);
     - an aside that does not end with its end line («no end line»);
-    - a task that opens with its own line whose first spoken line is a target-language one («opens with …»)."""
+    - a task that opens with its own line whose first spoken line is a target-language one («opens with …»);
+    - a form-work block whose first line is not its framing line («One number, different forms: …»): lesson 62, the authored contrast opened
+      on what changes the form, and the learner heard it start abruptly («the form work opens with no line of its own»)."""
     spoken = _spoken(sc)
     order = as_spoken(sc)  # the order ``close_tasks`` reads
     wanted = ways_back(order)
@@ -190,6 +193,8 @@ def unmarked_turns(sc: Script, prompts: Prompts) -> list[str]:
         ends = END_LINES.get(mode(e))
         if ends and not any(lines[-1].text in _templates(prompts, key) for key in ends):
             out.append(f"{e.label}: no end line")
+        if mode(e) == "form" and lines[0].role != "frame":
+            out.append(f"{e.label}: the form work opens with no line of its own")
         # #429: an instruction said in the target language («Hlustaðu.», role ``command``) is the instructor's line in the voice that teaches it
         if k and mode(e) in OPENS_WITH_ITS_OWN_LINE and not _instructor(lines[0]) and lines[0].role != "command":
             out.append(f"{e.label}: opens with «{lines[0].text}» straight after {order[k - 1].kind}")

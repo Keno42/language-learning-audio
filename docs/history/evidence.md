@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.48 (lessons 1–58), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.49 (lessons 1–59), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -2007,3 +2007,39 @@ gradual`. Rebuilt from its export it is identical (122 exercises, 30.2 minutes).
 - the remark's answer: #548 step 1, the noun choice at a time of its own, setting the noun whose form the lesson brings.
 
 These are the round's two behaviour PRs.
+
+### 5.49 Lesson 59: the first lesson built with #529, #550–#552 and #554–#555
+
+Lesson 59 was generated with LLA `75c3fe2` (main with #529, #550–#555), the bot at site_update_notifier `e339b85`, `--instructions gradual`.
+Rebuilt from its export it is identical (125 exercises, 30.6 minutes).
+
+| | lesson 59 |
+|---|---|
+| length | 30.6 min, 125 exercises |
+| new items; new components, weighted (target) | 11; 10.5 (9) |
+| theme (level) | weather (3) |
+| lesson 58's new items in the review | **2 of 12 recalled**; 9 not recalled, 1 with no outcome |
+| items reviewed / due | 54 due by date, 50 the lesson could ask; **22 not fitted**; 33 practised |
+| conversations | 4: the weather's two plays, two levels heard again |
+| pick-outs; catches | 6; 1 |
+| written review's queue | 135 due |
+| feedback form: load; friction | **right**; none |
+| «sooner» | «Ég missti af strætó.», «Hafið þið laust herbergi?», hard to hear |
+
+Six behaviour PRs, against the two between lessons that §9 "Governance" allows; the form has no remark, so nothing tells them apart.
+
+- **The long run, #429:**
+  - «Svarið:» was taught first, at 00:15; 35 instructor lines were in Icelandic (lesson 58: 29).
+  - #551 played: «Let's build it up from the end.» «Endurtaktu.», three times; no «Listen, then repeat.» or «Repeat each part.» was left.
+  - #554/#555 («Nú kemur stutt samtal.») waits for its turn, after «Aftur að tala.» and «Samtalinu er lokið.»: lesson 62.
+  - No remark.
+- **#548, lesson 58's remark (#550, #552):** the contrast played at 18:42, «After «þarf» and after «fyrir», the word changes.»
+  «Ég þarf egg.» / «Ég er með ofnæmi fyrir eggjum.», each linked to a sentence the learner knows and asked by its meaning; the subject
+  choice at 14:00 and the number choice at 22:05. No remark.
+- **The pace (H9): lesson 58's new items, at a target of 11, were recalled 2 of 12** in the written review before lesson 59 (each a
+  recorded failure); lesson 57's were 10 of 12. The rule took the target from 11 to 9, and lesson 59 still left 22 of the 50 due items it
+  could ask. Lesson 58 was rated «right».
+- **Hard to hear (#447):** two of lesson 59's own new sentences were reported, «Ég missti af strætó.» and «Hafið þið laust herbergi?».
+
+**This round:** the long run's step, #429 step 4: a cue's frame («Say:», «How do you say:») in Icelandic once taught, the authored phrases
+running out in lesson 62 (#557). No remark to answer; the second place goes to reading the pace (H9) on the next two lessons.

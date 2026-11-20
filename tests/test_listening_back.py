@@ -62,22 +62,29 @@ class ListeningEndsWithAWayBackTests(unittest.TestCase):
         from audiolesson.prompts import Prompts
 
         line = Prompts.load("en").get("form_back")
-        closed = 0
+        closed = taught = english = 0
         stages = set()
         for cur, _, sc in course.ListeningTaskTests._course(40):
             spoken = {s.exercise for s in sc.segments if s.exercise is not None and s.duration > 0}
             order = [e for e in sc.exercises if e.index in spoken]
             for e, nxt in zip(order, order[1:]):
-                said = [s.text for s in sc.segments if s.exercise == e.index and s.type in ("speak", "narrate", "answer")]
+                # by its role: once taught (#429 step 6) the way back is «Æfingunni er lokið.», with the English after it for two lessons, and
+                # the lesson that teaches it says «That's the end of the form work.» as its meaning
+                said = [s.role for s in sc.segments if s.exercise == e.index and s.type in ("speak", "narrate", "answer")]
                 form = e.kind == "model" and e.stage in ("choice", "noun_choice", "said_of", "subjects")
                 next_listening = nxt.kind in ("pick_out", "catch_unknown") or (nxt.kind == "intro" and nxt.label.startswith("new (catch)"))
                 wants = form and not (next_listening or nxt.kind in ("dialogue", "note", "closing"))
-                self.assertEqual(said[-1:] == [line], wants, (sc.lesson_number, e.label, nxt.kind))
-                self.assertEqual(said.count(line), int(wants), (sc.lesson_number, e.label))
+                self.assertEqual(said[-1:] == ["form_back"], wants, (sc.lesson_number, e.label, nxt.kind))
+                self.assertEqual(bool(said.count("form_back")), wants, (sc.lesson_number, e.label))
+                if wants:
+                    taught += any(s.text == "Æfingunni er lokið." for s in sc.segments if s.exercise == e.index)
+                    english += any(s.text == line for s in sc.segments if s.exercise == e.index)
                 closed += wants
                 stages |= {e.stage} if wants else set()
         self.assertGreater(closed, 3, "the course has form work followed by drills")
         self.assertGreater(len(stages), 1, f"of more than one kind: {stages}")
+        self.assertGreater(taught, 0, "#429 step 6: «Æfingunni er lokið.» once taught")
+        self.assertGreater(english, 0, "«That's the end of the form work.» before")
 
     def test_a_conversation_right_after_another_says_another(self):
         """Lesson 45 (owner): a conversation that ends where another begins says no «That's the end of the conversation.», so the next one opens
@@ -214,6 +221,21 @@ class WayBackTableTests(unittest.TestCase):
                          ["p: a way back where the next task opens with its own line, or none follows"])
         self.assertEqual(found(drill, ("note", "n", [listen]), drill), ["n: no end line"])
         self.assertEqual(found(drill, ("catch_unknown", "c", [line, back]), drill), ["c: opens with «Hvað kostar kaffi?» straight after recall"])
+
+        def form(first_role):
+            """Lesson 62 («the explanation seemed to start abruptly»): a form-work block opens with its framing line («One noun, two forms.»),
+            not with what changes the form («After «þarf», the word changes.»)."""
+            sc = Script(1, "t", "is", "en")
+            d = sc.new_exercise("recall", None, [], "recall: x")
+            sc.add(Segment("narrate", "instructor", "Say: thanks.", "en", 1.0, 1.0, None, d.index))
+            sc.add(Segment("answer", "native_a", "Takk.", "is", 1.0, 1.0, None, d.index))
+            ex = sc.new_exercise("model", "noun_choice", [], "contrast: c")
+            sc.add(Segment("narrate", "instructor", "After", "en", 1.0, 1.0, first_role, ex.index))
+            sc.add(Segment("answer", "native_a", "Ég þarf lykil.", "is", 1.0, 1.0, None, ex.index))
+            return unmarked_turns(sc, prompts)
+
+        self.assertEqual(form(None), ["contrast: c: the form work opens with no line of its own"])
+        self.assertEqual(form("frame"), [])
 
 
 if __name__ == "__main__":
