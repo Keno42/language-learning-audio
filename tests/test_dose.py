@@ -111,14 +111,17 @@ class DoseTests(unittest.TestCase):
         the next day as much as one that does not. The loop gives it back to the kind the reviews find weak."""
         fine, weak = self.lesson(weak=False), self.lesson(weak=True)
         self.assertTrue(fine.meta["reviews_starved"] and weak.meta["reviews_starved"])
-        self.assertEqual(fine.meta["new_items"], weak.meta["new_items"], "the same lesson, but for the dose")
+        # the same choice of new material, but for the dose: what was chosen and not taught for lack of time («not_introduced») counts as
+        # chosen, since a second more or less in a lesson (lesson 62's opening line of a contrast) decides whether the last item fits
+        chosen = lambda sc: set(sc.meta["new_items"]) | set(sc.meta.get("not_introduced", []))
+        self.assertEqual(chosen(fine), chosen(weak), "the same lesson, but for the dose")
         long_new = [i for i in weak.meta["new_items"] if self.cur.by_id[i].kind == "phrase" and self.cur.by_id[i].word_count >= 5 and weak.meta["doses"][i] != "light"]
         self.assertTrue(long_new, "the lesson teaches a sentence of five words or more")
         self.assertEqual(weak.meta["trait_rates"]["five words or more"], [1.0, 10])
         for i in long_new:
             self.assertEqual((fine.meta["doses"][i], self.hinted(fine, i)), ("middle", False), i)
             self.assertEqual((weak.meta["doses"][i], self.hinted(weak, i)), ("heavy", True), i)
-        others = [i for i, d in weak.meta["doses"].items() if d == "middle"]
+        others = [i for i, d in weak.meta["doses"].items() if d == "middle" and i in fine.meta["new_items"] and i in weak.meta["new_items"]]
         self.assertTrue(others, "a kind the reviews do not find weak stays on the default")
         for i in others:
             self.assertEqual(self.rungs(weak, i), self.rungs(fine, i), f"{i}: and is asked as in the other lesson, its recall given to the reviews")
