@@ -8,6 +8,7 @@ multiplier or a fixed prompt does not re-synthesize unchanged lines.
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import os
@@ -241,9 +242,13 @@ def render_script(
             if not ref:
                 try:
                     ref.append(_cached(provider, cache, *fallback, profile.trim, held).seconds)
-                except Exception:  # noqa: BLE001: no reference, no comparison
+                except Exception as e:  # noqa: BLE001: the profile's voice cannot say the line, so it cannot stand in for it either
+                    # review of #578: said, never silently; the clip is used unchecked (there is no other voice to say it), and a short one
+                    # was put aside when a render could check it
+                    print(f"warning: {req[0]!r} in {prov.name}'s voice could not be checked against the profile's voice ({e}); used unchecked",
+                          file=sys.stderr, flush=True)
                     ref.append(0.0)
-            return clip.seconds < OWN_VOICE_MIN_SHARE * ref[0]
+            return bool(ref[0]) and clip.seconds < OWN_VOICE_MIN_SHARE * ref[0]
 
         try:
             return _cached(prov, cache, *req, profile.trim, held, short=short), True
@@ -457,13 +462,17 @@ def _cached(provider: Provider, cache: Path, text: str, lang: str, voice: str, r
     because it still looks cut off, so the render asks the service for it once, not at every line that says it (review of #466).
 
     ``short`` (a speaker's own provider, ``OWN_VOICE_MIN_SHARE``): whether a clip is too short against the profile's voice. A cached clip it
-    flags is synthesized again; a line it flags twice raises ``ShortClip`` and is not cached."""
+    flags is put aside (renamed ``.wav.bad``, as by hand, review of #578: a render that cannot check it later must not find it) and
+    synthesized again; a line it flags twice raises ``ShortClip`` and is not cached."""
     path = _cache_path(provider, cache, text, lang, voice, rate, trim)
     if path.exists():
         clip = read_wav(path)
         if short is None or not short(clip):
             return clip
-        print(f"warning: the cached {text!r} ({clip.seconds:.2f} s) is too short against the profile's voice; synthesized again", file=sys.stderr, flush=True)
+        print(f"warning: the cached {text!r} ({clip.seconds:.2f} s) is too short against the profile's voice; put aside as {path.name}.bad and "
+              "synthesized again", file=sys.stderr, flush=True)
+        with contextlib.suppress(FileNotFoundError):  # another render of a shared cache may have put it aside first
+            os.replace(path, path.with_name(path.name + ".bad"))
     elif held is not None and path in held:
         return held[path]
 

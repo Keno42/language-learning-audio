@@ -240,6 +240,33 @@ class ShortOwnVoiceTests(unittest.TestCase):
             self.assertEqual(len(realtime.asked), 1)
             self.assertIn("too short against the profile's voice", err)
             self.assertAlmostEqual(renderer.read_wav(key).seconds, 0.6, places=2)
+            self.assertAlmostEqual(renderer.read_wav(key.with_name(key.name + ".bad")).seconds, 0.3, places=2, msg="put aside, as by hand")
+
+    def test_a_short_cached_clip_is_not_found_again_by_a_render_that_cannot_check_it(self):
+        """Review of #578: a cached «staðu» found short, whose replacements came back short too, stayed on disk; a later render whose
+        reference (the profile's voice) failed took every clip as long enough, and played it. It is put aside when found, and a render
+        that cannot check says so."""
+
+        class NoReference(Voice):
+            def synthesize(self, text, lang, voice, rate=1.0):
+                if text == "Hlustaðu.":
+                    raise RuntimeError("edge is unavailable")
+                return super().synthesize(text, lang, voice, rate)
+
+        with tempfile.TemporaryDirectory() as td:
+            cache = Path(td) / "cache"
+            cache.mkdir()
+            key = renderer._cache_path(Lengths("realtime", 2000, [0.3]), cache, "Hlustaðu.", "is", "cedar", 1.0, True)
+            renderer.write_wav(tone(2000, 0.3), key)  # cached before the check existed
+            err = self.render(Voice("main", 8000), Lengths("realtime", 2000, [0.3]), cache)
+            self.assertIn("put aside", err)
+            self.assertFalse(key.exists(), "short, and its replacements short: nothing left under its key")
+            no_ref = NoReference("main", 8000)
+            renderer._cache_path(no_ref, cache, "Hlustaðu.", "is", "B", 1.0, True).unlink()  # the reference not cached, and edge down
+            later = Lengths("realtime", 2000, [0.6])
+            err = self.render(no_ref, later, cache)
+            self.assertEqual(len(later.asked), 1, "the short clip is not found again: the line is asked anew")
+            self.assertIn("could not be checked against the profile's voice", err)
 
     def test_a_clip_as_short_as_the_shortest_whole_one_is_kept(self):
         with tempfile.TemporaryDirectory() as td:
