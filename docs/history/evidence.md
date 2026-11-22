@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.49 (lessons 1–59), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.50 (lessons 1–60), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -2043,3 +2043,45 @@ Six behaviour PRs, against the two between lessons that §9 "Governance" allows;
 
 **This round:** the long run's step, #429 step 4: a cue's frame («Say:», «How do you say:») in Icelandic once taught, the authored phrases
 running out in lesson 62 (#557). No remark to answer; the second place goes to reading the pace (H9) on the next two lessons.
+
+### 5.50 Lesson 60: the first lesson built with #556 (data)
+
+Lesson 60 was generated with LLA `5562255` (main with #556, before #557), the bot at site_update_notifier `3151860`, `--instructions gradual`.
+Rebuilt from its export it is identical (115 exercises, 30.0 minutes; the script byte for byte). No behaviour PR was merged between lesson 59
+and lesson 60, so lesson 60 has no new behaviour to tell apart; #557 is first built in lesson 61.
+
+| | lesson 60 |
+|---|---|
+| length | 30.0 min, 115 exercises |
+| new items; new components, weighted (target) | 11; 8.5 (8) |
+| theme (level) | hotel (3), the first level of #556's batch |
+| lesson 59's new items in the review | **5 of 11 recalled**; 2 hesitated, 4 not recalled |
+| items reviewed / due | 67 due by date, 52 the lesson could ask; **18 not fitted**; 39 practised |
+| conversations | 4: the hotel's two plays, the town's sixth level and «innritun» heard again |
+| pick-outs; catches | 2; 0 |
+| written review's queue | 141 due |
+| feedback form: load; friction | **right**; other (the note) |
+| «sooner» | «Mér finnst leiðinlegt að …», to remember |
+
+- **The remark (the written review):** «Your friend suggests a taxi. Say you'll go by bus instead.» asked for «Við förum með strætó.». The
+  learner couldn't work the answer out from the cue (*文脈依存度が大きくてわからない*) and rated it «hesitated». The English «you» can't tell
+  «ég» from «við», and the course holds both: «Ég fer á morgun.» and «Við förum á morgun.» had the same instruction. The family is
+  meaning-gloss (a cue that leaves its answer open), and it recurs: lesson 51's «it». Answered by one check across the course (#559):
+  `validate` fails on a «Við» answer whose cue names no group, and on a «Þú» answer whose cue talks about the person instead of to them. It
+  found four cues.
+- **The pace (H9):**
+  - Lesson 59's new items, at a target of 9, were recalled 5 of 11 (lesson 58's 2 of 12, lesson 57's 10 of 12).
+  - The four failures were «Hvar er strætóstöðin?», «ferjan», «Ég missti af strætó.» and «Hafið þið laust herbergi?». The last two were
+    reported hard to hear after lesson 59, and three of the four had #529's heavy dose.
+  - The target fell to 8, and lesson 60 still left 18 of the 52 due items it could ask.
+  - `trait_rates` reads «a long word» at 33% (of 9) and «difficulty 3 or more» at 19% (of 52); #529 gave two of lesson 60's new items the
+    heavy dose.
+- **#556 played:** the hotel's third level (a room for a night, the price, breakfast). 4 of the 11 new items were said as its turns, and 8
+  were inside the scene. On the replay of the export the new levels go on: the hotel's fourth in lesson 61, then the café's and the tour's
+  fifth, then the hotel's fifth.
+- **The long run, #429:** «Aftur að tala.» was taught at 00:15, and 34 instructor lines were said in Icelandic (lesson 59, by the same count:
+  33). No remark on them.
+
+**This round:** the long run's step, #429 step 5 (#560): «Kláraðu setninguna:» for a cloze's «Complete the sentence to say:» and «Eitthvað nýtt.» for «Something new.», the
+instructor's most frequent English lines once «Segðu:» and «Hvernig segir maður:» are taught; taught in lessons 65 and 66 on the replay. Beside it, the remark's check (#559, data and `validate`). The pace rule doesn't change: the rule is already
+lowering the target, and lesson 60's own new items, at a target of 8, are read first.

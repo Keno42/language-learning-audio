@@ -1037,6 +1037,25 @@ family = "pick-out-turns"
 class = "twenty"
 answered_by = ["#573"]
 
+[[lesson]]
+n = 63
+form = true
+load = "right"
+built = ["#572", "#573", "#575", "#576", "#577", "#578"]
+long_run = ["#572"]
+
+[[lesson]]
+n = 64
+form = true
+load = "right"
+
+[[lesson.remarks]]
+who = "main"
+text = "The instructor's audio for lines such as «Samtalinu er lokið.» alone seems to stay high in tension. (Since lesson 63 every Icelandic instruction is said by OpenAI's realtime voice «cedar» with the plain prompt of #577; each line is one take, cached and replayed: «Samtalinu er lokið.» four times in lesson 64, each the same clip. A take is not checked for its tone, only for its words: #563.)"
+family = "instruction-voice"
+class = "twenty"
+answered_by = []
+
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
 [[change]]
@@ -1925,6 +1944,8 @@ title = "a cue's frame in Icelandic once taught: «Segðu:» and «Hvernig segir
 issue = ["#429"]
 pr = ["#557"]
 family = "instruction-language"
+first_heard = 63
+heard = "«Segðu:» taught at the start of lesson 63 and said 28 times, «Say:» after it; «Hvernig segir maður:» taught in lesson 64 and said 33 times"
 
 [[change]]
 title = "a cloze's and a new item's frame in Icelandic once taught: «Kláraðu setninguna:» and «Eitthvað nýtt.» (#429 step 5: #560)"
@@ -1959,3 +1980,25 @@ pr = ["#570"]
 family = "sayable-heard"
 first_heard = 62
 heard = "«Hvar er morgunmaturinn?» asked at 04:05; heard-only lines 0 on the rebuild"
+
+[[change]]
+title = "the form work's own lines in Icelandic once taught: «Segðu hverja setningu.» and «Æfingunni er lokið.» (#429 step 6: #572)"
+issue = ["#429"]
+pr = ["#572"]
+family = "instruction-language"
+
+[[change]]
+title = "the form work opens with a line of its own: the authored contrast «One noun, two forms.», and a check over every block (#573)"
+issue = ["#548"]
+pr = ["#573"]
+family = "pick-out-turns"
+first_heard = 63
+heard = "four form-work blocks in lesson 63 and three in 64, each opening with its own line; the replay's row of unmarked turns 0"
+
+[[change]]
+title = "the instructions in Icelandic in a voice of their own: OpenAI's realtime model «cedar», at the lesson's loudness, in a plain tone; a clip far shorter than the profile's voice said again (#563: #575, #576, #577, #578)"
+issue = ["#563"]
+pr = ["#575", "#576", "#577", "#578"]
+family = "instruction-voice"
+first_heard = 63
+heard = "82 instruction lines in lesson 63 and 116 in 64 in the new voice; no remark after 63, «Samtalinu er lokið.» heard as too high in tension after 64"
