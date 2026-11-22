@@ -542,7 +542,7 @@ class LearnerState:
                     stage="meaning", ease=2.3, interval_days=3, due=(today + timedelta(days=3)).isoformat(),
                     last_practiced=today.isoformat(), introduced_lesson=lesson, successes=1, durable_successes=1,
                     recalled=1, last_outcome="recalled", exposures=1,
-                    history=[{"lesson": lesson, "stages": ["embed"], "ok": True, "outcome": "recalled"}],
+                    history=[{"lesson": lesson, "stages": ["embed"], "ok": True, "outcome": "recalled", "reviewed": today.isoformat()}],  # #579
                 )
                 changed["recalled"].append(item_id)
             else:
@@ -557,7 +557,7 @@ class LearnerState:
                 stage="meaning", ease=2.3, interval_days=3, due=(today + timedelta(days=3)).isoformat(),
                 last_practiced=today.isoformat(), introduced_lesson=lesson, successes=1, durable_successes=1,
                 recalled=1, last_outcome="recalled", exposures=1,
-                history=[{"lesson": lesson, "stages": ["tried"], "ok": True, "outcome": "recalled"}],
+                history=[{"lesson": lesson, "stages": ["tried"], "ok": True, "outcome": "recalled", "reviewed": today.isoformat()}],  # #579
             )
             changed["recalled"].append(item_id)
         untouched = {i for i in failed + hesitated if i in self.tried and i not in self.items}

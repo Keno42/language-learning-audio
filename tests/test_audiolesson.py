@@ -9674,6 +9674,16 @@ class PacingTests(unittest.TestCase):
         self.assertEqual(learner.recall_rate(), (1.5, 4), "the next-day outcomes stand")
         self.assertEqual((learner.items["i1_0"].last_outcome, learner.items["i1_1"].last_outcome), ("hesitated", "recalled"), "the item moves on")
         self.assertEqual([e["outcome"] for e in learner.items["i1_0"].history], ["not_recalled"])
+        # review of #582: an embedded or tried item's entry, made by its first review, keeps that review's outcome too
+        for pending in ("embedded", "tried"):
+            first = self._rated([["r"] * 3])
+            first.lessons[0]["new_items"].append("x")
+            getattr(first, pending)["x"] = 1
+            first.report([], [], TODAY, 1, recalled=["x"])
+            first.report(["x"], [], later, 1)
+            self.assertEqual([(e["lesson"], e["outcome"]) for e in first.items["x"].history], [(1, "recalled")], pending)
+            self.assertEqual(first.items["x"].last_outcome, "not_recalled", f"{pending}: the item moves on")
+            self.assertEqual(first.recall_rate(), (0, 4), pending)
         again = self._rated([["r"] * 4])
         again.report(["i1_0"], [], TODAY, 1)
         again.report([], [], TODAY, 1, recalled=["i1_0"])  # corrected the same day
