@@ -772,8 +772,8 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
 
 - **Pace.**
   - It never depends on the departure date. Lessons go on at the same best-effort pace before and during the trip,
-    throttled only by what the learner reports (owner; #129, #131): recall over the last three reported lessons (up at
-    ≤ 15% failures, down above 25%) and the feedback form's load rating (`report --load`; #218 part a, built).
+    throttled only by what the learner reports (owner; #129, #131): next-day recall over the last three reported lessons (up at
+    ≤ 15% failures, down above 25%; a later review moves the item, never the lesson's next-day outcome: #579, owner 2026-11-22) and the feedback form's load rating (`report --load`; #218 part a, built).
   - **The unit is weighted new components, not new items** (#218 part b, owner, 2026-10-08; built, #235). An item costs
     the sum of its new components: a new word, a chunk the curriculum treats as one item («taka mynd») or a new pattern,
     its frame's new words included, 1; a new form of a known word w (fitted from next-day failures, 0.5 to start); a

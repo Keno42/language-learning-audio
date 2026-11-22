@@ -542,7 +542,7 @@ class LearnerState:
                     stage="meaning", ease=2.3, interval_days=3, due=(today + timedelta(days=3)).isoformat(),
                     last_practiced=today.isoformat(), introduced_lesson=lesson, successes=1, durable_successes=1,
                     recalled=1, last_outcome="recalled", exposures=1,
-                    history=[{"lesson": lesson, "stages": ["embed"], "ok": True, "outcome": "recalled"}],
+                    history=[{"lesson": lesson, "stages": ["embed"], "ok": True, "outcome": "recalled", "reviewed": today.isoformat()}],  # #579
                 )
                 changed["recalled"].append(item_id)
             else:
@@ -557,7 +557,7 @@ class LearnerState:
                 stage="meaning", ease=2.3, interval_days=3, due=(today + timedelta(days=3)).isoformat(),
                 last_practiced=today.isoformat(), introduced_lesson=lesson, successes=1, durable_successes=1,
                 recalled=1, last_outcome="recalled", exposures=1,
-                history=[{"lesson": lesson, "stages": ["tried"], "ok": True, "outcome": "recalled"}],
+                history=[{"lesson": lesson, "stages": ["tried"], "ok": True, "outcome": "recalled", "reviewed": today.isoformat()}],  # #579
             )
             changed["recalled"].append(item_id)
         untouched = {i for i in failed + hesitated if i in self.tried and i not in self.items}
@@ -571,9 +571,15 @@ class LearnerState:
         def note_outcome(st: ItemState, outcome: str) -> None:
             st.last_outcome = outcome
             entry = next((e for e in reversed(st.history) if e.get("lesson") == lesson_number), None) if lesson_number is not None else None
-            if entry is not None:  # by number: a later lesson has appended its own entry (#218)
+            # by number: a later lesson has appended its own entry (#218). #579 (lessons 62–64): the entry keeps the first review's outcome, the
+            # next-day one the pace reads (H9, ``_lesson_weakness``). A later review that names the lesson as its source (the bot passes the
+            # card's lesson) updates the item, not the entry: before, «höfuðverk», not recalled the day after lesson 62, read «hesitated» once
+            # asked again, and lesson 64's target rose on 15% weak where the next-day reviews said 21%. A report the same day (a correction)
+            # still replaces it; an entry with no ``reviewed`` day (recorded before #579) takes the next report as it always did
+            if entry is not None and entry.get("reviewed", today.isoformat()) == today.isoformat():
                 entry["ok"] = outcome != "not_recalled"
                 entry["outcome"] = outcome
+                entry["reviewed"] = today.isoformat()
 
         for item_id in (*failed, *hesitated, *recalled):
             if (st := state(item_id)) is not None:
