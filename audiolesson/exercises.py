@@ -2363,7 +2363,11 @@ class Builder:
         """An aside, no retrieval, bookended so it isn't mistaken for the next exercise. A
         milestone gets its own framing: it is part of the lesson, not a detour."""
         ex = sc.new_exercise("note", None, list(note.items), f"note: {note.id}")
-        self._frame(sc, ex, self.prompts.get("milestone_intro" if note.milestone or note.teaches else "aside"))
+        milestone = note.milestone or note.teaches
+        if milestone:
+            self._frame(sc, ex, self.prompts.get("milestone_intro"))
+        else:
+            self._instruct(sc, ex, "aside", frame=True)  # #429 step 7: «Smá útúrdúr.» once taught; before, «A quick aside.» as always
         self._speak_note_text(sc, ex, note.text)
         if note.parts:
             self._beat(sc, ex)
@@ -2380,7 +2384,10 @@ class Builder:
                 self._speak(sc, ex, group[-1], speaker="native_a")
                 self._repeat_pause(sc, ex, group[-1])
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("milestone_end" if note.milestone or note.teaches else "aside_end"))
+        if milestone:
+            self._narr(sc, ex, self.prompts.get("milestone_end"))
+        else:
+            self._instruct(sc, ex, "aside_end")  # #429 step 7: «Aftur að efninu.» once taught, as «Aftur að tala.» ends a listening task
         self._gap(sc, ex)
         return ex
 

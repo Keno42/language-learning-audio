@@ -403,11 +403,50 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(block(60), [("speak", "Segðu hverja setningu.")], "from the third lesson, the Icelandic alone")
         self.assertEqual(block(68), [("speak", "Segðu hverja setningu."), ("narrate", "Now say each one.")], "the English after it the lesson after")
 
+    def test_an_aside_says_its_own_lines_in_icelandic_once_taught(self):
+        """#429 step 7 (lessons 64–71 on the replay of lesson 64's export, the form work's lines taught in lessons 67 and 68: «A quick aside.» and
+        «Back to the lesson.» 19 times each in eight lessons, the most frequent English instructions left that an authored phrase can say): an
+        aside opens on «Smá útúrdúr.» and ends on «Aftur að efninu.», with the English after each in the lesson that teaches it and the next,
+        alone from the third; the end is still the aside's last line (``unmarked_turns``). A milestone keeps its own lines in English."""
+        from audiolesson.content import Note
+        from audiolesson.transitions import unmarked_turns
+
+        en = Prompts.load("en")
+        start = next(i for i in self.cur.items if i.command == "aside")
+        end = next(i for i in self.cur.items if i.command == "aside_end")
+        self.assertEqual((start.target, end.target), ("Smá útúrdúr.", "Aftur að efninu."))
+
+        def aside(introduced, milestone=False):
+            learner = LearnerState("is", "en", "A1")
+            learner.lessons_completed = 70
+            for i in (start, end):
+                if introduced is not None:
+                    learner.items[i.id] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", introduced_lesson=introduced)
+            b = builder(self.cur, learner=learner)
+            sc = Script(71, "t", "is", "en")
+            b.note(sc, Note(id="n", text="Some cultural fact.", milestone=milestone))
+            return sc, [(g.type, g.text) for g in sc.segments if g.type != "pause"]
+
+        sc, alone = aside(60)
+        self.assertEqual(alone, [("speak", "Smá útúrdúr."), ("narrate", "Some cultural fact."), ("speak", "Aftur að efninu.")],
+                         "from the third lesson, the Icelandic alone")
+        self.assertTrue(all(g.speaker == COMMAND_VOICE for g in sc.segments if g.type == "speak"))
+        self.assertEqual(unmarked_turns(sc, en), [], "«Aftur að efninu.» is the aside's end line")
+        _, supported = aside(70)
+        self.assertEqual(supported, [("speak", "Smá útúrdúr."), ("narrate", en.get("aside")), ("narrate", "Some cultural fact."),
+                                     ("speak", "Aftur að efninu."), ("narrate", en.get("aside_end"))], "the lesson after: the English after each")
+        _, before = aside(None)
+        self.assertEqual(before, [("narrate", en.get("aside")), ("narrate", "Some cultural fact."), ("narrate", en.get("aside_end"))],
+                         "before it is taught, as always")
+        _, milestone = aside(60, milestone=True)
+        self.assertEqual(milestone, [("narrate", en.get("milestone_intro")), ("narrate", "Some cultural fact."), ("narrate", en.get("milestone_end"))])
+
     def test_the_commands_come_one_a_lesson_in_their_order(self):
         order = [i.id for i in self.cur.items if i.command]
         self.assertEqual(order, ["endurtaktu", "hlustadu", "haegt_command", "hlustadu_aftur", "edlilegum_hrada_command", "svarid_command",
                                  "aftur_ad_tala_command", "samtalinu_lokid_command", "stutt_samtal_command", "segdu_command", "hvernig_segir_madur_command",
-                                 "klaradu_setninguna_command", "eitthvad_nytt_command", "segdu_hverja_setningu_command", "aefingunni_lokid_command"],
+                                 "klaradu_setninguna_command", "eitthvad_nytt_command", "segdu_hverja_setningu_command", "aefingunni_lokid_command",
+                                 "sma_utudur_command", "aftur_ad_efninu_command"],
                          "lesson 54's then lesson 57's, by how often the lessons say them")
         learner = LearnerState("is", "en", "A1")
         for i in ("endurtaktu", "hlustadu"):
