@@ -37,7 +37,7 @@ In order:
    lines, «Segðu hverja setningu.» for «Now say each one.» and «Æfingunni er lokið.» for «That's the end of the form work.», said as «Samtalinu er
    lokið.» is. Lessons 63 and 64 (LLA `e01e55d`) taught «Segðu:» and «Hvernig segir maður:» and said 82 and 116 instructor lines in Icelandic,
    in a voice of their own since #575–#578 (OpenAI's realtime «cedar», #563). On the replay of lesson 64's export the frames of step 5 and the
-   lines of step 6 come in lessons 65–68, and from lesson 69 no authored phrase is left. **This round (step 7):** an aside's own lines, «Smá
+   lines of step 6 come in lessons 65–68, and from lesson 69 no authored phrase is left. **This round (step 7, #580):** an aside's own lines, «Smá
    útúrdúr.» for «A quick aside.» and «Aftur að efninu.» for «Back to the lesson.» (19 each in lessons 64–71 on the replay), taught in lessons
    69 and 70; a milestone's lines stay in English. **Then (step 8):** the next most frequent English lines an authored phrase can say on that
    replay: «Let's build it up from the end.» (13) and a component's «These words are in it:» / «This word is in it:» (24).
@@ -79,7 +79,7 @@ In order:
 4. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 5. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
-**This round:** after lessons 63 and 64, one behaviour PR, the long run's step 7. The remark (the instruction voice's takes, #563) and the
+**This round:** after lessons 63 and 64, one behaviour PR, the long run's step 7 (#580). The remark (the instruction voice's takes, #563) and the
 pace's lever (#579) wait for the owner's choice; neither is built.
 
 ## Now (updated 2026-11-22, after lessons 63 and 64), in order

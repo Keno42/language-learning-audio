@@ -427,7 +427,7 @@ same revision. There is one subsection for both, because one round reads them.
   set by its verb, and one for an adjective (#548).
 - **The other learner:** no new export since lesson 32 (2026-11-14).
 
-**This round:** the long run's step, #429 step 7: an aside's own lines, «Smá útúrdúr.» for «A quick aside.» and «Aftur að efninu.» for «Back
+**This round:** the long run's step, #429 step 7 (#580): an aside's own lines, «Smá útúrdúr.» for «A quick aside.» and «Aftur að efninu.» for «Back
 to the lesson.» (19 each in lessons 64–71 on the replay), the most frequent English instructions an authored phrase can still say; taught in
 lessons 69 and 70. No second behaviour PR: the remark's answer (#563) and the pace's lever (#579) are the owner's choice.
 
