@@ -9662,6 +9662,23 @@ class PacingTests(unittest.TestCase):
         self.assertEqual([(e["lesson"], e["ok"]) for e in learner.items["i1_0"].history], [(1, False), (2, True)])
         self.assertEqual(learner.recall_rate(), (1, 4))
 
+    def test_the_rate_keeps_the_next_day_outcome(self):
+        """#579 (lessons 62–64): a later review that names the lesson as its source updates the item, not the lesson's entry, so the pace reads
+        the next-day outcome. Lesson 62's «höfuðverk», not recalled the next day and hesitated at its next ask, still counts as failed; a
+        report the same day (a correction) replaces the outcome."""
+        learner = self._rated([["r"] * 4])
+        learner.report(["i1_0"], [], TODAY, 1, hesitated=["i1_1"])
+        self.assertEqual(learner.recall_rate(), (1.5, 4))
+        later = TODAY + timedelta(days=2)
+        learner.report([], [], later, 1, hesitated=["i1_0"], recalled=["i1_1"])
+        self.assertEqual(learner.recall_rate(), (1.5, 4), "the next-day outcomes stand")
+        self.assertEqual((learner.items["i1_0"].last_outcome, learner.items["i1_1"].last_outcome), ("hesitated", "recalled"), "the item moves on")
+        self.assertEqual([e["outcome"] for e in learner.items["i1_0"].history], ["not_recalled"])
+        again = self._rated([["r"] * 4])
+        again.report(["i1_0"], [], TODAY, 1)
+        again.report([], [], TODAY, 1, recalled=["i1_0"])  # corrected the same day
+        self.assertEqual(again.recall_rate(), (0, 4))
+
     def test_an_embedded_item_that_failed_counts_as_weak(self):
         learner = self._rated([["r"] * 3])
         learner.lessons[0]["new_items"].append("emb")

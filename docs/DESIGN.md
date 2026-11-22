@@ -491,7 +491,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   `sooner_skipped` (its next-day review decides it), and the lesson is not marked reported, so the pace still waits for evidence (H2).
 - **The pace reads three lessons and a load rating (#218, part a).** `recall_rate()` sums weak/new items over the last three
   `lessons[]` entries in `reported` (each item's entry is found by lesson number, never `history[-1]`; an embedded item in `embed_failed`
-  is weak). `suggest_pace`: up at ≤ 15% with a small backlog, hold to 25%, down above. `report --load light|right|heavy` stores
+  is weak). The entry keeps its first review's outcome and day (`reviewed`): a later review that names the lesson updates the item only, and a report the same day replaces it (#579). `suggest_pace`: up at ≤ 15% with a small backlog, hold to 25%, down above. `report --load light|right|heavy` stores
   `lessons[k]["load"]`; like `--sooner` alone it does not mark the lesson reported. Two «light» lessons raise it at ≤ 25% with the same small-backlog condition (< 0.5) as the recall-based rise; an unrated lesson is skipped (it neither breaks nor extends the run); a «heavy» in the
   window blocks a rise; one step a lesson. `report --load` for a lesson not in `lessons[]` warns on stderr.
 - **Spare time serves the scene and the ear (#238).** `ItemState.last_reviewed` (set by `report` for failed / hesitated / recalled, not by `--sooner`)
