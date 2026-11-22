@@ -3,6 +3,7 @@ language. A pilot teaches two instructions in Icelandic, «Endurtaktu.» (repeat
 material; then each is said in an Icelandic voice in every exercise that says it, with the learner's own after it in the lesson that teaches it and
 the next (the owner after lesson 56: no complaint, which comes only in a lesson's feedback, is understanding), and again after a failure."""
 import unittest
+from dataclasses import replace
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -432,6 +433,11 @@ class CommandTests(unittest.TestCase):
                          "from the third lesson, the Icelandic alone")
         self.assertTrue(all(g.speaker == COMMAND_VOICE for g in sc.segments if g.type == "speak"))
         self.assertEqual(unmarked_turns(sc, en), [], "«Aftur að efninu.» is the aside's end line")
+        # review of #580: another instruction in its place is no end line
+        wrong = [(k, g) for k, g in enumerate(sc.segments) if g.text == "Aftur að efninu."]
+        k, g = wrong[-1]
+        sc.segments[k] = replace(g, text="Endurtaktu.", role="command")
+        self.assertEqual(unmarked_turns(sc, en), ["note: n: no end line"], "an aside that ends on «Endurtaktu.» has no end line")
         _, supported = aside(70)
         self.assertEqual(supported, [("speak", "Smá útúrdúr."), ("narrate", en.get("aside")), ("narrate", "Some cultural fact."),
                                      ("speak", "Aftur að efninu."), ("narrate", en.get("aside_end"))], "the lesson after: the English after each")
