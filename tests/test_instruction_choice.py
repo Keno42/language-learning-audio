@@ -16,7 +16,7 @@ TODAY = date(2026, 3, 1)
 ROOT = Path(__file__).resolve().parent.parent
 COMMANDS = ["endurtaktu", "hlustadu", "haegt_command", "hlustadu_aftur", "edlilegum_hrada_command", "svarid_command", "aftur_ad_tala_command",
             "samtalinu_lokid_command", "stutt_samtal_command", "segdu_command", "hvernig_segir_madur_command",
-            "klaradu_setninguna_command", "eitthvad_nytt_command", "segdu_hverja_setningu_command", "aefingunni_lokid_command"]
+            "klaradu_setninguna_command", "eitthvad_nytt_command", "segdu_hverja_setningu_command", "aefingunni_lokid_command", "sma_utudur_command", "aftur_ad_efninu_command"]
 
 
 class InstructionChoiceTests(unittest.TestCase):

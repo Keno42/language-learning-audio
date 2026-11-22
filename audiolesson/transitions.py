@@ -191,7 +191,9 @@ def unmarked_turns(sc: Script, prompts: Prompts) -> list[str]:
         if not lines:
             continue
         ends = END_LINES.get(mode(e))
-        if ends and not any(lines[-1].text in _templates(prompts, key) for key in ends):
+        # #429 step 7: an aside's end said in the target language once taught («Aftur að efninu.», role ``aside_end``, ``Builder._instruct``);
+        # another instruction in its place («Endurtaktu.», role ``command``) is no end line (review of #580)
+        if ends and lines[-1].role not in ends and not any(lines[-1].text in _templates(prompts, key) for key in ends):
             out.append(f"{e.label}: no end line")
         if mode(e) == "form" and lines[0].role != "frame":
             out.append(f"{e.label}: the form work opens with no line of its own")

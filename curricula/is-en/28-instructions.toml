@@ -11,7 +11,10 @@
 # two taught, the lines left run out in lesson 64) for the next frames, «Kláraðu setninguna:» (a cloze's «Complete the sentence to say:»: 5–13
 # a lesson) and «Eitthvað nýtt.» (a new item's «Something new.»: 2–6), said the same way; lessons 63–69 on the replay of lesson 62's export
 # (the frames taught, the lines left run out in lesson 66) for the form work's own lines, «Segðu hverja setningu.» («Now say each one.»: 26
-# times in eight lessons) and «Æfingunni er lokið.» (its way back, «That's the end of the form work.»: 15, said as «Samtalinu er lokið.» is).
+# times in eight lessons) and «Æfingunni er lokið.» (its way back, «That's the end of the form work.»: 15, said as «Samtalinu er lokið.» is);
+# lessons 64–71 on the replay of lesson 64's export (the form work's lines taught in lessons 67 and 68, none left from lesson 69) for an aside's
+# own lines, «Smá útúrdúr.» («A quick aside.»: 19 times in eight lessons) and «Aftur að efninu.» («Back to the lesson.»: 19, which builds on
+# «Aftur að tala.»). A milestone's «Here's a pattern worth noticing.» and «Let's continue.» stay in English.
 # Candidates until native-checked (#209).
 
 [[items]]
@@ -193,3 +196,27 @@ meaning_spoken_ja = "「形の練習はここまでです」"
 difficulty = 1
 topics = ["instructions"]
 command = "form_back"
+
+[[items]]
+id = "sma_utudur_command"
+kind = "phrase"
+target = "Smá útúrdúr."
+meaning = "A quick aside"
+meaning_ja = "「ちょっと余談です」"
+meaning_spoken = "A quick aside"
+meaning_spoken_ja = "「ちょっと余談です」"
+difficulty = 1
+topics = ["instructions"]
+command = "aside"
+
+[[items]]
+id = "aftur_ad_efninu_command"
+kind = "phrase"
+target = "Aftur að efninu."
+meaning = "Back to the lesson, after an aside"
+meaning_ja = "余談のあとの「レッスンに戻ります」"
+meaning_spoken = "Back to the lesson, after an aside"
+meaning_spoken_ja = "余談のあとの「レッスンに戻ります」"
+difficulty = 1
+topics = ["instructions"]
+command = "aside_end"

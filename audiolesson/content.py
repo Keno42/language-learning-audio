@@ -859,9 +859,9 @@ def _slot_names(text: str) -> list[str]:
 # of the conversation.» (``transitions.WAYS_BACK_SAID``); step 3: a conversation's opening, «Now a short conversation.»
 # (``transitions.OPENING_SAID``); step 4: a cue's frame, «Say:» and «How do you say:» (``exercises.cue_frames``); step 5: a cloze's «Complete the
 # sentence to say:» and a new item's «Something new.», framed the same way; step 6: the form work's «Now say each one.» and its way back, «That's
-# the end of the form work.»
+# the end of the form work.»; step 7: an aside's own lines, «A quick aside.» and «Back to the lesson.» (``Builder.note``)
 COMMAND_KEYS = ("repeat", "listen", "slowly", "pick_out_again", "natural", "pick_out_answer", "listening_back", "conversation_back", "dialogue_start",
-                "say_frame", "how_say_frame", "cloze_frame", "new_frame", "number_choice_say", "form_back")
+                "say_frame", "how_say_frame", "cloze_frame", "new_frame", "number_choice_say", "form_back", "aside", "aside_end")
 PROBE_KINDS = ("price", "time", "count", "place", "duration", "number", "temperature")  # what an information probe asks to listen for (#248); "number": a number used as a name, a room, a bus, a code (#451 step 2c); "temperature" (#451 step 2d)
 FORMS = ("negative", "question")  # a construction's authored forms besides the plain one (#171)
 

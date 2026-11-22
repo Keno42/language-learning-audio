@@ -473,11 +473,12 @@ class Builder:
             return True  # taught in this lesson, or failing
         return self.learner.next_lesson_number() - st.introduced_lesson < COMMAND_SUPPORT_LESSONS
 
-    def _instruct(self, sc: Script, ex: Exercise, key: str, frame: bool = False) -> None:
+    def _instruct(self, sc: Script, ex: Exercise, key: str, frame: bool = False, role: str | None = None) -> None:
         """An instruction (``key``, a phrasing key): in the target language once taught («Endurtaktu.»), with the learner's own after it while
         ``command_support`` holds («Endurtaktu.» «Repeat.»); alone, a beat keeps it apart from the line it introduces. Before it is taught,
         the learner's own, as always. ``frame``: the instruction is a framing line («Listen again.», ``_frame``), so a beat follows it in
-        either language."""
+        either language. ``role``: the line keeps it on both segments once taught (an aside's end, which ``transitions.unmarked_turns`` reads
+        by its role), as ``command_segments`` does for a way back; else ``command`` and ``command_support``."""
         item = self.command_item(key)
         if item is None:
             if frame:
@@ -485,9 +486,9 @@ class Builder:
             else:
                 self._narr(sc, ex, self.prompts.get(key))
             return
-        self._speak(sc, ex, item.target, speaker=COMMAND_VOICE, role="command")
+        self._speak(sc, ex, item.target, speaker=COMMAND_VOICE, role=role or "command")
         if self.command_support(item):
-            self._narr(sc, ex, self.prompts.get(key), role="command_support")
+            self._narr(sc, ex, self.prompts.get(key), role=role or "command_support")
             if frame:
                 self._beat(sc, ex)
         else:
@@ -2363,7 +2364,11 @@ class Builder:
         """An aside, no retrieval, bookended so it isn't mistaken for the next exercise. A
         milestone gets its own framing: it is part of the lesson, not a detour."""
         ex = sc.new_exercise("note", None, list(note.items), f"note: {note.id}")
-        self._frame(sc, ex, self.prompts.get("milestone_intro" if note.milestone or note.teaches else "aside"))
+        milestone = note.milestone or note.teaches
+        if milestone:
+            self._frame(sc, ex, self.prompts.get("milestone_intro"))
+        else:
+            self._instruct(sc, ex, "aside", frame=True)  # #429 step 7: «Smá útúrdúr.» once taught; before, «A quick aside.» as always
         self._speak_note_text(sc, ex, note.text)
         if note.parts:
             self._beat(sc, ex)
@@ -2380,7 +2385,10 @@ class Builder:
                 self._speak(sc, ex, group[-1], speaker="native_a")
                 self._repeat_pause(sc, ex, group[-1])
         self._beat(sc, ex)
-        self._narr(sc, ex, self.prompts.get("milestone_end" if note.milestone or note.teaches else "aside_end"))
+        if milestone:
+            self._narr(sc, ex, self.prompts.get("milestone_end"))
+        else:
+            self._instruct(sc, ex, "aside_end", role="aside_end")  # #429 step 7: «Aftur að efninu.» once taught, as «Aftur að tala.» ends a listening task
         self._gap(sc, ex)
         return ex
 
