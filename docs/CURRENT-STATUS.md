@@ -33,12 +33,14 @@ In order:
    Icelandic, say:» and «Hvernig segir maður:» for «How do you say:», said between the cue's lead and what to say, which stays in the
    learner's language. **Built, step 5 (#560):** «Kláraðu setninguna:» for a cloze's «Complete the sentence to say:» (5–13 a lesson) and
    «Eitthvað nýtt.» for «Something new.» (2–6); from lesson 67 on the replay of lesson 60's export about 111 instructor lines a lesson are in
-   Icelandic (90 without them). Lesson 62 was the first built with both (LLA `f5dc903`), and taught «Nú kemur stutt samtal.»; on its replay «Segðu:» is taught
-   in lesson 63 and the four frames by lesson 66, about 120 instructor lines a lesson in Icelandic from lesson 64. **This round (step 6, #572):**
-   the form work's own lines, «Segðu hverja setningu.» for «Now say each one.» (26 in lessons 63–69 on the replay) and «Æfingunni er lokið.»
-   for its way back, «That's the end of the form work.» (15), said as «Samtalinu er lokið.» is; taught in lessons 67 and 68. **Then (step 7):**
-   «A quick aside.» and «Back to the lesson.» (about 2 a lesson each), and the instructions' own voice (#563, remarked after lessons 61 and 62),
-   which grows with every step.
+   Icelandic (90 without them). Lesson 62 was the first built with both (LLA `f5dc903`), and taught «Nú kemur stutt samtal.». **Built, step 6 (#572):** the form work's own
+   lines, «Segðu hverja setningu.» for «Now say each one.» and «Æfingunni er lokið.» for «That's the end of the form work.», said as «Samtalinu er
+   lokið.» is. Lessons 63 and 64 (LLA `e01e55d`) taught «Segðu:» and «Hvernig segir maður:» and said 82 and 116 instructor lines in Icelandic,
+   in a voice of their own since #575–#578 (OpenAI's realtime «cedar», #563). On the replay of lesson 64's export the frames of step 5 and the
+   lines of step 6 come in lessons 65–68, and from lesson 69 no authored phrase is left. **This round (step 7, #580):** an aside's own lines, «Smá
+   útúrdúr.» for «A quick aside.» and «Aftur að efninu.» for «Back to the lesson.» (19 each in lessons 64–71 on the replay), taught in lessons
+   69 and 70; a milestone's lines stay in English. **Then (step 8):** the next most frequent English lines an authored phrase can say on that
+   replay: «Let's build it up from the end.» (13) and a component's «These words are in it:» / «This word is in it:» (24).
 2. **Forms as choices (#528, owner 2026-11-12).** «New material should not be more numbers, colours and words to memorise; I want to feel a
    coach who makes me choose the right case and the right verb form.» The course itself is one-sided: of 256 sentences that open with a
    subject pronoun, 207 say «ég»; «vilja», «þurfa» and «eiga» exist in one form; the learner has two forms of three nouns. **Built, step 1 (#531):** the
@@ -77,30 +79,27 @@ In order:
 4. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 5. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
-**This round:** after lesson 62, two behaviour PRs. The long run's step 6 (#572), and the answer to the second remark (#573): the authored contrast
-opens with a line of its own, as the other form work does, and the turn check finds a form-work block that opens with none. The voice (#563)
-waits for the owner's choice; it is the second remark of its family in two lessons.
+**This round:** after lessons 63 and 64, one behaviour PR, the long run's step 7 (#580). The remark (the instruction voice's takes, #563) and the
+pace's lever (#579) wait for the owner's choice; neither is built.
 
-## Now (updated 2026-11-20, after lesson 62), in order
+## Now (updated 2026-11-22, after lessons 63 and 64), in order
 
 The remarks' half of each round (LD §9 "Governance"): each remark ranked by how often its cause recurs on the replay of the latest export and
-what a fix costs. The latest export is lesson 62's; the next lesson is 63. Lessons 56–62 were rated «right».
-1. **The instructions' own voice (#563, lessons 61 and 62).** Every instruction in Icelandic is said by the partner's default voice, Gunnar; the
-   learner remarked it after both lessons, and it grows with #429 (about 120 lines a lesson from lesson 64 on the replay). Edge and Azure have
-   two Icelandic voices; the owner asked for another service (2026-11-20). The candidates are on #563: Tiro (Reykjavík University voices,
-   unverified as still served), Amazon Polly's Karl and Dóra (standard voices), ElevenLabs, or Gunnar at a lower pitch. **Next:** the owner's
-   choice of which to sample, by ear; a profile speaker with a provider of its own, then one PR.
-2. **The form work's turns, and its explanation (lesson 62; #548, the owner 2026-11-20).** Built: #573 (the contrast's opening line, and the
-   check over every form-work block). The owner: grammatical explanation should not take audio time, and the four anchor frames go to the bot
-   as text. **Next:** the explanation out of the audio, a block keeping its opening line, its model sentences and its asks: first the number
-   choice's terms (#571); then the anchor card in the bot, and each case form's frame as data (#548's proposal, the owner's choice of when the
-   card comes).
-3. **Three feedbacks without a remark** on how a form-work block starts or ends (#573), and on the form work's lines in Icelandic (#572).
+what a fix costs. The latest export is lesson 64's; the next lesson is 65. Lessons 56–64 were rated «right».
+1. **The instruction voice's takes (#563, lesson 64).** Since lesson 63 every instruction in Icelandic is said by OpenAI's realtime voice «cedar»
+   (#575–#578); lesson 64's note heard lines like «Samtalinu er lokið.» as staying high in tension. Each line is one take, cached and replayed,
+   and a take is checked for its words, not its tone. The third remark of the family (lessons 61, 62, 64). **Next:** the owner's choice on #563;
+   recommended, a retake list the owner fills by ear, then one PR.
+2. **The pace (#579, H9, H5).** Next-day recall under 80% again at a target of 7 or less (lesson 62's items 6 of 9, lesson 63's 3 of 7), six of
+   the seven weak items illness fillers of «Ég er með {…}»; and the pace read 15% weak where the next-day reviews say 21%, so lesson 64's target
+   rose. **Next:** the owner's choice; recommended, the pace counts the next-day outcome (one PR), then similar fillers apart.
+3. **The form work's explanation out of the audio (#548, #571; the owner 2026-11-20).** A block keeps its opening line, its model sentences and
+   its asks: first the number choice's terms (#571); then the anchor card in the bot. Lessons 63 and 64 asked the bot for four reasons, none a
+   noun's case set by a frame («mér» with «líða», «næsta»), so the card needs a line for a form set by its verb and one for an adjective.
+4. **Three feedbacks without a remark** on how a form-work block starts or ends (#573: 63 and 64 so far), on the form work's lines in Icelandic
+   (#572, from lesson 67) and on an aside's (step 7, from lesson 69).
 
-The pace (H9): the owner kept the rule (#564, closed 2026-11-20). Lesson 61's new items were recalled 6 of 7 at a target of 7; recall is read
-each round, and a lever comes back as an issue if it falls under 80% again at a target of 7 or less.
-
-**Alongside:** practice by what is hard in an item (#518, #439, G11): lesson 60's two heavy-dose items were hesitated and not recalled, lesson 59's 2 of 7 recalled; the dose alone does not hold them, and #564 reads it with the pace. A conversation once (#519): lessons 54–61 had four to eight conversations and no remark on their number, eight feedbacks. Hard to hear (#447): «Ég missti af strætó.» and «Hafið þið laust herbergi?», reported after lesson 59, were not recalled the next day and recalled at their next ask. The listening pool's sameness (#339): none of lesson 56's, 57's or 58's pick-outs was on a line heard in the three lessons before (0 of 8, 0 of 6, 0 of 6; lesson 55: 3 of 4). On the replay of lesson 58's export it comes back in lesson 70, when few lines are left that were not heard lately: 12 of 19 pick-outs; 6 of 16 with the batch after lesson 58; at most 1 when C4's four levels play as well. The town names as dative fillers, left unfitted in lessons 53–55, were fitted in 56 and 57. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
+**Alongside:** practice by what is hard in an item (#518, #439, G11): lesson 60's two heavy-dose items were hesitated and not recalled, lesson 59's 2 of 7 recalled; the dose alone does not hold them, and #579 reads it with the pace. A conversation once (#519): lessons 54–61 had four to eight conversations and no remark on their number, eight feedbacks. Hard to hear (#447): «Ég missti af strætó.» and «Hafið þið laust herbergi?», reported after lesson 59, were not recalled the next day and recalled at their next ask. The listening pool's sameness (#339): none of lesson 56's, 57's or 58's pick-outs was on a line heard in the three lessons before (0 of 8, 0 of 6, 0 of 6; lesson 55: 3 of 4). On the replay of lesson 58's export it comes back in lesson 70, when few lines are left that were not heard lately: 12 of 19 pick-outs; 6 of 16 with the batch after lesson 58; at most 1 when C4's four levels play as well. The town names as dative fillers, left unfitted in lessons 53–55, were fitted in 56 and 57. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
 before adding practice. Scene coherence (#327): lesson 50 said four of its six new items as turns of the played exchange, lesson 51 none of its
 ten (its exchange was a level played again). The note's pieces (#481) have not played yet. A silent clip taken as cut off (#503) is built; «vettlinga», whose syllable «lin» it was found on, has not played since.
 
@@ -131,6 +130,7 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
+- **After lesson 62:** the long run: the form work's own lines in Icelandic (#429 step 6: #572); the form work opens with a line of its own, checked over every block (#573); the instructions in a voice of their own, OpenAI's realtime «cedar» in a plain tone (#563: #575–#578, the owner's). Lessons 63 and 64 played them (LD §5.53).
 - **After lesson 61:** fixed dialogues played whole when known, retired after one whole play (#567); a pattern's sentence asked when the learner says its pattern and fills (#265: #570); data: the second native check (#209: #566), the pharmacy's «Ertu með eitthvað við höfuðverk?» (#568). Lesson 62 played #567 and #570 (LD §5.52).
 - **After lesson 60:** the long run: a cloze's and a new item's frame in Icelandic, «Kláraðu setninguna:» and «Eitthvað nýtt.» (#429 step 5: #560); a cue names its answer's subject, checked by `validate` (#427: #559, data).
 - **After lesson 59:** the long run: a cue's frame in Icelandic, «Segðu:» and «Hvernig segir maður:» (#429 step 4: #557).
