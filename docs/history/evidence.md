@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.50 (lessons 1–60), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.51 (lessons 1–61), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -2085,3 +2085,53 @@ and lesson 60, so lesson 60 has no new behaviour to tell apart; #557 is first bu
 **This round:** the long run's step, #429 step 5 (#560): «Kláraðu setninguna:» for a cloze's «Complete the sentence to say:» and «Eitthvað nýtt.» for «Something new.», the
 instructor's most frequent English lines once «Segðu:» and «Hvernig segir maður:» are taught; taught in lessons 65 and 66 on the replay. Beside it, the remark's check (#559, data and `validate`). The pace rule doesn't change: the rule is already
 lowering the target, and lesson 60's own new items, at a target of 8, are read first.
+
+### 5.51 Lesson 61: built with lesson 60's revision, no new behaviour
+
+Lesson 61 was generated with LLA `5562255`, the revision lesson 60 was built with, and the bot at site_update_notifier `3151860`, `--instructions
+gradual`. Rebuilt from its export it is identical (113 exercises, 31.1 minutes). The bot's bump to `d14416b`, which holds #557, was still
+open (site_update_notifier#229), so #557, #559, #560 and #562, merged after lessons 59 and 60, were not in it. Lesson 61 is the first built
+with no PR; the first lesson the bot builds with current main is the first built with #557, #560 and #562 (#559 is data and a check).
+
+| | lesson 61 |
+|---|---|
+| length | 31.1 min, 113 exercises |
+| new items; new components, weighted (target) | 7; 8 (7) |
+| theme (level) | hotel (4), Wi-Fi and breakfast |
+| lesson 60's new items in the review | **5 of 10 recalled**; 1 hesitated, 4 not recalled; «Hvar er morgunmaturinn?» never taught |
+| items reviewed / due | 80 due by date, 66 the lesson could ask; **34 not fitted**; 35 practised |
+| conversations | 8: the hotel's two plays, two levels heard again, the hotel's third cut short, three authored; 7 ended with «Samtalinu er lokið.» |
+| pick-outs; catches | 5; 0 |
+| written review's queue | 131 due (lesson 60: 141) |
+| feedback form: load; friction | **right**; other (the note) |
+| «sooner» | «Get ég geymt töskuna hérna?», to remember |
+
+- **The long run, #429:** «Samtalinu er lokið.» was taught at 00:22. 36 instructor lines were in Icelandic, as in lesson 60 by the same count.
+  Steps 4 and 5 (#557, #560) wait for the bot's bump.
+- **The note's first remark: «Samtalinu er lokið.» and «Aftur að tala.» are said in the conversation's male voice; make them different if
+  possible.**
+  - Every instruction in Icelandic is said by `native_b`, Gunnar. He is also the partner's default voice, and the profiles have only two
+    Icelandic voices.
+  - «Samtalinu er lokið.» ended 7 conversations; in 4 Gunnar had just spoken as the partner.
+  - A new family, instruction-voice: nothing marks the instructor's Icelandic as the instructor's. It grows with #429 (about 111 lines a
+    lesson from lesson 67 on the replay of lesson 60's export).
+  - Options in #563; recommended: a third speaker for instructions, Gunnar at a fixed lower pitch.
+- **The note's second remark: in a conversation, an expression the learner knows, not trivially easy, is played as an example instead of
+  asked.**
+  - The hotel's fourth level, played twice, said «Hvar er morgunmaturinn?» after «Here you would say:». That morning the written review had
+    asked the same sentence for «morgunmaturinn» (lesson 60's).
+  - Its phrase item, `hvar_er_morgunmaturinn`, was selected in lesson 60 and never taught. `line_role` reads the item, and a phrase is never
+    sayable from pieces, although this sentence is the learner's own for another item and an instance of «Hvar er …?» with a fill they say.
+  - A new family, sayable-heard. It meets #265's condition for reopening (a line the learner can say withheld); #265 is reopened with the fix.
+- **The pace (H9):**
+  - Lesson 60's new items, at a target of 8, were recalled 5 of 10. That is the third lesson under 80% (lesson 58: 2 of 12; lesson 59: 5 of
+    11).
+  - Lesson 58's failures recovered: seven of the nine were recalled at their next ask and one hesitated. Lesson 59's four were all recalled.
+  - Lesson 60's four failures had 3–7 practices each, the recalled ones 3–4. Three of them, and the hesitation, are among seven lines of one
+    desk that share «morgunmatur» or «nótt» (H5).
+  - The target fell to 7. Lesson 61 left 34 of the 66 due items it could ask.
+  - The options are in #564 (the owner's call, as «Now» item 1 said); recommended: keep the rule and read lessons 61 and 62.
+
+**This round:** no behaviour PR. The long run's step 5 (#560) is built and has not reached the learner; a step 6 or an answer to a remark now
+would add a fourth behaviour PR to the next lesson the bot builds (§9 "Governance"). The remarks' answers wait as issues (#563, #265), and the
+pace's lever waits for the owner (#564).
