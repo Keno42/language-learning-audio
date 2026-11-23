@@ -500,7 +500,8 @@ class Builder:
         says its lead in the learner's language (``<whole_key>_lead``) and the instruction ``key`` as a line of its own, through
         ``_instruct``, once that is taught («Hlustaðu.», «Endurtaktu.»). Before, the whole line as it was. ``frame``: the line is a framing
         line (``_frame``), so a beat follows it in either form. True when it was split: «Listen, then repeat.» is then «Hlustaðu.» alone, and
-        the caller says «Endurtaktu.» where the repetition comes, if nothing else in the exercise does."""
+        the caller says «Endurtaktu.» where the repetition comes, if nothing else in the exercise does. #429 step 8: a lead that is taught itself
+        («Byrjum á endanum.», ``build_up_lead``) is said through ``_instruct`` too."""
         if self.command_item(key) is None:
             text = self._as(gender, self.prompts.get(whole_key))
             if frame:
@@ -508,7 +509,11 @@ class Builder:
             else:
                 self._narr(sc, ex, text)
             return False
-        self._narr(sc, ex, self._as(gender, self.prompts.get(f"{whole_key}_lead")))
+        lead = f"{whole_key}_lead"
+        if self.command_item(lead) is not None:  # #429 step 8: the lead itself taught («Byrjum á endanum.» for «Let's build it up from the end.»)
+            self._instruct(sc, ex, lead)
+        else:
+            self._narr(sc, ex, self._as(gender, self.prompts.get(lead)))
         self._instruct(sc, ex, key, frame=frame)
         return True
 
@@ -796,7 +801,7 @@ class Builder:
         self._frame(sc, ex, self.prompts.get("embed_known"))
         self._speak(sc, ex, source.target, speaker=voice)
         self._beat(sc, ex)
-        self._frame(sc, ex, self.prompts.get("embed_part"))
+        self._instruct(sc, ex, "embed_part", frame=True)  # #429 step 8: «Þetta orð er í setningunni:» once taught
         self._speak(sc, ex, item.target, speaker=voice)
         self._beat(sc, ex)
         self._lead_instruct(sc, ex, "embed_sentence", "listen", frame=True, gender=gender)
@@ -1030,7 +1035,10 @@ class Builder:
         self._speak(sc, ex, target, speaker=voice)
         self._beat(sc, ex)
         for n, part in enumerate(parts):
-            self._frame(sc, ex, self.prompts.get("embed_part" if n == 0 else "embed_part_also"))
+            if n == 0:
+                self._instruct(sc, ex, "embed_part", frame=True)  # #429 step 8: «Þetta orð er í setningunni:» once taught
+            else:
+                self._frame(sc, ex, self.prompts.get("embed_part_also"))
             self._speak(sc, ex, part.target, speaker=voice)
             self._beat(sc, ex)
             self._instruct(sc, ex, "repeat")
@@ -1187,7 +1195,7 @@ class Builder:
         self._answer_pause(sc, ex, sentence, item, generative=False)
         self._answer(sc, ex, sentence, speaker=voice)
         self._beat(sc, ex)
-        self._frame(sc, ex, self.prompts.get("embed_part_words"))
+        self._instruct(sc, ex, "embed_part_words", frame=True)  # #429 step 8: «Þessi orð eru í setningunni:» once taught
         self._speak(sc, ex, item.target, speaker=voice)
         self._beat(sc, ex)
         if item.word_count >= PART_BUILD_UP_WORDS:
@@ -1532,7 +1540,7 @@ class Builder:
             self._instruct(sc, ex, "natural")
             self._speak(sc, ex, target, speaker=voice)
             self._repeat_pause(sc, ex, target)
-        self._frame(sc, ex, self.prompts.get("embed_part_words" if item.word_count > 1 else "embed_part"))
+        self._instruct(sc, ex, "embed_part_words" if item.word_count > 1 else "embed_part", frame=True)  # #429 step 8, as above
         self._speak(sc, ex, item.target, speaker=voice)
         self._beat(sc, ex)
         if build_up:

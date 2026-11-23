@@ -14,7 +14,10 @@
 # times in eight lessons) and «Æfingunni er lokið.» (its way back, «That's the end of the form work.»: 15, said as «Samtalinu er lokið.» is);
 # lessons 64–71 on the replay of lesson 64's export (the form work's lines taught in lessons 67 and 68, none left from lesson 69) for an aside's
 # own lines, «Smá útúrdúr.» («A quick aside.»: 19 times in eight lessons) and «Aftur að efninu.» («Back to the lesson.»: 19, which builds on
-# «Aftur að tala.»). A milestone's «Here's a pattern worth noticing.» and «Let's continue.» stay in English.
+# «Aftur að tala.»). A milestone's «Here's a pattern worth noticing.» and «Let's continue.» stay in English. Lessons 65–72 on the replay of
+# lesson 65's export (an aside's lines taught in lessons 69 and 70) for a part's frame inside its sentence, «Þessi orð eru í setningunni:»
+# («These words are in it:»: 18 times in eight lessons) and «Þetta orð er í setningunni:» («This word is in it:»: 7), which build on
+# «Kláraðu setninguna:», and a build-up's lead, «Byrjum á endanum.» («Let's build it up from the end.»: 13), said before «Endurtaktu.».
 # An instruction's meaning, the cue the lesson and the written review ask it by, quotes the English line it replaces and names it an
 # instruction: «Say: the instruction "How do you say".» (lesson 65: «Say: How do you say, before what to say.» read as two frames in a row).
 # Candidates until native-checked (#209).
@@ -222,3 +225,39 @@ meaning_spoken_ja = "指示の「レッスンに戻ります」"
 difficulty = 1
 topics = ["instructions"]
 command = "aside_end"
+
+[[items]]
+id = "thessi_ord_command"
+kind = "phrase"
+target = "Þessi orð eru í setningunni:"
+meaning = "the instruction \"These words are in it\""
+meaning_ja = "指示の「この中の表現です」"
+meaning_spoken = "the instruction \"These words are in it\""
+meaning_spoken_ja = "指示の「この中の表現です」"
+difficulty = 1
+topics = ["instructions"]
+command = "embed_part_words"
+
+[[items]]
+id = "byrjum_a_endanum_command"
+kind = "phrase"
+target = "Byrjum á endanum."
+meaning = "the instruction \"Let's build it up from the end\""
+meaning_ja = "指示の「後ろから組み立てましょう」"
+meaning_spoken = "the instruction \"Let's build it up from the end\""
+meaning_spoken_ja = "指示の「後ろから組み立てましょう」"
+difficulty = 1
+topics = ["instructions"]
+command = "build_up_lead"
+
+[[items]]
+id = "thetta_ord_command"
+kind = "phrase"
+target = "Þetta orð er í setningunni:"
+meaning = "the instruction \"This word is in it\""
+meaning_ja = "指示の「この中の単語です」"
+meaning_spoken = "the instruction \"This word is in it\""
+meaning_spoken_ja = "指示の「この中の単語です」"
+difficulty = 1
+topics = ["instructions"]
+command = "embed_part"
