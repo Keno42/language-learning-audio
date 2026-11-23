@@ -293,8 +293,8 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(framed("ja", "「門はどこですか」は、何と言いますか？"), [("speak", "Hvernig segir maður:"), ("narrate", "「門はどこですか」")])
         self.assertIsNone(framed("en", "Complete the sentence to say: I have one bag."), "a cloze's frame is not «Say:»")
         self.assertIsNone(framed("en", "Say: Hi.", taught=()), "not taught: the cue as it was")
-        self.assertIsNone(framed("en", "Say: Say, before what to say.", asked=("segdu_command",)), "«Segðu:» would say the answer")
-        self.assertEqual(framed("en", "How do you say: Say, before what to say.", asked=("segdu_command",))[0], ("speak", "Hvernig segir maður:"),
+        self.assertIsNone(framed("en", "Say: the instruction \"Say\".", asked=("segdu_command",)), "«Segðu:» would say the answer")
+        self.assertEqual(framed("en", "How do you say: the instruction \"Say\".", asked=("segdu_command",))[0], ("speak", "Hvernig segir maður:"),
                          "another frame gives nothing away")
 
     def test_a_framed_cue_keeps_its_claim_about_the_sentence(self):
@@ -340,7 +340,7 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(framed("ja", "新しい表現です。「会えてうれしいです」。", kind="intro"), [("speak", "Eitthvað nýtt."), ("narrate", "「会えてうれしいです」。")])
         self.assertIsNone(framed("en", "Complete the sentence to say: I'm doing well.", taught=()), "not taught: the cue as it was")
         self.assertIsNone(framed("en", "Something new. Nice to see you.", taught=("klaradu_setninguna_command",), kind="intro"), "each frame by its own phrase")
-        self.assertIsNone(framed("en", "Complete the sentence to say: Complete the sentence, before what to say.", asked=("klaradu_setninguna_command",)),
+        self.assertIsNone(framed("en", "Complete the sentence to say: the instruction \"Complete the sentence\".", asked=("klaradu_setninguna_command",)),
                           "«Kláraðu setninguna:» would say the answer")
 
     def test_a_cloze_and_a_new_item_in_the_lesson(self):
@@ -488,6 +488,19 @@ class CommandTests(unittest.TestCase):
                          "before it is taught, as always")
         _, milestone = aside(60, milestone=True)
         self.assertEqual(milestone, [("narrate", en.get("milestone_intro")), ("narrate", "Some cultural fact."), ("narrate", en.get("milestone_end"))])
+
+    def test_an_instruction_is_asked_as_an_instruction_by_name(self):
+        """Lesson 65's note: «Say: How do you say, before what to say.» (answer «Hvernig segir maður:») read as two frames in a row; «Say "How do
+        you say" as an instruction» would not confuse. An instruction's meaning, the cue the lesson and the written review ask it by, quotes the
+        English line it replaces and names it an instruction, in every language: «Say: the instruction "How do you say".»"""
+        for lang in ("en", "ja"):
+            cur, prompts = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang), Prompts.load(lang)
+            for item in (i for i in cur.items if i.command):
+                said = prompts.get(item.command).rstrip(".:")
+                if lang == "en":
+                    self.assertEqual((item.meaning, item.spoken_meaning), (f'the instruction "{said}"',) * 2, item.id)
+                else:
+                    self.assertTrue(all(m.startswith("指示の「") and m.endswith("」") for m in (item.meaning, item.spoken_meaning)), item.id)
 
     def test_the_commands_come_one_a_lesson_in_their_order(self):
         order = [i.id for i in self.cur.items if i.command]
