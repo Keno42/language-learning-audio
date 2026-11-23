@@ -163,7 +163,10 @@ class CommandTests(unittest.TestCase):
         whole = {en.get(k) for k in ("build_up", "split_slowly", "slow_word_break_down", "note_pieces", "embed_sentence", "instance_sentence",
                                      "instance_form_question", "instance_form_negative")}
         self.assertFalse([g.text for g in sc.segments if g.type == "narrate" and g.text in whole])
-        self.assertTrue(any(g.text == en.get("build_up_lead") for g in sc.segments), "the lesson builds a sentence up, its lead in English")
+        lead = [k for k, g in enumerate(sc.segments) if g.text == "Byrjum á endanum."]
+        self.assertTrue(lead, "the lesson builds a sentence up, its lead in Icelandic once taught (#429 step 8)")
+        self.assertFalse(any(g.text == en.get("build_up_lead") for g in sc.segments), "and never in English twenty lessons after")
+        self.assertEqual(next(g.text for g in sc.segments[lead[0] + 1:] if g.type != "pause"), "Endurtaktu.", "its instruction after it")
         b = Builder(self.cur, en, Timing(level="A1"), learner)
         pick = Script(1, "t", "is", "en")
         _build(b, pick, ListeningTask("pick_out", "x", "", "Safnið lokar klukkan fimm.", "klukkan fimm", "Five o'clock.", "pick_out_time"))
@@ -404,6 +407,45 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(block(60), [("speak", "Segðu hverja setningu.")], "from the third lesson, the Icelandic alone")
         self.assertEqual(block(68), [("speak", "Segðu hverja setningu."), ("narrate", "Now say each one.")], "the English after it the lesson after")
 
+    def test_a_part_and_a_build_up_say_their_own_lines_in_icelandic_once_taught(self):
+        """#429 step 8 (lessons 65–72 on the replay of lesson 65's export, an aside's lines taught in lessons 69 and 70: «These words are in it:»
+        18 times, «Let's build it up from the end.» 13 and «This word is in it:» 7, the most frequent English instructions left that an authored
+        phrase can say): a part's frame inside its sentence is «Þessi orð eru í setningunni:» or «Þetta orð er í setningunni:», a framing line
+        with a beat after it, and a build-up's lead is «Byrjum á endanum.», said before «Endurtaktu.»; the English after each in the lesson
+        that teaches it and the next, alone from the third; before, as always."""
+        from audiolesson.script import Exercise
+
+        en = Prompts.load("en")
+        items = {k: next(i for i in self.cur.items if i.command == k) for k in ("embed_part_words", "embed_part", "build_up_lead", "repeat")}
+        self.assertEqual([items[k].target for k in ("embed_part_words", "embed_part", "build_up_lead")],
+                         ["Þessi orð eru í setningunni:", "Þetta orð er í setningunni:", "Byrjum á endanum."])
+
+        def said(introduced, call):
+            learner = LearnerState("is", "en", "A1")
+            learner.lessons_completed = 70
+            learner.items["endurtaktu"] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", introduced_lesson=50)
+            if introduced is not None:
+                for k in ("embed_part_words", "embed_part", "build_up_lead"):
+                    learner.items[items[k].id] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", introduced_lesson=introduced)
+            b = builder(self.cur, learner=learner)
+            sc = Script(71, "t", "is", "en")
+            ex = sc.new_exercise("intro", "intro", [], "t")
+            call(b, sc, ex)
+            return [(g.type, g.text) for g in sc.segments if g.type != "pause"], sc
+
+        words = lambda b, sc, ex: b._instruct(sc, ex, "embed_part_words", frame=True)
+        build_up = lambda b, sc, ex: b._lead_instruct(sc, ex, "build_up", "repeat")
+        alone, sc = said(60, words)
+        self.assertEqual(alone, [("speak", "Þessi orð eru í setningunni:")], "from the third lesson, the Icelandic alone")
+        self.assertEqual(sc.segments[-1].type, "pause", "a framing line: a beat before the part")
+        self.assertTrue(all(g.speaker == COMMAND_VOICE for g in sc.segments if g.type == "speak"))
+        self.assertEqual(said(70, words)[0], [("speak", "Þessi orð eru í setningunni:"), ("narrate", en.get("embed_part_words"))])
+        self.assertEqual(said(None, words)[0], [("narrate", en.get("embed_part_words"))], "before it is taught, as always")
+        self.assertEqual(said(60, lambda b, sc, ex: b._instruct(sc, ex, "embed_part", frame=True))[0], [("speak", "Þetta orð er í setningunni:")])
+        self.assertEqual(said(60, build_up)[0], [("speak", "Byrjum á endanum."), ("speak", "Endurtaktu.")])
+        self.assertEqual(said(70, build_up)[0], [("speak", "Byrjum á endanum."), ("narrate", en.get("build_up_lead")), ("speak", "Endurtaktu.")])
+        self.assertEqual(said(None, build_up)[0], [("narrate", en.get("build_up_lead")), ("speak", "Endurtaktu.")], "before it is taught, as always")
+
     def test_an_aside_says_its_own_lines_in_icelandic_once_taught(self):
         """#429 step 7 (lessons 64–71 on the replay of lesson 64's export, the form work's lines taught in lessons 67 and 68: «A quick aside.» and
         «Back to the lesson.» 19 times each in eight lessons, the most frequent English instructions left that an authored phrase can say): an
@@ -452,7 +494,8 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(order, ["endurtaktu", "hlustadu", "haegt_command", "hlustadu_aftur", "edlilegum_hrada_command", "svarid_command",
                                  "aftur_ad_tala_command", "samtalinu_lokid_command", "stutt_samtal_command", "segdu_command", "hvernig_segir_madur_command",
                                  "klaradu_setninguna_command", "eitthvad_nytt_command", "segdu_hverja_setningu_command", "aefingunni_lokid_command",
-                                 "sma_utudur_command", "aftur_ad_efninu_command"],
+                                 "sma_utudur_command", "aftur_ad_efninu_command",
+                                 "thessi_ord_command", "byrjum_a_endanum_command", "thetta_ord_command"],
                          "lesson 54's then lesson 57's, by how often the lessons say them")
         learner = LearnerState("is", "en", "A1")
         for i in ("endurtaktu", "hlustadu"):
