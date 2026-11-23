@@ -120,6 +120,9 @@ cause = "A cue to ask a person named no one after «ask», so «she» read as a 
 [families.pick-out-answer]
 cause = "A pick-out's answer is authored as the bare value of the line, so what qualifies it is dropped: «svona tíu mínútur» answered «tíu mínútur» (#477)."
 
+[families.review-unmarkable]
+cause = "The feedback form's «sooner» menu is one Discord select of 25 options: today's new items, then the first of the items the lesson asked again; an item asked later in a 30-minute lesson cannot be marked (lesson 65: 15 of 59 offered, #585)."
+
 [families.instruction-language]
 cause = "Every instruction is in the known language: the Icelandic the learner will hear as instructions is never practised (#429)."
 
@@ -1056,6 +1059,34 @@ family = "instruction-voice"
 class = "twenty"
 answered_by = []
 
+[[lesson]]
+n = 65
+form = true
+load = "right"
+built = ["#580", "#582"]
+long_run = ["#580"]
+
+[[lesson.remarks]]
+who = "main"
+text = "The review question «Say: How do you say, before what to say.» (answer «Hvernig segir maður:») confuses; «Say \"How do you say\" as an instruction» would not. (An instruction item's cue is its meaning, which in ten of the seventeen items was the English line plus where it is said; after a frame that is itself an instruction, the learner cannot tell where the frame ends: #583.)"
+family = "meaning-gloss"
+class = "twenty"
+answered_by = ["#583"]
+
+[[lesson.remarks]]
+who = "main"
+text = "«vatn» was introduced with the pronunciation «ヴァフトン», which seems wrong. (The reading deck's hint: «vatn» is [vaʰtn̥], a breath before «t» and a voiceless «n», which katakana cannot write without adding vowels; the hints have had no outside review: #586.)"
+family = "reading-deck"
+class = "precision"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "Review items such as «discount» and today's woolly hat did not come to mind at once, and sometimes there is no way to say so. (The form's «sooner» menu holds 25 options, Discord's cap: lesson 65's 10 new items and 15 of the 59 items it asked again; «húfu», asked at 23:25, was 43rd: #585.)"
+family = "review-unmarkable"
+class = "twenty"
+answered_by = []
+
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
 [[change]]
@@ -1952,6 +1983,8 @@ title = "a cloze's and a new item's frame in Icelandic once taught: «Kláraðu 
 issue = ["#429"]
 pr = ["#560"]
 family = "instruction-language"
+first_heard = 65
+heard = "«Kláraðu setninguna:» taught at the start of lesson 65, «Complete the sentence:» after it 6 times; «Eitthvað nýtt.» comes in lesson 66 on the replay"
 
 [[change]]
 title = "a cue names its answer's subject: a «Við» answer the group, a «Þú» answer said to the person; `validate` checks it (#427: #559)"
@@ -2002,3 +2035,17 @@ pr = ["#575", "#576", "#577", "#578"]
 family = "instruction-voice"
 first_heard = 63
 heard = "82 instruction lines in lesson 63 and 116 in 64 in the new voice; no remark after 63, «Samtalinu er lokið.» heard as too high in tension after 64"
+
+[[change]]
+title = "an aside's own lines in Icelandic once taught: «Smá útúrdúr.» and «Aftur að efninu.» (#429 step 7: #580)"
+issue = ["#429"]
+pr = ["#580"]
+family = "instruction-language"
+
+[[change]]
+title = "the pace counts the next-day outcome; a later review moves the item, not the lesson's entry (#579: #582)"
+issue = ["#579"]
+pr = ["#582"]
+family = "load-answer"
+first_heard = 65
+heard = "lesson 64's new items recalled 8 of 11 the next day (2 hesitated, 1 not recalled), and the target fell from 8 to 7 for lesson 65"
