@@ -45,7 +45,9 @@ týndur.»): the learner's voice is the one opposite the partner's, the line is 
 woman: …», owner after #381, as the review does, #375). `validate` checks every item and scenario, and that a gendered line has its
 `say_m` and only such a line does. It also prints how many of the Tier A and B scenarios' `items` a `you` line says in some level of
 a theme that serves a Tier A or B scenario, naming the scenarios none of whose items is said yet (#327), and warns about a theme whose
-scenario is Tier C: `scenario_order` ranks it only when the trip profile boosts that scenario, so without one it is never played. The
+scenario is Tier C: `scenario_order` ranks it only when the trip profile boosts that scenario. Unranked, it never decides which new material
+comes, and it is played once the learner can say its next level, after every ranked scenario at that level (`PlanConfig.play_unranked`,
+#579): the course order teaches its lines for everyone, and a level plays in the lesson that teaches its lines. The
 lesson picks one theme (`Planner.pick_theme`; H4 in docs/LEARNING-DESIGN.md) and plays
 its exchange twice; `plan.json` names the theme and level. A partner line carries `variants`: one or two other wordings (how another clerk says
 the same thing, #134) and, where it says a number, two other values (another price, time or length of a walk, #451: every number a partner says in an exchange has them, except a line that says the learner's own order back); the early (translated) play uses a variant; the late play says the line as written; the transcript marks the lines used. The wordings are

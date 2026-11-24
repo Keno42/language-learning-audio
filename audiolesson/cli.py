@@ -796,7 +796,7 @@ def cmd_validate(args) -> int:
         print(f"{len(said)} of {len(needed)} Tier A/B scenario items said in a theme level" + (f"; none yet: {', '.join(silent)}" if silent else ""))
         unranked = unranked_themes(themes, scenarios)
         if unranked:
-            print(f"warning: {len(unranked)} themes serve a scenario outside Tier A/B and are played only when a trip profile boosts it (`scenario_order`): "
+            print(f"warning: {len(unranked)} themes serve a scenario outside Tier A/B and choose new material only when a trip profile boosts it (`scenario_order`), and play once the course order has brought their lines (#579): "
                   + ", ".join(f"{t.id} ({t.scenario})" for t in unranked), file=sys.stderr)
         unasked = unasked_levels(scenes, themes)
         if unasked:
