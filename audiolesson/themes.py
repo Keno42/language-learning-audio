@@ -342,7 +342,7 @@ def scenario_coverage(themes: list[Theme], scenarios: list[Scenario], tiers: tup
 
 def unranked_themes(themes: list[Theme], scenarios: list[Scenario], tiers: tuple[str, ...] = ("A", "B")) -> list[Theme]:
     """The themes whose scenario is outside ``tiers``: ``scenario_order`` ranks them only when a trip profile boosts their scenario,
-    so without one they are never played."""
+    so without one they never choose the new material; they play once the course order has brought their lines (``Planner.pick_theme``, #579)."""
     tier = {s.id: s.tier for s in scenarios}
     return [t for t in themes if tier.get(t.scenario) not in tiers]
 
