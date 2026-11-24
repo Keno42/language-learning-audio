@@ -62,8 +62,11 @@ class NumberChoiceTests(unittest.TestCase):
         ex = b.number_choice(sc, lines)
         self.assertEqual((ex.kind, ex.stage), ("model", "choice"))
         text = sc.transcript()
-        self.assertIn("is masculine, so:", text)
-        self.assertIn("is neuter, so:", text)
+        narrated = " ".join(g.text for g in sc.segments if g.type in ("narrate", "speak"))
+        for word in ("miða", "börn"):
+            self.assertIn(word, narrated, "the reason is the word the number counts (#571)")
+        for term in ("masculine", "feminine", "neuter", "nominative", "accusative", "dative", "genitive"):
+            self.assertNotIn(term, text, "no grammatical term (#571, the owner's rule)")
         answers = [g.text for g in sc.segments if g.type == "answer"]
         self.assertEqual(answers, ["Ég á tvö börn.", "Tvo miða, takk."], "asked again in another order")
         spoken = [g.text for g in sc.segments if g.type == "speak"]
@@ -97,22 +100,25 @@ class NumberChoiceTests(unittest.TestCase):
         p = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=20, seed=1), today=TODAY)
         self.assertEqual(pick_choice(choice_lines(p.number_choice_candidates()), 1), [])
 
-    def test_a_form_that_is_not_the_nominative_names_its_case(self):
-        """Lesson 50 as drafted: «miða is masculine, so: þrjá» left out why not «þrír». A form that is not the nominative names the case and the
-        nominative it comes from; a form that is also the nominative («tvö», «einn») names the gender only."""
+    def test_a_form_that_is_not_the_nominative_names_the_one_it_comes_from(self):
+        """Lesson 50 as drafted: «miða is masculine, so: þrjá» left out why not «þrír». A form that is not the nominative names the nominative it
+        comes from; a form that is also the nominative («tvö», «einn») names its word only. #571 (lesson 62): with no grammatical term, in
+        either language: «With «miða», «þrír» becomes «þrjá».»"""
         groups = choice_lines([("Þrjá miða, takk.", "Three tickets, please.", "masc", ["thrja_mida"], None),
                                ("Það kostar þrjú þúsund krónur.", "It costs three thousand krónur.", "neut", ["thad_kostar_big"], None)])
         lines = pick_choice(groups, 0)
         self.assertEqual([(line.case, line.nominative) for line in lines], [("acc", "þrír"), ("nom", "þrjú")])
-        for lang, case_words in (("en", "in the accusative here:"), ("ja", "ここでは対格なので、")):
+        terms = {"en": ("masculine", "feminine", "neuter", "nominative", "accusative", "dative", "genitive"),
+                 "ja": ("男性", "女性", "中性", "主格", "対格", "与格", "属格", "名詞")}
+        for lang, change in (("en", "becomes"), ("ja", "になります")):
             b = Builder(self.cur, Prompts.load(lang), Timing(level="A1"), LearnerState("is", lang, "A1"))
             sc = Script(1, "t", "is", lang)
             b.number_choice(sc, lines)
             narrated = [g.text for g in sc.segments if g.type == "narrate"]
             spoken = [g.text for g in sc.segments if g.type == "speak"]
-            self.assertTrue(any(case_words in t for t in narrated), (lang, narrated))
             self.assertEqual(spoken[spoken.index("miða") + 1 : spoken.index("miða") + 3], ["þrír", "þrjá"], lang)
-            self.assertEqual(sum(case_words in t for t in narrated), 1, f"{lang}: «þrjú» before «þúsund» is also the nominative: no case")
+            self.assertEqual(sum(change in t for t in narrated), 1, f"{lang}: «þrjú» before «þúsund» is also the nominative: no change named")
+            self.assertFalse([t for t in narrated if any(term in t for term in terms[lang])], f"{lang}: no grammatical term (#571)")
 
     def _met(self, ids):
         learner = LearnerState("is", "en", "A1")
