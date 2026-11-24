@@ -2070,3 +2070,21 @@ title = "a part's frame and a build-up's lead in Icelandic once taught: «Þessi
 issue = ["#429"]
 pr = ["#584"]
 family = "instruction-language"
+
+[[change]]
+title = "a use of known words and a known conversation's opening in Icelandic once taught: «Úr orðum sem þú kannt.», «Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar þú átt að tala.» (#429 step 9: #588)"
+issue = ["#429"]
+pr = ["#588"]
+family = "instruction-language"
+
+[[change]]
+title = "at most two new fillers of one slot a lesson, unless the theme's next level wants them; a pick-out turn whose first value does not fit the time left sits the lesson out (#579 step 2: #590, with #589)"
+issue = ["#579", "#589"]
+pr = ["#590"]
+family = "load-answer"
+
+[[change]]
+title = "a theme no trip profile ranks (the pharmacy, the accident) plays once the course order has brought its lines (#579: #592)"
+issue = ["#579"]
+pr = ["#592"]
+family = "scene-first"
