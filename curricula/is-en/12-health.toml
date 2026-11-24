@@ -317,6 +317,7 @@ situation_ja = "鎮痛剤が必要です。一番近い薬局はどこか聞い�
 id = "attu_eitthvad_vid_hofudverk"
 kind = "phrase"
 target = "Ertu með eitthvað við höfuðverk?"  # native check (2026-11-18, review of #566): «Áttu …?» asks whether a person owns one; a
+like = { "höfuðverk" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 # pharmacist is asked «Ertu með …?», as the teacher's «Ertu með peysur?»
 meaning = "Do you have something for a headache?"
 meaning_ja = "頭痛に効くものはありますか？"

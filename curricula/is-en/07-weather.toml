@@ -384,6 +384,7 @@ situation_ja = "友達が、選んだカフェが満席かもしれないと心�
 id = "vedrid_er_gott_i_dag"
 kind = "phrase"
 target = "Veðrið er gott í dag."
+like = { "dag" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "The weather is good today."
 meaning_ja = "今日はいい天気です。"
 difficulty = 3
@@ -398,6 +399,7 @@ kind = "phrase"
 instance_of = "eg_tharf"
 instance_fill = { thing = "ulpu" }
 target = "Ég þarf úlpu."
+like = { "úlpu" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "I need a parka."
 meaning_ja = "防寒コートが必要です。"
 difficulty = 2

@@ -378,6 +378,7 @@ topics = ["discourse"]
 id = "te_an_sykurs_takk"
 kind = "phrase"
 target = "Te án sykurs, takk."
+like = { "sykurs" = "til" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "Tea without sugar, please."
 meaning_ja = "砂糖なしの紅茶をお願いします。"
 difficulty = 2

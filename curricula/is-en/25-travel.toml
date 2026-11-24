@@ -91,6 +91,7 @@ situation_ja = "ゴールデンサークルを回りたいと言ってくださ�
 id = "eg_vil_fara_a_jokul"
 kind = "phrase"
 target = "Ég vil fara á jökul."
+like = { "jökul" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "I want to go on a glacier."
 meaning_ja = "氷河に登りたいです。"
 difficulty = 2

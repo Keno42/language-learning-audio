@@ -374,6 +374,7 @@ prereqs = ["eg_aetla_ad_fa", "med_mjolk"]
 id = "eina_pylsu_med_ollu"
 kind = "phrase"
 target = "Eina pylsu með öllu."
+like = { "pylsu" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 counts = "pylsa"  # #439 step 1b: the noun its form of 1–4 agrees with
 meaning = "One hot dog with everything."
 meaning_ja = "ホットドッグを一つ、全部乗せで。"
@@ -483,6 +484,7 @@ prereqs = ["matsedilinn"]
 id = "get_eg_fengid_reikninginn"
 kind = "phrase"
 target = "Get ég fengið reikninginn?"
+like = { "reikninginn" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 word_syllables = { reikninginn = ["reik", "ning", "inn"] }
 meaning = "Can I have the bill?"
 meaning_ja = "お会計をお願いできますか？"
@@ -566,6 +568,7 @@ partner_cue_situation_ja = "ウェイターにラム肉を勧められました�
 id = "eg_er_med_ofnaemi_fyrir_hnetum"
 kind = "phrase"
 target = "Ég er með ofnæmi fyrir hnetum."
+like = { "hnetum" = "frá" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "I'm allergic to nuts."
 meaning_ja = "ナッツアレルギーがあります。"
 difficulty = 4
@@ -589,6 +592,7 @@ situations_ja = [
 id = "get_eg_fengid_koku_an_hnetna"
 kind = "phrase"
 target = "Get ég fengið köku án hnetna?"
+like = { "köku" = "um", "hnetna" = "til" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "Can I have a cake without nuts?"
 meaning_ja = "ナッツなしのケーキをいただけますか？"
 difficulty = 4

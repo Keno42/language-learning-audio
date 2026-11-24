@@ -328,6 +328,7 @@ situation_ja = "自分と友達の分を注文します。コーヒーを二つ�
 id = "thrja_mida"
 kind = "phrase"
 target = "Þrjá miða, takk."
+like = { "miða" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "Three tickets, please."
 meaning_ja = "切符を三枚お願いします。"
 difficulty = 3

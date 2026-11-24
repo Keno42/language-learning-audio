@@ -1,0 +1,32 @@
+# #548 step 2 (the owner, 2026-11-20: the «why» of a form goes to the Discord bot as text, not into the audio): the anchor frames, as a native
+# teacher gave the cases to the owner. One noun; only the small word in front changes, and with it the noun's form. The lessons and the card name
+# no case: a form of the day is shown «like» one of these (``Item.like``). A subdirectory, so load_curriculum never reads it as a module.
+# Candidates until native-checked (#209).
+
+noun = "bankinn"
+lead = "The small word in front decides the noun's form."
+lead_ja = "前の小さな語で、名詞の形が決まります。"
+
+[[frames]]
+frame = ""
+line = "Hér er bankinn."
+meaning = "Here is the bank."
+meaning_ja = "ここに銀行があります。"
+
+[[frames]]
+frame = "um"
+line = "um bankann"
+meaning = "about the bank"
+meaning_ja = "銀行について"
+
+[[frames]]
+frame = "frá"
+line = "frá bankanum"
+meaning = "from the bank"
+meaning_ja = "銀行から"
+
+[[frames]]
+frame = "til"
+line = "til bankans"
+meaning = "to the bank"
+meaning_ja = "銀行へ"
