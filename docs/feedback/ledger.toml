@@ -2070,15 +2070,3 @@ title = "a part's frame and a build-up's lead in Icelandic once taught: «Þessi
 issue = ["#429"]
 pr = ["#584"]
 family = "instruction-language"
-
-[[change]]
-title = "a use of known words and a known conversation's opening in Icelandic once taught: «Úr orðum sem þú kannt.», «Samtalið aftur. Þú kannt þínar setningar.» (#429 step 9: #588)"
-issue = ["#429"]
-pr = ["#588"]
-family = "instruction-language"
-
-[[change]]
-title = "at most two new fillers of one slot a lesson, unless the theme's next level wants them (#579 step 2: #590)"
-issue = ["#579"]
-pr = ["#590"]
-family = "load-answer"
