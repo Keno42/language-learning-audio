@@ -24,7 +24,11 @@ class CatchOnceTests(unittest.TestCase):
         cls.order = scenario_order(scen)
 
     def cfg(self):
-        return PlanConfig(minutes=30, new_target=8, themes=self.themes, theme_scenarios=self.order)
+        # max_slot_fillers: the course these tests read was drawn with a slot's fillers taken together (before #579 step 2). With two a lesson its
+        # numbers arrive later, and lesson 27 asks the clothes shop's price turn at minute 29, where its least recent value's line («… sex þúsund
+        # krónur.») does not fit the time left and the turn gives the shorter line it gave last: a turn that cannot give its first value does not sit
+        # the lesson out, as it does for a value just heard (#589)
+        return PlanConfig(minutes=30, new_target=8, themes=self.themes, theme_scenarios=self.order, max_slot_fillers=99)
 
     def test_the_learner_state_keeps_the_caught_words_and_the_listening_log(self):
         import tempfile

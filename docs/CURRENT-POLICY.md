@@ -50,7 +50,7 @@ summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wro
   never asked. One rule decides every learner line in every play mode: sayable → asked, otherwise heard with its meaning; the one exception, a
   known set reply in an exchange played again (a scene, a level, an authored dialogue), is voiced (#416, LEARNING-DESIGN §9).
 - **Similar items apart (H5).** Group new material by scene, not by semantic set (numbers, colours): at most three new items
-  of one set a lesson, except the items the theme's next level wants and a filler a construction's slot pulls in. A fixed phrase that is an instance of a pattern is linked to it (`instance_of`), and `validate`
+  of one set a lesson, and at most two new fillers of one slot («Ég er með {…}»'s illnesses, «Þetta er {person}.»'s family; #579), except the items the theme's next level wants and a filler a construction's slot pulls in. A fixed phrase that is an instance of a pattern is linked to it (`instance_of`), and `validate`
   fails for an unlinked one.
 - **Pace (H9).** The unit is weighted new components (#218), not new items; it never depends on the departure date, and is
   throttled only by what the learner reports (recall over the last three lessons, the load rating). Close variants do not

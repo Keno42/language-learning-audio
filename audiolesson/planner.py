@@ -162,6 +162,10 @@ class PlanConfig:
         "number", "colour", "animal", "acc_language", "weather", "nature_nom", "day", "job", "adj_neut|adj_masc|adj_fem",
     )
     max_set_items: int = 3
+    # #579 step 2 (H5; the owner, 2026-11-22): similar lines apart. At most ``max_slot_fillers`` new fillers of one slot a lesson («Ég er með
+    # {…}»: «höfuðverk», «hita», «flensu» …; «Þetta er {person}.»: «mamma mín», «pabbi minn» …), unless the theme's next level wants them; the
+    # rest wait a lesson
+    max_slot_fillers: int = 2
     listening_missing_max: int = 2
     listening_rest_lessons: int = 6
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
@@ -1146,6 +1150,19 @@ class Planner:
             lesson = [self.cur.by_id[i] for i in chosen_ids if i in self.cur.by_id and i not in scene]
             return any(sum(1 for x in lesson if g & set(x.tags) and x.kind != "construction") >= self.cfg.max_set_items for g in sets)
 
+        def slot_full(it: Item) -> bool:
+            """#579 step 2 (H5): whether the lesson already has ``max_slot_fillers`` new fillers of a slot ``it`` fills, counting this
+            lesson's earlier arcs (``exclude``) and what this call chose. The items the theme's next level wants are exempt, neither stopped
+            nor counted, as for ``set_full``. Lessons 62–65 taught the illness fillers of «Ég er með {…}» three to five a lesson, and they were
+            the next-day failures (6 of 7 weak items in lesson 63)."""
+            if it.kind == "construction" or it.id in scene:
+                return False
+            tags = slot_tags(it)
+            if not tags:
+                return False
+            lesson = [self.cur.by_id[i] for i in chosen_ids if i in self.cur.by_id and i not in scene]
+            return any(sum(1 for x in lesson if t in x.tags and x.kind != "construction") >= self.cfg.max_slot_fillers for t in tags)
+
         # walk in order, but a not-yet-ready item is skipped rather than blocking
         progress = True
         while not full() and progress:
@@ -1153,7 +1170,7 @@ class Planner:
             for it in pool:
                 if full():
                     break
-                if it.id in chosen_ids or not ready(it) or set_full(it):
+                if it.id in chosen_ids or not ready(it) or set_full(it) or slot_full(it):
                     continue
                 n0 = len(chosen)
                 if it.kind != "construction" and it.tags:
