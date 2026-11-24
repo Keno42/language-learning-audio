@@ -39,11 +39,14 @@ In order:
    in a voice of their own since #575–#578 (OpenAI's realtime «cedar», #563). On the replay of lesson 64's export the frames of step 5 and the
    lines of step 6 come in lessons 65–68. **Built, step 7 (#580):** an aside's own lines, «Smá útúrdúr.» for «A quick aside.» and «Aftur að
    efninu.» for «Back to the lesson.», taught in lessons 69 and 70 on the replay of lesson 65's export; a milestone's lines stay in English.
-   Lesson 65 (LLA `b4fdd66`) taught «Kláraðu setninguna:» and said 128 instructor lines in Icelandic. **This round (step 8, #584):** a part's
-   frame inside its sentence, «Þessi orð eru í setningunni:» («These words are in it:», 18 in lessons 65–72) and «Þetta orð er í setningunni:»
-   («This word is in it:», 7), and a build-up's lead, «Byrjum á endanum.» («Let's build it up from the end.», 13), taught in lessons 71–73.
-   **Then (step 9):** the next most frequent English lines on that replay, «Made of words you know.» (14) and a known conversation's «The
-   conversation again. You know your lines: say them when it's your turn.» (13).
+   Lesson 65 (LLA `b4fdd66`) taught «Kláraðu setninguna:» and said 128 instructor lines in Icelandic. **Built, step 8 (#584):** a part's
+   frame inside its sentence, «Þessi orð eru í setningunni:» («These words are in it:») and «Þetta orð er í setningunni:» («This word is in it:»),
+   and a build-up's lead, «Byrjum á endanum.» («Let's build it up from the end.»), taught in lessons 71–73 on the replay of lesson 66's export.
+   Lesson 66 (LLA `f268aba`) taught «Eitthvað nýtt.», asked it by name («The instruction "Something new".», #583) and said 137 instructor lines
+   in Icelandic, with no remark. **This round (step 9, #588):** «Úr orðum sem þú kannt.» for «Made of words you know.» (15 in lessons 66–73) and
+   «Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar þú átt að tala.» for a known conversation's «The conversation again. You know your lines: say them when it's your
+   turn.» (14), taught in lessons 74 and 75; neither English line is said from lesson 77. **Then (step 10):** the next most frequent English
+   lines on the next export's replay; on lesson 66's, «Your turn.» (14) and «Put it together yourself.» (12).
 2. **Forms as choices (#528, owner 2026-11-12).** «New material should not be more numbers, colours and words to memorise; I want to feel a
    coach who makes me choose the right case and the right verb form.» The course itself is one-sided: of 256 sentences that open with a
    subject pronoun, 207 say «ég»; «vilja», «þurfa» and «eiga» exist in one form; the learner has two forms of three nouns. **Built, step 1 (#531):** the
@@ -82,25 +85,30 @@ In order:
 4. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 5. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
-**This round:** after lesson 65, one behaviour PR, the long run's step 8 (#584), and the answer to the remark whose cause recurs most, as data: an
-instruction asked by name, «the instruction "How do you say"» (#583). The form's «sooner» menu (#585) and the reading deck's hints (#586) wait for
-the owner's choice; #579 step 2 takes the second behaviour place next round.
+**This round:** after lesson 66, three behaviour PRs, all merged by the owner for lesson 67: the long run's step 9 (#588); #579 step 2's first
+half, at most two new fillers of one slot a lesson, with #589's fix to the pick-out rotation, which it makes reachable (#590); and the owner's
+choice on #579, a theme no trip profile ranks (the pharmacy, the accident) played once the course order has brought its lines (#592). The third
+is over §9 "Governance"'s two at the owner's request, so lesson 67's feedback reads the three together. Lesson 66 had no remark. #579 step 2's
+other half, a waiting level's lines kept for its lesson, is not built: on a 15-minute course it brought back levels heard again lesson after
+lesson, and #592 reaches the C4 lines it could not. The form's «sooner» menu (#585) and the reading deck's hints (#586) wait for the owner's
+choice.
 
-## Now (updated 2026-11-23, after lesson 65), in order
+## Now (updated 2026-11-24, after lesson 66), in order
 
 The remarks' half of each round (LD §9 "Governance"): each remark ranked by how often its cause recurs on the replay of the latest export and
-what a fix costs. The latest export is lesson 65's; the next lesson is 66. Lessons 56–65 were rated «right».
-1. **Similar lines apart, and new material tied to its scene (#579 step 2, H5, H9; the owner, 2026-11-22).** Lesson 65 taught ten new items
-   while it played the tour, none of them in it, eight of them illness and pain lines; two of its three «sooner» marks were among them. Lesson
-   64's new items were recalled 8 of 11, and since #582 the pace reads it (target 8 → 7). **Next:** one behaviour PR, checked on the replay
-   first: at most two new fillers of one slot a lesson unless the played level asks for them, and a waiting level's lines kept for its lesson.
-2. **A review item the form cannot mark (#585, lesson 65).** The «sooner» menu holds 25 options: lesson 65 offered 15 of the 59 items it asked
-   again. **Next:** the owner's choice; recommended, one option more, «その他（表現を入力）», matched against the lesson's items (one bot PR).
-3. **The instruction voice's takes (#563, lesson 64).** No remark after lesson 65. **Next:** the owner's choice; recommended, a retake list the
-   owner fills by ear.
-4. **Three feedbacks without a remark** on an instruction's cue (#583, from lesson 66), on the form work's lines in Icelandic (#572, lessons 67
-   and 68 on the replay) and on an aside's (#580, lessons 69 and 70). The form work's explanation out of the audio (#548, #571) goes on alongside:
-   the number choice's terms first, then the anchor card in the bot.
+what a fix costs. The latest export is lesson 66's; the next lesson is 67. Lessons 56–66 were rated «right».
+1. **New material tied to its scene (#579, H4, H5; the owner's choice).** Lessons 65 and 66 taught ten and nine new items, none of them in the
+   scene they played; eight and six are illness and emergency lines of the pharmacy and the accident (C4), which this learner's path never plays.
+   The one «sooner» mark of lesson 66 is among them. **Built:** at most two new fillers of one slot a lesson (#590), and,
+   the owner's choice on #579, an unranked theme's level played once the course order has brought its lines, as a ranked one is (#592). On
+   the replay of lesson 66's export the accident plays in lessons 66 and 71 and the pharmacy in 67 and 70. **Next:** read lesson 67, the first
+   built with them.
+2. **A review item the form cannot mark (#585, lesson 65).** No remark after lesson 66. **Next:** the owner's choice; recommended, one option
+   more, «その他（表現を入力）», matched against the lesson's items (one bot PR).
+3. **The instruction voice's takes (#563, lesson 64).** No remark after lessons 65 and 66. **Next:** the owner's choice; recommended, a retake
+   list the owner fills by ear.
+4. **Three feedbacks without a remark** on an instruction's cue (#583: lesson 66 the first), on the form work's lines in Icelandic (#572, lessons
+   67 and 68 on the replay) and on an aside's (#580, lessons 69 and 70); on #588, #590 and #592 from lesson 67.
 
 **Alongside:** practice by what is hard in an item (#518, #439, G11): lesson 60's two heavy-dose items were hesitated and not recalled, lesson 59's 2 of 7 recalled; the dose alone does not hold them, and #579 reads it with the pace. A conversation once (#519): lessons 54–61 had four to eight conversations and no remark on their number, eight feedbacks. Hard to hear (#447): «Ég missti af strætó.» and «Hafið þið laust herbergi?», reported after lesson 59, were not recalled the next day and recalled at their next ask. The listening pool's sameness (#339): none of lesson 56's, 57's or 58's pick-outs was on a line heard in the three lessons before (0 of 8, 0 of 6, 0 of 6; lesson 55: 3 of 4). On the replay of lesson 58's export it comes back in lesson 70, when few lines are left that were not heard lately: 12 of 19 pick-outs; 6 of 16 with the batch after lesson 58; at most 1 when C4's four levels play as well. The town names as dative fillers, left unfitted in lessons 53–55, were fitted in 56 and 57. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
 before adding practice. Scene coherence (#327): lesson 50 said four of its six new items as turns of the played exchange, lesson 51 none of its
@@ -121,8 +129,11 @@ left (lessons 59–61), and from lesson 62 the lesson's exchange was one already
 bus (the town's sixth), the path's ice and early dark (the tour's sixth, with #142's lines), the family (small talk's sixth and seventh),
 and two themes of Tier C's emergency basics, the pharmacy and an accident, played for a learner whose trip profile boosts C4. A new level
 plays in every lesson to 69 (to 73 with C4 boosted). The day's new items are turns of it in two to four of those lessons only: what a
-later level wants is taught before its lesson, as the rest of a day's pace. **Next:** a waiting level's items kept for its lesson (a
-change to how new material is chosen, measured on the replay first), and the next batch from the next export (a taxi, daily life).
+later level wants is taught before its lesson, as the rest of a day's pace. On the replay of lesson 66's export the ranked levels run out
+after lesson 69, and the pharmacy and the accident (C4) never play on this path. A waiting level's items kept for its lesson was built and
+checked (lesson 66) and is not merged: it reached only small talk's seventh level, and on a 15-minute course it brought back levels heard again
+lesson after lesson (#579). The owner chose to play the C4 scenes once their lines are taught (#592). **Next:** the next batch from
+the next export (a taxi, daily life).
 
 **Refactoring alongside (#281), behaviour unchanged:** one place for "which sentence holds this part", one for "can the
 learner say this line", then the planner's build loop. Each step leaves every lesson `tools/same_lessons.py` builds
@@ -133,6 +144,8 @@ defined once (`audiolesson/text.py`, #321).
 ## Built since the last update (2026-10-15)
 
 Each waits for its first feedback in the LD §8 table.
+- **After lesson 66:** the long run: a use of known words and a known conversation's opening in Icelandic (#429 step 9: #588); at most two new fillers of one slot a lesson, with #589's fix to the pick-out rotation (#579 step 2: #590); a theme no trip profile ranks played once its lines are taught (#579, the owner's choice: #592).
+- **After lesson 65:** the long run: a part's frame and a build-up's lead in Icelandic (#429 step 8: #584); data: an instruction asked by name (#583). Lesson 66 played #583 (LD §5.55).
 - **After lessons 63 and 64:** the long run: an aside's own lines in Icelandic (#429 step 7: #580); the pace counts the next-day outcome (#579: #582, the owner's). Lesson 65 played #582 (LD §5.54).
 - **After lesson 62:** the long run: the form work's own lines in Icelandic (#429 step 6: #572); the form work opens with a line of its own, checked over every block (#573); the instructions in a voice of their own, OpenAI's realtime «cedar» in a plain tone (#563: #575–#578, the owner's). Lessons 63 and 64 played them (LD §5.53).
 - **After lesson 61:** fixed dialogues played whole when known, retired after one whole play (#567); a pattern's sentence asked when the learner says its pattern and fills (#265: #570); data: the second native check (#209: #566), the pharmacy's «Ertu með eitthvað við höfuðverk?» (#568). Lesson 62 played #567 and #570 (LD §5.52).
