@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.51 (lessons 1–61), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.52 (lessons 1–62), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -2135,3 +2135,49 @@ with no PR; the first lesson the bot builds with current main is the first built
 **This round:** no behaviour PR. The long run's step 5 (#560) is built and has not reached the learner; a step 6 or an answer to a remark now
 would add a fourth behaviour PR to the next lesson the bot builds (§9 "Governance"). The remarks' answers wait as issues (#563, #265), and the
 pace's lever waits for the owner (#564).
+
+### 5.52 Lesson 62: the first lesson built with #557, #560, #562, #567 and #570
+
+Lesson 62 was generated with LLA `f5dc903` (current main), the bot at site_update_notifier `7166d67`, `--instructions gradual`. Rebuilt from
+its export it is the same lesson (132 exercises, 30.2 minutes). The bot's bump reached current main, so lesson 62 is the first built with
+#557 and #560 (the long run's steps 4 and 5), #562 (the written review), #567 (fixed dialogues) and #570 (#265); five behaviour PRs, three of
+them merged after lesson 61's round, against the two between lessons that §9 "Governance" allows.
+
+| | lesson 62 |
+|---|---|
+| length | 30.2 min, 132 exercises |
+| new items; new components, weighted (target) | 9; 8 (6) |
+| theme (level) | tour (5), on the coach |
+| lesson 61's new items in the review | **6 of 7 recalled**; 1 hesitated («lykillinn») |
+| items reviewed / due | 84 due by date, 70 the lesson could ask; **none left**; 70 practised (lesson 61: 34 of 66 left) |
+| conversations | 5: the tour's two plays and three levels heard again; **no fixed dialogue** (lesson 61: three) |
+| pick-outs; catches | 6; 1 |
+| written review's queue | 130 due (lesson 61: 131) |
+| feedback form: load; friction | **right**; other (the note) |
+| «sooner» | «höfuðverk», «Hvað er símanúmerið þitt?», «Nú kemur stutt samtal.»; to remember, hard to hear |
+
+- **The long run, #429:** «Nú kemur stutt samtal.» was taught at 00:17 and opened two conversations; 42 instructor lines were in Icelandic
+  (lesson 61: 38 by the same count). «Segðu:» comes in lesson 63 on the replay of the export, then «Hvernig segir maður:», «Kláraðu
+  setninguna:» and «Eitthvað nýtt.» in lessons 64–66; from lesson 64 about 120 instructor lines a lesson are in Icelandic.
+- **The note's first remark: the conversation's male voice and the Icelandic instructions' voice are the same, so the switch is hard to
+  hear.** The second remark of the family instruction-voice in two lessons (lesson 61's, #563). Every instruction in Icelandic is said by
+  Gunnar, the partner's default voice. It is a twenty-point part, and it grows with each step of #429. The fix is the owner's choice of
+  option on #563 (recommended: a third speaker, Gunnar at a fixed lower pitch, checked by ear); nothing is built for it before that.
+- **The note's second remark: the explanation of a word's forms by the word before it seemed to start abruptly.** The authored contrast at
+  18:25 (#552) opened on its lead, «After «þarf», the word changes.», straight after a recombine. The number, noun, subject and said-of
+  choices each open with a framing line («One number, different forms: …»); the contrast had none, and nothing checked that a form-work
+  block opens with one. The family is pick-out-turns (the turns between tasks), last remarked in lesson 55 and answered by #538's way back.
+  Answered by #573: the contrast opens «One noun, two forms.», and `unmarked_turns` (the replay's row «turns between tasks with no line, or one
+  out of place») now finds a form-work block with no opening line; on lesson 62 it finds this one.
+- **The pace (H9): lesson 61's new items, at a target of 7, were recalled 6 of 7**, the seventh hesitated; the first lesson at 80% or more
+  after three under it (lessons 58–60: 2 of 12, 5 of 11, 5 of 10). The load stayed «right». #564's acceptance (80% in two lessons of three)
+  has one of two.
+- **#567 played:** no fixed dialogue, and lesson 62 practised every one of its 70 askable due items, the first lesson since 57 to leave none;
+  lesson 61 left 34 of 66 with three fixed dialogues. Thirty generated sentences, against eight in lesson 61.
+- **#570 played:** «Hvar er morgunmaturinn?», heard and not asked in lesson 61, was asked at 04:05; the replay's heard-only lines read 0.
+- **The other learner:** no new export since lesson 32 (2026-11-14).
+
+**This round:** the long run's step, #429 step 6 (#572): the form work's own lines, «Segðu hverja setningu.» for «Now say each one.» and
+«Æfingunni er lokið.» for «That's the end of the form work.», the most frequent English instructions left once steps 4 and 5 are taught
+(26 and 15 in lessons 63–69 on the replay); taught in lessons 67 and 68. Beside it, the second remark's answer (#573). The voice waits for the
+owner (#563).

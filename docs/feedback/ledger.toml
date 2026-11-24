@@ -1087,6 +1087,13 @@ family = "review-unmarkable"
 class = "twenty"
 answered_by = []
 
+[[lesson]]
+n = 66
+form = true
+load = "right"
+built = ["#584"]
+long_run = ["#584"]
+
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
 [[change]]
@@ -2049,3 +2056,29 @@ pr = ["#582"]
 family = "load-answer"
 first_heard = 65
 heard = "lesson 64's new items recalled 8 of 11 the next day (2 hesitated, 1 not recalled), and the target fell from 8 to 7 for lesson 65"
+
+[[change]]
+title = "an instruction is asked by name: its meaning quotes the English line, «the instruction \"How do you say\"» (lesson 65: #583, data)"
+issue = ["#429"]
+pr = ["#583"]
+family = "meaning-gloss"
+first_heard = 66
+heard = "«Eitthvað nýtt.» taught and asked as «The instruction \"Something new\".», «Hvernig segir maður:» as «The instruction \"How do you say\".»"
+
+[[change]]
+title = "a part's frame and a build-up's lead in Icelandic once taught: «Þessi orð eru í setningunni:», «Þetta orð er í setningunni:», «Byrjum á endanum.» (#429 step 8: #584)"
+issue = ["#429"]
+pr = ["#584"]
+family = "instruction-language"
+
+[[change]]
+title = "a use of known words and a known conversation's opening in Icelandic once taught: «Úr orðum sem þú kannt.», «Samtalið aftur. Þú kannt þínar setningar.» (#429 step 9: #588)"
+issue = ["#429"]
+pr = ["#588"]
+family = "instruction-language"
+
+[[change]]
+title = "at most two new fillers of one slot a lesson, unless the theme's next level wants them (#579 step 2: #590)"
+issue = ["#579"]
+pr = ["#590"]
+family = "load-answer"
