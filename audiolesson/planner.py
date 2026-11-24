@@ -3725,6 +3725,10 @@ class Planner:
             if task.kind == "catch_unknown" and task.answer.lower() in caught_words:
                 return False
             if append_task(b, sc, task, remaining_time() if room is None else room) is None:
+                if task.kind == "pick_out":
+                    # #589: the turn's first value does not fit the time left; its next one may be the value it gave last, so the turn sits the
+                    # lesson out, as it does when its value was just heard (a turn never gives one value twice in a row)
+                    turns_heard_lately.add(task.pattern)
                 return False
             used_listening_tasks.add(key)
             if task.kind == "pick_out":
