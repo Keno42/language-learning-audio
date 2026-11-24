@@ -31,6 +31,7 @@ class CaseFrameTests(unittest.TestCase):
         self.assertEqual(self.cur.by_id["eg_er_med_ofnaemi_fyrir_hnetum"].like, {"hnetum": "frá"})
         self.assertEqual(self.cur.by_id["hvad_heitir_thetta_a_islensku"].like, {"íslensku": "frá"}, "«á íslensku»: the frá form, not tala's")
         self.assertEqual(self.cur.by_id["eg_tala_sma_islensku"].like, {"íslensku": "um"})
+        self.assertEqual(self.cur.by_id["eg_spila_fotbolta"].like, {"fótbolta": "um"}, "review of #598: spila's object is accusative, as «um bankann»")
         self.assertGreaterEqual(sum(1 for i in self.cur.items if i.like), 25)
 
     def test_a_like_names_a_word_of_the_target_and_a_frame(self):
