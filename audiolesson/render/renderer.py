@@ -78,6 +78,10 @@ class SpeakerVoice:
     # a provider of the speaker's own, other than the profile's (#563: the instructions in the target language in a voice no scene uses,
     # «command = { provider = "openai-realtime", voice = "cedar" }»); "" for the profile's
     provider: str = ""
+    # #563 (lesson 64: «Samtalinu er lokið.» stayed high in tension): a speaker's own provider says a line differently at each take, and
+    # one take is cached and replayed. A line named here with a take number is said again as that take, with its own cache key; the
+    # owner picks the lines by ear (``tools/takes.py`` writes takes to listen to). 0 or absent: the take cached first
+    retake: dict[str, int] = field(default_factory=dict)
 
 
 # #563: a speaker a profile may leave out, and the speaker whose voice it then takes: the instructions said in the target language
@@ -140,7 +144,8 @@ def load_profile(path: str | Path | None, provider: str | None = None) -> VoiceP
             if isinstance(spec, str):
                 prof.speakers[name] = SpeakerVoice(voice=spec)
             else:
-                prof.speakers[name] = SpeakerVoice(voice=spec.get("voice", ""), rate=float(spec.get("rate", 1.0)), provider=str(spec.get("provider", "")))
+                prof.speakers[name] = SpeakerVoice(voice=spec.get("voice", ""), rate=float(spec.get("rate", 1.0)), provider=str(spec.get("provider", "")),
+                                                   retake={str(k): int(v) for k, v in (spec.get("retake") or {}).items()})
     if provider:
         prof.provider = provider
         if getattr(PROVIDERS.get(provider), "local", False):
@@ -218,20 +223,20 @@ def render_script(
     failed: set[tuple] = set()  # own-provider requests that failed in this render: said in the profile's voice
     lock = threading.Lock()
 
-    def route(seg) -> tuple[Provider, tuple[str, str, str, float]]:
-        """The provider and request a speech segment is said by."""
+    def route(seg) -> tuple[Provider, tuple[str, str, str, float], int]:
+        """The provider and request a speech segment is said by, and its take (``SpeakerVoice.retake``; 0 for the profile's provider)."""
         req = request_for(seg)
         speaker = seg.speaker or "native_a"
         if speaker in own:
             sv = profile.speakers[speaker]
             mine = (req[0], req[1], sv.voice, seg.rate * sv.rate)
             if (own[speaker].name, *mine) not in failed:
-                return own[speaker], mine
-        return provider, req
+                return own[speaker], mine, sv.retake.get(req[0], 0)
+        return provider, req, 0
 
     def clip_for(seg) -> tuple[AudioClip, bool]:
         """The segment's clip, and whether a speaker's own provider said it (its loudness is then matched to the lesson's)."""
-        prov, req = route(seg)
+        prov, req, take = route(seg)
         if prov is provider:
             return _cached(provider, cache, *req, profile.trim, held), False
         fallback = request_for(seg)
@@ -253,7 +258,7 @@ def render_script(
             return bool(ref[0]) and clip.seconds < OWN_VOICE_MIN_SHARE * ref[0]
 
         try:
-            return _cached(prov, cache, *req, profile.trim, held, short=short), True
+            return _cached(prov, cache, *req, profile.trim, held, short=short, take=take), True
         except Exception as e:  # noqa: BLE001: a lesson is never lost to the instructions' voice
             with lock:
                 failed.add((prov.name, *req))
@@ -265,10 +270,10 @@ def render_script(
     firsts: dict[tuple, object] = {}
     for seg in script.segments:
         if seg.type != "pause":
-            prov, req = route(seg)
-            firsts.setdefault((prov.name, *req), seg)
-    todo = [seg for (name, *req), seg in firsts.items()
-            if not _cache_path(own_or(provider, own, name), cache, *req, profile.trim).exists()]
+            prov, req, take = route(seg)
+            firsts.setdefault((prov.name, *req, take), seg)
+    todo = [seg for (name, *req, take), seg in firsts.items()
+            if not _cache_path(own_or(provider, own, name), cache, *req, profile.trim, take=take).exists()]
     if todo and provider.parallel and profile.workers > 1:
         with ThreadPoolExecutor(max_workers=profile.workers) as pool:
             for i, _ in enumerate(pool.map(clip_for, todo), 1):
@@ -411,9 +416,11 @@ def match_loudness(script: Script, clips: list, from_own: list[int]) -> list:
     return out
 
 
-def _cache_path(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool) -> Path:
+def _cache_path(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool, take: int = 0) -> Path:
     tag = provider.cache_tag()  # a model or prompt the clip depends on (``Provider.cache_tag``); "" keeps every existing key as it was
-    key = hashlib.sha1(f"{cache_family(provider)}{'|' + tag if tag else ''}|{voice}|{rate:.3f}|{lang}|{trim}|{text}".encode()).hexdigest()
+    # a retake (``SpeakerVoice.retake``, #563) is its own clip; take 0 keeps the key it always had
+    retake = f"|take{take}" if take else ""
+    key = hashlib.sha1(f"{cache_family(provider)}{'|' + tag if tag else ''}{retake}|{voice}|{rate:.3f}|{lang}|{trim}|{text}".encode()).hexdigest()
     return cache / f"{key}.wav"
 
 
@@ -459,14 +466,14 @@ class ShortClip(RuntimeError):
 
 
 def _cached(provider: Provider, cache: Path, text: str, lang: str, voice: str, rate: float, trim: bool, held: dict[Path, AudioClip] | None = None,
-            short: Callable[[AudioClip], bool] | None = None) -> AudioClip:
+            short: Callable[[AudioClip], bool] | None = None, take: int = 0) -> AudioClip:
     """The clip for a request: from the cache, else synthesized and cached. ``held`` (one render's) keeps a clip left out of the cache
     because it still looks cut off, so the render asks the service for it once, not at every line that says it (review of #466).
 
     ``short`` (a speaker's own provider, ``OWN_VOICE_MIN_SHARE``): whether a clip is too short against the profile's voice. A cached clip it
     flags is put aside (renamed ``.wav.bad``, as by hand, review of #578: a render that cannot check it later must not find it) and
     synthesized again; a line it flags twice raises ``ShortClip`` and is not cached."""
-    path = _cache_path(provider, cache, text, lang, voice, rate, trim)
+    path = _cache_path(provider, cache, text, lang, voice, rate, trim, take)
     if path.exists():
         clip = read_wav(path)
         if short is None or not short(clip):

@@ -277,6 +277,50 @@ class ShortOwnVoiceTests(unittest.TestCase):
             self.assertNotIn("could not say", err)
 
 
+class RetakeTests(unittest.TestCase):
+    """#563, lesson 64 («Samtalinu er lokið.» stayed high in tension): one take of an instruction is cached and replayed. A line the profile
+    names in its speaker's ``retake`` is said again as that take, under a key of its own; the other lines, and take 0, keep their clips."""
+
+    PROFILE = CommandVoiceTests.PROFILE.replace('command = { provider = "realtime", voice = "cedar" }',
+                                                'command = { provider = "realtime", voice = "cedar", retake = { "Samtalinu er lokið." = 1 } }')
+
+    def test_the_icelandic_profiles_retake_the_line_the_learner_heard_high(self):
+        for name in ("edge-is-en.toml", "edge-is-ja.toml"):
+            self.assertEqual(load_profile(ROOT / "profiles" / name).speakers["command"].retake, {"Samtalinu er lokið.": 1}, name)
+
+    def test_a_take_is_its_own_clip_and_take_0_keeps_the_old_key(self):
+        from audiolesson.render.renderer import _cache_path
+
+        realtime = OpenAIRealtimeProvider()
+        path = lambda take: _cache_path(realtime, Path("/c"), "Samtalinu er lokið.", "is", "cedar", 1.0, True, take)  # noqa: E731
+        self.assertEqual(path(0), _cache_path(realtime, Path("/c"), "Samtalinu er lokið.", "is", "cedar", 1.0, True), "no take: the key as before")
+        self.assertEqual(len({path(0), path(1), path(2)}), 3)
+
+    def test_a_render_says_a_retaken_line_anew_and_keeps_the_others(self):
+        sc = Script(1, "t", "is", "en")
+        sc.segments = [Segment("speak", "native_a", "Góðan daginn.", "is", 1.0, 1.0), Segment("speak", "command", "Samtalinu er lokið.", "is", 1.0, 1.0),
+                       Segment("speak", "command", "Endurtaktu.", "is", 1.0, 1.0)]
+        with tempfile.TemporaryDirectory() as td:
+            cache = Path(td) / "cache"
+            for text, profile_text in (("first", CommandVoiceTests.PROFILE), ("retake", self.PROFILE)):
+                path = Path(td) / f"{text}.toml"
+                path.write_text(profile_text, encoding="utf-8")
+                main, realtime = Voice("main", 8000), Voice("realtime", 2000)
+                with mock.patch.object(renderer, "get_provider", {"main": main, "realtime": realtime}.get), \
+                        mock.patch.object(renderer, "to_mp3", lambda *a: False), contextlib.redirect_stderr(io.StringIO()):
+                    renderer.render_script(sc, load_profile(path), Path(td) / "out.wav", cache, progress=False)
+                if text == "first":
+                    self.assertEqual(sorted(realtime.asked), [("Endurtaktu.", "cedar"), ("Samtalinu er lokið.", "cedar")])
+                else:
+                    self.assertEqual(realtime.asked, [("Samtalinu er lokið.", "cedar")], "only the retaken line is said again")
+            # the same profile once more: the retake is cached
+            again = Voice("realtime", 2000)
+            with mock.patch.object(renderer, "get_provider", {"main": Voice("main", 8000), "realtime": again}.get), \
+                    mock.patch.object(renderer, "to_mp3", lambda *a: False), contextlib.redirect_stderr(io.StringIO()):
+                renderer.render_script(sc, load_profile(Path(td) / "retake.toml"), Path(td) / "out.wav", cache, progress=False)
+            self.assertEqual(again.asked, [])
+
+
 class RealtimeTests(unittest.TestCase):
     def test_a_line_is_kept_only_when_the_model_said_it_as_written(self):
         p = OpenAIRealtimeProvider()
