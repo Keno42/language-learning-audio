@@ -861,10 +861,11 @@ def _slot_names(text: str) -> list[str]:
 # sentence to say:» and a new item's «Something new.», framed the same way; step 6: the form work's «Now say each one.» and its way back, «That's
 # the end of the form work.»; step 7: an aside's own lines, «A quick aside.» and «Back to the lesson.» (``Builder.note``); step 8: a part's frame
 # inside its sentence, «These words are in it:» and «This word is in it:», and a build-up's lead, «Let's build it up from the end.»
-# (``Builder._lead_instruct``)
+# (``Builder._lead_instruct``); step 9: a line asked as a use of known words, «Made of words you know.» (``Builder._intro_from_known``), and a known
+# conversation's opening, «The conversation again. You know your lines: say them when it's your turn.» (``Builder.dialogue``)
 COMMAND_KEYS = ("repeat", "listen", "slowly", "pick_out_again", "natural", "pick_out_answer", "listening_back", "conversation_back", "dialogue_start",
                 "say_frame", "how_say_frame", "cloze_frame", "new_frame", "number_choice_say", "form_back", "aside", "aside_end",
-                "embed_part_words", "build_up_lead", "embed_part")
+                "embed_part_words", "build_up_lead", "embed_part", "from_known", "listening_intro_known")
 PROBE_KINDS = ("price", "time", "count", "place", "duration", "number", "temperature")  # what an information probe asks to listen for (#248); "number": a number used as a name, a room, a bus, a code (#451 step 2c); "temperature" (#451 step 2d)
 FORMS = ("negative", "question")  # a construction's authored forms besides the plain one (#171)
 
