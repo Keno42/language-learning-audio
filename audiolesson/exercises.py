@@ -1253,8 +1253,8 @@ class Builder:
 
     def number_choice(self, sc: Script, lines: list) -> Exercise:
         """#439 step 1b (the owner after lesson 49: the forms of 1–4 lack practice to use them right): one number in sentences the learner knows, a
-        noun of another gender in each («Tvo miða, takk.», «Ég á tvö börn.»). Each is heard with the reason named once («miða» is masculine, so:
-        «tvo».), then each is asked again from its meaning, in another order, so the form is said as the choice its noun makes. ``lines``:
+        noun of another gender in each («Tvo miða, takk.», «Ég á tvö börn.»). Each is heard with the word that decides its form («With «miða»:
+        «tvo».», no grammatical term, #571), then each is asked again from its meaning, in another order, so the form is said as the choice its noun makes. ``lines``:
         ``numbers.ChoiceLine``."""
         ids = list(dict.fromkeys(i for line in lines for i in line.item_ids))
         ex = sc.new_exercise("model", "choice", ids, "choice: " + " / ".join(line.sentence for line in lines))
@@ -1262,12 +1262,12 @@ class Builder:
         for line in lines:
             self._speak(sc, ex, line.sentence, speaker=VOICE_OF[line.voice or "f"])
             self._beat(sc, ex)
-            gender = self.prompts.get(f"gender_{line.gender}")
-            if line.case != "nom":  # «miða» is masculine and in the accusative here: «þrír» becomes «þrjá».
-                reason = self.prompts.get("number_choice_gender_case", word=line.word.lower(), form=line.form.lower(), gender=gender,
-                                          case=self.prompts.get(f"case_{line.case}"), nominative=line.nominative)
+            # #571 (the owner's rule, 2026-11-16: no grammatical term): the reason is the word the number counts, «With «miða», «þrír» becomes
+            # «þrjá».», as the noun choice and the contrasts say it (#552); a form that is not the nominative names the one it comes from
+            if line.case != "nom":
+                reason = self.prompts.get("number_choice_change", word=line.word.lower(), form=line.form.lower(), nominative=line.nominative)
             else:
-                reason = self.prompts.get("number_choice_gender", word=line.word.lower(), form=line.form.lower(), gender=gender)
+                reason = self.prompts.get("number_choice_form", word=line.word.lower(), form=line.form.lower())
             self._speak_note_text(sc, ex, reason)
             if not (sc.segments and sc.segments[-1].type == "pause"):
                 self._beat(sc, ex)  # a breath before the next line; in English the lone «.» after «{form}» already gave one (``_speak_note_text``)
@@ -1297,7 +1297,7 @@ class Builder:
         for it, case, sentence, _, frame in lines:
             self._speak(sc, ex, sentence)
             self._beat(sc, ex)
-            self._speak_note_text(sc, ex, self.prompts.get("noun_choice_form", form=it.target, case=self.prompts.get(f"case_{case}")))
+            self._speak_note_text(sc, ex, self.prompts.get("noun_choice_form", form=it.target))
             if not (sc.segments and sc.segments[-1].type == "pause"):
                 self._beat(sc, ex)
             if frame is not None and frame.form_reason and frame.id not in self.form_reasons_said:

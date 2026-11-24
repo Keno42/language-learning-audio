@@ -123,13 +123,10 @@ instance_form_negative_lead = "否定文にします。"
 variant_known = "知っている形です："
 variant_form = "別の形です。「{meaning}」。"
 # #439 step 1b: one number's lines of different genders side by side, the reason named once, then each asked again
-number_choice_intro = "同じ数でも、数える名詞によって形が変わります。"
-number_choice_gender = "«{word}»は{gender}なので«{form}»です。"
-number_choice_gender_case = "«{word}»は{gender}で、ここでは{case}なので、«{nominative}»が«{form}»になります。"
-case_nom = "主格"
-case_acc = "対格"
-case_dat = "与格"
-case_gen = "属格"
+number_choice_intro = "同じ数でも、数えるものによって形が変わります。"
+# #571 (the owner's rule, 2026-11-16: no grammatical term): the word the number counts decides its form
+number_choice_form = "«{word}»を数えるときは«{form}»です。"
+number_choice_change = "«{word}»を数えるときは、«{nominative}»が«{form}»になります。"
 number_choice_say = "では、それぞれ言ってみましょう。"
 # #439 step 2: a gendered word said of him and of her, side by side, then each asked again
 # #528 step 1: «ég» で言える文を、ほかの主語で言う。動詞の形は主語で決まる
@@ -153,9 +150,6 @@ contrast_answer = "答えてください。"
 said_of_intro = "同じ言葉でも、誰のことを言うかで形が変わります。"
 said_of_m = "男性のことなので«{form}»です。"
 said_of_f = "女性のことなので«{form}»です。"
-gender_masc = "男性名詞"
-gender_fem = "女性名詞"
-gender_neut = "中性名詞"
 # a dialogue with an expression or two the learner hasn't learned, played as listening (H8)
 listening_intro = "聞くための会話です。新しい表現が少し出てきますが、覚えなくて大丈夫です。流れを聞いてください。"
 # the same, when some of the learner's lines in it are ones they know and will be asked for (#240)
