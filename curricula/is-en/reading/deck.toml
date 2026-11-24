@@ -7,7 +7,11 @@
 # places → parts (what place names are made of).
 #
 # `hint_ja` is a katakana approximation for a Japanese speaker, not a transcription: the
-# 🔊 button plays the real pronunciation.
+# 🔊 button plays the real pronunciation. A word with a sound katakana cannot write
+# (pre-aspiration, the «tl» of ll, the «tn» of rn and nn, a voiceless l, n or r) gets IPA
+# instead, with what the kana cannot say in Japanese after it (#586, lesson 65: «vatn» as
+# «ヴァフトン» gave two vowels the word does not have); `reading.kana_cannot_write` checks it.
+# The IPA is a candidate until a fluent reviewer checks it, as the scenes' lines are (#209).
 # General content only: a learner's own places come from the private trip profile (#132).
 
 # ---------------------------------------------------------------- letters
@@ -18,7 +22,7 @@ stage = "letters"
 text = "Það · Þetta · Því miður"
 meaning = "þ: the 'th' of 'think'"
 meaning_ja = "þ は英語 think の th（息だけで出す音）"
-hint_ja = "サズ・セッタ・スヴィ ミズル（最初の「サ・セ・ス」は舌を歯にあてた th）"
+hint_ja = "[θaːð]・[ˈθɛʰta]・[θviː ˈmɪːðʏr]（θ は舌を歯にあてて息だけで出す th。Þetta の tt は「ッ」ではなく、t の前に息「h」が入る）"
 words = [["Það", "それ"], ["Þetta", "これ"], ["Því miður", "残念ながら"]]
 graphemes = ["þ"]
 
@@ -58,7 +62,7 @@ stage = "letters"
 text = "Góða nótt · Sól · Snjór"
 meaning = "ó sounds like 'oh-u'"
 meaning_ja = "ó は「オウ」"
-hint_ja = "ゴウザ ノウフト・ソウル・スニョウル"
+hint_ja = "[ˈkouːða ˈnouʰt]・[souːl]・[snjouːr]（ó は「オウ」。nótt の tt は t の前に息「h」が入り、後に母音は入らない）"
 words = [["Góða nótt", "おやすみなさい"], ["Sól", "太陽"], ["Snjór", "雪"]]
 graphemes = ["ó"]
 
@@ -108,7 +112,7 @@ stage = "letters"
 text = "Fjall · Gullfoss · Allt í lagi"
 meaning = "ll sounds like 'tl'"
 meaning_ja = "ll は「トル」のような音"
-hint_ja = "フィャトル・グトルフォス・アスティ ライイ（allt の ll は「ス」に近く聞こえるが、舌先は l の位置（上の歯の裏）のまま、声を出さずに舌の両脇から息を出す。í とつながって「アスティ」）"
+hint_ja = "[fjatl̥]・[ˈkʏtlˌfɔsː]・[ˈal̥t i ˈlaːjɪ]（ll は「トル」に近いが間に母音は入らず、語末では l も声を出さない。allt の ll は、舌先を上の歯の裏につけたまま声を出さずに舌の両脇から息を出す l で、「ス」に近く聞こえる。í とつながって聞こえる）"
 words = [["Fjall", "山"], ["Gullfoss", "グトルフォス（黄金の滝）"], ["Allt í lagi", "大丈夫"]]
 graphemes = ["ll"]
 
@@ -128,7 +132,7 @@ stage = "letters"
 text = "Nafn · Björn · Steinn"
 meaning = "fn ≈ 'pn'; rn and nn after a long vowel ≈ 'tn'"
 meaning_ja = "fn は「プン」、rn と（長母音の後の）nn は「トン」に近い"
-hint_ja = "ナプン・ビョルトン・ステイトン"
+hint_ja = "[napn̥]・[pjœtn̥]・[steitn̥]（fn・rn・nn は「プン・トン」に近いが間に母音は入らず、最後の n は声を出さずに息で出す）"
 words = [["Nafn", "名前"], ["Björn", "ビョルン（男性の名前。「熊」）"], ["Steinn", "ステイン（男性の名前。「石」）"]]
 graphemes = ["fn", "rn", "nn"]
 
@@ -138,7 +142,7 @@ stage = "letters"
 text = "Já · Jökull · Jól"
 meaning = "j is a 'y'; stress is always on the first syllable"
 meaning_ja = "j は「ヤ行」の音。アクセントはいつも最初の音節"
-hint_ja = "ヤウ・ヨークトル・ヨウル（最初を強く）"
+hint_ja = "[jauː]・[ˈjœːkʏtl̥]・[jouːl]（最初を強く。Jökull の ll は「トル」に近いが母音は入らず、l は声を出さない）"
 words = [["Já", "はい"], ["Jökull", "氷河"], ["Jól", "クリスマス"]]
 graphemes = ["j"]
 
@@ -166,7 +170,7 @@ stage = "signs"
 text = "Opnunartími"
 meaning = "Opening hours"
 meaning_ja = "営業時間"
-hint_ja = "オプヌナルティーミ"
+hint_ja = "[ˈɔʰpnʏnar̥ˌtʰiːmɪ]（オ＋息の「h」＋プヌナル＋ティーミ。pn の前に息が入り、t の前の r は声を出さない）"
 
 [[cards]]
 id = "s_lokad_vedur"
@@ -214,7 +218,7 @@ stage = "signs"
 text = "Snyrting"
 meaning = "Toilets"
 meaning_ja = "トイレ"
-hint_ja = "スニルティング"
+hint_ja = "[ˈsnɪr̥tiŋk]（スニ＋声を出さない r＋ティンク。語末の ng は「ンク」に近い）"
 
 [[cards]]
 id = "s_salerni"
@@ -222,7 +226,7 @@ stage = "signs"
 text = "Salerni"
 meaning = "Toilet"
 meaning_ja = "トイレ（別の言い方）"
-hint_ja = "サレルトニ"
+hint_ja = "[ˈsaːlɛrtnɪ]（サーレル＋トニ。rn は t＋n で、間に母音は入らない）"
 
 [[cards]]
 id = "s_karlar"
@@ -262,7 +266,7 @@ stage = "signs"
 text = "Hætta"
 meaning = "Danger"
 meaning_ja = "危険"
-hint_ja = "ハイフタ"
+hint_ja = "[ˈhaiʰta]（ハイ＋息の「h」＋タ。「ッ」でも「フ」でもなく、t の前に息が入る）"
 
 [[cards]]
 id = "s_varud"
@@ -278,7 +282,7 @@ stage = "signs"
 text = "Hálka"
 meaning = "Ice on the road or path"
 meaning_ja = "路面凍結"
-hint_ja = "ハウルカ"
+hint_ja = "[ˈhaul̥ka]（ハウ＋声を出さない l＋カ）"
 
 [[cards]]
 id = "s_vegur_lokadur"
@@ -294,7 +298,7 @@ stage = "signs"
 text = "Sturta"
 meaning = "Shower"
 meaning_ja = "シャワー"
-hint_ja = "ストゥルタ"
+hint_ja = "[ˈstʏr̥ta]（ストゥ＋声を出さない r＋タ）"
 
 [[cards]]
 id = "s_buningsklefi"
@@ -318,7 +322,7 @@ stage = "signs"
 text = "Heitur pottur"
 meaning = "Hot tub"
 meaning_ja = "ホットタブ（温かい湯船）"
-hint_ja = "ヘイトゥル ポフトゥル"
+hint_ja = "[ˈheiːtʏr ˈpʰɔʰtʏr]（ヘイトゥル ポ＋息の「h」＋トゥル）"
 
 [[cards]]
 id = "s_gufubad"
@@ -400,7 +404,7 @@ stage = "shop"
 text = "Mjólk"
 meaning = "Milk"
 meaning_ja = "牛乳"
-hint_ja = "ミョウルク"
+hint_ja = "[mjoul̥k]（ミョウ＋声を出さない l＋ク）"
 
 [[cards]]
 id = "w_skyr"
@@ -448,7 +452,7 @@ stage = "shop"
 text = "Vatn"
 meaning = "Water"
 meaning_ja = "水"
-hint_ja = "ヴァフトン"
+hint_ja = "[vaʰtn̥]（「ヴァ」＋声を出さずに息を伴う「tn」）"
 
 [[cards]]
 id = "w_kaffi"
@@ -464,7 +468,7 @@ stage = "shop"
 text = "Epli"
 meaning = "Apples"
 meaning_ja = "りんご"
-hint_ja = "エプリ"
+hint_ja = "[ˈɛʰplɪ]（エ＋息の「h」＋プリ）"
 
 [[cards]]
 id = "w_sukkuladi"
@@ -472,7 +476,7 @@ stage = "shop"
 text = "Súkkulaði"
 meaning = "Chocolate"
 meaning_ja = "チョコレート"
-hint_ja = "スークラジ"
+hint_ja = "[ˈsuʰkʏˌlaːðɪ]（ス＋息の「h」＋クラーズィ。ð は this の th）"
 
 [[cards]]
 id = "w_nammi"
@@ -555,7 +559,7 @@ stage = "places"
 text = "Hallgrímskirkja"
 meaning = "Hallgrímur's church"
 meaning_ja = "ハトルグリムス教会（ハトルグリームルの教会）"
-hint_ja = "ハトルグリームスキルキャ"
+hint_ja = "[ˈhatlˌkrimsˌcʰɪr̥ca]（ハトル＋グリムス＋キ＋声を出さない r＋キャ。ll は t＋l で、間に母音は入らない）"
 parts = [["Hallgrímur", "人名"], ["kirkja", "教会"]]
 
 [[cards]]
@@ -573,7 +577,7 @@ stage = "places"
 text = "Þingvellir"
 meaning = "'Assembly plains', site of the old parliament"
 meaning_ja = "シンクヴェトリル（「議会の平原」。古い議会の跡）"
-hint_ja = "シングヴェトリル"
+hint_ja = "[ˈθiŋkˌvɛtlɪr]（th＋インク＋ヴェトリル。ll は t＋l で、間に母音は入らない）"
 parts = [["þing", "集会・議会"], ["vellir", "平原"]]
 
 [[cards]]
@@ -582,7 +586,7 @@ stage = "places"
 text = "Gullfoss"
 meaning = "'Golden falls'"
 meaning_ja = "グトルフォス（「黄金の滝」）"
-hint_ja = "グトルフォス"
+hint_ja = "[ˈkʏtlˌfɔsː]（グトル＋フォス。ll は t＋l で、間に母音は入らない）"
 parts = [["gull", "金"], ["foss", "滝"]]
 
 [[cards]]
@@ -634,7 +638,7 @@ stage = "places"
 text = "Sólheimajökull"
 meaning = "A glacier tongue — 'sun-homes glacier'"
 meaning_ja = "ソウルヘイマヨークトル（「太陽の里の氷河」）"
-hint_ja = "ソウルヘイマヨークトル"
+hint_ja = "[ˈsoulˌheiːmaˌjœːkʏtl̥]（ソウル＋ヘイマ＋ヨークトル。最後の ll は t＋l で母音は入らず、l は声を出さない）"
 parts = [["sól", "太陽"], ["heimar", "里・住まい"], ["jökull", "氷河"]]
 
 [[cards]]
@@ -670,7 +674,7 @@ stage = "places"
 text = "Snæfellsnes"
 meaning = "'Snow-mountain peninsula'"
 meaning_ja = "スナイフェトルスネス（「雪山の半島」）"
-hint_ja = "スナイフェトルスネス"
+hint_ja = "スナイフェルスネース（s の前の ll はふつうの l）"
 parts = [["snær", "雪"], ["fell", "山"], ["nes", "半島"]]
 
 [[cards]]
@@ -688,7 +692,7 @@ stage = "places"
 text = "Mývatn"
 meaning = "'Midge lake'"
 meaning_ja = "ミーヴァトン（「ブヨの湖」）"
-hint_ja = "ミーヴァフトン"
+hint_ja = "[ˈmiːvaʰtn̥]（ミー＋「ヴァ」＋声を出さずに息を伴う「tn」）"
 parts = [["mý", "ブヨ"], ["vatn", "湖・水"]]
 
 # ---------------------------------------------------------------- parts
@@ -707,7 +711,7 @@ stage = "parts"
 text = "jökull"
 meaning = "glacier"
 meaning_ja = "氷河"
-hint_ja = "ヨークトル"
+hint_ja = "[ˈjœːkʏtl̥]（ヨー＋クトル。ll は t＋l で母音は入らず、l は声を出さない）"
 
 [[cards]]
 id = "t_vik"
@@ -739,7 +743,7 @@ stage = "parts"
 text = "tjörn"
 meaning = "pond"
 meaning_ja = "池"
-hint_ja = "ティョルトン"
+hint_ja = "[tʰjœtn̥]（ティョ＋トン。rn は t＋n で母音は入らず、n は声を出さない）"
 
 [[cards]]
 id = "t_fjall"
@@ -747,7 +751,7 @@ stage = "parts"
 text = "fjall · fell"
 meaning = "mountain · (smaller) mountain"
 meaning_ja = "山・（小さめの）山"
-hint_ja = "フィャトル・フェトル"
+hint_ja = "[fjatl̥]・[fɛtl̥]（フィャ・フェ＋トル。ll は t＋l で母音は入らず、l は声を出さない）"
 
 [[cards]]
 id = "t_dalur"
@@ -779,7 +783,7 @@ stage = "parts"
 text = "hraun"
 meaning = "lava field"
 meaning_ja = "溶岩原"
-hint_ja = "フロイン"
+hint_ja = "[r̥œyːn]（声を出さない r＋「ロイン」。h は「フ」ではなく、r を息で出す音）"
 
 [[cards]]
 id = "t_kirkja"
@@ -787,4 +791,4 @@ stage = "parts"
 text = "kirkja"
 meaning = "church"
 meaning_ja = "教会"
-hint_ja = "キルキャ"
+hint_ja = "[ˈcʰɪr̥ca]（キ＋声を出さない r＋キャ）"

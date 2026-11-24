@@ -94,7 +94,8 @@ run in this order:
 4. `places`: well-known sights, with the parts they're made of.
 5. `parts`: foss, jökull, vík, …
 
-Each card has the text, a meaning in English and Japanese, a katakana `hint_ja`, and
+Each card has the text, a meaning in English and Japanese, a katakana `hint_ja` (IPA with a
+Japanese note for a word whose sound katakana cannot write, `reading.kana_cannot_write`, #586), and
 `parts` for compounds. A card listing several expressions with «·» may gloss each one in
 `words` (`[[word, gloss], …]`, in the text's order). A `letters` card must: its `meaning`
 is the spelling rule, so without `words` the words themselves would go unexplained. The

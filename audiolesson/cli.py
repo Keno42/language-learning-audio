@@ -658,6 +658,9 @@ def cmd_validate(args) -> int:
     for i in cur.items:
         kinds[i.kind] = kinds.get(i.kind, 0) + 1
     print(f"ok: {cur.name} ({cur.target_lang} for {cur.known_lang} speakers): {len(cur.items)} items {kinds}, {len(cur.dialogues)} dialogues, {len(cur.notes)} notes, topics {cur.topics()}")
+    deck = load_deck(args.curriculum)  # the reading deck's own checks (#586: a word katakana cannot write has its hint in IPA)
+    if deck:
+        print(f"reading deck: {len(deck)} cards")
     others = [l for l in cur.known_langs if l != cur.known_langs[0]]
     if others:
         print(f"glosses also available for: {', '.join(others)}")
