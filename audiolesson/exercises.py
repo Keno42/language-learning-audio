@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 
 from .content import SUBJECTS, Curriculum, Dialogue, Item, Note, NOTE_TARGET_RE, TransformExample, said_of_words, split_note_span
 from .learner import LearnerState
+from .lines import familiarity
 from .numbers import NUMBER_TAGS, number_in, plain_number, value_of
 from .prompts import Prompts
 from .sounds import hard_sounds, hard_words_of
@@ -215,6 +216,8 @@ class Builder:
     from_known: set[str] = field(default_factory=set)
     ask_count: Callable[[str], int] | None = None  # how often a sentence was asked this lesson (#336): a pattern with every combination used asks the filling asked fewest times
     ask_cap: int = 0  # #336: a pattern's sentence asked this many times a lesson (any path) is not asked again by a sibling recall; 0: no cap
+    # #281 finding 2: whether a learner's line was said before is the planner's decision (``Planner.reply_familiarity``); None: ``lines.familiarity``
+    familiarity: Callable[[list[str], str, bool], tuple[list[str], bool]] | None = None
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
     _situation_texts: dict[str, int] = field(default_factory=dict)  # times each situation was narrated in full (``_narrated``)
     _recent_situations: list = field(default_factory=list)  # the situations narrated, newest last (``situation_rank``)
@@ -628,25 +631,12 @@ class Builder:
         if not (last is not None and last.type == "pause" and last.role == "beat"):
             self._beat(sc, ex)
 
-    def _line_known(self, ids: list[str]) -> bool:
-        """Whether the learner has said this line before: every item of it met and none open (#272)."""
-        return bool(ids) and all(self.learner.has_met(i) and not self.learner.is_open(i) for i in ids)
-
-    def _met_items_holding(self, text: str) -> list[Item] | None:
-        """The met, not open items whose words cover every word of ``text`` (#272 review): the items a literal line is made of. None when a word is not theirs."""
-        words = [w.lower() for w in WORD.findall(text)]
-        if not words:
-            return None
-        held: dict[str, Item] = {}
-        for it in self.cur.items:
-            if it.kind == "transform" or not self.learner.has_met(it.id) or self.learner.is_open(it.id):
-                continue
-            for t in (re.split(r"\{[^}]*\}", it.target) if it.kind == "construction" else [it.target]):
-                for w in WORD.findall(t):
-                    held.setdefault(w.lower(), it)
-        if any(w not in held for w in words):
-            return None
-        return list({held[w].id: held[w] for w in words}.values())
+    def reply_familiarity(self, ids: list[str], text: str, literal: bool) -> tuple[list[str], bool]:
+        """A learner's line's items and whether it was said before (#272): the planner's decision (``Planner.reply_familiarity``, #281 finding 2),
+        which a planner sets here; a builder on its own makes it by the same rule (``lines.familiarity``)."""
+        if self.familiarity is not None:
+            return self.familiarity(ids, text, literal)
+        return familiarity(self.cur, self.learner, ids, text, literal)
 
     def _reply_pause(self, sc: Script, ex: Exercise, expected: str, item: Item | None, ids: list[str], known: bool) -> None:
         """The pause for a conversation turn's reply (#272). A line the learner has said before is answered from the situation, not from a novel
@@ -2621,9 +2611,9 @@ class Builder:
                     ids = [item.id, *turn.expect_fill.values()]
                 else:
                     ids = list((turn_items or {}).get(k, []))
-                    if not ids and (made_of := self._met_items_holding(expected)) is not None:
-                        ids = [i.id for i in made_of]  # a literal line (``expect_text``) made only of words of items the learner has said (#272 review)
-                self._reply_pause(sc, ex, expected, item, ids, heard_play or self._line_known(ids))
+                # a literal line (``expect_text``) made only of words of items the learner has said is those items (#272 review)
+                ids, said = self.reply_familiarity(ids, expected, item is None)
+                self._reply_pause(sc, ex, expected, item, ids, heard_play or said)
                 self._answer(sc, ex, expected, speaker=learner_voice)
             lines.append((learner_voice, expected, False))
             line_items = [item] if item is not None else [self.cur.by_id[i] for i in (turn_items or {}).get(k, []) if i in self.cur.by_id]
