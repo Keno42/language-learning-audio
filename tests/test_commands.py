@@ -450,17 +450,17 @@ class CommandTests(unittest.TestCase):
         """#429 step 9 (lessons 66–73 on the replay of lesson 66's export, a part's frames and a build-up's lead taught in lessons 71–73: «Made of
         words you know.» 15 times and «The conversation again. You know your lines: say them when it's your turn.» 14, the most frequent English
         instructions left that an authored phrase can say): the first is «Úr orðum sem þú kannt.», a framing line with a beat after it, the
-        second «Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar röðin kemur að þér.»; the English after each in the lesson that teaches it and the next, alone from the
+        second «Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar þú átt að tala.»; the English after each in the lesson that teaches it and the next, alone from the
         third; before, as always."""
         en = Prompts.load("en")
         items = {k: next(i for i in self.cur.items if i.command == k) for k in ("from_known", "listening_intro_known")}
         self.assertEqual([items[k].target for k in ("from_known", "listening_intro_known")],
-                         ["Úr orðum sem þú kannt.", "Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar röðin kemur að þér."])
+                         ["Úr orðum sem þú kannt.", "Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar þú átt að tala."])
         # review of #588: the English says three things, the last the learner's action («say them when it's your turn»); once the English fades,
         # the Icelandic alone says all three, the action as «Segðu …»
         known = items["listening_intro_known"].target
         self.assertEqual(known.count("."), 3)
-        self.assertIn("Segðu þær þegar röðin kemur að þér.", known)
+        self.assertIn("Segðu þær þegar þú átt að tala.", known)
 
         def said(introduced, key, frame):
             learner = LearnerState("is", "en", "A1")
@@ -479,9 +479,9 @@ class CommandTests(unittest.TestCase):
         self.assertTrue(all(g.speaker == COMMAND_VOICE for g in sc.segments if g.type == "speak"))
         self.assertEqual(said(75, "from_known", True)[0], [("speak", "Úr orðum sem þú kannt."), ("narrate", en.get("from_known"))])
         self.assertEqual(said(None, "from_known", True)[0], [("narrate", en.get("from_known"))], "before it is taught, as always")
-        self.assertEqual(said(60, "listening_intro_known", False)[0], [("speak", "Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar röðin kemur að þér.")])
+        self.assertEqual(said(60, "listening_intro_known", False)[0], [("speak", "Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar þú átt að tala.")])
         self.assertEqual(said(75, "listening_intro_known", False)[0],
-                         [("speak", "Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar röðin kemur að þér."), ("narrate", en.get("listening_intro_known"))])
+                         [("speak", "Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar þú átt að tala."), ("narrate", en.get("listening_intro_known"))])
         self.assertEqual(said(None, "listening_intro_known", False)[0], [("narrate", en.get("listening_intro_known"))])
 
         # in place: a plain number made of known words opens on the Icelandic frame (``Builder._intro_from_known``)

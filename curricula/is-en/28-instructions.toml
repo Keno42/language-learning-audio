@@ -20,9 +20,10 @@
 # «Kláraðu setninguna:», and a build-up's lead, «Byrjum á endanum.» («Let's build it up from the end.»: 13), said before «Endurtaktu.».
 # Lessons 66–73 on the replay of lesson 66's export (a part's frames and a build-up's lead taught in lessons 71–73) for «Úr orðum sem þú
 # kannt.» («Made of words you know.»: 15 times in eight lessons), a framing line before a line asked as a use of known words, and a known
-# conversation's opening, «Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar röðin kemur að þér.» («The conversation again. You know your
+# conversation's opening, «Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar þú átt að tala.» («The conversation again. You know your
 # lines: say them when it's your turn.»: 14), each of the English line's three parts said, the last the learner's action; it builds on
-# «setninguna» and «Segðu hverja setningu.» (review of #588: without «Segðu þær …», the action went with the English).
+# «setninguna», «Segðu hverja setningu.» and «Aftur að tala.» (review of #588: without «Segðu þær …», the action went with the English;
+# the owner chose «þegar þú átt að tala», words the learner has, over «þegar röðin kemur að þér», which brings a new word).
 # An instruction's meaning, the cue the lesson and the written review ask it by, quotes the English line it replaces and names it an
 # instruction: «Say: the instruction "How do you say".» (lesson 65: «Say: How do you say, before what to say.» read as two frames in a row).
 # Candidates until native-checked (#209).
@@ -282,7 +283,7 @@ command = "from_known"
 [[items]]
 id = "samtalid_aftur_command"
 kind = "phrase"
-target = "Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar röðin kemur að þér."
+target = "Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar þú átt að tala."
 meaning = "the instruction \"The conversation again. You know your lines: say them when it's your turn\""
 meaning_ja = "指示の「もう一度、同じ会話です。あなたの番の表現は知っているものです。番が来たら言ってください」"
 meaning_spoken = "the instruction \"The conversation again. You know your lines: say them when it's your turn\""

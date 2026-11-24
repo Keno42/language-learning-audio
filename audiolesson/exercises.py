@@ -2557,7 +2557,7 @@ class Builder:
             else:
                 key = "listening_intro_some_asked" if any(not t.expect or t.expect not in listening for t in turns) else "listening_intro"
             if key == "listening_intro_known":
-                self._instruct(sc, ex, key)  # #429 step 9: «Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar röðin kemur að þér.» once taught
+                self._instruct(sc, ex, key)  # #429 step 9: «Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar þú átt að tala.» once taught
             else:
                 self._narr(sc, ex, self.prompts.get(key))
         if not heard_play:
