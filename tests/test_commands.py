@@ -446,6 +446,53 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(said(70, build_up)[0], [("speak", "Byrjum á endanum."), ("narrate", en.get("build_up_lead")), ("speak", "Endurtaktu.")])
         self.assertEqual(said(None, build_up)[0], [("narrate", en.get("build_up_lead")), ("speak", "Endurtaktu.")], "before it is taught, as always")
 
+    def test_a_use_of_known_words_and_a_known_conversation_say_their_lines_in_icelandic_once_taught(self):
+        """#429 step 9 (lessons 66–73 on the replay of lesson 66's export, a part's frames and a build-up's lead taught in lessons 71–73: «Made of
+        words you know.» 15 times and «The conversation again. You know your lines: say them when it's your turn.» 14, the most frequent English
+        instructions left that an authored phrase can say): the first is «Úr orðum sem þú kannt.», a framing line with a beat after it, the
+        second «Samtalið aftur. Þú kannt þínar setningar.»; the English after each in the lesson that teaches it and the next, alone from the
+        third; before, as always."""
+        en = Prompts.load("en")
+        items = {k: next(i for i in self.cur.items if i.command == k) for k in ("from_known", "listening_intro_known")}
+        self.assertEqual([items[k].target for k in ("from_known", "listening_intro_known")],
+                         ["Úr orðum sem þú kannt.", "Samtalið aftur. Þú kannt þínar setningar."])
+
+        def said(introduced, key, frame):
+            learner = LearnerState("is", "en", "A1")
+            learner.lessons_completed = 75
+            if introduced is not None:
+                learner.items[items[key].id] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", introduced_lesson=introduced)
+            b = builder(self.cur, learner=learner)
+            sc = Script(76, "t", "is", "en")
+            ex = sc.new_exercise("intro", "intro", [], "t")
+            b._instruct(sc, ex, key, frame=frame)
+            return [(g.type, g.text) for g in sc.segments if g.type != "pause"], sc
+
+        alone, sc = said(60, "from_known", True)
+        self.assertEqual(alone, [("speak", "Úr orðum sem þú kannt.")], "from the third lesson, the Icelandic alone")
+        self.assertEqual(sc.segments[-1].type, "pause", "a framing line: a beat before what it frames")
+        self.assertTrue(all(g.speaker == COMMAND_VOICE for g in sc.segments if g.type == "speak"))
+        self.assertEqual(said(75, "from_known", True)[0], [("speak", "Úr orðum sem þú kannt."), ("narrate", en.get("from_known"))])
+        self.assertEqual(said(None, "from_known", True)[0], [("narrate", en.get("from_known"))], "before it is taught, as always")
+        self.assertEqual(said(60, "listening_intro_known", False)[0], [("speak", "Samtalið aftur. Þú kannt þínar setningar.")])
+        self.assertEqual(said(75, "listening_intro_known", False)[0],
+                         [("speak", "Samtalið aftur. Þú kannt þínar setningar."), ("narrate", en.get("listening_intro_known"))])
+        self.assertEqual(said(None, "listening_intro_known", False)[0], [("narrate", en.get("listening_intro_known"))])
+
+        # in place: a plain number made of known words opens on the Icelandic frame (``Builder._intro_from_known``)
+        learner = LearnerState("is", "en", "A1")
+        learner.lessons_completed = 75
+        learner.items[items["from_known"].id] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", introduced_lesson=60)
+        b = builder(self.cur, learner=learner)
+        item = self.cur.by_id["tvo_thusund_kronur"]
+        b.plain.add(item.id)
+        b.from_known.add(item.id)
+        sc = Script(76, "t", "is", "en")
+        b.intro(sc, item)
+        first = next(g for g in sc.segments if g.type != "pause")
+        self.assertEqual((first.type, first.text), ("speak", "Úr orðum sem þú kannt."))
+        self.assertNotIn(en.get("from_known"), [g.text for g in sc.segments])
+
     def test_an_aside_says_its_own_lines_in_icelandic_once_taught(self):
         """#429 step 7 (lessons 64–71 on the replay of lesson 64's export, the form work's lines taught in lessons 67 and 68: «A quick aside.» and
         «Back to the lesson.» 19 times each in eight lessons, the most frequent English instructions left that an authored phrase can say): an
@@ -508,7 +555,7 @@ class CommandTests(unittest.TestCase):
                                  "aftur_ad_tala_command", "samtalinu_lokid_command", "stutt_samtal_command", "segdu_command", "hvernig_segir_madur_command",
                                  "klaradu_setninguna_command", "eitthvad_nytt_command", "segdu_hverja_setningu_command", "aefingunni_lokid_command",
                                  "sma_utudur_command", "aftur_ad_efninu_command",
-                                 "thessi_ord_command", "byrjum_a_endanum_command", "thetta_ord_command"],
+                                 "thessi_ord_command", "byrjum_a_endanum_command", "thetta_ord_command", "ur_ordum_command", "samtalid_aftur_command"],
                          "lesson 54's then lesson 57's, by how often the lessons say them")
         learner = LearnerState("is", "en", "A1")
         for i in ("endurtaktu", "hlustadu"):

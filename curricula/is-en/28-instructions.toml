@@ -18,6 +18,10 @@
 # lesson 65's export (an aside's lines taught in lessons 69 and 70) for a part's frame inside its sentence, «Þessi orð eru í setningunni:»
 # («These words are in it:»: 18 times in eight lessons) and «Þetta orð er í setningunni:» («This word is in it:»: 7), which build on
 # «Kláraðu setninguna:», and a build-up's lead, «Byrjum á endanum.» («Let's build it up from the end.»: 13), said before «Endurtaktu.».
+# Lessons 66–73 on the replay of lesson 66's export (a part's frames and a build-up's lead taught in lessons 71–73) for «Úr orðum sem þú
+# kannt.» («Made of words you know.»: 15 times in eight lessons), a framing line before a line asked as a use of known words, and a known
+# conversation's opening, «Samtalið aftur. Þú kannt þínar setningar.» («The conversation again. You know your lines: say them when it's your
+# turn.»: 14), which builds on «setninguna» and «Segðu hverja setningu.».
 # An instruction's meaning, the cue the lesson and the written review ask it by, quotes the English line it replaces and names it an
 # instruction: «Say: the instruction "How do you say".» (lesson 65: «Say: How do you say, before what to say.» read as two frames in a row).
 # Candidates until native-checked (#209).
@@ -261,3 +265,27 @@ meaning_spoken_ja = "指示の「この中の単語です」"
 difficulty = 1
 topics = ["instructions"]
 command = "embed_part"
+
+[[items]]
+id = "ur_ordum_command"
+kind = "phrase"
+target = "Úr orðum sem þú kannt."
+meaning = "the instruction \"Made of words you know\""
+meaning_ja = "指示の「知っている言葉だけでできています」"
+meaning_spoken = "the instruction \"Made of words you know\""
+meaning_spoken_ja = "指示の「知っている言葉だけでできています」"
+difficulty = 1
+topics = ["instructions"]
+command = "from_known"
+
+[[items]]
+id = "samtalid_aftur_command"
+kind = "phrase"
+target = "Samtalið aftur. Þú kannt þínar setningar."
+meaning = "the instruction \"The conversation again. You know your lines: say them when it's your turn\""
+meaning_ja = "指示の「もう一度、同じ会話です。あなたの番の表現は知っているものです。番が来たら言ってください」"
+meaning_spoken = "the instruction \"The conversation again. You know your lines: say them when it's your turn\""
+meaning_spoken_ja = "指示の「もう一度、同じ会話です。あなたの番の表現は知っているものです。番が来たら言ってください」"
+difficulty = 1
+topics = ["instructions"]
+command = "listening_intro_known"

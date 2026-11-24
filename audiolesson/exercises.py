@@ -1506,7 +1506,7 @@ class Builder:
             gender, target, meaning = None, item.target, item.spoken_meaning
         ex = sc.new_exercise("intro", "intro", [item.id], f"from known words: {target}")
         self.said[_norm_utterance(target)] += 1
-        self._frame(sc, ex, self.prompts.get("from_known"))
+        self._instruct(sc, ex, "from_known", frame=True)  # #429 step 9: «Úr orðum sem þú kannt.» once taught
         self._narr(sc, ex, self._as(gender, self._meaning_prompt(meaning)))
         self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target, speaker=VOICE_OF[gender or "f"])
@@ -2556,7 +2556,10 @@ class Builder:
                     self.voiced_guide_said = True
             else:
                 key = "listening_intro_some_asked" if any(not t.expect or t.expect not in listening for t in turns) else "listening_intro"
-            self._narr(sc, ex, self.prompts.get(key))
+            if key == "listening_intro_known":
+                self._instruct(sc, ex, key)  # #429 step 9: «Samtalið aftur. Þú kannt þínar setningar.» once taught
+            else:
+                self._narr(sc, ex, self.prompts.get(key))
         if not heard_play:
             self._narr(sc, ex, self.prompts.get("dialogue_start_part" if dlg.part else "dialogue_start"))  # a scene heard again has the one intro, whichever it is (#272)
         if note_voiced and not (heard_play and key in ("listening_intro_known_voiced", "listening_intro_again")) and not self.voiced_guide_said:
