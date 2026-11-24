@@ -44,7 +44,7 @@ In order:
    and a build-up's lead, «Byrjum á endanum.» («Let's build it up from the end.»), taught in lessons 71–73 on the replay of lesson 66's export.
    Lesson 66 (LLA `f268aba`) taught «Eitthvað nýtt.», asked it by name («The instruction "Something new".», #583) and said 137 instructor lines
    in Icelandic, with no remark. **This round (step 9, #588, open):** «Úr orðum sem þú kannt.» for «Made of words you know.» (15 in lessons 66–73) and
-   «Samtalið aftur. Þú kannt þínar setningar.» for a known conversation's «The conversation again. You know your lines: say them when it's your
+   «Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar röðin kemur að þér.» for a known conversation's «The conversation again. You know your lines: say them when it's your
    turn.» (14), taught in lessons 74 and 75; neither English line is said from lesson 77. **Then (step 10):** the next most frequent English
    lines on the next export's replay; on lesson 66's, «Your turn.» (14) and «Put it together yourself.» (12).
 2. **Forms as choices (#528, owner 2026-11-12).** «New material should not be more numbers, colours and words to memorise; I want to feel a
