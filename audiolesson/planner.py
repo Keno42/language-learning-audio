@@ -162,6 +162,10 @@ class PlanConfig:
         "number", "colour", "animal", "acc_language", "weather", "nature_nom", "day", "job", "adj_neut|adj_masc|adj_fem",
     )
     max_set_items: int = 3
+    # #579 (the owner, 2026-11-24): a theme no trip profile ranks (Tier C: the pharmacy, the accident) is played when the learner can say its
+    # next level, as a ranked one is: the course order teaches its lines for everyone, and a level plays in the lesson that teaches its lines
+    # (#365). Its rank comes after every ranked scenario; it never decides which new material comes (``theme_target``) and is not played again
+    play_unranked: bool = True
     listening_missing_max: int = 2
     listening_rest_lessons: int = 6
     max_notes: int | None = None  # cultural asides per lesson (default: one per 12 minutes, at least 1)
@@ -2204,7 +2208,7 @@ class Planner:
         best = None
         for order, theme in enumerate(self.cfg.themes):
             level = self.learner.themes_done.get(theme.id, 0)
-            if level >= len(theme.levels) or theme.scenario not in rank:
+            if level >= len(theme.levels) or (theme.scenario not in rank and not self.cfg.play_unranked):
                 continue
             you = [t for t in theme.levels[level].turns if t.who == "you"]
             untaught = self._untaught_turns(you)
@@ -2215,7 +2219,7 @@ class Planner:
                 continue
             # a level whose lines this lesson teaches comes first (#327): another ready level, all of it known, would leave today's lines without
             # their scene (lesson 40 of the lesson-33 replay: café 4, rank A4, over small talk 4, whose lines that lesson taught)
-            key = (not waiting, level, rank[theme.scenario], order)
+            key = (not waiting, level, rank.get(theme.scenario, len(rank)), order)
             if best is None or key < best[0]:
                 best = (key, theme, level, untaught)
         if best is not None:
