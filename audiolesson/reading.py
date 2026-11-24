@@ -8,6 +8,7 @@ profile (#132) as extra cards built at run time; they are never written to the r
 
 from __future__ import annotations
 
+import re
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
@@ -24,7 +25,9 @@ class Card:
     text: str
     meaning: str
     meaning_ja: str = ""
-    hint_ja: str = ""  # a katakana approximation; the 🔊 TTS is the real pronunciation
+    # a katakana approximation; the 🔊 TTS is the real pronunciation. IPA in brackets, with a note in Japanese, for a word with a sound
+    # katakana cannot write (``kana_cannot_write``, #586)
+    hint_ja: str = ""
     parts: list[list[str]] = field(default_factory=list)  # [[part, gloss], …] for compounds
     # [[word, gloss], …]: what each expression listed with «·» means. A letters card's
     # ``meaning`` is its spelling rule, so without these the words' meanings go unshown
@@ -57,6 +60,9 @@ def load_deck(curriculum_dir: str | Path, places: list[str] | None = None) -> li
             raise CurriculumError(f"{where}: words must gloss {expressions(card.text)}, in order")
         if card.stage == "letters" and not card.words:
             raise CurriculumError(f"{where}: a letters card glosses its words")
+        if card.hint_ja and "[" not in card.hint_ja and (unwritable := sorted({r for w in _WORD.findall(card.text) for r in kana_cannot_write(w)})):
+            raise CurriculumError(f"{where}: {card.text!r} has a sound katakana cannot write ({', '.join(unwritable)}): its hint_ja gives IPA in "
+                                  "[brackets] (#586)")
         if card.stage == "letters":
             _check_graphemes(card, where)
         elif card.graphemes:
@@ -68,6 +74,25 @@ def load_deck(curriculum_dir: str | Path, places: list[str] | None = None) -> li
             cards.append(Card(id=f"own_{n}", stage="places", text=place, meaning="a place on your trip",
                               meaning_ja="あなたの旅程の地名", own=True))
     return sorted(cards, key=lambda c: STAGES.index(c.stage))
+
+
+_WORD = re.compile(r"[^\W\d_]+")
+_VOWEL = "aáeéiíoóuúyýæö"
+# #586 (lesson 65: «vatn» introduced as «ヴァフトン», two vowels the word does not have): the sounds katakana cannot write without adding a vowel
+# or a voice. Spelling rules, not a transcription: what they flag is a word whose hint gives IPA instead
+_UNWRITABLE = (
+    ("pre-aspiration", re.compile(rf"[{_VOWEL}](?:pp|tt|kk|[ptk][lnm]|fn)", re.I)),  # «vatn» [vaʰtn̥], «Hætta» [ˈhaiʰta], «Nafn» [napn̥]
+    ("the tl of ll", re.compile(rf"[{_VOWEL}]ll(?![sdtn])", re.I)),  # «fjall» [fjatl̥]; before s, d, t or n a plain l («Snæfellsnes»)
+    ("the tn of rn", re.compile(rf"[{_VOWEL}]rn", re.I)),  # «Björn» [pjœtn̥]
+    ("the tn of nn", re.compile(r"(?:[áéíóúýæ]|au|ei|ey)nn", re.I)),  # «Steinn» [steitn̥]; not after a short vowel («Bannað», «daginn»)
+    ("a voiceless l, m, n or r", re.compile(rf"[{_VOWEL}](?:ll|[lmnr])[ptk]", re.I)),  # «Mjólk» [mjoul̥k], «Sturta» [ˈstʏr̥ta], «allt»
+    ("a voiceless initial l, n or r", re.compile(r"^h[lnr]", re.I)),  # «hraun» [r̥œyːn]
+)
+
+
+def kana_cannot_write(word: str) -> list[str]:
+    """The sounds of ``word`` katakana cannot write (#586), by its spelling; [] when kana can approximate it."""
+    return [name for name, rx in _UNWRITABLE if rx.search(word)]
 
 
 def _check_graphemes(card: Card, where: str) -> None:

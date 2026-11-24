@@ -10735,6 +10735,29 @@ class ReadingDeckTests(unittest.TestCase):
         raw = "\n".join(p.read_text("utf-8") for p in (ROOT / "curricula" / "is-en" / "reading").glob("*.toml"))
         self.assertIsNone(re.search(r"\b(19|20)\d\d-\d\d-\d\d\b", raw), "general content only")
 
+    def test_a_word_katakana_cannot_write_has_its_hint_in_ipa(self):
+        """#586 (lesson 65: «vatn» introduced as «ヴァフトン», two vowels the word does not have): a card with pre-aspiration, the «tl» of
+        ll, the «tn» of rn and nn, or a voiceless l, m, n or r gives IPA in its hint; validate fails on a kana-only hint of such a word."""
+        import tempfile
+
+        from audiolesson.content import CurriculumError
+        from audiolesson.reading import kana_cannot_write, load_deck
+
+        self.assertEqual(kana_cannot_write("vatn"), ["pre-aspiration"])
+        for word in ("Hætta", "Epli", "Nafn", "fjall", "Björn", "Steinn", "Mjólk", "allt", "hraun"):
+            self.assertTrue(kana_cannot_write(word), word)
+        for word in ("Snæfellsnes", "Inngangur", "Bannað", "daginn", "Kaffi", "Gjörðu"):
+            self.assertEqual(kana_cannot_write(word), [], word)
+        cards = {c.id: c for c in load_deck(ROOT / "curricula" / "is-en")}
+        self.assertTrue(cards["w_vatn"].hint_ja.startswith("[vaʰtn̥]"), "the owner's wording, after the IPA")
+        self.assertNotIn("フト", cards["w_vatn"].hint_ja)
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "reading").mkdir()
+            (Path(td) / "reading" / "deck.toml").write_text(
+                '[[cards]]\nid = "w_vatn"\nstage = "shop"\ntext = "Vatn"\nmeaning = "Water"\nhint_ja = "ヴァフトン"\n', encoding="utf-8")
+            with self.assertRaisesRegex(CurriculumError, "katakana cannot write \\(pre-aspiration\\)"):
+                load_deck(td)
+
     def test_own_places_come_from_the_profile_at_run_time(self):
         from audiolesson.reading import load_deck
 

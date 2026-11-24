@@ -370,7 +370,7 @@ new items. It is the first built with #580 (the long run's step 7) and #582 (the
     do you say" as an instruction» would not. An instruction item's cue is its meaning, which in ten of the seventeen items was the English line
     plus where it is said. Every item's meaning now quotes the line and names it an instruction (#583, data).
   - **«vatn» as «ヴァフトン»** (family `reading-deck`, precision): the reading deck's hint. Katakana cannot write the breath before «t» or the
-    voiceless «n» without adding vowels, and the hints have had no outside review (#586: options, nothing built).
+    voiceless «n» without adding vowels, and the hints have had no outside review (#586: such a word's hint is now IPA, the owner's choice).
   - **No way to mark a review item that did not come at once** (family `review-unmarkable`, new): the form's «sooner» menu is one Discord
     select of 25 options. Lesson 65's 10 new items took 10 of them and 15 of the 59 items it asked again took the rest; «húfu», asked at
     23:25, was 43rd. It is the owner's choice (#585; recommended: one option more, «その他（表現を入力）», matched against the lesson's items).
