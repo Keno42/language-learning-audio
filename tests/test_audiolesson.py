@@ -4485,7 +4485,7 @@ class StableItemTests(unittest.TestCase):
             due = {i for i in stable if learner.review_priority(i, day) >= 1.0}
             new = set(sc.meta["new_items"])
             for k, e in enumerate(sc.exercises):
-                if e.kind == "recall" and e.item_ids[0] in stable - due:
+                if e.kind == "recall" and e.item_ids and e.item_ids[0] in stable - due:  # the closing's «Today's form work, once more.» asks no item (#535)
                     self.assertIn("note", [x.kind for x in sc.exercises[max(0, k - 2):k]], (sc.lesson_number, e.label))
                 if e.kind == "connect" and set(e.item_ids) & (stable - due):
                     self.assertTrue(set(e.item_ids) & (new | due), (sc.lesson_number, e.item_ids))
@@ -5026,7 +5026,8 @@ class SemanticSetTests(unittest.TestCase):
                                                 recalled=2, last_outcome="recalled", interval_days=3, last_practiced=(TODAY - timedelta(days=1)).isoformat())
         def pick(sets):
             planner = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"),
-                              PlanConfig(minutes=30, new_items=8, seed=1, priority=[i.id for i in adjectives], semantic_sets=sets), today=TODAY)
+                              PlanConfig(minutes=30, new_items=8, seed=1, priority=[i.id for i in adjectives], semantic_sets=sets,
+                                         max_slot_fillers=99), today=TODAY)  # the set's limit alone; a slot's is #579's (tests/test_slot_fillers.py)
             return [i.id for i in planner.select_new(8)]
 
         adj_ids = {a.id for a in adjectives}
@@ -5052,7 +5053,7 @@ class SemanticSetTests(unittest.TestCase):
 
         def pick(**cfg):
             planner = Planner(self.cur, learner, Prompts.load("en"), Timing(level="A1"),
-                              PlanConfig(minutes=30, new_items=8, seed=1, priority=[i.id for i in colours], **cfg), today=TODAY)
+                              PlanConfig(minutes=30, new_items=8, seed=1, priority=[i.id for i in colours], **{"max_slot_fillers": 99, **cfg}), today=TODAY)
             return [i.id for i in planner.select_new(8) if "colour" in self.cur.by_id[i.id].tags]
 
         self.assertEqual(len(pick(max_set_items=5)), 5)

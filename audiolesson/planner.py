@@ -162,6 +162,10 @@ class PlanConfig:
         "number", "colour", "animal", "acc_language", "weather", "nature_nom", "day", "job", "adj_neut|adj_masc|adj_fem",
     )
     max_set_items: int = 3
+    # #579 step 2 (H5; the owner, 2026-11-22): similar lines apart. At most ``max_slot_fillers`` new fillers of one slot a lesson («Ég er með
+    # {…}»: «höfuðverk», «hita», «flensu» …; «Þetta er {person}.»: «mamma mín», «pabbi minn» …), unless the theme's next level wants them; the
+    # rest wait a lesson
+    max_slot_fillers: int = 2
     # #579 (the owner, 2026-11-24): a theme no trip profile ranks (Tier C: the pharmacy, the accident) is played when the learner can say its
     # next level, as a ranked one is: the course order teaches its lines for everyone, and a level plays in the lesson that teaches its lines
     # (#365). Its rank comes after every ranked scenario; it never decides which new material comes (``theme_target``) and is not played again
@@ -1150,6 +1154,19 @@ class Planner:
             lesson = [self.cur.by_id[i] for i in chosen_ids if i in self.cur.by_id and i not in scene]
             return any(sum(1 for x in lesson if g & set(x.tags) and x.kind != "construction") >= self.cfg.max_set_items for g in sets)
 
+        def slot_full(it: Item) -> bool:
+            """#579 step 2 (H5): whether the lesson already has ``max_slot_fillers`` new fillers of a slot ``it`` fills, counting this
+            lesson's earlier arcs (``exclude``) and what this call chose. The items the theme's next level wants are exempt, neither stopped
+            nor counted, as for ``set_full``. Lessons 62–65 taught the illness fillers of «Ég er með {…}» three to five a lesson, and they were
+            the next-day failures (6 of 7 weak items in lesson 63)."""
+            if it.kind == "construction" or it.id in scene:
+                return False
+            tags = slot_tags(it)
+            if not tags:
+                return False
+            lesson = [self.cur.by_id[i] for i in chosen_ids if i in self.cur.by_id and i not in scene]
+            return any(sum(1 for x in lesson if t in x.tags and x.kind != "construction") >= self.cfg.max_slot_fillers for t in tags)
+
         # walk in order, but a not-yet-ready item is skipped rather than blocking
         progress = True
         while not full() and progress:
@@ -1157,7 +1174,7 @@ class Planner:
             for it in pool:
                 if full():
                     break
-                if it.id in chosen_ids or not ready(it) or set_full(it):
+                if it.id in chosen_ids or not ready(it) or set_full(it) or slot_full(it):
                     continue
                 n0 = len(chosen)
                 if it.kind != "construction" and it.tags:
@@ -3712,6 +3729,10 @@ class Planner:
             if task.kind == "catch_unknown" and task.answer.lower() in caught_words:
                 return False
             if append_task(b, sc, task, remaining_time() if room is None else room) is None:
+                if task.kind == "pick_out":
+                    # #589: the turn's first value does not fit the time left; its next one may be the value it gave last, so the turn sits the
+                    # lesson out, as it does when its value was just heard (a turn never gives one value twice in a row)
+                    turns_heard_lately.add(task.pattern)
                 return False
             used_listening_tasks.add(key)
             if task.kind == "pick_out":
