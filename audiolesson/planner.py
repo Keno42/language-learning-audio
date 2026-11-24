@@ -25,6 +25,7 @@ from .content import SUBJECTS, Curriculum, Dialogue, Item
 from .exercises import NOUN_CASES, Builder, _norm_utterance, cue_is_answer
 from .sounds import hard_sounds, hard_words_of
 from .learner import REPORTED_HARD_DAYS, LearnerState
+from .lines import familiarity
 from .numbers import choice_lines, form_genders, noun_gender, number_in, number_words, pick_choice, plain_number, value_of
 from .review_wholes import whole_for
 from .listening_tasks import REPAIR_ITEM, ListeningTask, SecondHalfRotation, append_task, catch_unknown, introduce_by_catch, key_of, partner_pick_out
@@ -316,6 +317,7 @@ class Planner:
         self.rng = random.Random(seed)
         prompts.rng = self.rng
         self.builder = Builder(cur, prompts, timing, learner, self.rng, translate_partner=cfg.translate_partner, said_cap=cfg.max_sentence_hard, close_conversations=True)
+        self.builder.familiarity = self.reply_familiarity  # #281 finding 2: the planner decides whether a line was said before; the builder renders
         self.exposures: dict[str, list[str]] = {}
         self.support: dict[str, int] = {}
         self.dialogues_played: list[str] = []
@@ -2088,6 +2090,11 @@ class Planner:
         line = self.cur.resolve_slots(item, fills)[0] if item.kind == "construction" else item.target
         known = {w for chunk in self._say_chunks(True) for w in chunk}
         return any(w.lower() in known for w in _WORD_RE.findall(line))
+
+    def reply_familiarity(self, ids: list[str], text: str, literal: bool) -> tuple[list[str], bool]:
+        """A learner's line's items and whether the learner has said it before (#272), for its reply pause: one rule (``lines.familiarity``),
+        decided here beside ``line_role`` (#281 finding 2), and handed to ``Builder.dialogue`` through ``Builder.familiarity``."""
+        return familiarity(self.cur, self.learner, ids, text, literal)
 
     def line_role(self, items, turn=None, text: str = "") -> str:
         """The one decision on a learner's line in every play mode (#263, step 1 of #265): ``"ask"`` or ``"hear"``. A line is asked when the learner can

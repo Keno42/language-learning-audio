@@ -101,16 +101,25 @@ class ConversationTimingTests(unittest.TestCase):
         cur = self.cur
         dlg = next(d for d in cur.dialogues if any(t.expect_text for t in d.turns))
         turn = next(t for t in dlg.turns if t.expect_text)
-        b = Builder(cur, self.en, Timing(level="A1"), learner_with([]))
-        self.assertIsNone(b._met_items_holding(turn.expect_text), "nothing met: not made of known words")
+        from audiolesson.lines import familiarity, items_holding
+
+        self.assertIsNone(items_holding(cur, learner_with([]), turn.expect_text), "nothing met: not made of known words")
         met = [i.id for i in cur.items if i.kind != "transform"]
-        b = Builder(cur, self.en, Timing(level="A1"), learner_with(met))
-        self.assertIsNotNone(b._met_items_holding("Nei, takk."))
-        self.assertIsNone(b._met_items_holding("Nei, takk. Eldfjall með rjóma."), "a word of no met item")
+        self.assertIsNotNone(items_holding(cur, learner_with(met), "Nei, takk."))
+        self.assertIsNone(items_holding(cur, learner_with(met), "Nei, takk. Eldfjall með rjóma."), "a word of no met item")
+        self.assertTrue(familiarity(cur, learner_with(met), [], "Nei, takk.", True)[1], "a literal line of met words: said before")
+        self.assertFalse(familiarity(cur, learner_with(met), [], "Nei, takk.", False)[1], "an item's line names its items: none, not said")
         failed = learner_with(met)
         for i in met:
             failed.items[i].last_outcome = "not_recalled"
-        self.assertIsNone(Builder(cur, self.en, Timing(level="A1"), failed)._met_items_holding("Nei, takk."), "open items do not count")
+        self.assertIsNone(items_holding(cur, failed, "Nei, takk."), "open items do not count")
+
+    def test_the_planner_decides_whether_a_line_was_said_before(self):
+        """#281 finding 2: the builder no longer judges the learner's state for a reply pause; a planner's builder asks the planner."""
+        from audiolesson.planner import PlanConfig, Planner
+
+        p = Planner(self.cur, learner_with([]), self.en, Timing(level="A1"), PlanConfig(minutes=30))
+        self.assertEqual(p.builder.familiarity, p.reply_familiarity)
 
     def test_every_heard_play_has_one_intro_and_no_beat_doubles_up(self):
         learner = learner_with(self.all_items())
