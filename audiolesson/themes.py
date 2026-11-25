@@ -7,7 +7,7 @@ receipt). The lesson plays the theme's exchange twice (``Planner.pick_theme``, `
 once early with the partner's lines translated, and once late without the translation. Only the
 translation fades: the cue (the intent) and the scene line play every time (#210).
 
-Themes live in ``<curriculum>/cando/themes.toml`` (``load_cando`` reads only ``[[scenarios]]``
+Themes live in ``<curriculum>/cando/themes-NN-<id>.toml``, one file a theme, read in file-name order (``load_cando`` reads only ``[[scenarios]]``
 and ``load_scenes`` only ``[[scenes]]``, so they share the directory)::
 
     [[themes]]

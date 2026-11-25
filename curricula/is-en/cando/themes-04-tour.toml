@@ -1,0 +1,138 @@
+# Lesson themes: one file a theme, read in file-name order (`load_records`). The format and its rules: themes-01-cafe.toml's
+# header and audiolesson/themes.py.
+
+[[themes]]
+id = "tour"
+scenario = "B2"
+title = "Day tour with a guide"
+title_ja = "ガイド付きの日帰りツアー"
+setting = "A coach tour: the guide talks to the group, stops at a waterfall, points at a volcano."
+setting_ja = "バスツアー。ガイドの説明、滝での休憩、火山の案内。"
+scene_line = "You're on a coach tour."
+scene_line_ja = "バスツアーに参加しています。"
+topics = ["travel", "nature"]
+[[themes.levels]]
+partner_speaker = "native_a"  # the partner is a woman
+goal = "Greet the guide and find out when the coach leaves."
+goal_ja = "ガイドにあいさつし、バスの出発時刻を確かめる。"
+turns = [
+  { who = "partner", say = "Góðan daginn öll! Ég heiti Anna og ég er leiðsögumaðurinn ykkar í dag.", meaning = "Good morning, everyone! I'm Anna, and I'm your guide today.", meaning_ja = "皆さんおはようございます！今日のガイドのアンナです。" },
+  { who = "you", cue = "Greet her back.", cue_ja = "あいさつを返してください。", aim = "greet the guide", aim_ja = "ガイドにあいさつを返す", say = "Góðan daginn.", items = ["godan_daginn"] },
+  { who = "partner", say = "Við stoppum hérna í tuttugu mínútur.", meaning = "We'll stop here for twenty minutes.", meaning_ja = "ここで20分休憩します。", probes = [{ kind = "duration", answer = "tuttugu mínútur", meanings = { en = "twenty minutes", ja = "20分" } }], variants = [
+      { say = "Við verðum hérna í tuttugu mínútur.", meaning = "We'll be here for twenty minutes.", meaning_ja = "ここに20分います。", probes = [{ kind = "duration", answer = "tuttugu mínútur", meanings = { en = "twenty minutes", ja = "20分" } }] },
+      { say = "Hér stoppum við í tuttugu mínútur.", meaning = "Here we stop for twenty minutes.", meaning_ja = "ここで20分止まります。", probes = [{ kind = "duration", answer = "tuttugu mínútur", meanings = { en = "twenty minutes", ja = "20分" } }] },
+      { say = "Við stoppum hérna í þrjátíu mínútur.", meaning = "We'll stop here for thirty minutes.", meaning_ja = "ここで30分休憩します。", probes = [{ kind = "duration", answer = "þrjátíu mínútur", meanings = { en = "thirty minutes", ja = "30分" } }] },
+      { say = "Við stoppum hérna í fimmtán mínútur.", meaning = "We'll stop here for fifteen minutes.", meaning_ja = "ここで15分休憩します。", probes = [{ kind = "duration", answer = "fimmtán mínútur", meanings = { en = "fifteen minutes", ja = "15分" } }] },
+    ], listen = [
+      { say = "Við stoppum hérna í tuttugu mínútur og förum svo klukkan hálf þrjú.", meaning = "We'll stop here for twenty minutes, and then we leave at half past two.", meaning_ja = "ここで20分休憩して、2時半に出発します。", probes = [{ kind = "duration", answer = "tuttugu mínútur", meanings = { en = "twenty minutes", ja = "20分" }, ask = { en = "How long do we stop?", ja = "何分休憩しますか？" } }, { kind = "time", answer = "klukkan hálf þrjú", meanings = { en = "half past two", ja = "2時半" }, ask = { en = "When do we leave?", ja = "何時に出発しますか？" } }] },
+      { say = "Við stoppum hérna í fimm mínútur og förum svo klukkan fjögur.", meaning = "We stop here for five minutes and then leave at four.", meaning_ja = "ここで5分休憩して、4時に出発します。", probes = [{ kind = "duration", answer = "fimm mínútur", meanings = { en = "five minutes", ja = "5分" }, ask = { en = "How long do we stop?", ja = "何分休憩しますか？" } }, { kind = "time", answer = "klukkan fjögur", meanings = { en = "four o'clock", ja = "4時" }, ask = { en = "When do we leave?", ja = "何時に出発しますか？" } }] },
+      { say = "Við stoppum hérna í tíu mínútur og förum svo klukkan hálf fimm.", meaning = "We stop here for ten minutes and then leave at half past four.", meaning_ja = "ここで10分休憩して、4時半に出発します。", probes = [{ kind = "duration", answer = "tíu mínútur", meanings = { en = "ten minutes", ja = "10分" }, ask = { en = "How long do we stop?", ja = "何分休憩しますか？" } }, { kind = "time", answer = "klukkan hálf fimm", meanings = { en = "half past four", ja = "4時半" }, ask = { en = "When do we leave?", ja = "何時に出発しますか？" } }] },
+    ] },
+  { who = "you", cue = "Ask when you're leaving.", cue_ja = "いつ出発するか聞いてください。", aim = "ask when you're leaving", aim_ja = "いつ出発するか聞く", say = "Hvenær leggjum við af stað?", items = ["hvenaer_leggjum_vid_af_stad"] },
+  { who = "partner", say = "Klukkan hálf þrjú.", meaning = "At half past two.", meaning_ja = "2時半です。", probes = [{ kind = "time", answer = "klukkan hálf þrjú", meanings = { en = "half past two", ja = "2時半" } }], variants = [
+      { say = "Við förum klukkan hálf þrjú.", meaning = "We leave at half past two.", meaning_ja = "2時半に出発します。", probes = [{ kind = "time", answer = "klukkan hálf þrjú", meanings = { en = "half past two", ja = "2時半" } }] },
+      { say = "Rútan fer klukkan hálf þrjú.", meaning = "The coach leaves at half past two.", meaning_ja = "バスは2時半に出ます。", probes = [{ kind = "time", answer = "klukkan hálf þrjú", meanings = { en = "half past two", ja = "2時半" } }] },
+      { say = "Klukkan hálf fjögur.", meaning = "At half past three.", meaning_ja = "3時半です。", probes = [{ kind = "time", answer = "klukkan hálf fjögur", meanings = { en = "half past three", ja = "3時半" } }] },
+      { say = "Klukkan þrjú.", meaning = "At three.", meaning_ja = "3時です。", probes = [{ kind = "time", answer = "klukkan þrjú", meanings = { en = "three o'clock", ja = "3時" } }] },
+    ], listen = [
+      { say = "Við leggjum aftur af stað klukkan korter yfir þrjú.", meaning = "We set off again at a quarter past three.", meaning_ja = "3時15分にまた出発します。", probes = [{ kind = "time", answer = "klukkan korter yfir þrjú", meanings = { en = "a quarter past three", ja = "3時15分" } }] },
+      { say = "Klukkan korter í fjögur, eftir þrjátíu mínútur.", meaning = "At a quarter to four, in thirty minutes.", meaning_ja = "3時45分、30分後です。", probes = [{ kind = "time", answer = "klukkan korter í fjögur", meanings = { en = "a quarter to four", ja = "3時45分" }, ask = { en = "When do you leave?", ja = "何時に出発しますか？" } }, { kind = "duration", answer = "þrjátíu mínútur", meanings = { en = "thirty minutes", ja = "30分" }, ask = { en = "In how long?", ja = "あと何分後ですか？" } }] },
+      { say = "Rútan fer klukkan þrjú.", meaning = "The bus leaves at three.", meaning_ja = "バスは3時に出ます。", probes = [{ kind = "time", answer = "klukkan þrjú", meanings = { en = "three o'clock", ja = "3時" } }] },
+      { say = "Við förum klukkan hálf fimm.", meaning = "We leave at half past four.", meaning_ja = "4時半に出発します。", probes = [{ kind = "time", answer = "klukkan hálf fimm", meanings = { en = "half past four", ja = "4時半" } }] },
+    ] },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
+]
+[[themes.levels]]
+goal = "Ask the name of a mountain, react to the view, accept a photo."
+goal_ja = "山の名前を聞き、景色に反応し、写真を撮ってもらう。"
+turns = [
+  { who = "you", cue = "Point at a mountain and ask its name.", cue_ja = "山を指して名前を聞いてください。", aim = "ask the name of a mountain", aim_ja = "山の名前を聞く", say = "Hvað heitir þetta fjall?", items = ["hvad_er_thetta_fjall"] },
+  { who = "partner", say = "Þetta er Hekla. Hún er eldfjall.", meaning = "That's Hekla. It's a volcano.", meaning_ja = "ヘクラ山です。火山ですよ。", variants = [
+      { say = "Þetta er Hekla, eldfjall.", meaning = "That's Hekla, a volcano.", meaning_ja = "ヘクラ山、火山です。" },
+      { say = "Þarna er Hekla. Hún er eldfjall.", meaning = "There's Hekla. It's a volcano.", meaning_ja = "あれがヘクラ山です。火山ですよ。" },
+    ] },
+  { who = "you", cue = "React to the view.", cue_ja = "景色に反応してください。", aim = "react to the view", aim_ja = "景色に反応する", say = "Vá! Útsýnið er fallegt.", items = ["vaa", "utsynid_er_fallegt"] },
+  { who = "partner", say = "Viltu að ég taki mynd af ykkur?", meaning = "Shall I take a photo of you?", meaning_ja = "写真を撮りましょうか？", variants = [
+      { say = "Á ég að taka mynd af ykkur?", meaning = "Shall I take a picture of you?", meaning_ja = "写真を撮りましょうか？" },
+      { say = "Viltu að ég taki mynd?", meaning = "Do you want me to take a photo?", meaning_ja = "写真を撮りましょうか？" },
+    ] },
+  { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", aim = "accept a photo", aim_ja = "写真を撮ってもらう", say = "Já, takk.", items = ["ja", "takk"] },
+]
+[[themes.levels]]
+partner_speaker = "native_a"  # the partner is a woman
+goal = "Say what you'd like to see."
+goal_ja = "見たいものを伝える。"
+turns = [
+  { who = "partner", say = "Hvað langar ykkur að sjá?", meaning = "What would you like to see?", meaning_ja = "何が見たいですか？", variants = [{ say = "Hvað viljið þið sjá?", meaning = "What do you want to see?", meaning_ja = "何を見たいですか？" }] },
+  { who = "you", cue = "Say you'd like to see a volcano.", cue_ja = "火山が見たいと言ってください。", aim = "say you'd like to see a volcano", aim_ja = "火山が見たいと伝える", say = "Mig langar að sjá eldfjall.", items = ["mig_langar_ad_sja", "eldfjall"], alts = ["Mig langar að sjá jökul."] },
+  { who = "partner", say = "Já, það er hægt.", meaning = "Yes, that's possible.", meaning_ja = "ええ、できますよ。" },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
+]
+
+[[themes.levels]]
+# #451 step 2e: a day (said inside «Ég fer …», never bare), a booking number read digit by digit, the departure time. Full dates (ordinals,
+# months) are not in the course yet. Candidates until native-checked (#209).
+partner_speaker = "native_a"  # the partner is a woman, as the cues say
+goal = "At the tour desk, book a tour for Thursday, and catch the booking number and when the coach leaves."
+goal_ja = "ツアーデスクで木曜日のツアーを予約し、予約番号とバスの出発時刻を聞き取る。"
+scene_line = "You're at the tour desk in town."
+scene_line_ja = "町のツアーデスクにいます。"
+turns = [
+  { who = "you", cue = "Say you'd like to book a tour.", cue_ja = "ツアーを予約したいと言ってください。", aim = "say you'd like to book a tour", aim_ja = "ツアーを予約したいと伝える", say = "Ég vil bóka ferð.", items = ["eg_vil_boka_ferd"] },
+  { who = "partner", say = "Já. Hvaða dag?", meaning = "Yes. Which day?", meaning_ja = "はい。何曜日ですか？", variants = [
+      { say = "Já, auðvitað. Fyrir hvaða dag?", meaning = "Yes, of course. For which day?", meaning_ja = "はい、もちろん。何曜日にしますか？" },
+    ] },
+  { who = "you", cue = "Say you're going on Thursday.", cue_ja = "木曜日に行くと言ってください。", aim = "say the day", aim_ja = "曜日を言う", say = "Ég fer á fimmtudaginn.", items = ["eg_fer", "a_fimmtudaginn"] },
+  { who = "partner", say = "Bókunarnúmerið er sex, fjórir, níu, tveir, og rútan fer klukkan átta.", meaning = "The booking number is six, four, nine, two, and the coach leaves at eight.", meaning_ja = "予約番号は6、4、9、2で、バスは8時に出ます。", probes = [
+      { kind = "number", answer = "sex, fjórir, níu, tveir", meanings = { en = "six, four, nine, two", ja = "6、4、9、2" }, ask = { en = "What's the booking number?", ja = "予約番号は？" } },
+      { kind = "time", answer = "klukkan átta", meanings = { en = "eight o'clock", ja = "8時" }, ask = { en = "When does the coach leave?", ja = "バスは何時に出ますか？" } },
+    ], variants = [
+      { say = "Bókunarnúmerið er þrír, sjö, einn, átta, og rútan fer klukkan hálf átta.", meaning = "The booking number is three, seven, one, eight, and the coach leaves at half past seven.", meaning_ja = "予約番号は3、7、1、8で、バスは7時半に出ます。", probes = [{ kind = "number", answer = "þrír, sjö, einn, átta", meanings = { en = "three, seven, one, eight", ja = "3、7、1、8" }, ask = { en = "What's the booking number?", ja = "予約番号は？" } }, { kind = "time", answer = "klukkan hálf átta", meanings = { en = "half past seven", ja = "7時半" }, ask = { en = "When does the coach leave?", ja = "バスは何時に出ますか？" } }] },
+    ] },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk fyrir.", items = ["takk_fyrir"] },
+]
+[[themes.levels]]
+# #451 step 2e: how long you stay (about oneself), and a phone number read digit by digit with the emergency number. Candidates until
+# native-checked (#209).
+partner_speaker = "native_a"  # the partner is a woman, as the cues say
+goal = "On the coach, say how long you're staying, ask the guide's phone number, and catch it and the emergency number."
+goal_ja = "バスの中で滞在期間を言い、ガイドの電話番号を聞いて、その番号と緊急番号を聞き取る。"
+turns = [
+  { who = "partner", say = "Hvað verðurðu lengi á Íslandi?", meaning = "How long will you be in Iceland?", meaning_ja = "アイスランドにはどのくらいいるんですか？", variants = [{ say = "Hvað verðurðu lengi hérna?", meaning = "How long will you be here?", meaning_ja = "こちらにはどのくらいいるんですか？" }] },
+  { who = "you", cue = "Say you're here for a week.", cue_ja = "1週間いると言ってください。", aim = "say how long you're staying", aim_ja = "滞在期間を言う", say = "Ég er hér í viku.", items = ["eg_er_her_i_viku"] },
+  { who = "partner", say = "Gaman! Ef þú villist, hringdu í mig.", meaning = "Nice! If you get lost, call me.", meaning_ja = "いいですね！迷ったら電話してください。" },
+  { who = "you", cue = "Ask her what her phone number is.", cue_ja = "電話番号を聞いてください。", aim = "ask her phone number", aim_ja = "電話番号を聞く", say = "Hvað er símanúmerið þitt?", items = ["hvad_er_simanumerid_thitt"] },
+  { who = "partner", say = "Síminn minn er átta, sex, sjö, tveir, þrír, níu, einn. Í neyð hringirðu í einn, einn, tveir.", meaning = "My phone is eight, six, seven, two, three, nine, one. In an emergency, you call one, one, two.", meaning_ja = "私の電話は8、6、7、2、3、9、1です。緊急時は1、1、2に電話してください。", probes = [
+      { kind = "number", answer = "átta, sex, sjö, tveir, þrír, níu, einn", meanings = { en = "eight, six, seven, two, three, nine, one", ja = "8、6、7、2、3、9、1" }, ask = { en = "What's her phone number?", ja = "ガイドの電話番号は？" } },
+      { kind = "number", answer = "einn, einn, tveir", meanings = { en = "one, one, two", ja = "1、1、2" }, ask = { en = "What do you call in an emergency?", ja = "緊急時は何番に電話しますか？" } },
+    ], variants = [
+      { say = "Síminn minn er sjö, sjö, átta, fjórir, einn, sex, tveir. Í neyð hringirðu í einn, einn, tveir.", meaning = "My phone is seven, seven, eight, four, one, six, two. In an emergency, you call one, one, two.", meaning_ja = "私の電話は7、7、8、4、1、6、2です。緊急時は1、1、2に電話してください。", probes = [{ kind = "number", answer = "sjö, sjö, átta, fjórir, einn, sex, tveir", meanings = { en = "seven, seven, eight, four, one, six, two", ja = "7、7、8、4、1、6、2" }, ask = { en = "What's her phone number?", ja = "ガイドの電話番号は？" } }, { kind = "number", answer = "einn, einn, tveir", meanings = { en = "one, one, two", ja = "1、1、2" }, ask = { en = "What do you call in an emergency?", ja = "緊急時は何番に電話しますか？" } }] },
+    ] },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk fyrir.", items = ["takk_fyrir"] },
+]
+[[themes.levels]]
+# #327, the batch after lesson 58, and #142's ice, path and early dark as turns of a tour level: lines the learner has (B2, B6), heard from the
+# guide and answered. Candidates until native-checked (#209).
+goal = "Before the walk, ask if it's dangerous, hear the rule of the path, and catch when you turn back."
+goal_ja = "散策の前に危なくないか聞き、道のルールを聞いて、何時に引き返すかを聞き取る。"
+partner_speaker = "native_a"  # the partner is a woman
+scene_line = "The walk to the waterfall starts here, and the guide stops the group."
+scene_line_ja = "滝への散策路の入り口で、ガイドがグループを止めます。"
+turns = [
+  { who = "partner", say = "Farið varlega, það er hálka á stígnum.", meaning = "Be careful, the path is icy.", meaning_ja = "気をつけてください、道が凍っています。", variants = [
+      { say = "Farið varlega í dag, það er mikil hálka.", meaning = "Be careful today, it's very icy.", meaning_ja = "今日は気をつけてください、とても滑りやすいです。" },
+    ] },
+  { who = "you", cue = "Ask if this is dangerous.", cue_ja = "これは危ないか聞いてください。", aim = "ask if it's dangerous", aim_ja = "危なくないか聞く", say = "Er þetta hættulegt?", items = ["er_thetta_haettulegt"] },
+  { who = "partner", say = "Nei, en ekki fara út af stígnum.", meaning = "No, but don't leave the path.", meaning_ja = "いいえ、でも道から外れないでください。", variants = [
+      { say = "Ekki ef þið farið ekki út af stígnum.", meaning = "Not if you don't leave the path.", meaning_ja = "道から外れなければ大丈夫です。" },
+    ] },
+  { who = "you", cue = "Say OK.", cue_ja = "わかりましたと言ってください。", aim = "say OK", aim_ja = "了解する", say = "Allt í lagi.", items = ["allt_i_lagi"] },
+  { who = "partner", say = "Við snúum við klukkan þrjú. Það dimmir snemma.", meaning = "We turn back at three. It gets dark early.", meaning_ja = "3時に引き返します。暗くなるのが早いので。", probes = [{ kind = "time", answer = "klukkan þrjú", meanings = { en = "three o'clock", ja = "3時" } }], listen = [
+      { say = "Stígurinn er lokaður fyrir ofan fossinn, svo við snúum við klukkan þrjú.", meaning = "The path is closed above the waterfall, so we turn back at three.", meaning_ja = "滝より上は通行止めなので、3時に引き返します。", probes = [{ kind = "time", answer = "klukkan þrjú", meanings = { en = "three o'clock", ja = "3時" } }] },
+    ], variants = [
+      { say = "Við snúum við klukkan hálf fjögur. Það dimmir snemma.", meaning = "We turn back at half past three. It gets dark early.", meaning_ja = "3時半に引き返します。暗くなるのが早いので。", probes = [{ kind = "time", answer = "klukkan hálf fjögur", meanings = { en = "half past three", ja = "3時半" } }] },
+      { say = "Við snúum við klukkan tvö. Það dimmir snemma.", meaning = "We turn back at two. It gets dark early.", meaning_ja = "2時に引き返します。暗くなるのが早いので。", probes = [{ kind = "time", answer = "klukkan tvö", meanings = { en = "two o'clock", ja = "2時" } }] },
+    ] },
+  { who = "you", cue = "Say you understand.", cue_ja = "わかりましたと言ってください。", aim = "say you understand", aim_ja = "理解したと伝える", say = "Ég skil.", items = ["eg_skil"] },
+  { who = "partner", say = "Gott. Þá förum við af stað.", meaning = "Good. Then off we go.", meaning_ja = "よし。では出発しましょう。", variants = [{ say = "Gott. Þá leggjum við af stað.", meaning = "Good. Then we set off.", meaning_ja = "よし。では出発します。" }] },
+]

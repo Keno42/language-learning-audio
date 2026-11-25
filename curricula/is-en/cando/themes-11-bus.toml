@@ -1,0 +1,87 @@
+# Lesson themes: one file a theme, read in file-name order (`load_records`). The format and its rules: themes-01-cafe.toml's
+# header and audiolesson/themes.py.
+
+[[themes]]
+id = "bus"
+scenario = "B4"
+title = "The bus"
+title_ja = "バス"
+setting = "A bus stop in town, and on the bus."
+setting_ja = "町のバス停と、バスの中。"
+scene_line = "You're at a bus stop in town."
+scene_line_ja = "町のバス停にいます。"
+topics = ["transport"]
+[[themes.levels]]
+goal = "Ask which bus goes to the centre, catch its number and when it comes, and ask the fare."
+goal_ja = "中心街へ行くバスを聞き、番号と来る時間を聞き取り、運賃を聞く。"
+partner_speaker = "native_a"  # the partner is a woman
+turns = [
+  { who = "you", cue = "Ask her which bus goes to the centre.", cue_ja = "中心街へ行くのは何番のバスか聞いてください。", aim = "ask which bus goes to the centre", aim_ja = "中心街へ行くバスを聞く", say = "Afsakið, hvaða strætó fer í miðbæinn?", items = ["afsakid", "hvada_straeto_fer_i_midbaeinn"] },
+  { who = "partner", say = "Númer fjórtán. Hann kemur eftir sjö mínútur.", meaning = "Number fourteen. It comes in seven minutes.", meaning_ja = "14番です。7分後に来ます。", probes = [
+      { kind = "number", answer = "númer fjórtán", meanings = { en = "number fourteen", ja = "14番" }, ask = { en = "Which bus is it?", ja = "何番のバスですか？" } },
+      { kind = "duration", answer = "sjö mínútur", meanings = { en = "seven minutes", ja = "7分" }, ask = { en = "In how many minutes does it come?", ja = "何分後に来ますか？" } },
+    ], variants = [
+      { say = "Númer sex. Hann kemur eftir átta mínútur.", meaning = "Number six. It comes in eight minutes.", meaning_ja = "6番です。8分後に来ます。", probes = [{ kind = "number", answer = "númer sex", meanings = { en = "number six", ja = "6番" }, ask = { en = "Which bus is it?", ja = "何番のバスですか？" } }, { kind = "duration", answer = "átta mínútur", meanings = { en = "eight minutes", ja = "8分" }, ask = { en = "In how many minutes does it come?", ja = "何分後に来ますか？" } }] },
+    ], listen = [
+      { say = "Taktu strætó númer þrjú. Hann kemur eftir tólf mínútur.", meaning = "Take bus number three. It comes in twelve minutes.", meaning_ja = "3番のバスに乗ってください。12分後に来ます。", probes = [{ kind = "number", answer = "númer þrjú", meanings = { en = "number three", ja = "3番" }, ask = { en = "Which bus is it?", ja = "何番のバスですか？" } }, { kind = "duration", answer = "tólf mínútur", meanings = { en = "twelve minutes", ja = "12分" }, ask = { en = "In how many minutes does it come?", ja = "何分後に来ますか？" } }] },
+    ] },
+  { who = "you", cue = "Ask how much the bus costs.", cue_ja = "バスはいくらか聞いてください。", aim = "ask the fare", aim_ja = "運賃を聞く", say = "Hvað kostar í strætó?", items = ["hvad_kostar_i_straeto"] },
+  { who = "partner", say = "Sex hundruð og þrjátíu krónur.", meaning = "Six hundred and thirty krónur.", meaning_ja = "630クローナです。", probes = [
+      { kind = "price", answer = "sex hundruð og þrjátíu krónur", meanings = { en = "six hundred and thirty krónur", ja = "630クローナ" } },
+    ], listen = [
+      { say = "Fargjaldið er sex hundruð og þrjátíu krónur. Þú getur borgað með korti.", meaning = "The fare is six hundred and thirty krónur. You can pay by card.", meaning_ja = "運賃は630クローナです。カードで払えます。", word_glosses = { "fargjaldið" = { en = "the fare", ja = "運賃" } }, probes = [{ kind = "price", answer = "sex hundruð og þrjátíu krónur", meanings = { en = "six hundred and thirty krónur", ja = "630クローナ" } }] },
+      { say = "Sex hundruð og þrjátíu fyrir fullorðna og þrjú hundruð og tuttugu fyrir börn.", meaning = "Six hundred and thirty for adults and three hundred and twenty for children.", meaning_ja = "大人は630、子どもは320です。", probes = [{ kind = "price", answer = "sex hundruð og þrjátíu", meanings = { en = "six hundred and thirty", ja = "630" }, ask = { en = "How much is it for adults?", ja = "大人はいくらですか？" } }, { kind = "price", answer = "þrjú hundruð og tuttugu", meanings = { en = "three hundred and twenty", ja = "320" }, ask = { en = "How much is it for children?", ja = "子どもはいくらですか？" } }] },
+    ], variants = [
+      { say = "Fimm hundruð og áttatíu krónur.", meaning = "Five hundred and eighty krónur.", meaning_ja = "580クローナです。", probes = [{ kind = "price", answer = "fimm hundruð og áttatíu krónur", meanings = { en = "five hundred and eighty krónur", ja = "580クローナ" } }] },
+    ] },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
+]
+[[themes.levels]]
+goal = "On the bus, ask the driver where to get off, and catch how many stops it is."
+goal_ja = "バスの中で運転手にどこで降りるか聞き、停留所がいくつ先かを聞き取る。"
+scene_line = "You're on the bus to the centre."
+scene_line_ja = "中心街行きのバスに乗っています。"
+turns = [
+  { who = "you", cue = "Ask the driver where you should get off.", cue_ja = "運転手にどこで降りればいいか聞いてください。", aim = "ask where to get off", aim_ja = "どこで降りるか聞く", say = "Afsakið, hvar á ég að fara út?", items = ["afsakid", "hvar_a_eg_ad_fara_ut"] },
+  { who = "partner", say = "Hvert ertu að fara?", meaning = "Where are you going?", meaning_ja = "どこへ行くんですか？", variants = [{ say = "Hvert ætlarðu?", meaning = "Where are you headed?", meaning_ja = "どちらまで？" }] },
+  { who = "you", cue = "Say to the city centre.", cue_ja = "中心街へと言ってください。", aim = "say where you're going", aim_ja = "行き先を言う", say = "Í miðbæinn, takk.", items = ["dest_takk", "i_midbaeinn"] },
+  { who = "partner", say = "Eftir þrjár stoppistöðvar. Ég læt þig vita.", meaning = "In three stops. I'll let you know.", meaning_ja = "停留所三つ先です。お知らせしますね。", probes = [{ kind = "count", answer = "þrjár", meanings = { en = "three", ja = "三つ" } }], variants = [
+      { say = "Eftir tvær stoppistöðvar. Ég læt þig vita.", meaning = "In two stops. I'll let you know.", meaning_ja = "停留所二つ先です。お知らせしますね。", probes = [{ kind = "count", answer = "tvær", meanings = { en = "two", ja = "二つ" } }] },
+    ] },
+  { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", aim = "thank him", aim_ja = "お礼を言う", say = "Takk fyrir.", items = ["takk_fyrir"] },
+]
+
+# #327, the batch after lesson 67 (B4's taxi): module 10's taxi lines, which no level asked. Candidates until native-checked (#209).
+[[themes.levels]]
+goal = "Take a taxi to the museum: say where, and catch how long it takes."
+goal_ja = "タクシーで博物館へ。行き先を言い、かかる時間を聞き取る。"
+scene_line = "You get into a taxi outside the hotel."
+scene_line_ja = "ホテルの前でタクシーに乗ります。"
+turns = [
+  { who = "partner", say = "Góðan daginn. Hvert ertu að fara?", meaning = "Good morning. Where are you going?", meaning_ja = "おはようございます。どちらまで？", variants = [
+      { say = "Góðan daginn. Hvert viltu fara?", meaning = "Good morning. Where do you want to go?", meaning_ja = "おはようございます。どちらへ行きたいですか？" },
+    ] },
+  { who = "you", cue = "Say to the museum, please.", cue_ja = "博物館までお願いしますと言ってください。", aim = "say where you're going", aim_ja = "行き先を言う", say = "Á safnið, takk.", items = ["dest_takk", "a_safnid"] },
+  { who = "partner", say = "Ekkert mál.", meaning = "No problem.", meaning_ja = "わかりました。" },
+  { who = "you", cue = "Ask how long it takes.", cue_ja = "どのくらい時間がかかるか聞いてください。", aim = "ask how long it takes", aim_ja = "かかる時間を聞く", say = "Hvað tekur þetta langan tíma?", items = ["hvad_tekur_thetta_langan_tima"] },
+  { who = "partner", say = "Um fimmtán mínútur.", meaning = "About fifteen minutes.", meaning_ja = "15分くらいです。", word_glosses = { um = { en = "about", ja = "くらい" } }, probes = [{ kind = "duration", answer = "fimmtán mínútur", meanings = { en = "fifteen minutes", ja = "15分" } }], variants = [
+      { say = "Um tíu mínútur.", meaning = "About ten minutes.", meaning_ja = "10分くらいです。", word_glosses = { um = { en = "about", ja = "くらい" } }, probes = [{ kind = "duration", answer = "tíu mínútur", meanings = { en = "ten minutes", ja = "10分" } }] },
+      { say = "Um tuttugu mínútur.", meaning = "About twenty minutes.", meaning_ja = "20分くらいです。", word_glosses = { um = { en = "about", ja = "くらい" } }, probes = [{ kind = "duration", answer = "tuttugu mínútur", meanings = { en = "twenty minutes", ja = "20分" } }] },
+    ] },
+  { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", aim = "thank him", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
+]
+[[themes.levels]]
+goal = "In a taxi in town, ask the driver to stop here, catch the fare, and ask to pay by card."
+goal_ja = "町中のタクシーで、ここで止めてと頼み、料金を聞き取り、カードで払えるか聞く。"
+scene_line = "In a taxi in town, you see the place you're going."
+scene_line_ja = "町中のタクシーで、行き先が見えてきました。"
+turns = [
+  { who = "you", cue = "Ask the driver if he can stop here.", cue_ja = "運転手にここで止まれるか聞いてください。", aim = "ask him to stop", aim_ja = "止まってもらう", say = "Geturðu stoppað hérna?", items = ["geturdu_stoppad_herna"] },
+  { who = "partner", say = "Já. Það eru þrjú þúsund krónur.", meaning = "Yes. That's three thousand krónur.", meaning_ja = "はい。3千クローナです。", probes = [{ kind = "price", answer = "þrjú þúsund krónur", meanings = { en = "three thousand krónur", ja = "3千クローナ" } }], variants = [
+      { say = "Já. Það eru fjögur þúsund krónur.", meaning = "Yes. That's four thousand krónur.", meaning_ja = "はい。4千クローナです。", probes = [{ kind = "price", answer = "fjögur þúsund krónur", meanings = { en = "four thousand krónur", ja = "4千クローナ" } }] },
+      { say = "Já. Það eru tvö þúsund og fimm hundruð krónur.", meaning = "Yes. That's two thousand five hundred krónur.", meaning_ja = "はい。2500クローナです。", probes = [{ kind = "price", answer = "tvö þúsund og fimm hundruð krónur", meanings = { en = "two thousand five hundred krónur", ja = "2500クローナ" } }] },
+    ] },
+  { who = "you", cue = "Ask if you may pay by card.", cue_ja = "カードで払っていいか聞いてください。", aim = "ask to pay by card", aim_ja = "カードで払えるか聞く", say = "Má ég borga með korti?", items = ["ma_eg_borga_med_korti"] },
+  { who = "partner", say = "Já, auðvitað.", meaning = "Yes, of course.", meaning_ja = "はい、もちろんです。", variants = [{ say = "Já, ekkert mál.", meaning = "Yes, no problem.", meaning_ja = "はい、大丈夫ですよ。" }] },
+  { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", aim = "thank him", aim_ja = "お礼を言う", say = "Takk fyrir.", items = ["takk_fyrir"] },
+]
