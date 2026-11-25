@@ -93,6 +93,7 @@ prereqs = ["japonsku"]
 id = "eg_tala_sma_islensku"
 kind = "phrase"
 target = "Ég tala smá íslensku."
+like = { "íslensku" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "I speak a little Icelandic."
 meaning_ja = "アイスランド語を少し話します。"
 difficulty = 3
@@ -112,6 +113,7 @@ situations_ja = [
 id = "eg_tala_ekki_islensku"
 kind = "phrase"
 target = "Ég tala ekki íslensku."
+like = { "íslensku" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "I don't speak Icelandic."
 meaning_ja = "アイスランド語は話せません。"
 difficulty = 2
@@ -160,6 +162,7 @@ situation_fill = { language = "islensku" }
 id = "ma_eg_reyna_ad_tala_islensku"
 kind = "phrase"
 target = "Má ég reyna að tala íslensku?"
+like = { "íslensku" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "May I try to speak Icelandic?"
 meaning_ja = "アイスランド語で話してみてもいいですか？"
 difficulty = 3
@@ -255,6 +258,7 @@ partner_cue_situation_ja = "何か手伝えるかと聞かれました。標識�
 id = "hvad_heitir_thetta_a_islensku"
 kind = "phrase"
 target = "Hvað heitir þetta á íslensku?"
+like = { "íslensku" = "frá" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "What is this called in Icelandic?"
 meaning_ja = "これはアイスランド語で何と言いますか？"
 difficulty = 4
@@ -273,6 +277,7 @@ situations_ja = [
 id = "hvernig_segir_madur_thetta"
 kind = "phrase"
 target = "Hvernig segir maður þetta á íslensku?"
+like = { "íslensku" = "frá" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "How do you say this in Icelandic?"
 meaning_ja = "これはアイスランド語でどう言いますか？"
 difficulty = 4

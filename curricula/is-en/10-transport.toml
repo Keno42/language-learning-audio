@@ -198,6 +198,7 @@ situation_ja = "自分の通りが見えました。運転手に次で降りる�
 id = "einn_mida_takk"
 kind = "phrase"
 target = "Einn miða, takk."
+like = { "miða" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 counts = "midi"  # #439 step 1b: the noun its form of 1–4 agrees with
 meaning = "One ticket, please."
 meaning_ja = "切符を一枚お願いします。"
@@ -385,6 +386,7 @@ partner_cue_situation_ja = "10分後に来るそうです。バス代はいく�
 id = "get_eg_fengid_leigubil"
 kind = "phrase"
 target = "Get ég fengið leigubíl?"
+like = { "leigubíl" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "Can I get a taxi?"
 meaning_ja = "タクシーを呼んでもらえますか？"
 difficulty = 3
@@ -507,6 +509,7 @@ situation_ja = "チェックインで荷物について聞かれました。一�
 id = "eg_er_a_bil"
 kind = "phrase"
 target = "Ég er á bíl."
+like = { "bíl" = "frá" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "I'm driving. (I have the car)"
 meaning_ja = "車で来ています。"
 meaning_spoken = "I'm driving, I have the car."
@@ -519,6 +522,7 @@ situation_ja = "ビールをすすめられました。車で来ていると説�
 id = "eg_vil_leigja_bil"
 kind = "phrase"
 target = "Ég vil leigja bíl."
+like = { "bíl" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "I want to rent a car."
 meaning_ja = "車を借りたいです。"
 difficulty = 3

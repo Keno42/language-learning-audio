@@ -234,6 +234,7 @@ situation_ja = "洗濯をすると言ってください。"
 id = "eg_laeri_islensku"
 kind = "phrase"
 target = "Ég læri íslensku á hverjum degi."
+like = { "íslensku" = "um", "degi" = "frá" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "I study Icelandic every day."
 meaning_ja = "毎日アイスランド語を勉強しています。"
 difficulty = 4
