@@ -155,6 +155,9 @@ class Item:
     # The bot's card shows the day's forms beside the frames; nothing is said in the lesson. A form its verb or a fixed phrase sets is named the same
     # way: the pointer is the form's look-alike, not its reason
     like: dict[str, str] = field(default_factory=dict)
+    # #548, the form its verb sets (the owner, 2026-11-20: the «why» in text): one line for the bot's card where no anchor frame explains the form
+    # («Fluginu er seinkað.»: «seinka» puts what is delayed in this form; «Mér er kalt.»: the one who feels is «mér»). Never said in the lesson
+    form_why: str = ""
     # #439 step 1b: the noun (its ``noun`` key) a form of 1–4 in this phrase, or in this construction's sentences, agrees with («midi» for «Tvo miða,
     # takk.»): a line that names it is one the lesson can set beside a line of another gender, so the form is practised as the noun's choice
     counts: str = ""
@@ -704,7 +707,7 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
 
 
 # fields that may carry per-language glosses (``<field>_<lang>``)
-_GLOSSED_ITEM = ("meaning", "context", "negative_meaning", "question_meaning", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation", "form_reason", "said_of_meaning", "subjects_meaning")
+_GLOSSED_ITEM = ("meaning", "context", "negative_meaning", "question_meaning", "situation", "situations", "instruction", "meaning_forms", "partner_cue_setup", "partner_cue_meaning", "partner_cue_situation", "form_reason", "said_of_meaning", "subjects_meaning", "form_why")
 _GLOSSED_EXAMPLE = ("source_meaning", "result_meaning")
 _GLOSSED_TURN = ("cue", "opener_meaning", "partner_meaning", "expect_meaning", "scene", "partner_scene")
 _GLOSSED_DIALOGUE = ("setting",)
@@ -1194,6 +1197,8 @@ def validate(cur: Curriculum) -> None:
             bad = {w: f for w, f in it.like.items() if f not in CASE_FRAMES or w.lower() not in words}
             if bad:
                 raise CurriculumError(f"item {it.id!r}: like names a word of its target and one of {CASE_FRAMES} (#548): {bad}")
+        if it.form_why and (it.kind != "phrase" or "«" not in it.form_why):
+            raise CurriculumError(f"item {it.id!r}: form_why is a phrase's one line for the card, naming its words in «…» (#548)")
         if it.form_base or it.form_word:
             words = [w.lower() for w in _WORD_RE.findall(it.target)]
             word = (it.form_word or (words[0] if len(words) == 1 else "")).lower()

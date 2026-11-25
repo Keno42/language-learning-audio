@@ -49,5 +49,20 @@ class CaseFrameTests(unittest.TestCase):
         self.assertEqual(_case_frames(self.cur, ["takk"]), {}, "no form of the day: nothing for the card")
 
 
+    def test_a_form_its_verb_sets_has_its_line_for_the_card(self):
+        """Lessons 58 and 63–64: «Fluginu er seinkað.», «Mér líður illa.»: no frame explains a form its verb sets. Its one line goes to the card,
+        in the course's known language; the lesson says nothing."""
+        out = _case_frames(self.cur, ["flugid_er_seinkad", "mer_lidur_illa", "takk"])
+        self.assertEqual(list(out["items"]), ["flugid_er_seinkad", "mer_lidur_illa"])
+        self.assertIn("«fluginu»", out["items"]["flugid_er_seinkad"]["why"])
+        self.assertEqual(out["items"]["flugid_er_seinkad"]["like"], {})
+        ja = load_curriculum(ROOT / "curricula" / "is-en", known_lang="ja")
+        self.assertIn("«mér»", _case_frames(ja, ["mer_lidur_illa"])["items"]["mer_lidur_illa"]["why"])
+        self.assertIn("私に", ja.by_id["mer_lidur_illa"].form_why)
+        bad = dataclasses.replace(self.cur, items=[dataclasses.replace(i, form_why="no word named") if i.id == "takk" else i for i in self.cur.items])
+        with self.assertRaises(CurriculumError):
+            validate(bad)
+
+
 if __name__ == "__main__":
     unittest.main()
