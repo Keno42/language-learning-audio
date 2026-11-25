@@ -319,3 +319,41 @@ meaning_spoken_ja = "指示の「聞いて、値段を答えてください」"
 difficulty = 1
 topics = ["instructions"]
 command = "pick_out_need_price"
+
+# #429 step 11: the other needs a pick-out names most often, as step 10's: the question the learner has for that information, then «listen and
+# say it». Candidates until native-checked (#209).
+[[items]]
+id = "hlustadu_numer_command"
+kind = "phrase"
+target = "Hvaða númer? Hlustaðu og segðu það."
+meaning = "the instruction \"Listen for the number, then say it\""
+meaning_ja = "指示の「聞いて、番号を答えてください」"
+meaning_spoken = "the instruction \"Listen for the number, then say it\""
+meaning_spoken_ja = "指示の「聞いて、番号を答えてください」"
+difficulty = 1
+topics = ["instructions"]
+command = "pick_out_need_number"
+
+[[items]]
+id = "hlustadu_klukkan_command"
+kind = "phrase"
+target = "Klukkan hvað? Hlustaðu og segðu það."
+meaning = "the instruction \"Listen for the time, then say it\""
+meaning_ja = "指示の「聞いて、時間を答えてください」"
+meaning_spoken = "the instruction \"Listen for the time, then say it\""
+meaning_spoken_ja = "指示の「聞いて、時間を答えてください」"
+difficulty = 1
+topics = ["instructions"]
+command = "pick_out_need_time"
+
+[[items]]
+id = "hlustadu_hiti_command"
+kind = "phrase"
+target = "Hvað er hitinn? Hlustaðu og segðu það."
+meaning = "the instruction \"Listen for the temperature, then say it\""
+meaning_ja = "指示の「聞いて、気温を答えてください」"
+meaning_spoken = "the instruction \"Listen for the temperature, then say it\""
+meaning_spoken_ja = "指示の「聞いて、気温を答えてください」"
+difficulty = 1
+topics = ["instructions"]
+command = "pick_out_need_temperature"
