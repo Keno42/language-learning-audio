@@ -36,7 +36,7 @@ def rows(scripts: list[Path], cache: Path, profile_path: str | None) -> list[dic
             sv = profile.speakers.get(seg.speaker or "")
             if sv is not None and sv.provider and sv.provider != provider.name:
                 # the speaker's own provider's clip, against the profile's clip of the same line (``clip_path``), the voice it falls back to
-                own_path = _cache_path(get_provider(sv.provider), cache, text, lang, sv.voice, seg.rate * sv.rate, profile.trim)
+                own_path = _cache_path(get_provider(sv.provider), cache, text, lang, sv.voice, seg.rate * sv.rate, profile.trim, sv.retake.get(text, 0))
                 if own_path in seen or not own_path.exists():
                     continue
                 clip = read_wav(own_path)
