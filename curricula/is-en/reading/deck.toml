@@ -11,7 +11,12 @@
 # (pre-aspiration, the «tl» of ll, the «tn» of rn and nn, a voiceless l, n or r) gets IPA
 # instead, with what the kana cannot say in Japanese after it (#586, lesson 65: «vatn» as
 # «ヴァフトン» gave two vowels the word does not have); `reading.kana_cannot_write` checks it.
-# The IPA is a candidate until a fluent reviewer checks it, as the scenes' lines are (#209).
+# The brackets give a careful pronunciation of the word said alone, fairly narrow; in speech a final consonant's voice, a
+# compound's stress and a vowel's length vary, and a difference in such detail is not a mistake. A sound that may be weak or
+# unheard is in parentheses («Björn» [pjœ(r)tn̥]). The Japanese note names what the kana cannot say without adding a vowel
+# («t と l の間に母音は入らない»): «トル», «トン» are cues only. The IPA is a candidate until a fluent reviewer checks it, as the
+# scenes' lines are (#209); an outside check corrected notes that added vowels or a second r, and the devoiced l
+# of Gullfoss and Hallgrímskirkja, and left its open questions on #586.
 # General content only: a learner's own places come from the private trip profile (#132).
 
 # ---------------------------------------------------------------- letters
@@ -22,7 +27,7 @@ stage = "letters"
 text = "Það · Þetta · Því miður"
 meaning = "þ: the 'th' of 'think'"
 meaning_ja = "þ は英語 think の th（息だけで出す音）"
-hint_ja = "[θaːð]・[ˈθɛʰta]・[θviː ˈmɪːðʏr]（θ は舌を歯にあてて息だけで出す th。Þetta の tt は「ッ」ではなく、t の前に息「h」が入る）"
+hint_ja = "[θaːð]・[ˈθɛʰta]・[θviː ˈmɪːðʏr]（θ は舌を歯にあてて息だけで出す th。Þetta の tt は「ッ」ではなく、t の前に息「h」が入る。一語ずつ丁寧に言った形で、会話では短くなることもある）"
 words = [["Það", "それ"], ["Þetta", "これ"], ["Því miður", "残念ながら"]]
 graphemes = ["þ"]
 
@@ -111,8 +116,8 @@ id = "l_ll"
 stage = "letters"
 text = "Fjall · Gullfoss · Allt í lagi"
 meaning = "ll sounds like 'tl'"
-meaning_ja = "ll は「トル」のような音"
-hint_ja = "[fjatl̥]・[ˈkʏtlˌfɔsː]・[ˈal̥t i ˈlaːjɪ]（ll は「トル」に近いが間に母音は入らず、語末では l も声を出さない。allt の ll は、舌先を上の歯の裏につけたまま声を出さずに舌の両脇から息を出す l で、「ス」に近く聞こえる。í とつながって聞こえる）"
+meaning_ja = "ll は t＋l（間に母音はない。「トル」は目安）"
+hint_ja = "[fjatl̥]・[ˈkʏtl̥ˌfɔsː]・[ˈal̥t i ˈlaːjɪ]（ll は t＋l で、t と l の間に母音は入らない（「トル」は目安）。語末や子音の前では l も声を出さない。allt の ll は、舌先を上の歯の裏につけたまま声を出さずに舌の両脇から息を出す l で、「ス」に近く聞こえる。í とつながって聞こえる）"
 words = [["Fjall", "山"], ["Gullfoss", "グトルフォス（黄金の滝）"], ["Allt í lagi", "大丈夫"]]
 graphemes = ["ll"]
 
@@ -131,8 +136,8 @@ id = "l_fn_rn"
 stage = "letters"
 text = "Nafn · Björn · Steinn"
 meaning = "fn ≈ 'pn'; rn and nn after a long vowel ≈ 'tn'"
-meaning_ja = "fn は「プン」、rn と（長母音の後の）nn は「トン」に近い"
-hint_ja = "[napn̥]・[pjœtn̥]・[steitn̥]（fn・rn・nn は「プン・トン」に近いが間に母音は入らず、最後の n は声を出さずに息で出す）"
+meaning_ja = "fn は p＋n、rn は r＋t＋n、（アクセント記号の付いた母音や二重母音の後の）nn は t＋n に近い。間に母音は入らない"
+hint_ja = "[napn̥]・[pjœ(r)tn̥]・[steitn̥]（fn は p＋n、rn は r＋t＋n、nn は t＋n に近い。どれも間に母音は入らず、最後の n は声を出さずに息で出す。Björn の r は弱く、はっきり聞こえないこともある（括弧の r））"
 words = [["Nafn", "名前"], ["Björn", "ビョルン（男性の名前。「熊」）"], ["Steinn", "ステイン（男性の名前。「石」）"]]
 graphemes = ["fn", "rn", "nn"]
 
@@ -142,7 +147,7 @@ stage = "letters"
 text = "Já · Jökull · Jól"
 meaning = "j is a 'y'; stress is always on the first syllable"
 meaning_ja = "j は「ヤ行」の音。アクセントはいつも最初の音節"
-hint_ja = "[jauː]・[ˈjœːkʏtl̥]・[jouːl]（最初を強く。Jökull の ll は「トル」に近いが母音は入らず、l は声を出さない）"
+hint_ja = "[jauː]・[ˈjœːkʏtl̥]・[jouːl]（最初を強く。Jökull の ll は t＋l で、間に母音は入らず、l は声を出さない）"
 words = [["Já", "はい"], ["Jökull", "氷河"], ["Jól", "クリスマス"]]
 graphemes = ["j"]
 
@@ -170,7 +175,7 @@ stage = "signs"
 text = "Opnunartími"
 meaning = "Opening hours"
 meaning_ja = "営業時間"
-hint_ja = "[ˈɔʰpnʏnar̥ˌtʰiːmɪ]（オ＋息の「h」＋プヌナル＋ティーミ。pn の前に息が入り、t の前の r は声を出さない）"
+hint_ja = "[ˈɔʰpnʏnar̥ˌtʰiːmɪ]（最初はオ＋息＋pn。p と n の間には母音を入れない。後半の t の前の r は声を出さない）"
 
 [[cards]]
 id = "s_lokad_vedur"
@@ -226,7 +231,7 @@ stage = "signs"
 text = "Salerni"
 meaning = "Toilet"
 meaning_ja = "トイレ（別の言い方）"
-hint_ja = "[ˈsaːlɛrtnɪ]（サーレル＋トニ。rn は t＋n で、間に母音は入らない）"
+hint_ja = "[ˈsaːlɛrtnɪ]（rn は r＋t＋n に近い。t と n の間に母音を入れない。r を強く言う必要はない）"
 
 [[cards]]
 id = "s_karlar"
@@ -452,7 +457,7 @@ stage = "shop"
 text = "Vatn"
 meaning = "Water"
 meaning_ja = "水"
-hint_ja = "[vaʰtn̥]（「ヴァ」＋声を出さずに息を伴う「tn」）"
+hint_ja = "[vaʰtn̥]（ヴァの後に短い息を出し、母音を挟まず t から声を出さない n へ移る）"
 
 [[cards]]
 id = "w_kaffi"
@@ -468,7 +473,7 @@ stage = "shop"
 text = "Epli"
 meaning = "Apples"
 meaning_ja = "りんご"
-hint_ja = "[ˈɛʰplɪ]（エ＋息の「h」＋プリ）"
+hint_ja = "[ˈɛʰplɪ]（エ＋短い息＋p＋l＋イ。p と l の間には母音を入れない）"
 
 [[cards]]
 id = "w_sukkuladi"
@@ -559,7 +564,7 @@ stage = "places"
 text = "Hallgrímskirkja"
 meaning = "Hallgrímur's church"
 meaning_ja = "ハトルグリムス教会（ハトルグリームルの教会）"
-hint_ja = "[ˈhatlˌkrimsˌcʰɪr̥ca]（ハトル＋グリムス＋キ＋声を出さない r＋キャ。ll は t＋l で、間に母音は入らない）"
+hint_ja = "[ˈhatl̥ˌkrimsˌcʰɪr̥ca]（最初の ll は、母音を挟まない t＋声を出さない l。kirkja の r も声を出さない）"
 parts = [["Hallgrímur", "人名"], ["kirkja", "教会"]]
 
 [[cards]]
@@ -577,7 +582,7 @@ stage = "places"
 text = "Þingvellir"
 meaning = "'Assembly plains', site of the old parliament"
 meaning_ja = "シンクヴェトリル（「議会の平原」。古い議会の跡）"
-hint_ja = "[ˈθiŋkˌvɛtlɪr]（th＋インク＋ヴェトリル。ll は t＋l で、間に母音は入らない）"
+hint_ja = "[ˈθiŋkˌvɛtlɪr]（th＋インク＋ヴェ＋tl＋イル。ll は t＋l で、間に母音は入らない。一語だけで言い切ると、最後の r が声を出さない r になることもある）"
 parts = [["þing", "集会・議会"], ["vellir", "平原"]]
 
 [[cards]]
@@ -586,7 +591,7 @@ stage = "places"
 text = "Gullfoss"
 meaning = "'Golden falls'"
 meaning_ja = "グトルフォス（「黄金の滝」）"
-hint_ja = "[ˈkʏtlˌfɔsː]（グトル＋フォス。ll は t＋l で、間に母音は入らない）"
+hint_ja = "[ˈkʏtl̥ˌfɔsː]（ll は t のあとに声を出さない l が続き、間に母音は入らない）"
 parts = [["gull", "金"], ["foss", "滝"]]
 
 [[cards]]
@@ -638,7 +643,7 @@ stage = "places"
 text = "Sólheimajökull"
 meaning = "A glacier tongue — 'sun-homes glacier'"
 meaning_ja = "ソウルヘイマヨークトル（「太陽の里の氷河」）"
-hint_ja = "[ˈsoulˌheiːmaˌjœːkʏtl̥]（ソウル＋ヘイマ＋ヨークトル。最後の ll は t＋l で母音は入らず、l は声を出さない）"
+hint_ja = "[ˈsoulˌheiːmaˌjœːkʏtl̥]（最後の ll は t＋声を出さない l で、間に母音は入らない）"
 parts = [["sól", "太陽"], ["heimar", "里・住まい"], ["jökull", "氷河"]]
 
 [[cards]]
@@ -673,7 +678,7 @@ id = "p_snaefellsnes"
 stage = "places"
 text = "Snæfellsnes"
 meaning = "'Snow-mountain peninsula'"
-meaning_ja = "スナイフェトルスネス（「雪山の半島」）"
+meaning_ja = "スナイフェルスネス（「雪山の半島」）"
 hint_ja = "スナイフェルスネース（s の前の ll はふつうの l）"
 parts = [["snær", "雪"], ["fell", "山"], ["nes", "半島"]]
 
@@ -692,7 +697,7 @@ stage = "places"
 text = "Mývatn"
 meaning = "'Midge lake'"
 meaning_ja = "ミーヴァトン（「ブヨの湖」）"
-hint_ja = "[ˈmiːvaʰtn̥]（ミー＋「ヴァ」＋声を出さずに息を伴う「tn」）"
+hint_ja = "[ˈmiːvaʰtn̥]（ミー＋ヴァの後に短い息を出し、母音を挟まず t から声を出さない n へ移る）"
 parts = [["mý", "ブヨ"], ["vatn", "湖・水"]]
 
 # ---------------------------------------------------------------- parts
@@ -711,7 +716,7 @@ stage = "parts"
 text = "jökull"
 meaning = "glacier"
 meaning_ja = "氷河"
-hint_ja = "[ˈjœːkʏtl̥]（ヨー＋クトル。ll は t＋l で母音は入らず、l は声を出さない）"
+hint_ja = "[ˈjœːkʏtl̥]（ll は t＋声を出さない l で、間に母音は入らない）"
 
 [[cards]]
 id = "t_vik"
@@ -743,7 +748,7 @@ stage = "parts"
 text = "tjörn"
 meaning = "pond"
 meaning_ja = "池"
-hint_ja = "[tʰjœtn̥]（ティョ＋トン。rn は t＋n で母音は入らず、n は声を出さない）"
+hint_ja = "[tʰjœ(r)tn̥]（rn は r＋t＋n に近く、間に母音は入らない。r は弱く、はっきり聞こえないこともある（括弧の r）。最後の n は声を出さない）"
 
 [[cards]]
 id = "t_fjall"
@@ -751,7 +756,7 @@ stage = "parts"
 text = "fjall · fell"
 meaning = "mountain · (smaller) mountain"
 meaning_ja = "山・（小さめの）山"
-hint_ja = "[fjatl̥]・[fɛtl̥]（フィャ・フェ＋トル。ll は t＋l で母音は入らず、l は声を出さない）"
+hint_ja = "[fjatl̥]・[fɛtl̥]（ll は t＋声を出さない l。「トル」は目安で、t と l の間に母音は入らない）"
 
 [[cards]]
 id = "t_dalur"
@@ -783,7 +788,7 @@ stage = "parts"
 text = "hraun"
 meaning = "lava field"
 meaning_ja = "溶岩原"
-hint_ja = "[r̥œyːn]（声を出さない r＋「ロイン」。h は「フ」ではなく、r を息で出す音）"
+hint_ja = "[r̥œyːn]（最初の hr は、声を出さずに息で出す r が一つ。そのまま au の母音へ移り、最後に n）"
 
 [[cards]]
 id = "t_kirkja"

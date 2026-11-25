@@ -428,6 +428,15 @@ def review_savings(script: Script) -> dict[str, float]:
     return {i: round(t, 1) for i, t in sorted(out.items(), key=lambda kv: -kv[1])}
 
 
+def _case_frames(cur, ids: list[str]) -> dict:
+    """#548 step 2: ``{"anchors": cur.case_anchors, "items": {id: {"target", "meaning", "like"}}}`` for the items among ``ids`` whose target holds a form
+    with an anchor frame; {} without anchors or such items."""
+    if not getattr(cur, "case_anchors", None):
+        return {}
+    items = {i: {"target": it.target, "meaning": it.meaning, "like": dict(it.like)} for i in dict.fromkeys(ids) if (it := cur.by_id.get(i)) is not None and it.like}
+    return {"anchors": cur.case_anchors, "items": items} if items else {}
+
+
 def _plan(script: Script, cur) -> dict:
     meta = script.meta
 
@@ -458,6 +467,9 @@ def _plan(script: Script, cur) -> dict:
         "config": meta.get("config"),
         "summary": script.summary(),
         "new_items": [describe(i) for i in meta.get("new_items", [])],
+        # #548 step 2 (the owner, 2026-11-20: the «why» in text, not in the audio): the anchor frames and, for the day's new items, each form's frame
+        # (``Item.like``), for the bot's card; {} when the course has none
+        "case_frames": _case_frames(cur, meta.get("new_items", [])),
         "reviewed_items": [describe(i) for i in meta.get("reviewed_items", [])],
         # every item an exercise names, described once, in the order first named: a learned item asked only as a link, a partner's line or a pattern's
         # word is not in reviewed_items, and the bot's form offers what the lesson asked the learner to say (site_update_notifier#151 review)

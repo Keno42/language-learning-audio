@@ -293,6 +293,7 @@ situation_ja = "役所にいる理由を友達に説明してください：書�
 id = "er_thetta_a_ensku"
 kind = "phrase"
 target = "Er þetta til á ensku?"
+like = { "ensku" = "frá" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "Is this available in English?"
 meaning_ja = "これは英語版がありますか？"
 difficulty = 3
