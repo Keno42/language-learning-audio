@@ -2181,3 +2181,51 @@ them merged after lesson 61's round, against the two between lessons that §9 "G
 «Æfingunni er lokið.» for «That's the end of the form work.», the most frequent English instructions left once steps 4 and 5 are taught
 (26 and 15 in lessons 63–69 on the replay); taught in lessons 67 and 68. Beside it, the second remark's answer (#573). The voice waits for the
 owner (#563).
+
+### 5.53 Lessons 63 and 64: the first lessons built with #572, #573 and the instruction voice (#575–#578)
+
+Lessons 63 and 64 were generated with LLA `e01e55d` (current main), the bot at site_update_notifier `6636051`, `--instructions gradual`.
+Rebuilt from their exports, each is the same lesson (118 exercises, 30.7 minutes; 116 exercises, 30.5 minutes). Lesson 63 is the first built
+with #572 (the long run's step 6), #573 (the form work's opening line) and the instruction voice of #563 (#575, #576, #577, #578): six behaviour
+PRs, four of them merged by the owner outside a round, against the two between lessons that §9 "Governance" allows. Lesson 64 is built with the
+same revision. There is one subsection for both, because one round reads them.
+
+| | lesson 63 | lesson 64 |
+|---|---|---|
+| length | 30.7 min, 118 exercises | 30.5 min, 116 exercises |
+| new items; new components, weighted (target) | 8; 8.5 (7) | 11; 9 (8) |
+| theme (level) | café (5) | hotel (5) |
+| the last lesson's new items in the review | lesson 62's: **6 of 9 recalled**; 2 hesitated, 1 not recalled («höfuðverk») | lesson 63's: **3 of 7 recalled**; 3 hesitated, 1 not recalled («Ég er veik.») |
+| items reviewed / due | 41 due by date; **none left**; 42 practised | read from lesson 65's export |
+| instruction lines in Icelandic | 82 (lesson 62: 42) | 116 |
+| feedback form: load; friction | **right**; none | **right**; none (the note) |
+| «sooner» | «Mér líður illa.», to remember | «ágætlega» |
+| the bot's 解説 requests | «Mér líður illa.», «kvef» (twice) | «Hvar er næsta apótek?» («næsta») |
+
+- **The long run, #429:** «Segðu:» was taught in lesson 63 and said 28 times, and «Hvernig segir maður:» in lesson 64 (33 times), both with the
+  English after them. 116 instructor lines of lesson 64 were in Icelandic. On the replay of lesson 64's export «Kláraðu setninguna:», «Eitthvað
+  nýtt.», «Segðu hverja setningu.» and «Æfingunni er lokið.» come in lessons 65–68, and then no authored phrase is left: lesson 69 teaches none.
+- **The instruction voice (#563):** lessons 63 and 64 said every instruction in OpenAI's realtime voice «cedar», with the plain prompt of #577.
+  There was no remark after lesson 63. **Lesson 64's note: lines such as «Samtalinu er lokið.» alone seem to stay high in tension.** This is the
+  family's third remark (instruction-voice, lessons 61, 62 and 64), with a new cause:
+  - each line is one take, cached and replayed («Samtalinu er lokið.» 4 times in lesson 64);
+  - a take is checked for its words, not its tone;
+  - a bright take stays in every lesson until its cache key changes.
+
+  The options are on #563 (recommended: a retake list the owner fills by ear). Nothing is built before the owner's choice.
+- **The pace (H9): next-day recall under 80% again at a target of 7 or less.** Lesson 62's new items, at 6, were recalled 6 of 9; lesson 63's, at
+  7, 3 of 7. Six of the seven weak items are illness lines from the pharmacy theme (C4, boosted), taught while the lesson played another scene:
+  «höfuðverk», «hita», «Ég er með …», «flensu», «Ég er veik.» and «Mér líður illa.». They come in as fillers of «Ég er með {…}», which the set
+  cap exempts (H5, #564's lead a second time). Lesson 64's target still rose to 8: the pace read 3.5 of 24 weak (15%), where the next-day
+  reviews say 5 of 24 (21%), because a later review that names lesson 62 as its source rewrites that lesson's outcomes (`note_outcome`). By
+  #564's closing condition the levers come back as an issue: #579 (recommended: count the next-day outcome, then similar fillers apart).
+- **#573 played:** four form-work blocks in lesson 63 and three in 64, each opening with its own line; the authored contrast did not play. No
+  remark on how a block starts or ends. The replay's row of unmarked turns reads 0.
+- **The form's «why», in text:** four 解説 requests, none about a noun's case set by a frame («mér» with «líða», «næsta» after the definite,
+  «kvef»). The learner reads the reason in the bot, as the owner chose for #548 (2026-11-20). The anchor card would need a line for a form
+  set by its verb, and one for an adjective (#548).
+- **The other learner:** no new export since lesson 32 (2026-11-14).
+
+**This round:** the long run's step, #429 step 7 (#580): an aside's own lines, «Smá útúrdúr.» for «A quick aside.» and «Aftur að efninu.» for «Back
+to the lesson.» (19 each in lessons 64–71 on the replay), the most frequent English instructions an authored phrase can still say; taught in
+lessons 69 and 70. No second behaviour PR: the remark's answer (#563) and the pace's lever (#579) are the owner's choice.

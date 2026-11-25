@@ -135,6 +135,9 @@ cause = "An instruction in Icelandic is said in a voice the scenes also use: not
 [families.sayable-heard]
 cause = "Whether a learner line of an exchange is asked is judged on its item, not on its text: a sentence the learner says for another item, or an instance of a pattern they say with a fill they say, is heard as if never taught (#265)."
 
+[families.catch-unpractised]
+cause = "A word the catch task asks about (#339) has an item only if the course already holds one; otherwise it is heard once and never practised, even a word the scene needs the learner to say (lesson 67: «fætinum», the leg)."
+
 # Lessons
 
 [[lesson]]
@@ -1094,6 +1097,41 @@ load = "right"
 built = ["#584"]
 long_run = ["#584"]
 
+[[lesson]]
+n = 67
+form = true
+load = "right"
+built = ["#588", "#590", "#592"]
+long_run = ["#588"]
+
+[[lesson.remarks]]
+who = "main"
+text = "«Now say each sentence» has no «now» in its Icelandic; a guide to the literal words is wanted. («Segðu hverja setningu.», taught in lesson 67 as «the instruction \"Now say each one\"»: its literal words, 'say each sentence', were said nowhere.)"
+family = "form-why"
+class = "twenty"
+answered_by = ["#601"]
+
+[[lesson.remarks]]
+who = "main"
+text = "«The pain is here» is said with «hann»; a guide to the literal words is wanted. («Hann er hérna.» answers «Hvar er verkurinn?»; why «hann» stands for the pain was only in the transcript's note, «verkurinn is masculine», never spoken; four more items had their literal words only there.)"
+family = "form-why"
+class = "twenty"
+answered_by = ["#601"]
+
+[[lesson.remarks]]
+who = "main"
+text = "The leg, the word of the catch task, was not practised enough. («fætinum» is a gloss of the accident's partner line, not an item: the catch introduces a word only when an item holds it, #599.)"
+family = "catch-unpractised"
+class = "mechanism"
+answered_by = []
+
+[[lesson.remarks]]
+who = "main"
+text = "In a scene of an injury that looks urgent, starting to ask what an Icelandic word means felt too leisurely. (The catch task at 19:25 on the accident's first level: «Hvað þýðir fætinum?» while the woman lies hurt; the catch draws on every partner line of a played level, #599.)"
+family = "scene-plausibility"
+class = "precision"
+answered_by = []
+
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
 [[change]]
@@ -2026,6 +2064,8 @@ title = "the form work's own lines in Icelandic once taught: «Segðu hverja set
 issue = ["#429"]
 pr = ["#572"]
 family = "instruction-language"
+first_heard = 67
+heard = "«Segðu hverja setningu.» taught and said in the form work; the learner asked for its literal words (form-why, not this family)"
 
 [[change]]
 title = "the form work opens with a line of its own: the authored contrast «One noun, two forms.», and a check over every block (#573)"
@@ -2082,9 +2122,19 @@ title = "at most two new fillers of one slot a lesson, unless the theme's next l
 issue = ["#579", "#589"]
 pr = ["#590"]
 family = "load-answer"
+first_heard = 67
+heard = "10 new items, no slot with more than two new fillers"
 
 [[change]]
 title = "a theme no trip profile ranks (the pharmacy, the accident) plays once the course order has brought its lines (#579: #592)"
 issue = ["#579"]
 pr = ["#592"]
 family = "scene-first"
+first_heard = 67
+heard = "the accident's first level played with 6 of the 10 new items inside it"
+
+[[change]]
+title = "a pick-out's need in Icelandic once taught, the question the learner asks for it: «Hvað tekur þetta langan tíma? Hlustaðu og segðu það.», «Hvað kostar þetta? Hlustaðu og segðu það.» (#429 step 10: #600)"
+issue = ["#429"]
+pr = ["#600"]
+family = "instruction-language"
