@@ -20,8 +20,8 @@ meaning = "I get up."
 meaning_ja = "起きます。"
 difficulty = 3
 topics = ["daily"]
-situation = "Describe your morning: say you get up."
-situation_ja = "朝の様子を話します。起きる、と言ってください。"
+situation = "In the hot tub, a man asks how your day starts. Say you get up."
+situation_ja = "露天風呂で男性に、一日の始まりを聞かれました。起きる、と言ってください。"
 
 [[items]]
 id = "eg_borda_morgunmat"
@@ -31,8 +31,8 @@ meaning = "I eat breakfast."
 meaning_ja = "朝食を食べます。"
 difficulty = 2
 topics = ["daily", "food"]
-situation = "Say you eat breakfast."
-situation_ja = "朝食を食べると言ってください。"
+situation = "Your host asks if you want anything before you go. Say you eat breakfast."
+situation_ja = "宿の人に、出かける前に何か食べるか聞かれました。朝食を食べると言ってください。"
 
 [[items]]
 id = "eg_drekk_kaffi"
@@ -54,8 +54,8 @@ meaning = "I take a shower."
 meaning_ja = "シャワーを浴びます。"
 difficulty = 2
 topics = ["daily"]
-situation = "Say you take a shower."
-situation_ja = "シャワーを浴びると言ってください。"
+situation = "Back from the hike, your friend asks what you want first. Say you take a shower."
+situation_ja = "ハイキングから戻り、友達にまず何をしたいか聞かれました。シャワーを浴びると言ってください。"
 
 [[items]]
 id = "eg_fer_i_vinnuna"
@@ -65,8 +65,8 @@ meaning = "I go to work."
 meaning_ja = "仕事に行きます。"
 difficulty = 2
 topics = ["daily", "work"]
-situation = "Say you go to work."
-situation_ja = "仕事に行くと言ってください。"
+situation = "In the hot tub, a man asks what you do in the morning at home. Say you go to work."
+situation_ja = "露天風呂で男性に、ふだんの朝は何をするか聞かれました。仕事に行くと言ってください。"
 
 [[items]]
 id = "eg_vinn"
@@ -89,8 +89,8 @@ difficulty = 3
 topics = ["daily", "food"]
 prereqs = ["klukkan_time", "tolf"]
 chunks = ["tólf", "klukkan tólf", "hádegismat klukkan tólf", "Ég borða hádegismat klukkan tólf."]
-situation = "Say you eat lunch at twelve."
-situation_ja = "12時に昼食を食べると言ってください。"
+situation = "Your colleague asks when you have lunch. Say you eat lunch at twelve."
+situation_ja = "同僚にお昼はいつか聞かれました。12時にお昼を食べると言ってください。"
 
 [[items]]
 id = "eg_kem_heim"
@@ -101,8 +101,8 @@ meaning_ja = "6時に帰宅します。"
 difficulty = 3
 topics = ["daily"]
 prereqs = ["klukkan_time", "sex"]
-situation = "Say you come home at six."
-situation_ja = "6時に帰宅すると言ってください。"
+situation = "Anna asks when you get home in the evening. Say you come home at six."
+situation_ja = "アンナに、夜は何時に帰るか聞かれました。6時に帰ると言ってください。"
 
 [[items]]
 id = "eg_elda_kvoldmat"
@@ -124,8 +124,8 @@ meaning_ja = "テレビを見ます。"
 difficulty = 3
 topics = ["daily", "hobbies"]
 chunks = ["sjónvarpið", "á sjónvarpið", "Ég horfi á sjónvarpið."]
-situation = "Say you watch TV in the evening."
-situation_ja = "夜はテレビを見ると言ってください。"
+situation = "Anna asks what you do in the evening. Say you watch TV."
+situation_ja = "アンナに、夜は何をするか聞かれました。テレビを見ると言ってください。"
 
 [[items]]
 id = "eg_les"
@@ -135,8 +135,8 @@ meaning = "I read."
 meaning_ja = "本を読みます。"
 difficulty = 1
 topics = ["daily", "hobbies"]
-situation = "Say you read."
-situation_ja = "本を読むと言ってください。"
+situation = "Your friend asks what you do on the long bus ride. Say you read."
+situation_ja = "長いバスの移動中、友達に何をするか聞かれました。本を読むと言ってください。"
 
 [[items]]
 id = "eg_fer_ad_sofa"
@@ -148,8 +148,8 @@ difficulty = 3
 topics = ["daily"]
 prereqs = ["klukkan_time", "ellefu"]
 chunks = ["ellefu", "klukkan ellefu", "að sofa klukkan ellefu", "Ég fer að sofa klukkan ellefu."]
-situation = "Say you go to bed at eleven."
-situation_ja = "11時に寝ると言ってください。"
+situation = "Anna asks when you go to bed. Say you go to bed at eleven."
+situation_ja = "アンナに、何時に寝るか聞かれました。11時に寝ると言ってください。"
 
 [[items]]
 id = "eg_sef"
@@ -159,8 +159,8 @@ meaning = "I sleep."
 meaning_ja = "眠ります。"
 difficulty = 1
 topics = ["daily"]
-situation = "Say you sleep."
-situation_ja = "眠る、と言ってください。"
+situation = "Your friend asks what you're doing on the long flight home. Say you sleep."
+situation_ja = "友達に、帰りの長いフライトで何をするか聞かれました。寝ると言ってください。"
 
 [[items]]
 id = "eg_sef_illa"
@@ -193,8 +193,8 @@ meaning = "I go to the gym."
 meaning_ja = "ジムに行きます。"
 difficulty = 3
 topics = ["daily", "hobbies"]
-situation = "Say you go to the gym."
-situation_ja = "ジムに行くと言ってください。"
+situation = "Anna asks what you do after work. Say you go to the gym."
+situation_ja = "アンナに、仕事のあと何をするか聞かれました。ジムに行くと言ってください。"
 
 [[items]]
 id = "eg_fer_ut_ad_ganga"
@@ -205,8 +205,8 @@ meaning_ja = "散歩に出かけます。"
 difficulty = 3
 topics = ["daily", "hobbies"]
 chunks = ["ganga", "að ganga", "út að ganga", "Ég fer út að ganga."]
-situation = "Say you go for a walk."
-situation_ja = "散歩に出かけると言ってください。"
+situation = "It's a fine evening, and your friend asks what you're doing. Say you go for a walk."
+situation_ja = "気持ちのいい夕方、友達に何をするのか聞かれました。散歩に行くと言ってください。"
 
 [[items]]
 id = "eg_versla"
@@ -216,8 +216,8 @@ meaning = "I do the shopping."
 meaning_ja = "買い物をします。"
 difficulty = 2
 topics = ["daily", "shopping"]
-situation = "Say you do the shopping."
-situation_ja = "買い物をすると言ってください。"
+situation = "Anna asks what you do on Saturdays. Say you do the shopping."
+situation_ja = "アンナに、土曜日は何をするか聞かれました。買い物をすると言ってください。"
 
 [[items]]
 id = "eg_thvae_thvott"
@@ -227,8 +227,8 @@ meaning = "I do the laundry."
 meaning_ja = "洗濯をします。"
 difficulty = 3
 topics = ["daily"]
-situation = "Say you do the laundry."
-situation_ja = "洗濯をすると言ってください。"
+situation = "Your friend asks why you're staying in on Sunday. Say you do the laundry."
+situation_ja = "友達に、日曜日にどうして家にいるのか聞かれました。洗濯をすると言ってください。"
 
 [[items]]
 id = "eg_laeri_islensku"
@@ -252,8 +252,8 @@ meaning = "I listen to music."
 meaning_ja = "音楽を聴きます。"
 difficulty = 3
 topics = ["daily", "hobbies"]
-situation = "Say you listen to music."
-situation_ja = "音楽を聴くと言ってください。"
+situation = "On the bus, your friend asks what you do on the way. Say you listen to music."
+situation_ja = "バスで友達に、移動中に何をするか聞かれました。音楽を聴くと言ってください。"
 
 [[items]]
 id = "eg_hringi_i_mommu"

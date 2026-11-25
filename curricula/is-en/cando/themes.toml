@@ -922,13 +922,13 @@ topics = ["daily"]
 goal = "Tell a man in the hot tub what you do on a normal day: work, lunch, the evening."
 goal_ja = "露天風呂で男性に、ふだんの一日を話す：仕事、昼食、夜。"
 turns = [
-  { who = "partner", say = "Hvað gerir þú á daginn?", meaning = "What do you do during the day?", meaning_ja = "昼間は何をしているんですか？", variants = [{ say = "En hvað gerir þú á daginn?", meaning = "And what do you do during the day?", meaning_ja = "それで、昼間は何をしているんですか？" }] },
+  { who = "partner", say = "Hvað gerir þú á daginn?", meaning = "What do you do during the day?", meaning_ja = "昼間は何をしているんですか？", variants = [{ say = "Hvað gerir þú annars á daginn?", meaning = "So what do you do during the day?", meaning_ja = "ところで、昼間は何をしているんですか？" }] },
   { who = "you", cue = "Say you go to work.", cue_ja = "仕事に行くと言ってください。", aim = "say you go to work", aim_ja = "仕事に行くと言う", say = "Ég fer í vinnuna.", items = ["eg_fer_i_vinnuna"] },
   { who = "partner", say = "Og hvenær borðar þú hádegismat?", meaning = "And when do you eat lunch?", meaning_ja = "お昼はいつ食べるんですか？" },
   { who = "you", cue = "Say you eat lunch at twelve.", cue_ja = "12時にお昼を食べると言ってください。", aim = "say when you eat lunch", aim_ja = "お昼の時間を言う", say = "Ég borða hádegismat klukkan tólf.", items = ["eg_borda_hadegismat"] },
   { who = "partner", say = "En á kvöldin?", meaning = "And in the evenings?", meaning_ja = "夜は？", word_glosses = { "kvöldin" = { en = "the evenings", ja = "夜" } } },
   { who = "you", cue = "Say you cook dinner, and you watch TV.", cue_ja = "夕食を作って、テレビを見ると言ってください。", aim = "say what you do in the evening", aim_ja = "夜の過ごし方を言う", say = "Ég elda kvöldmat. Ég horfi á sjónvarpið.", items = ["eg_elda_kvoldmat", "eg_horfi_a_sjonvarpid"] },
-  { who = "partner", say = "Sama hér!", meaning = "Same here!", meaning_ja = "私も同じです！", word_glosses = { "sama" = { en = "same", ja = "同じ" } }, variants = [{ say = "Já, sama hér!", meaning = "Yes, same here!", meaning_ja = "ええ、私も同じです！", word_glosses = { "sama" = { en = "same", ja = "同じ" } } }] },
+  { who = "partner", say = "Sama hér!", meaning = "Same here!", meaning_ja = "私も同じです！", variants = [{ say = "Já, sama hér!", meaning = "Yes, same here!", meaning_ja = "ええ、私も同じです！" }] },  # a reaction: no gloss, so no catch takes it out of the exchange (lesson 68 replay)
 ]
 [[themes.levels]]
 goal = "Ask him what he does at weekends, and say what you do."
@@ -939,7 +939,7 @@ turns = [
   { who = "you", cue = "Say you go to the gym, and you go for a walk.", cue_ja = "ジムに行って、散歩に行くと言ってください。", aim = "say what you do at weekends", aim_ja = "週末の過ごし方を言う", say = "Ég fer í ræktina. Ég fer út að ganga.", items = ["eg_fer_i_raektina", "eg_fer_ut_ad_ganga"] },
   { who = "partner", say = "Gott. Og íslenskan?", meaning = "Good. And the Icelandic?", meaning_ja = "いいですね。それで、アイスランド語は？" },
   { who = "you", cue = "Say you study Icelandic every day.", cue_ja = "毎日アイスランド語を勉強していると言ってください。", aim = "say you study Icelandic", aim_ja = "アイスランド語を勉強していると言う", say = "Ég læri íslensku á hverjum degi.", items = ["eg_laeri_islensku"] },
-  { who = "partner", say = "Það heyrist!", meaning = "You can hear it!", meaning_ja = "聞いてわかりますよ！", word_glosses = { "heyrist" = { en = "hear", ja = "聞いて" } } },
+  { who = "partner", say = "Það heyrist!", meaning = "You can hear it!", meaning_ja = "聞いてわかりますよ！" },  # a reaction: no gloss, so no catch takes it out of the exchange
 ]
 [[themes.levels]]
 goal = "Your friend calls: say you're busy this evening and free tomorrow."
