@@ -21,6 +21,11 @@
   the content format; `docs/TRAVEL-CANDO.md` the scenarios, cards and trip profile.
 - Check behaviour changes on the real learner path (replay a feedback export's
   `learner.before.json` with its manifest's arguments), not only on simulated courses.
+- **Comments say what holds and why, now** (owner, 2026-11-25). A code comment, a test's docstring or a `docs/DESIGN.md` row states the
+  rule and its reason, with the issue that decided it («#339: a word is caught once»); how it came to be (what it was before, which
+  lesson found it, a threshold's earlier values) belongs in the commit, the PR and `docs/history/`. Don't rewrite comments in bulk:
+  when a change touches code, make the comments it touches state the current rule, shortening a chain of dated additions to one
+  sentence as you go.
 - **Privacy:** never write trip dates, itinerary, lodging or personal places into the
   repository, issues, PRs or exports.
 - One PR per change; the owner merges. Checks: `python tools/partest.py` (the tests `python -m unittest` runs, on every
