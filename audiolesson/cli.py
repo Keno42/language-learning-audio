@@ -429,11 +429,18 @@ def review_savings(script: Script) -> dict[str, float]:
 
 
 def _case_frames(cur, ids: list[str]) -> dict:
-    """#548 step 2: ``{"anchors": cur.case_anchors, "items": {id: {"target", "meaning", "like"}}}`` for the items among ``ids`` whose target holds a form
-    with an anchor frame; {} without anchors or such items."""
+    """#548: ``{"anchors": cur.case_anchors, "items": {id: {"target", "meaning", "like", "why"}}}`` for the items among ``ids`` whose target holds a
+    form with an anchor frame (``like``, step 2) or a form its verb sets (``why``: ``Item.form_why``); {} without anchors or such items."""
     if not getattr(cur, "case_anchors", None):
         return {}
-    items = {i: {"target": it.target, "meaning": it.meaning, "like": dict(it.like)} for i in dict.fromkeys(ids) if (it := cur.by_id.get(i)) is not None and it.like}
+    items = {}
+    for i in dict.fromkeys(ids):
+        it = cur.by_id.get(i)
+        if it is None or not (it.like or it.form_why):
+            continue
+        items[i] = {"target": it.target, "meaning": it.meaning, "like": dict(it.like)}
+        if it.form_why:
+            items[i]["why"] = it.form_why
     return {"anchors": cur.case_anchors, "items": items} if items else {}
 
 
