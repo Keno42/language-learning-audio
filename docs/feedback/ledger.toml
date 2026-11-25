@@ -2132,3 +2132,9 @@ pr = ["#592"]
 family = "scene-first"
 first_heard = 67
 heard = "the accident's first level played with 6 of the 10 new items inside it"
+
+[[change]]
+title = "a pick-out's need in Icelandic once taught, the question the learner asks for it: «Hvað tekur þetta langan tíma? Hlustaðu og segðu það.», «Hvað kostar þetta? Hlustaðu og segðu það.» (#429 step 10: #600)"
+issue = ["#429"]
+pr = ["#600"]
+family = "instruction-language"

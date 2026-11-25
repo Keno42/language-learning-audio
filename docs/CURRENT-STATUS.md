@@ -90,7 +90,7 @@ In order:
 4. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 5. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
-**This round:** after lesson 67, one behaviour PR, the long run's step 10 (#600), and one data PR for the remarks: lesson 67's two remarks ask
+**This round:** after lesson 67, one behaviour PR, the long run's step 10 (#600, merged by the owner for lesson 68), and one data PR for the remarks: lesson 67's two remarks ask
 for a line's literal words («Segðu hverja setningu.», «Hann er hérna.»), the `form-why` family, remarked in seven lessons. The literal words of
 those two and of four more items were in the transcript only; #601 says them in asides, the place the owner chose after lesson 29, without a
 grammatical term. Lesson 67's other two remarks, on the catch task in the accident's first level, wait for the owner's choice (#599). Open

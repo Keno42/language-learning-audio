@@ -657,6 +657,7 @@ lessons 21–23 (§5.18–§5.20) have had their three.
 | a use of known words and a known conversation's opening in Icelandic once taught: «Úr orðum sem þú kannt.», «Samtalið aftur. Þú kannt þínar setningar. Segðu þær þegar þú átt að tala.» (#429 step 9: #588) | not yet | – |
 | at most two new fillers of one slot a lesson, unless the theme's next level wants them; a pick-out turn whose first value does not fit the time left sits the lesson out (#579 step 2: #590, with #589) | lesson 67 (10 new items, no slot with more than two new fillers) | 1 (67) |
 | a theme no trip profile ranks (the pharmacy, the accident) plays once the course order has brought its lines (#579: #592) | lesson 67 (the accident's first level played with 6 of the 10 new items inside it) | 1 (67) |
+| a pick-out's need in Icelandic once taught, the question the learner asks for it: «Hvað tekur þetta langan tíma? Hlustaðu og segðu það.», «Hvað kostar þetta? Hlustaðu og segðu það.» (#429 step 10: #600) | not yet | – |
 
 Read from rows, not from remarks: the second half kept when an item counted toward the target is not taught (#294: #308);
 ease learned from long-gap recalls (#220: #298, with site_update_notifier#118, #128); the review backlog's breakdown
