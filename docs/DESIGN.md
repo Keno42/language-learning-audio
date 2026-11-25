@@ -527,7 +527,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
     That line is said only when a second example with another known filler follows it; with none, the same sentence is asked next, so it says
     `construction_of_known_later` («It is a pattern: other words can go in its place. You will meet them later.»; lesson 34: «hnetum» was said
     to be swappable and no swap came for minutes, `tests/test_instance_filler.py`).
-  - *In the review* (`audiolesson/review_wholes.py`, applied in `cli._plan` to `plan.json` `review`; the bot is unchanged). `refine_review(review, cur, met, prompts)`:
+  - *In the review* (`audiolesson/review_wholes.py`, applied in `cli._plan` to `plan.json` `review`). Each question carries the other answers it accepts, `also` (`with_also` / `also_answers`: the item's `alternatives`, a pattern's filled with the answer's own words; also in `refine-review`'s and `questions`' output), which the bot shows beside the answer. `refine_review(review, cur, met, prompts)`:
     (1) a part's question whose part sits in another question's answer is dropped and credited to that question (`beside_whole`); (2) a bare part with a whole
     the learner knows (a construction filled with the part and met fills, the one whose authored fill names it first, else the shortest phrase that holds it) is
     asked through it: the whole's meaning is the cue and the sentence the answer (`through_whole`, with `through` naming the item); a part with no home in the curriculum

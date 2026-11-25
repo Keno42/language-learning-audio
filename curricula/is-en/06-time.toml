@@ -560,6 +560,7 @@ prereqs = ["oft", "eg_fer"]
 id = "eg_er_ad_koma"
 kind = "phrase"
 target = "Ég er að koma!"
+alternatives = ["Ég kem!"]  # both are right: shown beside the answer in the review (2026-11-26 audit)
 meaning = "I'm coming!"
 meaning_ja = "今行きます！"
 difficulty = 1

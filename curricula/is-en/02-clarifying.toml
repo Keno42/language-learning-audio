@@ -1350,6 +1350,7 @@ topics = ["time", "numbers"]
 id = "vid_erum_fjogur"
 kind = "phrase"
 target = "Við erum fjögur."
+alternatives = ["Fjögur."]  # both are right: shown beside the answer in the review (2026-11-26 audit)
 meaning = "There are four of us."
 meaning_ja = "四人です。"
 difficulty = 2
