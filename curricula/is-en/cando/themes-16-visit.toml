@@ -1,0 +1,61 @@
+# Lesson themes: one file a theme, read in file-name order (`load_records`). The format and its rules: themes-01-cafe.toml's
+# header and audiolesson/themes.py.
+
+[[themes]]
+id = "visit"
+scenario = "B3"
+title = "A visit"
+title_ja = "家を訪ねる"
+setting = "An Icelandic friend's flat: shoes off at the door, coffee, the kitchen after dinner; then the friend visits you."
+setting_ja = "アイスランド人の友達の家。玄関で靴を脱ぎ、コーヒー、夕食後の台所。そして今度は友達があなたを訪ねてくる。"
+scene_line = "You visit your Icelandic friend at her flat."
+scene_line_ja = "アイスランド人の友達の家を訪ねます。"
+topics = ["home"]
+[[themes.levels]]
+goal = "At your friend's door: thank her, say yes to coffee, and ask where the toilet is."
+goal_ja = "友達の家の玄関で、お礼を言い、コーヒーをもらい、トイレの場所を聞く。"
+partner_speaker = "native_a"  # the partner is a woman
+turns = [
+  { who = "partner", say = "Hæ! Komdu inn. Farðu úr skónum.", meaning = "Hi! Come in. Take your shoes off.", meaning_ja = "いらっしゃい！入って。靴は脱いでね。" },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
+  { who = "partner", say = "Viltu kaffi?", meaning = "Do you want coffee?", meaning_ja = "コーヒー飲む？", variants = [
+      { say = "Viltu kaffibolla?", meaning = "Do you want a cup of coffee?", meaning_ja = "コーヒー一杯、飲む？", word_glosses = { kaffibolla = { en = "cup of coffee", ja = "コーヒー一杯" } } },
+    ] },
+  { who = "you", cue = "Say yes, please.", cue_ja = "はい、お願いしますと言ってください。", aim = "say yes to coffee", aim_ja = "コーヒーをもらう", say = "Já, takk.", items = ["ja_takk"] },
+  { who = "partner", say = "Gjörðu svo vel.", meaning = "Here you are.", meaning_ja = "はい、どうぞ。" },
+  { who = "you", cue = "Ask her where the toilet is.", cue_ja = "トイレはどこか聞いてください。", aim = "ask where the toilet is", aim_ja = "トイレの場所を聞く", say = "Hvar er klósettið?", items = ["hvar_er_klosettid_home"] },
+  { who = "partner", say = "Hérna til vinstri.", meaning = "Here on the left.", meaning_ja = "ここの左側よ。", probes = [{ kind = "place", answer = "til vinstri", meanings = { en = "on the left", ja = "左" } }], variants = [
+      { say = "Hérna til hægri.", meaning = "Here on the right.", meaning_ja = "ここの右側よ。", probes = [{ kind = "place", answer = "til hægri", meanings = { en = "on the right", ja = "右" } }] },
+    ] },
+]
+[[themes.levels]]
+goal = "After dinner in her kitchen: ask where the rubbish goes, and whether you may open the window."
+goal_ja = "夕食後の台所で、ゴミをどこに捨てるか、窓を開けていいか聞く。"
+partner_speaker = "native_a"  # the partner is a woman
+scene_line = "After dinner, you help your friend in her kitchen."
+scene_line_ja = "夕食のあと、友達の台所で片付けを手伝います。"
+turns = [
+  { who = "you", cue = "Ask her where the rubbish goes.", cue_ja = "ゴミをどこに捨てればいいか聞いてください。", aim = "ask where the rubbish goes", aim_ja = "ゴミの捨て場所を聞く", say = "Hvar á ruslið að fara?", items = ["hvar_er_ruslid"] },
+  { who = "partner", say = "Undir vaskinum.", meaning = "Under the sink.", meaning_ja = "流しの下よ。", word_glosses = { "vaskinum" = { en = "the sink", ja = "流し" } } },
+  { who = "you", cue = "Ask if you may open the window.", cue_ja = "窓を開けていいか聞いてください。", aim = "ask to open the window", aim_ja = "窓を開けていいか聞く", say = "Má ég opna gluggann?", items = ["ma_eg_opna_gluggann"] },
+  { who = "partner", say = "Já, auðvitað. Það er heitt hérna.", meaning = "Yes, of course. It's warm in here.", meaning_ja = "ええ、もちろん。ここ暑いよね。", word_glosses = { "auðvitað" = { en = "of course", ja = "もちろん" } }, variants = [
+      { say = "Já, auðvitað. Það er svo heitt hérna.", meaning = "Yes, of course. It's so warm in here.", meaning_ja = "ええ、もちろん。ここ、すごく暑いよね。", word_glosses = { "auðvitað" = { en = "of course", ja = "もちろん" } } },
+    ] },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk fyrir.", items = ["takk_fyrir"] },
+]
+[[themes.levels]]
+goal = "Your friend visits you: ask her in, tell her to take her shoes off, offer coffee, and tell her to make herself at home."
+goal_ja = "友達があなたを訪ねてくる。招き入れ、靴を脱いでもらい、コーヒーを勧め、くつろいでと言う。"
+partner_speaker = "native_a"  # the partner is a woman
+scene_line = "Your Icelandic friend rings at your door."
+scene_line_ja = "アイスランド人の友達があなたの家の呼び鈴を鳴らします。"
+turns = [
+  { who = "partner", say = "Hæ!", meaning = "Hi!", meaning_ja = "こんにちは！" },
+  { who = "you", cue = "Say hi, and tell her to come in.", cue_ja = "あいさつして、入ってと言ってください。", aim = "ask her in", aim_ja = "招き入れる", say = "Hæ! Komdu inn.", items = ["hae", "komdu_inn"] },
+  { who = "partner", say = "Takk. Á ég að fara úr skónum?", meaning = "Thanks. Should I take my shoes off?", meaning_ja = "ありがとう。靴は脱いだほうがいい？" },
+  { who = "you", cue = "Say yes, take your shoes off.", cue_ja = "うん、靴を脱いでと言ってください。", aim = "ask her to take her shoes off", aim_ja = "靴を脱いでもらう", say = "Já, farðu úr skónum.", items = ["ja", "fardu_ur_skonum"] },
+  { who = "partner", say = "Mikið er íbúðin falleg!", meaning = "How lovely the flat is!", meaning_ja = "なんて素敵な部屋なの！", word_glosses = { "mikið" = { en = "how", ja = "なんて" } }, variants = [{ say = "Vá, falleg íbúð!", meaning = "Wow, a lovely flat!", meaning_ja = "わあ、素敵な部屋！" }] },
+  { who = "you", cue = "Thank her, and ask her if she wants coffee.", cue_ja = "お礼を言って、コーヒーはどうか聞いてください。", aim = "offer coffee", aim_ja = "コーヒーを勧める", say = "Takk! Viltu kaffi?", items = ["takk", "viltu_kaffi"] },
+  { who = "partner", say = "Já, takk.", meaning = "Yes, please.", meaning_ja = "うん、お願い。" },
+  { who = "you", cue = "Tell her to make herself at home.", cue_ja = "くつろいでねと言ってください。", aim = "tell her to make herself at home", aim_ja = "くつろいでもらう", say = "Láttu eins og þú sért heima hjá þér.", items = ["gerdu_thig_heimakomna"] },
+]

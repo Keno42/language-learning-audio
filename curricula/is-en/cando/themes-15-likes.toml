@@ -1,0 +1,55 @@
+# Lesson themes: one file a theme, read in file-name order (`load_records`). The format and its rules: themes-01-cafe.toml's
+# header and audiolesson/themes.py.
+
+[[themes]]
+id = "likes"
+scenario = "B3"
+title = "What you like"
+title_ja = "好きなこと"
+setting = "A friend's party, then a message from a friend: what you enjoy, your favourite food, and what you're doing."
+setting_ja = "友達のパーティー、それから友達からの連絡。好きなこと、好きな食べ物、今していること。"
+scene_line = "At a friend's party, a man asks you what you like."
+scene_line_ja = "友達のパーティーで、男性があなたの好きなことを聞いてきます。"
+topics = ["likes"]
+[[themes.levels]]
+goal = "Say what you enjoy and that you play it, and ask him what he enjoys."
+goal_ja = "好きなことと、それをすると言い、相手の好きなことを聞く。"
+turns = [
+  { who = "partner", say = "Hvað finnst þér skemmtilegt?", meaning = "What do you find fun?", meaning_ja = "何をするのが好きですか？", variants = [
+      { say = "En þú, hvað finnst þér skemmtilegt?", meaning = "And you, what do you find fun?", meaning_ja = "あなたは、何をするのが好きですか？" },
+    ] },
+  { who = "you", cue = "Say you enjoy football.", cue_ja = "サッカーが好きだと言ってください。", aim = "say what you enjoy", aim_ja = "好きなことを言う", say = "Ég hef gaman af fótbolta.", items = ["eg_hef_gaman_af", "fotbolta"] },
+  { who = "partner", say = "Í alvöru? Spilar þú fótbolta?", meaning = "Really? Do you play football?", meaning_ja = "本当に？サッカーをするんですか？", word_glosses = { "alvöru" = { en = "really", ja = "本当" } } },
+  { who = "you", cue = "Say yes, you play football. Then ask him if he enjoys music.", cue_ja = "はい、サッカーをすると言い、音楽が好きか聞いてください。", aim = "say you play, and ask him back", aim_ja = "すると言い、相手に聞く", say = "Já, ég spila fótbolta. Hefur þú gaman af tónlist?", items = ["ja", "eg_spila_fotbolta", "hefur_thu_gaman_af", "tonlist"] },
+  { who = "partner", say = "Já, ég spila á gítar og syng.", meaning = "Yes, I play the guitar and sing.", meaning_ja = "はい、ギターを弾いて歌います。" },
+  { who = "you", cue = "Say you like that.", cue_ja = "それはいいですねと言ってください。", aim = "say you like it", aim_ja = "いいと言う", say = "Ég fíla það.", items = ["mer_likar_thad"] },
+]
+[[themes.levels]]
+goal = "Say your favourite food, turn down the fermented shark, and say you love Iceland."
+goal_ja = "好きな食べ物を言い、発酵させたサメを断り、アイスランドが大好きだと言う。"
+turns = [
+  { who = "partner", say = "Hvað er uppáhaldsmaturinn þinn?", meaning = "What's your favourite food?", meaning_ja = "好きな食べ物は何ですか？" },
+  { who = "you", cue = "Say your favourite food is fish.", cue_ja = "好きな食べ物は魚だと言ってください。", aim = "say your favourite food", aim_ja = "好きな食べ物を言う", say = "Uppáhaldsmaturinn minn er fiskur.", items = ["uppahaldsmaturinn_minn_er_fiskur"] },
+  { who = "partner", say = "Viltu smakka hákarl?", meaning = "Do you want to taste fermented shark?", meaning_ja = "ハウカットル（発酵させたサメ）を味見してみますか？", word_glosses = { "hákarl" = { en = "fermented shark", ja = "発酵させたサメ" } } },
+  { who = "you", cue = "Say no, thanks.", cue_ja = "いいえ、結構ですと言ってください。", aim = "turn it down", aim_ja = "断る", say = "Nei, takk.", items = ["nei_takk"] },
+  { who = "partner", say = "Ha ha. Hvernig finnst þér Ísland?", meaning = "Ha ha. How do you like Iceland?", meaning_ja = "はは。アイスランドはどうですか？", variants = [
+      { say = "Allt í lagi! En hvernig finnst þér Ísland?", meaning = "All right! But how do you like Iceland?", meaning_ja = "わかりました！で、アイスランドはどうですか？" },
+    ] },
+  { who = "you", cue = "Say you love Iceland.", cue_ja = "アイスランドが大好きだと言ってください。", aim = "say you love Iceland", aim_ja = "アイスランドが大好きだと言う", say = "Ég elska Ísland.", items = ["eg_elska_island"] },
+]
+[[themes.levels]]
+goal = "Your friend asks what you're doing: say nothing special, you're reading, and say yes to a swim."
+goal_ja = "友達に何をしているか聞かれる。特に何も、本を読んでいると言い、プールの誘いを受ける。"
+partner_speaker = "native_a"  # the partner is a woman
+scene_line = "On a quiet afternoon, your Icelandic friend calls you."
+scene_line_ja = "静かな午後、アイスランド人の友達から電話がかかってきます。"
+turns = [
+  { who = "partner", say = "Hæ! Hvað ertu að gera?", meaning = "Hi! What are you doing?", meaning_ja = "やあ！何してる？" },
+  { who = "you", cue = "Say nothing special: you're reading a good book.", cue_ja = "特に何も、いい本を読んでいると言ってください。", aim = "say what you're doing", aim_ja = "今していることを言う", say = "Ekkert sérstakt. Ég er að lesa góða bók.", items = ["ekkert_serstakt", "eg_er_ad_lesa_goda_bok"] },
+  { who = "partner", say = "Viltu koma í sund?", meaning = "Do you want to come swimming?", meaning_ja = "プールに行かない？" },
+  { who = "you", cue = "Say yes, please, and that you enjoy swimming.", cue_ja = "うん、行きたい、泳ぐのが好きだと言ってください。", aim = "say yes", aim_ja = "誘いを受ける", say = "Já, takk! Ég hef gaman af sundi.", items = ["ja_takk", "eg_hef_gaman_af", "sundi"] },
+  { who = "partner", say = "Frábært! Sjáumst eftir tíu mínútur.", meaning = "Great! See you in ten minutes.", meaning_ja = "よかった！10分後にね。", word_glosses = { "frábært" = { en = "great", ja = "よかった" } }, probes = [{ kind = "duration", answer = "tíu mínútur", meanings = { en = "ten minutes", ja = "10分" } }], variants = [
+      { say = "Frábært! Sjáumst eftir tuttugu mínútur.", meaning = "Great! See you in twenty minutes.", meaning_ja = "よかった！20分後にね。", word_glosses = { "frábært" = { en = "great", ja = "よかった" } }, probes = [{ kind = "duration", answer = "tuttugu mínútur", meanings = { en = "twenty minutes", ja = "20分" } }] },
+    ] },
+  { who = "you", cue = "Say see you.", cue_ja = "またねと言ってください。", aim = "say see you", aim_ja = "またねと言う", say = "Sjáumst!", items = ["sjaumst"] },
+]

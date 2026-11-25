@@ -1,0 +1,73 @@
+# Lesson themes: one file a theme, read in file-name order (`load_records`). The format and its rules: themes-01-cafe.toml's
+# header and audiolesson/themes.py.
+
+[[themes]]
+# #327: a clothes shop. Before it, on the replay of the lesson-30 export, its lines («Ég þarf húfu.», «Það er of dýrt.», «Er afsláttur?»,
+# «Má ég máta þetta?») were the day's new material in lessons 38 and 42, while those lessons replayed the supermarket's second level.
+id = "clothes"
+scenario = "A3"
+title = "Clothes shop"
+title_ja = "服屋"
+setting = "A clothes shop: warm things, the till, the fitting room."
+setting_ja = "服屋。防寒具、レジ、試着室。"
+scene_line = "You're in a clothes shop, looking for something warm."
+scene_line_ja = "服屋で、暖かいものを探しています。"
+topics = ["shopping"]
+[[themes.levels]]
+goal = "Say what you need, and react to the price."
+goal_ja = "必要な物を伝え、値段に反応する。"
+partner_speaker = "native_a"
+turns = [
+  { who = "partner", say = "Góðan daginn! Get ég aðstoðað?", meaning = "Hello! Can I help you?", meaning_ja = "こんにちは！何かお探しですか？", variants = [{ say = "Halló! Vantar þig eitthvað?", meaning = "Hi! Do you need anything?", meaning_ja = "こんにちは！何か必要ですか？" }] },
+  { who = "you", cue = "Say yes, you need a hat.", cue_ja = "はい、帽子が要ると言ってください。", aim = "say you need a hat", aim_ja = "帽子が要ると言う", say = "Já, ég þarf húfu.", items = ["ja", "eg_tharf", "husfu"] },
+  { who = "partner", say = "Þessi er mjög hlý. Hún kostar sex þúsund krónur.", meaning = "This one is very warm. It costs six thousand krónur.", meaning_ja = "これはとても暖かいです。6000クローナです。", probes = [{ kind = "price", answer = "sex þúsund krónur", meanings = { en = "six thousand krónur", ja = "6000クローナ" } }], listen = [
+      { say = "Þessi er mjög hlý. Hún kostar sjö þúsund krónur.", meaning = "This one is very warm. It costs seven thousand krónur.", meaning_ja = "これはとても暖かいです。7000クローナです。", probes = [{ kind = "price", answer = "sjö þúsund krónur", meanings = { en = "seven thousand krónur", ja = "7000クローナ" } }] },
+      { say = "Þessi er hlý og kostar fimm þúsund krónur.", meaning = "This one is warm and costs five thousand krónur.", meaning_ja = "これは暖かくて、5000クローナです。", probes = [{ kind = "price", answer = "fimm þúsund krónur", meanings = { en = "five thousand krónur", ja = "5000クローナ" } }] },
+      { say = "Hún kostar átta þúsund krónur og er mjög hlý.", meaning = "It costs eight thousand krónur and is very warm.", meaning_ja = "8000クローナで、とても暖かいです。", probes = [{ kind = "price", answer = "átta þúsund krónur", meanings = { en = "eight thousand krónur", ja = "8000クローナ" } }] },
+    ], variants = [
+      { say = "Þessi er mjög hlý. Hún kostar átta þúsund krónur.", meaning = "This one is very warm. It costs eight thousand krónur.", meaning_ja = "これはとても暖かいです。8000クローナです。", probes = [{ kind = "price", answer = "átta þúsund krónur", meanings = { en = "eight thousand krónur", ja = "8000クローナ" } }] },
+      { say = "Þessi er mjög hlý. Hún kostar níu þúsund krónur.", meaning = "This one is very warm. It costs nine thousand krónur.", meaning_ja = "これはとても暖かいです。9000クローナです。", probes = [{ kind = "price", answer = "níu þúsund krónur", meanings = { en = "nine thousand krónur", ja = "9000クローナ" } }] },
+    ] },
+  { who = "you", cue = "Say it's too expensive.", cue_ja = "高すぎると言ってください。", aim = "say it's too expensive", aim_ja = "高すぎると言う", say = "Það er of dýrt.", items = ["thad_er_of_dyrt"] },
+  { who = "partner", say = "Þessi er ódýrari, bara þrjú þúsund.", meaning = "This one is cheaper, only three thousand.", meaning_ja = "こちらは安いですよ。3000だけです。", probes = [{ kind = "price", answer = "þrjú þúsund", meanings = { en = "three thousand", ja = "3000" } }], variants = [
+      { say = "Þessi kostar bara þrjú þúsund.", meaning = "This one is only three thousand.", meaning_ja = "こちらは3000だけです。", probes = [{ kind = "price", answer = "þrjú þúsund", meanings = { en = "three thousand", ja = "3000" } }] },
+      { say = "Þessi er ódýrari, bara tvö þúsund.", meaning = "This one is cheaper, only two thousand.", meaning_ja = "こちらは安いですよ。2000だけです。", probes = [{ kind = "price", answer = "tvö þúsund", meanings = { en = "two thousand", ja = "2000" } }] },
+      { say = "Þessi er ódýrari, bara þrjú þúsund og átta hundruð.", meaning = "This one is cheaper, only three thousand eight hundred.", meaning_ja = "こちらは安いですよ。3800だけです。", probes = [{ kind = "price", answer = "þrjú þúsund og átta hundruð", meanings = { en = "three thousand eight hundred", ja = "3800" } }] },
+    ], listen = [
+      { say = "Þessi er ódýrari, bara fjögur þúsund.", meaning = "This one is cheaper, only four thousand.", meaning_ja = "こちらのほうが安くて、4000だけです。", probes = [{ kind = "price", answer = "fjögur þúsund", meanings = { en = "four thousand", ja = "4000" } }] },
+      { say = "Þessi kostar bara tvö þúsund.", meaning = "This one costs only two thousand.", meaning_ja = "これは2000だけです。", probes = [{ kind = "price", answer = "tvö þúsund", meanings = { en = "two thousand", ja = "2000" } }] },
+    ] },
+  { who = "you", cue = "Ask if there's a discount.", cue_ja = "割引があるか聞いてください。", aim = "ask if there's a discount", aim_ja = "割引があるか聞く", say = "Er afsláttur?", items = ["er_afslattur"] },
+  { who = "partner", say = "Já, tíu prósent í dag.", meaning = "Yes, ten percent today.", meaning_ja = "はい、今日は10パーセント引きです。", variants = [
+      { say = "Já, tuttugu prósent í dag.", meaning = "Yes, twenty percent today.", meaning_ja = "はい、今日は20パーセント引きです。" },
+      { say = "Já, fimmtán prósent í dag.", meaning = "Yes, fifteen percent today.", meaning_ja = "はい、今日は15パーセント引きです。" },
+    ] },
+]
+[[themes.levels]]
+goal = "Ask to try it on, and find the fitting room."
+goal_ja = "試着していいか聞き、試着室の場所を聞く。"
+partner_speaker = "native_a"
+turns = [
+  { who = "partner", say = "Gjörðu svo vel, hér er hún.", meaning = "Here you are, here it is.", meaning_ja = "どうぞ、こちらです。" },
+  { who = "you", cue = "Ask if you can try it on.", cue_ja = "試着していいか聞いてください。", aim = "ask if you can try it on", aim_ja = "試着していいか聞く", say = "Má ég máta þetta?", items = ["ma_eg_mata_thetta"] },
+  { who = "partner", say = "Já, auðvitað.", meaning = "Yes, of course.", meaning_ja = "はい、もちろん。", variants = [{ say = "Já, endilega.", meaning = "Yes, please do.", meaning_ja = "ええ、どうぞ。" }] },
+  { who = "you", cue = "Ask where the fitting room is.", cue_ja = "試着室はどこか聞いてください。", aim = "ask where the fitting room is", aim_ja = "試着室はどこか聞く", say = "Hvar er mátunarklefinn?", items = ["hvar_er_matunarklefinn"] },
+  { who = "partner", say = "Hann er þarna, við hliðina á speglinum.", meaning = "It's over there, next to the mirror.", meaning_ja = "あちらの、鏡の横です。" },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
+]
+[[themes.levels]]
+# #327 batch: a jacket that doesn't fit, a bigger one, another colour (lessons 47–48 of the lesson-40 replay).
+goal = "Say what you need, say it's too small, and ask for a bigger one and another colour."
+goal_ja = "必要な物を伝え、小さすぎると言い、大きいサイズと別の色を聞く。"
+partner_speaker = "native_a"
+turns = [
+  { who = "partner", say = "Góðan daginn! Get ég aðstoðað?", meaning = "Hello! Can I help you?", meaning_ja = "こんにちは！何かお探しですか？" },
+  { who = "you", cue = "Say yes, you need a jacket.", cue_ja = "はい、ジャケットが要ると言ってください。", aim = "say you need a jacket", aim_ja = "ジャケットが要ると言う", say = "Já, ég þarf jakka.", items = ["ja", "eg_tharf", "jakka"] },
+  { who = "partner", say = "Þessi er mjög hlýr. Mátaðu hann.", meaning = "This one is very warm. Try it on.", meaning_ja = "これはとても暖かいです。着てみてください。" },
+  { who = "you", cue = "You try it on. Say it's too small.", cue_ja = "着てみました。小さすぎると言ってください。", aim = "say it's too small", aim_ja = "小さすぎると言う", say = "Þetta er of lítið.", items = ["thetta_er_of_litid"] },
+  { who = "partner", say = "Æ, leiðinlegt.", meaning = "Oh, that's a pity.", meaning_ja = "あら、残念。", variants = [{ say = "Æ, en leiðinlegt.", meaning = "Oh, what a pity.", meaning_ja = "あら、それは残念。" }] },
+  { who = "you", cue = "Ask her if she has it in a bigger size.", cue_ja = "大きいサイズがあるか聞いてください。", aim = "ask for a bigger size", aim_ja = "大きいサイズがあるか聞く", say = "Áttu þetta í stærra?", items = ["attu_thetta_i_staerra"] },
+  { who = "partner", say = "Já, gjörðu svo vel.", meaning = "Yes, here you are.", meaning_ja = "はい、どうぞ。" },
+  { who = "you", cue = "Ask her if she has it in another colour.", cue_ja = "別の色があるか聞いてください。", aim = "ask for another colour", aim_ja = "別の色があるか聞く", say = "Áttu þetta í öðrum lit?", items = ["attu_thetta_i_odrum_lit"] },
+  { who = "partner", say = "Já, í bláu og rauðu.", meaning = "Yes, in blue and red.", meaning_ja = "はい、青と赤があります。" },
+]

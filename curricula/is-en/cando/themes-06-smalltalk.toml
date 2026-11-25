@@ -1,0 +1,157 @@
+# Lesson themes: one file a theme, read in file-name order (`load_records`). The format and its rules: themes-01-cafe.toml's
+# header and audiolesson/themes.py.
+
+[[themes]]
+# #327: getting to know someone. From about lesson 38 on the replay of the lesson-30 export, its lines («Ég heiti …», «Hvað heitir þú?»,
+# «Ég bý í …», «Ég er kennari.», «Hvað gerir þú?») are the day's new material, while the lessons replayed the town or the supermarket.
+id = "smalltalk"
+scenario = "B3"
+title = "Getting to know someone"
+title_ja = "知り合いになる"
+setting = "A guesthouse lounge: someone sits down next to you."
+setting_ja = "ゲストハウスのラウンジ。隣に人が座る。"
+scene_line = "Someone sits down next to you and says hello."
+scene_line_ja = "隣に座った人が、あいさつしてきます。"
+topics = ["social"]
+[[themes.levels]]
+goal = "Say your name and where you're from, and ask hers."
+goal_ja = "名前と出身を伝え、相手の名前も聞く。"
+partner_speaker = "native_a"
+turns = [
+  { who = "partner", say = "Hæ!", meaning = "Hi!", meaning_ja = "こんにちは！", variants = [{ say = "Hæ, hæ!", meaning = "Hi there!", meaning_ja = "やあ、こんにちは！" }] },
+  { who = "you", cue = "Say hi, give your name, and ask hers.", cue_ja = "あいさつして名前を言い、相手の名前を聞いてください。", aim = "give your name and ask hers", aim_ja = "名前を言い、相手の名前を聞く", say = "Hæ! Ég heiti Yuki. Hvað heitir þú?", items = ["hae", "eg_heiti", "hvad_heitir_thu"] },
+  { who = "partner", say = "Ég heiti Anna. Hvaðan ert þú?", meaning = "I'm Anna. Where are you from?", meaning_ja = "アンナです。どこから来たんですか？", variants = [
+      { say = "Ég heiti Anna. Gaman að kynnast þér! Hvaðan ert þú?", meaning = "I'm Anna. Nice to meet you! Where are you from?", meaning_ja = "アンナです。はじめまして！どこから来たんですか？" },
+    ] },
+  { who = "you", cue = "Say you're from Japan, and ask her back.", cue_ja = "日本から来たと言い、相手にも聞き返してください。", aim = "say you're from Japan and ask her back", aim_ja = "日本から来たと言い、聞き返す", say = "Ég er frá Japan. En þú?", items = ["eg_er_fra_japan", "en_thu"] },
+  { who = "partner", say = "Ég er frá Akureyri, en ég bý í Reykjavík.", meaning = "I'm from Akureyri, but I live in Reykjavík.", meaning_ja = "アークレイリ出身ですが、レイキャビクに住んでいます。", probes = [
+      { kind = "place", answer = "Akureyri", meanings = { en = "Akureyri", ja = "アークレイリ" }, ask = { en = "Where is she from?", ja = "彼女はどこの出身ですか？" } },
+      { kind = "place", answer = "Reykjavík", meanings = { en = "Reykjavík", ja = "レイキャビク" }, ask = { en = "Where does she live?", ja = "彼女はどこに住んでいますか？" } },
+    ], listen = [
+      { say = "Ég er frá Reykjavík, en ég bý á Akureyri.", meaning = "I'm from Reykjavík, but I live in Akureyri.", meaning_ja = "レイキャビク出身ですが、アークレイリに住んでいます。", probes = [{ kind = "place", answer = "Reykjavík", meanings = { en = "Reykjavík", ja = "レイキャビク" }, ask = { en = "Where is she from?", ja = "彼女はどこの出身ですか？" } }, { kind = "place", answer = "Akureyri", meanings = { en = "Akureyri", ja = "アークレイリ" }, ask = { en = "Where does she live?", ja = "彼女はどこに住んでいますか？" } }] },
+    ] },
+  { who = "you", cue = "Say it's nice to meet her.", cue_ja = "会えてうれしいと伝えてください。", aim = "say it's nice to meet her", aim_ja = "会えてうれしいと伝える", say = "Gaman að kynnast þér.", items = ["gaman_ad_kynnast_ther"] },
+]
+[[themes.levels]]
+goal = "Say where you live and what you do, and ask her the same."
+goal_ja = "住んでいる所と仕事を伝え、相手にも同じことを聞く。"
+partner_speaker = "native_a"
+turns = [
+  { who = "partner", say = "Hvar býrð þú?", meaning = "Where do you live?", meaning_ja = "どこに住んでいるんですか？" },
+  { who = "you", cue = "Say you live in Tokyo, and ask her back.", cue_ja = "東京に住んでいると言い、聞き返してください。", aim = "say you live in Tokyo and ask her back", aim_ja = "東京に住んでいると言い、聞き返す", say = "Ég bý í Tókýó. En þú?", items = ["eg_by_i", "tokyo_dat", "en_thu"] },
+  { who = "partner", say = "Ég bý í Kópavogi, rétt hjá Reykjavík.", meaning = "I live in Kópavogur, just by Reykjavík.", meaning_ja = "コーパヴォグルに住んでいます。レイキャビクのすぐ近くです。" },
+  { who = "you", cue = "Ask her what she does.", cue_ja = "仕事は何か聞いてください。", aim = "ask what she does", aim_ja = "仕事は何か聞く", say = "Hvað gerir þú?", items = ["hvad_gerir_thu"] },
+  { who = "partner", say = "Ég er læknir. En þú?", meaning = "I'm a doctor. And you?", meaning_ja = "医者です。あなたは？", variants = [{ say = "Ég vinn á sjúkrahúsi. En þú?", meaning = "I work at a hospital. And you?", meaning_ja = "病院で働いています。あなたは？" }] },
+  { who = "you", cue = "Say you're a teacher.", cue_ja = "教師だと言ってください。", aim = "say you're a teacher", aim_ja = "教師だと言う", say = "Ég er kennari.", items = ["eg_er_job", "kennari"] },
+  { who = "partner", say = "Gaman að heyra það.", meaning = "Nice to hear that.", meaning_ja = "それはいいですね。" },
+]
+[[themes.levels]]
+goal = "Ask if she's Icelandic, say you're Japanese and here on business, and where you work."
+goal_ja = "アイスランド人か聞き、日本人で出張中だと伝え、勤め先も言う。"
+partner_speaker = "native_a"
+turns = [
+  { who = "you", cue = "Ask her if she's Icelandic.", cue_ja = "アイスランド人か聞いてください。", aim = "ask if she's Icelandic", aim_ja = "アイスランド人か聞く", say = "Ert þú íslensk?", items = ["ert_thu_islensk"] },
+  { who = "partner", say = "Já, ég er frá Akureyri. En þú?", meaning = "Yes, I'm from Akureyri. And you?", meaning_ja = "ええ、アークレイリ出身です。あなたは？", variants = [
+      { say = "Já, alveg. En þú?", meaning = "Yes, absolutely. And you?", meaning_ja = "ええ、まったくそうです。あなたは？", word_glosses = { alveg = { en = "absolutely", ja = "まったく", pointer = { en = "the word that makes the yes stronger", ja = "「はい」を強めた部分" } } } },
+    ] },
+  { who = "you", cue = "Say you're Japanese.", cue_ja = "日本人だと言ってください。", aim = "say you're Japanese", aim_ja = "日本人だと言う", say = "Ég er japönsk.", say_m = "Ég er japanskur.", items = ["eg_er_japonsk"] },
+  { who = "partner", say = "Ertu hér í fríi?", meaning = "Are you here on holiday?", meaning_ja = "休暇で来ているんですか？", word_glosses = { "fríi" = { en = "holiday", ja = "休暇" } }, variants = [
+      { say = "Ertu í fríi á Íslandi?", meaning = "Are you on holiday in Iceland?", meaning_ja = "アイスランドには休暇で？", word_glosses = { "fríi" = { en = "holiday", ja = "休暇" } } },
+    ] },
+  { who = "you", cue = "Say you're on a business trip.", cue_ja = "出張中だと言ってください。", aim = "say you're on a business trip", aim_ja = "出張中だと言う", say = "Ég er í vinnuferð.", items = ["eg_er_i_vinnuferd"] },
+  { who = "partner", say = "Nú já! Hvar vinnur þú?", meaning = "Oh, I see! Where do you work?", meaning_ja = "そうなんですね！どこで働いているんですか？", word_glosses = { vinnur = { en = "work", ja = "働いて", pointer = { en = "the word asking what you do there", ja = "そこで何をしているか尋ねた部分" } } } },
+  { who = "you", cue = "Say you work at a small company.", cue_ja = "小さな会社で働いていると言ってください。", aim = "say you work at a small company", aim_ja = "小さな会社で働いていると言う", say = "Ég vinn hjá litlu fyrirtæki.", items = ["eg_vinn_hja"] },
+  { who = "partner", say = "Gaman að heyra það.", meaning = "Nice to hear that.", meaning_ja = "それはいいですね。" },
+]
+[[themes.levels]]
+# #427 (lesson 40: «is it normal to ask someone's age straight away, or to say you're single and live alone?»; lesson 42, after #433's
+# fix: «still odd to talk about marriage and age with another customer at a café, out of the blue»). Not a stranger in the lounge: a coffee
+# with Anna, the friend made there (the scene the meet theme arranges). Her birthday opens the age, and her remark on your ring opens
+# whether you're married, so each question has its reason and «En þú?» is asked only of the age. Her lines use words taught by the level's
+# own items or before them (the owner, on «Maðurinn minn … hef verið … í tíu ár»: none of it taught by lesson 40)
+goal = "Congratulate her and ask her age, say yours, and say you're married."
+goal_ja = "お祝いを言って相手の年齢を聞き、自分の年齢と、結婚していることを伝える。"
+partner_speaker = "native_a"
+scene_line = "You're having coffee with Anna, whom you met at the guesthouse."
+scene_line_ja = "ゲストハウスで知り合ったアンナと、カフェでお茶をしています。"
+turns = [
+  { who = "partner", say = "Ég á afmæli í dag!", meaning = "It's my birthday today!", meaning_ja = "今日は私の誕生日なんです！", word_glosses = { "afmæli" = { en = "birthday", ja = "誕生日" } } },
+  { who = "you", cue = "Congratulate her, and ask her how old she is.", cue_ja = "お祝いを言って、何歳になったか聞いてください。", aim = "congratulate her and ask how old she is", aim_ja = "お祝いを言い、年齢を聞く", say = "Til hamingju! Hvað ertu gömul?", items = ["til_hamingju", "hvad_ertu_gomul"] },
+  { who = "partner", say = "Takk! Ég er þrjátíu ára. En þú?", meaning = "Thanks! I'm thirty. And you?", meaning_ja = "ありがとう！30歳です。あなたは？", variants = [
+      { say = "Takk! Þrjátíu ára í dag. En þú?", meaning = "Thanks! Thirty today. And you?", meaning_ja = "ありがとう！今日で30歳。あなたは？" },
+      { say = "Takk! Ég er tuttugu og sex ára. En þú?", meaning = "Thanks! I'm twenty-six. And you?", meaning_ja = "ありがとう！26歳です。あなたは？" },
+      { say = "Takk! Ég er fjörutíu ára. En þú?", meaning = "Thanks! I'm forty. And you?", meaning_ja = "ありがとう！40歳です。あなたは？" },
+    ] },
+  { who = "you", cue = "Say you're twenty.", cue_ja = "20歳だと言ってください。", aim = "say your age", aim_ja = "自分の年齢を言う", say = "Ég er tuttugu ára.", items = ["eg_er_ara", "tuttugu_ara"] },
+  { who = "partner", say = "Þú ert með hring!", meaning = "You're wearing a ring!", meaning_ja = "指輪をしているんですね！", word_glosses = { "hring" = { en = "ring", ja = "指輪" } } },
+  { who = "you", cue = "Thank her, and say you're married.", cue_ja = "お礼を言って、結婚していると言ってください。", aim = "say you're married", aim_ja = "結婚していると言う", say = "Takk! Ég er gift.", say_m = "Takk! Ég er giftur.", items = ["takk", "eg_er_gift"] },
+  { who = "partner", say = "Gaman að heyra það! Skál!", meaning = "Nice to hear that! Cheers!", meaning_ja = "それはいいですね！乾杯！" },
+  { who = "you", cue = "Say cheers.", cue_ja = "乾杯と言ってください。", aim = "say cheers", aim_ja = "乾杯と言う", say = "Skál!", items = ["skal"] },
+]
+[[themes.levels]]
+# #327 batch: where you live, your work, children, a place visited before (lessons 41–46 of the lesson-40 replay). A coach ride's seat
+# neighbour, after the view: the questions come once the talk has started (#427, lesson 40: age and marital status asked straight away).
+# Its own scene line: the theme's «Someone sits down next to you and says hello.» names no coach and no view for «Fallegt» (lesson 42).
+goal = "On a long coach ride, tell your neighbour you've been here before, where you live, what you do, and about your children."
+goal_ja = "長いバス旅行で、隣の人に前にも来たこと、住んでいる所、仕事、子どものことを話す。"
+partner_speaker = "native_a"
+scene_line = "On a long coach ride, the woman next to you is looking out at the view."
+scene_line_ja = "長距離バスで、隣の女性が窓の外の景色を眺めています。"
+turns = [
+  { who = "partner", say = "Fallegt, er það ekki? Hefurðu komið hingað áður?", meaning = "Beautiful, isn't it? Have you been here before?", meaning_ja = "きれいですね。前にも来たことがありますか？" },
+  { who = "you", cue = "Say yes, you've been here before.", cue_ja = "はい、前にも来たことがあると言ってください。", aim = "say you've been here before", aim_ja = "前にも来たことがあると言う", say = "Já, ég hef verið hér áður.", items = ["ja", "eg_hef_verid_her_adur"] },
+  { who = "partner", say = "Nú já! Gaman að heyra.", meaning = "Oh! Nice to hear.", meaning_ja = "そうなんですね！" },
+  { who = "you", cue = "Ask her where she lives.", cue_ja = "どこに住んでいるか聞いてください。", aim = "ask where she lives", aim_ja = "どこに住んでいるか聞く", say = "Hvar býrð þú?", items = ["hvar_byrd_thu"] },
+  { who = "partner", say = "Á Selfossi. En þú?", meaning = "In Selfoss. And you?", meaning_ja = "セルフォスです。あなたは？" },
+  { who = "you", cue = "Say you live in Osaka.", cue_ja = "大阪に住んでいると言ってください。", aim = "say you live in Osaka", aim_ja = "大阪に住んでいると言う", say = "Ég bý í Ósaka.", items = ["eg_by_i", "osaka_dat"] },
+  { who = "partner", say = "Og hvað gerir þú?", meaning = "And what do you do?", meaning_ja = "お仕事は何ですか？", variants = [{ say = "Og við hvað vinnur þú?", meaning = "And what do you work as?", meaning_ja = "お仕事は何をしていますか？" }] },
+  { who = "you", cue = "Say you're a doctor.", cue_ja = "医者だと言ってください。", aim = "say you're a doctor", aim_ja = "医者だと言う", say = "Ég er læknir.", items = ["eg_er_job", "laeknir"] },
+  { who = "partner", say = "Áttu börn?", meaning = "Do you have children?", meaning_ja = "お子さんはいますか？" },
+  { who = "you", cue = "Say yes, you have two children.", cue_ja = "はい、子どもが二人いると言ってください。", aim = "say you have two children", aim_ja = "子どもが二人いると言う", say = "Já, ég á tvö börn.", items = ["ja", "eg_a_tvo_born"] },
+  { who = "partner", say = "Ég líka!", meaning = "Me too!", meaning_ja = "私もです！" },
+]
+[[themes.levels]]
+# #327, the batch after lesson 58: module 13's family lines (children, a daughter's name and age, a brother, missing them) in an
+# exchange. Candidates until native-checked (#209).
+goal = "Say you have no children, and ask about her daughter: her name and her age."
+goal_ja = "子どもはいないと言い、相手の娘の名前と年齢を聞く。"
+partner_speaker = "native_a"  # the partner is a woman
+scene_line = "In the hot tub at the pool, the woman next to you starts chatting."
+scene_line_ja = "プールの温水浴槽で、隣の女性が話しかけてきます。"
+turns = [
+  { who = "partner", say = "Ertu hérna með fjölskyldunni? Áttu börn?", meaning = "Are you here with your family? Do you have children?", meaning_ja = "ご家族と来ているんですか？お子さんは？", variants = [
+      { say = "Ertu á ferðalagi með fjölskyldunni? Áttu börn?", meaning = "Are you travelling with your family? Do you have children?", meaning_ja = "ご家族と旅行中ですか？お子さんは？" },
+    ] },
+  { who = "you", cue = "Say no, you have no children, and ask: and you?", cue_ja = "いいえ、子どもはいませんと言い、あなたは？と聞いてください。", aim = "say you have no children", aim_ja = "子どもはいないと伝える", say = "Nei, ég á engin börn. En þú?", items = ["nei", "eg_a_engin_born", "en_thu"] },
+  { who = "partner", say = "Já, ég á dóttur.", meaning = "Yes, I have a daughter.", meaning_ja = "ええ、娘がいます。", word_glosses = { "dóttur" = { en = "daughter", ja = "娘" } }, variants = [
+      { say = "Já, ég á litla dóttur.", meaning = "Yes, I have a little daughter.", meaning_ja = "ええ、小さい娘がいます。", word_glosses = { "dóttur" = { en = "daughter", ja = "娘" } } },
+    ] },
+  { who = "you", cue = "Ask her what her daughter's name is.", cue_ja = "娘さんの名前を聞いてください。", aim = "ask her daughter's name", aim_ja = "娘さんの名前を聞く", say = "Hvað heitir hún?", items = ["hvad_heitir_hun"] },
+  { who = "partner", say = "Hún heitir Sara.", meaning = "Her name is Sara.", meaning_ja = "サラといいます。", variants = [
+      { say = "Hún heitir Sara, eins og amma hennar.", meaning = "Her name is Sara, like her grandmother.", meaning_ja = "サラです。祖母と同じ名前なんです。" },
+    ] },
+  { who = "you", cue = "Ask her how old her daughter is.", cue_ja = "娘さんは何歳か聞いてください。", aim = "ask how old she is", aim_ja = "年齢を聞く", say = "Hvað er hún gömul?", items = ["hvad_er_hun_gomul"] },
+  { who = "partner", say = "Hún er fimm ára.", meaning = "She's five years old.", meaning_ja = "5歳です。", probes = [{ kind = "count", answer = "fimm ára", meanings = { en = "five years old", ja = "5歳" } }], variants = [
+      { say = "Hún er sjö ára.", meaning = "She's seven years old.", meaning_ja = "7歳です。", probes = [{ kind = "count", answer = "sjö ára", meanings = { en = "seven years old", ja = "7歳" } }] },
+      { say = "Hún er átta ára.", meaning = "She's eight years old.", meaning_ja = "8歳です。", probes = [{ kind = "count", answer = "átta ára", meanings = { en = "eight years old", ja = "8歳" } }] },
+    ] },
+]
+[[themes.levels]]
+goal = "Show a photo of your mum, say you have one brother and where he lives, and say you miss your family."
+goal_ja = "母の写真を見せ、兄弟が一人いること、どこに住んでいるか、家族が恋しいことを伝える。"
+partner_speaker = "native_a"  # the partner is a woman
+scene_line = "Over coffee, you show Anna a photo on your phone."
+scene_line_ja = "コーヒーを飲みながら、スマホの写真をアンナに見せます。"
+turns = [
+  { who = "partner", say = "Hver er þetta?", meaning = "Who is this?", meaning_ja = "これは誰ですか？", variants = [{ say = "Hver er þetta á myndinni?", meaning = "Who is this in the photo?", meaning_ja = "写真のこの人は誰ですか？" }] },
+  { who = "you", cue = "Say this is your mum.", cue_ja = "母ですと言ってください。", aim = "say who it is", aim_ja = "誰かを伝える", say = "Þetta er mamma mín.", items = ["thetta_er_person", "mamma_min"] },
+  { who = "partner", say = "En falleg mynd! Áttu systkini?", meaning = "What a lovely photo! Do you have siblings?", meaning_ja = "すてきな写真ですね！きょうだいはいますか？", variants = [
+      { say = "Hún er falleg! Áttu systkini?", meaning = "She's beautiful! Do you have siblings?", meaning_ja = "きれいな方ですね！きょうだいはいますか？" },
+    ] },
+  { who = "you", cue = "Say yes, you have one brother.", cue_ja = "はい、兄弟が一人いますと言ってください。", aim = "say you have one brother", aim_ja = "兄弟が一人いると伝える", say = "Já, ég á einn bróður.", items = ["ja", "eg_a_einn_brodur"] },
+  { who = "partner", say = "Hvar býr hann?", meaning = "Where does he live?", meaning_ja = "どこに住んでいるんですか？", variants = [{ say = "Og hvar býr hann?", meaning = "And where does he live?", meaning_ja = "それで、どこに住んでいるんですか？" }] },
+  { who = "you", cue = "Say he lives in Japan.", cue_ja = "日本に住んでいますと言ってください。", aim = "say where he lives", aim_ja = "住んでいる場所を伝える", say = "Hann býr í Japan.", items = ["hann_byr_i_japan"] },
+  { who = "partner", say = "Saknarðu fjölskyldunnar?", meaning = "Do you miss your family?", meaning_ja = "ご家族が恋しいですか？", variants = [{ say = "Saknarðu þeirra?", meaning = "Do you miss them?", meaning_ja = "みなさんが恋しいですか？" }] },
+  { who = "you", cue = "Say yes, you miss your family.", cue_ja = "はい、家族が恋しいですと言ってください。", aim = "say you miss your family", aim_ja = "家族が恋しいと伝える", say = "Já, ég sakna fjölskyldunnar.", items = ["ja", "eg_sakna_fjolskyldunnar"] },
+  { who = "partner", say = "Ég skil það vel.", meaning = "I understand that well.", meaning_ja = "よくわかります。", variants = [{ say = "Það skil ég vel.", meaning = "That I understand well.", meaning_ja = "それはよくわかります。" }] },
+]

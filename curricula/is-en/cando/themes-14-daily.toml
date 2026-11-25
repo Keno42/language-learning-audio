@@ -1,0 +1,60 @@
+# Lesson themes: one file a theme, read in file-name order (`load_records`). The format and its rules: themes-01-cafe.toml's
+# header and audiolesson/themes.py.
+
+# #327, the batch after lesson 67: the scenes for the material of lessons 68–80 on the replay of lesson 67's export. Module 14's day
+# (getting up, work, lunch, the evening, the weekend, busy and free), module 15's likes and module 16's home were taught with no scene:
+# from lesson 68 the played level held 0–2 of the day's new items. Small talk (B3) is where a traveller says them: a hot tub, a party, a
+# friend's flat. Candidates until native-checked (#209).
+[[themes]]
+id = "daily"
+scenario = "B3"
+title = "Your day"
+title_ja = "毎日の暮らし"
+setting = "The hot tub at the swimming pool, then a phone call from a friend: what you do on a normal day and at weekends, and when you're free."
+setting_ja = "プールの露天風呂、それから友達からの電話。ふだんの一日と週末の過ごし方、空いている時間。"
+scene_line = "In the hot tub at the pool, the man next to you asks about your life at home."
+scene_line_ja = "プールの露天風呂で、隣の男性があなたのふだんの暮らしについて聞いてきます。"
+topics = ["daily"]
+[[themes.levels]]
+goal = "Tell a man in the hot tub what you do on a normal day: work, lunch, the evening."
+goal_ja = "露天風呂で男性に、ふだんの一日を話す：仕事、昼食、夜。"
+turns = [
+  { who = "partner", say = "Hvað gerir þú á daginn?", meaning = "What do you do during the day?", meaning_ja = "昼間は何をしているんですか？", variants = [
+      { say = "Hvað gerir þú annars á daginn?", meaning = "So what do you do during the day?", meaning_ja = "ところで、昼間は何をしているんですか？" },
+    ] },
+  { who = "you", cue = "Say you go to work.", cue_ja = "仕事に行くと言ってください。", aim = "say you go to work", aim_ja = "仕事に行くと言う", say = "Ég fer í vinnuna.", items = ["eg_fer_i_vinnuna"] },
+  { who = "partner", say = "Og hvenær borðar þú hádegismat?", meaning = "And when do you eat lunch?", meaning_ja = "お昼はいつ食べるんですか？" },
+  { who = "you", cue = "Say you eat lunch at twelve.", cue_ja = "12時にお昼を食べると言ってください。", aim = "say when you eat lunch", aim_ja = "お昼の時間を言う", say = "Ég borða hádegismat klukkan tólf.", items = ["eg_borda_hadegismat"] },
+  { who = "partner", say = "En á kvöldin?", meaning = "And in the evenings?", meaning_ja = "夜は？", word_glosses = { "kvöldin" = { en = "the evenings", ja = "夜" } } },
+  { who = "you", cue = "Say you cook dinner, and you watch TV.", cue_ja = "夕食を作って、テレビを見ると言ってください。", aim = "say what you do in the evening", aim_ja = "夜の過ごし方を言う", say = "Ég elda kvöldmat. Ég horfi á sjónvarpið.", items = ["eg_elda_kvoldmat", "eg_horfi_a_sjonvarpid"] },
+  { who = "partner", say = "Sama hér!", meaning = "Same here!", meaning_ja = "私も同じです！", variants = [{ say = "Já, sama hér!", meaning = "Yes, same here!", meaning_ja = "ええ、私も同じです！" }] },  # a reaction: no gloss, so no catch takes it out of the exchange (lesson 68 replay)
+]
+[[themes.levels]]
+goal = "Ask him what he does at weekends, and say what you do."
+goal_ja = "週末に何をするか聞き、自分の週末を話す。"
+turns = [
+  { who = "you", cue = "Ask him what he does at weekends.", cue_ja = "週末に何をするか聞いてください。", aim = "ask about his weekends", aim_ja = "週末のことを聞く", say = "Hvað gerir þú um helgar?", items = ["hvad_gerir_thu_um_helgar"] },
+  { who = "partner", say = "Ég fer í sund. En þú?", meaning = "I go swimming. And you?", meaning_ja = "プールに行きます。あなたは？", variants = [
+      { say = "Ég fer í sund, eins og núna. En þú?", meaning = "I go swimming, like now. And you?", meaning_ja = "今みたいにプールに行きます。あなたは？", word_glosses = { eins = { en = "like", ja = "みたいに" } } },
+    ] },
+  { who = "you", cue = "Say you go to the gym, and you go for a walk.", cue_ja = "ジムに行って、散歩に行くと言ってください。", aim = "say what you do at weekends", aim_ja = "週末の過ごし方を言う", say = "Ég fer í ræktina. Ég fer út að ganga.", items = ["eg_fer_i_raektina", "eg_fer_ut_ad_ganga"] },
+  { who = "partner", say = "Gott. Og íslenskan?", meaning = "Good. And the Icelandic?", meaning_ja = "いいですね。それで、アイスランド語は？" },
+  { who = "you", cue = "Say you study Icelandic every day.", cue_ja = "毎日アイスランド語を勉強していると言ってください。", aim = "say you study Icelandic", aim_ja = "アイスランド語を勉強していると言う", say = "Ég læri íslensku á hverjum degi.", items = ["eg_laeri_islensku"] },
+  { who = "partner", say = "Það heyrist!", meaning = "You can hear it!", meaning_ja = "聞いてわかりますよ！" },  # a reaction: no gloss, so no catch takes it out of the exchange
+]
+[[themes.levels]]
+goal = "Your friend calls: say you're busy this evening and free tomorrow."
+goal_ja = "友達から電話。今夜は忙しく、明日は空いていると言う。"
+partner_speaker = "native_a"  # the partner is a woman
+scene_line = "In the evening, your Icelandic friend calls you."
+scene_line_ja = "夜、アイスランド人の友達から電話がかかってきます。"
+turns = [
+  { who = "partner", say = "Hæ! Ertu laus í kvöld?", meaning = "Hi! Are you free this evening?", meaning_ja = "やあ！今夜空いてる？", variants = [
+      { say = "Hæ, hvað segirðu? Ertu laus í kvöld?", meaning = "Hi, how's it going? Are you free this evening?", meaning_ja = "やあ、元気？今夜空いてる？" },
+    ] },
+  { who = "you", cue = "Say no, you're busy.", cue_ja = "いいえ、忙しいと言ってください。", aim = "say you're busy", aim_ja = "忙しいと言う", say = "Nei, ég er upptekin.", say_m = "Nei, ég er upptekinn.", items = ["nei", "eg_er_upptekin"] },
+  { who = "partner", say = "En á morgun?", meaning = "And tomorrow?", meaning_ja = "じゃあ明日は？" },
+  { who = "you", cue = "Say yes, you're free tomorrow.", cue_ja = "はい、明日は空いていると言ってください。", aim = "say you're free tomorrow", aim_ja = "明日は空いていると言う", say = "Já, ég er laus á morgun.", items = ["ja", "eg_er_laus", "a_morgun"] },
+  { who = "partner", say = "Frábært! Sjáumst á morgun.", meaning = "Great! See you tomorrow.", meaning_ja = "よかった！じゃあ明日ね。", word_glosses = { "frábært" = { en = "great", ja = "よかった" } } },
+  { who = "you", cue = "Say see you.", cue_ja = "またねと言ってください。", aim = "say see you", aim_ja = "またねと言う", say = "Sjáumst!", items = ["sjaumst"] },
+]

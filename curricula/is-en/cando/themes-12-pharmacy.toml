@@ -1,0 +1,57 @@
+# Lesson themes: one file a theme, read in file-name order (`load_records`). The format and its rules: themes-01-cafe.toml's
+# header and audiolesson/themes.py.
+
+# #327, the batch after lesson 58: being unwell. The pharmacy, then the host at breakfast: what module 12 teaches (a headache, a cold, a sore
+# throat, a fever, the nearest pharmacy) said in an exchange. Emergency basics are Tier C: a lesson plays these levels for a learner whose
+# trip profile boosts C4, and for no one else (`scenario_order`). Candidates until native-checked (#209).
+[[themes]]
+id = "pharmacy"
+scenario = "C4"
+title = "The pharmacy"
+title_ja = "薬局"
+setting = "A pharmacy in town, then breakfast at the guesthouse: say what is wrong and get what you need."
+setting_ja = "町の薬局、そしてゲストハウスの朝食。具合が悪いことを伝え、必要なものを手に入れる。"
+scene_line = "You're at a pharmacy in town."
+scene_line_ja = "町の薬局にいます。"
+topics = ["health"]
+[[themes.levels]]
+goal = "Ask for something for a headache, say you have a cold, and pay by card; catch the price."
+goal_ja = "頭痛に効くものを頼み、風邪だと伝え、カードで払う。値段を聞き取る。"
+partner_speaker = "native_a"  # the partner is a woman
+turns = [
+  { who = "you", cue = "Greet her and ask her if she has something for a headache.", cue_ja = "あいさつして、頭痛に効くものがあるか聞いてください。", aim = "ask for something for a headache", aim_ja = "頭痛に効くものを頼む", say = "Góðan daginn. Ertu með eitthvað við höfuðverk?", items = ["godan_daginn", "attu_eitthvad_vid_hofudverk"] },
+  { who = "partner", say = "Já. Ertu líka með hita?", meaning = "Yes. Do you have a fever too?", meaning_ja = "ありますよ。熱もありますか？", variants = [
+      { say = "Já, auðvitað. Ertu með hita?", meaning = "Yes, of course. Do you have a fever?", meaning_ja = "はい、もちろん。熱はありますか？" },
+    ] },
+  { who = "you", cue = "Say no, but you have a cold.", cue_ja = "いいえ、でも風邪をひいていますと言ってください。", aim = "say you have a cold", aim_ja = "風邪だと伝える", say = "Nei, en ég er með kvef.", items = ["nei", "eg_er_med", "kvef"] },
+  { who = "partner", say = "Þá mæli ég með þessum töflum. Þær kosta tvö þúsund krónur.", meaning = "Then I recommend these tablets. They cost two thousand krónur.", meaning_ja = "ではこの錠剤をおすすめします。2千クローナです。", word_glosses = { "töflum" = { en = "tablets", ja = "錠剤" } }, probes = [{ kind = "price", answer = "tvö þúsund krónur", meanings = { en = "two thousand krónur", ja = "2千クローナ" } }], variants = [
+      { say = "Þá mæli ég með þessum töflum. Þær kosta fimmtán hundruð krónur.", meaning = "Then I recommend these tablets. They cost fifteen hundred krónur.", meaning_ja = "ではこの錠剤をおすすめします。1500クローナです。", word_glosses = { "töflum" = { en = "tablets", ja = "錠剤" } }, probes = [{ kind = "price", answer = "fimmtán hundruð krónur", meanings = { en = "fifteen hundred krónur", ja = "1500クローナ" } }] },
+      { say = "Þá mæli ég með þessum töflum. Þær kosta þrjú þúsund krónur.", meaning = "Then I recommend these tablets. They cost three thousand krónur.", meaning_ja = "ではこの錠剤をおすすめします。3千クローナです。", word_glosses = { "töflum" = { en = "tablets", ja = "錠剤" } }, probes = [{ kind = "price", answer = "þrjú þúsund krónur", meanings = { en = "three thousand krónur", ja = "3千クローナ" } }] },
+    ] },
+  { who = "you", cue = "Ask if you may pay by card.", cue_ja = "カードで払っていいか聞いてください。", aim = "ask to pay by card", aim_ja = "カードで払えるか聞く", say = "Má ég borga með korti?", items = ["ma_eg_borga_med_korti"] },  # native check: everybody takes cards, so not «Tekurðu kort?»
+  { who = "partner", say = "Já, að sjálfsögðu.", meaning = "Yes, of course.", meaning_ja = "はい、もちろんです。", variants = [{ say = "Já, ekkert mál.", meaning = "Yes, no problem.", meaning_ja = "はい、大丈夫ですよ。" }] },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk fyrir.", items = ["takk_fyrir"] },
+]
+[[themes.levels]]
+goal = "Say you feel unwell and what's wrong, and ask where the nearest pharmacy is."
+goal_ja = "具合が悪いことと症状を伝え、最寄りの薬局を聞く。"
+scene_line = "At breakfast in the guesthouse, the host sees you don't look well."
+scene_line_ja = "ゲストハウスの朝食で、宿の人があなたの具合が悪そうなのに気づきます。"
+turns = [
+  { who = "partner", say = "Góðan daginn! Hvernig líður þér í dag?", meaning = "Good morning! How are you feeling today?", meaning_ja = "おはようございます！今日の具合はどうですか？", variants = [
+      { say = "Góðan daginn! Er allt í lagi með þig?", meaning = "Good morning! Are you all right?", meaning_ja = "おはようございます！大丈夫ですか？" },
+    ] },
+  { who = "you", cue = "Say you feel unwell: you have a sore throat.", cue_ja = "具合が悪い、のどが痛いと言ってください。", aim = "say what's wrong", aim_ja = "症状を伝える", say = "Mér líður illa. Ég er með hálsbólgu.", items = ["mer_lidur_illa", "eg_er_med", "halsbolgu"] },
+  { who = "partner", say = "Æ, æ. Ertu með hita?", meaning = "Oh dear. Do you have a fever?", meaning_ja = "あらら。熱はありますか？", variants = [
+      { say = "Það er leitt að heyra. Ertu líka með hita?", meaning = "I'm sorry to hear that. Do you have a fever too?", meaning_ja = "それはお気の毒に。熱もありますか？" },
+    ] },
+  { who = "you", cue = "Say yes, you have a fever.", cue_ja = "はい、熱がありますと言ってください。", aim = "say you have a fever", aim_ja = "熱があると伝える", say = "Já, ég er með hita.", items = ["ja", "eg_er_med", "hita"] },
+  { who = "partner", say = "Þá ættirðu að hvíla þig í dag.", meaning = "Then you should rest today.", meaning_ja = "それなら今日は休んだほうがいいですよ。", variants = [
+      { say = "Þá ættirðu að vera inni í dag.", meaning = "Then you should stay in today.", meaning_ja = "それなら今日は中にいたほうがいいですよ。" },
+    ] },
+  { who = "you", cue = "Ask where the nearest pharmacy is.", cue_ja = "最寄りの薬局はどこか聞いてください。", aim = "ask where the pharmacy is", aim_ja = "薬局の場所を聞く", say = "Hvar er næsta apótek?", items = ["hvar_er_naesta_apotek"] },
+  { who = "partner", say = "Það er rétt hjá, við hliðina á bankanum.", meaning = "It's close by, next to the bank.", meaning_ja = "すぐ近く、銀行の隣です。", probes = [{ kind = "place", answer = "við hliðina á bankanum", meanings = { en = "next to the bank", ja = "銀行の隣" } }], variants = [
+      { say = "Það er hinum megin við götuna.", meaning = "It's across the street.", meaning_ja = "通りの向かい側です。", probes = [{ kind = "place", answer = "hinum megin við götuna", meanings = { en = "across the street", ja = "通りの向かい側" } }] },
+    ] },
+  { who = "you", cue = "Thank him very much.", cue_ja = "丁寧にお礼を言ってください。", aim = "thank him", aim_ja = "お礼を言う", say = "Takk kærlega.", items = ["takk_kaerlega"] },
+]

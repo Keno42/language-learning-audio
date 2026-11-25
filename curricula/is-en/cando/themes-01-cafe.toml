@@ -1,0 +1,118 @@
+# Lesson themes (issue #149, step 1b-ii): a scene of a trip as a short exchange, at rising levels.
+# See audiolesson/themes.py. A lesson consolidates one theme: its exchange is played twice, once
+# early with the partner's lines translated and once late with only the partner's line as the cue.
+# Level 1 is the shortest exchange that works; later levels raise its resolution.
+#
+# Partner lines may go beyond the course: getting the gist of 80-90% of what is said is the
+# point. The learner's own lines (`who = "you"`) list the items they need. Wordings are candidates;
+# a native speaker's corrections are applied when they come.
+# General content only: no learner's dates, itinerary or lodging (the private trip profile
+# decides which theme comes first).
+
+[[themes]]
+id = "cafe"
+scenario = "A4"
+title = "Café"
+title_ja = "カフェ"
+setting = "A busy café: order at the counter, find a seat, ask for the bill."
+setting_ja = "混んだカフェ。カウンターで注文し、席を見つけ、会計する。"
+scene_line = "You're at a busy café."
+scene_line_ja = "混んだカフェにいます。"
+topics = ["cafe"]
+
+[[themes.levels]]
+goal = "Order a coffee and answer the milk question."
+goal_ja = "コーヒーを注文し、ミルクがいるかに答える。"
+turns = [
+  { who = "partner", say = "Hæ! Hvað má bjóða þér?", meaning = "Hi! What can I get you?", meaning_ja = "こんにちは！何にしますか？", variants = [
+      { say = "Góðan daginn! Hvað má bjóða þér?", meaning = "Good morning! What can I get you?", meaning_ja = "おはようございます！何にしますか？" },
+      { say = "Hæ! Hvað viltu fá?", meaning = "Hi! What would you like?", meaning_ja = "こんにちは！何にしますか？" },
+    ] },
+  { who = "you", cue = "Order a coffee.", cue_ja = "コーヒーを注文してください。", aim = "order a coffee", aim_ja = "コーヒーを注文する", say = "Ég ætla að fá kaffi.", items = ["eg_aetla_ad_fa", "kaffi"], alts = ["Kaffi, takk."] },
+  { who = "partner", say = "Með mjólk?", meaning = "With milk?", meaning_ja = "ミルクは入れますか？", variants = [{ say = "Viltu mjólk út í?", meaning = "Do you want milk in it?", meaning_ja = "ミルクを入れますか？" }] },
+  { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", aim = "say yes to milk", aim_ja = "ミルクを頼む", say = "Já, takk.", items = ["ja", "takk"] },
+  { who = "partner", say = "Gjörðu svo vel.", meaning = "Here you go.", meaning_ja = "どうぞ。" },
+  { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", aim = "thank him", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
+]
+
+[[themes.levels]]
+goal = "Find a free seat, ask for the menu, order the soup and a drink."
+goal_ja = "空いた席を見つけ、メニューをもらい、スープと飲み物を頼む。"
+turns = [
+  { who = "you", cue = "The café is crowded. Ask a stranger if the seat next to them is free.", cue_ja = "カフェが混んでいます。隣の席が空いているか、知らない人に聞いてください。", aim = "ask if a seat is free", aim_ja = "席が空いているか聞く", say = "Er þetta sæti laust?", items = ["er_thetta_saeti_laust"] },
+  { who = "partner", say = "Já, gjörðu svo vel.", meaning = "Yes, go ahead.", meaning_ja = "ええ、どうぞ。", variants = [
+      { say = "Já, það er laust.", meaning = "Yes, it's free.", meaning_ja = "ええ、空いていますよ。", word_glosses = { laust = { en = "free", ja = "空いています" } } },
+      { say = "Já, sestu bara.", meaning = "Yes, just sit down.", meaning_ja = "ええ、どうぞ座ってください。", word_glosses = { sestu = { en = "sit down", ja = "座ってください", pointer = { en = "the action you were invited to do", ja = "相手がするように勧めたこと" } }, bara = { en = "just", ja = "ただ", pointer = { en = "the word alongside the invitation to sit down", ja = "座るよう勧めたときに添えたことば" } } } },
+    ] },
+  { who = "you", cue = "At the counter, ask for the menu.", cue_ja = "カウンターでメニューをもらってください。", aim = "ask for the menu", aim_ja = "メニューをもらう", say = "Get ég fengið matseðilinn?", items = ["get_eg_fengid", "matsedilinn"] },
+  { who = "partner", say = "Já. Súpa dagsins er kjötsúpa.", meaning = "Sure. The soup of the day is lamb soup.", meaning_ja = "はい。本日のスープはラム肉のスープです。", word_glosses = { dagsins = { en = "of the day", ja = "今日の", pointer = { en = "the word describing which day the soup is for", ja = "スープがいつのものかを説明した部分" } }, "kjötsúpa" = { en = "lamb soup", ja = "ラム肉のスープ" } }, variants = [
+      { say = "Auðvitað. Í dag er kjötsúpa.", meaning = "Of course. Today there's lamb soup.", meaning_ja = "もちろん。今日はラム肉のスープです。", word_glosses = { "auðvitað" = { en = "of course", ja = "もちろん" }, "kjötsúpa" = { en = "lamb soup", ja = "ラム肉のスープ" } } },
+    ] },
+  { who = "you", cue = "Order the soup.", cue_ja = "スープを注文してください。", aim = "order the soup", aim_ja = "スープを注文する", say = "Ég ætla að fá súpu.", items = ["eg_aetla_ad_fa", "supu"] },
+  { who = "partner", say = "Eitthvað að drekka?", meaning = "Anything to drink?", meaning_ja = "お飲み物は？", variants = [
+      { say = "Viltu eitthvað að drekka?", meaning = "Would you like something to drink?", meaning_ja = "何かお飲みになりますか？" },
+      { say = "Hvað má bjóða þér að drekka?", meaning = "What can I get you to drink?", meaning_ja = "お飲み物は何にしますか？" },
+    ] },
+  { who = "you", cue = "Just water.", cue_ja = "水だけでいいです。", aim = "ask for just water", aim_ja = "水だけ頼む", say = "Vatn, takk.", items = ["vatn", "takk"] },
+]
+
+[[themes.levels]]
+partner_speaker = "native_a"  # the partner is a woman
+goal = "Ask for the bill and say it was good."
+goal_ja = "会計を頼み、おいしかったと伝える。"
+turns = [
+  { who = "you", cue = "You've finished. Ask for the bill.", cue_ja = "食べ終わりました。お会計を頼んでください。", aim = "ask for the bill", aim_ja = "お会計を頼む", say = "Get ég fengið reikninginn?", items = ["get_eg_fengid_reikninginn"] },
+  { who = "partner", say = "Já, ég kem strax.", meaning = "Yes, I'll be right there.", meaning_ja = "はい、すぐ伺います。", variants = [
+      { say = "Já, augnablik.", meaning = "Yes, one moment.", meaning_ja = "はい、少々お待ちください。", word_glosses = { augnablik = { en = "a moment", ja = "少しの間", pointer = { en = "the word used when asking you to wait", ja = "待つように言った部分" } } } },
+      { say = "Já, ég kem með reikninginn.", meaning = "Yes, I'll bring the bill.", meaning_ja = "はい、お会計をお持ちします。", word_glosses = { kem = { en = "I come", ja = "来ます", pointer = { en = "the word for what the speaker will do with the bill", ja = "お会計をどうすると言ったかを表す部分" } }, reikninginn = { en = "the bill", ja = "お会計" } } },
+    ], listen = [
+      { say = "Kaffið kostar sex hundruð og fimmtíu krónur og kakan kostar níu hundruð krónur.", meaning = "The coffee costs six hundred and fifty krónur and the cake costs nine hundred krónur.", meaning_ja = "コーヒーは650クローナ、ケーキは900クローナです。", probes = [{ kind = "price", answer = "sex hundruð og fimmtíu krónur", meanings = { en = "six hundred and fifty krónur", ja = "650クローナ" }, ask = { en = "How much is the coffee?", ja = "コーヒーはいくらですか？" } }, { kind = "price", answer = "níu hundruð krónur", meanings = { en = "nine hundred krónur", ja = "900クローナ" }, ask = { en = "How much is the cake?", ja = "ケーキはいくらですか？" } }] },
+      { say = "Kaffið kostar fimm hundruð krónur og samlokan kostar þúsund krónur.", meaning = "The coffee costs five hundred krónur and the sandwich costs a thousand krónur.", meaning_ja = "コーヒーは500クローナ、サンドイッチは1000クローナです。", probes = [{ kind = "price", answer = "fimm hundruð krónur", meanings = { en = "five hundred krónur", ja = "500クローナ" }, ask = { en = "How much is the coffee?", ja = "コーヒーはいくらですか？" } }, { kind = "price", answer = "þúsund krónur", meanings = { en = "a thousand krónur", ja = "1000クローナ" }, ask = { en = "How much is the sandwich?", ja = "サンドイッチはいくらですか？" } }] },
+      { say = "Kaffið kostar sex hundruð krónur og samlokan kostar níu hundruð krónur.", meaning = "The coffee costs six hundred krónur and the sandwich costs nine hundred krónur.", meaning_ja = "コーヒーは600クローナ、サンドイッチは900クローナです。", probes = [{ kind = "price", answer = "sex hundruð krónur", meanings = { en = "six hundred krónur", ja = "600クローナ" }, ask = { en = "How much is the coffee?", ja = "コーヒーはいくらですか？" } }, { kind = "price", answer = "níu hundruð krónur", meanings = { en = "nine hundred krónur", ja = "900クローナ" }, ask = { en = "How much is the sandwich?", ja = "サンドイッチはいくらですか？" } }] },
+      { say = "Kaffið kostar fjögur hundruð krónur og samlokan kostar átta hundruð krónur.", meaning = "The coffee costs four hundred krónur and the sandwich costs eight hundred krónur.", meaning_ja = "コーヒーは400クローナ、サンドイッチは800クローナです。", probes = [{ kind = "price", answer = "fjögur hundruð krónur", meanings = { en = "four hundred krónur", ja = "400クローナ" }, ask = { en = "How much is the coffee?", ja = "コーヒーはいくらですか？" } }, { kind = "price", answer = "átta hundruð krónur", meanings = { en = "eight hundred krónur", ja = "800クローナ" }, ask = { en = "How much is the sandwich?", ja = "サンドイッチはいくらですか？" } }] },
+    ] },
+  { who = "you", cue = "Tell her it was good.", cue_ja = "おいしかったと伝えてください。", aim = "say it was good", aim_ja = "おいしかったと伝える", say = "Þetta var gott.", items = ["thetta_var_gott"], alts = ["Þetta var ljúffengt."] },
+  { who = "partner", say = "Takk fyrir það!", meaning = "Thank you!", meaning_ja = "ありがとうございます！", variants = [
+      { say = "Gaman að heyra!", meaning = "Nice to hear!", meaning_ja = "それはよかったです！", word_glosses = { gaman = { en = "nice", ja = "うれしい", pointer = { en = "the word expressing the reaction to what you said", ja = "あなたの話への反応を表す部分" } }, heyra = { en = "to hear", ja = "聞く", pointer = { en = "the last word in the reaction to what you said", ja = "あなたの話への返事の最後の部分" } } } },
+      { say = "Takk fyrir komuna!", meaning = "Thanks for coming!", meaning_ja = "ご来店ありがとうございました！", word_glosses = { komuna = { en = "the visit", ja = "ご来店", pointer = { en = "the word for what the speaker thanked you for", ja = "何についてお礼を言ったかを表す部分" } } } },
+    ] },
+]
+
+[[themes.levels]]
+partner_speaker = "native_a"  # the partner is a woman
+goal = "Ask for a cake without nuts, say you're allergic to nuts, and take what she suggests instead."
+goal_ja = "ナッツなしのケーキを頼み、ナッツアレルギーだと伝え、代わりにすすめられたものを頼む。"
+turns = [
+  { who = "you", cue = "Ask for a cake without nuts.", cue_ja = "ナッツなしのケーキを頼んでください。", aim = "ask for a cake without nuts", aim_ja = "ナッツなしのケーキを頼む", say = "Get ég fengið köku án hnetna?", items = ["get_eg_fengid_koku_an_hnetna"], alts = ["Áttu köku án hnetna?"] },
+  { who = "partner", say = "Án hnetna?", meaning = "Without nuts?", meaning_ja = "ナッツなしですか？" },
+  { who = "you", cue = "Tell her you're allergic to nuts.", cue_ja = "ナッツアレルギーがあると伝えてください。", aim = "say you're allergic to nuts", aim_ja = "ナッツアレルギーだと伝える", say = "Ég er með ofnæmi fyrir hnetum.", items = ["eg_er_med_ofnaemi_fyrir_hnetum"] },
+  { who = "partner", say = "Því miður. Viltu frekar skyr?", meaning = "Sorry, no. Would you rather have skyr?", meaning_ja = "申し訳ありません。代わりにスキールはいかがですか？", word_glosses = { frekar = { en = "rather", ja = "代わりに", pointer = { en = "the word that offers something instead", ja = "代わりのものをすすめた部分" } } }, variants = [
+      { say = "Nei, því miður. Viltu frekar skyr?", meaning = "No, sorry. Would you rather have skyr?", meaning_ja = "いいえ、申し訳ありません。代わりにスキールはいかがですか？", word_glosses = { frekar = { en = "rather", ja = "代わりに", pointer = { en = "the word that offers something instead", ja = "代わりのものをすすめた部分" } } } },
+    ] },
+  { who = "you", cue = "Yes, please.", cue_ja = "はい、お願いします。", aim = "take what she suggests", aim_ja = "すすめられたものを頼む", say = "Já, takk.", items = ["ja", "takk"] },
+]
+
+[[themes.levels]]
+# #451 step 2b: an order for a group, the feminine forms of 2–4 (the hot dog is «pylsa»). The price is said per hot dog, not as a total in
+# thousands (#451: «þúsund» far less often); the total is a listening line. Candidates until native-checked (#209).
+goal = "At the hot-dog stand, order three hot dogs with everything for you and your friends, say no to a drink, and pay."
+goal_ja = "ホットドッグ屋台で、自分と友達の分の全部乗せを三本頼み、飲み物は断って払う。"
+scene_line = "You're at the hot-dog stand with two friends."
+scene_line_ja = "友達二人とホットドッグ屋台にいます。"
+turns = [
+  { who = "partner", say = "Hæ! Hvað má bjóða ykkur?", meaning = "Hi! What can I get you all?", meaning_ja = "こんにちは！皆さん何にしますか？", variants = [
+      { say = "Góðan daginn! Hvað má bjóða ykkur?", meaning = "Hello! What can I get you all?", meaning_ja = "こんにちは！皆さん何にしますか？" },
+    ] },
+  { who = "you", cue = "Order three hot dogs with everything.", cue_ja = "全部乗せのホットドッグを三本頼んでください。", aim = "order three hot dogs with everything", aim_ja = "全部乗せを三本頼む", say = "Þrjár pylsur með öllu, takk.", items = ["count_pylsur_med_ollu", "thrjar"] },
+  { who = "partner", say = "Þrjár með öllu. Eitthvað að drekka?", meaning = "Three with everything. Anything to drink?", meaning_ja = "全部乗せを三本ですね。お飲み物は？", word_glosses = { drekka = { en = "to drink", ja = "飲み物" } }, variants = [
+      { say = "Þrjár með öllu. Viljið þið eitthvað að drekka?", meaning = "Three with everything. Would you like anything to drink?", meaning_ja = "全部乗せを三本ですね。お飲み物はいかがですか？", word_glosses = { drekka = { en = "to drink", ja = "飲み物" } } },
+    ] },
+  { who = "you", cue = "No, thanks.", cue_ja = "いいえ、結構です。", aim = "say no to a drink", aim_ja = "飲み物を断る", say = "Nei, takk.", items = ["nei", "takk"] },
+  { who = "partner", say = "Sjö hundruð krónur stykkið.", meaning = "Seven hundred krónur each.", meaning_ja = "1本700クローナです。", word_glosses = { "stykkið" = { en = "each", ja = "1本" } }, probes = [{ kind = "price", answer = "sjö hundruð krónur", meanings = { en = "seven hundred krónur", ja = "700クローナ" } }], listen = [
+      { say = "Pylsan kostar sjö hundruð krónur, svo þetta eru tvö þúsund og eitt hundrað.", meaning = "A hot dog is seven hundred krónur, so that's two thousand one hundred.", meaning_ja = "ホットドッグは1本700クローナなので、2100クローナです。", probes = [{ kind = "price", answer = "sjö hundruð krónur", meanings = { en = "seven hundred krónur", ja = "700クローナ" }, ask = { en = "How much is one hot dog?", ja = "ホットドッグ1本はいくらですか？" } }, { kind = "price", answer = "tvö þúsund og eitt hundrað", meanings = { en = "two thousand one hundred", ja = "2100" }, ask = { en = "How much is it altogether?", ja = "全部でいくらですか？" } }] },
+    ], variants = [
+      { say = "Átta hundruð krónur stykkið.", meaning = "Eight hundred krónur each.", meaning_ja = "1本800クローナです。", word_glosses = { "stykkið" = { en = "each", ja = "1本" } }, probes = [{ kind = "price", answer = "átta hundruð krónur", meanings = { en = "eight hundred krónur", ja = "800クローナ" } }] },
+      { say = "Sex hundruð og fimmtíu krónur stykkið.", meaning = "Six hundred and fifty krónur each.", meaning_ja = "1本650クローナです。", word_glosses = { "stykkið" = { en = "each", ja = "1本" } }, probes = [{ kind = "price", answer = "sex hundruð og fimmtíu krónur", meanings = { en = "six hundred and fifty krónur", ja = "650クローナ" } }] },
+    ] },
+  { who = "you", cue = "Hand over your card.", cue_ja = "カードを渡します。", aim = "hand over your card", aim_ja = "カードを渡す", say = "Gjörðu svo vel.", items = ["gjordu_svo_vel"] },
+]
