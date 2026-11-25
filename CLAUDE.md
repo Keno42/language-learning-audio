@@ -5,7 +5,7 @@
   whatever the remarks say; only the owner waives it, with a reason recorded in the ledger (`long_run_waived`). `tests/test_docs.py`
   fails on a round that names neither (LEARNING-DESIGN §9 "Governance"). Answering remarks alone is the drift this rule exists to stop.
 - **Start with `docs/CURRENT-POLICY.md` and `docs/CURRENT-STATUS.md`** (the short briefs: what the project is for and
-  what always holds; what we work on now, what was built since the last update, and where to look for the rest).
+  what always holds; what we work on now, what is open after it, and where to look for the rest).
 - **Then read the sources for the task** (the table below), and answer `docs/LEARNING-DESIGN.md` §1's checklist in the
   issue or PR: the outcome it serves, the gap it closes, the hypothesis it relies on, the evidence behind it and what it
   predicts. Read all of `docs/LEARNING-DESIGN.md` for a change to project-wide learning policy or a design change across
@@ -14,7 +14,8 @@
 - After a round of learner feedback, update its evidence (§5), the hypothesis statuses (§4) and "Now" in
   `docs/CURRENT-STATUS.md`.
 - **Documents: replace, don't append** (LEARNING-DESIGN §10). Rewrite a statement that changed rather than adding one
-  after it, and name in the PR what you replaced or deleted. `docs/DOC-REVIEW.md` is the brief for the independent
+  after it, move a dated record the current text no longer needs to `docs/history/`, and name in the PR what you replaced,
+  moved or deleted. `docs/DOC-REVIEW.md` is the brief for the independent
   review.
 - `docs/DESIGN.md` is the code map and the invariants the tests pin; `docs/CURRICULUM.md`
   the content format; `docs/TRAVEL-CANDO.md` the scenarios, cards and trip profile.

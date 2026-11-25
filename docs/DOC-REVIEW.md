@@ -45,7 +45,8 @@ lodging or personal places.
 > 3. **Duplicates:** the same rule or fact stated in two places, so that one copy will drift. Say which copy should
 >    stay. "Now" has one home, CURRENT-STATUS.md; a copy of it elsewhere is a duplicate.
 > 4. **Accretion:** a paragraph or table cell that has become a chain of dated additions, where one sentence saying
->    how things stand would do.
+>    how things stand would do; or a dated record (what was built or closed, when) kept in a current document. The
+>    fix for the second is a move to `docs/history/`, not a deletion.
 > 5. **Rules that conflict:** two decisions (LEARNING-DESIGN §9, DESIGN.md, CURRENT-POLICY.md) that would ask for
 >    different behaviour in the same case.
 >
