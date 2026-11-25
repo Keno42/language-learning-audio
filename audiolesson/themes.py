@@ -137,6 +137,9 @@ class Level:
     # doesn't name (#427, lesson 42: small talk 4 is a coffee with a friend, not «Someone sits down next to you»)
     scene_line: str = ""
     scene_line_ja: str = ""
+    # #599, lesson 67: a scene where the learner would act first (someone hurt, a call for help). Its partner lines give no catch task, a
+    # catch introduction included: stopping to ask what a word means there rings false. Its lines can still be pick-outs.
+    urgent: bool = False
 
     @property
     def items(self) -> list[str]:

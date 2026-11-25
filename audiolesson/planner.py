@@ -299,6 +299,15 @@ class _Pending:
 _ANSWER_FRAME = {"klukkan", "krónur", "kr"}
 
 
+def catchable_lines(level) -> list:
+    """The partner lines of a theme level a catch task may draw on, as (turn, variant, line): every partner line and variant, as authored. None on an
+    urgent level (#599, lesson 67: asking what «fætinum» means while she lies hurt on the ice felt too leisurely; there the learner acts first).
+    Both the second half's catch and a catch introduction read this, so neither can ask in an urgent scene."""
+    if level.urgent:
+        return []
+    return [(k, v, ln) for k, turn in enumerate(level.turns) if turn.who == "partner" for v, ln in enumerate(turn.lines())]
+
+
 def pick_out_answer_key(turn: str, answer: str) -> str:
     """A pick-out's answer as its value within its turn (#339, review of #417): «klukkan tíu» and «tíu», «þrjú þúsund» and «þrjú þúsund
     krónur» are one value; the listening log keys it beside the turn."""
@@ -831,12 +840,9 @@ class Planner:
                 continue
             for n, level in enumerate(t.levels):
                 scene = level_dialogue(t, n, self.cur.known_lang).setting
-                for k, turn in enumerate(level.turns):
-                    if turn.who != "partner":
-                        continue
-                    for v, ln in enumerate(turn.lines()):
-                        if ln.say not in used_lines:
-                            consider(ln.say, ln.meaning_ja if lang == "ja" and ln.meaning_ja else ln.meaning, f"theme:{t.id}:{n + 1}:{k}:{v}", scene, level.partner_speaker, t.topics)
+                for k, v, ln in catchable_lines(level):
+                    if ln.say not in used_lines:
+                        consider(ln.say, ln.meaning_ja if lang == "ja" and ln.meaning_ja else ln.meaning, f"theme:{t.id}:{n + 1}:{k}:{v}", scene, level.partner_speaker, t.topics)
         for d in self.cur.dialogues:  # an authored dialogue's partner lines have meanings too (the opener and the reply)
             for k, turn in enumerate(d.turns):
                 for kind, say, said_meaning in (("o", turn.opener, turn.opener_meaning), ("p", turn.partner, turn.partner_meaning)):
@@ -3833,7 +3839,7 @@ class Planner:
                 return
             known = known_now()
             for t, n in scene_levels():
-                lines = [(k, v, ln) for k, turn in enumerate(t.levels[n].turns) if turn.who == "partner" for v, ln in enumerate(turn.lines())]
+                lines = catchable_lines(t.levels[n])
                 self.rng.shuffle(lines)
                 for k, v, ln in lines:
                     yield catch_unknown(
