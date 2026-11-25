@@ -33,6 +33,7 @@ from .prompts import Prompts
 from .script import Script, Segment
 from .stages import ladder_for, next_stage, stage_index
 from .themes import level_dialogue, pick_variants, written_value_lines
+from . import wholes
 from .text import WORD, words as _words
 from .timing import Timing
 from .transitions import LISTENING_TASK_KINDS, OPENING_SAID, SCENE_UNIT_KINDS, WAYS_BACK_SAID, close_tasks
@@ -1866,7 +1867,7 @@ class Planner:
             return None
         if item.id in self.learner.embedded or item.id in self.learner.embed_failed or self.learner.has_met(item.id):
             return None
-        words = [w.lower() for w in _WORD_RE.findall(item.target)]
+        words = wholes.words(item.target)
         if not words:
             return None
         found: list[tuple[int, Item]] = []
@@ -1875,8 +1876,8 @@ class Planner:
                 continue
             if not (whole.id in self.builder.in_lesson or (self.learner.has_met(whole.id) and not self.learner.is_open(whole.id))):
                 continue
-            ww = [w.lower() for w in _WORD_RE.findall(whole.target)]
-            if len(ww) > len(words) and any(ww[k : k + len(words)] == words for k in range(len(ww) - len(words) + 1)):
+            ww = wholes.words(whole.target)
+            if wholes.holds(ww, words, longer=True):
                 found.append((len(ww), whole))
         return min(found, key=lambda t: t[0])[1] if found else None
 

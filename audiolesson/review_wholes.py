@@ -22,18 +22,14 @@ import re
 from .exercises import _norm_utterance, answer_gender, cue_is_answer, meaning_prompts, speak_as
 from .prompts import Prompts
 from .review_wording import restore_transform_sources, speaker_form
+from . import wholes
 from .text import WORD
 
 _WORD = WORD
 
 
-def _words(text: str) -> list[str]:
-    return [w.lower() for w in _WORD.findall(text)]
-
-
-def _holds(sentence_words: list[str], part_words: list[str]) -> bool:
-    n = len(part_words)
-    return bool(part_words) and any(sentence_words[i : i + n] == part_words for i in range(len(sentence_words) - n + 1))
+_words = wholes.words
+_holds = wholes.holds
 
 
 def _holds_inflected(sentence_words: list[str], part_words: list[str]) -> bool:
@@ -83,23 +79,12 @@ def whole_for(cur, part, met: set[str], prompts: Prompts, taught: dict | None = 
     for c in cur.items:
         if c.kind != "construction" or not (c.id in met) or not c.slots:
             continue
-        slot = next((s for s, tag in c.slots.items() if cur.takes(tag, c, part)), None)
-        if slot is None:
+        fills = wholes.fill_slots(cur, c, part, met.__contains__)
+        if fills is None:
             continue
-        fills = {slot: part}
-        for other, tag in c.slots.items():
-            if other == slot:
-                continue
-            authored = c.situation_fill.get(other) or c.example.get(other)
-            pick = cur.by_id.get(authored) if authored in met else None
-            pick = pick or next((i for i in cur.items_with_tag(tag, c) if i.id in met), None)
-            if pick is None:
-                break
-            fills[other] = pick
-        else:
-            rank = 0 if part.id in c.situation_fill.values() else 1 if part.id in c.example.values() else 2
-            target, meaning = cur.resolve_slots(c, fills)
-            options.append(((rank, c.difficulty, c.order), target, meaning, c.id, [c, *fills.values()]))
+        rank = 0 if part.id in c.situation_fill.values() else 1 if part.id in c.example.values() else 2
+        target, meaning = cur.resolve_slots(c, fills)
+        options.append(((rank, c.difficulty, c.order), target, meaning, c.id, [c, *fills.values()]))
     if options:
         _, target, meaning, through, made_of = min(options, key=lambda o: o[0])
     else:
