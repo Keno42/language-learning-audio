@@ -307,6 +307,7 @@ situation_ja = "水面に背びれが出ました。見て、クジラ！と叫�
 id = "eg_vil_sja_lunda"
 kind = "phrase"
 target = "Ég vil sjá lunda."
+alternatives = ["Mig langar að sjá lunda."]  # both are right: shown beside the answer in the review (2026-11-26 audit)
 meaning = "I want to see puffins."
 meaning_ja = "パフィンが見たいです。"
 difficulty = 2
@@ -371,6 +372,7 @@ pronunciation_notes = "plural with the article"
 id = "mig_langar_ad_sja"
 kind = "construction"
 target = "Mig langar að sjá {thing}."
+alternatives = ["Ég vil sjá {thing}."]  # both are right: shown beside the answer in the review (2026-11-26 audit)
 meaning = "I'd like to see {thing}."
 meaning_ja = "{thing}を見てみたいです。"  # «…が見たいです» is «Ég vil sjá …»
 difficulty = 3
@@ -379,8 +381,8 @@ slots = { thing = "acc_sight" }
 example = { thing = "eldfjall" }
 prereqs = ["mig_langar_i", "eg_vil_sja_lunda"]
 situation_fill = { thing = "eldfjall" }
-situation = "The guide asks what you'd like to see. Say you want to see a volcano."
-situation_ja = "ガイドに何が見たいか聞かれました。火山が見たいと言ってください。"
+situation = "The guide asks what you'd like to see. Say you'd like to see a volcano."
+situation_ja = "ガイドに何が見たいか聞かれました。火山を見てみたいと言ってください。"
 pronunciation_notes = "the sights after «sjá» are in the accusative: «jökull» becomes «jökul», «eldfjall», «hraun», «foss» and «strönd» do not change"
 
 [[items]]

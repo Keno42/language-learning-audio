@@ -53,6 +53,7 @@ situation_ja = "受付が首をかしげています。部屋を予約してあ�
 id = "hafid_thid_laust_herbergi"
 kind = "phrase"
 target = "Eruð þið með laust herbergi?"  # native check (2026-11-12): «Hafið þið …?» is not how it is asked
+alternatives = ["Eigið þið laust herbergi?"]  # both are right: shown beside the answer in the review (2026-11-26 audit)
 meaning = "Do you have a room available?"
 meaning_ja = "空いている部屋はありますか？"
 difficulty = 4

@@ -267,3 +267,42 @@ def bare_parts_with_a_home(review: list[dict], cur) -> list[str]:
             if it is not None and it.kind == "vocab" and _norm_utterance(it.target) == _norm_utterance(q.get("answer", "")) and has_home(cur, it):
                 out.append(i)
     return list(dict.fromkeys(out))
+
+
+def also_answers(cur, items: list[str], answer: str) -> list[str]:
+    """The other answers a review question accepts (the owner, 2026-11-26: «I couldn't tell it was to be answered this way»): the alternatives of
+    the item whose line the answer is («Mig vantar símkort.» also «Ég þarf símkort.»), and of a pattern whose sentence it is, filled with the
+    answer's own words («Mig langar að sjá {thing}.» also «Ég vil sjá {thing}.»: «Ég vil sjá eldfjall.»). Shown beside the answer, so a learner who
+    said another right line does not mark it wrong. [] when none."""
+    norm = lambda t: re.sub(r"[.!?,]+$", "", t.strip()).lower()
+    out: list[str] = []
+    for i in items:
+        it = cur.by_id.get(i)
+        if it is None or not it.alternatives:
+            continue
+        if it.kind != "construction":
+            if norm(it.target) == norm(answer) or (it.target_m and norm(it.target_m) == norm(answer)):
+                out += it.alternatives
+            continue
+        parts = re.split(r"(\{[^}]+\})", it.target)
+        rx = "".join("(?P<s%d>.+?)" % k if p.startswith("{") else re.escape(p) for k, p in enumerate(parts))
+        m = re.fullmatch(rx, answer.strip())
+        if m is None:
+            continue
+        slots = {p: m.group("s%d" % k) for k, p in enumerate(parts) if p.startswith("{")}
+        for alt in it.alternatives:
+            filled = alt
+            for slot, value in slots.items():
+                filled = filled.replace(slot, value)
+            if "{" not in filled:
+                out.append(filled)
+    return [a for a in dict.fromkeys(out) if norm(a) != norm(answer)]
+
+
+def with_also(cur, review: list[dict]) -> list[dict]:
+    """``review`` with each question's ``also`` (``also_answers``) where it has one."""
+    out = []
+    for q in review:
+        also = also_answers(cur, list(q.get("items") or []), q.get("answer") or "") if isinstance(q.get("answer"), str) else []
+        out.append({**q, "also": also} if also else q)
+    return out

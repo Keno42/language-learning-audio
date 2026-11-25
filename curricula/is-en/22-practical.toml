@@ -151,6 +151,7 @@ situation_ja = "新しい知り合いにメールアドレスを聞いてくだ�
 id = "eg_tharf_simkort"
 kind = "phrase"
 target = "Mig vantar símkort."  # native check (2026-11-18): something you lack and need to obtain is «Mig vantar …», not «Ég þarf …»
+alternatives = ["Ég þarf símkort."]  # both are right: shown beside the answer in the review (2026-11-26 audit)
 meaning = "I need a SIM card."
 meaning_ja = "SIMカードが必要です。"
 form_why = "«vanta», to lack, says the one who needs as «mig», 'me', not «ég»: literally 'me lacks a SIM card'."  # #548: the form its verb sets, for the bot's card

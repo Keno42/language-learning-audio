@@ -17,7 +17,7 @@ from .content import INSTRUCTION_MODES, PATTERN_SCENE, CurriculumError, for_inst
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, lesson_target, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
-from .review_wholes import has_home, refine_review
+from .review_wholes import also_answers, has_home, refine_review, with_also
 from .review_wording import lesson_cue_count, reword_review, with_literal
 from .script import Script
 from .timing import Timing
@@ -479,6 +479,7 @@ def _plan(script: Script, cur) -> dict:
         taught = {**(meta.get("learned_wholes") or {}), **(meta.get("wholes_taught") or {})}
         review, refined = refine_review(review, cur, set(meta["met_items"]), prompts, taught)
     review = reword_review(review, prompts, cur.target_lang, cur)  # #312: the written review asks in its own words, not the lesson's cue
+    review = with_also(cur, review)  # the other answers a question accepts, shown beside its answer
     return {
         "lesson_number": script.lesson_number,
         "date": meta.get("date"),
@@ -887,7 +888,8 @@ def cmd_questions(args) -> int:
     for i in _split(args.ids):
         it = cur.by_id.get(i)
         if it is not None and it.kind != "construction":
-            out[i] = {"prompt": _review_cue(cur, prompts, it), "answer": it.target, "cues": _review_cues(cur, prompts, it)}
+            out[i] = {"prompt": _review_cue(cur, prompts, it), "answer": it.target, "cues": _review_cues(cur, prompts, it),
+                      "also": also_answers(cur, [i], it.target)}
     print(json.dumps(out, ensure_ascii=False))
     return 0
 
@@ -913,7 +915,7 @@ def cmd_refine_review(args) -> int:
         taught = learner.learned_wholes
     prompts = Prompts.load(cur.known_lang)
     review, refined = refine_review(reword_review(list(data.get("review") or []), prompts, cur.target_lang, cur), cur, met, prompts, taught)  # #312: the queue's old questions lose their lesson cues too
-    print(json.dumps({"review": review, "refined": refined}, ensure_ascii=False))
+    print(json.dumps({"review": with_also(cur, review), "refined": refined}, ensure_ascii=False))
     return 0
 
 

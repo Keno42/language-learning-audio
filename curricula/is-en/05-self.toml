@@ -528,6 +528,7 @@ situation_ja = "タクシーの運転手にアイスランドは初めてか聞�
 id = "eg_er_her_i_viku"
 kind = "phrase"
 target = "Ég er hér í viku."
+alternatives = ["Í viku."]  # both are right: shown beside the answer in the review (2026-11-26 audit)
 meaning = "I'm here for a week."
 meaning_ja = "一週間滞在します。"
 difficulty = 3
