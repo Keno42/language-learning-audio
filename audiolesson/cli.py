@@ -24,6 +24,7 @@ from .timing import Timing
 from .reading import load_deck
 from .scenes import available, load_scenes, unasked_levels, uncovered, unknown_levels
 from .trip import load_trip
+from .own import personalize
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -64,6 +65,8 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--no-fit", action="store_true", help="don't scale pauses to land on --minutes")
     g.add_argument("--fit-tolerance", type=float, default=None, help="seconds of slack before pauses are scaled (default 60)")
     g.add_argument("--dry-run", action="store_true", help="don't update the learner state")
+    g.add_argument("--own-name", default=None, help="#428: the learner's own name in the lines they say about themselves (in place of the persona's «Yuki»); personal: not to be exported")
+    g.add_argument("--own-age", type=int, default=None, help="#428: the learner's own age in the line where they give it, when the course has that age as an item")
     g.add_argument("--instructions", choices=INSTRUCTION_MODES, default="gradual",
                    help="#429: instructions in Icelandic: gradual (one a lesson, the default), off (none; their review is withdrawn), pending (not asked yet: off until one is met)")
     g.set_defaults(func=cmd_generate)
@@ -305,6 +308,14 @@ def cmd_generate(args) -> int:
         priority = priority_items(cur, for_season(scenarios, trip.season), trip.boost)
     # #149 1b-ii: the lesson's theme exchange, from the trip profile's boosted scenarios first, else Tier A
     themes = load_themes(args.curriculum, cur, scenarios) if scenarios else []
+    if args.own_name or args.own_age is not None:  # #428: the learner's own name and age in their own lines
+        try:
+            cur, themes, own = personalize(cur, themes, args.own_name, args.own_age)
+        except ValueError as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 2
+        if args.own_age is not None and not own["age"]:
+            print(f"warning: --own-age {args.own_age}: the course has no item for that age; the persona's age is said", file=sys.stderr)
     theme_scenarios = scenario_order(for_season(scenarios, trip.season) if trip else scenarios, trip.boost if trip else ()) if themes else []
     # the learner's target is a rate per 30 minutes; this lesson plans its share of it (the rate is what is saved)
     plan_target = None if new_target is None else lesson_target(new_target, args.minutes)
