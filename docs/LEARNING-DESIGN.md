@@ -989,8 +989,9 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
       `docs/CURRENT-STATUS.md` names in «The long run», built whatever the remarks say. The other answers the remarks: first a
       structural fix for a twenty-point remark of a recurring family (in one place, or one check across the course, as
       `audiolesson/claims.py` is for framing lines, #397); then the fix for a new twenty-point remark, checked on the replay. A data PR
-      (a scene, its lines or verdicts, a native correction) is not counted. Nor is the fix for a regression (something already fixed
-      coming back on the replay), which is made at once. The ledger lists the behaviour PRs each lesson is the first built with
+      (a scene, its lines or verdicts, a native correction) is not counted. Nor is a fix for a scene that rings false (a task or line out
+      of place in its scene, the `scene-plausibility` family; owner, 2026-11-25, #599), nor the fix for a regression (something already fixed
+      coming back on the replay), which is made at once. The ledger lists the counted behaviour PRs each lesson is the first built with
       (`built`), and `tools/ledger.py` flags more than two. From lesson 53 each round (the lesson first built with its PRs) names its
       long-run PR (`long_run`) or the owner's waiver with its reason (`long_run_waived`), and no more than seven lessons pass in a row
       without one, so a weekly round is allowed and a week with none is not; `tests/test_docs.py` fails otherwise: the round's docs

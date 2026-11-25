@@ -853,6 +853,7 @@ topics = ["emergencies", "health"]
 goal = "Someone has fallen on the ice: ask if she's all right, and call for help."
 goal_ja = "氷の上で人が転びました。大丈夫か聞き、助けを呼ぶ。"
 partner_speaker = "native_a"  # the partner is a woman
+urgent = true  # #599: someone lies hurt; the learner acts first, so no line of hers is a catch task
 turns = [
   { who = "you", cue = "Ask her if everything is OK.", cue_ja = "大丈夫か聞いてください。", aim = "ask if she's all right", aim_ja = "大丈夫か聞く", say = "Er allt í lagi?", items = ["er_allt_i_lagi"] },
   { who = "partner", say = "Nei. Ég datt og mér er illt í fætinum.", meaning = "No. I fell, and my leg hurts.", meaning_ja = "いいえ。転んで、足が痛いんです。", word_glosses = { "fætinum" = { en = "leg", ja = "足" } }, variants = [{ say = "Nei, ég datt á ísnum. Mér er illt í fætinum.", meaning = "No, I fell on the ice. My leg hurts.", meaning_ja = "いいえ、氷の上で転びました。足が痛いんです。", word_glosses = { "fætinum" = { en = "leg", ja = "足" } } }] },

@@ -105,13 +105,15 @@ what a fix costs. The latest export is lesson 67's; the next lesson is 68. Lesso
    «hann»: six items had their literal words in the transcript only. **Built (#601, data):** five asides say them aloud; on the replay of lesson
    67's export lessons 67 and 68 say all five. **Next:** read lesson 68; an instruction taught later (step 10's two) may want its literal words
    too.
-2. **The catch task in an urgent scene, and a caught word never practised (#599, lesson 67).** **Next:** the owner's choice; recommended,
-   «Mér er illt í fætinum.» as a line the learner says (data) and no catch on an urgent level (one behaviour PR).
+2. **The catch task in an urgent scene, and a caught word never practised (#599, lesson 67).** The owner chose both fixes (2026-11-25), and a
+   fix for a scene that rings false is not counted against the change rate (LD §9 "Governance"). **Built:** a level marked `urgent` (the
+   accident's first) gives no line to a catch task (on the replay of lesson 67's export, its catch becomes two pick-outs), and «Mér er illt í
+   fætinum.» is the clinic's turn, a line the learner says (data). **Next:** read the accident's second level (lesson 70 or 71 on the replay).
 3. **New material tied to its scene (#579, H4, H5).** Lesson 67, the first built with #590 and #592, played the accident's first level with 6
    of its 10 new items inside it (lessons 65 and 66: none). On the replay of lesson 67's export the pharmacy plays in lessons 68 and 69 and the
    accident's second level in 70; from lesson 68 the played level holds 0–2 of the day's new items. **Next:** read lessons 68–70.
-4. **A review item the form cannot mark (#585, lesson 65)** and **the instruction voice's takes (#563, lesson 64; #597 open).** No remark after
-   lessons 66 and 67. **Next:** the owner's choice on #585; #597's merge.
+4. **A review item the form cannot mark (#585, lesson 65)** and **the instruction voice's takes (#563, lesson 64).** Built (the form's picker,
+   site_update_notifier#240; #597's retake) and closed by the owner (2026-11-25); a line that sounds wrong goes on the profile's `retake` list.
 
 **Alongside:** practice by what is hard in an item (#518, #439, G11): lesson 60's two heavy-dose items were hesitated and not recalled, lesson 59's 2 of 7 recalled; the dose alone does not hold them, and #579 reads it with the pace. A conversation once (#519): lessons 54–61 had four to eight conversations and no remark on their number, eight feedbacks. Hard to hear (#447): «Ég missti af strætó.» and «Hafið þið laust herbergi?», reported after lesson 59, were not recalled the next day and recalled at their next ask. The listening pool's sameness (#339): none of lesson 56's, 57's or 58's pick-outs was on a line heard in the three lessons before (0 of 8, 0 of 6, 0 of 6; lesson 55: 3 of 4). On the replay of lesson 58's export it comes back in lesson 70, when few lines are left that were not heard lately: 12 of 19 pick-outs; 6 of 16 with the batch after lesson 58; at most 1 when C4's four levels play as well. The town names as dative fillers, left unfitted in lessons 53–55, were fitted in 56 and 57. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
 before adding practice. Scene coherence (#327): lesson 50 said four of its six new items as turns of the played exchange, lesson 51 none of its
