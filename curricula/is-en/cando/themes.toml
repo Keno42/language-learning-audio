@@ -1019,7 +1019,7 @@ partner_speaker = "native_a"  # the partner is a woman
 turns = [
   { who = "partner", say = "Hæ! Komdu inn. Farðu úr skónum.", meaning = "Hi! Come in. Take your shoes off.", meaning_ja = "いらっしゃい！入って。靴は脱いでね。" },
   { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
-  { who = "partner", say = "Viltu kaffi?", meaning = "Do you want coffee?", meaning_ja = "コーヒー飲む？", variants = [{ say = "Viltu kaffi eða te?", meaning = "Do you want coffee or tea?", meaning_ja = "コーヒーか紅茶、飲む？" }] },
+  { who = "partner", say = "Viltu kaffi?", meaning = "Do you want coffee?", meaning_ja = "コーヒー飲む？", variants = [{ say = "Viltu kaffibolla?", meaning = "Do you want a cup of coffee?", meaning_ja = "コーヒー一杯、飲む？", word_glosses = { "kaffibolla" = { en = "cup of coffee", ja = "コーヒー一杯" } } }] },
   { who = "you", cue = "Say yes, please.", cue_ja = "はい、お願いしますと言ってください。", aim = "say yes to coffee", aim_ja = "コーヒーをもらう", say = "Já, takk.", items = ["ja_takk"] },
   { who = "partner", say = "Gjörðu svo vel.", meaning = "Here you are.", meaning_ja = "はい、どうぞ。" },
   { who = "you", cue = "Ask her where the toilet is.", cue_ja = "トイレはどこか聞いてください。", aim = "ask where the toilet is", aim_ja = "トイレの場所を聞く", say = "Hvar er klósettið?", items = ["hvar_er_klosettid_home"] },
