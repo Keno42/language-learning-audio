@@ -94,25 +94,37 @@ class Lesson40ContextTests(unittest.TestCase):
 
     def test_a_scene_line_cut_from_the_middle_opens_on_the_line_its_partner_answers(self):
         """Review of #433 (lesson 40's learner): a hard «Ég vinn hjá litlu fyrirtæki.» was played from «Nú já! Hvar vinnur þú?», whose «Oh, I
-        see!» answered nothing. The learner's line before it leads in, voiced when known, heard with its meaning when not; it is never asked."""
+        see!» answered nothing. The learner's line before it leads in: asked when the learner can say it (the owner, 2026-11-25: a known lead-in
+        was only heard, «Hvað kostar nóttin?»), heard with its meaning when not."""
         l, today = self.known("eg_vinn_hja", "eg_er_i_vinnuferd")
         dlg, turn_items, key, asked, lead = self.planner(l, today).scene_line_of(self.cur.by_id["eg_vinn_hja"], set())
         self.assertEqual(dlg.id, "theme:smalltalk:3")
         self.assertEqual([t.expect_text for t in dlg.turns], ["Ég er í vinnuferð.", "Ég vinn hjá litlu fyrirtæki."])
         self.assertTrue(dlg.turns[0].partner.startswith("Nú já!"), "the partner's line answers the lead-in")
         self.assertEqual(turn_items, {0: ["eg_er_i_vinnuferd"], 1: ["eg_vinn_hja"]})
-        self.assertEqual(lead, {0: True}, "known: voiced")
+        self.assertEqual(lead, {0: True}, "known: asked")
         sc = Script(title="t", lesson_number=1, known_lang="en", target_lang="is")
         p = self.planner(l, today)
-        ex = p.builder.dialogue(sc, dlg, translate=True, turn_items=turn_items, heard_turns=frozenset({0}), lead_turns=frozenset({0}))
-        self.assertEqual(ex.item_ids, ["eg_vinn_hja"], "the lead-in is never practice")
+        ex = p.builder.dialogue(sc, dlg, translate=True, turn_items=turn_items, heard_turns=frozenset())
+        self.assertEqual(set(ex.item_ids), {"eg_er_i_vinnuferd", "eg_vinn_hja"}, "the lead-in asked is practice too")
         texts = [s.text for s in sc.segments if s.exercise == ex.index and s.type != "pause"]
-        self.assertLess(texts.index("Ég er í vinnuferð."), texts.index("Nú já! Hvar vinnur þú?"))
-        self.assertNotIn(Prompts.load("en").get("dialogue_voiced_note"), texts, "not a set reply: no note")
-        self.assertNotIn(Prompts.load("en").get("listening_line"), texts[: texts.index("Ég er í vinnuferð.")], "voiced: no «Here you would say:»")
+        self.assertNotIn(Prompts.load("en").get("listening_line"), texts, "asked: no «Here you would say:»")
         new, today = self.known("eg_vinn_hja")
         _, _, _, _, lead = self.planner(new, today).scene_line_of(self.cur.by_id["eg_vinn_hja"], set())
         self.assertEqual(lead, {0: False}, "never met: heard with its meaning")
+
+    def test_a_known_lead_in_that_opens_the_exchange_is_asked(self):
+        """The owner, 2026-11-25 (lesson 61): the hotel desk's exchange for a hard «Er morgunmatur innifalinn?» opened with «Hvað kostar nóttin?»
+        under «Here you would say:», although the learner could say it. A lead-in the learner can say is asked with its cue."""
+        l, today = self.known("er_morgunmatur_innifalinn", "hvad_kostar_nottin")
+        dlg, turn_items, _, _, lead = self.planner(l, today).scene_line_of(self.cur.by_id["er_morgunmatur_innifalinn"], set())
+        self.assertEqual(dlg.turns[0].expect_text, "Hvað kostar nóttin?")
+        self.assertEqual(lead, {0: True})
+        sc = Script(title="t", lesson_number=1, known_lang="en", target_lang="is")
+        ex = self.planner(l, today).builder.dialogue(sc, dlg, translate=True, turn_items=turn_items, heard_turns=frozenset())
+        texts = [s.text for s in sc.segments if s.exercise == ex.index and s.type != "pause"]
+        self.assertNotIn(Prompts.load("en").get("listening_line"), texts)
+        self.assertIn("hvad_kostar_nottin", ex.item_ids)
 
     def test_a_scene_line_that_opens_its_level_has_no_lead_in(self):
         l, today = self.known("hvad_ertu_gomul")
@@ -157,27 +169,30 @@ class Lesson40ContextTests(unittest.TestCase):
         self.assertEqual(dlg.id, "theme:smalltalk:3")
         self.assertEqual(dlg.turns[0].expect_text, "Ert þú íslensk?")
         self.assertTrue(dlg.turns[0].partner.startswith("Já, ég er frá Akureyri"))
-        self.assertEqual((lead, turn_items[1]), ({0: False}, ["eg_er_japonsk"]), "it opens the exchange: heard with its cue, not voiced (lesson 53)")
+        self.assertEqual((lead, turn_items[1]), ({0: True}, ["eg_er_japonsk"]), "known: asked with its cue, which says where the exchange is (lesson 53; the owner, 2026-11-25)")
 
     def test_a_reaction_to_a_line_no_one_said_opens_no_exchange(self):
         """Lesson 53: the exchange cut from the clothes shop's third level for «Áttu þetta í öðrum lit?» opened with «Æ, leiðinlegt.», an answer
         to «Þetta er of lítið.», which was not in it. The partner's line before the lead-in opens the exchange only when it asks something or is the
-        level's first line; otherwise the lead-in opens it, heard with its cue (the model voice said it with no word before it)."""
+        level's first line; otherwise the lead-in opens it, with its cue (the model voice said it with no word before it), asked when the learner can
+        say it (the owner, 2026-11-25)."""
         l, today = self.known("attu_thetta_i_odrum_lit", "attu_thetta_i_staerra")
         dlg, turn_items, _, _, lead = self.planner(l, today).scene_line_of(self.cur.by_id["attu_thetta_i_odrum_lit"], set())
         self.assertEqual(dlg.id, "theme:clothes:3")
         self.assertEqual([t.expect_text for t in dlg.turns], ["Áttu þetta í stærra?", "Áttu þetta í öðrum lit?"])
         self.assertIsNone(dlg.turns[0].opener)
-        self.assertEqual(lead, {0: False})
+        self.assertEqual(lead, {0: True})
         self.assertFalse(dlg.part, "it ends where its level ends")
         sc = Script(title="t", lesson_number=1, known_lang="en", target_lang="is")
         p = self.planner(l, today)
         p.builder.close_conversations = True
-        p.builder.dialogue(sc, dlg, translate=True, turn_items=turn_items, heard_turns=frozenset({0}), lead_turns=frozenset())
+        p.builder.dialogue(sc, dlg, translate=True, turn_items=turn_items, heard_turns=frozenset())
         texts = [s.text for s in sc.segments if s.type != "pause"]
         en = Prompts.load("en")
         self.assertEqual(texts[0], en.get("dialogue_start"))
-        self.assertLess(texts.index(en.get("listening_line")), texts.index("Áttu þetta í stærra?"))
+        cue = next(t.cue for t in dlg.turns if t.expect_text == "Áttu þetta í stærra?")
+        self.assertLess(texts.index(cue), texts.index("Áttu þetta í stærra?"), "the cue comes before the line: never a line with no word before it")
+        self.assertNotIn(en.get("listening_line"), texts)
         self.assertEqual(texts[-1], en.get("conversation_back"))
 
     def test_an_exchange_that_stops_before_its_level_ends_is_announced_and_closed_as_a_part(self):

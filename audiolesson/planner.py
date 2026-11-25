@@ -706,13 +706,14 @@ class Planner:
         A partner's line inside the conversation answers the learner's line before it («Nú já! Hvar vinnur þú?» after «Ég er í vinnuferð.»), so
         that line comes first, as the lead-in (#427, lesson 40: «Oh, I see!» answered nothing), after the partner's line it answers, if any (lesson 45:
         «Já, ég hef verið hér áður.» opened the exchange with no «Hefurðu komið hingað áður?» before it): the last value maps its turn to True when it is
-        voiced (known: said as the exchange goes) or False when it is heard with its meaning; never asked. None when no theme level holds it.
+        asked (the learner can say it: the owner, 2026-11-25; it was voiced before, a known line heard as an example) or False when it is heard
+        with its meaning. None when no theme level holds it.
 
         Lesson 53 («the same conversations repeat a lot, and where the speaking practice sits and where a conversation ends felt off»): no line is cut
         from a level in ``levels_played`` (``theme:level``: the level the lesson plays, whose plays are the item's scene already, and a level a line
         was cut from this lesson: the hotel desk was heard three times, the clothes shop twice). The partner's line before the lead-in opens the
         exchange only when it asks something or is the level's first line: «Æ, leiðinlegt.» opened one, a reaction to a line no one had said; the
-        lead-in then opens it, heard with its cue and its meaning, not voiced. And
+        lead-in then opens it, with its cue. And
         an exchange that stops before its level ends is a part (``Dialogue.part``): it is announced and closed as one."""
         rank = set(self.cfg.theme_scenarios)
         for theme in self.cfg.themes:
@@ -744,10 +745,9 @@ class Planner:
                     if len(mine) == 1:
                         return dlg, {0: list(t.items)}, key, asked, {}
                     lead = mine[0]
-                    # voiced only after a partner's line: a lead-in that opens the exchange is heard with its cue and its meaning, which say where
-                    # the exchange is (lesson 53: «Góðan daginn. Ég er með bókun.» opened one in the model voice, with no word before it)
-                    voiced = turns[0].who == "partner" and self.line_role(list(lead.items), text=lead.say) == "ask"
-                    return dlg, {0: list(lead.items), 1: list(t.items)}, key, asked, {0: voiced}
+                    # a lead-in the learner can say is asked with its cue, as any line of the exchange is (the owner, 2026-11-25: «Hvað kostar
+                    # nóttin?» led into a hard item, known and only heard); one the learner cannot say yet is heard with its cue and its meaning
+                    return dlg, {0: list(lead.items), 1: list(t.items)}, key, asked, {0: self.line_role(list(lead.items), text=lead.say) == "ask"}
         return None
 
     def _hard_report(self, sc: Script, log: dict[str, list[tuple[str, str]]], at: dict[str, list[int]]) -> dict[str, dict]:
@@ -2781,11 +2781,13 @@ class Planner:
                     )) is not None:
                         dlg, turn_items, key, asked, lead = line
                         target = len(lead)
-                        heard = set(lead) | (set() if asked else {target})
-                        ex = b.dialogue(sc, dlg, translate=True, turn_items=turn_items, heard_turns=frozenset(heard),
-                                        lead_turns=frozenset(k for k, voiced in lead.items() if voiced))
+                        heard = {k for k, said in lead.items() if not said} | (set() if asked else {target})
+                        ex = b.dialogue(sc, dlg, translate=True, turn_items=turn_items, heard_turns=frozenset(heard))
                         if asked:
                             self._record([item.id], "dialogue", ex.item_ids)
+                        for k, said in lead.items():
+                            if said:  # the lead-in asked: its items are practised too (they are known, so it is a review, not new material)
+                                self._record(list(turn_items[k]), "dialogue", ex.item_ids)
                         touch(item)
                         hard_scene_lines.append(key)
                         hard_scene_turns[item.id].add(key)
