@@ -498,6 +498,41 @@ class CommandTests(unittest.TestCase):
         self.assertEqual((first.type, first.text), ("speak", "Úr orðum sem þú kannt."))
         self.assertNotIn(en.get("from_known"), [g.text for g in sc.segments])
 
+    def test_a_pick_outs_need_is_said_in_icelandic_once_taught(self):
+        """#429 step 10 (lessons 67–74 on the replay of lesson 67's export, the lines before taught in lessons 67–75: a pick-out's need, «Listen for
+        how long it takes, then say it.» 13 times and «Listen for the price, then say it.» 8, the most frequent of seven needs said 35 times): each
+        is the question the learner asks for that information, which they have, then «Hlustaðu og segðu það.»; said after the scene, before the
+        line to listen to, with the English after it in the lesson that teaches it and the next, alone from the third; before, as always. The
+        other needs, and a need asked as a question of its own, stay as they were."""
+        from audiolesson.listening_tasks import ListeningTask, _build
+
+        en = Prompts.load("en")
+        items = {k: next(i for i in self.cur.items if i.command == k) for k in ("pick_out_need_duration", "pick_out_need_price")}
+        self.assertEqual([items[k].target for k in items],
+                         ["Hvað tekur þetta langan tíma? Hlustaðu og segðu það.", "Hvað kostar þetta? Hlustaðu og segðu það."])
+        for k, question in (("pick_out_need_duration", "hvad_tekur_thetta_langan_tima"), ("pick_out_need_price", "hvad_kostar_thetta")):
+            self.assertTrue(items[k].target.startswith(self.cur.by_id[question].target), "the question is one the learner has")
+
+        def heard(introduced, key, answer="svona tíu mínútur", line="Það tekur svona tíu mínútur."):
+            learner = LearnerState("is", "en", "A1")
+            learner.lessons_completed = 80
+            if introduced is not None:
+                for i in items.values():
+                    learner.items[i.id] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", introduced_lesson=introduced)
+            b = builder(self.cur, learner=learner)
+            sc = Script(81, "t", "is", "en")
+            _build(b, sc, ListeningTask("pick_out", "x", "You're in town.", line, answer, "About ten minutes.", key))
+            segs = [(g.type, g.text) for g in sc.segments if g.type != "pause"]
+            return segs[1 : next(k for k, s in enumerate(segs) if s[1] == line)]  # between the scene and the line
+
+        duration, price = items["pick_out_need_duration"].target, items["pick_out_need_price"].target
+        self.assertEqual(heard(60, "pick_out_duration"), [("speak", duration)], "from the third lesson, the Icelandic alone")
+        self.assertEqual(heard(80, "pick_out_duration"), [("speak", duration), ("narrate", en.get("pick_out_need_duration"))])
+        self.assertEqual(heard(None, "pick_out_duration"), [("narrate", en.get("pick_out_need_duration"))], "before it is taught, as always")
+        self.assertEqual(heard(60, "pick_out_price", "þrjú þúsund krónur", "Það kostar þrjú þúsund krónur."), [("speak", price)])
+        self.assertEqual(heard(60, "pick_out_time", "klukkan fimm", "Safnið lokar klukkan fimm."), [("narrate", en.get("pick_out_need_time"))],
+                         "another need stays in English")
+
     def test_an_aside_says_its_own_lines_in_icelandic_once_taught(self):
         """#429 step 7 (lessons 64–71 on the replay of lesson 64's export, the form work's lines taught in lessons 67 and 68: «A quick aside.» and
         «Back to the lesson.» 19 times each in eight lessons, the most frequent English instructions left that an authored phrase can say): an
@@ -560,7 +595,8 @@ class CommandTests(unittest.TestCase):
                                  "aftur_ad_tala_command", "samtalinu_lokid_command", "stutt_samtal_command", "segdu_command", "hvernig_segir_madur_command",
                                  "klaradu_setninguna_command", "eitthvad_nytt_command", "segdu_hverja_setningu_command", "aefingunni_lokid_command",
                                  "sma_utudur_command", "aftur_ad_efninu_command",
-                                 "thessi_ord_command", "byrjum_a_endanum_command", "thetta_ord_command", "ur_ordum_command", "samtalid_aftur_command"],
+                                 "thessi_ord_command", "byrjum_a_endanum_command", "thetta_ord_command", "ur_ordum_command", "samtalid_aftur_command",
+                                 "hlustadu_tima_command", "hlustadu_verd_command"],
                          "lesson 54's then lesson 57's, by how often the lessons say them")
         learner = LearnerState("is", "en", "A1")
         for i in ("endurtaktu", "hlustadu"):

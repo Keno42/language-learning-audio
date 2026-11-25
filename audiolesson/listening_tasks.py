@@ -223,7 +223,10 @@ def _build(b, sc: Script, task: ListeningTask, introduces: str = "") -> None:
     who = b.prompts.get("speaker_he" if task.speaker == "native_b" else "speaker_she")
     if task.kind == "pick_out":
         # #303: concept 2 is finding the information one needs, so the need is named before the line (after the scene), and the learner listens for it
-        b._narr(sc, ex, b.prompts.get("pick_out_need_ask", ask=task.ask) if task.ask else b.prompts.get(task.prompt_key.replace("pick_out_", "pick_out_need_", 1)))
+        if task.ask:
+            b._narr(sc, ex, b.prompts.get("pick_out_need_ask", ask=task.ask))
+        else:  # #429 step 10: «Hvað tekur þetta langan tíma? Hlustaðu og segðu það.» and the price's line once taught; the other needs as before
+            b._instruct(sc, ex, task.prompt_key.replace("pick_out_", "pick_out_need_", 1))
     b._speak(sc, ex, task.line, speaker=task.speaker, role="listening_line")
     b._beat(sc, ex)
     if task.kind == "catch_unknown":
