@@ -1053,10 +1053,16 @@ revised by the owner after lesson 20 to fit the concept (§3) and "Good enough o
 - **Documents: replace, don't append (owner, 2026-10-15).** Left to one writer, an LLM in particular, these documents
   grew from a first version of 569 lines to 1701 in two weeks (1722 lines added after it, 590 deleted), and the additions left contradictions
   standing. So:
-  - A change to a statement rewrites it; it doesn't add a sentence after it. The history is in §5, the archive
-    (`docs/history/evidence.md`) and git.
-  - A PR that changes a document names what it replaced or deleted (the PR template asks). Net growth needs a reason.
-  - §5 keeps the last three lessons; "Now" holds three or four items (§1).
+  - A change to a statement rewrites it; it doesn't add a sentence after it. The history is in §5, the archives
+    (`docs/history/`) and git.
+  - **A current document holds the current state; a dated record moves to the archive** (owner, 2026-11-25). A record of
+    what was built, closed or found in a given lesson moves to `docs/history/` once the current text no longer needs it,
+    unchanged but for its references, and the current text keeps a one-line pointer: §5's older lessons to
+    `evidence.md`, the status brief's built and closed lists to `status.md`, a retired document whole (as `sessions.md`).
+    Move it in the PR that makes it stale, not later.
+  - A PR that changes a document names what it replaced, moved or deleted (the PR template asks). Net growth needs a reason.
+  - §5 keeps the last three lessons; "Now" holds three or four items (§1); the status brief holds no built or closed
+    list (`tests/test_docs.py` checks each).
   - An independent review, by a model from another company, reads the documents for contradictions, stale statements
     and duplicates (`docs/DOC-REVIEW.md`). It reports and doesn't edit; the fixes are a PR, and the owner settles a
     disagreement. Run it after every five lessons or so, or when the owner asks.
