@@ -3,7 +3,7 @@ we stop?» with the answer «tuttugu mínútur»: remembered, not found. A pick-
 import re
 import unittest
 
-import tests.test_audiolesson as course
+import tests.test_parts_listening as course
 
 WORDS = re.compile(r"[^\W\d_]+")
 

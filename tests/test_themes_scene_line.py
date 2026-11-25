@@ -45,7 +45,7 @@ class SceneLineTests(unittest.TestCase):
             _check(bare)
 
     def test_no_narration_of_a_lesson_reads_a_setting_aloud(self):
-        from tests.test_audiolesson import ListeningTaskTests
+        from tests.test_parts_listening import ListeningTaskTests
         settings = {s for t in self.themes for s in (t.setting, t.setting_ja) if s}
         spoken = 0
         for _, _, sc in ListeningTaskTests._course(12):

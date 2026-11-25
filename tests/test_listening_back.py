@@ -3,7 +3,7 @@ abrupt». A listening exercise that a drill follows ends with «Back to speaking
 a conversation that a drill follows ends with «That's the end of the conversation.»."""
 import unittest
 
-import tests.test_audiolesson as course
+import tests.test_parts_listening as course
 
 
 class ListeningEndsWithAWayBackTests(unittest.TestCase):
