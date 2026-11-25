@@ -124,7 +124,12 @@ class DoseTests(unittest.TestCase):
         others = [i for i, d in weak.meta["doses"].items() if d == "middle" and i in fine.meta["new_items"] and i in weak.meta["new_items"]]
         self.assertTrue(others, "a kind the reviews do not find weak stays on the default")
         for i in others:
-            self.assertEqual(self.rungs(weak, i), self.rungs(fine, i), f"{i}: and is asked as in the other lesson, its recall given to the reviews")
+            # as in the other lesson, but for a recall the lesson's end cuts: a rung asked in the last minute of one lesson can fall past the
+            # end of the other, whose notes or heavy items took a few seconds more (9b: «eg_elska»'s meaning recall at 30.0 minutes)
+            mine, theirs = self.rungs(weak, i), self.rungs(fine, i)
+            short, long_ = sorted((mine, theirs), key=len)
+            self.assertEqual(short, long_[: len(short)], f"{i}: and is asked as in the other lesson, its recall given to the reviews")
+            self.assertLessEqual(len(long_) - len(short), 1, f"{i}: at most the lesson's last recall cut")
 
     def test_plan_json_holds_the_doses_and_the_trait_rates(self):
         """Review of #529: the description promised both fields in plan.json; ``_plan`` exported neither."""

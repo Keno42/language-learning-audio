@@ -12,8 +12,8 @@ items = ["godan_daginn", "goda_nott", "gott_kvold"]
 # issue #29: apply the named agreement in a new frame, not only replay the three greetings
 transfer_items = ["eigdu_godur"]
 topics = ["grammar", "greetings"]
-text = "In «Góðan daginn», «Góða nótt», and «Gott kvöld», «góðan», «góða», and «gott» are forms of the same adjective, meaning 'good.' Here the ending changes with the noun's grammatical gender: «dagur» is masculine, «nótt» feminine, and «kvöld» neuter. Icelandic adjectives also change for case and number; we'll get to those later."
-text_ja = "«Góðan daginn»、«Góða nótt»、«Gott kvöld» に出てくる «góðan»、«góða»、«gott» は、どれも「良い」という同じ形容詞の形です。ここでは名詞の文法上の性に合わせて語尾が変わります。«dagur» は男性名詞、«nótt» は女性名詞、«kvöld» は中性名詞です。形容詞は格や数によっても変わりますが、それはまた別の機会に。"
+text = "In «Góðan daginn», «Góða nótt» and «Gott kvöld», «góðan», «góða» and «gott» are one word, 'good', in three forms. The form follows the word it describes: «dagur» takes «góðan» here, «nótt» takes «góða», and «kvöld» takes «gott». The forms change again in other sentences; that comes later."
+text_ja = "«Góðan daginn»、«Góða nótt»、«Gott kvöld» の «góðan»、«góða»、«gott» は、どれも「良い」という一つの語の三つの形です。形は、説明する単語で決まります。ここでは «dagur» には «góðan»、«nótt» には «góða»、«kvöld» には «gott» がつきます。ほかの文ではまた形が変わりますが、それはまた別の機会に。"
 
 # Owner review round 2 on #29 (blocker): the first cut wired góður/góð/gott (nominative)
 # into godur_gender's own transfer_items alongside góðan/góða/gott (accusative) as if
@@ -29,8 +29,8 @@ id = "godur_gender_nominative"
 milestone = true
 items = ["godur_matur", "thad_er_god_hugmynd", "gott_vedur"]
 topics = ["grammar"]
-text = "«Góður matur», «góð hugmynd», and «gott veður» show the same adjective as «Góðan daginn» — but in a different case: nominative, not accusative. The ending still changes with the noun's gender the same way — «matur» is masculine, «hugmynd» feminine, «veður» neuter — but nominative and accusative endings differ for masculine and feminine («góðan» becomes «góður», «góða» becomes «góð»); neuter happens to look the same in both."
-text_ja = "«Góður matur»、«góð hugmynd»、«gott veður» に出てくるのは «Góðan daginn» と同じ形容詞ですが、格が違います：対格ではなく主格です。語尾は名詞の性に合わせて変わる点は同じです。«matur» は男性名詞、«hugmynd» は女性名詞、«veður» は中性名詞です。ただし主格と対格では男性・女性の語尾が異なります（«góðan» は «góður» に、«góða» は «góð» になります）。中性はたまたま両方の格で同じ形になります。"
+text = "«Góður matur», «góð hugmynd» and «gott veður» use the same word as «Góðan daginn», in other forms. Wishing someone a good day changes the word to «góðan» or «góða». Just naming the thing, as here, it is «góður» or «góð». «Gott» stays the same in both. «Matur» goes like «dagur», «hugmynd» like «nótt», and «veður» like «kvöld»."
+text_ja = "«Góður matur»、«góð hugmynd»、«gott veður» は «Góðan daginn» と同じ語の、別の形です。「良い一日を」と願うときは «góðan»、«góða» の形になります。ここのように物をそのまま言うときは «góður»、«góð» です。«gott» はどちらでも同じです。«matur» は «dagur» と、«hugmynd» は «nótt» と、«veður» は «kvöld» と同じ種類です。"
 
 # Owner review on PR #50, point 1: godur_noun's `agreement` mechanism lets the *system* derive
 # the right ending from a noun's gender, but nothing previously told the *learner* that gender —
@@ -43,8 +43,8 @@ id = "gendered_nouns_bill_bok_hus"
 milestone = true
 items = ["bill", "bok", "hus"]
 topics = ["grammar"]
-text = "«Bíll» (car) is masculine, «bók» (book) is feminine, and «hús» (house) is neuter — the same three genders as «dagur», «hugmynd», and «veður». Knowing a noun's gender is what lets you pick the right ending for «góður», «góð», or «gott» on any noun, not just the ones you started with."
-text_ja = "«Bíll»（車）は男性名詞、«bók»（本）は女性名詞、«hús»（家）は中性名詞です。«dagur»、«hugmynd»、«veður» と同じ三つの性です。名詞の性がわかれば、«góður»、«góð»、«gott» のうち正しい語尾を、最初に覚えた単語だけでなく、どんな名詞にも当てはめられます。"
+text = "«Bíll», car, goes like «dagur». «Bók», book, goes like «hugmynd». «Hús», house, goes like «veður». Every word for a thing is one of these three kinds. Know which, and you can pick «góður», «góð» or «gott» for any word, not just the ones you started with."
+text_ja = "«Bíll»（車）は «dagur» と、«bók»（本）は «hugmynd» と、«hús»（家）は «veður» と同じ種類です。物を表す単語は、どれもこの三つの種類のどれかです。種類がわかれば、最初に覚えた単語だけでなく、どんな単語にも «góður»、«góð»、«gott» を選べます。"
 
 [[notes]]
 id = "three_kinds_of_sorry"
@@ -102,10 +102,10 @@ items = ["heiti_potturinn", "er_heitur_pottur_herna"]
 topics = ["grammar"]
 contrast = true
 parts = [["ur", "pottur"], ["inn", "urinn", "potturinn"], ["heitur", "heiti"]]
-parts_lead = ["First a hot tub, from its end.", "Then the hot tub, from its end.", "And the adjective, then its form before such a noun."]  # lesson 46: each group says what it builds, in one voice
-parts_lead_ja = ["まず「ある露天の湯船」を、終わりから。", "次に「その露天の湯船」を、終わりから。", "最後に形容詞と、そういう名詞の前の形です。"]
-text = "Here is why the two forms differ. «Heitur pottur» means a hot tub. «Heiti potturinn» means the hot tub. To say the hot tub rather than a hot tub, Icelandic adds an ending to the noun. Start from «pottur». With the ending, it is «potturinn». The adjective before such a noun also takes a softer ending. Start from «heitur». Before such a noun, it is «heiti». It works the same way elsewhere. «Góður maður» is a good man. «Góði maðurinn» is the good man."
-text_ja = "二つの形が違う理由です。«Heitur pottur» は「ある露天の湯船」です。«Heiti potturinn» は「その露天の湯船」です。「ある」ではなく「その」と言うとき、アイスランド語は名詞の終わりに語尾をつけます。«Pottur» から始めます。語尾がつくと «potturinn» です。そういう名詞の前の形容詞も、やわらかい語尾になります。«Heitur» から始めます。そういう名詞の前では «heiti» です。ほかの語でも同じです。«Góður maður» は「いい男の人」です。«Góði maðurinn» は「そのいい男の人」です。"
+parts_lead = ["First a hot tub, from its end.", "Then the hot tub, from its end.", "And the word for hot, then its form before such a word."]  # lesson 46: each group says what it builds, in one voice
+parts_lead_ja = ["まず「ある露天の湯船」を、終わりから。", "次に「その露天の湯船」を、終わりから。", "最後に「熱い」の語と、そういう単語の前の形です。"]
+text = "Here is why the two forms differ. «Heitur pottur» means a hot tub. «Heiti potturinn» means the hot tub. To say the hot tub rather than a hot tub, Icelandic adds an ending to the word. Start from «pottur». With the ending, it is «potturinn». The word for hot before such a word also takes a softer ending. Start from «heitur». Before such a word, it is «heiti». It works the same way elsewhere. «Góður maður» is a good man. «Góði maðurinn» is the good man."
+text_ja = "二つの形が違う理由です。«Heitur pottur» は「ある露天の湯船」です。«Heiti potturinn» は「その露天の湯船」です。「ある」ではなく「その」と言うとき、アイスランド語は単語の終わりに語尾をつけます。«Pottur» から始めます。語尾がつくと «potturinn» です。そういう単語の前の「熱い」の語も、やわらかい語尾になります。«Heitur» から始めます。そういう単語の前では «heiti» です。ほかの語でも同じです。«Góður maður» は「いい男の人」です。«Góði maðurinn» は「そのいい男の人」です。"
 
 [[notes]]
 id = "vedur_smalltalk"
@@ -185,8 +185,8 @@ milestone = true
 items = ["med_sykri", "an_sykurs", "med_mjolk", "an_mjolkur"]
 topics = ["grammar", "cafe"]
 parts = [["sykur", "með sykri", "án sykurs"], ["mjólk", "með mjólk", "án mjólkur"]]  # the word, then with it, then without it
-text = "With and without change the ending of the word after them. In these drink orders, «með», with, takes the dative. After «án», without, the word always takes the genitive."
-text_ja = "「〜入り」と「〜なし」では、あとに来る単語の語尾が変わります。飲み物に砂糖やミルクを加えるこの用法では、«með»（〜入り）のあとは与格になります。«án»（〜なし）のあとでは、いつも属格になります。"
+text = "With and without change the ending of the word after them, each in its own way. With sugar is «með sykri». Without sugar is «án sykurs»."
+text_ja = "「〜入り」と「〜なし」では、あとに来る単語の語尾がそれぞれ違う形になります。«með sykri»（砂糖入り）、«án sykurs»（砂糖なし）のように、単語といっしょに覚えましょう。"
 
 [[notes]]
 id = "allt_i_lagi_idiom"
@@ -214,8 +214,8 @@ text_ja = "«Hvað segirðu gott?»の直訳は「何かいいことを言う？
 id = "mig_langar_idiom"
 items = ["mig_langar_i"]
 topics = ["food"]
-text = "«Mig langar í kaffi» is literally 'me longs for coffee'. The one who wants is still the subject, but in the accusative, 'me', instead of «ég». Japanese does something alike: in «ja:kōhī ga hoshii|コーヒーが欲しい», the coffee, not you, is marked."
-text_ja = "«Mig langar í kaffi»の直訳は「私を、コーヒーを求めている」。欲しがる人は主語のままですが、«ég»（私は）ではなく対格の「私を」の形で言います。日本語の「コーヒーが欲しい」で、「が」が付くのがあなたではなくコーヒーなのと少し似ています。"
+text = "«Mig langar í kaffi» is literally 'me longs for coffee'. The one who wants is not «ég», 'I'. It is «mig», 'me'. Japanese does something alike: in «ja:kōhī ga hoshii|コーヒーが欲しい», the coffee, not you, is marked."
+text_ja = "«Mig langar í kaffi»の直訳は「私を、コーヒーを求めている」。欲しがる人を «ég»（私は）ではなく «mig»（私を）で言います。日本語の「コーヒーが欲しい」で、「が」が付くのがあなたではなくコーヒーなのと少し似ています。"
 
 [[notes]]
 id = "nenna_idiom"
@@ -394,8 +394,8 @@ items = ["einn_einn_tveir", "klukkan_er", "eg_keypti_baekur"]
 # feminine (owner after lesson 29: the feminine frame is books, not small sums of krónur)
 transfer_items = ["einn_tveir_thrir_fjorir", "eg_keypti_baekur"]
 topics = ["numbers", "grammar"]
-text = "Three ways to say 'two': «einn einn tveir», «Klukkan er tvö», «tvær bækur». The numbers one to four change like «góður», «góð», «gott», with the gender of what you count: «bók» is feminine, so «tvær bækur». Counting and phone numbers use the masculine, and the clock always the neuter. Pick the wrong one and you'll still be understood."
-text_ja = "「2」の言い方が三つ出てきました：«einn einn tveir»、«Klukkan er tvö»、«tvær bækur»。1から4の数は «góður»、«góð»、«gott» と同じく、数えるものの性で形が変わります。«bók» は女性名詞なので «tvær bækur» です。数を数えるときや電話番号は男性形、時刻はいつも中性形です。形を間違えても通じるので、気にせず言ってみましょう。"
+text = "Three ways to say 'two': «einn einn tveir», «Klukkan er tvö», «tvær bækur». The numbers one to four change like «góður», «góð», «gott», with the word for what you count: «bók» goes like «nótt», so «tvær bækur». Counting and phone numbers use «tveir», and the clock always «tvö». Pick the wrong one and you'll still be understood."
+text_ja = "「2」の言い方が三つ出てきました：«einn einn tveir»、«Klukkan er tvö»、«tvær bækur»。1から4の数は «góður»、«góð»、«gott» と同じく、数えるものの単語で形が変わります。«bók» は «nótt» と同じ種類なので «tvær bækur» です。数を数えるときや電話番号は «tveir»、時刻はいつも «tvö» です。形を間違えても通じるので、気にせず言ってみましょう。"
 
 [[notes]]
 id = "sumarfri"
@@ -461,8 +461,8 @@ text_ja = "本の多くは11月に出版され、「クリスマスの本の洪�
 id = "hun_er_klukkan"
 items = ["hvad_er_klukkan", "klukkan_er"]
 topics = ["time", "grammar"]
-text = "Asked the time, Icelanders often answer like this: «Hún er þrjú.» «Hún» means she. It stands for the feminine word «klukkan». So «Klukkan er þrjú.» is just as right."
-text_ja = "時間を聞かれると、こう答える人もよくいます：«Hún er þrjú.» «Hún» は「彼女」です。女性名詞の «klukkan»（時計）を指しています。なので «Klukkan er þrjú.» でももちろん正解です。"
+text = "Asked the time, Icelanders often answer like this: «Hún er þrjú.» «Hún» means she. It stands for «klukkan», the clock, which Icelandic calls 'she'. So «Klukkan er þrjú.» is just as right."
+text_ja = "時間を聞かれると、こう答える人もよくいます：«Hún er þrjú.» «Hún» は「彼女」です。時計の «klukkan» を指していて、アイスランド語では時計を「彼女」で受けます。なので «Klukkan er þrjú.» でももちろん正解です。"
 
 [[notes]]
 id = "timi"
@@ -525,8 +525,8 @@ milestone = true
 items = ["eg_er_ad_koma", "eg_er_ad_fara", "eg_er_ad_laera"]
 transfer_items = ["eg_er_ad_inf"]
 topics = ["grammar"]
-text = "«Ég er að koma!», «Ég er að fara», and «Ég er að læra íslensku» all use «er að» plus a verb in its basic form, the infinitive, for something happening right now, like English '-ing'. Compare «Ég ætla að fara heim» (a plan: I'm going to go home) with «Ég er að fara heim» (right now: I'm on my way home). Many activity verbs you know can go after «er að». Verbs for a state, like sitting or sleeping, keep the plain present instead: «Ég sit», «Ég sef»."
-text_ja = "«Ég er að koma!»、«Ég er að fara»、«Ég er að læra íslensku» は、どれも «er að» のあとに動詞の基本形（不定詞）を置いて、「今〜しているところ」を表します。«Ég ætla að fara heim»（家に帰るつもりです—予定）と «Ég er að fara heim»（今、家に帰っているところです）を比べてみてください。知っている動作の動詞の多くは «er að» のあとに入れられます。ただし、座っている・眠っているなどの状態を表す動詞は、そのまま現在形を使います：«Ég sit»、«Ég sef»。"
+text = "«Ég er að koma!», «Ég er að fara», and «Ég er að læra íslensku» all use «er að» plus the plain form of a doing word, as in «að koma», to come, for something happening right now, like English '-ing'. Compare «Ég ætla að fara heim» (a plan: I'm going to go home) with «Ég er að fara heim» (right now: I'm on my way home). Many doing words you know can go after «er að». Words for a state, like sitting or sleeping, are said on their own instead: «Ég sit», «Ég sef»."
+text_ja = "«Ég er að koma!»、«Ég er að fara»、«Ég er að læra íslensku» は、どれも «er að» のあとに動作を表す語の基本の形（«að koma» の «koma» のような形）を置いて、「今〜しているところ」を表します。«Ég ætla að fara heim»（家に帰るつもりです—予定）と «Ég er að fara heim»（今、家に帰っているところです）を比べてみてください。知っている動作の語の多くは «er að» のあとに入れられます。ただし、座っている・眠っているなどの状態を表す語は、そのままの形で言います：«Ég sit»、«Ég sef»。"
 
 # issue #29 tense pilot: the one past this pilot generalizes. Fires once «Þetta var gott.»,
 # «Ég var rænd.» and «Ég var í Reykjavík í gær.» are met, right before transform_var drills
@@ -538,8 +538,8 @@ milestone = true
 items = ["thetta_var_gott", "eg_var_raend", "eg_var_i_reykjavik_i_gaer"]
 transfer_items = ["transform_var", "eg_var_ad_inf"]
 topics = ["grammar"]
-text = "«Þetta var gott», «Ég var rænd» and «Ég var í Reykjavík í gær» all use «var»: it is the past of «er». «Ég er heima» becomes «Ég var heima», «Það er kalt» becomes «Það var kalt» — swap the one word, and the rest of the sentence stays as it is. Other verbs have past forms of their own, like «fer» to «fór» or «kaupi» to «keypti»; for now, you meet those one phrase at a time."
-text_ja = "«Þetta var gott»、«Ég var rænd»、«Ég var í Reykjavík í gær» には、どれも «var» が入っています。«var» は «er» の過去形です。«Ég er heima» は «Ég var heima» に、«Það er kalt» は «Það var kalt» になります。変えるのはこの一語だけで、文の残りはそのままです。ほかの動詞にもそれぞれの過去形があり、たとえば «fer» は «fór» に、«kaupi» は «keypti» になります。これらは今のところ、フレーズごとに覚えていきます。"
+text = "«Þetta var gott», «Ég var rænd» and «Ég var í Reykjavík í gær» all use «var»: it is the past of «er». «Ég er heima» becomes «Ég var heima», «Það er kalt» becomes «Það var kalt» — swap the one word, and the rest of the sentence stays as it is. Other doing words have past forms of their own, like «fer» to «fór» or «kaupi» to «keypti»; for now, you meet those one phrase at a time."
+text_ja = "«Þetta var gott»、«Ég var rænd»、«Ég var í Reykjavík í gær» には、どれも «var» が入っています。«var» は «er» の過去の形です。«Ég er heima» は «Ég var heima» に、«Það er kalt» は «Það var kalt» になります。変えるのはこの一語だけで、文の残りはそのままです。ほかの動作の語にもそれぞれの過去の形があり、たとえば «fer» は «fór» に、«kaupi» は «keypti» になります。これらは今のところ、フレーズごとに覚えていきます。"
 
 # issue #29 «Ég á …» family: «eiga» for having family, a booking, an appointment, named
 # from three «Ég á» phrases the learner owns, with the count agreeing with the noun's
@@ -551,8 +551,8 @@ milestone = true
 items = ["eg_a_tvo_born", "eg_a_pantad_herbergi", "eg_a_einn_brodur"]
 transfer_items = ["eg_a_tvaer_systur", "eg_a_engin_born", "eg_a_tima_klukkan_tvo"]
 topics = ["grammar", "family"]
-text = "«Ég á tvö börn», «Ég á pantað herbergi» and «Ég á einn bróður» all use «á», from the verb «eiga»: to have family, a room booked or an appointment, or to own something. You already ask with it: «Áttu …?» is «átt þú», do you have. The number changes with the noun's gender, like «góðan», «góða» and «gott»: «einn bróður» for a masculine noun, «tvö börn» for a neuter one, and for a feminine one, «tvær systur»."
-text_ja = "«Ég á tvö börn»、«Ég á pantað herbergi»、«Ég á einn bróður» には、どれも «á» が入っています。動詞 «eiga» の形で、家族がいる、部屋を予約してある、何かを持っている、というときに使います。聞くときの «Áttu …?» も、実は «átt þú»、「あなたは持っていますか」です。数は、«góðan»、«góða»、«gott» と同じように名詞の性で変わります。男性名詞なら «einn bróður»、中性名詞なら «tvö börn»、そして女性名詞なら «tvær systur» です。"
+text = "«Ég á tvö börn», «Ég á pantað herbergi» and «Ég á einn bróður» all use «á», a form of «eiga», to have: to have family, a room booked or an appointment, or to own something. You already ask with it: «Áttu …?» is «átt þú», do you have. The number changes with the word for what you have, like «góðan», «góða» and «gott»: «einn bróður», «tvö börn», «tvær systur»."
+text_ja = "«Ég á tvö börn»、«Ég á pantað herbergi»、«Ég á einn bróður» には、どれも «á» が入っています。«eiga»（持つ）の形で、家族がいる、部屋を予約してある、何かを持っている、というときに使います。聞くときの «Áttu …?» も、実は «átt þú»、「あなたは持っていますか」です。数は、«góðan»、«góða»、«gott» と同じように、持っているものの単語で形が変わります：«einn bróður»、«tvö börn»、«tvær systur»。"
 
 # issue #29 person pilot: the «við» ending, named from three «við» phrases before
 # transform_vid_form asks for it over «Ég …» sentences.
@@ -562,8 +562,8 @@ milestone = true
 items = ["vid_erum", "vid_tolum", "vid_forum_a_morgun"]
 transfer_items = ["transform_vid_form", "vid_viljum_bord"]
 topics = ["grammar"]
-text = "«Við erum frá Japan», «Við tölum japönsku» and «Við förum á morgun»: with «við», 'we', the verb ends in «-um». «Ég vil» becomes «við viljum», «ég skil» becomes «við skiljum». The vowel often changes as well: «tala» gives «við tölum», «fara» gives «við förum». And «ég er» becomes «við erum»."
-text_ja = "«Við erum frá Japan»、«Við tölum japönsku»、«Við förum á morgun»：«við»（私たち）が主語のとき、動詞は «-um» で終わります。«ég vil» は «við viljum» に、«ég skil» は «við skiljum» になります。母音も変わることがよくあります。«tala» は «við tölum» に、«fara» は «við förum» になります。そして «ég er» は «við erum» になります。"
+text = "«Við erum frá Japan», «Við tölum japönsku» and «Við förum á morgun»: with «við», 'we', the word for what you do ends in «-um». «Ég vil» becomes «við viljum», «ég skil» becomes «við skiljum». The vowel often changes as well: «tala» gives «við tölum», «fara» gives «við förum». And «ég er» becomes «við erum»."
+text_ja = "«Við erum frá Japan»、«Við tölum japönsku»、«Við förum á morgun»：«við»（私たち）と言うとき、することを表す語は «-um» で終わります。«ég vil» は «við viljum» に、«ég skil» は «við skiljum» になります。母音も変わることがよくあります。«tala» は «við tölum» に、«fara» は «við förum» になります。そして «ég er» は «við erum» になります。"
 
 [[notes]]
 id = "modal_infinitive"
@@ -571,8 +571,8 @@ milestone = true
 items = ["eg_vil", "eg_verd_ad", "ma_eg_borga_med_korti"]
 transfer_items = ["ma_eg_inf"]
 topics = ["grammar"]
-text = "Here are three lines that share one shape. «Ég vil fara heim.» «Ég verð að fara heim.» «Má ég borga með korti?» Each has a word for want, have to or may, followed by a second verb in its basic form, the infinitive. The word «vil» means want. The word «verð að» means have to. The word «má» means may. Only «verð» needs a little word before that verb. «Ég verð að fara heim.» The other two take the verb straight away. «Ég vil fara heim.» So any verb you know, you can now want, need, or ask permission for."
-text_ja = "同じ形の文が三つあります。«Ég vil fara heim.» «Ég verð að fara heim.» «Má ég borga með korti?» どれも、「したい」「しなければならない」「してもいい」を表す語のあとに、動詞の基本形（不定詞）が続きます。«vil» は「〜したい」です。«verð að» は「〜しなければならない」です。«má» は「〜してもいい」です。動詞の前に小さな語が必要なのは «verð» だけです。«Ég verð að fara heim.» ほかの二つは、すぐに動詞が続きます。«Ég vil fara heim.» 知っている動詞なら、「したい」「しなければならない」「してもいいか」のどれにも使えます。"
+text = "Here are three lines that share one shape. «Ég vil fara heim.» «Ég verð að fara heim.» «Má ég borga með korti?» Each has a word for want, have to or may, followed by what you do, in its plain form. The word «vil» means want. The word «verð að» means have to. The word «má» means may. Only «verð» needs a little word before what you do. «Ég verð að fara heim.» The other two go straight on. «Ég vil fara heim.» So anything you can say doing, you can now want, need, or ask permission for."
+text_ja = "同じ形の文が三つあります。«Ég vil fara heim.» «Ég verð að fara heim.» «Má ég borga með korti?» どれも、「したい」「しなければならない」「してもいい」を表す語のあとに、することが基本の形で続きます。«vil» は「〜したい」です。«verð að» は「〜しなければならない」です。«má» は「〜してもいい」です。することの前に小さな語が必要なのは «verð» だけです。«Ég verð að fara heim.» ほかの二つは、すぐに続きます。«Ég vil fara heim.» 言える動作なら、「したい」「しなければならない」「してもいいか」のどれにも使えます。"
 
 [[notes]]
 id = "dative_subject"
@@ -580,8 +580,8 @@ milestone = true
 items = ["eg_er_svong", "mer_er_kalt", "mer_er_heitt"]
 transfer_items = ["mer_lidur", "mer_lidur_illa"]
 topics = ["grammar", "feelings"]
-text = "«Ég er svöng» starts with «ég», but «Mér er kalt» and «Mér er heitt» start with «mér», the dative form of «ég», roughly 'to me'. Some feelings are said to happen to you: «Mér er kalt» is literally 'to me is cold'. That is a case change on the pronoun itself, not a new word. You'll meet «mér» again in «Mér líður vel» and «Mér finnst…»."
-text_ja = "«Ég er svöng» は «ég»（私は）で始まりますが、«Mér er kalt» と «Mér er heitt» は «mér» で始まります。«mér» は «ég» の与格で、「私に」に近い形です。感覚の中には「自分に起こる」ものとして言うものがあり、«Mér er kalt» は直訳すると「私に寒い」です。別の単語ではなく、同じ代名詞の格が変わっているのです。«mér» はこのあと «Mér líður vel» や «Mér finnst…» でも出てきます。"
+text = "«Ég er svöng» starts with «ég», but «Mér er kalt» and «Mér er heitt» start with «mér», another form of «ég», roughly 'to me'. Some feelings are said to happen to you: «Mér er kalt» is literally 'to me is cold'. «Mér» is not a new word: it is «ég», changed. You'll meet «mér» again in «Mér líður vel» and «Mér finnst…»."
+text_ja = "«Ég er svöng» は «ég»（私は）で始まりますが、«Mér er kalt» と «Mér er heitt» は «mér» で始まります。«mér» は «ég» の別の形で、「私に」に近い意味です。感覚の中には「自分に起こる」ものとして言うものがあり、«Mér er kalt» は直訳すると「私に寒い」です。«mér» は別の単語ではなく、«ég» の形が変わったものです。«mér» はこのあと «Mér líður vel» や «Mér finnst…» でも出てきます。"
 
 [[notes]]
 id = "mer_ther"
@@ -589,8 +589,8 @@ milestone = true
 items = ["mer_er_kalt", "mer_lidur_illa", "hvernig_lidur_ther"]
 transfer_items = ["mer_lidur"]
 topics = ["grammar", "feelings"]
-text = "«Mér er kalt», «Mér líður illa» and «Hvernig líður þér?» all put the person who feels in the dative: «mér» for «ég», and «þér» for «þú». So «Hvernig líður þér?» asks about you, and the answer starts with «Mér líður…»."
-text_ja = "«Mér er kalt»、«Mér líður illa»、«Hvernig líður þér?» では、どれも感じる人が与格になっています。«ég» なら «mér»、«þú» なら «þér» です。ですから «Hvernig líður þér?» はあなたのことを聞いていて、答えは «Mér líður…» で始まります。"
+text = "«Mér er kalt», «Mér líður illa» and «Hvernig líður þér?» all say the one who feels as 'to me' or 'to you': «mér» for «ég», and «þér» for «þú». So «Hvernig líður þér?» asks about you, and the answer starts with «Mér líður…»."
+text_ja = "«Mér er kalt»、«Mér líður illa»、«Hvernig líður þér?» では、どれも感じる人を「私に」「あなたに」の形で言います。«ég» なら «mér»、«þú» なら «þér» です。ですから «Hvernig líður þér?» はあなたのことを聞いていて、答えは «Mér líður…» で始まります。"
 
 # issue #82: each recurring sound feature named once, aloud, when its first examples are met.
 # Written with a Japanese listener in mind (text_ja); only features with no exceptions to hedge.
@@ -684,15 +684,15 @@ text_ja = "«Takk fyrir mig»（直訳は「私のことをありがとう」）
 id = "negation_ekki"
 teaches = "negative"
 topics = ["grammar"]
-text = "To say «not» in Icelandic, put «ekki» right after the verb. «Ég tala íslensku» becomes «Ég tala ekki íslensku», and «Það er kalt» becomes «Það er ekki kalt». The rest of the sentence stays as it was."
-text_ja = "アイスランド語で「〜ない」と言うには、動詞のすぐ後ろに «ekki» を置きます。«Ég tala íslensku» は «Ég tala ekki íslensku» に、«Það er kalt» は «Það er ekki kalt» になります。文のそれ以外の部分はそのままです。"
+text = "To say «not» in Icelandic, put «ekki» right after the word for what you do or are. «Ég tala íslensku» becomes «Ég tala ekki íslensku», and «Það er kalt» becomes «Það er ekki kalt». The rest of the sentence stays as it was."
+text_ja = "アイスランド語で「〜ない」と言うには、«tala»（話す）や «er»（です）のような、することや状態を表す語のすぐ後ろに «ekki» を置きます。«Ég tala íslensku» は «Ég tala ekki íslensku» に、«Það er kalt» は «Það er ekki kalt» になります。文のそれ以外の部分はそのままです。"
 
 [[notes]]
 id = "question_verb_first"
 teaches = "question"
 topics = ["grammar"]
-text = "For a question you can answer with yes or no, put the verb first. «Þú talar íslensku» becomes «Talar þú íslensku?», and «Það er kalt» becomes «Er kalt?». When you ask the other person, the verb often changes with the person too: «Ég vil kaffi» turns into «Viltu kaffi?»."
-text_ja = "「はい・いいえ」で答えられる質問では、動詞を先頭に置きます。«Þú talar íslensku» は «Talar þú íslensku?» に、«Það er kalt» は «Er kalt?» になります。相手に尋ねるときは、人称に合わせて動詞の形も変わることがよくあります。«Ég vil kaffi» は «Viltu kaffi?» になります。"
+text = "For a question you can answer with yes or no, put the word for what someone does or is first. «Þú talar íslensku» becomes «Talar þú íslensku?», and «Það er kalt» becomes «Er kalt?». When you ask the other person, that word often changes too: «Ég vil kaffi» turns into «Viltu kaffi?»."
+text_ja = "「はい・いいえ」で答えられる質問では、することや状態を表す語を先頭に置きます。«Þú talar íslensku» は «Talar þú íslensku?» に、«Það er kalt» は «Er kalt?» になります。相手に尋ねるときは、その語の形も変わることがよくあります。«Ég vil kaffi» は «Viltu kaffi?» になります。"
 
 # Lesson 43: «hef komið と hingað は説明を受けてないが訳も出ず回答だけ言わされる場面がある». The coach ride (small talk 5) asks «Hefurðu
 # komið hingað áður?» and the learner answers with «Ég hef verið hér áður.», taught with other words: knowing the reply is not
@@ -705,5 +705,5 @@ id = "komid_hingad"
 items = ["eg_hef_verid_her_adur"]
 contrast = true
 topics = ["grammar", "social"]
-text = "«Hefurðu komið hingað áður?» asks whether you have come here before. «Komið» is a form of the verb to come. «Hingað» is here, as the place you come to. You answer with the line you know: «Ég hef verið hér áður.» In it, «verið» is a form of the verb to be. And «hér» is here, the place where you are."
-text_ja = "«Hefurðu komið hingað áður?» と聞かれることがあります。「前にここに来たことがありますか？」という意味です。«komið» は「来る」という動詞の形です。«hingað» は「ここへ」、来る先としての「ここ」です。答えは知っている文で言えます。«Ég hef verið hér áður.» この文の «verið» は「いる」という動詞の形です。そして «hér» は「ここに」、今いる場所としての「ここ」です。"
+text = "«Hefurðu komið hingað áður?» asks whether you have come here before. «Komið» comes from 'to come'. «Hingað» is here, as the place you come to. You answer with the line you know: «Ég hef verið hér áður.» In it, «verið» comes from 'to be'. And «hér» is here, the place where you are."
+text_ja = "«Hefurðu komið hingað áður?» と聞かれることがあります。「前にここに来たことがありますか？」という意味です。«komið» は «koma»（来る）の形です。«hingað» は「ここへ」、来る先としての「ここ」です。答えは知っている文で言えます。«Ég hef verið hér áður.» この文の «verið» は «vera»（いる）の形です。そして «hér» は「ここに」、今いる場所としての「ここ」です。"
