@@ -40,9 +40,11 @@ class ClosingBlockTests(unittest.TestCase):
         in Icelandic (#429), each taught on top of a lesson's material: 86 before step 4, 80 after it, 75 after step 5 («Kláraðu setninguna:» in
         lesson 22 of this course, one listening task fewer, «Eitthvað nýtt.» in lesson 23, two fewer; the replay of lesson 60's export keeps
         every pick-out); 70 after the second native check (2026-11-18: «Eruð þið með {thing}?» for the shop, «Tekurðu kort?» retired), the
-        course diverging from lesson 19 (lesson 27: 9 to 4); it only has to stay near #435's 79."""
+        course diverging from lesson 19 (lesson 27: 9 to 4); it only has to stay near #435's 79. The last stretch moves the same way: 19 on main
+        after lesson 67, 13 with the round's PRs together (the scenes of #610, the plain asides of #606, step 11), while the course total rises
+        to 84: the scenes bring listening earlier in the lesson, none is lost."""
         before = sum(e.kind in LISTENING for sc in self.lessons if (s := self.closing_start(sc)) is not None for e in sc.exercises[max(0, s - 6) : s])
-        self.assertGreaterEqual(before, 15)
+        self.assertGreaterEqual(before, 12)
         self.assertGreaterEqual(sum(e.kind in LISTENING for sc in self.lessons for e in sc.exercises), 70)
 
 
