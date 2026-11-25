@@ -1,6 +1,7 @@
 """Parts inside their wholes, the second half's listening tasks, patterns and their instances (split from test_audiolesson.py)."""
 from __future__ import annotations
 
+from tests import course_cache
 from tests.audiolesson_common import *  # noqa: F401,F403
 
 
@@ -662,6 +663,12 @@ class ListeningTaskTests(unittest.TestCase):
 
     @staticmethod
     def _course(lessons):
+        """The first ``lessons`` lessons of the 30-minute themed course, as ``(curriculum, learner, script)``; built once per process
+        (``tests/course_cache.py``)."""
+        return course_cache.take("listening-30", ListeningTaskTests._fresh_course, lessons)
+
+    @staticmethod
+    def _fresh_course(lessons):
         from audiolesson.cando import load_cando
         from audiolesson.themes import load_themes, scenario_order
         path = ROOT / "curricula" / "is-en"

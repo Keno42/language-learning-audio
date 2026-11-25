@@ -1,6 +1,7 @@
 """Which lines can be said, short items' repetition, forms and constructions (split from test_audiolesson.py)."""
 from __future__ import annotations
 
+from tests import course_cache
 from tests.audiolesson_common import *  # noqa: F401,F403
 
 
@@ -222,6 +223,12 @@ class ShortItemRepetitionTests(unittest.TestCase):
 
     @staticmethod
     def _course(lessons: int = 18):
+        """The first ``lessons`` lessons of the 30-minute course with five new items a lesson, as ``(curriculum, script)``; built once per process
+        (``tests/course_cache.py``)."""
+        return course_cache.take("short-items-30", ShortItemRepetitionTests._fresh_course, lessons)
+
+    @staticmethod
+    def _fresh_course(lessons: int = 18):
         cur = load_curriculum(ROOT / "curricula" / "is-en")
         learner = LearnerState("is", "en", "A1")
         day = TODAY
