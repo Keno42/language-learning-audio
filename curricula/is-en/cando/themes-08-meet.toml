@@ -1,0 +1,75 @@
+# Lesson themes: one file a theme, read in file-name order (`load_records`). The format and its rules: themes-01-cafe.toml's
+# header and audiolesson/themes.py.
+
+[[themes]]
+# #327 batch: arranging to meet. On the replay of the lesson-40 export, from lesson 41 the day's new material is making arrangements
+# («Ég fer {time}.», «Ég kem {time}.», «Sjáumst {time}!», «Hentar það?», «Það hentar vel.», «Ég er sein.», «Ég kem eftir tíu mínútur.»,
+# «Ég get ekki á morgun.») and no level says it. The same scenario as small talk (B3): the friend made there.
+id = "meet"
+scenario = "B3"
+title = "Arranging to meet"
+title_ja = "待ち合わせの約束"
+setting = "Anna, met at the guesthouse, wants to meet again."
+setting_ja = "ゲストハウスで知り合ったアンナが、また会おうと言っています。"
+scene_line = "Anna, whom you met at the guesthouse, wants to meet again."
+scene_line_ja = "ゲストハウスで知り合ったアンナが、また会いたいと言っています。"
+topics = ["arrangements"]
+[[themes.levels]]
+goal = "Say when you're leaving, ask what time, and say the time suits you."
+goal_ja = "出発する日を伝え、時間を聞いて、その時間で大丈夫と言う。"
+partner_speaker = "native_a"
+turns = [
+  { who = "partner", say = "Eigum við að hittast á morgun?", meaning = "Shall we meet tomorrow?", meaning_ja = "明日会いませんか？", word_glosses = { "hittast" = { en = "meet", ja = "会い" } } },
+  { who = "you", cue = "Say you're leaving tomorrow.", cue_ja = "明日は出発すると言ってください。", aim = "say you're leaving tomorrow", aim_ja = "明日出発すると伝える", say = "Ég fer á morgun.", items = ["eg_fer", "a_morgun"] },
+  { who = "partner", say = "Nú, en í kvöld?", meaning = "Oh, how about this evening?", meaning_ja = "そうですか、じゃあ今夜は？", variants = [{ say = "Æ, en í kvöld þá?", meaning = "Oh, this evening then?", meaning_ja = "ああ、じゃあ今夜は？" }] },
+  { who = "you", cue = "Ask at what time.", cue_ja = "何時か聞いてください。", aim = "ask at what time", aim_ja = "何時か聞く", say = "Klukkan hvað?", items = ["klukkan_hvad"] },
+  { who = "partner", say = "Klukkan átta, á kaffihúsinu. Hentar það?", meaning = "At eight, at the café. Does that suit you?", meaning_ja = "8時に、カフェで。都合はどうですか？", probes = [
+      { kind = "time", answer = "klukkan átta", meanings = { en = "eight o'clock", ja = "8時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } },
+    ], listen = [
+      { say = "Klukkan hálf átta, á kaffihúsinu. Hentar það?", meaning = "At half past seven, at the café. Does that suit you?", meaning_ja = "7時半に、カフェで。都合はどうですか？", probes = [{ kind = "time", answer = "klukkan hálf átta", meanings = { en = "half past seven", ja = "7時半" } }] },
+      { say = "Klukkan sjö, á kaffihúsinu. Hentar það?", meaning = "At seven, at the café. Does that suit you?", meaning_ja = "7時に、カフェで。都合はどうですか？", probes = [{ kind = "time", answer = "klukkan sjö", meanings = { en = "seven o'clock", ja = "7時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] },
+      { say = "Klukkan níu, á kaffihúsinu. Hentar það?", meaning = "At nine, at the café. Does that suit you?", meaning_ja = "9時に、カフェで。都合はどうですか？", probes = [{ kind = "time", answer = "klukkan níu", meanings = { en = "nine o'clock", ja = "9時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] },
+      { say = "Klukkan sex, á kaffihúsinu. Hentar það?", meaning = "At six, at the café. Does that suit you?", meaning_ja = "6時に、カフェで。都合はどうですか？", probes = [{ kind = "time", answer = "klukkan sex", meanings = { en = "six o'clock", ja = "6時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] },
+    ], variants = [
+      { say = "Klukkan níu, á kaffihúsinu. Hentar það?", meaning = "At nine, at the café. Does that suit you?", meaning_ja = "9時に、カフェで。都合はどうですか？", probes = [{ kind = "time", answer = "klukkan níu", meanings = { en = "nine o'clock", ja = "9時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] },
+      { say = "Klukkan hálf níu, á kaffihúsinu. Hentar það?", meaning = "At half past eight, at the café. Does that suit you?", meaning_ja = "8時半に、カフェで。都合はどうですか？", probes = [{ kind = "time", answer = "klukkan hálf níu", meanings = { en = "half past eight", ja = "8時半" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] },
+    ] },
+  { who = "you", cue = "Say that suits you well.", cue_ja = "それで大丈夫だと言ってください。", aim = "say the time suits you", aim_ja = "その時間で大丈夫と言う", say = "Það hentar vel.", items = ["thad_hentar_vel"] },
+  { who = "partner", say = "Frábært! Sjáumst í kvöld.", meaning = "Great! See you this evening.", meaning_ja = "よかった！じゃあ今夜。" },
+]
+[[themes.levels]]
+goal = "Say you can't tomorrow, that you'll come this evening, and see you then."
+goal_ja = "明日は無理だと伝え、今夜行くと言って、じゃあまたと言う。"
+partner_speaker = "native_a"
+turns = [
+  { who = "partner", say = "Viltu koma í sund á morgun?", meaning = "Do you want to come swimming tomorrow?", meaning_ja = "明日プールに行きませんか？" },
+  { who = "you", cue = "Say you can't tomorrow.", cue_ja = "明日は無理だと言ってください。", aim = "say you can't tomorrow", aim_ja = "明日は無理だと伝える", say = "Ég get ekki á morgun.", items = ["eg_get_ekki_a_morgun"] },
+  { who = "partner", say = "Allt í lagi. En í kvöld?", meaning = "All right. And this evening?", meaning_ja = "わかりました。今夜は？", variants = [{ say = "Ekkert mál. En í kvöld?", meaning = "No problem. And this evening?", meaning_ja = "大丈夫です。今夜は？" }] },
+  { who = "you", cue = "Say yes, you'll come this evening.", cue_ja = "はい、今夜行くと言ってください。", aim = "say you'll come this evening", aim_ja = "今夜行くと言う", say = "Já, ég kem í kvöld.", items = ["ja", "eg_kem", "i_kvold"] },
+  { who = "partner", say = "Frábært. Klukkan sjö, við sundlaugina.", meaning = "Great. At seven, by the pool.", meaning_ja = "よかった。7時に、プールのところで。", probes = [
+      { kind = "time", answer = "klukkan sjö", meanings = { en = "seven o'clock", ja = "7時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } },
+    ], listen = [
+      { say = "Frábært. Klukkan átta, við sundlaugina.", meaning = "Great. At eight, by the pool.", meaning_ja = "よかった。8時に、プールのところで。", probes = [{ kind = "time", answer = "klukkan átta", meanings = { en = "eight o'clock", ja = "8時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] },
+      { say = "Frábært. Klukkan sex, við sundlaugina.", meaning = "Great. At six, by the pool.", meaning_ja = "よかった。6時に、プールのところで。", probes = [{ kind = "time", answer = "klukkan sex", meanings = { en = "six o'clock", ja = "6時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] },
+      { say = "Frábært. Klukkan níu, við sundlaugina.", meaning = "Great. At nine, by the pool.", meaning_ja = "よかった。9時に、プールのところで。", probes = [{ kind = "time", answer = "klukkan níu", meanings = { en = "nine o'clock", ja = "9時" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] },
+    ], variants = [
+      { say = "Frábært. Klukkan hálf sjö, við sundlaugina.", meaning = "Great. At half past six, by the pool.", meaning_ja = "よかった。6時半に、プールのところで。", probes = [{ kind = "time", answer = "klukkan hálf sjö", meanings = { en = "half past six", ja = "6時半" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] },
+      { say = "Frábært. Klukkan hálf átta, við sundlaugina.", meaning = "Great. At half past seven, by the pool.", meaning_ja = "よかった。7時半に、プールのところで。", probes = [{ kind = "time", answer = "klukkan hálf átta", meanings = { en = "half past seven", ja = "7時半" }, ask = { en = "When do you meet?", ja = "何時に会いますか？" } }] },
+    ] },
+  { who = "you", cue = "Say see you this evening.", cue_ja = "じゃあ今夜、と言ってください。", aim = "say see you this evening", aim_ja = "じゃあ今夜、と言う", say = "Sjáumst í kvöld!", items = ["sjaumst_time", "i_kvold"] },
+]
+[[themes.levels]]
+goal = "Say you're late, and when you'll be there."
+goal_ja = "遅れていることと、いつ着くかを伝える。"
+partner_speaker = "native_a"
+# Its own scene line (owner, after lesson 44): the theme's «Anna … wants to meet again.» set up an arrangement to come, and the level is a call
+# after it, already late; «You're running late.» in the cue was the only hint.
+scene_line = "You've arranged to meet Anna, and you're running late. She calls you."
+scene_line_ja = "アンナと待ち合わせをしていますが、遅れています。アンナから電話がかかってきました。"
+turns = [
+  { who = "partner", say = "Hæ, hvar ertu?", meaning = "Hi, where are you?", meaning_ja = "もしもし、どこにいるの？" },
+  { who = "you", cue = "Say sorry, you're late.", cue_ja = "ごめんなさい、遅れていますと言ってください。", aim = "say sorry, you're late", aim_ja = "遅れていると謝る", say = "Fyrirgefðu, ég er sein.", say_m = "Fyrirgefðu, ég er seinn.", items = ["fyrirgefdu", "eg_er_sein"] },
+  { who = "partner", say = "Ekkert mál. Hvenær kemur þú?", meaning = "No problem. When will you come?", meaning_ja = "大丈夫。いつ来る？", variants = [{ say = "Allt í lagi. Hvenær kemurðu?", meaning = "All right. When are you coming?", meaning_ja = "わかった。いつ来るの？" }] },
+  { who = "you", cue = "Say you'll be there in ten minutes.", cue_ja = "10分後に着くと言ってください。", aim = "say you'll be there in ten minutes", aim_ja = "10分後に着くと伝える", say = "Ég kem eftir tíu mínútur.", items = ["eg_kem_eftir_tiu_minutur"] },
+  { who = "partner", say = "Allt í lagi, ég bíð hérna.", meaning = "All right, I'll wait here.", meaning_ja = "わかった、ここで待ってるね。", word_glosses = { "bíð" = { en = "wait", ja = "待って" } } },
+]

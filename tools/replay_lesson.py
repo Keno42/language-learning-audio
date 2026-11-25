@@ -9,6 +9,7 @@ length, short items said alone, sentence uses, narration repeats, open items, ge
 form, listening scenes, and the planner's own records.
 
     python tools/replay_lesson.py EXPORT_DIR [--trip PROFILE] [--lessons 3] [--curriculum curricula/is-en] [--scene-sheet]
+                                 [--rows 'new items,theme'] [--transcripts DIR]
 
 ``EXPORT_DIR`` is the ``lesson-NNN`` folder of an export. ``--trip`` is the private trip profile
 (the channel topic's TOML), if the lesson was generated with ``--trip``: it orders the new items
@@ -18,6 +19,9 @@ The first column is the exported lesson rebuilt: when the code is the export's o
 reproduces the lesson exactly (the script reports the exported lesson's own size beside it). The
 later columns are continuations under a stated assumption about the next day's review: every new
 item recalled; open items asked are recalled, except those of ``--fail-words`` words or more.
+
+``--rows 'new items,theme'`` prints only the rows whose label holds one of those words (a check that compares three rows needs
+three, not seventy); ``--transcripts DIR`` also writes each lesson's transcript there, to read what the learner would hear.
 
 ``--scene-sheet`` prints, instead of the table, the scene check's sheet of the pattern sentences the
 replayed lessons said with no verdict (G6, docs/SCENE-REVIEW.md), as TOML to fill in.
@@ -272,6 +276,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--curriculum", default="curricula/is-en")
     ap.add_argument("--fail-words", type=int, default=3, help="continuation: open items of this many words or more fail again")
     ap.add_argument("--scene-sheet", action="store_true", help="print the scene check's sheet of the sentences said with no verdict (TOML), not the table")
+    ap.add_argument("--rows", default="", help="only the rows whose label holds one of these words, comma-separated, case ignored (e.g. 'new items,theme')")
+    ap.add_argument("--transcripts", type=Path, default=None, help="also write each lesson's transcript (lesson-NNN.transcript.md) to this folder")
     args = ap.parse_args(argv)
 
     manifest = json.loads((args.export / "manifest.json").read_text(encoding="utf-8"))
@@ -316,6 +322,9 @@ def main(argv: list[str] | None = None) -> int:
         timing = Timing(level=learner.level or cur.level, speech_ratio=dict(learner.speech_calibration))
         sc = Planner(cur, learner, prompts, timing, PlanConfig(minutes=minutes, new_items=pace, new_target=target, priority=priority, themes=themes, theme_scenarios=theme_scenarios), today=day).build()
         rows.append(measure(cur, sc, known_c))
+        if args.transcripts is not None:
+            args.transcripts.mkdir(parents=True, exist_ok=True)
+            (args.transcripts / f"lesson-{sc.lesson_number:03d}.transcript.md").write_text(sc.transcript(), encoding="utf-8")
         said += said_lines(sc)
         apply_to_learner(sc, learner, day)
         learner.keep_pace(pace, rate)
@@ -345,8 +354,9 @@ def main(argv: list[str] | None = None) -> int:
     print()
     print("| | " + " | ".join(f"lesson {r['lesson']}" for r in rows) + " |")
     print("|---" * (len(rows) + 1) + "|")
+    wanted = [w.strip().lower() for w in args.rows.split(",") if w.strip()]
     for key in rows[0]:
-        if key == "lesson":
+        if key == "lesson" or (wanted and not any(w in key.lower() for w in wanted)):
             continue
         print(f"| {key} | " + " | ".join(str(r[key]) for r in rows) + " |")
     print()

@@ -1,7 +1,7 @@
 """The documents' mechanical consistency (LEARNING-DESIGN §10 "Documents: replace, don't append").
 
 What a reader can't check by eye across 1000 lines: "Now" lives in one place (the status brief, #364) and stays within its
-limit, as §5 does, a reference such as "§5.14" or §9 "Repetition" names something that exists, the files `CLAUDE.md`'s
+limit, as §5 does, the brief keeps no built or closed list (those are in `docs/history/status.md`), a reference such as "§5.14" or §9 "Repetition" names something that exists, the files `CLAUDE.md`'s
 reading table names are there, and the feedback ledger (`docs/feedback/ledger.toml`, §8) names only lessons and families it
 holds."""
 
@@ -45,6 +45,16 @@ class DocsTests(unittest.TestCase):
     def test_now_holds_four_items_at_most(self):
         items = re.findall(r"^\d+\. ", now_block(STATUS.read_text(encoding="utf-8")), re.M)
         self.assertLessEqual(len(items), 4, '§1: "Now" holds three or four items at most')
+
+    def test_the_status_brief_holds_no_dated_record(self):
+        """LD §10 (owner, 2026-11-25): the brief holds the current state; what was built or closed moves to docs/history/status.md, and the
+        brief points there."""
+        text = STATUS.read_text(encoding="utf-8")
+        for heading in re.findall(r"(?m)^#+ .*$|^\*\*[^*\n]+\*\*$", text):
+            self.assertNotRegex(heading, r"(?i)\bbuilt since\b|\bclosed on\b", "move it to docs/history/status.md")
+        self.assertNotRegex(text, r"(?m)^\*\*Closed on ", "move it to docs/history/status.md")
+        self.assertIn("docs/history/status.md", text)
+        self.assertTrue((DOCS / "history" / "status.md").exists())
 
     def test_the_roadmap_points_to_the_status_brief_for_now(self):
         """#364: "Now" has one home. §8 names it and holds no list of its own, so there is no copy to drift."""

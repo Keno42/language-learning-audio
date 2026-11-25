@@ -1,0 +1,47 @@
+# Lesson themes: one file a theme, read in file-name order (`load_records`). The format and its rules: themes-01-cafe.toml's
+# header and audiolesson/themes.py.
+
+# #327, the batch after lesson 58: a fall on the ice, and the clinic afterwards, with module 12's «Er allt í lagi?», «Hjálp!», «Hringdu á
+# sjúkrabíl!», «Ég datt.» and «Ég þarf lækni.». Tier C, as the pharmacy above. Candidates until native-checked (#209).
+[[themes]]
+id = "accident"
+scenario = "C4"
+title = "An accident"
+title_ja = "事故"
+setting = "A fall on an icy path during a tour, and a walk-in clinic afterwards."
+setting_ja = "ツアー中、凍った道での転倒。そのあとの診療所。"
+scene_line = "On the icy path, the woman ahead of you slips and falls."
+scene_line_ja = "凍った道で、前を歩いていた女性が滑って転びます。"
+topics = ["emergencies", "health"]
+[[themes.levels]]
+goal = "Someone has fallen on the ice: ask if she's all right, and call for help."
+goal_ja = "氷の上で人が転びました。大丈夫か聞き、助けを呼ぶ。"
+partner_speaker = "native_a"  # the partner is a woman
+urgent = true  # #599: someone lies hurt; the learner acts first, so no line of hers is a catch task
+turns = [
+  { who = "you", cue = "Ask her if everything is OK.", cue_ja = "大丈夫か聞いてください。", aim = "ask if she's all right", aim_ja = "大丈夫か聞く", say = "Er allt í lagi?", items = ["er_allt_i_lagi"] },
+  { who = "partner", say = "Nei. Ég datt og mér er illt í fætinum.", meaning = "No. I fell, and my leg hurts.", meaning_ja = "いいえ。転んで、足が痛いんです。", word_glosses = { "fætinum" = { en = "leg", ja = "足" } }, variants = [
+      { say = "Nei, ég datt á ísnum. Mér er illt í fætinum.", meaning = "No, I fell on the ice. My leg hurts.", meaning_ja = "いいえ、氷の上で転びました。足が痛いんです。", word_glosses = { "fætinum" = { en = "leg", ja = "足" } } },
+    ] },
+  { who = "you", cue = "Shout for help, and tell the guide to call an ambulance.", cue_ja = "助けを呼び、ガイドに救急車を呼ぶよう言ってください。", aim = "call for help", aim_ja = "助けを呼ぶ", say = "Hjálp! Hringdu á sjúkrabíl!", items = ["hjalp", "hringdu_a_sjukrabil"] },
+  { who = "partner", say = "Takk. Ég get ekki staðið upp.", meaning = "Thank you. I can't stand up.", meaning_ja = "ありがとう。立てないんです。", variants = [{ say = "Takk fyrir. Ég get ekki gengið.", meaning = "Thank you. I can't walk.", meaning_ja = "ありがとう。歩けないんです。" }] },
+  { who = "you", cue = "Tell her it's OK.", cue_ja = "大丈夫ですよと言ってください。", aim = "reassure her", aim_ja = "安心させる", say = "Allt í lagi.", items = ["allt_i_lagi"] },
+]
+[[themes.levels]]
+goal = "Say you need a doctor, that you fell and where it hurts; catch how long the wait is."
+goal_ja = "医者が必要だと伝え、転んだことと痛い場所を言い、待ち時間を聞き取る。"
+partner_speaker = "native_a"  # the partner is a woman
+scene_line = "You're at a walk-in clinic."
+scene_line_ja = "予約なしで行ける診療所にいます。"
+turns = [
+  { who = "you", cue = "Greet her and say you need a doctor.", cue_ja = "あいさつして、医者が必要だと言ってください。", aim = "say you need a doctor", aim_ja = "医者が必要だと伝える", say = "Góðan daginn. Ég þarf lækni.", items = ["godan_daginn", "eg_tharf_laekni"] },
+  { who = "partner", say = "Hvað er að?", meaning = "What's wrong?", meaning_ja = "どうしましたか？", variants = [{ say = "Hvað kom fyrir?", meaning = "What happened?", meaning_ja = "何があったんですか？" }] },
+  { who = "you", cue = "Say you fell, and your leg hurts.", cue_ja = "転んで、足が痛いと言ってください。", aim = "say you fell and where it hurts", aim_ja = "転んだことと痛い場所を伝える", say = "Ég datt. Mér er illt í fætinum.", items = ["eg_datt", "mer_er_illt_i_faetinum"] },  # #599: the leg the first level's line names
+  { who = "partner", say = "Er þér líka illt í höfðinu?", meaning = "Does your head hurt too?", meaning_ja = "頭も痛いですか？", variants = [{ say = "Er þér illt í höfðinu líka?", meaning = "Does your head hurt as well?", meaning_ja = "頭のほうも痛みますか？" }] },
+  { who = "you", cue = "Say yes, your head hurts.", cue_ja = "はい、頭が痛いですと言ってください。", aim = "say your head hurts", aim_ja = "頭が痛いと伝える", say = "Já, mér er illt í höfðinu.", items = ["ja", "mer_er_illt_i_hofdinu"] },
+  { who = "partner", say = "Allt í lagi. Læknirinn kemur eftir tíu mínútur.", meaning = "All right. The doctor will come in ten minutes.", meaning_ja = "わかりました。医師は10分後に来ます。", probes = [{ kind = "duration", answer = "tíu mínútur", meanings = { en = "ten minutes", ja = "10分" } }], variants = [
+      { say = "Allt í lagi. Læknirinn kemur eftir tuttugu mínútur.", meaning = "All right. The doctor will come in twenty minutes.", meaning_ja = "わかりました。医師は20分後に来ます。", probes = [{ kind = "duration", answer = "tuttugu mínútur", meanings = { en = "twenty minutes", ja = "20分" } }] },
+      { say = "Allt í lagi. Læknirinn kemur eftir fimm mínútur.", meaning = "All right. The doctor will come in five minutes.", meaning_ja = "わかりました。医師は5分後に来ます。", probes = [{ kind = "duration", answer = "fimm mínútur", meanings = { en = "five minutes", ja = "5分" } }] },
+    ] },
+  { who = "you", cue = "Thank her.", cue_ja = "お礼を言ってください。", aim = "thank her", aim_ja = "お礼を言う", say = "Takk fyrir.", items = ["takk_fyrir"] },
+]

@@ -1,0 +1,143 @@
+# Lesson themes: one file a theme, read in file-name order (`load_records`). The format and its rules: themes-01-cafe.toml's
+# header and audiolesson/themes.py.
+
+[[themes]]
+# #327: the town and asking the way. From lesson 30 on, its lines («Hvar er bankinn?», «Er það langt?», «Ég er að leita að bankanum.»)
+# are the largest supply of new material, and before this theme they came in lessons that replayed the museum's ticket desk.
+id = "town"
+scenario = "A8"
+title = "Asking the way"
+title_ja = "道を尋ねる"
+setting = "A street in town: ask a passer-by the way."
+setting_ja = "街の通り。通りがかりの人に道を尋ねる。"
+scene_line = "You're in town."
+scene_line_ja = "街にいます。"
+topics = ["directions"]
+[[themes.levels]]
+goal = "Ask where a place is, and understand the way."
+goal_ja = "場所を尋ねて、道順を聞き取る。"
+turns = [
+  { who = "you", cue = "Stop someone in the street and ask where the bank is.", cue_ja = "通りで人を呼び止めて、銀行がどこか聞いてください。", aim = "ask where the bank is", aim_ja = "銀行がどこか聞く", say = "Afsakið, hvar er bankinn?", items = ["afsakid", "hvar_er", "bankinn"] },
+  { who = "partner", say = "Hann er þarna, til vinstri.", meaning = "It's over there, on the left.", meaning_ja = "あそこ、左側です。", variants = [
+      { say = "Beint áfram og svo til vinstri.", meaning = "Straight ahead, and then left.", meaning_ja = "まっすぐ行って、それから左です。" },
+      { say = "Hann er til hægri, við kirkjuna.", meaning = "It's on the right, by the church.", meaning_ja = "右側、教会のそばです。" },
+    ] },
+  { who = "you", cue = "Ask if it's far.", cue_ja = "遠いか聞いてください。", aim = "ask if it's far", aim_ja = "遠いか聞く", say = "Er það langt?", items = ["er_thad_langt"] },
+  { who = "partner", say = "Nei, það er nálægt. Bara fimm mínútur.", meaning = "No, it's close. Just five minutes.", meaning_ja = "いいえ、近いですよ。5分だけです。", probes = [{ kind = "duration", answer = "fimm mínútur", meanings = { en = "five minutes", ja = "5分" } }], variants = [
+      { say = "Nei, það tekur bara fimm mínútur að ganga.", meaning = "No, it's only a five-minute walk.", meaning_ja = "いいえ、歩いて5分だけです。", probes = [{ kind = "duration", answer = "fimm mínútur", meanings = { en = "five minutes", ja = "5分" } }] },
+      { say = "Nei, það er nálægt. Bara þrjár mínútur.", meaning = "No, it's close. Just three minutes.", meaning_ja = "いいえ、近いですよ。3分だけです。", probes = [{ kind = "duration", answer = "þrjár mínútur", meanings = { en = "three minutes", ja = "3分" } }] },
+      { say = "Nei, það er nálægt. Bara sex mínútur.", meaning = "No, it's close. Just six minutes.", meaning_ja = "いいえ、近いですよ。6分だけです。", probes = [{ kind = "duration", answer = "sex mínútur", meanings = { en = "six minutes", ja = "6分" } }] },
+    ], listen = [
+      { say = "Nei, það er nálægt. Bara sjö mínútur.", meaning = "No, it's close. Only seven minutes.", meaning_ja = "いいえ、近いですよ。たった7分です。", probes = [{ kind = "duration", answer = "sjö mínútur", meanings = { en = "seven minutes", ja = "7分" } }] },
+      { say = "Nei, það tekur bara átta mínútur að ganga.", meaning = "No, it only takes eight minutes to walk.", meaning_ja = "いいえ、歩いてたった8分です。", probes = [{ kind = "duration", answer = "átta mínútur", meanings = { en = "eight minutes", ja = "8分" } }] },
+      { say = "Nei, bara sex mínútur.", meaning = "No, only six minutes.", meaning_ja = "いいえ、たった6分です。", probes = [{ kind = "duration", answer = "sex mínútur", meanings = { en = "six minutes", ja = "6分" } }] },
+      { say = "Nei, það er nálægt. Bara þrjár mínútur.", meaning = "No, it's close. Just three minutes.", meaning_ja = "いいえ、近いですよ。3分だけです。", probes = [{ kind = "duration", answer = "þrjár mínútur", meanings = { en = "three minutes", ja = "3分" } }] },
+      { say = "Nei, það tekur bara tvær mínútur að ganga.", meaning = "No, it's only a two-minute walk.", meaning_ja = "いいえ、歩いて2分だけです。", probes = [{ kind = "duration", answer = "tvær mínútur", meanings = { en = "two minutes", ja = "2分" } }] },
+    ] },
+  { who = "you", cue = "Thank them warmly.", cue_ja = "心をこめてお礼を言ってください。", aim = "thank them warmly", aim_ja = "心をこめてお礼を言う", say = "Takk kærlega.", items = ["takk_kaerlega"] },
+  { who = "partner", say = "Ekkert að þakka.", meaning = "You're welcome.", meaning_ja = "どういたしまして。", variants = [{ say = "Ekkert mál.", meaning = "No problem.", meaning_ja = "いえいえ。" }] },
+]
+[[themes.levels]]
+goal = "Say what you're looking for, and ask if you can walk there."
+goal_ja = "探している場所を伝え、歩いて行けるか聞く。"
+turns = [
+  { who = "you", cue = "Stop someone and say you're looking for the bank.", cue_ja = "人を呼び止めて、銀行を探していると言ってください。", aim = "say you're looking for the bank", aim_ja = "銀行を探していると伝える", say = "Afsakið, ég er að leita að bankanum.", items = ["afsakid", "eg_er_ad_leita_ad", "bankanum"] },
+  { who = "partner", say = "Bankanum? Hann er í miðbænum, beint áfram.", meaning = "The bank? It's in the town centre, straight ahead.", meaning_ja = "銀行ですか？中心街にあります。まっすぐです。" },
+  { who = "you", cue = "Ask if you can walk there.", cue_ja = "歩いて行けるか聞いてください。", aim = "ask if you can walk there", aim_ja = "歩いて行けるか聞く", say = "Er hægt að ganga þangað?", items = ["er_haegt_ad_ganga_thangad"] },
+  { who = "partner", say = "Já, það tekur svona tíu mínútur að ganga.", meaning = "Yes, it takes about ten minutes on foot.", meaning_ja = "はい、歩いて10分くらいかかります。", probes = [{ kind = "duration", answer = "svona tíu mínútur", meanings = { en = "about ten minutes", ja = "10分くらい" } }], variants = [
+      { say = "Já, já. Svona tíu mínútur.", meaning = "Oh yes. About ten minutes.", meaning_ja = "ええ、10分くらいです。", probes = [{ kind = "duration", answer = "svona tíu mínútur", meanings = { en = "about ten minutes", ja = "10分くらい" } }] },
+      { say = "Já, það tekur svona fimmtán mínútur að ganga.", meaning = "Yes, it takes about fifteen minutes on foot.", meaning_ja = "はい、歩いて15分くらいかかります。", probes = [{ kind = "duration", answer = "svona fimmtán mínútur", meanings = { en = "about fifteen minutes", ja = "15分くらい" } }] },
+      { say = "Já, það tekur svona tuttugu mínútur að ganga.", meaning = "Yes, it takes about twenty minutes on foot.", meaning_ja = "はい、歩いて20分くらいかかります。", probes = [{ kind = "duration", answer = "svona tuttugu mínútur", meanings = { en = "about twenty minutes", ja = "20分くらい" } }] },
+    ], listen = [
+      { say = "Gakktu beint áfram í sjö mínútur. Bankinn opnar klukkan hálf níu.", meaning = "Walk straight ahead for seven minutes. The bank opens at half past eight.", meaning_ja = "まっすぐ7分歩いてください。銀行は8時半に開きます。", probes = [{ kind = "duration", answer = "sjö mínútur", meanings = { en = "seven minutes", ja = "7分" }, ask = { en = "How long do you walk straight ahead?", ja = "まっすぐ何分歩きますか？" } }, { kind = "time", answer = "klukkan hálf níu", meanings = { en = "half past eight", ja = "8時半" }, ask = { en = "When does the bank open?", ja = "銀行は何時に開きますか？" } }] },
+      { say = "Gakktu beint áfram í fimm mínútur. Bankinn opnar klukkan tíu.", meaning = "Walk straight ahead for five minutes. The bank opens at ten.", meaning_ja = "まっすぐ5分歩いてください。銀行は10時に開きます。", probes = [{ kind = "duration", answer = "fimm mínútur", meanings = { en = "five minutes", ja = "5分" }, ask = { en = "How long do you walk straight ahead?", ja = "まっすぐ何分歩きますか？" } }, { kind = "time", answer = "klukkan tíu", meanings = { en = "ten o'clock", ja = "10時" }, ask = { en = "When does the bank open?", ja = "銀行は何時に開きますか？" } }] },
+      { say = "Gakktu beint áfram í tíu mínútur. Bankinn opnar klukkan níu.", meaning = "Walk straight ahead for ten minutes. The bank opens at nine.", meaning_ja = "まっすぐ10分歩いてください。銀行は9時に開きます。", probes = [{ kind = "duration", answer = "tíu mínútur", meanings = { en = "ten minutes", ja = "10分" }, ask = { en = "How long do you walk straight ahead?", ja = "まっすぐ何分歩きますか？" } }, { kind = "time", answer = "klukkan níu", meanings = { en = "nine o'clock", ja = "9時" }, ask = { en = "When does the bank open?", ja = "銀行は何時に開きますか？" } }] },
+      { say = "Gakktu beint áfram í fimm mínútur. Bankinn opnar klukkan ellefu.", meaning = "Walk straight ahead for five minutes. The bank opens at eleven.", meaning_ja = "まっすぐ5分歩いてください。銀行は11時に開きます。", probes = [{ kind = "duration", answer = "fimm mínútur", meanings = { en = "five minutes", ja = "5分" }, ask = { en = "How long do you walk straight ahead?", ja = "まっすぐ何分歩きますか？" } }, { kind = "time", answer = "klukkan ellefu", meanings = { en = "eleven o'clock", ja = "11時" }, ask = { en = "When does the bank open?", ja = "銀行は何時に開きますか？" } }] },
+      { say = "Gakktu beint áfram í tvær mínútur. Bankinn opnar klukkan níu.", meaning = "Walk straight ahead for two minutes. The bank opens at nine.", meaning_ja = "まっすぐ2分歩いてください。銀行は9時に開きます。", probes = [{ kind = "duration", answer = "tvær mínútur", meanings = { en = "two minutes", ja = "2分" }, ask = { en = "How long do you walk straight ahead?", ja = "まっすぐ何分歩きますか？" } }, { kind = "time", answer = "klukkan níu", meanings = { en = "nine o'clock", ja = "9時" }, ask = { en = "When does the bank open?", ja = "銀行は何時に開きますか？" } }] },
+      { say = "Gakktu beint áfram í þrjár mínútur. Bankinn opnar klukkan átta.", meaning = "Walk straight ahead for three minutes. The bank opens at eight.", meaning_ja = "まっすぐ3分歩いてください。銀行は8時に開きます。", probes = [{ kind = "duration", answer = "þrjár mínútur", meanings = { en = "three minutes", ja = "3分" }, ask = { en = "How long do you walk straight ahead?", ja = "まっすぐ何分歩きますか？" } }, { kind = "time", answer = "klukkan átta", meanings = { en = "eight o'clock", ja = "8時" }, ask = { en = "When does the bank open?", ja = "銀行は何時に開きますか？" } }] },
+    ] },
+  { who = "you", cue = "Thank them and say goodbye.", cue_ja = "お礼を言って、さようならと言ってください。", aim = "thank them and say goodbye", aim_ja = "お礼を言ってさようならと言う", say = "Takk kærlega. Bless.", items = ["takk_kaerlega", "bless"] },
+  { who = "partner", say = "Bless, bless.", meaning = "Bye-bye.", meaning_ja = "じゃあね。" },
+]
+[[themes.levels]]
+goal = "Say you're lost and ask the way to a restaurant: left or right, how far, and on the map."
+goal_ja = "道に迷ったと伝え、レストランへの道を尋ねる。右か左か、どのくらいかかるか、地図ではどこか。"
+turns = [
+  { who = "you", cue = "Stop someone and say you're lost.", cue_ja = "人を呼び止めて、道に迷ったと言ってください。", aim = "say you're lost", aim_ja = "道に迷ったと伝える", say = "Afsakið, ég er týnd.", say_m = "Afsakið, ég er týndur.", items = ["afsakid", "eg_er_tynd"] },
+  { who = "partner", say = "Hvert ertu að fara?", meaning = "Where are you going?", meaning_ja = "どこへ行くんですか？", word_glosses = { hvert = { en = "where to", ja = "どこへ", pointer = { en = "the word asking where you're going", ja = "行き先を尋ねた部分" } } } },
+  { who = "you", cue = "Ask where the restaurant is.", cue_ja = "レストランがどこか聞いてください。", aim = "ask where the restaurant is", aim_ja = "レストランがどこか聞く", say = "Hvar er veitingastaðurinn?", items = ["hvar_er", "veitingastadurinn"] },
+  { who = "partner", say = "Beint áfram og svo til hægri.", meaning = "Straight ahead, and then right.", meaning_ja = "まっすぐ行って、それから右です。", variants = [
+      { say = "Hann er til hægri, við höfnina.", meaning = "It's on the right, by the harbour.", meaning_ja = "右側、港のそばです。", word_glosses = { "höfnina" = { en = "the harbour", ja = "港" } } },
+    ] },
+  { who = "you", cue = "Check: to the right?", cue_ja = "右ですか、と確かめてください。", aim = "check it's to the right", aim_ja = "右か確かめる", say = "Til hægri?", items = ["til_haegri"] },
+  { who = "partner", say = "Já, til hægri. Ekki til vinstri.", meaning = "Yes, to the right. Not to the left.", meaning_ja = "はい、右です。左ではありません。" },
+  { who = "you", cue = "Ask how far it is.", cue_ja = "どのくらいの距離か聞いてください。", aim = "ask how far it is", aim_ja = "どのくらいの距離か聞く", say = "Hvað er langt þangað?", items = ["hvad_er_langt_thangad"] },
+  { who = "partner", say = "Það tekur svona tíu mínútur.", meaning = "It takes about ten minutes.", meaning_ja = "10分くらいかかります。", probes = [{ kind = "duration", answer = "svona tíu mínútur", meanings = { en = "about ten minutes", ja = "10分くらい" } }], variants = [
+      { say = "Svona tíu mínútur að ganga.", meaning = "About ten minutes on foot.", meaning_ja = "歩いて10分くらいです。", word_glosses = { ganga = { en = "to walk", ja = "歩く", pointer = { en = "the word for how you get there", ja = "どうやって行くかを表す部分" } } }, probes = [{ kind = "duration", answer = "svona tíu mínútur", meanings = { en = "about ten minutes", ja = "10分くらい" } }] },
+      { say = "Það tekur svona fimmtán mínútur.", meaning = "It takes about fifteen minutes.", meaning_ja = "15分くらいかかります。", probes = [{ kind = "duration", answer = "svona fimmtán mínútur", meanings = { en = "about fifteen minutes", ja = "15分くらい" } }] },
+      { say = "Það tekur svona tuttugu mínútur.", meaning = "It takes about twenty minutes.", meaning_ja = "20分くらいかかります。", probes = [{ kind = "duration", answer = "svona tuttugu mínútur", meanings = { en = "about twenty minutes", ja = "20分くらい" } }] },
+    ], listen = [
+      { say = "Það tekur svona tólf mínútur að ganga þangað.", meaning = "It takes about twelve minutes to walk there.", meaning_ja = "歩いて12分くらいかかります。", probes = [{ kind = "duration", answer = "svona tólf mínútur", meanings = { en = "about twelve minutes", ja = "12分くらい" } }] },
+      { say = "Það tekur svona níu mínútur að ganga þangað.", meaning = "It takes about nine minutes to walk there.", meaning_ja = "歩いて9分くらいかかります。", probes = [{ kind = "duration", answer = "svona níu mínútur", meanings = { en = "about nine minutes", ja = "9分くらい" } }] },
+      { say = "Það tekur svona sex mínútur að ganga þangað.", meaning = "It takes about six minutes to walk there.", meaning_ja = "歩いて6分くらいかかります。", probes = [{ kind = "duration", answer = "svona sex mínútur", meanings = { en = "about six minutes", ja = "6分くらい" } }] },
+    ] },
+  { who = "you", cue = "He spoke too fast. Say sorry, you don't understand, and ask him to speak more slowly.", cue_ja = "話が速すぎました。ごめんなさい、わかりませんと言って、もっとゆっくり話してくれるよう頼んでください。", aim = "ask him to speak more slowly", aim_ja = "もっとゆっくり話してくれるよう頼む", say = "Fyrirgefðu, ég skil ekki. Gætirðu talað hægar?", items = ["fyrirgefdu", "eg_skil_ekki", "gaetirdu_talad_haegar"] },
+  { who = "partner", repeat = true },
+  { who = "you", cue = "Ask him to show you on the map.", cue_ja = "地図で見せてくれるよう頼んでください。", aim = "ask him to show you on the map", aim_ja = "地図で見せてくれるよう頼む", say = "Geturðu sýnt mér á kortinu?", items = ["geturdu_synt_mer_a_kortinu"] },
+  { who = "partner", say = "Já, auðvitað. Við erum hérna.", meaning = "Yes, of course. We're here.", meaning_ja = "ええ、もちろん。今ここにいます。", word_glosses = { "auðvitað" = { en = "of course", ja = "もちろん" } } },
+  { who = "you", cue = "Thank him warmly.", cue_ja = "心をこめてお礼を言ってください。", aim = "thank him warmly", aim_ja = "心をこめてお礼を言う", say = "Takk kærlega.", items = ["takk_kaerlega"] },
+]
+[[themes.levels]]
+# #327 batch (lessons 41–50): the places' positions are the day's new lines from lesson 42 on («Það er á horninu.», «… nálægt.», «… hinum
+# megin við götuna.»). A tourist asks the learner the way: by now the learner knows the town, and these are lines one says, not hears.
+goal = "Another tourist asks you the way: say where it is."
+goal_ja = "ほかの旅行者に道を聞かれて、場所を教える。"
+partner_speaker = "native_a"
+turns = [
+  { who = "partner", scene = "A tourist stops you and asks the way.", scene_ja = "旅行者に呼び止められて、道を聞かれます。", say = "Afsakið, hvar er hraðbankinn?", meaning = "Excuse me, where's the cash machine?", meaning_ja = "すみません、ATMはどこですか？" },
+  { who = "you", cue = "Say it's on the corner.", cue_ja = "角にあると言ってください。", aim = "say it's on the corner", aim_ja = "角にあると教える", say = "Það er á horninu.", items = ["thad_er_direction", "a_horninu"] },
+  { who = "partner", say = "Á horninu? Er það langt?", meaning = "On the corner? Is it far?", meaning_ja = "角ですか？遠いですか？" },
+  { who = "you", cue = "Say no, it's near.", cue_ja = "いいえ、近いと言ってください。", aim = "say it's near", aim_ja = "近いと教える", say = "Nei, það er nálægt.", items = ["nei", "thad_er_direction", "naelagt"] },
+  { who = "partner", say = "Frábært. En pósthúsið?", meaning = "Great. And the post office?", meaning_ja = "よかった。郵便局は？", variants = [{ say = "Takk. Og pósthúsið?", meaning = "Thanks. And the post office?", meaning_ja = "ありがとう。郵便局は？" }] },
+  { who = "you", cue = "Say it's across the street.", cue_ja = "通りの向こう側だと言ってください。", aim = "say it's across the street", aim_ja = "通りの向こう側だと教える", say = "Það er hinum megin við götuna.", items = ["thad_er_direction", "hinum_megin_vid_gotuna"] },
+  { who = "partner", say = "Takk kærlega!", meaning = "Thank you very much!", meaning_ja = "本当にありがとう！" },
+  { who = "you", cue = "Say you're welcome.", cue_ja = "どういたしましてと言ってください。", aim = "say you're welcome", aim_ja = "どういたしましてと言う", say = "Ekkert að þakka.", items = ["ekkert_ad_thakka"] },
+]
+[[themes.levels]]
+# #327 batch: in front of, behind, and how long it takes (lessons 44–45 of the lesson-40 replay).
+goal = "Tell a tourist where the car park and the bus stop are, and how long the walk takes."
+goal_ja = "旅行者に駐車場とバス停の場所、歩いてどのくらいかかるかを教える。"
+partner_speaker = "native_b"
+turns = [
+  { who = "partner", scene = "A tourist with a car stops you and asks the way.", scene_ja = "車で来た旅行者に呼び止められて、道を聞かれます。", say = "Fyrirgefðu, veistu hvar bílastæðið er?", meaning = "Sorry, do you know where the car park is?", meaning_ja = "すみません、駐車場がどこか知っていますか？" },
+  { who = "you", cue = "Say it's in front of the hotel.", cue_ja = "ホテルの前だと言ってください。", aim = "say it's in front of the hotel", aim_ja = "ホテルの前だと教える", say = "Það er fyrir framan hótelið.", items = ["thad_er_direction", "fyrir_framan_hotelid"] },
+  { who = "partner", say = "Takk. Og strætóstoppistöðin?", meaning = "Thanks. And the bus stop?", meaning_ja = "ありがとう。バス停は？", variants = [{ say = "Frábært. En strætóstoppistöðin?", meaning = "Great. And the bus stop?", meaning_ja = "よかった。バス停は？" }] },
+  { who = "you", cue = "Say it's behind the church.", cue_ja = "教会の裏だと言ってください。", aim = "say it's behind the church", aim_ja = "教会の裏だと教える", say = "Það er fyrir aftan kirkjuna.", items = ["thad_er_direction", "fyrir_aftan_kirkjuna"] },
+  { who = "partner", say = "Hvað er langt að ganga þangað?", meaning = "How far is it to walk there?", meaning_ja = "そこまで歩いてどのくらいですか？" },
+  { who = "you", cue = "Say it takes half an hour.", cue_ja = "30分かかると言ってください。", aim = "say it takes half an hour", aim_ja = "30分かかると教える", say = "Það tekur hálftíma.", items = ["thad_tekur", "halftima"] },
+  { who = "partner", say = "Hálftíma! Þá tek ég leigubíl.", meaning = "Half an hour! Then I'll take a taxi.", meaning_ja = "30分も！じゃあタクシーにします。" },
+]
+[[themes.levels]]
+# #327, the batch after lesson 58: module 10's «Ég missti af strætó.» and «Ég geng.» in an exchange, with «Hvað er langt þangað?». A city bus
+# missed on the way to the centre: the walk is the way out. Not «Hvar er rútustöðin?» (review of #566: after the native check it is the
+# long-distance coach station, which a missed city bus does not lead to).
+# Candidates until native-checked (#209).
+goal = "Say you missed the bus, ask how far it is, and say you'll walk; catch how long it takes."
+goal_ja = "バスに乗り遅れたと言い、どのくらい遠いか聞いて、歩くと言う。どのくらいかかるかを聞き取る。"
+scene_line = "You've just missed your bus to the centre, and you stop a passer-by."
+scene_line_ja = "中心街へ行くバスに乗り遅れて、通りがかりの人を呼び止めます。"
+turns = [
+  { who = "you", cue = "Excuse yourself and say you missed the bus.", cue_ja = "声をかけて、バスに乗り遅れたと言ってください。", aim = "say you missed the bus", aim_ja = "バスに乗り遅れたと伝える", say = "Afsakið, ég missti af strætó.", items = ["afsakid", "eg_missti_af_straeto"] },
+  { who = "partner", say = "Æ, æ. Næsti kemur eftir hálftíma.", meaning = "Oh dear. The next one comes in half an hour.", meaning_ja = "あらら。次は30分後ですよ。", probes = [{ kind = "duration", answer = "hálftíma", meanings = { en = "half an hour", ja = "30分" } }], variants = [
+      { say = "Æ, æ. Næsti kemur eftir tuttugu mínútur.", meaning = "Oh dear. The next one comes in twenty minutes.", meaning_ja = "あらら。次は20分後ですよ。", probes = [{ kind = "duration", answer = "tuttugu mínútur", meanings = { en = "twenty minutes", ja = "20分" } }] },
+      { say = "Æ, æ. Næsti kemur eftir fjörutíu mínútur.", meaning = "Oh dear. The next one comes in forty minutes.", meaning_ja = "あらら。次は40分後ですよ。", probes = [{ kind = "duration", answer = "fjörutíu mínútur", meanings = { en = "forty minutes", ja = "40分" } }] },
+    ] },
+  { who = "you", cue = "Ask how far it is to the centre.", cue_ja = "中心街までどのくらい遠いか聞いてください。", aim = "ask how far it is", aim_ja = "どのくらい遠いか聞く", say = "Hvað er langt þangað?", items = ["hvad_er_langt_thangad"] },
+  { who = "partner", say = "Beint áfram. Það tekur svona tíu mínútur að ganga.", meaning = "Straight ahead. It takes about ten minutes to walk.", meaning_ja = "まっすぐです。歩いて10分くらいです。", probes = [{ kind = "duration", answer = "tíu mínútur", meanings = { en = "ten minutes", ja = "10分" } }], variants = [
+      { say = "Beint áfram. Það tekur svona fimm mínútur að ganga.", meaning = "Straight ahead. It takes about five minutes to walk.", meaning_ja = "まっすぐです。歩いて5分くらいです。", probes = [{ kind = "duration", answer = "fimm mínútur", meanings = { en = "five minutes", ja = "5分" } }] },
+      { say = "Beint áfram. Það tekur svona fimmtán mínútur að ganga.", meaning = "Straight ahead. It takes about fifteen minutes to walk.", meaning_ja = "まっすぐです。歩いて15分くらいです。", probes = [{ kind = "duration", answer = "fimmtán mínútur", meanings = { en = "fifteen minutes", ja = "15分" } }] },
+    ] },
+  { who = "you", cue = "Say OK, you'll walk.", cue_ja = "わかりました、歩きますと言ってください。", aim = "say you'll walk", aim_ja = "歩くと言う", say = "Allt í lagi. Ég geng.", items = ["allt_i_lagi", "eg_geng"] },
+  { who = "partner", say = "Gangi þér vel!", meaning = "Good luck!", meaning_ja = "お気をつけて！", variants = [{ say = "Góða ferð!", meaning = "Have a good trip!", meaning_ja = "よい旅を！" }] },
+  { who = "you", cue = "Thank him.", cue_ja = "お礼を言ってください。", aim = "thank him", aim_ja = "お礼を言う", say = "Takk.", items = ["takk"] },
+]

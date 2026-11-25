@@ -17,6 +17,6 @@
 
 ## Documents
 
-<!-- If a document changed: what this replaced or deleted, not only what it added (LEARNING-DESIGN §10). -->
+<!-- If a document changed: what this replaced, moved to docs/history/ or deleted, not only what it added (LEARNING-DESIGN §10). -->
 
 ## Not in this PR
