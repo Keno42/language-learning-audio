@@ -7160,7 +7160,10 @@ class ShortItemRepetitionTests(unittest.TestCase):
                 learner.items[i] = ItemState(due=TODAY.isoformat(), successes=2, durable_successes=2, stage="meaning", recalled=2, last_outcome="recalled")
             sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=15, seed=seed, new_items=0), today=TODAY).build()
             asked = [e.item_ids[0] for e in sc.exercises if e.kind == "recall"]
-            self.assertFalse([a for a, b in zip(asked, asked[1:]) if a == b], (seed, asked))
+            # the previous exercise, whatever its kind: a mixed review or an aside between two asks of the sentence is not a repeat (lesson 67's
+            # asides moved the draws: seed 1 asks it, a mixed review «ja+nei», then asks it again)
+            played = [e.item_ids[0] if e.kind == "recall" else e.kind for e in sc.exercises]
+            self.assertFalse([a for a, b in zip(played, played[1:]) if a == b and a in asked], (seed, played))
             self.assertLessEqual(asked.count("hvenaer_leggjum_vid_af_stad"), 4, (seed, asked))
             self.assertTrue(sc.meta["exposures"].get("hvenaer"), "the part is credited as reviewed, through the sentence that was just asked")
             sentence = "hvenaer_leggjum_vid_af_stad"
