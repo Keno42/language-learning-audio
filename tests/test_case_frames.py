@@ -64,5 +64,15 @@ class CaseFrameTests(unittest.TestCase):
             validate(bad)
 
 
+    def test_a_why_line_says_some_feelings_not_every_feeling(self):
+        """Review of #607: «Ég er svöng» says the one who feels with «ég»; a line about feelings says «some», in both languages."""
+        for lang, generic, some in (("en", "feelings happen to you", "Some feelings"), ("ja", "「自分に起こる」", "中には")):
+            cur = load_curriculum(IS_EN, known_lang=lang)
+            for it in cur.items:
+                if generic in it.form_why:
+                    self.assertIn(some, it.form_why, (lang, it.id))
+        self.assertIn("«líða»", self.cur.by_id["hvernig_lidur_ther"].form_why, "not every way of asking how someone is («Hvernig hefurðu það?»)")
+
+
 if __name__ == "__main__":
     unittest.main()
