@@ -24,6 +24,10 @@
 # lines: say them when it's your turn.»: 14), each of the English line's three parts said, the last the learner's action; it builds on
 # «setninguna», «Segðu hverja setningu.» and «Aftur að tala.» (review of #588: without «Segðu þær …», the action went with the English;
 # the owner chose «þegar þú átt að tala», words the learner has, over «þegar röðin kemur að þér», which brings a new word).
+# Lessons 67–74 on the replay of lesson 67's export (the lines above taught in lessons 67–75) for a pick-out's need, said before the line to
+# listen to: «Listen for how long it takes, then say it.» (13 times in eight lessons) and «Listen for the price, then say it.» (8), the most
+# frequent of the seven needs (35 in all). Each is the question the learner asks for that information, which they have («Hvað tekur þetta
+# langan tíma?», «Hvað kostar þetta?»), then «Hlustaðu og segðu það.», built on «Hlustaðu.» and «Segðu:»: the need heard as what one asks.
 # An instruction's meaning, the cue the lesson and the written review ask it by, quotes the English line it replaces and names it an
 # instruction: «Say: the instruction "How do you say".» (lesson 65: «Say: How do you say, before what to say.» read as two frames in a row).
 # Candidates until native-checked (#209).
@@ -291,3 +295,27 @@ meaning_spoken_ja = "指示の「もう一度、同じ会話です。あなた�
 difficulty = 1
 topics = ["instructions"]
 command = "listening_intro_known"
+
+[[items]]
+id = "hlustadu_tima_command"
+kind = "phrase"
+target = "Hvað tekur þetta langan tíma? Hlustaðu og segðu það."
+meaning = "the instruction \"Listen for how long it takes, then say it\""
+meaning_ja = "指示の「聞いて、どのくらいかかるかを答えてください」"
+meaning_spoken = "the instruction \"Listen for how long it takes, then say it\""
+meaning_spoken_ja = "指示の「聞いて、どのくらいかかるかを答えてください」"
+difficulty = 1
+topics = ["instructions"]
+command = "pick_out_need_duration"
+
+[[items]]
+id = "hlustadu_verd_command"
+kind = "phrase"
+target = "Hvað kostar þetta? Hlustaðu og segðu það."
+meaning = "the instruction \"Listen for the price, then say it\""
+meaning_ja = "指示の「聞いて、値段を答えてください」"
+meaning_spoken = "the instruction \"Listen for the price, then say it\""
+meaning_spoken_ja = "指示の「聞いて、値段を答えてください」"
+difficulty = 1
+topics = ["instructions"]
+command = "pick_out_need_price"
