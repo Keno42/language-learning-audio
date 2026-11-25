@@ -6078,13 +6078,14 @@ class ListeningTaskTests(unittest.TestCase):
                 self.assertNotIn(item, m["exposures"], f"lesson {sc.lesson_number}: {item} was only heard")
 
     def test_a_line_with_two_pieces_is_asked_with_a_question_that_names_one(self):
+        # every question a two-piece line was asked with, whichever lines the simulated course reached (#429 step 11: the course's material moved, and
+        # the coffee's and the tour's questions gave way to «When do you meet?»)
+        lead = Prompts.load("en").get("pick_out_need_ask", ask="")
         asked = set()
         for _, _, sc in self._course(30):
-            text = sc.transcript()
-            for q in ("How much is the coffee?", "How much is the sandwich?", "How much is the skyr?", "How much is the milk?", "How long do we stop?", "When do we leave?"):
-                if q in text:
-                    asked.add(q)
+            asked |= {g.text[len(lead):] for g in sc.segments if g.type == "narrate" and (g.text or "").startswith(lead)}
         self.assertGreaterEqual(len(asked), 2, asked)
+        self.assertTrue(all(q.endswith("?") for q in asked), asked)
 
     def test_a_scene_unit_before_the_target_takes_only_a_scene_already_played(self):
         """#273 (it replaces #248's "no pick-out before the target"): a pick-out or a catch task may come before the target is delivered, but only in a scene the
