@@ -21,6 +21,7 @@ from .prompts import Prompts
 from .sounds import hard_sounds, hard_words_of
 from .script import Exercise, Script, Segment
 from .stages import is_generative
+from . import wholes
 from .text import WORD, norm_utterance
 from .timing import Timing
 
@@ -964,38 +965,26 @@ class Builder:
         for c in self.cur.items:
             if c.kind != "construction" or not c.slots:
                 continue
-            slot = next((s for s, tag in c.slots.items() if self.cur.takes(tag, c, item)), None)
-            if slot is None:
+            fills = wholes.fill_slots(self.cur, c, item, self._available)
+            if fills is None:
                 continue
-            authored = {**c.example, **c.situation_fill}
-            fills = {slot: item}
-            for other, tag in c.slots.items():
-                if other == slot:
-                    continue
-                ref = authored.get(other)
-                pick = self.cur.by_id.get(ref) if ref and self._available(ref) else None
-                pick = pick or next((i for i in self.cur.items_with_tag(tag, c) if self._available(i.id)), None)
-                if pick is None:
-                    break
-                fills[other] = pick
-            else:
-                frame = {w.lower() for t in re.split(r"\{[^}]*\}", c.target) for w in WORD.findall(t)}
-                if len(frame - known) <= 1 and self.is_new_utterance(self._filled(c, fills)[1]):
-                    named = item.id in authored.values()
-                    options.append(((0 if named else 1, 0 if self._available(c.id) else 1, c.difficulty, c.order), c, fills))
+            frame = {w.lower() for t in re.split(r"\{[^}]*\}", c.target) for w in WORD.findall(t)}
+            if len(frame - known) <= 1 and self.is_new_utterance(self._filled(c, fills)[1]):
+                named = item.id in {**c.example, **c.situation_fill}.values()
+                options.append(((0 if named else 1, 0 if self._available(c.id) else 1, c.difficulty, c.order), c, fills))
         return min(options, key=lambda o: o[0])[1:] if options else None
 
     def phrase_home(self, item: Item) -> Item | None:
         """The phrase taught earlier in this lesson that holds a new part's words, the shortest (#262): the part is taken out of it, not given alone."""
         if item.kind != "vocab" or (item.variant_of and not item.noun) or item.target_m:
             return None
-        words = [w.lower() for w in WORD.findall(item.target)]
+        words = wholes.words(item.target)
         found = []
         for ph in self.cur.items:
             if ph.kind != "phrase" or ph.target_m or ph.id not in self.in_lesson or ph.id == item.id:
                 continue
-            ww = [w.lower() for w in WORD.findall(ph.target)]
-            if words and len(ww) > len(words) and any(ww[k : k + len(words)] == words for k in range(len(ww) - len(words) + 1)):
+            ww = wholes.words(ph.target)
+            if wholes.holds(ww, words, longer=True):
                 found.append((len(ww), ph.order, ph))
         return min(found, key=lambda t: t[:2])[2] if found else None
 

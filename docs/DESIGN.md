@@ -14,6 +14,7 @@ issues; the full history of how each of these came about is in `docs/history/ses
 | stage ladder per item kind | `audiolesson/stages.py` |
 | what to practise when: `Planner.build` (steps 0–5 are commented), `select_new` | `audiolesson/planner.py` |
 | exercise shapes: intro, recall, recombine, `connect`, `dialogue`, notes | `audiolesson/exercises.py` (`Builder`) |
+| the sentence that holds a part (#281 finding 1): a line holding its words (`holds`), a pattern whose slot takes it with its other slots filled (`fill_slots`); the introduction (`Builder.whole_home`, `phrase_home`), `Planner.embed_source` and the review (`review_wholes.whole_for`) keep only their own policy | `audiolesson/wholes.py` |
 | spacing, durable learning, pace | `audiolesson/learner.py` |
 | pause and speech-length model | `audiolesson/timing.py` |
 | instructor phrasing | `audiolesson/phrasing/<lang>.toml` |
