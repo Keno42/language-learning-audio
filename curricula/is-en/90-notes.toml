@@ -144,8 +144,8 @@ text_ja = "ミルクを勧める店員は«Viltu mjólk út í?»と聞くこと
 id = "hann_er_herna_literal"
 items = ["hann_er_herna"]
 topics = ["health"]
-text = "«Hann er hérna.» is literally 'he is here'. Icelandic calls a thing he or she, as it calls a person, and the pain, «verkurinn», is called he. So «Hann er hérna.» says where the pain is: it's here."
-text_ja = "«Hann er hérna.»の直訳は「彼はここにいます」。アイスランド語では、物も人と同じように「彼」か「彼女」で受けます。痛み、«verkurinn»は「彼」で受けるので、«Hann er hérna.»は「痛みはここです」という意味になります。"
+text = "«Hann er hérna.» is literally 'he is here'. Icelandic calls some things he or she, as it calls a person, and others «það», it. The pain, «verkurinn», is called he. So «Hann er hérna.» says where the pain is: it's here."
+text_ja = "«Hann er hérna.»の直訳は「彼はここにいます」。アイスランド語では、物の中には人と同じように「彼」か「彼女」で受けるものがあり、ほかは«það»（それ）で受けます。痛み、«verkurinn»は「彼」で受けるので、«Hann er hérna.»は「痛みはここです」という意味になります。"
 
 [[notes]]
 id = "segdu_hverja_setningu_literal"
