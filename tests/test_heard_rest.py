@@ -9,7 +9,7 @@ from audiolesson.learner import LearnerState
 from audiolesson.planner import PlanConfig, Planner, apply_to_learner
 from audiolesson.prompts import Prompts
 from audiolesson.timing import Timing
-from tests import test_audiolesson as base
+from tests import test_lesson_structure as base
 
 
 class HeardRestTests(unittest.TestCase):

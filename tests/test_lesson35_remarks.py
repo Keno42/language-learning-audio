@@ -13,7 +13,7 @@ from audiolesson.planner import PlanConfig, Planner, apply_to_learner
 from audiolesson.prompts import Prompts
 from audiolesson.timing import Timing
 from audiolesson.sounds import hard_sounds
-from tests.test_audiolesson import TODAY, course
+from tests.audiolesson_common import TODAY, course
 
 ROOT = Path(__file__).resolve().parent.parent
 

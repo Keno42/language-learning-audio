@@ -4,7 +4,7 @@ put there by the rule that breaks a long run of recalls (#248); that rule stops 
 the last stretch before the closing instead (#421's acceptance: the listening tasks kept)."""
 import unittest
 
-import tests.test_audiolesson as course
+import tests.test_parts_listening as course
 
 CLOSING_KINDS = {"closing", "recall", "generative", "connect"}
 LISTENING = {"pick_out", "catch_unknown"}

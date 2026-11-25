@@ -4,14 +4,14 @@ the turns' authored aims, the lines the learner says first, then the ones only t
 promised the line; the goal itself is narrowed, and its meaning is what is tested."""
 import unittest
 
-import tests.test_audiolesson as course
+import tests.test_parts_listening as course
 from audiolesson.content import load_curriculum
 from audiolesson.exercises import Builder
 from audiolesson.learner import LearnerState
 from audiolesson.prompts import Prompts
 from audiolesson.script import Script
 from audiolesson.timing import Timing
-from tests.test_audiolesson import ROOT
+from tests.audiolesson_common import ROOT
 
 LISTEN = "Listen for how to "
 

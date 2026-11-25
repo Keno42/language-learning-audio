@@ -4,7 +4,7 @@ too, and a pattern whose sentences its fillers' practice already said is practis
 again. Each item keeps its introduction, its first recall and the closing's; a phrase keeps its whole ladder."""
 import unittest
 
-import tests.test_audiolesson as course
+import tests.test_parts_listening as course
 
 FAMILY = {"eg_fer", "a_morgun", "i_kvold"}
 

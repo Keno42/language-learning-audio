@@ -6,7 +6,7 @@ import unittest
 from datetime import date, timedelta
 from pathlib import Path
 
-import tests.test_audiolesson as course
+import tests.test_parts_listening as course
 from audiolesson.cando import load_cando
 from audiolesson.content import load_curriculum
 from audiolesson.learner import ItemState, LearnerState
