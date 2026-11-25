@@ -15,7 +15,7 @@ from itertools import product
 from pathlib import Path
 
 from .sounds import split_breaks_a_cluster
-from .text import norm_utterance
+from .text import WORD, norm_utterance
 
 KINDS = ("vocab", "phrase", "construction", "transform")
 GENDERS = ("masc", "fem", "neut")
@@ -150,6 +150,11 @@ class Item:
     # ``form_reason`` once a lesson: which form it is and the words that decide it
     form_word: str = ""
     form_base: str = ""
+    # #548 step 2 (the owner, 2026-11-20: the «why» of a form in text, not in the audio): a word of the target in another form than its basic word,
+    # and the anchor frame whose noun takes the same form («um» → «um bankann», «frá» → «frá bankanum», «til» → «til bankans»: ``CASE_FRAMES``).
+    # The bot's card shows the day's forms beside the frames; nothing is said in the lesson. A form its verb or a fixed phrase sets is named the same
+    # way: the pointer is the form's look-alike, not its reason
+    like: dict[str, str] = field(default_factory=dict)
     # #439 step 1b: the noun (its ``noun`` key) a form of 1–4 in this phrase, or in this construction's sentences, agrees with («midi» for «Tvo miða,
     # takk.»): a line that names it is one the lesson can set beside a line of another gender, so the form is practised as the noun's choice
     counts: str = ""
@@ -460,6 +465,9 @@ class Curriculum:
     source: str = ""
     notes: list[Note] = field(default_factory=list)
     contrasts: list[Contrast] = field(default_factory=list)  # #548: a noun in two forms and what changes it
+    # #548 step 2: the anchor frames (``frames/anchors.toml``), glossed in the known language: {"noun", "lead", "frames": [{"frame", "line",
+    # "meaning"}]}; {} for a course without them. Only the bot's card shows them (``Item.like`` points to them); the lessons say nothing
+    case_anchors: dict = field(default_factory=dict)
     known_langs: list[str] = field(default_factory=list)  # languages the file carries glosses for
     missing_glosses: list[str] = field(default_factory=list)  # ids without a gloss in the requested known_lang
 
@@ -686,7 +694,10 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
                 merged["scenes"][pattern] = verdicts
         if "curriculum" not in merged:
             raise CurriculumError(f"{path}: no file defines [curriculum]")
-        return curriculum_from_dict(merged, source=str(path), known_lang=known_lang)
+        cur = curriculum_from_dict(merged, source=str(path), known_lang=known_lang)
+        if (anchors := path / "frames" / "anchors.toml").exists():
+            cur.case_anchors = load_case_anchors(anchors, cur.known_lang)
+        return cur
     with path.open("rb") as fh:
         raw = tomllib.load(fh)
     return curriculum_from_dict(raw, source=str(path), known_lang=known_lang)
@@ -797,6 +808,18 @@ def curriculum_from_dict(raw: dict, source: str = "", known_lang: str | None = N
     return cur
 
 
+def load_case_anchors(path: Path, known_lang: str) -> dict:
+    """The anchor frames of #548 step 2 (``frames/anchors.toml``), with the lead and each frame's meaning in ``known_lang`` (``<field>_<lang>``, else
+    the English). The frames are the plain line and one per ``CASE_FRAMES``."""
+    with path.open("rb") as fh:
+        raw = tomllib.load(fh)
+    gloss = lambda d, k: d.get(f"{k}_{known_lang}") or d.get(k, "")  # noqa: E731
+    frames = [{"frame": f.get("frame", ""), "line": f["line"], "meaning": gloss(f, "meaning")} for f in raw.get("frames", [])]
+    if [f["frame"] for f in frames] != ["", *CASE_FRAMES]:
+        raise CurriculumError(f"{path}: frames are the plain line, then {CASE_FRAMES}, in that order")
+    return {"noun": raw.get("noun", ""), "lead": gloss(raw, "lead"), "frames": frames}
+
+
 def _apply_scenes(items: list[Item], scenes: dict, lang: str | None, primary: str) -> None:
     """The scene check's verdicts (``[scenes.<pattern>]``: fill id → a scene line, or ``false``): a line goes to the pattern's ``fill_scenes``, ``false`` to its
     ``exclude_fills``; the key ``"*"`` is the pattern's own line (``pattern_scene``), never ``false``. A line is in the curriculum's primary language
@@ -862,11 +885,15 @@ def _slot_names(text: str) -> list[str]:
 # the end of the form work.»; step 7: an aside's own lines, «A quick aside.» and «Back to the lesson.» (``Builder.note``); step 8: a part's frame
 # inside its sentence, «These words are in it:» and «This word is in it:», and a build-up's lead, «Let's build it up from the end.»
 # (``Builder._lead_instruct``); step 9: a line asked as a use of known words, «Made of words you know.» (``Builder._intro_from_known``), and a known
-# conversation's opening, «The conversation again. You know your lines: say them when it's your turn.» (``Builder.dialogue``)
+# conversation's opening, «The conversation again. You know your lines: say them when it's your turn.» (``Builder.dialogue``); step 10: a pick-out's
+# need, «Listen for how long it takes, then say it.» and «Listen for the price, then say it.» (``listening_tasks._build``)
 COMMAND_KEYS = ("repeat", "listen", "slowly", "pick_out_again", "natural", "pick_out_answer", "listening_back", "conversation_back", "dialogue_start",
                 "say_frame", "how_say_frame", "cloze_frame", "new_frame", "number_choice_say", "form_back", "aside", "aside_end",
-                "embed_part_words", "build_up_lead", "embed_part", "from_known", "listening_intro_known")
+                "embed_part_words", "build_up_lead", "embed_part", "from_known", "listening_intro_known",
+                "pick_out_need_duration", "pick_out_need_price")
 PROBE_KINDS = ("price", "time", "count", "place", "duration", "number", "temperature")  # what an information probe asks to listen for (#248); "number": a number used as a name, a room, a bus, a code (#451 step 2c); "temperature" (#451 step 2d)
+# #548 step 2: the anchor frames a form points to (``Item.like``), as a native teacher gave the cases: one noun, the small word in front changed
+CASE_FRAMES = ("um", "frá", "til")
 FORMS = ("negative", "question")  # a construction's authored forms besides the plain one (#171)
 
 SPEAKERS = ("native_a", "native_b")  # native_a is voiced female, native_b male, in every profile
@@ -1162,6 +1189,11 @@ def validate(cur: Curriculum) -> None:
                 raise CurriculumError(f"item {it.id!r}: noun_base is the basic word when it differs from the form ({it.target!r})")
         if it.form_reason and not (it.kind == "construction" and it.slots) and not it.form_base:
             raise CurriculumError(f"item {it.id!r}: form_reason goes on a construction with a slot (#270: the frame that asks the form), or on an item with form_base")
+        if it.like:
+            words = {w.lower() for w in WORD.findall(it.target)}
+            bad = {w: f for w, f in it.like.items() if f not in CASE_FRAMES or w.lower() not in words}
+            if bad:
+                raise CurriculumError(f"item {it.id!r}: like names a word of its target and one of {CASE_FRAMES} (#548): {bad}")
         if it.form_base or it.form_word:
             words = [w.lower() for w in _WORD_RE.findall(it.target)]
             word = (it.form_word or (words[0] if len(words) == 1 else "")).lower()

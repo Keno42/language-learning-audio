@@ -585,6 +585,7 @@ kind = "phrase"
 instance_of = "takk_fyrir"
 instance_fill = { thing = "matinn" }
 target = "Takk fyrir matinn."
+like = { "matinn" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "Thank you for the meal."
 meaning_ja = "ごちそうさまでした。"
 difficulty = 2

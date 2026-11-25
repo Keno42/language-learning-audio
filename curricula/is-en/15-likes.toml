@@ -329,6 +329,7 @@ situation_ja = "アンナに一番好きな食べ物を聞かれました。一�
 id = "eg_spila_fotbolta"
 kind = "phrase"
 target = "Ég spila fótbolta."
+like = { "fótbolta" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "I play football."
 meaning_ja = "サッカーをします。"
 difficulty = 2

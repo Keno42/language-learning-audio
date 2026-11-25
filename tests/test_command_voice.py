@@ -277,6 +277,90 @@ class ShortOwnVoiceTests(unittest.TestCase):
             self.assertNotIn("could not say", err)
 
 
+class RetakeTests(unittest.TestCase):
+    """#563, lesson 64 («Samtalinu er lokið.» stayed high in tension): one take of an instruction is cached and replayed. A line the profile
+    names in its speaker's ``retake`` is said again as that take, under a key of its own; the other lines, and take 0, keep their clips."""
+
+    PROFILE = CommandVoiceTests.PROFILE.replace('command = { provider = "realtime", voice = "cedar" }',
+                                                'command = { provider = "realtime", voice = "cedar", retake = { "Samtalinu er lokið." = 1 } }')
+
+    def test_the_icelandic_profiles_retake_the_line_the_learner_heard_high(self):
+        for name in ("edge-is-en.toml", "edge-is-ja.toml"):
+            self.assertEqual(load_profile(ROOT / "profiles" / name).speakers["command"].retake, {"Samtalinu er lokið.": 1}, name)
+
+    def test_a_take_is_its_own_clip_and_take_0_keeps_the_old_key(self):
+        from audiolesson.render.renderer import _cache_path
+
+        realtime = OpenAIRealtimeProvider()
+        path = lambda take: _cache_path(realtime, Path("/c"), "Samtalinu er lokið.", "is", "cedar", 1.0, True, take)  # noqa: E731
+        self.assertEqual(path(0), _cache_path(realtime, Path("/c"), "Samtalinu er lokið.", "is", "cedar", 1.0, True), "no take: the key as before")
+        self.assertEqual(len({path(0), path(1), path(2)}), 3)
+
+    def test_a_render_says_a_retaken_line_anew_and_keeps_the_others(self):
+        sc = Script(1, "t", "is", "en")
+        sc.segments = [Segment("speak", "native_a", "Góðan daginn.", "is", 1.0, 1.0), Segment("speak", "command", "Samtalinu er lokið.", "is", 1.0, 1.0),
+                       Segment("speak", "command", "Endurtaktu.", "is", 1.0, 1.0)]
+        with tempfile.TemporaryDirectory() as td:
+            cache = Path(td) / "cache"
+            for text, profile_text in (("first", CommandVoiceTests.PROFILE), ("retake", self.PROFILE)):
+                path = Path(td) / f"{text}.toml"
+                path.write_text(profile_text, encoding="utf-8")
+                main, realtime = Voice("main", 8000), Voice("realtime", 2000)
+                with mock.patch.object(renderer, "get_provider", {"main": main, "realtime": realtime}.get), \
+                        mock.patch.object(renderer, "to_mp3", lambda *a: False), contextlib.redirect_stderr(io.StringIO()):
+                    renderer.render_script(sc, load_profile(path), Path(td) / "out.wav", cache, progress=False)
+                if text == "first":
+                    self.assertEqual(sorted(realtime.asked), [("Endurtaktu.", "cedar"), ("Samtalinu er lokið.", "cedar")])
+                else:
+                    self.assertEqual(realtime.asked, [("Samtalinu er lokið.", "cedar")], "only the retaken line is said again")
+            # the same profile once more: the retake is cached
+            again = Voice("realtime", 2000)
+            with mock.patch.object(renderer, "get_provider", {"main": Voice("main", 8000), "realtime": again}.get), \
+                    mock.patch.object(renderer, "to_mp3", lambda *a: False), contextlib.redirect_stderr(io.StringIO()):
+                renderer.render_script(sc, load_profile(Path(td) / "retake.toml"), Path(td) / "out.wav", cache, progress=False)
+            self.assertEqual(again.asked, [])
+
+
+class InstallTakeTests(unittest.TestCase):
+    """Review of #597: a take chosen by ear must be the clip the lesson plays. ``tools/takes.py --install`` puts it into the cache under the key
+    of the profile's ``retake`` take, as the renderer asks for it, after the checks a rendered clip gets."""
+
+    def test_the_chosen_take_is_installed_where_the_render_looks_for_it(self):
+        import tools.takes as takes
+        from audiolesson.render.renderer import _cache_path, write_wav
+
+        with tempfile.TemporaryDirectory() as td:
+            cache, wav = Path(td) / "cache", Path(td) / "chosen.wav"
+            write_wav(tone(5000, 1.2), wav)
+            with contextlib.redirect_stdout(io.StringIO()):
+                code = takes.main(["--install", str(wav), "--take", "1", "--cache", str(cache), "Samtalinu er lokið."])
+            self.assertEqual(code, 0)
+            # the key the renderer's ``route`` gives the command speaker's line: its own provider, voice and rate, and the take
+            path = _cache_path(OpenAIRealtimeProvider(), cache, "Samtalinu er lokið.", "is", "cedar", 1.0, True, 1)
+            self.assertTrue(path.exists())
+            self.assertAlmostEqual(renderer.read_wav(path).seconds, 1.2, places=2)
+            self.assertFalse(_cache_path(OpenAIRealtimeProvider(), cache, "Samtalinu er lokið.", "is", "cedar", 1.0, True, 0).exists(), "take 0 untouched")
+
+    def test_a_take_that_fails_a_rendered_clip_s_checks_is_not_installed(self):
+        import tools.takes as takes
+        from audiolesson.render.renderer import _cache_path, write_wav
+        from audiolesson.render.tts import get_provider
+
+        with tempfile.TemporaryDirectory() as td:
+            cache, wav = Path(td) / "cache", Path(td) / "cut.wav"
+            cache.mkdir()
+            write_wav(tone(5000, 0.5), _cache_path(get_provider("edge"), cache, "Samtalinu er lokið.", "is", "is-IS-GunnarNeural", 1.0, True))
+            write_wav(tone(5000, 0.3), wav)  # 0.6 of Gunnar's: «staðu»'s kind
+            with contextlib.redirect_stderr(io.StringIO()) as err:
+                code = takes.main(["--install", str(wav), "--take", "1", "--cache", str(cache), "Samtalinu er lokið."])
+            self.assertEqual(code, 1)
+            self.assertIn("not installed", err.getvalue())
+            self.assertFalse(_cache_path(OpenAIRealtimeProvider(), cache, "Samtalinu er lokið.", "is", "cedar", 1.0, True, 1).exists())
+            write_wav(tone(5000, 0.05), wav)  # silent-short: cut off whatever its words
+            with contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(takes.main(["--install", str(wav), "--take", "1", "--cache", str(cache), "Samtalinu er lokið."]), 1)
+
+
 class RealtimeTests(unittest.TestCase):
     def test_a_line_is_kept_only_when_the_model_said_it_as_written(self):
         p = OpenAIRealtimeProvider()

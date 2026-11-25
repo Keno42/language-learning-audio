@@ -644,6 +644,7 @@ kind = "phrase"
 instance_of = "eigdu_godur"
 instance_fill = { time = "dag_acc" }
 target = "Eigðu góðan dag."
+like = { "dag" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "Have a good day."
 meaning_ja = "良い一日を。"
 difficulty = 3

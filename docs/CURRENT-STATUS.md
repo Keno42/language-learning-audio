@@ -210,9 +210,10 @@ Each waits for its first feedback in the LD §8 table.
   a hint such as «allt は例外的に「アルト」» sounded wrong to them. The corner became «読んでみよう», read without a rating
   (site_update_notifier#165). The main learner, after lesson 65: «vatn» as «ヴァフトン» seemed wrong (a breath before «t»
   and a voiceless «n», which katakana cannot write without adding vowels). The owner's choice (#586): a word with a sound
-  katakana cannot write has its hint in IPA, with what the kana cannot say in Japanese after it («vatn» [vaʰtn̥]（「ヴァ」＋
-  声を出さずに息を伴う「tn」）); 26 of the 91 cards, and `validate` fails on a kana-only hint of such a word. The IPA
-  and the remaining kana need a reviewer, as the scenes do (#209).
+  katakana cannot write has its hint in IPA, with what the kana cannot say in Japanese after it («vatn» [vaʰtn̥]（ヴァの
+  後に短い息を出し、母音を挟まず t から声を出さない n へ移る）); 26 of the 91 cards, and `validate` fails on a kana-only hint of
+  such a word. An outside check corrected notes that added vowels or a second r and the devoiced l of Gullfoss and
+  Hallgrímskirkja; its open questions (the r of rn, compound names, final devoicing) wait on #586 for a fluent reviewer (#209).
 - **An item counted toward the target when it is selected, not when it is taught.** On the replay, lesson 30's second
   half starts through #294's guard: an arc selected «Ég vil hvíla mig.» at minute 17 and the item was taught in lesson
   31 (7 of 8 components taught). The guard keeps the second half (#308), and once the lesson is built the charge of an

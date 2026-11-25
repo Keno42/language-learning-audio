@@ -16,6 +16,7 @@ situation_ja = "姉と旅行中です。二人とも日本から来たと言っ�
 id = "vid_tolum"
 kind = "phrase"
 target = "Við tölum japönsku."
+like = { "japönsku" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "We speak Japanese."
 meaning_ja = "私たちは日本語を話します。"
 difficulty = 2
@@ -64,6 +65,7 @@ situation_ja = "二人があなたに手を振っています。友達だと説�
 id = "hun_talar_ensku"
 kind = "phrase"
 target = "Hún talar ensku."
+like = { "ensku" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "She speaks English."
 meaning_ja = "彼女は英語を話します。"
 difficulty = 2
@@ -170,6 +172,7 @@ situation_ja = "翌朝、勢いよく入ってきて、オーロラを見たと�
 id = "eg_keypti_peysu"
 kind = "phrase"
 target = "Ég keypti peysu."
+like = { "peysu" = "um" }  # #548: the form's anchor frame (frames/anchors.toml)
 meaning = "I bought a sweater."
 meaning_ja = "セーターを買いました。"
 difficulty = 2

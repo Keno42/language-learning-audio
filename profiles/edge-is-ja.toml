@@ -8,4 +8,6 @@ native_a = { voice = "is-IS-GudrunNeural" }
 native_b = { voice = "is-IS-GunnarNeural" }
 # #563: the instructions in Icelandic («Endurtaktu.») in a voice no scene uses: OpenAI's realtime model (OPENAI_API_KEY and the
 # websockets package); without them, Gunnar says them, as native_b
-command = { provider = "openai-realtime", voice = "cedar" }
+# retake: a line said again as a new take, picked by ear (lesson 64: «Samtalinu er lokið.» stayed high in tension; tools/takes.py makes
+# takes to hear and --install puts the chosen one into the cache as that take; a take not installed is synthesized afresh)
+command = { provider = "openai-realtime", voice = "cedar", retake = { "Samtalinu er lokið." = 1 } }
