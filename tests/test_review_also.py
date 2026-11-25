@@ -34,6 +34,17 @@ class ReviewAlsoTests(unittest.TestCase):
         self.assertEqual(out[0]["also"], ["Mig langar að sjá lunda."])
         self.assertNotIn("also", out[1])
 
+    def test_a_part_asked_through_its_whole_gets_the_whole_s_alternatives(self):
+        """Review of #613: «eldfjall» reviewed through «Mig langar að sjá eldfjall.» names the pattern in ``through``, not in ``items``."""
+        from audiolesson.prompts import Prompts
+        from audiolesson.review_wholes import refine_review
+
+        met = {"mig_langar_ad_sja", "eldfjall"}
+        review, _ = refine_review([{"items": ["eldfjall"], "prompt": "How do you say: A volcano.", "answer": "eldfjall"}], self.cur, met, Prompts.load("en"))
+        q = next(q for q in review if "eldfjall" in q["items"])
+        self.assertEqual(q.get("through"), "mig_langar_ad_sja", q)
+        self.assertEqual(with_also(self.cur, [q])[0]["also"], ["Ég vil sjá eldfjall."])
+
     def test_one_scene_one_frame(self):
         """«Say you want to see puffins.» → «Ég vil …», so the volcano's «Mig langar …» is asked with «you'd like to», as its meaning says."""
         q = json.loads(subprocess.run([sys.executable, "-m", "audiolesson.cli", "questions", str(IS_EN), "--ids", "eg_tharf_simkort"],

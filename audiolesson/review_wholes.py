@@ -303,6 +303,8 @@ def with_also(cur, review: list[dict]) -> list[dict]:
     """``review`` with each question's ``also`` (``also_answers``) where it has one."""
     out = []
     for q in review:
-        also = also_answers(cur, list(q.get("items") or []), q.get("answer") or "") if isinstance(q.get("answer"), str) else []
+        # a part asked through its whole names the whole in ``through`` («eldfjall» through «Mig langar að sjá {thing}.»): its alternatives count too
+        ids = list(q.get("items") or []) + ([q["through"]] if isinstance(q.get("through"), str) else [])
+        also = also_answers(cur, list(dict.fromkeys(ids)), q.get("answer") or "") if isinstance(q.get("answer"), str) else []
         out.append({**q, "also": also} if also else q)
     return out
