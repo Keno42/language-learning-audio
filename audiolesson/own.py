@@ -14,7 +14,10 @@ import re
 
 PERSONA_NAME = "Yuki"
 PERSONA_NAME_JA = "ユキ"
-NAME_RE = re.compile(r"^(?=.{1,24}$)[^\W\d_]+(?:['\-][^\W\d_]+)*$")
+# a name in Latin letters (accented ones included): the target voice says it in «Ég heiti …», and the bot finds its edges beside Japanese
+# text when it puts the persona's name back in an export (site_update_notifier#245)
+LATIN = "A-Za-z\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u024f"
+NAME_RE = re.compile(rf"^(?=.{{1,24}}$)[{LATIN}]+(?:['\-][{LATIN}]+)*$")
 AGE_CONSTRUCTION = "eg_er_ara"
 # the Icelandic words of an age the course teaches (the target, whatever language the course is glossed in: review of #608)
 _IS_NUMBERS = {"eitt": 1, "einn": 1, "tvö": 2, "tveir": 2, "þrjú": 3, "þrír": 3, "fjögur": 4, "fjórir": 4, "fimm": 5, "sex": 6, "sjö": 7, "átta": 8,
@@ -24,7 +27,7 @@ _IS_NUMBERS = {"eitt": 1, "einn": 1, "tvö": 2, "tveir": 2, "þrjú": 3, "þrír
 
 
 def valid_name(name: str) -> bool:
-    """One word of letters (a hyphen or an apostrophe inside it), at most 24: a name the target voice can say in «Ég heiti …»."""
+    """One word of Latin letters (a hyphen or an apostrophe inside it), at most 24: a name the target voice can say in «Ég heiti …»."""
     return bool(NAME_RE.match(name))
 
 

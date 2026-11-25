@@ -72,7 +72,7 @@ class OwnTests(unittest.TestCase):
 
     def test_a_name_is_one_word_of_letters(self):
         self.assertTrue(valid_name("Kenji") and valid_name("Ástríður") and valid_name("Mary-Ann"))
-        for bad in ("", "Ken 2", "K3n", "{name}", "a" * 30):
+        for bad in ("", "Ken 2", "K3n", "{name}", "a" * 30, "健二"):
             self.assertFalse(valid_name(bad), bad)
         with self.assertRaises(ValueError):
             personalize(self.cur, self.themes, name="Ken 2")
