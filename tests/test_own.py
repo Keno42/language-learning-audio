@@ -5,7 +5,7 @@ from pathlib import Path
 
 from audiolesson.cando import load_cando
 from audiolesson.content import load_curriculum
-from audiolesson.own import PERSONA_NAME, age_item, personalize, valid_name
+from audiolesson.own import PERSONA_NAME, age_item, age_value, personalize, valid_name
 from audiolesson.themes import load_themes
 
 IS_EN = Path(__file__).resolve().parent.parent / "curricula" / "is-en"
@@ -56,6 +56,19 @@ class OwnTests(unittest.TestCase):
         _, same, applied = personalize(self.cur, self.themes, age=47)
         self.assertFalse(applied["age"], "an age the course has no item for: the persona's stays")
         self.assertEqual([turn.say for _, turn in self.you_lines(same)], [turn.say for _, turn in self.you_lines(self.themes)])
+
+    def test_every_age_filler_has_its_value_in_either_known_language(self):
+        """Review of #608: the value was read from the English meaning, which a Japanese-glossed course replaces («25»): --own-age 25 was dropped."""
+        ja = load_curriculum(IS_EN, known_lang="ja")
+        for cur in (self.cur, ja):
+            values = {i.id: age_value(i) for i in cur.items_with_tag("age")}
+            self.assertNotIn(None, values.values(), values)
+            self.assertEqual(age_item(cur, 25).id, "tuttugu_og_fimm")
+        themes = load_themes(IS_EN, ja, load_cando(IS_EN, ja))
+        _, mine, applied = personalize(ja, themes, age=25)
+        self.assertTrue(applied["age"])
+        turn = next(turn for _, turn in self.you_lines(mine) if "eg_er_ara" in turn.items)
+        self.assertEqual((turn.say, turn.cue_ja), ("Ég er tuttugu og fimm ára.", "25歳だと言ってください。"))
 
     def test_a_name_is_one_word_of_letters(self):
         self.assertTrue(valid_name("Kenji") and valid_name("Ástríður") and valid_name("Mary-Ann"))

@@ -16,9 +16,11 @@ PERSONA_NAME = "Yuki"
 PERSONA_NAME_JA = "ユキ"
 NAME_RE = re.compile(r"^(?=.{1,24}$)[^\W\d_]+(?:['\-][^\W\d_]+)*$")
 AGE_CONSTRUCTION = "eg_er_ara"
-_EN_UNITS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12,
-             "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19, "twenty": 20,
-             "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90}
+# the Icelandic words of an age the course teaches (the target, whatever language the course is glossed in: review of #608)
+_IS_NUMBERS = {"eitt": 1, "einn": 1, "tvö": 2, "tveir": 2, "þrjú": 3, "þrír": 3, "fjögur": 4, "fjórir": 4, "fimm": 5, "sex": 6, "sjö": 7, "átta": 8,
+               "níu": 9, "tíu": 10, "ellefu": 11, "tólf": 12, "þrettán": 13, "fjórtán": 14, "fimmtán": 15, "sextán": 16, "sautján": 17,
+               "átján": 18, "nítján": 19, "tuttugu": 20, "þrjátíu": 30, "fjörutíu": 40, "fimmtíu": 50, "sextíu": 60, "sjötíu": 70,
+               "áttatíu": 80, "níutíu": 90}
 
 
 def valid_name(name: str) -> bool:
@@ -44,11 +46,11 @@ def _holds_name(value) -> bool:
 
 
 def age_value(item) -> int | None:
-    """An age filler's value, read from its English meaning («twenty-five» → 25)."""
-    words = re.findall(r"[a-z]+", (item.meaning or "").lower())
-    if not words or any(w not in _EN_UNITS for w in words):
+    """An age filler's value, read from its Icelandic target («tuttugu og fimm» → 25), so a course glossed in any language reads it the same."""
+    words = [w for w in re.findall(r"[^\W\d_]+", item.target.lower()) if w != "og"]
+    if not words or any(w not in _IS_NUMBERS for w in words):
         return None
-    return sum(_EN_UNITS[w] for w in words)
+    return sum(_IS_NUMBERS[w] for w in words)
 
 
 def age_item(cur, age: int):
