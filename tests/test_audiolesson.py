@@ -962,7 +962,7 @@ class CurriculumTests(unittest.TestCase):
         self.assertEqual(cur.resolve_slots(cur.by_id["ma_eg_inf"], {"inf": cur.by_id["sofa"]})[0], "Má ég sofa?")
         note = cur.note_by_id["vera_ad_progressive"]
         self.assertNotIn("Any verb", note.text)
-        self.assertIn("activity verbs", note.text)
+        self.assertIn("doing words", note.text)  # no grammatical term (owner, 2026-11-25)
         self.assertIn("«Ég sef»", note.text)
 
     def test_aspect_milestone_names_the_progressive_before_eg_er_ad_inf(self):
@@ -2300,8 +2300,8 @@ class CurriculumTests(unittest.TestCase):
             self.assertEqual(forms, {"masc": "góðan", "fem": "góða", "neut": "gott"}, f"{tid} pairs godur_gender with another case")
         nominative = cur.note_by_id["godur_gender_nominative"]
         self.assertEqual(set(nominative.items), {"godur_matur", "thad_er_god_hugmynd", "gott_vedur"})
-        self.assertIn("nominative", nominative.text.lower())
-        self.assertIn("accusative", nominative.text.lower())
+        for form in ("góðan", "góða", "góður", "góð"):  # the two sets of forms set against each other, with no grammatical term (owner, 2026-11-25)
+            self.assertIn(form, nominative.text.lower())
 
     def _agreement_curriculum(self):
         """A synthetic gender-agreement construction, isolated from the real curriculum's own
@@ -2445,7 +2445,7 @@ class CurriculumTests(unittest.TestCase):
         self.assertEqual(set(note.items), {"bill", "bok", "hus"})
         for word in ("bíll", "bók", "hús"):
             self.assertIn(word, note.text.lower())
-        for word in ("masculine", "feminine", "neuter"):
+        for word in ("dagur", "hugmynd", "veður"):  # each named by a word of its kind, not a grammatical term (owner, 2026-11-25)
             self.assertIn(word, note.text.lower())
         construction = cur.by_id["godur_noun"]
         self.assertTrue(set(note.items) <= set(construction.prereqs), "godur_noun must not be reachable before the learner is told these genders")

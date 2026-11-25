@@ -260,8 +260,12 @@ English field the glossing names (`_GLOSSED_ITEM`, `_GLOSSED_EXAMPLE`, `_GLOSSED
 `cue` and `meaning`; only a note can mark a span, so elsewhere reword. The
 reading deck is not scanned («gufuba», from «gufubað», would be a false hit).
 
-`milestone = true` marks an instructional note that names a grammatical
-pattern rather than an optional aside: it fires as soon as the learner has
+A note says what changes with words the learner knows, never a grammatical term: «dagur takes góðan, nótt takes góða», not
+«masculine», «accusative» or «verb» (nor «男性名詞», «与格», «動詞»). The explanation with terms belongs in the bot's written text, not the audio
+(the owner, 2026-11-20 and 2026-11-25; `tests/test_plain_notes.py` checks every note's `text`, `text_ja` and lead lines).
+
+`milestone = true` marks an instructional note that shows a pattern
+rather than an optional aside: it fires as soon as the learner has
 met every id in `items`, before any plain aside, is never used as filler, and
 is followed by two quick contrast recalls of its examples (from their
 `situation`s, so give it at least three items that have one).
