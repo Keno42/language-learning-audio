@@ -418,6 +418,20 @@ word_syllables = { "höfðinu" = ["höf", "ðin", "u"] }
 situation = "At the pharmacy, the pharmacist asks what's wrong. Say your head hurts."
 situation_ja = "薬局で、どうしたのか聞かれました。頭が痛いと言ってください。"
 
+# #599, lesson 67: the accident's catch asked what «fætinum» means, and no line let the learner say it. Where it hurts is a line the learner
+# says (O1): it is the clinic's turn (the accident's second level), beside «Mér er illt í höfðinu.». Candidate until native-checked (#209).
+[[items]]
+id = "mer_er_illt_i_faetinum"
+kind = "phrase"
+target = "Mér er illt í fætinum."
+meaning = "My leg hurts."
+meaning_ja = "足が痛いです。"
+difficulty = 3
+topics = ["health"]
+word_syllables = { "fætinum" = ["fæ", "tin", "um"] }
+situation = "You slipped on the ice. Tell the nurse your leg hurts."
+situation_ja = "氷で滑りました。看護師に足が痛いと伝えてください。"
+
 [[items]]
 id = "eg_datt"
 kind = "phrase"
