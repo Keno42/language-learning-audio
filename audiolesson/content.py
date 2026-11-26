@@ -885,7 +885,7 @@ def _slot_names(text: str) -> list[str]:
 # of the conversation.» (``transitions.WAYS_BACK_SAID``); step 3: a conversation's opening, «Now a short conversation.»
 # (``transitions.OPENING_SAID``); step 4: a cue's frame, «Say:» and «How do you say:» (``exercises.cue_frames``); step 5: a cloze's «Complete the
 # sentence to say:» and a new item's «Something new.», framed the same way; step 6: the form work's «Now say each one.» and its way back, «That's
-# the end of the form work.»; step 7: an aside's own lines, «A quick aside.» and «Back to the lesson.» (``Builder.note``); step 8: a part's frame
+# the end of this exercise.»; step 7: an aside's own lines, «A quick aside.» and «Back to the lesson.» (``Builder.note``); step 8: a part's frame
 # inside its sentence, «These words are in it:» and «This word is in it:», and a build-up's lead, «Let's build it up from the end.»
 # (``Builder._lead_instruct``); step 9: a line asked as a use of known words, «Made of words you know.» (``Builder._intro_from_known``), and a known
 # conversation's opening, «The conversation again. You know your lines: say them when it's your turn.» (``Builder.dialogue``); step 10: a pick-out's

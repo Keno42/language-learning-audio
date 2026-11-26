@@ -35,7 +35,7 @@ In order:
    learner's language. **Built, step 5 (#560):** «Kláraðu setninguna:» for a cloze's «Complete the sentence to say:» (5–13 a lesson) and
    «Eitthvað nýtt.» for «Something new.» (2–6); from lesson 67 on the replay of lesson 60's export about 111 instructor lines a lesson are in
    Icelandic (90 without them). Lesson 62 was the first built with both (LLA `f5dc903`), and taught «Nú kemur stutt samtal.». **Built, step 6 (#572):** the form work's own
-   lines, «Segðu hverja setningu.» for «Now say each one.» and «Æfingunni er lokið.» for «That's the end of the form work.», said as «Samtalinu er
+   lines, «Segðu hverja setningu.» for «Now say each one.» and «Æfingunni er lokið.» for «That's the end of this exercise.», said as «Samtalinu er
    lokið.» is. Lessons 63 and 64 (LLA `e01e55d`) taught «Segðu:» and «Hvernig segir maður:» and said 82 and 116 instructor lines in Icelandic,
    in a voice of their own since #575–#578 (OpenAI's realtime «cedar», #563). On the replay of lesson 64's export the frames of step 5 and the
    lines of step 6 come in lessons 65–68. **Built, step 7 (#580):** an aside's own lines, «Smá útúrdúr.» for «A quick aside.» and «Aftur að

@@ -69,7 +69,7 @@ class ListeningEndsWithAWayBackTests(unittest.TestCase):
             order = [e for e in sc.exercises if e.index in spoken]
             for e, nxt in zip(order, order[1:]):
                 # by its role: once taught (#429 step 6) the way back is «Æfingunni er lokið.», with the English after it for two lessons, and
-                # the lesson that teaches it says «That's the end of the form work.» as its meaning
+                # the lesson that teaches it says «That's the end of this exercise.» as its meaning
                 said = [s.role for s in sc.segments if s.exercise == e.index and s.type in ("speak", "narrate", "answer")]
                 form = e.kind == "model" and e.stage in ("choice", "noun_choice", "said_of", "subjects")
                 next_listening = nxt.kind in ("pick_out", "catch_unknown") or (nxt.kind == "intro" and nxt.label.startswith("new (catch)"))
@@ -84,7 +84,7 @@ class ListeningEndsWithAWayBackTests(unittest.TestCase):
         self.assertGreater(closed, 3, "the course has form work followed by drills")
         self.assertGreater(len(stages), 1, f"of more than one kind: {stages}")
         self.assertGreater(taught, 0, "#429 step 6: «Æfingunni er lokið.» once taught")
-        self.assertGreater(english, 0, "«That's the end of the form work.» before")
+        self.assertGreater(english, 0, "«That's the end of this exercise.» before")
 
     def test_a_conversation_right_after_another_says_another(self):
         """Lesson 45 (owner): a conversation that ends where another begins says no «That's the end of the conversation.», so the next one opens

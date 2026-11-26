@@ -55,7 +55,7 @@ WAY_BACK = {"listening": "listening_back", "conversation": "conversation_back", 
 BUILT_IN = {"conversation_back"}
 # #429 step 1 (lesson 57): the ways back said in the target language once taught («Aftur að tala.», «Samtalinu er lokið.»), on the finished
 # script after ``close_tasks``; a part's «That's enough of that conversation.» is not one of them. Step 6 (lesson 62): the form work's «That's the
-# end of the form work.» («Æfingunni er lokið.»)
+# end of this exercise.» («Æfingunni er lokið.»)
 WAYS_BACK_SAID = ("listening_back", "conversation_back", "form_back")
 # #429 step 3: a conversation's opening («Now a short conversation.», ``Builder.dialogue``) said in the target language once taught («Nú kemur
 # stutt samtal.»), on the finished script after ``close_tasks``, which reads the line by its text to say «Now another short conversation.» right

@@ -394,7 +394,7 @@ class CommandTests(unittest.TestCase):
 
     def test_the_form_work_says_its_own_lines_in_icelandic_once_taught(self):
         """#429 step 6 (lessons 63–69 on the replay of lesson 62's export, the frames of steps 4 and 5 taught: «Now say each one.» 26 times in
-        eight lessons and «That's the end of the form work.» 15, the most frequent English instructions left with «A quick aside.» and «Back to
+        eight lessons and «That's the end of this exercise.» 15, the most frequent English instructions left with «A quick aside.» and «Back to
         the lesson.»): the form work's turn to the learner, «Segðu hverja setningu.», and its way back, «Æfingunni er lokið.», as «Samtalinu er
         lokið.» ends a conversation; each still the last line of its block (``unmarked_turns``), never the English once taught."""
         from audiolesson.transitions import unmarked_turns
@@ -410,7 +410,7 @@ class CommandTests(unittest.TestCase):
                 continue
             texts = [g.text for g in sc.segments]
             self.assertNotIn(en.get("number_choice_say"), texts, f"lesson {lesson + 1}: never «Now say each one.» once taught")
-            self.assertNotIn(en.get("form_back"), texts, f"lesson {lesson + 1}: never «That's the end of the form work.» once taught")
+            self.assertNotIn(en.get("form_back"), texts, f"lesson {lesson + 1}: never «That's the end of this exercise.» once taught")
             said = [g for g in sc.segments if g.text == say.target]
             self.assertTrue(said and all(g.speaker == COMMAND_VOICE for g in said))
             self.assertEqual(unmarked_turns(sc, en), [], "a way back in Icelandic is still the block's last line")
