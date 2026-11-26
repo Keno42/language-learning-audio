@@ -171,6 +171,7 @@ say_frame = "Say:"  # #429 step 4: a cue's frame, said as «Segðu:» once taugh
 how_say_frame = "How do you say:"  # #429 step 4: «Hvernig segir maður:» once taught
 cloze_frame = "Complete the sentence:"  # #429 step 5: a cloze's frame («Complete the sentence to say: …»), said as «Kláraðu setninguna:» once taught
 new_frame = "Something new."  # #429 step 5: a new item's frame («Something new. …»), said as «Eitthvað nýtt.» once taught
+hint_frame = "It starts with:"  # #429 step 12: the end of a hinted cue, before its first word; said as «Fyrsta orðið er:» once taught
 dialogue_start_part = "Now part of a conversation."  # a short exchange cut from a scene that goes on after it (lesson 53)
 dialogue_start_another = "Now another short conversation."  # right after another conversation (owner, lesson 45)
 dialogue_replay = "Now the whole conversation, without pauses."
