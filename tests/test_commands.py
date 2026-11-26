@@ -2,6 +2,7 @@
 language. A pilot teaches two instructions in Icelandic, «Endurtaktu.» (repeat) and «Hlustaðu.» (listen), one a lesson from the tenth lesson on, as
 material; then each is said in an Icelandic voice in every exercise that says it, with the learner's own after it in the lesson that teaches it and
 the next (the owner after lesson 56: no complaint, which comes only in a lesson's feedback, is understanding), and again after a failure."""
+import re
 import unittest
 from dataclasses import replace
 from datetime import date, timedelta
@@ -580,14 +581,19 @@ class CommandTests(unittest.TestCase):
         """#583: an instruction's meaning, the cue the lesson and the written review ask it by, names it an instruction, in every language: «Say:
         the instruction "How do you say".», never «Say: How do you say», read as two frames in a row. It gives the phrase's own words: where they
         differ from the English line it replaces, the cue gives the words (lessons 67 and 68: «"Now say each one" has no "now"»)."""
+        # said aloud, the label first and a colon for the pause, since quotation marks are not heard (the owner, 2026-11-26: «the instruction say»
+        # ran together): «An instruction: Say each sentence.»
         for lang in ("en", "ja"):
             cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
             for item in (i for i in cur.items if i.command):
-                self.assertEqual(item.meaning, item.spoken_meaning, item.id)
                 if lang == "en":
-                    self.assertRegex(item.meaning, r'^the instruction "[^"]+"$', item.id)
+                    words = re.fullmatch(r'the instruction "([^"]+)"', item.meaning)
+                    self.assertIsNotNone(words, item.id)
+                    self.assertEqual(item.spoken_meaning, f"An instruction: {words.group(1)}", item.id)
                 else:
-                    self.assertRegex(item.meaning, r"^指示の「[^」]+」$", item.id)
+                    words = re.fullmatch(r"指示の「([^」]+)」", item.meaning)
+                    self.assertIsNotNone(words, item.id)
+                    self.assertEqual(item.spoken_meaning, f"指示：{words.group(1)}", item.id)
         en = load_curriculum(ROOT / "curricula" / "is-en", known_lang="en").by_id
         self.assertEqual(en["segdu_hverja_setningu_command"].meaning, 'the instruction "Say each sentence"', "no «now» the answer does not hold")
         self.assertEqual(en["hlustadu_verd_command"].meaning, 'the instruction "How much does this cost? Listen and say it"', "the question it asks")
