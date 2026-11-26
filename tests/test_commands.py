@@ -2,6 +2,7 @@
 language. A pilot teaches two instructions in Icelandic, «Endurtaktu.» (repeat) and «Hlustaðu.» (listen), one a lesson from the tenth lesson on, as
 material; then each is said in an Icelandic voice in every exercise that says it, with the learner's own after it in the lesson that teaches it and
 the next (the owner after lesson 56: no complaint, which comes only in a lesson's feedback, is understanding), and again after a failure."""
+import re
 import unittest
 from dataclasses import replace
 from datetime import date, timedelta
@@ -317,8 +318,8 @@ class CommandTests(unittest.TestCase):
                          [("speak", "Segðu:"), ("narrate", "「仕事に行きます」"), ("speak", "Fyrsta orðið er:")])
         self.assertEqual(framed("en", "Say: I go to work. It starts with:", taught=("segdu_command",)),
                          [("speak", "Segðu:"), ("narrate", "I go to work. It starts with:")], "not taught: the English as before")
-        self.assertEqual(framed("en", "Say: the instruction \"It starts with\". It starts with:", asked=("fyrsta_ordid_command",))[-1],
-                         ("narrate", "the instruction \"It starts with\". It starts with:"), "«Fyrsta orðið er:» would give the answer's first word")
+        self.assertEqual(framed("en", "Say: An instruction: The first word is. It starts with:", asked=("fyrsta_ordid_command",))[-1],
+                         ("narrate", "An instruction: The first word is. It starts with:"), "«Fyrsta orðið er:» would give the answer's first word")
 
     def test_a_framed_cue_keeps_its_claim_about_the_sentence(self):
         """Review of #557: once «Segðu:» had played, «Now something you haven't heard yet.» «Segðu:» «I need a taxi.» failed the novelty check,
@@ -600,17 +601,26 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(milestone, [("narrate", en.get("milestone_intro")), ("narrate", "Some cultural fact."), ("narrate", en.get("milestone_end"))])
 
     def test_an_instruction_is_asked_as_an_instruction_by_name(self):
-        """Lesson 65's note: «Say: How do you say, before what to say.» (answer «Hvernig segir maður:») read as two frames in a row; «Say "How do
-        you say" as an instruction» would not confuse. An instruction's meaning, the cue the lesson and the written review ask it by, quotes the
-        English line it replaces and names it an instruction, in every language: «Say: the instruction "How do you say".»"""
+        """#583: an instruction's meaning, the cue the lesson and the written review ask it by, names it an instruction, in every language: «Say:
+        the instruction "How do you say".», never «Say: How do you say», read as two frames in a row. It gives the phrase's own words: where they
+        differ from the English line it replaces, the cue gives the words (lessons 67 and 68: «"Now say each one" has no "now"»)."""
+        # said aloud, the label first and a colon for the pause, since quotation marks are not heard (the owner, 2026-11-26: «the instruction say»
+        # ran together): «An instruction: Say each sentence.»
         for lang in ("en", "ja"):
-            cur, prompts = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang), Prompts.load(lang)
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
             for item in (i for i in cur.items if i.command):
-                said = prompts.get(item.command).rstrip(".:")
                 if lang == "en":
-                    self.assertEqual((item.meaning, item.spoken_meaning), (f'the instruction "{said}"',) * 2, item.id)
+                    words = re.fullmatch(r'the instruction "([^"]+)"', item.meaning)
+                    self.assertIsNotNone(words, item.id)
+                    self.assertEqual(item.spoken_meaning, f"An instruction: {words.group(1)}", item.id)
                 else:
-                    self.assertTrue(all(m.startswith("指示の「") and m.endswith("」") for m in (item.meaning, item.spoken_meaning)), item.id)
+                    words = re.fullmatch(r"指示の「([^」]+)」", item.meaning)
+                    self.assertIsNotNone(words, item.id)
+                    self.assertEqual(item.spoken_meaning, f"指示：{words.group(1)}", item.id)
+        en = load_curriculum(ROOT / "curricula" / "is-en", known_lang="en").by_id
+        self.assertEqual(en["segdu_hverja_setningu_command"].meaning, 'the instruction "Say each sentence"', "no «now» the answer does not hold")
+        self.assertEqual(en["hlustadu_verd_command"].meaning, 'the instruction "How much does this cost? Listen and say it"', "the question it asks")
+        self.assertEqual(en["hvernig_segir_madur_command"].meaning, 'the instruction "How do you say"', "the English line, where it is the words")
 
     def test_the_commands_come_one_a_lesson_in_their_order(self):
         order = [i.id for i in self.cur.items if i.command]
