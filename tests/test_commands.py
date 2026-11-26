@@ -299,7 +299,7 @@ class CommandTests(unittest.TestCase):
 
     def test_a_hinted_cue_s_last_words_are_said_in_icelandic_once_taught(self):
         """#429 step 12 (lessons 68–75 on the replay of lesson 68's export: «It starts with:» 46 times, the most frequent English instruction
-        left): a hinted cue's «It starts with:» is said as «Fyrsta orðið:», a line of its own after what to say and before the first word. Not
+        left): a hinted cue's «It starts with:» is said as «Fyrsta orðið er:», a line of its own after what to say and before the first word. Not
         in the exercise that asks for that phrase, whose first word the hint would give away."""
         def framed(lang, text, taught=("segdu_command", "fyrsta_ordid_command"), asked=()):
             cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
@@ -312,13 +312,13 @@ class CommandTests(unittest.TestCase):
             return [(g.type, g.text) for g in sc.segments]
 
         self.assertEqual(framed("en", "Say: I go to work. It starts with:"),
-                         [("speak", "Segðu:"), ("narrate", "I go to work."), ("speak", "Fyrsta orðið:")])
+                         [("speak", "Segðu:"), ("narrate", "I go to work."), ("speak", "Fyrsta orðið er:")])
         self.assertEqual(framed("ja", "「仕事に行きます」と言ってください。最初は…"),
-                         [("speak", "Segðu:"), ("narrate", "「仕事に行きます」"), ("speak", "Fyrsta orðið:")])
+                         [("speak", "Segðu:"), ("narrate", "「仕事に行きます」"), ("speak", "Fyrsta orðið er:")])
         self.assertEqual(framed("en", "Say: I go to work. It starts with:", taught=("segdu_command",)),
                          [("speak", "Segðu:"), ("narrate", "I go to work. It starts with:")], "not taught: the English as before")
         self.assertEqual(framed("en", "Say: the instruction \"It starts with\". It starts with:", asked=("fyrsta_ordid_command",))[-1],
-                         ("narrate", "the instruction \"It starts with\". It starts with:"), "«Fyrsta orðið:» would give the answer's first word")
+                         ("narrate", "the instruction \"It starts with\". It starts with:"), "«Fyrsta orðið er:» would give the answer's first word")
 
     def test_a_framed_cue_keeps_its_claim_about_the_sentence(self):
         """Review of #557: once «Segðu:» had played, «Now something you haven't heard yet.» «Segðu:» «I need a taxi.» failed the novelty check,
