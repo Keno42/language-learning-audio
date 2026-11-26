@@ -13,7 +13,7 @@ from . import __version__
 from .themes import load_themes, scenario_coverage, scenario_order, unranked_themes
 from .cando import check_horizon, coverage, for_season, format_coverage, load_cando, priority_items, simulate_reach
 from .exercises import meaning_prompt, meaning_prompts, speak_as
-from .content import INSTRUCTION_MODES, PATTERN_SCENE, CurriculumError, for_instructions, ask_without_addressee, cue_texts, same_meaning_answers, subject_unnamed, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, pronoun_cues, unlinked_instances
+from .content import INSTRUCTION_MODES, PATTERN_SCENE, CurriculumError, for_background, for_instructions, ask_without_addressee, cue_texts, same_meaning_answers, subject_unnamed, scene_covered, scene_sheet, dialogue_sequencing_report, frame_gap_report, load_curriculum, notes_cutting_sentences, part_before_whole_report, phrase_frames, pronoun_cues, unlinked_instances
 from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, lesson_target, parse_date
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
@@ -67,6 +67,9 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--dry-run", action="store_true", help="don't update the learner state")
     g.add_argument("--own-name", default=None, help="#428: the learner's own name in the lines they say about themselves (in place of the persona's «Yuki»); personal: not to be exported")
     g.add_argument("--own-age", type=int, default=None, help="#428: the learner's own age in the line where they give it, when the course has that age as an item")
+    g.add_argument("--background", default=None,
+                   help="the learner's background for the asides, e.g. ja: an aside that compares with Japan plays as written; without it, its version "
+                        "with no comparison (remembered per --user)")
     g.add_argument("--instructions", choices=INSTRUCTION_MODES, default="gradual",
                    help="#429: instructions in Icelandic: gradual (one a lesson, the default), off (none; their review is withdrawn), pending (not asked yet: off until one is met)")
     g.set_defaults(func=cmd_generate)
@@ -184,7 +187,7 @@ def main(argv: list[str] | None = None) -> int:
 # ----------------------------------------------------------------------------
 
 
-USER_SETTINGS = ("curriculum", "known", "profile", "provider", "minutes", "level")
+USER_SETTINGS = ("curriculum", "known", "profile", "provider", "minutes", "level", "background")
 
 
 def _user_dir(args) -> Path | None:
@@ -278,6 +281,7 @@ def cmd_generate(args) -> int:
     cur = _load(args.curriculum, args.known, args.allow_fallback)
     learner = LearnerState.load_or_create(args.learner, cur.target_lang, cur.known_lang, cur.level)
     cur, instructions, withdrawn = for_instructions(cur, learner, args.instructions)  # #429: the learner's choice, before the pace reads the course
+    cur = for_background(cur, args.background or "")  # the asides the learner's background can follow
     level = args.level or learner.level or cur.level
     today = parse_date(args.date)
     timing = Timing(level=level, speech_ratio=dict(learner.speech_calibration)).with_overrides(global_pause_multiplier=args.pause_multiplier)

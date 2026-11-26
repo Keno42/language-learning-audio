@@ -97,7 +97,9 @@ Useful flags for `generate`: `-t cafe,directions` (prefer topics), `--new 4`
 (how many new items), `--level A0|A1|A2|B1|B2` (pause lengths), `--no-audio`,
 `--dry-run` (don't touch the learner state), `--date YYYY-MM-DD`,
 `--no-translate` (don't narrate what the dialogue partner said), `--cache DIR`
-(TTS clip cache; one directory can serve several learners).
+(TTS clip cache; one directory can serve several learners), `--background ja`
+(the asides that compare with Japan play as written; without it, their version
+with no comparison; remembered per `--user`).
 
 ## Daily routine and pacing
 
