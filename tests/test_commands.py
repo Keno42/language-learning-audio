@@ -577,17 +577,21 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(milestone, [("narrate", en.get("milestone_intro")), ("narrate", "Some cultural fact."), ("narrate", en.get("milestone_end"))])
 
     def test_an_instruction_is_asked_as_an_instruction_by_name(self):
-        """Lesson 65's note: «Say: How do you say, before what to say.» (answer «Hvernig segir maður:») read as two frames in a row; «Say "How do
-        you say" as an instruction» would not confuse. An instruction's meaning, the cue the lesson and the written review ask it by, quotes the
-        English line it replaces and names it an instruction, in every language: «Say: the instruction "How do you say".»"""
+        """#583: an instruction's meaning, the cue the lesson and the written review ask it by, names it an instruction, in every language: «Say:
+        the instruction "How do you say".», never «Say: How do you say», read as two frames in a row. It gives the phrase's own words: where they
+        differ from the English line it replaces, the cue gives the words (lessons 67 and 68: «"Now say each one" has no "now"»)."""
         for lang in ("en", "ja"):
-            cur, prompts = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang), Prompts.load(lang)
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
             for item in (i for i in cur.items if i.command):
-                said = prompts.get(item.command).rstrip(".:")
+                self.assertEqual(item.meaning, item.spoken_meaning, item.id)
                 if lang == "en":
-                    self.assertEqual((item.meaning, item.spoken_meaning), (f'the instruction "{said}"',) * 2, item.id)
+                    self.assertRegex(item.meaning, r'^the instruction "[^"]+"$', item.id)
                 else:
-                    self.assertTrue(all(m.startswith("指示の「") and m.endswith("」") for m in (item.meaning, item.spoken_meaning)), item.id)
+                    self.assertRegex(item.meaning, r"^指示の「[^」]+」$", item.id)
+        en = load_curriculum(ROOT / "curricula" / "is-en", known_lang="en").by_id
+        self.assertEqual(en["segdu_hverja_setningu_command"].meaning, 'the instruction "Say each sentence"', "no «now» the answer does not hold")
+        self.assertEqual(en["hlustadu_verd_command"].meaning, 'the instruction "How much does this cost? Listen and say it"', "the question it asks")
+        self.assertEqual(en["hvernig_segir_madur_command"].meaning, 'the instruction "How do you say"', "the English line, where it is the words")
 
     def test_the_commands_come_one_a_lesson_in_their_order(self):
         order = [i.id for i in self.cur.items if i.command]
