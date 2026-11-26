@@ -889,7 +889,7 @@ def _slot_names(text: str) -> list[str]:
 # inside its sentence, «These words are in the sentence:» and «This word is in the sentence:», and a build-up's lead, «Let's begin at the end.»
 # (``Builder._lead_instruct``); step 9: a line asked as a use of known words, «From words you know.» (``Builder._intro_from_known``), and a known
 # conversation's opening, «The conversation again. You know your sentences. Say them when you are to speak.» (``Builder.dialogue``); step 10: a pick-out's
-# need, «Listen and say it: How long does this take?» and «Listen and say it: How much does this cost?» (``listening_tasks._build``); step 11: the next needs, «Listen and say it: Which number? / At what time? / What is the temperature?»; step 12: a hinted cue's «The first word is:» (``Builder._framed_cue``)
+# need, «Listen, then answer: How long does this take?» and «Listen, then answer: How much does this cost?» (``listening_tasks._build``); step 11: the next needs, «Listen, then answer: Which number? / At what time? / What is the temperature?»; step 12: a hinted cue's «The first word is:» (``Builder._framed_cue``)
 COMMAND_KEYS = ("repeat", "listen", "slowly", "pick_out_again", "natural", "pick_out_answer", "listening_back", "conversation_back", "dialogue_start",
                 "say_frame", "how_say_frame", "cloze_frame", "new_frame", "number_choice_say", "form_back", "aside", "aside_end",
                 "embed_part_words", "build_up_lead", "embed_part", "from_known", "listening_intro_known",

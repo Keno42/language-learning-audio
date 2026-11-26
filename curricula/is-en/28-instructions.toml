@@ -31,7 +31,10 @@
 # An instruction's meaning, the cue the lesson and the written review ask it by, names it an instruction and gives its own words in the
 # learner's language: «Say: the instruction "Say each sentence".» (#583: «Say: How do you say» read as two frames in a row). The English line
 # it replaces (`audiolesson/phrasing/en.toml`, and `ja.toml`) says the same words, so the cue, «It means: Say each sentence.» and the line said
-# after it while it is new agree (the owner, 2026-11-26: a gloss that says other words than the phrase is not left standing).
+# after it while it is new agree (the owner, 2026-11-26: a gloss that says other words than the phrase is not left standing). The one
+# exception is a pick-out's need: its English asks for the answer first, «Listen, then answer: How much does this cost?» (#409: a cue says
+# the learner's action first; «Listen and say it: …» read as «say the question»), and an aside says the Icelandic literally
+# (`hlustadu_og_segdu_thad_literal`: «segðu það», 'say it', is the answer heard).
 # Said aloud (`meaning_spoken`), the label comes first and a colon makes the pause before the words: «An instruction: Say each sentence.»
 # («指示：それぞれの文を言ってください»), since quotation marks are not heard, and «the instruction say» ran together (the owner, 2026-11-26).
 # Candidates until native-checked (#209).

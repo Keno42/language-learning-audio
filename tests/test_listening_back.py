@@ -174,7 +174,7 @@ class WayBackTableTests(unittest.TestCase):
         for kind, lines in (("catch_unknown", [("speak", "native_b", "Hvar er bankinn?"), ("narrate", "instructor", "Ask what it means.")]),
                             ("recall", [("narrate", "instructor", "Say: thanks."), ("answer", "native_a", "Takk.")]),
                             ("catch_unknown", [("speak", "native_b", "Mig langar í súpu."), ("narrate", "instructor", "Ask what it means.")]),
-                            ("pick_out", [("narrate", "instructor", "Listen and say it: How much does this cost?"), ("speak", "native_b", "Það kostar þúsund.")])):
+                            ("pick_out", [("narrate", "instructor", "Listen, then answer: How much does this cost?"), ("speak", "native_b", "Það kostar þúsund.")])):
             ex = sc.new_exercise(kind, None, [], kind)
             for typ, who, text in lines:
                 sc.add(Segment(typ, who, text, "en" if who == "instructor" else "is", 1.0, 1.0, None, ex.index))

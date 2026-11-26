@@ -12,7 +12,7 @@ import unittest
 from audiolesson.content import load_curriculum
 
 TERMS = re.compile(r"\b(nominative|accusative|dative|genitive|masculine|feminine|neuter|case|subject|object|verb|noun|pronoun|gender)\b", re.I)
-LITERAL_NOTES = ("hann_er_herna_literal", "segdu_hverja_setningu_literal", "eg_er_med_literal", "ofnaemi_fyrir_literal", "half_atta_literal")
+LITERAL_NOTES = ("hann_er_herna_literal", "segdu_hverja_setningu_literal", "hlustadu_og_segdu_thad_literal", "eg_er_med_literal", "ofnaemi_fyrir_literal", "half_atta_literal")
 
 
 class LiteralAsideTests(unittest.TestCase):
