@@ -897,6 +897,10 @@ class Builder:
                 if (home := self.whole_home(item)) is not None:
                     return self._intro_in_whole(sc, item, *home)
             return self._intro_variant(sc, item, base)
+        if self._from_worked_example(item):
+            # #262: the pattern of this lesson whose worked example was made of the part came first (``Planner.frame_first``): the part is taken out of
+            # that sentence, not put into a second frame with the same form
+            return self._intro_out_of(sc, item, self.modeled_wholes[item.id])
         if (home := self.whole_home(item)) is not None:
             return self._intro_in_whole(sc, item, *home)
         if (phrase := self.phrase_home(item)) is not None:
@@ -964,6 +968,12 @@ class Builder:
             if self.learner.has_met(it.id) or it.id in self.in_lesson:
                 words.update(w.lower() for t in re.split(r"\{[^}]*\}", it.target) for w in WORD.findall(t))
         return words
+
+    def _from_worked_example(self, item: Item) -> bool:
+        """Whether a pattern introduced in this lesson modelled ``item`` in its worked example (#262), and the part is not taught yet."""
+        m = self.modeled_wholes.get(item.id)
+        through = self.cur.by_id.get(m["through"]) if m else None
+        return through is not None and through.kind == "construction" and through.id in self.in_lesson and item.id not in self.wholes_taught
 
     def whole_home(self, item: Item) -> tuple[Item, dict[str, Item]] | None:
         """The target expression a new part is introduced inside (#239, #262; concept 1, §9 "Parts against utterances"): a construction whose slot takes the

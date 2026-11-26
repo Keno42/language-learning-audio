@@ -1915,17 +1915,28 @@ class Planner:
         still to come and two of its words new (no ``whole_home``), it was said and asked alone (review of #368)."""
         if item.kind != "vocab" or (item.variant_of and not item.noun) or item.target_m or self.learner.has_met(item.id) or item.id in self.learner.embed_failed:
             return None
-        if self.embed_source(item) is not None or self.builder.whole_home(item) is not None or self.builder.phrase_home(item) is not None:
+
+        def frames(named_only: bool):
+            for c in queue:
+                if c.kind != "construction" or not c.slots or self.learner.has_met(c.id) or c.id in self.learner.embedded:
+                    continue
+                if named_only and item.id not in {**c.example, **c.situation_fill}.values():
+                    continue
+                slot = next((sl for sl, tag in c.slots.items() if self.cur.takes(tag, c, item)), None)
+                if slot is None or len(c.slots) != 1:
+                    continue
+                if all(p == item.id or self.learner.knows(p) or p in self.builder.in_lesson for p in c.prereqs):
+                    yield c, slot
+
+        if self.embed_source(item) is not None or self.builder.phrase_home(item) is not None:
             return None
-        for c in queue:
-            if c.kind != "construction" or not c.slots or self.learner.has_met(c.id) or c.id in self.learner.embedded:
-                continue
-            slot = next((sl for sl, tag in c.slots.items() if self.cur.takes(tag, c, item)), None)
-            if slot is None or len(c.slots) != 1:
-                continue
-            if all(p == item.id or self.learner.knows(p) or p in self.builder.in_lesson for p in c.prereqs):
-                return c, slot
-        return None
+        home = self.builder.whole_home(item)
+        if home is not None:
+            # a pattern of this lesson whose example is the part comes first where the part's sentence would be another frame: the part is taught
+            # in the one frame the lesson teaches, not also in a second one with the same form («mjólk» in «Eruð þið með mjólk?», not «Áttu mjólk?»)
+            named = next(frames(named_only=True), None)
+            return named if named is not None and named[0].id != home[0].id else None
+        return next(frames(named_only=False), None)
 
     def _repeated_new_sentences(self, sc: Script, introduced: list[Item], limit: int = 3) -> dict[str, int]:
         """#311, the daily read: a phrase new today and linked to a pattern (``instance_of``: the #311 case; an ordinary new phrase may be asked five times or more,
@@ -2596,6 +2607,14 @@ class Planner:
             if (given := self.frame_first(item, new_queue)) is not None:
                 # #262: a part is taken out of an utterance the learner is given now: the pattern it goes in comes first, its worked example made of the part
                 frame, slot = given
+                if sc.exercises and sc.exercises[-1].kind == "intro":
+                    # #86: the pattern and the part taken out of it are two introductions: the one just before them is recalled first, so no three
+                    # new items come back to back
+                    last = set(sc.exercises[-1].item_ids)
+                    # another item's recall where there is one, so no item comes twice in a row; else that introduction's own first recall
+                    prev = min((e for e in intro_timeline if e[2].id not in last), default=None) or min((e for e in intro_timeline if e[2].id in last), default=None)
+                    if prev is not None:
+                        play_timed(prev, force=True)
                 if self.components_mode and frame.id not in self.component_by_item:
                     self._charge(frame)
                 new_queue.remove(frame)
