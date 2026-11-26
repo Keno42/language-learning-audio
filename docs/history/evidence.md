@@ -2229,3 +2229,49 @@ same revision. There is one subsection for both, because one round reads them.
 **This round:** the long run's step, #429 step 7 (#580): an aside's own lines, «Smá útúrdúr.» for «A quick aside.» and «Aftur að efninu.» for «Back
 to the lesson.» (19 each in lessons 64–71 on the replay), the most frequent English instructions an authored phrase can still say; taught in
 lessons 69 and 70. No second behaviour PR: the remark's answer (#563) and the pace's lever (#579) are the owner's choice.
+
+### 5.54 Lesson 65: the first lesson built with #580 and #582
+
+Lesson 65 was generated with LLA `b4fdd66` (main with #580, #581 and #582), the bot at site_update_notifier `35797e8`, `--instructions
+gradual`. Rebuilt from its export with a stand-in trip profile it is the same lesson: 115 exercises, 30.8 minutes, the tour's sixth level, ten
+new items. It is the first built with #580 (the long run's step 7) and #582 (the pace counts the next-day outcome, the owner's first step on
+#579): two behaviour PRs, as §9 "Governance" allows.
+
+| | lesson 65 |
+|---|---|
+| length | 30.8 min, 115 exercises |
+| new items; new components, weighted (target) | 10; 7 (7) |
+| theme (level) | tour (6); **0 of the 10 new items inside it** |
+| the last lesson's new items in the review | lesson 64's: **8 of 11 recalled**; 2 hesitated («magaverk», «Hvar er næsta apótek?»), 1 not recalled («ágætlega») |
+| items reviewed / due | 74 due by date, 62 the lesson could ask; **17 not fitted**; 45 reviewed |
+| instruction lines in Icelandic | 128 (lesson 64: 116) |
+| feedback form: load; friction | **right**; other (the note) |
+| «sooner» | «hálsbólgu», «tannpínu», «ágætlega», to remember |
+| candidates confirmed | no late recall of «Mér er illt í höfðinu.» (taught at 20:43) |
+
+- **The long run, #429:** «Kláraðu setninguna:» was taught at the start and said 8 times, «Complete the sentence:» after it. On the replay of
+  lesson 65's export «Eitthvað nýtt.», «Segðu hverja setningu.» and «Æfingunni er lokið.» come in lessons 66–68, and #580's aside lines in 69
+  and 70. Then the next most frequent English lines in lessons 65–72 are «These words are in it:» (18), «Let's build it up from the end.» (13)
+  and «This word is in it:» (7): this round's step (#584).
+- **The pace (H9, #582):** lesson 64's new items, at a target of 8, were recalled 8 of 11 the next day, and with #582 the pace read that outcome:
+  the target fell to 7. Confirmed recall after a gap stays at 90% (3–6 days, 45 of 50), 93% (7–13, 64 of 69) and 94% (14+, 31 of 33).
+- **New material outside its scene (H5, #579 step 2):** lesson 65 played the tour's sixth level and taught ten new items, none of them in it.
+  Eight are illness and pain lines of the pharmacy and the accident (C4): «hálsbólgu», «tannpínu», «Hvar er þér illt?», «Mér er illt í
+  höfðinu.» … Two of the three «sooner» marks are among them, and «Mér er illt í höfðinu.» had no late recall. This is the interference the
+  owner's next step on #579 goes at: similar lines apart, a waiting level's lines kept for its lesson. It is a behaviour change, so it is
+  checked on the replay first, as its own PR.
+- **Three remarks:**
+  - **An instruction's cue read as a second frame** (family `meaning-gloss`): «Say: How do you say, before what to say.» confused, and «Say "How
+    do you say" as an instruction» would not. An instruction item's cue is its meaning, which in ten of the seventeen items was the English line
+    plus where it is said. Every item's meaning now quotes the line and names it an instruction (#583, data).
+  - **«vatn» as «ヴァフトン»** (family `reading-deck`, precision): the reading deck's hint. Katakana cannot write the breath before «t» or the
+    voiceless «n» without adding vowels, and the hints have had no outside review (#586: such a word's hint is now IPA, the owner's choice).
+  - **No way to mark a review item that did not come at once** (family `review-unmarkable`, new): the form's «sooner» menu is one Discord
+    select of 25 options. Lesson 65's 10 new items took 10 of them and 15 of the 59 items it asked again took the rest; «húfu», asked at
+    23:25, was 43rd. It is the owner's choice (#585; recommended: one option more, «その他（表現を入力）», matched against the lesson's items).
+- **The instruction voice (#563):** no remark after lesson 64's. The retake list waits for the owner's ear.
+- **The other learner:** no new export since lesson 32 (2026-11-14).
+
+**This round:** the long run's step, #429 step 8 (#584): «Þessi orð eru í setningunni:», «Byrjum á endanum.» and «Þetta orð er í setningunni:»,
+taught in lessons 71–73 on the replay; none of the three English lines is said from lesson 74. The remark that recurs most, an instruction's cue,
+is answered as data (#583). The second behaviour place is left for #579 step 2 next round.

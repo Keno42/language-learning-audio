@@ -1132,6 +1132,20 @@ family = "scene-plausibility"
 class = "precision"
 answered_by = []
 
+[[lesson]]
+n = 68
+form = true
+load = "right"
+built = ["#600", "#603", "#605", "#606", "#611", "#613"]
+long_run = ["#600", "#611"]
+
+[[lesson.remarks]]
+who = "main"
+text = "The review question «Now say…» has an answer with no «núna» or «nú». («Segðu hverja setningu.» is asked as «the instruction \"Now say each one\"»: since #583 an instruction's cue quotes the English line it replaces, which for 13 of 27 instruction phrases says other words than the Icelandic; #601's aside said the literal words once, the cue kept asking for the line.)"
+family = "meaning-gloss"
+class = "twenty"
+answered_by = ["#621"]
+
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
 [[change]]
@@ -2138,3 +2152,43 @@ title = "a pick-out's need in Icelandic once taught, the question the learner as
 issue = ["#429"]
 pr = ["#600"]
 family = "instruction-language"
+
+[[change]]
+title = "a line whose words differ from its meaning says them in an aside («Segðu hverja setningu.» is literally 'say each sentence', «Hann er hérna.»; lesson 67: #601, data)"
+issue = ["#429"]
+pr = ["#601"]
+family = "form-why"
+first_heard = 68
+heard = "«Segðu hverja setningu.»'s and «Ég er með …»'s literal words said in asides"
+
+[[change]]
+title = "a level marked urgent gives no line to a catch task, and «Mér er illt í fætinum.» is the clinic's turn, a line the learner says (#599: #603, #604)"
+issue = ["#599"]
+pr = ["#603", "#604"]
+family = "scene-plausibility"
+
+[[change]]
+title = "a lead-in the learner can say is asked with its cue, not heard (#427: #605)"
+issue = ["#427"]
+pr = ["#605"]
+family = "sayable-heard"
+
+[[change]]
+title = "the asides say what changes with words the learner knows, never a grammatical term (owner, 2026-11-25: #606)"
+issue = []
+pr = ["#606"]
+family = "form-why"
+first_heard = 68
+heard = "the asides of lesson 68 («eg_er_med_literal», «segdu_hverja_setningu_literal») with no grammatical term"
+
+[[change]]
+title = "a pick-out's number, time and temperature in Icelandic once taught: «Hvaða númer?», «Klukkan hvað?», «Hvað er hitinn? Hlustaðu og segðu það.» (#429 step 11: #611)"
+issue = ["#429"]
+pr = ["#611"]
+family = "instruction-language"
+
+[[change]]
+title = "the review carries the other right answers (also), and the audit's two-frame cues get both (owner, 2026-11-26: #613)"
+issue = []
+pr = ["#613"]
+family = "review-wording"
