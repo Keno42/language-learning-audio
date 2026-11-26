@@ -357,3 +357,19 @@ meaning_spoken_ja = "指示の「聞いて、気温を答えてください」"
 difficulty = 1
 topics = ["instructions"]
 command = "pick_out_need_temperature"
+
+# #429 step 12: a hinted cue's last words, «It starts with:» (46 times in lessons 68–75 on the replay of lesson 68's export, every lesson), said
+# as a line of its own before the first word. «Fyrsta orðið er:» ('the first word is:') is made of words the learner has («í fyrsta sinn», «Þetta
+# orð er í setningunni:»); «er» tells the ear that the word follows (the owner, 2026-11-26), and what follows is always the answer's first word.
+# Candidates until native-checked (#209).
+[[items]]
+id = "fyrsta_ordid_command"
+kind = "phrase"
+target = "Fyrsta orðið er:"
+meaning = "the instruction \"It starts with\""
+meaning_ja = "指示の「最初は」"
+meaning_spoken = "the instruction \"It starts with\""
+meaning_spoken_ja = "指示の「最初は」"
+difficulty = 1
+topics = ["instructions"]
+command = "hint_frame"

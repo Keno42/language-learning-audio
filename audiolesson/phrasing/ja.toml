@@ -167,6 +167,7 @@ say_frame = "言ってください："  # #429 step 4: a cue's frame, said as «
 how_say_frame = "何と言いますか："  # #429 step 4: «Hvernig segir maður:» once taught
 cloze_frame = "文を完成させてください："  # #429 step 5: a cloze's frame, said as «Kláraðu setninguna:» once taught
 new_frame = "新しい表現です。"  # #429 step 5: a new item's frame, said as «Eitthvað nýtt.» once taught
+hint_frame = "最初は…"  # #429 step 12: the end of a hinted cue, before its first word; said as «Fyrsta orðið er:» once taught
 dialogue_start_part = "ここからは会話の一部です。"  # 続きのある場面から切り出した短いやり取り (lesson 53)
 dialogue_start_another = "続けて、もう一つ短い会話です。"  # 会話の直後の会話 (owner, lesson 45)
 dialogue_replay = "では、会話全体を通して聞きましょう。"
