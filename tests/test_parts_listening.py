@@ -70,7 +70,7 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
 
     def test_a_part_of_three_words_is_built_up_from_its_end_inside_its_sentence(self):
         """Lesson 44: «hinum megin við götuna» was said once inside «Það er hinum megin við götuna.» and the sentence word by word, never built up as a plain
-        introduction builds a long line. «These words are in it:», then the part from its end, then at natural speed, in place of the sentence's slow line."""
+        introduction builds a long line. «These words are in the sentence:», then the part from its end, then at natural speed, in place of the sentence's slow line."""
         part = self.cur.by_id["hinum_megin_vid_gotuna"]
         b = self._builder(met=[i.id for i in self.cur.items if i.order < part.order and i.kind != "construction" or i.id == "thad_er_direction"])
         sc = Script(1, "t", "is", "en")
@@ -89,7 +89,7 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
         self.assertEqual(speech[-1], "Það er hinum megin við götuna.", "the first retrieval still asks the whole")
 
     def test_a_part_of_two_words_is_named_as_words_but_not_built_up(self):
-        """Lesson 44: «á horninu» is two words, «These words are in it:», and too short to build up."""
+        """Lesson 44: «á horninu» is two words, «These words are in the sentence:», and too short to build up."""
         part = self.cur.by_id["a_horninu"]
         b = self._builder(met=[i.id for i in self.cur.items if i.order < part.order and i.kind != "construction" or i.id == "thad_er_direction"])
         sc = Script(1, "t", "is", "en")
@@ -99,7 +99,7 @@ class PartsLiveInsideTheirWholeTests(unittest.TestCase):
         self.assertNotIn(self.en.get("build_up"), narr)
 
     def test_a_part_after_the_phrase_it_is_in_is_taken_out_of_it(self):
-        """#262: «matinn» right after «Takk fyrir matinn.» in the same lesson is not a new bare word: «You know this: …», «This word is in it: …»."""
+        """#262: «matinn» right after «Takk fyrir matinn.» in the same lesson is not a new bare word: «You know this: …», «This word is in the sentence: …»."""
         b = self._builder(met=["takk"])
         sc = Script(1, "t", "is", "en")
         b.intro(sc, self.cur.by_id["takk_fyrir_matinn"])
@@ -527,7 +527,7 @@ class ListeningTaskTests(unittest.TestCase):
         self.assertEqual((task.answer, task.pattern, task.pieces), ("tuttugu mínútur", "theme:tour:1:2", 1))
         sc = Script(1, "t", "is", "en")
         ex = append_task(self._builder(), sc, task, 120.0)
-        self.assertIn("Listen for how long it takes, then say it.", sc.transcript())
+        self.assertIn("Listen and say it: How long does this take?", sc.transcript())
         self.assertEqual(ex.stage, "single")
 
     def test_the_row_counts_a_single_piece_that_is_most_of_its_line(self):
@@ -572,13 +572,13 @@ class ListeningTaskTests(unittest.TestCase):
         self.assertEqual((ex.kind, ex.item_ids), ("pick_out", ["thad_kostar_big"]))
         text = sc.transcript()
         self.assertIn("At the till.", text)
-        self.assertIn("Listen for the price, then say it.", text, "#303: the need is named")
-        self.assertLess(text.index("At the till."), text.index("Listen for the price"), "the scene, then the need")
-        self.assertLess(text.index("Listen for the price"), text.index("**Speaker B:** Það kostar fimm"), "the need before the line")
+        self.assertIn("Listen and say it: How much does this cost?", text, "#303: the need is named")
+        self.assertLess(text.index("At the till."), text.index("How much does this cost?"), "the scene, then the need")
+        self.assertLess(text.index("How much does this cost?"), text.index("**Speaker B:** Það kostar fimm"), "the need before the line")
         sc2 = Script(1, "t", "is", "en")
         from dataclasses import replace as _replace
         append_task(b, sc2, _replace(task, scene="", line="Það kostar tvö þúsund krónur."), 120.0)
-        self.assertIn("Listen for the price, then say it.", sc2.transcript(), "no scene: the need alone")
+        self.assertIn("Listen and say it: How much does this cost?", sc2.transcript(), "no scene: the need alone")
         self.assertNotIn("How much is it?", sc2.transcript())
         self.assertNotIn("partner", sc2.transcript() + text)
         self.assertEqual(len([g for g in sc.segments if g.type == "pause" and g.role == "answer"]), 1)

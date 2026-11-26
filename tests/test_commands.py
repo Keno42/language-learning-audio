@@ -228,7 +228,7 @@ class CommandTests(unittest.TestCase):
 
     def test_a_line_that_ends_on_an_instruction_says_it_as_a_line_of_its_own(self):
         """#429 step 2, lesson 56: «"Repeat" was learned in Icelandic, but some instructions still say it only in English» («A sentence from a
-        pattern you know. Listen, then repeat.», «Let's build it up from the end. Repeat each part.»). Once taught, the lead is said in English
+        pattern you know. Listen, then repeat.», «Let's begin at the end. Repeat each part.»). Once taught, the lead is said in English
         and the instruction in Icelandic; before, the line as it was."""
         def said(learner, whole_key, key, frame):
             b = builder(self.cur, learner=learner)
@@ -243,7 +243,7 @@ class CommandTests(unittest.TestCase):
         learner.lessons_completed = 60
         for i in ("endurtaktu", "hlustadu"):
             learner.items[i] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", introduced_lesson=52)
-        self.assertEqual(said(learner, "build_up", "repeat", False), [("narrate", "Let's build it up from the end."), ("speak", "Endurtaktu."), ("pause", None)])
+        self.assertEqual(said(learner, "build_up", "repeat", False), [("narrate", "Let's begin at the end."), ("speak", "Endurtaktu."), ("pause", None)])
         self.assertEqual(said(learner, "instance_sentence", "listen", True), [("narrate", "A sentence from a pattern you know."), ("speak", "Hlustaðu."),
                                                                                ("pause", None)], "a framing line keeps its beat")
 
@@ -312,14 +312,14 @@ class CommandTests(unittest.TestCase):
             builder(cur, lang, learner)._narr(sc, sc.new_exercise("recall", "hinted", list(asked), "x"), text)
             return [(g.type, g.text) for g in sc.segments]
 
-        self.assertEqual(framed("en", "Say: I go to work. It starts with:"),
+        self.assertEqual(framed("en", "Say: I go to work. The first word is:"),
                          [("speak", "Segðu:"), ("narrate", "I go to work."), ("speak", "Fyrsta orðið er:")])
-        self.assertEqual(framed("ja", "「仕事に行きます」と言ってください。最初は…"),
+        self.assertEqual(framed("ja", "「仕事に行きます」と言ってください。最初の単語は…"),
                          [("speak", "Segðu:"), ("narrate", "「仕事に行きます」"), ("speak", "Fyrsta orðið er:")])
-        self.assertEqual(framed("en", "Say: I go to work. It starts with:", taught=("segdu_command",)),
-                         [("speak", "Segðu:"), ("narrate", "I go to work. It starts with:")], "not taught: the English as before")
-        self.assertEqual(framed("en", "Say: An instruction: The first word is. It starts with:", asked=("fyrsta_ordid_command",))[-1],
-                         ("narrate", "An instruction: The first word is. It starts with:"), "«Fyrsta orðið er:» would give the answer's first word")
+        self.assertEqual(framed("en", "Say: I go to work. The first word is:", taught=("segdu_command",)),
+                         [("speak", "Segðu:"), ("narrate", "I go to work. The first word is:")], "not taught: the English as before")
+        self.assertEqual(framed("en", "Say: An instruction: The first word is. The first word is:", asked=("fyrsta_ordid_command",))[-1],
+                         ("narrate", "An instruction: The first word is. The first word is:"), "«Fyrsta orðið er:» would give the answer's first word")
 
     def test_a_framed_cue_keeps_its_claim_about_the_sentence(self):
         """Review of #557: once «Segðu:» had played, «Now something you haven't heard yet.» «Segðu:» «I need a taxi.» failed the novelty check,
@@ -410,8 +410,8 @@ class CommandTests(unittest.TestCase):
             if not blocks:
                 continue
             texts = [g.text for g in sc.segments]
-            self.assertNotIn(en.get("number_choice_say"), texts, f"lesson {lesson + 1}: never «Now say each one.» once taught")
-            self.assertNotIn(en.get("form_back"), texts, f"lesson {lesson + 1}: never «That's the end of the form work.» once taught")
+            self.assertNotIn(en.get("number_choice_say"), texts, f"lesson {lesson + 1}: never «Say each sentence.» once taught")
+            self.assertNotIn(en.get("form_back"), texts, f"lesson {lesson + 1}: never «The exercise is over.» once taught")
             said = [g for g in sc.segments if g.text == say.target]
             self.assertTrue(said and all(g.speaker == COMMAND_VOICE for g in said))
             self.assertEqual(unmarked_turns(sc, en), [], "a way back in Icelandic is still the block's last line")
@@ -429,7 +429,7 @@ class CommandTests(unittest.TestCase):
             return [(g.type, g.text) for g in sc.segments if g.type != "pause"]
 
         self.assertEqual(block(60), [("speak", "Segðu hverja setningu.")], "from the third lesson, the Icelandic alone")
-        self.assertEqual(block(68), [("speak", "Segðu hverja setningu."), ("narrate", "Now say each one.")], "the English after it the lesson after")
+        self.assertEqual(block(68), [("speak", "Segðu hverja setningu."), ("narrate", "Say each sentence.")], "the English after it the lesson after")
 
     def test_a_part_and_a_build_up_say_their_own_lines_in_icelandic_once_taught(self):
         """#429 step 8 (lessons 65–72 on the replay of lesson 65's export, an aside's lines taught in lessons 69 and 70: «These words are in it:»

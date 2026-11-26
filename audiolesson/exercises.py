@@ -471,7 +471,7 @@ class Builder:
         return False
 
     def _hint_tail(self, ex: Exercise, rest: str) -> Item | None:
-        """#429 step 12: the phrase that says a hinted cue's last words, «It starts with:», as a line of its own before the first word («Fyrsta
+        """#429 step 12: the phrase that says a hinted cue's last words, «The first word is:», as a line of its own before the first word («Fyrsta
         orðið:»), once taught; None when the cue does not end on them or the exercise asks for that phrase (the hint would be its first word)."""
         if not rest.endswith(self.prompts.get("hint_frame")):
             return None
@@ -516,7 +516,7 @@ class Builder:
 
     def _lead_instruct(self, sc: Script, ex: Exercise, whole_key: str, key: str, frame: bool = False, gender: str | None = None) -> bool:
         """#429 step 2 (lesson 56: «"Repeat" was learned in Icelandic, but some instructions still say it only in English»): a line that ends
-        on an instruction («A sentence from a pattern you know. Listen, then repeat.», «Let's build it up from the end. Repeat each part.»)
+        on an instruction («A sentence from a pattern you know. Listen, then repeat.», «Let's begin at the end. Repeat each part.»)
         says its lead in the learner's language (``<whole_key>_lead``) and the instruction ``key`` as a line of its own, through
         ``_instruct``, once that is taught («Hlustaðu.», «Endurtaktu.»). Before, the whole line as it was. ``frame``: the line is a framing
         line (``_frame``), so a beat follows it in either form. True when it was split: «Listen, then repeat.» is then «Hlustaðu.» alone, and
@@ -530,7 +530,7 @@ class Builder:
                 self._narr(sc, ex, text)
             return False
         lead = f"{whole_key}_lead"
-        if self.command_item(lead) is not None:  # #429 step 8: the lead itself taught («Byrjum á endanum.» for «Let's build it up from the end.»)
+        if self.command_item(lead) is not None:  # #429 step 8: the lead itself taught («Byrjum á endanum.» for «Let's begin at the end.»)
             self._instruct(sc, ex, lead)
         else:
             self._narr(sc, ex, self._as(gender, self.prompts.get(lead)))
@@ -573,7 +573,7 @@ class Builder:
     def _frame(self, sc: Script, ex: Exercise, text: str) -> None:
         """A framing line that introduces an example or a scene, then a beat before the target-language line (#241, lesson
         20: «sometimes no pause between the instructor's line and the example»). A cue for the learner's own action
-        («Repeat.», «Slowly.», «It starts with:») joins its line at once and is not a framing line."""
+        («Repeat.», «Slowly.», «The first word is:») joins its line at once and is not a framing line."""
         self._narr(sc, ex, text, role="frame")
         self._beat(sc, ex)
 
@@ -1014,7 +1014,7 @@ class Builder:
         return self._intro_out_of(sc, item, self.whole_of(phrase))
 
     def _intro_out_of(self, sc: Script, item: Item, whole: dict) -> Exercise:
-        """A new part taken out of a sentence the learner has just heard in this lesson: «You know this:» the sentence, «This word is in it:» the part, the part
+        """A new part taken out of a sentence the learner has just heard in this lesson: «You know this:» the sentence, «This word is in the sentence:» the part, the part
         repeated, and a retrieval of the sentence from its meaning, so the next day's question asks the sentence. ``whole`` is ``{through, answer, meaning,
         gender}``: a phrase taught earlier, the worked example of a pattern that was given with this part, or a line the learner knows that no known pattern
         can rebuild with the part (#262)."""
@@ -1135,7 +1135,7 @@ class Builder:
         A word or phrase with hard words is tried from its meaning first too (lesson 44): «Do you remember how to say this? An umbrella.», an answer pause,
         the model, then the word models, the first split announced «Let's break down the pronunciation. Repeat each part.».
         A part of two words or more with the sentence it is asked in (``whole``, the planner's ``part_whole``) is tried as that sentence (lesson 46 as
-        generated: «Let's try to say this sentence … Across the street.» asked «hinum megin við götuna» alone), then «These words are in it:» the part,
+        generated: «Let's try to say this sentence … Across the street.» asked «hinum megin við götuna» alone), then «These words are in the sentence:» the part,
         built up from its end when it has ``PART_BUILD_UP_WORDS`` words or more, else word by word, and at natural speed.
         None when nothing qualifies."""
         if whole is not None and item.kind == "vocab" and item.word_count >= 2 and not hard_words_of(item):
@@ -1489,7 +1489,7 @@ class Builder:
 
     def _intro_from_known(self, sc: Script, item: Item) -> Exercise:
         """Lesson 51: «fimm þúsund krónur» and «tíu þúsund krónur», every word known, were announced «Something new.» and «A new expression.». A plain
-        number made only of words the learner has is asked as a use of them: «Made of words you know.», its sentence asked from its meaning (the
+        number made only of words the learner has is asked as a use of them: «From words you know.», its sentence asked from its meaning (the
         expression that needs it, as a part is taught: «Það kostar tíu þúsund krónur.»), the answer after. Not named new, no repetition before."""
         home = self.whole_home(item)
         if home is not None:
@@ -1510,7 +1510,7 @@ class Builder:
 
     def _intro_in_whole(self, sc: Script, item: Item, construction: Item, fills: dict[str, Item]) -> Exercise:
         """A new part inside the expression that holds it (#239): «A new expression: Thanks for the help.», the sentence said and repeated, «This word is
-        in it:» the part (a part of ``PART_BUILD_UP_WORDS`` words or more: «These words are in it:» and built up from its end, lesson 44), and a first
+        in it:» the part (a part of ``PART_BUILD_UP_WORDS`` words or more: «These words are in the sentence:» and built up from its end, lesson 44), and a first
         retrieval of the whole from its meaning. The part is said alone afterwards, never first; the next-day question
         asks the sentence (``Script.review_questions`` reads the intro's cue and answer)."""
         gender, target = self._filled(construction, fills)

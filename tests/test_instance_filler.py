@@ -167,7 +167,7 @@ class NewPatternPromisesOnlyWhatComesTests(unittest.TestCase):
 
 
 class EmbedNeverRepeatsItsSourceTests(unittest.TestCase):
-    """Lesson 34's feedback: «á þetta hótel» was taught redundantly. «You know this: Á þetta hótel, takk. This word is in it: á þetta hótel. In
+    """Lesson 34's feedback: «á þetta hótel» was taught redundantly. «You know this: Á þetta hótel, takk. This word is in the sentence: á þetta hótel. In
     another sentence: Á þetta hótel, takk.» The phrase is a sentence of «{dest}, takk.», and the embed made the pattern with the part again."""
 
     def test_the_other_sentence_is_never_the_source(self):

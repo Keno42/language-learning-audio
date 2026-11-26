@@ -884,12 +884,12 @@ def _slot_names(text: str) -> list[str]:
 # again.»; step 1 after lesson 57: «And at natural speed.», a pick-out's «The answer:», and the ways back «Back to speaking.» and «That's the end
 # of the conversation.» (``transitions.WAYS_BACK_SAID``); step 3: a conversation's opening, «Now a short conversation.»
 # (``transitions.OPENING_SAID``); step 4: a cue's frame, «Say:» and «How do you say:» (``exercises.cue_frames``); step 5: a cloze's «Complete the
-# sentence to say:» and a new item's «Something new.», framed the same way; step 6: the form work's «Now say each one.» and its way back, «That's
-# the end of the form work.»; step 7: an aside's own lines, «A quick aside.» and «Back to the lesson.» (``Builder.note``); step 8: a part's frame
-# inside its sentence, «These words are in it:» and «This word is in it:», and a build-up's lead, «Let's build it up from the end.»
-# (``Builder._lead_instruct``); step 9: a line asked as a use of known words, «Made of words you know.» (``Builder._intro_from_known``), and a known
-# conversation's opening, «The conversation again. You know your lines: say them when it's your turn.» (``Builder.dialogue``); step 10: a pick-out's
-# need, «Listen for how long it takes, then say it.» and «Listen for the price, then say it.» (``listening_tasks._build``); step 11: the next needs, «Listen for the number / the time / the temperature, then say it.»; step 12: a hinted cue's «It starts with:» (``Builder._framed_cue``)
+# sentence to say:» and a new item's «Something new.», framed the same way; step 6: the form work's «Say each sentence.» and its way back, «The
+# exercise is over.»; step 7: an aside's own lines, «A quick aside.» and «Back to the topic.» (``Builder.note``); step 8: a part's frame
+# inside its sentence, «These words are in the sentence:» and «This word is in the sentence:», and a build-up's lead, «Let's begin at the end.»
+# (``Builder._lead_instruct``); step 9: a line asked as a use of known words, «From words you know.» (``Builder._intro_from_known``), and a known
+# conversation's opening, «The conversation again. You know your sentences. Say them when you are to speak.» (``Builder.dialogue``); step 10: a pick-out's
+# need, «Listen and say it: How long does this take?» and «Listen and say it: How much does this cost?» (``listening_tasks._build``); step 11: the next needs, «Listen and say it: Which number? / At what time? / What is the temperature?»; step 12: a hinted cue's «The first word is:» (``Builder._framed_cue``)
 COMMAND_KEYS = ("repeat", "listen", "slowly", "pick_out_again", "natural", "pick_out_answer", "listening_back", "conversation_back", "dialogue_start",
                 "say_frame", "how_say_frame", "cloze_frame", "new_frame", "number_choice_say", "form_back", "aside", "aside_end",
                 "embed_part_words", "build_up_lead", "embed_part", "from_known", "listening_intro_known",

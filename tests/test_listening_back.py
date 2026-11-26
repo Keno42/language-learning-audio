@@ -1,5 +1,5 @@
 """Lesson 34's feedback: after a pick-out (the answer, then the line heard again) the switch to the next question «always feels a little
-abrupt». A listening exercise that a drill follows ends with «Back to speaking.», as an aside ends with «Back to the lesson.». Lessons 37 and 39 (#415):
+abrupt». A listening exercise that a drill follows ends with «Back to speaking.», as an aside ends with «Back to the topic.». Lessons 37 and 39 (#415):
 a conversation that a drill follows ends with «That's the end of the conversation.»."""
 import unittest
 
@@ -69,7 +69,7 @@ class ListeningEndsWithAWayBackTests(unittest.TestCase):
             order = [e for e in sc.exercises if e.index in spoken]
             for e, nxt in zip(order, order[1:]):
                 # by its role: once taught (#429 step 6) the way back is «Æfingunni er lokið.», with the English after it for two lessons, and
-                # the lesson that teaches it says «That's the end of the form work.» as its meaning
+                # the lesson that teaches it says «The exercise is over.» as its meaning
                 said = [s.role for s in sc.segments if s.exercise == e.index and s.type in ("speak", "narrate", "answer")]
                 form = e.kind == "model" and e.stage in ("choice", "noun_choice", "said_of", "subjects")
                 next_listening = nxt.kind in ("pick_out", "catch_unknown") or (nxt.kind == "intro" and nxt.label.startswith("new (catch)"))
@@ -84,7 +84,7 @@ class ListeningEndsWithAWayBackTests(unittest.TestCase):
         self.assertGreater(closed, 3, "the course has form work followed by drills")
         self.assertGreater(len(stages), 1, f"of more than one kind: {stages}")
         self.assertGreater(taught, 0, "#429 step 6: «Æfingunni er lokið.» once taught")
-        self.assertGreater(english, 0, "«That's the end of the form work.» before")
+        self.assertGreater(english, 0, "«The exercise is over.» before")
 
     def test_a_conversation_right_after_another_says_another(self):
         """Lesson 45 (owner): a conversation that ends where another begins says no «That's the end of the conversation.», so the next one opens
@@ -174,7 +174,7 @@ class WayBackTableTests(unittest.TestCase):
         for kind, lines in (("catch_unknown", [("speak", "native_b", "Hvar er bankinn?"), ("narrate", "instructor", "Ask what it means.")]),
                             ("recall", [("narrate", "instructor", "Say: thanks."), ("answer", "native_a", "Takk.")]),
                             ("catch_unknown", [("speak", "native_b", "Mig langar í súpu."), ("narrate", "instructor", "Ask what it means.")]),
-                            ("pick_out", [("narrate", "instructor", "Listen for the price, then say it."), ("speak", "native_b", "Það kostar þúsund.")])):
+                            ("pick_out", [("narrate", "instructor", "Listen and say it: How much does this cost?"), ("speak", "native_b", "Það kostar þúsund.")])):
             ex = sc.new_exercise(kind, None, [], kind)
             for typ, who, text in lines:
                 sc.add(Segment(typ, who, text, "en" if who == "instructor" else "is", 1.0, 1.0, None, ex.index))
@@ -213,7 +213,7 @@ class WayBackTableTests(unittest.TestCase):
         line = ("speak", "native_a", "Hvað kostar kaffi?", "listening_line")
         back = ("narrate", "instructor", "Back to speaking.", "listening_back")
         drill = ("recall", "recall: x", [("narrate", "instructor", "Say: thanks.", None), ("answer", "native_a", "Takk.", None)])
-        aside_end = ("narrate", "instructor", "Back to the lesson.", None)
+        aside_end = ("narrate", "instructor", "Back to the topic.", None)
         self.assertEqual(found(drill, ("pick_out", "p", [listen, line, back]), drill), [])
         self.assertEqual(found(drill, ("pick_out", "p", [listen, line]), drill), ["p: no way back before recall"])
         self.assertEqual(found(drill, ("pick_out", "p", [listen, back, line]), drill), ["p: no way back before recall"], "said, but not last")

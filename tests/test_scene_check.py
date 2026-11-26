@@ -59,7 +59,7 @@ class SceneCheckTests(unittest.TestCase):
         self.assertEqual(ex.label, "situation: Ég nenni ekki að fara út.")
         self.assertIn("It's raining hard, and your friend suggests a walk. Say: I can't be bothered to go out.", sc.transcript())
         b.recall(sc, cur.by_id["nenni"], "hinted")
-        self.assertIn("It starts with", sc.transcript(), "a hint stays a hint")
+        self.assertIn("The first word is", sc.transcript(), "a hint stays a hint")
 
     def test_a_learner_of_another_language_gets_the_meaning_until_a_line_in_theirs_is_written(self):
         cur = curriculum({"nenni": {"fara_ut": "It's raining hard.", "sofa": False}}, known_lang="ja")
