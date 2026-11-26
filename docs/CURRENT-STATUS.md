@@ -52,7 +52,7 @@ In order:
    númer?», «Klukkan hvað?» and «Hvað er hitinn?» with the same ending. Lesson 68 (LLA `34c46e7`) taught «Æfingunni er lokið.» and said 125
    instructor lines in Icelandic; on the replay of its export the phrases already authored are taught in lessons 69–80. **This round (step 12,
    #620):** a hinted cue's «It starts with:», the most frequent English instruction left (46 in lessons 68–75, every lesson), said as «Fyrsta
-   orðið:» ('the first word:', words the learner has) after what to say and before the first word; taught in lesson 81, and «It starts with:»
+   orðið er:» ('the first word is:', words the learner has; «er» for the ear, the owner) after what to say and before the first word; taught in lesson 81, and «It starts with:»
    is gone from lesson 83. **Then (step 13):** the next most frequent English lines on the next export's replay; on lesson 68's, «Here you would
    say:» (13), «Now listen again.» and «Now answer.» (8 each).
 2. **Forms as choices (#528, owner 2026-11-12).** «New material should not be more numbers, colours and words to memorise; I want to feel a

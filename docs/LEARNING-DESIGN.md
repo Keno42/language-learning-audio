@@ -401,7 +401,7 @@ run's (#600, #611), all merged by the owner after lesson 67.
   recall after a gap: 90% at 3–6 days (46 of 51), 93% at 7–13 (67 of 72), 88% at 14+ (38 of 43).
 - **The long run, #429:** «Æfingunni er lokið.» was taught. On the replay of lesson 68's export, the phrases already authored are taught in lessons
   69–80; after them, the most frequent English instruction is a hinted cue's «It starts with:», 46 times in lessons 68–75: this round's step
-  (#620, «Fyrsta orðið:»).
+  (#620, «Fyrsta orðið er:»).
 - **One remark, `meaning-gloss`:** the review question «Now say…» has an answer with no «nú». The cue was «the instruction "Now say each one"»: an
   instruction's cue quoted the English line it replaces (#583), and 13 of the 27 instruction phrases say other words. Lesson 67 remarked the same
   phrase; #601's aside said its literal words once, and the cue kept asking for the line. #621 (data) gives each instruction's cue its own words.
