@@ -47,12 +47,14 @@ In order:
    in Icelandic, with no remark. **Built, step 9 (#588):** «Úr orðum sem þú kannt.» for «Made of words you know.» and «Samtalið aftur. Þú kannt
    þínar setningar. Segðu þær þegar þú átt að tala.» for a known conversation's «The conversation again. You know your lines: say them when it's
    your turn.», taught in lessons 74 and 75 on the replay of lesson 67's export. Lesson 67 (LLA `590081e`) taught «Segðu hverja setningu.» and
-   said 131 instructor lines in Icelandic; its remark asked for the line's literal words, 'say each sentence' (#601). **This round (step 10,
-   #600):** a pick-out's need, the most frequent English instruction left (35 in lessons 67–74, every lesson): «Hvað tekur þetta langan tíma?
-   Hlustaðu og segðu það.» for «Listen for how long it takes, then say it.» (13) and «Hvað kostar þetta? Hlustaðu og segðu það.» for «Listen for
-   the price, then say it.» (8), each the question the learner asks for that information, then «listen and say it»; taught in lessons 76 and 77,
-   and neither English line is said from lesson 79. **Then (step 11):** the next most frequent English lines on the next export's replay; on
-   lesson 67's, the other needs («Listen for the number / the temperature / the time, then say it.», 4 each) and «Put it together yourself.» (5).
+   said 131 instructor lines in Icelandic; its remark asked for the line's literal words, 'say each sentence' (#601). **Built, step 10 (#600):** a pick-out's need, «Hvað tekur þetta langan tíma? Hlustaðu og segðu það.» and «Hvað kostar þetta? Hlustaðu og
+   segðu það.», each the question the learner asks for that information, then «listen and say it»; **step 11 (#611):** the other needs, «Hvaða
+   númer?», «Klukkan hvað?» and «Hvað er hitinn?» with the same ending. Lesson 68 (LLA `34c46e7`) taught «Æfingunni er lokið.» and said 125
+   instructor lines in Icelandic; on the replay of its export the phrases already authored are taught in lessons 69–80. **This round (step 12,
+   #620):** a hinted cue's «It starts with:», the most frequent English instruction left (46 in lessons 68–75, every lesson), said as «Fyrsta
+   orðið er:» ('the first word is:', words the learner has; «er» for the ear, the owner) after what to say and before the first word; taught in lesson 81, and «It starts with:»
+   is gone from lesson 83. **Then (step 13):** the next most frequent English lines on the next export's replay; on lesson 68's, «Here you would
+   say:» (13), «Now listen again.» and «Now answer.» (8 each).
 2. **Forms as choices (#528, owner 2026-11-12).** «New material should not be more numbers, colours and words to memorise; I want to feel a
    coach who makes me choose the right case and the right verb form.» The course itself is one-sided: of 256 sentences that open with a
    subject pronoun, 207 say «ég»; «vilja», «þurfa» and «eiga» exist in one form; the learner has two forms of three nouns. **Built, step 1 (#531):** the
@@ -91,30 +93,28 @@ In order:
 4. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 5. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
-**This round:** after lesson 67, one behaviour PR, the long run's step 10 (#600, merged by the owner for lesson 68), and one data PR for the remarks: lesson 67's two remarks ask
-for a line's literal words («Segðu hverja setningu.», «Hann er hérna.»), the `form-why` family, remarked in seven lessons. The literal words of
-those two and of four more items were in the transcript only; #601 says them in asides, the place the owner chose after lesson 29, without a
-grammatical term. Lesson 67's other two remarks, on the catch task in the accident's first level, wait for the owner's choice (#599). Open
-from before, not this round's: the instruction voice's retake (#597, rendering only), the reading deck's IPA after an outside check (#596, data)
-and #548 step 2's anchor frame for the bot (#598, no audio change).
+**This round:** after lesson 68, one behaviour PR, the long run's step 12 (#620), and one data PR for the remark: the review question «Now
+say…» has an answer with no «nú». An instruction's cue quoted the English line it replaces (#583), and 13 of the 27 instruction phrases say
+other words; lesson 67 remarked the same phrase, and #601's aside said its words once while the cue kept asking for the line. #621 gives each
+instruction's cue its own words (`meaning-gloss`).
 
-## Now (updated 2026-11-25, after lesson 67), in order
+## Now (updated 2026-11-26, after lesson 68), in order
 
 The remarks' half of each round (LD §9 "Governance"): each remark ranked by how often its cause recurs on the replay of the latest export and
-what a fix costs. The latest export is lesson 67's; the next lesson is 68. Lessons 56–67 were rated «right».
-1. **A line's literal words (`form-why`, lesson 67).** «Now say each one» has no «now» in «Segðu hverja setningu.», and «The pain is here» says
-   «hann»: six items had their literal words in the transcript only. **Built (#601, data):** five asides say them aloud; on the replay of lesson
-   67's export lessons 67 and 68 say all five. **Next:** read lesson 68; an instruction taught later (step 10's two) may want its literal words
-   too.
-2. **The catch task in an urgent scene, and a caught word never practised (#599, lesson 67).** The owner chose both fixes (2026-11-25), and a
-   fix for a scene that rings false is not counted against the change rate (LD §9 "Governance"). **Built:** a level marked `urgent` (the
-   accident's first) gives no line to a catch task (on the replay of lesson 67's export, its catch becomes two pick-outs), and «Mér er illt í
-   fætinum.» is the clinic's turn, a line the learner says (data). **Next:** read the accident's second level (lesson 70 or 71 on the replay).
-3. **New material tied to its scene (#579, H4, H5).** Lesson 67, the first built with #590 and #592, played the accident's first level with 6
-   of its 10 new items inside it (lessons 65 and 66: none). On the replay of lesson 67's export the pharmacy plays in lessons 68 and 69 and the
-   accident's second level in 70; from lesson 68 the played level holds 0–2 of the day's new items. **Next:** read lessons 68–70.
-4. **A review item the form cannot mark (#585, lesson 65)** and **the instruction voice's takes (#563, lesson 64).** Built (the form's picker,
-   site_update_notifier#240; #597's retake) and closed by the owner (2026-11-25); a line that sounds wrong goes on the profile's `retake` list.
+what a fix costs. The latest export is lesson 68's; the next lesson is 69. Lessons 56–68 were rated «right».
+1. **An instruction asked by words it does not say (`meaning-gloss`, lessons 67 and 68).** «Segðu hverja setningu.» was asked as «the
+   instruction "Now say each one"», and the learner looked for «nú». **Built (#621, data):** 13 instruction cues give the phrase's own words
+   («the instruction "Say each sentence"», «… "How much does this cost? Listen and say it"»), still named an instruction; on the replay of
+   lesson 68's export 2–7 such cues a lesson. **Next:** read the next three feedbacks for a cue whose words the answer lacks.
+2. **The catch task in an urgent scene, and a caught word never practised (#599, lesson 67).** **Built (#603, #604):** an urgent level gives
+   no line to a catch task, and «Mér er illt í fætinum.» is a line the learner says; lesson 68 taught it, and marked it «sooner». **Next:** its
+   next-day recall, and the accident's second level when it plays.
+3. **New material tied to its scene (#579, #327, H4, H5).** Lesson 68 played the daily level with 4 of its 6 new items inside it. On the replay of
+   lesson 68's export the played level holds new items to lesson 76 and none from lesson 77, when the ranked levels run out. **Next:** #327's
+   next batch (the taxi, daily life) before lesson 77.
+4. **Two «sooner» items failed the next day (lesson 67).** «Hvar er sendiráðið?» and «Ég er með sjúkratryggingu.» were marked «sooner» and not
+   recalled; both are hard items with no connection to practise them through (#326's row). **Next:** their recall at the next ask, before adding
+   practice.
 
 **Alongside:** practice by what is hard in an item (#518, #439, G11): lesson 60's two heavy-dose items were hesitated and not recalled, lesson 59's 2 of 7 recalled; the dose alone does not hold them, and #579 reads it with the pace. A conversation once (#519): lessons 54–61 had four to eight conversations and no remark on their number, eight feedbacks. Hard to hear (#447): «Ég missti af strætó.» and «Hafið þið laust herbergi?», reported after lesson 59, were not recalled the next day and recalled at their next ask. The listening pool's sameness (#339): none of lesson 56's, 57's or 58's pick-outs was on a line heard in the three lessons before (0 of 8, 0 of 6, 0 of 6; lesson 55: 3 of 4). On the replay of lesson 58's export it comes back in lesson 70, when few lines are left that were not heard lately: 12 of 19 pick-outs; 6 of 16 with the batch after lesson 58; at most 1 when C4's four levels play as well. The town names as dative fillers, left unfitted in lessons 53–55, were fitted in 56 and 57. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
 before adding practice. Scene coherence (#327): lesson 50 said four of its six new items as turns of the played exchange, lesson 51 none of its
