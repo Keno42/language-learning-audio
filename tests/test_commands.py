@@ -297,6 +297,29 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(framed("en", "How do you say: the instruction \"Say\".", asked=("segdu_command",))[0], ("speak", "Hvernig segir maður:"),
                          "another frame gives nothing away")
 
+    def test_a_hinted_cue_s_last_words_are_said_in_icelandic_once_taught(self):
+        """#429 step 12 (lessons 68–75 on the replay of lesson 68's export: «It starts with:» 46 times, the most frequent English instruction
+        left): a hinted cue's «It starts with:» is said as «Fyrsta orðið:», a line of its own after what to say and before the first word. Not
+        in the exercise that asks for that phrase, whose first word the hint would give away."""
+        def framed(lang, text, taught=("segdu_command", "fyrsta_ordid_command"), asked=()):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            learner = LearnerState("is", lang, "A1")
+            learner.lessons_completed = 60
+            for i in taught:
+                learner.items[i] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", introduced_lesson=50)
+            sc = Script(1, "t", "is", lang)
+            builder(cur, lang, learner)._narr(sc, sc.new_exercise("recall", "hinted", list(asked), "x"), text)
+            return [(g.type, g.text) for g in sc.segments]
+
+        self.assertEqual(framed("en", "Say: I go to work. It starts with:"),
+                         [("speak", "Segðu:"), ("narrate", "I go to work."), ("speak", "Fyrsta orðið:")])
+        self.assertEqual(framed("ja", "「仕事に行きます」と言ってください。最初は…"),
+                         [("speak", "Segðu:"), ("narrate", "「仕事に行きます」"), ("speak", "Fyrsta orðið:")])
+        self.assertEqual(framed("en", "Say: I go to work. It starts with:", taught=("segdu_command",)),
+                         [("speak", "Segðu:"), ("narrate", "I go to work. It starts with:")], "not taught: the English as before")
+        self.assertEqual(framed("en", "Say: the instruction \"It starts with\". It starts with:", asked=("fyrsta_ordid_command",))[-1],
+                         ("narrate", "the instruction \"It starts with\". It starts with:"), "«Fyrsta orðið:» would give the answer's first word")
+
     def test_a_framed_cue_keeps_its_claim_about_the_sentence(self):
         """Review of #557: once «Segðu:» had played, «Now something you haven't heard yet.» «Segðu:» «I need a taxi.» failed the novelty check,
         the instruction taken for the sentence the claim points at. An instruction said in Icelandic is not a line of the lesson."""
@@ -596,7 +619,8 @@ class CommandTests(unittest.TestCase):
                                  "klaradu_setninguna_command", "eitthvad_nytt_command", "segdu_hverja_setningu_command", "aefingunni_lokid_command",
                                  "sma_utudur_command", "aftur_ad_efninu_command",
                                  "thessi_ord_command", "byrjum_a_endanum_command", "thetta_ord_command", "ur_ordum_command", "samtalid_aftur_command",
-                                 "hlustadu_tima_command", "hlustadu_verd_command", "hlustadu_numer_command", "hlustadu_klukkan_command", "hlustadu_hiti_command"],
+                                 "hlustadu_tima_command", "hlustadu_verd_command", "hlustadu_numer_command", "hlustadu_klukkan_command", "hlustadu_hiti_command",
+                                 "fyrsta_ordid_command"],
                          "lesson 54's then lesson 57's, by how often the lessons say them")
         learner = LearnerState("is", "en", "A1")
         for i in ("endurtaktu", "hlustadu"):

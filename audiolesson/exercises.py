@@ -458,9 +458,25 @@ class Builder:
             if self.command_support(item):
                 support = self.prompts.get(key)
                 sc.add(Segment("narrate", "instructor", support, self.kl, 1.0, self.timing.speech_estimate(support, self.kl), "command_support", ex.index))
+            hint = self._hint_tail(ex, rest)
+            if hint is not None:
+                rest = rest[: -len(self.prompts.get("hint_frame"))].strip()
             sc.add(Segment("narrate", "instructor", rest, self.kl, 1.0, self.timing.speech_estimate(rest, self.kl), None, ex.index))
+            if hint is not None:
+                self._speak(sc, ex, hint.target, speaker=COMMAND_VOICE, role="command")
+                if self.command_support(hint):
+                    support = self.prompts.get("hint_frame")
+                    sc.add(Segment("narrate", "instructor", support, self.kl, 1.0, self.timing.speech_estimate(support, self.kl), "command_support", ex.index))
             return True
         return False
+
+    def _hint_tail(self, ex: Exercise, rest: str) -> Item | None:
+        """#429 step 12: the phrase that says a hinted cue's last words, «It starts with:», as a line of its own before the first word («Fyrsta
+        orðið:»), once taught; None when the cue does not end on them or the exercise asks for that phrase (the hint would be its first word)."""
+        if not rest.endswith(self.prompts.get("hint_frame")):
+            return None
+        item = self.command_item("hint_frame")
+        return None if item is None or item.id in ex.item_ids else item
 
     def command_item(self, key: str) -> Item | None:
         """#429: the phrase that says the instruction ``key`` in the target language, once the learner has it (met before, or taught in this
