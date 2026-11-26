@@ -941,7 +941,7 @@ class AsideBreathTests(unittest.TestCase):
         b.note(sc, note)
         segs = sc.segments
         end = next(k for k in range(len(segs) - 1, -1, -1) if segs[k].type == "narrate")  # aside_end
-        self.assertEqual(segs[end - 1].type, "pause", "one beat before «Back to the lesson.»")
+        self.assertEqual(segs[end - 1].type, "pause", "one beat before «Back to the topic.»")
         self.assertNotEqual(segs[end - 2].type, "pause", "and not two")
 
     def test_japanese_prose_breaks_at_the_full_stop(self):

@@ -94,6 +94,41 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class NeedAsksForTheAnswerTests(unittest.TestCase):
+    """Review of #624: «Listen and say it: How much does this cost?» could be heard as «say the question». Every need asks for the answer
+    («Listen, then answer: …», as a line with several pieces does), and what the learner is to say is the piece heard in the line, never the
+    question; the same once the need is said in Icelandic, whose «segðu það» an aside says literally."""
+
+    def test_every_need_asks_for_the_answer(self):
+        for lang, word in (("en", "answer"), ("ja", "答え")):
+            p = Prompts.load(lang)
+            for kind in (*KINDS, "ask"):
+                self.assertIn(word, p.get(f"pick_out_need_{kind}", ask="X?"), (lang, kind))
+
+    def test_the_answer_is_the_piece_heard_not_the_question(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        icelandic = {i.command: i.target for i in cur.items if (i.command or "").startswith("pick_out_need_")}
+        for lang in ("en", "ja"):
+            p = Prompts.load(lang)
+            for kind in KINDS:
+                task = ListeningTask("pick_out", "x", "", "Safnið lokar klukkan fimm.", "klukkan fimm", "five", f"pick_out_{kind}")
+                segs = build(lang, task).segments
+                answers = [g.text for g in segs if g.type == "answer"]
+                self.assertEqual(answers[:1], ["klukkan fimm"], (lang, kind))
+                question = p.get(f"pick_out_need_{kind}").split("：" if lang == "ja" else ": ", 1)[1]
+                self.assertNotIn(question, answers, (lang, kind))
+                if f"pick_out_need_{kind}" in icelandic:  # nor the Icelandic need's question («Hvað kostar þetta?»)
+                    self.assertNotIn(icelandic[f"pick_out_need_{kind}"].split("? ")[0] + "?", answers, (lang, kind))
+
+    def test_the_aside_says_what_it_refers_to(self):
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        note = next(n for n in cur.notes if n.id == "hlustadu_og_segdu_thad_literal")
+        self.assertIn("'listen and say it'", note.text)
+        self.assertIn("answer", note.text)
+        needs = {i.id for i in cur.items if (i.command or "").startswith("pick_out_need_")}
+        self.assertEqual(set(note.items), needs, "every need said in Icelandic has the aside")
+
+
 class ActionFirstTests(unittest.TestCase):
     """#409 (lesson 36): «You want to know: When does it close? Listen and answer.» opened like a speaking task, and «Now the same form with another
     word. Your turn.» gave the turn a line before its task. A cue's first words say what the learner is to do."""

@@ -221,7 +221,7 @@ class LessonStructureTests(unittest.TestCase):
     def test_hard_single_word_gets_slow_repetition_not_a_synthetic_backward_split(self):
         """Issue #34 point 7: a long single word has no verified sub-word boundary to build
         backward from (``backward_chunks()`` now returns just the one, unsplit word for it),
-        so its intro must not be framed as "build it up from the end" — it should fall back
+        so its intro must not be framed as "begin at the end" — it should fall back
         to the same slow-then-natural whole-word repetition an easy multi-word phrase already
         gets, not silently skip extra practice for being hard."""
         from audiolesson.content import Item
@@ -365,10 +365,10 @@ class LessonStructureTests(unittest.TestCase):
 
     def test_hard_phrase_is_built_backwards(self):
         text = self.script.transcript()
-        self.assertIn("build it up from the end", text)
+        self.assertIn("begin at the end", text)
         # Issue #49 had the chunks stretched; #302 says them at natural speed (a one-word chunk plain, a longer one word by word): "(slow)" marks a sub-1.0 rate
         self.assertIn("**Speaker A:** plaît", text)
-        self.assertNotIn("(slow)", text.split("build it up from the end")[1].split("natural")[0])
+        self.assertNotIn("(slow)", text.split("begin at the end")[1].split("natural")[0])
         # the learner's model answers read as "You", whichever voice models them; every
         # "**You:**" line is an answer and every answer is one
         answers = [seg.text for seg in self.script.segments if seg.type == "answer"]

@@ -151,8 +151,15 @@ text_ja = "«Hann er hérna.»の直訳は「彼はここにいます」。ア�
 id = "segdu_hverja_setningu_literal"
 items = ["segdu_hverja_setningu_command"]
 topics = ["instructions"]
-text = "The instruction «Segðu hverja setningu.» is literally 'say each sentence'. «Segðu» is the one you hear before a cue. And «setningu» is the word for sentence, as in the frame of a sentence to complete. The 'now' of the English line it replaces is not in it."
-text_ja = "指示の«Segðu hverja setningu.»の直訳は「それぞれの文を言ってください」。«Segðu»は問いの前に聞く「言ってください」です。«setningu»は「文」で、文を完成させる問題の前にも聞いています。置き換えた英語の指示にある「では」に当たる言葉はありません。"
+text = "The instruction «Segðu hverja setningu.» is literally 'say each sentence'. «Segðu» is the one you hear before a cue. And «setningu» is the word for sentence, as in the frame of a sentence to complete."
+text_ja = "指示の«Segðu hverja setningu.»の直訳は「それぞれの文を言ってください」。«Segðu»は問いの前に聞く「言ってください」です。«setningu»は「文」で、文を完成させる問題の前にも聞いています。"
+
+[[notes]]
+id = "hlustadu_og_segdu_thad_literal"
+items = ["hlustadu_tima_command", "hlustadu_verd_command", "hlustadu_numer_command", "hlustadu_klukkan_command", "hlustadu_hiti_command"]
+topics = ["instructions"]
+text = "These instructions start with their question, such as «Hvað kostar þetta?». The words after it are literally 'listen and say it': «Hlustaðu og segðu það.» Here, it is the answer you hear, the price, not the question."
+text_ja = "この指示は、問いから始まります。たとえば«Hvað kostar þetta?»です。そのあとの言葉は直訳すると「聞いて、それを言ってください」です：«Hlustaðu og segðu það.» この「それ」は聞こえてくる答え、つまり値段のことで、問いではありません。"
 
 [[notes]]
 id = "eg_er_med_literal"

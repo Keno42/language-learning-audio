@@ -12,7 +12,7 @@ final_block_some = "To finish, let's go back over some of today's new material."
 
 intro_new = "Something new. {meaning}"
 # lesson 51: a plain number made only of known words, asked as a use of them, not introduced as new
-from_known = "Made of words you know."
+from_known = "From words you know."
 listen = "Listen."
 listen_again = "Listen again."
 repeat = "Repeat."
@@ -20,8 +20,8 @@ repeat = "Repeat."
 command_intro = "From now on, this instruction is in Icelandic:"
 command_means = "It means: {meaning}"
 once_more = "Once more."
-build_up = "Let's build it up from the end. Repeat each part."
-build_up_lead = "Let's build it up from the end."  # #429 step 2: the line before its instruction, once that is taught («Endurtaktu.», «Hlustaðu.»)
+build_up = "Let's begin at the end. Repeat each part."
+build_up_lead = "Let's begin at the end."  # #429 step 2: the line before its instruction, once that is taught («Endurtaktu.», «Hlustaðu.»)
 slowly = "Slowly."
 natural = "And at natural speed."
 split_slowly = "Slowly, in parts. Repeat each part."
@@ -42,7 +42,7 @@ note_pieces_lead = "Now the pieces, slowly."
 # issue #59: the meaning comes first, so completing «Ég skil…» is a retrieval of "I don't
 # understand", not a guess at which authored phrase the course has in mind
 cloze = "Complete the sentence to say: {meaning}"
-hinted = "Say: {meaning} It starts with:"
+hinted = "Say: {meaning} The first word is:"
 scene_say = "{scene} Say: {meaning}"  # the scene check's line, then what to say (owner, 2026-10-16)
 meaning = [
   "How do you say: {meaning}",
@@ -88,9 +88,9 @@ transform_same = "Same change:"  # a transform's instruction after its two narra
 
 dialogue_partner_said = "{meaning}"
 aside = "A quick aside."
-aside_end = "Back to the lesson."
+aside_end = "Back to the topic."
 listening_back = "Back to speaking."  # after a pick-out or a catch, when a drill follows: the listening is over (lesson 34: the switch felt abrupt)
-form_back = "That's the end of the form work."  # after the number, gender or subject choice, when a drill follows (lesson 55: say when the usual practice comes back)
+form_back = "The exercise is over."  # after the number, gender or subject choice, when a drill follows (lesson 55: say when the usual practice comes back)
 conversation_part_back = "That's enough of that conversation."  # after a part of one (lesson 53: the scene does not end there)
 conversation_back = "That's the end of the conversation."  # after a conversation, when a drill follows (#415: lessons 37 and 39)
 milestone_intro = "Here's a pattern worth noticing."
@@ -100,8 +100,8 @@ reply = "Reply."
 reply_example = "For example: {meaning}"  # after «Reply.» and the partner's line: what to answer, as one possible answer (lesson 29)
 # a part heard in a sentence instead of being introduced on its own (LearnerState.embedded)
 embed_known = "You know this:"
-embed_part = "This word is in it:"
-embed_part_words = "These words are in it:"
+embed_part = "This word is in the sentence:"
+embed_part_words = "These words are in the sentence:"
 embed_part_also = "And this one:"
 # a noun in a form its frame asks (#270): the basic word, said once, after the part
 form_of_base = "In this sentence the word changes. The basic word is:"
@@ -130,7 +130,7 @@ number_choice_intro = "One number, different forms: it follows the word it count
 # #571 (the owner's rule, 2026-11-16: no grammatical term): the word the number counts decides its form
 number_choice_form = "With «{word}»: «{form}»."
 number_choice_change = "With «{word}», «{nominative}» becomes «{form}»."
-number_choice_say = "Now say each one."
+number_choice_say = "Say each sentence."
 # #439 step 2: a gendered word said of him and of her, side by side, then each asked again
 # #528 step 1: a sentence the learner says with «ég», said with other subjects; the verb's form is the subject's choice
 subjects_intro = "One verb, other subjects: its form follows who does it. You say:"
@@ -158,7 +158,7 @@ listening_intro = "A conversation to listen to. It has a few new expressions in 
 # the same, when some of the learner's lines in it are ones they know and will be asked for (#240)
 listening_intro_some_asked = "A conversation to listen to. It has a few new expressions in it: just hear those. You don't need to remember them. When a line you know comes, say it."
 # a scene played again, every line of the learner's one they can say (#263): nothing new, nothing only heard
-listening_intro_known = "The conversation again. You know your lines: say them when it's your turn."
+listening_intro_known = "The conversation again. You know your sentences. Say them when you are to speak."
 # the same, with the learner's short set replies played in the model voice (#416): what is asked and what is played
 listening_intro_known_voiced = "The conversation again. Answer when you're told what to say. Short replies like yes, no and thanks are played for you."
 # #438: a scene heard again once the lesson has said that short replies are played
@@ -171,7 +171,7 @@ say_frame = "Say:"  # #429 step 4: a cue's frame, said as «Segðu:» once taugh
 how_say_frame = "How do you say:"  # #429 step 4: «Hvernig segir maður:» once taught
 cloze_frame = "Complete the sentence:"  # #429 step 5: a cloze's frame («Complete the sentence to say: …»), said as «Kláraðu setninguna:» once taught
 new_frame = "Something new."  # #429 step 5: a new item's frame («Something new. …»), said as «Eitthvað nýtt.» once taught
-hint_frame = "It starts with:"  # #429 step 12: the end of a hinted cue, before its first word; said as «Fyrsta orðið er:» once taught
+hint_frame = "The first word is:"  # #429 step 12: the end of a hinted cue, before its first word; said as «Fyrsta orðið er:» once taught
 dialogue_start_part = "Now part of a conversation."  # a short exchange cut from a scene that goes on after it (lesson 53)
 dialogue_start_another = "Now another short conversation."  # right after another conversation (owner, lesson 45)
 dialogue_replay = "Now the whole conversation, without pauses."
@@ -194,13 +194,13 @@ man_says = "A man says:"
 # the same, when the scene was named: whose line it is
 # a pick-out (#303): the need comes first, after the scene, and the line is heard for it
 # #409: the action first, then what to listen for, still before the line (#303): «You want to know …» opened like a speaking task (lesson 36)
-pick_out_need_price = "Listen for the price, then say it."
-pick_out_need_time = "Listen for the time, then say it."
-pick_out_need_count = "Listen for how many, then say it."
-pick_out_need_place = "Listen for where it is, then say it."
-pick_out_need_duration = "Listen for how long it takes, then say it."
-pick_out_need_number = "Listen for the number, then say it."
-pick_out_need_temperature = "Listen for the temperature, then say it."
+pick_out_need_price = "Listen, then answer: How much does this cost?"
+pick_out_need_time = "Listen, then answer: At what time?"
+pick_out_need_count = "Listen, then answer: How many?"
+pick_out_need_place = "Listen, then answer: Where is it?"
+pick_out_need_duration = "Listen, then answer: How long does this take?"
+pick_out_need_number = "Listen, then answer: Which number?"
+pick_out_need_temperature = "Listen, then answer: What is the temperature?"
 pick_out_need_ask = "Listen, then answer: {ask}"
 pick_out_answer = "The answer:"
 pick_out_again = "Listen again."

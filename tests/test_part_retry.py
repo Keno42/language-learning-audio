@@ -32,7 +32,7 @@ class PartRetryTests(unittest.TestCase):
         self.assertEqual([g.text for g in segs if g.type == "answer"], ["Það er hinum megin við götuna."], "the sentence is asked, not the part alone")
         tx = sc.transcript()
         at = 0
-        for line in ("These words are in it:", "Let's build it up from the end.", "**Speaker A:** götuna", "við · götuna", "megin · við · götuna", "hinum · megin · við · götuna"):
+        for line in ("These words are in the sentence:", "Let's begin at the end.", "**Speaker A:** götuna", "við · götuna", "megin · við · götuna", "hinum · megin · við · götuna"):
             at = tx.index(line, at)  # each after the one before
         self.assertEqual([g.text for g in segs if g.type == "speak"][-1], "Það er hinum megin við götuna.", "and the sentence at natural speed")
 

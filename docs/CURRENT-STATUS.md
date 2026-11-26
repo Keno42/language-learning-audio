@@ -105,7 +105,8 @@ what a fix costs. The latest export is lesson 68's; the next lesson is 69. Lesso
 1. **An instruction asked by words it does not say (`meaning-gloss`, lessons 67 and 68).** «Segðu hverja setningu.» was asked as «the
    instruction "Now say each one"», and the learner looked for «nú». **Built (#621, data):** 13 instruction cues give the phrase's own words
    («the instruction "Say each sentence"», «… "How much does this cost? Listen and say it"»), still named an instruction; on the replay of
-   lesson 68's export 2–7 such cues a lesson. **Next:** read the next three feedbacks for a cue whose words the answer lacks.
+   lesson 68's export 2–7 such cues a lesson; the English lines they replace say the same words («Say each sentence.», «The exercise is
+   over.», the owner: a line and its gloss that differ are not left standing). **Next:** read the next three feedbacks for a cue whose words the answer lacks.
 2. **The catch task in an urgent scene, and a caught word never practised (#599, lesson 67).** **Built (#603, #604):** an urgent level gives
    no line to a catch task, and «Mér er illt í fætinum.» is a line the learner says; lesson 68 taught it, and marked it «sooner». **Next:** its
    next-day recall, and the accident's second level when it plays.

@@ -12,7 +12,7 @@
 
 The ledger's family «pick-out-turns» (the turns between and inside tasks) was remarked in eight lessons from 24 to 39, each turn fixed on its
 own; this is one home for its part between tasks. Not here: the turns inside a pick-out (``listening_tasks._build``: #306, #343, #353, #411),
-the closing block's content (#421, #435, #437), and an aside's end («Back to the lesson.», «Let's continue.»), which ``Builder.note`` says
+the closing block's content (#421, #435, #437), and an aside's end («Back to the topic.», «Let's continue.»), which ``Builder.note`` says
 whatever follows.
 """
 
@@ -54,8 +54,8 @@ WAY_BACK = {"listening": "listening_back", "conversation": "conversation_back", 
 # ``close_tasks`` drops them where they are not wanted, and inserts the others where they are
 BUILT_IN = {"conversation_back"}
 # #429 step 1 (lesson 57): the ways back said in the target language once taught («Aftur að tala.», «Samtalinu er lokið.»), on the finished
-# script after ``close_tasks``; a part's «That's enough of that conversation.» is not one of them. Step 6 (lesson 62): the form work's «That's the
-# end of the form work.» («Æfingunni er lokið.»)
+# script after ``close_tasks``; a part's «That's enough of that conversation.» is not one of them. Step 6 (lesson 62): the form work's «The exercise
+# is over.» («Æfingunni er lokið.»)
 WAYS_BACK_SAID = ("listening_back", "conversation_back", "form_back")
 # #429 step 3: a conversation's opening («Now a short conversation.», ``Builder.dialogue``) said in the target language once taught («Nú kemur
 # stutt samtal.»), on the finished script after ``close_tasks``, which reads the line by its text to say «Now another short conversation.» right
@@ -64,7 +64,7 @@ OPENING_SAID = "dialogue_start"
 # the line that opens a mode when its exercise would otherwise start with a target-language line straight after the task before: a catch with no
 # scene to frame it, such as one that introduces a word through its home sentence (``Builder.whole_home``); a pick-out always opens with its need
 WAY_IN = {"listening": "listen"}
-# the lines the builder says at the end of every exercise of a mode, whatever follows: an aside ends «Back to the lesson.» or, for a milestone,
+# the lines the builder says at the end of every exercise of a mode, whatever follows: an aside ends «Back to the topic.» or, for a milestone,
 # «Let's continue.» (``Builder.note``). Whether they should follow ``WAY_BACK``'s rule (none before a task that opens with its own line) is open
 END_LINES = {"aside": ("aside_end", "milestone_end")}
 SPOKEN = ("speak", "narrate", "answer")

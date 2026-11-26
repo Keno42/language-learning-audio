@@ -24,7 +24,7 @@ class FromKnownTests(unittest.TestCase):
 
     def test_it_is_asked_as_a_use_of_known_words_not_named_new(self):
         item = self.cur.by_id["tvo_thusund_kronur"]
-        for lang, frame in (("en", "Made of words you know."), ("ja", "知っている言葉だけでできています。")):
+        for lang, frame in (("en", "From words you know."), ("ja", "知っている言葉から。")):
             b = Builder(self.cur, Prompts.load(lang), Timing(level="A1"), LearnerState("is", lang, "A1"))
             b.plain.add(item.id)
             b.from_known.add(item.id)
