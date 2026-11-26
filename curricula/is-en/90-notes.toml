@@ -66,6 +66,8 @@ id = "pylsa"
 items = ["pylsu", "eina_pylsu_med_ollu"]
 topics = ["food"]
 text = "The Icelandic hot dog is mostly lamb, and «með öllu» means ketchup, sweet mustard, remoulade, raw onions and crispy onions. It is the national fast food, the way a convenience-store «ja:onigiri|おにぎり» is in Japan: cheap, everywhere, and eaten standing up."
+audience = "ja"
+text_plain = "The Icelandic hot dog is mostly lamb, and «með öllu» means ketchup, sweet mustard, remoulade, raw onions and crispy onions. It is the national fast food: cheap, everywhere, and eaten standing up."
 text_ja = "アイスランドのホットドッグはラム肉が主体で、«með öllu»と言えばケチャップ、甘いマスタード、レムラード、生と揚げの玉ねぎが全部乗ります。日本のコンビニおにぎりのような存在で、安くてどこにでもあって、立ったまま食べます。"
 
 [[notes]]
@@ -73,6 +75,8 @@ id = "skor"
 items = ["fardu_ur_skonum", "komdu_inn"]
 topics = ["home"]
 text = "Shoes come off at the door in Iceland too, so this will feel familiar. Unlike in Japan there is no «ja:genkan|玄関» step and nobody offers slippers; you just walk around in socks."
+audience = "ja"
+text_plain = "Shoes come off at the door in an Icelandic home, and nobody offers slippers; you just walk around in socks."
 text_ja = "アイスランドでも家に入るときは靴を脱ぐので、ここは日本と同じで安心です。ただし玄関の段差はなく、スリッパも出てきません。靴下のまま歩き回ります。"
 
 [[notes]]
@@ -87,6 +91,8 @@ id = "sundlaug"
 items = ["sundlaugin", "eg_fer_i_sund", "fara_i_sund", "sundi", "einn_fullordinn_takk"]
 topics = ["daily"]
 text = "The public pool is Iceland's version of the «ja:sentō|銭湯»: cheap, in every town, and where people meet. The rule is to wash thoroughly without a swimsuit before entering, and the signs show exactly which body parts; attendants do check. Treat it like a Japanese bath and you will be fine."
+audience = "ja"
+text_plain = "The public pool is where Icelanders meet: cheap, in every town, with hot tubs outside. The rule is to wash thoroughly without a swimsuit before entering, and the signs show exactly which body parts; attendants do check."
 text_ja = "公営プールはアイスランドの銭湯です。安くて、どの町にもあって、人が集まる場所です。入る前に水着を脱いで全身を洗うのが決まりで、洗う部位を示した図まで貼ってあり、係の人が実際に見ています。日本の銭湯と同じ心構えで大丈夫です。"
 
 [[notes]]
@@ -112,6 +118,8 @@ id = "vedur_smalltalk"
 items = ["hvernig_er_vedrid", "thad_er_svo_kalt", "rok"]
 topics = ["weather"]
 text = "Weather is the safe topic here, as in Japan, but with more drama. «Rok» means a gale, and Icelanders say it the way you would say «ja:atsui desu ne|暑いですね»: a greeting more than a complaint."
+audience = "ja"
+text_plain = "Weather is the safe topic here, with more drama than most places. «Rok» means a gale, and Icelanders say it the way others say what a nice day it is: a greeting more than a complaint."
 text_ja = "天気は日本と同じく無難な話題ですが、こちらはもっと劇的です。«rok»は強風のことで、「暑いですね」と言うのと同じ調子で、文句というよりあいさつとして口にします。"
 
 [[notes]]
@@ -119,6 +127,8 @@ id = "thetta_reddast"
 items = ["thetta_reddast"]
 topics = ["discourse"]
 text = "«Þetta reddast», it will work out, is the national attitude. It is roughly the opposite of Japanese advance planning: people commit first and sort out the details later, and things usually do work out."
+audience = "ja"
+text_plain = "«Þetta reddast», it will work out, is the national attitude: people commit first and sort out the details later, and things usually do work out."
 text_ja = "«Þetta reddast»、なんとかなる、は国民的な合言葉です。日本の綿密な事前準備とはほぼ正反対で、まず決めてから細かいことは後で片付ける。そして実際たいてい何とかなります。"
 
 [[notes]]
@@ -126,6 +136,8 @@ id = "jaeja"
 items = ["jaeja"]
 topics = ["discourse"]
 text = "«Jæja» does the work of several Japanese words at once: «ja:sate|さて», «ja:yare yare|やれやれ» and «ja:sō ka|そうか». Said with a rising tone it opens a topic; said falling, it politely ends a visit."
+audience = "ja"
+text_plain = "«Jæja» is a small word that does a lot: well then, oh well, I see. Said with a rising tone it opens a topic; said falling, it politely ends a visit."
 text_ja = "«Jæja»は日本語の「さて」「やれやれ」「そうか」を一語で引き受けます。上がり調子で言えば話題を切り出し、下がり調子で言えば「そろそろお暇します」の合図になります。"
 
 # Idioms said literally (owner, after lesson 29: «Viltu mjólk út í?» sounded odd until looked up; more asides on idioms). Each one gives the
@@ -222,6 +234,8 @@ id = "mig_langar_idiom"
 items = ["mig_langar_i"]
 topics = ["food"]
 text = "«Mig langar í kaffi» is literally 'me longs for coffee'. The one who wants is not «ég», 'I'. It is «mig», 'me'. Japanese does something alike: in «ja:kōhī ga hoshii|コーヒーが欲しい», the coffee, not you, is marked."
+audience = "ja"
+text_plain = "«Mig langar í kaffi» is literally 'me longs for coffee'. The one who wants is not «ég», 'I'. It is «mig», 'me'."
 text_ja = "«Mig langar í kaffi»の直訳は「私を、コーヒーを求めている」。欲しがる人を «ég»（私は）ではなく «mig»（私を）で言います。日本語の「コーヒーが欲しい」で、「が」が付くのがあなたではなくコーヒーなのと少し似ています。"
 
 [[notes]]
@@ -236,6 +250,8 @@ id = "gangi_ther_vel_idiom"
 items = ["gangi_ther_vel"]
 topics = ["greetings"]
 text = "«Gangi þér vel» is literally 'may it go well for you'. It is the good luck you hear before an exam, a job interview or a long drive, close to Japanese «ja:ganbatte|頑張って» but without asking you to try harder."
+audience = "ja"
+text_plain = "«Gangi þér vel» is literally 'may it go well for you'. It is the good luck you hear before an exam, a job interview or a long drive."
 text_ja = "«Gangi þér vel»の直訳は「あなたにとってうまく進みますように」。試験や面接、長いドライブの前にかけられる「幸運を」で、日本語の「頑張って」に近いですが、もっと努力しろという響きはありません。"
 
 [[notes]]
@@ -257,6 +273,8 @@ id = "takk_fyrir_sidast"
 items = ["takk_fyrir_sidast", "takk_fyrir_kvoldid"]
 topics = ["greetings"]
 text = "«Takk fyrir síðast», thanks for last time, is said when you next meet someone you spent an evening with. It is close to «ja:senjitsu wa arigatō gozaimashita|先日はありがとうございました», and just as expected."
+audience = "ja"
+text_plain = "«Takk fyrir síðast», thanks for last time, is said when you next meet someone you spent an evening with, and it is expected."
 text_ja = "«Takk fyrir síðast»、先日はどうも、は一緒に夜を過ごした相手に次に会ったときに言う言葉です。日本の「先日はありがとうございました」とほぼ同じで、同じくらい言うのが当然とされています。"
 
 [[notes]]
@@ -266,6 +284,8 @@ requires = ["takk_fyrir_matinn"]
 items = ["takk_fyrir_matinn", "verdi_ther_ad_godu"]
 topics = ["food"]
 text = "«Takk fyrir matinn» after every meal works like «ja:gochisōsama|ごちそうさま», and «Takk fyrir kaffið» after coffee at someone's home. Children learn it early, and the cook answers «verði þér að góðu», the same words that wish a guest a good meal when the food is served; for help or a favour it is «ekkert að þakka». There is nothing like «ja:itadakimasu|いただきます» for the guest before eating."
+audience = "ja"
+text_plain = "«Takk fyrir matinn», thanks for the food, is said after every meal, and «Takk fyrir kaffið» after coffee at someone's home. Children learn it early, and the cook answers «verði þér að góðu», the same words that wish a guest a good meal when the food is served; for help or a favour it is «ekkert að þakka»."
 text_ja = "食後の«Takk fyrir matinn»は「ごちそうさま」そのもので、家でコーヒーを出してもらったら«Takk fyrir kaffið»です。子どもは小さいうちに教わり、作った人は«verði þér að góðu»と返します。料理を出すときの「召し上がれ」と同じ言葉で、飲食物へのお礼にだけ使います。手伝いなどへのお礼には«ekkert að þakka»。食べる前に客が言う「いただきます」にあたる言葉はありません。"
 
 [[notes]]
@@ -273,6 +293,8 @@ id = "thjorfe"
 items = ["eigdu_afganginn", "get_eg_fengid_reikninginn"]
 topics = ["money"]
 text = "There is no tipping in Iceland, just like in Japan. Service is in the price, and rounding up a taxi fare is the most anyone does."
+audience = "ja"
+text_plain = "There is no tipping in Iceland. Service is in the price, and rounding up a taxi fare is the most anyone does."
 text_ja = "アイスランドにはチップの習慣がなく、日本と同じです。サービス料は値段に含まれていて、タクシー代の端数を切り上げる程度が最大限です。"
 
 [[notes]]
@@ -280,6 +302,8 @@ id = "kort"
 items = ["eg_er_ekki_med_reidufe", "ma_eg_borga_med_korti"]
 topics = ["money"]
 text = "Iceland is nearly cashless. Even the hot dog stand takes cards, and many Icelanders have not touched a coin in years. It is the opposite of Japan, where cash still rules in small places."
+audience = "ja"
+text_plain = "Iceland is nearly cashless. Even the hot dog stand takes cards, and many Icelanders have not touched a coin in years."
 text_ja = "アイスランドはほぼキャッシュレスです。ホットドッグの屋台でもカードが使え、何年も硬貨に触っていない人が大勢います。小さな店ほど現金が幅を利かせる日本とは逆です。"
 
 [[notes]]
@@ -287,6 +311,8 @@ id = "kennitala"
 items = ["hvar_er_thjodskra", "eg_er_ekki_med_kennitolu"]
 topics = ["practical"]
 text = "The «kennitala» is a ten-digit number, your birth date plus four digits, used for everything from the pharmacy to the gym. It is like My Number in Japan, except that people give it out freely."
+audience = "ja"
+text_plain = "The «kennitala» is a ten-digit number, your birth date plus four digits, used for everything from the pharmacy to the gym, and people give it out freely."
 text_ja = "«kennitala» は生年月日に4桁を足した10桁の個人番号で、薬局からジムまであらゆる場面で使います。日本のマイナンバーに当たりますが、こちらでは人に気軽に教えます。"
 
 [[notes]]
@@ -357,6 +383,8 @@ id = "hakarl"
 items = ["hakarl", "hefurdu_smakkad_hakarl"]
 topics = ["food"]
 text = "«Hákarl» is Greenland shark, fermented for months because fresh it is poisonous. It is eaten in tiny cubes with a shot of «brennivín», mostly at the midwinter feast «Þorrablót». Think of it as Iceland's «ja:nattō|納豆», only stronger."
+audience = "ja"
+text_plain = "«Hákarl» is Greenland shark, fermented for months because fresh it is poisonous. It is eaten in tiny cubes with a shot of «brennivín», mostly at the midwinter feast «Þorrablót»."
 text_ja = "«Hákarl»（ハウカルトル）はニシオンデンザメを数か月発酵させたもので、生では毒があります。小さなさいの目にして蒸留酒«brennivín»（ブレニヴィン）と一緒に、主に真冬の祭り «Þorrablót» で食べます。アイスランドの納豆だと思ってください。ただし、もっと強烈です。"
 
 [[notes]]
@@ -378,6 +406,8 @@ id = "islenska"
 items = ["islensku", "eg_er_ad_laera"]
 topics = ["clarifying"]
 text = "Icelandic has changed so little that schoolchildren read thousand-year-old sagas. The letters þ and ð are the two 'th' sounds of English 'thin' and 'this'. Like Japanese, it prefers to coin its own words: a computer is «tölva», from «tala», number, and «völva», prophetess."
+audience = "ja"
+text_plain = "Icelandic has changed so little that schoolchildren read thousand-year-old sagas. The letters þ and ð are the two 'th' sounds of English 'thin' and 'this'. It prefers to coin its own words: a computer is «tölva», from «tala», number, and «völva», prophetess."
 text_ja = "アイスランド語はほとんど変化していないので、小学生が千年前のサガを読めます。þ と ð は英語の thin と this の二つの th の音です。日本語と同じく外来語より造語を好み、コンピューターは«tölva»、数を表す«tala»と巫女を表す«völva»の合成語です。"
 
 [[notes]]
@@ -425,6 +455,8 @@ requires = ["hae", "gjordu_svo_vel", "takk"]
 items = ["hae", "nagranni_minn", "gjordu_svo_vel"]
 topics = ["greetings"]
 text = "Greetings are informal: «hæ» works with a shop assistant, a professor or a stranger, and there is no honorific language like «ja:keigo|敬語». Politeness comes from tone, from «gjörðu svo vel», and from saying «takk» a lot."
+audience = "ja"
+text_plain = "Greetings are informal: «hæ» works with a shop assistant, a professor or a stranger. Politeness comes from tone, from «gjörðu svo vel», and from saying «takk» a lot."
 text_ja = "あいさつはくだけています。«hæ»は店員にも教授にも知らない人にも使え、日本の敬語のような体系はありません。丁寧さは声の調子と«gjörðu svo vel»、そして何度も言う«takk»で伝えます。"
 
 [[notes]]
@@ -439,6 +471,8 @@ id = "eldgos"
 items = ["thad_er_gos", "eldfjall", "hraun"]
 topics = ["nature"]
 text = "Iceland sits on the split between the American and Eurasian plates, so it has volcanoes and earthquakes for the same reason Japan does. The eruptions on the Reykjanes peninsula since 2021 became weekend outings, until the lava reached a town."
+audience = "ja"
+text_plain = "Iceland sits on the split between the American and Eurasian plates, so it has volcanoes and earthquakes. The eruptions on the Reykjanes peninsula since 2021 became weekend outings, until the lava reached a town."
 text_ja = "アイスランドは北米プレートとユーラシアプレートの境目にあり、日本と同じ理由で火山と地震があります。2021年からのレイキャネス半島の噴火は、溶岩が町に達するまでは週末の見物先になっていました。"
 
 [[notes]]
@@ -453,6 +487,8 @@ id = "huldufolk"
 items = ["fjall", "utsynid_er_fallegt"]
 topics = ["nature"]
 text = "Some road plans have been altered around rocks said to house the hidden people, the «huldufólk». Few Icelanders will say they believe in them, and few will say they don't. It is not far from the feeling around a shrine in a Japanese forest."
+audience = "ja"
+text_plain = "Some road plans have been altered around rocks said to house the hidden people, the «huldufólk». Few Icelanders will say they believe in them, and few will say they don't."
 text_ja = "「隠れた人々」«huldufólk»（フルドゥフォルク）が住むとされる岩を避けて、道路計画が変更されたことがあります。信じると言い切るアイスランド人は少ないですが、信じないと言い切る人も少ないです。日本の森の神社のあたりで感じる気配に近いものです。"
 
 [[notes]]
@@ -476,6 +512,8 @@ id = "timi"
 items = ["eg_er_sein", "klukkan_hvad", "eg_kem_eftir_tiu_minutur"]
 topics = ["arrangements"]
 text = "Icelanders are relaxed about time compared with Japan: ten minutes late to a friend's house is nothing, and a party at eight starts at nine. Buses and flights, though, leave on the minute."
+audience = "ja"
+text_plain = "Icelanders are relaxed about time: ten minutes late to a friend's house is nothing, and a party at eight starts at nine. Buses and flights, though, leave on the minute."
 text_ja = "アイスランド人は日本に比べて時間にのんびりしています。友達の家に10分遅れるのは何でもなく、8時のパーティーは9時に始まります。ただしバスと飛行機は分単位で出発します。"
 
 [[notes]]
@@ -483,6 +521,8 @@ id = "afmaeli"
 items = ["til_hamingju"]
 topics = ["social"]
 text = "Birthdays are celebrated with a sweet-and-savoury table at home, and it is the birthday person who bakes for colleagues. The logic is the same as bringing «ja:omiyage|お土産» back to the office."
+audience = "ja"
+text_plain = "Birthdays are celebrated with a sweet-and-savoury table at home, and it is the birthday person who bakes for colleagues."
 text_ja = "誕生日は家で甘いものと塩気のものを並べたテーブルで祝い、職場に焼き菓子を持っていくのは誕生日の本人です。旅行のお土産を職場に配るのと同じ理屈です。"
 
 [[notes]]
@@ -497,6 +537,8 @@ id = "laeknir"
 items = ["eg_tharf_laekni", "hvar_er_naesta_apotek"]
 topics = ["health"]
 text = "Healthcare is public and mostly cheap, but you see a general doctor at a health centre first, not a specialist. Pharmacies sell few medicines without a prescription, so bring your usual ones from Japan."
+audience = "ja"
+text_plain = "Healthcare is public and mostly cheap, but you see a general doctor at a health centre first, not a specialist. Pharmacies sell few medicines without a prescription, so bring your usual ones from home."
 text_ja = "医療は公的でおおむね安いですが、まず保健センターの一般医にかかり、専門医には直接行きません。薬局で処方箋なしに買える薬は少ないので、いつもの薬は日本から持ってきてください。"
 
 [[notes]]
@@ -511,6 +553,8 @@ id = "fjolskylda"
 items = ["eg_a_tvo_born", "attu_born", "fjolskyldan_min"]
 topics = ["family"]
 text = "Icelandic families are large by Japanese standards and children arrive early, often before marriage, which raises no eyebrows. Grandparents nearby do a lot of the childcare, and a baby at a café is unremarkable."
+audience = "ja"
+text_plain = "Icelandic families are often large and children arrive early, often before marriage, which raises no eyebrows. Grandparents nearby do a lot of the childcare, and a baby at a café is unremarkable."
 text_ja = "アイスランドの家族は日本の基準では大所帯で、子どもは早く、結婚前に生まれることも多く、誰も眉をひそめません。近くに住む祖父母が子育ての多くを担い、カフェに赤ん坊がいるのはごく普通です。"
 
 [[notes]]
@@ -679,6 +723,8 @@ id = "takk_fyrir_mig"
 items = ["takk_fyrir_mig"]
 topics = ["greetings", "food"]
 text = "«Takk fyrir mig», literally 'thanks for me', is what a guest says on leaving a meal or a visit, close to «ja:gochisōsama|ごちそうさま» and «ja:ojama shimashita|お邪魔しました» in one. The host usually answers «Verði þér að góðu»."
+audience = "ja"
+text_plain = "«Takk fyrir mig», literally 'thanks for me', is what a guest says on leaving a meal or a visit. The host usually answers «Verði þér að góðu»."
 text_ja = "«Takk fyrir mig»（直訳は「私のことをありがとう」）は、食事や訪問のあとで客が帰り際に言う言葉で、「ごちそうさま」と「お邪魔しました」を合わせたような表現です。招いた側はたいてい «Verði þér að góðu» と返します。"
 
 # #171: the two notes that teach a construction's other forms. They have no `items` and are not

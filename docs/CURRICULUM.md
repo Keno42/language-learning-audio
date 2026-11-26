@@ -231,7 +231,12 @@ text = "The Icelandic hot dog is mostly lamb, and 'með öllu' means …"
 Notes are spoken by the instructor in the learner's language, never
 required for the lesson, and rationed (about one per 12 minutes). Keep them
 to two or three sentences, roughly 15–20 seconds of speech; the best ones
-contrast the target culture with the learner's own. Notes with no `items`
+contrast the target culture with the learner's own. Whose own is a learner's
+background, not the language they learn in: a note that compares with Japan or
+says a Japanese word («ja:…») has `audience = "ja"` and a `text_plain`, the same
+point with no comparison. A learner with `generate --background ja`, or taught in
+Japanese, hears `text`; any other learner hears `text_plain` (`content.for_background`).
+`validate` fails on such a note without an `audience`. Notes with no `items`
 are general and only used as filler. As filler, a note with `items` plays only
 once one of them has been met, or is at most `note_lookahead` (100) items
 ahead, so a note is heard when its topic is near rather than spent in the

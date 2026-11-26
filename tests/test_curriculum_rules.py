@@ -120,8 +120,9 @@ class CurriculumTests(unittest.TestCase):
         self.assertEqual([(n.id, w) for n in cur.notes for w in unmarked_japanese(n.text)], [])
 
     def test_a_note_with_unmarked_japanese_fails_validate_and_marked_passes(self):
-        def raw(text):
-            return {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"}, "notes": [{"id": "n", "text": text}]}
+        def raw(text):  # an aside that says a Japanese word is written for that background (``Note.audience``)
+            return {"curriculum": {"name": "x", "target_lang": "is", "known_lang": "en"},
+                    "notes": [{"id": "n", "text": text, "audience": "ja", "text_plain": "Said as a greeting."}]}
 
         with self.assertRaisesRegex(CurriculumError, "romanized Japanese outside"):
             curriculum_from_dict(raw("Said like 'atsui desu ne' in Japan."))

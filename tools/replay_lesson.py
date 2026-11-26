@@ -44,7 +44,7 @@ from audiolesson.learner import lesson_target, retention_report  # noqa: E402
 from audiolesson.nouns import noun_report  # noqa: E402
 from audiolesson.review_wholes import bare_parts_with_a_home, parts_outside_their_whole  # noqa: E402
 from audiolesson.cando import for_season, load_cando, priority_items  # noqa: E402
-from audiolesson.content import for_instructions, load_curriculum, said_scene_rows, scene_sheet  # noqa: E402
+from audiolesson.content import for_background, for_instructions, load_curriculum, said_scene_rows, scene_sheet  # noqa: E402
 from audiolesson.learner import LearnerState  # noqa: E402
 from audiolesson.planner import PlanConfig, Planner, apply_to_learner, semantic_set_tags  # noqa: E402
 from audiolesson.themes import load_themes, scenario_order  # noqa: E402
@@ -272,6 +272,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("export", type=Path, help="the lesson-NNN folder of a feedback export")
     ap.add_argument("--trip", type=Path, default=None, help="the private trip profile, if the lesson used --trip")
+    ap.add_argument("--background", default=None, help="the learner's background for the asides (ja), where the export's arguments have none")
     ap.add_argument("--lessons", type=int, default=3, help="lessons to build, the exported one included (default 3)")
     ap.add_argument("--curriculum", default="curricula/is-en")
     ap.add_argument("--fail-words", type=int, default=3, help="continuation: open items of this many words or more fail again")
@@ -293,6 +294,7 @@ def main(argv: list[str] | None = None) -> int:
     cur = load_curriculum(args.curriculum, known_lang=known)
     learner = LearnerState.load(args.export / "learner.before.json")
     cur, _mode, _withdrawn = for_instructions(cur, learner, arg("--instructions", "gradual"))  # #429: the learner's choice, as `generate` reads it
+    cur = for_background(cur, args.background if args.background is not None else arg("--background", ""))  # the asides the learner's background can follow
     priority: list[str] = []
     scenarios = load_cando(args.curriculum, cur) if Path(args.curriculum).is_dir() else []
     trip = load_trip(args.trip) if args.trip else None

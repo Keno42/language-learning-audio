@@ -424,6 +424,10 @@ class Note:
     parts: list[list[str]] = field(default_factory=list)
     # lesson 46: one line per group of ``parts``, said before it, naming what the group builds (a run of bare endings is not recognisable by ear)
     parts_lead: list[str] = field(default_factory=list)
+    # the background the note's ``text`` assumes («ja»: it compares with Japan or says a Japanese word), and the text said to a learner without it,
+    # the same point with no comparison; a note with an audience and no ``text_plain`` is not played to them (``for_background``)
+    audience: str = ""
+    text_plain: str = ""
 
 
 @dataclass
@@ -596,6 +600,20 @@ def for_instructions(cur: Curriculum, learner, mode: str = "gradual") -> tuple[C
     if mode == "gradual" or not commands:
         return cur, mode, []
     return replace(cur, items=[i for i in cur.items if not i.command]), mode, commands
+
+
+def for_background(cur: Curriculum, background: str = "") -> Curriculum:
+    """The asides a learner can follow: a note written for a background (``Note.audience``, «ja»: «Treat it like a Japanese bath») plays as
+    written to a learner who has it, by ``background`` (``generate --background``) or by the language they learn in (the Japanese text of a
+    learner taught in Japanese); to any other learner it plays its ``text_plain``, or not at all. The note keeps its id, so it is heard once."""
+    has = {cur.known_lang.split("-")[0], background} - {""}
+    notes = []
+    for n in cur.notes:
+        if not n.audience or n.audience in has:
+            notes.append(n)
+        elif n.text_plain:
+            notes.append(replace(n, text=n.text_plain))
+    return replace(cur, notes=notes)
 
 
 class CurriculumError(ValueError):
@@ -1275,6 +1293,13 @@ def validate(cur: Curriculum) -> None:
             raise CurriculumError(f"note {n.id!r} has malformed or unmatched «» markers")
         for w in unmarked_japanese(n.text):
             raise CurriculumError(f"note {n.id!r}: romanized Japanese outside «ja:…» markup: {w!r}")
+        # an aside that assumes the learner knows Japan says so (``Note.audience``), so a learner without that background gets its plain text
+        if not n.audience and ("«ja:" in n.text or re.search(r"\bJapan", NOTE_TARGET_RE.sub("", n.text))):
+            raise CurriculumError(f"note {n.id!r}: it compares with Japan or says a Japanese word: give it audience = \"ja\" and a text_plain without it")
+        if n.text_plain and ("«ja:" in n.text_plain or re.search(r"\bJapan", NOTE_TARGET_RE.sub("", n.text_plain))):
+            raise CurriculumError(f"note {n.id!r}: text_plain is for a learner without the background: no Japan, no «ja:…»")
+        if n.text_plain and not n.audience:
+            raise CurriculumError(f"note {n.id!r}: text_plain is said in place of text to a learner without the note's audience; give it one")
     for it in cur.items:
         _check_glossed(it, _GLOSSED_ITEM, f"item {it.id!r}")  # every English field of an item, the list the glossing uses
         for k, e in enumerate(it.examples, 1):
