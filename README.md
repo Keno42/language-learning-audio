@@ -391,3 +391,7 @@ skips without them).
 - **BÍN** (used for the Icelandic course's form checks, `curricula/is-en/bin/`): *Beygingarlýsing íslensks nútímamáls. Stofnun Árna
   Magnússonar í íslenskum fræðum. Höfundur og ritstjóri Kristín Bjarnadóttir.* https://bin.arnastofnun.is — the downloadable language-technology data, licensed CC BY-SA 4.0. Only a
   subset of forms with fewer fields is cached (the check only warns); see `curricula/is-en/bin/README.md` for what was changed.
+- **Icelandic corpora** (the trust check's word pairs, `curricula/is-en/trust/`): looked up through the Korp service of the Árni Magnússon
+  Institute, https://malheildir.arnastofnun.is — Risamálheild (the Icelandic Gigaword Corpus), Mörkuð íslensk málheild and the Icelandic
+  side of the parallel corpora. Only how many corpora have each pair of words is kept; no text is copied. See
+  `curricula/is-en/trust/README.md`.

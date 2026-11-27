@@ -657,6 +657,30 @@ def _check_bin(cur, curriculum) -> list[str]:
     return variant_warnings(cur, load_cache(path))
 
 
+def _check_trust(cur, curriculum, themes) -> list[str]:
+    """Warnings about the lines whose words Icelanders are not found writing side by side (the owner, 2026-11-28; ``trust``): the table
+    missing, each line with a pair or lone word no Icelandic text has, and how many lines still have one not looked up."""
+    from .trust import course_lines, load, table_path
+
+    if not Path(curriculum).is_dir():
+        return []
+    hint = f"python tools/attest_pairs.py {curriculum}"
+    lines = course_lines(cur, themes)
+    table = load(curriculum)
+    if table is None:
+        return [f"{len(lines)} lines are not checked against Icelandic texts yet; run `{hint}` (writes {table_path(curriculum)})"]
+    out, unknown = [], 0
+    for text, where in lines:
+        v = table.verdict(text)
+        if v.status == "unusual":
+            out.append(f"no Icelandic text has {', '.join(f'«{a}»' for a in v.absent)} as in «{text}» ({where})")
+        elif v.status == "unknown":
+            unknown += 1
+    if unknown:
+        out.append(f"{unknown} lines have word pairs not looked up in Icelandic texts yet; run `{hint}`")
+    return out
+
+
 def _toml_key(key: str) -> str:
     """A TOML key as written: bare when it is only ASCII letters, digits, ``_`` and ``-``, else quoted (ids such as «strætó»; review of #352)."""
     return key if key and all(ch.isascii() and (ch.isalnum() or ch in "_-") for ch in key) else json.dumps(key, ensure_ascii=False)
@@ -839,6 +863,8 @@ def cmd_validate(args) -> int:
         unasked = unasked_levels(scenes, themes)
         if unasked:
             print(f"advisory (not a failure): {len(unasked)} theme levels have no scenario card asking their goal (a card's `level`, #327): {', '.join(unasked)}")
+    for line in _check_trust(cur, args.curriculum, themes):
+        print(f"warning: {line}", file=sys.stderr)
     if args.cando:
         if not scenarios:
             print("no can-do scenarios (<curriculum>/cando/*.toml)")
