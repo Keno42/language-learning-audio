@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.52 (lessons 1–62), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.55 (lessons 1–66), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -2275,3 +2275,48 @@ new items. It is the first built with #580 (the long run's step 7) and #582 (the
 **This round:** the long run's step, #429 step 8 (#584): «Þessi orð eru í setningunni:», «Byrjum á endanum.» and «Þetta orð er í setningunni:»,
 taught in lessons 71–73 on the replay; none of the three English lines is said from lesson 74. The remark that recurs most, an instruction's cue,
 is answered as data (#583). The second behaviour place is left for #579 step 2 next round.
+
+### 5.55 Lesson 66: the first lesson built with #584
+
+Lesson 66 was generated with LLA `f268aba` (main with #583 and #584), the bot at site_update_notifier `747488a`, `--instructions gradual`. Rebuilt
+from its export with a stand-in trip profile it is the same lesson: 123 of 123 exercises, 30.8 minutes, the town's sixth level, the same nine new
+items. It is the first built with #584 (the long run's step 8) and with #583 (data): one behaviour PR, as §9 "Governance" allows.
+
+| | lesson 66 |
+|---|---|
+| length | 30.8 min, 123 exercises |
+| new items; new components, weighted (target) | 9; 6 (6) |
+| theme (level) | town (6); **0 of the 9 new items inside it** |
+| the last lesson's new items in the review | lesson 65's: **9 of 10 recalled**; «Mér er illt í höfðinu.» not recalled |
+| items reviewed / due | 63 due by date, 51 the lesson could ask; **11 not fitted** |
+| instruction lines in Icelandic | 137 (lesson 65: 128) |
+| feedback form: load; friction; note | **right**; none; none |
+| «sooner» | «Það er neyðartilfelli.» |
+
+- **The long run, #429:** «Eitthvað nýtt.» was taught at the start, and an instruction was asked by name for the first time («The instruction
+  "Something new".», #583), with no remark. On the replay of lesson 66's export, #584's three lines come in lessons 71–73. After them, the most
+  frequent English instructions in lessons 66–73 are «Made of words you know.» (15) and a known conversation's «The conversation again. You know
+  your lines: say them when it's your turn.» (14): this round's step (#588).
+- **The pace (H9):** lesson 65's new items, at a target of 7, were recalled 9 of 10 the next day (90%), the first lesson over 80% since lesson 61.
+  Lesson 65 left 17 of its askable due items, and the target fell to 6. Confirmed recall after a gap: 90% at 3–6 days (45 of 50), 93% at 7–13 (65
+  of 70) and 87% at 14+ (33 of 38; lesson 65: 94%, 31 of 33).
+- **New material outside its scene (H5, H4, #579):** lesson 66 played the town's sixth level and taught nine new items, none of them in it. Six
+  are emergency and accident lines («Hjálp!», «Hringdu á sjúkrabíl!», «Það er neyðartilfelli.» …), and the «sooner» mark is one of them.
+  - On the path that rebuilds lesson 66, the pharmacy and the accident (C4) are not ranked, so their levels never play. Their lines come by course
+    order once the trip-ordered items have run out. Keeping a waiting level's lines for its lesson does not reach them.
+  - On the replay, lesson 68 would teach seven family fillers of «Þetta er {person}.» while playing the hotel. With at most two fillers of one slot
+    a lesson (#590), it teaches two, plays small talk's family level in the same lesson (4 of 12 new items inside it; before, 0 of 9), and the
+    eight lessons keep their new material (81 items and 62 components, against 83 and 63).
+  - Keeping a waiting level's lines was built and checked, and is not in #590: on a 15-minute course it brought back levels heard again in the
+    lesson right after they were played (12 against a limit of 8, #483's family). The owner chose #579's option 1: a theme no trip profile ranks plays once the course order has brought its lines (#592); on the replay
+    the accident's first level plays in lesson 66 with 6 of its 8 new items inside it, the pharmacy's in lessons 67 and 70.
+- **No remarks.** The form has no note and no friction. The one «sooner» mark is a next-day signal, not a remark.
+- **The pick-out rotation (#589):** checking #590 found an edge that exists on main: a turn whose next value's line does not fit the time left
+  gives the value it gave last. #590 fixes it (the owner's review): such a turn sits the lesson out. The replay of lesson 66's export has two
+  turns that give one value twice in a row, on main too («tólf», «mínus tvær gráður»): each has only one value the learner can be asked yet,
+  which #339 allows.
+- **The other learner:** no new export since lesson 32 (2026-11-14).
+
+**This round:** the long run's step 9 (#588), taught in lessons 74 and 75 on the replay, and neither English line is said from lesson 77. The
+remarks' behaviour place goes to #579 step 2's first half (#590): «Now» item 1, the remark whose cause recurs most (lessons 60, 62–66). The
+owner's choice on #579 is a third (#592), at the owner's request. The owner merged all three for lesson 67.
