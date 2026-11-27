@@ -5,10 +5,10 @@ A plan's ``review`` question takes its prompt from the lesson exercise that prac
 exercise relates to the one before it; read the next morning one question at a time there is no exercise before, and the cue is noise or a false link.
 So every prompt that is a lesson cue becomes the meaning in the review's own form («How do you say: …»); a situation, and any other prompt, is kept.
 
-A situation is kept with its literal meaning after it (lesson 60, the owner on #559): «Your friend suggests a taxi. Say you'll go by bus instead.» asked
-for «Við förum með strætó.», and with no scene around it the next morning the learner could not tell what to say. Where the instruction does not
-already hold the meaning's words, the review adds «Literally: We'll go by bus.».
-"""
+A situation is kept with the answer's meaning after it (#559): with no scene around it the next morning, «Your friend suggests a taxi. Say you'll go
+by bus instead.» does not say which sentence to give. Where the instruction does not already hold the meaning's words, the review adds «Meaning:
+We'll go by bus.». It is named the meaning, not the words: an item's ``meaning`` is what it says in the learner's language, and «Ég hef það gott.»
+is «I'm doing well.», not literally so (#627)."""
 
 from __future__ import annotations
 
@@ -69,7 +69,7 @@ def _holds_meaning(situation: str, meaning: str, lang: str) -> bool:
 
 
 def with_literal(situation: str, item, prompts: Prompts) -> str:
-    """``situation`` as the written review asks it: with the item's literal meaning after it, unless it already says it (lesson 60)."""
+    """``situation`` as the written review asks it: with the item's meaning after it, unless it already says it (#559)."""
     meaning = (getattr(item, "meaning", "") or "").strip()
     if not meaning or "{" in meaning or _holds_meaning(situation, meaning, prompts.lang):
         return situation
@@ -108,7 +108,7 @@ def review_prompt(prompt: str, prompts: Prompts, target_lang: str) -> str:
 
 
 def reword_review(review: list[dict], prompts: Prompts, target_lang: str, cur=None) -> list[dict]:
-    """``review`` with every lesson-cue prompt in the review's own words, and with ``cur`` a situation with its literal meaning (new dicts; the
+    """``review`` with every lesson-cue prompt in the review's own words, and with ``cur`` a situation with its meaning (new dicts; the
     input is not changed)."""
     out = [{**q, "prompt": review_prompt(q["prompt"], prompts, target_lang)} if isinstance(q.get("prompt"), str) else q for q in review]
     return [{**q, "prompt": literal_prompt(q, cur, prompts)} if cur is not None and isinstance(q.get("prompt"), str) else q for q in out]

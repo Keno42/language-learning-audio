@@ -418,7 +418,7 @@ def _review_cues(cur, prompts: Prompts, it) -> list[str]:
     """Every cue the bare item is asked with now: each situation, else the meaning cue. The bot rewords only a stored
     bare question whose prompt is none of these (it is stale), not one that is another current cue (#220)."""
     prompts = Prompts(prompts.data, prompts.lang)
-    cues = [with_literal(c, it, prompts) for c in (it.situations or ([it.situation] if it.situation else []))]  # lesson 60: a situation with its literal meaning
+    cues = [with_literal(c, it, prompts) for c in (it.situations or ([it.situation] if it.situation else []))]  # #559: a situation with the answer's meaning
     cues += meaning_prompts(prompts, cur.known_lang, cur.target_lang, it.spoken_meaning, it.context)  # every template, not one
     # an item with a man's form is asked with the form named: a stored cue without it is stale, and the bot rewords it
     return list(dict.fromkeys(speak_as(prompts, "f" if it.target_m else None, c) for c in cues))
