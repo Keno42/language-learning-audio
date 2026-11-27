@@ -108,14 +108,14 @@ class Lesson40ContextTests(unittest.TestCase):
         ex = p.builder.dialogue(sc, dlg, translate=True, turn_items=turn_items, heard_turns=frozenset())
         self.assertEqual(set(ex.item_ids), {"eg_er_i_vinnuferd", "eg_vinn_hja"}, "the lead-in asked is practice too")
         texts = [s.text for s in sc.segments if s.exercise == ex.index and s.type != "pause"]
-        self.assertNotIn(Prompts.load("en").get("listening_line"), texts, "asked: no «Here you would say:»")
+        self.assertNotIn(Prompts.load("en").get("listening_line"), texts, "asked: no «Here you say:»")
         new, today = self.known("eg_vinn_hja")
         _, _, _, _, lead = self.planner(new, today).scene_line_of(self.cur.by_id["eg_vinn_hja"], set())
         self.assertEqual(lead, {0: False}, "never met: heard with its meaning")
 
     def test_a_known_lead_in_that_opens_the_exchange_is_asked(self):
         """The owner, 2026-11-25 (lesson 61): the hotel desk's exchange for a hard «Er morgunmatur innifalinn?» opened with «Hvað kostar nóttin?»
-        under «Here you would say:», although the learner could say it. A lead-in the learner can say is asked with its cue."""
+        under «Here you say:», although the learner could say it. A lead-in the learner can say is asked with its cue."""
         l, today = self.known("er_morgunmatur_innifalinn", "hvad_kostar_nottin")
         dlg, turn_items, _, _, lead = self.planner(l, today).scene_line_of(self.cur.by_id["er_morgunmatur_innifalinn"], set())
         self.assertEqual(dlg.turns[0].expect_text, "Hvað kostar nóttin?")

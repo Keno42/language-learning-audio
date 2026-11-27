@@ -380,3 +380,18 @@ meaning_spoken_ja = "指示：最初の単語は"
 difficulty = 1
 topics = ["instructions"]
 command = "hint_frame"
+
+# #429 step 13: a learner's line heard, not asked, in a conversation («Here you say:», 17 times in lessons 69–76 on the replay of lesson 69's
+# export, the most frequent English instruction left), said before the line. «Hér segir maður:» ('here one says:') is made of words the learner
+# has («Ég er hér í fyrsta sinn.», «Hvernig segir maður:»), and the English line says the same words. Candidates until native-checked (#209).
+[[items]]
+id = "her_segir_madur_command"
+kind = "phrase"
+target = "Hér segir maður:"
+meaning = "the instruction \"Here you say\""
+meaning_ja = "指示の「ここでは、こう言います」"
+meaning_spoken = "An instruction: Here you say"
+meaning_spoken_ja = "指示：ここでは、こう言います"
+difficulty = 1
+topics = ["instructions"]
+command = "listening_line"

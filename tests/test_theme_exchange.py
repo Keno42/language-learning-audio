@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from tests.audiolesson_common import *  # noqa: F401,F403
 from tests import test_sayable_forms
+from audiolesson.exercises import COMMAND_VOICE
 
 
 
@@ -276,7 +277,7 @@ class ThemeExchangeTests(unittest.TestCase):
 
     def test_an_untaught_turn_keeps_its_cue_and_is_heard_in_both_plays(self):
         """#240 (owner, 2026-10-09: an untaught line can't be said at all, so it is never asked): «Gjörðu svo vel.» is
-        never met, so its turn is heard in both plays: the cue (the intent) first, then «Here you would say:»."""
+        never met, so its turn is heard in both plays: the cue (the intent) first, then «Here you say:»."""
         learner = self._learner([i for i in self._known if i != "gjordu_svo_vel"] + [i for i in self._rest if i != "gjordu_svo_vel"])
         sc = self._planner(learner, [self._supermarket], ["A3"], max_new_items=0).build()  # nothing new: it stays untaught
         first, second = [e for e in sc.exercises if e.label.startswith("dialogue: theme:")]
@@ -284,7 +285,7 @@ class ThemeExchangeTests(unittest.TestCase):
             texts = [g.text for g in sc.segments if g.exercise == e.index and g.type == "narrate"]
             self.assertIn("Hand over your card.", texts)
             self.assertNotIn("Try it.", texts)
-            self.assertLess(texts.index("Hand over your card."), texts.index("Here you would say:"), "the cue first, then the line")
+            self.assertLess(texts.index("Hand over your card."), texts.index("Here you say:"), "the cue first, then the line")
 
     def test_the_partner_is_voiced_as_the_cues_say(self):
         """Review of #186: the tour guide is «Anna» and the cues say «her»; a male voice contradicted both."""
@@ -552,9 +553,9 @@ class ThemeExchangeTests(unittest.TestCase):
         first, second = [e for e in sc.exercises if e.label.startswith("dialogue: theme:")]
         for e in (first, second):
             segs = [g for g in sc.segments if g.exercise == e.index]
-            heard = [k for k, g in enumerate(segs) if g.text == "Here you would say:"]
+            heard = [k for k, g in enumerate(segs) if g.text == "Here you say:"]
             self.assertEqual(len(heard), 1)
-            # «Here you would say:» is a framing line (#241): a beat, then the line, and no answer pause for it
+            # «Here you say:» is a framing line (#241): a beat, then the line, and no answer pause for it
             self.assertEqual((segs[heard[0] + 1].type, segs[heard[0] + 1].role), ("pause", "beat"))
             self.assertEqual(segs[heard[0] + 2].text, "Gjörðu svo vel.")
             self.assertTrue(any(g.type == "pause" and g.role == "answer" for g in segs), "the taught turns are still asked")
@@ -562,6 +563,32 @@ class ThemeExchangeTests(unittest.TestCase):
         self.assertEqual(planner.listening_tried, [])
         self.assertEqual(planner._bonus_review(), [])
         self.assertNotIn("gjordu_svo_vel", planner.exposures)
+
+    def test_a_heard_turn_is_framed_in_icelandic_once_taught(self):
+        """#429 step 13: «Here you say:», the most frequent English instruction on the replay of lesson 69's export, is said as «Hér segir maður:»
+        once taught, a framing line with a beat before the line; the English after it in the lesson that teaches it and the next, alone from the third."""
+        en = Prompts.load("en")
+        cmd = next(i for i in self._cur.items if i.command == "listening_line")
+        self.assertEqual((cmd.target, en.get("listening_line")), ("Hér segir maður:", "Here you say:"), "the English line says the phrase's words")
+        for introduced in (5, 20, None):
+            learner = self._learner([i for i in self._known if i != "gjordu_svo_vel"] + [i for i in self._rest if i != "gjordu_svo_vel"])
+            learner.lessons_completed = 20
+            if introduced is not None:
+                learner.items[cmd.id] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled", introduced_lesson=introduced,
+                                                  due=(TODAY + timedelta(days=3)).isoformat())
+            sc = self._planner(learner, [self._supermarket], ["A3"], max_new_items=0).build()
+            for e in [e for e in sc.exercises if e.label.startswith("dialogue: theme:")]:
+                segs = [g for g in sc.segments if g.exercise == e.index and g.type != "pause"]
+                k = next(k for k, g in enumerate(segs) if g.text == "Gjörðu svo vel.")
+                if introduced is None:
+                    self.assertEqual(segs[k - 1].text, "Here you say:", "before it is taught, as always")
+                    continue
+                if introduced == 20:
+                    self.assertEqual(segs[k - 1].text, "Here you say:", "the English after it in the lesson that teaches it and the next")
+                    k -= 1
+                else:
+                    self.assertNotIn("Here you say:", [g.text for g in segs], "from the third lesson, the Icelandic alone")
+                self.assertEqual((segs[k - 1].type, segs[k - 1].text, segs[k - 1].speaker), ("speak", "Hér segir maður:", COMMAND_VOICE))
 
     def test_a_turn_taught_earlier_in_the_lesson_is_asked_in_the_play(self):
         """#240: "untaught" is judged when the exchange plays. The theme's next level brings «Gjörðu svo vel.» in as new
@@ -572,7 +599,7 @@ class ThemeExchangeTests(unittest.TestCase):
         plays = [e for e in sc.exercises if e.label.startswith("dialogue: theme:")]
         self.assertTrue(plays and all(intro.start < e.start for e in plays))
         for e in plays:
-            self.assertNotIn("Here you would say:", [g.text for g in sc.segments if g.exercise == e.index])
+            self.assertNotIn("Here you say:", [g.text for g in sc.segments if g.exercise == e.index])
 
     def test_the_bus_scene_of_lesson_20_hears_the_untaught_lines(self):
         """#240, lesson 20 (§5.16): «Fer þessi strætó í miðbæinn?» and «Hvar á ég að fara út?» had never been taught and
@@ -589,7 +616,7 @@ class ThemeExchangeTests(unittest.TestCase):
         planner._play_listening(sc, dlg, set())
         text = sc.transcript()
         self.assertNotIn("Try it.", text)
-        self.assertEqual(text.count("Here you would say:"), 2)
+        self.assertEqual(text.count("Here you say:"), 2)
         self.assertIn(Prompts.load("en").get("listening_intro_some_asked"), text)
         self.assertNotIn(Prompts.load("en").get("listening_intro"), text, "no «just hear it» when lines are asked")
         self.assertIn("Ask for one ticket.", text, "a taught line is asked with its cue")
