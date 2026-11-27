@@ -477,6 +477,9 @@ class Curriculum:
     case_anchors: dict = field(default_factory=dict)
     known_langs: list[str] = field(default_factory=list)  # languages the file carries glosses for
     missing_glosses: list[str] = field(default_factory=list)  # ids without a gloss in the requested known_lang
+    # the owner, 2026-11-28: the pairs of neighbouring words looked up in Icelandic texts (``trust/pairs.json``, ``audiolesson.trust``); None for a
+    # course without the table. The planner says only lines none of whose pairs is missing from every text (``PlanConfig.trusted``)
+    trust: object | None = None
 
     def __post_init__(self) -> None:
         self.by_id: dict[str, Item] = {i.id: i for i in self.items}
@@ -718,6 +721,9 @@ def load_curriculum(path: str | Path, known_lang: str | None = None) -> Curricul
         cur = curriculum_from_dict(merged, source=str(path), known_lang=known_lang)
         if (anchors := path / "frames" / "anchors.toml").exists():
             cur.case_anchors = load_case_anchors(anchors, cur.known_lang)
+        from .trust import load as load_trust  # here: trust lists the course's lines with this module's types
+
+        cur.trust = load_trust(path)
         return cur
     with path.open("rb") as fh:
         raw = tomllib.load(fh)

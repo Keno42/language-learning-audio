@@ -240,6 +240,10 @@ class PlanConfig:
     late_unhinted_recall: bool = False  # the closing recall of a new item never gives a hint
     # "new-first" (a user option, outside the design; #243): every introduction first, back to back, then known material
     order: str = "spread"
+    # the owner, 2026-11-28: say only lines whose every pair of neighbouring words Icelanders are found writing (``audiolesson.trust``; a course
+    # without its table, ``trust/pairs.json``, says everything). An item, a pattern's sentence, a theme level, a dialogue or a note with a pair no
+    # Icelandic text has is passed over; a pair not looked up yet holds nothing back. ``generate --untrusted`` turns it off
+    trusted: bool = True
 
     def resolved_max_new_items(self) -> int:
         """Extra new items may fill a lesson that has nothing to review (the first ones),
@@ -328,6 +332,7 @@ class Planner:
         prompts.rng = self.rng
         self.builder = Builder(cur, prompts, timing, learner, self.rng, translate_partner=cfg.translate_partner, said_cap=cfg.max_sentence_hard, close_conversations=True)
         self.builder.familiarity = self.reply_familiarity  # #281 finding 2: the planner decides whether a line was said before; the builder renders
+        self.builder.usual = self.usual_line if self.trust_on else None  # the trust check: a pattern's sentence with a pair no text has is not made
         self.exposures: dict[str, list[str]] = {}
         self.support: dict[str, int] = {}
         self.dialogues_played: list[str] = []
@@ -377,6 +382,43 @@ class Planner:
             word_count=item.word_count,
         )
 
+    # --------------------------------------------------------------- trust (the owner, 2026-11-28)
+
+    @property
+    def trust_on(self) -> bool:
+        return self.cfg.trusted and self.cur.trust is not None
+
+    def usual_line(self, text: str) -> bool:
+        """Not a line with a pair of neighbouring words (or a word alone) that no Icelandic text has (``audiolesson.trust``)."""
+        return not self.trust_on or self.cur.trust.usual(text)
+
+    def usual_item(self, it: Item) -> bool:
+        """An item the trust check lets the lesson teach: its line in each voice, or a pattern's fixed words in each of its forms (the slots end a
+        stretch: the sentences the fillers make are judged when ``Builder.generate`` makes them)."""
+        if not self.trust_on:
+            return True
+        if it.slots:
+            lines = [re.sub(r"\{[^}]*\}", " | ", t) for t in (it.target, it.negative, it.question) if t]
+        else:
+            lines = [t for t in (it.target, it.target_m) if t]
+        return all(self.cur.trust.usual(t) for t in lines)
+
+    def usual_level(self, theme, level: int) -> bool:
+        """A theme level every line of which (the learner's, each partner line and its variants, the lines only heard) the trust check lets the
+        lesson say. A level that is not is passed over, as a level the learner skipped would be: its scene goes on at the next one."""
+        if not self.trust_on:
+            return True
+        return all(self.usual_line(ln.say) for t in theme.levels[level].turns for ln in t.lines() + t.listen_lines() if ln.say) and all(
+            self.usual_line(t.say_m) for t in theme.levels[level].turns if t.say_m)
+
+    def usual_dialogue(self, d: Dialogue) -> bool:
+        return not self.trust_on or all(self.usual_line(x) for t in d.turns for x in (t.opener, t.partner, t.expect_text, t.expect_text_m) if x)
+
+    def usual_note(self, note) -> bool:
+        from .trust import spans
+
+        return not self.trust_on or all(self.usual_line(x) for x in spans(note.text) + spans(note.text_plain))
+
     # --------------------------------------------------------------- selection
 
     def _prereq_met(self, c: Item, p: str, have) -> bool:
@@ -399,6 +441,8 @@ class Planner:
         best: tuple[int, int, Item] | None = None
         for c in self.cur.items:
             if c.kind != "construction" or not c.slots or c.id in exclude or c.id in self.learner.embedded or self.learner.has_met(c.id):
+                continue
+            if not self.usual_item(c):
                 continue
             if only is not None and c.id not in only:
                 continue
@@ -1010,7 +1054,7 @@ class Planner:
 
         pool = [
             i for i in self.cur.items
-            if not self.learner.has_met(i.id) and i.id not in chosen_ids and i.id not in self.learner.embedded
+            if not self.learner.has_met(i.id) and i.id not in chosen_ids and i.id not in self.learner.embedded and self.usual_item(i)
         ]
         # A close variant (another case, another gender) is not general material (#218 b1): it comes only when the theme's next level
         # wants it (#201), or something pulls it (#202: it is a prerequisite of a frame or phrase still to come; as a filler the
@@ -1550,7 +1594,7 @@ class Planner:
     def _note_available(self, note) -> bool:
         """Everything the note recommends saying (``Note.requires``) is learned, or was
         introduced earlier in this lesson."""
-        return all(self.learner.knows(i) or i in self.builder.in_lesson for i in note.requires)
+        return all(self.learner.knows(i) or i in self.builder.in_lesson for i in note.requires) and self.usual_note(note)
 
     def _pick_note(self, related: list[str] | None) -> object | None:
         """An ordinary note to play: related to ``related`` items if given; as filler, one about
@@ -1640,7 +1684,8 @@ class Planner:
         material: its component cost is 0, so it takes no place among them (a simulated lesson lost a planned item to it)."""
         if self.learner.lessons_completed < self.cfg.commands_from:
             return None
-        return next((i for i in self.cur.items if i.command and not self.learner.has_met(i.id) and i.id not in self.learner.embedded), None)
+        return next((i for i in self.cur.items if i.command and not self.learner.has_met(i.id) and i.id not in self.learner.embedded
+                     and self.usual_item(i)), None)
 
     def choice_wants(self) -> list[str]:
         """#439 step 1b: a line not met yet that would give the number choice a gender it lacks («fyrir tvær nætur» once «tvo miða» and «tvö þúsund»
@@ -1750,7 +1795,7 @@ class Planner:
             cases = {f.form.split("_")[0] for f in have}  # «kaffið» beside «kaffi» is the same case: no choice of a case between them
             out += [
                 f for f in forms
-                if not self.learner.has_met(f.id) and f.id not in self.learner.embedded and not f.target_m and set(f.tags) & frames
+                if not self.learner.has_met(f.id) and f.id not in self.learner.embedded and not f.target_m and set(f.tags) & frames and self.usual_item(f)
                 and _norm_utterance(f.target) not in said and f.form.split("_")[0] in NOUN_CASES and f.form.split("_")[0] not in cases
             ]
         return [min(out, key=lambda f: f.order).id] if out else []
@@ -2250,6 +2295,8 @@ class Planner:
         best = None
         for order, theme in enumerate(self.cfg.themes):
             level = self.learner.themes_done.get(theme.id, 0)
+            while level < len(theme.levels) and not self.usual_level(theme, level):
+                level += 1  # the trust check: a level with a line no Icelandic text has the words of is passed over
             if level >= len(theme.levels) or (theme.scenario not in rank and not self.cfg.play_unranked):
                 continue
             you = [t for t in theme.levels[level].turns if t.who == "you"]
@@ -2282,6 +2329,10 @@ class Planner:
         if again is None:
             return None
         _, theme, level = again
+        while level > 0 and not self.usual_level(theme, level):
+            level -= 1  # the trust check: the last level played that it lets play again
+        if not self.usual_level(theme, level):
+            return None
         you = [t for t in theme.levels[level].turns if t.who == "you"]
         return theme, level, self._untaught_turns(you)
 
@@ -2306,6 +2357,8 @@ class Planner:
         """
         if any(key in self.learner.levels_last for key in d.superseded_by):
             return True  # the owner, 2026-11-19: a theme level that plays its scene, its partner lines varying, has played
+        if not self.usual_dialogue(d):
+            return True  # the trust check: a line of it has a pair of words no Icelandic text has, so it is not played again
         limit = self.cfg.dialogue_full_play_limit
         return limit > 0 and self._dialogue_whole_plays(d) >= limit
 
@@ -2539,7 +2592,7 @@ class Planner:
 
         def _do_intro(item: Item, worked_fills: dict[str, Item] | None = None) -> None:
             nonlocal last_intro, last_intro_at, seq, closing_reserve
-            if item.id in self.embedded or any(i.id == item.id for i in introduced):
+            if item.id in self.embedded or any(i.id == item.id for i in introduced) or not self.usual_item(item):
                 # taught already this lesson (embedded, then queued again: «miða» in lesson 19, #217): its turn goes to the
                 # next item. Checked here because every path to an introduction ends here, whatever queue it came from
                 intro_skipped.append(item.id)
@@ -4588,6 +4641,7 @@ class Planner:
                 "priority_items": len(cfg.priority),  # a count only: the list may reflect a private profile
                 "levers": {"late_unhinted_recall": cfg.late_unhinted_recall, "dialogue_full_play_limit": cfg.dialogue_full_play_limit},
                 "order": cfg.order,
+                "trusted": self.trust_on,
                 "seed": cfg.seed,
                 "level": self.timing.level,
             },

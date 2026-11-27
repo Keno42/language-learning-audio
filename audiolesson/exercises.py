@@ -219,6 +219,9 @@ class Builder:
     ask_cap: int = 0  # #336: a pattern's sentence asked this many times a lesson (any path) is not asked again by a sibling recall; 0: no cap
     # #281 finding 2: whether a learner's line was said before is the planner's decision (``Planner.reply_familiarity``); None: ``lines.familiarity``
     familiarity: Callable[[list[str], str, bool], tuple[list[str], bool]] | None = None
+    # the trust check (the owner, 2026-11-28; ``Planner.usual_line``): whether a sentence has no pair of neighbouring words that no Icelandic text has;
+    # None: every sentence is made
+    usual: Callable[[str], bool] | None = None
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
     _situation_texts: dict[str, int] = field(default_factory=dict)  # times each situation was narrated in full (``_narrated``)
     _recent_situations: list = field(default_factory=list)  # the situations narrated, newest last (``situation_rank``)
@@ -1615,7 +1618,21 @@ class Builder:
                 known = next((i for i in self.cur.items_with_tag(tag, item) if self._available(i.id)), None)
                 if known is not None:
                     fills[slot] = known
+        if self.usual is not None and not self._usual_fills(item, fills):
+            # the trust check: the example's sentence has a pair of words no Icelandic text has; another filler the learner has, whose sentence has none
+            for slot, tag in item.slots.items():
+                if slot in (worked_fills or {}):
+                    continue
+                other = next((i for i in self.cur.items_with_tag(tag, item)
+                              if self._available(i.id) and self._usual_fills(item, {**fills, slot: i})), None)
+                if other is not None:
+                    fills[slot] = other
+                    break
         return fills
+
+    def _usual_fills(self, item: Item, fills: dict[str, Item]) -> bool:
+        """The trust check on the sentence ``fills`` make of ``item``, in either voice."""
+        return self.usual is None or all(self.usual(self.cur.resolve_slots(item, fills, g)[0]) for g in "fm")
 
     def _intro_construction(self, sc: Script, item: Item, worked_fills: dict[str, Item] | None = None) -> Exercise:
         ex = sc.new_exercise("intro", "intro", [item.id], f"new pattern: {item.target}")
@@ -2156,6 +2173,8 @@ class Builder:
             order = self._form_order([None] + (offered if forms else []))
         for chosen_form in order:
             picks = [(chosen_form, c) for c in combos if self.cur.fits_form(construction, c, chosen_form)]
+            if self.usual is not None:  # the trust check: a combination whose sentence has a pair no Icelandic text has is not made, in either voice
+                picks = [(f, c) for f, c in picks if all(self.usual(self.cur.resolve_slots(construction, c, g, f)[0]) for g in "fm")]
             if avoid_heard:
                 picks = [
                     (f, c) for f, c in picks

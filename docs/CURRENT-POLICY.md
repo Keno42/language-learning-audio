@@ -38,8 +38,11 @@ summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wro
   repository and never appear in logs, URLs or Discord.
 - **A human approves every change.** Nothing changes the learner model or the planner automatically. One PR does one
   change; the owner merges. No LLM partner or grader (#129).
-- **Content is not native-reviewed.** All scene lines, partner lines, forms, genders and glosses are candidates (G10, #209).
-  Native corrections are applied when they come.
+- **Content is checked by use (the owner, 2026-11-28).** A line counts as checked when every pair of neighbouring words in it is found in
+  texts Icelanders wrote (the corpora of the Árni Magnússon Institute, about 2.5 billion words; `audiolesson/trust.py`,
+  `curricula/is-en/trust/`), and the lessons say only such lines: an item, a pattern's sentence, a theme level, a dialogue or a note with a
+  pair no text has is passed over (`PlanConfig.trusted`, on; `generate --untrusted`). The check does not reach glosses, situations or the
+  synthetic voices' pronunciation (G10, #631, #209); native corrections are applied when they come.
 
 ## The design in one page
 - **Scene first (H4, the main bet; owner decision 2026-10-03).** Every lesson after the first is built around a theme: one
@@ -69,8 +72,8 @@ summarises; if it and LD disagree, LD §9 (decisions) wins, and this file is wro
   (concepts 2 and 3, #248). Not recombination of known patterns for its own sake.
 - **Good enough overall (owner, after lesson 20).** Eighty points across the whole lesson beat a hundred on one part. Fix a
   part that scores twenty (boring, confusing, contradictory) before any precision work. Rules cover about nine cases in ten;
-  the tenth is a named exception (LD §9 lists them), not a new mechanism. About one line in ten that a native speaker
-  would not quite say is acceptable; linguistic-detail checks advise and never block.
+  the tenth is a named exception (LD §9 lists them), not a new mechanism. A line with a pair of words no Icelandic text has is
+  not said (the trust check, above); the other linguistic-detail checks (BÍN) advise and never block.
 - **The written review asks in its own words** (no lesson cues) and has its own rules: a first 言えた waits 3 days, the
   backlog is bounded (about 100 due), a new scene or reading card comes every review while the deck has one.
 - **Audio.** No pause stretching; only plausible sentences in plausible scenes (H7); a gap at every change of voice (#301);
