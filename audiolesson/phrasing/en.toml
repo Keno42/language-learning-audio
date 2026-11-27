@@ -183,7 +183,8 @@ mixed_review_intro = "Quick review: two separate situations."
 connect_next = "Now another situation."
 
 # the words follow the speaker's gender (Item.target_m): say which one is asked for
-review_literal = "{situation}\nLiterally: {meaning}"  # lesson 60: the written review asks a situation with its literal meaning (`review_wording.with_literal`)
+review_literal = "{situation}\nMeaning: {meaning}"  # the written review asks a situation with the answer's meaning, named as its meaning, not its words (#627: «Ég hef það gott.» is not literally «I'm doing well.»; `review_wording.with_literal`)
+review_partner = "{situation}\nThey say: {partner}"  # #627: a situation whose answer replies to a partner's line is asked with that line in Icelandic, the context that picks the answer (`review_wording.with_literal`)
 speak_as_f = "As a woman: {prompt}"
 speak_as_m = "As a man: {prompt}"
 speak_as_f_alone = "As a woman."

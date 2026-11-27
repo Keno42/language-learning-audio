@@ -1,5 +1,5 @@
 """The owner, 2026-11-26: «a question whose answer I could not have known» still comes up in the written review. The audit of lessons 50–68's
-review found the cue fixed by its «Literally:» line almost everywhere; what was left were two right lines, one of them shown: «Mig vantar
+review found the cue fixed by its «Meaning:» line almost everywhere; what was left were two right lines, one of them shown: «Mig vantar
 símkort.» where every other «need» is «Ég þarf …», «Ég vil sjá lunda.» beside «Mig langar að sjá eldfjall.». A question now carries the other
 answers it accepts (``also``), and the bot shows them beside the answer."""
 import json

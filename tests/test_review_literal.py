@@ -1,6 +1,6 @@
-"""Lesson 60 (the owner on #559): the written review asked «Your friend suggests a taxi. Say you'll go by bus instead.» for «Við förum með
-strætó.». In the lesson the scene carries the gap between the instruction and the answer; the next morning, one question at a time, nothing does.
-A situation in the written review says the item's literal meaning after it, unless the instruction already holds the meaning's words."""
+"""#559: the next morning, one question at a time, no scene carries the gap between a situation («Your friend suggests a taxi. Say you'll go
+by bus instead.») and its answer («Við förum með strætó.»). A situation in the written review says the answer's meaning after it, unless the
+instruction already holds the meaning's words; the line is named the meaning, never the words, which it is not for every item (#627)."""
 import unittest
 from pathlib import Path
 
@@ -28,8 +28,8 @@ class ReviewLiteralTests(unittest.TestCase):
     def test_a_situation_that_does_not_say_the_meaning_gets_it(self):
         bus = Item("We'll go by bus.")
         self.assertEqual(with_literal("Your friend suggests a taxi. Say you'll go by bus instead.", bus, self.en),
-                         "Your friend suggests a taxi. Say you'll go by bus instead.\nLiterally: We'll go by bus.")
-        self.assertEqual(with_literal("Greet the shopkeeper.", Item("Good day."), self.en), "Greet the shopkeeper.\nLiterally: Good day.")
+                         "Your friend suggests a taxi. Say you'll go by bus instead.\nMeaning: We'll go by bus.")
+        self.assertEqual(with_literal("Greet the shopkeeper.", Item("Good day."), self.en), "Greet the shopkeeper.\nMeaning: Good day.")
 
     def test_a_situation_that_already_says_it_is_kept(self):
         for situation, meaning in [("Say let's go by bus instead: literally, we'll go by bus.", "We'll go by bus."),
@@ -39,7 +39,7 @@ class ReviewLiteralTests(unittest.TestCase):
     def test_the_plan_question_gets_it_behind_the_speakers_form_and_other_prompts_are_kept(self):
         cur = Cur(bus=Item("We'll go by bus.", "Say you'll go by bus instead."), x=Item("Thanks.", "Thank her."))
         q = {"items": ["bus"], "prompt": "As a woman: Say you'll go by bus instead.", "answer": "Við förum með strætó."}
-        self.assertEqual(literal_prompt(q, cur, self.en), "As a woman: Say you'll go by bus instead.\nLiterally: We'll go by bus.")
+        self.assertEqual(literal_prompt(q, cur, self.en), "As a woman: Say you'll go by bus instead.\nMeaning: We'll go by bus.")
         other = {"items": ["bus"], "prompt": "How do you say: We'll go by bus.", "answer": "Við förum með strætó."}
         self.assertEqual(literal_prompt(other, cur, self.en), other["prompt"])
         shared = {"items": ["bus", "x"], "prompt": "Say you'll go by bus instead.", "answer": "…"}
@@ -52,6 +52,25 @@ class ReviewLiteralTests(unittest.TestCase):
         q = {"items": [it.id], "prompt": it.situation, "answer": it.target}
         self.assertIn(it.meaning, reword_review([q], self.en, cur.target_lang, cur)[0]["prompt"])
 
+    def test_the_line_is_named_the_meaning_not_the_words(self):
+        """#627: «Ég er í lagi.» is not literally «I'm OK.»; the line after its situation names it the meaning, in both languages."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        it = cur.by_id["eg_er_i_lagi"]
+        q = {"items": [it.id], "prompt": it.situation_for(0), "answer": it.target}
+        self.assertTrue(reword_review([q], self.en, cur.target_lang, cur)[0]["prompt"].endswith("\nMeaning: " + it.meaning))
+        for lang in ("en", "ja"):
+            template = Prompts.load(lang).get("review_literal", situation="S", meaning="M")
+            self.assertFalse(any(w in template for w in ("Literally", "literal", "直訳")), lang)
+
+    def test_an_answer_to_a_partner_s_line_is_asked_with_that_line(self):
+        """#627 (the owner): «Ég hef það gott.» and «Allt gott, takk.» are both «how you're doing» in English; the partner's Icelandic question
+        («Hvernig hefurðu það?», «Hvað segirðu gott?») decides which is wanted, so the review shows it in place of the meaning line."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for item_id, partner in (("eg_hef_thad_gott", "Hvernig hefurðu það?"), ("allt_gott", "Hvað segirðu gott?")):
+            it = cur.by_id[item_id]
+            q = {"items": [it.id], "prompt": it.situations[0], "answer": it.target}
+            self.assertEqual(reword_review([q], self.en, cur.target_lang, cur)[0]["prompt"], f"{it.situations[0]}\nThey say: {partner}")
+            self.assertEqual(with_literal(it.situations[0], it, Prompts.load("ja"), cur), f"{it.situations[0]}\n相手：{partner}")
 
 if __name__ == "__main__":
     unittest.main()
