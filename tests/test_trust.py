@@ -82,6 +82,15 @@ class CourseLinesTests(unittest.TestCase):
         self.assertFalse([t for t in texts if "{" in t])
 
 
+class LookupToolTests(unittest.TestCase):
+    def test_a_number_word_is_also_looked_up_in_digits(self):
+        # written texts give ages, prices and times in digits: «ertu átján» is found as «Ertu 18 ára?»
+        import runpy
+
+        tool = runpy.run_path(str(ROOT / "tools" / "attest_pairs.py"))
+        self.assertEqual([tool["as_digits"](k) for k in ("ertu átján", "tvo kaffi", "ég er")], ["ertu 18", "2 kaffi", None])
+
+
 class ValidateTests(unittest.TestCase):
     def test_validate_warns_about_an_unusual_line_and_never_fails(self):
         from audiolesson.cli import main

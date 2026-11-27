@@ -15,7 +15,8 @@ public Korp service at https://malheildir.arnastofnun.is:
 - the Icelandic side of the parallel corpora: subtitles.
 
 A pair is looked up in everyday writing first (the forums, blogs, speech and subtitles above), then, when none of those has it, in every
-corpus listed. Old texts, laws and court rulings are not searched. Only whether a corpus has the pair is asked (the search stops at its
+corpus listed, and a pair with a number word once more with the number in digits, as texts write ages, prices and times («ertu átján» is
+found as «Ertu 18 ára?»). Old texts, laws and court rulings are not searched. Only whether a corpus has the pair is asked (the search stops at its
 first hit), so a count is a number of corpora, not of occurrences.
 
 ## What is kept, and what is not
