@@ -88,7 +88,7 @@ cause = "The reading deck has had no outside review: cards ask for words no less
 cause = "Known material comes back by a rule that never asks what the learner still gains from it: a set reply asked in every exchange played again, a whole dialogue every four lessons (H11, #416)."
 
 [families.meaning-gloss]
-cause = "An authored cue leaves its answer open: a sentence's English meaning (whom «hringja heim» calls), a situation's instruction that says «it» for what the answer names (lesson 51: the snow), a «you» that does not tell «ég» from «við» (lesson 60: the bus). `validate` lists the «it» and fails on the subject (#559); the rest needs a reader (#209)."
+cause = "An authored cue or gloss does not say what its answer says: a sentence's English meaning that leaves it open (whom «hringja heim» calls; a situation's «it», lesson 51; a «you» that does not tell «ég» from «við», lesson 60), or English named as the Icelandic's words when it is not (an instruction's cue quoting the English line it replaces, #621, #624; the written review's «Literally:» before the item's meaning, #627). `validate` lists the «it» and fails on the subject (#559); the rest needs a reader (#209)."
 
 [families.listening-just-heard]
 cause = "A listening question is drawn without looking at what the lesson has just played: it asks for information a conversation gave a minute before (#339, with #273)."
@@ -1146,6 +1146,20 @@ family = "meaning-gloss"
 class = "twenty"
 answered_by = ["#621"]
 
+[[lesson]]
+n = 69
+form = true
+load = "right"
+built = ["#620", "#624", "#625", "#626"]
+long_run = ["#620"]
+
+[[lesson.remarks]]
+who = "main"
+text = "The written review asked «A colleague asks how you're doing. Say you're doing well.» with «Literally: I'm doing well.» after it, for «Ég hef það gott.»: «It is literally \"I have it good\"». (The line is the item's meaning, added after a situation that does not hold its words, #559, and labelled «Literally:»; 18 of lesson 69's 47 review questions carry it, «Mér er illt í fætinum.», «Ég er með sjúkratryggingu.» and «Ég fíla það.» among them, none literally so: #627.)"
+family = "meaning-gloss"
+class = "twenty"
+answered_by = ["#629"]
+
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
 [[change]]
@@ -2192,3 +2206,37 @@ title = "the review carries the other right answers (also), and the audit's two-
 issue = []
 pr = ["#613"]
 family = "review-wording"
+
+[[change]]
+title = "a hinted cue's «The first word is:» in Icelandic once taught: «Fyrsta orðið er:» (#429 step 12: #620)"
+issue = ["#429"]
+pr = ["#620"]
+family = "instruction-language"
+
+[[change]]
+title = "an instruction's cue gives its own words, «the instruction \"Say each sentence\"» (lesson 68: #621, data)"
+issue = ["#429"]
+pr = ["#621"]
+family = "meaning-gloss"
+first_heard = 69
+heard = "«Smá útúrdúr.» asked as «An instruction: A quick aside.»"
+
+[[change]]
+title = "the English instruction lines say the words of the Icelandic phrases that replace them (owner, 2026-11-26: #624)"
+issue = ["#429"]
+pr = ["#624"]
+family = "meaning-gloss"
+first_heard = 69
+heard = "«The first word is:», «From words you know.», «The conversation again. You know your sentences.» said in lesson 69"
+
+[[change]]
+title = "an aside written for a learner who knows Japan reaches only that learner (Note.audience, --background: #625)"
+issue = []
+pr = ["#625"]
+family = "form-why"
+
+[[change]]
+title = "a new word is taught in the one frame its lesson teaches for it: «mjólk» in «Eruð þið með mjólk?», not also «Áttu mjólk?» (#626)"
+issue = []
+pr = ["#626"]
+family = "one-version"
