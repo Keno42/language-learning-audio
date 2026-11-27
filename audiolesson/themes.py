@@ -352,7 +352,7 @@ def unranked_themes(themes: list[Theme], scenarios: list[Scenario], tiers: tuple
 
 def pick_variants(
     level: Level, rng: random.Random, canonical: bool = False, heard: set[tuple[int, int]] | None = None, tired: Callable[[str], tuple | int] | None = None,
-    as_written_too: bool = False,
+    as_written_too: bool = False, allowed: Callable[[str], bool] | None = None,
 ) -> dict[int, int]:
     """Which line each partner turn with variants says (index into ``Turn.lines()``, keyed by the turn's place in the
     level). The lesson's two plays split the work (#134, review): the early, translated play takes a variant at random,
@@ -366,7 +366,9 @@ def pick_variants(
     this lesson, or in the lessons just before). A turn whose lines
     say different numbers takes the least tired of the lines the play may say, at random among equals, and a heard-only play
     (``as_written_too``) may say such a turn as written: lesson 53 said «herbergi tvö hundruð og tólf» in each of the hotel desk's three exchanges. A turn whose lines say
-    the same numbers, or none, is picked as before."""
+    the same numbers, or none, is picked as before.
+
+    ``allowed`` (the trust check, #631): a variant whose line it refuses is never picked; a turn left with none is said as written."""
     if canonical:
         return {}
 
@@ -382,14 +384,20 @@ def pick_variants(
     for k, t in enumerate(level.turns):
         if t.who != "partner" or not t.variants:
             continue
+        ok = [i for i in range(len(t.lines())) if allowed is None or allowed(t.lines()[i].say)]
         if heard is not None:
-            known = sorted(i for (turn, i) in heard if turn == k)
+            known = sorted(i for (turn, i) in heard if turn == k and i in ok)
             if known:
                 pick = rested(t, known)
                 picks[k] = rng.choice(known) if pick is None else pick
             continue
-        pick = rested(t, list(range(0 if as_written_too else 1, len(t.lines()))))
-        picks[k] = rng.randrange(1, len(t.lines())) if pick is None else pick
+        among = [i for i in range(0 if as_written_too else 1, len(t.lines())) if i in ok]
+        if not among:
+            continue  # the trust check left no variant: the line as written
+        pick = rested(t, among)
+        if pick is None:
+            pick = rng.randrange(1, len(t.lines())) if allowed is None else rng.choice([i for i in among if i >= 1] or among)
+        picks[k] = pick
     return picks
 
 

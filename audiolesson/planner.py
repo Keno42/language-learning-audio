@@ -403,13 +403,20 @@ class Planner:
             lines = [t for t in (it.target, it.target_m) if t]
         return all(self.cur.trust.usual(t) for t in lines)
 
+    @property
+    def allowed_line(self):
+        """The trust check as ``themes.pick_variants`` takes it: None when it is off."""
+        return self.usual_line if self.trust_on else None
+
     def usual_level(self, theme, level: int) -> bool:
-        """A theme level every line of which (the learner's, each partner line and its variants, the lines only heard) the trust check lets the
-        lesson say. A level that is not is passed over, as a level the learner skipped would be: its scene goes on at the next one."""
+        """A theme level whose lines as written (the learner's, in each voice, the partner's, the lines only heard) the trust check lets the
+        lesson say. A level that is not is passed over, as a level the learner skipped would be: its scene goes on at the next one. A partner's
+        variant it refuses only is never picked (``pick_variants``' ``allowed``): the level plays."""
         if not self.trust_on:
             return True
-        return all(self.usual_line(ln.say) for t in theme.levels[level].turns for ln in t.lines() + t.listen_lines() if ln.say) and all(
-            self.usual_line(t.say_m) for t in theme.levels[level].turns if t.say_m)
+        turns = theme.levels[level].turns
+        return all(self.usual_line(x) for t in turns for x in (t.say, t.say_m) if x) and all(
+            self.usual_line(ln.say) for t in turns for ln in t.listen_lines() if ln.say)
 
     def usual_dialogue(self, d: Dialogue) -> bool:
         return not self.trust_on or all(self.usual_line(x) for t in d.turns for x in (t.opener, t.partner, t.expect_text, t.expect_text_m) if x)
@@ -1311,7 +1318,8 @@ class Planner:
     def select_reviews(self) -> list[Item]:
         """The review queue: items due, or due within ``review_ahead_days``, most urgent first.
         Not-due items further off are left for ``select_early_reviews``, the last filler."""
-        met = [self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id]
+        # the trust check: an item met before the table had it, with a pair no Icelandic text has, is not practised again
+        met = [self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id and self.usual_item(self.cur.by_id[i])]
         horizon = self.today + timedelta(days=self.cfg.review_ahead_days)
         met = [i for i in met if not self.learner.items[i.id].due or date.fromisoformat(self.learner.items[i.id].due) <= horizon]
         return self._by_urgency([i for i in met if not self.reviewed_today(i.id)])
@@ -1475,7 +1483,7 @@ class Planner:
             (i.id not in prefer, self.learner.items[i.id].last_practiced, i.order, i)
             for i in self.cur.items
             if i.id in self.learner.items and i.id not in exclude and (not rested_only or self._rested(i.id)) and not self._stable(i)
-            and not self.reviewed_today(i.id)
+            and not self.reviewed_today(i.id) and self.usual_item(i)
         ]
         return [i for *_, i in sorted(out, key=lambda t: t[:3])]
 
@@ -3599,7 +3607,7 @@ class Planner:
                         exchange_lines.append(say)
 
         def cut_out_picks(level) -> dict[int, int]:
-            picks = pick_variants(level, self.rng, tired=line_tired(), as_written_too=True) if any(
+            picks = pick_variants(level, self.rng, tired=line_tired(), as_written_too=True, allowed=self.allowed_line) if any(
                 len({tuple(number_words(ln.say)) for ln in t.lines()}) > 1 for t in level.turns if t.who == "partner"
             ) else {}  # a level with no number to vary is said as written, as before
             log_numbers(level, picks)
@@ -3613,7 +3621,7 @@ class Planner:
             key = f"{theme.id}:{n + 1}"
             heard = {tuple(map(int, h.split(":"))) for h in self.learner.themes_heard.get(key, [])} if theme_replay else None
             # #451 step 3d: a turn whose lines say different numbers takes the one whose number words have rested longest
-            picks = pick_variants(theme.levels[n], self.rng, canonical=theme_plays > 0, heard=heard, tired=line_tired())
+            picks = pick_variants(theme.levels[n], self.rng, canonical=theme_plays > 0, heard=heard, tired=line_tired(), allowed=self.allowed_line)
             log_numbers(theme.levels[n], picks)
             if theme_plays == 0 and not theme_replay:
                 theme_heard.extend(f"{k}:{i}" for k, i in picks.items())
@@ -3666,7 +3674,7 @@ class Planner:
 
         def play_heard_theme(theme, n: int) -> None:
             nonlocal since_dialogue
-            picks = pick_variants(theme.levels[n], self.rng, tired=line_tired(), as_written_too=True)  # #451 step 3d
+            picks = pick_variants(theme.levels[n], self.rng, tired=line_tired(), as_written_too=True, allowed=self.allowed_line)  # #451 step 3d
             log_numbers(theme.levels[n], picks)
             dlg = level_dialogue(theme, n, self.cur.known_lang, picks)
             you = [t for t in theme.levels[n].turns if t.who == "you"]
