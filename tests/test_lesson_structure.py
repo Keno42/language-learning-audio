@@ -1591,7 +1591,7 @@ class ListeningDialogueTests(unittest.TestCase):
         planner._play_listening(sc, cur.dialogues[0], {"u0"})
         text = sc.transcript()
         self.assertIn("You don't need to remember them", text)
-        self.assertIn("Here you would say:", text)
+        self.assertIn("Here you say:", text)
         self.assertIn("Nýtt 0.", text)
         self.assertIn("New 0.", text)
         pauses = [s for s in sc.segments if s.type == "pause" and s.role == "answer"]

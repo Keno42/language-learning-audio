@@ -165,7 +165,7 @@ listening_intro_known_voiced = "The conversation again. Answer when you're told 
 listening_intro_again = "The conversation again."
 # any other exchange played again with short set replies played for the learner (#416)
 dialogue_voiced_note = "Answer when you're told what to say. Short replies like yes, no and thanks are played for you."
-listening_line = "Here you would say:"
+listening_line = "Here you say:"  # a learner's line heard, not asked (#240); #429 step 13: said as «Hér segir maður:» once taught
 dialogue_start = "Now a short conversation."
 say_frame = "Say:"  # #429 step 4: a cue's frame, said as «Segðu:» once taught (`exercises.cue_frames`)
 how_say_frame = "How do you say:"  # #429 step 4: «Hvernig segir maður:» once taught

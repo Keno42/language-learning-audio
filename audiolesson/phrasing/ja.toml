@@ -161,7 +161,7 @@ listening_intro_known_voiced = "もう一度、同じ会話です。言うこと
 # #438: a scene heard again once the lesson has said that short replies are played
 listening_intro_again = "もう一度、同じ会話です。"
 dialogue_voiced_note = "言うことの指示が出たら、答えてください。「はい」「いいえ」「ありがとう」などの短い返事は、音声で流れます。"
-listening_line = "ここでは、こう言います。"
+listening_line = "ここでは、こう言います。"  # #429 step 13: said as «Hér segir maður:» once taught
 dialogue_start = "ここからは短い会話です。"
 say_frame = "言ってください："  # #429 step 4: a cue's frame, said as «Segðu:» once taught (`exercises.cue_frames`)
 how_say_frame = "何と言いますか："  # #429 step 4: «Hvernig segir maður:» once taught

@@ -20,7 +20,7 @@ ANOTHER = "another"  # the line is none of those the exercise said before the fr
 AGAIN = "again"  # the exercise just before practised the same item (#287)
 REPLAY = "replay"  # the line is one the exercise said before the framing line («Listen again.», #335)
 NEW = "new"  # the line is none of those said earlier in the lesson (#197)
-# the exercise's item was not practised earlier in the lesson: a scene's line only heard («Here you would say:», ``heard_ids``, #263) and a note that names
+# the exercise's item was not practised earlier in the lesson: a scene's line only heard («Here you say:», ``heard_ids``, #263) and a note that names
 # the item are not practice; the theme's first play comes before the lesson teaches its lines on purpose (LEARNING-DESIGN §9 "Themes")
 NEW_ITEM = "new item"
 AFTER_CONVERSATION = "after a conversation"  # the exercise heard just before is a conversation («Now another short conversation.», lesson 45)
