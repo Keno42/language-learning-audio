@@ -55,7 +55,7 @@ class SayableLineTests(unittest.TestCase):
         planner._play_listening(sc, *found)
         pauses = [s for s in sc.segments if s.type == "pause" and s.role == "answer"]
         self.assertEqual(len(pauses), 2, "both turns are asked, with a pause")
-        self.assertNotIn("Here you would say", sc.transcript())
+        self.assertNotIn("Here you say", sc.transcript())
         self.assertEqual(planner.dialogues_listened, [], "an ordinary dialogue is not counted against the listening rest")
         self.assertEqual(planner.listening_asked[0]["dialogue"], "d1")
         self.assertIn("big", planner.listening_asked[0]["items"])
@@ -88,8 +88,8 @@ class SayableLineTests(unittest.TestCase):
         sc = Script(1, "t", "is", "en")
         planner._play_listening(sc, cur.dialogues[0], {"big"})
         text = sc.transcript()
-        self.assertIn("Here you would say:", text)
-        self.assertNotIn("Tell him it costs five thousand krónur.", text, "«Tell him…» contradicts «Here you would say:»")
+        self.assertIn("Here you say:", text)
+        self.assertNotIn("Tell him it costs five thousand krónur.", text, "«Tell him…» contradicts «Here you say:»")
         self.assertIn("Say known zero.", text, "the lines that are asked keep their cue")
         self.assertEqual(planner.listening_tried, [])
 
@@ -104,7 +104,7 @@ class SayableLineTests(unittest.TestCase):
         planner._play_listening(sc, cur.dialogues[0], {"big"})
         text = sc.transcript()
         self.assertNotIn("Try it.", text)
-        self.assertIn("Here you would say:", text)
+        self.assertIn("Here you say:", text)
         self.assertIn("It costs five thousand krónur.", text, "a heard line comes with its meaning")
         self.assertIn("Say known zero.", text, "the taught line keeps its cue")
         self.assertEqual(len([s for s in sc.segments if s.type == "pause" and s.role == "answer"]), 1, "only the taught line is asked")
@@ -132,7 +132,7 @@ class SayableLineTests(unittest.TestCase):
         known._play_listening(sc, dlg, set())
         self.assertEqual(known.listening_tried, [])
         self.assertNotIn("Try it.", sc.transcript())
-        self.assertIn("Here you would say:", sc.transcript())
+        self.assertIn("Here you say:", sc.transcript())
 
     def test_a_listening_scene_that_asks_nothing_says_just_listen(self):
         """#240: the framing stays true to what follows. Every learner line heard → «just hear how it goes»."""

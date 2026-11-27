@@ -107,7 +107,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   Japanese), says each sentence as its own narration with a beat after it, and leaves a sentence that goes on into a «…» span inline («The / kennitala / is a ten-digit number.» is one
   sentence). The last sentence of the text has no beat of its own: `note` adds the one closing beat. «e.g.» and «vedur.is» don't split. A milestone or teaching note takes the same rule.
   **A listening scene asks only for taught lines (#240).** A turn the learner can't say in full is heard
-  («Here you would say:», the line, its meaning), whether or not they can say a chunk of it
+  («Here you say:», the line, its meaning), whether or not they can say a chunk of it
   (`Planner.can_say_part`; `classify_turns` keeps the two kinds apart for the daily read). The scene opens with
   `listening_intro` ("just hear how it goes") only when nothing is asked; when some lines are asked it opens with
   `listening_intro_some_asked`. `listening_untaught` in the script's meta lists any line a listening scene asked
@@ -424,7 +424,7 @@ Each of these was a real regression once; `docs/history/sessions.md` has the det
   (#201) or an unmet item lists it as a prerequisite (#202; a frame's filler is found in `fill_pool`); the trip and course orders do not
   take variants. Spare time goes to listening dialogues, then to up to `heard_theme_plays` (2) heard-only plays of a theme level already
   played again (`Builder.dialogue(heard_play=True)`, label `heard: theme:…`: partner lines in variants; #263: the learner's lines they can say are **asked** with the cue,
-  the pause and the model, and only a line with an untaught item is heard with «Here you would say:»; the opening follows: `listening_intro_known` when all are asked
+  the pause and the model, and only a line with an untaught item is heard with «Here you say:»; the opening follows: `listening_intro_known` when all are asked
   or voiced; `heard_themes` in `plan.json`). **Voiced set replies (#416):** in a scene heard again, in the late play of the lesson's own exchange and in an authored dialogue played before (`_play_dialogue`, a turn read as items and text by `dialogue_turn_reply`: its item, or a literal line's set reply, word by word when the phrase was never met),
   `Planner.voiced_replies` picks the learner turns that `known_set_reply` passes (every item `Item.set_reply`, at most `set_reply_words` words, every item
   `is_learned`, not in `hard_items`, not `taught_today`, not due unless already asked this lesson); `Builder.dialogue(voiced_turns=…)` says them in the

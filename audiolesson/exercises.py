@@ -2490,7 +2490,7 @@ class Builder:
         """Play a dialogue; ``max_turns`` lets early encounters stop after a few turns.
 
         ``listening`` names required items the learner hasn't learned (H8, #149 step 3): their
-        turns are heard, not asked for: «Here you would say:», the line, what it means. The
+        turns are heard, not asked for: «Here you say:», the line, what it means. The
         scene carries the meaning; nothing is expected back for them.
 
         ``heard_play`` (#218 b1, #263): the scene played again as spare time. The partner is heard; a learner line is asked or heard
@@ -2500,12 +2500,12 @@ class Builder:
         exercise names the items it asked (``item_ids``) apart from those of the lines only heard (``heard_ids``, #263).
 
         ``heard_turns``: indices of the learner's turns heard, not asked (#240, the owner: a line never taught can't be said
-        at all, so it is never asked): the cue (the intent) stays, then «Here you would say:», the line and its meaning. A
+        at all, so it is never asked): the cue (the intent) stays, then «Here you say:», the line and its meaning. A
         theme level's turn with an item the learner has never met; the theme exchange's lines are literal, so they have no
         item to name.
 
         ``voiced_turns`` (#416): among ``heard_turns``, a set reply the learner plainly knows («Takk.», «Já, takk.») in an exchange played
-        again: the line is said in the learner's model voice, as the exchange goes, with no cue, no «Here you would say:» and no meaning.
+        again: the line is said in the learner's model voice, as the exchange goes, with no cue, no «Here you say:» and no meaning.
 
         ``lead_turns`` (#427): among ``heard_turns``, a known line that leads into a short exchange cut from a level, the line the partner's
         next line answers: voiced as ``voiced_turns`` are, without their note (it is not a set reply).
@@ -2616,7 +2616,7 @@ class Builder:
             if k in voiced_turns and k in heard_turns:
                 self._answer(sc, ex, expected, speaker=learner_voice)
             elif line_heard:
-                self._frame(sc, ex, self.prompts.get("listening_line"))
+                self._instruct(sc, ex, "listening_line", frame=True)  # #429 step 13: «Hér segir maður:» once taught
                 self._answer(sc, ex, expected, speaker=learner_voice)
                 self._beat(sc, ex)
                 if meaning_text:
