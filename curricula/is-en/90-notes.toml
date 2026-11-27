@@ -194,6 +194,15 @@ topics = ["time"]
 text = "«hálf átta» is literally 'half eight': half way to eight, so half past seven. Icelandic counts the half hour toward the next hour, not from the last one: «hálf níu» is half past eight."
 text_ja = "«hálf átta»の直訳は「8の半分」。8時に向かって半分なので、7時半です。アイスランド語では30分を次の時間に向けて数えます。«hálf níu»は8時半です。"
 
+# Lesson 70: «I miss my family» has no «my» in its Icelandic, literally «I miss the family»: the learner asked for the literal words. In Icelandic
+# texts «sakna fjölskyldunnar» is mostly written without «minnar» (141 of 167 in the Árni Magnússon Institute's corpora).
+[[notes]]
+id = "eg_sakna_fjolskyldunnar_literal"
+items = ["eg_sakna_fjolskyldunnar"]
+topics = ["family"]
+text = "«Ég sakna fjölskyldunnar.» is literally 'I miss the family'. There is no 'my' in it: when it is clear whose family is meant, Icelandic says 'the family'. And «fjölskyldunnar» is «fjölskyldan» in the form that comes after «sakna», the same form that says 'of the family'."
+text_ja = "«Ég sakna fjölskyldunnar.»の直訳は「私はその家族が恋しい」。「私の」に当たる言葉は入っていません。誰の家族かが分かるときは、アイスランド語は「家族」とだけ言います。«fjölskyldunnar»は«fjölskyldan»（家族）が«sakna»の後でとる形で、「家族の」と言うときと同じ形です。"
+
 # After lesson 33 the learner wrote that choosing the right case after «með» and «án» is hard. The four units are taught whole («með sykri», «án sykurs»,
 # «með mjólk», «án mjólkur»), and nothing said why the word changes: the same word, the forms side by side, the reason, then the units asked again
 # (#270's principle; a milestone is followed by two of its items recalled back to back). «með» takes the dative only in this use: «Ég er með kort.»
