@@ -50,6 +50,42 @@ class TrustInLessonsTests(unittest.TestCase):
     def planner(self, cur, trusted: bool = True) -> Planner:
         return Planner(cur, LearnerState("is", "en"), Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, trusted=trusted))
 
+    def test_a_worked_example_takes_an_allowed_filling_or_none(self):
+        """Review of #634: a worked example whose sentence the check refuses takes a filling the learner has that it allows; with none (every
+        filler refused, or the part taken out next refused itself) there is no example, never the refused one."""
+        from audiolesson.exercises import NoAllowedSentence
+
+        pattern = self.cur.by_id["erud_thid_med"]  # «Eruð þið með {thing}?», example «mjólk»
+        p = self.planner(self.table({"með mjólk": 0}))
+        p.builder.in_lesson.update({"mjolk", "peysu"})
+        self.assertEqual(p.builder.worked_example_fills(pattern)["thing"].id, "peysu", "the allowed one the learner has")
+        p = self.planner(self.table({"með mjólk": 0, "með peysu": 0}))
+        p.builder.in_lesson.update({"mjolk", "peysu"})
+        self.assertIsNone(p.builder.worked_example_fills(pattern), "every filler the learner has is refused")
+        p = self.planner(self.table({"með mjólk": 0}))
+        p.builder.in_lesson.update({"mjolk", "peysu"})
+        self.assertIsNone(p.builder.worked_example_fills(pattern, {"thing": self.cur.by_id["mjolk"]}), "the part taken out next is refused itself")
+        with self.assertRaises(NoAllowedSentence):
+            p2 = self.planner(self.table({"með mjólk": 0, "með peysu": 0}))
+            p2.builder.in_lesson.update({"mjolk", "peysu"})
+            from audiolesson.script import Script
+            p2.builder.recall(Script(1, "t", "is", "en"), pattern, "meaning")
+
+    def test_a_pattern_with_no_allowed_example_waits(self):
+        """With every sentence of «Eruð þið með {thing}?» refused, the pattern is never introduced nor said: its turn goes to the next item."""
+        fillers = [i for i in self.cur.items_with_tag(self.cur.by_id["erud_thid_med"].slots["thing"], self.cur.by_id["erud_thid_med"])]
+        refused = self.table({f"með {i.target.split()[0].lower()}": 0 for i in fillers})
+        from audiolesson.themes import scenario_order
+
+        for trusted in (True, False):
+            learner, scripts = course(refused, 3, trusted=trusted, themes=self.themes, scenarios=scenario_order(self.scenarios))
+            said_it = [t for t in said(scripts) if t.startswith("Eruð þið með")]
+            if trusted:
+                self.assertEqual(said_it, [])
+                self.assertNotIn("erud_thid_med", learner.items)
+            else:
+                self.assertTrue(said_it, "the course does teach it without the check")
+
     def test_a_pattern_never_makes_a_sentence_with_a_pair_no_text_has(self):
         pattern = self.cur.by_id["erud_thid_med"]  # «Eruð þið með {thing}?»
         for trusted, expect in ((True, set()), (False, {"poka"})):
