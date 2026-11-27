@@ -53,16 +53,24 @@ class ReviewLiteralTests(unittest.TestCase):
         self.assertIn(it.meaning, reword_review([q], self.en, cur.target_lang, cur)[0]["prompt"])
 
     def test_the_line_is_named_the_meaning_not_the_words(self):
-        """#627: «Ég hef það gott.» is 'I have it good'; its meaning, «I'm doing well.», is not its words, and the line does not say it is."""
+        """#627: «Ég er í lagi.» is not literally «I'm OK.»; the line after its situation names it the meaning, in both languages."""
         cur = load_curriculum(ROOT / "curricula" / "is-en")
-        it = cur.by_id["eg_hef_thad_gott"]
-        q = {"items": [it.id], "prompt": it.situations[0], "answer": it.target}
-        self.assertEqual(reword_review([q], self.en, cur.target_lang, cur)[0]["prompt"],
-                         "A colleague asks how you're doing. Say you're doing well.\nMeaning: I'm doing well.")
+        it = cur.by_id["eg_er_i_lagi"]
+        q = {"items": [it.id], "prompt": it.situation_for(0), "answer": it.target}
+        self.assertTrue(reword_review([q], self.en, cur.target_lang, cur)[0]["prompt"].endswith("\nMeaning: " + it.meaning))
         for lang in ("en", "ja"):
             template = Prompts.load(lang).get("review_literal", situation="S", meaning="M")
             self.assertFalse(any(w in template for w in ("Literally", "literal", "直訳")), lang)
 
+    def test_an_answer_to_a_partner_s_line_is_asked_with_that_line(self):
+        """#627 (the owner): «Ég hef það gott.» and «Allt gott, takk.» are both «how you're doing» in English; the partner's Icelandic question
+        («Hvernig hefurðu það?», «Hvað segirðu gott?») decides which is wanted, so the review shows it in place of the meaning line."""
+        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        for item_id, partner in (("eg_hef_thad_gott", "Hvernig hefurðu það?"), ("allt_gott", "Hvað segirðu gott?")):
+            it = cur.by_id[item_id]
+            q = {"items": [it.id], "prompt": it.situations[0], "answer": it.target}
+            self.assertEqual(reword_review([q], self.en, cur.target_lang, cur)[0]["prompt"], f"{it.situations[0]}\nThey say: {partner}")
+            self.assertEqual(with_literal(it.situations[0], it, Prompts.load("ja"), cur), f"{it.situations[0]}\n相手：{partner}")
 
 if __name__ == "__main__":
     unittest.main()

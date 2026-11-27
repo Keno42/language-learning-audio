@@ -8,7 +8,8 @@ So every prompt that is a lesson cue becomes the meaning in the review's own for
 A situation is kept with the answer's meaning after it (#559): with no scene around it the next morning, «Your friend suggests a taxi. Say you'll go
 by bus instead.» does not say which sentence to give. Where the instruction does not already hold the meaning's words, the review adds «Meaning:
 We'll go by bus.». It is named the meaning, not the words: an item's ``meaning`` is what it says in the learner's language, and «Ég hef það gott.»
-is «I'm doing well.», not literally so (#627)."""
+is «I'm doing well.», not literally so. An item that answers a partner's line is asked with that line in Icelandic instead, which is what tells
+two close answers apart (#627)."""
 
 from __future__ import annotations
 
@@ -68,8 +69,21 @@ def _holds_meaning(situation: str, meaning: str, lang: str) -> bool:
     return all(w in said for w in words(meaning) if w not in _ARTICLES)
 
 
-def with_literal(situation: str, item, prompts: Prompts) -> str:
-    """``situation`` as the written review asks it: with the item's meaning after it, unless it already says it (#559)."""
+def partner_line(item, cur) -> str | None:
+    """The partner's line the item answers (``prompt_by``: «Hvernig hefurðu það?» for «Ég hef það gott.»), else None."""
+    by = getattr(item, "prompt_by", None)
+    partner = cur.by_id.get(by) if cur is not None and by else None
+    return partner.target if partner is not None else None
+
+
+def with_literal(situation: str, item, prompts: Prompts, cur=None) -> str:
+    """``situation`` as the written review asks it. An item that answers a partner's line gets that line after it, in the target language: it is
+    the context that decides which of two close answers is wanted («Hvernig hefurðu það?» for «Ég hef það gott.», «Hvað segirðu gott?» for «Allt
+    gott, takk.», both «how you're doing» in English; #627), and no meaning line. Any other gets the item's meaning after it, named as its meaning,
+    unless the situation already says it (#559)."""
+    partner = partner_line(item, cur)
+    if partner:
+        return prompts.get("review_partner", situation=situation.rstrip(), partner=partner)
     meaning = (getattr(item, "meaning", "") or "").strip()
     if not meaning or "{" in meaning or _holds_meaning(situation, meaning, prompts.lang):
         return situation
@@ -90,7 +104,7 @@ def literal_prompt(question: dict, cur, prompts: Prompts) -> str:
     gender, rest = speaker_form(prompt.strip(), prompts)
     if rest.strip() not in [s.strip() for s in _situations(item)]:
         return prompt
-    literal = with_literal(rest.strip(), item, prompts)
+    literal = with_literal(rest.strip(), item, prompts, cur)
     return prompts.get(f"speak_as_{gender}", prompt=literal) if gender else literal
 
 

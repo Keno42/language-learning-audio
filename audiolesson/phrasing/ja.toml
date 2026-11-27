@@ -179,6 +179,7 @@ connect_next = "次は、別の場面です。"
 
 # the words follow the speaker's gender (Item.target_m): say which one is asked for
 review_literal = "{situation}\n意味：{meaning}"  # the written review asks a situation with the answer's meaning, named as its meaning, not its words (#627; `review_wording.with_literal`)
+review_partner = "{situation}\n相手：{partner}"  # #627: a situation whose answer replies to a partner's line is asked with that line in Icelandic (`review_wording.with_literal`)
 speak_as_f = "女性として：{prompt}"
 speak_as_m = "男性として：{prompt}"
 speak_as_f_alone = "女性として答えてください。"
