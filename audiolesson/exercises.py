@@ -2167,6 +2167,8 @@ class Builder:
         self.rng.shuffle(combos)
         if shown_as:  # the plain sentence is also to be said in this form (``model_form``): its fills must fit that template too
             combos = [c for c in combos if self.cur.fits_form(construction, c, shown_as)]
+            if self.usual is not None:  # the trust check, on the form it will also be said in («Þarftu húfu?»)
+                combos = [c for c in combos if all(self.usual(self.cur.resolve_slots(construction, c, g, shown_as)[0]) for g in "fm")]
         taught = self.forms_taught()
         if form:
             if form not in construction.forms or form not in taught or not self.form_modelled(construction, form):

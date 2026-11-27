@@ -12,7 +12,35 @@ FAMILY = {"eg_fer", "a_morgun", "i_kvold"}
 class SharedPracticeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.lessons = [(cur, sc) for cur, _, sc in course.ListeningTaskTests._course(9)]
+        cls.lessons = [(cur, sc) for cur, _, sc in cls._course(9)]
+
+    @staticmethod
+    def _course(lessons):
+        """The listening course (``ListeningTaskTests._fresh_course``) with the trust check (#631) is off: this pins a substitution family's shared recalls, not which lines the table lets through."""
+        import dataclasses
+        from datetime import timedelta
+
+        from audiolesson.cando import load_cando
+        from audiolesson.content import load_curriculum
+        from audiolesson.learner import LearnerState
+        from audiolesson.planner import PlanConfig, Planner, apply_to_learner
+        from audiolesson.prompts import Prompts
+        from audiolesson.themes import load_themes, scenario_order
+        from audiolesson.timing import Timing
+
+        path = course.ROOT / "curricula" / "is-en"
+        cur = dataclasses.replace(load_curriculum(path), trust=None)
+        scenarios = load_cando(path)
+        themes = load_themes(path, cur, scenarios)
+        learner, day, out = LearnerState("is", "en", "A1"), course.TODAY, []
+        for n in range(1, lessons + 1):
+            cfg = PlanConfig(minutes=30, new_target=8, themes=themes, theme_scenarios=scenario_order(scenarios))
+            sc = Planner(cur, learner, Prompts.load("en"), Timing(level="A1"), cfg, today=day).build()
+            out.append((cur, learner, sc))
+            apply_to_learner(sc, learner, day)
+            learner.report([], [], day + timedelta(days=1), lesson_number=n, recalled=sc.meta["new_items"])
+            day += timedelta(days=1)
+        return out
 
     def test_a_substitution_family_is_not_asked_item_by_item(self):
         """The course's lesson 9 introduces «á morgun», «í kvöld» and «Ég fer {time}.»: 14 of its exercises asked their sentences before #439."""

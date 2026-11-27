@@ -3651,7 +3651,7 @@ class Planner:
             own = (theme_pick[0].id, theme_pick[1]) if theme_pick else None
             return [
                 (t, n) for t in cfg.themes for n in range(min(self.learner.themes_done.get(t.id, 0), len(t.levels)))
-                if (t.id, n) != own and f"{t.id}:{n + 1}" not in heard_plays
+                if (t.id, n) != own and f"{t.id}:{n + 1}" not in heard_plays and self.usual_level(t, n)  # the trust check (#631)
             ]
 
         def pick_heard_theme() -> tuple | None:
@@ -3780,7 +3780,7 @@ class Planner:
                 out.append((theme_pick[0], theme_pick[1]))
             for t in cfg.themes:
                 out += [(t, n) for n in range(min(self.learner.themes_done.get(t.id, 0), len(t.levels))) if (t, n) not in out]
-            return out
+            return [(t, n) for t, n in out if self.usual_level(t, n)]  # the trust check (#631): no listening task from a level it passes over
 
         def level_scene(theme, n: int) -> str:
             """What the narrator says to name the scene a listening task's line is taken from. The lesson's own scene is named too (#427, lesson 40:

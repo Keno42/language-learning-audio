@@ -1444,7 +1444,10 @@ class TripProfileTests(unittest.TestCase):
         (84 daily lessons: lessons 35 and 56). Without the ordering, both miss it (#131)."""
         from audiolesson.cando import coverage, load_cando, priority_items, simulate_reach
 
-        cur = load_curriculum(ROOT / "curricula" / "is-en")
+        import dataclasses
+
+        # the trust check (#631) is off: this pins the trip ordering's reach, not which lines the table lets through («Hvenær er útritun?», B7, has a pair no text has)
+        cur = dataclasses.replace(load_curriculum(ROOT / "curricula" / "is-en"), trust=None)
         scenarios = load_cando(ROOT / "curricula" / "is-en", cur)
         reach = simulate_reach(cur, 84, 6, priority=priority_items(cur, scenarios))
         late = {r["scenario"].id: r["late"][6] for r in coverage(cur, scenarios, {6: reach}, 84) if r["late"].get(6)}
