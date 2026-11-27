@@ -27,4 +27,4 @@ service, one request at a time with a pause; please keep it so (`--pause`).
 
 `audiolesson.trust.parts`: the line's words, lower-cased; punctuation, a digit or a hyphen ends a stretch, so no pair crosses it; a word
 alone in its stretch is looked up as a word; a word with a capital letter that does not start a sentence is a proper name (the persona's
-«Yuki», «Hekla») and is in no pair.
+«Yuki», «Hekla»): it ends a stretch too, so it is in no pair, and a word it leaves alone is looked up as a word.

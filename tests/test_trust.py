@@ -36,6 +36,12 @@ class PartsTests(unittest.TestCase):
         self.assertEqual(trust.parts("Ég heiti Yuki."), trust.Parts(("ég heiti",), ()))
         self.assertEqual(trust.parts("Þarna er Hekla. Hún er eldfjall."), trust.Parts(("þarna er", "hún er", "er eldfjall"), ()))
 
+    def test_a_word_a_name_leaves_alone_is_looked_up_as_a_word(self):
+        # review of #632: a name ends a stretch, so a word beside it with no other neighbour is checked alone, not passed over
+        self.assertEqual(trust.parts("Komdu, Yuki minn!"), trust.Parts((), ("komdu", "minn")))
+        self.assertEqual(trust.parts("Þarna eru Hekla og Katla."), trust.Parts(("þarna eru",), ("og",)))
+        self.assertEqual(trust.Trust(pairs={}, words={"komdu": 5, "minn": 0}).verdict("Komdu, Yuki minn!").status, "unusual")
+
 
 class VerdictTests(unittest.TestCase):
     TABLE = trust.Trust(pairs={"ég heiti": 12, "í dag": 0, "hvað heitir": 9}, words={"klukkan": 30})

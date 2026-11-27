@@ -8,8 +8,8 @@ Institute (Risamálheild and others: forums, blogs, subtitles, Wikipedia, news, 
 A line is **trusted** when every pair is found, **unusual** when one pair (or a word standing alone) is found in no text, and
 **unknown** while one is not looked up yet. Pairs are taken inside a stretch of words: punctuation and digits end a stretch, so «Takk.
 Þú …» and «klukkan 5 í dag» make no pair across them, and a word alone in its stretch («Vá!») is looked up as a word. A proper name (a
-capital letter not at the start of a sentence: «Hekla», the persona's «Yuki») is no evidence either way, so no pair or word with one is
-asked. ``course_lines`` lists every line the course can say, the sentences its patterns make included, for the tool and the report.
+capital letter not at the start of a sentence: «Hekla», the persona's «Yuki») is no evidence either way: it ends a stretch as punctuation
+does, so no pair with it is asked, and a word it leaves alone is looked up as a word. ``course_lines`` lists every line the course can say, the sentences its patterns make included, for the tool and the report.
 """
 
 from __future__ import annotations
@@ -51,11 +51,17 @@ def parts(text: str) -> Parts:
     named: list[bool] = []
 
     def close() -> None:
-        if len(run) == 1 and not named[0]:
-            alone.append(run[0])
-        for i in range(len(run) - 1):
-            if not named[i] and not named[i + 1]:
-                pairs.append(f"{run[i]} {run[i + 1]}")
+        # a proper name ends a stretch as punctuation does: the words on each side are judged without it, and a word left alone by it is
+        # looked up as a word («Komdu, Yuki minn!»: «minn»), never passed over
+        piece: list[str] = []
+        for word, name in [*zip(run, named), ("", True)]:
+            if not name:
+                piece.append(word)
+                continue
+            if len(piece) == 1:
+                alone.append(piece[0])
+            pairs.extend(f"{a} {b}" for a, b in zip(piece, piece[1:]))
+            piece = []
         run.clear()
         named.clear()
 
