@@ -998,6 +998,8 @@ class Builder:
             if fills is None:
                 continue
             frame = {w.lower() for t in re.split(r"\{[^}]*\}", c.target) for w in WORD.findall(t)}
+            if not self._usual_fills(c, fills):
+                continue  # the trust check: a home whose sentence has a pair of words no Icelandic text has is not one
             if len(frame - known) <= 1 and self.is_new_utterance(self._filled(c, fills)[1]):
                 named = item.id in {**c.example, **c.situation_fill}.values()
                 options.append(((0 if named else 1, 0 if self._available(c.id) else 1, c.difficulty, c.order), c, fills))
@@ -1828,6 +1830,8 @@ class Builder:
             gen = self.generate(item, fixed=fixed, met_fills=True)
         if gen is None:
             fills = {**self.cur.example_fill(item), **fixed}
+            if not self._usual_fills(item, fills):  # the trust check: an available filling the generator allows, before an unusual example
+                fills = next((f for f, _, _ in self.filling_options(item) if all(f[k] is v for k, v in fixed.items())), fills)
             target, meaning = self.cur.resolve_slots(item, fills)
             gen = Generated(item, fills, target, meaning)
         if not fixed and self.ask_count is not None:
@@ -2280,6 +2284,8 @@ class Builder:
             return []
         out = []
         for fills in self._product(options, list(options))[:60]:
+            if not self._usual_fills(c, fills):
+                continue  # the trust check, as ``generate`` makes it: a filling whose sentence has a pair no Icelandic text has is no option
             target, meaning = self.cur.resolve_slots(c, fills)
             out.append((fills, target, meaning))
         return out

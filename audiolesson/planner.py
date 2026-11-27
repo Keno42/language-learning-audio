@@ -2317,6 +2317,8 @@ class Planner:
         again = None
         for order, theme in enumerate(self.cfg.themes):
             done = min(self.learner.themes_done.get(theme.id, 0), len(theme.levels))
+            while done >= 1 and not self.usual_level(theme, done - 1):
+                done -= 1  # the trust check: the last level played that it lets play again
             if done < 1 or theme.scenario not in rank:
                 continue
             since = now - self.learner.themes_last.get(theme.id, 0)
@@ -2329,10 +2331,6 @@ class Planner:
         if again is None:
             return None
         _, theme, level = again
-        while level > 0 and not self.usual_level(theme, level):
-            level -= 1  # the trust check: the last level played that it lets play again
-        if not self.usual_level(theme, level):
-            return None
         you = [t for t in theme.levels[level].turns if t.who == "you"]
         return theme, level, self._untaught_turns(you)
 
