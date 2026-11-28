@@ -288,6 +288,12 @@ class Item:
         return self.meaning_spoken or self.meaning
 
     @property
+    def cue_meaning(self) -> str:
+        """The meaning a recall cue says: with a ``context`` sentence, the word as it is in that sentence (``meaning_forms`` ``in_sentence``:
+        «skyr», not «skyr, the Icelandic dairy»), since the context says what it is; else ``spoken_meaning``."""
+        return (self.meaning_forms.get("in_sentence") if self.context else None) or self.spoken_meaning
+
+    @property
     def slot_names(self) -> list[str]:
         return _SLOT_RE.findall(self.target)
 
