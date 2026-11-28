@@ -1673,7 +1673,7 @@ class Builder:
             self.modeled_wholes[f.id] = {"through": item.id, "answer": target_, "meaning": meaning, "gender": gender_}
         known_example = not self.is_new_utterance(target)  # #239: «Eigðu góðan dag.» is known: the pattern is that phrase with other words, not news
         if known_example:
-            self._frame(sc, ex, self.prompts.get("embed_known"))
+            self._frame(sc, ex, self.prompts.get("pattern_known_example"))
             self._speak(sc, ex, target)
             self._beat(sc, ex)
             # «you can say it with other words» is shown at once by a second sentence with another known filler; with none yet, the same sentence

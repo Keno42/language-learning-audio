@@ -100,6 +100,7 @@ reply = "Reply."
 reply_example = "For example: {meaning}"  # after «Reply.» and the partner's line: what to answer, as one possible answer (lesson 29)
 # a part heard in a sentence instead of being introduced on its own (LearnerState.embedded)
 embed_known = "You know this:"
+pattern_known_example = "You know this:"  # a new pattern whose worked example the learner knows
 embed_part = "This word is in the sentence:"
 embed_part_words = "These words are in the sentence:"
 embed_part_also = "And this one:"
