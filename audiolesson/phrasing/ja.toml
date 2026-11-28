@@ -1,7 +1,7 @@
 # 学習者の既知言語が日本語のときのインストラクターの言い回し。
 
-lesson_open = "レッスン{n}。"
-lesson_intro = "音が止まったら、声に出して答えてください。間違えても大丈夫です。"  # «無音» was read «むいん» by the voice
+lesson_open = "レッスン{n}です。"
+lesson_intro = "質問のあとに少し間があります。その間に、声に出して答えてください。間違えても大丈夫です。"  # «無音» was read «むいん» by the voice
 lesson_goal = "今日の目標：{goal}"
 lesson_goal_parts = "{said}。「{listen}」の言い方は、今日は聞くだけです。"
 lesson_goal_listen_only = "「{listen}」の言い方を聞き取る。"
@@ -9,7 +9,7 @@ lesson_close = "レッスン{n}はこれで終わりです。お疲れさまで�
 final_block = "最後に、今日の新しい表現をもう一度確認しましょう。"
 final_block_some = "最後に、今日の新しい表現のいくつかをもう一度確認しましょう。"
 
-intro_new = "新しい表現です。「{meaning}」。"
+intro_new = "新しい表現です。「{meaning}」は、こう言います。"
 # lesson 51: a plain number made only of known words, asked as a use of them, not introduced as new
 from_known = "知っている言葉から。"
 listen = "聞いてください。"
@@ -48,8 +48,8 @@ meaning = [
 ]
 # issue #68: 「まだ聞いたことのない文」は、本当に初めての文のときだけ
 meaning_in_context = [
-  "「{meaning}」と言ってください。たとえば「{context}」というときの形です。",
-  "「{context}」というときの「{meaning}」は、何と言いますか？",
+  "「{meaning}」と言ってください。たとえば「{context}」と言うときの形です。",
+  "「{context}」と言うときの「{meaning}」は、何と言いますか？",
 ]
 recombine_new = "まだ聞いたことのない文です。「{meaning}」と言ってください。"
 recombine = [
@@ -67,12 +67,12 @@ recombine_again_lead = "同じパターンでもう一度。"
 recombine_vocab_again_lead = "文の中で使ってください。"
 also = "こうも言えます。"
 
-construction_intro = "便利なパターンです。「{meaning}」。"
-intro_whole = "新しい表現です。「{meaning}」。"
-construction_of_known = "これはパターンです。ほかの言葉でも言えます。"
-construction_of_known_later = "これはパターンです。この部分には、ほかの言葉も入ります。それはあとで出てきます。"
-construction_slot = "同じ場所に、ほかの言葉を入れることができます。"
-construction_slot_later = "同じ場所には、ほかの言葉も入ります。それはあとで出てきます。"
+construction_intro = "よく使う言い方です。「{meaning}」は、こう言います。"
+intro_whole = "新しい表現です。「{meaning}」は、こう言います。"
+construction_of_known = "この文は、一部をほかの言葉に入れ替えて使えます。"
+construction_of_known_later = "この文は、一部をほかの言葉に入れ替えて使えます。それはまた後で練習します。"
+construction_slot = "この文は、一部をほかの言葉に入れ替えて使えます。"
+construction_slot_later = "この文は、一部をほかの言葉に入れ替えて使えます。それはまた後で練習します。"
 slot_word = "なにか"
 
 transform_intro = "文がどう変わるか、聞いてください。"
@@ -84,19 +84,20 @@ transform_try = "では、やってみましょう。"
 transform_same = "同じように変えてください。"
 
 dialogue_partner_said = "「{meaning}」"
-aside = "ちょっとした話です。"
+aside = "ちょっと余談です。"
 aside_end = "本題に戻ります。"
 listening_back = "では、話す練習に戻りましょう。"
 form_back = "練習は終わりです。"  # 数・性・主語の練習の後、通常の練習に戻るとき (lesson 55)
 conversation_part_back = "この会話はここまでにします。"  # 会話の一部の後 (lesson 53)
 conversation_back = "会話はここまでです。"
-milestone_intro = "気づいてほしいパターンがあります。"
+milestone_intro = "ここで、よく出てくる形に注目しましょう。"
 milestone_end = "では、続けましょう。"
 # the partner's line is the cue (Item.prompt_by): frames each such cue, unless the one before was a cue too
 reply = "答えてください。"
 reply_example = "例えば「{meaning}」。"  # after «Reply.» and the partner's line: what to answer, as one possible answer (lesson 29)
 # a part heard in a sentence instead of being introduced on its own (LearnerState.embedded)
-embed_known = "知っているフレーズです："
+embed_known = "この文から、新しい言葉を覚えます："  # say what to do with the line, not only that it is known (owner, 2026-11-28)
+pattern_known_example = "この文を使います："  # a new pattern whose worked example the learner knows
 embed_part = "この単語が文の中にあります："
 embed_part_words = "この言葉が文の中にあります："
 embed_part_also = "もう一つはこれです："
@@ -108,19 +109,19 @@ embed_sentence = "別の文で聞きます。聞いて、繰り返してくだ�
 embed_sentence_lead = "別の文で聞きます。"
 embed_meaning = "「{meaning}」"
 # 疑問・否定の形を、出題の前に一度見せる (#211)
-form_model_known = "知っている文です："
-form_model_question = "疑問文にすると："
-form_model_negative = "否定文にすると："
+form_model_known = "この文の形を変えます："
+form_model_question = "質問するときは："
+form_model_negative = "否定するときは："
 form_model_again = "別の単語で、同じ形です。"
-instance_sentence = "知っている型の文です。聞いて、繰り返してください。"
-instance_sentence_lead = "知っている型の文です。"
-instance_form_known = "知っている文です："
-instance_form_question = "疑問文にします。聞いて、繰り返してください。"
-instance_form_question_lead = "疑問文にします。"
-instance_form_negative = "否定文にします。聞いて、繰り返してください。"
-instance_form_negative_lead = "否定文にします。"
+instance_sentence = "覚えた言い方の、別の文です。聞いて、繰り返してください。"
+instance_sentence_lead = "覚えた言い方の、別の文です。"
+instance_form_known = "この文の形を変えます："
+instance_form_question = "質問するときは、こう言います。聞いて、繰り返してください。"
+instance_form_question_lead = "質問するときは、こう言います。"
+instance_form_negative = "否定するときは、こう言います。聞いて、繰り返してください。"
+instance_form_negative_lead = "否定するときは、こう言います。"
 # a near form of something the learner has met (Item.variant_of)
-variant_known = "知っている形です："
+variant_known = "この形から、別の形を覚えます："
 variant_form = "別の形です。「{meaning}」。"
 # #439 step 1b: one number's lines of different genders side by side, the reason named once, then each asked again
 number_choice_intro = "同じ数でも、数えるものによって形が変わります。"
@@ -130,21 +131,21 @@ number_choice_change = "«{word}»を数えるときは、«{nominative}»が«{
 number_choice_say = "それぞれの文を言ってください。"
 # #439 step 2: a gendered word said of him and of her, side by side, then each asked again
 # #528 step 1: «ég» で言える文を、ほかの主語で言う。動詞の形は主語で決まる
-subjects_intro = "同じ動詞でも、主語によって形が変わります。あなたが言うときは："
+subjects_intro = "同じことでも、誰がするかで言い方が変わります。自分のことを言うときは："
 # #528 step 3: the goal names the day's form work, and the closing asks it once more
-lesson_goal_subjects = "今日の形の練習：知っている文を、ほかの人を主語にして言います。"
+lesson_goal_subjects = "今日の形の練習：知っている文を、ほかの人のこととして言います。"
 closing_form_work = "今日の形の練習を、もう一度。"
 subject_we = "«við»、私たちのときは："
 subject_she = "«hún»、彼女のときは："
 subject_he = "«hann»、彼のときは："
 subject_you = "«þú»、あなたのときは："
 subject_they = "«þau»、彼らのときは："
-subject_verb = "動詞は«{form}»です。"
-subject_verb_same = "動詞は«{form}»のままです。"
+subject_verb = "«{form}»になります。"
+subject_verb_same = "«{form}»のままです。"
 # #528 step 2: the noun by its frame
-noun_choice_intro = "同じ名詞でも、まわりの言葉によって形が変わります。"
+noun_choice_intro = "同じ言葉でも、前後の言葉によって形が変わります。"
 noun_choice_form = "ここでは «{form}» です。"  # the owner, 2026-11-16: the form, no grammatical term
-contrast_intro = "同じ名詞の、二つの形です。"  # lesson 62: the contrast opens with a line of its own, as the other form work does
+contrast_intro = "同じ言葉の、二つの形です。"  # lesson 62: the contrast opens with a line of its own, as the other form work does
 contrast_like = "«{like}» と同じです。"  # #548: the sentence a contrast's line is like, one the learner knows
 contrast_answer = "答えてください。"
 said_of_intro = "同じ言葉でも、誰のことを言うかで形が変わります。"
