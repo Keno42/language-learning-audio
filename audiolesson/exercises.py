@@ -941,6 +941,9 @@ class Builder:
         self._beat(sc, ex)
         self._speak(sc, ex, item.target)
         self._beat(sc, ex)
+        if item.literal:
+            self._narr(sc, ex, self.prompts.get("literal_intro", literal=item.literal))  # #627: its own words, once, before it is repeated
+            self._beat(sc, ex)
         plain = item.id in self.plain
         chunks = item.backward_chunks() if item.is_hard() and not plain else []
         if len(chunks) > 1:
