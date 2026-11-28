@@ -19,7 +19,7 @@ COMMANDS = ["endurtaktu", "hlustadu", "haegt_command", "hlustadu_aftur", "edlile
             "klaradu_setninguna_command", "eitthvad_nytt_command", "segdu_hverja_setningu_command", "aefingunni_lokid_command", "sma_utudur_command", "aftur_ad_efninu_command",
             "thessi_ord_command", "byrjum_a_endanum_command", "thetta_ord_command", "ur_ordum_command", "samtalid_aftur_command",
             "hlustadu_tima_command", "hlustadu_verd_command", "hlustadu_numer_command", "hlustadu_klukkan_command", "hlustadu_hiti_command",
-            "fyrsta_ordid_command", "her_segir_madur_command"]
+            "fyrsta_ordid_command", "her_segir_madur_command", "notadu_thad_i_setningu_command"]
 
 
 class InstructionChoiceTests(unittest.TestCase):

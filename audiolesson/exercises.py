@@ -158,6 +158,8 @@ class NoAllowedSentence(Exception):
 # #429 step 4: the exercises whose cue may open with a frame said in Icelandic («Say:», «How do you say:»; step 5: a cloze's «Complete the sentence
 # to say:», a new item's «Something new.»); not a note, whose prose stays as written
 CUE_FRAME_KINDS = frozenset({"recall", "generative", "intro", "model", "embed", "connect"})
+# #429 step 14: a cue's lead with a phrase of its own (``Builder.lead_line``), the most frequent English instruction left on the replay of lesson 70's export
+LEAD_COMMANDS = ("recombine_vocab_again_lead",)
 
 
 def cue_frames(prompts: Prompts, known_lang: str, target_lang: str) -> list[tuple[str, "re.Pattern"]]:
@@ -464,7 +466,7 @@ class Builder:
             lead = m.group("lead").strip()
             rest = (m.group("rest") + (m.groupdict().get("tail") or "")).strip()
             if lead:
-                sc.add(Segment("narrate", "instructor", lead, self.kl, 1.0, self.timing.speech_estimate(lead, self.kl), None, ex.index))
+                self.lead_line(sc, ex, lead)
             self._speak(sc, ex, item.target, speaker=COMMAND_VOICE, role="command")
             if self.command_support(item):
                 support = self.prompts.get(key)
@@ -480,6 +482,21 @@ class Builder:
                     sc.add(Segment("narrate", "instructor", support, self.kl, 1.0, self.timing.speech_estimate(support, self.kl), "command_support", ex.index))
             return True
         return False
+
+    def lead_line(self, sc: Script, ex: Exercise, lead: str, alone: bool = False) -> None:
+        """A cue's lead before what to say: in the target language once taught when it is a lead with its own phrase (``LEAD_COMMANDS``: «Use it
+        in a sentence.» as «Notaðu það í setningu.», #429 step 14), with the learner's own after it while ``command_support`` holds; else as
+        written. ``alone``: no frame follows in the target language (a scene's cue does), so a beat keeps the phrase apart, as ``_instruct``."""
+        key = next((k for k in LEAD_COMMANDS if self.prompts.get(k) == lead), None)
+        item = self.command_item(key) if key else None
+        if item is None or item.id in ex.item_ids:
+            sc.add(Segment("narrate", "instructor", lead, self.kl, 1.0, self.timing.speech_estimate(lead, self.kl), None, ex.index))
+            return
+        self._speak(sc, ex, item.target, speaker=COMMAND_VOICE, role="command")
+        if self.command_support(item):
+            sc.add(Segment("narrate", "instructor", lead, self.kl, 1.0, self.timing.speech_estimate(lead, self.kl), "command_support", ex.index))
+        elif alone:
+            self._beat(sc, ex)
 
     def _hint_tail(self, ex: Exercise, rest: str) -> Item | None:
         """#429 step 12: the phrase that says a hinted cue's last words, «The first word is:», as a line of its own before the first word («Fyrsta
@@ -1925,7 +1942,7 @@ class Builder:
             key = "recombine_vocab_again" if linked else None
         if self.scene_line(gen.construction, gen.fills) is not None and not gen.form:
             if key and f"{key}_lead" in self.prompts.data:  # the scene replaces the cue's «Say: …», not its news or link: «Now something you haven't heard yet.» stays
-                self._narr(sc, ex, self.prompts.get(f"{key}_lead"))
+                self.lead_line(sc, ex, self.prompts.get(f"{key}_lead"), alone=True)
             self._narr(sc, ex, self.sentence_cue(gender, gen.construction, gen.fills, gen.meaning, gen.form)[1])  # the scene check's line (owner, 2026-10-16)
         else:
             self._narr(sc, ex, self._as(gender, self.prompts.get(key, meaning=self._m(gen.meaning)) if key else self._meaning_prompt(gen.meaning)))

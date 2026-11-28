@@ -321,6 +321,33 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(framed("en", "Say: An instruction: The first word is. The first word is:", asked=("fyrsta_ordid_command",))[-1],
                          ("narrate", "An instruction: The first word is. The first word is:"), "«Fyrsta orðið er:» would give the answer's first word")
 
+    def test_a_cue_s_lead_with_its_own_phrase_is_said_in_icelandic_once_taught(self):
+        """#429 step 14 (lessons 70–79 on the replay of lesson 70's export: «Use it in a sentence.» 18 times, the most frequent English instruction
+        left): a part's sentence right after its practice opens «Notaðu það í setningu.» before «Segðu:», with the English after it in the lesson
+        that teaches it and the next; any other lead stays in the learner's language."""
+        def framed(lang, text, taught=("segdu_command", "notadu_thad_i_setningu_command"), introduced=50):
+            cur = load_curriculum(ROOT / "curricula" / "is-en", known_lang=lang)
+            learner = LearnerState("is", lang, "A1")
+            learner.lessons_completed = 60
+            for i in taught:
+                learner.items[i] = ItemState(stage="meaning", successes=2, recalled=2, last_outcome="recalled",
+                                             introduced_lesson=introduced if i == "notadu_thad_i_setningu_command" else 50)
+            sc = Script(1, "t", "is", lang)
+            builder(cur, lang, learner)._narr(sc, sc.new_exercise("generative", "recombine", [], "x"), text)
+            return [(g.type, g.text) for g in sc.segments]
+
+        self.assertEqual(framed("en", "Use it in a sentence. Say: That isn't a woman."),
+                         [("speak", "Notaðu það í setningu."), ("speak", "Segðu:"), ("narrate", "That isn't a woman.")])
+        self.assertEqual(framed("ja", "文の中で使ってください。「女性ではありません」と言ってください。"),
+                         [("speak", "Notaðu það í setningu."), ("speak", "Segðu:"), ("narrate", "「女性ではありません」")])
+        self.assertEqual(framed("en", "Use it in a sentence. Say: That isn't a woman.", introduced=61),
+                         [("speak", "Notaðu það í setningu."), ("narrate", "Use it in a sentence."), ("speak", "Segðu:"), ("narrate", "That isn't a woman.")],
+                         "the lesson after the one that teaches it: the English follows")
+        self.assertEqual(framed("en", "Use it in a sentence. Say: That isn't a woman.", taught=("segdu_command",))[0],
+                         ("narrate", "Use it in a sentence."), "not taught: the English as before")
+        self.assertEqual(framed("en", "Now something you haven't heard yet. Say: I need a taxi.")[0],
+                         ("narrate", "Now something you haven't heard yet."), "another lead has no phrase of its own")
+
     def test_a_framed_cue_keeps_its_claim_about_the_sentence(self):
         """Review of #557: once «Segðu:» had played, «Now something you haven't heard yet.» «Segðu:» «I need a taxi.» failed the novelty check,
         the instruction taken for the sentence the claim points at. An instruction said in Icelandic is not a line of the lesson."""
@@ -630,7 +657,7 @@ class CommandTests(unittest.TestCase):
                                  "sma_utudur_command", "aftur_ad_efninu_command",
                                  "thessi_ord_command", "byrjum_a_endanum_command", "thetta_ord_command", "ur_ordum_command", "samtalid_aftur_command",
                                  "hlustadu_tima_command", "hlustadu_verd_command", "hlustadu_numer_command", "hlustadu_klukkan_command", "hlustadu_hiti_command",
-                                 "fyrsta_ordid_command", "her_segir_madur_command"],
+                                 "fyrsta_ordid_command", "her_segir_madur_command", "notadu_thad_i_setningu_command"],
                          "lesson 54's then lesson 57's, by how often the lessons say them")
         learner = LearnerState("is", "en", "A1")
         for i in ("endurtaktu", "hlustadu"):
