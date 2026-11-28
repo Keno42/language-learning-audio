@@ -18,6 +18,7 @@ from .learner import LOADS, NEW_TARGET_MINUTES, LearnerState, lesson_target, par
 from .planner import PlanConfig, Planner, apply_to_learner
 from .prompts import Prompts
 from .review_wholes import also_answers, has_home, refine_review, with_also
+from .literal import candidates as literal_candidates, with_literal_words
 from .review_wording import lesson_cue_count, reword_review, with_literal
 from .script import Script
 from .timing import Timing
@@ -487,6 +488,7 @@ def _plan(script: Script, cur) -> dict:
         review, refined = refine_review(review, cur, set(meta["met_items"]), prompts, taught)
     review = reword_review(review, prompts, cur.target_lang, cur)  # #312: the written review asks in its own words, not the lesson's cue
     review = with_also(cur, review)  # the other answers a question accepts, shown beside its answer
+    review = with_literal_words(cur, review)  # #627: the answer's own words, where they differ from its meaning, shown with the answer
     return {
         "lesson_number": script.lesson_number,
         "date": meta.get("date"),
@@ -736,6 +738,9 @@ def cmd_validate(args) -> int:
             print(f"{lang}: {total - len(c.missing_glosses)}/{total} strings glossed; missing in {len(by_item)} entries, e.g. {', '.join(list(by_item)[:10])}")
         else:
             print(f"{lang}: complete ({total} strings)")
+    if lit := literal_candidates(cur):  # #627: a list to author from, not a failure
+        print(f"literal candidates ({len(lit)}: the meaning says words the target does not, and no literal is authored): "
+              + ", ".join(f"{it.id} ({'/'.join(lack)})" for it, lack in lit[:12]) + (" …" if len(lit) > 12 else ""))
     for line in _check_bin(cur, args.curriculum):
         print(f"warning: {line}", file=sys.stderr)
     findings = dialogue_sequencing_report(cur)
@@ -923,6 +928,7 @@ def cmd_questions(args) -> int:
         if it is not None and it.kind != "construction":
             out[i] = {"prompt": _review_cue(cur, prompts, it), "answer": it.target, "cues": _review_cues(cur, prompts, it),
                       "also": also_answers(cur, [i], it.target)}
+            out[i]["literal"] = it.literal  # #627: shown with the answer; "" drops a stored one
     print(json.dumps(out, ensure_ascii=False))
     return 0
 
@@ -948,7 +954,7 @@ def cmd_refine_review(args) -> int:
         taught = learner.learned_wholes
     prompts = Prompts.load(cur.known_lang)
     review, refined = refine_review(reword_review(list(data.get("review") or []), prompts, cur.target_lang, cur), cur, met, prompts, taught)  # #312: the queue's old questions lose their lesson cues too
-    print(json.dumps({"review": with_also(cur, review), "refined": refined}, ensure_ascii=False))
+    print(json.dumps({"review": with_literal_words(cur, with_also(cur, review)), "refined": refined}, ensure_ascii=False))
     return 0
 
 
