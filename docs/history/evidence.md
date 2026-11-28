@@ -1,6 +1,6 @@
 # Evidence of older lessons (archive of LEARNING-DESIGN §5)
 
-This file holds §5.1–§5.55 (lessons 1–66), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
+This file holds §5.1–§5.56 (lessons 1–67), moved from `docs/LEARNING-DESIGN.md` §5 since 2026-10-15 with only their
 references fixed. Older subsections move here as new ones are written (LEARNING-DESIGN §10 "Documents"), under their
 own numbers, so a reference such as "§5.14" in any document finds it here. These are a dated record: a statement about what was built or open holds for its
 lesson. Where things stand now is in LEARNING-DESIGN §4, §7 and §8.
@@ -2320,3 +2320,46 @@ items. It is the first built with #584 (the long run's step 8) and with #583 (da
 **This round:** the long run's step 9 (#588), taught in lessons 74 and 75 on the replay, and neither English line is said from lesson 77. The
 remarks' behaviour place goes to #579 step 2's first half (#590): «Now» item 1, the remark whose cause recurs most (lessons 60, 62–66). The
 owner's choice on #579 is a third (#592), at the owner's request. The owner merged all three for lesson 67.
+
+### 5.56 Lesson 67: the first lesson built with #588, #590 and #592
+
+Lesson 67 was generated with LLA `590081e` (main with #588, #590, #592, #593, #594 and #595), the bot at site_update_notifier `c9cef40`,
+`--instructions gradual`. Rebuilt from its export with a stand-in trip profile it is the same lesson: 119 of 119 exercises, 30.7 minutes, the
+accident's first level, the same ten new items. It is the first built with three behaviour PRs, #588 (the long run's step 9), #590 and #592,
+one over §9 "Governance"'s two at the owner's request.
+
+| | lesson 67 |
+|---|---|
+| length | 30.7 min, 119 exercises |
+| new items; new components, weighted (target) | 10; 6 (6) |
+| theme (level) | accident (1), its first play (#592); **6 of the 10 new items inside it** |
+| the last lesson's new items in the review | lesson 66's: **8 of 9 recalled**; «Það er neyðartilfelli.» not recalled |
+| items reviewed / due | 40 the lesson could ask; **none left over** |
+| instruction lines in Icelandic | 131 (lesson 66: 137) |
+| feedback form: load; friction; note | **right**; other; four remarks |
+| «sooner» (reason: to remember) | «Hvar er sendiráðið?», «Ég er með sjúkratryggingu.», «Það er neyðartilfelli.», «Ágætlega.» |
+
+- **New material in its scene (H4, H5, #579):** the accident's first level played in the lesson that taught its lines: 6 of the 10 new items
+  inside it (lessons 65 and 66: none), «Er allt í lagi?» said as a turn of the exchange. No slot brought more than two new fillers (#590).
+  On the replay of lesson 67's export the pharmacy plays in lessons 68 and 69 and the accident's second level in 70; from lesson 68 the new
+  items inside the played level fall back to 0–2 of 9–14 a lesson (smalltalk, hotel, supermarket levels heard again).
+- **The pace (H9):** lesson 66's new items, at a target of 6, were recalled 8 of 9 the next day (89%), the second lesson over 80% in a row. The
+  one failure, «Það er neyðartilfelli.», was also lesson 66's «sooner» mark, and is marked again. Lesson 67 asked every due item it could (40),
+  and the replay's target rises to 8–11 over lessons 68–74. Confirmed recall after a gap: 90% at 3–6 days (45 of 50), 93% at 7–13 (65 of 70) and
+  88% at 14+ (36 of 41).
+- **The long run, #429:** «Segðu hverja setningu.» was taught (#572's first) and said in the form work. Lesson 67 said 131 instructor lines in
+  Icelandic. On the replay of lesson 67's export, the lines already authored are taught in lessons 67–75 (step 9's in 74 and 75). After them,
+  the most frequent English instructions in lessons 67–74 are a pick-out's needs, «Listen for how long it takes, then say it.» (13) and «Listen
+  for the price, then say it.» (8), 35 with the other five needs: this round's step (#600).
+- **Two remarks ask for a line's literal words (`form-why`):** «"Now say each one" has no "now" in its Icelandic», and «"The pain is here" says
+  «hann»». Each line's literal words, and why «hann» stands for the pain, were in the transcript only (`pronunciation_notes`, never spoken), as
+  for four other items. The idiom asides said literally (owner, after lesson 29) are the place for them: #601 (data) adds five, without a
+  grammatical term. On the replay lessons 67 and 68 say all five.
+- **Two remarks on the catch task in the accident's first level (#599):** asking what «fætinum» means while the woman lies hurt felt too
+  leisurely (H7, `scene-plausibility`); and the leg was not practised enough, since no item holds it: a caught word without an item is heard
+  once. Both wait for the owner's choice; recommended, «Mér er illt í fætinum.» as a line the learner says, and no catch on an urgent level.
+- **The other learner:** no new export since lesson 32 (2026-11-14).
+
+**This round:** the long run's step 10 (#600), taught in lessons 76 and 77 on the replay, and neither English line is said from lesson 79. The
+remarks' place goes to the `form-why` family, the one that recurs (lessons 29, 33, 49, 52, 57, 58, 67), as data (#601); #599 waits for the
+owner's choice.

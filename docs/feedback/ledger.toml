@@ -1160,6 +1160,20 @@ family = "meaning-gloss"
 class = "twenty"
 answered_by = ["#629"]
 
+[[lesson]]
+n = 70
+form = true
+load = "light"
+built = ["#628", "#629"]
+long_run = ["#628"]
+
+[[lesson.remarks]]
+who = "main"
+text = "«I miss my family» is «Ég sakna fjölskyldunnar.», literally «I miss (a genitive of) the family», with no «my»: a note on its literal words would help. (The item's English is its meaning; its words differ, and the lesson said nothing of them: #627's authored literal, asked for here. #633 says them in an aside, data.)"
+family = "meaning-gloss"
+class = "twenty"
+answered_by = ["#633"]
+
 # Built changes: the rows of the §8 table after lesson 50, in its order
 
 [[change]]
@@ -2116,6 +2130,8 @@ title = "an aside's own lines in Icelandic once taught: «Smá útúrdúr.» and
 issue = ["#429"]
 pr = ["#580"]
 family = "instruction-language"
+first_heard = 69
+heard = "«Smá útúrdúr.» taught in lesson 69 and «Aftur að efninu.» in 70"
 
 [[change]]
 title = "the pace counts the next-day outcome; a later review moves the item, not the lesson's entry (#579: #582)"
@@ -2240,3 +2256,21 @@ title = "a new word is taught in the one frame its lesson teaches for it: «mjó
 issue = []
 pr = ["#626"]
 family = "one-version"
+
+[[change]]
+title = "a heard learner line's «Here you say:» in Icelandic once taught: «Hér segir maður:» (#429 step 13: #628)"
+issue = ["#429"]
+pr = ["#628"]
+family = "instruction-language"
+
+[[change]]
+title = "the written review shows the partner's line an answer replies to, and names any other gloss «Meaning:», not «Literally:» (lesson 69: #629)"
+issue = ["#627"]
+pr = ["#629"]
+family = "meaning-gloss"
+
+[[change]]
+title = "«Ég sakna fjölskyldunnar.» says its words in an aside, 'I miss the family' (lesson 70: #633, data)"
+issue = ["#627"]
+pr = ["#633"]
+family = "meaning-gloss"

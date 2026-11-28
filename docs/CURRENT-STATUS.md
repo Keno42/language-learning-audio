@@ -53,11 +53,13 @@ In order:
    instructor lines in Icelandic; on the replay of its export the phrases already authored are taught in lessons 69–80. **Built, step 12 (#620):** a hinted cue's «It starts with:», the most frequent English instruction left on the replay of lesson 68's export
    (46 in lessons 68–75), said as «Fyrsta orðið er:» ('the first word is:'; «er» for the ear, the owner) after what to say and before the first
    word, and the English line says the same words, «The first word is:» (#624). Lesson 69 (LLA `fed8ad5`) taught «Smá útúrdúr.» and said 126
-   instructor lines in Icelandic; on the replay of its export the phrases already authored are taught in lessons 69–81. **This round (step 13,
-   #628):** «Here you would say:», before a learner's line heard, not asked (17 in lessons 69–76), said as «Hér segir maður:» ('here one says:',
-   words the learner has from «hér» and «Hvernig segir maður:»), the English line «Here you say:»; taught in lesson 82, and gone in English from
-   lesson 84. **Then (step 14):** the next most frequent English lines on the next export's replay; on lesson 69's, «Now part of a
-   conversation.», «Now answer.» and «That's enough of that conversation.» (8 each).
+   instructor lines in Icelandic; on the replay of its export the phrases already authored are taught in lessons 69–81. **Built, step 13
+   (#628):** «Here you would say:», before a learner's line heard, not asked, said as «Hér segir maður:» ('here one says:'), the English line
+   «Here you say:». Lesson 70 (LLA `a1759f1`) taught «Aftur að efninu.» and said 131 instructor lines in Icelandic; on the replay of its export the
+   phrases already authored are taught in lessons 70–82. **This round (step 14, #635):** a part's sentence right after the exercise that
+   practised it, «Use it in a sentence.» (9 in lessons 70–77 and 9 in 78–79, rising), said as «Notaðu það í setningu.» (the same words; «notaðu»
+   is new) before «Segðu:»; taught in lesson 83, and gone in English from lesson 85. **Then (step 15):** the next most frequent English lines on
+   the next export's replay; on lesson 70's, «Now another short conversation.» (8 in lessons 70–77), «Now listen again.» and «Now answer.» (7 each).
 2. **Forms as choices (#528, owner 2026-11-12).** «New material should not be more numbers, colours and words to memorise; I want to feel a
    coach who makes me choose the right case and the right verb form.» The course itself is one-sided: of 256 sentences that open with a
    subject pronoun, 207 say «ég»; «vilja», «þurfa» and «eiga» exist in one form; the learner has two forms of three nouns. **Built, step 1 (#531):** the
@@ -96,30 +98,33 @@ In order:
 4. **The learner's own details (#428)** in what they say about themselves, in place of fictional ones.
 5. **The listening pool's variety (#339)** and **a fluent speaker's review of the most-heard exchanges (#209)**.
 
-**This round:** after lesson 69, two behaviour PRs: the long run's step 13 (#628), and the remark's shared cause. The written review put
-«Literally: I'm doing well.» after «Say you're doing well.» for «Ég hef það gott.» ('I have it good'): the line is the item's meaning (#559),
-labelled as its words, and 18 of lesson 69's 47 review questions carry it. #629 names it «Meaning:» (#627); the `meaning-gloss` family's third
-lesson in a row.
+**This round:** after lesson 70, one behaviour PR, the long run's step 14 (#635), and the remark's answer as data, merged before this round's
+docs: «Ég sakna fjölskyldunnar.» (I miss my family.) has no «my», and the learner asked for its literal words, the authored literal #627 left
+waiting until a learner asked. #633 says them in an aside; the `meaning-gloss` family's fourth lesson in a row.
 
-## Now (updated 2026-11-27, after lesson 69), in order
+## Now (updated 2026-11-28, after lesson 70), in order
 
 The remarks' half of each round (LD §9 "Governance"): each remark ranked by how often its cause recurs on the replay of the latest export and
-what a fix costs. The latest export is lesson 69's; the next lesson is 70. Lessons 56–69 were rated «right».
-1. **English named as the Icelandic's words when it is not (`meaning-gloss`, lessons 67, 68 and 69).** An instruction's cue quoted the English
-   line it replaces (#621, #624, built); the written review labels the item's meaning «Literally:» (lesson 69, #627). **Built (#629):** «Meaning:
-   I'm doing well.»; 18 of lesson 69's 47 review questions carry the line. **Next:** read the next three feedbacks for a gloss whose words the
-   answer lacks; an authored literal for items whose words differ from their meaning waits on #627 unless the learner asks for it.
-2. **Next-day recall at 50%, and the «sooner» marks fail (H9, #579, #326; lessons 67–69).** Lesson 68's new items were recalled 3 of 6; the
-   failures («Ég borða hádegismat.», «Ég horfi á sjónvarpið.», «Mér er illt í fætinum.») include both its «sooner» marks, as lesson 67's did.
-   «Ég er með sjúkratryggingu.» failed again at its next ask; «Hvar er sendiráðið?» was recalled. The pace rule reads the failure rate (target
-   7 for lesson 69). **Next:** lesson 69's recall and the target the rule sets; if «sooner» items keep failing the next day, the issue is a dose
-   for what the learner marks (#518's heavy dose by their mark), a design choice for the owner.
-3. **New material tied to its scene (#579, #327, H4, H5).** Lesson 69 played the likes level with 6 of its 11 new items inside it. On the replay
-   the played level holds new items to lesson 76. **Next:** #327's next batch (the taxi, daily life) before the ranked levels run out.
+what a fix costs. The latest export is lesson 70's; the next lesson is 71. Lessons 56–69 were rated «right», lesson 70 «light».
+1. **English read as the Icelandic's words (`meaning-gloss`, lessons 67–70).** An instruction's cue quoted the English line it replaces (#621,
+   #624), the written review labelled the item's meaning «Literally:» (#629, «Meaning:»), and lesson 70's «I miss my family.» has no «my» in
+   «Ég sakna fjölskyldunnar.» (#633, an aside with its words, data). Each is answered where it was found; the cause they share is an item whose
+   English meaning is not its words, said with nothing that tells the learner so. **Next:** whether the aside answers it (lesson 71 plays it on
+   the replay); if a fifth lesson remarks the same, an authored literal for every item whose words differ from its meaning (#627), which is
+   content for a fluent reader (#209), a choice for the owner.
+2. **New material ahead of its scene (#579, #327, H4, H5).** Lesson 70 played the visit level with 1 of its 12 new items inside it; ten were the
+   family's lines, for small talk's sixth and seventh levels, which play in lessons 82 and 84 on the replay. From lesson 77 the played level holds
+   no new item until then (0 of 7–12 a lesson): the ranked levels run out after lesson 76. **Next:** #327's next batch (the taxi, daily life)
+   before lesson 77.
+3. **Next-day recall and the «sooner» marks (H9, #579, #326).** Lesson 69's new items were recalled 10 of 11, after lesson 68's 3 of 6, and every
+   failure of lessons 67 and 68 was recalled at its next ask: the first night is what fails. Lesson 70 was «light», the first since lesson 55; the
+   rule raises the target after two. **Next:** lesson 70's recall, with its three «sooner» marks; #518's heavy dose by the learner's mark stays a
+   design choice for the owner, and the evidence for it is weaker now that the failures recover.
 4. **The catch task in an urgent scene, and a caught word never practised (#599, lesson 67).** **Built (#603, #604):** «Mér er illt í
-   fætinum.» is a line the learner says; it failed its first next-day recall. **Next:** its next ask, and the accident's second level when it plays.
+   fætinum.» is a line the learner says; it failed its first next-day recall and was recalled at its next ask. **Next:** the accident's second
+   level when it plays (lesson 79 on the replay).
 
-**Alongside:** practice by what is hard in an item (#518, #439, G11): lesson 60's two heavy-dose items were hesitated and not recalled, lesson 59's 2 of 7 recalled; the dose alone does not hold them, and #579 reads it with the pace. A conversation once (#519): lessons 54–61 had four to eight conversations and no remark on their number, eight feedbacks. Hard to hear (#447): «Ég missti af strætó.» and «Hafið þið laust herbergi?», reported after lesson 59, were not recalled the next day and recalled at their next ask. The listening pool's sameness (#339): none of lesson 56's, 57's or 58's pick-outs was on a line heard in the three lessons before (0 of 8, 0 of 6, 0 of 6; lesson 55: 3 of 4). On the replay of lesson 58's export it comes back in lesson 70, when few lines are left that were not heard lately: 12 of 19 pick-outs; 6 of 16 with the batch after lesson 58; at most 1 when C4's four levels play as well. The town names as dative fillers, left unfitted in lessons 53–55, were fitted in 56 and 57. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
+**Alongside:** practice by what is hard in an item (#518, #439, G11): lesson 60's two heavy-dose items were hesitated and not recalled, lesson 59's 2 of 7 recalled; the dose alone does not hold them, and #579 reads it with the pace. A conversation once (#519): lessons 54–61 had four to eight conversations and no remark on their number, eight feedbacks. Hard to hear (#447): «Ég missti af strætó.» and «Hafið þið laust herbergi?», reported after lesson 59, were not recalled the next day and recalled at their next ask. The listening pool's sameness (#339): none of lesson 56's, 57's or 58's pick-outs was on a line heard in the three lessons before (0 of 8, 0 of 6, 0 of 6; lesson 55: 3 of 4). On the replay of lesson 70's export 2 of lesson 70's 6 pick-outs were on a line heard in the three lessons before, none of 71–76's, 2 of 77's 9: the return foreseen for lesson 70 (12 of 19 on the replay of lesson 58's export) did not come, with the batch after lesson 58 and C4's levels. The town names as dative fillers, left unfitted in lessons 53–55, were fitted in 56 and 57. The same exchange heard lesson after lesson (#483): the other learner's next feedback, and the learner's own line that varies in use («Áttu {item}?», #336). Long parts that do not stick (#469's family): read the next-day recall of «við hliðina á bankanum» and «hinum megin við götuna»
 before adding practice. Scene coherence (#327): lesson 50 said four of its six new items as turns of the played exchange, lesson 51 none of its
 ten (its exchange was a level played again). The note's pieces (#481) have not played yet. A silent clip taken as cut off (#503) is built; «vettlinga», whose syllable «lin» it was found on, has not played since.
 
