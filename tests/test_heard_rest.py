@@ -16,7 +16,10 @@ class HeardRestTests(unittest.TestCase):
     def test_on_short_lessons_the_levels_heard_again_take_turns(self):
         """A 20-lesson course of 15-minute lessons: from lesson 9 (eight levels done) a level heard again in the lesson right after it was
         played or heard comes 6 times; drawn at random, 26."""
+        import dataclasses
+
         cur, extra = base.SpareTimeTests._cfg()
+        cur = dataclasses.replace(cur, trust=None)  # the trust check (#631) is off: this pins the rotation of the levels heard again, not which lines the table lets through
         learner = LearnerState("is", "en", "A1")
         day, last, repeats, heard = base.TODAY, {}, [], 0
         for n in range(1, 21):

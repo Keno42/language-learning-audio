@@ -7,6 +7,7 @@ sounds. Keep those three concerns apart.
 
 from __future__ import annotations
 
+import itertools
 import random
 import re
 from collections import Counter
@@ -147,6 +148,13 @@ def meaning_prompt(prompts: Prompts, known_lang: str, target_lang: str, meaning:
     return prompts.get("meaning", meaning=meaning_text(known_lang, meaning), language=prompts.language_name(target_lang))
 
 
+WORKED_EXAMPLE_SEARCH = 2000  # fillings tried for a pattern's worked example the trust check allows
+
+
+class NoAllowedSentence(Exception):
+    """The trust check allows no sentence of this pattern with the fillers the learner has: nothing is said, the planner asks something else."""
+
+
 # #429 step 4: the exercises whose cue may open with a frame said in Icelandic («Say:», «How do you say:»; step 5: a cloze's «Complete the sentence
 # to say:», a new item's «Something new.»); not a note, whose prose stays as written
 CUE_FRAME_KINDS = frozenset({"recall", "generative", "intro", "model", "embed", "connect"})
@@ -219,6 +227,9 @@ class Builder:
     ask_cap: int = 0  # #336: a pattern's sentence asked this many times a lesson (any path) is not asked again by a sibling recall; 0: no cap
     # #281 finding 2: whether a learner's line was said before is the planner's decision (``Planner.reply_familiarity``); None: ``lines.familiarity``
     familiarity: Callable[[list[str], str, bool], tuple[list[str], bool]] | None = None
+    # the trust check (the owner, 2026-11-28; ``Planner.usual_line``): whether a sentence has no pair of neighbouring words that no Icelandic text has;
+    # None: every sentence is made
+    usual: Callable[[str], bool] | None = None
     _situation_uses: dict[str, int] = field(default_factory=dict)  # situation cues narrated this lesson, per item
     _situation_texts: dict[str, int] = field(default_factory=dict)  # times each situation was narrated in full (``_narrated``)
     _recent_situations: list = field(default_factory=list)  # the situations narrated, newest last (``situation_rank``)
@@ -995,6 +1006,8 @@ class Builder:
             if fills is None:
                 continue
             frame = {w.lower() for t in re.split(r"\{[^}]*\}", c.target) for w in WORD.findall(t)}
+            if not self._usual_fills(c, fills):
+                continue  # the trust check: a home whose sentence has a pair of words no Icelandic text has is not one
             if len(frame - known) <= 1 and self.is_new_utterance(self._filled(c, fills)[1]):
                 named = item.id in {**c.example, **c.situation_fill}.values()
                 options.append(((0 if named else 1, 0 if self._available(c.id) else 1, c.difficulty, c.order), c, fills))
@@ -1115,6 +1128,8 @@ class Builder:
             # the sentence it was introduced with, in words the learner has, in the form the model's voice says (native_a): resolved for that voice, so
             # asking whether there is a model moves no gender turn and «Ég er glaður.» is never said in the woman's voice (review of #351)
             fills = self.worked_example_fills(item)
+            if fills is None:
+                return None  # no sentence of it the trust check allows
             gender, sentence = self._filled(item, fills, voice="native_a")
             return sentence, self.cur.resolve_slots(item, fills, gender)[1], gender
         if item.kind in ("phrase", "vocab") and item.word_count >= 2:
@@ -1605,7 +1620,7 @@ class Builder:
         self._gap(sc, ex)
         return ex
 
-    def worked_example_fills(self, item: Item, worked_fills: dict[str, Item] | None = None) -> dict[str, Item]:
+    def worked_example_fills(self, item: Item, worked_fills: dict[str, Item] | None = None) -> dict[str, Item] | None:
         """The fills of a pattern's worked example: the authored example, a part taken out next (``worked_fills``), and, where the authored filler is not one
         the learner has, a known filler of the slot (the worked example uses words the learner has)."""
         fills = self.cur.example_fill(item)
@@ -1615,7 +1630,20 @@ class Builder:
                 known = next((i for i in self.cur.items_with_tag(tag, item) if self._available(i.id)), None)
                 if known is not None:
                     fills[slot] = known
-        return fills
+        if self.usual is None or self._usual_fills(item, fills):
+            return fills
+        # the trust check: the example's sentence has a pair of words no Icelandic text has: the filling that changes the fewest slots to fillers the
+        # learner has, whose sentence has none (a part taken out next, ``worked_fills``, stays); None when there is none, and the pattern waits
+        free = [slot for slot in item.slots if slot not in (worked_fills or {}) and slot in fills]
+        choices = [[fills[slot], *(i for i in self.cur.items_with_tag(item.slots[slot], item) if i is not fills[slot] and self._available(i.id))]
+                   for slot in free]
+        combos = sorted(itertools.islice(itertools.product(*choices), WORKED_EXAMPLE_SEARCH),
+                        key=lambda c: sum(f is not fills[sl] for sl, f in zip(free, c)))
+        return next(({**fills, **dict(zip(free, c))} for c in combos if self._usual_fills(item, {**fills, **dict(zip(free, c))})), None)
+
+    def _usual_fills(self, item: Item, fills: dict[str, Item]) -> bool:
+        """The trust check on the sentence ``fills`` make of ``item``, in either voice."""
+        return self.usual is None or all(self.usual(self.cur.resolve_slots(item, fills, g)[0]) for g in "fm")
 
     def _intro_construction(self, sc: Script, item: Item, worked_fills: dict[str, Item] | None = None) -> Exercise:
         ex = sc.new_exercise("intro", "intro", [item.id], f"new pattern: {item.target}")
@@ -1717,9 +1745,13 @@ class Builder:
             # #451 step 3b (the owner after lesson 52: «mínus þrjár gráður» far too often, always three): the sentence's frame is what is learned, its number
             # what varies. After the introduction, the cloze and the hint, it is asked as its pattern's sentence with the number the learner has said least
             # (`_recall_construction`'s per-sentence count), from its meaning: the phrase's situation names its own number
-            ex = self._recall_construction(sc, pattern, "meaning")
-            ex.item_ids[:] = [item.id] + [i for i in ex.item_ids if i not in (item.id, pattern.id)]  # the phrase's practice; the pattern is not met through it
-            return ex
+            try:
+                ex = self._recall_construction(sc, pattern, "meaning")
+            except NoAllowedSentence:
+                ex = None  # the trust check allows no other sentence of the pattern: the phrase is asked as itself, below
+            if ex is not None:
+                ex.item_ids[:] = [item.id] + [i for i in ex.item_ids if i not in (item.id, pattern.id)]  # the phrase's practice; the pattern is not met through it
+                return ex
 
         if stage == "situation" and (cue := self.prompt_item(item)) is not None:
             return self._partner_cue_recall(sc, item, *cue)
@@ -1811,6 +1843,10 @@ class Builder:
             gen = self.generate(item, fixed=fixed, met_fills=True)
         if gen is None:
             fills = {**self.cur.example_fill(item), **fixed}
+            if not self._usual_fills(item, fills):  # the trust check: an available filling the generator allows, before an unusual example
+                fills = next((f for f, _, _ in self.filling_options(item) if all(f[k] is v for k, v in fixed.items())), None)
+                if fills is None:
+                    raise NoAllowedSentence(item.id)  # no sentence of it the check allows: the planner asks something else
             target, meaning = self.cur.resolve_slots(item, fills)
             gen = Generated(item, fills, target, meaning)
         if not fixed and self.ask_count is not None:
@@ -2146,6 +2182,8 @@ class Builder:
         self.rng.shuffle(combos)
         if shown_as:  # the plain sentence is also to be said in this form (``model_form``): its fills must fit that template too
             combos = [c for c in combos if self.cur.fits_form(construction, c, shown_as)]
+            if self.usual is not None:  # the trust check, on the form it will also be said in («Þarftu húfu?»)
+                combos = [c for c in combos if all(self.usual(self.cur.resolve_slots(construction, c, g, shown_as)[0]) for g in "fm")]
         taught = self.forms_taught()
         if form:
             if form not in construction.forms or form not in taught or not self.form_modelled(construction, form):
@@ -2156,6 +2194,8 @@ class Builder:
             order = self._form_order([None] + (offered if forms else []))
         for chosen_form in order:
             picks = [(chosen_form, c) for c in combos if self.cur.fits_form(construction, c, chosen_form)]
+            if self.usual is not None:  # the trust check: a combination whose sentence has a pair no Icelandic text has is not made, in either voice
+                picks = [(f, c) for f, c in picks if all(self.usual(self.cur.resolve_slots(construction, c, g, f)[0]) for g in "fm")]
             if avoid_heard:
                 picks = [
                     (f, c) for f, c in picks
@@ -2261,6 +2301,8 @@ class Builder:
             return []
         out = []
         for fills in self._product(options, list(options))[:60]:
+            if not self._usual_fills(c, fills):
+                continue  # the trust check, as ``generate`` makes it: a filling whose sentence has a pair no Icelandic text has is no option
             target, meaning = self.cur.resolve_slots(c, fills)
             out.append((fills, target, meaning))
         return out

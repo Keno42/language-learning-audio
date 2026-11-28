@@ -101,7 +101,7 @@ class CatchOnceTests(unittest.TestCase):
         l = LearnerState("is", "en", "A1")
         for i in ("hvad_thydir_thetta", "hvad_kostar_thetta"):
             l.items[i] = ItemState(stage="meaning", durable_successes=2, successes=6, recalled=3, interval_days=7, last_outcome="recalled", due=(TODAY + timedelta(days=5)).isoformat())
-        p = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_target=10, priority=["salat"]), today=TODAY)
+        p = Planner(self.cur, l, Prompts.load("en"), Timing(level="A1"), PlanConfig(minutes=30, new_target=10, priority=["salat"], trusted=False), today=TODAY)
         sc = p.build()
         self.assertEqual(sc.meta["catch_introductions"], ["salat"])
         self.assertEqual(p.builder.wholes_taught.get("salat", {}).get("answer"), "Hvað kostar salat?")

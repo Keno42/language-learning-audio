@@ -22,7 +22,7 @@ from itertools import groupby
 
 from .claims import unkept_claims
 from .content import SUBJECTS, Curriculum, Dialogue, Item
-from .exercises import NOUN_CASES, Builder, _norm_utterance, cue_is_answer
+from .exercises import NOUN_CASES, Builder, NoAllowedSentence, _norm_utterance, cue_is_answer
 from .sounds import hard_sounds, hard_words_of
 from .learner import REPORTED_HARD_DAYS, LearnerState
 from .lines import familiarity
@@ -240,6 +240,10 @@ class PlanConfig:
     late_unhinted_recall: bool = False  # the closing recall of a new item never gives a hint
     # "new-first" (a user option, outside the design; #243): every introduction first, back to back, then known material
     order: str = "spread"
+    # the owner, 2026-11-28: say only lines whose every pair of neighbouring words Icelanders are found writing (``audiolesson.trust``; a course
+    # without its table, ``trust/pairs.json``, says everything). An item, a pattern's sentence, a theme level, a dialogue or a note with a pair no
+    # Icelandic text has is passed over; a pair not looked up yet holds nothing back. ``generate --untrusted`` turns it off
+    trusted: bool = True
 
     def resolved_max_new_items(self) -> int:
         """Extra new items may fill a lesson that has nothing to review (the first ones),
@@ -328,6 +332,7 @@ class Planner:
         prompts.rng = self.rng
         self.builder = Builder(cur, prompts, timing, learner, self.rng, translate_partner=cfg.translate_partner, said_cap=cfg.max_sentence_hard, close_conversations=True)
         self.builder.familiarity = self.reply_familiarity  # #281 finding 2: the planner decides whether a line was said before; the builder renders
+        self.builder.usual = self.usual_line if self.trust_on else None  # the trust check: a pattern's sentence with a pair no text has is not made
         self.exposures: dict[str, list[str]] = {}
         self.support: dict[str, int] = {}
         self.dialogues_played: list[str] = []
@@ -377,6 +382,50 @@ class Planner:
             word_count=item.word_count,
         )
 
+    # --------------------------------------------------------------- trust (the owner, 2026-11-28)
+
+    @property
+    def trust_on(self) -> bool:
+        return self.cfg.trusted and self.cur.trust is not None
+
+    def usual_line(self, text: str) -> bool:
+        """Not a line with a pair of neighbouring words (or a word alone) that no Icelandic text has (``audiolesson.trust``)."""
+        return not self.trust_on or self.cur.trust.usual(text)
+
+    def usual_item(self, it: Item) -> bool:
+        """An item the trust check lets the lesson teach: its line in each voice, or a pattern's fixed words in each of its forms (the slots end a
+        stretch: the sentences the fillers make are judged when ``Builder.generate`` makes them)."""
+        if not self.trust_on:
+            return True
+        if it.slots:
+            lines = [re.sub(r"\{[^}]*\}", " | ", t) for t in (it.target, it.negative, it.question) if t]
+        else:
+            lines = [t for t in (it.target, it.target_m) if t]
+        return all(self.cur.trust.usual(t) for t in lines)
+
+    @property
+    def allowed_line(self):
+        """The trust check as ``themes.pick_variants`` takes it: None when it is off."""
+        return self.usual_line if self.trust_on else None
+
+    def usual_level(self, theme, level: int) -> bool:
+        """A theme level whose lines as written (the learner's, in each voice, the partner's, the lines only heard) the trust check lets the
+        lesson say. A level that is not is passed over, as a level the learner skipped would be: its scene goes on at the next one. A partner's
+        variant it refuses only is never picked (``pick_variants``' ``allowed``): the level plays."""
+        if not self.trust_on:
+            return True
+        turns = theme.levels[level].turns
+        return all(self.usual_line(x) for t in turns for x in (t.say, t.say_m) if x) and all(
+            self.usual_line(ln.say) for t in turns for ln in t.listen_lines() if ln.say)
+
+    def usual_dialogue(self, d: Dialogue) -> bool:
+        return not self.trust_on or all(self.usual_line(x) for t in d.turns for x in (t.opener, t.partner, t.expect_text, t.expect_text_m) if x)
+
+    def usual_note(self, note) -> bool:
+        from .trust import spans
+
+        return not self.trust_on or all(self.usual_line(x) for x in spans(note.text) + spans(note.text_plain))
+
     # --------------------------------------------------------------- selection
 
     def _prereq_met(self, c: Item, p: str, have) -> bool:
@@ -399,6 +448,8 @@ class Planner:
         best: tuple[int, int, Item] | None = None
         for c in self.cur.items:
             if c.kind != "construction" or not c.slots or c.id in exclude or c.id in self.learner.embedded or self.learner.has_met(c.id):
+                continue
+            if not self.usual_item(c):
                 continue
             if only is not None and c.id not in only:
                 continue
@@ -1010,7 +1061,7 @@ class Planner:
 
         pool = [
             i for i in self.cur.items
-            if not self.learner.has_met(i.id) and i.id not in chosen_ids and i.id not in self.learner.embedded
+            if not self.learner.has_met(i.id) and i.id not in chosen_ids and i.id not in self.learner.embedded and self.usual_item(i)
         ]
         # A close variant (another case, another gender) is not general material (#218 b1): it comes only when the theme's next level
         # wants it (#201), or something pulls it (#202: it is a prerequisite of a frame or phrase still to come; as a filler the
@@ -1267,7 +1318,8 @@ class Planner:
     def select_reviews(self) -> list[Item]:
         """The review queue: items due, or due within ``review_ahead_days``, most urgent first.
         Not-due items further off are left for ``select_early_reviews``, the last filler."""
-        met = [self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id]
+        # the trust check: an item met before the table had it, with a pair no Icelandic text has, is not practised again
+        met = [self.cur.by_id[i] for i in self.learner.items if i in self.cur.by_id and self.usual_item(self.cur.by_id[i])]
         horizon = self.today + timedelta(days=self.cfg.review_ahead_days)
         met = [i for i in met if not self.learner.items[i.id].due or date.fromisoformat(self.learner.items[i.id].due) <= horizon]
         return self._by_urgency([i for i in met if not self.reviewed_today(i.id)])
@@ -1431,7 +1483,7 @@ class Planner:
             (i.id not in prefer, self.learner.items[i.id].last_practiced, i.order, i)
             for i in self.cur.items
             if i.id in self.learner.items and i.id not in exclude and (not rested_only or self._rested(i.id)) and not self._stable(i)
-            and not self.reviewed_today(i.id)
+            and not self.reviewed_today(i.id) and self.usual_item(i)
         ]
         return [i for *_, i in sorted(out, key=lambda t: t[:3])]
 
@@ -1550,7 +1602,7 @@ class Planner:
     def _note_available(self, note) -> bool:
         """Everything the note recommends saying (``Note.requires``) is learned, or was
         introduced earlier in this lesson."""
-        return all(self.learner.knows(i) or i in self.builder.in_lesson for i in note.requires)
+        return all(self.learner.knows(i) or i in self.builder.in_lesson for i in note.requires) and self.usual_note(note)
 
     def _pick_note(self, related: list[str] | None) -> object | None:
         """An ordinary note to play: related to ``related`` items if given; as filler, one about
@@ -1640,7 +1692,8 @@ class Planner:
         material: its component cost is 0, so it takes no place among them (a simulated lesson lost a planned item to it)."""
         if self.learner.lessons_completed < self.cfg.commands_from:
             return None
-        return next((i for i in self.cur.items if i.command and not self.learner.has_met(i.id) and i.id not in self.learner.embedded), None)
+        return next((i for i in self.cur.items if i.command and not self.learner.has_met(i.id) and i.id not in self.learner.embedded
+                     and self.usual_item(i)), None)
 
     def choice_wants(self) -> list[str]:
         """#439 step 1b: a line not met yet that would give the number choice a gender it lacks («fyrir tvær nætur» once «tvo miða» and «tvö þúsund»
@@ -1750,7 +1803,7 @@ class Planner:
             cases = {f.form.split("_")[0] for f in have}  # «kaffið» beside «kaffi» is the same case: no choice of a case between them
             out += [
                 f for f in forms
-                if not self.learner.has_met(f.id) and f.id not in self.learner.embedded and not f.target_m and set(f.tags) & frames
+                if not self.learner.has_met(f.id) and f.id not in self.learner.embedded and not f.target_m and set(f.tags) & frames and self.usual_item(f)
                 and _norm_utterance(f.target) not in said and f.form.split("_")[0] in NOUN_CASES and f.form.split("_")[0] not in cases
             ]
         return [min(out, key=lambda f: f.order).id] if out else []
@@ -2250,6 +2303,8 @@ class Planner:
         best = None
         for order, theme in enumerate(self.cfg.themes):
             level = self.learner.themes_done.get(theme.id, 0)
+            while level < len(theme.levels) and not self.usual_level(theme, level):
+                level += 1  # the trust check: a level with a line no Icelandic text has the words of is passed over
             if level >= len(theme.levels) or (theme.scenario not in rank and not self.cfg.play_unranked):
                 continue
             you = [t for t in theme.levels[level].turns if t.who == "you"]
@@ -2270,6 +2325,8 @@ class Planner:
         again = None
         for order, theme in enumerate(self.cfg.themes):
             done = min(self.learner.themes_done.get(theme.id, 0), len(theme.levels))
+            while done >= 1 and not self.usual_level(theme, done - 1):
+                done -= 1  # the trust check: the last level played that it lets play again
             if done < 1 or theme.scenario not in rank:
                 continue
             since = now - self.learner.themes_last.get(theme.id, 0)
@@ -2306,6 +2363,8 @@ class Planner:
         """
         if any(key in self.learner.levels_last for key in d.superseded_by):
             return True  # the owner, 2026-11-19: a theme level that plays its scene, its partner lines varying, has played
+        if not self.usual_dialogue(d):
+            return True  # the trust check: a line of it has a pair of words no Icelandic text has, so it is not played again
         limit = self.cfg.dialogue_full_play_limit
         return limit > 0 and self._dialogue_whole_plays(d) >= limit
 
@@ -2398,8 +2457,10 @@ class Planner:
         introduced: list[Item] = []
         intro_skipped: list[str] = []  # items do_intro refused as already taught: should stay empty (the selections exclude them)
 
+        deferred: set[str] = set()  # patterns the trust check gave no worked example: not taught this lesson, never selected again in it
+
         def taught() -> set[str]:
-            return {i.id for i in introduced} | set(self.embedded)  # one set of what this lesson taught, for every select_new exclude
+            return {i.id for i in introduced} | set(self.embedded)  # one set of what this lesson taught, for every select_new exclude (with ``deferred``)
         def arc_size(capped: bool = True) -> int:
             """Items a later arc may take. Counting items, a share of the pace; counting components (#218 b3), what the new-item
             ceiling leaves: the target itself stops the arc."""
@@ -2511,6 +2572,13 @@ class Planner:
 
         introducing: list[str] = []  # the items being introduced right now, outermost first: a part whose phrase is introduced for it is taken out of that phrase (#262)
 
+        def recall_ex(item: Item, stage: str, **kw):
+            """``b.recall``, or None when the trust check allows no sentence of the pattern with the fillers the learner has (nothing is said)."""
+            try:
+                return b.recall(sc, item, stage, **kw)
+            except NoAllowedSentence:
+                return None
+
         def do_intro(item: Item, worked_fills: dict[str, Item] | None = None) -> None:
             introducing.append(item.id)
             try:
@@ -2539,10 +2607,18 @@ class Planner:
 
         def _do_intro(item: Item, worked_fills: dict[str, Item] | None = None) -> None:
             nonlocal last_intro, last_intro_at, seq, closing_reserve
-            if item.id in self.embedded or any(i.id == item.id for i in introduced):
+            if item.id in self.embedded or any(i.id == item.id for i in introduced) or not self.usual_item(item):
                 # taught already this lesson (embedded, then queued again: «miða» in lesson 19, #217): its turn goes to the
                 # next item. Checked here because every path to an introduction ends here, whatever queue it came from
                 intro_skipped.append(item.id)
+                arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
+                return
+            if item.kind == "construction" and item.slots and b.worked_example_fills(item, worked_fills) is None:
+                # the trust check: no worked example of the pattern it allows with the fillers the learner has: it waits for a later lesson, and its turn
+                # goes to the next item, as an item taught already does
+                deferred.add(item.id)
+                if item in new_queue:
+                    new_queue.remove(item)
                 arc_target[current_arc_id] = max(0, arc_target.get(current_arc_id, 0) - 1)
                 return
             if item.command:
@@ -2831,7 +2907,9 @@ class Planner:
                     cand = next((c for c in self.related_items(item) if c.id not in used_forms and not over_hard_cap(c) and not bare_capped(c) and c.id not in recent), None)
                     if cand is None:
                         continue
-                    ex = b.recall(sc, cand, "meaning")
+                    ex = recall_ex(cand, "meaning")
+                    if ex is None:
+                        continue
                     self._record([cand.id], ex.stage or "meaning", ex.item_ids)
                     touch(cand)
                     return linked("form", cand.id)
@@ -2905,7 +2983,9 @@ class Planner:
                 return True
             if allow_cap and stage in BARE_STAGES and short_review(item) and ask_a_sentence(item, repeat=True, review=True):
                 return True  # #187: a due review item is a sentence too, where one holds it
-            ex = b.recall(sc, item, stage)
+            ex = recall_ex(item, stage)
+            if ex is None:
+                return False
             self._record([item.id], ex.stage or stage, ex.item_ids)
             touch(item)
             return True
@@ -3151,7 +3231,9 @@ class Planner:
                 for whole in sorted(self.containing_items(item), key=over_utterance_cap):  # one not yet said as often as a lesson allows first
                     if self._stable(whole) or over_hard_cap(whole) or (review and (bare_capped(whole) or whole.id in recent or asked_times(whole) >= 2)):
                         continue  # a stable one keeps to its date, a short whole to its own bare uses, the one just asked is not asked again
-                    ex = b.recall(sc, whole, "meaning")
+                    ex = recall_ex(whole, "meaning")
+                    if ex is None:
+                        continue
                     ex.item_ids.append(item.id)  # the part was practised inside it: the exercise says so
                     self._record([item.id, whole.id] if review else [whole.id], ex.stage or "meaning", ex.item_ids)
                     touch(whole)
@@ -3181,8 +3263,8 @@ class Planner:
                     touch(pattern)
                     return True
             if b.recombine_status(item) == "novel":
-                ex = b.recall(sc, item, "recombine")
-                if ex.kind == "generative":
+                ex = recall_ex(item, "recombine")
+                if ex is not None and ex.kind == "generative":
                     self._record([item.id], ex.stage or "recombine", ex.item_ids)
                     touch(item)
                     used.add(ex.label)
@@ -3192,7 +3274,9 @@ class Planner:
                     continue  # a short whole item has its own bare uses to keep to
                 if self._stable(whole):
                     continue  # a stable item is practised on its own dates, never as the sentence for another (#94, #151)
-                ex = b.recall(sc, whole, "meaning")
+                ex = recall_ex(whole, "meaning")
+                if ex is None:
+                    continue
                 ex.item_ids.append(item.id)  # the part was practised inside it: the exercise says so
                 if review:  # the review of ``item``: it is credited (its due date moves), and so is the whole, which was asked
                     self._record([item.id, whole.id], ex.stage or "meaning", ex.item_ids)
@@ -3388,7 +3472,9 @@ class Planner:
 
         def do_substitution(c: Item) -> None:
             substitutions[c.id] = substitutions.get(c.id, 0) + 1
-            ex = b.recall(sc, c, "recombine", met_fills=True)
+            ex = recall_ex(c, "recombine", met_fills=True)
+            if ex is None:
+                return
             self._record([c.id], ex.stage or "recombine", ex.item_ids)
             touch(c)
 
@@ -3548,7 +3634,7 @@ class Planner:
                         exchange_lines.append(say)
 
         def cut_out_picks(level) -> dict[int, int]:
-            picks = pick_variants(level, self.rng, tired=line_tired(), as_written_too=True) if any(
+            picks = pick_variants(level, self.rng, tired=line_tired(), as_written_too=True, allowed=self.allowed_line) if any(
                 len({tuple(number_words(ln.say)) for ln in t.lines()}) > 1 for t in level.turns if t.who == "partner"
             ) else {}  # a level with no number to vary is said as written, as before
             log_numbers(level, picks)
@@ -3562,7 +3648,7 @@ class Planner:
             key = f"{theme.id}:{n + 1}"
             heard = {tuple(map(int, h.split(":"))) for h in self.learner.themes_heard.get(key, [])} if theme_replay else None
             # #451 step 3d: a turn whose lines say different numbers takes the one whose number words have rested longest
-            picks = pick_variants(theme.levels[n], self.rng, canonical=theme_plays > 0, heard=heard, tired=line_tired())
+            picks = pick_variants(theme.levels[n], self.rng, canonical=theme_plays > 0, heard=heard, tired=line_tired(), allowed=self.allowed_line)
             log_numbers(theme.levels[n], picks)
             if theme_plays == 0 and not theme_replay:
                 theme_heard.extend(f"{k}:{i}" for k, i in picks.items())
@@ -3592,7 +3678,7 @@ class Planner:
             own = (theme_pick[0].id, theme_pick[1]) if theme_pick else None
             return [
                 (t, n) for t in cfg.themes for n in range(min(self.learner.themes_done.get(t.id, 0), len(t.levels)))
-                if (t.id, n) != own and f"{t.id}:{n + 1}" not in heard_plays
+                if (t.id, n) != own and f"{t.id}:{n + 1}" not in heard_plays and self.usual_level(t, n)  # the trust check (#631)
             ]
 
         def pick_heard_theme() -> tuple | None:
@@ -3615,7 +3701,7 @@ class Planner:
 
         def play_heard_theme(theme, n: int) -> None:
             nonlocal since_dialogue
-            picks = pick_variants(theme.levels[n], self.rng, tired=line_tired(), as_written_too=True)  # #451 step 3d
+            picks = pick_variants(theme.levels[n], self.rng, tired=line_tired(), as_written_too=True, allowed=self.allowed_line)  # #451 step 3d
             log_numbers(theme.levels[n], picks)
             dlg = level_dialogue(theme, n, self.cur.known_lang, picks)
             you = [t for t in theme.levels[n].turns if t.who == "you"]
@@ -3721,7 +3807,7 @@ class Planner:
                 out.append((theme_pick[0], theme_pick[1]))
             for t in cfg.themes:
                 out += [(t, n) for n in range(min(self.learner.themes_done.get(t.id, 0), len(t.levels))) if (t, n) not in out]
-            return out
+            return [(t, n) for t, n in out if self.usual_level(t, n)]  # the trust check (#631): no listening task from a level it passes over
 
         def level_scene(theme, n: int) -> str:
             """What the narrator says to name the scene a listening task's line is taken from. The lesson's own scene is named too (#427, lesson 40:
@@ -4104,7 +4190,7 @@ class Planner:
                     and reviews_used
                     and current_arc_id + 1 < cfg.max_arcs
                     and remaining >= need_for_new
-                    and (more := self.select_new(arc_size(), exclude=taught()))
+                    and (more := self.select_new(arc_size(), exclude=taught() | deferred))
                 ):
                     start_arc(more)  # or the next arc, before its time
                     acted = True
@@ -4265,7 +4351,7 @@ class Planner:
                 and current_arc_id + 1 < cfg.max_arcs
                 and remaining >= need_for_new
                 and sc.total_duration >= (len(introduced) + len(self.embedded)) * intro_spacing
-                and (more := self.select_new(arc_size(), exclude=taught()))
+                and (more := self.select_new(arc_size(), exclude=taught() | deferred))
             ):
                 start_arc(more)
                 acted = True
@@ -4357,7 +4443,7 @@ class Planner:
                     play_timed(pulled)
                 elif new_queue and can_drain and remaining >= need_for_new * 0.6:
                     do_intro(new_queue.popleft())
-                elif can_intro and not reviews_used and remaining >= need_for_new and (more := self.select_new(1, exclude=taught())):
+                elif can_intro and not reviews_used and remaining >= need_for_new and (more := self.select_new(1, exclude=taught() | deferred)):
                     # an extra item for a lesson with nothing to review (the first ones); a lesson
                     # that ran out of reviews takes a fresh arc below instead
                     do_intro(more[0])
@@ -4384,7 +4470,7 @@ class Planner:
                     and not new_queue
                     and remaining >= need_for_new
                     and self._may_start_arc(current_arc_id + 1, early_tier, far_short=sc.total_duration < budget / 2)
-                    and (more := self.select_new(arc_size(capped=early_tier < 2), exclude=taught()))
+                    and (more := self.select_new(arc_size(capped=early_tier < 2), exclude=taught() | deferred))
                 ):
                     # A fresh arc of new material rather than a second review pass: the new-item
                     # cap bounds an arc, not the lesson (see _may_start_arc). Only once the review
@@ -4528,7 +4614,9 @@ class Planner:
                     continue  # #270: the closing recall of a noun is its sentence too, or nothing once that has been said enough, never the bare word
                 if item.kind == "vocab" and cue_is_answer(item):
                     continue  # #277: the closing recall of a part whose cue is its answer asks nothing
-                ex = b.recall(sc, item, stage)
+                ex = recall_ex(item, stage)
+                if ex is None:
+                    continue
                 self._record([item.id], ex.stage or stage, ex.item_ids)
                 closed.update(ex.item_ids)  # «Fer þessi strætó í miðbæinn?» for the new pattern says the new destination too: not asked a second time for it (lesson 27)
             if cfg.late_unhinted_recall:
@@ -4588,6 +4676,7 @@ class Planner:
                 "priority_items": len(cfg.priority),  # a count only: the list may reflect a private profile
                 "levers": {"late_unhinted_recall": cfg.late_unhinted_recall, "dialogue_full_play_limit": cfg.dialogue_full_play_limit},
                 "order": cfg.order,
+                "trusted": self.trust_on,
                 "seed": cfg.seed,
                 "level": self.timing.level,
             },
@@ -4596,6 +4685,7 @@ class Planner:
             "embedded_items": list(self.embedded),
             "pattern_instances": list(self.pattern_instances),
             "intro_skipped": list(intro_skipped),
+            "trust_deferred": sorted(deferred),  # patterns with no worked example the trust check allows: they wait for a later lesson
             "rotation_guard": guard_used[0] and delivered_at[0] is None,  # #294: the second half started because nothing more could be selected, the target not counted as taught
             "repeated_new_sentences": self._repeated_new_sentences(sc, introduced),  # #311: a new phrase asked as the same sentence in more than 3 exercises ({} expected)
             "closing_left": closing_left,

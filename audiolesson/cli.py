@@ -59,6 +59,8 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--profile", "-p", default=None, help="voice profile .toml (see profiles/)")
     g.add_argument("--provider", default=None, help="TTS provider: stub, espeak, edge, openai, say (overrides profile)")
     g.add_argument("--no-audio", action="store_true", help="only write the script and transcript")
+    g.add_argument("--untrusted", action="store_true", help="say lines with a pair of neighbouring words no Icelandic text has too (the trust "
+                   "check, on by default: curricula/<course>/trust/pairs.json, the owner 2026-11-28)")
     g.add_argument("--late-unhinted-recall", action="store_true", help="lever (#136): the closing recall of each new item gives no hint")
     g.add_argument("--trip", default=None, help="private trip profile .toml (#132): teach the can-do items (for its season) first; its contents are never written to outputs")
     g.add_argument("--cache", default=None, help="TTS cache directory (default: cache/<provider> under --out, or under --root with --user); safe to share between learners")
@@ -335,6 +337,7 @@ def cmd_generate(args) -> int:
         theme_scenarios=theme_scenarios,
         late_unhinted_recall=args.late_unhinted_recall,
         order=args.order,
+        trusted=not args.untrusted,
     )
     unknown_topics = [t for t in cfg.topics if t not in cur.topics()]
     if unknown_topics:
