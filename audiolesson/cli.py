@@ -928,8 +928,7 @@ def cmd_questions(args) -> int:
         if it is not None and it.kind != "construction":
             out[i] = {"prompt": _review_cue(cur, prompts, it), "answer": it.target, "cues": _review_cues(cur, prompts, it),
                       "also": also_answers(cur, [i], it.target)}
-            if it.literal:
-                out[i]["literal"] = it.literal  # #627: shown with the answer
+            out[i]["literal"] = it.literal  # #627: shown with the answer; "" drops a stored one
     print(json.dumps(out, ensure_ascii=False))
     return 0
 

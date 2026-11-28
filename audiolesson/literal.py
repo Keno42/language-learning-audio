@@ -37,13 +37,14 @@ def candidates(cur) -> list[tuple[object, list[str]]]:
 
 
 def with_literal_words(cur, review: list[dict]) -> list[dict]:
-    """#627: a written question whose answer is one item's target, where the item has authored literal words, carries them (``literal``), for the
-    bot to show with the answer. A question answered by a longer sentence is left as it is: the literal words are the item's, not the sentence's."""
+    """#627: every written question carries ``literal``, worked out afresh: the item's authored literal words when its answer is that one item's
+    target, else "" (a longer sentence's answer, or an item with none). Never a value the question came in with: a refined answer or a removed
+    literal would leave it beside an answer it does not describe, and "" tells the bot to drop the one it stored."""
     out = []
     for q in review:
         items = q.get("items") or []
         it = cur.by_id.get(items[0]) if len(items) == 1 else None
-        if it is not None and it.literal and isinstance(q.get("answer"), str) and q["answer"].strip() in (it.target.strip(), (it.target_m or "").strip()):
-            q = {**q, "literal": it.literal}
-        out.append(q)
+        answer = q.get("answer").strip() if isinstance(q.get("answer"), str) else None
+        words = it.literal if it is not None and it.literal and answer in (it.target.strip(), (it.target_m or "").strip()) else ""
+        out.append({**q, "literal": words})
     return out

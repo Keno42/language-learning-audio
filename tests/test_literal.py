@@ -49,8 +49,17 @@ class LiteralTests(unittest.TestCase):
         out = with_literal_words(cur, [q, {**q, "answer": "Ég sakna fjölskyldunnar minnar heima."}, {**q, "items": [it.id, "takk"]}])
         self.assertEqual(out[0]["literal"], LITERAL["en"])
         self.assertEqual(out[0]["prompt"], q["prompt"], "the prompt is unchanged: the literal words would give the answer away")
-        self.assertNotIn("literal", out[1], "a longer answer is not the item's words")
-        self.assertNotIn("literal", out[2])
+        self.assertEqual(out[1]["literal"], "", "a longer answer is not the item's words")
+        self.assertEqual(out[2]["literal"], "")
+
+    def test_a_question_that_came_in_with_one_is_worked_out_afresh(self):
+        """Review of #640: a queued question carrying a literal, refined to a longer answer or after the literal was removed, kept the old one."""
+        cur, it = course("en")
+        old = {"items": [it.id], "prompt": "Say you miss your family.", "answer": it.target, "literal": "stale words"}
+        self.assertEqual(with_literal_words(cur, [old])[0]["literal"], LITERAL["en"])
+        self.assertEqual(with_literal_words(cur, [{**old, "answer": "Ég sakna fjölskyldunnar minnar."}])[0]["literal"], "")
+        it.literal = ""
+        self.assertEqual(with_literal_words(cur, [old])[0]["literal"], "", "removed: \"\" tells the bot to drop the stored one")
 
     def test_a_japanese_lesson_without_its_own_literal_says_none(self):
         """A literal authored only in English is not said in a Japanese lesson: none rather than English in Japanese."""
