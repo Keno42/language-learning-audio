@@ -395,3 +395,18 @@ meaning_spoken_ja = "指示：ここでは、こう言います"
 difficulty = 1
 topics = ["instructions"]
 command = "listening_line"
+
+# #429 step 14: a part's sentence right after the exercise that practised it, «Use it in a sentence.» (9 times in lessons 70–77 and 9 in 78–79
+# on the replay of lesson 70's export, the most frequent English instruction left), said before «Segðu:». «Notaðu það í setningu.» says the same
+# words; the learner has «það», «í» and «setningu» («Segðu hverja setningu.»), and «notaðu» is new. Candidates until native-checked (#209).
+[[items]]
+id = "notadu_thad_i_setningu_command"
+kind = "phrase"
+target = "Notaðu það í setningu."
+meaning = "the instruction \"Use it in a sentence\""
+meaning_ja = "指示の「文の中で使ってください」"
+meaning_spoken = "An instruction: Use it in a sentence"
+meaning_spoken_ja = "指示：文の中で使ってください"
+difficulty = 1
+topics = ["instructions"]
+command = "recombine_vocab_again_lead"
