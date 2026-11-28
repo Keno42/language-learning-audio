@@ -1795,7 +1795,7 @@ class Builder:
             self._narr(sc, ex, self._as(gender, self._situation(item)))  # type: ignore[arg-type]
             self._answer_pause(sc, ex, target, item, generative=True)
         else:  # meaning (also the fallback for 'dialogue' when no dialogue fits)
-            self._narr(sc, ex, self._as(gender, self._meaning_prompt(item.spoken_meaning, item.context)))
+            self._narr(sc, ex, self._as(gender, self._meaning_prompt(item.cue_meaning, item.context)))
             self._answer_pause(sc, ex, target, item, generative=False)
         self._answer(sc, ex, target, speaker=voice)
         asked_before = self.produced[_norm_utterance(target)]
