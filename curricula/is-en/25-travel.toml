@@ -379,9 +379,8 @@ prereqs = ["vegabref", "eg_er_med"]
 id = "ertu_med"
 kind = "construction"
 target = "Ertu með {thing}?"
-meaning = "Do you have {thing} (with you)?"
-meaning_ja = "{thing}を持っていますか？"
-meaning_spoken = "Do you have {thing} with you?"
+meaning = "Do you have {thing} on you?"  # whether they have it with them now; «Áttu …?» asks whether they have one at all
+meaning_ja = "今{thing}持ってる？"
 difficulty = 2
 topics = ["travel"]
 slots = { thing = "acc_have" }

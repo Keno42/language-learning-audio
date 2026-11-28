@@ -247,7 +247,7 @@ kind = "construction"
 target = "Áttu {thing}?"  # native check (2026-11-18): asks whether someone has one of their own (a friend); shop staff are asked «Ertu með
 # peysur?» or «Selurðu peysur?» (the dialogue «peysubud»), not «Áttu peysu?»
 meaning = "Do you have {thing}?"
-meaning_ja = "{thing}はありますか？"
+meaning_ja = "{thing}ある？"  # whether one has it at all, said to a friend (þú); «Ertu með …?» asks whether they have it on them now
 difficulty = 2
 topics = ["shopping"]
 slots = { thing = "acc_thing" }

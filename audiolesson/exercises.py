@@ -1561,6 +1561,7 @@ class Builder:
         self.wholes_taught[item.id] = {"through": construction.id, "answer": target, "meaning": meaning}
         ex = sc.new_exercise("intro", "intro", [item.id], f"new: {target} ({item.target})")
         self.said[_norm_utterance(target)] += 1  # the introduction counts once, however often it models the line
+        self._intro_scene(sc, ex, construction, fills)
         self._narr(sc, ex, self.prompts.get("intro_whole", meaning=self._m(meaning)))
         self._beat(sc, ex)
         self._speak(sc, ex, target, speaker=voice)
@@ -1672,6 +1673,7 @@ class Builder:
             gender_, target_ = self._filled(item, fills)
             self.modeled_wholes[f.id] = {"through": item.id, "answer": target_, "meaning": meaning, "gender": gender_}
         known_example = not self.is_new_utterance(target)  # #239: «Eigðu góðan dag.» is known: the pattern is that phrase with other words, not news
+        self._intro_scene(sc, ex, item, fills)
         if known_example:
             self._frame(sc, ex, self.prompts.get("embed_known"))
             self._speak(sc, ex, target)
@@ -1818,6 +1820,14 @@ class Builder:
         self._beat(sc, ex)
         self._frame(sc, ex, self.prompts.get("also"))
         self._speak(sc, ex, self.rng.choice(alternatives), speaker=speaker or "native_a", role="alternative")
+
+    def _intro_scene(self, sc: Script, ex: Exercise, construction: Item, fills: dict[str, Item]) -> None:
+        """A pattern's sentence is introduced in its scene, the scene check's line, so the first hearing says where and to whom it is said
+        («Áttu vegabréf?», whether a friend has one, against «Ertu með vegabréfið?», whether they have it on them now): nothing when the sentence
+        has no line in the learner's language."""
+        scene = self.fill_scene(construction, fills)
+        if scene:
+            self._narr(sc, ex, scene, role="scene")
 
     def fill_scene(self, construction: Item, fills: dict[str, Item]) -> str | None:
         """The scene check's line for a pattern's sentence (from ``[scenes.<pattern>]``): the line of the one fill that has one (``Item.fill_scenes``), else
