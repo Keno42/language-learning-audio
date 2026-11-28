@@ -17,19 +17,22 @@
 
 [scenes.attu]
 leigubil = false  # «Áttu leigubíl?»: you don't ask someone whether they own a taxi (#192)
-vegabref = "Your Icelandic friend wants to visit you in Japan next year."  # asks whether one owns a passport (#192's point): so a trip being planned, not the way to the airport («Ertu með vegabréfið?»)
-poka = "Your friend is carrying her shopping in her arms."  # native check (2026-11-18): «Áttu …?» is asked of a person, not shop staff
-peysu = "Your friend is shivering on the boat."
-sundfot = "Your friend wants to come to the pool with you."
-mida = "The bus is coming, and your friend is searching her pockets."
-ost = "You're cooking at your friend's flat."
-egg = "You're cooking at your friend's flat."
-smjor = "You're cooking at your friend's flat."
-mjolk = "You're cooking at your friend's flat."
-epli = "You're cooking at your friend's flat."
+vegabref = { en = "Your Icelandic friend wants to visit you in Japan next year.", ja = "アイスランド人の友だちが、来年日本に遊びに来たがっています。" }  # asks whether one owns a passport (#192's point): so a trip being planned, not the way to the airport («Ertu með vegabréfið?»)
+poka = { en = "Your friend is carrying her shopping in her arms.", ja = "友だちが、買ったものを腕に抱えています。" }  # native check (2026-11-18): «Áttu …?» is asked of a person, not shop staff
+peysu = { en = "Your friend is shivering on the boat.", ja = "船の上で、友だちが寒さに震えています。" }
+sundfot = { en = "Your friend wants to come to the pool with you.", ja = "友だちが、一緒にプールに行きたがっています。" }
+mida = { en = "The bus is coming, and your friend is searching her pockets.", ja = "バスが来たのに、友だちがポケットの中を探しています。" }
+ost = { en = "You're cooking at your friend's flat.", ja = "友だちの家で料理をしています。" }
+egg = { en = "You're cooking at your friend's flat.", ja = "友だちの家で料理をしています。" }
+smjor = { en = "You're cooking at your friend's flat.", ja = "友だちの家で料理をしています。" }
+mjolk = { en = "You're cooking at your friend's flat.", ja = "友だちの家で料理をしています。" }
+epli = { en = "You're cooking at your friend's flat.", ja = "友だちの家で料理をしています。" }
 
 [scenes.erud_thid_med]
-"*" = "In a shop, you can't see what you want."
+"*" = { en = "In a shop, you can't see what you want.", ja = "お店で、欲しいものが見当たりません。" }
+
+[scenes.ertu_med]
+"*" = { en = "You're about to head out together.", ja = "これから一緒に出かけます。" }  # whether they have it on them now, not whether they own one («Áttu …?»)
 
 [scenes.ma_eg_inf]
 sofa = false  # «Má ég sofa?»: a traveller does not ask permission to sleep (#333)

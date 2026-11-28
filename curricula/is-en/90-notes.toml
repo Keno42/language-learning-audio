@@ -769,3 +769,14 @@ contrast = true
 topics = ["grammar", "social"]
 text = "«Hefurðu komið hingað áður?» asks whether you have come here before. «Komið» comes from 'to come'. «Hingað» is here, as the place you come to. You answer with the line you know: «Ég hef verið hér áður.» In it, «verið» comes from 'to be'. And «hér» is here, the place where you are."
 text_ja = "«Hefurðu komið hingað áður?» と聞かれることがあります。「前にここに来たことがありますか？」という意味です。«komið» は «koma»（来る）の形です。«hingað» は「ここへ」、来る先としての「ここ」です。答えは知っている文で言えます。«Ég hef verið hér áður.» この文の «verið» は «vera»（いる）の形です。そして «hér» は「ここに」、今いる場所としての「ここ」です。"
+
+# The owner, 2026-11-28 (a new learner's lesson 1): «Áttu …?» and «Eruð þið með …?» were told apart only by a nuance of their glosses. «Áttu»
+# (eiga) asks whether someone has a thing at all, «Ertu með» (vera með) whether they have it on them now; a shop is asked the second, to
+# the staff together. Said once, when the learner has both (candidates until native-checked, #209).
+[[notes]]
+id = "attu_ertu_med"
+items = ["attu", "ertu_med"]
+contrast = true
+topics = ["shopping", "travel"]
+text = "There are two ways to ask if someone has something. «Áttu vegabréf?» asks whether they have a passport at all. «Ertu með vegabréf?» asks whether they have it on them now. In a shop, you ask the staff together, with «Eruð þið með». «Eruð þið með mjólk?» is how you ask whether they sell milk."
+text_ja = "誰かが何かを持っているかを聞く言い方は、二つあります。«Áttu vegabréf?» は、パスポートをそもそも持っているかを聞きます。«Ertu með vegabréf?» は、今パスポートを持っているかを聞きます。お店では、店員さんたちに向けて «Eruð þið með» と聞きます。«Eruð þið með mjólk?» は、牛乳を置いているかを聞く文です。"

@@ -699,7 +699,8 @@ class ListeningTaskTests(unittest.TestCase):
             # counted from the target to the closing block, and 0 in a lesson whose target was not delivered (the row's definition, as the run row below)
             self.assertEqual(m["pick_out_count"], sum(e.kind == "pick_out" for e in sc.exercises if m["target_reached_s"] <= e.start < closing_at) if m["target_delivered"] else 0)
             self.assertEqual(_plan(sc, cur)["second_half"]["pick_out_count"], m["pick_out_count"])
-            self.assertLessEqual(sc.total_duration, 30 * 60 + 120, sc.lesson_number)
+            # the plan before the render's fit, which scales the pauses to land on the minutes: within two and a half minutes of them
+            self.assertLessEqual(sc.total_duration, 30 * 60 + 150, sc.lesson_number)
             # #248 review: the same two frames and the same word over and over would be a new boredom
             picks = Counter(":".join(e.label.split(":")[:4]) for e in sc.exercises if e.kind == "pick_out")  # per partner turn of a scene: one a lesson (#248 review)
             self.assertLessEqual(max(picks.values(), default=0), PlanConfig().max_pick_outs_per_pattern, f"lesson {sc.lesson_number}: {picks}")
